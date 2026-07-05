@@ -1,0 +1,11 @@
+## Trigger Event
+Story B-785e (DONE, 2026-07-05) shipped artifact release AR-4e885ed0209e5a32330cdc33 and candidate playbook PBP-882, verified live in .lattice/artifact-releases.jsonl and .lattice/learning/playbooks.json. PBP-882.lineage has sourceStoryId=B-785e, sourceSignature=done_experience, but no capabilityReleaseId/artifactReleaseId. The execution plan product-capability-release-playbook-lineage-execution-plan.md was authored to close this specific gap.
+
+## Key Insights
+DONE learning ingestion already works: post-done-learning-settlement records a health row that explicitly infers no helped outcome from DONE success alone, and candidate ingest creates inert candidates. The gap is purely product-semantics: no first-class product capability release record binds artifact releases and playbook candidates. The right fix is NOT to activate DONE candidates; it is to make capability releases first-class (non-runtime, non-authoritative) and bind lineage, keeping candidates inert until exposure + structured outcome + evidence-based promotion.
+
+## Solution Tradeoffs
+We mirror the proven artifact-release.ts architecture (ledger, schemaVersion, sha256 idempotency, read-only handlers) rather than invent a new pattern, so review surface and risk stay low. Capability release ledger stays separate from package semver and from artifact release to avoid conflating a second semver. Classifier is conservative: uncertain -> no release + advisory, to avoid overreach. Candidate exposure is gated to pendingLearning/candidate-inspection only. Alternative rejected: auto-binding all DONE candidates or auto-activating PBP-882 would break the inert-candidate safety invariant.
+
+## Conversational Texture
+Operator (2026-07-05) asked to implement M0-M8 to full DONE, with locked acceptance: (1) PBP-882/B-785e get capabilityReleaseId/artifactReleaseId lineage; (2) candidate cannot go directly active; (3) must have pendingLearning/candidate-inspection exposure path; (4) outcome must come from concrete exposure + structured verdict; (5) promotion/active must be evidence-based; (6) DONE success alone cannot count as helped. These map across all nine milestones, so the story implements the full M0-M8 set, not the doc's reduced V1 slice.
