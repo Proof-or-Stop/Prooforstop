@@ -62,6 +62,18 @@
           "materialHash": "ea1c2a00886923ab777057dd072d00b9b4784fc36ab92812920ab7d9c8f09043",
           "storyFilesHash": "6b0a9ee784af121c5d2ea5306b6d5af9afeb70e7f1412685cf72f1507a7e5e78",
           "timestamp": "2026-07-05T23:13:40.033Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/capability-release-backfill-smoke.ts",
+          "command": "node packages/main/dist/tasks/capability-release-backfill-smoke.js",
+          "result": "pass",
+          "note": "Edge: --apply requires --digest matching the current dry-run planDigest (wrong digest and missing digest both refused); a second dry-run after apply finds 0 eligible (idempotent, no duplicate); a story with no capability release (B-9999) yields 0 eligible. All asserted.",
+          "headHash": "ed8296d6374f02f335f6775f4f1668ceb15b7abd",
+          "materialHash": "ea1c2a00886923ab777057dd072d00b9b4784fc36ab92812920ab7d9c8f09043",
+          "storyFilesHash": "6b0a9ee784af121c5d2ea5306b6d5af9afeb70e7f1412685cf72f1507a7e5e78",
+          "timestamp": "2026-07-05T23:13:49.171Z"
         }
       ]
     },
