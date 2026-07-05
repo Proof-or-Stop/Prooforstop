@@ -302,9 +302,9 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-05T12:05:05.503Z",
       "verificationEvidence": [
         {
           "intentRef": "CHK-004:happy:0",
@@ -372,6 +372,16 @@
       "timestamp": "2026-07-05T12:05:04.973Z",
       "phase": "DEV",
       "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Material implementation committed in 101c5314 and verification evidence recorded for this checklist item.",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-07-05T12:05:05.503Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
       "action": "update",
       "from": "pending",
       "to": "done",
