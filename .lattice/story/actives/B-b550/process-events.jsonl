@@ -13,3 +13,6 @@
 {"type":"subagent_result","checklistId":"CHK-007","success":true,"timestamp":"2026-07-05T14:16:32.828Z"}
 {"type":"subagent_result","checklistId":"CHK-008","success":true,"timestamp":"2026-07-05T14:16:34.035Z"}
 {"type":"review_pass","storyId":"B-b550","command":"review_pass_set","role":"reviewer","agent":"lattice-review-concept","result":"pass","reviewPassId":"B-b550:RP-001","timestamp":"2026-07-05T14:22:25.482Z"}
+{"type":"dirty_gate_audit","storyId":"B-b550","gate":"validate-side-effect","category":"lattice_metadata_changes","pathCount":1,"paths":[".lattice/story/actives/B-b550/review-runs.json"],"reason":"lattice-owned story metadata; auto-committed by B-3506 helper","timestamp":"2026-07-05T14:23:08.350Z"}
+{"type":"review_pass","storyId":"B-b550","command":"review_pass_set","role":"reviewer","agent":"lattice-review-quality","result":"pass","reviewPassId":"B-b550:RP-002","timestamp":"2026-07-05T14:23:15.394Z"}
+{"type":"dirty_gate_audit","storyId":"B-b550","gate":"validate-side-effect","category":"lattice_metadata_changes","pathCount":1,"paths":[".lattice/story/actives/B-b550/review-passes.json"],"reason":"lattice-owned story metadata; auto-committed by B-3506 helper","timestamp":"2026-07-05T14:23:15.482Z"}
