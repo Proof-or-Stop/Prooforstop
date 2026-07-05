@@ -138,13 +138,13 @@
         {
           "intentRef": "CHK-001:adversarial:2",
           "kind": "manual_transcript",
-          "command": "git show HEAD:...plan.md | grep -n 'never outcome-judging'; | grep -n 'no model'",
+          "command": "git show HEAD:docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md | grep -n 'never outcome-judging'; git show HEAD:docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md | grep -n 'no model'",
           "result": "pass",
-          "note": "L272 section 6.5 header contains the exact phrase 'never outcome-judging'; L274 body states 'The OUTCOME judge is deterministic code (analyze-batch.mjs); no model — Claude or Codex — ever judges a hypothesis.' Cross-vendor fairness rule intact as the operator decided.",
-          "headHash": "005b5e344dcb6077cd54cbfa4586571a5f1cbfa3",
-          "materialHash": "5ee9a75f5766b282a5452b5db8b53ef4d28990584f64a1b3d8a648e6e7d091bf",
-          "storyFilesHash": "3b9eafb3006074ecd3705943b7dbb1fa2483ffb523da494678f4d0b11b223006",
-          "timestamp": "2026-07-05T13:57:00.528Z"
+          "note": "Section 6.5 title 'never outcome-judging' and body 'no model - Claude or Codex - ever judges a hypothesis' both present at HEAD a14555248 — cross-vendor roles never adjudicate outcome.",
+          "headHash": "755551000181dc1a910e822874f6f1c5bad4f458",
+          "materialHash": "c8ee02838c0e62f0f4020fa4efcfc4aa454a44def31c59ab8459ff37b2a2d676",
+          "storyFilesHash": "1c3b6945ef99d80b4169b425ef84a8f66f15fbd941b061664e2051bfc19b2fcf",
+          "timestamp": "2026-07-05T14:08:32.766Z"
         },
         {
           "intentRef": "CHK-001:adversarial:3",
