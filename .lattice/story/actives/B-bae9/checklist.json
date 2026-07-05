@@ -130,6 +130,17 @@
           "materialHash": "318dd01bb34cf99e845d38168702ab879c50f9ffcd1e2b31c40d8c35fecfde56",
           "storyFilesHash": "5d6c2c04943b76c548f58858c097f59b562b6e871829aadcc368bb98ed0a1c6b",
           "timestamp": "2026-07-05T17:29:36.260Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/pos-instrument-replay/tamper.mjs",
+          "result": "pass",
+          "note": "tamper.mjs matches numeric metrics by the frozen predicate form (fields with a frozen op '<' require live strictly-below-threshold + within epsilon; others epsilon-tolerant equality), NOT raw float equality — so all 27 classes matched with 0 spurious float mismatches (fingerprintMatch:false count=0). Confirmed by the clean run (mismatches=0) despite float-valued gold rates.",
+          "headHash": "c9da5bd53d47e1cb6dd1251e2668ca4b2724ba45",
+          "materialHash": "318dd01bb34cf99e845d38168702ab879c50f9ffcd1e2b31c40d8c35fecfde56",
+          "storyFilesHash": "5d6c2c04943b76c548f58858c097f59b562b6e871829aadcc368bb98ed0a1c6b",
+          "timestamp": "2026-07-05T17:33:25.491Z"
         }
       ]
     },
