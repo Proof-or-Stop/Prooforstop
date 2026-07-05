@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-9e44",
+  "checkedAt": "2026-07-05T15:05:43.207Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "b72d1e511dfb970a7f4981f7638d7564fe5039147ddaff9298e7409200a42ea8",
+  "executionBoundaryHash": "a9cfab47b9a6f73d18c16cf0bff7b2f73302eb673649bf5d7026494642253943",
+  "freshnessHash": "c1484e082c15f4d6ab02297bb65d7e9daaaf03ecd0f547090f5cad869eb27227",
+  "effectiveExcludedKeywords": [
+    "analyze-batch.mjs (M4 milestone analyzer)",
+    "resume-probe.mjs (M3 milestone probe)",
+    "run-batch.mjs (M2 milestone driver)",
+    "tamper.mjs (M1 milestone harness)",
+    "the instrument core (read/called only, never modified)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "analyze-batch.mjs (M4 milestone analyzer)",
+      "source": "scopeBoundary.excluded",
+      "text": "analyze-batch.mjs (M4 milestone analyzer)",
+      "excluded": true
+    },
+    {
+      "keyword": "resume-probe.mjs (M3 milestone probe)",
+      "source": "scopeBoundary.excluded",
+      "text": "resume-probe.mjs (M3 milestone probe)",
+      "excluded": true
+    },
+    {
+      "keyword": "run-batch.mjs (M2 milestone driver)",
+      "source": "scopeBoundary.excluded",
+      "text": "run-batch.mjs (M2 milestone driver)",
+      "excluded": true
+    },
+    {
+      "keyword": "tamper.mjs (M1 milestone harness)",
+      "source": "scopeBoundary.excluded",
+      "text": "tamper.mjs (M1 milestone harness)",
+      "excluded": true
+    },
+    {
+      "keyword": "the instrument core (read/called only, never modified)",
+      "source": "scopeBoundary.excluded",
+      "text": "the instrument core (read/called only, never modified)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "e4daa8d2fdd03236ec5e30a0b32c7d63f1df62d48ed39f7136165b3788362c51"
+}
