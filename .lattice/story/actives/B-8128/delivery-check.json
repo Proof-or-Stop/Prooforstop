@@ -1,0 +1,102 @@
+{
+  "storyId": "B-8128",
+  "checkedAt": "2026-07-05T18:11:02.685Z",
+  "headHash": "a6b6ca1affd1883e904734ea688283211a090558",
+  "materialHash": "655ec6ece9b7d4ec8a537d49e8bda04fa2bfcd161a7b96bbba26f3cd0cf94fa3",
+  "storyFilesHash": "f9b1dc1208256961ac27985f7b757d8c56c11ad584d2a9c387ec1f49359a162e",
+  "reviewRound": "2026-07-05T17:34:07.372Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/CLI.md#product-capability-release",
+      "promise": "DONE merges maintain a non-runtime product capability release provenance ledger at .lattice/capability-releases.jsonl keyed by a deterministic merge-stable capabilityDigest/capabilityVersion derived only from capability-declaring docs/** and experiments/** paths (no mainCommit/timestamp/counter in any digest or key), non-authoritative and never gate evidence (authority always non_authoritative, gateEvidence always false, enforced fail-closed at read time).",
+      "verifiedBy": "diff/grep/run",
+      "evidence": "packages/main/src/core/capability-release.ts implements ProductCapabilityReleaseRecord, computeCapabilityDigest (excludes mainCommit/timestamp/counter), buildCapabilityReleaseRecord (idempotencyKey = storyId:capabilityId:capabilityDigest, excludes mainCommit), readCapabilityReleaseLedger (throws on authority!==non_authoritative or gateEvidence!==false). product-capability-release-smoke.js verifies all of this live (23/23 checks pass, re-run fresh)."
+    },
+    {
+      "docPath": "docs/CLI.md#product-capability-release",
+      "promise": "lattice capability_release_list --format=json --limit=20 and lattice capability_release_status --storyId=B-xxxx --format=text are read-only; text output is one line per record (storyId capabilityId capabilityVersion capabilityKind paths=<n> runtimeSemverChanged=<bool>); JSON returns plain records or {storyId, count, latest, records}.",
+      "verifiedBy": "diff/grep/run",
+      "evidence": "Live run: node packages/main/dist/cli.js capability_release_list --format=json -> []; capability_release_status --storyId=B-785e --format=json -> {storyId,count:0,latest:null,records:[]} (exact shape). handlers/capability-release.ts only calls readCapabilityReleaseLedger (no writes). Registered read-only at all 5 sites: command-catalog.ts (schema), registry.ts (registerBatch), command-policy.ts (ownershipClass:readOnly, destructiveRisk:none, allowedPhases:all), core/config.ts DEFAULT_PHASE_TOOLS capability_release_* wildcard, process-fact-levels.ts L0 entries."
+    },
+    {
+      "docPath": "docs/requirements/decisions/product-capability-release-playbook-lineage-execution-plan.md",
+      "promise": "V1 (story B-8128) ships M0-M5 fully plus M6/M7 as assert-invariant smokes (already-enforced candidate-inert and DONE-success-not-helped guarantees) and a lightweight hermetic backfill proof; the standalone capability_release_backfill CLI command (M8), M6 candidate pending-learning exposure surfaces, and M7 structured-outcome/promotion command surfaces are explicitly DEFERRED to a named follow-up story and must not be declared shipped in V1.",
+      "verifiedBy": "diff/grep/run",
+      "evidence": "capability_release_backfill is NOT registered: running it with --dryRun --storyId=B-785e --format=json returns Unknown command. learning-store.ts (owner of exposureMode/pendingLearning/promotion machinery) has ZERO diff lines vs main confirming M6/M7 exposure/promotion infra is pre-existing, not newly built by this story. story summary.json limitations field states the same deferral explicitly."
+    },
+    {
+      "docPath": "docs/requirements/decisions/product-capability-release-playbook-lineage-execution-plan.md#M5",
+      "promise": "playbook_promotion_status gains a candidate-lineage display column surfacing candidate playbook capability lineage (capabilityReleaseId/capabilityId/capabilityVersion) read-only, without new imports beyond the already-loaded lineage.",
+      "verifiedBy": "diff/grep/run",
+      "evidence": "packages/main/src/handlers/playbook.ts diff adds capabilityRelease field to pendingLearning entries (json + text renderer) sourced from row.playbook.lineage (no new import). capability-release-invariants-smoke.js M5 check passes live. Live run of playbook_promotion_status --format=json on the real host-local playbooks.json (889 pre-existing candidates, none with a bound capability release) correctly omits the field when absent, confirming no fabricated data. Note: an earlier review round (finding B-8128:F-006, medium, resolved) caught this exact promise unmet before the fix landed; this reviewer independently re-verified the fix is real, not just the resolvedReason claim."
+    },
+    {
+      "docPath": "docs/requirements/decisions/product-capability-release-playbook-lineage-execution-plan.md#M2-M3",
+      "promise": "The DONE capability classifier is invoked from BOTH DONE completion sites (done-effects.ts and done-recover.ts) importing one shared core classifier so the two paths cannot diverge; capability release binding dedups on a merge-stable idempotencyKey so a different mainCommit does not create a duplicate on recovery re-merge.",
+      "verifiedBy": "diff/grep/run",
+      "evidence": "handlers/done-effects.ts adds runCapabilityReleaseLedgerAfterDoneMerge call in applyDoneMergeEffects; handlers/done-recover.ts adds the same call in the recover path; both import recordCapabilityReleaseForDoneMerge from core/capability-release.ts. product-capability-release-smoke.js verifies a different mainCommit yields the SAME id/key and append dedups on idempotencyKey plus a done_recover-path fixture, all passing live."
+    },
+    {
+      "docPath": "docs/requirements/decisions/product-capability-release-playbook-lineage-execution-plan.md#M4",
+      "promise": "PlaybookLineage gains 5 OPTIONAL capability fields; existing 3-field lineage rows remain valid; DONE candidate ingest enrichment is idempotent on re-apply (not digest equality) and fail-open on a tampered/unreadable capability ledger.",
+      "verifiedBy": "diff/grep/run",
+      "evidence": "core/experience-layer-types.ts PlaybookLineage interface diff adds 5 optional fields. core/playbook-seed.ts adds enrichSeedWithCapabilityLineage (fail-open via try/catch on ledger read) and threads it through buildPlaybookSeedProposalBatch and buildPlaybookSeedBackfillReport. playbook-capability-lineage-smoke.js passes 6/6 live: legacy 3-field lineage still parses, re-apply produces no duplicate, tampered ledger fails open."
+    },
+    {
+      "docPath": "docs/requirements/decisions/product-capability-release-playbook-lineage-execution-plan.md#gitignore",
+      "promise": "The capability ledger .lattice/capability-releases.jsonl is git-tracked (un-ignored) mirroring the artifact-releases.jsonl pattern, so it is the cross-host source of truth.",
+      "verifiedBy": "diff/grep",
+      "evidence": ".gitignore diff adds an un-ignore rule for .lattice/capability-releases.jsonl immediately after the existing artifact-releases.jsonl rule. commitCapabilityReleaseLedgerIfNeeded in done-effects.ts uses git add -f mirroring commitArtifactReleaseLedgerIfNeeded."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "product-capability-release-red-smoke.js run live: ok product-capability-release M4 lineage binding (candidate binds capability release) - hermetic mkdtemp fixture (not live .lattice), proves the gap then verifies it closes once lineage binding is applied to the same fixture."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "product-capability-release-smoke.js covers: deterministic/merge-stable capabilityDigest, digest changes on input change, artifact-less digest stability, capabilityVersion 12-hex derivation, capabilityId slug derivation, PCR id + idempotencyKey exclusion of mainCommit, dedup on idempotencyKey, reader fail-closed on authority/gateEvidence/malformed-JSON, negative-invariant guard (no gate/DONE/validate/delivery module imports the reader). 23/23 checks pass live."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "product-capability-release-smoke.js M2 classifier checks: experiment+doc paths -> experiment-launch-control; docs-only -> documentation-control; typo-only single doc edge case; packages/main/src runtime-only -> NO capability release; .lattice/docs-story/root-manifest-only -> NO capability release. All pass live."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "product-capability-release-smoke.js M3 checks: recordCapabilityReleaseForDoneMerge skips empty; different mainCommit yields already_recorded with no duplicate (adversarial); done_recover happy path records exactly one PCR and commits the ledger; done_recover edge path (.lattice-metadata-only) records NO PCR. All pass live."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "playbook-capability-lineage-smoke.js 6/6 checks pass live: happy (candidate binds release), edge (no release keeps 3-field lineage), edge (legacy 3-field still parses), edge (no-op enrichment with no match), adversarial (re-apply no duplicate/no stale-rejection), adversarial (tampered ledger fails open)."
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "product-capability-release-smoke.js M5 CLI check (list/status render read-only, json+text, reject missing storyId) plus capability-release-invariants-smoke.js M5 check (playbook_promotion_status surfaces candidate capability-release lineage in text+json). Independently re-verified with live CLI invocations: capability_release_list, capability_release_status, playbook_promotion_status (889 real candidates, field correctly absent when no capability release matches)."
+    },
+    {
+      "featureId": "CHK-010",
+      "transcript": "Independently re-ran (not trusting stored test-evidence.json): npm build succeeds; fresh lattice validate --json returns status=pass, allPass=true, all 38 configured commands pass including all 4 new capability smokes at indices 32-35; M0 red-smoke individually reproduced."
+    },
+    {
+      "featureId": "CHK-011",
+      "transcript": "capability-release-invariants-smoke.js M6 checks pass live: capability-flavored candidate excluded from matchRuntimePlaybooks; candidate absent from MemoryFreshnessPack.results.playbookIds; flipping same playbook to active proves status active is the actual gate."
+    },
+    {
+      "featureId": "CHK-012",
+      "transcript": "capability-release-invariants-smoke.js M7 checks pass live: done-settlement helped outcome NOT counted; structured non-done helped outcome IS counted; decisiveSamples excludes done-settlement/neutral/unknown."
+    },
+    {
+      "featureId": "CHK-013",
+      "transcript": "capability-release-invariants-smoke.js BACKFILL check passes live: dry-run detects exactly one eligible seed lacking capability lineage over a B-785e-shaped fixture (hermetic, not live PBP-882)."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 7 docsPromises independently verified against source and live CLI runs, including the two read-only commands and their 5-site registration, both DONE completion sites, the fail-closed reader, and the merge-stable idempotency contract. All 4 new smokes and a fresh full lattice validate (38/38 configured commands, including the 4 new smokes) were independently re-run and pass. Deferred items (capability_release_backfill CLI, M6 exposure surfaces, M7 promotion surfaces) are confirmed NOT shipped (unknown-command check; learning-store.ts has zero diff lines) and are not claimed as delivered anywhere in docs/CLI.md or the story summary. A prior reviewer round (F-006) caught the exact playbook_promotion_status doc-code-drift risk this review targeted; the fix is independently confirmed real and live, not just self-reported."
+  },
+  "_hash": "27d614aa19e5c4b8dd27b980c1420875db3b9c128dfdf7cfa70e810b6e626149"
+}
