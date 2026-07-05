@@ -60,10 +60,31 @@
         "2864a7793b4358283175937a914bbb32362933cb8ddbd6dfaac7f2575e889017",
         "f788690eb91d83a6b2283ea7a2abd37470142b90d837f89766737402ca9b047f"
       ]
+    },
+    {
+      "actor": "codex-main",
+      "reason": "Reviewer findings required synchronizing maintained DONE build and worktree authority smoke expectations with the bounded capability contract version-bump policy.",
+      "timestamp": "2026-07-05T10:12:40.674Z",
+      "paths": [
+        "packages/main/src/tasks/done-merge-experience-refresh-smoke.ts",
+        "packages/main/src/tasks/worktree-authority-smoke.ts",
+        "packages/main/src/handlers/done-effects.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/done-merge-experience-refresh-smoke.ts",
+        "packages/main/src/tasks/worktree-authority-smoke.ts",
+        "packages/main/src/handlers/done-effects.ts"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "837e058a7f6c454b5d4e1a5d1a443dada9fea62b",
+      "materialHash": "4f5ea2457e10ed6ae46c6cc7354fbdce071733aff2dd2c862b10970a1ec2084b",
+      "hunkDigest": "1834f31edbdb94984d5b8ab0d33d26b70d065de3d0ad6ee6b49f7828459bddb0"
     }
   ],
   "createdAt": "2026-07-05T09:42:24.280Z",
-  "updatedAt": "2026-07-05T09:57:24.771Z",
+  "updatedAt": "2026-07-05T10:12:40.674Z",
   "fileRules": [
     {
       "path": "packages/main/src/handlers/done-effects.ts",
