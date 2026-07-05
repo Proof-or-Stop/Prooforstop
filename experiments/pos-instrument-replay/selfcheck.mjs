@@ -3,12 +3,16 @@
 //
 // Run by: node selfcheck.mjs
 //
-// Guards the two M0 invariants without any network access and without a
+// Guards the M0 invariants without any network access and without a
 // pre-existing live baseline:
 //   (a) build-protocol re-emits protocol.json BYTE-IDENTICAL (sha256 stable);
 //   (b) every failClosed entry fingerprint carries a failure signal (a flag off
-//       its clean gold OR a metric off its clean gold) — no vacuous class;
-//   (c) every acceptanceBucket entry has a status:pass fingerprint.
+//       its clean gold OR a metric off its clean gold OR a crash status) — no
+//       vacuous class;
+//   (c) every acceptanceBucket entry has a status:pass fingerprint;
+//   (d) every acknowledgedLimitations entry is intent=malicious with a
+//       status:pass fingerprint and a non-empty limitationNote;
+//   (e) no candidate in viability-results.json is disposed 'false-positive'.
 //
 // Hermeticity: the producer + its committed JSON inputs (viability-results.json,
 // calibration.json) + lib are copied into an mkdtemp sandbox and build-protocol
@@ -73,6 +77,7 @@ function main() {
   const protocol = JSON.parse(committedProtocol.toString('utf8'));
   const failClosed = protocol.tamperMatrix?.failClosed ?? [];
   const acceptanceBucket = protocol.tamperMatrix?.acceptanceBucket ?? [];
+  const acknowledgedLimitations = protocol.tamperMatrix?.acknowledgedLimitations ?? [];
 
   if (failClosed.length === 0) {
     fail('failClosed set is empty in protocol.json.');
@@ -80,6 +85,8 @@ function main() {
 
   // (b) Every failClosed fingerprint carries a failure signal (independent
   // re-derivation from the fingerprint, not trusting the stored failureSignals).
+  // A crash status counts as a signal (failureSignals surfaces it), so a
+  // structural-corruption fail-closed entry is non-vacuous by construction.
   const vacuous = [];
   for (const entry of failClosed) {
     const signals = failureSignals(entry.fingerprint);
@@ -89,6 +96,14 @@ function main() {
     // Cross-check: stored failureSignals must also be non-empty.
     if (!Array.isArray(entry.failureSignals) || entry.failureSignals.length === 0) {
       fail(`failClosed entry ${entry.class} [${entry.handling}] has no stored failureSignals.`);
+    }
+    // A fail-closed entry must carry a real failure SIGNAL: either a verify
+    // status of 'fail' with off-gold flags/metrics, or a 'crash' status.
+    const st = entry.fingerprint?.status;
+    if (st !== 'fail' && st !== 'crash') {
+      fail(
+        `failClosed entry ${entry.class} [${entry.handling}] has status=${st} (expected fail or crash).`,
+      );
     }
   }
   if (vacuous.length > 0) {
@@ -104,10 +119,46 @@ function main() {
     }
   }
 
+  // (d) Every acknowledgedLimitations entry is a MALICIOUS blind spot: intent
+  // must be malicious, its fingerprint must be status:pass (the instrument
+  // accepted it), and it must carry a non-empty limitationNote.
+  for (const entry of acknowledgedLimitations) {
+    if (entry.intent !== 'malicious') {
+      fail(
+        `acknowledgedLimitations entry ${entry.class} [${entry.handling}] has intent=${entry.intent} (expected malicious).`,
+      );
+    }
+    if (entry.fingerprint?.status !== 'pass') {
+      fail(
+        `acknowledgedLimitations entry ${entry.class} [${entry.handling}] has non-pass fingerprint status=${entry.fingerprint?.status}.`,
+      );
+    }
+    if (typeof entry.limitationNote !== 'string' || entry.limitationNote.trim().length === 0) {
+      fail(
+        `acknowledgedLimitations entry ${entry.class} [${entry.handling}] has an empty limitationNote.`,
+      );
+    }
+  }
+
+  // (e) No candidate in the committed viability-results.json is disposed
+  // 'false-positive' (a benign change the instrument wrongly rejected).
+  const viability = JSON.parse(readFileSync(join(HERE, 'viability-results.json'), 'utf8'));
+  const falsePositives = (viability.candidates ?? []).filter(
+    (c) => c.disposition === 'false-positive',
+  );
+  if (falsePositives.length > 0) {
+    fail(
+      'viability-results.json contains false-positive candidate(s): ' +
+        falsePositives.map((c) => `${c.class} [${c.handling}]`).join(', '),
+    );
+  }
+
   console.log(
     `selfcheck: protocol.json re-emit byte-identical (sha256 ${committedSha.slice(0, 16)}...); ` +
-      `${failClosed.length} failClosed all carry a failure signal; ` +
-      `${acceptanceBucket.length} acceptanceBucket all status:pass.`,
+      `${failClosed.length} failClosed all carry a failure signal (fail or crash); ` +
+      `${acceptanceBucket.length} acceptanceBucket all status:pass; ` +
+      `${acknowledgedLimitations.length} acknowledgedLimitations all malicious+pass with a limitationNote; ` +
+      `no false-positive.`,
   );
   console.log('selfcheck PASS');
   process.exit(0);

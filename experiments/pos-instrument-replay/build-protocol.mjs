@@ -109,6 +109,11 @@ function metricPredicate(field, observed) {
 
 function deriveFailureSignals(fingerprint) {
   const signals = [];
+  // A crash (the instrument threw / emitted no parseable JSON) is itself the
+  // failure signal: there is no flag/metric payload, so encode the status.
+  if (fingerprint.status === 'crash') {
+    return [{ field: 'status', kind: 'status', op: '==', value: 'crash' }];
+  }
   const flags = fingerprint.flags || {};
   const metrics = fingerprint.metrics || {};
   for (const [field, gold] of Object.entries(FLAG_GOLD)) {
@@ -137,8 +142,14 @@ function main() {
     a.class === b.class ? a.handling.localeCompare(b.handling) : a.class.localeCompare(b.class),
   );
 
+  // The plan claim boundary, verbatim, attached to each acknowledged blind spot.
+  const LIMITATION_NOTE =
+    'instrument does not detect this refreshed tamper; digest-recompute defeats ' +
+    'the digest mechanism; out of H2 scope; Tier-C signing would address (plan claim boundary)';
+
   const failClosed = [];
   const acceptanceBucket = [];
+  const acknowledgedLimitations = [];
   const dropped = [];
   const smokeOverlapByClass = {};
 
@@ -159,6 +170,26 @@ function main() {
         handling: c.handling,
         fingerprint: c.fingerprint,
         failureSignals,
+      });
+    } else if (c.disposition === 'acknowledged-limitation') {
+      // A real (malicious) tamper the instrument does NOT detect: a documented
+      // blind spot. It MUST be a malicious candidate that verify accepted.
+      if (c.intent !== 'malicious') {
+        throw new Error(
+          `acknowledged-limitation ${c.class} [${c.handling}] is not intent=malicious — refusing to freeze`,
+        );
+      }
+      if (c.fingerprint.status !== 'pass') {
+        throw new Error(
+          `acknowledged-limitation ${c.class} [${c.handling}] fingerprint status is not pass — refusing to freeze`,
+        );
+      }
+      acknowledgedLimitations.push({
+        class: c.class,
+        handling: c.handling,
+        intent: 'malicious',
+        fingerprint: c.fingerprint,
+        limitationNote: LIMITATION_NOTE,
       });
     } else if (c.disposition === 'accepted') {
       acceptanceBucket.push({
@@ -189,6 +220,7 @@ function main() {
     tamperMatrix: {
       failClosed,
       acceptanceBucket,
+      acknowledgedLimitations,
       dropped,
     },
     iterationIdRule: ITERATION_ID_RULE,
@@ -217,7 +249,8 @@ function main() {
   writeFileSync(PROTOCOL_SHA_PATH, hash + '\n');
 
   console.log(
-    `protocol.json written: failClosed=${failClosed.length} accepted=${acceptanceBucket.length} dropped=${dropped.length}`,
+    `protocol.json written: failClosed=${failClosed.length} accepted=${acceptanceBucket.length} ` +
+      `acknowledgedLimitations=${acknowledgedLimitations.length} dropped=${dropped.length}`,
   );
   console.log(`protocol.json sha256 = ${hash}`);
 }

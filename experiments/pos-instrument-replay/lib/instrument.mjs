@@ -40,16 +40,43 @@ export function canonicalJson(v) {
 /**
  * Shell the real verify CLI against a baseline directory and parse its JSON.
  * The instrument is invoked, never modified.
+ *
+ * If the verify CLI throws (nonzero exit) OR its output cannot be parsed as a
+ * JSON object, we do NOT propagate the exception. Instead we return a crash
+ * SENTINEL {status:'crash', crashed:true, error:<msg>}. A structural corruption
+ * of manifest.json / gold-queries.json that makes the instrument throw is a
+ * genuine detection outcome (the instrument refused to certify), not a harness
+ * bug — so the harness must observe it as a first-class fail-closed signal
+ * rather than aborting the whole run.
  */
 export function verifyDir(dir) {
-  const out = execFileSync(
-    'lattice',
-    ['memory_playbook_baseline_verify', `--inputDir=${dir}`, '--json'],
-    { encoding: 'utf8', maxBuffer: 1 << 26 },
-  );
+  let out;
+  try {
+    out = execFileSync(
+      'lattice',
+      ['memory_playbook_baseline_verify', `--inputDir=${dir}`, '--json'],
+      { encoding: 'utf8', maxBuffer: 1 << 26 },
+    );
+  } catch (e) {
+    return { status: 'crash', crashed: true, error: String(e.message || e).slice(0, 400) };
+  }
   const jsonStart = out.indexOf('{');
-  if (jsonStart < 0) throw new Error('verify produced no JSON object:\n' + out.slice(0, 400));
-  return JSON.parse(out.slice(jsonStart));
+  if (jsonStart < 0) {
+    return {
+      status: 'crash',
+      crashed: true,
+      error: 'verify produced no JSON object:\n' + out.slice(0, 400),
+    };
+  }
+  try {
+    return JSON.parse(out.slice(jsonStart));
+  } catch (e) {
+    return {
+      status: 'crash',
+      crashed: true,
+      error: 'verify JSON parse failed: ' + String(e.message || e).slice(0, 200),
+    };
+  }
 }
 
 /**
@@ -87,9 +114,20 @@ export function refreshManifest(dir, overrides = {}) {
  * metrics:{...}}. Exactly the domain the viability spike measured — the set of
  * boolean flags and numeric correctness metrics that distinguish a fail-closed
  * fingerprint from an accepted one.
+ *
+ * Accepts a crash sentinel (status:'crash') too. On a crash there is no
+ * correctness payload, so flags/metrics come out all-undefined; the 'crash'
+ * status is itself the failure signal (see failureSignals below), which is the
+ * honest observation "the instrument refused to certify — it threw".
  */
 export function fingerprintDomain(verifyResult) {
   const v = verifyResult;
+  // On a crash there is no flag/metric payload. Return empty maps (NOT
+  // undefined-filled ones): undefined values are not JSON-serializable and
+  // would poison the canonical JSON. The 'crash' status is the failure signal.
+  if (v.status === 'crash') {
+    return { status: 'crash', flags: {}, metrics: {} };
+  }
   const c = v.correctness || {};
   return {
     status: v.status,
@@ -176,6 +214,13 @@ export const CLEAN_METRIC_GOLD = {
  */
 export function failureSignals(fingerprint) {
   const signals = [];
+  // A crash (the instrument threw / produced no parseable JSON) is itself a
+  // first-class failure signal: the instrument refused to certify. No flags or
+  // metrics are available in that case, so surface the status directly.
+  if (fingerprint.status === 'crash') {
+    signals.push({ kind: 'status', field: 'status', gold: 'pass', observed: 'crash' });
+    return signals;
+  }
   const flags = fingerprint.flags || {};
   const metrics = fingerprint.metrics || {};
   for (const [k, gold] of Object.entries(CLEAN_FLAG_GOLD)) {
