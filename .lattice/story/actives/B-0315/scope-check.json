@@ -1,0 +1,59 @@
+{
+  "storyId": "B-0315",
+  "checkedAt": "2026-07-05T09:46:52.616Z",
+  "features": [
+    {
+      "feature": "DONE changed-path predicate watches only bounded CLI capability contract/proof inputs: docs/CLI.md and packages/main/tests/**",
+      "covered_by": "CHK-001; packages/main/src/handlers/done-effects.ts allowed anchors isDoneMainRuntimeBuildInput and shouldBuildDoneMainPackageForChangedPaths; plan.md CHK-001 positive and negative path assertions",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist.json; plan.md; scope-contract.json"
+    },
+    {
+      "feature": "Smoke coverage proves docs/CLI.md and packages/main/tests/** bump while docs/requirements/story-lifecycle and experiments paths do not bump",
+      "covered_by": "CHK-001 verificationIntent; CHK-002 verificationIntent; packages/main/src/tasks/version-bump-smoke.ts allowed as modify/test",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist.json; plan.md; scope-contract.json"
+    },
+    {
+      "feature": "User-visible skip line and lifecycle documentation stay mechanically consistent with the bounded predicate",
+      "covered_by": "CHK-002; packages/main/src/core/version-bump.ts allowed anchor VERSION_BUMP_SKIPPED_LINE; docs/requirements/decisions/story-lifecycle.md allowed anchors DoneMergeSemantics and CliPatchVersion",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist.json; plan.md; scope-contract.json; decision.json"
+    },
+    {
+      "feature": "Manual package version file edits during DEV",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope-contract.allowedModify contains only four non-version files; scope-contract.protectedFiles lists package.json, packages/main/package.json, and packages/main/src/core/lattice-brand.ts; plan.md Non-goals prohibit manual version edits",
+      "source": "scope-contract.json; plan.md; understanding.json"
+    },
+    {
+      "feature": "experiments/**, lattice-Paper/**, arbitrary requirements docs, and broad docs edits or bump triggers",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope-contract.explicitExcludes; CHK-001 and CHK-002 adversarial verification; decision preMortem over-bump mitigation",
+      "source": "scope-contract.json; checklist.json; decision.json; plan.md"
+    },
+    {
+      "feature": "Implementation edits outside packages/main/src/handlers/done-effects.ts, packages/main/src/core/version-bump.ts, packages/main/src/tasks/version-bump-smoke.ts, and docs/requirements/decisions/story-lifecycle.md",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope-contract.allowedModify exact four-file allowlist; scope-contract.allowedCreate empty; plan.md file lists match the allowlist",
+      "source": "scope-contract.json; checklist.json; plan.md"
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "covered": 3,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "faad7861538d0069f587d39c32730fe404df626d30f1716ce09b07cd75982ea5",
+  "openQuestions": []
+}
