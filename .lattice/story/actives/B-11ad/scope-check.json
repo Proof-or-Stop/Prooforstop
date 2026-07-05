@@ -1,0 +1,47 @@
+{
+  "storyId": "B-11ad",
+  "checkedAt": "2026-07-05T09:43:12.063Z",
+  "features": [
+    {
+      "feature": "Artifact-release provenance ledger for non-runtime DONE deliverables",
+      "covered_by": "background.md says add separate append-only artifact release ledger; checklist.json CHK-001 requires deterministic append-only non-runtime deliverable path record; plan.md CHK-001 creates artifact-release helpers, classification, deterministic digest, JSONL idempotency.",
+      "status": "covered",
+      "excluded_by": ""
+    },
+    {
+      "feature": "Host-neutral inspection and DONE report surface for artifact release provenance",
+      "covered_by": "understanding.json outcome names DONE output plus artifact_release_list/status; checklist.json CHK-002 requires list/status and post-merge line; plan.md CHK-002 wires read-only handlers, registry/catalog, and DONE report wording.",
+      "status": "covered",
+      "excluded_by": ""
+    },
+    {
+      "feature": "No CLI semver broadening for docs, experiments, or metadata",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "background.md rejects noisy bump broadening; understanding.json constraint forbids broadening CLI patch-version policy; decision.json rejects broaden-cli-version-bump-predicate; plan.md scope/CHK-003 preserves version-bump-smoke for experiments."
+    },
+    {
+      "feature": "No remote publishing or package release policy changes",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excludes package release or remote publish policy changes; plan.md Scope Boundary says the story does not alter remote publish policy."
+    },
+    {
+      "feature": "No .lattice lifecycle/story metadata as releasable product artifact",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "understanding.json constraint excludes .lattice story lifecycle metadata; decision.json preMortem excludes .lattice/**; checklist.json CHK-001 edge rejects .lattice story metadata rows; plan.md CHK-001 excludes .lattice/** and verifies no row."
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "covered": 2,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "f7eabc4b101130bc62d37126ddd3608dc60de4218a461aafad21b395d3dc25fd",
+  "openQuestions": []
+}
