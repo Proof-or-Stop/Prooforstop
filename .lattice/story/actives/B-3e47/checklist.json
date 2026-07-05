@@ -87,7 +87,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "User reads docs/CLI.md and sees that active stories use live milestone_status projection while DONE stories with milestone-closeout.json use the frozen closeout-backed Milestone Status table."
+      "userSees": "User reads docs/CLI.md and sees: \"For DONE stories with milestone-closeout.json, milestone_status renders the frozen Milestone Status table from that closeout snapshot; active stories continue to use live projection.\""
     }
   ]
 }
