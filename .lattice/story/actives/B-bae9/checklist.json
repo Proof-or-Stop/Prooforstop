@@ -136,11 +136,11 @@
           "kind": "manual_transcript",
           "command": "node experiments/pos-instrument-replay/selfcheck-m1.mjs",
           "result": "pass",
-          "note": "Negative test (selfcheck-m1): flipping one frozen expected flag (cross-profile-swap[refreshed].fullProfileExactMillionMatches) makes tamper.mjs report fingerprintMatch:false + exit nonzero — the H2 conformance gate is un-gameable, not a tautology.",
-          "headHash": "4fadf4f40ed8993a62d57fe791a40ec17eddccd5",
+          "note": "Un-gameable: selfcheck-m1 negative test flips a frozen fingerprint flag -> tamper.mjs fingerprintMatch:false + nonzero exit. Plus new guards: a silent no-op mutation OR a dropped drift OR a disposition mismatch each fail loudly (exit nonzero).",
+          "headHash": "301f3004683d35c992b0769562fef7100a5c6d6c",
           "materialHash": "57d036e02a223a1b32a206d6dbf54cf8e8ea79096f362d3ca55c63f9c5878bdc",
           "storyFilesHash": "d16710c9a550ccd8037acdd199c78394f2929a2b59922343a50c2bab3e3e97e9",
-          "timestamp": "2026-07-05T17:59:39.097Z"
+          "timestamp": "2026-07-05T17:59:41.803Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
