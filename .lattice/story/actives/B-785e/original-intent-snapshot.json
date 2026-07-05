@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-785e",
+  "sourceText": "User asked on 2026-07-05 to start the next logical Multi-Model Ablation M2 step and asked whether there is a detailed execution document. The task is to prepare the M2 provider execution launch path, not to claim Phase 1 results from readiness artifacts.",
+  "normalizedOutcome": "The repository contains a detailed M2 provider execution launch plan plus local launch/check artifacts that show M0/M1/M2 readiness, keep provider execution disabled by default, identify cell 03 calibration as the next permitted step, and keep cell 06 A2prime blocked until a real cell-03-derived budget lock exists.",
+  "acceptanceClaim": "Running node experiments/multi-model-ablation/m2-provider-execution-check.mjs succeeds locally and reports that provider execution is disabled by default, no outcome data or product gate impact exists, cell 03 calibration is the next permitted formal step, and cell 06 remains blocked without a real cell-03-derived budget lock.",
+  "keyRequirementIds": [
+    "REQ-HOST-MODEL-SEPARATION",
+    "REQ-M2-A2PRIME-BLOCKED",
+    "REQ-M2-CELL03-FIRST",
+    "REQ-M2-LAUNCH-DOC",
+    "REQ-M2-PROVIDER-DISABLED"
+  ],
+  "requestHash": "sha256:ed26c6778a57000b01e612e0a0356bcba507c6eb14354160511357657731a3e9",
+  "createdAt": "2026-07-05T11:54:18.463Z",
+  "updatedAt": "2026-07-05T11:54:18.463Z"
+}

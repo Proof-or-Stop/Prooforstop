@@ -1,0 +1,51 @@
+{
+  "findings": [
+    {
+      "id": "B-785e:F-001",
+      "desc": "experiments/multi-model-ablation/m2-provider-execution-check.mjs:92 only rejects an exact outcome key or records path fields, while experiments/multi-model-ablation/m2-provider-execution-launch.json:8 declares containsOutcomeData=false and lines 22-23 declare no outcome/result rows. A launch artifact could add resultRows/outcomeRecords/phase1Results data without an outcome key and still pass, creating a false negative against the no-outcome-data boundary. Severity: medium.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-05T12:08:33.639Z",
+      "reviewRound": "2026-07-05T12:06:17.038Z",
+      "reviewRunId": "B-785e:RR-002",
+      "_hash": "222a3b4769418f3845174f463032d085018c04cd4a1b519b861ea0a01dbaf65c",
+      "files": [
+        "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+        "experiments/multi-model-ablation/m2-provider-execution-launch.json"
+      ],
+      "signatureTag": "adversarial|mjs|experiments-multi-model",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit e1f2364024177f041754bce36677a20b2efa5e62. The checker now recursively rejects outcome/result-shaped launch data including resultRows, outcomeRecords, phase1Results, phase2Results, and presence flags such as resultRowsPresent/outcomeRecordsPresent/containsOutcomeData. Re-ran m2-provider-execution-check: PASS 391 assertions / 27 negative controls, plus m0/m1/m2 launch readiness checks.",
+      "resolvedAt": "2026-07-05T12:20:32.188Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-785e:F-002",
+      "desc": "experiments/multi-model-ablation/m2-provider-execution-check.mjs:183-190 validates only disabled flags and snapshot labels for providerLaunch.runnerAuthorization.runners, but it never requires the launch runner set to match phase1-runner-manifest.m2.json:194-231 or the launch rows at m2-provider-execution-launch.json:129-170. Removing a runner, changing a runnerId/cell binding, or adding an unrelated disabled runner can pass, so schema drift in the launch plan is a false negative. Severity: medium.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-05T12:08:41.187Z",
+      "reviewRound": "2026-07-05T12:06:17.038Z",
+      "reviewRunId": "B-785e:RR-002",
+      "_hash": "d6a862ca619ea5f2a64afc5919ddcb5931133a8536d17d47a98b361667dad2fb",
+      "files": [
+        "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+        "experiments/multi-model-ablation/m2-provider-execution-launch.json",
+        "experiments/multi-model-ablation/phase1-runner-manifest.m2.json"
+      ],
+      "signatureTag": "missing|mjs|experiments-multi-model",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit e1f2364024177f041754bce36677a20b2efa5e62. The checker now cross-binds providerLaunch.runnerAuthorization.runners to phase1-runner-manifest.m2.json and launch rows, rejecting missing/extra runners, runner/cell/protocol-cell drift, and family/arm/reviewer mismatches. Re-ran m2-provider-execution-check: PASS 391 assertions / 27 negative controls, plus m0/m1/m2 launch readiness checks.",
+      "resolvedAt": "2026-07-05T12:20:39.735Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}
