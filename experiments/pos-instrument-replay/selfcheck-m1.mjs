@@ -12,6 +12,14 @@
 //       already excludes volatile fields elapsedMs/rss/absolute paths from the
 //       recorded content, so a byte compare is the modulo-volatile compare).
 //
+//   (a2) CLEAN-RUN INVARIANTS (findings F-001/F-002): assert that every clean-run
+//       verdict carries the new byteDiff/dispositionMatch evidence AND satisfies
+//       the mutation-applied + re-derived-disposition + dropped-semantics
+//       invariants (dispositionMatch true for all classes; every non-dropped
+//       class shows a real byteDiff; every dropped class is records+gold-identical
+//       to clean). This re-checks the recorded evidence independently of
+//       tamper.mjs's own exit code.
+//
 //   (b) NEGATIVE TEST (anti-tautology): copy protocol.json to a temp path, flip
 //       exactly ONE expected boolean flag in ONE failClosed entry's frozen
 //       fingerprint, point tamper.mjs at the corrupted copy via POS_PROTOCOL_PATH,
@@ -46,6 +54,11 @@ function makeSandbox() {
   cpSync(join(HERE, 'lib', 'instrument.mjs'), join(sandbox, 'lib', 'instrument.mjs'));
   cpSync(join(HERE, 'tamper.mjs'), join(sandbox, 'tamper.mjs'));
   cpSync(join(HERE, 'protocol.json'), join(sandbox, 'protocol.json'));
+  // viability-results.json carries the authoritative per-(class,handling) intent
+  // that tamper.mjs uses to RE-DERIVE the M0 disposition (findings F-001/F-002).
+  // Copy it so the sandbox resolves intent via the primary source, exactly as
+  // the committed run does.
+  cpSync(join(HERE, 'viability-results.json'), join(sandbox, 'viability-results.json'));
   return sandbox;
 }
 
@@ -110,6 +123,57 @@ function main() {
   const verdictLines = run1.verdicts.trim().split('\n');
   console.log(
     `selfcheck-m1 (a) determinism: two runs byte-identical (${verdictLines.length} verdict lines).`,
+  );
+
+  // -----------------------------------------------------------------------
+  // (a2) Clean-run invariants (findings F-001/F-002): on the clean run every
+  //      verdict must carry the new byteDiff / dispositionMatch fields and
+  //      satisfy the three invariants tamper.mjs asserts:
+  //        - dispositionMatch === true for ALL classes (re-derived M0
+  //          disposition matches the frozen bucket);
+  //        - every NON-dropped class has a real byteDiff (records OR gold OR
+  //          manifest changed) — no silent no-op mutation;
+  //        - every dropped class has records + gold byte-identical to clean
+  //          (byteDiff.recordsChanged === false AND goldChanged === false).
+  //      run1.code === 0 already proves tamper.mjs did not itself flag a
+  //      violation; this re-checks the recorded evidence independently so the
+  //      selfcheck fails if a future edit records the fields but drops the guard.
+  // -----------------------------------------------------------------------
+  const verdicts = verdictLines
+    .filter((l) => l.trim())
+    .map((l) => JSON.parse(l));
+  for (const v of verdicts) {
+    if (!v.byteDiff || typeof v.byteDiff.recordsChanged !== 'boolean') {
+      fail(`clean-run invariant: verdict for ${v.class}[${v.handling}] is missing a byteDiff.`);
+    }
+    if (v.dispositionMatch !== true) {
+      fail(
+        `clean-run invariant: dispositionMatch is not true for ${v.class}[${v.handling}] ` +
+          `(rederived='${v.rederivedDisposition}' expected='${v.expectedDisposition}').`,
+      );
+    }
+    if (v.bucket === 'dropped') {
+      if (v.byteDiff.recordsChanged || v.byteDiff.goldChanged) {
+        fail(
+          `clean-run invariant: dropped class ${v.class}[${v.handling}] has records/gold ` +
+            `changed vs clean (byteDiff=${JSON.stringify(v.byteDiff)}); dropped must be content-inert.`,
+        );
+      }
+    } else {
+      const anyChanged =
+        v.byteDiff.recordsChanged || v.byteDiff.goldChanged || v.byteDiff.manifestChanged;
+      if (!anyChanged) {
+        fail(
+          `clean-run invariant: non-dropped class ${v.class}[${v.handling}] has an EMPTY byteDiff ` +
+            `(silent no-op mutation); every non-dropped mutation must change records, gold or manifest.`,
+        );
+      }
+    }
+  }
+  console.log(
+    `selfcheck-m1 (a2) clean-run invariants: all ${verdicts.length} verdicts have dispositionMatch ` +
+      `true, every non-dropped class has a non-empty byteDiff, and every dropped class is ` +
+      `records+gold-identical to clean.`,
   );
 
   // -----------------------------------------------------------------------
