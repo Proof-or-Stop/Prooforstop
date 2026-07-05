@@ -1,0 +1,64 @@
+{
+  "storyId": "B-6529",
+  "checkedAt": "2026-07-05T22:58:04.122Z",
+  "headHash": "cb79bf4a1631969ae251a51c4b6713a165fb12b7",
+  "materialHash": "0715480e25100d7969fd882c0e540a1ec4771bedf938d4dd3779137cd84d6e1e",
+  "storyFilesHash": "4291cbd97e9c92968b2e4ec98fd5382ac59d1f5ea55a486041b973f3cee3b917",
+  "reviewRound": "2026-07-05T22:18:14.748Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+      "promise": "B-6529 replaces the guessed or exact pre-run dollar gate with a frozen Cell 03 execution envelope plus postflight provider-reported usage accounting while providerExecutionAuthorized=false and providerCallEnabled=false.",
+      "status": "verified",
+      "verifiedBy": "manual artifact/doc inspection plus node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+      "evidence": "Plan states the replacement explicitly; m2-cell03-execution-envelope.json has preRunDollarGuessRequired=false, preRunDollarCapRequired=false, preRunDollarAmount=null; checker passed 1190 assertions and 13 negative controls."
+    },
+    {
+      "docPath": "experiments/multi-model-ablation/README.md",
+      "promise": "The M2 artifacts remain provider-free: no provider calls, no result/outcome rows, no product-gate unlocks; the B-6529 guardrail requires postflight provider-reported usage/cost accounting after future execution and keeps estimates diagnostic-only.",
+      "status": "verified",
+      "verifiedBy": "manual README/policy inspection plus M2 checker transcripts",
+      "evidence": "README M2 section describes disabled provider execution and diagnostic-only estimates; m2-cell03-usage-accounting-policy.json requires provider_reported_usage and estimateMayGateLaunch=false; both M2 checker commands passed."
+    },
+    {
+      "docPath": "experiments/multi-model-ablation/m2-status.md",
+      "promise": "Status documentation reports Cell 03 envelope frozen, pre-run dollar guess not required, provider calls disabled, postflight provider-reported usage required after execution, Cell 06 blocked, and formal M2 execution not started.",
+      "status": "verified",
+      "verifiedBy": "manual status inspection plus node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+      "evidence": "Status lines match the checker transcript: envelope frozen, pre-run dollar guess not required, provider calls disabled, postflight usage required, Cell 06 blocked, no provider calls/outcome records."
+    },
+    {
+      "docPath": "experiments/multi-model-ablation/m2-cell03-usage-accounting-policy.json",
+      "promise": "Future Cell 03 usage accounting is postflight provider-reported usage as final source; pre-run dollar guess/cap is not a launch gate and estimates are diagnostic-only.",
+      "status": "verified",
+      "verifiedBy": "manual JSON inspection plus checker validation",
+      "evidence": "Policy has providerCallEnabled=false, preRunDollarGuessRequired=false, preRunDollarCapAsLaunchGate=false, finalUsageSource=provider_reported_usage, providerReportedUsageRequired=true, estimateMayBeFinalUsage=false, estimateMayGateLaunch=false."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "M2-PROVIDER-EXECUTION-CHECK",
+      "transcript": "Ran node experiments/multi-model-ablation/m2-provider-execution-check.mjs in /Users/jek/Documents/Work/proofbound/.worktrees/B-6529. PASS: M2 provider execution checker passed: 1190 assertions; 13 negative controls rejected. Transcript also reported Cell 03 execution envelope frozen, pre-run dollar guess not required, provider calls disabled, postflight provider-reported usage required, Cell 06 blocked, and provider execution remains disabled with no provider calls/outcome records."
+    },
+    {
+      "featureId": "M2-LAUNCH-READINESS-CHECK",
+      "transcript": "Ran node experiments/multi-model-ablation/m2-launch-readiness-check.mjs. PASS: 1105 assertions; 21 negative controls rejected. Transcript reported M2 provider-free launch readiness artifacts passed local checks and negative controls rejected as expected."
+    },
+    {
+      "featureId": "LATTICE-VALIDATE-EVIDENCE",
+      "transcript": "Inspected .lattice/story/actives/B-6529/test-evidence.json. PASS at 2026-07-05T22:37:11.102Z for lattice validate --story=B-6529 --json; outputStatus status=pass, allPass=true, summary Project validation commands passed, 34 configured validate commands, verification coverage 15/15 covered with 0 required missing."
+    },
+    {
+      "featureId": "DONE-REQUIRED-VALIDATE-EVIDENCE",
+      "transcript": "Inspected .lattice/story/actives/B-6529/done-required-evidence.json and session_brief. DONE-required validation PASS ending 2026-07-05T22:54:26.706Z with 2 required commands: packages/main build npm --prefix packages/main run build PASS exit 0, and root full test suite npm test PASS exit 0. session_brief currently accepts DONE-required validation as PASS; storyFilesHash matches and later drift is metadata/advisory."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Reviewed the requested M2 artifacts, plan/status docs, README surfaces, result-write policy, provider launch record, and validation evidence. Edge/adversarial coverage exists through checker negative controls for old exact budget gates, providerBudgetCap resurrection, estimate-as-final-usage, provider call enablement, host-label snapshots, Cell 06 unblock, prompt/tool digest drift, and result rows. No TODO/FIXME/TBD/unresolved markers were found in reviewed surfaces."
+  },
+  "_hash": "db02b47ecae5215d489b9e4bda28dfb391313c905de01cd3813b6886d5c1c885"
+}
