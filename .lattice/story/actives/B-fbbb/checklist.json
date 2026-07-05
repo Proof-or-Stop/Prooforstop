@@ -16,7 +16,14 @@
             "priority": "must"
           }
         ],
-        "edge": [],
+        "edge": [
+          {
+            "id": "CHK-001:edge:0",
+            "desc": "After adding both helpers to BOTH allowed sets, the direct fence check's `foreign` array is empty (no non-node, non-allowed specifier remains) and the refreshed guardrail comment lists source-lineage-audit + playbook-seed; because exactly one file encodes the playbook.ts allowlist, a single edit clears both import-fence checks with no other consumer left red.",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
         "adversarial": [
           {
             "id": "CHK-001:adversarial:0",
@@ -33,7 +40,8 @@
         ],
         "create": [],
         "test": []
-      }
+      },
+      "userSees": "check: import-fence: handlers/playbook.ts imports only learning-store, types, and the context read port — PASS\ncheck: import-fence: the static scan is non-vacuous (catches a planted foreign import) — PASS"
     },
     {
       "id": "CHK-002",
