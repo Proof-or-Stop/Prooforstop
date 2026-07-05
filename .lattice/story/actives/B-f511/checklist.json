@@ -217,6 +217,17 @@
           "materialHash": "573d11ba3e5142ea088a4d0ff2dd154b50afeb22740f6f80e1abcbc7d9c1ca73",
           "storyFilesHash": "27d1397dd05ad1396bfab7be29c107c07b3ae124e9157a8bd98d663fd79117ad",
           "timestamp": "2026-07-05T21:09:35.523Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/pos-instrument-replay/selfcheck-m3.mjs",
+          "result": "pass",
+          "note": "selfcheck-m3 asserts each mid-iteration casualty resolved to a stop-or-clean-rerun (proof:pass) — never a silent half-record; it fails loudly on any dup/gap/half-record. Two real resume bugs (stale-lock, truncated-tail) were found+fixed and are covered.",
+          "headHash": "c9a3499e384a1f543dae797d4deaf4b8bdfb7639",
+          "materialHash": "573d11ba3e5142ea088a4d0ff2dd154b50afeb22740f6f80e1abcbc7d9c1ca73",
+          "storyFilesHash": "27d1397dd05ad1396bfab7be29c107c07b3ae124e9157a8bd98d663fd79117ad",
+          "timestamp": "2026-07-05T21:09:36.184Z"
         }
       ]
     }
