@@ -305,9 +305,9 @@
       "id": "CHK-007",
       "title": "Gate not_applicable milestone rows behind an explicit justification so they cannot be a zero-evidence self-exemption",
       "context": "core/proofstory.ts normalizeMilestone (~L301-316) validates not_applicable against VALID_MILESTONE_STATUSES only, with no rule that the row is genuinely inapplicable; it then short-circuits the uncovered-required check and renders in the completed group. Add a required justification/reason field (or policy) for not_applicable, without weakening the PLAN-only, hash-bound, intent-collision-confirmed write contract. Design-decision item; record the decision. Closes findings M4 caveat.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-05T22:05:05.936Z",
       "userSees": "When an operator runs `milestone_ledger_add` (or `buildMilestoneLedger`) with `status=not_applicable` but no justification, the CLI now fails instead of silently accepting the row. Terminal shows a shape error like:\n\n  Error: milestones[2].notApplicableDecision is required when status is not_applicable (needs reason, decidedBy, decidedAt)\n\nWhen the justification is supplied (e.g. `--not-applicable-reason \"REQ-014 covered by parent story P-9; no runtime behavior here\" --decided-by info@retiave.com`), the add succeeds and `milestone_ledger_get --json` shows the row carrying `\"notApplicableDecision\": { \"reason\": \"...\", \"decidedBy\": \"...\", \"decidedAt\": \"2026-07-05T...\" }`. That justification is folded into `ledgerHash`, so editing the reason on a previously `confirmed` ledger drops its state back to `candidate` (visible as `State: candidate` on the next add and loss of `acceptedIntentBinding`). The DONE-intent-equivalence gate still skips the row from `uncoveredRequiredMilestoneIds`, but only because the row now carries a validated, hash-bound, human-attributed reason — an unjustified `not_applicable` row can no longer reach a confirmed ledger and therefore can no longer self-exempt from the uncovered-required check. The decision is recorded at docs/requirements/decisions/milestone-not-applicable-justification.md.",
       "files": {
         "modify": [
