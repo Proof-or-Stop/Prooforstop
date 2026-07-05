@@ -59,11 +59,11 @@
           "kind": "manual_transcript",
           "command": "git status --short experiments/pos-instrument-replay/ ; grep -c mkdtemp experiments/pos-instrument-replay/viability-check.mjs",
           "result": "pass",
-          "note": "The harness mutates ONLY mkdtemp-isolated copies (cpSync clean baseline -> fresh mkdtemp per candidate; grep shows mkdtemp usage). Working tree is clean after a full run — no source-baseline pollution.",
-          "headHash": "87db0b49562cb3ff412ca2da697577a65ea36a18",
-          "materialHash": "d1348054bc91ba6c68681b2134e839fff5420ab72d02cb3a8affd4eae7154616",
-          "storyFilesHash": "3c8e6f828b521108afc48d84324055ce0043066272bc0b6f973bf239cda660fc",
-          "timestamp": "2026-07-05T15:41:55.942Z"
+          "note": "Harness mutates only mkdtemp-isolated copies; source baseline sha256 guarded before/after; working tree clean after a full run.",
+          "headHash": "a8aa9a8b70cd23eb587be90a559755817090eefe",
+          "materialHash": "8e4ad7d3b09104bc1a8fce6ed81818f8adfd6b3afe75ce3aa5c966448238e4fc",
+          "storyFilesHash": "c39c0bbfa692ba80864553542cc692d26fec1a709872f4c2223a73181f52eab5",
+          "timestamp": "2026-07-05T16:10:43.900Z"
         }
       ]
     },
