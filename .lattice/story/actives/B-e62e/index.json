@@ -1,0 +1,35 @@
+{
+  "storyId": "B-e62e",
+  "name": "auto-surface-milestone-progress",
+  "title": "Auto-surface milestone progress tables after story state changes",
+  "description": "When story-scoped mutating commands change checklist, evidence, phase, delivery, summary, or milestone-ledger state, the CLI should consume milestone_status and print the actual Completed / Current / Remaining milestone table to stdout so hosts cannot forget to surface progress.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "milestone-status",
+    "cli-output",
+    "progress",
+    "post-command-hook"
+  ],
+  "riskSignals": [
+    {
+      "category": "State Machine/Gate",
+      "matched": "story_advance"
+    }
+  ],
+  "createdAt": "2026-07-05T10:13:15.241Z",
+  "startedAt": "2026-07-05T10:13:15.241Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-05T10:13:15.607Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-3f3045fee8f99f65",
+      "agent": "main"
+    }
+  ]
+}
