@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 // M2 hermetic selfcheck (B-2a5b CHK-003).
 //
-// Run by: node selfcheck-m2.mjs   (exit 0 iff all four guards pass)
+// Run by: node selfcheck-m2.mjs   (exit 0 iff all FIVE guards pass)
 //
-// Guards run-batch.mjs's four load-bearing properties WITHOUT touching the
+// Guards run-batch.mjs's load-bearing properties WITHOUT touching the
 // committed batch-ledger.jsonl (all work happens in mkdtemp sandbox copies of
 // run-batch.mjs + lib/instrument.mjs + protocol.json). SMALL scale only, for
 // speed:
@@ -32,6 +32,16 @@
 //       recordless), the ledger holds exactly one record for it, and run-batch
 //       still exits 0 (a crash is a clean stop, not a recordless failure).
 //       Proves a generate crash cannot bypass proof-or-stop (F-001).
+//
+//   (e) PRE-BODY-CRASH: force a throw BEFORE/AROUND the guarded body — either
+//       POS_FAIL_MKDTEMP_AT (setup mkdtemp throws before generate) or
+//       POS_FAIL_APPEND_AT (the append throws after the body) for a real
+//       iterationId (replay/small/1) -> assert the driver EITHER writes a
+//       verify_crash STOP record for exactly that iterationId OR exits NONZERO
+//       naming the recordless iteration, and NEVER exits 0 with that iteration
+//       missing. Proves the F-003/F-004 fix: the WHOLE iteration lifecycle
+//       (mkdtemp/append/cleanup, not just generate+verify) is guarded, and the
+//       top-level backstop guarantees no silent exit-0 with a missing record.
 //
 // Hermeticity: each sub-check gets its own mkdtemp sandbox holding a copy of
 // run-batch.mjs, lib/instrument.mjs, and the frozen protocol.json. run-batch is
@@ -274,12 +284,98 @@ function checkGenerateCrash() {
   }
 }
 
+// ---------------------------------------------------------------------------
+// (e) PRE-BODY-CRASH: inject a throw BEFORE/AROUND the guarded body (setup
+// mkdtemp via POS_FAIL_MKDTEMP_AT, and the post-body append via
+// POS_FAIL_APPEND_AT). For EACH injection point, assert the driver EITHER wrote
+// a verify_crash STOP record for exactly that iterationId OR exited NONZERO
+// naming the recordless iteration — and NEVER exited 0 with that iteration
+// missing. Proves the full-lifecycle guard + top-level backstop (F-003/F-004):
+// a throw outside the old generate+verify body cannot produce a silent exit-0
+// with a missing record.
+// ---------------------------------------------------------------------------
+function checkPreBodyCrash() {
+  const crashId = 'replay/small/1';
+  const injections = [
+    { name: 'POS_FAIL_MKDTEMP_AT', where: 'setup (mkdtemp, BEFORE the body)' },
+    { name: 'POS_FAIL_APPEND_AT', where: 'append (AFTER the body)' },
+  ];
+  for (const inj of injections) {
+    const sandbox = makeSandbox(`prebody-${inj.name.toLowerCase()}`);
+    try {
+      const { code, stdout, stderr, records } = runBatch(sandbox, {
+        args: ['--scale=small'],
+        env: { [inj.name]: crashId },
+      });
+      const combined = stdout + '\n' + stderr;
+      const forId = records.filter((r) => r.iterationId === crashId);
+      const hasStop =
+        forId.length === 1 && forId[0].stopReason === 'verify_crash' && forId[0].verifyStatus === undefined;
+      const missing = forId.length === 0;
+
+      // The hard invariant: NEVER exit 0 with that iteration missing.
+      if (code === 0 && missing) {
+        fail(
+          `(e) PRE-BODY-CRASH [${inj.name}]: driver EXITED 0 with ${crashId} MISSING from the ledger ` +
+            `— a pre-body/around-body crash produced a silent exit-0 with a missing record (F-003/F-004). ` +
+            `Ledger had ${records.length} record(s).\n${combined.slice(-600)}`,
+        );
+      }
+
+      // Acceptable outcome A: a verify_crash STOP was recorded for the iteration.
+      if (hasStop) {
+        if (code !== 0) {
+          fail(
+            `(e) PRE-BODY-CRASH [${inj.name}]: wrote a verify_crash stop for ${crashId} but still exited ` +
+              `${code}; a fully-recorded crash should be a clean exit 0.\n${combined.slice(-600)}`,
+          );
+        }
+        console.log(
+          `  (e) PRE-BODY-CRASH [${inj.name}] PASS: ${inj.where} crash became a verify_crash STOP ` +
+            `record for ${crashId} (exit 0, no silent miss)`,
+        );
+        continue;
+      }
+
+      // Acceptable outcome B: the iteration is recordless (the irreducible
+      // append-itself-failing case) -> the top-level backstop MUST exit NONZERO
+      // and name the recordless iteration.
+      if (missing) {
+        if (code === 0) {
+          // Already covered above, but keep the belt-and-suspenders assertion.
+          fail(`(e) PRE-BODY-CRASH [${inj.name}]: exited 0 with ${crashId} missing`);
+        }
+        if (!combined.includes('recordless') || !combined.includes(crashId)) {
+          fail(
+            `(e) PRE-BODY-CRASH [${inj.name}]: ${crashId} is recordless and the driver exited ${code} ` +
+              `(nonzero) but the failure message did not say 'recordless' and name ${crashId}:\n${combined.slice(-600)}`,
+          );
+        }
+        console.log(
+          `  (e) PRE-BODY-CRASH [${inj.name}] PASS: ${inj.where} crash left ${crashId} recordless; ` +
+            `driver exited ${code} (nonzero) and named it recordless (no silent exit-0)`,
+        );
+        continue;
+      }
+
+      // Anything else (e.g. a proof record, or a duplicate) is a violation.
+      fail(
+        `(e) PRE-BODY-CRASH [${inj.name}]: ${crashId} was neither a single verify_crash stop nor a ` +
+          `named-recordless nonzero exit; got ${forId.length} record(s) for it, exit ${code}.\n${combined.slice(-600)}`,
+      );
+    } finally {
+      rmSync(sandbox, { recursive: true, force: true });
+    }
+  }
+}
+
 function main() {
-  console.log('selfcheck-m2: running 4 hermetic sub-checks (small scale)...');
+  console.log('selfcheck-m2: running 5 hermetic sub-checks (small scale)...');
   checkBudgetCap();
   checkLockfile();
   checkRecordless();
   checkGenerateCrash();
+  checkPreBodyCrash();
   console.log('selfcheck-m2 PASS');
   process.exit(0);
 }

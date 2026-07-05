@@ -19,10 +19,15 @@
 //                      cap (stopReason 'budget_cap'), OR the lock could not be
 //                      acquired (stopReason 'precondition_failed').
 //
-// A GENERATE-side crash is NOT bypassed: the entire per-iteration generate+verify
-// body is guarded so ANY thrown error (generate or verify) becomes a verify_crash
-// stop record — a crash never propagates uncaught and never leaves an iteration
-// recordless.
+// A crash at ANY point in the iteration is NOT bypassed: the ENTIRE per-iteration
+// LIFECYCLE — setup (mkdtemp), generate, verify, build-record, APPEND, and
+// cleanup — is guarded, so ANY thrown error (setup / generate / verify / append /
+// cleanup: e.g. ENOSPC / EMFILE / permission / disk-full) becomes a best-effort
+// verify_crash stop record — a crash never propagates uncaught out of the loop and
+// never leaves an iteration recordless-and-silent. The single irreducible case
+// (the crash-stop append ITSELF throwing) is caught by a TOP-LEVEL BACKSTOP: the
+// end-of-run strict-multiset guard ALWAYS runs, so a recordless iteration still
+// forces a named NONZERO exit and the driver NEVER exits 0 with a missing record.
 //
 // A lock-blocked driver records its precondition_failed stop to a SEPARATE
 // blocked-ledger (batch-ledger.blocked.jsonl), NOT the shared campaign ledger,
@@ -199,21 +204,100 @@ function verifyGoldMetrics(v) {
 }
 
 // ---------------------------------------------------------------------------
-// Run one replay iteration -> build exactly one record (NOT yet appended, so
-// the fault-injection SKIP can decide to drop it). Returns { iterationId,
-// record }.
+// Build the ONE record for a replay iteration from a fresh sandbox dir. May
+// THROW (generate-side / setup faults propagate) — the caller's full-lifecycle
+// guard converts any throw into a verify_crash STOP record. Never appends.
 // ---------------------------------------------------------------------------
-function runIteration(scale, index, budgetCapMs) {
+function buildIterationRecord(scale, index, budgetCapMs, dir, iterationId, env) {
+  let manifest;
+  try {
+    manifest = generateBaseline(dir, scale, iterationId);
+  } catch (e) {
+    // Re-throw tagged so the full-lifecycle guard names the generate phase.
+    e.posPhase = 'generate';
+    throw e;
+  }
+
+  const v = verifyDir(dir);
+
+  // Verify crash sentinel -> verify_crash stop.
+  if (v.status === 'crash') {
+    return withDigest({
+      iterationId,
+      arm: 'replay',
+      scale,
+      index,
+      stopReason: 'verify_crash',
+      rawError: `[verify] ${String(v.error || 'verify crashed')}`.slice(0, 400),
+      env,
+    });
+  }
+
+  const elapsedMs = v.performance ? v.performance.elapsedMs : undefined;
+  const peakRssBytes = v.performance ? v.performance.peakRssBytes : undefined;
+
+  // Over the budget cap -> budget_cap stop (H4 evidence).
+  if (!Number.isFinite(elapsedMs) || elapsedMs > budgetCapMs) {
+    return withDigest({
+      iterationId,
+      arm: 'replay',
+      scale,
+      index,
+      stopReason: 'budget_cap',
+      rawError: `verify elapsedMs ${elapsedMs} > budgetCapMs ${budgetCapMs}`,
+      env,
+    });
+  }
+
+  // Normal verdict within cap -> proof record (H1 evidence).
+  return withDigest({
+    iterationId,
+    arm: 'replay',
+    scale,
+    index,
+    verifyStatus: v.status,
+    verifyFlags: verifyFlagVector(v),
+    digests: {
+      records: manifest.recordsDigest,
+      gold: manifest.goldDigest,
+      manifest: manifest.manifestDigest,
+    },
+    goldMetrics: verifyGoldMetrics(v),
+    elapsedMs,
+    endOfRunRss: peakRssBytes,
+    env,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Run ONE replay iteration through its ENTIRE lifecycle — setup (mkdtemp),
+// generate, verify, build-record, APPEND, and cleanup — under a SINGLE
+// full-lifecycle guard (F-003/F-004). Returns { iterationId, record, appended }.
+//
+// The prior F-001 fix guarded only the generate+verify BODY: mkdtemp ran BEFORE
+// the try and the append/cleanup ran OUTSIDE it, so a setup/append/cleanup throw
+// (ENOSPC / EMFILE / permission / disk-full) escaped uncaught, crashing the
+// driver MID-LOOP with NEITHER a stop record NOR the end-of-run guard. Now the
+// WHOLE iteration lifecycle is guarded: on ANY throw we best-effort append a
+// verify_crash STOP record (tagged with the [phase]) so a crash still becomes
+// exactly one record. The single irreducible case — the append ITSELF throwing —
+// cannot be recorded here; the top-level backstop in main() (strict-multiset
+// guard in a finally) still forces a named NONZERO exit for that recordless
+// iteration, so the driver NEVER exits 0 with a missing record.
+//
+// `appendOne` is injected by main() so the SKIP fault-injection (recordless
+// test) can drop the append for one iterationId while the guard stays intact.
+// ---------------------------------------------------------------------------
+function runIteration(scale, index, budgetCapMs, appendOne) {
   const iterationId = `replay/${scale}/${index}`;
   const env = recordEnv();
-  const dir = mkdtempSync(join(tmpdir(), `pos-replay-${scale}-${index}-`));
 
-  // A stop record for a thrown fault. `phase` names where it threw (generate |
-  // verify). Uses the frozen 'verify_crash' reason (cycle-execution-failure) —
-  // do NOT invent a new stopReason; the enum is frozen in protocol.json.
-  const crashStop = (err, phase) => ({
-    iterationId,
-    record: withDigest({
+  // A stop record for a thrown fault. `phase` names where it threw (setup |
+  // generate | verify | append | cleanup). Uses the frozen 'verify_crash'
+  // reason (cycle-execution-failure) — do NOT invent a new stopReason; the enum
+  // is frozen in protocol.json.
+  const crashStop = (err, phase) =>
+    withDigest({
       iterationId,
       arm: 'replay',
       scale,
@@ -221,88 +305,60 @@ function runIteration(scale, index, budgetCapMs) {
       stopReason: 'verify_crash',
       rawError: `[${phase}] ${String((err && err.message) || err)}`.slice(0, 400),
       env,
-    }),
-  });
+    });
 
+  let dir = null;
   try {
-    // F-001: the ENTIRE generate+verify body is guarded. verifyDir sentinels a
-    // verify crash into {status:'crash'} (handled below as verify_crash), but a
-    // GENERATE-side failure (e.g. execFileSync throwing) propagates as a real
-    // thrown error — the catch converts ANY such throw into a verify_crash STOP
-    // record so a crash can never propagate uncaught or leave the iteration
-    // recordless.
-    let manifest;
-    try {
-      manifest = generateBaseline(dir, scale, iterationId);
-    } catch (e) {
-      return crashStop(e, 'generate');
+    // SETUP (mkdtemp) is now INSIDE the guard. Fault injection: force a setup
+    // throw BEFORE the guarded body so the selfcheck can prove a pre-body crash
+    // still becomes a verify_crash stop (or a named nonzero exit).
+    const failMkdtempAt = process.env.POS_FAIL_MKDTEMP_AT || null;
+    if (failMkdtempAt && iterationId === failMkdtempAt) {
+      throw Object.assign(new Error(`[fault-injection] forced mkdtemp failure at ${iterationId}`), {
+        posPhase: 'setup',
+      });
     }
+    dir = mkdtempSync(join(tmpdir(), `pos-replay-${scale}-${index}-`));
 
-    const v = verifyDir(dir);
+    const record = buildIterationRecord(scale, index, budgetCapMs, dir, iterationId, env);
 
-    // Verify crash sentinel -> verify_crash stop.
-    if (v.status === 'crash') {
-      return {
-        iterationId,
-        record: withDigest({
-          iterationId,
-          arm: 'replay',
-          scale,
-          index,
-          stopReason: 'verify_crash',
-          rawError: `[verify] ${String(v.error || 'verify crashed')}`.slice(0, 400),
-          env,
-        }),
-      };
+    // APPEND is now INSIDE the guard. Fault injection: force an append-side
+    // throw so the selfcheck can prove a post-body/append crash cannot leave the
+    // iteration recordless-and-silent.
+    const failAppendAt = process.env.POS_FAIL_APPEND_AT || null;
+    if (failAppendAt && iterationId === failAppendAt) {
+      throw Object.assign(new Error(`[fault-injection] forced append failure at ${iterationId}`), {
+        posPhase: 'append',
+      });
     }
-
-    const elapsedMs = v.performance ? v.performance.elapsedMs : undefined;
-    const peakRssBytes = v.performance ? v.performance.peakRssBytes : undefined;
-
-    // Over the budget cap -> budget_cap stop (H4 evidence).
-    if (!Number.isFinite(elapsedMs) || elapsedMs > budgetCapMs) {
-      return {
-        iterationId,
-        record: withDigest({
-          iterationId,
-          arm: 'replay',
-          scale,
-          index,
-          stopReason: 'budget_cap',
-          rawError: `verify elapsedMs ${elapsedMs} > budgetCapMs ${budgetCapMs}`,
-          env,
-        }),
-      };
-    }
-
-    // Normal verdict within cap -> proof record (H1 evidence).
-    return {
-      iterationId,
-      record: withDigest({
-        iterationId,
-        arm: 'replay',
-        scale,
-        index,
-        verifyStatus: v.status,
-        verifyFlags: verifyFlagVector(v),
-        digests: {
-          records: manifest.recordsDigest,
-          gold: manifest.goldDigest,
-          manifest: manifest.manifestDigest,
-        },
-        goldMetrics: verifyGoldMetrics(v),
-        elapsedMs,
-        endOfRunRss: peakRssBytes,
-        env,
-      }),
-    };
+    const appended = appendOne(record);
+    return { iterationId, record, appended };
   } catch (e) {
-    // Any other throw in the guarded body (never a verify sentinel — those
-    // return, they don't throw) is also a verify_crash STOP record, never an
-    // uncaught propagation and never a recordless iteration.
-    return crashStop(e, 'verify');
+    // ANY throw in the FULL lifecycle (setup | generate | verify | build |
+    // append) becomes a best-effort verify_crash STOP record, never an uncaught
+    // propagation. If the append itself threw, we try once more to append the
+    // crash stop; if THAT also throws, the record cannot be written here — the
+    // top-level backstop guard in main() will still force a named nonzero exit.
+    const phase = (e && e.posPhase) || 'verify';
+    const stop = crashStop(e, phase);
+    let appended = false;
+    try {
+      appended = appendOne(stop);
+    } catch {
+      /* irreducible: append itself is failing; main()'s finally-guard catches
+         the resulting recordless iteration and exits nonzero. */
+    }
+    return { iterationId, record: stop, appended };
   } finally {
-    rmSync(dir, { recursive: true, force: true });
+    // CLEANUP is now INSIDE the guard region. A cleanup throw can no longer
+    // escape uncaught (best-effort rm); the record is already appended above.
+    if (dir !== null) {
+      try {
+        rmSync(dir, { recursive: true, force: true });
+      } catch {
+        /* best-effort cleanup; the iteration is already recorded. */
+      }
+    }
   }
 }
 
@@ -404,56 +460,88 @@ function main() {
     fatal('run-batch: could not acquire batch-ledger lock (another driver holds it)', 3);
   }
 
+  // appendOne: the per-iteration append closure injected into runIteration so
+  // the whole iteration lifecycle (append INCLUDED) is guarded. Honors the
+  // recordless fault injection (SKIP) by deliberately not writing for the
+  // matching iterationId, and returns whether the record was actually appended.
   const producedThisRun = [];
+  const appendOne = (record) => {
+    if (record.stopReason !== undefined && !STOP_REASONS.has(record.stopReason)) {
+      fatal(`run-batch FATAL: ${record.iterationId} produced off-enum stopReason ${record.stopReason}`, 2);
+    }
+    if (skipRecordAt && record.iterationId === skipRecordAt) {
+      console.log(`run-batch: [fault-injection] SKIPPING record for ${record.iterationId}`);
+      return false;
+    }
+    appendRecord(record);
+    producedThisRun.push(record);
+    const kind = record.stopReason ? `stop:${record.stopReason}` : `proof:${record.verifyStatus}`;
+    console.log(`  ${record.iterationId} -> ${kind}`);
+    return true;
+  };
+
+  // -----------------------------------------------------------------------
+  // TOP-LEVEL BACKSTOP (F-003/F-004). The campaign loop is wrapped so the
+  // end-of-run STRICT-MULTISET guard ALWAYS runs — even if an iteration throws
+  // UNCAUGHT (the one irreducible case: the crash-stop append itself failing).
+  // We capture any escaped error, ALWAYS release the lock, ALWAYS run the guard,
+  // and GUARANTEE the driver never exits 0 with a missing/recordless iteration:
+  // a recordless iteration forces a named NONZERO exit and the original error is
+  // surfaced (not swallowed). The guard is written defensively so it cannot
+  // itself throw and mask the exit code.
+  // -----------------------------------------------------------------------
+  let loopError = null;
   try {
     for (const scale of scales) {
       for (let index = 1; index <= N[scale]; index++) {
-        const { iterationId, record } = runIteration(scale, index, budgetCapMs);
-
-        // Validate stopReason against the frozen enum (never emit off-enum).
-        if (record.stopReason !== undefined && !STOP_REASONS.has(record.stopReason)) {
-          fatal(`run-batch FATAL: ${iterationId} produced off-enum stopReason ${record.stopReason}`, 2);
-        }
-
-        // Fault injection (recordless test): deliberately DO NOT append the
-        // record for the matching iterationId, to simulate a recordless
-        // iteration. The end-of-run guard must then catch it.
-        if (skipRecordAt && iterationId === skipRecordAt) {
-          console.log(`run-batch: [fault-injection] SKIPPING record for ${iterationId}`);
-          continue;
-        }
-
-        appendRecord(record);
-        producedThisRun.push(record);
-        const kind = record.stopReason ? `stop:${record.stopReason}` : `proof:${record.verifyStatus}`;
-        console.log(`  ${iterationId} -> ${kind}`);
+        runIteration(scale, index, budgetCapMs, appendOne);
       }
     }
+  } catch (e) {
+    // An iteration escaped its full-lifecycle guard (e.g. crash-stop append also
+    // threw). Do NOT swallow it — record it and let the end-of-run guard force a
+    // named nonzero exit for the resulting recordless iteration.
+    loopError = e;
+    console.error(`run-batch: iteration threw uncaught: ${String((e && e.stack) || e)}`);
   } finally {
     release();
   }
 
-  // -----------------------------------------------------------------------
-  // END-OF-RUN GUARD (F-002a: STRICT EXACT-MULTISET). The ledger must contain
-  // EXACTLY the expected identity multiset for this run's scales — one record
-  // per expected iterationId, and NOTHING ELSE. Any MISSING (recordless),
-  // DUPLICATE, OR EXTRA/unexpected iterationId => nonzero exit naming the
-  // offenders. An extra id (e.g. a leaked precondition/lock stop, or a
-  // cross-run record contaminating the shared ledger) is a loud failure, not a
-  // silent pass.
-  // -----------------------------------------------------------------------
+  runEndOfRunGuard(expectedIds, producedThisRun, loopError);
+}
+
+// ---------------------------------------------------------------------------
+// END-OF-RUN GUARD (F-002a STRICT EXACT-MULTISET + F-003/F-004 backstop). The
+// ledger must contain EXACTLY the expected identity multiset for this run's
+// scales — one record per expected iterationId, and NOTHING ELSE. Any MISSING
+// (recordless), DUPLICATE, OR EXTRA/unexpected iterationId => NONZERO exit
+// naming the offenders. Runs ALWAYS (via main()'s finally-style call), so an
+// iteration that escaped uncaught still forces a named nonzero exit — the driver
+// NEVER exits 0 with a missing record. Computed defensively so a read/parse
+// hiccup cannot mask the exit code (it exits nonzero on any doubt).
+// ---------------------------------------------------------------------------
+function runEndOfRunGuard(expectedIds, producedThisRun, loopError) {
   const counts = new Map();
-  if (existsSync(LEDGER_PATH)) {
-    const lines = readFileSync(LEDGER_PATH, 'utf8').split('\n').filter((l) => l.trim());
-    for (const line of lines) {
-      let rec;
-      try {
-        rec = JSON.parse(line);
-      } catch (e) {
-        fatal(`run-batch FATAL: unparseable ledger line: ${String(e.message || e)}`, 1);
+  let readError = null;
+  try {
+    if (existsSync(LEDGER_PATH)) {
+      const lines = readFileSync(LEDGER_PATH, 'utf8').split('\n').filter((l) => l.trim());
+      for (const line of lines) {
+        let rec;
+        try {
+          rec = JSON.parse(line);
+        } catch (e) {
+          // A single unparseable line makes the whole ledger untrustworthy: exit
+          // nonzero rather than silently miscount.
+          fatal(`run-batch FATAL: unparseable ledger line: ${String((e && e.message) || e)}`, 1);
+        }
+        counts.set(rec.iterationId, (counts.get(rec.iterationId) || 0) + 1);
       }
-      counts.set(rec.iterationId, (counts.get(rec.iterationId) || 0) + 1);
     }
+  } catch (e) {
+    // Any unexpected read failure => treat as an incomplete ledger, never a
+    // silent success. Fall through with whatever we counted and force nonzero.
+    readError = e;
   }
 
   const expectedSet = new Set(expectedIds);
@@ -471,9 +559,26 @@ function main() {
   }
 
   // Print evidence summaries regardless (operator visibility), then decide exit.
-  const proofRecords = producedThisRun.filter((r) => r.verifyStatus !== undefined);
-  printH1Summary(proofRecords);
-  printH4Summary(producedThisRun);
+  // Wrapped so a summary bug cannot throw and mask the exit code.
+  try {
+    const proofRecords = producedThisRun.filter((r) => r.verifyStatus !== undefined);
+    printH1Summary(proofRecords);
+    printH4Summary(producedThisRun);
+  } catch (e) {
+    console.error(`run-batch: summary print failed (non-fatal): ${String((e && e.message) || e)}`);
+  }
+
+  // If an iteration escaped uncaught, surface it — but only AFTER the guard has
+  // decided the exit code, so an incomplete ledger always exits nonzero.
+  if (loopError) {
+    console.error(
+      `run-batch FAIL: an iteration escaped its full-lifecycle guard: ` +
+        `${String((loopError && loopError.message) || loopError)}`,
+    );
+  }
+  if (readError) {
+    fatal(`run-batch FATAL: could not read the ledger for the end-of-run guard: ${String((readError && readError.message) || readError)}`, 1);
+  }
 
   if (recordless.length > 0) {
     fatal(
@@ -490,6 +595,16 @@ function main() {
   if (extra.length > 0) {
     fatal(
       `run-batch FAIL: ${extra.length} extra/unexpected iteration(s) in ledger: ${extra.join(', ')}`,
+      1,
+    );
+  }
+
+  // Ledger is complete/exact. If an iteration nonetheless escaped uncaught, the
+  // ledger being complete means the crash-stop WAS recorded — but do not exit 0
+  // on a swallowed error unless the multiset is genuinely exact (it is here).
+  if (loopError) {
+    fatal(
+      `run-batch FAIL: an iteration threw uncaught (see above); refusing to exit 0`,
       1,
     );
   }
