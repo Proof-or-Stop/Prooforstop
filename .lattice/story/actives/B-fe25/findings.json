@@ -1,0 +1,25 @@
+{
+  "findings": [
+    {
+      "id": "B-fe25:F-001",
+      "desc": "M2 runner readiness does not bind deterministic seed lineage or mechanically compare the M2 phase1 runner manifest to the frozen M1 seed/cell contract. CHK-002 requires required Phase 1 cells ③/⑥/② with deterministic seed linkage, but phase1-runner-manifest.m2.json only records counts/cell families and task ids, while the M1 seed policy derives seeds from protocolDigest|cellNumber|taskSlot|scenarioSlot|repeatSlot. The M2 checker validates counts and required cell presence, but it does not read seed-manifest.m1.json or cell-matrix.m1.json, does not bind taskId/ordinal back to M1 taskSlot ids, and does not assert each M2 cell mirrors the frozen M1 arm/executor/reviewer/row semantics. A future provider-execution story could therefore consume a passing M2 readiness layer with ambiguous or drifted seed/cell linkage.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-05T02:40:09.010Z",
+      "reviewRound": "2026-07-05T02:37:07.819Z",
+      "reviewRunId": "B-fe25:RR-002",
+      "_hash": "635d35c420783e09b5ff40b4daf37d0f4b8dcc2deb58b680481904aec11c9162",
+      "files": [
+        "experiments/multi-model-ablation/phase1-runner-manifest.m2.json",
+        "experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+        "experiments/multi-model-ablation/seed-manifest.m1.json",
+        "experiments/multi-model-ablation/cell-matrix.m1.json"
+      ],
+      "signatureTag": "missing|json|runner-readiness-bind",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
