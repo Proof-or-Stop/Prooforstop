@@ -89,9 +89,9 @@
       "id": "CHK-003",
       "title": "Add a hermetic mkdtemp-isolated selfcheck (selfcheck-m3.mjs) that runs the full boundary-kill + mid-iteration-crash + resume + reconciliation flow and asserts 0 dup / 0 gap, exactly one record per iterationId after resume, and that a mid-iteration casualty resolves to a stop-or-clean-rerun (never a half-record)",
       "context": "Per plan section 7 selfchecks: the M3 selfcheck exercises the crash hook + resume. Hermetic: mkdtemp isolation, small scale, run by node <file>. Assert the H3 evidence-complete conditions on the reconciled ledger.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-05T21:00:03.453Z",
       "userSees": "node experiments/pos-instrument-replay/selfcheck-m3.mjs exits 0 with 'selfcheck-m3 PASS': runs the boundary-kill + mid-iteration-crash + resume + reconciliation flow hermetically and asserts 0 dup / 0 gap + exactly one record per iterationId + casualty resolves to stop-or-clean-rerun.",
       "files": {
         "modify": [],
