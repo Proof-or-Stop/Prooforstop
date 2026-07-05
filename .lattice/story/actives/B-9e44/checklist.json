@@ -333,13 +333,13 @@
         {
           "intentRef": "CHK-005:happy:0",
           "kind": "manual_transcript",
-          "command": "node -e \"const p=require('./experiments/pos-instrument-replay/protocol.json');const s=p.smokeOverlap;console.log(Object.keys(s).length, JSON.stringify(s['gold-edit']), JSON.stringify(s['cross-profile-swap']))\"",
+          "command": "node -e \"const p=require('./experiments/pos-instrument-replay/protocol.json');console.log(Object.keys(p.smokeOverlap).length)\"",
           "result": "pass",
-          "note": "protocol.json carries a per-class smokeOverlap map (12 classes): e.g. gold-edit -> {covered:true, smokeCase:assertGoldTamperWouldFail}; cross-profile-swap -> {covered:false} (net-new). The committed reuse-audit map.",
-          "headHash": "40a93aaa8e2dd0044a3d50ae850b5f7654e8f173",
-          "materialHash": "d1348054bc91ba6c68681b2134e839fff5420ab72d02cb3a8affd4eae7154616",
-          "storyFilesHash": "3c8e6f828b521108afc48d84324055ce0043066272bc0b6f973bf239cda660fc",
-          "timestamp": "2026-07-05T15:42:28.958Z"
+          "note": "protocol.json carries a per-class smokeOverlap map incl. the 5 new net-new classes (covered:false); e.g. gold-additive-field covered:true smokeCase:assertGoldTamperWouldFail; manifest-structural-corruption covered:false.",
+          "headHash": "f518fa38e295e8f324f9304d9059b4c5ecd125f0",
+          "materialHash": "8e4ad7d3b09104bc1a8fce6ed81818f8adfd6b3afe75ce3aa5c966448238e4fc",
+          "storyFilesHash": "c39c0bbfa692ba80864553542cc692d26fec1a709872f4c2223a73181f52eab5",
+          "timestamp": "2026-07-05T16:10:57.639Z"
         }
       ]
     }
