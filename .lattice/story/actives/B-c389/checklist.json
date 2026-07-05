@@ -57,7 +57,43 @@
       "context": "Render candidate capability playbooks ONLY under pendingLearning / promotionRecommendations / candidate-inspection, never as active runtime guidance (matchActivePlaybook status===active guard already enforces this; do not weaken it). Write an exposure record per exposure: playbookId, capabilityReleaseId, exposureMode, surface, storyId or sessionId, observedAt.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "playbook_promotion_status shows PBP-882 with capabilityRelease after backfill; an exposure record is written on candidate-inspection exposure",
+      "files": {
+        "modify": [
+          "packages/main/src/core/learning-store.ts",
+          "packages/main/src/handlers/playbook.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/capability-candidate-exposure-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/capability-candidate-exposure-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A capability candidate (post-backfill PBP-882) surfaces in playbook_promotion_status pendingLearning with its capabilityRelease lineage; when exposed via candidate-inspection an exposure record is written (playbookId, capabilityReleaseId, exposureMode, surface, storyId/sessionId, observedAt).",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Exposure only under pendingLearning/promotionRecommendations/candidate-inspection; the candidate never enters active runtime surfacing (matchActivePlaybook status guard, unchanged).",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Writing an exposure record does not change the candidate status and is not treated as a helped outcome.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
