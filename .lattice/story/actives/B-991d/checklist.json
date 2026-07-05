@@ -42,7 +42,42 @@
       },
       "status": "in_progress",
       "startTime": "2026-07-05T23:34:12.376Z",
-      "endTime": null
+      "endTime": null,
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"B-991d Cell 03 Real Execution|Cell 03 Real Execution Story\" docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+          "result": "pass",
+          "note": "The existing M2 provider execution plan now contains the B-991d Cell 03 Real Execution Story section and the B-991d M0-M9 real-execution ledger while provider calls remain disabled until the execution window opens.",
+          "headHash": "e8afb15488877bf3973eb41192a8be6fd82828ff",
+          "materialHash": "37f7586ccff45b118ec9f1be6c46d9da3ec91d7032f43fc3193455a5f10573c1",
+          "storyFilesHash": "3f91583fb34b96ffde92ad4a69ae756af25bb3e256c885cd28ed8186b5fa2aba",
+          "timestamp": "2026-07-05T23:37:03.311Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"pre-run dollar|provider-reported usage\" docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+          "result": "pass",
+          "note": "The plan states pre-run dollar guesses are not launch gates and postflight provider-reported usage/cost accounting is required after execution.",
+          "headHash": "e8afb15488877bf3973eb41192a8be6fd82828ff",
+          "materialHash": "37f7586ccff45b118ec9f1be6c46d9da3ec91d7032f43fc3193455a5f10573c1",
+          "storyFilesHash": "3f91583fb34b96ffde92ad4a69ae756af25bb3e256c885cd28ed8186b5fa2aba",
+          "timestamp": "2026-07-05T23:37:03.669Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"Cell 06|Phase 2|paper wording|product gates|playbook activation\" docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+          "result": "pass",
+          "note": "The plan states Cell 02, Cell 04, Cell 06, Phase 2, paper wording, product gates, and playbook activation remain locked/out of scope; CHK-001 does not unlock them.",
+          "headHash": "e8afb15488877bf3973eb41192a8be6fd82828ff",
+          "materialHash": "37f7586ccff45b118ec9f1be6c46d9da3ec91d7032f43fc3193455a5f10573c1",
+          "storyFilesHash": "3f91583fb34b96ffde92ad4a69ae756af25bb3e256c885cd28ed8186b5fa2aba",
+          "timestamp": "2026-07-05T23:37:04.057Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
