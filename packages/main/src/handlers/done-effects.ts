@@ -268,25 +268,11 @@ export function commitArtifactReleaseLedgerIfNeeded(
   }
 }
 
-export function runArtifactReleaseLedgerAfterDoneMerge(
-  mainMergeRoot: string,
-  storyId: string,
-  beforeMainSha: string,
-  afterMainSha: string,
-  opts: {
-    changedPaths?: string[];
-    runtimeSemverChanged?: boolean;
-    runGit: (gitArgs: string[], cwd: string) => string;
-  },
-): string | null {
-  return runArtifactReleaseLedgerAfterDoneMergeDetailed(mainMergeRoot, storyId, beforeMainSha, afterMainSha, opts).line;
-}
-
 /**
- * Same as {@link runArtifactReleaseLedgerAfterDoneMerge} but also returns the
- * recorded/already-recorded artifact release record so the caller can forward its
- * id + artifactSetDigest into the capability release ledger (B-8128 M3). Behavior
- * of the artifact release itself is UNCHANGED.
+ * Runs the artifact release ledger classifier over the DONE-time changed paths
+ * and returns the recorded/already-recorded artifact release record so the caller
+ * can forward its id + artifactSetDigest into the capability release ledger
+ * (B-8128 M3). Behavior of the artifact release itself is UNCHANGED.
  */
 export function runArtifactReleaseLedgerAfterDoneMergeDetailed(
   mainMergeRoot: string,
@@ -351,7 +337,7 @@ export function commitCapabilityReleaseLedgerIfNeeded(
 }
 
 /**
- * B-8128 M3: mirror {@link runArtifactReleaseLedgerAfterDoneMerge} for the product
+ * B-8128 M3: mirror {@link runArtifactReleaseLedgerAfterDoneMergeDetailed} for the product
  * capability release ledger. Runs the pure classifier (in core/) over the SAME
  * DONE-time changed paths, passing the artifact release id/digest through so an
  * identical content re-merge/recovery dedups, then commits
