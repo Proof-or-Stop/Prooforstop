@@ -93,9 +93,9 @@
       "id": "CHK-002",
       "title": "M6: candidate pending-learning exposure surfaces + exposure records",
       "context": "Render candidate capability playbooks ONLY under pendingLearning / promotionRecommendations / candidate-inspection, never as active runtime guidance (matchActivePlaybook status===active guard already enforces this; do not weaken it). Write an exposure record per exposure: playbookId, capabilityReleaseId, exposureMode, surface, storyId or sessionId, observedAt.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-05T23:34:24.660Z",
-      "endTime": null,
+      "endTime": "2026-07-05T23:38:16.079Z",
       "userSees": "playbook_promotion_status shows PBP-882 with capabilityRelease after backfill; an exposure record is written on candidate-inspection exposure",
       "files": {
         "modify": [
