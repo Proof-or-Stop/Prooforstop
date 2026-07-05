@@ -199,7 +199,53 @@
       },
       "status": "in_progress",
       "startTime": "2026-07-05T23:38:58.666Z",
-      "endTime": null
+      "endTime": null,
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node -e 'const fs=require(\"fs\"); const p=JSON.parse(fs.readFileSync(\"experiments/multi-model-ablation/m2-cell03-result-write-policy.json\",\"utf8\")); const required=[\"cellKey\",\"taskId\",\"scenarioId\",\"repeatIndex\",\"runnerId\",\"executionWindowId\",\"executionStoryId\",\"executorSnapshotId\",\"reviewerSnapshotId\",\"promptDigest\",\"toolSurfaceDigest\",\"providerReportedUsage\",\"rowStatus\",\"provenance\"]; for (const k of required) if (!JSON.stringify(p).includes(k)) throw new Error(`missing ${k}`); if (p.providerCallEnabled!==false || p.resultRowsAllowedInThisStory!==false) throw new Error(\"must remain disabled\"); if (JSON.stringify(p).includes(\"mustNotBe\\\": \\\"B-991d\")) throw new Error(\"B-991d must not be excluded from executionStoryId\"); console.log(\"result write policy contract ok\")'",
+          "result": "pass",
+          "note": "Result write policy defines required row binding fields and keeps provider/result rows disabled in this story.",
+          "headHash": "77922e9c5a86b8357788aebaa25a6f0e925e672c",
+          "materialHash": "3cee8e317c9b63949828f4ef33fc1312742246cb48ab633c7de2cea73b0d7553",
+          "storyFilesHash": "6b372163e247d21543642d35ef19cdff65e3e49bb5d5be81b90fa4aaf11ef686",
+          "timestamp": "2026-07-05T23:44:45.310Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "rg -n 'oneFinalFormalRowPerCellKey|failedRetriedVoidRowsCannotCountTwice|supersededRowsMustRemainAuditable|nonFinalRowsRemainAuditable' experiments/multi-model-ablation/m2-cell03-result-write-policy.json",
+          "result": "pass",
+          "note": "Contract preserves failed/retried/void/superseded rows as auditable non-counting records and permits only one final formal row per cell key.",
+          "headHash": "77922e9c5a86b8357788aebaa25a6f0e925e672c",
+          "materialHash": "3cee8e317c9b63949828f4ef33fc1312742246cb48ab633c7de2cea73b0d7553",
+          "storyFilesHash": "6b372163e247d21543642d35ef19cdff65e3e49bb5d5be81b90fa4aaf11ef686",
+          "timestamp": "2026-07-05T23:44:45.588Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "rg -n 'missing-provider-reported-usage|missing-digest-bindings|host-label-only-snapshots|duplicate-final-row|fallback-provider-or-model-switch|cell06ExecutionAllowedByThisPolicy|phase2ExecutionAllowedByThisPolicy|playbookGateImpact|productGateImpact' experiments/multi-model-ablation/m2-cell03-result-write-policy.json",
+          "result": "pass",
+          "note": "Contract makes rows non-formal for missing provider usage, missing digest bindings, host-label-only snapshots, duplicate final rows, fallback/model switch, and confirms Cell 06/Phase 2/playbook/product gates remain unaffected.",
+          "headHash": "77922e9c5a86b8357788aebaa25a6f0e925e672c",
+          "materialHash": "3cee8e317c9b63949828f4ef33fc1312742246cb48ab633c7de2cea73b0d7553",
+          "storyFilesHash": "6b372163e247d21543642d35ef19cdff65e3e49bb5d5be81b90fa4aaf11ef686",
+          "timestamp": "2026-07-05T23:44:45.842Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "result": "pass",
+          "note": "Existing provider execution checker still passes with provider calls disabled, Cell 03 envelope frozen, postflight provider usage required, and Cell 06 blocked.",
+          "headHash": "77922e9c5a86b8357788aebaa25a6f0e925e672c",
+          "materialHash": "3cee8e317c9b63949828f4ef33fc1312742246cb48ab633c7de2cea73b0d7553",
+          "storyFilesHash": "6b372163e247d21543642d35ef19cdff65e3e49bb5d5be81b90fa4aaf11ef686",
+          "timestamp": "2026-07-05T23:44:46.101Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
