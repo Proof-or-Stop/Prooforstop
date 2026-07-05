@@ -1,0 +1,70 @@
+{
+  "principles": [
+    "Preserve live diagnostics: milestone_status must continue to reflect current freshness.",
+    "Snapshot only accepted closure: closeout artifacts must be generated only from complete, risk-free milestone reports.",
+    "Keep the surface host-neutral and read-only for consumers.",
+    "Reuse existing milestone projection logic instead of duplicating status rules."
+  ],
+  "drivers": [
+    "DONE merge/version changes can stale live evidence after accepted closure.",
+    "The user needs a final table with solved problem and evidence columns.",
+    "The implementation must stay scoped to milestone closeout behavior and tests/docs."
+  ],
+  "options": [
+    {
+      "name": "add-closeout-command-and-done-snapshot",
+      "pros": [
+        "Separates live diagnostic from historical closeout truth",
+        "Gives users a stable explicit command",
+        "Keeps current milestone_status semantics intact"
+      ],
+      "cons": [
+        "Requires one new command and storage artifact"
+      ]
+    },
+    {
+      "name": "change-milestone-status-to-read-historical-done",
+      "pros": [
+        "No new command name",
+        "DONE stories would appear green by default"
+      ],
+      "cons": [
+        "Hides useful current freshness diagnostics",
+        "Changes semantics of an existing command"
+      ]
+    },
+    {
+      "name": "only-document-agent-final-summary",
+      "pros": [
+        "Smallest code change"
+      ],
+      "cons": [
+        "Does not mechanically solve the problem",
+        "Still depends on agent prose"
+      ]
+    }
+  ],
+  "chosen": "add-closeout-command-and-done-snapshot",
+  "rationale": "A separate closeout snapshot and read-only closeout command preserves the existing live diagnostic while giving DONE stories a mechanically inspectable final table.",
+  "preMortem": [
+    {
+      "scenario": "Snapshot captures stale or incomplete milestones as final success",
+      "trigger": "DONE path writes snapshot without checking completed group and risks",
+      "consequence": "Users see a false final table",
+      "mitigation": "Build snapshot only from reports where every row is completed or not applicable and risks are empty; test risk-bearing refusal."
+    },
+    {
+      "scenario": "Closeout command mutates story state or refreshes evidence",
+      "trigger": "Command reuses write-capable path or accepts mutation flags",
+      "consequence": "Read-only reporting boundary is broken",
+      "mitigation": "Use a dedicated read-only handler boundary and negative CLI tests for mutation-like flags."
+    },
+    {
+      "scenario": "Live milestone_status loses stale diagnostics",
+      "trigger": "Implementation silently switches DONE stories to historical snapshots",
+      "consequence": "Users cannot detect current material drift",
+      "mitigation": "Keep milestone_status live; expose snapshot through milestone_closeout or explicit closeout mode only."
+    }
+  ],
+  "timestamp": "2026-07-04T23:52:12.803Z"
+}

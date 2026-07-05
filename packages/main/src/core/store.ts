@@ -16,6 +16,7 @@ import type {
 import { REVIEW_LOOP_FILENAME } from './review-loop.js';
 import { CAPSULE_DIR_NAME, type StoryCapsuleData, type StoryCapsuleRunData } from './story-capsule.js';
 import type { ClusterData } from './cluster-types.js';
+import type { MilestoneCloseoutSnapshot } from './milestone-status.js';
 import { appendProcessEvent as appendProcessEventFn, readProcessEvents as readProcessEventsFn } from './process-events.js';
 import { loadConfig } from './config.js';
 import { LEGACY_DOCS_STORY_DIR, uniqueRelPaths } from './lattice-paths.js';
@@ -676,6 +677,19 @@ export class StoryStore {
 
   writeMilestoneLedger(storyId: string, data: MilestoneLedgerData): void {
     this.writeJson(storyId, 'milestone-ledger.json', data);
+  }
+
+  readMilestoneCloseout(storyId: string): MilestoneCloseoutSnapshot | null {
+    try {
+      return this.readJson<MilestoneCloseoutSnapshot>(storyId, 'milestone-closeout.json');
+    } catch (e) {
+      if (e instanceof StoryArtifactMissingError) return null;
+      throw e;
+    }
+  }
+
+  writeMilestoneCloseout(storyId: string, data: MilestoneCloseoutSnapshot): void {
+    this.writeJson(storyId, 'milestone-closeout.json', data);
   }
 
   readProofStorySlicePlan(storyId: string): ProofStorySlicePlanData | null {

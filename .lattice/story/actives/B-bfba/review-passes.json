@@ -1,0 +1,76 @@
+{
+  "passes": [
+    {
+      "id": "B-bfba:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "Docs review: docs/CLI.md covers read-only historical snapshot semantics, text/JSON usage, closeout output columns, missing snapshot diagnostic and next action, and the boundary with live milestone_status. Worktree CLI help and targeted milestone-status test were checked.",
+      "createdAt": "2026-07-05T00:10:37.648Z",
+      "reviewRound": "2026-07-05T00:08:17.768Z",
+      "reviewRunId": "B-bfba:RR-004",
+      "_hash": "410f82a542b1beb7402f6c8cbca396095e4f3c77f371036f37f873a6e9f68e89"
+    },
+    {
+      "id": "B-bfba:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept review passed. Stable closeout snapshot is captured from a completed risk-free milestone_status report before DONE metadata/merge drift; milestone_closeout is host-neutral/read-only and does not recompute freshness or claim authority/production success; missing, incomplete, and risk-bearing cases do not fabricate success.",
+      "createdAt": "2026-07-05T00:10:53.355Z",
+      "reviewRound": "2026-07-05T00:08:17.768Z",
+      "reviewRunId": "B-bfba:RR-002",
+      "_hash": "c4fed2430e2456b460660505ddc6840e859f535e63e976d1f252b9333ee3466d"
+    },
+    {
+      "id": "B-bfba:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage review covered CHK-001..CHK-003 and the confirmed milestone ledger. Happy/edge/adversarial coverage exists for snapshot schema/freezing, missing ledger, incomplete and risk-bearing rejection, CLI text/JSON, missing snapshot diagnostics, malformed and mutation-like flags, and helper-level DONE capture. Recorded medium non-blocking gap B-bfba:F-001 for missing full story_advance DONE closeout integration coverage; no critical/high blocker found.",
+      "createdAt": "2026-07-05T00:11:21.127Z",
+      "reviewRound": "2026-07-05T00:08:17.768Z",
+      "reviewRunId": "B-bfba:RR-001",
+      "_hash": "978c610bc646f29ed31dc8b40cf4b4f8138a1de5a67d5d5927a34ac2507c11e9"
+    },
+    {
+      "id": "B-bfba:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Quality review passed with no critical/high blockers. Inspected milestone_closeout snapshot fail-closed behavior, store read/write persistence, DONE capture ordering in transition-orchestrator, strict argument validation, command policy/catalog/read-only registration, and scope acknowledgements. Verified npm --prefix packages/main run build, node packages/main/tests/milestone-status.test.mjs, branch-local milestone_closeout missing-snapshot JSON smoke, and branch-local unknown-flag rejection. Installed global lattice binary does not yet expose milestone_closeout pre-merge, but branch-local dist CLI does.",
+      "createdAt": "2026-07-05T00:11:23.179Z",
+      "reviewRound": "2026-07-05T00:08:17.768Z",
+      "reviewRunId": "B-bfba:RR-003",
+      "_hash": "3ef251aca03d5fc829dbbe23cc7131ffed5eaa9322524a40abbeca437547a2f1"
+    },
+    {
+      "id": "B-bfba:RP-005",
+      "agent": "lattice-review-docs",
+      "note": "docs/CLI.md remains consistent with milestone_closeout semantics after the F-001 test-only delta: the docs already describe read-only historical snapshot reading, DONE-time capture from completed risk-free milestone_status, missing-snapshot diagnostics, allowed args, and the live milestone_status boundary. No docs update required.",
+      "createdAt": "2026-07-05T00:21:44.336Z",
+      "reviewRound": "2026-07-05T00:17:44.038Z",
+      "reviewRunId": "B-bfba:RR-008",
+      "_hash": "58f8e58c635b0ab045955bcc35049e2b1aa5b3b26b566e648ec9908b0f2bacf2"
+    },
+    {
+      "id": "B-bfba:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "B-bfba:F-001 is resolved. The added milestone-status regression creates a temp repo StoryStore, calls createStoryAdvanceHandlers(...).story_advance({ storyId, phase: 'DONE' }), asserts DONE succeeds, asserts milestone-closeout.json exists via store.storyFilePath, verifies the closeout capture log, and checks the snapshot phase remains TEST before DONE metadata persistence. Focused test and no-emit build both pass.",
+      "createdAt": "2026-07-05T00:22:13.472Z",
+      "reviewRound": "2026-07-05T00:17:44.038Z",
+      "reviewRunId": "B-bfba:RR-007",
+      "_hash": "ac23e7d6337e4ea7ac03639070f3742ddcebbf67b0db63c246feb8c051f1e65c"
+    },
+    {
+      "id": "B-bfba:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Concept review pass: post-F-001 delta is limited to the real story_advance DONE regression in packages/main/tests/milestone-status.test.mjs plus metadata. The fixture uses a temp repo TEST story with confirmed milestone ledger, signed delivery context, and createStoryAdvanceHandlers(...).story_advance({phase:DONE}); it asserts milestone-closeout.json is persisted through transition-orchestrator wiring, logged, and captured while snapshot.phase remains TEST before DONE metadata persistence. No source/product semantics changed; host-neutral stable DONE closeout snapshots remain supported by hash bindings and source milestone_status digest.",
+      "createdAt": "2026-07-05T00:22:28.519Z",
+      "reviewRound": "2026-07-05T00:17:44.038Z",
+      "reviewRunId": "B-bfba:RR-005",
+      "_hash": "b45b11545794e61fbd4d504123567c80936ac41c10893202b16eccebfe1b2d44"
+    },
+    {
+      "id": "B-bfba:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Targeted current-round quality review after F-001: packages/main/tests/milestone-status.test.mjs adds a real temp-repo createStoryAdvanceHandlers(...).story_advance({phase:DONE}) regression. The fixture restores cwd and PLAYBOOK_DONE_* env vars in finally, removes its temp root, leaves the worktree clean, asserts persisted milestone-closeout.json/snapshot data rather than source text, and the delta contains no production changes. Verified npm --prefix packages/main run build and node packages/main/tests/milestone-status.test.mjs.",
+      "createdAt": "2026-07-05T00:22:34.460Z",
+      "reviewRound": "2026-07-05T00:17:44.038Z",
+      "reviewRunId": "B-bfba:RR-006",
+      "_hash": "8ca06a8a63f48d712d40f8921ed2672475482d7c0ccf283f68935d0cdc9fd915"
+    }
+  ]
+}

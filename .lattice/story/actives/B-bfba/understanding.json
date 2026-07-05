@@ -1,0 +1,30 @@
+{
+  "task": "Capture a stable DONE closeout snapshot for milestone-driven stories without weakening the live milestone_status freshness diagnostic.",
+  "outcome": "After a milestone-driven story reaches DONE, the user can run a closeout command and see a table with every milestone, its final status, the solved problem, the acceptance rule, supporting evidence, risks, and next action, even if a later merge or version bump would make the live milestone_status diagnostic stale.",
+  "facts": [
+    "B-7ba7 implemented milestone_status as a live read-only freshness report.",
+    "DONE merge/version commits can legitimately change material hashes after TEST evidence was accepted.",
+    "Users need a final closeout snapshot that represents accepted closure, not a recomputed live diagnostic.",
+    "The existing milestone status core already contains most row projection logic and should be reused."
+  ],
+  "constraints": [
+    "Keep milestone_status live and read-only for active diagnostics.",
+    "Do not edit unrelated README drift.",
+    "Do not claim Authority or production DONE.",
+    "Do not rewrite the whole lifecycle; add a narrow snapshot path around DONE closure."
+  ],
+  "unknowns": [
+    "Exact DONE code path where snapshot generation is least invasive.",
+    "Whether the user-facing surface should be a new command or a milestone_status mode."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/milestone-status.ts",
+    "packages/main/src/handlers/milestone-status.ts",
+    "packages/main/src/handlers/story-advance.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/tests/milestone-status.test.mjs",
+    "docs/CLI.md"
+  ],
+  "timestamp": "2026-07-04T23:52:02.901Z"
+}

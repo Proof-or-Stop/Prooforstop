@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-bfba",
+  "state": "confirmed",
+  "ledgerHash": "sha256:afbddc0caaf4e1d101b7f791fa0ef98d71090578bc919866742c326fb506fb53",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-CLOSEOUT-001",
+      "claim": "Define a stable DONE milestone closeout snapshot schema over existing milestone_status rows.",
+      "doneMeans": "A closeout snapshot contains every milestone row with status, solvedProblem, acceptance, evidence, risks, nextAction, binding hashes, and source report digest without changing live status semantics.",
+      "requiredEvidence": [
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "REQ-CLOSEOUT-002",
+      "claim": "Capture the closeout snapshot during DONE readiness before closure metadata can stale the live view.",
+      "doneMeans": "DONE advancement produces milestone-closeout.json from a completed risk-free report, and refuses to label incomplete/risk-bearing reports as final closeout success.",
+      "requiredEvidence": [
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "REQ-CLOSEOUT-003",
+      "claim": "Expose the stable closeout report through a read-only host-neutral command.",
+      "doneMeans": "Users and hosts can print text or JSON closeout tables with Milestone, Status, Solved Problem, Acceptance, Evidence, Risks, and Next Action columns, while missing snapshots and mutation-like flags fail clearly.",
+      "requiredEvidence": [
+        "cli_smoke",
+        "docs_check"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-04T23:52:21.503Z",
+  "updatedAt": "2026-07-04T23:52:58.932Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260704235258",
+    "acceptedInterpretationHash": "sha256:7ae4e9d9908d1609d5f2a2dfcb1a81b1b28de80c6cff473c35c77611214764cb",
+    "acceptedAt": "2026-07-04T23:52:58.932Z"
+  }
+}

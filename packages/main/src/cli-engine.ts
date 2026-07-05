@@ -461,6 +461,7 @@ const STRICT_OWNER_META_COMMANDS = new Set([
 
 const STRICT_COMMAND_ARG_COMMANDS = new Set([
   'milestone_status',
+  'milestone_closeout',
 ]);
 
 const CLI_META_SCHEMA = {

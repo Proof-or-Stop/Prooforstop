@@ -3,6 +3,7 @@ export const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'next',
   'done_closure',
   'milestone_status',
+  'milestone_closeout',
   'global_control_status',
   'runtime_closure_status',
   'admissibility_waterline',

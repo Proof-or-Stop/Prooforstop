@@ -12,10 +12,19 @@ import type {
   VerificationIntentItem,
   VerificationLane,
 } from './types.js';
-import { EMPTY_STORY_FILES_HASH } from './evidence-freshness.js';
+import { createHash } from 'crypto';
+import {
+  currentGitHead,
+  currentMaterialHash,
+  currentStoryFilesHash,
+  EMPTY_STORY_FILES_HASH,
+} from './evidence-freshness.js';
 import { collectVerificationIntents } from './verification.js';
 
 export const MILESTONE_STATUS_SCHEMA_VERSION = 'proofbound.milestone_status.v1';
+export const MILESTONE_CLOSEOUT_SCHEMA_VERSION = 'proofbound.milestone_closeout.v1';
+export const MILESTONE_CLOSEOUT_MISSING_SCHEMA_VERSION = 'proofbound.milestone_closeout_missing.v1';
+export const MILESTONE_CLOSEOUT_FILENAME = 'milestone-closeout.json';
 
 export type MilestoneProgressStatus = 'completed' | 'current' | 'remaining';
 
@@ -97,12 +106,52 @@ export interface MilestoneStatusReport {
   };
 }
 
+export interface MilestoneCloseoutSnapshotRow {
+  milestone: string;
+  status: string;
+  solvedProblem: string;
+  acceptance: string;
+  evidence: string[];
+  risks: string[];
+  nextAction: string;
+}
+
+export interface MilestoneCloseoutSnapshot {
+  schemaVersion: typeof MILESTONE_CLOSEOUT_SCHEMA_VERSION;
+  storyId: string;
+  phase: StoryPhase;
+  generatedAt: string;
+  sourceReport: {
+    schemaVersion: typeof MILESTONE_STATUS_SCHEMA_VERSION;
+    digest: string;
+    ledger: MilestoneStatusLedgerSummary;
+    groups: MilestoneStatusReport['groups'];
+  };
+  bindings: MilestoneStatusCurrentEvidenceBinding;
+  rows: MilestoneCloseoutSnapshotRow[];
+}
+
+export interface MilestoneCloseoutMissingReport {
+  schemaVersion: typeof MILESTONE_CLOSEOUT_MISSING_SCHEMA_VERSION;
+  storyId: string;
+  snapshotPresent: false;
+  expectedPath?: string;
+  diagnostic: string;
+  nextAction: string;
+}
+
 export interface BuildMilestoneStatusReportInput {
   story: StoryInfo;
   checklist: ChecklistData;
   milestoneLedger: MilestoneLedgerData | null;
   summary?: StorySummaryData | null;
   currentEvidenceBinding?: MilestoneStatusCurrentEvidenceBinding | null;
+}
+
+export interface BuildMilestoneCloseoutSnapshotInput {
+  report: MilestoneStatusReport;
+  bindings?: MilestoneStatusCurrentEvidenceBinding | null;
+  generatedAt?: string;
 }
 
 interface IntentIndexEntry {
@@ -166,6 +215,21 @@ function normalizedBindingValue(value: string | undefined): string | undefined {
 
 function shortHash(value: string): string {
   return value.length > 12 ? value.slice(0, 12) : value;
+}
+
+export function currentMilestoneStatusEvidenceBinding(
+  gitCwd: string,
+  metadataRoot: string = gitCwd,
+): MilestoneStatusCurrentEvidenceBinding | undefined {
+  const headHash = currentGitHead(gitCwd);
+  const materialHash = currentMaterialHash(gitCwd, 'HEAD', metadataRoot);
+  const storyFilesHash = currentStoryFilesHash(gitCwd, 'HEAD', metadataRoot);
+  const binding: MilestoneStatusCurrentEvidenceBinding = {
+    ...(headHash ? { headHash } : {}),
+    ...(materialHash ? { materialHash } : {}),
+    ...(storyFilesHash ? { storyFilesHash } : {}),
+  };
+  return Object.keys(binding).length > 0 ? binding : undefined;
 }
 
 function headHashMatches(evidenceValue: string, currentValue: string): boolean {
@@ -618,6 +682,168 @@ export function buildMilestoneStatusReport(input: BuildMilestoneStatusReportInpu
     nextActions,
     ...(summary ? { summary } : {}),
   };
+}
+
+function canonicalJson(value: unknown): string {
+  return JSON.stringify(canonicalize(value));
+}
+
+function canonicalize(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(canonicalize);
+  if (!value || typeof value !== 'object') return value;
+  const input = value as Record<string, unknown>;
+  const output: Record<string, unknown> = {};
+  for (const key of Object.keys(input).sort()) {
+    const entry = input[key];
+    if (entry !== undefined) output[key] = canonicalize(entry);
+  }
+  return output;
+}
+
+export function milestoneStatusReportDigest(report: MilestoneStatusReport): string {
+  return createHash('sha256').update(canonicalJson(report)).digest('hex');
+}
+
+function closeoutEvidenceText(evidence: MilestoneStatusEvidenceRef): string {
+  return [
+    `${evidence.intentRef} [${evidence.status}/${evidence.kind}]`,
+    evidence.command,
+    evidence.file ? `file=${evidence.file}` : undefined,
+    evidence.note ? `note=${evidence.note}` : undefined,
+  ].filter((part): part is string => Boolean(part && part.trim())).join(' ');
+}
+
+export function buildMilestoneCloseoutSnapshot(
+  input: BuildMilestoneCloseoutSnapshotInput,
+): MilestoneCloseoutSnapshot {
+  const report = input.report;
+  if (!report.ledger.present) {
+    throw new Error(
+      `Cannot create milestone closeout snapshot for ${report.storyId}: missing milestone ledger; ` +
+      'a DONE closeout cannot fabricate success without milestone-ledger.json.',
+    );
+  }
+  if (report.milestones.length === 0) {
+    throw new Error(
+      `Cannot create milestone closeout snapshot for ${report.storyId}: milestone report has no rows.`,
+    );
+  }
+
+  const incomplete = report.milestones.filter((row) => row.status !== 'completed');
+  if (incomplete.length > 0) {
+    throw new Error(
+      `Cannot create milestone closeout snapshot for ${report.storyId}: incomplete milestone rows: ` +
+      incomplete.map((row) => `${row.id}=${row.status}`).join(', '),
+    );
+  }
+
+  const rowRisks = report.milestones.flatMap((row) => row.risks.map((risk) => `${row.id}: ${risk}`));
+  const risks = unique([...report.risks, ...rowRisks]);
+  if (risks.length > 0) {
+    throw new Error(
+      `Cannot create milestone closeout snapshot for ${report.storyId}: milestone report has risks: ${risks.join('; ')}`,
+    );
+  }
+
+  return {
+    schemaVersion: MILESTONE_CLOSEOUT_SCHEMA_VERSION,
+    storyId: report.storyId,
+    phase: report.phase,
+    generatedAt: input.generatedAt ?? new Date().toISOString(),
+    sourceReport: {
+      schemaVersion: report.schemaVersion,
+      digest: milestoneStatusReportDigest(report),
+      ledger: report.ledger,
+      groups: report.groups,
+    },
+    bindings: input.bindings ?? {},
+    rows: report.milestones.map((row) => ({
+      milestone: row.id,
+      status: `${row.status} (${row.statusDetail})`,
+      solvedProblem: row.claim,
+      acceptance: row.doneMeans,
+      evidence: row.evidenceRefs.map(closeoutEvidenceText),
+      risks: row.risks,
+      nextAction: row.nextAction,
+    })),
+  };
+}
+
+export function buildMilestoneCloseoutMissingReport(
+  storyId: string,
+  expectedPath?: string,
+): MilestoneCloseoutMissingReport {
+  return {
+    schemaVersion: MILESTONE_CLOSEOUT_MISSING_SCHEMA_VERSION,
+    storyId,
+    snapshotPresent: false,
+    ...(expectedPath ? { expectedPath } : {}),
+    diagnostic: `No ${MILESTONE_CLOSEOUT_FILENAME} snapshot exists for ${storyId}.`,
+    nextAction:
+      `Run \`lattice milestone_status --storyId=${storyId}\` to inspect the live report, then complete a risk-free DONE path so Proofbound can capture ${MILESTONE_CLOSEOUT_FILENAME}.`,
+  };
+}
+
+function renderCloseoutTableRow(row: MilestoneCloseoutSnapshotRow): string {
+  return `| ${[
+    row.milestone,
+    row.status,
+    row.solvedProblem,
+    row.acceptance,
+    formatList(row.evidence),
+    formatList(row.risks),
+    row.nextAction,
+  ].map(formatCell).join(' | ')} |`;
+}
+
+function renderCloseoutHeader(): string[] {
+  return [
+    '| Milestone | Status | Solved Problem | Acceptance | Evidence | Risks | Next Action |',
+    '|---|---|---|---|---|---|---|',
+  ];
+}
+
+function renderBindingSummary(bindings: MilestoneStatusCurrentEvidenceBinding): string {
+  const parts = [
+    bindings.headHash ? `headHash=${shortHash(bindings.headHash)}` : '',
+    bindings.materialHash ? `materialHash=${shortHash(bindings.materialHash)}` : '',
+    bindings.storyFilesHash ? `storyFilesHash=${shortHash(bindings.storyFilesHash)}` : '',
+  ].filter(Boolean);
+  return parts.length > 0 ? parts.join(' ') : 'none';
+}
+
+export function renderMilestoneCloseoutSnapshot(snapshot: MilestoneCloseoutSnapshot): string {
+  const lines = [
+    `Milestone Closeout - ${snapshot.storyId}`,
+    'Mode: read-only historical snapshot',
+    `Phase: ${snapshot.phase}`,
+    `Generated: ${snapshot.generatedAt}`,
+    `Source milestone_status digest: ${snapshot.sourceReport.digest}`,
+    `Bindings: ${renderBindingSummary(snapshot.bindings)}`,
+    '',
+    ...renderCloseoutHeader(),
+  ];
+  if (snapshot.rows.length === 0) {
+    lines.push('| none | none | none | none | none | none | none |');
+  } else {
+    for (const row of snapshot.rows) lines.push(renderCloseoutTableRow(row));
+  }
+  return lines.join('\n');
+}
+
+export function renderMilestoneCloseoutMissingReport(report: MilestoneCloseoutMissingReport): string {
+  return [
+    `Milestone Closeout - ${report.storyId}`,
+    'Mode: read-only historical snapshot',
+    'Snapshot: missing',
+    report.expectedPath ? `Expected path: ${report.expectedPath}` : undefined,
+    `Diagnostic: ${report.diagnostic}`,
+    '',
+    ...renderCloseoutHeader(),
+    `| snapshot | missing | DONE closeout snapshot unavailable | completed risk-free milestone_status report at DONE | none | ${formatCell(report.diagnostic)} | ${formatCell(report.nextAction)} |`,
+    '',
+    `Next action: ${report.nextAction}`,
+  ].filter((line): line is string => Boolean(line)).join('\n');
 }
 
 function formatList(values: string[]): string {
