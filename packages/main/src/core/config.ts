@@ -223,6 +223,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'recover_evidence', // B-a2f1 CHK-003: single-shot stale-evidence recovery, safe in any phase (refuses on non-metadata dirt)
     'artifact_declare', // B-cf60: per-story declared product artifact registration, safe in any phase
     'artifact_release_*', // read-only non-runtime artifact release provenance inspection
+    'capability_release_*', // read-only non-runtime product capability release provenance inspection
     'repro_*', 'spike_record', 'spike_review_set', 'red_green_relation_*', 'regression_matrix_review_set', 'story_create_from_repro', // B-0aa1: candidate-only repro-first intake commands; evidence-candidate scope only, never DONE or release proof
     'capsule_*',   // B-42c0: story handoff projection commands; evidence remains authoritative elsewhere
     'scope_contract_show', 'scope_contract_check', // B-be27: read/check scope contract; mutating commands are phase-scoped below

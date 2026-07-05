@@ -7,7 +7,7 @@
  */
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { appendFileSync, existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { appendFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import {
@@ -27,9 +27,11 @@ import {
   resolveCapabilityReleaseLedgerRoot,
   writeCapabilityReleaseLedgerForTest,
   type CapabilityReleaseRecordOptions,
+  type ProductCapabilityReleaseRecord,
 } from '../core/capability-release.js';
 import { StoryStore } from '../core/store.js';
 import { createDoneRecoverHandlers } from '../handlers/done-recover.js';
+import { createCapabilityReleaseHandlers } from '../handlers/capability-release.js';
 import { isDoneMainRuntimeBuildInput } from '../handlers/done-effects.js';
 
 function mkdtemp(prefix: string): string {
@@ -412,6 +414,63 @@ check('M3 (edge): done_recover with .lattice-metadata-only material change recor
   const ledgerRoot = resolveCapabilityReleaseLedgerRoot(root);
   assert.equal(existsSync(capabilityReleaseLedgerPath(ledgerRoot)), false);
   assert.equal(readCapabilityReleaseLedger(ledgerRoot).length, 0);
+});
+
+// ---- M5 read-only inspection CLI (capability_release_list / _status) ---------
+
+check('M5 CLI: list/status render a written ledger read-only (json + text) and reject missing storyId', () => {
+  const root = mkdtemp('capability-release-cli-');
+  cleanup.push(root);
+  const record = createCapabilityReleaseRecordForTest({ ...B785E_OPTS, root });
+  writeCapabilityReleaseLedgerForTest(root, [record]);
+  const ledgerFile = capabilityReleaseLedgerPath(root);
+  const before = readFileSync(ledgerFile, 'utf-8');
+
+  const handlers = createCapabilityReleaseHandlers({
+    root,
+    store: new StoryStore(root),
+    scanRoot: join(root, 'packages/main'),
+  } as any);
+
+  // json list returns the plain record array
+  const listJson = handlers.capability_release_list({ format: 'json', limit: 5 }) as ProductCapabilityReleaseRecord[];
+  assert.equal(listJson.length, 1);
+  assert.equal(listJson[0].storyId, 'B-785e');
+  assert.equal(listJson[0].capabilityId, record.capabilityId);
+
+  // text list is one concise line per record and never mutates the ledger
+  const listText = handlers.capability_release_list({}) as string;
+  assert.ok(listText.includes('B-785e'));
+  assert.ok(listText.includes(record.capabilityId));
+  assert.ok(listText.includes(record.capabilityVersion));
+
+  // json status is the { storyId, count, latest, records } shape
+  const statusJson = handlers.capability_release_status({ storyId: 'B-785e', format: 'json' }) as {
+    storyId: string; count: number; latest: ProductCapabilityReleaseRecord | null; records: ProductCapabilityReleaseRecord[];
+  };
+  assert.equal(statusJson.storyId, 'B-785e');
+  assert.equal(statusJson.count, 1);
+  assert.equal(statusJson.latest?.id, record.id);
+  assert.equal(statusJson.records.length, 1);
+
+  // text status for a story with no records is a friendly empty line
+  const emptyStatus = handlers.capability_release_status({ storyId: 'B-none' }) as string;
+  assert.match(emptyStatus, /No product capability release records found for B-none/);
+
+  // empty ledger list is a friendly empty line
+  const emptyList = createCapabilityReleaseHandlers({
+    root: mkdtemp('capability-release-cli-empty-'),
+    store: new StoryStore(root),
+    scanRoot: join(root, 'packages/main'),
+  } as any).capability_release_list({}) as string;
+  assert.match(emptyList, /No product capability release records found/);
+
+  // missing storyId is rejected (read command still validates its one required arg)
+  assert.throws(() => handlers.capability_release_status({} as any), /storyId must be a string/);
+  assert.throws(() => handlers.capability_release_status({ storyId: '   ' } as any), /storyId is required/);
+
+  // READ-ONLY: rendering did not touch the ledger file on disk
+  assert.equal(readFileSync(ledgerFile, 'utf-8'), before, 'read commands must not mutate the ledger');
 });
 
 console.log(`\nok product-capability-release (${passed} checks)`);

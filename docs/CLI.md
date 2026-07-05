@@ -615,6 +615,17 @@ lattice artifact_release_status --storyId=B-xxxx --format=text
 
 Both commands are read-only. Text output is concise; JSON output returns plain records or a `{ storyId, count, latest, records }` object.
 
+DONE merges also maintain a separate non-runtime **product capability** release provenance ledger at `.lattice/capability-releases.jsonl`. It records which reusable non-runtime product capability version a story released, keyed by a deterministic, merge-stable `capabilityDigest` / `capabilityVersion` derived only from the capability-declaring `docs/**` and `experiments/**` paths (no `mainCommit`, timestamp, or counter participates in any digest or key, so the same content is stable across a DONE re-merge / recovery). This ledger is provenance only: it is **non-authoritative** and **never gate evidence** (`authority` is always `non_authoritative`, `gateEvidence` is always `false`, enforced fail-closed at read time), it does not activate a package release, and it does not broaden CLI patch semver bump rules. It is distinct from package semver, from the artifact release ledger above, and from the host `capability_list` / `capability_probe` / `capability_claim` family.
+
+Read it with:
+
+```bash
+lattice capability_release_list --format=json --limit=20
+lattice capability_release_status --storyId=B-xxxx --format=text
+```
+
+Both commands are read-only. Text output is concise (one line per record: `storyId capabilityId capabilityVersion capabilityKind paths=<n> runtimeSemverChanged=<bool>`); JSON output returns plain records or a `{ storyId, count, latest, records }` object.
+
 Lifecycle facts are also registry-backed. `packages/main/src/core/lifecycle-registry.ts` records the active phase order, legacy phase aliases, transition events, rollback edges, TEST/DONE gate ids, effects, and oracle row ids. `phase-flow.ts`, `handlers/context.ts`, and the `flow-stability-smoke` (run via `npm run test:legacy -- flow-stability`) must agree with it; inconsistent phase/event/policy edits should fail with a direct lifecycle registry mismatch.
 
 The Dashboard and `session_brief` display lifecycle progress and terminal outcome separately: `Lifecycle DONE: N/M (...)` only indicates that the story has entered DONE; `DONE-success/default`, `DONE-blocked`, and `DONE-audit-only` come from `summary_set.outcomeKind`, and an old summary missing that field falls into the success/default compatibility bucket. Run the related regression with:
