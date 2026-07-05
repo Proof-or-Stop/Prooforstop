@@ -1,0 +1,26 @@
+{
+  "storyId": "B-3e47",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/milestone-status.ts",
+    "packages/main/src/core/milestone-status.ts",
+    "docs/CLI.md"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/tests/milestone-status.test.mjs"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "milestone_completion_set writer",
+    "completion ledger schema",
+    "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+    "docs/requirements/decisions/product-capability-release-playbook-lineage-execution-plan.md",
+    "docs/requirements/decisions/tier-c-powered-independent-host-campaign-protocol.md",
+    ".omx/**"
+  ],
+  "scopeChangeReason": "Initialize enforce scope from B-3e47 checklist files for the DONE milestone_status closeout rendering fix.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-05T13:03:42.668Z",
+  "updatedAt": "2026-07-05T13:03:42.668Z"
+}

@@ -1,0 +1,69 @@
+{
+  "principles": [
+    "DONE output must be based on durable frozen facts, not recomputed active-story freshness.",
+    "Active story milestone_status must keep live freshness checks.",
+    "Read-only commands must stay side-effect free in text and JSON modes.",
+    "Developer-facing tables should keep the same three-section Milestone Status layout and status icons."
+  ],
+  "drivers": [
+    "B-e62e DONE transcript showed a false red table immediately after successful DONE.",
+    "milestone-closeout.json already has the accepted completed snapshot.",
+    "The fix must be small enough to complete through validation and review quickly."
+  ],
+  "options": [
+    {
+      "name": "snapshot-to-status-report",
+      "pros": [
+        "Keeps milestone_status command and three-section renderer consistent for DONE stories",
+        "Works for text and JSON output without adding another bespoke table",
+        "Can reuse closeout rows while avoiding live evidence binding after cleanup"
+      ],
+      "cons": [
+        "Requires mapping closeout rows back into a MilestoneStatusReport shape"
+      ]
+    },
+    {
+      "name": "print-closeout-text-after-done",
+      "pros": [
+        "Very small change in post-command append path",
+        "Uses the existing milestone_closeout renderer directly"
+      ],
+      "cons": [
+        "Does not fix lattice milestone_status --storyId on DONE stories",
+        "Output would not be the requested Completed/Current/Remaining Milestone Status table"
+      ]
+    },
+    {
+      "name": "ignore-stale-after-done",
+      "pros": [
+        "Minimal conditional around evidence freshness"
+      ],
+      "cons": [
+        "Risks masking real missing closeout and weakens the live projection model"
+      ]
+    }
+  ],
+  "chosen": "snapshot-to-status-report",
+  "rationale": "Use the frozen closeout snapshot as the DONE source of truth while preserving the normal Milestone Status table contract and live checks for active stories.",
+  "preMortem": [
+    {
+      "scenario": "DONE story without milestone-closeout.json is shown as completed anyway",
+      "trigger": "Fallback path treats any DONE phase as trustworthy",
+      "consequence": "CLI fabricates success and hides missing closeout evidence",
+      "mitigation": "Only use the frozen path when a schema-valid milestone-closeout.json exists; otherwise retain fail-closed diagnostics."
+    },
+    {
+      "scenario": "Active stories stop detecting stale evidence",
+      "trigger": "Closeout fallback runs before checking the story phase or snapshot presence",
+      "consequence": "DEV/REVIEW users see green rows despite stale or missing evidence",
+      "mitigation": "Gate the fallback to phase DONE plus valid snapshot only, and add an active-story regression."
+    },
+    {
+      "scenario": "JSON output shape changes unexpectedly",
+      "trigger": "Text-only conversion or closeout snapshot returned from milestone_status JSON",
+      "consequence": "Consumers of milestone_status JSON break or lose groups/completed/current/remaining fields",
+      "mitigation": "Return a MilestoneStatusReport-shaped object for snapshot-backed DONE status and test JSON fields."
+    }
+  ],
+  "timestamp": "2026-07-05T13:01:51.793Z"
+}

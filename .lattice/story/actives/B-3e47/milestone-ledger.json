@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-3e47",
+  "state": "confirmed",
+  "ledgerHash": "sha256:38a594fa3b1bcbea06129cc844fc4c361c5b3ab18b20fa52713fceab732eb206",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-DONE-CLOSEOUT-STATUS",
+      "claim": "DONE milestone_status uses the frozen closeout snapshot instead of live archived-state freshness.",
+      "doneMeans": "A DONE story with milestone-closeout.json renders Milestone Status with completed rows, no false stale evidence, and JSON groups showing completed rows.",
+      "requiredEvidence": [
+        "logic_test",
+        "cli"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "REQ-DOCS-CONTRACT",
+      "claim": "The CLI docs explain active live projection versus DONE closeout-backed status tables.",
+      "doneMeans": "docs/CLI.md states that DONE milestone_status reads the closeout snapshot when present and preserves JSON/no-ledger behavior.",
+      "requiredEvidence": [
+        "docs_check"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-05T13:02:01.203Z",
+  "updatedAt": "2026-07-05T13:03:36.771Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260705130243",
+    "acceptedInterpretationHash": "sha256:1409cf93ec16c433af4053975f55629a6ce2efe6b812dcaad52f046fe46ddfcf",
+    "acceptedAt": "2026-07-05T13:03:36.771Z"
+  }
+}

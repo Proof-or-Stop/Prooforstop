@@ -4,7 +4,7 @@
   "title": "Render DONE milestone status from the frozen closeout snapshot",
   "description": "After B-e62e reached DONE on 2026-07-05, story_advance correctly captured milestone-closeout.json but the automatically appended Milestone Status table recomputed live evidence after active-story cleanup and falsely showed stale or blocked rows. Developers need the DONE display to read the durable closeout snapshot so the final table stays stable.",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "source": "B-e62e DONE transcript on 2026-07-05",
   "keywords": [
@@ -39,6 +39,15 @@
       "branch": "main",
       "user": "Harmonygo",
       "sessionId": "sess-3f3045fee8f99f65",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-05T13:01:07.235Z",
+      "branch": "story/B-3e47",
+      "user": "Harmonygo",
+      "sessionId": "sess-161c7e12c15602b9",
       "agent": "main"
     }
   ],

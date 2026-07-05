@@ -1,0 +1,27 @@
+{
+  "task": "Fix the false stale or blocked Milestone Status table shown after a DONE story has already captured milestone-closeout.json.",
+  "outcome": "After running lattice milestone_status --storyId=B-e62e on the DONE story, the terminal shows Milestone Status - B-e62e with M1 and M2 under Completed, no Current rows, no Remaining rows, and no stale evidence or blocked warnings.",
+  "facts": [
+    "B-e62e DONE captured milestone-closeout.json before active worktree cleanup.",
+    "After cleanup, live milestone_status recomputes freshness against archived state and can show false stale/blocking rows.",
+    "milestone_closeout already reads the durable frozen snapshot correctly.",
+    "Active stories still need live projection and freshness checks."
+  ],
+  "constraints": [
+    "Do not fabricate success when a DONE story has no milestone-closeout.json snapshot.",
+    "Keep JSON mode and read-only argument boundaries intact.",
+    "Do not implement milestone_completion_set or completion ledger in this story.",
+    "Do not touch unrelated dirty docs in canonical main."
+  ],
+  "unknowns": [
+    "Whether the best conversion is snapshot-to-status-report or text-only closeout rendering.",
+    "Whether existing tests already contain a DONE cleanup fixture we can extend."
+  ],
+  "touchpoints": [
+    "packages/main/src/handlers/milestone-status.ts",
+    "packages/main/src/core/milestone-status.ts",
+    "packages/main/tests/milestone-status.test.mjs",
+    "docs/CLI.md"
+  ],
+  "timestamp": "2026-07-05T13:01:34.509Z"
+}
