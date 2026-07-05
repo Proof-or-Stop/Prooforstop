@@ -147,11 +147,11 @@
           "file": "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
           "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
           "result": "pass",
-          "note": "The checker asserts each required authorization field remains missing/blocking in the disabled launch state and provider execution cannot be enabled without all required metadata.",
-          "headHash": "101c5314fa5f1f8cef72d966671ff9d7ef0d1717",
-          "materialHash": "d9623dfd20befc90cf3bfed94f2aebed6b3ed5831343468522d340e75d96b6d3",
-          "storyFilesHash": "05de8a0ec283076e8a7c46016201cabb62a9ce6a1940510a50471386ecd1c98d",
-          "timestamp": "2026-07-05T12:04:52.447Z"
+          "note": "After e1f236402, the checker asserts required authorization fields remain missing/blocking and provider execution cannot be enabled without all metadata; rerun passed with 391 assertions and 27 negative controls.",
+          "headHash": "e1f2364024177f041754bce36677a20b2efa5e62",
+          "materialHash": "9ddcfa9fb75ab99d3895c9088d08a00049bcd8e2ae8b3fac3028fbbe87abd9d8",
+          "storyFilesHash": "b3e0af667fb67d7a94f181cdc629d8be8d7df807c36f5d70a5d902915e1495e3",
+          "timestamp": "2026-07-05T12:16:08.352Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -160,11 +160,11 @@
           "file": "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
           "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
           "result": "pass",
-          "note": "Negative controls reject Codex CLI, Claude Code CLI, and other host-label-only snapshots as executor/reviewer snapshot evidence.",
-          "headHash": "101c5314fa5f1f8cef72d966671ff9d7ef0d1717",
-          "materialHash": "d9623dfd20befc90cf3bfed94f2aebed6b3ed5831343468522d340e75d96b6d3",
-          "storyFilesHash": "05de8a0ec283076e8a7c46016201cabb62a9ce6a1940510a50471386ecd1c98d",
-          "timestamp": "2026-07-05T12:04:52.447Z"
+          "note": "After e1f236402, negative controls reject host-label snapshots and runner/schema drift against phase1-runner-manifest.m2.json; rerun passed with 391 assertions and 27 negative controls.",
+          "headHash": "e1f2364024177f041754bce36677a20b2efa5e62",
+          "materialHash": "9ddcfa9fb75ab99d3895c9088d08a00049bcd8e2ae8b3fac3028fbbe87abd9d8",
+          "storyFilesHash": "b3e0af667fb67d7a94f181cdc629d8be8d7df807c36f5d70a5d902915e1495e3",
+          "timestamp": "2026-07-05T12:16:08.352Z"
         }
       ]
     },
@@ -223,11 +223,11 @@
           "file": "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
           "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
           "result": "pass",
-          "note": "The checker passes locally and prints nextPermittedFormalStep=cell-03-calibration.",
-          "headHash": "101c5314fa5f1f8cef72d966671ff9d7ef0d1717",
-          "materialHash": "d9623dfd20befc90cf3bfed94f2aebed6b3ed5831343468522d340e75d96b6d3",
-          "storyFilesHash": "05de8a0ec283076e8a7c46016201cabb62a9ce6a1940510a50471386ecd1c98d",
-          "timestamp": "2026-07-05T12:04:52.447Z"
+          "note": "After e1f236402, the checker passes and prints nextPermittedFormalStep=cell-03-calibration; 391 assertions and 27 negative controls.",
+          "headHash": "e1f2364024177f041754bce36677a20b2efa5e62",
+          "materialHash": "9ddcfa9fb75ab99d3895c9088d08a00049bcd8e2ae8b3fac3028fbbe87abd9d8",
+          "storyFilesHash": "b3e0af667fb67d7a94f181cdc629d8be8d7df807c36f5d70a5d902915e1495e3",
+          "timestamp": "2026-07-05T12:16:08.352Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -236,11 +236,11 @@
           "file": "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
           "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
           "result": "pass",
-          "note": "The checker prints cell-06-a2prime-blocked and asserts cell 06 remains blocked until a real cell-03-derived budget lock exists.",
-          "headHash": "101c5314fa5f1f8cef72d966671ff9d7ef0d1717",
-          "materialHash": "d9623dfd20befc90cf3bfed94f2aebed6b3ed5831343468522d340e75d96b6d3",
-          "storyFilesHash": "05de8a0ec283076e8a7c46016201cabb62a9ce6a1940510a50471386ecd1c98d",
-          "timestamp": "2026-07-05T12:04:52.447Z"
+          "note": "After e1f236402, the checker prints cell-06-a2prime-blocked and asserts cell 06 remains blocked without a real cell-03-derived budget lock.",
+          "headHash": "e1f2364024177f041754bce36677a20b2efa5e62",
+          "materialHash": "9ddcfa9fb75ab99d3895c9088d08a00049bcd8e2ae8b3fac3028fbbe87abd9d8",
+          "storyFilesHash": "b3e0af667fb67d7a94f181cdc629d8be8d7df807c36f5d70a5d902915e1495e3",
+          "timestamp": "2026-07-05T12:16:08.352Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -249,11 +249,11 @@
           "file": "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
           "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
           "result": "pass",
-          "note": "The checker rejects accidental authorization, provider-call enabled runner, host-label snapshots, provider fallback, cell 06 unblocked state, false budget lock, and accidental outcome data.",
-          "headHash": "101c5314fa5f1f8cef72d966671ff9d7ef0d1717",
-          "materialHash": "d9623dfd20befc90cf3bfed94f2aebed6b3ed5831343468522d340e75d96b6d3",
-          "storyFilesHash": "05de8a0ec283076e8a7c46016201cabb62a9ce6a1940510a50471386ecd1c98d",
-          "timestamp": "2026-07-05T12:04:52.447Z"
+          "note": "After e1f236402, checker negative controls cover accidental authorization, outcome/result-shaped fields, provider fallback, false budget lock, cell 06 unblocked state, and runner/manifest binding drift.",
+          "headHash": "e1f2364024177f041754bce36677a20b2efa5e62",
+          "materialHash": "9ddcfa9fb75ab99d3895c9088d08a00049bcd8e2ae8b3fac3028fbbe87abd9d8",
+          "storyFilesHash": "b3e0af667fb67d7a94f181cdc629d8be8d7df807c36f5d70a5d902915e1495e3",
+          "timestamp": "2026-07-05T12:16:08.352Z"
         }
       ]
     },
@@ -311,26 +311,26 @@
           "kind": "logic_test",
           "verdict": "success",
           "file": "experiments/multi-model-ablation/m2-status.md",
-          "command": "node experiments/multi-model-ablation/m0-smoke-check.mjs && node experiments/multi-model-ablation/m1-freeze-check.mjs && node experiments/multi-model-ablation/m2-launch-readiness-check.mjs && node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs && node experiments/multi-model-ablation/m0-smoke-check.mjs && node experiments/multi-model-ablation/m1-freeze-check.mjs && node experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
           "result": "pass",
-          "note": "All four local checks passed; m2-status.md records the latest local validation and the disabled-by-default launch state.",
-          "headHash": "101c5314fa5f1f8cef72d966671ff9d7ef0d1717",
-          "materialHash": "d9623dfd20befc90cf3bfed94f2aebed6b3ed5831343468522d340e75d96b6d3",
-          "storyFilesHash": "05de8a0ec283076e8a7c46016201cabb62a9ce6a1940510a50471386ecd1c98d",
-          "timestamp": "2026-07-05T12:04:52.447Z"
+          "note": "After e1f236402, the full local validation set passed: M2 provider checker 391 assertions/27 negative controls; M0 743/9; M1 219/8; M2 readiness 1105/21.",
+          "headHash": "e1f2364024177f041754bce36677a20b2efa5e62",
+          "materialHash": "9ddcfa9fb75ab99d3895c9088d08a00049bcd8e2ae8b3fac3028fbbe87abd9d8",
+          "storyFilesHash": "b3e0af667fb67d7a94f181cdc629d8be8d7df807c36f5d70a5d902915e1495e3",
+          "timestamp": "2026-07-05T12:16:08.352Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
           "kind": "logic_test",
           "verdict": "success",
-          "file": "experiments/multi-model-ablation/m2-status.md",
-          "command": "git show --stat --name-only HEAD",
+          "file": "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "command": "git show --stat --name-only e1f2364024177f041754bce36677a20b2efa5e62",
           "result": "pass",
-          "note": "The material commit 101c5314 touched only the five declared multi-model ablation files and did not touch unrelated Tier-C/NAV files.",
-          "headHash": "101c5314fa5f1f8cef72d966671ff9d7ef0d1717",
-          "materialHash": "d9623dfd20befc90cf3bfed94f2aebed6b3ed5831343468522d340e75d96b6d3",
-          "storyFilesHash": "05de8a0ec283076e8a7c46016201cabb62a9ce6a1940510a50471386ecd1c98d",
-          "timestamp": "2026-07-05T12:04:52.447Z"
+          "note": "Fix commit e1f236402 touched only experiments/multi-model-ablation/m2-provider-execution-check.mjs, staying inside declared scope.",
+          "headHash": "e1f2364024177f041754bce36677a20b2efa5e62",
+          "materialHash": "9ddcfa9fb75ab99d3895c9088d08a00049bcd8e2ae8b3fac3028fbbe87abd9d8",
+          "storyFilesHash": "b3e0af667fb67d7a94f181cdc629d8be8d7df807c36f5d70a5d902915e1495e3",
+          "timestamp": "2026-07-05T12:16:08.352Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
