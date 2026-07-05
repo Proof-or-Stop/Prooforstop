@@ -172,9 +172,44 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-05T11:00:51.281Z",
-      "endTime": null
+      "endTime": "2026-07-05T11:01:01.849Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "lattice proofstory_gate_check --storyId=B-9051 --phase=DEV && lattice milestone_status --storyId=B-9051 --format=json",
+          "result": "pass",
+          "note": "For this docs-only review story, ProofStory DEV gate passes after intent artifacts while milestone_status still reports ledger missing; ordinary non-ledger work is not retroactively blocked and status does not repair storage.",
+          "headHash": "a2e3ffa6414ca8e8e0d92b703fbe834f1f6bfc18",
+          "materialHash": "14dfe9be3e8dba7d26b7efd5d62465c878527525759e2aa0aa3b85ab19cc149b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-05T11:01:02.004Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "file": "packages/main/src/core/command-policy.ts",
+          "result": "pass",
+          "note": "Command policy keeps milestone_ledger_set/add as PLAN-only gateEvidence candidate writes, and intent_collision pass is the confirmation boundary. B-9051 intent_collision reported Confirmed ledger hash: none, so no ledger was confirmed here.",
+          "headHash": "a2e3ffa6414ca8e8e0d92b703fbe834f1f6bfc18",
+          "materialHash": "14dfe9be3e8dba7d26b7efd5d62465c878527525759e2aa0aa3b85ab19cc149b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-05T11:01:02.148Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "packages/main/src/core/types.ts",
+          "result": "pass",
+          "note": "Milestone schema and status rendering rely on explicit ledger fields, checklistRefs, verificationIntentRefs, requiredEvidence, parentLedgerId, and assignedStory; missing-ledger status says it cannot infer milestone progress from prose.",
+          "headHash": "a2e3ffa6414ca8e8e0d92b703fbe834f1f6bfc18",
+          "materialHash": "14dfe9be3e8dba7d26b7efd5d62465c878527525759e2aa0aa3b85ab19cc149b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-05T11:01:02.302Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -261,6 +296,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Starting missing-ledger and schema adequacy review evidence capture.",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-07-05T11:01:01.849Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Missing-ledger and schema adequacy review completed.",
       "agent": "codex-main"
     }
   ]
