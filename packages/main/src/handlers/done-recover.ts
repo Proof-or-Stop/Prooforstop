@@ -45,7 +45,7 @@ export function createDoneRecoverHandlers(ctx: HandlerContext) {
       const mainRepoRoot = resolveMainRepoRoot(root);
       const mainMergeRoot = resolveMainBranchWorktree(mainRepoRoot);
       const store = mainMergeRoot === root ? ctx.store : new StoryStore(mainMergeRoot);
-      const lock = acquireDoneMainMergeLock(storyId, mainRepoRoot);
+      const lock = acquireDoneMainMergeLock(storyId, mainRepoRoot, mainMergeRoot);
       try {
 
       const currentBranch = git(mainMergeRoot, ['rev-parse', '--abbrev-ref', 'HEAD']);

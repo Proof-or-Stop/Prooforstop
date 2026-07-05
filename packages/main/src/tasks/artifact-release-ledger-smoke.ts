@@ -81,6 +81,7 @@ function makePartialDoneRecoveryFixture(): { root: string; storyId: string } {
   git(root, ['init', '-b', 'main']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
   git(root, ['config', 'user.name', 'Artifact Release Recovery Smoke']);
+  write(root, '.gitignore', '.lattice/locks/\n');
   write(root, 'README.md', '# fixture\n');
   git(root, ['add', '.']);
   git(root, ['commit', '-m', 'initial']);
