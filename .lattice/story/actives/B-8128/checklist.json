@@ -176,7 +176,44 @@
       "context": "When a capability release exists for the story, candidate lineage gains capabilityReleaseId, capabilityId, capabilityVersion, artifactReleaseId, artifactSetDigest. Existing candidates without it stay valid but reported under-bound.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "product-capability-release-red-smoke now PASSES green; playbook-capability-lineage-smoke green",
+      "files": {
+        "modify": [
+          "packages/main/src/core/experience-layer-types.ts",
+          "packages/main/src/core/learning-store.ts",
+          "packages/main/src/core/playbook-seed.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/playbook-capability-lineage-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/playbook-capability-lineage-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "DONE candidate ingest attaches optional lineage.capabilityReleaseId/capabilityId/capabilityVersion/artifactReleaseId when a capability release exists for the story.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A pre-existing 3-field PlaybookLineage still parses (new fields optional); re-applying enrichment is a no-op keyed on the stable source key, not digest equality.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Enrichment recomputes proposal/playbook digests without tripping stale-proposal rejection; the M0 red fixture, run through the real enrichment, now flips green.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-006",
