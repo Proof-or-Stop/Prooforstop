@@ -1,0 +1,94 @@
+{
+  "storyId": "B-f7b3",
+  "checkedAt": "2026-07-05T21:36:54.496Z",
+  "features": [
+    {
+      "feature": "Add explicit non-DONE/non-Authority/non-production disclaimer strings to milestone_status and milestone_closeout rendered output (item 1a)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/milestone-ledger-status-review-findings.md"
+    },
+    {
+      "feature": "Add Authority to the milestone_status command-policy reason string to match milestone_closeout (item 1b)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/milestone-ledger-status-review-findings.md"
+    },
+    {
+      "feature": "Add negative-control test: duplicate ledger rows are de-duplicated or rejected (item 2a)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/milestone-ledger-status-review-findings.md"
+    },
+    {
+      "feature": "Add negative-control test: empty / all-not_applicable confirmed ledger is not vacuously complete (item 2b)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/milestone-ledger-status-review-findings.md"
+    },
+    {
+      "feature": "Add negative-control test: a stale-only status report is rejected by buildMilestoneCloseoutSnapshot (item 2c)",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/milestone-ledger-status-review-findings.md"
+    },
+    {
+      "feature": "Wire packages/main/tests/milestone-status.test.mjs into an aggregate suite runner so it is not silently skipped (item 3)",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/milestone-ledger-status-review-findings.md"
+    },
+    {
+      "feature": "Reconcile the milestone_status vs DONE-gate stale-evidence disagreement (item 4a)",
+      "covered_by": "CHK-010",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/milestone-ledger-status-review-findings.md"
+    },
+    {
+      "feature": "Reconcile milestone closeout capture acting as an undesigned second DONE gate with divergent throw semantics (item 4b)",
+      "covered_by": "CHK-010",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/milestone-ledger-status-review-findings.md"
+    },
+    {
+      "feature": "Decide whether not_applicable rows need an explicit justification/gate (item 5a)",
+      "covered_by": "CHK-007",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/milestone-ledger-status-review-findings.md"
+    },
+    {
+      "feature": "Decide/implement whether confirmMilestoneLedger should re-assert confirmedLedgerHash === ledgerHash at confirm time (item 5b)",
+      "covered_by": "CHK-008",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/milestone-ledger-status-review-findings.md"
+    },
+    {
+      "feature": "Revisit the milestone-triggered gate-mode default (observe vs enforce) (item 6)",
+      "covered_by": "CHK-009",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/milestone-ledger-status-review-findings.md"
+    }
+  ],
+  "summary": {
+    "total": 11,
+    "covered": 11,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "520a838a278345720acff32fec3eee2b21ca8f01b5311077bf191b6818a67d5f",
+  "openQuestions": []
+}

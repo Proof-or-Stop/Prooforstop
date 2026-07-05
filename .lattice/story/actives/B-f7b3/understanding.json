@@ -1,26 +1,21 @@
 {
-  "task": "Implement the six B-b550 M7 follow-up hardening items to tighten the ProofStory milestone observability boundary (disclaimers, Authority string, negative-control tests, suite wiring, not_applicable justification, confirm-time hash re-check, gate-mode-default decision, and the stale-evidence/second-DONE-gate reconciliation) without weakening the read-only or PLAN-only contract.",
-  "outcome": "After this story: (1) 'lattice milestone_status --storyId=X' and 'lattice milestone_closeout --storyId=X' each print an explicit boundary disclaimer line stating milestone progress is observability only and is NOT lifecycle DONE, NOT Authority, NOT production readiness (today they print only 'Mode: read-only'); (2) 'lattice milestone_status' command-policy reason mentions Authority like milestone_closeout does; (3) 'npm test'/run-all-smokes output now includes the milestone-status suite (previously silently skipped) plus new PASS assertions: duplicate ledger rows rejected, empty/all-not_applicable confirmed ledger reported incomplete, stale-only report rejected by closeout; (4) confirmMilestoneLedger rejects a confirm whose confirmedLedgerHash does not equal the current ledgerHash; (5) not_applicable milestone rows require a justification; (6) a decision doc under docs/requirements/decisions/ records the gate-mode-default and stale-evidence/second-gate reconciliation decisions. The operator sees green validate + full suite and a diff limited to packages/main plus the decision doc.",
+  "task": "Implement the six B-b550 M7 follow-up hardening items to tighten the ProofStory milestone observability boundary without weakening the read-only or PLAN-only contract.",
+  "outcome": "After this story: milestone_status/closeout print an explicit observability-only disclaimer (NOT DONE/Authority/production); milestone_status command-policy reason mentions Authority; npm test/run-all-smokes runs the milestone-status suite plus new PASS negative controls (duplicate rows rejected, vacuous confirmed ledger incomplete, stale-only closeout rejected); confirmMilestoneLedger rejects a hash-mismatched confirm; not_applicable rows require a justification; and decision docs record the gate-mode-default (observe stays) and stale-evidence/second-gate reconciliation. Operator sees green validate + full suite, diff limited to packages/main + decision docs.",
   "facts": [
-    "B-b550 audit (findings report section M7) confirmed the read-only + PLAN-only milestone boundary holds with no blocker; these are hardening items, not bug fixes",
-    "milestone_status/closeout render output currently emits only Mode: read-only with no explicit DONE/Authority/production disclaimer",
-    "command-policy.ts milestone_status reason omits Authority while milestone_closeout includes it",
-    "proofstory-intent-hardening-smoke.ts has zero duplicate-row coverage; packages/main/tests/milestone-status.test.mjs is in no test:* script and not discovered by run-all-smokes (globs dist/tasks/*-smoke.js)",
-    "confirmMilestoneLedger (proofstory.ts) does not re-check confirmedLedgerHash===ledgerHash at confirm time; not_applicable is enum-only validated in normalizeMilestone",
-    "milestone_status demotes stale milestone evidence but evaluateDoneIntentEquivalence can still pass the same ledger via evidenceCoversIntent; captureMilestoneCloseoutSnapshotFromStore (handlers/milestone-status.ts, called from transition-orchestrator DONE path) acts as an undesigned second DONE gate"
+    "B-b550 audit section M7 confirmed the read-only + PLAN-only milestone boundary holds; these are hardening items",
+    "milestone_status/closeout render output currently emits only Mode: read-only",
+    "command-policy milestone_status reason omits Authority while milestone_closeout includes it",
+    "proofstory-intent-hardening-smoke.ts has zero duplicate-row coverage; milestone-status.test.mjs not in run-all-smokes",
+    "confirmMilestoneLedger does not re-check confirmedLedgerHash===ledgerHash; not_applicable is enum-only validated",
+    "milestone_status demotes stale evidence but evaluateDoneIntentEquivalence can still pass the same ledger; captureMilestoneCloseoutSnapshotFromStore is an undesigned second DONE gate"
   ],
   "constraints": [
-    "Must NOT weaken the read-only or PLAN-only milestone contract validated by the B-b550 audit",
-    "gate-mode default observe->enforce is a behavior change — decision-recorded with rationale, not a blind flip",
-    "Scope limited to packages/main/src (milestone-status/command-policy/proofstory/phase-gates/types), tests, suite wiring, and a decision doc; no production/deploy/infra changes",
-    "Additive items (disclaimers, Authority string, tests, suite wiring) must not break existing passing tests; boundary-tightening items must keep existing DONE flows (e.g. B-b550 closeout) working"
+    "Must NOT weaken the read-only or PLAN-only milestone contract",
+    "gate-mode default stays observe (recorded rationale)",
+    "Scope limited to packages/main + decision docs; no production/deploy/infra",
+    "Additive items must not break existing passing tests"
   ],
-  "unknowns": [
-    "Exact disclaimer wording that satisfies the audit without over-claiming",
-    "Whether not_applicable justification is a schema field or a policy check, and how existing confirmed ledgers migrate",
-    "Whether the milestone-triggered gate-mode default should change to enforce or stay observe with a recorded rationale",
-    "How to reconcile milestone_status freshness with evaluateDoneIntentEquivalence and the closeout second-gate without breaking existing DONE transitions"
-  ],
+  "unknowns": [],
   "touchpoints": [
     "packages/main/src/core/milestone-status.ts",
     "packages/main/src/core/command-policy.ts",
@@ -33,7 +28,9 @@
     "packages/main/tests/milestone-status.test.mjs",
     "packages/main/src/tasks/run-all-smokes.ts",
     "package.json",
-    "docs/requirements/decisions"
+    "docs/requirements/decisions/milestone-not-applicable-justification.md",
+    "docs/requirements/decisions/milestone-triggered-gate-mode-default-decision.md",
+    "docs/requirements/decisions/milestone-status-done-gate-reconciliation.md"
   ],
-  "timestamp": "2026-07-05T21:15:30.946Z"
+  "timestamp": "2026-07-05T21:34:57.641Z"
 }
