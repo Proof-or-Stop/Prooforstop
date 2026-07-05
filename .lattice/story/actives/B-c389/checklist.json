@@ -74,6 +74,18 @@
           "materialHash": "ea1c2a00886923ab777057dd072d00b9b4784fc36ab92812920ab7d9c8f09043",
           "storyFilesHash": "6b0a9ee784af121c5d2ea5306b6d5af9afeb70e7f1412685cf72f1507a7e5e78",
           "timestamp": "2026-07-05T23:13:49.171Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/capability-release-backfill-smoke.ts",
+          "command": "node packages/main/dist/tasks/capability-release-backfill-smoke.js",
+          "result": "pass",
+          "note": "Adversarial: backfill never activates a candidate (status stays 'candidate' after apply, re-read from disk), never touches usage.surfacedCount (stays 7), never appends a playbook-outcome (readPlaybookOutcomeEvents=0, no outcomes file), and the capability-releases ledger is byte-identical before/after. Fail-closed write verification enforces these in code.",
+          "headHash": "175968551fe6b77fef87993cdcaa793c8cbb9ed8",
+          "materialHash": "ea1c2a00886923ab777057dd072d00b9b4784fc36ab92812920ab7d9c8f09043",
+          "storyFilesHash": "6b0a9ee784af121c5d2ea5306b6d5af9afeb70e7f1412685cf72f1507a7e5e78",
+          "timestamp": "2026-07-05T23:13:56.706Z"
         }
       ]
     },
