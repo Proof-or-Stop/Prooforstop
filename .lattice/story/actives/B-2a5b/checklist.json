@@ -195,6 +195,17 @@
           "materialHash": "96f53605b9acab22537726575efa229c08064b234cabfce1254a6cd09b6eb220",
           "storyFilesHash": "c1d0f4d059062151cf55da41df6bb32e03b6d7702806560753bf8d67b96d701c",
           "timestamp": "2026-07-05T18:55:52.107Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/pos-instrument-replay/selfcheck-m2.mjs",
+          "result": "pass",
+          "note": "selfcheck-m2 (a) BUDGET_CAP: with POS_BUDGET_CAP_MS=1 injected, 30/30 small iterations record a budget_cap stop (the H4 stop path exercised).",
+          "headHash": "537ad64a60142abdfee05536fcceffef01518fcf",
+          "materialHash": "96f53605b9acab22537726575efa229c08064b234cabfce1254a6cd09b6eb220",
+          "storyFilesHash": "c1d0f4d059062151cf55da41df6bb32e03b6d7702806560753bf8d67b96d701c",
+          "timestamp": "2026-07-05T18:55:52.731Z"
         }
       ]
     }
