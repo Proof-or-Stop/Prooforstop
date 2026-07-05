@@ -15,7 +15,6 @@ import {
   CAPABILITY_RELEASE_SCHEMA_VERSION,
   CapabilityReleaseLedgerError,
   appendCapabilityReleaseRecord,
-  buildCapabilityReleaseRecord,
   capabilityReleaseLedgerPath,
   capabilityVersionFromDigest,
   classifyCapabilityRelease,
@@ -430,7 +429,7 @@ check('M5 CLI: list/status render a written ledger read-only (json + text) and r
     root,
     store: new StoryStore(root),
     scanRoot: join(root, 'packages/main'),
-  } as any);
+  });
 
   // json list returns the plain record array
   const listJson = handlers.capability_release_list({ format: 'json', limit: 5 }) as ProductCapabilityReleaseRecord[];
@@ -462,7 +461,7 @@ check('M5 CLI: list/status render a written ledger read-only (json + text) and r
     root: mkdtemp('capability-release-cli-empty-'),
     store: new StoryStore(root),
     scanRoot: join(root, 'packages/main'),
-  } as any).capability_release_list({}) as string;
+  }).capability_release_list({}) as string;
   assert.match(emptyList, /No product capability release records found/);
 
   // missing storyId is rejected (read command still validates its one required arg)
