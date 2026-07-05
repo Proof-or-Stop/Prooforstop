@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-b550:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Diff reviewed: three docs-only changes (NAV.md +1 line, plan.md Status column planned->reviewed-pass variants, new milestone-ledger-status-review-findings.md). No concept word was deleted, renamed, or replaced in this diff - the plan.md edit is a status-value update (planned -> reviewed-pass/corrected/caveat) on an existing column, not a concept removal, and the findings.md file is new additive prose. Confirmed via git diff main...HEAD --stat that no packages/main/src or packages/main/tests files changed, matching the scope contract explicitExcludes. No concept-cleanup residue to grep for; no blocker.",
+      "createdAt": "2026-07-05T14:22:25.481Z",
+      "reviewRound": "2026-07-05T14:21:07.427Z",
+      "reviewRunId": "B-b550:RR-001",
+      "_hash": "30cd8174e694d23eaa963157386639405242cdc92cfee25a720dfcff38fd8b57"
+    }
+  ]
+}
