@@ -134,6 +134,22 @@ export interface PlaybookLineage {
   sourceFindingId: string;
   /** Optional coarse signatureTag of the source finding (Phase 1b), if present. */
   sourceSignature?: string;
+  // ── B-8128 M4: OPTIONAL product-capability-release binding ────────────────
+  // Additive provenance linking this playbook back to the product capability
+  // release recorded for its source story (see core/capability-release.ts).
+  // Absent when the source story released no capability (the lineage stays the
+  // current 3 fields — under-bound but valid). Existing 3-field rows MUST still
+  // parse; nothing here is required by validatePlaybook.
+  /** `PCR-…` id of the matching product capability release, when one exists. */
+  capabilityReleaseId?: string;
+  /** capabilityId of the matching product capability release, when one exists. */
+  capabilityId?: string;
+  /** capabilityVersion of the matching product capability release, when one exists. */
+  capabilityVersion?: string;
+  /** artifactReleaseId carried by the matching capability release, when present. */
+  artifactReleaseId?: string;
+  /** artifactSetDigest carried by the matching capability release, when present. */
+  artifactSetDigest?: string;
 }
 
 /**
