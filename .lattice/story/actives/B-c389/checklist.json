@@ -101,7 +101,43 @@
       "context": "Command surface to record a structured outcome (helped/dismissed/harmful) bound to a concrete exposureMode + structured verdictSource, and a command to emit promotion recommendations when decisiveSamples suffice. DONE-success != helped and the decisiveSamples exclusions are already enforced in learning-store.ts (B-8128 asserts); build the user-facing commands on top without changing those rules.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "playbook_outcome_record accepts a structured capability-candidate outcome; playbook_promotion_sweep emits a recommendation only on decisive evidence; DONE-success never counts as helped",
+      "files": {
+        "modify": [
+          "packages/main/src/core/learning-store.ts",
+          "packages/main/src/handlers/playbook.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/capability-candidate-promotion-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/capability-candidate-promotion-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A capability candidate flows through the existing playbook_outcome_record (structured verdict + concrete exposureMode) and playbook_promotion_sweep emits an idempotent promotion recommendation when decisiveSamples suffice; never auto-activates.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A done-settlement outcome does not count toward helped/decisiveSamples; helped requires exposureMode != none + a structured verdictSource (existing enforcement, asserted for capability candidates).",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No path promotes a capability candidate to active without concrete exposure + structured verdict; the invariant is asserted, not weakened.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
