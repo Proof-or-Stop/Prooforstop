@@ -68,6 +68,19 @@
           "materialHash": "7041e9cdafa2d2b9d82f278e1670dd85cceeb97c18c7803783726ec608026a86",
           "storyFilesHash": "eda6e024cf6f420b602d2762e648a49099a2e5483311498dc5bc4da8b1aab2a6",
           "timestamp": "2026-07-05T21:55:22.499Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "command": "node packages/main/dist/tasks/experience-layer-playbook-smoke.js",
+          "result": "pass",
+          "note": "The 'non-vacuous' check still passes: a planted ./finding.js yields foreign===['./finding.js'], and the negative !/finding.js$|advisory|gate/ assertion still holds — scanner and security guardrail intact.",
+          "headHash": "303241d98d833ac58388184d6a0e0df36f657461",
+          "materialHash": "7041e9cdafa2d2b9d82f278e1670dd85cceeb97c18c7803783726ec608026a86",
+          "storyFilesHash": "eda6e024cf6f420b602d2762e648a49099a2e5483311498dc5bc4da8b1aab2a6",
+          "timestamp": "2026-07-05T21:55:23.641Z"
         }
       ]
     },
