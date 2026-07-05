@@ -49,6 +49,7 @@ import {
   mkdtempSync,
   readFileSync,
   rmSync,
+  writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -116,6 +117,106 @@ function withDigest(record) {
 // rewrites. Defaults to the shared campaign ledger.
 function appendRecord(record, path = LEDGER_PATH) {
   appendFileSync(path, JSON.stringify(record) + '\n');
+}
+
+// ---------------------------------------------------------------------------
+// RESUME SUPPORT (M3, ADDITIVE). Read the set of iterationIds already recorded
+// in an existing ledger so a resumed run can SKIP them and re-run only the
+// remaining expected iterations. Append-only is preserved: this NEVER rewrites
+// the ledger. A SIGKILL mid-append can leave the LAST line as a truncated /
+// partial JSON fragment; that trailing partial is IGNORED (not counted as a
+// recorded iterationId, so its iteration is re-run) and never treated as a hard
+// parse error here. All well-formed prior lines are honored. Returns a Set of
+// iterationIds that already have a complete record. Only called on the resume
+// path — the fresh path never invokes this, so fresh behavior is unchanged.
+// ---------------------------------------------------------------------------
+function readRecordedIterationIds(path = LEDGER_PATH) {
+  const recorded = new Set();
+  if (!existsSync(path)) return recorded;
+  const raw = readFileSync(path, 'utf8');
+  const lines = raw.split('\n');
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (!line.trim()) continue; // blank / trailing newline
+    let rec;
+    try {
+      rec = JSON.parse(line);
+    } catch {
+      // Only tolerate an unparseable line if it is the LAST non-empty content
+      // (a mid-append truncation). Its iteration is left UN-recorded so resume
+      // re-runs it. A malformed line in the INTERIOR is a corrupt ledger: we do
+      // not repair it here — the end-of-run strict guard re-reads the ledger and
+      // fails nonzero on any unparseable line, so we simply skip counting it and
+      // let the guard adjudicate the final state.
+      const restNonEmpty = lines
+        .slice(i + 1)
+        .some((l) => l.trim());
+      if (restNonEmpty) {
+        // Interior unparseable line: leave it uncounted; the end-of-run guard
+        // will still re-read the full ledger and decide the exit code.
+        continue;
+      }
+      // Trailing truncated line: ignore it (repair-by-omission). Its iterationId
+      // is unknown / partial, so the corresponding iteration is treated as NOT
+      // recorded and will be re-run on resume.
+      continue;
+    }
+    if (rec && typeof rec.iterationId === 'string') {
+      recorded.add(rec.iterationId);
+    }
+  }
+  return recorded;
+}
+
+// ---------------------------------------------------------------------------
+// REPAIR a mid-append truncation (M3, ADDITIVE, RESUME-ONLY). A SIGKILL during
+// appendFileSync can leave the ledger's LAST line as a partial JSON fragment
+// with NO terminating newline. If a later append ran onto that partial line it
+// would concatenate into ONE corrupt line that the end-of-run strict guard
+// rejects. On resume we therefore rewrite the ledger to end at the last
+// WELL-FORMED newline boundary, DROPPING ONLY the never-completed trailing
+// partial write. Every COMPLETE prior record is preserved verbatim (append-only
+// for real records is intact — we discard only bytes that were never a finished
+// line). Returns true iff a trailing partial was dropped. Called ONLY on the
+// resume path; the fresh path never rewrites the ledger.
+function repairTruncatedTail(path = LEDGER_PATH) {
+  if (!existsSync(path)) return false;
+  const raw = readFileSync(path, 'utf8');
+  if (raw === '') return false;
+  // A complete JSONL ledger ends with '\n'. If it does NOT, the final line is an
+  // unterminated (truncated) write. Additionally, even if it ends with '\n', the
+  // last content line could itself be malformed — but a terminated line is a
+  // completed append, so we only repair the UNTERMINATED tail case here.
+  if (raw.endsWith('\n')) {
+    // The tail is newline-terminated: no in-progress partial write to repair.
+    // (An interior/terminated malformed line is left for the end-of-run guard to
+    // adjudicate — we never silently rewrite a completed line.)
+    return false;
+  }
+  const lastNl = raw.lastIndexOf('\n');
+  if (lastNl < 0) {
+    // The ENTIRE file is a single unterminated partial line (a SIGKILL during
+    // the very first append). Confirm it does not parse, then drop it wholesale.
+    let parses = true;
+    try {
+      JSON.parse(raw.trim());
+    } catch {
+      parses = false;
+    }
+    if (parses) return false; // a lone complete line missing only its newline: leave it
+    writeFileSync(path, '');
+    console.log('run-batch: [resume] repaired a truncated trailing line (dropped the partial write)');
+    return true;
+  }
+  // Keep everything up to and INCLUDING the last newline; drop the trailing
+  // partial fragment. If that fragment happened to be a complete JSON object
+  // that merely lost its newline, dropping it is still safe: the resume scan
+  // treats it as un-recorded and re-runs that iteration, and the append-only
+  // real records above are untouched.
+  const repaired = raw.slice(0, lastNl + 1);
+  writeFileSync(path, repaired);
+  console.log('run-batch: [resume] repaired a truncated trailing line (dropped the partial write)');
+  return true;
 }
 
 // ---------------------------------------------------------------------------
@@ -322,6 +423,27 @@ function runIteration(scale, index, budgetCapMs, appendOne) {
 
     const record = buildIterationRecord(scale, index, budgetCapMs, dir, iterationId, env);
 
+    // HARD-CRASH HOOK (M3, ADDITIVE). POS_CRASH_BEFORE_APPEND_AT=<iterationId>:
+    // at that iteration, AFTER generate+verify (the workspace is written) but
+    // IMMEDIATELY BEFORE appending the record, hard-exit the process WITHOUT
+    // writing the record — simulating a SIGKILL mid-iteration. This leaves that
+    // iterationId RECORDLESS (the deterministic mid-iteration casualty), which
+    // is DISTINCT from POS_FAIL_APPEND_AT below (a caught throw that becomes a
+    // verify_crash STOP record). The hard-crash writes NO record and bypasses
+    // the try/catch entirely (process.exit is not catchable). Only active when
+    // the env var is set, so the fresh-campaign path is byte-behavior-unchanged.
+    const crashBeforeAppendAt = process.env.POS_CRASH_BEFORE_APPEND_AT || null;
+    if (crashBeforeAppendAt && iterationId === crashBeforeAppendAt) {
+      console.error(
+        `run-batch: [hard-crash] POS_CRASH_BEFORE_APPEND_AT hard-exit at ${iterationId} ` +
+          `(workspace written, record NOT appended) — simulating SIGKILL`,
+      );
+      // Do NOT clean up dir here: process.exit(137) mimics an external SIGKILL
+      // where finally/cleanup would not run either. The mkdtemp dir is under the
+      // OS tmpdir and is reaped by the sandbox teardown.
+      process.exit(137);
+    }
+
     // APPEND is now INSIDE the guard. Fault injection: force an append-side
     // throw so the selfcheck can prove a post-body/append crash cannot leave the
     // iteration recordless-and-silent.
@@ -421,6 +543,15 @@ function parseScales() {
   return [s];
 }
 
+// RESUME mode is opt-in via --resume or POS_RESUME=1 (ADDITIVE). Absent, the
+// driver behaves EXACTLY as before (a pre-existing ledger still triggers the M2
+// end-of-run guard as today — resume does not change that).
+function parseResume() {
+  const flag = process.argv.includes('--resume');
+  const env = process.env.POS_RESUME === '1';
+  return flag || env;
+}
+
 function fatal(msg, code = 1) {
   console.error(msg);
   process.exit(code);
@@ -430,6 +561,7 @@ function main() {
   const scales = parseScales();
   const budgetCapMs = resolveBudgetCapMs();
   const skipRecordAt = process.env.POS_SKIP_RECORD_AT || null; // fault injection
+  const resume = parseResume(); // M3 ADDITIVE: opt-in resume mode
 
   // Expected cross-product of iterationIds for THIS run.
   const expectedIds = [];
@@ -437,6 +569,28 @@ function main() {
     const n = N[scale];
     if (!Number.isInteger(n) || n < 1) fatal(`run-batch FATAL: protocol.N.${scale} invalid: ${n}`, 2);
     for (let i = 1; i <= n; i++) expectedIds.push(`replay/${scale}/${i}`);
+  }
+
+  // RESUME (M3, ADDITIVE): break a STALE lock left by the interrupted prior run.
+  // A hard crash / SIGKILL exits without running the release() finally, so the
+  // mkdir-lock dir is orphaned on disk. Resume is a SEQUENTIAL restart of an
+  // interrupted run — the prior holder is by definition dead — so a pre-existing
+  // lock here is stale and safe to break before re-acquiring. This is gated on
+  // `resume`, so the non-resume lock semantics are UNCHANGED (a concurrent
+  // driver without --resume still records precondition_failed below).
+  if (resume && existsSync(LOCK_DIR)) {
+    console.log(
+      'run-batch: [resume] breaking a STALE lock left by the interrupted prior run',
+    );
+    try {
+      rmSync(LOCK_DIR, { recursive: true, force: true });
+    } catch (e) {
+      fatal(
+        `run-batch FATAL: [resume] could not break the stale lock ${LOCK_DIR}: ` +
+          `${String((e && e.message) || e)}`,
+        2,
+      );
+    }
   }
 
   // Acquire the exclusive lock BEFORE touching the ledger.
@@ -490,10 +644,39 @@ function main() {
   // surfaced (not swallowed). The guard is written defensively so it cannot
   // itself throw and mask the exit code.
   // -----------------------------------------------------------------------
+  // RESUME (M3, ADDITIVE): under the lock (so no concurrent writer can race),
+  // read the iterationIds already recorded in the existing ledger and SKIP them,
+  // running only the remaining expected iterations. A truncated trailing line is
+  // ignored/repaired by readRecordedIterationIds so its iteration is re-run.
+  // Append-only is preserved (existing lines are never rewritten). With NO
+  // existing ledger this Set is empty, so --resume behaves as a fresh run. When
+  // resume is OFF, alreadyRecorded stays empty and the loop is byte-behavior
+  // identical to before.
+  let alreadyRecorded = new Set();
+  if (resume) {
+    // Repair a mid-append truncation FIRST so subsequent appends resume from a
+    // clean newline boundary and the end-of-run guard never sees a corrupt line.
+    repairTruncatedTail(LEDGER_PATH);
+    alreadyRecorded = readRecordedIterationIds(LEDGER_PATH);
+    const skippedCount = expectedIds.filter((id) => alreadyRecorded.has(id)).length;
+    console.log(
+      `run-batch: [resume] ${alreadyRecorded.size} record(s) already present; ` +
+        `skipping ${skippedCount}/${expectedIds.length} expected iteration(s), ` +
+        `running the remaining ${expectedIds.length - skippedCount}`,
+    );
+  }
+
   let loopError = null;
   try {
     for (const scale of scales) {
       for (let index = 1; index <= N[scale]; index++) {
+        const iterationId = `replay/${scale}/${index}`;
+        if (resume && alreadyRecorded.has(iterationId)) {
+          // Already recorded in a prior (interrupted) run: do NOT re-run and do
+          // NOT rewrite. The end-of-run strict-multiset guard reconciles the
+          // FINAL ledger (pre-existing + newly-appended) for 0 dup / 0 gap.
+          continue;
+        }
         runIteration(scale, index, budgetCapMs, appendOne);
       }
     }
