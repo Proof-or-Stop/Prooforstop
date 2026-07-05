@@ -46,13 +46,13 @@
         {
           "intentRef": "CHK-001:happy:0",
           "kind": "manual_transcript",
-          "command": "node -e \"const r=require('./experiments/pos-instrument-replay/viability-results.json');const a=Array.isArray(r)?r:r.results;console.log(a.length, a.filter(x=>x.disposition==='fail-closed').length, a.filter(x=>x.disposition==='accepted').length, a.filter(x=>x.disposition==='dropped').length)\"",
+          "command": "node experiments/pos-instrument-replay/viability-check.mjs",
           "result": "pass",
-          "note": "viability-results.json dispositions 19 candidates: 16 fail-closed, 2 accepted (records-row-reorder[refreshed], gold-edit[refreshed]), 1 dropped (seed-swap[refreshed] no-op). Matches the spike 15/2 on the shared 17 + the two seed-swap adds exercising the drop mechanism.",
-          "headHash": "7ced21e1e28f644f06bc128259ec4886b6b416a0",
-          "materialHash": "d1348054bc91ba6c68681b2134e839fff5420ab72d02cb3a8affd4eae7154616",
-          "storyFilesHash": "3c8e6f828b521108afc48d84324055ce0043066272bc0b6f973bf239cda660fc",
-          "timestamp": "2026-07-05T15:41:54.176Z"
+          "note": "viability-results.json: 24 candidates dispositioned — 18 fail-closed, 2 accepted (records-row-reorder[refreshed], gold-additive-field[refreshed]), 3 acknowledged-limitation (corruptRows-lie/duplicate-gold-id/gold-semantic-weaken [refreshed] — real tampers the instrument does not detect once digests are refreshed), 1 dropped (seed-swap[refreshed]), 0 false-positive.",
+          "headHash": "c6ac020c14905e7709443825cb9a1ab10af5f72f",
+          "materialHash": "8e4ad7d3b09104bc1a8fce6ed81818f8adfd6b3afe75ce3aa5c966448238e4fc",
+          "storyFilesHash": "c39c0bbfa692ba80864553542cc692d26fec1a709872f4c2223a73181f52eab5",
+          "timestamp": "2026-07-05T16:10:42.110Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
