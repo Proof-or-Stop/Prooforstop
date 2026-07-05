@@ -44,6 +44,15 @@
       "reviewRound": "2026-07-05T19:51:59.601Z",
       "reviewRunId": "B-2a5b:RR-008",
       "_hash": "0bdbcaab386fe0e779d78d2651e041c2e8a5eede3c8ab589c0400f83aca3d4f7"
+    },
+    {
+      "id": "B-2a5b:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. Independently re-ran selfcheck-m2.mjs (PASS, 5 sub-checks incl. (e) PRE-BODY-CRASH for both POS_FAIL_MKDTEMP_AT and POS_FAIL_APPEND_AT); independently re-derived all 33 batch-ledger.jsonl recordDigests (0 mismatches, 0 extra/missing/dup); confirmed H1 pairwise-equal digest+goldMetrics at both scales; confirmed lattice validate allPass=true, missingRequired=0.",
+      "createdAt": "2026-07-05T20:06:00.490Z",
+      "reviewRound": "2026-07-05T19:51:59.601Z",
+      "reviewRunId": "B-2a5b:RR-012",
+      "_hash": "ada5759f58cef48e5998a6ce8fdf6faf19c870299245eaff719eebcc25f25428"
     }
   ]
 }
