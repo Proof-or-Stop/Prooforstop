@@ -1,0 +1,56 @@
+{
+  "storyId": "B-fe25",
+  "changes": "Added provider-free M2 launch-readiness artifacts for the multi-model ablation protocol; bound the 24 concrete recovery tasks to M1 task slots; bound M2 runner cells to M1 seed-manifest and cell-matrix semantics; added a checker with 1105 assertions and 21 negative controls; updated status/README surfaces to state M2 readiness only.",
+  "usage": "Run node experiments/multi-model-ablation/m2-launch-readiness-check.mjs to verify M2 readiness; read experiments/multi-model-ablation/m2-status.md for the current milestone table and remaining execution blockers.",
+  "expectedOutcome": "The checker should pass while proving that provider calls are disabled, no outcome/result rows exist, M1 seed/cell lineage is bound, ③ remains pending, ⑥ remains blocked, and H-M1/H-M3/model-agnostic claims are not proven.",
+  "actualTranscript": "node experiments/multi-model-ablation/m2-launch-readiness-check.mjs printed: M2 launch readiness checker passed: 1105 assertions; 21 negative controls rejected; M2 provider-free launch readiness artifacts passed local checks; Negative controls rejected as expected. m2-status.md showed Formal M2 execution NOT STARTED, ③ A4 calibration PENDING EXECUTION, and ⑥ A2prime BLOCKED.",
+  "outcomeDiff": "No mismatch. Actual output matches expected readiness-only behavior.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "M2 readiness does not run provider cells, does not produce Phase 1 or Phase 2 outcome data, and does not prove H-M1, H-M3, or model-agnostic paper claims; those remain future execution milestones.",
+  "pitfalls": "Quality review found missing M1 seed/cell binding, fixed by commit 2c7bc625. Test-coverage review then found stale verification evidence, fixed by refreshing and rewriting all 12 verification intent entries. done_prepare merged main and refreshed validation before DONE.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 239881
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 5931
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 459303
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 1336586
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 1080637
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 287801
+    }
+  },
+  "totalDurationMs": 3410823,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-05T03:06:05.569Z",
+  "updatedAt": "2026-07-05T03:06:05.569Z"
+}
