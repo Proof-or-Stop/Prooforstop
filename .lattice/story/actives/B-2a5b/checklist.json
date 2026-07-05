@@ -130,6 +130,17 @@
           "materialHash": "96f53605b9acab22537726575efa229c08064b234cabfce1254a6cd09b6eb220",
           "storyFilesHash": "c1d0f4d059062151cf55da41df6bb32e03b6d7702806560753bf8d67b96d701c",
           "timestamp": "2026-07-05T18:53:15.495Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/pos-instrument-replay/selfcheck-m2.mjs",
+          "result": "pass",
+          "note": "selfcheck-m2 (b): a concurrent second driver records exactly one precondition_failed stop and exits 3 (nonzero) via the mkdir lockfile — the ledger is not corrupted. (c): a recordless iteration (POS_SKIP_RECORD_AT=replay/small/1) makes run-batch exit 1 and name the recordless iterationId. Both un-gameable.",
+          "headHash": "54f97b399ec8ebc3878469811b99fe65cf783cdb",
+          "materialHash": "96f53605b9acab22537726575efa229c08064b234cabfce1254a6cd09b6eb220",
+          "storyFilesHash": "c1d0f4d059062151cf55da41df6bb32e03b6d7702806560753bf8d67b96d701c",
+          "timestamp": "2026-07-05T18:55:51.467Z"
         }
       ]
     },
