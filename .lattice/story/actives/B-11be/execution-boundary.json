@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-11be",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git status *",
+    "lattice *",
+    "node experiments/multi-model-ablation/m0-smoke-check.mjs",
+    "node experiments/multi-model-ablation/m1-freeze-check.mjs",
+    "node experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+    "node experiments/multi-model-ablation/m2-provider-execution-check.mjs"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".lattice/story/actives",
+    "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+    "docs/requirements/decisions/multi-model-ablation-replication.md",
+    "experiments/multi-model-ablation"
+  ],
+  "excludedCommands": [
+    "agy *",
+    "claude *",
+    "codex *",
+    "git push *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    "docs/requirements/decisions/product-capability-release-playbook-lineage-execution-plan.md",
+    "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+    "docs/requirements/decisions/tier-c-powered-independent-host-campaign-protocol.md"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "No provider CLI calls in this story; only metadata and local checker validation.",
+  "createdAt": "2026-07-05T14:33:05.572Z",
+  "updatedAt": "2026-07-05T14:33:05.572Z",
+  "_hash": "fe7afe5cd68c462fc280452640292421dd3d7689f508652d7a7a3d14779cbc46"
+}
