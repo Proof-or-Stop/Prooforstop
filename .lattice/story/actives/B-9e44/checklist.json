@@ -328,7 +328,20 @@
           "experiments/pos-instrument-replay/README.md"
         ],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "node -e \"const p=require('./experiments/pos-instrument-replay/protocol.json');const s=p.smokeOverlap;console.log(Object.keys(s).length, JSON.stringify(s['gold-edit']), JSON.stringify(s['cross-profile-swap']))\"",
+          "result": "pass",
+          "note": "protocol.json carries a per-class smokeOverlap map (12 classes): e.g. gold-edit -> {covered:true, smokeCase:assertGoldTamperWouldFail}; cross-profile-swap -> {covered:false} (net-new). The committed reuse-audit map.",
+          "headHash": "40a93aaa8e2dd0044a3d50ae850b5f7654e8f173",
+          "materialHash": "d1348054bc91ba6c68681b2134e839fff5420ab72d02cb3a8affd4eae7154616",
+          "storyFilesHash": "3c8e6f828b521108afc48d84324055ce0043066272bc0b6f973bf239cda660fc",
+          "timestamp": "2026-07-05T15:42:28.958Z"
+        }
+      ]
     }
   ]
 }
