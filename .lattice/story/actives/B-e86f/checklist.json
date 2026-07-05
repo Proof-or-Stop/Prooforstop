@@ -6,7 +6,43 @@
       "context": "The reviewed rev 3 draft (currently untracked in the operator's working tree) must be committed verbatim-in-substance: sections 1-12 including three-state hypotheses H1-H4, per-class tamper fingerprint discipline, recordDigest preimage rule, environment binding, section 6.5 cross-vendor roles, no-overclaim rule, and 5-core+1-optional milestone table. Doc-only story: no code, no experiments/ artifacts.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "git show HEAD:docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md renders the rev 3 plan: header says 'Status: DRAFT rev 3'; sections 1-12 all present; section 6.5 titled 'Cross-vendor roles (Codex): red-team, audit, replication — never outcome-judging'; the milestone table lists M0-M4 plus optional M5; the hypotheses table is three-state (supported/falsified/not-evaluable).",
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Committed file exists at docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md and its sha256 matches the reviewed rev 3 text (scratchpad backup digest recorded in evidence)",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "All 12 top-level sections and subsections 6.1-6.5 present in committed content (grep section headers)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Doc-only diff: git diff main...HEAD touches exactly one path (the plan md); no code, experiments/, or package files",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Content-integrity spot-checks that the landed text preserves the load-bearing rev 2/3 corrections: no seed-swap tamper class anywhere; 'content-inert' seed annotation present; per-class 'fingerprint' discipline present; 'never outcome-judging' present in 6.5; ledger-integrity claim scoped with the Tier-C disclaimer",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
