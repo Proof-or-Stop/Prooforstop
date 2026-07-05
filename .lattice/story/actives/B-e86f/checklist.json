@@ -116,13 +116,13 @@
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "manual_transcript",
-          "command": "git show HEAD:...plan.md | grep -n 'seed-swap'",
+          "command": "git show HEAD:docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md | grep -nE 'seed-swap'",
           "result": "pass",
-          "note": "Exactly 2 hits: L8 (rev provenance: 'the seed-swap tamper class was a no-op' — historical correction record) and L190 (viability-check explanation: 'the rev-1 seed-swap class failed exactly this check and was dropped'). The section 6.1 frozen class list does NOT contain seed-swap; the cross-file class is cross-PROFILE swap. No no-op class in the matrix.",
-          "headHash": "005b5e344dcb6077cd54cbfa4586571a5f1cbfa3",
-          "materialHash": "5ee9a75f5766b282a5452b5db8b53ef4d28990584f64a1b3d8a648e6e7d091bf",
-          "storyFilesHash": "3b9eafb3006074ecd3705943b7dbb1fa2483ffb523da494678f4d0b11b223006",
-          "timestamp": "2026-07-05T13:57:00.528Z"
+          "note": "seed-swap appears ONLY as historical references at HEAD a14555248 (rev provenance lines 8 & 23; rev-1 viability explanation lines 198 & 225) — NOT an active class in the frozen tamper matrix. The intent explicitly allows rev-provenance/viability historical refs; no content-inert no-op class present.",
+          "headHash": "93bcb4d0650eb604ed611b7e11e0a008c1e83187",
+          "materialHash": "c8ee02838c0e62f0f4020fa4efcfc4aa454a44def31c59ab8459ff37b2a2d676",
+          "storyFilesHash": "1c3b6945ef99d80b4169b425ef84a8f66f15fbd941b061664e2051bfc19b2fcf",
+          "timestamp": "2026-07-05T14:08:29.686Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
