@@ -47,9 +47,9 @@
       "id": "CHK-002",
       "title": "Build experiments/pos-instrument-replay/resume-probe.mjs (committed producer): spawn run-batch (small scale) and kill it deterministically TWICE — (a) at a frozen iteration boundary (SIGKILL after K iterations recorded), (b) mid-iteration via the crash hook POS_FAIL_APPEND_AT (after workspace write, before ledger append) — restart in --resume mode after each, and write resume-reconciliation.json with the pre/post-kill ledger diff, identity-multiset comparison, dup/gap counts (must be 0/0), and casualty disposition",
       "context": "iterationId identity-multiset must equal the protocol replay cross-product exactly. The mid-iteration casualty must resolve to a stop record OR a clean re-run, never a silent half-record. resume-reconciliation.json is the H3 evidence artifact (plan section 7).",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-05T21:00:02.900Z",
       "userSees": "node experiments/pos-instrument-replay/resume-probe.mjs kills run-batch at a boundary (SIGKILL) and mid-iteration (POS_FAIL_APPEND_AT), restarts in --resume, and writes resume-reconciliation.json showing dup=0 gap=0, identity-multiset == protocol cross-product, casualty=stop-or-rerun; prints 'H3: 0 dup / 0 gap'.",
       "files": {
         "modify": [],
