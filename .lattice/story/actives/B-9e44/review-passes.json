@@ -71,6 +71,15 @@
       "reviewRound": "2026-07-05T16:37:18.205Z",
       "reviewRunId": "B-9e44:RR-007",
       "_hash": "c7f687fefff48affacd64a6fdc1a2c0827478d57c037ea5c3794238ce3ecca89"
+    },
+    {
+      "id": "B-9e44:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: 27-candidate matrix (18 fail-closed/2 accepted/6 acknowledged-limitation/1 dropped) independently reproduced via selfcheck.mjs PASS + direct candidate count + protocol.json sha256 match; independently reproduced a NEW blind spot (weakened mustNotSurfaceIds + refreshManifest -> verify pass) confirming limitationFamily is genuine; all 10 must-priority verificationIntents have concrete non-vacuous manual_transcript evidence naming exact counts/hashes; validate --json allPass:true. No blocker.",
+      "createdAt": "2026-07-05T16:49:42.965Z",
+      "reviewRound": "2026-07-05T16:37:18.205Z",
+      "reviewRunId": "B-9e44:RR-012",
+      "_hash": "facfd8d115cc5ac4331dc706789b6112f979b43c901654763cfdb135b8635940"
     }
   ]
 }
