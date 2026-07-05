@@ -6,7 +6,31 @@
       "context": "Candidate classes from plan section 6.1: records.jsonl byte-flip / row drop / row duplicate / row reorder / field rename / truncation (raw + selected refreshed); gold-queries.json edit (raw + refreshed); manifest.json recordCount/profile/digest edit (raw only); cross-PROFILE swap. Mutation-in-isolated-copy only; never touch the source baseline. refreshManifest logic (recompute recordsDigest/goldDigest, rebuild manifestDigest) is replicated from the smoke.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "node experiments/pos-instrument-replay/viability-check.mjs prints a disposition table: each candidate (class x raw|refreshed) tagged fail-closed | accepted | dropped, ending with counts e.g. 'fail-closed=15 accepted=2 dropped=0'.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node viability-check.mjs against a fresh small baseline prints a per-(class x handling) disposition table and a summary line with fail-closed/accepted/dropped counts; observed fingerprint recorded per class",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the harness only mutates mkdtemp-isolated copies; the source baseline dir digests are unchanged after a full run (no source-tree pollution)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "a candidate whose mutation produces NO byte/contract difference (verify identical to clean) is classified dropped, exactly as the rev-1 seed-swap no-op would be",
+            "type": "cli",
+            "priority": "should"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
