@@ -4,7 +4,7 @@
   "title": "Capture DONE milestone closeout snapshots",
   "description": "When a story reaches DONE, users need a stable milestone closeout table that records each milestone status, solved problem, done meaning, evidence, risks, and next action as accepted at closure time. The current milestone_status command is a live freshness view, so after DONE merge or version bump it can correctly report stale bindings while no longer serving as a final accepted closeout report.",
   "type": "feature",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "high",
   "keywords": [
     "milestone-closeout",
@@ -74,6 +74,15 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-07-05T00:17:44.038Z",
+      "branch": "story/B-bfba",
+      "user": "Harmonygo",
+      "sessionId": "sess-3afb63cdfbb55461",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-05T01:38:34.689Z",
       "branch": "story/B-bfba",
       "user": "Harmonygo",
       "sessionId": "sess-3afb63cdfbb55461",
