@@ -8,6 +8,15 @@
       "reviewRound": "2026-07-05T15:43:22.404Z",
       "reviewRunId": "B-9e44:RR-001",
       "_hash": "ce2ba084ef12817c47371098d477eabcaf127c6a8790228058cd91f994199598"
+    },
+    {
+      "id": "B-9e44:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed experiments/pos-instrument-replay/ (lib/instrument.mjs, viability-check.mjs, build-protocol.mjs, calibrate-full.mjs, selfcheck.mjs, README.md) + fix commit 7ced21e1e. No dead code. Single catch{} in viability-check.mjs:142 is a justified no-op skip during a deterministic field-rename scan, not a swallowed verify error. I/O fully mkdtemp-isolated: every mutation runs on a cpSync copy in a fresh mkdtemp dir; source clean baseline pollution is actively checked post-run (sha256 before/after) with a hard FATAL exit if violated; all three temp-dir-creating scripts (viability-check, calibrate-full, selfcheck) rmSync cleanup in finally blocks. Determinism verified: canonicalJson (sorted keys, no whitespace) used for all frozen outputs; fixed mutation indices (5, 100, 800/801); no Math.random/Date.now/hrtime anywhere; protocol.json/viability-results.json/calibration.json are single-line canonical JSON; selfcheck.mjs independently re-derives failure signals from fingerprints rather than trusting stored values. maxBuffer correctly tiered: 1<<26 (64MB) for small-profile verify calls in lib/instrument.mjs + viability-check.mjs, 1<<28 (256MB) for calibrate-full.mjs's own full-profile (1M record) generate/verify calls. 19 candidates confirmed (grep count matches viability-results.json array length, matches story description). README.md claims cross-checked against code: reproduce steps, script order, disposition rules, and smokeOverlap audit all match implementation exactly — no promised-but-undelivered gaps found.",
+      "createdAt": "2026-07-05T15:44:58.409Z",
+      "reviewRound": "2026-07-05T15:43:22.404Z",
+      "reviewRunId": "B-9e44:RR-002",
+      "_hash": "448d66d62c98633618945e8ab6f7aed497fef934db039e3a39fdc5e37676082a"
     }
   ]
 }
