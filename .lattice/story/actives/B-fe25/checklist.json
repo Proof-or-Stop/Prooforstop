@@ -228,9 +228,47 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-05T02:33:27.213Z",
-      "endTime": null
+      "endTime": "2026-07-05T02:33:59.353Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "file": "experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+          "command": "node experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+          "result": "pass",
+          "note": "M2 checker passed and confirms ③ A4 calibration is pending_execution and required before any ⑥ A2prime budget lock.",
+          "headHash": "bba322f361685708014ddea95440e5902a7ebedb",
+          "materialHash": "70f820f60d7b42153e9711d00bbd0d81b768efdacff9bb75433ec78369a74fa1",
+          "storyFilesHash": "e7cb4b718d7c27635908573bcd0cce7d91846c0f35b7e099b42512726289090c",
+          "timestamp": "2026-07-05T02:33:59.589Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+          "command": "node experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+          "result": "pass",
+          "note": "Checker accepts M2 readiness as DONE-compatible while budgetLockStatus remains pending_execution and formal Phase 1 execution remains disabled.",
+          "headHash": "bba322f361685708014ddea95440e5902a7ebedb",
+          "materialHash": "70f820f60d7b42153e9711d00bbd0d81b768efdacff9bb75433ec78369a74fa1",
+          "storyFilesHash": "e7cb4b718d7c27635908573bcd0cce7d91846c0f35b7e099b42512726289090c",
+          "timestamp": "2026-07-05T02:33:59.899Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+          "command": "node experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+          "result": "pass",
+          "note": "Negative controls reject any artifact that marks ⑥ A2prime sequencing satisfied or executionAllowed=true without a real ③-derived budget lock; M0 example budget locks are not accepted as formal evidence.",
+          "headHash": "bba322f361685708014ddea95440e5902a7ebedb",
+          "materialHash": "70f820f60d7b42153e9711d00bbd0d81b768efdacff9bb75433ec78369a74fa1",
+          "storyFilesHash": "e7cb4b718d7c27635908573bcd0cce7d91846c0f35b7e099b42512726289090c",
+          "timestamp": "2026-07-05T02:34:00.113Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
