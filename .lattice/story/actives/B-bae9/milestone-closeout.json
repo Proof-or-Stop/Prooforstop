@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "proofbound.milestone_closeout.v1",
+  "storyId": "B-bae9",
+  "phase": "TEST",
+  "generatedAt": "2026-07-05T18:34:43.818Z",
+  "sourceReport": {
+    "schemaVersion": "proofbound.milestone_status.v1",
+    "digest": "040b5d0b267ce88a19f5dea58f69ba1ca38dfad1ad2c16c81d96e8385ee4d735",
+    "ledger": {
+      "present": true,
+      "state": "confirmed",
+      "hash": "sha256:f4745079c601a390c54385d9b7574adccf011c474fe8713f677024411871a8b5"
+    },
+    "groups": {
+      "completed": [
+        "M1-A",
+        "M1-B",
+        "M1-C"
+      ],
+      "current": [],
+      "remaining": []
+    },
+    "risks": [],
+    "nextActions": [
+      "No milestone action; all ledger rows are completed or not applicable."
+    ]
+  },
+  "bindings": {
+    "headHash": "f069e140f27fc4c164e7ec8f37c97a2348ec2603",
+    "materialHash": "d9604877dcfea4c26378ed7daf5f5ae81e74c4fe046b54bdeeea07c810b33861",
+    "storyFilesHash": "7401a0eb51469c55a4651862d9665881b3edb9851fd1bdb36c9a6ff6b465f68e"
+  },
+  "rows": [
+    {
+      "milestone": "M1-A",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "tamper.mjs runs the full frozen matrix on mkdtemp copies and emits identity-keyed tamper-verdicts.jsonl",
+      "acceptance": "node tamper.mjs writes tamper-verdicts.jsonl with a verdict per (class x manifestHandling)",
+      "evidence": [
+        "CHK-001:happy:0 [pass/manual_transcript] node experiments/pos-instrument-replay/tamper.mjs note=tamper.mjs writes tamper-verdicts.jsonl (27 verdicts: 18 failClosed / 2 acceptanceBucket / 6 acknowledgedLimitations / 1 dropped), each now with byteDiff{recordsChanged,goldChanged,manifestChanged}, rederivedDisposition, expectedDisposition, dispositionMatch, intent."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M1-B",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "H2 conformance: every fail-closed class fails closed + matches its frozen fingerprint; acceptance/acknowledged-limitation match their status:pass fingerprints; mismatch exits nonzero",
+      "acceptance": "tamper.mjs exits 0 with mismatches=0",
+      "evidence": [
+        "CHK-002:happy:0 [pass/manual_transcript] node experiments/pos-instrument-replay/tamper.mjs; echo exit=$? note=H2 conformance PASS exit 0: mismatches=0, dispositionMatch failures=0, no-op mutations=0, dropped-semantics violations=0. Every non-dropped class shows a real byteDiff (mutation genuinely applied); dropped (seed-swap) has records+gold byte-identical to clean; every re-derived disposition matches the frozen bucket.",
+        "CHK-002:adversarial:0 [pass/manual_transcript] node experiments/pos-instrument-replay/selfcheck-m1.mjs note=Un-gameable + fully op-covered: selfcheck-m1 (b) negative test (flip a frozen flag -> fingerprintMatch:false + nonzero exit) AND (c) op-coverage (tamper.mjs --optselftest drives compareFingerprint ==,<,>,!= + unknown-op-throw). A no-op mutation, dropped drift, or disposition mismatch each also fail loudly."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M1-C",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Hermetic selfcheck proves determinism + detects a corrupted frozen fingerprint",
+      "acceptance": "node selfcheck-m1.mjs exits 0",
+      "evidence": [
+        "CHK-003:happy:0 [pass/manual_transcript] node experiments/pos-instrument-replay/selfcheck-m1.mjs note=node selfcheck-m1.mjs exits 0 with 'selfcheck-m1 PASS': (a) determinism, (a2) clean-run invariants (dispositionMatch/byteDiff/dropped-semantics), (b) negative test, (c) compareFingerprint op-coverage all verified.",
+        "CHK-003:adversarial:0 [pass/manual_transcript] node experiments/pos-instrument-replay/selfcheck-m1.mjs note=selfcheck-m1 (b) negative test: a protocol copy with one frozen flag flipped (cross-profile-swap[refreshed].fullProfileExactMillionMatches true->false via POS_PROTOCOL_PATH) makes tamper.mjs report fingerprintMatch:false + exit nonzero (H2 conformance FAIL mismatches=1) — the conformance check is un-gameable, not a tautology."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "principles": [
+    "run-batch.mjs is a committed reproducible script; evidence must not depend on any interactive session.",
+    "Every iteration ends in EXACTLY one identity-keyed ledger record (proof XOR stop); prose is never an outcome.",
+    "Append-only + identity-keyed ledger (iterationId=replay/<scale>/<index>) so M3 resume can reconcile by multiset.",
+    "Reuse M0 lib/instrument.mjs; read the frozen protocol.json for N + budget cap.",
+    "Fail loudly: recordless iteration -> nonzero exit; concurrent driver -> precondition_failed via lockfile."
+  ],
+  "drivers": [
+    "H1 is exact (any N>=2 detects drift); H4 is cap-vs-stop accounting — both adjudicated by M4 from the ledger only.",
+    "The full scale is heavy (1M records/cycle ~42.7s); full N=3 is a budget decision.",
+    "proof-or-stop is the load-bearing discipline the campaign demonstrates."
+  ],
+  "options": [
+    {
+      "name": "append-only-proof-or-stop-ledger",
+      "pros": [
+        "Identity-keyed -> M3 resume reconciles by multiset",
+        "Typed records -> M4 adjudicates H1/H4 mechanically",
+        "recordless-exit-nonzero is un-gameable"
+      ],
+      "cons": [
+        "Must carefully source digests from the generation side"
+      ]
+    },
+    {
+      "name": "freeform-logs",
+      "pros": [
+        "Simpler"
+      ],
+      "cons": [
+        "Prose is never an outcome; M4 cannot adjudicate mechanically; violates the proof-or-stop contract"
+      ]
+    }
+  ],
+  "chosen": "append-only-proof-or-stop-ledger",
+  "rationale": "The whole point being demonstrated is proof-or-stop: every iteration yields a typed, identity-keyed, digest-bound record or an explicit stop. Free-form logs would make H1/H4 non-adjudicable and break M3 resume reconciliation.",
+  "preMortem": [
+    {
+      "scenario": "Digest sourced from the wrong side",
+      "trigger": "run-batch records a verifier stability boolean instead of the generation-side digest",
+      "consequence": "H1 pairwise-equality is meaningless",
+      "mitigation": "source records/gold/manifest digests from the generate result / the run manifest.json, per plan section 6.2"
+    },
+    {
+      "scenario": "Recordless iteration silently tolerated",
+      "trigger": "a verify throw is caught but no stop record is appended",
+      "consequence": "a missing record is hidden; proof-or-stop broken",
+      "mitigation": "wrap each iteration so a crash maps to a verify_crash stop; assert exactly one record per iterationId and exit nonzero otherwise"
+    },
+    {
+      "scenario": "Full campaign OOM/time blowup",
+      "trigger": "3 x 1,000,000-record generate+verify exceeds machine budget",
+      "consequence": "campaign cannot complete",
+      "mitigation": "honor the frozen budget cap: a cycle exceeding it records a budget_cap stop rather than hanging; capture elapsed/rss honestly"
+    }
+  ],
+  "timestamp": "2026-07-05T18:39:27.548Z"
+}

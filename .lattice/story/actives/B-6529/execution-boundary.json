@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-6529",
+  "allowedCommands": [
+    "lattice *",
+    "node experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+    "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "multi_agent",
+    "shell"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/**",
+    "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+    "docs/requirements/decisions/multi-model-ablation-replication.md",
+    "experiments/multi-model-ablation/**"
+  ],
+  "excludedCommands": [
+    "git push",
+    "lattice release_approve_push",
+    "provider calls from this authorization story"
+  ],
+  "excludedTools": [
+    "provider api execution before frozen Cell 03 execution envelope"
+  ],
+  "excludedPaths": [
+    "experiments/multi-model-ablation/records-multi-model-ablation.jsonl"
+  ],
+  "confirmedBy": "codex-cli",
+  "confirmationNote": "B-6529 changes authorization artifacts and local checks only. Pre-run dollar guessing is not required. Real provider execution must occur in a separate execution step/story after Cell 03 execution envelope is frozen; postflight provider-reported usage/cost is recorded after execution.",
+  "createdAt": "2026-07-05T21:27:26.725Z",
+  "updatedAt": "2026-07-05T21:27:26.725Z",
+  "_hash": "739c592d47f4d99f77b9d57c55856773305ed43f0a47337afad24b43522e631d"
+}

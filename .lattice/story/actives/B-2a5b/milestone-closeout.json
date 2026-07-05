@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "proofbound.milestone_closeout.v1",
+  "storyId": "B-2a5b",
+  "phase": "TEST",
+  "generatedAt": "2026-07-05T20:18:06.241Z",
+  "sourceReport": {
+    "schemaVersion": "proofbound.milestone_status.v1",
+    "digest": "86dbc3d816a6c3e0f2e5e2d9e2c5cfe9a732675fbc9cd80430a4f0092a3a619b",
+    "ledger": {
+      "present": true,
+      "state": "confirmed",
+      "hash": "sha256:46fd42946e29db7e8dbeba82939ab3981dde2743ec3c0562dab530abad780f42"
+    },
+    "groups": {
+      "completed": [
+        "M2-A",
+        "M2-B",
+        "M2-C"
+      ],
+      "current": [],
+      "remaining": []
+    },
+    "risks": [],
+    "nextActions": [
+      "No milestone action; all ledger rows are completed or not applicable."
+    ]
+  },
+  "bindings": {
+    "headHash": "9a6f4f387a827970dfa2a695a7867ce8c847862b",
+    "materialHash": "b5f05fa8c03d64bdf6c912b932fc267e02530e29aaae38544d587bc2416b5b52",
+    "storyFilesHash": "778cc5e6513c98a7773be024408545936074e32f72563d182da04d4ebfbdd485"
+  },
+  "rows": [
+    {
+      "milestone": "M2-A",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "run-batch.mjs runs N x 2-scale generate+verify cycles and appends identity-keyed proof-or-stop records to batch-ledger.jsonl",
+      "acceptance": "node run-batch.mjs writes a complete batch-ledger.jsonl with one record per iteration",
+      "evidence": [
+        "CHK-001:happy:0 [pass/manual_transcript] node experiments/pos-instrument-replay/run-batch.mjs note=run-batch.mjs completed the full campaign: batch-ledger.jsonl has 33 identity-keyed records (30 small + 3 full 1M cycles), all proof records (0 stop), each with iterationId replay/<scale>/<index>, verifyStatus, verifyFlags, generation-side digests{records,gold,manifest}, goldMetrics, elapsedMs, endOfRunRss, env, recordDigest. 0 recordless, exit 0."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M2-B",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "proof-or-stop + lockfile discipline: exactly one record per iteration, H1 pairwise-equal replay digests, H4 cap-vs-stop, concurrent driver -> precondition_failed, recordless -> nonzero exit",
+      "acceptance": "run-batch.mjs exits 0 with 0 recordless and H1/H4 evidence complete",
+      "evidence": [
+        "CHK-002:happy:0 [pass/manual_transcript] node experiments/pos-instrument-replay/run-batch.mjs note=Every iteration ended in exactly one record (33 records / 33 unique iterationIds / 0 recordless). H1 = pairwise records/gold/manifest digest + gold-metric equality across replay proof records PER SCALE: small n=30 distinct-digest-sets=1 (PAIRWISE-EQUAL), full n=3 distinct-digest-sets=1 (PAIRWISE-EQUAL) — replay determinism confirmed.",
+        "CHK-002:adversarial:0 [pass/manual_transcript] node experiments/pos-instrument-replay/selfcheck-m2.mjs note=The proof-or-stop discipline is now structurally un-gameable: runIteration guards the ENTIRE lifecycle (mkdtemp+generate+verify+build+append+cleanup) -> any throw becomes a verify_crash stop; main() runs the STRICT exact-multiset end-of-run guard in a finally-backstop so an escaped crash still forces a named NONZERO exit (never exit-0 with a missing record). selfcheck (e) confirms both a pre-body mkdtemp crash and a post-body append crash map to a verify_crash stop. Lock-blocked driver -> separate blocked-ledger; guard rejects extra/missing/dup."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M2-C",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Hermetic selfcheck exercises budget_cap stop + lockfile + recordless-exit paths",
+      "acceptance": "node selfcheck-m2.mjs exits 0",
+      "evidence": [
+        "CHK-003:happy:0 [pass/manual_transcript] node experiments/pos-instrument-replay/selfcheck-m2.mjs note=node selfcheck-m2.mjs exits 0 'selfcheck-m2 PASS' with 5 sub-checks: (a) budget_cap, (b) lockfile->separate blocked-ledger, (c) recordless, (d) generate-crash->verify_crash-stop, (e) pre-body-crash (mkdtemp + append injections) -> verify_crash-stop with no silent miss.",
+        "CHK-003:adversarial:0 [pass/manual_transcript] node experiments/pos-instrument-replay/selfcheck-m2.mjs note=Un-gameable proof-or-stop: (b) lockfile (separate ledger, exit 3), (c) recordless (exit 1 named), (d) generate-crash, (e) pre-body-crash (mkdtemp/append) all fail loudly if the discipline regresses; the finally-backstop end-of-run guard guarantees the driver NEVER exits 0 with a missing/extra/dup record."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    }
+  ]
+}

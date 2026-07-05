@@ -1,0 +1,84 @@
+{
+  "findings": [
+    {
+      "id": "B-2a5b:F-001",
+      "desc": "proof-or-stop-gap: experiments/pos-instrument-replay/run-batch.mjs:129-142,188 generateBaseline() calls execFileSync(lattice memory_playbook_baseline_generate) and JSON.parse(manifest.json) with NO try/catch, unlike verifyDir() in lib/instrument.mjs:52-80 which explicitly wraps execFileSync failures/unparseable JSON into a {status:crash} sentinel mapped to a verify_crash stop record. If the generate CLI throws or emits a malformed manifest.json, the exception propagates uncaught out of runIteration() (run-batch.mjs:183-250) through the loop finally at line 372 (lock IS released, good) but the process then crashes with a raw stack trace BEFORE reaching the end-of-run recordless guard (lines 376-422), so that iteration produces NO ledger record and is never named by the recordless FAIL message the reviewer prompt and CHK-002 require (driver exits nonzero on any recordless iteration via the clean diagnostic path). protocol.json stopReasonEnum only has budget_cap/verify_crash/precondition_failed/operator_abort — there is no generate-side stop reason, and the execution-plan doc (docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md:269-270) does not exempt generate failures from the proof-or-stop contract. Net effect: a generate-side crash is recordless-but-silent (undiagnosed crash) rather than surfaced as a stop record or caught by the clean recordless guard, weakening the proof-or-stop discipline this story exists to enforce.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-05T18:58:22.503Z",
+      "reviewRound": "2026-07-05T18:56:06.177Z",
+      "reviewRunId": "B-2a5b:RR-002",
+      "_hash": "acb72facafbe62674e81ae1eaf3a3bbcfd619ae5bbe1209787f7a83d1d46c2b3",
+      "signatureTag": "edge|unknown|proof-stop-experiments",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 2285816b1. The entire per-iteration generate+verify body is now wrapped: any generate OR verify throw becomes a verify_crash STOP record ([phase] rawError + env + recordDigest), never uncaught, never recordless. selfcheck-m2 (d) forces a generate throw -> exactly one verify_crash stop, exit 0. Also closes the CHK-001:adversarial:0 verify_crash should-gap.",
+      "resolvedAt": "2026-07-05T19:22:31.189Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-2a5b:F-002",
+      "desc": "[codex-host-2, verified] End-of-run guard ignores EXTRA/unexpected records, so concurrent-driver evidence can silently contaminate a 'successful' ledger. The guard only checks missing/duplicate of the EXPECTED replay cross-product; it never rejects records whose iterationId is outside that set. Scenario: driver A holds the lock producing the 33 replay records; driver B starts, fails acquireLock, appends a {iterationId:'replay/precondition/lock', stopReason:'precondition_failed'} record to the SAME batch-ledger.jsonl, exits nonzero — but A then scans the ledger, sees all 33 expected ids present with no dup, and exits 0 with a 34-record/1-stop ledger that violates the exact expected-identity-multiset '33 records, 0 stop' H1/H4 evidence contract. Fix: (a) A's guard must validate the EXACT multiset (fail on ANY extra/unexpected iterationId, not just missing/dup); (b) a lock-blocked driver must record its precondition_failed to a SEPARATE location, not the shared campaign ledger ('instead of corrupting the ledger', plan section 6.3).",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex-host-2",
+      "createdAt": "2026-07-05T19:03:21.539Z",
+      "reviewRound": "2026-07-05T18:56:06.177Z",
+      "_hash": "16c06c76aeae69cc758448d37eaade5963ca9b2754866a3941c454bbcf139713",
+      "files": [
+        "experiments/pos-instrument-replay/run-batch.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|codex-host-verified",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 2285816b1. (a) The end-of-run guard now validates the EXACT expected identity multiset (fails on missing, duplicate, OR extra/unexpected iterationIds, naming offenders). (b) A lock-blocked driver records precondition_failed to a SEPARATE batch-ledger.blocked.jsonl instead of the shared campaign ledger. selfcheck-m2 (b) confirms the blocked record lands in the separate ledger and the campaign ledger stays clean; the full re-run campaign passed the strict guard (33 records, 0 extra).",
+      "resolvedAt": "2026-07-05T19:22:31.633Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-2a5b:F-003",
+      "desc": "[codex-host-2 re-check, verified] F-001 fix is incomplete: exceptions OUTSIDE the guarded generate+verify body can still leave an iteration with no record AND skip the end-of-run guard. Scenario: mkdtempSync fails, the record appendFileSync fails after runIteration returns, or the rmSync cleanup throws -> the exception escapes the crash->verify_crash-stop conversion, the driver crashes mid-loop before reaching the end-of-run guard, so there is neither a stop record nor a recordless-nonzero-exit. This violates the claimed 'ANY throw becomes exactly one stop record / the driver never exits 0 with a missing record' guarantee. Structural fix: run the end-of-run STRICT-multiset guard in a finally (or top-level try/finally over the whole campaign) so it ALWAYS executes even if the loop throws uncaught — any recordless iteration then still forces a named nonzero exit; and widen the per-iteration try to include mkdtemp + append + cleanup (best-effort stop record).",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex-host-2",
+      "createdAt": "2026-07-05T19:27:55.224Z",
+      "reviewRound": "2026-07-05T19:22:13.254Z",
+      "_hash": "f6c8ac2e919415f709dc8d1b646773cedf280bd4893b8714aec45329d6d4676f",
+      "files": [
+        "experiments/pos-instrument-replay/run-batch.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|codex-host-check",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 8513707f7. runIteration now guards the ENTIRE per-iteration lifecycle (mkdtemp+generate+verify+build+append+cleanup) so any throw becomes a best-effort verify_crash stop; main() runs the STRICT exact-multiset end-of-run guard in a finally/top-level backstop that ALWAYS executes even on an uncaught loop crash -> a recordless escaped iteration forces a named NONZERO exit; the guard is computed defensively so it cannot throw/mask the exit code. The driver NEVER exits 0 with a missing record. selfcheck (e) proves both a pre-body mkdtemp crash and a post-body append crash are handled.",
+      "resolvedAt": "2026-07-05T19:52:16.832Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-2a5b:F-004",
+      "desc": "F-001 residual: mkdtempSync (run-batch.mjs:209) executes BEFORE the per-iteration try block starts (try opens at line 227), so a throw from mkdtempSync (e.g. ENOSPC/EMFILE/tmpdir permission failure) is NOT caught by runIteration and propagates uncaught out of main()'s for-loop (line 411), which has only a finally (release()) and no catch (lines 408-434). This crashes the whole node process with NO verify_crash record written for that iteration, and none of the remaining scheduled iterations execute either -- exactly the uncaught/recordless failure mode F-001 was meant to close. The commit message and in-code comments (run-batch.mjs:22-25, 228-233) claim the ENTIRE per-iteration generate+verify body is in a try/catch so ANY throw becomes a verify_crash STOP, which is not accurate: mkdtempSync sits outside that guarded body. The selfcheck (d) GENERATE-CRASH sub-check only fault-injects a throw INSIDE generateBaseline (already inside the try), so it does not exercise this gap. Fix: move the mkdtempSync call inside the try, or wrap it separately so a mkdtemp failure also produces a verify_crash stop record with iterationId populated.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-05T19:30:27.737Z",
+      "reviewRound": "2026-07-05T19:22:13.254Z",
+      "reviewRunId": "B-2a5b:RR-006",
+      "_hash": "30e85555ce1682719ca2642e4727131fbd95e7d0505921ba30ae06b8290b7500",
+      "signatureTag": "edge|unknown|residual-mkdtempsync-batch",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 8513707f7 (same structural fix as F-003). The mkdtemp-before-try gap is closed: the per-iteration try now wraps the full lifecycle including setup, and the finally-backstop guard guarantees no silent exit-0 with a missing iteration. selfcheck (e) PRE-BODY-CRASH exercises the mkdtemp-setup failure path (verify_crash stop, no silent miss).",
+      "resolvedAt": "2026-07-05T19:52:17.259Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

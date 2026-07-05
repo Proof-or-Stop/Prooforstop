@@ -1,0 +1,47 @@
+{
+  "storyId": "B-2a5b",
+  "checkedAt": "2026-07-05T18:40:38.381Z",
+  "features": [
+    {
+      "feature": "run-batch.mjs replay driver + proof-or-stop batch-ledger.jsonl (N x 2-scale)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": ""
+    },
+    {
+      "feature": "proof-or-stop + lockfile discipline + H1/H4 evidence + recordless-exit-nonzero",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": ""
+    },
+    {
+      "feature": "hermetic selfcheck: budget_cap stop + lockfile + recordless paths",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": ""
+    },
+    {
+      "feature": "interrupt/resume probe (resume-probe.mjs)",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "M3"
+    },
+    {
+      "feature": "offline analyzer (analyze-batch.mjs)",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "M4"
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "covered": 3,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "4b73b69edaaa321cc7947c08d33e13b4af78858c95d76d699e6bb2559c71d247",
+  "openQuestions": []
+}

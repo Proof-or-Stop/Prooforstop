@@ -1,0 +1,67 @@
+{
+  "passes": [
+    {
+      "id": "B-2a5b:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Checked git diff main...HEAD full-repo stat + summary: 100% additions (create mode only), zero deletions/renames anywhere in the diff, including outside experiments/pos-instrument-replay/. Verified M0/M1 files (protocol.json, protocol.json.sha256, lib/instrument.mjs, tamper.mjs, viability-check.mjs, build-protocol.mjs, selfcheck-m1.mjs, selfcheck.mjs, calibrate-full.mjs, calibration.json, README.md, tamper-verdicts.jsonl, viability-results.json) all have empty git diff main...HEAD (byte-identical, untouched). Verified run-batch.mjs imports {sha256, canonicalJson, verifyDir} from ./lib/instrument.mjs -- all three exist as real exports. selfcheck-m2.mjs imports only node builtins and instead cpSync-copies lib/instrument.mjs + run-batch.mjs + protocol.json into a mkdtemp sandbox then execFileSync's run-batch.mjs there -- all three source paths exist and are unchanged. No concept deletion/replacement this round; no dangling imports; no blocker.",
+      "createdAt": "2026-07-05T18:57:16.204Z",
+      "reviewRound": "2026-07-05T18:56:06.177Z",
+      "reviewRunId": "B-2a5b:RR-001",
+      "_hash": "9d3107ba4f4367118e2d74b211751dce25a717d53b4fc5f4c8f2577a2d373d71"
+    },
+    {
+      "id": "B-2a5b:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: independently re-derived all 33 batch-ledger.jsonl recordDigests (exact sha256(canonicalJson(preimage)) via lib/instrument.mjs), confirmed 33/33 unique iterationIds, 0 recordless, 33/33 proof (0 stop), H1 pairwise-equal per scale (small n=30, full n=3), H4 all elapsedMs<=128217 cap (max 19538ms). Independently ran node selfcheck-m2.mjs: PASS, exit 0, and confirmed all 3 sub-checks are genuinely exercised (not tautologies): (a) budget_cap 30/30 real verifies ~2.0-2.3s all exceed injected 1ms cap, (b) lockfile pre-held -> exactly 1 precondition_failed record, exit 3, no other records, (c) recordless fault-injection at replay/small/1 -> exit 1 naming the offending iterationId. lattice validate --story=B-2a5b --json: allPass=true, missingRequired=0. 8/9 verificationIntent covered by concrete evidence; the 1 gap (CHK-001:adversarial:0, verify_crash mapping) is should-priority (advisory only, not a must-gap), no waiver needed. No blocker.",
+      "createdAt": "2026-07-05T19:05:07.415Z",
+      "reviewRound": "2026-07-05T18:56:06.177Z",
+      "reviewRunId": "B-2a5b:RR-004",
+      "_hash": "63cfe4f49511c25aedee7935432f386fff399fc0501523387e5c820248b46974"
+    },
+    {
+      "id": "B-2a5b:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Reviewed commit 2285816b1 (run-batch.mjs + selfcheck-m2.mjs, F-001/F-002 fix). No dangling refs or dead code: BLOCKED_LEDGER_PATH/BLOCKED_LEDGER_NAME consistently defined+used in both files and cross-referenced in findings.json/checklist.json; precondition_failed remains a valid frozen enum value (build-protocol.mjs, untouched) now correctly routed to the separate batch-ledger.blocked.jsonl instead of being deleted/replaced as a concept. git diff main...HEAD on protocol.json, lib/instrument.mjs, tamper.mjs is empty -- M0/M1 untouched. Re-run batch-ledger.jsonl has 33 unique iterationIds, 0 duplicates, matching the strict exact-multiset claim. batch-ledger.blocked.jsonl correctly not committed (ephemeral, not campaign evidence). node --check passes on both modified files. F-001 and F-002 both marked resolved in findings.json. No concept deletion/replacement this round; residue check complete, no blocker.",
+      "createdAt": "2026-07-05T19:23:48.177Z",
+      "reviewRound": "2026-07-05T19:22:13.254Z",
+      "reviewRunId": "B-2a5b:RR-005",
+      "_hash": "48d84816ec1153aacdb5b54c2612c5584e004493ff555e37cfc716ab6f4fcb95"
+    },
+    {
+      "id": "B-2a5b:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed round 2: all 9 verificationIntent lanes (8 must + 1 should across CHK-001/002/003) now covered by concrete manual_transcript evidence, result=pass, 0 waivers. Independently re-ran selfcheck-m2.mjs (PASS, 4 sub-checks incl new (d) GENERATE-CRASH closing the CHK-001:adversarial:0 gap). Inspected batch-ledger.jsonl: 33 records (30 small+3 full), 33 unique iterationIds, 0 extra/missing/dup vs expected multiset, 0 stop records, 0 over-cap (max elapsed 18728ms vs 128217 cap). Re-derived all 33 recordDigests via canonicalJson(record minus recordDigest)->sha256: 33/33 match. H1 pairwise-equal confirmed independently: 1 distinct digests-set + 1 distinct goldMetrics-set at each of small(n=30) and full(n=3). lattice validate --story=B-2a5b --json: allPass=true, missingRequired=0. No blocker.",
+      "createdAt": "2026-07-05T19:30:42.450Z",
+      "reviewRound": "2026-07-05T19:22:13.254Z",
+      "reviewRunId": "B-2a5b:RR-007",
+      "_hash": "0b962b848dbc1dc843ac77dc5541243195a987a0e5e74b9db8279df1c42f6ae6"
+    },
+    {
+      "id": "B-2a5b:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Concept-residue check on commit 8513707f7 (run-batch.mjs full-lifecycle restructure + selfcheck-m2.mjs sub-check (e)). Confirmed: (1) M0/M1 files untouched - git diff main...HEAD on protocol.json, lib/instrument.mjs, lib/tamper.mjs is empty. (2) No dangling refs from the restructure: old inline crash-record wrapper shape replaced by buildIterationRecord()+runIteration(...,appendOne) with single def/single call site each; crashStop closure defined and used only within its own scope; producedThisRun/appendRecord/STOP_REASONS/fatal all resolve cleanly; node --check passes on both files. (3) selfcheck-m2.mjs sub-check (e) checkPreBodyCrash is wired consistently: env vars POS_FAIL_MKDTEMP_AT/POS_FAIL_APPEND_AT match between run-batch.mjs and selfcheck-m2.mjs, header comment updated four->five guards, main() calls checkPreBodyCrash(). (4) Repo-wide grep found no stale four-sub-check/four-guard doc mentions tied to this change (READMEs four disposition categories is an unrelated M1 concept). No blockers found in this lane.",
+      "createdAt": "2026-07-05T19:56:17.656Z",
+      "reviewRound": "2026-07-05T19:51:59.601Z",
+      "reviewRunId": "B-2a5b:RR-008",
+      "_hash": "0bdbcaab386fe0e779d78d2651e041c2e8a5eede3c8ab589c0400f83aca3d4f7"
+    },
+    {
+      "id": "B-2a5b:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. Independently re-ran selfcheck-m2.mjs (PASS, 5 sub-checks incl. (e) PRE-BODY-CRASH for both POS_FAIL_MKDTEMP_AT and POS_FAIL_APPEND_AT); independently re-derived all 33 batch-ledger.jsonl recordDigests (0 mismatches, 0 extra/missing/dup); confirmed H1 pairwise-equal digest+goldMetrics at both scales; confirmed lattice validate allPass=true, missingRequired=0.",
+      "createdAt": "2026-07-05T20:06:00.490Z",
+      "reviewRound": "2026-07-05T19:51:59.601Z",
+      "reviewRunId": "B-2a5b:RR-012",
+      "_hash": "ada5759f58cef48e5998a6ce8fdf6faf19c870299245eaff719eebcc25f25428"
+    },
+    {
+      "id": "B-2a5b:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Verified commit 8513707f7 genuinely resolves F-003/F-004: (1) mkdtemp (setup) is now inside runIterations full-lifecycle try, along with generate/verify/build/append/cleanup — confirmed via git show diff and source read. (2) The end-of-run strict-multiset guard (runEndOfRunGuard) is invoked unconditionally after mains try/catch/finally (loop errors are captured not swallowed, lock release happens in finally, guard runs regardless); guard is defensively written (ledger read wrapped in try/catch -> readError forces fatal nonzero; summary printing wrapped in try/catch so a print bug cant mask exit code; loopError forces nonzero even if multiset looks complete). (3) Traced all exit paths: normal per-iteration throws (setup/generate/verify/append/cleanup) are caught by runIteration and become a best-effort verify_crash stop; the sole irreducible case (crash-stop append itself throwing) is swallowed locally but the resulting recordless iteration is caught by the top-level guard which forces a named nonzero exit — confirmed empirically via selfcheck sub-check (e) for both POS_FAIL_MKDTEMP_AT and POS_FAIL_APPEND_AT injection points. Pre-existing fatal()/process.exit calls for off-enum stopReason and lock-acquire-fail are unrelated pre-iteration-loop paths (F-001/F-002 scope) and already exit nonzero. (4) No determinism/isolation regression: all fault-injection hooks (POS_FAIL_MKDTEMP_AT/POS_FAIL_APPEND_AT/POS_FAIL_GENERATE_AT/POS_SKIP_RECORD_AT/POS_BUDGET_CAP_MS) are opt-in env-var gated, default null/off, matching the pre-existing F-001 pattern; lib/instrument.mjs untouched. Ran node experiments/pos-instrument-replay/selfcheck-m2.mjs to completion: all 5 sub-checks PASS (a BUDGET_CAP, b LOCKFILE, c RECORDLESS, d GENERATE-CRASH, e PRE-BODY-CRASH x2). Working tree clean vs HEAD (only lattice test-evidence bookkeeping changed). No dead code, no as-any, no empty-catch-swallowing-errors issues found in the diffed files (all catch blocks are either best-effort cleanup with explanatory comments or deliberately convert to stop records/nonzero exits).",
+      "createdAt": "2026-07-05T20:06:05.103Z",
+      "reviewRound": "2026-07-05T19:51:59.601Z",
+      "reviewRunId": "B-2a5b:RR-009",
+      "_hash": "b1f8c461433a2339792e7b5a492fe3752e8cea3625d1db6dd3a96839289d39d5"
+    }
+  ]
+}

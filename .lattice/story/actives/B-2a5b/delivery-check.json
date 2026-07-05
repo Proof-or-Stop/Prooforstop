@@ -1,0 +1,81 @@
+{
+  "storyId": "B-2a5b",
+  "checkedAt": "2026-07-05T20:17:27.281Z",
+  "headHash": "fb878d2eee22d78dc57c4137b266c726d9f0996e",
+  "materialHash": "b5f05fa8c03d64bdf6c912b932fc267e02530e29aaae38544d587bc2416b5b52",
+  "storyFilesHash": "778cc5e6513c98a7773be024408545936074e32f72563d182da04d4ebfbdd485",
+  "reviewRound": "2026-07-05T19:51:59.601Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "checklist:CHK-001#userSees",
+      "promise": "node experiments/pos-instrument-replay/run-batch.mjs prints per-iteration progress and writes batch-ledger.jsonl (one identity-keyed proof/stop record per iteration across small N=30 + full N=3); ends campaign complete: <N> records, 0 recordless.",
+      "status": "verified",
+      "verifiedBy": "code read + independent re-run of node run-batch.mjs command path via selfcheck sandbox + independent data inspection of the committed batch-ledger.jsonl",
+      "evidence": "run-batch.mjs (experiments/pos-instrument-replay/run-batch.mjs:429-616) implements main/runEndOfRunGuard exactly as described; independently re-parsed the committed batch-ledger.jsonl: 33 records total (30 scale=small + 3 scale=full), 33 unique iterationIds, 0 duplicates, 0 stop records; final console.log line format 'campaign complete: N records (exact multiset), 0 recordless, 0 extra' matches the promised message shape (run-batch.mjs:612-614)."
+    },
+    {
+      "docPath": "checklist:CHK-001#verificationIntent",
+      "promise": "digests are sourced from the generation side; recordDigest = sha256 of canonical JSON with recordDigest absent, re-derivable per record",
+      "status": "verified",
+      "verifiedBy": "independent node script re-deriving sha256 canonicalJson preimage for all 33 records",
+      "evidence": "withDigest (run-batch.mjs:110-113) strips recordDigest before hashing exactly as promised; independently re-derived recordDigest for all 33 committed records: 0 mismatches. digests.records/gold/manifest are read from the generation-side manifest.json (generateBaseline, run-batch.mjs:149-169), not from verify-side booleans."
+    },
+    {
+      "docPath": "checklist:CHK-001#verificationIntent",
+      "promise": "a verify crash (structural corruption) maps to a stop record with stopReason=verify_crash, not a recordless iteration or an uncaught throw",
+      "status": "verified",
+      "verifiedBy": "independently ran node selfcheck-m2.mjs sub-check (d) GENERATE-CRASH and (e) PRE-BODY-CRASH",
+      "evidence": "Independent full run of selfcheck-m2.mjs completed with exit 0 and 'selfcheck-m2 PASS'; (d) GENERATE-CRASH PASS: forced generate throw at replay/small/1 became a verify_crash STOP record (1 record, not recordless), run exited 0; (e) PRE-BODY-CRASH PASS for both POS_FAIL_MKDTEMP_AT and POS_FAIL_APPEND_AT injection points."
+    },
+    {
+      "docPath": "checklist:CHK-002#userSees",
+      "promise": "run-batch.mjs exits 0 only when every iteration produced exactly one record (prints 0 recordless); H1: replay proof records per scale are pairwise digest+metric identical; a concurrent second run-batch prints precondition_failed (lock held) and records that stop; a recordless iteration forces nonzero exit.",
+      "status": "verified",
+      "verifiedBy": "independent re-derivation of H1 pairwise equality from committed ledger + independent selfcheck-m2.mjs run covering lockfile and recordless sub-checks",
+      "evidence": "Re-computed H1 independently: small n=30 distinct-digest-sets=1 PAIRWISE-EQUAL, full n=3 distinct-digest-sets=1 PAIRWISE-EQUAL. selfcheck-m2.mjs (b) LOCKFILE PASS: driver recorded precondition_failed to the separate blocked-ledger, left the campaign ledger clean, exited 3 (nonzero); (c) RECORDLESS PASS: driver exited 1 (nonzero) and named replay/small/1 as recordless."
+    },
+    {
+      "docPath": "checklist:CHK-002#context",
+      "promise": "H4 evidence = each proof record elapsedMs within budgetCapMsPerVerify OR a budget_cap stop",
+      "status": "verified",
+      "verifiedBy": "independent script reading protocol.json budgetCaps.msPerVerify and comparing against all 33 committed records elapsedMs",
+      "evidence": "cap=128217ms; independently confirmed 0 records over cap; max elapsed 18718ms across all 33 proof records (well within cap, matches the story claim of 18718ms/128217ms)."
+    },
+    {
+      "docPath": "checklist:CHK-003#userSees",
+      "promise": "node experiments/pos-instrument-replay/selfcheck-m2.mjs exits 0 with selfcheck-m2 PASS: an injected sub-second budget cap forces a budget_cap stop record; a concurrent driver gets precondition_failed; a recordless iteration forces nonzero exit.",
+      "status": "verified",
+      "verifiedBy": "cli",
+      "evidence": "Independently executed node experiments/pos-instrument-replay/selfcheck-m2.mjs to completion (fresh reviewer run, not reused from story evidence): all 5 sub-checks passed -- (a) BUDGET_CAP PASS 30/30 records are budget_cap stops, (b) LOCKFILE PASS, (c) RECORDLESS PASS, (d) GENERATE-CRASH PASS, (e) PRE-BODY-CRASH PASS (both injection points) -- final output 'selfcheck-m2 PASS', exit 0."
+    },
+    {
+      "docPath": "story:summary.limitations",
+      "promise": "M2 PRODUCES the H1/H4 evidence ledger; the M4 analyzer ADJUDICATES H1-H4 mechanically from it (separate story). The resume/interrupt probe (M3) and offline analyzer (M4) are deferred.",
+      "status": "verified",
+      "verifiedBy": "manual scope check against checklist + summary.json",
+      "evidence": "Confirmed run-batch.mjs code and comments consistently describe itself as producing evidence, not adjudicating it (run-batch.mjs:10-12: 'this driver does NOT adjudicate the hypotheses (that is M4); it only produces and shape-guards the evidence'). No M3 resume/interrupt logic or M4 analyzer code exists in the diff, consistent with the declared scope; not flagged as a gap since M3/M4 are explicitly out of this story's scope."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Independently re-ran the reviewer-side verification: parsed the committed batch-ledger.jsonl (33 records: 30 small + 3 full 1,000,000-record cycles), re-derived all 33 recordDigests via sha256 of canonicalJson (record minus recordDigest) with 0 mismatches, confirmed 33 unique iterationIds and 0 duplicates. Independently ran node selfcheck-m2.mjs to completion (exit 0): sub-check (d) GENERATE-CRASH confirms a forced generate-side throw becomes exactly one verify_crash stop record, not recordless and not an uncaught crash."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Independently re-derived H1 (pairwise digest+goldMetrics equality per scale: small n=30 and full n=3, both PAIRWISE-EQUAL) and H4 (0 of 33 proof records over the 128217ms budget cap, max elapsed 18718ms) directly from the committed ledger and protocol.json. Independently ran selfcheck-m2.mjs: (b) LOCKFILE sub-check confirms a pre-held lock forces a precondition_failed stop into a separate blocked-ledger (batch-ledger.blocked.jsonl) with the shared campaign ledger left uncontaminated (0 records), exit 3; (c) RECORDLESS sub-check confirms a fault-injected skipped record forces a nonzero exit naming the offending iterationId."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Independently executed node experiments/pos-instrument-replay/selfcheck-m2.mjs end-to-end (fresh run, about 3 minutes, exit 0): all 5 hermetic sub-checks passed -- (a) BUDGET_CAP (30/30 iterations forced into budget_cap stops under POS_BUDGET_CAP_MS=1), (b) LOCKFILE (pre-held lock -> precondition_failed to separate blocked-ledger, campaign ledger uncontaminated), (c) RECORDLESS (fault-injected skip -> named nonzero exit), (d) GENERATE-CRASH (forced generate throw -> single verify_crash stop, exit 0), (e) PRE-BODY-CRASH for both POS_FAIL_MKDTEMP_AT and POS_FAIL_APPEND_AT (crash outside the old generate+verify body -> verify_crash stop, exit 0, no silent miss). Final line: 'selfcheck-m2 PASS'."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 7 checklist/summary promises independently verified against code and re-derived data (not just trusted from story evidence): the 33-record ledger digest-re-derives with 0 mismatches, H1 pairwise-equal at both scales, H4 all within budget cap, and a fresh independent run of selfcheck-m2.mjs passed all 5 hermetic sub-checks including the crash/lockfile/recordless adversarial paths. Scope is honestly bounded to M2 (evidence production); M3 (resume probe) and M4 (analyzer) are correctly declared out of scope and not treated as gaps. No TODO/FIXME/HACK markers found in the diff. Codex host-2 cross-vendor review (F-002/F-003) findings map cleanly onto the current code state I independently read."
+  },
+  "_hash": "838c021898e36823047765ae5c23c0669e264dac3cf4e4d18fb8280333ba7b27"
+}

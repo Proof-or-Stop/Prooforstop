@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-2a5b",
+  "checkedAt": "2026-07-05T18:38:35.802Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "2831d47d032887578431acc52ab918f06ff1920e0876412382fb96feeaa6b830",
+  "executionBoundaryHash": "085e26adbe28f9e4c58f995b139071386b1fbb7964f4fe2d88b1b34872b92662",
+  "freshnessHash": "630f05ad553901f554bc9b1815aeafd49735b012c5fa09d18516c761cbb7c104",
+  "effectiveExcludedKeywords": [
+    "analyze-batch.mjs (M4 analyzer)",
+    "resume-probe.mjs (M3 probe)",
+    "the frozen protocol.json + M0/M1 files (read-only inputs)",
+    "the instrument core (read/called only)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "analyze-batch.mjs (M4 analyzer)",
+      "source": "scopeBoundary.excluded",
+      "text": "analyze-batch.mjs (M4 analyzer)",
+      "excluded": true
+    },
+    {
+      "keyword": "resume-probe.mjs (M3 probe)",
+      "source": "scopeBoundary.excluded",
+      "text": "resume-probe.mjs (M3 probe)",
+      "excluded": true
+    },
+    {
+      "keyword": "the frozen protocol.json + M0/M1 files (read-only inputs)",
+      "source": "scopeBoundary.excluded",
+      "text": "the frozen protocol.json + M0/M1 files (read-only inputs)",
+      "excluded": true
+    },
+    {
+      "keyword": "the instrument core (read/called only)",
+      "source": "scopeBoundary.excluded",
+      "text": "the instrument core (read/called only)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "fd16e6e964e051e2c6ad427b632e7f2af8f2f7b6990536d30abb9ca393125855"
+}

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-2a5b",
+  "id": "IC-20260705184018",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "M2 = build run-batch.mjs (replay campaign driver) + append-only proof-or-stop batch-ledger.jsonl + selfcheck-m2.mjs under experiments/pos-instrument-replay/, reusing lib/instrument.mjs and reading the frozen protocol.json. It does NOT build the resume probe (M3) or analyzer (M4), does not modify the instrument, and does not rewrite the frozen protocol.",
+  "acceptedInterpretationHash": "sha256:480155a1a6f442b871038374aba9589e5dcdd0238338dfab704826e156c3c738",
+  "notes": "Single coherent interpretation fixed by plan section 8 M2 row.",
+  "ledgerHashBeforeDecision": "sha256:46fd42946e29db7e8dbeba82939ab3981dde2743ec3c0562dab530abad780f42",
+  "confirmedLedgerHash": "sha256:46fd42946e29db7e8dbeba82939ab3981dde2743ec3c0562dab530abad780f42",
+  "createdAt": "2026-07-05T18:40:18.078Z",
+  "updatedAt": "2026-07-05T18:40:18.078Z"
+}

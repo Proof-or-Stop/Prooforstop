@@ -1,0 +1,29 @@
+{
+  "task": "Build a committed tamper-matrix campaign harness (tamper.mjs) that reads the frozen M0 protocol.json and asserts each (class x manifestHandling) live verdict matches its frozen fingerprint, emitting tamper-verdicts.jsonl as the H2 evidence artifact.",
+  "outcome": "node tamper.mjs runs the full frozen matrix on mkdtemp-isolated copies, writes tamper-verdicts.jsonl (identity-keyed, full flag vector + gold metrics + fingerprintMatch + disposition), and exits nonzero on ANY fingerprint mismatch; a hermetic selfcheck proves determinism + that a corrupted frozen fingerprint is detected.",
+  "facts": [
+    "M0 (B-9e44) is DONE+merged; protocol.json frozen (sha256 a3a781fe) with tamperMatrix failClosed(18)/acceptanceBucket(2)/acknowledgedLimitations(6)/dropped(1), each carrying its frozen fingerprint over the explicit domain (flags + numeric predicates).",
+    "lib/instrument.mjs is reusable: verifyDir (with {status:crash} sentinel), refreshManifest, fingerprintDomain, canonicalJson, failureSignals.",
+    "iterationIdRule.tamper = tamper/<scale>/<class>/<manifestHandling>.",
+    "The verifier has NO textual reason field, so fingerprintMatch (live domain values == frozen fingerprint) is the mechanical H2 adjudication.",
+    "M0 viability-check.mjs already applies each class deterministically to isolated copies; M1 re-runs through a campaign harness and asserts conformance to the freeze."
+  ],
+  "constraints": [
+    "Instrument read/called only; never modified.",
+    "protocol.json is a read-only input; M1 must not rewrite the M0 freeze.",
+    "All mutations on mkdtemp isolated copies; no source pollution.",
+    "tamper-verdicts.jsonl canonical + identity-keyed for reproducibility.",
+    "fingerprint match compares only the frozen domain (flags + numeric predicates), not volatile fields (elapsedMs/rss/paths)."
+  ],
+  "unknowns": [
+    "Whether re-running each class through the campaign harness reproduces the exact M0 fingerprints (expected yes; deterministic instrument) — verified by the run."
+  ],
+  "touchpoints": [
+    "experiments/pos-instrument-replay/tamper.mjs",
+    "experiments/pos-instrument-replay/tamper-verdicts.jsonl",
+    "experiments/pos-instrument-replay/selfcheck-m1.mjs",
+    "experiments/pos-instrument-replay/protocol.json (read-only)",
+    "experiments/pos-instrument-replay/lib/instrument.mjs (read-only reuse)"
+  ],
+  "timestamp": "2026-07-05T17:07:11.252Z"
+}

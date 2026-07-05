@@ -1,0 +1,56 @@
+{
+  "storyId": "B-bae9",
+  "changes": "experiments/pos-instrument-replay/ (M1): tamper.mjs (reads the frozen M0 protocol.json, replays each of 27 (class x manifestHandling) mutations on mkdtemp-isolated copies, runs verify via lib/instrument.mjs, and asserts each live verdict conforms to its frozen fingerprint), tamper-verdicts.jsonl (the H2 evidence ledger: 18 failClosed + 2 acceptanceBucket + 6 acknowledgedLimitations + 1 dropped, each with full flag vector + goldMetrics + byteDiff + fingerprintMatch + re-derived disposition + dispositionMatch), and selfcheck-m1.mjs (determinism + clean-run invariants + un-gameable negative test + compareFingerprint op-coverage). H2 conformance PASS, 0 mismatches.",
+  "usage": "node experiments/pos-instrument-replay/tamper.mjs (H2 conformance, exit 0); node experiments/pos-instrument-replay/selfcheck-m1.mjs (PASS). tamper-verdicts.jsonl is the H2 evidence artifact the M4 analyzer will adjudicate. tamper.mjs --optselftest unit-tests the fingerprint-predicate ops.",
+  "expectedOutcome": "Every class in the frozen tamperMatrix conforms: fail-closed yields status:fail/crash + fingerprintMatch; acceptance/acknowledged-limitation yield status:pass + fingerprintMatch; dropped is records+gold byte-identical to clean; the harness exits nonzero on any mismatch/no-op/drift; selfcheck passes.",
+  "actualTranscript": "tamper.mjs: 27 verdicts, 27 unique iterationIds, fingerprintMatch:false=0, dispositionMatch:false=0, failClosed-with-pass=0, H2 conformance PASS (mismatches=0). selfcheck-m1 PASS (determinism byte-identical, clean-run invariants, negative test flips a frozen flag -> nonzero exit, op-coverage ==,<,>,!=,unknown-throw). lattice validate allPass (34/34).",
+  "outcomeDiff": "No difference — expected == actual. The H2 conformance ledger is complete and every frozen class conforms; the harness is un-gameable (proven by the negative test + no-op/drift/op guards).",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "M1 produces the H2 conformance ledger only; the replay driver (M2), resume probe (M3), and offline analyzer (M4) are separate stories. tamper.mjs asserts conformance TO the frozen M0 protocol; it does not re-discover fingerprints (by design — that would defeat the freeze). The instrument + frozen protocol.json + M0 lib were read-only (untouched).",
+  "pitfalls": "1) Codex host-2 found 2 real soundness gaps (F-001 pass-bucket no-op can falsely conform; F-002 dropped bypasses its semantics) that all 3 Claude lanes missed on round 1 — fixed by re-deriving the M0 disposition from a byteDiff-vs-clean and asserting mutation-applied + dropped-semantics. Do NOT skip cross-vendor review. 2) The quality lane caught a latent op-coverage gap (F-004/F-005: >/!= predicate branches unexercised) — added a --optselftest that drives every op branch. 3) PLAN->DEV needs scope_check_save (features with covered_by AND excluded_by both required strings) + read-only touchpoints declared in some item's files.test, else touchpoint_uncovered/missing_scope_check blockers. 4) selfcheck-m1 runs tamper 3x (~6min) — reviewers must be told these runs are slow, not stalled.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 150404
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 15222
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 281989
+    },
+    "DEV": {
+      "count": 3,
+      "durationMs": 2657986
+    },
+    "REVIEW": {
+      "count": 3,
+      "durationMs": 1811680
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 50321
+    }
+  },
+  "totalDurationMs": 4968344,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-05T18:26:47.926Z",
+  "updatedAt": "2026-07-05T18:26:47.926Z"
+}

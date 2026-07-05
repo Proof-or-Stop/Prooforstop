@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-f511",
+  "allowedCommands": [
+    "git *",
+    "kill *",
+    "lattice memory_playbook_baseline_generate*",
+    "lattice memory_playbook_baseline_verify*",
+    "node --version",
+    "node experiments/pos-instrument-replay/*.mjs",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "experiments/pos-instrument-replay"
+  ],
+  "excludedCommands": [
+    "curl *",
+    "npm publish*",
+    "rm -rf / *",
+    "wget *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "M3 runs resume-probe.mjs which spawns+kills run-batch (small scale) via SIGKILL + the POS_FAIL_APPEND_AT crash hook, then restarts in --resume mode. No network. Instrument read/called only.",
+  "createdAt": "2026-07-05T20:23:02.685Z",
+  "updatedAt": "2026-07-05T20:23:02.685Z",
+  "_hash": "89138e319db2e8c1572e468f4dbd4355bc67cd6d2af13f9f463a2159ea224cb7"
+}

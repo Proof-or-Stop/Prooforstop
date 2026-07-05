@@ -1,0 +1,156 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Replace pre-run dollar cap with frozen execution envelope and postflight usage accounting",
+      "context": "Do not require the human to guess a dollar amount before the run. Freeze Cell 03 execution bounds instead: exact cell scope, row/task count, model snapshots, max retries, timeout, max input/output tokens, and stop conditions. After execution, record provider-reported usage and derived cost separately from any estimate.",
+      "relatedDocs": [
+        "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+        "docs/requirements/decisions/multi-model-ablation-replication.md"
+      ],
+      "userSees": "Cell 03 authorization shows the frozen execution envelope before execution and later shows actual provider-reported usage/cost after execution.",
+      "excludes": [
+        "User guesswork budget",
+        "Agent-invented provider spend",
+        "Unbounded retry loops",
+        "Treating estimates as final usage",
+        "Phase 2 or powered matrix approval"
+      ],
+      "files": {
+        "modify": [
+          "experiments/multi-model-ablation/m2-provider-execution-launch.json",
+          "experiments/multi-model-ablation/m2-cell03-provider-launch-authorization.json",
+          "experiments/multi-model-ablation/m2-provider-execution-check.mjs"
+        ],
+        "create": [
+          "experiments/multi-model-ablation/m2-cell03-execution-envelope.json",
+          "experiments/multi-model-ablation/m2-cell03-usage-accounting-policy.json"
+        ],
+        "test": [
+          "experiments/multi-model-ablation/m2-provider-execution-check.mjs"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Bind dated E2 executor and same-family reviewer snapshots",
+      "context": "Record real provider/model/snapshotDate/API surface for Cell 03 executor and reviewer. Host labels such as Codex CLI or Codex App must remain invalid as model snapshots.",
+      "relatedDocs": [
+        "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+        "experiments/multi-model-ablation/model-snapshot-lock.m2.json"
+      ],
+      "userSees": "Cell 03 shows concrete dated executor and reviewer snapshots rather than host labels.",
+      "excludes": [
+        "Treating host labels as provider snapshots",
+        "Provider fallback",
+        "Undated model family declarations as formal execution metadata"
+      ],
+      "files": {
+        "modify": [
+          "experiments/multi-model-ablation/model-snapshot-lock.m2.json",
+          "experiments/multi-model-ablation/m2-provider-execution-launch.json"
+        ],
+        "create": [],
+        "test": [
+          "experiments/multi-model-ablation/m2-provider-execution-check.mjs"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Freeze prompt and tool-surface digests for Cell 03",
+      "context": "Compute and bind prompt digest plus tool-surface digest for the Cell 03 execution boundary, including allowed commands, permissions, and output paths.",
+      "relatedDocs": [
+        "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md"
+      ],
+      "userSees": "Cell 03 launch record shows immutable prompt/tool digests before execution can run.",
+      "excludes": [
+        "Prompt changes after authorization",
+        "Hidden tool access changes",
+        "Digest-free execution"
+      ],
+      "files": {
+        "modify": [
+          "experiments/multi-model-ablation/m2-provider-execution-launch.json"
+        ],
+        "create": [
+          "experiments/multi-model-ablation/m2-cell03-execution-prompt.md",
+          "experiments/multi-model-ablation/m2-cell03-tool-surface.json"
+        ],
+        "test": [
+          "experiments/multi-model-ablation/m2-provider-execution-check.mjs"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Record runner ownership and duplicate policy for Cell 03",
+      "context": "Assign one owner/session/host for m2-future-cell-03-e2-a4-same and define retry, timeout, duplicate cell key, and repeated outcome row handling.",
+      "relatedDocs": [
+        "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+        "experiments/multi-model-ablation/phase1-runner-manifest.m2.json"
+      ],
+      "userSees": "Cell 03 has exactly one authorized runner owner and duplicate/retry rules before execution.",
+      "excludes": [
+        "Multiple active Cell 03 owners",
+        "Counting retries as independent rows",
+        "Unbounded reruns"
+      ],
+      "files": {
+        "modify": [
+          "experiments/multi-model-ablation/phase1-runner-manifest.m2.json",
+          "experiments/multi-model-ablation/m2-provider-execution-launch.json"
+        ],
+        "create": [],
+        "test": [
+          "experiments/multi-model-ablation/m2-provider-execution-check.mjs"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Bind result output, provider switch rejection, execution window, and Cell 03-only scope policies",
+      "context": "Define formal output paths, result row admissibility, provider or model switch rejection, execution window expiry, and explicit exclusion of Cell 06, Cell 02, Cell 04, Phase 2, runtime/playbook claims, and paper wording changes.",
+      "relatedDocs": [
+        "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+        "docs/requirements/decisions/multi-model-ablation-replication.md"
+      ],
+      "userSees": "The unlock permits only Cell 03 and makes all other cells and claims visibly blocked.",
+      "excludes": [
+        "Cell 06 execution",
+        "Cell 02 or Cell 04 execution",
+        "Phase 2 powered matrix",
+        "Paper claim updates",
+        "Runtime/playbook behavior changes"
+      ],
+      "files": {
+        "modify": [
+          "experiments/multi-model-ablation/m2-provider-execution-launch.json",
+          "experiments/multi-model-ablation/m2-status.md",
+          "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md"
+        ],
+        "create": [
+          "experiments/multi-model-ablation/m2-cell03-result-write-policy.json"
+        ],
+        "test": [
+          "experiments/multi-model-ablation/m2-provider-execution-check.mjs"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

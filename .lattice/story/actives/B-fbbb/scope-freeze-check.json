@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-fbbb",
+  "checkedAt": "2026-07-05T21:28:28.562Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "9e844c9986ee554d77268ef609d5d4c892b261b4a001c89f02bef9401ca3b4f9",
+  "executionBoundaryHash": "2d9b5fdb05c0d212702f873abc79957bfc94f17586687b867d929da303b34736",
+  "freshnessHash": "c92a6f52f1d7cc5ae8586ec78f6bc69dff3d09ea3fcff288f4a775ceb8fd3504",
+  "effectiveExcludedKeywords": [
+    "Do not modify the curated lattice validate list or add the smoke to it",
+    "Do not move or refactor source-lineage-audit.js or playbook-seed.js",
+    "Do not touch the unrelated tier-c WIP docs on main",
+    "No shipping/runtime behavior change (playbook.ts handler logic, decision-doc-promotion.ts emission, learning-store.ts fence, or the imported helper modules)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Do not modify the curated lattice validate list or add the smoke to it",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not modify the curated lattice validate list or add the smoke to it",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not move or refactor source-lineage-audit.js or playbook-seed.js",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not move or refactor source-lineage-audit.js or playbook-seed.js",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not touch the unrelated tier-c WIP docs on main",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not touch the unrelated tier-c WIP docs on main",
+      "excluded": true
+    },
+    {
+      "keyword": "No shipping/runtime behavior change (playbook.ts handler logic, decision-doc-promotion.ts emission, learning-store.ts fence, or the imported helper modules)",
+      "source": "scopeBoundary.excluded",
+      "text": "No shipping/runtime behavior change (playbook.ts handler logic, decision-doc-promotion.ts emission, learning-store.ts fence, or the imported helper modules)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "1af799d1253a80a774ea0e380558ab44b45ccaa407fee9be789fa56364328371"
+}

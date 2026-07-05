@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-2a5b",
+  "mode": "feature",
+  "allowed": [
+    "experiments/pos-instrument-replay/"
+  ],
+  "excluded": [
+    "analyze-batch.mjs (M4 analyzer)",
+    "resume-probe.mjs (M3 probe)",
+    "the frozen protocol.json + M0/M1 files (read-only inputs)",
+    "the instrument core (read/called only)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "M2 delivers only run-batch.mjs + batch-ledger.jsonl + selfcheck-m2.mjs under experiments/pos-instrument-replay/, reusing lib/instrument.mjs and reading the frozen protocol.json. M3/M4 harnesses deferred; instrument untouched. Plan section 7/8.",
+  "createdAt": "2026-07-05T18:38:35.188Z",
+  "updatedAt": "2026-07-05T18:38:35.188Z",
+  "_hash": "2831d47d032887578431acc52ab918f06ff1920e0876412382fb96feeaa6b830"
+}
