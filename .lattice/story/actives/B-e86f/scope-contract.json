@@ -1,0 +1,38 @@
+{
+  "storyId": "B-e86f",
+  "mode": "enforce",
+  "allowedModify": [],
+  "allowedCreate": [
+    "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md"
+  ],
+  "allowedTest": [],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "ProofStory intent-MVP metadata files written by the CLI itself during the PLAN/DEV gate sequence (original_intent_snapshot_set, intent_collision_set, milestone_ledger_set, proofstory_contract_set). Command-generated lifecycle bookkeeping, not deliverable content; the deliverable diff remains the single allowed doc path.",
+      "timestamp": "2026-07-05T12:59:17.656Z",
+      "paths": [
+        ".lattice/story/actives/B-e86f/intent-collision.json",
+        ".lattice/story/actives/B-e86f/milestone-ledger.json",
+        ".lattice/story/actives/B-e86f/original-intent-snapshot.json",
+        ".lattice/story/actives/B-e86f/proofstory.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-e86f/intent-collision.json",
+        ".lattice/story/actives/B-e86f/milestone-ledger.json",
+        ".lattice/story/actives/B-e86f/original-intent-snapshot.json",
+        ".lattice/story/actives/B-e86f/proofstory.json"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "ad3519ed107b2676859f5e265e4f358767f808d7",
+      "materialHash": "78d25d3c61dbdcf50e2f214a8a724fd01b21ffd118deb983a940a6edb1d109f7"
+    }
+  ],
+  "createdAt": "2026-07-05T12:59:06.216Z",
+  "updatedAt": "2026-07-05T12:59:17.656Z"
+}
