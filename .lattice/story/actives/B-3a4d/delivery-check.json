@@ -1,0 +1,46 @@
+{
+  "storyId": "B-3a4d",
+  "checkedAt": "2026-07-05T02:52:50.233Z",
+  "headHash": "79d1b7ad41288dec1e83bab58d4ac5cf6be2ec2c",
+  "materialHash": "3c7ba65c686e6df367573fb2ef34b94bfa4f0ecdec9f8732184a16074fe7e98e",
+  "storyFilesHash": "040526061619109424d5486837b0cf83e03b27f8b21eb504a53f9664f2094584",
+  "reviewRound": "2026-07-05T02:34:49.688Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/CLI.md",
+      "promise": "milestone_closeout remains a read-only historical DONE closeout reader; when a snapshot is written from a story worktree DONE path it is committed with story metadata before worktree removal so canonical main can read it after merge cleanup, while missing snapshots produce a diagnostic rather than fabricated success.",
+      "status": "verified",
+      "verifiedBy": "docs grep, source inspection, focused regression",
+      "evidence": "docs/CLI.md:349-356 states the durable canonical-root behavior and missing-snapshot diagnostic. transition-orchestrator.ts:600-608 captures the closeout during DONE; done-effects.ts:909-923 stages story metadata before merge/removal; node packages/main/tests/milestone-status.test.mjs passed locally with ok milestone-status."
+    },
+    {
+      "docPath": "packages/main/tests/milestone-status.test.mjs",
+      "promise": "Regression coverage proves canonical-root milestone_closeout returns proofbound.milestone_closeout.v1 after DONE worktree cleanup and no-ledger stories do not fabricate closeout snapshots.",
+      "status": "verified",
+      "verifiedBy": "test inspection plus local execution",
+      "evidence": "packages/main/tests/milestone-status.test.mjs:1453-1613 creates main/story worktrees, advances DONE, asserts worktree removal, reads mainRoot Store closeout, and runs CLI milestone_closeout --root mainRoot --format=json. No-ledger non-fabrication is asserted at :431-438 and :1204-1231. Local run exited 0."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Focused regression command `node packages/main/tests/milestone-status.test.mjs` exited 0 with stdout `ok milestone-status`; stderr showed milestone_closeout/milestone_status runs. Existing test-evidence.json is PASS at 2026-07-05T02:47:43.138Z with verification coverage 6/6 and materialHash 3c7ba65c686e6df367573fb2ef34b94bfa4f0ecdec9f8732184a16074fe7e98e."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "The inspected regression creates a real git worktree, advances story_advance DONE, asserts the story worktree no longer exists, then reads proofbound.milestone_closeout.v1 from canonical main via StoryStore and CLI --root mainRoot. Existing done-required-evidence.json is PASS at 2026-07-05T02:48:46.852Z for packages/main build and npm test."
+    },
+    {
+      "featureId": "review-quorum",
+      "transcript": "Reviewer passes exist for docs, concept, quality, and test-coverage in review round 2026-07-05T02:34:49.688Z; finding_list reports no findings. review_escalation_status reports ok true and voluntaryLocalRounds 3/3 rounds x 2 hosts complete; process-events host_verdict rows bind materialDigest 3c7ba65c686e6df367573fb2ef34b94bfa4f0ecdec9f8732184a16074fe7e98e and storyFilesHash 040526061619109424d5486837b0cf83e03b27f8b21eb504a53f9664f2094584."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review verified docs promises against current docs, implementation order, focused regression, test-evidence, done-required evidence, reviewer passes, and local 3x2 quorum. No blocking delivery findings were found."
+  },
+  "_hash": "1055a67889974bde6230f69a35033c9f6078c341db4a11b55254bc526a9b224e"
+}

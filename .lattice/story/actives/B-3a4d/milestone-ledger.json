@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-3a4d",
+  "state": "confirmed",
+  "ledgerHash": "sha256:52361ef20b8bcfbe518db64a7ee9e99e5d55d252f2780acddd4ce890ad4754d5",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-001",
+      "claim": "DONE closeout snapshot is persisted through the DONE merge and cleanup boundary.",
+      "doneMeans": "After a real DONE transition, canonical story metadata contains milestone-closeout.json and the story worktree can be removed without losing it.",
+      "requiredEvidence": [
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "REQ-002",
+      "claim": "Regression coverage proves canonical-root milestone_closeout succeeds after DONE cleanup.",
+      "doneMeans": "The focused test fails if closeout is only written in the worktree or deleted during cleanup, and passes only when canonical root can read proofbound.milestone_closeout.v1.",
+      "requiredEvidence": [
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "REQ-003",
+      "claim": "Stories without milestone ledgers still do not fabricate closeout snapshots.",
+      "doneMeans": "Missing-ledger DONE stories keep the existing missing/not-applicable diagnostic rather than writing false completed closeout rows.",
+      "requiredEvidence": [
+        "logic_test",
+        "docs_check"
+      ],
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-05T02:16:26.817Z",
+  "updatedAt": "2026-07-05T02:28:41.645Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260705022300",
+    "acceptedInterpretationHash": "sha256:17db690120c2294afa76cd80255d2a1d2f3c73bd5af02606f57a17b983c9be35",
+    "acceptedAt": "2026-07-05T02:28:41.645Z"
+  }
+}

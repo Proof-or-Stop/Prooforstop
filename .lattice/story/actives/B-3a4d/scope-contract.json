@@ -1,0 +1,50 @@
+{
+  "storyId": "B-3a4d",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/handlers/done-effects.ts",
+    "packages/main/src/core/store.ts",
+    "docs/CLI.md",
+    "packages/main/tests/milestone-status.test.mjs"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/tests/milestone-status.test.mjs"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "codex-main",
+      "reason": "These ProofStory gate artifacts are required pre-DEV and REVIEW evidence for B-3a4d: original intent, confirmed milestone ledger, accepted intent collision, acceptance binding, and red evidence. They are story-scoped lifecycle proof artifacts, not product code expansion.",
+      "timestamp": "2026-07-05T02:33:19.555Z",
+      "paths": [
+        ".lattice/story/actives/B-3a4d/intent-collision.json",
+        ".lattice/story/actives/B-3a4d/milestone-ledger.json",
+        ".lattice/story/actives/B-3a4d/original-intent-snapshot.json",
+        ".lattice/story/actives/B-3a4d/proofstory.json",
+        ".lattice/story/actives/B-3a4d/red-evidence.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-3a4d/intent-collision.json",
+        ".lattice/story/actives/B-3a4d/milestone-ledger.json",
+        ".lattice/story/actives/B-3a4d/original-intent-snapshot.json",
+        ".lattice/story/actives/B-3a4d/proofstory.json",
+        ".lattice/story/actives/B-3a4d/red-evidence.json"
+      ],
+      "affectedPathCount": 5,
+      "phase": "DEV",
+      "headHash": "9ba7e8739bfbb1bbe3285f3f36db72347afb5ee8",
+      "materialHash": "3c7ba65c686e6df367573fb2ef34b94bfa4f0ecdec9f8732184a16074fe7e98e",
+      "anchors": [
+        "proofstory_dev_gate_pass",
+        "B_3a4d_closeout_durability_acceptance"
+      ]
+    }
+  ],
+  "createdAt": "2026-07-05T02:30:31.511Z",
+  "updatedAt": "2026-07-05T02:33:19.555Z"
+}

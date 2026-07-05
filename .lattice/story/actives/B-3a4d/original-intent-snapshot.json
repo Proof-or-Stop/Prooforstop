@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-3a4d",
+  "sourceText": "User asked how B-3a4d will specifically close the durability gap after B-bfba: real DONE cleanup removed the story worktree while canonical main still lacked milestone-closeout.json, so post-DONE milestone_closeout could only report Snapshot: missing.",
+  "normalizedOutcome": "After a real DONE merge/worktree cleanup, canonical-root milestone_closeout can read the accepted DONE milestone closeout snapshot for stories with completed milestone ledgers, while no-ledger stories still report missing rather than fabricated success.",
+  "acceptanceClaim": "B-3a4d is accepted only if a canonical-root post-DONE regression proves milestone-closeout.json survives merge/cleanup and the no-ledger missing-snapshot behavior remains fail-closed.",
+  "keyRequirementIds": [
+    "REQ-001",
+    "REQ-002",
+    "REQ-003"
+  ],
+  "requestHash": "sha256:616e0b578c4d1a4b11f4c2a2f4adc2bdfd338c02f6a9d030d0ebdc2fd3a33be2",
+  "createdAt": "2026-07-05T02:23:00.340Z",
+  "updatedAt": "2026-07-05T02:23:00.340Z"
+}
