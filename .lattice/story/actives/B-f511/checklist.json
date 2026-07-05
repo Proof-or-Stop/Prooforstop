@@ -41,7 +41,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/pos-instrument-replay/selfcheck-m3.mjs",
+          "result": "pass",
+          "note": "run-batch --resume against a partial ledger skips already-recorded iterationIds and runs only the remaining; the strict guard reconciles the final 30-record small multiset (0 dup / 0 gap). Proven by selfcheck-m3 boundary-kill + mid-run-crash sub-checks (append-only preserved; resume-only stale-lock break).",
+          "headHash": "1e6b9d0c7ceffe0a06236437b7505efbc670be97",
+          "materialHash": "573d11ba3e5142ea088a4d0ff2dd154b50afeb22740f6f80e1abcbc7d9c1ca73",
+          "storyFilesHash": "27d1397dd05ad1396bfab7be29c107c07b3ae124e9157a8bd98d663fd79117ad",
+          "timestamp": "2026-07-05T21:09:32.713Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
