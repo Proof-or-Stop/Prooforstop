@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-3a4d",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Add regression coverage for canonical-root post-DONE closeout availability",
+    "Persist milestone-closeout.json through DONE merge/worktree cleanup"
+  ],
+  "excluded": [
+    "Change authority or production DONE claims",
+    "Recompute historical closeout snapshots from stale live state",
+    "Redesign milestone_status semantics"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "Follow-up from B-bfba live DONE evidence: canonical root still showed Snapshot: missing after worktree cleanup.",
+  "createdAt": "2026-07-05T01:49:20.209Z",
+  "updatedAt": "2026-07-05T01:49:20.209Z",
+  "_hash": "f26f6d2ca077de32031ca34dc3d918743dd6b3f71bc2a53ebc183ee7b76f16e9"
+}

@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-3a4d",
+  "allowedCommands": [
+    "lattice milestone_closeout --storyId=<story>",
+    "lattice validate --story=<story> --json",
+    "node packages/main/tests/milestone-status.test.mjs",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [
+    "git",
+    "lattice",
+    "node",
+    "npm"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives",
+    "docs/CLI.md",
+    "packages/main/src/core",
+    "packages/main/src/handlers",
+    "packages/main/tests"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx",
+    "README.md"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "Narrow correctness follow-up; no OMX and no README changes.",
+  "createdAt": "2026-07-05T01:49:20.209Z",
+  "updatedAt": "2026-07-05T01:49:20.209Z",
+  "_hash": "b89c6e06193bfe5b80e14d3486af85a96a4a598bdfe7a6db74b25ce584507b6b"
+}

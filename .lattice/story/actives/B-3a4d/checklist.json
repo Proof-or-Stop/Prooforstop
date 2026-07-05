@@ -1,0 +1,94 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Make DONE closeout snapshot durable across merge and cleanup",
+      "context": "Ensure milestone-closeout.json is committed or copied into canonical story metadata during real DONE advancement, before the story worktree is removed.",
+      "relatedDocs": [
+        "docs/CLI.md"
+      ],
+      "userSees": "After DONE, `lattice milestone_closeout --storyId=<story>` prints the final milestone table instead of Snapshot: missing.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/done-effects.ts",
+          "packages/main/src/core/store.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/milestone-status.test.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A real story worktree DONE path leaves milestone-closeout.json present in canonical story metadata after worktree cleanup.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A DONE story without a milestone ledger still does not fabricate a closeout snapshot and reports a clear missing/not-applicable diagnostic.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A transient worktree-only milestone-closeout.json cannot be considered delivered unless the canonical root can read it after DONE cleanup.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add post-DONE canonical-root regression coverage",
+      "context": "Extend or add tests so removing the durable handoff from DONE effects makes the test fail; the test must assert canonical-root milestone_closeout succeeds after DONE cleanup, not only that the helper wrote a file in the worktree.",
+      "relatedDocs": [
+        "docs/CLI.md"
+      ],
+      "userSees": "The regression test fails if milestone_closeout would be missing from the canonical root after DONE.",
+      "files": {
+        "modify": [
+          "packages/main/tests/milestone-status.test.mjs"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/milestone-status.test.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The regression runs the full enough DONE path to prove canonical-root milestone_closeout reads a snapshot after cleanup.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The regression distinguishes canonical-root persistence from merely writing a worktree-local file.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The test fails if DONE cleanup deletes the only copy of milestone-closeout.json.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
