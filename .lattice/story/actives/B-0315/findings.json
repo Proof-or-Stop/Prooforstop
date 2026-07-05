@@ -40,6 +40,26 @@
       ],
       "signatureTag": "edge|ts|packages-main-build",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-0315:F-003",
+      "desc": "worktree-authority-smoke still encodes the old policy by expecting packages/main/tests/smoke.ts to be a skipped path. Repro: node packages/main/dist/tasks/worktree-authority-smoke.js fails with AssertionError: packages/main/tests/smoke.ts must not trigger the post-DONE packages/main build, actual true expected false. This conflicts with B-0315 CHK-001 edge intent that packages/main/tests/** is a positive bump/build input and shows the validation evidence does not cover this maintained smoke.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-05T10:02:33.587Z",
+      "reviewRound": "2026-07-05T09:57:50.410Z",
+      "reviewRunId": "B-0315:RR-001",
+      "_hash": "49460923228f1a2749df6b44bf7eae953591df8ef0afb8340a3c1af23c1971fb",
+      "files": [
+        "packages/main/src/tasks/worktree-authority-smoke.ts",
+        "packages/main/dist/tasks/worktree-authority-smoke.js",
+        "packages/main/src/handlers/done-effects.ts"
+      ],
+      "signatureTag": "edge|ts|worktree-authority-smoke",
+      "signatureTagSource": "auto"
     }
   ]
 }
