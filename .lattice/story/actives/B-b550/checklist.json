@@ -48,6 +48,19 @@
           "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
           "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
           "timestamp": "2026-07-05T14:13:44.718Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "command": "rg -n 'session_brief|canonical' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "result": "pass",
+          "note": "M0 records the canonical worktree root via session_brief; retired Orchestrate root excluded as truth",
+          "headHash": "d151569c9a0b13cb9a94b7f9632ab76d1aec5841",
+          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
+          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
+          "timestamp": "2026-07-05T14:13:46.050Z"
         }
       ]
     },
