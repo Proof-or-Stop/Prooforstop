@@ -1,0 +1,33 @@
+{
+  "task": "Prepare provider-free M2 launch-readiness artifacts for the multi-model ablation protocol before any Phase 1 provider execution.",
+  "outcome": "After this story, running node experiments/multi-model-ablation/m2-launch-readiness-check.mjs prints a PASS line, and opening experiments/multi-model-ablation/m2-status.md shows M0/M1 done, M2 launch readiness prepared, M2 execution not started, and the remaining ③ calibration / ⑥ A2prime execution steps clearly marked.",
+  "facts": [
+    "B-69b8 completed provider-safe M0 smoke checks without provider calls.",
+    "B-806b completed M1 protocol freeze and kept phase1-launch-gate.m1.json launchAllowed=false/providerCallEnabled=false/formalPhase1UseAllowed=false.",
+    "The current protocol requires E1/E2 provider family separation and forbids treating host labels as model family proof.",
+    "The canonical v1 task corpus is available as 24 task directories under experiments/recovery-runner/tasks.",
+    "A4 calibration budget lock and A2prime sequencing cannot be truthfully satisfied until ordered M2-a provider execution occurs.",
+    "This story treats exact provider execution snapshots as readiness declarations only; the future provider-execution story must bind actual run metadata.",
+    "Optional ④ remains budget-permitting and absence of ④ does not block required M2 launch readiness."
+  ],
+  "constraints": [
+    "Do not run Phase 1 provider cells or create outcome records in this story.",
+    "Do not modify experiments/recovery-runner/tasks task definitions.",
+    "Do not update paper wording or product gates.",
+    "Keep artifacts under experiments/multi-model-ablation and mark researchBoundary providerCallsMade=false.",
+    "Checker must reject premature provider execution, outcome fields, host-as-model confusion, and fake A2prime sequencing satisfaction."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "experiments/multi-model-ablation/m2-launch-readiness.json",
+    "experiments/multi-model-ablation/model-snapshot-lock.m2.json",
+    "experiments/multi-model-ablation/task-inventory.m2.json",
+    "experiments/multi-model-ablation/phase1-runner-manifest.m2.json",
+    "experiments/multi-model-ablation/phase1-launch-readiness.m2.json",
+    "experiments/multi-model-ablation/m2-status.md",
+    "experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+    "experiments/multi-model-ablation/README.md",
+    "experiments/recovery-runner/tasks"
+  ],
+  "timestamp": "2026-07-05T02:14:17.106Z"
+}

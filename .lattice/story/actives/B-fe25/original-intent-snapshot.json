@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-fe25",
+  "sourceText": "User approved opening a small story for Multi-Model Ablation M2 Launch Readiness after the B-806b M1 launch gate remained blocked by five Phase 1 launch blockers.",
+  "normalizedOutcome": "B-fe25 produces provider-free M2 launch-readiness artifacts and a local checker; the status table shows M0/M1 done, M2 launch readiness prepared, M2 execution not started, and ③ calibration plus ⑥ A2prime still ordered execution steps.",
+  "acceptanceClaim": "The acceptance claim is satisfied when m2-launch-readiness-check.mjs passes, m2-status.md displays the milestone/blocker table, no provider calls or outcome records exist, and experiments/recovery-runner/tasks remains unmodified.",
+  "keyRequirementIds": [
+    "REQ-A2PRIME-SEQUENCING",
+    "REQ-M2-READINESS",
+    "REQ-NO-PROVIDER-CELLS",
+    "REQ-TASK-INVENTORY-READONLY"
+  ],
+  "requestHash": "sha256:fc8d85a4f8344e6b5f1fcc68080bafc35b9fc1e9dec1fb6346827ee09662bd57",
+  "createdAt": "2026-07-05T02:15:03.194Z",
+  "updatedAt": "2026-07-05T02:15:03.194Z"
+}

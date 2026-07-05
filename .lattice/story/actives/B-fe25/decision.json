@@ -1,0 +1,71 @@
+{
+  "principles": [
+    "Only real execution evidence can unlock provider-run phases.",
+    "Readiness artifacts must be provider-free and outcome-free.",
+    "Host labels and provider/model snapshots must stay separate.",
+    "The 24-task corpus can be read and bound but not changed.",
+    "A2prime sequencing must remain blocked until ③ A4 calibration exists."
+  ],
+  "drivers": [
+    "M1 launch gate currently lists static blockers plus execution-derived blockers.",
+    "The user wants progress without an expensive false start.",
+    "The protocol forbids optimizing or expanding beyond real research-readiness needs."
+  ],
+  "options": [
+    {
+      "name": "readiness-only-artifacts-and-checker",
+      "pros": [
+        "Clears the static M2 launch-prep layer without running provider cells.",
+        "Makes remaining execution blockers explicit and testable.",
+        "Preserves protocol order and prevents fake budget locks."
+      ],
+      "cons": [
+        "Does not produce H-M1/H-M3 outcome data.",
+        "Exact execution snapshots may still need final provider-run binding in the next story."
+      ]
+    },
+    {
+      "name": "jump-directly-to-phase1-execution",
+      "pros": [
+        "Would generate real outcome data sooner."
+      ],
+      "cons": [
+        "Risks spending provider budget before snapshots/task inventory/checker are locked.",
+        "Would mix launch prep with execution and weaken pre-registration discipline."
+      ]
+    },
+    {
+      "name": "leave-m1-blocked-and-only-update-docs",
+      "pros": [
+        "Lowest implementation effort."
+      ],
+      "cons": [
+        "Does not give a machine-checkable launch-readiness state.",
+        "Keeps asking the same five-blocker question without a concrete next gate."
+      ]
+    }
+  ],
+  "chosen": "readiness-only-artifacts-and-checker",
+  "rationale": "The readiness-only artifact and checker path resolves the real M2 launch-prep gap while preserving the protocol boundary that only actual M2-a execution can produce the A4 budget lock and A2prime sequencing proof.",
+  "preMortem": [
+    {
+      "scenario": "Readiness artifact is mistaken for Phase 1 execution approval.",
+      "trigger": "Status text says launch ready without distinguishing provider execution authorization.",
+      "consequence": "Agents may run expensive cells or claim outcome data prematurely.",
+      "mitigation": "Checker requires providerCallEnabled=false, formalPhase1UseAllowed=false, containsOutcomeData=false, and status text says M2 execution not started."
+    },
+    {
+      "scenario": "Task inventory mutates the original 24-task corpus.",
+      "trigger": "Implementation edits experiments/recovery-runner/tasks instead of reading it.",
+      "consequence": "Results stop being comparable to v1 Table 9.",
+      "mitigation": "Scope excludes modifying task definitions; checker binds source hashes read-only."
+    },
+    {
+      "scenario": "A2prime sequencing is falsely marked satisfied.",
+      "trigger": "A readiness artifact reuses M0 example budget locks or fabricated budget rows.",
+      "consequence": "A2prime could run before ③ calibration, invalidating H-M1 contrast.",
+      "mitigation": "Checker rejects sequencingSatisfied=true unless a real M2 budget lock with ③ calibration binding is present; this story leaves it pending_execution."
+    }
+  ],
+  "timestamp": "2026-07-05T02:14:03.357Z"
+}

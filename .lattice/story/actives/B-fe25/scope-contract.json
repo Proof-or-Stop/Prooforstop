@@ -1,0 +1,34 @@
+{
+  "storyId": "B-fe25",
+  "mode": "enforce",
+  "allowedModify": [
+    "experiments/multi-model-ablation/README.md"
+  ],
+  "allowedCreate": [
+    "experiments/multi-model-ablation/m2-launch-readiness.json",
+    "experiments/multi-model-ablation/model-snapshot-lock.m2.json",
+    "experiments/multi-model-ablation/m2-status.md",
+    "experiments/multi-model-ablation/task-inventory.m2.json",
+    "experiments/multi-model-ablation/phase1-runner-manifest.m2.json",
+    "experiments/multi-model-ablation/phase1-launch-readiness.m2.json"
+  ],
+  "allowedTest": [
+    "experiments/multi-model-ablation/m2-launch-readiness-check.mjs"
+  ],
+  "protectedFiles": [
+    "experiments/recovery-runner/tasks/**",
+    "experiments/multi-model-ablation/records-multi-model-ablation.jsonl",
+    "experiments/multi-model-ablation/phase2-results.json",
+    "experiments/multi-model-ablation/analysis-results.json"
+  ],
+  "explicitExcludes": [
+    "experiments/recovery-runner/tasks/**",
+    "experiments/multi-model-ablation/records-multi-model-ablation.jsonl",
+    "experiments/multi-model-ablation/phase2-results.json",
+    "experiments/multi-model-ablation/analysis-results.json"
+  ],
+  "scopeChangeReason": "Initialize scope contract from B-fe25 PLAN: provider-free M2 readiness may read the 24-task corpus but must not modify task definitions or create outcome/phase2 result files.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-05T02:15:03.216Z",
+  "updatedAt": "2026-07-05T02:15:03.216Z"
+}

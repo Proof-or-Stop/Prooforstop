@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-fe25",
+  "id": "IC-20260705021503",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Implement a provider-free M2 launch-readiness layer only: bind approval/snapshot/task/runner readiness artifacts, keep Phase 1 provider execution and outcome data out of scope, and preserve ③-before-⑥ sequencing for future M2-a execution.",
+  "acceptedInterpretationHash": "sha256:fb4299f802f40995e1e74bc8cfb3bd3bc428e0132b576d64756eb01f23317f09",
+  "notes": "This resolves the potential collision between solving launch blockers and prematurely running Phase 1. The accepted interpretation clears static readiness blockers but leaves execution-derived blockers pending until real provider execution.",
+  "createdAt": "2026-07-05T02:15:03.198Z",
+  "updatedAt": "2026-07-05T02:15:03.198Z"
+}
