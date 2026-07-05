@@ -4,7 +4,7 @@
   "title": "Review milestone ledger status hardening plan",
   "description": "Review the milestone ledger status review and hardening plan against the current Proofbound implementation, focusing on read-only milestone_status behavior, explicit milestone ledger writes, missing-ledger policy, schema adequacy, negative controls, and agent capability claims.",
   "type": "chore",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "medium",
   "keywords": [
     "mlsr-20260705-review",
@@ -13,7 +13,7 @@
   ],
   "createdAt": "2026-07-05T10:43:21.298Z",
   "startedAt": "2026-07-05T10:43:21.298Z",
-  "endedAt": null,
+  "endedAt": "2026-07-05T11:59:27.041Z",
   "events": [
     {
       "phase": "INIT",
@@ -32,11 +32,88 @@
       "user": "Harmonygo",
       "sessionId": "sess-3f3045fee8f99f65",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-05T10:48:58.250Z",
+      "branch": "story/B-9051",
+      "user": "Harmonygo",
+      "sessionId": "sess-c69dfff9a0785d8e",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-05T10:58:19.749Z",
+      "branch": "story/B-9051",
+      "user": "Harmonygo",
+      "sessionId": "sess-c69dfff9a0785d8e",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-05T11:01:44.419Z",
+      "branch": "story/B-9051",
+      "user": "Harmonygo",
+      "sessionId": "sess-c69dfff9a0785d8e",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-05T11:07:03.057Z",
+      "branch": "story/B-9051",
+      "user": "Harmonygo",
+      "sessionId": "sess-c69dfff9a0785d8e",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-05T11:07:27.951Z",
+      "branch": "story/B-9051",
+      "user": "Harmonygo",
+      "sessionId": "sess-c69dfff9a0785d8e",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-05T11:33:25.390Z",
+      "branch": "story/B-9051",
+      "user": "Harmonygo",
+      "sessionId": "sess-c69dfff9a0785d8e",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-05T11:34:30.219Z",
+      "branch": "story/B-9051",
+      "user": "Harmonygo",
+      "sessionId": "sess-c69dfff9a0785d8e",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-05T11:43:49.060Z",
+      "branch": "story/B-9051",
+      "user": "Harmonygo",
+      "sessionId": "sess-c69dfff9a0785d8e",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-05T11:59:27.041Z",
+      "branch": "story/B-9051",
+      "user": "Harmonygo",
+      "sessionId": "sess-c69dfff9a0785d8e",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-9051",
-    "branch": "story/B-9051",
-    "createdAt": "2026-07-05T10:48:48.667Z"
-  }
+  "currentReviewRound": "2026-07-05T11:34:30.219Z"
 }

@@ -32,9 +32,43 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-05T11:00:26.638Z",
+      "endTime": "2026-07-05T11:00:34.182Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+          "result": "pass",
+          "note": "Canonical inventory in the review doc matches current Proofbound anchors: proofstory handler for milestone_ledger_set/add/get, milestone-status handler/core for milestone_status and closeout, types, command policy, and ProofStory decision doc.",
+          "headHash": "81dfe91860bda1da9fa6eeb59acd8a714e8305b5",
+          "materialHash": "e14ba31604f3d70465c3fc19ebfa8195c4d10b36392ff75f3f746737434fc8e2",
+          "storyFilesHash": "f865b48dbfb59cadba71f78fe06b2dbcc0b4161ede64e4207c885d9699a4c592",
+          "timestamp": "2026-07-05T11:40:59.713Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "lattice session_brief && lattice aux_doc_list && rg -n milestone_ledger_set packages/main/src docs/requirements/decisions",
+          "result": "pass",
+          "note": "Review used canonical /Users/jek/Documents/Work/proofbound worktree, not retired Orchestrate, and aux_doc_list shows the new canonical review doc in docs/requirements/decisions.",
+          "headHash": "81dfe91860bda1da9fa6eeb59acd8a714e8305b5",
+          "materialHash": "e14ba31604f3d70465c3fc19ebfa8195c4d10b36392ff75f3f746737434fc8e2",
+          "storyFilesHash": "f865b48dbfb59cadba71f78fe06b2dbcc0b4161ede64e4207c885d9699a4c592",
+          "timestamp": "2026-07-05T11:40:59.713Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "result": "pass",
+          "note": "Stale planning prose was not treated as stronger than current code; the review doc explicitly says this is not a from-scratch implementation plan and the implementation inventory is verified against source.",
+          "headHash": "81dfe91860bda1da9fa6eeb59acd8a714e8305b5",
+          "materialHash": "e14ba31604f3d70465c3fc19ebfa8195c4d10b36392ff75f3f746737434fc8e2",
+          "storyFilesHash": "f865b48dbfb59cadba71f78fe06b2dbcc0b4161ede64e4207c885d9699a4c592",
+          "timestamp": "2026-07-05T11:40:59.713Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -67,9 +101,44 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-05T11:00:38.657Z",
+      "endTime": "2026-07-05T11:00:46.518Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "packages/main/src/handlers/milestone-status.ts",
+          "result": "pass",
+          "note": "milestone_status validates allowed args before store reads, returns READ_ONLY_MODE, and command policy classifies it as readOnly with no evidence, summary, reviewer, phase, DONE, or production side effects.",
+          "headHash": "81dfe91860bda1da9fa6eeb59acd8a714e8305b5",
+          "materialHash": "e14ba31604f3d70465c3fc19ebfa8195c4d10b36392ff75f3f746737434fc8e2",
+          "storyFilesHash": "f865b48dbfb59cadba71f78fe06b2dbcc0b4161ede64e4207c885d9699a4c592",
+          "timestamp": "2026-07-05T11:40:59.713Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "lattice milestone_status --storyId=B-9051 --format=json",
+          "result": "pass",
+          "note": "Live B-9051 milestone_status output has ledger.present=false, readOnly=true, runCommands=false, writeEvidence=false, advancePhase=false, launchReviewers=false, and a nextAction saying status will not create the ledger.",
+          "headHash": "81dfe91860bda1da9fa6eeb59acd8a714e8305b5",
+          "materialHash": "e14ba31604f3d70465c3fc19ebfa8195c4d10b36392ff75f3f746737434fc8e2",
+          "storyFilesHash": "f865b48dbfb59cadba71f78fe06b2dbcc0b4161ede64e4207c885d9699a4c592",
+          "timestamp": "2026-07-05T11:40:59.713Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "Dedicated milestone-status tests cover unknown and mutation-like flags, rejection before story reads, missing-ledger reporting without checklist reads, and no fabricated completion.",
+          "headHash": "81dfe91860bda1da9fa6eeb59acd8a714e8305b5",
+          "materialHash": "e14ba31604f3d70465c3fc19ebfa8195c4d10b36392ff75f3f746737434fc8e2",
+          "storyFilesHash": "f865b48dbfb59cadba71f78fe06b2dbcc0b4161ede64e4207c885d9699a4c592",
+          "timestamp": "2026-07-05T11:40:59.713Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -103,9 +172,44 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-05T11:00:51.281Z",
+      "endTime": "2026-07-05T11:01:01.849Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "lattice proofstory_gate_check --storyId=B-9051 --phase=DEV && lattice milestone_status --storyId=B-9051 --format=json",
+          "result": "pass",
+          "note": "For this docs-only review story, ProofStory DEV gate passes after intent artifacts while milestone_status still reports ledger missing; ordinary non-ledger work is not retroactively blocked and status does not repair storage.",
+          "headHash": "81dfe91860bda1da9fa6eeb59acd8a714e8305b5",
+          "materialHash": "e14ba31604f3d70465c3fc19ebfa8195c4d10b36392ff75f3f746737434fc8e2",
+          "storyFilesHash": "f865b48dbfb59cadba71f78fe06b2dbcc0b4161ede64e4207c885d9699a4c592",
+          "timestamp": "2026-07-05T11:40:59.713Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "file": "packages/main/src/core/command-policy.ts",
+          "result": "pass",
+          "note": "Command policy keeps milestone_ledger_set/add as PLAN-only gateEvidence candidate writes, and intent_collision pass is the confirmation boundary. B-9051 intent_collision reported Confirmed ledger hash: none, so no ledger was confirmed here.",
+          "headHash": "81dfe91860bda1da9fa6eeb59acd8a714e8305b5",
+          "materialHash": "e14ba31604f3d70465c3fc19ebfa8195c4d10b36392ff75f3f746737434fc8e2",
+          "storyFilesHash": "f865b48dbfb59cadba71f78fe06b2dbcc0b4161ede64e4207c885d9699a4c592",
+          "timestamp": "2026-07-05T11:40:59.713Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "packages/main/src/core/types.ts",
+          "result": "pass",
+          "note": "Milestone schema and status rendering rely on explicit ledger fields, checklistRefs, verificationIntentRefs, requiredEvidence, parentLedgerId, and assignedStory; missing-ledger status says it cannot infer milestone progress from prose.",
+          "headHash": "81dfe91860bda1da9fa6eeb59acd8a714e8305b5",
+          "materialHash": "e14ba31604f3d70465c3fc19ebfa8195c4d10b36392ff75f3f746737434fc8e2",
+          "storyFilesHash": "f865b48dbfb59cadba71f78fe06b2dbcc0b4161ede64e4207c885d9699a4c592",
+          "timestamp": "2026-07-05T11:40:59.713Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -138,9 +242,126 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-05T11:01:06.521Z",
+      "endTime": "2026-07-05T11:01:15.746Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "Build passes and the dedicated milestone-status suite passes, covering missing-ledger diagnostics, read-only mode, mutation-like flag rejection, closeout safety, and no fabricated completion.",
+          "headHash": "81dfe91860bda1da9fa6eeb59acd8a714e8305b5",
+          "materialHash": "e14ba31604f3d70465c3fc19ebfa8195c4d10b36392ff75f3f746737434fc8e2",
+          "storyFilesHash": "f865b48dbfb59cadba71f78fe06b2dbcc0b4161ede64e4207c885d9699a4c592",
+          "timestamp": "2026-07-05T11:40:59.713Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+          "result": "pass",
+          "note": "The document states the capability impact as structured progress, safer execution admission, cleaner handoff, and less false DONE risk, which matches the source/test evidence.",
+          "headHash": "81dfe91860bda1da9fa6eeb59acd8a714e8305b5",
+          "materialHash": "e14ba31604f3d70465c3fc19ebfa8195c4d10b36392ff75f3f746737434fc8e2",
+          "storyFilesHash": "f865b48dbfb59cadba71f78fe06b2dbcc0b4161ede64e4207c885d9699a4c592",
+          "timestamp": "2026-07-05T11:40:59.713Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "file": "packages/main/src/core/milestone-status.ts",
+          "result": "pass",
+          "note": "The document explicitly says milestone completion stays distinct from lifecycle DONE and that the capability is not agents declaring themselves done; closeout code also refuses to fabricate success without a ledger.",
+          "headHash": "81dfe91860bda1da9fa6eeb59acd8a714e8305b5",
+          "materialHash": "e14ba31604f3d70465c3fc19ebfa8195c4d10b36392ff75f3f746737434fc8e2",
+          "storyFilesHash": "f865b48dbfb59cadba71f78fe06b2dbcc0b4161ede64e4207c885d9699a4c592",
+          "timestamp": "2026-07-05T11:40:59.713Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-05T11:00:26.638Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting canonical source inventory review evidence capture.",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-07-05T11:00:34.182Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Canonical source inventory review completed.",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-07-05T11:00:38.657Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting read-only status and ledger write boundary review evidence capture.",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-07-05T11:00:46.518Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Read-only status and write boundary review completed.",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-07-05T11:00:51.281Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting missing-ledger and schema adequacy review evidence capture.",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-07-05T11:01:01.849Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Missing-ledger and schema adequacy review completed.",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-07-05T11:01:06.521Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting tests and agent capability claims review evidence capture.",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-07-05T11:01:15.746Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Tests and agent capability claims review completed.",
+      "agent": "codex-main"
     }
   ]
 }

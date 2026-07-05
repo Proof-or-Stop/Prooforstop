@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-9051",
+  "diagnosticOnly": false,
+  "hardeningLevel": "high_assurance",
+  "triggerReasons": [
+    {
+      "code": "high_assurance_risk",
+      "message": "High-risk or gate/security wording selects high-assurance intent hardening.",
+      "requires": "high-assurance"
+    },
+    {
+      "code": "collision_required_high_assurance",
+      "message": "High-assurance work requires an independent intent-collision result.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:f1b8ef6c74f74364256b342bfdcbba2443a9af05f3611f3e113428401411228e",
+  "acceptanceBindings": [
+    {
+      "id": "ACCEPT-DOC-REVIEW",
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002",
+        "CHK-003",
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0",
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0",
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0",
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0"
+      ],
+      "milestoneIds": [],
+      "acceptanceClaim": "B-9051 has review evidence for each checklist item, grounded in canonical Proofbound files, with no code gate changes and no milestone ledger mutation.",
+      "note": "Document-review acceptance is covered by all four review checklist items and their happy, edge, and adversarial verification intents; no milestone ledger is required or confirmed for this docs-only review."
+    }
+  ],
+  "diagnosticGaps": [],
+  "note": "ProofStory contract for B-9051 binds the document-review acceptance claim to the review checklist and verificationIntent refs without creating or confirming a milestone ledger.",
+  "createdAt": "2026-07-05T10:58:10.179Z",
+  "updatedAt": "2026-07-05T10:58:10.179Z"
+}
