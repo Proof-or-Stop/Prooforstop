@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "M0: red evidence smoke proving PBP-882 lacks capability lineage",
       "context": "Read-only smoke loading .lattice/artifact-releases.jsonl, playbooks.json, playbook-promotion-health.jsonl; asserts B-785e artifact release exists AND candidate lineage lacks capabilityReleaseId/artifactReleaseId. Fails RED on current state; passes once M4/M8 land.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-05T17:19:10.936Z",
       "userSees": "product-capability-release-red-smoke fails RED: expected PCR-<id>, actual undefined (candidate lacks capability lineage; green after M4)",
       "files": {
         "modify": [],
