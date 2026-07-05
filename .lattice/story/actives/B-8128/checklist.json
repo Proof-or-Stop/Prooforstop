@@ -47,7 +47,43 @@
       "context": "New core/capability-release.ts mirroring artifact-release.ts: schemaVersion proofbound.product-capability-release.v1, parse/read/append, capabilityDigest, idempotency key, malformed-row rejection, authority=non_authoritative, gateEvidence=false, activationBoundary.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "ok product-capability-release (13 checks)",
+      "files": {
+        "modify": [
+          ".gitignore"
+        ],
+        "create": [
+          "packages/main/src/core/capability-release.ts",
+          "packages/main/src/tasks/product-capability-release-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/product-capability-release-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "core/capability-release.ts builds a ProductCapabilityReleaseRecord with a deterministic merge-stable capabilityDigest, PCR-<24hex> id, digest-derived 12-hex capabilityVersion, and host-neutral capabilityId slug; smoke green.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The fail-closed reader throws CapabilityReleaseLedgerError on authority!==non_authoritative, gateEvidence!==false, and malformed JSON; artifact-less digest is stable.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "idempotencyKey excludes mainCommit so a recovery re-merge with a different mainCommit yields the SAME id; a gate-import guard proves no gate/DONE/validate/delivery module imports the reader.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
