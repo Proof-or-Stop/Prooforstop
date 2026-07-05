@@ -57,11 +57,11 @@
           "file": "packages/main/tests/milestone-status.test.mjs",
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
-          "note": "Regression executes checklist_update for a ledger-backed story and asserts stdout includes Milestone Status plus Completed, Current, and Remaining.",
-          "headHash": "5d3fb96d73b9cf68c58f13731815ccfae6858b98",
-          "materialHash": "81aaa5e253a6d9e568bd24d003a03369fb6198317da0f9f3753d67002c1c3118",
-          "storyFilesHash": "bf50e7e2714dd03ae7283b499f57ade9df0b1f9477a67a1c6376cba4820c331e",
-          "timestamp": "2026-07-05T10:37:47.744Z"
+          "note": "Regression verifies ledger-backed state-changing commands append the shared milestone_status table, now with six developer-facing status labels.",
+          "headHash": "698b7f4d69222668fa14e07e3db0191025bbde63",
+          "materialHash": "6789328ce106154ad98374380541a92010346b4038703dcddeee6bca5255024b",
+          "storyFilesHash": "78d9db3e9ca410cf0c16bb20e743e93b776eeab74c1649bc96b820e3aa58a5b9",
+          "timestamp": "2026-07-05T11:42:25.777Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -70,11 +70,11 @@
           "file": "packages/main/tests/milestone-status.test.mjs",
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
-          "note": "Regression parses --json milestone_ledger_add output and asserts no appended milestone table contaminates machine stdout.",
-          "headHash": "5d3fb96d73b9cf68c58f13731815ccfae6858b98",
-          "materialHash": "81aaa5e253a6d9e568bd24d003a03369fb6198317da0f9f3753d67002c1c3118",
-          "storyFilesHash": "bf50e7e2714dd03ae7283b499f57ade9df0b1f9477a67a1c6376cba4820c331e",
-          "timestamp": "2026-07-05T10:37:47.744Z"
+          "note": "Regression verifies JSON mode remains parseable and is not contaminated by appended human milestone tables.",
+          "headHash": "698b7f4d69222668fa14e07e3db0191025bbde63",
+          "materialHash": "6789328ce106154ad98374380541a92010346b4038703dcddeee6bca5255024b",
+          "storyFilesHash": "78d9db3e9ca410cf0c16bb20e743e93b776eeab74c1649bc96b820e3aa58a5b9",
+          "timestamp": "2026-07-05T11:42:25.777Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -83,24 +83,24 @@
           "file": "packages/main/tests/milestone-status.test.mjs",
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
-          "note": "Regression mutates a story without milestone-ledger.json and asserts no fabricated Milestone Status table is appended.",
-          "headHash": "5d3fb96d73b9cf68c58f13731815ccfae6858b98",
-          "materialHash": "81aaa5e253a6d9e568bd24d003a03369fb6198317da0f9f3753d67002c1c3118",
-          "storyFilesHash": "bf50e7e2714dd03ae7283b499f57ade9df0b1f9477a67a1c6376cba4820c331e",
-          "timestamp": "2026-07-05T10:37:47.744Z"
+          "note": "Regression verifies missing-ledger mutations do not fabricate milestone status tables.",
+          "headHash": "698b7f4d69222668fa14e07e3db0191025bbde63",
+          "materialHash": "6789328ce106154ad98374380541a92010346b4038703dcddeee6bca5255024b",
+          "storyFilesHash": "78d9db3e9ca410cf0c16bb20e743e93b776eeab74c1649bc96b820e3aa58a5b9",
+          "timestamp": "2026-07-05T11:42:25.777Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "docs_check",
           "verdict": "success",
           "file": "docs/CLI.md",
-          "command": "rg -n \"automatically appends the consumed|skipped for|milestone-ledger.json\" docs/CLI.md",
+          "command": "rg -n '✅ Done|⏳ In Progress|🟡 Pending Review|⬜ Not Started|🔴 Blocked|❌ Failed|must not be used for Not Started' docs/CLI.md",
           "result": "pass",
-          "note": "Host Progress Reporting Contract documents CLI-owned milestone_status table append and JSON or missing-ledger skips.",
-          "headHash": "5d3fb96d73b9cf68c58f13731815ccfae6858b98",
-          "materialHash": "81aaa5e253a6d9e568bd24d003a03369fb6198317da0f9f3753d67002c1c3118",
-          "storyFilesHash": "bf50e7e2714dd03ae7283b499f57ade9df0b1f9477a67a1c6376cba4820c331e",
-          "timestamp": "2026-07-05T10:37:47.744Z"
+          "note": "Host Progress Reporting Contract documents the six status labels and states that Failed is not used for Not Started.",
+          "headHash": "698b7f4d69222668fa14e07e3db0191025bbde63",
+          "materialHash": "6789328ce106154ad98374380541a92010346b4038703dcddeee6bca5255024b",
+          "storyFilesHash": "78d9db3e9ca410cf0c16bb20e743e93b776eeab74c1649bc96b820e3aa58a5b9",
+          "timestamp": "2026-07-05T11:42:25.777Z"
         }
       ]
     },
@@ -155,11 +155,11 @@
           "file": "packages/main/tests/milestone-status.test.mjs",
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
-          "note": "Regression asserts checklist_update stdout includes Milestone Status and the three table sections after a state-changing command.",
-          "headHash": "5d3fb96d73b9cf68c58f13731815ccfae6858b98",
-          "materialHash": "81aaa5e253a6d9e568bd24d003a03369fb6198317da0f9f3753d67002c1c3118",
-          "storyFilesHash": "bf50e7e2714dd03ae7283b499f57ade9df0b1f9477a67a1c6376cba4820c331e",
-          "timestamp": "2026-07-05T10:37:47.744Z"
+          "note": "Regression asserts auto-appended checklist_update output includes the richer milestone status table labels.",
+          "headHash": "698b7f4d69222668fa14e07e3db0191025bbde63",
+          "materialHash": "6789328ce106154ad98374380541a92010346b4038703dcddeee6bca5255024b",
+          "storyFilesHash": "78d9db3e9ca410cf0c16bb20e743e93b776eeab74c1649bc96b820e3aa58a5b9",
+          "timestamp": "2026-07-05T11:42:25.777Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -168,11 +168,11 @@
           "file": "packages/main/tests/milestone-status.test.mjs",
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
-          "note": "Regression asserts JSON mode remains parseable and does not include the appended human milestone table.",
-          "headHash": "5d3fb96d73b9cf68c58f13731815ccfae6858b98",
-          "materialHash": "81aaa5e253a6d9e568bd24d003a03369fb6198317da0f9f3753d67002c1c3118",
-          "storyFilesHash": "bf50e7e2714dd03ae7283b499f57ade9df0b1f9477a67a1c6376cba4820c331e",
-          "timestamp": "2026-07-05T10:37:47.744Z"
+          "note": "Regression asserts JSON output remains parseable while human milestone status labels are skipped in machine mode.",
+          "headHash": "698b7f4d69222668fa14e07e3db0191025bbde63",
+          "materialHash": "6789328ce106154ad98374380541a92010346b4038703dcddeee6bca5255024b",
+          "storyFilesHash": "78d9db3e9ca410cf0c16bb20e743e93b776eeab74c1649bc96b820e3aa58a5b9",
+          "timestamp": "2026-07-05T11:42:25.777Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -181,11 +181,11 @@
           "file": "packages/main/tests/milestone-status.test.mjs",
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
-          "note": "Regression asserts missing-ledger mutations do not invent milestone progress output.",
-          "headHash": "5d3fb96d73b9cf68c58f13731815ccfae6858b98",
-          "materialHash": "81aaa5e253a6d9e568bd24d003a03369fb6198317da0f9f3753d67002c1c3118",
-          "storyFilesHash": "bf50e7e2714dd03ae7283b499f57ade9df0b1f9477a67a1c6376cba4820c331e",
-          "timestamp": "2026-07-05T10:37:47.744Z"
+          "note": "Regression asserts no fabricated table appears for no-ledger stories and verifies Not Started is rendered separately from Failed.",
+          "headHash": "698b7f4d69222668fa14e07e3db0191025bbde63",
+          "materialHash": "6789328ce106154ad98374380541a92010346b4038703dcddeee6bca5255024b",
+          "storyFilesHash": "78d9db3e9ca410cf0c16bb20e743e93b776eeab74c1649bc96b820e3aa58a5b9",
+          "timestamp": "2026-07-05T11:42:25.777Z"
         }
       ]
     }
