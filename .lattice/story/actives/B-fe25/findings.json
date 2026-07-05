@@ -24,6 +24,26 @@
       "resolvedAt": "2026-07-05T02:47:21.282Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-fe25:F-002",
+      "desc": "Formal verification coverage is stale after fix commit 2c7bc625. Targeted checks now pass at HEAD (node experiments/multi-model-ablation/m2-launch-readiness-check.mjs -> 1105 assertions and 21 negative controls; node experiments/multi-model-ablation/m1-freeze-check.mjs -> 219 assertions and 8 negative controls), but lattice validate --story=B-fe25 --json returns status=fail because verification coverage has 12 required intents, covered=0, missingRequired=12, with every CHK-001 through CHK-004 evidence entry marked stale. The stored notes still reflect the pre-fix 730 assertion / 15 negative-control M2 run and therefore do not bind the new M1/M2 lineage controls, provider-free/no-outcome guards, or status checks to current material.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-05T02:51:38.862Z",
+      "reviewRound": "2026-07-05T02:47:01.933Z",
+      "reviewRunId": "B-fe25:RR-007",
+      "_hash": "9c2f100fa77c69814be5733f930f8f3fa42bea8e0f121a542c7dfc31d2e28a4d",
+      "files": [
+        ".lattice/story/actives/B-fe25/test-evidence.json",
+        "experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+        "experiments/multi-model-ablation/m1-freeze-check.mjs"
+      ],
+      "signatureTag": "missing|verification-evidence-stale",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
