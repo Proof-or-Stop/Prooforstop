@@ -370,9 +370,9 @@
       "id": "CHK-008",
       "title": "Re-assert confirmedLedgerHash === ledgerHash inside confirmMilestoneLedger at confirm time",
       "context": "core/proofstory.ts confirmMilestoneLedger (~L382-402) mints state=confirmed from an accepted intent collision without re-checking collision.confirmedLedgerHash === ledger.ledgerHash; today safety is emergent (any later row change routes through set/add which reset to candidate). Add an explicit confirm-time hash re-check so the invariant is local. Closes findings M2 hardening note.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-05T22:05:07.346Z",
       "userSees": "Running the milestone-ledger confirm flow, the operator sees confirmation minted only when the accepted intent-collision was decided against the exact current ledger. Concretely: `node dist/tasks/proofstory-intent-hardening-smoke.js` prints `proofstory-intent-hardening-smoke: PASS` including the new assertion `confirmMilestoneLedger re-checks collision.confirmedLedgerHash === ledgerHash at confirm time`. In the CLI, `intent_collision_set --decision pass` against an unchanged ledger still returns `confirmedLedger.state = \"confirmed\"` (unchanged happy path), and `proofstory_gate_check` still reports `ledgerState: \"confirmed\"`. But if the ledger rows drifted after the collision was accepted (its `confirmedLedgerHash` no longer equals the current `ledgerHash`), `confirmMilestoneLedger` now returns the ledger still in `state: \"candidate\"` instead of falsely minting `confirmed` — the invariant is enforced locally at confirm time rather than relying on downstream set/add resets.",
       "files": {
         "modify": [
