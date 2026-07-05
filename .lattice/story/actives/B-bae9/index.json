@@ -1,0 +1,26 @@
+{
+  "storyId": "B-bae9",
+  "name": "pos-m1-tamper-matrix",
+  "title": "POS campaign M1: tamper-class matrix harness (tamper.mjs) asserting each class matches its frozen fingerprint (H2 evidence)",
+  "description": "Second milestone of the proof-or-stop replay & tamper campaign (plan: docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md; M0 DONE as story B-9e44, protocol frozen at experiments/pos-instrument-replay/protocol.json sha256 a3a781fe). M1 delivers experiments/pos-instrument-replay/tamper.mjs + a selfcheck: for each (class x manifestHandling) in the FROZEN protocol tamperMatrix, apply the mutation to an mkdtemp-isolated copy of a fresh baseline, run verify, and record a verdict in tamper-verdicts.jsonl with the full boolean flag vector + gold metrics + a fingerprint-match boolean + the disposition. Exit criterion (H2 evidence complete): every fail-closed-set class yields status:fail AND its observed values over the frozen fingerprint domain match the frozen per-class fingerprint; every acceptance-bucket combination matches its status:pass fingerprint; every acknowledged-limitation matches its documented status:pass blind-spot fingerprint. Reuses M0 lib/instrument.mjs (verifyDir crash sentinel, refreshManifest, canonicalJson, fingerprintDomain). The instrument (packages/**) is read/called only.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "medium",
+  "keywords": [
+    "proof-or-stop,tamper,H2,fingerprint,evidence-instrument"
+  ],
+  "createdAt": "2026-07-05T17:03:59.582Z",
+  "startedAt": "2026-07-05T17:03:59.582Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-05T17:04:00.324Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "587682dc-bfda-437a-8713-bf1cb9342a76",
+      "agent": "main"
+    }
+  ]
+}

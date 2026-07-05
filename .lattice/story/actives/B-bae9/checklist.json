@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Build experiments/pos-instrument-replay/tamper.mjs: read the frozen protocol.json tamperMatrix, and for each (class x manifestHandling) apply the mutation to an mkdtemp-isolated copy of a fresh small baseline, run verify via lib/instrument.mjs, and emit an identity-keyed verdict to tamper-verdicts.jsonl with {iterationId, class, manifestHandling, verifyStatus, verifyFlags (full vector), goldMetrics, fingerprintMatch (bool), disposition}",
+      "context": "iterationId = tamper/<scale>/<class>/<manifestHandling> per protocol.iterationIdRule. Reuse lib/instrument.mjs verifyDir/refreshManifest/fingerprintDomain/canonicalJson. Mutations are re-applied deterministically from the same class definitions M0 used; fingerprintMatch compares the live fingerprint-domain values against the frozen per-class fingerprint in protocol.json.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Assert H2 conformance: every fail-closed class yields status:fail AND fingerprintMatch=true; every acceptance-bucket + acknowledged-limitation entry yields status:pass AND fingerprintMatch=true; tamper.mjs exits nonzero on ANY mismatch",
+      "context": "This is the H2 evidence-complete gate. A mismatch (live fingerprint != frozen) means either the instrument changed or the freeze is wrong — both must fail loudly. The verdict ledger records fingerprintMatch per class so the M4 analyzer can adjudicate H2 mechanically.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add a hermetic mkdtemp-isolated selfcheck (node selfcheck-m1.mjs or extend) asserting tamper.mjs is deterministic (re-run produces the same tamper-verdicts.jsonl modulo volatile fields) and that a deliberately corrupted frozen fingerprint makes tamper.mjs detect a mismatch and exit nonzero",
+      "context": "Negative test: flip one expected flag in a copy of protocol.json and confirm tamper.mjs reports fingerprintMatch=false and exits nonzero — proving the conformance check is real, not a tautology. Volatile fields (elapsedMs, rss, absolute paths) excluded from the determinism comparison.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
