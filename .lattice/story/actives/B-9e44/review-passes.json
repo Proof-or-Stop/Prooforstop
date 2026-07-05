@@ -44,6 +44,15 @@
       "reviewRound": "2026-07-05T16:10:59.713Z",
       "reviewRunId": "B-9e44:RR-005",
       "_hash": "af520406dd7cda62cfe86d989b90a5e38d7ac6c5fa7eba8a66abe8b939f1be58"
+    },
+    {
+      "id": "B-9e44:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: re-audited the revised 24-candidate matrix (18 fail-closed / 2 accepted / 3 acknowledged-limitation / 1 dropped, 0 false-positive). All 11 must-priority verificationIntent entries have concrete valid verificationEvidence (validate.verificationCoverage: total 15, required 11, covered 11, missingRequired 0); 4 should-priority edge/adversarial gaps are advisory per channel=normal. selfcheck.mjs independently PASSES and its assertions genuinely cover the new bucket shape (failClosed all fail/crash + non-empty failureSignals, acceptanceBucket all pass, acknowledgedLimitations all malicious+pass+non-empty limitationNote, no false-positive). Independently reproduced corruptRows-lie (manifest.corruptRows 1->0 + digest refresh -> verify status:pass, confirming the acknowledged blind spot) and manifest-structural-corruption (invalid JSON manifest -> verify throws/crash, confirming a genuine fail-closed crash). No blocker.",
+      "createdAt": "2026-07-05T16:18:20.899Z",
+      "reviewRound": "2026-07-05T16:10:59.713Z",
+      "reviewRunId": "B-9e44:RR-006",
+      "_hash": "5a905786e11f7935d870227f9d8bae5e1b838c4942ed48960a1e6bd6da4e8488"
     }
   ]
 }
