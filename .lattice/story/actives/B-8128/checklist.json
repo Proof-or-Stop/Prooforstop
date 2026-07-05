@@ -134,7 +134,41 @@
       "context": "Bind storyId, mainCommit, artifactReleaseId, artifactSetDigest, capabilityId, capabilityVersion, capabilityDigest. Idempotency key storyId+mainCommit+capabilityDigest+artifactSetDigest; no duplicate on DONE recovery/retry.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": ".lattice/capability-releases.jsonl contains one PCR row after DONE; re-run reports already_recorded",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/done-effects.ts",
+          "packages/main/src/core/capability-release.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/product-capability-release-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "On DONE merge a capability release is recorded binding storyId, mainCommit (provenance), artifactReleaseId/artifactSetDigest when present, capabilityDigest, and the full changedPaths.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Re-running the binding with a DIFFERENT mainCommit returns already_recorded and does not append a duplicate row (merge-stable recovery dedup).",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The ledger is committed via git add -f with a .gitignore un-ignore rule so it is tracked (cross-host source of truth), not host-local.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
