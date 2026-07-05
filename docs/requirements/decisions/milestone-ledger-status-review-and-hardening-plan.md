@@ -80,7 +80,7 @@ This review plan has 8 milestones and 43 sub-objectives.
 | Milestone | Title | Sub-objectives | Status | Output |
 |---|---|---:|---|---|
 | M0 | Review scope and source inventory | 5 | reviewed-pass (corrected) | trusted source map |
-| M1 | Read-only status boundary review | 6 | reviewed-pass | boundary finding or pass |
+| M1 | Read-only status boundary review | 6 | reviewed-pass (clarified) | boundary finding or pass |
 | M2 | Ledger write contract review | 6 | reviewed-pass | write-surface finding or pass |
 | M3 | Missing-ledger policy review | 6 | reviewed-pass (corrected) | missing-state matrix |
 | M4 | Schema and progress-model review | 6 | reviewed-pass (caveat) | schema adequacy finding |
@@ -118,9 +118,9 @@ Sub-objectives:
 | M1.a | Check allowed argument keys for `milestone_status`. | reviewed-pass | source review |
 | M1.b | Verify unexpected keys fail before story reads. | reviewed-pass | negative test or source proof |
 | M1.c | Verify missing ledger produces a report, not a write. | reviewed-pass | smoke or source proof |
-| M1.d | Verify status output does not launch commands or reviewers. | reviewed-pass (corrected) | source review |
+| M1.d | Verify status output does not launch commands or reviewers. | reviewed-pass (clarified) | source review |
 | M1.e | Verify status output does not write evidence, summaries, review passes, or lifecycle facts. | reviewed-pass | source review |
-| M1.f | Verify status output does not claim DONE or production readiness. | reviewed-pass (corrected) | output review |
+| M1.f | Verify status output does not claim DONE or production readiness. | reviewed-pass (clarified) | output review |
 
 Acceptance:
 
