@@ -140,9 +140,47 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-05T02:33:27.873Z",
-      "endTime": null
+      "endTime": "2026-07-05T02:33:50.665Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": "experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+          "command": "node experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+          "result": "pass",
+          "note": "M2 checker passed with 730 assertions; it recomputes the read-only task inventory and accepts exactly 24 unique task directories bound by corpus digest, plus required Phase 1 cells ③/⑥/② with deterministic cell family linkage.",
+          "headHash": "483b866045bcb26ee85f68f792722799c0c49e47",
+          "materialHash": "70f820f60d7b42153e9711d00bbd0d81b768efdacff9bb75433ec78369a74fa1",
+          "storyFilesHash": "e7cb4b718d7c27635908573bcd0cce7d91846c0f35b7e099b42512726289090c",
+          "timestamp": "2026-07-05T02:33:50.898Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+          "command": "node experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+          "result": "pass",
+          "note": "Checker accepts required Phase 1 readiness while ④ remains optional_budget_permitting and requiredForLaunchReadiness=false.",
+          "headHash": "483b866045bcb26ee85f68f792722799c0c49e47",
+          "materialHash": "70f820f60d7b42153e9711d00bbd0d81b768efdacff9bb75433ec78369a74fa1",
+          "storyFilesHash": "e7cb4b718d7c27635908573bcd0cce7d91846c0f35b7e099b42512726289090c",
+          "timestamp": "2026-07-05T02:33:51.186Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+          "command": "node experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+          "result": "pass",
+          "note": "Negative controls reject missing tasks, duplicate task ids, changed task digests, illegal ②-vs-④ confirmatory use, and duplicate runner ownership of the same cell family.",
+          "headHash": "483b866045bcb26ee85f68f792722799c0c49e47",
+          "materialHash": "70f820f60d7b42153e9711d00bbd0d81b768efdacff9bb75433ec78369a74fa1",
+          "storyFilesHash": "e7cb4b718d7c27635908573bcd0cce7d91846c0f35b7e099b42512726289090c",
+          "timestamp": "2026-07-05T02:33:51.505Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
