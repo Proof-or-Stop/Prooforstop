@@ -44,6 +44,15 @@
       "reviewRound": "2026-07-05T23:55:21.895Z",
       "reviewRunId": "B-fbbb:RR-006",
       "_hash": "37e97d26f3a8e4abff238ffbd40ed21a7df586758f08f5b7ec6c3811a2679fdb"
+    },
+    {
+      "id": "B-fbbb:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 re-confirmation after 0-behind DONE merge (853226c98). Story diff is exactly 3 files: (1) handlers/playbook.ts header-comment refresh documenting existing (unchanged) imports of playbook-seed.js and source-lineage-audit.js; (2) experience-layer-playbook-smoke.ts allowlist additions for those two modules in BOTH the real import-fence allowed-set and the planted-foreign-import negative-test allowed-set, kept in lockstep; (3) decision-doc-promotion-smoke.ts substring update tracking the live authorityBoundary string in decision-doc-promotion.ts (upstream text change). No shipping/runtime logic changed. tsc build clean. experience-layer-playbook-smoke 31/31 PASS. Standalone decision-doc-promotion-smoke 9/9 PASS. No dead code, no type-safety issues, no I/O-isolation concerns.",
+      "createdAt": "2026-07-05T23:58:42.769Z",
+      "reviewRound": "2026-07-05T23:55:21.895Z",
+      "reviewRunId": "B-fbbb:RR-007",
+      "_hash": "e5f1f1f64dee05cd3a0190b869fa210805854baf3d03dd422b9438f9eb269d57"
     }
   ]
 }
