@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-9051",
+  "mode": "custom",
+  "allowed": [
+    "Optionally update the review plan or docs/requirements/NAV.md only if the review finds a documentation correction is necessary",
+    "Read referenced ProofStory milestone ledger/status docs and source files for review evidence",
+    "Record document-review findings and checklist evidence for story B-9051",
+    "Review docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md for accuracy against current Proofbound implementation"
+  ],
+  "excluded": [
+    "Change lifecycle gates or command policy behavior",
+    "Claim Story DONE, Authority DONE, full Authority DONE, or production readiness",
+    "Create or mutate milestone ledgers for unrelated stories",
+    "Implement milestone ledger/status code changes",
+    "Use retired Orchestrate root as implementation truth"
+  ],
+  "confirmedBy": "codex-main",
+  "confirmationNote": "Operator requested starting story review of the milestone ledger status review document; scope is document review and findings only.",
+  "createdAt": "2026-07-05T10:48:39.643Z",
+  "updatedAt": "2026-07-05T10:48:39.643Z",
+  "_hash": "fb6c275b130eddde8fccb8f8e34a8ac9f3ca50bb6430aaa9bf649fab9e832d3b"
+}
