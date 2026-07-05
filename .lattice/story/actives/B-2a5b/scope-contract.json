@@ -1,0 +1,33 @@
+{
+  "storyId": "B-2a5b",
+  "mode": "enforce",
+  "allowedModify": [
+    "experiments/pos-instrument-replay/run-batch.mjs"
+  ],
+  "allowedCreate": [
+    "experiments/pos-instrument-replay/run-batch.mjs",
+    "experiments/pos-instrument-replay/batch-ledger.jsonl",
+    "experiments/pos-instrument-replay/selfcheck-m2.mjs"
+  ],
+  "allowedTest": [
+    "experiments/pos-instrument-replay/selfcheck-m2.mjs",
+    "experiments/pos-instrument-replay/protocol.json",
+    "experiments/pos-instrument-replay/lib/instrument.mjs"
+  ],
+  "protectedFiles": [
+    "experiments/pos-instrument-replay/protocol.json",
+    "experiments/pos-instrument-replay/protocol.json.sha256",
+    "experiments/pos-instrument-replay/lib/instrument.mjs",
+    "experiments/pos-instrument-replay/tamper.mjs",
+    "experiments/pos-instrument-replay/viability-check.mjs",
+    "experiments/pos-instrument-replay/build-protocol.mjs"
+  ],
+  "explicitExcludes": [
+    "experiments/pos-instrument-replay/resume-probe.mjs",
+    "experiments/pos-instrument-replay/analyze-batch.mjs"
+  ],
+  "scopeChangeReason": "M2 creates run-batch.mjs + batch-ledger.jsonl + selfcheck-m2.mjs; frozen protocol.json + M0/M1 files + instrument protected (read-only); M3/M4 harnesses excluded.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-05T18:40:38.780Z",
+  "updatedAt": "2026-07-05T18:40:38.780Z"
+}

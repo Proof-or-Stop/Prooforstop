@@ -1,0 +1,27 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-07-05T18:40:39.112Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Build experiments/pos-instrument-replay/run-batch.mjs: for each scale in {small,full}, run N (from protocol.json) independent generate+verify cycles into fresh mkdtemp dirs, appending one identity-keyed proof-or-stop record per iteration to batch-ledger.jsonl (proof: iterationId/arm/scale/verifyStatus/verifyFlags/digests{records,gold,manifest}/goldMetrics/elapsedMs/endOfRunRss/env/recordDigest; stop: iterationId/stopReason/rawError?/env/recordDigest). recordDigest = sha256 of canonical JSON with recordDigest absent + Proof-or-stop + lockfile discipline: every iteration ends in EXACTLY one record (proof XOR stop); the driver takes a lockfile so a concurrent second driver records precondition_failed instead of corrupting the ledger; run-batch.mjs exits nonzero if any iteration ends recordless are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 1 undigested unknowns: Whether all N replays at each scale are byte-identical in practice (expected yes; deterministic instrument) — established by the campaign run."
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "advisory",
+          "message": "plan.md not found. Normal channel recommends writing plan.md to clarify execution order and dependencies"
+        }
+      ],
+      "_hash": "da30b23fbf69c55a21a78b728eb406ea36038aa9a776a4858c5501307bf25551"
+    }
+  ]
+}

@@ -4,8 +4,8 @@
       "id": "CHK-001",
       "title": "Build experiments/pos-instrument-replay/run-batch.mjs: for each scale in {small,full}, run N (from protocol.json) independent generate+verify cycles into fresh mkdtemp dirs, appending one identity-keyed proof-or-stop record per iteration to batch-ledger.jsonl (proof: iterationId/arm/scale/verifyStatus/verifyFlags/digests{records,gold,manifest}/goldMetrics/elapsedMs/endOfRunRss/env/recordDigest; stop: iterationId/stopReason/rawError?/env/recordDigest). recordDigest = sha256 of canonical JSON with recordDigest absent",
       "context": "iterationId = replay/<scale>/<index> (index 1..N) per protocol.iterationIdRule. Digests sourced from the generation-side result. Reuse lib/instrument.mjs. A verify crash maps to a stop record with stopReason=verify_crash. Append-only: never rewrite an existing ledger line.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-05T18:42:33.609Z",
       "endTime": null,
       "userSees": "node experiments/pos-instrument-replay/run-batch.mjs prints per-iteration progress and writes batch-ledger.jsonl (one identity-keyed proof/stop record per iteration across small N=30 + full N=3); ends 'campaign complete: <N> records, 0 recordless'.",
       "files": {
