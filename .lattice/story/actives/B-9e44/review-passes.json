@@ -35,6 +35,15 @@
       "reviewRound": "2026-07-05T16:10:59.713Z",
       "reviewRunId": "B-9e44:RR-004",
       "_hash": "1a77571d62b40acd262d6a6334cd65e2155abac882d89733a416369dd2541232"
+    },
+    {
+      "id": "B-9e44:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed c6ac020c1 (verifyDir crash sentinel, viability-check 4-way disposition rule, build-protocol acknowledgedLimitations bucket, selfcheck invariants). Crash sentinel handled consistently across fingerprintDomain/failureSignals/deriveFailureSignals/selfcheck (3 independent re-derivations agree). Disposition order matches spec exactly (fail/crash->fail-closed or false-positive if benign; else malicious->acknowledged-limitation; else byte-identical->dropped; else accepted), verified against live 24-candidate output. Determinism confirmed by two independent re-runs producing byte-identical viability-results.json and protocol.json (sha256 matches committed .sha256). Isolation confirmed: per-candidate mkdtemp+cpSync+finally-rmSync, plus post-run clean-baseline pollution check. Checked all 3 benign-labeled candidates against their mutation code -- correctly content-inert/correctness-inert; no malicious tamper can structurally reach dropped/accepted since disposition() routes all intent==malicious to acknowledged-limitation before the byte-identical check runs. No blockers found.",
+      "createdAt": "2026-07-05T16:16:20.437Z",
+      "reviewRound": "2026-07-05T16:10:59.713Z",
+      "reviewRunId": "B-9e44:RR-005",
+      "_hash": "af520406dd7cda62cfe86d989b90a5e38d7ac6c5fa7eba8a66abe8b939f1be58"
     }
   ]
 }
