@@ -35,6 +35,15 @@
       "reviewRound": "2026-07-05T22:11:38.619Z",
       "reviewRunId": "B-6529:RR-007",
       "_hash": "6ac11d204a8c99484ffedd0428710769dd76243dd6ca43fbe6eb1237e0567280"
+    },
+    {
+      "id": "B-6529:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Targeted F-003 re-review passed. m2-provider-execution-check.mjs validates requiredFutureExecutionMetadata blocker semantics: still-required fields must remain status still_required_for_real_provider_execution with value null and blocksProviderExecution true, while B-6529 Cell 03 recorded metadata fields are nonblocking. Pre-run dollar amount/cap is not a launch condition. Ran node experiments/multi-model-ablation/m2-provider-execution-check.mjs (1190 assertions, 13 negative controls rejected) and node experiments/multi-model-ablation/m2-launch-readiness-check.mjs (1105 assertions, 21 negative controls rejected).",
+      "createdAt": "2026-07-05T22:20:19.801Z",
+      "reviewRound": "2026-07-05T22:18:14.748Z",
+      "reviewRunId": "B-6529:RR-008",
+      "_hash": "02445ddd599765209858d9d8c694d486ce660e2c0a7ef24f6ef8ef957b558a68"
     }
   ]
 }
