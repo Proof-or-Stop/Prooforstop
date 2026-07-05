@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-c389",
+  "id": "IC-20260705225926",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "B-c389 = M8 live capability_release_backfill (main new build) + M6 exposure records + M7 wiring/assert capability candidates through the existing outcome/promotion machinery; do not rebuild existing playbook_promotion_* commands, do not weaken invariants.",
+  "acceptedInterpretationHash": "sha256:be4b8f740acf7a530629b72e064a2dedf2d2422a8c8f4f02df8d165e80e5b449",
+  "notes": "Scope verified on live data: promotion_status/outcome_record/promotion_sweep already exist; backfill is the genuinely-new command.",
+  "ledgerHashBeforeDecision": "sha256:79dafd600b8e1bcb8199b7c04e1b9d51b4bfcfd43c8292125111202ce65062e0",
+  "confirmedLedgerHash": "sha256:79dafd600b8e1bcb8199b7c04e1b9d51b4bfcfd43c8292125111202ce65062e0",
+  "createdAt": "2026-07-05T22:59:26.817Z",
+  "updatedAt": "2026-07-05T22:59:26.817Z"
+}

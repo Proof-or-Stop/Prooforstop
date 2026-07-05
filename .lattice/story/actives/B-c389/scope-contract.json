@@ -1,0 +1,34 @@
+{
+  "storyId": "B-c389",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/capability-release.ts",
+    "packages/main/src/core/playbook-seed.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "docs/CLI.md",
+    "packages/main/src/core/learning-store.ts",
+    "packages/main/src/handlers/playbook.ts",
+    "lattice.config.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/handlers/capability-release-backfill.ts",
+    "packages/main/src/tasks/capability-release-backfill-smoke.ts",
+    "packages/main/src/tasks/capability-candidate-exposure-smoke.ts",
+    "packages/main/src/tasks/capability-candidate-promotion-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/capability-release-backfill-smoke.ts",
+    "packages/main/src/tasks/capability-candidate-exposure-smoke.ts",
+    "packages/main/src/tasks/capability-candidate-promotion-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Init V1 scope contract from PLAN checklist files: capability-release-backfill handler + core reuse + command registration + exposure/promotion wiring + smokes + docs.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-05T22:59:27.887Z",
+  "updatedAt": "2026-07-05T22:59:27.887Z"
+}
