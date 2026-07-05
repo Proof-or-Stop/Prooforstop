@@ -253,9 +253,9 @@
       "id": "CHK-006",
       "title": "Wire packages/main/tests/milestone-status.test.mjs into an aggregate suite runner so it is not silently skipped",
       "context": "run-all-smokes.ts discoverSmokes globs dist/tasks/*-smoke.js; the .mjs test under packages/main/tests/ is named by no test:* npm script and its header documents manual invocation. Add a test:* script and/or run-all-smokes inclusion so it runs in the aggregate suite. Closes findings M5 suite-wiring gap.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-05T21:49:06.436Z",
       "userSees": "Running `npm run test:milestone-status` from the repo root prints the milestone-status regression's terminal output ending in `ok milestone-status` and exits 0. Running the aggregate suite `npm test` from the repo root now includes a `> proofbound@... test:milestone-status` step in its &&-chain whose output shows `ok milestone-status`; if that .mjs regression fails, `npm test` aborts with a non-zero exit at that step (the milestone-status test is no longer silently skipped by the aggregate suite). `npm run` lists a `test:milestone-status` entry, so the test is named by a discoverable script. The head comment of packages/main/tests/milestone-status.test.mjs no longer documents only manual invocation — it names the `npm run test:milestone-status` / `npm test` wiring.",
       "files": {
         "modify": [
