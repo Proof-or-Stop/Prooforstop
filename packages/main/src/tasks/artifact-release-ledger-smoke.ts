@@ -2,7 +2,7 @@
 
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import {
@@ -13,10 +13,12 @@ import {
   isArtifactReleasePathV1,
   readArtifactReleaseLedger,
   recordArtifactReleaseForDoneMerge,
+  resolveArtifactReleaseLedgerRoot,
   selectArtifactReleasePathsV1,
 } from '../core/artifact-release.js';
 import { StoryStore } from '../core/store.js';
 import { createArtifactReleaseHandlers } from '../handlers/artifact-release.js';
+import { createDoneRecoverHandlers } from '../handlers/done-recover.js';
 import {
   commitArtifactReleaseLedgerIfNeeded,
   isDoneMainRuntimeBuildInput,
@@ -37,8 +39,13 @@ function write(root: string, path: string, content: string): void {
   writeFileSync(abs, content, 'utf-8');
 }
 
+function writeLatticeConfig(root: string, config: Record<string, unknown> = {}): void {
+  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify(config, null, 2), 'utf-8');
+}
+
 function makeGitFixture(): string {
   const root = mkdtemp('artifact-release-ledger-git-');
+  writeLatticeConfig(root);
   git(root, ['init', '-b', 'main']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
   git(root, ['config', 'user.name', 'Artifact Release Smoke']);
@@ -53,6 +60,7 @@ function makeGitFixture(): string {
 
 function makeWrapperGitFixture(): { metadataRoot: string; gitCwd: string; head: string } {
   const metadataRoot = mkdtemp('artifact-release-ledger-wrapper-');
+  writeLatticeConfig(metadataRoot, { gitRoot: 'repo' });
   const gitCwd = join(metadataRoot, 'repo');
   mkdirSync(gitCwd, { recursive: true });
   git(gitCwd, ['init', '-b', 'main']);
@@ -63,6 +71,40 @@ function makeWrapperGitFixture(): { metadataRoot: string; gitCwd: string; head: 
   git(gitCwd, ['commit', '-m', 'fixture']);
   write(metadataRoot, 'docs/release.md', '# Metadata fallback bytes\n');
   return { metadataRoot, gitCwd, head: git(gitCwd, ['rev-parse', 'HEAD']) };
+}
+
+function makePartialDoneRecoveryFixture(): { root: string; storyId: string } {
+  const root = mkdtemp('artifact-release-ledger-recover-');
+  const storyId = 'B-recover';
+  const now = '2026-07-05T00:06:00.000Z';
+  writeLatticeConfig(root);
+  git(root, ['init', '-b', 'main']);
+  git(root, ['config', 'user.email', 'smoke@example.test']);
+  git(root, ['config', 'user.name', 'Artifact Release Recovery Smoke']);
+  write(root, 'README.md', '# fixture\n');
+  git(root, ['add', '.']);
+  git(root, ['commit', '-m', 'initial']);
+
+  git(root, ['checkout', '-b', `story/${storyId}`]);
+  write(root, 'docs/recovered.md', '# Recovered doc\n');
+  write(root, 'experiments/recovery/result.txt', 'observed\n');
+  write(root, `.lattice/story/actives/${storyId}/index.json`, JSON.stringify({
+    storyId,
+    name: 'recover-artifact-release',
+    title: 'Recover artifact release',
+    description: 'partial DONE recovery fixture',
+    type: 'feature',
+    phase: 'DONE',
+    priority: 'high',
+    createdAt: now,
+    startedAt: now,
+    endedAt: now,
+    events: [{ phase: 'DONE', action: 'advance', timestamp: now }],
+  }, null, 2) + '\n');
+  git(root, ['add', '.']);
+  git(root, ['commit', '-m', 'story done']);
+  git(root, ['checkout', 'main']);
+  return { root, storyId };
 }
 
 function mkdtemp(prefix: string): string {
@@ -115,25 +157,27 @@ try {
     assert.equal(computeArtifactSetDigest(root, ['docs/release.md', 'experiments/proof/run.mjs'], head), digest1);
   });
 
-  check('wrapper-root digest git probes use gitCwd while ledger and filesystem reads stay at metadata root', () => {
+  check('wrapper-root read commands use the same resolved ledger root that DONE writes', () => {
     const { metadataRoot, gitCwd, head: wrapperHead } = makeWrapperGitFixture();
     cleanup.push(metadataRoot);
+    const ledgerRoot = resolveArtifactReleaseLedgerRoot(metadataRoot);
+    assert.equal(realpathSync(ledgerRoot), realpathSync(gitCwd));
     const paths = ['docs/release.md'];
     const metadataFsDigest = computeArtifactSetDigest(metadataRoot, paths);
-    const gitDigest = computeArtifactSetDigest(metadataRoot, paths, wrapperHead, gitCwd);
+    const gitDigest = computeArtifactSetDigest(ledgerRoot, paths, wrapperHead, gitCwd);
     assert.match(gitDigest, /^sha256:[a-f0-9]{64}$/);
     assert.notEqual(gitDigest, metadataFsDigest);
 
     write(metadataRoot, 'docs/release.md', '# Metadata fallback changed after commit\n');
-    assert.equal(computeArtifactSetDigest(metadataRoot, paths, wrapperHead, gitCwd), gitDigest);
+    assert.equal(computeArtifactSetDigest(ledgerRoot, paths, wrapperHead, gitCwd), gitDigest);
     assert.equal(
-      computeArtifactSetDigest(metadataRoot, paths, undefined, gitCwd),
-      computeArtifactSetDigest(metadataRoot, paths),
+      computeArtifactSetDigest(ledgerRoot, paths, undefined, gitCwd),
+      computeArtifactSetDigest(ledgerRoot, paths),
     );
     assert.notEqual(computeArtifactSetDigest(metadataRoot, paths), metadataFsDigest);
 
     const result = recordArtifactReleaseForDoneMerge({
-      root: metadataRoot,
+      root: ledgerRoot,
       gitCwd,
       storyId: 'B-wrapper',
       mainCommit: wrapperHead,
@@ -144,8 +188,47 @@ try {
     });
     assert.equal(result.status, 'recorded');
     assert.equal(result.record?.artifactSetDigest, gitDigest);
-    assert.equal(existsSync(artifactReleaseLedgerPath(metadataRoot)), true);
-    assert.equal(existsSync(artifactReleaseLedgerPath(gitCwd)), false);
+    assert.equal(existsSync(artifactReleaseLedgerPath(ledgerRoot)), true);
+    assert.equal(existsSync(artifactReleaseLedgerPath(metadataRoot)), false);
+
+    const handlers = createArtifactReleaseHandlers({
+      root: metadataRoot,
+      store: new StoryStore(metadataRoot),
+      scanRoot: join(metadataRoot, 'packages/main'),
+    });
+    const listJson = handlers.artifact_release_list({ format: 'json', limit: 5 }) as unknown[];
+    assert.equal(listJson.length, 1);
+    const statusJson = handlers.artifact_release_status({ storyId: 'B-wrapper', format: 'json' }) as { count: number };
+    assert.equal(statusJson.count, 1);
+  });
+
+  check('partial-DONE recovery writes and commits artifact release ledger for docs and experiments', () => {
+    const { root: recoveryRoot, storyId } = makePartialDoneRecoveryFixture();
+    cleanup.push(recoveryRoot);
+    const store = new StoryStore(recoveryRoot);
+    const handlers = createDoneRecoverHandlers({
+      root: recoveryRoot,
+      store,
+      scanRoot: join(recoveryRoot, 'packages/main'),
+      doneMainBuildRunner: () => {
+        throw new Error('docs/experiments-only recovery must not run the runtime package build');
+      },
+    });
+
+    const output = handlers.done_recover({ storyId });
+    assert.match(output, /partial-DONE recovered: B-recover/);
+    assert.match(output, /packages\/main build skipped after DONE merge/);
+    assert.match(output, /artifact release recorded: story=B-recover/);
+
+    const ledgerRoot = resolveArtifactReleaseLedgerRoot(recoveryRoot);
+    const records = readArtifactReleaseLedger(ledgerRoot);
+    assert.equal(records.length, 1);
+    assert.equal(records[0].storyId, storyId);
+    assert.deepEqual(records[0].paths, ['docs/recovered.md', 'experiments/recovery/result.txt']);
+    assert.equal(records[0].runtimeSemverChanged, false);
+    assert.ok(git(recoveryRoot, ['show', `HEAD:${ARTIFACT_RELEASE_LEDGER_REL_PATH}`]).includes('"storyId":"B-recover"'));
+    assert.equal(git(recoveryRoot, ['status', '--short']), '');
+    assert.equal(git(recoveryRoot, ['branch', '--list', `story/${storyId}`]), '');
   });
 
   check('filesystem fallback works when no commit is supplied', () => {

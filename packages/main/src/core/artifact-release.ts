@@ -1,7 +1,9 @@
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync, appendFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
+import { loadConfig } from './config.js';
+import { resolveProjectGitRoot } from './story-signed-workspace-resolution.js';
 
 export const ARTIFACT_RELEASE_LEDGER_REL_PATH = '.lattice/artifact-releases.jsonl';
 export const ARTIFACT_RELEASE_SCHEMA_VERSION = 'proofbound.artifact-release.v1';
@@ -128,6 +130,12 @@ export function computeArtifactSetDigest(
 
 export function artifactReleaseLedgerPath(root: string): string {
   return join(root, ARTIFACT_RELEASE_LEDGER_REL_PATH);
+}
+
+export function resolveArtifactReleaseLedgerRoot(metadataRoot: string): string {
+  const root = resolve(metadataRoot);
+  const config = loadConfig(root);
+  return resolveProjectGitRoot(root, config.gitRoot) ?? root;
 }
 
 export function readArtifactReleaseLedger(root: string): ArtifactReleaseRecordV1[] {

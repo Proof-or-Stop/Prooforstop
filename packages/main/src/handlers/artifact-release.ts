@@ -2,6 +2,7 @@ import type { HandlerContext } from './context.js';
 import {
   type ArtifactReleaseRecordV1,
   readArtifactReleaseLedger,
+  resolveArtifactReleaseLedgerRoot,
 } from '../core/artifact-release.js';
 
 interface ArtifactReleaseListArgs {
@@ -45,9 +46,11 @@ function assertStoryId(raw: unknown): string {
 }
 
 export function createArtifactReleaseHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
+  const ledgerRoot = resolveArtifactReleaseLedgerRoot(ctx.root);
+
   return {
     artifact_release_list(args: ArtifactReleaseListArgs = {}) {
-      const records = latestRecords(readArtifactReleaseLedger(ctx.root), normalizeLimit(args.limit));
+      const records = latestRecords(readArtifactReleaseLedger(ledgerRoot), normalizeLimit(args.limit));
       if (normalizeFormat(args.format) === 'json') return records;
       if (records.length === 0) return 'No artifact release records found';
       return records.map(renderRecordLine).join('\n');
@@ -55,7 +58,7 @@ export function createArtifactReleaseHandlers(ctx: HandlerContext): Record<strin
 
     artifact_release_status(args: ArtifactReleaseStatusArgs) {
       const storyId = assertStoryId(args?.storyId);
-      const records = readArtifactReleaseLedger(ctx.root).filter(record => record.storyId === storyId);
+      const records = readArtifactReleaseLedger(ledgerRoot).filter(record => record.storyId === storyId);
       const latest = latestRecords(records, 1)[0] ?? null;
       if (normalizeFormat(args?.format) === 'json') {
         return { storyId, count: records.length, latest, records };

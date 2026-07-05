@@ -11,7 +11,10 @@ import {
 } from '../core/partial-done-recovery.js';
 import {
   acquireDoneMainMergeLock,
+  listChangedPathsBetweenMainShas,
+  runArtifactReleaseLedgerAfterDoneMerge,
   runDoneMainPackageBuildAfterMerge,
+  shouldBuildDoneMainPackageForChangedPaths,
 } from './done-effects.js';
 
 function git(gitCwd: string, args: string[]): string {
@@ -93,12 +96,35 @@ export function createDoneRecoverHandlers(ctx: HandlerContext) {
         lines.push(`✓ ${partial.branch} deleted`);
       }
 
+      const recoveryMergeChangedPaths = listChangedPathsBetweenMainShas(
+        mainMergeRoot,
+        mainShaBeforeRecoveryMerge,
+        mainShaAfterRecoveryMerge,
+      );
+      const runtimeSemverChanged = shouldBuildDoneMainPackageForChangedPaths(recoveryMergeChangedPaths);
+
       lines.push(runDoneMainPackageBuildAfterMerge(
         mainMergeRoot,
         mainShaBeforeRecoveryMerge,
         mainShaAfterRecoveryMerge,
-        { buildRunner: ctx.doneMainBuildRunner },
+        {
+          changedPaths: recoveryMergeChangedPaths,
+          buildRunner: ctx.doneMainBuildRunner,
+        },
       ));
+
+      const artifactReleaseLine = runArtifactReleaseLedgerAfterDoneMerge(
+        mainMergeRoot,
+        storyId,
+        mainShaBeforeRecoveryMerge,
+        mainShaAfterRecoveryMerge,
+        {
+          changedPaths: recoveryMergeChangedPaths,
+          runtimeSemverChanged,
+          runGit: (gitArgs, cwd) => git(cwd, gitArgs),
+        },
+      );
+      if (artifactReleaseLine) lines.push(artifactReleaseLine);
 
       const remaining = detectPartialDoneStories(mainMergeRoot, store).find(entry => entry.storyId === storyId);
       if (remaining) {
