@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-3e47",
+  "records": [
+    {
+      "id": "RED-20260705130243",
+      "trigger": "B-e62e DONE milestone_status false stale table",
+      "acceptanceTargetRef": "CHK-001:happy:0",
+      "baselineHeadHash": "861bb06c57af2113fe6156c136aaa4fe3717e1c4",
+      "baselineMaterialHash": "ad533631bb3df45db602a247f24f03da26c811d346e76655c8a143a82f139b99",
+      "observedFailure": "On 2026-07-05, after B-e62e advanced to DONE and milestone_closeout showed M1/M2 completed, lattice milestone_status --storyId=B-e62e recomputed live archived-state freshness and printed M1/M2 as stale or blocked instead of stable completed rows.",
+      "failingCommand": "lattice milestone_status --storyId=B-e62e",
+      "expectedGreenCommand": "lattice milestone_status --storyId=B-e62e",
+      "greenRelation": {
+        "targetRef": "CHK-001:happy:0",
+        "relation": "same_acceptance",
+        "command": "lattice milestone_status --storyId=B-e62e"
+      },
+      "note": "Red proof is the actual B-e62e DONE transcript that triggered B-3e47; this story turns that transcript green by rendering DONE status from milestone-closeout.json.",
+      "createdAt": "2026-07-05T13:02:43.809Z"
+    }
+  ],
+  "createdAt": "2026-07-05T13:02:43.809Z",
+  "updatedAt": "2026-07-05T13:02:43.809Z"
+}

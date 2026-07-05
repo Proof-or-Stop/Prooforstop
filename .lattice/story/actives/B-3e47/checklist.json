@@ -40,9 +40,48 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-05T13:10:04.027Z",
+      "endTime": "2026-07-05T13:21:52.400Z",
+      "userSees": "User runs lattice milestone_status --storyId=<DONE-story> and sees Milestone Status with completed closeout rows, no stale evidence warnings, and empty Current/Remaining sections when the closeout snapshot is complete.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/milestone-status.ts",
+          "command": "node packages/main/dist/cli.js milestone_status --storyId=B-e62e",
+          "result": "pass",
+          "note": "Real DONE story B-e62e now renders snapshot-backed Milestone Status with M1 and M2 under Completed, both shown as ✅ Done, no Current/Remaining rows, and no stale evidence or blocked warnings.",
+          "headHash": "a44ed327ecd02520a2351fce64ee647c676a46ff",
+          "materialHash": "75499190a8e5d735603bc4bfa0fd24d49fb157d63e4b7cb80947305f1eea205c",
+          "storyFilesHash": "8d7bd92104c27e2607697e9fe4466c7fd164227a3fa508eae22f527f6a3609f9",
+          "timestamp": "2026-07-05T13:21:46.370Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "Focused regression verifies active non-DONE stories still use live projection and DONE stories without closeout remain fail-closed instead of fabricating completed rows.",
+          "headHash": "a44ed327ecd02520a2351fce64ee647c676a46ff",
+          "materialHash": "75499190a8e5d735603bc4bfa0fd24d49fb157d63e4b7cb80947305f1eea205c",
+          "storyFilesHash": "8d7bd92104c27e2607697e9fe4466c7fd164227a3fa508eae22f527f6a3609f9",
+          "timestamp": "2026-07-05T13:21:46.370Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "node packages/main/tests/milestone-status.test.mjs && npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "Regression and build verify JSON/text snapshot-backed milestone_status remains read-only and MilestoneStatusReport-shaped while preserving existing argument boundary tests.",
+          "headHash": "a44ed327ecd02520a2351fce64ee647c676a46ff",
+          "materialHash": "75499190a8e5d735603bc4bfa0fd24d49fb157d63e4b7cb80947305f1eea205c",
+          "storyFilesHash": "8d7bd92104c27e2607697e9fe4466c7fd164227a3fa508eae22f527f6a3609f9",
+          "timestamp": "2026-07-05T13:21:46.370Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -83,9 +122,48 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-05T13:22:03.633Z",
+      "endTime": "2026-07-05T13:23:09.326Z",
+      "userSees": "User reads docs/CLI.md and sees: \"For DONE stories with milestone-closeout.json, milestone_status renders the frozen Milestone Status table from that closeout snapshot; active stories continue to use live projection.\"",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "docs/CLI.md",
+          "command": "rg -n 'For DONE stories|closeout-backed|live projection|JSON output is always' docs/CLI.md",
+          "result": "pass",
+          "note": "docs/CLI.md documents that DONE stories with a valid milestone-closeout.json use the frozen closeout-backed Milestone Status table and keep the same JSON report shape.",
+          "headHash": "b9bdfa9ec168d68e33458853cfee689e8eaf84e1",
+          "materialHash": "75499190a8e5d735603bc4bfa0fd24d49fb157d63e4b7cb80947305f1eea205c",
+          "storyFilesHash": "8d7bd92104c27e2607697e9fe4466c7fd164227a3fa508eae22f527f6a3609f9",
+          "timestamp": "2026-07-05T13:23:03.268Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "docs/CLI.md",
+          "command": "rg -n 'Missing `milestone-ledger\\.json`|live projection|falls back to the live projection' docs/CLI.md",
+          "result": "pass",
+          "note": "Docs keep live projection, JSON/no-ledger, and missing/stale fallback behavior explicit, so machine output and no-ledger stories are not silently changed.",
+          "headHash": "b9bdfa9ec168d68e33458853cfee689e8eaf84e1",
+          "materialHash": "75499190a8e5d735603bc4bfa0fd24d49fb157d63e4b7cb80947305f1eea205c",
+          "storyFilesHash": "8d7bd92104c27e2607697e9fe4466c7fd164227a3fa508eae22f527f6a3609f9",
+          "timestamp": "2026-07-05T13:23:03.268Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/CLI.md",
+          "command": "! rg -n 'milestone_completion_set|completion ledger' docs/CLI.md",
+          "result": "pass",
+          "note": "Docs do not claim milestone_completion_set or completion ledger support in this story.",
+          "headHash": "b9bdfa9ec168d68e33458853cfee689e8eaf84e1",
+          "materialHash": "75499190a8e5d735603bc4bfa0fd24d49fb157d63e4b7cb80947305f1eea205c",
+          "storyFilesHash": "8d7bd92104c27e2607697e9fe4466c7fd164227a3fa508eae22f527f6a3609f9",
+          "timestamp": "2026-07-05T13:23:03.268Z"
+        }
+      ]
     }
   ]
 }

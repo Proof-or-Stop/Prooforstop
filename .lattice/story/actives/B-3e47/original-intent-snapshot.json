@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-3e47",
+  "sourceText": "B-e62e DONE transcript showed that story_advance captured milestone-closeout.json but the automatically appended Milestone Status table recomputed live archived state and falsely showed stale or blocked rows. Fix DONE milestone_status to read the frozen closeout snapshot while preserving active live projection.",
+  "normalizedOutcome": "DONE stories with milestone-closeout.json show a stable Milestone Status table with completed rows, no false stale evidence, and no false blocked current/remaining rows.",
+  "acceptanceClaim": "A regression proves lattice milestone_status --storyId=<DONE-story> reads milestone-closeout.json and renders Completed rows from the frozen snapshot while active stories still use live projection.",
+  "keyRequirementIds": [
+    "REQ-ACTIVE-LIVE-STATUS",
+    "REQ-DOCS-CONTRACT",
+    "REQ-DONE-CLOSEOUT-STATUS"
+  ],
+  "requestHash": "sha256:f1df82ac8fbfb8598f4a1906393d76ae9f6afccf35e7d8519a68692790f0b38a",
+  "createdAt": "2026-07-05T13:02:43.747Z",
+  "updatedAt": "2026-07-05T13:02:43.747Z"
+}

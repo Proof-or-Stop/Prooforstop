@@ -18,6 +18,7 @@ const cliPath = join(distRoot, 'cli.js');
 const {
   buildMilestoneCloseoutSnapshot,
   buildMilestoneStatusReport,
+  buildMilestoneStatusReportFromCloseoutSnapshot,
   milestoneStatusReportDigest,
   renderMilestoneCloseoutSnapshot,
   renderMilestoneStatusReport,
@@ -646,6 +647,83 @@ function assertEvidenceRefShape(evidenceRef) {
   assertCloseoutTextContract(text);
   assert.match(text, /Source milestone_status digest:/);
   assert.match(text, /\| M-closeout \| completed \(ledger=done; checklist=complete; evidence=covered; requiredEvidence=covered\) \| Users can read the final solved problem \|/);
+
+  const snapshotBackedReport = buildMilestoneStatusReportFromCloseoutSnapshot(snapshot, { phase: 'DONE' });
+  assert.equal(snapshotBackedReport.schemaVersion, 'proofbound.milestone_status.v1');
+  assertReportShape(snapshotBackedReport);
+  assert.equal(snapshotBackedReport.storyId, 'B-closeout');
+  assert.equal(snapshotBackedReport.phase, 'DONE');
+  assert.deepEqual(snapshotBackedReport.ledger, report.ledger);
+  assert.deepEqual(snapshotBackedReport.groups, { completed: ['M-closeout'], current: [], remaining: [] });
+  assert.deepEqual(snapshotBackedReport.risks, []);
+  assert.deepEqual(snapshotBackedReport.nextActions, ['No milestone action; all ledger rows are completed or not applicable.']);
+  assert.equal(snapshotBackedReport.milestones.length, 1);
+  assertRowShape(snapshotBackedReport.milestones[0]);
+  assert.equal(snapshotBackedReport.milestones[0].status, 'completed');
+  assert.equal(snapshotBackedReport.milestones[0].statusDetail, 'ledger=done; checklist=complete; evidence=covered; requiredEvidence=covered');
+  assert.equal(snapshotBackedReport.milestones[0].ledgerStatus, 'done');
+  assert.equal(snapshotBackedReport.milestones[0].evidenceRefs[0].intentRef, 'CHK-CLOSE:happy:0');
+  assert.equal(snapshotBackedReport.milestones[0].evidenceRefs[0].status, 'pass');
+  const snapshotBackedText = renderMilestoneStatusReport(snapshotBackedReport);
+  assertTextContract(snapshotBackedText.replaceAll('B-closeout', 'B-7ba7'));
+  assert.match(snapshotBackedText, /Milestone Status - B-closeout/);
+  assert.match(snapshotBackedText, /\| M-closeout \| Users can read the final solved problem \| ✅ Done \(ledger=done; checklist=complete; evidence=covered; requiredEvidence=covered\) \|/);
+
+  const plannedLedgerStoryId = 'B-closeout-planned-ledger';
+  const plannedLedgerReport = buildMilestoneStatusReport({
+    story: story(plannedLedgerStoryId),
+    checklist: {
+      items: [
+        checklistItem('CHK-PLANNED-CLOSEOUT', 'done', [
+          evidence('CHK-PLANNED-CLOSEOUT:happy:0'),
+        ], intent('planned ledger evidence is covered')),
+      ],
+    },
+    milestoneLedger: ledger([
+      milestone({
+        id: 'M-planned-closeout',
+        sourceRequirementId: 'REQ-planned-closeout',
+        claim: 'Closeout completed rows render done even when frozen detail says ledger planned',
+        doneMeans: 'The completed closeout group is display-final',
+        requiredEvidence: ['logic_test'],
+        checklistRefs: ['CHK-PLANNED-CLOSEOUT'],
+        verificationIntentRefs: ['CHK-PLANNED-CLOSEOUT:happy:0'],
+        status: 'planned',
+      }),
+    ], plannedLedgerStoryId),
+  });
+  assert.deepEqual(plannedLedgerReport.groups, { completed: ['M-planned-closeout'], current: [], remaining: [] });
+  const activePlannedText = renderMilestoneStatusReport(plannedLedgerReport);
+  assert.match(
+    activePlannedText,
+    /\| M-planned-closeout \| Closeout completed rows render done even when frozen detail says ledger planned \| 🟡 Pending Review \(ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered\) \|/,
+    'active live planned+covered rows still render Pending Review',
+  );
+  assert.doesNotMatch(activePlannedText, /✅ Done \(ledger=planned;/);
+
+  const plannedLedgerSnapshot = buildMilestoneCloseoutSnapshot({
+    report: plannedLedgerReport,
+    bindings: { headHash: 'head-planned-closeout' },
+    generatedAt: '2026-07-04T12:30:00.000Z',
+  });
+  assert.equal(
+    plannedLedgerSnapshot.rows[0].status,
+    'completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)',
+  );
+  const plannedSnapshotBackedReport = buildMilestoneStatusReportFromCloseoutSnapshot(
+    plannedLedgerSnapshot,
+    { phase: 'DONE' },
+  );
+  assert.equal(plannedSnapshotBackedReport.milestones[0].status, 'completed');
+  assert.equal(plannedSnapshotBackedReport.milestones[0].statusDetail, 'ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered');
+  assert.equal(plannedSnapshotBackedReport.milestones[0].ledgerStatus, 'done');
+  const plannedSnapshotBackedText = renderMilestoneStatusReport(plannedSnapshotBackedReport);
+  assert.match(
+    plannedSnapshotBackedText,
+    /\| M-planned-closeout \| Closeout completed rows render done even when frozen detail says ledger planned \| ✅ Done \(ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered\) \|/,
+    'DONE closeout-backed completed rows render Done even when frozen ledger detail is planned',
+  );
+  assert.doesNotMatch(plannedSnapshotBackedText, /🟡 Pending Review \(ledger=planned;/);
 
   const laterLiveReport = buildMilestoneStatusReport({
     story: closeoutStory,
@@ -2307,6 +2385,211 @@ function assertEvidenceRefShape(evidenceRef) {
         assert.match(rejected.stderr, new RegExp(`Argument validation failed[\\s\\S]*${flag}`));
       }
     }
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+{
+  const root = mkdtempSync(join(tmpdir(), 'lattice-milestone-status-done-snapshot-'));
+  const git = (args) => execFileSync('git', args, {
+    cwd: root,
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  }).trim();
+
+  try {
+    writeTestConfig(root);
+    git(['init', '-b', 'main']);
+    git(['config', 'user.name', 'Milestone Status Test']);
+    git(['config', 'user.email', 'milestone-status@example.com']);
+    git(['add', 'lattice.config.json']);
+    git(['commit', '-m', 'init']);
+
+    const frozenBinding = {
+      headHash: 'head-frozen',
+      materialHash: 'material-frozen',
+    };
+    const completeChecklist = (itemId, intentText) => ({
+      items: [
+        checklistItem(itemId, 'done', [
+          evidence(`${itemId}:happy:0`, 'pass', frozenBinding),
+        ], intent(intentText)),
+      ],
+    });
+    const staleChecklist = (itemId, intentText) => ({
+      items: [
+        checklistItem(itemId, 'done', [
+          evidence(`${itemId}:happy:0`, 'pass', frozenBinding),
+        ], intent(intentText)),
+      ],
+    });
+    const doneMilestone = (id, itemId, claim) => milestone({
+      id,
+      sourceRequirementId: `REQ-${id}`,
+      claim,
+      doneMeans: 'DONE milestone_status uses the frozen closeout status report',
+      requiredEvidence: ['logic_test'],
+      checklistRefs: [itemId],
+      verificationIntentRefs: [`${itemId}:happy:0`],
+      status: 'done',
+    });
+
+    const doneStoryId = 'B-cli-done-snapshot-status';
+    const doneStoryDir = join(root, '.lattice', 'story', 'actives', doneStoryId);
+    const doneItemId = 'CHK-DONE-SNAPSHOT';
+    const doneLedger = ledger([
+      doneMilestone(
+        'M-done-snapshot',
+        doneItemId,
+        'DONE milestone_status reports the frozen closeout row',
+      ),
+    ], doneStoryId);
+    const frozenReport = buildMilestoneStatusReport({
+      story: { ...story(doneStoryId), phase: 'TEST' },
+      checklist: completeChecklist(doneItemId, 'frozen DONE closeout evidence'),
+      milestoneLedger: doneLedger,
+      currentEvidenceBinding: frozenBinding,
+    });
+    assert.deepEqual(frozenReport.groups, { completed: ['M-done-snapshot'], current: [], remaining: [] });
+    const frozenSnapshot = buildMilestoneCloseoutSnapshot({
+      report: frozenReport,
+      bindings: frozenBinding,
+      generatedAt: '2026-07-04T15:00:00.000Z',
+    });
+    mkdirSync(doneStoryDir, { recursive: true });
+    writeJson(join(doneStoryDir, 'index.json'), { ...story(doneStoryId), phase: 'DONE' });
+    writeJson(join(doneStoryDir, 'checklist.json'), staleChecklist(doneItemId, 'stale live evidence after cleanup'));
+    writeJson(join(doneStoryDir, 'milestone-ledger.json'), doneLedger);
+    writeJson(join(doneStoryDir, 'milestone-closeout.json'), frozenSnapshot);
+
+    const liveStaleReport = buildMilestoneStatusReport({
+      story: { ...story(doneStoryId), phase: 'DONE' },
+      checklist: staleChecklist(doneItemId, 'stale live evidence after cleanup'),
+      milestoneLedger: doneLedger,
+      currentEvidenceBinding: {
+        headHash: 'head-current',
+        materialHash: 'material-current',
+      },
+    });
+    assert.deepEqual(liveStaleReport.groups, { completed: [], current: ['M-done-snapshot'], remaining: [] });
+    assert.match(liveStaleReport.milestones[0].statusDetail, /evidence=stale/);
+
+    const activeStoryId = 'B-cli-active-live-status';
+    const activeStoryDir = join(root, '.lattice', 'story', 'actives', activeStoryId);
+    const activeItemId = 'CHK-ACTIVE-SNAPSHOT';
+    const activeLedger = ledger([
+      doneMilestone(
+        'M-active-snapshot',
+        activeItemId,
+        'Active milestone_status ignores closeout snapshots',
+      ),
+    ], activeStoryId);
+    const activeFrozenReport = buildMilestoneStatusReport({
+      story: { ...story(activeStoryId), phase: 'TEST' },
+      checklist: completeChecklist(activeItemId, 'active snapshot should be ignored'),
+      milestoneLedger: activeLedger,
+      currentEvidenceBinding: frozenBinding,
+    });
+    const activeSnapshot = buildMilestoneCloseoutSnapshot({
+      report: activeFrozenReport,
+      bindings: frozenBinding,
+      generatedAt: '2026-07-04T15:05:00.000Z',
+    });
+    mkdirSync(activeStoryDir, { recursive: true });
+    writeJson(join(activeStoryDir, 'index.json'), { ...story(activeStoryId), phase: 'DEV' });
+    writeJson(join(activeStoryDir, 'checklist.json'), staleChecklist(activeItemId, 'stale active live evidence'));
+    writeJson(join(activeStoryDir, 'milestone-ledger.json'), activeLedger);
+    writeJson(join(activeStoryDir, 'milestone-closeout.json'), activeSnapshot);
+
+    const missingCloseoutStoryId = 'B-cli-done-missing-closeout-status';
+    const missingCloseoutStoryDir = join(root, '.lattice', 'story', 'actives', missingCloseoutStoryId);
+    const missingItemId = 'CHK-MISSING-CLOSEOUT';
+    const missingLedger = ledger([
+      doneMilestone(
+        'M-missing-closeout',
+        missingItemId,
+        'DONE milestone_status without closeout remains live and fail-closed',
+      ),
+    ], missingCloseoutStoryId);
+    mkdirSync(missingCloseoutStoryDir, { recursive: true });
+    writeJson(join(missingCloseoutStoryDir, 'index.json'), { ...story(missingCloseoutStoryId), phase: 'DONE' });
+    writeJson(join(missingCloseoutStoryDir, 'checklist.json'), staleChecklist(missingItemId, 'stale missing-closeout live evidence'));
+    writeJson(join(missingCloseoutStoryDir, 'milestone-ledger.json'), missingLedger);
+
+    git(['add', '.']);
+    git(['commit', '-m', 'milestone status snapshot fixtures']);
+
+    const doneText = execFileSync(process.execPath, [
+      cliPath,
+      'milestone_status',
+      '--root',
+      root,
+      '--storyId',
+      doneStoryId,
+    ], { cwd: root, encoding: 'utf8' });
+    assert.match(doneText, new RegExp(`Milestone Status - ${doneStoryId}`));
+    assert.match(doneText, /Completed\n\| Milestone \| Purpose \| Status:/);
+    assert.match(doneText, /\| M-done-snapshot \| DONE milestone_status reports the frozen closeout row \| ✅ Done \(ledger=done; checklist=complete; evidence=covered; requiredEvidence=covered\) \|/);
+    assert.doesNotMatch(doneText, /🔴 Blocked/);
+    assert.doesNotMatch(doneText, /stale-evidence/);
+    assert.doesNotMatch(doneText, /evidence=stale/);
+
+    const doneJson = JSON.parse(execFileSync(process.execPath, [
+      cliPath,
+      'milestone_status',
+      '--root',
+      root,
+      '--storyId',
+      doneStoryId,
+      '--json',
+    ], { cwd: root, encoding: 'utf8' }));
+    assert.equal(doneJson.schemaVersion, 'proofbound.milestone_status.v1');
+    assert.equal(doneJson.phase, 'DONE');
+    assert.deepEqual(doneJson.groups, { completed: ['M-done-snapshot'], current: [], remaining: [] });
+    assert.equal(doneJson.milestones[0].status, 'completed');
+    assert.equal(doneJson.milestones[0].ledgerStatus, 'done');
+    assert.equal(doneJson.milestones[0].evidenceRefs[0].status, 'pass');
+
+    const activeText = execFileSync(process.execPath, [
+      cliPath,
+      'milestone_status',
+      '--root',
+      root,
+      '--storyId',
+      activeStoryId,
+    ], { cwd: root, encoding: 'utf8' });
+    assert.match(activeText, /\| M-active-snapshot \| Active milestone_status ignores closeout snapshots \| 🔴 Blocked \(ledger=done; checklist=complete; evidence=stale; requiredEvidence=missing\) \|/);
+    const activeJson = JSON.parse(execFileSync(process.execPath, [
+      cliPath,
+      'milestone_status',
+      '--root',
+      root,
+      '--storyId',
+      activeStoryId,
+      '--json',
+    ], { cwd: root, encoding: 'utf8' }));
+    assert.deepEqual(activeJson.groups, { completed: [], current: ['M-active-snapshot'], remaining: [] });
+
+    const missingCloseoutText = execFileSync(process.execPath, [
+      cliPath,
+      'milestone_status',
+      '--root',
+      root,
+      '--storyId',
+      missingCloseoutStoryId,
+    ], { cwd: root, encoding: 'utf8' });
+    assert.match(missingCloseoutText, /\| M-missing-closeout \| DONE milestone_status without closeout remains live and fail-closed \| 🔴 Blocked \(ledger=done; checklist=complete; evidence=stale; requiredEvidence=missing\) \|/);
+    const missingCloseoutJson = JSON.parse(execFileSync(process.execPath, [
+      cliPath,
+      'milestone_status',
+      '--root',
+      root,
+      '--storyId',
+      missingCloseoutStoryId,
+      '--json',
+    ], { cwd: root, encoding: 'utf8' }));
+    assert.deepEqual(missingCloseoutJson.groups, { completed: [], current: ['M-missing-closeout'], remaining: [] });
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
