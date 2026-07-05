@@ -260,7 +260,22 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "command": "rg -n '^## M2. Ledger Write Contract' docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "result": "pass",
+          "note": "M2 section covers M2.a-M2.f finding-or-pass plus the confirm-time hash hardening note",
+          "headHash": "8b923b8584c969bffba812d619c415ec54b75433",
+          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
+          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
+          "timestamp": "2026-07-05T14:13:59.980Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
