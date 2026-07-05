@@ -1,0 +1,67 @@
+{
+  "passes": [
+    {
+      "id": "B-9051:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Quality review checked document consistency, NAV count, resolved findings, and clean committed state; no blocker found.",
+      "createdAt": "2026-07-05T11:30:04.471Z",
+      "reviewRound": "2026-07-05T11:07:27.951Z",
+      "reviewRunId": "B-9051:RR-004",
+      "_hash": "92c70836b112b6aa32c44ca02bb041c8fc01f63af84337aee7b1c7dea1067a0a"
+    },
+    {
+      "id": "B-9051:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept review checked milestone status read-only boundary, missing-ledger no-repair behavior, ledger write boundary, and no DONE/Authority overclaim; no blocker found.",
+      "createdAt": "2026-07-05T11:30:24.498Z",
+      "reviewRound": "2026-07-05T11:07:27.951Z",
+      "reviewRunId": "B-9051:RR-006",
+      "_hash": "1130a7c00e5de65f72ef517c0c4e18157f9c082789c2092753f634e41357e995"
+    },
+    {
+      "id": "B-9051:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review checked milestone status tests, ProofStory intent hardening coverage, and no-false-DONE claims; no blocker found.",
+      "createdAt": "2026-07-05T11:31:58.505Z",
+      "reviewRound": "2026-07-05T11:07:27.951Z",
+      "reviewRunId": "B-9051:RR-005",
+      "_hash": "a4f1dd34efd524ecae38d9b70a009e225de939808a569e8f15e20439f2d318ba"
+    },
+    {
+      "id": "B-9051:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Round 3 quality re-review verified NAV header/list count and complete decision-doc coverage; no blocker found.",
+      "createdAt": "2026-07-05T11:36:10.664Z",
+      "reviewRound": "2026-07-05T11:34:30.219Z",
+      "reviewRunId": "B-9051:RR-007",
+      "_hash": "678090d772b02cd3b5b7a6651985607d9175977fd216b568ad3c0cfa7b2e9036"
+    },
+    {
+      "id": "B-9051:RP-005",
+      "agent": "lattice-review-docs",
+      "note": "Round 3 docs re-review verified NAV links all 100 decision docs plus evidence link and review-plan claims remain bounded; no blocker found.",
+      "createdAt": "2026-07-05T11:36:27.395Z",
+      "reviewRound": "2026-07-05T11:34:30.219Z",
+      "reviewRunId": "B-9051:RR-008",
+      "_hash": "2b68a7e36fccb93c0e04276c4dc9615fc64b60c16d57642d3a0f3a4c0e19ae82"
+    },
+    {
+      "id": "B-9051:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 concept re-review checked NAV completion did not affect milestone-status boundaries or DONE/Authority claims; no blocker found.",
+      "createdAt": "2026-07-05T11:37:11.939Z",
+      "reviewRound": "2026-07-05T11:34:30.219Z",
+      "reviewRunId": "B-9051:RR-010",
+      "_hash": "353d276944d350bebb33ed1d75e2cc0745743270c9a67e3e83ca69af3431d054"
+    },
+    {
+      "id": "B-9051:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 3 test coverage re-review verified NAV-only fix does not invalidate milestone-status and ProofStory focused coverage; no blocker found.",
+      "createdAt": "2026-07-05T11:37:18.287Z",
+      "reviewRound": "2026-07-05T11:34:30.219Z",
+      "reviewRunId": "B-9051:RR-009",
+      "_hash": "b2cf776cd42b11bdeca83670d64e06a9d687b726693774ef05ca2c8224e0f5f5"
+    }
+  ]
+}
