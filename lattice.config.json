@@ -22,17 +22,81 @@
   },
   "validate": {
     "commands": [
-      { "command": "npm", "args": ["--prefix", "packages/main", "run", "build"], "timeoutMs": 290000, "focus": ["fast"] },
+      {
+        "command": "npm",
+        "args": [
+          "--prefix",
+          "packages/main",
+          "run",
+          "build"
+        ],
+        "timeoutMs": 290000,
+        "focus": [
+          "fast"
+        ]
+      },
       "node packages/main/tests/milestone-status.test.mjs",
       "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
       "node packages/main/dist/tasks/capability-list-smoke.js",
-      { "command": "node", "args": ["packages/main/dist/tasks/review-pass-discard-smoke.js"], "timeoutMs": 180000 },
-      { "command": "node", "args": ["packages/main/dist/tasks/init-window-data-loss-smoke.js"], "timeoutMs": 180000 },
-      { "command": "node", "args": ["packages/main/dist/tasks/validate-command-timeout-smoke.js"], "focus": ["fast"] },
-      { "command": "node", "args": ["packages/main/dist/tasks/validate-focused-full-layering-smoke.js"], "focus": ["fast"] },
-      { "command": "node", "args": ["packages/main/dist/tasks/main-sync-readiness-smoke.js"], "focus": ["fast"] },
-      { "command": "node", "args": ["packages/main/dist/tasks/codex-adapter-gate-scope-smoke.js"], "focus": ["fast"] },
-      { "command": "node", "args": ["packages/main/dist/tasks/delivery-check-freshness-smoke.js"], "focus": ["fast"] },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/review-pass-discard-smoke.js"
+        ],
+        "timeoutMs": 180000
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/init-window-data-loss-smoke.js"
+        ],
+        "timeoutMs": 180000
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validate-command-timeout-smoke.js"
+        ],
+        "focus": [
+          "fast"
+        ]
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validate-focused-full-layering-smoke.js"
+        ],
+        "focus": [
+          "fast"
+        ]
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/main-sync-readiness-smoke.js"
+        ],
+        "focus": [
+          "fast"
+        ]
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/codex-adapter-gate-scope-smoke.js"
+        ],
+        "focus": [
+          "fast"
+        ]
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/delivery-check-freshness-smoke.js"
+        ],
+        "focus": [
+          "fast"
+        ]
+      },
       "node packages/main/dist/tasks/done-required-validation-smoke.js",
       "node packages/main/dist/tasks/done-required-freshness-smoke.js",
       "node packages/main/dist/tasks/done-required-head-drift-proof.js",
@@ -58,13 +122,49 @@
       "node packages/main/dist/tasks/product-capability-release-red-smoke.js",
       "node packages/main/dist/tasks/playbook-capability-lineage-smoke.js",
       "node packages/main/dist/tasks/capability-release-invariants-smoke.js",
-      { "command": "node", "args": ["packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js"], "focus": ["fast"] },
-      { "command": "node", "args": ["packages/main/dist/tasks/experience-pack-arm-switch-smoke.js"], "timeoutMs": 180000 }
+      "node packages/main/dist/tasks/capability-release-backfill-smoke.js",
+      "node packages/main/dist/tasks/capability-candidate-exposure-smoke.js",
+      "node packages/main/dist/tasks/capability-candidate-promotion-smoke.js",
+      {
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js"
+        ],
+        "focus": [
+          "fast"
+        ]
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/experience-pack-arm-switch-smoke.js"
+        ],
+        "timeoutMs": 180000
+      }
     ]
   },
   "doneRequiredCommands": [
-    { "label": "packages/main build", "command": "npm", "args": ["--prefix", "packages/main", "run", "build"], "timeoutMs": 290000, "providesBuildProof": "packages-main-build" },
-    { "label": "root full test suite", "command": "npm", "args": ["test"], "timeoutMs": 1200000, "requiresBuildProof": "packages-main-build" }
+    {
+      "label": "packages/main build",
+      "command": "npm",
+      "args": [
+        "--prefix",
+        "packages/main",
+        "run",
+        "build"
+      ],
+      "timeoutMs": 290000,
+      "providesBuildProof": "packages-main-build"
+    },
+    {
+      "label": "root full test suite",
+      "command": "npm",
+      "args": [
+        "test"
+      ],
+      "timeoutMs": 1200000,
+      "requiresBuildProof": "packages-main-build"
+    }
   ],
   "baselineRiskAcceptedLocalPaths": [
     "AGENTS.md",
