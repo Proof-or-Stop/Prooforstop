@@ -1,0 +1,40 @@
+{
+  "storyId": "B-8128",
+  "mode": "enforce",
+  "allowedModify": [
+    ".gitignore",
+    "packages/main/src/core/capability-release.ts",
+    "packages/main/src/handlers/done-effects.ts",
+    "packages/main/src/handlers/done-recover.ts",
+    "packages/main/src/core/experience-layer-types.ts",
+    "packages/main/src/core/learning-store.ts",
+    "packages/main/src/core/playbook-seed.ts",
+    "packages/main/src/core/command-catalog.ts",
+    "packages/main/src/core/command-registry.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/handlers/playbook.ts",
+    "docs/CLI.md"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/product-capability-release-red-smoke.ts",
+    "packages/main/src/core/capability-release.ts",
+    "packages/main/src/tasks/product-capability-release-smoke.ts",
+    "packages/main/src/tasks/playbook-capability-lineage-smoke.ts",
+    "packages/main/src/handlers/capability-release.ts",
+    "packages/main/src/tasks/capability-release-invariants-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/product-capability-release-red-smoke.ts",
+    "packages/main/src/tasks/product-capability-release-smoke.ts",
+    "packages/main/src/tasks/playbook-capability-lineage-smoke.ts",
+    "packages/main/src/tasks/capability-release-invariants-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialize V1 scope contract from PLAN checklist files (capability-release core/handlers/tasks + DONE wiring + lineage + CLI registration + docs).",
+  "acknowledgements": [],
+  "createdAt": "2026-07-05T16:28:05.570Z",
+  "updatedAt": "2026-07-05T16:28:05.570Z"
+}

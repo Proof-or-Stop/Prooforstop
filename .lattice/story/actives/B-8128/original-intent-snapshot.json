@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-8128",
+  "sourceText": "Implement the product-capability-release-playbook-lineage execution plan (revision 2, audited). Operator confirmed V1 scope on 2026-07-05 after a comprehensive adversarial audit: M0-M5 + M6/M7 assert-invariant + a hermetic B-785e backfill proof; the standalone capability_release_backfill CLI and M6/M7 exposure/promotion surfaces are deferred to a follow-up story.",
+  "normalizedOutcome": "A first-class, non-runtime, non-authoritative product capability release ledger is recorded at DONE and bound to playbook candidate lineage, visible via read-only capability_release_list/status, with candidates staying inert.",
+  "acceptanceClaim": "DONE records a merge-stable capability release; a DONE candidate carries lineage.capabilityReleaseId; the reader fails closed on authority/gateEvidence violations; candidates never enter active surfacing and DONE success never counts as helped — all proven by hermetic smokes and lattice validate.",
+  "keyRequirementIds": [
+    "REQ-BIND",
+    "REQ-CLASSIFY",
+    "REQ-CLI",
+    "REQ-LINEAGE",
+    "REQ-SCHEMA"
+  ],
+  "requestHash": "sha256:a17e8956515f288aaeb65f784748efb3fdd62acdcad7e61cf5c3fe0b904f256d",
+  "createdAt": "2026-07-05T16:28:04.650Z",
+  "updatedAt": "2026-07-05T16:28:04.650Z"
+}

@@ -1,12 +1,12 @@
 {
   "storyId": "B-8128",
-  "generatedAt": "2026-07-05T16:08:11.412Z",
+  "generatedAt": "2026-07-05T16:32:50.774Z",
   "sourceSnapshot": {
     "hasUnderstanding": false,
     "hasDecision": false,
-    "hasPlan": false,
+    "hasPlan": true,
     "checklistItems": 10,
-    "reviewRounds": 2,
+    "reviewRounds": 4,
     "findings": 0,
     "bugs": 0,
     "testRuns": 0,
@@ -194,7 +194,7 @@
       },
       "metrics": {
         "hasPlanArtifact": {
-          "value": false,
+          "value": true,
           "unit": "bool",
           "confidence": "high",
           "sources": [
@@ -217,7 +217,7 @@
           "sources": [
             "plan.md"
           ],
-          "note": "no plan.md"
+          "note": "no CHK sections in plan"
         },
         "devToPlanBounceCount": {
           "value": 0,
@@ -310,7 +310,7 @@
       },
       "metrics": {
         "storyReviewRounds": {
-          "value": 2,
+          "value": 4,
           "unit": "count",
           "confidence": "medium",
           "sources": [

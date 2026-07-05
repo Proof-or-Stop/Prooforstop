@@ -4,7 +4,7 @@
   "title": "Product capability release records + playbook lineage binding V1 (M0-M5 + assert M6/M7)",
   "description": "Implement V1 of product-capability-release-playbook-lineage-execution-plan.md (revision 2, audited): M0 hermetic red, M1 schema/ledger/fail-closed reader, M2 pure core classifier at both DONE sites, M3 merge-stable idempotent binding, M4 optional lineage widening + candidate enrichment, M5 read-only CLI, M6/M7 assert-invariant smokes (already enforced in code), and a hermetic B-785e-shaped backfill proof. Standalone capability_release_backfill command + M6/M7 exposure surfaces deferred to a follow-up story. Supersedes the original M0-M8 scope per the 2026-07-05 audit.",
   "type": "feature",
-  "phase": "PLAN",
+  "phase": "DEV",
   "priority": "medium",
   "keywords": [
     "capability-release",
@@ -54,6 +54,15 @@
       "phase": "PLAN",
       "action": "advance",
       "timestamp": "2026-07-05T16:07:36.515Z",
+      "branch": "story/B-8128",
+      "user": "Harmonygo",
+      "sessionId": "cfc73a95-9b3c-48d3-9ee0-3cd637de5c76",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-05T16:32:50.732Z",
       "branch": "story/B-8128",
       "user": "Harmonygo",
       "sessionId": "cfc73a95-9b3c-48d3-9ee0-3cd637de5c76",

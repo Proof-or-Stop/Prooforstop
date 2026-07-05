@@ -1,0 +1,125 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-8128",
+  "state": "confirmed",
+  "ledgerHash": "sha256:f9979866221192be1d3904ac5893435bdd679c62049ba490c1ff6377b77747e5",
+  "milestones": [
+    {
+      "id": "M-RED-SCHEMA",
+      "sourceRequirementId": "REQ-SCHEMA",
+      "claim": "A hermetic red proves the gap and a first-class capability release ledger with a fail-closed reader exists.",
+      "doneMeans": "M0 red smoke red-until-M4; core/capability-release.ts + smoke green (merge-stable digest/key/id, throws on authority/gateEvidence, gate-import guard).",
+      "requiredEvidence": [
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0",
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M-DONE-BIND",
+      "sourceRequirementId": "REQ-BIND",
+      "claim": "DONE classifies capabilities from both sites and records a merge-stable release deduped on recovery.",
+      "doneMeans": "Pure core classifier invoked from done-effects.ts and done-recover.ts; capability-releases.jsonl gets one PCR row; re-run with a different mainCommit is already_recorded.",
+      "requiredEvidence": [
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-003",
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0",
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M-LINEAGE",
+      "sourceRequirementId": "REQ-LINEAGE",
+      "claim": "DONE candidate ingest binds playbook lineage to the capability release.",
+      "doneMeans": "PlaybookLineage gains optional capability fields; enrichment attaches them; M0 flips green.",
+      "requiredEvidence": [
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [
+        "CHK-005:happy:0",
+        "CHK-005:edge:0",
+        "CHK-005:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M-CLI",
+      "sourceRequirementId": "REQ-CLI",
+      "claim": "Capability releases are visible via read-only CLI.",
+      "doneMeans": "capability_release_list/status render read-only, registered across five sites; playbook_promotion_status shows lineage.",
+      "requiredEvidence": [
+        "cli"
+      ],
+      "checklistRefs": [
+        "CHK-006"
+      ],
+      "verificationIntentRefs": [
+        "CHK-006:happy:0",
+        "CHK-006:edge:0",
+        "CHK-006:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M-ASSERT-VALIDATE",
+      "sourceRequirementId": "REQ-CLASSIFY",
+      "claim": "Candidates stay inert, DONE!=helped, a hermetic backfill proof is idempotent, and validation is green.",
+      "doneMeans": "Invariants smoke asserts M6/M7 + hermetic backfill proof; tsc clean + four smokes green + lattice validate PASS.",
+      "requiredEvidence": [
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-011",
+        "CHK-012",
+        "CHK-013",
+        "CHK-010"
+      ],
+      "verificationIntentRefs": [
+        "CHK-011:happy:0",
+        "CHK-011:edge:0",
+        "CHK-011:adversarial:0",
+        "CHK-012:happy:0",
+        "CHK-012:edge:0",
+        "CHK-012:adversarial:0",
+        "CHK-013:happy:0",
+        "CHK-013:edge:0",
+        "CHK-013:adversarial:0",
+        "CHK-010:happy:0",
+        "CHK-010:edge:0",
+        "CHK-010:adversarial:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-05T16:27:44.264Z",
+  "updatedAt": "2026-07-05T16:32:49.462Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260705162805",
+    "acceptedInterpretationHash": "sha256:9befdfa3ef948e41be09a6578f70ee680dfa72cb9ebb4cdd44e031479ebd0409",
+    "acceptedAt": "2026-07-05T16:32:49.462Z"
+  }
+}
