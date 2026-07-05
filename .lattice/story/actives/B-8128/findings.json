@@ -73,7 +73,7 @@
       "desc": "type-safety: packages/main/src/tasks/product-capability-release-smoke.ts:429-433 and :461-465 cast the createCapabilityReleaseHandlers argument object literal { root, store, scanRoot } as any even though it already satisfies HandlerContext (all other HandlerContext fields are optional). The mirrored precedent file tasks/artifact-release-ledger-smoke.ts:195-198 constructs the identical shape with no cast and compiles cleanly, so this as any is an avoidable type-safety regression versus the pattern this file claims to mirror.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-05T17:24:04.186Z",
@@ -81,7 +81,9 @@
       "reviewRunId": "B-8128:RR-002",
       "_hash": "665050339dcbf8c5b357e291ab0d1f40f61b6a1c8595a70bcce43fbe03f473b9",
       "signatureTag": "missing|unknown|type-safety-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Removed the unnecessary as-any casts; {root,store,scanRoot} satisfies HandlerContext per the artifact-release smoke precedent.",
+      "resolvedAt": "2026-07-05T17:34:31.714Z"
     },
     {
       "id": "B-8128:F-006",
