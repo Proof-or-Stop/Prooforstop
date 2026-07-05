@@ -306,7 +306,64 @@
       "context": "core/proofstory.ts normalizeMilestone (~L301-316) validates not_applicable against VALID_MILESTONE_STATUSES only, with no rule that the row is genuinely inapplicable; it then short-circuits the uncovered-required check and renders in the completed group. Add a required justification/reason field (or policy) for not_applicable, without weakening the PLAN-only, hash-bound, intent-collision-confirmed write contract. Design-decision item; record the decision. Closes findings M4 caveat.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "When an operator runs `milestone_ledger_add` (or `buildMilestoneLedger`) with `status=not_applicable` but no justification, the CLI now fails instead of silently accepting the row. Terminal shows a shape error like:\n\n  Error: milestones[2].notApplicableDecision is required when status is not_applicable (needs reason, decidedBy, decidedAt)\n\nWhen the justification is supplied (e.g. `--not-applicable-reason \"REQ-014 covered by parent story P-9; no runtime behavior here\" --decided-by info@retiave.com`), the add succeeds and `milestone_ledger_get --json` shows the row carrying `\"notApplicableDecision\": { \"reason\": \"...\", \"decidedBy\": \"...\", \"decidedAt\": \"2026-07-05T...\" }`. That justification is folded into `ledgerHash`, so editing the reason on a previously `confirmed` ledger drops its state back to `candidate` (visible as `State: candidate` on the next add and loss of `acceptedIntentBinding`). The DONE-intent-equivalence gate still skips the row from `uncoveredRequiredMilestoneIds`, but only because the row now carries a validated, hash-bound, human-attributed reason — an unjustified `not_applicable` row can no longer reach a confirmed ledger and therefore can no longer self-exempt from the uncovered-required check. The decision is recorded at docs/requirements/decisions/milestone-not-applicable-justification.md.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/types.ts"
+        ],
+        "create": [
+          "docs/requirements/decisions/milestone-not-applicable-justification.md"
+        ],
+        "test": [
+          "packages/main/tests/milestone-not-applicable-justification.test.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Unit test: buildMilestoneLedger with a milestone {status:'not_applicable', notApplicableDecision:{reason:'covered by parent P-9', decidedBy:'info@retiave.com', decidedAt:'2026-07-05T00:00:00Z'}} returns a ledger whose row round-trips the notApplicableDecision object unchanged (assert deep-equal on ledger.milestones[0].notApplicableDecision).",
+            "type": "logic"
+          },
+          {
+            "desc": "CLI: build packages/main then run `node packages/main/dist/cli.js milestone_ledger_add --storyId <fixture> --id M1 --sourceRequirementId REQ-001 --claim c --doneMeans d --status not_applicable --not-applicable-reason 'no runtime behavior' --decided-by info@retiave.com --json` and assert exit 0 and JSON output contains a notApplicableDecision with reason/decidedBy and a non-empty decidedAt.",
+            "type": "cli"
+          },
+          {
+            "desc": "Logic: for a not_applicable row that carries a valid notApplicableDecision, evaluateDoneIntentEquivalence still omits that milestone id from uncoveredRequiredMilestoneIds (assert the id is NOT in the returned uncoveredRequiredMilestoneIds array).",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Unit test: normalizeMilestone via buildMilestoneLedger with status='not_applicable' and notApplicableDecision present but reason='' (empty) throws an Error whose message names milestones[i].notApplicableDecision / reason.",
+            "type": "logic"
+          },
+          {
+            "desc": "Unit test: a non-not_applicable row (status 'planned'|'covered'|'done') builds successfully with notApplicableDecision omitted, and if a notApplicableDecision is nonetheless supplied on a 'done' row it does not throw (field is optional/ignored for non-exempt statuses).",
+            "type": "logic"
+          },
+          {
+            "desc": "Logic: adding or changing a not_applicable row's notApplicableDecision.reason changes computeMilestoneLedgerHash (assert hash before != hash after) and demotes a previously confirmed ledger to state 'candidate' with acceptedIntentBinding cleared.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Unit test (self-exemption attack): a milestone with status='not_applicable' and NO notApplicableDecision field is rejected by normalizeMilestone/buildMilestoneLedger (throws), proving a zero-evidence not_applicable row cannot be written — the closed M4 caveat.",
+            "type": "logic"
+          },
+          {
+            "desc": "Logic (gate cannot consume unjustified exemption): construct a milestone ledger where a required milestone is marked not_applicable without a decision; assert buildMilestoneLedger throws so such a ledger can never reach state 'confirmed', and therefore evaluateDoneIntentEquivalence never treats it as an accepted exemption (no confirmed ledger => missing_confirmed_milestone_ledger gap instead of a silent skip).",
+            "type": "logic"
+          },
+          {
+            "desc": "Unit test (contract not weakened): decidedAt supplied as a non-ISO / whitespace-only string is rejected the same as empty (assert throw), and a valid not_applicable row's notApplicableDecision is included in the sha256 ledger-hash input so it is hash-bound (assert removing the field from an already-hashed row yields a different computeMilestoneLedgerHash).",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-008",
