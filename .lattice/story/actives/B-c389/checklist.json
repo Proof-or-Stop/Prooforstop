@@ -57,11 +57,11 @@
           "file": "packages/main/src/tasks/capability-release-backfill-smoke.ts",
           "command": "node packages/main/dist/tasks/capability-release-backfill-smoke.js",
           "result": "pass",
-          "note": "Hermetic smoke: dry-run detects exactly 1 eligible under-bound candidate (PBP-882) + stable plan digest; --apply with the right --digest enriches exactly one candidate's lineage (capabilityReleaseId/capabilityId/capabilityVersion/artifactReleaseId). 10/10 checks pass.",
-          "headHash": "ac05dc5b7a19d8bf8a08dd52dc6a056afba2dae5",
-          "materialHash": "ea1c2a00886923ab777057dd072d00b9b4784fc36ab92812920ab7d9c8f09043",
-          "storyFilesHash": "6b0a9ee784af121c5d2ea5306b6d5af9afeb70e7f1412685cf72f1507a7e5e78",
-          "timestamp": "2026-07-05T23:13:40.033Z"
+          "note": "Record-then-bind migration. Smoke 14/14: CASE A (plan=bind) dry-run detects 1 eligible + stable digest, --apply enriches lineage. CASE B (plan=record-then-bind) dry-run reports the PCR it would record from the artifact release; --apply records the PCR (git add -f + commit, verified tracked) then binds the candidate. Live: node dist/cli.js capability_release_backfill --dryRun --json shows eligibleCount=11, PBP-882 (B-785e) eligible plan=record-then-bind from AR-4e885ed0209e5a32330cdc33.",
+          "headHash": "dda2f829a485c031946a8535dee92fc7a43e2766",
+          "materialHash": "7959dcdf973651a89f2c83b9999652b70c9c2071d3a56184c9accd5a728322bd",
+          "storyFilesHash": "3cbc528ca968010f26697a69320ce0ac9210128a6c824cd87ec1f13b6c991afa",
+          "timestamp": "2026-07-05T23:29:00.285Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
