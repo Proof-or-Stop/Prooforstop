@@ -270,7 +270,39 @@
       "context": "Plan M7.a-M7.d: summarize all pass/finding outcomes; decide whether implementation work is needed; if gaps exist draft a narrow follow-up story scope, otherwise mark documentation-only completion; update the plan document milestone statuses from planned to reviewed outcomes. Output: findings report closure section.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "rg for ## M7 or Review.Outcome|Outcome.*Decision section in findings report -> closure section exists with explicit summary of all pass/finding outcomes; WHY: M7.a requires the summary",
+            "type": "cli"
+          },
+          {
+            "desc": "Check plan document milestone-ledger-status-review-and-hardening-plan.md Status column -> all M0-M7 statuses updated from planned to reviewed outcomes; WHY: M7.d requires plan-doc status updates",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "rg follow.up|implementation.story|story.scope in findings report M7 section -> if gaps were found a narrow follow-up story scope is drafted, or if no gaps exist documentation-only completion is marked; WHY: M7.b/M7.c/M7.d require an explicit decision not ambiguity",
+            "type": "cli"
+          },
+          {
+            "desc": "rg NAV.md or check NAV.md file -> findings report entry added to NAV.md; WHY: story description requires a NAV.md entry as a deliverable",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Check findings report closure section does not mark clean pass while any M0-M6 sections contain unresolved findings -> pass verdict is consistent with milestone findings; WHY: prevents a clean-pass claim that contradicts the body of the report",
+            "type": "logic"
+          },
+          {
+            "desc": "Check plan document Status column has no milestone still showing planned after the review is complete -> no milestone silently left in planned status; WHY: prevents the review from appearing complete while milestones are actually unreviewed",
+            "type": "logic"
+          }
+        ]
+      }
     }
   ]
 }
