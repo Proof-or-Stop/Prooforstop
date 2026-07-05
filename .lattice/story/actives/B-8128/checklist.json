@@ -132,9 +132,9 @@
       "id": "CHK-004",
       "title": "M3: deterministic idempotent release binding in DONE post-merge",
       "context": "Bind storyId, mainCommit, artifactReleaseId, artifactSetDigest, capabilityId, capabilityVersion, capabilityDigest. Idempotency key storyId+mainCommit+capabilityDigest+artifactSetDigest; no duplicate on DONE recovery/retry.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-05T16:40:30.175Z",
-      "endTime": null,
+      "endTime": "2026-07-05T16:40:43.657Z",
       "userSees": ".lattice/capability-releases.jsonl contains one PCR row after DONE; re-run reports already_recorded",
       "files": {
         "modify": [
