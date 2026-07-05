@@ -21,17 +21,17 @@
   "excludedCommands": [
     "git push",
     "lattice release_approve_push",
-    "provider calls"
+    "provider calls from this authorization story"
   ],
   "excludedTools": [
-    "provider api execution without bounded approval"
+    "provider api execution before frozen Cell 03 execution envelope"
   ],
   "excludedPaths": [
     "experiments/multi-model-ablation/records-multi-model-ablation.jsonl"
   ],
   "confirmedBy": "codex-cli",
-  "confirmationNote": "Work is limited to repository artifacts and local validation; provider calls are excluded until exact bounded human budget approval is recorded.",
-  "createdAt": "2026-07-05T21:22:04.933Z",
-  "updatedAt": "2026-07-05T21:22:04.933Z",
-  "_hash": "038ec40f0ce0ee1e2365e4e6fe5e044777e8cd233ad3e05b80b347fffa891c0f"
+  "confirmationNote": "B-6529 changes authorization artifacts and local checks only. Pre-run dollar guessing is not required. Real provider execution must occur in a separate execution step/story after Cell 03 execution envelope is frozen; postflight provider-reported usage/cost is recorded after execution.",
+  "createdAt": "2026-07-05T21:27:26.725Z",
+  "updatedAt": "2026-07-05T21:27:26.725Z",
+  "_hash": "739c592d47f4d99f77b9d57c55856773305ed43f0a47337afad24b43522e631d"
 }

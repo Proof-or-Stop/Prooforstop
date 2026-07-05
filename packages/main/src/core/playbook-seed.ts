@@ -45,6 +45,7 @@ import {
 } from './learning-store.js';
 import { buildMemoryFreshnessPack, type RuntimeConsumer } from './playbook-runtime-memory.js';
 import { buildLearningSourceLineageAudit } from './source-lineage-audit.js';
+import { readCapabilityReleaseLedger } from './capability-release.js';
 
 export const PLAYBOOK_SEED_OBSERVE_SCHEMA_VERSION = 'proofbound.playbook-seed-observe.v1' as const;
 export const PLAYBOOK_SEED_PROPOSE_BATCH_SCHEMA_VERSION = 'proofbound.playbook-seed-propose-batch.v1' as const;
@@ -117,6 +118,15 @@ export interface PlaybookSeedCandidate extends PlaybookSeedMaterial {
   sourceStoryId?: string;
   sourceFindingId?: string;
   sourceSignature?: string;
+  // ── B-8128 M4: OPTIONAL product-capability-release lineage material ───────
+  // Populated by enrichSeedWithCapabilityLineage(projectRoot, seed) when a
+  // capability release exists for the seed's sourceStoryId; copied verbatim onto
+  // the PlaybookLineage by lineageFromSeed. Absent for stories with no release.
+  capabilityReleaseId?: string;
+  capabilityId?: string;
+  capabilityVersion?: string;
+  artifactReleaseId?: string;
+  artifactSetDigest?: string;
   priority: number;
   priorityReason: string;
 }
@@ -850,7 +860,7 @@ function triggerFromSeed(seed: PlaybookSeedCandidate, finding?: Finding): Playbo
   };
 }
 
-function lineageFromSeed(seed: PlaybookSeedCandidate): PlaybookLineage {
+export function lineageFromSeed(seed: PlaybookSeedCandidate): PlaybookLineage {
   const sourceStoryId = seed.sourceStoryId ?? storyIdFromFindingId(seed.sourceFindingId);
   const sourceFindingId = normalizeFindingId(sourceStoryId, seed.sourceFindingId);
   if (!sourceStoryId || !sourceFindingId) {
@@ -860,6 +870,52 @@ function lineageFromSeed(seed: PlaybookSeedCandidate): PlaybookLineage {
     sourceStoryId,
     sourceFindingId,
     ...(seed.sourceSignature ? { sourceSignature: seed.sourceSignature } : {}),
+    // B-8128 M4: copy capability-release lineage when the seed was enriched.
+    // Absent seeds keep the current 3-field lineage (valid, under-bound).
+    ...(seed.capabilityReleaseId ? { capabilityReleaseId: seed.capabilityReleaseId } : {}),
+    ...(seed.capabilityId ? { capabilityId: seed.capabilityId } : {}),
+    ...(seed.capabilityVersion ? { capabilityVersion: seed.capabilityVersion } : {}),
+    ...(seed.artifactReleaseId ? { artifactReleaseId: seed.artifactReleaseId } : {}),
+    ...(seed.artifactSetDigest ? { artifactSetDigest: seed.artifactSetDigest } : {}),
+  };
+}
+
+/**
+ * B-8128 M4: look up the product capability release recorded for a seed's
+ * sourceStoryId and, if found, attach its identity to the seed so that the
+ * candidate lineage binds the two. Deterministic and side-effect free: reads the
+ * (fail-closed) capability-releases ledger and picks the record whose
+ * `storyId === seed.sourceStoryId`. Absent → returns the seed unchanged (lineage
+ * stays the current 3 fields).
+ *
+ * IDEMPOTENCY: candidate-creation dedup is keyed on the stable canonicalSourceKey
+ * (via the observation's `already_represented` block and the ledger idempotencyKey),
+ * NEVER on digest equality — so this enrichment (which DOES change the proposal /
+ * playbook digest) never causes a duplicate candidate on re-apply. Re-applying is
+ * a pure no-op: the source story is already represented, so it is not proposable.
+ */
+export function enrichSeedWithCapabilityLineage(
+  projectRoot: string,
+  seed: PlaybookSeedCandidate,
+): PlaybookSeedCandidate {
+  const storyId = seed.sourceStoryId ?? storyIdFromFindingId(seed.sourceFindingId);
+  if (!storyId) return seed;
+  let record;
+  try {
+    record = readCapabilityReleaseLedger(projectRoot).find((row) => row.storyId === storyId);
+  } catch {
+    // Fail-open on the OPTIONAL enrichment: a tampered/unreadable capability
+    // ledger must never break candidate ingest. Lineage simply stays 3-field.
+    return seed;
+  }
+  if (!record) return seed;
+  return {
+    ...seed,
+    capabilityReleaseId: record.id,
+    capabilityId: record.capabilityId,
+    capabilityVersion: record.capabilityVersion,
+    ...(record.artifactReleaseId ? { artifactReleaseId: record.artifactReleaseId } : {}),
+    ...(record.artifactSetDigest ? { artifactSetDigest: record.artifactSetDigest } : {}),
   };
 }
 
@@ -969,7 +1025,9 @@ export function buildPlaybookSeedProposalBatch(opts: BuildPlaybookSeedProposalBa
     throw new Error(`playbook_seed_propose_batch: observeDigest drift; expected ${expectedObserveDigest}, current ${observation.observeDigest}`);
   }
 
-  const selected = observation.proposableSeeds.slice(0, limit);
+  const selected = observation.proposableSeeds
+    .slice(0, limit)
+    .map((seed) => enrichSeedWithCapabilityLineage(opts.projectRoot, seed));
   const ids = nextProposalIds(listProposals(opts.projectRoot), readPlaybooks(opts.projectRoot), selected.length);
   const proposals = selected.map((seed, index) => proposalFromSeed(ids[index], seed, opts.store));
   const previews = proposals.map((proposal, index) => proposalPreview(proposal, selected[index]));
@@ -1111,7 +1169,7 @@ export function buildPlaybookSeedBackfillReport(opts: BuildPlaybookSeedBackfillO
         blocked.push(backfillBlockedRow(seed, ['missing_backfill_id']));
         continue;
       }
-      proposal = proposalFromSeed(id, seed, opts.store);
+      proposal = proposalFromSeed(id, enrichSeedWithCapabilityLineage(opts.projectRoot, seed), opts.store);
       proposalIdsToDelete = proposalsForCanonical(opts.projectRoot, seed.canonicalSourceKey).map((row) => row.id);
     }
     const candidate = candidatePlaybookFromProposal(proposal);

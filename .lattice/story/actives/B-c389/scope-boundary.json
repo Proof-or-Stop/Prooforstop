@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-c389",
+  "mode": "feature",
+  "allowed": [
+    ".gitignore",
+    ".lattice/story/actives/B-c389/**",
+    "docs/CLI.md",
+    "docs/requirements/decisions/product-capability-release-playbook-lineage-execution-plan.md",
+    "lattice.config.json",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/capability-release.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/experience-layer-types.ts",
+    "packages/main/src/core/learning-store.ts",
+    "packages/main/src/core/playbook-seed.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/handlers/capability-release-backfill.ts",
+    "packages/main/src/handlers/capability-release.ts",
+    "packages/main/src/handlers/done-effects.ts",
+    "packages/main/src/handlers/playbook.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/tasks/*.ts"
+  ],
+  "excluded": [
+    "activating a candidate without concrete exposure + structured verdict",
+    "runtime @lattice/core semver bump beyond auto",
+    "salts and schema-id constants",
+    "weakening the matchActivePlaybook status guard or the DONE-success!=helped rule"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "B-c389 follow-up to B-8128: live capability_release_backfill + M6 candidate exposure + M7 promotion command surfaces, on top of already-enforced invariants.",
+  "createdAt": "2026-07-05T22:47:56.393Z",
+  "updatedAt": "2026-07-05T22:47:56.393Z",
+  "_hash": "f59fbbcbac0d86ccde6ad0a755373caf59c12f22396cf40f6c54eb75eabd07f6"
+}

@@ -12,7 +12,8 @@ import {
 import {
   acquireDoneMainMergeLock,
   listChangedPathsBetweenMainShas,
-  runArtifactReleaseLedgerAfterDoneMerge,
+  runArtifactReleaseLedgerAfterDoneMergeDetailed,
+  runCapabilityReleaseLedgerAfterDoneMerge,
   runDoneMainPackageBuildAfterMerge,
   shouldBuildDoneMainPackageForChangedPaths,
 } from './done-effects.js';
@@ -113,7 +114,7 @@ export function createDoneRecoverHandlers(ctx: HandlerContext) {
         },
       ));
 
-      const artifactReleaseLine = runArtifactReleaseLedgerAfterDoneMerge(
+      const artifactRelease = runArtifactReleaseLedgerAfterDoneMergeDetailed(
         mainMergeRoot,
         storyId,
         mainShaBeforeRecoveryMerge,
@@ -124,7 +125,25 @@ export function createDoneRecoverHandlers(ctx: HandlerContext) {
           runGit: (gitArgs, cwd) => git(cwd, gitArgs),
         },
       );
-      if (artifactReleaseLine) lines.push(artifactReleaseLine);
+      if (artifactRelease.line) lines.push(artifactRelease.line);
+
+      // B-8128 M3: the recover path records the capability RELEASE (not a candidate;
+      // candidate ingest is not on the recover path — intended). Forward the artifact
+      // release id/digest when one was recorded.
+      const capabilityReleaseLine = runCapabilityReleaseLedgerAfterDoneMerge(
+        mainMergeRoot,
+        storyId,
+        mainShaBeforeRecoveryMerge,
+        mainShaAfterRecoveryMerge,
+        {
+          changedPaths: recoveryMergeChangedPaths,
+          runtimeSemverChanged,
+          artifactReleaseId: artifactRelease.record?.id,
+          artifactSetDigest: artifactRelease.record?.artifactSetDigest,
+          runGit: (gitArgs, cwd) => git(cwd, gitArgs),
+        },
+      );
+      if (capabilityReleaseLine) lines.push(capabilityReleaseLine);
 
       const remaining = detectPartialDoneStories(mainMergeRoot, store).find(entry => entry.storyId === storyId);
       if (remaining) {

@@ -2,25 +2,30 @@
   "items": [
     {
       "id": "CHK-001",
-      "title": "Bind bounded Cell 03 human spend approval or keep provider execution fail-closed",
-      "context": "Record amount, currency, approvalSource, approvedBy, approvalDate, execution window, and Cell 03 scope. Uncapped approval must be rejected because nonzero budget cap is a mandatory execution blocker.",
+      "title": "Replace pre-run dollar cap with frozen execution envelope and postflight usage accounting",
+      "context": "Do not require the human to guess a dollar amount before the run. Freeze Cell 03 execution bounds instead: exact cell scope, row/task count, model snapshots, max retries, timeout, max input/output tokens, and stop conditions. After execution, record provider-reported usage and derived cost separately from any estimate.",
       "relatedDocs": [
         "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
         "docs/requirements/decisions/multi-model-ablation-replication.md"
       ],
-      "userSees": "Cell 03 authorization clearly says whether spend is approved, bounded, and exact, or lists the precise fail-closed reason.",
+      "userSees": "Cell 03 authorization shows the frozen execution envelope before execution and later shows actual provider-reported usage/cost after execution.",
       "excludes": [
-        "Agent-invented budget approval",
-        "Unbounded provider spend",
-        "Provider spend without exact bounded human approval",
+        "User guesswork budget",
+        "Agent-invented provider spend",
+        "Unbounded retry loops",
+        "Treating estimates as final usage",
         "Phase 2 or powered matrix approval"
       ],
       "files": {
         "modify": [
           "experiments/multi-model-ablation/m2-provider-execution-launch.json",
-          "experiments/multi-model-ablation/m2-cell03-provider-launch-authorization.json"
+          "experiments/multi-model-ablation/m2-cell03-provider-launch-authorization.json",
+          "experiments/multi-model-ablation/m2-provider-execution-check.mjs"
         ],
-        "create": [],
+        "create": [
+          "experiments/multi-model-ablation/m2-cell03-execution-envelope.json",
+          "experiments/multi-model-ablation/m2-cell03-usage-accounting-policy.json"
+        ],
         "test": [
           "experiments/multi-model-ablation/m2-provider-execution-check.mjs"
         ]
