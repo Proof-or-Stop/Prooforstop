@@ -1,0 +1,73 @@
+{
+  "storyId": "B-991d",
+  "checkedAt": "2026-07-05T23:33:19.876Z",
+  "features": [
+    {
+      "feature": "Cell 03 real execution plan ledger and status semantics",
+      "covered_by": "understanding.json outcome; checklist CHK-001; plan.md CHK-001; scope-contract allowedModify docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "PLAN artifacts"
+    },
+    {
+      "feature": "B-6529 readiness preservation and B-991d provenance for supersession/opening artifacts",
+      "covered_by": "understanding.json constraints; decision.json preMortem[0]; checklist CHK-001 and CHK-004; plan.md Non-Negotiable Boundaries",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "PLAN artifacts"
+    },
+    {
+      "feature": "Frozen-envelope preflight before provider execution",
+      "covered_by": "checklist CHK-002; plan.md CHK-002; scope-contract allowedTest experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "PLAN artifacts"
+    },
+    {
+      "feature": "Execution receipt/result-row contract with snapshots, digests, retry/supersession, and provider usage",
+      "covered_by": "checklist CHK-003; plan.md CHK-003; scope-contract allowedModify experiments/multi-model-ablation/m2-cell03-result-write-policy.json",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "PLAN artifacts"
+    },
+    {
+      "feature": "Cell 03-only execution window plus probe and full 1152-row run",
+      "covered_by": "checklist CHK-004; checklist CHK-005; checklist CHK-006; plan.md CHK-004 through CHK-006; scope-contract allowedCreate experiments/multi-model-ablation/future-cell03-results/**",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "PLAN artifacts"
+    },
+    {
+      "feature": "Postflight provider-reported usage/cost accounting and downstream Cell 06 usage lock without Cell 06 execution",
+      "covered_by": "checklist CHK-007; checklist CHK-008; plan.md CHK-007 and CHK-008",
+      "status": "covered",
+      "excluded_by": "Cell 06 provider execution remains excluded",
+      "source": "PLAN artifacts"
+    },
+    {
+      "feature": "Analysis readiness, DONE closure, row completeness, failed/missing inventory, and claim boundaries",
+      "covered_by": "checklist CHK-009; checklist CHK-010; plan.md CHK-009 and CHK-010; scope-contract allowedModify experiments/multi-model-ablation/m2-status.md",
+      "status": "covered",
+      "excluded_by": "paper claim wording changes, product gate changes, and playbook activation remain excluded",
+      "source": "PLAN artifacts"
+    },
+    {
+      "feature": "Out-of-scope cells/campaign/product surfaces remain excluded",
+      "covered_by": "scope-contract explicitExcludes; checklist excludes; plan.md Non-Negotiable Boundaries",
+      "status": "excluded",
+      "excluded_by": "Cell 02 provider execution; Cell 04 provider execution; Cell 06 provider execution; Phase 2 execution; paper claim wording changes; Proofbound product gate changes; playbook activation changes; git push or remote release",
+      "source": "PLAN artifacts and referenced M2 protocol docs"
+    }
+  ],
+  "summary": {
+    "total": 8,
+    "covered": 7,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "aaa3fc6a27c6b036d14f972786d0cf0dbff70c468f986c4555334bbacdc7092f",
+  "openQuestions": []
+}

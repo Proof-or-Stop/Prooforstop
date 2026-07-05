@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-991d",
+  "id": "IC-20260705232930",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Proceed with B-991d as a separate execution-control story that first updates the existing M2 provider execution plan and later may open only Cell 03 provider execution under B-991d provenance. The story must not be interpreted as immediate provider execution, Cell 06 unlock, Phase 2 approval, product gate change, playbook activation, or paper claim upgrade.",
+  "acceptedInterpretationHash": "sha256:7a0619bb8e4cec166d53d8226a3b4d6608550b9ba4195a73f24aeba338351373",
+  "notes": "This resolves the collision between the user asking to solve provider execution blockers and the safety boundary that readiness artifacts must not be rewritten into result evidence.",
+  "createdAt": "2026-07-05T23:29:30.104Z",
+  "updatedAt": "2026-07-05T23:29:30.104Z"
+}

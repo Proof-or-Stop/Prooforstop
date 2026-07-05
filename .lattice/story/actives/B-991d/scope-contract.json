@@ -1,0 +1,36 @@
+{
+  "storyId": "B-991d",
+  "mode": "enforce",
+  "allowedModify": [
+    "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+    "experiments/multi-model-ablation/m2-cell03-result-write-policy.json",
+    "experiments/multi-model-ablation/m2-cell03-provider-launch-authorization.json",
+    "experiments/multi-model-ablation/m2-provider-execution-launch.json",
+    "experiments/multi-model-ablation/m2-status.md"
+  ],
+  "allowedCreate": [
+    "experiments/multi-model-ablation/future-cell03-results/**"
+  ],
+  "allowedTest": [
+    "experiments/multi-model-ablation/m2-provider-execution-check.mjs"
+  ],
+  "protectedFiles": [
+    "docs/requirements/decisions/multi-model-ablation-replication.md",
+    "experiments/multi-model-ablation/m2-cell03-execution-envelope.json"
+  ],
+  "explicitExcludes": [
+    "docs/requirements/decisions/tier-c-*",
+    "Cell 02 provider execution",
+    "Cell 04 provider execution",
+    "Cell 06 provider execution",
+    "Phase 2 execution",
+    "paper claim wording changes",
+    "Proofbound product gate changes",
+    "playbook activation changes",
+    "git push or remote release"
+  ],
+  "scopeChangeReason": "B-991d must isolate Cell 03 real-execution planning and later execution artifacts while preserving B-6529 readiness evidence and protecting unrelated docs.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-05T23:30:57.108Z",
+  "updatedAt": "2026-07-05T23:30:57.108Z"
+}
