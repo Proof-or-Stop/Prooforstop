@@ -47,7 +47,7 @@
       "desc": "Partial-DONE recovery can complete a DONE merge without artifact release provenance. The new DONE path records .lattice/artifact-releases.jsonl from applyDoneMergeEffects after merging story/<id> into main, but done_recover is the recovery command that can perform that same main merge for a phase=DONE story and it only runs the package build effect. A docs/** or experiments/** story recovered this way will reach main with no artifact release ledger row, violating the new story-lifecycle promise that non-runtime DONE artifacts are recorded at the DONE merge commit. Share the artifact-release post-merge effect between applyDoneMergeEffects and done_recover, computing changed paths between the recovery before/after SHAs and using the main worktree as gitCwd.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-05T10:26:41.510Z",
@@ -60,7 +60,11 @@
         "docs/requirements/decisions/story-lifecycle.md"
       ],
       "signatureTag": "missing|ts|partial-recovery-complete",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: done_recover now computes recovery before/after main SHAs, derives recoveryMergeChangedPaths once, reuses runArtifactReleaseLedgerAfterDoneMerge with mainMergeRoot as gitCwd, and targeted artifact-release-ledger smoke proves partial-DONE recovery writes and commits docs/experiments provenance.",
+      "resolvedAt": "2026-07-05T10:49:33.558Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-11ad:F-004",
