@@ -477,7 +477,73 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Two concrete, observable changes plus a recorded decision doc.\n\n(a) Stale-evidence agreement. With a milestone-triggered story whose confirmed ledger's required verificationIntentRef has a PASS evidence row bound to an OLD headHash/materialHash (git HEAD has since advanced), the operator now sees BOTH surfaces agree:\n- `lattice milestone_status --storyId=B-<id>` still demotes the row out of Completed into Current with `statusDetail` containing `evidence=stale` and a risk like `Verification intent <ref> has stale passing ... evidence ...`.\n- `lattice story_advance --storyId=B-<id> --phase=DONE` under `doneGateMode: enforce` now ALSO fails the DONE intent-equivalence gate with:\n  `Cannot enter DONE: ProofStory intent equivalence gate did not pass` and a gap line `uncovered_required_milestones ... Required milestone(s) lack passing verification evidence ...` listing that milestone id (previously this gate PASSED on the same stale ledger — the contradiction is gone). Re-running the evidence against the current binding clears both.\n\n(b) Closeout no longer a divergent second DONE gate. For a confirmed ledger that legitimately passes the designed gate but whose milestone_status report is incomplete/risky (e.g. a row removed by a user-confirmed scope_shrinkage_decision, or a risky `not_applicable` row), the operator now sees DONE COMPLETE:\n- `✓ milestone closeout snapshot captured for B-<id>` (or a non-blocking `ℹ milestone closeout captured with caveats: <reason>` line) instead of the transition aborting.\n- The transition no longer throws `Cannot create milestone closeout snapshot for B-<id>: ... incomplete milestone rows` / `... milestone report has risks:` AFTER the designed gate already passed. The single DONE verdict is owned by `evaluateDoneIntentEquivalence`; the closeout step is a recorder that never blocks DONE.\n\nA decision doc at docs/requirements/decisions/milestone-status-done-gate-reconciliation.md records: which surface is authoritative on stale milestone evidence (the shared freshness predicate, made freshness-aware on the gate side to match milestone_status), and that milestone closeout capture is a non-gating recorder subordinate to the designed DONE gate.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/milestone-status.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/tests/milestone-status.test.mjs"
+        ],
+        "create": [
+          "docs/requirements/decisions/milestone-status-done-gate-reconciliation.md",
+          "packages/main/src/tasks/milestone-done-gate-reconciliation-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/milestone-done-gate-reconciliation-smoke.ts",
+          "packages/main/tests/milestone-status.test.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Fresh-evidence agreement: build a confirmed milestone ledger whose single required verificationIntentRef has a PASS evidence row bound to the CURRENT headHash/materialHash/storyFilesHash; assert buildMilestoneStatusReport places the row in groups.completed (statusDetail has evidence=covered) AND evaluateDoneIntentEquivalence(input, 'enforce') returns status='pass' with uncoveredRequiredMilestoneIds empty — both surfaces agree the row is covered.",
+            "type": "logic"
+          },
+          {
+            "desc": "Closeout records a complete-and-clean report without throwing: feed a report whose milestones are all status='completed' with zero risks into the reconciled captureMilestoneCloseoutSnapshotFromStore path and assert it returns {status:'written'} and store.writeMilestoneCloseout was called (no throw) — the recorder still captures the normal DONE case.",
+            "type": "logic"
+          },
+          {
+            "desc": "End-to-end DONE on a clean milestone-triggered story via the CLI (node packages/main/tests/milestone-status.test.mjs after npm --prefix packages/main run build) still prints '✓ milestone closeout snapshot captured' and reaches phase DONE, proving the reconciliation did not regress the passing path.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Stale-evidence disagreement is eliminated: same confirmed ledger as the happy case but the PASS evidence row's headHash/materialHash are the OLD hashes while the current binding is a NEW head; assert milestone_status demotes the row to groups.current with statusDetail containing 'evidence=stale' AND evaluateDoneIntentEquivalence(input,'enforce') now returns blocking status='fail' with a gap code 'uncovered_required_milestones' naming that milestone id (asserts the previously-contradictory gate no longer passes stale evidence).",
+            "type": "logic"
+          },
+          {
+            "desc": "Scope-shrunk row does not make closeout throw: confirmed ledger with a required row removed by a user-confirmed scope_shrinkage_decision so evaluateDoneIntentEquivalence passes but the milestone_status report marks that row current/incomplete; assert the reconciled closeout capture returns a non-throwing result (written or skipped-with-caveat) rather than throwing 'incomplete milestone rows', and that DONE completes.",
+            "type": "logic"
+          },
+          {
+            "desc": "Permanent-waiver parity: a required intent covered only by a permanent non-failing waiver bound to the CURRENT binding is treated as covered by BOTH evidenceIsCovering (milestone_status) and the freshness-aware gate coverage check (evidenceCanCover-style waiver acceptance is preserved, not broken by the new freshness gate).",
+            "type": "logic"
+          },
+          {
+            "desc": "Empty storyFilesHash / head-only binding: when the current binding carries only a headHash (no materialHash/storyFilesHash), a PASS row whose headHash matches by the >=7-char prefix rule is covered on both surfaces, and a mismatched headHash is stale on both — asserts the gate reuses the exact evidenceFreshnessRisks prefix/empty-hash semantics milestone_status uses.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Risky not_applicable row cannot silently block a legitimately-passing DONE via the closeout throw: confirmed ledger with a status='not_applicable' row that still carries a risk; assert evaluateDoneIntentEquivalence passes (not_applicable rows are skipped) and the reconciled closeout capture does NOT throw 'milestone report has risks' to abort the transition after the designed gate already passed — DONE is not blocked by the undesigned second gate.",
+            "type": "logic"
+          },
+          {
+            "desc": "Closeout cannot fabricate a DONE verdict either: with stale-only covering evidence (so the freshness-aware gate FAILS in enforce mode), assert the DONE transition aborts at the designed gate (runLegacyReceiptTransitionGate throws 'Cannot enter DONE') BEFORE writeStory/actor.send-persisted DONE and before captureMilestoneCloseoutSnapshotFromStore runs — i.e. reconciliation moved the block to the designed gate and did not weaken it into a pass.",
+            "type": "logic"
+          },
+          {
+            "desc": "CLI negative control that both surfaces agree on stale evidence end-to-end: drive a story to a DONE-ready state, advance HEAD so the recorded milestone evidence goes stale, then run `lattice milestone_status` (must show evidence=stale) and `lattice story_advance --phase=DONE` under enforce (must fail with uncovered_required_milestones) in the same fixture — proving the two CLIs no longer render contradictory verdicts on identical stale evidence.",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
