@@ -131,7 +131,21 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/capability-candidate-exposure-smoke.ts",
+          "command": "node packages/main/dist/tasks/capability-candidate-exposure-smoke.js",
+          "result": "pass",
+          "note": "Smoke 8/8. HAPPY: playbook_promotion_status pendingLearning surfaces PBP-882 (capability candidate) with its capabilityRelease lineage (JSON row + text render); playbook_trial_run --apply (candidate-exposure path) writes exactly one observable exposure record (playbookId=PBP-882, exposureMode=candidate-inspection, verdictSource=candidate-trial, storyId=B-785e, consumer/surface=session_brief, observedAt), capabilityReleaseId recoverable via lineage; re-apply idempotent (no duplicate).",
+          "headHash": "8bcf5eb770d993f4aab748e819a38b45dd6ce06d",
+          "materialHash": "ce72e0d04c917a41754bc85758762463a2fe6a46ff9fa8b4c38e1a60abd29114",
+          "storyFilesHash": "c02d70cdd4458ce5e1e1dea14910859f97dc9c604074c63b4526ed09de5baedc",
+          "timestamp": "2026-07-05T23:37:54.399Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
