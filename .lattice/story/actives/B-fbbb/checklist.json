@@ -67,7 +67,14 @@
             "priority": "should"
           }
         ],
-        "adversarial": []
+        "adversarial": [
+          {
+            "id": "CHK-002:adversarial:0",
+            "desc": "The updated assertion is NOT satisfiable by retired wording: it matches only the current committed authorityBoundary from commit 8892270bf. If a future edit reverts the handler to 'not remote receipt completion', the smoke fails closed (red) — the test tracks the real contract instead of masking drift.",
+            "type": "cli",
+            "priority": "should"
+          }
+        ]
       },
       "files": {
         "modify": [
@@ -75,7 +82,8 @@
         ],
         "create": [],
         "test": []
-      }
+      },
+      "userSees": "check: no-regression: decision-doc-promotion smoke still prints \"smoke passed\" — PASS\ncheck: no-regression: experience-layer-digest-extract smoke still prints \"smoke passed\" — PASS"
     }
   ]
 }
