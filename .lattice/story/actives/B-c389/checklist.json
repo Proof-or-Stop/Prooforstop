@@ -4,7 +4,7 @@
       "id": "CHK-001",
       "title": "M8: capability_release_backfill CLI (dry-run/apply/--digest) + live B-785e/PBP-882 backfill",
       "context": "Mirror playbook_seed_backfill. Default --dryRun detects under-bound candidates (lineage lacks capabilityReleaseId while a capability release exists for the story); --apply enriches exactly those with capabilityReleaseId/capabilityId/capabilityVersion/artifactReleaseId; a --digest confirm gate (apply requires the dry-run plan digest). Idempotent, never activates, never infers helped. Then RUN it on the real B-785e artifact release + PBP-882. Ref: exec-plan doc M8 + Follow-up Story.",
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-07-05T23:00:34.350Z",
       "endTime": "2026-07-05T23:13:26.112Z",
       "userSees": "capability_release_backfill --dryRun: 1 eligible (B-785e/PBP-882); --apply: PBP-882 enriched with capabilityReleaseId; re-run: 0 eligible (idempotent)",
