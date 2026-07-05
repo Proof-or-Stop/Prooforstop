@@ -318,9 +318,47 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-05T02:33:27.550Z",
-      "endTime": null
+      "endTime": "2026-07-05T02:34:08.407Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "file": "experiments/multi-model-ablation/m2-status.md",
+          "command": "node experiments/multi-model-ablation/m2-launch-readiness-check.mjs && sed -n 1,220p experiments/multi-model-ablation/m2-status.md",
+          "result": "pass",
+          "note": "m2-status.md prints the milestone table with M0 and M1 complete, M2 launch readiness prepared, formal M2 execution not started, and M3-M6 pending.",
+          "headHash": "04cc47cc13e89debc3c316288caa1a56a96ccde6",
+          "materialHash": "70f820f60d7b42153e9711d00bbd0d81b768efdacff9bb75433ec78369a74fa1",
+          "storyFilesHash": "e7cb4b718d7c27635908573bcd0cce7d91846c0f35b7e099b42512726289090c",
+          "timestamp": "2026-07-05T02:34:08.639Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+          "command": "node experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+          "result": "pass",
+          "note": "Checker accepts status accuracy with optional ④ as optional_budget_permitting and not required for M2 launch readiness.",
+          "headHash": "04cc47cc13e89debc3c316288caa1a56a96ccde6",
+          "materialHash": "70f820f60d7b42153e9711d00bbd0d81b768efdacff9bb75433ec78369a74fa1",
+          "storyFilesHash": "e7cb4b718d7c27635908573bcd0cce7d91846c0f35b7e099b42512726289090c",
+          "timestamp": "2026-07-05T02:34:08.852Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+          "command": "node experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+          "result": "pass",
+          "note": "Negative controls and status checks reject claims that outcome data exists, Phase 1 has run, H-M1/H-M3 are proven, or model-agnostic paper claims are unlocked.",
+          "headHash": "04cc47cc13e89debc3c316288caa1a56a96ccde6",
+          "materialHash": "70f820f60d7b42153e9711d00bbd0d81b768efdacff9bb75433ec78369a74fa1",
+          "storyFilesHash": "e7cb4b718d7c27635908573bcd0cce7d91846c0f35b7e099b42512726289090c",
+          "timestamp": "2026-07-05T02:34:09.085Z"
+        }
+      ]
     }
   ]
 }
