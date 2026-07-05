@@ -26,6 +26,15 @@
       "reviewRound": "2026-07-05T02:34:49.688Z",
       "reviewRunId": "B-3a4d:RR-005",
       "_hash": "dfaf4e455f6e695a87cfeb685a70976d883ba7501d2c5f4b390a497bbff36968"
+    },
+    {
+      "id": "B-3a4d:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage pass. Reviewed docs/CLI.md and packages/main/tests/milestone-status.test.mjs. Ran node packages/main/tests/milestone-status.test.mjs: PASS. Coverage evidence: real git worktree DONE fixture at packages/main/tests/milestone-status.test.mjs:1453 creates main+story worktrees, calls story_advance DONE, asserts worktreeRoot removed at :1588, reads canonical main Store closeout at :1593-1601, and reads CLI --root mainRoot closeout JSON at :1603-1613. No-ledger non-fabrication is covered by missing-ledger status report at :183-208, buildMilestoneCloseoutSnapshot throwing cannot-fabricate at :431-438, and captureMilestoneCloseoutSnapshotFromStore returning skipped with no write at :1204-1231. No blocking coverage gaps found.",
+      "createdAt": "2026-07-05T02:39:02.338Z",
+      "reviewRound": "2026-07-05T02:34:49.688Z",
+      "reviewRunId": "B-3a4d:RR-006",
+      "_hash": "58dfbcf100d7fd972112552b98c43b77efdb74b6fc14d7f5454dbd1691394ad1"
     }
   ]
 }
