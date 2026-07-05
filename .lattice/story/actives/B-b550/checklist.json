@@ -6,7 +6,35 @@
       "context": "Plan M0.a-M0.e: confirm the canonical Proofbound root via lattice session_brief; inventory milestone ledger/status command surfaces via rg; inventory source docs and existing tests/smokes; record stale or retired-root documents that must not drive implementation truth. Output: trusted source map section in the findings report.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "rg for ## M0 or Source Inventory section in milestone-ledger-status-review-findings.md -> section exists with at least one source file ref; WHY: confirms the inventory was actually recorded",
+            "type": "cli"
+          },
+          {
+            "desc": "rg session_brief or canonical root in findings report -> confirms canonical Proofbound root was verified not retired Orchestrate root; WHY: M0.a requires root confirmation",
+            "type": "cli"
+          },
+          {
+            "desc": "rg milestone_ledger_set|milestone_ledger_add|milestone_status|milestone_closeout in findings report -> all 5 command surfaces inventoried; WHY: M0.b requires complete surface inventory",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "rg stale|retired in findings report M0 section -> stale/retired-root docs explicitly called out or marked not-applicable; WHY: M0.e requires recording stale docs that must not drive implementation truth",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Check findings report M0 section does not reference any path under the retired Orchestrate root /Users/jek/Documents/Work/Orchestrate as authoritative -> no retired-root path treated as truth; WHY: prevents stale-root contamination of the audit",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

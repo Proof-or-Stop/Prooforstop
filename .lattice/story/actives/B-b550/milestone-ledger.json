@@ -1,0 +1,130 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-b550",
+  "state": "confirmed",
+  "ledgerHash": "sha256:b4f9700cbf287ba62badb73e405ff63eb79f026d9dad2d9a06892c6a3ff5aaed",
+  "milestones": [
+    {
+      "id": "M0",
+      "sourceRequirementId": "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md#M0",
+      "claim": "Review scope and source inventory recorded",
+      "doneMeans": "Findings report contains a trusted source map: canonical root confirmation, command-surface inventory, doc inventory, test inventory, stale-doc register.",
+      "requiredEvidence": [
+        "doc_review"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [],
+      "status": "planned"
+    },
+    {
+      "id": "M1",
+      "sourceRequirementId": "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md#M1",
+      "claim": "Read-only status boundary verified or gaps filed",
+      "doneMeans": "Findings report M1 section records boundary finding or pass for milestone_status argument boundary, missing-ledger non-write, no launches, no evidence writes, no DONE claims.",
+      "requiredEvidence": [
+        "doc_review",
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md#M2",
+      "claim": "Ledger write contract verified or gaps filed",
+      "doneMeans": "Findings report M2 section records write-surface finding or pass covering phase policy, ownership, hash and candidate/confirmed behavior, overwrite safety.",
+      "requiredEvidence": [
+        "doc_review",
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [],
+      "status": "planned"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md#M3",
+      "claim": "Missing-ledger policy verified across story classes",
+      "doneMeans": "Findings report M3 section records the missing-state matrix for ordinary, triggered, candidate, and confirmed cases with DEV/REVIEW/DONE behavior.",
+      "requiredEvidence": [
+        "doc_review",
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [],
+      "status": "planned"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md#M4",
+      "claim": "Schema adequacy for honest progress reporting decided",
+      "doneMeans": "Findings report M4 section records schema adequacy finding covering required fields, binding refs, status values, parent/child support, prose-claim resistance.",
+      "requiredEvidence": [
+        "doc_review"
+      ],
+      "checklistRefs": [
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [],
+      "status": "planned"
+    },
+    {
+      "id": "M5",
+      "sourceRequirementId": "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md#M5",
+      "claim": "Test and negative-control coverage mapped",
+      "doneMeans": "Findings report M5 section maps existing tests to M5.a-M5.e and lists missing negative controls as findings.",
+      "requiredEvidence": [
+        "doc_review"
+      ],
+      "checklistRefs": [
+        "CHK-006"
+      ],
+      "verificationIntentRefs": [],
+      "status": "planned"
+    },
+    {
+      "id": "M6",
+      "sourceRequirementId": "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md#M6",
+      "claim": "Agent capability impact bounded without overclaim",
+      "doneMeans": "Findings report M6 section confirms capability claims (progress, admission safety, handoff) stop short of lifecycle DONE or Authority claims.",
+      "requiredEvidence": [
+        "doc_review"
+      ],
+      "checklistRefs": [
+        "CHK-007"
+      ],
+      "verificationIntentRefs": [],
+      "status": "planned"
+    },
+    {
+      "id": "M7",
+      "sourceRequirementId": "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md#M7",
+      "claim": "Review outcome and next story decision recorded",
+      "doneMeans": "Findings report closure section summarizes pass/finding outcomes, records the implementation decision, and plan doc statuses plus NAV are updated.",
+      "requiredEvidence": [
+        "doc_review"
+      ],
+      "checklistRefs": [
+        "CHK-008"
+      ],
+      "verificationIntentRefs": [],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-05T12:18:26.959Z",
+  "updatedAt": "2026-07-05T12:18:40.402Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260705121840",
+    "acceptedInterpretationHash": "sha256:2055ef89204b353cc2e1a8e6abfefc62842d95d20e4c96737acc846f8da81899",
+    "acceptedAt": "2026-07-05T12:18:40.402Z"
+  }
+}

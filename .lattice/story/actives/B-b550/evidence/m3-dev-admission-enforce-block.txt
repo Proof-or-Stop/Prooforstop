@@ -1,0 +1,71 @@
+[0.1s] running proofstory_gate_check...
+[0.1s] proofstory_gate_check failed: ProofStory diagnostics for B-b550
+Mode: enforce
+Status: fail
+Blocking: yes
+Hardening level: high_assurance
+Ledger: confirmed, 8/5 milestone threshold (too_broad)
+Suggested slices:
+  - slice-1: M0, M1, M2, M3, M4
+  - slice-2: M5, M6, M7
+Trigger reasons (6):
+  - structural_milestone_intent: Request has a structural multi-deliverable signal, so milestone coverage must be countable.
+  - milestones_provided: A milestone ledger exists, so every ledger row needs checklist and verificationIntent coverage.
+  - high_assurance_risk: High-risk or gate/security wording selects high-assurance intent hardening.
+  - collision_required_high_assurance: High-assurance work requires an independent intent-collision result.
+  - collision_required_standard: Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.
+  - scope_ambiguity: Broad or absolute scope wording should have scope clarification before future enforcement.
+Diagnostic gaps (18):
+  - milestone_source_requirement_unbound [warn; milestone-ledger.json]: M0 references sourceRequirementId docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md#M0, which is not in original intent keyRequirementIds.
+  - milestone_missing_verification_intent_refs [warn; milestone-ledger.json]: M0 has no verificationIntentRefs.
+  - milestone_source_requirement_unbound [warn; milestone-ledger.json]: M1 references sourceRequirementId docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md#M1, which is not in original intent keyRequirementIds.
+  - milestone_missing_verification_intent_refs [warn; milestone-ledger.json]: M1 has no verificationIntentRefs.
+  - milestone_source_requirement_unbound [warn; milestone-ledger.json]: M2 references sourceRequirementId docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md#M2, which is not in original intent keyRequirementIds.
+  - milestone_missing_verification_intent_refs [warn; milestone-ledger.json]: M2 has no verificationIntentRefs.
+  - milestone_source_requirement_unbound [warn; milestone-ledger.json]: M3 references sourceRequirementId docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md#M3, which is not in original intent keyRequirementIds.
+  - milestone_missing_verification_intent_refs [warn; milestone-ledger.json]: M3 has no verificationIntentRefs.
+  - milestone_source_requirement_unbound [warn; milestone-ledger.json]: M4 references sourceRequirementId docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md#M4, which is not in original intent keyRequirementIds.
+  - milestone_missing_verification_intent_refs [warn; milestone-ledger.json]: M4 has no verificationIntentRefs.
+  - milestone_source_requirement_unbound [warn; milestone-ledger.json]: M5 references sourceRequirementId docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md#M5, which is not in original intent keyRequirementIds.
+  - milestone_missing_verification_intent_refs [warn; milestone-ledger.json]: M5 has no verificationIntentRefs.
+  - milestone_source_requirement_unbound [warn; milestone-ledger.json]: M6 references sourceRequirementId docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md#M6, which is not in original intent keyRequirementIds.
+  - milestone_missing_verification_intent_refs [warn; milestone-ledger.json]: M6 has no verificationIntentRefs.
+  - milestone_source_requirement_unbound [warn; milestone-ledger.json]: M7 references sourceRequirementId docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md#M7, which is not in original intent keyRequirementIds.
+  - milestone_missing_verification_intent_refs [warn; milestone-ledger.json]: M7 has no verificationIntentRefs.
+  - missing_acceptance_binding [warn; proofstory.json]: No ProofStory acceptance binding maps the snapshot acceptanceClaim to checklist/verificationIntent refs.
+  - too_broad [warn; milestone-ledger.json]: Milestone ledger has 8 row(s), above the 5 row threshold for high_assurance. Record a complete slice-plan.json or assignedStory fields before enforce-mode DEV admission; suggested slicing groups are diagnostic only and no child stories are created automatically.
+Error: ProofStory diagnostics for B-b550
+Mode: enforce
+Status: fail
+Blocking: yes
+Hardening level: high_assurance
+Ledger: confirmed, 8/5 milestone threshold (too_broad)
+Suggested slices:
+  - slice-1: M0, M1, M2, M3, M4
+  - slice-2: M5, M6, M7
+Trigger reasons (6):
+  - structural_milestone_intent: Request has a structural multi-deliverable signal, so milestone coverage must be countable.
+  - milestones_provided: A milestone ledger exists, so every ledger row needs checklist and verificationIntent coverage.
+  - high_assurance_risk: High-risk or gate/security wording selects high-assurance intent hardening.
+  - collision_required_high_assurance: High-assurance work requires an independent intent-collision result.
+  - collision_required_standard: Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.
+  - scope_ambiguity: Broad or absolute scope wording should have scope clarification before future enforcement.
+Diagnostic gaps (18):
+  - milestone_source_requirement_unbound [warn; milestone-ledger.json]: M0 references sourceRequirementId docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md#M0, which is not in original intent keyRequirementIds.
+  - milestone_missing_verification_intent_refs [warn; milestone-ledger.json]: M0 has no verificationIntentRefs.
+  - milestone_source_requirement_unbound [warn; milestone-ledger.json]: M1 references sourceRequirementId docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md#M1, which is not in original intent keyRequirementIds.
+  - milestone_missing_verification_intent_refs [warn; milestone-ledger.json]: M1 has no verificationIntentRefs.
+  - milestone_source_requirement_unbound [warn; milestone-ledger.json]: M2 references sourceRequirementId docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md#M2, which is not in original intent keyRequirementIds.
+  - milestone_missing_verification_intent_refs [warn; milestone-ledger.json]: M2 has no verificationIntentRefs.
+  - milestone_source_requirement_unbound [warn; milestone-ledger.json]: M3 references sourceRequirementId docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md#M3, which is not in original intent keyRequirementIds.
+  - milestone_missing_verification_intent_refs [warn; milestone-ledger.json]: M3 has no verificationIntentRefs.
+  - milestone_source_requirement_unbound [warn; milestone-ledger.json]: M4 references sourceRequirementId docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md#M4, which is not in original intent keyRequirementIds.
+  - milestone_missing_verification_intent_refs [warn; milestone-ledger.json]: M4 has no verificationIntentRefs.
+  - milestone_source_requirement_unbound [warn; milestone-ledger.json]: M5 references sourceRequirementId docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md#M5, which is not in original intent keyRequirementIds.
+  - milestone_missing_verification_intent_refs [warn; milestone-ledger.json]: M5 has no verificationIntentRefs.
+  - milestone_source_requirement_unbound [warn; milestone-ledger.json]: M6 references sourceRequirementId docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md#M6, which is not in original intent keyRequirementIds.
+  - milestone_missing_verification_intent_refs [warn; milestone-ledger.json]: M6 has no verificationIntentRefs.
+  - milestone_source_requirement_unbound [warn; milestone-ledger.json]: M7 references sourceRequirementId docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md#M7, which is not in original intent keyRequirementIds.
+  - milestone_missing_verification_intent_refs [warn; milestone-ledger.json]: M7 has no verificationIntentRefs.
+  - missing_acceptance_binding [warn; proofstory.json]: No ProofStory acceptance binding maps the snapshot acceptanceClaim to checklist/verificationIntent refs.
+  - too_broad [warn; milestone-ledger.json]: Milestone ledger has 8 row(s), above the 5 row threshold for high_assurance. Record a complete slice-plan.json or assignedStory fields before enforce-mode DEV admission; suggested slicing groups are diagnostic only and no child stories are created automatically.

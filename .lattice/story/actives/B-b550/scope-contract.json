@@ -1,0 +1,21 @@
+{
+  "storyId": "B-b550",
+  "mode": "enforce",
+  "allowedModify": [
+    "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+    "docs/requirements/NAV.md"
+  ],
+  "allowedCreate": [
+    "docs/requirements/decisions/milestone-ledger-status-review-findings.md"
+  ],
+  "allowedTest": [],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "packages/main/src/**",
+    "packages/main/tests/**"
+  ],
+  "scopeChangeReason": "Docs-only review story deliverables: new findings report, plan doc status updates, NAV entry. Source and tests read-only per plan non-goals.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-05T12:18:59.827Z",
+  "updatedAt": "2026-07-05T12:19:17.150Z"
+}
