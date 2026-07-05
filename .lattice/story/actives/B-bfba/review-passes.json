@@ -53,6 +53,15 @@
       "reviewRound": "2026-07-05T00:17:44.038Z",
       "reviewRunId": "B-bfba:RR-007",
       "_hash": "ac23e7d6337e4ea7ac03639070f3742ddcebbf67b0db63c246feb8c051f1e65c"
+    },
+    {
+      "id": "B-bfba:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Concept review pass: post-F-001 delta is limited to the real story_advance DONE regression in packages/main/tests/milestone-status.test.mjs plus metadata. The fixture uses a temp repo TEST story with confirmed milestone ledger, signed delivery context, and createStoryAdvanceHandlers(...).story_advance({phase:DONE}); it asserts milestone-closeout.json is persisted through transition-orchestrator wiring, logged, and captured while snapshot.phase remains TEST before DONE metadata persistence. No source/product semantics changed; host-neutral stable DONE closeout snapshots remain supported by hash bindings and source milestone_status digest.",
+      "createdAt": "2026-07-05T00:22:28.519Z",
+      "reviewRound": "2026-07-05T00:17:44.038Z",
+      "reviewRunId": "B-bfba:RR-005",
+      "_hash": "b45b11545794e61fbd4d504123567c80936ac41c10893202b16eccebfe1b2d44"
     }
   ]
 }
