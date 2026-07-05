@@ -22,7 +22,7 @@
       "desc": "quality-cleanup: packages/main/src/handlers/done-effects.ts:271-284 (runArtifactReleaseLedgerAfterDoneMerge) is dead code after this diff: both internal call sites (done-effects.ts applyDoneMergeEffects and done-recover.ts) were switched to runArtifactReleaseLedgerAfterDoneMergeDetailed, and grep across the repo (excluding dist/node_modules) finds zero remaining callers of the non-Detailed export.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-05T17:23:53.579Z",
@@ -30,7 +30,9 @@
       "reviewRunId": "B-8128:RR-002",
       "_hash": "4a1878506aadbfd40d81dd0ef35241a45129851931e4e3483951fdf4f9239dc8",
       "signatureTag": "missing|unknown|quality-cleanup-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Removed the orphaned non-Detailed runArtifactReleaseLedgerAfterDoneMerge wrapper; re-pointed the two @link comments to ...Detailed.",
+      "resolvedAt": "2026-07-05T17:34:30.353Z"
     },
     {
       "id": "B-8128:F-003",
