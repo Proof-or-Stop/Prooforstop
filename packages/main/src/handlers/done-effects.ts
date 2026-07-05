@@ -143,6 +143,8 @@ function normalizeGitPath(path: string): string {
 export function isDoneMainRuntimeBuildInput(path: string): boolean {
   const rel = normalizeGitPath(path);
   return rel.startsWith('packages/main/src/')
+    || rel === 'docs/CLI.md'
+    || rel.startsWith('packages/main/tests/')
     || rel === 'packages/main/package.json'
     || rel === 'packages/main/package-lock.json'
     || rel === 'packages/main/tsconfig.json'
@@ -200,7 +202,7 @@ export function runDoneMainPackageBuildAfterMerge(
 ): string {
   const changedPaths = opts.changedPaths ?? listChangedPathsBetweenMainShas(mainMergeRoot, beforeMainSha, afterMainSha);
   if (!shouldBuildDoneMainPackageForChangedPaths(changedPaths)) {
-    return '✓ packages/main build skipped after DONE merge (no watched runtime inputs changed)';
+    return '✓ packages/main build skipped after DONE merge (no watched runtime or capability contract inputs changed)';
   }
 
   const result = (opts.buildRunner ?? defaultDoneMainBuildRunner)(mainMergeRoot);

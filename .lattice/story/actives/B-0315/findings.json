@@ -1,0 +1,77 @@
+{
+  "findings": [
+    {
+      "id": "B-0315:F-001",
+      "desc": "B-0315 changes the DONE build/version-bump gate so packages/main/tests/** is a watched capability-proof input (done-effects.ts returns true and version-bump-smoke asserts that positive case), but worktree-authority-smoke still keeps packages/main/tests/smoke.ts in the skipped set and asserts isDoneMainRuntimeBuildInput(path) === false. That leaves a core authority smoke encoding the opposite product boundary from this story, so the bounded strategy is not consistently reflected and will fail or mislead gate verification when that smoke runs.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-05T09:59:45.561Z",
+      "reviewRound": "2026-07-05T09:57:50.410Z",
+      "reviewRunId": "B-0315:RR-003",
+      "_hash": "5a424beb3b01c3e2793277373053be5bc26e8cf4b931a4adcd9863c5f4cc1bdb",
+      "files": [
+        "packages/main/src/tasks/worktree-authority-smoke.ts",
+        "packages/main/src/handlers/done-effects.ts",
+        "packages/main/src/tasks/version-bump-smoke.ts"
+      ],
+      "signatureTag": "spec-boundary|ts|0315-changes-build",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Moved packages/main/tests/smoke.ts from skipped to watched in worktree-authority-smoke; npm build, version-bump-smoke, worktree-authority-smoke, and done-merge-experience-refresh-smoke all passed after the fix.",
+      "resolvedAt": "2026-07-05T10:13:35.989Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0315:F-002",
+      "desc": "packages/main build skip output still says \"no watched runtime inputs changed\" (done-effects.ts:205) and existing smoke assertions preserve that old text, while this story expands the watched predicate to include docs/CLI.md and packages/main/tests/** and updates the lifecycle docs/CLI version-bump skip wording to \"CLI/runtime or capability contract\". This leaves DONE/partial-DONE build skip messaging inconsistent with the new bounded capability/proof policy.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-05T10:00:44.524Z",
+      "reviewRound": "2026-07-05T09:57:50.410Z",
+      "reviewRunId": "B-0315:RR-002",
+      "_hash": "a36f4b7836f917cc15416aed735d588a39298d0f8ddc9b1340a2357343f6c735",
+      "files": [
+        "packages/main/src/handlers/done-effects.ts",
+        "packages/main/src/tasks/done-merge-experience-refresh-smoke.ts",
+        "packages/main/src/tasks/worktree-authority-smoke.ts",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "signatureTag": "edge|ts|packages-main-build",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Updated the post-DONE packages/main build skip line and maintained smoke assertions to say no watched runtime or capability contract inputs changed; npm build and targeted smoke commands passed.",
+      "resolvedAt": "2026-07-05T10:13:36.510Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0315:F-003",
+      "desc": "worktree-authority-smoke still encodes the old policy by expecting packages/main/tests/smoke.ts to be a skipped path. Repro: node packages/main/dist/tasks/worktree-authority-smoke.js fails with AssertionError: packages/main/tests/smoke.ts must not trigger the post-DONE packages/main build, actual true expected false. This conflicts with B-0315 CHK-001 edge intent that packages/main/tests/** is a positive bump/build input and shows the validation evidence does not cover this maintained smoke.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-05T10:02:33.587Z",
+      "reviewRound": "2026-07-05T09:57:50.410Z",
+      "reviewRunId": "B-0315:RR-001",
+      "_hash": "49460923228f1a2749df6b44bf7eae953591df8ef0afb8340a3c1af23c1971fb",
+      "files": [
+        "packages/main/src/tasks/worktree-authority-smoke.ts",
+        "packages/main/dist/tasks/worktree-authority-smoke.js",
+        "packages/main/src/handlers/done-effects.ts"
+      ],
+      "signatureTag": "edge|ts|worktree-authority-smoke",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Reproduced the maintained-smoke mismatch, updated worktree-authority-smoke to treat packages/main/tests/smoke.ts as watched, then node packages/main/dist/tasks/worktree-authority-smoke.js passed.",
+      "resolvedAt": "2026-07-05T10:13:44.943Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

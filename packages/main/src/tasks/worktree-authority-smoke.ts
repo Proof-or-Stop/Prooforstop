@@ -828,6 +828,7 @@ function assertDoneMainPackageBuildTriggerPredicate(): void {
     'packages/main/package.json',
     'packages/main/package-lock.json',
     'packages/main/tsconfig.json',
+    'packages/main/tests/smoke.ts',
     'package.json',
     'package-lock.json',
   ];
@@ -844,7 +845,6 @@ function assertDoneMainPackageBuildTriggerPredicate(): void {
     'docs/requirements/decisions/story-lifecycle.md',
     'README.md',
     'packages/main/README.md',
-    'packages/main/tests/smoke.ts',
     'packages/lab/src/index.ts',
   ];
   for (const path of skipped) {
@@ -1086,7 +1086,7 @@ function assertDoneSuccessPathOutputAndOrdering(): void {
     assert.match(output, deleteLine, 'DONE success output must include the branch-delete confirmation');
     assert.match(
       output,
-      /packages\/main build skipped after DONE merge \(no watched runtime inputs changed\)/,
+      /packages\/main build skipped after DONE merge \(no watched runtime or capability contract inputs changed\)/,
       'DONE metadata-only success output must include the post-merge build skip line',
     );
 
