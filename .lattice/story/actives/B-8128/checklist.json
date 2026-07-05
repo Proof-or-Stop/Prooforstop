@@ -6,7 +6,40 @@
       "context": "Read-only smoke loading .lattice/artifact-releases.jsonl, playbooks.json, playbook-promotion-health.jsonl; asserts B-785e artifact release exists AND candidate lineage lacks capabilityReleaseId/artifactReleaseId. Fails RED on current state; passes once M4/M8 land.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "product-capability-release-red-smoke fails RED: expected PCR-<id>, actual undefined (candidate lacks capability lineage; green after M4)",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/tasks/product-capability-release-red-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/product-capability-release-red-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Hermetic mkdtemp fixture with a B-785e-shaped artifact release + PCR + a candidate playbook proves the candidate lineage lacks capabilityReleaseId; the smoke asserts the desired bound state and fails RED.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The smoke reads NO live repo-root .lattice; it is re-runnable and does not self-invalidate against the backfill proof.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The expected PCR id is produced by the real M1 record builder (not hand-faked); the red is a genuine gap and flips green when M4 binds lineage on the same fixture.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
