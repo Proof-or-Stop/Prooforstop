@@ -108,9 +108,9 @@
       "id": "CHK-002",
       "title": "Cover stdout contract with regression tests",
       "context": "Add focused tests proving a representative state-change command emits `Milestone Status - B-xxxx`, `Completed`, `Current`, and `Remaining` in stdout instead of silently consuming milestone_status.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-05T10:38:21.422Z",
-      "endTime": null,
+      "endTime": "2026-07-05T10:38:38.201Z",
       "relatedDocs": [
         "docs/CLI.md"
       ],
@@ -217,6 +217,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Post-command milestone_status append implemented, documented, and verified."
+    },
+    {
+      "timestamp": "2026-07-05T10:38:38.201Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Regression coverage for append, JSON skip, and missing-ledger skip passed."
     }
   ]
 }
