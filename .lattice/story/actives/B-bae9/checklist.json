@@ -107,7 +107,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/pos-instrument-replay/tamper.mjs; echo exit=$?",
+          "result": "pass",
+          "note": "H2 conformance PASS (mismatches=0), exit 0: all 18 failClosed verifyStatus fail/crash + fingerprintMatch true; 2 acceptanceBucket + 6 acknowledgedLimitations verifyStatus pass + fingerprintMatch true; 1 dropped pass. Verified: fingerprintMatch:false count=0, failClosed-with-pass=0.",
+          "headHash": "5c9fb0e3cb3ac6de5787d19c2ecd993ccfe4c3aa",
+          "materialHash": "318dd01bb34cf99e845d38168702ab879c50f9ffcd1e2b31c40d8c35fecfde56",
+          "storyFilesHash": "5d6c2c04943b76c548f58858c097f59b562b6e871829aadcc368bb98ed0a1c6b",
+          "timestamp": "2026-07-05T17:29:35.574Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
