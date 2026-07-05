@@ -1,17 +1,18 @@
 #!/usr/bin/env node
 
 /**
- * M0 REPRO-FIRST RED smoke (hermetic).
+ * M0 REPRO-FIRST smoke (hermetic) — GREEN after B-8128 M4.
  *
- * Proves the gap on a controlled mkdtemp fixture: a B-785e-shaped DONE produced
- * an artifact release AND a product capability release (M1), plus a candidate
- * playbook — but the candidate's lineage carries only the current 3 fields and
- * does NOT reference the capability release. This test asserts the desired
- * post-state (candidate.lineage.capabilityReleaseId === the capability release
- * id) and therefore FAILS RED until M4 lineage binding produces the fixture
- * candidate via the real enrichment path. It reads no live repo-root .lattice
- * state, so it is hermetic and re-runnable (and does not self-invalidate against
- * the backfill proof).
+ * Proves the desired post-state on a controlled mkdtemp fixture: a B-785e-shaped
+ * DONE produced an artifact release AND a product capability release (M1/M3), and
+ * the candidate playbook distilled from that story now BINDS its lineage to the
+ * capability release. Instead of hand-writing a candidate WITHOUT the field (the
+ * former RED state), this runs the REAL M4 enrichment path
+ * (`enrichSeedWithCapabilityLineage` -> `lineageFromSeed`) over a done_experience
+ * seed with the capability release present, and asserts
+ * `candidate.lineage.capabilityReleaseId === capabilityRelease.id`.
+ *
+ * It reads no live repo-root .lattice state, so it is hermetic and re-runnable.
  */
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
@@ -22,6 +23,12 @@ import {
   createCapabilityReleaseRecordForTest,
   writeCapabilityReleaseLedgerForTest,
 } from '../core/capability-release.js';
+import {
+  candidatePlaybookFromProposal,
+  enrichSeedWithCapabilityLineage,
+  lineageFromSeed,
+  type PlaybookSeedCandidate,
+} from '../core/playbook-seed.js';
 
 function mkdtemp(prefix: string): string {
   return execFileSync('mktemp', ['-d', join(tmpdir(), `${prefix}XXXXXX`)], {
@@ -70,30 +77,60 @@ const capabilityRelease = createCapabilityReleaseRecordForTest({
 });
 writeCapabilityReleaseLedgerForTest(root, [capabilityRelease]);
 
-// A PBP-882-shaped candidate as the CURRENT DONE ingest produces it: 3-field
-// lineage, no capability binding. (At M4 this candidate will instead be produced
-// by the real enrichment path, which attaches capabilityReleaseId.)
-const candidate = {
+// A B-785e done_experience seed, exactly as the DONE ingest observation produces
+// it (3-field lineage material, no capability binding yet).
+const seed: PlaybookSeedCandidate = {
+  seedId: 'PBS-b785edoneexp001',
+  sourceArtifactKind: 'done_experience',
+  sourceArtifactId: 'B-785e',
+  sourceRef: 'done-experience/B-785e',
+  canonicalSourceKey: 'done_experience:B-785e',
+  canonicalSourceKeyVersion: 'v1',
+  canonicalizationPolicyHash: 'sha256:policy-hash',
+  sourceStoryId: 'B-785e',
+  sourceFindingId: 'B-785e:DONE-EXPERIENCE',
+  sourceSignature: 'done_experience',
+  sourceSummary: 'DONE experience for B-785e',
+  priority: 3,
+  priorityReason: 'DONE experience source priority 3',
+};
+
+// THE REAL M4 PATH: enrich the seed against the capability release ledger, then
+// derive the lineage exactly as proposalFromSeed does, and build the candidate
+// via the real candidatePlaybookFromProposal shape.
+const enriched = enrichSeedWithCapabilityLineage(root, seed);
+const lineage = lineageFromSeed(enriched);
+const candidate = candidatePlaybookFromProposal({
   id: 'PBP-882',
   title: 'Playbook: DONE experience B-785e',
-  status: 'candidate',
-  lineage: {
-    sourceStoryId: 'B-785e',
-    sourceFindingId: 'B-785e:DONE-EXPERIENCE',
-    sourceSignature: 'done_experience',
+  trigger: { keywords: ['b-785e'], fileKinds: [], storyPhases: ['DONE', 'REVIEW'] },
+  check: 'Before similar work, apply this DONE experience.',
+  pitfalls: ['Do not treat DONE experience seed material as authoritative gate evidence.'],
+  verification: ['Confirm the source condition behind B-785e:DONE-EXPERIENCE cannot recur'],
+  lineage,
+  seed: {
+    sourceArtifactKind: seed.sourceArtifactKind,
+    sourceArtifactId: seed.sourceArtifactId,
+    sourceRef: seed.sourceRef,
+    canonicalSourceKey: seed.canonicalSourceKey,
+    canonicalSourceKeyVersion: seed.canonicalSourceKeyVersion,
+    canonicalizationPolicyHash: seed.canonicalizationPolicyHash,
   },
-  usage: { surfacedCount: 0 },
-};
-write(root, '.lattice/learning/playbooks.json', JSON.stringify([candidate], null, 2) + '\n');
+  status: 'proposed',
+  proposalDigest: '',
+});
 
-// THE GAP (RED until M4): the DONE candidate for B-785e must reference its
-// product capability release, but current lineage does not carry it.
+// GREEN (M4): the DONE candidate for B-785e now references its product capability
+// release — lineage.capabilityReleaseId === the capability release id.
 assert.equal(
-  (candidate.lineage as { capabilityReleaseId?: string }).capabilityReleaseId,
+  candidate.lineage.capabilityReleaseId,
   capabilityRelease.id,
-  `RED: DONE candidate for B-785e (PBP-882) lacks capability release lineage; ` +
-    `expected lineage.capabilityReleaseId === ${capabilityRelease.id}. ` +
-    `Goes green when M4 binds capability lineage on the same fixture.`,
+  `M4: DONE candidate for B-785e (PBP-882) must bind its capability release; ` +
+    `expected lineage.capabilityReleaseId === ${capabilityRelease.id}, got ${candidate.lineage.capabilityReleaseId}.`,
 );
+assert.equal(candidate.lineage.capabilityId, capabilityRelease.capabilityId);
+assert.equal(candidate.lineage.capabilityVersion, capabilityRelease.capabilityVersion);
+assert.equal(candidate.lineage.artifactReleaseId, capabilityRelease.artifactReleaseId);
+assert.equal(candidate.lineage.artifactSetDigest, capabilityRelease.artifactSetDigest);
 
-console.log('ok product-capability-release-red (unexpected: gap already closed)');
+console.log('ok product-capability-release M4 lineage binding (candidate binds capability release)');
