@@ -91,7 +91,40 @@
       "context": "Per plan section 7 selfchecks: the M2 selfcheck exercises the budget_cap stop path with an injected sub-second cap. Also negative-tests the lockfile (second driver -> precondition_failed) and the recordless-exit-nonzero guard. Hermetic: mkdtemp isolation, run by node <file>, small scale only for speed.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "node experiments/pos-instrument-replay/selfcheck-m2.mjs exits 0 with 'selfcheck-m2 PASS': an injected sub-second budget cap forces a budget_cap stop record; a concurrent driver gets precondition_failed; a recordless iteration forces nonzero exit.",
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/pos-instrument-replay/selfcheck-m2.mjs"
+        ],
+        "test": [
+          "experiments/pos-instrument-replay/selfcheck-m2.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node selfcheck-m2.mjs runs hermetically (mkdtemp, small scale) and exits 0 with PASS",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "an injected sub-second budget cap makes an iteration record a budget_cap stop (the H4 stop path)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "lockfile negative test (concurrent driver -> precondition_failed) AND recordless-iteration -> nonzero exit are both exercised",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
