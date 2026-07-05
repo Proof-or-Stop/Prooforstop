@@ -232,7 +232,7 @@
       "context": "packages/main/tests/milestone-status.test.mjs stale-evidence block (~L749-870, stale ledger built ~L823) only asserts milestone_status demotes the row; no test feeds a stale-only report into buildMilestoneCloseoutSnapshot to assert it throws. Add that closeout negative control. Closes findings M5 test-gap #3.",
       "status": "done",
       "startTime": "2026-07-05T23:29:26.826Z",
-      "endTime": "2026-07-05T23:29:38.298Z",
+      "endTime": "2026-07-05T23:44:57.112Z",
       "userSees": "Running `npm --prefix packages/main run build && node packages/main/tests/milestone-status.test.mjs` completes with a `# stale-only closeout negative control passed` style success (process exit 0, no `AssertionError`). The newly added assertion block inside the stale-evidence section (~L806-868) proves that the same stale-only `report` which `milestone_status` demotes to the `Current` group also causes `buildMilestoneCloseoutSnapshot({ report })` to THROW. The operator sees the run reach the end of the suite (\"all milestone-status assertions passed\") only because the closeout guard rejected the stale report with a message matching `incomplete milestone rows: M-stale=current`. If someone regresses the guard so a stale-only report is silently frozen into a closeout snapshot, this run instead fails with `AssertionError [ERR_ASSERTION]: Missing expected exception` (the `assert.throws` firing), naming this negative control.",
       "files": {
         "modify": [],
