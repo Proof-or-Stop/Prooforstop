@@ -50,10 +50,10 @@
           "command": "node experiments/pos-instrument-replay/tamper.mjs",
           "result": "pass",
           "note": "tamper.mjs writes tamper-verdicts.jsonl (27 verdicts: 18 failClosed / 2 acceptanceBucket / 6 acknowledgedLimitations / 1 dropped), each now with byteDiff{recordsChanged,goldChanged,manifestChanged}, rederivedDisposition, expectedDisposition, dispositionMatch, intent.",
-          "headHash": "f52df7759b5d15f0941db5fe4afd0f4bc3597b71",
-          "materialHash": "57d036e02a223a1b32a206d6dbf54cf8e8ea79096f362d3ca55c63f9c5878bdc",
-          "storyFilesHash": "d16710c9a550ccd8037acdd199c78394f2929a2b59922343a50c2bab3e3e97e9",
-          "timestamp": "2026-07-05T17:59:39.790Z"
+          "headHash": "f636e40cfcc70ce7a61c0f5fe48bbda3c61a377b",
+          "materialHash": "a6aead49df669e742cba815ef6dca641ad7fca293f4c6562c19b58e3bb43f091",
+          "storyFilesHash": "7401a0eb51469c55a4651862d9665881b3edb9851fd1bdb36c9a6ff6b465f68e",
+          "timestamp": "2026-07-05T18:21:24.271Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -61,10 +61,10 @@
           "command": "git status --short experiments/pos-instrument-replay/",
           "result": "pass",
           "note": "tamper.mjs mutates only mkdtemp copies; working tree clean after a full run; frozen protocol.json + lib untouched (sha a3a781fe).",
-          "headHash": "4fadf4f40ed8993a62d57fe791a40ec17eddccd5",
-          "materialHash": "57d036e02a223a1b32a206d6dbf54cf8e8ea79096f362d3ca55c63f9c5878bdc",
-          "storyFilesHash": "d16710c9a550ccd8037acdd199c78394f2929a2b59922343a50c2bab3e3e97e9",
-          "timestamp": "2026-07-05T17:59:39.097Z"
+          "headHash": "f636e40cfcc70ce7a61c0f5fe48bbda3c61a377b",
+          "materialHash": "a6aead49df669e742cba815ef6dca641ad7fca293f4c6562c19b58e3bb43f091",
+          "storyFilesHash": "7401a0eb51469c55a4651862d9665881b3edb9851fd1bdb36c9a6ff6b465f68e",
+          "timestamp": "2026-07-05T18:21:24.271Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -72,10 +72,10 @@
           "command": "node -e \"const L=require('fs').readFileSync('experiments/pos-instrument-replay/tamper-verdicts.jsonl','utf8').trim().split('\\n').map(JSON.parse);const ids=new Set(L.map(v=>v.iterationId));console.log('lines',L.length,'uniqueIds',ids.size)\"",
           "result": "pass",
           "note": "identity key = tamper/small/<class>/<handling> per protocol.iterationIdRule; all 27 frozen-matrix classes appear exactly once (27 lines, 27 unique iterationIds, 0 dup/missing/extra).",
-          "headHash": "61dcb585da6cd17ff8a998edbd47f388093915a5",
-          "materialHash": "57d036e02a223a1b32a206d6dbf54cf8e8ea79096f362d3ca55c63f9c5878bdc",
-          "storyFilesHash": "d16710c9a550ccd8037acdd199c78394f2929a2b59922343a50c2bab3e3e97e9",
-          "timestamp": "2026-07-05T17:59:40.442Z"
+          "headHash": "f636e40cfcc70ce7a61c0f5fe48bbda3c61a377b",
+          "materialHash": "a6aead49df669e742cba815ef6dca641ad7fca293f4c6562c19b58e3bb43f091",
+          "storyFilesHash": "7401a0eb51469c55a4651862d9665881b3edb9851fd1bdb36c9a6ff6b465f68e",
+          "timestamp": "2026-07-05T18:21:24.271Z"
         }
       ]
     },
@@ -126,10 +126,10 @@
           "command": "node experiments/pos-instrument-replay/tamper.mjs; echo exit=$?",
           "result": "pass",
           "note": "H2 conformance PASS exit 0: mismatches=0, dispositionMatch failures=0, no-op mutations=0, dropped-semantics violations=0. Every non-dropped class shows a real byteDiff (mutation genuinely applied); dropped (seed-swap) has records+gold byte-identical to clean; every re-derived disposition matches the frozen bucket.",
-          "headHash": "ca78f71ead6095715b26173b0f79232ff4f727a4",
-          "materialHash": "57d036e02a223a1b32a206d6dbf54cf8e8ea79096f362d3ca55c63f9c5878bdc",
-          "storyFilesHash": "d16710c9a550ccd8037acdd199c78394f2929a2b59922343a50c2bab3e3e97e9",
-          "timestamp": "2026-07-05T17:59:41.122Z"
+          "headHash": "f636e40cfcc70ce7a61c0f5fe48bbda3c61a377b",
+          "materialHash": "a6aead49df669e742cba815ef6dca641ad7fca293f4c6562c19b58e3bb43f091",
+          "storyFilesHash": "7401a0eb51469c55a4651862d9665881b3edb9851fd1bdb36c9a6ff6b465f68e",
+          "timestamp": "2026-07-05T18:21:24.271Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -137,10 +137,10 @@
           "command": "node experiments/pos-instrument-replay/selfcheck-m1.mjs",
           "result": "pass",
           "note": "Un-gameable: selfcheck-m1 negative test flips a frozen fingerprint flag -> tamper.mjs fingerprintMatch:false + nonzero exit. Plus new guards: a silent no-op mutation OR a dropped drift OR a disposition mismatch each fail loudly (exit nonzero).",
-          "headHash": "301f3004683d35c992b0769562fef7100a5c6d6c",
-          "materialHash": "57d036e02a223a1b32a206d6dbf54cf8e8ea79096f362d3ca55c63f9c5878bdc",
-          "storyFilesHash": "d16710c9a550ccd8037acdd199c78394f2929a2b59922343a50c2bab3e3e97e9",
-          "timestamp": "2026-07-05T17:59:41.803Z"
+          "headHash": "f636e40cfcc70ce7a61c0f5fe48bbda3c61a377b",
+          "materialHash": "a6aead49df669e742cba815ef6dca641ad7fca293f4c6562c19b58e3bb43f091",
+          "storyFilesHash": "7401a0eb51469c55a4651862d9665881b3edb9851fd1bdb36c9a6ff6b465f68e",
+          "timestamp": "2026-07-05T18:21:24.271Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -148,10 +148,10 @@
           "command": "node experiments/pos-instrument-replay/tamper.mjs",
           "result": "pass",
           "note": "tamper.mjs matches numeric metrics by the frozen predicate form (fields with a frozen op '<' require live strictly-below-threshold + within epsilon; others epsilon-tolerant equality), NOT raw float equality — so all 27 classes matched with 0 spurious float mismatches (fingerprintMatch:false count=0). Confirmed by the clean run (mismatches=0) despite float-valued gold rates.",
-          "headHash": "4fadf4f40ed8993a62d57fe791a40ec17eddccd5",
-          "materialHash": "57d036e02a223a1b32a206d6dbf54cf8e8ea79096f362d3ca55c63f9c5878bdc",
-          "storyFilesHash": "d16710c9a550ccd8037acdd199c78394f2929a2b59922343a50c2bab3e3e97e9",
-          "timestamp": "2026-07-05T17:59:39.097Z"
+          "headHash": "f636e40cfcc70ce7a61c0f5fe48bbda3c61a377b",
+          "materialHash": "a6aead49df669e742cba815ef6dca641ad7fca293f4c6562c19b58e3bb43f091",
+          "storyFilesHash": "7401a0eb51469c55a4651862d9665881b3edb9851fd1bdb36c9a6ff6b465f68e",
+          "timestamp": "2026-07-05T18:21:24.271Z"
         }
       ]
     },
@@ -202,10 +202,10 @@
           "command": "node experiments/pos-instrument-replay/selfcheck-m1.mjs",
           "result": "pass",
           "note": "node selfcheck-m1.mjs runs hermetically (mkdtemp) and exits 0 with 'selfcheck-m1 PASS'.",
-          "headHash": "4fadf4f40ed8993a62d57fe791a40ec17eddccd5",
-          "materialHash": "57d036e02a223a1b32a206d6dbf54cf8e8ea79096f362d3ca55c63f9c5878bdc",
-          "storyFilesHash": "d16710c9a550ccd8037acdd199c78394f2929a2b59922343a50c2bab3e3e97e9",
-          "timestamp": "2026-07-05T17:59:39.097Z"
+          "headHash": "f636e40cfcc70ce7a61c0f5fe48bbda3c61a377b",
+          "materialHash": "a6aead49df669e742cba815ef6dca641ad7fca293f4c6562c19b58e3bb43f091",
+          "storyFilesHash": "7401a0eb51469c55a4651862d9665881b3edb9851fd1bdb36c9a6ff6b465f68e",
+          "timestamp": "2026-07-05T18:21:24.271Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -213,10 +213,10 @@
           "command": "node experiments/pos-instrument-replay/selfcheck-m1.mjs",
           "result": "pass",
           "note": "selfcheck-m1 (a): two tamper.mjs runs produce byte-identical tamper-verdicts.jsonl (27 verdict lines) modulo volatile fields — determinism confirmed.",
-          "headHash": "4fadf4f40ed8993a62d57fe791a40ec17eddccd5",
-          "materialHash": "57d036e02a223a1b32a206d6dbf54cf8e8ea79096f362d3ca55c63f9c5878bdc",
-          "storyFilesHash": "d16710c9a550ccd8037acdd199c78394f2929a2b59922343a50c2bab3e3e97e9",
-          "timestamp": "2026-07-05T17:59:39.097Z"
+          "headHash": "f636e40cfcc70ce7a61c0f5fe48bbda3c61a377b",
+          "materialHash": "a6aead49df669e742cba815ef6dca641ad7fca293f4c6562c19b58e3bb43f091",
+          "storyFilesHash": "7401a0eb51469c55a4651862d9665881b3edb9851fd1bdb36c9a6ff6b465f68e",
+          "timestamp": "2026-07-05T18:21:24.271Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -224,10 +224,10 @@
           "command": "node experiments/pos-instrument-replay/selfcheck-m1.mjs",
           "result": "pass",
           "note": "selfcheck-m1 (b) negative test: a protocol copy with one frozen flag flipped (cross-profile-swap[refreshed].fullProfileExactMillionMatches true->false via POS_PROTOCOL_PATH) makes tamper.mjs report fingerprintMatch:false + exit nonzero (H2 conformance FAIL mismatches=1) — the conformance check is un-gameable, not a tautology.",
-          "headHash": "4fadf4f40ed8993a62d57fe791a40ec17eddccd5",
-          "materialHash": "57d036e02a223a1b32a206d6dbf54cf8e8ea79096f362d3ca55c63f9c5878bdc",
-          "storyFilesHash": "d16710c9a550ccd8037acdd199c78394f2929a2b59922343a50c2bab3e3e97e9",
-          "timestamp": "2026-07-05T17:59:39.097Z"
+          "headHash": "f636e40cfcc70ce7a61c0f5fe48bbda3c61a377b",
+          "materialHash": "a6aead49df669e742cba815ef6dca641ad7fca293f4c6562c19b58e3bb43f091",
+          "storyFilesHash": "7401a0eb51469c55a4651862d9665881b3edb9851fd1bdb36c9a6ff6b465f68e",
+          "timestamp": "2026-07-05T18:21:24.271Z"
         }
       ]
     }
