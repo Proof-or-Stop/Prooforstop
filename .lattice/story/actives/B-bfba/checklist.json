@@ -103,9 +103,9 @@
           "packages/main/tests/milestone-status.test.mjs"
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-05T00:04:23.099Z",
-      "endTime": null,
+      "endTime": "2026-07-05T00:04:30.681Z",
       "userSees": "After DONE, the story has a milestone-closeout.json artifact generated before closure drift can affect the live diagnostic.",
       "verificationIntent": {
         "happy": [
@@ -129,7 +129,45 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "npm --prefix packages/main run build; node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "captureMilestoneCloseoutSnapshotFromStore test writes milestone-closeout snapshot from a completed risk-free report and asserts the captured phase remains TEST before DONE metadata is written.",
+          "headHash": "eda5741a6afcdc2f8a0034ce1935f19a9c71faee",
+          "materialHash": "fcf5888362104ae0b40ef61daade38c72d506af6b423318b338592735e635747",
+          "storyFilesHash": "13243d47e6e9df5f25d11b58bf5375e8653c4b469209dc84a1d66ca97c1dac46",
+          "timestamp": "2026-07-05T00:04:30.885Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "Missing-ledger capture test returns skipped missing_milestone_ledger, reads only the ledger, and performs no closeout write.",
+          "headHash": "eda5741a6afcdc2f8a0034ce1935f19a9c71faee",
+          "materialHash": "fcf5888362104ae0b40ef61daade38c72d506af6b423318b338592735e635747",
+          "storyFilesHash": "13243d47e6e9df5f25d11b58bf5375e8653c4b469209dc84a1d66ca97c1dac46",
+          "timestamp": "2026-07-05T00:04:31.075Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "Incomplete capture helper test throws before write, while closeout helper tests also reject risk-bearing reports.",
+          "headHash": "eda5741a6afcdc2f8a0034ce1935f19a9c71faee",
+          "materialHash": "fcf5888362104ae0b40ef61daade38c72d506af6b423318b338592735e635747",
+          "storyFilesHash": "13243d47e6e9df5f25d11b58bf5375e8653c4b469209dc84a1d66ca97c1dac46",
+          "timestamp": "2026-07-05T00:04:31.273Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
