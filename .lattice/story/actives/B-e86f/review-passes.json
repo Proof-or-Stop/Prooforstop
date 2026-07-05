@@ -53,6 +53,15 @@
       "reviewRound": "2026-07-05T13:53:12.418Z",
       "reviewRunId": "B-e86f:RR-009",
       "_hash": "c020b3d1e8fa420fd8a49000efc8295d02b65df3af87e9ae0c23264ac000731f"
+    },
+    {
+      "id": "B-e86f:RP-007",
+      "agent": "lattice-review-docs",
+      "note": "Verified internal consistency of the fingerprint-DOMAIN, two-pronged viability, and ACCEPTED-BEHAVIOR concepts introduced by commit 4a4c4e543 across sections 1,3,4,6.1,7,8,9,12 of docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md. Checked: (1) fingerprint domain (boolean flags + numeric-metric predicates) referenced consistently in H2 row, protocol.json/tamper-verdicts.jsonl artifacts, M0/M1 milestones, and verification matrix; (2) two-pronged viability + ACCEPTED-BEHAVIOR bucket consistent across claim boundary, H2 row, 6.1, M0/M1 exit criteria, the new split verification-matrix rows (366-367), and DoD -- no leftover old-framing every-enumerated-class-fails-closed language remains (grep confirmed); (3) the 1.0 expectedIdsFoundRate wording fix at line 49 is correct with no dangling 1,000-questions references anywhere in the file. No inconsistencies found; no findings filed.",
+      "createdAt": "2026-07-05T14:00:34.315Z",
+      "reviewRound": "2026-07-05T13:53:12.418Z",
+      "reviewRunId": "B-e86f:RR-008",
+      "_hash": "0a40ebc68e9d7b3a761e986e51f78cc9b64892c8f7706687243e85dd31aad35b"
     }
   ]
 }
