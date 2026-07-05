@@ -35,6 +35,15 @@
       "reviewRound": "2026-07-05T10:01:51.927Z",
       "reviewRunId": "B-11ad:RR-006",
       "_hash": "0679ca264ea2d4ac4ae2b38925162160a2e41c17c0919a4334af74a79fee57ca"
+    },
+    {
+      "id": "B-11ad:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Concept re-review PASS for b70d2738: commitArtifactReleaseLedgerIfNeeded now stages and commits any non-empty artifact ledger result, including already_recorded rows when the ledger file is dirty from a prior uncommitted append, while preserving clean already_recorded as a no-op. Focused verification: npm --prefix packages/main run build && node packages/main/dist/tasks/artifact-release-ledger-smoke.js (8 assertions, including already-recorded dirty ledger retry commits durably).",
+      "createdAt": "2026-07-05T10:03:32.165Z",
+      "reviewRound": "2026-07-05T10:01:51.927Z",
+      "reviewRunId": "B-11ad:RR-007",
+      "_hash": "dac320980a5a556e5495f6a043c69bb34f7eaa7783b2584426bf2dd7470d2f06"
     }
   ]
 }
