@@ -755,6 +755,19 @@
           "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
           "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
           "timestamp": "2026-07-05T14:15:55.678Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "command": "review M6 uses no 'replaces lifecycle_check/review/DONE gate' overclaim phrasing",
+          "result": "pass",
+          "note": "M6 uses only negations (does not replace); no overclaim phrasing that milestone status replaces any lifecycle/review/DONE gate",
+          "headHash": "3545e6da123512a35988a051714f1d51d57acad0",
+          "materialHash": "b44f56d4dfdadd46a61505c386b473599e25ecbcbe911c0e47d0d932cb557436",
+          "storyFilesHash": "f92b0ff4757a759eb1fd38efeac4d8e5a9dc336dade4e321eebe98ae84d29fc7",
+          "timestamp": "2026-07-05T14:15:59.668Z"
         }
       ]
     },
