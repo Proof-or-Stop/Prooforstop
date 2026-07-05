@@ -17,6 +17,15 @@
       "reviewRound": "2026-07-05T21:56:28.612Z",
       "reviewRunId": "B-fbbb:RR-002",
       "_hash": "0e8c9461c8719ac96cbb691ec07ab9bcb4bf61d9723d29b9545fbecc52de96cb"
+    },
+    {
+      "id": "B-fbbb:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Independently rebuilt (tsc clean) and reran both smokes: experience-layer-playbook-smoke 31/31 PASS, decision-doc-promotion-smoke 9/9 PASS, matching recorded evidence verbatim. Confirmed playbook.ts actual imports match the widened allowlist exactly (no over/under-widening); confirmed the negative finding/advisory/gate assertion is an independent check unaffected by the allowlist widen; confirmed no duplicate/stale fence exists elsewhere in the tree. Adversarially reverted CHK-002 substring to the retired wording and confirmed the smoke fails closed, then restored and reconfirmed green. All 6 verificationIntent ids (CHK-001/CHK-002 happy/edge/adversarial) have exactly one bound verificationEvidence record; no gaps. Commit cdb034b97 touches only the 3 declared files. No coverage gap found.",
+      "createdAt": "2026-07-05T22:05:54.924Z",
+      "reviewRound": "2026-07-05T21:56:28.612Z",
+      "reviewRunId": "B-fbbb:RR-004",
+      "_hash": "9bcbdc1ef5cd1fbd6bc223687b25f0edf9e85c1e9573f6dfabfe35a920b6a356"
     }
   ]
 }
