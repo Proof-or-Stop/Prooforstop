@@ -37,6 +37,21 @@
       "resolvedAt": "2026-07-05T12:27:24.784Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-e62e:F-003",
+      "desc": ".lattice/story/actives/B-e62e/summary.json still says the observed milestone table had M1 and M2 with Done status, but the current renderer correctly emits 🟡 Pending Review for both rows while ledger=planned and checklist/evidence are covered. Update the summary artifact so the closeout transcript matches current milestone_status semantics.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-05T12:31:32.949Z",
+      "reviewRound": "2026-07-05T12:27:18.167Z",
+      "reviewRunId": "B-e62e:RR-020",
+      "_hash": "70d2a70fd0082aa4a662d3cc1cae7fd0c1daf1f7db06a4a63b1cd0f974b05293",
+      "signatureTag": "doc-code-drift|unknown|lattice-story-actives",
+      "signatureTagSource": "auto"
     }
   ]
 }
