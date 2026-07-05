@@ -1,0 +1,81 @@
+{
+  "artifact": "m2-launch-readiness",
+  "storyId": "B-fe25",
+  "status": "m2_static_launch_readiness_prepared_provider_execution_disabled",
+  "preparedOn": "2026-07-05",
+  "protocolPath": "docs/requirements/decisions/multi-model-ablation-replication.md",
+  "protocolDigest": "sha256:4eddb3ff30682a5c2ec3a5b5c81f1dd36b63e9d5bf73bcfda77ee845291317d2",
+  "researchBoundary": {
+    "providerCallsMade": false,
+    "containsOutcomeData": false,
+    "phase1OrPhase2CellsRun": false,
+    "productGateImpact": "none"
+  },
+  "authorizationBoundary": {
+    "readinessBoundaryApprovedOn": "2026-07-05",
+    "readinessApprovalRecorded": true,
+    "providerExecutionAuthorized": false,
+    "phase1CampaignAuthorized": false,
+    "phase2CampaignAuthorized": false,
+    "formalPhase1UseAllowed": false,
+    "providerCallEnabled": false,
+    "statement": "This artifact records provider-free launch readiness only. It does not authorize provider calls, Phase 1 cells, Phase 2 cells, result collection, or product gate changes."
+  },
+  "staticReadinessPrepared": {
+    "modelSnapshotDeclarations": "model-snapshot-lock.m2.json",
+    "taskInventory": "task-inventory.m2.json",
+    "phase1RunnerManifest": "phase1-runner-manifest.m2.json",
+    "phase1LaunchReadiness": "phase1-launch-readiness.m2.json",
+    "checker": "m2-launch-readiness-check.mjs"
+  },
+  "clearedForFutureProviderExecutionStory": [
+    {
+      "blockerId": "human-readiness-boundary-recorded",
+      "status": "cleared_for_static_readiness",
+      "note": "The 2026-07-05 boundary authorizes preparing local launch-readiness artifacts only."
+    },
+    {
+      "blockerId": "dated-snapshot-readiness-declared",
+      "status": "cleared_for_static_readiness",
+      "note": "E1/E2 provider families are declared by date for future execution setup, but no provider execution metadata exists."
+    },
+    {
+      "blockerId": "concrete-task-inventory-bound",
+      "status": "cleared_for_static_readiness",
+      "note": "The 24 existing task directories are bound read-only by digest."
+    },
+    {
+      "blockerId": "phase1-required-cell-families-represented",
+      "status": "cleared_for_static_readiness",
+      "note": "Required Phase 1 cell families ③, ⑥, and ② are represented. Optional ④ remains budget-permitting."
+    }
+  ],
+  "remainingExecutionBlockers": [
+    {
+      "blockerId": "provider-execution-authorization-absent",
+      "status": "blocked",
+      "requiredToClear": "A future human-approved provider-execution story must authorize real provider calls."
+    },
+    {
+      "blockerId": "a4-calibration-not-run",
+      "status": "pending_execution",
+      "requiredToClear": "Run ③ E2 A4 same-family calibration in the future provider-execution story."
+    },
+    {
+      "blockerId": "real-budget-lock-absent",
+      "status": "pending_execution",
+      "requiredToClear": "Freeze a real ③-derived budget lock after calibration records exist."
+    },
+    {
+      "blockerId": "a2prime-sequencing-not-satisfied",
+      "status": "blocked",
+      "requiredToClear": "Keep ⑥ A2prime blocked until the matching real ③-derived budget lock exists."
+    }
+  ],
+  "claimBoundary": {
+    "hM1Proven": false,
+    "hM3Proven": false,
+    "modelAgnosticPaperClaimUnlocked": false,
+    "productGateImpact": "none"
+  }
+}

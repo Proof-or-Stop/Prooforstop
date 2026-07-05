@@ -1,0 +1,89 @@
+{
+  "artifact": "phase1-launch-readiness.m2",
+  "storyId": "B-fe25",
+  "status": "m2_static_readiness_prepared_execution_blockers_preserved",
+  "preparedOn": "2026-07-05",
+  "protocolPath": "docs/requirements/decisions/multi-model-ablation-replication.md",
+  "protocolDigest": "sha256:4eddb3ff30682a5c2ec3a5b5c81f1dd36b63e9d5bf73bcfda77ee845291317d2",
+  "researchBoundary": {
+    "providerCallsMade": false,
+    "containsOutcomeData": false,
+    "phase1OrPhase2CellsRun": false,
+    "productGateImpact": "none"
+  },
+  "staticReadiness": {
+    "prepared": true,
+    "providerExecutionAllowed": false,
+    "formalPhase1MayRun": false,
+    "phase1CellsExecuted": false,
+    "phase2CellsExecuted": false,
+    "m2DoneCompatible": true,
+    "statement": "M2 can finish as a provider-free readiness layer while ③ calibration, real budget lock creation, and ⑥ A2prime sequencing remain future execution work."
+  },
+  "readinessChecks": [
+    {
+      "checkId": "dated-snapshot-readiness",
+      "status": "prepared_declaration_only",
+      "artifact": "model-snapshot-lock.m2.json",
+      "blocksStaticReadiness": false,
+      "blocksProviderExecution": true
+    },
+    {
+      "checkId": "task-inventory",
+      "status": "bound_read_only_by_digest",
+      "artifact": "task-inventory.m2.json",
+      "blocksStaticReadiness": false,
+      "blocksProviderExecution": false
+    },
+    {
+      "checkId": "phase1-runner-manifest",
+      "status": "required_cell_families_represented",
+      "artifact": "phase1-runner-manifest.m2.json",
+      "blocksStaticReadiness": false,
+      "blocksProviderExecution": true
+    },
+    {
+      "checkId": "③-a4-calibration",
+      "cellNumber": "③",
+      "arm": "A4",
+      "executorFamily": "E2",
+      "reviewerFamily": "same",
+      "status": "pending_execution",
+      "nextExecutionStep": true,
+      "executionEvidencePresent": false,
+      "providerExecutionRequired": true,
+      "blocksStaticReadiness": false,
+      "blocksA2prime": true
+    },
+    {
+      "checkId": "real-budget-lock",
+      "status": "pending_execution",
+      "realBudgetLockPresent": false,
+      "m0ExampleBudgetLockAcceptedAsFormalEvidence": false,
+      "sourceCellNumber": "③",
+      "appliesToCellNumber": "⑥",
+      "blocksStaticReadiness": false,
+      "blocksA2prime": true
+    },
+    {
+      "checkId": "⑥-a2prime-sequencing",
+      "cellNumber": "⑥",
+      "arm": "A2prime",
+      "executorFamily": "E2",
+      "reviewerFamily": "not_applicable",
+      "status": "blocked_until_real_budget_lock",
+      "executionAllowed": false,
+      "sequencingSatisfied": false,
+      "matchingRealBudgetLockPresent": false,
+      "blocksStaticReadiness": false,
+      "blocksProviderExecution": true
+    }
+  ],
+  "claimBoundary": {
+    "hM1Proven": false,
+    "hM3Proven": false,
+    "phase1DirectionalReadoutPresent": false,
+    "modelAgnosticPaperClaimUnlocked": false,
+    "productGateImpact": "none"
+  }
+}

@@ -1,0 +1,484 @@
+{
+  "artifact": "task-inventory.m2",
+  "storyId": "B-fe25",
+  "status": "m2_concrete_24_task_inventory_bound_read_only",
+  "preparedOn": "2026-07-05",
+  "protocolPath": "docs/requirements/decisions/multi-model-ablation-replication.md",
+  "protocolDigest": "sha256:4eddb3ff30682a5c2ec3a5b5c81f1dd36b63e9d5bf73bcfda77ee845291317d2",
+  "researchBoundary": {
+    "providerCallsMade": false,
+    "containsOutcomeData": false,
+    "phase1OrPhase2CellsRun": false,
+    "productGateImpact": "none"
+  },
+  "sourceRoot": "experiments/recovery-runner/tasks",
+  "bindingPolicy": {
+    "taskDirectoriesExpected": 24,
+    "taskDirectoriesBound": 24,
+    "readOnlyBinding": true,
+    "taskDefinitionsModifiedByM2": false,
+    "digestAlgorithm": "sha256",
+    "taskDigestInputFormat": "m2-task-inventory-v1 newline, then sorted file name, byte length, and file SHA-256 per tracked task file",
+    "corpusDigestInputFormat": "m2-task-corpus-v1 newline, then sorted taskId and task contentDigest",
+    "m1TaskSlotMappingPolicy": {
+      "policy": "ordinal_identity_sorted_task_ids",
+      "sourceOrdinalField": "tasks[].ordinal",
+      "targetSlotSource": "seed-manifest.m1.json planningDimensions.taskSlots.slotIds[ordinal - 1]",
+      "taskSlotField": "tasks[].m1TaskSlot",
+      "slotIdFormat": "task-slot-%02d"
+    }
+  },
+  "m1LineageBinding": {
+    "seedManifestArtifact": "seed-manifest.m1.json",
+    "seedManifestId": "seed-manifest.m1",
+    "cellMatrixArtifact": "cell-matrix.m1.json",
+    "cellMatrixId": "cell-matrix.m1",
+    "protocolDigest": "sha256:4eddb3ff30682a5c2ec3a5b5c81f1dd36b63e9d5bf73bcfda77ee845291317d2",
+    "seedDerivationPolicy": {
+      "algorithm": "sha256",
+      "fieldsInOrder": [
+        "protocolDigest",
+        "cellNumber",
+        "taskSlot",
+        "scenarioSlot",
+        "repeatSlot"
+      ],
+      "inputFormat": "${protocolDigest}|${cellNumber}|${taskSlot}|${scenarioSlot}|${repeatSlot}"
+    },
+    "taskSlotMappingPolicy": "ordinal_identity_sorted_task_ids"
+  },
+  "corpusDigest": "sha256:344845e8b2d4d974544fbd182c4061eff958350388133c0d08cfaa0aae4cedd4",
+  "tasks": [
+    {
+      "taskId": "bf-datediff",
+      "ordinal": 1,
+      "m1TaskSlot": "task-slot-01",
+      "path": "experiments/recovery-runner/tasks/bf-datediff",
+      "readOnly": true,
+      "fileCount": 7,
+      "files": [
+        "acceptance.mjs",
+        "ground-truth.mjs",
+        "payload-subtle.mjs",
+        "prompt.md",
+        "reference-solution.mjs",
+        "subtle-wrong-output.mjs",
+        "task.json"
+      ],
+      "contentDigest": "sha256:06efe3fddf5f71cd5a4939d7a5d72d1d85b179f3189e25dbdb839265e85216c9"
+    },
+    {
+      "taskId": "bf-lru",
+      "ordinal": 2,
+      "m1TaskSlot": "task-slot-02",
+      "path": "experiments/recovery-runner/tasks/bf-lru",
+      "readOnly": true,
+      "fileCount": 7,
+      "files": [
+        "acceptance.mjs",
+        "ground-truth.mjs",
+        "payload-subtle.mjs",
+        "prompt.md",
+        "reference-solution.mjs",
+        "subtle-wrong-output.mjs",
+        "task.json"
+      ],
+      "contentDigest": "sha256:399de53ee64c3ceb2233b7f6221a129edb7fd87e8e1be1b97cc2ba22874878c2"
+    },
+    {
+      "taskId": "bf-mergesorted",
+      "ordinal": 3,
+      "m1TaskSlot": "task-slot-03",
+      "path": "experiments/recovery-runner/tasks/bf-mergesorted",
+      "readOnly": true,
+      "fileCount": 7,
+      "files": [
+        "acceptance.mjs",
+        "ground-truth.mjs",
+        "payload-subtle.mjs",
+        "prompt.md",
+        "reference-solution.mjs",
+        "subtle-wrong-output.mjs",
+        "task.json"
+      ],
+      "contentDigest": "sha256:c8a59ae1514bc367aaa7e788e3b1e3931a776c33b3298512ddb1bdc1df945b47"
+    },
+    {
+      "taskId": "cl-combined",
+      "ordinal": 4,
+      "m1TaskSlot": "task-slot-04",
+      "path": "experiments/recovery-runner/tasks/cl-combined",
+      "readOnly": true,
+      "fileCount": 7,
+      "files": [
+        "acceptance.mjs",
+        "ground-truth.mjs",
+        "payload-subtle.mjs",
+        "prompt.md",
+        "reference-solution.mjs",
+        "subtle-wrong-output.mjs",
+        "task.json"
+      ],
+      "contentDigest": "sha256:736b68e8cdbd69c7ee5dd8b26f98817c0ad5f3d7e8e1c746f045111a4267b2a9"
+    },
+    {
+      "taskId": "cl-equals",
+      "ordinal": 5,
+      "m1TaskSlot": "task-slot-05",
+      "path": "experiments/recovery-runner/tasks/cl-equals",
+      "readOnly": true,
+      "fileCount": 7,
+      "files": [
+        "acceptance.mjs",
+        "ground-truth.mjs",
+        "payload-subtle.mjs",
+        "prompt.md",
+        "reference-solution.mjs",
+        "subtle-wrong-output.mjs",
+        "task.json"
+      ],
+      "contentDigest": "sha256:33e9e65d05cab3276518c547104d79675688286cb2d45fa2f63373bd69904d8d"
+    },
+    {
+      "taskId": "cl-multi",
+      "ordinal": 6,
+      "m1TaskSlot": "task-slot-06",
+      "path": "experiments/recovery-runner/tasks/cl-multi",
+      "readOnly": true,
+      "fileCount": 7,
+      "files": [
+        "acceptance.mjs",
+        "ground-truth.mjs",
+        "payload-subtle.mjs",
+        "prompt.md",
+        "reference-solution.mjs",
+        "subtle-wrong-output.mjs",
+        "task.json"
+      ],
+      "contentDigest": "sha256:49fc0675bd116153ba6e94f92353ed13c6b2e6c53a705698831f1c7c81583311"
+    },
+    {
+      "taskId": "cv-email",
+      "ordinal": 7,
+      "m1TaskSlot": "task-slot-07",
+      "path": "experiments/recovery-runner/tasks/cv-email",
+      "readOnly": true,
+      "fileCount": 7,
+      "files": [
+        "acceptance.mjs",
+        "ground-truth.mjs",
+        "payload-subtle.mjs",
+        "prompt.md",
+        "reference-solution.mjs",
+        "subtle-wrong-output.mjs",
+        "task.json"
+      ],
+      "contentDigest": "sha256:4aa910396dd88d76c3b153adaf56718f63411ccebc6c1e7235584a2fcde6c0ef"
+    },
+    {
+      "taskId": "cv-ipv4",
+      "ordinal": 8,
+      "m1TaskSlot": "task-slot-08",
+      "path": "experiments/recovery-runner/tasks/cv-ipv4",
+      "readOnly": true,
+      "fileCount": 7,
+      "files": [
+        "acceptance.mjs",
+        "ground-truth.mjs",
+        "payload-subtle.mjs",
+        "prompt.md",
+        "reference-solution.mjs",
+        "subtle-wrong-output.mjs",
+        "task.json"
+      ],
+      "contentDigest": "sha256:a1e05222097d9d53fbd5169653f54352766750bdd82926ae337299f6be456cb3"
+    },
+    {
+      "taskId": "cv-luhn",
+      "ordinal": 9,
+      "m1TaskSlot": "task-slot-09",
+      "path": "experiments/recovery-runner/tasks/cv-luhn",
+      "readOnly": true,
+      "fileCount": 7,
+      "files": [
+        "acceptance.mjs",
+        "ground-truth.mjs",
+        "payload-subtle.mjs",
+        "prompt.md",
+        "reference-solution.mjs",
+        "subtle-wrong-output.mjs",
+        "task.json"
+      ],
+      "contentDigest": "sha256:1f4fde2507081ea3338fa5bc929e2fd33705be5585a6c279f48bf6820b0bd534"
+    },
+    {
+      "taskId": "dp-deepmerge",
+      "ordinal": 10,
+      "m1TaskSlot": "task-slot-10",
+      "path": "experiments/recovery-runner/tasks/dp-deepmerge",
+      "readOnly": true,
+      "fileCount": 7,
+      "files": [
+        "acceptance.mjs",
+        "ground-truth.mjs",
+        "payload-subtle.mjs",
+        "prompt.md",
+        "reference-solution.mjs",
+        "subtle-wrong-output.mjs",
+        "task.json"
+      ],
+      "contentDigest": "sha256:38094db5c5c04d4ee1ede670b8ad0a390d3ac50be3962626498f1f250f14f168"
+    },
+    {
+      "taskId": "dp-querystring",
+      "ordinal": 11,
+      "m1TaskSlot": "task-slot-11",
+      "path": "experiments/recovery-runner/tasks/dp-querystring",
+      "readOnly": true,
+      "fileCount": 7,
+      "files": [
+        "acceptance.mjs",
+        "ground-truth.mjs",
+        "payload-subtle.mjs",
+        "prompt.md",
+        "reference-solution.mjs",
+        "subtle-wrong-output.mjs",
+        "task.json"
+      ],
+      "contentDigest": "sha256:de7b58e7fc4891f747fa17d74f4be4c119da591861c01b8e5c42257244952144"
+    },
+    {
+      "taskId": "dp-semver",
+      "ordinal": 12,
+      "m1TaskSlot": "task-slot-12",
+      "path": "experiments/recovery-runner/tasks/dp-semver",
+      "readOnly": true,
+      "fileCount": 7,
+      "files": [
+        "acceptance.mjs",
+        "ground-truth.mjs",
+        "payload-subtle.mjs",
+        "prompt.md",
+        "reference-solution.mjs",
+        "subtle-wrong-output.mjs",
+        "task.json"
+      ],
+      "contentDigest": "sha256:04ff3b60acba5839e02588fd8f965f3d39dc7218557e30c86a19420b57d55124"
+    },
+    {
+      "taskId": "du-duration",
+      "ordinal": 13,
+      "m1TaskSlot": "task-slot-13",
+      "path": "experiments/recovery-runner/tasks/du-duration",
+      "readOnly": true,
+      "fileCount": 7,
+      "files": [
+        "acceptance.mjs",
+        "ground-truth.mjs",
+        "payload-subtle.mjs",
+        "prompt.md",
+        "reference-solution.mjs",
+        "subtle-wrong-output.mjs",
+        "task.json"
+      ],
+      "contentDigest": "sha256:d0cdfa117f432153ba66f3ec808cbb236eebd6a1b2e541e7f58124f74df45a70"
+    },
+    {
+      "taskId": "du-interp",
+      "ordinal": 14,
+      "m1TaskSlot": "task-slot-14",
+      "path": "experiments/recovery-runner/tasks/du-interp",
+      "readOnly": true,
+      "fileCount": 7,
+      "files": [
+        "acceptance.mjs",
+        "ground-truth.mjs",
+        "payload-subtle.mjs",
+        "prompt.md",
+        "reference-solution.mjs",
+        "subtle-wrong-output.mjs",
+        "task.json"
+      ],
+      "contentDigest": "sha256:554f8f569888af8aa18602fbb4bf6842421659d11cbee87126061b6cc2fbc7d0"
+    },
+    {
+      "taskId": "eval-expr",
+      "ordinal": 15,
+      "m1TaskSlot": "task-slot-15",
+      "path": "experiments/recovery-runner/tasks/eval-expr",
+      "readOnly": true,
+      "fileCount": 7,
+      "files": [
+        "acceptance.mjs",
+        "ground-truth.mjs",
+        "payload-subtle.mjs",
+        "prompt.md",
+        "reference-solution.mjs",
+        "subtle-wrong-output.mjs",
+        "task.json"
+      ],
+      "contentDigest": "sha256:4f33599770002ed4346f938396816a46fa87d38c35086596cbdaf2d91a64651f"
+    },
+    {
+      "taskId": "median",
+      "ordinal": 16,
+      "m1TaskSlot": "task-slot-16",
+      "path": "experiments/recovery-runner/tasks/median",
+      "readOnly": true,
+      "fileCount": 7,
+      "files": [
+        "acceptance.mjs",
+        "ground-truth.mjs",
+        "overfit-output.mjs",
+        "prompt.md",
+        "reference-solution.mjs",
+        "subtle-wrong-output.mjs",
+        "task.json"
+      ],
+      "contentDigest": "sha256:402f2ee1c8c86c69000152c75f490108ae04ca7e7f9dafc3e32b2368778532d3"
+    },
+    {
+      "taskId": "parse-range",
+      "ordinal": 17,
+      "m1TaskSlot": "task-slot-17",
+      "path": "experiments/recovery-runner/tasks/parse-range",
+      "readOnly": true,
+      "fileCount": 7,
+      "files": [
+        "acceptance.mjs",
+        "ground-truth.mjs",
+        "overfit-output.mjs",
+        "prompt.md",
+        "reference-solution.mjs",
+        "subtle-wrong-output.mjs",
+        "task.json"
+      ],
+      "contentDigest": "sha256:a41e239481160415422387d7edb97e761c65ebcbf0f0e7aad7926afd7c57f99e"
+    },
+    {
+      "taskId": "rf-money",
+      "ordinal": 18,
+      "m1TaskSlot": "task-slot-18",
+      "path": "experiments/recovery-runner/tasks/rf-money",
+      "readOnly": true,
+      "fileCount": 7,
+      "files": [
+        "acceptance.mjs",
+        "ground-truth.mjs",
+        "payload-subtle.mjs",
+        "prompt.md",
+        "reference-solution.mjs",
+        "subtle-wrong-output.mjs",
+        "task.json"
+      ],
+      "contentDigest": "sha256:2496d5fabe4483b8d7b3674787e989c3f785bcddb794fafc149e760523c5b19d"
+    },
+    {
+      "taskId": "rf-roman",
+      "ordinal": 19,
+      "m1TaskSlot": "task-slot-19",
+      "path": "experiments/recovery-runner/tasks/rf-roman",
+      "readOnly": true,
+      "fileCount": 7,
+      "files": [
+        "acceptance.mjs",
+        "ground-truth.mjs",
+        "payload-subtle.mjs",
+        "prompt.md",
+        "reference-solution.mjs",
+        "subtle-wrong-output.mjs",
+        "task.json"
+      ],
+      "contentDigest": "sha256:0e229dab39642f8651ab7c45347aaae181248bdba9315567c349ff52d863d28e"
+    },
+    {
+      "taskId": "rf-units",
+      "ordinal": 20,
+      "m1TaskSlot": "task-slot-20",
+      "path": "experiments/recovery-runner/tasks/rf-units",
+      "readOnly": true,
+      "fileCount": 7,
+      "files": [
+        "acceptance.mjs",
+        "ground-truth.mjs",
+        "payload-subtle.mjs",
+        "prompt.md",
+        "reference-solution.mjs",
+        "subtle-wrong-output.mjs",
+        "task.json"
+      ],
+      "contentDigest": "sha256:43a53f5a0c0e02067f41013ff187b51f861e311e07852e514ad710bcf90a9e95"
+    },
+    {
+      "taskId": "text-stats",
+      "ordinal": 21,
+      "m1TaskSlot": "task-slot-21",
+      "path": "experiments/recovery-runner/tasks/text-stats",
+      "readOnly": true,
+      "fileCount": 6,
+      "files": [
+        "acceptance.mjs",
+        "ground-truth.mjs",
+        "prompt.md",
+        "reference-solution.mjs",
+        "subtle-wrong-output.mjs",
+        "task.json"
+      ],
+      "contentDigest": "sha256:2cbac24fde223f6903699ea95d156aefbcd7acf1b1608ddd7903e8ed523062d1"
+    },
+    {
+      "taskId": "tr-clamp",
+      "ordinal": 22,
+      "m1TaskSlot": "task-slot-22",
+      "path": "experiments/recovery-runner/tasks/tr-clamp",
+      "readOnly": true,
+      "fileCount": 7,
+      "files": [
+        "acceptance.mjs",
+        "ground-truth.mjs",
+        "payload-subtle.mjs",
+        "prompt.md",
+        "reference-solution.mjs",
+        "subtle-wrong-output.mjs",
+        "task.json"
+      ],
+      "contentDigest": "sha256:4d6cd515baed7e2150a89e7e02813b78ee3b77a67540fe60eaa935107b234388"
+    },
+    {
+      "taskId": "tr-pluralize",
+      "ordinal": 23,
+      "m1TaskSlot": "task-slot-23",
+      "path": "experiments/recovery-runner/tasks/tr-pluralize",
+      "readOnly": true,
+      "fileCount": 7,
+      "files": [
+        "acceptance.mjs",
+        "ground-truth.mjs",
+        "payload-subtle.mjs",
+        "prompt.md",
+        "reference-solution.mjs",
+        "subtle-wrong-output.mjs",
+        "task.json"
+      ],
+      "contentDigest": "sha256:9ed6bf40c16a63b54bfb3c10f9a6d11ae35f119b05bc8753ccc010c5bd2020a5"
+    },
+    {
+      "taskId": "tr-slugify",
+      "ordinal": 24,
+      "m1TaskSlot": "task-slot-24",
+      "path": "experiments/recovery-runner/tasks/tr-slugify",
+      "readOnly": true,
+      "fileCount": 7,
+      "files": [
+        "acceptance.mjs",
+        "ground-truth.mjs",
+        "payload-subtle.mjs",
+        "prompt.md",
+        "reference-solution.mjs",
+        "subtle-wrong-output.mjs",
+        "task.json"
+      ],
+      "contentDigest": "sha256:79b0b221cc24011fd35edf25262b25527d566ad3af411d012015a32ebd09aee3"
+    }
+  ]
+}

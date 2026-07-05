@@ -1,0 +1,53 @@
+{
+  "findings": [
+    {
+      "id": "B-fe25:F-001",
+      "desc": "M2 runner readiness does not bind deterministic seed lineage or mechanically compare the M2 phase1 runner manifest to the frozen M1 seed/cell contract. CHK-002 requires required Phase 1 cells ③/⑥/② with deterministic seed linkage, but phase1-runner-manifest.m2.json only records counts/cell families and task ids, while the M1 seed policy derives seeds from protocolDigest|cellNumber|taskSlot|scenarioSlot|repeatSlot. The M2 checker validates counts and required cell presence, but it does not read seed-manifest.m1.json or cell-matrix.m1.json, does not bind taskId/ordinal back to M1 taskSlot ids, and does not assert each M2 cell mirrors the frozen M1 arm/executor/reviewer/row semantics. A future provider-execution story could therefore consume a passing M2 readiness layer with ambiguous or drifted seed/cell linkage.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-05T02:40:09.010Z",
+      "reviewRound": "2026-07-05T02:37:07.819Z",
+      "reviewRunId": "B-fe25:RR-002",
+      "_hash": "635d35c420783e09b5ff40b4daf37d0f4b8dcc2deb58b680481904aec11c9162",
+      "files": [
+        "experiments/multi-model-ablation/phase1-runner-manifest.m2.json",
+        "experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+        "experiments/multi-model-ablation/seed-manifest.m1.json",
+        "experiments/multi-model-ablation/cell-matrix.m1.json"
+      ],
+      "signatureTag": "missing|json|runner-readiness-bind",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 2c7bc625e914f5e0c404cbfe729e0cd60f5b49ea. M2 now binds seed-manifest.m1.json and cell-matrix.m1.json, maps each concrete task to task-slot-01..24, and m2-launch-readiness-check mechanically validates M1 protocolDigest, seed derivation policy, dimensions, cell semantics, A2prime gate, planned counts, and task-slot mapping. Verified with node experiments/multi-model-ablation/m2-launch-readiness-check.mjs (1105 assertions, 21 negative controls), node experiments/multi-model-ablation/m1-freeze-check.mjs, and lattice scope_contract_check --storyId=B-fe25.",
+      "resolvedAt": "2026-07-05T02:47:21.282Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-fe25:F-002",
+      "desc": "Formal verification coverage is stale after fix commit 2c7bc625. Targeted checks now pass at HEAD (node experiments/multi-model-ablation/m2-launch-readiness-check.mjs -> 1105 assertions and 21 negative controls; node experiments/multi-model-ablation/m1-freeze-check.mjs -> 219 assertions and 8 negative controls), but lattice validate --story=B-fe25 --json returns status=fail because verification coverage has 12 required intents, covered=0, missingRequired=12, with every CHK-001 through CHK-004 evidence entry marked stale. The stored notes still reflect the pre-fix 730 assertion / 15 negative-control M2 run and therefore do not bind the new M1/M2 lineage controls, provider-free/no-outcome guards, or status checks to current material.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-05T02:51:38.862Z",
+      "reviewRound": "2026-07-05T02:47:01.933Z",
+      "reviewRunId": "B-fe25:RR-007",
+      "_hash": "9c2f100fa77c69814be5733f930f8f3fa42bea8e0f121a542c7dfc31d2e28a4d",
+      "files": [
+        ".lattice/story/actives/B-fe25/test-evidence.json",
+        "experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+        "experiments/multi-model-ablation/m1-freeze-check.mjs"
+      ],
+      "signatureTag": "missing|verification-evidence-stale",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by refreshing and rewriting all 12 verification intent evidence entries after the M1/M2 lineage fix. verification_evidence_batch_add now records current M2 checker evidence with 1105 assertions and 21 negative controls, including M1 seed-manifest/cell-matrix binding, task-slot mapping drift rejection, seed input-format drift rejection, M2/M1 cell semantic drift rejection, provider-free/no-outcome guards, and status claim guards. lattice validate --story=B-fe25 --json --forceTakeover now passes with 33 configured commands and verificationCoverage total=12 required=12 covered=12 missingRequired=0.",
+      "resolvedAt": "2026-07-05T02:57:06.237Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

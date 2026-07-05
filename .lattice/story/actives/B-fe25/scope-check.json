@@ -1,0 +1,115 @@
+{
+  "storyId": "B-fe25",
+  "checkedAt": "2026-07-05T02:18:06.344Z",
+  "features": [
+    {
+      "feature": "Research/paper-evidence boundary is provider-free and does not alter Proofbound product gates.",
+      "covered_by": "CHK-001; CHK-004; plan.md Non-Goals; scope contract allowlist",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/multi-model-ablation-replication.md#0-执行边界与采纳原则"
+    },
+    {
+      "feature": "Readiness approval is separated from paid/provider Phase 1 execution authorization; formalPhase1UseAllowed remains false until execution prerequisites exist.",
+      "covered_by": "CHK-001 verificationIntent edge; planned m2-launch-readiness.json; planned phase1-launch-readiness.m2.json",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/multi-model-ablation-replication.md#6-milestones"
+    },
+    {
+      "feature": "E1/E2 model family and dated snapshot inputs are recorded as provider families, with host labels kept separate from model snapshots.",
+      "covered_by": "CHK-001; planned model-snapshot-lock.m2.json; m2-launch-readiness-check.mjs negative controls",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/multi-model-ablation-replication.md#02-模型host-与并行验证约束"
+    },
+    {
+      "feature": "Concrete v1 24-task inventory is bound from the canonical task corpus without changing task definitions.",
+      "covered_by": "CHK-002; planned task-inventory.m2.json; m2-launch-readiness-check.mjs",
+      "status": "covered",
+      "excluded_by": "CHK-002 excludes task modification; scope contract protectedFiles experiments/recovery-runner/tasks/**",
+      "source": "docs/requirements/decisions/multi-model-ablation-replication.md#31-因子矩阵"
+    },
+    {
+      "feature": "Direct edits to experiments/recovery-runner/tasks/** are out of scope; that path is a read-only source only.",
+      "covered_by": "CHK-002 read-only inventory binding",
+      "status": "excluded",
+      "excluded_by": "CHK-002 excludes; scope contract explicitExcludes experiments/recovery-runner/tasks/**",
+      "source": "docs/requirements/decisions/multi-model-ablation-replication.md#31-因子矩阵"
+    },
+    {
+      "feature": "Phase 1 runner manifest preserves required cells ③, ⑥, and ②, optional ④, and required/optional cell counts.",
+      "covered_by": "CHK-002; planned phase1-runner-manifest.m2.json; planned task-inventory.m2.json",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/multi-model-ablation-replication.md#32-格数与预算"
+    },
+    {
+      "feature": "Legal contrast discipline is represented: ③ vs ⑥, fixed-executor H-M3 contrasts, and ② vs ④ rejected as confirmatory.",
+      "covered_by": "CHK-002 adversarial verification; planned phase1-runner-manifest.m2.json; m2-launch-readiness-check.mjs",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/multi-model-ablation-replication.md#311-2x2-因果对比矩阵每次只允许一个因子变"
+    },
+    {
+      "feature": "A4 calibration budget-lock ordering is preserved; ⑥ A2prime stays blocked until real ③-derived budget-lock evidence exists.",
+      "covered_by": "CHK-003; planned phase1-launch-readiness.m2.json; m2-launch-readiness-check.mjs negative controls",
+      "status": "covered",
+      "excluded_by": "CHK-003 excludes fabricated phase1-budget-lock.json and M0 example locks",
+      "source": "docs/requirements/decisions/multi-model-ablation-replication.md#32-格数与预算"
+    },
+    {
+      "feature": "Provider calls, Phase 1/2 cell execution, records-multi-model-ablation.jsonl, outcome data, phase2 results, and analysis results are out of scope for this PLAN.",
+      "covered_by": "CHK-001; CHK-003; CHK-004; plan.md Non-Goals",
+      "status": "excluded",
+      "excluded_by": "scope contract protectedFiles records-multi-model-ablation.jsonl phase2-results.json analysis-results.json; allowedCreate omits outcome/result files",
+      "source": "docs/requirements/decisions/multi-model-ablation-replication.md#03-并行-runner-数据纳入规则"
+    },
+    {
+      "feature": "M2 status reporting makes M0/M1 done, M2 readiness provider-free, M2 execution not started, and M3-M6 pending visible.",
+      "covered_by": "CHK-004; planned m2-status.md; README.md update",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/multi-model-ablation-replication.md#6-milestones"
+    },
+    {
+      "feature": "Claim boundary prevents H-M1/H-M3 result claims, model-agnostic paper claims, or paper wording updates before actual research execution and analysis.",
+      "covered_by": "CHK-004 adversarial verification; planned m2-status.md; README.md update",
+      "status": "covered",
+      "excluded_by": "CHK-004 excludes paper wording and Phase 1 launch claims",
+      "source": "docs/requirements/decisions/multi-model-ablation-replication.md#35-判定与论文措辞联动预注册防止事后升格"
+    },
+    {
+      "feature": "Scope contract allowlist matches the PLAN/checklist artifact surface: README modification, seven M2 readiness artifacts, and one local checker only.",
+      "covered_by": "scope_contract_show; CHK-001; CHK-002; CHK-003; CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "scope contract initialized 2026-07-05"
+    },
+    {
+      "feature": "Requirements, paper wording, product DONE/review/playbook gates, runtime guidance, and historical M0/M1 lock artifacts are not modified by this PLAN.",
+      "covered_by": "plan.md Non-Goals; scope contract mode=enforce",
+      "status": "excluded",
+      "excluded_by": "allowedModify only experiments/multi-model-ablation/README.md; allowedCreate/test limited to M2 readiness artifacts and checker",
+      "source": "docs/requirements/decisions/multi-model-ablation-replication.md#0-执行边界与采纳原则"
+    },
+    {
+      "feature": "Local verification is scoped to a provider-free checker with happy, edge, and adversarial negative controls rather than provider execution.",
+      "covered_by": "CHK-001 verificationIntent; CHK-002 verificationIntent; CHK-003 verificationIntent; CHK-004 verificationIntent; m2-launch-readiness-check.mjs",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/multi-model-ablation-replication.md#34-控制变量与-v1-逐条对齐--修复项"
+    }
+  ],
+  "summary": {
+    "total": 14,
+    "covered": 11,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "3705ba1d6b7292d94ae2285ab47d0559d89503021558791e120eef609c5464d6",
+  "openQuestions": []
+}

@@ -50,9 +50,47 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-05T02:33:26.878Z",
+      "endTime": "2026-07-05T02:33:41.444Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": "experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+          "command": "node experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+          "result": "pass",
+          "note": "Current M2 checker passed with 1105 assertions and 21 negative controls. It accepts readiness artifacts with the 2026-07-05 approval boundary, distinct E1/E2 provider families, dated readiness declarations, provider execution disabled, and no provider output/result records.",
+          "headHash": "149f7c4e27202694d820d2800ac2a031509824dc",
+          "materialHash": "42d55459ef483260b35ab6ee99b236fbe9b44cab04aedb49617c18b437f1eea4",
+          "storyFilesHash": "2c2bcb4bb2ca7cef308ab1f4edff6b829dcffa59c5b6dace30d3bc7ff6e2d89f",
+          "timestamp": "2026-07-05T02:54:59.299Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+          "command": "node experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+          "result": "pass",
+          "note": "Current checker distinguishes readiness approval from provider-execution authorization: providerExecutionAuthorized, phase1CampaignAuthorized, formalPhase1UseAllowed, providerCallEnabled, and provider execution eligibility remain false while readiness metadata may exist.",
+          "headHash": "149f7c4e27202694d820d2800ac2a031509824dc",
+          "materialHash": "42d55459ef483260b35ab6ee99b236fbe9b44cab04aedb49617c18b437f1eea4",
+          "storyFilesHash": "2c2bcb4bb2ca7cef308ab1f4edff6b829dcffa59c5b6dace30d3bc7ff6e2d89f",
+          "timestamp": "2026-07-05T02:54:59.299Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+          "command": "node experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+          "result": "pass",
+          "note": "Current negative controls reject host labels as model families, provider-call enabling without execution authorization, outcome fields, records-path fields, and model-agnostic/H-M1/H-M3 proof claims inside readiness-only artifacts.",
+          "headHash": "149f7c4e27202694d820d2800ac2a031509824dc",
+          "materialHash": "42d55459ef483260b35ab6ee99b236fbe9b44cab04aedb49617c18b437f1eea4",
+          "storyFilesHash": "2c2bcb4bb2ca7cef308ab1f4edff6b829dcffa59c5b6dace30d3bc7ff6e2d89f",
+          "timestamp": "2026-07-05T02:54:59.299Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -66,7 +104,8 @@
       "excludes": [
         "Inventing new tasks",
         "Changing v1 task definitions",
-        "Counting optional ④ as required"
+        "Counting optional ④ as required",
+        "Modifying experiments/recovery-runner/tasks/**; this path is read-only canonical source for inventory binding"
       ],
       "files": {
         "modify": [],
@@ -101,9 +140,47 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-05T02:33:27.873Z",
+      "endTime": "2026-07-05T02:33:50.665Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": "experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+          "command": "node experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+          "result": "pass",
+          "note": "Current M2 checker passed with 1105 assertions. It recomputes the read-only 24-task corpus digest, maps each concrete task ordinal to M1 task-slot-01..task-slot-24, reads seed-manifest.m1.json and cell-matrix.m1.json, and accepts required Phase 1 cells ③/⑥/② only when M2 mirrors the frozen M1 seed/cell contract.",
+          "headHash": "149f7c4e27202694d820d2800ac2a031509824dc",
+          "materialHash": "42d55459ef483260b35ab6ee99b236fbe9b44cab04aedb49617c18b437f1eea4",
+          "storyFilesHash": "2c2bcb4bb2ca7cef308ab1f4edff6b829dcffa59c5b6dace30d3bc7ff6e2d89f",
+          "timestamp": "2026-07-05T02:54:59.299Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+          "command": "node experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+          "result": "pass",
+          "note": "Current checker accepts required Phase 1 launch readiness with optional ④ present only as optional_budget_permitting and requiredForLaunchReadiness=false; the required ③/⑥/② cells remain structurally valid without treating ④ as required.",
+          "headHash": "149f7c4e27202694d820d2800ac2a031509824dc",
+          "materialHash": "42d55459ef483260b35ab6ee99b236fbe9b44cab04aedb49617c18b437f1eea4",
+          "storyFilesHash": "2c2bcb4bb2ca7cef308ab1f4edff6b829dcffa59c5b6dace30d3bc7ff6e2d89f",
+          "timestamp": "2026-07-05T02:54:59.299Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+          "command": "node experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+          "result": "pass",
+          "note": "Current negative controls reject missing tasks, duplicate task ids, task digest drift, task-slot mapping drift, seed input-format drift, missing M1 seed binding, M2/M1 cell semantic drift, illegal ②-vs-④ confirmatory use, and duplicate ownership risks.",
+          "headHash": "149f7c4e27202694d820d2800ac2a031509824dc",
+          "materialHash": "42d55459ef483260b35ab6ee99b236fbe9b44cab04aedb49617c18b437f1eea4",
+          "storyFilesHash": "2c2bcb4bb2ca7cef308ab1f4edff6b829dcffa59c5b6dace30d3bc7ff6e2d89f",
+          "timestamp": "2026-07-05T02:54:59.299Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -151,9 +228,47 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-05T02:33:27.213Z",
+      "endTime": "2026-07-05T02:33:59.353Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "file": "experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+          "command": "node experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+          "result": "pass",
+          "note": "Current M2 checker passed and confirms ③ A4 calibration remains pending_execution, is the required real calibration source for ⑥ A2prime, and must precede any matching real budget lock.",
+          "headHash": "149f7c4e27202694d820d2800ac2a031509824dc",
+          "materialHash": "42d55459ef483260b35ab6ee99b236fbe9b44cab04aedb49617c18b437f1eea4",
+          "storyFilesHash": "2c2bcb4bb2ca7cef308ab1f4edff6b829dcffa59c5b6dace30d3bc7ff6e2d89f",
+          "timestamp": "2026-07-05T02:54:59.299Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+          "command": "node experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+          "result": "pass",
+          "note": "Current checker accepts M2 readiness while budgetLockStatus remains pending_execution: readiness artifacts can be prepared without making formal Phase 1 runnable or satisfying ⑥ A2prime sequencing.",
+          "headHash": "149f7c4e27202694d820d2800ac2a031509824dc",
+          "materialHash": "42d55459ef483260b35ab6ee99b236fbe9b44cab04aedb49617c18b437f1eea4",
+          "storyFilesHash": "2c2bcb4bb2ca7cef308ab1f4edff6b829dcffa59c5b6dace30d3bc7ff6e2d89f",
+          "timestamp": "2026-07-05T02:54:59.299Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+          "command": "node experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+          "result": "pass",
+          "note": "Current negative controls reject artifacts that mark ③ calibration complete, set ⑥ A2prime executionAllowed/sequencingSatisfied before a real ③-derived budget lock, or treat M0/example locks as formal evidence.",
+          "headHash": "149f7c4e27202694d820d2800ac2a031509824dc",
+          "materialHash": "42d55459ef483260b35ab6ee99b236fbe9b44cab04aedb49617c18b437f1eea4",
+          "storyFilesHash": "2c2bcb4bb2ca7cef308ab1f4edff6b829dcffa59c5b6dace30d3bc7ff6e2d89f",
+          "timestamp": "2026-07-05T02:54:59.299Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -203,9 +318,47 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-05T02:33:27.550Z",
+      "endTime": "2026-07-05T02:34:08.407Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "file": "experiments/multi-model-ablation/m2-status.md",
+          "command": "node experiments/multi-model-ablation/m2-launch-readiness-check.mjs && sed -n 1,220p experiments/multi-model-ablation/m2-status.md",
+          "result": "pass",
+          "note": "Current checker plus status readout confirm m2-status.md prints M0/M1 complete, M2 launch readiness prepared, formal M2 execution not started, ③ pending, ⑥ blocked, and M3-M6 pending.",
+          "headHash": "149f7c4e27202694d820d2800ac2a031509824dc",
+          "materialHash": "42d55459ef483260b35ab6ee99b236fbe9b44cab04aedb49617c18b437f1eea4",
+          "storyFilesHash": "2c2bcb4bb2ca7cef308ab1f4edff6b829dcffa59c5b6dace30d3bc7ff6e2d89f",
+          "timestamp": "2026-07-05T02:54:59.299Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+          "command": "node experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+          "result": "pass",
+          "note": "Current checker accepts status accuracy when optional ④ remains optional_budget_permitting and not required for M2 launch readiness; no Phase 1/Phase 2 execution rows are implied.",
+          "headHash": "149f7c4e27202694d820d2800ac2a031509824dc",
+          "materialHash": "42d55459ef483260b35ab6ee99b236fbe9b44cab04aedb49617c18b437f1eea4",
+          "storyFilesHash": "2c2bcb4bb2ca7cef308ab1f4edff6b829dcffa59c5b6dace30d3bc7ff6e2d89f",
+          "timestamp": "2026-07-05T02:54:59.299Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+          "command": "node experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+          "result": "pass",
+          "note": "Current status and negative controls reject claims that outcome data exists, Phase 1 has run, H-M1/H-M3 are proven, or model-agnostic paper claims are unlocked.",
+          "headHash": "149f7c4e27202694d820d2800ac2a031509824dc",
+          "materialHash": "42d55459ef483260b35ab6ee99b236fbe9b44cab04aedb49617c18b437f1eea4",
+          "storyFilesHash": "2c2bcb4bb2ca7cef308ab1f4edff6b829dcffa59c5b6dace30d3bc7ff6e2d89f",
+          "timestamp": "2026-07-05T02:54:59.299Z"
+        }
+      ]
     }
   ]
 }

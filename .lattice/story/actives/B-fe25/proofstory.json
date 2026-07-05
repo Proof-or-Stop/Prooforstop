@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-fe25",
+  "diagnosticOnly": false,
+  "hardeningLevel": "high_assurance",
+  "triggerReasons": [
+    {
+      "code": "high_assurance_risk",
+      "message": "High-risk or gate/security wording selects high-assurance intent hardening.",
+      "requires": "high-assurance"
+    },
+    {
+      "code": "collision_required_high_assurance",
+      "message": "High-assurance work requires an independent intent-collision result.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:fc8d85a4f8344e6b5f1fcc68080bafc35b9fc1e9dec1fb6346827ee09662bd57",
+  "acceptanceBindings": [
+    {
+      "id": "AB-M2-READINESS",
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002",
+        "CHK-003",
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0",
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0",
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0",
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0"
+      ],
+      "milestoneIds": [
+        "M2-R1",
+        "M2-R2",
+        "M2-R3",
+        "M2-R4"
+      ],
+      "acceptanceClaim": "The acceptance claim is satisfied when m2-launch-readiness-check.mjs passes, m2-status.md displays the milestone/blocker table, no provider calls or outcome records exist, and experiments/recovery-runner/tasks remains unmodified.",
+      "note": "Binds the accepted M2 launch-readiness user outcome to every checklist item and its happy/edge/adversarial verification path."
+    }
+  ],
+  "diagnosticGaps": [],
+  "note": "B-fe25 ProofStory contract: provider-free M2 readiness only; no provider cells or outcome data.",
+  "createdAt": "2026-07-05T02:20:46.154Z",
+  "updatedAt": "2026-07-05T02:20:46.154Z"
+}

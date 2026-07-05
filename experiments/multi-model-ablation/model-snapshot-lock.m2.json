@@ -1,0 +1,68 @@
+{
+  "artifact": "model-snapshot-lock.m2",
+  "storyId": "B-fe25",
+  "status": "m2_dated_snapshot_readiness_declared_execution_metadata_absent",
+  "preparedOn": "2026-07-05",
+  "protocolPath": "docs/requirements/decisions/multi-model-ablation-replication.md",
+  "protocolDigest": "sha256:4eddb3ff30682a5c2ec3a5b5c81f1dd36b63e9d5bf73bcfda77ee845291317d2",
+  "researchBoundary": {
+    "providerCallsMade": false,
+    "containsOutcomeData": false,
+    "phase1OrPhase2CellsRun": false,
+    "productGateImpact": "none"
+  },
+  "snapshotReadinessBoundary": {
+    "datedReadinessDeclarationsPresent": true,
+    "providerExecutionLocked": false,
+    "providerRunMetadataPresent": false,
+    "providerFallbackAllowed": false,
+    "formalPhase1UseAllowed": false,
+    "statement": "M2 binds dated provider-family declarations for readiness review. The future M2-a provider-execution story must still record actual executorSnapshot and reviewerSnapshot metadata before any cell can run."
+  },
+  "modelFamilies": [
+    {
+      "familyId": "E1",
+      "providerFamily": "Anthropic Claude",
+      "protocolRole": "baseline executor and same-family reviewer family",
+      "datedReadinessSnapshot": {
+        "snapshotId": "anthropic-claude-sonnet-family-readiness-2026-07-05",
+        "snapshotDate": "2026-07-05",
+        "declarationOnly": true,
+        "providerRunMetadataAbsent": true
+      },
+      "hostKindIsModelFamily": false,
+      "hostLabelsRejectedAsProviderFamily": [
+        "Claude Code CLI"
+      ],
+      "providerCallsEnabled": false,
+      "formalPhase1UseAllowed": false
+    },
+    {
+      "familyId": "E2",
+      "providerFamily": "OpenAI GPT",
+      "protocolRole": "second executor family and cross/same reviewer family",
+      "datedReadinessSnapshot": {
+        "snapshotId": "openai-gpt-family-readiness-2026-07-05",
+        "snapshotDate": "2026-07-05",
+        "declarationOnly": true,
+        "providerRunMetadataAbsent": true
+      },
+      "hostKindIsModelFamily": false,
+      "hostLabelsRejectedAsProviderFamily": [
+        "Codex CLI",
+        "Codex App",
+        "Antigravity CLI",
+        "agy"
+      ],
+      "providerCallsEnabled": false,
+      "formalPhase1UseAllowed": false
+    }
+  ],
+  "separationAssertion": {
+    "providerFamiliesMustBeDistinct": true,
+    "hostKindMayNotSubstituteForProviderFamily": true,
+    "codexCliIsHostOrAdapterNotModelFamily": true,
+    "claudeCodeCliIsHostOrAdapterNotModelFamily": true,
+    "antigravityCliIsHostOrAdapterNotModelFamily": true
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "passes": [
+    {
+      "id": "B-fe25:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round; concept residue check completed with no blocker. Diff expands multi-model ablation artifacts from M0 examples to M2 readiness while retaining M0 explicitly; documented M0, M1, and M2 local checks pass, and no promised-but-undelivered concept was found.",
+      "createdAt": "2026-07-05T02:39:33.379Z",
+      "reviewRound": "2026-07-05T02:37:07.819Z",
+      "reviewRunId": "B-fe25:RR-001",
+      "_hash": "f8994c2a6ed8b88da26faa56e2bd0e8fc25ec70ba61b0fd98373f90df0590e9a"
+    },
+    {
+      "id": "B-fe25:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "PASS: Concept review found no blocker. M2 artifacts stay launch-readiness only with providerCallsMade=false, containsOutcomeData=false, phase1OrPhase2CellsRun=false, provider execution authorization disabled, and claim boundaries false. Fix 2c7bc625 resolves the prior M1 lineage concern by binding task slots and phase1 cell semantics to seed-manifest.m1.json and cell-matrix.m1.json without changing the experimental meaning.",
+      "createdAt": "2026-07-05T02:49:14.428Z",
+      "reviewRound": "2026-07-05T02:47:01.933Z",
+      "reviewRunId": "B-fe25:RR-005",
+      "_hash": "86a7cf5b9f999b328079af294cc07644ad463908bf24b2a0c964bfcf1b4c59bd"
+    },
+    {
+      "id": "B-fe25:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Docs/status review passed after fix 2c7bc625 and finding resolve d03590c. M2 artifacts consistently present provider-free readiness only: provider execution/result rows disabled, ③ pending, ⑥ blocked until real ③-derived budget lock, M1 seed/task-slot/cell lineage mechanically documented and checked, and M3-M6/multi-model claims remain pending/not proven.",
+      "createdAt": "2026-07-05T02:49:25.897Z",
+      "reviewRound": "2026-07-05T02:47:01.933Z",
+      "reviewRunId": "B-fe25:RR-008",
+      "_hash": "48dc829843435f5586f678bd758b1d0366dd7ce34d0408dd9e46d8e37d34e714"
+    },
+    {
+      "id": "B-fe25:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "PASS: verified B-fe25:F-001 fix after 2c7bc625. M2 launch readiness now mechanically loads and checks seed-manifest.m1.json plus cell-matrix.m1.json, binds sorted task inventory ordinals to M1 task-slot ids, validates seed input format, M1 cell semantics, planned row counts, A2prime budget gate, and provider-free/no-outcome boundaries. Targeted checks passed: node experiments/multi-model-ablation/m2-launch-readiness-check.mjs (1105 assertions; 21 negative controls), node experiments/multi-model-ablation/m1-freeze-check.mjs, independent Node M1/M2 binding check, lattice scope_contract_check --storyId=B-fe25, git diff --check. No blocking quality findings.",
+      "createdAt": "2026-07-05T02:50:07.910Z",
+      "reviewRound": "2026-07-05T02:47:01.933Z",
+      "reviewRunId": "B-fe25:RR-006",
+      "_hash": "dfb18ee4d3b42a4510e93cf8c2a5d5c99734712c6acb49a9cccab0c86b835ef3"
+    },
+    {
+      "id": "B-fe25:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Targeted re-review after B-fe25:F-002 resolution: evidence_plan reports 12 fresh required intents, finding_list shows F-002 resolved, the M2 checker passes 1105 assertions / 21 negative controls, evidence notes bind M1/M2 lineage controls, and lattice validate --story=B-fe25 --json passes with verificationCoverage total=12 required=12 covered=12 missingRequired=0.",
+      "createdAt": "2026-07-05T03:00:34.373Z",
+      "reviewRound": "2026-07-05T02:47:01.933Z",
+      "reviewRunId": "B-fe25:RR-009",
+      "_hash": "2811c04785cfc241c905e12f32d4534ba13f9a5b2d535ae30c1c858412ad5c6b"
+    }
+  ]
+}
