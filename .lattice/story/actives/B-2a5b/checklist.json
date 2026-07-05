@@ -50,10 +50,10 @@
           "command": "node experiments/pos-instrument-replay/run-batch.mjs",
           "result": "pass",
           "note": "run-batch.mjs completed the full campaign: batch-ledger.jsonl has 33 identity-keyed records (30 small + 3 full 1M cycles), all proof records (0 stop), each with iterationId replay/<scale>/<index>, verifyStatus, verifyFlags, generation-side digests{records,gold,manifest}, goldMetrics, elapsedMs, endOfRunRss, env, recordDigest. 0 recordless, exit 0.",
-          "headHash": "2285816b1cfa3d34db08eb35ed2c5aaa33cb195b",
-          "materialHash": "5e856ca32241b8334a472fc2f8327f62e225a491a36a9ca6f67ff3393c6441ba",
-          "storyFilesHash": "90bf4f877c24d238a40fb0d7e09aab6268018d9926c2d53883bbee6b07edf65e",
-          "timestamp": "2026-07-05T19:22:09.831Z"
+          "headHash": "8513707f737228183c6322e38da22bbecb547c72",
+          "materialHash": "b5f05fa8c03d64bdf6c912b932fc267e02530e29aaae38544d587bc2416b5b52",
+          "storyFilesHash": "778cc5e6513c98a7773be024408545936074e32f72563d182da04d4ebfbdd485",
+          "timestamp": "2026-07-05T19:51:56.951Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -61,10 +61,10 @@
           "command": "node -e \"const L=require('fs').readFileSync('experiments/pos-instrument-replay/batch-ledger.jsonl','utf8').trim().split('\\n').map(JSON.parse);/*re-derive recordDigest*/console.log(L.length)\"",
           "result": "pass",
           "note": "Digests sourced from the generation-side manifest; all 33 recordDigests independently re-derive (sha256 of canonical JSON with recordDigest absent) per protocol.recordDigestPreimageRule; 33 unique iterationIds.",
-          "headHash": "2285816b1cfa3d34db08eb35ed2c5aaa33cb195b",
-          "materialHash": "5e856ca32241b8334a472fc2f8327f62e225a491a36a9ca6f67ff3393c6441ba",
-          "storyFilesHash": "90bf4f877c24d238a40fb0d7e09aab6268018d9926c2d53883bbee6b07edf65e",
-          "timestamp": "2026-07-05T19:22:09.831Z"
+          "headHash": "8513707f737228183c6322e38da22bbecb547c72",
+          "materialHash": "b5f05fa8c03d64bdf6c912b932fc267e02530e29aaae38544d587bc2416b5b52",
+          "storyFilesHash": "778cc5e6513c98a7773be024408545936074e32f72563d182da04d4ebfbdd485",
+          "timestamp": "2026-07-05T19:51:56.951Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -72,10 +72,10 @@
           "command": "node experiments/pos-instrument-replay/selfcheck-m2.mjs",
           "result": "pass",
           "note": "verify_crash mapping now exercised: selfcheck-m2 (d) GENERATE-CRASH forces a generate throw at replay/small/1 -> run-batch produces exactly one verify_crash STOP record for that iteration (not recordless, not an uncaught crash) and exits 0. Any generate OR verify crash maps to a verify_crash stop per the frozen stopReasonEnum.",
-          "headHash": "d44b6debc51507d906d42af2c95ed4c9c4c527a1",
-          "materialHash": "5e856ca32241b8334a472fc2f8327f62e225a491a36a9ca6f67ff3393c6441ba",
-          "storyFilesHash": "90bf4f877c24d238a40fb0d7e09aab6268018d9926c2d53883bbee6b07edf65e",
-          "timestamp": "2026-07-05T19:22:10.482Z"
+          "headHash": "8513707f737228183c6322e38da22bbecb547c72",
+          "materialHash": "b5f05fa8c03d64bdf6c912b932fc267e02530e29aaae38544d587bc2416b5b52",
+          "storyFilesHash": "778cc5e6513c98a7773be024408545936074e32f72563d182da04d4ebfbdd485",
+          "timestamp": "2026-07-05T19:51:56.951Z"
         }
       ]
     },
@@ -126,10 +126,10 @@
           "command": "node experiments/pos-instrument-replay/run-batch.mjs",
           "result": "pass",
           "note": "Every iteration ended in exactly one record (33 records / 33 unique iterationIds / 0 recordless). H1 = pairwise records/gold/manifest digest + gold-metric equality across replay proof records PER SCALE: small n=30 distinct-digest-sets=1 (PAIRWISE-EQUAL), full n=3 distinct-digest-sets=1 (PAIRWISE-EQUAL) — replay determinism confirmed.",
-          "headHash": "2285816b1cfa3d34db08eb35ed2c5aaa33cb195b",
-          "materialHash": "5e856ca32241b8334a472fc2f8327f62e225a491a36a9ca6f67ff3393c6441ba",
-          "storyFilesHash": "90bf4f877c24d238a40fb0d7e09aab6268018d9926c2d53883bbee6b07edf65e",
-          "timestamp": "2026-07-05T19:22:09.831Z"
+          "headHash": "8513707f737228183c6322e38da22bbecb547c72",
+          "materialHash": "b5f05fa8c03d64bdf6c912b932fc267e02530e29aaae38544d587bc2416b5b52",
+          "storyFilesHash": "778cc5e6513c98a7773be024408545936074e32f72563d182da04d4ebfbdd485",
+          "timestamp": "2026-07-05T19:51:56.951Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -137,10 +137,10 @@
           "command": "node -e \"const L=require('fs').readFileSync('experiments/pos-instrument-replay/batch-ledger.jsonl','utf8').trim().split('\\n').map(JSON.parse);const cap=128217;console.log('over-cap:',L.filter(r=>r.elapsedMs>cap).length,'maxElapsed:',Math.max(...L.map(r=>r.elapsedMs||0)))\"",
           "result": "pass",
           "note": "H4 scale envelope: every proof record elapsedMs within budgetCapMsPerVerify (128217); 0 over-cap, max elapsed 19538ms; 0 budget_cap stops in the real campaign. The driver holds a mkdir lockfile released on clean exit.",
-          "headHash": "2285816b1cfa3d34db08eb35ed2c5aaa33cb195b",
-          "materialHash": "5e856ca32241b8334a472fc2f8327f62e225a491a36a9ca6f67ff3393c6441ba",
-          "storyFilesHash": "90bf4f877c24d238a40fb0d7e09aab6268018d9926c2d53883bbee6b07edf65e",
-          "timestamp": "2026-07-05T19:22:09.831Z"
+          "headHash": "8513707f737228183c6322e38da22bbecb547c72",
+          "materialHash": "b5f05fa8c03d64bdf6c912b932fc267e02530e29aaae38544d587bc2416b5b52",
+          "storyFilesHash": "778cc5e6513c98a7773be024408545936074e32f72563d182da04d4ebfbdd485",
+          "timestamp": "2026-07-05T19:51:56.951Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -148,10 +148,10 @@
           "command": "node experiments/pos-instrument-replay/selfcheck-m2.mjs",
           "result": "pass",
           "note": "selfcheck-m2 (b): a lock-blocked concurrent driver records precondition_failed to a SEPARATE batch-ledger.blocked.jsonl (NOT the shared campaign ledger, which stays clean) and exits 3; the end-of-run guard now validates the EXACT expected identity multiset (rejects missing/dup/EXTRA); (c) recordless -> exit 1. Ledger contamination (F-002) and generate-crash bypass (F-001) both closed.",
-          "headHash": "eb54a44dfb01e05990bd1cb56e2b17332f3f848a",
-          "materialHash": "5e856ca32241b8334a472fc2f8327f62e225a491a36a9ca6f67ff3393c6441ba",
-          "storyFilesHash": "90bf4f877c24d238a40fb0d7e09aab6268018d9926c2d53883bbee6b07edf65e",
-          "timestamp": "2026-07-05T19:22:11.109Z"
+          "headHash": "8513707f737228183c6322e38da22bbecb547c72",
+          "materialHash": "b5f05fa8c03d64bdf6c912b932fc267e02530e29aaae38544d587bc2416b5b52",
+          "storyFilesHash": "778cc5e6513c98a7773be024408545936074e32f72563d182da04d4ebfbdd485",
+          "timestamp": "2026-07-05T19:51:56.951Z"
         }
       ]
     },
@@ -202,10 +202,10 @@
           "command": "node experiments/pos-instrument-replay/selfcheck-m2.mjs",
           "result": "pass",
           "note": "node selfcheck-m2.mjs exits 0 'selfcheck-m2 PASS' (hermetic, small): 4 sub-checks (a) budget_cap, (b) lockfile->separate blocked-ledger, (c) recordless, (d) generate-crash->verify_crash-stop all pass.",
-          "headHash": "5d5dc6c26f16851fe0a218cc629a5186d8e90567",
-          "materialHash": "5e856ca32241b8334a472fc2f8327f62e225a491a36a9ca6f67ff3393c6441ba",
-          "storyFilesHash": "90bf4f877c24d238a40fb0d7e09aab6268018d9926c2d53883bbee6b07edf65e",
-          "timestamp": "2026-07-05T19:22:11.726Z"
+          "headHash": "8513707f737228183c6322e38da22bbecb547c72",
+          "materialHash": "b5f05fa8c03d64bdf6c912b932fc267e02530e29aaae38544d587bc2416b5b52",
+          "storyFilesHash": "778cc5e6513c98a7773be024408545936074e32f72563d182da04d4ebfbdd485",
+          "timestamp": "2026-07-05T19:51:56.951Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -213,10 +213,10 @@
           "command": "node experiments/pos-instrument-replay/selfcheck-m2.mjs",
           "result": "pass",
           "note": "selfcheck-m2 (a) BUDGET_CAP: with POS_BUDGET_CAP_MS=1 injected, 30/30 small iterations record a budget_cap stop (the H4 stop path exercised).",
-          "headHash": "2285816b1cfa3d34db08eb35ed2c5aaa33cb195b",
-          "materialHash": "5e856ca32241b8334a472fc2f8327f62e225a491a36a9ca6f67ff3393c6441ba",
-          "storyFilesHash": "90bf4f877c24d238a40fb0d7e09aab6268018d9926c2d53883bbee6b07edf65e",
-          "timestamp": "2026-07-05T19:22:09.831Z"
+          "headHash": "8513707f737228183c6322e38da22bbecb547c72",
+          "materialHash": "b5f05fa8c03d64bdf6c912b932fc267e02530e29aaae38544d587bc2416b5b52",
+          "storyFilesHash": "778cc5e6513c98a7773be024408545936074e32f72563d182da04d4ebfbdd485",
+          "timestamp": "2026-07-05T19:51:56.951Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -224,10 +224,10 @@
           "command": "node experiments/pos-instrument-replay/selfcheck-m2.mjs",
           "result": "pass",
           "note": "Un-gameable: (b) lockfile (separate blocked-ledger, campaign clean, exit 3), (c) recordless (exit 1 naming replay/small/1), (d) generate-crash (verify_crash stop) all fail loudly if the proof-or-stop/lockfile/crash discipline regresses. Strict exact-multiset guard rejects any extra/missing/dup record.",
-          "headHash": "37e819efb2203124adf381471ff55e90ae80d92c",
-          "materialHash": "5e856ca32241b8334a472fc2f8327f62e225a491a36a9ca6f67ff3393c6441ba",
-          "storyFilesHash": "90bf4f877c24d238a40fb0d7e09aab6268018d9926c2d53883bbee6b07edf65e",
-          "timestamp": "2026-07-05T19:22:12.418Z"
+          "headHash": "8513707f737228183c6322e38da22bbecb547c72",
+          "materialHash": "b5f05fa8c03d64bdf6c912b932fc267e02530e29aaae38544d587bc2416b5b52",
+          "storyFilesHash": "778cc5e6513c98a7773be024408545936074e32f72563d182da04d4ebfbdd485",
+          "timestamp": "2026-07-05T19:51:56.951Z"
         }
       ]
     }
