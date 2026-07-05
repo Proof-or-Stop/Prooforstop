@@ -238,6 +238,18 @@
           "materialHash": "9ba391f0ac10f4e9d2ff06fa2496916a3f5cf667abb979982df01cc6a597f1d5",
           "storyFilesHash": "c30eb3d33a067b2f903714979a762ac2f5a42e50904d725061459b0bead9f68a",
           "timestamp": "2026-07-05T23:40:36.928Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/capability-candidate-promotion-smoke.ts",
+          "command": "node packages/main/dist/tasks/capability-candidate-promotion-smoke.js",
+          "result": "pass",
+          "note": "Smoke 8/8. ADVERSARIAL: with ZERO structured helped outcomes playbook_promotion_sweep returns action=hold with reason insufficient_decisive_samples — never recommend_activate (no concrete exposure + structured verdict = no activation path); and even after a full recommend_activate recommendation (dry-run AND --apply) the on-disk PBP-882 stays status=candidate — the sweep records advisory recommendations only and no path auto-activates the capability candidate; the invariant is asserted, not weakened.",
+          "headHash": "0cfa0a4b2d878e5f5c012e515b93983ecef6825b",
+          "materialHash": "9ba391f0ac10f4e9d2ff06fa2496916a3f5cf667abb979982df01cc6a597f1d5",
+          "storyFilesHash": "c30eb3d33a067b2f903714979a762ac2f5a42e50904d725061459b0bead9f68a",
+          "timestamp": "2026-07-05T23:40:47.505Z"
         }
       ]
     },
