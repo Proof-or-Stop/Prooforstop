@@ -18,6 +18,25 @@
       ],
       "signatureTag": "missing|md|code-drift-plan",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-b550:F-002",
+      "desc": "All 44 verificationIntent refs across CHK-001..CHK-008 (M0-M7) are stale-evidence, not covered. The M1 status-label-only doc fix (commit 00dc09329) changed storyFilesHash from f92b0ff4757a to dc1f5585c37a, invalidating every previously-bound verificationEvidence entry. lattice validate --story=B-b550 --json currently reports result=FAIL, verificationCoverage covered=0/44, missingRequired=44, and lattice milestone_status --storyId=B-b550 shows every intent as [stale-evidence] Blocked. No re-bind (verification_evidence_add or equivalent refresh) has occurred since the label fix landed. Task premise of 44/44 covered does not hold against current state.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-05T15:20:33.550Z",
+      "reviewRound": "2026-07-05T15:14:23.740Z",
+      "reviewRunId": "B-b550:RR-015",
+      "_hash": "4ddbd40f3ed91c3405242dc614a0ca9091e7bc10e10ad0e1044d43efd57fb144",
+      "files": [
+        "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+        ".lattice/story/actives/B-b550/test-evidence.json"
+      ],
+      "signatureTag": "missing|md|verificationintent-refs-across",
+      "signatureTagSource": "auto"
     }
   ]
 }
