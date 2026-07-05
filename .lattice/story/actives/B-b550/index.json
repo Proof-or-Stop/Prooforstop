@@ -4,8 +4,8 @@
   "title": "Execute the milestone ledger status review and hardening plan (M0-M7)",
   "description": "Story B-9051 delivered docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md but only authored the plan document; all 8 milestones and 43 sub-objectives are still in planned status. This story executes the truth-first document review itself: it audits whether the existing milestone_ledger_set/add/get, milestone_status, and milestone_closeout implementation matches the intended safety boundary, records per-milestone finding-or-pass outcomes in a findings report, updates the plan milestone statuses, and closes with an explicit M7 decision (clean pass or a bounded follow-up story proposal).",
   "type": "chore",
-  "phase": "INIT",
-  "priority": "high",
+  "phase": "INIT_CHECK",
+  "priority": "medium",
   "keywords": [
     "milestone-ledger",
     "milestone-status",
@@ -19,7 +19,6 @@
       "matched": "production"
     }
   ],
-  "priorityElevatedFrom": "medium",
   "createdAt": "2026-07-05T12:11:32.791Z",
   "startedAt": "2026-07-05T12:11:32.791Z",
   "endedAt": null,
@@ -32,6 +31,27 @@
       "user": "Harmonygo",
       "sessionId": "1b908de7-9c48-4daf-9792-5f4a14562ca3",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-05T12:16:28.631Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "1b908de7-9c48-4daf-9792-5f4a14562ca3",
+      "agent": "main"
     }
-  ]
+  ],
+  "riskSignalsDismissed": [
+    {
+      "category": "Production/Emergency",
+      "reason": "False positive: the word production appears only inside CHK-002 checklist context quoting the target plan document acceptance criterion (never claims DONE or production readiness) as a verification target for this docs-only review story. The story itself touches no production system, no deployment, no emergency path; it audits documentation and read-only status surfaces. Confirmed by lattice-review-story-init finding INIT-001.",
+      "at": "2026-07-05T12:14:06.401Z"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-b550",
+    "branch": "story/B-b550",
+    "createdAt": "2026-07-05T12:16:27.340Z"
+  }
 }

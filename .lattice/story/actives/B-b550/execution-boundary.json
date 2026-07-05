@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-b550",
+  "allowedCommands": [
+    "git add docs/*",
+    "git commit *",
+    "git diff *",
+    "git log *",
+    "git show *",
+    "git status",
+    "grep *",
+    "lattice *",
+    "node packages/main/dist/*",
+    "npm run test:*",
+    "rg *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".lattice/story/actives/B-b550/",
+    "docs/requirements/decisions/",
+    "docs/requirements/NAV.md"
+  ],
+  "excludedCommands": [
+    "git push --force*",
+    "git reset --hard*",
+    "rm -rf *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    "packages/main/src/",
+    "packages/main/tests/"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Docs-only review story: reads code anywhere, writes only the findings report, the plan doc status columns, NAV.md, and its own story artifacts. Source and test directories are read-only for this story per plan non-goals.",
+  "createdAt": "2026-07-05T12:14:52.164Z",
+  "updatedAt": "2026-07-05T12:14:52.164Z",
+  "_hash": "a372d173adc5c6f680e31fb63a1bb7e0ec1822b52dd3f45fe810970693ccd990"
+}
