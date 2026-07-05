@@ -42,10 +42,10 @@
           "file": "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
           "result": "pass",
           "note": "Canonical inventory in the review doc matches current Proofbound anchors: proofstory handler for milestone_ledger_set/add/get, milestone-status handler/core for milestone_status and closeout, types, command policy, and ProofStory decision doc.",
-          "headHash": "943d84af33d28794e85e693e7bb808b24c21d9a7",
-          "materialHash": "14dfe9be3e8dba7d26b7efd5d62465c878527525759e2aa0aa3b85ab19cc149b",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-07-05T11:00:34.315Z"
+          "headHash": "81dfe91860bda1da9fa6eeb59acd8a714e8305b5",
+          "materialHash": "e14ba31604f3d70465c3fc19ebfa8195c4d10b36392ff75f3f746737434fc8e2",
+          "storyFilesHash": "f865b48dbfb59cadba71f78fe06b2dbcc0b4161ede64e4207c885d9699a4c592",
+          "timestamp": "2026-07-05T11:40:59.713Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -53,20 +53,20 @@
           "command": "lattice session_brief && lattice aux_doc_list && rg -n milestone_ledger_set packages/main/src docs/requirements/decisions",
           "result": "pass",
           "note": "Review used canonical /Users/jek/Documents/Work/proofbound worktree, not retired Orchestrate, and aux_doc_list shows the new canonical review doc in docs/requirements/decisions.",
-          "headHash": "943d84af33d28794e85e693e7bb808b24c21d9a7",
-          "materialHash": "14dfe9be3e8dba7d26b7efd5d62465c878527525759e2aa0aa3b85ab19cc149b",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-07-05T11:00:34.433Z"
+          "headHash": "81dfe91860bda1da9fa6eeb59acd8a714e8305b5",
+          "materialHash": "e14ba31604f3d70465c3fc19ebfa8195c4d10b36392ff75f3f746737434fc8e2",
+          "storyFilesHash": "f865b48dbfb59cadba71f78fe06b2dbcc0b4161ede64e4207c885d9699a4c592",
+          "timestamp": "2026-07-05T11:40:59.713Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "docs_check",
           "result": "pass",
           "note": "Stale planning prose was not treated as stronger than current code; the review doc explicitly says this is not a from-scratch implementation plan and the implementation inventory is verified against source.",
-          "headHash": "943d84af33d28794e85e693e7bb808b24c21d9a7",
-          "materialHash": "14dfe9be3e8dba7d26b7efd5d62465c878527525759e2aa0aa3b85ab19cc149b",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-07-05T11:00:34.547Z"
+          "headHash": "81dfe91860bda1da9fa6eeb59acd8a714e8305b5",
+          "materialHash": "e14ba31604f3d70465c3fc19ebfa8195c4d10b36392ff75f3f746737434fc8e2",
+          "storyFilesHash": "f865b48dbfb59cadba71f78fe06b2dbcc0b4161ede64e4207c885d9699a4c592",
+          "timestamp": "2026-07-05T11:40:59.713Z"
         }
       ]
     },
@@ -111,10 +111,10 @@
           "file": "packages/main/src/handlers/milestone-status.ts",
           "result": "pass",
           "note": "milestone_status validates allowed args before store reads, returns READ_ONLY_MODE, and command policy classifies it as readOnly with no evidence, summary, reviewer, phase, DONE, or production side effects.",
-          "headHash": "b74988a936b72e6e5f45aef3d524f7dccaf643d6",
-          "materialHash": "14dfe9be3e8dba7d26b7efd5d62465c878527525759e2aa0aa3b85ab19cc149b",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-07-05T11:00:46.679Z"
+          "headHash": "81dfe91860bda1da9fa6eeb59acd8a714e8305b5",
+          "materialHash": "e14ba31604f3d70465c3fc19ebfa8195c4d10b36392ff75f3f746737434fc8e2",
+          "storyFilesHash": "f865b48dbfb59cadba71f78fe06b2dbcc0b4161ede64e4207c885d9699a4c592",
+          "timestamp": "2026-07-05T11:40:59.713Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -122,10 +122,10 @@
           "command": "lattice milestone_status --storyId=B-9051 --format=json",
           "result": "pass",
           "note": "Live B-9051 milestone_status output has ledger.present=false, readOnly=true, runCommands=false, writeEvidence=false, advancePhase=false, launchReviewers=false, and a nextAction saying status will not create the ledger.",
-          "headHash": "b74988a936b72e6e5f45aef3d524f7dccaf643d6",
-          "materialHash": "14dfe9be3e8dba7d26b7efd5d62465c878527525759e2aa0aa3b85ab19cc149b",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-07-05T11:00:46.844Z"
+          "headHash": "81dfe91860bda1da9fa6eeb59acd8a714e8305b5",
+          "materialHash": "e14ba31604f3d70465c3fc19ebfa8195c4d10b36392ff75f3f746737434fc8e2",
+          "storyFilesHash": "f865b48dbfb59cadba71f78fe06b2dbcc0b4161ede64e4207c885d9699a4c592",
+          "timestamp": "2026-07-05T11:40:59.713Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -133,10 +133,10 @@
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "Dedicated milestone-status tests cover unknown and mutation-like flags, rejection before story reads, missing-ledger reporting without checklist reads, and no fabricated completion.",
-          "headHash": "b74988a936b72e6e5f45aef3d524f7dccaf643d6",
-          "materialHash": "14dfe9be3e8dba7d26b7efd5d62465c878527525759e2aa0aa3b85ab19cc149b",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-07-05T11:00:46.999Z"
+          "headHash": "81dfe91860bda1da9fa6eeb59acd8a714e8305b5",
+          "materialHash": "e14ba31604f3d70465c3fc19ebfa8195c4d10b36392ff75f3f746737434fc8e2",
+          "storyFilesHash": "f865b48dbfb59cadba71f78fe06b2dbcc0b4161ede64e4207c885d9699a4c592",
+          "timestamp": "2026-07-05T11:40:59.713Z"
         }
       ]
     },
@@ -182,10 +182,10 @@
           "command": "lattice proofstory_gate_check --storyId=B-9051 --phase=DEV && lattice milestone_status --storyId=B-9051 --format=json",
           "result": "pass",
           "note": "For this docs-only review story, ProofStory DEV gate passes after intent artifacts while milestone_status still reports ledger missing; ordinary non-ledger work is not retroactively blocked and status does not repair storage.",
-          "headHash": "a2e3ffa6414ca8e8e0d92b703fbe834f1f6bfc18",
-          "materialHash": "14dfe9be3e8dba7d26b7efd5d62465c878527525759e2aa0aa3b85ab19cc149b",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-07-05T11:01:02.004Z"
+          "headHash": "81dfe91860bda1da9fa6eeb59acd8a714e8305b5",
+          "materialHash": "e14ba31604f3d70465c3fc19ebfa8195c4d10b36392ff75f3f746737434fc8e2",
+          "storyFilesHash": "f865b48dbfb59cadba71f78fe06b2dbcc0b4161ede64e4207c885d9699a4c592",
+          "timestamp": "2026-07-05T11:40:59.713Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -193,10 +193,10 @@
           "file": "packages/main/src/core/command-policy.ts",
           "result": "pass",
           "note": "Command policy keeps milestone_ledger_set/add as PLAN-only gateEvidence candidate writes, and intent_collision pass is the confirmation boundary. B-9051 intent_collision reported Confirmed ledger hash: none, so no ledger was confirmed here.",
-          "headHash": "a2e3ffa6414ca8e8e0d92b703fbe834f1f6bfc18",
-          "materialHash": "14dfe9be3e8dba7d26b7efd5d62465c878527525759e2aa0aa3b85ab19cc149b",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-07-05T11:01:02.148Z"
+          "headHash": "81dfe91860bda1da9fa6eeb59acd8a714e8305b5",
+          "materialHash": "e14ba31604f3d70465c3fc19ebfa8195c4d10b36392ff75f3f746737434fc8e2",
+          "storyFilesHash": "f865b48dbfb59cadba71f78fe06b2dbcc0b4161ede64e4207c885d9699a4c592",
+          "timestamp": "2026-07-05T11:40:59.713Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -204,10 +204,10 @@
           "file": "packages/main/src/core/types.ts",
           "result": "pass",
           "note": "Milestone schema and status rendering rely on explicit ledger fields, checklistRefs, verificationIntentRefs, requiredEvidence, parentLedgerId, and assignedStory; missing-ledger status says it cannot infer milestone progress from prose.",
-          "headHash": "a2e3ffa6414ca8e8e0d92b703fbe834f1f6bfc18",
-          "materialHash": "14dfe9be3e8dba7d26b7efd5d62465c878527525759e2aa0aa3b85ab19cc149b",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-07-05T11:01:02.302Z"
+          "headHash": "81dfe91860bda1da9fa6eeb59acd8a714e8305b5",
+          "materialHash": "e14ba31604f3d70465c3fc19ebfa8195c4d10b36392ff75f3f746737434fc8e2",
+          "storyFilesHash": "f865b48dbfb59cadba71f78fe06b2dbcc0b4161ede64e4207c885d9699a4c592",
+          "timestamp": "2026-07-05T11:40:59.713Z"
         }
       ]
     },
@@ -252,10 +252,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "Build passes and the dedicated milestone-status suite passes, covering missing-ledger diagnostics, read-only mode, mutation-like flag rejection, closeout safety, and no fabricated completion.",
-          "headHash": "b8f11843bf78af6d7594f28890c9ac71213f9e4a",
-          "materialHash": "14dfe9be3e8dba7d26b7efd5d62465c878527525759e2aa0aa3b85ab19cc149b",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-07-05T11:01:15.894Z"
+          "headHash": "81dfe91860bda1da9fa6eeb59acd8a714e8305b5",
+          "materialHash": "e14ba31604f3d70465c3fc19ebfa8195c4d10b36392ff75f3f746737434fc8e2",
+          "storyFilesHash": "f865b48dbfb59cadba71f78fe06b2dbcc0b4161ede64e4207c885d9699a4c592",
+          "timestamp": "2026-07-05T11:40:59.713Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -263,10 +263,10 @@
           "file": "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
           "result": "pass",
           "note": "The document states the capability impact as structured progress, safer execution admission, cleaner handoff, and less false DONE risk, which matches the source/test evidence.",
-          "headHash": "b8f11843bf78af6d7594f28890c9ac71213f9e4a",
-          "materialHash": "14dfe9be3e8dba7d26b7efd5d62465c878527525759e2aa0aa3b85ab19cc149b",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-07-05T11:01:16.021Z"
+          "headHash": "81dfe91860bda1da9fa6eeb59acd8a714e8305b5",
+          "materialHash": "e14ba31604f3d70465c3fc19ebfa8195c4d10b36392ff75f3f746737434fc8e2",
+          "storyFilesHash": "f865b48dbfb59cadba71f78fe06b2dbcc0b4161ede64e4207c885d9699a4c592",
+          "timestamp": "2026-07-05T11:40:59.713Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -274,10 +274,10 @@
           "file": "packages/main/src/core/milestone-status.ts",
           "result": "pass",
           "note": "The document explicitly says milestone completion stays distinct from lifecycle DONE and that the capability is not agents declaring themselves done; closeout code also refuses to fabricate success without a ledger.",
-          "headHash": "b8f11843bf78af6d7594f28890c9ac71213f9e4a",
-          "materialHash": "14dfe9be3e8dba7d26b7efd5d62465c878527525759e2aa0aa3b85ab19cc149b",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-07-05T11:01:16.158Z"
+          "headHash": "81dfe91860bda1da9fa6eeb59acd8a714e8305b5",
+          "materialHash": "e14ba31604f3d70465c3fc19ebfa8195c4d10b36392ff75f3f746737434fc8e2",
+          "storyFilesHash": "f865b48dbfb59cadba71f78fe06b2dbcc0b4161ede64e4207c885d9699a4c592",
+          "timestamp": "2026-07-05T11:40:59.713Z"
         }
       ]
     }
