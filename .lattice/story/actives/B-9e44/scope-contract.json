@@ -1,0 +1,21 @@
+{
+  "storyId": "B-9e44",
+  "mode": "enforce",
+  "allowedModify": [],
+  "allowedCreate": [],
+  "allowedTest": [],
+  "protectedFiles": [
+    "packages/main/src/core/playbook-runtime-baseline.ts",
+    "packages/main/src/tasks/playbook-runtime-memory-baseline-smoke.ts"
+  ],
+  "explicitExcludes": [
+    "experiments/pos-instrument-replay/tamper.mjs",
+    "experiments/pos-instrument-replay/run-batch.mjs",
+    "experiments/pos-instrument-replay/resume-probe.mjs",
+    "experiments/pos-instrument-replay/analyze-batch.mjs"
+  ],
+  "scopeChangeReason": "M0 delivers only the protocol freeze + viability + calibration + selfcheck under experiments/pos-instrument-replay/; the instrument is read/called only (protected); the M1-M4 harnesses are deferred.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-05T15:13:05.536Z",
+  "updatedAt": "2026-07-05T15:13:05.536Z"
+}

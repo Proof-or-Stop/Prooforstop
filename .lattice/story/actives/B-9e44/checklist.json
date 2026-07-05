@@ -30,6 +30,17 @@
             "priority": "should"
           }
         ]
+      },
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/pos-instrument-replay/lib/instrument.mjs",
+          "experiments/pos-instrument-replay/viability-check.mjs",
+          "experiments/pos-instrument-replay/viability-results.json"
+        ],
+        "test": [
+          "experiments/pos-instrument-replay/selfcheck.mjs"
+        ]
       }
     },
     {
