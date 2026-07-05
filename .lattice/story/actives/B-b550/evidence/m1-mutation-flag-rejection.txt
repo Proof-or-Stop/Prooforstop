@@ -1,0 +1,28 @@
+Argument validation failed:
+  writeEvidence: Invalid input: expected never, received boolean
+
+  lattice milestone_status — Read-only grouped ProofStory milestone status report; projects existing milestone ledger, checklist, verification intent/evidence, phase, and summary facts without creating storage, running commands, writing evidence, launching reviewers, advancing phase, or claiming DONE/production readiness.
+
+  Proofbound CLI 0.3.159
+
+  Arguments:
+    --storyId           string           Story ID * 
+    --format            text|json        Output format (default text). 
+    --json              boolean          Shortcut for --format=json. 
+    --runCommands       any              Not a flag; status commands are read-only. Passing --runCommands is rejected by CLI validation. 
+    --writeEvidence     any              Not a flag; status commands write no evidence. Passing --writeEvidence is rejected by CLI validation. 
+    --advancePhase      any              Not a flag; status commands never advance phase. Passing --advancePhase is rejected by CLI validation. 
+    --launchReviewers   any              Not a flag; status commands launch no reviewers. Passing --launchReviewers is rejected by CLI validation. 
+    --write             any              Not a flag; status commands are read-only. Passing --write is rejected by CLI validation. 
+    --apply             any              Not a flag; status commands apply nothing. Passing --apply is rejected by CLI validation. 
+    --execute           any              Not a flag; status commands execute nothing. Passing --execute is rejected by CLI validation. 
+    --run               any              Not a flag; status commands run nothing. Passing --run is rejected by CLI validation. 
+    --launch            any              Not a flag; status commands launch nothing. Passing --launch is rejected by CLI validation. 
+    --capture           any              Not a flag; status commands capture nothing. Passing --capture is rejected by CLI validation. 
+    --refresh           any              Not a flag; status commands refresh nothing. Passing --refresh is rejected by CLI validation. 
+
+  Usage: lattice milestone_status --storyId=value [--format=value] [--json] [--runCommands=value] [--writeEvidence=value] [--advancePhase=value] [--launchReviewers=value] [--write=value] [--apply=value] [--execute=value] [--run=value] [--launch=value] [--capture=value] [--refresh=value]
+  (* = required)
+
+Argument validation failed (summary):
+  writeEvidence: Invalid input: expected never, received boolean

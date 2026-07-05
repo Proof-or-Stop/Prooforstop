@@ -52,6 +52,7 @@
 - [Proofbound Pre-Registered Experiment Protocol — §5 Reflection-Loop Ablation & §6 Recovery](decisions/lattice-experiment-protocol.md)
 - [Proofbound LLM Usage Ledger Execution Plan](decisions/lattice-llm-usage-ledger-execution-plan.md)
 - [Milestone Ledger Status Review And Hardening Plan](decisions/milestone-ledger-status-review-and-hardening-plan.md)
+- [Milestone Ledger Status Review Findings](decisions/milestone-ledger-status-review-findings.md)
 - [Multi-Model Ablation Replication — 预注册实验协议](decisions/multi-model-ablation-replication.md)
 - [Orchestrate Retirement And Canonical Proofbound Root](decisions/orchestrate-retirement.md)
 - [Owner Session Contract Execution Plan](decisions/owner-session-contract-execution-plan.md)
