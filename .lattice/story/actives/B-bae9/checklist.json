@@ -119,6 +119,17 @@
           "materialHash": "318dd01bb34cf99e845d38168702ab879c50f9ffcd1e2b31c40d8c35fecfde56",
           "storyFilesHash": "5d6c2c04943b76c548f58858c097f59b562b6e871829aadcc368bb98ed0a1c6b",
           "timestamp": "2026-07-05T17:29:35.574Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/pos-instrument-replay/selfcheck-m1.mjs",
+          "result": "pass",
+          "note": "Negative test (selfcheck-m1): flipping one frozen expected flag (cross-profile-swap[refreshed].fullProfileExactMillionMatches) makes tamper.mjs report fingerprintMatch:false + exit nonzero — the H2 conformance gate is un-gameable, not a tautology.",
+          "headHash": "6e63e8bf59b29746756ea10eecf94407b3970d8d",
+          "materialHash": "318dd01bb34cf99e845d38168702ab879c50f9ffcd1e2b31c40d8c35fecfde56",
+          "storyFilesHash": "5d6c2c04943b76c548f58858c097f59b562b6e871829aadcc368bb98ed0a1c6b",
+          "timestamp": "2026-07-05T17:29:36.260Z"
         }
       ]
     },
