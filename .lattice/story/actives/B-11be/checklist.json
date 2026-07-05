@@ -62,10 +62,10 @@
           "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
           "result": "pass",
           "note": "Checker loads m2-provider-execution-authorization.json and verifies B-11be metadata authorization, human approval marker, USD 0.00 provider budget cap, and cell 03 as the next formal step.",
-          "headHash": "6baf4ff73cf8b005353abf0f20e716a5ead9a539",
-          "materialHash": "4c6a1583a831c3b26e197bfe36056327d28edd3221f6ba87c318520b46b61688",
-          "storyFilesHash": "1733434ee0dd9b1e5f8cdc4a4bbd73c05e9c0d6f64d0d042bc3b8478acf559e2",
-          "timestamp": "2026-07-05T15:37:28.698Z"
+          "headHash": "230a8de8f0e07867d52f795a356f059b369bbbe4",
+          "materialHash": "1f62bbbe9ab18aebfea0e4397babdef6766073ea8eda0eb4998415d816d3a91e",
+          "storyFilesHash": "a1743d9a7c3ba42379927f856f0c10842bf6ef125100974cc8aaa49594ad350e",
+          "timestamp": "2026-07-05T15:39:31.617Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -74,10 +74,10 @@
           "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
           "result": "pass",
           "note": "Checker verifies providerCallEnabled=false, formalPhase1UseAllowed=false, containsOutcomeData=false, no result rows, no outcome records, and no provider calls for B-11be.",
-          "headHash": "6baf4ff73cf8b005353abf0f20e716a5ead9a539",
-          "materialHash": "4c6a1583a831c3b26e197bfe36056327d28edd3221f6ba87c318520b46b61688",
-          "storyFilesHash": "1733434ee0dd9b1e5f8cdc4a4bbd73c05e9c0d6f64d0d042bc3b8478acf559e2",
-          "timestamp": "2026-07-05T15:37:28.698Z"
+          "headHash": "230a8de8f0e07867d52f795a356f059b369bbbe4",
+          "materialHash": "1f62bbbe9ab18aebfea0e4397babdef6766073ea8eda0eb4998415d816d3a91e",
+          "storyFilesHash": "a1743d9a7c3ba42379927f856f0c10842bf6ef125100974cc8aaa49594ad350e",
+          "timestamp": "2026-07-05T15:39:31.617Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -86,10 +86,10 @@
           "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
           "result": "pass",
           "note": "Checker rejects host-label-only snapshot acceptance, nonzero budget, providerCallEnabled=true, real provider execution, outcome records path, and cell 06 unblocking.",
-          "headHash": "6baf4ff73cf8b005353abf0f20e716a5ead9a539",
-          "materialHash": "4c6a1583a831c3b26e197bfe36056327d28edd3221f6ba87c318520b46b61688",
-          "storyFilesHash": "1733434ee0dd9b1e5f8cdc4a4bbd73c05e9c0d6f64d0d042bc3b8478acf559e2",
-          "timestamp": "2026-07-05T15:37:28.698Z"
+          "headHash": "230a8de8f0e07867d52f795a356f059b369bbbe4",
+          "materialHash": "1f62bbbe9ab18aebfea0e4397babdef6766073ea8eda0eb4998415d816d3a91e",
+          "storyFilesHash": "a1743d9a7c3ba42379927f856f0c10842bf6ef125100974cc8aaa49594ad350e",
+          "timestamp": "2026-07-05T15:39:31.617Z"
         }
       ]
     },
@@ -150,10 +150,10 @@
           "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
           "result": "pass",
           "note": "Checker passes with m2-provider-execution-authorization.json present and prints the required terminal status lines.",
-          "headHash": "7289fb50aaad4bcbeeedb3dc3d3d4c13458ec60e",
-          "materialHash": "4c6a1583a831c3b26e197bfe36056327d28edd3221f6ba87c318520b46b61688",
-          "storyFilesHash": "1733434ee0dd9b1e5f8cdc4a4bbd73c05e9c0d6f64d0d042bc3b8478acf559e2",
-          "timestamp": "2026-07-05T15:37:59.714Z"
+          "headHash": "230a8de8f0e07867d52f795a356f059b369bbbe4",
+          "materialHash": "1f62bbbe9ab18aebfea0e4397babdef6766073ea8eda0eb4998415d816d3a91e",
+          "storyFilesHash": "a1743d9a7c3ba42379927f856f0c10842bf6ef125100974cc8aaa49594ad350e",
+          "timestamp": "2026-07-05T15:39:31.617Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -162,10 +162,10 @@
           "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
           "result": "pass",
           "note": "Checker keeps cell 06 blocked without a real cell-03-derived budget lock and verifies missing real execution metadata still blocks provider execution.",
-          "headHash": "7289fb50aaad4bcbeeedb3dc3d3d4c13458ec60e",
-          "materialHash": "4c6a1583a831c3b26e197bfe36056327d28edd3221f6ba87c318520b46b61688",
-          "storyFilesHash": "1733434ee0dd9b1e5f8cdc4a4bbd73c05e9c0d6f64d0d042bc3b8478acf559e2",
-          "timestamp": "2026-07-05T15:37:59.714Z"
+          "headHash": "230a8de8f0e07867d52f795a356f059b369bbbe4",
+          "materialHash": "1f62bbbe9ab18aebfea0e4397babdef6766073ea8eda0eb4998415d816d3a91e",
+          "storyFilesHash": "a1743d9a7c3ba42379927f856f0c10842bf6ef125100974cc8aaa49594ad350e",
+          "timestamp": "2026-07-05T15:39:31.617Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -174,10 +174,10 @@
           "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
           "result": "pass",
           "note": "Checker rejects providerCallEnabled runners, host-label-only snapshots, provider fallback, nonzero budget, outcome/result record paths, and cell 06 unblocking.",
-          "headHash": "7289fb50aaad4bcbeeedb3dc3d3d4c13458ec60e",
-          "materialHash": "4c6a1583a831c3b26e197bfe36056327d28edd3221f6ba87c318520b46b61688",
-          "storyFilesHash": "1733434ee0dd9b1e5f8cdc4a4bbd73c05e9c0d6f64d0d042bc3b8478acf559e2",
-          "timestamp": "2026-07-05T15:37:59.714Z"
+          "headHash": "230a8de8f0e07867d52f795a356f059b369bbbe4",
+          "materialHash": "1f62bbbe9ab18aebfea0e4397babdef6766073ea8eda0eb4998415d816d3a91e",
+          "storyFilesHash": "a1743d9a7c3ba42379927f856f0c10842bf6ef125100974cc8aaa49594ad350e",
+          "timestamp": "2026-07-05T15:39:31.617Z"
         }
       ]
     },
