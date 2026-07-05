@@ -1,0 +1,84 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "M0: red evidence smoke proving PBP-882 lacks capability lineage",
+      "context": "Read-only smoke loading .lattice/artifact-releases.jsonl, playbooks.json, playbook-promotion-health.jsonl; asserts B-785e artifact release exists AND candidate lineage lacks capabilityReleaseId/artifactReleaseId. Fails RED on current state; passes once M4/M8 land.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "M1: ProductCapabilityReleaseRecord schema + capability-releases.jsonl ledger",
+      "context": "New core/capability-release.ts mirroring artifact-release.ts: schemaVersion proofbound.product-capability-release.v1, parse/read/append, capabilityDigest, idempotency key, malformed-row rejection, authority=non_authoritative, gateEvidence=false, activationBoundary.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "M2: conservative DONE capability classifier",
+      "context": "Classify changed docs/experiments into capabilityKind or no-release. Conservative: uncertain -> no release + advisory. Fixtures: B-785e-like experiment-launch-control, plain doc (none), runtime code (none), .lattice/story metadata (none).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "M3: deterministic idempotent release binding in DONE post-merge",
+      "context": "Bind storyId, mainCommit, artifactReleaseId, artifactSetDigest, capabilityId, capabilityVersion, capabilityDigest. Idempotency key storyId+mainCommit+capabilityDigest+artifactSetDigest; no duplicate on DONE recovery/retry.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "M4: DONE candidate ingest attaches capability lineage",
+      "context": "When a capability release exists for the story, candidate lineage gains capabilityReleaseId, capabilityId, capabilityVersion, artifactReleaseId, artifactSetDigest. Existing candidates without it stay valid but reported under-bound.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "M5: read-only inspection CLI",
+      "context": "capability_release_list, capability_release_status --storyId; extend playbook_promotion_status candidate display. Status separates runtimeVersion/artifactRelease/productCapabilityRelease/playbookCandidate/activePlaybook. L0 read-only facts, registered in catalog+policy+process-fact-levels.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-007",
+      "title": "M6: pending-learning exposure only (candidate-inspection)",
+      "context": "Candidate capability playbooks render only under pendingLearning/promotionRecommendations, never active runtime guidance (not in MemoryFreshnessPack.results.playbookIds, not gate evidence). Every exposure writes a record: playbookId, capabilityReleaseId, exposureMode, surface, storyId/sessionId, observedAt.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-008",
+      "title": "M7: outcome + promotion safety (no DONE-as-helped)",
+      "context": "Outcome requires concrete exposure mode + structured verdict source before promotion eligibility. Reject DONE-only helped; accept structured candidate-inspection outcomes. decisiveSamples=helped+dismissed+harmful; neutral/unknown excluded. Preserve existing invariant.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-009",
+      "title": "M8: idempotent B-785e backfill/migration (dry-run first)",
+      "context": "capability_release_backfill --dryRun/--apply --storyId. Enriches existing candidate lineage; no duplicate candidates; no activation; no inferred helped; idempotent. B-785e after: capability release present, PBP-882 enriched with capabilityReleaseId+artifactReleaseId, surfacedCount 0, outcome rows 0.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-010",
+      "title": "Validation: build, all new smokes, lattice validate green; M0 red test now passes",
+      "context": "tsc build; register new smokes in lattice.config.json; run product-capability-release-smoke.js + playbook-capability-lineage-smoke.js + M0 red test (now green) + lattice validate --json allPass.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
