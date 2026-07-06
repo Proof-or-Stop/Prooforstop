@@ -2,7 +2,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { buildShardPlan } from "./plan.mjs";
+import { buildShardPlan, canonicalJson, sha256Text } from "./plan.mjs";
 import { mergeShardOutputs } from "./merge.mjs";
 import { acquireShardLock, shardDir, writeShardOutput } from "./shard-runner.mjs";
 
@@ -87,14 +87,25 @@ try {
   }));
   expectThrow("digest drift", () => mergeShardOutputs({ inputDir: driftDir, requireComplete: true }));
 
-  // Forge the binding IDENTICALLY across every shard: peer-consistency checks alone
-  // would accept this stale/forged set; merge must reject it against the live envelope.
+  // Forge the binding IDENTICALLY across every shard — manifest binding AND every row
+  // binding, with each rowsDigest recomputed so the whole set is internally consistent.
+  // A peer-only merge (comparing shards only to each other) would ACCEPT this fixture;
+  // only anchoring to the live envelope-derived plan.binding rejects it. Forging just the
+  // manifest binding would be caught by the row-binding check regardless, so it would not
+  // discriminate the fix from the old peer-only code.
+  const forgedDigest = "sha256:1111111111111111111111111111111111111111111111111111111111111111";
   const forgedDir = path.join(tempRoot, "forged");
   copyFixture(completeDir, forgedDir);
   for (let shardIndex = 0; shardIndex < shardCount; shardIndex += 1) {
-    const forgedManifestPath = path.join(shardDir(forgedDir, shardCount, shardIndex), "shard-manifest.json");
+    const dir = shardDir(forgedDir, shardCount, shardIndex);
+    const forgedManifestPath = path.join(dir, "shard-manifest.json");
     const forgedManifest = JSON.parse(fs.readFileSync(forgedManifestPath, "utf8"));
-    forgedManifest.binding.toolSurfaceDigest = "sha256:1111111111111111111111111111111111111111111111111111111111111111";
+    forgedManifest.binding.toolSurfaceDigest = forgedDigest;
+    const rowsPath = path.join(dir, "rows.jsonl");
+    const rows = fs.readFileSync(rowsPath, "utf8").split(/\r?\n/).filter(Boolean).map((line) => JSON.parse(line));
+    for (const row of rows) row.binding.toolSurfaceDigest = forgedDigest;
+    fs.writeFileSync(rowsPath, `${rows.map((row) => JSON.stringify(row)).join("\n")}\n`);
+    forgedManifest.rowsDigest = sha256Text(rows.map((row) => canonicalJson(row)).join("\n"));
     fs.writeFileSync(forgedManifestPath, JSON.stringify(forgedManifest, null, 2));
   }
   expectThrow("envelope binding drift", () => mergeShardOutputs({ inputDir: forgedDir, requireComplete: true }));
