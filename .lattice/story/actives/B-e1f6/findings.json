@@ -14,6 +14,21 @@
       "_hash": "6396847a829637a5c08e31c08cca543b5f6d90d9d06ecadc7ccd2dfba2e9f68c",
       "signatureTag": "edge|unknown|shard-runner-writeshardoutput",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-e1f6:F-002",
+      "desc": "merge.mjs:69 calls buildShardPlan({...options, shardCount, includeRows: true}) inside the `for (const shard of plan.shards)` loop, rebuilding the ENTIRE plan (re-reading and re-hashing all 4 binding source files via buildCell03Binding, plus recomputing all 1152 expectedCell03Rows) once per shard, in addition to the already-computed `plan` from line 44. For shardCount=8 this repeats the full file-read+hash+row-build work 9 times per mergeShardOutputs call instead of once. Not a correctness bug (deterministic, same inputs) but unnecessary repeated disk I/O/hashing and poor maintainability; the loop only needs `.shards[shard.shardIndex].rows`, obtainable by calling buildShardPlan once with includeRows:true outside the loop (or passing includeRows through the line-44 call).",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-06T15:37:31.448Z",
+      "reviewRound": "2026-07-06T15:10:19.645Z",
+      "reviewRunId": "B-e1f6:RR-003",
+      "_hash": "bfacfd3dd156a6d12d7ed8ebbd0671cafbe0e88a78a427f248a4056f1bc2c543",
+      "signatureTag": "missing|unknown|merge-calls-buildshardplan",
+      "signatureTagSource": "auto"
     }
   ]
 }
