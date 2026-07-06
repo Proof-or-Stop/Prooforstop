@@ -214,7 +214,7 @@
       "desc": "Independently re-verified corroboration of already-open F-009 (codex, medium): this round's F-007/F-008 fix only serializes the break critical-section itself; it does NOT close the fresh-non-resume-driver race the reviewer brief's concern (1) asks about. Concretely: after the break-mutex releases LOCK_DIR (run-batch.mjs finally at line 832-841) but BEFORE the resuming driver calls acquireLock() (line 872), a FRESH (--resume-less) driver can mkdirSync(LOCK_DIR) first and win it. That fresh driver has resume=false, so alreadyRecorded stays an empty Set (line 930) and it re-runs + appendFileSync-es EVERY expectedId, including ones already present in the pre-existing non-empty ledger from the interrupted prior run -- producing physical on-disk duplicate records before the end-of-run strict-multiset guard (runEndOfRunGuard) detects them and exits nonzero. The ledger is already contaminated by the time the guard fires (appendFileSync is irreversible), and a later --resume cannot repair a duplicate ledger (the multiset guard rejects it permanently). Confirmed still present against the current diff (4882fad0d only touches the break-mutex; main()'s fresh-vs-existing-ledger path at lines 930/949 is unchanged). This is NOT a duplicate of F-007/F-008 (no two-live-writers/mkdir-lock-race; the mkdir(LOCK_DIR) still resolves to exactly one winner) -- it is a fresh WINNER writing onto a dirty pre-existing ledger. Flagging so the quality-lane pass on THIS round's F-007/F-008 fix is not misread as covering F-009, which remains open and must be resolved before DONE.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-06T01:41:30.920Z",
@@ -222,7 +222,11 @@
       "reviewRunId": "B-f511:RR-023",
       "_hash": "0ff20bedc9ea05dcdbcab0d8e7e8748100b99599934413bd6f6a115ab1c51c15",
       "signatureTag": "missing|unknown|independently-verified-corroboration",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 5c1aa59af (duplicate of F-009: fresh-mode fail-closed on non-empty ledger). selfcheck-m3 sub-check K.",
+      "resolvedAt": "2026-07-06T05:05:15.531Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f511:F-012",
