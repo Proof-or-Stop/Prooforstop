@@ -201,11 +201,11 @@
           "kind": "manual_transcript",
           "command": "node experiments/pos-instrument-replay/selfcheck-m3.mjs",
           "result": "pass",
-          "note": "node selfcheck-m3.mjs exits 0 'selfcheck-m3 PASS' — 9 hermetic sub-checks A-I: boundary-kill, mid-run-crash, fresh-additive, resume-no-ledger, truncated-tail, stop-record-resume, valid-final-record-preserved, live-lock-not-broken (dead-pid discrimination), and NO-HOLDER-lock-not-broken.",
-          "headHash": "4882fad0d85592515c9807114f1d940535f2e3fd",
+          "note": "node selfcheck-m3.mjs exits 0 'selfcheck-m3 PASS' — now 10 hermetic sub-checks A-J: A boundary-kill, B mid-run-crash, C fresh-additive, D resume-no-ledger, E truncated-tail, F stop-record-resume, G valid-final-record-preserved, H live-lock-not-broken (dead-pid discrimination), I NO-HOLDER-lock-not-broken, J BREAK-MUTEX-SERIALIZES (multi-resumer TOCTOU closed).",
+          "headHash": "df4914fb17362a5e305ae1d41e070a301673ca05",
           "materialHash": "15f370534f4e5dff93a4bbb724b7caa64bc830c7bb946a715f749c42581c86c0",
           "storyFilesHash": "12433a97cfd13f12f1716aec909f573d9fa83616bf5eff090f9f60d14ac3fbe6",
-          "timestamp": "2026-07-06T01:22:46.248Z"
+          "timestamp": "2026-07-06T01:22:47.615Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
