@@ -80,7 +80,27 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Complete fixture shard set merges with zero duplicates and zero missing keys.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Partial shard set reports missing keys and does not write canonical evidence.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Duplicate final rows, shard-count mismatch, and digest drift are rejected.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
