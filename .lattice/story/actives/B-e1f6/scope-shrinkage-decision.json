@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "proofstory.scope_shrinkage_decision.v1",
+  "storyId": "B-e1f6",
+  "decision": "confirmed",
+  "userConfirmed": true,
+  "removedMilestoneIds": [
+    "real-b991d-runner-shard-integration",
+    "per-attempt-attemptid-runid-usage-accounting",
+    "retry-superseded-dedup",
+    "cumulative-token-shard-usage-ledger",
+    "shard-result-writer-into-formal-ledger"
+  ],
+  "reason": "B-e1f6 delivers all of its declared milestones (REQ-cell03-shard-plan, REQ-cell03-shard-lock, REQ-cell03-shard-merge -> CHK-001..004: deterministic shard plan, per-shard output+lock, merge validator, docs) with passing verification evidence and a full 3x2 cross-vendor review quorum; the selfcheck acceptanceClaim (coverage/lock/merge/duplicate-reject/missing-reject/digest-drift-reject) is met and exceeded. The broader outcome of making the REAL B-991d provider run safely parallel (real-runner integration, per-attempt attemptId/runId/usage accounting, retry/superseded de-dup, cumulative-token protection, result-writer) was always a documented non-goal of B-e1f6 and was explicitly moved by the operator to successor story B-fd23 on 2026-07-06. This narrowing is intentional and user-confirmed; no delivered B-e1f6 milestone was dropped.",
+  "approvedBy": "operator (info@retiave.com) via successor-story B-fd23 decision",
+  "createdAt": "2026-07-06T16:57:19.915Z",
+  "updatedAt": "2026-07-06T16:57:19.915Z"
+}

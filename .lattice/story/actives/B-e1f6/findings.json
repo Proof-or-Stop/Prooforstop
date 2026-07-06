@@ -1,0 +1,110 @@
+{
+  "findings": [
+    {
+      "id": "B-e1f6:F-001",
+      "desc": "shard-runner.mjs:79-85 writeShardOutput checks overwrite (fs.existsSync on shard-manifest.json/rows.jsonl) BEFORE acquiring the shard lock (acquireShardLock at line 85), and never re-checks existence after the lock is held (no re-check before the fs.writeFileSync calls at lines 114-115). Reproduced directly against the real exported writeShardOutput/acquireShardLock: a second writer whose overwrite-check runs while the target dir is still empty can later acquire the lock (after the first writer completes and releases it) and silently overwrite the completed shard output with no error. This contradicts the documented safety guarantee in README.md (\"Completed shard output cannot be overwritten by a second shard run\") and the selfcheck rerunReject test (selfcheck.mjs:57), which only exercises a purely sequential re-call after the first write already returned -- it does not exercise the interleaved-race window and therefore cannot catch this. Fix: move the overwrite existence check to after acquireShardLock succeeds (inside the try block, immediately before writing), so the check and the write happen under the same lock-held critical section.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-06T15:37:27.855Z",
+      "reviewRound": "2026-07-06T15:10:19.645Z",
+      "reviewRunId": "B-e1f6:RR-003",
+      "_hash": "6396847a829637a5c08e31c08cca543b5f6d90d9d06ecadc7ccd2dfba2e9f68c",
+      "signatureTag": "edge|unknown|shard-runner-writeshardoutput",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Moved overwrite existence check inside acquireShardLock critical section; TOCTOU window closed. Fix commit bca25a5e9.",
+      "resolvedAt": "2026-07-06T15:47:40.156Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-e1f6:F-002",
+      "desc": "merge.mjs:69 calls buildShardPlan({...options, shardCount, includeRows: true}) inside the `for (const shard of plan.shards)` loop, rebuilding the ENTIRE plan (re-reading and re-hashing all 4 binding source files via buildCell03Binding, plus recomputing all 1152 expectedCell03Rows) once per shard, in addition to the already-computed `plan` from line 44. For shardCount=8 this repeats the full file-read+hash+row-build work 9 times per mergeShardOutputs call instead of once. Not a correctness bug (deterministic, same inputs) but unnecessary repeated disk I/O/hashing and poor maintainability; the loop only needs `.shards[shard.shardIndex].rows`, obtainable by calling buildShardPlan once with includeRows:true outside the loop (or passing includeRows through the line-44 call).",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-06T15:37:31.448Z",
+      "reviewRound": "2026-07-06T15:10:19.645Z",
+      "reviewRunId": "B-e1f6:RR-003",
+      "_hash": "bfacfd3dd156a6d12d7ed8ebbd0671cafbe0e88a78a427f248a4056f1bc2c543",
+      "signatureTag": "missing|unknown|merge-calls-buildshardplan",
+      "signatureTagSource": "auto",
+      "resolvedReason": "mergeShardOutputs builds includeRows plan once, reuses shard.rows for expectedByKey. Fix commit bca25a5e9.",
+      "resolvedAt": "2026-07-06T15:47:40.869Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-e1f6:F-003",
+      "desc": "selfcheck.mjs:43 only exercises invalid shard COUNT (buildShardPlan({shardCount:0})); it never exercises an invalid shard INDEX (negative or >= shardCount), even though CHK-001 acceptance says 'invalid shard indexes ... fail closed'. assertShardArgs (plan.mjs:150-153) does reject bad indexes, but no selfcheck asserts it. Fix: add expectThrow cases for shardIndex=-1 and shardIndex=shardCount.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-06T15:42:56.279Z",
+      "reviewRound": "2026-07-06T15:10:19.645Z",
+      "reviewRunId": "B-e1f6:RR-004",
+      "_hash": "2e9b2f06d21f8d4c36747c60bcd31578f4245b49b8f1226fde43025b0ca0918e",
+      "files": [
+        "experiments/multi-model-ablation/cell03-shards/selfcheck.mjs"
+      ],
+      "signatureTag": "missing|mjs|selfcheck-exercises-invalid",
+      "signatureTagSource": "auto",
+      "resolvedReason": "selfcheck asserts invalid shard index rejection (shardIndex=-1 and >=count); invalidIndexReject=pass. Fix commit bca25a5e9.",
+      "resolvedAt": "2026-07-06T15:47:41.452Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-e1f6:F-004",
+      "desc": "merge.mjs binding-drift check compares each manifest.binding/row.binding against manifests[0].manifest.binding (peer-to-peer, line 45/52/92), NOT against the live envelope-derived plan.binding built at line 44. Verified: forging binding.toolSurfaceDigest identically across all 8 shards merges successfully, so a fully-stale/forged-but-self-consistent shard set passes. Weaker than CHK-003 acceptance ('verify identical protocol, prompt, tool ... binding'). Fix: derive bindingJson from plan.binding (9 manifest.binding fields) so drift-vs-truth is rejected; add a selfcheck case forging all shards' binding consistently and asserting merge throws.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-06T15:42:57.417Z",
+      "reviewRound": "2026-07-06T15:10:19.645Z",
+      "reviewRunId": "B-e1f6:RR-004",
+      "_hash": "303f37ba21208c043bb26176ec72fff3d16f5b7943bb205e4044612912459d0d",
+      "files": [
+        "experiments/multi-model-ablation/cell03-shards/merge.mjs",
+        "experiments/multi-model-ablation/cell03-shards/selfcheck.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|merge-binding-drift",
+      "signatureTagSource": "auto",
+      "resolvedReason": "merge binding check anchors to envelope-derived plan.binding; selfcheck forges binding across all 8 shards and asserts merge throws (envelopeBindingReject=pass). Fix commit bca25a5e9.",
+      "resolvedAt": "2026-07-06T15:47:41.968Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-e1f6:F-005",
+      "desc": "selfcheck.mjs:34-35,88-89 asserts canonical-rows-untouched against future-cell03-results/full/cell03-rows.jsonl which does not exist, so canonicalBefore===canonicalAfter is null===null and passes vacuously. The real safeguard assertSafeOutputPath (merge.mjs:25-31, refuses to write cell03-rows.jsonl) is never invoked by selfcheck. Fix: add a selfcheck case calling mergeShardOutputs({inputDir, output:<path ending in cell03-rows.jsonl>}) asserting it throws.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-06T15:42:58.523Z",
+      "reviewRound": "2026-07-06T15:10:19.645Z",
+      "reviewRunId": "B-e1f6:RR-004",
+      "_hash": "e346a93d674184ba638851820c3ef0159a6b3e03fd159a4c8b5f9dae3c0a189a",
+      "files": [
+        "experiments/multi-model-ablation/cell03-shards/selfcheck.mjs",
+        "experiments/multi-model-ablation/cell03-shards/merge.mjs"
+      ],
+      "signatureTag": "missing|mjs|selfcheck-asserts-canonical",
+      "signatureTagSource": "auto",
+      "resolvedReason": "selfcheck merges with output=cell03-rows.jsonl asserting assertSafeOutputPath fails closed (canonicalWriteRefused=pass). Fix commit bca25a5e9.",
+      "resolvedAt": "2026-07-06T15:47:42.541Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

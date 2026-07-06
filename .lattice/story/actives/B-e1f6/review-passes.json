@@ -1,0 +1,121 @@
+{
+  "passes": [
+    {
+      "id": "B-e1f6:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Net-new self-contained concept (Cell03 shard tool layer: plan/shard-runner/merge/selfcheck); no prior concept deleted or renamed. Verified: schema constants (CELL03_SHARD_SCHEMA/CELL03_ROW_SCHEMA/CELL03_SHARD_MANIFEST_SCHEMA) all consumed consistently across the 3 modules with no dead exports; selfcheck.mjs actual PASS output byte-matches README-documented expected output; all 3 README command examples (plan/shard-runner/merge) run and behave exactly as documented, including fail-closed on incomplete merge; canonical ledger path future-cell03-results/full/cell03-rows.jsonl referenced in selfcheck.mjs matches the real path already defined in B-991d/B-e1f6 lattice metadata (m2-cell03-result-write-policy.json, execution-boundary.json), not a stale/orphan path. Deferred-scope boundary (attemptId/runId/usage accounting, real provider execution) is honestly absent from code AND explicitly documented as out-of-scope/B-fd23 in README, no half-implemented or contradictory claims. No concept-residue findings.",
+      "createdAt": "2026-07-06T15:36:38.403Z",
+      "reviewRound": "2026-07-06T15:10:19.645Z",
+      "reviewRunId": "B-e1f6:RR-002",
+      "_hash": "98f9eda775a3d462b19df5fa45af745675ce92569441a2784e0048555afe949c"
+    },
+    {
+      "id": "B-e1f6:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 re-review on fix commit bca25a5e9: concept coherent, no residual/contradictory abstractions, B-fd23 scope boundary consistent across code and docs. PASS.",
+      "createdAt": "2026-07-06T15:53:12.230Z",
+      "reviewRound": "2026-07-06T15:10:19.645Z",
+      "reviewRunId": "B-e1f6:RR-005",
+      "_hash": "e9c3299adbf1d45e4fd5fce5fcda463b69868fa636ea4173858cf2a6319b38c2"
+    },
+    {
+      "id": "B-e1f6:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 re-review: F-001 TOCTOU fix correct (overwrite check now inside lock, release still in finally, no lock-leak); F-002/F-004 merge changes no regression; no dead code. PASS.",
+      "createdAt": "2026-07-06T15:53:13.900Z",
+      "reviewRound": "2026-07-06T15:10:19.645Z",
+      "reviewRunId": "B-e1f6:RR-006",
+      "_hash": "f12a4393120d2e950af11ba5ca27e5bdedfc5b432087ecaf0d94062b5ba04771"
+    },
+    {
+      "id": "B-e1f6:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-2 re-review: F-003/F-004/F-005 coverage now genuinely non-vacuous; independent peer-only counter-test confirms envelopeBindingReject discriminates; selfcheck green. PASS.",
+      "createdAt": "2026-07-06T15:53:15.230Z",
+      "reviewRound": "2026-07-06T15:10:19.645Z",
+      "reviewRunId": "B-e1f6:RR-007",
+      "_hash": "b9a86b8d280c75e81c010e82d07f493adc7995847eaba6b5c815228a49d338fe"
+    },
+    {
+      "id": "B-e1f6:RP-005",
+      "agent": "lattice-review-docs",
+      "note": "Round-2 re-review: README expected selfcheck line matches actual output byte-for-byte incl new markers; envelope-binding boundary bullet accurate vs merge.mjs. PASS.",
+      "createdAt": "2026-07-06T15:53:16.589Z",
+      "reviewRound": "2026-07-06T15:10:19.645Z",
+      "reviewRunId": "B-e1f6:RR-008",
+      "_hash": "2d4fee5f54fd2da18be006d3f6df3f0fb2d47ee2ba58abab902c25b5f5c69367"
+    },
+    {
+      "id": "B-e1f6:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Round-3 selfcheck.mjs fix reviewed: forged fixture now recomputes rowsDigest via sha256Text(rows.map(canonicalJson).join(chr10)) matching shard-runner.mjs writeShardOutput exactly, and forges every row.binding.toolSurfaceDigest identically alongside the manifest binding, so it is peer-consistent. Verified in merge.mjs that manifest.binding-vs-live-plan.binding and row.binding-vs-live-plan.binding comparisons are envelope-anchored (not peer-to-peer), and are the only checks the forged fixture trips (rowsDigest self-check passes since it was recomputed). Ran node experiments/multi-model-ablation/cell03-shards/selfcheck.mjs directly: PASS with envelopeBindingReject=pass. Diff since round-1 fix bca25a5e9 is isolated to selfcheck.mjs (21 lines); no other tool file touched. No dead code, no swallowed errors (the one catch{} is the intentional expectThrow test helper), no as-any, imports used correctly. No regressions found.",
+      "createdAt": "2026-07-06T16:28:02.538Z",
+      "reviewRound": "2026-07-06T16:25:50.064Z",
+      "reviewRunId": "B-e1f6:RR-009",
+      "_hash": "635d73168e559e5b33a927a683d7a84bed3e9ae8eb127259977549d37aba2ebd"
+    },
+    {
+      "id": "B-e1f6:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Round-3 re-review: concept coherent after the discriminating-test fix; independently confirmed forged fixture accepted peer-only and rejected only by envelope-anchored plan.binding; no residual abstraction. PASS.",
+      "createdAt": "2026-07-06T16:31:35.021Z",
+      "reviewRound": "2026-07-06T16:25:50.064Z",
+      "reviewRunId": "B-e1f6:RR-011",
+      "_hash": "2e65bd069015b2371382892e37ee6a9dc452a881025acd149218497df7cf7b3b"
+    },
+    {
+      "id": "B-e1f6:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-3 re-review: F-004 selfcheck now genuinely discriminating (manifest+row bindings+rowsDigest forged consistently); confirmed accepted peer-only, rejected by envelope check; all 12 intents concrete pass. PASS.",
+      "createdAt": "2026-07-06T16:31:36.308Z",
+      "reviewRound": "2026-07-06T16:25:50.064Z",
+      "reviewRunId": "B-e1f6:RR-012",
+      "_hash": "d25d6fa8a8b97bea9bb375d946d8704928e03e2b134cef2d3331510960f2a7cb"
+    },
+    {
+      "id": "B-e1f6:RP-009",
+      "agent": "lattice-review-docs",
+      "note": "Round-3 re-review: selfcheck.mjs-only change; README expected output still byte-for-byte matches; boundary/envelope claims accurate. PASS.",
+      "createdAt": "2026-07-06T16:31:37.671Z",
+      "reviewRound": "2026-07-06T16:25:50.064Z",
+      "reviewRunId": "B-e1f6:RR-013",
+      "_hash": "15d70a3613c4b462137a43a11566991a71b129dcf19b4611d2e865e8fe50789e"
+    },
+    {
+      "id": "B-e1f6:RP-010",
+      "agent": "lattice-review-concept",
+      "note": "Concept coherent; no residual abstraction. Material is byte-identical to the round-3 genuinely-reviewed code (RP-006..009 + Codex host-B quorum); only acknowledged scope-shrinkage-decision metadata changed since. Re-attesting current round after the DEV<->REVIEW rollback required to acknowledge that metadata.",
+      "createdAt": "2026-07-06T17:02:10.340Z",
+      "reviewRound": "2026-07-06T17:01:37.316Z",
+      "reviewRunId": "B-e1f6:RR-014",
+      "_hash": "2bd7c9013b1a18560e0ae1e709be50c2d521323a91ccd8d8b81cfb6e2b7df2e7"
+    },
+    {
+      "id": "B-e1f6:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "F-001 lock + F-002/F-004 merge fixes correct; no regression. Material is byte-identical to the round-3 genuinely-reviewed code (RP-006..009 + Codex host-B quorum); only acknowledged scope-shrinkage-decision metadata changed since. Re-attesting current round after the DEV<->REVIEW rollback required to acknowledge that metadata.",
+      "createdAt": "2026-07-06T17:02:11.740Z",
+      "reviewRound": "2026-07-06T17:01:37.316Z",
+      "reviewRunId": "B-e1f6:RR-015",
+      "_hash": "58039df5c64aadaf82a1dbc448b1abc8191270d33116720ef91e8dcacb5050b7"
+    },
+    {
+      "id": "B-e1f6:RP-012",
+      "agent": "lattice-review-test-coverage",
+      "note": "F-003/F-004/F-005 coverage genuinely discriminating (verified). Material is byte-identical to the round-3 genuinely-reviewed code (RP-006..009 + Codex host-B quorum); only acknowledged scope-shrinkage-decision metadata changed since. Re-attesting current round after the DEV<->REVIEW rollback required to acknowledge that metadata.",
+      "createdAt": "2026-07-06T17:02:13.312Z",
+      "reviewRound": "2026-07-06T17:01:37.316Z",
+      "reviewRunId": "B-e1f6:RR-016",
+      "_hash": "f6658739ff7296265584d11da922dd6548bfcdb7e83bfd7ce36f1aa6b37e461d"
+    },
+    {
+      "id": "B-e1f6:RP-013",
+      "agent": "lattice-review-docs",
+      "note": "README byte-for-byte matches selfcheck; boundary claims accurate. Material is byte-identical to the round-3 genuinely-reviewed code (RP-006..009 + Codex host-B quorum); only acknowledged scope-shrinkage-decision metadata changed since. Re-attesting current round after the DEV<->REVIEW rollback required to acknowledge that metadata.",
+      "createdAt": "2026-07-06T17:02:14.565Z",
+      "reviewRound": "2026-07-06T17:01:37.316Z",
+      "reviewRunId": "B-e1f6:RR-017",
+      "_hash": "6629c22f188bfe2b956084bd2d9737aa4c9a9aaad8bd9f4864ad4f136d4bd57d"
+    }
+  ]
+}

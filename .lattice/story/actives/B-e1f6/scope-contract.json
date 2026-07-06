@@ -1,0 +1,61 @@
+{
+  "storyId": "B-e1f6",
+  "mode": "enforce",
+  "allowedModify": [
+    "experiments/multi-model-ablation/task-inventory.m2.json",
+    "experiments/multi-model-ablation/seed-manifest.m1.json",
+    "experiments/multi-model-ablation/README.md"
+  ],
+  "allowedCreate": [
+    "experiments/multi-model-ablation/cell03-shards/plan.mjs",
+    "experiments/multi-model-ablation/cell03-shards/shard-runner.mjs",
+    "experiments/multi-model-ablation/cell03-shards/merge.mjs",
+    "experiments/multi-model-ablation/cell03-shards/README.md"
+  ],
+  "allowedTest": [
+    "experiments/multi-model-ablation/cell03-shards/selfcheck.mjs"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "These are command-generated ProofStory metadata artifacts required by the intent and ProofStory gates for this story; they are not business code scope expansions.",
+      "timestamp": "2026-07-06T15:09:48.867Z",
+      "paths": [
+        ".lattice/story/actives/B-e1f6/intent-collision.json",
+        ".lattice/story/actives/B-e1f6/original-intent-snapshot.json",
+        ".lattice/story/actives/B-e1f6/proofstory.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-e1f6/intent-collision.json",
+        ".lattice/story/actives/B-e1f6/original-intent-snapshot.json",
+        ".lattice/story/actives/B-e1f6/proofstory.json"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "72ca515e0b4067f259aedc6935d042142edee72e",
+      "materialHash": "94117eeaf2c8284f298e69036b6027a0c3357c68e3ee5908a2774c157c79dd4a"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Command-generated ProofStory metadata written by scope_shrinkage_decision_set to record the user-confirmed scope decision (deferral of real-runner outcomes to successor story B-fd23); lifecycle artifact, not a business-code scope expansion.",
+      "timestamp": "2026-07-06T17:00:58.468Z",
+      "paths": [
+        ".lattice/story/actives/B-e1f6/scope-shrinkage-decision.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-e1f6/scope-shrinkage-decision.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "1fbc13ca0938f7b3d46aa1d414c16bcbbe880e84",
+      "materialHash": "00ceac1a7775e7b457b30f939795210e982aa9b8746c3cd1e4a7939d3866cf9a"
+    }
+  ],
+  "createdAt": "2026-07-06T15:06:39.190Z",
+  "updatedAt": "2026-07-06T17:00:58.468Z"
+}
