@@ -26,6 +26,15 @@
       "reviewRound": "2026-07-06T11:06:43.608Z",
       "reviewRunId": "B-a0c9:RR-003",
       "_hash": "82e546ae23644f0e8e557a67a54a825733f538f7b3a1abfe011fc175edced7fb"
+    },
+    {
+      "id": "B-a0c9:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-review (retry, solo). Audited 6 intent lanes (CHK-001 happy/edge/adversarial for F-017 sandbox-cleanup hermeticity; CHK-002 happy/edge/adversarial for F-018 LOCK_DIR/holder.json survival in sub-check M) against git show 29df2c9d7. Both must-priority happy lanes bind the literal command node experiments/pos-instrument-replay/selfcheck-m3.mjs (manual_transcript, headHash/materialHash pinned to current HEAD). CHK-001:edge:0 evidence is a synthetic standalone node -e reproduction of the activeSandboxes/process.on(exit) pattern rather than a direct exercise of the real file (no fault-injection hook exists in selfcheck-m3.mjs to make a genuine sub-check fail() without editing it); verified by direct code read that the real makeSandbox/cleanupSandbox/exit-sweep implementation is structurally identical to the proven synthetic pattern, and the RED phase genuinely demonstrated the pre-fix leak. CHK-002 evidence (logic_test via code inspection) independently confirmed correct: run-batch.mjs lines 838-846 show POS_FAIL_LOCK_BREAK throws strictly before rmSync(LOCK_DIR), so the M-sub-check survival assertion targets a real, non-vacuous fault path. Partial independent re-run of the literal command completed sub-checks A and B PASS with no anomalies before external termination (tooling time budget, not a code failure); this is consistent with the recorded transcripts. No lane relies on a bare note without a runnable command or concrete code-location inspection. No blocking gap found.",
+      "createdAt": "2026-07-06T11:28:46.234Z",
+      "reviewRound": "2026-07-06T11:06:43.608Z",
+      "reviewRunId": "B-a0c9:RR-004",
+      "_hash": "5e4d96040db424bcfee793c89c91e5e552a1bc99848e667709d791d1059e0744"
     }
   ]
 }
