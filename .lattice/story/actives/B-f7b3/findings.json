@@ -14,6 +14,21 @@
       "_hash": "5588a1d7cbe72f858afcbf189707eb08ced57b582fe4112774e4bf549e2fde89",
       "signatureTag": "missing|unknown|promise-undelivered-docs",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f7b3:F-002",
+      "desc": "Dead code: packages/main/src/tasks/milestone-done-gate-reconciliation-smoke.ts lines 59-60 compute smokeName via resolve(dirname(fileURLToPath(import.meta.url)), name) and immediately discard it with void smokeName on the next line. The variable is never referenced again anywhere else in the file (grep confirms only these two lines mention smokeName). This differs from the established convention in other tasks slash star-smoke.ts files, where the analogous packageRoot constant is actually used later (e.g. in execSync calls). Here it is pure dead code that should be deleted.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-06T00:22:18.292Z",
+      "reviewRound": "2026-07-06T00:16:09.455Z",
+      "reviewRunId": "B-f7b3:RR-002",
+      "_hash": "5b0e7fb336af38e8ebde3e08f32621bfaab3bdb80b1f926ab2e4fd41431191f3",
+      "signatureTag": "missing|unknown|dead-code-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
