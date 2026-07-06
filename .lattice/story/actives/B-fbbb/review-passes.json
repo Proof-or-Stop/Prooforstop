@@ -71,6 +71,15 @@
       "reviewRound": "2026-07-06T05:19:56.434Z",
       "reviewRunId": "B-fbbb:RR-009",
       "_hash": "0a3fc8cb18e40df5a1a9fb2b4990081848a6762300379c7e114915b01564189e"
+    },
+    {
+      "id": "B-fbbb:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "Round 3 mechanical re-confirmation after phase roll-back (TEST->DEV->REVIEW) to acknowledge gate-generated DONE metadata past the scope classifier. No code changed vs prior PASS (storyFilesHash a4e18b0 unchanged). Verified: diff is exactly the 3 files described (commit cdb034b97, 11 insertions/5 deletions) - handlers/playbook.ts JSDoc comment refresh only (no logic change), decision-doc-promotion-smoke.ts one substring literal update, experience-layer-playbook-smoke.ts two symmetric allowlist additions to both allowed sets. Rebuilt (tsc, no errors) and ran node packages/main/dist/tasks/experience-layer-playbook-smoke.js fresh: TOTAL 31 | PASS 31 | FAIL 0, including both import-fence checks and both no-regression sub-smokes (decision-doc-promotion, experience-layer-digest-extract). No shipping/runtime code touched; test-maintenance + comment-only change confirmed.",
+      "createdAt": "2026-07-06T05:24:26.344Z",
+      "reviewRound": "2026-07-06T05:19:56.434Z",
+      "reviewRunId": "B-fbbb:RR-010",
+      "_hash": "2fa195ca5956436b4db47d5fd2d8e0d4db3b538fe64bc9b59eb337f7a4502b50"
     }
   ]
 }
