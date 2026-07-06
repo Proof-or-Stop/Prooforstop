@@ -334,6 +334,42 @@ function writeTestConfig(root) {
     );
     assert.match(noLedgerStdout, /⏳ CHK-MARKER-NO-LEDGER —/);
 
+    // Round-1 review (Codex host-2 + Claude quality F-001): a CORRUPT artifact must
+    // surface a visible failure, never be masked as an empty story. A corrupt
+    // milestone-ledger.json makes readMilestoneLedger throw; the error must reach the
+    // visible ⚠ block, and the exit code must stay 0 (the mutation already committed).
+    const corruptStoryId = 'B-cli-marker-corrupt';
+    const corruptStoryDir = join(root, '.lattice', 'story', 'actives', corruptStoryId);
+    mkdirSync(corruptStoryDir, { recursive: true });
+    writeJson(join(corruptStoryDir, 'index.json'), story(corruptStoryId));
+    writeJson(join(corruptStoryDir, 'checklist.json'), {
+      items: [checklistItem('CHK-CORRUPT', 'pending')],
+    });
+    writeFileSync(join(corruptStoryDir, 'milestone-ledger.json'), 'THIS IS NOT JSON {{{');
+    const corruptStdout = execFileSync(process.execPath, [
+      cliPath,
+      'checklist_update',
+      '--root',
+      root,
+      '--storyId',
+      corruptStoryId,
+      '--itemId',
+      'CHK-CORRUPT',
+      '--status',
+      'in_progress',
+    ], { cwd: root, encoding: 'utf8' });
+    assert.match(corruptStdout, /Checklist CHK-CORRUPT:/, 'the mutation itself still succeeds');
+    assert.match(
+      corruptStdout,
+      new RegExp(`⚠ Milestone Ledger: render FAILED for ${corruptStoryId}`),
+      'a corrupt milestone ledger must surface a visible render-failure block, not be swallowed',
+    );
+    assert.doesNotMatch(
+      corruptStdout,
+      new RegExp(`Checklist-derived ledger \\(no milestone ledger set\\) - ${corruptStoryId}`),
+      'corruption must not be masked as a clean no-ledger checklist-derived render',
+    );
+
     const jsonStoryId = 'B-cli-marker-json';
     const jsonStoryDir = join(root, '.lattice', 'story', 'actives', jsonStoryId);
     mkdirSync(jsonStoryDir, { recursive: true });

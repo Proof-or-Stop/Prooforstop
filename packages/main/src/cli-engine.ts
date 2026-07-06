@@ -862,19 +862,33 @@ export async function runCli(opts?: {
       `  The write above SUCCEEDED; this is a display failure, not a data failure.\n` +
       `  Run \`lattice milestone_status --storyId=${storyId}\` to view status.`;
 
-    const alreadyShown = (): boolean =>
-      output.includes(`Milestone Status - ${storyId}`) ||
-      output.includes(`${CHECKLIST_DERIVED_HEADER} - ${storyId}`);
+    // Anchor to a line start so a header substring echoed inside the command's own
+    // output (e.g. a milestone claim rendered in a table cell) cannot be mistaken
+    // for an already-appended status block.
+    const alreadyShown = (): boolean => {
+      const shown = (header: string): boolean =>
+        output.startsWith(`${header} - ${storyId}`) ||
+        output.includes(`\n${header} - ${storyId}`);
+      return shown('Milestone Status') || shown(CHECKLIST_DERIVED_HEADER);
+    };
+
+    // Only a genuinely-absent artifact is tolerated (e.g. an IDEA story has no
+    // checklist). A corrupt/unreadable artifact must surface via visibleFailure,
+    // never be masked as an empty story — that is the exact silent-swallow this
+    // change set out to remove.
+    const ignoreMissingArtifact = (e: unknown): void => {
+      if ((e as { name?: string } | null)?.name !== 'StoryArtifactMissingError') throw e;
+    };
 
     const renderDerived = (srcStore: StoryStore): string => {
       let checklist: ChecklistData = { items: [] };
       try {
         checklist = srcStore.readChecklist(storyId);
-      } catch { /* no checklist file yet (e.g. IDEA) — render an empty stub */ }
+      } catch (e) { ignoreMissingArtifact(e); }
       let phase = 'unknown';
       try {
         phase = srcStore.readStory(storyId).phase;
-      } catch { /* no index.json — leave phase unknown */ }
+      } catch (e) { ignoreMissingArtifact(e); }
       return renderChecklistDerivedLedger(storyId, checklist, phase);
     };
 
@@ -888,10 +902,10 @@ export async function runCli(opts?: {
     // Prefer a REAL milestone table; return null when no ledger is available so
     // the caller falls back to the always-shown checklist-derived ledger.
     const realRender = (): string | null => {
-      let hasWorktreeLedger = false;
-      try {
-        hasWorktreeLedger = Boolean(store.readMilestoneLedger(storyId));
-      } catch { /* treat unreadable ledger as absent → derived fallback */ }
+      // readMilestoneLedger returns null when the ledger is absent and throws on a
+      // corrupt/unreadable ledger; let that throw propagate to visibleFailure rather
+      // than masking real corruption as "no milestone ledger set".
+      const hasWorktreeLedger = Boolean(store.readMilestoneLedger(storyId));
       if (hasWorktreeLedger) {
         const r = renderFromHandlers(handlers);
         if (r) return r;
