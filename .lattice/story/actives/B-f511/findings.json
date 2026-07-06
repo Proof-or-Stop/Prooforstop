@@ -199,6 +199,21 @@
       "_hash": "0ff20bedc9ea05dcdbcab0d8e7e8748100b99599934413bd6f6a115ab1c51c15",
       "signatureTag": "missing|unknown|independently-verified-corroboration",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f511:F-012",
+      "desc": "concept-cleanup: selfcheck-m3.mjs top-of-file doc comment enumerates sub-checks (A)-(I) but omits a (J) entry for the newly added checkBreakMutexSerializes (F-007/F-008), even though it is fully implemented, registered, and called from main(). Non-blocking doc-completeness gap, not a functional residual -- the check itself runs correctly (verified green in this review: fresh dynamic run, all A-J including J.1/J.2 passed, selfcheck-m3 PASS).",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-06T01:44:09.066Z",
+      "reviewRound": "2026-07-06T01:22:49.221Z",
+      "reviewRunId": "B-f511:RR-024",
+      "_hash": "bd2fbed16ad5c3df74b6080ecff3fb79bfaa83ab4e838a1d1f7262fd2f478d06",
+      "signatureTag": "missing|unknown|concept-cleanup-selfcheck",
+      "signatureTagSource": "auto"
     }
   ]
 }
