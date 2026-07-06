@@ -1,0 +1,56 @@
+{
+  "storyId": "B-e1f6",
+  "changes": "Added provider-free Cell03 shard tooling under experiments/multi-model-ablation/cell03-shards/: plan.mjs (deterministic 1152-key shard partition + envelope digest binding), shard-runner.mjs (shard-local fixture output with mkdir lock; overwrite refusal now inside the lock), merge.mjs (validator rejecting duplicate/missing/shard-count/wrong-shard rows and binding drift vs the live envelope, and refusing to write canonical cell03-rows.jsonl), selfcheck.mjs (10-marker fail-closed self-test), plus README boundary docs.",
+  "usage": "node experiments/multi-model-ablation/cell03-shards/plan.mjs --shards 8 --json ; shard-runner.mjs --shards 8 --shard 0 --outDir /tmp/cell03-shards ; merge.mjs --inputDir /tmp/cell03-shards --json ; selfcheck.mjs",
+  "expectedOutcome": "selfcheck prints a single PASS line with coverage=1152 shards=8 and every reject marker =pass, ending with canonicalUntouched=pass",
+  "actualTranscript": "cell03-shards selfcheck PASS: coverage=1152 shards=8 invalidIndexReject=pass lockReject=pass rerunReject=pass mergeComplete=pass duplicateReject=pass missingReject=pass digestDriftReject=pass envelopeBindingReject=pass canonicalWriteRefused=pass canonicalUntouched=pass",
+  "outcomeDiff": "No difference — actual selfcheck output matches the expected PASS line byte-for-byte.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Provider-free tool layer only. Does NOT integrate the real B-991d provider runner, per-attempt attemptId/runId/usage accounting, retry/superseded de-duplication, cumulative-token protection, or a formal result-writer — all deferred to successor story B-fd23 (documented in cell03-shards/README.md).",
+  "pitfalls": "Round-1 review found 5 real defects: F-001 TOCTOU overwrite race (overwrite check was outside the shard lock) and F-004 merge binding checked peer manifests not the live envelope (so consistently-forged shards merged), plus 3 coverage gaps. All fixed in bca25a5e9, re-verified in round 2 and by a genuine Codex host-B cross-vendor quorum. Next person: merge binding must anchor to envelope-derived plan.binding not manifests[0], and the overwrite check must live inside the shard lock. Fix commits stale verification evidence — use recover_evidence at REVIEW or done_prepare at TEST to re-stamp before advancing.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 54199
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 11391
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 470983
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 595390
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 3607866
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 531552
+    }
+  },
+  "totalDurationMs": 5271753,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-06T16:19:19.064Z",
+  "updatedAt": "2026-07-06T16:19:19.064Z"
+}
