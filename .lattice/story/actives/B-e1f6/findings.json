@@ -65,7 +65,7 @@
       "desc": "merge.mjs binding-drift check compares each manifest.binding/row.binding against manifests[0].manifest.binding (peer-to-peer, line 45/52/92), NOT against the live envelope-derived plan.binding built at line 44. Verified: forging binding.toolSurfaceDigest identically across all 8 shards merges successfully, so a fully-stale/forged-but-self-consistent shard set passes. Weaker than CHK-003 acceptance ('verify identical protocol, prompt, tool ... binding'). Fix: derive bindingJson from plan.binding (9 manifest.binding fields) so drift-vs-truth is rejected; add a selfcheck case forging all shards' binding consistently and asserting merge throws.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-06T15:42:57.417Z",
@@ -77,7 +77,11 @@
         "experiments/multi-model-ablation/cell03-shards/selfcheck.mjs"
       ],
       "signatureTag": "adversarial|mjs|merge-binding-drift",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "merge binding check anchors to envelope-derived plan.binding; selfcheck forges binding across all 8 shards and asserts merge throws (envelopeBindingReject=pass). Fix commit bca25a5e9.",
+      "resolvedAt": "2026-07-06T15:47:41.968Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-e1f6:F-005",
