@@ -4,7 +4,7 @@
   "title": "POS campaign M3: interrupt/resume idempotence probe (resume-probe.mjs + run-batch resume mode, H3 evidence)",
   "description": "Fourth milestone of the proof-or-stop replay and tamper campaign (M0 DONE=B-9e44 protocol; M1 DONE=B-bae9 tamper arm; M2 DONE=B-2a5b replay driver + batch-ledger.jsonl). M3 delivers the RESUME arm for H3 (campaign integrity / proof-or-stop through interruptions): experiments/pos-instrument-replay/resume-probe.mjs (a committed producer) + a RESUME mode added to run-batch.mjs + resume-reconciliation.json + a selfcheck. resume-probe spawns the replay driver, kills it deterministically TWICE — (a) at a frozen iteration boundary (SIGKILL after K iterations recorded), (b) mid-iteration via the driver crash hook (POS_FAIL_APPEND_AT: after workspace write, before ledger append) — restarts the driver in RESUME mode (skip iterationIds already recorded), and reconciles: the ledger identity multiset must equal the protocol replay cross-product exactly (0 duplicates / 0 gaps); the mid-iteration casualty must resolve to a stop record or a clean re-run, never a silent half-record. resume-reconciliation.json records the pre/post-kill ledger diff, the identity-multiset comparison, dup/gap counts (must be 0/0), and the casualty disposition. run-batch.mjs gains an ADDITIVE resume mode (fresh-campaign path unchanged; M2 selfcheck + batch-ledger still valid). Reuses M0 lib/instrument.mjs + reads the frozen protocol.json.",
   "type": "feature",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "medium",
   "keywords": [
     "proof-or-stop,resume,H3,idempotence,interrupt,evidence-instrument"
@@ -102,6 +102,15 @@
       "user": "Harmonygo",
       "sessionId": "587682dc-bfda-437a-8713-bf1cb9342a76",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-06T01:22:49.221Z",
+      "branch": "story/B-f511",
+      "user": "Harmonygo",
+      "sessionId": "587682dc-bfda-437a-8713-bf1cb9342a76",
+      "agent": "main"
     }
   ],
   "worktree": {
@@ -109,5 +118,5 @@
     "branch": "story/B-f511",
     "createdAt": "2026-07-05T20:23:03.288Z"
   },
-  "currentReviewRound": "2026-07-06T00:44:23.840Z"
+  "currentReviewRound": "2026-07-06T01:22:49.221Z"
 }
