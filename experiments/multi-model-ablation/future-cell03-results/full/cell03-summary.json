@@ -3,31 +3,23 @@
   "storyId": "B-991d",
   "executionWindowId": "B-991d-cell03-execution-window-001",
   "expectedRows": 1152,
-  "rowCount": 445,
-  "finalRows": 442,
-  "failedRows": 3,
-  "validationPassRows": 398,
-  "providerUsageRows": 442,
-  "reviewedRows": 443,
-  "groundTruthPassRows": 444,
+  "rowCount": 455,
+  "finalRows": 451,
+  "failedRows": 4,
+  "validationPassRows": 407,
+  "providerUsageRows": 451,
+  "reviewedRows": 452,
+  "groundTruthPassRows": 453,
   "outcomeCounts": {
-    "recovered": 368,
+    "recovered": 376,
     "safe-stop": 45,
-    "completed": 30,
-    "review-invalid": 2
+    "completed": 31,
+    "review-invalid": 2,
+    "failed": 1
   },
-  "missingFinalRows": 710,
+  "missingFinalRows": 701,
   "missingFinalCellKeys": [
-    "③|A4|median|B01|2|E2|same",
-    "③|A4|cl-multi|scenario-null|2|E2|same",
     "③|A4|text-stats|B04|3|E2|same",
-    "③|A4|text-stats|B15|1|E2|same",
-    "③|A4|tr-clamp|B03|1|E2|same",
-    "③|A4|cl-multi|B03|2|E2|same",
-    "③|A4|cv-email|B11|1|E2|same",
-    "③|A4|dp-semver|B10|3|E2|same",
-    "③|A4|tr-pluralize|B06|1|E2|same",
-    "③|A4|du-duration|B11|3|E2|same",
     "③|A4|cv-luhn|B10|3|E2|same",
     "③|A4|du-interp|B08|3|E2|same",
     "③|A4|cv-ipv4|B05|3|E2|same",
@@ -67,15 +59,24 @@
     "③|A4|text-stats|B10|2|E2|same",
     "③|A4|dp-querystring|B07|3|E2|same",
     "③|A4|dp-semver|B12|3|E2|same",
-    "③|A4|eval-expr|B04|1|E2|same"
+    "③|A4|eval-expr|B04|1|E2|same",
+    "③|A4|dp-querystring|B09|2|E2|same",
+    "③|A4|eval-expr|B08|2|E2|same",
+    "③|A4|parse-range|B10|3|E2|same",
+    "③|A4|rf-units|B15|1|E2|same",
+    "③|A4|cl-equals|B01|3|E2|same",
+    "③|A4|tr-clamp|B05|3|E2|same",
+    "③|A4|cv-luhn|B08|1|E2|same",
+    "③|A4|bf-lru|B12|3|E2|same",
+    "③|A4|dp-deepmerge|B04|3|E2|same"
   ],
   "newRowsThisRun": 10,
   "totalProviderUsage": {
-    "inputTokens": 81785217,
-    "outputTokens": 2304201,
-    "totalTokens": 84089418
+    "inputTokens": 83412123,
+    "outputTokens": 2346648,
+    "totalTokens": 85758771
   },
   "complete": false,
   "fullRunUnlockReason": "CHK-006 completes only when every expected Cell 03 cell key has exactly one final formal row and no duplicate final row.",
-  "createdAt": "2026-07-06T17:29:10.572Z"
+  "createdAt": "2026-07-06T17:41:52.742Z"
 }
