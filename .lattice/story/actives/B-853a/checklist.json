@@ -286,7 +286,21 @@
       },
       "status": "in_progress",
       "startTime": "2026-07-06T07:24:51.710Z",
-      "endTime": null
+      "endTime": null,
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node experiments/pos-instrument-replay/analyze-batch.mjs",
+          "result": "pass",
+          "note": "Pre-adjudication integrity: analyzer re-derives every ledger recordDigest (all 33 re-derive) and verifies protocol.json sha256 == protocol.json.sha256; report.json/.md carry per-scale scaleEnvelope (small maxElapsedMs=2382/peakRss=174112768; full 18718/976666624), the §3 claim verbatim (only because overall=all-pass), and instrumentDefects=[] (clean).",
+          "headHash": "5bff00456a3bc93926f186ac256771efa129ffe9",
+          "materialHash": "3af659b07e456b76454f55f8fea4dd34c63504f29ebdb5bca72518f55492f44e",
+          "storyFilesHash": "1caae9cb5590d29bf143ccf47ece033b9cc1b30249e5f48e58baad5ee8cc386f",
+          "timestamp": "2026-07-06T07:24:53.159Z"
+        }
+      ]
     }
   ],
   "auditLog": [
