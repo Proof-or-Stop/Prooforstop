@@ -378,7 +378,7 @@
           }
         ]
       },
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-07-05T23:52:57.978Z",
       "endTime": "2026-07-06T00:03:26.717Z",
       "verificationEvidence": [
@@ -745,6 +745,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Cell 03 probe produced two valid final rows with provider usage and passed contract validation.",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-07-06T00:06:38.654Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Reopen CHK-005 because the initial probe captured executor rows but did not include the required A4 same-family independent reviewer gate.",
       "agent": "codex-main"
     }
   ]
