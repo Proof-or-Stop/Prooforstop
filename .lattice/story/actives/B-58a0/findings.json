@@ -1,0 +1,19 @@
+{
+  "findings": [
+    {
+      "id": "B-58a0:F-001",
+      "desc": "quality-cleanup: packages/main/src/cli-engine.ts:869-878 (renderDerived) and :890-894 (realRender) use untyped bare catch blocks around store.readChecklist/readStory/readMilestoneLedger that swallow ALL errors (including JSON.parse SyntaxError from a corrupted checklist.json/index.json/milestone-ledger.json), not just the intended \"file not found\" case. Repro: write a valid story with a corrupt checklist.json (\"{ not json\") and run `summary_set` (a command that never touches checklist.json) — it succeeds and silently prints \"(no checklist items)\" / Progress 0/0/0 instead of the CHK-002-mandated visible \"⚠ Milestone Ledger: render FAILED\" block. This directly contradicts the storys own stated goal (CHK-002: replace silent catches with a visible stdout failure block) — real data corruption is masked as an empty story instead of surfacing via visibleFailure(). Fix: catch only StoryArtifactMissingError (already exported/used elsewhere in store.ts, e.g. readMilestoneLedger/readBugs) and rethrow other errors so they reach the outer try/catch -> visibleFailure() path.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-06T18:32:51.253Z",
+      "reviewRound": "2026-07-06T18:22:23.063Z",
+      "reviewRunId": "B-58a0:RR-002",
+      "_hash": "fb5f6361bb8ae41cc4d7467e888b87424247cc7b89131df340f17268b2b316b2",
+      "signatureTag": "edge|unknown|quality-cleanup-packages",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
