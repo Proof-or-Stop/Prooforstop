@@ -98,6 +98,15 @@
       "reviewRound": "2026-07-06T01:08:16.118Z",
       "reviewRunId": "B-f7b3:RR-014",
       "_hash": "6536711db246583a6f59d7d7c9954269d07083a982249513ecd207497399c020"
+    },
+    {
+      "id": "B-f7b3:RP-012",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion-completeness review of git diff main...HEAD (packages/main + docs/requirements/decisions), focused on commit bb7ed4dd9 threading notApplicableDecision through the CLI milestone schema. That commit is purely additive (109 insertions, 0 deletions) - no concept was deleted. Broader diff removed-line audit: (1) evidenceCoversIntent body extracted into a new rowCoversIntent helper, both retained and used (grep confirms no orphan); (2) `if (milestone.status === not_applicable) continue;` expanded into a justified-decision branch with the same continue preserved; (3) captureMilestoneCloseoutSnapshotFromStore deliberately changed from throw-on-incomplete to degrade-to-skipped (documented CHK-010 reconciliation rationale in code comment), with the corresponding test rewritten from assert.throws to assert.doesNotThrow + explicit status/reason assertions - not a silent behavior loss; (4) configuredProofStoryMode and proofStoryDiagnosticInput signatures widened (new optional root param, export keyword added) with all call sites in phase-gates.ts/proofstory.ts updated consistently; the separate module-local proofStoryDiagnosticInput in machine.ts is a pre-existing distinct function untouched by this diff. All docs/requirements/decisions changes are new files (0 deletions). Verified cross-references (MilestoneNotApplicableDecision type, validNotApplicable in parent-roadmap-totality, MilestoneStatusCurrentEvidenceBinding/currentMilestoneStatusEvidenceBinding/evidenceIsStaleCovering exports) all resolve with no dangling symbols. No concept was deleted or replaced en masse in this diff; no residue found.",
+      "createdAt": "2026-07-06T05:58:40.627Z",
+      "reviewRound": "2026-07-06T05:55:08.656Z",
+      "reviewRunId": "B-f7b3:RR-015",
+      "_hash": "042f27b329f60ccb1c9b018641cc4e006bc7cd1891a911af6f57084264d7e9c0"
     }
   ]
 }
