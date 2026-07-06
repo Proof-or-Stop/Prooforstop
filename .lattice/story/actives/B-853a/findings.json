@@ -169,7 +169,7 @@
       "desc": "H1 scale-loop only iterates scales declared in protocol.N (Object.keys(expectedN)), so a proof record at an undeclared/extra scale (e.g. a stray or injected record with garbage/vacuous digests+goldMetrics at a scale key not in protocol.N) is grouped into byScale[s] but never read by the perScale loop — it influences neither countOk/wellFormed/pairwiseEqual nor anyFail. Reproduced live: appended one extra ledger proof record at scale=\"bogus\" (digests all \"BAD\", goldMetrics={}), re-signed its recordDigest so input-integrity passes, and analyze-batch.mjs still emitted overall=all-pass with H1=pass (report digest 3d8595534661b184f227e049b96cc3311e1007da50dca4b364d84e844b26fb87, distinct from the real all-pass digest). This violates H1s own stated criterion (\"exactly N[s] proof records exist\" / completeness) because there is no global check that proofs.length equals the sum of protocol.N values or that every proof.scale is a key of protocol.N — completeness is only verified per declared scale, not against the full evidence set. selfcheck-m4.mjs has no sub-check (A-O) covering an extra/undeclared-scale proof record, so this residual is unguarded. Recommend: H1 (or the input-integrity pre-check) should also require every proofs scale to be in protocol.N and/or that sum(perScale.n) === proofs.length, failing otherwise.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-06T07:57:34.345Z",
@@ -177,7 +177,11 @@
       "reviewRunId": "B-853a:RR-011",
       "_hash": "396a3eceb5c55117c62776a28c1d728e19f0052beb0a696608bb24cdbbfc8478",
       "signatureTag": "edge|unknown|scale-loop-iterates",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in eeb1a9592: H1 rejects any proof record whose scale is not a protocol.N key AND requires total proof count === sum(protocol.N) (an extra undeclared-scale record now makes H1 fail, not silently ignored). selfcheck-m4 sub-check P.",
+      "resolvedAt": "2026-07-06T08:20:00.111Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-853a:F-010",
