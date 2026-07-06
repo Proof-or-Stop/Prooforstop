@@ -53,6 +53,15 @@
       "reviewRound": "2026-07-06T00:08:28.508Z",
       "reviewRunId": "B-c389:RR-006",
       "_hash": "4cb34c2ebd20b28a8336490b9ea1cb64e531bc1563bdbc57b4c257f66961bc29"
+    },
+    {
+      "id": "B-c389:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: F-004 stale-evidence gap resolved via verification_evidence_refresh_stale (12/12 entries re-stamped to HEAD 20c19e1). lattice validate --json confirms verificationCoverage total=12 required=11 covered=12 missingRequired=0, all entries status=covered, warnings=[], overall status=pass. Live re-run confirmed the 3 story smokes still pass at their claimed counts: capability-release-backfill 14 checks, capability-candidate-exposure 8 checks, capability-candidate-promotion 8 checks. No blocker.",
+      "createdAt": "2026-07-06T00:24:58.160Z",
+      "reviewRound": "2026-07-06T00:08:28.508Z",
+      "reviewRunId": "B-c389:RR-011",
+      "_hash": "1e7519c29aa67eaf8918de6d98e8ea68c89987eaa61013998dc3524e9f3df433"
     }
   ]
 }
