@@ -17,6 +17,15 @@
       "reviewRound": "2026-07-06T15:10:19.645Z",
       "reviewRunId": "B-e1f6:RR-005",
       "_hash": "e9c3299adbf1d45e4fd5fce5fcda463b69868fa636ea4173858cf2a6319b38c2"
+    },
+    {
+      "id": "B-e1f6:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 re-review: F-001 TOCTOU fix correct (overwrite check now inside lock, release still in finally, no lock-leak); F-002/F-004 merge changes no regression; no dead code. PASS.",
+      "createdAt": "2026-07-06T15:53:13.900Z",
+      "reviewRound": "2026-07-06T15:10:19.645Z",
+      "reviewRunId": "B-e1f6:RR-006",
+      "_hash": "f12a4393120d2e950af11ba5ca27e5bdedfc5b432087ecaf0d94062b5ba04771"
     }
   ]
 }
