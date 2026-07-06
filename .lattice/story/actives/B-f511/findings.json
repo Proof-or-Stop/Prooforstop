@@ -232,6 +232,25 @@
       ],
       "signatureTag": "adversarial|mjs|cross-vendor-host",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f511:F-014",
+      "desc": "CHK-001:adversarial and CHK-003:adversarial evidence notes claim the fresh-mode non-empty-ledger fail-closed guard makes the campaign ledger un-poisonable (\"the exactly one campaign writer, never a poisoned ledger invariant holds\"; sub-check K \"proves\" this), but this overstates the actual coverage: run-batch.mjs:922-928 -- existingLedgerNonEmpty = existsSync(LEDGER_PATH) && readFileSync(LEDGER_PATH,\"utf8\").trim() !== \"\", with catch { existingLedgerNonEmpty = false } -- FAILS OPEN when the ledger exists, is non-empty, but readFileSync THROWS (e.g. EACCES/unreadable). The catch runs only after existsSync already returned true, so a read failure on an existing ledger is misclassified as EMPTY and a fresh driver proceeds to append onto it, producing on-disk duplicates. selfcheck-m3.mjs sub-check K (checkFreshRefusesNonemptyLedger) only seeds a READABLE non-empty ledger and never exercises the unreadable-but-non-empty branch, so this fail-open path is untested. This exact gap is already independently filed and open as B-f511:F-013 (medium/adversarial, cross-vendor Codex, this same review round, reviewRunId RR-026, evidenceState verified) with a concrete fix (set existingLedgerNonEmpty = true in the catch to fail closed). Flagging from the test-coverage lane because the CHK-001/CHK-003 adversarial verificationEvidence notes assert a universal fail-closed guarantee that the current evidence (sub-check K) does not actually establish -- the claim needs either a fix + a dedicated sub-check for the unreadable-ledger path, or the evidence note must be narrowed to not claim the invariant holds unconditionally.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-06T02:40:23.814Z",
+      "reviewRound": "2026-07-06T02:17:55.786Z",
+      "reviewRunId": "B-f511:RR-030",
+      "_hash": "f5c10943672864c225f8f523d3cf00f16794b7f689c9154342a2a3b45599a0db",
+      "files": [
+        "experiments/pos-instrument-replay/run-batch.mjs",
+        "experiments/pos-instrument-replay/selfcheck-m3.mjs"
+      ],
+      "signatureTag": "missing|mjs|adversarial-adversarial-evidence",
+      "signatureTagSource": "auto"
     }
   ]
 }
