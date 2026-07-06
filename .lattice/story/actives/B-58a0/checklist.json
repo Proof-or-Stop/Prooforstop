@@ -45,10 +45,10 @@
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "Unit test asserts the derived-ledger header, Phase/Progress lines and the ✅/⏳/⬜ grouping (derivedText block).",
-          "headHash": "f806f63a9a5c50b2c1a181a80089cf3807e524da",
-          "materialHash": "547ccc615b8a4860255e660a8812cae17650f23d5cee32600a81d887e626cc36",
-          "storyFilesHash": "8ece446824c59f57e6d8f90068b9be472cb07fc3c073259dfec289b10c9f888f",
-          "timestamp": "2026-07-06T18:21:27.202Z"
+          "headHash": "dad91af60e8985762f68749d3e7e58462c54d347",
+          "materialHash": "579bad78cc2d67f9e8f72050f9330e3ecb7bd100630bdd742a9fd8a095124ffa",
+          "storyFilesHash": "8fbc9725e058746e301ca5878ff88c441d2dab20b121e098698461bd07ac27a4",
+          "timestamp": "2026-07-06T18:48:23.245Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -58,10 +58,10 @@
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "emptyDerived assertions cover the empty-checklist stub (no checklist items) + 0/0/0 progress without throwing.",
-          "headHash": "f806f63a9a5c50b2c1a181a80089cf3807e524da",
-          "materialHash": "547ccc615b8a4860255e660a8812cae17650f23d5cee32600a81d887e626cc36",
-          "storyFilesHash": "8ece446824c59f57e6d8f90068b9be472cb07fc3c073259dfec289b10c9f888f",
-          "timestamp": "2026-07-06T18:21:27.202Z"
+          "headHash": "dad91af60e8985762f68749d3e7e58462c54d347",
+          "materialHash": "579bad78cc2d67f9e8f72050f9330e3ecb7bd100630bdd742a9fd8a095124ffa",
+          "storyFilesHash": "8fbc9725e058746e301ca5878ff88c441d2dab20b121e098698461bd07ac27a4",
+          "timestamp": "2026-07-06T18:48:23.245Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -71,10 +71,10 @@
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "assert.doesNotMatch(derivedText, /Milestone Status -/) proves the derived ledger never fabricates a milestone table.",
-          "headHash": "f806f63a9a5c50b2c1a181a80089cf3807e524da",
-          "materialHash": "547ccc615b8a4860255e660a8812cae17650f23d5cee32600a81d887e626cc36",
-          "storyFilesHash": "8ece446824c59f57e6d8f90068b9be472cb07fc3c073259dfec289b10c9f888f",
-          "timestamp": "2026-07-06T18:21:27.202Z"
+          "headHash": "dad91af60e8985762f68749d3e7e58462c54d347",
+          "materialHash": "579bad78cc2d67f9e8f72050f9330e3ecb7bd100630bdd742a9fd8a095124ffa",
+          "storyFilesHash": "8fbc9725e058746e301ca5878ff88c441d2dab20b121e098698461bd07ac27a4",
+          "timestamp": "2026-07-06T18:48:23.245Z"
         }
       ]
     },
@@ -123,10 +123,10 @@
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "The no-ledger CLI checklist_update path now emits the Checklist-derived ledger header + the mutated item row on stdout.",
-          "headHash": "f806f63a9a5c50b2c1a181a80089cf3807e524da",
-          "materialHash": "547ccc615b8a4860255e660a8812cae17650f23d5cee32600a81d887e626cc36",
-          "storyFilesHash": "8ece446824c59f57e6d8f90068b9be472cb07fc3c073259dfec289b10c9f888f",
-          "timestamp": "2026-07-06T18:21:27.202Z"
+          "headHash": "dad91af60e8985762f68749d3e7e58462c54d347",
+          "materialHash": "579bad78cc2d67f9e8f72050f9330e3ecb7bd100630bdd742a9fd8a095124ffa",
+          "storyFilesHash": "8fbc9725e058746e301ca5878ff88c441d2dab20b121e098698461bd07ac27a4",
+          "timestamp": "2026-07-06T18:48:23.245Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -136,10 +136,10 @@
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "The real-ledger CLI append test and the DONE main-root fallback test still assert the Milestone Status table (realRender path preserved).",
-          "headHash": "f806f63a9a5c50b2c1a181a80089cf3807e524da",
-          "materialHash": "547ccc615b8a4860255e660a8812cae17650f23d5cee32600a81d887e626cc36",
-          "storyFilesHash": "8ece446824c59f57e6d8f90068b9be472cb07fc3c073259dfec289b10c9f888f",
-          "timestamp": "2026-07-06T18:21:27.202Z"
+          "headHash": "dad91af60e8985762f68749d3e7e58462c54d347",
+          "materialHash": "579bad78cc2d67f9e8f72050f9330e3ecb7bd100630bdd742a9fd8a095124ffa",
+          "storyFilesHash": "8fbc9725e058746e301ca5878ff88c441d2dab20b121e098698461bd07ac27a4",
+          "timestamp": "2026-07-06T18:48:23.245Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -149,10 +149,10 @@
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "The --json purity assertion stays green (no table appended); visibleFailure keeps exit 0 (mutation already committed).",
-          "headHash": "f806f63a9a5c50b2c1a181a80089cf3807e524da",
-          "materialHash": "547ccc615b8a4860255e660a8812cae17650f23d5cee32600a81d887e626cc36",
-          "storyFilesHash": "8ece446824c59f57e6d8f90068b9be472cb07fc3c073259dfec289b10c9f888f",
-          "timestamp": "2026-07-06T18:21:27.202Z"
+          "headHash": "dad91af60e8985762f68749d3e7e58462c54d347",
+          "materialHash": "579bad78cc2d67f9e8f72050f9330e3ecb7bd100630bdd742a9fd8a095124ffa",
+          "storyFilesHash": "8fbc9725e058746e301ca5878ff88c441d2dab20b121e098698461bd07ac27a4",
+          "timestamp": "2026-07-06T18:48:23.245Z"
         }
       ]
     },
@@ -201,10 +201,10 @@
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "The inverted no-ledger assertion now requires the derived-ledger header and forbids Milestone Status - <id>, and passes.",
-          "headHash": "f806f63a9a5c50b2c1a181a80089cf3807e524da",
-          "materialHash": "547ccc615b8a4860255e660a8812cae17650f23d5cee32600a81d887e626cc36",
-          "storyFilesHash": "8ece446824c59f57e6d8f90068b9be472cb07fc3c073259dfec289b10c9f888f",
-          "timestamp": "2026-07-06T18:21:27.202Z"
+          "headHash": "dad91af60e8985762f68749d3e7e58462c54d347",
+          "materialHash": "579bad78cc2d67f9e8f72050f9330e3ecb7bd100630bdd742a9fd8a095124ffa",
+          "storyFilesHash": "8fbc9725e058746e301ca5878ff88c441d2dab20b121e098698461bd07ac27a4",
+          "timestamp": "2026-07-06T18:48:23.245Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -214,10 +214,10 @@
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "New renderChecklistDerivedLedger unit test covers three-status grouping and the empty stub.",
-          "headHash": "f806f63a9a5c50b2c1a181a80089cf3807e524da",
-          "materialHash": "547ccc615b8a4860255e660a8812cae17650f23d5cee32600a81d887e626cc36",
-          "storyFilesHash": "8ece446824c59f57e6d8f90068b9be472cb07fc3c073259dfec289b10c9f888f",
-          "timestamp": "2026-07-06T18:21:27.202Z"
+          "headHash": "dad91af60e8985762f68749d3e7e58462c54d347",
+          "materialHash": "579bad78cc2d67f9e8f72050f9330e3ecb7bd100630bdd742a9fd8a095124ffa",
+          "storyFilesHash": "8fbc9725e058746e301ca5878ff88c441d2dab20b121e098698461bd07ac27a4",
+          "timestamp": "2026-07-06T18:48:23.245Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -227,10 +227,10 @@
           "command": "node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "Pre-existing real-ledger append and --json purity assertions remain green — verified in the same suite run (ok milestone-status).",
-          "headHash": "f806f63a9a5c50b2c1a181a80089cf3807e524da",
-          "materialHash": "547ccc615b8a4860255e660a8812cae17650f23d5cee32600a81d887e626cc36",
-          "storyFilesHash": "8ece446824c59f57e6d8f90068b9be472cb07fc3c073259dfec289b10c9f888f",
-          "timestamp": "2026-07-06T18:21:27.202Z"
+          "headHash": "dad91af60e8985762f68749d3e7e58462c54d347",
+          "materialHash": "579bad78cc2d67f9e8f72050f9330e3ecb7bd100630bdd742a9fd8a095124ffa",
+          "storyFilesHash": "8fbc9725e058746e301ca5878ff88c441d2dab20b121e098698461bd07ac27a4",
+          "timestamp": "2026-07-06T18:48:23.245Z"
         }
       ]
     }
