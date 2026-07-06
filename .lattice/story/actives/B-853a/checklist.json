@@ -95,7 +95,40 @@
       "context": "selfcheck-m4.mjs asserts each hypothesis pass/fail/inconclusive is derived correctly, and that tampered/truncated/missing/insufficient evidence yields inconclusive or fail (NEVER a false pass); asserts digest reproducibility. A genuine Codex host-2 pass independently re-derives the report digest from the same inputs.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "node selfcheck-m4.mjs prints 'selfcheck-m4 PASS' and exits 0; a genuine Codex host-2 run re-derives the same report digest offline.",
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/pos-instrument-replay/selfcheck-m4.mjs"
+        ],
+        "test": [
+          "experiments/pos-instrument-replay/selfcheck-m4.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node experiments/pos-instrument-replay/selfcheck-m4.mjs exits 0 and prints selfcheck-m4 PASS",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "selfcheck-m4 covers each hypothesis: a well-formed evidence set yields the expected pass, and an insufficient one yields inconclusive",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "selfcheck-m4 mutates evidence per hypothesis (flip a dispositionMatch / over-cap an elapsedMs / set gapTotal>0 / remove a hypothesis input) and asserts the verdict flips to fail or inconclusive — NEVER a false pass; and asserts digest reproducibility across two runs. Codex host-2 independently re-derives the report digest from the same inputs.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
