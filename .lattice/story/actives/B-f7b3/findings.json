@@ -85,7 +85,7 @@
       "desc": "quality-cleanup: packages/main/src/tasks/milestone-done-gate-reconciliation-smoke.ts:434-521 new block (d) un-gameable regression only covers a fully-valid and a fully-bare notApplicableDecision; it does not add a whitespace-only reason/decidedBy/decidedAt case, so a future weakening of core/proofstory.ts requireNonEmptyString (line 221-226) to match the CLI schema non-trimming min(1) would not be caught by this smoke despite the stale-guard being the exact concern the fix commit raised",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-06T06:00:46.983Z",
@@ -93,7 +93,11 @@
       "reviewRunId": "B-f7b3:RR-017",
       "_hash": "6e1bac07b106e6c3815ff6a8e544996b00e2d8b8de704b8215d6991260cde7b4",
       "signatureTag": "missing|unknown|quality-cleanup-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: block (d) of milestone-done-gate-reconciliation-smoke.ts now includes a whitespace-only decision case asserting BOTH semantic authorities reject it — the gate's validMilestoneNotApplicable trims (gap still fires) and the normalizer's requireNonEmptyString throws at buildMilestoneLedger time. Catches a future weakening of either trim/non-empty check.",
+      "resolvedAt": "2026-07-06T06:28:05.200Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
