@@ -120,7 +120,27 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Docs show safe shard plan, fixture shard output, and merge validation commands.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Docs distinguish Parallel Wave story scheduling from Cell03 row sharding.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Docs do not imply provider execution, Cell06 unlock, Phase2 unlock, or paper claim unlock.",
+            "type": "docs"
+          }
+        ]
+      }
     }
   ]
 }
