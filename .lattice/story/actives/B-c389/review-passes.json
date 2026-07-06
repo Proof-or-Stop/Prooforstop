@@ -89,6 +89,15 @@
       "reviewRound": "2026-07-06T06:25:18.576Z",
       "reviewRunId": "B-c389:RR-014",
       "_hash": "18af6578451d90e0aec52dc641a069fbfb245b07a261f7b553c57e80b0aff89b"
+    },
+    {
+      "id": "B-c389:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 3, post-merge re-bind): verified all 12 verificationEvidence entries (CHK-001..CHK-004, happy/edge/adversarial each) are covered, fresh, and bound to current material (headHash 0d889f906a / storyFilesHash ec3a79544f / materialHash d0597b85d3). lattice validate coverage report shows total=12 required=11 covered=12 missingRequired=0. Live-ran all 3 new smokes directly (backfill 14/14, exposure 8/8, promotion 8/8) — all pass on current HEAD, matching stamped evidence. Confirmed the merged .lattice/capability-releases.jsonl 2nd row (PCR-824340203cf813e8a9c54d8f, B-6529) is unrelated incoming merge content, not this storys artifact; this storys own PCR-9e7fdacf081e7346181bc04d (B-785e) is intact and correctly the one referenced by the live-backfill manual_transcript evidence. No coverage gap.",
+      "createdAt": "2026-07-06T06:31:50.205Z",
+      "reviewRound": "2026-07-06T06:25:18.576Z",
+      "reviewRunId": "B-c389:RR-015",
+      "_hash": "6024c5e1b30d891fe1fd926167fdbda9bd7cd5c356f72cfd5a040bc2fbc3f436"
     }
   ]
 }
