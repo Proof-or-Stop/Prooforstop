@@ -70,11 +70,11 @@
           "kind": "manual_transcript",
           "command": "node experiments/pos-instrument-replay/selfcheck-m3.mjs",
           "result": "pass",
-          "note": "Resume/lock integrity is now closed on ALL known paths (commit 5c1aa59af). (a) F-005/F-006 conservative missing-holder=LIVE; (b) F-007/F-008 break-mutex serializes the break critical-section (two resumers can't both rm+mkdir); (c) F-009/F-011: a FRESH (non-resume) driver that wins the break-to-reacquire window now FAILS CLOSED if batch-ledger.jsonl already exists non-empty (checked UNDER the campaign lock, precondition_failed exit 3, releases the lock, campaign ledger byte-identical) so it can never re-append duplicates onto a partial ledger. The 'exactly one campaign writer, never a poisoned ledger' invariant holds. selfcheck-m3 sub-checks H/I/J/K prove each direction deterministically.",
-          "headHash": "98ee3e0dbd49501a0b3a456b4e9cd35e7c0c062f",
+          "note": "Resume/lock/ledger integrity is fail-closed on every TESTED path (commit 98ee3e0db). Layered defense, each with a dedicated deterministic sub-check that leaves the campaign ledger byte-identical: F-005/F-006 conservative missing-holder=LIVE (sub-check I: missing holder -> lock NOT broken); F-007/F-008 break-mutex serializes the break critical-section so two resumers cannot both rm+mkdir (sub-check J, both directions); F-009/F-011 a fresh non-resume driver refuses a non-empty pre-existing ledger, checked UNDER the campaign lock (sub-check K); F-013/F-014/F-016 a fresh driver refuses an EXISTING-but-UNREADABLE ledger — the read-error catch fails CLOSED (sub-check L, via the POS_FAIL_LEDGER_READ fault hook). selfcheck-m3 A-M PASS exit 0.",
+          "headHash": "ce620a7cd5eec87fa31d7ecea991c3e45ffb4f99",
           "materialHash": "72235d20101e07bfddf60b0e65cf527c700c424441776e30bbc867ae206a53b8",
           "storyFilesHash": "72dc774e8479d01609d432bbe1a5775bc3b62810d1c2381e312b51de954af7f5",
-          "timestamp": "2026-07-06T03:27:16.005Z"
+          "timestamp": "2026-07-06T03:27:16.730Z"
         }
       ]
     },
