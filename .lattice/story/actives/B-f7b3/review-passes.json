@@ -26,6 +26,15 @@
       "reviewRound": "2026-07-06T00:16:09.455Z",
       "reviewRunId": "B-f7b3:RR-004",
       "_hash": "f0f9f34368edb01f9304c2b1d7cc4f2780379b917d38b0a29e4e68452db32c26"
+    },
+    {
+      "id": "B-f7b3:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Reviewed commit 162a7e6a0 (the only change since prior clean pass): export of configuredProofStoryMode in phase-gates.ts (additive, no rename), new observe-default regression test block in milestone-done-gate-reconciliation-smoke.ts, decision-doc Verification section corrected to reference the real resolver name, and removal of genuinely dead/unused smokeName code. No concept word was deleted or mass-replaced. Confirmed via grep that both the previously-fabricated symbol resolveDoneGateMode and the removed dead smokeName variable now have zero references anywhere in live code/docs (packages/, docs/) outside the .lattice audit-history findings.json/review-passes.json records of the already-fixed findings, which is expected retained evidence. No blocker.",
+      "createdAt": "2026-07-06T00:34:47.734Z",
+      "reviewRound": "2026-07-06T00:33:46.044Z",
+      "reviewRunId": "B-f7b3:RR-005",
+      "_hash": "1feedd87cc4a52875889276bdcee1dd716ff5aab05e59bb3aafde908bf97aac9"
     }
   ]
 }
