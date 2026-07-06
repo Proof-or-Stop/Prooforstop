@@ -66,7 +66,7 @@
       "desc": "quality-cleanup: packages/main/src/handlers/proofstory.ts:189 milestone_ledger_add re-declares notApplicableDecision as an inline anonymous type literal instead of importing MilestoneNotApplicableDecision from core/types.js (already imported in this file); structurally compatible today but will silently drift undetected if the core type changes",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-06T06:00:38.640Z",
@@ -74,7 +74,11 @@
       "reviewRunId": "B-f7b3:RR-017",
       "_hash": "3ada60ab7ac380a3ff3748b163a0c04debd60aad90312d4938b5b6b10fb9d16c",
       "signatureTag": "missing|unknown|quality-cleanup-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: handlers/proofstory.ts milestone_ledger_add now imports and uses the MilestoneNotApplicableDecision type instead of the inline anonymous literal (removes the drift risk quality lane flagged). Build clean.",
+      "resolvedAt": "2026-07-06T06:28:04.074Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "medium"
     },
     {
       "id": "B-f7b3:F-005",
