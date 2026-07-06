@@ -59,6 +59,7 @@ const CELL03_RESULT_POLICY_REF =
   "experiments/multi-model-ablation/m2-cell03-result-write-policy.json";
 const B991D_STORY_ID = "B-991d";
 const B991D_WINDOW_ID = "B-991d-cell03-execution-window-001";
+const B991D_CONFIGURED_MODEL_ID = "gpt-5.5";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -385,6 +386,7 @@ function assertB991dCell03ExecutionWindow(window, envelope, label) {
   assert(bindings.resultWritePolicyRef === CELL03_RESULT_POLICY_REF, `${label} result policy ref mismatch`);
   assert(bindings.executorSnapshotId === "openai-gpt-family-readiness-2026-07-05", `${label} executor snapshot mismatch`);
   assert(bindings.reviewerSnapshotId === "openai-gpt-family-readiness-2026-07-05", `${label} reviewer snapshot mismatch`);
+  assert(bindings.configuredProviderModelId === B991D_CONFIGURED_MODEL_ID, `${label} configured provider model mismatch`);
   assert(bindings.promptDigest === EXPECTED_PROMPT_DIGEST, `${label} prompt digest mismatch`);
   assert(bindings.toolSurfaceDigest === EXPECTED_TOOL_SURFACE_DIGEST, `${label} tool digest mismatch`);
   assert(!isHostLabel(bindings.executorSnapshotId), `${label} executor snapshot must not be a host label`);
@@ -427,6 +429,7 @@ function assertB991dRunnerAuthorization(authorization, label) {
   assert(runner.eligibleForOtherCells === false, `${label} runner must not be eligible for other cells`);
   assert(runner.executorSnapshot === "openai-gpt-family-readiness-2026-07-05", `${label} executor snapshot mismatch`);
   assert(runner.reviewerSnapshot === "openai-gpt-family-readiness-2026-07-05", `${label} reviewer snapshot mismatch`);
+  assert(runner.configuredProviderModelId === B991D_CONFIGURED_MODEL_ID, `${label} configured provider model mismatch`);
   assert(runner.promptDigest === EXPECTED_PROMPT_DIGEST, `${label} prompt digest mismatch`);
   assert(runner.toolSurfaceDigest === EXPECTED_TOOL_SURFACE_DIGEST, `${label} tool digest mismatch`);
   assert(authorization.otherCells?.cell02ProviderCallEnabled === false, `${label} Cell 02 must stay disabled`);
