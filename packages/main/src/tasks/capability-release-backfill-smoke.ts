@@ -299,7 +299,6 @@ try {
   git(rootB, ['commit', '-q', '-m', 'fixture: artifact release + config']);
 
   writePlaybooks(rootB, [candidatePlaybook('PBP-882', 'B-785e', false)]);
-  const capLedgerPathB = capabilityReleaseLedgerPath(rootB);
 
   const handlersB = createCapabilityReleaseBackfillHandlers({ store: new StoryStore(rootB), root: rootB, scanRoot: rootB });
   const backfillB = handlersB.capability_release_backfill;
