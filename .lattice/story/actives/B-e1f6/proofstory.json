@@ -35,67 +35,22 @@
         "CHK-001:edge:0",
         "CHK-001:adversarial:0",
         "CHK-002:happy:0",
+        "CHK-002:edge:0",
         "CHK-002:adversarial:0",
         "CHK-003:happy:0",
         "CHK-003:edge:0",
-        "CHK-003:adversarial:0"
+        "CHK-003:adversarial:0",
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0"
       ],
       "milestoneIds": [],
       "acceptanceClaim": "Running the local Cell03 shard selfcheck exits 0 and reports coverage, lock, merge-success, duplicate-reject, missing-reject, and digest-drift-reject checks passing.",
-      "note": "The story acceptance is one local selfcheck that proves shard coverage, shard lock safety, merge success, and merge rejection cases without provider execution."
+      "note": "The story acceptance is one local selfcheck plus docs check proving shard coverage, shard lock safety, merge success, merge rejection cases, and non-goal documentation without provider execution."
     }
   ],
-  "diagnosticGaps": [
-    {
-      "code": "acceptance_binding_unknown_verification_intent_ref",
-      "severity": "warn",
-      "artifact": "proofstory.json",
-      "message": "AB-cell03-shard-selfcheck references unknown verificationIntent CHK-001:happy:0."
-    },
-    {
-      "code": "acceptance_binding_unknown_verification_intent_ref",
-      "severity": "warn",
-      "artifact": "proofstory.json",
-      "message": "AB-cell03-shard-selfcheck references unknown verificationIntent CHK-001:edge:0."
-    },
-    {
-      "code": "acceptance_binding_unknown_verification_intent_ref",
-      "severity": "warn",
-      "artifact": "proofstory.json",
-      "message": "AB-cell03-shard-selfcheck references unknown verificationIntent CHK-001:adversarial:0."
-    },
-    {
-      "code": "acceptance_binding_unknown_verification_intent_ref",
-      "severity": "warn",
-      "artifact": "proofstory.json",
-      "message": "AB-cell03-shard-selfcheck references unknown verificationIntent CHK-002:happy:0."
-    },
-    {
-      "code": "acceptance_binding_unknown_verification_intent_ref",
-      "severity": "warn",
-      "artifact": "proofstory.json",
-      "message": "AB-cell03-shard-selfcheck references unknown verificationIntent CHK-002:adversarial:0."
-    },
-    {
-      "code": "acceptance_binding_unknown_verification_intent_ref",
-      "severity": "warn",
-      "artifact": "proofstory.json",
-      "message": "AB-cell03-shard-selfcheck references unknown verificationIntent CHK-003:happy:0."
-    },
-    {
-      "code": "acceptance_binding_unknown_verification_intent_ref",
-      "severity": "warn",
-      "artifact": "proofstory.json",
-      "message": "AB-cell03-shard-selfcheck references unknown verificationIntent CHK-003:edge:0."
-    },
-    {
-      "code": "acceptance_binding_unknown_verification_intent_ref",
-      "severity": "warn",
-      "artifact": "proofstory.json",
-      "message": "AB-cell03-shard-selfcheck references unknown verificationIntent CHK-003:adversarial:0."
-    }
-  ],
-  "note": "B-e1f6 ProofStory contract binds the user-visible acceptance claim to all checklist items and local selfcheck evidence.",
+  "diagnosticGaps": [],
+  "note": "B-e1f6 ProofStory contract binds the user-visible acceptance claim to all checklist items and local selfcheck/docs evidence.",
   "createdAt": "2026-07-06T14:54:48.298Z",
-  "updatedAt": "2026-07-06T14:54:48.298Z"
+  "updatedAt": "2026-07-06T14:55:39.934Z"
 }
