@@ -862,15 +862,13 @@
         {
           "intentRef": "CHK-007:happy:1",
           "kind": "manual_transcript",
-          "verdict": "success",
-          "file": "packages/main/src/handlers/proofstory.ts",
           "command": "bash /private/tmp/claude-501/-Users-jek-Documents-CDR3/e2c2f35d-9d17-4f85-9af1-de33c44c458f/scratchpad/chk007_cli.sh",
           "result": "pass",
-          "note": "Drives the REAL milestone_ledger_add/milestone_ledger_get/done_intent_equivalence_check CLI (dist/cli.js) against a scratch git+story fixture. milestone_ledger_add --status not_applicable (no decision flags — the handler at proofstory.ts:176 has none) exits 0 and persists the row with notApplicableDecision absent; the gate then emits not_applicable_missing_decision naming M-na with status=warn (not pass). Replaces the old un-satisfiable intent that demanded --not-applicable-reason flags and a no",
-          "headHash": "29ad98fc16198dd7f714e509c86c62709b8e1467",
+          "note": "Drives the REAL milestone_ledger_add / milestone_ledger_get / done_intent_equivalence_check CLI (dist/cli.js) against a scratch git+story fixture, exercising BOTH paths. NEGATIVE: a not_applicable row added with no decision persists with notApplicableDecision absent (the write path is deliberately hash-stable and does not reject an undecided row), and the gate emits not_applicable_missing_decision naming M-na with status=warn, not pass. POSITIVE (host-B F-004 regression): after the F-004 fix the CLI surface DOES accept notApplicableDecision (via the milestone object and individual-flag schema in command-catalog.ts), so a row added WITH a decision persists it intact (reason/decidedBy/decidedAt) and the gate does NOT flag that row. The committed un-gameable counterpart is block (d) of milestone-done-gate-reconciliation-smoke.ts. ALL PASS.",
+          "headHash": "84cb417b1c994fdf64b860cf0cdaa1488cf9a0a1",
           "materialHash": "c2dbf90d301f11d406f87e8e964c25824b88f965a9f9692e93d11e5889001c21",
           "storyFilesHash": "0025dd03816e2b218a1fdeae361d6b5a583ecb51ea58001404d6c3c2d525a38c",
-          "timestamp": "2026-07-06T05:50:35.691Z"
+          "timestamp": "2026-07-06T06:21:56.666Z"
         },
         {
           "intentRef": "CHK-007:happy:2",
