@@ -1,0 +1,178 @@
+{
+  "storyId": "B-853a",
+  "mode": "enforce",
+  "allowedModify": [
+    "experiments/pos-instrument-replay/analyze-batch.mjs"
+  ],
+  "allowedCreate": [
+    "experiments/pos-instrument-replay/analyze-batch.mjs",
+    "experiments/pos-instrument-replay/report.json",
+    "experiments/pos-instrument-replay/report.md",
+    "experiments/pos-instrument-replay/selfcheck-m4.mjs"
+  ],
+  "allowedTest": [
+    "experiments/pos-instrument-replay/selfcheck-m4.mjs",
+    "experiments/pos-instrument-replay/batch-ledger.jsonl",
+    "experiments/pos-instrument-replay/tamper-verdicts.jsonl",
+    "experiments/pos-instrument-replay/resume-reconciliation.json",
+    "experiments/pos-instrument-replay/protocol.json",
+    "experiments/pos-instrument-replay/lib/instrument.mjs"
+  ],
+  "protectedFiles": [
+    "experiments/pos-instrument-replay/batch-ledger.jsonl",
+    "experiments/pos-instrument-replay/tamper-verdicts.jsonl",
+    "experiments/pos-instrument-replay/resume-reconciliation.json",
+    "experiments/pos-instrument-replay/protocol.json",
+    "experiments/pos-instrument-replay/lib/instrument.mjs"
+  ],
+  "explicitExcludes": [
+    "experiments/pos-instrument-replay/run-batch.mjs",
+    "experiments/pos-instrument-replay/tamper.mjs",
+    "experiments/pos-instrument-replay/resume-probe.mjs"
+  ],
+  "scopeChangeReason": "Added CHK-004 covering scope-plan-review gaps (input-integrity + report completeness)",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Lattice lifecycle metadata written by the PLAN/DEV gate commands themselves (checklist/decision/ledger/intent-collision/proofstory/scope/red-evidence/understanding/process metadata) — not code scope creep; the only story CODE files are the four allowed experiments/pos-instrument-replay/ deliverables.",
+      "timestamp": "2026-07-06T07:30:12.588Z",
+      "paths": [
+        ".lattice/story/actives/B-853a/checklist.json",
+        ".lattice/story/actives/B-853a/decision.json",
+        ".lattice/story/actives/B-853a/index.json",
+        ".lattice/story/actives/B-853a/intent-collision.json",
+        ".lattice/story/actives/B-853a/milestone-ledger.json",
+        ".lattice/story/actives/B-853a/original-intent-snapshot.json",
+        ".lattice/story/actives/B-853a/process-events.jsonl",
+        ".lattice/story/actives/B-853a/process-metrics.json",
+        ".lattice/story/actives/B-853a/proofstory.json",
+        ".lattice/story/actives/B-853a/scope-check.json",
+        ".lattice/story/actives/B-853a/scope-contract.json",
+        ".lattice/story/actives/B-853a/red-evidence.json",
+        ".lattice/story/actives/B-853a/understanding.json",
+        ".lattice/story/actives/B-853a/review-runs.json",
+        ".lattice/story/actives/B-853a/test-evidence.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-853a/checklist.json",
+        ".lattice/story/actives/B-853a/decision.json",
+        ".lattice/story/actives/B-853a/index.json",
+        ".lattice/story/actives/B-853a/intent-collision.json",
+        ".lattice/story/actives/B-853a/milestone-ledger.json",
+        ".lattice/story/actives/B-853a/original-intent-snapshot.json",
+        ".lattice/story/actives/B-853a/process-events.jsonl",
+        ".lattice/story/actives/B-853a/process-metrics.json",
+        ".lattice/story/actives/B-853a/proofstory.json",
+        ".lattice/story/actives/B-853a/scope-check.json",
+        ".lattice/story/actives/B-853a/scope-contract.json",
+        ".lattice/story/actives/B-853a/red-evidence.json",
+        ".lattice/story/actives/B-853a/understanding.json",
+        ".lattice/story/actives/B-853a/review-runs.json",
+        ".lattice/story/actives/B-853a/test-evidence.json"
+      ],
+      "affectedPathCount": 15,
+      "phase": "DEV",
+      "headHash": "c984d5348c81a64ddcb260ff1a5c3b43321a9664",
+      "materialHash": "3af659b07e456b76454f55f8fea4dd34c63504f29ebdb5bca72518f55492f44e"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Lattice lifecycle metadata written by the review/finding/evidence gate commands themselves; the only story CODE is the four allowed experiments/pos-instrument-replay/ files.",
+      "timestamp": "2026-07-06T07:55:10.136Z",
+      "paths": [
+        ".lattice/story/actives/B-853a/checklist.json",
+        ".lattice/story/actives/B-853a/index.json",
+        ".lattice/story/actives/B-853a/process-events.jsonl",
+        ".lattice/story/actives/B-853a/process-metrics.json",
+        ".lattice/story/actives/B-853a/findings.json",
+        ".lattice/story/actives/B-853a/review-runs.json",
+        ".lattice/story/actives/B-853a/review-passes.json",
+        ".lattice/story/actives/B-853a/test-evidence.json",
+        ".lattice/story/actives/B-853a/scope-contract.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-853a/checklist.json",
+        ".lattice/story/actives/B-853a/index.json",
+        ".lattice/story/actives/B-853a/process-events.jsonl",
+        ".lattice/story/actives/B-853a/process-metrics.json",
+        ".lattice/story/actives/B-853a/findings.json",
+        ".lattice/story/actives/B-853a/review-runs.json",
+        ".lattice/story/actives/B-853a/review-passes.json",
+        ".lattice/story/actives/B-853a/test-evidence.json",
+        ".lattice/story/actives/B-853a/scope-contract.json"
+      ],
+      "affectedPathCount": 9,
+      "phase": "DEV",
+      "headHash": "a0f7c715001e5b6f419fd43025827a9516fbc438",
+      "materialHash": "b8d25c898ec3647c9947f3eedfe58190426e5357b4efe387ef47553af6be3b82"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Lattice lifecycle metadata written by the review/finding/evidence gate commands themselves; only story CODE is the four allowed experiments/ files.",
+      "timestamp": "2026-07-06T08:08:42.854Z",
+      "paths": [
+        ".lattice/story/actives/B-853a/checklist.json",
+        ".lattice/story/actives/B-853a/index.json",
+        ".lattice/story/actives/B-853a/process-events.jsonl",
+        ".lattice/story/actives/B-853a/process-metrics.json",
+        ".lattice/story/actives/B-853a/findings.json",
+        ".lattice/story/actives/B-853a/review-runs.json",
+        ".lattice/story/actives/B-853a/review-passes.json",
+        ".lattice/story/actives/B-853a/test-evidence.json",
+        ".lattice/story/actives/B-853a/scope-contract.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-853a/checklist.json",
+        ".lattice/story/actives/B-853a/index.json",
+        ".lattice/story/actives/B-853a/process-events.jsonl",
+        ".lattice/story/actives/B-853a/process-metrics.json",
+        ".lattice/story/actives/B-853a/findings.json",
+        ".lattice/story/actives/B-853a/review-runs.json",
+        ".lattice/story/actives/B-853a/review-passes.json",
+        ".lattice/story/actives/B-853a/test-evidence.json",
+        ".lattice/story/actives/B-853a/scope-contract.json"
+      ],
+      "affectedPathCount": 9,
+      "phase": "DEV",
+      "headHash": "4ed0a242801443e5dd8eb37c1373a987e596f9bf",
+      "materialHash": "8abdad7e6b9e5770501bfc64ed7d37b8d9ec0d140aeac2f75c6521895bf1fc8b"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Lattice lifecycle metadata written by the review/finding/evidence gate commands; only story CODE is the four allowed experiments/ files.",
+      "timestamp": "2026-07-06T08:24:00.686Z",
+      "paths": [
+        ".lattice/story/actives/B-853a/checklist.json",
+        ".lattice/story/actives/B-853a/index.json",
+        ".lattice/story/actives/B-853a/process-events.jsonl",
+        ".lattice/story/actives/B-853a/process-metrics.json",
+        ".lattice/story/actives/B-853a/findings.json",
+        ".lattice/story/actives/B-853a/review-runs.json",
+        ".lattice/story/actives/B-853a/review-passes.json",
+        ".lattice/story/actives/B-853a/test-evidence.json",
+        ".lattice/story/actives/B-853a/scope-contract.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-853a/checklist.json",
+        ".lattice/story/actives/B-853a/index.json",
+        ".lattice/story/actives/B-853a/process-events.jsonl",
+        ".lattice/story/actives/B-853a/process-metrics.json",
+        ".lattice/story/actives/B-853a/findings.json",
+        ".lattice/story/actives/B-853a/review-runs.json",
+        ".lattice/story/actives/B-853a/review-passes.json",
+        ".lattice/story/actives/B-853a/test-evidence.json",
+        ".lattice/story/actives/B-853a/scope-contract.json"
+      ],
+      "affectedPathCount": 9,
+      "phase": "DEV",
+      "headHash": "9aa086bb7e88d6a65fe3890402319b88549f2485",
+      "materialHash": "4208168fdb6d914545fe40580187b4a76af66ab645843ffec7fadbc61d1e7f53"
+    }
+  ],
+  "createdAt": "2026-07-06T07:10:30.364Z",
+  "updatedAt": "2026-07-06T08:24:00.686Z"
+}

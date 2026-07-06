@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-853a",
+  "records": [
+    {
+      "id": "RED-20260706070938",
+      "trigger": "M4 analyzer not yet built — no analyze-batch.mjs / selfcheck-m4.mjs; the three-state H1-H4 report + reproducible digest do not exist.",
+      "acceptanceTargetRef": "CHK-003:happy:0",
+      "baselineHeadHash": "fe69f4df914af6c737780e4609f227ac2adb6dcb",
+      "baselineMaterialHash": "44812f6b71d74ba9ca915521c1d9aaf7d87c921317b939aeb0e834ae871bf4a7",
+      "observedFailure": "node experiments/pos-instrument-replay/selfcheck-m4.mjs fails with 'Cannot find module .../selfcheck-m4.mjs' (nonzero exit) — the analyzer and its hermetic selfcheck do not exist, so there is no report.json/report.md and no reproducible digest.",
+      "failingCommand": "node experiments/pos-instrument-replay/selfcheck-m4.mjs",
+      "expectedGreenCommand": "node experiments/pos-instrument-replay/selfcheck-m4.mjs",
+      "greenRelation": {
+        "targetRef": "CHK-003:happy:0",
+        "relation": "same_acceptance",
+        "command": "node experiments/pos-instrument-replay/selfcheck-m4.mjs"
+      },
+      "createdAt": "2026-07-06T07:09:38.986Z"
+    }
+  ],
+  "createdAt": "2026-07-06T07:09:38.986Z",
+  "updatedAt": "2026-07-06T07:09:38.986Z"
+}

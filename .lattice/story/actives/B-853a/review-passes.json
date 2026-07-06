@@ -1,0 +1,67 @@
+{
+  "passes": [
+    {
+      "id": "B-853a:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verificationIntent (CHK-001..004 happy/edge/adversarial, 12/12) is covered by fresh evidence bound to HEAD 815e2ee, validate reports missingRequired=0 covered=12/12 no warnings; every evidence note independently spot-checked against concrete file content (33/33 recordDigests re-derived, H2 counts 18/2/6/1 match protocol tamperMatrix, scaleEnvelope full=18718/976666624 matches report.json); re-ran selfcheck-m4.mjs (PASS, exit 0, all A-I sub-checks correctly mapped to claimed capability) and analyze-batch.mjs twice (identical digest a5f07cfaa4edb99a9064efae0ed7462f1fbca76a9bef693f7ffe208eed691f05, matching pinned + committed report.json byte-for-byte). Pre-existing open finding B-853a:F-001 (lattice-review-concept, medium/missing) already covers the one real gap I independently reproduced (genuinely-absent tamper-verdicts.jsonl/resume-reconciliation.json crashes with raw ENOENT instead of the documented inconclusive contract; selfcheck-m4 sub-check G only covers the present-but-empty case) — not duplicated here. No blocker from the test-coverage lane.",
+      "createdAt": "2026-07-06T07:46:44.572Z",
+      "reviewRound": "2026-07-06T07:30:13.842Z",
+      "reviewRunId": "B-853a:RR-007",
+      "_hash": "ff1911810e74dce6fae121fe27404dd340e3215730e1f397b3b6a1d95df5f00d"
+    },
+    {
+      "id": "B-853a:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 12 verificationIntent entries (CHK-001..004 happy/edge/adversarial) covered by fresh non-stale evidence bound to HEAD 4136eba3, validate reports status=pass allPass=true missingRequired=0; independently re-ran analyze-batch.mjs twice on committed inputs producing byte-identical report.json and digest f4224085e06db3a421bf6d6eed6204733d277696f1225403d03ab264bf3fd3ba, and hand-recomputed the digest from report.json via sha256(canonicalJson(report minus digest)) matching exactly; re-ran selfcheck-m4.mjs which prints selfcheck-m4 PASS exit 0 covering sub-checks A-O, with F-001/F-003(absent-file)->O, F-002/F-005(H1 vacuous/incomplete)->K/J, F-006(H2 identity)->L, F-007(H3 stub)->M, F-004/F-008(H4 negative/null)->N each verified to flip the corresponding hypothesis to fail (never a false pass); no blocker found.",
+      "createdAt": "2026-07-06T08:01:51.270Z",
+      "reviewRound": "2026-07-06T07:55:11.367Z",
+      "reviewRunId": "B-853a:RR-013",
+      "_hash": "29e5a54bf5b0bb5be749d9ddd85f397c90abb4ca9541d45eedc9169c5390217e"
+    },
+    {
+      "id": "B-853a:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round-3 deep-harden concept-lane check on analyze-batch.mjs + selfcheck-m4.mjs (fix eeb1a9592). 1) Offline confirmed: only node:fs/node:path/node:url + ./lib/instrument.mjs imported; grep for Date/random/absolute-path/process.env/os./homedir in the digested preimage found none (HERE is used only for local path-join/fs I/O, never embedded in the report object that gets canonicalJson+sha256'd). 2) Traced H1/H2/H3/H4 fresh: H1 now rejects any proof record at an undeclared scale (scaleSetClosed) and requires totalProofCount===sum(protocol.N) (totalCountOk), plus hasFullGoldMetrics requires all 10 EXPECTED_GOLD_METRIC_KEYS as finite numbers, replacing the old non-empty-object check -- verified these replace the old lenient checks in-place in the same diff hunks, no leftover lenient branch. H2 now adds identity to disposition binding (bindingMatch/bindingViolations) alongside the pre-existing identity-set-coverage + per-row conformance + count checks. H3 isPostResumeWellFormed now requires dup===0, gap===0, non-empty casualtyDisposition, and (requireStopped for killC) stoppedRecordPreserved===true + non-empty stoppedDisposition; empty postResume object now hard-fails, replacing the old bare postResume-key-presence check. H4's Number.isFinite plus >=0 plus <=cap check, from a prior round, remains intact and correctly wired, no residue of the old one-directional <=cap-only comparison. 3) No false-negative: ran analyze-batch.mjs directly against the real committed evidence -- digest 198e33866bfbc52439abb38704bb3d7bd3c5611a2337fa003fae869432dff458 matches the story-claimed digest exactly, overall=all-pass, byte-identical report.json/report.md vs committed (git diff clean). Independently verified via script: batch-ledger has exactly 30 small + 3 full proof records matching protocol.N exactly; every proof record's goldMetrics carries all 10 expected keys as finite numbers; all 27 tamper-verdicts identity to disposition bindings match protocol.tamperMatrix exactly; resume-reconciliation killC.postResume.stoppedRecordPreserved===true and killA/killB/killC all have dup=0, gap=0, non-empty casualtyDisposition. Ran node selfcheck-m4.mjs directly: all 19 sub-checks A through S pass (selfcheck-m4 PASS). 4) No dead code: diffed eeb1a9592 -- every changed hunk replaces the old lenient logic in place (comment+impl together), new selfcheck checks P through S are purely additive (appended + wired into main()), grep for every function name in analyze-batch.mjs shows every function has at least one call site, no orphaned functions. Repo-wide grep for old lenient-check language (non-empty goldMetrics phrasing, bare postResume-key-presence phrasing) found zero residue; remaining 'vacuous' hits are legitimate current concept usage (check K naming, selfcheck.mjs unrelated pre-existing tamper-vacuity concept), not leftover code. No concept was deleted/replaced in this diff -- it is a strict in-place tightening of existing H1/H2/H3 adjudication plus additive new selfcheck coverage. Zero blockers from the concept lane.",
+      "createdAt": "2026-07-06T08:13:14.979Z",
+      "reviewRound": "2026-07-06T08:08:44.086Z",
+      "reviewRunId": "B-853a:RR-018",
+      "_hash": "d0a0f7a725924c4d4a8b1cff55ce4a0137fb700f36824aa1056eee7ad0ac30bc"
+    },
+    {
+      "id": "B-853a:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 3/M4 final): 12/12 verificationIntent covered by verificationEvidence, 0 missingRequired (validate --story=B-853a --json headSha=f34dec708 matches; re-confirmed at HEAD 5b402f946 with only .lattice metadata churn, no story-code change). Independently re-ran analyze-batch.mjs twice: both runs printed digest 198e33866bfbc52439abb38704bb3d7bd3c5611a2337fa003fae869432dff458 (matches report.json digest field and the evidence note), byte-identical report.json. Independently re-ran selfcheck-m4.mjs: PASS exit 0, all 19 sub-checks A-S green. Confirmed sub-check mapping to prior-round findings: P(H1-EXTRA-SCALE, undeclared scale) resolves F-009; Q(H2-DISPOSITION-BINDING) resolves F-012; R(H3-NESTED-VALUE, killC.stoppedRecordPreserved + empty postResume) resolves F-010/F-013; S(H1-PARTIAL-GOLDMETRICS) resolves F-011/F-014; J-O still present covering round-1 F-001..F-008. No test-coverage gap found.",
+      "createdAt": "2026-07-06T08:18:55.470Z",
+      "reviewRound": "2026-07-06T08:08:44.086Z",
+      "reviewRunId": "B-853a:RR-019",
+      "_hash": "23f335834ce3891483ff8ee339a1c0ed4bfd60c77d2cc15c4ca713692f0b348b"
+    },
+    {
+      "id": "B-853a:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "M4 round-4 dead-code-cleanup-only round. Verified F-015 resolved: the empty no-op if(e.countsMatch!==false){} block in selfcheck-m4.mjs checkQ (commit fe5a2ed6) was removed and unwrapped into a plain comment; checkQ assertions on identityMatch===true, bindingMatch===false, and bindingViolationIdentities including cross-profile-swap|refreshed remain intact and meaningful. No new dead code or regression introduced (4 insertions/6 deletions, comment-only change). Confirmed git diff eeb1a9592..HEAD -- experiments/pos-instrument-replay/analyze-batch.mjs is empty (analyzer byte-unchanged since round-3 convergence). Ran node experiments/pos-instrument-replay/selfcheck-m4.mjs: exit 0, all sub-checks A-S PASS, selfcheck-m4 PASS, digest 198e33866bfb... matches the stated converged digest. No blocking issues.",
+      "createdAt": "2026-07-06T08:25:34.191Z",
+      "reviewRound": "2026-07-06T08:24:02.364Z",
+      "reviewRunId": "B-853a:RR-025",
+      "_hash": "0408452b39176599bd16d2f067c0505c28bcab7ba43278caa868832fb8d32e01"
+    },
+    {
+      "id": "B-853a:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Round 4 (M4 final) dead-code-cleanup-only round, verified: (1) git diff eeb1a9592..HEAD -- analyze-batch.mjs is EMPTY, analyzer byte-unchanged since round-3 convergence; (2) selfcheck-m4.mjs diff since eeb1a9592 is exactly the removal of a dead no-op if-block (if (e.countsMatch !== false) {} with comment-only body) in checkQ, unwrapped to a plain comment - the three real assertions immediately following (identityMatch!==true, bindingMatch!==false, bindingViolationIdentities.includes(...)) are byte-identical/untouched; (3) node selfcheck-m4.mjs prints all checks A through S PASS then selfcheck-m4 PASS; (4) node analyze-batch.mjs prints H1-H4 pass, overall: all-pass, digest 198e33866bfbc52439abb38704bb3d7bd3c5611a2337fa003fae869432dff458 unchanged from prior round. No concept word was deleted or replaced this round (pure dead-code/comment cleanup, no identifiers/terminology touched) - concept residue check N/A, no blocker.",
+      "createdAt": "2026-07-06T08:25:36.900Z",
+      "reviewRound": "2026-07-06T08:24:02.364Z",
+      "reviewRunId": "B-853a:RR-023",
+      "_hash": "c74db16592f7821787c0feefc509f05723f9f73838353d92e16a58f74711bb3a"
+    },
+    {
+      "id": "B-853a:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 4 (M4 final, dead-code-cleanup-only): re-ran lattice validate --story=B-853a --json -> status=pass, allPass=true, verificationCoverage total=12 required=8 covered=12 missingRequired=0, headSha=4c4e74c38 matched at evidence-bind time (all 41 configured commands exit 0, zero warnings). Independently reproduced digest: two direct node analyze-batch.mjs runs in the worktree produced byte-identical report.json and digest 198e33866bfbc52439abb38704bb3d7bd3c5611a2337fa003fae869432dff458, matching every CHK-00x evidence note. Ran node selfcheck-m4.mjs directly: exit 0, all sub-checks A through S PASS including checkQ (the only function touched this round) - confirmed the removed dead no-op if(e.countsMatch!==false){} block carried no assertion (comment-only body) and the three real checkQ assertions (identityMatch===true, bindingMatch===false, bindingViolationIdentities.includes(cross-profile-swap|refreshed)) are byte-identical before/after per git diff eeb1a9592..HEAD -- selfcheck-m4.mjs. Confirmed git diff eeb1a9592..HEAD -- analyze-batch.mjs is empty (byte-unchanged since round-3 convergence, as claimed). All 15 findings F-001..F-015 confirmed status=resolved/evidenceState=verified/resolutionType=fixed. No verificationIntent/verificationEvidence gap found; no blocker from the test-coverage lane.",
+      "createdAt": "2026-07-06T08:31:11.765Z",
+      "reviewRound": "2026-07-06T08:24:02.364Z",
+      "reviewRunId": "B-853a:RR-022",
+      "_hash": "e85e84af23abb6a436d23edf2ad2d77b6c6a59093c74ff3043678edcd05e5040"
+    }
+  ]
+}
