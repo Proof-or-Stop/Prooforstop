@@ -8,6 +8,15 @@
       "reviewRound": "2026-07-06T07:30:13.842Z",
       "reviewRunId": "B-853a:RR-007",
       "_hash": "ff1911810e74dce6fae121fe27404dd340e3215730e1f397b3b6a1d95df5f00d"
+    },
+    {
+      "id": "B-853a:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 12 verificationIntent entries (CHK-001..004 happy/edge/adversarial) covered by fresh non-stale evidence bound to HEAD 4136eba3, validate reports status=pass allPass=true missingRequired=0; independently re-ran analyze-batch.mjs twice on committed inputs producing byte-identical report.json and digest f4224085e06db3a421bf6d6eed6204733d277696f1225403d03ab264bf3fd3ba, and hand-recomputed the digest from report.json via sha256(canonicalJson(report minus digest)) matching exactly; re-ran selfcheck-m4.mjs which prints selfcheck-m4 PASS exit 0 covering sub-checks A-O, with F-001/F-003(absent-file)->O, F-002/F-005(H1 vacuous/incomplete)->K/J, F-006(H2 identity)->L, F-007(H3 stub)->M, F-004/F-008(H4 negative/null)->N each verified to flip the corresponding hypothesis to fail (never a false pass); no blocker found.",
+      "createdAt": "2026-07-06T08:01:51.270Z",
+      "reviewRound": "2026-07-06T07:55:11.367Z",
+      "reviewRunId": "B-853a:RR-013",
+      "_hash": "29e5a54bf5b0bb5be749d9ddd85f397c90abb4ca9541d45eedc9169c5390217e"
     }
   ]
 }
