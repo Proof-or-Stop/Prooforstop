@@ -80,6 +80,15 @@
       "reviewRound": "2026-07-06T01:08:16.118Z",
       "reviewRunId": "B-f7b3:RR-011",
       "_hash": "794bf179a9f2d8760d442184d7ac37277dadaa0ef5dc1763d50b3f318b44f684"
+    },
+    {
+      "id": "B-f7b3:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Fresh round re-confirmation (high-risk review-assurance floor). No B-f7b3 source changed since the prior clean pass (RP-005, which verified F-001/F-002 fixed + all 3 invariants); only Merge branch main (24010e9d0) drifted storyFilesHash by pulling in unrelated main history (B-2a5b, B-8128 capability-release, version bumps). Verified: (1) diff 162a7e6a0..HEAD on all 10 B-f7b3-owned source files touches only command-policy.ts, +2 lines adding unrelated capability_release_list/capability_release_status entries from mains B-8128 -- zero change to milestone/proofstory/observability logic. (2) npm run build (tsc strict) clean. (3) All 3 invariants re-verified live: ledgerHash sha256:68173e86acd0f275fc8788a7ee1f577a5446e922904285147db66aeed7fd5c8e unchanged across milestone-ledger.json/intent-collision.json/proofstory.json/slice-plan.json; diagnostics non-blocking under observe (milestone-done-gate-reconciliation-smoke.js OK: stale_milestone_evidence severity=warn, blocking=false under observe, blocking=true under enforce); read-only contract intact (milestone_status/milestone_closeout/milestone_ledger_get remain ownershipClass=readOnly, destructiveRisk=none). (4) Un-gameable observe-default test (section c) unchanged: drives the real configuredProofStoryMode resolver over a fresh mkdtempSync root with no config file, asserting doneGateMode/reviewGateMode default to observe. (5) proofstory-intent-hardening-smoke.js OK; milestone-status.test.mjs ok. (6) Working tree clean after all runs. (7) No job.metadata/run.metadata proof-key semantics touched by this diff (pure story-scoped ProofStory ledger files) so the dual-surface proof-metadata rule does not apply. (8) No dead code / no as-any beyond the 2 pre-existing smoke-test casts already accepted in RP-005 / no empty catch blocks in touched files. No new findings; nothing to fix.",
+      "createdAt": "2026-07-06T01:11:56.020Z",
+      "reviewRound": "2026-07-06T01:08:16.118Z",
+      "reviewRunId": "B-f7b3:RR-013",
+      "_hash": "209db48aab06972670496b88af6f47e692a8542a4e07c19d4d59e3c81eb13664"
     }
   ]
 }
