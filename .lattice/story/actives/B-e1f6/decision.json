@@ -1,0 +1,62 @@
+{
+  "principles": [
+    "Only fix the real correctness gap: row-level parallelism must not corrupt evidence.",
+    "Do not optimize arbitrarily: add optional shard controls without changing serial experiment semantics.",
+    "Keep logic consistent with Proofbound host-neutral architecture: hosts run shards, Proofbound validates keys and evidence.",
+    "Fail closed on duplicates, missing keys, digest drift, invalid shard indexes, or concurrent same-shard writers."
+  ],
+  "drivers": [
+    "B-991d runner files are not yet merged into canonical main.",
+    "Current side conversation cannot use subagents or provider execution.",
+    "The implementation must be verifiable with local dry-run/fixture tests only."
+  ],
+  "options": [
+    {
+      "name": "Patch B-991d run-full directly",
+      "pros": [
+        "Closest to current execution script",
+        "Could immediately affect B-991d if manually copied"
+      ],
+      "cons": [
+        "The file is not in this worktree or canonical main",
+        "Would conflict with active B-991d evidence work",
+        "Risk of touching ongoing provider execution"
+      ]
+    },
+    {
+      "name": "Add canonical Cell03 shard helper package",
+      "pros": [
+        "Does not touch active B-991d rows",
+        "Can be validated locally without provider calls",
+        "Reusable when B-991d runner is merged",
+        "Keeps protocol semantics separate from execution hosts"
+      ],
+      "cons": [
+        "Requires a later small integration step for the live B-991d runner"
+      ]
+    }
+  ],
+  "chosen": "Add canonical Cell03 shard helper package",
+  "rationale": "The canonical helper solves the correctness gap without editing unmerged B-991d runner files or active evidence, and it gives the future runner a tested shard/merge contract.",
+  "preMortem": [
+    {
+      "scenario": "Shard plan misses or duplicates a cell key",
+      "trigger": "Enumeration differs from the frozen Cell03 expected-key rule",
+      "consequence": "Parallel execution can silently skip or duplicate formal rows",
+      "mitigation": "Selfcheck asserts all 1,152 expected keys are covered exactly once across shards."
+    },
+    {
+      "scenario": "Two runners write the same shard",
+      "trigger": "A stale or missing lock is ignored",
+      "consequence": "Shard rows contain duplicate attempts that pollute merge input",
+      "mitigation": "Use mkdir lock per shard and selfcheck the second acquisition fails closed."
+    },
+    {
+      "scenario": "Merge accepts incompatible shard outputs",
+      "trigger": "Prompt/tool/task digest or shard count drift is not compared",
+      "consequence": "Rows from different protocols are treated as one experiment",
+      "mitigation": "Merge requires identical manifest binding fields and rejects digest drift."
+    }
+  ],
+  "timestamp": "2026-07-06T14:53:13.390Z"
+}

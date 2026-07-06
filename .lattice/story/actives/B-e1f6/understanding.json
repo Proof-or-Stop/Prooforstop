@@ -1,0 +1,26 @@
+{
+  "task": "Add safe Cell03 row-level shard planning and merge validation without touching active B-991d evidence rows.",
+  "outcome": "When the user runs node experiments/multi-model-ablation/cell03-shards/selfcheck.mjs, it prints a PASS summary showing deterministic shard coverage, lock refusal for duplicate shard runners, successful complete fixture merge, and rejection of duplicate, missing, or digest-drift shard outputs.",
+  "facts": [
+    "B-991d current full runner exists only in the B-991d worktree and is not yet merged into canonical main.",
+    "Proofbound Parallel Wave supports story-level scheduling only and does not protect per-cell experiment rows.",
+    "The pos-instrument-replay runner provides a proven append-only/resume/lock pattern that can be adapted conceptually but not reused directly.",
+    "Cell03 expected keys can be derived from task-inventory.m2.json and seed-manifest.m1.json without provider calls."
+  ],
+  "constraints": [
+    "Do not run provider rows or Codex/Claude/agy subagents.",
+    "Do not mutate B-991d current cell03-rows.jsonl or workspaces.",
+    "Do not change the multi-model protocol semantics or unlock Cell06/Phase2.",
+    "Keep the implementation host-neutral and evidence-ledger focused."
+  ],
+  "unknowns": [
+    "Whether B-991d runner will later adopt this helper directly or copy the same contract after merge."
+  ],
+  "touchpoints": [
+    "experiments/multi-model-ablation/cell03-shards/",
+    "experiments/multi-model-ablation/task-inventory.m2.json",
+    "experiments/multi-model-ablation/seed-manifest.m1.json",
+    "experiments/multi-model-ablation/README.md"
+  ],
+  "timestamp": "2026-07-06T14:53:13.390Z"
+}

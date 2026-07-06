@@ -9,12 +9,12 @@
         "docs/requirements/decisions/multi-model-ablation-replication.md"
       ],
       "files": {
-        "modify": [
-          "experiments/multi-model-ablation/future-cell03-results/full/run-full.mjs"
+        "modify": [],
+        "create": [
+          "experiments/multi-model-ablation/cell03-shards/plan.mjs"
         ],
-        "create": [],
         "test": [
-          "experiments/multi-model-ablation/future-cell03-results/full/selfcheck-shards.mjs"
+          "experiments/multi-model-ablation/cell03-shards/selfcheck.mjs"
         ]
       },
       "status": "pending",
