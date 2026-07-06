@@ -29,6 +29,21 @@
       "_hash": "027b84e926ae4b660777685799e02398ed9ae3f9b20cde96aa6ef62f574c2362",
       "signatureTag": "edge|unknown|false-pass-adjudicateh1",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-853a:F-003",
+      "desc": "Crash-on-missing-evidence contract violation: analyze-batch.mjs comment (lines 131-133) documents tamper-verdicts.jsonl as loaded best-effort where a missing required field yields inconclusive never a crash, and H2 (line 273) does handle tamperText==null by treating tamper as [] -> inconclusive. But main() at line 176 unconditionally calls readFileBytes(paths.tamper) again (unguarded readFileSync, no try/catch) to build generatedInputs['tamper-verdicts.jsonl']. If tamper-verdicts.jsonl is fully ABSENT (not just empty), this throws an uncaught ENOENT exception with a raw stack trace instead of the documented graceful inconclusive/no-crash behavior -- inconsistent with how resume-reconciliation.json (H3) is handled (readTextOrNull + graceful inconclusive), and inconsistent with the file's own stated contract. Reproduced by running analyze-batch.mjs in a sandbox with tamper-verdicts.jsonl deleted (all other evidence intact): process throws Error ENOENT at readFileBytes (analyze-batch.mjs:51) called from line 176, instead of writing an inconclusive report. selfcheck-m4.mjs check G (lines 250-264) only exercises an EMPTY resume-reconciliation.json, never an ABSENT tamper-verdicts.jsonl, so this crash path is untested. Not a false-pass (exit is nonzero, no report written) but a robustness/maintainability gap that contradicts the file's own documented never-crash-on-missing-tamper-evidence promise.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-06T07:34:52.116Z",
+      "reviewRound": "2026-07-06T07:30:13.842Z",
+      "reviewRunId": "B-853a:RR-006",
+      "_hash": "fd74434c7fa75c6dd7de5a18c3d065431a5993e30cee460db536f82a079aefa1",
+      "signatureTag": "missing|unknown|crash-missing-evidence",
+      "signatureTagSource": "auto"
     }
   ]
 }
