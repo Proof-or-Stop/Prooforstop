@@ -150,6 +150,18 @@
           "materialHash": "3af659b07e456b76454f55f8fea4dd34c63504f29ebdb5bca72518f55492f44e",
           "storyFilesHash": "1caae9cb5590d29bf143ccf47ece033b9cc1b30249e5f48e58baad5ee8cc386f",
           "timestamp": "2026-07-06T07:24:10.680Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node experiments/pos-instrument-replay/selfcheck-m4.mjs",
+          "result": "pass",
+          "note": "selfcheck-m4 sub-check I: in a fail case the report omits the claim field and the digest is still computed and present, so the digest is defined for non-all-pass reports too (order-independent over canonicalJson).",
+          "headHash": "94994c5d048eeb81e2ecbc9505731c4ab3426a40",
+          "materialHash": "3af659b07e456b76454f55f8fea4dd34c63504f29ebdb5bca72518f55492f44e",
+          "storyFilesHash": "1caae9cb5590d29bf143ccf47ece033b9cc1b30249e5f48e58baad5ee8cc386f",
+          "timestamp": "2026-07-06T07:24:12.114Z"
         }
       ]
     },
