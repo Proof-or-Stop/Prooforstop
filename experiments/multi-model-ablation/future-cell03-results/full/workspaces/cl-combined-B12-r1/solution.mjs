@@ -40,7 +40,7 @@ function parseShort(tok, flags) {
   // Each character after the single leading dash is an independent boolean flag.
   const letters = tok.slice(1);
   for (let k = 0; k < letters.length; k++) {
-    const ch = letters;
+    const ch = letters[k];
     flags[ch] = true;
   }
 }
