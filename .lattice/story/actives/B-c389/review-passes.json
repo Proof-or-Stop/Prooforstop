@@ -35,6 +35,15 @@
       "reviewRound": "2026-07-06T00:08:28.508Z",
       "reviewRunId": "B-c389:RR-005",
       "_hash": "458ba737b18f72eca3f9c5fca80f941a223e27af520ea95e2cb86c8ff09953af"
+    },
+    {
+      "id": "B-c389:RP-005",
+      "agent": "lattice-review-docs",
+      "note": "Round 2 (fresh, post 3-fix commit that touched no docs/CLI.md lines). Step 1 extracted the diff symbol set from all changed .ts files (~70 identifiers incl. buildCapabilityReleaseBackfillReport, computeCapabilityReleaseBackfillEligible, computeCapabilityReleaseBackfillPlanDigest, CAPABILITY_RELEASE_BACKFILL_SCHEMA_VERSION, CapabilityReleaseBackfillPlanKind, bindLineageToRelease, commitBackfilledCapabilityReleaseLedger). Step 2 grepped README/CLAUDE.md/docs/**/*.md for capability_release_backfill: single anchor paragraph at docs/CLI.md lines 618-645. Step 3 compared that paragraph against packages/main/src/core/capability-release.ts (lines 416-860), packages/main/src/handlers/capability-release-backfill.ts, command-policy.ts:184, process-fact-levels.ts:84, and ran the shipped command directly (node packages/main/dist/cli.js capability_release_backfill --dryRun --json and --apply with no --digest) plus npm run test:legacy -- capability-release-backfill (PASS). Verified: (1) default dry-run confirmed live; (2) --apply without --digest fails with the exact documented error capability_release_backfill requires --digest when --apply is set; (3) record-then-bind migration semantics match code exactly -- plan=bind when a capability release exists, plan=record-then-bind when only an artifact release exists and the classifier accepts its paths, conservatively not-eligible otherwise; (4) idempotent -- write-verification asserts persisted status stays candidate and usage.surfacedCount unchanged, smoke test covers a second run finding 0 eligible; (5) authority/gateEvidence are hardcoded non_authoritative/false in both dry-run and apply branches; (6) never activates -- no code path sets .status away from candidate, no outcome-append call exists in this file; (7) git add -f + commit mirroring B-8128 confirmed in commitBackfilledCapabilityReleaseLedger. No drift found; no findings needed this round.",
+      "createdAt": "2026-07-06T00:11:12.543Z",
+      "reviewRound": "2026-07-06T00:08:28.508Z",
+      "reviewRunId": "B-c389:RR-008",
+      "_hash": "af816b6abfee751f5fabc15e9305cff01d6c70b02a3e7c46bc01291b1e482868"
     }
   ]
 }
