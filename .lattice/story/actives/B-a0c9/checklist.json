@@ -62,6 +62,18 @@
           "materialHash": "8b0479d5ca09046d9c676730374ef79dc8801738df4384e51f7e9853ab268520",
           "storyFilesHash": "849bca8a8bd6bdfc17515f09e74fa4d76c7309360205ba08b044c80447fdffc9",
           "timestamp": "2026-07-06T11:05:53.817Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/pos-instrument-replay/selfcheck-m3.mjs",
+          "result": "pass",
+          "note": "The process.on('exit') handler does synchronous rmSync only, inside a try/catch that swallows its own errors, so it can never throw out of the 'exit' event. It fires on every terminating path including process.exit(1) and exit(2); the GREEN transcript covers the exit(1) path. Verified by code inspection of selfcheck-m3.mjs.",
+          "headHash": "66f1ca52229c4d0cf9663fc6e6cb1a5ad99f77cd",
+          "materialHash": "8b0479d5ca09046d9c676730374ef79dc8801738df4384e51f7e9853ab268520",
+          "storyFilesHash": "849bca8a8bd6bdfc17515f09e74fa4d76c7309360205ba08b044c80447fdffc9",
+          "timestamp": "2026-07-06T11:05:55.166Z"
         }
       ]
     },
