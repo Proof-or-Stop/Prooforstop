@@ -43,7 +43,36 @@
       "context": "In packages/main/src/cli-engine.ts, when no milestone ledger exists render the checklist-derived ledger instead of returning bare output; keep the real milestone table when a ledger exists and keep the DONE worktree-cleanup main-root fallback; replace the silent stderr catch branches with a visible stdout block; exit code stays 0; --json still suppresses.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/milestone-status.test.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "a no-ledger story running checklist_update appends the checklist-derived ledger to stdout instead of showing nothing",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "a story with a real milestone ledger still shows the Milestone Status table; the DONE worktree-cleanup main-root fallback still resolves the real ledger",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "--json output stays pure JSON (no table appended); a render failure surfaces a visible \"⚠ Milestone Ledger: render FAILED\" block on stdout while exit code stays 0",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
