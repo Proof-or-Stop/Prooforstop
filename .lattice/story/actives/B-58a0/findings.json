@@ -24,7 +24,7 @@
       "desc": "All 9 verificationIntents (CHK-001/002/003 happy+edge+adversarial) have verificationEvidence bound to headHash f806f63a9/materialHash 547ccc61..., recorded before commit 62636804a (the round-1 fix that reworked cli-engine.ts realRender/renderDerived/alreadyShown and added the corrupt-milestone-ledger regression test to milestone-status.test.mjs). lattice validate confirms: Verification intent coverage: 0/9 covered (9 required missing), all 9 flagged stale via logic_test against current HEAD 44c9153. The new corrupt-ledger test genuinely exercises the fix (readMilestoneLedger throws on invalid JSON in store.ts, propagates uncaught through realRender into visibleFailure, producing the asserted stdout block with no fabricated checklist-derived render) and the full suite + validate build pass, but no verification_evidence_add has re-bound the 9 intents to current material, so none of the checklist evidence counts as valid coverage for this round.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-06T18:46:41.504Z",
@@ -36,7 +36,11 @@
         "packages/main/tests/milestone-status.test.mjs"
       ],
       "signatureTag": "missing|ts|verificationintents-happy-edge",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Re-bound all 9 verificationEvidence entries (CHK-001/002/003 × happy/edge/adversarial) to the current material after the round-1 fix commit, via verification_evidence_refresh_stale + verification_evidence_batch_add. milestone_status now reports evidence=covered and requiredEvidence=covered for all three milestones (0 stale). Test suite re-run green at current HEAD (node packages/main/tests/milestone-status.test.mjs → ok milestone-status).",
+      "resolvedAt": "2026-07-06T19:06:05.603Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
