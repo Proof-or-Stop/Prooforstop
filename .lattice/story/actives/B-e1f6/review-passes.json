@@ -44,6 +44,15 @@
       "reviewRound": "2026-07-06T15:10:19.645Z",
       "reviewRunId": "B-e1f6:RR-008",
       "_hash": "2d4fee5f54fd2da18be006d3f6df3f0fb2d47ee2ba58abab902c25b5f5c69367"
+    },
+    {
+      "id": "B-e1f6:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Round-3 selfcheck.mjs fix reviewed: forged fixture now recomputes rowsDigest via sha256Text(rows.map(canonicalJson).join(chr10)) matching shard-runner.mjs writeShardOutput exactly, and forges every row.binding.toolSurfaceDigest identically alongside the manifest binding, so it is peer-consistent. Verified in merge.mjs that manifest.binding-vs-live-plan.binding and row.binding-vs-live-plan.binding comparisons are envelope-anchored (not peer-to-peer), and are the only checks the forged fixture trips (rowsDigest self-check passes since it was recomputed). Ran node experiments/multi-model-ablation/cell03-shards/selfcheck.mjs directly: PASS with envelopeBindingReject=pass. Diff since round-1 fix bca25a5e9 is isolated to selfcheck.mjs (21 lines); no other tool file touched. No dead code, no swallowed errors (the one catch{} is the intentional expectThrow test helper), no as-any, imports used correctly. No regressions found.",
+      "createdAt": "2026-07-06T16:28:02.538Z",
+      "reviewRound": "2026-07-06T16:25:50.064Z",
+      "reviewRunId": "B-e1f6:RR-009",
+      "_hash": "635d73168e559e5b33a927a683d7a84bed3e9ae8eb127259977549d37aba2ebd"
     }
   ]
 }
