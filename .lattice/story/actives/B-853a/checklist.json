@@ -51,14 +51,13 @@
         {
           "intentRef": "CHK-001:happy:0",
           "kind": "manual_transcript",
-          "verdict": "success",
           "command": "node experiments/pos-instrument-replay/analyze-batch.mjs",
           "result": "pass",
-          "note": "Offline analyzer emits three-state H1-H4 verdicts to stdout and writes report.json + report.md; on pristine committed evidence overall=all-pass (H1..H4 all pass).",
-          "headHash": "3e5c582a38fa7153f009dff8988959df395e9d97",
+          "note": "node analyze-batch.mjs (offline, only fs/path/url + lib/instrument.mjs) re-verifies each batch-ledger recordDigest then STRICTLY adjudicates: H1 requires exactly protocol.N[scale] well-formed (non-empty digests+goldMetrics) pairwise-equal records per scale; H2 requires the (class,handling) identity set == protocol.tamperMatrix + per-row conformance + dispositionMatch; H3 requires the substantive killA/B/C+protocolReplaySmallCount+hypothesis fields; H4 requires finite non-negative elapsedMs <= cap. On the real evidence all four = pass, overall all-pass, digest f4224085e06db3a421bf6d6eed6204733d277696f1225403d03ab264bf3fd3ba; writes report.json + report.md.",
+          "headHash": "e01bda62e6f7da38717d1bfbc5238398a9186fab",
           "materialHash": "b8d25c898ec3647c9947f3eedfe58190426e5357b4efe387ef47553af6be3b82",
           "storyFilesHash": "33c61f0249d435d1e9d1187beea8fbc5179685a69d099092cede7c4ef47fe8c6",
-          "timestamp": "2026-07-06T07:55:02.106Z"
+          "timestamp": "2026-07-06T07:55:03.554Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
