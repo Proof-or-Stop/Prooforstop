@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-a0c9",
+  "allowedCommands": [
+    "lattice *",
+    "node --check experiments/pos-instrument-replay/selfcheck-m3.mjs",
+    "node experiments/pos-instrument-replay/selfcheck-m2.mjs",
+    "node experiments/pos-instrument-replay/selfcheck-m3.mjs"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read"
+  ],
+  "allowedPaths": [
+    "experiments/pos-instrument-replay",
+    "experiments/pos-instrument-replay/selfcheck-m3.mjs"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Test-hardening confined to selfcheck-m3.mjs; verification = run selfcheck-m3 (A-M) + selfcheck-m2 in the experiments dir",
+  "createdAt": "2026-07-06T10:14:13.566Z",
+  "updatedAt": "2026-07-06T10:14:13.566Z",
+  "_hash": "e45a0fa04855c9a3b89d9e409e3060da7adb55db0d897e0d363223979c59600e"
+}

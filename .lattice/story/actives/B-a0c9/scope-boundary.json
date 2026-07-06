@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-a0c9",
+  "mode": "maintenance",
+  "allowed": [
+    "experiments/pos-instrument-replay/selfcheck-m3.mjs"
+  ],
+  "excluded": [
+    "any production/runtime code outside the selfcheck harness",
+    "experiments/pos-instrument-replay/lib/instrument.mjs",
+    "experiments/pos-instrument-replay/protocol.json",
+    "experiments/pos-instrument-replay/run-batch.mjs",
+    "experiments/pos-instrument-replay/selfcheck-m2.mjs"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User: two LOW accepted_risk test-hardening follow-ups from B-f511, keep the change confined to selfcheck-m3.mjs",
+  "createdAt": "2026-07-06T10:13:53.293Z",
+  "updatedAt": "2026-07-06T10:13:53.293Z",
+  "_hash": "0489a2d4673d7639cb570affd6e4d6975c6eff9b5cd942154c9d4de7d295c98b"
+}

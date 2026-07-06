@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-a0c9",
+  "checkedAt": "2026-07-06T10:14:24.203Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "0489a2d4673d7639cb570affd6e4d6975c6eff9b5cd942154c9d4de7d295c98b",
+  "executionBoundaryHash": "e45a0fa04855c9a3b89d9e409e3060da7adb55db0d897e0d363223979c59600e",
+  "freshnessHash": "80a7736aadaf99ed364be592f0797db34e24d1723d15224e8910c7ae4762c4e6",
+  "effectiveExcludedKeywords": [
+    "any production/runtime code outside the selfcheck harness",
+    "experiments/pos-instrument-replay/lib/instrument.mjs",
+    "experiments/pos-instrument-replay/protocol.json",
+    "experiments/pos-instrument-replay/run-batch.mjs",
+    "experiments/pos-instrument-replay/selfcheck-m2.mjs"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "any production/runtime code outside the selfcheck harness",
+      "source": "scopeBoundary.excluded",
+      "text": "any production/runtime code outside the selfcheck harness",
+      "excluded": true
+    },
+    {
+      "keyword": "experiments/pos-instrument-replay/lib/instrument.mjs",
+      "source": "scopeBoundary.excluded",
+      "text": "experiments/pos-instrument-replay/lib/instrument.mjs",
+      "excluded": true
+    },
+    {
+      "keyword": "experiments/pos-instrument-replay/protocol.json",
+      "source": "scopeBoundary.excluded",
+      "text": "experiments/pos-instrument-replay/protocol.json",
+      "excluded": true
+    },
+    {
+      "keyword": "experiments/pos-instrument-replay/run-batch.mjs",
+      "source": "scopeBoundary.excluded",
+      "text": "experiments/pos-instrument-replay/run-batch.mjs",
+      "excluded": true
+    },
+    {
+      "keyword": "experiments/pos-instrument-replay/selfcheck-m2.mjs",
+      "source": "scopeBoundary.excluded",
+      "text": "experiments/pos-instrument-replay/selfcheck-m2.mjs",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "3c8c0302067cabe31baf9235ee315db621f924118a8c35a2025bea2f2aef70b7"
+}
