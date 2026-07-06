@@ -226,7 +226,7 @@
       "desc": "F-CODEX-R2-1 (host-2, HIGH): H2 does not bind each (class,handling) identity to its PROTOCOL-EXPECTED disposition. adjudicateH2 checks the identity SET == protocol.tamperMatrix + aggregate per-disposition COUNTS + per-row conformance + dispositionMatch — but NOT that a given (class,handling) has the disposition the protocol assigns it. Swap cross-profile-swap|refreshed from fail-closed->accepted/pass AND gold-additive-field|refreshed from accepted->fail-closed/fail (keeping counts, dispositionMatch, fingerprintMatch all consistent): H2=pass, overall=all-pass. FIX: for each verdict, look up its (class,handling) in protocol.tamperMatrix, determine the EXPECTED bucket/disposition, and require rederivedDisposition === that expected disposition (identity->disposition binding), in addition to the existing set/count/conformance checks.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex",
       "createdAt": "2026-07-06T08:01:05.281Z",
@@ -237,7 +237,11 @@
         "experiments/pos-instrument-replay/analyze-batch.mjs"
       ],
       "signatureTag": "adversarial|mjs|codex-host-high",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in eeb1a9592: H2 binds each (class,handling) identity to its protocol-expected disposition (acceptanceBucket->accepted / acknowledgedLimitations->acknowledged-limitation / dropped->dropped / failClosed->fail-closed); relabeling a verdict's disposition fails via bindingMatch even with unchanged set-coverage/conformance. selfcheck-m4 sub-check Q.",
+      "resolvedAt": "2026-07-06T08:20:02.850Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-853a:F-013",
