@@ -223,11 +223,11 @@
           "kind": "manual_transcript",
           "command": "node experiments/pos-instrument-replay/selfcheck-m3.mjs",
           "result": "pass",
-          "note": "Un-gameable: sub-checks F/G/H/I each fail loudly on regression; the lock is broken ONLY on a confirmed-dead holder pid (never on a missing/uncertain one), so a live concurrent driver's lock is never clobbered (no two-writer corruption); 0 dup / 0 gap enforced. Codex F-001/F-002/F-005 + quality F-003/F-004/F-006 all covered by dedicated sub-checks.",
-          "headHash": "4882fad0d85592515c9807114f1d940535f2e3fd",
+          "note": "Un-gameable: sub-check J.1 pre-plants a break-mutex + a genuinely-dead-pid stale lock and asserts --resume FAILS CLOSED (exit 3, precondition_failed to the blocked-ledger mentioning the break-mutex, campaign ledger + stale lock untouched, and the loser does NOT remove a break-mutex it does not own); J.2 removes the break-mutex and asserts --resume then breaks the still-stale lock and completes the exact 30-record multiset (0 dup/0 gap, no orphaned break-mutex). Findings F-001..F-008 each covered by a dedicated load-bearing sub-check; every direction fails loudly on regression.",
+          "headHash": "b1ace741fe43422c600b8a940a3e5727faadaca3",
           "materialHash": "15f370534f4e5dff93a4bbb724b7caa64bc830c7bb946a715f749c42581c86c0",
           "storyFilesHash": "12433a97cfd13f12f1716aec909f573d9fa83616bf5eff090f9f60d14ac3fbe6",
-          "timestamp": "2026-07-06T01:22:46.248Z"
+          "timestamp": "2026-07-06T01:22:48.304Z"
         }
       ]
     }
