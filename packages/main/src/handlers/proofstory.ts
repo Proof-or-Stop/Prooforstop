@@ -7,7 +7,7 @@
  */
 
 import type { HandlerContext } from './context.js';
-import type { ChecklistData, ProofStoryGateMode } from '../core/types.js';
+import type { ChecklistData, MilestoneNotApplicableDecision, ProofStoryGateMode } from '../core/types.js';
 import {
   addMilestoneToLedger,
   appendRedEvidence,
@@ -29,6 +29,8 @@ import {
   type ProofStoryDiagnosticInput,
 } from '../core/proofstory.js';
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
+import { currentMilestoneStatusEvidenceBinding } from '../core/milestone-status.js';
+import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 
 type JsonFlag = { json?: boolean };
 type ModeFlag = { mode?: ProofStoryGateMode; dryRun?: boolean };
@@ -68,6 +70,23 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
     }
   }
 
+  function currentEvidenceBinding(storyId: string): ReturnType<typeof currentMilestoneStatusEvidenceBinding> {
+    try {
+      const gitCwd = resolveGitCwd({
+        store,
+        storyId,
+        metadataRoot: ctx.root,
+        projectRoot: ctx.root,
+        cwd: process.cwd(),
+      });
+      return currentMilestoneStatusEvidenceBinding(gitCwd, ctx.root);
+    } catch {
+      // Freshness is a diagnostic; a resolution failure must never break the
+      // read-path gate. Absent binding => base coverage semantics only.
+      return undefined;
+    }
+  }
+
   function diagnosticInput(storyId: string): ProofStoryDiagnosticInput {
     const story = store.readStory(storyId);
     const checklist = readChecklistSafe(storyId);
@@ -85,6 +104,7 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
       redEvidence: store.readRedEvidence(storyId),
       spikeEvidence: store.readProofStorySpikes(storyId),
       summary: store.readSummary(storyId),
+      currentEvidenceBinding: currentEvidenceBinding(storyId),
     };
   }
 
@@ -166,6 +186,7 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
       parentLedgerId?: string;
       assignedStory?: string;
       status?: string;
+      notApplicableDecision?: MilestoneNotApplicableDecision;
       json?: boolean;
     }): string {
       if (!args.storyId) throw new Error('storyId is required');
@@ -182,6 +203,7 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
         parentLedgerId: args.parentLedgerId,
         assignedStory: args.assignedStory,
         status: args.status,
+        notApplicableDecision: args.notApplicableDecision,
       };
       const ledger = addMilestoneToLedger(args.storyId, rawMilestone, existing);
       store.writeMilestoneLedger(args.storyId, ledger);

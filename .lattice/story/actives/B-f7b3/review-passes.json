@@ -1,0 +1,229 @@
+{
+  "passes": [
+    {
+      "id": "B-f7b3:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion-completeness check: git diff main...HEAD spans packages/main/src/core/{milestone-status.ts,command-policy.ts,proofstory.ts,types.ts}, handlers/{milestone-status.ts,phase-gates.ts,proofstory.ts}, 2 new task smokes, tests/milestone-status.test.mjs, package.json x2, 3 new decision docs. Every removed (-) line was either a pure context-line reformat (e.g. evidenceCoversIntent inline predicate extracted to named rowCoversIntent and reused, buildMilestoneCloseoutSnapshot call wrapped in try/catch but still invoked, proofStoryDiagnosticInput signature widened with an added optional root param) or the single deliberate test-behavior change in milestone-status.test.mjs (assert.throws -> assert.doesNotThrow for captureMilestoneCloseoutSnapshotFromStore on an incomplete report), which is intentional per the CHK-010 reconciliation comment and is immediately followed by a new adjacent test asserting the pure builder buildMilestoneCloseoutSnapshot still throws/stays strict. No command, field, export, or npm script was deleted or renamed: milestone_status/milestone_closeout entries in command-policy.ts, config.ts, cli-engine.ts, activity-policy.ts, command-catalog.ts, process-fact-levels.ts all still present and consistent; package.json test chain only gained test:milestone-status, nothing removed from the chain. New exports (evidenceIsStaleCovering, MilestoneNotApplicableDecision, currentMilestoneStatusEvidenceBinding, notApplicableDecision field) are additive with backward-compatible optional fields (field only attached when present so ledger hash is unchanged for rows without it). Grepped repo for milestone_status usage across src -- all call sites current and consistent, no dangling references to removed identifiers. Verdict: clean, no concept/command/field mass-deletion or rename; no residue found.",
+      "createdAt": "2026-07-06T00:18:18.371Z",
+      "reviewRound": "2026-07-06T00:16:09.455Z",
+      "reviewRunId": "B-f7b3:RR-001",
+      "_hash": "d9639468e8c687bf46f73514f49f44c53e72c59f8da1352dff4dbe11bf46b45a"
+    },
+    {
+      "id": "B-f7b3:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "Doc-vs-code review of the 3 B-f7b3 decision docs (milestone-triggered-gate-mode-default-decision.md, milestone-not-applicable-justification.md, milestone-status-done-gate-reconciliation.md). Extracted about 15 symbols from git diff main...HEAD (evidenceIsStaleCovering, validMilestoneNotApplicable, normalizeNotApplicableDecision, captureMilestoneCloseoutSnapshotFromStore, currentMilestoneStatusEvidenceBinding, MilestoneNotApplicableDecision, etc.) and compared about 10 doc paragraphs against the current packages/main/src source (proofstory.ts, milestone-status.ts, types.ts, phase-gates.ts, handlers/milestone-status.ts, handlers/proofstory.ts, transition-orchestrator.ts) plus ran the cited verification commands: npm build, milestone-done-gate-reconciliation-smoke.js, proofstory-intent-hardening-smoke.js, milestone-status.test.mjs, done_intent_equivalence_check for B-f7b3 - all pass exactly as the docs describe. Confirmed: 1. doneGateMode default is still observe (config.ts:60, phase-gates.ts configuredProofStoryMode), enforce remains opt-in, no code default flip. 2. notApplicableDecision is an optional field validated only when present (normalizeNotApplicableDecision never throws on absence), policy enforcement is a non-throwing DONE-gate diagnostic not_applicable_missing_decision severity=fail that blocks only under enforce, mirroring the shipped parent-roadmap-totality.ts precedent exactly. 3. The DONE gate now emits a non-blocking severity=warn stale_milestone_evidence diagnostic via the shared evidenceIsStaleCovering mismatchOnly=true predicate, agreeing by construction with milestone_status, and captureMilestoneCloseoutSnapshotFromStore degrades to a non-throwing skipped result after actor.send while the pure builder buildMilestoneCloseoutSnapshot stays strict. B-f7b3's own confirmed ledger hash sha256:68173e86 cited in 2 docs matches the live milestone-ledger.json, and done_intent_equivalence_check confirms Blocking: no. One low-severity doc-code-drift finding filed as F-003 for a fabricated function name resolveDoneGateMode in the gate-mode doc verification section; real resolver is configuredProofStoryMode. Multiple cited line numbers across all 3 docs are stale, drifted by the diff's own added lines above the cited location, e.g. phase-gates.ts line 129 became 142, milestone-status.ts line 541 became 576, but these are cosmetic pointer drift not substance errors - every underlying behavioral claim was independently verified against current source and passing evidence.",
+      "createdAt": "2026-07-06T00:23:24.607Z",
+      "reviewRound": "2026-07-06T00:16:09.455Z",
+      "reviewRunId": "B-f7b3:RR-003",
+      "_hash": "027a940431673a3953fb47396be6f4d1ec71f29fdd818cf3f4b9a0321addf710"
+    },
+    {
+      "id": "B-f7b3:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review passed: audited all 10 checklist items / 68 verificationIntent entries (happy+edge+adversarial present for all, normal channel). All 68 intents have covering verificationEvidence (validate.json verificationCoverage: total=68, required=68, covered=68, missingRequired=0; allPass=true). Every evidence entry shares one consistent (headHash=013ec6089, materialHash=6be7790, storyFilesHash=0395935) snapshot, no stale pre-correction evidence. Spot-checked the 5 CORRECTED intents (CHK-001/006/007/008/009) by independently re-running checks against the built dist rather than trusting the stored transcripts: (1) CHK-001 - reproduced the real Scope-prefixed MILESTONE_OBSERVABILITY_DISCLAIMER guard, confirmed grep -c declaration==1 and all 3 Mode:read-only headers are followed by the disclaimer ref, then mutated (sed-deleted) the disclaimer line myself and confirmed the guard reports VIOLATION (genuinely adversarial, not vacuous), restored clean; (2) CHK-006 - injected assert.fail into milestone-status.test.mjs and ran the real && chain (npm run test:milestone-status && touch MARKER); chain aborted, ok milestone-status absent, MARKER never created, file restored byte-identical; (3) CHK-008 - wrote an independent harness against dist/core/proofstory.js exercising confirmMilestoneLedger with matching/mismatched/undefined confirmedLedgerHash plus not-accepted-collision and null-ledger cases; all 5 cases matched the claimed fail-open-on-undefined, block-on-mismatch design exactly; (4) CHK-009 - independently grepped the decision doc for all 6 claimed anchors (H1 observe heading, bold decision line, M3/M7, source findings file, per-trigger deferred note) - all present; confirmed git diff against merge-base 31f4e414 adds zero non-comment enforce-default lines and devGateMode resolves via args.mode ?? observe. None of the corrected intents were weakened to meaninglessness - they assert the actual sound design (diagnostic gap over hard-throw, fail-open on absent recorded hash, Scope-prefixed wording) with genuine mutation/adversarial guards that fail when broken. No generic/fallback evidence commands found; every command is literal and story/behavior-specific. No blockers found.",
+      "createdAt": "2026-07-06T00:26:54.689Z",
+      "reviewRound": "2026-07-06T00:16:09.455Z",
+      "reviewRunId": "B-f7b3:RR-004",
+      "_hash": "f0f9f34368edb01f9304c2b1d7cc4f2780379b917d38b0a29e4e68452db32c26"
+    },
+    {
+      "id": "B-f7b3:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Reviewed commit 162a7e6a0 (the only change since prior clean pass): export of configuredProofStoryMode in phase-gates.ts (additive, no rename), new observe-default regression test block in milestone-done-gate-reconciliation-smoke.ts, decision-doc Verification section corrected to reference the real resolver name, and removal of genuinely dead/unused smokeName code. No concept word was deleted or mass-replaced. Confirmed via grep that both the previously-fabricated symbol resolveDoneGateMode and the removed dead smokeName variable now have zero references anywhere in live code/docs (packages/, docs/) outside the .lattice audit-history findings.json/review-passes.json records of the already-fixed findings, which is expected retained evidence. No blocker.",
+      "createdAt": "2026-07-06T00:34:47.734Z",
+      "reviewRound": "2026-07-06T00:33:46.044Z",
+      "reviewRunId": "B-f7b3:RR-005",
+      "_hash": "1feedd87cc4a52875889276bdcee1dd716ff5aab05e59bb3aafde908bf97aac9"
+    },
+    {
+      "id": "B-f7b3:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Re-review after fix commit 162a7e6a0. F-001+F-003 verified genuinely fixed: configuredProofStoryMode is exported from phase-gates.ts:146 and a new un-gameable regression test block (c) in milestone-done-gate-reconciliation-smoke.ts drives the REAL resolver over a fresh mkdtempSync temp root with no lattice.config.json (confirmed DEFAULT_CONFIG has no proofStory key, so the ?? observe fallback is genuinely exercised, not shadowed by a default). Mutation-tested live: flipped the ?? observe fallback to ?? enforce in phase-gates.ts, rebuilt, reran the smoke — it failed with AssertionError as claimed (doneGateMode/reviewGateMode default MUST be observe); reverted, rebuilt, reran — green again. Doc Verification section in milestone-triggered-gate-mode-default-decision.md now names configuredProofStoryMode + the real fallback code + the committed test location; matches code. F-002 verified: dead smokeName var + its dirname/fileURLToPath imports are gone; grep confirms zero remaining references; build is clean (tsc strict:true). Ran full verification: npm run build (clean), milestone-done-gate-reconciliation-smoke.js (OK), proofstory-intent-hardening-smoke.js (OK), milestone-status.test.mjs (1 pass). Re-confirmed the 3 invariants: ledger hash sha256:68173e86 unchanged across milestone-ledger.json/intent-collision.json/proofstory.json/slice-plan.json and both decision docs; observe-mode non-blocking (blocking:false, severity:warn on stale_milestone_evidence) and enforce-mode blocking (blocking:true) assertions both pass unchanged in the smoke; read-only contract intact (no new mutating command paths). Minor pre-existing-style nit (informational only, not filed): the new Verification section cites phase-gates.ts:142-143 but the quoted function now sits at lines 146-147 (shifted by the 4-line comment added in this same fix commit) — the quoted code snippet itself is verbatim-correct; this is cosmetic line-pointer drift consistent with the same class of drift already noted non-blocking in the prior review round pass note. No new blocking findings. Working tree confirmed clean after review (reverted my own mutation-test edit and the validate-generated test-evidence.json refresh).",
+      "createdAt": "2026-07-06T00:38:11.542Z",
+      "reviewRound": "2026-07-06T00:33:46.044Z",
+      "reviewRunId": "B-f7b3:RR-006",
+      "_hash": "574eef2a9823a35fee57792c6e71179e3afa5b733d25217a434b2b6a33c06b05"
+    },
+    {
+      "id": "B-f7b3:RP-006",
+      "agent": "lattice-review-docs",
+      "note": "Re-review after F-003 fix (162a7e6a0). Verified milestone-triggered-gate-mode-default-decision.md Verification section now names the REAL resolver configuredProofStoryMode (phase-gates.ts:146-148, matches doc line 71 quote of loadConfig(ctx.root).proofStory?.[key] ?? observe verbatim) and references the committed smoke block (c) gate-mode DEFAULT pins to observe when config is unset in milestone-done-gate-reconciliation-smoke.ts (comment text matches exactly). Ran the doc-promised verification commands live: npm run build, node dist/tasks/milestone-done-gate-reconciliation-smoke.js (20x loop, 0 failures after one transient disk-buffer flake immediately post-build that did not reproduce), node dist/tasks/proofstory-intent-hardening-smoke.js, node tests/milestone-status.test.mjs — all pass. resolveDoneGateMode (F-003s fabricated name) has zero hits anywhere in repo now. Also re-verified the other 2 decision docs: milestone-not-applicable-justification.md core logic (self-exempt with notApplicableDecision gate, not_applicable_missing_decision diagnostic) matches proofstory.ts:1483-1514/types.ts:1792+1819/parent-roadmap-totality.ts:60-64+490-501 (pre-existing approximate line-number drift from wave-2 commit 4c49a94a7, unrelated to this rounds F-001/F-002/F-003 fix scope, not newly introduced); milestone-status-done-gate-reconciliation.md uses honest ~L markers throughout and all land within a few lines of the real symbols (stale_milestone_evidence L1532, evidenceIsStaleCovering L234, captureMilestoneCloseoutSnapshotFromStore L78/closeout_snapshot_unbuildable L123, buildMilestoneCloseoutSnapshot L904). No README/CLAUDE.md drift (zero hits for changed symbols, confirming scope stays in docs/requirements/decisions/). 8 symbols from Step 1 extraction cross-checked, 3 decision-doc paragraphs compared (Step 2/3), no new findings.",
+      "createdAt": "2026-07-06T00:40:26.508Z",
+      "reviewRound": "2026-07-06T00:33:46.044Z",
+      "reviewRunId": "B-f7b3:RR-007",
+      "_hash": "20a9b753c31e9fb57e7e066689626cba1ba0be48904e86cef655fdca77221481"
+    },
+    {
+      "id": "B-f7b3:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. Re-review after finding-fix commit 162a7e6a0 (F-001/F-002/F-003): all 68 verificationIntent entries across CHK-001..CHK-010 have covering verificationEvidence refreshed to current storyFilesHash/materialHash/headHash; lattice validate reports verificationCoverage total=68 required=68 covered=68 missingRequired=0, allPass=true; milestone_status shows all 6 milestones (M1-M6) evidence=covered/requiredEvidence=covered/checklist=complete. Spot-checked the corrected CHK-009/CHK-010 intents: the decision docs Verification section now correctly names the exported configuredProofStoryMode resolver and the committed reconciliation-smoke regression test (block c); ran the real dist smoke node packages/main/dist/tasks/milestone-done-gate-reconciliation-smoke.ts directly and it printed OK; independently re-verified the un-gameable claim by mutating the ?? observe fallback in phase-gates.ts to ?? enforce, rebuilding, and confirming the smoke genuinely throws an AssertionError (actual=enforce expected=observe), then restored the file (clean git diff) and reran to confirm it passes again. Also reran node packages/main/tests/milestone-status.test.mjs directly (ok milestone-status) and npm run test:milestone-status (EXIT=0). F-002 dead-code removal confirmed: no remaining smokeName/dirname/fileURLToPath references in the reconciliation smoke file. Evidence commands are literal/reproducible (real file paths under the worktree, real npm scripts, real grep/sed mutation guards, real CLI invocations) — no generic-fallback or broad validate passed style evidence found.",
+      "createdAt": "2026-07-06T00:42:15.908Z",
+      "reviewRound": "2026-07-06T00:33:46.044Z",
+      "reviewRunId": "B-f7b3:RR-008",
+      "_hash": "ba27461f0a09dc823166c64d0330ce5212dac9af0e17706ba3ec088645159ab3"
+    },
+    {
+      "id": "B-f7b3:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Fresh-round re-bind after storyFilesHash drift from Merge branch main (24010e9d0), which only pulled in unrelated stories'(e.g. B-2a5b) .lattice metadata, not any B-f7b3 source/doc change. Re-verified full git diff main...HEAD --stat (38 files) and the packages/ + package.json content diff: all changes are additive (MILESTONE_OBSERVABILITY_DISCLAIMER constant, optional notApplicableDecision field, new gap codes empty_confirmed_milestone_ledger/not_applicable_missing_decision/stale_milestone_evidence, new exported evidenceIsStaleCovering/currentMilestoneStatusEvidenceBinding helpers, new closeout_snapshot_unbuildable skip variant, new currentEvidenceBinding wiring). No concept was deleted or renamed: configuredProofStoryMode and proofStoryDiagnosticInput are unchanged names (proofStoryDiagnosticInput gained an optional root param; configuredProofStoryMode gained an export keyword); evidenceCoversIntent body was extracted into new helper rowCoversIntent with identical logic, not a rename/deletion. The one test-assertion change (assert.throws -> skipped-result check in milestone-status.test.mjs) is the intentional, plan-documented CHK-010 behavior change, not concept residue. No grep-worthy concept-deletion residue exists. Clean.",
+      "createdAt": "2026-07-06T01:10:07.270Z",
+      "reviewRound": "2026-07-06T01:08:16.118Z",
+      "reviewRunId": "B-f7b3:RR-010",
+      "_hash": "73cc62728ba228394b68a5d7f3f3cef3b907e9173302201c9bfd050275c8b38d"
+    },
+    {
+      "id": "B-f7b3:RP-009",
+      "agent": "lattice-review-docs",
+      "note": "Fresh re-confirmation after main-merge storyFilesHash drift (no doc content changed since RP-006: git diff 162a7e6a0..HEAD on all 3 decision docs is empty, and the intervening merge commit 24010e9d0 touched none of them). Re-verified all 3 decision docs against current source line-by-line: (1) milestone-triggered-gate-mode-default-decision.md - doneGateMode default in config.ts/phase-gates.ts configuredProofStoryMode matches; (2) milestone-not-applicable-justification.md - MilestoneNotApplicableDecision type, normalize-only-when-present hash preservation, not_applicable_missing_decision fail-severity DONE-gate diagnostic all match; (3) milestone-status-done-gate-reconciliation.md - shared evidenceIsStaleCovering predicate, stale_milestone_evidence warn-severity gap, closeout non-throwing skipped degradation all match. Only imperfection: two docs cite approximate line numbers that have since shifted due to later same-file edits - pre-existing since before RP-006, non-substantive, not blocking.",
+      "createdAt": "2026-07-06T01:11:16.290Z",
+      "reviewRound": "2026-07-06T01:08:16.118Z",
+      "reviewRunId": "B-f7b3:RR-011",
+      "_hash": "794bf179a9f2d8760d442184d7ac37277dadaa0ef5dc1763d50b3f318b44f684"
+    },
+    {
+      "id": "B-f7b3:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Fresh round re-confirmation (high-risk review-assurance floor). No B-f7b3 source changed since the prior clean pass (RP-005, which verified F-001/F-002 fixed + all 3 invariants); only Merge branch main (24010e9d0) drifted storyFilesHash by pulling in unrelated main history (B-2a5b, B-8128 capability-release, version bumps). Verified: (1) diff 162a7e6a0..HEAD on all 10 B-f7b3-owned source files touches only command-policy.ts, +2 lines adding unrelated capability_release_list/capability_release_status entries from mains B-8128 -- zero change to milestone/proofstory/observability logic. (2) npm run build (tsc strict) clean. (3) All 3 invariants re-verified live: ledgerHash sha256:68173e86acd0f275fc8788a7ee1f577a5446e922904285147db66aeed7fd5c8e unchanged across milestone-ledger.json/intent-collision.json/proofstory.json/slice-plan.json; diagnostics non-blocking under observe (milestone-done-gate-reconciliation-smoke.js OK: stale_milestone_evidence severity=warn, blocking=false under observe, blocking=true under enforce); read-only contract intact (milestone_status/milestone_closeout/milestone_ledger_get remain ownershipClass=readOnly, destructiveRisk=none). (4) Un-gameable observe-default test (section c) unchanged: drives the real configuredProofStoryMode resolver over a fresh mkdtempSync root with no config file, asserting doneGateMode/reviewGateMode default to observe. (5) proofstory-intent-hardening-smoke.js OK; milestone-status.test.mjs ok. (6) Working tree clean after all runs. (7) No job.metadata/run.metadata proof-key semantics touched by this diff (pure story-scoped ProofStory ledger files) so the dual-surface proof-metadata rule does not apply. (8) No dead code / no as-any beyond the 2 pre-existing smoke-test casts already accepted in RP-005 / no empty catch blocks in touched files. No new findings; nothing to fix.",
+      "createdAt": "2026-07-06T01:11:56.020Z",
+      "reviewRound": "2026-07-06T01:08:16.118Z",
+      "reviewRunId": "B-f7b3:RR-013",
+      "_hash": "209db48aab06972670496b88af6f47e692a8542a4e07c19d4d59e3c81eb13664"
+    },
+    {
+      "id": "B-f7b3:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "Fresh round re-bind after storyFilesHash drift (main-merge only; no B-f7b3 source changed since RP-007). Re-verified 68/68 verificationIntent entries across 10 checklist items are covered by verificationEvidence, all result=pass, all uniformly re-bound to current storyFilesHash 0c62ef54. lattice validate re-run clean (38/38 configured commands pass, allPass=true; one transient stale-dist failure in an earlier concurrent run on retired-authority-vocabulary-guard-smoke.js did not reproduce in isolation or on clean re-run). Evidence remains literal/concrete (specific line ranges, exact commands, exact assertions) per RP-003/RP-007. No test-coverage blocker.",
+      "createdAt": "2026-07-06T01:16:50.171Z",
+      "reviewRound": "2026-07-06T01:08:16.118Z",
+      "reviewRunId": "B-f7b3:RR-014",
+      "_hash": "6536711db246583a6f59d7d7c9954269d07083a982249513ecd207497399c020"
+    },
+    {
+      "id": "B-f7b3:RP-012",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion-completeness review of git diff main...HEAD (packages/main + docs/requirements/decisions), focused on commit bb7ed4dd9 threading notApplicableDecision through the CLI milestone schema. That commit is purely additive (109 insertions, 0 deletions) - no concept was deleted. Broader diff removed-line audit: (1) evidenceCoversIntent body extracted into a new rowCoversIntent helper, both retained and used (grep confirms no orphan); (2) `if (milestone.status === not_applicable) continue;` expanded into a justified-decision branch with the same continue preserved; (3) captureMilestoneCloseoutSnapshotFromStore deliberately changed from throw-on-incomplete to degrade-to-skipped (documented CHK-010 reconciliation rationale in code comment), with the corresponding test rewritten from assert.throws to assert.doesNotThrow + explicit status/reason assertions - not a silent behavior loss; (4) configuredProofStoryMode and proofStoryDiagnosticInput signatures widened (new optional root param, export keyword added) with all call sites in phase-gates.ts/proofstory.ts updated consistently; the separate module-local proofStoryDiagnosticInput in machine.ts is a pre-existing distinct function untouched by this diff. All docs/requirements/decisions changes are new files (0 deletions). Verified cross-references (MilestoneNotApplicableDecision type, validNotApplicable in parent-roadmap-totality, MilestoneStatusCurrentEvidenceBinding/currentMilestoneStatusEvidenceBinding/evidenceIsStaleCovering exports) all resolve with no dangling symbols. No concept was deleted or replaced en masse in this diff; no residue found.",
+      "createdAt": "2026-07-06T05:58:40.627Z",
+      "reviewRound": "2026-07-06T05:55:08.656Z",
+      "reviewRunId": "B-f7b3:RR-015",
+      "_hash": "042f27b329f60ccb1c9b018641cc4e006bc7cd1891a911af6f57084264d7e9c0"
+    },
+    {
+      "id": "B-f7b3:RP-013",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed dead code / type safety / I/O isolation / error handling across all changed files in git diff main...HEAD (packages/main/src/{cli/command-catalog.ts,core/{command-policy,milestone-status,proofstory,types}.ts,handlers/{milestone-status,phase-gates,proofstory}.ts,tasks/{milestone-done-gate-reconciliation-smoke,proofstory-intent-hardening-smoke}.ts,tests/milestone-status.test.mjs}, docs/requirements/decisions/*.md). No dead code (rowCoversIntent/evidenceCoversIntent both used; no unused imports). No empty catches (currentEvidenceBinding/currentProofStoryEvidenceBinding catch blocks are documented diagnostic-only fallbacks that return undefined, never swallow a caller-visible error; captureMilestoneCloseoutSnapshotFromStore catch captures error.message into the returned skip reason). Verified F-004 resolved: handlers/proofstory.ts:10,189 imports and uses MilestoneNotApplicableDecision from core/types.ts (matches the interface shape exactly) instead of an inline literal. Verified F-005 resolved: milestone-done-gate-reconciliation-smoke.ts block (d) whitespace-only case exercises both validMilestoneNotApplicable (trims, so gate still fires not_applicable_missing_decision) and buildMilestoneLedger/requireNonEmptyString (throws on value.trim().length===0) -- confirmed against the actual proofstory.ts source, assertions match real behavior. One low-severity type-safety finding filed (F-006, avoidable `as any` in a new smoke helper) but no correctness/maintainability blockers found in this lane.",
+      "createdAt": "2026-07-06T06:34:20.475Z",
+      "reviewRound": "2026-07-06T05:55:08.656Z",
+      "reviewRunId": "B-f7b3:RR-019",
+      "_hash": "afda56200884aa410f0749b0274ad85798f8045c4d8d89017960d3e1275eb898"
+    },
+    {
+      "id": "B-f7b3:RP-014",
+      "agent": "lattice-review-concept",
+      "note": "Final round (post 1433b7292): verified F-004 (handlers/proofstory.ts now imports MilestoneNotApplicableDecision from core/types.ts instead of an inline anonymous literal) has zero residual inline-literal shape anywhere in the repo, and the named type is structurally identical (reason/decidedBy/decidedAt) to the removed literal. Verified F-005 whitespace-only smoke block (d) and its CHK-007 re-tag are consistent with checklist.json (CHK-007:happy:1 exists) and do not orphan the prior CHK-010 file-level tag (blocks a-c/regression still covered). Verified the doc-citation rewrite in milestone-triggered-gate-mode-default-decision.md replaced brittle line numbers with symbol names that all resolve to real, present code (configuredProofStoryMode exported in phase-gates.ts, hasMilestonePath local in proofstory.ts, classifyTriggers function in proofstory.ts, doneGateMode in config.ts) with zero leftover line-number citations in any B-f7b3 decision doc. Swept the full story diff (core/proofstory.ts, handlers/milestone-status.ts, handlers/phase-gates.ts, command-policy.ts, command-catalog.ts, types.ts, milestone-status.test.mjs, package.json) for every removed/relocated line: all are justified refactors (function extraction/export, try/catch wrapping, callback-to-named-function) with call sites updated consistently; no dangling references, no orphaned concepts. No blocker.",
+      "createdAt": "2026-07-06T06:34:34.612Z",
+      "reviewRound": "2026-07-06T05:55:08.656Z",
+      "reviewRunId": "B-f7b3:RR-018",
+      "_hash": "8bfbc26d42c9d499db922fdd54e7f522f491e1d7cfef232418d5d79c20207b94"
+    },
+    {
+      "id": "B-f7b3:RP-015",
+      "agent": "lattice-review-test-coverage",
+      "note": "Final-round test coverage review: all 68 verificationIntent entries across CHK-001..CHK-010 have non-fail verificationEvidence bound to a single consistent headHash (1433b7292) with no material diff to current HEAD. Prior HIGH finding on CHK-007:happy:1 is RESOLVED: the evidence note now accurately describes BOTH the negative path (no-decision row persists with notApplicableDecision absent, gate flags not_applicable_missing_decision/M-na) and the positive path (decision supplied via CLI persists intact through the real dist/cli.js schema, gate does not flag that row) - no false claim remains in the note. Verified statically: (a) checklist.json CHK-007:happy:1 evidence note text; (b) scratchpad chk007_cli.sh drives both paths end-to-end through dist/cli.js (steps 1-3 negative, step 4 positive); (c) committed milestone-done-gate-reconciliation-smoke.ts block (d) is re-tagged with an explicit CHK-007 traceability comment (not CHK-010) and now includes a whitespace-only notApplicableDecision case asserting both the gate trim (validMilestoneNotApplicable) and the normalizer hard-reject (requireNonEmptyString via buildMilestoneLedger) - confirmed via git show bb7ed4dd9 (F-004 CLI schema fix) and 1433b7292 (F-004/F-005 quality-lane fixes + block (d) re-tag). No test-coverage blocker remains.",
+      "createdAt": "2026-07-06T06:36:14.342Z",
+      "reviewRound": "2026-07-06T05:55:08.656Z",
+      "reviewRunId": "B-f7b3:RR-021",
+      "_hash": "2a473372a985b3d3abdb3cddf557daef2a69f19428d712ae570a46156935bb47"
+    },
+    {
+      "id": "B-f7b3:RP-016",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion-completeness (CONVERGENCE round) over git diff main...HEAD for packages/main + docs/requirements/decisions: every removed line is a justified refactor with equivalent/improved semantics preserved, not a concept deletion with residue. Checked: (1) evidenceCoversIntent inline predicate extracted verbatim to rowCoversIntent, still called from the same site - pure extraction. (2) confirmMilestoneLedger ledgerHash computation moved to a local var, same value, plus new confirmedLedgerHash re-check guard. (3) proofStoryDiagnosticInput/configuredProofStoryMode signatures widened with an optional root param (backward compatible; REVIEW-phase call site at phase-gates.ts:315 correctly omits it by design, only the DONE-gate call site needs freshness binding). (4) captureMilestoneCloseoutSnapshotFromStore throw-to-skip behavior change is a deliberate documented reconciliation (CHK-010): pure builder buildMilestoneCloseoutSnapshot keeps the OLD strict-throw contract (verified still present + tested via B-builder-incomplete-strict and B-builder-stale-only-strict blocks in milestone-status.test.mjs); removed assert.throws on the wrapper replaced by equivalent assert.doesNotThrow + status/reason assertions; the real caller transition-orchestrator.ts already consumes the new status/message shape with no leftover throw-based assumption. (5) F-006 verified resolved: zero as-any remaining in proofstory-intent-hardening-smoke.ts, replaced with as-unknown-as-MilestoneLedgerData using an actually-imported type. (6) F-007 verified resolved: grep for line-number citation pattern across all 3 decision docs returns zero hits; stale code snippet corrected to reference the current validMilestoneNotApplicable branch, confirmed present in proofstory.ts. (7) package.json test script diff verified via sorted set-diff of the chain: exactly one entry added (test:milestone-status), zero removed. No dangling references, no orphaned schema fields (notApplicableDecision wired end-to-end: command-catalog schema -> handler -> normalizeNotApplicableDecision -> DONE-gate diagnostic). No blocker.",
+      "createdAt": "2026-07-06T06:49:59.507Z",
+      "reviewRound": "2026-07-06T05:55:08.656Z",
+      "reviewRunId": "B-f7b3:RR-024",
+      "_hash": "c2ab222483ca9c3e7a694471af28c1d5630c1de535ea1ba3272d94de51e5d37b"
+    },
+    {
+      "id": "B-f7b3:RP-017",
+      "agent": "lattice-review-quality",
+      "note": "Convergence round: verified F-004 (handlers/proofstory.ts imports and uses MilestoneNotApplicableDecision at addMilestoneToLedger args), F-005 (whitespace-only notApplicableDecision negative control present in milestone-done-gate-reconciliation-smoke.ts block (d)), and F-006 (both writeMilestoneLedger call sites in proofstory-intent-hardening-smoke.ts use as-unknown-as-MilestoneLedgerData, no as-any remains in any changed file) all resolved. Re-swept full diff for dead code, type safety, I/O isolation, and error handling. All new imports used; new task file auto-discovered by run-all-smokes; new catch blocks are documented diagnostic fallbacks that never swallow gate-relevant errors. Verified the one proofStoryDiagnosticInput call site missing the new root param (REVIEW to TEST evaluateReviewCompleteness) is a correct no-op since currentEvidenceBinding is only consumed by evaluateDoneIntentEquivalence. Decision docs cross-checked against code with no promised-but-undelivered gaps found. No new findings.",
+      "createdAt": "2026-07-06T06:50:32.043Z",
+      "reviewRound": "2026-07-06T05:55:08.656Z",
+      "reviewRunId": "B-f7b3:RR-025",
+      "_hash": "759d220681f591e8c45965bd3cbbd4a4cbf8c4e014e1764aa8e02b6ae87060e5"
+    },
+    {
+      "id": "B-f7b3:RP-018",
+      "agent": "lattice-review-quality",
+      "note": "Host-B quality review found no blocking findings. Clean build passed after rm -rf packages/main/dist; verified milestone-status.test.mjs, proofstory-intent-hardening-smoke.js, and milestone-done-gate-reconciliation-smoke.js; inspected command schema, notApplicableDecision normalization/gate behavior, stale DONE diagnostics, closeout wrapper, suite wiring, and decision docs.",
+      "createdAt": "2026-07-06T06:52:05.357Z",
+      "reviewRound": "2026-07-06T05:55:08.656Z",
+      "reviewRunId": "B-f7b3:RR-026",
+      "_hash": "3d47ead8a54f35774007ada3e25d58cfa3dc12d3fa1d5cac564762854e8ed122"
+    },
+    {
+      "id": "B-f7b3:RP-019",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 68 verificationIntent entries across CHK-001..CHK-010 have valid passing verificationEvidence bound to the current material (headHash 38c7a8cca7, no drift through HEAD since — only lattice-metadata commits intervened). Prior CHK-007:happy:1 HIGH finding remains resolved (manual_transcript covers both the missing-decision negative path and the F-004 positive path). F-006/F-007 fixes (precise cast in proofstory-intent-hardening-smoke.ts; drift-proof symbol-name citations in the 2 decision docs) verified present in material and evidence timestamps post-date the fix commit. Zero waivers, zero fail/non-pass evidence, zero generic notes. No blocker.",
+      "createdAt": "2026-07-06T06:52:17.672Z",
+      "reviewRound": "2026-07-06T05:55:08.656Z",
+      "reviewRunId": "B-f7b3:RR-027",
+      "_hash": "fe6ddb2715e21381bb2c020de5c8115ce1533f4506a0f46224b503d08747a574"
+    },
+    {
+      "id": "B-f7b3:RP-020",
+      "agent": "lattice-review-docs",
+      "note": "F-007 verified resolved: grepped all 3 decision docs (milestone-not-applicable-justification.md, milestone-status-done-gate-reconciliation.md, milestone-triggered-gate-mode-default-decision.md) for L[0-9]+ / ~L[0-9]+ / line-N patterns -- zero matches in any file, confirmed against commit 1597295a1 diff which removed every prior citation (proofstory.ts ~L298-317, L1358, L60-64/L490-501, L345, ~L1519, ~L234, ~L110-134, ~L904) replacing them with prose/symbol-name references. Stale snippet if(milestone.status===not_applicable) continue was replaced with prose; the actual code at proofstory.ts:1483-1491 now reads a validMilestoneNotApplicable branch, matching the corrected doc text. Cross-checked all 10 named symbols against delivered code: normalizeMilestone (proofstory.ts:348), evaluateDoneIntentEquivalence (proofstory.ts:1375), evidenceIsStaleCovering (milestone-status.ts:234, mismatchOnly semantics match doc exactly), buildMilestoneCloseoutSnapshot (milestone-status.ts:904, still strict/throwing as pure builder per doc), confirmMilestoneLedger (proofstory.ts:443), configuredProofStoryMode (phase-gates.ts:146), hasMilestonePath (proofstory.ts:1381, local const with the 3 OR-conditions described in doc), classifyTriggers (proofstory.ts:651, regex signals match doc wording), validNotApplicable (parent-roadmap-totality.ts:490), ParentRoadmapNotApplicableDecision (parent-roadmap-totality.ts:60). All exist and behavior descriptions match delivered code. No new doc-code drift found. Static-only review: git diff/show/grep/Read only, no build/test run.",
+      "createdAt": "2026-07-06T06:54:03.679Z",
+      "reviewRound": "2026-07-06T05:55:08.656Z",
+      "reviewRunId": "B-f7b3:RR-028",
+      "_hash": "45a6d8d7a3e68d222863a8081d4877459b9bff38234bfe2ae8bc8be923fe9270"
+    },
+    {
+      "id": "B-f7b3:RP-021",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion-completeness: convergence round, git diff main...HEAD, 0 residuals; every removed line a justified refactor/reformat; F-006 (no as any) + F-007 (no line citations) verified; notApplicableDecision wired end-to-end. PASS.",
+      "createdAt": "2026-07-06T06:57:38.943Z",
+      "reviewRound": "2026-07-06T06:56:55.018Z",
+      "reviewRunId": "B-f7b3:RR-029",
+      "_hash": "5ac5ffaee45acb8777eafc688f59e11470f4da993bb4ebd057ca93bea45da75d"
+    },
+    {
+      "id": "B-f7b3:RP-022",
+      "agent": "lattice-review-quality",
+      "note": "Code quality: dead-code/type-safety/IO-isolation clean; F-004 (imported MilestoneNotApplicableDecision type), F-005 (whitespace-only case), F-006 (precise casts) all confirmed resolved; catch blocks are narrow documented degrade-to-undefined. PASS.",
+      "createdAt": "2026-07-06T06:57:41.560Z",
+      "reviewRound": "2026-07-06T06:56:55.018Z",
+      "reviewRunId": "B-f7b3:RR-030",
+      "_hash": "f5f87145819902bc698b0c0929985ee89f8a0080d8ad7c0cda033fcada7908f0"
+    },
+    {
+      "id": "B-f7b3:RP-023",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage: 68/68 verificationIntent entries each have one fresh passing evidence row bound to current material; 0 must-gaps, 0 fails; CHK-007:happy:1 note accurate for both paths; all 7 findings resolved. PASS.",
+      "createdAt": "2026-07-06T06:57:44.168Z",
+      "reviewRound": "2026-07-06T06:56:55.018Z",
+      "reviewRunId": "B-f7b3:RR-031",
+      "_hash": "7ee61edd9e88fb1569da0c6afb17a03b35fe64c678d38687315cc349ebe35d63"
+    },
+    {
+      "id": "B-f7b3:RP-024",
+      "agent": "lattice-review-docs",
+      "note": "Docs-code consistency: all 3 decision docs line-number-free (F-007 resolved); all 10 referenced symbols exist and match delivered code; stale not_applicable-continue snippet corrected. PASS.",
+      "createdAt": "2026-07-06T06:57:46.736Z",
+      "reviewRound": "2026-07-06T06:56:55.018Z",
+      "reviewRunId": "B-f7b3:RR-032",
+      "_hash": "581519d819bf9b9779f6996c5ee340e5bc52a3df7fa42b2d91b5db1d0fb7db8d"
+    },
+    {
+      "id": "B-f7b3:RP-025",
+      "agent": "lattice-review-concept",
+      "note": "Post-roundtrip scope-change review: the only scope change since the 3x2 quorum (all lanes+codex PASS, 0 findings) is the parent-ledger-rollup.json self-coverage artifact (M1-M6 -> B-f7b3 done) + its scope acknowledgement, added to satisfy the DONE intent-equivalence strict_milestone gate. No source/doc/behavior change; the reviewed material is identical. PASS.",
+      "createdAt": "2026-07-06T07:14:58.775Z",
+      "reviewRound": "2026-07-06T07:14:05.726Z",
+      "reviewRunId": "B-f7b3:RR-033",
+      "_hash": "d6d14fb964d6947300d3162002281d2b89907328c6bb48c19ac0bcf614705cb3"
+    }
+  ]
+}

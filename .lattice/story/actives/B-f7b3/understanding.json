@@ -1,0 +1,36 @@
+{
+  "task": "Implement the six B-b550 M7 follow-up hardening items to tighten the ProofStory milestone observability boundary without weakening the read-only or PLAN-only contract.",
+  "outcome": "After this story: milestone_status/closeout print an explicit observability-only disclaimer (NOT DONE/Authority/production); milestone_status command-policy reason mentions Authority; npm test/run-all-smokes runs the milestone-status suite plus new PASS negative controls (duplicate rows rejected, vacuous confirmed ledger incomplete, stale-only closeout rejected); confirmMilestoneLedger rejects a hash-mismatched confirm; not_applicable rows require a justification; and decision docs record the gate-mode-default (observe stays) and stale-evidence/second-gate reconciliation. Operator sees green validate + full suite, diff limited to packages/main + decision docs.",
+  "facts": [
+    "B-b550 audit section M7 confirmed the read-only + PLAN-only milestone boundary holds; these are hardening items",
+    "milestone_status/closeout render output currently emits only Mode: read-only",
+    "command-policy milestone_status reason omits Authority while milestone_closeout includes it",
+    "proofstory-intent-hardening-smoke.ts has zero duplicate-row coverage; milestone-status.test.mjs not in run-all-smokes",
+    "confirmMilestoneLedger does not re-check confirmedLedgerHash===ledgerHash; not_applicable is enum-only validated",
+    "milestone_status demotes stale evidence but evaluateDoneIntentEquivalence can still pass the same ledger; captureMilestoneCloseoutSnapshotFromStore is an undesigned second DONE gate"
+  ],
+  "constraints": [
+    "Must NOT weaken the read-only or PLAN-only milestone contract",
+    "gate-mode default stays observe (recorded rationale)",
+    "Scope limited to packages/main + decision docs; no production/deploy/infra",
+    "Additive items must not break existing passing tests"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/milestone-status.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/proofstory.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/handlers/phase-gates.ts",
+    "packages/main/src/handlers/milestone-status.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+    "packages/main/tests/milestone-status.test.mjs",
+    "packages/main/src/tasks/run-all-smokes.ts",
+    "package.json",
+    "docs/requirements/decisions/milestone-not-applicable-justification.md",
+    "docs/requirements/decisions/milestone-triggered-gate-mode-default-decision.md",
+    "docs/requirements/decisions/milestone-status-done-gate-reconciliation.md"
+  ],
+  "timestamp": "2026-07-05T21:34:57.641Z"
+}

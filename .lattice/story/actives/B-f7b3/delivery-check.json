@@ -1,0 +1,97 @@
+{
+  "storyId": "B-f7b3",
+  "checkedAt": "2026-07-06T07:17:51.636Z",
+  "headHash": "b83ec33328d5163818aea2412013f174d172033f",
+  "materialHash": "1b93755c84776d6812311e1ae7d37c58d14bb6f941d223c7d4ad41572b9093af",
+  "storyFilesHash": "44ecb4851696b9508ea64dd0f35aac58cf6b14f9899ab77053abd3db6bec198f",
+  "reviewRound": "2026-07-06T07:14:05.726Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/milestone-not-applicable-justification.md",
+      "promise": "not_applicable milestone rows require an auditable notApplicableDecision (reason/decidedBy/decidedAt); absence is a DONE-gate diagnostic (not_applicable_missing_decision), not a read-path throw; field is hash-compatible (attached only when present).",
+      "verifiedBy": "diff/grep + source read (re-confirmed on clean re-sign)",
+      "evidence": "packages/main/src/core/types.ts adds MilestoneNotApplicableDecision + optional MilestoneLedgerItem.notApplicableDecision; proofstory.ts normalizeMilestone attaches the field only when present; evaluateDoneIntentEquivalence emits not_applicable_missing_decision (severity fail) via validMilestoneNotApplicable; milestone-status.test.mjs and proofstory-intent-hardening-smoke.ts exercise all-not_applicable-without-decision as a negative control and a justified positive control."
+    },
+    {
+      "docPath": "docs/requirements/decisions/milestone-status-done-gate-reconciliation.md",
+      "promise": "evaluateDoneIntentEquivalence detects milestones whose only covering evidence is stale (mismatch, not absence) via a shared evidenceIsStaleCovering predicate also used by milestone_status, emitting stale_milestone_evidence as severity warn — non-blocking under observe, blocking only under enforce; closeout capture degrades to a non-throwing {status:\"skipped\", reason:\"closeout_snapshot_unbuildable\"} instead of throwing after DONE transition, while the pure builder buildMilestoneCloseoutSnapshot stays strict.",
+      "verifiedBy": "diff/grep + source read (re-confirmed on clean re-sign)",
+      "evidence": "packages/main/src/core/milestone-status.ts exports evidenceIsStaleCovering (mismatchOnly param); proofstory.ts evaluateDoneIntentEquivalence calls it with mismatchOnly=true pushing severity:warn gap; blocking formula mode===enforce && gaps.length>0; packages/main/src/handlers/milestone-status.ts captureMilestoneCloseoutSnapshotFromStore wraps buildMilestoneCloseoutSnapshot in try/catch returning status:skipped/reason:closeout_snapshot_unbuildable on throw; milestone-status.test.mjs covers both strict-builder and skipped-capture paths."
+    },
+    {
+      "docPath": "docs/requirements/decisions/milestone-triggered-gate-mode-default-decision.md",
+      "promise": "doneGateMode/reviewGateMode default stays \"observe\" (not flipped to \"enforce\" for milestone-triggered stories); a committed regression test pins this default against the real resolver configuredProofStoryMode (exported from packages/main/src/handlers/phase-gates.ts) over a fresh temp root with no config, so flipping the \"?? observe\" fallback to \"enforce\" makes the test fail.",
+      "verifiedBy": "diff/grep + source read; re-confirmed phase-gates.ts is at committed observe-default state (line 147: `?? 'observe'`), no mutation present",
+      "evidence": "phase-gates.ts exports configuredProofStoryMode returning loadConfig(ctx.root).proofStory?.[key] ?? 'observe'; verified live at line 147 in the current clean tree. milestone-done-gate-reconciliation-smoke.ts block (c) creates a fresh mkdtempSync temp root and asserts configuredProofStoryMode resolves to observe for both doneGateMode and reviewGateMode. Mutation-testing of this invariant (flip to enforce, rebuild, observe failure, revert) was performed in the prior review round; this re-sign confirms the tree is back at the clean committed state with no mutation artifacts remaining."
+    },
+    {
+      "docPath": "packages/main/src/core/milestone-status.ts (rendered output)",
+      "promise": "milestone_status / milestone_closeout rendered output (status report, closeout snapshot, closeout missing-report) includes an explicit observability-only disclaimer: \"Scope: observability only - reports milestone progress from the ProofStory ledger. This is NOT a lifecycle DONE, NOT an Authority verdict, and NOT a production-readiness gate.\"",
+      "verifiedBy": "diff/grep (re-confirmed on clean re-sign)",
+      "evidence": "MILESTONE_OBSERVABILITY_DISCLAIMER constant confirmed present at 3 call sites in milestone-status.ts (lines 1009, 1029, 1187); milestone-status.test.mjs assertTextContract and assertCloseoutTextContract assert on the disclaimer substrings."
+    },
+    {
+      "docPath": "packages/main/src/core/command-policy.ts (milestone_status reason string)",
+      "promise": "milestone_status command-policy reason string discloses Authority (matching milestone_closeout wording), i.e. ends \"...never claims automatic DONE, production, or remote Authority readiness.\"",
+      "verifiedBy": "diff/grep (re-confirmed on clean re-sign)",
+      "evidence": "command-policy.ts milestone_status entry reason string confirmed live at line 239 ending \"...never claims automatic DONE, production, or remote Authority readiness.\""
+    },
+    {
+      "docPath": "packages/main/package.json / package.json (test suite wiring)",
+      "promise": "packages/main/tests/milestone-status.test.mjs is wired into the aggregate npm test suite (test:milestone-status script) so it is not silently skipped.",
+      "verifiedBy": "diff/grep (re-confirmed on clean re-sign)",
+      "evidence": "packages/main/package.json adds test:milestone-status script; root package.json adds test:milestone-status and inserts it into the root test script chain; confirmed by the fresh done-required-evidence.json root test suite PASS run (exitCode 0) at the current clean headHash."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "milestone-status.test.mjs assertTextContract/assertCloseoutTextContract assert the rendered CLI text includes the observability disclaimer for both milestone_status and milestone_closeout output; re-confirmed passing via fresh done-required-evidence.json root test suite run at current clean headHash."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Direct source read of command-policy.ts confirms the milestone_status reason string includes \"remote Authority readiness\"; covered by existing command-policy contract tests."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "proofstory-intent-hardening-smoke.ts runs real CLI invocations with duplicate milestone ids and asserts rejection plus unmutated ledger; re-confirmed passing via fresh root test suite run."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "milestone-status.test.mjs and proofstory-intent-hardening-smoke.ts assert empty-ledger fail, not_applicable-without-decision fail (naming offending rows), and justified not_applicable pass; re-confirmed passing via fresh root test suite run."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "milestone-status.test.mjs stale-only block asserts buildMilestoneCloseoutSnapshot throws while the DONE-time capture wrapper degrades to non-throwing skipped; re-confirmed passing via fresh root test suite run."
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "package.json wiring confirmed by grep; target test file confirmed passing via fresh root test suite run at current clean headHash.",
+      "waiverReason": "wiring-only change (script registration), no additional runtime behavior beyond confirming the target test passes"
+    },
+    {
+      "featureId": "CHK-007",
+      "transcript": "Covered jointly with CHK-004 tests plus normalizeMilestone structural tests (malformed notApplicableDecision throws; absent decision does not throw); re-confirmed passing via fresh root test suite run."
+    },
+    {
+      "featureId": "CHK-008",
+      "transcript": "Source-verified: confirmMilestoneLedger in proofstory.ts re-checks collision.confirmedLedgerHash against current ledgerHash before minting confirmed; covered by existing intent-collision confirm-time tests; re-confirmed passing via fresh root test suite run."
+    },
+    {
+      "featureId": "CHK-009",
+      "transcript": "milestone-done-gate-reconciliation-smoke.ts block (c) drives the real exported configuredProofStoryMode resolver against a fresh temp root asserting observe default for both gate modes; mutation-tested in a prior round (fallback flipped to enforce, rebuilt, observed failure, reverted). Re-confirmed the current tree is clean and at the committed observe-default source (line 147), and the smoke passes via fresh root test suite run."
+    },
+    {
+      "featureId": "CHK-010",
+      "transcript": "milestone-done-gate-reconciliation-smoke.ts asserts milestone_status stale-row demotion agrees with the DONE gate stale_milestone_evidence diagnostic, non-blocking under observe/blocking under enforce, closeout capture degrades cleanly, and a genuinely-uncovered milestone still blocks under enforce; re-confirmed passing via fresh root test suite run."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Re-sign at clean tree state: all 6 documentation promises independently re-confirmed via read-only grep/source-read against the current clean worktree (no mutation performed this round), and all realMachineTests re-confirmed passing via a freshly generated done-required-evidence.json (npm build + full root test suite, exitCode 0) at the current headHash 9bc61db4. The prior delivery-check.json was stale (storyFilesHash a6672dd0 from an older headHash 58e07d7c during a mutation-test round); this re-sign captures the current clean storyFilesHash 0c62ef54. No new findings; no unresolved TODOs introduced."
+  },
+  "_hash": "f562a120fa033243cd4f17caa10e751284f84e79cd9803ac7f9a6fd3f925fd27"
+}
