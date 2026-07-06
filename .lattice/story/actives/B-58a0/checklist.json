@@ -35,7 +35,48 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "Unit test asserts the derived-ledger header, Phase/Progress lines and the ✅/⏳/⬜ grouping (derivedText block).",
+          "headHash": "f806f63a9a5c50b2c1a181a80089cf3807e524da",
+          "materialHash": "547ccc615b8a4860255e660a8812cae17650f23d5cee32600a81d887e626cc36",
+          "storyFilesHash": "8ece446824c59f57e6d8f90068b9be472cb07fc3c073259dfec289b10c9f888f",
+          "timestamp": "2026-07-06T18:21:27.202Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "emptyDerived assertions cover the empty-checklist stub (no checklist items) + 0/0/0 progress without throwing.",
+          "headHash": "f806f63a9a5c50b2c1a181a80089cf3807e524da",
+          "materialHash": "547ccc615b8a4860255e660a8812cae17650f23d5cee32600a81d887e626cc36",
+          "storyFilesHash": "8ece446824c59f57e6d8f90068b9be472cb07fc3c073259dfec289b10c9f888f",
+          "timestamp": "2026-07-06T18:21:27.202Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "assert.doesNotMatch(derivedText, /Milestone Status -/) proves the derived ledger never fabricates a milestone table.",
+          "headHash": "f806f63a9a5c50b2c1a181a80089cf3807e524da",
+          "materialHash": "547ccc615b8a4860255e660a8812cae17650f23d5cee32600a81d887e626cc36",
+          "storyFilesHash": "8ece446824c59f57e6d8f90068b9be472cb07fc3c073259dfec289b10c9f888f",
+          "timestamp": "2026-07-06T18:21:27.202Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -72,7 +113,48 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "The no-ledger CLI checklist_update path now emits the Checklist-derived ledger header + the mutated item row on stdout.",
+          "headHash": "f806f63a9a5c50b2c1a181a80089cf3807e524da",
+          "materialHash": "547ccc615b8a4860255e660a8812cae17650f23d5cee32600a81d887e626cc36",
+          "storyFilesHash": "8ece446824c59f57e6d8f90068b9be472cb07fc3c073259dfec289b10c9f888f",
+          "timestamp": "2026-07-06T18:21:27.202Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "The real-ledger CLI append test and the DONE main-root fallback test still assert the Milestone Status table (realRender path preserved).",
+          "headHash": "f806f63a9a5c50b2c1a181a80089cf3807e524da",
+          "materialHash": "547ccc615b8a4860255e660a8812cae17650f23d5cee32600a81d887e626cc36",
+          "storyFilesHash": "8ece446824c59f57e6d8f90068b9be472cb07fc3c073259dfec289b10c9f888f",
+          "timestamp": "2026-07-06T18:21:27.202Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "The --json purity assertion stays green (no table appended); visibleFailure keeps exit 0 (mutation already committed).",
+          "headHash": "f806f63a9a5c50b2c1a181a80089cf3807e524da",
+          "materialHash": "547ccc615b8a4860255e660a8812cae17650f23d5cee32600a81d887e626cc36",
+          "storyFilesHash": "8ece446824c59f57e6d8f90068b9be472cb07fc3c073259dfec289b10c9f888f",
+          "timestamp": "2026-07-06T18:21:27.202Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -109,7 +191,48 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "The inverted no-ledger assertion now requires the derived-ledger header and forbids Milestone Status - <id>, and passes.",
+          "headHash": "f806f63a9a5c50b2c1a181a80089cf3807e524da",
+          "materialHash": "547ccc615b8a4860255e660a8812cae17650f23d5cee32600a81d887e626cc36",
+          "storyFilesHash": "8ece446824c59f57e6d8f90068b9be472cb07fc3c073259dfec289b10c9f888f",
+          "timestamp": "2026-07-06T18:21:27.202Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "New renderChecklistDerivedLedger unit test covers three-status grouping and the empty stub.",
+          "headHash": "f806f63a9a5c50b2c1a181a80089cf3807e524da",
+          "materialHash": "547ccc615b8a4860255e660a8812cae17650f23d5cee32600a81d887e626cc36",
+          "storyFilesHash": "8ece446824c59f57e6d8f90068b9be472cb07fc3c073259dfec289b10c9f888f",
+          "timestamp": "2026-07-06T18:21:27.202Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "Pre-existing real-ledger append and --json purity assertions remain green — verified in the same suite run (ok milestone-status).",
+          "headHash": "f806f63a9a5c50b2c1a181a80089cf3807e524da",
+          "materialHash": "547ccc615b8a4860255e660a8812cae17650f23d5cee32600a81d887e626cc36",
+          "storyFilesHash": "8ece446824c59f57e6d8f90068b9be472cb07fc3c073259dfec289b10c9f888f",
+          "timestamp": "2026-07-06T18:21:27.202Z"
+        }
+      ]
     }
   ]
 }
