@@ -50,6 +50,26 @@
       "signatureTagSource": "auto",
       "resolvedReason": "Restored lattice.config.json from main + added only the 3 smoke entries; minimal diff, trailing newline preserved.",
       "resolvedAt": "2026-07-06T00:08:33.367Z"
+    },
+    {
+      "id": "B-c389:F-004",
+      "desc": "All verificationEvidence across CHK-001/002/003/004 is stale against current HEAD, per lattice validate own coverage check (verified: coverage total=12 required=11 covered=0 missingRequired=11, every entry status=\"stale\"). Evidence is stamped headHash=e1da7464 which predates 3 material fix commits merged afterward in this round: ba0960cb1 (F-001, dead-var removal in capability-release-backfill-smoke.ts), e4ef5f7c8 (F-002, added explicit capability_release_backfill all-phase MUTATING classification in packages/main/src/core/config.ts -- behavior-relevant to CHK-001s adversarial/phase-safety intent), and ec147c25a (F-003, lattice.config.json validate-suite diff restore -- directly the artifact CHK-004s evidence describes). Re-ran all 3 new smokes + lattice validate at current HEAD: capability-release-backfill-smoke 14/14, capability-candidate-exposure-smoke 8/8, capability-candidate-promotion-smoke 8/8, all pass with identical counts -- so this is a freshness/re-stamp gap, not a functional regression. Affected intentRefs needing fresh verification_evidence: CHK-001:happy:0, CHK-001:edge:0, CHK-001:adversarial:0, CHK-002:happy:0, CHK-002:edge:0, CHK-002:adversarial:0, CHK-003:happy:0, CHK-003:edge:0, CHK-003:adversarial:0, CHK-004:happy:0, CHK-004:edge:0 (all must-priority) plus CHK-004:adversarial:0 (should-priority, also stale).",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-06T00:15:49.225Z",
+      "reviewRound": "2026-07-06T00:08:28.508Z",
+      "reviewRunId": "B-c389:RR-009",
+      "_hash": "5689134d339c9154d1c3733f5a54b569df5f2252605422e9c91acb41b9f7af31",
+      "files": [
+        "packages/main/src/tasks/capability-release-backfill-smoke.ts",
+        "packages/main/src/core/config.ts",
+        "lattice.config.json"
+      ],
+      "signatureTag": "missing|ts|verificationevidence-across-stale",
+      "signatureTagSource": "auto"
     }
   ]
 }
