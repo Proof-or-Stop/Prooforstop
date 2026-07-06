@@ -62,14 +62,13 @@
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "manual_transcript",
-          "verdict": "success",
           "command": "node experiments/pos-instrument-replay/selfcheck-m4.mjs",
           "result": "pass",
-          "note": "selfcheck-m4 sub-checks C/D/E/F force each of H1/H2/H3/H4 to a fail verdict (mutated sandbox copies) and G forces H3 inconclusive; the analyzer never returns pass on falsified/missing evidence, proving the three-state adjudication is not tautological.",
-          "headHash": "3e5c582a38fa7153f009dff8988959df395e9d97",
+          "note": "Strict three-state closes the round-1 false-pass holes: an incomplete scale (fewer than protocol.N records), stripped digests/goldMetrics, a missing tamper (class,handling) identity, a 3-field resume stub, or a negative/null elapsedMs each now flip the corresponding hypothesis to FAIL (never a false pass) — proven by selfcheck-m4 sub-checks J/K/L/M/N; an absent input file yields inconclusive + a null generatedInputs sha (never a crash, never all-pass) — sub-check O.",
+          "headHash": "7d0bc362d46f2ffae1473109ffd5ed116aca6c9c",
           "materialHash": "b8d25c898ec3647c9947f3eedfe58190426e5357b4efe387ef47553af6be3b82",
           "storyFilesHash": "33c61f0249d435d1e9d1187beea8fbc5179685a69d099092cede7c4ef47fe8c6",
-          "timestamp": "2026-07-06T07:55:02.106Z"
+          "timestamp": "2026-07-06T07:55:04.950Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
