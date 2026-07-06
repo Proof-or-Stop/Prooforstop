@@ -4,7 +4,7 @@
   "title": "Always show a status ledger after mutating commands, with visible render failures",
   "description": "Story-scoped mutating commands only append a Milestone Ledger table when a milestone ledger already exists, and swallow render failures to stderr. A story that has a checklist but no milestone ledger shows no status view after checklist_update / story_advance / etc. This story makes every command in MILESTONE_STATUS_APPEND_COMMANDS always emit a status block: it falls back to a checklist-derived ledger when no milestone ledger exists, and surfaces render failures on stdout instead of hiding them. The prior no-table behavior was a deliberate anti-fabrication choice, so the fallback uses a distinct header and does not impersonate a milestone table.",
   "type": "feature",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "keywords": [
     "milestone",
@@ -32,6 +32,20 @@
       "user": "Harmonygo",
       "sessionId": "399667a3-3c01-4df4-ac19-4b9f760548ea",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-06T18:00:38.667Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "399667a3-3c01-4df4-ac19-4b9f760548ea",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-58a0",
+    "branch": "story/B-58a0",
+    "createdAt": "2026-07-06T18:00:37.294Z"
+  }
 }
