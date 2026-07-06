@@ -14,6 +14,21 @@
       "_hash": "6083469e5e60b30523d5650b28f6b2d3f250d43479f42a4b4d60c97f08a4f133",
       "signatureTag": "missing|unknown|missing-evidence-crash",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-853a:F-002",
+      "desc": "H1 false-pass: adjudicateH1 (analyze-batch.mjs:221-258) treats a scale with >=2 proof records as checkable/pass-eligible purely by record COUNT, without checking that digests/goldMetrics are actually present. If every proof record at a scale has digests+goldMetrics stripped/undefined (malformed producer output that still carries verifyStatus), canonicalJson({digests:undefined,goldMetrics:undefined}) is identical across records, so pairwiseEqual is vacuously true and H1 verdict=pass even though NO real replay-determinism evidence was compared. This can flip overall to all-pass and assert the verbatim SS3 claim on zero real evidence. Reproduced: stripped digests+goldMetrics from all 3 full-scale ledger records (recordDigest re-signed so input-integrity still passes) -> H1 still reports pass, overall=all-pass. selfcheck-m4.mjs check C (lines 156-177) only tests digests VALUE MISMATCH between records, never digests/goldMetrics ABSENCE, so this vacuous-pass path is untested.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-06T07:34:33.231Z",
+      "reviewRound": "2026-07-06T07:30:13.842Z",
+      "reviewRunId": "B-853a:RR-006",
+      "_hash": "027b84e926ae4b660777685799e02398ed9ae3f9b20cde96aa6ef62f574c2362",
+      "signatureTag": "edge|unknown|false-pass-adjudicateh1",
+      "signatureTagSource": "auto"
     }
   ]
 }
