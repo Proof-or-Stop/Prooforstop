@@ -3,28 +3,18 @@
   "storyId": "B-991d",
   "executionWindowId": "B-991d-cell03-execution-window-001",
   "expectedRows": 1152,
-  "rowCount": 5,
-  "finalRows": 5,
+  "rowCount": 15,
+  "finalRows": 15,
   "failedRows": 0,
-  "validationPassRows": 5,
-  "providerUsageRows": 5,
-  "reviewedRows": 5,
-  "groundTruthPassRows": 5,
+  "validationPassRows": 15,
+  "providerUsageRows": 15,
+  "reviewedRows": 15,
+  "groundTruthPassRows": 15,
   "outcomeCounts": {
-    "recovered": 5
+    "recovered": 15
   },
-  "missingFinalRows": 1147,
+  "missingFinalRows": 1137,
   "missingFinalCellKeys": [
-    "③|A4|cv-luhn|B06|3|E2|same",
-    "③|A4|tr-pluralize|B10|2|E2|same",
-    "③|A4|median|B10|2|E2|same",
-    "③|A4|rf-roman|B08|2|E2|same",
-    "③|A4|bf-mergesorted|B05|1|E2|same",
-    "③|A4|rf-units|B01|3|E2|same",
-    "③|A4|cl-equals|B10|1|E2|same",
-    "③|A4|cl-multi|B03|1|E2|same",
-    "③|A4|cl-equals|B14|2|E2|same",
-    "③|A4|cl-multi|B07|3|E2|same",
     "③|A4|du-duration|B10|2|E2|same",
     "③|A4|cl-combined|B10|2|E2|same",
     "③|A4|cv-ipv4|B15|1|E2|same",
@@ -64,15 +54,25 @@
     "③|A4|bf-datediff|B01|1|E2|same",
     "③|A4|cv-luhn|B11|2|E2|same",
     "③|A4|cl-equals|B09|3|E2|same",
-    "③|A4|cl-multi|B08|3|E2|same"
+    "③|A4|cl-multi|B08|3|E2|same",
+    "③|A4|median|B10|1|E2|same",
+    "③|A4|cl-equals|B13|1|E2|same",
+    "③|A4|rf-money|B07|2|E2|same",
+    "③|A4|tr-clamp|B12|2|E2|same",
+    "③|A4|cv-email|B12|2|E2|same",
+    "③|A4|bf-mergesorted|B12|2|E2|same",
+    "③|A4|du-interp|B06|3|E2|same",
+    "③|A4|bf-lru|B10|1|E2|same",
+    "③|A4|median|B10|3|E2|same",
+    "③|A4|dp-querystring|B11|1|E2|same"
   ],
-  "newRowsThisRun": 4,
+  "newRowsThisRun": 10,
   "totalProviderUsage": {
-    "inputTokens": 1126174,
-    "outputTokens": 29451,
-    "totalTokens": 1155625
+    "inputTokens": 2802406,
+    "outputTokens": 70706,
+    "totalTokens": 2873112
   },
   "complete": false,
   "fullRunUnlockReason": "CHK-006 completes only when every expected Cell 03 cell key has exactly one final formal row and no duplicate final row.",
-  "createdAt": "2026-07-06T00:33:05.475Z"
+  "createdAt": "2026-07-06T00:45:50.690Z"
 }
