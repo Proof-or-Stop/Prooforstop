@@ -87,8 +87,24 @@
       "phase": "DEV",
       "headHash": "e800eb57080984767ce05e26a3e41e6228c4f936",
       "materialHash": "c2dbf90d301f11d406f87e8e964c25824b88f965a9f9692e93d11e5889001c21"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Single-story milestone ledger self-coverage rollup: B-f7b3 has milestones M1-M6 but no child stories, so the DONE intent-equivalence gate (strict_milestone) requires a parent_ledger_rollup mapping each milestone to a covered/done child. The only child is the story itself. Intentional in-story DONE-gate artifact, not a source change.",
+      "timestamp": "2026-07-06T07:13:52.843Z",
+      "paths": [
+        ".lattice/story/actives/B-f7b3/parent-ledger-rollup.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-f7b3/parent-ledger-rollup.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "84083f3c2c34f37be5403d9e7c496fa8a9cc33ef",
+      "materialHash": "1b93755c84776d6812311e1ae7d37c58d14bb6f941d223c7d4ad41572b9093af"
     }
   ],
   "createdAt": "2026-07-05T21:32:41.725Z",
-  "updatedAt": "2026-07-06T05:55:06.137Z"
+  "updatedAt": "2026-07-06T07:13:52.843Z"
 }
