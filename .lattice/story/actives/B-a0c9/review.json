@@ -28,6 +28,19 @@
         }
       ],
       "_hash": "c3f8e011cc28c5268c9ed7e8274e1fb86e58431bed5d45101bea1ba38269958a"
+    },
+    {
+      "timestamp": "2026-07-06T10:31:43.778Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 checklist items; please check for missing combined scenarios (e.g., what happens when F-017: make sandbox cleanup hermetic on sub-check failure + F-018: assert LOCK_DIR + holder.json survive the forced break failure in sub-check M are performed simultaneously?)"
+        }
+      ],
+      "_hash": "cd3689f58e36588a71ae238325405ab34d0e3e88d6e6e264ed50a8a3916da172"
     }
   ]
 }
