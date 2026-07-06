@@ -80,7 +80,36 @@
       "context": "In packages/main/tests/milestone-status.test.mjs, invert the no-ledger assertion (around 302-306) to require the checklist-derived ledger and forbid the Milestone Status header; add unit coverage for renderChecklistDerivedLedger including the empty-checklist stub; keep the real-ledger and --json regressions green.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/tests/milestone-status.test.mjs"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/milestone-status.test.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "the inverted no-ledger CLI assertion passes: stdout contains the checklist-derived ledger header and the mutated item row, and does not contain \"Milestone Status - <id>\"",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "a direct unit test of renderChecklistDerivedLedger covers the three-status grouping and the empty-checklist stub",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "pre-existing real-ledger append and --json purity assertions remain green (no regression)",
+            "type": "logic"
+          }
+        ]
+      }
     }
   ]
 }
