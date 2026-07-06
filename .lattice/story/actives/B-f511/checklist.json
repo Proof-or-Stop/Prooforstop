@@ -49,10 +49,10 @@
           "command": "node experiments/pos-instrument-replay/selfcheck-m3.mjs",
           "result": "pass",
           "note": "run-batch --resume against a partial ledger skips already-recorded iterationIds and runs only the remaining; the strict guard reconciles the final 30-record small multiset (0 dup / 0 gap). Proven by selfcheck-m3 boundary-kill + mid-run-crash sub-checks (append-only preserved; resume-only stale-lock break).",
-          "headHash": "5c1aa59af9c3e300f9c5c9d675cb609ab8bd3ff6",
-          "materialHash": "4e625df486123eab21a9bcdd2f7d078af09e4b3de1c49a9efa0f939f3fa4677b",
-          "storyFilesHash": "de01a2e52c1851b82f08c4080802d781ad44520253ead770535784398db2f30a",
-          "timestamp": "2026-07-06T02:17:52.891Z"
+          "headHash": "98ee3e0dbd49501a0b3a456b4e9cd35e7c0c062f",
+          "materialHash": "72235d20101e07bfddf60b0e65cf527c700c424441776e30bbc867ae206a53b8",
+          "storyFilesHash": "72dc774e8479d01609d432bbe1a5775bc3b62810d1c2381e312b51de954af7f5",
+          "timestamp": "2026-07-06T03:27:16.005Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -60,10 +60,10 @@
           "command": "node experiments/pos-instrument-replay/selfcheck-m3.mjs",
           "result": "pass",
           "note": "selfcheck-m3 E (truncated-tail) + G (valid-final-record-preserved): repairTruncatedTail now PARSES the un-terminated tail in both branches — a genuinely truncated partial write is dropped (that iteration re-runs), but a COMPLETE final record missing only its newline (replay/small/4) is PRESERVED verbatim (never dropped into a gap). 0 dup / 0 gap.",
-          "headHash": "5c1aa59af9c3e300f9c5c9d675cb609ab8bd3ff6",
-          "materialHash": "4e625df486123eab21a9bcdd2f7d078af09e4b3de1c49a9efa0f939f3fa4677b",
-          "storyFilesHash": "de01a2e52c1851b82f08c4080802d781ad44520253ead770535784398db2f30a",
-          "timestamp": "2026-07-06T02:17:52.891Z"
+          "headHash": "98ee3e0dbd49501a0b3a456b4e9cd35e7c0c062f",
+          "materialHash": "72235d20101e07bfddf60b0e65cf527c700c424441776e30bbc867ae206a53b8",
+          "storyFilesHash": "72dc774e8479d01609d432bbe1a5775bc3b62810d1c2381e312b51de954af7f5",
+          "timestamp": "2026-07-06T03:27:16.005Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -71,10 +71,10 @@
           "command": "node experiments/pos-instrument-replay/selfcheck-m3.mjs",
           "result": "pass",
           "note": "Resume/lock integrity is now closed on ALL known paths (commit 5c1aa59af). (a) F-005/F-006 conservative missing-holder=LIVE; (b) F-007/F-008 break-mutex serializes the break critical-section (two resumers can't both rm+mkdir); (c) F-009/F-011: a FRESH (non-resume) driver that wins the break-to-reacquire window now FAILS CLOSED if batch-ledger.jsonl already exists non-empty (checked UNDER the campaign lock, precondition_failed exit 3, releases the lock, campaign ledger byte-identical) so it can never re-append duplicates onto a partial ledger. The 'exactly one campaign writer, never a poisoned ledger' invariant holds. selfcheck-m3 sub-checks H/I/J/K prove each direction deterministically.",
-          "headHash": "cb6bb7a89d53986a94df19a6b6f91114ca29358f",
-          "materialHash": "4e625df486123eab21a9bcdd2f7d078af09e4b3de1c49a9efa0f939f3fa4677b",
-          "storyFilesHash": "de01a2e52c1851b82f08c4080802d781ad44520253ead770535784398db2f30a",
-          "timestamp": "2026-07-06T02:17:53.577Z"
+          "headHash": "98ee3e0dbd49501a0b3a456b4e9cd35e7c0c062f",
+          "materialHash": "72235d20101e07bfddf60b0e65cf527c700c424441776e30bbc867ae206a53b8",
+          "storyFilesHash": "72dc774e8479d01609d432bbe1a5775bc3b62810d1c2381e312b51de954af7f5",
+          "timestamp": "2026-07-06T03:27:16.005Z"
         }
       ]
     },
@@ -126,10 +126,10 @@
           "command": "node experiments/pos-instrument-replay/resume-probe.mjs",
           "result": "pass",
           "note": "resume-probe.mjs kills run-batch at a boundary (hard-crash before append at replay/small/6, leaving 5 recorded + a recordless casualty) and mid-run (replay/small/18), plus an external-SIGKILL trial; restarts in --resume each time; writes resume-reconciliation.json: killA{recordedBeforeKill:5,casualty replay/small/6,dup:0,gap:0}, killB{17,replay/small/18,dup:0,gap:0}, finalMultisetMatch:true, dupTotal:0 gapTotal:0. H3: 0 dup / 0 gap.",
-          "headHash": "5c1aa59af9c3e300f9c5c9d675cb609ab8bd3ff6",
-          "materialHash": "4e625df486123eab21a9bcdd2f7d078af09e4b3de1c49a9efa0f939f3fa4677b",
-          "storyFilesHash": "de01a2e52c1851b82f08c4080802d781ad44520253ead770535784398db2f30a",
-          "timestamp": "2026-07-06T02:17:52.891Z"
+          "headHash": "98ee3e0dbd49501a0b3a456b4e9cd35e7c0c062f",
+          "materialHash": "72235d20101e07bfddf60b0e65cf527c700c424441776e30bbc867ae206a53b8",
+          "storyFilesHash": "72dc774e8479d01609d432bbe1a5775bc3b62810d1c2381e312b51de954af7f5",
+          "timestamp": "2026-07-06T03:27:16.005Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -137,10 +137,10 @@
           "command": "node -e \"const r=require('./experiments/pos-instrument-replay/resume-reconciliation.json');console.log(r.finalMultisetMatch,r.dupTotal,r.gapTotal)\"",
           "result": "pass",
           "note": "After both kills+resume the ledger identity multiset equals the protocol replay/small cross-product exactly (finalMultisetMatch true, 0 gap) — exactly one record per iterationId.",
-          "headHash": "5c1aa59af9c3e300f9c5c9d675cb609ab8bd3ff6",
-          "materialHash": "4e625df486123eab21a9bcdd2f7d078af09e4b3de1c49a9efa0f939f3fa4677b",
-          "storyFilesHash": "de01a2e52c1851b82f08c4080802d781ad44520253ead770535784398db2f30a",
-          "timestamp": "2026-07-06T02:17:52.891Z"
+          "headHash": "98ee3e0dbd49501a0b3a456b4e9cd35e7c0c062f",
+          "materialHash": "72235d20101e07bfddf60b0e65cf527c700c424441776e30bbc867ae206a53b8",
+          "storyFilesHash": "72dc774e8479d01609d432bbe1a5775bc3b62810d1c2381e312b51de954af7f5",
+          "timestamp": "2026-07-06T03:27:16.005Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -148,10 +148,10 @@
           "command": "node -e \"const r=require('./experiments/pos-instrument-replay/resume-reconciliation.json');console.log(JSON.stringify(r.killC))\"",
           "result": "pass",
           "note": "Each casualty resolves to stop-or-clean-rerun, never a half-record: killA/killB (recordless hard-crash) -> proof:pass; killC (POS_FAIL_APPEND_AT -> a recorded verify_crash STOP at replay/small/3) is PRESERVED and SKIPPED on resume (not re-run into a proof); dup=0 gap=0 across all kills.",
-          "headHash": "5c1aa59af9c3e300f9c5c9d675cb609ab8bd3ff6",
-          "materialHash": "4e625df486123eab21a9bcdd2f7d078af09e4b3de1c49a9efa0f939f3fa4677b",
-          "storyFilesHash": "de01a2e52c1851b82f08c4080802d781ad44520253ead770535784398db2f30a",
-          "timestamp": "2026-07-06T02:17:52.891Z"
+          "headHash": "98ee3e0dbd49501a0b3a456b4e9cd35e7c0c062f",
+          "materialHash": "72235d20101e07bfddf60b0e65cf527c700c424441776e30bbc867ae206a53b8",
+          "storyFilesHash": "72dc774e8479d01609d432bbe1a5775bc3b62810d1c2381e312b51de954af7f5",
+          "timestamp": "2026-07-06T03:27:16.005Z"
         }
       ]
     },
@@ -202,10 +202,10 @@
           "command": "node experiments/pos-instrument-replay/selfcheck-m3.mjs",
           "result": "pass",
           "note": "node selfcheck-m3.mjs exits 0 'selfcheck-m3 PASS' — now 11 hermetic sub-checks A-K: A boundary-kill, B mid-run-crash, C fresh-additive, D resume-no-ledger, E truncated-tail, F stop-record-resume, G valid-final-record-preserved, H live-lock-not-broken, I NO-HOLDER-lock-not-broken, J BREAK-MUTEX-SERIALIZES (multi-resumer TOCTOU), K FRESH-REFUSES-NONEMPTY-LEDGER (fresh-driver ledger-poisoning).",
-          "headHash": "c2908fcfc529d31cf46ff2d7bfac813995c54628",
-          "materialHash": "4e625df486123eab21a9bcdd2f7d078af09e4b3de1c49a9efa0f939f3fa4677b",
-          "storyFilesHash": "de01a2e52c1851b82f08c4080802d781ad44520253ead770535784398db2f30a",
-          "timestamp": "2026-07-06T02:17:54.207Z"
+          "headHash": "98ee3e0dbd49501a0b3a456b4e9cd35e7c0c062f",
+          "materialHash": "72235d20101e07bfddf60b0e65cf527c700c424441776e30bbc867ae206a53b8",
+          "storyFilesHash": "72dc774e8479d01609d432bbe1a5775bc3b62810d1c2381e312b51de954af7f5",
+          "timestamp": "2026-07-06T03:27:16.005Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -213,10 +213,10 @@
           "command": "node experiments/pos-instrument-replay/selfcheck-m3.mjs",
           "result": "pass",
           "note": "selfcheck-m3 asserts 0 dup / 0 gap and exactly one record per protocol replay/small iterationId after each resume (finalMultisetMatch).",
-          "headHash": "5c1aa59af9c3e300f9c5c9d675cb609ab8bd3ff6",
-          "materialHash": "4e625df486123eab21a9bcdd2f7d078af09e4b3de1c49a9efa0f939f3fa4677b",
-          "storyFilesHash": "de01a2e52c1851b82f08c4080802d781ad44520253ead770535784398db2f30a",
-          "timestamp": "2026-07-06T02:17:52.891Z"
+          "headHash": "98ee3e0dbd49501a0b3a456b4e9cd35e7c0c062f",
+          "materialHash": "72235d20101e07bfddf60b0e65cf527c700c424441776e30bbc867ae206a53b8",
+          "storyFilesHash": "72dc774e8479d01609d432bbe1a5775bc3b62810d1c2381e312b51de954af7f5",
+          "timestamp": "2026-07-06T03:27:16.005Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -224,10 +224,10 @@
           "command": "node experiments/pos-instrument-replay/selfcheck-m3.mjs",
           "result": "pass",
           "note": "Un-gameable: sub-check K seeds a sandbox ledger with valid records then runs a FRESH (no --resume) driver and asserts it FAILS CLOSED (exit 3, precondition_failed 'non-empty ledger' to the blocked-ledger, campaign ledger byte-identical — zero duplicate/extra records appended). Findings F-001..F-011 each covered by a dedicated load-bearing sub-check (F-007/F-008->J, F-009/F-011->K); F-010 restores the explicit [resume] could-not-break-stale-lock exit 2 diagnostic; every direction fails loudly on regression.",
-          "headHash": "077f7fcaf1a6c6eb4da6a844b991b454f3d5c4d6",
-          "materialHash": "4e625df486123eab21a9bcdd2f7d078af09e4b3de1c49a9efa0f939f3fa4677b",
-          "storyFilesHash": "de01a2e52c1851b82f08c4080802d781ad44520253ead770535784398db2f30a",
-          "timestamp": "2026-07-06T02:17:54.841Z"
+          "headHash": "98ee3e0dbd49501a0b3a456b4e9cd35e7c0c062f",
+          "materialHash": "72235d20101e07bfddf60b0e65cf527c700c424441776e30bbc867ae206a53b8",
+          "storyFilesHash": "72dc774e8479d01609d432bbe1a5775bc3b62810d1c2381e312b51de954af7f5",
+          "timestamp": "2026-07-06T03:27:16.005Z"
         }
       ]
     }
