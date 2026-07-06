@@ -62,6 +62,15 @@
       "reviewRound": "2026-07-06T00:08:28.508Z",
       "reviewRunId": "B-c389:RR-011",
       "_hash": "1e7519c29aa67eaf8918de6d98e8ea68c89987eaa61013998dc3524e9f3df433"
+    },
+    {
+      "id": "B-c389:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 re-review (post main-merge, forced by storyFilesHash invalidation, not new code). Verified via git diff main...HEAD --stat -M and full code diff inspection: this story is purely additive (new handler packages/main/src/handlers/capability-release-backfill.ts, 3 new smoke tasks, additive extensions to capability-release.ts/command-catalog.ts/registry.ts/command-policy.ts/config.ts/process-fact-levels.ts/docs/CLI.md/lattice.config.json). Zero file deletions, zero renames. The only removed line in the entire diff is one import statement in capability-release.ts that was merely expanded into a multi-symbol import from the same module (selectArtifactReleasePathsV1 plus 3 new named imports from ./artifact-release.js) -- not a concept deletion. The merge-introduced change to .lattice/capability-releases.jsonl is an appended unrelated ledger row (B-6529/B-785e records) with no schema/structural change. No concept word was deleted or mass-replaced this round; no residual-scan target exists. No blocker.",
+      "createdAt": "2026-07-06T06:26:23.254Z",
+      "reviewRound": "2026-07-06T06:25:18.576Z",
+      "reviewRunId": "B-c389:RR-012",
+      "_hash": "d50771a2ed8c1192c2547e19abe118fc0b99a112052e9d9d344ee897f4c0d57f"
     }
   ]
 }
