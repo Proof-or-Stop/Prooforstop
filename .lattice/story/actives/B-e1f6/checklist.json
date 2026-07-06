@@ -179,9 +179,9 @@
           "experiments/multi-model-ablation/cell03-shards/selfcheck.mjs"
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-06T15:04:33.646Z",
-      "endTime": null,
+      "endTime": "2026-07-06T15:05:49.614Z",
       "verificationIntent": {
         "happy": [
           {
@@ -202,7 +202,45 @@
           }
         ]
       },
-      "userSees": "node experiments/multi-model-ablation/cell03-shards/selfcheck.mjs reports mergeComplete=pass, duplicateReject=pass, missingReject=pass, and digestDriftReject=pass."
+      "userSees": "node experiments/multi-model-ablation/cell03-shards/selfcheck.mjs reports mergeComplete=pass, duplicateReject=pass, missingReject=pass, and digestDriftReject=pass.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "experiments/multi-model-ablation/cell03-shards/selfcheck.mjs",
+          "command": "node experiments/multi-model-ablation/cell03-shards/selfcheck.mjs",
+          "result": "pass",
+          "note": "Selfcheck reports mergeComplete=pass with 1152 merged fixture rows and zero duplicates.",
+          "headHash": "e5c6b99a2f842db2a489f99c7e299f5c4aaaa2e5",
+          "materialHash": "94117eeaf2c8284f298e69036b6027a0c3357c68e3ee5908a2774c157c79dd4a",
+          "storyFilesHash": "a1d17281d4f7e7182eedcea59ad0d493ff6a7d3f1495678fd3ce6029578b3523",
+          "timestamp": "2026-07-06T15:05:50.055Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "experiments/multi-model-ablation/cell03-shards/selfcheck.mjs",
+          "command": "node experiments/multi-model-ablation/cell03-shards/selfcheck.mjs",
+          "result": "pass",
+          "note": "Selfcheck reports missingReject=pass, proving partial shard output cannot pass complete merge validation.",
+          "headHash": "e5c6b99a2f842db2a489f99c7e299f5c4aaaa2e5",
+          "materialHash": "94117eeaf2c8284f298e69036b6027a0c3357c68e3ee5908a2774c157c79dd4a",
+          "storyFilesHash": "a1d17281d4f7e7182eedcea59ad0d493ff6a7d3f1495678fd3ce6029578b3523",
+          "timestamp": "2026-07-06T15:05:50.299Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "experiments/multi-model-ablation/cell03-shards/selfcheck.mjs",
+          "command": "node experiments/multi-model-ablation/cell03-shards/selfcheck.mjs",
+          "result": "pass",
+          "note": "Selfcheck reports duplicateReject=pass and digestDriftReject=pass, proving duplicate rows and manifest/row digest drift fail closed.",
+          "headHash": "e5c6b99a2f842db2a489f99c7e299f5c4aaaa2e5",
+          "materialHash": "94117eeaf2c8284f298e69036b6027a0c3357c68e3ee5908a2774c157c79dd4a",
+          "storyFilesHash": "a1d17281d4f7e7182eedcea59ad0d493ff6a7d3f1495678fd3ce6029578b3523",
+          "timestamp": "2026-07-06T15:05:50.518Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
