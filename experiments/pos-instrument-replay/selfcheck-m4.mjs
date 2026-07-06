@@ -30,6 +30,15 @@
 //   (N) H4-NEGATIVE    — one proof elapsedMs=-1 (re-sign) => H4 fail; and elapsedMs=null => H4 fail.
 //   (O) ABSENT-FILE    — delete tamper-verdicts.jsonl entirely => no crash, H2 inconclusive,
 //                        overall some-inconclusive, generatedInputs['tamper-verdicts.jsonl']===null.
+//   (P) H1-EXTRA-SCALE  — append one re-signed proof record at scale:"bogus" with garbage
+//                        digests => H1 fail (undeclared scale + total-count), overall not all-pass.
+//   (Q) H2-BINDING     — relabel cross-profile-swap|refreshed (protocol fail-closed) to
+//                        rederivedDisposition='accepted' + verifyStatus='pass' (counts + set-
+//                        coverage unchanged) => H2 fail via identity->disposition binding.
+//   (R) H3-NESTED-VALUE— (i) killC.postResume.stoppedRecordPreserved=false => H3 fail;
+//                        (ii) every kill*.postResume replaced with {} => H3 fail.
+//   (S) H1-PARTIAL-GOLD— set every proof record's goldMetrics to {expectedIdsFoundRate:1}
+//                        (re-signed) => H1 fail (full gold-metric key set not satisfied).
 
 import { execFileSync } from 'node:child_process';
 import { cpSync, mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync, existsSync } from 'node:fs';
@@ -510,6 +519,161 @@ function checkO() {
   }
 }
 
+// ---------------------------------------------------------------------------
+// (P) H1-EXTRA-SCALE — append one EXTRA proof record at an undeclared
+//     scale:"bogus" with garbage digests, re-signing its recordDigest so the
+//     integrity pre-check still passes. The closed-scale-set + total-count
+//     checks must catch it => H1 fail, overall NOT all-pass. (A re-signed
+//     record at an undeclared scale must never be silently ignored.)
+// ---------------------------------------------------------------------------
+function checkP() {
+  const s = makeSandbox('P');
+  try {
+    const p = join(s, 'batch-ledger.jsonl');
+    const recs = readJsonl(p);
+    // clone a real proof record as a template, then move it to an undeclared
+    // scale with garbage digests (still a well-shaped record so ONLY the scale
+    // set / total-count checks are the discriminator).
+    const template = recs.find((r) => r.verifyStatus !== undefined && r.digests);
+    if (!template) fail('P-h1-extra-scale', 'no proof record template found');
+    const extra = reSign({
+      ...template,
+      iterationId: 'proof/bogus/extra/0',
+      scale: 'bogus',
+      digests: { records: 'garbage', gold: 'garbage', manifest: 'garbage' },
+    });
+    recs.push(extra);
+    writeJsonl(p, recs);
+    const r = runAnalyze(s);
+    if (r.status !== 0) fail('P-h1-extra-scale', `analyze-batch aborted (${r.status}) — integrity should pass: ${r.stderr}`);
+    const v = parseVerdicts(r.stdout);
+    if (v['H1 replay-determinism'] !== 'fail') fail('P-h1-extra-scale', `H1=${v['H1 replay-determinism']}, expected fail`);
+    if (v.overall === 'all-pass') fail('P-h1-extra-scale', 'overall should not be all-pass');
+    const rep = readJson(join(s, 'report.json'));
+    const e1 = rep.hypotheses.H1.evidence;
+    if (e1.scaleSetClosed !== false) fail('P-h1-extra-scale', `expected scaleSetClosed=false, got ${e1.scaleSetClosed}`);
+    if (!e1.undeclaredScales.includes('bogus')) fail('P-h1-extra-scale', `undeclaredScales missing "bogus": ${JSON.stringify(e1.undeclaredScales)}`);
+    if (e1.totalCountOk !== false) fail('P-h1-extra-scale', `expected totalCountOk=false, got ${e1.totalCountOk}`);
+    ok('P-h1-extra-scale', `H1=fail (undeclared scale "bogus" + total-count mismatch), overall=${v.overall}`);
+  } finally {
+    cleanup(s);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// (Q) H2-DISPOSITION-BINDING — take the verdict whose identity is
+//     cross-profile-swap|refreshed (protocol-assigned fail-closed) and relabel
+//     rederivedDisposition='accepted' AND verifyStatus='pass' (so the per-row
+//     'accepted' conformance rule pass&&fingerprintMatch still holds). Counts +
+//     set-coverage are UNCHANGED — the identity->disposition binding is the
+//     sole discriminator => H2 fail.
+// ---------------------------------------------------------------------------
+function checkQ() {
+  const s = makeSandbox('Q');
+  try {
+    const p = join(s, 'tamper-verdicts.jsonl');
+    const recs = readJsonl(p);
+    const idx = recs.findIndex((v) => v.class === 'cross-profile-swap' && v.handling === 'refreshed');
+    if (idx < 0) fail('Q-h2-binding', 'no cross-profile-swap|refreshed verdict found');
+    // relabel to 'accepted' + make per-row conformance hold (pass & fingerprintMatch).
+    recs[idx] = {
+      ...recs[idx],
+      rederivedDisposition: 'accepted',
+      verifyStatus: 'pass',
+      fingerprintMatch: true,
+      dispositionMatch: true,
+    };
+    writeJsonl(p, recs);
+    const r = runAnalyze(s);
+    if (r.status !== 0) fail('Q-h2-binding', `analyze-batch aborted (${r.status}): ${r.stderr}`);
+    const v = parseVerdicts(r.stdout);
+    if (v['H2 tamper-fail-closed'] !== 'fail') fail('Q-h2-binding', `H2=${v['H2 tamper-fail-closed']}, expected fail`);
+    // confirm counts + set-coverage stayed intact, so the BINDING is the discriminator.
+    const rep = readJson(join(s, 'report.json'));
+    const e = rep.hypotheses.H2.evidence;
+    if (e.countsMatch !== false) {
+      // relabeling one fail-closed->accepted shifts per-disposition counts, so
+      // countsMatch will actually flip false here. The binding check is proven
+      // by bindingMatch=false + the specific identity being flagged; we assert
+      // that independently below regardless of counts.
+    }
+    if (e.identityMatch !== true) fail('Q-h2-binding', `expected identityMatch=true (set-coverage unchanged), got ${e.identityMatch}`);
+    if (e.bindingMatch !== false) fail('Q-h2-binding', `expected bindingMatch=false, got ${e.bindingMatch}`);
+    if (!e.bindingViolationIdentities.includes('cross-profile-swap|refreshed')) {
+      fail('Q-h2-binding', `binding violation did not flag cross-profile-swap|refreshed: ${JSON.stringify(e.bindingViolationIdentities)}`);
+    }
+    ok('Q-h2-binding', `H2=fail via identity->disposition binding (cross-profile-swap|refreshed relabeled accepted; set-coverage unchanged, bindingMatch=false), overall=${v.overall}`);
+  } finally {
+    cleanup(s);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// (R) H3-NESTED-VALUE — substantive postResume value checks:
+//   (i) killC.postResume.stoppedRecordPreserved=false => H3 fail (the stop
+//       record must be preserved across resume).
+//   (ii) replace EVERY kill*.postResume with {} => H3 fail (an empty postResume
+//        carries no reconciliation VALUES; key-presence alone must not pass).
+// ---------------------------------------------------------------------------
+function checkR() {
+  const s = makeSandbox('R');
+  try {
+    const p = join(s, 'resume-reconciliation.json');
+    // sub-case (i): killC.postResume.stoppedRecordPreserved=false
+    {
+      const j = readJson(p);
+      j.killC = { ...j.killC, postResume: { ...j.killC.postResume, stoppedRecordPreserved: false } };
+      writeFileSync(p, JSON.stringify(j, null, 2));
+      const r = runAnalyze(s);
+      if (r.status !== 0) fail('R-h3-nested-value', `(i) analyze-batch aborted (${r.status}): ${r.stderr}`);
+      const v = parseVerdicts(r.stdout);
+      if (v['H3 resume-integrity'] !== 'fail') fail('R-h3-nested-value', `(i) stoppedRecordPreserved=false: H3=${v['H3 resume-integrity']}, expected fail`);
+    }
+    // sub-case (ii): every kill*.postResume = {}
+    {
+      const j = readJson(p); // reads sub-case (i)'s file; overwrite all postResume fully
+      const orig = readJson(join(HERE, 'resume-reconciliation.json'));
+      j.killA = { ...orig.killA, postResume: {} };
+      j.killB = { ...orig.killB, postResume: {} };
+      j.killC = { ...orig.killC, postResume: {} };
+      writeFileSync(p, JSON.stringify(j, null, 2));
+      const r = runAnalyze(s);
+      if (r.status !== 0) fail('R-h3-nested-value', `(ii) analyze-batch aborted (${r.status}): ${r.stderr}`);
+      const v = parseVerdicts(r.stdout);
+      if (v['H3 resume-integrity'] !== 'fail') fail('R-h3-nested-value', `(ii) empty postResume: H3=${v['H3 resume-integrity']}, expected fail`);
+    }
+    ok('R-h3-nested-value', 'H3=fail for killC.stoppedRecordPreserved=false AND for empty {} postResume');
+  } finally {
+    cleanup(s);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// (S) H1-PARTIAL-GOLDMETRICS — set every proof record's goldMetrics to a
+//     PARTIAL {expectedIdsFoundRate:1} and re-sign (integrity passes). The full
+//     gold-metric key-set requirement must reject it => H1 fail.
+// ---------------------------------------------------------------------------
+function checkS() {
+  const s = makeSandbox('S');
+  try {
+    const p = join(s, 'batch-ledger.jsonl');
+    const recs = readJsonl(p);
+    const out = recs.map((r) => {
+      if (r.verifyStatus === undefined) return r;
+      return reSign({ ...r, goldMetrics: { expectedIdsFoundRate: 1 } });
+    });
+    writeJsonl(p, out);
+    const r = runAnalyze(s);
+    if (r.status !== 0) fail('S-h1-partial-gold', `analyze-batch aborted (${r.status}) — integrity should pass: ${r.stderr}`);
+    const v = parseVerdicts(r.stdout);
+    if (v['H1 replay-determinism'] !== 'fail') fail('S-h1-partial-gold', `H1=${v['H1 replay-determinism']}, expected fail`);
+    if (v.overall === 'all-pass') fail('S-h1-partial-gold', 'overall should not be all-pass');
+    ok('S-h1-partial-gold', `H1=fail (partial goldMetrics {expectedIdsFoundRate:1}), overall=${v.overall}`);
+  } finally {
+    cleanup(s);
+  }
+}
+
 function main() {
   checkA();
   checkB();
@@ -526,6 +690,10 @@ function main() {
   checkM();
   checkN();
   checkO();
+  checkP();
+  checkQ();
+  checkR();
+  checkS();
   console.log('selfcheck-m4 PASS');
   process.exit(0);
 }

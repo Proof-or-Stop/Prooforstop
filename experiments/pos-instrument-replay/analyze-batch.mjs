@@ -232,21 +232,50 @@ function main() {
 }
 
 // ---------------------------------------------------------------------------
-// H1 replay-determinism (STRICT completeness + non-vacuous)
+// H1 replay-determinism (STRICT completeness + non-vacuous + closed scale set)
 //   For every scale s declared in protocol.N:
 //     - recs = proof records at scale s.
 //     - recs.length MUST equal protocol.N[s] (incomplete OR extra => FAIL).
 //     - every rec MUST carry non-empty digests {records, gold, manifest}
-//       (all three present, non-empty strings) AND a non-empty goldMetrics
-//       object (vacuous/stripped => FAIL).
+//       (all three present, non-empty strings) AND a goldMetrics object with
+//       EVERY EXPECTED_GOLD_METRIC_KEYS key present with a finite-number value
+//       (a partial/stripped goldMetrics => FAIL).
 //     - all recs at the scale MUST be pairwise-equal on
 //       canonicalJson({digests, goldMetrics}) (mismatch => FAIL).
+//   ADDITIONALLY (closed scale set, F-009/F-011/F-014):
+//     - every proof record's `scale` MUST be a declared key of protocol.N;
+//       ANY proof record at an undeclared/extra scale => FAIL (never silently
+//       ignored — a re-signed record at scale:"bogus" must falsify H1).
+//     - the TOTAL proof-record count MUST equal the sum of protocol.N values
+//       (no extra, no missing across the whole ledger) => else FAIL.
 //   inconclusive ONLY when there are ZERO proof records overall (no evidence).
-//   pass iff every scale in protocol.N has exactly N[s] well-formed records all
-//   pairwise-equal.
+//   pass iff the scale set is closed, the total count matches, and every scale
+//   in protocol.N has exactly N[s] well-formed records all pairwise-equal.
 // ---------------------------------------------------------------------------
+// The FULL gold-metric key set the instrument's gold-metrics verify emits.
+// Cited from lib/instrument.mjs gold-metrics (the memory-baseline verify's
+// gold-metric surface). A proof record is well-formed ONLY if its goldMetrics
+// carries EVERY one of these keys with a finite-number value; a partial
+// goldMetrics (e.g. {expectedIdsFoundRate:1}) MUST fail well-formedness.
+const EXPECTED_GOLD_METRIC_KEYS = [
+  'candidateFalseSurfaceRate',
+  'currentOverSupersededPreferenceRate',
+  'deprecatedFalseSurfaceRate',
+  'expectedDeprecatedTermHitsFoundRate',
+  'expectedIdsFoundRate',
+  'expectedSuppressedIdsFoundRate',
+  'goldQueryPresenceRate',
+  'goldRecordPresenceRate',
+  'malformedRowsSkipped',
+  'supersededFalseSurfaceRate',
+];
 function isNonEmptyString(v) {
   return typeof v === 'string' && v.length > 0;
+}
+function hasFullGoldMetrics(g) {
+  if (g == null || typeof g !== 'object' || Array.isArray(g)) return false;
+  // EVERY expected key must be present with a finite number value.
+  return EXPECTED_GOLD_METRIC_KEYS.every((k) => Number.isFinite(g[k]));
 }
 function hasWellFormedProofEvidence(r) {
   const d = r.digests;
@@ -254,14 +283,16 @@ function hasWellFormedProofEvidence(r) {
   if (!isNonEmptyString(d.records) || !isNonEmptyString(d.gold) || !isNonEmptyString(d.manifest)) {
     return false;
   }
-  const g = r.goldMetrics;
-  if (g == null || typeof g !== 'object' || Object.keys(g).length === 0) return false;
+  // FULL gold-metric key set (not merely non-empty): a partial goldMetrics fails.
+  if (!hasFullGoldMetrics(r.goldMetrics)) return false;
   return true;
 }
 function adjudicateH1(proofs, protocol) {
   const criterion =
-    'Per scale s in protocol.N: exactly N[s] proof records exist, each with ' +
-    'non-empty digests {records,gold,manifest} + non-empty goldMetrics, and all ' +
+    'Every proof record has a declared protocol.N scale and the total proof ' +
+    'count equals sum(protocol.N); per scale s in protocol.N: exactly N[s] ' +
+    'proof records exist, each with non-empty digests {records,gold,manifest} ' +
+    '+ goldMetrics carrying the full expected key set (finite numbers), and all ' +
     'records share identical canonicalJson({digests, goldMetrics}).';
 
   // No proof records at all => no evidence => inconclusive.
@@ -274,11 +305,26 @@ function adjudicateH1(proofs, protocol) {
   }
 
   const expectedN = (protocol && protocol.N) || {};
+  const declaredScales = new Set(Object.keys(expectedN));
   const byScale = {};
   for (const r of proofs) (byScale[r.scale] ??= []).push(r);
   const scales = Object.keys(expectedN).sort();
 
-  let anyFail = false;
+  // CLOSED SCALE SET (F-009): every proof record's scale must be declared.
+  const undeclaredScales = [...new Set(proofs.map((r) => r.scale))]
+    .filter((sc) => !declaredScales.has(sc))
+    .sort();
+  const scaleSetClosed = undeclaredScales.length === 0;
+
+  // TOTAL COUNT: total proof records must equal sum(protocol.N) — no extra,
+  // no missing anywhere (an extra bogus-scale record also trips this).
+  const expectedTotal = Object.values(expectedN).reduce(
+    (a, v) => a + (Number.isFinite(v) ? v : 0),
+    0,
+  );
+  const totalCountOk = proofs.length === expectedTotal;
+
+  let anyFail = !scaleSetClosed || !totalCountOk;
   const perScale = {};
   for (const s of scales) {
     const recs = byScale[s] || [];
@@ -306,7 +352,14 @@ function adjudicateH1(proofs, protocol) {
   return {
     verdict: verdict(!anyFail, anyFail),
     criterion,
-    evidence: { perScale },
+    evidence: {
+      perScale,
+      totalProofCount: proofs.length,
+      expectedTotal,
+      totalCountOk,
+      scaleSetClosed,
+      undeclaredScales,
+    },
   };
 }
 
@@ -318,8 +371,10 @@ function adjudicateH1(proofs, protocol) {
 function adjudicateH2(tamper, protocol) {
   const criterion =
     'The set of {class|handling} verdicts exactly equals the protocol.tamperMatrix ' +
-    'identity set (no missing, no unexpected, no duplicate); every tamper verdict ' +
-    'conforms to its rederivedDisposition rule ' +
+    'identity set (no missing, no unexpected, no duplicate); EACH verdict\'s ' +
+    'rederivedDisposition equals the disposition its {class|handling} identity is ' +
+    'assigned by protocol.tamperMatrix (identity->disposition binding); every ' +
+    'tamper verdict conforms to its rederivedDisposition rule ' +
     '(fail-closed => verifyStatus in {fail,crash} & fingerprintMatch; ' +
     'accepted/acknowledged-limitation => pass & fingerprintMatch; ' +
     'dropped => pass), every dispositionMatch===true, and the per-disposition ' +
@@ -407,8 +462,38 @@ function adjudicateH2(tamper, protocol) {
     unexpectedIdentities.length === 0 &&
     !duplicateIdentities;
 
+  // IDENTITY -> DISPOSITION BINDING (F-012): the protocol assigns each
+  // `${class}|${handling}` identity a bucket, and thus a single expected
+  // disposition. EACH verdict's rederivedDisposition MUST equal the disposition
+  // its own identity is assigned by protocol.tamperMatrix. This catches a
+  // relabel attack that keeps counts + set-coverage + per-row conformance
+  // consistent (e.g. cross-profile-swap|refreshed is protocol-assigned
+  // fail-closed; relabeling its rederivedDisposition to 'accepted' with a
+  // matching verifyStatus='pass' still violates the identity's bound disposition).
+  const dispositionOfBucket = {
+    failClosed: 'fail-closed',
+    acceptanceBucket: 'accepted',
+    acknowledgedLimitations: 'acknowledged-limitation',
+    dropped: 'dropped',
+  };
+  const expectedDispByIdentity = new Map();
+  for (const [bucket, disp] of Object.entries(dispositionOfBucket)) {
+    if (Array.isArray(tm[bucket])) {
+      for (const e of tm[bucket]) expectedDispByIdentity.set(`${e.class}|${e.handling}`, disp);
+    }
+  }
+  const bindingViolations = tamper.filter((v) => {
+    const id = `${v.class}|${v.handling}`;
+    const expDisp = expectedDispByIdentity.get(id);
+    // An unbound identity (not in the protocol) is a binding violation too; its
+    // rederivedDisposition cannot match a disposition the protocol never assigned.
+    return expDisp === undefined || v.rederivedDisposition !== expDisp;
+  });
+  const bindingMatch = bindingViolations.length === 0;
+
   const pass =
     identityMatch &&
+    bindingMatch &&
     nonConforming.length === 0 &&
     dispositionMismatch.length === 0 &&
     countsMatch;
@@ -424,6 +509,11 @@ function adjudicateH2(tamper, protocol) {
       dispositionMismatch: dispositionMismatch.length,
       countsMatch,
       identityMatch,
+      bindingMatch,
+      bindingViolations: bindingViolations.length,
+      bindingViolationIdentities: bindingViolations
+        .map((v) => `${v.class}|${v.handling}`)
+        .sort(),
       expectedIdentityCount: E.size,
       actualIdentityCount: A.size,
       missingIdentities,
@@ -434,24 +524,53 @@ function adjudicateH2(tamper, protocol) {
 }
 
 // ---------------------------------------------------------------------------
-// H3 resume-integrity (substantive, not a 3-field stub)
+// H3 resume-integrity (substantive VALUES, not just key presence)
 //   ABSENT/empty/unparseable resume-reconciliation.json => inconclusive.
 //   PRESENT but missing the substantive reconciliation structure => FAIL:
 //     - killA, killB, killC each an object with keys casualtyId + postResume +
 //       recordedBeforeKill;
+//     - EACH kill trial's postResume (F-010/F-013) is a NON-EMPTY object with
+//       dup===0 && gap===0 && a non-empty-string casualtyDisposition
+//       (killA/killB.postResume = {dup,gap,casualtyDisposition};
+//        killC.postResume = {dup,gap,stoppedDisposition,stoppedRecordPreserved,
+//        casualtyDisposition}); an empty {} postResume must FAIL.
+//     - killC SPECIFICALLY: postResume.stoppedRecordPreserved === true AND a
+//       non-empty-string stoppedDisposition (stoppedRecordPreserved=false FAILS).
 //     - protocolReplaySmallCount === protocol.N.small;
 //     - hypothesis === 'H3'.
-//   pass iff the substantive structure is present AND dupTotal===0 &&
+//   pass iff the substantive structure + values are present AND dupTotal===0 &&
 //   gapTotal===0 && finalMultisetMatch===true.
 // ---------------------------------------------------------------------------
-function isKillWellFormed(k) {
+function isNonEmptyStr(v) {
+  return typeof v === 'string' && v.length > 0;
+}
+// A kill trial's postResume must carry the real reconciliation VALUES, not
+// merely exist: no duplication (dup===0), no gap (gap===0), and a recorded
+// disposition string for the casualty. `requireStopped` adds killC's stop-record
+// preservation checks (stoppedRecordPreserved===true + a stoppedDisposition).
+function isPostResumeWellFormed(k, requireStopped) {
+  if (k == null || typeof k !== 'object' || Array.isArray(k)) return false;
+  const pr = k.postResume;
+  if (pr == null || typeof pr !== 'object' || Array.isArray(pr)) return false;
+  if (Object.keys(pr).length === 0) return false; // empty {} => FAIL
+  if (pr.dup !== 0 || pr.gap !== 0) return false;
+  if (!isNonEmptyStr(pr.casualtyDisposition)) return false;
+  if (requireStopped) {
+    if (pr.stoppedRecordPreserved !== true) return false;
+    if (!isNonEmptyStr(pr.stoppedDisposition)) return false;
+  }
+  return true;
+}
+function isKillWellFormed(k, requireStopped = false) {
   return (
     k != null &&
     typeof k === 'object' &&
     !Array.isArray(k) &&
     'casualtyId' in k &&
     'postResume' in k &&
-    'recordedBeforeKill' in k
+    'recordedBeforeKill' in k &&
+    // substantive postResume VALUES, not just key presence (F-010/F-013).
+    isPostResumeWellFormed(k, requireStopped)
   );
 }
 function adjudicateH3(resume, protocol) {
@@ -482,7 +601,7 @@ function adjudicateH3(resume, protocol) {
   const structure = {
     killA: isKillWellFormed(resume.killA),
     killB: isKillWellFormed(resume.killB),
-    killC: isKillWellFormed(resume.killC),
+    killC: isKillWellFormed(resume.killC, /* requireStopped */ true),
     protocolReplaySmallCount:
       Number.isFinite(expectedSmall) &&
       resume.protocolReplaySmallCount === expectedSmall,
@@ -665,7 +784,7 @@ function h1Evidence(h) {
 function h2Evidence(h) {
   const e = h.evidence;
   if (e.reason) return e.reason;
-  return `total=${e.total}, identityMatch=${e.identityMatch} (expected=${e.expectedIdentityCount}, actual=${e.actualIdentityCount}), nonConforming=${e.nonConforming}, dispositionMismatch=${e.dispositionMismatch}, countsMatch=${e.countsMatch}`;
+  return `total=${e.total}, identityMatch=${e.identityMatch} (expected=${e.expectedIdentityCount}, actual=${e.actualIdentityCount}), bindingMatch=${e.bindingMatch} (violations=${e.bindingViolations}), nonConforming=${e.nonConforming}, dispositionMismatch=${e.dispositionMismatch}, countsMatch=${e.countsMatch}`;
 }
 function h3Evidence(h) {
   const e = h.evidence;
