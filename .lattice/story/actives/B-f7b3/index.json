@@ -4,7 +4,7 @@
   "title": "Harden ProofStory milestone status/ledger observability boundary (B-b550 M7 follow-up)",
   "description": "Implements the six design-hardening items the B-b550 truth-first audit recorded in the M7 follow-up scope of docs/requirements/decisions/milestone-ledger-status-review-findings.md. The milestone observability surface is safe today (no blocker); these tighten the boundary and close the audit's test gaps. Touches packages/main/src (milestone-status render + command-policy + proofstory) and packages/main/tests/smokes.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "medium",
   "keywords": [
     "milestone-ledger",
@@ -22,7 +22,7 @@
   ],
   "createdAt": "2026-07-05T17:14:25.271Z",
   "startedAt": "2026-07-05T17:14:25.271Z",
-  "endedAt": null,
+  "endedAt": "2026-07-06T07:21:00.795Z",
   "events": [
     {
       "phase": "INIT",
@@ -212,6 +212,15 @@
       "user": "Harmonygo",
       "sessionId": "e2c2f35d-9d17-4f85-9af1-de33c44c458f",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-06T07:21:00.795Z",
+      "branch": "story/B-f7b3",
+      "user": "Harmonygo",
+      "sessionId": "e2c2f35d-9d17-4f85-9af1-de33c44c458f",
+      "agent": "main"
     }
   ],
   "riskSignalsDismissed": [
@@ -221,10 +230,5 @@
       "at": "2026-07-05T17:15:00.456Z"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-f7b3",
-    "branch": "story/B-f7b3",
-    "createdAt": "2026-07-05T17:29:49.222Z"
-  },
   "currentReviewRound": "2026-07-06T07:14:05.726Z"
 }
