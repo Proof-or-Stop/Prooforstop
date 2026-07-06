@@ -71,6 +71,15 @@
       "reviewRound": "2026-07-06T01:08:16.118Z",
       "reviewRunId": "B-f7b3:RR-010",
       "_hash": "73cc62728ba228394b68a5d7f3f3cef3b907e9173302201c9bfd050275c8b38d"
+    },
+    {
+      "id": "B-f7b3:RP-009",
+      "agent": "lattice-review-docs",
+      "note": "Fresh re-confirmation after main-merge storyFilesHash drift (no doc content changed since RP-006: git diff 162a7e6a0..HEAD on all 3 decision docs is empty, and the intervening merge commit 24010e9d0 touched none of them). Re-verified all 3 decision docs against current source line-by-line: (1) milestone-triggered-gate-mode-default-decision.md - doneGateMode default in config.ts/phase-gates.ts configuredProofStoryMode matches; (2) milestone-not-applicable-justification.md - MilestoneNotApplicableDecision type, normalize-only-when-present hash preservation, not_applicable_missing_decision fail-severity DONE-gate diagnostic all match; (3) milestone-status-done-gate-reconciliation.md - shared evidenceIsStaleCovering predicate, stale_milestone_evidence warn-severity gap, closeout non-throwing skipped degradation all match. Only imperfection: two docs cite approximate line numbers that have since shifted due to later same-file edits - pre-existing since before RP-006, non-substantive, not blocking.",
+      "createdAt": "2026-07-06T01:11:16.290Z",
+      "reviewRound": "2026-07-06T01:08:16.118Z",
+      "reviewRunId": "B-f7b3:RR-011",
+      "_hash": "794bf179a9f2d8760d442184d7ac37277dadaa0ef5dc1763d50b3f318b44f684"
     }
   ]
 }
