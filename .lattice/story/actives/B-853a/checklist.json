@@ -46,7 +46,21 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node experiments/pos-instrument-replay/analyze-batch.mjs",
+          "result": "pass",
+          "note": "Offline analyzer emits three-state H1-H4 verdicts to stdout and writes report.json + report.md; on pristine committed evidence overall=all-pass (H1..H4 all pass).",
+          "headHash": "f1b5404077dd28a65925f4934161b9df7872c73d",
+          "materialHash": "3af659b07e456b76454f55f8fea4dd34c63504f29ebdb5bca72518f55492f44e",
+          "storyFilesHash": "1caae9cb5590d29bf143ccf47ece033b9cc1b30249e5f48e58baad5ee8cc386f",
+          "timestamp": "2026-07-06T07:23:44.164Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
