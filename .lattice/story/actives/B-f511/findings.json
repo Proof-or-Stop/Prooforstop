@@ -151,6 +151,24 @@
       ],
       "signatureTag": "adversarial|mjs|cross-vendor-host",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f511:F-009",
+      "desc": "F-009 (cross-vendor host-2, Codex gpt-5.5 xhigh): a FRESH (non-resume) driver can permanently poison a partial resume ledger via the break-to-reacquire window. Interleaving: prior run left batch-ledger.jsonl with K complete records + a stale lock (dead-pid holder). Resume driver R enters the break-mutex, proves the holder dead, rmSync(LOCK_DIR) (run-batch.mjs:829). Before R reaches acquireLock() (line ~872), a fresh non-resume driver F starts; F never checks BREAK_LOCK_DIR so its mkdir(LOCK_DIR) wins. R loses acquireLock() -> precondition_failed -> exits. F has resume=false so alreadyRecorded stays empty (line ~930): F re-runs EVERY iteration and appends replay/small/1..K that already exist. The end-of-run strict-multiset guard detects the duplicates and exits nonzero, BUT the campaign ledger file is already contaminated with duplicate records on disk, and a later --resume cannot repair a duplicate ledger (the multiset guard rejects it forever -> wedged evidence needing manual cleanup). This is NOT the two-live-writers bug (the mkdir lock still prevents simultaneous non-null releasers); it is that a fresh WINNER is allowed to write a dirty pre-existing ledger. Normally a stale lock protects the ledger from a fresh driver (fresh driver can't acquire), but resume recovery opens a window where a fresh driver can. Fix: fresh (non-resume) mode should FAIL CLOSED (precondition_failed) if batch-ledger.jsonl already exists and is non-empty, BEFORE any append — so a fresh driver never contaminates an existing campaign ledger. Codex also confirmed: no remaining two-non-null-releaser path; the break-mutex correctly must NOT auto-break (that would recreate the TOCTOU one level up); sub-check J.1/J.2 genuinely exercises the regression path and cleans its sandbox.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-07-06T01:29:15.210Z",
+      "reviewRound": "2026-07-06T01:22:49.221Z",
+      "reviewRunId": "B-f511:RR-015",
+      "_hash": "9dffcf13606f78bf96c74a7aae357752368f0eaf62bfcf0dce96a80ff6df5eb9",
+      "files": [
+        "experiments/pos-instrument-replay/run-batch.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|cross-vendor-host",
+      "signatureTagSource": "auto"
     }
   ]
 }
