@@ -456,8 +456,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-06T00:19:49.277Z",
       "endTime": null
     },
     {
@@ -754,6 +754,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Cell 03 probe now captures executor plus fresh same-family reviewer usage, hides oracle/reference files from provider workspaces, passes hidden ground truth, and rejects probe contract negative controls.",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-07-06T00:19:49.277Z",
+      "phase": "DEV",
+      "itemId": "CHK-006",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start resumable full Cell 03 1152-row execution runner after the hardened A4 probe passed.",
       "agent": "codex-main"
     }
   ]
