@@ -1,12 +1,12 @@
 {
   "storyId": "B-f7b3",
-  "generatedAt": "2026-07-05T21:40:34.690Z",
+  "generatedAt": "2026-07-06T00:15:26.669Z",
   "sourceSnapshot": {
     "hasUnderstanding": true,
     "hasDecision": true,
     "hasPlan": true,
     "checklistItems": 10,
-    "reviewRounds": 9,
+    "reviewRounds": 10,
     "findings": 0,
     "bugs": 0,
     "testRuns": 0,
@@ -108,7 +108,7 @@
           ]
         },
         "replanCount": {
-          "value": 0,
+          "value": 1,
           "unit": "count",
           "confidence": "high",
           "sources": [
@@ -220,7 +220,7 @@
           "note": "no CHK sections in plan"
         },
         "devToPlanBounceCount": {
-          "value": 0,
+          "value": 1,
           "unit": "count",
           "confidence": "high",
           "sources": [
@@ -233,8 +233,7 @@
           "confidence": "medium",
           "sources": [
             "process-events.jsonl"
-          ],
-          "note": "no dispatch events"
+          ]
         }
       }
     },
@@ -284,8 +283,7 @@
           "confidence": "medium",
           "sources": [
             "process-events.jsonl"
-          ],
-          "note": "no dispatch events"
+          ]
         },
         "blockedReturnCount": {
           "value": 0,
@@ -312,7 +310,7 @@
       },
       "metrics": {
         "storyReviewRounds": {
-          "value": 9,
+          "value": 10,
           "unit": "count",
           "confidence": "medium",
           "sources": [
@@ -347,13 +345,12 @@
           "note": "no test runs"
         },
         "reviewAfterEachBatch": {
-          "value": "n/a",
-          "unit": "text",
+          "value": false,
+          "unit": "bool",
           "confidence": "medium",
           "sources": [
             "process-events.jsonl"
-          ],
-          "note": "no dispatch events"
+          ]
         }
       }
     }

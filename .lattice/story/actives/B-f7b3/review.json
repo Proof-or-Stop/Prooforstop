@@ -1181,6 +1181,29 @@
         }
       ],
       "_hash": "5f5dafa6ec6613c2bbb775567eec10ef90005e015dcb3fe3bf5af2f9509c8c1f"
+    },
+    {
+      "timestamp": "2026-07-06T00:15:25.314Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "10 checklist items; please check for missing combined scenarios (e.g., what happens when Add explicit non-DONE/non-Authority/non-production disclaimer strings to milestone_status and milestone_closeout rendered output + Add 'Authority' to the milestone_status command-policy reason string to match milestone_closeout are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals_dismissed",
+          "severity": "advisory",
+          "message": "1 risk signal(s) have been dismissed by main agent (reasons in story.riskSignalsDismissed): Production/Emergency"
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_parent_ledger_rollup: Parent ledger roll-up is missing child-story coverage for milestone(s): M1, M2, M3, M4, M5, M6. Parent roll-up is checked by DONE equivalence when slice plans exist."
+        }
+      ],
+      "_hash": "9a27e95cd8026e84ce9bf516c5c8e9e06c0af4a01b9cd4db0a28a4490ed26b13"
     }
   ]
 }
