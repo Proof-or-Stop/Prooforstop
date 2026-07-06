@@ -1033,6 +1033,53 @@
         "bindingHash": "7d2dd947966d6ef0575a3c110f1ac2e02643ed1039017a6e0136cf0e6db160b0"
       },
       "_hash": "6597150235e80db3f4e64c007fdcf9bcd7e89598457bcd940b772bc04458bf67"
+    },
+    {
+      "reviewRunId": "B-f511:RR-023",
+      "storyId": "B-f511",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-07-06T01:22:49.221Z",
+      "startedAt": "2026-07-06T01:41:20.317Z",
+      "headHash": "2054d161479f46ef02ccf3dda22cb0104e57d508",
+      "materialHash": "15f370534f4e5dff93a4bbb724b7caa64bc830c7bb946a715f749c42581c86c0",
+      "storyFilesHash": "12433a97cfd13f12f1716aec909f573d9fa83616bf5eff090f9f60d14ac3fbe6",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "dd06f15037b651c9ed65bd33b27d46ec9fb06635722839ac7f452c81322b7a2a",
+        "diffPackHash": "1dfe76e7da0b070de108a99d839922c64beaa56e211042b525112de04d97bc12",
+        "reviewedChangedFiles": [
+          "experiments/pos-instrument-replay/resume-probe.mjs",
+          "experiments/pos-instrument-replay/resume-reconciliation.json",
+          "experiments/pos-instrument-replay/run-batch.mjs",
+          "experiments/pos-instrument-replay/selfcheck-m3.mjs"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "0bef8c06c7796a12f0d6384385f2e0d09f8721052e9d9d35776c81145b4f60b9",
+          "0f01f037da539e057fbf6379ff8528ee1f5f1f89c857a356c7fac58fda35a371",
+          "24eec0204db93161f3d2be044534437286094425a7e9b619aba302cdc75bbb25",
+          "bd37ef15089f509d66f5f24997f5833e92a4a7d160e802cf31a14f79a6eccc07",
+          "c0fb2e738a472d91ba18ad1b1e095539cd553f9739ad6c01b826c64e36a884dd",
+          "eb1afc3dab7cf23e78d18c39629739dc6c139abe315e1518774b5731f97238b1",
+          "ee5df1895a81a1b9a4e558c45d22cd74f2e0ec5ddd8f5bd677d9af268e3efcfb",
+          "f2bf9fabf9eed4d18aee2d8b12d52de19680cfab2ecde02fb6d494e5af9512d8"
+        ],
+        "bindingHash": "e144fd9ed883e4c5d25a89f7a63864c4d31fd45e3dbabebef6834bcd218c4fa4"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-f511",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-f511",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-f511",
+        "workspaceMode": "story-worktree",
+        "headHash": "2054d161479f46ef02ccf3dda22cb0104e57d508",
+        "materialHash": "15f370534f4e5dff93a4bbb724b7caa64bc830c7bb946a715f749c42581c86c0",
+        "storyFilesHash": "12433a97cfd13f12f1716aec909f573d9fa83616bf5eff090f9f60d14ac3fbe6",
+        "bindingHash": "0de89e2c53737b0d3a78b66b736ceaa313eeb016b91215d4822a12961dbe96f8"
+      },
+      "_hash": "bf0e3cf317a474cf132ab6a5c16df2802e66701002b98c9a826eb744ba1f8ca2"
     }
   ]
 }
