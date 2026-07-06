@@ -62,6 +62,15 @@
       "reviewRound": "2026-07-06T00:33:46.044Z",
       "reviewRunId": "B-f7b3:RR-008",
       "_hash": "ba27461f0a09dc823166c64d0330ce5212dac9af0e17706ba3ec088645159ab3"
+    },
+    {
+      "id": "B-f7b3:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Fresh-round re-bind after storyFilesHash drift from Merge branch main (24010e9d0), which only pulled in unrelated stories'(e.g. B-2a5b) .lattice metadata, not any B-f7b3 source/doc change. Re-verified full git diff main...HEAD --stat (38 files) and the packages/ + package.json content diff: all changes are additive (MILESTONE_OBSERVABILITY_DISCLAIMER constant, optional notApplicableDecision field, new gap codes empty_confirmed_milestone_ledger/not_applicable_missing_decision/stale_milestone_evidence, new exported evidenceIsStaleCovering/currentMilestoneStatusEvidenceBinding helpers, new closeout_snapshot_unbuildable skip variant, new currentEvidenceBinding wiring). No concept was deleted or renamed: configuredProofStoryMode and proofStoryDiagnosticInput are unchanged names (proofStoryDiagnosticInput gained an optional root param; configuredProofStoryMode gained an export keyword); evidenceCoversIntent body was extracted into new helper rowCoversIntent with identical logic, not a rename/deletion. The one test-assertion change (assert.throws -> skipped-result check in milestone-status.test.mjs) is the intentional, plan-documented CHK-010 behavior change, not concept residue. No grep-worthy concept-deletion residue exists. Clean.",
+      "createdAt": "2026-07-06T01:10:07.270Z",
+      "reviewRound": "2026-07-06T01:08:16.118Z",
+      "reviewRunId": "B-f7b3:RR-010",
+      "_hash": "73cc62728ba228394b68a5d7f3f3cef3b907e9173302201c9bfd050275c8b38d"
     }
   ]
 }
