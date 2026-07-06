@@ -217,6 +217,18 @@
           "materialHash": "3af659b07e456b76454f55f8fea4dd34c63504f29ebdb5bca72518f55492f44e",
           "storyFilesHash": "1caae9cb5590d29bf143ccf47ece033b9cc1b30249e5f48e58baad5ee8cc386f",
           "timestamp": "2026-07-06T07:24:29.787Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node experiments/pos-instrument-replay/selfcheck-m4.mjs",
+          "result": "pass",
+          "note": "Un-gameable: sub-checks C/D/E/F re-sign or mutate evidence to falsify each hypothesis and assert a fail verdict; G asserts inconclusive-not-pass on missing evidence; H asserts an integrity abort (nonzero exit naming the offending iterationId, no all-pass report); the analyzer cannot be coaxed into a false pass.",
+          "headHash": "b5abeb521f97b860ebdd0ff9367e255585de1dc9",
+          "materialHash": "3af659b07e456b76454f55f8fea4dd34c63504f29ebdb5bca72518f55492f44e",
+          "storyFilesHash": "1caae9cb5590d29bf143ccf47ece033b9cc1b30249e5f48e58baad5ee8cc386f",
+          "timestamp": "2026-07-06T07:24:31.117Z"
         }
       ]
     },
