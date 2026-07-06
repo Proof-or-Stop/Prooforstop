@@ -1,0 +1,82 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "F-017: make sandbox cleanup hermetic on sub-check failure",
+      "context": "fail() uses process.exit(1) which skips finally, leaking a mkdtemp sandbox when a sub-check FAILS. Add a module-level activeSandboxes Set; register each dir in makeSandbox; add a cleanupSandbox(sandbox) helper (rmSync + Set.delete) called from every sub-check's finally; add a process.on('exit') sweep that rmSyncs any still-registered dir. Confined to selfcheck-m3.mjs.",
+      "userSees": "node selfcheck-m3.mjs still prints 'selfcheck-m3 PASS' (sub-checks A-M), and a FAILING sub-check no longer leaves a pos-selfcheck-m3-* dir behind in the tmp dir.",
+      "files": {
+        "modify": [
+          "experiments/pos-instrument-replay/selfcheck-m3.mjs"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node selfcheck-m3.mjs exits 0 with sub-checks A-M all PASS after the finally cleanup is switched to cleanupSandbox().",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A sub-check that fails via fail()/process.exit(1) leaves NO pos-selfcheck-m3-* dir in the tmp dir, because the process.on('exit') sweep removes any still-registered sandbox.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The 'exit' handler does synchronous rmSync only and swallows its own errors, so it can never throw out of the exit event; a still-registered dir on exit(1)/exit(2) is still swept.",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "F-018: assert LOCK_DIR + holder.json survive the forced break failure in sub-check M",
+      "context": "In checkResumeBreakFailureDiagnostic (sub-check M), after the exit-2 + 'could not break the stale lock' diagnostic assertions, add existsSync(lockDirPath(sandbox)) + existsSync(holderPath(sandbox)) survival assertions mirroring sub-checks H/I. run-batch.mjs throws (POS_FAIL_LOCK_BREAK) BEFORE rmSync(LOCK_DIR), so both survive; the assertion pins that invariant.",
+      "userSees": "The sub-check M PASS line is unchanged, but the run now also proves the failed break left LOCK_DIR (.batch-ledger.lock) + holder.json fully intact.",
+      "files": {
+        "modify": [
+          "experiments/pos-instrument-replay/selfcheck-m3.mjs"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node selfcheck-m3.mjs sub-check M PASSES with the added existsSync(LOCK_DIR) + holder.json survival assertion.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "If a future change let the failed break partially remove the lock, the new assertion fires with a clear message instead of passing silently.",
+            "type": "logic",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The assertion targets the genuinely-stale lock (dead-pid holder) that the forced-to-throw break could not remove, so a pass genuinely means the break removed nothing.",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
