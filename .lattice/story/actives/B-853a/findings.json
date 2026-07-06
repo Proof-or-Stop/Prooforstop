@@ -113,6 +113,24 @@
       ],
       "signatureTag": "adversarial|mjs|codex-host-high",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-853a:F-008",
+      "desc": "F-CODEX-4 (host-2, MEDIUM; corroborates quality F-004): H4 accepts non-physical elapsedMs. adjudicateH4 (analyze-batch.mjs:~406) uses !(r.elapsedMs <= cap): a negative elapsedMs (-1) or null (coerced to 0 by <=) satisfies it and passes. FIX: require Number.isFinite(r.elapsedMs) && r.elapsedMs >= 0 && r.elapsedMs <= cap; a non-finite/negative elapsed is fail (not a valid scale-envelope datum).",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-07-06T07:39:01.284Z",
+      "reviewRound": "2026-07-06T07:30:13.842Z",
+      "reviewRunId": "B-853a:RR-006",
+      "_hash": "4b196dad06a05548eeac88dfb7d61203799a3fe3fcfc0b3164e92020469116dc",
+      "files": [
+        "experiments/pos-instrument-replay/analyze-batch.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|codex-host-medium",
+      "signatureTagSource": "auto"
     }
   ]
 }
