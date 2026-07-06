@@ -188,7 +188,7 @@
       "desc": "H3 false-pass: adjudicateH3/isKillWellFormed (experiments/pos-instrument-replay/analyze-batch.mjs:447-513) never checks killC.postResume.stoppedRecordPreserved. This is the specific substantive claim killC exists to prove per resume-reconciliation.json's own description (\"killC additionally proves resume SKIPS an ALREADY-RECORDED verify_crash STOP ... the stop record preserved byte-identical\"). Setting resume.killC.postResume.stoppedRecordPreserved=false (or deleting the field) still yields H3=pass and overall=all-pass (confirmed by direct repro against the committed evidence via a sandboxed copy of analyze-batch.mjs run against a mutated resume-reconciliation.json), so report.claim (the verbatim S3 text) is asserted even though the killC stop-record-preservation guarantee is falsified. isKillWellFormed only checks casualtyId+postResume+recordedBeforeKill are present keys on each kill object and never inspects the contents of postResume for killC. selfcheck-m4.mjs sub-checks J-O do not cover this field either (zero references to stoppedRecordPreserved in either analyze-batch.mjs or selfcheck-m4.mjs), so the new hermetic self-check suite does not catch it. This is exactly the attack named in the review brief (H3 substantive fields present but killC.stoppedRecordPreserved wrong).",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-06T07:59:09.574Z",
@@ -196,7 +196,11 @@
       "reviewRunId": "B-853a:RR-012",
       "_hash": "e6faee50ec3053488f7bfe1b4307dee324ee6b2b2e8823bc841ad0095a66fad2",
       "signatureTag": "edge|unknown|false-pass-adjudicateh3",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in eeb1a9592: H3 validates postResume VALUES — killA/B/C dup===0 && gap===0 && non-empty casualtyDisposition; killC.postResume.stoppedRecordPreserved===true + non-empty stoppedDisposition; empty {} postResume fails. selfcheck-m4 sub-check R.",
+      "resolvedAt": "2026-07-06T08:20:00.950Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-853a:F-011",
