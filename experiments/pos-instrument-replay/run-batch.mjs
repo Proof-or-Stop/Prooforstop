@@ -65,6 +65,19 @@ const LEDGER_PATH = join(HERE, 'batch-ledger.jsonl');
 // corrupting the ledger', plan section 6.3). Deterministic, sibling path.
 const BLOCKED_LEDGER_PATH = join(HERE, 'batch-ledger.blocked.jsonl');
 const LOCK_DIR = join(HERE, '.batch-ledger.lock');
+// F-007/F-008: a SECOND mkdir-based mutex that serializes the RESUME lock-break
+// critical-section. Without it the break is a TOCTOU: evaluateLockForBreak()
+// (CHECK) and rmSync(LOCK_DIR) (USE) are not atomic, so two --resume drivers can
+// BOTH read the SAME genuinely-dead holder, BOTH decide breakable, and then B's
+// unconditional rmSync deletes A's freshly-reacquired LIVE lock (both then append
+// -> the 'exactly one campaign writer' invariant is violated). The conservative
+// missing-holder=LIVE rule (F-005/F-006) does NOT help here (the holder is really
+// dead, so both legitimately decide breakable), and an atomic holder rename does
+// NOT help (B never re-reads before its rmSync). We fix it by running the ENTIRE
+// break critical-section (liveness re-check + destructive rmSync) while holding
+// this break-mutex, acquired via atomic mkdir. EEXIST => another resume driver is
+// mid-break -> fail closed (precondition_failed, exit nonzero) rather than race.
+const BREAK_LOCK_DIR = join(HERE, '.batch-ledger.break.lock');
 // Holder stamp inside the lock dir: {"pid": <driver pid>} (F-001). Written by
 // acquireLock() after the atomic mkdir wins the lock; read on --resume to check
 // whether the lock holder is still ALIVE before breaking a pre-existing lock.
@@ -746,18 +759,96 @@ function main() {
   // record precondition_failed to the SEPARATE blocked-ledger and exit nonzero,
   // exactly like M2's concurrent-driver path. This is gated on `resume`, so the
   // non-resume lock semantics are UNCHANGED.
-  if (resume && existsSync(LOCK_DIR)) {
-    const verdict = evaluateLockForBreak();
-    if (!verdict.breakable) {
-      // LIVE or UNCERTAIN holder (incl. the missing-holder acquire window). Do
-      // NOT break it. Record a precondition_failed stop to the blocked-ledger
+  if (resume) {
+    // F-007/F-008: serialize the break critical-section behind a dedicated
+    // break-mutex so the CHECK (evaluateLockForBreak) and the USE
+    // (rmSync(LOCK_DIR)) can never interleave with ANOTHER resume driver. The
+    // conservative missing-holder=LIVE rule and the atomic holder rename do not
+    // close this hole because a genuinely-dead holder legitimately reads as
+    // breakable for BOTH drivers, and a second breaker never re-reads before its
+    // unconditional rmSync. Only mutual exclusion over the whole section fixes it.
+    //
+    // Acquire the break-mutex (atomic mkdir). EEXIST => another resume driver is
+    // mid-break -> fail closed (never race it): precondition_failed, exit 3.
+    let breakMutexHeld = false;
+    try {
+      mkdirSync(BREAK_LOCK_DIR); // atomic: throws EEXIST if another breaker holds it
+      breakMutexHeld = true;
+    } catch (e) {
+      if (e && e.code === 'EEXIST') {
+        const stop = withDigest({
+          iterationId: 'replay/precondition/lock',
+          stopReason: 'precondition_failed',
+          rawError:
+            'batch-ledger break-mutex held (another resume driver is mid-break)',
+          env: recordEnv(),
+        });
+        if (!STOP_REASONS.has(stop.stopReason)) {
+          fatal(`run-batch FATAL: stopReason not in enum: ${stop.stopReason}`, 2);
+        }
+        appendRecord(stop, BLOCKED_LEDGER_PATH);
+        fatal(
+          'run-batch: [resume] a lock-break is already in progress (break-mutex held) — recorded precondition_failed',
+          3,
+        );
+      }
+      throw e;
+    }
+    // Holding the break-mutex: the CHECK and the rmSync now cannot interleave with
+    // another breaker. Compute the decision inside the try, and ALWAYS release the
+    // mutex in a finally BEFORE any process.exit. CRITICAL: process.exit() does NOT
+    // run finally blocks, so we must NOT call fatal()/process.exit while inside the
+    // try — we capture the decision (precondReason), release the mutex in finally,
+    // then perform the exit AFTER the try/finally.
+    //
+    // The break-mutex is held for only a handful of SYNCHRONOUS syscalls
+    // (existsSync + readFileSync + JSON.parse + process.kill + rmSync); there is no
+    // subprocess spawn and no await inside the section, so it is released
+    // essentially immediately on every path. The one residual failure mode: if a
+    // process is SIGKILLed WHILE mid-break, BREAK_LOCK_DIR is orphaned on disk and
+    // future resumes fail closed (precondition_failed) until it is manually removed
+    // — the SAFE failure (a wedged resume), never ledger corruption. We accept that
+    // tradeoff: a stuck break-mutex is recoverable by an operator; two campaign
+    // writers is not.
+    let precondReason = null;
+    try {
+      if (existsSync(LOCK_DIR)) {
+        const verdict = evaluateLockForBreak();
+        if (!verdict.breakable) {
+          // LIVE or UNCERTAIN holder (incl. the missing-holder acquire window). Do
+          // NOT break it. Capture the reason; the precondition_failed stop is
+          // recorded and the process exits AFTER the mutex is released.
+          precondReason =
+            'batch-ledger lock not proven stale (resume refused to break it): ' + verdict.reason;
+        } else {
+          console.log(
+            'run-batch: [resume] breaking a STALE lock left by the interrupted prior run (' +
+              verdict.reason +
+              ')',
+          );
+          rmSync(LOCK_DIR, { recursive: true, force: true });
+        }
+      }
+    } finally {
+      // Release the break-mutex on EVERY path (success, refusal, or throw) so the
+      // happy path leaves NO orphaned BREAK_LOCK_DIR behind.
+      if (breakMutexHeld) {
+        try {
+          rmSync(BREAK_LOCK_DIR, { recursive: true, force: true });
+        } catch {
+          /* best-effort release of the break-mutex */
+        }
+      }
+    }
+    if (precondReason !== null) {
+      // Refused to break: record a precondition_failed stop to the blocked-ledger
       // (never the campaign ledger) and exit nonzero — same disposition as M2's
-      // lock-held path.
+      // lock-held path. Done AFTER releasing the break-mutex (see the CRITICAL note
+      // above about process.exit not running finally blocks).
       const stop = withDigest({
         iterationId: 'replay/precondition/lock',
         stopReason: 'precondition_failed',
-        rawError:
-          'batch-ledger lock not proven stale (resume refused to break it): ' + verdict.reason,
+        rawError: precondReason,
         env: recordEnv(),
       });
       if (!STOP_REASONS.has(stop.stopReason)) {
@@ -766,28 +857,18 @@ function main() {
       appendRecord(stop, BLOCKED_LEDGER_PATH);
       fatal(
         'run-batch: [resume] refused to break a lock that is not proven stale — ' +
-          verdict.reason +
+          precondReason +
           ' (recorded precondition_failed to the blocked-ledger)',
         3,
       );
     }
-    console.log(
-      'run-batch: [resume] breaking a STALE lock left by the interrupted prior run (' +
-        verdict.reason +
-        ')',
-    );
-    try {
-      rmSync(LOCK_DIR, { recursive: true, force: true });
-    } catch (e) {
-      fatal(
-        `run-batch FATAL: [resume] could not break the stale lock ${LOCK_DIR}: ` +
-          `${String((e && e.message) || e)}`,
-        2,
-      );
-    }
   }
 
-  // Acquire the exclusive lock BEFORE touching the ledger.
+  // Acquire the exclusive lock BEFORE touching the ledger. The atomic
+  // mkdir(LOCK_DIR) is the FINAL arbiter for BOTH fresh and resume drivers: we do
+  // NOT hold the break-mutex across this call, so the tiny window between releasing
+  // BREAK_LOCK_DIR and this mkdir is safe — two concurrent mkdir(LOCK_DIR) still
+  // resolve to exactly one winner, and the loser gets null -> precondition_failed.
   const release = acquireLock();
   if (release === null) {
     // Lock held by another driver: record a precondition_failed stop to the

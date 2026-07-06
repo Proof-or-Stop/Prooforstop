@@ -739,6 +739,150 @@ function checkNoHolderLockNotBroken() {
   }
 }
 
+// ---------------------------------------------------------------------------
+// (J) BREAK-MUTEX-SERIALIZES (F-007/F-008): the multi-resumer break TOCTOU. The
+// break was CHECK (evaluateLockForBreak) then USE (rmSync(LOCK_DIR)), NOT atomic.
+// With a GENUINELY-DEAD holder, two --resume drivers can BOTH read the same dead
+// holder, BOTH decide breakable, and B's unconditional rmSync then deletes A's
+// freshly-reacquired LIVE lock -> two campaign writers. The fix serializes the
+// whole break critical-section behind a dedicated mkdir break-mutex
+// (.batch-ledger.break.lock). This sub-check proves BOTH directions
+// DETERMINISTICALLY (no timing race):
+//   J.1: a STALE lock (holder.json with a genuinely-DEAD pid) PLUS a pre-existing
+//        break-mutex (simulating 'a breaker is mid-break') -> --resume must FAIL
+//        CLOSED: exit nonzero, precondition_failed to the blocked-ledger with
+//        rawError mentioning the break-mutex, and the campaign ledger UNTOUCHED.
+//   J.2: remove the break-mutex (the break completed) -> --resume must now BREAK
+//        the still-stale lock and complete the EXACT 30-record small multiset.
+// The break-mutex is what a second concurrent breaker would be holding; J.1
+// proves the second breaker fails closed, J.2 proves a genuinely-stale lock stays
+// reclaimable once the mutex is free.
+// ---------------------------------------------------------------------------
+function breakLockDirPath(sandbox) {
+  return join(sandbox, '.batch-ledger.break.lock');
+}
+
+// Obtain a genuinely-DEAD pid: spawn a trivial child, kill it, and poll the
+// liveness probe until it reports ESRCH (dead). Same technique sub-check H uses
+// to reach its post-death discrimination step. Returns the now-dead pid.
+async function spawnDeadPid(label) {
+  const child = spawn('node', ['-e', 'process.exit(0)'], { stdio: 'ignore', detached: false });
+  if (!(typeof child.pid === 'number' && child.pid > 0)) {
+    fail(`${label}: helper child failed to spawn (no pid)`);
+  }
+  const pid = child.pid;
+  await new Promise((resolve) => {
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      resolve();
+    };
+    child.once('exit', finish);
+    if (child.exitCode !== null || child.signalCode !== null) finish();
+    child.kill('SIGKILL');
+    setTimeout(finish, 5000);
+  });
+  // Confirm the OS now reports the pid as dead (bounded poll covers the tiny
+  // window between the 'exit' event and OS reaping).
+  const start = Date.now();
+  for (;;) {
+    try {
+      process.kill(pid, 0);
+    } catch {
+      break; // ESRCH -> genuinely dead
+    }
+    if (Date.now() - start > 5000) fail(`${label}: helper pid ${pid} still alive 5s after kill`);
+    blockMs(25);
+  }
+  return pid;
+}
+
+async function checkBreakMutexSerializes() {
+  const label = 'J-break-mutex-serializes';
+  const sandbox = makeSandbox(label);
+  try {
+    const deadPid = await spawnDeadPid(label);
+
+    // Set up a STALE lock: LOCK_DIR with holder.json pointing at the dead pid.
+    mkdirSync(lockDirPath(sandbox), { recursive: true });
+    appendFileSync(holderPath(sandbox), JSON.stringify({ pid: deadPid }) + '\n');
+
+    // ---- J.1: a break is already in progress (pre-create the break-mutex). ----
+    // Simulate 'another resume driver is mid-break' by pre-creating BREAK_LOCK_DIR.
+    mkdirSync(breakLockDirPath(sandbox), { recursive: true });
+
+    const blocked1 = runBatch(sandbox, { args: ['--resume', '--scale=small'] });
+    if (blocked1.code === 0) {
+      fail(
+        `${label} (J.1): --resume proceeded (exit 0) while the break-mutex was held — a second ` +
+          `breaker must FAIL CLOSED to avoid racing the in-progress break.\n` +
+          `${(blocked1.stdout + '\n' + blocked1.stderr).slice(-800)}`,
+      );
+    }
+    // The stale lock must NOT have been removed by the fail-closed driver.
+    if (!existsSync(lockDirPath(sandbox))) {
+      fail(`${label} (J.1): the fail-closed driver removed the lock dir — it must leave it intact`);
+    }
+    // The break-mutex we planted must still be present (the loser must not remove
+    // a break-mutex it does not own).
+    if (!existsSync(breakLockDirPath(sandbox))) {
+      fail(`${label} (J.1): the fail-closed driver removed a break-mutex it does not hold`);
+    }
+    // A precondition_failed stop mentioning the break-mutex must be in the BLOCKED
+    // ledger, and the campaign ledger must NOT exist / be untouched.
+    if (!existsSync(blockedLedgerPath(sandbox))) {
+      fail(`${label} (J.1): --resume did not record precondition_failed to the blocked-ledger`);
+    }
+    const blockedRecs = readFileSync(blockedLedgerPath(sandbox), 'utf8')
+      .split('\n')
+      .filter((l) => l.trim())
+      .map((l) => JSON.parse(l));
+    const mutexStop = blockedRecs.find(
+      (r) => r.stopReason === 'precondition_failed' && /break-mutex/i.test(r.rawError || ''),
+    );
+    if (!mutexStop) {
+      fail(
+        `${label} (J.1): blocked-ledger has no precondition_failed record whose rawError mentions ` +
+          `the break-mutex (got: ${JSON.stringify(blockedRecs.map((r) => r.rawError))})`,
+      );
+    }
+    if (existsSync(ledgerPath(sandbox))) {
+      fail(`${label} (J.1): --resume wrote to the campaign ledger while the break-mutex was held`);
+    }
+    console.log(
+      `  ${label} PASS (J.1): break-mutex held -> --resume FAILED CLOSED (exit ${blocked1.code}, ` +
+        `precondition_failed 'break-mutex' to blocked-ledger, stale lock + campaign ledger untouched)`,
+    );
+
+    // ---- J.2: the break completed (remove the mutex) -> lock is reclaimable. ----
+    // Clear the blocked-ledger so we assert on the fresh run, and free the mutex.
+    rmSync(blockedLedgerPath(sandbox), { force: true });
+    rmSync(breakLockDirPath(sandbox), { recursive: true, force: true });
+
+    const reclaim = runBatch(sandbox, { args: ['--resume', '--scale=small'] });
+    if (reclaim.code !== 0) {
+      fail(
+        `${label} (J.2): with the break-mutex free, --resume must break the still-stale lock and ` +
+          `complete (exit 0), got ${reclaim.code}.\n${(reclaim.stdout + '\n' + reclaim.stderr).slice(-800)}`,
+      );
+    }
+    const finalRecords = readLedger(sandbox);
+    assertExactSmallMultiset(label, finalRecords);
+    // The happy path must leave NO orphaned break-mutex behind (the finally cleans
+    // it up).
+    if (existsSync(breakLockDirPath(sandbox))) {
+      fail(`${label} (J.2): the successful break left the break-mutex orphaned (finally cleanup failed)`);
+    }
+    console.log(
+      `  ${label} PASS (J.2): break-mutex free -> --resume broke the still-stale lock and completed the ` +
+        `exact ${N_SMALL}-record multiset (0 dup / 0 gap); no orphaned break-mutex`,
+    );
+  } finally {
+    rmSync(sandbox, { recursive: true, force: true });
+  }
+}
+
 async function main() {
   console.log('selfcheck-m3: running hermetic resume/idempotence guards (small scale)...');
   // (A) clean-boundary kill at K+1 with K=5 (casualty replay/small/6).
@@ -762,6 +906,11 @@ async function main() {
   //     holder-LESS lock (the mkdir->stamp acquire window) — conservative
   //     missing-holder=LIVE closes the acquire race.
   checkNoHolderLockNotBroken();
+  // (J) BREAK-MUTEX-SERIALIZES (F-007/F-008): the multi-resumer break TOCTOU is
+  //     closed by serializing the break critical-section behind a mkdir
+  //     break-mutex. J.1 proves a second breaker fails closed while a break is in
+  //     progress; J.2 proves a genuinely-stale lock stays reclaimable once free.
+  await checkBreakMutexSerializes();
   console.log('selfcheck-m3 PASS');
   process.exit(0);
 }
