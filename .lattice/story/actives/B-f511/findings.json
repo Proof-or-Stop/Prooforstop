@@ -151,7 +151,7 @@
       "desc": "F-007 (cross-vendor host-2, Codex gpt-5.5 xhigh): Resume stale-lock break is TOCTOU. run-batch.mjs main() resume path (lines 749-791): evaluateLockForBreak() [CHECK] and rmSync(LOCK_DIR) [USE] are not atomic and rmSync targets the PATH not the instance judged. Interleaving: holder.json has a dead pid; resume drivers A+B both pass existsSync(LOCK_DIR) and both evaluateLockForBreak()->breakable:true; A rmSync(LOCK_DIR)+acquireLock() mkdir wins and stamps live pid A; B (acting on its already-computed stale verdict) rmSync(LOCK_DIR) DELETES A's now-LIVE lock, then acquireLock() mkdir wins for B too; both append to batch-ledger.jsonl -> the 'exactly one campaign writer' invariant is violated. Conservative missing-holder=LIVE does NOT protect A (B decided breakable before A's lock existed); the atomic holder rename does NOT help (B never re-reads the holder before rmSync). Fix: serialize the break critical-section (liveness check + destructive rmSync) with a dedicated break-mutex (mkdir-based) so no two breakers can interleave; the atomic mkdir(LOCK_DIR) stays the final arbiter (loser records precondition_failed). Add a selfcheck sub-check proving a break-in-progress blocks a second breaker (fail-closed) and that a freed break-mutex still lets a genuinely-stale lock be reclaimed.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex",
       "createdAt": "2026-07-06T00:55:43.621Z",
@@ -162,7 +162,11 @@
         "experiments/pos-instrument-replay/run-batch.mjs"
       ],
       "signatureTag": "adversarial|mjs|cross-vendor-host",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 4882fad0d (same break-mutex serialization as F-007). Codex host-2 (the original reporter) confirmed convergence in rounds 4-6. selfcheck-m3 sub-check J.",
+      "resolvedAt": "2026-07-06T05:05:14.128Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f511:F-009",
