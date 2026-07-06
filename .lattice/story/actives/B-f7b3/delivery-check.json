@@ -1,11 +1,11 @@
 {
   "storyId": "B-f7b3",
-  "checkedAt": "2026-07-06T01:00:35.967Z",
-  "headHash": "9bc61db45ffbed424dd4ba94db3330c0a847d6e0",
-  "materialHash": "00e3053b287b4eea83b14ad79607f80770b7ed0e98d398141467b5dbc0951da2",
-  "storyFilesHash": "0c62ef542233fbe823918f2fbff87d66505cecb55e86239cc78d5009dba7b4a9",
-  "reviewRound": "2026-07-06T00:33:46.044Z",
-  "agentId": "",
+  "checkedAt": "2026-07-06T07:06:34.415Z",
+  "headHash": "4aa949f388af7ac05f5eb91638f3af3b7a6bf88b",
+  "materialHash": "1b93755c84776d6812311e1ae7d37c58d14bb6f941d223c7d4ad41572b9093af",
+  "storyFilesHash": "44ecb4851696b9508ea64dd0f35aac58cf6b14f9899ab77053abd3db6bec198f",
+  "reviewRound": "2026-07-06T06:56:55.018Z",
+  "agentId": "lattice-review-delivery",
   "docsPromises": [
     {
       "docPath": "docs/requirements/decisions/milestone-not-applicable-justification.md",
@@ -93,5 +93,5 @@
     "hasUnresolvedTodos": false,
     "summary": "Re-sign at clean tree state: all 6 documentation promises independently re-confirmed via read-only grep/source-read against the current clean worktree (no mutation performed this round), and all realMachineTests re-confirmed passing via a freshly generated done-required-evidence.json (npm build + full root test suite, exitCode 0) at the current headHash 9bc61db4. The prior delivery-check.json was stale (storyFilesHash a6672dd0 from an older headHash 58e07d7c during a mutation-test round); this re-sign captures the current clean storyFilesHash 0c62ef54. No new findings; no unresolved TODOs introduced."
   },
-  "_hash": "03d8556f63a80599124ff13c05aa7e6c9151258f1e3c0d3510b3a4b0891c4f31"
+  "_hash": "83bd5613eb3c4b16e81a5897fb649d352c4d69876824af9967a2a00cfcab674e"
 }
