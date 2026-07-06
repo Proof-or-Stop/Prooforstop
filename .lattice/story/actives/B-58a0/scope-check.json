@@ -145,8 +145,13 @@
       "q": "No docs/requirements/decisions/*.md execution-plan or decision doc exists for this story's specific scope (checklist-derived-ledger fallback + visible render-failure surfacing on appendMilestoneStatusAfterMutation). The nearest decisions/ docs cover the related but DISTINCT B-f7b3 milestone-observability-hardening program, whose M7 follow-up scope is already complete and does not mention a checklist-derived fallback ledger or visible stdout failure surfacing. The only source for this story's functional commitments found is the story title plus decision.json (principles/drivers/chosen option), not a decisions/ spec doc. Should a decisions/ doc be authored for this scope, or is title+decision.json sufficient spec authority for this story?",
       "evidence": "milestone-ledger-status-review-findings.md M7 follow-up scope item 1: 'Add explicit DONE/Authority/production-readiness disclaimer strings to the milestone_status / milestone_closeout rendered output...' -- no mention of a checklist-derived ledger or an always-show-on-no-ledger requirement.",
       "sourcePointers": [
-        "docs/requirements/decisions/milestone-ledger-status-review-findings.md:384-401"
-      ]
+        "docs/superpowers/specs/2026-07-06-forced-ledger-display-design.md",
+        "CHK-001",
+        "CHK-002",
+        "CHK-003"
+      ],
+      "resolution": "Accepted: for this small reporting enhancement the spec authority is the story title plus the recorded decision.json (principles, drivers, 3 options, chosen option, 4 preMortem) and the design note at docs/superpowers/specs/2026-07-06-forced-ledger-display-design.md. No new docs/requirements/decisions markdown is authored. The milestone decisions docs found by the reviewer belong to the separate completed B-f7b3 program and are not this story source-of-truth. The scope boundary of 3 allowed and 4 excluded already fixes the contract.",
+      "resolvedAt": "2026-07-06T18:08:33.378Z"
     }
   ]
 }
