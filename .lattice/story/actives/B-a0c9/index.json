@@ -4,7 +4,7 @@
   "title": "Harden POS selfcheck-m3: hermetic sandbox cleanup on failure (F-017) + LOCK_DIR survival assertion in sub-check M (F-018)",
   "description": "Two LOW test-hardening follow-ups accepted as accepted_risk during B-f511's M3 review, confined to experiments/pos-instrument-replay/selfcheck-m3.mjs. F-017: fail() uses process.exit(1), which skips finally blocks, so a mkdtemp sandbox tmp dir leaks whenever a sub-check FAILS (the regression path), a pattern shared by all sub-checks A-M. F-018: sub-check M asserts exit 2 + diagnostic + break-mutex released + ledger untouched, but does not explicitly assert that LOCK_DIR/.batch-ledger.lock and holder.json survive the forced break failure (they do today, confirmed by inspection). Both are test-hygiene improvements, NOT correctness bugs.",
   "type": "chore",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "low",
   "depends": [
     "B-f511"
@@ -60,6 +60,15 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-07-06T11:06:43.608Z",
+      "branch": "story/B-a0c9",
+      "user": "Harmonygo",
+      "sessionId": "9e240dbf-2b32-4204-88f3-0167fba84de7",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-06T11:41:47.704Z",
       "branch": "story/B-a0c9",
       "user": "Harmonygo",
       "sessionId": "9e240dbf-2b32-4204-88f3-0167fba84de7",
