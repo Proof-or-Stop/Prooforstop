@@ -47,6 +47,25 @@
       ],
       "signatureTag": "missing|mjs|selfcheck-exercises-invalid",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-e1f6:F-004",
+      "desc": "merge.mjs binding-drift check compares each manifest.binding/row.binding against manifests[0].manifest.binding (peer-to-peer, line 45/52/92), NOT against the live envelope-derived plan.binding built at line 44. Verified: forging binding.toolSurfaceDigest identically across all 8 shards merges successfully, so a fully-stale/forged-but-self-consistent shard set passes. Weaker than CHK-003 acceptance ('verify identical protocol, prompt, tool ... binding'). Fix: derive bindingJson from plan.binding (9 manifest.binding fields) so drift-vs-truth is rejected; add a selfcheck case forging all shards' binding consistently and asserting merge throws.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-06T15:42:57.417Z",
+      "reviewRound": "2026-07-06T15:10:19.645Z",
+      "reviewRunId": "B-e1f6:RR-004",
+      "_hash": "303f37ba21208c043bb26176ec72fff3d16f5b7943bb205e4044612912459d0d",
+      "files": [
+        "experiments/multi-model-ablation/cell03-shards/merge.mjs",
+        "experiments/multi-model-ablation/cell03-shards/selfcheck.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|merge-binding-drift",
+      "signatureTagSource": "auto"
     }
   ]
 }
