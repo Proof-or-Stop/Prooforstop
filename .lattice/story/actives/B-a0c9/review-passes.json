@@ -8,6 +8,15 @@
       "reviewRound": "2026-07-06T11:06:43.608Z",
       "reviewRunId": "B-a0c9:RR-001",
       "_hash": "dc4340a7cb3e00e0d77e8828696b33c23e732be1ac1080ded48b3d0f29b0a780"
+    },
+    {
+      "id": "B-a0c9:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed commit 29df2c9d7 (selfcheck-m3.mjs only). F-017: activeSandboxes Set registered in makeSandbox, de-registered by new cleanupSandbox helper which replaces all 12 in-finally rmSync call sites (verified via grep -c=12, no stray raw rmSync(sandbox,...) left outside cleanupSandbox itself); process.on(exit) handler does sync-only rmSync wrapped per-iter try/catch so it cannot throw; confirmed it fires on every terminating path (exit 0 success, exit 1 fail()/uncaught-catch, exit 2 sub-check M diagnostic); de-registration correctly narrows the sweep to genuinely-leaked dirs only; fail() fast-fail process.exit semantics/exit codes fully preserved (purely additive, no control-flow change). F-018: verified directly in run-batch.mjs (lines 838-848) that POS_FAIL_LOCK_BREAK throws strictly before rmSync(LOCK_DIR) with no intervening mutation of LOCK_DIR/holder.json, so the new survival assertion is factually correct; placement (after exit-2/diagnostic checks, before break-mutex-orphan check) is sound and mirrors sub-checks H/I verbatim. No dead code, no I/O-isolation issues (sandboxes remain within mkdtemp/tmpdir), no TS applicable (plain .mjs). Clean.",
+      "createdAt": "2026-07-06T11:14:37.110Z",
+      "reviewRound": "2026-07-06T11:06:43.608Z",
+      "reviewRunId": "B-a0c9:RR-002",
+      "_hash": "c40d51dfff32cd8ae78543fe220d97218a5e37d4ae116951752c95342fa5ce9e"
     }
   ]
 }
