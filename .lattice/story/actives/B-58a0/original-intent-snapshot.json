@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-58a0",
+  "sourceText": "User (2026-07-06): 强制显示 ledger — force the status ledger to always be shown to the user after mutating commands, and require it to go through the Lattice story workflow with genuine 3x2 verification and a version bump.",
+  "normalizedOutcome": "After any story-scoped mutating command, the CLI always prints a status ledger (a checklist-derived one when no milestone ledger exists), and a render failure is shown visibly on stdout instead of being swallowed to stderr.",
+  "acceptanceClaim": "A no-ledger story running a mutating command emits a Checklist-derived ledger block on stdout, never the Milestone Status header, and a render failure surfaces a visible warning while the exit code stays 0.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:de6fcd3a5b789016cfe702e16e9d00ffef7425a733ed4267abb456d3600159a9",
+  "createdAt": "2026-07-06T18:12:37.757Z",
+  "updatedAt": "2026-07-06T18:12:37.757Z"
+}
