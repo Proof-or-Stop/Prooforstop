@@ -70,11 +70,11 @@
           "kind": "manual_transcript",
           "command": "node experiments/pos-instrument-replay/selfcheck-m3.mjs",
           "result": "pass",
-          "note": "Resume lock-break is now RACE-FREE against MULTIPLE concurrent resumers (F-007/F-008 fix, commit 4882fad0d). The break critical-section (existsSync + evaluateLockForBreak + rmSync(LOCK_DIR)) is serialized behind a dedicated mkdir break-mutex .batch-ledger.break.lock: a second breaker gets EEXIST and FAILS CLOSED (precondition_failed, exit 3) rather than racing; the break-mutex is released in a finally BEFORE any process.exit (process.exit skips finally); the atomic mkdir(LOCK_DIR) remains the final arbiter (loser -> precondition_failed). This closes the TOCTOU where two resumers both judged a genuinely-dead holder breakable and the second rm'd the first's freshly-live lock. Combined with F-005/F-006 conservative missing-holder=LIVE, two campaign writers is now impossible. selfcheck-m3 sub-check J proves both directions deterministically.",
-          "headHash": "5c1aa59af9c3e300f9c5c9d675cb609ab8bd3ff6",
+          "note": "Resume/lock integrity is now closed on ALL known paths (commit 5c1aa59af). (a) F-005/F-006 conservative missing-holder=LIVE; (b) F-007/F-008 break-mutex serializes the break critical-section (two resumers can't both rm+mkdir); (c) F-009/F-011: a FRESH (non-resume) driver that wins the break-to-reacquire window now FAILS CLOSED if batch-ledger.jsonl already exists non-empty (checked UNDER the campaign lock, precondition_failed exit 3, releases the lock, campaign ledger byte-identical) so it can never re-append duplicates onto a partial ledger. The 'exactly one campaign writer, never a poisoned ledger' invariant holds. selfcheck-m3 sub-checks H/I/J/K prove each direction deterministically.",
+          "headHash": "cb6bb7a89d53986a94df19a6b6f91114ca29358f",
           "materialHash": "4e625df486123eab21a9bcdd2f7d078af09e4b3de1c49a9efa0f939f3fa4677b",
           "storyFilesHash": "de01a2e52c1851b82f08c4080802d781ad44520253ead770535784398db2f30a",
-          "timestamp": "2026-07-06T02:17:52.891Z"
+          "timestamp": "2026-07-06T02:17:53.577Z"
         }
       ]
     },
