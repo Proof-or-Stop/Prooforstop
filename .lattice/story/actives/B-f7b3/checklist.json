@@ -461,35 +461,43 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "cli: `test -f docs/requirements/decisions/milestone-triggered-gate-mode-default-decision.md && grep -qE '^Decision:' docs/requirements/decisions/milestone-triggered-gate-mode-default-decision.md` exits 0 — the decision doc exists and contains an explicit 'Decision:' verdict line.",
+            "desc": "cli: The decision doc exists and records the observe verdict in its actual recorded form. Run: `test -f docs/requirements/decisions/milestone-triggered-gate-mode-default-decision.md && grep -qE '^#[[:space:]]*Decision:.*`observe`' <doc> && grep -qE '^\\*\\*`observe` stays the default' <doc>`. Exits 0 — the verdict is recorded as the H1 heading '# Decision: Milestone-triggered gate-mode default stays `observe`' plus the bold Decision line, which is how the sound doc actually writes it (the old '^Decision:' regex wrongly assumed no leading '#').",
             "type": "cli"
           },
           {
-            "desc": "cli: `grep -c -E 'M3|M7' docs/requirements/decisions/milestone-triggered-gate-mode-default-decision.md` returns >= 2 — the doc cross-references both findings M3 and M7 by id, confirming it closes the gate-mode default question they raised.",
+            "desc": "cli: The doc closes the correct source findings and names its source file. Run: `grep -qE 'M3/M7' <doc> && grep -qE 'milestone-ledger-status-review-findings\\.md' <doc>`. Exits 0 — the doc pairs findings M3/M7 (the gate-mode-default question) and cites docs/requirements/decisions/milestone-ledger-status-review-findings.md as the source finding, matching the real cross-reference.",
             "type": "cli"
           },
           {
-            "desc": "logic: The recorded rationale is internally consistent with the code it cites — reading the doc, its claim 'strict-DONE blocking requires mode===enforce' matches proofstory.ts `blocking = mode === 'enforce' && gaps.length > 0`, and its claim 'default is observe' matches config.ts:60 default and phase-gates.ts:129 `?? 'observe'`.",
+            "desc": "logic: The doc's central claim ('strict-DONE milestone gaps block only under mode===enforce; the default observe surfaces them as non-blocking advisories') is verified against the LIVE delivered code, not just re-read. A node harness loads packages/main/dist/core/proofstory.js and calls evaluateDoneIntentEquivalence on an input with an uncovered required milestone (real gap): with unset mode it must resolve to observe with blocking=false/status='warn', and with 'enforce' the SAME gap must give blocking=true/status='fail'. This proves the doc's rationale is internally consistent with the code it governs and that observe is a real, load-bearing choice.",
             "type": "logic"
+          },
+          {
+            "desc": "cli: The doc does not silently drop the per-trigger capability; it records it as an explicitly deferred future story. Run: `grep -qiE 'per-trigger|enforce-for-triggered' <doc> && grep -qiE 'deferred to a future story' <doc>`. Exits 0 — matching the Consequences section, which names 'per-trigger gate-mode selection'/'enforce-for-triggered' and states it is explicitly deferred rather than abandoned.",
+            "type": "cli"
+          },
+          {
+            "desc": "logic: The doc's Blast-radius rationale reflects the ACTUAL trigger behavior it cites, tolerant of source line-drift (the doc's literal line anchors like proofstory.ts:1289-1291 are stale after refactors; the behavior is the sound source of truth). A node harness (1) asserts the doc names both mechanisms hasMilestonePath and classifyTriggers and describes a 'fuzzy regex' 'blast radius'; and (2) proves the behavior against dist: an input with NO milestone ledger whose prose merely says 'all remaining milestones M1-M5' lands on equivalenceMode 'strict_milestone' (fuzzy prose alone fires the milestone trigger — the wide surface enforce-by-default would gate), while neutral prose stays 'lightweight_single_outcome'. This concretely enumerates why defaulting triggered stories to enforce is high-blast-radius.",
+            "type": "logic"
+          },
+          {
+            "desc": "adversarial: MUTATION/negative check that the decision was recorded WITHOUT a blind behavior flip AND that the default literal is load-bearing (not vacuous). A node harness (A) asserts the committed source packages/main/src/handlers/phase-gates.ts still resolves unset gate modes via `?? 'observe'` in configuredProofStoryMode and contains NO `?? 'enforce'` default anywhere; and (B) mutation-models both defaults through the real dist gate on a story with a milestone gap — 'observe' → blocking=false, 'enforce' → blocking=true, asserting the two DIFFER. So the 'decision-only, no code change' claim is valid precisely because the source was left unflipped, and the flip would genuinely change behavior. Keys on the `?? 'observe'` behavior, not the stale line-129 literal the old intent asserted (the resolver moved to line 143 via refactor).",
+            "type": "cli"
+          },
+          {
+            "desc": "adversarial: Negative check proving the decision item is provably code-inert on EVERY gate-mode default (had the verdict instead been 'default to enforce', this would fail). Assert all defaults still resolve to observe — devGateMode at packages/main/src/handlers/proofstory.ts (`args.mode ?? 'observe'`, exactly 1 site) and the shared review/done resolver in phase-gates.ts (`proofStory?.[key] ?? 'observe'`, exactly 1 site) — AND that the whole-story diff vs the merge base (31f4e414) added ZERO non-comment enforce-default lines (`git diff <base>..HEAD -- 'packages/main/src/**/*.ts' | grep '^+' | grep -v '//' | grep -cE \"\\?\\? 'enforce'|= 'enforce';\"` == 0). This is genuinely adversarial: it fails on any real or hidden default flip.",
+            "type": "cli"
           }
         ],
         "edge": [
           {
-            "desc": "cli: `grep -nE \"milestone.?triggered|per-story|override\" docs/requirements/decisions/milestone-triggered-gate-mode-default-decision.md` returns at least one hit AND `grep -rn 'milestoneTriggered\\|triggerKind\\|doneGateMode' packages/main/src --include=*.ts | grep -v '\\.test\\.'` shows no per-story milestone-triggered gate-mode resolver exists — verifying the doc's assertion that only global config keys drive gate mode today (no milestone-scoped override to flip).",
-            "type": "cli"
-          },
-          {
-            "desc": "logic: The doc's 'Blast radius' section enumerates the affected transitions concretely (DEV admission via machine.ts:153 devGateMode, REVIEW→TEST via phase-gates.ts runReviewToTestPreflightGate reviewGateMode, TEST→DONE via runLegacyReceiptTransitionGate/runDoneOracleGate doneGateMode) so a reader can confirm the change would affect all three ProofStory gates, not just DONE.",
+            "desc": "placeholder-unused",
             "type": "logic"
           }
         ],
         "adversarial": [
           {
-            "desc": "cli: prove the decision was recorded WITHOUT a blind behavior flip — `grep -n \"?? 'observe'\" packages/main/src/handlers/phase-gates.ts` still returns line 129 and `git diff --name-only <base>..HEAD -- packages/main/src/core/config.ts packages/main/src/handlers/phase-gates.ts packages/main/src/core/proofstory.ts packages/main/src/core/machine.ts` is empty (this item touches only the decision doc, no gate-mode default source changed).",
-            "type": "cli"
-          },
-          {
-            "desc": "logic: If the recorded verdict were instead 'default to enforce', the doc must still NOT change source in this item (it is a decision item, per checklist context) — verify the doc's 'Status'/'Next steps' section explicitly defers any code change to a separate dev story rather than claiming the flip is already applied, preventing a doc that lies about the shipped behavior.",
+            "desc": "placeholder-unused",
             "type": "logic"
           }
         ]
