@@ -4,8 +4,8 @@
       "id": "CHK-001",
       "title": "analyze-batch.mjs emits a three-state H1-H4 report.json + report.md",
       "context": "Offline analyzer reads batch-ledger.jsonl (H1/H4), tamper-verdicts.jsonl (H2), resume-reconciliation.json (H3), and protocol.json; adjudicates each hypothesis to pass|fail|inconclusive with the supporting numbers; writes report.json + a human-readable report.md. Never re-executes the instrument or calls the lattice CLI.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-06T07:23:32.042Z",
       "endTime": null,
       "userSees": "node analyze-batch.mjs prints 'H1 replay-determinism: pass', 'H2 tamper-fail-closed: pass', 'H3 resume-integrity: pass', 'H4 scale-envelope: pass', 'overall: all-pass', 'digest: <sha256>' and writes report.json + report.md.",
       "files": {

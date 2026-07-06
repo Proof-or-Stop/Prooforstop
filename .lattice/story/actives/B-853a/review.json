@@ -119,6 +119,35 @@
         }
       ],
       "_hash": "a72b5e9b444bc5c3a7cb992ca481a3dad1ca0651fe94bd0104bc790972da40e0"
+    },
+    {
+      "timestamp": "2026-07-06T07:17:35.994Z",
+      "issueCount": 4,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 (\"analyze-batch.mjs re-verifies each input record's integrity (per-record recordDigest; abort with the offending id on mismatch) before adjudication, and report.json/.md include the scale-envelope numbers (elapsed/endOfRunRss per scale), the section-3 claim text verbatim only when overall is all-pass, and any instrument defect found\") was added in PLAN phase: Promote scope-plan-review gaps (§6.2/§6.4/§9 input-integrity recordDigest re-check, §10/§3 claim-text embedding, §12 instrument-defect list, §7 scale-envelope numbers) into a titled checklist item so they are in-scope and covered."
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when analyze-batch.mjs emits a three-state H1-H4 report.json + report.md + report carries a reproducible digest; re-run is byte-identical are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 1 undigested unknowns: Exact report.md layout and whether to embed the plan section-3 claim text verbatim when all hypotheses pass (leaning yes per the no-overclaim rule)."
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "advisory",
+          "message": "plan.md not found. Normal channel recommends writing plan.md to clarify execution order and dependencies"
+        }
+      ],
+      "_hash": "ffacddc0a1bd4cbae4c1a6190f7c03df22536c91f749a2c819355d5001004488"
     }
   ]
 }
