@@ -836,6 +836,12 @@ function main() {
           // propagate UNCAUGHT (generic stack trace + exit 1). Do NOT process.exit
           // in here — the finally below must run first to release the break-mutex.
           try {
+            // Fault injection (F-010/F-015 test): force the stale-lock break to fail so
+            // the selfcheck can prove it becomes the explicit exit-2 diagnostic (and that
+            // the break-mutex is still released by the finally, not orphaned).
+            if (process.env.POS_FAIL_LOCK_BREAK === '1') {
+              throw new Error('[fault-injection] forced lock-break failure');
+            }
             rmSync(LOCK_DIR, { recursive: true, force: true });
           } catch (e) {
             breakError = e;
@@ -920,11 +926,24 @@ function main() {
   // Serialized UNDER the campaign lock (release !== null here) so the ledger state
   // is stable, and BEFORE the resume/loop logic below.
   if (!resume) {
+    // F-009/F-011/F-013: a FRESH (non-resume) driver must never append onto a
+    // pre-existing non-empty campaign ledger. F-013 (fail-CLOSED): if the ledger
+    // EXISTS but is UNREADABLE (write-only / EACCES / any read error), we cannot
+    // prove it is safe to start fresh over it -> REFUSE (treat as non-empty). Only a
+    // provably-absent OR provably-empty ledger permits a fresh run.
     let existingLedgerNonEmpty = false;
     try {
-      existingLedgerNonEmpty = existsSync(LEDGER_PATH) && readFileSync(LEDGER_PATH, 'utf8').trim() !== '';
+      if (existsSync(LEDGER_PATH)) {
+        // Fault injection (F-013 test): force the read to throw so the selfcheck can
+        // prove an unreadable-but-existing ledger makes a fresh run FAIL CLOSED.
+        if (process.env.POS_FAIL_LEDGER_READ === '1') {
+          throw new Error('[fault-injection] forced ledger read failure');
+        }
+        existingLedgerNonEmpty = readFileSync(LEDGER_PATH, 'utf8').trim() !== '';
+      }
     } catch {
-      existingLedgerNonEmpty = false;
+      // The ledger EXISTS (existsSync was true) but could not be read -> FAIL CLOSED.
+      existingLedgerNonEmpty = true;
     }
     if (existingLedgerNonEmpty) {
       release(); // release the campaign lock before exiting

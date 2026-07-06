@@ -90,6 +90,27 @@
 //       record to the blocked-ledger whose rawError mentions the non-empty ledger,
 //       and leave the campaign ledger BYTE-IDENTICAL (no duplicate/extra records).
 //
+//   (L) FRESH-FAILS-CLOSED-ON-UNREADABLE-LEDGER (F-013/F-014/F-016): the FRESH
+//       fresh-mode guard (K) must also FAIL CLOSED when the pre-existing ledger
+//       EXISTS but is UNREADABLE (write-only / EACCES / any read error). We cannot
+//       prove an unreadable ledger is safe to start fresh over, so REFUSE (treat as
+//       non-empty) rather than fail OPEN and re-append onto it. Given a sandbox
+//       whose ledger already holds valid records, a FRESH run with the read forced
+//       to throw (POS_FAIL_LEDGER_READ=1) must exit 3, append a precondition_failed
+//       record to the blocked-ledger, and leave the campaign ledger BYTE-IDENTICAL
+//       (no records appended — fail closed, not open). Deterministic via the fault
+//       hook (INERT unless the env var === '1').
+//
+//   (M) RESUME-BREAK-FAILURE-DIAGNOSTIC (F-010/F-015): the stale-lock-break
+//       failure path (rmSync(LOCK_DIR) throwing -> breakError -> explicit exit-2
+//       diagnostic) is otherwise untestable because rmSync(force:true) essentially
+//       never throws. With a genuinely-STALE lock (holder.json with a dead pid) and
+//       the destructive break forced to throw (POS_FAIL_LOCK_BREAK=1), a --resume
+//       run must exit 2 (NOT 3), print the 'could not break the stale lock'
+//       diagnostic, leave NO orphaned break-mutex (.batch-ledger.break.lock —
+//       released by the finally, not by the failing rmSync), and leave the campaign
+//       ledger untouched. Deterministic via the fault hook (INERT unless '1').
+//
 // Hermeticity: each sub-check gets its own mkdtemp sandbox holding a copy of
 // run-batch.mjs, lib/instrument.mjs, and the frozen protocol.json, run with
 // cwd=sandbox so its ledger + lock live in the sandbox. The generate/verify CLI
@@ -982,6 +1003,149 @@ function checkFreshRefusesNonemptyLedger() {
   }
 }
 
+// ---------------------------------------------------------------------------
+// (L) FRESH-FAILS-CLOSED-ON-UNREADABLE-LEDGER (F-013/F-014/F-016): the fresh-mode
+// guard must FAIL CLOSED not only on a readable non-empty ledger (K) but also when
+// the pre-existing ledger EXISTS yet is UNREADABLE (write-only / EACCES / any read
+// error). A fresh driver cannot prove an unreadable ledger is safe to start fresh
+// over, so it must REFUSE (treat as non-empty) rather than fail OPEN and re-append
+// onto it. We seed the sandbox ledger with valid records, run the driver in FRESH
+// mode (NO --resume) with POS_FAIL_LEDGER_READ=1 (which forces readFileSync of the
+// existing ledger to throw), and assert: exit 3, a precondition_failed record
+// appended to the blocked-ledger, and the campaign ledger left BYTE-IDENTICAL (no
+// records appended — fail closed, not open). Deterministic via the fault hook.
+// ---------------------------------------------------------------------------
+function checkFreshFailsClosedOnUnreadableLedger() {
+  const label = 'L-fresh-fails-closed-on-unreadable-ledger';
+  const sandbox = makeSandbox(label);
+  try {
+    // Seed the campaign ledger with a few syntactically-valid record lines with
+    // distinct iterationIds (the exact shape is irrelevant — the guard would read
+    // the ledger, but the fault hook forces that read to throw before it can).
+    const seededLines = [
+      JSON.stringify({ iterationId: 'replay/small/1', arm: 'replay', scale: 'small', index: 1, verifyStatus: 'pass' }),
+      JSON.stringify({ iterationId: 'replay/small/2', arm: 'replay', scale: 'small', index: 2, verifyStatus: 'pass' }),
+      JSON.stringify({ iterationId: 'replay/small/3', arm: 'replay', scale: 'small', index: 3, stopReason: 'budget_cap' }),
+    ];
+    const seededContent = seededLines.join('\n') + '\n';
+    appendFileSync(ledgerPath(sandbox), seededContent);
+    // Snapshot the seeded ledger bytes so we can prove it stays UNCHANGED.
+    const ledgerBefore = readFileSync(ledgerPath(sandbox), 'utf8');
+
+    // FRESH run (NO --resume) over an EXISTING-but-UNREADABLE ledger: the fault hook
+    // forces the guard's readFileSync to throw, so it must FAIL CLOSED (not open).
+    const freshRun = runBatch(sandbox, {
+      args: ['--scale=small'],
+      env: { POS_FAIL_LEDGER_READ: '1' },
+    });
+    if (freshRun.code !== 3) {
+      fail(
+        `${label}: a FRESH (no --resume) run over an EXISTING-but-UNREADABLE ledger must exit 3 ` +
+          `(fail closed), got ${freshRun.code} — an unreadable ledger cannot be proven safe to start ` +
+          `fresh over, so the guard must refuse rather than fail open.\n` +
+          `${(freshRun.stdout + '\n' + freshRun.stderr).slice(-800)}`,
+      );
+    }
+    // The campaign ledger must be BYTE-IDENTICAL to the seed — no re-run/re-append.
+    const ledgerAfter = readFileSync(ledgerPath(sandbox), 'utf8');
+    if (ledgerAfter !== ledgerBefore) {
+      fail(
+        `${label}: the campaign ledger was MODIFIED by the refused fresh run — it must stay ` +
+          `byte-identical (fail closed, not open — no records appended). before=${ledgerBefore.length}B, ` +
+          `after=${ledgerAfter.length}B`,
+      );
+    }
+    // A precondition_failed record must be appended to the BLOCKED ledger.
+    if (!existsSync(blockedLedgerPath(sandbox))) {
+      fail(`${label}: the refused fresh run did not record precondition_failed to the blocked-ledger`);
+    }
+    const blocked = readFileSync(blockedLedgerPath(sandbox), 'utf8')
+      .split('\n')
+      .filter((l) => l.trim())
+      .map((l) => JSON.parse(l));
+    if (!blocked.some((r) => r.stopReason === 'precondition_failed')) {
+      fail(
+        `${label}: blocked-ledger has no precondition_failed record after the refused fresh run ` +
+          `(got: ${JSON.stringify(blocked.map((r) => r.stopReason))})`,
+      );
+    }
+    console.log(
+      `  ${label} PASS: a FRESH (no --resume) run over an EXISTING-but-UNREADABLE ledger FAILED CLOSED ` +
+        `(exit ${freshRun.code}, precondition_failed to blocked-ledger, campaign ledger left ` +
+        `byte-identical — no records appended, fail closed not open)`,
+    );
+  } finally {
+    rmSync(sandbox, { recursive: true, force: true });
+  }
+}
+
+// ---------------------------------------------------------------------------
+// (M) RESUME-BREAK-FAILURE-DIAGNOSTIC (F-010/F-015): the stale-lock-break failure
+// path (rmSync(LOCK_DIR) throwing -> breakError -> the explicit exit-2 'could not
+// break the stale lock' diagnostic) is otherwise untestable because
+// rmSync(force:true) essentially never throws. We set up a genuinely-STALE lock
+// (holder.json with a dead pid — same technique as sub-checks H/J), run --resume
+// with POS_FAIL_LOCK_BREAK=1 (which forces the destructive break to throw), and
+// assert: exit 2 (NOT 3), the 'could not break the stale lock' diagnostic in the
+// output, NO orphaned break-mutex (.batch-ledger.break.lock — released by the
+// finally, not by the failing rmSync), and the campaign ledger untouched (the
+// exit-2 fatal fires BEFORE the lock is acquired / any ledger append). Deterministic
+// via the fault hook (INERT unless the env var === '1').
+// ---------------------------------------------------------------------------
+async function checkResumeBreakFailureDiagnostic() {
+  const label = 'M-resume-break-failure-diagnostic';
+  const sandbox = makeSandbox(label);
+  try {
+    const deadPid = await spawnDeadPid(label);
+
+    // Set up a STALE lock: LOCK_DIR with holder.json pointing at the dead pid. This
+    // is breakable (dead holder), so the driver ENTERS the break critical-section —
+    // where the fault hook then forces the destructive rmSync to throw.
+    mkdirSync(lockDirPath(sandbox), { recursive: true });
+    appendFileSync(holderPath(sandbox), JSON.stringify({ pid: deadPid }) + '\n');
+
+    // --resume with the break forced to fail: must hit the explicit exit-2 diagnostic.
+    const breakRun = runBatch(sandbox, {
+      args: ['--resume', '--scale=small'],
+      env: { POS_FAIL_LOCK_BREAK: '1' },
+    });
+    if (breakRun.code !== 2) {
+      fail(
+        `${label}: a --resume run whose stale-lock break FAILS must exit 2 (the explicit break-failure ` +
+          `diagnostic), NOT ${breakRun.code} (3 would mean it fell through to a precondition/lock path ` +
+          `instead of the break-failure path).\n${(breakRun.stdout + '\n' + breakRun.stderr).slice(-800)}`,
+      );
+    }
+    const combined = breakRun.stdout + '\n' + breakRun.stderr;
+    if (!/could not break the stale lock/i.test(combined)) {
+      fail(
+        `${label}: the exit-2 run did not print the 'could not break the stale lock' diagnostic ` +
+          `(got: ${combined.slice(-800)})`,
+      );
+    }
+    // The break-mutex must NOT be left orphaned — the finally releases it even when
+    // the break itself throws (a SIGKILL-orphaned mutex is a different failure mode).
+    if (existsSync(breakLockDirPath(sandbox))) {
+      fail(
+        `${label}: the break-mutex (.batch-ledger.break.lock) was left ORPHANED after the break ` +
+          `failed — the finally must release it on the throw path, not leave it for the rmSync`,
+      );
+    }
+    // The campaign ledger must be UNTOUCHED — the exit-2 fatal fires before the lock
+    // is acquired and before any campaign-ledger append.
+    if (existsSync(ledgerPath(sandbox))) {
+      fail(`${label}: the failed-break run wrote to the campaign ledger — it must be left untouched`);
+    }
+    console.log(
+      `  ${label} PASS: a --resume run whose stale-lock break FAILED became the explicit exit-2 ` +
+        `diagnostic ('could not break the stale lock'), left NO orphaned break-mutex (released by the ` +
+        `finally), and left the campaign ledger untouched`,
+    );
+  } finally {
+    rmSync(sandbox, { recursive: true, force: true });
+  }
+}
+
 async function main() {
   console.log('selfcheck-m3: running hermetic resume/idempotence guards (small scale)...');
   // (A) clean-boundary kill at K+1 with K=5 (casualty replay/small/6).
@@ -1015,6 +1179,15 @@ async function main() {
   //     append (the resume break-to-reacquire window otherwise lets a fresh driver
   //     re-append duplicates the end-guard rejects but cannot repair).
   checkFreshRefusesNonemptyLedger();
+  // (L) FRESH-FAILS-CLOSED-ON-UNREADABLE-LEDGER (F-013/F-014/F-016): the fresh-mode
+  //     guard must also FAIL CLOSED when the pre-existing ledger EXISTS but is
+  //     UNREADABLE (write-only / EACCES / any read error) — refuse rather than fail
+  //     open and re-append onto an unprovable ledger.
+  checkFreshFailsClosedOnUnreadableLedger();
+  // (M) RESUME-BREAK-FAILURE-DIAGNOSTIC (F-010/F-015): the stale-lock-break failure
+  //     path (rmSync(LOCK_DIR) throwing -> the explicit exit-2 diagnostic) is made
+  //     testable via a fault hook; the break-mutex is still released by the finally.
+  await checkResumeBreakFailureDiagnostic();
   console.log('selfcheck-m3 PASS');
   process.exit(0);
 }
