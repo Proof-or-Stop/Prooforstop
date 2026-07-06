@@ -39,7 +39,27 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Shard runner writes only shard-local output in fixture/dry-run mode.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Canonical Cell03 rows stay untouched by shard selfcheck.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Concurrent same-shard acquisition fails closed.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
