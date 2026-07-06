@@ -59,6 +59,42 @@
       "_hash": "55d818f9de944e75d355c2c07250ffd816c392b246b652639d89afc295f6ba4e",
       "signatureTag": "edge|unknown|lacks-sanity-floor",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-853a:F-005",
+      "desc": "F-CODEX-1 (host-2, HIGH): H1 COMPLETENESS false-pass. adjudicateH1 (analyze-batch.mjs:~221) requires only 'at least one scale with >=2 pairwise-equal records' to pass; a scale with FEWER records than protocol.N[scale] (e.g. only replay/full/1 present instead of the required 3) is marked non-checkable but does NOT prevent overall pass. So an incomplete campaign (missing full-scale replay evidence that protocol.N.full===3 demands) still yields H1 pass + overall all-pass + asserts the §3 claim. FIX: H1 must require EXACTLY protocol.N[scale] proof records per scale (completeness) before any scale is 'pass'; a short scale is fail or inconclusive, never silently ignored.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-07-06T07:38:58.533Z",
+      "reviewRound": "2026-07-06T07:30:13.842Z",
+      "reviewRunId": "B-853a:RR-006",
+      "_hash": "9db46ef3de78fcc842c1de962748505a999cd9213716e5dcce58662446dde4c1",
+      "files": [
+        "experiments/pos-instrument-replay/analyze-batch.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|codex-host-high",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-853a:F-006",
+      "desc": "F-CODEX-2 (host-2, HIGH): H2 IDENTITY false-pass. adjudicateH2 (analyze-batch.mjs:~318) checks only per-disposition bucket COUNTS (18/2/6/1) + per-row conformance + dispositionMatch — NOT that each expected (class, handling) pair enumerated in protocol.tamperMatrix is actually PRESENT. Delete one class's verdict (e.g. gold-edit/raw) and duplicate another (cross-profile-swap/refreshed) so counts still total 18 fail-closed: H2 passes while an enumerated tamper class has ZERO evidence. FIX: H2 must verify the SET of (class,handling) identities in the verdicts equals the set enumerated in protocol.tamperMatrix (identity coverage), in addition to per-row conformance + dispositionMatch.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-07-06T07:38:59.374Z",
+      "reviewRound": "2026-07-06T07:30:13.842Z",
+      "reviewRunId": "B-853a:RR-006",
+      "_hash": "826d79571a54cd123d13c7f622458b296e43eb5daff33e72264f6e3e1d2cdc01",
+      "files": [
+        "experiments/pos-instrument-replay/analyze-batch.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|codex-host-high",
+      "signatureTagSource": "auto"
     }
   ]
 }
