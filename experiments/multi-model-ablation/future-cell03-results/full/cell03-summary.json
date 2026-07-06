@@ -3,28 +3,20 @@
   "storyId": "B-991d",
   "executionWindowId": "B-991d-cell03-execution-window-001",
   "expectedRows": 1152,
-  "rowCount": 15,
-  "finalRows": 15,
+  "rowCount": 25,
+  "finalRows": 25,
   "failedRows": 0,
-  "validationPassRows": 15,
-  "providerUsageRows": 15,
-  "reviewedRows": 15,
-  "groundTruthPassRows": 15,
+  "validationPassRows": 24,
+  "providerUsageRows": 25,
+  "reviewedRows": 25,
+  "groundTruthPassRows": 25,
   "outcomeCounts": {
-    "recovered": 15
+    "recovered": 23,
+    "safe-stop": 1,
+    "completed": 1
   },
-  "missingFinalRows": 1137,
+  "missingFinalRows": 1127,
   "missingFinalCellKeys": [
-    "③|A4|du-duration|B10|2|E2|same",
-    "③|A4|cl-combined|B10|2|E2|same",
-    "③|A4|cv-ipv4|B15|1|E2|same",
-    "③|A4|cl-combined|B13|1|E2|same",
-    "③|A4|cv-luhn|B09|2|E2|same",
-    "③|A4|rf-money|scenario-null|3|E2|same",
-    "③|A4|cl-equals|B06|3|E2|same",
-    "③|A4|dp-querystring|B12|1|E2|same",
-    "③|A4|du-interp|B15|2|E2|same",
-    "③|A4|eval-expr|B02|1|E2|same",
     "③|A4|tr-pluralize|B04|1|E2|same",
     "③|A4|cv-luhn|B04|2|E2|same",
     "③|A4|cl-combined|B08|2|E2|same",
@@ -64,15 +56,25 @@
     "③|A4|du-interp|B06|3|E2|same",
     "③|A4|bf-lru|B10|1|E2|same",
     "③|A4|median|B10|3|E2|same",
-    "③|A4|dp-querystring|B11|1|E2|same"
+    "③|A4|dp-querystring|B11|1|E2|same",
+    "③|A4|dp-deepmerge|B04|2|E2|same",
+    "③|A4|cv-luhn|B14|2|E2|same",
+    "③|A4|cv-ipv4|B03|3|E2|same",
+    "③|A4|cl-multi|B11|1|E2|same",
+    "③|A4|cl-combined|B09|3|E2|same",
+    "③|A4|bf-datediff|B03|1|E2|same",
+    "③|A4|cl-combined|B05|1|E2|same",
+    "③|A4|median|B04|1|E2|same",
+    "③|A4|tr-pluralize|B03|1|E2|same",
+    "③|A4|rf-money|B02|2|E2|same"
   ],
   "newRowsThisRun": 10,
   "totalProviderUsage": {
-    "inputTokens": 2802406,
-    "outputTokens": 70706,
-    "totalTokens": 2873112
+    "inputTokens": 4722445,
+    "outputTokens": 125220,
+    "totalTokens": 4847665
   },
   "complete": false,
   "fullRunUnlockReason": "CHK-006 completes only when every expected Cell 03 cell key has exactly one final formal row and no duplicate final row.",
-  "createdAt": "2026-07-06T00:45:50.690Z"
+  "createdAt": "2026-07-06T01:01:54.300Z"
 }
