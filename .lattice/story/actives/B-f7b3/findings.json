@@ -104,7 +104,7 @@
       "desc": "quality-cleanup: packages/main/src/tasks/proofstory-intent-hardening-smoke.ts:847,877 uses `confirmedLedger(...) as any` when writing to store.writeMilestoneLedger; a precise cast (e.g. `as unknown as MilestoneLedgerData`, the pattern already used in the sibling milestone-done-gate-reconciliation-smoke.ts) is available and would avoid silencing type checking on the writeMilestoneLedger call entirely.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-06T06:34:07.497Z",
@@ -112,7 +112,11 @@
       "reviewRunId": "B-f7b3:RR-019",
       "_hash": "844d6cdbe50a9d88f4819c4899a36575edfe49b7c831f791900c097074c2b05f",
       "signatureTag": "missing|unknown|quality-cleanup-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: both store.writeMilestoneLedger(confirmedLedger(...) as any) calls in proofstory-intent-hardening-smoke.ts now use the precise 'as unknown as MilestoneLedgerData' cast (imported the type), matching the sibling milestone-done-gate-reconciliation-smoke.ts convention; no more type-checking silenced at the call site.",
+      "resolvedAt": "2026-07-06T06:42:54.571Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f7b3:F-007",
