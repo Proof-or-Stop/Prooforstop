@@ -8,6 +8,15 @@
       "reviewRound": "2026-07-06T00:16:09.455Z",
       "reviewRunId": "B-f7b3:RR-001",
       "_hash": "d9639468e8c687bf46f73514f49f44c53e72c59f8da1352dff4dbe11bf46b45a"
+    },
+    {
+      "id": "B-f7b3:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "Doc-vs-code review of the 3 B-f7b3 decision docs (milestone-triggered-gate-mode-default-decision.md, milestone-not-applicable-justification.md, milestone-status-done-gate-reconciliation.md). Extracted about 15 symbols from git diff main...HEAD (evidenceIsStaleCovering, validMilestoneNotApplicable, normalizeNotApplicableDecision, captureMilestoneCloseoutSnapshotFromStore, currentMilestoneStatusEvidenceBinding, MilestoneNotApplicableDecision, etc.) and compared about 10 doc paragraphs against the current packages/main/src source (proofstory.ts, milestone-status.ts, types.ts, phase-gates.ts, handlers/milestone-status.ts, handlers/proofstory.ts, transition-orchestrator.ts) plus ran the cited verification commands: npm build, milestone-done-gate-reconciliation-smoke.js, proofstory-intent-hardening-smoke.js, milestone-status.test.mjs, done_intent_equivalence_check for B-f7b3 - all pass exactly as the docs describe. Confirmed: 1. doneGateMode default is still observe (config.ts:60, phase-gates.ts configuredProofStoryMode), enforce remains opt-in, no code default flip. 2. notApplicableDecision is an optional field validated only when present (normalizeNotApplicableDecision never throws on absence), policy enforcement is a non-throwing DONE-gate diagnostic not_applicable_missing_decision severity=fail that blocks only under enforce, mirroring the shipped parent-roadmap-totality.ts precedent exactly. 3. The DONE gate now emits a non-blocking severity=warn stale_milestone_evidence diagnostic via the shared evidenceIsStaleCovering mismatchOnly=true predicate, agreeing by construction with milestone_status, and captureMilestoneCloseoutSnapshotFromStore degrades to a non-throwing skipped result after actor.send while the pure builder buildMilestoneCloseoutSnapshot stays strict. B-f7b3's own confirmed ledger hash sha256:68173e86 cited in 2 docs matches the live milestone-ledger.json, and done_intent_equivalence_check confirms Blocking: no. One low-severity doc-code-drift finding filed as F-003 for a fabricated function name resolveDoneGateMode in the gate-mode doc verification section; real resolver is configuredProofStoryMode. Multiple cited line numbers across all 3 docs are stale, drifted by the diff's own added lines above the cited location, e.g. phase-gates.ts line 129 became 142, milestone-status.ts line 541 became 576, but these are cosmetic pointer drift not substance errors - every underlying behavioral claim was independently verified against current source and passing evidence.",
+      "createdAt": "2026-07-06T00:23:24.607Z",
+      "reviewRound": "2026-07-06T00:16:09.455Z",
+      "reviewRunId": "B-f7b3:RR-003",
+      "_hash": "027a940431673a3953fb47396be6f4d1ec71f29fdd818cf3f4b9a0321addf710"
     }
   ]
 }
