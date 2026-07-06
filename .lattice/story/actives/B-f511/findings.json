@@ -132,7 +132,7 @@
       "desc": "multi-resumer-toctou: run-batch.mjs:749-787 evaluateLockForBreak() computes a breakable/proven-dead verdict from a one-time read of holder.json, but the subsequent rmSync(LOCK_DIR) at line 780 is unconditional on path and never re-validates that the lock dir still holds the SAME dead-pid holder it evaluated. Concrete interleaving: two concurrent --resume drivers A and B both see the same genuinely-dead-pid holder.json and both compute {breakable:true}. A calls rmSync(LOCK_DIR) then acquireLock() -> mkdirSync succeeds -> A now owns a freshly-live lock (about to stamp its own holder.json). B, acting on its stale verdict computed before A re-acquired, calls rmSync(LOCK_DIR) unconditionally -> deletes A live lock -> B then calls acquireLock() -> mkdirSync succeeds -> both A and B hold non-null releasers and both proceed to appendRecord() to the SAME batch-ledger.jsonl concurrently. This reintroduces the exact two-writer ledger-corruption scenario the F-001/F-005/F-006 fix chain was built to prevent -- it is just triggered by a THIRD racing resumer rather than the single acquire-window case this round closed. selfcheck-m3.mjs has no sub-check exercising two concurrent --resume invocations (checks H and I are both single-resumer only), so this gap is untested. A fix needs either a fencing/generation check (re-read+compare holder.json immediately before rmSync, or a rename-based conditional delete) so a stale verdict can never delete a lock dir that has since been re-acquired by someone else.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-06T00:53:33.368Z",
@@ -140,7 +140,11 @@
       "reviewRunId": "B-f511:RR-012",
       "_hash": "89efb954877706a8d44e4c5e476310792c6f7d1de8b9b1307882489051d3d0df",
       "signatureTag": "edge|unknown|multi-resumer-toctou",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 4882fad0d: the break critical-section (existsSync+evaluateLockForBreak+rmSync(LOCK_DIR)) is serialized behind a dedicated mkdir break-mutex .batch-ledger.break.lock; EEXIST->fail closed; the atomic mkdir(LOCK_DIR) stays the final arbiter. Two resumers can no longer both rm+mkdir. selfcheck-m3 sub-check J (both directions); Codex host-2 round-4/5/6 confirmed no remaining two-non-null-writer path.",
+      "resolvedAt": "2026-07-06T05:05:13.660Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f511:F-008",
