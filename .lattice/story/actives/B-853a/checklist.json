@@ -54,10 +54,10 @@
           "command": "node experiments/pos-instrument-replay/analyze-batch.mjs",
           "result": "pass",
           "note": "node analyze-batch.mjs (offline, only fs/path/url + lib/instrument.mjs) re-verifies each batch-ledger recordDigest then STRICTLY adjudicates: H1 requires exactly protocol.N[scale] well-formed (non-empty digests+goldMetrics) pairwise-equal records per scale; H2 requires the (class,handling) identity set == protocol.tamperMatrix + per-row conformance + dispositionMatch; H3 requires the substantive killA/B/C+protocolReplaySmallCount+hypothesis fields; H4 requires finite non-negative elapsedMs <= cap. On the real evidence all four = pass, overall all-pass, digest f4224085e06db3a421bf6d6eed6204733d277696f1225403d03ab264bf3fd3ba; writes report.json + report.md.",
-          "headHash": "e01bda62e6f7da38717d1bfbc5238398a9186fab",
-          "materialHash": "b8d25c898ec3647c9947f3eedfe58190426e5357b4efe387ef47553af6be3b82",
-          "storyFilesHash": "33c61f0249d435d1e9d1187beea8fbc5179685a69d099092cede7c4ef47fe8c6",
-          "timestamp": "2026-07-06T07:55:03.554Z"
+          "headHash": "eeb1a9592dad76d13e17d1099833e3f87d06dbf1",
+          "materialHash": "8abdad7e6b9e5770501bfc64ed7d37b8d9ec0d140aeac2f75c6521895bf1fc8b",
+          "storyFilesHash": "c978601679f808fa8a190348838bf2ea9efa12791fa9e084759011421b230dbe",
+          "timestamp": "2026-07-06T08:08:37.635Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -65,10 +65,10 @@
           "command": "node experiments/pos-instrument-replay/selfcheck-m4.mjs",
           "result": "pass",
           "note": "Strict three-state closes the round-1 false-pass holes: an incomplete scale (fewer than protocol.N records), stripped digests/goldMetrics, a missing tamper (class,handling) identity, a 3-field resume stub, or a negative/null elapsedMs each now flip the corresponding hypothesis to FAIL (never a false pass) — proven by selfcheck-m4 sub-checks J/K/L/M/N; an absent input file yields inconclusive + a null generatedInputs sha (never a crash, never all-pass) — sub-check O.",
-          "headHash": "7d0bc362d46f2ffae1473109ffd5ed116aca6c9c",
-          "materialHash": "b8d25c898ec3647c9947f3eedfe58190426e5357b4efe387ef47553af6be3b82",
-          "storyFilesHash": "33c61f0249d435d1e9d1187beea8fbc5179685a69d099092cede7c4ef47fe8c6",
-          "timestamp": "2026-07-06T07:55:04.950Z"
+          "headHash": "eeb1a9592dad76d13e17d1099833e3f87d06dbf1",
+          "materialHash": "8abdad7e6b9e5770501bfc64ed7d37b8d9ec0d140aeac2f75c6521895bf1fc8b",
+          "storyFilesHash": "c978601679f808fa8a190348838bf2ea9efa12791fa9e084759011421b230dbe",
+          "timestamp": "2026-07-06T08:08:37.635Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -77,10 +77,10 @@
           "command": "node experiments/pos-instrument-replay/selfcheck-m4.mjs",
           "result": "pass",
           "note": "selfcheck-m4 sub-check G: an empty resume-reconciliation.json yields H3=inconclusive (not pass, not a crash) and overall=some-inconclusive — the missing-evidence edge is handled as inconclusive.",
-          "headHash": "3e5c582a38fa7153f009dff8988959df395e9d97",
-          "materialHash": "b8d25c898ec3647c9947f3eedfe58190426e5357b4efe387ef47553af6be3b82",
-          "storyFilesHash": "33c61f0249d435d1e9d1187beea8fbc5179685a69d099092cede7c4ef47fe8c6",
-          "timestamp": "2026-07-06T07:55:02.106Z"
+          "headHash": "eeb1a9592dad76d13e17d1099833e3f87d06dbf1",
+          "materialHash": "8abdad7e6b9e5770501bfc64ed7d37b8d9ec0d140aeac2f75c6521895bf1fc8b",
+          "storyFilesHash": "c978601679f808fa8a190348838bf2ea9efa12791fa9e084759011421b230dbe",
+          "timestamp": "2026-07-06T08:08:37.635Z"
         }
       ]
     },
@@ -131,10 +131,10 @@
           "command": "node experiments/pos-instrument-replay/analyze-batch.mjs",
           "result": "pass",
           "note": "Reproducible: two runs of analyze-batch.mjs on the committed inputs produce byte-identical report.json + the digest f4224085e06db3a421bf6d6eed6204733d277696f1225403d03ab264bf3fd3ba; digest = sha256(canonicalJson(report minus the digest field)) — independently re-derived by hand (sorted-key canonical JSON, sha256) and by Codex host-2, both matching. No Date/random/absolute-path in the digested preimage.",
-          "headHash": "20e3ea4c3bd7a378e241327ffeb7a9da73f1b84a",
-          "materialHash": "b8d25c898ec3647c9947f3eedfe58190426e5357b4efe387ef47553af6be3b82",
-          "storyFilesHash": "33c61f0249d435d1e9d1187beea8fbc5179685a69d099092cede7c4ef47fe8c6",
-          "timestamp": "2026-07-06T07:55:06.292Z"
+          "headHash": "eeb1a9592dad76d13e17d1099833e3f87d06dbf1",
+          "materialHash": "8abdad7e6b9e5770501bfc64ed7d37b8d9ec0d140aeac2f75c6521895bf1fc8b",
+          "storyFilesHash": "c978601679f808fa8a190348838bf2ea9efa12791fa9e084759011421b230dbe",
+          "timestamp": "2026-07-06T08:08:37.635Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -143,10 +143,10 @@
           "command": "node experiments/pos-instrument-replay/selfcheck-m4.mjs",
           "result": "pass",
           "note": "selfcheck-m4 sub-check B runs the sandboxed analyzer twice and asserts report.json is byte-identical (Buffer.equals) and the digest is identical across runs — reproducibility is machine-verified, not just re-printed.",
-          "headHash": "3e5c582a38fa7153f009dff8988959df395e9d97",
-          "materialHash": "b8d25c898ec3647c9947f3eedfe58190426e5357b4efe387ef47553af6be3b82",
-          "storyFilesHash": "33c61f0249d435d1e9d1187beea8fbc5179685a69d099092cede7c4ef47fe8c6",
-          "timestamp": "2026-07-06T07:55:02.106Z"
+          "headHash": "eeb1a9592dad76d13e17d1099833e3f87d06dbf1",
+          "materialHash": "8abdad7e6b9e5770501bfc64ed7d37b8d9ec0d140aeac2f75c6521895bf1fc8b",
+          "storyFilesHash": "c978601679f808fa8a190348838bf2ea9efa12791fa9e084759011421b230dbe",
+          "timestamp": "2026-07-06T08:08:37.635Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -155,10 +155,10 @@
           "command": "node experiments/pos-instrument-replay/selfcheck-m4.mjs",
           "result": "pass",
           "note": "selfcheck-m4 sub-check I: in a fail case the report omits the claim field and the digest is still computed and present, so the digest is defined for non-all-pass reports too (order-independent over canonicalJson).",
-          "headHash": "3e5c582a38fa7153f009dff8988959df395e9d97",
-          "materialHash": "b8d25c898ec3647c9947f3eedfe58190426e5357b4efe387ef47553af6be3b82",
-          "storyFilesHash": "33c61f0249d435d1e9d1187beea8fbc5179685a69d099092cede7c4ef47fe8c6",
-          "timestamp": "2026-07-06T07:55:02.106Z"
+          "headHash": "eeb1a9592dad76d13e17d1099833e3f87d06dbf1",
+          "materialHash": "8abdad7e6b9e5770501bfc64ed7d37b8d9ec0d140aeac2f75c6521895bf1fc8b",
+          "storyFilesHash": "c978601679f808fa8a190348838bf2ea9efa12791fa9e084759011421b230dbe",
+          "timestamp": "2026-07-06T08:08:37.635Z"
         }
       ]
     },
@@ -209,10 +209,10 @@
           "command": "node experiments/pos-instrument-replay/selfcheck-m4.mjs",
           "result": "pass",
           "note": "node selfcheck-m4.mjs exits 0 'selfcheck-m4 PASS' — sub-checks A-O: A-happy, B-reproducible, C/D/E/F (H1/H2/H3/H4 flip to fail on value mutation), G (empty input inconclusive), H (recordDigest-tamper abort), I (no-overclaim), + J h1-incomplete, K h1-vacuous, L h2-identity-missing, M h3-stub, N h4-negative/null, O absent-file-inconclusive.",
-          "headHash": "158d5c8bf87c6633f28c52e6340f226b0d165c84",
-          "materialHash": "b8d25c898ec3647c9947f3eedfe58190426e5357b4efe387ef47553af6be3b82",
-          "storyFilesHash": "33c61f0249d435d1e9d1187beea8fbc5179685a69d099092cede7c4ef47fe8c6",
-          "timestamp": "2026-07-06T07:55:07.626Z"
+          "headHash": "eeb1a9592dad76d13e17d1099833e3f87d06dbf1",
+          "materialHash": "8abdad7e6b9e5770501bfc64ed7d37b8d9ec0d140aeac2f75c6521895bf1fc8b",
+          "storyFilesHash": "c978601679f808fa8a190348838bf2ea9efa12791fa9e084759011421b230dbe",
+          "timestamp": "2026-07-06T08:08:37.635Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -220,10 +220,10 @@
           "command": "node experiments/pos-instrument-replay/selfcheck-m4.mjs",
           "result": "pass",
           "note": "Un-gameable + cross-host. selfcheck-m4 sub-checks A-I: A-happy (all-pass), B-reproducible (two runs byte-identical digest), C-h1-fail / D-h2-fail / E-h3-fail / F-h4-fail (each mutation flips its hypothesis to fail — never a false pass), G-inconclusive (removing an input -> inconclusive not pass), H-integrity-abort (a naively-edited ledger record without a recomputed recordDigest -> analyze-batch exits 1 naming the offending iterationId, no all-pass report), I-no-overclaim (fail case omits the claim text). CROSS-HOST: genuine Codex gpt-5.5 host-2 independently (1) ran analyze-batch -> digest a5f07cfaa4edb99a9064efae0ed7462f1fbca76a9bef693f7ffe208eed691f05, (2) RE-DERIVED that digest from report.json by hand (remove digest field, recursively-sorted-key canonical JSON, sha256) -> identical, (3) confirmed offline (no subprocess) -> 'DIGEST REPLICATED: YES'.",
-          "headHash": "3e5c582a38fa7153f009dff8988959df395e9d97",
-          "materialHash": "b8d25c898ec3647c9947f3eedfe58190426e5357b4efe387ef47553af6be3b82",
-          "storyFilesHash": "33c61f0249d435d1e9d1187beea8fbc5179685a69d099092cede7c4ef47fe8c6",
-          "timestamp": "2026-07-06T07:55:02.106Z"
+          "headHash": "eeb1a9592dad76d13e17d1099833e3f87d06dbf1",
+          "materialHash": "8abdad7e6b9e5770501bfc64ed7d37b8d9ec0d140aeac2f75c6521895bf1fc8b",
+          "storyFilesHash": "c978601679f808fa8a190348838bf2ea9efa12791fa9e084759011421b230dbe",
+          "timestamp": "2026-07-06T08:08:37.635Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -232,10 +232,10 @@
           "command": "node experiments/pos-instrument-replay/selfcheck-m4.mjs",
           "result": "pass",
           "note": "selfcheck-m4 sub-check I confirms the no-overclaim edge: a failed report.md omits the claim text and states 'Claim NOT asserted', and report.json omits the claim field.",
-          "headHash": "3e5c582a38fa7153f009dff8988959df395e9d97",
-          "materialHash": "b8d25c898ec3647c9947f3eedfe58190426e5357b4efe387ef47553af6be3b82",
-          "storyFilesHash": "33c61f0249d435d1e9d1187beea8fbc5179685a69d099092cede7c4ef47fe8c6",
-          "timestamp": "2026-07-06T07:55:02.106Z"
+          "headHash": "eeb1a9592dad76d13e17d1099833e3f87d06dbf1",
+          "materialHash": "8abdad7e6b9e5770501bfc64ed7d37b8d9ec0d140aeac2f75c6521895bf1fc8b",
+          "storyFilesHash": "c978601679f808fa8a190348838bf2ea9efa12791fa9e084759011421b230dbe",
+          "timestamp": "2026-07-06T08:08:37.635Z"
         }
       ]
     },
@@ -290,10 +290,10 @@
           "command": "node experiments/pos-instrument-replay/analyze-batch.mjs",
           "result": "pass",
           "note": "Pre-adjudication integrity: analyzer re-derives every ledger recordDigest (all 33 re-derive) and verifies protocol.json sha256 == protocol.json.sha256; report.json/.md carry per-scale scaleEnvelope (small maxElapsedMs=2382/peakRss=174112768; full 18718/976666624), the §3 claim verbatim (only because overall=all-pass), and instrumentDefects=[] (clean).",
-          "headHash": "3e5c582a38fa7153f009dff8988959df395e9d97",
-          "materialHash": "b8d25c898ec3647c9947f3eedfe58190426e5357b4efe387ef47553af6be3b82",
-          "storyFilesHash": "33c61f0249d435d1e9d1187beea8fbc5179685a69d099092cede7c4ef47fe8c6",
-          "timestamp": "2026-07-06T07:55:02.106Z"
+          "headHash": "eeb1a9592dad76d13e17d1099833e3f87d06dbf1",
+          "materialHash": "8abdad7e6b9e5770501bfc64ed7d37b8d9ec0d140aeac2f75c6521895bf1fc8b",
+          "storyFilesHash": "c978601679f808fa8a190348838bf2ea9efa12791fa9e084759011421b230dbe",
+          "timestamp": "2026-07-06T08:08:37.635Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -302,10 +302,10 @@
           "command": "node experiments/pos-instrument-replay/selfcheck-m4.mjs",
           "result": "pass",
           "note": "selfcheck-m4 sub-check I: when overall is NOT all-pass the §3 claim text is withheld from report.md/.json and 'Claim NOT asserted' is emitted with the unmet hypotheses — the verbatim-claim-only-on-all-pass rule (plan §10) is enforced.",
-          "headHash": "3e5c582a38fa7153f009dff8988959df395e9d97",
-          "materialHash": "b8d25c898ec3647c9947f3eedfe58190426e5357b4efe387ef47553af6be3b82",
-          "storyFilesHash": "33c61f0249d435d1e9d1187beea8fbc5179685a69d099092cede7c4ef47fe8c6",
-          "timestamp": "2026-07-06T07:55:02.106Z"
+          "headHash": "eeb1a9592dad76d13e17d1099833e3f87d06dbf1",
+          "materialHash": "8abdad7e6b9e5770501bfc64ed7d37b8d9ec0d140aeac2f75c6521895bf1fc8b",
+          "storyFilesHash": "c978601679f808fa8a190348838bf2ea9efa12791fa9e084759011421b230dbe",
+          "timestamp": "2026-07-06T08:08:37.635Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -313,10 +313,10 @@
           "command": "node experiments/pos-instrument-replay/selfcheck-m4.mjs",
           "result": "pass",
           "note": "Input-integrity + no-overclaim intact after hardening: a batch-ledger record edited without a recomputed recordDigest makes analyze-batch abort (exit 1) naming the offending iterationId (sub-check H); report.md embeds the section-3 claim ONLY when overall all-pass (sub-check I); report includes per-scale scale-envelope numbers + empty instrumentDefects.",
-          "headHash": "fe5a25463f15a73404aea7494b472677c7ce6521",
-          "materialHash": "b8d25c898ec3647c9947f3eedfe58190426e5357b4efe387ef47553af6be3b82",
-          "storyFilesHash": "33c61f0249d435d1e9d1187beea8fbc5179685a69d099092cede7c4ef47fe8c6",
-          "timestamp": "2026-07-06T07:55:09.007Z"
+          "headHash": "eeb1a9592dad76d13e17d1099833e3f87d06dbf1",
+          "materialHash": "8abdad7e6b9e5770501bfc64ed7d37b8d9ec0d140aeac2f75c6521895bf1fc8b",
+          "storyFilesHash": "c978601679f808fa8a190348838bf2ea9efa12791fa9e084759011421b230dbe",
+          "timestamp": "2026-07-06T08:08:37.635Z"
         }
       ]
     }
