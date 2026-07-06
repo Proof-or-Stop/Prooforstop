@@ -44,6 +44,15 @@
       "reviewRound": "2026-07-06T00:33:46.044Z",
       "reviewRunId": "B-f7b3:RR-006",
       "_hash": "574eef2a9823a35fee57792c6e71179e3afa5b733d25217a434b2b6a33c06b05"
+    },
+    {
+      "id": "B-f7b3:RP-006",
+      "agent": "lattice-review-docs",
+      "note": "Re-review after F-003 fix (162a7e6a0). Verified milestone-triggered-gate-mode-default-decision.md Verification section now names the REAL resolver configuredProofStoryMode (phase-gates.ts:146-148, matches doc line 71 quote of loadConfig(ctx.root).proofStory?.[key] ?? observe verbatim) and references the committed smoke block (c) gate-mode DEFAULT pins to observe when config is unset in milestone-done-gate-reconciliation-smoke.ts (comment text matches exactly). Ran the doc-promised verification commands live: npm run build, node dist/tasks/milestone-done-gate-reconciliation-smoke.js (20x loop, 0 failures after one transient disk-buffer flake immediately post-build that did not reproduce), node dist/tasks/proofstory-intent-hardening-smoke.js, node tests/milestone-status.test.mjs — all pass. resolveDoneGateMode (F-003s fabricated name) has zero hits anywhere in repo now. Also re-verified the other 2 decision docs: milestone-not-applicable-justification.md core logic (self-exempt with notApplicableDecision gate, not_applicable_missing_decision diagnostic) matches proofstory.ts:1483-1514/types.ts:1792+1819/parent-roadmap-totality.ts:60-64+490-501 (pre-existing approximate line-number drift from wave-2 commit 4c49a94a7, unrelated to this rounds F-001/F-002/F-003 fix scope, not newly introduced); milestone-status-done-gate-reconciliation.md uses honest ~L markers throughout and all land within a few lines of the real symbols (stale_milestone_evidence L1532, evidenceIsStaleCovering L234, captureMilestoneCloseoutSnapshotFromStore L78/closeout_snapshot_unbuildable L123, buildMilestoneCloseoutSnapshot L904). No README/CLAUDE.md drift (zero hits for changed symbols, confirming scope stays in docs/requirements/decisions/). 8 symbols from Step 1 extraction cross-checked, 3 decision-doc paragraphs compared (Step 2/3), no new findings.",
+      "createdAt": "2026-07-06T00:40:26.508Z",
+      "reviewRound": "2026-07-06T00:33:46.044Z",
+      "reviewRunId": "B-f7b3:RR-007",
+      "_hash": "20a9b753c31e9fb57e7e066689626cba1ba0be48904e86cef655fdca77221481"
     }
   ]
 }
