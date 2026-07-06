@@ -43,7 +43,7 @@
       "desc": "selfcheck.mjs:43 only exercises invalid shard COUNT (buildShardPlan({shardCount:0})); it never exercises an invalid shard INDEX (negative or >= shardCount), even though CHK-001 acceptance says 'invalid shard indexes ... fail closed'. assertShardArgs (plan.mjs:150-153) does reject bad indexes, but no selfcheck asserts it. Fix: add expectThrow cases for shardIndex=-1 and shardIndex=shardCount.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-06T15:42:56.279Z",
@@ -54,7 +54,11 @@
         "experiments/multi-model-ablation/cell03-shards/selfcheck.mjs"
       ],
       "signatureTag": "missing|mjs|selfcheck-exercises-invalid",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "selfcheck asserts invalid shard index rejection (shardIndex=-1 and >=count); invalidIndexReject=pass. Fix commit bca25a5e9.",
+      "resolvedAt": "2026-07-06T15:47:41.452Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-e1f6:F-004",
