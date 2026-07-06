@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-a0c9",
+  "records": [
+    {
+      "id": "RED-20260706102647",
+      "trigger": "F-017: selfcheck-m3 fail() calls process.exit(1), which per Node semantics skips pending finally blocks, so a sub-check that FAILS leaks its mkdtemp sandbox dir (the regression path where cleanup matters most).",
+      "acceptanceTargetRef": "CHK-001:edge:0",
+      "baselineHeadHash": "938c470b8f0b2dcb4cce22046839432434bfa3b8",
+      "baselineMaterialHash": "cca7c19e756b7550cc5f22f379c0cae6fc9a15d999be87105c1088c2be0bb744",
+      "observedFailure": "Pre-fix: a mkdtemp sandbox created via makeSandbox() and cleaned in a try/finally is NOT removed when fail() fires inside the try, because fail() calls process.exit(1) and process.exit skips pending finally blocks. Deterministically reproduced: the mkdtemp+try/finally+process.exit(1) pattern leaves the pos-selfcheck-m3-* dir on disk (test -d succeeds).",
+      "failingCommand": "D=$(node -e 'const f=require(\"fs\"),{tmpdir}=require(\"os\"),{join}=require(\"path\");const d=f.mkdtempSync(join(tmpdir(),\"pos-m3-RED-\"));process.stdout.write(d);try{process.exit(1)}finally{f.rmSync(d,{recursive:true,force:true})}'); test -d \"$D\" && echo \"RED: leaked $D\"; rmdir \"$D\" 2>/dev/null",
+      "expectedGreenCommand": "D=$(node -e 'const f=require(\"fs\"),{tmpdir}=require(\"os\"),{join}=require(\"path\");const S=new Set();process.on(\"exit\",()=>{for(const x of S){try{f.rmSync(x,{recursive:true,force:true})}catch{}}});const d=f.mkdtempSync(join(tmpdir(),\"pos-m3-GREEN-\"));S.add(d);process.stdout.write(d);try{process.exit(1)}finally{f.rmSync(d,{recursive:true,force:true});S.delete(d)}'); test -d \"$D\" || echo \"GREEN: swept (no leak)\"",
+      "greenRelation": {
+        "targetRef": "CHK-001:edge:0",
+        "relation": "same_acceptance",
+        "command": "D=$(node -e 'const f=require(\"fs\"),{tmpdir}=require(\"os\"),{join}=require(\"path\");const S=new Set();process.on(\"exit\",()=>{for(const x of S){try{f.rmSync(x,{recursive:true,force:true})}catch{}}});const d=f.mkdtempSync(join(tmpdir(),\"pos-m3-GREEN-\"));S.add(d);process.stdout.write(d);try{process.exit(1)}finally{f.rmSync(d,{recursive:true,force:true});S.delete(d)}'); test -d \"$D\" || echo \"GREEN: swept (no leak)\""
+      },
+      "note": "F-017 hermetic-on-failure cleanup: the fix adds a module-level activeSandboxes Set (registered in makeSandbox, de-registered in a cleanupSandbox helper used by every finally) plus a process.on('exit') sweep that rmSyncs any still-registered dir, so the exit(1) regression path no longer leaks. RED and GREEN commands were both validated deterministically in the worktree before recording.",
+      "createdAt": "2026-07-06T10:26:47.212Z"
+    }
+  ],
+  "createdAt": "2026-07-06T10:26:47.212Z",
+  "updatedAt": "2026-07-06T10:26:47.212Z"
+}

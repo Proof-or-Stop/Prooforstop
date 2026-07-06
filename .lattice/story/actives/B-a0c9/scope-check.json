@@ -1,0 +1,31 @@
+{
+  "storyId": "B-a0c9",
+  "checkedAt": "2026-07-06T10:31:24.584Z",
+  "features": [
+    {
+      "feature": "F-017 hermetic-on-failure sandbox cleanup (fail()/process.exit(1) skips finally, leaking mkdtemp sandbox on sub-check failure)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "F-018 LOCK_DIR + holder.json survival assertion in sub-check M (checkResumeBreakFailureDiagnostic)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 2,
+    "covered": 2,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "7864dcb13ad4dd759a73d5a20a46a160d498ef881c3b69c7337082092e5705c6",
+  "openQuestions": []
+}

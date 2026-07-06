@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-a0c9",
+  "sourceText": "Two LOW test-hardening follow-ups accepted (accepted_risk) during B-f511 (M3), in experiments/pos-instrument-replay/selfcheck-m3.mjs. F-017: fail() uses process.exit(1), which skips finally blocks, so a sandbox tmp dir leaks when a sub-check FAILS; make cleanup hermetic-on-failure (module-level Set of active sandbox dirs + a process.on(exit) sweep). F-018: sub-check M does not explicitly assert LOCK_DIR/.batch-ledger.lock and holder.json SURVIVE the forced break failure; add an existsSync survival assertion mirroring sub-checks H/I. Keep the change confined to selfcheck-m3.mjs; run selfcheck-m3 (A-M PASS) + selfcheck-m2 to confirm non-regression. Go through the normal Lattice story workflow.",
+  "normalizedOutcome": "node experiments/pos-instrument-replay/selfcheck-m3.mjs prints sub-checks A-M each PASS and selfcheck-m3 PASS at exit 0, with sub-check M also asserting LOCK_DIR + holder.json survival; a failing sub-check leaves no pos-selfcheck-m3-* dir in the temp dir; node selfcheck-m2.mjs still ends selfcheck-m2 PASS at exit 0.",
+  "acceptanceClaim": "The hardened selfcheck-m3.mjs passes sub-checks A-M at exit 0, sub-check M asserts LOCK_DIR + holder.json survive the failed break, no sandbox tmp dir leaks on a failing sub-check, and selfcheck-m2 remains green.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:56925cc52867479f90b4359f33d32d94d91ce0810d6940806c985b8415e12db4",
+  "createdAt": "2026-07-06T10:25:29.350Z",
+  "updatedAt": "2026-07-06T10:25:29.350Z"
+}

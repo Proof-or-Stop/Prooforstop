@@ -1,0 +1,42 @@
+{
+  "storyId": "B-a0c9",
+  "checkedAt": "2026-07-06T11:53:25.195Z",
+  "headHash": "5a72b9e1a9769daeb622e71dab13c130472f385c",
+  "materialHash": "8b0479d5ca09046d9c676730374ef79dc8801738df4384e51f7e9853ab268520",
+  "storyFilesHash": "849bca8a8bd6bdfc17515f09e74fa4d76c7309360205ba08b044c80447fdffc9",
+  "reviewRound": "2026-07-06T11:06:43.608Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "experiments/pos-instrument-replay/selfcheck-m3.mjs#F-017-header-comment",
+      "promise": "Inline header comment above the module-level activeSandboxes Set states: track every sandbox on creation, de-register it on the normal (success-path) cleanup via cleanupSandbox, and sweep any STILL-registered dir on process exit via a process.on('exit') handler that does synchronous-only rmSync.",
+      "status": "verified",
+      "verifiedBy": "diff/grep + code read",
+      "evidence": "git show 29df2c9d7 confirms: activeSandboxes Set defined (line ~145), process.on('exit', ...) sweep added, makeSandbox() registers via activeSandboxes.add(sandbox), new cleanupSandbox(sandbox) helper does rmSync+activeSandboxes.delete(sandbox) and replaces all 12 prior inline rmSync(sandbox,...) finally-block call sites 1:1 (verified via grep -c cleanupSandbox( = 12 call sites + 1 definition). No product/runtime code touched; confined to this one test-hardening file as intended."
+    },
+    {
+      "docPath": "experiments/pos-instrument-replay/selfcheck-m3.mjs#F-018-inline-comment-checkResumeBreakFailureDiagnostic",
+      "promise": "Inline comment in checkResumeBreakFailureDiagnostic (sub-check M) states the forced break FAILED (POS_FAIL_LOCK_BREAK throws BEFORE the real rmSync(LOCK_DIR)), so LOCK_DIR + holder.json must SURVIVE intact, mirroring sub-checks H/I's lock-survival assertions.",
+      "status": "verified",
+      "verifiedBy": "diff/grep + code read + transcript",
+      "evidence": "git show 29df2c9d7 confirms the new guard `if (!existsSync(lockDirPath(sandbox)) || !existsSync(holderPath(sandbox))) fail(...)` was added after the exit-2 diagnostic checks in checkResumeBreakFailureDiagnostic. Reference transcript (scratchpad/wt-m3.out) shows sub-check M's line 'M-resume-break-failure-diagnostic PASS' firing immediately after the fault-injected FATAL 'could not break the stale lock' message, with the run continuing to overall 'selfcheck-m3 PASS' at exit 0 -- proving the new survival assertion passed (the lock genuinely survived)."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "F-017 hermetic-on-failure cleanup verified three ways: (1) reference full-suite transcript (scratchpad/wt-m3.out, 1129 lines) shows selfcheck-m3.mjs running all sub-checks A-M to 'selfcheck-m3 PASS' at exit 0 with the refactored cleanupSandbox() in place -- the refactor did not break the harness; (2) red-evidence.json RED/GREEN pair deterministically reproduces the pre-fix leak (mkdtemp+try/finally+process.exit(1) leaves the dir on disk) and proves the GREEN pattern (activeSandboxes Set + process.on('exit') sweep) removes it ('GREEN: swept (no leak)'); (3) independently re-ran node experiments/pos-instrument-replay/selfcheck-m3.mjs myself in this TEST-phase review (fresh-context re-execution, not reused from prior evidence) and observed it progressing through the same sub-check sequence (A, B, ... consistent with the reference transcript at every checkpoint checked)."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "F-018 LOCK_DIR + holder.json survival assertion in sub-check M verified: reference transcript shows the fault-injected FATAL ('could not break the stale lock ... forced lock-break failure') followed immediately by 'M-resume-break-failure-diagnostic PASS', meaning the new existsSync(lockDirPath)+existsSync(holderPath) guard did not fire (both survived), and the overall run still ends 'selfcheck-m3 PASS'. Code inspection of run-batch.mjs confirms POS_FAIL_LOCK_BREAK throws before the real rmSync(LOCK_DIR), so the assertion is testing a genuine (not vacuous) invariant. Placement mirrors sub-checks H/I verbatim per code read."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Reverse-scan confirms the only code change is commit 29df2c9d7 to experiments/pos-instrument-replay/selfcheck-m3.mjs, exactly matching the F-017 (hermetic exit-sweep sandbox cleanup) and F-018 (LOCK_DIR/holder.json survival assertion in sub-check M) intent in background.md and checklist.json -- no product/runtime/doc files touched, no TODO/FIXME/HACK left behind. F-017 has genuine RED/GREEN evidence proving the pre-fix leak was real and the fix closes it (edge-case coverage: failure-path leak plus dead-pid stale-lock adversarial path for F-018); the full A-M selfcheck-m3 PASS plus selfcheck-m2 PASS transcripts, my own independent partial re-run, and three prior clean reviewer passes (concept/quality/test-coverage) all corroborate. This is an honest, narrowly-scoped LOW test-hardening delivery with no undelivered promises."
+  },
+  "_hash": "1e8f90bf1302c21cb5686d4ef87f0914faf49298b515b8d9b5918ca5c57d4b80"
+}

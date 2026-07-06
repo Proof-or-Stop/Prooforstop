@@ -35,15 +35,53 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-06T10:32:28.626Z",
+      "endTime": "2026-07-06T11:04:46.204Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node experiments/pos-instrument-replay/selfcheck-m3.mjs",
+          "result": "pass",
+          "note": "selfcheck-m3 A-M all PASS at exit 0 after the finally cleanup was switched to cleanupSandbox(); the sandbox-cleanup refactor did not break the harness.",
+          "headHash": "e48b498cfc77818b505660987cbd09c2cb10ad6e",
+          "materialHash": "8b0479d5ca09046d9c676730374ef79dc8801738df4384e51f7e9853ab268520",
+          "storyFilesHash": "849bca8a8bd6bdfc17515f09e74fa4d76c7309360205ba08b044c80447fdffc9",
+          "timestamp": "2026-07-06T11:05:52.353Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "D=$(node -e 'const f=require(\"fs\"),{tmpdir}=require(\"os\"),{join}=require(\"path\");const S=new Set();process.on(\"exit\",()=>{for(const x of S){try{f.rmSync(x,{recursive:true,force:true})}catch{}}});const d=f.mkdtempSync(join(tmpdir(),\"pos-m3-GREEN-\"));S.add(d);process.stdout.write(d);try{process.exit(1)}finally{f.rmSync(d,{recursive:true,force:true});S.delete(d)}'); test -d \"$D\" || echo \"GREEN: swept (no leak)\"",
+          "result": "pass",
+          "note": "The F-017 fix (module-level activeSandboxes Set + process.on('exit') sweep) removes a sandbox even when cleanup happens on the process.exit(1) path. Validated deterministically: the pre-fix pattern leaks the dir (RED) and the exit-sweep removes it (GREEN: swept). See red-evidence.json (target CHK-001:edge:0).",
+          "headHash": "262b0fd43af61c601bb0a8eb889f1ef1389ffb9e",
+          "materialHash": "8b0479d5ca09046d9c676730374ef79dc8801738df4384e51f7e9853ab268520",
+          "storyFilesHash": "849bca8a8bd6bdfc17515f09e74fa4d76c7309360205ba08b044c80447fdffc9",
+          "timestamp": "2026-07-06T11:05:53.817Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/pos-instrument-replay/selfcheck-m3.mjs",
+          "result": "pass",
+          "note": "The process.on('exit') handler does synchronous rmSync only, inside a try/catch that swallows its own errors, so it can never throw out of the 'exit' event. It fires on every terminating path including process.exit(1) and exit(2); the GREEN transcript covers the exit(1) path. Verified by code inspection of selfcheck-m3.mjs.",
+          "headHash": "66f1ca52229c4d0cf9663fc6e6cb1a5ad99f77cd",
+          "materialHash": "8b0479d5ca09046d9c676730374ef79dc8801738df4384e51f7e9853ab268520",
+          "storyFilesHash": "849bca8a8bd6bdfc17515f09e74fa4d76c7309360205ba08b044c80447fdffc9",
+          "timestamp": "2026-07-06T11:05:55.166Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "F-018: assert LOCK_DIR + holder.json survive the forced break failure in sub-check M",
       "context": "In checkResumeBreakFailureDiagnostic (sub-check M), after the exit-2 + 'could not break the stale lock' diagnostic assertions, add existsSync(lockDirPath(sandbox)) + existsSync(holderPath(sandbox)) survival assertions mirroring sub-checks H/I. run-batch.mjs throws (POS_FAIL_LOCK_BREAK) BEFORE rmSync(LOCK_DIR), so both survive; the assertion pins that invariant.",
-      "userSees": "The sub-check M PASS line is unchanged, but the run now also proves the failed break left LOCK_DIR (.batch-ledger.lock) + holder.json fully intact.",
+      "userSees": "node experiments/pos-instrument-replay/selfcheck-m3.mjs prints the sub-check M line starting \"M-resume-break-failure-diagnostic PASS: a --resume run whose stale-lock break FAILED became the explicit exit-2 diagnostic\", the run now also asserts LOCK_DIR (.batch-ledger.lock) + holder.json survived the failed break, and the overall run still ends \"selfcheck-m3 PASS\" at exit 0.",
       "files": {
         "modify": [
           "experiments/pos-instrument-replay/selfcheck-m3.mjs"
@@ -74,9 +112,47 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-06T10:32:29.618Z",
+      "endTime": "2026-07-06T11:04:47.290Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node experiments/pos-instrument-replay/selfcheck-m3.mjs",
+          "result": "pass",
+          "note": "selfcheck-m3 sub-check M PASSES with the added existsSync(lockDirPath)+existsSync(holderPath) survival assertion; the M PASS line prints and the overall run ends selfcheck-m3 PASS at exit 0.",
+          "headHash": "d32689e8c386853fae261a41f961792dfd986333",
+          "materialHash": "8b0479d5ca09046d9c676730374ef79dc8801738df4384e51f7e9853ab268520",
+          "storyFilesHash": "849bca8a8bd6bdfc17515f09e74fa4d76c7309360205ba08b044c80447fdffc9",
+          "timestamp": "2026-07-06T11:05:57.278Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/pos-instrument-replay/selfcheck-m3.mjs",
+          "result": "pass",
+          "note": "The added guard `if (!existsSync(lockDirPath(sandbox)) || !existsSync(holderPath(sandbox))) fail(...)` fires with a clear message if a future change lets the failed break remove the lock. Verified the assertion is present in checkResumeBreakFailureDiagnostic and that sub-check M passes today because the lock survives.",
+          "headHash": "0365cae58ceec7c969f8d32756f2582eb61632ac",
+          "materialHash": "8b0479d5ca09046d9c676730374ef79dc8801738df4384e51f7e9853ab268520",
+          "storyFilesHash": "849bca8a8bd6bdfc17515f09e74fa4d76c7309360205ba08b044c80447fdffc9",
+          "timestamp": "2026-07-06T11:05:59.510Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/pos-instrument-replay/selfcheck-m3.mjs",
+          "result": "pass",
+          "note": "Sub-check M sets up a genuinely-stale lock (holder.json with a dead pid) and runs --resume with POS_FAIL_LOCK_BREAK=1, which throws in run-batch.mjs BEFORE the real rmSync(LOCK_DIR). The new survival assertion therefore genuinely proves the forced-to-throw break removed nothing (LOCK_DIR + holder.json both intact).",
+          "headHash": "4600fd5881946206e1f299cba50462f6e7b75ea7",
+          "materialHash": "8b0479d5ca09046d9c676730374ef79dc8801738df4384e51f7e9853ab268520",
+          "storyFilesHash": "849bca8a8bd6bdfc17515f09e74fa4d76c7309360205ba08b044c80447fdffc9",
+          "timestamp": "2026-07-06T11:06:02.241Z"
+        }
+      ]
     }
   ]
 }
