@@ -62,6 +62,15 @@
       "reviewRound": "2026-07-05T23:55:21.895Z",
       "reviewRunId": "B-fbbb:RR-008",
       "_hash": "f364a19deff2b1078ccc509ef067719c04f35f38d2e27e2cdd2c755be9aa6d05"
+    },
+    {
+      "id": "B-fbbb:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 re-confirmation (mechanical re-stamp after TEST->DEV->REVIEW rollback to acknowledge gate-generated DONE metadata; storyFilesHash a4e18b00... unchanged, no code delta). Diff is exactly 3 files: experience-layer-playbook-smoke.ts adds two allowlist entries (../core/playbook-seed.js, ../core/source-lineage-audit.js) to both allowed sets; handlers/playbook.ts updates the header comment describing the widened import boundary; decision-doc-promotion-smoke.ts corrects one stale authorityBoundary substring assertion (retired 'not remote receipt completion' -> current committed 'not local proof-admissibility, receipt-bundle, quorum, or release readiness', verified present verbatim in handlers/decision-doc-promotion.ts:507). No concept word was deleted or mass-replaced across the repo: this is purely additive (allowlist widening + comment) plus a single stale-string correction pointing at an already-existing production string. Grepped for the retired substring 'not remote receipt completion' repo-wide (excluding node_modules/dist/.git): zero residue in code; only appears in story metadata as historical fix documentation, which is expected. No concept-deletion/replacement residue found; no blocker.",
+      "createdAt": "2026-07-06T05:21:31.306Z",
+      "reviewRound": "2026-07-06T05:19:56.434Z",
+      "reviewRunId": "B-fbbb:RR-009",
+      "_hash": "0a3fc8cb18e40df5a1a9fb2b4990081848a6762300379c7e114915b01564189e"
     }
   ]
 }
