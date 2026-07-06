@@ -3,27 +3,22 @@
   "storyId": "B-991d",
   "executionWindowId": "B-991d-cell03-execution-window-001",
   "expectedRows": 1152,
-  "rowCount": 505,
-  "finalRows": 500,
-  "failedRows": 5,
-  "validationPassRows": 452,
-  "providerUsageRows": 500,
-  "reviewedRows": 502,
-  "groundTruthPassRows": 503,
+  "rowCount": 515,
+  "finalRows": 505,
+  "failedRows": 10,
+  "validationPassRows": 456,
+  "providerUsageRows": 505,
+  "reviewedRows": 507,
+  "groundTruthPassRows": 509,
   "outcomeCounts": {
-    "recovered": 418,
-    "safe-stop": 50,
+    "recovered": 422,
+    "safe-stop": 51,
     "completed": 34,
-    "review-invalid": 2,
-    "failed": 1
+    "review-invalid": 3,
+    "failed": 5
   },
-  "missingFinalRows": 652,
+  "missingFinalRows": 647,
   "missingFinalCellKeys": [
-    "③|A4|dp-deepmerge|B04|3|E2|same",
-    "③|A4|dp-querystring|B03|1|E2|same",
-    "③|A4|cl-equals|B07|2|E2|same",
-    "③|A4|bf-datediff|B06|1|E2|same",
-    "③|A4|bf-lru|B08|2|E2|same",
     "③|A4|median|B05|1|E2|same",
     "③|A4|cl-combined|B07|3|E2|same",
     "③|A4|dp-deepmerge|B12|3|E2|same",
@@ -68,15 +63,20 @@
     "③|A4|eval-expr|B10|1|E2|same",
     "③|A4|cl-combined|B12|2|E2|same",
     "③|A4|cv-luhn|B15|2|E2|same",
-    "③|A4|dp-semver|B06|2|E2|same"
+    "③|A4|dp-semver|B06|2|E2|same",
+    "③|A4|eval-expr|B10|2|E2|same",
+    "③|A4|tr-slugify|B13|2|E2|same",
+    "③|A4|median|B11|1|E2|same",
+    "③|A4|rf-units|B07|3|E2|same",
+    "③|A4|tr-clamp|B11|2|E2|same"
   ],
   "newRowsThisRun": 10,
   "totalProviderUsage": {
-    "inputTokens": 93365511,
-    "outputTokens": 2656445,
-    "totalTokens": 96021956
+    "inputTokens": 94328559,
+    "outputTokens": 2683117,
+    "totalTokens": 97011676
   },
   "complete": false,
   "fullRunUnlockReason": "CHK-006 completes only when every expected Cell 03 cell key has exactly one final formal row and no duplicate final row.",
-  "createdAt": "2026-07-06T19:28:45.886Z"
+  "createdAt": "2026-07-06T19:39:52.117Z"
 }
