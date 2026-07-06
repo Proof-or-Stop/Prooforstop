@@ -80,6 +80,15 @@
       "reviewRound": "2026-07-06T03:27:19.118Z",
       "reviewRunId": "B-f511:RR-035",
       "_hash": "236cab39a3c4b059861a2148978856e40fe303cc0e79ad2b78d2c6e8187c3361"
+    },
+    {
+      "id": "B-f511:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed fix commit 98ee3e0db (F-013/F-014/F-016 fresh-mode fail-closed on unreadable ledger; F-010/F-015 break-failure exit-2 diagnostic test coverage) against run-batch.mjs + selfcheck-m3.mjs, full files read. Verified: (1) the catch at run-batch.mjs:944-946 fails closed for ALL read-error causes (confirmed live with real chmod 000 -> EACCES and a real directory-at-path -> EISDIR, both correctly refuse/exit3/ledger-untouched, no fault hook involved) and correctly allows a legitimately-absent ledger (existsSync false skips the whole block, existingLedgerNonEmpty stays false -- verified via passing sub-checks C/D). (2) POS_FAIL_LEDGER_READ and POS_FAIL_LOCK_BREAK are each referenced at exactly one call site, strictly gated by === Q1Q and === on the intended branch only (fresh-mode ledger read / resume break rmSync respectively); grepped all readFileSync(LEDGER_PATH,...) call sites and confirmed the other three (resume readRecordedIterationIds, repairTruncatedTail, end-of-run guard) are unaffected by the hooks. (3) Ran the full selfcheck-m3.mjs live (all 13 sub-checks A-M genuinely PASS, exit 0). Then regression-tested L and M by reverting only the production fix (not the fault hook) in two isolated copies: reverting the F-013 catch-branch fix reproduces the exact F-013/F-016 fail-open defect (on-disk duplicates, wrong exit code) and sub-check L correctly fails; removing the F-010 try/catch makes the break throw uncaught (wrong exit code) and sub-check M correctly fails -- both sub-checks are genuine and regression-sensitive, not vacuous. Confirmed a clean PASS run leaves no pos-selfcheck-m3-* sandbox leak. (4) No new dead code / error-swallowing found in the diff itself; filed two LOW findings (F-017: fail()s process.exit skips finally so L/M sandboxes leak specifically on a FAIL run, pre-existing harness-wide pattern; F-018: sub-check M does not directly assert LOCK_DIR/holder.json survive the failed break, though code inspection shows they do). (5) Stepped back across the whole lock/ledger design (fresh/resume/concurrent/unreadable/break-failure): with F-001/F-005-F-008/F-009/F-011/F-013/F-016 all fixed and now covered by sub-checks A-M, I found no remaining hole in the exactly-one-uncorrupted-campaign-writer invariant for the cases in scope. Not receipt-backed production evidence; this is correctness review guidance only.",
+      "createdAt": "2026-07-06T05:00:36.513Z",
+      "reviewRound": "2026-07-06T03:27:19.118Z",
+      "reviewRunId": "B-f511:RR-037",
+      "_hash": "577fd61a36cdeacc95c80054d55515539d9df8c01a2fe3da5f5c45c7966354f4"
     }
   ]
 }
