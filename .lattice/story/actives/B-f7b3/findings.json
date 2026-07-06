@@ -29,6 +29,25 @@
       "_hash": "5b0e7fb336af38e8ebde3e08f32621bfaab3bdb80b1f926ab2e4fd41431191f3",
       "signatureTag": "missing|unknown|dead-code-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f7b3:F-003",
+      "desc": "doc-code-drift: milestone-triggered-gate-mode-default-decision.md Verification section (line 69) claims A regression test pins `resolveDoneGateMode`/config default to `observe` when unset but no function, export, or symbol named resolveDoneGateMode exists anywhere in the codebase (grep across packages/ and docs/ returns zero hits besides this doc). The actual resolver is configuredProofStoryMode in packages/main/src/handlers/phase-gates.ts (loadConfig(ctx.root).proofStory?.[key] ?? observe). There is also no dedicated named regression test/smoke file for this default; CHK-009 verification used ad-hoc scratch node harnesses recorded as verificationEvidence, not a committed named test the doc could point a reader to. The doc should name the real resolver (configuredProofStoryMode) or drop the fabricated function name so a future reader can locate the cited guard.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-06T00:22:56.508Z",
+      "reviewRound": "2026-07-06T00:16:09.455Z",
+      "reviewRunId": "B-f7b3:RR-003",
+      "_hash": "2be48d5a2da0d8b0c19086bfa99b40b17371b1c083917acc3d98c43f04aa88b1",
+      "files": [
+        "docs/requirements/decisions/milestone-triggered-gate-mode-default-decision.md",
+        "packages/main/src/handlers/phase-gates.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-milestone",
+      "signatureTagSource": "auto"
     }
   ]
 }
