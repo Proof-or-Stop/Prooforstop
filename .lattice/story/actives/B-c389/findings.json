@@ -1,0 +1,77 @@
+{
+  "findings": [
+    {
+      "id": "B-c389:F-001",
+      "desc": "quality-cleanup: packages/main/src/tasks/capability-release-backfill-smoke.ts:302 declares `const capLedgerPathB = capabilityReleaseLedgerPath(rootB);` but never reads capLedgerPathB anywhere else in the file (confirmed via `tsc --noUnusedLocals`: TS6133). Dead local left over from CASE A's analogous ledgerPath/ledgerBefore pattern that was not carried through for CASE B.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-06T00:02:33.951Z",
+      "reviewRound": "2026-07-05T23:57:54.627Z",
+      "reviewRunId": "B-c389:RR-002",
+      "_hash": "63aff19ae43f31222755866ae44d3f4b9247ce12f360dfca4bdb14611b1fc5fb",
+      "signatureTag": "missing|unknown|quality-cleanup-packages",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Removed the dead capLedgerPathB local in capability-release-backfill-smoke.ts.",
+      "resolvedAt": "2026-07-06T00:08:32.316Z"
+    },
+    {
+      "id": "B-c389:F-002",
+      "desc": "quality-cleanup: packages/main/src/core/config.ts:226 the pre-existing capability_release_* global-phase wildcard is commented as read-only non-runtime product capability release provenance inspection and previously only matched the two read-only commands capability_release_list/capability_release_status. The new capability_release_backfill handler (packages/main/src/handlers/capability-release-backfill.ts) - a mainSharedMutating writer that git-commits ledger records and enriches playbook lineage under a learning-store lock - also matches this prefix and is silently granted allowedPhases:all through it (verified: isCommandAllowed(capability_release_backfill, phase) returns true for every phase via this wildcard, not via a dedicated entry). Every other allowedPhases:all mainSharedMutating command in this file (e.g. signature_backfill line 284, learning_scan line 290) gets its own explicit comment stating the phase-scope rationale per the files established convention; this new writer instead free-rides on a wildcard whose adjacent comment is now stale/inaccurate (no longer purely read-only inspection). Not a functional block (command works as intended), but an audit-trail/maintainability gap: a future reader auditing config.ts * -phase writers by comment would miss this one.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-06T00:02:40.862Z",
+      "reviewRound": "2026-07-05T23:57:54.627Z",
+      "reviewRunId": "B-c389:RR-002",
+      "_hash": "3f37bfc43c33c3925873ef5fac5528dae896c3b23ab6c941f4eecc889a6d37bd",
+      "signatureTag": "missing|unknown|quality-cleanup-packages",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added a dedicated self-documenting capability_release_backfill entry in config.ts DEFAULT_PHASE_TOOLS (intentionally all-phase MUTATING migration writer, matching signature_backfill/learning_scan); behavior unchanged (all phases).",
+      "resolvedAt": "2026-07-06T00:08:32.836Z"
+    },
+    {
+      "id": "B-c389:F-003",
+      "desc": "quality-cleanup: lattice.config.json (whole file) - this diff reformats the entire file from compact single-line JSON array/object entries to fully expanded multi-line JSON (e.g. the validate.commands and doneRequiredCommands arrays), and also drops the files trailing newline (confirmed: `git show main:lattice.config.json | tail -c5` ends in `}\\n`; the worktree HEAD version ends in `}` with no trailing newline). This is unrelated reformatting noise bundled into a story whose actual config change is only 3 new lines appended to validate.commands (the 3 new smoke paths) plus the capability_release_backfill catalog/policy registrations elsewhere. It inflates the reviewable diff (126 changed lines in a file where the substantive change is 3 lines) and creates spurious merge-conflict surface for any other in-flight story touching lattice.config.json.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-06T00:02:49.252Z",
+      "reviewRound": "2026-07-05T23:57:54.627Z",
+      "reviewRunId": "B-c389:RR-002",
+      "_hash": "bcd10d69f00d582ff7fa661d17a73122d862c69b342978991bba0adce312306e",
+      "signatureTag": "missing|unknown|quality-cleanup-lattice",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Restored lattice.config.json from main + added only the 3 smoke entries; minimal diff, trailing newline preserved.",
+      "resolvedAt": "2026-07-06T00:08:33.367Z"
+    },
+    {
+      "id": "B-c389:F-004",
+      "desc": "All verificationEvidence across CHK-001/002/003/004 is stale against current HEAD, per lattice validate own coverage check (verified: coverage total=12 required=11 covered=0 missingRequired=11, every entry status=\"stale\"). Evidence is stamped headHash=e1da7464 which predates 3 material fix commits merged afterward in this round: ba0960cb1 (F-001, dead-var removal in capability-release-backfill-smoke.ts), e4ef5f7c8 (F-002, added explicit capability_release_backfill all-phase MUTATING classification in packages/main/src/core/config.ts -- behavior-relevant to CHK-001s adversarial/phase-safety intent), and ec147c25a (F-003, lattice.config.json validate-suite diff restore -- directly the artifact CHK-004s evidence describes). Re-ran all 3 new smokes + lattice validate at current HEAD: capability-release-backfill-smoke 14/14, capability-candidate-exposure-smoke 8/8, capability-candidate-promotion-smoke 8/8, all pass with identical counts -- so this is a freshness/re-stamp gap, not a functional regression. Affected intentRefs needing fresh verification_evidence: CHK-001:happy:0, CHK-001:edge:0, CHK-001:adversarial:0, CHK-002:happy:0, CHK-002:edge:0, CHK-002:adversarial:0, CHK-003:happy:0, CHK-003:edge:0, CHK-003:adversarial:0, CHK-004:happy:0, CHK-004:edge:0 (all must-priority) plus CHK-004:adversarial:0 (should-priority, also stale).",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-06T00:15:49.225Z",
+      "reviewRound": "2026-07-06T00:08:28.508Z",
+      "reviewRunId": "B-c389:RR-009",
+      "_hash": "5689134d339c9154d1c3733f5a54b569df5f2252605422e9c91acb41b9f7af31",
+      "files": [
+        "packages/main/src/tasks/capability-release-backfill-smoke.ts",
+        "packages/main/src/core/config.ts",
+        "lattice.config.json"
+      ],
+      "signatureTag": "missing|ts|verificationevidence-across-stale",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Re-stamped all 12 verificationEvidence via verification_evidence_refresh_stale after the 3 quality-fix commits moved HEAD. Test logic sound (smokes 14/8/8 pass live); purely a re-stamp gap.",
+      "resolvedAt": "2026-07-06T00:16:26.812Z"
+    }
+  ]
+}

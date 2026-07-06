@@ -58,6 +58,7 @@ import { createRecoverEvidenceHandlers } from './handlers/recover-evidence.js';
 import { createArtifactDeclareHandlers } from './handlers/artifact-declare.js';
 import { createArtifactReleaseHandlers } from './handlers/artifact-release.js';
 import { createCapabilityReleaseHandlers } from './handlers/capability-release.js';
+import { createCapabilityReleaseBackfillHandlers } from './handlers/capability-release-backfill.js';
 import { createGapLogHandlers } from './handlers/gap-log.js';
 import { createDoneRecoverHandlers } from './handlers/done-recover.js';
 import { createDoneClosureHandlers } from './handlers/done-closure.js';
@@ -239,6 +240,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   registry.registerBatch(createArtifactDeclareHandlers(ctx));
   registry.registerBatch(createArtifactReleaseHandlers(ctx));
   registry.registerBatch(createCapabilityReleaseHandlers(ctx));
+  registry.registerBatch(createCapabilityReleaseBackfillHandlers(ctx));
 
   // B-3fad CHK-002: gap_log — 框架 gap 手动归档入口。
   // 写 B-META-framework-audit findings（不存在则 ensureMetaStory bootstrap）；

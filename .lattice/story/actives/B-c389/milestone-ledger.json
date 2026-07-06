@@ -1,0 +1,87 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-c389",
+  "state": "confirmed",
+  "ledgerHash": "sha256:79dafd600b8e1bcb8199b7c04e1b9d51b4bfcfd43c8292125111202ce65062e0",
+  "milestones": [
+    {
+      "id": "M-BACKFILL",
+      "sourceRequirementId": "REQ-BACKFILL",
+      "claim": "A capability_release_backfill command binds the live under-bound candidates.",
+      "doneMeans": "dry-run detects B-785e/PBP-882 as eligible; apply (with --digest) enriches PBP-882 lineage; re-run is idempotent.",
+      "requiredEvidence": [
+        "cli"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M-EXPOSURE",
+      "sourceRequirementId": "REQ-EXPOSURE",
+      "claim": "Capability candidates are exposed as pending learning and exposure is recorded.",
+      "doneMeans": "post-backfill PBP-882 shows capabilityRelease in promotion_status; an exposure record is written on candidate-inspection; never active.",
+      "requiredEvidence": [
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M-PROMOTION",
+      "sourceRequirementId": "REQ-PROMOTION",
+      "claim": "Capability candidates flow through evidence-based outcome/promotion without weakening invariants.",
+      "doneMeans": "outcome_record accepts a structured capability-candidate outcome; promotion_sweep recommends only on decisive evidence; DONE-success!=helped asserted.",
+      "requiredEvidence": [
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M-VALIDATE",
+      "sourceRequirementId": "REQ-VALIDATION",
+      "claim": "Build, new smokes, and validate are green with a live backfill idempotency proof.",
+      "doneMeans": "tsc clean + 3 smokes green + lattice validate pass; live B-785e backfill idempotent.",
+      "requiredEvidence": [
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-05T22:59:23.031Z",
+  "updatedAt": "2026-07-05T22:59:26.818Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260705225926",
+    "acceptedInterpretationHash": "sha256:be4b8f740acf7a530629b72e064a2dedf2d2422a8c8f4f02df8d165e80e5b449",
+    "acceptedAt": "2026-07-05T22:59:26.818Z"
+  }
+}
