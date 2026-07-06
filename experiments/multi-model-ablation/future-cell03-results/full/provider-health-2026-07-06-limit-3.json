@@ -1,0 +1,20 @@
+{
+  "artifact": "B-991d-cell03-provider-health",
+  "storyId": "B-991d",
+  "executionWindowId": "B-991d-cell03-execution-window-001",
+  "observedAtUtc": "2026-07-06T23:58:25Z",
+  "observedAtLocal": "2026-07-07T00:58:25+0100",
+  "healthCheck": {
+    "command": "codex -a never -m gpt-5.5 -s read-only exec --json --ephemeral --skip-git-repo-check",
+    "prompt": "Reply with exactly OK.",
+    "exitCode": 1,
+    "providerHealthy": false,
+    "usageLimit": true,
+    "rawMessage": "You've hit your usage limit. Visit https://chatgpt.com/codex/settings/usage to purchase more credits or try again at 2:48 AM."
+  },
+  "impact": {
+    "unmergedSecondParallelWaveDiscarded": true,
+    "reason": "The second 6-worker wave produced rapid failed/failed rows after the provider reported a usage limit. The shard rows were intentionally not merged into the formal Cell 03 ledger.",
+    "mainLedgerPreserved": true
+  }
+}
