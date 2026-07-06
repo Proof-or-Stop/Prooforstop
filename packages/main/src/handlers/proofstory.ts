@@ -186,6 +186,7 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
       parentLedgerId?: string;
       assignedStory?: string;
       status?: string;
+      notApplicableDecision?: { reason: string; decidedBy: string; decidedAt: string };
       json?: boolean;
     }): string {
       if (!args.storyId) throw new Error('storyId is required');
@@ -202,6 +203,7 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
         parentLedgerId: args.parentLedgerId,
         assignedStory: args.assignedStory,
         status: args.status,
+        notApplicableDecision: args.notApplicableDecision,
       };
       const ledger = addMilestoneToLedger(args.storyId, rawMilestone, existing);
       store.writeMilestoneLedger(args.storyId, ledger);

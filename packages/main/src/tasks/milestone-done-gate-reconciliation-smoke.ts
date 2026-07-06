@@ -49,6 +49,8 @@ import { captureMilestoneCloseoutSnapshotFromStore } from '../handlers/milestone
 import { configuredProofStoryMode } from '../handlers/phase-gates.js';
 import type { HandlerContext } from '../handlers/context.js';
 import { resetConfigCache } from '../core/config.js';
+import { z } from 'zod';
+import { MAIN_TOOLS } from '../cli/command-catalog.js';
 import { evaluateDoneIntentEquivalence, type ProofStoryDiagnosticInput } from '../core/proofstory.js';
 import type {
   ChecklistData,
@@ -430,6 +432,103 @@ function makeStore(
     rmSync(emptyRoot, { recursive: true, force: true });
     resetConfigCache();
   }
+}
+
+// ── (d) CLI milestone schema PRESERVES notApplicableDecision ────────────────
+//
+// B-f7b3 (codex host-B HIGH finding): proofStoryMilestoneSchema in
+// packages/main/src/cli/command-catalog.ts omitted `notApplicableDecision`, so the
+// nested default-strip inside `z.object(tool.schema).strict()` (cli-engine.ts:495)
+// silently dropped the field before buildMilestoneLedger could hash or persist it.
+// That made the enforce-mode `not_applicable_missing_decision` gate UNRECOVERABLE
+// via the shipped CLI: an operator physically could not supply the justification
+// the gate demands.
+//
+// UN-GAMEABLE GUARANTEE: this parses through the ACTUAL shipped schema objects taken
+// from MAIN_TOOLS (the same ones cli-engine wraps). If a future edit removes
+// `notApplicableDecision` from proofStoryMilestoneSchema or the milestone_ledger_add
+// flag list, zod strips it and these assertions fail. The final two assertions prove
+// the preserved decision actually flips the DONE-gate diagnostic, and that a bare row
+// still trips it (the guard still bites).
+{
+  const toolShape = (name: string) => {
+    const t = MAIN_TOOLS.find((x) => x.name === name);
+    assert.ok(t, `${name} tool must exist in MAIN_TOOLS`);
+    return z.object(t!.schema).strict();
+  };
+  const decision = {
+    reason: 'Row is superseded by REQ-002 consolidation; no deliverable remains.',
+    decidedBy: 'operator@proofbound',
+    decidedAt: '2026-07-06T00:00:00.000Z',
+  };
+  const naRow = {
+    id: 'M1',
+    sourceRequirementId: 'REQ-001',
+    claim: 'c',
+    doneMeans: 'd',
+    status: 'not_applicable' as const,
+    notApplicableDecision: decision,
+  };
+
+  const setParsed = toolShape('milestone_ledger_set').parse({ storyId: 'B-na', milestones: [naRow] }) as {
+    milestones: Array<{ notApplicableDecision?: typeof decision }>;
+  };
+  assert.deepEqual(
+    setParsed.milestones[0].notApplicableDecision,
+    decision,
+    'milestone_ledger_set schema stripped notApplicableDecision (host-B FAIL regression)',
+  );
+
+  const addParsed = toolShape('milestone_ledger_add').parse({ storyId: 'B-na', milestone: naRow }) as {
+    milestone?: { notApplicableDecision?: typeof decision };
+  };
+  assert.deepEqual(
+    addParsed.milestone?.notApplicableDecision,
+    decision,
+    'milestone_ledger_add --milestone schema stripped notApplicableDecision (host-B FAIL regression)',
+  );
+
+  const addFlags = toolShape('milestone_ledger_add').parse({
+    storyId: 'B-na',
+    id: 'M1',
+    sourceRequirementId: 'REQ-001',
+    claim: 'c',
+    doneMeans: 'd',
+    status: 'not_applicable',
+    notApplicableDecision: decision,
+  }) as { notApplicableDecision?: typeof decision };
+  assert.deepEqual(
+    addFlags.notApplicableDecision,
+    decision,
+    'milestone_ledger_add individual-flag schema stripped notApplicableDecision (host-B FAIL regression)',
+  );
+
+  const emptyChecklist = { items: [] } as unknown as ChecklistData;
+  const naWithDecision = milestone({
+    id: 'M1',
+    status: 'not_applicable',
+    checklistRefs: [],
+    verificationIntentRefs: [],
+    notApplicableDecision: decision,
+  });
+  const enforceOk = evaluateDoneIntentEquivalence(
+    diagnosticInput('B-na', emptyChecklist, ledger([naWithDecision], 'B-na'), undefined),
+    'enforce',
+  );
+  assert.ok(
+    !enforceOk.gaps.some((g) => g.code === 'not_applicable_missing_decision'),
+    'a not_applicable row WITH a valid notApplicableDecision must NOT trip not_applicable_missing_decision under enforce',
+  );
+
+  const naBare = milestone({ id: 'M1', status: 'not_applicable', checklistRefs: [], verificationIntentRefs: [] });
+  const enforceGap = evaluateDoneIntentEquivalence(
+    diagnosticInput('B-na', emptyChecklist, ledger([naBare], 'B-na'), undefined),
+    'enforce',
+  );
+  assert.ok(
+    enforceGap.gaps.some((g) => g.code === 'not_applicable_missing_decision'),
+    'a not_applicable row WITHOUT a decision must still trip not_applicable_missing_decision under enforce (guard still bites)',
+  );
 }
 
 // eslint-disable-next-line no-console

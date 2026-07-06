@@ -69,6 +69,12 @@ const READ_ONLY_STATUS_UNSUPPORTED_FLAGS = {
 
 const inlineJsonObjectSchema = z.union([z.string(), z.object({}).passthrough()]);
 
+const milestoneNotApplicableDecisionSchema = z.object({
+  reason: z.string().min(1).describe('Non-empty scope reason the milestone row does not apply.'),
+  decidedBy: z.string().min(1).describe('Human / agent identity of record for the exemption.'),
+  decidedAt: z.string().min(1).describe('ISO timestamp the exemption was decided.'),
+}).describe('Auditable justification required when status=not_applicable is to satisfy the DONE-gate not_applicable_missing_decision check.');
+
 const proofStoryMilestoneSchema = z.object({
   id: z.string().min(1).describe('Stable milestone id, for example M1.'),
   sourceRequirementId: z.string().min(1).describe('Original intent key requirement id this milestone derives from.'),
@@ -80,6 +86,7 @@ const proofStoryMilestoneSchema = z.object({
   parentLedgerId: z.string().min(1).optional().describe('Optional parent ledger row this milestone slices from.'),
   assignedStory: z.string().regex(/^B-[A-Za-z0-9][A-Za-z0-9._-]*$/).optional().describe('Optional child story assigned to deliver this row.'),
   status: z.enum(['planned', 'covered', 'done', 'not_applicable']).optional().describe('Milestone coverage status.'),
+  notApplicableDecision: milestoneNotApplicableDecisionSchema.optional().describe('Required auditable justification when status=not_applicable; omit for other statuses.'),
 });
 
 const proofStorySliceSchema = z.object({
@@ -2394,6 +2401,7 @@ Behavior:
     parentLedgerId: z.string().optional().describe('Optional parent ledger row this milestone slices from.'),
     assignedStory: z.string().regex(/^B-[A-Za-z0-9][A-Za-z0-9._-]*$/).optional().describe('Optional child story assigned to deliver this row.'),
     status: z.enum(['planned', 'covered', 'done', 'not_applicable']).optional().describe('Milestone coverage status.'),
+    notApplicableDecision: milestoneNotApplicableDecisionSchema.optional().describe('Required auditable justification when status=not_applicable and not passing milestone.'),
     json: z.boolean().optional().describe('Output structured JSON.'),
   }},
   { name: 'milestone_ledger_get', description: 'Read the story milestone ledger', schema: {
