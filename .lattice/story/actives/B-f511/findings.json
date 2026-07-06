@@ -195,7 +195,7 @@
       "desc": "run-batch.mjs:829 -- the F-007/F-008 refactor dropped the prior explicit try/catch around rmSync(LOCK_DIR) during a genuine stale-lock break (present in commit 1dad360a8: try { rmSync(LOCK_DIR,...) } catch (e) { fatal(...) }). Now rmSync(LOCK_DIR) at line 829 is bare inside the outer try (814-831): if it throws, only the finally releases the break-mutex, then the error propagates UNCAUGHT out of main(), crashing with a generic stack trace and default exit 1 instead of the previously-explicit tagged FATAL diagnostic at exit 2. Not a TOCTOU/correctness defect (mutex still releases cleanly, no orphan, no double-write) but a real loss of diagnostic quality for the rmSync-failure-during-break path.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-06T01:41:15.546Z",
@@ -203,7 +203,11 @@
       "reviewRunId": "B-f511:RR-022",
       "_hash": "61da0c4cb29bdc4701defc36fb5ed7494ca5cdef61dd09dff60ecbf841719929",
       "signatureTag": "missing|unknown|batch-refactor-dropped",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 5c1aa59af: the rmSync(LOCK_DIR) break failure is captured into breakError and raised as an explicit exit-2 '[resume] could not break the stale lock' diagnostic AFTER the break-mutex finally releases. Test coverage added in 98ee3e0db (sub-check M, via POS_FAIL_LOCK_BREAK).",
+      "resolvedAt": "2026-07-06T05:05:15.009Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f511:F-011",
