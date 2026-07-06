@@ -5,7 +5,8 @@
     "B-991d current full runner exists only in the B-991d worktree and is not yet merged into canonical main.",
     "Proofbound Parallel Wave supports story-level scheduling only and does not protect per-cell experiment rows.",
     "The pos-instrument-replay runner provides a proven append-only/resume/lock pattern that can be adapted conceptually but not reused directly.",
-    "Cell03 expected keys can be derived from task-inventory.m2.json and seed-manifest.m1.json without provider calls."
+    "Cell03 expected keys can be derived from task-inventory.m2.json and seed-manifest.m1.json without provider calls.",
+    "B-991d live runner adoption is intentionally out of scope for this story and remains a later integration decision."
   ],
   "constraints": [
     "Do not run provider rows or Codex/Claude/agy subagents.",
@@ -13,14 +14,16 @@
     "Do not change the multi-model protocol semantics or unlock Cell06/Phase2.",
     "Keep the implementation host-neutral and evidence-ledger focused."
   ],
-  "unknowns": [
-    "Whether B-991d runner will later adopt this helper directly or copy the same contract after merge."
-  ],
+  "unknowns": [],
   "touchpoints": [
-    "experiments/multi-model-ablation/cell03-shards/",
+    "experiments/multi-model-ablation/cell03-shards/plan.mjs",
+    "experiments/multi-model-ablation/cell03-shards/shard-runner.mjs",
+    "experiments/multi-model-ablation/cell03-shards/merge.mjs",
+    "experiments/multi-model-ablation/cell03-shards/selfcheck.mjs",
+    "experiments/multi-model-ablation/cell03-shards/README.md",
+    "experiments/multi-model-ablation/README.md",
     "experiments/multi-model-ablation/task-inventory.m2.json",
-    "experiments/multi-model-ablation/seed-manifest.m1.json",
-    "experiments/multi-model-ablation/README.md"
+    "experiments/multi-model-ablation/seed-manifest.m1.json"
   ],
-  "timestamp": "2026-07-06T14:53:13.390Z"
+  "timestamp": "2026-07-06T14:59:31.501Z"
 }

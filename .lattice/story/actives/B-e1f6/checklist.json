@@ -9,7 +9,10 @@
         "docs/requirements/decisions/multi-model-ablation-replication.md"
       ],
       "files": {
-        "modify": [],
+        "modify": [
+          "experiments/multi-model-ablation/task-inventory.m2.json",
+          "experiments/multi-model-ablation/seed-manifest.m1.json"
+        ],
         "create": [
           "experiments/multi-model-ablation/cell03-shards/plan.mjs"
         ],
@@ -39,7 +42,8 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "userSees": "node experiments/multi-model-ablation/cell03-shards/selfcheck.mjs reports coverage=1152 and invalid shard inputs fail closed."
     },
     {
       "id": "CHK-002",
