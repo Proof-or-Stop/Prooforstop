@@ -81,7 +81,7 @@
       "desc": "F-CODEX-1 (host-2, HIGH): H1 COMPLETENESS false-pass. adjudicateH1 (analyze-batch.mjs:~221) requires only 'at least one scale with >=2 pairwise-equal records' to pass; a scale with FEWER records than protocol.N[scale] (e.g. only replay/full/1 present instead of the required 3) is marked non-checkable but does NOT prevent overall pass. So an incomplete campaign (missing full-scale replay evidence that protocol.N.full===3 demands) still yields H1 pass + overall all-pass + asserts the §3 claim. FIX: H1 must require EXACTLY protocol.N[scale] proof records per scale (completeness) before any scale is 'pass'; a short scale is fail or inconclusive, never silently ignored.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex",
       "createdAt": "2026-07-06T07:38:58.533Z",
@@ -92,7 +92,11 @@
         "experiments/pos-instrument-replay/analyze-batch.mjs"
       ],
       "signatureTag": "adversarial|mjs|codex-host-high",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 3e5c582a: H1 requires exactly protocol.N[scale] proof records per scale (incomplete -> fail). selfcheck-m4 sub-check J. Further hardened in eeb1a9592 (total==sum(N) + no undeclared scale, sub-check P).",
+      "resolvedAt": "2026-07-06T08:19:56.673Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-853a:F-006",
