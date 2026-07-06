@@ -591,12 +591,10 @@ function checkQ() {
     // confirm counts + set-coverage stayed intact, so the BINDING is the discriminator.
     const rep = readJson(join(s, 'report.json'));
     const e = rep.hypotheses.H2.evidence;
-    if (e.countsMatch !== false) {
-      // relabeling one fail-closed->accepted shifts per-disposition counts, so
-      // countsMatch will actually flip false here. The binding check is proven
-      // by bindingMatch=false + the specific identity being flagged; we assert
-      // that independently below regardless of counts.
-    }
+    // NOTE: relabeling one fail-closed->accepted also shifts per-disposition counts,
+    // so countsMatch flips false here too — we do NOT assert on countsMatch. The
+    // binding is the discriminator, proven below by bindingMatch=false + the specific
+    // flagged identity (identityMatch stays true, so set-coverage is unchanged).
     if (e.identityMatch !== true) fail('Q-h2-binding', `expected identityMatch=true (set-coverage unchanged), got ${e.identityMatch}`);
     if (e.bindingMatch !== false) fail('Q-h2-binding', `expected bindingMatch=false, got ${e.bindingMatch}`);
     if (!e.bindingViolationIdentities.includes('cross-profile-swap|refreshed')) {
