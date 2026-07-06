@@ -138,6 +138,24 @@ const PROTOCOL_PATH = join(HERE, 'protocol.json');
 const protocol = JSON.parse(readFileSync(PROTOCOL_PATH, 'utf8'));
 const N_SMALL = protocol.N.small;
 
+// F-017: hermetic-on-failure sandbox cleanup. fail() calls process.exit(1), which
+// SKIPS the try/finally that would rmSync a sub-check's mkdtemp sandbox — so a
+// genuine regression (a FAILING sub-check) would leak its tmp dir. Track every
+// sandbox on creation, de-register it on the normal (success-path) cleanup, and
+// sweep any STILL-registered dir on process exit. The 'exit' handler fires on
+// every terminating path (process.exit(0/1/2) and uncaught throws) and may only do
+// synchronous work — rmSync is synchronous, so the sweep is safe here.
+const activeSandboxes = new Set();
+process.on('exit', () => {
+  for (const dir of activeSandboxes) {
+    try {
+      rmSync(dir, { recursive: true, force: true });
+    } catch {
+      /* best-effort sweep of a leaked sandbox on a failure/crash exit */
+    }
+  }
+});
+
 function fail(msg) {
   console.error('selfcheck-m3 FAIL: ' + msg);
   process.exit(1);
@@ -152,11 +170,23 @@ function expectedSmallIds() {
 /** Copy the pieces run-batch.mjs needs into a fresh sandbox dir. */
 function makeSandbox(tag) {
   const sandbox = mkdtempSync(join(tmpdir(), `pos-selfcheck-m3-${tag}-`));
+  activeSandboxes.add(sandbox); // F-017: register for the exit-sweep safety net.
   mkdirSync(join(sandbox, 'lib'), { recursive: true });
   cpSync(join(HERE, 'lib', 'instrument.mjs'), join(sandbox, 'lib', 'instrument.mjs'));
   cpSync(join(HERE, 'run-batch.mjs'), join(sandbox, 'run-batch.mjs'));
   cpSync(PROTOCOL_PATH, join(sandbox, 'protocol.json'));
   return sandbox;
+}
+
+/**
+ * Remove a sandbox dir and de-register it — the normal, success-path cleanup
+ * called from each sub-check's finally. De-registering keeps the process-exit
+ * sweep (F-017) targeting ONLY genuinely-leaked dirs (a sub-check that died via
+ * fail()/process.exit before its finally could run).
+ */
+function cleanupSandbox(sandbox) {
+  rmSync(sandbox, { recursive: true, force: true });
+  activeSandboxes.delete(sandbox);
 }
 
 function ledgerPath(sandbox) {
@@ -290,7 +320,7 @@ function killResumeTrial(label, crashIndex) {
         `resume -> exact 30 multiset, 0 dup / 0 gap, casualty=${disp}`,
     );
   } finally {
-    rmSync(sandbox, { recursive: true, force: true });
+    cleanupSandbox(sandbox);
   }
 }
 
@@ -325,7 +355,7 @@ function checkFreshAdditive() {
         `small multiset (0 dup / 0 gap) — resume change is additive`,
     );
   } finally {
-    rmSync(sandbox, { recursive: true, force: true });
+    cleanupSandbox(sandbox);
   }
 }
 
@@ -350,7 +380,7 @@ function checkResumeNoLedger() {
         `small multiset (behaves as fresh)`,
     );
   } finally {
-    rmSync(sandbox, { recursive: true, force: true });
+    cleanupSandbox(sandbox);
   }
 }
 
@@ -414,7 +444,7 @@ function checkTruncatedTailRepair() {
         `(-> ${disp}) and reconciled to the exact ${N_SMALL}-record multiset (0 dup / 0 gap)`,
     );
   } finally {
-    rmSync(sandbox, { recursive: true, force: true });
+    cleanupSandbox(sandbox);
   }
 }
 
@@ -495,7 +525,7 @@ function checkStopRecordResume() {
         `0 dup / 0 gap`,
     );
   } finally {
-    rmSync(sandbox, { recursive: true, force: true });
+    cleanupSandbox(sandbox);
   }
 }
 
@@ -581,7 +611,7 @@ function checkValidFinalRecordPreserved() {
         `PRESERVED verbatim on resume (not dropped into a GAP); exact 30 multiset, 0 dup / 0 gap`,
     );
   } finally {
-    rmSync(sandbox, { recursive: true, force: true });
+    cleanupSandbox(sandbox);
   }
 }
 
@@ -714,7 +744,7 @@ async function checkLiveLockNotBroken() {
     } catch {
       /* already gone */
     }
-    rmSync(sandbox, { recursive: true, force: true });
+    cleanupSandbox(sandbox);
   }
 }
 
@@ -777,7 +807,7 @@ function checkNoHolderLockNotBroken() {
         `ledger untouched (missing-holder is conservatively treated as LIVE)`,
     );
   } finally {
-    rmSync(sandbox, { recursive: true, force: true });
+    cleanupSandbox(sandbox);
   }
 }
 
@@ -921,7 +951,7 @@ async function checkBreakMutexSerializes() {
         `exact ${N_SMALL}-record multiset (0 dup / 0 gap); no orphaned break-mutex`,
     );
   } finally {
-    rmSync(sandbox, { recursive: true, force: true });
+    cleanupSandbox(sandbox);
   }
 }
 
@@ -999,7 +1029,7 @@ function checkFreshRefusesNonemptyLedger() {
         `ledger left byte-identical — no duplicate/extra records)`,
     );
   } finally {
-    rmSync(sandbox, { recursive: true, force: true });
+    cleanupSandbox(sandbox);
   }
 }
 
@@ -1075,7 +1105,7 @@ function checkFreshFailsClosedOnUnreadableLedger() {
         `byte-identical — no records appended, fail closed not open)`,
     );
   } finally {
-    rmSync(sandbox, { recursive: true, force: true });
+    cleanupSandbox(sandbox);
   }
 }
 
@@ -1123,6 +1153,17 @@ async function checkResumeBreakFailureDiagnostic() {
           `(got: ${combined.slice(-800)})`,
       );
     }
+    // F-018: the forced break FAILED (POS_FAIL_LOCK_BREAK throws BEFORE the real
+    // rmSync(LOCK_DIR) runs), so the stale lock dir + its holder.json must SURVIVE
+    // intact — a break that throws must leave the lock exactly as it found it
+    // (removed nothing), never partially delete the lock it could not break.
+    // Mirrors the lock-survival assertions in sub-checks H/I.
+    if (!existsSync(lockDirPath(sandbox)) || !existsSync(holderPath(sandbox))) {
+      fail(
+        `${label}: the FAILED stale-lock break removed the lock dir and/or holder.json — a break ` +
+          `that THROWS must leave LOCK_DIR + holder.json fully intact (it removed nothing)`,
+      );
+    }
     // The break-mutex must NOT be left orphaned — the finally releases it even when
     // the break itself throws (a SIGKILL-orphaned mutex is a different failure mode).
     if (existsSync(breakLockDirPath(sandbox))) {
@@ -1142,7 +1183,7 @@ async function checkResumeBreakFailureDiagnostic() {
         `finally), and left the campaign ledger untouched`,
     );
   } finally {
-    rmSync(sandbox, { recursive: true, force: true });
+    cleanupSandbox(sandbox);
   }
 }
 
