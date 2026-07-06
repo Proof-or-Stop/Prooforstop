@@ -29,6 +29,8 @@ import {
   formatLatticeVersionLine,
 } from './core/lattice-brand.js';
 import { LATTICE_DIR } from './core/lattice-paths.js';
+import { renderChecklistDerivedLedger, CHECKLIST_DERIVED_HEADER } from './core/milestone-status.js';
+import type { ChecklistData } from './core/types.js';
 import { withReentrantMainWriteLock } from './core/main-write-lock.js';
 import { MAIN_TOOLS } from './cli/command-catalog.js';
 import type { ToolDef } from './cli/main-tools.js';
@@ -846,62 +848,93 @@ export async function runCli(opts?: {
 
     const renderFromHandlers = (sourceHandlers: Record<string, Function>): string | null => {
       const milestoneStatus = sourceHandlers.milestone_status;
-      if (typeof milestoneStatus !== 'function') {
-        process.stderr.write(`[milestone-status] post-command render skipped for ${storyId}: handler not found\n`);
-        return null;
-      }
+      if (typeof milestoneStatus !== 'function') return null;
       const rendered = milestoneStatus({ storyId });
       const milestoneOutput = typeof rendered === 'string' ? rendered : JSON.stringify(rendered, null, 2);
       return milestoneOutput.trim() ? milestoneOutput : null;
     };
 
-    let hasWorktreeLedger = false;
-    let worktreeLedgerError: Error | null = null;
-    try {
-      hasWorktreeLedger = Boolean(store.readMilestoneLedger(storyId));
-    } catch (e) {
-      worktreeLedgerError = e as Error;
-    }
+    // "Failure visible": a display failure is surfaced on stdout, never swallowed
+    // to stderr. Exit code stays 0 — the mutation already committed before this
+    // append runs, so signalling process failure would falsely imply a bad write.
+    const visibleFailure = (e: Error): string =>
+      `${output}\n\n⚠ Milestone Ledger: render FAILED for ${storyId} — ${e.message}.\n` +
+      `  The write above SUCCEEDED; this is a display failure, not a data failure.\n` +
+      `  Run \`lattice milestone_status --storyId=${storyId}\` to view status.`;
 
-    if (hasWorktreeLedger) {
+    // Anchor to a line start so a header substring echoed inside the command's own
+    // output (e.g. a milestone claim rendered in a table cell) cannot be mistaken
+    // for an already-appended status block.
+    const alreadyShown = (): boolean => {
+      const shown = (header: string): boolean =>
+        output.startsWith(`${header} - ${storyId}`) ||
+        output.includes(`\n${header} - ${storyId}`);
+      return shown('Milestone Status') || shown(CHECKLIST_DERIVED_HEADER);
+    };
+
+    // Only a genuinely-absent artifact is tolerated (e.g. an IDEA story has no
+    // checklist). A corrupt/unreadable artifact must surface via visibleFailure,
+    // never be masked as an empty story — that is the exact silent-swallow this
+    // change set out to remove.
+    const ignoreMissingArtifact = (e: unknown): void => {
+      if ((e as { name?: string } | null)?.name !== 'StoryArtifactMissingError') throw e;
+    };
+
+    const renderDerived = (srcStore: StoryStore): string => {
+      let checklist: ChecklistData = { items: [] };
       try {
-        const milestoneOutput = renderFromHandlers(handlers);
-        if (!milestoneOutput) return output;
-        if (output.includes(`Milestone Status - ${storyId}`)) return output;
-        return `${output}\n\n${milestoneOutput}`;
-      } catch (e) {
-        process.stderr.write(`[milestone-status] post-command render skipped for ${storyId}: ${(e as Error).message}\n`);
-        return output;
-      }
-    }
+        checklist = srcStore.readChecklist(storyId);
+      } catch (e) { ignoreMissingArtifact(e); }
+      let phase = 'unknown';
+      try {
+        phase = srcStore.readStory(storyId).phase;
+      } catch (e) { ignoreMissingArtifact(e); }
+      return renderChecklistDerivedLedger(storyId, checklist, phase);
+    };
 
-    if (cmd !== 'story_advance' || parsed.phase !== 'DONE' || hasProjectConfigFile(root) || !mainRootFallback) {
-      if (worktreeLedgerError) {
-        process.stderr.write(`[milestone-status] post-command ledger check skipped for ${storyId}: ${worktreeLedgerError.message}\n`);
+    // The DONE worktree-cleanup path may have already removed the story worktree,
+    // so its real ledger (if any) lives on the main root fallback.
+    const doneWorktreeFallback =
+      cmd === 'story_advance' && parsed.phase === 'DONE' &&
+      !hasProjectConfigFile(root) && Boolean(mainRootFallback) &&
+      hasProjectConfigFile(mainRootFallback as string);
+
+    // Prefer a REAL milestone table; return null when no ledger is available so
+    // the caller falls back to the always-shown checklist-derived ledger.
+    const realRender = (): string | null => {
+      // readMilestoneLedger returns null when the ledger is absent and throws on a
+      // corrupt/unreadable ledger; let that throw propagate to visibleFailure rather
+      // than masking real corruption as "no milestone ledger set".
+      const hasWorktreeLedger = Boolean(store.readMilestoneLedger(storyId));
+      if (hasWorktreeLedger) {
+        const r = renderFromHandlers(handlers);
+        if (r) return r;
       }
-      return output;
-    }
+      if (doneWorktreeFallback) {
+        const mainStore = new StoryStore(mainRootFallback as string);
+        if (mainStore.readMilestoneLedger(storyId)) {
+          const mainConfig = loadConfig(mainRootFallback as string);
+          const mainCtx: HandlerContext = {
+            store: mainStore,
+            root: mainRootFallback as string,
+            scanRoot: join(mainRootFallback as string, mainConfig.scanRoot),
+            log,
+          };
+          const mainRegistry = createMainRegistry(mainCtx);
+          if (opts?.extraRegister) opts.extraRegister(mainRegistry, mainCtx);
+          return renderFromHandlers(mainRegistry.toObject() as Record<string, Function>);
+        }
+      }
+      return null;
+    };
 
     try {
-      if (!hasProjectConfigFile(mainRootFallback)) return output;
-      const mainStore = new StoryStore(mainRootFallback);
-      if (!mainStore.readMilestoneLedger(storyId)) return output;
-      const mainConfig = loadConfig(mainRootFallback);
-      const mainCtx: HandlerContext = {
-        store: mainStore,
-        root: mainRootFallback,
-        scanRoot: join(mainRootFallback, mainConfig.scanRoot),
-        log,
-      };
-      const mainRegistry = createMainRegistry(mainCtx);
-      if (opts?.extraRegister) opts.extraRegister(mainRegistry, mainCtx);
-      const milestoneOutput = renderFromHandlers(mainRegistry.toObject() as Record<string, Function>);
-      if (!milestoneOutput) return output;
-      if (output.includes(`Milestone Status - ${storyId}`)) return output;
-      return `${output}\n\n${milestoneOutput}`;
+      const deriveStore = doneWorktreeFallback ? new StoryStore(mainRootFallback as string) : store;
+      const block = realRender() ?? renderDerived(deriveStore);
+      if (!block || alreadyShown()) return output;
+      return `${output}\n\n${block}`;
     } catch (e) {
-      process.stderr.write(`[milestone-status] post-command render skipped for ${storyId}: ${(e as Error).message}\n`);
-      return output;
+      return visibleFailure(e as Error);
     }
   }
 

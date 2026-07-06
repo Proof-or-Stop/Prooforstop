@@ -1223,3 +1223,51 @@ export function renderMilestoneStatusReport(report: MilestoneStatusReport): stri
   );
   return lines.join('\n');
 }
+
+export const CHECKLIST_DERIVED_HEADER = 'Checklist-derived ledger (no milestone ledger set)';
+
+/**
+ * Compact status view rendered when a story has no milestone ledger yet.
+ *
+ * This deliberately does NOT reuse the `Milestone Status - <id>` header: a
+ * milestone ledger has not been set, so presenting a milestone table would
+ * fabricate status that does not exist. Instead it groups the story's checklist
+ * items by their own status so the user always sees *some* progress ledger after
+ * a mutating command, clearly labelled as checklist-derived.
+ */
+export function renderChecklistDerivedLedger(
+  storyId: string,
+  checklist: ChecklistData,
+  phase: string,
+): string {
+  const items = checklist.items ?? [];
+  const groups: Record<'done' | 'in_progress' | 'pending', ChecklistItem[]> = {
+    done: [],
+    in_progress: [],
+    pending: [],
+  };
+  for (const item of items) {
+    (groups[item.status] ?? groups.pending).push(item);
+  }
+  const lines = [
+    `${CHECKLIST_DERIVED_HEADER} - ${storyId}`,
+    `Phase: ${phase}`,
+    `Progress: ${groups.done.length} done / ${groups.in_progress.length} in progress / ${groups.pending.length} not started (${items.length} total)`,
+    '',
+  ];
+  const renderGroup = (label: string, marker: string, groupItems: ChecklistItem[]): void => {
+    if (groupItems.length === 0) return;
+    lines.push(label);
+    for (const item of groupItems) {
+      lines.push(`${marker} ${item.id} — ${item.title}`);
+    }
+    lines.push('');
+  };
+  renderGroup('Done', '✅', groups.done);
+  renderGroup('In progress', '⏳', groups.in_progress);
+  renderGroup('Not started', '⬜', groups.pending);
+  if (items.length === 0) {
+    lines.push('(no checklist items)', '');
+  }
+  return lines.join('\n').replace(/\n+$/, '');
+}

@@ -1,0 +1,23 @@
+{
+  "task": "Make every story-scoped mutating command always show a status ledger and surface render failures visibly, even when no milestone ledger exists.",
+  "outcome": "A no-ledger story running a mutating command prints a Checklist-derived ledger block on stdout (never the Milestone Status header); a render failure prints a visible warning while the exit code stays 0.",
+  "facts": [
+    "appendMilestoneStatusAfterMutation in packages/main/src/cli-engine.ts returns bare output when no milestone ledger exists and swallows render failures to stderr.",
+    "milestone_status can render a missing-ledger table but shows no per-item checklist progress.",
+    "An existing test deliberately forbids fabricating a Milestone Status table on no-ledger mutations."
+  ],
+  "constraints": [
+    "The CLI cannot observe whether the agent forwarded stdout to the user.",
+    "The append runs after the mutation commits, so a display failure must not fail the command.",
+    "--json output must stay pure; the real-ledger and DONE worktree-cleanup fallbacks must be preserved."
+  ],
+  "unknowns": [
+    "None material: the renderer shape and the append control-flow refactor are both determined by the decision record."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/milestone-status.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/tests/milestone-status.test.mjs"
+  ],
+  "timestamp": "2026-07-06T18:16:59.693Z"
+}

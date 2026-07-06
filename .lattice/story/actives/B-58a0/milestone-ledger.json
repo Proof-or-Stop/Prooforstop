@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-58a0",
+  "state": "confirmed",
+  "ledgerHash": "sha256:fe8833a2a5025e06855118b11041ec00e2bb8ba6ed04a7d8ee849faa0344a698",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-001",
+      "claim": "A checklist-derived ledger renderer exists",
+      "doneMeans": "renderChecklistDerivedLedger groups items by status under a distinct header and handles the empty-checklist stub",
+      "requiredEvidence": [
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "REQ-001",
+      "claim": "Mutating commands always show a ledger and surface failures visibly",
+      "doneMeans": "no-ledger mutation appends the checklist-derived ledger on stdout; render failure shows a visible warning; exit code stays 0; --json stays pure; real-ledger and DONE fallback preserved",
+      "requiredEvidence": [
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "REQ-001",
+      "claim": "Tests prove the behavior and guard against regression",
+      "doneMeans": "inverted no-ledger assertion plus renderer unit coverage pass, and real-ledger/--json regressions stay green",
+      "requiredEvidence": [
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-06T18:12:53.106Z",
+  "updatedAt": "2026-07-06T18:15:46.459Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260706181252",
+    "acceptedInterpretationHash": "sha256:b270f3cfc94e262577d1675f15e37f0ac8afb3ba709306fc034bb2948d449587",
+    "acceptedAt": "2026-07-06T18:15:46.459Z"
+  }
+}
