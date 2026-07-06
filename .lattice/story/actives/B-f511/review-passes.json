@@ -35,6 +35,15 @@
       "reviewRound": "2026-07-05T23:23:10.512Z",
       "reviewRunId": "B-f511:RR-007",
       "_hash": "a9ffe4691ac0ea989c7813ef31701d3e1e2b32f6e0d9f47a5f2fad9bfa301b03"
+    },
+    {
+      "id": "B-f511:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "F-007/F-008 residual check (round 4, commit 4882fad0d): the OLD racy break pattern (evaluateLockForBreak CHECK + rmSync(LOCK_DIR) USE, non-atomic) has NO residuals. Verified: (1) exactly one rmSync(LOCK_DIR) break-executing site (line 829), strictly inside the try guarded by breakMutexHeld (set only after mkdirSync(BREAK_LOCK_DIR) succeeds); the other rmSync(LOCK_DIR) site (line 333) is the unrelated ordinary self-release in acquireLock()s own idempotent releaser, not part of the break pattern. (2) all BREAK_LOCK_DIR/break logic lives inside the single if(resume){...} block; no path breaks the lock without first holding BREAK_LOCK_DIR. (3) grep confirms the non-resume path never references BREAK_LOCK_DIR. (4) evaluateLockForBreak() and acquireLock() are byte-identical between the pre-fix and post-fix commits (diffed function bodies) -- the F-005/F-006 conservative missing-holder=LIVE rule is fully intact and untouched. (5) no dead helpers (all functions referenced/called); ran the FULL selfcheck-m3.mjs fresh in this review session end-to-end (not just static reading) -- all sub-checks A through J passed, including the new J.1 (break-mutex held -> fail closed, exit 3, precondition_failed) and J.2 (mutex free -> stale lock reclaimed, exact 30-record multiset, mutex not orphaned), selfcheck-m3 PASS. One low/missing doc-completeness nit filed separately as F-012 (the top-of-file A-I enumeration comment was not extended to J) -- not a functional residual.",
+      "createdAt": "2026-07-06T01:44:20.215Z",
+      "reviewRound": "2026-07-06T01:22:49.221Z",
+      "reviewRunId": "B-f511:RR-024",
+      "_hash": "f1a37ef7a33386953e59c81b5a40b56753cf1f0883451d947b2d53fd3a88320d"
     }
   ]
 }
