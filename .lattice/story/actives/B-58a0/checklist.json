@@ -160,9 +160,9 @@
       "id": "CHK-003",
       "title": "Update and extend milestone-status tests",
       "context": "In packages/main/tests/milestone-status.test.mjs, invert the no-ledger assertion (around 302-306) to require the checklist-derived ledger and forbid the Milestone Status header; add unit coverage for renderChecklistDerivedLedger including the empty-checklist stub; keep the real-ledger and --json regressions green.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-06T18:21:40.611Z",
       "files": {
         "modify": [
           "packages/main/tests/milestone-status.test.mjs"
