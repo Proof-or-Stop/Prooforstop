@@ -206,14 +206,13 @@
         {
           "intentRef": "CHK-003:happy:0",
           "kind": "manual_transcript",
-          "verdict": "success",
           "command": "node experiments/pos-instrument-replay/selfcheck-m4.mjs",
           "result": "pass",
-          "note": "selfcheck-m4 prints 'selfcheck-m4 PASS' and exits 0 with all sub-checks A-I passing; each sub-check runs in a fresh mkdtemp sandbox copy (evidence + protocol + lib + analyze-batch), never touching committed artifacts.",
-          "headHash": "3e5c582a38fa7153f009dff8988959df395e9d97",
+          "note": "node selfcheck-m4.mjs exits 0 'selfcheck-m4 PASS' — sub-checks A-O: A-happy, B-reproducible, C/D/E/F (H1/H2/H3/H4 flip to fail on value mutation), G (empty input inconclusive), H (recordDigest-tamper abort), I (no-overclaim), + J h1-incomplete, K h1-vacuous, L h2-identity-missing, M h3-stub, N h4-negative/null, O absent-file-inconclusive.",
+          "headHash": "158d5c8bf87c6633f28c52e6340f226b0d165c84",
           "materialHash": "b8d25c898ec3647c9947f3eedfe58190426e5357b4efe387ef47553af6be3b82",
           "storyFilesHash": "33c61f0249d435d1e9d1187beea8fbc5179685a69d099092cede7c4ef47fe8c6",
-          "timestamp": "2026-07-06T07:55:02.106Z"
+          "timestamp": "2026-07-06T07:55:07.626Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
