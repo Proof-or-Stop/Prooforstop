@@ -147,7 +147,7 @@
       "desc": "F-CODEX-4 (host-2, MEDIUM; corroborates quality F-004): H4 accepts non-physical elapsedMs. adjudicateH4 (analyze-batch.mjs:~406) uses !(r.elapsedMs <= cap): a negative elapsedMs (-1) or null (coerced to 0 by <=) satisfies it and passes. FIX: require Number.isFinite(r.elapsedMs) && r.elapsedMs >= 0 && r.elapsedMs <= cap; a non-finite/negative elapsed is fail (not a valid scale-envelope datum).",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex",
       "createdAt": "2026-07-06T07:39:01.284Z",
@@ -158,7 +158,11 @@
         "experiments/pos-instrument-replay/analyze-batch.mjs"
       ],
       "signatureTag": "adversarial|mjs|codex-host-medium",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 3e5c582a (same H4 physical-elapsed check as F-004). selfcheck-m4 sub-check N (elapsedMs=-1 AND null both fail).",
+      "resolvedAt": "2026-07-06T08:19:59.231Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-853a:F-009",
