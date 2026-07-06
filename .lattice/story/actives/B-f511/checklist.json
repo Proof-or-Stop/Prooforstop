@@ -201,11 +201,11 @@
           "kind": "manual_transcript",
           "command": "node experiments/pos-instrument-replay/selfcheck-m3.mjs",
           "result": "pass",
-          "note": "node selfcheck-m3.mjs exits 0 'selfcheck-m3 PASS' — now 10 hermetic sub-checks A-J: A boundary-kill, B mid-run-crash, C fresh-additive, D resume-no-ledger, E truncated-tail, F stop-record-resume, G valid-final-record-preserved, H live-lock-not-broken (dead-pid discrimination), I NO-HOLDER-lock-not-broken, J BREAK-MUTEX-SERIALIZES (multi-resumer TOCTOU closed).",
-          "headHash": "5c1aa59af9c3e300f9c5c9d675cb609ab8bd3ff6",
+          "note": "node selfcheck-m3.mjs exits 0 'selfcheck-m3 PASS' — now 11 hermetic sub-checks A-K: A boundary-kill, B mid-run-crash, C fresh-additive, D resume-no-ledger, E truncated-tail, F stop-record-resume, G valid-final-record-preserved, H live-lock-not-broken, I NO-HOLDER-lock-not-broken, J BREAK-MUTEX-SERIALIZES (multi-resumer TOCTOU), K FRESH-REFUSES-NONEMPTY-LEDGER (fresh-driver ledger-poisoning).",
+          "headHash": "c2908fcfc529d31cf46ff2d7bfac813995c54628",
           "materialHash": "4e625df486123eab21a9bcdd2f7d078af09e4b3de1c49a9efa0f939f3fa4677b",
           "storyFilesHash": "de01a2e52c1851b82f08c4080802d781ad44520253ead770535784398db2f30a",
-          "timestamp": "2026-07-06T02:17:52.891Z"
+          "timestamp": "2026-07-06T02:17:54.207Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
