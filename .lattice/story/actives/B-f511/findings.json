@@ -252,7 +252,7 @@
       "desc": "F-013 (cross-vendor host-2, Codex gpt-5.5 xhigh): the F-009 fresh-mode non-empty-ledger guard FAILS OPEN on an unreadable existing ledger. run-batch.mjs ~lines 923-928: existingLedgerNonEmpty = existsSync(LEDGER_PATH) && readFileSync(LEDGER_PATH,'utf8').trim() !== '', with catch { existingLedgerNonEmpty = false }. If batch-ledger.jsonl EXISTS and is non-empty but readFileSync THROWS (e.g. a write-only file chmod 0200, or EACCES), the catch classifies it as EMPTY, so a fresh (non-resume) driver proceeds and appends new records onto the existing ledger -> on-disk duplicates (end-guard exits nonzero but the ledger is already poisoned). Since the catch only runs when existsSync already returned true (short-circuit &&), a read failure means the ledger EXISTS but is unverifiable — for a fail-CLOSED integrity instrument the correct posture is to REFUSE (treat as non-empty), not proceed. Fix: in the catch set existingLedgerNonEmpty = true (fail closed) so an existing-but-unreadable ledger blocks a fresh run. Codex also CONFIRMED convergence on everything else: no interleaving (two-fresh / fresh-vs-resume / resume-vs-resume) yields two non-null campaign writers; F-010 releases the break-mutex in finally before both the breakError exit-2 and precondReason exit-3 paths (mutually exclusive); sub-check K is genuine vs the prior regression and hermetic.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex",
       "createdAt": "2026-07-06T02:24:48.865Z",
@@ -263,7 +263,11 @@
         "experiments/pos-instrument-replay/run-batch.mjs"
       ],
       "signatureTag": "adversarial|mjs|cross-vendor-host",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 98ee3e0db: the fresh-mode ledger guard's read-error catch now FAILS CLOSED (existingLedgerNonEmpty=true) — an existing-but-unreadable ledger (write-only/EACCES/EISDIR) refuses a fresh run (exit 3). Verified live by the quality lane with real chmod 000 (EACCES) + directory-at-path (EISDIR). selfcheck-m3 sub-check L (POS_FAIL_LEDGER_READ fault hook).",
+      "resolvedAt": "2026-07-06T05:05:16.430Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f511:F-014",
