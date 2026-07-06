@@ -1,0 +1,56 @@
+{
+  "storyId": "B-2a5b",
+  "changes": "experiments/pos-instrument-replay/ (M2): run-batch.mjs (the replay campaign driver — N x 2-scale generate+verify cycles into mkdtemp dirs, one identity-keyed proof-or-stop record per iteration, mkdir lockfile, strict exact-multiset end-of-run guard in a finally backstop), batch-ledger.jsonl (the H1/H4 evidence: 33 proof records = 30 small + 3 full 1,000,000-record cycles, 0 stop, 0 recordless), selfcheck-m2.mjs (5 sub-checks: budget_cap, lockfile->separate blocked-ledger, recordless, generate-crash, pre-body-crash). H1 (replay determinism) pairwise-equal at both scales; H4 (scale envelope) all within budget cap.",
+  "usage": "node experiments/pos-instrument-replay/run-batch.mjs runs the full campaign (~5-8min) and writes batch-ledger.jsonl (the H1/H4 evidence the M4 analyzer adjudicates). node experiments/pos-instrument-replay/selfcheck-m2.mjs (PASS) exercises the proof-or-stop discipline hermetically.",
+  "expectedOutcome": "run-batch.mjs completes N x 2-scale replays into an append-only proof-or-stop batch-ledger.jsonl with exactly the protocol identity multiset (no missing/extra/dup); H1 = replay proof records pairwise digest+metric equal per scale; H4 = all within budget cap or budget_cap stop; the driver never exits 0 with a missing record; selfcheck passes.",
+  "actualTranscript": "batch-ledger.jsonl: 33 records (30 small + 3 full 1M), 33 unique iterationIds, 0 missing/0 extra/0 stop/0 recordless. H1: small n=30 PAIRWISE-EQUAL, full n=3 PAIRWISE-EQUAL (replay-deterministic). H4: 0 over-cap, max elapsed 18718ms << cap 128217. All 33 recordDigests re-derive. selfcheck-m2 PASS (5 sub-checks). lattice validate allPass (34/34).",
+  "outcomeDiff": "No difference — expected == actual. H1 replay determinism confirmed on real 1,000,000-record cycles; H4 scale envelope all within cap; the proof-or-stop contract is un-gameable (crash->stop, concurrent->separate-ledger, backstop guard->never-exit-0-with-missing-record).",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "M2 PRODUCES the H1/H4 evidence ledger; the M4 analyzer ADJUDICATES H1-H4 mechanically from it (separate story). The resume/interrupt probe (M3) and offline analyzer (M4) are deferred. The instrument + frozen protocol.json + M0/M1 files were read-only (untouched). endOfRunRss is process.memoryUsage().rss at end of verify (named honestly, not a true peak).",
+  "pitfalls": "1) Codex host-2 found real proof-or-stop gaps all 3 Claude lanes missed across 3 rounds: F-002 (concurrent driver's precondition_failed contaminated the campaign ledger; end-of-run guard ignored EXTRA records) and F-003 (a crash OUTSIDE the guarded body — mkdtemp/append/cleanup — escaped uncaught, skipping the guard). Quality corroborated (F-001 generate-crash, F-004 mkdtemp-before-try). 2) The converging fix is STRUCTURAL: guard the WHOLE iteration lifecycle + run a defensive strict-multiset end-of-run guard in a finally/top-level backstop so the driver NEVER exits 0 with a missing/extra/dup record wherever a crash occurs. 3) Digests MUST be sourced from the generation-side manifest, not verifier stability booleans, or H1 is meaningless. 4) A lock-blocked driver records precondition_failed to a SEPARATE blocked-ledger, not the campaign ledger. 5) The full campaign (~5-8min, 3x 1M) must be re-run after any driver change so the committed ledger is producible by the committed driver.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 129475
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 1107
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 121299
+    },
+    "DEV": {
+      "count": 3,
+      "durationMs": 3159222
+    },
+    "REVIEW": {
+      "count": 3,
+      "durationMs": 1999222
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 55402
+    }
+  },
+  "totalDurationMs": 5466065,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-05T20:07:33.456Z",
+  "updatedAt": "2026-07-05T20:07:33.456Z"
+}

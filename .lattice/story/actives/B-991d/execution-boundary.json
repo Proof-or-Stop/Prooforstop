@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-991d",
+  "allowedCommands": [
+    "lattice delivery_check_set *",
+    "lattice story_advance *",
+    "lattice validate --story=*",
+    "node experiments/multi-model-ablation/m2-launch-readiness-check.mjs",
+    "node experiments/multi-model-ablation/m2-provider-execution-check.mjs"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".lattice/story/actives",
+    "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+    "experiments/multi-model-ablation"
+  ],
+  "excludedCommands": [
+    "git push *",
+    "lattice release_approve_push *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+    "docs/requirements/decisions/tier-c-powered-independent-host-campaign-protocol.md"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "Initial execution story may edit plan and execution artifacts; provider calls are allowed only after the Cell 03-only execution window is explicitly opened by story evidence.",
+  "createdAt": "2026-07-05T23:20:18.414Z",
+  "updatedAt": "2026-07-05T23:20:18.414Z",
+  "_hash": "4c897e646220e2ce4afbbf6dedbdf41e67f654e162ed7a291810c5d63ebb4353"
+}

@@ -1,0 +1,56 @@
+{
+  "storyId": "B-c25c",
+  "changes": "Added a Cell 03 provider launch authorization guardrail artifact, wired it into the M2 provider execution launch record, expanded the checker negative controls, and updated the M2 plan/status docs so Cell 03 remains disabled until exact budget approval and launch metadata are present.",
+  "usage": "Run node experiments/multi-model-ablation/m2-provider-execution-check.mjs from the repository root. The checker should report the Cell 03 launch guardrail as recorded and provider calls disabled while exact budget approval is absent.",
+  "expectedOutcome": "The M2 launch layer records a Cell 03-only guardrail, keeps providerExecutionAuthorized=false, prevents Cell 06 sequencing before Cell 03 budget lock evidence, and makes clear that no provider calls or experimental outcome rows are authorized yet.",
+  "actualTranscript": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs => PASS 696 assertions; 48 negative controls rejected; Cell 03 launch guardrail: recorded; Exact Cell 03 budget approval: absent; provider calls disabled. node experiments/multi-model-ablation/m2-launch-readiness-check.mjs => PASS 1105 assertions; 21 negative controls rejected.",
+  "outcomeDiff": "No difference between expected and actual: guardrail exists, exact budget approval remains absent, and provider execution stays disabled.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "audit_only",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "This story does not run provider experiments, does not approve spend, does not produce Phase 1 result rows, does not unlock Cell 06, and does not support paper/product/runtime claims beyond Cell 03 launch guardrail readiness.",
+  "pitfalls": "DONE took extra recovery because merging main changed current material and required fresh local quorum plus delivery-check and summary closure; future hosts should not mistake the guardrail artifact for actual provider execution or budget approval.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 330441
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 16764
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 417311
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 519688
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 815401
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 358091
+    }
+  },
+  "totalDurationMs": 2458529,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-05T17:28:34.709Z",
+  "updatedAt": "2026-07-05T17:28:34.709Z"
+}

@@ -1,0 +1,48 @@
+{
+  "storyId": "B-8128",
+  "mode": "enforce",
+  "allowedModify": [
+    ".gitignore",
+    ".lattice/story/actives/B-8128/**",
+    "packages/main/src/core/capability-release.ts",
+    "packages/main/src/handlers/done-effects.ts",
+    "packages/main/src/handlers/done-recover.ts",
+    "packages/main/src/core/experience-layer-types.ts",
+    "packages/main/src/core/learning-store.ts",
+    "packages/main/src/core/playbook-seed.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/handlers/playbook.ts",
+    "docs/CLI.md",
+    "lattice.config.json"
+  ],
+  "allowedCreate": [
+    ".lattice/story/actives/B-8128/**",
+    "packages/main/src/tasks/product-capability-release-red-smoke.ts",
+    "packages/main/src/core/capability-release.ts",
+    "packages/main/src/tasks/product-capability-release-smoke.ts",
+    "packages/main/src/tasks/playbook-capability-lineage-smoke.ts",
+    "packages/main/src/handlers/capability-release.ts",
+    "packages/main/src/tasks/capability-release-invariants-smoke.ts",
+    "docs/requirements/decisions/product-capability-release-playbook-lineage-execution-plan.md"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/product-capability-release-red-smoke.ts",
+    "packages/main/src/tasks/product-capability-release-smoke.ts",
+    "packages/main/src/tasks/playbook-capability-lineage-smoke.ts",
+    "packages/main/src/tasks/capability-release-invariants-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "standalone capability_release_backfill CLI command (follow-up story)",
+    "M6 exposure surfaces (follow-up)",
+    "M7 promotion command surfaces (follow-up)"
+  ],
+  "scopeChangeReason": "Add the story lifecycle-metadata pattern (.lattice/story/actives/B-8128/**) so ProofStory artifacts (intent-collision, milestone-ledger, original-intent-snapshot, proofstory, review) are not flagged as out-of-scope code changes.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-05T16:28:05.570Z",
+  "updatedAt": "2026-07-05T17:20:19.107Z"
+}

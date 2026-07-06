@@ -1,0 +1,51 @@
+{
+  "storyId": "B-fbbb",
+  "name": "playbook-smoke-import-fence-allowlist",
+  "title": "Restore experience-layer-playbook-smoke to 31/31: widen playbook.ts import-fence allowlist and fix a stale decision-doc authorityBoundary assertion",
+  "description": "experience-layer-playbook-smoke is silently red (27/31) on main because playbook.ts outgrew its fence allowlist AND a sibling regression smoke it runs asserts a stale decision_doc_save authorityBoundary substring. This chore restores the suite to 31/31 with test-maintenance-only edits (plus one comment), no shipping behavior change.",
+  "type": "chore",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "keywords": [
+    "import-fence",
+    "experience-layer",
+    "playbook",
+    "smoke",
+    "decision-doc"
+  ],
+  "riskSignals": [
+    {
+      "category": "Security/Credentials",
+      "matched": "security"
+    }
+  ],
+  "priorityElevatedFrom": "medium",
+  "createdAt": "2026-07-05T21:22:01.479Z",
+  "startedAt": "2026-07-05T21:22:01.479Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-05T21:22:01.904Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "124ceca7-008b-4111-a476-a2cc16315154",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-05T21:28:33.542Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "124ceca7-008b-4111-a476-a2cc16315154",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-fbbb",
+    "branch": "story/B-fbbb",
+    "createdAt": "2026-07-05T21:28:32.248Z"
+  }
+}

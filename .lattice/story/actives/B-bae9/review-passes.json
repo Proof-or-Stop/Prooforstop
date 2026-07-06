@@ -1,0 +1,67 @@
+{
+  "passes": [
+    {
+      "id": "B-bae9:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "M1 tamper conformance harness (tamper.mjs, selfcheck-m1.mjs) is purely additive over M0. Verified: (1) git diff main...HEAD --diff-filter=DR is empty across the whole story diff — no deletions/renames anywhere; (2) M0 files (protocol.json, lib/instrument.mjs, viability-check.mjs) are byte-identical to main (git diff main...HEAD for those paths is empty) and still present on disk; (3) tamper.mjs imports {sha256, verifyDir, refreshManifest, fingerprintDomain, canonicalJson} from ./lib/instrument.mjs — all 5 symbols confirmed exported by lib/instrument.mjs via grep of export statements; (4) node --check passes on both new .mjs files (syntax OK, no dangling module resolution errors); (5) selfcheck-m1.mjs only references lib/instrument.mjs and protocol.json as cpSync file-copy targets into a sandbox, not as import specifiers. No concept deletion/replacement occurred this round; no blocker.",
+      "createdAt": "2026-07-05T17:35:01.597Z",
+      "reviewRound": "2026-07-05T17:33:39.259Z",
+      "reviewRunId": "B-bae9:RR-004",
+      "_hash": "8409077a6284ea74b60195a586cdd431a7694fb5e97f9b5bc3c2b8fc69397b02"
+    },
+    {
+      "id": "B-bae9:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. Independently re-ran node tamper.mjs (H2 conformance: PASS, mismatches=0, exit 0; 27 verdicts: 18 failClosed(fail/crash+fpMatch)+2 acceptanceBucket+6 acknowledgedLimitations(pass+fpMatch)+1 dropped) and node selfcheck-m1.mjs (PASS, exit 0: determinism byte-identical across 2 runs + genuine negative test flips cross-profile-swap[refreshed].flags.fullProfileExactMillionMatches and confirms tamper.mjs detects the corruption, exits nonzero, reports fingerprintMatch:false -- H2 gate is un-gameable). lattice validate --story=B-bae9 --json: allPass=true. One low/should advisory finding filed (F-003: CHK-001:adversarial:0 lacks bound verificationEvidence though the underlying property is independently confirmed true) -- does not block, should-priority only.",
+      "createdAt": "2026-07-05T17:44:01.048Z",
+      "reviewRound": "2026-07-05T17:33:39.259Z",
+      "reviewRunId": "B-bae9:RR-005",
+      "_hash": "ab062e568aec04a6f0be46c8ef9d1251f75a3938098b11a87a781be098e9f063"
+    },
+    {
+      "id": "B-bae9:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 2): all 9 verificationIntent entries (CHK-001/002/003 x happy/edge/adversarial) now backed by concrete verificationEvidence; F-003 gap (CHK-001:adversarial:0) resolved with iterationId-uniqueness evidence. Independently re-ran tamper.mjs (H2 conformance PASS, mismatches=0, dispositionMatch failures=0, no-op mutations=0, dropped seed-swap byte-identical to clean) and selfcheck-m1.mjs (PASS incl. determinism + negative-test invariants). lattice validate allPass=true, missingRequired=0, all 9 intents status=covered. No blocker.",
+      "createdAt": "2026-07-05T18:09:15.764Z",
+      "reviewRound": "2026-07-05T17:59:42.735Z",
+      "reviewRunId": "B-bae9:RR-009",
+      "_hash": "9922dc579d885500250271f060b14716a4cecd40ea302e13689b6275711f4f1e"
+    },
+    {
+      "id": "B-bae9:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Commit 4fadf4f40 (F-001/F-002/F-004 fixes to tamper.mjs + selfcheck-m1.mjs): no dangling refs/imports (sha256/verifyDir/etc still from untouched lib/instrument.mjs; recPath/goldPath/manifestPath pre-existing; viability-results.json exists on disk); no dead code (old single-op less-than-only compareFingerprint branch and old inline disposition if/else fully removed, replaced by switch plus rederiveDisposition/BUCKET_TO_DISPOSITION, confirmed via grep zero-hits); M0 files (protocol.json, lib/instrument.mjs, viability-check.mjs, build-protocol.mjs) diff vs main dot dot dot HEAD = 0 lines, confirmed untouched. Verified live: node --check passes both files; running tamper.mjs reproduces tamper-verdicts.jsonl byte-for-byte (git diff after run = empty) with H2 conformance PASS, 0 dispositionMatch failures, 0 no-op mutations, 0 dropped-semantics violations. No concept-cleanup blocker this round.",
+      "createdAt": "2026-07-05T18:12:08.826Z",
+      "reviewRound": "2026-07-05T17:59:42.735Z",
+      "reviewRunId": "B-bae9:RR-007",
+      "_hash": "1f5522372c1e127c0ea0127a684b972369687c932a7855064cada6fd2decc862"
+    },
+    {
+      "id": "B-bae9:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Round 3: verified F-005 fix (commit f636e40cf) is genuine, not superficial. compareFingerprint >/!=/default-throw branches traced by hand against tamper.mjs --optselftest test cases (all 10 sub-cases correctly targeted, correct expected match/no-match). Ran node tamper.mjs --optselftest -> optselftest PASS, exit 0. Confirmed argv gate (--optselftest vs main()) is either/or with zero git diff to tamper-verdicts.jsonl or the conformance path after running the flag. Confirmed selfcheck-m1.mjs step (c) wires execFileSync + fail()-on-nonzero-exit + stdout regex check for the PASS string. Additionally red-teamed the self-test itself by mutating the > branch to a no-op and the default-throw branch to silent-swallow in throwaway scratch copies outside the repo (not committed, cleaned up); both mutants were correctly caught with exit 1 and clear diagnostics, proving the self-test has real discriminating power and is not a trivial pass. No other quality findings in the changed-file set (selfcheck-m1.mjs, tamper.mjs diff; tamper-verdicts.jsonl unchanged content-wise by this run).",
+      "createdAt": "2026-07-05T18:23:57.654Z",
+      "reviewRound": "2026-07-05T18:21:26.500Z",
+      "reviewRunId": "B-bae9:RR-012",
+      "_hash": "018a164389c478413a09ad7d8cd51d7081e8709bb5e198a6fd37e4646086dd4f"
+    },
+    {
+      "id": "B-bae9:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 concept-cleanup check on f636e40cf (F-005 fix): pure test-only addition, no concept deletion/replacement so no repo-wide residue grep applicable. Verified: commit touches only selfcheck-m1.mjs + tamper.mjs (no M0 files exist/touched anywhere in story range); tamper-verdicts.jsonl untouched by this commit; normal main() path preserved via argv guard (if --optselftest ... else main()) replacing bare main(); execFileSync import for the new step (c) call already existed (no dangling import); ran node tamper.mjs --optselftest directly -> exit 0, prints exact string selfcheck-m1.mjs checks for. No blocker.",
+      "createdAt": "2026-07-05T18:25:11.305Z",
+      "reviewRound": "2026-07-05T18:21:26.500Z",
+      "reviewRunId": "B-bae9:RR-014",
+      "_hash": "412f3fa13ef63123dcee564597d7f4ce2da8293cd8fcd91d2512c2460ea49527"
+    },
+    {
+      "id": "B-bae9:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: F-005 resolved — new --optselftest exercises all compareFingerprint predicate branches (==,<,>,!=,unknown-op-throw) and is wired as selfcheck-m1 step (c); independently ran optselftest (PASS) and lattice validate (allPass=true, missingRequired=0); verificationIntent<->verificationEvidence coverage confirmed for all CHK-001/002/003 must-intents, no blocker.",
+      "createdAt": "2026-07-05T18:25:28.674Z",
+      "reviewRound": "2026-07-05T18:21:26.500Z",
+      "reviewRunId": "B-bae9:RR-013",
+      "_hash": "e2542c6fc6ebe7a1817dbdcc04b8bf498a793350e3fecb03457e770a704aa9c0"
+    }
+  ]
+}

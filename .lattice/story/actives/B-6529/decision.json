@@ -1,0 +1,82 @@
+{
+  "principles": [
+    "Do not optimize for the sake of optimization; only change the launch boundary that blocks real Cell 03 progress.",
+    "Do not use arbitrary pre-run dollar guesses as correctness gates.",
+    "Keep provider execution evidence distinct from authorization-envelope evidence.",
+    "Keep estimates, provider-reported usage, and derived cost mechanically separate.",
+    "Preserve Cell 03-only scope and keep later cells blocked."
+  ],
+  "drivers": [
+    "The user explicitly rejected manual budget guessing and wants actual spend calculated after task execution.",
+    "Provider calls must not be made from this authorization story; the story can only prepare a bounded execution envelope.",
+    "Existing artifacts and checker currently assume missing budget fields keep provider execution disabled, so the state model must be updated carefully."
+  ],
+  "options": [
+    {
+      "name": "Keep dollar hard cap as launch gate",
+      "pros": [
+        "Simple to check",
+        "Matches the old B-c25c guardrail wording"
+      ],
+      "cons": [
+        "Forces the user to guess a budget before knowing actual cost",
+        "Does not match the new user requirement",
+        "Can block legitimate Cell 03 progress for an arbitrary number"
+      ]
+    },
+    {
+      "name": "Remove all budget and execution limits",
+      "pros": [
+        "Maximizes speed to provider execution",
+        "No budget prompt to the user"
+      ],
+      "cons": [
+        "Allows unbounded retry or token loops",
+        "Makes postflight spend surprises possible",
+        "Weakens Proofbound execution safety"
+      ]
+    },
+    {
+      "name": "Use frozen execution envelope plus postflight usage accounting",
+      "pros": [
+        "Avoids arbitrary dollar guessing",
+        "Bounds execution by scope, rows, retries, timeout, and token/output limits",
+        "Keeps actual provider usage as postflight truth",
+        "Preserves Cell 03-only protocol discipline"
+      ],
+      "cons": [
+        "Does not itself run provider calls",
+        "Requires a later execution step to consume the envelope"
+      ]
+    }
+  ],
+  "chosen": "Use frozen execution envelope plus postflight usage accounting",
+  "rationale": "This matches the user correction while preserving correctness: Cell 03 can be prepared for real execution without using an arbitrary pre-run dollar amount as the gate, and actual spend is recorded after execution from provider-reported usage.",
+  "preMortem": [
+    {
+      "scenario": "The envelope accidentally enables provider calls from this story.",
+      "trigger": "providerCallEnabled or result rows are set true in B-6529 artifacts.",
+      "consequence": "Authorization evidence is confused with execution evidence.",
+      "mitigation": "Checker must assert provider calls from this authorization story remain disabled and no outcome rows exist."
+    },
+    {
+      "scenario": "Dollar cap is removed but retry/token/time bounds are also missing.",
+      "trigger": "Execution envelope omits maxRetries, timeout, or token/output limits.",
+      "consequence": "The future provider execution can run unbounded even without a dollar cap.",
+      "mitigation": "Checker must require execution bounds and reject unbounded retry loops."
+    },
+    {
+      "scenario": "Estimate is treated as final usage.",
+      "trigger": "Usage accounting policy merges preflight estimates with provider-reported final usage.",
+      "consequence": "Cost comparison becomes misleading and paper evidence can overclaim.",
+      "mitigation": "Policy and checker must keep estimate, provider-reported usage, and derived cost fields separate."
+    },
+    {
+      "scenario": "Later cells are accidentally unlocked.",
+      "trigger": "Cell 06 or other cell state changes during Cell 03 envelope work.",
+      "consequence": "Protocol ordering is broken.",
+      "mitigation": "Checker keeps Cell 06 blocked and rejects Cell 02/04/Phase 2 authorization in this story."
+    }
+  ],
+  "timestamp": "2026-07-05T21:32:40.738Z"
+}

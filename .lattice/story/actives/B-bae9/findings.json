@@ -1,0 +1,112 @@
+{
+  "findings": [
+    {
+      "id": "B-bae9:F-001",
+      "desc": "[codex-host-2, verified] Pass-bucket mutations can no-op and still 'conform'. For acceptanceBucket/acknowledgedLimitations classes (expected status:pass), tamper.mjs asserts verifyStatus==pass + fingerprintMatch against the frozen pass fingerprint, but does NOT assert the mutation actually CHANGED the corpus. If a malicious mutation silently no-ops (e.g. gold-weaken-expectedids finds no query with expectedIds.length>1), verify passes on the CLEAN corpus and the clean fingerprint equals the acknowledged-limitation pass fingerprint -> the harness emits conforming H2 blind-spot evidence for a tamper that was never applied. Fix: re-derive the byte-diff signal (records/gold/manifest changed vs clean) per class and assert the mutation genuinely applied (non-dropped classes MUST change the corpus), failing loudly on a no-op.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex-host-2",
+      "createdAt": "2026-07-05T17:42:36.076Z",
+      "reviewRound": "2026-07-05T17:33:39.259Z",
+      "_hash": "cc46bc9a0b6def78cdf93687a06fdb3ef4b07ebf079e741e0054444320483499",
+      "files": [
+        "experiments/pos-instrument-replay/tamper.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|codex-host-verified",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 4fadf4f40. tamper.mjs now computes a per-class byteDiff vs clean and re-derives the M0 disposition; every non-dropped class must show a real byteDiff (records/gold/manifest changed) or it fails loudly — a silent no-op can no longer masquerade as a conforming blind spot. Verified: no-op mutations=0.",
+      "resolvedAt": "2026-07-05T17:59:58.688Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-bae9:F-002",
+      "desc": "[codex-host-2, verified] dropped entries bypass the dropped-semantics check. For the dropped class (seed-swap[refreshed]) tamper.mjs records fingerprintMatch:null, takes disposition from the frozen bucket, and checks only verifyStatus==pass. If the mutation drifts to a no-op or another pass-producing change (e.g. gold-additive-field), it is silently mis-recorded as a valid dropped case. Fix: for dropped, assert the DEFINING property — records.jsonl AND gold-queries.json byte-identical to clean (only manifest metadata changed) — not merely verifyStatus==pass.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex-host-2",
+      "createdAt": "2026-07-05T17:42:36.629Z",
+      "reviewRound": "2026-07-05T17:33:39.259Z",
+      "_hash": "60d1b8887468b543560650e032e8fc0326ba6c749727172f2f5ad0050a37c12f",
+      "files": [
+        "experiments/pos-instrument-replay/tamper.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|codex-host-verified",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 4fadf4f40. dropped classes now assert the defining property (records.jsonl AND gold-queries.json byte-identical to clean) instead of only verifyStatus==pass; drift to a pass-producing change fails loudly. Verified: dropped-semantics violations=0 (seed-swap recordsChanged=false goldChanged=false).",
+      "resolvedAt": "2026-07-05T17:59:59.155Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-bae9:F-003",
+      "desc": "CHK-001:adversarial:0 (priority=should) has no bound verificationEvidence — validate reports status:missing for this intentRef. Independently confirmed the underlying claim is TRUE (27 unique iterationIds in tamper-verdicts.jsonl, each matching protocol.iterationIdRule format tamper/<scale>/<class>/<manifestHandling>; all 27 frozen tamperMatrix classes appear exactly once, 0 missing/0 extra/0 duplicates), but no verificationEvidence entry was ever recorded against CHK-001:adversarial:0 to bind that proof into the audit trail. Advisory (should-priority, not a must-gap): add a verificationEvidence entry for CHK-001:adversarial:0 citing this check so validate stops reporting it missing.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-05T17:43:49.473Z",
+      "reviewRound": "2026-07-05T17:33:39.259Z",
+      "reviewRunId": "B-bae9:RR-005",
+      "_hash": "cd752d5a57cb8b3ba3bd6eeb5841eaa12e17dc238837bde9ed3b54e3f79ad998",
+      "files": [
+        "experiments/pos-instrument-replay/tamper.mjs",
+        "experiments/pos-instrument-replay/tamper-verdicts.jsonl",
+        "experiments/pos-instrument-replay/protocol.json"
+      ],
+      "signatureTag": "missing|mjs|adversarial-priority-bound",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed. CHK-001:adversarial:0 now has bound verification evidence: 27 lines / 27 unique iterationIds (tamper/small/<class>/<handling>), every frozen-matrix class exactly once, 0 dup/missing/extra.",
+      "resolvedAt": "2026-07-05T17:59:59.619Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-bae9:F-004",
+      "desc": "conformance-logic-gap: tamper.mjs:277-332 compareFingerprint() only special-cases frozen metric predicate op==\"<\" (threshold form); build-protocol.mjs:136-150 metricPredicate() can also emit op:\">\" (false-surface-rate gold=0 cases) and an op:\"!=\" fallback form, but compareFingerprint has no branch for \">\" or \"!=\" and silently falls through to raw epsilon equality against the frozen VALUE for those forms (no threshold-direction check at all). Verified against the committed protocol.json: only \"==\" and \"<\" ops actually occur today (no false-surface metric ever went above 0 in this matrix), so this does not currently cause a false PASS or false FAIL. But the code comment at tamper.mjs:17-21 and 262-271 claims the comparison \"honor[s] the frozen predicate form\" for numeric metrics generally, which is not implemented for \">\"/\"!=\". If protocol.json is ever regenerated against different fixtures and a false-surface metric produces an observed value >0 (a genuinely malicious tamper this instrument is meant to catch), compareFingerprint would not enforce the \">\" threshold direction — only numeric closeness to the frozen value — a latent correctness gap in the exact logic (predicate-form fidelity) this M1 harness exists to police.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-05T17:44:18.882Z",
+      "reviewRound": "2026-07-05T17:33:39.259Z",
+      "reviewRunId": "B-bae9:RR-006",
+      "_hash": "a191dfa7e0020037ac3c65130b5a1396b6fa1065743c7d788a70dd6f8ce2e079",
+      "signatureTag": "missing|unknown|conformance-logic-tamper",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 4fadf4f40. compareFingerprint now handles ==, <, >, != with epsilon+threshold guards and THROWS on any unrecognized op (no more silent epsilon-equality for >/!=). Only ==/< occur in today's frozen protocol so current behavior is unchanged; the latent gap is closed and the overclaiming comments corrected.",
+      "resolvedAt": "2026-07-05T18:00:00.124Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-bae9:F-005",
+      "desc": "quality: experiments/pos-instrument-replay/tamper.mjs:370-405 -- compareFingerprint's new numeric predicate branches for op '>' and op 'not-equal' (plus the default:throw-on-unknown-op branch) are never exercised by any test. The frozen protocol.json's 27 tamperMatrix entries only ever produce failureSignals with op 'equals' (4 entries) or op 'less-than' (12 entries) -- zero entries use the 'greater-than' or 'not-equal' ops (confirmed by iterating protocol.json's tamperMatrix programmatically). selfcheck-m1.mjs's negative test (lines 180-256) only flips a boolean flag, not a numeric metric predicate op, so it does not exercise these branches either. F-004's claim that compareFingerprint covers all four predicate ops and throws on an unknown op is true of the written code but 3 of its 4 op branches (greater-than, not-equal, and the throw-on-unknown-op default) are untested -- a latent bug there would not be caught by the current test suite.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-05T18:12:39.475Z",
+      "reviewRound": "2026-07-05T17:59:42.735Z",
+      "reviewRunId": "B-bae9:RR-010",
+      "_hash": "8b49cecce2edaebe8abbae6aa09023cd968c7280b39f259e3d75a8bebfbed05d",
+      "files": [
+        "experiments/pos-instrument-replay/tamper.mjs",
+        "experiments/pos-instrument-replay/selfcheck-m1.mjs"
+      ],
+      "signatureTag": "missing|mjs|quality-experiments-instrument",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in f636e40cf. Added tamper.mjs --optselftest that exercises every compareFingerprint predicate branch (==, <, >, != with match + no-match cases) plus an unknown op that must throw, and wired it as selfcheck-m1.mjs step (c). The >/!=/throw branches are now covered by a committed executable test (selfcheck-m1 (c): 'compareFingerprint ==,<,>,!= branches + unknown-op-throw all verified'). No change to the normal conformance run or tamper-verdicts.jsonl.",
+      "resolvedAt": "2026-07-05T18:21:39.597Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

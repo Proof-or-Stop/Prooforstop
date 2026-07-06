@@ -1,0 +1,197 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-07-05T17:09:08.484Z",
+      "issueCount": 6,
+      "blockerCount": 3,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Build experiments/pos-instrument-replay/tamper.mjs: read the frozen protocol.json tamperMatrix, and for each (class x manifestHandling) apply the mutation to an mkdtemp-isolated copy of a fresh small baseline, run verify via lib/instrument.mjs, and emit an identity-keyed verdict to tamper-verdicts.jsonl with {iterationId, class, manifestHandling, verifyStatus, verifyFlags (full vector), goldMetrics, fingerprintMatch (bool), disposition} + Assert H2 conformance: every fail-closed class yields status:fail AND fingerprintMatch=true; every acceptance-bucket + acknowledged-limitation entry yields status:pass AND fingerprintMatch=true; tamper.mjs exits nonzero on ANY mismatch are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 1 undigested unknowns: Whether re-running each class through the campaign harness reproduces the exact M0 fingerprints (expected yes; deterministic instrument) — verified by the run."
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: experiments/pos-instrument-replay/protocol.json (read-only) is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: experiments/pos-instrument-replay/lib/instrument.mjs (read-only reuse) is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "advisory",
+          "message": "plan.md not found. Normal channel recommends writing plan.md to clarify execution order and dependencies"
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "missing_scope_check: scope-check.json is missing PLAN gate evidence. `scope_check_save` already exists; a lattice-review-scope-plan / scope-plan reviewer must persist the result through `scope_check_save`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not remote completion and must not be presented as receipt verification or production/full completion."
+        }
+      ],
+      "_hash": "ed000aaf2fd6e4297a7acf539c2f678934205113d10ea9b2c1de66e3131c7be7"
+    },
+    {
+      "timestamp": "2026-07-05T17:09:21.098Z",
+      "issueCount": 6,
+      "blockerCount": 3,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Build experiments/pos-instrument-replay/tamper.mjs: read the frozen protocol.json tamperMatrix, and for each (class x manifestHandling) apply the mutation to an mkdtemp-isolated copy of a fresh small baseline, run verify via lib/instrument.mjs, and emit an identity-keyed verdict to tamper-verdicts.jsonl with {iterationId, class, manifestHandling, verifyStatus, verifyFlags (full vector), goldMetrics, fingerprintMatch (bool), disposition} + Assert H2 conformance: every fail-closed class yields status:fail AND fingerprintMatch=true; every acceptance-bucket + acknowledged-limitation entry yields status:pass AND fingerprintMatch=true; tamper.mjs exits nonzero on ANY mismatch are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 1 undigested unknowns: Whether re-running each class through the campaign harness reproduces the exact M0 fingerprints (expected yes; deterministic instrument) — verified by the run."
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: experiments/pos-instrument-replay/protocol.json (read-only) is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: experiments/pos-instrument-replay/lib/instrument.mjs (read-only reuse) is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "advisory",
+          "message": "plan.md not found. Normal channel recommends writing plan.md to clarify execution order and dependencies"
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "missing_scope_check: scope-check.json is missing PLAN gate evidence. `scope_check_save` already exists; a lattice-review-scope-plan / scope-plan reviewer must persist the result through `scope_check_save`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not remote completion and must not be presented as receipt verification or production/full completion."
+        }
+      ],
+      "_hash": "ed5ee9b863aafb3ffe353b7bb20ece1d387d4d57de3b30ab018bdc1ea3f21ea4"
+    },
+    {
+      "timestamp": "2026-07-05T17:09:30.480Z",
+      "issueCount": 6,
+      "blockerCount": 3,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Build experiments/pos-instrument-replay/tamper.mjs: read the frozen protocol.json tamperMatrix, and for each (class x manifestHandling) apply the mutation to an mkdtemp-isolated copy of a fresh small baseline, run verify via lib/instrument.mjs, and emit an identity-keyed verdict to tamper-verdicts.jsonl with {iterationId, class, manifestHandling, verifyStatus, verifyFlags (full vector), goldMetrics, fingerprintMatch (bool), disposition} + Assert H2 conformance: every fail-closed class yields status:fail AND fingerprintMatch=true; every acceptance-bucket + acknowledged-limitation entry yields status:pass AND fingerprintMatch=true; tamper.mjs exits nonzero on ANY mismatch are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 1 undigested unknowns: Whether re-running each class through the campaign harness reproduces the exact M0 fingerprints (expected yes; deterministic instrument) — verified by the run."
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: experiments/pos-instrument-replay/protocol.json (read-only) is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: experiments/pos-instrument-replay/lib/instrument.mjs (read-only reuse) is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "advisory",
+          "message": "plan.md not found. Normal channel recommends writing plan.md to clarify execution order and dependencies"
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "missing_scope_check: scope-check.json is missing PLAN gate evidence. `scope_check_save` already exists; a lattice-review-scope-plan / scope-plan reviewer must persist the result through `scope_check_save`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not remote completion and must not be presented as receipt verification or production/full completion."
+        }
+      ],
+      "_hash": "4e7ba6b0de6d572c41e05192df804d24067447ea94d4556e289617d9c0bfe2e2"
+    },
+    {
+      "timestamp": "2026-07-05T17:10:43.279Z",
+      "issueCount": 4,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Build experiments/pos-instrument-replay/tamper.mjs: read the frozen protocol.json tamperMatrix, and for each (class x manifestHandling) apply the mutation to an mkdtemp-isolated copy of a fresh small baseline, run verify via lib/instrument.mjs, and emit an identity-keyed verdict to tamper-verdicts.jsonl with {iterationId, class, manifestHandling, verifyStatus, verifyFlags (full vector), goldMetrics, fingerprintMatch (bool), disposition} + Assert H2 conformance: every fail-closed class yields status:fail AND fingerprintMatch=true; every acceptance-bucket + acknowledged-limitation entry yields status:pass AND fingerprintMatch=true; tamper.mjs exits nonzero on ANY mismatch are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 1 undigested unknowns: Whether re-running each class through the campaign harness reproduces the exact M0 fingerprints (expected yes; deterministic instrument) — verified by the run."
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "advisory",
+          "message": "plan.md not found. Normal channel recommends writing plan.md to clarify execution order and dependencies"
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "missing_scope_check: scope-check.json is missing PLAN gate evidence. `scope_check_save` already exists; a lattice-review-scope-plan / scope-plan reviewer must persist the result through `scope_check_save`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not remote completion and must not be presented as receipt verification or production/full completion."
+        }
+      ],
+      "_hash": "d7919db3ef59280753854f277e95adb8639f62db2c285dc10e54366bcd1f0131"
+    },
+    {
+      "timestamp": "2026-07-05T17:11:13.220Z",
+      "issueCount": 4,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Build experiments/pos-instrument-replay/tamper.mjs: read the frozen protocol.json tamperMatrix, and for each (class x manifestHandling) apply the mutation to an mkdtemp-isolated copy of a fresh small baseline, run verify via lib/instrument.mjs, and emit an identity-keyed verdict to tamper-verdicts.jsonl with {iterationId, class, manifestHandling, verifyStatus, verifyFlags (full vector), goldMetrics, fingerprintMatch (bool), disposition} + Assert H2 conformance: every fail-closed class yields status:fail AND fingerprintMatch=true; every acceptance-bucket + acknowledged-limitation entry yields status:pass AND fingerprintMatch=true; tamper.mjs exits nonzero on ANY mismatch are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 1 undigested unknowns: Whether re-running each class through the campaign harness reproduces the exact M0 fingerprints (expected yes; deterministic instrument) — verified by the run."
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "advisory",
+          "message": "plan.md not found. Normal channel recommends writing plan.md to clarify execution order and dependencies"
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "missing_scope_check: scope-check.json is missing PLAN gate evidence. `scope_check_save` already exists; a lattice-review-scope-plan / scope-plan reviewer must persist the result through `scope_check_save`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not remote completion and must not be presented as receipt verification or production/full completion."
+        }
+      ],
+      "_hash": "c7b6dc57aeaf50c843e2a73561454a87cf972a55bd17067babafb0512e870d59"
+    },
+    {
+      "timestamp": "2026-07-05T17:11:26.299Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Build experiments/pos-instrument-replay/tamper.mjs: read the frozen protocol.json tamperMatrix, and for each (class x manifestHandling) apply the mutation to an mkdtemp-isolated copy of a fresh small baseline, run verify via lib/instrument.mjs, and emit an identity-keyed verdict to tamper-verdicts.jsonl with {iterationId, class, manifestHandling, verifyStatus, verifyFlags (full vector), goldMetrics, fingerprintMatch (bool), disposition} + Assert H2 conformance: every fail-closed class yields status:fail AND fingerprintMatch=true; every acceptance-bucket + acknowledged-limitation entry yields status:pass AND fingerprintMatch=true; tamper.mjs exits nonzero on ANY mismatch are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 1 undigested unknowns: Whether re-running each class through the campaign harness reproduces the exact M0 fingerprints (expected yes; deterministic instrument) — verified by the run."
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "advisory",
+          "message": "plan.md not found. Normal channel recommends writing plan.md to clarify execution order and dependencies"
+        }
+      ],
+      "_hash": "a7356b09d8dc33565ae7c09cf6c10ff3a2a1e4a1f46184755cc8450b08fecab2"
+    }
+  ]
+}

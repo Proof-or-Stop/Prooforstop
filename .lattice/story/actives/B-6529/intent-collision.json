@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-6529",
+  "id": "IC-20260705214002",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Remove guessed dollar amount as a pre-run launch condition. Keep provider execution controlled by frozen Cell 03 scope, rows, retry/time/token/output limits, prompt/tool digests, dated model snapshots, owner and duplicate policy; record actual provider-reported usage/cost only after execution.",
+  "acceptedInterpretationHash": "sha256:15fdf680b9d2ee9b15aedd60d11680eb92a08cb2ea062c223a79272ab9e319d7",
+  "notes": "This resolves the apparent conflict between safety controls and the user rejection of arbitrary budget caps: control execution by bounded task envelope, not by an invented spend amount.",
+  "createdAt": "2026-07-05T21:40:02.545Z",
+  "updatedAt": "2026-07-05T21:40:02.545Z"
+}

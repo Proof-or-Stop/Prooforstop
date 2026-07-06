@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-bae9",
+  "state": "confirmed",
+  "ledgerHash": "sha256:f4745079c601a390c54385d9b7574adccf011c474fe8713f677024411871a8b5",
+  "milestones": [
+    {
+      "id": "M1-A",
+      "sourceRequirementId": "REQ-001",
+      "claim": "tamper.mjs runs the full frozen matrix on mkdtemp copies and emits identity-keyed tamper-verdicts.jsonl",
+      "doneMeans": "node tamper.mjs writes tamper-verdicts.jsonl with a verdict per (class x manifestHandling)",
+      "requiredEvidence": [],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M1-B",
+      "sourceRequirementId": "REQ-001",
+      "claim": "H2 conformance: every fail-closed class fails closed + matches its frozen fingerprint; acceptance/acknowledged-limitation match their status:pass fingerprints; mismatch exits nonzero",
+      "doneMeans": "tamper.mjs exits 0 with mismatches=0",
+      "requiredEvidence": [],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M1-C",
+      "sourceRequirementId": "REQ-001",
+      "claim": "Hermetic selfcheck proves determinism + detects a corrupted frozen fingerprint",
+      "doneMeans": "node selfcheck-m1.mjs exits 0",
+      "requiredEvidence": [],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:adversarial:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-05T17:08:24.606Z",
+  "updatedAt": "2026-07-05T17:08:25.284Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260705170825",
+    "acceptedInterpretationHash": "sha256:36ca41e7b6b93878631cc77d24e2437b44888c8b35d0bcbe6c9ca229f22db12e",
+    "acceptedAt": "2026-07-05T17:08:25.284Z"
+  }
+}

@@ -453,6 +453,14 @@ Behavior:
     storyId: z.string().min(1).describe('Story ID to inspect.'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text).'),
   }},
+  { name: 'capability_release_list', description: 'List non-runtime product capability release provenance records', schema: {
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text).'),
+    limit: z.number().int().positive().optional().describe('Maximum number of recent records to show (default 20, max 200).'),
+  }},
+  { name: 'capability_release_status', description: 'Show non-runtime product capability release provenance records for one Story', schema: {
+    storyId: z.string().min(1).describe('Story ID to inspect.'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text).'),
+  }},
   { name: 'scope_boundary_set', description: 'Save the user-confirmed allowed/excluded scope boundary for the INIT_CHECK gate', schema: {
     storyId: z.string().min(1).describe('Story ID'),
     mode: z.enum(['correctness_fix', 'feature', 'maintenance', 'custom']).optional().describe('Scope boundary mode; correctness_fix enables default future-capability keyword exclusions.'),

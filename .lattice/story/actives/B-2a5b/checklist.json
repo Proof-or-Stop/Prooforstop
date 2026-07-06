@@ -1,0 +1,235 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Build experiments/pos-instrument-replay/run-batch.mjs: for each scale in {small,full}, run N (from protocol.json) independent generate+verify cycles into fresh mkdtemp dirs, appending one identity-keyed proof-or-stop record per iteration to batch-ledger.jsonl (proof: iterationId/arm/scale/verifyStatus/verifyFlags/digests{records,gold,manifest}/goldMetrics/elapsedMs/endOfRunRss/env/recordDigest; stop: iterationId/stopReason/rawError?/env/recordDigest). recordDigest = sha256 of canonical JSON with recordDigest absent",
+      "context": "iterationId = replay/<scale>/<index> (index 1..N) per protocol.iterationIdRule. Digests sourced from the generation-side result. Reuse lib/instrument.mjs. A verify crash maps to a stop record with stopReason=verify_crash. Append-only: never rewrite an existing ledger line.",
+      "status": "done",
+      "startTime": "2026-07-05T18:42:33.609Z",
+      "endTime": "2026-07-05T18:45:23.579Z",
+      "userSees": "node experiments/pos-instrument-replay/run-batch.mjs prints per-iteration progress and writes batch-ledger.jsonl (one identity-keyed proof/stop record per iteration across small N=30 + full N=3); ends 'campaign complete: <N> records, 0 recordless'.",
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/pos-instrument-replay/run-batch.mjs",
+          "experiments/pos-instrument-replay/batch-ledger.jsonl"
+        ],
+        "test": [
+          "experiments/pos-instrument-replay/selfcheck-m2.mjs",
+          "experiments/pos-instrument-replay/protocol.json",
+          "experiments/pos-instrument-replay/lib/instrument.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node run-batch.mjs runs N generate+verify cycles per scale (from protocol.json) into mkdtemp dirs and appends one proof-or-stop record per iteration to batch-ledger.jsonl with iterationId, verifyStatus, verifyFlags, generation-side digests, goldMetrics, elapsedMs, endOfRunRss, env, recordDigest",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "digests are sourced from the generation side; recordDigest = sha256 of canonical JSON with recordDigest absent, re-derivable per record",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "a verify crash (structural corruption) maps to a stop record with stopReason=verify_crash, not a recordless iteration or an uncaught throw",
+            "type": "cli",
+            "priority": "should"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/pos-instrument-replay/run-batch.mjs",
+          "result": "pass",
+          "note": "run-batch.mjs completed the full campaign: batch-ledger.jsonl has 33 identity-keyed records (30 small + 3 full 1M cycles), all proof records (0 stop), each with iterationId replay/<scale>/<index>, verifyStatus, verifyFlags, generation-side digests{records,gold,manifest}, goldMetrics, elapsedMs, endOfRunRss, env, recordDigest. 0 recordless, exit 0.",
+          "headHash": "8513707f737228183c6322e38da22bbecb547c72",
+          "materialHash": "b5f05fa8c03d64bdf6c912b932fc267e02530e29aaae38544d587bc2416b5b52",
+          "storyFilesHash": "778cc5e6513c98a7773be024408545936074e32f72563d182da04d4ebfbdd485",
+          "timestamp": "2026-07-05T19:51:56.951Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node -e \"const L=require('fs').readFileSync('experiments/pos-instrument-replay/batch-ledger.jsonl','utf8').trim().split('\\n').map(JSON.parse);/*re-derive recordDigest*/console.log(L.length)\"",
+          "result": "pass",
+          "note": "Digests sourced from the generation-side manifest; all 33 recordDigests independently re-derive (sha256 of canonical JSON with recordDigest absent) per protocol.recordDigestPreimageRule; 33 unique iterationIds.",
+          "headHash": "8513707f737228183c6322e38da22bbecb547c72",
+          "materialHash": "b5f05fa8c03d64bdf6c912b932fc267e02530e29aaae38544d587bc2416b5b52",
+          "storyFilesHash": "778cc5e6513c98a7773be024408545936074e32f72563d182da04d4ebfbdd485",
+          "timestamp": "2026-07-05T19:51:56.951Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/pos-instrument-replay/selfcheck-m2.mjs",
+          "result": "pass",
+          "note": "verify_crash mapping now exercised: selfcheck-m2 (d) GENERATE-CRASH forces a generate throw at replay/small/1 -> run-batch produces exactly one verify_crash STOP record for that iteration (not recordless, not an uncaught crash) and exits 0. Any generate OR verify crash maps to a verify_crash stop per the frozen stopReasonEnum.",
+          "headHash": "8513707f737228183c6322e38da22bbecb547c72",
+          "materialHash": "b5f05fa8c03d64bdf6c912b932fc267e02530e29aaae38544d587bc2416b5b52",
+          "storyFilesHash": "778cc5e6513c98a7773be024408545936074e32f72563d182da04d4ebfbdd485",
+          "timestamp": "2026-07-05T19:51:56.951Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Proof-or-stop + lockfile discipline: every iteration ends in EXACTLY one record (proof XOR stop); the driver takes a lockfile so a concurrent second driver records precondition_failed instead of corrupting the ledger; run-batch.mjs exits nonzero if any iteration ends recordless",
+      "context": "The lockfile is released on clean exit. The recordless-exit-nonzero property is load-bearing (a missing record must never be silently tolerated). H1 evidence = pairwise records/gold/manifest digest + gold-metric equality across the proof records at each scale; H4 evidence = each proof record elapsedMs within budgetCapMsPerVerify OR a budget_cap stop.",
+      "status": "done",
+      "startTime": "2026-07-05T18:51:49.452Z",
+      "endTime": "2026-07-05T18:52:03.599Z",
+      "userSees": "run-batch.mjs exits 0 only when every iteration produced exactly one record (prints '0 recordless'); H1: replay proof records per scale are pairwise digest+metric identical; a concurrent second run-batch prints 'precondition_failed (lock held)' and records that stop; a recordless iteration forces nonzero exit.",
+      "files": {
+        "modify": [
+          "experiments/pos-instrument-replay/run-batch.mjs"
+        ],
+        "create": [],
+        "test": [
+          "experiments/pos-instrument-replay/selfcheck-m2.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "every iteration ends in EXACTLY one record (proof XOR stop); H1 = pairwise records/gold/manifest digest + gold-metric equality across the replay proof records at each scale (0 drift)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "H4 = every proof record elapsedMs within budgetCapMsPerVerify OR an explicit budget_cap stop; the driver holds a lockfile released on clean exit",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "a concurrent second driver records precondition_failed via the lockfile (does not corrupt the ledger); a recordless iteration makes run-batch exit nonzero",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/pos-instrument-replay/run-batch.mjs",
+          "result": "pass",
+          "note": "Every iteration ended in exactly one record (33 records / 33 unique iterationIds / 0 recordless). H1 = pairwise records/gold/manifest digest + gold-metric equality across replay proof records PER SCALE: small n=30 distinct-digest-sets=1 (PAIRWISE-EQUAL), full n=3 distinct-digest-sets=1 (PAIRWISE-EQUAL) — replay determinism confirmed.",
+          "headHash": "8513707f737228183c6322e38da22bbecb547c72",
+          "materialHash": "b5f05fa8c03d64bdf6c912b932fc267e02530e29aaae38544d587bc2416b5b52",
+          "storyFilesHash": "778cc5e6513c98a7773be024408545936074e32f72563d182da04d4ebfbdd485",
+          "timestamp": "2026-07-05T19:51:56.951Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node -e \"const L=require('fs').readFileSync('experiments/pos-instrument-replay/batch-ledger.jsonl','utf8').trim().split('\\n').map(JSON.parse);const cap=128217;console.log('over-cap:',L.filter(r=>r.elapsedMs>cap).length,'maxElapsed:',Math.max(...L.map(r=>r.elapsedMs||0)))\"",
+          "result": "pass",
+          "note": "H4 scale envelope: every proof record elapsedMs within budgetCapMsPerVerify (128217); 0 over-cap, max elapsed 19538ms; 0 budget_cap stops in the real campaign. The driver holds a mkdir lockfile released on clean exit.",
+          "headHash": "8513707f737228183c6322e38da22bbecb547c72",
+          "materialHash": "b5f05fa8c03d64bdf6c912b932fc267e02530e29aaae38544d587bc2416b5b52",
+          "storyFilesHash": "778cc5e6513c98a7773be024408545936074e32f72563d182da04d4ebfbdd485",
+          "timestamp": "2026-07-05T19:51:56.951Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/pos-instrument-replay/selfcheck-m2.mjs",
+          "result": "pass",
+          "note": "The proof-or-stop discipline is now structurally un-gameable: runIteration guards the ENTIRE lifecycle (mkdtemp+generate+verify+build+append+cleanup) -> any throw becomes a verify_crash stop; main() runs the STRICT exact-multiset end-of-run guard in a finally-backstop so an escaped crash still forces a named NONZERO exit (never exit-0 with a missing record). selfcheck (e) confirms both a pre-body mkdtemp crash and a post-body append crash map to a verify_crash stop. Lock-blocked driver -> separate blocked-ledger; guard rejects extra/missing/dup.",
+          "headHash": "d24ef1d04b6088c75a5e84be5d2abceb093a4bd4",
+          "materialHash": "b5f05fa8c03d64bdf6c912b932fc267e02530e29aaae38544d587bc2416b5b52",
+          "storyFilesHash": "778cc5e6513c98a7773be024408545936074e32f72563d182da04d4ebfbdd485",
+          "timestamp": "2026-07-05T19:51:57.589Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add a hermetic mkdtemp-isolated selfcheck (selfcheck-m2.mjs) that exercises the budget_cap stop path with an injected sub-second cap, asserts a concurrent second driver gets precondition_failed via the lockfile, and asserts a recordless iteration forces a nonzero exit",
+      "context": "Per plan section 7 selfchecks: the M2 selfcheck exercises the budget_cap stop path with an injected sub-second cap. Also negative-tests the lockfile (second driver -> precondition_failed) and the recordless-exit-nonzero guard. Hermetic: mkdtemp isolation, run by node <file>, small scale only for speed.",
+      "status": "done",
+      "startTime": "2026-07-05T18:45:24.179Z",
+      "endTime": "2026-07-05T18:52:04.158Z",
+      "userSees": "node experiments/pos-instrument-replay/selfcheck-m2.mjs exits 0 with 'selfcheck-m2 PASS': an injected sub-second budget cap forces a budget_cap stop record; a concurrent driver gets precondition_failed; a recordless iteration forces nonzero exit.",
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/pos-instrument-replay/selfcheck-m2.mjs"
+        ],
+        "test": [
+          "experiments/pos-instrument-replay/selfcheck-m2.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node selfcheck-m2.mjs runs hermetically (mkdtemp, small scale) and exits 0 with PASS",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "an injected sub-second budget cap makes an iteration record a budget_cap stop (the H4 stop path)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "lockfile negative test (concurrent driver -> precondition_failed) AND recordless-iteration -> nonzero exit are both exercised",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/pos-instrument-replay/selfcheck-m2.mjs",
+          "result": "pass",
+          "note": "node selfcheck-m2.mjs exits 0 'selfcheck-m2 PASS' with 5 sub-checks: (a) budget_cap, (b) lockfile->separate blocked-ledger, (c) recordless, (d) generate-crash->verify_crash-stop, (e) pre-body-crash (mkdtemp + append injections) -> verify_crash-stop with no silent miss.",
+          "headHash": "c2653d4007266b4a47c6507b76e05e1b77dfb3ec",
+          "materialHash": "b5f05fa8c03d64bdf6c912b932fc267e02530e29aaae38544d587bc2416b5b52",
+          "storyFilesHash": "778cc5e6513c98a7773be024408545936074e32f72563d182da04d4ebfbdd485",
+          "timestamp": "2026-07-05T19:51:58.183Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/pos-instrument-replay/selfcheck-m2.mjs",
+          "result": "pass",
+          "note": "selfcheck-m2 (a) BUDGET_CAP: with POS_BUDGET_CAP_MS=1 injected, 30/30 small iterations record a budget_cap stop (the H4 stop path exercised).",
+          "headHash": "8513707f737228183c6322e38da22bbecb547c72",
+          "materialHash": "b5f05fa8c03d64bdf6c912b932fc267e02530e29aaae38544d587bc2416b5b52",
+          "storyFilesHash": "778cc5e6513c98a7773be024408545936074e32f72563d182da04d4ebfbdd485",
+          "timestamp": "2026-07-05T19:51:56.951Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/pos-instrument-replay/selfcheck-m2.mjs",
+          "result": "pass",
+          "note": "Un-gameable proof-or-stop: (b) lockfile (separate ledger, exit 3), (c) recordless (exit 1 named), (d) generate-crash, (e) pre-body-crash (mkdtemp/append) all fail loudly if the discipline regresses; the finally-backstop end-of-run guard guarantees the driver NEVER exits 0 with a missing/extra/dup record.",
+          "headHash": "d0a1fc02214eb19827993c9dda31c287d2143ed8",
+          "materialHash": "b5f05fa8c03d64bdf6c912b932fc267e02530e29aaae38544d587bc2416b5b52",
+          "storyFilesHash": "778cc5e6513c98a7773be024408545936074e32f72563d182da04d4ebfbdd485",
+          "timestamp": "2026-07-05T19:51:58.782Z"
+        }
+      ]
+    }
+  ]
+}

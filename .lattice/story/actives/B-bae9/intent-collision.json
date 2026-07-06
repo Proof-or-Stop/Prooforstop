@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-bae9",
+  "id": "IC-20260705170825",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "M1 = build the tamper-matrix campaign harness (tamper.mjs) that reads the frozen protocol.json and emits tamper-verdicts.jsonl asserting H2 conformance, plus a hermetic selfcheck, under experiments/pos-instrument-replay/. It does NOT build the replay driver (M2), resume probe (M3), or analyzer (M4), and does not modify the instrument or rewrite the frozen protocol.",
+  "acceptedInterpretationHash": "sha256:36ca41e7b6b93878631cc77d24e2437b44888c8b35d0bcbe6c9ca229f22db12e",
+  "notes": "Single coherent interpretation fixed by plan section 8 M1 row.",
+  "ledgerHashBeforeDecision": "sha256:f4745079c601a390c54385d9b7574adccf011c474fe8713f677024411871a8b5",
+  "confirmedLedgerHash": "sha256:f4745079c601a390c54385d9b7574adccf011c474fe8713f677024411871a8b5",
+  "createdAt": "2026-07-05T17:08:25.282Z",
+  "updatedAt": "2026-07-05T17:08:25.282Z"
+}
