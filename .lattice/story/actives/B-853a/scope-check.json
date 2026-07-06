@@ -1,178 +1,192 @@
 {
   "storyId": "B-853a",
-  "checkedAt": "2026-07-06T07:12:48.430Z",
+  "checkedAt": "2026-07-06T07:17:14.206Z",
   "features": [
     {
-      "feature": "Analyzer reads batch-ledger.jsonl (H1/H4 source)",
+      "feature": "Analyzer reads the four committed evidence streams (batch-ledger.jsonl, tamper-verdicts.jsonl, resume-reconciliation.json) plus protocol.json",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": "",
-      "source": "decisions:proof-or-stop-evidence-instrument-replay-execution-plan.md"
+      "source": "description"
     },
     {
-      "feature": "Analyzer reads tamper-verdicts.jsonl (H2 source)",
+      "feature": "Adjudicate each hypothesis H1/H2/H3/H4 to a three-state verdict (pass|fail|inconclusive)",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": "",
-      "source": "decisions:proof-or-stop-evidence-instrument-replay-execution-plan.md"
+      "source": "description"
     },
     {
-      "feature": "Analyzer reads resume-reconciliation.json (H3 source)",
+      "feature": "Emit report.json + human-readable report.md",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": "",
-      "source": "decisions:proof-or-stop-evidence-instrument-replay-execution-plan.md"
+      "source": "description"
     },
     {
-      "feature": "Analyzer reads protocol.json (fingerprints, cross-product, env pins)",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": "",
-      "source": "decisions:proof-or-stop-evidence-instrument-replay-execution-plan.md"
-    },
-    {
-      "feature": "H1 adjudication: pairwise digest equality across replay proof records per scale, three-state incl. not-evaluable on any stop record",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": "",
-      "source": "decisions:proof-or-stop-evidence-instrument-replay-execution-plan.md"
-    },
-    {
-      "feature": "H2 adjudication: per-class fingerprint match against protocol.json, three-state incl. not-evaluable on harness precondition failure",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": "",
-      "source": "decisions:proof-or-stop-evidence-instrument-replay-execution-plan.md"
-    },
-    {
-      "feature": "H3 adjudication: identity-multiset reconciliation (0 dup/0 gap), casualty resolves to stop-or-rerun",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": "",
-      "source": "decisions:proof-or-stop-evidence-instrument-replay-execution-plan.md"
-    },
-    {
-      "feature": "H4 adjudication: cap-vs-stop accounting (silent breach without stop record = falsified)",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": "",
-      "source": "decisions:proof-or-stop-evidence-instrument-replay-execution-plan.md"
-    },
-    {
-      "feature": "report.json emitted",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": "",
-      "source": "decisions:proof-or-stop-evidence-instrument-replay-execution-plan.md"
-    },
-    {
-      "feature": "report.md (human-readable) emitted",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": "",
-      "source": "decisions:proof-or-stop-evidence-instrument-replay-execution-plan.md"
-    },
-    {
-      "feature": "Analyzer is offline-only: reads ONLY committed ledger/protocol files, never re-executes the instrument or calls the lattice CLI",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": "",
-      "source": "decisions:proof-or-stop-evidence-instrument-replay-execution-plan.md"
-    },
-    {
-      "feature": "Per-record recordDigest re-derivation runs FIRST; any mismatch aborts the verdict with a named record id",
-      "covered_by": "",
-      "status": "gap",
-      "excluded_by": "",
-      "source": "decisions:proof-or-stop-evidence-instrument-replay-execution-plan.md"
-    },
-    {
-      "feature": "Report content digest = sha256(canonicalJson(report minus digest field))",
+      "feature": "Report carries a reproducible digest = sha256(canonicalJson(report minus digest)); re-run on same inputs yields byte-identical report+digest",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": "",
-      "source": "decisions:proof-or-stop-evidence-instrument-replay-execution-plan.md"
+      "source": "description"
     },
     {
-      "feature": "Digest reproducibility: re-running analyzer on same ledger reproduces the same report digest (byte-identical report.json/report.md)",
-      "covered_by": "CHK-002",
-      "status": "covered",
-      "excluded_by": "",
-      "source": "decisions:proof-or-stop-evidence-instrument-replay-execution-plan.md"
-    },
-    {
-      "feature": "No-overclaim text: section 3 claim text embedded verbatim in report.md, ONLY if all four hypotheses are supported",
-      "covered_by": "",
-      "status": "gap",
-      "excluded_by": "",
-      "source": "decisions:proof-or-stop-evidence-instrument-replay-execution-plan.md"
-    },
-    {
-      "feature": "If any hypothesis falsified/not-evaluable, report states it plainly with the machine-readable reason (three-state reporting)",
+      "feature": "Analyzer never re-executes the instrument and never calls the lattice CLI (purely offline)",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": "",
-      "source": "decisions:proof-or-stop-evidence-instrument-replay-execution-plan.md"
+      "source": "description"
     },
     {
-      "feature": "Final summary lists any instrument defect found by the campaign",
-      "covered_by": "",
-      "status": "gap",
-      "excluded_by": "",
-      "source": "decisions:proof-or-stop-evidence-instrument-replay-execution-plan.md"
-    },
-    {
-      "feature": "Hermetic selfcheck-m4.mjs (mkdtemp-isolated) proving the three-state logic is un-gameable",
+      "feature": "Hermetic selfcheck-m4.mjs asserts the three-state derivation is correct and un-gameable (tampered/missing/insufficient evidence -> inconclusive or fail, never a false pass)",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": "",
-      "source": "decisions:proof-or-stop-evidence-instrument-replay-execution-plan.md"
+      "source": "description"
     },
     {
-      "feature": "Selfcheck asserts tampered/truncated/missing/insufficient evidence yields inconclusive or fail, NEVER a false pass",
+      "feature": "Genuine Codex cross-host pass independently replicates the report digest",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": "",
-      "source": "decisions:proof-or-stop-evidence-instrument-replay-execution-plan.md"
+      "source": "description"
     },
     {
-      "feature": "Cross-host replication: Codex independently re-runs analyze-batch.mjs against the committed ledger and reproduces the report digest",
+      "feature": "H1 replay-determinism: pairwise digest/gold-metric equality across replay proof records per scale; a stop record makes H1 not-evaluable at that scale",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "decisions:decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md"
+    },
+    {
+      "feature": "H2 tamper-fail-closed: adjudicated via per-class fingerprint match against protocol.json (fail-closed set vs accepted-behavior bucket)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "decisions:decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md"
+    },
+    {
+      "feature": "H3 campaign integrity (proof-or-stop): identity-multiset reconciliation against protocol cross-product, 0 dup/0 gap",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "decisions:decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md"
+    },
+    {
+      "feature": "H4 scale envelope: cap-vs-stop accounting (budget_cap breach must be stop-recorded, never a silent overrun)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "decisions:decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md"
+    },
+    {
+      "feature": "Per-record recordDigest re-verification runs FIRST before adjudication; any mismatch aborts the verdict with the named record id (naively-edited-ledger detection)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "decisions:decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md"
+    },
+    {
+      "feature": "Report includes scale-envelope numbers per section 7 artifact table (elapsed / endOfRunRss per scale/iteration)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "decisions:decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md"
+    },
+    {
+      "feature": "No-overclaim rule: section-3 claim text embedded verbatim in report.md ONLY when all four hypotheses are supported",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "decisions:decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md"
+    },
+    {
+      "feature": "When any hypothesis is falsified/not-evaluable, report states it plainly with the machine-readable reason (no claim text embedded)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "decisions:decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md"
+    },
+    {
+      "feature": "Final summary lists any instrument defect found by the campaign (per DoD section 12)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "decisions:decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md"
+    },
+    {
+      "feature": "Codex cross-host replication at M4: independently re-runs analyze-batch.mjs against the committed ledger and reproduces the report digest (section 6.5 item 3)",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": "",
-      "source": "decisions:proof-or-stop-evidence-instrument-replay-execution-plan.md"
+      "source": "decisions:decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md"
     },
     {
-      "feature": "Scale envelope reporting in report.json/report.md (elapsed / endOfRunRss per section 7 artifact table)",
-      "covered_by": "",
-      "status": "gap",
-      "excluded_by": "",
-      "source": "decisions:proof-or-stop-evidence-instrument-replay-execution-plan.md"
-    },
-    {
-      "feature": "Adversarial ledger integrity (cryptographic signing / defeating a self-recomputing editor) is out of scope — Tier-C, not this milestone",
+      "feature": "M0 protocol freeze, tamper-class viability check, and cost calibration (protocol.json)",
       "covered_by": "",
       "status": "excluded",
-      "excluded_by": "spec section 3 claim boundary: adversarial ledger integrity is explicitly Tier-C, referenced not implemented here",
-      "source": "decisions:proof-or-stop-evidence-instrument-replay-execution-plan.md"
+      "excluded_by": "Out of scope for this story: milestone M0 is a separate upstream Lattice story per section 8 dependency order (M0->M1->M2->M3->M4); B-853a is scoped to M4 only and consumes protocol.json as a pre-existing input",
+      "source": "decisions:decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md"
     },
     {
-      "feature": "Re-running the instrument or calling the lattice CLI from the analyzer is out of scope",
+      "feature": "M1 tamper-class matrix harness (tamper.mjs) producing tamper-verdicts.jsonl",
       "covered_by": "",
       "status": "excluded",
-      "excluded_by": "CHK-001 context/nature: analyzer is offline-only by construction; spec section 6.4 reads ONLY ledger + per-run artifacts",
-      "source": "decisions:proof-or-stop-evidence-instrument-replay-execution-plan.md"
+      "excluded_by": "Out of scope for this story: milestone M1 is a separate upstream story; B-853a (M4) only consumes the committed tamper-verdicts.jsonl as a fixture input",
+      "source": "decisions:decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md"
+    },
+    {
+      "feature": "M2 replay campaign driver + ledger (run-batch.mjs) producing batch-ledger.jsonl, with lockfile guard and injected budget-cap stop path",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Out of scope for this story: milestone M2 is a separate upstream story; B-853a (M4) only consumes the committed batch-ledger.jsonl as a fixture input",
+      "source": "decisions:decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md"
+    },
+    {
+      "feature": "M3 interrupt/resume idempotence probe (resume-probe.mjs) producing resume-reconciliation.json",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Out of scope for this story: milestone M3 is a separate upstream story; B-853a (M4) only consumes the committed resume-reconciliation.json as a fixture input",
+      "source": "decisions:decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md"
+    },
+    {
+      "feature": "M0 red-team: Codex independently proposes tamper classes and reviews per-class fingerprints (section 6.5 item 1)",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Belongs to M0 (protocol freeze), not M4; out of scope for this story",
+      "source": "decisions:decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md"
+    },
+    {
+      "feature": "M5 optional babysitter transcript-vs-ledger scoring pilot",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Explicitly optional/exploratory (section 8, M5) and excluded from report.json and all claims by design; not part of M4 scope",
+      "source": "decisions:decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md"
+    },
+    {
+      "feature": "Optional second-environment spot-check (claim-scope extension)",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Explicitly optional per section 6.1 item 4, not part of the primary claim or M4 exit criterion",
+      "source": "decisions:decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md"
+    },
+    {
+      "feature": "Loop-engineering /loop operator recipe documentation (section 6.3)",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Belongs to M2 driver milestone deliverable per section 8 exit criterion, not M4 analyzer scope",
+      "source": "decisions:decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md"
     }
   ],
   "summary": {
-    "total": 22,
-    "covered": 15,
-    "excluded": 2,
-    "gaps": 4,
+    "total": 24,
+    "covered": 17,
+    "excluded": 7,
+    "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "418908d91c694c4d944c202db15427fd980fac97e3d7651bdfc75220d19df472",
+  "_hash": "d1a4fa645264f426509062538ab695bbab7fa022191238338105ef774976c5a7",
   "openQuestions": []
 }

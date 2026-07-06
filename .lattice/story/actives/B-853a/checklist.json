@@ -129,6 +129,63 @@
           }
         ]
       }
+    },
+    {
+      "id": "CHK-004",
+      "title": "analyze-batch.mjs re-verifies each input record's integrity (per-record recordDigest; abort with the offending id on mismatch) before adjudication, and report.json/.md include the scale-envelope numbers (elapsed/endOfRunRss per scale), the section-3 claim text verbatim only when overall is all-pass, and any instrument defect found",
+      "context": "Covers execution-plan gaps flagged by the scope-plan review: §6.2/§6.4/§9 input-integrity — re-derive each batch-ledger record's recordDigest = sha256(canonicalJson(record minus recordDigest)) and refuse with the named iterationId on any mismatch (detects a naively-edited ledger) BEFORE adjudicating; §10/§3 no-overclaim — embed the section-3 claim text verbatim in report.md ONLY when all four hypotheses are supported, otherwise state plainly which are fail/inconclusive; §12 DoD — the report lists any instrument defect found (none when clean); §7 artifact table — report includes the per-scale scale-envelope numbers (max elapsedMs, peak endOfRunRss). Makes the analyzer tamper-detecting and the report self-contained + non-overclaiming.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-853a/background.md"
+      ],
+      "userSees": "report.md shows the H1-H4 verdicts, per-scale scale-envelope numbers (max elapsedMs / peak RSS), and — only when overall is all-pass — the verbatim section-3 claim text; a naively-edited ledger record makes analyze-batch abort with that record's iterationId (nonzero exit) instead of emitting a report.",
+      "files": {
+        "modify": [
+          "experiments/pos-instrument-replay/analyze-batch.mjs"
+        ],
+        "create": [],
+        "test": [
+          "experiments/pos-instrument-replay/selfcheck-m4.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "analyze-batch re-verifies every batch-ledger recordDigest + tamper-verdict integrity, then writes report.md containing the per-scale scale-envelope numbers and (all-pass case) the verbatim section-3 claim text + an empty instrument-defect list",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "when a hypothesis is fail/inconclusive the report OMITS the section-3 claim text and states plainly which hypotheses are unmet (no-overclaim)",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "editing a single batch-ledger record field (breaking its recordDigest) makes analyze-batch ABORT with that record iterationId (nonzero), never emitting a pass report; selfcheck-m4 asserts this input-integrity refusal",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-06T07:15:21.595Z",
+      "phase": "PLAN",
+      "itemId": "CHK-004",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Promote scope-plan-review gaps (§6.2/§6.4/§9 input-integrity recordDigest re-check, §10/§3 claim-text embedding, §12 instrument-defect list, §7 scale-envelope numbers) into a titled checklist item so they are in-scope and covered.",
+      "addedTitle": "analyze-batch.mjs re-verifies each input record's integrity (per-record recordDigest; abort with the offending id on mismatch) before adjudication, and report.json/.md include the scale-envelope numbers (elapsed/endOfRunRss per scale), the section-3 claim text verbatim only when overall is all-pass, and any instrument defect found",
+      "addedContext": "Covers execution-plan gaps flagged by the scope-plan review: §6.2/§6.4/§9 input-integrity — re-derive each batch-ledger record's recordDigest = sha256(canonicalJson(record minus recordDigest)) and refuse with the named iterationId on any mismatch (detects a naively-edited ledger) BEFORE adjudicating; §10/§3 no-overclaim — embed the section-3 claim text verbatim in report.md ONLY when all four hypotheses are supported, otherwise state plainly which are fail/inconclusive; §12 DoD — the report lists any instrument defect found (none when clean); §7 artifact table — report includes the per-scale scale-envelope numbers (max elapsedMs, peak endOfRunRss). Makes the analyzer tamper-detecting and the report self-contained + non-overclaiming."
     }
   ]
 }

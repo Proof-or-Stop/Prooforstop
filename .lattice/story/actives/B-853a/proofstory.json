@@ -21,21 +21,24 @@
     }
   ],
   "originalIntentRequestHash": "sha256:d99e9cd2adf8cb159cffaa60fed78a216fd31415262e8813b784f63c04720848",
-  "confirmedMilestoneLedgerHash": "sha256:74d4732dacea4bb6d9b144ea01b8511994e2a1b5188751e198df4bb2ec80835e",
+  "confirmedMilestoneLedgerHash": "sha256:d15cecb0a527f83c5cce038c59b2c630de32276fb474fb835a224e68b1da097c",
   "acceptanceBindings": [
     {
       "id": "AB-001",
       "checklistRefs": [
-        "CHK-001"
+        "CHK-001",
+        "CHK-004"
       ],
       "verificationIntentRefs": [
         "CHK-001:happy:0",
-        "CHK-001:adversarial:0"
+        "CHK-001:adversarial:0",
+        "CHK-004:happy:0",
+        "CHK-004:edge:0"
       ],
       "milestoneIds": [
         "M4-A"
       ],
-      "note": "three-state H1-H4 report.json/.md"
+      "note": "input-integrity + three-state H1-H4 report.json/.md content"
     },
     {
       "id": "AB-002",
@@ -49,7 +52,7 @@
       "milestoneIds": [
         "M4-B"
       ],
-      "note": "reproducible digest (canonical preimage)"
+      "note": "reproducible digest"
     },
     {
       "id": "AB-003",
@@ -58,16 +61,17 @@
       ],
       "verificationIntentRefs": [
         "CHK-003:happy:0",
-        "CHK-003:adversarial:0"
+        "CHK-003:adversarial:0",
+        "CHK-004:adversarial:0"
       ],
       "milestoneIds": [
         "M4-C"
       ],
-      "note": "un-gameable selfcheck + Codex cross-host digest replication"
+      "note": "un-gameable selfcheck (incl. recordDigest-tamper abort) + Codex cross-host"
     }
   ],
   "diagnosticGaps": [],
-  "note": "M4 capstone: adjudicate the campaign evidence into a reproducible three-state H1-H4 report.",
+  "note": "M4 capstone incl. input-integrity + report completeness (CHK-004).",
   "createdAt": "2026-07-06T07:10:15.756Z",
-  "updatedAt": "2026-07-06T07:10:15.756Z"
+  "updatedAt": "2026-07-06T07:15:56.843Z"
 }
