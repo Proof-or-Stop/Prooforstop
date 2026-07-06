@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Add renderChecklistDerivedLedger renderer",
       "context": "In packages/main/src/core/milestone-status.ts, add an exported pure function that groups a story's checklist items by status (done / in_progress / pending) under a distinct 'Checklist-derived ledger (no milestone ledger set) - <id>' header, plus a Phase line and a Progress summary. Must not reuse the 'Milestone Status - <id>' header. Export CHECKLIST_DERIVED_HEADER for dedup.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-06T18:18:20.321Z",
-      "endTime": null,
+      "endTime": "2026-07-06T18:21:38.636Z",
       "files": {
         "modify": [
           "packages/main/src/core/milestone-status.ts"
