@@ -1,0 +1,74 @@
+{
+  "storyId": "B-f511",
+  "checkedAt": "2026-07-06T06:54:36.265Z",
+  "headHash": "dbdb3c6e30b0a46377716bd3d894ca7c0b4e5a6d",
+  "materialHash": "3c80c7139041129c3d7759bbb46e664fb4a17a0c1bcb9e4f880debd340b41cf7",
+  "storyFilesHash": "72dc774e8479d01609d432bbe1a5775bc3b62810d1c2381e312b51de954af7f5",
+  "reviewRound": "2026-07-06T03:27:19.118Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-f511/evidence/transcript-diff.md#1-h3-deliverable-resume-probe",
+      "promise": "node experiments/pos-instrument-replay/resume-probe.mjs exits 0 with PROBE_EXIT=0, dupTotal 0 / gapTotal 0 / finalMultisetMatch true, and resume-reconciliation.json regenerates byte-identical (deterministic)",
+      "verifiedBy": "live re-run",
+      "evidence": "Independently re-ran node resume-probe.mjs in the worktree: it completed with killA/killB/killC all dup=0 gap=0 and the informational SIGKILL trial cleanReconcile=true, wrote resume-reconciliation.json, printed H3: 0 dup / 0 gap, and git status --porcelain resume-reconciliation.json was empty afterward (byte-identical to the committed artifact). Matches transcript-diff.md section 1 and summary.json actualTranscript verbatim."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-f511/evidence/transcript-diff.md#2-invariant-suite-selfcheck-m3",
+      "promise": "node experiments/pos-instrument-replay/selfcheck-m3.mjs exits 0 with selfcheck-m3 PASS and all 13 hermetic sub-checks A-M green",
+      "verifiedBy": "live re-run",
+      "evidence": "Independently re-ran node selfcheck-m3.mjs in the worktree: all 13 sub-checks (A-boundary-kill, B-midrun-crash, C-fresh-additive, D-resume-no-ledger, E-truncated-tail, F-stop-record-resume, G-valid-final-record-preserved, H-live-lock-not-broken incl. discrimination re-check, I-no-holder-lock-not-broken, J-break-mutex-serializes J.1+J.2, K-fresh-refuses-nonempty-ledger, L-fresh-fails-closed-on-unreadable-ledger, M-resume-break-failure-diagnostic) printed PASS with no unexpected errors, final line selfcheck-m3 PASS."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-f511/evidence/transcript-diff.md#3-cross-vendor-adversarial-convergence",
+      "promise": "18 findings across 6 REVIEW rounds were all resolved (16 fixed, 2 accepted LOW test-hygiene) and each maps to a dedicated deterministic sub-check",
+      "verifiedBy": "grep findings.json plus code cross-reference",
+      "evidence": "findings.json shows 18 of 18 findings (F-001..F-018) all status=resolved. Cross-referenced checklist.json CHK-003 verificationEvidence note mapping F-001->H, F-002/F-003->E/G, F-004->F, F-005/F-006->I, F-007/F-008->J, F-009/F-011->K, F-013/F-014/F-016->L, F-010/F-015->M against the actual sub-check implementations in selfcheck-m3.mjs (confirmed each named guard exists and asserts the claimed behavior)."
+    },
+    {
+      "docPath": "summary.json#changes",
+      "promise": "run-batch.mjs gains additive --resume support, a mkdir break-mutex (.batch-ledger.break.lock) serializing the stale-lock break, conservative missing-holder=LIVE liveness rule, fresh-mode fail-closed on a non-empty or unreadable pre-existing ledger, and a restored exit-2 break-failure diagnostic",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff main...HEAD -- experiments/pos-instrument-replay/run-batch.mjs shows parseResume()/--resume flag, BREAK_LOCK_DIR mkdir-based break-mutex with EEXIST fail-closed, evaluateLockForBreak() implementing the conservative missing/malformed-holder=LIVE rule, the F-009/F-011/F-013 fresh-mode non-empty/unreadable-ledger fail-closed guard, and the F-010 breakError capture plus explicit exit-2 fatal() diagnostic with the break-mutex released via finally before that exit."
+    },
+    {
+      "docPath": "summary.json#changes",
+      "promise": "resume-probe.mjs (new) drives the replay campaign, kills it at a boundary + mid-iteration, restarts under --resume, and reconciles the ledger to resume-reconciliation.json",
+      "verifiedBy": "diff/grep plus live re-run",
+      "evidence": "git diff shows resume-probe.mjs as a new 526-line file implementing killTrial (boundary + mid-iteration hard-crash kills), stopRecordResumeTrial (killC, an already-recorded-stop resume path), externalSigkillTrial (informational), and main() orchestrating killA/killB/killC plus writing resume-reconciliation.json. Live re-run reproduced byte-identical output."
+    },
+    {
+      "docPath": "summary.json#changes",
+      "promise": "selfcheck-m3.mjs (plus) 13 hermetic sub-checks A-M, one deterministic regression per finding",
+      "verifiedBy": "diff/grep plus live re-run",
+      "evidence": "git diff shows selfcheck-m3.mjs as a new 1198-line file with exactly 13 check functions (checkFreshAdditive, checkResumeNoLedger, checkTruncatedTailRepair, checkStopRecordResume, checkValidFinalRecordPreserved, checkLiveLockNotBroken, checkNoHolderLockNotBroken, checkBreakMutexSerializes, checkFreshRefusesNonemptyLedger, checkFreshFailsClosedOnUnreadableLedger, checkResumeBreakFailureDiagnostic, plus killResumeTrial used for A/B) all invoked from main() in A-M order. Live re-run confirmed all 13 pass with genuine subprocess-based assertions (not stubs)."
+    },
+    {
+      "docPath": "summary.json#changes",
+      "promise": "resume-reconciliation.json (new): the H3 evidence (0 dup / 0 gap, finalMultisetMatch true)",
+      "verifiedBy": "diff/grep plus live re-run",
+      "evidence": "Committed file contains hypothesis H3, killA/killB/killC/killBSigkill entries, finalMultisetMatch true, dupTotal 0, gapTotal 0. Live re-run of resume-probe.mjs regenerated this file byte-identically (git status --porcelain showed no diff), confirming the artifact is a genuine reproducible output, not a hand-authored fixture."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "run-batch --resume against a partial ledger: verified via live selfcheck-m3.mjs re-run (sub-checks A/B/C/D/E/F/G/H/I/J/K/L/M all real subprocess-driven trials against sandboxed run-batch.mjs copies) and via direct code read of the --resume/break-mutex/holder-liveness/fresh-fail-closed logic in run-batch.mjs. All 13 sub-checks passed on live re-run with exit 0 selfcheck-m3 PASS."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "resume-probe.mjs live re-run: killA (recordedBeforeKill=5, casualty replay/small/6 -> proof:pass), killB (recordedBeforeKill=17, casualty replay/small/18 -> proof:pass), killC (stopped replay/small/3 preserved and skipped, casualty replay/small/12 -> proof:pass), killBSigkill (killed=true, cleanReconcile=true). dupTotal=0, gapTotal=0, finalMultisetMatch=true. Output printed H3: 0 dup / 0 gap and resume-reconciliation.json regenerated byte-identical to the committed artifact."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "selfcheck-m3.mjs live re-run: all 13 sub-checks (A boundary-kill, B mid-run-crash, C fresh-additive, D resume-no-ledger, E truncated-tail, F stop-record-resume, G valid-final-record-preserved, H live-lock-not-broken plus discrimination, I no-holder-lock-not-broken, J break-mutex-serializes J.1+J.2, K fresh-refuses-nonempty-ledger, L fresh-fails-closed-on-unreadable-ledger, M resume-break-failure-diagnostic) printed PASS; final line selfcheck-m3 PASS, no unexpected errors."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All summary.json/transcript-diff.md claims for B-f511 M3 (resume-probe.mjs, run-batch.mjs --resume/lock hardening, selfcheck-m3.mjs A-M, resume-reconciliation.json) were independently re-run on the real machine and reproduced byte-identical/matching results; no fabrication found. Tests are genuine hermetic subprocess-driven assertions covering happy, edge (truncated tail, no-ledger resume), and adversarial (live-lock-not-broken, break-mutex TOCTOU, fresh fail-closed on non-empty/unreadable ledger) paths, each tied to a specific resolved finding (F-001..F-018, all 18 resolved)."
+  },
+  "_hash": "e32e1bb355ad7f987ed406eaeb0f627e4010ef770e1a7ecf929a99ecce7f4170"
+}

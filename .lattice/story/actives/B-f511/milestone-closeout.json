@@ -1,0 +1,71 @@
+{
+  "schemaVersion": "proofbound.milestone_closeout.v1",
+  "storyId": "B-f511",
+  "phase": "TEST",
+  "generatedAt": "2026-07-06T06:59:07.142Z",
+  "sourceReport": {
+    "schemaVersion": "proofbound.milestone_status.v1",
+    "digest": "3c9cb5bec04684a8720e04277c8b0cbe0bdfc0b099770683c4327537ce224540",
+    "ledger": {
+      "present": true,
+      "state": "confirmed",
+      "hash": "sha256:5b737b082152d0484ff3ef0127d8698feadbae80f0cb98088a2db5c1bcc51570"
+    },
+    "groups": {
+      "completed": [
+        "M3-A",
+        "M3-B",
+        "M3-C"
+      ],
+      "current": [],
+      "remaining": []
+    },
+    "risks": [],
+    "nextActions": [
+      "No milestone action; all ledger rows are completed or not applicable."
+    ]
+  },
+  "bindings": {
+    "headHash": "72ebe3f6cf2947464d741af2393a7664ac3f3f09",
+    "materialHash": "69d3d20c18423bbd9cfc2c419266f7af27192cedf5758584bd3fb082b04a2380",
+    "storyFilesHash": "72dc774e8479d01609d432bbe1a5775bc3b62810d1c2381e312b51de954af7f5"
+  },
+  "rows": [
+    {
+      "milestone": "M3-A",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "run-batch.mjs gains an additive resume mode (skip already-recorded iterationIds; reconcile final multiset) with the fresh path unchanged",
+      "acceptance": "run-batch --resume against a partial ledger completes with 0 dup / 0 gap; selfcheck-m2 still PASS",
+      "evidence": [
+        "CHK-001:happy:0 [pass/manual_transcript] node experiments/pos-instrument-replay/selfcheck-m3.mjs note=run-batch --resume against a partial ledger skips already-recorded iterationIds and runs only the remaining; the strict guard reconciles the final 30-record small multiset (0 dup / 0 gap). Proven by selfcheck-m3 boundary-kill + mid-run-crash sub-checks (append-only preserved; resume-only stale-lock break).",
+        "CHK-001:adversarial:0 [pass/manual_transcript] node experiments/pos-instrument-replay/selfcheck-m3.mjs note=Resume/lock/ledger integrity is fail-closed on every TESTED path (commit 98ee3e0db). Layered defense, each with a dedicated deterministic sub-check that leaves the campaign ledger byte-identical: F-005/F-006 conservative missing-holder=LIVE (sub-check I: missing holder -> lock NOT broken); F-007/F-008 break-mutex serializes the break critical-section so two resumers cannot both rm+mkdir (sub-check J, both directions); F-009/F-011 a fresh non-resume driver refuses a non-empty pre-existing ledger, checked UNDER the campaign lock (sub-check K); F-013/F-014/F-016 a fresh driver refuses an EXISTING-but-UNREADABLE ledger — the read-error catch fails CLOSED (sub-check L, via the POS_FAIL_LEDGER_READ fault hook). selfcheck-m3 A-M PASS exit 0."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M3-B",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "resume-probe.mjs kills run-batch (boundary + mid-iteration) + resumes + writes resume-reconciliation.json with 0 dup / 0 gap and casualty=stop-or-rerun",
+      "acceptance": "node resume-probe.mjs writes resume-reconciliation.json dup=0 gap=0",
+      "evidence": [
+        "CHK-002:happy:0 [pass/manual_transcript] node experiments/pos-instrument-replay/resume-probe.mjs note=resume-probe.mjs kills run-batch at a boundary (hard-crash before append at replay/small/6, leaving 5 recorded + a recordless casualty) and mid-run (replay/small/18), plus an external-SIGKILL trial; restarts in --resume each time; writes resume-reconciliation.json: killA{recordedBeforeKill:5,casualty replay/small/6,dup:0,gap:0}, killB{17,replay/small/18,dup:0,gap:0}, finalMultisetMatch:true, dupTotal:0 gapTotal:0. H3: 0 dup / 0 gap.",
+        "CHK-002:adversarial:0 [pass/manual_transcript] node -e \"const r=require('./experiments/pos-instrument-replay/resume-reconciliation.json');console.log(JSON.stringify(r.killC))\" note=Each casualty resolves to stop-or-clean-rerun, never a half-record: killA/killB (recordless hard-crash) -> proof:pass; killC (POS_FAIL_APPEND_AT -> a recorded verify_crash STOP at replay/small/3) is PRESERVED and SKIPPED on resume (not re-run into a proof); dup=0 gap=0 across all kills."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M3-C",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Hermetic selfcheck asserts H3 evidence-complete (0 dup / 0 gap, one record per iterationId, casualty stop-or-rerun)",
+      "acceptance": "node selfcheck-m3.mjs exits 0",
+      "evidence": [
+        "CHK-003:happy:0 [pass/manual_transcript] node experiments/pos-instrument-replay/selfcheck-m3.mjs note=node selfcheck-m3.mjs exits 0 'selfcheck-m3 PASS' — 13 hermetic sub-checks A-M: A boundary-kill, B mid-run-crash, C fresh-additive, D resume-no-ledger, E truncated-tail, F stop-record-resume, G valid-final-record-preserved, H live-lock-not-broken, I NO-HOLDER-lock-not-broken, J BREAK-MUTEX-SERIALIZES, K FRESH-REFUSES-NONEMPTY-LEDGER, L FRESH-FAILS-CLOSED-ON-UNREADABLE-LEDGER, M RESUME-BREAK-FAILURE-DIAGNOSTIC.",
+        "CHK-003:adversarial:0 [pass/manual_transcript] node experiments/pos-instrument-replay/selfcheck-m3.mjs note=Each finding maps to a dedicated load-bearing sub-check that fails on regression: F-001->H, F-002/F-003->E/G, F-004->F, F-005/F-006->I, F-007/F-008->J, F-009/F-011->K, F-013/F-014/F-016->L (POS_FAIL_LEDGER_READ fault hook: fresh over an unreadable ledger -> exit 3 + ledger byte-identical), F-010/F-015->M (POS_FAIL_LOCK_BREAK fault hook: a failed stale-lock break -> explicit exit-2 'could not break the stale lock' diagnostic + break-mutex released not orphaned + ledger untouched). Sub-checks L/M use deterministic env fault hooks (inert unless ==='1'); each asserts a specific exit code AND campaign-ledger integrity. Scope of the claim: these prove the TESTED fail-closed paths, not an unconditional impossibility proof."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    }
+  ]
+}
