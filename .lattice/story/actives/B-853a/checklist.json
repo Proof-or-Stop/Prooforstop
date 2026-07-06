@@ -71,6 +71,18 @@
           "materialHash": "3af659b07e456b76454f55f8fea4dd34c63504f29ebdb5bca72518f55492f44e",
           "storyFilesHash": "1caae9cb5590d29bf143ccf47ece033b9cc1b30249e5f48e58baad5ee8cc386f",
           "timestamp": "2026-07-06T07:23:52.505Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node experiments/pos-instrument-replay/selfcheck-m4.mjs",
+          "result": "pass",
+          "note": "selfcheck-m4 sub-check G: an empty resume-reconciliation.json yields H3=inconclusive (not pass, not a crash) and overall=some-inconclusive — the missing-evidence edge is handled as inconclusive.",
+          "headHash": "8633bfca9575aa3be689e5d0cd5c1db9a3f11b4a",
+          "materialHash": "3af659b07e456b76454f55f8fea4dd34c63504f29ebdb5bca72518f55492f44e",
+          "storyFilesHash": "1caae9cb5590d29bf143ccf47ece033b9cc1b30249e5f48e58baad5ee8cc386f",
+          "timestamp": "2026-07-06T07:23:53.847Z"
         }
       ]
     },
