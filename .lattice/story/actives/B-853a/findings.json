@@ -1,0 +1,19 @@
+{
+  "findings": [
+    {
+      "id": "B-853a:F-001",
+      "desc": "missing-evidence-crash: analyze-batch.mjs main() computes generatedInputs via readFileBytes(paths.tamper) and readFileBytes(paths.resume) (plain readFileSync, no try/catch) at lines 176-177, which throws an uncaught ENOENT and exits nonzero with a raw stack trace (no report.json/report.md written, no FATAL input-integrity message) when tamper-verdicts.jsonl or resume-reconciliation.json is genuinely absent from the evidence directory. This directly contradicts the code's own documented contract one block above: the comment at lines 130-132 states tamper-verdicts.jsonl integrity is structural and 'a missing required field makes a hypothesis inconclusive, never a crash', and the comment at line 137 states 'resume-reconciliation.json: missing/empty => H3 inconclusive'. The adjudication logic (adjudicateH2/adjudicateH3) does correctly treat these files as missing via readTextOrNull => inconclusive, so the three-state adjudication itself never yields a false pass -- but the downstream report-generation step crashes before any report is emitted, an unhandled path inconsistent with the documented contract. selfcheck-m4.mjs sub-check G only exercises the present-but-EMPTY resume-reconciliation.json case (writes an empty string, not an absent file); there is no sub-check for a genuinely absent tamper-verdicts.jsonl or resume-reconciliation.json. Reproduced: copy only batch-ledger.jsonl+protocol.json(+.sha256)+lib/ into a fresh sandbox (omit tamper-verdicts.jsonl and resume-reconciliation.json) and run node analyze-batch.mjs -> throws Error: ENOENT at readFileBytes (analyze-batch.mjs:51) called from main (analyze-batch.mjs:176), exit code 1, no report.json produced.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-06T07:33:17.118Z",
+      "reviewRound": "2026-07-06T07:30:13.842Z",
+      "reviewRunId": "B-853a:RR-004",
+      "_hash": "6083469e5e60b30523d5650b28f6b2d3f250d43479f42a4b4d60c97f08a4f133",
+      "signatureTag": "missing|unknown|missing-evidence-crash",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
