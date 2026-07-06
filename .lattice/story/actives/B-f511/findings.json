@@ -214,6 +214,24 @@
       "_hash": "bd2fbed16ad5c3df74b6080ecff3fb79bfaa83ab4e838a1d1f7262fd2f478d06",
       "signatureTag": "missing|unknown|concept-cleanup-selfcheck",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f511:F-013",
+      "desc": "F-013 (cross-vendor host-2, Codex gpt-5.5 xhigh): the F-009 fresh-mode non-empty-ledger guard FAILS OPEN on an unreadable existing ledger. run-batch.mjs ~lines 923-928: existingLedgerNonEmpty = existsSync(LEDGER_PATH) && readFileSync(LEDGER_PATH,'utf8').trim() !== '', with catch { existingLedgerNonEmpty = false }. If batch-ledger.jsonl EXISTS and is non-empty but readFileSync THROWS (e.g. a write-only file chmod 0200, or EACCES), the catch classifies it as EMPTY, so a fresh (non-resume) driver proceeds and appends new records onto the existing ledger -> on-disk duplicates (end-guard exits nonzero but the ledger is already poisoned). Since the catch only runs when existsSync already returned true (short-circuit &&), a read failure means the ledger EXISTS but is unverifiable — for a fail-CLOSED integrity instrument the correct posture is to REFUSE (treat as non-empty), not proceed. Fix: in the catch set existingLedgerNonEmpty = true (fail closed) so an existing-but-unreadable ledger blocks a fresh run. Codex also CONFIRMED convergence on everything else: no interleaving (two-fresh / fresh-vs-resume / resume-vs-resume) yields two non-null campaign writers; F-010 releases the break-mutex in finally before both the breakError exit-2 and precondReason exit-3 paths (mutually exclusive); sub-check K is genuine vs the prior regression and hermetic.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-07-06T02:24:48.865Z",
+      "reviewRound": "2026-07-06T02:17:55.786Z",
+      "reviewRunId": "B-f511:RR-026",
+      "_hash": "b321af4bb292179ca6f2c5b9b622fa065ac23fab8f238008110223ce355ef987",
+      "files": [
+        "experiments/pos-instrument-replay/run-batch.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|cross-vendor-host",
+      "signatureTagSource": "auto"
     }
   ]
 }
