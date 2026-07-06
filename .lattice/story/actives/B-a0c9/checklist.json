@@ -114,7 +114,21 @@
       },
       "status": "done",
       "startTime": "2026-07-06T10:32:29.618Z",
-      "endTime": "2026-07-06T11:04:47.290Z"
+      "endTime": "2026-07-06T11:04:47.290Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node experiments/pos-instrument-replay/selfcheck-m3.mjs",
+          "result": "pass",
+          "note": "selfcheck-m3 sub-check M PASSES with the added existsSync(lockDirPath)+existsSync(holderPath) survival assertion; the M PASS line prints and the overall run ends selfcheck-m3 PASS at exit 0.",
+          "headHash": "d32689e8c386853fae261a41f961792dfd986333",
+          "materialHash": "8b0479d5ca09046d9c676730374ef79dc8801738df4384e51f7e9853ab268520",
+          "storyFilesHash": "849bca8a8bd6bdfc17515f09e74fa4d76c7309360205ba08b044c80447fdffc9",
+          "timestamp": "2026-07-06T11:05:57.278Z"
+        }
+      ]
     }
   ]
 }
