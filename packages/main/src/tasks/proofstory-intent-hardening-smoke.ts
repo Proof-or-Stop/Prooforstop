@@ -30,7 +30,7 @@ import {
   getGuardFailureReason,
 } from '../core/machine.js';
 import { StoryStore } from '../core/store.js';
-import type { ChecklistData, StoryInfo, StoryPhase, StorySummaryData } from '../core/types.js';
+import type { ChecklistData, MilestoneLedgerData, StoryInfo, StoryPhase, StorySummaryData } from '../core/types.js';
 import { computeIntentRequestHash } from '../core/proofstory.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -844,7 +844,7 @@ try {
       verificationIntentRefs: [],
       status: 'not_applicable',
     },
-  ]) as any);
+  ]) as unknown as MilestoneLedgerData);
   const notApplicableDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: notApplicableStoryId, mode: 'observe' });
   assert.equal(notApplicableDone.equivalenceMode, 'strict_milestone', 'a confirmed ledger with rows uses strict milestone equivalence');
   assert.notEqual(notApplicableDone.status, 'pass', 'an all-not_applicable confirmed ledger without decisions must not vacuously pass');
@@ -874,7 +874,7 @@ try {
   };
   store.writeStory(emptyLedgerStoryId, emptyLedgerStory);
   store.writeChecklist(emptyLedgerStoryId, { items: [] });
-  store.writeMilestoneLedger(emptyLedgerStoryId, confirmedLedger(emptyLedgerStoryId, []) as any);
+  store.writeMilestoneLedger(emptyLedgerStoryId, confirmedLedger(emptyLedgerStoryId, []) as unknown as MilestoneLedgerData);
   const emptyLedgerDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: emptyLedgerStoryId, mode: 'observe' });
   assert.equal(emptyLedgerDone.equivalenceMode, 'strict_milestone', 'a structural-milestone story stays on the strict milestone path');
   assert.notEqual(emptyLedgerDone.status, 'pass', 'an empty confirmed ledger must not be reported as fully covered');

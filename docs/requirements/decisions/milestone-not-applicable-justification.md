@@ -6,15 +6,16 @@
 
 ## Problem
 
-`normalizeMilestone` in `packages/main/src/core/proofstory.ts` (~L298-317) validates a
+`normalizeMilestone` in `packages/main/src/core/proofstory.ts` validates a
 milestone `status` against `VALID_MILESTONE_STATUSES` only. Any row can be written with
 `status: 'not_applicable'` with no rule asserting the row is genuinely inapplicable.
 That status then:
 
 - short-circuits the uncovered-required-milestone gate check in
-  `evaluateDoneIntentEquivalence` (`proofstory.ts` L1358: `if (milestone.status === 'not_applicable') continue;`), and
+  `evaluateDoneIntentEquivalence` (in `proofstory.ts`, which skips `not_applicable` rows
+  from the uncovered-required check), and
 - is treated as `complete` and rendered in the completed group by the milestone-status
-  report (`packages/main/src/core/milestone-status.ts` L541, L565, L799, L1036).
+  report (`packages/main/src/core/milestone-status.ts`).
 
 So `not_applicable` is a **zero-evidence self-exemption**: an agent can silently exempt a
 required milestone from DONE-intent-equivalence with no auditable reason and no human record.
@@ -24,7 +25,7 @@ required milestone from DONE-intent-equivalence with no auditable reason and no 
 Require an auditable `notApplicableDecision` on every `not_applicable` milestone row,
 mirroring the existing, already-shipped precedent for parent-roadmap rows
 (`packages/main/src/core/parent-roadmap-totality.ts`: `ParentRoadmapNotApplicableDecision`
-+ `validNotApplicable`, L60-64 / L490-501).
++ `validNotApplicable`).
 
 The decision operates at **two altitudes**: a structural field on the row, plus a
 DONE-gate policy diagnostic. It is deliberately **not** a hard throw on absence — an
@@ -75,7 +76,7 @@ Rules:
 - **Hash-bound**: field participates in `computeMilestoneLedgerHash`; confirmed→candidate
   demotion on any change is preserved.
 - **Intent-collision-confirmed**: `acceptedIntentBinding` is retained only while
-  `existingHash === ledgerHash` (L345); adding/altering a justification changes the hash and
+  `existingHash === ledgerHash` (in `confirmMilestoneLedger`); adding/altering a justification changes the hash and
   therefore requires re-binding, exactly as for any other row edit.
 
 ## Rejected alternatives

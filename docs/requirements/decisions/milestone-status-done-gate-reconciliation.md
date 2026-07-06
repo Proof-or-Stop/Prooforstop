@@ -41,13 +41,13 @@ Strictness lives in the single designed gate; default behavior must NOT newly bl
 
 - `evaluateDoneIntentEquivalence` now detects milestones whose base coverage
   passes but whose **only** covering evidence is stale, and emits a new
-  `stale_milestone_evidence` diagnostic gap (severity `warn`,
-  `packages/main/src/core/proofstory.ts` ~L1519). Because the report's `blocking`
+  `stale_milestone_evidence` diagnostic gap (severity `warn`, in
+  `packages/main/src/core/proofstory.ts`). Because the report's `blocking`
   is `mode === 'enforce' && gaps.length > 0`, this gap — exactly like every other
   milestone gap — is a **NON-BLOCKING diagnostic under the default `observe` mode
   and only blocks under `enforce`**. No new hard block was added to observe mode.
 - Agreement is **by construction**: both surfaces call the same exported predicate
-  `evidenceIsStaleCovering` (`packages/main/src/core/milestone-status.ts` ~L234).
+  `evidenceIsStaleCovering` (`packages/main/src/core/milestone-status.ts`).
   `milestone_status` keeps its full-risk demotion; the DONE gate calls the
   predicate with `mismatchOnly = true`.
 - **Staleness = mismatch, not absence.** The gate flags a milestone only when a
@@ -69,13 +69,13 @@ Strictness lives in the single designed gate; default behavior must NOT newly bl
 - `captureMilestoneCloseoutSnapshotFromStore` no longer propagates the strict
   builder throw. It now **degrades to a non-throwing `{ status: 'skipped', reason:
   'closeout_snapshot_unbuildable' }`** when `buildMilestoneCloseoutSnapshot` cannot
-  build a snapshot (`packages/main/src/handlers/milestone-status.ts` ~L110–L134):
+  build a snapshot (`packages/main/src/handlers/milestone-status.ts`):
   capture what exists, and when the report is incomplete/risky/stale simply record
   that no auditable snapshot was written. The single designed gate
   (`evaluateDoneIntentEquivalence`, which already ran *before* the DONE transition)
   remains the sole authority on whether DONE is allowed.
 - **The pure builder stays strict.** `buildMilestoneCloseoutSnapshot`
-  (`packages/main/src/core/milestone-status.ts` ~L904) is unchanged: it still
+  (`packages/main/src/core/milestone-status.ts`) is unchanged: it still
   rejects an incomplete/risky report, so CHK-005's "a stale-only status report is
   rejected by buildMilestoneCloseoutSnapshot" negative control still holds. Only
   the DONE-time capture *wrapper* is made non-blocking.
