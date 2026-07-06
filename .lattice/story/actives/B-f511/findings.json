@@ -251,6 +251,25 @@
       ],
       "signatureTag": "missing|mjs|adversarial-adversarial-evidence",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f511:F-015",
+      "desc": "CHK-003:adversarial verificationEvidence note for this round claims: \"F-010 restores the explicit [resume] could-not-break-stale-lock exit 2 diagnostic; every direction fails loudly on regression.\" This overstates coverage: F-010 (the breakError capture at run-batch.mjs:819/838-842 and the restored FATAL exit-2 diagnostic at run-batch.mjs:860-865) has ZERO dedicated test coverage in selfcheck-m3.mjs -- confirmed by exhaustive grep across the full file history (grep -n \"F-010\" and grep -n \"could not break\\\\|breakError\" both return no matches in any commit that touches selfcheck-m3.mjs, including the current HEAD). None of sub-checks A-K ever forces rmSync(LOCK_DIR) to throw during a genuine stale-lock break (e.g. by making LOCK_DIR unremovable/permission-denied mid-break), so the breakError branch and its exit-2 FATAL path are exercised by neither a positive nor a negative assertion -- they are silently untested production code. Sub-check K (F-009/F-011) and sub-check J (F-007/F-008) are unrelated to this path. This is consistent with prior test-coverage review passes (RP-002/RP-004/RP-006) which also never claimed F-010 mapped to a sub-check. Not blocking DONE by itself (F-010 is a low-severity diagnostic-quality fix, not a correctness defect, per the original F-010 finding text), but the verificationEvidence note text should not claim blanket \"every direction fails loudly on regression\" coverage while this specific diagnostic path remains untested -- either add a dedicated sub-check that forces the rmSync(LOCK_DIR) break to fail (e.g. chmod the break target or replace it with a non-empty/busy directory) and asserts exit 2 with the FATAL message, or correct the evidence note to scope the claim to only the tested directions.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-06T02:40:37.637Z",
+      "reviewRound": "2026-07-06T02:17:55.786Z",
+      "reviewRunId": "B-f511:RR-030",
+      "_hash": "b42eb8efb8c2e3c655e72527d35ea4e58efd07a0b0ead2da2b88fd6f2218bf3c",
+      "files": [
+        "experiments/pos-instrument-replay/run-batch.mjs",
+        "experiments/pos-instrument-replay/selfcheck-m3.mjs"
+      ],
+      "signatureTag": "missing|mjs|adversarial-verificationevidence-note",
+      "signatureTagSource": "auto"
     }
   ]
 }
