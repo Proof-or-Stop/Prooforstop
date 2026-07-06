@@ -1,6 +1,6 @@
 # Multi-Model Ablation M2 Status
 
-Research boundary: `providerCallsMade=false`, `containsOutcomeData=false`, `phase1OrPhase2CellsRun=false`, `productGateImpact="none"`.
+Research boundary: B-6529 readiness evidence remains `providerCallsMade=false`, `containsOutcomeData=false`, `phase1OrPhase2CellsRun=false`, `productGateImpact="none"`. B-991d has separately opened Cell 03-only execution and has run a bounded probe; no full Phase 1/Phase 2 dataset, outcome records, product gate impact, playbook activation, or paper claim upgrade exists.
 
 M2 in this directory began as a provider-free launch-readiness layer. B-991d now opens a separate Cell 03-only execution window while preserving B-6529 as historical readiness/no-provider-call evidence. The window authorizes provider calls only for Cell 03 / protocol cell ③ under the frozen envelope; it does not authorize Cell 02, Cell 04, Cell 06, Phase 2 execution, paper claim upgrades, playbook activation, or any Proofbound product gate change.
 
@@ -19,7 +19,8 @@ M2 in this directory began as a provider-free launch-readiness layer. B-991d now
 | Cell 03 usage accounting | POSTFLIGHT REQUIRED | `m2-cell03-usage-accounting-policy.json` makes provider-reported usage mandatory after future execution; any estimate is diagnostic only and not final usage or a launch gate. |
 | Cell 03 launch guardrail | WINDOW OPEN | `m2-cell03-provider-launch-authorization.json` preserves B-6529 guardrails and records B-991d as the Cell 03-only execution window owner; postflight provider-reported usage is still required after execution. |
 | M2 provider execution checker | PREPARED | `m2-provider-execution-check.mjs` validates accidental authorization, host-label-only snapshot, provider fallback, and sequencing negative controls. |
-| Formal M2 execution | NOT STARTED | No formal rows have been run or counted yet; B-991d opens only the Cell 03 execution window, with no claim unlock and no product gate impact. |
+| Cell 03 probe execution | COMPLETE | `future-cell03-results/probe/probe-rows.jsonl` contains 2 Cell 03 probe rows with executor usage, fresh same-family reviewer usage, review verdicts, acceptance checks, hidden ground-truth checks, provider-visible workspace isolation, and B-991d provenance. |
+| Formal M2 execution | NOT STARTED | The full 1,152-row Cell 03 matrix has not been run or counted yet; B-991d opens only the Cell 03 execution window and probe, with no claim unlock and no product gate impact. |
 | B-991d Cell 03 execution window | OPEN | Provider calls are enabled only for B-991d Cell 03 / ③ A4 E2 same-family execution under the frozen envelope. |
 | ③ A4 calibration | PENDING EXECUTION | `nextPermittedFormalStep=cell-03-calibration`; B-991d may run Cell 03 probe/full rows under the frozen envelope before any ⑥ A2prime budget can be locked. |
 | ⑥ A2prime | BLOCKED | `cell-06-a2prime-blocked` until a real cell-03-derived budget/usage lock exists. M0 example budget locks are not formal evidence. |
@@ -47,4 +48,6 @@ Cell 03 execution envelope: frozen. Pre-run dollar guess: not required. B-991d C
 
 Cell 03 launch guardrail: WINDOW OPEN. B-991d authorizes provider calls only for Cell 03 under the frozen envelope. B-6529 does not become an execution story, no outcome rows are present yet, and cell 06 remains blocked until a real cell-03-derived budget/usage lock exists after execution.
 
-These checks are local parse and invariant checks only. They opened the Cell 03 execution window but did not yet run provider calls, full Phase 1, full Phase 2, or any external provider execution.
+Cell 03 probe on 2026-07-06: `future-cell03-results/probe/probe-summary.json` records `rowCount=2`, `finalRows=2`, `reviewedRows=2`, `groundTruthPassRows=2`, `providerUsageRows=2`, `totalTokens=315877`, and `fullRunUnlocked=true` for CHK-006. Probe validation passed with 225 assertions and 15 negative controls rejected.
+
+These checks opened the Cell 03 execution window and ran only the bounded B-991d Cell 03 probe. They did not run the full 1,152-row Phase 1 Cell 03 matrix, Cell 06, full Phase 2, outcome records, product gate changes, playbook activation, or paper claim upgrades.

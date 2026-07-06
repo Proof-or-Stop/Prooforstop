@@ -7,7 +7,14 @@
   "failedRows": 0,
   "validationPassRows": 2,
   "providerUsageRows": 2,
+  "reviewedRows": 2,
+  "groundTruthPassRows": 2,
+  "totalProviderUsage": {
+    "inputTokens": 307281,
+    "outputTokens": 8596,
+    "totalTokens": 315877
+  },
   "fullRunUnlocked": true,
-  "fullRunUnlockReason": "probe rows must be final and carry provider-reported usage before CHK-006",
-  "createdAt": "2026-07-06T00:02:00.658Z"
+  "fullRunUnlockReason": "probe rows must be final, include executor and reviewer usage, pass acceptance and ground truth, and ship through the same-family reviewer before CHK-006",
+  "createdAt": "2026-07-06T00:17:43.037Z"
 }

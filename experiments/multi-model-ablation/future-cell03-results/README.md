@@ -1,13 +1,17 @@
 # Future Cell 03 Results
 
-This directory is reserved for future Cell 03 formal result rows.
+This directory is reserved for Cell 03 result rows.
 
-It currently contains no formal result rows, no provider receipts, and no outcome
-records. At CHK-003, B-991d only defines the row and receipt contract; this
-milestone does not open an execution window or authorize provider calls.
+It currently contains a bounded B-991d probe under `probe/`. The probe is not the
+full 1,152-row Cell 03 run and it is not an outcome-record dataset. It exists to
+prove that the Cell 03 execution window can capture executor usage, fresh
+same-family reviewer usage, response digests, acceptance checks, hidden
+ground-truth checks, provider-visible workspace isolation, and row-contract
+negative controls before CHK-006.
 
-Later B-991d execution-window milestones may bind formal rows here only after
-the authorized Cell 03 window is opened.
+The full Cell 03 run may write rows here only after the probe passes and CHK-006
+starts. Cell 06, Phase 2, paper claim upgrades, product gates, and playbook
+activation remain out of scope for this directory.
 
 Any future row written here must satisfy
 `../m2-cell03-result-write-policy.json`, including the required Cell 03

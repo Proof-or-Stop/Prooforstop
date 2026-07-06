@@ -1098,4 +1098,4 @@ console.log("B-991d Cell 03 execution window: open for Cell 03 only");
 console.log("B-6529 no-provider-call readiness evidence: preserved");
 console.log("Postflight usage accounting: provider-reported usage required after execution");
 console.log("Cell 06 A2prime: blocked");
-console.log("Provider calls are allowed only for B-991d Cell 03; no provider calls made; no outcome records present");
+console.log("Provider calls are allowed only for B-991d Cell 03 probe/full rows; Cell 06, Phase 2, and outcome records remain blocked");
