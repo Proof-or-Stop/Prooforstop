@@ -1,0 +1,52 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Integrate cell03-shards helpers into the real B-991d Cell 03 provider runner",
+      "context": "Replace the serial single-ledger-append execution path with shard-planned parallel execution that consumes B-e1f6 plan.mjs / shard-runner.mjs. Acceptance: the real runner writes shard-local outputs and never appends directly to the canonical cell03-rows.jsonl during parallel execution.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Record per-attempt provider accounting on every real row",
+      "context": "Every real (non-fixture) provider row must carry attemptId, runId, and shardId/shardIndex plus executionWindowId, not just the fixture markers B-e1f6 emits. Acceptance: each real row is uniquely attributable to one provider attempt within one shard and one execution window.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Record provider-reported usage per attempt into a shard-local usage ledger",
+      "context": "Capture provider-reported token usage per attempt (keyed by attemptId) into an append-only shard-local usage ledger, not a single shared counter. Acceptance: usage for a shard is reconstructable from its shard-local ledger alone.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Guarantee retry / failed / superseded attempts are not double-counted",
+      "context": "Retried, failed, and superseded attempts must not double-count in usage totals or final row counts; only the final surviving attempt per cellKey counts. Acceptance: a fixture with retried/failed/superseded attempts yields the same usage and row totals as a single-attempt run.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Protect the cumulative usage total (68,397,574 tokens) with shard-local usage ledgers",
+      "context": "The cumulative usage aggregate must be derived by summing validated shard-local usage ledgers so parallel real runs cannot pollute or race the aggregate. Acceptance: parallel shard runs produce an aggregate equal to the sum of per-shard ledgers with no lost or double-counted attempts.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "Add a result-writer that merges validated shard outputs into the formal Cell 03 result ledger",
+      "context": "Provide a result-writer/integration step that merges validated shard outputs into cell03-rows.jsonl using B-e1f6 merge-validation guarantees (binding/digest/duplicate/missing/wrong-shard rejection) before any row enters formal evidence. Acceptance: only complete, merge-validated shard sets can be promoted into the formal ledger; incomplete or drifted sets fail closed.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
