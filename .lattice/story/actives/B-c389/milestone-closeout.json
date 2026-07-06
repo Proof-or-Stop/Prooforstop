@@ -1,0 +1,88 @@
+{
+  "schemaVersion": "proofbound.milestone_closeout.v1",
+  "storyId": "B-c389",
+  "phase": "TEST",
+  "generatedAt": "2026-07-06T06:34:03.824Z",
+  "sourceReport": {
+    "schemaVersion": "proofbound.milestone_status.v1",
+    "digest": "6abe3a3d1cd256089c34585cfa585ebf892716f290805ab385ee66c9096c15f5",
+    "ledger": {
+      "present": true,
+      "state": "confirmed",
+      "hash": "sha256:79dafd600b8e1bcb8199b7c04e1b9d51b4bfcfd43c8292125111202ce65062e0"
+    },
+    "groups": {
+      "completed": [
+        "M-BACKFILL",
+        "M-EXPOSURE",
+        "M-PROMOTION",
+        "M-VALIDATE"
+      ],
+      "current": [],
+      "remaining": []
+    },
+    "risks": [],
+    "nextActions": [
+      "No milestone action; all ledger rows are completed or not applicable."
+    ]
+  },
+  "bindings": {
+    "headHash": "a8af819c9926f88e0aee8db7f8cf2eee4c6e6c03",
+    "materialHash": "d0597b85d3f6f36b844bc9dea61b8e05fc75ed5fba924a652412893357a13e59",
+    "storyFilesHash": "ec3a79544f2be1276ed044638d0a3c0b829033b649c089c11c85563366005b9d"
+  },
+  "rows": [
+    {
+      "milestone": "M-BACKFILL",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "A capability_release_backfill command binds the live under-bound candidates.",
+      "acceptance": "dry-run detects B-785e/PBP-882 as eligible; apply (with --digest) enriches PBP-882 lineage; re-run is idempotent.",
+      "evidence": [
+        "CHK-001:happy:0 [pass/manual_transcript] node packages/main/dist/cli.js capability_release_backfill --storyId=B-785e --apply --digest=... note=Live B-785e backfill: dry-run 1 eligible (PBP-882, record-then-bind); apply recorded PCR-9e7fdacf081e7346181bc04d + bound PBP-882 lineage (capabilityReleaseId/capabilityId/version/artifactReleaseId).",
+        "CHK-001:edge:0 [pass/logic_test] node packages/main/dist/tasks/capability-release-backfill-smoke.js note=--apply requires matching --digest (wrong digest refused); re-run is idempotent (0 eligible); no-artifact-release story not eligible. Smoke 14/14.",
+        "CHK-001:adversarial:0 [pass/logic_test] node packages/main/dist/tasks/capability-release-backfill-smoke.js note=Records only non_authoritative/gateEvidence=false PCRs; never activates (PBP-882 stays status=candidate), never changes surfacedCount (stays 0), never writes a playbook-outcome."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M-EXPOSURE",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Capability candidates are exposed as pending learning and exposure is recorded.",
+      "acceptance": "post-backfill PBP-882 shows capabilityRelease in promotion_status; an exposure record is written on candidate-inspection; never active.",
+      "evidence": [
+        "CHK-002:happy:0 [pass/logic_test] node packages/main/dist/tasks/capability-candidate-exposure-smoke.js note=A capability candidate surfaces in pendingLearning with its capabilityRelease lineage; candidate-exposure trial writes an observable exposure record. Smoke 8/8.",
+        "CHK-002:edge:0 [pass/logic_test] node packages/main/dist/tasks/capability-candidate-exposure-smoke.js note=Only surfaces under pendingLearning/promotionRecommendations/candidate-inspection; matchActivePlaybook returns null (status=candidate); never active.",
+        "CHK-002:adversarial:0 [pass/logic_test] node packages/main/dist/tasks/capability-candidate-exposure-smoke.js note=Recording/observing exposure does not change status and is not a helped outcome."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M-PROMOTION",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Capability candidates flow through evidence-based outcome/promotion without weakening invariants.",
+      "acceptance": "outcome_record accepts a structured capability-candidate outcome; promotion_sweep recommends only on decisive evidence; DONE-success!=helped asserted.",
+      "evidence": [
+        "CHK-003:happy:0 [pass/logic_test] node packages/main/dist/tasks/capability-candidate-promotion-smoke.js note=A capability candidate flows through playbook_outcome_record (structured verdict + candidate-inspection) and promotion_sweep emits an idempotent recommend_activate; never auto-activates. Smoke 8/8.",
+        "CHK-003:edge:0 [pass/logic_test] node packages/main/dist/tasks/capability-candidate-promotion-smoke.js note=done-settlement outcome excluded from helped/decisiveSamples; helped requires exposureMode!=none.",
+        "CHK-003:adversarial:0 [pass/logic_test] node packages/main/dist/tasks/capability-candidate-promotion-smoke.js note=No path activates a capability candidate without concrete exposure + structured verdict."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M-VALIDATE",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Build, new smokes, and validate are green with a live backfill idempotency proof.",
+      "acceptance": "tsc clean + 3 smokes green + lattice validate pass; live B-785e backfill idempotent.",
+      "evidence": [
+        "CHK-004:happy:0 [pass/logic_test] lattice validate note=tsc clean; three new smokes green; lattice validate --json status=pass with the new smokes in the suite.",
+        "CHK-004:edge:0 [pass/manual_transcript] node packages/main/dist/cli.js capability_release_backfill --storyId=B-785e --dryRun note=Live B-785e backfill idempotent: after apply, re-run dry-run shows 0 eligible; PBP-882 stays status=candidate, surfacedCount 0; no helped outcome.",
+        "CHK-004:adversarial:0 [pass/logic_test] lattice validate note=No unrelated smoke in the curated validate suite regresses."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    }
+  ]
+}

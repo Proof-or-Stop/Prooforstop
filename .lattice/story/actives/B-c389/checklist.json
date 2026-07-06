@@ -4,33 +4,323 @@
       "id": "CHK-001",
       "title": "M8: capability_release_backfill CLI (dry-run/apply/--digest) + live B-785e/PBP-882 backfill",
       "context": "Mirror playbook_seed_backfill. Default --dryRun detects under-bound candidates (lineage lacks capabilityReleaseId while a capability release exists for the story); --apply enriches exactly those with capabilityReleaseId/capabilityId/capabilityVersion/artifactReleaseId; a --digest confirm gate (apply requires the dry-run plan digest). Idempotent, never activates, never infers helped. Then RUN it on the real B-785e artifact release + PBP-882. Ref: exec-plan doc M8 + Follow-up Story.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-05T23:00:34.350Z",
+      "endTime": "2026-07-05T23:29:23.201Z",
+      "userSees": "capability_release_backfill --dryRun: 1 eligible (B-785e/PBP-882); --apply: PBP-882 enriched with capabilityReleaseId; re-run: 0 eligible (idempotent)",
+      "files": {
+        "modify": [
+          "packages/main/src/core/capability-release.ts",
+          "packages/main/src/core/playbook-seed.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "docs/CLI.md"
+        ],
+        "create": [
+          "packages/main/src/handlers/capability-release-backfill.ts",
+          "packages/main/src/tasks/capability-release-backfill-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/capability-release-backfill-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "capability_release_backfill --dryRun detects under-bound candidates; --apply enriches lineage with capabilityReleaseId/capabilityId/capabilityVersion/artifactReleaseId. For a story with an artifact release but no capability release, the record-then-bind plan first records the missing capability release (classify from artifact paths) then binds. Live-run binds real B-785e/PBP-882.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "--apply requires a --digest matching the dry-run plan; re-running apply is idempotent (0 eligible, no duplicate); a story with no artifact release and no capability release yields 0 eligible.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Backfill records only non-authoritative capability releases (authority=non_authoritative, gateEvidence=false), never activates a candidate (status stays candidate), never changes usage.surfacedCount, and never writes a playbook-outcome.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js capability_release_backfill --storyId=B-785e --apply --digest=...",
+          "result": "pass",
+          "note": "Live B-785e backfill: dry-run 1 eligible (PBP-882, record-then-bind); apply recorded PCR-9e7fdacf081e7346181bc04d + bound PBP-882 lineage (capabilityReleaseId/capabilityId/version/artifactReleaseId).",
+          "headHash": "25ccc1648cb815f90fd17c5ed0edc17c253cdbc0",
+          "materialHash": "d0597b85d3f6f36b844bc9dea61b8e05fc75ed5fba924a652412893357a13e59",
+          "storyFilesHash": "ec3a79544f2be1276ed044638d0a3c0b829033b649c089c11c85563366005b9d",
+          "timestamp": "2026-07-06T06:17:38.090Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/capability-release-backfill-smoke.js",
+          "result": "pass",
+          "note": "--apply requires matching --digest (wrong digest refused); re-run is idempotent (0 eligible); no-artifact-release story not eligible. Smoke 14/14.",
+          "headHash": "25ccc1648cb815f90fd17c5ed0edc17c253cdbc0",
+          "materialHash": "d0597b85d3f6f36b844bc9dea61b8e05fc75ed5fba924a652412893357a13e59",
+          "storyFilesHash": "ec3a79544f2be1276ed044638d0a3c0b829033b649c089c11c85563366005b9d",
+          "timestamp": "2026-07-06T06:17:38.090Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/capability-release-backfill-smoke.js",
+          "result": "pass",
+          "note": "Records only non_authoritative/gateEvidence=false PCRs; never activates (PBP-882 stays status=candidate), never changes surfacedCount (stays 0), never writes a playbook-outcome.",
+          "headHash": "25ccc1648cb815f90fd17c5ed0edc17c253cdbc0",
+          "materialHash": "d0597b85d3f6f36b844bc9dea61b8e05fc75ed5fba924a652412893357a13e59",
+          "storyFilesHash": "ec3a79544f2be1276ed044638d0a3c0b829033b649c089c11c85563366005b9d",
+          "timestamp": "2026-07-06T06:17:38.090Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "M6: candidate pending-learning exposure surfaces + exposure records",
       "context": "Render candidate capability playbooks ONLY under pendingLearning / promotionRecommendations / candidate-inspection, never as active runtime guidance (matchActivePlaybook status===active guard already enforces this; do not weaken it). Write an exposure record per exposure: playbookId, capabilityReleaseId, exposureMode, surface, storyId or sessionId, observedAt.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-05T23:34:24.660Z",
+      "endTime": "2026-07-05T23:38:16.079Z",
+      "userSees": "playbook_promotion_status shows PBP-882 with capabilityRelease after backfill; an exposure record is written on candidate-inspection exposure",
+      "files": {
+        "modify": [
+          "packages/main/src/core/learning-store.ts",
+          "packages/main/src/handlers/playbook.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/capability-candidate-exposure-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/capability-candidate-exposure-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A capability candidate (post-backfill PBP-882) surfaces in playbook_promotion_status pendingLearning with its capabilityRelease lineage; when exposed via candidate-inspection an exposure record is written (playbookId, capabilityReleaseId, exposureMode, surface, storyId/sessionId, observedAt).",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Exposure only under pendingLearning/promotionRecommendations/candidate-inspection; the candidate never enters active runtime surfacing (matchActivePlaybook status guard, unchanged).",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Writing an exposure record does not change the candidate status and is not treated as a helped outcome.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/capability-candidate-exposure-smoke.js",
+          "result": "pass",
+          "note": "A capability candidate surfaces in pendingLearning with its capabilityRelease lineage; candidate-exposure trial writes an observable exposure record. Smoke 8/8.",
+          "headHash": "25ccc1648cb815f90fd17c5ed0edc17c253cdbc0",
+          "materialHash": "d0597b85d3f6f36b844bc9dea61b8e05fc75ed5fba924a652412893357a13e59",
+          "storyFilesHash": "ec3a79544f2be1276ed044638d0a3c0b829033b649c089c11c85563366005b9d",
+          "timestamp": "2026-07-06T06:17:38.090Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/capability-candidate-exposure-smoke.js",
+          "result": "pass",
+          "note": "Only surfaces under pendingLearning/promotionRecommendations/candidate-inspection; matchActivePlaybook returns null (status=candidate); never active.",
+          "headHash": "25ccc1648cb815f90fd17c5ed0edc17c253cdbc0",
+          "materialHash": "d0597b85d3f6f36b844bc9dea61b8e05fc75ed5fba924a652412893357a13e59",
+          "storyFilesHash": "ec3a79544f2be1276ed044638d0a3c0b829033b649c089c11c85563366005b9d",
+          "timestamp": "2026-07-06T06:17:38.090Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/capability-candidate-exposure-smoke.js",
+          "result": "pass",
+          "note": "Recording/observing exposure does not change status and is not a helped outcome.",
+          "headHash": "25ccc1648cb815f90fd17c5ed0edc17c253cdbc0",
+          "materialHash": "d0597b85d3f6f36b844bc9dea61b8e05fc75ed5fba924a652412893357a13e59",
+          "storyFilesHash": "ec3a79544f2be1276ed044638d0a3c0b829033b649c089c11c85563366005b9d",
+          "timestamp": "2026-07-06T06:17:38.090Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "M7: structured-outcome recording + evidence-based promotion recommendation commands",
       "context": "Command surface to record a structured outcome (helped/dismissed/harmful) bound to a concrete exposureMode + structured verdictSource, and a command to emit promotion recommendations when decisiveSamples suffice. DONE-success != helped and the decisiveSamples exclusions are already enforced in learning-store.ts (B-8128 asserts); build the user-facing commands on top without changing those rules.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-05T23:38:18.143Z",
+      "endTime": "2026-07-05T23:40:54.131Z",
+      "userSees": "playbook_outcome_record accepts a structured capability-candidate outcome; playbook_promotion_sweep emits a recommendation only on decisive evidence; DONE-success never counts as helped",
+      "files": {
+        "modify": [
+          "packages/main/src/core/learning-store.ts",
+          "packages/main/src/handlers/playbook.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/capability-candidate-promotion-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/capability-candidate-promotion-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A capability candidate flows through the existing playbook_outcome_record (structured verdict + concrete exposureMode) and playbook_promotion_sweep emits an idempotent promotion recommendation when decisiveSamples suffice; never auto-activates.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A done-settlement outcome does not count toward helped/decisiveSamples; helped requires exposureMode != none + a structured verdictSource (existing enforcement, asserted for capability candidates).",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No path promotes a capability candidate to active without concrete exposure + structured verdict; the invariant is asserted, not weakened.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/capability-candidate-promotion-smoke.js",
+          "result": "pass",
+          "note": "A capability candidate flows through playbook_outcome_record (structured verdict + candidate-inspection) and promotion_sweep emits an idempotent recommend_activate; never auto-activates. Smoke 8/8.",
+          "headHash": "25ccc1648cb815f90fd17c5ed0edc17c253cdbc0",
+          "materialHash": "d0597b85d3f6f36b844bc9dea61b8e05fc75ed5fba924a652412893357a13e59",
+          "storyFilesHash": "ec3a79544f2be1276ed044638d0a3c0b829033b649c089c11c85563366005b9d",
+          "timestamp": "2026-07-06T06:17:38.090Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/capability-candidate-promotion-smoke.js",
+          "result": "pass",
+          "note": "done-settlement outcome excluded from helped/decisiveSamples; helped requires exposureMode!=none.",
+          "headHash": "25ccc1648cb815f90fd17c5ed0edc17c253cdbc0",
+          "materialHash": "d0597b85d3f6f36b844bc9dea61b8e05fc75ed5fba924a652412893357a13e59",
+          "storyFilesHash": "ec3a79544f2be1276ed044638d0a3c0b829033b649c089c11c85563366005b9d",
+          "timestamp": "2026-07-06T06:17:38.090Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/capability-candidate-promotion-smoke.js",
+          "result": "pass",
+          "note": "No path activates a capability candidate without concrete exposure + structured verdict.",
+          "headHash": "25ccc1648cb815f90fd17c5ed0edc17c253cdbc0",
+          "materialHash": "d0597b85d3f6f36b844bc9dea61b8e05fc75ed5fba924a652412893357a13e59",
+          "storyFilesHash": "ec3a79544f2be1276ed044638d0a3c0b829033b649c089c11c85563366005b9d",
+          "timestamp": "2026-07-06T06:17:38.090Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
       "title": "Validation: build + new smokes + lattice validate green; live backfill idempotency proof",
       "context": "tsc clean; new smokes green; lattice validate pass. Prove the LIVE B-785e backfill is idempotent: re-run is a no-op, no duplicate candidate, PBP-882 stays status=candidate with usage.surfacedCount unchanged, and no helped outcome is produced.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-05T23:47:27.379Z",
+      "userSees": "Project validation commands passed; live B-785e backfill idempotency proof green",
+      "files": {
+        "modify": [
+          "lattice.config.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/capability-release-backfill-smoke.ts",
+          "packages/main/src/tasks/capability-candidate-exposure-smoke.ts",
+          "packages/main/src/tasks/capability-candidate-promotion-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "tsc clean; the three new smokes green; lattice validate --json status=pass with the new smokes in the suite.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The live B-785e backfill is proven idempotent (re-run no-op, PBP-882 stays status=candidate, usage.surfacedCount unchanged, no helped outcome).",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No unrelated smoke in the curated validate suite regresses.",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "tsc clean; three new smokes green; lattice validate --json status=pass with the new smokes in the suite.",
+          "headHash": "25ccc1648cb815f90fd17c5ed0edc17c253cdbc0",
+          "materialHash": "d0597b85d3f6f36b844bc9dea61b8e05fc75ed5fba924a652412893357a13e59",
+          "storyFilesHash": "ec3a79544f2be1276ed044638d0a3c0b829033b649c089c11c85563366005b9d",
+          "timestamp": "2026-07-06T06:17:38.090Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js capability_release_backfill --storyId=B-785e --dryRun",
+          "result": "pass",
+          "note": "Live B-785e backfill idempotent: after apply, re-run dry-run shows 0 eligible; PBP-882 stays status=candidate, surfacedCount 0; no helped outcome.",
+          "headHash": "25ccc1648cb815f90fd17c5ed0edc17c253cdbc0",
+          "materialHash": "d0597b85d3f6f36b844bc9dea61b8e05fc75ed5fba924a652412893357a13e59",
+          "storyFilesHash": "ec3a79544f2be1276ed044638d0a3c0b829033b649c089c11c85563366005b9d",
+          "timestamp": "2026-07-06T06:17:38.090Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "No unrelated smoke in the curated validate suite regresses.",
+          "headHash": "25ccc1648cb815f90fd17c5ed0edc17c253cdbc0",
+          "materialHash": "d0597b85d3f6f36b844bc9dea61b8e05fc75ed5fba924a652412893357a13e59",
+          "storyFilesHash": "ec3a79544f2be1276ed044638d0a3c0b829033b649c089c11c85563366005b9d",
+          "timestamp": "2026-07-06T06:17:38.090Z"
+        }
+      ]
     }
   ]
 }
