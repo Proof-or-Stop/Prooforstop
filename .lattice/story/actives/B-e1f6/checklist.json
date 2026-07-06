@@ -52,10 +52,10 @@
           "command": "node experiments/multi-model-ablation/cell03-shards/selfcheck.mjs",
           "result": "pass",
           "note": "Selfcheck reports coverage=1152 and shards=8, proving every expected Cell03 key is covered exactly once.",
-          "headHash": "ef25c2d564250e1fdc3362dc754eb7d194c86512",
-          "materialHash": "33ef9cc7e07f012f0cbdb5a41695fc3e6179ce6cb4cfa0a994429f927ca1b503",
-          "storyFilesHash": "2b8420f3421fc53658a40832127705601613a977c31dc36e46f7c0b568c99b9e",
-          "timestamp": "2026-07-06T16:06:20.150Z"
+          "headHash": "45807b04108cf63c01cecf2511cc44ed18f0d584",
+          "materialHash": "00ceac1a7775e7b457b30f939795210e982aa9b8746c3cd1e4a7939d3866cf9a",
+          "storyFilesHash": "29d3f46122322965c8492b5704b3575fd18f2e854681813468459841c3ffeb4d",
+          "timestamp": "2026-07-06T16:42:23.465Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -64,10 +64,10 @@
           "command": "node experiments/multi-model-ablation/cell03-shards/selfcheck.mjs",
           "result": "pass",
           "note": "Selfcheck includes invalid shard input rejection through fail-closed shard argument validation.",
-          "headHash": "ef25c2d564250e1fdc3362dc754eb7d194c86512",
-          "materialHash": "33ef9cc7e07f012f0cbdb5a41695fc3e6179ce6cb4cfa0a994429f927ca1b503",
-          "storyFilesHash": "2b8420f3421fc53658a40832127705601613a977c31dc36e46f7c0b568c99b9e",
-          "timestamp": "2026-07-06T16:06:20.150Z"
+          "headHash": "45807b04108cf63c01cecf2511cc44ed18f0d584",
+          "materialHash": "00ceac1a7775e7b457b30f939795210e982aa9b8746c3cd1e4a7939d3866cf9a",
+          "storyFilesHash": "29d3f46122322965c8492b5704b3575fd18f2e854681813468459841c3ffeb4d",
+          "timestamp": "2026-07-06T16:42:23.465Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -76,10 +76,10 @@
           "command": "node experiments/multi-model-ablation/cell03-shards/selfcheck.mjs",
           "result": "pass",
           "note": "Selfcheck proves duplicate/missing partition conditions cannot pass merge validation.",
-          "headHash": "ef25c2d564250e1fdc3362dc754eb7d194c86512",
-          "materialHash": "33ef9cc7e07f012f0cbdb5a41695fc3e6179ce6cb4cfa0a994429f927ca1b503",
-          "storyFilesHash": "2b8420f3421fc53658a40832127705601613a977c31dc36e46f7c0b568c99b9e",
-          "timestamp": "2026-07-06T16:06:20.150Z"
+          "headHash": "45807b04108cf63c01cecf2511cc44ed18f0d584",
+          "materialHash": "00ceac1a7775e7b457b30f939795210e982aa9b8746c3cd1e4a7939d3866cf9a",
+          "storyFilesHash": "29d3f46122322965c8492b5704b3575fd18f2e854681813468459841c3ffeb4d",
+          "timestamp": "2026-07-06T16:42:23.465Z"
         }
       ]
     },
@@ -131,10 +131,10 @@
           "command": "node experiments/multi-model-ablation/cell03-shards/selfcheck.mjs",
           "result": "pass",
           "note": "Selfcheck writes fixture shard rows only under temporary shard-local directories.",
-          "headHash": "ef25c2d564250e1fdc3362dc754eb7d194c86512",
-          "materialHash": "33ef9cc7e07f012f0cbdb5a41695fc3e6179ce6cb4cfa0a994429f927ca1b503",
-          "storyFilesHash": "2b8420f3421fc53658a40832127705601613a977c31dc36e46f7c0b568c99b9e",
-          "timestamp": "2026-07-06T16:06:20.150Z"
+          "headHash": "45807b04108cf63c01cecf2511cc44ed18f0d584",
+          "materialHash": "00ceac1a7775e7b457b30f939795210e982aa9b8746c3cd1e4a7939d3866cf9a",
+          "storyFilesHash": "29d3f46122322965c8492b5704b3575fd18f2e854681813468459841c3ffeb4d",
+          "timestamp": "2026-07-06T16:42:23.465Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -143,10 +143,10 @@
           "command": "node experiments/multi-model-ablation/cell03-shards/selfcheck.mjs",
           "result": "pass",
           "note": "Selfcheck reports canonicalUntouched=pass, proving the canonical Cell03 rows ledger is not modified.",
-          "headHash": "ef25c2d564250e1fdc3362dc754eb7d194c86512",
-          "materialHash": "33ef9cc7e07f012f0cbdb5a41695fc3e6179ce6cb4cfa0a994429f927ca1b503",
-          "storyFilesHash": "2b8420f3421fc53658a40832127705601613a977c31dc36e46f7c0b568c99b9e",
-          "timestamp": "2026-07-06T16:06:20.150Z"
+          "headHash": "45807b04108cf63c01cecf2511cc44ed18f0d584",
+          "materialHash": "00ceac1a7775e7b457b30f939795210e982aa9b8746c3cd1e4a7939d3866cf9a",
+          "storyFilesHash": "29d3f46122322965c8492b5704b3575fd18f2e854681813468459841c3ffeb4d",
+          "timestamp": "2026-07-06T16:42:23.465Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -155,10 +155,10 @@
           "command": "node experiments/multi-model-ablation/cell03-shards/selfcheck.mjs",
           "result": "pass",
           "note": "Selfcheck reports lockReject=pass and rerunReject=pass, proving duplicate same-shard ownership/output fails closed.",
-          "headHash": "ef25c2d564250e1fdc3362dc754eb7d194c86512",
-          "materialHash": "33ef9cc7e07f012f0cbdb5a41695fc3e6179ce6cb4cfa0a994429f927ca1b503",
-          "storyFilesHash": "2b8420f3421fc53658a40832127705601613a977c31dc36e46f7c0b568c99b9e",
-          "timestamp": "2026-07-06T16:06:20.150Z"
+          "headHash": "45807b04108cf63c01cecf2511cc44ed18f0d584",
+          "materialHash": "00ceac1a7775e7b457b30f939795210e982aa9b8746c3cd1e4a7939d3866cf9a",
+          "storyFilesHash": "29d3f46122322965c8492b5704b3575fd18f2e854681813468459841c3ffeb4d",
+          "timestamp": "2026-07-06T16:42:23.465Z"
         }
       ]
     },
@@ -211,10 +211,10 @@
           "command": "node experiments/multi-model-ablation/cell03-shards/selfcheck.mjs",
           "result": "pass",
           "note": "Selfcheck reports mergeComplete=pass with 1152 merged fixture rows and zero duplicates.",
-          "headHash": "ef25c2d564250e1fdc3362dc754eb7d194c86512",
-          "materialHash": "33ef9cc7e07f012f0cbdb5a41695fc3e6179ce6cb4cfa0a994429f927ca1b503",
-          "storyFilesHash": "2b8420f3421fc53658a40832127705601613a977c31dc36e46f7c0b568c99b9e",
-          "timestamp": "2026-07-06T16:06:20.150Z"
+          "headHash": "45807b04108cf63c01cecf2511cc44ed18f0d584",
+          "materialHash": "00ceac1a7775e7b457b30f939795210e982aa9b8746c3cd1e4a7939d3866cf9a",
+          "storyFilesHash": "29d3f46122322965c8492b5704b3575fd18f2e854681813468459841c3ffeb4d",
+          "timestamp": "2026-07-06T16:42:23.465Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -223,10 +223,10 @@
           "command": "node experiments/multi-model-ablation/cell03-shards/selfcheck.mjs",
           "result": "pass",
           "note": "Selfcheck reports missingReject=pass, proving partial shard output cannot pass complete merge validation.",
-          "headHash": "ef25c2d564250e1fdc3362dc754eb7d194c86512",
-          "materialHash": "33ef9cc7e07f012f0cbdb5a41695fc3e6179ce6cb4cfa0a994429f927ca1b503",
-          "storyFilesHash": "2b8420f3421fc53658a40832127705601613a977c31dc36e46f7c0b568c99b9e",
-          "timestamp": "2026-07-06T16:06:20.150Z"
+          "headHash": "45807b04108cf63c01cecf2511cc44ed18f0d584",
+          "materialHash": "00ceac1a7775e7b457b30f939795210e982aa9b8746c3cd1e4a7939d3866cf9a",
+          "storyFilesHash": "29d3f46122322965c8492b5704b3575fd18f2e854681813468459841c3ffeb4d",
+          "timestamp": "2026-07-06T16:42:23.465Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -235,10 +235,10 @@
           "command": "node experiments/multi-model-ablation/cell03-shards/selfcheck.mjs",
           "result": "pass",
           "note": "Selfcheck reports duplicateReject=pass and digestDriftReject=pass, proving duplicate rows and manifest/row digest drift fail closed.",
-          "headHash": "ef25c2d564250e1fdc3362dc754eb7d194c86512",
-          "materialHash": "33ef9cc7e07f012f0cbdb5a41695fc3e6179ce6cb4cfa0a994429f927ca1b503",
-          "storyFilesHash": "2b8420f3421fc53658a40832127705601613a977c31dc36e46f7c0b568c99b9e",
-          "timestamp": "2026-07-06T16:06:20.150Z"
+          "headHash": "45807b04108cf63c01cecf2511cc44ed18f0d584",
+          "materialHash": "00ceac1a7775e7b457b30f939795210e982aa9b8746c3cd1e4a7939d3866cf9a",
+          "storyFilesHash": "29d3f46122322965c8492b5704b3575fd18f2e854681813468459841c3ffeb4d",
+          "timestamp": "2026-07-06T16:42:23.465Z"
         }
       ]
     },
@@ -289,10 +289,10 @@
           "file": "experiments/multi-model-ablation/cell03-shards/README.md",
           "result": "pass",
           "note": "README documents plan, fixture shard output, merge validation, and selfcheck commands.",
-          "headHash": "ef25c2d564250e1fdc3362dc754eb7d194c86512",
-          "materialHash": "33ef9cc7e07f012f0cbdb5a41695fc3e6179ce6cb4cfa0a994429f927ca1b503",
-          "storyFilesHash": "2b8420f3421fc53658a40832127705601613a977c31dc36e46f7c0b568c99b9e",
-          "timestamp": "2026-07-06T16:06:20.150Z"
+          "headHash": "45807b04108cf63c01cecf2511cc44ed18f0d584",
+          "materialHash": "00ceac1a7775e7b457b30f939795210e982aa9b8746c3cd1e4a7939d3866cf9a",
+          "storyFilesHash": "29d3f46122322965c8492b5704b3575fd18f2e854681813468459841c3ffeb4d",
+          "timestamp": "2026-07-06T16:42:23.465Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -300,10 +300,10 @@
           "file": "experiments/multi-model-ablation/cell03-shards/README.md",
           "result": "pass",
           "note": "README explicitly distinguishes row-level Cell03 sharding from Proofbound Parallel Wave story scheduling.",
-          "headHash": "ef25c2d564250e1fdc3362dc754eb7d194c86512",
-          "materialHash": "33ef9cc7e07f012f0cbdb5a41695fc3e6179ce6cb4cfa0a994429f927ca1b503",
-          "storyFilesHash": "2b8420f3421fc53658a40832127705601613a977c31dc36e46f7c0b568c99b9e",
-          "timestamp": "2026-07-06T16:06:20.150Z"
+          "headHash": "45807b04108cf63c01cecf2511cc44ed18f0d584",
+          "materialHash": "00ceac1a7775e7b457b30f939795210e982aa9b8746c3cd1e4a7939d3866cf9a",
+          "storyFilesHash": "29d3f46122322965c8492b5704b3575fd18f2e854681813468459841c3ffeb4d",
+          "timestamp": "2026-07-06T16:42:23.465Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -311,10 +311,10 @@
           "file": "experiments/multi-model-ablation/cell03-shards/README.md",
           "result": "pass",
           "note": "README states non-goals: no provider execution, no formal rows, no Cell06 unlock, no Phase2 unlock, and no paper claim changes.",
-          "headHash": "ef25c2d564250e1fdc3362dc754eb7d194c86512",
-          "materialHash": "33ef9cc7e07f012f0cbdb5a41695fc3e6179ce6cb4cfa0a994429f927ca1b503",
-          "storyFilesHash": "2b8420f3421fc53658a40832127705601613a977c31dc36e46f7c0b568c99b9e",
-          "timestamp": "2026-07-06T16:06:20.150Z"
+          "headHash": "45807b04108cf63c01cecf2511cc44ed18f0d584",
+          "materialHash": "00ceac1a7775e7b457b30f939795210e982aa9b8746c3cd1e4a7939d3866cf9a",
+          "storyFilesHash": "29d3f46122322965c8492b5704b3575fd18f2e854681813468459841c3ffeb4d",
+          "timestamp": "2026-07-06T16:42:23.465Z"
         }
       ]
     }
