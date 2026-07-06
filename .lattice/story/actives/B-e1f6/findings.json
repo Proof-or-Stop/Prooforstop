@@ -66,6 +66,25 @@
       ],
       "signatureTag": "adversarial|mjs|merge-binding-drift",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-e1f6:F-005",
+      "desc": "selfcheck.mjs:34-35,88-89 asserts canonical-rows-untouched against future-cell03-results/full/cell03-rows.jsonl which does not exist, so canonicalBefore===canonicalAfter is null===null and passes vacuously. The real safeguard assertSafeOutputPath (merge.mjs:25-31, refuses to write cell03-rows.jsonl) is never invoked by selfcheck. Fix: add a selfcheck case calling mergeShardOutputs({inputDir, output:<path ending in cell03-rows.jsonl>}) asserting it throws.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-06T15:42:58.523Z",
+      "reviewRound": "2026-07-06T15:10:19.645Z",
+      "reviewRunId": "B-e1f6:RR-004",
+      "_hash": "e346a93d674184ba638851820c3ef0159a6b3e03fd159a4c8b5f9dae3c0a189a",
+      "files": [
+        "experiments/multi-model-ablation/cell03-shards/selfcheck.mjs",
+        "experiments/multi-model-ablation/cell03-shards/merge.mjs"
+      ],
+      "signatureTag": "missing|mjs|selfcheck-asserts-canonical",
+      "signatureTagSource": "auto"
     }
   ]
 }
