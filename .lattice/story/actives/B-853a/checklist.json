@@ -64,11 +64,11 @@
           "kind": "manual_transcript",
           "command": "node experiments/pos-instrument-replay/selfcheck-m4.mjs",
           "result": "pass",
-          "note": "Strict three-state closes the round-1 false-pass holes: an incomplete scale (fewer than protocol.N records), stripped digests/goldMetrics, a missing tamper (class,handling) identity, a 3-field resume stub, or a negative/null elapsedMs each now flip the corresponding hypothesis to FAIL (never a false pass) — proven by selfcheck-m4 sub-checks J/K/L/M/N; an absent input file yields inconclusive + a null generatedInputs sha (never a crash, never all-pass) — sub-check O.",
-          "headHash": "eeb1a9592dad76d13e17d1099833e3f87d06dbf1",
+          "note": "Three-state now validates each stream down to its substantive VALUES/MAPPINGS (round-3 deep-harden, commit eeb1a9592, digest 198e33866bfbc52439abb38704bb3d7bd3c5611a2337fa003fae869432dff458): H1 rejects any proof record whose scale is not a protocol.N key + requires total count===sum(protocol.N) + a full 10-key goldMetrics set (partial fails); H2 binds each (class,handling) identity to its protocol-expected disposition (acceptanceBucket->accepted / acknowledgedLimitations->acknowledged-limitation / dropped->dropped / failClosed->fail-closed), so relabeling a verdict's disposition fails even with matching counts; H3 checks postResume VALUES (dup==0, gap==0, non-empty casualtyDisposition for all kills; killC.stoppedRecordPreserved===true + non-empty stoppedDisposition; empty {} fails). Proven by selfcheck sub-checks P (extra undeclared scale->H1 fail), Q (disposition relabel->H2 fail via binding), R (killC.stoppedRecordPreserved=false AND empty postResume->H3 fail), S (partial goldMetrics->H1 fail). Real evidence still all-pass.",
+          "headHash": "022759a321edcf01efc3d81dc233aa38bb8d0721",
           "materialHash": "8abdad7e6b9e5770501bfc64ed7d37b8d9ec0d140aeac2f75c6521895bf1fc8b",
           "storyFilesHash": "c978601679f808fa8a190348838bf2ea9efa12791fa9e084759011421b230dbe",
-          "timestamp": "2026-07-06T08:08:37.635Z"
+          "timestamp": "2026-07-06T08:08:39.033Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
