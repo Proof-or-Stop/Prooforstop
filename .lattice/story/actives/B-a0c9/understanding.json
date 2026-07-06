@@ -15,11 +15,9 @@
     "No correctness change to run-batch.mjs or any production/runtime code.",
     "The F-018 assertion must target the genuinely-stale (dead-pid) lock that the forced break could not remove."
   ],
-  "unknowns": [
-    "Whether lattice validate needs the worktree node_modules for the plain-node selfchecks (they use only node builtins + the global lattice CLI, so expected not to)."
-  ],
+  "unknowns": [],
   "touchpoints": [
     "experiments/pos-instrument-replay/selfcheck-m3.mjs: fail(), makeSandbox(), the 12 finally cleanup sites, and checkResumeBreakFailureDiagnostic (sub-check M)."
   ],
-  "timestamp": "2026-07-06T10:22:09.857Z"
+  "timestamp": "2026-07-06T10:30:31.751Z"
 }
