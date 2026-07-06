@@ -26,6 +26,15 @@
       "reviewRound": "2026-07-06T18:22:23.063Z",
       "reviewRunId": "B-58a0:RR-004",
       "_hash": "b7a837ce6025888d9b0415e92ba13398f90d10700cb186fcbcdc10b011128062"
+    },
+    {
+      "id": "B-58a0:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 re-review of round-1 quality fix (commit 62636804a). Verified B-58a0:F-001 genuinely resolved: realRender no longer wraps store.readMilestoneLedger in a swallowing try/catch — readMilestoneLedger (store.ts:669-676) rethrows any non-StoryArtifactMissingError (e.g. JSON parse errors on a corrupt milestone-ledger.json), and that throw now propagates straight out of realRender to the outer try/catch in appendMilestoneStatusAfterMutation (cli-engine.ts:929-937), which returns visibleFailure(e) — a visible stdout warning block, exit code 0. renderDerived only swallows errors named StoryArtifactMissingError via ignoreMissingArtifact and rethrows everything else (parse errors included). New regression test (milestone-status.test.mjs) writes a corrupt milestone-ledger.json, runs checklist_update, and asserts both the mutation succeeded and the visible warning block appears while the checklist-derived-ledger text does NOT (so corruption cannot be masked as a clean no-ledger render). Ran the touched test file directly (node packages/main/tests/milestone-status.test.mjs) — ok. Ran tsc --noEmit on packages/main — clean. Checked no other diff-introduced catch block swallows errors silently (ignoreMissingArtifact rethrows unknowns; visibleFailure/alreadyShown introduce no new empty catches). No dead code, no unnecessary as any (the two narrow casts are required since StoryArtifactMissingError is not exported for instanceof). No bridge.ts I/O-shell-isolation pattern in this repo. Diff does not touch proof/receipt/provider/run/job metadata semantics (check 4 N/A). No new quality defects found in packages/main/src/cli-engine.ts, packages/main/src/core/milestone-status.ts, packages/main/tests/milestone-status.test.mjs.",
+      "createdAt": "2026-07-06T18:44:45.639Z",
+      "reviewRound": "2026-07-06T18:22:23.063Z",
+      "reviewRunId": "B-58a0:RR-005",
+      "_hash": "fd94a032df60c26772226a9569df8122fa240142230e782aa1750580e3549f5a"
     }
   ]
 }
