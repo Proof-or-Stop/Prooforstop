@@ -270,7 +270,7 @@
       "desc": "F-CODEX-R2-3 (host-2, MEDIUM; corroborates quality F-011): H1 accepts partial goldMetrics. hasWellFormedProofEvidence requires goldMetrics to be a non-empty object but not the EXPECTED key set. Setting every proof record goldMetrics to {expectedIdsFoundRate:1} (re-signed) passes. FIX: require goldMetrics to carry the full expected metric key set (the keys the instrument's verify emits), not merely be non-empty.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex",
       "createdAt": "2026-07-06T08:01:07.058Z",
@@ -281,7 +281,11 @@
         "experiments/pos-instrument-replay/analyze-batch.mjs"
       ],
       "signatureTag": "adversarial|mjs|codex-host-medium",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in eeb1a9592 (same full-goldMetrics-key-set check as F-011). selfcheck-m4 sub-check S.",
+      "resolvedAt": "2026-07-06T08:20:04.560Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-853a:F-015",
