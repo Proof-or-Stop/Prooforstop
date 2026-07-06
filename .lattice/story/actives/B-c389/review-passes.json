@@ -71,6 +71,15 @@
       "reviewRound": "2026-07-06T06:25:18.576Z",
       "reviewRunId": "B-c389:RR-012",
       "_hash": "d50771a2ed8c1192c2547e19abe118fc0b99a112052e9d9d344ee897f4c0d57f"
+    },
+    {
+      "id": "B-c389:RP-009",
+      "agent": "lattice-review-docs",
+      "note": "Round 3 re-review post-merge (107-commit sync w/ B-6529 + 2nd capability-releases.jsonl ledger row). Diff unchanged from prior passing round. Verified docs/CLI.md capability_release_backfill section (~lines 626-646) against packages/main/src/handlers/capability-release-backfill.ts + packages/main/src/core/capability-release.ts: dry-run is default (apply defaults false, dryRun flag optional, mutually exclusive with apply), --apply requires --digest matching current planDigest (throws on drift/missing), record-then-bind semantics match exactly (records missing PCR via appendCapabilityReleaseRecord + git add -f commit, then binds candidate lineage; never touches status/usage/outcome; idempotent), and authority/gateEvidence are hardcoded non_authoritative/false in both dry-run and apply report branches. No doc-code drift found.",
+      "createdAt": "2026-07-06T06:26:43.982Z",
+      "reviewRound": "2026-07-06T06:25:18.576Z",
+      "reviewRunId": "B-c389:RR-013",
+      "_hash": "16315a170b7dfa5b2041612cc1a2acee9c16d026f62118e165745631ce9a1025"
     }
   ]
 }
