@@ -51,7 +51,7 @@ import type { HandlerContext } from '../handlers/context.js';
 import { resetConfigCache } from '../core/config.js';
 import { z } from 'zod';
 import { MAIN_TOOLS } from '../cli/command-catalog.js';
-import { evaluateDoneIntentEquivalence, type ProofStoryDiagnosticInput } from '../core/proofstory.js';
+import { buildMilestoneLedger, evaluateDoneIntentEquivalence, type ProofStoryDiagnosticInput } from '../core/proofstory.js';
 import type {
   ChecklistData,
   ChecklistItem,
@@ -434,7 +434,12 @@ function makeStore(
   }
 }
 
-// ── (d) CLI milestone schema PRESERVES notApplicableDecision ────────────────
+// ── (d) [CHK-007] CLI milestone schema PRESERVES notApplicableDecision ──────
+//
+// Traceability: this block is the committed regression for the CHK-007 not_applicable
+// justification deliverable (it is NOT a CHK-010 case — the file-level @checklist tag
+// covers blocks (a)-(c); this block (d) covers CHK-007). It is the durable, un-gameable
+// counterpart to the CHK-007:happy:1 CLI transcript.
 //
 // B-f7b3 (codex host-B HIGH finding): proofStoryMilestoneSchema in
 // packages/main/src/cli/command-catalog.ts omitted `notApplicableDecision`, so the
@@ -528,6 +533,42 @@ function makeStore(
   assert.ok(
     enforceGap.gaps.some((g) => g.code === 'not_applicable_missing_decision'),
     'a not_applicable row WITHOUT a decision must still trip not_applicable_missing_decision under enforce (guard still bites)',
+  );
+
+  // WHITESPACE-ONLY guard (F-005): the CLI schema is min(1) (a shape gate), but the
+  // two SEMANTIC authorities must reject a whitespace-only decision so it cannot be
+  // used to bypass the justification requirement:
+  //  (1) the gate's validMilestoneNotApplicable TRIMS — a whitespace-only decision is
+  //      treated as absent, so not_applicable_missing_decision STILL fires under enforce;
+  //  (2) the normalizer's requireNonEmptyString HARD-REJECTS at build time, so a ledger
+  //      can never persist a whitespace-only decision in the first place.
+  // If a future edit drops either trim/non-empty check, one of these assertions fails.
+  const whitespaceDecision = { reason: '   ', decidedBy: '\t', decidedAt: '  ' };
+  const naWhitespace = milestone({
+    id: 'M1',
+    status: 'not_applicable',
+    checklistRefs: [],
+    verificationIntentRefs: [],
+    notApplicableDecision: whitespaceDecision,
+  });
+  const enforceWhitespace = evaluateDoneIntentEquivalence(
+    diagnosticInput('B-na', emptyChecklist, ledger([naWhitespace], 'B-na'), undefined),
+    'enforce',
+  );
+  assert.ok(
+    enforceWhitespace.gaps.some((g) => g.code === 'not_applicable_missing_decision'),
+    'a whitespace-only notApplicableDecision must be treated as missing by the gate (validMilestoneNotApplicable trims)',
+  );
+  assert.throws(
+    () =>
+      buildMilestoneLedger({
+        storyId: 'B-na',
+        milestones: [
+          { id: 'M1', sourceRequirementId: 'REQ-001', claim: 'c', doneMeans: 'd', status: 'not_applicable', notApplicableDecision: whitespaceDecision },
+        ],
+      }),
+    /notApplicableDecision|reason|non-?empty/i,
+    'buildMilestoneLedger (normalizeMilestone -> requireNonEmptyString) must hard-reject a whitespace-only decision at build time',
   );
 }
 

@@ -7,7 +7,7 @@
  */
 
 import type { HandlerContext } from './context.js';
-import type { ChecklistData, ProofStoryGateMode } from '../core/types.js';
+import type { ChecklistData, MilestoneNotApplicableDecision, ProofStoryGateMode } from '../core/types.js';
 import {
   addMilestoneToLedger,
   appendRedEvidence,
@@ -186,7 +186,7 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
       parentLedgerId?: string;
       assignedStory?: string;
       status?: string;
-      notApplicableDecision?: { reason: string; decidedBy: string; decidedAt: string };
+      notApplicableDecision?: MilestoneNotApplicableDecision;
       json?: boolean;
     }): string {
       if (!args.storyId) throw new Error('storyId is required');

@@ -27,16 +27,16 @@ is left exactly as-is, reachable only by explicit operator opt-in.
 Source facts (verified in this worktree):
 
 - `doneGateMode` resolves via `loadConfig(root).proofStory?.doneGateMode ?? 'observe'`
-  (`packages/main/src/core/config.ts:56-60`; consumed at
-  `packages/main/src/handlers/phase-gates.ts:129,463`). It is a single **flat,
+  (`packages/main/src/core/config.ts`; consumed at
+  `packages/main/src/handlers/phase-gates.ts`, in `configuredProofStoryMode`). It is a single **flat,
   project-wide** default — there is no per-story or per-trigger mode selection anywhere in
   the code today. So the literal option "enforce-for-triggered" corresponds to no existing
   switch; delivering it would require BUILDING new machinery that keys the mode off
   `hasMilestonePath` / `classifyTriggers`. That is itself a wide behavior change and is out
   of scope for a decision item.
-- `hasMilestonePath` (`packages/main/src/core/proofstory.ts:1289-1291`) auto-activates the
+- `hasMilestonePath` (`packages/main/src/core/proofstory.ts`) auto-activates the
   strict path whenever a ledger has ≥1 milestone OR a slice plan exists OR the
-  `milestone-ledger` trigger fired. That trigger (`classifyTriggers`, `proofstory.ts:588-607`)
+  `milestone-ledger` trigger fired. That trigger (`classifyTriggers` in `proofstory.ts`)
   fires on **fuzzy regex text signals** (≥2 structural rows, "all/every/remaining
   milestones", "M1-M5" ranges, explicit milestone mentions). Defaulting *triggered* stories
   to `enforce` would therefore hand a hard DONE-blocking gate to any story whose prose
@@ -68,7 +68,7 @@ as the default and leave `enforce` as an explicit per-project opt-in.
 
 A committed regression test pins the config default to `observe` when unset, so a future
 accidental flip is caught. It exercises the **real** resolver
-`configuredProofStoryMode` (`packages/main/src/handlers/phase-gates.ts:142-143`,
+`configuredProofStoryMode` (`packages/main/src/handlers/phase-gates.ts`,
 `return loadConfig(ctx.root).proofStory?.[key] ?? 'observe';`) against a fresh temp root
 with no `lattice.config.json`, asserting both `doneGateMode` and `reviewGateMode` resolve
 to `observe`. Because the test drives the shipped resolver (not a re-implemented default),
