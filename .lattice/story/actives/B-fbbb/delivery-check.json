@@ -1,0 +1,49 @@
+{
+  "storyId": "B-fbbb",
+  "checkedAt": "2026-07-06T00:06:29.545Z",
+  "headHash": "05779f3fbaa2d1dbf0438ebf71b70db204d27ddc",
+  "materialHash": "2502bacc63cd1e0e78667a3882f086b6c74554246eb8e69494b5fb273bf267fd",
+  "storyFilesHash": "a4e18b00311662f2d066d945eed5039ecb0dc14987b6696aa703fc01f94fcfb4",
+  "reviewRound": "2026-07-05T23:55:21.895Z",
+  "agentId": "claude-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+      "promise": "import-fence checks (handlers/playbook.ts allowed-imports + non-vacuous planted-import check) PASS and suite reaches TOTAL 31 | PASS 31 | FAIL 0",
+      "status": "verified",
+      "verifiedBy": "manual",
+      "evidence": "Rebuilt packages/main (npx tsc, clean) and ran node packages/main/dist/tasks/experience-layer-playbook-smoke.js: printed TOTAL 31 | PASS 31 | FAIL 0 / smoke passed, including both import-fence PASS lines and the two no-regression sub-smokes."
+    },
+    {
+      "docPath": "packages/main/src/tasks/decision-doc-promotion-smoke.ts",
+      "promise": "decision_doc_save authorityBoundary assertion matches current committed wording (not local proof-admissibility, receipt-bundle, quorum, or release readiness); decision-doc-promotion smoke prints smoke passed",
+      "status": "verified",
+      "verifiedBy": "manual",
+      "evidence": "Ran node packages/main/dist/tasks/decision-doc-promotion-smoke.js standalone: 9/9 checks ok, printed decision doc promotion smoke passed (9 checks)."
+    },
+    {
+      "docPath": "packages/main/src/handlers/playbook.ts",
+      "promise": "guardrail comment refresh only (documents source-lineage-audit + playbook-seed as additional allowed imports); no shipping/runtime behavior change",
+      "status": "verified",
+      "verifiedBy": "manual",
+      "evidence": "git diff main...HEAD confirms the only edit in playbook.ts is a comment-block change; source-lineage-audit.js and playbook-seed.js imports were already present pre-story (real usage, lines 85-108) and neither module imports finding.js/advisory/gate (only a Finding type import in playbook-seed.ts)."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node packages/main/dist/tasks/experience-layer-playbook-smoke.js -> TOTAL 31 | PASS 31 | FAIL 0 / smoke passed. import-fence: handlers/playbook.ts allowed-imports PASS; import-fence: non-vacuous planted-import check PASS (foreign===['./finding.js'], negative assertion !/finding.js$|advisory|gate/ still holds per source inspection at lines 458 and 475)."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "node packages/main/dist/tasks/decision-doc-promotion-smoke.js -> 9/9 ok, decision doc promotion smoke passed (9 checks); inside the full playbook suite both no-regression sub-smokes (decision-doc-promotion, experience-layer-digest-extract) print PASS."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery-scoped diff (git diff main...HEAD) is exactly the 3 declared files: experience-layer-playbook-smoke.ts (2 allowlist entries added to both the direct fence check and the non-vacuous planted-import check), handlers/playbook.ts (comment-only refresh), decision-doc-promotion-smoke.ts (1-line assertion-string update to current committed wording). Rebuilt clean (npx tsc, no errors) and independently ran both smokes from dist: experience-layer-playbook-smoke prints TOTAL 31 | PASS 31 | FAIL 0 / smoke passed exactly as promised; decision-doc-promotion-smoke prints 9/9 ok standalone. Verified by source read that playbook-seed.js and source-lineage-audit.js are genuinely imported (real usage, not vacuous) and neither is a finding-writer/advisory/gate module, and that the security-guardrail negative assertion (no finding.js/advisory/gate import) plus the non-vacuous scanner check are both still intact and unweakened after the allowlist widen. No shipping/runtime behavior change; working tree clean; HEAD is even with main plus story-only commits."
+  },
+  "_hash": "127d2635aad5122b17c3d36a067fe5b588b52cf4137cb242c5d5b38692dd6ce0"
+}

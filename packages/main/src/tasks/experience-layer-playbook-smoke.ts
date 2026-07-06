@@ -447,6 +447,8 @@ async function run(): Promise<void> {
         '../core/experience-layer-types.js',
         '../core/learning-store.js',
         '../core/main-write-lock.js',
+        '../core/playbook-seed.js',
+        '../core/source-lineage-audit.js',
         '../core/types.js',
         './context.js',
       ]);
@@ -464,6 +466,8 @@ async function run(): Promise<void> {
         '../core/experience-layer-types.js',
         '../core/learning-store.js',
         '../core/main-write-lock.js',
+        '../core/playbook-seed.js',
+        '../core/source-lineage-audit.js',
         '../core/types.js',
         './context.js',
       ]);

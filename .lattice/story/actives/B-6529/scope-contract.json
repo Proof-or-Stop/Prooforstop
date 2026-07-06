@@ -1,0 +1,94 @@
+{
+  "storyId": "B-6529",
+  "mode": "enforce",
+  "allowedModify": [
+    "experiments/multi-model-ablation/m2-provider-execution-launch.json",
+    "experiments/multi-model-ablation/m2-cell03-provider-launch-authorization.json",
+    "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+    "experiments/multi-model-ablation/model-snapshot-lock.m2.json",
+    "experiments/multi-model-ablation/phase1-runner-manifest.m2.json",
+    "experiments/multi-model-ablation/m2-status.md",
+    "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md"
+  ],
+  "allowedCreate": [
+    "experiments/multi-model-ablation/m2-cell03-execution-envelope.json",
+    "experiments/multi-model-ablation/m2-cell03-usage-accounting-policy.json",
+    "experiments/multi-model-ablation/m2-cell03-execution-prompt.md",
+    "experiments/multi-model-ablation/m2-cell03-tool-surface.json",
+    "experiments/multi-model-ablation/m2-cell03-result-write-policy.json"
+  ],
+  "allowedTest": [
+    "experiments/multi-model-ablation/m2-provider-execution-check.mjs"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Scope is limited to the Cell 03 execution-envelope authorization artifacts, checker, and plan/status docs listed in B-6529; provider execution and later cells remain excluded.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "These ProofStory artifacts are command-generated gate evidence for B-6529 high-assurance DEV admission: they bind the user correction away from arbitrary dollar caps to execution-envelope/postflight-accounting acceptance and do not broaden product scope.",
+      "timestamp": "2026-07-05T21:53:52.420Z",
+      "paths": [
+        ".lattice/story/actives/B-6529/intent-collision.json",
+        ".lattice/story/actives/B-6529/original-intent-snapshot.json",
+        ".lattice/story/actives/B-6529/proofstory.json",
+        ".lattice/story/actives/B-6529/red-evidence.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-6529/intent-collision.json",
+        ".lattice/story/actives/B-6529/original-intent-snapshot.json",
+        ".lattice/story/actives/B-6529/proofstory.json",
+        ".lattice/story/actives/B-6529/red-evidence.json"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "8554b66acfcaf709901f299afd674732b145790c",
+      "materialHash": "ca362993aab3054be082c1923d86770623a7b75163a02d3c3b0e66ad25b38d97",
+      "anchors": [
+        "proofstory_dev_gate",
+        "B_6529_acceptance",
+        "execution_envelope"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "README update is required to resolve B-6529:F-001 doc-code drift: it removes stale exact-budget launch guidance and aligns operator-facing experiment docs with the B-6529 frozen execution-envelope and postflight usage-accounting semantics.",
+      "timestamp": "2026-07-05T22:02:19.849Z",
+      "paths": [
+        "experiments/multi-model-ablation/README.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "experiments/multi-model-ablation/README.md"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "4d924276d16a936759ff4e9025c0d09ebaf72889",
+      "materialHash": "2ea264928460d519a9d493af83affab1465e46cbbcfb546ae09bcf21521adc72",
+      "anchors": [
+        "B_6529_F_001",
+        "readme_doc_sync",
+        "execution_envelope"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Required to resolve B-6529:F-002: the checker claimed coverage for the B-11be metadata authorization artifact, so the artifact itself had to be aligned with the no-pre-run-dollar-cap policy and added to validation coverage.",
+      "timestamp": "2026-07-05T22:11:24.065Z",
+      "paths": [
+        "experiments/multi-model-ablation/m2-provider-execution-authorization.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "experiments/multi-model-ablation/m2-provider-execution-authorization.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "db14283c542ade550a3e7b5cb69256ba06b21ace",
+      "materialHash": "59fc6accc01738dd2cbec054a00531f1b0e81aa624858b1201726f76763644a2"
+    }
+  ],
+  "createdAt": "2026-07-05T21:39:19.391Z",
+  "updatedAt": "2026-07-05T22:11:24.065Z"
+}

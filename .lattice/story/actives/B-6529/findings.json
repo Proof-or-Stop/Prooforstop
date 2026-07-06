@@ -1,0 +1,77 @@
+{
+  "findings": [
+    {
+      "id": "B-6529:F-001",
+      "desc": "README still documents the old B-c25c exact-budget approval gate after B-6529 replaced it with a frozen Cell 03 execution envelope and postflight provider-reported usage accounting. At experiments/multi-model-ablation/README.md:16-18 and :228 it still says m2-provider-execution-launch has missing metadata blockers, the Cell 03 guardrail has exact spend approval absent, amount/currency/approvalSource/approvedBy/approvalDate are required before spend, and the checker validates invented/unbound budget approval. The current implementation forbids old exact-budget gate keys and validates preRunDollarGuessRequired=false / preRunDollarCapAsSoleGateAllowed=false instead, so the README gives stale launch semantics to future operators.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-05T21:58:54.898Z",
+      "reviewRound": "2026-07-05T21:56:57.655Z",
+      "reviewRunId": "B-6529:RR-001",
+      "_hash": "02ecb3092cf5fce835ad922e7aa60e114b43a9355f01b4a8636096df331ced7b",
+      "files": [
+        "experiments/multi-model-ablation/README.md",
+        "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+        "experiments/multi-model-ablation/m2-cell03-execution-envelope.json",
+        "experiments/multi-model-ablation/m2-cell03-usage-accounting-policy.json"
+      ],
+      "signatureTag": "doc-code-drift|md|readme-still-documents",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Resolved by commit 4d924276d16a936759ff4e9025c0d09ebaf72889. README no longer describes the old exact-budget approval gate; it now states frozen Cell 03 execution envelope, pre-run dollar guess not required, provider calls disabled in this authorization story, postflight provider-reported usage/cost accounting required after future execution, and Cell 06 blocked until real Cell 03-derived budget/usage lock. Verified by m2-provider-execution-check and m2-launch-readiness-check.",
+      "resolvedAt": "2026-07-05T22:03:09.462Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-6529:F-002",
+      "desc": "m2-provider-execution-check.mjs loads m2-provider-execution-authorization.json but never validates it: providerAuthorization is returned from loadArtifacts() at lines 636-638, yet validateAll() only checks providerLaunch, Cell 03 guardrail/envelope, policies, tool surface, runner manifest, readiness, and status at lines 583-625. README line 232 promises the checker records/validates the B-11be metadata authorization with USD 0.00 spend. As written, mutations to m2-provider-execution-authorization.json authorizationBoundary, provider spend, required metadata blockers, or sequencing would not fail the provider execution check, leaving a silent coverage hole for the full B-6529 change.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-05T22:05:19.500Z",
+      "reviewRound": "2026-07-05T22:02:56.168Z",
+      "reviewRunId": "B-6529:RR-004",
+      "_hash": "a929c0ccb983d21772e55c8e656a15715e15e8c0e2aca495b59a26cfb37e50e4",
+      "files": [
+        "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+        "experiments/multi-model-ablation/m2-provider-execution-authorization.json",
+        "experiments/multi-model-ablation/README.md"
+      ],
+      "signatureTag": "missing|mjs|provider-execution-check",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commits c0ffd8d5f and ea7fde6e2. m2-provider-execution-check.mjs now calls validateProviderAuthorization(), validates the B-11be authorization artifact, rejects providerBudgetCap/nonzeroProviderBudgetCap drift, validates required future metadata blocker semantics, and preserves no pre-run dollar amount/cap as a launch condition. Verified by node experiments/multi-model-ablation/m2-provider-execution-check.mjs: 1190 assertions / 13 negative controls; m2-launch-readiness-check.mjs: 1105 assertions / 21 negative controls.",
+      "resolvedAt": "2026-07-05T22:18:53.283Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-6529:F-003",
+      "desc": "F-002 fix is incomplete: m2-provider-execution-check.mjs now loads and calls validateProviderAuthorization(), but requiredFutureExecutionMetadata entries are mostly checked for presence only. Lines 404-430 assert the fieldIds exist and validate the new B-6529 refs, but they do not assert that still-required real-execution metadata such as datedExecutorSnapshot, datedReviewerSnapshot, promptDigest, toolSurfaceDigest, runnerOwnership, and duplicatePolicy retain status still_required_for_real_provider_execution, value null, and blocksProviderExecution true. I verified with an isolated temp-copy mutation that setting datedExecutorSnapshot.value to openai-gpt-family-readiness-2026-07-05, status to recorded_for_real_provider_execution, and blocksProviderExecution to false still lets node experiments/multi-model-ablation/m2-provider-execution-check.mjs exit 0 with 1161 assertions and 12 negative controls rejected. This leaves the required metadata blocker drift named in F-002 silently unvalidated, even though the docs promise the checker validates the authorization artifact.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-05T22:14:37.947Z",
+      "reviewRound": "2026-07-05T22:11:38.619Z",
+      "reviewRunId": "B-6529:RR-006",
+      "_hash": "4fde20406677751d980cd12f5900b8feb40e6253552f086809e22b10855f2532",
+      "files": [
+        "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+        "experiments/multi-model-ablation/m2-provider-execution-authorization.json",
+        "experiments/multi-model-ablation/README.md"
+      ],
+      "signatureTag": "missing-required-metadata-blocker-validation",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by commit ea7fde6e2. validateProviderAuthorization() now asserts still-required metadata fields keep status still_required_for_real_provider_execution, value null, and blocksProviderExecution true; recorded B-6529 Cell 03 refs are nonblocking; reviewer mutation is covered by a negative control. Verified by node experiments/multi-model-ablation/m2-provider-execution-check.mjs: 1190 assertions / 13 negative controls.",
+      "resolvedAt": "2026-07-05T22:18:26.420Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

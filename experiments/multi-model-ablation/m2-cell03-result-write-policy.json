@@ -1,0 +1,29 @@
+{
+  "artifact": "m2-cell03-result-write-policy",
+  "storyId": "B-6529",
+  "status": "frozen_execution_not_run",
+  "preparedOn": "2026-07-05",
+  "appliesToEnvelopeRef": "experiments/multi-model-ablation/m2-cell03-execution-envelope.json",
+  "providerCallEnabled": false,
+  "resultRowsAllowedInThisStory": false,
+  "outcomeRecordsAllowedInThisStory": false,
+  "futureResultOutputPolicy": {
+    "cellNumber": "03",
+    "protocolCellNumber": "③",
+    "runnerId": "m2-future-cell-03-e2-a4-same",
+    "futureOutputDirectory": "experiments/multi-model-ablation/future-cell03-results",
+    "oneRowPerCellKey": true,
+    "rowCountExpectedAfterFutureExecution": 1152,
+    "appendOnlyAfterSeparateExecutionAuthorization": true,
+    "mustIncludeProviderReportedUsage": true,
+    "mustIncludePromptDigest": true,
+    "mustIncludeToolSurfaceDigest": true,
+    "mustIncludeExecutorSnapshotId": true,
+    "mustIncludeReviewerSnapshotId": true
+  },
+  "duplicatePolicy": {
+    "duplicateCellKeysAllowed": false,
+    "retryReplacementAllowedOnlyWithExplicitSupersession": true,
+    "supersededRowsMustRemainAuditable": true
+  }
+}

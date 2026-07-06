@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-fbbb",
+  "sourceText": "In proofbound, packages/main/src/handlers/playbook.ts imports ../core/source-lineage-audit.js and ../core/playbook-seed.js, which are outside its allowed import-fence set. This causes experience-layer-playbook-smoke to fail 4/31 checks on main baseline and it is not run by lattice validate so it is silent. Decide whether to move the imported helpers behind an allowed boundary or widen the fence allowlist, then re-run to confirm 31/31. Follow-up: route this through the Lattice story workflow for the audit trail.",
+  "normalizedOutcome": "experience-layer-playbook-smoke prints TOTAL 31 | PASS 31 | FAIL 0 and 'smoke passed' from a fresh build.",
+  "acceptanceClaim": "Running node packages/main/dist/tasks/experience-layer-playbook-smoke.js from a fresh build prints 31/31 and 'smoke passed', with no shipping/runtime behavior change.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:c03bc6c00a11515243591cc1a82b53e43b21ba91cdce83282321948e14ddc5ff",
+  "createdAt": "2026-07-05T21:32:49.030Z",
+  "updatedAt": "2026-07-05T21:32:49.030Z"
+}

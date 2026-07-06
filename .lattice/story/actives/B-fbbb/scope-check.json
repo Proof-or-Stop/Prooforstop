@@ -1,0 +1,59 @@
+{
+  "storyId": "B-fbbb",
+  "checkedAt": "2026-07-05T21:48:57.825Z",
+  "features": [
+    {
+      "feature": "CHK-001: widen playbook.ts import-fence allowlist (both allowed sets) in experience-layer-playbook-smoke.ts + refresh guardrail comment in handlers/playbook.ts",
+      "covered_by": "CHK-001; packages/main/src/tasks/experience-layer-playbook-smoke.ts; packages/main/src/handlers/playbook.ts",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan.md#CHK-001; verified against live source: handlers/playbook.ts imports ../core/source-lineage-audit.js + ../core/playbook-seed.js (confirmed at lines 84-105), both absent from the two allowed Sets (lines 446, 463); reproduced red state (2 FAIL, exact assertion messages match) by running the built smoke"
+    },
+    {
+      "feature": "CHK-002: fix stale decision_doc_save authorityBoundary substring in decision-doc-promotion-smoke.ts",
+      "covered_by": "CHK-002; packages/main/src/tasks/decision-doc-promotion-smoke.ts",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan.md#CHK-002; verified against live source: decision-doc-promotion.ts:507 authorityBoundary field currently reads the substring CHK-002 targets, smoke asserts a stale substring never matched by current code; reproduced red assertion failure (false !== true) by running the built smoke"
+    },
+    {
+      "feature": "Blast-radius completeness: only one file encodes the playbook.ts fence allowlist, only one file asserts the stale authorityBoundary substring, and exactly two smokes re-run decision-doc-promotion-smoke as a no-regression sub-smoke",
+      "covered_by": "CHK-001; CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "grep across packages/main/src/tasks/*.ts confirms experience-layer-playbook-smoke.ts is the sole fence-allowlist file, decision-doc-promotion-smoke.ts is the sole stale-substring consumer, and experience-layer-playbook-smoke.ts + experience-layer-digest-extract-smoke.ts are the only two callers of decision-doc-promotion-smoke"
+    },
+    {
+      "feature": "Security-property preservation: the independent negative assertion (no finding-writer/advisory/gate import) is unaffected by widening the positive allowlist",
+      "covered_by": "CHK-001:adversarial:0",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "decision.json preMortem; verified source-lineage-audit.ts and playbook-seed.ts import only dev-memory.js/digest.js/playbook-runtime-memory.js/types (no finding.js/advisory/gate match)"
+    },
+    {
+      "feature": "Shipping/runtime behavior change (moving or refactoring source-lineage-audit.js, playbook-seed.js, or learning-store.ts fence)",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded list; decision.json chosen=widen not move",
+      "source": "scope-boundary.json; decision.json"
+    },
+    {
+      "feature": "Adding experience-layer-playbook-smoke to the curated lattice validate list",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded list; plan.md Out of scope",
+      "source": "scope-boundary.json; plan.md"
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "covered": 4,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "546c722a8177b3c40384680c4d771471b1aeccf2952a2b42e1ecbff9f0455025",
+  "openQuestions": []
+}

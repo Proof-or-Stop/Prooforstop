@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-991d",
+  "mode": "feature",
+  "allowed": [
+    "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+    "experiments/multi-model-ablation/future-cell03-results/**",
+    "experiments/multi-model-ablation/m2-cell03-*",
+    "experiments/multi-model-ablation/m2-provider-execution-*",
+    "experiments/multi-model-ablation/phase1-runner-manifest.m2.json"
+  ],
+  "excluded": [
+    "Cell 02 execution",
+    "Cell 04 execution",
+    "Cell 06 execution",
+    "paper claim wording changes",
+    "Phase 2 execution",
+    "playbook activation changes",
+    "Proofbound product gate changes"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "User approved creating a separate execution story and updating the existing M2 provider execution plan rather than reusing B-6529 or creating a new large document.",
+  "createdAt": "2026-07-05T23:20:18.414Z",
+  "updatedAt": "2026-07-05T23:20:18.414Z",
+  "_hash": "c452a5c9fa03b6caf6af283f78483f0def4886540074de1f93036a9b0b5cf053"
+}

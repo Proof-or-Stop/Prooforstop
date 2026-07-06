@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-6529",
+  "records": [
+    {
+      "id": "RED-20260705214013",
+      "trigger": "Current M2 provider execution checker still treats exact budget approval as the Cell 03 launch signal instead of the new execution-envelope plus postflight-accounting acceptance transcript.",
+      "acceptanceTargetRef": "B-6529:REQ-001",
+      "baselineHeadHash": "e1a026a5d993474fcf69d5c52e876b9a8731bed6",
+      "baselineMaterialHash": "1c2dc2313b3c8af3256ddf2e3ac40e47d80532950cb83c79f6b96937dc65222f",
+      "observedFailure": "The current checker transcript does not contain `Pre-run dollar guess: not required`; it instead reports exact Cell 03 budget approval absent.",
+      "failingCommand": "node -e \"const {execFileSync}=require('node:child_process'); const out=execFileSync('node',['experiments/multi-model-ablation/m2-provider-execution-check.mjs'],{encoding:'utf8'}); if(!out.includes('Pre-run dollar guess: not required')) { console.error('missing expected new transcript: Pre-run dollar guess: not required'); process.exit(1); }\"",
+      "expectedGreenCommand": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+      "greenRelation": {
+        "targetRef": "B-6529:REQ-001",
+        "relation": "same_acceptance",
+        "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs"
+      },
+      "note": "Red evidence is intentionally against the new acceptance text, because the old checker can still pass under obsolete exact-budget semantics.",
+      "createdAt": "2026-07-05T21:40:13.809Z"
+    },
+    {
+      "id": "RED-20260705214129",
+      "trigger": "Current M2 provider execution checker still treats exact budget approval as the Cell 03 launch signal instead of the new execution-envelope plus postflight-accounting acceptance transcript.",
+      "acceptanceTargetRef": "B-6529-ACCEPTANCE-001",
+      "baselineHeadHash": "e1a026a5d993474fcf69d5c52e876b9a8731bed6",
+      "baselineMaterialHash": "1c2dc2313b3c8af3256ddf2e3ac40e47d80532950cb83c79f6b96937dc65222f",
+      "observedFailure": "The current checker transcript does not contain `Pre-run dollar guess: not required`; it instead reports exact Cell 03 budget approval absent.",
+      "failingCommand": "node -e \"const {execFileSync}=require('node:child_process'); const out=execFileSync('node',['experiments/multi-model-ablation/m2-provider-execution-check.mjs'],{encoding:'utf8'}); if(!out.includes('Pre-run dollar guess: not required')) { console.error('missing expected new transcript: Pre-run dollar guess: not required'); process.exit(1); }\"",
+      "expectedGreenCommand": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+      "greenRelation": {
+        "targetRef": "B-6529-ACCEPTANCE-001",
+        "relation": "same_acceptance",
+        "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs"
+      },
+      "note": "Red evidence targets the ProofStory acceptance binding id so the DEV gate can verify the failure is tied to the accepted outcome.",
+      "createdAt": "2026-07-05T21:41:29.674Z"
+    }
+  ],
+  "createdAt": "2026-07-05T21:40:13.809Z",
+  "updatedAt": "2026-07-05T21:41:29.674Z"
+}
