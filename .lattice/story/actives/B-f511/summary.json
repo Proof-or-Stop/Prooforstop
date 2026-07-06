@@ -1,0 +1,56 @@
+{
+  "storyId": "B-f511",
+  "changes": "experiments/pos-instrument-replay/resume-probe.mjs (new): drives the replay campaign, kills it at a boundary + mid-iteration, restarts under --resume, and reconciles the ledger to resume-reconciliation.json. run-batch.mjs (+resume support and lock/ledger hardening): additive --resume; a mkdir break-mutex (.batch-ledger.break.lock) serializing the stale-lock break; conservative missing-holder=LIVE liveness rule; fresh-mode fail-closed when the campaign ledger already exists non-empty or is unreadable; a restored exit-2 break-failure diagnostic. selfcheck-m3.mjs (+): 13 hermetic sub-checks A-M, one deterministic regression per finding. resume-reconciliation.json (new): the H3 evidence (0 dup / 0 gap, finalMultisetMatch true).",
+  "usage": "Run the resume/H3 evidence: node experiments/pos-instrument-replay/resume-probe.mjs (writes resume-reconciliation.json). Run the invariant suite: node experiments/pos-instrument-replay/selfcheck-m3.mjs (exits 0, 'selfcheck-m3 PASS', A-M). The replay driver itself: node experiments/pos-instrument-replay/run-batch.mjs [--scale=small|full] [--resume].",
+  "expectedOutcome": "node resume-probe.mjs exits 0 with dupTotal 0 / gapTotal 0 / finalMultisetMatch true; resume-reconciliation.json regenerates byte-identical (deterministic). node selfcheck-m3.mjs exits 0 with all 13 sub-checks A-M green. lattice validate --story=B-f511 reports status pass, coverage 9/9, missingRequired 0.",
+  "actualTranscript": "resume-probe.mjs: PROBE_EXIT=0; dupTotal 0, gapTotal 0, finalMultisetMatch True; resume-reconciliation.json git status empty (byte-identical). lattice validate --story=B-f511 --json: status pass, allPass true, coverage 9/9, missingRequired 0. done_required_validate: PASS (packages/main build exit 0; root full test suite exit 0). selfcheck-m3 A-M PASS confirmed by validate + independently re-run by all 3 REVIEW-round-6 lanes.",
+  "outcomeDiff": "No difference. Actual matched the expected PLAN outcome on every field: exit codes, dupTotal/gapTotal, finalMultisetMatch, coverage 9/9, and the determinism (byte-identical regeneration) of resume-reconciliation.json.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Scope is a fail-closed integrity claim on the TESTED paths (fresh/resume/concurrent/unreadable interleavings, each with a deterministic sub-check), NOT an unconditional impossibility proof and NOT Tier-C adversarial ledger integrity. Two accepted LOW test-hygiene items tracked as a follow-up (task_55e10f45): selfcheck fail() leaks a sandbox dir only on a sub-check FAILURE (F-017, pre-existing harness-wide); sub-check M lacks an explicit LOCK_DIR-survival assertion (F-018, confirmed true by inspection).",
+  "pitfalls": "Convergence took 6 REVIEW rounds because genuine Codex host-2 found a real HIGH the Claude lanes missed in each of rounds 3-5 (acquire-window race, multi-resumer break TOCTOU, fresh-driver ledger poisoning) then a MEDIUM fail-open in round 5 — keep letting the cross-vendor host re-attack until it says NO REAL FINDINGS; each fix can expose a deeper race. process.exit() does NOT run finally blocks: the break-mutex must be released in finally and the exit deferred until after. Write bounded Codex review output to the scratchpad, never tee it into the worktree (untracked file blocks review_run_start). TEST-phase lattice validate runs 34 project commands and the 300s idle-watchdog kills the ~25-min selfcheck under concurrent load: re-run with LATTICE_IDLE_TIMEOUT_MS bumped and clear the orphan .lattice/locks/validation/<id>.lock (records the dead validate pid) between attempts. Keep verification_evidence notes precise — claim exactly what each sub-check proves.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 143499
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 1073
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 120567
+    },
+    "DEV": {
+      "count": 6,
+      "durationMs": 15530292
+    },
+    "REVIEW": {
+      "count": 6,
+      "durationMs": 15795250
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 2283542
+    }
+  },
+  "totalDurationMs": 33874550,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-06T05:45:15.089Z",
+  "updatedAt": "2026-07-06T05:45:15.089Z"
+}
