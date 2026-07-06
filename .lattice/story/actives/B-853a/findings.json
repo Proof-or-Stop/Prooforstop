@@ -212,6 +212,24 @@
       ],
       "signatureTag": "adversarial|mjs|codex-host-high",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-853a:F-014",
+      "desc": "F-CODEX-R2-3 (host-2, MEDIUM; corroborates quality F-011): H1 accepts partial goldMetrics. hasWellFormedProofEvidence requires goldMetrics to be a non-empty object but not the EXPECTED key set. Setting every proof record goldMetrics to {expectedIdsFoundRate:1} (re-signed) passes. FIX: require goldMetrics to carry the full expected metric key set (the keys the instrument's verify emits), not merely be non-empty.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-07-06T08:01:07.058Z",
+      "reviewRound": "2026-07-06T07:55:11.367Z",
+      "reviewRunId": "B-853a:RR-012",
+      "_hash": "ba8bf919503132d5647f13d3e9dd3e6a4e5623579b9651e25caa974c36fcf597",
+      "files": [
+        "experiments/pos-instrument-replay/analyze-batch.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|codex-host-medium",
+      "signatureTagSource": "auto"
     }
   ]
 }
