@@ -80,6 +80,15 @@
       "reviewRound": "2026-07-06T05:19:56.434Z",
       "reviewRunId": "B-fbbb:RR-010",
       "_hash": "2fa195ca5956436b4db47d5fd2d8e0d4db3b538fe64bc9b59eb337f7a4502b50"
+    },
+    {
+      "id": "B-fbbb:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-confirmed after mechanical TEST->DEV->REVIEW roll-back (no code change; storyFilesHash a4e18b00... identical). Both CHK-001 and CHK-002 carry full happy/edge/adversarial verificationIntent, each with passing manual_transcript verification_evidence. Independently rebuilt (tsc clean) and re-ran experience-layer-playbook-smoke.js: TOTAL 31 | PASS 31 | FAIL 0, including both import-fence checks (CHK-001) and both no-regression sub-smokes decision-doc-promotion + experience-layer-digest-extract (CHK-002). Ran decision-doc-promotion-smoke.js standalone: 9 checks, decision doc promotion smoke passed. Verified the diff vs main is test/comment-only and symmetric across both allowed-import Sets, and the non-vacuous adversarial check still asserts foreign===[\"./finding.js\"] with the negative guard intact. No coverage gap found.",
+      "createdAt": "2026-07-06T05:25:22.422Z",
+      "reviewRound": "2026-07-06T05:19:56.434Z",
+      "reviewRunId": "B-fbbb:RR-011",
+      "_hash": "2da74b37798aeb8637ccda578272beb732ec90c7ba05a2817c372b11e915c333"
     }
   ]
 }

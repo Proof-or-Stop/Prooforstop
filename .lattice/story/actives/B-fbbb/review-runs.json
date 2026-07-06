@@ -410,6 +410,47 @@
         "bindingHash": "8f5239a7d945cee4579b2efc5504ae31c05e5ce0eba57d914d08805c4383aa7d"
       },
       "_hash": "4a711e4c25242890a0d5e7c464d5515ae9fde854a9622a8a72f101f75fd7d5d3"
+    },
+    {
+      "reviewRunId": "B-fbbb:RR-011",
+      "storyId": "B-fbbb",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-07-06T05:19:56.434Z",
+      "startedAt": "2026-07-06T05:25:05.739Z",
+      "headHash": "b9649654c85d5ef0d19cd62acdf57d9102be1054",
+      "materialHash": "2502bacc63cd1e0e78667a3882f086b6c74554246eb8e69494b5fb273bf267fd",
+      "storyFilesHash": "a4e18b00311662f2d066d945eed5039ecb0dc14987b6696aa703fc01f94fcfb4",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "e0a4b62c37d9b98e04857b1b394a513f9f4c033e5eb6fc7ae8861e0ac2fd0943",
+        "diffPackHash": "37a8432cc92f4919a8796aa393e6a45db8980ab7345b93422f34b3652af3906f",
+        "reviewedChangedFiles": [
+          "packages/main/src/handlers/playbook.ts",
+          "packages/main/src/tasks/decision-doc-promotion-smoke.ts",
+          "packages/main/src/tasks/experience-layer-playbook-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "2d11fa442e9170585aab039231d9a0d65ef8b1353a79ad56b3d1342d8833b1a1",
+          "758a1997145a9df093382e3b3669d1dca4748bf03a3e065b244b9f85d7a7839f",
+          "99d3a7c03383d05d7a0065b61d55f24d3960600aca17cbcf9b146d3f87e1e801"
+        ],
+        "bindingHash": "803b04be6d21669679b96afd58f37e8216123e15a616478d414c0ae2e8edaf0e"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fbbb",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fbbb",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fbbb",
+        "workspaceMode": "story-worktree",
+        "headHash": "b9649654c85d5ef0d19cd62acdf57d9102be1054",
+        "materialHash": "2502bacc63cd1e0e78667a3882f086b6c74554246eb8e69494b5fb273bf267fd",
+        "storyFilesHash": "a4e18b00311662f2d066d945eed5039ecb0dc14987b6696aa703fc01f94fcfb4",
+        "bindingHash": "287c353c5da36de7d10e442850ebbb52e0ebeda22f86148cb7d9e9278a91e34a"
+      },
+      "_hash": "2a5a9fd0d9ff9f622528e20394e7ce015d3be58a9591040f71fe43556a83f15a"
     }
   ]
 }
