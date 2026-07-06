@@ -37,6 +37,7 @@ import { reportHealthIssue } from '../core/health.js';
 import { loadConfig } from '../core/config.js';
 import { resolveWorkflowPolicy } from '../core/workflow-policy.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
+import { currentMilestoneStatusEvidenceBinding } from '../core/milestone-status.js';
 import { execSync } from 'child_process';
 import {
   classifyGitStatusRows,
@@ -92,7 +93,19 @@ export function checklistHasFileDeclarations(checklist: ChecklistData | null | u
   return false;
 }
 
-function proofStoryDiagnosticInput(store: StoryStore, storyId: string): ProofStoryDiagnosticInput {
+function currentProofStoryEvidenceBinding(store: StoryStore, storyId: string, root?: string): ProofStoryDiagnosticInput['currentEvidenceBinding'] {
+  if (!root) return undefined;
+  try {
+    const gitCwd = resolveGitCwd({ store, storyId, metadataRoot: root, projectRoot: root });
+    return currentMilestoneStatusEvidenceBinding(gitCwd, root);
+  } catch {
+    // Freshness detection is a diagnostic; a resolution failure must never break
+    // the read-path gate. Absent binding => base coverage semantics only.
+    return undefined;
+  }
+}
+
+function proofStoryDiagnosticInput(store: StoryStore, storyId: string, root?: string): ProofStoryDiagnosticInput {
   let checklist: ChecklistData;
   try {
     checklist = store.readChecklist(storyId);
@@ -113,6 +126,7 @@ function proofStoryDiagnosticInput(store: StoryStore, storyId: string): ProofSto
     redEvidence: store.readRedEvidence(storyId),
     spikeEvidence: store.readProofStorySpikes(storyId),
     summary: store.readSummary(storyId),
+    currentEvidenceBinding: currentProofStoryEvidenceBinding(store, storyId, root),
   };
 }
 
@@ -125,7 +139,11 @@ function renderProofStoryRows(label: string, mode: ProofStoryGateMode, status: s
   ].join('\n');
 }
 
-function configuredProofStoryMode(ctx: HandlerContext, key: 'reviewGateMode' | 'doneGateMode'): ProofStoryGateMode {
+// B-f7b3 (F-001/F-003): exported so the reconciliation smoke can pin the config
+// default to 'observe' against the REAL resolver (not a re-implemented `?? 'observe'`
+// in the test). Flipping the fallback below to `?? 'enforce'` MUST fail that smoke —
+// see packages/main/src/tasks/milestone-done-gate-reconciliation-smoke.ts.
+export function configuredProofStoryMode(ctx: HandlerContext, key: 'reviewGateMode' | 'doneGateMode'): ProofStoryGateMode {
   return loadConfig(ctx.root).proofStory?.[key] ?? 'observe';
 }
 
@@ -462,7 +480,7 @@ export function runLegacyReceiptTransitionGate(
   if (targetPhase !== 'DONE') return '';
   const mode = configuredProofStoryMode(ctx, 'doneGateMode');
   if (mode === 'observe') return '';
-  const report = evaluateDoneIntentEquivalence(proofStoryDiagnosticInput(ctx.store, storyId), mode);
+  const report = evaluateDoneIntentEquivalence(proofStoryDiagnosticInput(ctx.store, storyId, ctx.root), mode);
   const rendered = renderProofStoryRows(
     'ProofStory DONE intent equivalence',
     report.mode,

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-f7b3",
+  "id": "IC-20260705213827",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Implement all six B-b550 M7 follow-up hardening items via additive-first-conservative: shared render-only observability disclaimer on milestone_status/closeout; Authority in the milestone_status command-policy reason; three negative-control tests (duplicate rows, vacuous confirmed ledger, stale-only closeout); wire milestone-status.test.mjs into the aggregate suite; optional notApplicableDecision field + policy; confirm-time confirmedLedgerHash===ledgerHash re-check; keep gate-mode default observe with a decision doc; reconcile milestone_status vs DONE-gate stale-evidence and the closeout second-gate. No contract weakening, no enforce flip, no legacy-ledger migration. Confirms the 6-milestone ledger (M1-M6).",
+  "acceptedInterpretationHash": "sha256:2c2bc808e8e5149bb090a61bb371a4b8f703d1135b5361c30532f86394fb7394",
+  "notes": "Re-confirmation binding the accepted interpretation to the 6-milestone ledger.",
+  "ledgerHashBeforeDecision": "sha256:68173e86acd0f275fc8788a7ee1f577a5446e922904285147db66aeed7fd5c8e",
+  "confirmedLedgerHash": "sha256:68173e86acd0f275fc8788a7ee1f577a5446e922904285147db66aeed7fd5c8e",
+  "createdAt": "2026-07-05T21:38:27.891Z",
+  "updatedAt": "2026-07-05T21:39:40.508Z"
+}
