@@ -71,6 +71,15 @@
       "reviewRound": "2026-07-06T03:27:19.118Z",
       "reviewRunId": "B-f511:RR-034",
       "_hash": "f6d9b8f99908b9ce16fbb8270031e1fd00682ee05fe8779297e57d822066f9ff"
+    },
+    {
+      "id": "B-f511:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review passed round 6: lattice validate confirms 9/9 verificationIntent covered (0 missingRequired), all evidence bound to a HEAD ancestor with consistent materialHash, no staleness. Re-verified CHK-001/002/003 happy/edge/adversarial evidence notes against source (run-batch.mjs, selfcheck-m3.mjs, resume-reconciliation.json): notes no longer overstate — CHK-001/CHK-003 adversarial notes now scope the fail-closed claim to TESTED paths only (fixes F-014/F-015 from prior round). Confirmed selfcheck-m3.mjs has exactly 13 sub-checks A-M and every finding F-001..F-016 maps to a dedicated load-bearing sub-check (F-012 is a doc-comment-only finding, correctly not mapped to a sub-check). Live-ran node selfcheck-m3.mjs to completion: exit 0, selfcheck-m3 PASS, all 13 sub-checks A-M passed with messages matching the evidence notes verbatim, including L (F-013/F-014/F-016: fresh run over an existing-but-unreadable ledger exits 3, precondition_failed, ledger byte-identical) and M (F-010/F-015: a failed stale-lock break exits 2 with the could-not-break-the-stale-lock diagnostic, no orphaned break-mutex, ledger untouched). No blocker.",
+      "createdAt": "2026-07-06T03:49:14.860Z",
+      "reviewRound": "2026-07-06T03:27:19.118Z",
+      "reviewRunId": "B-f511:RR-035",
+      "_hash": "236cab39a3c4b059861a2148978856e40fe303cc0e79ad2b78d2c6e8187c3361"
     }
   ]
 }
