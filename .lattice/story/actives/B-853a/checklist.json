@@ -90,8 +90,8 @@
       "id": "CHK-002",
       "title": "report carries a reproducible digest; re-run is byte-identical",
       "context": "report.digest = sha256(canonicalJson(report minus the digest field)), reusing lib/instrument.mjs sha256/canonicalJson. Running analyze-batch.mjs twice on the same committed inputs yields byte-identical report.json + report.md + digest (deterministic, offline).",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-06T07:24:07.631Z",
       "endTime": null,
       "userSees": "Running node analyze-batch.mjs twice on the same committed inputs prints the identical 'digest: <sha256>' and produces byte-identical report.json + report.md.",
       "files": {
