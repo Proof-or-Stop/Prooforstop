@@ -1,0 +1,56 @@
+{
+  "storyId": "B-fbbb",
+  "changes": "3 files, test-maintenance + one comment: experience-layer-playbook-smoke.ts adds ../core/source-lineage-audit.js + ../core/playbook-seed.js to BOTH import-fence allowed sets; handlers/playbook.ts refreshes the load-bearing guardrail import comment (comment only); decision-doc-promotion-smoke.ts updates the expected decision_doc_save authorityBoundary substring to the current committed contract. No shipping/runtime behavior change.",
+  "usage": "Run `node packages/main/dist/tasks/experience-layer-playbook-smoke.js` from a fresh build; it now prints TOTAL 31 | PASS 31 | FAIL 0 and 'smoke passed'. The suite is excluded from the curated `lattice validate` list, so invoke it directly.",
+  "expectedOutcome": "experience-layer-playbook-smoke prints TOTAL 31 | PASS 31 | FAIL 0 and 'smoke passed' from a fresh build; both import-fence checks plus the decision-doc-promotion and experience-layer-digest-extract no-regression sub-smokes all PASS.",
+  "actualTranscript": "TOTAL 31 | PASS 31 | FAIL 0 / smoke passed (verified post-merge at HEAD 853226c98). decision-doc-promotion smoke: 9 checks passed; experience-layer-digest-extract: smoke passed.",
+  "outcomeDiff": "No difference - expected and actual are both 31/31 with 'smoke passed'.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none - fully covered. This is test-maintenance plus one comment; no shipping or runtime behavior changed. The playbook smoke is invoked directly and already lived apart from the curated `lattice validate` list before this story; preserving that arrangement was the intent.",
+  "pitfalls": "The DONE closure fought the environment, not the change. (1) The validate suite is ~302s vs lattice's 300s idle watchdog, so validate / story_advance-to-TEST / done_prepare must be run with LATTICE_IDLE_TIMEOUT_MS=1200000 LATTICE_MAX_TIMEOUT_MS=1800000, else they self-kill at 300s - no command actually hangs (slowest single = material-hash-large-tree ~65s; suite grew to 38 commands after merging main). (2) Killed validate runs leave a stale lock at .lattice/locks/validation/B-fbbb.lock - clear via validate forceTakeover:true (same-host dead pid). (3) Shared local main is pushed by other hosts every few minutes; each merge->refresh cycle invalidates test-evidence, the 6 verification_evidence records, and the 3 reviewer bindings, so DONE needs a quiet-main window and evidence+reviewers must be re-bound AFTER the final merge. (4) done_prepare cleanTree first requires committing pending .lattice/story metadata.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 391638
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 58669
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 1281893
+    },
+    "DEV": {
+      "count": 3,
+      "durationMs": 349056
+    },
+    "REVIEW": {
+      "count": 3,
+      "durationMs": 4268875
+    },
+    "TEST": {
+      "count": 3,
+      "durationMs": 22977719
+    }
+  },
+  "totalDurationMs": 29328275,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-05T23:35:33.096Z",
+  "updatedAt": "2026-07-06T05:30:49.754Z"
+}
