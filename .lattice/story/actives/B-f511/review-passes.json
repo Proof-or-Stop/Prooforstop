@@ -62,6 +62,15 @@
       "reviewRound": "2026-07-06T02:17:55.786Z",
       "reviewRunId": "B-f511:RR-028",
       "_hash": "71ca137044bcec4d9a22274b54427a538ec3debbd32781b6f8390fad9c20cf50"
+    },
+    {
+      "id": "B-f511:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Round-6 convergence fix (commit 98ee3e0db) reviewed against F-013/F-014/F-016 (fresh-mode ledger fail-closed) + F-015 (break-failure exit-2 diagnostic). Verified: (1) existingLedgerNonEmpty catch now fails closed (true) only when existsSync(LEDGER_PATH) was true and the read threw; a provably-absent ledger still allows fresh — correct per spec. (2) POS_FAIL_LEDGER_READ and POS_FAIL_LOCK_BREAK are each read once, at the single intended call site, gated by strict ===\"1\", matching the existing fault-hook convention (POS_FAIL_GENERATE_AT et al.); no process.env leakage across sub-checks (runBatch merges env per-child-process only). (3) sub-checks L and M are declared, documented in the header (A)-(M) enumeration accurately, and called from main() in order; ran the full selfcheck-m3.mjs live (not just statically) — selfcheck-m3 PASS, all of A-M passed including the two new ones (L: exit 3 fail-closed, byte-identical ledger, precondition_failed recorded; M: exit 2 explicit could-not-break-the-stale-lock diagnostic, no orphaned break-mutex, ledger untouched). (4) No dead code: L/M reuse existing helpers (makeSandbox/runBatch/ledgerPath/blockedLedgerPath/lockDirPath/holderPath/breakLockDirPath/spawnDeadPid) with zero new duplicates; the precondition_failed record shape (iterationId/stopReason/rawError/env via withDigest) is byte-unchanged and consistent across all 4 call sites (replay/precondition/lock x3, replay/precondition/ledger x1). (5) F-005/F-006 (evaluateLockForBreak) and F-007/F-008 (break-mutex/acquireLock) are byte-unchanged by this diff; the new POS_FAIL_LOCK_BREAK hook sits strictly inside the pre-existing F-010 breakError-capture try, after the verdict.breakable decision, altering no decision logic. Cross-checked findings.json: F-013/F-016 (fail-open bug, 3 lanes) and F-014/F-015 (missing test coverage for the same + F-010) are all fully addressed by this diff. No residuals, no reopened race, no concept-cleanup issue this round.",
+      "createdAt": "2026-07-06T03:47:50.567Z",
+      "reviewRound": "2026-07-06T03:27:19.118Z",
+      "reviewRunId": "B-f511:RR-034",
+      "_hash": "f6d9b8f99908b9ce16fbb8270031e1fd00682ee05fe8779297e57d822066f9ff"
     }
   ]
 }
