@@ -223,11 +223,11 @@
           "kind": "manual_transcript",
           "command": "node experiments/pos-instrument-replay/selfcheck-m3.mjs",
           "result": "pass",
-          "note": "Un-gameable: sub-check K seeds a sandbox ledger with valid records then runs a FRESH (no --resume) driver and asserts it FAILS CLOSED (exit 3, precondition_failed 'non-empty ledger' to the blocked-ledger, campaign ledger byte-identical — zero duplicate/extra records appended). Findings F-001..F-011 each covered by a dedicated load-bearing sub-check (F-007/F-008->J, F-009/F-011->K); F-010 restores the explicit [resume] could-not-break-stale-lock exit 2 diagnostic; every direction fails loudly on regression.",
-          "headHash": "98ee3e0dbd49501a0b3a456b4e9cd35e7c0c062f",
+          "note": "Each finding maps to a dedicated load-bearing sub-check that fails on regression: F-001->H, F-002/F-003->E/G, F-004->F, F-005/F-006->I, F-007/F-008->J, F-009/F-011->K, F-013/F-014/F-016->L (POS_FAIL_LEDGER_READ fault hook: fresh over an unreadable ledger -> exit 3 + ledger byte-identical), F-010/F-015->M (POS_FAIL_LOCK_BREAK fault hook: a failed stale-lock break -> explicit exit-2 'could not break the stale lock' diagnostic + break-mutex released not orphaned + ledger untouched). Sub-checks L/M use deterministic env fault hooks (inert unless ==='1'); each asserts a specific exit code AND campaign-ledger integrity. Scope of the claim: these prove the TESTED fail-closed paths, not an unconditional impossibility proof.",
+          "headHash": "11fcaf515355a39a8202ac753575f46762d3aaa2",
           "materialHash": "72235d20101e07bfddf60b0e65cf527c700c424441776e30bbc867ae206a53b8",
           "storyFilesHash": "72dc774e8479d01609d432bbe1a5775bc3b62810d1c2381e312b51de954af7f5",
-          "timestamp": "2026-07-06T03:27:16.005Z"
+          "timestamp": "2026-07-06T03:27:18.187Z"
         }
       ]
     }
