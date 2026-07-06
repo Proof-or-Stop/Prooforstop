@@ -59,6 +59,18 @@
           "materialHash": "3af659b07e456b76454f55f8fea4dd34c63504f29ebdb5bca72518f55492f44e",
           "storyFilesHash": "1caae9cb5590d29bf143ccf47ece033b9cc1b30249e5f48e58baad5ee8cc386f",
           "timestamp": "2026-07-06T07:23:44.164Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node experiments/pos-instrument-replay/selfcheck-m4.mjs",
+          "result": "pass",
+          "note": "selfcheck-m4 sub-checks C/D/E/F force each of H1/H2/H3/H4 to a fail verdict (mutated sandbox copies) and G forces H3 inconclusive; the analyzer never returns pass on falsified/missing evidence, proving the three-state adjudication is not tautological.",
+          "headHash": "07b0212e39ea61e43dc2cd45b4c5954ccb7aea5a",
+          "materialHash": "3af659b07e456b76454f55f8fea4dd34c63504f29ebdb5bca72518f55492f44e",
+          "storyFilesHash": "1caae9cb5590d29bf143ccf47ece033b9cc1b30249e5f48e58baad5ee8cc386f",
+          "timestamp": "2026-07-06T07:23:52.505Z"
         }
       ]
     },
