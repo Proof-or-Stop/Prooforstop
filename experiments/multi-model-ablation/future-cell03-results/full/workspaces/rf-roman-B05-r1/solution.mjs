@@ -1,15 +1,13 @@
 // Roman numeral codec: encode / decode / validate, driven by one ordered value/symbol table.
-
-// Ordered high -> low.
-// BUG: the four "tens/hundreds" subtractive pairs (CM=900, CD=400, XC=90, XL=40) are missing
-// from the table, so those magnitudes fall through to additive form (e.g. 40 -> "XXXX",
-// 900 -> "DCCCC"). The units pairs IX=9 and IV=4 are still present, so small subtractive
-// cases look correct.
 const TABLE = [
   [1000, 'M'],
+  [900,  'CM'],
   [500,  'D'],
+  [400,  'CD'],
   [100,  'C'],
+  [90,   'XC'],
   [50,   'L'],
+  [40,   'XL'],
   [10,   'X'],
   [9,    'IX'],
   [5,    'V'],
@@ -17,8 +15,9 @@ const TABLE = [
   [1,    'I'],
 ];
 
-// Single-letter values, for decoding.
-const LETTER = { I: 1, V: 5, X: 10, L: 50, C: 100, D: 500, M: 1000 };
+const LETTER = Object.fromEntries(
+  TABLE.filter(([, symbol]) => symbol.length === 1).map(([value, symbol]) => [symbol, value]),
+);
 
 function encode(n) {
   if (typeof n !== 'number' || !Number.isInteger(n)) {
@@ -40,7 +39,7 @@ function encode(n) {
 
 function decode(s) {
   if (typeof s !== 'string') throw new Error('decode expects a string');
-  const str = s.trim().toUpperCase();
+  const str = s.toUpperCase();
   if (str.length === 0) throw new Error('decode expects a non-empty string');
   for (const ch of str) {
     if (!(ch in LETTER)) throw new Error(`Invalid Roman character: '${ch}'`);
@@ -57,7 +56,7 @@ function decode(s) {
 
 function validate(s) {
   if (typeof s !== 'string') return false;
-  const str = s.trim();
+  const str = s;
   if (str.length === 0) return false;
   let n;
   try {

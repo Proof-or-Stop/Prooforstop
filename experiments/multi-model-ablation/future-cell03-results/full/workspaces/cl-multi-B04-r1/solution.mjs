@@ -20,7 +20,7 @@ function bumpCount(counts, name) {
 
 function appendValue(values, name, value) {
   if (Object.prototype.hasOwnProperty.call(values, name)) {
-    values[name] = [value];
+    values[name].push(value);
   } else {
     values[name] = [value];
   }

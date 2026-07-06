@@ -1,0 +1,29 @@
+{
+  "artifact": "B-991d-cell03-provider-health-resumed",
+  "storyId": "B-991d",
+  "executionWindowId": "B-991d-cell03-execution-window-001",
+  "checkedAt": "2026-07-06T20:05:29Z",
+  "provider": "openai",
+  "surface": "codex-cli",
+  "configuredModel": "gpt-5.5",
+  "check": {
+    "kind": "minimal-codex-exec",
+    "prompt": "Reply with exactly OK.",
+    "exitCode": 0,
+    "stdoutBytes": 626,
+    "stderrBytes": 10514,
+    "result": "ok",
+    "observedText": "OK",
+    "usage": {
+      "inputTokens": 19458,
+      "cachedInputTokens": 6016,
+      "outputTokens": 26,
+      "reasoningOutputTokens": 19
+    }
+  },
+  "impact": {
+    "cell03ExecutionCanContinue": true,
+    "reason": "Codex CLI provider calls are returning successful JSONL responses again."
+  },
+  "nextCommand": "node experiments/multi-model-ablation/future-cell03-results/full/run-full.mjs --limit 10"
+}

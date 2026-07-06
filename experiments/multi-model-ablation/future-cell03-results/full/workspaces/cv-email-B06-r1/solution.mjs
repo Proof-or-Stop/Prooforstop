@@ -8,7 +8,7 @@ const DIGITS = '0123456789';
 
 // Atom punctuation permitted in an unquoted local-part (RFC 5321/5322 dot-atom subset).
 // Includes '+' (used for plus / sub-addressing, e.g. "user+tag@example.com").
-const LOCAL_ATOM_PUNCT = "!#$%&'*-/=?^_`{|}~";
+const LOCAL_ATOM_PUNCT = "!#$%&'*+-/=?^_`{|}~";
 
 function buildSet(...chunks) {
   const s = new Set();
