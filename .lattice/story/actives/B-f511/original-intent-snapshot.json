@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-f511",
+  "sourceText": "Operator directive 2026-07-05: execute the frozen plan in strict milestone order until all DONE. M0+M1+M2 done; this is M3 (resume/idempotence probe).",
+  "normalizedOutcome": "A committed resume-probe.mjs + an additive run-batch resume mode produce resume-reconciliation.json proving H3 (0 dup / 0 gap after boundary + mid-iteration kills; casualty resolves to stop-or-rerun), with a hermetic selfcheck.",
+  "acceptanceClaim": "node selfcheck-m3.mjs passes: after the boundary-kill + mid-iteration-crash + resume, the ledger has exactly one record per protocol iterationId (0 dup / 0 gap) and the casualty resolved to a stop-or-clean-rerun; resume-reconciliation.json records 0/0.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:019cb8615333a1f2d93d6769417e1f5358d5caabf9c89361134a93987575c24a",
+  "createdAt": "2026-07-05T20:23:35.609Z",
+  "updatedAt": "2026-07-05T20:23:35.609Z"
+}

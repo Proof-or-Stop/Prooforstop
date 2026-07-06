@@ -1,0 +1,94 @@
+{
+  "passes": [
+    {
+      "id": "B-f511:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "M3 diff (experiments/pos-instrument-replay/) is purely additive: run-batch.mjs +183/-0, fresh-campaign path unchanged (resume-only branches gated behind opt-in --resume/POS_RESUME=1); new files resume-probe.mjs, selfcheck-m3.mjs, resume-reconciliation.json introduce no dangling imports (node --check passes on all touched/added .mjs files; all imports are node: stdlib). Confirmed via git diff main...HEAD that protocol.json, lib/, instrument.mjs, tamper.mjs, selfcheck-m1.mjs, selfcheck-m2.mjs, batch-ledger.jsonl are byte-identical to main (empty diff). New env hooks POS_RESUME and POS_CRASH_BEFORE_APPEND_AT do not collide with or shadow existing POS_BUDGET_CAP_MS, POS_FAIL_GENERATE_AT, POS_FAIL_MKDTEMP_AT, POS_FAIL_APPEND_AT, POS_SKIP_RECORD_AT, POS_PROTOCOL_PATH. No concept deletion/replacement this round; no blocker.",
+      "createdAt": "2026-07-05T21:12:09.485Z",
+      "reviewRound": "2026-07-05T21:09:49.475Z",
+      "reviewRunId": "B-f511:RR-004",
+      "_hash": "d3bcf100b7c5cbbdb6984d2f1d9ecfca2fd10cc05843cd955df3b5adfce0e2d2"
+    },
+    {
+      "id": "B-f511:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. Independently re-ran selfcheck-m3 (PASS, all 5 sub-checks: boundary-kill, mid-run-crash, fresh-additive, resume-no-ledger, truncated-tail) and selfcheck-m2 (PASS, all 5 sub-checks, confirming additivity). Inspected resume-reconciliation.json directly: dupTotal:0 gapTotal:0 finalMultisetMatch:true, killA/killB casualties both proof:pass. lattice validate --story=B-f511 --json: allPass true, verificationCoverage 9/9 covered, 0 missingRequired.",
+      "createdAt": "2026-07-05T21:27:41.104Z",
+      "reviewRound": "2026-07-05T21:09:49.475Z",
+      "reviewRunId": "B-f511:RR-003",
+      "_hash": "1dc2e342d6fd051f16773d30feb707876d0cacb6c3c372dd07ab5281d729f61b"
+    },
+    {
+      "id": "B-f511:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round 2: commit aad1db055 (F-001..F-004 fixes) reviewed via git diff main...HEAD -- experiments/pos-instrument-replay/. Confirmed purely additive: run-batch.mjs adds isCompleteLedgerRecordLine() + isLockHolderAlive() helpers and HOLDER_PATH const, both fully wired (no dangling refs, grep-verified); prior repairTruncatedTail/acquireLock logic is extended (parse-before-drop, PID-liveness check) not deleted, only comments reworded/expanded. resume-probe.mjs adds stopRecordResumeTrial (killC) alongside existing killA/killB, none removed. selfcheck-m3.mjs adds sub-checks F/G/H alongside existing A-E in main(), all still invoked; main() gains a .catch wrapper (robustness add, not a behavior deletion). resume-reconciliation.json gains a killC block, existing fields unchanged. M0/M1/M2 files (protocol.json, lib/, instrument.mjs, tamper.mjs, selfcheck-m1.mjs, selfcheck-m2.mjs, batch-ledger.jsonl) have zero diff against main, confirmed via git diff. No concept deletion/replacement this round; concept residue check completed, no blocker.",
+      "createdAt": "2026-07-05T23:24:58.448Z",
+      "reviewRound": "2026-07-05T23:23:10.512Z",
+      "reviewRunId": "B-f511:RR-008",
+      "_hash": "e58f4efedf9087566e3a5719dc82a0945b044e6f6fab0aadf0126d01ff6a6b7f"
+    },
+    {
+      "id": "B-f511:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: independently reproduced selfcheck-m3 PASS (all 8 sub-checks A-H incl. F stop-record-resume byte-identical preservation, G valid-final-record-preserved no-gap, H live-lock-refused+dead-lock-broken discrimination), selfcheck-m2 PASS (M2 additive-unchanged), resume-reconciliation.json (dupTotal 0 / gapTotal 0 / finalMultisetMatch true across killA/killB/killC/killBSigkill), and lattice validate allPass with verificationCoverage 9/9 covered 0 missingRequired. All 9 verificationIntent entries (3 checklist items x happy/edge/adversarial) have concrete, non-generic verificationEvidence naming specific sub-checks. No blocker.",
+      "createdAt": "2026-07-06T00:23:53.726Z",
+      "reviewRound": "2026-07-05T23:23:10.512Z",
+      "reviewRunId": "B-f511:RR-007",
+      "_hash": "a9ffe4691ac0ea989c7813ef31701d3e1e2b32f6e0d9f47a5f2fad9bfa301b03"
+    },
+    {
+      "id": "B-f511:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "F-007/F-008 residual check (round 4, commit 4882fad0d): the OLD racy break pattern (evaluateLockForBreak CHECK + rmSync(LOCK_DIR) USE, non-atomic) has NO residuals. Verified: (1) exactly one rmSync(LOCK_DIR) break-executing site (line 829), strictly inside the try guarded by breakMutexHeld (set only after mkdirSync(BREAK_LOCK_DIR) succeeds); the other rmSync(LOCK_DIR) site (line 333) is the unrelated ordinary self-release in acquireLock()s own idempotent releaser, not part of the break pattern. (2) all BREAK_LOCK_DIR/break logic lives inside the single if(resume){...} block; no path breaks the lock without first holding BREAK_LOCK_DIR. (3) grep confirms the non-resume path never references BREAK_LOCK_DIR. (4) evaluateLockForBreak() and acquireLock() are byte-identical between the pre-fix and post-fix commits (diffed function bodies) -- the F-005/F-006 conservative missing-holder=LIVE rule is fully intact and untouched. (5) no dead helpers (all functions referenced/called); ran the FULL selfcheck-m3.mjs fresh in this review session end-to-end (not just static reading) -- all sub-checks A through J passed, including the new J.1 (break-mutex held -> fail closed, exit 3, precondition_failed) and J.2 (mutex free -> stale lock reclaimed, exact 30-record multiset, mutex not orphaned), selfcheck-m3 PASS. One low/missing doc-completeness nit filed separately as F-012 (the top-of-file A-I enumeration comment was not extended to J) -- not a functional residual.",
+      "createdAt": "2026-07-06T01:44:20.215Z",
+      "reviewRound": "2026-07-06T01:22:49.221Z",
+      "reviewRunId": "B-f511:RR-024",
+      "_hash": "f1a37ef7a33386953e59c81b5a40b56753cf1f0883451d947b2d53fd3a88320d"
+    },
+    {
+      "id": "B-f511:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 9 must-priority verificationIntent entries (CHK-001/002/003 x happy/edge/adversarial) have fresh, non-stale verificationEvidence bound to current HEAD (validate.missingRequired=0). Every evidence NOTE command was re-run and literally reproduces its claimed result (resume-probe.mjs -> resume-reconciliation.json fields match verbatim; both node -e evidence commands reproduce exactly; selfcheck-m3.mjs live-re-run to completion, exit 0, selfcheck-m3 PASS, all 10 sub-checks A-J green). Confirmed F-001..F-008 each map to a dedicated load-bearing sub-check (F-001->H, F-002/F-003->G, F-004->F, F-005/F-006->I, F-007/F-008->J). Sub-check J is a genuine two-direction multi-resumer test: J.1 proves the break-mutex-held fail-closed path (EEXIST -> precondition_failed mentioning break-mutex, stale lock + mutex left untouched), J.2 proves the reclaim-after-free path (mutex removed -> stale lock broken, exact 30-record multiset, 0 dup/0 gap, no orphaned mutex) -- closing the previously-flagged \"no sub-check exercises concurrent resumers\" gap. No blocker from the test-coverage lane.",
+      "createdAt": "2026-07-06T01:46:38.657Z",
+      "reviewRound": "2026-07-06T01:22:49.221Z",
+      "reviewRunId": "B-f511:RR-019",
+      "_hash": "05e4d7c091b5447e06bfb0686980ba4a346906bec5424fd3785a0d9cd7af2c01"
+    },
+    {
+      "id": "B-f511:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Round 5 (fix commit 5c1aa59af) concept-residue check: verified F-009/F-011 fresh-mode non-empty-ledger guard sits strictly after acquireLock() (holds lock), calls release() on every exit path, cannot orphan/corrupt the lock, and is gated `if (!resume)` so it never touches the resume or fresh-empty-ledger paths (both unaffected, confirmed by re-running selfcheck-m3 live). Verified F-010 breakError/precondReason are mutually exclusive by construction and both exit AFTER the break-mutex finally (process.exit-skips-finally respected). Verified selfcheck-m3 header comment A-K matches the actual main() call sequence 1:1 (new K wired at checkFreshRefusesNonemptyLedger()). Ran the full selfcheck-m3 suite twice end-to-end (genuine generate/verify cycles, not mocked): both runs gave selfcheck-m3 PASS covering all 11 sub-checks A-K including the new K. One ad hoc manual test run of mine hit a spurious F-stop-record-resume failure, isolated and confirmed environmental (concurrent background load in my own harness, not this diff) — sub-check F function body is byte-identical pre/post diff and passed cleanly in 3 subsequent independent runs. No residual/dead code, no contradictory logic, no schema drift (precondition_failed record shape matches sibling paths exactly). Fix commit touches only the two declared scope files.",
+      "createdAt": "2026-07-06T03:01:15.079Z",
+      "reviewRound": "2026-07-06T02:17:55.786Z",
+      "reviewRunId": "B-f511:RR-028",
+      "_hash": "71ca137044bcec4d9a22274b54427a538ec3debbd32781b6f8390fad9c20cf50"
+    },
+    {
+      "id": "B-f511:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Round-6 convergence fix (commit 98ee3e0db) reviewed against F-013/F-014/F-016 (fresh-mode ledger fail-closed) + F-015 (break-failure exit-2 diagnostic). Verified: (1) existingLedgerNonEmpty catch now fails closed (true) only when existsSync(LEDGER_PATH) was true and the read threw; a provably-absent ledger still allows fresh — correct per spec. (2) POS_FAIL_LEDGER_READ and POS_FAIL_LOCK_BREAK are each read once, at the single intended call site, gated by strict ===\"1\", matching the existing fault-hook convention (POS_FAIL_GENERATE_AT et al.); no process.env leakage across sub-checks (runBatch merges env per-child-process only). (3) sub-checks L and M are declared, documented in the header (A)-(M) enumeration accurately, and called from main() in order; ran the full selfcheck-m3.mjs live (not just statically) — selfcheck-m3 PASS, all of A-M passed including the two new ones (L: exit 3 fail-closed, byte-identical ledger, precondition_failed recorded; M: exit 2 explicit could-not-break-the-stale-lock diagnostic, no orphaned break-mutex, ledger untouched). (4) No dead code: L/M reuse existing helpers (makeSandbox/runBatch/ledgerPath/blockedLedgerPath/lockDirPath/holderPath/breakLockDirPath/spawnDeadPid) with zero new duplicates; the precondition_failed record shape (iterationId/stopReason/rawError/env via withDigest) is byte-unchanged and consistent across all 4 call sites (replay/precondition/lock x3, replay/precondition/ledger x1). (5) F-005/F-006 (evaluateLockForBreak) and F-007/F-008 (break-mutex/acquireLock) are byte-unchanged by this diff; the new POS_FAIL_LOCK_BREAK hook sits strictly inside the pre-existing F-010 breakError-capture try, after the verdict.breakable decision, altering no decision logic. Cross-checked findings.json: F-013/F-016 (fail-open bug, 3 lanes) and F-014/F-015 (missing test coverage for the same + F-010) are all fully addressed by this diff. No residuals, no reopened race, no concept-cleanup issue this round.",
+      "createdAt": "2026-07-06T03:47:50.567Z",
+      "reviewRound": "2026-07-06T03:27:19.118Z",
+      "reviewRunId": "B-f511:RR-034",
+      "_hash": "f6d9b8f99908b9ce16fbb8270031e1fd00682ee05fe8779297e57d822066f9ff"
+    },
+    {
+      "id": "B-f511:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review passed round 6: lattice validate confirms 9/9 verificationIntent covered (0 missingRequired), all evidence bound to a HEAD ancestor with consistent materialHash, no staleness. Re-verified CHK-001/002/003 happy/edge/adversarial evidence notes against source (run-batch.mjs, selfcheck-m3.mjs, resume-reconciliation.json): notes no longer overstate — CHK-001/CHK-003 adversarial notes now scope the fail-closed claim to TESTED paths only (fixes F-014/F-015 from prior round). Confirmed selfcheck-m3.mjs has exactly 13 sub-checks A-M and every finding F-001..F-016 maps to a dedicated load-bearing sub-check (F-012 is a doc-comment-only finding, correctly not mapped to a sub-check). Live-ran node selfcheck-m3.mjs to completion: exit 0, selfcheck-m3 PASS, all 13 sub-checks A-M passed with messages matching the evidence notes verbatim, including L (F-013/F-014/F-016: fresh run over an existing-but-unreadable ledger exits 3, precondition_failed, ledger byte-identical) and M (F-010/F-015: a failed stale-lock break exits 2 with the could-not-break-the-stale-lock diagnostic, no orphaned break-mutex, ledger untouched). No blocker.",
+      "createdAt": "2026-07-06T03:49:14.860Z",
+      "reviewRound": "2026-07-06T03:27:19.118Z",
+      "reviewRunId": "B-f511:RR-035",
+      "_hash": "236cab39a3c4b059861a2148978856e40fe303cc0e79ad2b78d2c6e8187c3361"
+    },
+    {
+      "id": "B-f511:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed fix commit 98ee3e0db (F-013/F-014/F-016 fresh-mode fail-closed on unreadable ledger; F-010/F-015 break-failure exit-2 diagnostic test coverage) against run-batch.mjs + selfcheck-m3.mjs, full files read. Verified: (1) the catch at run-batch.mjs:944-946 fails closed for ALL read-error causes (confirmed live with real chmod 000 -> EACCES and a real directory-at-path -> EISDIR, both correctly refuse/exit3/ledger-untouched, no fault hook involved) and correctly allows a legitimately-absent ledger (existsSync false skips the whole block, existingLedgerNonEmpty stays false -- verified via passing sub-checks C/D). (2) POS_FAIL_LEDGER_READ and POS_FAIL_LOCK_BREAK are each referenced at exactly one call site, strictly gated by === Q1Q and === on the intended branch only (fresh-mode ledger read / resume break rmSync respectively); grepped all readFileSync(LEDGER_PATH,...) call sites and confirmed the other three (resume readRecordedIterationIds, repairTruncatedTail, end-of-run guard) are unaffected by the hooks. (3) Ran the full selfcheck-m3.mjs live (all 13 sub-checks A-M genuinely PASS, exit 0). Then regression-tested L and M by reverting only the production fix (not the fault hook) in two isolated copies: reverting the F-013 catch-branch fix reproduces the exact F-013/F-016 fail-open defect (on-disk duplicates, wrong exit code) and sub-check L correctly fails; removing the F-010 try/catch makes the break throw uncaught (wrong exit code) and sub-check M correctly fails -- both sub-checks are genuine and regression-sensitive, not vacuous. Confirmed a clean PASS run leaves no pos-selfcheck-m3-* sandbox leak. (4) No new dead code / error-swallowing found in the diff itself; filed two LOW findings (F-017: fail()s process.exit skips finally so L/M sandboxes leak specifically on a FAIL run, pre-existing harness-wide pattern; F-018: sub-check M does not directly assert LOCK_DIR/holder.json survive the failed break, though code inspection shows they do). (5) Stepped back across the whole lock/ledger design (fresh/resume/concurrent/unreadable/break-failure): with F-001/F-005-F-008/F-009/F-011/F-013/F-016 all fixed and now covered by sub-checks A-M, I found no remaining hole in the exactly-one-uncorrupted-campaign-writer invariant for the cases in scope. Not receipt-backed production evidence; this is correctness review guidance only.",
+      "createdAt": "2026-07-06T05:00:36.513Z",
+      "reviewRound": "2026-07-06T03:27:19.118Z",
+      "reviewRunId": "B-f511:RR-037",
+      "_hash": "577fd61a36cdeacc95c80054d55515539d9df8c01a2fe3da5f5c45c7966354f4"
+    }
+  ]
+}

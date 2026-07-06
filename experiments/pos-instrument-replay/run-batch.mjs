@@ -48,7 +48,9 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
+  renameSync,
   rmSync,
+  writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -63,6 +65,28 @@ const LEDGER_PATH = join(HERE, 'batch-ledger.jsonl');
 // corrupting the ledger', plan section 6.3). Deterministic, sibling path.
 const BLOCKED_LEDGER_PATH = join(HERE, 'batch-ledger.blocked.jsonl');
 const LOCK_DIR = join(HERE, '.batch-ledger.lock');
+// F-007/F-008: a SECOND mkdir-based mutex that serializes the RESUME lock-break
+// critical-section. Without it the break is a TOCTOU: evaluateLockForBreak()
+// (CHECK) and rmSync(LOCK_DIR) (USE) are not atomic, so two --resume drivers can
+// BOTH read the SAME genuinely-dead holder, BOTH decide breakable, and then B's
+// unconditional rmSync deletes A's freshly-reacquired LIVE lock (both then append
+// -> the 'exactly one campaign writer' invariant is violated). The conservative
+// missing-holder=LIVE rule (F-005/F-006) does NOT help here (the holder is really
+// dead, so both legitimately decide breakable), and an atomic holder rename does
+// NOT help (B never re-reads before its rmSync). We fix it by running the ENTIRE
+// break critical-section (liveness re-check + destructive rmSync) while holding
+// this break-mutex, acquired via atomic mkdir. EEXIST => another resume driver is
+// mid-break -> fail closed (precondition_failed, exit nonzero) rather than race.
+const BREAK_LOCK_DIR = join(HERE, '.batch-ledger.break.lock');
+// Holder stamp inside the lock dir: {"pid": <driver pid>} (F-001). Written by
+// acquireLock() after the atomic mkdir wins the lock; read on --resume to check
+// whether the lock holder is still ALIVE before breaking a pre-existing lock.
+// The stamp is materialized near-atomically (write a sibling temp file then
+// rename() it into place) so a concurrent --resume reader NEVER observes a
+// half-written holder.json — it sees EITHER no holder yet OR the complete stamp,
+// never a partial one (F-005/F-006 acquire-window minimization).
+const HOLDER_PATH = join(LOCK_DIR, 'holder.json');
+const HOLDER_TMP_PATH = join(LOCK_DIR, 'holder.json.tmp');
 const PROTOCOL_PATH = join(HERE, 'protocol.json');
 
 // ---------------------------------------------------------------------------
@@ -119,6 +143,154 @@ function appendRecord(record, path = LEDGER_PATH) {
 }
 
 // ---------------------------------------------------------------------------
+// RESUME SUPPORT (M3, ADDITIVE). Read the set of iterationIds already recorded
+// in an existing ledger so a resumed run can SKIP them and re-run only the
+// remaining expected iterations. Append-only is preserved: this NEVER rewrites
+// the ledger. A SIGKILL mid-append can leave the LAST line as a truncated /
+// partial JSON fragment; that trailing partial is IGNORED (not counted as a
+// recorded iterationId, so its iteration is re-run) and never treated as a hard
+// parse error here. All well-formed prior lines are honored. Returns a Set of
+// iterationIds that already have a complete record. Only called on the resume
+// path — the fresh path never invokes this, so fresh behavior is unchanged.
+// ---------------------------------------------------------------------------
+function readRecordedIterationIds(path = LEDGER_PATH) {
+  const recorded = new Set();
+  if (!existsSync(path)) return recorded;
+  const raw = readFileSync(path, 'utf8');
+  const lines = raw.split('\n');
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (!line.trim()) continue; // blank / trailing newline
+    let rec;
+    try {
+      rec = JSON.parse(line);
+    } catch {
+      // Only tolerate an unparseable line if it is the LAST non-empty content
+      // (a mid-append truncation). Its iteration is left UN-recorded so resume
+      // re-runs it. A malformed line in the INTERIOR is a corrupt ledger: we do
+      // not repair it here — the end-of-run strict guard re-reads the ledger and
+      // fails nonzero on any unparseable line, so we simply skip counting it and
+      // let the guard adjudicate the final state.
+      const restNonEmpty = lines
+        .slice(i + 1)
+        .some((l) => l.trim());
+      if (restNonEmpty) {
+        // Interior unparseable line: leave it uncounted; the end-of-run guard
+        // will still re-read the full ledger and decide the exit code.
+        continue;
+      }
+      // Trailing truncated line: ignore it (repair-by-omission). Its iterationId
+      // is unknown / partial, so the corresponding iteration is treated as NOT
+      // recorded and will be re-run on resume.
+      continue;
+    }
+    if (rec && typeof rec.iterationId === 'string') {
+      recorded.add(rec.iterationId);
+    }
+  }
+  return recorded;
+}
+
+// ---------------------------------------------------------------------------
+// REPAIR a mid-append truncation (M3, ADDITIVE, RESUME-ONLY). A SIGKILL during
+// appendFileSync can leave the ledger's LAST line as a partial JSON fragment
+// with NO terminating newline. If a later append ran onto that partial line it
+// would concatenate into ONE corrupt line that the end-of-run strict guard
+// rejects. On resume we therefore rewrite the ledger to end at the last
+// WELL-FORMED newline boundary, DROPPING ONLY the never-completed trailing
+// partial write. Every COMPLETE prior record is preserved verbatim (append-only
+// for real records is intact — we discard only bytes that were never a finished
+// line). Returns true iff a trailing partial was dropped. Called ONLY on the
+// resume path; the fresh path never rewrites the ledger.
+// Does `segment` parse to a COMPLETE ledger record — a JSON object carrying a
+// string iterationId (a proof or stop record)? Used by repairTruncatedTail to
+// decide whether an un-terminated trailing segment is a real record that merely
+// lost its newline (KEEP — real evidence) vs a genuinely-incomplete partial
+// write (drop). A bare scalar / array / object without an iterationId is NOT a
+// ledger record and is treated as a partial to drop. (F-002/F-003.)
+function isCompleteLedgerRecordLine(segment) {
+  let rec;
+  try {
+    rec = JSON.parse(segment);
+  } catch {
+    return false;
+  }
+  return (
+    rec !== null &&
+    typeof rec === 'object' &&
+    !Array.isArray(rec) &&
+    typeof rec.iterationId === 'string'
+  );
+}
+
+function repairTruncatedTail(path = LEDGER_PATH) {
+  if (!existsSync(path)) return false;
+  const raw = readFileSync(path, 'utf8');
+  if (raw === '') return false;
+  // A complete JSONL ledger ends with '\n'. If it does NOT, the final line is an
+  // unterminated (truncated) write. Additionally, even if it ends with '\n', the
+  // last content line could itself be malformed — but a terminated line is a
+  // completed append, so we only repair the UNTERMINATED tail case here.
+  if (raw.endsWith('\n')) {
+    // The tail is newline-terminated: no in-progress partial write to repair.
+    // (An interior/terminated malformed line is left for the end-of-run guard to
+    // adjudicate — we never silently rewrite a completed line.)
+    return false;
+  }
+  const lastNl = raw.lastIndexOf('\n');
+  if (lastNl < 0) {
+    // The ENTIRE file is a single unterminated line (a SIGKILL during the very
+    // first append). It is EITHER a genuinely-incomplete partial write (drop) OR
+    // a COMPLETE record whose line merely lost its trailing '\n' (KEEP — real
+    // evidence). F-002/F-003: parse before dropping, consistent with the
+    // multi-line branch below (a complete record must NEVER become a spurious
+    // GAP). Drop wholesale ONLY if it does NOT parse to a valid record.
+    if (isCompleteLedgerRecordLine(raw)) {
+      // A lone complete record missing only its newline: PRESERVE + re-terminate
+      // so later appends land on a clean line boundary. No record dropped.
+      writeFileSync(path, raw + '\n');
+      console.log(
+        'run-batch: [resume] the single trailing line is a COMPLETE record missing only its ' +
+          'newline — preserved and re-terminated (no record dropped)',
+      );
+      return false;
+    }
+    writeFileSync(path, '');
+    console.log('run-batch: [resume] repaired a truncated trailing line (dropped the partial write)');
+    return true;
+  }
+  // The trailing segment after the last newline is un-terminated. It is EITHER a
+  // genuinely-incomplete partial write (a real mid-append truncation to drop) OR
+  // a COMPLETE valid record whose line merely lost its final '\n' at EOF (real
+  // evidence — must NOT be dropped, or that iteration becomes a spurious GAP).
+  // F-002/F-003: parse before dropping — make this multi-line branch CONSISTENT
+  // with the single-line branch above. Drop the tail ONLY if it does NOT parse
+  // to a valid record; if it parses, KEEP it (append the missing newline so
+  // subsequent appends land on a clean line boundary). Never delete a complete
+  // record.
+  const tail = raw.slice(lastNl + 1);
+  if (isCompleteLedgerRecordLine(tail)) {
+    // Complete record missing only its trailing newline: PRESERVE it. Re-terminate
+    // it so later appends resume from a clean newline boundary. This is not a
+    // repair-by-omission — no record is dropped — so return false.
+    writeFileSync(path, raw + '\n');
+    console.log(
+      'run-batch: [resume] trailing line is a COMPLETE record missing only its newline — ' +
+        'preserved and re-terminated (no record dropped)',
+    );
+    return false;
+  }
+  // Genuinely incomplete partial write: keep everything up to and INCLUDING the
+  // last newline; drop only the never-completed trailing fragment. The resume
+  // scan treats the dropped iteration as un-recorded and re-runs it; the
+  // append-only real records above are untouched.
+  const repaired = raw.slice(0, lastNl + 1);
+  writeFileSync(path, repaired);
+  console.log('run-batch: [resume] repaired a truncated trailing line (dropped the partial write)');
+  return true;
+}
+
+// ---------------------------------------------------------------------------
 // Exclusive lock via mkdir (atomic, fails if the dir already exists). Returned
 // releaser is idempotent; the driver releases it in a finally.
 // ---------------------------------------------------------------------------
@@ -128,6 +300,30 @@ function acquireLock() {
   } catch (e) {
     if (e && e.code === 'EEXIST') return null; // held by another driver
     throw e;
+  }
+  // ADDITIVE (F-001): after the atomic mkdir wins the lock, stamp a holder file
+  // recording THIS process's pid, so a later --resume run can distinguish a
+  // STALE lock (holder pid is dead) from a LIVE concurrent driver (holder pid is
+  // alive) before deciding whether to break it. This does NOT change the M2
+  // precondition_failed behavior: a second driver still loses the mkdir above
+  // and gets null regardless of this file.
+  //
+  // F-005/F-006: there is an unavoidable window between winning mkdir(LOCK_DIR)
+  // and materializing holder.json. To make that window as small and as clean as
+  // practical the stamp is written near-atomically: write to a sibling temp path
+  // and rename() it into holder.json (rename is atomic within a directory), so a
+  // concurrent --resume reader NEVER sees a half-written holder — it observes
+  // EITHER no holder yet OR the complete stamp. And critically, the resume
+  // lock-break decision is now CONSERVATIVE (evaluateLockForBreak returns LIVE for a
+  // missing/unreadable/malformed/uncertain holder), so even if this driver is
+  // still in the mkdir->stamp window OR the write failed, a concurrent resume
+  // will NOT break the lock. The mkdir itself remains the real mutual-exclusion.
+  try {
+    writeFileSync(HOLDER_TMP_PATH, JSON.stringify({ pid: process.pid }) + '\n');
+    renameSync(HOLDER_TMP_PATH, HOLDER_PATH);
+  } catch {
+    /* best-effort holder stamp; the mkdir lock is authoritative and resume now
+       treats a missing/failed holder CONSERVATIVELY as LIVE (never broken). */
   }
   let released = false;
   return () => {
@@ -139,6 +335,80 @@ function acquireLock() {
       /* best-effort release */
     }
   };
+}
+
+// ---------------------------------------------------------------------------
+// Decide whether a pre-existing lock may be BROKEN on resume (F-001 + F-005/F-006
+// CONSERVATIVE inversion, RESUME-ONLY). Reads LOCK_DIR/holder.json, parses .pid,
+// and probes it with process.kill(pid, 0): signal 0 does not deliver a signal —
+// it only performs the existence / permission check, throwing ESRCH when NO such
+// process exists (dead).
+//
+// F-005/F-006 (the acquire-window race): acquireLock() wins mkdir(LOCK_DIR)
+// BEFORE it materializes holder.json. In that tiny window a concurrent --resume
+// driver would see the lock dir with NO (or, absent the rename() stamp, a
+// half-written) holder.json. The OLD code treated a missing/malformed holder as
+// STALE (breakable), so a resume driver could break a LIVE driver's freshly-won
+// lock in that window and both would append -> ledger corruption. This is now
+// INVERTED to CONSERVATIVE: the lock is breakable ONLY when we POSITIVELY prove
+// a dead holder — holder.json EXISTS, parses to a valid { pid }, and that pid is
+// DEAD (process.kill throws ESRCH). ANY other outcome — a missing holder, an
+// unreadable/malformed/unparseable holder, a holder without a usable pid, or an
+// ambiguous/uncertain liveness probe — is treated as LIVE (do NOT break).
+//
+// Correctness: a genuinely-orphaned prior interrupted run DID write holder.json
+// (via the atomic rename) before it crashed, so its dead pid is present and the
+// lock is STILL auto-broken on resume. Only a crash in the tiny mkdir->stamp
+// window leaves a holder-less lock, which is now conservatively NOT auto-broken —
+// a safe failure requiring manual cleanup, never corruption.
+//
+// Returns a verdict object { breakable, reason }:
+//   - { breakable: true }  -> proven-dead holder; resume may reclaim the lock.
+//   - { breakable: false } -> LIVE or UNCERTAIN; resume must refuse to break it
+//                             (records precondition_failed and exits nonzero).
+// An EPERM from process.kill means the pid EXISTS but is owned by another user
+// -> ALIVE -> not breakable.
+function evaluateLockForBreak() {
+  let raw;
+  try {
+    raw = readFileSync(HOLDER_PATH, 'utf8');
+  } catch {
+    // No holder.json (or unreadable): this is the acquire-window signature (a
+    // driver won mkdir but has not yet stamped) OR a genuinely unusable stamp.
+    // CONSERVATIVE: treat as LIVE, do NOT break.
+    return { breakable: false, reason: 'holder.json missing/unreadable (treated as LIVE)' };
+  }
+  let pid;
+  try {
+    const holder = JSON.parse(raw);
+    pid = holder && holder.pid;
+  } catch {
+    // Malformed/unparseable holder (e.g. a partial write before the rename fix,
+    // or corruption): we cannot prove a dead holder -> CONSERVATIVE LIVE.
+    return { breakable: false, reason: 'holder.json malformed/unparseable (treated as LIVE)' };
+  }
+  if (!Number.isInteger(pid) || pid <= 0) {
+    // No usable pid: cannot prove a dead holder -> CONSERVATIVE LIVE.
+    return { breakable: false, reason: 'holder.json has no usable pid (treated as LIVE)' };
+  }
+  try {
+    process.kill(pid, 0); // existence probe; no signal actually delivered
+    return { breakable: false, reason: `holder pid ${pid} is ALIVE` }; // no throw -> alive
+  } catch (e) {
+    if (e && e.code === 'EPERM') {
+      return { breakable: false, reason: `holder pid ${pid} exists (EPERM, owned by another user) -> ALIVE` };
+    }
+    if (e && e.code === 'ESRCH') {
+      // POSITIVELY proven dead: the ONLY case where we may break the lock.
+      return { breakable: true, reason: `holder pid ${pid} is DEAD (ESRCH)` };
+    }
+    // Any OTHER probe error is ambiguous/uncertain -> CONSERVATIVE LIVE (do not
+    // break on doubt).
+    return {
+      breakable: false,
+      reason: `holder pid ${pid} liveness probe uncertain (${(e && e.code) || 'unknown'}) -> treated as LIVE`,
+    };
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -322,6 +592,27 @@ function runIteration(scale, index, budgetCapMs, appendOne) {
 
     const record = buildIterationRecord(scale, index, budgetCapMs, dir, iterationId, env);
 
+    // HARD-CRASH HOOK (M3, ADDITIVE). POS_CRASH_BEFORE_APPEND_AT=<iterationId>:
+    // at that iteration, AFTER generate+verify (the workspace is written) but
+    // IMMEDIATELY BEFORE appending the record, hard-exit the process WITHOUT
+    // writing the record — simulating a SIGKILL mid-iteration. This leaves that
+    // iterationId RECORDLESS (the deterministic mid-iteration casualty), which
+    // is DISTINCT from POS_FAIL_APPEND_AT below (a caught throw that becomes a
+    // verify_crash STOP record). The hard-crash writes NO record and bypasses
+    // the try/catch entirely (process.exit is not catchable). Only active when
+    // the env var is set, so the fresh-campaign path is byte-behavior-unchanged.
+    const crashBeforeAppendAt = process.env.POS_CRASH_BEFORE_APPEND_AT || null;
+    if (crashBeforeAppendAt && iterationId === crashBeforeAppendAt) {
+      console.error(
+        `run-batch: [hard-crash] POS_CRASH_BEFORE_APPEND_AT hard-exit at ${iterationId} ` +
+          `(workspace written, record NOT appended) — simulating SIGKILL`,
+      );
+      // Do NOT clean up dir here: process.exit(137) mimics an external SIGKILL
+      // where finally/cleanup would not run either. The mkdtemp dir is under the
+      // OS tmpdir and is reaped by the sandbox teardown.
+      process.exit(137);
+    }
+
     // APPEND is now INSIDE the guard. Fault injection: force an append-side
     // throw so the selfcheck can prove a post-body/append crash cannot leave the
     // iteration recordless-and-silent.
@@ -421,6 +712,15 @@ function parseScales() {
   return [s];
 }
 
+// RESUME mode is opt-in via --resume or POS_RESUME=1 (ADDITIVE). Absent, the
+// driver behaves EXACTLY as before (a pre-existing ledger still triggers the M2
+// end-of-run guard as today — resume does not change that).
+function parseResume() {
+  const flag = process.argv.includes('--resume');
+  const env = process.env.POS_RESUME === '1';
+  return flag || env;
+}
+
 function fatal(msg, code = 1) {
   console.error(msg);
   process.exit(code);
@@ -430,6 +730,7 @@ function main() {
   const scales = parseScales();
   const budgetCapMs = resolveBudgetCapMs();
   const skipRecordAt = process.env.POS_SKIP_RECORD_AT || null; // fault injection
+  const resume = parseResume(); // M3 ADDITIVE: opt-in resume mode
 
   // Expected cross-product of iterationIds for THIS run.
   const expectedIds = [];
@@ -439,7 +740,164 @@ function main() {
     for (let i = 1; i <= n; i++) expectedIds.push(`replay/${scale}/${i}`);
   }
 
-  // Acquire the exclusive lock BEFORE touching the ledger.
+  // RESUME (M3, ADDITIVE): break a STALE lock left by the interrupted prior run —
+  // but ONLY if its holder is POSITIVELY proven DEAD (F-001 + F-005/F-006). A
+  // hard crash / SIGKILL exits without running the release() finally, so the
+  // mkdir-lock dir is orphaned on disk with a holder.json whose pid is now dead.
+  // That is the lock resume is meant to reclaim. But a resuming driver B must
+  // NOT clobber a genuinely LIVE driver A's lock (two writers -> ledger
+  // corruption): evaluateLockForBreak() reads holder.json.pid and probes liveness
+  // via process.kill(pid, 0) (throws ESRCH when the process is dead, does NOT
+  // signal a live one).
+  //
+  // F-005/F-006 CONSERVATIVE RULE: we break the lock ONLY when the holder is
+  // POSITIVELY proven DEAD (holder.json exists, parses to a valid { pid }, and
+  // that pid is dead). A MISSING / unreadable / malformed holder, or an ambiguous
+  // liveness probe, is treated as LIVE (the acquire-window: a driver won mkdir
+  // but has not yet stamped holder.json — breaking now would corrupt the ledger).
+  // In every non-proven-dead case we treat it as a genuine concurrent driver:
+  // record precondition_failed to the SEPARATE blocked-ledger and exit nonzero,
+  // exactly like M2's concurrent-driver path. This is gated on `resume`, so the
+  // non-resume lock semantics are UNCHANGED.
+  if (resume) {
+    // F-007/F-008: serialize the break critical-section behind a dedicated
+    // break-mutex so the CHECK (evaluateLockForBreak) and the USE
+    // (rmSync(LOCK_DIR)) can never interleave with ANOTHER resume driver. The
+    // conservative missing-holder=LIVE rule and the atomic holder rename do not
+    // close this hole because a genuinely-dead holder legitimately reads as
+    // breakable for BOTH drivers, and a second breaker never re-reads before its
+    // unconditional rmSync. Only mutual exclusion over the whole section fixes it.
+    //
+    // Acquire the break-mutex (atomic mkdir). EEXIST => another resume driver is
+    // mid-break -> fail closed (never race it): precondition_failed, exit 3.
+    let breakMutexHeld = false;
+    try {
+      mkdirSync(BREAK_LOCK_DIR); // atomic: throws EEXIST if another breaker holds it
+      breakMutexHeld = true;
+    } catch (e) {
+      if (e && e.code === 'EEXIST') {
+        const stop = withDigest({
+          iterationId: 'replay/precondition/lock',
+          stopReason: 'precondition_failed',
+          rawError:
+            'batch-ledger break-mutex held (another resume driver is mid-break)',
+          env: recordEnv(),
+        });
+        if (!STOP_REASONS.has(stop.stopReason)) {
+          fatal(`run-batch FATAL: stopReason not in enum: ${stop.stopReason}`, 2);
+        }
+        appendRecord(stop, BLOCKED_LEDGER_PATH);
+        fatal(
+          'run-batch: [resume] a lock-break is already in progress (break-mutex held) — recorded precondition_failed',
+          3,
+        );
+      }
+      throw e;
+    }
+    // Holding the break-mutex: the CHECK and the rmSync now cannot interleave with
+    // another breaker. Compute the decision inside the try, and ALWAYS release the
+    // mutex in a finally BEFORE any process.exit. CRITICAL: process.exit() does NOT
+    // run finally blocks, so we must NOT call fatal()/process.exit while inside the
+    // try — we capture the decision (precondReason), release the mutex in finally,
+    // then perform the exit AFTER the try/finally.
+    //
+    // The break-mutex is held for only a handful of SYNCHRONOUS syscalls
+    // (existsSync + readFileSync + JSON.parse + process.kill + rmSync); there is no
+    // subprocess spawn and no await inside the section, so it is released
+    // essentially immediately on every path. The one residual failure mode: if a
+    // process is SIGKILLed WHILE mid-break, BREAK_LOCK_DIR is orphaned on disk and
+    // future resumes fail closed (precondition_failed) until it is manually removed
+    // — the SAFE failure (a wedged resume), never ledger corruption. We accept that
+    // tradeoff: a stuck break-mutex is recoverable by an operator; two campaign
+    // writers is not.
+    let precondReason = null;
+    // F-010: capture (do NOT process.exit) a destructive-break failure so the
+    // break-mutex finally still runs to release BREAK_LOCK_DIR; the explicit
+    // diagnostic + exit 2 is raised AFTER the try/finally. breakError and
+    // precondReason are mutually exclusive (a break is either refused, succeeds,
+    // or fails to remove the lock — never two of those at once).
+    let breakError = null;
+    try {
+      if (existsSync(LOCK_DIR)) {
+        const verdict = evaluateLockForBreak();
+        if (!verdict.breakable) {
+          // LIVE or UNCERTAIN holder (incl. the missing-holder acquire window). Do
+          // NOT break it. Capture the reason; the precondition_failed stop is
+          // recorded and the process exits AFTER the mutex is released.
+          precondReason =
+            'batch-ledger lock not proven stale (resume refused to break it): ' + verdict.reason;
+        } else {
+          console.log(
+            'run-batch: [resume] breaking a STALE lock left by the interrupted prior run (' +
+              verdict.reason +
+              ')',
+          );
+          // F-010: capture an rmSync failure into breakError instead of letting it
+          // propagate UNCAUGHT (generic stack trace + exit 1). Do NOT process.exit
+          // in here — the finally below must run first to release the break-mutex.
+          try {
+            // Fault injection (F-010/F-015 test): force the stale-lock break to fail so
+            // the selfcheck can prove it becomes the explicit exit-2 diagnostic (and that
+            // the break-mutex is still released by the finally, not orphaned).
+            if (process.env.POS_FAIL_LOCK_BREAK === '1') {
+              throw new Error('[fault-injection] forced lock-break failure');
+            }
+            rmSync(LOCK_DIR, { recursive: true, force: true });
+          } catch (e) {
+            breakError = e;
+          }
+        }
+      }
+    } finally {
+      // Release the break-mutex on EVERY path (success, refusal, or throw) so the
+      // happy path leaves NO orphaned BREAK_LOCK_DIR behind.
+      if (breakMutexHeld) {
+        try {
+          rmSync(BREAK_LOCK_DIR, { recursive: true, force: true });
+        } catch {
+          /* best-effort release of the break-mutex */
+        }
+      }
+    }
+    // F-010: restore the explicit stale-lock-break diagnostic + exit 2. The
+    // break-mutex finally above has already released BREAK_LOCK_DIR, so this exit
+    // does not orphan it. Raised BEFORE the precondReason check (they are mutually
+    // exclusive; a capture here means the break itself failed).
+    if (breakError) {
+      fatal(
+        `run-batch FATAL: [resume] could not break the stale lock ${LOCK_DIR}: ${String((breakError && breakError.message) || breakError)}`,
+        2,
+      );
+    }
+    if (precondReason !== null) {
+      // Refused to break: record a precondition_failed stop to the blocked-ledger
+      // (never the campaign ledger) and exit nonzero — same disposition as M2's
+      // lock-held path. Done AFTER releasing the break-mutex (see the CRITICAL note
+      // above about process.exit not running finally blocks).
+      const stop = withDigest({
+        iterationId: 'replay/precondition/lock',
+        stopReason: 'precondition_failed',
+        rawError: precondReason,
+        env: recordEnv(),
+      });
+      if (!STOP_REASONS.has(stop.stopReason)) {
+        fatal(`run-batch FATAL: stopReason not in enum: ${stop.stopReason}`, 2);
+      }
+      appendRecord(stop, BLOCKED_LEDGER_PATH);
+      fatal(
+        'run-batch: [resume] refused to break a lock that is not proven stale — ' +
+          precondReason +
+          ' (recorded precondition_failed to the blocked-ledger)',
+        3,
+      );
+    }
+  }
+
+  // Acquire the exclusive lock BEFORE touching the ledger. The atomic
+  // mkdir(LOCK_DIR) is the FINAL arbiter for BOTH fresh and resume drivers: we do
+  // NOT hold the break-mutex across this call, so the tiny window between releasing
+  // BREAK_LOCK_DIR and this mkdir is safe — two concurrent mkdir(LOCK_DIR) still
+  // resolve to exactly one winner, and the loser gets null -> precondition_failed.
   const release = acquireLock();
   if (release === null) {
     // Lock held by another driver: record a precondition_failed stop to the
@@ -458,6 +916,53 @@ function main() {
     }
     appendRecord(stop, BLOCKED_LEDGER_PATH);
     fatal('run-batch: could not acquire batch-ledger lock (another driver holds it)', 3);
+  }
+
+  // F-009/F-011: a FRESH (non-resume) driver must never append onto a non-empty
+  // pre-existing campaign ledger (that produces on-disk duplicates the end-guard
+  // rejects but cannot repair — a poisoned evidence file). A stale lock normally
+  // keeps a fresh driver out, but resume recovery opens a break-to-reacquire window
+  // where a fresh driver can win the lock; refuse under the lock, before any append.
+  // Serialized UNDER the campaign lock (release !== null here) so the ledger state
+  // is stable, and BEFORE the resume/loop logic below.
+  if (!resume) {
+    // F-009/F-011/F-013: a FRESH (non-resume) driver must never append onto a
+    // pre-existing non-empty campaign ledger. F-013 (fail-CLOSED): if the ledger
+    // EXISTS but is UNREADABLE (write-only / EACCES / any read error), we cannot
+    // prove it is safe to start fresh over it -> REFUSE (treat as non-empty). Only a
+    // provably-absent OR provably-empty ledger permits a fresh run.
+    let existingLedgerNonEmpty = false;
+    try {
+      if (existsSync(LEDGER_PATH)) {
+        // Fault injection (F-013 test): force the read to throw so the selfcheck can
+        // prove an unreadable-but-existing ledger makes a fresh run FAIL CLOSED.
+        if (process.env.POS_FAIL_LEDGER_READ === '1') {
+          throw new Error('[fault-injection] forced ledger read failure');
+        }
+        existingLedgerNonEmpty = readFileSync(LEDGER_PATH, 'utf8').trim() !== '';
+      }
+    } catch {
+      // The ledger EXISTS (existsSync was true) but could not be read -> FAIL CLOSED.
+      existingLedgerNonEmpty = true;
+    }
+    if (existingLedgerNonEmpty) {
+      release(); // release the campaign lock before exiting
+      const stop = withDigest({
+        iterationId: 'replay/precondition/ledger',
+        stopReason: 'precondition_failed',
+        rawError:
+          'fresh (non-resume) run refused: batch-ledger.jsonl already exists and is non-empty (use --resume to continue an interrupted run, or remove the ledger to start fresh)',
+        env: recordEnv(),
+      });
+      if (!STOP_REASONS.has(stop.stopReason)) {
+        fatal(`run-batch FATAL: stopReason not in enum: ${stop.stopReason}`, 2);
+      }
+      appendRecord(stop, BLOCKED_LEDGER_PATH);
+      fatal(
+        'run-batch: fresh run refused — batch-ledger.jsonl already exists and is non-empty (use --resume, or remove the ledger) — recorded precondition_failed',
+        3,
+      );
+    }
   }
 
   // appendOne: the per-iteration append closure injected into runIteration so
@@ -490,10 +995,39 @@ function main() {
   // surfaced (not swallowed). The guard is written defensively so it cannot
   // itself throw and mask the exit code.
   // -----------------------------------------------------------------------
+  // RESUME (M3, ADDITIVE): under the lock (so no concurrent writer can race),
+  // read the iterationIds already recorded in the existing ledger and SKIP them,
+  // running only the remaining expected iterations. A truncated trailing line is
+  // ignored/repaired by readRecordedIterationIds so its iteration is re-run.
+  // Append-only is preserved (existing lines are never rewritten). With NO
+  // existing ledger this Set is empty, so --resume behaves as a fresh run. When
+  // resume is OFF, alreadyRecorded stays empty and the loop is byte-behavior
+  // identical to before.
+  let alreadyRecorded = new Set();
+  if (resume) {
+    // Repair a mid-append truncation FIRST so subsequent appends resume from a
+    // clean newline boundary and the end-of-run guard never sees a corrupt line.
+    repairTruncatedTail(LEDGER_PATH);
+    alreadyRecorded = readRecordedIterationIds(LEDGER_PATH);
+    const skippedCount = expectedIds.filter((id) => alreadyRecorded.has(id)).length;
+    console.log(
+      `run-batch: [resume] ${alreadyRecorded.size} record(s) already present; ` +
+        `skipping ${skippedCount}/${expectedIds.length} expected iteration(s), ` +
+        `running the remaining ${expectedIds.length - skippedCount}`,
+    );
+  }
+
   let loopError = null;
   try {
     for (const scale of scales) {
       for (let index = 1; index <= N[scale]; index++) {
+        const iterationId = `replay/${scale}/${index}`;
+        if (resume && alreadyRecorded.has(iterationId)) {
+          // Already recorded in a prior (interrupted) run: do NOT re-run and do
+          // NOT rewrite. The end-of-run strict-multiset guard reconciles the
+          // FINAL ledger (pre-existing + newly-appended) for 0 dup / 0 gap.
+          continue;
+        }
         runIteration(scale, index, budgetCapMs, appendOne);
       }
     }

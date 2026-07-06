@@ -1,0 +1,62 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-f511",
+  "diagnosticOnly": false,
+  "hardeningLevel": "standard",
+  "triggerReasons": [
+    {
+      "code": "milestones_provided",
+      "message": "A milestone ledger exists, so every ledger row needs checklist and verificationIntent coverage.",
+      "requires": "milestone-ledger"
+    },
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "scope_ambiguity",
+      "message": "Broad or absolute scope wording should have scope clarification before future enforcement.",
+      "requires": "scope-clarification"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:019cb8615333a1f2d93d6769417e1f5358d5caabf9c89361134a93987575c24a",
+  "confirmedMilestoneLedgerHash": "sha256:5b737b082152d0484ff3ef0127d8698feadbae80f0cb98088a2db5c1bcc51570",
+  "acceptanceBindings": [
+    {
+      "id": "AB-001",
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002",
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:adversarial:0",
+        "CHK-002:happy:0",
+        "CHK-002:adversarial:0",
+        "CHK-001:adversarial:0"
+      ],
+      "milestoneIds": [
+        "M3-A",
+        "M3-B",
+        "M3-C"
+      ],
+      "note": "M3 acceptance = selfcheck-m3 passes (0 dup / 0 gap after boundary+mid-iteration kills+resume; casualty stop-or-rerun) and resume-reconciliation.json records 0/0; M2 fresh path unchanged."
+    }
+  ],
+  "diagnosticGaps": [
+    {
+      "code": "scope_ambiguity",
+      "severity": "warn",
+      "artifact": "scope-contract.json",
+      "message": "Scope ambiguity is triggered but no scope contract or explicit shrinkage decision is configured.",
+      "triggeredBy": [
+        "scope_ambiguity"
+      ]
+    }
+  ],
+  "note": "M3 ProofStory contract: single acceptance binding mapping the intent-snapshot claim to the 3 checklist items + resume/reconciliation/selfcheck intents + milestones M3-A..C.",
+  "createdAt": "2026-07-05T20:25:04.561Z",
+  "updatedAt": "2026-07-05T20:25:04.561Z"
+}
