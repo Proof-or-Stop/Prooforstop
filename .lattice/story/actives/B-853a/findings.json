@@ -176,6 +176,24 @@
       "_hash": "5f5f98152e16654d51be851247f8af97dbd62ced7e9ea5c20bc81d74a61935f7",
       "signatureTag": "edge|unknown|goldmetrics-shape-validated",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-853a:F-012",
+      "desc": "F-CODEX-R2-1 (host-2, HIGH): H2 does not bind each (class,handling) identity to its PROTOCOL-EXPECTED disposition. adjudicateH2 checks the identity SET == protocol.tamperMatrix + aggregate per-disposition COUNTS + per-row conformance + dispositionMatch — but NOT that a given (class,handling) has the disposition the protocol assigns it. Swap cross-profile-swap|refreshed from fail-closed->accepted/pass AND gold-additive-field|refreshed from accepted->fail-closed/fail (keeping counts, dispositionMatch, fingerprintMatch all consistent): H2=pass, overall=all-pass. FIX: for each verdict, look up its (class,handling) in protocol.tamperMatrix, determine the EXPECTED bucket/disposition, and require rederivedDisposition === that expected disposition (identity->disposition binding), in addition to the existing set/count/conformance checks.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-07-06T08:01:05.281Z",
+      "reviewRound": "2026-07-06T07:55:11.367Z",
+      "reviewRunId": "B-853a:RR-012",
+      "_hash": "cc381b93f915a17714795bdab2a71f2ae92453756a028049a2d63a0ffdbee7ee",
+      "files": [
+        "experiments/pos-instrument-replay/analyze-batch.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|codex-host-high",
+      "signatureTagSource": "auto"
     }
   ]
 }
