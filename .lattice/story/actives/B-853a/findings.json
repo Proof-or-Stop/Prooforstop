@@ -103,7 +103,7 @@
       "desc": "F-CODEX-2 (host-2, HIGH): H2 IDENTITY false-pass. adjudicateH2 (analyze-batch.mjs:~318) checks only per-disposition bucket COUNTS (18/2/6/1) + per-row conformance + dispositionMatch — NOT that each expected (class, handling) pair enumerated in protocol.tamperMatrix is actually PRESENT. Delete one class's verdict (e.g. gold-edit/raw) and duplicate another (cross-profile-swap/refreshed) so counts still total 18 fail-closed: H2 passes while an enumerated tamper class has ZERO evidence. FIX: H2 must verify the SET of (class,handling) identities in the verdicts equals the set enumerated in protocol.tamperMatrix (identity coverage), in addition to per-row conformance + dispositionMatch.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex",
       "createdAt": "2026-07-06T07:38:59.374Z",
@@ -114,7 +114,11 @@
         "experiments/pos-instrument-replay/analyze-batch.mjs"
       ],
       "signatureTag": "adversarial|mjs|codex-host-high",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 3e5c582a: H2 requires the (class,handling) identity SET == protocol.tamperMatrix (missing/extra/dup -> fail). selfcheck-m4 sub-check L. Further hardened in eeb1a9592 (identity->disposition binding, sub-check Q).",
+      "resolvedAt": "2026-07-06T08:19:57.523Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-853a:F-007",
