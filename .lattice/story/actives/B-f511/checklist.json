@@ -223,11 +223,11 @@
           "kind": "manual_transcript",
           "command": "node experiments/pos-instrument-replay/selfcheck-m3.mjs",
           "result": "pass",
-          "note": "Un-gameable: sub-check J.1 pre-plants a break-mutex + a genuinely-dead-pid stale lock and asserts --resume FAILS CLOSED (exit 3, precondition_failed to the blocked-ledger mentioning the break-mutex, campaign ledger + stale lock untouched, and the loser does NOT remove a break-mutex it does not own); J.2 removes the break-mutex and asserts --resume then breaks the still-stale lock and completes the exact 30-record multiset (0 dup/0 gap, no orphaned break-mutex). Findings F-001..F-008 each covered by a dedicated load-bearing sub-check; every direction fails loudly on regression.",
-          "headHash": "5c1aa59af9c3e300f9c5c9d675cb609ab8bd3ff6",
+          "note": "Un-gameable: sub-check K seeds a sandbox ledger with valid records then runs a FRESH (no --resume) driver and asserts it FAILS CLOSED (exit 3, precondition_failed 'non-empty ledger' to the blocked-ledger, campaign ledger byte-identical — zero duplicate/extra records appended). Findings F-001..F-011 each covered by a dedicated load-bearing sub-check (F-007/F-008->J, F-009/F-011->K); F-010 restores the explicit [resume] could-not-break-stale-lock exit 2 diagnostic; every direction fails loudly on regression.",
+          "headHash": "077f7fcaf1a6c6eb4da6a844b991b454f3d5c4d6",
           "materialHash": "4e625df486123eab21a9bcdd2f7d078af09e4b3de1c49a9efa0f939f3fa4677b",
           "storyFilesHash": "de01a2e52c1851b82f08c4080802d781ad44520253ead770535784398db2f30a",
-          "timestamp": "2026-07-06T02:17:52.891Z"
+          "timestamp": "2026-07-06T02:17:54.841Z"
         }
       ]
     }
