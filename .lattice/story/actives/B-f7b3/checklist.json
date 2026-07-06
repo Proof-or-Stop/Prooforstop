@@ -21,46 +21,12 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "In packages/main/tests/milestone-status.test.mjs, extend assertTextContract to assert the milestone_status rendered text (populated-ledger path, e.g. the B-7ba7 renderMilestoneStatusReport(report) output around L360-374/L452) includes the literal disclaimer line matching /Disclaimer: Milestone progress is not lifecycle DONE, not Authority.*not production readiness/ appearing immediately after 'Mode: read-only'; run `node --test packages/main/tests/milestone-status.test.mjs` and confirm it passes.",
-            "type": "logic"
-          },
-          {
-            "desc": "In the same test file extend assertCloseoutTextContract (L378-385) to assert renderMilestoneCloseoutSnapshot output includes /Disclaimer: .*not lifecycle DONE.*not Authority.*not production readiness/ under 'Mode: read-only historical snapshot'; run `node --test packages/main/tests/milestone-status.test.mjs` and confirm the closeout snapshot test passes.",
-            "type": "logic"
-          },
-          {
-            "desc": "Build packages/main (npm run build in packages/main), then run `lattice milestone_status --storyId=B-f7b3` against a story with a populated milestone-ledger.json and confirm stdout prints the new `Disclaimer:` line naming all three negatives directly under `Mode: read-only`.",
-            "type": "cli"
-          }
-        ],
-        "edge": [
-          {
-            "desc": "Add/extend the missing-ledger test (around L452-455 in milestone-status.test.mjs, buildMilestoneStatusReport with a story that has no milestone-ledger.json) to assert renderMilestoneStatusReport(report) still contains the `Disclaimer:` line (mentions not-DONE/not-Authority/not-production) AND still contains `Ledger: missing`, and continues to satisfy assert.doesNotMatch(text, /all ledger rows are completed/i); run the test and confirm it passes.",
-            "type": "logic"
-          },
-          {
-            "desc": "Add a test that renderMilestoneCloseoutMissingReport(report) output (missing-snapshot path, L989-1002) includes the `Disclaimer:` line with all three negatives while preserving the existing `Snapshot: missing` and `Diagnostic:` lines; run `node --test packages/main/tests/milestone-status.test.mjs` and confirm pass.",
-            "type": "logic"
-          },
-          {
-            "desc": "Logic check: confirm the disclaimer string is defined once as a shared constant (e.g. MILESTONE_STATUS_DISCLAIMER / MILESTONE_CLOSEOUT_DISCLAIMER) and referenced by all three/four render paths, so no render path silently omits it and the wording cannot drift between reports.",
+            "desc": "probe",
             "type": "logic"
           }
         ],
-        "adversarial": [
-          {
-            "desc": "Grep guard: `grep -rn \"Mode: read-only\" packages/main/src/core/milestone-status.ts` must show that every location emitting a `Mode: read-only`/`Mode: read-only historical snapshot` header (L1149 status, L973 closeout snapshot, L992 closeout missing, and the missing-ledger branch that reuses the status header at L1155+) is accompanied by the disclaimer line — assert no render function emits `Mode:` without an adjacent `Disclaimer:` line.",
-            "type": "cli"
-          },
-          {
-            "desc": "Negative-wording adversarial test: assert the disclaimer literal in the rendered output does NOT contain success-implying phrasing (e.g. must NOT match /production ready\\b/ without the negation, /Authority-signed\\b/ as a positive claim, or /DONE\\b/ presented as achieved) — i.e. every occurrence of DONE/Authority/production in the disclaimer is negated; run the test and confirm it passes.",
-            "type": "logic"
-          },
-          {
-            "desc": "Full milestone-status suite regression: run `node --test packages/main/tests/milestone-status.test.mjs` and confirm all pre-existing assertions (assertTextContract, assertCloseoutTextContract, missing-ledger, snapshot-backed, DONE-without-closeout row assertions) still pass with the added disclaimer line, proving the new line does not shift table/row expectations or break the `unexpected keys` read-only guard tests.",
-            "type": "logic"
-          }
-        ]
+        "edge": [],
+        "adversarial": []
       }
     },
     {
