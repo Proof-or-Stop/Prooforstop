@@ -69,6 +69,27 @@
 //       campaign ledger untouched). Proves the CONSERVATIVE missing-holder=LIVE
 //       rule closes the acquire race (F-005 = F-006, same race).
 //
+//   (J) BREAK-MUTEX-SERIALIZES (F-007/F-008): the multi-resumer break TOCTOU. The
+//       break was CHECK (evaluateLockForBreak) then USE (rmSync(LOCK_DIR)), NOT
+//       atomic, so two --resume drivers reading the SAME genuinely-dead holder
+//       could BOTH decide breakable and B's unconditional rmSync could delete A's
+//       freshly-reacquired LIVE lock. The fix serializes the whole break
+//       critical-section behind a dedicated mkdir break-mutex. J.1: with a stale
+//       lock PLUS a pre-existing break-mutex, --resume must FAIL CLOSED (exit
+//       nonzero, precondition_failed mentioning the break-mutex, campaign ledger
+//       untouched). J.2: remove the break-mutex and the still-stale lock stays
+//       reclaimable (exact 30 multiset).
+//
+//   (K) FRESH-REFUSES-NONEMPTY-LEDGER (F-009/F-011): a FRESH (non-resume) driver
+//       must FAIL CLOSED if the campaign batch-ledger.jsonl already exists and is
+//       non-empty, BEFORE any append (a fresh driver that won the lock in the
+//       resume break-to-reacquire window would otherwise re-run + re-append every
+//       iteration, producing on-disk duplicates the end-guard rejects but cannot
+//       repair — a poisoned evidence file). Given a sandbox whose ledger already
+//       holds valid records, a FRESH run must exit 3, append a precondition_failed
+//       record to the blocked-ledger whose rawError mentions the non-empty ledger,
+//       and leave the campaign ledger BYTE-IDENTICAL (no duplicate/extra records).
+//
 // Hermeticity: each sub-check gets its own mkdtemp sandbox holding a copy of
 // run-batch.mjs, lib/instrument.mjs, and the frozen protocol.json, run with
 // cwd=sandbox so its ledger + lock live in the sandbox. The generate/verify CLI
@@ -883,6 +904,84 @@ async function checkBreakMutexSerializes() {
   }
 }
 
+// ---------------------------------------------------------------------------
+// (K) FRESH-REFUSES-NONEMPTY-LEDGER (F-009/F-011): a FRESH (non-resume) driver
+// must FAIL CLOSED when the campaign batch-ledger.jsonl already exists and is
+// non-empty, BEFORE any append — otherwise a fresh driver that won the lock in
+// the resume break-to-reacquire window would re-run + re-append every iteration
+// onto the already-non-empty ledger, producing on-disk duplicates the end-guard
+// rejects but cannot repair (a poisoned evidence file). This sub-check seeds a
+// sandbox ledger with a couple of syntactically-valid record lines (distinct
+// iterationIds), runs the driver in FRESH mode (NO --resume), and asserts:
+// exit 3, a precondition_failed record appended to the blocked-ledger whose
+// rawError mentions the non-empty ledger, and the campaign ledger left
+// BYTE-IDENTICAL (no duplicate/extra records appended). Deterministic; no crash
+// hook, no timing race.
+// ---------------------------------------------------------------------------
+function checkFreshRefusesNonemptyLedger() {
+  const label = 'K-fresh-refuses-nonempty-ledger';
+  const sandbox = makeSandbox(label);
+  try {
+    // Seed the campaign ledger with a few syntactically-valid record lines with
+    // distinct iterationIds (the exact record shape is irrelevant to the guard —
+    // it only checks the ledger is non-empty; these are valid proof/stop-shaped
+    // JSON objects carrying a string iterationId).
+    const seededLines = [
+      JSON.stringify({ iterationId: 'replay/small/1', arm: 'replay', scale: 'small', index: 1, verifyStatus: 'pass' }),
+      JSON.stringify({ iterationId: 'replay/small/2', arm: 'replay', scale: 'small', index: 2, verifyStatus: 'pass' }),
+      JSON.stringify({ iterationId: 'replay/small/3', arm: 'replay', scale: 'small', index: 3, stopReason: 'budget_cap' }),
+    ];
+    const seededContent = seededLines.join('\n') + '\n';
+    appendFileSync(ledgerPath(sandbox), seededContent);
+    // Snapshot the seeded ledger bytes so we can prove it stays UNCHANGED.
+    const ledgerBefore = readFileSync(ledgerPath(sandbox), 'utf8');
+
+    // FRESH run (NO --resume) over a non-empty pre-existing ledger: must FAIL CLOSED.
+    const freshRun = runBatch(sandbox, { args: ['--scale=small'] });
+    if (freshRun.code !== 3) {
+      fail(
+        `${label}: a FRESH (no --resume) run over a non-empty pre-existing ledger must exit 3 ` +
+          `(fail closed), got ${freshRun.code} — a fresh driver re-appending onto a non-empty ledger ` +
+          `would poison it with on-disk duplicates.\n${(freshRun.stdout + '\n' + freshRun.stderr).slice(-800)}`,
+      );
+    }
+    // The campaign ledger must be BYTE-IDENTICAL to the seed — no re-run/re-append.
+    const ledgerAfter = readFileSync(ledgerPath(sandbox), 'utf8');
+    if (ledgerAfter !== ledgerBefore) {
+      fail(
+        `${label}: the campaign ledger was MODIFIED by the refused fresh run — it must stay ` +
+          `byte-identical (no duplicate/extra records appended). before=${ledgerBefore.length}B, ` +
+          `after=${ledgerAfter.length}B`,
+      );
+    }
+    // A precondition_failed record must be appended to the BLOCKED ledger, and its
+    // rawError must mention the non-empty ledger.
+    if (!existsSync(blockedLedgerPath(sandbox))) {
+      fail(`${label}: the refused fresh run did not record precondition_failed to the blocked-ledger`);
+    }
+    const blocked = readFileSync(blockedLedgerPath(sandbox), 'utf8')
+      .split('\n')
+      .filter((l) => l.trim())
+      .map((l) => JSON.parse(l));
+    const precondStop = blocked.find(
+      (r) => r.stopReason === 'precondition_failed' && /non-empty|already exists/i.test(r.rawError || ''),
+    );
+    if (!precondStop) {
+      fail(
+        `${label}: blocked-ledger has no precondition_failed record whose rawError mentions the ` +
+          `non-empty pre-existing ledger (got: ${JSON.stringify(blocked.map((r) => r.rawError))})`,
+      );
+    }
+    console.log(
+      `  ${label} PASS: a FRESH (no --resume) run over a non-empty pre-existing ledger FAILED CLOSED ` +
+        `(exit ${freshRun.code}, precondition_failed 'non-empty ledger' to blocked-ledger, campaign ` +
+        `ledger left byte-identical — no duplicate/extra records)`,
+    );
+  } finally {
+    rmSync(sandbox, { recursive: true, force: true });
+  }
+}
+
 async function main() {
   console.log('selfcheck-m3: running hermetic resume/idempotence guards (small scale)...');
   // (A) clean-boundary kill at K+1 with K=5 (casualty replay/small/6).
@@ -911,6 +1010,11 @@ async function main() {
   //     break-mutex. J.1 proves a second breaker fails closed while a break is in
   //     progress; J.2 proves a genuinely-stale lock stays reclaimable once free.
   await checkBreakMutexSerializes();
+  // (K) FRESH-REFUSES-NONEMPTY-LEDGER (F-009/F-011): a FRESH (no --resume) driver
+  //     must FAIL CLOSED on a non-empty pre-existing campaign ledger, before any
+  //     append (the resume break-to-reacquire window otherwise lets a fresh driver
+  //     re-append duplicates the end-guard rejects but cannot repair).
+  checkFreshRefusesNonemptyLedger();
   console.log('selfcheck-m3 PASS');
   process.exit(0);
 }

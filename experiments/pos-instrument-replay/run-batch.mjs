@@ -811,6 +811,12 @@ function main() {
     // tradeoff: a stuck break-mutex is recoverable by an operator; two campaign
     // writers is not.
     let precondReason = null;
+    // F-010: capture (do NOT process.exit) a destructive-break failure so the
+    // break-mutex finally still runs to release BREAK_LOCK_DIR; the explicit
+    // diagnostic + exit 2 is raised AFTER the try/finally. breakError and
+    // precondReason are mutually exclusive (a break is either refused, succeeds,
+    // or fails to remove the lock — never two of those at once).
+    let breakError = null;
     try {
       if (existsSync(LOCK_DIR)) {
         const verdict = evaluateLockForBreak();
@@ -826,7 +832,14 @@ function main() {
               verdict.reason +
               ')',
           );
-          rmSync(LOCK_DIR, { recursive: true, force: true });
+          // F-010: capture an rmSync failure into breakError instead of letting it
+          // propagate UNCAUGHT (generic stack trace + exit 1). Do NOT process.exit
+          // in here — the finally below must run first to release the break-mutex.
+          try {
+            rmSync(LOCK_DIR, { recursive: true, force: true });
+          } catch (e) {
+            breakError = e;
+          }
         }
       }
     } finally {
@@ -839,6 +852,16 @@ function main() {
           /* best-effort release of the break-mutex */
         }
       }
+    }
+    // F-010: restore the explicit stale-lock-break diagnostic + exit 2. The
+    // break-mutex finally above has already released BREAK_LOCK_DIR, so this exit
+    // does not orphan it. Raised BEFORE the precondReason check (they are mutually
+    // exclusive; a capture here means the break itself failed).
+    if (breakError) {
+      fatal(
+        `run-batch FATAL: [resume] could not break the stale lock ${LOCK_DIR}: ${String((breakError && breakError.message) || breakError)}`,
+        2,
+      );
     }
     if (precondReason !== null) {
       // Refused to break: record a precondition_failed stop to the blocked-ledger
@@ -887,6 +910,40 @@ function main() {
     }
     appendRecord(stop, BLOCKED_LEDGER_PATH);
     fatal('run-batch: could not acquire batch-ledger lock (another driver holds it)', 3);
+  }
+
+  // F-009/F-011: a FRESH (non-resume) driver must never append onto a non-empty
+  // pre-existing campaign ledger (that produces on-disk duplicates the end-guard
+  // rejects but cannot repair — a poisoned evidence file). A stale lock normally
+  // keeps a fresh driver out, but resume recovery opens a break-to-reacquire window
+  // where a fresh driver can win the lock; refuse under the lock, before any append.
+  // Serialized UNDER the campaign lock (release !== null here) so the ledger state
+  // is stable, and BEFORE the resume/loop logic below.
+  if (!resume) {
+    let existingLedgerNonEmpty = false;
+    try {
+      existingLedgerNonEmpty = existsSync(LEDGER_PATH) && readFileSync(LEDGER_PATH, 'utf8').trim() !== '';
+    } catch {
+      existingLedgerNonEmpty = false;
+    }
+    if (existingLedgerNonEmpty) {
+      release(); // release the campaign lock before exiting
+      const stop = withDigest({
+        iterationId: 'replay/precondition/ledger',
+        stopReason: 'precondition_failed',
+        rawError:
+          'fresh (non-resume) run refused: batch-ledger.jsonl already exists and is non-empty (use --resume to continue an interrupted run, or remove the ledger to start fresh)',
+        env: recordEnv(),
+      });
+      if (!STOP_REASONS.has(stop.stopReason)) {
+        fatal(`run-batch FATAL: stopReason not in enum: ${stop.stopReason}`, 2);
+      }
+      appendRecord(stop, BLOCKED_LEDGER_PATH);
+      fatal(
+        'run-batch: fresh run refused — batch-ledger.jsonl already exists and is non-empty (use --resume, or remove the ledger) — recorded precondition_failed',
+        3,
+      );
+    }
   }
 
   // appendOne: the per-iteration append closure injected into runIteration so
