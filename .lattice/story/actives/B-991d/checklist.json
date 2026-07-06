@@ -378,9 +378,55 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-05T23:52:57.978Z",
-      "endTime": null
+      "endTime": "2026-07-06T00:03:26.717Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/multi-model-ablation/future-cell03-results/probe/run-probe.mjs --force",
+          "result": "pass",
+          "note": "Probe produced 2 Cell 03 rows, both final, validationPass=true, providerUsageRows=2, providerModelId=gpt-5.5, totalTokens=368047.",
+          "headHash": "b099ee38424aa8831dbbe9018b60e7fef429e11b",
+          "materialHash": "546f3d251e3055467c7a6dd73ac601d5abc009bc33b97586ea5d31473939a0a0",
+          "storyFilesHash": "ff50b6a2e2f2a0cd971ae0cab8283cf5fef4a20b3df7e73f73fc2e7bbd20c2a1",
+          "timestamp": "2026-07-06T00:03:27.140Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "command": "node experiments/multi-model-ablation/future-cell03-results/probe/validate-probe.mjs",
+          "result": "pass",
+          "note": "Probe validator passed 92 assertions and confirmed row contract bindings, B-991d provenance, Cell 03-only scope, uniqueness, provider usage, and fullRunUnlocked=true for the successful probe.",
+          "headHash": "b099ee38424aa8831dbbe9018b60e7fef429e11b",
+          "materialHash": "546f3d251e3055467c7a6dd73ac601d5abc009bc33b97586ea5d31473939a0a0",
+          "storyFilesHash": "ff50b6a2e2f2a0cd971ae0cab8283cf5fef4a20b3df7e73f73fc2e7bbd20c2a1",
+          "timestamp": "2026-07-06T00:03:27.518Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "command": "node experiments/multi-model-ablation/future-cell03-results/probe/validate-probe.mjs",
+          "result": "pass",
+          "note": "Validator simulates a failed/nonformal probe row and confirms it cannot unlock the full run; runner code also writes failed/nonformal rows when provider exit, timeout, spawn, or usage capture fails.",
+          "headHash": "b099ee38424aa8831dbbe9018b60e7fef429e11b",
+          "materialHash": "546f3d251e3055467c7a6dd73ac601d5abc009bc33b97586ea5d31473939a0a0",
+          "storyFilesHash": "ff50b6a2e2f2a0cd971ae0cab8283cf5fef4a20b3df7e73f73fc2e7bbd20c2a1",
+          "timestamp": "2026-07-06T00:03:27.899Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "command": "node experiments/multi-model-ablation/future-cell03-results/probe/validate-probe.mjs",
+          "result": "pass",
+          "note": "Validator rejected 6 negative controls: duplicate cell key, Cell 06 row, missing B-991d provenance, missing provider usage on a final row, fallback runner, and missing reviewer snapshot.",
+          "headHash": "b099ee38424aa8831dbbe9018b60e7fef429e11b",
+          "materialHash": "546f3d251e3055467c7a6dd73ac601d5abc009bc33b97586ea5d31473939a0a0",
+          "storyFilesHash": "ff50b6a2e2f2a0cd971ae0cab8283cf5fef4a20b3df7e73f73fc2e7bbd20c2a1",
+          "timestamp": "2026-07-06T00:03:28.291Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
@@ -689,6 +735,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Start bounded Cell 03 probe before full execution.",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-07-06T00:03:26.717Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Cell 03 probe produced two valid final rows with provider usage and passed contract validation.",
       "agent": "codex-main"
     }
   ]
