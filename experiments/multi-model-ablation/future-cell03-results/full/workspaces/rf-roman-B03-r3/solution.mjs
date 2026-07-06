@@ -17,7 +17,8 @@ const TABLE = [
   [1,    'I'],
 ];
 
-const VALID_ROMAN = /^[IVXLCDM]+$/i;
+// Single-letter values, for decoding.
+const LETTER = { I: 1, V: 5, X: 10, L: 50, C: 100, D: 500, M: 1000 };
 
 function encode(n) {
   if (typeof n !== 'number' || !Number.isInteger(n)) {
@@ -41,13 +42,15 @@ function decode(s) {
   if (typeof s !== 'string') throw new Error('decode expects a string');
   const str = s.toUpperCase();
   if (str.length === 0) throw new Error('decode expects a non-empty string');
-  if (!VALID_ROMAN.test(str)) throw new Error('decode expects Roman numeral characters only');
-
+  for (const ch of str) {
+    if (!(ch in LETTER)) throw new Error(`Invalid Roman character: '${ch}'`);
+  }
   let total = 0;
-  for (let i = 0; i < str.length;) {
-    const entry = TABLE.find(([, symbol]) => str.startsWith(symbol, i));
-    total += entry[0];
-    i += entry[1].length;
+  for (let i = 0; i < str.length; i++) {
+    const cur = LETTER[str[i]];
+    const next = i + 1 < str.length ? LETTER[str[i + 1]] : 0;
+    if (cur < next) total -= cur;
+    else total += cur;
   }
   return total;
 }
@@ -71,6 +74,6 @@ export default function roman(mode, input) {
     case 'encode':   return encode(input);
     case 'decode':   return decode(input);
     case 'validate': return validate(input);
-    default:         throw new Error('Unknown mode');
+    default:         throw new Error(`Unknown mode: '${mode}'`);
   }
 }
