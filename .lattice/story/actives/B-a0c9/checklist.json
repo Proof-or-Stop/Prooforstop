@@ -127,6 +127,18 @@
           "materialHash": "8b0479d5ca09046d9c676730374ef79dc8801738df4384e51f7e9853ab268520",
           "storyFilesHash": "849bca8a8bd6bdfc17515f09e74fa4d76c7309360205ba08b044c80447fdffc9",
           "timestamp": "2026-07-06T11:05:57.278Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/pos-instrument-replay/selfcheck-m3.mjs",
+          "result": "pass",
+          "note": "The added guard `if (!existsSync(lockDirPath(sandbox)) || !existsSync(holderPath(sandbox))) fail(...)` fires with a clear message if a future change lets the failed break remove the lock. Verified the assertion is present in checkResumeBreakFailureDiagnostic and that sub-check M passes today because the lock survives.",
+          "headHash": "0365cae58ceec7c969f8d32756f2582eb61632ac",
+          "materialHash": "8b0479d5ca09046d9c676730374ef79dc8801738df4384e51f7e9853ab268520",
+          "storyFilesHash": "849bca8a8bd6bdfc17515f09e74fa4d76c7309360205ba08b044c80447fdffc9",
+          "timestamp": "2026-07-06T11:05:59.510Z"
         }
       ]
     }
