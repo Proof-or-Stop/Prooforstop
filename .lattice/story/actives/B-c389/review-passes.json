@@ -44,6 +44,15 @@
       "reviewRound": "2026-07-06T00:08:28.508Z",
       "reviewRunId": "B-c389:RR-008",
       "_hash": "af816b6abfee751f5fabc15e9305cff01d6c70b02a3e7c46bc01291b1e482868"
+    },
+    {
+      "id": "B-c389:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 re-audit clean. Verified all 3 round-1 fixes: F-001 dead capLedgerPathB fully removed from capability-release-backfill-smoke.ts (grep confirms zero occurrences); F-002 config.ts DEFAULT_PHASE_TOOLS now has an explicit, accurate, self-documenting capability_release_backfill entry (distinct from the still-present read-only capability_release_* wildcard comment, harmless redundancy, intentional per its own inline note) clarifying it as an intentionally all-phase MUTATING migration writer; F-003 lattice.config.json is a minimal, clean 3-line addition matching main plus the new smoke registrations, no stray reformat. No new dead code (no unused imports/vars in any touched file, verified via targeted import-usage scan), no as any anywhere in the diff, both catch(e:any) blocks (capability-release.ts:211 ledger-parse and :682 backfill-commit) re-throw with contextual messages rather than swallowing. No job/run proof-metadata semantics touched (this is playbook/capability-release ledger metadata, not job/run), so the narrow dual-surface metadata rule does not apply. Closing self-check: cross-verified the new CLI.md capability_release_backfill doc section + command-catalog.ts schema + command-policy.ts + process-fact-levels.ts entries against the live handler by running the command end-to-end (dry-run JSON matches documented shape; --apply without --digest refuses exactly as documented) - no promised-but-undelivered gaps. Verification: npx tsc --noEmit -p packages/main/tsconfig.json (clean) and npm run build (clean); --noUnusedLocals repo-wide run shows only pre-existing unused-locals findings on main (command-catalog.ts lines 28-48 unrelated schema imports, process-fact-registry.ts:726), none introduced by or adjacent to this diff. Ran all 3 new capability smokes directly against the rebuilt worktree dist: capability-release-backfill-smoke.js 14/14 passed, capability-candidate-exposure-smoke.js 8/8 passed, capability-candidate-promotion-smoke.js 8/8 passed. No blockers.",
+      "createdAt": "2026-07-06T00:11:46.916Z",
+      "reviewRound": "2026-07-06T00:08:28.508Z",
+      "reviewRunId": "B-c389:RR-006",
+      "_hash": "4cb34c2ebd20b28a8336490b9ea1cb64e531bc1563bdbc57b4c257f66961bc29"
     }
   ]
 }
