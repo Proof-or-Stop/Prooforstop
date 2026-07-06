@@ -21,12 +21,46 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "probe",
+            "desc": "Logic (harness happy:0): buildMilestoneStatusReport with a populated ProofStory ledger, then renderMilestoneStatusReport. Split output on newlines; assert the line immediately AFTER 'Mode: read-only' is exactly the shared observability disclaimer 'Scope: observability only - reports milestone progress from the ProofStory ledger. This is NOT a lifecycle DONE, NOT an Authority verdict, and NOT a production-readiness gate.' and matches /observability only.*NOT a lifecycle DONE.*NOT an Authority verdict.*NOT a production-readiness gate/s. Delivered behavior emits the Scope-prefixed disclaimer, NOT a 'Disclaimer:' line.",
+            "type": "logic"
+          },
+          {
+            "desc": "Logic (harness happy:1): build a fully-completed report and buildMilestoneCloseoutSnapshot, then renderMilestoneCloseoutSnapshot. Assert the line immediately after 'Mode: read-only historical snapshot' equals the same shared MILESTONE_OBSERVABILITY_DISCLAIMER text (byte-identical to the status-path disclaimer), confirming the closeout-snapshot header carries the observability-scope disclaimer.",
+            "type": "logic"
+          },
+          {
+            "desc": "CLI (harness happy:2): run `lattice milestone_status --root <fixture> --storyId B-f7b3` against a story with a populated milestone-ledger.json. Pipe stdout through `awk '/^Mode: read-only$/{getline; print}'` and assert (grep -qxF) the captured line is exactly 'Scope: observability only - reports milestone progress from the ProofStory ledger. This is NOT a lifecycle DONE, NOT an Authority verdict, and NOT a production-readiness gate.'. Verifies the disclaimer end-to-end through the real CLI render, immediately under the read-only mode line.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Logic (harness edge:0): missing-ledger status path — buildMilestoneStatusReport with milestoneLedger:null, then renderMilestoneStatusReport. Assert output still contains the shared disclaimer (line right after 'Mode: read-only'), still shows 'Ledger: missing', and never claims completion (doesNotMatch /all ledger rows are completed/i). Confirms the read-only observability disclaimer is preserved when no ledger exists.",
+            "type": "logic"
+          },
+          {
+            "desc": "Logic (harness edge:1): missing-snapshot closeout path — renderMilestoneCloseoutMissingReport(report). Assert output preserves 'Snapshot: missing' and a 'Diagnostic:' line AND still carries the shared disclaimer as the line immediately after 'Mode: read-only historical snapshot'. Confirms the closeout-missing diagnostic render keeps the observability disclaimer.",
+            "type": "logic"
+          },
+          {
+            "desc": "Logic (harness edge:2): single-source structural property at the output level — grab the disclaimer line (line after the mode header) from all four render outputs (populated status, closeout snapshot, closeout-missing, missing-ledger status) and assert they are byte-identical (Set size 1) and equal the expected observability text. Proves the wording is single-sourced from one shared constant and cannot drift per path.",
             "type": "logic"
           }
         ],
-        "edge": [],
-        "adversarial": []
+        "adversarial": [
+          {
+            "desc": "Adversarial CLI/grep guard (harness adversarial:0): against the REAL source packages/main/src/core/milestone-status.ts assert (a) `grep -cE \"^const MILESTONE_OBSERVABILITY_DISCLAIMER =\"` equals 1 (declared exactly once), and (b) for every source line matching /^\\s*'Mode: read-only/ the NEXT source line is the MILESTONE_OBSERVABILITY_DISCLAIMER reference — so no read-only header can exist without the adjacent disclaimer guard. Genuinely adversarial: deleting any disclaimer reference (e.g. `sed 1187d`) makes the guard FAIL.",
+            "type": "cli"
+          },
+          {
+            "desc": "Adversarial negative-wording guard (harness adversarial:1): extract the disclaimer from the ACTUAL rendered status output. Assert it contains NO success-implying phrasing (doesNotMatch /\\bproduction[- ]ready\\b/i, /\\bAuthority-signed\\b/i, /\\bis a lifecycle DONE\\b/i) and that every risky token ('lifecycle DONE','Authority verdict','production-readiness gate') is negated by a nearby preceding NOT. Then mutate the line to 'This is a lifecycle DONE' and assert the guard THROWS — proving it is not pass-anything.",
+            "type": "logic"
+          },
+          {
+            "desc": "Adversarial mutation + full-suite regression (harness adversarial:2 plus `node --test packages/main/tests/milestone-status.test.mjs`): confirm the real render satisfies the disclaimer contract (observability only + all three NOT-negations), then drop a negation from the rendered text and assert the contract predicate REJECTS the mutant. Finally run the committed milestone-status suite and confirm all pre-existing assertions still pass (tests 1 / pass 1 / fail 0), guarding against regressions in the shared disclaimer wording.",
+            "type": "logic"
+          }
+        ]
       }
     },
     {
@@ -263,31 +297,31 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "From repo root run `npm run test:milestone-status`; assert exit code 0 and stdout contains `ok milestone-status`. Confirms the new script builds packages/main and runs the .mjs regression.",
+            "desc": "From repo root run `npm run test:milestone-status`; assert exit code 0 and stdout contains `ok milestone-status`. Confirms the named root script runs the milestone-status .mjs regression to completion against the prebuilt dist.",
             "type": "cli"
           },
           {
-            "desc": "From repo root run `node -e \"const s=require('./package.json').scripts; if(!s['test:milestone-status']) process.exit(2); if(!s.test.includes('test:milestone-status')) process.exit(3);\"`; assert exit 0. Confirms a test:milestone-status script exists AND the root `npm test` &&-chain references it.",
+            "desc": "Run `node -e \"const s=require('./package.json').scripts; if(!s['test:milestone-status']) process.exit(2); if(!s.test.includes('npm run test:milestone-status')) process.exit(3);\"`; assert exit 0. Confirms a `test:milestone-status` root script exists AND the aggregate `npm test` &&-chain references it via `npm run test:milestone-status`.",
             "type": "cli"
           }
         ],
         "edge": [
           {
-            "desc": "Grep packages/main/tests/milestone-status.test.mjs head comment for the string `npm run test:milestone-status` (or `npm test`); assert present. Confirms the header no longer documents only manual `node packages/main/tests/...` invocation as the checklist context flagged.",
+            "desc": "Assert the two-hop delegation chain: `node -e` reads package.json and requires root `test:milestone-status` === `npm --prefix packages/main run test:milestone-status`, then `execFileSync('npm',['--prefix','packages/main','run','test:milestone-status'])` output contains `ok milestone-status`. Confirms the root script does not run node directly but delegates through the packages/main workspace script, and the delegated leg runs green.",
             "type": "cli"
           },
           {
-            "desc": "Assert build ordering: the `test:milestone-status` script value contains a `npm --prefix packages/main run build` (or equivalent build step) before `node packages/main/tests/milestone-status.test.mjs`, verified via `node -e` reading package.json. The .mjs dynamically imports from packages/main/dist, so a stale/absent dist must be rebuilt first; without the build step the aggregate run could import stale compiled code or crash on a missing dist.",
+            "desc": "Assert the deliberate no-inline-build design via `node -e`: packages/main `test:milestone-status` === `node tests/milestone-status.test.mjs` (relative invocation, contains no `build` step because dist is prebuilt by the separate top-level `build` chain step), and packages/main/tests/milestone-status.test.mjs resolves its imports from `new URL('../dist/', import.meta.url)`. Confirms the test loads compiled code relative to itself rather than rebuilding inline.",
             "type": "logic"
           }
         ],
         "adversarial": [
           {
-            "desc": "Simulate a regression: temporarily edit packages/main/tests/milestone-status.test.mjs to `assert.fail('injected')` early, run `npm test` from repo root, and confirm it exits non-zero AT the test:milestone-status step (not passing through), then revert. Proves the test is genuinely gate-observable in the aggregate suite and cannot be silently skipped.",
+            "desc": "Simulate a regression: temporarily insert `assert.fail('injected')` right after the imports in packages/main/tests/milestone-status.test.mjs, then run the milestone-status chain leg inside `sh -c 'npm run test:milestone-status && touch MARKER'`; confirm the leg exits non-zero, `ok milestone-status` is absent, and MARKER is never created (the &&-chain aborts at this step so the next aggregate step never runs). Revert to a byte-identical file afterward. Proves the test is genuinely gate-observable in the aggregate suite and cannot be silently skipped.",
             "type": "cli"
           },
           {
-            "desc": "Confirm the fix does not depend on run-all-smokes discovery (which only globs dist/tasks/*-smoke.js and would never pick up a tests/*.test.mjs file): assert `discoverSmokes` in packages/main/src/tasks/run-all-smokes.ts still filters `endsWith('-smoke.js')` unchanged, so the wiring is via the named npm script/chain rather than a discovery change that could accidentally pull in every tests/*.mjs file.",
+            "desc": "Confirm the wiring does NOT depend on run-all-smokes discovery: assert `discoverSmokes` in both packages/main/src/tasks/run-all-smokes.ts and its compiled packages/main/dist/tasks/run-all-smokes.js still filters `endsWith('-smoke.js')` unchanged, so a `tests/*.test.mjs` file is invisible to discovery and the milestone-status regression runs only because of the named npm script/chain, not a discovery-glob change that could accidentally pull in every tests/*.mjs.",
             "type": "logic"
           }
         ]
