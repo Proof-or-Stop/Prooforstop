@@ -1,0 +1,19 @@
+{
+  "findings": [
+    {
+      "id": "B-c389:F-001",
+      "desc": "quality-cleanup: packages/main/src/tasks/capability-release-backfill-smoke.ts:302 declares `const capLedgerPathB = capabilityReleaseLedgerPath(rootB);` but never reads capLedgerPathB anywhere else in the file (confirmed via `tsc --noUnusedLocals`: TS6133). Dead local left over from CASE A's analogous ledgerPath/ledgerBefore pattern that was not carried through for CASE B.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-06T00:02:33.951Z",
+      "reviewRound": "2026-07-05T23:57:54.627Z",
+      "reviewRunId": "B-c389:RR-002",
+      "_hash": "63aff19ae43f31222755866ae44d3f4b9247ce12f360dfca4bdb14611b1fc5fb",
+      "signatureTag": "missing|unknown|quality-cleanup-packages",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
