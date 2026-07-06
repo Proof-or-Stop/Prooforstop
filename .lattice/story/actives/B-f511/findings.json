@@ -320,7 +320,7 @@
       "desc": "Independently reproduced/corroborating open F-013 (Codex host-2): the F-009/F-011 fresh-mode non-empty-ledger guard (run-batch.mjs:922-928) fails OPEN on an unreadable existing ledger. existingLedgerNonEmpty = existsSync(LEDGER_PATH) && readFileSync(LEDGER_PATH,\"utf8\").trim() !== \"\", wrapped in try { } catch { existingLedgerNonEmpty = false }. Reproduced directly: chmod 000 a non-empty batch-ledger.jsonl, then existsSync(...) returns true but readFileSync(...) throws EACCES; the catch sets existingLedgerNonEmpty=false, so a fresh (non-resume) driver treats an EXISTING non-empty ledger it could not read as EMPTY and proceeds to append every expected iterationId onto it, producing on-disk duplicates the end-of-run guard can detect only AFTER the ledger is already poisoned (appendFileSync is irreversible) -- contradicting the guards own fail-closed design intent stated in the surrounding comment (a FRESH driver must never append onto a non-empty pre-existing campaign ledger). Fix direction: in the catch, set existingLedgerNonEmpty = true (fail closed on any read failure of an existing file), mirroring the conservative missing-holder=LIVE precedent already used for the lock-break decision (F-005/F-006).",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-06T02:46:48.390Z",
@@ -328,7 +328,11 @@
       "reviewRunId": "B-f511:RR-029",
       "_hash": "4c8d21f59ffcdc293f0f02e851b113edc893a55727da6118b887c39b7f9e4b58",
       "signatureTag": "adversarial|unknown|independently-reproduced-corroborating",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 98ee3e0db (duplicate of F-013: fresh-mode fail-closed on an unreadable ledger). Independently reproduced by the quality lane via chmod 000 (EACCES). selfcheck-m3 sub-check L.",
+      "resolvedAt": "2026-07-06T05:05:17.755Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f511:F-017",
