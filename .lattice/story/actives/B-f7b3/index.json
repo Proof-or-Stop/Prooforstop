@@ -4,7 +4,7 @@
   "title": "Harden ProofStory milestone status/ledger observability boundary (B-b550 M7 follow-up)",
   "description": "Implements the six design-hardening items the B-b550 truth-first audit recorded in the M7 follow-up scope of docs/requirements/decisions/milestone-ledger-status-review-findings.md. The milestone observability surface is safe today (no blocker); these tighten the boundary and close the audit's test gaps. Touches packages/main/src (milestone-status render + command-policy + proofstory) and packages/main/tests/smokes.",
   "type": "feature",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "medium",
   "keywords": [
     "milestone-ledger",
@@ -127,6 +127,15 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-07-06T01:08:16.118Z",
+      "branch": "story/B-f7b3",
+      "user": "Harmonygo",
+      "sessionId": "e2c2f35d-9d17-4f85-9af1-de33c44c458f",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-06T05:21:30.774Z",
       "branch": "story/B-f7b3",
       "user": "Harmonygo",
       "sessionId": "e2c2f35d-9d17-4f85-9af1-de33c44c458f",
