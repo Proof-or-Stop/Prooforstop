@@ -194,6 +194,24 @@
       ],
       "signatureTag": "adversarial|mjs|codex-host-high",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-853a:F-013",
+      "desc": "F-CODEX-R2-2 (host-2, HIGH; corroborates+extends quality F-010): H3 accepts false/empty nested resume evidence. adjudicateH3/isKillWellFormed requires only that killC.postResume exists as a key — it never inspects the substantive VALUES. Setting killC.postResume.stoppedRecordPreserved=false passes; replacing ALL kill*.postResume with {} also passes. FIX: H3 must validate the substantive kill-trial values: killC.postResume.stoppedRecordPreserved===true; each of killA/killB/killC postResume shows 0 dup / 0 gap and a resolved casualty disposition; reject an empty/false postResume.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-07-06T08:01:06.184Z",
+      "reviewRound": "2026-07-06T07:55:11.367Z",
+      "reviewRunId": "B-853a:RR-012",
+      "_hash": "d0c20396a8c0c2df6896e4afee746b57901d769c2cf0b9f44c636d7d5bb39c13",
+      "files": [
+        "experiments/pos-instrument-replay/analyze-batch.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|codex-host-high",
+      "signatureTagSource": "auto"
     }
   ]
 }
