@@ -3,24 +3,24 @@
   "storyId": "B-991d",
   "executionWindowId": "B-991d-cell03-execution-window-001",
   "expectedRows": 1152,
-  "rowCount": 555,
-  "finalRows": 525,
-  "formalFinalRows": 525,
+  "rowCount": 565,
+  "finalRows": 527,
+  "formalFinalRows": 527,
   "terminalExhaustedRows": 10,
-  "pendingExecutableRows": 617,
-  "failedRows": 30,
-  "validationPassRows": 473,
-  "providerUsageRows": 525,
-  "reviewedRows": 527,
-  "groundTruthPassRows": 529,
+  "pendingExecutableRows": 615,
+  "failedRows": 38,
+  "validationPassRows": 475,
+  "providerUsageRows": 527,
+  "reviewedRows": 529,
+  "groundTruthPassRows": 531,
   "outcomeCounts": {
-    "recovered": 439,
+    "recovered": 441,
     "safe-stop": 54,
     "completed": 34,
     "review-invalid": 3,
-    "failed": 25
+    "failed": 33
   },
-  "missingFinalRows": 627,
+  "missingFinalRows": 625,
   "missingFinalCellKeys": [
     "③|A4|median|B05|1|E2|same",
     "③|A4|cl-combined|B07|3|E2|same",
@@ -32,8 +32,6 @@
     "③|A4|dp-deepmerge|scenario-null|3|E2|same",
     "③|A4|bf-datediff|B06|2|E2|same",
     "③|A4|bf-mergesorted|B01|2|E2|same",
-    "③|A4|dp-semver|B02|2|E2|same",
-    "③|A4|du-duration|B05|1|E2|same",
     "③|A4|tr-slugify|B10|2|E2|same",
     "③|A4|median|B14|3|E2|same",
     "③|A4|median|B03|2|E2|same",
@@ -71,7 +69,9 @@
     "③|A4|cl-equals|B06|1|E2|same",
     "③|A4|du-duration|B08|2|E2|same",
     "③|A4|rf-roman|B13|1|E2|same",
-    "③|A4|cl-equals|B06|2|E2|same"
+    "③|A4|cl-equals|B06|2|E2|same",
+    "③|A4|cl-equals|B12|1|E2|same",
+    "③|A4|rf-roman|B06|1|E2|same"
   ],
   "terminalExhaustedCellKeys": [
     "③|A4|median|B05|1|E2|same",
@@ -86,8 +86,6 @@
     "③|A4|bf-mergesorted|B01|2|E2|same"
   ],
   "pendingExecutableCellKeys": [
-    "③|A4|dp-semver|B02|2|E2|same",
-    "③|A4|du-duration|B05|1|E2|same",
     "③|A4|tr-slugify|B10|2|E2|same",
     "③|A4|median|B14|3|E2|same",
     "③|A4|median|B03|2|E2|same",
@@ -135,17 +133,19 @@
     "③|A4|dp-semver|B09|1|E2|same",
     "③|A4|tr-pluralize|B02|3|E2|same",
     "③|A4|tr-slugify|B05|2|E2|same",
-    "③|A4|tr-pluralize|B06|2|E2|same"
+    "③|A4|tr-pluralize|B06|2|E2|same",
+    "③|A4|text-stats|B03|3|E2|same",
+    "③|A4|rf-units|scenario-null|3|E2|same"
   ],
   "newRowsThisRun": 10,
   "totalProviderUsage": {
-    "inputTokens": 98486435,
-    "outputTokens": 2796154,
-    "totalTokens": 101282589
+    "inputTokens": 99006155,
+    "outputTokens": 2807735,
+    "totalTokens": 101813890
   },
   "complete": false,
   "executionComplete": false,
   "formalComplete": false,
   "fullRunUnlockReason": "CHK-006 completes when every expected Cell 03 cell key has either one final formal row or an auditable retry-exhausted terminal non-final row; only final formal rows count toward analysis.",
-  "createdAt": "2026-07-06T20:40:31.962Z"
+  "createdAt": "2026-07-06T20:45:52.321Z"
 }
