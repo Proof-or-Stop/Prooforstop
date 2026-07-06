@@ -71,8 +71,24 @@
       "phase": "DEV",
       "headHash": "bca4c4c416167039a5ad88e91defdb91474b82ad",
       "materialHash": "27855e489f62ea4669a6381def6b6c7b0f2f3cc3d94b913dce2691c22e5eba35"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Host-B review finding F-004: not_applicable justification (CHK-007) was unrecoverable via the CLI because proofStoryMilestoneSchema here omitted notApplicableDecision, so the CLI stripped it. The CHK-007 fix required adding milestoneNotApplicableDecisionSchema and wiring it into milestone_ledger_set/add. In-scope for the not_applicable-justification milestone.",
+      "timestamp": "2026-07-06T05:55:06.137Z",
+      "paths": [
+        "packages/main/src/cli/command-catalog.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/cli/command-catalog.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "e800eb57080984767ce05e26a3e41e6228c4f936",
+      "materialHash": "c2dbf90d301f11d406f87e8e964c25824b88f965a9f9692e93d11e5889001c21"
     }
   ],
   "createdAt": "2026-07-05T21:32:41.725Z",
-  "updatedAt": "2026-07-05T23:21:00.117Z"
+  "updatedAt": "2026-07-06T05:55:06.137Z"
 }
