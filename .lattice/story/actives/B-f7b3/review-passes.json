@@ -35,6 +35,15 @@
       "reviewRound": "2026-07-06T00:33:46.044Z",
       "reviewRunId": "B-f7b3:RR-005",
       "_hash": "1feedd87cc4a52875889276bdcee1dd716ff5aab05e59bb3aafde908bf97aac9"
+    },
+    {
+      "id": "B-f7b3:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Re-review after fix commit 162a7e6a0. F-001+F-003 verified genuinely fixed: configuredProofStoryMode is exported from phase-gates.ts:146 and a new un-gameable regression test block (c) in milestone-done-gate-reconciliation-smoke.ts drives the REAL resolver over a fresh mkdtempSync temp root with no lattice.config.json (confirmed DEFAULT_CONFIG has no proofStory key, so the ?? observe fallback is genuinely exercised, not shadowed by a default). Mutation-tested live: flipped the ?? observe fallback to ?? enforce in phase-gates.ts, rebuilt, reran the smoke — it failed with AssertionError as claimed (doneGateMode/reviewGateMode default MUST be observe); reverted, rebuilt, reran — green again. Doc Verification section in milestone-triggered-gate-mode-default-decision.md now names configuredProofStoryMode + the real fallback code + the committed test location; matches code. F-002 verified: dead smokeName var + its dirname/fileURLToPath imports are gone; grep confirms zero remaining references; build is clean (tsc strict:true). Ran full verification: npm run build (clean), milestone-done-gate-reconciliation-smoke.js (OK), proofstory-intent-hardening-smoke.js (OK), milestone-status.test.mjs (1 pass). Re-confirmed the 3 invariants: ledger hash sha256:68173e86 unchanged across milestone-ledger.json/intent-collision.json/proofstory.json/slice-plan.json and both decision docs; observe-mode non-blocking (blocking:false, severity:warn on stale_milestone_evidence) and enforce-mode blocking (blocking:true) assertions both pass unchanged in the smoke; read-only contract intact (no new mutating command paths). Minor pre-existing-style nit (informational only, not filed): the new Verification section cites phase-gates.ts:142-143 but the quoted function now sits at lines 146-147 (shifted by the 4-line comment added in this same fix commit) — the quoted code snippet itself is verbatim-correct; this is cosmetic line-pointer drift consistent with the same class of drift already noted non-blocking in the prior review round pass note. No new blocking findings. Working tree confirmed clean after review (reverted my own mutation-test edit and the validate-generated test-evidence.json refresh).",
+      "createdAt": "2026-07-06T00:38:11.542Z",
+      "reviewRound": "2026-07-06T00:33:46.044Z",
+      "reviewRunId": "B-f7b3:RR-006",
+      "_hash": "574eef2a9823a35fee57792c6e71179e3afa5b733d25217a434b2b6a33c06b05"
     }
   ]
 }
