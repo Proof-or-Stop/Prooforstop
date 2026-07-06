@@ -1,72 +1,78 @@
 {
   "storyId": "B-c389",
-  "checkedAt": "2026-07-06T05:39:45.802Z",
-  "headHash": "714ebd64499ee504b2137ae928bb9e127346d004",
-  "materialHash": "36798ae8a9fb124837265d719d7612cd1e28eee95e5b4c8a289bc04cb8a5f939",
-  "storyFilesHash": "e166b708b82fccece668a0b3f59ad6fb4fa9c5d7c8a02bf531c812d79714e1ad",
+  "checkedAt": "2026-07-06T05:52:56.810Z",
+  "headHash": "b6a09a89eeec7285a7337b605643e8003d9f75b8",
+  "materialHash": "d0597b85d3f6f36b844bc9dea61b8e05fc75ed5fba924a652412893357a13e59",
+  "storyFilesHash": "ec3a79544f2be1276ed044638d0a3c0b829033b649c089c11c85563366005b9d",
   "reviewRound": "2026-07-06T00:08:28.508Z",
   "agentId": "lattice-review-delivery",
   "docsPromises": [
     {
       "docPath": "docs/CLI.md#capability_release_backfill",
-      "promise": "capability_release_backfill is a record-then-bind migration; default dry-run lists eligible under-bound candidates + a deterministic plan digest; --apply requires --digest matching the dry-run plan and refuses on drift",
-      "verifiedBy": "diff/grep + live CLI run",
-      "evidence": "Handler packages/main/src/handlers/capability-release-backfill.ts registered in registry.ts:243; Zod schema in cli-engine command-catalog.ts:464-470. Live run: node packages/main/dist/cli.js capability_release_backfill --dryRun --json returned dryRun:true, applied:false, authority:non_authoritative, gateEvidence:false, planDigest. --apply without --digest errored exactly as documented: \"capability_release_backfill requires --digest when --apply is set\" (exit 1)."
-    },
-    {
-      "docPath": "docs/CLI.md#capability_release_backfill",
-      "promise": "A candidate is eligible iff status:candidate, has lineage.sourceStoryId, lacks lineage.capabilityReleaseId, and is plan:bind (capability release already exists) or plan:record-then-bind (artifact release exists but no capability release, and the classifier accepts the artifact release paths)",
-      "verifiedBy": "code read + smoke test",
-      "evidence": "computeCapabilityReleaseBackfillEligible in packages/main/src/core/capability-release.ts:534-615 implements exactly this eligibility logic; capability-release-backfill-smoke.ts case 11-14 (record-then-bind dry-run/apply/idempotent/decline-when-no-release) pins the behavior; live dry-run also shows real plan=record-then-bind rows."
-    },
-    {
-      "docPath": "docs/CLI.md#capability_release_backfill",
-      "promise": "--apply records the missing capability release into .lattice/capability-releases.jsonl (git add -f + commit, mirroring B-8128 DONE-merge ledger commit), then binds the candidate; it never changes .status, never touches usage.surfacedCount, never appends a playbook-outcome, and is idempotent (re-run finds eligibleCount:0)",
-      "verifiedBy": "diff/grep + code read + smoke test",
-      "evidence": "commitBackfilledCapabilityReleaseLedger (capability-release.ts:662-688) runs git add -f + commit; buildCapabilityReleaseBackfillReport STEP1/STEP2 (capability-release.ts:762-823) fail-closed-verifies status/usage.surfacedCount are unchanged after write. capability-release-backfill-smoke.ts 14/14 checks pass, explicitly asserting idempotency, digest-drift refusal, and no playbook-outcome ledger file written."
-    },
-    {
-      "docPath": "docs/CLI.md#capability_release_backfill (M6/M7 wiring)",
-      "promise": "Capability candidates flow through the EXISTING exposure (M6 playbook_promotion_status/playbook_trial_run) and outcome/promotion (M7 playbook_outcome_record/playbook_promotion_sweep) machinery without any new command surface, never auto-activating and never counting exposure as a helped outcome",
-      "verifiedBy": "code read + smoke test",
-      "evidence": "capability-candidate-exposure-smoke.ts (8/8 checks) proves a capability-flavored candidate surfaces in pendingLearning with lineage, an exposure record is written via the existing playbook_trial_run path, is excluded from active runtime surfacing, and never counts as helped. capability-candidate-promotion-smoke.ts (8/8 checks) proves playbook_outcome_record accepts structured outcomes and playbook_promotion_sweep emits recommend_activate but never flips status away from candidate. No new command names were added for M6/M7 in this diff (grep of registry.ts/command-catalog.ts shows only capability_release_backfill is new)."
-    },
-    {
-      "docPath": "lattice.config.json (validate.commands)",
-      "promise": "the 3 new smokes (capability-release-backfill-smoke, capability-candidate-exposure-smoke, capability-candidate-promotion-smoke) are added to the curated validate suite",
+      "promise": "lattice capability_release_backfill is a record-then-bind migration; default dry-run lists eligible under-bound candidates + a deterministic plan digest; --apply requires the current dry-run plan --digest and refuses on drift",
       "verifiedBy": "diff/grep + live run",
-      "evidence": "lattice.config.json lines 61-63 add all three. Live run: node packages/main/dist/cli.js validate --json (with LATTICE_IDLE_TIMEOUT_MS=900000 to avoid the known 41-command idle-timeout) returned status:pass, allPass:true, 41 total commands, all three new smokes present with code:0."
+      "evidence": "handler packages/main/src/handlers/capability-release-backfill.ts registered in registry.ts; core logic buildCapabilityReleaseBackfillReport in packages/main/src/core/capability-release.ts; node packages/main/dist/cli.js capability_release_backfill --dryRun --json returned dryRun:true, applied:false, authority:non_authoritative, gateEvidence:false, planDigest present, eligibleCount:10 with real record-then-bind rows"
     },
     {
-      "docPath": "docs/CLI.md (capability_release_list / capability_release_status, pre-existing section extended)",
-      "promise": "the capability-releases.jsonl ledger stays non-authoritative and never gate evidence (authority always non_authoritative, gateEvidence always false, enforced fail-closed at read time)",
-      "verifiedBy": "code read + live run",
-      "evidence": "assertNonAuthoritative in capability-release.ts:182-193 throws CapabilityReleaseLedgerError on any violating row at read time. Live capability_release_status --storyId=B-785e --format=json shows authority:non_authoritative, gateEvidence:false on the real recorded PCR-9e7fdacf081e7346181bc04d."
+      "docPath": "docs/CLI.md#capability_release_backfill",
+      "promise": "A candidate is eligible iff status:candidate, has lineage.sourceStoryId, lacks lineage.capabilityReleaseId, and is plan:bind (capability release already exists) or plan:record-then-bind (story has an artifact release but no capability release and the classifier accepts the artifact release's paths); if the classifier declines or no artifact release exists the candidate is conservatively not eligible",
+      "verifiedBy": "smoke run + source read",
+      "evidence": "capability-release-backfill-smoke.js check 'record-then-bind: an under-bound candidate whose story has NEITHER a capability NOR an artifact release is not eligible' passed; live dry-run --json shows 10 real eligible rows all plan:record-then-bind with capabilityReleaseId/capabilityId/artifactReleaseId populated"
+    },
+    {
+      "docPath": "docs/CLI.md#capability_release_backfill",
+      "promise": "--apply enriches only eligible candidates' lineage (capabilityReleaseId/capabilityId/capabilityVersion/artifactReleaseId), never changes .status, never touches usage.surfacedCount, never appends a playbook-outcome; it is idempotent (re-run finds eligibleCount:0); recorded capability releases stay non-authoritative and never gate evidence",
+      "verifiedBy": "smoke run + live CLI",
+      "evidence": "capability-release-backfill-smoke.js checks 'apply with the RIGHT --digest enriches exactly one candidate', 'second dry-run finds 0 eligible (idempotent)', 'no playbook-outcome ledger file was ever written by backfill' all passed; live: node dist/cli.js capability_release_backfill --dryRun --storyId=B-785e --json now returns eligibleCount:0 confirming the already-applied B-785e binding is idempotent; both capability-releases.jsonl rows carry authority:non_authoritative, gateEvidence:false"
+    },
+    {
+      "docPath": "docs/CLI.md#capability_release_backfill",
+      "promise": "apply without --digest is refused with an explicit error",
+      "verifiedBy": "live CLI run",
+      "evidence": "node packages/main/dist/cli.js capability_release_backfill --apply (no --digest) exited 1 with 'capability_release_backfill requires --digest when --apply is set'"
+    },
+    {
+      "docPath": "packages/main/src/core/command-policy.ts#capability_release_backfill",
+      "promise": "capability_release_backfill is registered as ownershipClass:mainSharedMutating, allowedPhases:all, destructiveRisk:metadata-write, and never writes outcomes/promotion decisions/lifecycle evidence/gate evidence",
+      "verifiedBy": "diff/grep",
+      "evidence": "packages/main/src/core/command-policy.ts diff adds the capability_release_backfill entry with this exact reason text; packages/main/src/core/config.ts DEFAULT_PHASE_TOOLS includes an explicit capability_release_backfill entry (no longer only covered by the read-only capability_release_* wildcard); packages/main/src/core/process-fact-levels.ts registers it at L2/experience-layer with matching rationale"
+    },
+    {
+      "docPath": "M6/M7 (story background)",
+      "promise": "capability candidates flow through the pre-existing pending-learning exposure surface (playbook_promotion_status, playbook_trial_run) and structured-outcome + promotion recommendation machinery (playbook_outcome_record, playbook_promotion_sweep) without any new mechanism; exposure never changes status, is never a helped outcome; helped requires exposureMode != none + structured verdictSource; sweep never auto-activates",
+      "verifiedBy": "smoke run",
+      "evidence": "capability-candidate-exposure-smoke.js (8 checks) and capability-candidate-promotion-smoke.js (8 checks) both pass, hermetic (mkdtemp-isolated), invoking the real playbook handlers; checks explicitly assert status stays 'candidate', exposure verdict is 'unknown', done-settlement outcomes excluded from decisiveSamples, and recommend_activate never flips status"
+    },
+    {
+      "docPath": "Story summary.json / live backfill claim",
+      "promise": "A live run recorded PCR-9e7fdacf081e7346181bc04d for story B-785e into .lattice/capability-releases.jsonl and bound PBP-882's lineage; only the targeted B-785e backfill was run live, the full multi-story migration was deliberately not run",
+      "verifiedBy": "file read + live CLI",
+      "evidence": ".lattice/capability-releases.jsonl row 2 (post-merge) has id:PCR-9e7fdacf081e7346181bc04d, storyId:B-785e, authority:non_authoritative, gateEvidence:false, artifactReleaseId:AR-4e885ed0209e5a32330cdc33 (matches exactly); both JSONL lines are valid JSON; capability_release_status --storyId=B-785e --json reports count:1; a current dry-run still shows 10 other eligible record-then-bind candidates confirming the wider migration was not run"
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "node packages/main/dist/tasks/capability-release-backfill-smoke.js: 14/14 checks pass -- dry-run detects exactly one eligible candidate + stable digest; dry-run writes nothing; apply with wrong/missing digest refused; apply with right digest enriches exactly one candidate; second dry-run finds 0 eligible (idempotent); re-apply is a no-op; --storyId filter scopes correctly; no playbook-outcome ledger ever written; record-then-bind dry-run reports the PCR it would record; record-then-bind apply records + commits then binds; record-then-bind re-run is idempotent; a story with neither capability nor artifact release is not eligible. Live CLI run additionally confirmed: dry-run --json returns non_authoritative/gateEvidence:false/planDigest, and --apply without --digest errors exactly as documented."
+      "transcript": "capability-release-backfill-smoke.js: 14/14 checks passed covering case A (bind: dry-run detects 1 eligible + stable digest, wrong/missing digest refused, apply enriches exactly 1, idempotent re-run, storyId filter, no outcome ledger written) and case B (record-then-bind: dry-run reports plan + the PCR it would record, apply records+commits the PCR then binds, idempotent re-run, ineligible when neither capability nor artifact release exists). Live CLI cross-check: dry-run --json shows planDigest + 10 real eligible rows; apply without --digest exits 1 with the documented error."
     },
     {
       "featureId": "CHK-002",
-      "transcript": "node packages/main/dist/tasks/capability-candidate-exposure-smoke.js: 8/8 checks pass -- HAPPY: pendingLearning surfaces the capability candidate with its capabilityRelease lineage (JSON + text render); playbook_trial_run --apply writes exactly one exposure record with the full expected shape (exposureMode=candidate-inspection, verdictSource=candidate-trial, storyId, consumer, observedAt); re-apply idempotent. EDGE: candidate excluded from matchRuntimePlaybooks and MemoryFreshnessPack active surfacing; flipping the same playbook to active proves the status guard is the gate. ADVERSARIAL: exposure never changes candidate status/usage counters and is never counted as helped (0 helped/0 decisive)."
+      "transcript": "capability-candidate-exposure-smoke.js: 8/8 checks passed (happy: pendingLearning surfaces the candidate with lineage, playbook_trial_run --apply writes an observable exposure record, idempotent re-run; edge: excluded from matchRuntimePlaybooks and MemoryFreshnessPack while status=candidate, flipping to active proves the status guard; adversarial: exposure never changes status, exposure verdict is not a helped outcome)."
     },
     {
       "featureId": "CHK-003",
-      "transcript": "node packages/main/dist/tasks/capability-candidate-promotion-smoke.js: 8/8 checks pass -- HAPPY: playbook_outcome_record accepts structured helped outcomes across 2 context classes; aggregatePlaybookPromotion counts decisiveSamples/helpedCount correctly; playbook_promotion_sweep dry-run emits recommend_activate writing nothing; --apply appends an idempotent recommendation but never activates (status stays candidate). EDGE: done-settlement helped outcome excluded from helped/decisiveSamples; exposureMode=none + verdict=helped is refused by the handler. ADVERSARIAL: zero structured outcomes never recommend activation; even a full recommend_activate recommendation leaves status=candidate."
+      "transcript": "capability-candidate-promotion-smoke.js: 8/8 checks passed (happy: playbook_outcome_record accepts structured helped outcomes, aggregatePlaybookPromotion counts them, sweep dry-run emits recommend_activate, apply appends recommendation but never activates; edge: done-settlement outcomes excluded, exposureMode=none+helped refused; adversarial: zero structured outcomes never recommend activation, full recommendation still leaves status=candidate)."
     },
     {
       "featureId": "CHK-004",
-      "transcript": "node packages/main/dist/cli.js validate --json (LATTICE_IDLE_TIMEOUT_MS=900000): status:pass, allPass:true, 41 configured commands, 0 non-zero-exit commands; the three new capability smokes present with code:0. Live-checked capability_release_status --storyId=B-785e --format=json: count:1, single PCR-9e7fdacf081e7346181bc04d matching mainCommit 235ad63f56f17fa6da6f50585e2f6256eeb2fb1d and commit d2cab1ad8 (lattice: backfill product capability release for B-785e); capability-releases.jsonl has exactly 1 line, storyId B-785e."
+      "transcript": "Clean `npx tsc -p packages/main` rebuild against current post-merge HEAD produced zero errors and left the git working tree clean (dist is git-ignored). All 3 new smokes (14+8+8=30 checks) pass directly via node dist invocation. Live capability_release_backfill --dryRun --storyId=B-785e now returns eligibleCount:0, proving the earlier live apply for B-785e is idempotent post-merge."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "All 6 docs promises independently verified against source + live CLI runs (fresh clean tsc rebuild). The capability_release_backfill dry-run/apply/digest-refusal behavior, the record-then-bind eligibility logic, and the never-activates/never-changes-status invariants are all backed by genuine hermetic smoke tests (14+8+8=30 assertions covering happy/edge/adversarial), not just prose. The live B-785e backfill is real and honestly scoped: capability-releases.jsonl has exactly one PCR for B-785e committed in d2cab1ad8, and the summary/docs correctly disclose that only this targeted backfill ran, not the full 11-story migration. lattice validate is green at 41 commands including the 3 new smokes."
+    "summary": "Re-verified independently on the post-merge material (materialHash d0597b85d3f6): clean tsc rebuild, all 3 new smokes pass with exact documented counts (14/8/8), CLI dry-run/apply/--digest-refusal behavior matches docs/CLI.md exactly, and the live B-785e PCR row (PCR-9e7fdacf081e7346181bc04d) is intact and idempotent after the B-6529 merge added an unrelated second ledger row. No TODO/FIXME/HACK in material code. Story summary honestly discloses only the targeted B-785e backfill was applied live."
   },
-  "_hash": "a5d7658285722a659b81b6c3440ad663d7b4df5aea1b9124ccbfaa7287b6bd74"
+  "_hash": "3efc40678d71b1f910381335b566b9db04caa9f6ac31204c05f7f61a2fdc5853"
 }
