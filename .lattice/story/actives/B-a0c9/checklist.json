@@ -37,7 +37,21 @@
       },
       "status": "done",
       "startTime": "2026-07-06T10:32:28.626Z",
-      "endTime": "2026-07-06T11:04:46.204Z"
+      "endTime": "2026-07-06T11:04:46.204Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node experiments/pos-instrument-replay/selfcheck-m3.mjs",
+          "result": "pass",
+          "note": "selfcheck-m3 A-M all PASS at exit 0 after the finally cleanup was switched to cleanupSandbox(); the sandbox-cleanup refactor did not break the harness.",
+          "headHash": "e48b498cfc77818b505660987cbd09c2cb10ad6e",
+          "materialHash": "8b0479d5ca09046d9c676730374ef79dc8801738df4384e51f7e9853ab268520",
+          "storyFilesHash": "849bca8a8bd6bdfc17515f09e74fa4d76c7309360205ba08b044c80447fdffc9",
+          "timestamp": "2026-07-06T11:05:52.353Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
