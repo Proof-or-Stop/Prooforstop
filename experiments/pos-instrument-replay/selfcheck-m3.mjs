@@ -55,7 +55,19 @@
 //       whose holder process is still ALIVE (a genuine concurrent driver). A live
 //       holder is spawned holding the lock; a --resume attempt must exit nonzero
 //       with precondition_failed (recorded to the blocked-ledger) and must NOT
-//       remove the lock. Proves resume cannot clobber a live driver's lock.
+//       remove the lock. The discrimination half then kills the holder and proves
+//       a DEAD-pid stamp IS still broken. Proves resume cannot clobber a live
+//       driver's lock yet still reclaims a genuinely-orphaned (dead-pid) one.
+//
+//   (I) NO-HOLDER-LOCK-NOT-BROKEN (F-005/F-006): the mkdir->holder ACQUIRE-WINDOW
+//       race. acquireLock() wins mkdir(LOCK_DIR) BEFORE it stamps holder.json; a
+//       concurrent --resume driver in that window sees the lock dir with NO
+//       holder.json. The OLD code treated a missing holder as STALE and broke the
+//       lock -> two writers -> ledger corruption. This sub-check creates a
+//       LOCK_DIR with NO holder.json, attempts --resume, and asserts it REFUSES to
+//       break it (exit nonzero, precondition_failed to the blocked-ledger, lock +
+//       campaign ledger untouched). Proves the CONSERVATIVE missing-holder=LIVE
+//       rule closes the acquire race (F-005 = F-006, same race).
 //
 // Hermeticity: each sub-check gets its own mkdtemp sandbox holding a copy of
 // run-batch.mjs, lib/instrument.mjs, and the frozen protocol.json, run with
@@ -664,6 +676,69 @@ async function checkLiveLockNotBroken() {
   }
 }
 
+// ---------------------------------------------------------------------------
+// (I) NO-HOLDER-LOCK-NOT-BROKEN (F-005/F-006): the mkdir->holder acquire-window
+// race. acquireLock() wins mkdir(LOCK_DIR) BEFORE it stamps holder.json; in that
+// window a concurrent --resume driver would see the lock dir with NO holder.json.
+// The OLD code treated a missing holder as STALE and broke the lock, so a live
+// driver's freshly-won lock could be clobbered and both would append -> ledger
+// corruption. This sub-check simulates that window: create a LOCK_DIR with NO
+// holder.json at all, attempt a --resume run, and assert it REFUSES to break the
+// lock — it exits nonzero with precondition_failed (to the blocked-ledger) and
+// leaves the lock dir + the campaign ledger untouched. This is the load-bearing
+// F-005/F-006 assertion (distinct from H, which uses a live/dead PID stamp).
+// ---------------------------------------------------------------------------
+function checkNoHolderLockNotBroken() {
+  const label = 'I-no-holder-lock-not-broken';
+  const sandbox = makeSandbox(label);
+  try {
+    // Simulate the acquire window: a driver won mkdir(LOCK_DIR) but has NOT yet
+    // written holder.json. Create the lock dir with NO holder file.
+    mkdirSync(lockDirPath(sandbox), { recursive: true });
+    if (existsSync(holderPath(sandbox))) {
+      fail(`${label}: test setup error — holder.json should NOT exist for the acquire-window case`);
+    }
+
+    // ATTEMPT RESUME: must REFUSE to break the holder-less lock (conservative:
+    // a missing holder is treated as LIVE, not stale).
+    const resumeRun = runBatch(sandbox, { args: ['--resume', '--scale=small'] });
+    if (resumeRun.code === 0) {
+      fail(
+        `${label}: --resume broke a holder-LESS lock (exit 0) — the mkdir->holder acquire-window ` +
+          `race is OPEN: a concurrent driver in that window could be clobbered and both append.\n` +
+          `${(resumeRun.stdout + '\n' + resumeRun.stderr).slice(-800)}`,
+      );
+    }
+    // The lock dir must still be present (NOT removed): the conservative rule
+    // must never break a lock it cannot prove stale.
+    if (!existsSync(lockDirPath(sandbox))) {
+      fail(`${label}: --resume removed a holder-LESS lock — the acquire-window lock must be left intact`);
+    }
+    // A precondition_failed stop must be recorded to the BLOCKED ledger, and the
+    // shared campaign ledger must NOT have been touched.
+    if (!existsSync(blockedLedgerPath(sandbox))) {
+      fail(`${label}: --resume did not record precondition_failed to the blocked-ledger`);
+    }
+    const blocked = readFileSync(blockedLedgerPath(sandbox), 'utf8')
+      .split('\n')
+      .filter((l) => l.trim())
+      .map((l) => JSON.parse(l));
+    if (!blocked.some((r) => r.stopReason === 'precondition_failed')) {
+      fail(`${label}: blocked-ledger has no precondition_failed record after the refused resume`);
+    }
+    if (existsSync(ledgerPath(sandbox))) {
+      fail(`${label}: --resume wrote to the shared campaign ledger while refusing a holder-less lock`);
+    }
+    console.log(
+      `  ${label} PASS: --resume REFUSED to break a holder-LESS lock (the mkdir->stamp acquire ` +
+        `window) — exit ${resumeRun.code}, precondition_failed to blocked-ledger, lock + campaign ` +
+        `ledger untouched (missing-holder is conservatively treated as LIVE)`,
+    );
+  } finally {
+    rmSync(sandbox, { recursive: true, force: true });
+  }
+}
+
 async function main() {
   console.log('selfcheck-m3: running hermetic resume/idempotence guards (small scale)...');
   // (A) clean-boundary kill at K+1 with K=5 (casualty replay/small/6).
@@ -683,6 +758,10 @@ async function main() {
   checkValidFinalRecordPreserved();
   // (H) LIVE-LOCK-NOT-BROKEN (F-001): resume refuses to break a live lock.
   await checkLiveLockNotBroken();
+  // (I) NO-HOLDER-LOCK-NOT-BROKEN (F-005/F-006): resume refuses to break a
+  //     holder-LESS lock (the mkdir->stamp acquire window) — conservative
+  //     missing-holder=LIVE closes the acquire race.
+  checkNoHolderLockNotBroken();
   console.log('selfcheck-m3 PASS');
   process.exit(0);
 }

@@ -48,6 +48,7 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
+  renameSync,
   rmSync,
   writeFileSync,
 } from 'node:fs';
@@ -67,7 +68,12 @@ const LOCK_DIR = join(HERE, '.batch-ledger.lock');
 // Holder stamp inside the lock dir: {"pid": <driver pid>} (F-001). Written by
 // acquireLock() after the atomic mkdir wins the lock; read on --resume to check
 // whether the lock holder is still ALIVE before breaking a pre-existing lock.
+// The stamp is materialized near-atomically (write a sibling temp file then
+// rename() it into place) so a concurrent --resume reader NEVER observes a
+// half-written holder.json — it sees EITHER no holder yet OR the complete stamp,
+// never a partial one (F-005/F-006 acquire-window minimization).
 const HOLDER_PATH = join(LOCK_DIR, 'holder.json');
+const HOLDER_TMP_PATH = join(LOCK_DIR, 'holder.json.tmp');
 const PROTOCOL_PATH = join(HERE, 'protocol.json');
 
 // ---------------------------------------------------------------------------
@@ -287,15 +293,24 @@ function acquireLock() {
   // STALE lock (holder pid is dead) from a LIVE concurrent driver (holder pid is
   // alive) before deciding whether to break it. This does NOT change the M2
   // precondition_failed behavior: a second driver still loses the mkdir above
-  // and gets null regardless of this file. Best-effort: a failure to write the
-  // holder file does not forfeit the lock we already hold (resume then treats a
-  // missing/unreadable holder as stale, which is the conservative direction only
-  // for a genuinely-orphaned lock — a live driver that failed the write is
-  // exceedingly rare, and the mkdir itself remains the real mutual-exclusion).
+  // and gets null regardless of this file.
+  //
+  // F-005/F-006: there is an unavoidable window between winning mkdir(LOCK_DIR)
+  // and materializing holder.json. To make that window as small and as clean as
+  // practical the stamp is written near-atomically: write to a sibling temp path
+  // and rename() it into holder.json (rename is atomic within a directory), so a
+  // concurrent --resume reader NEVER sees a half-written holder — it observes
+  // EITHER no holder yet OR the complete stamp. And critically, the resume
+  // lock-break decision is now CONSERVATIVE (evaluateLockForBreak returns LIVE for a
+  // missing/unreadable/malformed/uncertain holder), so even if this driver is
+  // still in the mkdir->stamp window OR the write failed, a concurrent resume
+  // will NOT break the lock. The mkdir itself remains the real mutual-exclusion.
   try {
-    writeFileSync(HOLDER_PATH, JSON.stringify({ pid: process.pid }) + '\n');
+    writeFileSync(HOLDER_TMP_PATH, JSON.stringify({ pid: process.pid }) + '\n');
+    renameSync(HOLDER_TMP_PATH, HOLDER_PATH);
   } catch {
-    /* best-effort holder stamp; the mkdir lock is authoritative */
+    /* best-effort holder stamp; the mkdir lock is authoritative and resume now
+       treats a missing/failed holder CONSERVATIVELY as LIVE (never broken). */
   }
   let released = false;
   return () => {
@@ -310,33 +325,76 @@ function acquireLock() {
 }
 
 // ---------------------------------------------------------------------------
-// Is the current lock's holder process still ALIVE? (F-001, RESUME-ONLY). Reads
-// LOCK_DIR/holder.json, parses .pid, and probes it with process.kill(pid, 0):
-// signal 0 does not actually deliver a signal — it only performs the existence /
-// permission check, throwing ESRCH when NO such process exists (dead). Returns:
-//   - true  -> the holder pid is a live process (a genuine concurrent driver;
-//              resume must NOT break its lock).
-//   - false -> the holder is dead OR holder.json is missing/unreadable/malformed
-//              /has no numeric pid (an orphaned STALE lock; safe to break).
-// Conservative default is false (breakable) ONLY for a genuinely-unusable stamp:
-// a missing/corrupt holder means we cannot prove a live holder, and such a lock
-// is an orphan from a crash-before-stamp or a pre-F-001 driver. An EPERM from
-// process.kill means the pid EXISTS but is owned by another user -> ALIVE.
-function isLockHolderAlive() {
+// Decide whether a pre-existing lock may be BROKEN on resume (F-001 + F-005/F-006
+// CONSERVATIVE inversion, RESUME-ONLY). Reads LOCK_DIR/holder.json, parses .pid,
+// and probes it with process.kill(pid, 0): signal 0 does not deliver a signal —
+// it only performs the existence / permission check, throwing ESRCH when NO such
+// process exists (dead).
+//
+// F-005/F-006 (the acquire-window race): acquireLock() wins mkdir(LOCK_DIR)
+// BEFORE it materializes holder.json. In that tiny window a concurrent --resume
+// driver would see the lock dir with NO (or, absent the rename() stamp, a
+// half-written) holder.json. The OLD code treated a missing/malformed holder as
+// STALE (breakable), so a resume driver could break a LIVE driver's freshly-won
+// lock in that window and both would append -> ledger corruption. This is now
+// INVERTED to CONSERVATIVE: the lock is breakable ONLY when we POSITIVELY prove
+// a dead holder — holder.json EXISTS, parses to a valid { pid }, and that pid is
+// DEAD (process.kill throws ESRCH). ANY other outcome — a missing holder, an
+// unreadable/malformed/unparseable holder, a holder without a usable pid, or an
+// ambiguous/uncertain liveness probe — is treated as LIVE (do NOT break).
+//
+// Correctness: a genuinely-orphaned prior interrupted run DID write holder.json
+// (via the atomic rename) before it crashed, so its dead pid is present and the
+// lock is STILL auto-broken on resume. Only a crash in the tiny mkdir->stamp
+// window leaves a holder-less lock, which is now conservatively NOT auto-broken —
+// a safe failure requiring manual cleanup, never corruption.
+//
+// Returns a verdict object { breakable, reason }:
+//   - { breakable: true }  -> proven-dead holder; resume may reclaim the lock.
+//   - { breakable: false } -> LIVE or UNCERTAIN; resume must refuse to break it
+//                             (records precondition_failed and exits nonzero).
+// An EPERM from process.kill means the pid EXISTS but is owned by another user
+// -> ALIVE -> not breakable.
+function evaluateLockForBreak() {
+  let raw;
+  try {
+    raw = readFileSync(HOLDER_PATH, 'utf8');
+  } catch {
+    // No holder.json (or unreadable): this is the acquire-window signature (a
+    // driver won mkdir but has not yet stamped) OR a genuinely unusable stamp.
+    // CONSERVATIVE: treat as LIVE, do NOT break.
+    return { breakable: false, reason: 'holder.json missing/unreadable (treated as LIVE)' };
+  }
   let pid;
   try {
-    const holder = JSON.parse(readFileSync(HOLDER_PATH, 'utf8'));
+    const holder = JSON.parse(raw);
     pid = holder && holder.pid;
   } catch {
-    return false; // missing / unreadable / malformed holder -> treat as stale
+    // Malformed/unparseable holder (e.g. a partial write before the rename fix,
+    // or corruption): we cannot prove a dead holder -> CONSERVATIVE LIVE.
+    return { breakable: false, reason: 'holder.json malformed/unparseable (treated as LIVE)' };
   }
-  if (!Number.isInteger(pid) || pid <= 0) return false; // no usable pid -> stale
+  if (!Number.isInteger(pid) || pid <= 0) {
+    // No usable pid: cannot prove a dead holder -> CONSERVATIVE LIVE.
+    return { breakable: false, reason: 'holder.json has no usable pid (treated as LIVE)' };
+  }
   try {
     process.kill(pid, 0); // existence probe; no signal actually delivered
-    return true; // no throw -> the process exists (alive)
+    return { breakable: false, reason: `holder pid ${pid} is ALIVE` }; // no throw -> alive
   } catch (e) {
-    if (e && e.code === 'EPERM') return true; // exists but not ours -> alive
-    return false; // ESRCH (or anything else) -> dead / not present -> stale
+    if (e && e.code === 'EPERM') {
+      return { breakable: false, reason: `holder pid ${pid} exists (EPERM, owned by another user) -> ALIVE` };
+    }
+    if (e && e.code === 'ESRCH') {
+      // POSITIVELY proven dead: the ONLY case where we may break the lock.
+      return { breakable: true, reason: `holder pid ${pid} is DEAD (ESRCH)` };
+    }
+    // Any OTHER probe error is ambiguous/uncertain -> CONSERVATIVE LIVE (do not
+    // break on doubt).
+    return {
+      breakable: false,
+      reason: `holder pid ${pid} liveness probe uncertain (${(e && e.code) || 'unknown'}) -> treated as LIVE`,
+    };
   }
 }
 
@@ -670,29 +728,36 @@ function main() {
   }
 
   // RESUME (M3, ADDITIVE): break a STALE lock left by the interrupted prior run —
-  // but ONLY if its holder is genuinely DEAD (F-001). A hard crash / SIGKILL
-  // exits without running the release() finally, so the mkdir-lock dir is
-  // orphaned on disk with a holder.json whose pid is now dead. That is the lock
-  // resume is meant to reclaim. But a resuming driver B must NOT clobber a
-  // genuinely LIVE driver A's lock (two writers -> ledger corruption): before
-  // removing LOCK_DIR we read holder.json.pid and probe liveness via
-  // process.kill(pid, 0) (throws ESRCH when the process is dead, does NOT signal
-  // a live one). We break the lock ONLY when the holder is DEAD, or when
-  // holder.json is missing/unreadable/malformed (an orphaned lock with no usable
-  // stamp is treated as stale — a pre-F-001 lock or a crash before the stamp).
-  // If the holder is ALIVE we treat it as a genuine concurrent driver: record
-  // precondition_failed to the SEPARATE blocked-ledger and exit nonzero, exactly
-  // like M2's concurrent-driver path. This is gated on `resume`, so the
+  // but ONLY if its holder is POSITIVELY proven DEAD (F-001 + F-005/F-006). A
+  // hard crash / SIGKILL exits without running the release() finally, so the
+  // mkdir-lock dir is orphaned on disk with a holder.json whose pid is now dead.
+  // That is the lock resume is meant to reclaim. But a resuming driver B must
+  // NOT clobber a genuinely LIVE driver A's lock (two writers -> ledger
+  // corruption): evaluateLockForBreak() reads holder.json.pid and probes liveness
+  // via process.kill(pid, 0) (throws ESRCH when the process is dead, does NOT
+  // signal a live one).
+  //
+  // F-005/F-006 CONSERVATIVE RULE: we break the lock ONLY when the holder is
+  // POSITIVELY proven DEAD (holder.json exists, parses to a valid { pid }, and
+  // that pid is dead). A MISSING / unreadable / malformed holder, or an ambiguous
+  // liveness probe, is treated as LIVE (the acquire-window: a driver won mkdir
+  // but has not yet stamped holder.json — breaking now would corrupt the ledger).
+  // In every non-proven-dead case we treat it as a genuine concurrent driver:
+  // record precondition_failed to the SEPARATE blocked-ledger and exit nonzero,
+  // exactly like M2's concurrent-driver path. This is gated on `resume`, so the
   // non-resume lock semantics are UNCHANGED.
   if (resume && existsSync(LOCK_DIR)) {
-    if (isLockHolderAlive()) {
-      // A LIVE concurrent driver holds the lock. Do NOT break it. Record a
-      // precondition_failed stop to the blocked-ledger (never the campaign
-      // ledger) and exit nonzero — same disposition as M2's lock-held path.
+    const verdict = evaluateLockForBreak();
+    if (!verdict.breakable) {
+      // LIVE or UNCERTAIN holder (incl. the missing-holder acquire window). Do
+      // NOT break it. Record a precondition_failed stop to the blocked-ledger
+      // (never the campaign ledger) and exit nonzero — same disposition as M2's
+      // lock-held path.
       const stop = withDigest({
         iterationId: 'replay/precondition/lock',
         stopReason: 'precondition_failed',
-        rawError: 'batch-ledger lock held by a LIVE concurrent driver (resume refused to break it)',
+        rawError:
+          'batch-ledger lock not proven stale (resume refused to break it): ' + verdict.reason,
         env: recordEnv(),
       });
       if (!STOP_REASONS.has(stop.stopReason)) {
@@ -700,14 +765,16 @@ function main() {
       }
       appendRecord(stop, BLOCKED_LEDGER_PATH);
       fatal(
-        'run-batch: [resume] refused to break a LIVE lock — another driver is still running ' +
-          '(recorded precondition_failed to the blocked-ledger)',
+        'run-batch: [resume] refused to break a lock that is not proven stale — ' +
+          verdict.reason +
+          ' (recorded precondition_failed to the blocked-ledger)',
         3,
       );
     }
     console.log(
-      'run-batch: [resume] breaking a STALE lock left by the interrupted prior run ' +
-        '(holder pid is dead / no usable holder stamp)',
+      'run-batch: [resume] breaking a STALE lock left by the interrupted prior run (' +
+        verdict.reason +
+        ')',
     );
     try {
       rmSync(LOCK_DIR, { recursive: true, force: true });
