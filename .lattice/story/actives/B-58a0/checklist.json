@@ -6,7 +6,36 @@
       "context": "In packages/main/src/core/milestone-status.ts, add an exported pure function that groups a story's checklist items by status (done / in_progress / pending) under a distinct 'Checklist-derived ledger (no milestone ledger set) - <id>' header, plus a Phase line and a Progress summary. Must not reuse the 'Milestone Status - <id>' header. Export CHECKLIST_DERIVED_HEADER for dedup.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/milestone-status.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/milestone-status.test.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "renderChecklistDerivedLedger groups items into done/in_progress/pending under the distinct \"Checklist-derived ledger (no milestone ledger set) - <id>\" header with Phase + Progress lines",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "empty checklist renders a stub with \"(no checklist items)\" and a 0/0/0 progress line, never throws",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "output must NOT contain the \"Milestone Status -\" header, so it cannot be mistaken for a real milestone table",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
