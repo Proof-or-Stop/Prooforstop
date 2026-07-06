@@ -5,7 +5,7 @@
       "desc": "doc-promise-undelivered: docs/requirements/decisions/milestone-triggered-gate-mode-default-decision.md line 69 (Verification section) claims a regression test pins resolveDoneGateMode/config default to observe when unset, but no such function resolveDoneGateMode exists anywhere in the codebase (the real function is configuredProofStoryMode in packages/main/src/handlers/phase-gates.ts:142-144), and no test in the diff or existing suite exercises the config-key-absent fallback path. All doneGateMode references added to packages/main/tests/milestone-status.test.mjs (lines 1650, 1815, 2274) explicitly set doneGateMode: observe in the fixture config rather than testing the unset/default-fallback behavior. The promised regression test for the default itself does not exist.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-06T00:22:13.120Z",
@@ -13,7 +13,11 @@
       "reviewRunId": "B-f7b3:RR-002",
       "_hash": "5588a1d7cbe72f858afcbf189707eb08ced57b582fe4112774e4bf549e2fde89",
       "signatureTag": "missing|unknown|promise-undelivered-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: the doc Verification section now names the real exported resolver configuredProofStoryMode (not the nonexistent resolveDoneGateMode), and block (c) of milestone-done-gate-reconciliation-smoke.ts drives that real resolver over a no-config temp root asserting the observe fallback (un-gameable: flipping ?? observe to enforce fails it). Confirmed by this round's docs + test-coverage lanes.",
+      "resolvedAt": "2026-07-06T06:28:00.414Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f7b3:F-002",
