@@ -274,7 +274,7 @@
       "desc": "CHK-001:adversarial and CHK-003:adversarial evidence notes claim the fresh-mode non-empty-ledger fail-closed guard makes the campaign ledger un-poisonable (\"the exactly one campaign writer, never a poisoned ledger invariant holds\"; sub-check K \"proves\" this), but this overstates the actual coverage: run-batch.mjs:922-928 -- existingLedgerNonEmpty = existsSync(LEDGER_PATH) && readFileSync(LEDGER_PATH,\"utf8\").trim() !== \"\", with catch { existingLedgerNonEmpty = false } -- FAILS OPEN when the ledger exists, is non-empty, but readFileSync THROWS (e.g. EACCES/unreadable). The catch runs only after existsSync already returned true, so a read failure on an existing ledger is misclassified as EMPTY and a fresh driver proceeds to append onto it, producing on-disk duplicates. selfcheck-m3.mjs sub-check K (checkFreshRefusesNonemptyLedger) only seeds a READABLE non-empty ledger and never exercises the unreadable-but-non-empty branch, so this fail-open path is untested. This exact gap is already independently filed and open as B-f511:F-013 (medium/adversarial, cross-vendor Codex, this same review round, reviewRunId RR-026, evidenceState verified) with a concrete fix (set existingLedgerNonEmpty = true in the catch to fail closed). Flagging from the test-coverage lane because the CHK-001/CHK-003 adversarial verificationEvidence notes assert a universal fail-closed guarantee that the current evidence (sub-check K) does not actually establish -- the claim needs either a fix + a dedicated sub-check for the unreadable-ledger path, or the evidence note must be narrowed to not claim the invariant holds unconditionally.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-06T02:40:23.814Z",
@@ -286,7 +286,11 @@
         "experiments/pos-instrument-replay/selfcheck-m3.mjs"
       ],
       "signatureTag": "missing|mjs|adversarial-adversarial-evidence",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 98ee3e0db: (a) the fail-open bug is now fail-closed (sub-check L, same as F-013); (b) the overstated evidence notes were rewritten (commit afbe62c) to scope the claim to 'every TESTED path, not an unconditional impossibility proof' — verified by the test-coverage lane round 6.",
+      "resolvedAt": "2026-07-06T05:05:16.867Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f511:F-015",
