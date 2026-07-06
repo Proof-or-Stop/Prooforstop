@@ -1,0 +1,24 @@
+{
+  "storyId": "B-e1f6",
+  "mode": "enforce",
+  "allowedModify": [
+    "experiments/multi-model-ablation/task-inventory.m2.json",
+    "experiments/multi-model-ablation/seed-manifest.m1.json",
+    "experiments/multi-model-ablation/README.md"
+  ],
+  "allowedCreate": [
+    "experiments/multi-model-ablation/cell03-shards/plan.mjs",
+    "experiments/multi-model-ablation/cell03-shards/shard-runner.mjs",
+    "experiments/multi-model-ablation/cell03-shards/merge.mjs",
+    "experiments/multi-model-ablation/cell03-shards/README.md"
+  ],
+  "allowedTest": [
+    "experiments/multi-model-ablation/cell03-shards/selfcheck.mjs"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-06T15:06:39.190Z",
+  "updatedAt": "2026-07-06T15:06:39.190Z"
+}
