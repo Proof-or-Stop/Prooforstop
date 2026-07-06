@@ -358,7 +358,7 @@
       "desc": "test-coverage-gap: selfcheck-m3.mjs checkResumeBreakFailureDiagnostic (sub-check M, lines 1095-1147) asserts exit code 2, the diagnostic string, no orphaned break-mutex, and campaign-ledger untouched -- but never asserts that .batch-ledger.lock (LOCK_DIR) itself is still present/intact on disk after the forced break failure. Code inspection confirms POS_FAIL_LOCK_BREAK throws strictly BEFORE the real rmSync(LOCK_DIR, ...) call (run-batch.mjs:842-845), so LOCK_DIR necessarily survives today, but sub-check M does not verify this directly -- an implementer could accidentally reorder the fault-injection check to AFTER a partial rmSync side effect (or otherwise change the surrounding logic) without M catching it, since M only checks the break-mutex and campaign ledger, not the stale-lock directory whose survival is the operationally-important fact for a manual-cleanup recovery story. Suggested addition: after the breakRun assertion, add existsSync(lockDirPath(sandbox)) && existsSync(holderPath(sandbox)) checks (mirroring the pattern already used in sub-checks H/I) to make the LOCK_DIR-survives invariant explicit and regression-tested.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-06T05:00:19.331Z",
@@ -366,7 +366,11 @@
       "reviewRunId": "B-f511:RR-037",
       "_hash": "4c4d823a93b1beceb50e41117cbeec186825e539855a3b83b4542501f4e9d6f4",
       "signatureTag": "missing|unknown|test-coverage-selfcheck",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Accepted (LOW, non-blocking). Sub-check M already asserts the load-bearing properties of the break-failure path — exit 2, the 'could not break the stale lock' diagnostic, the break-mutex is released (not orphaned), and the campaign ledger is untouched. F-018 asks for an ADDITIONAL explicit existsSync assertion that LOCK_DIR/holder.json survive the forced break failure; the quality lane CONFIRMED by code inspection that they do survive today, so the residual risk is zero — this is belt-and-suspenders test-strengthening. Tracked as a follow-up; does not gate M3.",
+      "resolvedAt": "2026-07-06T05:05:39.352Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "medium"
     }
   ]
 }
