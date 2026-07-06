@@ -44,6 +44,15 @@
       "reviewRound": "2026-07-06T01:22:49.221Z",
       "reviewRunId": "B-f511:RR-024",
       "_hash": "f1a37ef7a33386953e59c81b5a40b56753cf1f0883451d947b2d53fd3a88320d"
+    },
+    {
+      "id": "B-f511:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 9 must-priority verificationIntent entries (CHK-001/002/003 x happy/edge/adversarial) have fresh, non-stale verificationEvidence bound to current HEAD (validate.missingRequired=0). Every evidence NOTE command was re-run and literally reproduces its claimed result (resume-probe.mjs -> resume-reconciliation.json fields match verbatim; both node -e evidence commands reproduce exactly; selfcheck-m3.mjs live-re-run to completion, exit 0, selfcheck-m3 PASS, all 10 sub-checks A-J green). Confirmed F-001..F-008 each map to a dedicated load-bearing sub-check (F-001->H, F-002/F-003->G, F-004->F, F-005/F-006->I, F-007/F-008->J). Sub-check J is a genuine two-direction multi-resumer test: J.1 proves the break-mutex-held fail-closed path (EEXIST -> precondition_failed mentioning break-mutex, stale lock + mutex left untouched), J.2 proves the reclaim-after-free path (mutex removed -> stale lock broken, exact 30-record multiset, 0 dup/0 gap, no orphaned mutex) -- closing the previously-flagged \"no sub-check exercises concurrent resumers\" gap. No blocker from the test-coverage lane.",
+      "createdAt": "2026-07-06T01:46:38.657Z",
+      "reviewRound": "2026-07-06T01:22:49.221Z",
+      "reviewRunId": "B-f511:RR-019",
+      "_hash": "05e4d7c091b5447e06bfb0686980ba4a346906bec5424fd3785a0d9cd7af2c01"
     }
   ]
 }
