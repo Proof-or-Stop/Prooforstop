@@ -128,14 +128,13 @@
         {
           "intentRef": "CHK-002:happy:0",
           "kind": "manual_transcript",
-          "verdict": "success",
           "command": "node experiments/pos-instrument-replay/analyze-batch.mjs",
           "result": "pass",
-          "note": "report.json + report.md carry a sha256 digest over canonicalJson(report without digest); the analyzer uses no Date.now/new Date/Math.random in the digested preimage.",
-          "headHash": "3e5c582a38fa7153f009dff8988959df395e9d97",
+          "note": "Reproducible: two runs of analyze-batch.mjs on the committed inputs produce byte-identical report.json + the digest f4224085e06db3a421bf6d6eed6204733d277696f1225403d03ab264bf3fd3ba; digest = sha256(canonicalJson(report minus the digest field)) — independently re-derived by hand (sorted-key canonical JSON, sha256) and by Codex host-2, both matching. No Date/random/absolute-path in the digested preimage.",
+          "headHash": "20e3ea4c3bd7a378e241327ffeb7a9da73f1b84a",
           "materialHash": "b8d25c898ec3647c9947f3eedfe58190426e5357b4efe387ef47553af6be3b82",
           "storyFilesHash": "33c61f0249d435d1e9d1187beea8fbc5179685a69d099092cede7c4ef47fe8c6",
-          "timestamp": "2026-07-06T07:55:02.106Z"
+          "timestamp": "2026-07-06T07:55:06.292Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
