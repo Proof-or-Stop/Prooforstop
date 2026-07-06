@@ -1,0 +1,145 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Record a read-only retrospective input-contamination audit for current B-991d rows",
+      "context": "After B-991d reaches a stable checkpoint, inspect run-full.mjs, prompt construction, env policy, workspace policy, and representative row metadata. Do not write provider rows or rerun provider calls. Acceptance: audit classifies current rows as weak-clean, strong-clean, or contaminated with evidence pointers.",
+      "relatedDocs": [
+        "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+        "docs/requirements/decisions/multi-model-ablation-replication.md"
+      ],
+      "excludes": [
+        "provider execution",
+        "current active cell03-rows.jsonl mutation",
+        "paper claim upgrade"
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Audit artifact records concrete evidence for prompt, workspace, env, and row metadata contamination surfaces.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Historical rows without explicit memory fields are classified as weak-clean rather than silently upgraded.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Any discovered session_brief/dev-memory/playbook/runtime guidance injection is classified as contamination, not waived.",
+            "type": "logic"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add explicit memory/isolation metadata to future Cell03 result rows",
+      "context": "Add row fields such as memoryPolicy, sessionBriefInjected, devMemoryInjected, playbookRuntime, parentRepoRulesVisible, and runnerIsolation for future rows after the audit checkpoint. Acceptance: new rows can prove memory/runtime guidance was not injected without relying on code inspection alone.",
+      "relatedDocs": [
+        "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md"
+      ],
+      "excludes": [
+        "retroactively editing completed provider row truth",
+        "provider API calls from this audit story"
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "New row metadata explicitly records memory and runtime-guidance non-injection fields.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Rows created before this metadata are handled by compatibility classification, not by destructive rewrite.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Validator rejects strong-clean claims when any required memory/isolation field is missing or contradictory.",
+            "type": "logic"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Extend validation to enforce clean-input claims without breaking historical rows",
+      "context": "Update the Cell03 validator so strong-clean rows require explicit non-injection metadata, while historical B-991d rows remain valid only under a weaker clean-claim classification. Acceptance: validator reports counts by clean-claim tier and rejects contradictory metadata.",
+      "relatedDocs": [
+        "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md"
+      ],
+      "excludes": [
+        "changing outcome counts",
+        "changing provider usage totals"
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Validator reports weak-clean and strong-clean counts separately.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Historical rows without explicit fields do not fail ordinary row validation but cannot count as strong-clean.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Contradictory fields such as sessionBriefInjected=true with cleanClaim=strong are rejected.",
+            "type": "logic"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Document DGX/Docker clean-runner launch requirements",
+      "context": "Capture the stricter launch policy for future DGX/Docker runs: no .lattice mount, no dev-memory/playbooks, no session_brief injection, frozen inputs read-only, shard-local outputs, and provider API credentials only through env/secret. Acceptance: future clean runner can be launched with an auditable isolation statement.",
+      "relatedDocs": [
+        "docs/requirements/decisions/multi-model-ablation-replication.md"
+      ],
+      "excludes": [
+        "building the Docker runner in this audit story unless explicitly approved later"
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Document states DGX/Docker clean-runner requirements and required runner-isolation metadata.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Document distinguishes product workflow memory from experiment-runner model input.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Document forbids mounting the full Proofbound repo or CODEX_HOME into the clean runner unless explicitly classified.",
+            "type": "docs"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

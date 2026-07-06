@@ -1,0 +1,38 @@
+{
+  "storyId": "B-f5e6",
+  "name": "cell03-input-contamination-audit",
+  "title": "Audit Cell03 provider inputs for memory and runtime-guidance contamination before paper use",
+  "description": "Create a deferred audit story for B-991d Cell03 data. Current evidence suggests the runner uses external scratch workspaces and does not inject Proofbound session_brief, dev-memory, or playbook text, but rows do not yet carry explicit memoryPolicy/sessionBriefInjected/devMemoryInjected/playbookRuntime fields. This story must not interrupt the active B-991d provider run. It records the follow-up needed after a stable checkpoint so Cell03 data can be classified for paper use as weak-clean historical rows or strong-clean rows with explicit isolation metadata.",
+  "type": "chore",
+  "phase": "INIT",
+  "priority": "high",
+  "source": "user-approved side conversation on 2026-07-06 after B-991d memory-use inspection",
+  "keywords": [
+    "cell03",
+    "input-contamination",
+    "memory-audit",
+    "clean-runner",
+    "paper-evidence",
+    "B-991d"
+  ],
+  "riskSignals": [
+    {
+      "category": "Security/Credentials",
+      "matched": "secret"
+    }
+  ],
+  "createdAt": "2026-07-06T15:39:44.774Z",
+  "startedAt": "2026-07-06T15:39:44.774Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-06T15:39:45.232Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-d105e010db50a277",
+      "agent": "main"
+    }
+  ]
+}
