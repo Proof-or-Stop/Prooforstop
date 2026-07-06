@@ -201,11 +201,11 @@
           "kind": "manual_transcript",
           "command": "node experiments/pos-instrument-replay/selfcheck-m3.mjs",
           "result": "pass",
-          "note": "node selfcheck-m3.mjs exits 0 'selfcheck-m3 PASS' — now 11 hermetic sub-checks A-K: A boundary-kill, B mid-run-crash, C fresh-additive, D resume-no-ledger, E truncated-tail, F stop-record-resume, G valid-final-record-preserved, H live-lock-not-broken, I NO-HOLDER-lock-not-broken, J BREAK-MUTEX-SERIALIZES (multi-resumer TOCTOU), K FRESH-REFUSES-NONEMPTY-LEDGER (fresh-driver ledger-poisoning).",
-          "headHash": "98ee3e0dbd49501a0b3a456b4e9cd35e7c0c062f",
+          "note": "node selfcheck-m3.mjs exits 0 'selfcheck-m3 PASS' — 13 hermetic sub-checks A-M: A boundary-kill, B mid-run-crash, C fresh-additive, D resume-no-ledger, E truncated-tail, F stop-record-resume, G valid-final-record-preserved, H live-lock-not-broken, I NO-HOLDER-lock-not-broken, J BREAK-MUTEX-SERIALIZES, K FRESH-REFUSES-NONEMPTY-LEDGER, L FRESH-FAILS-CLOSED-ON-UNREADABLE-LEDGER, M RESUME-BREAK-FAILURE-DIAGNOSTIC.",
+          "headHash": "174f2cb77483c41bf152bd2b619a49557cf580b5",
           "materialHash": "72235d20101e07bfddf60b0e65cf527c700c424441776e30bbc867ae206a53b8",
           "storyFilesHash": "72dc774e8479d01609d432bbe1a5775bc3b62810d1c2381e312b51de954af7f5",
-          "timestamp": "2026-07-06T03:27:16.005Z"
+          "timestamp": "2026-07-06T03:27:17.419Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
