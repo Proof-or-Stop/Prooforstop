@@ -1,0 +1,29 @@
+{
+  "storyId": "B-e1f6",
+  "checkedAt": "2026-07-06T14:52:14.918Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init@fallback",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "lattice-review-story-init@fallback",
+      "checkedAt": "2026-07-06T14:52:14.918Z",
+      "issues": []
+    },
+    {
+      "agentId": "product-reviewer@fallback",
+      "checkedAt": "2026-07-06T14:52:14.918Z",
+      "issues": []
+    }
+  ],
+  "fallback": {
+    "mode": "repair",
+    "reason": "This side conversation explicitly forbids using subagents, so the preferred independent INIT reviewers cannot be spawned here. I manually verified the story has a narrow scope boundary, excludes provider execution and current B-991d evidence rows, includes concrete checklist files and docs, and uses this audited fallback instead of pretending independent reviewer evidence exists.",
+    "actor": "Harmonygo",
+    "session": "sess-d105e010db50a277",
+    "attestedAt": "2026-07-06T14:52:14.918Z",
+    "headHash": "3b297a38e8b538d7ded47335935487d7a5d85cc3",
+    "materialHash": "1c44c401c2c82a05f60bfe56bb57d828cbf62ea800521de30d9f57ab0800a195"
+  },
+  "_hash": "666c4a2b8c215390c78f76d507a4ee43e40426c86f84707654574d9f12522669"
+}
