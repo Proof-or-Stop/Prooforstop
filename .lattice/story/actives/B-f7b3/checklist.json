@@ -471,7 +471,9 @@
           {
             "desc": "logic: The doc's central claim ('strict-DONE milestone gaps block only under mode===enforce; the default observe surfaces them as non-blocking advisories') is verified against the LIVE delivered code, not just re-read. A node harness loads packages/main/dist/core/proofstory.js and calls evaluateDoneIntentEquivalence on an input with an uncovered required milestone (real gap): with unset mode it must resolve to observe with blocking=false/status='warn', and with 'enforce' the SAME gap must give blocking=true/status='fail'. This proves the doc's rationale is internally consistent with the code it governs and that observe is a real, load-bearing choice.",
             "type": "logic"
-          },
+          }
+        ],
+        "edge": [
           {
             "desc": "cli: The doc does not silently drop the per-trigger capability; it records it as an explicitly deferred future story. Run: `grep -qiE 'per-trigger|enforce-for-triggered' <doc> && grep -qiE 'deferred to a future story' <doc>`. Exits 0 — matching the Consequences section, which names 'per-trigger gate-mode selection'/'enforce-for-triggered' and states it is explicitly deferred rather than abandoned.",
             "type": "cli"
@@ -479,7 +481,9 @@
           {
             "desc": "logic: The doc's Blast-radius rationale reflects the ACTUAL trigger behavior it cites, tolerant of source line-drift (the doc's literal line anchors like proofstory.ts:1289-1291 are stale after refactors; the behavior is the sound source of truth). A node harness (1) asserts the doc names both mechanisms hasMilestonePath and classifyTriggers and describes a 'fuzzy regex' 'blast radius'; and (2) proves the behavior against dist: an input with NO milestone ledger whose prose merely says 'all remaining milestones M1-M5' lands on equivalenceMode 'strict_milestone' (fuzzy prose alone fires the milestone trigger — the wide surface enforce-by-default would gate), while neutral prose stays 'lightweight_single_outcome'. This concretely enumerates why defaulting triggered stories to enforce is high-blast-radius.",
             "type": "logic"
-          },
+          }
+        ],
+        "adversarial": [
           {
             "desc": "adversarial: MUTATION/negative check that the decision was recorded WITHOUT a blind behavior flip AND that the default literal is load-bearing (not vacuous). A node harness (A) asserts the committed source packages/main/src/handlers/phase-gates.ts still resolves unset gate modes via `?? 'observe'` in configuredProofStoryMode and contains NO `?? 'enforce'` default anywhere; and (B) mutation-models both defaults through the real dist gate on a story with a milestone gap — 'observe' → blocking=false, 'enforce' → blocking=true, asserting the two DIFFER. So the 'decision-only, no code change' claim is valid precisely because the source was left unflipped, and the flip would genuinely change behavior. Keys on the `?? 'observe'` behavior, not the stale line-129 literal the old intent asserted (the resolver moved to line 143 via refactor).",
             "type": "cli"
@@ -487,18 +491,6 @@
           {
             "desc": "adversarial: Negative check proving the decision item is provably code-inert on EVERY gate-mode default (had the verdict instead been 'default to enforce', this would fail). Assert all defaults still resolve to observe — devGateMode at packages/main/src/handlers/proofstory.ts (`args.mode ?? 'observe'`, exactly 1 site) and the shared review/done resolver in phase-gates.ts (`proofStory?.[key] ?? 'observe'`, exactly 1 site) — AND that the whole-story diff vs the merge base (31f4e414) added ZERO non-comment enforce-default lines (`git diff <base>..HEAD -- 'packages/main/src/**/*.ts' | grep '^+' | grep -v '//' | grep -cE \"\\?\\? 'enforce'|= 'enforce';\"` == 0). This is genuinely adversarial: it fails on any real or hidden default flip.",
             "type": "cli"
-          }
-        ],
-        "edge": [
-          {
-            "desc": "placeholder-unused",
-            "type": "logic"
-          }
-        ],
-        "adversarial": [
-          {
-            "desc": "placeholder-unused",
-            "type": "logic"
           }
         ]
       }
