@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "proofstory.scope_shrinkage_decision.v1",
+  "storyId": "B-fbbb",
+  "decision": "rejected",
+  "userConfirmed": false,
+  "removedMilestoneIds": [],
+  "reason": "Rejected: there is no genuine outcome shrinkage. The delivered result (experience-layer-playbook-smoke prints TOTAL 31 | PASS 31 | FAIL 0 / 'smoke passed', both import-fence checks and both no-regression sub-smokes decision-doc-promotion + experience-layer-digest-extract passing) is identical to the original intent snapshot's acceptanceClaim. The equivalence heuristic flagged only a cosmetic wording difference between the snapshot normalizedOutcome and the summary actualTranscript; scope was NOT narrowed and no milestone was removed.",
+  "approvedBy": "operator-jek-2026-07-06-finish-B-fbbb",
+  "createdAt": "2026-07-06T05:16:55.642Z",
+  "updatedAt": "2026-07-06T05:16:55.642Z"
+}
