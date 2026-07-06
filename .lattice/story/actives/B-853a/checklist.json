@@ -208,11 +208,11 @@
           "kind": "manual_transcript",
           "command": "node experiments/pos-instrument-replay/selfcheck-m4.mjs",
           "result": "pass",
-          "note": "node selfcheck-m4.mjs exits 0 'selfcheck-m4 PASS' — sub-checks A-O: A-happy, B-reproducible, C/D/E/F (H1/H2/H3/H4 flip to fail on value mutation), G (empty input inconclusive), H (recordDigest-tamper abort), I (no-overclaim), + J h1-incomplete, K h1-vacuous, L h2-identity-missing, M h3-stub, N h4-negative/null, O absent-file-inconclusive.",
-          "headHash": "eeb1a9592dad76d13e17d1099833e3f87d06dbf1",
+          "note": "node selfcheck-m4.mjs exits 0 'selfcheck-m4 PASS' — sub-checks A-S: A-happy, B-reproducible, C-F (H1/H2/H3/H4 value-mutation->fail), G (empty input inconclusive), H (recordDigest-tamper abort), I (no-overclaim), J-O (round-1 completeness/identity/stub/physical/absent), P-S (round-2 undeclared-scale / disposition-binding / nested-kill-value / partial-goldMetrics).",
+          "headHash": "7aa6b8f384681145ef0bbb8440879b8d806f311f",
           "materialHash": "8abdad7e6b9e5770501bfc64ed7d37b8d9ec0d140aeac2f75c6521895bf1fc8b",
           "storyFilesHash": "c978601679f808fa8a190348838bf2ea9efa12791fa9e084759011421b230dbe",
-          "timestamp": "2026-07-06T08:08:37.635Z"
+          "timestamp": "2026-07-06T08:08:41.722Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
