@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-f7b3:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion-completeness check: git diff main...HEAD spans packages/main/src/core/{milestone-status.ts,command-policy.ts,proofstory.ts,types.ts}, handlers/{milestone-status.ts,phase-gates.ts,proofstory.ts}, 2 new task smokes, tests/milestone-status.test.mjs, package.json x2, 3 new decision docs. Every removed (-) line was either a pure context-line reformat (e.g. evidenceCoversIntent inline predicate extracted to named rowCoversIntent and reused, buildMilestoneCloseoutSnapshot call wrapped in try/catch but still invoked, proofStoryDiagnosticInput signature widened with an added optional root param) or the single deliberate test-behavior change in milestone-status.test.mjs (assert.throws -> assert.doesNotThrow for captureMilestoneCloseoutSnapshotFromStore on an incomplete report), which is intentional per the CHK-010 reconciliation comment and is immediately followed by a new adjacent test asserting the pure builder buildMilestoneCloseoutSnapshot still throws/stays strict. No command, field, export, or npm script was deleted or renamed: milestone_status/milestone_closeout entries in command-policy.ts, config.ts, cli-engine.ts, activity-policy.ts, command-catalog.ts, process-fact-levels.ts all still present and consistent; package.json test chain only gained test:milestone-status, nothing removed from the chain. New exports (evidenceIsStaleCovering, MilestoneNotApplicableDecision, currentMilestoneStatusEvidenceBinding, notApplicableDecision field) are additive with backward-compatible optional fields (field only attached when present so ledger hash is unchanged for rows without it). Grepped repo for milestone_status usage across src -- all call sites current and consistent, no dangling references to removed identifiers. Verdict: clean, no concept/command/field mass-deletion or rename; no residue found.",
+      "createdAt": "2026-07-06T00:18:18.371Z",
+      "reviewRound": "2026-07-06T00:16:09.455Z",
+      "reviewRunId": "B-f7b3:RR-001",
+      "_hash": "d9639468e8c687bf46f73514f49f44c53e72c59f8da1352dff4dbe11bf46b45a"
+    }
+  ]
+}
