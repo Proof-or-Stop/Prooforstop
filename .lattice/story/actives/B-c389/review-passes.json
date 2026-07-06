@@ -26,6 +26,15 @@
       "reviewRound": "2026-07-05T23:57:54.627Z",
       "reviewRunId": "B-c389:RR-004",
       "_hash": "e695a278978e64ff0918fe4777044ca4cd93d8ab37ca3d88f1ccee501ad2aa2c"
+    },
+    {
+      "id": "B-c389:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 (RR-005) re-check after F-001/F-002/F-003 fixes. Diff vs main is purely additive: new capability_release_backfill command (handler, core builder, catalog/policy/process-fact-level/config wiring, docs, 3 smoke tasks) plus F-001s dead capLedgerPathB local removed (grep confirms zero residue outside findings.json prose), F-002s config.ts now carries a dedicated capability_release_backfill entry (no longer only wildcard-covered), F-003s lattice.config.json diff reduced to the minimal 3-line smoke-registration addition. No concept was deleted or replaced this round (git diff --diff-filter=D/R empty, no - lines in any modified file besides the F-003 reformat which is now gone). No blocker.",
+      "createdAt": "2026-07-06T00:10:00.975Z",
+      "reviewRound": "2026-07-06T00:08:28.508Z",
+      "reviewRunId": "B-c389:RR-005",
+      "_hash": "458ba737b18f72eca3f9c5fca80f941a223e27af520ea95e2cb86c8ff09953af"
     }
   ]
 }
