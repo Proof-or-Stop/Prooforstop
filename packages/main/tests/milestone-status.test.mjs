@@ -22,6 +22,7 @@ const {
   milestoneStatusReportDigest,
   renderMilestoneCloseoutSnapshot,
   renderMilestoneStatusReport,
+  renderChecklistDerivedLedger,
 } = await import(join(distRoot, 'core/milestone-status.js'));
 const {
   EMPTY_STORY_FILES_HASH,
@@ -221,6 +222,25 @@ function writeTestConfig(root) {
   assert.match(missingText, /\| none \| none \| none \| none \| none \| none \| none \|/);
   assert.doesNotMatch(missingText, /\| none \| none \| [✅⏳🟡⬜🔴❌] none \|/, 'placeholder none rows stay unmarked');
 
+  // Checklist-derived ledger (no milestone ledger set): groups by checklist status.
+  const derivedText = renderChecklistDerivedLedger('B-derived', {
+    items: [
+      { id: 'CHK-A', title: 'alpha', status: 'done', startTime: null, endTime: null },
+      { id: 'CHK-B', title: 'beta', status: 'in_progress', startTime: null, endTime: null },
+      { id: 'CHK-C', title: 'gamma', status: 'pending', startTime: null, endTime: null },
+    ],
+  }, 'DEV');
+  assert.match(derivedText, /^Checklist-derived ledger \(no milestone ledger set\) - B-derived/);
+  assert.doesNotMatch(derivedText, /Milestone Status -/, 'derived ledger must not fabricate a milestone table');
+  assert.match(derivedText, /Progress: 1 done \/ 1 in progress \/ 1 not started \(3 total\)/);
+  assert.match(derivedText, /✅ CHK-A — alpha/);
+  assert.match(derivedText, /⏳ CHK-B — beta/);
+  assert.match(derivedText, /⬜ CHK-C — gamma/);
+  // Empty checklist (e.g. IDEA) still renders a stub, never throws.
+  const emptyDerived = renderChecklistDerivedLedger('B-empty', { items: [] }, 'IDEA');
+  assert.match(emptyDerived, /Progress: 0 done \/ 0 in progress \/ 0 not started \(0 total\)/);
+  assert.match(emptyDerived, /\(no checklist items\)/);
+
   const cliMarkerStoryId = 'B-cli-marker-icons';
   const root = mkdtempSync(join(tmpdir(), 'lattice-milestone-status-icons-'));
   try {
@@ -299,11 +319,20 @@ function writeTestConfig(root) {
       'in_progress',
     ], { cwd: root, encoding: 'utf8' });
     assert.match(noLedgerStdout, /Checklist CHK-MARKER-NO-LEDGER:/);
+    // A missing-ledger story must NOT fabricate a milestone status table...
     assert.equal(
       noLedgerStdout.includes(`Milestone Status - ${noLedgerStoryId}`),
       false,
       'missing-ledger story mutations must not fabricate a milestone status table',
     );
+    // ...but the mutation MUST still always show a status view: the
+    // checklist-derived ledger, distinctly labelled and grouping items by status.
+    assert.match(
+      noLedgerStdout,
+      new RegExp(`Checklist-derived ledger \\(no milestone ledger set\\) - ${noLedgerStoryId}`),
+      'missing-ledger story mutations must still show a checklist-derived ledger',
+    );
+    assert.match(noLedgerStdout, /⏳ CHK-MARKER-NO-LEDGER —/);
 
     const jsonStoryId = 'B-cli-marker-json';
     const jsonStoryDir = join(root, '.lattice', 'story', 'actives', jsonStoryId);
