@@ -49,10 +49,10 @@
           "command": "node experiments/pos-instrument-replay/selfcheck-m3.mjs",
           "result": "pass",
           "note": "run-batch --resume against a partial ledger skips already-recorded iterationIds and runs only the remaining; the strict guard reconciles the final 30-record small multiset (0 dup / 0 gap). Proven by selfcheck-m3 boundary-kill + mid-run-crash sub-checks (append-only preserved; resume-only stale-lock break).",
-          "headHash": "1dad360a8c87f59fdcd6ae66907f0803575365d9",
-          "materialHash": "31e722da1a5b7e449ae939b124aa2dde1e51bb83e5c7e9c523ed747e1fe76213",
-          "storyFilesHash": "1a353033d582329350e5d5698c7ebab60d114f5b191fa8490e7a520ac6500600",
-          "timestamp": "2026-07-06T00:44:20.481Z"
+          "headHash": "4882fad0d85592515c9807114f1d940535f2e3fd",
+          "materialHash": "15f370534f4e5dff93a4bbb724b7caa64bc830c7bb946a715f749c42581c86c0",
+          "storyFilesHash": "12433a97cfd13f12f1716aec909f573d9fa83616bf5eff090f9f60d14ac3fbe6",
+          "timestamp": "2026-07-06T01:22:46.248Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -60,10 +60,10 @@
           "command": "node experiments/pos-instrument-replay/selfcheck-m3.mjs",
           "result": "pass",
           "note": "selfcheck-m3 E (truncated-tail) + G (valid-final-record-preserved): repairTruncatedTail now PARSES the un-terminated tail in both branches — a genuinely truncated partial write is dropped (that iteration re-runs), but a COMPLETE final record missing only its newline (replay/small/4) is PRESERVED verbatim (never dropped into a gap). 0 dup / 0 gap.",
-          "headHash": "1dad360a8c87f59fdcd6ae66907f0803575365d9",
-          "materialHash": "31e722da1a5b7e449ae939b124aa2dde1e51bb83e5c7e9c523ed747e1fe76213",
-          "storyFilesHash": "1a353033d582329350e5d5698c7ebab60d114f5b191fa8490e7a520ac6500600",
-          "timestamp": "2026-07-06T00:44:20.481Z"
+          "headHash": "4882fad0d85592515c9807114f1d940535f2e3fd",
+          "materialHash": "15f370534f4e5dff93a4bbb724b7caa64bc830c7bb946a715f749c42581c86c0",
+          "storyFilesHash": "12433a97cfd13f12f1716aec909f573d9fa83616bf5eff090f9f60d14ac3fbe6",
+          "timestamp": "2026-07-06T01:22:46.248Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -71,10 +71,10 @@
           "command": "node experiments/pos-instrument-replay/selfcheck-m3.mjs",
           "result": "pass",
           "note": "Lock-break is now CONSERVATIVE + race-free: evaluateLockForBreak breaks ONLY when holder.json exists, parses to {pid}, and that pid is POSITIVELY proven DEAD (ESRCH); a missing/unreadable/malformed/uncertain holder is treated as LIVE (precondition_failed, no break). The holder stamp is near-atomic (temp-write + renameSync). selfcheck-m3 (I) NO-HOLDER-LOCK-NOT-BROKEN + (H) dead-pid-still-broken confirm both directions; fresh path unchanged (selfcheck-m2 still PASS). Closes the F-005/F-006 mkdir->holder acquire race — two writers can never coexist.",
-          "headHash": "cfb4ce0d63287fec7f3e255da5ba16798f6a08d5",
-          "materialHash": "31e722da1a5b7e449ae939b124aa2dde1e51bb83e5c7e9c523ed747e1fe76213",
-          "storyFilesHash": "1a353033d582329350e5d5698c7ebab60d114f5b191fa8490e7a520ac6500600",
-          "timestamp": "2026-07-06T00:44:21.273Z"
+          "headHash": "4882fad0d85592515c9807114f1d940535f2e3fd",
+          "materialHash": "15f370534f4e5dff93a4bbb724b7caa64bc830c7bb946a715f749c42581c86c0",
+          "storyFilesHash": "12433a97cfd13f12f1716aec909f573d9fa83616bf5eff090f9f60d14ac3fbe6",
+          "timestamp": "2026-07-06T01:22:46.248Z"
         }
       ]
     },
@@ -126,10 +126,10 @@
           "command": "node experiments/pos-instrument-replay/resume-probe.mjs",
           "result": "pass",
           "note": "resume-probe.mjs kills run-batch at a boundary (hard-crash before append at replay/small/6, leaving 5 recorded + a recordless casualty) and mid-run (replay/small/18), plus an external-SIGKILL trial; restarts in --resume each time; writes resume-reconciliation.json: killA{recordedBeforeKill:5,casualty replay/small/6,dup:0,gap:0}, killB{17,replay/small/18,dup:0,gap:0}, finalMultisetMatch:true, dupTotal:0 gapTotal:0. H3: 0 dup / 0 gap.",
-          "headHash": "1dad360a8c87f59fdcd6ae66907f0803575365d9",
-          "materialHash": "31e722da1a5b7e449ae939b124aa2dde1e51bb83e5c7e9c523ed747e1fe76213",
-          "storyFilesHash": "1a353033d582329350e5d5698c7ebab60d114f5b191fa8490e7a520ac6500600",
-          "timestamp": "2026-07-06T00:44:20.481Z"
+          "headHash": "4882fad0d85592515c9807114f1d940535f2e3fd",
+          "materialHash": "15f370534f4e5dff93a4bbb724b7caa64bc830c7bb946a715f749c42581c86c0",
+          "storyFilesHash": "12433a97cfd13f12f1716aec909f573d9fa83616bf5eff090f9f60d14ac3fbe6",
+          "timestamp": "2026-07-06T01:22:46.248Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -137,10 +137,10 @@
           "command": "node -e \"const r=require('./experiments/pos-instrument-replay/resume-reconciliation.json');console.log(r.finalMultisetMatch,r.dupTotal,r.gapTotal)\"",
           "result": "pass",
           "note": "After both kills+resume the ledger identity multiset equals the protocol replay/small cross-product exactly (finalMultisetMatch true, 0 gap) — exactly one record per iterationId.",
-          "headHash": "1dad360a8c87f59fdcd6ae66907f0803575365d9",
-          "materialHash": "31e722da1a5b7e449ae939b124aa2dde1e51bb83e5c7e9c523ed747e1fe76213",
-          "storyFilesHash": "1a353033d582329350e5d5698c7ebab60d114f5b191fa8490e7a520ac6500600",
-          "timestamp": "2026-07-06T00:44:20.481Z"
+          "headHash": "4882fad0d85592515c9807114f1d940535f2e3fd",
+          "materialHash": "15f370534f4e5dff93a4bbb724b7caa64bc830c7bb946a715f749c42581c86c0",
+          "storyFilesHash": "12433a97cfd13f12f1716aec909f573d9fa83616bf5eff090f9f60d14ac3fbe6",
+          "timestamp": "2026-07-06T01:22:46.248Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -148,10 +148,10 @@
           "command": "node -e \"const r=require('./experiments/pos-instrument-replay/resume-reconciliation.json');console.log(JSON.stringify(r.killC))\"",
           "result": "pass",
           "note": "Each casualty resolves to stop-or-clean-rerun, never a half-record: killA/killB (recordless hard-crash) -> proof:pass; killC (POS_FAIL_APPEND_AT -> a recorded verify_crash STOP at replay/small/3) is PRESERVED and SKIPPED on resume (not re-run into a proof); dup=0 gap=0 across all kills.",
-          "headHash": "1dad360a8c87f59fdcd6ae66907f0803575365d9",
-          "materialHash": "31e722da1a5b7e449ae939b124aa2dde1e51bb83e5c7e9c523ed747e1fe76213",
-          "storyFilesHash": "1a353033d582329350e5d5698c7ebab60d114f5b191fa8490e7a520ac6500600",
-          "timestamp": "2026-07-06T00:44:20.481Z"
+          "headHash": "4882fad0d85592515c9807114f1d940535f2e3fd",
+          "materialHash": "15f370534f4e5dff93a4bbb724b7caa64bc830c7bb946a715f749c42581c86c0",
+          "storyFilesHash": "12433a97cfd13f12f1716aec909f573d9fa83616bf5eff090f9f60d14ac3fbe6",
+          "timestamp": "2026-07-06T01:22:46.248Z"
         }
       ]
     },
@@ -202,10 +202,10 @@
           "command": "node experiments/pos-instrument-replay/selfcheck-m3.mjs",
           "result": "pass",
           "note": "node selfcheck-m3.mjs exits 0 'selfcheck-m3 PASS' — 9 hermetic sub-checks A-I: boundary-kill, mid-run-crash, fresh-additive, resume-no-ledger, truncated-tail, stop-record-resume, valid-final-record-preserved, live-lock-not-broken (dead-pid discrimination), and NO-HOLDER-lock-not-broken.",
-          "headHash": "c39785350d871904886b62fa1f7a1f2b5932724c",
-          "materialHash": "31e722da1a5b7e449ae939b124aa2dde1e51bb83e5c7e9c523ed747e1fe76213",
-          "storyFilesHash": "1a353033d582329350e5d5698c7ebab60d114f5b191fa8490e7a520ac6500600",
-          "timestamp": "2026-07-06T00:44:22.030Z"
+          "headHash": "4882fad0d85592515c9807114f1d940535f2e3fd",
+          "materialHash": "15f370534f4e5dff93a4bbb724b7caa64bc830c7bb946a715f749c42581c86c0",
+          "storyFilesHash": "12433a97cfd13f12f1716aec909f573d9fa83616bf5eff090f9f60d14ac3fbe6",
+          "timestamp": "2026-07-06T01:22:46.248Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -213,10 +213,10 @@
           "command": "node experiments/pos-instrument-replay/selfcheck-m3.mjs",
           "result": "pass",
           "note": "selfcheck-m3 asserts 0 dup / 0 gap and exactly one record per protocol replay/small iterationId after each resume (finalMultisetMatch).",
-          "headHash": "1dad360a8c87f59fdcd6ae66907f0803575365d9",
-          "materialHash": "31e722da1a5b7e449ae939b124aa2dde1e51bb83e5c7e9c523ed747e1fe76213",
-          "storyFilesHash": "1a353033d582329350e5d5698c7ebab60d114f5b191fa8490e7a520ac6500600",
-          "timestamp": "2026-07-06T00:44:20.481Z"
+          "headHash": "4882fad0d85592515c9807114f1d940535f2e3fd",
+          "materialHash": "15f370534f4e5dff93a4bbb724b7caa64bc830c7bb946a715f749c42581c86c0",
+          "storyFilesHash": "12433a97cfd13f12f1716aec909f573d9fa83616bf5eff090f9f60d14ac3fbe6",
+          "timestamp": "2026-07-06T01:22:46.248Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -224,10 +224,10 @@
           "command": "node experiments/pos-instrument-replay/selfcheck-m3.mjs",
           "result": "pass",
           "note": "Un-gameable: sub-checks F/G/H/I each fail loudly on regression; the lock is broken ONLY on a confirmed-dead holder pid (never on a missing/uncertain one), so a live concurrent driver's lock is never clobbered (no two-writer corruption); 0 dup / 0 gap enforced. Codex F-001/F-002/F-005 + quality F-003/F-004/F-006 all covered by dedicated sub-checks.",
-          "headHash": "72401f5fdc0fa1f823bd72cd3fdbe0ca23cfea18",
-          "materialHash": "31e722da1a5b7e449ae939b124aa2dde1e51bb83e5c7e9c523ed747e1fe76213",
-          "storyFilesHash": "1a353033d582329350e5d5698c7ebab60d114f5b191fa8490e7a520ac6500600",
-          "timestamp": "2026-07-06T00:44:22.807Z"
+          "headHash": "4882fad0d85592515c9807114f1d940535f2e3fd",
+          "materialHash": "15f370534f4e5dff93a4bbb724b7caa64bc830c7bb946a715f749c42581c86c0",
+          "storyFilesHash": "12433a97cfd13f12f1716aec909f573d9fa83616bf5eff090f9f60d14ac3fbe6",
+          "timestamp": "2026-07-06T01:22:46.248Z"
         }
       ]
     }
