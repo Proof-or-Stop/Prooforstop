@@ -17,6 +17,15 @@
       "reviewRound": "2026-07-05T23:57:54.627Z",
       "reviewRunId": "B-c389:RR-003",
       "_hash": "b48d49485f4e852865cdc796157a28faff3cf54444665a7e62b21eff315f05cb"
+    },
+    {
+      "id": "B-c389:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 4 checklist items (CHK-001..CHK-004) have happy/edge/adversarial verificationIntent covered by concrete verificationEvidence. Independently verified: capability-release-backfill-smoke (14/14, bind + record-then-bind + digest-gate refusal + idempotency + invariants), capability-candidate-exposure-smoke (8/8, pendingLearning surfacing + exposure record + active-surfacing guard + no-helped invariant), capability-candidate-promotion-smoke (8/8, structured outcome -> sweep recommend + done-settlement exclusion + no auto-activation). lattice validate allPass=true, 41/41 commands, 0 fails. Live B-785e/PBP-882 backfill independently reproduced against real git-committed .lattice/capability-releases.jsonl (commit d2cab1ad8, PCR-9e7fdacf081e7346181bc04d) and current re-run of capability_release_backfill --storyId=B-785e --dryRun returns eligibleCount=0 (idempotent); PBP-882 confirmed status=candidate, surfacedCount=0 on live learning store. No coverage gaps found.",
+      "createdAt": "2026-07-06T00:04:08.296Z",
+      "reviewRound": "2026-07-05T23:57:54.627Z",
+      "reviewRunId": "B-c389:RR-004",
+      "_hash": "e695a278978e64ff0918fe4777044ca4cd93d8ab37ca3d88f1ccee501ad2aa2c"
     }
   ]
 }
