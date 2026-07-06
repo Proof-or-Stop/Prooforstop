@@ -9,11 +9,11 @@ function tokenize(text) {
     .filter((w) => w.length > 0);
 }
 
-/** Count sentences by terminal punctuation; fall back to 1 when text has words but no terminator. */
-function countSentences(text, wordCount) {
+/** Count sentences by terminal punctuation; fall back to 1 for non-empty unterminated text. */
+function countSentences(text) {
   const matches = text.match(/[.!?]+/g);
   if (matches && matches.length > 0) return matches.length;
-  return wordCount > 0 ? 1 : 0;
+  return text.length > 0 ? 1 : 0;
 }
 
 /** Mean token length, rounded to one decimal place. */
@@ -23,22 +23,16 @@ function averageLength(tokens) {
   return Math.round((total / tokens.length) * 10) / 10;
 }
 
-/** Build a frequency map of the tokens. */
-function buildFrequency(tokens) {
+/** Return the lower-cased word that first reaches the highest frequency. */
+function mostFrequent(tokens) {
   const freq = new Map();
-  for (const token of tokens) {
-    // tally each token
-    const current = freq.get(token) || 0;
-    freq.set(token, current + 1);
-  }
-  return freq;
-}
-
-/** Return the key with the highest count (first to reach the max on ties). */
-function mostFrequent(freq) {
   let best = '';
-  let bestCount = -1;
-  for (const [word, count] of freq) {
+  let bestCount = 0;
+
+  for (const token of tokens) {
+    const word = token.toLowerCase();
+    const count = (freq.get(word) || 0) + 1;
+    freq.set(word, count);
     if (count > bestCount) {
       bestCount = count;
       best = word;
@@ -55,9 +49,8 @@ export default function analyze(text) {
   }
   const tokens = tokenize(trimmed);
   const words = tokens.length;
-  const sentences = countSentences(trimmed, words);
+  const sentences = countSentences(trimmed);
   const avgWordLen = averageLength(tokens);
-  const freq = buildFrequency(tokens);
-  const topWord = mostFrequent(freq);
+  const topWord = mostFrequent(tokens);
   return { words, sentences, avgWordLen, topWord };
 }
