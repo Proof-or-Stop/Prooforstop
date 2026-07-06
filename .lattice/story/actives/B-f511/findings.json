@@ -113,7 +113,7 @@
       "desc": "Independently corroborating open F-005 (codex-host-2): isLockHolderAlive() (run-batch.mjs:325-341) treats a missing/unparseable holder.json as STALE (line 331: \"missing / unreadable / malformed holder -> treat as stale\"), and acquireLock() (run-batch.mjs) writes HOLDER_PATH only AFTER mkdirSync(LOCK_DIR) succeeds -- there is a real window between mkdir winning the lock and the holder.json write landing where a concurrent --resume run would see LOCK_DIR present with no holder.json, judge it stale, and rmSync it out from under a live driver, letting two writers append concurrently (ledger corruption). Confirmed by direct code read; the fix (conservative direction: missing/malformed holder.json should be treated as LIVE/unbreakable, not stale) is not yet present in this diff. This is the same root cause as F-005 and blocks a clean pass on the F-001 area of this round.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-06T00:02:12.930Z",
@@ -121,7 +121,11 @@
       "reviewRunId": "B-f511:RR-006",
       "_hash": "068cbcd63698406c207a8c9f64a8fe35678d32972983809b21e2b79c4d8a19be",
       "signatureTag": "adversarial|unknown|independently-corroborating-open",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 1dad360a8 (same conservative missing-holder=LIVE rule as F-005). selfcheck-m3 sub-check I: missing holder -> lock NOT broken (exit 3), campaign ledger untouched.",
+      "resolvedAt": "2026-07-06T05:05:13.225Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f511:F-007",
