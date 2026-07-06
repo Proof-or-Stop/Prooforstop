@@ -285,6 +285,21 @@
       "_hash": "4c8d21f59ffcdc293f0f02e851b113edc893a55727da6118b887c39b7f9e4b58",
       "signatureTag": "adversarial|unknown|independently-reproduced-corroborating",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f511:F-017",
+      "desc": "quality-cleanup: selfcheck-m3.mjs fail() (line 141-144) calls process.exit(1), which per Node.js semantics skips pending finally blocks. Every sub-check (including the new L/M added in 98ee3e0db) wraps its body in try { ... } finally { rmSync(sandbox, { recursive: true, force: true }); } -- but that cleanup is SKIPPED whenever fail() fires inside the try (i.e. exactly on a genuine regression). Reproduced directly: reverting the F-013/F-016 catch-branch fix (existingLedgerNonEmpty=false) makes sub-check L call fail(), and the sandbox dir pos-selfcheck-m3-L-fresh-fails-closed-on-unreadable-ledger-* is left on disk under os.tmpdir() (not cleaned). Same reproduced for M (removing the F-010 try/catch makes M call fail() and leaks its sandbox + a spawnDeadPid-derived tmp dir). This is a pre-existing property of the shared fail() helper (not introduced by this diff, and other sub-checks A-K share it), so it does not affect the happy-path hermeticity claimed for the shipped code (a clean PASS run leaves no pos-selfcheck-m3-* leak -- verified directly). But it means the two NEW sub-checks this round are only hermetic on PASS, not on FAIL, which weakens exactly the regression-detection runs where cleanup matters most for CI/local disk hygiene. Suggested fix: replace process.exit(1) in fail() with throw new Error(msg) and let main()'s existing .catch(e) handler print + exit 1, so try/finally blocks run normally on failure.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-06T05:00:09.015Z",
+      "reviewRound": "2026-07-06T03:27:19.118Z",
+      "reviewRunId": "B-f511:RR-037",
+      "_hash": "72380f3319a84cd80ec9f0a5a70e9c15b2e4639e084ef68dffc81ea21da54d3a",
+      "signatureTag": "missing|unknown|quality-cleanup-selfcheck",
+      "signatureTagSource": "auto"
     }
   ]
 }
