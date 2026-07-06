@@ -56,7 +56,7 @@
       "desc": "All verificationEvidence across CHK-001/002/003/004 is stale against current HEAD, per lattice validate own coverage check (verified: coverage total=12 required=11 covered=0 missingRequired=11, every entry status=\"stale\"). Evidence is stamped headHash=e1da7464 which predates 3 material fix commits merged afterward in this round: ba0960cb1 (F-001, dead-var removal in capability-release-backfill-smoke.ts), e4ef5f7c8 (F-002, added explicit capability_release_backfill all-phase MUTATING classification in packages/main/src/core/config.ts -- behavior-relevant to CHK-001s adversarial/phase-safety intent), and ec147c25a (F-003, lattice.config.json validate-suite diff restore -- directly the artifact CHK-004s evidence describes). Re-ran all 3 new smokes + lattice validate at current HEAD: capability-release-backfill-smoke 14/14, capability-candidate-exposure-smoke 8/8, capability-candidate-promotion-smoke 8/8, all pass with identical counts -- so this is a freshness/re-stamp gap, not a functional regression. Affected intentRefs needing fresh verification_evidence: CHK-001:happy:0, CHK-001:edge:0, CHK-001:adversarial:0, CHK-002:happy:0, CHK-002:edge:0, CHK-002:adversarial:0, CHK-003:happy:0, CHK-003:edge:0, CHK-003:adversarial:0, CHK-004:happy:0, CHK-004:edge:0 (all must-priority) plus CHK-004:adversarial:0 (should-priority, also stale).",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-06T00:15:49.225Z",
@@ -69,7 +69,9 @@
         "lattice.config.json"
       ],
       "signatureTag": "missing|ts|verificationevidence-across-stale",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Re-stamped all 12 verificationEvidence via verification_evidence_refresh_stale after the 3 quality-fix commits moved HEAD. Test logic sound (smokes 14/8/8 pass live); purely a re-stamp gap.",
+      "resolvedAt": "2026-07-06T00:16:26.812Z"
     }
   ]
 }
