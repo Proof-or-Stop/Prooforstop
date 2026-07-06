@@ -19,7 +19,27 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Shard plan covers every expected Cell03 key exactly once.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Invalid shard indexes or counts fail closed.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Duplicate or missing key partition cannot pass selfcheck.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
