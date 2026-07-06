@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-853a",
+  "sourceText": "M4 (final milestone): analyze-batch.mjs — an offline analyzer reading batch-ledger.jsonl (H1/H4), tamper-verdicts.jsonl (H2), resume-reconciliation.json (H3) + protocol.json, emitting a three-state (pass|fail|inconclusive) H1-H4 report.json/.md with a reproducible digest; Codex cross-host replicates the report digest.",
+  "normalizedOutcome": "node analyze-batch.mjs writes report.json + report.md with per-hypothesis three-state verdicts + a reproducible sha256 digest; node selfcheck-m4.mjs prints 'selfcheck-m4 PASS'; a second host re-derives the identical digest offline.",
+  "acceptanceClaim": "The campaign has a single reproducible H1-H4 adjudication report whose digest a second host replicates byte-for-byte from the same committed evidence, and whose three-state logic provably never turns missing/tampered evidence into a false pass.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:d99e9cd2adf8cb159cffaa60fed78a216fd31415262e8813b784f63c04720848",
+  "createdAt": "2026-07-06T07:08:14.291Z",
+  "updatedAt": "2026-07-06T07:08:14.291Z"
+}

@@ -6,7 +6,47 @@
       "context": "Offline analyzer reads batch-ledger.jsonl (H1/H4), tamper-verdicts.jsonl (H2), resume-reconciliation.json (H3), and protocol.json; adjudicates each hypothesis to pass|fail|inconclusive with the supporting numbers; writes report.json + a human-readable report.md. Never re-executes the instrument or calls the lattice CLI.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "node analyze-batch.mjs prints 'H1 replay-determinism: pass', 'H2 tamper-fail-closed: pass', 'H3 resume-integrity: pass', 'H4 scale-envelope: pass', 'overall: all-pass', 'digest: <sha256>' and writes report.json + report.md.",
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/pos-instrument-replay/analyze-batch.mjs",
+          "experiments/pos-instrument-replay/report.json",
+          "experiments/pos-instrument-replay/report.md"
+        ],
+        "test": [
+          "experiments/pos-instrument-replay/selfcheck-m4.mjs",
+          "experiments/pos-instrument-replay/batch-ledger.jsonl",
+          "experiments/pos-instrument-replay/tamper-verdicts.jsonl",
+          "experiments/pos-instrument-replay/resume-reconciliation.json",
+          "experiments/pos-instrument-replay/protocol.json",
+          "experiments/pos-instrument-replay/lib/instrument.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node experiments/pos-instrument-replay/analyze-batch.mjs reads the four committed evidence streams + protocol.json, adjudicates H1/H2/H3/H4 to three-state verdicts (all pass on the current evidence), prints overall all-pass + a digest, and writes report.json + report.md",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "a scale with <2 proof records, or an absent/empty hypothesis input, yields inconclusive (NOT pass) for that hypothesis",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "a non-conforming tamper verdict / an over-cap elapsedMs / gapTotal>0 flips the corresponding hypothesis to fail — never a false pass",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
