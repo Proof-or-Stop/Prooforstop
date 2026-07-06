@@ -20,9 +20,9 @@
           "experiments/multi-model-ablation/cell03-shards/selfcheck.mjs"
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-06T15:04:32.423Z",
-      "endTime": null,
+      "endTime": "2026-07-06T15:05:21.612Z",
       "verificationIntent": {
         "happy": [
           {
@@ -43,7 +43,45 @@
           }
         ]
       },
-      "userSees": "node experiments/multi-model-ablation/cell03-shards/selfcheck.mjs reports coverage=1152 and invalid shard inputs fail closed."
+      "userSees": "node experiments/multi-model-ablation/cell03-shards/selfcheck.mjs reports coverage=1152 and invalid shard inputs fail closed.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "experiments/multi-model-ablation/cell03-shards/selfcheck.mjs",
+          "command": "node experiments/multi-model-ablation/cell03-shards/selfcheck.mjs",
+          "result": "pass",
+          "note": "Selfcheck reports coverage=1152 and shards=8, proving every expected Cell03 key is covered exactly once.",
+          "headHash": "e5c6b99a2f842db2a489f99c7e299f5c4aaaa2e5",
+          "materialHash": "94117eeaf2c8284f298e69036b6027a0c3357c68e3ee5908a2774c157c79dd4a",
+          "storyFilesHash": "a1d17281d4f7e7182eedcea59ad0d493ff6a7d3f1495678fd3ce6029578b3523",
+          "timestamp": "2026-07-06T15:05:21.857Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "experiments/multi-model-ablation/cell03-shards/selfcheck.mjs",
+          "command": "node experiments/multi-model-ablation/cell03-shards/selfcheck.mjs",
+          "result": "pass",
+          "note": "Selfcheck includes invalid shard input rejection through fail-closed shard argument validation.",
+          "headHash": "e5c6b99a2f842db2a489f99c7e299f5c4aaaa2e5",
+          "materialHash": "94117eeaf2c8284f298e69036b6027a0c3357c68e3ee5908a2774c157c79dd4a",
+          "storyFilesHash": "a1d17281d4f7e7182eedcea59ad0d493ff6a7d3f1495678fd3ce6029578b3523",
+          "timestamp": "2026-07-06T15:05:22.055Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "experiments/multi-model-ablation/cell03-shards/selfcheck.mjs",
+          "command": "node experiments/multi-model-ablation/cell03-shards/selfcheck.mjs",
+          "result": "pass",
+          "note": "Selfcheck proves duplicate/missing partition conditions cannot pass merge validation.",
+          "headHash": "e5c6b99a2f842db2a489f99c7e299f5c4aaaa2e5",
+          "materialHash": "94117eeaf2c8284f298e69036b6027a0c3357c68e3ee5908a2774c157c79dd4a",
+          "storyFilesHash": "a1d17281d4f7e7182eedcea59ad0d493ff6a7d3f1495678fd3ce6029578b3523",
+          "timestamp": "2026-07-06T15:05:22.249Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
