@@ -15,6 +15,9 @@ const scratchWorkspaceRoot = process.env.B991D_CELL03_SCRATCH_ROOT ||
 const rowsPath = path.join(fullRoot, "cell03-rows.jsonl");
 const summaryPath = path.join(fullRoot, "cell03-summary.json");
 const expectedManifestPath = path.join(fullRoot, "expected-cell03-keys.json");
+const parallelRoot = path.join(fullRoot, "parallel");
+const parallelClaimRoot = path.join(parallelRoot, "claims");
+const parallelShardRoot = path.join(parallelRoot, "shards");
 
 const WINDOW_ID = "B-991d-cell03-execution-window-001";
 const STORY_ID = "B-991d";
@@ -62,9 +65,39 @@ function hasFlag(flag) {
   return process.argv.includes(flag);
 }
 
+function sanitizeId(value) {
+  ensure(/^[A-Za-z0-9._-]{1,80}$/.test(value), "runner instance id must be 1-80 chars of A-Z a-z 0-9 . _ -");
+  return value;
+}
+
 function readExistingRows() {
   if (!fs.existsSync(rowsPath)) return [];
   return fs.readFileSync(rowsPath, "utf8").trim().split("\n").filter(Boolean).map((line) => JSON.parse(line));
+}
+
+function readRowsFrom(filePath) {
+  if (!fs.existsSync(filePath)) return [];
+  return fs.readFileSync(filePath, "utf8").trim().split("\n").filter(Boolean).map((line) => JSON.parse(line));
+}
+
+function shardRowsPath(runnerInstanceId) {
+  return path.join(parallelShardRoot, `cell03-rows.${runnerInstanceId}.jsonl`);
+}
+
+function readShardRows() {
+  if (!fs.existsSync(parallelShardRoot)) return [];
+  const rows = [];
+  for (const entry of fs.readdirSync(parallelShardRoot).sort()) {
+    if (!entry.startsWith("cell03-rows.") || !entry.endsWith(".jsonl")) continue;
+    for (const row of readRowsFrom(path.join(parallelShardRoot, entry))) {
+      rows.push(row);
+    }
+  }
+  return rows;
+}
+
+function readPlanningRows() {
+  return [...readExistingRows(), ...readShardRows()];
 }
 
 function safeEnv() {
@@ -535,6 +568,120 @@ function cellKeyFor(cell) {
   return `③|A4|${cell.taskId}|${cell.scenarioId}|${cell.repeatIndex}|E2|same`;
 }
 
+function claimDigest(cellKey) {
+  return crypto.createHash("sha256").update(cellKey).digest("hex");
+}
+
+function claimCell(cellKey, runnerInstanceId, ttlMs) {
+  fs.mkdirSync(parallelClaimRoot, { recursive: true });
+  const claimDir = path.join(parallelClaimRoot, claimDigest(cellKey));
+  const claimPath = path.join(claimDir, "claim.json");
+  const now = Date.now();
+  try {
+    fs.mkdirSync(claimDir);
+  } catch (error) {
+    if (error.code !== "EEXIST") throw error;
+    let stale = false;
+    try {
+      const claim = JSON.parse(fs.readFileSync(claimPath, "utf8"));
+      stale = Number.isFinite(Date.parse(claim.createdAt)) && now - Date.parse(claim.createdAt) > ttlMs;
+    } catch {
+      stale = true;
+    }
+    if (!stale) return null;
+    fs.rmSync(claimDir, { recursive: true, force: true });
+    fs.mkdirSync(claimDir);
+  }
+  const claim = {
+    artifact: "B-991d-cell03-row-claim",
+    storyId: STORY_ID,
+    executionWindowId: WINDOW_ID,
+    runnerId: RUNNER_ID,
+    runnerInstanceId,
+    cellKey,
+    createdAt: new Date(now).toISOString(),
+    claimTtlMs: ttlMs,
+  };
+  fs.writeFileSync(claimPath, JSON.stringify(claim, null, 2) + "\n");
+  return { claimDir, claim };
+}
+
+function releaseClaim(claim) {
+  if (claim) fs.rmSync(claim.claimDir, { recursive: true, force: true });
+}
+
+function writeExpectedManifest(cells) {
+  const manifest = {
+    artifact: "B-991d-cell03-expected-keys",
+    storyId: STORY_ID,
+    executionWindowId: WINDOW_ID,
+    expectedRows: cells.length,
+    ordering: "sha256(protocolDigest|③|taskSlot|scenarioSlot|repeatSlot) ascending",
+    createdAt: new Date().toISOString(),
+    cells: cells.map((cell) => ({
+      cellKey: cellKeyFor(cell),
+      taskId: cell.taskId,
+      taskSlot: cell.taskSlot,
+      scenarioId: cell.scenarioId,
+      repeatIndex: cell.repeatIndex,
+      repeatSlot: cell.repeatSlot,
+      cellSeed: cell.cellSeed,
+    })),
+  };
+  if (fs.existsSync(expectedManifestPath)) {
+    const existing = JSON.parse(fs.readFileSync(expectedManifestPath, "utf8"));
+    if (JSON.stringify(existing.cells) === JSON.stringify(manifest.cells)) return;
+  }
+  fs.writeFileSync(expectedManifestPath, JSON.stringify(manifest, null, 2) + "\n");
+}
+
+function assertMergeSafe(rows) {
+  const rowsById = new Map();
+  const attemptsByCell = new Map();
+  const finalByCell = new Map();
+  for (const row of rows) {
+    const prior = rowsById.get(row.rowId);
+    if (prior && JSON.stringify(prior) !== JSON.stringify(row)) {
+      throw new Error(`conflicting duplicate rowId: ${row.rowId}`);
+    }
+    if (prior) continue;
+    rowsById.set(row.rowId, row);
+    const attempts = attemptsByCell.get(row.cellKey) ?? 0;
+    attemptsByCell.set(row.cellKey, attempts + 1);
+    if (attempts + 1 > 2) throw new Error(`too many attempts for cell key: ${row.cellKey}`);
+    if (row.rowStatus === "final") {
+      const final = finalByCell.get(row.cellKey);
+      if (final && final.rowId !== row.rowId) throw new Error(`duplicate final row for cell key: ${row.cellKey}`);
+      finalByCell.set(row.cellKey, row);
+    }
+  }
+}
+
+function mergeShards(cells) {
+  const mainRows = readExistingRows();
+  const mainByRowId = new Map(mainRows.map((row) => [row.rowId, row]));
+  const rowsToAppend = [];
+  for (const shardRow of readShardRows()) {
+    const existing = mainByRowId.get(shardRow.rowId);
+    if (existing) {
+      ensure(JSON.stringify(existing) === JSON.stringify(shardRow), `conflicting already-merged rowId: ${shardRow.rowId}`);
+      continue;
+    }
+    rowsToAppend.push(shardRow);
+  }
+  const mergedRows = [...mainRows, ...rowsToAppend];
+  assertMergeSafe(mergedRows);
+  if (rowsToAppend.length) {
+    fs.writeFileSync(rowsPath, mergedRows.map((row) => JSON.stringify(row)).join("\n") + "\n");
+    fs.rmSync(parallelShardRoot, { recursive: true, force: true });
+  }
+  const summary = summarizeRows(cells, mergedRows, rowsToAppend);
+  fs.writeFileSync(summaryPath, JSON.stringify(summary, null, 2) + "\n");
+  console.log(`Merged ${rowsToAppend.length} shard row(s) into ${path.relative(repoRoot, rowsPath)}`);
+  console.log(`finalRows=${summary.finalRows}/${summary.expectedRows} terminalExhaustedRows=${summary.terminalExhaustedRows} pendingExecutableRows=${summary.pendingExecutableRows} failedRows=${summary.failedRows} providerUsageRows=${summary.providerUsageRows}`);
+  if (!summary.executionComplete) process.exitCode = 2;
+}
+
 function summarizeRows(cells, rows, newRows) {
   const finalRows = rows.filter((row) => row.rowStatus === "final");
   const finalKeys = new Set(finalRows.map((row) => row.cellKey));
@@ -593,9 +740,32 @@ async function main() {
   const force = process.argv.includes("--force");
   const dryRun = hasFlag("--dryRun");
   const refreshSummary = hasFlag("--refreshSummary");
+  const mergeOnly = hasFlag("--mergeShards");
+  const runnerInstanceRaw = argValue("--runnerInstanceId", null);
+  const runnerInstanceId = runnerInstanceRaw == null ? null : sanitizeId(runnerInstanceRaw);
+  const shardIndexRaw = argValue("--shardIndex", null);
+  const shardCountRaw = argValue("--shardCount", null);
+  const claimTtlMsRaw = argValue("--claimTtlMs", "7200000");
+  const claimTtlMs = Number(claimTtlMsRaw);
   const limitRaw = argValue("--limit", null);
   const limit = limitRaw == null ? null : Number(limitRaw);
   if (limitRaw != null) ensure(Number.isInteger(limit) && limit > 0, "--limit must be a positive integer");
+  ensure(Number.isInteger(claimTtlMs) && claimTtlMs >= 600000, "--claimTtlMs must be an integer >= 600000");
+  const parallelMode = runnerInstanceId != null || shardIndexRaw != null || shardCountRaw != null;
+  if (parallelMode) {
+    ensure(runnerInstanceId != null, "--runnerInstanceId is required for parallel mode");
+    ensure(shardIndexRaw != null && shardCountRaw != null, "--shardIndex and --shardCount are required for parallel mode");
+  }
+  const shardIndex = shardIndexRaw == null ? null : Number(shardIndexRaw);
+  const shardCount = shardCountRaw == null ? null : Number(shardCountRaw);
+  if (parallelMode) {
+    ensure(Number.isInteger(shardIndex) && Number.isInteger(shardCount), "--shardIndex and --shardCount must be integers");
+    ensure(shardCount >= 2 && shardCount <= 16, "--shardCount must be between 2 and 16");
+    ensure(shardIndex >= 0 && shardIndex < shardCount, "--shardIndex must be in [0, shardCount)");
+    ensure(!force, "--force is not allowed in parallel mode");
+    ensure(!refreshSummary, "--refreshSummary is not allowed in parallel mode");
+    ensure(!mergeOnly, "--mergeShards cannot be combined with parallel mode");
+  }
   if (!force && (fs.existsSync(rowsPath) || fs.existsSync(summaryPath))) {
     // Existing rows are resumable. The runner skips final cell keys and retries failed keys
     // only up to the row-contract limit.
@@ -617,31 +787,21 @@ async function main() {
   fs.mkdirSync(fullRoot, { recursive: true });
   fs.mkdirSync(artifactWorkspaceRoot, { recursive: true });
   fs.mkdirSync(scratchWorkspaceRoot, { recursive: true });
-  fs.writeFileSync(expectedManifestPath, JSON.stringify({
-    artifact: "B-991d-cell03-expected-keys",
-    storyId: STORY_ID,
-    executionWindowId: WINDOW_ID,
-    expectedRows: cells.length,
-    ordering: "sha256(protocolDigest|③|taskSlot|scenarioSlot|repeatSlot) ascending",
-    createdAt: new Date().toISOString(),
-    cells: cells.map((cell) => ({
-      cellKey: cellKeyFor(cell),
-      taskId: cell.taskId,
-      taskSlot: cell.taskSlot,
-      scenarioId: cell.scenarioId,
-      repeatIndex: cell.repeatIndex,
-      repeatSlot: cell.repeatSlot,
-      cellSeed: cell.cellSeed,
-    })),
-  }, null, 2) + "\n");
+  writeExpectedManifest(cells);
 
   if (dryRun) {
     console.log(`Cell 03 full dry run: expectedRows=${cells.length}`);
     console.log(`Expected manifest: ${path.relative(repoRoot, expectedManifestPath)}`);
+    if (parallelMode) console.log(`Parallel worker ${runnerInstanceId}: shard ${shardIndex}/${shardCount}`);
     return;
   }
 
-  const existingRows = readExistingRows();
+  if (mergeOnly) {
+    mergeShards(cells);
+    return;
+  }
+
+  const existingRows = parallelMode ? readPlanningRows() : readExistingRows();
   const byCell = new Map();
   for (const row of existingRows) {
     const rows = byCell.get(row.cellKey) ?? [];
@@ -658,40 +818,68 @@ async function main() {
 
   const newRows = [];
   let attempted = 0;
-  for (const cell of cells) {
+  const candidateCells = parallelMode ? cells.filter((_, index) => index % shardCount === shardIndex) : cells;
+  const outputRowsPath = parallelMode ? shardRowsPath(runnerInstanceId) : rowsPath;
+  if (parallelMode) {
+    fs.mkdirSync(parallelShardRoot, { recursive: true });
+    console.log(`Parallel worker ${runnerInstanceId}: shard ${shardIndex}/${shardCount}, output=${path.relative(repoRoot, outputRowsPath)}`);
+  }
+  for (const cell of candidateCells) {
     if (limit != null && attempted >= limit) break;
     const cellKey = cellKeyFor(cell);
     const prior = byCell.get(cellKey) ?? [];
     if (prior.some((row) => row.rowStatus === "final")) continue;
     if (prior.length >= 2) continue;
+    const claim = parallelMode ? claimCell(cellKey, runnerInstanceId, claimTtlMs) : null;
+    if (parallelMode && !claim) continue;
     const task = tasksById.get(cell.taskId);
     ensure(task, `unknown task ${cell.taskId}`);
     const workspaceName = `${cell.taskId}-${cell.scenarioId}-r${cell.repeatIndex}`;
-    const scratchWorkspace = path.join(scratchWorkspaceRoot, workspaceName);
+    const scratchWorkspaceName = parallelMode ? `${runnerInstanceId}-${workspaceName}` : workspaceName;
+    const scratchWorkspace = path.join(scratchWorkspaceRoot, scratchWorkspaceName);
     const artifactWorkspace = path.join(artifactWorkspaceRoot, workspaceName);
-    copyTaskWorkspace(task, scratchWorkspace);
-    const injection = await applyScenarioInjection(cell, task, scratchWorkspace);
-    const executor = runExecutor(cell, task, scratchWorkspace);
-    const acceptance = runAcceptance(scratchWorkspace);
-    const reviewer = runReviewer(cell, scratchWorkspace);
-    const groundTruth = runGroundTruth(task, scratchWorkspace);
-    fs.rmSync(artifactWorkspace, { recursive: true, force: true });
-    fs.cpSync(scratchWorkspace, artifactWorkspace, { recursive: true });
-    executor.workspacePolicy = {
-      providerCwdKind: "external_scratch",
-      parentRepoRulesVisible: false,
-      hiddenOracleFilesVisible: false,
-      visibleTaskFiles: PROVIDER_VISIBLE_TASK_FILES,
-      hiddenTaskFiles: PROVIDER_HIDDEN_TASK_FILES,
-      artifactWorkspace: path.relative(repoRoot, artifactWorkspace),
-    };
-    const previousRowId = prior.length ? prior[prior.length - 1].rowId : null;
-    const row = rowFor(cell, task, executor, reviewer, acceptance, groundTruth, injection, prior.length + 1, previousRowId);
-    newRows.push(row);
-    byCell.set(cellKey, [...prior, row]);
-    fs.appendFileSync(rowsPath, JSON.stringify(row) + "\n");
-    attempted += 1;
-    console.log(`[${attempted}${limit ? `/${limit}` : ""}] ${cellKey} -> ${row.rowStatus}/${row.adjudicatedOutcome}`);
+    try {
+      copyTaskWorkspace(task, scratchWorkspace);
+      const injection = await applyScenarioInjection(cell, task, scratchWorkspace);
+      const executor = runExecutor(cell, task, scratchWorkspace);
+      const acceptance = runAcceptance(scratchWorkspace);
+      const reviewer = runReviewer(cell, scratchWorkspace);
+      const groundTruth = runGroundTruth(task, scratchWorkspace);
+      fs.rmSync(artifactWorkspace, { recursive: true, force: true });
+      fs.cpSync(scratchWorkspace, artifactWorkspace, { recursive: true });
+      executor.workspacePolicy = {
+        providerCwdKind: "external_scratch",
+        parentRepoRulesVisible: false,
+        hiddenOracleFilesVisible: false,
+        visibleTaskFiles: PROVIDER_VISIBLE_TASK_FILES,
+        hiddenTaskFiles: PROVIDER_HIDDEN_TASK_FILES,
+        artifactWorkspace: path.relative(repoRoot, artifactWorkspace),
+      };
+      const previousRowId = prior.length ? prior[prior.length - 1].rowId : null;
+      const row = rowFor(cell, task, executor, reviewer, acceptance, groundTruth, injection, prior.length + 1, previousRowId);
+      if (parallelMode) {
+        row.provenance.createdBy = runnerInstanceId;
+        row.provenance.parallelExecution = {
+          runnerInstanceId,
+          shardIndex,
+          shardCount,
+          claimArtifact: claim.claim.artifact,
+        };
+      }
+      newRows.push(row);
+      byCell.set(cellKey, [...prior, row]);
+      fs.appendFileSync(outputRowsPath, JSON.stringify(row) + "\n");
+      attempted += 1;
+      console.log(`[${attempted}${limit ? `/${limit}` : ""}] ${cellKey} -> ${row.rowStatus}/${row.adjudicatedOutcome}`);
+    } finally {
+      releaseClaim(claim);
+    }
+  }
+
+  if (parallelMode) {
+    console.log(`Wrote ${newRows.length} shard row(s) to ${path.relative(repoRoot, outputRowsPath)}`);
+    if (limit != null && newRows.length < limit) process.exitCode = 2;
+    return;
   }
 
   const rows = readExistingRows();

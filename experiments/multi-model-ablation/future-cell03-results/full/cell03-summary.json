@@ -3,24 +3,24 @@
   "storyId": "B-991d",
   "executionWindowId": "B-991d-cell03-execution-window-001",
   "expectedRows": 1152,
-  "rowCount": 645,
-  "finalRows": 607,
-  "formalFinalRows": 607,
+  "rowCount": 646,
+  "finalRows": 608,
+  "formalFinalRows": 608,
   "terminalExhaustedRows": 10,
-  "pendingExecutableRows": 535,
+  "pendingExecutableRows": 534,
   "failedRows": 38,
-  "validationPassRows": 549,
-  "providerUsageRows": 607,
-  "reviewedRows": 609,
-  "groundTruthPassRows": 611,
+  "validationPassRows": 550,
+  "providerUsageRows": 608,
+  "reviewedRows": 610,
+  "groundTruthPassRows": 612,
   "outcomeCounts": {
-    "recovered": 513,
+    "recovered": 514,
     "safe-stop": 60,
     "completed": 36,
     "review-invalid": 3,
     "failed": 33
   },
-  "missingFinalRows": 545,
+  "missingFinalRows": 544,
   "missingFinalCellKeys": [
     "③|A4|median|B05|1|E2|same",
     "③|A4|cl-combined|B07|3|E2|same",
@@ -33,7 +33,6 @@
     "③|A4|bf-datediff|B06|2|E2|same",
     "③|A4|bf-mergesorted|B01|2|E2|same",
     "③|A4|tr-pluralize|B14|1|E2|same",
-    "③|A4|du-interp|B04|2|E2|same",
     "③|A4|bf-lru|B13|2|E2|same",
     "③|A4|dp-querystring|B12|3|E2|same",
     "③|A4|tr-slugify|B03|1|E2|same",
@@ -71,7 +70,8 @@
     "③|A4|bf-datediff|B14|1|E2|same",
     "③|A4|dp-querystring|B15|2|E2|same",
     "③|A4|rf-money|B06|2|E2|same",
-    "③|A4|rf-roman|B07|1|E2|same"
+    "③|A4|rf-roman|B07|1|E2|same",
+    "③|A4|bf-mergesorted|B05|3|E2|same"
   ],
   "terminalExhaustedCellKeys": [
     "③|A4|median|B05|1|E2|same",
@@ -87,7 +87,6 @@
   ],
   "pendingExecutableCellKeys": [
     "③|A4|tr-pluralize|B14|1|E2|same",
-    "③|A4|du-interp|B04|2|E2|same",
     "③|A4|bf-lru|B13|2|E2|same",
     "③|A4|dp-querystring|B12|3|E2|same",
     "③|A4|tr-slugify|B03|1|E2|same",
@@ -135,17 +134,18 @@
     "③|A4|cl-combined|B08|1|E2|same",
     "③|A4|cv-email|B03|2|E2|same",
     "③|A4|median|B04|3|E2|same",
-    "③|A4|bf-datediff|B01|3|E2|same"
+    "③|A4|bf-datediff|B01|3|E2|same",
+    "③|A4|bf-mergesorted|B10|1|E2|same"
   ],
-  "newRowsThisRun": 10,
+  "newRowsThisRun": 1,
   "totalProviderUsage": {
-    "inputTokens": 114091421,
-    "outputTokens": 3246450,
-    "totalTokens": 117337871
+    "inputTokens": 114272801,
+    "outputTokens": 3251490,
+    "totalTokens": 117524291
   },
   "complete": false,
   "executionComplete": false,
   "formalComplete": false,
   "fullRunUnlockReason": "CHK-006 completes when every expected Cell 03 cell key has either one final formal row or an auditable retry-exhausted terminal non-final row; only final formal rows count toward analysis.",
-  "createdAt": "2026-07-06T23:16:24.092Z"
+  "createdAt": "2026-07-06T23:22:34.322Z"
 }
