@@ -1,0 +1,90 @@
+{
+  "campaign": "pos-instrument-replay",
+  "generatedInputs": {
+    "batch-ledger.jsonl": "c62695cf914373d5aebbf86d566e2726be86cfa18138df7bec1b6d5bfa425792",
+    "tamper-verdicts.jsonl": "9d7111e68f8112de1187ce0223e4c167bcdc83a7bc17efd5d78cc11081df27a9",
+    "resume-reconciliation.json": "62e83e8408f004d1e50864896e54bb9b92a80ee05fb57fbb203979fd116ecb16",
+    "protocol.json": "a3a781fed2814259378dae7aee80d3aa3920b5883c5d75d960509fb7901c848c"
+  },
+  "envPins": {
+    "instrumentCommit": "6c4e7c0a4c7aaa535526ad43170a364556f3b887",
+    "nodeVersion": "v22.13.0",
+    "platform": "darwin"
+  },
+  "hypotheses": {
+    "H1": {
+      "verdict": "pass",
+      "criterion": "Per scale with >=2 proof records, all records share identical canonicalJson({digests, goldMetrics}).",
+      "evidence": {
+        "perScale": {
+          "full": {
+            "n": 3,
+            "checkable": true,
+            "pairwiseEqual": true
+          },
+          "small": {
+            "n": 30,
+            "checkable": true,
+            "pairwiseEqual": true
+          }
+        }
+      }
+    },
+    "H2": {
+      "verdict": "pass",
+      "criterion": "Every tamper verdict conforms to its rederivedDisposition rule (fail-closed => verifyStatus in {fail,crash} & fingerprintMatch; accepted/acknowledged-limitation => pass & fingerprintMatch; dropped => pass), every dispositionMatch===true, and the per-disposition counts equal the protocol.tamperMatrix bucket lengths.",
+      "evidence": {
+        "total": 27,
+        "counts": {
+          "fail-closed": 18,
+          "accepted": 2,
+          "acknowledged-limitation": 6,
+          "dropped": 1
+        },
+        "expectedCounts": {
+          "fail-closed": 18,
+          "accepted": 2,
+          "acknowledged-limitation": 6,
+          "dropped": 1
+        },
+        "nonConforming": 0,
+        "dispositionMismatch": 0,
+        "countsMatch": true
+      }
+    },
+    "H3": {
+      "verdict": "pass",
+      "criterion": "resume-reconciliation reports dupTotal===0, gapTotal===0, and finalMultisetMatch===true.",
+      "evidence": {
+        "dupTotal": 0,
+        "gapTotal": 0,
+        "finalMultisetMatch": true
+      }
+    },
+    "H4": {
+      "verdict": "pass",
+      "criterion": "Every proof record elapsedMs <= protocol.budgetCaps.msPerVerify.",
+      "evidence": {
+        "budgetCapMs": 128217,
+        "proofCount": 33,
+        "maxElapsedMs": 18718,
+        "overCap": 0,
+        "overCapIds": []
+      }
+    }
+  },
+  "scaleEnvelope": {
+    "full": {
+      "maxElapsedMs": 18718,
+      "peakEndOfRunRssBytes": 976666624
+    },
+    "small": {
+      "maxElapsedMs": 2382,
+      "peakEndOfRunRssBytes": 174112768
+    }
+  },
+  "instrumentDefects": [],
+  "overall": "all-pass",
+  "claim": "Under the recorded environment (pinned node version, platform, and instrument commit), the memory-baseline evidence instrument is replay-deterministic (identical digests over N independent replays at 1k and 1M scale), tamper-evident for the enumerated tamper matrix (every class in the fail-closed set fails closed with its pre-registered fingerprint, including classes that leave surface scores perfect), and campaign-operable (an unattended batch completed with every iteration ending in a machine-checkable proof record or an explicit stop record, surviving the probed interruption classes — process kill at an iteration boundary and mid-iteration — without duplication or gaps).",
+  "digest": "a5f07cfaa4edb99a9064efae0ed7462f1fbca76a9bef693f7ffe208eed691f05"
+}
