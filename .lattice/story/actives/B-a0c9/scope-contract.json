@@ -9,7 +9,30 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "These are ProofStory intent-gate artifacts (original-intent-snapshot, intent-collision, proofstory acceptance-binding, red-evidence) that the enforce-mode DEV gate REQUIRED me to generate via lattice commands; they are command-generated story metadata under .lattice/, not code scope creep. The only source change remains experiments/pos-instrument-replay/selfcheck-m3.mjs.",
+      "timestamp": "2026-07-06T11:06:37.669Z",
+      "paths": [
+        ".lattice/story/actives/B-a0c9/intent-collision.json",
+        ".lattice/story/actives/B-a0c9/original-intent-snapshot.json",
+        ".lattice/story/actives/B-a0c9/proofstory.json",
+        ".lattice/story/actives/B-a0c9/red-evidence.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-a0c9/intent-collision.json",
+        ".lattice/story/actives/B-a0c9/original-intent-snapshot.json",
+        ".lattice/story/actives/B-a0c9/proofstory.json",
+        ".lattice/story/actives/B-a0c9/red-evidence.json"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "4906c4b07731e71eda485978be3e5405add9b863",
+      "materialHash": "8b0479d5ca09046d9c676730374ef79dc8801738df4384e51f7e9853ab268520"
+    }
+  ],
   "createdAt": "2026-07-06T10:26:53.223Z",
-  "updatedAt": "2026-07-06T10:26:53.223Z"
+  "updatedAt": "2026-07-06T11:06:37.669Z"
 }
