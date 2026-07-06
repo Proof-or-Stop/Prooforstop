@@ -3,30 +3,20 @@
   "storyId": "B-991d",
   "executionWindowId": "B-991d-cell03-execution-window-001",
   "expectedRows": 1152,
-  "rowCount": 45,
-  "finalRows": 45,
+  "rowCount": 55,
+  "finalRows": 55,
   "failedRows": 0,
-  "validationPassRows": 41,
-  "providerUsageRows": 45,
-  "reviewedRows": 45,
-  "groundTruthPassRows": 45,
+  "validationPassRows": 51,
+  "providerUsageRows": 55,
+  "reviewedRows": 55,
+  "groundTruthPassRows": 55,
   "outcomeCounts": {
-    "recovered": 39,
+    "recovered": 48,
     "safe-stop": 4,
-    "completed": 2
+    "completed": 3
   },
-  "missingFinalRows": 1107,
+  "missingFinalRows": 1097,
   "missingFinalCellKeys": [
-    "③|A4|median|B07|1|E2|same",
-    "③|A4|du-duration|B06|1|E2|same",
-    "③|A4|du-interp|scenario-null|2|E2|same",
-    "③|A4|tr-clamp|B05|1|E2|same",
-    "③|A4|du-interp|B11|3|E2|same",
-    "③|A4|rf-roman|B10|3|E2|same",
-    "③|A4|bf-datediff|B01|1|E2|same",
-    "③|A4|cv-luhn|B11|2|E2|same",
-    "③|A4|cl-equals|B09|3|E2|same",
-    "③|A4|cl-multi|B08|3|E2|same",
     "③|A4|median|B10|1|E2|same",
     "③|A4|cl-equals|B13|1|E2|same",
     "③|A4|rf-money|B07|2|E2|same",
@@ -66,15 +56,25 @@
     "③|A4|cl-combined|B10|1|E2|same",
     "③|A4|cv-luhn|B13|1|E2|same",
     "③|A4|cv-luhn|B05|3|E2|same",
-    "③|A4|bf-lru|B05|1|E2|same"
+    "③|A4|bf-lru|B05|1|E2|same",
+    "③|A4|rf-money|B10|2|E2|same",
+    "③|A4|cv-luhn|B04|3|E2|same",
+    "③|A4|rf-roman|B05|3|E2|same",
+    "③|A4|dp-deepmerge|B11|2|E2|same",
+    "③|A4|dp-querystring|B10|3|E2|same",
+    "③|A4|cl-multi|scenario-null|1|E2|same",
+    "③|A4|eval-expr|B14|2|E2|same",
+    "③|A4|dp-deepmerge|B05|3|E2|same",
+    "③|A4|dp-deepmerge|B02|3|E2|same",
+    "③|A4|tr-pluralize|B12|2|E2|same"
   ],
   "newRowsThisRun": 10,
   "totalProviderUsage": {
-    "inputTokens": 8365979,
-    "outputTokens": 220819,
-    "totalTokens": 8586798
+    "inputTokens": 10350314,
+    "outputTokens": 272110,
+    "totalTokens": 10622424
   },
   "complete": false,
   "fullRunUnlockReason": "CHK-006 completes only when every expected Cell 03 cell key has exactly one final formal row and no duplicate final row.",
-  "createdAt": "2026-07-06T05:29:33.981Z"
+  "createdAt": "2026-07-06T05:46:32.372Z"
 }
