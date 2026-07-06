@@ -223,11 +223,11 @@
           "kind": "manual_transcript",
           "command": "node experiments/pos-instrument-replay/selfcheck-m3.mjs",
           "result": "pass",
-          "note": "Un-gameable: sub-checks F (stop preserved+skipped, not re-run), G (valid record not dropped -> no gap), H (live lock not broken -> no two-writer corruption; dead lock broken) each fail loudly on regression; 0 dup / 0 gap enforced. Codex F-001/F-002 + quality F-003/F-004 all covered by dedicated sub-checks.",
-          "headHash": "1dad360a8c87f59fdcd6ae66907f0803575365d9",
+          "note": "Un-gameable: sub-checks F/G/H/I each fail loudly on regression; the lock is broken ONLY on a confirmed-dead holder pid (never on a missing/uncertain one), so a live concurrent driver's lock is never clobbered (no two-writer corruption); 0 dup / 0 gap enforced. Codex F-001/F-002/F-005 + quality F-003/F-004/F-006 all covered by dedicated sub-checks.",
+          "headHash": "72401f5fdc0fa1f823bd72cd3fdbe0ca23cfea18",
           "materialHash": "31e722da1a5b7e449ae939b124aa2dde1e51bb83e5c7e9c523ed747e1fe76213",
           "storyFilesHash": "1a353033d582329350e5d5698c7ebab60d114f5b191fa8490e7a520ac6500600",
-          "timestamp": "2026-07-06T00:44:20.481Z"
+          "timestamp": "2026-07-06T00:44:22.807Z"
         }
       ]
     }
