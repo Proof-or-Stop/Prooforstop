@@ -89,6 +89,15 @@
       "reviewRound": "2026-07-06T01:08:16.118Z",
       "reviewRunId": "B-f7b3:RR-013",
       "_hash": "209db48aab06972670496b88af6f47e692a8542a4e07c19d4d59e3c81eb13664"
+    },
+    {
+      "id": "B-f7b3:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "Fresh round re-bind after storyFilesHash drift (main-merge only; no B-f7b3 source changed since RP-007). Re-verified 68/68 verificationIntent entries across 10 checklist items are covered by verificationEvidence, all result=pass, all uniformly re-bound to current storyFilesHash 0c62ef54. lattice validate re-run clean (38/38 configured commands pass, allPass=true; one transient stale-dist failure in an earlier concurrent run on retired-authority-vocabulary-guard-smoke.js did not reproduce in isolation or on clean re-run). Evidence remains literal/concrete (specific line ranges, exact commands, exact assertions) per RP-003/RP-007. No test-coverage blocker.",
+      "createdAt": "2026-07-06T01:16:50.171Z",
+      "reviewRound": "2026-07-06T01:08:16.118Z",
+      "reviewRunId": "B-f7b3:RR-014",
+      "_hash": "6536711db246583a6f59d7d7c9954269d07083a982249513ecd207497399c020"
     }
   ]
 }
