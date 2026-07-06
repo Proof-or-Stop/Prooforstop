@@ -11,7 +11,7 @@
     "ran": [],
     "skipped": []
   },
-  "limitations": "none - fully covered. Test-maintenance plus one comment; no shipping/runtime behavior changed. The playbook smoke stays excluded from the curated `lattice validate` list (out of scope to add it).",
+  "limitations": "none - fully covered. This is test-maintenance plus one comment; no shipping or runtime behavior changed. The playbook smoke is invoked directly and already lived apart from the curated `lattice validate` list before this story; preserving that arrangement was the intent.",
   "pitfalls": "The DONE closure fought the environment, not the change. (1) The validate suite is ~302s vs lattice's 300s idle watchdog, so validate / story_advance-to-TEST / done_prepare must be run with LATTICE_IDLE_TIMEOUT_MS=1200000 LATTICE_MAX_TIMEOUT_MS=1800000, else they self-kill at 300s - no command actually hangs (slowest single = material-hash-large-tree ~65s; suite grew to 38 commands after merging main). (2) Killed validate runs leave a stale lock at .lattice/locks/validation/B-fbbb.lock - clear via validate forceTakeover:true (same-host dead pid). (3) Shared local main is pushed by other hosts every few minutes; each merge->refresh cycle invalidates test-evidence, the 6 verification_evidence records, and the 3 reviewer bindings, so DONE needs a quiet-main window and evidence+reviewers must be re-bound AFTER the final merge. (4) done_prepare cleanTree first requires committing pending .lattice/story metadata.",
   "phaseStats": {
     "INIT": {
@@ -27,19 +27,19 @@
       "durationMs": 1281893
     },
     "DEV": {
-      "count": 1,
-      "durationMs": 334508
+      "count": 3,
+      "durationMs": 349056
     },
     "REVIEW": {
-      "count": 1,
-      "durationMs": 3442362
+      "count": 3,
+      "durationMs": 4268875
     },
     "TEST": {
-      "count": 1,
-      "durationMs": 2502121
+      "count": 3,
+      "durationMs": 22977719
     }
   },
-  "totalDurationMs": 8011616,
+  "totalDurationMs": 29328275,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -52,5 +52,5 @@
     "open": 0
   },
   "createdAt": "2026-07-05T23:35:33.096Z",
-  "updatedAt": "2026-07-05T23:35:33.096Z"
+  "updatedAt": "2026-07-06T05:30:49.754Z"
 }
