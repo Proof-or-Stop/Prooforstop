@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-f5e6",
+  "mode": "maintenance",
+  "allowed": [
+    "future checkpoint-scoped metadata and validator changes after active run is stable",
+    "read-only audit planning for B-991d input contamination"
+  ],
+  "excluded": [
+    "Cell06 or Phase2 execution",
+    "interrupting the active B-991d provider run",
+    "mutating current active cell03-rows.jsonl",
+    "paper claim upgrade",
+    "provider API calls from this story"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "User approved opening a small story to remember the later input-contamination audit without interrupting B-991d.",
+  "createdAt": "2026-07-06T15:39:44.774Z",
+  "updatedAt": "2026-07-06T15:39:44.774Z",
+  "_hash": "801c1b877c596494156c14932fcc179d3c54e1dfa241ccea954f45e8c389d17e"
+}
