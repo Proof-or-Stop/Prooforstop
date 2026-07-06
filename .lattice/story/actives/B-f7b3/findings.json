@@ -39,7 +39,7 @@
       "desc": "doc-code-drift: milestone-triggered-gate-mode-default-decision.md Verification section (line 69) claims A regression test pins `resolveDoneGateMode`/config default to `observe` when unset but no function, export, or symbol named resolveDoneGateMode exists anywhere in the codebase (grep across packages/ and docs/ returns zero hits besides this doc). The actual resolver is configuredProofStoryMode in packages/main/src/handlers/phase-gates.ts (loadConfig(ctx.root).proofStory?.[key] ?? observe). There is also no dedicated named regression test/smoke file for this default; CHK-009 verification used ad-hoc scratch node harnesses recorded as verificationEvidence, not a committed named test the doc could point a reader to. The doc should name the real resolver (configuredProofStoryMode) or drop the fabricated function name so a future reader can locate the cited guard.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-06T00:22:56.508Z",
@@ -51,7 +51,11 @@
         "packages/main/src/handlers/phase-gates.ts"
       ],
       "signatureTag": "missing|md|code-drift-milestone",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: duplicate of F-001 (same resolveDoneGateMode doc-code-drift). Doc now references configuredProofStoryMode; block (c) regression test added and verified. Confirmed by docs lane this round.",
+      "resolvedAt": "2026-07-06T06:28:01.878Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f7b3:F-004",
