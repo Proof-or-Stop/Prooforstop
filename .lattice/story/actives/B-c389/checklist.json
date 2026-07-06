@@ -57,10 +57,10 @@
           "command": "node packages/main/dist/cli.js capability_release_backfill --storyId=B-785e --apply --digest=...",
           "result": "pass",
           "note": "Live B-785e backfill: dry-run 1 eligible (PBP-882, record-then-bind); apply recorded PCR-9e7fdacf081e7346181bc04d + bound PBP-882 lineage (capabilityReleaseId/capabilityId/version/artifactReleaseId).",
-          "headHash": "59958c52716cfe5bf73e2f18f493a483d9b63cec",
+          "headHash": "25ccc1648cb815f90fd17c5ed0edc17c253cdbc0",
           "materialHash": "d0597b85d3f6f36b844bc9dea61b8e05fc75ed5fba924a652412893357a13e59",
           "storyFilesHash": "ec3a79544f2be1276ed044638d0a3c0b829033b649c089c11c85563366005b9d",
-          "timestamp": "2026-07-06T05:57:58.794Z"
+          "timestamp": "2026-07-06T06:17:38.090Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -68,10 +68,10 @@
           "command": "node packages/main/dist/tasks/capability-release-backfill-smoke.js",
           "result": "pass",
           "note": "--apply requires matching --digest (wrong digest refused); re-run is idempotent (0 eligible); no-artifact-release story not eligible. Smoke 14/14.",
-          "headHash": "59958c52716cfe5bf73e2f18f493a483d9b63cec",
+          "headHash": "25ccc1648cb815f90fd17c5ed0edc17c253cdbc0",
           "materialHash": "d0597b85d3f6f36b844bc9dea61b8e05fc75ed5fba924a652412893357a13e59",
           "storyFilesHash": "ec3a79544f2be1276ed044638d0a3c0b829033b649c089c11c85563366005b9d",
-          "timestamp": "2026-07-06T05:57:58.794Z"
+          "timestamp": "2026-07-06T06:17:38.090Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -79,10 +79,10 @@
           "command": "node packages/main/dist/tasks/capability-release-backfill-smoke.js",
           "result": "pass",
           "note": "Records only non_authoritative/gateEvidence=false PCRs; never activates (PBP-882 stays status=candidate), never changes surfacedCount (stays 0), never writes a playbook-outcome.",
-          "headHash": "59958c52716cfe5bf73e2f18f493a483d9b63cec",
+          "headHash": "25ccc1648cb815f90fd17c5ed0edc17c253cdbc0",
           "materialHash": "d0597b85d3f6f36b844bc9dea61b8e05fc75ed5fba924a652412893357a13e59",
           "storyFilesHash": "ec3a79544f2be1276ed044638d0a3c0b829033b649c089c11c85563366005b9d",
-          "timestamp": "2026-07-06T05:57:58.794Z"
+          "timestamp": "2026-07-06T06:17:38.090Z"
         }
       ]
     },
@@ -136,10 +136,10 @@
           "command": "node packages/main/dist/tasks/capability-candidate-exposure-smoke.js",
           "result": "pass",
           "note": "A capability candidate surfaces in pendingLearning with its capabilityRelease lineage; candidate-exposure trial writes an observable exposure record. Smoke 8/8.",
-          "headHash": "59958c52716cfe5bf73e2f18f493a483d9b63cec",
+          "headHash": "25ccc1648cb815f90fd17c5ed0edc17c253cdbc0",
           "materialHash": "d0597b85d3f6f36b844bc9dea61b8e05fc75ed5fba924a652412893357a13e59",
           "storyFilesHash": "ec3a79544f2be1276ed044638d0a3c0b829033b649c089c11c85563366005b9d",
-          "timestamp": "2026-07-06T05:57:58.794Z"
+          "timestamp": "2026-07-06T06:17:38.090Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -147,10 +147,10 @@
           "command": "node packages/main/dist/tasks/capability-candidate-exposure-smoke.js",
           "result": "pass",
           "note": "Only surfaces under pendingLearning/promotionRecommendations/candidate-inspection; matchActivePlaybook returns null (status=candidate); never active.",
-          "headHash": "59958c52716cfe5bf73e2f18f493a483d9b63cec",
+          "headHash": "25ccc1648cb815f90fd17c5ed0edc17c253cdbc0",
           "materialHash": "d0597b85d3f6f36b844bc9dea61b8e05fc75ed5fba924a652412893357a13e59",
           "storyFilesHash": "ec3a79544f2be1276ed044638d0a3c0b829033b649c089c11c85563366005b9d",
-          "timestamp": "2026-07-06T05:57:58.794Z"
+          "timestamp": "2026-07-06T06:17:38.090Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -158,10 +158,10 @@
           "command": "node packages/main/dist/tasks/capability-candidate-exposure-smoke.js",
           "result": "pass",
           "note": "Recording/observing exposure does not change status and is not a helped outcome.",
-          "headHash": "59958c52716cfe5bf73e2f18f493a483d9b63cec",
+          "headHash": "25ccc1648cb815f90fd17c5ed0edc17c253cdbc0",
           "materialHash": "d0597b85d3f6f36b844bc9dea61b8e05fc75ed5fba924a652412893357a13e59",
           "storyFilesHash": "ec3a79544f2be1276ed044638d0a3c0b829033b649c089c11c85563366005b9d",
-          "timestamp": "2026-07-06T05:57:58.794Z"
+          "timestamp": "2026-07-06T06:17:38.090Z"
         }
       ]
     },
@@ -215,10 +215,10 @@
           "command": "node packages/main/dist/tasks/capability-candidate-promotion-smoke.js",
           "result": "pass",
           "note": "A capability candidate flows through playbook_outcome_record (structured verdict + candidate-inspection) and promotion_sweep emits an idempotent recommend_activate; never auto-activates. Smoke 8/8.",
-          "headHash": "59958c52716cfe5bf73e2f18f493a483d9b63cec",
+          "headHash": "25ccc1648cb815f90fd17c5ed0edc17c253cdbc0",
           "materialHash": "d0597b85d3f6f36b844bc9dea61b8e05fc75ed5fba924a652412893357a13e59",
           "storyFilesHash": "ec3a79544f2be1276ed044638d0a3c0b829033b649c089c11c85563366005b9d",
-          "timestamp": "2026-07-06T05:57:58.794Z"
+          "timestamp": "2026-07-06T06:17:38.090Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -226,10 +226,10 @@
           "command": "node packages/main/dist/tasks/capability-candidate-promotion-smoke.js",
           "result": "pass",
           "note": "done-settlement outcome excluded from helped/decisiveSamples; helped requires exposureMode!=none.",
-          "headHash": "59958c52716cfe5bf73e2f18f493a483d9b63cec",
+          "headHash": "25ccc1648cb815f90fd17c5ed0edc17c253cdbc0",
           "materialHash": "d0597b85d3f6f36b844bc9dea61b8e05fc75ed5fba924a652412893357a13e59",
           "storyFilesHash": "ec3a79544f2be1276ed044638d0a3c0b829033b649c089c11c85563366005b9d",
-          "timestamp": "2026-07-06T05:57:58.794Z"
+          "timestamp": "2026-07-06T06:17:38.090Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -237,10 +237,10 @@
           "command": "node packages/main/dist/tasks/capability-candidate-promotion-smoke.js",
           "result": "pass",
           "note": "No path activates a capability candidate without concrete exposure + structured verdict.",
-          "headHash": "59958c52716cfe5bf73e2f18f493a483d9b63cec",
+          "headHash": "25ccc1648cb815f90fd17c5ed0edc17c253cdbc0",
           "materialHash": "d0597b85d3f6f36b844bc9dea61b8e05fc75ed5fba924a652412893357a13e59",
           "storyFilesHash": "ec3a79544f2be1276ed044638d0a3c0b829033b649c089c11c85563366005b9d",
-          "timestamp": "2026-07-06T05:57:58.794Z"
+          "timestamp": "2026-07-06T06:17:38.090Z"
         }
       ]
     },
@@ -293,10 +293,10 @@
           "command": "lattice validate",
           "result": "pass",
           "note": "tsc clean; three new smokes green; lattice validate --json status=pass with the new smokes in the suite.",
-          "headHash": "59958c52716cfe5bf73e2f18f493a483d9b63cec",
+          "headHash": "25ccc1648cb815f90fd17c5ed0edc17c253cdbc0",
           "materialHash": "d0597b85d3f6f36b844bc9dea61b8e05fc75ed5fba924a652412893357a13e59",
           "storyFilesHash": "ec3a79544f2be1276ed044638d0a3c0b829033b649c089c11c85563366005b9d",
-          "timestamp": "2026-07-06T05:57:58.794Z"
+          "timestamp": "2026-07-06T06:17:38.090Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -304,10 +304,10 @@
           "command": "node packages/main/dist/cli.js capability_release_backfill --storyId=B-785e --dryRun",
           "result": "pass",
           "note": "Live B-785e backfill idempotent: after apply, re-run dry-run shows 0 eligible; PBP-882 stays status=candidate, surfacedCount 0; no helped outcome.",
-          "headHash": "59958c52716cfe5bf73e2f18f493a483d9b63cec",
+          "headHash": "25ccc1648cb815f90fd17c5ed0edc17c253cdbc0",
           "materialHash": "d0597b85d3f6f36b844bc9dea61b8e05fc75ed5fba924a652412893357a13e59",
           "storyFilesHash": "ec3a79544f2be1276ed044638d0a3c0b829033b649c089c11c85563366005b9d",
-          "timestamp": "2026-07-06T05:57:58.794Z"
+          "timestamp": "2026-07-06T06:17:38.090Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -315,10 +315,10 @@
           "command": "lattice validate",
           "result": "pass",
           "note": "No unrelated smoke in the curated validate suite regresses.",
-          "headHash": "59958c52716cfe5bf73e2f18f493a483d9b63cec",
+          "headHash": "25ccc1648cb815f90fd17c5ed0edc17c253cdbc0",
           "materialHash": "d0597b85d3f6f36b844bc9dea61b8e05fc75ed5fba924a652412893357a13e59",
           "storyFilesHash": "ec3a79544f2be1276ed044638d0a3c0b829033b649c089c11c85563366005b9d",
-          "timestamp": "2026-07-06T05:57:58.794Z"
+          "timestamp": "2026-07-06T06:17:38.090Z"
         }
       ]
     }
