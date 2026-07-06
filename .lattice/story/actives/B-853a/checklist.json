@@ -204,7 +204,21 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node experiments/pos-instrument-replay/selfcheck-m4.mjs",
+          "result": "pass",
+          "note": "selfcheck-m4 prints 'selfcheck-m4 PASS' and exits 0 with all sub-checks A-I passing; each sub-check runs in a fresh mkdtemp sandbox copy (evidence + protocol + lib + analyze-batch), never touching committed artifacts.",
+          "headHash": "c9eac8e1c7517c4bd6977e08f4effaef750f7d60",
+          "materialHash": "3af659b07e456b76454f55f8fea4dd34c63504f29ebdb5bca72518f55492f44e",
+          "storyFilesHash": "1caae9cb5590d29bf143ccf47ece033b9cc1b30249e5f48e58baad5ee8cc386f",
+          "timestamp": "2026-07-06T07:24:29.787Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
