@@ -8,6 +8,15 @@
       "reviewRound": "2026-07-05T23:57:54.627Z",
       "reviewRunId": "B-c389:RR-001",
       "_hash": "ae49ebb7903bc5111c28ff1dd7923499841f57e6b7a0dc0f4defd70d895b8594"
+    },
+    {
+      "id": "B-c389:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "Doc-code consistency check for docs/CLI.md capability_release_backfill section (added in this diff). Step 1 extracted symbols from git diff main...HEAD (capability-release.ts +489, capability-release-backfill.ts handler +67, command-catalog.ts +7). Step 2 grepped README/CLI.md/docs for capability_release_backfill and compared 1 paragraph (docs/CLI.md new section, lines ~629-645). Verified against source (packages/main/src/core/capability-release.ts lines 392-868) and a live run of the CLI dryRun in the worktree (candidateCount 893, eligibleCount 10, all plan record-then-bind, authority non_authoritative, gateEvidence false, schemaVersion proofbound.capability-release-backfill.v1). Confirmed: (1) default dry-run without --apply; (2) --apply without --digest throws the documented error; (3) record-then-bind eligibility requires classifier acceptance of artifact paths plus no existing capability release, else conservatively not eligible; (4) --apply enriches only the 4 lineage fields (capabilityReleaseId/capabilityId/capabilityVersion/artifactReleaseId), verified by explicit write-verification asserts that status and usage.surfacedCount stay byte-identical and no outcome is appended; (5) idempotent since bound lineage.capabilityReleaseId short-circuits the eligibility scan on re-run, matching the documented eligibleCount 0 claim; (6) authority is hardcoded non_authoritative and gateEvidence false in both the report type and buildCapabilityReleaseRecord, matching the never-gate-evidence / never-activates claims; (7) PCR id and capabilityVersion derivation matches the docs claim about deriving from paths plus artifactSetDigest. No inconsistency found. 1 symbol-anchored paragraph checked; fallbacks not needed since capability_release_backfill had direct doc hits.",
+      "createdAt": "2026-07-06T00:01:23.162Z",
+      "reviewRound": "2026-07-05T23:57:54.627Z",
+      "reviewRunId": "B-c389:RR-003",
+      "_hash": "b48d49485f4e852865cdc796157a28faff3cf54444665a7e62b21eff315f05cb"
     }
   ]
 }
