@@ -258,9 +258,9 @@
         ],
         "test": []
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-06T15:04:34.182Z",
-      "endTime": null,
+      "endTime": "2026-07-06T15:06:07.084Z",
       "verificationIntent": {
         "happy": [
           {
@@ -281,7 +281,42 @@
           }
         ]
       },
-      "userSees": "The Cell03 shard README shows plan, fixture shard, and merge commands plus explicit non-goals for provider execution and claim unlocks."
+      "userSees": "The Cell03 shard README shows plan, fixture shard, and merge commands plus explicit non-goals for provider execution and claim unlocks.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "file": "experiments/multi-model-ablation/cell03-shards/README.md",
+          "result": "pass",
+          "note": "README documents plan, fixture shard output, merge validation, and selfcheck commands.",
+          "headHash": "e5c6b99a2f842db2a489f99c7e299f5c4aaaa2e5",
+          "materialHash": "94117eeaf2c8284f298e69036b6027a0c3357c68e3ee5908a2774c157c79dd4a",
+          "storyFilesHash": "a1d17281d4f7e7182eedcea59ad0d493ff6a7d3f1495678fd3ce6029578b3523",
+          "timestamp": "2026-07-06T15:06:07.427Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "file": "experiments/multi-model-ablation/cell03-shards/README.md",
+          "result": "pass",
+          "note": "README explicitly distinguishes row-level Cell03 sharding from Proofbound Parallel Wave story scheduling.",
+          "headHash": "e5c6b99a2f842db2a489f99c7e299f5c4aaaa2e5",
+          "materialHash": "94117eeaf2c8284f298e69036b6027a0c3357c68e3ee5908a2774c157c79dd4a",
+          "storyFilesHash": "a1d17281d4f7e7182eedcea59ad0d493ff6a7d3f1495678fd3ce6029578b3523",
+          "timestamp": "2026-07-06T15:06:07.651Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "file": "experiments/multi-model-ablation/cell03-shards/README.md",
+          "result": "pass",
+          "note": "README states non-goals: no provider execution, no formal rows, no Cell06 unlock, no Phase2 unlock, and no paper claim changes.",
+          "headHash": "e5c6b99a2f842db2a489f99c7e299f5c4aaaa2e5",
+          "materialHash": "94117eeaf2c8284f298e69036b6027a0c3357c68e3ee5908a2774c157c79dd4a",
+          "storyFilesHash": "a1d17281d4f7e7182eedcea59ad0d493ff6a7d3f1495678fd3ce6029578b3523",
+          "timestamp": "2026-07-06T15:06:07.855Z"
+        }
+      ]
     }
   ]
 }
