@@ -53,6 +53,15 @@
       "reviewRound": "2026-07-06T00:33:46.044Z",
       "reviewRunId": "B-f7b3:RR-007",
       "_hash": "20a9b753c31e9fb57e7e066689626cba1ba0be48904e86cef655fdca77221481"
+    },
+    {
+      "id": "B-f7b3:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. Re-review after finding-fix commit 162a7e6a0 (F-001/F-002/F-003): all 68 verificationIntent entries across CHK-001..CHK-010 have covering verificationEvidence refreshed to current storyFilesHash/materialHash/headHash; lattice validate reports verificationCoverage total=68 required=68 covered=68 missingRequired=0, allPass=true; milestone_status shows all 6 milestones (M1-M6) evidence=covered/requiredEvidence=covered/checklist=complete. Spot-checked the corrected CHK-009/CHK-010 intents: the decision docs Verification section now correctly names the exported configuredProofStoryMode resolver and the committed reconciliation-smoke regression test (block c); ran the real dist smoke node packages/main/dist/tasks/milestone-done-gate-reconciliation-smoke.ts directly and it printed OK; independently re-verified the un-gameable claim by mutating the ?? observe fallback in phase-gates.ts to ?? enforce, rebuilding, and confirming the smoke genuinely throws an AssertionError (actual=enforce expected=observe), then restored the file (clean git diff) and reran to confirm it passes again. Also reran node packages/main/tests/milestone-status.test.mjs directly (ok milestone-status) and npm run test:milestone-status (EXIT=0). F-002 dead-code removal confirmed: no remaining smokeName/dirname/fileURLToPath references in the reconciliation smoke file. Evidence commands are literal/reproducible (real file paths under the worktree, real npm scripts, real grep/sed mutation guards, real CLI invocations) — no generic-fallback or broad validate passed style evidence found.",
+      "createdAt": "2026-07-06T00:42:15.908Z",
+      "reviewRound": "2026-07-06T00:33:46.044Z",
+      "reviewRunId": "B-f7b3:RR-008",
+      "_hash": "ba27461f0a09dc823166c64d0330ce5212dac9af0e17706ba3ec088645159ab3"
     }
   ]
 }
