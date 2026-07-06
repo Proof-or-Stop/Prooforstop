@@ -221,14 +221,13 @@
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "manual_transcript",
-          "verdict": "success",
           "command": "node experiments/pos-instrument-replay/selfcheck-m4.mjs",
           "result": "pass",
-          "note": "Un-gameable: sub-checks C/D/E/F re-sign or mutate evidence to falsify each hypothesis and assert a fail verdict; G asserts inconclusive-not-pass on missing evidence; H asserts an integrity abort (nonzero exit naming the offending iterationId, no all-pass report); the analyzer cannot be coaxed into a false pass.",
-          "headHash": "b5abeb521f97b860ebdd0ff9367e255585de1dc9",
+          "note": "Un-gameable + cross-host. selfcheck-m4 sub-checks A-I: A-happy (all-pass), B-reproducible (two runs byte-identical digest), C-h1-fail / D-h2-fail / E-h3-fail / F-h4-fail (each mutation flips its hypothesis to fail — never a false pass), G-inconclusive (removing an input -> inconclusive not pass), H-integrity-abort (a naively-edited ledger record without a recomputed recordDigest -> analyze-batch exits 1 naming the offending iterationId, no all-pass report), I-no-overclaim (fail case omits the claim text). CROSS-HOST: genuine Codex gpt-5.5 host-2 independently (1) ran analyze-batch -> digest a5f07cfaa4edb99a9064efae0ed7462f1fbca76a9bef693f7ffe208eed691f05, (2) RE-DERIVED that digest from report.json by hand (remove digest field, recursively-sorted-key canonical JSON, sha256) -> identical, (3) confirmed offline (no subprocess) -> 'DIGEST REPLICATED: YES'.",
+          "headHash": "066737cfe26d023932b59745e063d96b43122805",
           "materialHash": "3af659b07e456b76454f55f8fea4dd34c63504f29ebdb5bca72518f55492f44e",
           "storyFilesHash": "1caae9cb5590d29bf143ccf47ece033b9cc1b30249e5f48e58baad5ee8cc386f",
-          "timestamp": "2026-07-06T07:24:31.117Z"
+          "timestamp": "2026-07-06T07:29:45.795Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
