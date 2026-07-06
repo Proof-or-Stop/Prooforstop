@@ -133,6 +133,24 @@
       "_hash": "89efb954877706a8d44e4c5e476310792c6f7d1de8b9b1307882489051d3d0df",
       "signatureTag": "edge|unknown|multi-resumer-toctou",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f511:F-008",
+      "desc": "F-007 (cross-vendor host-2, Codex gpt-5.5 xhigh): Resume stale-lock break is TOCTOU. run-batch.mjs main() resume path (lines 749-791): evaluateLockForBreak() [CHECK] and rmSync(LOCK_DIR) [USE] are not atomic and rmSync targets the PATH not the instance judged. Interleaving: holder.json has a dead pid; resume drivers A+B both pass existsSync(LOCK_DIR) and both evaluateLockForBreak()->breakable:true; A rmSync(LOCK_DIR)+acquireLock() mkdir wins and stamps live pid A; B (acting on its already-computed stale verdict) rmSync(LOCK_DIR) DELETES A's now-LIVE lock, then acquireLock() mkdir wins for B too; both append to batch-ledger.jsonl -> the 'exactly one campaign writer' invariant is violated. Conservative missing-holder=LIVE does NOT protect A (B decided breakable before A's lock existed); the atomic holder rename does NOT help (B never re-reads the holder before rmSync). Fix: serialize the break critical-section (liveness check + destructive rmSync) with a dedicated break-mutex (mkdir-based) so no two breakers can interleave; the atomic mkdir(LOCK_DIR) stays the final arbiter (loser records precondition_failed). Add a selfcheck sub-check proving a break-in-progress blocks a second breaker (fail-closed) and that a freed break-mutex still lets a genuinely-stale lock be reclaimed.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-07-06T00:55:43.621Z",
+      "reviewRound": "2026-07-06T00:44:23.840Z",
+      "reviewRunId": "B-f511:RR-010",
+      "_hash": "5e29754fa1a6ee65e863e95f9d7e45d4b4ee6933505b1787f7e25477b2b65bde",
+      "files": [
+        "experiments/pos-instrument-replay/run-batch.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|cross-vendor-host",
+      "signatureTagSource": "auto"
     }
   ]
 }
