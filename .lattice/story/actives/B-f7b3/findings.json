@@ -123,7 +123,7 @@
       "desc": "doc-code-drift: docs/requirements/decisions/milestone-not-applicable-justification.md still uses brittle exact-line citations that have drifted from the delivered code, unlike the sibling milestone-triggered-gate-mode-default-decision.md which was fixed in commit 1433b7292 to use stable symbol names. Specific stale citations: (1) line 9 cites normalizeMilestone at ~L298-317 but it is now at L348-377 in packages/main/src/core/proofstory.ts; (2) line 15 cites an exact (non-approximate) proofstory.ts L1358 for the not_applicable continue statement, but L1358 is now inside setSpikeStatus (unrelated code) — the real not_applicable check moved to ~L1483 and is no longer a single-line continue, it is a multi-statement block calling validMilestoneNotApplicable; (3) line 17 cites packages/main/src/core/milestone-status.ts L541, L565, L799, L1036 for not_applicable rendering, but those exact lines are now unrelated code (verified directly: none of L541/L565/L799/L1036 reference not_applicable) — the real occurrences are now around L576, L600, L834, L1073. These stale pointers will mislead a future reader verifying the decision against code, exactly the drift risk the sibling doc fix (commit 1433b7292) was meant to eliminate. Recommend the same stable-symbol-name treatment (e.g. normalizeMilestone, evaluateDoneIntentEquivalence in the not_applicable branch, buildMilestoneStatusReport row rendering) instead of exact line numbers.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-06T06:35:04.639Z",
@@ -136,7 +136,11 @@
         "packages/main/src/core/milestone-status.ts"
       ],
       "signatureTag": "doc-code-drift|md|code-drift-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: milestone-not-applicable-justification.md and milestone-status-done-gate-reconciliation.md brittle/drifted line-number citations (proofstory.ts L1358, milestone-status.ts L541/L565/L799/L1036, ~L298-317, ~L1519, etc.) all converted to stable symbol-name references (normalizeMilestone, evaluateDoneIntentEquivalence, evidenceIsStaleCovering, buildMilestoneCloseoutSnapshot, confirmMilestoneLedger). Also corrected the stale code snippet ('if status===not_applicable continue') which no longer matches the multi-statement validMilestoneNotApplicable check. All 3 decision docs are now line-number-free and permanently drift-proof.",
+      "resolvedAt": "2026-07-06T06:42:55.689Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
