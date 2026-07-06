@@ -311,6 +311,18 @@
           "materialHash": "3af659b07e456b76454f55f8fea4dd34c63504f29ebdb5bca72518f55492f44e",
           "storyFilesHash": "1caae9cb5590d29bf143ccf47ece033b9cc1b30249e5f48e58baad5ee8cc386f",
           "timestamp": "2026-07-06T07:24:54.494Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node experiments/pos-instrument-replay/selfcheck-m4.mjs",
+          "result": "pass",
+          "note": "selfcheck-m4 sub-check H: editing a ledger record field WITHOUT recomputing its recordDigest makes analyze-batch exit nonzero with 'FATAL input-integrity ... record <iterationId> recordDigest mismatch' and write NO all-pass report — the per-record integrity abort names the offending id and blocks adjudication of a tampered ledger.",
+          "headHash": "f25923dd8a622c47f239ef6d7fb6d26656d700f2",
+          "materialHash": "3af659b07e456b76454f55f8fea4dd34c63504f29ebdb5bca72518f55492f44e",
+          "storyFilesHash": "1caae9cb5590d29bf143ccf47ece033b9cc1b30249e5f48e58baad5ee8cc386f",
+          "timestamp": "2026-07-06T07:24:55.797Z"
         }
       ]
     }
