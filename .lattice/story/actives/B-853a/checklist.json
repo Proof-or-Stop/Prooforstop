@@ -310,14 +310,13 @@
         {
           "intentRef": "CHK-004:adversarial:0",
           "kind": "manual_transcript",
-          "verdict": "success",
           "command": "node experiments/pos-instrument-replay/selfcheck-m4.mjs",
           "result": "pass",
-          "note": "selfcheck-m4 sub-check H: editing a ledger record field WITHOUT recomputing its recordDigest makes analyze-batch exit nonzero with 'FATAL input-integrity ... record <iterationId> recordDigest mismatch' and write NO all-pass report — the per-record integrity abort names the offending id and blocks adjudication of a tampered ledger.",
-          "headHash": "3e5c582a38fa7153f009dff8988959df395e9d97",
+          "note": "Input-integrity + no-overclaim intact after hardening: a batch-ledger record edited without a recomputed recordDigest makes analyze-batch abort (exit 1) naming the offending iterationId (sub-check H); report.md embeds the section-3 claim ONLY when overall all-pass (sub-check I); report includes per-scale scale-envelope numbers + empty instrumentDefects.",
+          "headHash": "fe5a25463f15a73404aea7494b472677c7ce6521",
           "materialHash": "b8d25c898ec3647c9947f3eedfe58190426e5357b4efe387ef47553af6be3b82",
           "storyFilesHash": "33c61f0249d435d1e9d1187beea8fbc5179685a69d099092cede7c4ef47fe8c6",
-          "timestamp": "2026-07-06T07:55:02.106Z"
+          "timestamp": "2026-07-06T07:55:09.007Z"
         }
       ]
     }
