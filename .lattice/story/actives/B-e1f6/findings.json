@@ -1,0 +1,19 @@
+{
+  "findings": [
+    {
+      "id": "B-e1f6:F-001",
+      "desc": "shard-runner.mjs:79-85 writeShardOutput checks overwrite (fs.existsSync on shard-manifest.json/rows.jsonl) BEFORE acquiring the shard lock (acquireShardLock at line 85), and never re-checks existence after the lock is held (no re-check before the fs.writeFileSync calls at lines 114-115). Reproduced directly against the real exported writeShardOutput/acquireShardLock: a second writer whose overwrite-check runs while the target dir is still empty can later acquire the lock (after the first writer completes and releases it) and silently overwrite the completed shard output with no error. This contradicts the documented safety guarantee in README.md (\"Completed shard output cannot be overwritten by a second shard run\") and the selfcheck rerunReject test (selfcheck.mjs:57), which only exercises a purely sequential re-call after the first write already returned -- it does not exercise the interleaved-race window and therefore cannot catch this. Fix: move the overwrite existence check to after acquireShardLock succeeds (inside the try block, immediately before writing), so the check and the write happen under the same lock-held critical section.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-06T15:37:27.855Z",
+      "reviewRound": "2026-07-06T15:10:19.645Z",
+      "reviewRunId": "B-e1f6:RR-003",
+      "_hash": "6396847a829637a5c08e31c08cca543b5f6d90d9d06ecadc7ccd2dfba2e9f68c",
+      "signatureTag": "edge|unknown|shard-runner-writeshardoutput",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
