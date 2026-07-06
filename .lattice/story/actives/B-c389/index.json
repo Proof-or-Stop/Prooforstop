@@ -4,7 +4,7 @@
   "title": "Product capability release lifecycle: live backfill + candidate exposure + evidence-based promotion (B-8128 follow-up)",
   "description": "B-8128 V1 (DONE, merged, CLI 0.3.162) shipped the product-capability-release foundation: the git-tracked capability-releases.jsonl ledger, the DONE classifier at both completion sites, merge-stable binding, optional playbook-lineage widening, and read-only capability_release_list/status. It PROVED the M6/M7/backfill semantics hermetically and ASSERTED that the safety invariants stay intact, but deferred three OPERATIONAL pieces to this follow-up story. This story turns those proven semantics into live, user-usable machinery: (1) a real capability_release_backfill CLI that enriches the already-existing B-785e artifact release + PBP-882 candidate (still under-bound with only 3-field lineage); (2) the M6 candidate pending-learning EXPOSURE surfaces + exposure records so an inert candidate can finally be shown in a controlled, non-active way; (3) the M7 structured-outcome + evidence-based promotion recommendation commands so a candidate can move candidate -> exposed -> outcome -> promoted only on concrete evidence. Ref: docs/requirements/decisions/product-capability-release-playbook-lineage-execution-plan.md (M6, M7, M8, and the Follow-up Story section).",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "medium",
   "source": "B-8128 rev2 execution-plan Follow-up Story section; operator request 2026-07-05",
   "keywords": [
@@ -23,7 +23,7 @@
   ],
   "createdAt": "2026-07-05T22:38:44.059Z",
   "startedAt": "2026-07-05T22:38:44.059Z",
-  "endedAt": null,
+  "endedAt": "2026-07-06T06:34:03.825Z",
   "events": [
     {
       "phase": "INIT",
@@ -42,6 +42,114 @@
       "user": "Harmonygo",
       "sessionId": "cfc73a95-9b3c-48d3-9ee0-3cd637de5c76",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-05T22:51:57.684Z",
+      "branch": "story/B-c389",
+      "user": "Harmonygo",
+      "sessionId": "cfc73a95-9b3c-48d3-9ee0-3cd637de5c76",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-05T22:59:42.001Z",
+      "branch": "story/B-c389",
+      "user": "Harmonygo",
+      "sessionId": "cfc73a95-9b3c-48d3-9ee0-3cd637de5c76",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-05T23:31:16.252Z",
+      "branch": "story/B-c389",
+      "user": "Harmonygo",
+      "sessionId": "cfc73a95-9b3c-48d3-9ee0-3cd637de5c76",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-05T23:31:36.815Z",
+      "branch": "story/B-c389",
+      "user": "Harmonygo",
+      "sessionId": "cfc73a95-9b3c-48d3-9ee0-3cd637de5c76",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-05T23:57:54.627Z",
+      "branch": "story/B-c389",
+      "user": "Harmonygo",
+      "sessionId": "cfc73a95-9b3c-48d3-9ee0-3cd637de5c76",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-06T00:04:47.688Z",
+      "branch": "story/B-c389",
+      "user": "Harmonygo",
+      "sessionId": "cfc73a95-9b3c-48d3-9ee0-3cd637de5c76",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-06T00:08:28.508Z",
+      "branch": "story/B-c389",
+      "user": "Harmonygo",
+      "sessionId": "cfc73a95-9b3c-48d3-9ee0-3cd637de5c76",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-06T05:20:55.100Z",
+      "branch": "story/B-c389",
+      "user": "Harmonygo",
+      "sessionId": "cfc73a95-9b3c-48d3-9ee0-3cd637de5c76",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-06T06:25:07.051Z",
+      "branch": "story/B-c389",
+      "user": "Harmonygo",
+      "sessionId": "cfc73a95-9b3c-48d3-9ee0-3cd637de5c76",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-06T06:25:18.576Z",
+      "branch": "story/B-c389",
+      "user": "Harmonygo",
+      "sessionId": "cfc73a95-9b3c-48d3-9ee0-3cd637de5c76",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-06T06:33:15.266Z",
+      "branch": "story/B-c389",
+      "user": "Harmonygo",
+      "sessionId": "cfc73a95-9b3c-48d3-9ee0-3cd637de5c76",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-06T06:34:03.825Z",
+      "branch": "story/B-c389",
+      "user": "Harmonygo",
+      "sessionId": "cfc73a95-9b3c-48d3-9ee0-3cd637de5c76",
+      "agent": "main"
     }
   ],
   "riskSignalsDismissed": [
@@ -51,9 +159,5 @@
       "at": "2026-07-05T22:47:54.544Z"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-c389",
-    "branch": "story/B-c389",
-    "createdAt": "2026-07-05T22:51:17.918Z"
-  }
+  "currentReviewRound": "2026-07-06T06:25:18.576Z"
 }

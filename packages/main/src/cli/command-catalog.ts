@@ -468,6 +468,13 @@ Behavior:
     storyId: z.string().min(1).describe('Story ID to inspect.'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text).'),
   }},
+  { name: 'capability_release_backfill', description: 'Record-then-bind migration: dry-run default links under-bound candidate playbooks (recording a capability release from a story’s artifact release when none exists) to their capability release; --apply requires the current plan --digest', schema: {
+    storyId: z.string().min(1).optional().describe('Optional single-story filter (only candidates whose lineage.sourceStoryId matches).'),
+    dryRun: z.boolean().optional().describe('Preview eligible candidates (plan=bind or record-then-bind) + plan digest without writing. Default true unless apply=true.'),
+    apply: z.boolean().optional().describe('Record any missing capability release (from the story’s artifact release; git add -f + commit) then enrich the eligible candidates’ lineage with capabilityReleaseId/capabilityId/capabilityVersion/artifactReleaseId. Requires --digest; never activates, never changes status, never records outcomes.'),
+    digest: z.string().optional().describe('Current dry-run planDigest required for --apply; refuses on drift.'),
+    json: z.boolean().optional().describe('Emit structured JSON.'),
+  }},
   { name: 'scope_boundary_set', description: 'Save the user-confirmed allowed/excluded scope boundary for the INIT_CHECK gate', schema: {
     storyId: z.string().min(1).describe('Story ID'),
     mode: z.enum(['correctness_fix', 'feature', 'maintenance', 'custom']).optional().describe('Scope boundary mode; correctness_fix enables default future-capability keyword exclusions.'),

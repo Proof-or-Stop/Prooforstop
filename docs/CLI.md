@@ -626,6 +626,24 @@ lattice capability_release_status --storyId=B-xxxx --format=text
 
 Both commands are read-only. Text output is concise (one line per record: `storyId capabilityId capabilityVersion capabilityKind paths=<n> runtimeSemverChanged=<bool>`); JSON output returns plain records or a `{ storyId, count, latest, records }` object.
 
+`capability_release_backfill` is a **record-then-bind migration** that links existing artifact releases and under-bound candidate playbooks to product capability releases. B-8128 enriches capability-release lineage at candidate-creation time, so candidates created before their story had a recorded capability release stay under-bound: `lineage.sourceStoryId` is set but `lineage.capabilityReleaseId` is absent. There are two reasons a story can be missing that binding, and the migration handles both.
+
+```bash
+# Default dry-run: list eligible under-bound candidates + a deterministic plan digest.
+lattice capability_release_backfill --dryRun --json
+lattice capability_release_backfill --dryRun --storyId=B-xxxx   # optional single-story filter
+
+# Apply requires the current dry-run plan --digest (refuses on drift).
+lattice capability_release_backfill --apply --digest=sha256:<planDigest-from-dry-run>
+```
+
+A candidate is **eligible** iff it is `status: candidate`, has a `lineage.sourceStoryId`, lacks `lineage.capabilityReleaseId`, and one of:
+
+- **`plan: bind`** — a capability release already exists for the story (the candidate was just created too early). `--apply` binds the candidate to it.
+- **`plan: record-then-bind`** — the story has an **artifact** release but **no** capability release (it DONE'd before the capability-release feature, so the DONE classifier never recorded one) **and** the capability classifier accepts the artifact release's `paths`. The dry-run reports the exact `PCR-…` it would record (id/version derived deterministically from the artifact release's paths + `artifactSetDigest`). `--apply` **records** that capability release into `.lattice/capability-releases.jsonl` (committed with `git add -f`, mirroring B-8128's DONE-merge ledger commit), **then** binds the candidate. If the classifier declines (paths do not declare a reusable capability) or the story has no artifact release, the candidate is conservatively **not** eligible — the migration never invents a binding.
+
+`--apply` enriches only eligible candidates' lineage with `capabilityReleaseId` / `capabilityId` / `capabilityVersion` / `artifactReleaseId` (the same field set B-8128's enrichment sets). It is a deliberate, digest-guarded writer under the shared learning-store lock that **records** missing capability releases but **never** changes `.status` (candidate stays candidate), **never** touches `usage.surfacedCount`, and **never** appends a playbook-outcome. It is **idempotent**: after apply every story has a capability release and every candidate is bound, so a re-run finds `eligibleCount: 0` (no duplicate PCR). The recorded capability releases stay non-authoritative and never gate evidence.
+
 Lifecycle facts are also registry-backed. `packages/main/src/core/lifecycle-registry.ts` records the active phase order, legacy phase aliases, transition events, rollback edges, TEST/DONE gate ids, effects, and oracle row ids. `phase-flow.ts`, `handlers/context.ts`, and the `flow-stability-smoke` (run via `npm run test:legacy -- flow-stability`) must agree with it; inconsistent phase/event/policy edits should fail with a direct lifecycle registry mismatch.
 
 The Dashboard and `session_brief` display lifecycle progress and terminal outcome separately: `Lifecycle DONE: N/M (...)` only indicates that the story has entered DONE; `DONE-success/default`, `DONE-blocked`, and `DONE-audit-only` come from `summary_set.outcomeKind`, and an old summary missing that field falls into the success/default compatibility bucket. Run the related regression with:

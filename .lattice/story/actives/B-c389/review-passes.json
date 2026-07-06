@@ -1,0 +1,103 @@
+{
+  "passes": [
+    {
+      "id": "B-c389:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Reviewed git diff main...HEAD for B-c389 (23 files, +2735/-27). Purely additive follow-up to B-8128: new capability_release_backfill handler/core-logic/CLI-catalog entry/command-policy/process-fact-level entries, two new capability-aware smokes (capability-candidate-exposure-smoke.ts, capability-candidate-promotion-smoke.ts), one new backfill smoke, docs/CLI.md addition, lattice.config.json validate-command additions (3 new smokes registered, 0 removed, otherwise only JSON reformatting), and one new capability-releases.jsonl ledger row (live B-785e/PBP-882 backfill). Confirmed via git diff --diff-filter=D and --diff-filter=R (zero deletions, zero renames across the whole diff) and via git diff --name-status (every non-.lattice-metadata file is A(dded) or M(odified-additively); the only M files with removed lines are lattice.config.json reformatting and the .lattice checklist/index status-field updates expected from normal lifecycle progress). No concept word, command, field, or file was deleted or replaced en masse. Cross-checked the new M6/M7/M8 naming against B-8128 plan/background/checklist/scope-freeze-check (which explicitly deferred capability_release_backfill + M6/M7 exposure/promotion surfaces to this follow-up story) and against docs/requirements/decisions/product-capability-release-playbook-lineage-execution-plan.md; the M6/M7/M8 terms are consistent greenfield continuations, not a renamed/replaced concept. No residue found; nothing to file.",
+      "createdAt": "2026-07-05T23:59:18.412Z",
+      "reviewRound": "2026-07-05T23:57:54.627Z",
+      "reviewRunId": "B-c389:RR-001",
+      "_hash": "ae49ebb7903bc5111c28ff1dd7923499841f57e6b7a0dc0f4defd70d895b8594"
+    },
+    {
+      "id": "B-c389:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "Doc-code consistency check for docs/CLI.md capability_release_backfill section (added in this diff). Step 1 extracted symbols from git diff main...HEAD (capability-release.ts +489, capability-release-backfill.ts handler +67, command-catalog.ts +7). Step 2 grepped README/CLI.md/docs for capability_release_backfill and compared 1 paragraph (docs/CLI.md new section, lines ~629-645). Verified against source (packages/main/src/core/capability-release.ts lines 392-868) and a live run of the CLI dryRun in the worktree (candidateCount 893, eligibleCount 10, all plan record-then-bind, authority non_authoritative, gateEvidence false, schemaVersion proofbound.capability-release-backfill.v1). Confirmed: (1) default dry-run without --apply; (2) --apply without --digest throws the documented error; (3) record-then-bind eligibility requires classifier acceptance of artifact paths plus no existing capability release, else conservatively not eligible; (4) --apply enriches only the 4 lineage fields (capabilityReleaseId/capabilityId/capabilityVersion/artifactReleaseId), verified by explicit write-verification asserts that status and usage.surfacedCount stay byte-identical and no outcome is appended; (5) idempotent since bound lineage.capabilityReleaseId short-circuits the eligibility scan on re-run, matching the documented eligibleCount 0 claim; (6) authority is hardcoded non_authoritative and gateEvidence false in both the report type and buildCapabilityReleaseRecord, matching the never-gate-evidence / never-activates claims; (7) PCR id and capabilityVersion derivation matches the docs claim about deriving from paths plus artifactSetDigest. No inconsistency found. 1 symbol-anchored paragraph checked; fallbacks not needed since capability_release_backfill had direct doc hits.",
+      "createdAt": "2026-07-06T00:01:23.162Z",
+      "reviewRound": "2026-07-05T23:57:54.627Z",
+      "reviewRunId": "B-c389:RR-003",
+      "_hash": "b48d49485f4e852865cdc796157a28faff3cf54444665a7e62b21eff315f05cb"
+    },
+    {
+      "id": "B-c389:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 4 checklist items (CHK-001..CHK-004) have happy/edge/adversarial verificationIntent covered by concrete verificationEvidence. Independently verified: capability-release-backfill-smoke (14/14, bind + record-then-bind + digest-gate refusal + idempotency + invariants), capability-candidate-exposure-smoke (8/8, pendingLearning surfacing + exposure record + active-surfacing guard + no-helped invariant), capability-candidate-promotion-smoke (8/8, structured outcome -> sweep recommend + done-settlement exclusion + no auto-activation). lattice validate allPass=true, 41/41 commands, 0 fails. Live B-785e/PBP-882 backfill independently reproduced against real git-committed .lattice/capability-releases.jsonl (commit d2cab1ad8, PCR-9e7fdacf081e7346181bc04d) and current re-run of capability_release_backfill --storyId=B-785e --dryRun returns eligibleCount=0 (idempotent); PBP-882 confirmed status=candidate, surfacedCount=0 on live learning store. No coverage gaps found.",
+      "createdAt": "2026-07-06T00:04:08.296Z",
+      "reviewRound": "2026-07-05T23:57:54.627Z",
+      "reviewRunId": "B-c389:RR-004",
+      "_hash": "e695a278978e64ff0918fe4777044ca4cd93d8ab37ca3d88f1ccee501ad2aa2c"
+    },
+    {
+      "id": "B-c389:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 (RR-005) re-check after F-001/F-002/F-003 fixes. Diff vs main is purely additive: new capability_release_backfill command (handler, core builder, catalog/policy/process-fact-level/config wiring, docs, 3 smoke tasks) plus F-001s dead capLedgerPathB local removed (grep confirms zero residue outside findings.json prose), F-002s config.ts now carries a dedicated capability_release_backfill entry (no longer only wildcard-covered), F-003s lattice.config.json diff reduced to the minimal 3-line smoke-registration addition. No concept was deleted or replaced this round (git diff --diff-filter=D/R empty, no - lines in any modified file besides the F-003 reformat which is now gone). No blocker.",
+      "createdAt": "2026-07-06T00:10:00.975Z",
+      "reviewRound": "2026-07-06T00:08:28.508Z",
+      "reviewRunId": "B-c389:RR-005",
+      "_hash": "458ba737b18f72eca3f9c5fca80f941a223e27af520ea95e2cb86c8ff09953af"
+    },
+    {
+      "id": "B-c389:RP-005",
+      "agent": "lattice-review-docs",
+      "note": "Round 2 (fresh, post 3-fix commit that touched no docs/CLI.md lines). Step 1 extracted the diff symbol set from all changed .ts files (~70 identifiers incl. buildCapabilityReleaseBackfillReport, computeCapabilityReleaseBackfillEligible, computeCapabilityReleaseBackfillPlanDigest, CAPABILITY_RELEASE_BACKFILL_SCHEMA_VERSION, CapabilityReleaseBackfillPlanKind, bindLineageToRelease, commitBackfilledCapabilityReleaseLedger). Step 2 grepped README/CLAUDE.md/docs/**/*.md for capability_release_backfill: single anchor paragraph at docs/CLI.md lines 618-645. Step 3 compared that paragraph against packages/main/src/core/capability-release.ts (lines 416-860), packages/main/src/handlers/capability-release-backfill.ts, command-policy.ts:184, process-fact-levels.ts:84, and ran the shipped command directly (node packages/main/dist/cli.js capability_release_backfill --dryRun --json and --apply with no --digest) plus npm run test:legacy -- capability-release-backfill (PASS). Verified: (1) default dry-run confirmed live; (2) --apply without --digest fails with the exact documented error capability_release_backfill requires --digest when --apply is set; (3) record-then-bind migration semantics match code exactly -- plan=bind when a capability release exists, plan=record-then-bind when only an artifact release exists and the classifier accepts its paths, conservatively not-eligible otherwise; (4) idempotent -- write-verification asserts persisted status stays candidate and usage.surfacedCount unchanged, smoke test covers a second run finding 0 eligible; (5) authority/gateEvidence are hardcoded non_authoritative/false in both dry-run and apply branches; (6) never activates -- no code path sets .status away from candidate, no outcome-append call exists in this file; (7) git add -f + commit mirroring B-8128 confirmed in commitBackfilledCapabilityReleaseLedger. No drift found; no findings needed this round.",
+      "createdAt": "2026-07-06T00:11:12.543Z",
+      "reviewRound": "2026-07-06T00:08:28.508Z",
+      "reviewRunId": "B-c389:RR-008",
+      "_hash": "af816b6abfee751f5fabc15e9305cff01d6c70b02a3e7c46bc01291b1e482868"
+    },
+    {
+      "id": "B-c389:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 re-audit clean. Verified all 3 round-1 fixes: F-001 dead capLedgerPathB fully removed from capability-release-backfill-smoke.ts (grep confirms zero occurrences); F-002 config.ts DEFAULT_PHASE_TOOLS now has an explicit, accurate, self-documenting capability_release_backfill entry (distinct from the still-present read-only capability_release_* wildcard comment, harmless redundancy, intentional per its own inline note) clarifying it as an intentionally all-phase MUTATING migration writer; F-003 lattice.config.json is a minimal, clean 3-line addition matching main plus the new smoke registrations, no stray reformat. No new dead code (no unused imports/vars in any touched file, verified via targeted import-usage scan), no as any anywhere in the diff, both catch(e:any) blocks (capability-release.ts:211 ledger-parse and :682 backfill-commit) re-throw with contextual messages rather than swallowing. No job/run proof-metadata semantics touched (this is playbook/capability-release ledger metadata, not job/run), so the narrow dual-surface metadata rule does not apply. Closing self-check: cross-verified the new CLI.md capability_release_backfill doc section + command-catalog.ts schema + command-policy.ts + process-fact-levels.ts entries against the live handler by running the command end-to-end (dry-run JSON matches documented shape; --apply without --digest refuses exactly as documented) - no promised-but-undelivered gaps. Verification: npx tsc --noEmit -p packages/main/tsconfig.json (clean) and npm run build (clean); --noUnusedLocals repo-wide run shows only pre-existing unused-locals findings on main (command-catalog.ts lines 28-48 unrelated schema imports, process-fact-registry.ts:726), none introduced by or adjacent to this diff. Ran all 3 new capability smokes directly against the rebuilt worktree dist: capability-release-backfill-smoke.js 14/14 passed, capability-candidate-exposure-smoke.js 8/8 passed, capability-candidate-promotion-smoke.js 8/8 passed. No blockers.",
+      "createdAt": "2026-07-06T00:11:46.916Z",
+      "reviewRound": "2026-07-06T00:08:28.508Z",
+      "reviewRunId": "B-c389:RR-006",
+      "_hash": "4cb34c2ebd20b28a8336490b9ea1cb64e531bc1563bdbc57b4c257f66961bc29"
+    },
+    {
+      "id": "B-c389:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: F-004 stale-evidence gap resolved via verification_evidence_refresh_stale (12/12 entries re-stamped to HEAD 20c19e1). lattice validate --json confirms verificationCoverage total=12 required=11 covered=12 missingRequired=0, all entries status=covered, warnings=[], overall status=pass. Live re-run confirmed the 3 story smokes still pass at their claimed counts: capability-release-backfill 14 checks, capability-candidate-exposure 8 checks, capability-candidate-promotion 8 checks. No blocker.",
+      "createdAt": "2026-07-06T00:24:58.160Z",
+      "reviewRound": "2026-07-06T00:08:28.508Z",
+      "reviewRunId": "B-c389:RR-011",
+      "_hash": "1e7519c29aa67eaf8918de6d98e8ea68c89987eaa61013998dc3524e9f3df433"
+    },
+    {
+      "id": "B-c389:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 re-review (post main-merge, forced by storyFilesHash invalidation, not new code). Verified via git diff main...HEAD --stat -M and full code diff inspection: this story is purely additive (new handler packages/main/src/handlers/capability-release-backfill.ts, 3 new smoke tasks, additive extensions to capability-release.ts/command-catalog.ts/registry.ts/command-policy.ts/config.ts/process-fact-levels.ts/docs/CLI.md/lattice.config.json). Zero file deletions, zero renames. The only removed line in the entire diff is one import statement in capability-release.ts that was merely expanded into a multi-symbol import from the same module (selectArtifactReleasePathsV1 plus 3 new named imports from ./artifact-release.js) -- not a concept deletion. The merge-introduced change to .lattice/capability-releases.jsonl is an appended unrelated ledger row (B-6529/B-785e records) with no schema/structural change. No concept word was deleted or mass-replaced this round; no residual-scan target exists. No blocker.",
+      "createdAt": "2026-07-06T06:26:23.254Z",
+      "reviewRound": "2026-07-06T06:25:18.576Z",
+      "reviewRunId": "B-c389:RR-012",
+      "_hash": "d50771a2ed8c1192c2547e19abe118fc0b99a112052e9d9d344ee897f4c0d57f"
+    },
+    {
+      "id": "B-c389:RP-009",
+      "agent": "lattice-review-docs",
+      "note": "Round 3 re-review post-merge (107-commit sync w/ B-6529 + 2nd capability-releases.jsonl ledger row). Diff unchanged from prior passing round. Verified docs/CLI.md capability_release_backfill section (~lines 626-646) against packages/main/src/handlers/capability-release-backfill.ts + packages/main/src/core/capability-release.ts: dry-run is default (apply defaults false, dryRun flag optional, mutually exclusive with apply), --apply requires --digest matching current planDigest (throws on drift/missing), record-then-bind semantics match exactly (records missing PCR via appendCapabilityReleaseRecord + git add -f commit, then binds candidate lineage; never touches status/usage/outcome; idempotent), and authority/gateEvidence are hardcoded non_authoritative/false in both dry-run and apply report branches. No doc-code drift found.",
+      "createdAt": "2026-07-06T06:26:43.982Z",
+      "reviewRound": "2026-07-06T06:25:18.576Z",
+      "reviewRunId": "B-c389:RR-013",
+      "_hash": "16315a170b7dfa5b2041612cc1a2acee9c16d026f62118e165745631ce9a1025"
+    },
+    {
+      "id": "B-c389:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Round 3 re-review on post-merge material (forced by 107-commit main merge that changed the shared .lattice/capability-releases.jsonl ledger content, invalidating prior storyFilesHash). Story code diff (git diff main...HEAD -- packages/main/src) is unchanged from the prior passing round. Reviewed: handlers/capability-release-backfill.ts (new, 67 lines), core/capability-release.ts M8 extension (+482 lines: plan/apply/digest-guard/lineage-bind/ledger-commit logic), registry.ts + cli/command-catalog.ts + core/command-policy.ts + core/config.ts + core/process-fact-levels.ts wiring, and 3 new hermetic smoke files (capability-release-backfill-smoke.ts, capability-candidate-exposure-smoke.ts, capability-candidate-promotion-smoke.ts) plus lattice.config.json/docs/CLI.md updates. No dead code (all new imports verified used via grep cross-check; tsc --noEmit clean). No unsafe any beyond the established Record<string,(...args:any[])=>any> handler-factory convention already used by sibling handlers/capability-release.ts and handlers/artifact-release.ts. Both catch blocks (readCapabilityReleaseLedger parse-error path, pre-existing; commitBackfilledCapabilityReleaseLedger git-commit-failure path, new) rethrow with contextual messages, not empty/swallowed. No bridge.ts/shell-isolation pattern exists in this project so I/O-shell-isolation check is N/A. No job/run.metadata proof-key semantics touched by this diff so the proof-metadata dual-location check is N/A. The .lattice/capability-releases.jsonl content change is the unrelated B-6529 ledger row brought in by the main merge, not story-authored code, and is out of scope for this code-quality lane. No promised-but-undelivered doc/CLI claims found: docs/CLI.md capability_release_backfill section, command-catalog.ts schema, command-policy.ts entry, and process-fact-levels.ts entry all match the actual handler/core behavior (dry-run default, --apply+--digest guard, bind/record-then-bind plan kinds, never-changes-status/usage/outcome invariants) which are also asserted by the new smoke tests.",
+      "createdAt": "2026-07-06T06:28:29.805Z",
+      "reviewRound": "2026-07-06T06:25:18.576Z",
+      "reviewRunId": "B-c389:RR-014",
+      "_hash": "18af6578451d90e0aec52dc641a069fbfb245b07a261f7b553c57e80b0aff89b"
+    },
+    {
+      "id": "B-c389:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 3, post-merge re-bind): verified all 12 verificationEvidence entries (CHK-001..CHK-004, happy/edge/adversarial each) are covered, fresh, and bound to current material (headHash 0d889f906a / storyFilesHash ec3a79544f / materialHash d0597b85d3). lattice validate coverage report shows total=12 required=11 covered=12 missingRequired=0. Live-ran all 3 new smokes directly (backfill 14/14, exposure 8/8, promotion 8/8) — all pass on current HEAD, matching stamped evidence. Confirmed the merged .lattice/capability-releases.jsonl 2nd row (PCR-824340203cf813e8a9c54d8f, B-6529) is unrelated incoming merge content, not this storys artifact; this storys own PCR-9e7fdacf081e7346181bc04d (B-785e) is intact and correctly the one referenced by the live-backfill manual_transcript evidence. No coverage gap.",
+      "createdAt": "2026-07-06T06:31:50.205Z",
+      "reviewRound": "2026-07-06T06:25:18.576Z",
+      "reviewRunId": "B-c389:RR-015",
+      "_hash": "6024c5e1b30d891fe1fd926167fdbda9bd7cd5c356f72cfd5a040bc2fbc3f436"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-c389",
+  "sourceText": "Follow-up to B-8128: build the three deferred capability-release lifecycle pieces — the live capability_release_backfill command (run on real B-785e/PBP-882), M6 candidate exposure records, M7 structured-outcome + promotion recommendation wiring — on top of B-8128 foundation and already-enforced safety invariants.",
+  "normalizedOutcome": "The live PBP-882 becomes bound to its capability release; capability candidates are exposable as pending learning with exposure records and promotable only on concrete exposure + structured verdict.",
+  "acceptanceClaim": "capability_release_backfill binds the live PBP-882 idempotently; the bound candidate surfaces in promotion_status with an exposure record; a structured outcome + promotion sweep works for capability candidates while DONE-success never counts as helped and candidates never auto-activate.",
+  "keyRequirementIds": [
+    "REQ-BACKFILL",
+    "REQ-EXPOSURE",
+    "REQ-PROMOTION",
+    "REQ-VALIDATION"
+  ],
+  "requestHash": "sha256:aea875c903a460114199c06a733917ca23e039bb3d3847c95e1a03f12e1273a0",
+  "createdAt": "2026-07-05T22:59:25.739Z",
+  "updatedAt": "2026-07-05T22:59:25.739Z"
+}

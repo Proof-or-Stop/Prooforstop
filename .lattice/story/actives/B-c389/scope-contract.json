@@ -1,0 +1,43 @@
+{
+  "storyId": "B-c389",
+  "mode": "enforce",
+  "allowedModify": [
+    ".lattice/story/actives/B-c389/**",
+    ".lattice/capability-releases.jsonl",
+    "packages/main/src/core/capability-release.ts",
+    "packages/main/src/core/learning-store.ts",
+    "packages/main/src/core/playbook-seed.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/handlers/capability-release.ts",
+    "packages/main/src/handlers/capability-release-backfill.ts",
+    "packages/main/src/handlers/playbook.ts",
+    "docs/CLI.md",
+    "lattice.config.json"
+  ],
+  "allowedCreate": [
+    ".lattice/story/actives/B-c389/**",
+    ".lattice/capability-releases.jsonl",
+    "packages/main/src/handlers/capability-release-backfill.ts",
+    "packages/main/src/tasks/capability-release-backfill-smoke.ts",
+    "packages/main/src/tasks/capability-candidate-exposure-smoke.ts",
+    "packages/main/src/tasks/capability-candidate-promotion-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/capability-release-backfill-smoke.ts",
+    "packages/main/src/tasks/capability-candidate-exposure-smoke.ts",
+    "packages/main/src/tasks/capability-candidate-promotion-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "activating a candidate without concrete exposure + structured verdict",
+    "weakening matchActivePlaybook or DONE-success!=helped"
+  ],
+  "scopeChangeReason": "Add the story lifecycle-metadata pattern and the capability-releases.jsonl ledger (written by the M8 backfill migration — the whole point of the story) to the allowed scope.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-05T22:59:27.887Z",
+  "updatedAt": "2026-07-05T23:57:53.373Z"
+}
