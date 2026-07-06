@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-a0c9:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept-residue scan of commit 29df2c9d7 (experiments/pos-instrument-replay/selfcheck-m3.mjs, F-017+F-018). No concept was deleted or renamed: change is purely additive (new activeSandboxes Set, new cleanupSandbox() helper, new process.on(exit) sweep, new LOCK_DIR/holder.json survival assertion in sub-check M). Verified all 12 inline rmSync(sandbox,{recursive:true,force:true}) finally-block calls were replaced 1:1 by cleanupSandbox(sandbox) (12 finally blocks == 12 makeSandbox() calls == 12 cleanupSandbox() calls). The only remaining literal rmSync(sandbox,...) is inside cleanupSandbox itself (line 188), i.e. the new helper definition, not a straggler. Repo-wide grep for activeSandboxes|cleanupSandbox confirms both symbols are defined and used exclusively within this one file - no dangling/orphaned references elsewhere. No blocker.",
+      "createdAt": "2026-07-06T11:09:00.809Z",
+      "reviewRound": "2026-07-06T11:06:43.608Z",
+      "reviewRunId": "B-a0c9:RR-001",
+      "_hash": "dc4340a7cb3e00e0d77e8828696b33c23e732be1ac1080ded48b3d0f29b0a780"
+    }
+  ]
+}
