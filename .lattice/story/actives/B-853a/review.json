@@ -1,0 +1,32 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-07-06T07:10:40.196Z",
+      "issueCount": 4,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when analyze-batch.mjs emits a three-state H1-H4 report.json + report.md + report carries a reproducible digest; re-run is byte-identical are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 1 undigested unknowns: Exact report.md layout and whether to embed the plan section-3 claim text verbatim when all hypotheses pass (leaning yes per the no-overclaim rule)."
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "advisory",
+          "message": "plan.md not found. Normal channel recommends writing plan.md to clarify execution order and dependencies"
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "missing_scope_check: scope-check.json is missing PLAN gate evidence. `scope_check_save` already exists; a lattice-review-scope-plan / scope-plan reviewer must persist the result through `scope_check_save`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not remote completion and must not be presented as receipt verification or production/full completion."
+        }
+      ],
+      "_hash": "e942c1ed94e9a9e8f7a02d8eb0a4b9500bda25132b47b430b2ada244c69158ff"
+    }
+  ]
+}

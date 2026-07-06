@@ -1,0 +1,178 @@
+{
+  "storyId": "B-853a",
+  "checkedAt": "2026-07-06T07:12:48.430Z",
+  "features": [
+    {
+      "feature": "Analyzer reads batch-ledger.jsonl (H1/H4 source)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "decisions:proof-or-stop-evidence-instrument-replay-execution-plan.md"
+    },
+    {
+      "feature": "Analyzer reads tamper-verdicts.jsonl (H2 source)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "decisions:proof-or-stop-evidence-instrument-replay-execution-plan.md"
+    },
+    {
+      "feature": "Analyzer reads resume-reconciliation.json (H3 source)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "decisions:proof-or-stop-evidence-instrument-replay-execution-plan.md"
+    },
+    {
+      "feature": "Analyzer reads protocol.json (fingerprints, cross-product, env pins)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "decisions:proof-or-stop-evidence-instrument-replay-execution-plan.md"
+    },
+    {
+      "feature": "H1 adjudication: pairwise digest equality across replay proof records per scale, three-state incl. not-evaluable on any stop record",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "decisions:proof-or-stop-evidence-instrument-replay-execution-plan.md"
+    },
+    {
+      "feature": "H2 adjudication: per-class fingerprint match against protocol.json, three-state incl. not-evaluable on harness precondition failure",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "decisions:proof-or-stop-evidence-instrument-replay-execution-plan.md"
+    },
+    {
+      "feature": "H3 adjudication: identity-multiset reconciliation (0 dup/0 gap), casualty resolves to stop-or-rerun",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "decisions:proof-or-stop-evidence-instrument-replay-execution-plan.md"
+    },
+    {
+      "feature": "H4 adjudication: cap-vs-stop accounting (silent breach without stop record = falsified)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "decisions:proof-or-stop-evidence-instrument-replay-execution-plan.md"
+    },
+    {
+      "feature": "report.json emitted",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "decisions:proof-or-stop-evidence-instrument-replay-execution-plan.md"
+    },
+    {
+      "feature": "report.md (human-readable) emitted",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "decisions:proof-or-stop-evidence-instrument-replay-execution-plan.md"
+    },
+    {
+      "feature": "Analyzer is offline-only: reads ONLY committed ledger/protocol files, never re-executes the instrument or calls the lattice CLI",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "decisions:proof-or-stop-evidence-instrument-replay-execution-plan.md"
+    },
+    {
+      "feature": "Per-record recordDigest re-derivation runs FIRST; any mismatch aborts the verdict with a named record id",
+      "covered_by": "",
+      "status": "gap",
+      "excluded_by": "",
+      "source": "decisions:proof-or-stop-evidence-instrument-replay-execution-plan.md"
+    },
+    {
+      "feature": "Report content digest = sha256(canonicalJson(report minus digest field))",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "decisions:proof-or-stop-evidence-instrument-replay-execution-plan.md"
+    },
+    {
+      "feature": "Digest reproducibility: re-running analyzer on same ledger reproduces the same report digest (byte-identical report.json/report.md)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "decisions:proof-or-stop-evidence-instrument-replay-execution-plan.md"
+    },
+    {
+      "feature": "No-overclaim text: section 3 claim text embedded verbatim in report.md, ONLY if all four hypotheses are supported",
+      "covered_by": "",
+      "status": "gap",
+      "excluded_by": "",
+      "source": "decisions:proof-or-stop-evidence-instrument-replay-execution-plan.md"
+    },
+    {
+      "feature": "If any hypothesis falsified/not-evaluable, report states it plainly with the machine-readable reason (three-state reporting)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "decisions:proof-or-stop-evidence-instrument-replay-execution-plan.md"
+    },
+    {
+      "feature": "Final summary lists any instrument defect found by the campaign",
+      "covered_by": "",
+      "status": "gap",
+      "excluded_by": "",
+      "source": "decisions:proof-or-stop-evidence-instrument-replay-execution-plan.md"
+    },
+    {
+      "feature": "Hermetic selfcheck-m4.mjs (mkdtemp-isolated) proving the three-state logic is un-gameable",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "decisions:proof-or-stop-evidence-instrument-replay-execution-plan.md"
+    },
+    {
+      "feature": "Selfcheck asserts tampered/truncated/missing/insufficient evidence yields inconclusive or fail, NEVER a false pass",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "decisions:proof-or-stop-evidence-instrument-replay-execution-plan.md"
+    },
+    {
+      "feature": "Cross-host replication: Codex independently re-runs analyze-batch.mjs against the committed ledger and reproduces the report digest",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "decisions:proof-or-stop-evidence-instrument-replay-execution-plan.md"
+    },
+    {
+      "feature": "Scale envelope reporting in report.json/report.md (elapsed / endOfRunRss per section 7 artifact table)",
+      "covered_by": "",
+      "status": "gap",
+      "excluded_by": "",
+      "source": "decisions:proof-or-stop-evidence-instrument-replay-execution-plan.md"
+    },
+    {
+      "feature": "Adversarial ledger integrity (cryptographic signing / defeating a self-recomputing editor) is out of scope — Tier-C, not this milestone",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "spec section 3 claim boundary: adversarial ledger integrity is explicitly Tier-C, referenced not implemented here",
+      "source": "decisions:proof-or-stop-evidence-instrument-replay-execution-plan.md"
+    },
+    {
+      "feature": "Re-running the instrument or calling the lattice CLI from the analyzer is out of scope",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "CHK-001 context/nature: analyzer is offline-only by construction; spec section 6.4 reads ONLY ledger + per-run artifacts",
+      "source": "decisions:proof-or-stop-evidence-instrument-replay-execution-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 22,
+    "covered": 15,
+    "excluded": 2,
+    "gaps": 4,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "418908d91c694c4d944c202db15427fd980fac97e3d7651bdfc75220d19df472",
+  "openQuestions": []
+}

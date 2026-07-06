@@ -1,0 +1,37 @@
+{
+  "storyId": "B-853a",
+  "mode": "enforce",
+  "allowedModify": [
+    "experiments/pos-instrument-replay/analyze-batch.mjs"
+  ],
+  "allowedCreate": [
+    "experiments/pos-instrument-replay/analyze-batch.mjs",
+    "experiments/pos-instrument-replay/report.json",
+    "experiments/pos-instrument-replay/report.md",
+    "experiments/pos-instrument-replay/selfcheck-m4.mjs"
+  ],
+  "allowedTest": [
+    "experiments/pos-instrument-replay/selfcheck-m4.mjs",
+    "experiments/pos-instrument-replay/batch-ledger.jsonl",
+    "experiments/pos-instrument-replay/tamper-verdicts.jsonl",
+    "experiments/pos-instrument-replay/resume-reconciliation.json",
+    "experiments/pos-instrument-replay/protocol.json",
+    "experiments/pos-instrument-replay/lib/instrument.mjs"
+  ],
+  "protectedFiles": [
+    "experiments/pos-instrument-replay/batch-ledger.jsonl",
+    "experiments/pos-instrument-replay/tamper-verdicts.jsonl",
+    "experiments/pos-instrument-replay/resume-reconciliation.json",
+    "experiments/pos-instrument-replay/protocol.json",
+    "experiments/pos-instrument-replay/lib/instrument.mjs"
+  ],
+  "explicitExcludes": [
+    "experiments/pos-instrument-replay/run-batch.mjs",
+    "experiments/pos-instrument-replay/tamper.mjs",
+    "experiments/pos-instrument-replay/resume-probe.mjs"
+  ],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-06T07:10:30.364Z",
+  "updatedAt": "2026-07-06T07:10:30.364Z"
+}
