@@ -248,7 +248,7 @@
       "desc": "F-CODEX-R2-2 (host-2, HIGH; corroborates+extends quality F-010): H3 accepts false/empty nested resume evidence. adjudicateH3/isKillWellFormed requires only that killC.postResume exists as a key — it never inspects the substantive VALUES. Setting killC.postResume.stoppedRecordPreserved=false passes; replacing ALL kill*.postResume with {} also passes. FIX: H3 must validate the substantive kill-trial values: killC.postResume.stoppedRecordPreserved===true; each of killA/killB/killC postResume shows 0 dup / 0 gap and a resolved casualty disposition; reject an empty/false postResume.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex",
       "createdAt": "2026-07-06T08:01:06.184Z",
@@ -259,7 +259,11 @@
         "experiments/pos-instrument-replay/analyze-batch.mjs"
       ],
       "signatureTag": "adversarial|mjs|codex-host-high",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in eeb1a9592 (same H3 postResume-value validation as F-010). selfcheck-m4 sub-check R (killC.stoppedRecordPreserved=false AND empty {} postResume both fail).",
+      "resolvedAt": "2026-07-06T08:20:03.725Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-853a:F-014",
