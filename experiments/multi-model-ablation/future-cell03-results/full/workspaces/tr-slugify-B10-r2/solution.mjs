@@ -1,22 +1,30 @@
 // slugify: turn an arbitrary title into a clean lowercase hyphen-separated URL slug.
-// Approach: fold accents, lowercase, map non-alphanumerics to a separator marker, then
-// collapse runs of separators into a single hyphen and trim leading/trailing hyphens.
+// Approach: fold allowed accents, lowercase ASCII letters, map non-alphanumerics
+// to a separator marker, then collapse separator runs into single hyphens.
 
 const FOLD = {
   à: 'a', á: 'a', â: 'a', ã: 'a', ä: 'a', å: 'a',
+  À: 'a', Á: 'a', Â: 'a', Ã: 'a', Ä: 'a', Å: 'a',
   è: 'e', é: 'e', ê: 'e', ë: 'e',
+  È: 'e', É: 'e', Ê: 'e', Ë: 'e',
   ì: 'i', í: 'i', î: 'i', ï: 'i',
+  Ì: 'i', Í: 'i', Î: 'i', Ï: 'i',
   ò: 'o', ó: 'o', ô: 'o', õ: 'o', ö: 'o',
+  Ò: 'o', Ó: 'o', Ô: 'o', Õ: 'o', Ö: 'o',
   ù: 'u', ú: 'u', û: 'u', ü: 'u',
+  Ù: 'u', Ú: 'u', Û: 'u', Ü: 'u',
   ñ: 'n', ç: 'c',
+  Ñ: 'n', Ç: 'c',
 };
 
 function isAlnum(ch) {
   return (ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9');
 }
 
-function foldChar(ch) {
-  // Already lowered before this is called.
+function normalizeChar(ch) {
+  if (ch >= 'A' && ch <= 'Z') {
+    return String.fromCharCode(ch.charCodeAt(0) + 32);
+  }
   if (Object.prototype.hasOwnProperty.call(FOLD, ch)) return FOLD[ch];
   return ch;
 }
@@ -26,13 +34,11 @@ export default function slugify(input) {
     throw new TypeError('slugify expects a string, got ' + typeof input);
   }
 
-  const lowered = input.toLowerCase();
-
   // Step 1: build a normalized character stream where every character is either an
   // allowed alphanumeric or the separator sentinel ' '.
   const stream = [];
-  for (const raw of lowered) {
-    const ch = foldChar(raw);
+  for (const raw of input) {
+    const ch = normalizeChar(raw);
     if (isAlnum(ch)) {
       stream.push(ch);
     } else {
@@ -46,7 +52,7 @@ export default function slugify(input) {
   let pendingSep = false;
   for (const ch of stream) {
     if (ch === ' ') {
-      out.push('-');
+      pendingSep = out.length > 0;
       continue;
     }
     if (pendingSep) {
@@ -56,13 +62,7 @@ export default function slugify(input) {
     out.push(ch);
   }
 
-  // Step 3: a trailing run of separators must NOT produce a trailing hyphen, so we
-  // never flush a pending separator at the end. Leading separators are handled
-  // because the first alphanumeric resets pendingSep before emitting any hyphen…
-  // but the very first emitted hyphen would be leading, so strip a leading hyphen too.
-  let result = out.join('');
-  if (result.startsWith('-')) result = result.slice(1);
-  if (result.endsWith('-')) result = result.slice(0, -1);
-
-  return result;
+  // Step 3: a trailing run of separators must not produce a trailing hyphen, so
+  // do not flush a pending separator at the end.
+  return out.join('');
 }

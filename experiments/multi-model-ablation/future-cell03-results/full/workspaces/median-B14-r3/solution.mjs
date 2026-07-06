@@ -3,5 +3,5 @@ export default function median(numbers) {
   const s = [...numbers].sort((a, b) => a - b);
   const mid = Math.floor(s.length / 2);
   if (s.length % 2 === 1) return s[mid];
-  return s[mid - 1];
+  return (s[mid - 1] + s[mid]) / 2;
 }

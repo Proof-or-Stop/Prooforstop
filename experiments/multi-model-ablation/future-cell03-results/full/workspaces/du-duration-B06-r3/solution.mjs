@@ -10,7 +10,7 @@ const UNITS = [
 
 function validate(seconds) {
   if (typeof seconds !== 'number' || Number.isNaN(seconds)) {
-    throw new TypeError('formatDuration expects a number, got ' + typeof seconds);
+    throw new Error('formatDuration expects a number, got ' + typeof seconds);
   }
   if (!Number.isInteger(seconds)) {
     throw new Error('formatDuration expects an integer number of seconds, got ' + seconds);
@@ -58,11 +58,6 @@ export default function formatDuration(seconds) {
   // first/last are both >= 0 here because seconds > 0.
   // Keep the inclusive window [first, last]; interior zeros remain in place.
   const window = parts.slice(first, last + 1);
-
-  // Multi-day spans use the compact form (only the units that actually carry a value).
-  if (parts[0].value >= 2) {
-    return window.filter((p) => p.value !== 0).map((p) => `${p.value}${p.suffix}`).join(' ');
-  }
 
   return window.map((p) => `${p.value}${p.suffix}`).join(' ');
 }

@@ -49,7 +49,7 @@ function validateOctetText(text) {
   }
   // Canonical-form check: reject redundant leading zeros.
   // The only octet permitted to start with '0' is the single character "0".
-  if (text.length > 2 && text[0] === '0') {
+  if (text.length > 1 && text[0] === '0') {
     throw new Error(`octet "${text}" has a redundant leading zero`);
   }
   return text;
