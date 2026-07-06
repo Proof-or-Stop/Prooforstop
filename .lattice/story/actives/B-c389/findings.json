@@ -39,7 +39,7 @@
       "desc": "quality-cleanup: lattice.config.json (whole file) - this diff reformats the entire file from compact single-line JSON array/object entries to fully expanded multi-line JSON (e.g. the validate.commands and doneRequiredCommands arrays), and also drops the files trailing newline (confirmed: `git show main:lattice.config.json | tail -c5` ends in `}\\n`; the worktree HEAD version ends in `}` with no trailing newline). This is unrelated reformatting noise bundled into a story whose actual config change is only 3 new lines appended to validate.commands (the 3 new smoke paths) plus the capability_release_backfill catalog/policy registrations elsewhere. It inflates the reviewable diff (126 changed lines in a file where the substantive change is 3 lines) and creates spurious merge-conflict surface for any other in-flight story touching lattice.config.json.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-06T00:02:49.252Z",
@@ -47,7 +47,9 @@
       "reviewRunId": "B-c389:RR-002",
       "_hash": "bcd10d69f00d582ff7fa661d17a73122d862c69b342978991bba0adce312306e",
       "signatureTag": "missing|unknown|quality-cleanup-lattice",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Restored lattice.config.json from main + added only the 3 smoke entries; minimal diff, trailing newline preserved.",
+      "resolvedAt": "2026-07-06T00:08:33.367Z"
     }
   ]
 }
