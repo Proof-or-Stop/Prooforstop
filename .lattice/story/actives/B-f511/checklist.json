@@ -49,10 +49,10 @@
           "command": "node experiments/pos-instrument-replay/selfcheck-m3.mjs",
           "result": "pass",
           "note": "run-batch --resume against a partial ledger skips already-recorded iterationIds and runs only the remaining; the strict guard reconciles the final 30-record small multiset (0 dup / 0 gap). Proven by selfcheck-m3 boundary-kill + mid-run-crash sub-checks (append-only preserved; resume-only stale-lock break).",
-          "headHash": "4882fad0d85592515c9807114f1d940535f2e3fd",
-          "materialHash": "15f370534f4e5dff93a4bbb724b7caa64bc830c7bb946a715f749c42581c86c0",
-          "storyFilesHash": "12433a97cfd13f12f1716aec909f573d9fa83616bf5eff090f9f60d14ac3fbe6",
-          "timestamp": "2026-07-06T01:22:46.248Z"
+          "headHash": "5c1aa59af9c3e300f9c5c9d675cb609ab8bd3ff6",
+          "materialHash": "4e625df486123eab21a9bcdd2f7d078af09e4b3de1c49a9efa0f939f3fa4677b",
+          "storyFilesHash": "de01a2e52c1851b82f08c4080802d781ad44520253ead770535784398db2f30a",
+          "timestamp": "2026-07-06T02:17:52.891Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -60,10 +60,10 @@
           "command": "node experiments/pos-instrument-replay/selfcheck-m3.mjs",
           "result": "pass",
           "note": "selfcheck-m3 E (truncated-tail) + G (valid-final-record-preserved): repairTruncatedTail now PARSES the un-terminated tail in both branches — a genuinely truncated partial write is dropped (that iteration re-runs), but a COMPLETE final record missing only its newline (replay/small/4) is PRESERVED verbatim (never dropped into a gap). 0 dup / 0 gap.",
-          "headHash": "4882fad0d85592515c9807114f1d940535f2e3fd",
-          "materialHash": "15f370534f4e5dff93a4bbb724b7caa64bc830c7bb946a715f749c42581c86c0",
-          "storyFilesHash": "12433a97cfd13f12f1716aec909f573d9fa83616bf5eff090f9f60d14ac3fbe6",
-          "timestamp": "2026-07-06T01:22:46.248Z"
+          "headHash": "5c1aa59af9c3e300f9c5c9d675cb609ab8bd3ff6",
+          "materialHash": "4e625df486123eab21a9bcdd2f7d078af09e4b3de1c49a9efa0f939f3fa4677b",
+          "storyFilesHash": "de01a2e52c1851b82f08c4080802d781ad44520253ead770535784398db2f30a",
+          "timestamp": "2026-07-06T02:17:52.891Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -71,10 +71,10 @@
           "command": "node experiments/pos-instrument-replay/selfcheck-m3.mjs",
           "result": "pass",
           "note": "Resume lock-break is now RACE-FREE against MULTIPLE concurrent resumers (F-007/F-008 fix, commit 4882fad0d). The break critical-section (existsSync + evaluateLockForBreak + rmSync(LOCK_DIR)) is serialized behind a dedicated mkdir break-mutex .batch-ledger.break.lock: a second breaker gets EEXIST and FAILS CLOSED (precondition_failed, exit 3) rather than racing; the break-mutex is released in a finally BEFORE any process.exit (process.exit skips finally); the atomic mkdir(LOCK_DIR) remains the final arbiter (loser -> precondition_failed). This closes the TOCTOU where two resumers both judged a genuinely-dead holder breakable and the second rm'd the first's freshly-live lock. Combined with F-005/F-006 conservative missing-holder=LIVE, two campaign writers is now impossible. selfcheck-m3 sub-check J proves both directions deterministically.",
-          "headHash": "fc1a0bd45a0acadf17d683700f1d11280f0b15c9",
-          "materialHash": "15f370534f4e5dff93a4bbb724b7caa64bc830c7bb946a715f749c42581c86c0",
-          "storyFilesHash": "12433a97cfd13f12f1716aec909f573d9fa83616bf5eff090f9f60d14ac3fbe6",
-          "timestamp": "2026-07-06T01:22:46.955Z"
+          "headHash": "5c1aa59af9c3e300f9c5c9d675cb609ab8bd3ff6",
+          "materialHash": "4e625df486123eab21a9bcdd2f7d078af09e4b3de1c49a9efa0f939f3fa4677b",
+          "storyFilesHash": "de01a2e52c1851b82f08c4080802d781ad44520253ead770535784398db2f30a",
+          "timestamp": "2026-07-06T02:17:52.891Z"
         }
       ]
     },
@@ -126,10 +126,10 @@
           "command": "node experiments/pos-instrument-replay/resume-probe.mjs",
           "result": "pass",
           "note": "resume-probe.mjs kills run-batch at a boundary (hard-crash before append at replay/small/6, leaving 5 recorded + a recordless casualty) and mid-run (replay/small/18), plus an external-SIGKILL trial; restarts in --resume each time; writes resume-reconciliation.json: killA{recordedBeforeKill:5,casualty replay/small/6,dup:0,gap:0}, killB{17,replay/small/18,dup:0,gap:0}, finalMultisetMatch:true, dupTotal:0 gapTotal:0. H3: 0 dup / 0 gap.",
-          "headHash": "4882fad0d85592515c9807114f1d940535f2e3fd",
-          "materialHash": "15f370534f4e5dff93a4bbb724b7caa64bc830c7bb946a715f749c42581c86c0",
-          "storyFilesHash": "12433a97cfd13f12f1716aec909f573d9fa83616bf5eff090f9f60d14ac3fbe6",
-          "timestamp": "2026-07-06T01:22:46.248Z"
+          "headHash": "5c1aa59af9c3e300f9c5c9d675cb609ab8bd3ff6",
+          "materialHash": "4e625df486123eab21a9bcdd2f7d078af09e4b3de1c49a9efa0f939f3fa4677b",
+          "storyFilesHash": "de01a2e52c1851b82f08c4080802d781ad44520253ead770535784398db2f30a",
+          "timestamp": "2026-07-06T02:17:52.891Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -137,10 +137,10 @@
           "command": "node -e \"const r=require('./experiments/pos-instrument-replay/resume-reconciliation.json');console.log(r.finalMultisetMatch,r.dupTotal,r.gapTotal)\"",
           "result": "pass",
           "note": "After both kills+resume the ledger identity multiset equals the protocol replay/small cross-product exactly (finalMultisetMatch true, 0 gap) — exactly one record per iterationId.",
-          "headHash": "4882fad0d85592515c9807114f1d940535f2e3fd",
-          "materialHash": "15f370534f4e5dff93a4bbb724b7caa64bc830c7bb946a715f749c42581c86c0",
-          "storyFilesHash": "12433a97cfd13f12f1716aec909f573d9fa83616bf5eff090f9f60d14ac3fbe6",
-          "timestamp": "2026-07-06T01:22:46.248Z"
+          "headHash": "5c1aa59af9c3e300f9c5c9d675cb609ab8bd3ff6",
+          "materialHash": "4e625df486123eab21a9bcdd2f7d078af09e4b3de1c49a9efa0f939f3fa4677b",
+          "storyFilesHash": "de01a2e52c1851b82f08c4080802d781ad44520253ead770535784398db2f30a",
+          "timestamp": "2026-07-06T02:17:52.891Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -148,10 +148,10 @@
           "command": "node -e \"const r=require('./experiments/pos-instrument-replay/resume-reconciliation.json');console.log(JSON.stringify(r.killC))\"",
           "result": "pass",
           "note": "Each casualty resolves to stop-or-clean-rerun, never a half-record: killA/killB (recordless hard-crash) -> proof:pass; killC (POS_FAIL_APPEND_AT -> a recorded verify_crash STOP at replay/small/3) is PRESERVED and SKIPPED on resume (not re-run into a proof); dup=0 gap=0 across all kills.",
-          "headHash": "4882fad0d85592515c9807114f1d940535f2e3fd",
-          "materialHash": "15f370534f4e5dff93a4bbb724b7caa64bc830c7bb946a715f749c42581c86c0",
-          "storyFilesHash": "12433a97cfd13f12f1716aec909f573d9fa83616bf5eff090f9f60d14ac3fbe6",
-          "timestamp": "2026-07-06T01:22:46.248Z"
+          "headHash": "5c1aa59af9c3e300f9c5c9d675cb609ab8bd3ff6",
+          "materialHash": "4e625df486123eab21a9bcdd2f7d078af09e4b3de1c49a9efa0f939f3fa4677b",
+          "storyFilesHash": "de01a2e52c1851b82f08c4080802d781ad44520253ead770535784398db2f30a",
+          "timestamp": "2026-07-06T02:17:52.891Z"
         }
       ]
     },
@@ -202,10 +202,10 @@
           "command": "node experiments/pos-instrument-replay/selfcheck-m3.mjs",
           "result": "pass",
           "note": "node selfcheck-m3.mjs exits 0 'selfcheck-m3 PASS' — now 10 hermetic sub-checks A-J: A boundary-kill, B mid-run-crash, C fresh-additive, D resume-no-ledger, E truncated-tail, F stop-record-resume, G valid-final-record-preserved, H live-lock-not-broken (dead-pid discrimination), I NO-HOLDER-lock-not-broken, J BREAK-MUTEX-SERIALIZES (multi-resumer TOCTOU closed).",
-          "headHash": "df4914fb17362a5e305ae1d41e070a301673ca05",
-          "materialHash": "15f370534f4e5dff93a4bbb724b7caa64bc830c7bb946a715f749c42581c86c0",
-          "storyFilesHash": "12433a97cfd13f12f1716aec909f573d9fa83616bf5eff090f9f60d14ac3fbe6",
-          "timestamp": "2026-07-06T01:22:47.615Z"
+          "headHash": "5c1aa59af9c3e300f9c5c9d675cb609ab8bd3ff6",
+          "materialHash": "4e625df486123eab21a9bcdd2f7d078af09e4b3de1c49a9efa0f939f3fa4677b",
+          "storyFilesHash": "de01a2e52c1851b82f08c4080802d781ad44520253ead770535784398db2f30a",
+          "timestamp": "2026-07-06T02:17:52.891Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -213,10 +213,10 @@
           "command": "node experiments/pos-instrument-replay/selfcheck-m3.mjs",
           "result": "pass",
           "note": "selfcheck-m3 asserts 0 dup / 0 gap and exactly one record per protocol replay/small iterationId after each resume (finalMultisetMatch).",
-          "headHash": "4882fad0d85592515c9807114f1d940535f2e3fd",
-          "materialHash": "15f370534f4e5dff93a4bbb724b7caa64bc830c7bb946a715f749c42581c86c0",
-          "storyFilesHash": "12433a97cfd13f12f1716aec909f573d9fa83616bf5eff090f9f60d14ac3fbe6",
-          "timestamp": "2026-07-06T01:22:46.248Z"
+          "headHash": "5c1aa59af9c3e300f9c5c9d675cb609ab8bd3ff6",
+          "materialHash": "4e625df486123eab21a9bcdd2f7d078af09e4b3de1c49a9efa0f939f3fa4677b",
+          "storyFilesHash": "de01a2e52c1851b82f08c4080802d781ad44520253ead770535784398db2f30a",
+          "timestamp": "2026-07-06T02:17:52.891Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -224,10 +224,10 @@
           "command": "node experiments/pos-instrument-replay/selfcheck-m3.mjs",
           "result": "pass",
           "note": "Un-gameable: sub-check J.1 pre-plants a break-mutex + a genuinely-dead-pid stale lock and asserts --resume FAILS CLOSED (exit 3, precondition_failed to the blocked-ledger mentioning the break-mutex, campaign ledger + stale lock untouched, and the loser does NOT remove a break-mutex it does not own); J.2 removes the break-mutex and asserts --resume then breaks the still-stale lock and completes the exact 30-record multiset (0 dup/0 gap, no orphaned break-mutex). Findings F-001..F-008 each covered by a dedicated load-bearing sub-check; every direction fails loudly on regression.",
-          "headHash": "b1ace741fe43422c600b8a940a3e5727faadaca3",
-          "materialHash": "15f370534f4e5dff93a4bbb724b7caa64bc830c7bb946a715f749c42581c86c0",
-          "storyFilesHash": "12433a97cfd13f12f1716aec909f573d9fa83616bf5eff090f9f60d14ac3fbe6",
-          "timestamp": "2026-07-06T01:22:48.304Z"
+          "headHash": "5c1aa59af9c3e300f9c5c9d675cb609ab8bd3ff6",
+          "materialHash": "4e625df486123eab21a9bcdd2f7d078af09e4b3de1c49a9efa0f939f3fa4677b",
+          "storyFilesHash": "de01a2e52c1851b82f08c4080802d781ad44520253ead770535784398db2f30a",
+          "timestamp": "2026-07-06T02:17:52.891Z"
         }
       ]
     }
