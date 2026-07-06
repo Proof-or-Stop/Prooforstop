@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-853a",
+  "mode": "feature",
+  "allowed": [
+    "experiments/pos-instrument-replay/analyze-batch.mjs",
+    "experiments/pos-instrument-replay/report.json",
+    "experiments/pos-instrument-replay/report.md",
+    "experiments/pos-instrument-replay/selfcheck-m4.mjs"
+  ],
+  "excluded": [
+    "experiments/pos-instrument-replay/resume-probe.mjs",
+    "experiments/pos-instrument-replay/run-batch.mjs"
+  ],
+  "confirmedBy": "jek",
+  "createdAt": "2026-07-06T07:05:08.602Z",
+  "updatedAt": "2026-07-06T07:05:08.602Z",
+  "_hash": "9d1bb8ac7a62e8d1d6d39f89fcc378ee554ae59bd293303068ac0916b9357e69"
+}

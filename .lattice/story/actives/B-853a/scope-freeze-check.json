@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-853a",
+  "checkedAt": "2026-07-06T07:05:17.909Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "9d1bb8ac7a62e8d1d6d39f89fcc378ee554ae59bd293303068ac0916b9357e69",
+  "executionBoundaryHash": "4e605263ea66bbc779d8ddee9a16c0e39a3133cf1eae4e8a082fb51eb78e3539",
+  "freshnessHash": "1c85a4b77e76ecf5fd33b6f549b0f1f94b0aebcd1b4d16fff0c34e128e6e79c1",
+  "effectiveExcludedKeywords": [
+    "experiments/pos-instrument-replay/resume-probe.mjs",
+    "experiments/pos-instrument-replay/run-batch.mjs"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "experiments/pos-instrument-replay/resume-probe.mjs",
+      "source": "scopeBoundary.excluded",
+      "text": "experiments/pos-instrument-replay/resume-probe.mjs",
+      "excluded": true
+    },
+    {
+      "keyword": "experiments/pos-instrument-replay/run-batch.mjs",
+      "source": "scopeBoundary.excluded",
+      "text": "experiments/pos-instrument-replay/run-batch.mjs",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "ea8d57606ab90f1067ecbb33d81b9553125686367fb512cd66af7f9c4678d8dd"
+}

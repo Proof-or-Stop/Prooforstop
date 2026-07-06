@@ -1,0 +1,32 @@
+{
+  "storyId": "B-853a",
+  "checkedAt": "2026-07-06T07:03:50.417Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "low",
+      "desc": "background.md line 5 (## Key Insights) describes H2 as checking each tamper verdict's \"status/fingerprintMatch/dispositionMatch\" fields, but the actual field name in tamper-verdicts.jsonl is verifyStatus (confirmed: 27/27 records use verifyStatus, 0 use a bare status key). fingerprintMatch and dispositionMatch are exact field-name matches. This is a harmless terminology looseness (echoes the execution-plan doc's own informal status: pass gloss at line 358) rather than a structural error, but the implementer of analyze-batch.mjs should read the real field name (verifyStatus) directly from tamper-verdicts.jsonl rather than from this prose."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-07-06T07:02:41.581Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-07-06T07:03:50.417Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "low",
+          "desc": "background.md line 5 (## Key Insights) describes H2 as checking each tamper verdict's \"status/fingerprintMatch/dispositionMatch\" fields, but the actual field name in tamper-verdicts.jsonl is verifyStatus (confirmed: 27/27 records use verifyStatus, 0 use a bare status key). fingerprintMatch and dispositionMatch are exact field-name matches. This is a harmless terminology looseness (echoes the execution-plan doc's own informal status: pass gloss at line 358) rather than a structural error, but the implementer of analyze-batch.mjs should read the real field name (verifyStatus) directly from tamper-verdicts.jsonl rather than from this prose."
+        }
+      ]
+    }
+  ],
+  "_hash": "fbab4c4dcdcaaa841fa5f5c3afb0f92477029833231cfe612f61f3c4239271a6"
+}
