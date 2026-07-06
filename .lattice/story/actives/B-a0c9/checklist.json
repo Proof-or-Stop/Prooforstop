@@ -50,6 +50,18 @@
           "materialHash": "8b0479d5ca09046d9c676730374ef79dc8801738df4384e51f7e9853ab268520",
           "storyFilesHash": "849bca8a8bd6bdfc17515f09e74fa4d76c7309360205ba08b044c80447fdffc9",
           "timestamp": "2026-07-06T11:05:52.353Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "D=$(node -e 'const f=require(\"fs\"),{tmpdir}=require(\"os\"),{join}=require(\"path\");const S=new Set();process.on(\"exit\",()=>{for(const x of S){try{f.rmSync(x,{recursive:true,force:true})}catch{}}});const d=f.mkdtempSync(join(tmpdir(),\"pos-m3-GREEN-\"));S.add(d);process.stdout.write(d);try{process.exit(1)}finally{f.rmSync(d,{recursive:true,force:true});S.delete(d)}'); test -d \"$D\" || echo \"GREEN: swept (no leak)\"",
+          "result": "pass",
+          "note": "The F-017 fix (module-level activeSandboxes Set + process.on('exit') sweep) removes a sandbox even when cleanup happens on the process.exit(1) path. Validated deterministically: the pre-fix pattern leaks the dir (RED) and the exit-sweep removes it (GREEN: swept). See red-evidence.json (target CHK-001:edge:0).",
+          "headHash": "262b0fd43af61c601bb0a8eb889f1ef1389ffb9e",
+          "materialHash": "8b0479d5ca09046d9c676730374ef79dc8801738df4384e51f7e9853ab268520",
+          "storyFilesHash": "849bca8a8bd6bdfc17515f09e74fa4d76c7309360205ba08b044c80447fdffc9",
+          "timestamp": "2026-07-06T11:05:53.817Z"
         }
       ]
     },
