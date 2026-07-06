@@ -23,6 +23,13 @@
 //   (H) INTEGRITY-ABORT— edit a ledger field WITHOUT recomputing recordDigest =>
 //                        analyze-batch exits nonzero, names the iterationId, writes no all-pass report.
 //   (I) NO-OVERCLAIM   — a fail case => report.md omits the claim text, says it is not asserted.
+//   (J) H1-INCOMPLETE  — delete one full-scale proof record (re-sign the rest) => H1 fail.
+//   (K) H1-VACUOUS     — strip digests+goldMetrics from proof records (re-sign) => H1 fail.
+//   (L) H2-IDENTITY    — delete one fail-closed verdict + duplicate another (counts unchanged) => H2 fail.
+//   (M) H3-STUB        — replace resume with a 3-field stub => H3 fail.
+//   (N) H4-NEGATIVE    — one proof elapsedMs=-1 (re-sign) => H4 fail; and elapsedMs=null => H4 fail.
+//   (O) ABSENT-FILE    — delete tamper-verdicts.jsonl entirely => no crash, H2 inconclusive,
+//                        overall some-inconclusive, generatedInputs['tamper-verdicts.jsonl']===null.
 
 import { execFileSync } from 'node:child_process';
 import { cpSync, mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync, existsSync } from 'node:fs';
@@ -322,6 +329,187 @@ function checkI() {
   }
 }
 
+// ---------------------------------------------------------------------------
+// (J) H1-INCOMPLETE — delete one full-scale proof record (re-sign the rest) so
+//     the ledger stays integrity-clean but the full scale has < N[full]
+//     records => H1 must FAIL (incomplete), overall must NOT be all-pass.
+// ---------------------------------------------------------------------------
+function checkJ() {
+  const s = makeSandbox('J');
+  try {
+    const p = join(s, 'batch-ledger.jsonl');
+    const recs = readJsonl(p);
+    const idx = recs.findIndex((r) => r.scale === 'full' && r.verifyStatus !== undefined);
+    if (idx < 0) fail('J-h1-incomplete', 'no full-scale proof record found');
+    recs.splice(idx, 1); // drop one full-scale proof record
+    // Each surviving record still has a valid recordDigest (untouched); re-sign
+    // is a no-op here but keep the ledger integrity-clean explicitly.
+    writeJsonl(p, recs.map((r) => reSign(r)));
+    const r = runAnalyze(s);
+    if (r.status !== 0) fail('J-h1-incomplete', `analyze-batch aborted (${r.status}) — integrity should pass: ${r.stderr}`);
+    const v = parseVerdicts(r.stdout);
+    if (v['H1 replay-determinism'] !== 'fail') fail('J-h1-incomplete', `H1=${v['H1 replay-determinism']}, expected fail`);
+    if (v.overall === 'all-pass') fail('J-h1-incomplete', 'overall should not be all-pass');
+    ok('J-h1-incomplete', `H1=fail (full scale short one record), overall=${v.overall}`);
+  } finally {
+    cleanup(s);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// (K) H1-VACUOUS — strip digests + goldMetrics from the proof records and
+//     re-sign each (integrity passes) => H1 must FAIL (vacuous/malformed):
+//     stripping the substantive evidence must NOT pass.
+// ---------------------------------------------------------------------------
+function checkK() {
+  const s = makeSandbox('K');
+  try {
+    const p = join(s, 'batch-ledger.jsonl');
+    const recs = readJsonl(p);
+    const stripped = recs.map((r) => {
+      if (r.verifyStatus === undefined) return r;
+      const { digests, goldMetrics, ...rest } = r;
+      return reSign(rest); // remove digests+goldMetrics, recompute recordDigest
+    });
+    writeJsonl(p, stripped);
+    const r = runAnalyze(s);
+    if (r.status !== 0) fail('K-h1-vacuous', `analyze-batch aborted (${r.status}) — integrity should pass: ${r.stderr}`);
+    const v = parseVerdicts(r.stdout);
+    if (v['H1 replay-determinism'] !== 'fail') fail('K-h1-vacuous', `H1=${v['H1 replay-determinism']}, expected fail`);
+    if (v.overall === 'all-pass') fail('K-h1-vacuous', 'overall should not be all-pass');
+    ok('K-h1-vacuous', `H1=fail (digests+goldMetrics stripped), overall=${v.overall}`);
+  } finally {
+    cleanup(s);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// (L) H2-IDENTITY — delete one fail-closed verdict and DUPLICATE a different
+//     one so per-disposition COUNTS are unchanged, but the {class|handling}
+//     identity set now has a missing + a duplicate => H2 must FAIL on identity
+//     coverage even though counts still match.
+// ---------------------------------------------------------------------------
+function checkL() {
+  const s = makeSandbox('L');
+  try {
+    const p = join(s, 'tamper-verdicts.jsonl');
+    const recs = readJsonl(p);
+    const failClosed = recs.filter((v) => v.rederivedDisposition === 'fail-closed');
+    if (failClosed.length < 2) fail('L-h2-identity', 'need >=2 fail-closed verdicts to swap');
+    const victim = failClosed[0]; // this identity will go missing
+    const donor = failClosed[1]; // this identity will be duplicated
+    const victimId = `${victim.class}|${victim.handling}`;
+    const donorId = `${donor.class}|${donor.handling}`;
+    if (victimId === donorId) fail('L-h2-identity', 'victim and donor share an identity');
+    // remove the victim; append a copy of the donor => counts unchanged.
+    const out = recs.filter((v) => v !== victim);
+    out.push({ ...donor });
+    writeJsonl(p, out);
+    const r = runAnalyze(s);
+    if (r.status !== 0) fail('L-h2-identity', `analyze-batch aborted (${r.status}): ${r.stderr}`);
+    const v = parseVerdicts(r.stdout);
+    if (v['H2 tamper-fail-closed'] !== 'fail') fail('L-h2-identity', `H2=${v['H2 tamper-fail-closed']}, expected fail`);
+    // confirm the counts really did stay matched (so identity is what caught it)
+    const rep = readJson(join(s, 'report.json'));
+    if (rep.hypotheses.H2.evidence.countsMatch !== true) {
+      fail('L-h2-identity', 'expected countsMatch to stay true so IDENTITY is the discriminator');
+    }
+    if (rep.hypotheses.H2.evidence.identityMatch !== false) {
+      fail('L-h2-identity', 'expected identityMatch=false');
+    }
+    ok('L-h2-identity', `H2=fail via identity (missing ${victimId}, dup ${donorId}; counts unchanged), overall=${v.overall}`);
+  } finally {
+    cleanup(s);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// (M) H3-STUB — replace resume-reconciliation.json with a bare 3-field stub
+//     {dupTotal,gapTotal,finalMultisetMatch} => H3 must FAIL (missing the
+//     substantive kill*/protocolReplaySmallCount/hypothesis structure).
+// ---------------------------------------------------------------------------
+function checkM() {
+  const s = makeSandbox('M');
+  try {
+    const p = join(s, 'resume-reconciliation.json');
+    writeFileSync(p, JSON.stringify({ dupTotal: 0, gapTotal: 0, finalMultisetMatch: true }, null, 2));
+    const r = runAnalyze(s);
+    if (r.status !== 0) fail('M-h3-stub', `analyze-batch aborted (${r.status}): ${r.stderr}`);
+    const v = parseVerdicts(r.stdout);
+    if (v['H3 resume-integrity'] !== 'fail') fail('M-h3-stub', `H3=${v['H3 resume-integrity']}, expected fail`);
+    if (v.overall === 'all-pass') fail('M-h3-stub', 'overall should not be all-pass');
+    ok('M-h3-stub', `H3=fail (3-field stub, no substantive structure), overall=${v.overall}`);
+  } finally {
+    cleanup(s);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// (N) H4-NEGATIVE — a proof record with elapsedMs=-1 (re-signed) must FAIL H4;
+//     and elapsedMs=null must ALSO FAIL (must not coerce to 0 and pass).
+// ---------------------------------------------------------------------------
+function checkN() {
+  const s = makeSandbox('N');
+  try {
+    const p = join(s, 'batch-ledger.jsonl');
+    // sub-case (i): elapsedMs = -1
+    {
+      const recs = readJsonl(p);
+      const idx = recs.findIndex((r) => r.verifyStatus !== undefined && r.elapsedMs !== undefined);
+      if (idx < 0) fail('N-h4-negative', 'no proof record with elapsedMs found');
+      const rec = recs[idx];
+      rec.elapsedMs = -1;
+      recs[idx] = reSign(rec);
+      writeJsonl(p, recs);
+      const r = runAnalyze(s);
+      if (r.status !== 0) fail('N-h4-negative', `analyze-batch aborted (${r.status}) — integrity should pass: ${r.stderr}`);
+      const v = parseVerdicts(r.stdout);
+      if (v['H4 scale-envelope'] !== 'fail') fail('N-h4-negative', `elapsedMs=-1: H4=${v['H4 scale-envelope']}, expected fail`);
+    }
+    // sub-case (ii): elapsedMs = null (must NOT coerce to 0 and pass)
+    {
+      const recs = readJsonl(p); // fresh copy of the still-pristine committed file
+      const idx = recs.findIndex((r) => r.verifyStatus !== undefined && r.elapsedMs !== undefined);
+      const rec = recs[idx];
+      rec.elapsedMs = null;
+      recs[idx] = reSign(rec);
+      writeJsonl(p, recs);
+      const r = runAnalyze(s);
+      if (r.status !== 0) fail('N-h4-negative', `elapsedMs=null: analyze-batch aborted (${r.status}): ${r.stderr}`);
+      const v = parseVerdicts(r.stdout);
+      if (v['H4 scale-envelope'] !== 'fail') fail('N-h4-negative', `elapsedMs=null: H4=${v['H4 scale-envelope']}, expected fail`);
+    }
+    ok('N-h4-negative', 'H4=fail for elapsedMs=-1 and for elapsedMs=null (no coercion to 0)');
+  } finally {
+    cleanup(s);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// (O) ABSENT-FILE — delete tamper-verdicts.jsonl entirely: analyze-batch must
+//     NOT crash (exit 0), H2 must be inconclusive, overall some-inconclusive,
+//     and generatedInputs['tamper-verdicts.jsonl'] must be null.
+// ---------------------------------------------------------------------------
+function checkO() {
+  const s = makeSandbox('O');
+  try {
+    rmSync(join(s, 'tamper-verdicts.jsonl'), { force: true }); // genuinely absent
+    const r = runAnalyze(s);
+    if (r.status !== 0) fail('O-absent-file', `analyze-batch crashed (${r.status}) on an absent input — must be graceful: ${r.stderr}`);
+    const v = parseVerdicts(r.stdout);
+    if (v['H2 tamper-fail-closed'] !== 'inconclusive') fail('O-absent-file', `H2=${v['H2 tamper-fail-closed']}, expected inconclusive`);
+    if (v.overall !== 'some-inconclusive') fail('O-absent-file', `overall=${v.overall}, expected some-inconclusive`);
+    if (v.overall === 'all-pass') fail('O-absent-file', 'must NOT emit all-pass when an input was absent');
+    const rep = readJson(join(s, 'report.json'));
+    if (rep.generatedInputs['tamper-verdicts.jsonl'] !== null) {
+      fail('O-absent-file', `generatedInputs['tamper-verdicts.jsonl']=${JSON.stringify(rep.generatedInputs['tamper-verdicts.jsonl'])}, expected null`);
+    }
+    ok('O-absent-file', 'no crash, H2=inconclusive, overall=some-inconclusive, generatedInputs sha=null');
+  } finally {
+    cleanup(s);
+  }
+}
+
 function main() {
   checkA();
   checkB();
@@ -332,6 +520,12 @@ function main() {
   checkG();
   checkH();
   checkI();
+  checkJ();
+  checkK();
+  checkL();
+  checkM();
+  checkN();
+  checkO();
   console.log('selfcheck-m4 PASS');
   process.exit(0);
 }

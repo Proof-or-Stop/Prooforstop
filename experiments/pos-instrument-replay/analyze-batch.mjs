@@ -50,6 +50,16 @@ const CLAIM_TEXT =
 function readFileBytes(p) {
   return readFileSync(p); // Buffer
 }
+// ABSENT (file does not exist) vs PRESENT is a load-bearing distinction: an
+// absent input makes the dependent hypothesis inconclusive and its
+// generatedInputs sha null — it must NEVER crash and NEVER yield all-pass.
+function readFileBytesOrNull(p) {
+  try {
+    return readFileSync(p); // Buffer
+  } catch {
+    return null;
+  }
+}
 function readTextOrNull(p) {
   try {
     return readFileSync(p, 'utf8');
@@ -109,39 +119,48 @@ function main() {
     );
   }
 
-  // (b) ledger required; every record's recordDigest must re-derive.
-  const ledgerText = readTextOrNull(paths.ledger);
-  if (ledgerText == null) {
-    fatal('analyze-batch: FATAL input-integrity — batch-ledger.jsonl missing');
-  }
-  const ledger = parseJsonl(ledgerText);
-  for (const rec of ledger) {
-    const { recordDigest, ...rest } = rec;
-    const derived = sha256(canonicalJson(rest));
-    if (derived !== recordDigest) {
-      // Naive edit: a field changed but the record's own digest was not
-      // recomputed. Abort — do NOT emit a report.
-      fatal(
-        `analyze-batch: FATAL input-integrity — record ${rec.iterationId} ` +
-          'recordDigest mismatch (naively-edited ledger)',
-      );
+  // (b) batch-ledger.jsonl: ABSENT (file does not exist) is NOT a hard fatal —
+  // it makes H1/H4 inconclusive (the integrity pre-check must not crash on an
+  // absent ledger). A PRESENT-but-naively-edited ledger IS a hard fatal.
+  const ledgerBytes = readFileBytesOrNull(paths.ledger);
+  const ledgerAbsent = ledgerBytes == null;
+  let ledger = [];
+  if (!ledgerAbsent) {
+    ledger = parseJsonl(ledgerBytes.toString('utf8'));
+    for (const rec of ledger) {
+      const { recordDigest, ...rest } = rec;
+      const derived = sha256(canonicalJson(rest));
+      if (derived !== recordDigest) {
+        // Naive edit: a field changed but the record's own digest was not
+        // recomputed. Abort — do NOT emit a report.
+        fatal(
+          `analyze-batch: FATAL input-integrity — record ${rec.iterationId} ` +
+            'recordDigest mismatch (naively-edited ledger)',
+        );
+      }
     }
   }
 
   // tamper-verdicts.jsonl has NO per-record digest: integrity there is
   // structural (a missing required field makes a hypothesis inconclusive,
-  // never a crash). Load it best-effort.
-  const tamperText = readTextOrNull(paths.tamper);
-  const tamper = tamperText == null ? [] : parseJsonl(tamperText);
+  // never a crash). ABSENT (file does not exist) is distinct from PRESENT:
+  // absent => H2 inconclusive AND generatedInputs sha null.
+  const tamperBytes = readFileBytesOrNull(paths.tamper);
+  const tamperAbsent = tamperBytes == null;
+  const tamper = tamperAbsent ? [] : parseJsonl(tamperBytes.toString('utf8'));
 
-  // resume-reconciliation.json: missing/empty => H3 inconclusive.
-  const resumeText = readTextOrNull(paths.resume);
+  // resume-reconciliation.json: ABSENT/empty/unparseable => H3 inconclusive.
+  const resumeBytes = readFileBytesOrNull(paths.resume);
+  const resumeAbsent = resumeBytes == null;
   let resume = null;
-  if (resumeText != null && resumeText.trim()) {
-    try {
-      resume = JSON.parse(resumeText);
-    } catch {
-      resume = null; // unparseable => treat as missing => inconclusive
+  if (!resumeAbsent) {
+    const resumeText = resumeBytes.toString('utf8');
+    if (resumeText.trim()) {
+      try {
+        resume = JSON.parse(resumeText);
+      } catch {
+        resume = null; // unparseable => treat as missing => inconclusive
+      }
     }
   }
 
@@ -149,9 +168,9 @@ function main() {
   const proofs = ledger.filter((r) => r.verifyStatus !== undefined);
 
   const hypotheses = {
-    H1: adjudicateH1(proofs),
+    H1: adjudicateH1(proofs, protocol),
     H2: adjudicateH2(tamper, protocol),
-    H3: adjudicateH3(resume),
+    H3: adjudicateH3(resume, protocol),
     H4: adjudicateH4(proofs, protocol),
   };
 
@@ -171,10 +190,12 @@ function main() {
       : 'some-inconclusive';
 
   // ---- generated-input digests (over the raw file bytes as committed) ----
+  // An ABSENT file => null sha (never a crash). protocol.json is already
+  // proven present + integrity-checked above, so it always has a real sha.
   const generatedInputs = {
-    'batch-ledger.jsonl': sha256(readFileBytes(paths.ledger)),
-    'tamper-verdicts.jsonl': sha256(readFileBytes(paths.tamper)),
-    'resume-reconciliation.json': sha256(readFileBytes(paths.resume)),
+    'batch-ledger.jsonl': ledgerAbsent ? null : sha256(ledgerBytes),
+    'tamper-verdicts.jsonl': tamperAbsent ? null : sha256(tamperBytes),
+    'resume-reconciliation.json': resumeAbsent ? null : sha256(resumeBytes),
     'protocol.json': protocolShaActual,
   };
 
@@ -211,47 +232,79 @@ function main() {
 }
 
 // ---------------------------------------------------------------------------
-// H1 replay-determinism
-//   group proof records by scale; for each scale with >=2 records, all must
-//   have pairwise-equal canonicalJson({digests, goldMetrics}).
-//   pass  iff every checkable scale is equal;
-//   fail  on any mismatch;
-//   inconclusive if NO scale has >=2 records.
+// H1 replay-determinism (STRICT completeness + non-vacuous)
+//   For every scale s declared in protocol.N:
+//     - recs = proof records at scale s.
+//     - recs.length MUST equal protocol.N[s] (incomplete OR extra => FAIL).
+//     - every rec MUST carry non-empty digests {records, gold, manifest}
+//       (all three present, non-empty strings) AND a non-empty goldMetrics
+//       object (vacuous/stripped => FAIL).
+//     - all recs at the scale MUST be pairwise-equal on
+//       canonicalJson({digests, goldMetrics}) (mismatch => FAIL).
+//   inconclusive ONLY when there are ZERO proof records overall (no evidence).
+//   pass iff every scale in protocol.N has exactly N[s] well-formed records all
+//   pairwise-equal.
 // ---------------------------------------------------------------------------
-function adjudicateH1(proofs) {
-  const criterion =
-    'Per scale with >=2 proof records, all records share identical ' +
-    'canonicalJson({digests, goldMetrics}).';
-  const byScale = {};
-  for (const r of proofs) (byScale[r.scale] ??= []).push(r);
-  const scales = Object.keys(byScale).sort();
-
-  let anyCheckable = false;
-  let anyMismatch = false;
-  const perScale = {};
-  for (const s of scales) {
-    const recs = byScale[s];
-    if (recs.length < 2) {
-      perScale[s] = { n: recs.length, checkable: false };
-      continue;
-    }
-    anyCheckable = true;
-    const key = (r) => canonicalJson({ digests: r.digests, goldMetrics: r.goldMetrics });
-    const k0 = key(recs[0]);
-    const equal = recs.every((r) => key(r) === k0);
-    perScale[s] = { n: recs.length, checkable: true, pairwiseEqual: equal };
-    if (!equal) anyMismatch = true;
+function isNonEmptyString(v) {
+  return typeof v === 'string' && v.length > 0;
+}
+function hasWellFormedProofEvidence(r) {
+  const d = r.digests;
+  if (d == null || typeof d !== 'object') return false;
+  if (!isNonEmptyString(d.records) || !isNonEmptyString(d.gold) || !isNonEmptyString(d.manifest)) {
+    return false;
   }
+  const g = r.goldMetrics;
+  if (g == null || typeof g !== 'object' || Object.keys(g).length === 0) return false;
+  return true;
+}
+function adjudicateH1(proofs, protocol) {
+  const criterion =
+    'Per scale s in protocol.N: exactly N[s] proof records exist, each with ' +
+    'non-empty digests {records,gold,manifest} + non-empty goldMetrics, and all ' +
+    'records share identical canonicalJson({digests, goldMetrics}).';
 
-  if (!anyCheckable) {
+  // No proof records at all => no evidence => inconclusive.
+  if (!proofs.length) {
     return {
       verdict: 'inconclusive',
       criterion,
-      evidence: { reason: 'no scale had >=2 proof records', perScale },
+      evidence: { reason: 'no proof records in ledger (absent/empty)' },
     };
   }
+
+  const expectedN = (protocol && protocol.N) || {};
+  const byScale = {};
+  for (const r of proofs) (byScale[r.scale] ??= []).push(r);
+  const scales = Object.keys(expectedN).sort();
+
+  let anyFail = false;
+  const perScale = {};
+  for (const s of scales) {
+    const recs = byScale[s] || [];
+    const expected = expectedN[s];
+    const countOk = recs.length === expected;
+    const wellFormed = recs.length > 0 && recs.every((r) => hasWellFormedProofEvidence(r));
+    let pairwiseEqual = null;
+    if (countOk && wellFormed) {
+      const key = (r) => canonicalJson({ digests: r.digests, goldMetrics: r.goldMetrics });
+      const k0 = key(recs[0]);
+      pairwiseEqual = recs.every((r) => key(r) === k0);
+    }
+    const scalePass = countOk && wellFormed && pairwiseEqual === true;
+    if (!scalePass) anyFail = true;
+    perScale[s] = {
+      n: recs.length,
+      expected,
+      countOk,
+      wellFormed,
+      pairwiseEqual,
+      pass: scalePass,
+    };
+  }
+
   return {
-    verdict: verdict(!anyMismatch, anyMismatch),
+    verdict: verdict(!anyFail, anyFail),
     criterion,
     evidence: { perScale },
   };
@@ -264,7 +317,9 @@ function adjudicateH1(proofs) {
 // ---------------------------------------------------------------------------
 function adjudicateH2(tamper, protocol) {
   const criterion =
-    'Every tamper verdict conforms to its rederivedDisposition rule ' +
+    'The set of {class|handling} verdicts exactly equals the protocol.tamperMatrix ' +
+    'identity set (no missing, no unexpected, no duplicate); every tamper verdict ' +
+    'conforms to its rederivedDisposition rule ' +
     '(fail-closed => verifyStatus in {fail,crash} & fingerprintMatch; ' +
     'accepted/acknowledged-limitation => pass & fingerprintMatch; ' +
     'dropped => pass), every dispositionMatch===true, and the per-disposition ' +
@@ -328,8 +383,35 @@ function adjudicateH2(tamper, protocol) {
     return got === expectedCounts[disp];
   });
 
+  // IDENTITY coverage: the actual set of `${class}|${handling}` verdicts must
+  // exactly equal the expected set built from EVERY protocol.tamperMatrix
+  // entry — same size, no missing identity, no unexpected identity, and no
+  // duplicate (a duplicate collapses in the actual Set => size mismatch).
+  const expectedIdentities = [];
+  for (const bucket of ['failClosed', 'acceptanceBucket', 'acknowledgedLimitations', 'dropped']) {
+    if (Array.isArray(tm[bucket])) {
+      for (const e of tm[bucket]) expectedIdentities.push(`${e.class}|${e.handling}`);
+    }
+  }
+  const E = new Set(expectedIdentities);
+  const actualIdentities = tamper.map((v) => `${v.class}|${v.handling}`);
+  const A = new Set(actualIdentities);
+  const missingIdentities = [...E].filter((id) => !A.has(id)).sort();
+  const unexpectedIdentities = [...A].filter((id) => !E.has(id)).sort();
+  // A duplicate (or any count divergence) shows up as actual-list length not
+  // matching the actual-Set size; identity coverage also requires |A| === |E|.
+  const duplicateIdentities = actualIdentities.length !== A.size;
+  const identityMatch =
+    A.size === E.size &&
+    missingIdentities.length === 0 &&
+    unexpectedIdentities.length === 0 &&
+    !duplicateIdentities;
+
   const pass =
-    nonConforming.length === 0 && dispositionMismatch.length === 0 && countsMatch;
+    identityMatch &&
+    nonConforming.length === 0 &&
+    dispositionMismatch.length === 0 &&
+    countsMatch;
 
   return {
     verdict: verdict(pass, !pass),
@@ -341,18 +423,45 @@ function adjudicateH2(tamper, protocol) {
       nonConforming: nonConforming.length,
       dispositionMismatch: dispositionMismatch.length,
       countsMatch,
+      identityMatch,
+      expectedIdentityCount: E.size,
+      actualIdentityCount: A.size,
+      missingIdentities,
+      unexpectedIdentities,
+      duplicateIdentities,
     },
   };
 }
 
 // ---------------------------------------------------------------------------
-// H3 resume-integrity
-//   pass iff dupTotal===0 && gapTotal===0 && finalMultisetMatch===true.
+// H3 resume-integrity (substantive, not a 3-field stub)
+//   ABSENT/empty/unparseable resume-reconciliation.json => inconclusive.
+//   PRESENT but missing the substantive reconciliation structure => FAIL:
+//     - killA, killB, killC each an object with keys casualtyId + postResume +
+//       recordedBeforeKill;
+//     - protocolReplaySmallCount === protocol.N.small;
+//     - hypothesis === 'H3'.
+//   pass iff the substantive structure is present AND dupTotal===0 &&
+//   gapTotal===0 && finalMultisetMatch===true.
 // ---------------------------------------------------------------------------
-function adjudicateH3(resume) {
+function isKillWellFormed(k) {
+  return (
+    k != null &&
+    typeof k === 'object' &&
+    !Array.isArray(k) &&
+    'casualtyId' in k &&
+    'postResume' in k &&
+    'recordedBeforeKill' in k
+  );
+}
+function adjudicateH3(resume, protocol) {
   const criterion =
-    'resume-reconciliation reports dupTotal===0, gapTotal===0, and ' +
-    'finalMultisetMatch===true.';
+    'resume-reconciliation carries the substantive structure (killA/killB/killC ' +
+    'each with casualtyId+postResume+recordedBeforeKill, ' +
+    'protocolReplaySmallCount===protocol.N.small, hypothesis===H3) AND reports ' +
+    'dupTotal===0, gapTotal===0, finalMultisetMatch===true.';
+
+  // ABSENT / empty / unparseable => inconclusive (no evidence).
   if (
     resume == null ||
     resume.dupTotal === undefined ||
@@ -367,10 +476,26 @@ function adjudicateH3(resume) {
       },
     };
   }
-  const pass =
+
+  // PRESENT but stub/malformed (lacks substantive structure) => FAIL.
+  const expectedSmall = protocol && protocol.N ? protocol.N.small : undefined;
+  const structure = {
+    killA: isKillWellFormed(resume.killA),
+    killB: isKillWellFormed(resume.killB),
+    killC: isKillWellFormed(resume.killC),
+    protocolReplaySmallCount:
+      Number.isFinite(expectedSmall) &&
+      resume.protocolReplaySmallCount === expectedSmall,
+    hypothesis: resume.hypothesis === 'H3',
+  };
+  const substantive = Object.values(structure).every(Boolean);
+
+  const invariantsHold =
     resume.dupTotal === 0 &&
     resume.gapTotal === 0 &&
     resume.finalMultisetMatch === true;
+
+  const pass = substantive && invariantsHold;
   return {
     verdict: verdict(pass, !pass),
     criterion,
@@ -378,17 +503,27 @@ function adjudicateH3(resume) {
       dupTotal: resume.dupTotal,
       gapTotal: resume.gapTotal,
       finalMultisetMatch: resume.finalMultisetMatch,
+      substantive,
+      structure,
+      expectedSmall,
+      protocolReplaySmallCount: resume.protocolReplaySmallCount,
+      hypothesis: resume.hypothesis,
     },
   };
 }
 
 // ---------------------------------------------------------------------------
-// H4 scale-envelope
-//   pass iff every proof record elapsedMs <= protocol.budgetCaps.msPerVerify.
+// H4 scale-envelope (physical elapsed)
+//   A proof record is in-envelope iff its elapsedMs is a finite, non-negative
+//   number that is <= protocol.budgetCaps.msPerVerify. A negative, null, NaN,
+//   or non-finite elapsedMs is OVER/INVALID (null must NOT coerce to 0/pass).
+//   pass iff every proof record is in-envelope.
 // ---------------------------------------------------------------------------
 function adjudicateH4(proofs, protocol) {
   const cap = protocol.budgetCaps?.msPerVerify;
-  const criterion = 'Every proof record elapsedMs <= protocol.budgetCaps.msPerVerify.';
+  const criterion =
+    'Every proof record elapsedMs is a finite, non-negative number ' +
+    '<= protocol.budgetCaps.msPerVerify.';
   if (!Number.isFinite(cap)) {
     return {
       verdict: 'inconclusive',
@@ -403,8 +538,11 @@ function adjudicateH4(proofs, protocol) {
       evidence: { reason: 'no proof records', budgetCapMs: cap },
     };
   }
-  const over = proofs.filter((r) => !(r.elapsedMs <= cap));
-  const maxElapsedMs = Math.max(...proofs.map((r) => r.elapsedMs));
+  const inEnvelope = (r) =>
+    Number.isFinite(r.elapsedMs) && r.elapsedMs >= 0 && r.elapsedMs <= cap;
+  const over = proofs.filter((r) => !inEnvelope(r));
+  const finiteElapsed = proofs.map((r) => r.elapsedMs).filter((v) => Number.isFinite(v));
+  const maxElapsedMs = finiteElapsed.length ? Math.max(...finiteElapsed) : null;
   const pass = over.length === 0;
   return {
     verdict: verdict(pass, !pass),
@@ -516,16 +654,18 @@ function renderMarkdown(report, digest) {
 }
 
 function h1Evidence(h) {
+  if (h.evidence.reason) return h.evidence.reason;
   const ps = h.evidence.perScale || {};
-  const parts = Object.entries(ps).map(([s, v]) =>
-    v.checkable ? `${s}: n=${v.n} pairwiseEqual=${v.pairwiseEqual}` : `${s}: n=${v.n} (not checkable)`,
+  const parts = Object.entries(ps).map(
+    ([s, v]) =>
+      `${s}: n=${v.n}/${v.expected} countOk=${v.countOk} wellFormed=${v.wellFormed} pairwiseEqual=${v.pairwiseEqual} pass=${v.pass}`,
   );
-  return parts.length ? parts.join('; ') : (h.evidence.reason || '');
+  return parts.length ? parts.join('; ') : '';
 }
 function h2Evidence(h) {
   const e = h.evidence;
   if (e.reason) return e.reason;
-  return `total=${e.total}, nonConforming=${e.nonConforming}, dispositionMismatch=${e.dispositionMismatch}, countsMatch=${e.countsMatch}`;
+  return `total=${e.total}, identityMatch=${e.identityMatch} (expected=${e.expectedIdentityCount}, actual=${e.actualIdentityCount}), nonConforming=${e.nonConforming}, dispositionMismatch=${e.dispositionMismatch}, countsMatch=${e.countsMatch}`;
 }
 function h3Evidence(h) {
   const e = h.evidence;

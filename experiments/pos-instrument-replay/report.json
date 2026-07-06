@@ -14,25 +14,31 @@
   "hypotheses": {
     "H1": {
       "verdict": "pass",
-      "criterion": "Per scale with >=2 proof records, all records share identical canonicalJson({digests, goldMetrics}).",
+      "criterion": "Per scale s in protocol.N: exactly N[s] proof records exist, each with non-empty digests {records,gold,manifest} + non-empty goldMetrics, and all records share identical canonicalJson({digests, goldMetrics}).",
       "evidence": {
         "perScale": {
           "full": {
             "n": 3,
-            "checkable": true,
-            "pairwiseEqual": true
+            "expected": 3,
+            "countOk": true,
+            "wellFormed": true,
+            "pairwiseEqual": true,
+            "pass": true
           },
           "small": {
             "n": 30,
-            "checkable": true,
-            "pairwiseEqual": true
+            "expected": 30,
+            "countOk": true,
+            "wellFormed": true,
+            "pairwiseEqual": true,
+            "pass": true
           }
         }
       }
     },
     "H2": {
       "verdict": "pass",
-      "criterion": "Every tamper verdict conforms to its rederivedDisposition rule (fail-closed => verifyStatus in {fail,crash} & fingerprintMatch; accepted/acknowledged-limitation => pass & fingerprintMatch; dropped => pass), every dispositionMatch===true, and the per-disposition counts equal the protocol.tamperMatrix bucket lengths.",
+      "criterion": "The set of {class|handling} verdicts exactly equals the protocol.tamperMatrix identity set (no missing, no unexpected, no duplicate); every tamper verdict conforms to its rederivedDisposition rule (fail-closed => verifyStatus in {fail,crash} & fingerprintMatch; accepted/acknowledged-limitation => pass & fingerprintMatch; dropped => pass), every dispositionMatch===true, and the per-disposition counts equal the protocol.tamperMatrix bucket lengths.",
       "evidence": {
         "total": 27,
         "counts": {
@@ -49,21 +55,38 @@
         },
         "nonConforming": 0,
         "dispositionMismatch": 0,
-        "countsMatch": true
+        "countsMatch": true,
+        "identityMatch": true,
+        "expectedIdentityCount": 27,
+        "actualIdentityCount": 27,
+        "missingIdentities": [],
+        "unexpectedIdentities": [],
+        "duplicateIdentities": false
       }
     },
     "H3": {
       "verdict": "pass",
-      "criterion": "resume-reconciliation reports dupTotal===0, gapTotal===0, and finalMultisetMatch===true.",
+      "criterion": "resume-reconciliation carries the substantive structure (killA/killB/killC each with casualtyId+postResume+recordedBeforeKill, protocolReplaySmallCount===protocol.N.small, hypothesis===H3) AND reports dupTotal===0, gapTotal===0, finalMultisetMatch===true.",
       "evidence": {
         "dupTotal": 0,
         "gapTotal": 0,
-        "finalMultisetMatch": true
+        "finalMultisetMatch": true,
+        "substantive": true,
+        "structure": {
+          "killA": true,
+          "killB": true,
+          "killC": true,
+          "protocolReplaySmallCount": true,
+          "hypothesis": true
+        },
+        "expectedSmall": 30,
+        "protocolReplaySmallCount": 30,
+        "hypothesis": "H3"
       }
     },
     "H4": {
       "verdict": "pass",
-      "criterion": "Every proof record elapsedMs <= protocol.budgetCaps.msPerVerify.",
+      "criterion": "Every proof record elapsedMs is a finite, non-negative number <= protocol.budgetCaps.msPerVerify.",
       "evidence": {
         "budgetCapMs": 128217,
         "proofCount": 33,
@@ -86,5 +109,5 @@
   "instrumentDefects": [],
   "overall": "all-pass",
   "claim": "Under the recorded environment (pinned node version, platform, and instrument commit), the memory-baseline evidence instrument is replay-deterministic (identical digests over N independent replays at 1k and 1M scale), tamper-evident for the enumerated tamper matrix (every class in the fail-closed set fails closed with its pre-registered fingerprint, including classes that leave surface scores perfect), and campaign-operable (an unattended batch completed with every iteration ending in a machine-checkable proof record or an explicit stop record, surviving the probed interruption classes — process kill at an iteration boundary and mid-iteration — without duplication or gaps).",
-  "digest": "a5f07cfaa4edb99a9064efae0ed7462f1fbca76a9bef693f7ffe208eed691f05"
+  "digest": "f4224085e06db3a421bf6d6eed6204733d277696f1225403d03ab264bf3fd3ba"
 }
