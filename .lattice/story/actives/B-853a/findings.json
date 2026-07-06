@@ -95,6 +95,24 @@
       ],
       "signatureTag": "adversarial|mjs|codex-host-high",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-853a:F-007",
+      "desc": "F-CODEX-3 (host-2, HIGH): H3 STUB false-pass. adjudicateH3 (analyze-batch.mjs:~356) checks only dupTotal===0 && gapTotal===0 && finalMultisetMatch===true. Replacing resume-reconciliation.json with the 3-field stub {dupTotal:0,gapTotal:0,finalMultisetMatch:true} passes even though the scored kill trials (killA/killB/killC), casualty dispositions, killC.stoppedRecordPreserved, and protocolReplaySmallCount evidence are ABSENT. FIX: H3 must validate the reconciliation carries its substantive evidence (killA/killB/killC objects each with dup/gap, protocolReplaySmallCount matching protocol.N.small, hypothesis field) — not just the 3 summary booleans.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-07-06T07:39:00.287Z",
+      "reviewRound": "2026-07-06T07:30:13.842Z",
+      "reviewRunId": "B-853a:RR-006",
+      "_hash": "77c39b371613d768f37b5594c21eaff2b40b8575defc9ef4ce4448b6929829f6",
+      "files": [
+        "experiments/pos-instrument-replay/analyze-batch.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|codex-host-high",
+      "signatureTagSource": "auto"
     }
   ]
 }
