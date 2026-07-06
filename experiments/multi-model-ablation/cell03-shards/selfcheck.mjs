@@ -40,7 +40,9 @@ try {
   assert(plan.uniqueRows === 1152, `expected 1152 unique rows, got ${plan.uniqueRows}`);
   assert(plan.shards.length === shardCount, `expected ${shardCount} shards`);
   assert(plan.shards.reduce((sum, shard) => sum + shard.rowCount, 0) === 1152, "shard row counts do not sum to 1152");
-  expectThrow("invalid shard index", () => buildShardPlan({ shardCount: 0 }));
+  expectThrow("invalid shard count", () => buildShardPlan({ shardCount: 0 }));
+  expectThrow("invalid shard index (negative)", () => buildShardPlan({ shardCount, shardIndex: -1 }));
+  expectThrow("invalid shard index (>= count)", () => buildShardPlan({ shardCount, shardIndex: shardCount }));
 
   const lockDir = shardDir(path.join(tempRoot, "lock"), shardCount, 0);
   const release = acquireShardLock(lockDir, { selfcheck: true });
@@ -85,10 +87,26 @@ try {
   }));
   expectThrow("digest drift", () => mergeShardOutputs({ inputDir: driftDir, requireComplete: true }));
 
+  // Forge the binding IDENTICALLY across every shard: peer-consistency checks alone
+  // would accept this stale/forged set; merge must reject it against the live envelope.
+  const forgedDir = path.join(tempRoot, "forged");
+  copyFixture(completeDir, forgedDir);
+  for (let shardIndex = 0; shardIndex < shardCount; shardIndex += 1) {
+    const forgedManifestPath = path.join(shardDir(forgedDir, shardCount, shardIndex), "shard-manifest.json");
+    const forgedManifest = JSON.parse(fs.readFileSync(forgedManifestPath, "utf8"));
+    forgedManifest.binding.toolSurfaceDigest = "sha256:1111111111111111111111111111111111111111111111111111111111111111";
+    fs.writeFileSync(forgedManifestPath, JSON.stringify(forgedManifest, null, 2));
+  }
+  expectThrow("envelope binding drift", () => mergeShardOutputs({ inputDir: forgedDir, requireComplete: true }));
+
+  // Exercise the real write-refusal guard: merging with an output named cell03-rows.jsonl
+  // must fail closed rather than write the canonical ledger.
+  expectThrow("canonical output refusal", () => mergeShardOutputs({ inputDir: completeDir, output: path.join(tempRoot, "cell03-rows.jsonl") }));
+
   const canonicalAfter = fs.existsSync(canonicalRowsPath) ? fs.readFileSync(canonicalRowsPath, "utf8") : null;
   assert(canonicalBefore === canonicalAfter, "canonical Cell03 rows changed during selfcheck");
 
-  console.log("cell03-shards selfcheck PASS: coverage=1152 shards=8 lockReject=pass rerunReject=pass mergeComplete=pass duplicateReject=pass missingReject=pass digestDriftReject=pass canonicalUntouched=pass");
+  console.log("cell03-shards selfcheck PASS: coverage=1152 shards=8 invalidIndexReject=pass lockReject=pass rerunReject=pass mergeComplete=pass duplicateReject=pass missingReject=pass digestDriftReject=pass envelopeBindingReject=pass canonicalWriteRefused=pass canonicalUntouched=pass");
 } finally {
   fs.rmSync(tempRoot, { recursive: true, force: true });
 }

@@ -41,8 +41,25 @@ export function mergeShardOutputs(options = {}) {
 
   const manifests = shardDirs.map(readShardManifest);
   const shardCount = manifests[0].manifest.shardCount;
-  const plan = buildShardPlan({ ...options, shardCount });
-  const bindingJson = canonicalJson(manifests[0].manifest.binding);
+  const plan = buildShardPlan({ ...options, shardCount, includeRows: true });
+  // Anchor binding verification to the live envelope-derived plan.binding, not to a
+  // peer manifest. Comparing shards only against each other lets a fully-consistent
+  // but stale/forged binding across every shard pass; CHK-003 requires the merged set
+  // to match the true protocol/prompt/tool/snapshot binding, which plan.binding carries
+  // (buildCell03Binding verifies the envelope digests). Only the operator-supplied
+  // runnerId/executionWindowId are not envelope-derived, but they must still be uniform,
+  // which anchoring to plan.binding (built from the same options) also enforces.
+  const bindingJson = canonicalJson({
+    protocolDigest: plan.binding.protocolDigest,
+    taskInventoryDigest: plan.binding.taskInventoryDigest,
+    promptDigest: plan.binding.promptDigest,
+    toolSurfaceDigest: plan.binding.toolSurfaceDigest,
+    runnerId: plan.binding.runnerId,
+    executionWindowId: plan.binding.executionWindowId,
+    executorSnapshot: plan.binding.executorSnapshot,
+    reviewerSnapshot: plan.binding.reviewerSnapshot,
+    snapshotDate: plan.binding.snapshotDate,
+  });
   const manifestByShard = new Map();
 
   for (const item of manifests) {
@@ -66,8 +83,7 @@ export function mergeShardOutputs(options = {}) {
 
   const expectedByKey = new Map();
   for (const shard of plan.shards) {
-    const rows = buildShardPlan({ ...options, shardCount, includeRows: true }).shards[shard.shardIndex].rows || [];
-    for (const row of rows) expectedByKey.set(row.cellKey, shard.shardIndex);
+    for (const row of shard.rows || []) expectedByKey.set(row.cellKey, shard.shardIndex);
   }
 
   const rowsByKey = new Map();

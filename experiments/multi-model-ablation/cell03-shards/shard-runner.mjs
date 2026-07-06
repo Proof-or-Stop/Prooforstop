@@ -76,14 +76,17 @@ export function writeShardOutput(options = {}) {
   const shardIndex = Number(options.shardIndex ?? 0);
   const outDir = options.outDir || path.join(os.tmpdir(), "cell03-shards");
   const targetDir = shardDir(outDir, shardCount, shardIndex);
-  if (!options.allowOverwrite) {
-    for (const fileName of ["shard-manifest.json", "rows.jsonl"]) {
-      const existing = path.join(targetDir, fileName);
-      if (fs.existsSync(existing)) throw new Error(`refusing to overwrite existing shard output: ${existing}`);
-    }
-  }
   const release = acquireShardLock(targetDir, { shardCount, shardIndex, runnerId: options.runnerId || null });
   try {
+    // Overwrite refusal must run inside the lock: an unlocked pre-check is a
+    // TOCTOU window where a second writer whose check saw an empty dir can win
+    // the lock after the first writer finishes and silently clobber its output.
+    if (!options.allowOverwrite) {
+      for (const fileName of ["shard-manifest.json", "rows.jsonl"]) {
+        const existing = path.join(targetDir, fileName);
+        if (fs.existsSync(existing)) throw new Error(`refusing to overwrite existing shard output: ${existing}`);
+      }
+    }
     const plan = buildShardPlan({ ...options, shardCount, shardIndex });
     const shard = plan.shards[shardIndex];
     const rows = options.fixtureRows === false ? [] : makeFixtureRows({ ...options, shardCount, shardIndex });

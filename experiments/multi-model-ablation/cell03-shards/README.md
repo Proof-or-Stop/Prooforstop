@@ -33,7 +33,7 @@ node experiments/multi-model-ablation/cell03-shards/selfcheck.mjs
 Expected output includes:
 
 ```text
-cell03-shards selfcheck PASS: coverage=1152 shards=8 lockReject=pass rerunReject=pass mergeComplete=pass duplicateReject=pass missingReject=pass digestDriftReject=pass canonicalUntouched=pass
+cell03-shards selfcheck PASS: coverage=1152 shards=8 invalidIndexReject=pass lockReject=pass rerunReject=pass mergeComplete=pass duplicateReject=pass missingReject=pass digestDriftReject=pass envelopeBindingReject=pass canonicalWriteRefused=pass canonicalUntouched=pass
 ```
 
 ## Boundaries
@@ -41,7 +41,7 @@ cell03-shards selfcheck PASS: coverage=1152 shards=8 lockReject=pass rerunReject
 - Parallel Wave is story-level scheduling. These helpers are row-level Cell03 sharding.
 - `shard-runner.mjs` writes shard-local fixture rows only.
 - Completed shard output cannot be overwritten by a second shard run.
-- `merge.mjs` rejects duplicate final rows, missing rows, shard-count drift, digest drift, and wrong-shard rows.
+- `merge.mjs` rejects duplicate final rows, missing rows, shard-count drift, wrong-shard rows, and binding/digest drift — including a shard set whose binding is internally consistent but does not match the live Cell03 envelope (checked against the envelope-derived `plan.binding`, not just peer shards).
 - `merge.mjs --output` refuses to write to `cell03-rows.jsonl`; formal provider evidence must use a separately approved result writer.
 - Cell06 remains blocked until a real Cell03-derived budget or usage lock exists after future execution.
 
