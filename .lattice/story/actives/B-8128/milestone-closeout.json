@@ -1,0 +1,117 @@
+{
+  "schemaVersion": "proofbound.milestone_closeout.v1",
+  "storyId": "B-8128",
+  "phase": "TEST",
+  "generatedAt": "2026-07-05T21:49:13.445Z",
+  "sourceReport": {
+    "schemaVersion": "proofbound.milestone_status.v1",
+    "digest": "98e03fe5176456391d782cf11e73929b81e61eb646c79a03fadc9ed14fbc5710",
+    "ledger": {
+      "present": true,
+      "state": "confirmed",
+      "hash": "sha256:f9979866221192be1d3904ac5893435bdd679c62049ba490c1ff6377b77747e5"
+    },
+    "groups": {
+      "completed": [
+        "M-RED-SCHEMA",
+        "M-DONE-BIND",
+        "M-LINEAGE",
+        "M-CLI",
+        "M-ASSERT-VALIDATE"
+      ],
+      "current": [],
+      "remaining": []
+    },
+    "risks": [],
+    "nextActions": [
+      "No milestone action; all ledger rows are completed or not applicable."
+    ]
+  },
+  "bindings": {
+    "headHash": "64fda5c4bd77f337d2c54fae8968fafd374f3638",
+    "materialHash": "8af5cb7110f3adccbf3c9fed61cdd9598278cad30c9e46cdea70ec7a9e9e3e60",
+    "storyFilesHash": "f9b1dc1208256961ac27985f7b757d8c56c11ad584d2a9c387ec1f49359a162e"
+  },
+  "rows": [
+    {
+      "milestone": "M-RED-SCHEMA",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "A hermetic red proves the gap and a first-class capability release ledger with a fail-closed reader exists.",
+      "acceptance": "M0 red smoke red-until-M4; core/capability-release.ts + smoke green (merge-stable digest/key/id, throws on authority/gateEvidence, gate-import guard).",
+      "evidence": [
+        "CHK-001:happy:0 [pass/logic_test] node packages/main/dist/tasks/product-capability-release-red-smoke.js note=Hermetic red smoke now passes via the real M4 enrichment path, proving the gap is closed on the fixture.",
+        "CHK-001:edge:0 [pass/logic_test] node packages/main/dist/tasks/product-capability-release-red-smoke.js note=Smoke uses a mkdtemp fixture, reads no live repo-root .lattice, and is re-runnable.",
+        "CHK-001:adversarial:0 [pass/logic_test] node packages/main/dist/tasks/product-capability-release-red-smoke.js note=Expected PCR id is produced by the real M1 builder; red before M4, green after — a genuine red->green pin.",
+        "CHK-002:happy:0 [pass/logic_test] node packages/main/dist/tasks/product-capability-release-smoke.js note=Deterministic merge-stable capabilityDigest, PCR-<24hex> id, digest-derived version, capabilityId slug — all green.",
+        "CHK-002:edge:0 [pass/logic_test] node packages/main/dist/tasks/product-capability-release-smoke.js note=Fail-closed reader throws on authority/gateEvidence/malformed rows; artifact-less digest stable.",
+        "CHK-002:adversarial:0 [pass/logic_test] node packages/main/dist/tasks/product-capability-release-smoke.js note=idempotencyKey excludes mainCommit (recovery -> same id); gate-import guard proves no gate module imports the reader."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M-DONE-BIND",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "DONE classifies capabilities from both sites and records a merge-stable release deduped on recovery.",
+      "acceptance": "Pure core classifier invoked from done-effects.ts and done-recover.ts; capability-releases.jsonl gets one PCR row; re-run with a different mainCommit is already_recorded.",
+      "evidence": [
+        "CHK-003:happy:0 [pass/logic_test] node packages/main/dist/tasks/product-capability-release-smoke.js note=Pure classifyCapabilityRelease returns experiment-launch-control for B-785e-like paths + the capability path subset.",
+        "CHK-003:edge:0 [pass/logic_test] node packages/main/dist/tasks/product-capability-release-smoke.js note=Typo-doc -> documentation-control; runtime src / .lattice metadata -> no capability release.",
+        "CHK-003:adversarial:0 [pass/logic_test] node packages/main/dist/tasks/product-capability-release-smoke.js note=Both DONE sites (done-effects.ts:1167, done-recover.ts:116) import the same core classifier.",
+        "CHK-004:happy:0 [pass/logic_test] node packages/main/dist/tasks/product-capability-release-smoke.js note=DONE records one PCR row binding storyId/mainCommit/artifact ids/changedPaths.",
+        "CHK-004:edge:0 [pass/logic_test] node packages/main/dist/tasks/product-capability-release-smoke.js note=Re-run with a different mainCommit returns already_recorded; no duplicate row.",
+        "CHK-004:adversarial:0 [pass/logic_test] node packages/main/dist/tasks/product-capability-release-smoke.js note=Ledger committed via git add -f + .gitignore un-ignore -> tracked cross-host source of truth."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M-LINEAGE",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "DONE candidate ingest binds playbook lineage to the capability release.",
+      "acceptance": "PlaybookLineage gains optional capability fields; enrichment attaches them; M0 flips green.",
+      "evidence": [
+        "CHK-005:happy:0 [pass/logic_test] node packages/main/dist/tasks/playbook-capability-lineage-smoke.js note=Candidate ingest attaches capabilityReleaseId/capabilityId/version/artifactReleaseId when a capability release exists.",
+        "CHK-005:edge:0 [pass/logic_test] node packages/main/dist/tasks/playbook-capability-lineage-smoke.js note=Pre-existing 3-field lineage still parses; re-apply is a no-op keyed on the canonical source key.",
+        "CHK-005:adversarial:0 [pass/logic_test] node packages/main/dist/tasks/product-capability-release-red-smoke.js note=Enrichment recomputes proposal/playbook digests without tripping stale-proposal; the M0 red fixture flips green."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M-CLI",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Capability releases are visible via read-only CLI.",
+      "acceptance": "capability_release_list/status render read-only, registered across five sites; playbook_promotion_status shows lineage.",
+      "evidence": [
+        "CHK-006:happy:0 [pass/manual_transcript] node packages/main/dist/cli.js capability_release_list --format=json note=capability_release_list/status render the ledger read-only (json/text), cloned from artifact-release.",
+        "CHK-006:edge:0 [pass/logic_test] node packages/main/dist/tasks/product-capability-release-smoke.js note=Registered across six sites (catalog, registry, handler, command-policy readOnly/none/all, config DEFAULT_PHASE_TOOLS wildcard, process-fact L0).",
+        "CHK-006:adversarial:0 [pass/logic_test] node packages/main/dist/tasks/product-capability-release-smoke.js note=Read-only: byte-identical ledger before/after; distinct capability_release_* namespace, not the host capability_list/probe/claim family."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M-ASSERT-VALIDATE",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Candidates stay inert, DONE!=helped, a hermetic backfill proof is idempotent, and validation is green.",
+      "acceptance": "Invariants smoke asserts M6/M7 + hermetic backfill proof; tsc clean + four smokes green + lattice validate PASS.",
+      "evidence": [
+        "CHK-011:happy:0 [pass/logic_test] node packages/main/dist/tasks/capability-release-invariants-smoke.js note=A status=candidate capability playbook is excluded by matchRuntimePlaybooks / MemoryFreshnessPack.results.playbookIds.",
+        "CHK-011:edge:0 [pass/logic_test] node packages/main/dist/tasks/capability-release-invariants-smoke.js note=Candidate does not enter active playbookIds.",
+        "CHK-011:adversarial:0 [pass/logic_test] node packages/main/dist/tasks/capability-release-invariants-smoke.js note=Flipping the same playbook to status=active surfaces it, proving the status===active guard is the gate.",
+        "CHK-012:happy:0 [pass/logic_test] node packages/main/dist/tasks/capability-release-invariants-smoke.js note=isPositiveHelpedPlaybookOutcome false for verdictSource=done-settlement.",
+        "CHK-012:edge:0 [pass/logic_test] node packages/main/dist/tasks/capability-release-invariants-smoke.js note=A structured non-done-settlement helped outcome counts as helped.",
+        "CHK-012:adversarial:0 [pass/logic_test] node packages/main/dist/tasks/capability-release-invariants-smoke.js note=aggregatePlaybookPromotion.decisiveSamples excludes done-settlement/neutral/unknown.",
+        "CHK-013:happy:0 [pass/logic_test] node packages/main/dist/tasks/capability-release-invariants-smoke.js note=Fixture backfill dry-run detects exactly one eligible seed; apply enriches exactly one.",
+        "CHK-013:edge:0 [pass/logic_test] node packages/main/dist/tasks/capability-release-invariants-smoke.js note=Second apply is a byte-identical no-op; candidate stays status=candidate; surfacedCount unchanged.",
+        "CHK-013:adversarial:0 [pass/logic_test] node packages/main/dist/tasks/capability-release-invariants-smoke.js note=No helped outcome inferred; the proof uses a mkdtemp fixture, never the live PBP-882.",
+        "CHK-010:happy:0 [pass/logic_test] lattice validate note=tsc build clean and all four new capability smokes run green under node dist/tasks.",
+        "CHK-010:edge:0 [pass/manual_transcript] lattice validate note=lattice validate --json returns status=pass with the four capability smokes in the suite; M0 red test now green.",
+        "CHK-010:adversarial:0 [pass/logic_test] lattice validate note=No unrelated smoke in the curated validate suite regresses."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-fbbb",
+  "allowedCommands": [
+    "git add|commit|diff|status|checkout|apply",
+    "lattice *",
+    "node packages/main/dist/tasks/decision-doc-promotion-smoke.js",
+    "node packages/main/dist/tasks/experience-layer-digest-extract-smoke.js",
+    "node packages/main/dist/tasks/experience-layer-playbook-smoke.js",
+    "npm run build"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    "packages/main/src/handlers/playbook.ts",
+    "packages/main/src/tasks/decision-doc-promotion-smoke.ts",
+    "packages/main/src/tasks/experience-layer-playbook-smoke.ts"
+  ],
+  "excludedCommands": [
+    "git push",
+    "git reset --hard",
+    "rm -rf"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    "packages/main/src/core/learning-store.ts",
+    "packages/main/src/core/playbook-seed.ts",
+    "packages/main/src/core/source-lineage-audit.ts",
+    "packages/main/src/handlers/decision-doc-promotion.ts"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Test-maintenance chore: edit only the 3 allowed test/comment files; verify via tsc build + the three smokes. No shipping runtime code (blockedPaths) may change.",
+  "createdAt": "2026-07-05T21:28:10.328Z",
+  "updatedAt": "2026-07-05T21:28:10.328Z",
+  "_hash": "2d9b5fdb05c0d212702f873abc79957bfc94f17586687b867d929da303b34736"
+}

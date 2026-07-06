@@ -1,0 +1,59 @@
+{
+  "storyId": "B-c389",
+  "name": "capability-release-lifecycle-exposure-promotion",
+  "title": "Product capability release lifecycle: live backfill + candidate exposure + evidence-based promotion (B-8128 follow-up)",
+  "description": "B-8128 V1 (DONE, merged, CLI 0.3.162) shipped the product-capability-release foundation: the git-tracked capability-releases.jsonl ledger, the DONE classifier at both completion sites, merge-stable binding, optional playbook-lineage widening, and read-only capability_release_list/status. It PROVED the M6/M7/backfill semantics hermetically and ASSERTED that the safety invariants stay intact, but deferred three OPERATIONAL pieces to this follow-up story. This story turns those proven semantics into live, user-usable machinery: (1) a real capability_release_backfill CLI that enriches the already-existing B-785e artifact release + PBP-882 candidate (still under-bound with only 3-field lineage); (2) the M6 candidate pending-learning EXPOSURE surfaces + exposure records so an inert candidate can finally be shown in a controlled, non-active way; (3) the M7 structured-outcome + evidence-based promotion recommendation commands so a candidate can move candidate -> exposed -> outcome -> promoted only on concrete evidence. Ref: docs/requirements/decisions/product-capability-release-playbook-lineage-execution-plan.md (M6, M7, M8, and the Follow-up Story section).",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "medium",
+  "source": "B-8128 rev2 execution-plan Follow-up Story section; operator request 2026-07-05",
+  "keywords": [
+    "capability-release",
+    "backfill",
+    "playbook-exposure",
+    "pending-learning",
+    "promotion",
+    "learning-loop"
+  ],
+  "riskSignals": [
+    {
+      "category": "Validation Framework",
+      "matched": "lattice validate"
+    }
+  ],
+  "createdAt": "2026-07-05T22:38:44.059Z",
+  "startedAt": "2026-07-05T22:38:44.059Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-05T22:38:44.822Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "cfc73a95-9b3c-48d3-9ee0-3cd637de5c76",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-05T22:51:33.960Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "cfc73a95-9b3c-48d3-9ee0-3cd637de5c76",
+      "agent": "main"
+    }
+  ],
+  "riskSignalsDismissed": [
+    {
+      "category": "Validation Framework",
+      "reason": "False positive: lattice validate matched the validation-checklist mention, not a modification of the validation framework. B-c389 RUNS lattice validate as a check but does not modify validate/the framework.",
+      "at": "2026-07-05T22:47:54.544Z"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-c389",
+    "branch": "story/B-c389",
+    "createdAt": "2026-07-05T22:51:17.918Z"
+  }
+}

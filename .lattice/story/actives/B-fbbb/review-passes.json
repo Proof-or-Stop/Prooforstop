@@ -1,0 +1,94 @@
+{
+  "passes": [
+    {
+      "id": "B-fbbb:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "reviewed CHK-001 + CHK-002: verified both allowed sets in experience-layer-playbook-smoke.ts widened identically (direct fence + non-vacuous planted-import check), negative finding/advisory/gate assertion untouched, guardrail comment in handlers/playbook.ts matches actual imports (source-lineage-audit.js, playbook-seed.js confirmed present), decision-doc-promotion-smoke.ts substring matches the live authorityBoundary string in decision-doc-promotion.ts:507 (from commit 8892270bf), confirmed no other file duplicates the playbook.ts fence allowlist. Rebuilt + ran experience-layer-playbook-smoke.js: TOTAL 31 | PASS 31 | FAIL 0. No dead code, no type-safety or I/O-isolation issues; test-maintenance + comment only, no blocker.",
+      "createdAt": "2026-07-05T22:00:57.901Z",
+      "reviewRound": "2026-07-05T21:56:28.612Z",
+      "reviewRunId": "B-fbbb:RR-001",
+      "_hash": "381b5799f2036ab53bb830068cac86a775a00ad82f2209a5f0552473fafb2c17"
+    },
+    {
+      "id": "B-fbbb:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept review clean: 3-file test-maintenance diff (cdb034b97) widens playbook.ts import-fence allowlist for source-lineage-audit.js + playbook-seed.js (verified both are non finding-writer/advisory/gate transitively), refreshes matching guardrail comment, and fixes a stale decision_doc_save assertion to the current committed authorityBoundary string (verified against handlers/decision-doc-promotion.ts + retirement commit 8892270bf). No deletions/renames in this story diff; the concept-deletion-looking residual in reviewer_batch changedFiles is pre-existing branch drift (77 commits behind main from unrelated story B-8128), not caused by this commit. Ran the built smoke: TOTAL 31 | PASS 31 | FAIL 0, decision-doc-promotion smoke passed (9 checks). No blocking findings.",
+      "createdAt": "2026-07-05T22:01:33.629Z",
+      "reviewRound": "2026-07-05T21:56:28.612Z",
+      "reviewRunId": "B-fbbb:RR-002",
+      "_hash": "0e8c9461c8719ac96cbb691ec07ab9bcb4bf61d9723d29b9545fbecc52de96cb"
+    },
+    {
+      "id": "B-fbbb:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Independently rebuilt (tsc clean) and reran both smokes: experience-layer-playbook-smoke 31/31 PASS, decision-doc-promotion-smoke 9/9 PASS, matching recorded evidence verbatim. Confirmed playbook.ts actual imports match the widened allowlist exactly (no over/under-widening); confirmed the negative finding/advisory/gate assertion is an independent check unaffected by the allowlist widen; confirmed no duplicate/stale fence exists elsewhere in the tree. Adversarially reverted CHK-002 substring to the retired wording and confirmed the smoke fails closed, then restored and reconfirmed green. All 6 verificationIntent ids (CHK-001/CHK-002 happy/edge/adversarial) have exactly one bound verificationEvidence record; no gaps. Commit cdb034b97 touches only the 3 declared files. No coverage gap found.",
+      "createdAt": "2026-07-05T22:05:54.924Z",
+      "reviewRound": "2026-07-05T21:56:28.612Z",
+      "reviewRunId": "B-fbbb:RR-004",
+      "_hash": "9bcbdc1ef5cd1fbd6bc223687b25f0edf9e85c1e9573f6dfabfe35a920b6a356"
+    },
+    {
+      "id": "B-fbbb:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Re-bind: mechanical re-confirmation, no new judgment. Verified commit cdb034b97 is the same clean 3-file test-maintenance change (allowlist entries for source-lineage-audit.js/playbook-seed.js added to both allowed sets in experience-layer-playbook-smoke.ts, load-bearing comment refresh in handlers/playbook.ts, retired-substring fix in decision-doc-promotion-smoke.ts). Rebuilt packages/main (tsc clean) and reran experience-layer-playbook-smoke.js: 31/31 PASS including the import-fence non-vacuous check and all no-regression sub-smokes. No shipping behavior change; quality PASS stands.",
+      "createdAt": "2026-07-05T22:12:09.106Z",
+      "reviewRound": "2026-07-05T21:56:28.612Z",
+      "reviewRunId": "B-fbbb:RR-005",
+      "_hash": "c6456ab46dd0c4113c9acad484c2d449404dce2261c311b697cfcc5f267a0d1e"
+    },
+    {
+      "id": "B-fbbb:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 re-confirmation after main merge (853226c98) restored 0-behind; no new concept deletion/replacement. Diff unchanged from prior PASS: two allowlist entries (playbook-seed.js, source-lineage-audit.js) added to BOTH allowed-import sets in experience-layer-playbook-smoke.ts (verified both entries match real imports in playbook.ts, no orphans), a guardrail-comment refresh in playbook.ts describing those same imports, and one authorityBoundary substring update in decision-doc-promotion-smoke.ts (retired string not remote receipt completion -> current committed not local proof-admissibility, receipt-bundle, quorum, or release readiness, matching commit 8892270bf). Nothing deleted/renamed. Grepped repo for the retired substring not remote receipt completion (excluding node_modules/dist/.git/@deprecated): all hits are inside .lattice/story/actives/B-fbbb/*.json story-metadata narrative describing the fix, not production/test code residue; the actual test file no longer contains the retired string. Concept-deletion residual check: clean.",
+      "createdAt": "2026-07-05T23:56:30.118Z",
+      "reviewRound": "2026-07-05T23:55:21.895Z",
+      "reviewRunId": "B-fbbb:RR-006",
+      "_hash": "37e97d26f3a8e4abff238ffbd40ed21a7df586758f08f5b7ec6c3811a2679fdb"
+    },
+    {
+      "id": "B-fbbb:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 re-confirmation after 0-behind DONE merge (853226c98). Story diff is exactly 3 files: (1) handlers/playbook.ts header-comment refresh documenting existing (unchanged) imports of playbook-seed.js and source-lineage-audit.js; (2) experience-layer-playbook-smoke.ts allowlist additions for those two modules in BOTH the real import-fence allowed-set and the planted-foreign-import negative-test allowed-set, kept in lockstep; (3) decision-doc-promotion-smoke.ts substring update tracking the live authorityBoundary string in decision-doc-promotion.ts (upstream text change). No shipping/runtime logic changed. tsc build clean. experience-layer-playbook-smoke 31/31 PASS. Standalone decision-doc-promotion-smoke 9/9 PASS. No dead code, no type-safety issues, no I/O-isolation concerns.",
+      "createdAt": "2026-07-05T23:58:42.769Z",
+      "reviewRound": "2026-07-05T23:55:21.895Z",
+      "reviewRunId": "B-fbbb:RR-007",
+      "_hash": "e5f1f1f64dee05cd3a0190b869fa210805854baf3d03dd422b9438f9eb269d57"
+    },
+    {
+      "id": "B-fbbb:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker.",
+      "createdAt": "2026-07-06T00:01:22.353Z",
+      "reviewRound": "2026-07-05T23:55:21.895Z",
+      "reviewRunId": "B-fbbb:RR-008",
+      "_hash": "f364a19deff2b1078ccc509ef067719c04f35f38d2e27e2cdd2c755be9aa6d05"
+    },
+    {
+      "id": "B-fbbb:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 re-confirmation (mechanical re-stamp after TEST->DEV->REVIEW rollback to acknowledge gate-generated DONE metadata; storyFilesHash a4e18b00... unchanged, no code delta). Diff is exactly 3 files: experience-layer-playbook-smoke.ts adds two allowlist entries (../core/playbook-seed.js, ../core/source-lineage-audit.js) to both allowed sets; handlers/playbook.ts updates the header comment describing the widened import boundary; decision-doc-promotion-smoke.ts corrects one stale authorityBoundary substring assertion (retired 'not remote receipt completion' -> current committed 'not local proof-admissibility, receipt-bundle, quorum, or release readiness', verified present verbatim in handlers/decision-doc-promotion.ts:507). No concept word was deleted or mass-replaced across the repo: this is purely additive (allowlist widening + comment) plus a single stale-string correction pointing at an already-existing production string. Grepped for the retired substring 'not remote receipt completion' repo-wide (excluding node_modules/dist/.git): zero residue in code; only appears in story metadata as historical fix documentation, which is expected. No concept-deletion/replacement residue found; no blocker.",
+      "createdAt": "2026-07-06T05:21:31.306Z",
+      "reviewRound": "2026-07-06T05:19:56.434Z",
+      "reviewRunId": "B-fbbb:RR-009",
+      "_hash": "0a3fc8cb18e40df5a1a9fb2b4990081848a6762300379c7e114915b01564189e"
+    },
+    {
+      "id": "B-fbbb:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "Round 3 mechanical re-confirmation after phase roll-back (TEST->DEV->REVIEW) to acknowledge gate-generated DONE metadata past the scope classifier. No code changed vs prior PASS (storyFilesHash a4e18b0 unchanged). Verified: diff is exactly the 3 files described (commit cdb034b97, 11 insertions/5 deletions) - handlers/playbook.ts JSDoc comment refresh only (no logic change), decision-doc-promotion-smoke.ts one substring literal update, experience-layer-playbook-smoke.ts two symmetric allowlist additions to both allowed sets. Rebuilt (tsc, no errors) and ran node packages/main/dist/tasks/experience-layer-playbook-smoke.js fresh: TOTAL 31 | PASS 31 | FAIL 0, including both import-fence checks and both no-regression sub-smokes (decision-doc-promotion, experience-layer-digest-extract). No shipping/runtime code touched; test-maintenance + comment-only change confirmed.",
+      "createdAt": "2026-07-06T05:24:26.344Z",
+      "reviewRound": "2026-07-06T05:19:56.434Z",
+      "reviewRunId": "B-fbbb:RR-010",
+      "_hash": "2fa195ca5956436b4db47d5fd2d8e0d4db3b538fe64bc9b59eb337f7a4502b50"
+    },
+    {
+      "id": "B-fbbb:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-confirmed after mechanical TEST->DEV->REVIEW roll-back (no code change; storyFilesHash a4e18b00... identical). Both CHK-001 and CHK-002 carry full happy/edge/adversarial verificationIntent, each with passing manual_transcript verification_evidence. Independently rebuilt (tsc clean) and re-ran experience-layer-playbook-smoke.js: TOTAL 31 | PASS 31 | FAIL 0, including both import-fence checks (CHK-001) and both no-regression sub-smokes decision-doc-promotion + experience-layer-digest-extract (CHK-002). Ran decision-doc-promotion-smoke.js standalone: 9 checks, decision doc promotion smoke passed. Verified the diff vs main is test/comment-only and symmetric across both allowed-import Sets, and the non-vacuous adversarial check still asserts foreign===[\"./finding.js\"] with the negative guard intact. No coverage gap found.",
+      "createdAt": "2026-07-06T05:25:22.422Z",
+      "reviewRound": "2026-07-06T05:19:56.434Z",
+      "reviewRunId": "B-fbbb:RR-011",
+      "_hash": "2da74b37798aeb8637ccda578272beb732ec90c7ba05a2817c372b11e915c333"
+    }
+  ]
+}

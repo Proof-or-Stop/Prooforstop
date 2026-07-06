@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-fbbb",
+  "id": "IC-20260705213249",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Restore experience-layer-playbook-smoke to 31/31 via test-maintenance ONLY: widen the playbook.ts import-fence allowlist in BOTH allowed sets and refresh the load-bearing guardrail comment; update the stale decision_doc_save authorityBoundary substring to the current committed contract. Do not move/refactor the helper modules, do not weaken learning-store's fence, and change no shipping runtime behavior.",
+  "acceptedInterpretationHash": "sha256:e6139aa126f94c7becd882a88c74b95f2a14760198594df89d080b5cf3d476f6",
+  "notes": "Single accepted interpretation; the operator confirmed a combined chore story. Move-vs-widen was decided as widen because learning-store's stricter fence cannot absorb the helpers and a barrel indirection would only game the grep; the negative finding/advisory/gate assertion still guards the security property independently.",
+  "createdAt": "2026-07-05T21:32:49.295Z",
+  "updatedAt": "2026-07-05T21:32:49.295Z"
+}

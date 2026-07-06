@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-c389",
+  "allowedCommands": [
+    "git add *",
+    "git checkout *",
+    "git commit *",
+    "git diff *",
+    "git log *",
+    "git status *",
+    "lattice *",
+    "node packages/main/dist/cli.js *",
+    "node packages/main/dist/tasks/*-smoke.js",
+    "npm --prefix packages/main run build",
+    "npm test"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".gitignore",
+    ".lattice/story/actives/B-c389/**",
+    "docs/**",
+    "lattice.config.json",
+    "packages/main/src/**"
+  ],
+  "excludedCommands": [
+    "git push *",
+    "omx *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx/**"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Local Proofbound CLI + node smokes + tsc build + npm test only.",
+  "createdAt": "2026-07-05T22:47:58.201Z",
+  "updatedAt": "2026-07-05T22:47:58.201Z",
+  "_hash": "4a75448c2c14e430880cbcdc68d77acd30acaab45e6ce36f8a48f876edff7aa9"
+}

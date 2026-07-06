@@ -22,10 +22,12 @@
  *     fails CLOSED on stale/missing `--expectedPlaybookDigest`, rejects malformed
  *     playbooks, and keeps active playbooks non-authoritative / gateEvidence=false.
  *
- * Imports stay minimal: the only outward imports
- * are `node:` builtins, the leaf types, the learning-store (which itself only touches
- * `.lattice/learning/` and `./digest.js`), and the HandlerContext for the store
- * read port.
+ * Imports stay minimal and stay inside the experience-layer / learning boundary:
+ * the only outward imports are `node:` builtins, the leaf types, the learning-store
+ * (which itself only touches `.lattice/learning/` and `./digest.js`), the main
+ * write lock, the sibling learning helpers `source-lineage-audit` and `playbook-seed`
+ * (both built on the learning-store; neither is a finding-writer, advisory, or gate),
+ * and the HandlerContext for the store read port.
  */
 
 import { randomUUID } from 'node:crypto';
@@ -1129,13 +1131,26 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
       }));
       const pendingLearning = aggregates
         .filter((row) => row.playbook.status === 'candidate')
-        .map((row) => ({
-          playbookId: row.playbook.id,
-          status: row.playbook.status,
-          label: 'pending learning material; not active runtime guidance',
-          aggregateDigest: row.aggregate.aggregateDigest,
-          decisiveSamples: row.aggregate.decisiveSamples,
-        }));
+        .map((row) => {
+          // B-8128 M5: surface the OPTIONAL product-capability-release lineage
+          // already carried on the candidate playbook (read-only; no new import).
+          const lineage = row.playbook.lineage;
+          const capabilityRelease = lineage?.capabilityReleaseId
+            ? {
+                capabilityReleaseId: lineage.capabilityReleaseId,
+                capabilityId: lineage.capabilityId,
+                capabilityVersion: lineage.capabilityVersion,
+              }
+            : undefined;
+          return {
+            playbookId: row.playbook.id,
+            status: row.playbook.status,
+            label: 'pending learning material; not active runtime guidance',
+            aggregateDigest: row.aggregate.aggregateDigest,
+            decisiveSamples: row.aggregate.decisiveSamples,
+            ...(capabilityRelease ? { capabilityRelease } : {}),
+          };
+        });
       const activeNegativeSignals = aggregates
         .filter((row) => row.playbook.status === 'active')
         .map((row) => ({ row, evaluation: evaluatePlaybookPromotion(row.aggregate) }))
@@ -1220,7 +1235,12 @@ export function createPlaybookHandlers(ctx: HandlerContext) {
         `featureFlags.PLAYBOOK_DONE_SETTLEMENT_ENABLED: ${settlementFlag.enabled} (${settlementFlag.raw || 'unset'}, ${settlementFlag.defaultPolicy}${settlementFlag.explicitOptOut ? ', explicit-opt-out' : ''})`,
         `featureFlags.PLAYBOOK_DONE_CANDIDATE_INGEST_ENABLED: ${doneCandidateIngestFlag.enabled} (${doneCandidateIngestFlag.raw || 'unset'}, ${doneCandidateIngestFlag.defaultPolicy}${doneCandidateIngestFlag.explicitOptOut ? ', explicit-opt-out' : ''})`,
         `pendingLearning: ${pendingLearning.length}`,
-        ...pendingLearning.map((item) => `  - ${item.playbookId} ${item.label} decisiveSamples=${item.decisiveSamples} aggregateDigest=${item.aggregateDigest}`),
+        ...pendingLearning.map((item) => {
+          const base = `  - ${item.playbookId} ${item.label} decisiveSamples=${item.decisiveSamples} aggregateDigest=${item.aggregateDigest}`;
+          return item.capabilityRelease
+            ? `${base} capabilityRelease=${item.capabilityRelease.capabilityReleaseId} (${item.capabilityRelease.capabilityId} v${item.capabilityRelease.capabilityVersion})`
+            : base;
+        }),
         `activeNegativeSignals: ${activeNegativeSignals.length}`,
         ...activeNegativeSignals.map((item) => `  - ${item.playbookId} ${item.action} reasons=${item.reasonCodes.join(',')} harmful=${item.harmfulCount} dismissed=${item.dismissedCount} wrongClaim=${item.wrongClaimCount}`),
         `latestDecisions: ${latest.length}`,

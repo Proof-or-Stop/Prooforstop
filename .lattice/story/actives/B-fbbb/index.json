@@ -1,0 +1,146 @@
+{
+  "storyId": "B-fbbb",
+  "name": "playbook-smoke-import-fence-allowlist",
+  "title": "Restore experience-layer-playbook-smoke to 31/31: widen playbook.ts import-fence allowlist and fix a stale decision-doc authorityBoundary assertion",
+  "description": "experience-layer-playbook-smoke is silently red (27/31) on main because playbook.ts outgrew its fence allowlist AND a sibling regression smoke it runs asserts a stale decision_doc_save authorityBoundary substring. This chore restores the suite to 31/31 with test-maintenance-only edits (plus one comment), no shipping behavior change.",
+  "type": "chore",
+  "phase": "DONE",
+  "priority": "high",
+  "keywords": [
+    "import-fence",
+    "experience-layer",
+    "playbook",
+    "smoke",
+    "decision-doc"
+  ],
+  "riskSignals": [
+    {
+      "category": "Security/Credentials",
+      "matched": "security"
+    }
+  ],
+  "priorityElevatedFrom": "medium",
+  "createdAt": "2026-07-05T21:22:01.479Z",
+  "startedAt": "2026-07-05T21:22:01.479Z",
+  "endedAt": "2026-07-06T05:31:54.492Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-05T21:22:01.904Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "124ceca7-008b-4111-a476-a2cc16315154",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-05T21:28:33.542Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "124ceca7-008b-4111-a476-a2cc16315154",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-05T21:29:32.211Z",
+      "branch": "story/B-fbbb",
+      "user": "Harmonygo",
+      "sessionId": "124ceca7-008b-4111-a476-a2cc16315154",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-05T21:50:54.104Z",
+      "branch": "story/B-fbbb",
+      "user": "Harmonygo",
+      "sessionId": "124ceca7-008b-4111-a476-a2cc16315154",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-05T21:56:28.612Z",
+      "branch": "story/B-fbbb",
+      "user": "Harmonygo",
+      "sessionId": "124ceca7-008b-4111-a476-a2cc16315154",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-05T22:53:50.974Z",
+      "branch": "story/B-fbbb",
+      "user": "Harmonygo",
+      "sessionId": "124ceca7-008b-4111-a476-a2cc16315154",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-05T23:55:20.386Z",
+      "branch": "story/B-fbbb",
+      "user": "Harmonygo",
+      "sessionId": "124ceca7-008b-4111-a476-a2cc16315154",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-05T23:55:21.895Z",
+      "branch": "story/B-fbbb",
+      "user": "Harmonygo",
+      "sessionId": "124ceca7-008b-4111-a476-a2cc16315154",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-06T00:02:11.933Z",
+      "branch": "story/B-fbbb",
+      "user": "Harmonygo",
+      "sessionId": "124ceca7-008b-4111-a476-a2cc16315154",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-06T05:19:43.395Z",
+      "branch": "story/B-fbbb",
+      "user": "Harmonygo",
+      "sessionId": "124ceca7-008b-4111-a476-a2cc16315154",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-06T05:19:56.434Z",
+      "branch": "story/B-fbbb",
+      "user": "Harmonygo",
+      "sessionId": "124ceca7-008b-4111-a476-a2cc16315154",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-06T05:26:52.909Z",
+      "branch": "story/B-fbbb",
+      "user": "Harmonygo",
+      "sessionId": "124ceca7-008b-4111-a476-a2cc16315154",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-06T05:31:54.492Z",
+      "branch": "story/B-fbbb",
+      "user": "Harmonygo",
+      "sessionId": "124ceca7-008b-4111-a476-a2cc16315154",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-07-06T05:19:56.434Z"
+}

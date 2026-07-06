@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "M8: capability_release_backfill CLI (dry-run/apply/--digest) + live B-785e/PBP-882 backfill",
+      "context": "Mirror playbook_seed_backfill. Default --dryRun detects under-bound candidates (lineage lacks capabilityReleaseId while a capability release exists for the story); --apply enriches exactly those with capabilityReleaseId/capabilityId/capabilityVersion/artifactReleaseId; a --digest confirm gate (apply requires the dry-run plan digest). Idempotent, never activates, never infers helped. Then RUN it on the real B-785e artifact release + PBP-882. Ref: exec-plan doc M8 + Follow-up Story.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "M6: candidate pending-learning exposure surfaces + exposure records",
+      "context": "Render candidate capability playbooks ONLY under pendingLearning / promotionRecommendations / candidate-inspection, never as active runtime guidance (matchActivePlaybook status===active guard already enforces this; do not weaken it). Write an exposure record per exposure: playbookId, capabilityReleaseId, exposureMode, surface, storyId or sessionId, observedAt.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "M7: structured-outcome recording + evidence-based promotion recommendation commands",
+      "context": "Command surface to record a structured outcome (helped/dismissed/harmful) bound to a concrete exposureMode + structured verdictSource, and a command to emit promotion recommendations when decisiveSamples suffice. DONE-success != helped and the decisiveSamples exclusions are already enforced in learning-store.ts (B-8128 asserts); build the user-facing commands on top without changing those rules.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Validation: build + new smokes + lattice validate green; live backfill idempotency proof",
+      "context": "tsc clean; new smokes green; lattice validate pass. Prove the LIVE B-785e backfill is idempotent: re-run is a no-op, no duplicate candidate, PBP-882 stays status=candidate with usage.surfacedCount unchanged, and no helped outcome is produced.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

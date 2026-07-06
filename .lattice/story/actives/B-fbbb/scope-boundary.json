@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-fbbb",
+  "mode": "maintenance",
+  "allowed": [
+    "Update the load-bearing guardrail import comment in packages/main/src/handlers/playbook.ts to reflect the actual allowed imports (comment only)",
+    "Update the stale decision_doc_save authorityBoundary expected substring in packages/main/src/tasks/decision-doc-promotion-smoke.ts to the current committed contract",
+    "Widen the playbook.ts import-fence allowlist (add ../core/source-lineage-audit.js + ../core/playbook-seed.js to BOTH allowed sets) in packages/main/src/tasks/experience-layer-playbook-smoke.ts"
+  ],
+  "excluded": [
+    "Do not modify the curated lattice validate list or add the smoke to it",
+    "Do not move or refactor source-lineage-audit.js or playbook-seed.js",
+    "Do not touch the unrelated tier-c WIP docs on main",
+    "No shipping/runtime behavior change (playbook.ts handler logic, decision-doc-promotion.ts emission, learning-store.ts fence, or the imported helper modules)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Operator confirmed a single combined chore story (fence allowlist + decision-doc stale assertion) via AskUserQuestion on 2026-07-05; both fixes restore experience-layer-playbook-smoke to 31/31.",
+  "createdAt": "2026-07-05T21:27:38.635Z",
+  "updatedAt": "2026-07-05T21:27:38.635Z",
+  "_hash": "9e844c9986ee554d77268ef609d5d4c892b261b4a001c89f02bef9401ca3b4f9"
+}
