@@ -62,7 +62,7 @@
       "desc": "H4 lacks a sanity floor on elapsedMs: adjudicateH4 (analyze-batch.mjs:389-420) computes over = proofs.filter(r => !(r.elapsedMs <= cap)). A missing/undefined elapsedMs correctly fails (undefined <= cap is false), but a NEGATIVE elapsedMs (e.g. -999999, which is valid JSON and would survive a naive/buggy producer or a tamper of the ledger that re-signs recordDigest) silently satisfies elapsedMs <= cap and is counted as passing, with no lower-bound (>=0) check anywhere in H4. Reproduced: set one proof record's elapsedMs to -999999 and re-sign recordDigest (input-integrity passes) -> H4 verdict=pass, overall=all-pass (the SS3 claim gets asserted) despite a record carrying a nonsensical timing value that should at minimum be inconclusive/flagged, not silently pass. Contrast with H3, which uses strict === 0 equality (a -1 dupTotal correctly fails H3), so this is a narrow gap specific to H4's one-directional <= comparison. selfcheck-m4.mjs check F (lines 224-245) only tests elapsedMs ABOVE the cap, never a negative/sub-zero value, so this hole is untested.",
       "severity": "low",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-06T07:35:08.373Z",
@@ -70,7 +70,11 @@
       "reviewRunId": "B-853a:RR-006",
       "_hash": "55d818f9de944e75d355c2c07250ffd816c392b246b652639d89afc295f6ba4e",
       "signatureTag": "edge|unknown|lacks-sanity-floor",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 3e5c582a: H4 requires Number.isFinite(elapsedMs) && >=0 && <=cap (negative/null/NaN -> fail). selfcheck-m4 sub-check N.",
+      "resolvedAt": "2026-07-06T08:19:55.818Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-853a:F-005",
