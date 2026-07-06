@@ -22,7 +22,7 @@
       "desc": "quality-cleanup: packages/main/src/core/config.ts:226 the pre-existing capability_release_* global-phase wildcard is commented as read-only non-runtime product capability release provenance inspection and previously only matched the two read-only commands capability_release_list/capability_release_status. The new capability_release_backfill handler (packages/main/src/handlers/capability-release-backfill.ts) - a mainSharedMutating writer that git-commits ledger records and enriches playbook lineage under a learning-store lock - also matches this prefix and is silently granted allowedPhases:all through it (verified: isCommandAllowed(capability_release_backfill, phase) returns true for every phase via this wildcard, not via a dedicated entry). Every other allowedPhases:all mainSharedMutating command in this file (e.g. signature_backfill line 284, learning_scan line 290) gets its own explicit comment stating the phase-scope rationale per the files established convention; this new writer instead free-rides on a wildcard whose adjacent comment is now stale/inaccurate (no longer purely read-only inspection). Not a functional block (command works as intended), but an audit-trail/maintainability gap: a future reader auditing config.ts * -phase writers by comment would miss this one.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-06T00:02:40.862Z",
@@ -30,7 +30,9 @@
       "reviewRunId": "B-c389:RR-002",
       "_hash": "3f37bfc43c33c3925873ef5fac5528dae896c3b23ab6c941f4eecc889a6d37bd",
       "signatureTag": "missing|unknown|quality-cleanup-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added a dedicated self-documenting capability_release_backfill entry in config.ts DEFAULT_PHASE_TOOLS (intentionally all-phase MUTATING migration writer, matching signature_backfill/learning_scan); behavior unchanged (all phases).",
+      "resolvedAt": "2026-07-06T00:08:32.836Z"
     },
     {
       "id": "B-c389:F-003",
