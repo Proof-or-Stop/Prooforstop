@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-e1f6",
+  "allowedCommands": [
+    "lattice checklist_*",
+    "lattice delivery_check_set",
+    "lattice story_advance *",
+    "lattice summary_set",
+    "lattice validate",
+    "node experiments/multi-model-ablation/future-cell03-results/full/*.mjs",
+    "npm run build"
+  ],
+  "allowedTools": [
+    "functions.apply_patch",
+    "functions.exec_command"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions",
+    "experiments/multi-model-ablation/future-cell03-results/full",
+    "experiments/multi-model-ablation/m2-cell03-execution-prompt.md",
+    "experiments/multi-model-ablation/m2-cell03-tool-surface.json",
+    "experiments/multi-model-ablation/seed-manifest.m1.json",
+    "experiments/multi-model-ablation/task-inventory.m2.json"
+  ],
+  "excludedCommands": [
+    "agy *",
+    "claude *",
+    "codex exec *",
+    "git push *",
+    "node experiments/multi-model-ablation/future-cell03-results/full/run-full.mjs --limit *"
+  ],
+  "excludedTools": [
+    "subagents"
+  ],
+  "excludedPaths": [
+    "experiments/multi-model-ablation/future-cell03-results/full/cell03-rows.jsonl",
+    "experiments/multi-model-ablation/future-cell03-results/full/workspaces"
+  ],
+  "confirmedBy": "codex-side-conversation",
+  "confirmationNote": "Use dry-run and fixture selfchecks only; do not mutate active B-991d evidence rows or spawn provider/agent runs.",
+  "createdAt": "2026-07-06T14:51:27.310Z",
+  "updatedAt": "2026-07-06T14:51:27.310Z",
+  "_hash": "fe44ea87a102afd3ee2b484a4d92dba4e21c1d03299a97ec0708e8e0e1dd08b3"
+}

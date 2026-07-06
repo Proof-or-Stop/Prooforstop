@@ -1,0 +1,84 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Define deterministic Cell 03 shard plan without changing cell semantics",
+      "context": "Partition the existing expected Cell 03 cellKey set by stable ordered index modulo shard count. Acceptance: N shards cover all 1,152 expected keys exactly once; invalid shard indexes and digest drift fail closed.",
+      "relatedDocs": [
+        "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+        "docs/requirements/decisions/multi-model-ablation-replication.md"
+      ],
+      "files": {
+        "modify": [
+          "experiments/multi-model-ablation/future-cell03-results/full/run-full.mjs"
+        ],
+        "create": [],
+        "test": [
+          "experiments/multi-model-ablation/future-cell03-results/full/selfcheck-shards.mjs"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Write per-shard rows and workspaces instead of sharing the main Cell 03 ledger",
+      "context": "A shard runner must write to its own shard directory and must not append directly to the canonical cell03-rows.jsonl during parallel execution. Acceptance: shard dry-runs leave canonical rows untouched and same-shard concurrent attempts fail closed.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md"
+      ],
+      "files": {
+        "modify": [
+          "experiments/multi-model-ablation/future-cell03-results/full/run-full.mjs"
+        ],
+        "create": [],
+        "test": [
+          "experiments/multi-model-ablation/future-cell03-results/full/selfcheck-shards.mjs"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add merge validator for shard outputs",
+      "context": "Merge logic must verify identical protocol, prompt, tool, task, snapshot, runner, story/window binding, shard manifest digest, and no duplicate final rows before writing or reporting merged output. Acceptance: fixture duplicate/missing/digest-drift shards are rejected.",
+      "relatedDocs": [
+        "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+        "docs/requirements/decisions/lattice-parallel-wave.md"
+      ],
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/multi-model-ablation/future-cell03-results/full/merge-shards.mjs"
+        ],
+        "test": [
+          "experiments/multi-model-ablation/future-cell03-results/full/selfcheck-shards.mjs"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Document safe operator usage and explicit non-goals",
+      "context": "README must explain that this story enables safe shard tooling only and does not itself run provider rows, unlock Cell 06, or alter paper claims. It must distinguish story-level Parallel Wave from Cell03 row-level sharding.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-parallel-wave.md"
+      ],
+      "files": {
+        "modify": [
+          "experiments/multi-model-ablation/future-cell03-results/full/README.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
