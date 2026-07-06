@@ -125,6 +125,15 @@
       "reviewRound": "2026-07-06T05:55:08.656Z",
       "reviewRunId": "B-f7b3:RR-018",
       "_hash": "8bfbc26d42c9d499db922fdd54e7f522f491e1d7cfef232418d5d79c20207b94"
+    },
+    {
+      "id": "B-f7b3:RP-015",
+      "agent": "lattice-review-test-coverage",
+      "note": "Final-round test coverage review: all 68 verificationIntent entries across CHK-001..CHK-010 have non-fail verificationEvidence bound to a single consistent headHash (1433b7292) with no material diff to current HEAD. Prior HIGH finding on CHK-007:happy:1 is RESOLVED: the evidence note now accurately describes BOTH the negative path (no-decision row persists with notApplicableDecision absent, gate flags not_applicable_missing_decision/M-na) and the positive path (decision supplied via CLI persists intact through the real dist/cli.js schema, gate does not flag that row) - no false claim remains in the note. Verified statically: (a) checklist.json CHK-007:happy:1 evidence note text; (b) scratchpad chk007_cli.sh drives both paths end-to-end through dist/cli.js (steps 1-3 negative, step 4 positive); (c) committed milestone-done-gate-reconciliation-smoke.ts block (d) is re-tagged with an explicit CHK-007 traceability comment (not CHK-010) and now includes a whitespace-only notApplicableDecision case asserting both the gate trim (validMilestoneNotApplicable) and the normalizer hard-reject (requireNonEmptyString via buildMilestoneLedger) - confirmed via git show bb7ed4dd9 (F-004 CLI schema fix) and 1433b7292 (F-004/F-005 quality-lane fixes + block (d) re-tag). No test-coverage blocker remains.",
+      "createdAt": "2026-07-06T06:36:14.342Z",
+      "reviewRound": "2026-07-06T05:55:08.656Z",
+      "reviewRunId": "B-f7b3:RR-021",
+      "_hash": "2a473372a985b3d3abdb3cddf557daef2a69f19428d712ae570a46156935bb47"
     }
   ]
 }
