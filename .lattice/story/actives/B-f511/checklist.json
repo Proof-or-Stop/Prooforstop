@@ -70,11 +70,11 @@
           "kind": "manual_transcript",
           "command": "node experiments/pos-instrument-replay/selfcheck-m3.mjs",
           "result": "pass",
-          "note": "Lock-break is now CONSERVATIVE + race-free: evaluateLockForBreak breaks ONLY when holder.json exists, parses to {pid}, and that pid is POSITIVELY proven DEAD (ESRCH); a missing/unreadable/malformed/uncertain holder is treated as LIVE (precondition_failed, no break). The holder stamp is near-atomic (temp-write + renameSync). selfcheck-m3 (I) NO-HOLDER-LOCK-NOT-BROKEN + (H) dead-pid-still-broken confirm both directions; fresh path unchanged (selfcheck-m2 still PASS). Closes the F-005/F-006 mkdir->holder acquire race — two writers can never coexist.",
-          "headHash": "4882fad0d85592515c9807114f1d940535f2e3fd",
+          "note": "Resume lock-break is now RACE-FREE against MULTIPLE concurrent resumers (F-007/F-008 fix, commit 4882fad0d). The break critical-section (existsSync + evaluateLockForBreak + rmSync(LOCK_DIR)) is serialized behind a dedicated mkdir break-mutex .batch-ledger.break.lock: a second breaker gets EEXIST and FAILS CLOSED (precondition_failed, exit 3) rather than racing; the break-mutex is released in a finally BEFORE any process.exit (process.exit skips finally); the atomic mkdir(LOCK_DIR) remains the final arbiter (loser -> precondition_failed). This closes the TOCTOU where two resumers both judged a genuinely-dead holder breakable and the second rm'd the first's freshly-live lock. Combined with F-005/F-006 conservative missing-holder=LIVE, two campaign writers is now impossible. selfcheck-m3 sub-check J proves both directions deterministically.",
+          "headHash": "fc1a0bd45a0acadf17d683700f1d11280f0b15c9",
           "materialHash": "15f370534f4e5dff93a4bbb724b7caa64bc830c7bb946a715f749c42581c86c0",
           "storyFilesHash": "12433a97cfd13f12f1716aec909f573d9fa83616bf5eff090f9f60d14ac3fbe6",
-          "timestamp": "2026-07-06T01:22:46.248Z"
+          "timestamp": "2026-07-06T01:22:46.955Z"
         }
       ]
     },
