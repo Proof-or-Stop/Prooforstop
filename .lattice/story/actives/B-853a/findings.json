@@ -301,10 +301,10 @@
       "_hash": "e8b5567bfec3f07ce0e9b5ddfc326fece88db18da017eef126db1297e0f5493f",
       "signatureTag": "missing|unknown|dead-code-selfcheck",
       "signatureTagSource": "auto",
-      "resolvedReason": "Accepted (LOW, cosmetic dead code, no behavioral effect). selfcheck-m4.mjs checkQ has an empty if (e.countsMatch !== false) {} block (lines ~594-599) whose body is a comment explaining that relabeling a fail-closed verdict to accepted also shifts per-disposition counts, so countsMatch is intentionally NOT asserted (the binding is the discriminator). checkQ's actual assertions (identityMatch===true, bindingMatch===false, bindingViolationIdentities includes cross-profile-swap|refreshed) are complete and correct — verified empirically by the quality lane. The empty-if is leftover scaffolding carrying an explanatory comment; removing it is a pure no-op cleanup not worth invalidating the converged Codex NO-REAL-FINDINGS + concept/test-coverage passes with another full review round.",
-      "resolvedAt": "2026-07-06T08:20:05.457Z",
-      "resolutionType": "accepted_risk",
-      "resolveEvidenceStrength": "medium"
+      "resolvedReason": "Fixed in fe5a2ed6: the dead no-op empty if-block in selfcheck-m4.mjs checkQ was removed (comment unwrapped); checkQ assertions unchanged, selfcheck-m4 still PASS A-S, analyzer + digest 198e3386 unchanged.",
+      "resolvedAt": "2026-07-06T08:24:20.014Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
