@@ -80,6 +80,15 @@
       "reviewRound": "2026-07-06T06:25:18.576Z",
       "reviewRunId": "B-c389:RR-013",
       "_hash": "16315a170b7dfa5b2041612cc1a2acee9c16d026f62118e165745631ce9a1025"
+    },
+    {
+      "id": "B-c389:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Round 3 re-review on post-merge material (forced by 107-commit main merge that changed the shared .lattice/capability-releases.jsonl ledger content, invalidating prior storyFilesHash). Story code diff (git diff main...HEAD -- packages/main/src) is unchanged from the prior passing round. Reviewed: handlers/capability-release-backfill.ts (new, 67 lines), core/capability-release.ts M8 extension (+482 lines: plan/apply/digest-guard/lineage-bind/ledger-commit logic), registry.ts + cli/command-catalog.ts + core/command-policy.ts + core/config.ts + core/process-fact-levels.ts wiring, and 3 new hermetic smoke files (capability-release-backfill-smoke.ts, capability-candidate-exposure-smoke.ts, capability-candidate-promotion-smoke.ts) plus lattice.config.json/docs/CLI.md updates. No dead code (all new imports verified used via grep cross-check; tsc --noEmit clean). No unsafe any beyond the established Record<string,(...args:any[])=>any> handler-factory convention already used by sibling handlers/capability-release.ts and handlers/artifact-release.ts. Both catch blocks (readCapabilityReleaseLedger parse-error path, pre-existing; commitBackfilledCapabilityReleaseLedger git-commit-failure path, new) rethrow with contextual messages, not empty/swallowed. No bridge.ts/shell-isolation pattern exists in this project so I/O-shell-isolation check is N/A. No job/run.metadata proof-key semantics touched by this diff so the proof-metadata dual-location check is N/A. The .lattice/capability-releases.jsonl content change is the unrelated B-6529 ledger row brought in by the main merge, not story-authored code, and is out of scope for this code-quality lane. No promised-but-undelivered doc/CLI claims found: docs/CLI.md capability_release_backfill section, command-catalog.ts schema, command-policy.ts entry, and process-fact-levels.ts entry all match the actual handler/core behavior (dry-run default, --apply+--digest guard, bind/record-then-bind plan kinds, never-changes-status/usage/outcome invariants) which are also asserted by the new smoke tests.",
+      "createdAt": "2026-07-06T06:28:29.805Z",
+      "reviewRound": "2026-07-06T06:25:18.576Z",
+      "reviewRunId": "B-c389:RR-014",
+      "_hash": "18af6578451d90e0aec52dc641a069fbfb245b07a261f7b553c57e80b0aff89b"
     }
   ]
 }
