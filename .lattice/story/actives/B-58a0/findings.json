@@ -18,6 +18,25 @@
       "resolvedAt": "2026-07-06T18:37:52.565Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-58a0:F-002",
+      "desc": "All 9 verificationIntents (CHK-001/002/003 happy+edge+adversarial) have verificationEvidence bound to headHash f806f63a9/materialHash 547ccc61..., recorded before commit 62636804a (the round-1 fix that reworked cli-engine.ts realRender/renderDerived/alreadyShown and added the corrupt-milestone-ledger regression test to milestone-status.test.mjs). lattice validate confirms: Verification intent coverage: 0/9 covered (9 required missing), all 9 flagged stale via logic_test against current HEAD 44c9153. The new corrupt-ledger test genuinely exercises the fix (readMilestoneLedger throws on invalid JSON in store.ts, propagates uncaught through realRender into visibleFailure, producing the asserted stdout block with no fabricated checklist-derived render) and the full suite + validate build pass, but no verification_evidence_add has re-bound the 9 intents to current material, so none of the checklist evidence counts as valid coverage for this round.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-06T18:46:41.504Z",
+      "reviewRound": "2026-07-06T18:22:23.063Z",
+      "reviewRunId": "B-58a0:RR-006",
+      "_hash": "55eba427c334c903a13f4243f26928c8f126a491d9807367423c9fcf62519f5d",
+      "files": [
+        "packages/main/src/cli-engine.ts",
+        "packages/main/tests/milestone-status.test.mjs"
+      ],
+      "signatureTag": "missing|ts|verificationintents-happy-edge",
+      "signatureTagSource": "auto"
     }
   ]
 }
