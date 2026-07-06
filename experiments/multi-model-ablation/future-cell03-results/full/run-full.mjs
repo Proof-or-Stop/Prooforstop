@@ -424,7 +424,7 @@ function adjudicate({ executorOk, reviewerOk, acceptanceOk, groundTruthOk, revie
 }
 
 function rowFor(cell, task, executor, reviewer, acceptance, groundTruth, injection, attemptIndex, previousRowId) {
-  const cellKey = `③|A4|${cell.taskId}|${cell.scenarioId}|${cell.repeatIndex}|E2|same`;
+  const cellKey = cellKeyFor(cell);
   const executorOk = executor.exitCode === 0 && !executor.timedOut && !executor.spawnError;
   const reviewerOk = reviewer.exitCode === 0 && !reviewer.timedOut && !reviewer.spawnError && ["SHIP", "BLOCK"].includes(reviewer.verdict);
   const providerUsage = combineUsage(executor.reportedUsage, reviewer.reportedUsage);
@@ -531,9 +531,68 @@ function rowFor(cell, task, executor, reviewer, acceptance, groundTruth, injecti
   };
 }
 
+function cellKeyFor(cell) {
+  return `③|A4|${cell.taskId}|${cell.scenarioId}|${cell.repeatIndex}|E2|same`;
+}
+
+function summarizeRows(cells, rows, newRows) {
+  const finalRows = rows.filter((row) => row.rowStatus === "final");
+  const finalKeys = new Set(finalRows.map((row) => row.cellKey));
+  const rowsByCell = new Map();
+  for (const row of rows) {
+    const attempts = rowsByCell.get(row.cellKey) ?? [];
+    attempts.push(row);
+    rowsByCell.set(row.cellKey, attempts);
+  }
+  const expectedKeys = cells.map(cellKeyFor);
+  const missingFinalKeys = expectedKeys.filter((cellKey) => !finalKeys.has(cellKey));
+  const terminalExhaustedKeys = missingFinalKeys.filter((cellKey) => (rowsByCell.get(cellKey) ?? []).length >= 2);
+  const pendingExecutableKeys = missingFinalKeys.filter((cellKey) => (rowsByCell.get(cellKey) ?? []).length < 2);
+  const executionComplete = pendingExecutableKeys.length === 0;
+  const formalComplete = missingFinalKeys.length === 0 && finalRows.length === cells.length;
+  return {
+    artifact: "B-991d-cell03-full-summary",
+    storyId: STORY_ID,
+    executionWindowId: WINDOW_ID,
+    expectedRows: cells.length,
+    rowCount: rows.length,
+    finalRows: finalRows.length,
+    formalFinalRows: finalRows.length,
+    terminalExhaustedRows: terminalExhaustedKeys.length,
+    pendingExecutableRows: pendingExecutableKeys.length,
+    failedRows: rows.filter((row) => row.rowStatus !== "final").length,
+    validationPassRows: rows.filter((row) => row.validationPass).length,
+    providerUsageRows: rows.filter((row) => row.providerReportedUsage).length,
+    reviewedRows: rows.filter((row) => row.reviewGate?.verdict === "SHIP" || row.reviewGate?.verdict === "BLOCK").length,
+    groundTruthPassRows: rows.filter((row) => row.checks?.groundTruth?.exitCode === 0).length,
+    outcomeCounts: rows.reduce((acc, row) => {
+      acc[row.adjudicatedOutcome] = (acc[row.adjudicatedOutcome] ?? 0) + 1;
+      return acc;
+    }, {}),
+    missingFinalRows: missingFinalKeys.length,
+    missingFinalCellKeys: missingFinalKeys.slice(0, 50),
+    terminalExhaustedCellKeys: terminalExhaustedKeys.slice(0, 50),
+    pendingExecutableCellKeys: pendingExecutableKeys.slice(0, 50),
+    newRowsThisRun: newRows.length,
+    totalProviderUsage: rows.reduce((acc, row) => {
+      if (!row.providerReportedUsage) return acc;
+      acc.inputTokens += row.providerReportedUsage.inputTokens;
+      acc.outputTokens += row.providerReportedUsage.outputTokens;
+      acc.totalTokens += row.providerReportedUsage.totalTokens;
+      return acc;
+    }, { inputTokens: 0, outputTokens: 0, totalTokens: 0 }),
+    complete: executionComplete,
+    executionComplete,
+    formalComplete,
+    fullRunUnlockReason: "CHK-006 completes when every expected Cell 03 cell key has either one final formal row or an auditable retry-exhausted terminal non-final row; only final formal rows count toward analysis.",
+    createdAt: new Date().toISOString(),
+  };
+}
+
 async function main() {
   const force = process.argv.includes("--force");
   const dryRun = hasFlag("--dryRun");
+  const refreshSummary = hasFlag("--refreshSummary");
   const limitRaw = argValue("--limit", null);
   const limit = limitRaw == null ? null : Number(limitRaw);
   if (limitRaw != null) ensure(Number.isInteger(limit) && limit > 0, "--limit must be a positive integer");
@@ -566,7 +625,7 @@ async function main() {
     ordering: "sha256(protocolDigest|③|taskSlot|scenarioSlot|repeatSlot) ascending",
     createdAt: new Date().toISOString(),
     cells: cells.map((cell) => ({
-      cellKey: `③|A4|${cell.taskId}|${cell.scenarioId}|${cell.repeatIndex}|E2|same`,
+      cellKey: cellKeyFor(cell),
       taskId: cell.taskId,
       taskSlot: cell.taskSlot,
       scenarioId: cell.scenarioId,
@@ -589,12 +648,19 @@ async function main() {
     rows.push(row);
     byCell.set(row.cellKey, rows);
   }
+  if (refreshSummary) {
+    const summary = summarizeRows(cells, existingRows, []);
+    fs.writeFileSync(summaryPath, JSON.stringify(summary, null, 2) + "\n");
+    console.log(`Refreshed ${path.relative(repoRoot, summaryPath)}`);
+    console.log(`finalRows=${summary.finalRows}/${summary.expectedRows} terminalExhaustedRows=${summary.terminalExhaustedRows} pendingExecutableRows=${summary.pendingExecutableRows}`);
+    return;
+  }
 
   const newRows = [];
   let attempted = 0;
   for (const cell of cells) {
     if (limit != null && attempted >= limit) break;
-    const cellKey = `③|A4|${cell.taskId}|${cell.scenarioId}|${cell.repeatIndex}|E2|same`;
+    const cellKey = cellKeyFor(cell);
     const prior = byCell.get(cellKey) ?? [];
     if (prior.some((row) => row.rowStatus === "final")) continue;
     if (prior.length >= 2) continue;
@@ -629,45 +695,11 @@ async function main() {
   }
 
   const rows = readExistingRows();
-  const finalRows = rows.filter((row) => row.rowStatus === "final");
-  const finalKeys = new Set(finalRows.map((row) => row.cellKey));
-  const missingKeys = cells
-    .map((cell) => `③|A4|${cell.taskId}|${cell.scenarioId}|${cell.repeatIndex}|E2|same`)
-    .filter((cellKey) => !finalKeys.has(cellKey));
-  const summary = {
-    artifact: "B-991d-cell03-full-summary",
-    storyId: STORY_ID,
-    executionWindowId: WINDOW_ID,
-    expectedRows: cells.length,
-    rowCount: rows.length,
-    finalRows: finalRows.length,
-    failedRows: rows.filter((row) => row.rowStatus !== "final").length,
-    validationPassRows: rows.filter((row) => row.validationPass).length,
-    providerUsageRows: rows.filter((row) => row.providerReportedUsage).length,
-    reviewedRows: rows.filter((row) => row.reviewGate?.verdict === "SHIP" || row.reviewGate?.verdict === "BLOCK").length,
-    groundTruthPassRows: rows.filter((row) => row.checks?.groundTruth?.exitCode === 0).length,
-    outcomeCounts: rows.reduce((acc, row) => {
-      acc[row.adjudicatedOutcome] = (acc[row.adjudicatedOutcome] ?? 0) + 1;
-      return acc;
-    }, {}),
-    missingFinalRows: missingKeys.length,
-    missingFinalCellKeys: missingKeys.slice(0, 50),
-    newRowsThisRun: newRows.length,
-    totalProviderUsage: rows.reduce((acc, row) => {
-      if (!row.providerReportedUsage) return acc;
-      acc.inputTokens += row.providerReportedUsage.inputTokens;
-      acc.outputTokens += row.providerReportedUsage.outputTokens;
-      acc.totalTokens += row.providerReportedUsage.totalTokens;
-      return acc;
-    }, { inputTokens: 0, outputTokens: 0, totalTokens: 0 }),
-    complete: missingKeys.length === 0 && finalRows.length === cells.length,
-    fullRunUnlockReason: "CHK-006 completes only when every expected Cell 03 cell key has exactly one final formal row and no duplicate final row.",
-    createdAt: new Date().toISOString(),
-  };
+  const summary = summarizeRows(cells, rows, newRows);
   fs.writeFileSync(summaryPath, JSON.stringify(summary, null, 2) + "\n");
   console.log(`Wrote ${newRows.length} new full row(s) to ${path.relative(repoRoot, rowsPath)}`);
-  console.log(`finalRows=${summary.finalRows}/${summary.expectedRows} failedRows=${summary.failedRows} providerUsageRows=${summary.providerUsageRows}`);
-  if (!summary.complete) process.exitCode = 2;
+  console.log(`finalRows=${summary.finalRows}/${summary.expectedRows} terminalExhaustedRows=${summary.terminalExhaustedRows} pendingExecutableRows=${summary.pendingExecutableRows} failedRows=${summary.failedRows} providerUsageRows=${summary.providerUsageRows}`);
+  if (!summary.executionComplete) process.exitCode = 2;
 }
 
 main();

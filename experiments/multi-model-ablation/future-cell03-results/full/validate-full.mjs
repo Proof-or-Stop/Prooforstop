@@ -161,10 +161,27 @@ function validateRows(rows, expected) {
       finalKeys.add(row.cellKey);
     }
   }
-  if (requireComplete) {
-    assert(finalKeys.size === 1152, `full run incomplete: ${finalKeys.size}/1152 final rows`);
+  let terminalExhaustedRows = 0;
+  let pendingExecutableRows = 0;
+  for (const expectedKey of expectedKeys) {
+    if (finalKeys.has(expectedKey)) continue;
+    const attempts = attemptsByCell.get(expectedKey) ?? 0;
+    if (attempts >= 2) terminalExhaustedRows++;
+    else pendingExecutableRows++;
   }
-  return { finalRows: finalKeys.size, rowCount: rows.length };
+  const executionComplete = pendingExecutableRows === 0;
+  const formalComplete = finalKeys.size === 1152;
+  if (requireComplete) {
+    assert(executionComplete, `full run incomplete: ${finalKeys.size}/1152 final rows; ${pendingExecutableRows} pending executable rows`);
+  }
+  return {
+    finalRows: finalKeys.size,
+    rowCount: rows.length,
+    terminalExhaustedRows,
+    pendingExecutableRows,
+    executionComplete,
+    formalComplete,
+  };
 }
 
 function expectReject(label, mutate, pattern) {
@@ -194,7 +211,12 @@ if (fs.existsSync(summaryPath)) {
   assert(summary.expectedRows === 1152, "summary expected count mismatch");
   assert(summary.rowCount === rows.length, "summary row count mismatch");
   assert(summary.finalRows === result.finalRows, "summary final count mismatch");
-  assert(summary.complete === (result.finalRows === 1152), "summary complete mismatch");
+  assert(summary.formalFinalRows === result.finalRows, "summary formal final count mismatch");
+  assert(summary.terminalExhaustedRows === result.terminalExhaustedRows, "summary terminal exhausted count mismatch");
+  assert(summary.pendingExecutableRows === result.pendingExecutableRows, "summary pending executable count mismatch");
+  assert(summary.executionComplete === result.executionComplete, "summary execution complete mismatch");
+  assert(summary.formalComplete === result.formalComplete, "summary formal complete mismatch");
+  assert(summary.complete === result.executionComplete, "summary complete mismatch");
   assert(summary.totalProviderUsage?.totalTokens === rows.reduce((sum, row) => sum + (row.providerReportedUsage?.totalTokens ?? 0), 0), "summary total usage mismatch");
 }
 
@@ -213,4 +235,4 @@ expectReject("reviewer context not fresh", (mut) => { mut[0].reviewGate.freshCon
 expectReject("missing ground truth", (mut) => { delete mut[0].checks.groundTruth; }, /ground truth/);
 
 console.log(`Cell 03 full validator passed: ${assertions} assertions; ${negativeControls} negative controls rejected`);
-console.log(`rows=${result.rowCount} finalRows=${result.finalRows}/1152 requireComplete=${requireComplete}`);
+console.log(`rows=${result.rowCount} finalRows=${result.finalRows}/1152 terminalExhaustedRows=${result.terminalExhaustedRows} pendingExecutableRows=${result.pendingExecutableRows} requireComplete=${requireComplete}`);

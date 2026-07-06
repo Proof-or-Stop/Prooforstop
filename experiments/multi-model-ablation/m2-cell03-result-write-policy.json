@@ -227,6 +227,21 @@
         "formal": true,
         "usable": true
       },
+      "retryExhaustionAccounting": {
+        "maxAttemptsPerCellKey": 2,
+        "executionCompleteMayIncludeRetryExhaustedNonFinalRows": true,
+        "retryExhaustedPredicate": {
+          "hasNoFinalRowForCellKey": true,
+          "attemptCountForCellKey": 2
+        },
+        "formalCountingEffect": {
+          "formal": false,
+          "usable": false,
+          "countsTowardFormalResults": false,
+          "countsTowardExecutionCompletion": true
+        },
+        "analysisBoundary": "Retry-exhausted rows prove the cell was executed under the frozen envelope and exhausted the bounded retry contract. They must remain auditable, but they must not be counted as recovered, completed, safe-stop, amplified, or any formal outcome in downstream analysis."
+      },
       "duplicateFinalRowEffect": {
         "formal": false,
         "usable": false,
