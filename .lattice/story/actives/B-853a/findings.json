@@ -207,7 +207,7 @@
       "desc": "H1 goldMetrics shape not validated: hasWellFormedProofEvidence (experiments/pos-instrument-replay/analyze-batch.mjs:251-260) only checks goldMetrics is a non-empty object, not that it carries any specific expected keys/shape. Replacing every proof record's goldMetrics with a uniform {bogus:1} (re-signed so integrity + pairwise-equality both hold) still yields H1=pass, overall=all-pass. The documented H1 criterion text explicitly only promises non-empty digests+goldMetrics (not specific goldMetrics keys), so this is arguably in-scope per the current spec rather than a regression — flagging as low severity for awareness/consideration, not as a blocking hardening gap, since fixing it would require deciding + documenting an expected goldMetrics schema (out of scope for this round's stated fix set).",
       "severity": "low",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-06T07:59:18.443Z",
@@ -215,7 +215,11 @@
       "reviewRunId": "B-853a:RR-012",
       "_hash": "5f5f98152e16654d51be851247f8af97dbd62ced7e9ea5c20bc81d74a61935f7",
       "signatureTag": "edge|unknown|goldmetrics-shape-validated",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in eeb1a9592: H1 requires the full EXPECTED_GOLD_METRIC_KEYS set (10 keys) as finite numbers (partial goldMetrics fails). selfcheck-m4 sub-check S.",
+      "resolvedAt": "2026-07-06T08:20:02.008Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-853a:F-012",
