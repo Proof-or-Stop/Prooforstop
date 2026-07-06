@@ -31,7 +31,52 @@
     "experiments/pos-instrument-replay/resume-probe.mjs"
   ],
   "scopeChangeReason": "Added CHK-004 covering scope-plan-review gaps (input-integrity + report completeness)",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Lattice lifecycle metadata written by the PLAN/DEV gate commands themselves (checklist/decision/ledger/intent-collision/proofstory/scope/red-evidence/understanding/process metadata) — not code scope creep; the only story CODE files are the four allowed experiments/pos-instrument-replay/ deliverables.",
+      "timestamp": "2026-07-06T07:30:12.588Z",
+      "paths": [
+        ".lattice/story/actives/B-853a/checklist.json",
+        ".lattice/story/actives/B-853a/decision.json",
+        ".lattice/story/actives/B-853a/index.json",
+        ".lattice/story/actives/B-853a/intent-collision.json",
+        ".lattice/story/actives/B-853a/milestone-ledger.json",
+        ".lattice/story/actives/B-853a/original-intent-snapshot.json",
+        ".lattice/story/actives/B-853a/process-events.jsonl",
+        ".lattice/story/actives/B-853a/process-metrics.json",
+        ".lattice/story/actives/B-853a/proofstory.json",
+        ".lattice/story/actives/B-853a/scope-check.json",
+        ".lattice/story/actives/B-853a/scope-contract.json",
+        ".lattice/story/actives/B-853a/red-evidence.json",
+        ".lattice/story/actives/B-853a/understanding.json",
+        ".lattice/story/actives/B-853a/review-runs.json",
+        ".lattice/story/actives/B-853a/test-evidence.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-853a/checklist.json",
+        ".lattice/story/actives/B-853a/decision.json",
+        ".lattice/story/actives/B-853a/index.json",
+        ".lattice/story/actives/B-853a/intent-collision.json",
+        ".lattice/story/actives/B-853a/milestone-ledger.json",
+        ".lattice/story/actives/B-853a/original-intent-snapshot.json",
+        ".lattice/story/actives/B-853a/process-events.jsonl",
+        ".lattice/story/actives/B-853a/process-metrics.json",
+        ".lattice/story/actives/B-853a/proofstory.json",
+        ".lattice/story/actives/B-853a/scope-check.json",
+        ".lattice/story/actives/B-853a/scope-contract.json",
+        ".lattice/story/actives/B-853a/red-evidence.json",
+        ".lattice/story/actives/B-853a/understanding.json",
+        ".lattice/story/actives/B-853a/review-runs.json",
+        ".lattice/story/actives/B-853a/test-evidence.json"
+      ],
+      "affectedPathCount": 15,
+      "phase": "DEV",
+      "headHash": "c984d5348c81a64ddcb260ff1a5c3b43321a9664",
+      "materialHash": "3af659b07e456b76454f55f8fea4dd34c63504f29ebdb5bca72518f55492f44e"
+    }
+  ],
   "createdAt": "2026-07-06T07:10:30.364Z",
-  "updatedAt": "2026-07-06T07:15:57.278Z"
+  "updatedAt": "2026-07-06T07:30:12.588Z"
 }

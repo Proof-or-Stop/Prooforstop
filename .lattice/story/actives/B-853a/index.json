@@ -4,7 +4,7 @@
   "title": "POS campaign M4: offline three-state H1-H4 analyzer (analyze-batch.mjs)",
   "description": "M4 (final milestone) of the proof-or-stop evidence-instrument replay campaign: a PURELY OFFLINE analyzer analyze-batch.mjs that reads the four already-produced evidence streams — batch-ledger.jsonl (H1 replay determinism + H4 scale envelope), tamper-verdicts.jsonl (H2 tamper fail-closed), resume-reconciliation.json (H3 resume integrity) — plus the frozen protocol.json, and adjudicates each hypothesis H1/H2/H3/H4 into a THREE-STATE verdict (pass | fail | inconclusive). It emits report.json + report.md with a REPRODUCIBLE digest (sha256 of the canonical report minus the digest field); re-running on the same inputs yields a byte-identical report + digest. The analyzer NEVER re-executes the instrument and NEVER calls the lattice CLI — it only reads committed evidence. A hermetic selfcheck-m4.mjs asserts the three-state derivation is correct and un-gameable (tampered/missing/insufficient evidence -> inconclusive or fail, never a false pass), and a genuine Codex cross-host pass replicates the report digest independently.",
   "type": "feature",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "medium",
   "createdAt": "2026-07-06T07:01:30.320Z",
   "startedAt": "2026-07-06T07:01:30.320Z",
@@ -45,11 +45,21 @@
       "user": "Harmonygo",
       "sessionId": "587682dc-bfda-437a-8713-bf1cb9342a76",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-06T07:30:13.842Z",
+      "branch": "story/B-853a",
+      "user": "Harmonygo",
+      "sessionId": "587682dc-bfda-437a-8713-bf1cb9342a76",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-853a",
     "branch": "story/B-853a",
     "createdAt": "2026-07-06T07:05:26.505Z"
-  }
+  },
+  "currentReviewRound": "2026-07-06T07:30:13.842Z"
 }
