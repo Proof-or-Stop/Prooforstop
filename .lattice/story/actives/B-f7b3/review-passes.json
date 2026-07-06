@@ -143,6 +143,15 @@
       "reviewRound": "2026-07-06T05:55:08.656Z",
       "reviewRunId": "B-f7b3:RR-024",
       "_hash": "c2ab222483ca9c3e7a694471af28c1d5630c1de535ea1ba3272d94de51e5d37b"
+    },
+    {
+      "id": "B-f7b3:RP-017",
+      "agent": "lattice-review-quality",
+      "note": "Convergence round: verified F-004 (handlers/proofstory.ts imports and uses MilestoneNotApplicableDecision at addMilestoneToLedger args), F-005 (whitespace-only notApplicableDecision negative control present in milestone-done-gate-reconciliation-smoke.ts block (d)), and F-006 (both writeMilestoneLedger call sites in proofstory-intent-hardening-smoke.ts use as-unknown-as-MilestoneLedgerData, no as-any remains in any changed file) all resolved. Re-swept full diff for dead code, type safety, I/O isolation, and error handling. All new imports used; new task file auto-discovered by run-all-smokes; new catch blocks are documented diagnostic fallbacks that never swallow gate-relevant errors. Verified the one proofStoryDiagnosticInput call site missing the new root param (REVIEW to TEST evaluateReviewCompleteness) is a correct no-op since currentEvidenceBinding is only consumed by evaluateDoneIntentEquivalence. Decision docs cross-checked against code with no promised-but-undelivered gaps found. No new findings.",
+      "createdAt": "2026-07-06T06:50:32.043Z",
+      "reviewRound": "2026-07-06T05:55:08.656Z",
+      "reviewRunId": "B-f7b3:RR-025",
+      "_hash": "759d220681f591e8c45965bd3cbbd4a4cbf8c4e014e1764aa8e02b6ae87060e5"
     }
   ]
 }
