@@ -53,6 +53,15 @@
       "reviewRound": "2026-07-06T01:22:49.221Z",
       "reviewRunId": "B-f511:RR-019",
       "_hash": "05e4d7c091b5447e06bfb0686980ba4a346906bec5424fd3785a0d9cd7af2c01"
+    },
+    {
+      "id": "B-f511:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Round 5 (fix commit 5c1aa59af) concept-residue check: verified F-009/F-011 fresh-mode non-empty-ledger guard sits strictly after acquireLock() (holds lock), calls release() on every exit path, cannot orphan/corrupt the lock, and is gated `if (!resume)` so it never touches the resume or fresh-empty-ledger paths (both unaffected, confirmed by re-running selfcheck-m3 live). Verified F-010 breakError/precondReason are mutually exclusive by construction and both exit AFTER the break-mutex finally (process.exit-skips-finally respected). Verified selfcheck-m3 header comment A-K matches the actual main() call sequence 1:1 (new K wired at checkFreshRefusesNonemptyLedger()). Ran the full selfcheck-m3 suite twice end-to-end (genuine generate/verify cycles, not mocked): both runs gave selfcheck-m3 PASS covering all 11 sub-checks A-K including the new K. One ad hoc manual test run of mine hit a spurious F-stop-record-resume failure, isolated and confirmed environmental (concurrent background load in my own harness, not this diff) — sub-check F function body is byte-identical pre/post diff and passed cleanly in 3 subsequent independent runs. No residual/dead code, no contradictory logic, no schema drift (precondition_failed record shape matches sibling paths exactly). Fix commit touches only the two declared scope files.",
+      "createdAt": "2026-07-06T03:01:15.079Z",
+      "reviewRound": "2026-07-06T02:17:55.786Z",
+      "reviewRunId": "B-f511:RR-028",
+      "_hash": "71ca137044bcec4d9a22274b54427a538ec3debbd32781b6f8390fad9c20cf50"
     }
   ]
 }
