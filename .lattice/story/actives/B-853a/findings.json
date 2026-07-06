@@ -230,6 +230,21 @@
       ],
       "signatureTag": "adversarial|mjs|codex-host-medium",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-853a:F-015",
+      "desc": "dead-code: selfcheck-m4.mjs:594-599 checkQ has an empty no-op if-block (`if (e.countsMatch !== false) { /* comment only */ }`) that does nothing at runtime — should be deleted or replaced with a real assertion/console note; introduced in commit eeb1a9592",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-06T08:13:16.771Z",
+      "reviewRound": "2026-07-06T08:08:44.086Z",
+      "reviewRunId": "B-853a:RR-017",
+      "_hash": "e8b5567bfec3f07ce0e9b5ddfc326fece88db18da017eef126db1297e0f5493f",
+      "signatureTag": "missing|unknown|dead-code-selfcheck",
+      "signatureTagSource": "auto"
     }
   ]
 }
