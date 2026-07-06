@@ -92,7 +92,7 @@
       "desc": "[codex-host-2 re-check, verified] --resume can STILL break a LIVE lock during the mkdir-to-holder stamp race. The F-001 fix stamps holder.json{pid} AFTER mkdirSync(LOCK_DIR), and the resume break treats a missing/malformed holder.json as stale. Scenario: driver A wins mkdirSync(LOCK_DIR) but has not yet completed writeFileSync(holder.json); driver B (--resume) sees LOCK_DIR with no/half-written holder.json, judges it stale, removes it, acquires its own, and both append concurrently -> corruption. The holder stamp is not an atomic part of lock acquisition. Fix: treat a MISSING/malformed/unparseable holder.json as LIVE (conservative — do NOT break; precondition_failed); break ONLY when holder.json exists with a parseable pid that is DEAD. A genuinely-orphaned prior run wrote holder.json before crashing so it stays breakable; only a crash in the tiny mkdir->stamp window is not auto-broken (safe: requires manual cleanup, never corruption). Add a selfcheck sub-check: a lock dir with NO holder.json is NOT broken by --resume.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host-2",
       "createdAt": "2026-07-05T23:28:36.566Z",
@@ -102,7 +102,11 @@
         "experiments/pos-instrument-replay/run-batch.mjs"
       ],
       "signatureTag": "adversarial|mjs|codex-host-check",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 1dad360a8: evaluateLockForBreak() conservative rule — a missing/unreadable/malformed/uncertain holder is treated as LIVE (not breakable); only a positively-proven-DEAD pid (ESRCH) is broken. Holder stamp near-atomic (temp-write+renameSync). Closes the mkdir->stamp acquire-window race. selfcheck-m3 sub-check I.",
+      "resolvedAt": "2026-07-06T05:05:12.729Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f511:F-006",
