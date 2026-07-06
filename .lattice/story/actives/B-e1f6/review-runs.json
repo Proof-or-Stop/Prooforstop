@@ -422,6 +422,100 @@
         "bindingHash": "c469767663c106a6a3bfea2a787bacc78cfbf96eb8f361e3b25cb5e03315cb9a"
       },
       "_hash": "fa43334a883b962d4eb3ddaec02b8f5e95048073a869a4fe5f382144c4038b26"
+    },
+    {
+      "reviewRunId": "B-e1f6:RR-010",
+      "storyId": "B-e1f6",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-07-06T16:25:50.064Z",
+      "startedAt": "2026-07-06T16:30:38.782Z",
+      "headHash": "d20d369092b1586f6d95f6a0e5e9ba1ef8cac7d7",
+      "materialHash": "00ceac1a7775e7b457b30f939795210e982aa9b8746c3cd1e4a7939d3866cf9a",
+      "storyFilesHash": "29d3f46122322965c8492b5704b3575fd18f2e854681813468459841c3ffeb4d",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "c1ae419c179bfb2d7c8474af22b2b3acb7752df01a6d8f11719b4cd01b1d96b1",
+        "diffPackHash": "5155793a0f9b5ac12ef67b1616d651d01fe46ec38e04de0707e98c170d698eb8",
+        "reviewedChangedFiles": [
+          "experiments/multi-model-ablation/README.md",
+          "experiments/multi-model-ablation/cell03-shards/README.md",
+          "experiments/multi-model-ablation/cell03-shards/merge.mjs",
+          "experiments/multi-model-ablation/cell03-shards/plan.mjs",
+          "experiments/multi-model-ablation/cell03-shards/selfcheck.mjs",
+          "experiments/multi-model-ablation/cell03-shards/shard-runner.mjs"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "0871db0ddaabf55a943c7735625d8de72d7ee2ef90173e39dad0ca90dee92b61",
+          "0c2e58145541c6bbf05040ba25df837b86603dd39ec22c9ecf454e74cd4c422f",
+          "74f7c23ccfe34290d9e121efd3af9791aba080ddbfbd205f35f32557accd3d37",
+          "937fa950fe352e24cce59301225c6f49da38bfada7e0a80867609c006253f459",
+          "acd0369d1e50e394f3a57759445ed306eac099e779f12bc172dec3bc46d82313",
+          "e130d69c4d62fb0b09954cd56e755c68693668b64f7331488ac4b9df49eb930a"
+        ],
+        "bindingHash": "a057b53f20ccd2dae076ce7a5614c58914695ecf671023bb2d80eb5ce487adad"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-e1f6",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-e1f6",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-e1f6",
+        "workspaceMode": "story-worktree",
+        "headHash": "d20d369092b1586f6d95f6a0e5e9ba1ef8cac7d7",
+        "materialHash": "00ceac1a7775e7b457b30f939795210e982aa9b8746c3cd1e4a7939d3866cf9a",
+        "storyFilesHash": "29d3f46122322965c8492b5704b3575fd18f2e854681813468459841c3ffeb4d",
+        "bindingHash": "6995af1e64cd78090ad533dcca54a51949c0bf1264e779d80453a694b257ac49"
+      },
+      "_hash": "38d7cf808a5e41845e264c59e5d7a9d5c2036b656fc57801d302a3e1eda7487f"
+    },
+    {
+      "reviewRunId": "B-e1f6:RR-011",
+      "storyId": "B-e1f6",
+      "agent": "lattice-review-concept",
+      "lane": "lattice-review-concept",
+      "reviewRound": "2026-07-06T16:25:50.064Z",
+      "startedAt": "2026-07-06T16:31:34.183Z",
+      "headHash": "d20d369092b1586f6d95f6a0e5e9ba1ef8cac7d7",
+      "materialHash": "00ceac1a7775e7b457b30f939795210e982aa9b8746c3cd1e4a7939d3866cf9a",
+      "storyFilesHash": "29d3f46122322965c8492b5704b3575fd18f2e854681813468459841c3ffeb4d",
+      "promptHash": "3941440555b81270101754fe5a8937a4b2649bed6ec8ba6e3d9be42602209ac5",
+      "scopeBinding": {
+        "scopeContractHash": "c1ae419c179bfb2d7c8474af22b2b3acb7752df01a6d8f11719b4cd01b1d96b1",
+        "diffPackHash": "5155793a0f9b5ac12ef67b1616d651d01fe46ec38e04de0707e98c170d698eb8",
+        "reviewedChangedFiles": [
+          "experiments/multi-model-ablation/README.md",
+          "experiments/multi-model-ablation/cell03-shards/README.md",
+          "experiments/multi-model-ablation/cell03-shards/merge.mjs",
+          "experiments/multi-model-ablation/cell03-shards/plan.mjs",
+          "experiments/multi-model-ablation/cell03-shards/selfcheck.mjs",
+          "experiments/multi-model-ablation/cell03-shards/shard-runner.mjs"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "0871db0ddaabf55a943c7735625d8de72d7ee2ef90173e39dad0ca90dee92b61",
+          "0c2e58145541c6bbf05040ba25df837b86603dd39ec22c9ecf454e74cd4c422f",
+          "74f7c23ccfe34290d9e121efd3af9791aba080ddbfbd205f35f32557accd3d37",
+          "937fa950fe352e24cce59301225c6f49da38bfada7e0a80867609c006253f459",
+          "acd0369d1e50e394f3a57759445ed306eac099e779f12bc172dec3bc46d82313",
+          "e130d69c4d62fb0b09954cd56e755c68693668b64f7331488ac4b9df49eb930a"
+        ],
+        "bindingHash": "a057b53f20ccd2dae076ce7a5614c58914695ecf671023bb2d80eb5ce487adad"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-e1f6",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-e1f6",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-e1f6",
+        "workspaceMode": "story-worktree",
+        "headHash": "d20d369092b1586f6d95f6a0e5e9ba1ef8cac7d7",
+        "materialHash": "00ceac1a7775e7b457b30f939795210e982aa9b8746c3cd1e4a7939d3866cf9a",
+        "storyFilesHash": "29d3f46122322965c8492b5704b3575fd18f2e854681813468459841c3ffeb4d",
+        "bindingHash": "6995af1e64cd78090ad533dcca54a51949c0bf1264e779d80453a694b257ac49"
+      },
+      "_hash": "08b2935b3eba35a966dacf98972dd87c27fa9bc1b50d0b401aefc63b4270e3cd"
     }
   ]
 }
