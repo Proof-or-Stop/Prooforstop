@@ -37,14 +37,18 @@
  */
 
 import { strict as assert } from 'node:assert';
-import { dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import {
   buildMilestoneStatusReport,
   type MilestoneStatusCurrentEvidenceBinding,
   type MilestoneCloseoutSnapshot,
 } from '../core/milestone-status.js';
 import { captureMilestoneCloseoutSnapshotFromStore } from '../handlers/milestone-status.js';
+import { configuredProofStoryMode } from '../handlers/phase-gates.js';
+import type { HandlerContext } from '../handlers/context.js';
+import { resetConfigCache } from '../core/config.js';
 import { evaluateDoneIntentEquivalence, type ProofStoryDiagnosticInput } from '../core/proofstory.js';
 import type {
   ChecklistData,
@@ -55,9 +59,6 @@ import type {
   StorySummaryData,
   VerificationEvidence,
 } from '../core/types.js';
-
-const smokeName = resolve(dirname(fileURLToPath(import.meta.url)), 'milestone-done-gate-reconciliation-smoke');
-void smokeName;
 
 // ── Fixture builders ────────────────────────────────────────────────────────
 
@@ -390,6 +391,45 @@ function makeStore(
     !enforce.staleMilestoneEvidenceIds.includes('M1'),
     'an uncovered (no evidence at all) milestone is uncovered, not stale',
   );
+}
+
+// ── (c) gate-mode DEFAULT pins to 'observe' when config is unset ────────────
+//
+// B-f7b3 (F-001/F-003): the milestone-triggered-gate-mode-default decision
+// (docs/requirements/decisions/milestone-triggered-gate-mode-default-decision.md)
+// records that `doneGateMode`/`reviewGateMode` MUST default to `observe`. This
+// pins that default against the REAL resolver — configuredProofStoryMode in
+// packages/main/src/handlers/phase-gates.ts — NOT a re-implemented `?? 'observe'`
+// in this test. It exercises the config-key-ABSENT path: a fresh temp root with
+// NO lattice.config.json, so loadConfig(root).proofStory is undefined and only the
+// `?? 'observe'` fallback can produce the result.
+//
+// UN-GAMEABLE GUARANTEE: if a future edit flips that fallback in phase-gates.ts to
+// `?? 'enforce'` (or removes the default), this block MUST fail. Do not "fix" a
+// failure here by re-pointing the assertion at a copied default — the whole point
+// is that it runs the shipped resolver.
+{
+  const emptyRoot = mkdtempSync(join(tmpdir(), 'b-f7b3-gate-mode-default-'));
+  try {
+    // Ensure loadConfig does not serve a cached config for this fresh root.
+    resetConfigCache();
+    // Minimal HandlerContext: configuredProofStoryMode only reads ctx.root.
+    const ctx = { root: emptyRoot } as unknown as HandlerContext;
+
+    assert.equal(
+      configuredProofStoryMode(ctx, 'doneGateMode'),
+      'observe',
+      'doneGateMode MUST default to observe when unset — flipping the phase-gates ?? fallback to enforce must fail this',
+    );
+    assert.equal(
+      configuredProofStoryMode(ctx, 'reviewGateMode'),
+      'observe',
+      'reviewGateMode MUST default to observe when unset — flipping the phase-gates ?? fallback to enforce must fail this',
+    );
+  } finally {
+    rmSync(emptyRoot, { recursive: true, force: true });
+    resetConfigCache();
+  }
 }
 
 // eslint-disable-next-line no-console

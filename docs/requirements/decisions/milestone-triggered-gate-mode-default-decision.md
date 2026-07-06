@@ -66,5 +66,14 @@ as the default and leave `enforce` as an explicit per-project opt-in.
 
 ## Verification
 
-A regression test pins `resolveDoneGateMode`/config default to `observe` when unset, so a
-future accidental flip is caught. (See CHK-009 verification intent.)
+A committed regression test pins the config default to `observe` when unset, so a future
+accidental flip is caught. It exercises the **real** resolver
+`configuredProofStoryMode` (`packages/main/src/handlers/phase-gates.ts:142-143`,
+`return loadConfig(ctx.root).proofStory?.[key] ?? 'observe';`) against a fresh temp root
+with no `lattice.config.json`, asserting both `doneGateMode` and `reviewGateMode` resolve
+to `observe`. Because the test drives the shipped resolver (not a re-implemented default),
+flipping the `?? 'observe'` fallback to `?? 'enforce'` makes it fail.
+
+Test location: `packages/main/src/tasks/milestone-done-gate-reconciliation-smoke.ts`,
+block "(c) gate-mode DEFAULT pins to 'observe' when config is unset". (See CHK-009
+verification intent.)

@@ -139,7 +139,11 @@ function renderProofStoryRows(label: string, mode: ProofStoryGateMode, status: s
   ].join('\n');
 }
 
-function configuredProofStoryMode(ctx: HandlerContext, key: 'reviewGateMode' | 'doneGateMode'): ProofStoryGateMode {
+// B-f7b3 (F-001/F-003): exported so the reconciliation smoke can pin the config
+// default to 'observe' against the REAL resolver (not a re-implemented `?? 'observe'`
+// in the test). Flipping the fallback below to `?? 'enforce'` MUST fail that smoke —
+// see packages/main/src/tasks/milestone-done-gate-reconciliation-smoke.ts.
+export function configuredProofStoryMode(ctx: HandlerContext, key: 'reviewGateMode' | 'doneGateMode'): ProofStoryGateMode {
   return loadConfig(ctx.root).proofStory?.[key] ?? 'observe';
 }
 
