@@ -300,6 +300,21 @@
       "_hash": "72380f3319a84cd80ec9f0a5a70e9c15b2e4639e084ef68dffc81ea21da54d3a",
       "signatureTag": "missing|unknown|quality-cleanup-selfcheck",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f511:F-018",
+      "desc": "test-coverage-gap: selfcheck-m3.mjs checkResumeBreakFailureDiagnostic (sub-check M, lines 1095-1147) asserts exit code 2, the diagnostic string, no orphaned break-mutex, and campaign-ledger untouched -- but never asserts that .batch-ledger.lock (LOCK_DIR) itself is still present/intact on disk after the forced break failure. Code inspection confirms POS_FAIL_LOCK_BREAK throws strictly BEFORE the real rmSync(LOCK_DIR, ...) call (run-batch.mjs:842-845), so LOCK_DIR necessarily survives today, but sub-check M does not verify this directly -- an implementer could accidentally reorder the fault-injection check to AFTER a partial rmSync side effect (or otherwise change the surrounding logic) without M catching it, since M only checks the break-mutex and campaign ledger, not the stale-lock directory whose survival is the operationally-important fact for a manual-cleanup recovery story. Suggested addition: after the breakRun assertion, add existsSync(lockDirPath(sandbox)) && existsSync(holderPath(sandbox)) checks (mirroring the pattern already used in sub-checks H/I) to make the LOCK_DIR-survives invariant explicit and regression-tested.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-06T05:00:19.331Z",
+      "reviewRound": "2026-07-06T03:27:19.118Z",
+      "reviewRunId": "B-f511:RR-037",
+      "_hash": "4c4d823a93b1beceb50e41117cbeec186825e539855a3b83b4542501f4e9d6f4",
+      "signatureTag": "missing|unknown|test-coverage-selfcheck",
+      "signatureTagSource": "auto"
     }
   ]
 }
