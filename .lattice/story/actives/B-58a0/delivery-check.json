@@ -1,0 +1,62 @@
+{
+  "storyId": "B-58a0",
+  "checkedAt": "2026-07-06T19:27:19.689Z",
+  "headHash": "bc5038556ad9516834cb3cc96381d1afb022f578",
+  "materialHash": "579bad78cc2d67f9e8f72050f9330e3ecb7bd100630bdd742a9fd8a095124ffa",
+  "storyFilesHash": "8fbc9725e058746e301ca5878ff88c441d2dab20b121e098698461bd07ac27a4",
+  "reviewRound": "2026-07-06T18:22:23.063Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-58a0/plan.md#CHK-001",
+      "promise": "Export renderChecklistDerivedLedger(storyId, checklist, phase) and CHECKLIST_DERIVED_HEADER from milestone-status.ts, grouping checklist items into done/in_progress/pending under a distinct Checklist-derived ledger header (never reusing Milestone Status header), with Phase and Progress lines and an empty-checklist stub",
+      "verifiedBy": "diff/read",
+      "evidence": "packages/main/src/core/milestone-status.ts lines 1226-1274: exports CHECKLIST_DERIVED_HEADER and renderChecklistDerivedLedger; groups items into done/in_progress/pending, emits Phase + Progress lines, (no checklist items) stub for empty input, distinct from Milestone Status header"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-58a0/plan.md#CHK-002",
+      "promise": "Rework appendMilestoneStatusAfterMutation so a mutating command always shows a status block: checklist-derived ledger when no milestone ledger exists, real milestone table when one exists, keep the DONE worktree-cleanup main-root fallback, replace silent stderr catches with a visible stdout block, exit code stays 0, --json still suppresses",
+      "verifiedBy": "diff/read",
+      "evidence": "packages/main/src/cli-engine.ts lines 842-940: realRender() tries handlers/main-root-fallback then falls back to renderDerived(); visibleFailure() produces a visible stdout warning block instead of the old stderr writes; appendMilestoneStatusAfterMutation checks wantsMachineJson(parsed) first and returns unchanged for --json; exit code path (line 1193-1195) is unaffected by this helper's return value"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-58a0/plan.md#CHK-003",
+      "promise": "Invert the no-ledger test assertion to require the checklist-derived ledger and forbid the Milestone Status header; add unit coverage for renderChecklistDerivedLedger including the empty stub; keep real-ledger and --json regressions green",
+      "verifiedBy": "test run",
+      "evidence": "packages/main/tests/milestone-status.test.mjs: noLedgerStdout assertions require Checklist-derived ledger header and forbid Milestone Status header; new derivedText/emptyDerived unit assertions cover 3-status grouping + empty stub; ran node packages/main/tests/milestone-status.test.mjs -> ok milestone-status"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-58a0/findings.json#F-001",
+      "promise": "Fix corrupt-artifact silent swallow: only StoryArtifactMissingError should be caught in renderDerived/realRender; other errors (e.g. JSON parse errors on a corrupt milestone-ledger.json) must propagate to the visible failure block instead of being masked as an empty story",
+      "verifiedBy": "diff/read + test run",
+      "evidence": "packages/main/src/core/store.ts lines 669-676 readMilestoneLedger catches only StoryArtifactMissingError and rethrows other errors; cli-engine.ts ignoreMissingArtifact does the same name-check and rethrows; new corrupt-milestone-ledger.json regression test in milestone-status.test.mjs writes invalid JSON, runs checklist_update, and asserts the visible render-FAILED block appears (and the checklist-derived block does NOT); verified this test passes in the current suite run"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-58a0/findings.json#F-002",
+      "promise": "Re-bind all 9 verificationEvidence entries to the current material after the round-1 fix commit so checklist evidence genuinely covers the current code, not stale pre-fix material",
+      "verifiedBy": "checklist_get read",
+      "evidence": "checklist.json shows all 9 verificationEvidence entries (CHK-001/002/003 x happy/edge/adversarial) stamped with headHash 5da31741ea13ba8de632a58decb8c862676f3dd9 / materialHash 579bad78... / storyFilesHash 8fbc9725... timestamp 2026-07-06T19:05:31 -- consistent, current material, not the pre-fix f806f63a9 material cited as stale in the finding"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node packages/main/tests/milestone-status.test.mjs -> ok milestone-status. Directly asserts derivedText header/Phase/Progress/grouping and emptyDerived 0/0/0 stub without throwing."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Same test run covers: no-ledger CLI mutation shows checklist-derived ledger (not Milestone Status); real-ledger append and DONE main-root fallback still show the real table; --json purity holds; corrupt-ledger regression shows visible render-FAILED block with mutation still succeeding and exit 0."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Same test file inversion + new unit test verified passing (ok milestone-status); full project test suite (npm run test) also completed exit code 0 with no regressions."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 5 promises (3 checklist items + 2 resolved findings) are verified directly in source and by running the test file and full suite; the corrupt-ledger regression genuinely exercises the F-001 fix (readMilestoneLedger rethrows non-missing errors) and the --json short-circuit and exit-0 behavior were independently confirmed by reading cli-engine.ts. No delivery gap found."
+  },
+  "_hash": "f87f81f6e5146b665d079be71734d48740d5ab00ca62bc86a8f84ea2eb48909a"
+}
