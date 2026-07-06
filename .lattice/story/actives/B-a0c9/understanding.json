@@ -1,0 +1,25 @@
+{
+  "task": "Harden experiments/pos-instrument-replay/selfcheck-m3.mjs against two accepted-risk findings from the merged story B-f511: F-017 (a mkdtemp sandbox tmp dir leaks when a sub-check FAILS, because fail() calls process.exit(1) which skips the try/finally cleanup) and F-018 (sub-check M does not explicitly assert that LOCK_DIR and holder.json survive the forced break failure).",
+  "outcome": "Running node experiments/pos-instrument-replay/selfcheck-m3.mjs prints sub-checks A through M each PASS and ends with \"selfcheck-m3 PASS\" at exit 0; sub-check M now also proves the failed stale-lock break left LOCK_DIR (.batch-ledger.lock) and holder.json intact. Running node experiments/pos-instrument-replay/selfcheck-m2.mjs still ends with \"selfcheck-m2 PASS\" at exit 0. When any sub-check fails, no pos-selfcheck-m3-* directory is left behind in the system temp dir.",
+  "facts": [
+    "selfcheck-m3.mjs fail() (~line 141) calls process.exit(1), which per Node semantics skips pending finally blocks.",
+    "Every sub-check A-M wraps its body in try/finally that rmSyncs its mkdtemp sandbox; that cleanup is skipped whenever fail() fires inside the try.",
+    "run-batch.mjs (842-845) throws for POS_FAIL_LOCK_BREAK=1 BEFORE the real rmSync(LOCK_DIR), so a failed break leaves LOCK_DIR + holder.json intact.",
+    "Sub-checks H and I already assert lock/holder survival with existsSync; sub-check M does not.",
+    "B-f511 merged to main as 51c68420b; selfcheck-m3.mjs, run-batch.mjs (resume), and selfcheck-m2.mjs are all on main.",
+    "The fix was pre-validated in a scratch mirror of the merged state: selfcheck-m3 A-M PASS, selfcheck-m2 PASS, and a standalone demo showed the exit-sweep removes a sandbox that the old fail() path leaked."
+  ],
+  "constraints": [
+    "Keep the entire change confined to experiments/pos-instrument-replay/selfcheck-m3.mjs.",
+    "Additive only: preserve fail() fail-fast process.exit semantics and exit codes; do not change sub-check control flow.",
+    "No correctness change to run-batch.mjs or any production/runtime code.",
+    "The F-018 assertion must target the genuinely-stale (dead-pid) lock that the forced break could not remove."
+  ],
+  "unknowns": [
+    "Whether lattice validate needs the worktree node_modules for the plain-node selfchecks (they use only node builtins + the global lattice CLI, so expected not to)."
+  ],
+  "touchpoints": [
+    "experiments/pos-instrument-replay/selfcheck-m3.mjs: fail(), makeSandbox(), the 12 finally cleanup sites, and checkResumeBreakFailureDiagnostic (sub-check M)."
+  ],
+  "timestamp": "2026-07-06T10:22:09.857Z"
+}

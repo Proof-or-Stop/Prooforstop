@@ -43,7 +43,7 @@
       "id": "CHK-002",
       "title": "F-018: assert LOCK_DIR + holder.json survive the forced break failure in sub-check M",
       "context": "In checkResumeBreakFailureDiagnostic (sub-check M), after the exit-2 + 'could not break the stale lock' diagnostic assertions, add existsSync(lockDirPath(sandbox)) + existsSync(holderPath(sandbox)) survival assertions mirroring sub-checks H/I. run-batch.mjs throws (POS_FAIL_LOCK_BREAK) BEFORE rmSync(LOCK_DIR), so both survive; the assertion pins that invariant.",
-      "userSees": "The sub-check M PASS line is unchanged, but the run now also proves the failed break left LOCK_DIR (.batch-ledger.lock) + holder.json fully intact.",
+      "userSees": "node experiments/pos-instrument-replay/selfcheck-m3.mjs prints the sub-check M line starting \"M-resume-break-failure-diagnostic PASS: a --resume run whose stale-lock break FAILED became the explicit exit-2 diagnostic\", the run now also asserts LOCK_DIR (.batch-ledger.lock) + holder.json survived the failed break, and the overall run still ends \"selfcheck-m3 PASS\" at exit 0.",
       "files": {
         "modify": [
           "experiments/pos-instrument-replay/selfcheck-m3.mjs"

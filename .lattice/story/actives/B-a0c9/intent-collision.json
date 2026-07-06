@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-a0c9",
+  "id": "IC-20260706102529",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Single-file test-hardening of selfcheck-m3.mjs delivering two additive changes: (1) F-017 hermetic-on-failure sandbox cleanup and (2) F-018 LOCK_DIR + holder.json survival assertion in sub-check M. No production/runtime behavior changes; acceptance is the selfcheck suite staying green.",
+  "acceptedInterpretationHash": "sha256:0dbb9fc052d3f15e69e575e56035e78f820784a37c999323c8524f9c05ce08b2",
+  "notes": "Two findings F-017+F-018 are one coherent test-hygiene deliverable confined to selfcheck-m3.mjs; interpretation confirmed from the user request and B-f511 findings.json.",
+  "createdAt": "2026-07-06T10:25:29.923Z",
+  "updatedAt": "2026-07-06T10:25:29.923Z"
+}
