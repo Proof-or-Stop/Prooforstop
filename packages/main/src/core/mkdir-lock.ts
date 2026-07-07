@@ -42,10 +42,24 @@ export interface MkdirLockHolderInfo {
   command: string;
   /** ISO timestamp of the moment the lock was acquired. */
   acquiredAt: string;
+  /** Optional per-acquire identity token for higher-level liveness checks. */
+  lockId?: string;
+  /** Optional process start timestamp when the holder can provide it. */
+  processStartTimeMs?: number;
 }
 
 /** Filename of the holder-metadata file written inside an acquired lock dir. */
 export const MKDIR_LOCK_HOLDER_FILE = 'holder.json';
+
+export type ExistingMkdirLockState = 'active' | 'stale' | 'unknown';
+
+export interface ExistingMkdirLockSnapshot {
+  lockDir: string;
+  holder: MkdirLockHolderInfo | null;
+  ageMs: number;
+  staleMs: number;
+  nowMs: number;
+}
 
 export interface MkdirLockOptions {
   /**
@@ -89,6 +103,12 @@ export interface MkdirLockOptions {
    * static `heldMessage`.
    */
   onContentionHeld?: (holder: MkdirLockHolderInfo | null, holderAgeMs: number) => string;
+  /**
+   * Optional liveness classifier used by higher-level locks that have richer
+   * holder metadata than mtime alone. Return `unknown` to fall back to the
+   * default mtime stale check.
+   */
+  classifyExistingLock?: (snapshot: ExistingMkdirLockSnapshot) => ExistingMkdirLockState;
 }
 
 /**
@@ -113,7 +133,18 @@ export function readMkdirLockHolder(lockDir: string): MkdirLockHolderInfo | null
     const command = typeof obj.command === 'string' ? obj.command : '';
     const acquiredAt = typeof obj.acquiredAt === 'string' ? obj.acquiredAt : '';
     if (!Number.isFinite(pid) || !hostname || !command || !acquiredAt) return null;
-    return { pid, hostname, command, acquiredAt };
+    const lockId = typeof obj.lockId === 'string' && obj.lockId.trim() ? obj.lockId : undefined;
+    const processStartTimeMs = typeof obj.processStartTimeMs === 'number' && Number.isFinite(obj.processStartTimeMs)
+      ? obj.processStartTimeMs
+      : undefined;
+    return {
+      pid,
+      hostname,
+      command,
+      acquiredAt,
+      ...(lockId ? { lockId } : {}),
+      ...(processStartTimeMs !== undefined ? { processStartTimeMs } : {}),
+    };
   } catch {
     /* PROBE: no holder.json / unreadable / malformed — holder is unknown. */
     return null;
@@ -167,12 +198,22 @@ export function acquireMkdirLock(lockDir: string, options: MkdirLockOptions = {}
       // Lock dir already exists (EEXIST) — another holder, or a stale leftover.
       let sawLiveLock = false;
       let liveLockAgeMs = 0;
+      let liveHolder: MkdirLockHolderInfo | null = null;
       try {
-        const ageMs = Date.now() - statSync(lockDir).mtimeMs;
-        if (ageMs > staleMs) rmSync(lockDir, { recursive: true, force: true });
-        else {
+        const nowMs = Date.now();
+        const ageMs = nowMs - statSync(lockDir).mtimeMs;
+        const holder = options.classifyExistingLock || options.failFastIfHeld
+          ? readMkdirLockHolder(lockDir)
+          : null;
+        const classification = options.classifyExistingLock
+          ? options.classifyExistingLock({ lockDir, holder, ageMs, staleMs, nowMs })
+          : 'unknown';
+        if (classification === 'stale' || (classification === 'unknown' && ageMs > staleMs)) {
+          rmSync(lockDir, { recursive: true, force: true });
+        } else {
           sawLiveLock = true;
           liveLockAgeMs = ageMs;
+          liveHolder = holder;
         }
       } catch {
         /* PROBE: lock dir vanished between mkdir attempt and stat — next loop retries */
@@ -182,9 +223,8 @@ export function acquireMkdirLock(lockDir: string, options: MkdirLockOptions = {}
         // pid / hostname / running command / heartbeat age. A holder-aware
         // message via `onContentionHeld` takes precedence; otherwise the
         // static `heldMessage` (or a generic default) is used.
-        const holder = readMkdirLockHolder(lockDir);
         const message = options.onContentionHeld
-          ? options.onContentionHeld(holder, liveLockAgeMs)
+          ? options.onContentionHeld(liveHolder, liveLockAgeMs)
           : options.heldMessage ?? `${label} lock is held; retry after the active operation finishes`;
         throw new Error(message);
       }

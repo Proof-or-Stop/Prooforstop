@@ -1,10 +1,12 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
-import { utimesSync } from 'node:fs';
+import { randomUUID } from 'node:crypto';
+import { readFileSync, utimesSync, writeFileSync } from 'node:fs';
 import { hostname } from 'node:os';
 import { join } from 'node:path';
 import {
   acquireMkdirLock,
   type AcquiredMkdirLock,
+  type ExistingMkdirLockSnapshot,
   type MkdirLockHolderInfo,
 } from './mkdir-lock.js';
 import { LATTICE_DIR } from './lattice-paths.js';
@@ -12,9 +14,18 @@ import { LATTICE_DIR } from './lattice-paths.js';
 export const VALIDATION_EXECUTION_LOCKS_REL = `${LATTICE_DIR}/locks/validation`;
 export const VALIDATION_EXECUTION_LOCK_STALE_MS = 120000;
 export const VALIDATION_EXECUTION_LOCK_HEARTBEAT_MS = 2000;
+export const VALIDATION_EXECUTION_LOCK_HEARTBEAT_FILE = 'heartbeat.json';
 
 const heldValidationLockPaths = new Set<string>();
 const validationLockOwnerStore = new AsyncLocalStorage<Set<string>>();
+
+interface ValidationLockHeartbeatInfo {
+  lockId: string;
+  pid: number;
+  hostname: string;
+  processStartTimeMs?: number;
+  heartbeatAt: string;
+}
 
 function sanitizeLockSegment(value: string): string {
   return value.replace(/[^A-Za-z0-9_.-]/g, '_').replace(/^_+|_+$/g, '') || 'unknown';
@@ -29,6 +40,89 @@ function extendedOwnerSet(lockKey: string): Set<string> {
   const next = current ? new Set(current) : new Set<string>();
   next.add(lockKey);
   return next;
+}
+
+function currentProcessStartTimeMs(): number {
+  return Math.floor(Date.now() - (process.uptime() * 1000));
+}
+
+function pidAppearsAlive(pid: number): boolean {
+  if (!Number.isInteger(pid) || pid <= 0) return false;
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (error: any) {
+    return error?.code === 'EPERM';
+  }
+}
+
+function readValidationLockHeartbeat(lockDir: string): ValidationLockHeartbeatInfo | null {
+  try {
+    const raw = readFileSync(join(lockDir, VALIDATION_EXECUTION_LOCK_HEARTBEAT_FILE), 'utf8');
+    const parsed = JSON.parse(raw) as unknown;
+    if (!parsed || typeof parsed !== 'object') return null;
+    const obj = parsed as Record<string, unknown>;
+    const lockId = typeof obj.lockId === 'string' ? obj.lockId : '';
+    const pid = typeof obj.pid === 'number' ? obj.pid : NaN;
+    const host = typeof obj.hostname === 'string' ? obj.hostname : '';
+    const heartbeatAt = typeof obj.heartbeatAt === 'string' ? obj.heartbeatAt : '';
+    const processStartTimeMs = typeof obj.processStartTimeMs === 'number' && Number.isFinite(obj.processStartTimeMs)
+      ? obj.processStartTimeMs
+      : undefined;
+    if (!lockId || !Number.isFinite(pid) || !host || !heartbeatAt) return null;
+    return {
+      lockId,
+      pid,
+      hostname: host,
+      heartbeatAt,
+      ...(processStartTimeMs !== undefined ? { processStartTimeMs } : {}),
+    };
+  } catch {
+    return null;
+  }
+}
+
+function sameProcessStart(a: number | undefined, b: number | undefined): boolean {
+  if (a === undefined || b === undefined) return true;
+  return Math.abs(a - b) <= 2000;
+}
+
+function heartbeatLooksMismatched(holder: MkdirLockHolderInfo, heartbeat: ValidationLockHeartbeatInfo | null): boolean {
+  if (!heartbeat) return false;
+  if (holder.lockId && heartbeat.lockId !== holder.lockId) return true;
+  if (heartbeat.pid !== holder.pid) return true;
+  if (heartbeat.hostname !== holder.hostname) return true;
+  if (!sameProcessStart(holder.processStartTimeMs, heartbeat.processStartTimeMs)) return true;
+  return false;
+}
+
+function heartbeatAgeMs(heartbeat: ValidationLockHeartbeatInfo | null, nowMs: number): number | null {
+  if (!heartbeat) return null;
+  const parsed = Date.parse(heartbeat.heartbeatAt);
+  if (!Number.isFinite(parsed)) return null;
+  return Math.max(0, nowMs - parsed);
+}
+
+export function classifyValidationExecutionLock(snapshot: ExistingMkdirLockSnapshot): 'active' | 'stale' | 'unknown' {
+  if (snapshot.ageMs > snapshot.staleMs) return 'stale';
+  const holder = snapshot.holder;
+  if (!holder) return 'unknown';
+
+  const heartbeat = readValidationLockHeartbeat(snapshot.lockDir);
+  if (heartbeatLooksMismatched(holder, heartbeat)) return 'stale';
+  const beatAge = heartbeatAgeMs(heartbeat, snapshot.nowMs);
+  if (beatAge !== null && beatAge > snapshot.staleMs) return 'stale';
+
+  const localHost = hostname();
+  if (holder.hostname === localHost && !pidAppearsAlive(holder.pid)) return 'stale';
+  if (
+    holder.hostname === localHost &&
+    holder.pid === process.pid &&
+    !sameProcessStart(holder.processStartTimeMs, currentProcessStartTimeMs())
+  ) {
+    return 'stale';
+  }
+  return 'active';
 }
 
 export function validationExecutionLockPath(root: string, storyId: string): string {
@@ -70,9 +164,22 @@ function buildValidationLockContentionMessage(args: {
   return `${prefix} by another Proofbound process (holder details unavailable), ${heartbeat}. ${retry}`;
 }
 
-function startHeartbeat(lock: AcquiredMkdirLock): ReturnType<typeof setInterval> {
+function writeValidationHeartbeat(lockDir: string, holder: MkdirLockHolderInfo): void {
+  const heartbeat: ValidationLockHeartbeatInfo = {
+    lockId: holder.lockId ?? '',
+    pid: holder.pid,
+    hostname: holder.hostname,
+    ...(holder.processStartTimeMs !== undefined ? { processStartTimeMs: holder.processStartTimeMs } : {}),
+    heartbeatAt: new Date().toISOString(),
+  };
+  if (!heartbeat.lockId) return;
+  writeFileSync(join(lockDir, VALIDATION_EXECUTION_LOCK_HEARTBEAT_FILE), JSON.stringify(heartbeat, null, 2) + '\n', 'utf8');
+}
+
+function startHeartbeat(lock: AcquiredMkdirLock, holder: MkdirLockHolderInfo): ReturnType<typeof setInterval> {
   const beat = () => {
     try {
+      writeValidationHeartbeat(lock.lockDir, holder);
       const now = new Date();
       utimesSync(lock.lockDir, now, now);
     } catch {
@@ -108,16 +215,20 @@ export async function withValidationExecutionLock<T>(
     return await fn();
   }
 
+  const holderInfo: MkdirLockHolderInfo = {
+    lockId: randomUUID(),
+    pid: process.pid,
+    hostname: hostname(),
+    command: `${command} for ${storyId}`,
+    acquiredAt: new Date().toISOString(),
+    processStartTimeMs: currentProcessStartTimeMs(),
+  };
   const lock = acquireMkdirLock(lockKey, {
     label: 'validation execution',
     staleMs: options.staleMs ?? VALIDATION_EXECUTION_LOCK_STALE_MS,
     failFastIfHeld: true,
-    holderInfo: {
-      pid: process.pid,
-      hostname: hostname(),
-      command: `${command} for ${storyId}`,
-      acquiredAt: new Date().toISOString(),
-    },
+    holderInfo,
+    classifyExistingLock: classifyValidationExecutionLock,
     onContentionHeld: (holder, holderAgeMs) => buildValidationLockContentionMessage({
       storyId,
       workspaceRoot,
@@ -127,7 +238,7 @@ export async function withValidationExecutionLock<T>(
     }),
   });
   heldValidationLockPaths.add(lockKey);
-  const heartbeat = startHeartbeat(lock);
+  const heartbeat = startHeartbeat(lock, holderInfo);
   try {
     return await validationLockOwnerStore.run(extendedOwnerSet(lockKey), async () => await fn());
   } finally {

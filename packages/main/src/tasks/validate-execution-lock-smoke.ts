@@ -16,8 +16,9 @@
  *  - story_advance REVIEW→TEST can run its internal validate gate without
  *    self-deadlocking;
  *  - done_required_validate shares the same story execution lock with validate;
- *  - stale locks are reclaimed, and same async-context nesting is reentrant
- *    without letting a concurrent async sibling pass through.
+ *  - stale locks are reclaimed, vanished or mismatched holders are stale, and
+ *    same async-context nesting is reentrant without letting a concurrent async
+ *    sibling pass through.
  *
  * Run:
  *   node packages/main/dist/tasks/validate-execution-lock-smoke.js
@@ -34,15 +35,17 @@ import {
   utimesSync,
   writeFileSync,
 } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { hostname, tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, StoryInfo } from '../core/types.js';
 import {
+  VALIDATION_EXECUTION_LOCK_HEARTBEAT_FILE,
   validationExecutionLockPath,
   withValidationExecutionLock,
 } from '../core/validation-execution-lock.js';
+import { MKDIR_LOCK_HOLDER_FILE } from '../core/mkdir-lock.js';
 
 const DEFAULT_STORY_ID = 'B-validate-lock';
 const NOW = '2026-06-24T00:00:00.000Z';
@@ -536,6 +539,87 @@ async function assertStaleLockReclaimed(): Promise<void> {
   }
 }
 
+function processStartTimeMs(): number {
+  return Math.floor(Date.now() - (process.uptime() * 1000));
+}
+
+function writeLockOwner(root: string, storyId: string, holder: Record<string, unknown>, heartbeat?: Record<string, unknown>): string {
+  const lockDir = validationExecutionLockPath(root, storyId);
+  mkdirSync(lockDir, { recursive: true });
+  writeFileSync(join(lockDir, MKDIR_LOCK_HOLDER_FILE), JSON.stringify(holder, null, 2) + '\n', 'utf8');
+  if (heartbeat) {
+    writeFileSync(join(lockDir, VALIDATION_EXECUTION_LOCK_HEARTBEAT_FILE), JSON.stringify(heartbeat, null, 2) + '\n', 'utf8');
+  }
+  const now = new Date();
+  utimesSync(lockDir, now, now);
+  return lockDir;
+}
+
+async function assertVanishedOwnerReclaimed(): Promise<void> {
+  const root = mkdtempSync(join(tmpdir(), 'lattice-validate-lock-vanished-'));
+  const storyId = 'B-vanished';
+  try {
+    const lockDir = writeLockOwner(root, storyId, {
+      lockId: 'vanished-owner',
+      pid: 999_999_999,
+      hostname: hostname(),
+      command: 'validate for B-vanished',
+      acquiredAt: new Date().toISOString(),
+      processStartTimeMs: processStartTimeMs() - 60_000,
+    });
+    let ran = false;
+    await withValidationExecutionLock({
+      root,
+      storyId,
+      workspaceRoot: root,
+      command: 'validate',
+      staleMs: 60000,
+    }, () => {
+      ran = true;
+    });
+    assert.equal(ran, true, 'fresh lock with vanished same-host pid should be reclaimed');
+    assert.equal(existsSync(lockDir), false, 'vanished-owner lock should release after reclaimed run');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+async function assertMismatchedOwnerReclaimed(): Promise<void> {
+  const root = mkdtempSync(join(tmpdir(), 'lattice-validate-lock-mismatch-'));
+  const storyId = 'B-mismatch';
+  const startMs = processStartTimeMs();
+  try {
+    const lockDir = writeLockOwner(root, storyId, {
+      lockId: 'old-owner',
+      pid: process.pid,
+      hostname: hostname(),
+      command: 'validate for B-mismatch',
+      acquiredAt: new Date().toISOString(),
+      processStartTimeMs: startMs,
+    }, {
+      lockId: 'different-owner',
+      pid: process.pid,
+      hostname: hostname(),
+      processStartTimeMs: startMs,
+      heartbeatAt: new Date().toISOString(),
+    });
+    let ran = false;
+    await withValidationExecutionLock({
+      root,
+      storyId,
+      workspaceRoot: root,
+      command: 'validate',
+      staleMs: 60000,
+    }, () => {
+      ran = true;
+    });
+    assert.equal(ran, true, 'fresh lock with mismatched owner/heartbeat identity should be reclaimed');
+    assert.equal(existsSync(lockDir), false, 'mismatched-owner lock should release after reclaimed run');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 async function assertReentrantButNotSiblingBypass(): Promise<void> {
   const root = mkdtempSync(join(tmpdir(), 'lattice-validate-lock-unit-'));
   const storyId = 'B-reentrant';
@@ -582,8 +666,10 @@ void (async () => {
     await assertStoryAdvanceInternalValidateDoesNotSelfLock();
     await assertDoneRequiredSharesValidateLock();
     await assertStaleLockReclaimed();
+    await assertVanishedOwnerReclaimed();
+    await assertMismatchedOwnerReclaimed();
     await assertReentrantButNotSiblingBypass();
-    console.log('validate-execution-lock smoke passed: 9 assertions');
+    console.log('validate-execution-lock smoke passed: 11 assertions');
   } catch (error) {
     console.error(error instanceof Error ? error.message : String(error));
     process.exit(1);
