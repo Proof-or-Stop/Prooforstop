@@ -3,24 +3,24 @@
   "storyId": "B-991d",
   "executionWindowId": "B-991d-cell03-execution-window-001",
   "expectedRows": 1152,
-  "rowCount": 1169,
-  "finalRows": 1124,
-  "formalFinalRows": 1124,
+  "rowCount": 1170,
+  "finalRows": 1125,
+  "formalFinalRows": 1125,
   "terminalExhaustedRows": 10,
-  "pendingExecutableRows": 18,
+  "pendingExecutableRows": 17,
   "failedRows": 45,
-  "validationPassRows": 1021,
-  "providerUsageRows": 1124,
-  "reviewedRows": 1126,
-  "groundTruthPassRows": 1130,
+  "validationPassRows": 1022,
+  "providerUsageRows": 1125,
+  "reviewedRows": 1127,
+  "groundTruthPassRows": 1131,
   "outcomeCounts": {
-    "recovered": 955,
+    "recovered": 956,
     "safe-stop": 105,
     "completed": 66,
     "review-invalid": 5,
     "failed": 38
   },
-  "missingFinalRows": 28,
+  "missingFinalRows": 27,
   "missingFinalCellKeys": [
     "③|A4|median|B05|1|E2|same",
     "③|A4|cl-combined|B07|3|E2|same",
@@ -39,7 +39,6 @@
     "③|A4|cv-email|B06|2|E2|same",
     "③|A4|cl-multi|B11|2|E2|same",
     "③|A4|cl-combined|B11|2|E2|same",
-    "③|A4|rf-units|B06|1|E2|same",
     "③|A4|cv-ipv4|B07|1|E2|same",
     "③|A4|dp-deepmerge|B01|1|E2|same",
     "③|A4|tr-pluralize|B08|3|E2|same",
@@ -71,7 +70,6 @@
     "③|A4|cv-email|B06|2|E2|same",
     "③|A4|cl-multi|B11|2|E2|same",
     "③|A4|cl-combined|B11|2|E2|same",
-    "③|A4|rf-units|B06|1|E2|same",
     "③|A4|cv-ipv4|B07|1|E2|same",
     "③|A4|dp-deepmerge|B01|1|E2|same",
     "③|A4|tr-pluralize|B08|3|E2|same",
@@ -83,15 +81,15 @@
     "③|A4|tr-clamp|B02|1|E2|same",
     "③|A4|rf-units|B06|2|E2|same"
   ],
-  "newRowsThisRun": 163,
+  "newRowsThisRun": 1,
   "totalProviderUsage": {
-    "inputTokens": 209968841,
-    "outputTokens": 6036438,
-    "totalTokens": 216005279
+    "inputTokens": 210110662,
+    "outputTokens": 6039545,
+    "totalTokens": 216150207
   },
   "complete": false,
   "executionComplete": false,
   "formalComplete": false,
   "fullRunUnlockReason": "CHK-006 completes when every expected Cell 03 cell key has either one final formal row or an auditable retry-exhausted terminal non-final row; only final formal rows count toward analysis.",
-  "createdAt": "2026-07-07T02:32:28.802Z"
+  "createdAt": "2026-07-07T02:36:06.434Z"
 }
