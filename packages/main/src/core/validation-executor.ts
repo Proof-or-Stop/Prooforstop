@@ -14,6 +14,7 @@ import { defaultAuditWriter, evaluateDirtyGate, type EvaluateDirtyGateResult } f
 import type {
   ValidationCommand,
   ValidationCommandResult,
+  ValidationFailureKind,
   ValidationPlan,
   ValidationProgressEvent,
   ValidationProgressReporter,
@@ -118,6 +119,16 @@ function emitValidationProgress(progress: ValidationProgressReporter | undefined
     // Progress is diagnostic-only; validation results must not depend on a
     // caller's logging sink.
   }
+}
+
+function commandFailureKind(args: {
+  code: number;
+  timedOut: boolean;
+  runnerFailure: boolean;
+}): ValidationFailureKind | undefined {
+  if (args.code === 0 && !args.timedOut && !args.runnerFailure) return undefined;
+  if (args.timedOut || args.runnerFailure) return 'infra_failure';
+  return 'validation_failure';
 }
 
 function validationProgressEvent(
@@ -304,6 +315,7 @@ export function runValidationCommand(
   return new Promise((resolveResult) => {
     let output = '';
     let timedOut = false;
+    let runnerFailure = false;
     let settled = false;
     let killTimer: NodeJS.Timeout | undefined;
     let heartbeatTimer: NodeJS.Timeout | undefined;
@@ -320,6 +332,7 @@ export function runValidationCommand(
       // could even exit 0 — without this normalization those would mis-report as not-124
       // even though `timedOut` is set.
       const code = timedOut ? 124 : (rawCode ?? 1);
+      const failureKind = commandFailureKind({ code, timedOut, runnerFailure });
       const statusAfter = readGitStatus(statusGitCwd);
       const pollutionStatusLines = detectNewDirtyStatus(statusBefore, statusAfter);
       const result: ValidationCommandResult = {
@@ -333,6 +346,7 @@ export function runValidationCommand(
         ...(command.optional ? { optional: true } : {}),
         ...(timedOut ? { timedOut: true } : {}),
         timeoutMs,
+        ...(failureKind ? { failureKind } : {}),
         durationMs: Date.now() - started,
         ...(pollutionStatusLines.length > 0
           ? {
@@ -432,6 +446,7 @@ export function runValidationCommand(
     child.stderr?.on('data', (d: Buffer) => { output += d.toString(); });
     child.on('close', (code) => finish(code));
     child.on('error', (e) => {
+      runnerFailure = true;
       output += output ? `\n${e.message}` : e.message;
       finish(null);
     });
@@ -481,6 +496,7 @@ export async function executeValidationPlan(
 
   const requiredFailures = commands.filter((r) => !r.optional && (r.code !== 0 || r.timedOut));
   const optionalFailures = commands.filter((r) => r.optional && (r.code !== 0 || r.timedOut));
+  const requiredInfraFailures = requiredFailures.filter((r) => r.failureKind === 'infra_failure');
   // Task B-4b22: pollution only counts as failure if dirty-gate-policy
   // marked it blocking. Passing-only category pollution (lattice_metadata /
   // runtime_artifact / declared_artifact) is allowed and audited.
@@ -491,6 +507,11 @@ export async function executeValidationPlan(
   });
   const allPass = requiredFailures.length === 0 && pollutionFailures.length === 0;
   const status = allPass ? (optionalFailures.length > 0 || warnings.length > 0 ? 'warn' : 'pass') : 'fail';
+  const failureKind: ValidationFailureKind | undefined = allPass
+    ? undefined
+    : requiredInfraFailures.length > 0
+      ? 'infra_failure'
+      : 'validation_failure';
   const baseSummary = allPass
     ? optionalFailures.length > 0
       ? 'Required validation commands passed with optional failures'
@@ -503,6 +524,7 @@ export async function executeValidationPlan(
     provider: focus ? `${plan.provider}-focused` : plan.provider,
     status,
     allPass,
+    ...(failureKind ? { failureKind } : {}),
     summary: focus
       ? `Focused validation (${focus}): ${baseSummary}; not final full validation or DONE-required proof`
       : baseSummary,

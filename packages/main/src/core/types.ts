@@ -685,6 +685,7 @@ export interface EvalEvidenceData {
 }
 
 export type TestResult = 'PASS' | 'FAIL';
+export type TestFailureKind = 'validation_failure' | 'infra_failure';
 
 export interface TestEvidenceData {
   /** command of the last test run */
@@ -693,6 +694,8 @@ export interface TestEvidenceData {
   output: string;
   /** PASS / FAIL */
   result: TestResult;
+  /** Distinguishes ordinary validation/test failures from runner infrastructure failures. */
+  failureKind?: TestFailureKind;
   /** timestamp */
   timestamp: string;
   /** runtime environment */

@@ -82,7 +82,9 @@ try {
   }, tmp);
   assert.equal(requiredFailure.status, 'fail');
   assert.equal(requiredFailure.allPass, false);
+  assert.equal(requiredFailure.failureKind, 'validation_failure');
   assert.equal(requiredFailure.commands[0].code, 7);
+  assert.equal(requiredFailure.commands[0].failureKind, 'validation_failure');
   const requiredFailureDetails = requiredFailure.details.join('\n');
   assert.doesNotMatch(requiredFailureDetails, /timeout diagnostic/i);
   assert.doesNotMatch(requiredFailureDetails, /timeoutMs|raise lattice\.config\.json validate\.commands\[\]\.timeoutMs/i);
@@ -119,7 +121,9 @@ try {
     ],
   }, tmp);
   assert.equal(timeout.status, 'fail');
+  assert.equal(timeout.failureKind, 'infra_failure');
   assert.equal(timeout.commands[0].timedOut, true);
+  assert.equal(timeout.commands[0].failureKind, 'infra_failure');
   assert.match(timeout.details.join('\n'), /configured timeoutMs=100ms/);
   assert.match(timeout.details.join('\n'), /lattice\.config\.json validate\.commands\[\]\.timeoutMs/);
 
@@ -1789,8 +1793,43 @@ try {
     );
     assert.equal(stopped, false, 'runValidateGate must leave actor stop to transition-orchestrator');
     assert.equal(store.readTestEvidence(storyId)?.result, 'FAIL', 'validate FAIL must persist a FAIL test-evidence record');
+    assert.equal(store.readTestEvidence(storyId)?.failureKind, 'validation_failure', 'ordinary validate command failure must be classified as validation_failure');
   } finally {
     rmSync(gateFailRoot, { recursive: true, force: true });
+    resetConfigCache();
+  }
+
+  const gateInfraRoot = mkdtempSync(join(tmpdir(), 'lattice-validate-gate-infra-'));
+  try {
+    writeFileSync(join(gateInfraRoot, 'lattice.config.json'), JSON.stringify({
+      validate: {
+        commands: [
+          { label: 'timed out gate', command: 'node', args: ['-e', 'setTimeout(() => {}, 5000)'], timeoutMs: 100 },
+        ],
+      },
+    }));
+    resetConfigCache();
+    const store = new StoryStore(gateInfraRoot);
+    const storyId = 'B-vgate-infra';
+    const now = '2026-05-16T03:05:00.000Z';
+    store.writeStory(storyId, {
+      storyId, name: 'validate-gate-infra', title: 'Validate gate infra',
+      description: 'validate infra failure must block TEST distinctly', type: 'chore', phase: 'TEST',
+      priority: 'medium', createdAt: now, startedAt: now, endedAt: null,
+      currentReviewRound: now, events: [],
+    });
+    const actor = { stop() { /* transition-orchestrator owns actor stop */ } };
+    await assert.rejects(
+      () => runValidateGate({ store, root: gateInfraRoot, scanRoot: gateInfraRoot }, storyId, actor),
+      /Cannot enter TEST: lattice validate did not pass/,
+      'runValidateGate must block TEST when the validation runner times out',
+    );
+    const evidence = store.readTestEvidence(storyId);
+    assert.equal(evidence?.result, 'FAIL', 'timeout must still persist FAIL evidence');
+    assert.equal(evidence?.failureKind, 'infra_failure', 'timeout must be classified as infra_failure');
+    assert.match(evidence?.output ?? '', /"failureKind":"infra_failure"/, 'persisted validation JSON must expose infra_failure');
+  } finally {
+    rmSync(gateInfraRoot, { recursive: true, force: true });
     resetConfigCache();
   }
 

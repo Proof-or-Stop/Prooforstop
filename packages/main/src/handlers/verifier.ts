@@ -477,9 +477,23 @@ function resolveStoryVerificationPolicy(ctx: HandlerContext, storyId: string) {
   return resolveVerificationIntentPolicy(story, cl, decision);
 }
 
+type ValidationEvidenceFailureKind = 'validation_failure' | 'infra_failure';
+
+function validationFailureKindFromResult(result: any, allPass: boolean): ValidationEvidenceFailureKind | undefined {
+  if (allPass) return undefined;
+  if (result?.failureKind === 'infra_failure') return 'infra_failure';
+  if (result?.failureKind === 'validation_failure') return 'validation_failure';
+  const commands = Array.isArray(result?.commands) ? result.commands : [];
+  if (commands.some((cmd: any) => cmd?.failureKind === 'infra_failure' || cmd?.timedOut === true)) {
+    return 'infra_failure';
+  }
+  return 'validation_failure';
+}
+
 function persistStoryValidationEvidence(ctx: HandlerContext, storyId: string, result: any, command: string): void {
   const statusPass = result.status === 'pass';
   const allPass = Boolean(result.allPass ?? result.allPassed ?? statusPass);
+  const failureKind = validationFailureKindFromResult(result, allPass);
   const gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
   const headHash = currentHead(gitCwd) ?? result.headSha ?? result.headHash;
   const materialHash = currentMaterialHash(gitCwd, 'HEAD', ctx.root);
@@ -488,6 +502,7 @@ function persistStoryValidationEvidence(ctx: HandlerContext, storyId: string, re
     command,
     output: JSON.stringify(result),
     result: allPass ? 'PASS' : 'FAIL',
+    ...(failureKind ? { failureKind } : {}),
     timestamp: new Date().toISOString(),
     ...(headHash ? { headHash } : {}),
     ...(materialHash ? { materialHash } : {}),
@@ -505,11 +520,18 @@ function externalResult(args: {
   headSha?: string;
   commands?: any[];
   focus?: any;
+  failureKind?: ValidationEvidenceFailureKind;
 }) {
+  const allPass = args.status !== 'fail';
+  const failureKind = validationFailureKindFromResult({
+    failureKind: args.failureKind,
+    commands: args.commands ?? [],
+  }, allPass);
   return {
     provider: args.provider ?? 'lattice-verifier',
     status: args.status,
-    allPass: args.status !== 'fail',
+    allPass,
+    ...(failureKind ? { failureKind } : {}),
     summary: args.summary,
     details: args.details,
     warnings: args.warnings ?? [],
@@ -755,6 +777,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             warnings: base.warnings,
             headSha: base.headSha,
             commands: base.commands,
+            failureKind: base.failureKind,
             ...(base.focus ? { focus: base.focus } : {}),
           });
           return decorateAndMaybePersistStoryValidation(ctx, args.story, focus, result);
@@ -833,6 +856,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           const isBlocking = commandResult.worktreePollution?.blocking !== false;
           const polluted = externalResult({
             status: isBlocking ? 'fail' : 'pass',
+            ...(isBlocking ? { failureKind: 'validation_failure' as const } : {}),
             summary: isBlocking
               ? 'Validation command dirtied the worktree'
               : 'Validation command produced policy-allowed dirty paths (audited)',
@@ -879,6 +903,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             timestamp: new Date().toISOString(),
             headSha,
             commands: [commandResult],
+            ...(code === 0 ? {} : { failureKind: commandResult.failureKind ?? 'validation_failure' }),
           }, focus ?? '');
           const decorated = decorateAndMaybePersistStoryValidation(ctx, args.story, focus, wrapped);
           return JSON.stringify(decorated);

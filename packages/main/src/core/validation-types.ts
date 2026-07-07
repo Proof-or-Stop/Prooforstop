@@ -1,4 +1,5 @@
 export type ValidationStatus = 'pass' | 'fail' | 'warn';
+export type ValidationFailureKind = 'validation_failure' | 'infra_failure';
 
 export interface ValidationCommand {
   label: string;
@@ -23,6 +24,7 @@ export interface ValidationCommandResult {
   optional?: boolean;
   timedOut?: boolean;
   timeoutMs?: number;
+  failureKind?: ValidationFailureKind;
   durationMs: number;
   worktreePollution?: {
     statusLines: string[];
@@ -74,6 +76,7 @@ export interface ValidationResult {
   provider: string;
   status: ValidationStatus;
   allPass: boolean;
+  failureKind?: ValidationFailureKind;
   summary: string;
   details: string[];
   warnings: string[];

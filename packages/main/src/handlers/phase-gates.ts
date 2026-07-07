@@ -567,6 +567,19 @@ function storedValidateOutputIsPassing(output: string): { ok: boolean; reason?: 
   }
 }
 
+type ValidateEvidenceFailureKind = 'validation_failure' | 'infra_failure';
+
+function validateFailureKindFromResult(result: any): ValidateEvidenceFailureKind | undefined {
+  if (result?.allPass === true || result?.allPassed === true) return undefined;
+  if (result?.failureKind === 'infra_failure') return 'infra_failure';
+  if (result?.failureKind === 'validation_failure') return 'validation_failure';
+  const commands = Array.isArray(result?.commands) ? result.commands : [];
+  if (commands.some((cmd: any) => cmd?.failureKind === 'infra_failure' || cmd?.timedOut === true)) {
+    return 'infra_failure';
+  }
+  return 'validation_failure';
+}
+
 function blockingDirtyWorktreeReason(ctx: HandlerContext, storyId: string, gitCwd: string): string {
   const status = readGitStatusLines(gitCwd);
   if (!status.ok) return `unable to read git status for validation evidence skip (${status.error})`;
@@ -694,6 +707,7 @@ export async function runValidateGate(
       command: validateCommand,
       output: String(jsonResult),
       result: parsed.allPass ? 'PASS' : 'FAIL',
+      ...(validateFailureKindFromResult(parsed) ? { failureKind: validateFailureKindFromResult(parsed) } : {}),
       timestamp: new Date().toISOString(),
       ...(evidenceHeadHash ? { headHash: evidenceHeadHash } : {}),
       ...(evidenceMaterialHash ? { materialHash: evidenceMaterialHash } : {}),
@@ -735,6 +749,7 @@ export async function runValidateGate(
         command: validateCommand,
         output: `validate execution error: ${message}`,
         result: 'FAIL',
+        failureKind: 'infra_failure',
         timestamp: new Date().toISOString(),
       });
     } catch (persistError) {
