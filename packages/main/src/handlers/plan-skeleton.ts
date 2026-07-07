@@ -5,7 +5,8 @@ import {
   buildStoryReadinessReport,
   type StoryReadinessReport,
 } from '../core/lifecycle-readiness.js';
-import type { StoryInfo } from '../core/types.js';
+import { buildMilestoneLedger } from '../core/proofstory.js';
+import type { MilestoneLedgerData, StoryInfo } from '../core/types.js';
 
 interface PlanSkeletonArgs {
   storyId: string;
@@ -19,6 +20,7 @@ interface PlanSkeletonArgs {
   authorityDone?: boolean;
   fullAuthorityDone?: boolean;
   productionDone?: boolean;
+  milestones?: unknown[];
 }
 
 interface PlanSkeletonUnderstanding {
@@ -55,6 +57,12 @@ interface PlanSkeletonWriteResult {
     status: 'written' | 'skipped_duplicate';
     result?: string;
   }>;
+  milestoneLedger: {
+    command: 'milestone_ledger_set';
+    status: 'written' | 'skipped_absent';
+    milestones: number;
+    result?: string;
+  };
 }
 
 export interface PlanSkeletonReport {
@@ -256,7 +264,38 @@ function preflightSkeletonWrite(ctx: HandlerContext, story: StoryInfo, skeleton:
   return existingTitles;
 }
 
-function writeSkeleton(ctx: HandlerContext, story: StoryInfo, skeleton: PlanSkeleton): PlanSkeletonWriteResult {
+function buildPlanSkeletonMilestoneLedger(
+  ctx: HandlerContext,
+  storyId: string,
+  milestones?: unknown,
+): MilestoneLedgerData | null {
+  if (milestones === undefined) return null;
+  if (!Array.isArray(milestones)) throw new Error('milestones must be an array');
+  if (milestones.length === 0) return null;
+  return buildMilestoneLedger({
+    storyId,
+    milestones,
+    existing: ctx.store.readMilestoneLedger(storyId),
+    state: 'candidate',
+  });
+}
+
+function renderMilestoneLedgerWriteResult(ledger: MilestoneLedgerData): string {
+  return [
+    'Milestone ledger: configured',
+    `Story: ${ledger.storyId}`,
+    `State: ${ledger.state ?? 'candidate'}`,
+    `Ledger hash: ${ledger.ledgerHash}`,
+    `Milestones: ${ledger.milestones.length}`,
+  ].join('\n');
+}
+
+function writeSkeleton(
+  ctx: HandlerContext,
+  story: StoryInfo,
+  skeleton: PlanSkeleton,
+  milestones?: unknown,
+): PlanSkeletonWriteResult {
   if (!WRITE_PHASES.has(story.phase)) {
     throw new Error(`plan_skeleton --write is only allowed in PLAN; ${story.storyId} is in ${story.phase}`);
   }
@@ -264,6 +303,7 @@ function writeSkeleton(ctx: HandlerContext, story: StoryInfo, skeleton: PlanSkel
   const understandingHandlers = createUnderstandingHandlers(ctx);
   const checklistHandlers = createChecklistHandlers(ctx);
   const commandsUsed: string[] = [];
+  const ledger = buildPlanSkeletonMilestoneLedger(ctx, story.storyId, milestones);
   const existingTitles = preflightSkeletonWrite(ctx, story, skeleton);
   const existingUnderstanding = ctx.store.readUnderstanding(story.storyId);
   const understanding: PlanSkeletonWriteResult['understanding'] = existingUnderstanding
@@ -297,12 +337,30 @@ function writeSkeleton(ctx: HandlerContext, story: StoryInfo, skeleton: PlanSkel
     checklist.push({ command: 'checklist_add', title: item.title, status: 'written', result });
   }
 
+  const milestoneLedger: PlanSkeletonWriteResult['milestoneLedger'] = ledger
+    ? {
+        command: 'milestone_ledger_set',
+        status: 'written',
+        milestones: ledger.milestones.length,
+        result: renderMilestoneLedgerWriteResult(ledger),
+      }
+    : {
+        command: 'milestone_ledger_set',
+        status: 'skipped_absent',
+        milestones: 0,
+      };
+  if (ledger) {
+    ctx.store.writeMilestoneLedger(story.storyId, ledger);
+    commandsUsed.push('milestone_ledger_set');
+  }
+
   return {
     requested: true,
     performed: commandsUsed.length > 0,
     commandsUsed: [...new Set(commandsUsed)],
     understanding,
     checklist,
+    milestoneLedger,
   };
 }
 
@@ -313,6 +371,7 @@ function noWriteResult(): PlanSkeletonWriteResult {
     commandsUsed: [],
     understanding: { command: 'understanding_set', status: 'skipped_existing' },
     checklist: [],
+    milestoneLedger: { command: 'milestone_ledger_set', status: 'skipped_absent', milestones: 0 },
   };
 }
 
@@ -320,7 +379,7 @@ export function renderPlanSkeletonReport(report: PlanSkeletonReport): string {
   const blockers = report.readinessReport.readiness.filter((row) => row.blocking);
   const lines = [
     `Plan skeleton (${report.storyId})`,
-    `mode: ${report.mode.write ? 'write via understanding_set/checklist_add' : 'read-only preview'}`,
+    `mode: ${report.mode.write ? 'write via understanding_set/checklist_add/milestone_ledger_set' : 'read-only preview'}`,
     `phase: ${report.phase}`,
     `readinessReport: target=${report.readinessReport.target} rows=${report.readinessReport.readiness.length} blockers=${blockers.length}`,
     '',
@@ -345,6 +404,9 @@ export function renderPlanSkeletonReport(report: PlanSkeletonReport): string {
   if (report.write.commandsUsed.length > 0) {
     lines.push(`  commandsUsed: ${report.write.commandsUsed.join(', ')}`);
   }
+  if (report.write.milestoneLedger.status === 'written') {
+    lines.push(`  milestoneLedger: written (${report.write.milestoneLedger.milestones} rows)`);
+  }
   lines.push('', 'Local assurance:');
   lines.push('  admissibilityStatus: read-only-plan-preview');
   lines.push('  assuranceLevel: local');
@@ -364,7 +426,7 @@ export function createPlanSkeletonHandlers(ctx: HandlerContext): Record<string, 
     });
     const skeleton = derivePlanSkeleton(story, readinessReport);
     const write = args.write === true
-      ? writeSkeleton(ctx, story, skeleton)
+      ? writeSkeleton(ctx, story, skeleton, args.milestones)
       : noWriteResult();
     const report: PlanSkeletonReport = {
       storyId: story.storyId,

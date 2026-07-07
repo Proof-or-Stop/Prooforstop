@@ -190,6 +190,7 @@ export function createPlannerHandlers(ctx: HandlerContext) {
         priority: draft.storyDraft.priority,
         forceNew: args.forceNew,
         background: backgroundForDraft(draft),
+        milestones: draft.milestones,
         checklist: draft.checklist.map(item => ({
           title: item.title,
           context: item.context,

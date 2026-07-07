@@ -1,11 +1,12 @@
 
 import type { HandlerContext } from './context.js';
 import { collectContext, nextStoryId } from './context.js';
-import type { ChecklistData, ScopeBoundaryMode, StoryInfo, StoryPhase, StoryType, VerificationIntent } from '../core/types.js';
+import type { ChecklistData, MilestoneLedgerData, ScopeBoundaryMode, StoryInfo, StoryPhase, StoryType, VerificationIntent } from '../core/types.js';
 import { validateBackground } from '../core/background-validator.js';
 import { writeFileSync, mkdirSync, existsSync, readFileSync, rmSync, realpathSync } from 'fs';
 import { join, relative, isAbsolute } from 'path';
 import { createHash } from 'crypto';
+import { buildMilestoneLedger } from '../core/proofstory.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { createSafeInitCommitOnHead } from '../core/safe-init-commit.js';
 import { computeDraftCheckHash } from '../core/draft-check-hash.js';
@@ -74,6 +75,17 @@ function normalizeStoryCreateFiles(files?: StoryCreateChecklistInput['files']): 
   return normalized.modify.length > 0 || normalized.create.length > 0 || normalized.test.length > 0
     ? normalized
     : undefined;
+}
+
+function buildInitialMilestoneLedger(storyId: string, milestones?: unknown): MilestoneLedgerData | null {
+  if (milestones === undefined) return null;
+  if (!Array.isArray(milestones)) throw new Error('milestones must be an array');
+  if (milestones.length === 0) return null;
+  return buildMilestoneLedger({
+    storyId,
+    milestones,
+    state: 'candidate',
+  });
 }
 
 function isPreLifecycleStoryCreatePhase(phase: StoryPhase): boolean {
@@ -453,6 +465,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
       checklist?: StoryCreateChecklistInput[];
       scopeBoundary?: StoryCreateScopeBoundaryInput;
       executionBoundary?: StoryCreateExecutionBoundaryInput;
+      milestones?: unknown[];
       prefix?: string;
       phase?: StoryPhase;
       forceNew?: boolean; // B-0af4 CHK-001: bypass idempotency and force new creation
@@ -583,6 +596,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
 
         // 6. All gates passed — materialize!
         const storyId = nextStoryId(store, args.prefix);
+        const milestoneLedger = buildInitialMilestoneLedger(storyId, args.milestones);
         const now = new Date().toISOString();
 
         // Detect risk signals from description + checklist
@@ -640,6 +654,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
           events: [collectContext('INIT', 'create')],
         };
         store.writeStory(storyId, story);
+        if (milestoneLedger) store.writeMilestoneLedger(storyId, milestoneLedger);
 
         // Write background.md
         const storyDir = store.storyDirPath(storyId);
@@ -781,6 +796,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
       });
 
       const storyId = nextStoryId(store, args.prefix);
+      const milestoneLedger = buildInitialMilestoneLedger(storyId, args.milestones);
       const now = new Date().toISOString();
       const hasChecklist = args.checklist && args.checklist.length > 0;
       const checklistItemFromInput = (
@@ -1030,6 +1046,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
           events: [collectContext(args.phase, 'create')],
         };
         store.writeStory(storyId, story);
+        if (milestoneLedger) store.writeMilestoneLedger(storyId, milestoneLedger);
         writeBackground();
         writeInitialScopeArtifacts();
         // Note: direct phase specification path is for onboard etc. scenarios; normally riskHint is unnecessary, but kept consistent
@@ -1086,6 +1103,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         events: [collectContext(phase, 'create')],
       };
       store.writeStory(storyId, story);
+      if (milestoneLedger) store.writeMilestoneLedger(storyId, milestoneLedger);
       writeBackground();
       writeInitialScopeArtifacts();
 
