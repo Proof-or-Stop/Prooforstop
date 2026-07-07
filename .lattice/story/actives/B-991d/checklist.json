@@ -814,14 +814,14 @@
         {
           "intentRef": "CHK-010:adversarial:0",
           "kind": "logic_test",
-          "file": "experiments/multi-model-ablation/future-cell03-results/done-summary.json",
-          "command": "node <assert done-summary notUnlocked boundaries>",
+          "file": "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
           "result": "pass",
-          "note": "DONE summary notUnlocked marks automatic Cell06 execution, Phase2 decision, paper claim upgrade, model-agnostic/H-M1/H-M3 claims, product gate change, and playbook activation as not unlocked.",
-          "headHash": "9f08245d0635a2fbcd621d98e6bba3879a1a67fa",
+          "note": "Current executable checker verifies done-summary notUnlocked boundaries: Cell06 execution, Phase2, model-agnostic/H-M claims, paper, product gates, and playbook activation remain unauthorized.",
+          "headHash": "d596f3fec2f27eae1dda996f7d4c0578debb3eaa",
           "materialHash": "95614a3146a1390dd37073440c570cdbaf6c2b83c964bafe7c9fa79948eb9b39",
           "storyFilesHash": "8a141fcaf9b7b9e1dd5f053f90d9a91e2f4356e2c549d5545473cdac7be25385",
-          "timestamp": "2026-07-07T04:40:42.459Z"
+          "timestamp": "2026-07-07T05:05:14.572Z"
         }
       ]
     }
