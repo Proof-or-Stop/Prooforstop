@@ -649,14 +649,14 @@
         {
           "intentRef": "CHK-008:adversarial:0",
           "kind": "logic_test",
-          "file": "experiments/multi-model-ablation/future-cell03-results/cell03-usage-lock.json",
-          "command": "node <assert lock exampleOrDeclarationOnly false and cell06ExecutionAuthorizedByThisArtifact false>",
+          "file": "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
           "result": "pass",
-          "note": "Usage lock records exampleOrDeclarationOnly=false and cell06ExecutionAuthorizedByThisArtifact=false; it is a real dependency lock, not an example/declaration-only authorization.",
-          "headHash": "9f08245d0635a2fbcd621d98e6bba3879a1a67fa",
+          "note": "Current executable checker rejects declaration-only/example locks and verifies cell03-usage-lock does not authorize Cell06 execution, Phase2, paper claims, product gates, or playbook activation.",
+          "headHash": "66e5e0f2a63807b94f5a20b5f21a4e508bb667f2",
           "materialHash": "95614a3146a1390dd37073440c570cdbaf6c2b83c964bafe7c9fa79948eb9b39",
           "storyFilesHash": "8a141fcaf9b7b9e1dd5f053f90d9a91e2f4356e2c549d5545473cdac7be25385",
-          "timestamp": "2026-07-07T04:40:42.459Z"
+          "timestamp": "2026-07-07T05:04:23.585Z"
         }
       ]
     },
