@@ -371,9 +371,9 @@
           "packages/main/test"
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-07T13:32:38.417Z",
-      "endTime": null,
+      "endTime": "2026-07-07T13:36:24.446Z",
       "userSees": "User sees REVIEW -> TEST validation continue through heartbeat lines instead of \"validate stuck\"; true hangs still print a named timeout diagnostic and exit nonzero.",
       "verificationIntent": {
         "happy": [
@@ -397,7 +397,53 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
+          "result": "pass",
+          "note": "Extended smoke passed: hermetic story_advance --phase=TEST survived active silent validate via heartbeat and persisted TEST/PASS evidence.",
+          "headHash": "44e231930219a80bae2642ed128840926f5c6269",
+          "materialHash": "fe22c62dc9cdcb0b856fa19d51ca33047b16920d21a006be74be9410b870f31e",
+          "storyFilesHash": "a3d6bea3ee097ca8070c70d6e2924ee689d9602a43f1cd8f05fdf8fd3a627863",
+          "timestamp": "2026-07-07T13:36:24.766Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
+          "result": "pass",
+          "note": "Extended smoke passed: true-hang control emitted command 1/1 timeout diagnostics with label, command, args, timeoutMs, and elapsedMs.",
+          "headHash": "44e231930219a80bae2642ed128840926f5c6269",
+          "materialHash": "fe22c62dc9cdcb0b856fa19d51ca33047b16920d21a006be74be9410b870f31e",
+          "storyFilesHash": "a3d6bea3ee097ca8070c70d6e2924ee689d9602a43f1cd8f05fdf8fd3a627863",
+          "timestamp": "2026-07-07T13:36:25.100Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
+          "result": "pass",
+          "note": "Extended smoke passed: non-heartbeating true hang failed closed via per-command timeout and infra_failure JSON, not by idle watchdog or indefinite execution.",
+          "headHash": "44e231930219a80bae2642ed128840926f5c6269",
+          "materialHash": "fe22c62dc9cdcb0b856fa19d51ca33047b16920d21a006be74be9410b870f31e",
+          "storyFilesHash": "a3d6bea3ee097ca8070c70d6e2924ee689d9602a43f1cd8f05fdf8fd3a627863",
+          "timestamp": "2026-07-07T13:36:25.407Z"
+        },
+        {
+          "intentRef": "CHK-005:build",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build passed before the extended integration smoke.",
+          "headHash": "44e231930219a80bae2642ed128840926f5c6269",
+          "materialHash": "fe22c62dc9cdcb0b856fa19d51ca33047b16920d21a006be74be9410b870f31e",
+          "storyFilesHash": "a3d6bea3ee097ca8070c70d6e2924ee689d9602a43f1cd8f05fdf8fd3a627863",
+          "timestamp": "2026-07-07T13:36:25.747Z"
+        }
+      ]
     }
   ]
 }
