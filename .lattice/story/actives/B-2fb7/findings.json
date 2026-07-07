@@ -5,7 +5,7 @@
       "desc": "validate.ts path masks infra failures as validation_failure when blocking worktree pollution exists",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-07T14:07:52.571Z",
@@ -16,7 +16,11 @@
         "/Users/jek/Documents/Work/proofbound/.worktrees/B-2fb7/packages/main/src/handlers/verifier.ts:859"
       ],
       "signatureTag": "adversarial|ts:859|validate-path-masks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in implementer commit 2efb3fbe1: validate.ts render path now preserves commandResult.failureKind for timedOut/runner infra failures even when blocking worktree pollution is present, while plain pollution/ordinary validation failures remain validation_failure. Re-verified with npm --prefix packages/main run build and node packages/main/dist/tasks/validation-protocol-smoke.js.",
+      "resolvedAt": "2026-07-07T14:21:04.313Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
