@@ -182,9 +182,9 @@
         "create": [],
         "test": []
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-07T13:22:01.493Z",
-      "endTime": null,
+      "endTime": "2026-07-07T13:27:03.398Z",
       "userSees": "User sees stale-lock diagnostics that distinguish \"active validation\" from reclaimed stale locks; a vanished owner no longer blocks the next validate run.",
       "verificationIntent": {
         "happy": [
@@ -208,7 +208,64 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+          "result": "pass",
+          "note": "Validation lock smoke passed with stale and vanished same-host owner reclaim coverage.",
+          "headHash": "f25162a59f1d48f5eb81f5ccd82435f75c8b73c3",
+          "materialHash": "fa457847309b913792eda60a2d2d0890dd8236935369255dac5e58b808033d42",
+          "storyFilesHash": "33bb6f064b9d97135e3ec190cb77326c74083fed8424f9a231b107beb1d792ac",
+          "timestamp": "2026-07-07T13:27:03.762Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+          "result": "pass",
+          "note": "Existing active validate contention and sibling-bypass checks still pass, proving live owners are not stolen.",
+          "headHash": "f25162a59f1d48f5eb81f5ccd82435f75c8b73c3",
+          "materialHash": "fa457847309b913792eda60a2d2d0890dd8236935369255dac5e58b808033d42",
+          "storyFilesHash": "33bb6f064b9d97135e3ec190cb77326c74083fed8424f9a231b107beb1d792ac",
+          "timestamp": "2026-07-07T13:27:04.209Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+          "result": "pass",
+          "note": "Smoke passed with mismatched holder/heartbeat identity coverage for PID-reuse-style stale locks.",
+          "headHash": "f25162a59f1d48f5eb81f5ccd82435f75c8b73c3",
+          "materialHash": "fa457847309b913792eda60a2d2d0890dd8236935369255dac5e58b808033d42",
+          "storyFilesHash": "33bb6f064b9d97135e3ec190cb77326c74083fed8424f9a231b107beb1d792ac",
+          "timestamp": "2026-07-07T13:27:04.563Z"
+        },
+        {
+          "intentRef": "CHK-003:shared-lock-regression",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/mkdir-lock-smoke.js",
+          "result": "pass",
+          "note": "Generic mkdir-lock smoke passed after adding the optional richer liveness classifier.",
+          "headHash": "f25162a59f1d48f5eb81f5ccd82435f75c8b73c3",
+          "materialHash": "fa457847309b913792eda60a2d2d0890dd8236935369255dac5e58b808033d42",
+          "storyFilesHash": "33bb6f064b9d97135e3ec190cb77326c74083fed8424f9a231b107beb1d792ac",
+          "timestamp": "2026-07-07T13:27:04.880Z"
+        },
+        {
+          "intentRef": "CHK-003:build",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build passed after lock metadata and classifier changes.",
+          "headHash": "f25162a59f1d48f5eb81f5ccd82435f75c8b73c3",
+          "materialHash": "fa457847309b913792eda60a2d2d0890dd8236935369255dac5e58b808033d42",
+          "storyFilesHash": "33bb6f064b9d97135e3ec190cb77326c74083fed8424f9a231b107beb1d792ac",
+          "timestamp": "2026-07-07T13:27:05.237Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
