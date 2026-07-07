@@ -1,0 +1,158 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-2fb7",
+  "state": "candidate",
+  "ledgerHash": "sha256:6b9fefef73cd12b77a6894a758620915bfc2cecd380554ead236e8a4a398aba8",
+  "milestones": [
+    {
+      "id": "M0",
+      "sourceRequirementId": "validate-progress-heartbeat-plan:M0",
+      "claim": "Red repro proves active silent validate was previously killed by the idle watchdog",
+      "doneMeans": "validate-progress-heartbeat smoke records the pre-fix idle-kill transcript and passes only when the repro is meaningful",
+      "requiredEvidence": [
+        "manual_transcript",
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "status": "done"
+    },
+    {
+      "id": "M1",
+      "sourceRequirementId": "validate-progress-heartbeat-plan:M1",
+      "claim": "Validate emits JSON-safe command progress events",
+      "doneMeans": "Configured validate commands print command start/end progress while --json stdout remains parseable JSON",
+      "requiredEvidence": [
+        "cli",
+        "manual_transcript"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "done"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "validate-progress-heartbeat-plan:M2",
+      "claim": "Long-running validate commands emit parent-visible heartbeat",
+      "doneMeans": "Long silent validate commands emit flushed heartbeat and survive the idle watchdog without extending command timeoutMs",
+      "requiredEvidence": [
+        "cli",
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-002",
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-005:happy:0"
+      ],
+      "status": "done"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "validate-progress-heartbeat-plan:M3",
+      "claim": "Timeout diagnostics name the exact validate command",
+      "doneMeans": "Timed-out commands report command index, label, args, timeoutMs, and elapsed duration",
+      "requiredEvidence": [
+        "cli",
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-004",
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [
+        "CHK-004:adversarial:0",
+        "CHK-005:edge:0"
+      ],
+      "status": "done"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "validate-progress-heartbeat-plan:M4",
+      "claim": "Forced-exit cleanup and stale validation lock classification are hardened",
+      "doneMeans": "Vanished or mismatched validation lock owners are reclaimed while active matching owners are not stolen",
+      "requiredEvidence": [
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ],
+      "status": "done"
+    },
+    {
+      "id": "M5",
+      "sourceRequirementId": "validate-progress-heartbeat-plan:M5",
+      "claim": "Runner infrastructure failures are classified separately from validation failures",
+      "doneMeans": "Watchdog/runner timeout paths persist infra_failure while ordinary assertion/validation failures remain validation_failure",
+      "requiredEvidence": [
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0"
+      ],
+      "status": "done"
+    },
+    {
+      "id": "M6",
+      "sourceRequirementId": "validate-progress-heartbeat-plan:M6",
+      "claim": "story_advance TEST consumes validate heartbeat correctly",
+      "doneMeans": "REVIEW to TEST runs through active validate heartbeat, reaches TEST, and writes PASS evidence",
+      "requiredEvidence": [
+        "cli",
+        "test-evidence"
+      ],
+      "checklistRefs": [
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [
+        "CHK-005:happy:0"
+      ],
+      "status": "done"
+    },
+    {
+      "id": "M7",
+      "sourceRequirementId": "validate-progress-heartbeat-plan:M7",
+      "claim": "Safety regression proves true hangs still fail closed",
+      "doneMeans": "Non-heartbeating or timed-out validation controls fail by command timeout or lifecycle max timeout instead of running indefinitely",
+      "requiredEvidence": [
+        "cli",
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-002",
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:edge:0",
+        "CHK-005:adversarial:0"
+      ],
+      "status": "done"
+    }
+  ],
+  "createdAt": "2026-07-07T15:19:43.894Z",
+  "updatedAt": "2026-07-07T15:19:43.894Z"
+}
