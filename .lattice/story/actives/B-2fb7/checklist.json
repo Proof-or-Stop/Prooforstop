@@ -100,7 +100,31 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees stale-lock diagnostics that distinguish \"active validation\" from reclaimed stale locks; a vanished owner no longer blocks the next validate run.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Validation execution lock treats vanished or mismatched owners as stale and allows retry after forced exit cleanup",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "An active live validation owner with matching host-neutral liveness metadata is not stolen or reclaimed",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "PID reuse or stale holder metadata alone cannot make an old validation lock look active forever",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
