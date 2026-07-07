@@ -630,9 +630,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-07T03:15:19.631Z",
-      "endTime": null
+      "endTime": "2026-07-07T03:17:25.950Z"
     }
   ],
   "auditLog": [
@@ -844,6 +844,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Starting DONE closure after Cell 03 execution, usage accounting, usage lock, and analysis readiness are committed.",
+      "agent": "codex"
+    },
+    {
+      "timestamp": "2026-07-07T03:17:25.950Z",
+      "phase": "DEV",
+      "itemId": "CHK-010",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "DONE closure summary and M2 status update committed; Cell 03 execution status, usage/cost boundary, row completeness, and blocked claims are recorded.",
       "agent": "codex"
     }
   ]
