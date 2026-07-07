@@ -58,7 +58,31 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees stderr lines like \"validate progress: command 1/1 started silent-long-command\" and \"validate heartbeat: command 1/1 silent-long-command elapsed\", while stdout is a single JSON object.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "validate emits command start, heartbeat, and command end progress for configured commands while stdout from --json remains directly JSON.parse-able",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Heartbeat refreshes parent idle liveness but does not reset or extend the command timeoutMs wall-clock ceiling",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Progress/heartbeat is flushed to stderr or another parent-visible side channel and never appears as trailing text in JSON stdout",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
