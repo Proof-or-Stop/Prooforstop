@@ -123,9 +123,9 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-07T13:27:12.928Z",
       "verificationEvidence": [
         {
           "intentRef": "CHK-002:happy:0",
@@ -352,6 +352,16 @@
       "from": "pending",
       "to": "done",
       "reason": "Implemented story_create optional structured milestones and verified candidate ledger/no-ledger/malformed-row behavior.",
+      "agent": "main-agent"
+    },
+    {
+      "timestamp": "2026-07-07T13:27:12.928Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implemented planner draft milestone pass-through to story_create and verified structured/prose-only planner cases.",
       "agent": "main-agent"
     }
   ]
