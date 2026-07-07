@@ -583,9 +583,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-07T03:13:07.467Z",
-      "endTime": null
+      "endTime": "2026-07-07T03:14:34.246Z"
     },
     {
       "id": "CHK-010",
@@ -824,6 +824,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Starting analysis-readiness artifact after Cell 03 rows, usage accounting, and usage lock are complete.",
+      "agent": "codex"
+    },
+    {
+      "timestamp": "2026-07-07T03:14:34.246Z",
+      "phase": "DEV",
+      "itemId": "CHK-009",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Analysis-readiness artifact committed; Cell03 is analyzable while model-agnostic, H-M1/H-M3, Phase2, paper, product, and playbook claims remain blocked.",
       "agent": "codex"
     }
   ]
