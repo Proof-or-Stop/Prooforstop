@@ -57,10 +57,10 @@
           "command": "CELL06_ACCOUNT_A_AUTH_BUNDLE=<temp-auth-dir> node experiments/multi-model-ablation/cell06-docker-probe/run-probe.mjs --mode=local --rows=2 --json",
           "result": "pass",
           "note": "Probe summary shows dockerAvailable=true, dockerBuildStatus=built, dockerSmokeStatus=ok, and container codexVersion=codex-cli 0.142.5.",
-          "headHash": "472ed4b1f58163ffd89bd51a74d520663072fbe0",
-          "materialHash": "cfab5717ddde065ed6b4012f63ce441ff7212f8a6d5497e47c289762adfeb599",
-          "storyFilesHash": "912b3e795e87d62a4e83681d1846a23e3f6aec288b9244c1a9a26f1763de5426",
-          "timestamp": "2026-07-07T11:14:12.893Z"
+          "headHash": "37f38e9efdc79bcfac7c3503849a164e2ddf3971",
+          "materialHash": "1eaef7b8c798eafae1782f3456787fb411bd4711bc3539b08416ac310d36f342",
+          "storyFilesHash": "99f4d6d32bbc87de94c593dfc9236cb2ea046c60869003db17b979b0dec0ca5b",
+          "timestamp": "2026-07-07T11:34:59.042Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -68,10 +68,10 @@
           "command": "node experiments/multi-model-ablation/cell06-docker-probe/validate-probe.mjs --json",
           "result": "pass",
           "note": "Validator proves account-b without auth remains pending_auth and fake completed rows without auth are rejected by negative control.",
-          "headHash": "472ed4b1f58163ffd89bd51a74d520663072fbe0",
-          "materialHash": "cfab5717ddde065ed6b4012f63ce441ff7212f8a6d5497e47c289762adfeb599",
-          "storyFilesHash": "912b3e795e87d62a4e83681d1846a23e3f6aec288b9244c1a9a26f1763de5426",
-          "timestamp": "2026-07-07T11:14:12.893Z"
+          "headHash": "37f38e9efdc79bcfac7c3503849a164e2ddf3971",
+          "materialHash": "1eaef7b8c798eafae1782f3456787fb411bd4711bc3539b08416ac310d36f342",
+          "storyFilesHash": "99f4d6d32bbc87de94c593dfc9236cb2ea046c60869003db17b979b0dec0ca5b",
+          "timestamp": "2026-07-07T11:34:59.042Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -79,10 +79,10 @@
           "command": "node experiments/multi-model-ablation/cell06-docker-probe/validate-probe.mjs --json",
           "result": "pass",
           "note": "Rows and manifest record hostHomeMounted=false, repoMounted=false, latticeMounted=false, paperMounted=false, foreignResultsMounted=false and validator rejects host-path contamination.",
-          "headHash": "472ed4b1f58163ffd89bd51a74d520663072fbe0",
-          "materialHash": "cfab5717ddde065ed6b4012f63ce441ff7212f8a6d5497e47c289762adfeb599",
-          "storyFilesHash": "912b3e795e87d62a4e83681d1846a23e3f6aec288b9244c1a9a26f1763de5426",
-          "timestamp": "2026-07-07T11:14:12.893Z"
+          "headHash": "37f38e9efdc79bcfac7c3503849a164e2ddf3971",
+          "materialHash": "1eaef7b8c798eafae1782f3456787fb411bd4711bc3539b08416ac310d36f342",
+          "storyFilesHash": "99f4d6d32bbc87de94c593dfc9236cb2ea046c60869003db17b979b0dec0ca5b",
+          "timestamp": "2026-07-07T11:34:59.042Z"
         }
       ]
     },
@@ -141,10 +141,10 @@
           "command": "node experiments/multi-model-ablation/cell06-docker-probe/validate-probe.mjs --json",
           "result": "pass",
           "note": "Probe manifest contains exactly two Cell06/A2prime rows with stable sha256 inputManifestDigest values and row input digests.",
-          "headHash": "472ed4b1f58163ffd89bd51a74d520663072fbe0",
-          "materialHash": "cfab5717ddde065ed6b4012f63ce441ff7212f8a6d5497e47c289762adfeb599",
-          "storyFilesHash": "912b3e795e87d62a4e83681d1846a23e3f6aec288b9244c1a9a26f1763de5426",
-          "timestamp": "2026-07-07T11:14:12.893Z"
+          "headHash": "37f38e9efdc79bcfac7c3503849a164e2ddf3971",
+          "materialHash": "1eaef7b8c798eafae1782f3456787fb411bd4711bc3539b08416ac310d36f342",
+          "storyFilesHash": "99f4d6d32bbc87de94c593dfc9236cb2ea046c60869003db17b979b0dec0ca5b",
+          "timestamp": "2026-07-07T11:34:59.042Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -152,10 +152,10 @@
           "command": "node experiments/multi-model-ablation/cell06-docker-probe/validate-probe.mjs --json",
           "result": "pass",
           "note": "Manifest separates shard-a/account-a from shard-b/account-b and validator rejects duplicate row ownership.",
-          "headHash": "472ed4b1f58163ffd89bd51a74d520663072fbe0",
-          "materialHash": "cfab5717ddde065ed6b4012f63ce441ff7212f8a6d5497e47c289762adfeb599",
-          "storyFilesHash": "912b3e795e87d62a4e83681d1846a23e3f6aec288b9244c1a9a26f1763de5426",
-          "timestamp": "2026-07-07T11:14:12.893Z"
+          "headHash": "37f38e9efdc79bcfac7c3503849a164e2ddf3971",
+          "materialHash": "1eaef7b8c798eafae1782f3456787fb411bd4711bc3539b08416ac310d36f342",
+          "storyFilesHash": "99f4d6d32bbc87de94c593dfc9236cb2ea046c60869003db17b979b0dec0ca5b",
+          "timestamp": "2026-07-07T11:34:59.042Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -163,10 +163,10 @@
           "command": "node experiments/multi-model-ablation/cell06-docker-probe/validate-probe.mjs --json",
           "result": "pass",
           "note": "Validator recomputes the sterile input tree digest and rejects Cell03, Proofbound-memory, reviewer, host path, and digest drift negative controls.",
-          "headHash": "472ed4b1f58163ffd89bd51a74d520663072fbe0",
-          "materialHash": "cfab5717ddde065ed6b4012f63ce441ff7212f8a6d5497e47c289762adfeb599",
-          "storyFilesHash": "912b3e795e87d62a4e83681d1846a23e3f6aec288b9244c1a9a26f1763de5426",
-          "timestamp": "2026-07-07T11:14:12.893Z"
+          "headHash": "37f38e9efdc79bcfac7c3503849a164e2ddf3971",
+          "materialHash": "1eaef7b8c798eafae1782f3456787fb411bd4711bc3539b08416ac310d36f342",
+          "storyFilesHash": "99f4d6d32bbc87de94c593dfc9236cb2ea046c60869003db17b979b0dec0ca5b",
+          "timestamp": "2026-07-07T11:34:59.042Z"
         }
       ]
     },
@@ -224,10 +224,10 @@
           "command": "CELL06_ACCOUNT_A_AUTH_BUNDLE=<temp-auth-dir> node experiments/multi-model-ablation/cell06-docker-probe/run-probe.mjs --mode=local --rows=2 --json",
           "result": "pass",
           "note": "Probe rows show account-a completed a real in-container codex exec with responseDigest, exitCode=0, and docker smoke metadata.",
-          "headHash": "472ed4b1f58163ffd89bd51a74d520663072fbe0",
-          "materialHash": "cfab5717ddde065ed6b4012f63ce441ff7212f8a6d5497e47c289762adfeb599",
-          "storyFilesHash": "912b3e795e87d62a4e83681d1846a23e3f6aec288b9244c1a9a26f1763de5426",
-          "timestamp": "2026-07-07T11:14:12.893Z"
+          "headHash": "37f38e9efdc79bcfac7c3503849a164e2ddf3971",
+          "materialHash": "1eaef7b8c798eafae1782f3456787fb411bd4711bc3539b08416ac310d36f342",
+          "storyFilesHash": "99f4d6d32bbc87de94c593dfc9236cb2ea046c60869003db17b979b0dec0ca5b",
+          "timestamp": "2026-07-07T11:34:59.042Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -235,10 +235,10 @@
           "command": "node experiments/multi-model-ablation/cell06-docker-probe/validate-probe.mjs --json",
           "result": "pass",
           "note": "Probe rows show account-b as explicit pending_auth and validator rejects any auth-absent fake completed row.",
-          "headHash": "472ed4b1f58163ffd89bd51a74d520663072fbe0",
-          "materialHash": "cfab5717ddde065ed6b4012f63ce441ff7212f8a6d5497e47c289762adfeb599",
-          "storyFilesHash": "912b3e795e87d62a4e83681d1846a23e3f6aec288b9244c1a9a26f1763de5426",
-          "timestamp": "2026-07-07T11:14:12.893Z"
+          "headHash": "37f38e9efdc79bcfac7c3503849a164e2ddf3971",
+          "materialHash": "1eaef7b8c798eafae1782f3456787fb411bd4711bc3539b08416ac310d36f342",
+          "storyFilesHash": "99f4d6d32bbc87de94c593dfc9236cb2ea046c60869003db17b979b0dec0ca5b",
+          "timestamp": "2026-07-07T11:34:59.042Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -246,10 +246,10 @@
           "command": "node experiments/multi-model-ablation/cell06-docker-probe/validate-probe.mjs --json",
           "result": "pass",
           "note": "Validator enforces reviewerFamily=not_applicable and rejects reviewerSnapshotId, reviewGate, reviewerNotes, Cell03 output references, Proofbound-memory tokens, and host paths.",
-          "headHash": "472ed4b1f58163ffd89bd51a74d520663072fbe0",
-          "materialHash": "cfab5717ddde065ed6b4012f63ce441ff7212f8a6d5497e47c289762adfeb599",
-          "storyFilesHash": "912b3e795e87d62a4e83681d1846a23e3f6aec288b9244c1a9a26f1763de5426",
-          "timestamp": "2026-07-07T11:14:12.893Z"
+          "headHash": "37f38e9efdc79bcfac7c3503849a164e2ddf3971",
+          "materialHash": "1eaef7b8c798eafae1782f3456787fb411bd4711bc3539b08416ac310d36f342",
+          "storyFilesHash": "99f4d6d32bbc87de94c593dfc9236cb2ea046c60869003db17b979b0dec0ca5b",
+          "timestamp": "2026-07-07T11:34:59.042Z"
         }
       ]
     },
@@ -308,10 +308,10 @@
           "command": "node experiments/multi-model-ablation/cell06-docker-probe/validate-probe.mjs --json",
           "result": "pass",
           "note": "validate-probe returned ok=true with 131 assertions, 10 rejected negative controls, and overallStatus=partial.",
-          "headHash": "472ed4b1f58163ffd89bd51a74d520663072fbe0",
-          "materialHash": "cfab5717ddde065ed6b4012f63ce441ff7212f8a6d5497e47c289762adfeb599",
-          "storyFilesHash": "912b3e795e87d62a4e83681d1846a23e3f6aec288b9244c1a9a26f1763de5426",
-          "timestamp": "2026-07-07T11:14:12.893Z"
+          "headHash": "37f38e9efdc79bcfac7c3503849a164e2ddf3971",
+          "materialHash": "1eaef7b8c798eafae1782f3456787fb411bd4711bc3539b08416ac310d36f342",
+          "storyFilesHash": "99f4d6d32bbc87de94c593dfc9236cb2ea046c60869003db17b979b0dec0ca5b",
+          "timestamp": "2026-07-07T11:34:59.042Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -319,10 +319,10 @@
           "command": "node experiments/multi-model-ablation/cell06-docker-probe/validate-probe.mjs --json",
           "result": "pass",
           "note": "Negative controls reject duplicate row ownership, missing inputManifestDigest, digest drift, and wrong Cell06/A2prime labels.",
-          "headHash": "472ed4b1f58163ffd89bd51a74d520663072fbe0",
-          "materialHash": "cfab5717ddde065ed6b4012f63ce441ff7212f8a6d5497e47c289762adfeb599",
-          "storyFilesHash": "912b3e795e87d62a4e83681d1846a23e3f6aec288b9244c1a9a26f1763de5426",
-          "timestamp": "2026-07-07T11:14:12.893Z"
+          "headHash": "37f38e9efdc79bcfac7c3503849a164e2ddf3971",
+          "materialHash": "1eaef7b8c798eafae1782f3456787fb411bd4711bc3539b08416ac310d36f342",
+          "storyFilesHash": "99f4d6d32bbc87de94c593dfc9236cb2ea046c60869003db17b979b0dec0ca5b",
+          "timestamp": "2026-07-07T11:34:59.042Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -330,10 +330,10 @@
           "command": "node experiments/multi-model-ablation/cell06-docker-probe/validate-probe.mjs --json",
           "result": "pass",
           "note": "Negative controls reject injected Cell03 contamination, reviewer contamination, Proofbound-memory contamination, host-path contamination, and reviewer fields.",
-          "headHash": "472ed4b1f58163ffd89bd51a74d520663072fbe0",
-          "materialHash": "cfab5717ddde065ed6b4012f63ce441ff7212f8a6d5497e47c289762adfeb599",
-          "storyFilesHash": "912b3e795e87d62a4e83681d1846a23e3f6aec288b9244c1a9a26f1763de5426",
-          "timestamp": "2026-07-07T11:14:12.893Z"
+          "headHash": "37f38e9efdc79bcfac7c3503849a164e2ddf3971",
+          "materialHash": "1eaef7b8c798eafae1782f3456787fb411bd4711bc3539b08416ac310d36f342",
+          "storyFilesHash": "99f4d6d32bbc87de94c593dfc9236cb2ea046c60869003db17b979b0dec0ca5b",
+          "timestamp": "2026-07-07T11:34:59.042Z"
         }
       ]
     }
