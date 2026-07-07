@@ -1,0 +1,45 @@
+{
+  "storyId": "B-2fb7",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src",
+    "lattice.config.json"
+  ],
+  "allowedCreate": [
+    "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+    "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+    "packages/main/test"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Add lattice.config.json to register the new validate progress heartbeat smoke in configured validation commands.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Pre-DEV ProofStory and red-evidence metadata were created by Lattice CLI commands before the REVIEW scope contract was initialized; acknowledge as lifecycle evidence, not implementation scope.",
+      "timestamp": "2026-07-07T13:44:06.002Z",
+      "paths": [
+        ".lattice/story/actives/B-2fb7/intent-collision.json",
+        ".lattice/story/actives/B-2fb7/original-intent-snapshot.json",
+        ".lattice/story/actives/B-2fb7/proofstory.json",
+        ".lattice/story/actives/B-2fb7/red-evidence.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-2fb7/intent-collision.json",
+        ".lattice/story/actives/B-2fb7/original-intent-snapshot.json",
+        ".lattice/story/actives/B-2fb7/proofstory.json",
+        ".lattice/story/actives/B-2fb7/red-evidence.json"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "86fa33c13f3d60d8a83d60693a41e4a4977b5ed1",
+      "materialHash": "fe22c62dc9cdcb0b856fa19d51ca33047b16920d21a006be74be9410b870f31e"
+    }
+  ],
+  "createdAt": "2026-07-07T13:43:28.812Z",
+  "updatedAt": "2026-07-07T13:44:06.002Z"
+}
