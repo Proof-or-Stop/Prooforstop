@@ -1,0 +1,29 @@
+{
+  "storyId": "B-53a4",
+  "checkedAt": "2026-07-07T13:09:28.413Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init@fallback",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "lattice-review-story-init@fallback",
+      "checkedAt": "2026-07-07T13:09:28.413Z",
+      "issues": []
+    },
+    {
+      "agentId": "product-reviewer@fallback",
+      "checkedAt": "2026-07-07T13:09:28.413Z",
+      "issues": []
+    }
+  ],
+  "fallback": {
+    "mode": "repair",
+    "reason": "Subagent spawning is constrained in this execution context unless explicitly requested; main agent manually verified the INIT background, checklist, scope boundary, execution boundary, and no-docs user constraint before proceeding, without pretending this is independent reviewer evidence.",
+    "actor": "Harmonygo",
+    "session": "sess-92ebec71c42ca8f2",
+    "attestedAt": "2026-07-07T13:09:28.413Z",
+    "headHash": "1a90308c5ce35f58744bcb7385f3d1de7e53ae67",
+    "materialHash": "24c541ef04cf6c0c200684049d3ab661c1a166ab4661159757f967104b2ced5a"
+  },
+  "_hash": "070ced4bbd61af6f576e982e62dac634ac6ef0e66974d34c1c479ef771fe1023"
+}

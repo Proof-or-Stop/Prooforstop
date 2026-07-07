@@ -4,7 +4,7 @@
   "title": "Auto-write milestone ledger from structured planning rows",
   "description": "Implement automatic candidate milestone-ledger writes only at explicit planning write points when structured milestone rows are provided. Do not infer rows from prose or checklist text, and keep milestone_status read-only.",
   "type": "feature",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "source": "user-request",
   "keywords": [
@@ -25,6 +25,20 @@
       "user": "Harmonygo",
       "sessionId": "sess-92ebec71c42ca8f2",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-07T13:09:42.675Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-92ebec71c42ca8f2",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-53a4",
+    "branch": "story/B-53a4",
+    "createdAt": "2026-07-07T13:09:35.368Z"
+  }
 }
