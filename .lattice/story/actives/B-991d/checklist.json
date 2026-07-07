@@ -456,9 +456,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-06T00:19:49.277Z",
-      "endTime": null
+      "endTime": "2026-07-07T03:04:23.535Z"
     },
     {
       "id": "CHK-007",
@@ -765,6 +765,16 @@
       "to": "in_progress",
       "reason": "Start resumable full Cell 03 1152-row execution runner after the hardened A4 probe passed.",
       "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-07-07T03:04:23.535Z",
+      "phase": "DEV",
+      "itemId": "CHK-006",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Cell 03 full execution completed and committed; complete validator passed with zero pending executable rows.",
+      "agent": "codex"
     }
   ]
 }
