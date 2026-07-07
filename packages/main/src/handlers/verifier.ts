@@ -556,6 +556,11 @@ function validationProgressReporter(ctx: HandlerContext): ValidationProgressRepo
   };
 }
 
+function validateFileDefaultTimeoutMs(): number | undefined {
+  const raw = Number(process.env.LATTICE_VALIDATE_FILE_TIMEOUT_MS);
+  return Number.isFinite(raw) && raw > 0 ? Math.floor(raw) : undefined;
+}
+
 async function maybeHoldValidationLockSmokeHook(projectRoot: string, storyId: string | undefined): Promise<void> {
   // Internal smoke seam: verifies the lock stays held after a command exits and before evidence persists.
   const holdFile = process.env.LATTICE_VALIDATE_LOCK_SMOKE_POST_COMMAND_HOLD_FILE;
@@ -838,7 +843,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         label: validateFile,
         command: 'npx',
         args: ['tsx', ...tsArgs],
-      }, projectRoot, undefined, {
+      }, projectRoot, validateFileDefaultTimeoutMs(), {
         progress: validationProgressReporter(ctx),
         commandIndex: 1,
         totalCommands: 1,
@@ -856,7 +861,6 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           const isBlocking = commandResult.worktreePollution?.blocking !== false;
           const polluted = externalResult({
             status: isBlocking ? 'fail' : 'pass',
-            ...(isBlocking ? { failureKind: 'validation_failure' as const } : {}),
             summary: isBlocking
               ? 'Validation command dirtied the worktree'
               : 'Validation command produced policy-allowed dirty paths (audited)',

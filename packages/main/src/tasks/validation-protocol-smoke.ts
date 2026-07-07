@@ -2,9 +2,9 @@
 
 import { strict as assert } from 'node:assert';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
+import { delimiter, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { executeValidationPlan } from '../core/validation-executor.js';
 import { resetConfigCache } from '../core/config.js';
@@ -36,6 +36,33 @@ function initSmokeGitRepo(root: string): void {
   gitQuiet(root, ['init', '--initial-branch=main']);
   gitQuiet(root, ['config', 'user.name', 'Lattice Smoke']);
   gitQuiet(root, ['config', 'user.email', 'smoke@example.test']);
+}
+
+function withFakeNpx<T>(root: string, scriptBody: string, fn: () => Promise<T>): Promise<T> {
+  const binDir = join(root, 'fake-bin');
+  mkdirSync(binDir, { recursive: true });
+  const npxPath = join(binDir, 'npx');
+  writeFileSync(npxPath, `#!/usr/bin/env node\n${scriptBody}\n`, 'utf8');
+  chmodSync(npxPath, 0o755);
+  const oldPath = process.env.PATH;
+  process.env.PATH = oldPath ? `${binDir}${delimiter}${oldPath}` : binDir;
+  return Promise.resolve()
+    .then(fn)
+    .finally(() => {
+      if (oldPath === undefined) delete process.env.PATH;
+      else process.env.PATH = oldPath;
+    });
+}
+
+function withEnv<T>(key: string, value: string, fn: () => Promise<T>): Promise<T> {
+  const old = process.env[key];
+  process.env[key] = value;
+  return Promise.resolve()
+    .then(fn)
+    .finally(() => {
+      if (old === undefined) delete process.env[key];
+      else process.env[key] = old;
+    });
 }
 
 function assertRuntimeModeShape(value: any): void {
@@ -450,7 +477,7 @@ try {
       store: new StoryStore(dirtyFallbackRoot),
       log: () => {},
     }).validate({ json: true });
-    const dirtyResult = JSON.parse(dirtyJson);
+    const dirtyResult = JSON.parse(String(dirtyJson));
     assert.equal(dirtyResult.status, 'fail');
     assert.equal(dirtyResult.allPass, false);
     assert.match(dirtyResult.summary, /dirtied the worktree/);
@@ -463,6 +490,81 @@ try {
     assert.equal(dirtyResult.commands[0].worktreePollution.paths[0], 'report.md');
   } finally {
     rmSync(dirtyFallbackRoot, { recursive: true, force: true });
+  }
+
+  const dirtyValidateFileRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-dirty-validate-file-'));
+  try {
+    writeFileSync(join(dirtyValidateFileRoot, 'lattice.config.json'), JSON.stringify({
+      scanRoot: '.',
+      rootDir: '.',
+    }));
+    writeFileSync(join(dirtyValidateFileRoot, 'validate.ts'), '// fake npx smoke target\n');
+    writeFileSync(join(dirtyValidateFileRoot, 'report.md'), 'baseline\n');
+    initSmokeGitRepo(dirtyValidateFileRoot);
+    gitQuiet(dirtyValidateFileRoot, ['add', '.']);
+    gitQuiet(dirtyValidateFileRoot, ['commit', '-m', 'seed dirty validate-file smoke']);
+    resetConfigCache();
+    const dirtyJson = await withFakeNpx(
+      dirtyValidateFileRoot,
+      "require('node:fs').writeFileSync('report.md', 'polluted\\n');",
+      () => createVerifierHandlers({
+        root: dirtyValidateFileRoot,
+        scanRoot: dirtyValidateFileRoot,
+        store: new StoryStore(dirtyValidateFileRoot),
+        log: () => {},
+      }).validate({ json: true }),
+    );
+    const dirtyResult = JSON.parse(String(dirtyJson));
+    assert.equal(dirtyResult.status, 'fail');
+    assert.equal(dirtyResult.allPass, false);
+    assert.equal(dirtyResult.failureKind, 'validation_failure', 'validate.ts blocking pollution without infra failure remains validation_failure');
+    assert.match(dirtyResult.summary, /dirtied the worktree/);
+    assert.match(dirtyResult.details.join('\n'), /validation command dirtied worktree/);
+    assert.equal(dirtyResult.commands[0].worktreePollution.paths[0], 'report.md');
+    assert.equal(dirtyResult.commands[0].failureKind, undefined, 'successful validate.ts command with pollution has no command failureKind');
+  } finally {
+    rmSync(dirtyValidateFileRoot, { recursive: true, force: true });
+    resetConfigCache();
+  }
+
+  const dirtyValidateFileInfraRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-dirty-validate-file-infra-'));
+  try {
+    writeFileSync(join(dirtyValidateFileInfraRoot, 'lattice.config.json'), JSON.stringify({
+      scanRoot: '.',
+      rootDir: '.',
+    }));
+    writeFileSync(join(dirtyValidateFileInfraRoot, 'validate.ts'), '// fake npx timeout smoke target\n');
+    writeFileSync(join(dirtyValidateFileInfraRoot, 'report.md'), 'baseline\n');
+    initSmokeGitRepo(dirtyValidateFileInfraRoot);
+    gitQuiet(dirtyValidateFileInfraRoot, ['add', '.']);
+    gitQuiet(dirtyValidateFileInfraRoot, ['commit', '-m', 'seed dirty validate-file infra smoke']);
+    resetConfigCache();
+    const dirtyInfraJson = await withEnv(
+      'LATTICE_VALIDATE_FILE_TIMEOUT_MS',
+      '1000',
+      () => withFakeNpx(
+        dirtyValidateFileInfraRoot,
+        "require('node:fs').writeFileSync('report.md', 'polluted\\n'); setInterval(() => {}, 1000);",
+        () => createVerifierHandlers({
+          root: dirtyValidateFileInfraRoot,
+          scanRoot: dirtyValidateFileInfraRoot,
+          store: new StoryStore(dirtyValidateFileInfraRoot),
+          log: () => {},
+        }).validate({ json: true }),
+      ),
+    );
+    const dirtyInfraResult = JSON.parse(String(dirtyInfraJson));
+    assert.equal(dirtyInfraResult.status, 'fail');
+    assert.equal(dirtyInfraResult.allPass, false);
+    assert.equal(dirtyInfraResult.failureKind, 'infra_failure', 'validate.ts timedOut + blocking pollution must preserve infra_failure');
+    assert.match(dirtyInfraResult.summary, /dirtied the worktree/);
+    assert.match(dirtyInfraResult.details.join('\n'), /validation command dirtied worktree/);
+    assert.equal(dirtyInfraResult.commands[0].timedOut, true);
+    assert.equal(dirtyInfraResult.commands[0].failureKind, 'infra_failure');
+    assert.equal(dirtyInfraResult.commands[0].worktreePollution.paths[0], 'report.md');
+  } finally {
+    rmSync(dirtyValidateFileInfraRoot, { recursive: true, force: true });
+    resetConfigCache();
   }
 
   const categorizedPollutionRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-dirty-classified-'));
