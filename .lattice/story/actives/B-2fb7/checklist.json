@@ -283,9 +283,9 @@
           "packages/main/test"
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-07T13:27:12.545Z",
-      "endTime": null,
+      "endTime": "2026-07-07T13:32:08.442Z",
       "userSees": "User sees timeout diagnostics that name the exact validate command and evidence classification \"infra_failure\" for runner/watchdog failures, while real test failures remain \"FAIL\" validation results.",
       "verificationIntent": {
         "happy": [
@@ -309,7 +309,53 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validation-protocol-smoke.js",
+          "result": "pass",
+          "note": "Validation protocol smoke passed with lifecycle timeout evidence classified as infra_failure.",
+          "headHash": "eed6f28fb63bbc58dc75be16f0dbf0706215e402",
+          "materialHash": "9c84f307282f2ec472476c9fd57f470fafe3ea57683222de1d565d641bd146f7",
+          "storyFilesHash": "d8811029af339ddc9adce4c24a5978c7c865a45a60465f92f11e1bdf5f2ddb99",
+          "timestamp": "2026-07-07T13:32:09.360Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validation-protocol-smoke.js",
+          "result": "pass",
+          "note": "Validation protocol smoke passed with ordinary nonzero validate command evidence classified as validation_failure while preserving result=FAIL.",
+          "headHash": "eed6f28fb63bbc58dc75be16f0dbf0706215e402",
+          "materialHash": "9c84f307282f2ec472476c9fd57f470fafe3ea57683222de1d565d641bd146f7",
+          "storyFilesHash": "d8811029af339ddc9adce4c24a5978c7c865a45a60465f92f11e1bdf5f2ddb99",
+          "timestamp": "2026-07-07T13:32:11.045Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "Focused timeout smoke still fails closed and exposes timeout metadata for runner timeout diagnosis.",
+          "headHash": "eed6f28fb63bbc58dc75be16f0dbf0706215e402",
+          "materialHash": "9c84f307282f2ec472476c9fd57f470fafe3ea57683222de1d565d641bd146f7",
+          "storyFilesHash": "d8811029af339ddc9adce4c24a5978c7c865a45a60465f92f11e1bdf5f2ddb99",
+          "timestamp": "2026-07-07T13:32:11.443Z"
+        },
+        {
+          "intentRef": "CHK-004:build",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build passed after adding validation/test evidence failureKind metadata.",
+          "headHash": "eed6f28fb63bbc58dc75be16f0dbf0706215e402",
+          "materialHash": "9c84f307282f2ec472476c9fd57f470fafe3ea57683222de1d565d641bd146f7",
+          "storyFilesHash": "d8811029af339ddc9adce4c24a5978c7c865a45a60465f92f11e1bdf5f2ddb99",
+          "timestamp": "2026-07-07T13:32:11.804Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
