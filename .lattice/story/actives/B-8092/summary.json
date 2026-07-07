@@ -1,0 +1,56 @@
+{
+  "storyId": "B-8092",
+  "changes": "Added a bounded Cell06/A2prime local Docker Codex runner probe under experiments/multi-model-ablation/cell06-docker-probe. The probe builds a minimal container, emits probe-manifest/probe-rows/probe-summary receipts, validates sterile row inputs, records account/shard separation, and hardens auth bundle handling so unsafe host paths are blocked before Docker mount.",
+  "usage": "Run CELL06_ACCOUNT_A_AUTH_BUNDLE=<temp-auth-dir> node experiments/multi-model-ablation/cell06-docker-probe/run-probe.mjs --mode=local --rows=2 --json, then run node experiments/multi-model-ablation/cell06-docker-probe/validate-probe.mjs --json. This validates the local Docker probe only, not full Cell06 execution.",
+  "expectedOutcome": "The user should see that local Docker can run Codex CLI in a sterile container for a two-row Cell06/A2prime probe, with account-a completed from an allowlisted temp auth bundle and account-b honestly reported as pending_auth when no second auth bundle exists.",
+  "actualTranscript": "TEST evidence passed. validate-probe returned ok=true with 242 assertions and 13 negative controls rejected. done_required_validate passed after 353724 ms, including packages/main build and root npm test. quorum_submit produced full 3x2 local assurance after two high review findings were fixed.",
+  "outcomeDiff": "No functional difference for the bounded probe: expected sterile local Docker probe behavior was observed. The only limitation is intentional: this is not full Cell06 execution and account-b remains pending_auth until a second safe auth bundle is supplied.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The delivery covers only the bounded local Docker sterile Codex runner probe. It does not execute the full Cell06 dataset, does not authorize Cell06 formal result rows, and does not claim paper conclusions. account-b is pending_auth by design until a second safe temp auth bundle is provided.",
+  "pitfalls": "Two real delays occurred. First, review found a real high-priority auth-bundle bug: an unsafe host path could have been mounted into Docker; run-probe now blocks unsafe auth sources and validate-probe rejects unsafe/missing auth safety evidence. Second, Lattice long-running validate and done_required_validate commands can be killed by the default 300s idle watchdog despite still making progress; use LATTICE_IDLE_TIMEOUT_MS=900000 and LATTICE_MAX_TIMEOUT_MS=1800000 for these long gates until CLI progress output is improved.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 242885
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 52801
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 707013
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 1749184
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 2498750
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 1060390
+    }
+  },
+  "totalDurationMs": 6311855,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-07T12:27:51.093Z",
+  "updatedAt": "2026-07-07T12:27:51.093Z"
+}
