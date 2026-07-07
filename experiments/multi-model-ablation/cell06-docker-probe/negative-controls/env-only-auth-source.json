@@ -1,0 +1,12 @@
+{
+  "id": "env-only-auth-source",
+  "expectedError": "safety evidence missing",
+  "mutations": [
+    {
+      "target": "rows",
+      "op": "set",
+      "path": "0.runtime.authMountSource",
+      "value": "env:CELL06_ACCOUNT_A_AUTH_BUNDLE"
+    }
+  ]
+}

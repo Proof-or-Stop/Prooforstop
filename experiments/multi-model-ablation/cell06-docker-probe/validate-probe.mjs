@@ -16,6 +16,22 @@ const CELL_LABEL = "Cell06";
 const ARM = "A2prime";
 const EXECUTOR_FAMILY = "E2";
 const REVIEWER_FAMILY = "not_applicable";
+const AUTH_POLICY_VERSION = "cell06-auth-bundle-policy-v1";
+const AUTH_ENV_BY_ACCOUNT = Object.freeze({
+  "account-a": "CELL06_ACCOUNT_A_AUTH_BUNDLE",
+  "account-b": "CELL06_ACCOUNT_B_AUTH_BUNDLE",
+});
+const AUTH_ACCEPTED_SOURCE_KINDS = Object.freeze(["directory-with-auth-json", "auth-json-file"]);
+const AUTH_ALLOWED_ROOT_LABELS = Object.freeze(["tmp", "os-tmp", "var-tmp"]);
+const AUTH_REJECTED_SOURCE_CLASSES = Object.freeze([
+  "home",
+  "repo",
+  "lattice-dir",
+  "paper-repo",
+  "prior-cell-results",
+  "future-results",
+  "outside-allowlisted-temp-root",
+]);
 
 let assertions = 0;
 
@@ -193,6 +209,101 @@ function rejectContamination(value) {
   }
 }
 
+function isSha256(value) {
+  return typeof value === "string" && /^sha256:[0-9a-f]{64}$/.test(value);
+}
+
+function stripMountFields(receipt) {
+  const { target, mode, ...coreReceipt } = receipt;
+  return coreReceipt;
+}
+
+function validateAuthPolicy(authPolicy) {
+  assert(authPolicy?.policyVersion === AUTH_POLICY_VERSION, "auth policy version mismatch");
+  assert(authPolicy.mode === "allowlisted-temp-roots", "auth policy must use temp-root allowlist");
+  assert(authPolicy.tokensWrittenToRepo === false, "auth policy must forbid repo token writes");
+  assert(authPolicy.rawAbsolutePathsRecorded === false, "auth policy must not record raw auth paths");
+  assert(authPolicy.tokenContentRecorded === false, "auth policy must not record token contents");
+  assert(authPolicy.requiredFileName === "auth.json", "auth policy must require auth.json");
+  assert(Array.isArray(authPolicy.accountEnvVars), "auth policy env list missing");
+  assert(JSON.stringify(authPolicy.accountEnvVars) === JSON.stringify(Object.values(AUTH_ENV_BY_ACCOUNT)), "auth policy env list mismatch");
+  assert(Array.isArray(authPolicy.allowedRootLabels) && authPolicy.allowedRootLabels.length > 0, "auth safe temp roots missing");
+  assert(authPolicy.allowedRootLabels.every((label) => AUTH_ALLOWED_ROOT_LABELS.includes(label)), "auth safe temp root label not allowed");
+  assert(Array.isArray(authPolicy.acceptedSourceKinds), "auth accepted source kinds missing");
+  for (const sourceKind of AUTH_ACCEPTED_SOURCE_KINDS) {
+    assert(authPolicy.acceptedSourceKinds.includes(sourceKind), `auth source kind not accepted: ${sourceKind}`);
+  }
+  assert(Array.isArray(authPolicy.rejectedSourceClasses), "auth rejected source classes missing");
+  for (const rejectedClass of AUTH_REJECTED_SOURCE_CLASSES) {
+    assert(authPolicy.rejectedSourceClasses.includes(rejectedClass), `auth rejected class missing: ${rejectedClass}`);
+  }
+}
+
+function validateAuthSourceReceipt(receipt, expectedEnv, authPolicy, context, options = {}) {
+  assert(receipt && typeof receipt === "object" && !Array.isArray(receipt), `${context} safety evidence missing`);
+  assert(receipt.policyVersion === AUTH_POLICY_VERSION, `${context} policy version mismatch`);
+  assert(receipt.type === "env-auth-bundle", `${context} type mismatch`);
+  assert(receipt.env === expectedEnv, `${context} env mismatch`);
+  assert(["allow", "missing", "blocked"].includes(receipt.decision), `${context} decision mismatch`);
+  assert(typeof receipt.reason === "string" && receipt.reason.length > 0, `${context} reason missing`);
+  assert(receipt.rawAbsolutePathRecorded === false, `${context} must not record raw paths`);
+  assert(receipt.tokenContentRecorded === false, `${context} must not record token contents`);
+  assert(receipt.authJson?.fileName === "auth.json", `${context} authJson file name mismatch`);
+  assert(receipt.authJson.contentDigestRecorded === false, `${context} must not digest auth contents`);
+
+  if (options.expectMountFields) {
+    assert(receipt.target === "/codex-auth-src", `${context} mount target mismatch`);
+    assert(receipt.mode === "ro", `${context} mount mode mismatch`);
+  }
+
+  if (receipt.decision === "allow") {
+    assert(receipt.safe === true, `${context} allow decision must be safe`);
+    assert(authPolicy.allowedRootLabels.includes(receipt.safeTempRootLabel), `${context} safe temp root label missing`);
+    assert(AUTH_ACCEPTED_SOURCE_KINDS.includes(receipt.sourceKind), `${context} source kind mismatch`);
+    assert(Number.isInteger(receipt.sourceDepth) && receipt.sourceDepth >= 1, `${context} source depth missing`);
+    assert(isSha256(receipt.sourcePathDigest), `${context} safe source path digest missing`);
+    assert(receipt.realpathChecked === true, `${context} realpath evidence missing`);
+    assert(receipt.authJson.present === true, `${context} auth.json presence missing`);
+    assert(receipt.authJson.kind === "regular-file", `${context} auth.json must be a regular file`);
+    assert(Number.isInteger(receipt.authJson.bytes) && receipt.authJson.bytes > 0, `${context} auth.json byte count missing`);
+    return;
+  }
+
+  assert(receipt.safe === false, `${context} non-allow decision must not be safe`);
+  assert(receipt.safeTempRootLabel === null, `${context} non-allow root label must be null`);
+  assert(receipt.sourcePathDigest === null, `${context} non-allow path digest must be null`);
+  if (receipt.decision === "missing") {
+    assert(receipt.sourceKind === "missing", `${context} missing source kind mismatch`);
+    assert(receipt.authJson.present === false, `${context} missing auth must not claim auth.json`);
+  } else {
+    assert(receipt.reason !== "source_under_allowlisted_temp_root", `${context} blocked reason cannot be safe`);
+  }
+}
+
+function validateAccountAuth(account, authPolicy) {
+  const expectedEnv = AUTH_ENV_BY_ACCOUNT[account.accountId];
+  assert(account.authBundleEnv === expectedEnv, `auth env mismatch for ${account.accountId}`);
+  assert(typeof account.authBundleConfigured === "boolean", "auth configured flag missing");
+  assert(typeof account.authBundlePresent === "boolean", "auth present flag missing");
+  assert(typeof account.authBundleUsable === "boolean", "auth usable flag missing");
+  validateAuthSourceReceipt(account.authBundleSource, expectedEnv, authPolicy, `manifest account ${account.accountId} auth`);
+
+  const decision = account.authBundleSource.decision;
+  assert(account.authBundleUsable === (decision === "allow"), "auth usable flag must match auth decision");
+  if (decision === "allow") {
+    assert(account.authBundleConfigured === true, "safe auth must be configured");
+    assert(account.authBundlePresent === true, "safe auth must be present");
+    assert(account.status === "live-if-auth-present", "safe auth account status mismatch");
+    return;
+  }
+  if (decision === "blocked") {
+    assert(account.status === "blocked_auth_bundle", "blocked auth account status mismatch");
+    return;
+  }
+  assert(account.authBundlePresent === false, "missing auth cannot be present");
+  assert(account.status === "pending_auth", "missing auth account status mismatch");
+}
+
 function validateManifest(manifest, rows, summary) {
   assert(manifest.artifact === "cell06-docker-probe-manifest-v1", "manifest artifact mismatch");
   assert(manifest.storyId === STORY_ID, "manifest storyId mismatch");
@@ -203,7 +314,7 @@ function validateManifest(manifest, rows, summary) {
   assert(manifest.reviewerFamily === REVIEWER_FAMILY, "manifest reviewerFamily mismatch");
   assert(manifest.rowCount === rows.length, "manifest rowCount mismatch");
   assert(typeof manifest.inputManifestDigest === "string" && manifest.inputManifestDigest.startsWith("sha256:"), "inputManifestDigest missing");
-  assert(manifest.authPolicy?.tokensWrittenToRepo === false, "auth policy must forbid repo token writes");
+  validateAuthPolicy(manifest.authPolicy);
   assert(manifest.sterilePolicy?.mountHome === false, "sterile policy must not mount home");
   assert(manifest.sterilePolicy?.mountRepo === false, "sterile policy must not mount repo");
   assert(Array.isArray(manifest.accounts) && manifest.accounts.length === 2, "manifest must include two accounts");
@@ -221,7 +332,7 @@ function validateManifest(manifest, rows, summary) {
     assert(!accountIds.has(account.accountId), `duplicate account ${account.accountId}`);
     accountIds.add(account.accountId);
     assert(["account-a", "account-b"].includes(account.accountId), "unexpected accountId");
-    assert(account.status === (account.authBundlePresent ? "live-if-auth-present" : "pending_auth"), "account status does not match auth presence");
+    validateAccountAuth(account, manifest.authPolicy);
   }
 
   const rowIds = new Set(rows.map((row) => row.rowId));
@@ -253,7 +364,7 @@ function validateRow(row, manifest) {
   assert(Array.isArray(row.inputFiles) && row.inputFiles.length === 2, "row inputFiles mismatch");
   assert(row.inputFiles.every((file) => file.startsWith("experiments/multi-model-ablation/cell06-docker-probe/inputs/")), "row input files must stay in sterile inputs");
   assert(typeof row.inputDigest === "string" && row.inputDigest.startsWith("sha256:"), "row inputDigest missing");
-  assert(["completed", "pending_auth", "blocked", "blocked_network", "blocked_install_failed"].includes(row.rowStatus), "invalid rowStatus");
+  assert(["completed", "pending_auth", "blocked", "blocked_network", "blocked_install_failed", "blocked_auth_bundle"].includes(row.rowStatus), "invalid rowStatus");
   assert(typeof row.usable === "boolean", "row usable missing");
   assert(row.usable === (row.rowStatus === "completed"), "usable must track completed status");
   assert(row.contaminationScan?.status === "clean", "contamination scan must be clean");
@@ -265,19 +376,32 @@ function validateRow(row, manifest) {
   assert(Array.isArray(row.runtime?.mounts) && row.runtime.mounts.length === 1, "row mounts mismatch");
   assert(row.runtime.mounts[0].source.startsWith("experiments/multi-model-ablation/cell06-docker-probe/inputs/rows/"), "mount source must stay in sterile inputs");
   assert(row.runtime.mounts[0].mode === "ro", "input mount must be read-only");
-  assert(row.runtime.authMountSource === `env:${row.accountId === "account-a" ? "CELL06_ACCOUNT_A_AUTH_BUNDLE" : "CELL06_ACCOUNT_B_AUTH_BUNDLE"}`, "auth mount source mismatch");
+  const expectedAuthEnv = AUTH_ENV_BY_ACCOUNT[row.accountId];
+  validateAuthSourceReceipt(row.runtime.authMountSource, expectedAuthEnv, manifest.authPolicy, `row ${row.rowId} auth mount`, {
+    expectMountFields: true,
+  });
+  assert(JSON.stringify(stripMountFields(row.runtime.authMountSource)) === JSON.stringify(account.authBundleSource), "row auth safety evidence must match manifest account");
   assert(!Object.prototype.hasOwnProperty.call(row, "reviewerSnapshotId"), "reviewer fields are not allowed");
   assert(!Object.prototype.hasOwnProperty.call(row, "reviewGate"), "reviewer fields are not allowed");
   assert(!Object.prototype.hasOwnProperty.call(row, "reviewerNotes"), "reviewer fields are not allowed");
   assert(row.dockerSmoke?.status, "docker smoke status missing");
   assert(row.codexExec?.status === row.rowStatus, "codexExec status mismatch");
   assert(row.accountStatus === account.status, "row accountStatus must match manifest account status");
-  if (!account.authBundlePresent) {
+  if (account.authBundleSource.decision === "missing") {
     assert(row.rowStatus === "pending_auth", "auth absent account cannot produce a completed row");
     assert(row.codexExec.attempted === false, "pending_auth row must not attempt codex exec");
   }
+  if (account.authBundleSource.decision === "blocked") {
+    assert(row.rowStatus === "blocked_auth_bundle", "unsafe auth account cannot complete a row");
+    assert(row.codexExec.attempted === false, "blocked auth row must not attempt codex exec");
+  }
+  if (account.authBundleSource.decision === "allow") {
+    assert(row.runtime.authMountSource.safe === true, "auth-present row requires safe auth evidence");
+  }
   if (row.rowStatus === "completed") {
     assert(account.authBundlePresent === true, "completed row requires an auth bundle");
+    assert(account.authBundleUsable === true, "completed row requires a usable auth bundle");
+    assert(account.authBundleSource.decision === "allow", "completed row requires safe auth evidence");
     assert(row.codexExec.attempted === true, "completed row must attempt codex exec");
     assert(row.codexExec.exitCode === 0, "completed row must have zero codex exit");
     assert(typeof row.codexExec.responseDigest === "string" && row.codexExec.responseDigest.startsWith("sha256:"), "completed row response digest missing");

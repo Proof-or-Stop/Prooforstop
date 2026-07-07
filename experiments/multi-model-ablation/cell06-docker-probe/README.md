@@ -11,14 +11,14 @@ This directory holds the bounded B-8092 probe for a sterile local Docker runner 
 
 ## Auth Bundles
 
-If you want the probe to attempt a real `codex exec` inside Docker, point these environment variables at external auth bundle directories:
+If you want the probe to attempt a real `codex exec` inside Docker, point these environment variables at external auth bundles under an allowlisted temp root such as `/tmp`. The source may be either a dedicated directory containing `auth.json` or a standalone `auth.json` file.
 
 ```bash
 export CELL06_ACCOUNT_A_AUTH_BUNDLE=/absolute/path/to/account-a-auth
 export CELL06_ACCOUNT_B_AUTH_BUNDLE=/absolute/path/to/account-b-auth
 ```
 
-Without a bundle, the probe records `pending_auth` for that account instead of pretending success.
+Do not point these variables at home directories, this repository, `.lattice`, `lattice-Paper`, Cell03/future-results material, or any non-temp-root path. Unsafe auth sources are recorded as `blocked_auth_bundle` and are never mounted. Without a bundle, the probe records `pending_auth` for that account instead of pretending success.
 
 ## Run
 

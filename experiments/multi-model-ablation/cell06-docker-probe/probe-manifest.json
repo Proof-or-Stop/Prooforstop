@@ -35,6 +35,29 @@
   ],
   "runnerHost": "local-docker",
   "authPolicy": {
+    "policyVersion": "cell06-auth-bundle-policy-v1",
+    "mode": "allowlisted-temp-roots",
+    "allowedRootLabels": [
+      "tmp",
+      "os-tmp",
+      "var-tmp"
+    ],
+    "acceptedSourceKinds": [
+      "directory-with-auth-json",
+      "auth-json-file"
+    ],
+    "requiredFileName": "auth.json",
+    "rawAbsolutePathsRecorded": false,
+    "tokenContentRecorded": false,
+    "rejectedSourceClasses": [
+      "home",
+      "repo",
+      "lattice-dir",
+      "paper-repo",
+      "prior-cell-results",
+      "future-results",
+      "outside-allowlisted-temp-root"
+    ],
     "tokensWrittenToRepo": false,
     "accountEnvVars": [
       "CELL06_ACCOUNT_A_AUTH_BUNDLE",
@@ -57,9 +80,9 @@
       "exitCode": 0,
       "signal": null,
       "stdoutDigest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "stderrDigest": "sha256:4c38e18a52a264b46bd072b8a91b7d9c1cc1523de6820d2e6e86cb927039b764",
+      "stderrDigest": "sha256:2bb259ae29dfee49bb53020e5bc1f58a5a18b846cda79f1ba169569b32cd3bbd",
       "stdoutBytes": 0,
-      "stderrBytes": 6383,
+      "stderrBytes": 1990,
       "error": null
     },
     "smoke": {
@@ -86,17 +109,62 @@
       "accountId": "account-a",
       "shardId": "shard-a",
       "authBundleEnv": "CELL06_ACCOUNT_A_AUTH_BUNDLE",
+      "authBundleConfigured": true,
       "authBundlePresent": true,
+      "authBundleUsable": true,
       "status": "live-if-auth-present",
-      "authBundleSource": "env:CELL06_ACCOUNT_A_AUTH_BUNDLE"
+      "authBundleSource": {
+        "policyVersion": "cell06-auth-bundle-policy-v1",
+        "type": "env-auth-bundle",
+        "env": "CELL06_ACCOUNT_A_AUTH_BUNDLE",
+        "decision": "allow",
+        "safe": true,
+        "reason": "source_under_allowlisted_temp_root",
+        "sourceKind": "directory-with-auth-json",
+        "safeTempRootLabel": "tmp",
+        "sourceDepth": 1,
+        "sourcePathDigest": "sha256:f578107c330f32e3ff6de668d2198bdb379af169ac6ebefb4b1da5a4c9e99701",
+        "realpathChecked": true,
+        "rawAbsolutePathRecorded": false,
+        "tokenContentRecorded": false,
+        "authJson": {
+          "present": true,
+          "fileName": "auth.json",
+          "kind": "regular-file",
+          "bytes": 4505,
+          "contentDigestRecorded": false
+        }
+      }
     },
     {
       "accountId": "account-b",
       "shardId": "shard-b",
       "authBundleEnv": "CELL06_ACCOUNT_B_AUTH_BUNDLE",
+      "authBundleConfigured": false,
       "authBundlePresent": false,
+      "authBundleUsable": false,
       "status": "pending_auth",
-      "authBundleSource": "env:CELL06_ACCOUNT_B_AUTH_BUNDLE"
+      "authBundleSource": {
+        "policyVersion": "cell06-auth-bundle-policy-v1",
+        "type": "env-auth-bundle",
+        "env": "CELL06_ACCOUNT_B_AUTH_BUNDLE",
+        "decision": "missing",
+        "safe": false,
+        "reason": "env_not_set",
+        "sourceKind": "missing",
+        "safeTempRootLabel": null,
+        "sourceDepth": null,
+        "sourcePathDigest": null,
+        "realpathChecked": false,
+        "rawAbsolutePathRecorded": false,
+        "tokenContentRecorded": false,
+        "authJson": {
+          "present": false,
+          "fileName": "auth.json",
+          "kind": null,
+          "contentDigestRecorded": false
+        }
+      }
     }
   ],
   "shards": [

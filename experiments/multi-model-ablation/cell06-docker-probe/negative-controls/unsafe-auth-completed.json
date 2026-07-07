@@ -1,0 +1,154 @@
+{
+  "id": "unsafe-auth-completed",
+  "expectedError": "unsafe auth account cannot complete a row",
+  "mutations": [
+    {
+      "target": "manifest",
+      "op": "set",
+      "path": "accounts.0.status",
+      "value": "blocked_auth_bundle"
+    },
+    {
+      "target": "manifest",
+      "op": "set",
+      "path": "accounts.0.authBundleUsable",
+      "value": false
+    },
+    {
+      "target": "manifest",
+      "op": "set",
+      "path": "accounts.0.authBundleSource.decision",
+      "value": "blocked"
+    },
+    {
+      "target": "manifest",
+      "op": "set",
+      "path": "accounts.0.authBundleSource.safe",
+      "value": false
+    },
+    {
+      "target": "manifest",
+      "op": "set",
+      "path": "accounts.0.authBundleSource.reason",
+      "value": "outside_safe_temp_root"
+    },
+    {
+      "target": "manifest",
+      "op": "set",
+      "path": "accounts.0.authBundleSource.sourceKind",
+      "value": "rejected"
+    },
+    {
+      "target": "manifest",
+      "op": "set",
+      "path": "accounts.0.authBundleSource.safeTempRootLabel",
+      "value": null
+    },
+    {
+      "target": "manifest",
+      "op": "set",
+      "path": "accounts.0.authBundleSource.sourceDepth",
+      "value": null
+    },
+    {
+      "target": "manifest",
+      "op": "set",
+      "path": "accounts.0.authBundleSource.sourcePathDigest",
+      "value": null
+    },
+    {
+      "target": "manifest",
+      "op": "set",
+      "path": "accounts.0.authBundleSource.authJson.present",
+      "value": false
+    },
+    {
+      "target": "manifest",
+      "op": "delete",
+      "path": "accounts.0.authBundleSource.authJson.bytes"
+    },
+    {
+      "target": "rows",
+      "op": "set",
+      "path": "0.accountStatus",
+      "value": "blocked_auth_bundle"
+    },
+    {
+      "target": "rows",
+      "op": "set",
+      "path": "0.rowStatus",
+      "value": "completed"
+    },
+    {
+      "target": "rows",
+      "op": "set",
+      "path": "0.usable",
+      "value": true
+    },
+    {
+      "target": "rows",
+      "op": "set",
+      "path": "0.codexExec.status",
+      "value": "completed"
+    },
+    {
+      "target": "rows",
+      "op": "set",
+      "path": "0.codexExec.attempted",
+      "value": true
+    },
+    {
+      "target": "rows",
+      "op": "set",
+      "path": "0.runtime.authMountSource.decision",
+      "value": "blocked"
+    },
+    {
+      "target": "rows",
+      "op": "set",
+      "path": "0.runtime.authMountSource.safe",
+      "value": false
+    },
+    {
+      "target": "rows",
+      "op": "set",
+      "path": "0.runtime.authMountSource.reason",
+      "value": "outside_safe_temp_root"
+    },
+    {
+      "target": "rows",
+      "op": "set",
+      "path": "0.runtime.authMountSource.sourceKind",
+      "value": "rejected"
+    },
+    {
+      "target": "rows",
+      "op": "set",
+      "path": "0.runtime.authMountSource.safeTempRootLabel",
+      "value": null
+    },
+    {
+      "target": "rows",
+      "op": "set",
+      "path": "0.runtime.authMountSource.sourceDepth",
+      "value": null
+    },
+    {
+      "target": "rows",
+      "op": "set",
+      "path": "0.runtime.authMountSource.sourcePathDigest",
+      "value": null
+    },
+    {
+      "target": "rows",
+      "op": "set",
+      "path": "0.runtime.authMountSource.authJson.present",
+      "value": false
+    },
+    {
+      "target": "rows",
+      "op": "delete",
+      "path": "0.runtime.authMountSource.authJson.bytes"
+    }
+  ]
+}

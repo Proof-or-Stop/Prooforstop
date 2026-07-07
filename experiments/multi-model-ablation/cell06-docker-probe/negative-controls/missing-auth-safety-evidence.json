@@ -1,0 +1,95 @@
+{
+  "id": "missing-auth-safety-evidence",
+  "expectedError": "safe source path digest missing",
+  "mutations": [
+    {
+      "target": "manifest",
+      "op": "set",
+      "path": "accounts.0.status",
+      "value": "live-if-auth-present"
+    },
+    {
+      "target": "manifest",
+      "op": "set",
+      "path": "accounts.0.authBundleConfigured",
+      "value": true
+    },
+    {
+      "target": "manifest",
+      "op": "set",
+      "path": "accounts.0.authBundlePresent",
+      "value": true
+    },
+    {
+      "target": "manifest",
+      "op": "set",
+      "path": "accounts.0.authBundleUsable",
+      "value": true
+    },
+    {
+      "target": "manifest",
+      "op": "set",
+      "path": "accounts.0.authBundleSource.decision",
+      "value": "allow"
+    },
+    {
+      "target": "manifest",
+      "op": "set",
+      "path": "accounts.0.authBundleSource.safe",
+      "value": true
+    },
+    {
+      "target": "manifest",
+      "op": "set",
+      "path": "accounts.0.authBundleSource.reason",
+      "value": "source_under_allowlisted_temp_root"
+    },
+    {
+      "target": "manifest",
+      "op": "set",
+      "path": "accounts.0.authBundleSource.sourceKind",
+      "value": "directory-with-auth-json"
+    },
+    {
+      "target": "manifest",
+      "op": "set",
+      "path": "accounts.0.authBundleSource.safeTempRootLabel",
+      "value": "tmp"
+    },
+    {
+      "target": "manifest",
+      "op": "set",
+      "path": "accounts.0.authBundleSource.sourceDepth",
+      "value": 1
+    },
+    {
+      "target": "manifest",
+      "op": "delete",
+      "path": "accounts.0.authBundleSource.sourcePathDigest"
+    },
+    {
+      "target": "manifest",
+      "op": "set",
+      "path": "accounts.0.authBundleSource.realpathChecked",
+      "value": true
+    },
+    {
+      "target": "manifest",
+      "op": "set",
+      "path": "accounts.0.authBundleSource.authJson.present",
+      "value": true
+    },
+    {
+      "target": "manifest",
+      "op": "set",
+      "path": "accounts.0.authBundleSource.authJson.kind",
+      "value": "regular-file"
+    },
+    {
+      "target": "manifest",
+      "op": "set",
+      "path": "accounts.0.authBundleSource.authJson.bytes",
+      "value": 1
+    }
+  ]
+}
