@@ -1,93 +1,66 @@
 {
   "storyId": "B-2fb7",
-  "checkedAt": "2026-07-07T13:02:35.120Z",
+  "checkedAt": "2026-07-07T13:06:44.035Z",
   "features": [
     {
       "feature": "red idle-watchdog repro",
-      "covered_by": "CHK-001; plan CHK-001",
+      "covered_by": "CHK-001; plan CHK-001; execution-plan M0 and recommended order item 1",
       "status": "covered",
       "excluded_by": "",
-      "source": "Story checklist and plan require a red smoke proving silent validate is killed by the idle watchdog before the fix without disabling watchdog or skipping validate."
+      "source": "Checklist, plan, and restored execution-plan doc require a red smoke proving silent validate is killed by the idle watchdog before the fix, without disabling the watchdog or skipping validate."
     },
     {
       "feature": "JSON-safe validate progress/heartbeat",
-      "covered_by": "CHK-002; plan CHK-002",
+      "covered_by": "CHK-002; plan CHK-002; execution-plan Output Stream Contract, M1, M2, Acceptance Criteria",
       "status": "covered",
       "excluded_by": "",
-      "source": "Story checklist and plan require start/heartbeat/end progress, parent-visible stderr side channel, parseable --json stdout, and unchanged timeoutMs semantics."
+      "source": "Plan and doc require command start/end progress, bounded heartbeat, immediate flush, parent-visible side channel, parseable --json stdout, and unchanged timeoutMs semantics."
     },
     {
       "feature": "forced-exit and stale-lock handling",
-      "covered_by": "CHK-003; plan CHK-003",
+      "covered_by": "CHK-003; plan CHK-003; execution-plan M4 and Implementation Guards",
       "status": "covered",
       "excluded_by": "",
-      "source": "Story checklist and plan require two-stage cleanup where possible and stale-lock checks for vanished, live, and mismatched/PID-reuse-style holders."
+      "source": "Checklist, plan, and doc require two-stage cleanup where possible and host-neutral stale-lock checks covering vanished, active live, and mismatched/PID-reuse-style owners."
     },
     {
       "feature": "infra_failure classification distinct from test failure",
-      "covered_by": "CHK-004; plan CHK-004",
+      "covered_by": "CHK-004; plan CHK-004; execution-plan M5 and Acceptance Criteria",
       "status": "covered",
       "excluded_by": "",
-      "source": "Story checklist and plan require watchdog/runner forced exits to persist infra_failure while ordinary assertion failures remain normal validation/test failures."
+      "source": "Checklist, plan, and doc require watchdog/runner forced exits to persist infra_failure separately while ordinary assertion failures remain normal validation/test failures."
     },
     {
       "feature": "story_advance TEST integration and regression verification",
-      "covered_by": "CHK-005; plan CHK-005",
+      "covered_by": "CHK-005; plan CHK-005; execution-plan M6, M7, Acceptance Criteria, Recommended Execution Order",
       "status": "covered",
       "excluded_by": "",
-      "source": "Story checklist and plan require REVIEW to TEST survival with heartbeat plus true-hang fail-closed diagnostics and focused smokes."
+      "source": "Checklist, plan, and doc require REVIEW to TEST survival with heartbeat, exact timeout diagnostics, focused smokes, and true-hang fail-closed regression controls."
     },
     {
       "feature": "related execution-plan doc restoration",
-      "covered_by": "relatedDocs reference docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md; plan rollback mention",
-      "status": "gap",
+      "covered_by": "CHK-001 files.create; CHK relatedDocs; plan CHK-001; restored docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+      "status": "covered",
       "excluded_by": "",
-      "source": "The checklist relatedDocs point at docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md, but the file is absent in this worktree and restoration is not an explicit checklist deliverable before DEV evidence relies on it."
+      "source": "The execution-plan doc is present in aux_doc_list/readable from the worktree and CHK-001 explicitly includes restoring it before later evidence relies on relatedDocs."
     },
     {
       "feature": "explicit non-goals / no scope expansion",
-      "covered_by": "plan constraints",
-      "status": "gap",
+      "covered_by": "plan Non-Goals; execution-plan Non-Goals; plan Constraints",
+      "status": "covered",
       "excluded_by": "",
-      "source": "The plan constraints imply important non-goals such as not disabling the watchdog, not corrupting JSON stdout, not extending timeoutMs, and not stealing active locks, but there is no explicit non-goals section enumerating out-of-scope work."
+      "source": "The plan now explicitly excludes weakening the watchdog, skipping validate, unlimited timeouts, POSIX-only liveness reliance without abstraction, unrelated lifecycle/gate changes, OMX/.omx material, and local diagnostics as remote authority receipts or production completion."
     }
   ],
   "summary": {
     "total": 7,
-    "covered": 5,
+    "covered": 7,
     "excluded": 0,
-    "gaps": 2,
+    "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "9dba2dd9b9fc16c872f89d8ba092cf37f7cc5523bf2ad23f60d21ab0716288f4",
-  "openQuestions": [
-    {
-      "id": "OQ-001",
-      "q": "Should restoration of docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md be an explicit checklist/planned deliverable before DEV evidence cites it?",
-      "evidence": "relatedDocs references the execution-plan path, aux_doc_list did not list it, and direct read failed with No such file or directory.",
-      "sourcePointers": [
-        "CHK-001",
-        "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
-        ".lattice/story/actives/B-2fb7/plan.md"
-      ],
-      "resolution": "Resolved: restoration of docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md is in scope because all B-2fb7 checklist items already cite it as relatedDocs and the worktree lacked it only because it was untracked at INIT_CHECK. The restored doc is now explicitly bound to CHK-001 files.create and remains a requirements/source document, not an extra product feature.",
-      "resolvedAt": "2026-07-07T13:04:20.815Z"
-    },
-    {
-      "id": "OQ-002",
-      "q": "Should the plan add an explicit Non-Goals section to prevent scope expansion beyond validate heartbeat/progress, forced-exit cleanup, stale-lock handling, infra_failure classification, and TEST integration verification?",
-      "evidence": "The plan has constraints that imply non-goals, but the requested review area calls for explicit non-goals and no dedicated Non-Goals section exists.",
-      "sourcePointers": [
-        ".lattice/story/actives/B-2fb7/plan.md",
-        "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
-        "CHK-002",
-        "CHK-003",
-        "CHK-005"
-      ],
-      "resolution": "Resolved: the plan now has an explicit Non-Goals section. It constrains the story against disabling the watchdog, skipping validate, unlimited timeouts, POSIX-only liveness checks, unrelated lifecycle/gate changes, remote authority claims, and OMX/.omx material. This narrows scope and does not add implementation work beyond B-2fb7.",
-      "resolvedAt": "2026-07-07T13:04:20.945Z"
-    }
-  ]
+  "_hash": "39cf55a3622b68d619da5e7f611a3accc7cb354ba6e09f063fb5b69b6d257adf",
+  "openQuestions": []
 }
