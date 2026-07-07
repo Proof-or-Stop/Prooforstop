@@ -50,10 +50,10 @@
           "command": "rg -n \"B-991d Cell 03 Real Execution|Cell 03 Real Execution Story\" docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
           "result": "pass",
           "note": "The existing M2 provider execution plan now contains the B-991d Cell 03 Real Execution Story section and the B-991d M0-M9 real-execution ledger while provider calls remain disabled until the execution window opens.",
-          "headHash": "e8afb15488877bf3973eb41192a8be6fd82828ff",
-          "materialHash": "37f7586ccff45b118ec9f1be6c46d9da3ec91d7032f43fc3193455a5f10573c1",
-          "storyFilesHash": "3f91583fb34b96ffde92ad4a69ae756af25bb3e256c885cd28ed8186b5fa2aba",
-          "timestamp": "2026-07-05T23:37:03.311Z"
+          "headHash": "8710926b5951753ebb68e942cfb03f6dfff15ab2",
+          "materialHash": "95614a3146a1390dd37073440c570cdbaf6c2b83c964bafe7c9fa79948eb9b39",
+          "storyFilesHash": "8a141fcaf9b7b9e1dd5f053f90d9a91e2f4356e2c549d5545473cdac7be25385",
+          "timestamp": "2026-07-07T04:38:37.824Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -61,10 +61,10 @@
           "command": "rg -n \"pre-run dollar|provider-reported usage\" docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
           "result": "pass",
           "note": "The plan states pre-run dollar guesses are not launch gates and postflight provider-reported usage/cost accounting is required after execution.",
-          "headHash": "e8afb15488877bf3973eb41192a8be6fd82828ff",
-          "materialHash": "37f7586ccff45b118ec9f1be6c46d9da3ec91d7032f43fc3193455a5f10573c1",
-          "storyFilesHash": "3f91583fb34b96ffde92ad4a69ae756af25bb3e256c885cd28ed8186b5fa2aba",
-          "timestamp": "2026-07-05T23:37:03.669Z"
+          "headHash": "8710926b5951753ebb68e942cfb03f6dfff15ab2",
+          "materialHash": "95614a3146a1390dd37073440c570cdbaf6c2b83c964bafe7c9fa79948eb9b39",
+          "storyFilesHash": "8a141fcaf9b7b9e1dd5f053f90d9a91e2f4356e2c549d5545473cdac7be25385",
+          "timestamp": "2026-07-07T04:38:37.824Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -72,10 +72,10 @@
           "command": "rg -n \"Cell 06|Phase 2|paper wording|product gates|playbook activation\" docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
           "result": "pass",
           "note": "The plan states Cell 02, Cell 04, Cell 06, Phase 2, paper wording, product gates, and playbook activation remain locked/out of scope; CHK-001 does not unlock them.",
-          "headHash": "e8afb15488877bf3973eb41192a8be6fd82828ff",
-          "materialHash": "37f7586ccff45b118ec9f1be6c46d9da3ec91d7032f43fc3193455a5f10573c1",
-          "storyFilesHash": "3f91583fb34b96ffde92ad4a69ae756af25bb3e256c885cd28ed8186b5fa2aba",
-          "timestamp": "2026-07-05T23:37:04.057Z"
+          "headHash": "8710926b5951753ebb68e942cfb03f6dfff15ab2",
+          "materialHash": "95614a3146a1390dd37073440c570cdbaf6c2b83c964bafe7c9fa79948eb9b39",
+          "storyFilesHash": "8a141fcaf9b7b9e1dd5f053f90d9a91e2f4356e2c549d5545473cdac7be25385",
+          "timestamp": "2026-07-07T04:38:37.824Z"
         }
       ]
     },
@@ -128,10 +128,10 @@
           "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
           "result": "pass",
           "note": "Checker passed with output: M2 provider execution checker passed; Cell 03 execution envelope: frozen.",
-          "headHash": "4bb1c7e95af161a8320f9b39b002b36e83d724d1",
-          "materialHash": "37f7586ccff45b118ec9f1be6c46d9da3ec91d7032f43fc3193455a5f10573c1",
-          "storyFilesHash": "3f91583fb34b96ffde92ad4a69ae756af25bb3e256c885cd28ed8186b5fa2aba",
-          "timestamp": "2026-07-05T23:38:10.366Z"
+          "headHash": "8710926b5951753ebb68e942cfb03f6dfff15ab2",
+          "materialHash": "95614a3146a1390dd37073440c570cdbaf6c2b83c964bafe7c9fa79948eb9b39",
+          "storyFilesHash": "8a141fcaf9b7b9e1dd5f053f90d9a91e2f4356e2c549d5545473cdac7be25385",
+          "timestamp": "2026-07-07T04:38:37.824Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -139,10 +139,10 @@
           "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
           "result": "pass",
           "note": "Checker output confirms pre-run dollar guess is not required and postflight provider-reported usage is required after execution, so drift or missing postflight usage cannot be treated as complete execution evidence.",
-          "headHash": "4bb1c7e95af161a8320f9b39b002b36e83d724d1",
-          "materialHash": "37f7586ccff45b118ec9f1be6c46d9da3ec91d7032f43fc3193455a5f10573c1",
-          "storyFilesHash": "3f91583fb34b96ffde92ad4a69ae756af25bb3e256c885cd28ed8186b5fa2aba",
-          "timestamp": "2026-07-05T23:38:10.772Z"
+          "headHash": "8710926b5951753ebb68e942cfb03f6dfff15ab2",
+          "materialHash": "95614a3146a1390dd37073440c570cdbaf6c2b83c964bafe7c9fa79948eb9b39",
+          "storyFilesHash": "8a141fcaf9b7b9e1dd5f053f90d9a91e2f4356e2c549d5545473cdac7be25385",
+          "timestamp": "2026-07-07T04:38:37.824Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -150,10 +150,10 @@
           "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
           "result": "pass",
           "note": "Checker output confirms provider calls remain disabled, no outcome records are present, and Cell 06 A2prime is blocked; host labels cannot substitute for the frozen dated provider-target envelope.",
-          "headHash": "4bb1c7e95af161a8320f9b39b002b36e83d724d1",
-          "materialHash": "37f7586ccff45b118ec9f1be6c46d9da3ec91d7032f43fc3193455a5f10573c1",
-          "storyFilesHash": "3f91583fb34b96ffde92ad4a69ae756af25bb3e256c885cd28ed8186b5fa2aba",
-          "timestamp": "2026-07-05T23:38:11.134Z"
+          "headHash": "8710926b5951753ebb68e942cfb03f6dfff15ab2",
+          "materialHash": "95614a3146a1390dd37073440c570cdbaf6c2b83c964bafe7c9fa79948eb9b39",
+          "storyFilesHash": "8a141fcaf9b7b9e1dd5f053f90d9a91e2f4356e2c549d5545473cdac7be25385",
+          "timestamp": "2026-07-07T04:38:37.824Z"
         }
       ]
     },
@@ -207,10 +207,10 @@
           "command": "node -e 'const fs=require(\"fs\"); const p=JSON.parse(fs.readFileSync(\"experiments/multi-model-ablation/m2-cell03-result-write-policy.json\",\"utf8\")); const required=[\"cellKey\",\"taskId\",\"scenarioId\",\"repeatIndex\",\"runnerId\",\"executionWindowId\",\"executionStoryId\",\"executorSnapshotId\",\"reviewerSnapshotId\",\"promptDigest\",\"toolSurfaceDigest\",\"providerReportedUsage\",\"rowStatus\",\"provenance\"]; for (const k of required) if (!JSON.stringify(p).includes(k)) throw new Error(`missing ${k}`); if (p.providerCallEnabled!==false || p.resultRowsAllowedInThisStory!==false) throw new Error(\"must remain disabled\"); if (JSON.stringify(p).includes(\"mustNotBe\\\": \\\"B-991d\")) throw new Error(\"B-991d must not be excluded from executionStoryId\"); console.log(\"result write policy contract ok\")'",
           "result": "pass",
           "note": "Result write policy defines required row binding fields and keeps provider/result rows disabled in this story.",
-          "headHash": "77922e9c5a86b8357788aebaa25a6f0e925e672c",
-          "materialHash": "3cee8e317c9b63949828f4ef33fc1312742246cb48ab633c7de2cea73b0d7553",
-          "storyFilesHash": "6b372163e247d21543642d35ef19cdff65e3e49bb5d5be81b90fa4aaf11ef686",
-          "timestamp": "2026-07-05T23:44:45.310Z"
+          "headHash": "8710926b5951753ebb68e942cfb03f6dfff15ab2",
+          "materialHash": "95614a3146a1390dd37073440c570cdbaf6c2b83c964bafe7c9fa79948eb9b39",
+          "storyFilesHash": "8a141fcaf9b7b9e1dd5f053f90d9a91e2f4356e2c549d5545473cdac7be25385",
+          "timestamp": "2026-07-07T04:38:37.824Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -218,10 +218,10 @@
           "command": "rg -n 'oneFinalFormalRowPerCellKey|failedRetriedVoidRowsCannotCountTwice|supersededRowsMustRemainAuditable|nonFinalRowsRemainAuditable' experiments/multi-model-ablation/m2-cell03-result-write-policy.json",
           "result": "pass",
           "note": "Contract preserves failed/retried/void/superseded rows as auditable non-counting records and permits only one final formal row per cell key.",
-          "headHash": "77922e9c5a86b8357788aebaa25a6f0e925e672c",
-          "materialHash": "3cee8e317c9b63949828f4ef33fc1312742246cb48ab633c7de2cea73b0d7553",
-          "storyFilesHash": "6b372163e247d21543642d35ef19cdff65e3e49bb5d5be81b90fa4aaf11ef686",
-          "timestamp": "2026-07-05T23:44:45.588Z"
+          "headHash": "8710926b5951753ebb68e942cfb03f6dfff15ab2",
+          "materialHash": "95614a3146a1390dd37073440c570cdbaf6c2b83c964bafe7c9fa79948eb9b39",
+          "storyFilesHash": "8a141fcaf9b7b9e1dd5f053f90d9a91e2f4356e2c549d5545473cdac7be25385",
+          "timestamp": "2026-07-07T04:38:37.824Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -229,10 +229,10 @@
           "command": "rg -n 'missing-provider-reported-usage|missing-digest-bindings|host-label-only-snapshots|duplicate-final-row|fallback-provider-or-model-switch|cell06ExecutionAllowedByThisPolicy|phase2ExecutionAllowedByThisPolicy|playbookGateImpact|productGateImpact' experiments/multi-model-ablation/m2-cell03-result-write-policy.json",
           "result": "pass",
           "note": "Contract makes rows non-formal for missing provider usage, missing digest bindings, host-label-only snapshots, duplicate final rows, fallback/model switch, and confirms Cell 06/Phase 2/playbook/product gates remain unaffected.",
-          "headHash": "77922e9c5a86b8357788aebaa25a6f0e925e672c",
-          "materialHash": "3cee8e317c9b63949828f4ef33fc1312742246cb48ab633c7de2cea73b0d7553",
-          "storyFilesHash": "6b372163e247d21543642d35ef19cdff65e3e49bb5d5be81b90fa4aaf11ef686",
-          "timestamp": "2026-07-05T23:44:45.842Z"
+          "headHash": "8710926b5951753ebb68e942cfb03f6dfff15ab2",
+          "materialHash": "95614a3146a1390dd37073440c570cdbaf6c2b83c964bafe7c9fa79948eb9b39",
+          "storyFilesHash": "8a141fcaf9b7b9e1dd5f053f90d9a91e2f4356e2c549d5545473cdac7be25385",
+          "timestamp": "2026-07-07T04:38:37.824Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -299,10 +299,10 @@
           "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
           "result": "pass",
           "note": "Checker passes and reports B-991d Cell 03 execution window open for Cell 03 only, B-6529 no-provider-call readiness evidence preserved, postflight provider-reported usage required, and Cell 06 blocked.",
-          "headHash": "41a99e025e050d96d3d3c8d9b3790e806ae8e96a",
-          "materialHash": "671a4b90d7ee48f46837095009d34b50fca81bdd16d93e6e1df5dd7fa4792c2b",
-          "storyFilesHash": "36381809cb674ed5725c5848033fff6a89129a3ea60e535853e05463acfcabcc",
-          "timestamp": "2026-07-05T23:52:44.460Z"
+          "headHash": "8710926b5951753ebb68e942cfb03f6dfff15ab2",
+          "materialHash": "95614a3146a1390dd37073440c570cdbaf6c2b83c964bafe7c9fa79948eb9b39",
+          "storyFilesHash": "8a141fcaf9b7b9e1dd5f053f90d9a91e2f4356e2c549d5545473cdac7be25385",
+          "timestamp": "2026-07-07T04:38:37.824Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -310,10 +310,10 @@
           "command": "node -e <parse B-991d window drift and supersession policies>",
           "result": "pass",
           "note": "Both launch and guardrail artifacts bind the B-991d window, preserve B-6529 readiness evidence, deny non-Cell03 cells and fallback, and make drift/missing-provenance rows nonformal.",
-          "headHash": "41a99e025e050d96d3d3c8d9b3790e806ae8e96a",
-          "materialHash": "671a4b90d7ee48f46837095009d34b50fca81bdd16d93e6e1df5dd7fa4792c2b",
-          "storyFilesHash": "36381809cb674ed5725c5848033fff6a89129a3ea60e535853e05463acfcabcc",
-          "timestamp": "2026-07-05T23:52:44.840Z"
+          "headHash": "8710926b5951753ebb68e942cfb03f6dfff15ab2",
+          "materialHash": "95614a3146a1390dd37073440c570cdbaf6c2b83c964bafe7c9fa79948eb9b39",
+          "storyFilesHash": "8a141fcaf9b7b9e1dd5f053f90d9a91e2f4356e2c549d5545473cdac7be25385",
+          "timestamp": "2026-07-07T04:38:37.824Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -321,10 +321,10 @@
           "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
           "result": "pass",
           "note": "Checker rejected 17 negative controls, including attempts to add Cell 06 to the B-991d window, remove B-991d provenance, allow provider fallback, retarget the runner to Cell 06, unlock Cell 06 sequencing, drift prompt/tool digests, or add result rows.",
-          "headHash": "41a99e025e050d96d3d3c8d9b3790e806ae8e96a",
-          "materialHash": "671a4b90d7ee48f46837095009d34b50fca81bdd16d93e6e1df5dd7fa4792c2b",
-          "storyFilesHash": "36381809cb674ed5725c5848033fff6a89129a3ea60e535853e05463acfcabcc",
-          "timestamp": "2026-07-05T23:52:45.228Z"
+          "headHash": "8710926b5951753ebb68e942cfb03f6dfff15ab2",
+          "materialHash": "95614a3146a1390dd37073440c570cdbaf6c2b83c964bafe7c9fa79948eb9b39",
+          "storyFilesHash": "8a141fcaf9b7b9e1dd5f053f90d9a91e2f4356e2c549d5545473cdac7be25385",
+          "timestamp": "2026-07-07T04:38:37.824Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -388,10 +388,10 @@
           "command": "node experiments/multi-model-ablation/future-cell03-results/probe/run-probe.mjs --force && node experiments/multi-model-ablation/future-cell03-results/probe/validate-probe.mjs",
           "result": "pass",
           "note": "A fresh B-991d Cell 03 probe produced 2 final rows. Each row includes executor usage, fresh same-family reviewer usage, SHIP verdict, aggregate provider usage, acceptance pass, hidden ground-truth pass, B-991d provenance, and fullRunUnlocked=true for CHK-006.",
-          "headHash": "366783d4c4b815c61f4f33351452dda5e5781a65",
-          "materialHash": "ae8e4b3e78604a68223d93dfd1dd03046144f0cf3ed3c753ca7f767149dc9543",
-          "storyFilesHash": "282bfa8c04835d9e581c718b5c3766a89cc39254146e3748e27d2157a9411bd0",
-          "timestamp": "2026-07-06T00:19:27.266Z"
+          "headHash": "8710926b5951753ebb68e942cfb03f6dfff15ab2",
+          "materialHash": "95614a3146a1390dd37073440c570cdbaf6c2b83c964bafe7c9fa79948eb9b39",
+          "storyFilesHash": "8a141fcaf9b7b9e1dd5f053f90d9a91e2f4356e2c549d5545473cdac7be25385",
+          "timestamp": "2026-07-07T04:38:37.824Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -399,10 +399,10 @@
           "command": "node experiments/multi-model-ablation/future-cell03-results/probe/validate-probe.mjs",
           "result": "pass",
           "note": "Probe validator simulates a failed/nonformal row and confirms it cannot unlock the full run. It also confirms provider-visible artifact workspaces contain only prompt.md, acceptance.mjs, task.json, and solution.mjs; hidden oracle/reference files are not visible to executor or reviewer.",
-          "headHash": "366783d4c4b815c61f4f33351452dda5e5781a65",
-          "materialHash": "ae8e4b3e78604a68223d93dfd1dd03046144f0cf3ed3c753ca7f767149dc9543",
-          "storyFilesHash": "282bfa8c04835d9e581c718b5c3766a89cc39254146e3748e27d2157a9411bd0",
-          "timestamp": "2026-07-06T00:19:27.749Z"
+          "headHash": "8710926b5951753ebb68e942cfb03f6dfff15ab2",
+          "materialHash": "95614a3146a1390dd37073440c570cdbaf6c2b83c964bafe7c9fa79948eb9b39",
+          "storyFilesHash": "8a141fcaf9b7b9e1dd5f053f90d9a91e2f4356e2c549d5545473cdac7be25385",
+          "timestamp": "2026-07-07T04:38:37.824Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -410,10 +410,10 @@
           "command": "node experiments/multi-model-ablation/future-cell03-results/probe/validate-probe.mjs && node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
           "result": "pass",
           "note": "Validator passed 225 assertions and rejected 15 negative controls, including duplicate cell keys, Cell 06 row, missing B-991d provenance, missing provider usage, fallback runner, missing reviewer snapshot, parent repo rules visible, hidden oracle visible, hidden file listed as visible, missing review gate, reviewer family drift, invalid verdict, missing reviewer usage, non-fresh reviewer context, and missing ground truth. M2 provider checker passed 1481 assertions with Cell 06, Phase 2, and outcome records blocked.",
-          "headHash": "366783d4c4b815c61f4f33351452dda5e5781a65",
-          "materialHash": "ae8e4b3e78604a68223d93dfd1dd03046144f0cf3ed3c753ca7f767149dc9543",
-          "storyFilesHash": "282bfa8c04835d9e581c718b5c3766a89cc39254146e3748e27d2157a9411bd0",
-          "timestamp": "2026-07-06T00:19:28.229Z"
+          "headHash": "8710926b5951753ebb68e942cfb03f6dfff15ab2",
+          "materialHash": "95614a3146a1390dd37073440c570cdbaf6c2b83c964bafe7c9fa79948eb9b39",
+          "storyFilesHash": "8a141fcaf9b7b9e1dd5f053f90d9a91e2f4356e2c549d5545473cdac7be25385",
+          "timestamp": "2026-07-07T04:38:37.824Z"
         }
       ]
     },
