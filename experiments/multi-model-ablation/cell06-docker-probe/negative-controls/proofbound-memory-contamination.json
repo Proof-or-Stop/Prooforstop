@@ -1,0 +1,12 @@
+{
+  "id": "proofbound-memory-contamination",
+  "expectedError": "contamination token detected",
+  "mutations": [
+    {
+      "target": "manifest",
+      "op": "set",
+      "path": "notes.0",
+      "value": "Proofbound-memory was copied into the sterile runner"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "id": "reviewer-fields",
+  "expectedError": "reviewer fields are not allowed",
+  "mutations": [
+    {
+      "target": "rows",
+      "op": "set",
+      "path": "0.reviewerSnapshotId",
+      "value": "openai-gpt-gate-2026-07-07"
+    }
+  ]
+}

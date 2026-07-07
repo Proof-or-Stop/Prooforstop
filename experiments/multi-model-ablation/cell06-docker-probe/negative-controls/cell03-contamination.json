@@ -1,0 +1,12 @@
+{
+  "id": "cell03-contamination",
+  "expectedError": "contamination token detected",
+  "mutations": [
+    {
+      "target": "rows",
+      "op": "set",
+      "path": "0.inputFiles.0",
+      "value": "inputs/rows/row-01/Cell03-handoff.txt"
+    }
+  ]
+}

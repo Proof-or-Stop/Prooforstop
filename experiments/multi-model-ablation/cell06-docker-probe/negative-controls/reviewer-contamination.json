@@ -1,0 +1,12 @@
+{
+  "id": "reviewer-contamination",
+  "expectedError": "contamination token detected",
+  "mutations": [
+    {
+      "target": "rows",
+      "op": "set",
+      "path": "1.inputFiles.1",
+      "value": "inputs/rows/row-02/reviewer-notes.txt"
+    }
+  ]
+}

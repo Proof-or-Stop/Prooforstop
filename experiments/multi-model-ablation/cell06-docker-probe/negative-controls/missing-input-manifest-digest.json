@@ -1,0 +1,11 @@
+{
+  "id": "missing-input-manifest-digest",
+  "expectedError": "inputManifestDigest missing",
+  "mutations": [
+    {
+      "target": "summary",
+      "op": "delete",
+      "path": "inputManifestDigest"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "id": "wrong-cell-arm-labels",
+  "expectedError": "arm must be A2prime",
+  "mutations": [
+    {
+      "target": "rows",
+      "op": "set",
+      "path": "0.arm",
+      "value": "A4"
+    }
+  ]
+}
