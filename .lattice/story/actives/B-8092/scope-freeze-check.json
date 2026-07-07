@@ -1,0 +1,73 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-8092",
+  "checkedAt": "2026-07-07T10:46:36.837Z",
+  "mode": "custom",
+  "status": "pass",
+  "scopeBoundaryHash": "937f6435885dbd96b529faff03f3184dd0d059e1f4783599ef9e653122e502a8",
+  "executionBoundaryHash": "aeae8facc2d92426f17fe60e9ea9a9b2be899ae427f210d26471f0f913fe362d",
+  "freshnessHash": "8df2ac38fd15195e176de010a92346b749b7c23b3f4a6d949badf130da3419d0",
+  "effectiveExcludedKeywords": [
+    "Cell 02 or Cell 04 execution",
+    "Full Cell 06 execution",
+    "Paper claim upgrades",
+    "Phase 2 execution",
+    "Playbook activation",
+    "Product gate changes"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Cell 02 or Cell 04 execution",
+      "source": "scopeBoundary.excluded",
+      "text": "Cell 02 or Cell 04 execution",
+      "excluded": true
+    },
+    {
+      "keyword": "Full Cell 06 execution",
+      "source": "scopeBoundary.excluded",
+      "text": "Full Cell 06 execution",
+      "excluded": true
+    },
+    {
+      "keyword": "Paper claim upgrades",
+      "source": "checklist.excludes",
+      "text": "paper claim upgrades and product gate changes",
+      "itemId": "CHK-004",
+      "excluded": true
+    },
+    {
+      "keyword": "Paper claim upgrades",
+      "source": "scopeBoundary.excluded",
+      "text": "Paper claim upgrades",
+      "excluded": true
+    },
+    {
+      "keyword": "Phase 2 execution",
+      "source": "scopeBoundary.excluded",
+      "text": "Phase 2 execution",
+      "excluded": true
+    },
+    {
+      "keyword": "Playbook activation",
+      "source": "scopeBoundary.excluded",
+      "text": "Playbook activation",
+      "excluded": true
+    },
+    {
+      "keyword": "Product gate changes",
+      "source": "checklist.excludes",
+      "text": "paper claim upgrades and product gate changes",
+      "itemId": "CHK-004",
+      "excluded": true
+    },
+    {
+      "keyword": "Product gate changes",
+      "source": "scopeBoundary.excluded",
+      "text": "Product gate changes",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "5811d8f3b9b8d9617482c50d27c6ca6a9e14b32593a4ddc76b025e2949ee1a05"
+}
