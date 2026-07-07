@@ -4,7 +4,8 @@
   "facts": [
     "Docker is available locally: 29.2.0 linux/aarch64.",
     "Cell 06 A2prime must not consume Proofbound dev-memory, Cell03 solutions, reviewer feedback, or prior experiment outputs.",
-    "Only one local Codex auth bundle is currently discoverable; a second account can be represented as a shard manifest path unless a second auth bundle is provided.",
+    "Only one local Codex auth bundle is currently discoverable; a second account is represented as pending_auth unless a separate auth bundle is provided.",
+    "The unknowns are probe acceptance targets, not PLAN blockers: image install/reuse, live account-a container auth, and account-b pending-auth behavior must be reported by generated evidence.",
     "This story is a probe and must not run the complete Cell 06 dataset or upgrade paper claims."
   ],
   "constraints": [
@@ -13,15 +14,9 @@
     "Receipt validation must be deterministic and reject contamination, missing digests, bad cell labels, duplicate row ownership, and reviewer fields.",
     "No product gate changes, playbook activation, Cell02/Cell04, Phase2, or full Cell06 execution."
   ],
-  "unknowns": [
-    "Whether npm can install or reuse Codex CLI inside the local Docker image without network/auth failures.",
-    "Whether the current local auth bundle can run codex exec from inside a container for at least one actual smoke row.",
-    "Whether a second account auth bundle exists; if not, account-b remains a validated shard placeholder, not a second live provider run."
-  ],
+  "unknowns": [],
   "touchpoints": [
-    "experiments/multi-model-ablation/cell06-docker-probe/",
-    "docs/requirements/decisions/cell06-docker-server-execution-checklist.md",
-    "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md"
+    "experiments/multi-model-ablation/cell06-docker-probe/"
   ],
-  "timestamp": "2026-07-07T10:48:11.872Z"
+  "timestamp": "2026-07-07T10:56:33.554Z"
 }
