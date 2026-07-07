@@ -94,9 +94,9 @@
         "create": [],
         "test": []
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-07T13:15:26.532Z",
-      "endTime": null,
+      "endTime": "2026-07-07T13:21:55.310Z",
       "userSees": "User sees stderr lines like \"validate progress: command 1/1 started silent-long-command\" and \"validate heartbeat: command 1/1 silent-long-command elapsed\", while stdout is a single JSON object.",
       "verificationIntent": {
         "happy": [
@@ -120,7 +120,53 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
+          "result": "pass",
+          "note": "Smoke passed: validate emitted command start, heartbeat, and command end progress while --json stdout parsed as one JSON object.",
+          "headHash": "a1bb8109bda43167e90270d979119bd641978b15",
+          "materialHash": "7a6d1329c79cc7fc0679c6cc771a325a253c9972954505e590e9251b77ef2047",
+          "storyFilesHash": "df2883e1ab5bb715053d3e41b659fa552561486e40e342fd13b391d72a4a9c9d",
+          "timestamp": "2026-07-07T13:21:55.741Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "Existing timeout smoke passed, proving per-command timeout remains authoritative and heartbeat does not extend timeoutMs.",
+          "headHash": "a1bb8109bda43167e90270d979119bd641978b15",
+          "materialHash": "7a6d1329c79cc7fc0679c6cc771a325a253c9972954505e590e9251b77ef2047",
+          "storyFilesHash": "df2883e1ab5bb715053d3e41b659fa552561486e40e342fd13b391d72a4a9c9d",
+          "timestamp": "2026-07-07T13:21:56.094Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/cli-json-stdout-contract-smoke.js",
+          "result": "pass",
+          "note": "CLI JSON stdout contract smoke passed after progress moved through stderr/log side channel.",
+          "headHash": "a1bb8109bda43167e90270d979119bd641978b15",
+          "materialHash": "7a6d1329c79cc7fc0679c6cc771a325a253c9972954505e590e9251b77ef2047",
+          "storyFilesHash": "df2883e1ab5bb715053d3e41b659fa552561486e40e342fd13b391d72a4a9c9d",
+          "timestamp": "2026-07-07T13:21:56.412Z"
+        },
+        {
+          "intentRef": "CHK-002:build",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build passed after adding typed validation progress events and reporter wiring.",
+          "headHash": "a1bb8109bda43167e90270d979119bd641978b15",
+          "materialHash": "7a6d1329c79cc7fc0679c6cc771a325a253c9972954505e590e9251b77ef2047",
+          "storyFilesHash": "df2883e1ab5bb715053d3e41b659fa552561486e40e342fd13b391d72a4a9c9d",
+          "timestamp": "2026-07-07T13:21:56.762Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
