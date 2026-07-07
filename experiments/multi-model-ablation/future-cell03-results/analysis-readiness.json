@@ -1,0 +1,117 @@
+{
+  "artifact": "B-991d-cell03-analysis-readiness",
+  "artifactVersion": 1,
+  "storyId": "B-991d",
+  "createdAt": "2026-07-07T03:12:00Z",
+  "protocolDoc": {
+    "path": "docs/requirements/decisions/multi-model-ablation-replication.md",
+    "digest": "sha256:4eddb3ff30682a5c2ec3a5b5c81f1dd36b63e9d5bf73bcfda77ee845291317d2"
+  },
+  "sourceArtifacts": {
+    "rows": {
+      "path": "experiments/multi-model-ablation/future-cell03-results/full/cell03-rows.jsonl",
+      "digest": "sha256:a88b37bbb0e8a31a33f5f753f0cf59b1c304b022c16fe6bfac3b522c03e9fd6c"
+    },
+    "summary": {
+      "path": "experiments/multi-model-ablation/future-cell03-results/full/cell03-summary.json",
+      "digest": "sha256:2639f44fb5a15f856f3ab1e0b8b258a4a2b947174765cc2701f4ff4961dd5c48"
+    },
+    "usageSummary": {
+      "path": "experiments/multi-model-ablation/future-cell03-results/usage-summary.json",
+      "digest": "sha256:82e7f2ba6d4d5a15c9cccfa41e04dd9a1cc0348bc78d0befdf6f5ee8d961789e"
+    },
+    "usageLock": {
+      "path": "experiments/multi-model-ablation/future-cell03-results/cell03-usage-lock.json",
+      "digest": "sha256:883c1a82a3fb7ac5ea340b4b00d46a0353037b241a908acff9ac034c089865fc"
+    }
+  },
+  "cell03Status": {
+    "cellNumber": "③",
+    "arm": "A4",
+    "executorFamily": "E2",
+    "reviewerFamily": "same",
+    "runnerId": "m2-future-cell-03-e2-a4-same",
+    "executionComplete": true,
+    "formalComplete": false,
+    "expectedRows": 1152,
+    "rowCount": 1187,
+    "finalRows": 1142,
+    "terminalExhaustedRows": 10,
+    "pendingExecutableRows": 0,
+    "finalRowOutcomes": {
+      "completed": 66,
+      "recovered": 968,
+      "safe-stop": 108
+    }
+  },
+  "analysisReady": {
+    "cell03DescriptiveAnalysisReady": true,
+    "phase1ConfirmatoryAnalysisReady": false,
+    "phase2DecisionReady": false,
+    "reason": "Cell 03 is the E2 A4 same-family calibration cell only. It can feed later Phase 1 comparisons, but no Phase 1 contrast is complete until the required paired cells run under their own stories."
+  },
+  "supportedUses": [
+    "Use Cell 03 as the real E2 A4 same-family calibration source for downstream Cell 06 sequencing.",
+    "Use Cell 03 rows as descriptive E2 same-family A4 observations in later Phase 1 analysis.",
+    "Use provider-reported usage totals and task-level usage lock values for later Cell 06 planning and audit."
+  ],
+  "blockedClaims": [
+    {
+      "claim": "model_agnostic_effect",
+      "status": "blocked",
+      "reason": "Requires the paired A2prime control for E2 and the planned cross-model comparisons; Cell 03 alone is an A4 same-family calibration cell."
+    },
+    {
+      "claim": "H-M1_replicated_across_model_families",
+      "status": "blocked",
+      "reason": "Requires at least the E2 A4-vs-A2prime comparison plus the Claude anchor comparison; Cell 06 has not run in this story."
+    },
+    {
+      "claim": "H-M3_cross_vendor_reviewer_effect",
+      "status": "blocked",
+      "reason": "Requires fixed-executor reviewer swaps such as Cell 02 and Cell 04; neither cross-review cell ran here."
+    },
+    {
+      "claim": "Phase2_powered_matrix_ready",
+      "status": "blocked",
+      "reason": "Phase 2 can only be decided after Phase 1 analysis, which is not complete."
+    },
+    {
+      "claim": "paper_wording_upgrade",
+      "status": "blocked",
+      "reason": "This story does not change paper claims or public wording."
+    },
+    {
+      "claim": "runtime_product_gate_or_playbook_activation",
+      "status": "blocked",
+      "reason": "Cell 03 research rows do not alter product gates, DONE policy, runtime guidance, or playbook activation."
+    }
+  ],
+  "partialDataHandling": {
+    "terminalExhaustedRowsAreFormalFinalRows": false,
+    "terminalExhaustedRowsMayBeUsedAsSuccessfulRecoveries": false,
+    "terminalExhaustedRowsMayBeReportedAsAttrition": true,
+    "confirmatoryDenominatorRequiresExplicitLaterAnalysisPlan": true,
+    "reason": "Ten planned cell keys exhausted the retry ceiling. They complete execution accounting but are not formal final rows."
+  },
+  "nextRequiredWork": [
+    {
+      "cellNumber": "⑥",
+      "arm": "A2prime",
+      "status": "sequencing_dependency_available_execution_not_started",
+      "requiredBeforeUse": "Separate Cell 06 execution story using the real Cell 03 usage lock."
+    },
+    {
+      "cellNumber": "②",
+      "arm": "A4",
+      "status": "not_started",
+      "requiredBeforeUse": "Separate cross-review execution story for fixed Claude/E1 executor with E2 reviewer."
+    },
+    {
+      "cellNumber": "④",
+      "arm": "A4",
+      "status": "optional_not_started",
+      "requiredBeforeUse": "Budget-permitting E2 executor with E1 reviewer, only after explicit authorization."
+    }
+  ]
+}
