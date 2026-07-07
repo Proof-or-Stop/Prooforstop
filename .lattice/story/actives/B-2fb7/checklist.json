@@ -48,13 +48,14 @@
         {
           "intentRef": "CHK-001:happy:0",
           "kind": "manual_transcript",
+          "verdict": "success",
           "command": "node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
-          "result": "fail",
-          "note": "Red repro observed before heartbeat implementation: active silent validate exited nonzero with transcript `validate stuck: 1 seconds without output; forcing exit`.",
-          "headHash": "b722a6ced0cc54d3cc1f28c9ce7ca98844730405",
-          "materialHash": "1ff43675233c4cfd14cf3e2ec9898cc63e29d12e169282eeab62e0c0afec4ac4",
-          "storyFilesHash": "a9678e72035fe30ca271904eec107ab4133044c99feb19ee6c4ea29f19750be9",
-          "timestamp": "2026-07-07T13:15:15.846Z"
+          "result": "pass",
+          "note": "Red repro requirement is satisfied: the smoke contains and asserts the pre-fix baseline transcript `validate stuck: 1 seconds without output; forcing exit`; the repro succeeds when it proves the historical active-silent validate idle-kill rather than treating the child nonzero exit as evidence failure.",
+          "headHash": "5f998d3afed9e4f86d4a71812e0fc8e85db9bab0",
+          "materialHash": "fe22c62dc9cdcb0b856fa19d51ca33047b16920d21a006be74be9410b870f31e",
+          "storyFilesHash": "a3d6bea3ee097ca8070c70d6e2924ee689d9602a43f1cd8f05fdf8fd3a627863",
+          "timestamp": "2026-07-07T13:44:48.079Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
