@@ -1,0 +1,89 @@
+{
+  "storyId": "B-2fb7",
+  "checkedAt": "2026-07-07T13:02:35.120Z",
+  "features": [
+    {
+      "feature": "red idle-watchdog repro",
+      "covered_by": "CHK-001; plan CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "Story checklist and plan require a red smoke proving silent validate is killed by the idle watchdog before the fix without disabling watchdog or skipping validate."
+    },
+    {
+      "feature": "JSON-safe validate progress/heartbeat",
+      "covered_by": "CHK-002; plan CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "Story checklist and plan require start/heartbeat/end progress, parent-visible stderr side channel, parseable --json stdout, and unchanged timeoutMs semantics."
+    },
+    {
+      "feature": "forced-exit and stale-lock handling",
+      "covered_by": "CHK-003; plan CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "Story checklist and plan require two-stage cleanup where possible and stale-lock checks for vanished, live, and mismatched/PID-reuse-style holders."
+    },
+    {
+      "feature": "infra_failure classification distinct from test failure",
+      "covered_by": "CHK-004; plan CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "Story checklist and plan require watchdog/runner forced exits to persist infra_failure while ordinary assertion failures remain normal validation/test failures."
+    },
+    {
+      "feature": "story_advance TEST integration and regression verification",
+      "covered_by": "CHK-005; plan CHK-005",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "Story checklist and plan require REVIEW to TEST survival with heartbeat plus true-hang fail-closed diagnostics and focused smokes."
+    },
+    {
+      "feature": "related execution-plan doc restoration",
+      "covered_by": "relatedDocs reference docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md; plan rollback mention",
+      "status": "gap",
+      "excluded_by": "",
+      "source": "The checklist relatedDocs point at docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md, but the file is absent in this worktree and restoration is not an explicit checklist deliverable before DEV evidence relies on it."
+    },
+    {
+      "feature": "explicit non-goals / no scope expansion",
+      "covered_by": "plan constraints",
+      "status": "gap",
+      "excluded_by": "",
+      "source": "The plan constraints imply important non-goals such as not disabling the watchdog, not corrupting JSON stdout, not extending timeoutMs, and not stealing active locks, but there is no explicit non-goals section enumerating out-of-scope work."
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "covered": 5,
+    "excluded": 0,
+    "gaps": 2,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "9dba2dd9b9fc16c872f89d8ba092cf37f7cc5523bf2ad23f60d21ab0716288f4",
+  "openQuestions": [
+    {
+      "id": "OQ-001",
+      "q": "Should restoration of docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md be an explicit checklist/planned deliverable before DEV evidence cites it?",
+      "evidence": "relatedDocs references the execution-plan path, aux_doc_list did not list it, and direct read failed with No such file or directory.",
+      "sourcePointers": [
+        "CHK-001 relatedDocs",
+        "CHK-002 relatedDocs",
+        "CHK-003 relatedDocs",
+        "CHK-004 relatedDocs",
+        "CHK-005 relatedDocs",
+        "lattice plan_get rollback"
+      ]
+    },
+    {
+      "id": "OQ-002",
+      "q": "Should the plan add an explicit Non-Goals section to prevent scope expansion beyond validate heartbeat/progress, forced-exit cleanup, stale-lock handling, infra_failure classification, and TEST integration verification?",
+      "evidence": "The plan has constraints that imply non-goals, but the requested review area calls for explicit non-goals and no dedicated Non-Goals section exists.",
+      "sourcePointers": [
+        "lattice plan_get Constraints",
+        "lattice plan_get Goal"
+      ]
+    }
+  ]
+}
