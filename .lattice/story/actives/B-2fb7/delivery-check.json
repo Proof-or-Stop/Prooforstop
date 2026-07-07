@@ -1,0 +1,75 @@
+{
+  "storyId": "B-2fb7",
+  "checkedAt": "2026-07-07T15:03:05.381Z",
+  "headHash": "510f1aaee5b5f8780215dc8d84082af9e93631df",
+  "materialHash": "f48dc64f84b6a0709bf7889c10380840751be5a98fed7ce016c4a3fd14c4a6d0",
+  "storyFilesHash": "a137c2705a599992f93098d91b68424d2dfda72bd8057a227aa865a82c820151",
+  "reviewRound": "2026-07-07T14:20:36.172Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-2fb7/checklist.json#CHK-001.userSees",
+      "promise": "User sees the red baseline transcript: \"validate stuck: 1 seconds without output; forcing exit\" before the fix, and the smoke exits nonzero until heartbeat is implemented.",
+      "status": "verified",
+      "verifiedBy": "test-evidence verificationCoverage CHK-001 plus smoke assertion and transcript-diff",
+      "evidence": ".lattice/story/actives/B-2fb7/test-evidence.json: CHK-001 happy/edge/adversarial covered; validate-progress-heartbeat-smoke asserts the red idle-watchdog transcript and requires the green path to avoid it. .lattice/story/actives/B-2fb7/evidence/transcript-diff.md records the current TEST transcript facts. Related doc: docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-2fb7/checklist.json#CHK-002.userSees",
+      "promise": "User sees stderr lines like \"validate progress: command 1/1 started silent-long-command\" and \"validate heartbeat: command 1/1 silent-long-command elapsed\", while stdout is a single JSON object.",
+      "status": "verified",
+      "verifiedBy": "test-evidence verificationCoverage CHK-002 plus JSON stdout smoke and transcript-diff",
+      "evidence": ".lattice/story/actives/B-2fb7/test-evidence.json: CHK-002 happy/edge/adversarial covered; validate-progress-heartbeat-smoke passed command start/heartbeat/end progress and parseable JSON stdout, cli-json-stdout-contract-smoke passed, and timeout smoke preserves timeoutMs. .lattice/story/actives/B-2fb7/evidence/transcript-diff.md records heartbeat output in the TEST run."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-2fb7/checklist.json#CHK-003.userSees",
+      "promise": "User sees stale-lock diagnostics that distinguish \"active validation\" from reclaimed stale locks; a vanished owner no longer blocks the next validate run.",
+      "status": "verified",
+      "verifiedBy": "test-evidence verificationCoverage CHK-003 and validation execution lock smoke",
+      "evidence": ".lattice/story/actives/B-2fb7/test-evidence.json: CHK-003 happy/edge/adversarial covered; validate-execution-lock-smoke passed stale and vanished same-host owner reclaim coverage, active validate contention remained protected, and mismatched holder/heartbeat identity coverage passed."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-2fb7/checklist.json#CHK-004.userSees",
+      "promise": "User sees timeout diagnostics that name the exact validate command and evidence classification \"infra_failure\" for runner/watchdog failures, while real test failures remain \"FAIL\" validation results.",
+      "status": "verified",
+      "verifiedBy": "test-evidence verificationCoverage CHK-004 plus validation protocol and timeout smokes",
+      "evidence": ".lattice/story/actives/B-2fb7/test-evidence.json: CHK-004 happy/edge/adversarial covered; validation-protocol-smoke passed infra_failure classification for lifecycle timeout evidence, ordinary nonzero validate commands remained validation_failure with result FAIL, and validate-command-timeout-smoke exposed timeout metadata."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-2fb7/checklist.json#CHK-005.userSees",
+      "promise": "User sees REVIEW -> TEST validation continue through heartbeat lines instead of \"validate stuck\"; true hangs still print a named timeout diagnostic and exit nonzero.",
+      "status": "verified",
+      "verifiedBy": "test-evidence verificationCoverage CHK-005 plus current TEST transcript and DONE-required evidence",
+      "evidence": ".lattice/story/actives/B-2fb7/test-evidence.json: CHK-005 happy/edge/adversarial covered; story_advance --phase=TEST survived active silent validate via heartbeat and persisted TEST/PASS evidence, true-hang control emitted named timeout diagnostics and infra_failure JSON. .lattice/story/actives/B-2fb7/evidence/transcript-diff.md records 43/43 TEST validation with heartbeat and PASS. .lattice/story/actives/B-2fb7/done-required-evidence.json is PASS after done_prepare --mergeMain --refreshStale --validate."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": ".lattice/story/actives/B-2fb7/test-evidence.json PASS at 2026-07-07T14:55:22.105Z covers CHK-001 happy/edge/adversarial. The smoke asserts the pre-fix red transcript \"validate stuck: 1 seconds without output; forcing exit\" and proves the old idle-watchdog kill rather than skipped validation or an unlimited timeout."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": ".lattice/story/actives/B-2fb7/test-evidence.json PASS covers CHK-002 happy/edge/adversarial. validate-progress-heartbeat-smoke passed start, heartbeat, and end progress while --json stdout parsed as one object; cli-json-stdout-contract-smoke and validate-command-timeout-smoke passed the JSON side-channel and timeout ceiling checks."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": ".lattice/story/actives/B-2fb7/test-evidence.json PASS covers CHK-003 happy/edge/adversarial. validate-execution-lock-smoke passed stale/vanished owner reclaim, active validate owner protection, sibling bypass, and mismatched holder/heartbeat identity coverage."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": ".lattice/story/actives/B-2fb7/test-evidence.json PASS covers CHK-004 happy/edge/adversarial. validation-protocol-smoke passed infra_failure classification for runner timeout while preserving ordinary command failures as result FAIL/validation_failure; validate-command-timeout-smoke exposed timeout metadata."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": ".lattice/story/actives/B-2fb7/evidence/transcript-diff.md records the real TEST run: story_advance --phase=TEST printed progress, heartbeat at elapsedMs=30239, ran all 43 configured commands, printed validate PASS, wrote test-evidence.json, and advanced to TEST. .lattice/story/actives/B-2fb7/test-evidence.json covers CHK-005 happy/edge/adversarial; .lattice/story/actives/B-2fb7/done-required-evidence.json is PASS after done_prepare --mergeMain --refreshStale --validate."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review compared the five userSees promises from delivery_context_pack against current TEST evidence, smoke assertions, transcript-diff.md, and DONE-required evidence. Current test-evidence is PASS with 43 configured commands and 15/15 intents covered; done-required evidence is PASS after merge-main refresh/validate. Quorum is submitted and no delivery blocker remains."
+  },
+  "_hash": "0f5c1f5b025c640adb51322b722d8525474304ca3c9dcf0a8d91f29779adbe9f"
+}
