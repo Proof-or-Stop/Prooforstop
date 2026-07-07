@@ -291,6 +291,79 @@
         "bindingHash": "bb42b3749f2f7b2df5d7aa90f8ed08f2c4d1aa43168fdd754f6e4b62b09ec523"
       },
       "_hash": "3bb4e63c9df271cf72e0bfdb77fd7c475efcb2d8f6537811e31292803a6d9784"
+    },
+    {
+      "reviewRunId": "B-2fb7:RR-005",
+      "storyId": "B-2fb7",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-07-07T13:44:55.054Z",
+      "startedAt": "2026-07-07T14:06:39.786Z",
+      "headHash": "7bc93289f9aaae3ef88af3f3410aaeb4d7fc91d2",
+      "materialHash": "fe22c62dc9cdcb0b856fa19d51ca33047b16920d21a006be74be9410b870f31e",
+      "storyFilesHash": "a3d6bea3ee097ca8070c70d6e2924ee689d9602a43f1cd8f05fdf8fd3a627863",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "8ec5d05a5edd566109aa97c5f3132ea7b00695fb1b26aead8113781aed2d7270",
+        "diffPackHash": "63fb4f7efbccaafccdb1ebd6040c6cf0256be3b1c05c23e86112b7bdd35c0c46",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "lattice.config.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "022122659fb81d82f7fba4c507d233e24e83c56c3516830015a6a6d93be74268",
+          "0effba2a191c9d54ad5ab423048bbf8835e39f6dac85e730fbde840692fcd077",
+          "1620f427eba8a12966260674b9afda80e342c2365db0ad26bdd0f40c55f84702",
+          "164316121668fb4924c89d86b600a3a77653e50ca940a0d7db425a989454979a",
+          "2343bb04f1c9c329b1c71415cc08683ac28c4bb2f674b576ec2ffc8fcab34370",
+          "253e08cb2395cb24110cf85f68c8f485bbcfd9470f7a4cd2f23dff6f57f8b1ec",
+          "2a47e8edc99fdc8cb09053d048a71c23bfb4846f7e4bfb9858d4c33363c4e6ac",
+          "300708581b0353c065b2197c0892c12a8857665cca698791329e712d2de5fc40",
+          "331d7e45fae11ed1f46049e02a69bf456012c50a95db574c68ee9d380f06ab48",
+          "4d632d52f1feb3cabc5b7f699aa03d96e2fce261e31d08781423542622e75481",
+          "5569f6d51f47810fb65269fa9711ac20b16ba078f40d4cfcbdd320fbeb1bd59e",
+          "6bd6904487bff060178bb92f97b814f9f4c703f2d5caa93a3f1315bc12d487ce",
+          "734067202e41343ad111cc86e31e0d5dd79ad34f2bf077008f5a3b3978a44e7a",
+          "88691a4cb0a0d152a8a56955c0a92c78034a235efb06acdaecbfe7f4e42f9807",
+          "922239c0224a84a15a6e21415a8d0eaba27624cbf647d4392109955d51b7c4f1",
+          "9f59a096e60cc5ad3398dbfaa73a0e3adbaa7b5386a24aedb6f69df7293fc7b2",
+          "b106bf53c8a3c9cdc2c81fce116265e991bf2bd387e34304512399879a21e4ca",
+          "bb1c5a6b49437088a705c37692596ea3b125eb387de84028fac107b41eae816e",
+          "c0ac00e7aad87f9799ccc5d53b78c58d590c1eaa8be04272a320b29c78be7379",
+          "c235ae7a0e020a00af2ca6181a0426ff9ef9cc425048a054bf78af46dc6aeacf",
+          "ccf6d733a00311f79edd9d1d3fbfe4ebac0dfa7485d6aa7395c3878f7d5712a6",
+          "d23eef44d4d50112498c59250be9004a9f1367a4939a341ba293386223964795",
+          "d45f292dae94c1a91c355a76c2788e6a4f91c4b57e033cc4073134b0be04dd80",
+          "dd65675165664874b24c69dc57a73cb91ebffb8dd3609d17af2a9490684cc128",
+          "edcd9c0838af7ccc0ec38f724e5c8e061b63a52fe1c9199f76abff1092d36eaf"
+        ],
+        "bindingHash": "0fa664998297b4f1574bdb2fe1afa23edbf65bee422b2b8bdfb3f2c088a1ad06"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-2fb7",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-2fb7",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-2fb7",
+        "workspaceMode": "story-worktree",
+        "headHash": "7bc93289f9aaae3ef88af3f3410aaeb4d7fc91d2",
+        "materialHash": "fe22c62dc9cdcb0b856fa19d51ca33047b16920d21a006be74be9410b870f31e",
+        "storyFilesHash": "a3d6bea3ee097ca8070c70d6e2924ee689d9602a43f1cd8f05fdf8fd3a627863",
+        "bindingHash": "462e739f2fa199d8ad1e41ae293c61c5c4dd94ee2f87ddaeb9d5c5fe8265235a"
+      },
+      "_hash": "73e6d2a39eab6cf25403a21c002b0fe0872930f91430d12d1fb669863ad317b4"
     }
   ]
 }

@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-2fb7:F-001",
+      "desc": "validate.ts path masks infra failures as validation_failure when blocking worktree pollution exists",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-07T14:07:52.571Z",
+      "reviewRound": "2026-07-07T13:44:55.054Z",
+      "reviewRunId": "B-2fb7:RR-002",
+      "_hash": "d46d04a94b5d18b1a5e2ce568ac792865825c1da48342925fbebddf4ef6c1867",
+      "files": [
+        "/Users/jek/Documents/Work/proofbound/.worktrees/B-2fb7/packages/main/src/handlers/verifier.ts:859"
+      ],
+      "signatureTag": "adversarial|ts:859|validate-path-masks",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
