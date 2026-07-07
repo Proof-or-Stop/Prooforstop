@@ -17,9 +17,9 @@
           "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-07T13:10:30.970Z",
-      "endTime": null,
+      "endTime": "2026-07-07T13:15:15.485Z",
       "userSees": "User sees the red baseline transcript: \"validate stuck: 1 seconds without output; forcing exit\" before the fix, and the smoke exits nonzero until heartbeat is implemented.",
       "verificationIntent": {
         "happy": [
@@ -43,7 +43,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
+          "result": "fail",
+          "note": "Red repro observed before heartbeat implementation: active silent validate exited nonzero with transcript `validate stuck: 1 seconds without output; forcing exit`.",
+          "headHash": "b722a6ced0cc54d3cc1f28c9ce7ca98844730405",
+          "materialHash": "1ff43675233c4cfd14cf3e2ec9898cc63e29d12e169282eeab62e0c0afec4ac4",
+          "storyFilesHash": "a9678e72035fe30ca271904eec107ab4133044c99feb19ee6c4ea29f19750be9",
+          "timestamp": "2026-07-07T13:15:15.846Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "result": "pass",
+          "note": "The fixture writes a start marker, uses a finite 20000ms command timeout, and expects the old idle watchdog kill before the command can finish.",
+          "headHash": "b722a6ced0cc54d3cc1f28c9ce7ca98844730405",
+          "materialHash": "1ff43675233c4cfd14cf3e2ec9898cc63e29d12e169282eeab62e0c0afec4ac4",
+          "storyFilesHash": "a9678e72035fe30ca271904eec107ab4133044c99feb19ee6c4ea29f19750be9",
+          "timestamp": "2026-07-07T13:15:16.174Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "result": "pass",
+          "note": "The green path requires progress and heartbeat stderr lines, parseable JSON stdout, start and finish markers, elapsed command duration, and no watchdog transcript.",
+          "headHash": "b722a6ced0cc54d3cc1f28c9ce7ca98844730405",
+          "materialHash": "1ff43675233c4cfd14cf3e2ec9898cc63e29d12e169282eeab62e0c0afec4ac4",
+          "storyFilesHash": "a9678e72035fe30ca271904eec107ab4133044c99feb19ee6c4ea29f19750be9",
+          "timestamp": "2026-07-07T13:15:16.504Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
