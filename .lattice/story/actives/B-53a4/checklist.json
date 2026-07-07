@@ -205,9 +205,9 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-07T13:27:14.444Z",
       "verificationEvidence": [
         {
           "intentRef": "CHK-003:happy:0",
@@ -362,6 +362,16 @@
       "from": "pending",
       "to": "done",
       "reason": "Implemented planner draft milestone pass-through to story_create and verified structured/prose-only planner cases.",
+      "agent": "main-agent"
+    },
+    {
+      "timestamp": "2026-07-07T13:27:14.444Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implemented plan_skeleton --write milestone persistence and verified preview/prose-only boundaries.",
       "agent": "main-agent"
     }
   ]
