@@ -264,9 +264,9 @@
       "excludes": [
         "paper claim upgrades and product gate changes"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-07T11:14:27.371Z",
       "files": {
         "modify": [],
         "create": [
@@ -365,6 +365,15 @@
       "from": "pending",
       "to": "done",
       "reason": "Local Docker probe captured one completed account-a row and one account-b pending_auth row without fake success."
+    },
+    {
+      "timestamp": "2026-07-07T11:14:27.371Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "validate-probe passed with 131 assertions and 10 rejected negative controls."
     }
   ]
 }
