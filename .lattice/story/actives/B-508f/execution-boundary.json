@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-508f",
+  "allowedCommands": [
+    "docker build *",
+    "docker run *",
+    "lattice *",
+    "node experiments/multi-model-ablation/cell06-docker-probe/*.mjs",
+    "node experiments/multi-model-ablation/cell06-formal/*.mjs",
+    "npm --prefix packages/main run build",
+    "npm test"
+  ],
+  "allowedTools": [
+    "codex",
+    "docker",
+    "lattice",
+    "node"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/cell06-docker-server-execution-checklist.md",
+    "experiments/multi-model-ablation/cell06-docker-probe",
+    "experiments/multi-model-ablation/cell06-formal",
+    "experiments/multi-model-ablation/future-cell03-results/cell03-usage-lock.json",
+    "experiments/multi-model-ablation/task-inventory.m2.json"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".lattice/learning",
+    ".lattice/story/actives/B-991d",
+    "docs/superpowers",
+    "experiments/multi-model-ablation/future-cell03-results/full"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Formal Cell06 row containers may see only generated sterile inputs and output directories; controller may read Proofbound manifests but must not expose Proofbound memory or Cell03 semantic outputs to row prompts.",
+  "createdAt": "2026-07-07T12:40:26.525Z",
+  "updatedAt": "2026-07-07T12:40:26.525Z",
+  "_hash": "2e149ac79ade0246a0e70ff0cb388ae32d7df18f1f74d0818929d55809dd8426"
+}

@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-508f",
+  "mode": "feature",
+  "allowed": [
+    "docs/requirements/decisions/cell06-docker-server-execution-checklist.md",
+    "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+    "experiments/multi-model-ablation/cell06-docker-probe/",
+    "experiments/multi-model-ablation/cell06-formal/"
+  ],
+  "excluded": [
+    "Cell02 execution",
+    "Cell04 execution",
+    "mounting Proofbound/.lattice/paper/Cell03 outputs into runner containers",
+    "paper conclusion changes",
+    "Phase2 decision",
+    "runtime product gate changes"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "User asked to start running Cell06 after B-8092 Docker sterile probe DONE; formal story must preserve Cell06 boundary and not claim paper results.",
+  "createdAt": "2026-07-07T12:40:26.525Z",
+  "updatedAt": "2026-07-07T12:40:26.525Z",
+  "_hash": "cf00fb65c14f40b57d8816ba0a319b1b883959474ad251c798ae34a40ac40deb"
+}

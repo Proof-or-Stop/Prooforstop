@@ -1,0 +1,196 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Freeze Cell06 formal shard manifest and sterile input packages",
+      "context": "Use task-inventory.m2 plus cell03-usage-lock as sequencing/usage input only; generate Cell06/A2prime row packages without Cell03 semantic outputs.",
+      "relatedDocs": [
+        "docs/requirements/decisions/cell06-docker-server-execution-checklist.md",
+        "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md"
+      ],
+      "userSees": "User sees \"cell06 formal manifest frozen\" with expectedRows=1152 and reviewerFamily=not_applicable.",
+      "excludes": [
+        "Cell02 execution",
+        "Cell04 execution",
+        "paper conclusions"
+      ],
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/multi-model-ablation/cell06-formal/"
+        ],
+        "test": [
+          "experiments/multi-model-ablation/cell06-formal/validate-full.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Manifest enumerates 1152 Cell06/A2prime rows with stable input digests",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Cell03-derived values are restricted to numeric usage/sequencing limits and never appear as semantic guidance",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Generated inputs reject forbidden tokens such as session_brief, dev-memory, playbook, reviewer feedback, B-991d summaries, and Cell03 outputs",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Implement formal Docker row runner and receipt writer",
+      "context": "Adapt B-8092 Docker safety and B-991d full runner receipt patterns for Cell06/A2prime formal rows.",
+      "relatedDocs": [
+        "docs/requirements/decisions/cell06-docker-server-execution-checklist.md"
+      ],
+      "userSees": "User sees \"cell06 row completed\" or explicit terminal status with row key, runnerHost=local-docker, and receipt digest.",
+      "excludes": [
+        "mounting Proofbound repo into row containers",
+        "mounting .lattice or paper repo into row containers"
+      ],
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/multi-model-ablation/cell06-formal/run-full.mjs"
+        ],
+        "test": [
+          "experiments/multi-model-ablation/cell06-formal/validate-full.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "At least one formal row runs in Docker and writes row receipt, final message, events digest, usage if available, and acceptance output",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "If auth is unavailable or quota fails before start, row is terminal pending_auth/quota_failed and is not counted as completed",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Unsafe auth bundle/home/repo mounts are blocked before Docker execution",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Run initial formal Cell06 row and validate receipts",
+      "context": "Start with a small formal execution slice to prove the full runner path before scaling to all 1152 rows.",
+      "relatedDocs": [
+        "docs/requirements/decisions/cell06-docker-server-execution-checklist.md",
+        "docs/requirements/decisions/multi-model-ablation-replication.md"
+      ],
+      "userSees": "User sees validate-full PASS for the current formal result set and a status table showing completed/pending/exhausted rows.",
+      "excludes": [
+        "claiming H-M1/H-M3",
+        "Phase2 decision"
+      ],
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/multi-model-ablation/cell06-formal/results/"
+        ],
+        "test": [
+          "experiments/multi-model-ablation/cell06-formal/validate-full.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "validate-full passes after the initial formal row execution",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Partial execution reports remaining rows as not_started rather than missing/final",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Contamination scan covers inputs, outputs, events, logs, and generated artifacts",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Prepare resumable full-shard execution status",
+      "context": "After the first row passes, leave a resumable command/status ledger for continuing all remaining rows safely.",
+      "relatedDocs": [
+        "docs/requirements/decisions/cell06-docker-server-execution-checklist.md"
+      ],
+      "userSees": "User sees exact resume commands and a row-count ledger for full Cell06 execution.",
+      "excludes": [
+        "automatic paper wording upgrade"
+      ],
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/multi-model-ablation/cell06-formal/status.json"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Status ledger reports completed, not_started, pending_auth, failed, quota_failed, timeout, and void rows",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Duplicate row ownership or rerun selection is rejected",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Formal results cannot be merged if prompt/tool/input digests drift from the frozen manifest",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
