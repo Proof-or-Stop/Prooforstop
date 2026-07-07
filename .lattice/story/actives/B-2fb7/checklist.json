@@ -186,7 +186,31 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees REVIEW -> TEST validation continue through heartbeat lines instead of \"validate stuck\"; true hangs still print a named timeout diagnostic and exit nonzero.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "story_advance --phase=TEST survives validate silence when validate emits heartbeat and reaches TEST when other gates are satisfied",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Timeout diagnostics identify the exact validate command index, label, timeoutMs, and elapsed duration for timed-out commands",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A non-heartbeating true hang still fails closed through per-command timeout or lifecycle max timeout instead of running indefinitely",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
