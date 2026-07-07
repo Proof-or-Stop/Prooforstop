@@ -26,7 +26,7 @@
       "desc": "Concept blocker: the sterile runner lets arbitrary CELL06_ACCOUNT_*_AUTH_BUNDLE paths be mounted into Docker without an allowlist or host-neutral classification. detectAccounts only checks fs.existsSync, maybeRunCodexExec passes that unchecked value to docker -v, and the receipts still assert hostHomeMounted=false, repoMounted=false, latticeMounted=false, and paperMounted=false. validate-probe verifies only the recorded booleans/env labels, not the actual auth source. A bundle env var can point at /Users/jek, ~/.codex, this repo, .lattice, or paper material and still produce a sterile local-docker receipt, violating the CHK-001/CHK-003 adversarial isolation boundary.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-07T11:21:11.546Z",
@@ -40,7 +40,11 @@
         "experiments/multi-model-ablation/cell06-docker-probe/probe-manifest.json"
       ],
       "signatureTag": "adversarial|mjs|auth-bundle-paths",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by daeb8a8fb with the same auth-bundle mount policy: arbitrary home/repo/.lattice/paper paths are no longer mounted; unsafe auth sources are blocked before docker execution and receipts include sanitized policy evidence instead of raw env-only claims. Evidence: validate-probe ok=true assertions=242 negativeControlsRejected=13; explicit /Users/jek auth source test produced blocked_auth_bundle and validator ok=true.",
+      "resolvedAt": "2026-07-07T11:33:07.862Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
