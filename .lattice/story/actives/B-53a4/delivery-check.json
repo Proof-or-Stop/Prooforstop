@@ -1,0 +1,31 @@
+{
+  "storyId": "B-53a4",
+  "checkedAt": "2026-07-07T14:19:48.114Z",
+  "headHash": "1d1ee11127239eeb551fb28314c1b8f0e03ded9c",
+  "materialHash": "baf9c064aa92094ee920fc438003fb1d359de219aeea15279f912cbfc93745a6",
+  "storyFilesHash": "3159ea2d9f37fb0ac991814974e6d2a8236acf9376b9327e344789f1dca5121a",
+  "reviewRound": "2026-07-07T13:36:48.719Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "npm --prefix packages/main run build passed; npm --prefix packages/main run test:milestone-status passed with ok milestone-status. packages/main/tests/milestone-status.test.mjs:495-553 asserts story_create with explicit milestones writes a candidate milestone-ledger.json, story_create without rows does not infer from prose/checklist text, and duplicate milestone ids reject before story metadata is persisted."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "npm --prefix packages/main run build passed; npm --prefix packages/main run test:milestone-status passed with ok milestone-status. packages/main/tests/milestone-status.test.mjs:555-578 asserts planner_draft accepts explicit milestone rows, planner_create_story passes them through to story_create and writes a candidate ledger, and a prose-only planner draft creates no ledger."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "npm --prefix packages/main run build passed; npm --prefix packages/main run test:milestone-status passed with ok milestone-status. packages/main/tests/milestone-status.test.mjs:589-629 asserts plan_skeleton preview remains read-only even with milestone rows, plan_skeleton --write persists explicit rows as a candidate ledger, and --write without rows skips the ledger instead of synthesizing from prose."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "No user-facing documentation promises changed outside story metadata. Build and targeted milestone-status regression passed; coverage exercises story_create, planner_create_story, and plan_skeleton explicit-row writes plus no-prose-inference, read-only preview, and duplicate-row rejection."
+  },
+  "_hash": "b0df7b4e0bf9c99379127fd73fa502fff9a7452c95577d1f98d580d2a5fae45b"
+}
