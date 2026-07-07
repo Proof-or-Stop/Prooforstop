@@ -62,7 +62,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/multi-model-ablation/cell06-docker-probe/probe-manifest.json",
+          "experiments/multi-model-ablation/cell06-docker-probe/inputs/**"
+        ],
+        "test": [
+          "experiments/multi-model-ablation/cell06-docker-probe/validate-probe.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Probe manifest contains two to five Cell06/A2prime rows with stable inputManifestDigest values",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Account/shard manifest distinguishes account-a live path from account-b pending-auth path without duplicating row ownership",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Sterile input packaging excludes hidden/reference files and known Cell03/Proofbound-memory contamination tokens",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
