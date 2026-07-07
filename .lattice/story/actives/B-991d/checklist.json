@@ -628,11 +628,11 @@
           "file": "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
           "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
           "result": "pass",
-          "note": "Current executable checker verifies cell03-usage-lock is derived from real Cell 03 rows and provider usage, includes 24 task locks, and records Cell06 as separate-story input only.",
-          "headHash": "1fc34515280a284c8bc5a81523de162e6e5e1264",
+          "note": "Current executable checker verifies cell03-usage-lock is derived from real Cell 03 rows and provider usage, includes one lock per task, and records Cell06 as separate-story usage/sequencing input only.",
+          "headHash": "9b06c5cd8ec1a71d93702cd83e8fd1b802c85344",
           "materialHash": "95614a3146a1390dd37073440c570cdbaf6c2b83c964bafe7c9fa79948eb9b39",
           "storyFilesHash": "8a141fcaf9b7b9e1dd5f053f90d9a91e2f4356e2c549d5545473cdac7be25385",
-          "timestamp": "2026-07-07T05:04:24.330Z"
+          "timestamp": "2026-07-07T05:04:37.223Z"
         },
         {
           "intentRef": "CHK-008:edge:0",
