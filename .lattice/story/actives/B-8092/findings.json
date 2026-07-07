@@ -1,0 +1,25 @@
+{
+  "findings": [
+    {
+      "id": "B-8092:F-001",
+      "desc": "Auth bundle paths are not allowlisted before being mounted into Docker. run-probe.mjs only checks fs.existsSync on CELL06_ACCOUNT_*_AUTH_BUNDLE, then passes that unchecked value to docker -v and later records hostHomeMounted=false/repoMounted=false/latticeMounted=false. A user can point the env var at /Users/jek, ~/.codex, this repo, .lattice, or another contaminated host path and still get receipts that claim sterile mounts because validate-probe only checks receipt strings, not the actual env-supplied mount source. This violates CHK-001 adversarial sterile-mount proof and can leak host Codex config or repo material into the container.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-07T11:19:59.242Z",
+      "reviewRound": "2026-07-07T11:16:47.068Z",
+      "reviewRunId": "B-8092:RR-001",
+      "_hash": "ae85fdf285de7273b3650fb525411fcca045aedd29b691d1ef265da63e676216",
+      "files": [
+        "experiments/multi-model-ablation/cell06-docker-probe/run-probe.mjs",
+        "experiments/multi-model-ablation/cell06-docker-probe/validate-probe.mjs",
+        "experiments/multi-model-ablation/cell06-docker-probe/probe-rows.jsonl",
+        "experiments/multi-model-ablation/cell06-docker-probe/probe-manifest.json"
+      ],
+      "signatureTag": "adversarial|mjs|auth-bundle-paths",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
