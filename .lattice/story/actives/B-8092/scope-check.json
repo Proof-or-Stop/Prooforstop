@@ -1,0 +1,45 @@
+{
+  "storyId": "B-8092",
+  "checkedAt": "2026-07-07T10:58:54.142Z",
+  "features": [
+    {
+      "feature": "Docker image probe",
+      "covered_by": "plan.md CHK-001; checklist.json CHK-001; scope-contract.allowedCreate Dockerfile/run-probe/README",
+      "status": "covered",
+      "excluded_by": "full/formal Cell06, Cell02/04, Phase2, paper claims, product gates, playbook activation excluded by plan/scope-boundary",
+      "source": "PLAN scope review"
+    },
+    {
+      "feature": "Sterile inputs and shards",
+      "covered_by": "plan.md CHK-002; checklist.json CHK-002; scope-contract.allowedCreate probe-manifest and inputs/**",
+      "status": "covered",
+      "excluded_by": "Cell03 outputs, reviewer feedback, Proofbound dev-memory, paper text, host home/.codex/.lattice/lattice-Paper excluded from inputs/mounts",
+      "source": "PLAN scope review"
+    },
+    {
+      "feature": "Receipt capture",
+      "covered_by": "plan.md CHK-003; checklist.json CHK-003; scope-contract.allowedCreate probe-rows.jsonl and probe-summary.json",
+      "status": "covered",
+      "excluded_by": "no fake second-account success; unavailable account-b must be pending_auth",
+      "source": "PLAN scope review"
+    },
+    {
+      "feature": "Contamination and merge validation",
+      "covered_by": "plan.md CHK-004; checklist.json CHK-004; scope-contract.allowedCreate validate-probe.mjs and negative-controls/**",
+      "status": "covered",
+      "excluded_by": "paper claim upgrades and product gate changes explicitly excluded",
+      "source": "PLAN scope review"
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "covered": 4,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "f6131523227074ce7ed84d779b983fe29ea60b61efce90acd984b4d36e00e806",
+  "openQuestions": []
+}

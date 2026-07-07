@@ -3,6 +3,7 @@
   "mode": "enforce",
   "allowedModify": [],
   "allowedCreate": [
+    "experiments/multi-model-ablation/cell06-docker-probe/",
     "experiments/multi-model-ablation/cell06-docker-probe/Dockerfile",
     "experiments/multi-model-ablation/cell06-docker-probe/run-probe.mjs",
     "experiments/multi-model-ablation/cell06-docker-probe/README.md",
@@ -29,8 +30,8 @@
     ".omx/**",
     "experiments/multi-model-ablation/future-cell03-results/**"
   ],
-  "scopeChangeReason": "Initialize scope contract from PLAN checklist for local Docker probe only; external lattice-Paper paths are not mounted or edited by command policy.",
+  "scopeChangeReason": "Refresh scope contract after adding directory touchpoint coverage; scope remains local Docker probe only.",
   "acknowledgements": [],
   "createdAt": "2026-07-07T10:57:11.151Z",
-  "updatedAt": "2026-07-07T10:57:11.151Z"
+  "updatedAt": "2026-07-07T10:58:03.308Z"
 }
