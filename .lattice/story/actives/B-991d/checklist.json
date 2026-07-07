@@ -541,9 +541,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-07T03:10:38.803Z",
-      "endTime": null
+      "endTime": "2026-07-07T03:12:21.591Z"
     },
     {
       "id": "CHK-009",
@@ -804,6 +804,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Starting Cell 03-derived usage lock after usage-summary artifact was committed.",
+      "agent": "codex"
+    },
+    {
+      "timestamp": "2026-07-07T03:12:21.591Z",
+      "phase": "DEV",
+      "itemId": "CHK-008",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Cell 03-derived usage lock committed; it satisfies Cell06 sequencing dependency but does not authorize Cell06 execution.",
       "agent": "codex"
     }
   ]
