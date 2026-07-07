@@ -36,29 +36,29 @@
         "CHK-004",
         "CHK-005"
       ],
-      "verificationIntentRefs": [],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0",
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0",
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0",
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0",
+        "CHK-005:happy:0",
+        "CHK-005:edge:0",
+        "CHK-005:adversarial:0"
+      ],
       "milestoneIds": [],
-      "note": "Binds the original acceptance claim to the full B-2fb7 checklist: red repro, JSON-safe progress/heartbeat, forced-exit cleanup, infra-failure classification, and TEST integration regressions."
+      "note": "Binds the original acceptance claim to all B-2fb7 checklist verification intents."
     }
   ],
-  "diagnosticGaps": [
-    {
-      "code": "acceptance_binding_missing_verification_intent_refs",
-      "severity": "warn",
-      "artifact": "proofstory.json",
-      "message": "ACC-validate-heartbeat-cleanup has no verificationIntentRefs."
-    },
-    {
-      "code": "missing_red_evidence",
-      "severity": "warn",
-      "artifact": "red-evidence.json",
-      "message": "Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation.",
-      "triggeredBy": [
-        "red_evidence_required"
-      ]
-    }
-  ],
-  "note": "ProofStory contract for B-2fb7 takeover: one acceptance claim spans the five existing checklist items and the red/green validate heartbeat proof.",
+  "diagnosticGaps": [],
+  "note": "ProofStory contract for B-2fb7 takeover: one acceptance claim spans all five checklist items and all authored verificationIntent refs.",
   "createdAt": "2026-07-07T12:50:35.517Z",
-  "updatedAt": "2026-07-07T12:50:35.517Z"
+  "updatedAt": "2026-07-07T12:52:41.771Z"
 }
