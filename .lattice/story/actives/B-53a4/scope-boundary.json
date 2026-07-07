@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-53a4",
+  "mode": "custom",
+  "allowed": [
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/handlers/plan-skeleton.ts",
+    "packages/main/src/handlers/planner.ts",
+    "packages/main/src/handlers/story-create.ts",
+    "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+    "packages/main/tests/milestone-status.test.mjs"
+  ],
+  "excluded": [
+    ".omx/**",
+    "docs/requirements/**",
+    "milestone_status writes",
+    "prose-derived milestone generation"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "User requested implementation only and agreed to planning-write-point automation, not docs or status repair.",
+  "createdAt": "2026-07-07T13:08:44.349Z",
+  "updatedAt": "2026-07-07T13:08:44.349Z",
+  "_hash": "52796ea333de05d37148e008688e133e60c6d20ca225ebb05d39668d4a38b13c"
+}

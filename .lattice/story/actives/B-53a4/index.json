@@ -1,0 +1,85 @@
+{
+  "storyId": "B-53a4",
+  "name": "auto-ledger-from-structured-plan",
+  "title": "Auto-write milestone ledger from structured planning rows",
+  "description": "Implement automatic candidate milestone-ledger writes only at explicit planning write points when structured milestone rows are provided. Do not infer rows from prose or checklist text, and keep milestone_status read-only.",
+  "type": "feature",
+  "phase": "DONE",
+  "priority": "high",
+  "source": "user-request",
+  "keywords": [
+    "milestone-ledger",
+    "story-create",
+    "planner",
+    "plan-skeleton"
+  ],
+  "createdAt": "2026-07-07T13:08:44.349Z",
+  "startedAt": "2026-07-07T13:08:44.349Z",
+  "endedAt": "2026-07-07T14:20:39.230Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-07T13:08:45.191Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-92ebec71c42ca8f2",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-07T13:09:42.675Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-92ebec71c42ca8f2",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-07T13:10:11.771Z",
+      "branch": "story/B-53a4",
+      "user": "Harmonygo",
+      "sessionId": "sess-9d6eecad99acb900",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-07T13:17:24.985Z",
+      "branch": "story/B-53a4",
+      "user": "Harmonygo",
+      "sessionId": "sess-9d6eecad99acb900",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-07T13:36:48.719Z",
+      "branch": "story/B-53a4",
+      "user": "Harmonygo",
+      "sessionId": "sess-9d6eecad99acb900",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-07T14:03:12.847Z",
+      "branch": "story/B-53a4",
+      "user": "Harmonygo",
+      "sessionId": "sess-9d6eecad99acb900",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-07T14:20:39.230Z",
+      "branch": "story/B-53a4",
+      "user": "Harmonygo",
+      "sessionId": "sess-9d6eecad99acb900",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-07-07T13:36:48.719Z"
+}

@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-53a4",
+  "sourceText": "User agreed to upgrade manual milestone_ledger_set/add into automatic planning-write ledger creation, without adding new docs, while preserving the read-only milestone_status boundary.",
+  "normalizedOutcome": "Planning write commands that receive explicit structured milestones create candidate milestone-ledger.json automatically; prose-only inputs do not create one.",
+  "acceptanceClaim": "Focused CLI and logic tests show story_create, planner_create_story, and plan_skeleton --write create candidate ledger rows only when structured milestones are supplied.",
+  "keyRequirementIds": [
+    "REQ-001",
+    "REQ-002",
+    "REQ-003",
+    "REQ-004"
+  ],
+  "requestHash": "sha256:9f717ba96cca5ad37a51a6438a39ab8d24ca76de5324f59609370ce40a1d1518",
+  "createdAt": "2026-07-07T13:10:47.413Z",
+  "updatedAt": "2026-07-07T13:10:47.413Z"
+}

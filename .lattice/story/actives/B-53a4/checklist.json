@@ -1,0 +1,388 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add structured milestone ledger write support to story_create",
+      "context": "Extend story_create to accept optional structured milestones and write milestone-ledger.json as a candidate ledger after the story shell exists. Keep no-milestones behavior unchanged.",
+      "relatedDocs": [
+        "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+        "docs/requirements/decisions/milestone-ledger-status-review-findings.md"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/milestone-status.test.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "story_create with structured milestones writes milestone-ledger.json containing those rows in candidate state.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "story_create without milestones does not create milestone-ledger.json.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "story_create rejects malformed milestone rows before persisting a partial ledger.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-07-07T13:27:11.439Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "npm --prefix packages/main run test:milestone-status",
+          "result": "pass",
+          "note": "The planning-writes regression creates a story with explicit milestones and asserts milestone-ledger.json exists with candidate state and the supplied row.",
+          "headHash": "9d92165dcaaf0cf850570e8cfb519ac3e5ff48df",
+          "materialHash": "baf9c064aa92094ee920fc438003fb1d359de219aeea15279f912cbfc93745a6",
+          "storyFilesHash": "3159ea2d9f37fb0ac991814974e6d2a8236acf9376b9327e344789f1dca5121a",
+          "timestamp": "2026-07-07T13:27:36.629Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "npm --prefix packages/main run test:milestone-status",
+          "result": "pass",
+          "note": "The regression creates a story whose prose/checklist mention milestones but supplies no structured rows, then asserts milestone-ledger.json is absent.",
+          "headHash": "9d92165dcaaf0cf850570e8cfb519ac3e5ff48df",
+          "materialHash": "baf9c064aa92094ee920fc438003fb1d359de219aeea15279f912cbfc93745a6",
+          "storyFilesHash": "3159ea2d9f37fb0ac991814974e6d2a8236acf9376b9327e344789f1dca5121a",
+          "timestamp": "2026-07-07T13:27:36.629Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "npm --prefix packages/main run test:milestone-status",
+          "result": "pass",
+          "note": "The regression sends duplicate milestone ids to story_create, asserts the command fails, and asserts the story directory list is unchanged.",
+          "headHash": "9d92165dcaaf0cf850570e8cfb519ac3e5ff48df",
+          "materialHash": "baf9c064aa92094ee920fc438003fb1d359de219aeea15279f912cbfc93745a6",
+          "storyFilesHash": "3159ea2d9f37fb0ac991814974e6d2a8236acf9376b9327e344789f1dca5121a",
+          "timestamp": "2026-07-07T13:27:36.629Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Pass structured planner milestones through planner_create_story",
+      "context": "If a reviewed planner draft carries structured milestone rows, planner_create_story should pass them into story_create so the same write boundary is used.",
+      "relatedDocs": [
+        "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/planner.ts",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/milestone-status.test.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "planner_create_story with draft milestones creates the story and a candidate milestone ledger through story_create.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "planner_create_story without draft milestones preserves existing behavior and creates no ledger.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "planner_create_story does not infer ledger rows from draft prose or checklist titles.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-07-07T13:27:12.928Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "npm --prefix packages/main run test:milestone-status",
+          "result": "pass",
+          "note": "The regression runs planner_draft with explicit milestones, then planner_create_story, and asserts the created story has a candidate milestone ledger row.",
+          "headHash": "9d92165dcaaf0cf850570e8cfb519ac3e5ff48df",
+          "materialHash": "baf9c064aa92094ee920fc438003fb1d359de219aeea15279f912cbfc93745a6",
+          "storyFilesHash": "3159ea2d9f37fb0ac991814974e6d2a8236acf9376b9327e344789f1dca5121a",
+          "timestamp": "2026-07-07T13:27:36.629Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "npm --prefix packages/main run test:milestone-status",
+          "result": "pass",
+          "note": "The regression runs planner_draft/planner_create_story without milestones and asserts no milestone-ledger.json is created.",
+          "headHash": "9d92165dcaaf0cf850570e8cfb519ac3e5ff48df",
+          "materialHash": "baf9c064aa92094ee920fc438003fb1d359de219aeea15279f912cbfc93745a6",
+          "storyFilesHash": "3159ea2d9f37fb0ac991814974e6d2a8236acf9376b9327e344789f1dca5121a",
+          "timestamp": "2026-07-07T13:27:36.629Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "npm --prefix packages/main run test:milestone-status",
+          "result": "pass",
+          "note": "The no-milestones planner case deliberately mentions all milestones in prose and still asserts no ledger is inferred.",
+          "headHash": "9d92165dcaaf0cf850570e8cfb519ac3e5ff48df",
+          "materialHash": "baf9c064aa92094ee920fc438003fb1d359de219aeea15279f912cbfc93745a6",
+          "storyFilesHash": "3159ea2d9f37fb0ac991814974e6d2a8236acf9376b9327e344789f1dca5121a",
+          "timestamp": "2026-07-07T13:27:36.629Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Support plan_skeleton --write structured milestone rows without prose inference",
+      "context": "If plan_skeleton --write receives explicit milestone rows, write them through the same candidate ledger path. Read-only plan_skeleton remains read-only.",
+      "relatedDocs": [
+        "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/plan-skeleton.ts",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/milestone-status.test.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "plan_skeleton --write with structured milestones writes a candidate milestone ledger.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "plan_skeleton without --write never writes a milestone ledger even when milestone rows are supplied.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "plan_skeleton --write with no structured milestones does not synthesize rows from story prose or checklist text.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-07-07T13:27:14.444Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "npm --prefix packages/main run test:milestone-status",
+          "result": "pass",
+          "note": "The regression runs plan_skeleton --write with explicit milestones and asserts a candidate milestone ledger is written.",
+          "headHash": "9d92165dcaaf0cf850570e8cfb519ac3e5ff48df",
+          "materialHash": "baf9c064aa92094ee920fc438003fb1d359de219aeea15279f912cbfc93745a6",
+          "storyFilesHash": "3159ea2d9f37fb0ac991814974e6d2a8236acf9376b9327e344789f1dca5121a",
+          "timestamp": "2026-07-07T13:27:36.629Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "npm --prefix packages/main run test:milestone-status",
+          "result": "pass",
+          "note": "The regression runs read-only plan_skeleton with explicit milestones and asserts no milestone-ledger.json is written.",
+          "headHash": "9d92165dcaaf0cf850570e8cfb519ac3e5ff48df",
+          "materialHash": "baf9c064aa92094ee920fc438003fb1d359de219aeea15279f912cbfc93745a6",
+          "storyFilesHash": "3159ea2d9f37fb0ac991814974e6d2a8236acf9376b9327e344789f1dca5121a",
+          "timestamp": "2026-07-07T13:27:36.629Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "npm --prefix packages/main run test:milestone-status",
+          "result": "pass",
+          "note": "The regression runs plan_skeleton --write without structured milestones on prose that mentions all milestones and asserts no ledger is synthesized.",
+          "headHash": "9d92165dcaaf0cf850570e8cfb519ac3e5ff48df",
+          "materialHash": "baf9c064aa92094ee920fc438003fb1d359de219aeea15279f912cbfc93745a6",
+          "storyFilesHash": "3159ea2d9f37fb0ac991814974e6d2a8236acf9376b9327e344789f1dca5121a",
+          "timestamp": "2026-07-07T13:27:36.629Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-004",
+      "title": "Run targeted milestone ledger regression coverage",
+      "context": "Build and run the focused milestone status/proofstory tests that cover the new planning write path and existing read-only boundary.",
+      "relatedDocs": [
+        "docs/requirements/decisions/milestone-ledger-status-review-findings.md"
+      ],
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/tests/milestone-status.test.mjs",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm build succeeds after the structured milestone write changes.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "node packages/main/tests/milestone-status.test.mjs passes.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "ProofStory intent hardening smoke still passes, preserving existing ledger confirmation and gate behavior.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No test or implementation path creates milestone-ledger.json from prose-only input.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-07-07T13:27:16.132Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build completed successfully after the structured milestone write changes.",
+          "headHash": "9d92165dcaaf0cf850570e8cfb519ac3e5ff48df",
+          "materialHash": "baf9c064aa92094ee920fc438003fb1d359de219aeea15279f912cbfc93745a6",
+          "storyFilesHash": "3159ea2d9f37fb0ac991814974e6d2a8236acf9376b9327e344789f1dca5121a",
+          "timestamp": "2026-07-07T13:27:36.629Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "npm --prefix packages/main run test:milestone-status",
+          "result": "pass",
+          "note": "Focused milestone-status regression suite passed, including the new planning-write ledger creation tests.",
+          "headHash": "9d92165dcaaf0cf850570e8cfb519ac3e5ff48df",
+          "materialHash": "baf9c064aa92094ee920fc438003fb1d359de219aeea15279f912cbfc93745a6",
+          "storyFilesHash": "3159ea2d9f37fb0ac991814974e6d2a8236acf9376b9327e344789f1dca5121a",
+          "timestamp": "2026-07-07T13:27:36.629Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:proofstory-intent-hardening-smoke",
+          "result": "pass",
+          "note": "ProofStory intent hardening smoke passed, preserving existing ledger_set/add and confirmation/gate behavior.",
+          "headHash": "9d92165dcaaf0cf850570e8cfb519ac3e5ff48df",
+          "materialHash": "baf9c064aa92094ee920fc438003fb1d359de219aeea15279f912cbfc93745a6",
+          "storyFilesHash": "3159ea2d9f37fb0ac991814974e6d2a8236acf9376b9327e344789f1dca5121a",
+          "timestamp": "2026-07-07T13:27:36.629Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "npm --prefix packages/main run test:milestone-status",
+          "result": "pass",
+          "note": "The focused regression asserts story_create, planner_create_story, and plan_skeleton --write do not create ledgers from prose-only milestone wording.",
+          "headHash": "9d92165dcaaf0cf850570e8cfb519ac3e5ff48df",
+          "materialHash": "baf9c064aa92094ee920fc438003fb1d359de219aeea15279f912cbfc93745a6",
+          "storyFilesHash": "3159ea2d9f37fb0ac991814974e6d2a8236acf9376b9327e344789f1dca5121a",
+          "timestamp": "2026-07-07T13:27:36.629Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-07T13:27:11.439Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implemented story_create optional structured milestones and verified candidate ledger/no-ledger/malformed-row behavior.",
+      "agent": "main-agent"
+    },
+    {
+      "timestamp": "2026-07-07T13:27:12.928Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implemented planner draft milestone pass-through to story_create and verified structured/prose-only planner cases.",
+      "agent": "main-agent"
+    },
+    {
+      "timestamp": "2026-07-07T13:27:14.444Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implemented plan_skeleton --write milestone persistence and verified preview/prose-only boundaries.",
+      "agent": "main-agent"
+    },
+    {
+      "timestamp": "2026-07-07T13:27:16.132Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Ran build, milestone-status regression, and ProofStory intent hardening smoke successfully.",
+      "agent": "main-agent"
+    }
+  ]
+}

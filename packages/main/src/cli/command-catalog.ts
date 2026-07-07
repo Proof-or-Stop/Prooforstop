@@ -183,6 +183,7 @@ export const MAIN_TOOLS: ToolDef[] = [
       }).optional().describe('Affected file declarations used by story intake and review gates.'),
       verificationIntent: verificationIntentSchema.optional().describe('Happy-path, edge-case, and adversarial verification intent.'),
     })).optional().describe('Development checklist.'),
+    milestones: z.array(proofStoryMilestoneSchema).optional().describe('Optional explicit machine-countable milestone rows. When supplied, story_create writes a candidate milestone ledger; no rows means no ledger is inferred from prose or checklist text.'),
     scopeBoundary: z.object({
       mode: z.enum(['correctness_fix', 'feature', 'maintenance', 'custom']).optional().describe('Scope boundary mode; correctness_fix enables the default future denylist.'),
       allowed: z.array(z.string().min(1)).optional().describe('Scope entries the user confirmed as allowed.'),
@@ -1067,7 +1068,8 @@ Behavior:
   }},
   { name: 'plan_skeleton', description: 'Suggest or write a PLAN skeleton from story text plus StoryReadinessReport; default is read-only and never advances lifecycle or writes evidence.', schema: {
     storyId: z.string().describe('Story ID'),
-    write: z.boolean().optional().describe('Persist through existing understanding_set and checklist_add paths only.'),
+    write: z.boolean().optional().describe('Persist through existing understanding_set/checklist_add paths, plus milestone_ledger_set when explicit milestones are supplied.'),
+    milestones: z.array(proofStoryMilestoneSchema).optional().describe('Optional explicit machine-countable milestone rows. Only --write persists them; read-only preview never writes a ledger.'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text).'),
     json: z.boolean().optional().describe('Shortcut for --format=json.'),
     runCommands: z.boolean().optional().describe('Unsupported; true fails closed.'),
@@ -2649,6 +2651,7 @@ Behavior:
     parityOraclePolicy: z.union([z.record(z.string(), z.unknown()), z.string()]).optional().describe('Parity oracle policy object or JSON string'),
     alignmentVerificationIntent: z.union([z.array(z.string()), z.string()]).optional().describe('Alignment verification intents'),
     providerPolicy: z.union([z.record(z.string(), z.unknown()), z.string()]).optional().describe('Explicit provider policy object or JSON string; real providers require explicit opt-in'),
+    milestones: z.array(proofStoryMilestoneSchema).optional().describe('Optional explicit machine-countable milestone rows to carry in the planner draft; planner_create_story passes them through story_create.'),
     allowUnattendedPlanning: z.boolean().optional().describe('Allow unattended local Story planning'),
     forceNewRun: z.boolean().optional().describe('Request a distinct planner idempotency scope'),
     forceNewRunReason: z.string().optional().describe('Reason for forceNewRun'),
@@ -2724,6 +2727,7 @@ Behavior:
     parityOraclePolicy: z.union([z.record(z.string(), z.unknown()), z.string()]).optional(),
     alignmentVerificationIntent: z.union([z.array(z.string()), z.string()]).optional(),
     providerPolicy: z.union([z.record(z.string(), z.unknown()), z.string()]).optional().describe('Explicit provider policy object or JSON string; real providers require explicit opt-in'),
+    milestones: z.array(proofStoryMilestoneSchema).optional().describe('Optional explicit machine-countable milestone rows to carry in the planner draft; planner_create_story passes them through story_create.'),
     allowUnattendedPlanning: z.boolean().optional(),
     forceNewRun: z.boolean().optional(),
     forceNewRunReason: z.string().optional(),
