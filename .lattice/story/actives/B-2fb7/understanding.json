@@ -1,0 +1,30 @@
+{
+  "task": "Fix validate/lifecycle coordination so long-running validation reports liveness without corrupting JSON output, and forced exits clean up and classify as runner infrastructure failures.",
+  "outcome": "When the user runs lattice story_advance --phase=TEST and validate starts a long command, the terminal shows progress such as validate command 1/3 started, validate heartbeat command 1/3 elapsed 30s, and validate command 1/3 passed on stderr; stdout from lattice validate --json remains one parseable JSON object; if a command truly exceeds timeoutMs the output names that command and test-evidence records infra_failure instead of an ordinary assertion failure.",
+  "facts": [
+    "B-2fb7 is scoped to validate progress/heartbeat, forced-exit cleanup, stale-lock classification, and infra-failure evidence classification.",
+    "The current failure mode is story_advance --phase=TEST killing lattice validate --json after idle silence even while validation is still doing real work.",
+    "The related execution plan says JSON mode progress must not pollute stdout and must flush immediately.",
+    "The worktree does not contain the related execution-plan document because it was untracked in the main checkout; it should be restored on the story branch before DEV evidence relies on relatedDocs."
+  ],
+  "constraints": [
+    "Keep the lifecycle idle watchdog fail-closed; do not remove or bypass it.",
+    "Heartbeat may refresh idle liveness but must not extend a command timeoutMs or create unlimited execution.",
+    "Do not skip, reduce, or fake lattice validate.",
+    "Stale-lock liveness must be host-neutral and not rely on POSIX-only /proc behavior without an abstraction.",
+    "Do not use omx or .omx material and do not directly edit story or fixture JSON files."
+  ],
+  "unknowns": [
+    "Exact validate runner implementation files and current lock owner model need to be located in packages/main/src.",
+    "Existing test harness shape for story_advance TEST and validate --json needs inspection before adding red tests.",
+    "Whether package dependencies are locally available in the worktree may require npm install or reuse of existing installed modules before test execution."
+  ],
+  "touchpoints": [
+    "packages/main/src validate command runner and output handling",
+    "packages/main/src lifecycle story_advance TEST runner and idle watchdog",
+    "packages/main/src validation lock ownership and stale-lock checks",
+    "packages/main/src test evidence writer/classifier",
+    "packages/main/test or packages/main/tests integration/unit coverage"
+  ],
+  "timestamp": "2026-07-07T12:45:43.154Z"
+}

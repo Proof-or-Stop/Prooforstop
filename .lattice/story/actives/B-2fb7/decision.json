@@ -1,0 +1,82 @@
+{
+  "principles": [
+    "Keep fail-closed lifecycle protection intact.",
+    "Keep JSON stdout machine-readable and put progress on stderr or a structured side channel.",
+    "Make progress events real-time and flushed so parent lastActivity sees them.",
+    "Separate command timeout semantics from idle liveness.",
+    "Use host-neutral process and lock ownership checks."
+  ],
+  "drivers": [
+    "story_advance --phase=TEST must not kill active validate work merely because stdout is quiet.",
+    "lattice validate --json consumers must still parse stdout reliably.",
+    "Forced exits and stale locks must not create misleading test failures or block retries."
+  ],
+  "options": [
+    {
+      "name": "progress-stderr-plus-parent-idle-refresh",
+      "pros": [
+        "Preserves JSON stdout contract",
+        "Works with existing parent output-based idle watchdog",
+        "Keeps human progress visible",
+        "Can flush immediately per event"
+      ],
+      "cons": [
+        "Requires careful tests around stream separation and buffering",
+        "Requires touching both validate runner and lifecycle runner integration"
+      ]
+    },
+    {
+      "name": "disable-or-extend-idle-watchdog-for-validate",
+      "pros": [
+        "Small local change",
+        "Avoids false idle kills for long validate runs"
+      ],
+      "cons": [
+        "Weakens fail-closed protection",
+        "Masks true hangs",
+        "Conflicts with explicit non-goals"
+      ]
+    },
+    {
+      "name": "write heartbeat only to a temp file or lock metadata",
+      "pros": [
+        "Avoids terminal noise",
+        "Can expose structured state"
+      ],
+      "cons": [
+        "Parent watchdog may not observe it without polling changes",
+        "Adds runtime artifact complexity",
+        "Does not directly solve output-silence killing"
+      ]
+    }
+  ],
+  "chosen": "progress-stderr-plus-parent-idle-refresh",
+  "rationale": "Choose JSON-safe stderr progress and heartbeat consumed by the parent idle watchdog because it fixes the observed idle-kill while preserving fail-closed command timeout behavior and parseable JSON output.",
+  "preMortem": [
+    {
+      "scenario": "Heartbeat corrupts JSON output",
+      "trigger": "Progress is written to stdout in --json mode",
+      "consequence": "Automation parsing validate output fails",
+      "mitigation": "Route JSON-mode progress to stderr and add parseability tests around stdout."
+    },
+    {
+      "scenario": "Heartbeat accidentally grants unlimited command runtime",
+      "trigger": "Idle refresh also resets timeoutMs accounting",
+      "consequence": "A hung command can run forever",
+      "mitigation": "Track per-command wall-clock timeout independently and test timed commands still fail."
+    },
+    {
+      "scenario": "Forced exit leaves a fresh-looking lock",
+      "trigger": "Parent kills child without cleanup or PID is reused",
+      "consequence": "Later validate runs are blocked or misclassified",
+      "mitigation": "Use owner token/start metadata/host-neutral liveness checks and stale-lock tests."
+    },
+    {
+      "scenario": "Runner failure is reported as ordinary test failure",
+      "trigger": "Evidence writer collapses watchdog timeout into test assertion failure",
+      "consequence": "User debugs tests instead of infrastructure",
+      "mitigation": "Introduce/verify infra_failure classification for lifecycle runner failures."
+    }
+  ],
+  "timestamp": "2026-07-07T12:45:58.854Z"
+}
