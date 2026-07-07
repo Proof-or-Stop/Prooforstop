@@ -43,7 +43,45 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "npm --prefix packages/main run test:milestone-status",
+          "result": "pass",
+          "note": "The planning-writes regression creates a story with explicit milestones and asserts milestone-ledger.json exists with candidate state and the supplied row.",
+          "headHash": "c736fb7eb84d80069014f12649126823f9177d4e",
+          "materialHash": "24c541ef04cf6c0c200684049d3ab661c1a166ab4661159757f967104b2ced5a",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-07T13:26:47.199Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "npm --prefix packages/main run test:milestone-status",
+          "result": "pass",
+          "note": "The regression creates a story whose prose/checklist mention milestones but supplies no structured rows, then asserts milestone-ledger.json is absent.",
+          "headHash": "c736fb7eb84d80069014f12649126823f9177d4e",
+          "materialHash": "24c541ef04cf6c0c200684049d3ab661c1a166ab4661159757f967104b2ced5a",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-07T13:26:47.199Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "npm --prefix packages/main run test:milestone-status",
+          "result": "pass",
+          "note": "The regression sends duplicate milestone ids to story_create, asserts the command fails, and asserts the story directory list is unchanged.",
+          "headHash": "c736fb7eb84d80069014f12649126823f9177d4e",
+          "materialHash": "24c541ef04cf6c0c200684049d3ab661c1a166ab4661159757f967104b2ced5a",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-07T13:26:47.199Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -87,7 +125,45 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "npm --prefix packages/main run test:milestone-status",
+          "result": "pass",
+          "note": "The regression runs planner_draft with explicit milestones, then planner_create_story, and asserts the created story has a candidate milestone ledger row.",
+          "headHash": "c736fb7eb84d80069014f12649126823f9177d4e",
+          "materialHash": "24c541ef04cf6c0c200684049d3ab661c1a166ab4661159757f967104b2ced5a",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-07T13:26:47.199Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "npm --prefix packages/main run test:milestone-status",
+          "result": "pass",
+          "note": "The regression runs planner_draft/planner_create_story without milestones and asserts no milestone-ledger.json is created.",
+          "headHash": "c736fb7eb84d80069014f12649126823f9177d4e",
+          "materialHash": "24c541ef04cf6c0c200684049d3ab661c1a166ab4661159757f967104b2ced5a",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-07T13:26:47.199Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "npm --prefix packages/main run test:milestone-status",
+          "result": "pass",
+          "note": "The no-milestones planner case deliberately mentions all milestones in prose and still asserts no ledger is inferred.",
+          "headHash": "c736fb7eb84d80069014f12649126823f9177d4e",
+          "materialHash": "24c541ef04cf6c0c200684049d3ab661c1a166ab4661159757f967104b2ced5a",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-07T13:26:47.199Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -131,7 +207,45 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "npm --prefix packages/main run test:milestone-status",
+          "result": "pass",
+          "note": "The regression runs plan_skeleton --write with explicit milestones and asserts a candidate milestone ledger is written.",
+          "headHash": "c736fb7eb84d80069014f12649126823f9177d4e",
+          "materialHash": "24c541ef04cf6c0c200684049d3ab661c1a166ab4661159757f967104b2ced5a",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-07T13:26:47.199Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "npm --prefix packages/main run test:milestone-status",
+          "result": "pass",
+          "note": "The regression runs read-only plan_skeleton with explicit milestones and asserts no milestone-ledger.json is written.",
+          "headHash": "c736fb7eb84d80069014f12649126823f9177d4e",
+          "materialHash": "24c541ef04cf6c0c200684049d3ab661c1a166ab4661159757f967104b2ced5a",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-07T13:26:47.199Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "npm --prefix packages/main run test:milestone-status",
+          "result": "pass",
+          "note": "The regression runs plan_skeleton --write without structured milestones on prose that mentions all milestones and asserts no ledger is synthesized.",
+          "headHash": "c736fb7eb84d80069014f12649126823f9177d4e",
+          "materialHash": "24c541ef04cf6c0c200684049d3ab661c1a166ab4661159757f967104b2ced5a",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-07T13:26:47.199Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -178,7 +292,55 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build completed successfully after the structured milestone write changes.",
+          "headHash": "c736fb7eb84d80069014f12649126823f9177d4e",
+          "materialHash": "24c541ef04cf6c0c200684049d3ab661c1a166ab4661159757f967104b2ced5a",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-07T13:26:47.199Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "npm --prefix packages/main run test:milestone-status",
+          "result": "pass",
+          "note": "Focused milestone-status regression suite passed, including the new planning-write ledger creation tests.",
+          "headHash": "c736fb7eb84d80069014f12649126823f9177d4e",
+          "materialHash": "24c541ef04cf6c0c200684049d3ab661c1a166ab4661159757f967104b2ced5a",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-07T13:26:47.199Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:proofstory-intent-hardening-smoke",
+          "result": "pass",
+          "note": "ProofStory intent hardening smoke passed, preserving existing ledger_set/add and confirmation/gate behavior.",
+          "headHash": "c736fb7eb84d80069014f12649126823f9177d4e",
+          "materialHash": "24c541ef04cf6c0c200684049d3ab661c1a166ab4661159757f967104b2ced5a",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-07T13:26:47.199Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "npm --prefix packages/main run test:milestone-status",
+          "result": "pass",
+          "note": "The focused regression asserts story_create, planner_create_story, and plan_skeleton --write do not create ledgers from prose-only milestone wording.",
+          "headHash": "c736fb7eb84d80069014f12649126823f9177d4e",
+          "materialHash": "24c541ef04cf6c0c200684049d3ab661c1a166ab4661159757f967104b2ced5a",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-07T13:26:47.199Z"
+        }
+      ]
     }
   ]
 }
