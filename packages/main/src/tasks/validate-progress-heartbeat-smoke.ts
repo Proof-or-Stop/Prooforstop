@@ -19,9 +19,10 @@
  */
 
 import assert from 'node:assert/strict';
-import { spawn } from 'node:child_process';
+import { execFileSync, spawn } from 'node:child_process';
 import {
   existsSync,
+  mkdirSync,
   mkdtempSync,
   readFileSync,
   rmSync,
@@ -30,6 +31,8 @@ import {
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { StoryStore } from '../core/store.js';
+import type { ChecklistData, StoryInfo } from '../core/types.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const cliPath = join(here, '..', 'cli.js');
@@ -48,17 +51,41 @@ type CliResult = {
 
 type ValidateJson = {
   allPass?: boolean;
+  failureKind?: string;
+  details?: string[];
   commands?: Array<{
     label?: string;
     code?: number;
     timedOut?: boolean;
+    timeoutMs?: number;
+    failureKind?: string;
     durationMs?: number;
   }>;
 };
 
 function write(root: string, path: string, content: string): void {
   const target = join(root, path);
+  mkdirSync(dirname(target), { recursive: true });
   writeFileSync(target, content, 'utf8');
+}
+
+function git(root: string, args: string[]): void {
+  execFileSync('git', args, {
+    cwd: root,
+    stdio: ['ignore', 'ignore', 'ignore'],
+    env: {
+      ...process.env,
+      GIT_AUTHOR_NAME: 'validate-progress-heartbeat-smoke',
+      GIT_AUTHOR_EMAIL: 'validate-progress-heartbeat-smoke@example.test',
+      GIT_COMMITTER_NAME: 'validate-progress-heartbeat-smoke',
+      GIT_COMMITTER_EMAIL: 'validate-progress-heartbeat-smoke@example.test',
+    },
+  });
+}
+
+function commitAll(root: string, message: string): void {
+  git(root, ['add', '.']);
+  git(root, ['commit', '-m', message]);
 }
 
 function setupFixture(): { root: string; started: string; finished: string } {
@@ -77,6 +104,9 @@ writeFileSync(finished, 'finished ' + Date.now() + '\\n', 'utf8');
   write(root, 'lattice.config.json', JSON.stringify({
     scanRoot: '.',
     rootDir: '.',
+    storyDir: '.lattice/story/actives',
+    requirementsDir: 'docs/requirements',
+    workflow: { profile: 'light' },
     validate: {
       commands: [{
         label: 'silent-active-validate',
@@ -89,9 +119,73 @@ writeFileSync(finished, 'finished ' + Date.now() + '\\n', 'utf8');
   return { root, started, finished };
 }
 
-function runValidate(root: string): Promise<CliResult> {
+function setupTimeoutFixture(): { root: string } {
+  const root = mkdtempSync(join(tmpdir(), 'lattice-validate-heartbeat-timeout-'));
+  write(root, 'lattice.config.json', JSON.stringify({
+    scanRoot: '.',
+    rootDir: '.',
+    validate: {
+      commands: [{
+        label: 'true-hang',
+        command: process.execPath,
+        args: ['-e', 'setInterval(() => {}, 1000)'],
+        timeoutMs: 1_000,
+      }],
+    },
+  }, null, 2) + '\n');
+  return { root };
+}
+
+function setupStoryAdvanceFixture(): { root: string; storyId: string; started: string; finished: string } {
+  const fixture = setupFixture();
+  const { root } = fixture;
+  const storyId = 'B-heartbeat-advance';
+  write(root, '.gitignore', [
+    'command-started.txt',
+    'command-finished.txt',
+    '.lattice/activity.jsonl',
+    '.lattice/locks/',
+    '',
+  ].join('\n'));
+  write(root, 'packages/main/src/index.ts', 'export const heartbeatAdvanceSmoke = true;\n');
+  git(root, ['init']);
+  git(root, ['checkout', '-B', 'main']);
+  commitAll(root, 'seed heartbeat story_advance fixture');
+
+  const now = '2026-07-07T00:00:00.000Z';
+  const store = new StoryStore(root);
+  store.writeStory(storyId, {
+    storyId,
+    name: 'heartbeat-advance-smoke',
+    title: 'Heartbeat advance smoke',
+    description: 'Hermetic story proving story_advance receives validate heartbeat progress.',
+    type: 'chore',
+    phase: 'REVIEW',
+    priority: 'medium',
+    createdAt: now,
+    startedAt: now,
+    endedAt: null,
+    currentReviewRound: now,
+    riskSignals: [],
+    events: [{ phase: 'REVIEW', action: 'advance', timestamp: now }],
+  } as StoryInfo);
+  store.writeChecklist(storyId, {
+    items: [{
+      id: 'CHK-001',
+      title: 'Synthetic heartbeat verification',
+      context: 'Synthetic done item for story_advance heartbeat smoke.',
+      status: 'done',
+      startTime: now,
+      endTime: now,
+    }],
+  } as ChecklistData);
+  commitAll(root, 'seed heartbeat story metadata');
+  return { ...fixture, storyId };
+}
+
+function runCli(root: string, args: string[], ceilingMs = 25_000): Promise<CliResult> {
   const start = Date.now();
-  const child = spawn(process.execPath, [cliPath, '--root', root, 'validate', '--json'], {
+  const child = spawn(process.execPath, [cliPath, '--root', root, ...args], {
     cwd: root,
     env: {
       ...process.env,
@@ -116,7 +210,7 @@ function runValidate(root: string): Promise<CliResult> {
         stderr: `${stderr}\nsmoke timed out waiting for validate child pid ${child.pid}`,
         elapsedMs: Date.now() - start,
       });
-    }, 25_000);
+    }, ceilingMs);
     ceiling.unref?.();
     child.on('close', (status) => {
       clearTimeout(ceiling);
@@ -132,6 +226,10 @@ function runValidate(root: string): Promise<CliResult> {
       });
     });
   });
+}
+
+function runValidate(root: string, ceilingMs?: number): Promise<CliResult> {
+  return runCli(root, ['validate', '--json'], ceilingMs);
 }
 
 function parseValidateJson(stdout: string): ValidateJson {
@@ -196,6 +294,51 @@ function assertGreenBehavior(result: CliResult, started: string, finished: strin
   );
 }
 
+async function assertStoryAdvanceReceivesHeartbeat(): Promise<void> {
+  const { root, storyId, started, finished } = setupStoryAdvanceFixture();
+  try {
+    const result = await runCli(root, ['story_advance', JSON.stringify({ storyId, phase: 'TEST' })], 35_000);
+    assert.equal(result.status, 0, `story_advance should survive active validate heartbeat:\n${result.stderr}\n${result.stdout}`);
+    assert.ok(existsSync(started), 'story_advance internal validate command must start');
+    assert.ok(existsSync(finished), 'story_advance internal validate command must finish');
+    assert.ok(!result.stderr.includes('without output; forcing exit'), `story_advance must not hit idle watchdog:\n${result.stderr}`);
+    assert.match(result.stderr, /validate heartbeat: command 1\/1 silent-active-validate elapsedMs=/);
+    const store = new StoryStore(root);
+    assert.equal(store.readStory(storyId).phase, 'TEST', 'story_advance should persist TEST phase');
+    const evidence = store.readTestEvidence(storyId);
+    assert.equal(evidence?.result, 'PASS', 'story_advance validate evidence should pass');
+    assert.equal(evidence?.failureKind, undefined, 'passing story_advance evidence should not carry failureKind');
+    const parsed = JSON.parse(evidence?.output ?? '{}') as ValidateJson;
+    assert.equal(parsed.allPass, true, 'story_advance evidence output should be passing validate JSON');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+async function assertTrueHangFailsClosedWithNamedDiagnostics(): Promise<void> {
+  const { root } = setupTimeoutFixture();
+  try {
+    const result = await runValidate(root, 15_000);
+    assert.equal(result.status, 0, `validate command should return JSON even for failed validation:\n${result.stderr}`);
+    assert.ok(!result.stderr.includes('without output; forcing exit'), `true hang should fail by command timeout, not idle watchdog:\n${result.stderr}`);
+    assert.match(result.stderr, /validate timeout: command 1\/1 true-hang: command=.* args=.* timeoutMs=1000 elapsedMs=/);
+    const parsed = parseValidateJson(result.stdout);
+    assert.equal(parsed.allPass, false, 'true hang validate JSON should fail closed');
+    assert.equal(parsed.failureKind, 'infra_failure', 'true hang should be classified as infra_failure');
+    const command = parsed.commands?.find((entry) => entry.label === 'true-hang');
+    assert.ok(command, 'true hang command result should be present');
+    assert.equal(command.timedOut, true, 'true hang command must be timedOut');
+    assert.equal(command.timeoutMs, 1_000, 'true hang command must preserve timeoutMs');
+    assert.equal(command.failureKind, 'infra_failure', 'true hang command should carry infra_failure');
+    const details = parsed.details?.join('\n') ?? '';
+    assert.match(details, /timeout diagnostic: command 1\/1 "true-hang" exceeded configured timeoutMs=1000ms after elapsedMs=/);
+    assert.match(details, /command: /);
+    assert.match(details, /args: \["-e","setInterval\(\(\) => \{\}, 1000\)"\]/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 void (async () => {
   const { root, started, finished } = setupFixture();
   try {
@@ -208,6 +351,8 @@ void (async () => {
     const finishText = readFileSync(finished, 'utf8').trim();
     assert.match(startText, /^started \d+$/);
     assert.match(finishText, /^finished \d+$/);
+    await assertStoryAdvanceReceivesHeartbeat();
+    await assertTrueHangFailsClosedWithNamedDiagnostics();
     console.log('validate-progress-heartbeat smoke passed');
   } catch (error) {
     console.error(error instanceof Error ? error.message : String(error));
