@@ -109,7 +109,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/multi-model-ablation/cell06-docker-probe/probe-rows.jsonl",
+          "experiments/multi-model-ablation/cell06-docker-probe/probe-summary.json"
+        ],
+        "test": [
+          "experiments/multi-model-ablation/cell06-docker-probe/validate-probe.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "At least one Docker-run probe row captures codex container execution metadata and receipt shape",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Rows that cannot run because a second auth bundle is absent are explicit pending_auth receipts, not successful provider rows",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No receipt includes reviewer fields, Cell03 output references, Proofbound memory pack ids, or host workspace paths",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
