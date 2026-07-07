@@ -1,0 +1,68 @@
+{
+  "storyId": "B-991d",
+  "checkedAt": "2026-07-07T05:41:27.704Z",
+  "headHash": "4605a90d1cf0366e28a2ecbdb4a609fdb934a4dc",
+  "materialHash": "be78cbba2a5f83ae6791723aae2b06fd031a6c0d4f1254ebd591efe4d9212005",
+  "storyFilesHash": "24a7e781fd7600e5332f93793e3f5fc9767942ef45a125f64a97a4935571034c",
+  "reviewRound": "2026-07-07T05:27:39.686Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+      "promise": "Promises Cell03 real execution milestones and explicitly does not unlock Cell06, Phase2, paper wording, product gates, or playbook activation.",
+      "status": "verified",
+      "verifiedBy": "manual read plus m2-provider-execution-check",
+      "evidence": "Plan states B-991d completed Cell 03 only, records finalRows=1142/1152, terminalExhaustedRows=10, pendingExecutableRows=0, totalTokens=219253501, with exact dollar cost not invented and downstream claims locked."
+    },
+    {
+      "docPath": "experiments/multi-model-ablation/m2-status.md",
+      "promise": "Reports Cell03 completion, usage/cost boundary, and locked downstream claims.",
+      "status": "verified",
+      "verifiedBy": "manual read plus m2-provider-execution-check",
+      "evidence": "Status reports Cell 03 execution window completed for Cell 03 only, provider token usage inputTokens=213133626 outputTokens=6119875 totalTokens=219253501, exact cost absent without billing export/pricingRef, and Cell06/Phase2/paper/product/playbook locked."
+    },
+    {
+      "docPath": "experiments/multi-model-ablation/future-cell03-results/README.md; experiments/multi-model-ablation/future-cell03-results/full/README.md",
+      "promise": "Describe finalRows=1142/1152, terminalExhaustedRows=10, pendingExecutableRows=0, and no invented dollar cost for the Cell03 result set.",
+      "status": "verified",
+      "verifiedBy": "manual read plus validate-full",
+      "evidence": "Top-level README records finalRows=1142/1152, terminalExhaustedRows=10, pendingExecutableRows=0, totalTokens=219253501, and no invented dollar cost; full README states this directory is Cell03 only and does not run Cell06/Phase2/product/playbook/paper upgrades."
+    },
+    {
+      "docPath": "experiments/multi-model-ablation/future-cell03-results/analysis-readiness.json; experiments/multi-model-ablation/future-cell03-results/done-summary.json; experiments/multi-model-ablation/future-cell03-results/cell03-usage-lock.json",
+      "promise": "Keep Cell06 execution, Phase2, model-agnostic, product, and playbook claims unauthorized while preserving Cell03 descriptive evidence and provider usage.",
+      "status": "verified",
+      "verifiedBy": "jq/manual read plus m2-provider-execution-check",
+      "evidence": "JSON artifacts mark Cell03 descriptive analysis ready only, Cell06 planning input available only for a separate story, cell06ExecutionAuthorized=false, phase2DecisionReady=false, exactProviderCostUsd=null, and notUnlocked includes Cell06, Phase2, model-agnostic/H-M claims, product gate, and playbook activation."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "B-991d-m2-launch-readiness",
+      "transcript": "PASS: node experiments/multi-model-ablation/m2-launch-readiness-check.mjs reported 1129 assertions and 21 negative controls rejected."
+    },
+    {
+      "featureId": "B-991d-m2-provider-execution",
+      "transcript": "PASS: node experiments/multi-model-ablation/m2-provider-execution-check.mjs reported 1691 assertions and 21 negative controls rejected; Cell03 complete only, token usage recorded, exact dollar cost not invented, downstream claims locked."
+    },
+    {
+      "featureId": "B-991d-cell03-validate-full",
+      "transcript": "PASS: node experiments/multi-model-ablation/future-cell03-results/full/validate-full.mjs --requireComplete reported 106607 assertions and 13 negative controls rejected; finalRows=1142/1152, terminalExhaustedRows=10, pendingExecutableRows=0."
+    },
+    {
+      "featureId": "B-991d-story-files-hash-batch-smoke",
+      "transcript": "PASS: node packages/main/dist/tasks/story-files-hash-batch-smoke.js reported story-files-hash-batch smoke passed (4 checks)."
+    },
+    {
+      "featureId": "B-991d-lattice-validate",
+      "transcript": "PASS: .lattice/story/actives/B-991d/evidence/transcript-diff.md and node packages/main/dist/cli.js test_list --storyId=B-991d --json show lattice validate passed with 39 configured commands and 30/30 evidence coverage."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review confirms B-991d closes Cell03 provider execution only as descriptive evidence: finalRows=1142/1152, terminalExhaustedRows=10, pendingExecutableRows=0, provider token usage recorded, and exact dollar cost not invented. Cell06 execution, Phase2, paper wording, product gates, model-agnostic claims, and playbook activation remain locked and unauthorized."
+  },
+  "_hash": "5060e93a0776cd6fc7ebb208d765643a6a00c59ae3f78c2cba7ea4443dcaafb2"
+}
