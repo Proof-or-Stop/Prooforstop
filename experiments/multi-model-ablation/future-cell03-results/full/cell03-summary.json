@@ -1,0 +1,60 @@
+{
+  "artifact": "B-991d-cell03-full-summary",
+  "storyId": "B-991d",
+  "executionWindowId": "B-991d-cell03-execution-window-001",
+  "expectedRows": 1152,
+  "rowCount": 1187,
+  "finalRows": 1142,
+  "formalFinalRows": 1142,
+  "terminalExhaustedRows": 10,
+  "pendingExecutableRows": 0,
+  "failedRows": 45,
+  "validationPassRows": 1036,
+  "providerUsageRows": 1142,
+  "reviewedRows": 1144,
+  "groundTruthPassRows": 1148,
+  "outcomeCounts": {
+    "recovered": 970,
+    "safe-stop": 108,
+    "completed": 66,
+    "review-invalid": 5,
+    "failed": 38
+  },
+  "missingFinalRows": 10,
+  "missingFinalCellKeys": [
+    "③|A4|median|B05|1|E2|same",
+    "③|A4|cl-combined|B07|3|E2|same",
+    "③|A4|dp-deepmerge|B12|3|E2|same",
+    "③|A4|cv-ipv4|B14|1|E2|same",
+    "③|A4|dp-querystring|B05|3|E2|same",
+    "③|A4|parse-range|scenario-null|1|E2|same",
+    "③|A4|dp-semver|scenario-null|3|E2|same",
+    "③|A4|dp-deepmerge|scenario-null|3|E2|same",
+    "③|A4|bf-datediff|B06|2|E2|same",
+    "③|A4|bf-mergesorted|B01|2|E2|same"
+  ],
+  "terminalExhaustedCellKeys": [
+    "③|A4|median|B05|1|E2|same",
+    "③|A4|cl-combined|B07|3|E2|same",
+    "③|A4|dp-deepmerge|B12|3|E2|same",
+    "③|A4|cv-ipv4|B14|1|E2|same",
+    "③|A4|dp-querystring|B05|3|E2|same",
+    "③|A4|parse-range|scenario-null|1|E2|same",
+    "③|A4|dp-semver|scenario-null|3|E2|same",
+    "③|A4|dp-deepmerge|scenario-null|3|E2|same",
+    "③|A4|bf-datediff|B06|2|E2|same",
+    "③|A4|bf-mergesorted|B01|2|E2|same"
+  ],
+  "pendingExecutableCellKeys": [],
+  "newRowsThisRun": 17,
+  "totalProviderUsage": {
+    "inputTokens": 213133626,
+    "outputTokens": 6119875,
+    "totalTokens": 219253501
+  },
+  "complete": true,
+  "executionComplete": true,
+  "formalComplete": false,
+  "fullRunUnlockReason": "CHK-006 completes when every expected Cell 03 cell key has either one final formal row or an auditable retry-exhausted terminal non-final row; only final formal rows count toward analysis.",
+  "createdAt": "2026-07-07T03:00:34.160Z"
+}

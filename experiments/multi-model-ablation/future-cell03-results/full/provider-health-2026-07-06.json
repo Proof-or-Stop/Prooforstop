@@ -1,0 +1,33 @@
+{
+  "artifact": "B-991d-cell03-provider-health",
+  "storyId": "B-991d",
+  "executionWindowId": "B-991d-cell03-execution-window-001",
+  "checkedAt": "2026-07-06T19:51:38Z",
+  "provider": "openai",
+  "surface": "codex-cli",
+  "configuredModel": "gpt-5.5",
+  "check": {
+    "kind": "minimal-codex-exec",
+    "prompt": "Reply with exactly OK.",
+    "exitCode": 1,
+    "stdoutBytes": 766,
+    "stderrBytes": 10380,
+    "result": "usage_limit",
+    "message": "You've hit your usage limit. Visit https://chatgpt.com/codex/settings/usage to purchase more credits or try again at Jul 9th, 2026 11:44 PM."
+  },
+  "impact": {
+    "cell03ExecutionCanContinue": false,
+    "reason": "Codex CLI provider calls fail before usable model output, so additional Cell 03 rows would only create non-formal failed attempts.",
+    "lastValidatedSummary": {
+      "finalRows": 505,
+      "expectedRows": 1152,
+      "terminalExhaustedRows": 10,
+      "pendingExecutableRows": 637
+    }
+  },
+  "recovery": {
+    "resumeCondition": "Credits restored or usage window resets after the provider-reported retry time.",
+    "nextCommand": "node experiments/multi-model-ablation/future-cell03-results/full/run-full.mjs --limit 10",
+    "postResumeValidation": "node experiments/multi-model-ablation/future-cell03-results/full/validate-full.mjs"
+  }
+}

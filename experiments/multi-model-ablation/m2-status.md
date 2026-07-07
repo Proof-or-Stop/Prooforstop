@@ -1,8 +1,8 @@
 # Multi-Model Ablation M2 Status
 
-Research boundary: `providerCallsMade=false`, `containsOutcomeData=false`, `phase1OrPhase2CellsRun=false`, `productGateImpact="none"`.
+Research boundary: B-6529 readiness evidence remains `providerCallsMade=false`, `containsOutcomeData=false`, `phase1OrPhase2CellsRun=false`, `productGateImpact="none"`. B-991d separately opened a Cell 03-only execution window and completed the ③ A4 E2 same-family Cell 03 run. This is still not a full Phase 1/Phase 2 dataset: Cell 06, Cell 02, optional Cell 04, Phase 2, product gate impact, playbook activation, and paper claim upgrades remain out of scope.
 
-M2 in this directory is a provider-free launch-readiness layer. It records the static boundary, dated provider-family declarations, the concrete 24-task inventory, and the Phase 1 cell-family manifest. It does not authorize provider execution, Phase 1 execution, Phase 2 execution, result collection, or any Proofbound product gate change.
+M2 in this directory began as a provider-free launch-readiness layer. B-991d separately opened, used, and completed a Cell 03-only execution window while preserving B-6529 as historical readiness/no-provider-call evidence. Provider calls were authorized only for Cell 03 / protocol cell ③ under the frozen envelope, with `providerCallEnabled=true` only inside that B-991d Cell 03 window; the completed Cell 03 artifacts do not authorize Cell 02, Cell 04, Cell 06, Phase 2 execution, paper claim upgrades, playbook activation, or any Proofbound product gate change.
 
 | Milestone | Status | Checked artifact |
 |---|---|---|
@@ -13,37 +13,42 @@ M2 in this directory is a provider-free launch-readiness layer. It records the s
 | M2 task inventory | PREPARED | `task-inventory.m2.json` binds exactly 24 existing task directories read-only by digest. |
 | M2 runner manifest | PREPARED | `phase1-runner-manifest.m2.json` represents required cells ③/⑥/② and keeps optional ④ budget-permitting. |
 | M2 static checker | PREPARED | `m2-launch-readiness-check.mjs` recomputes task digests, checks launch blockers, and rejects in-memory negative controls. |
-| M2 provider execution launch gate | PREPARED | `m2-provider-execution-launch.json` records `authorization_ready_execution_not_run`, a frozen Cell 03 execution envelope, `providerExecutionAuthorized=false`, `providerCallEnabled=false`, no provider-call enabled runner, and no outcome records. |
+| M2 provider execution launch gate | B-6529 PRESERVED; CELL 03 COMPLETE ONLY | `m2-provider-execution-launch.json` preserves B-6529 `authorization_ready_execution_not_run` evidence. B-991d records the separate Cell 03-only execution provenance and completion state; no Cell 02, Cell 04, Cell 06, Phase 2, or outcome-claim records are authorized. |
 | M2-provider authorization metadata | DONE | `m2-provider-execution-authorization.json` records B-11be metadata authorization with provider spend USD 0.00 as a historical no-spend boundary, no provider cells ran, no result rows exist, cell 03 is next, and cell 06 remains blocked. |
 | Cell 03 execution envelope | FROZEN | `m2-cell03-execution-envelope.json` freezes exact Cell 03 scope, 24 tasks, 1,152 planned rows, retry/time/token/output limits, stop conditions, dated E2 target snapshots, prompt/tool digests, runner ownership, duplicate policy, and result output policy. |
-| Cell 03 usage accounting | POSTFLIGHT REQUIRED | `m2-cell03-usage-accounting-policy.json` makes provider-reported usage mandatory after future execution; any estimate is diagnostic only and not final usage or a launch gate. |
-| Cell 03 launch guardrail | RECORDED | `m2-cell03-provider-launch-authorization.json` records B-6529 guardrails: execution envelope frozen, pre-run dollar guess not required, `providerSpendAllowed=false`, `providerCallEnabled=false`, no outcome rows exist, and postflight provider-reported usage is required after future execution. |
+| Cell 03 usage accounting | COMPLETE | `future-cell03-results/usage-summary.json` records provider-reported token usage from final Cell 03 rows. Exact dollar cost is not faked because no billing export or versioned pricingRef is present; estimates remain diagnostic only and not final usage or a launch gate. |
+| Cell 03 launch guardrail | WINDOW CLOSED FOR CELL 03 DATA COLLECTION | `m2-cell03-provider-launch-authorization.json` preserves B-6529 guardrails and records B-991d as the Cell 03-only execution window owner; postflight provider-reported usage is recorded in `future-cell03-results/usage-summary.json`. |
 | M2 provider execution checker | PREPARED | `m2-provider-execution-check.mjs` validates accidental authorization, host-label-only snapshot, provider fallback, and sequencing negative controls. |
-| Formal M2 execution | NOT STARTED | Provider calls remain disabled; real executor/reviewer run metadata must be supplied by a future provider-execution story, with no claim unlock and no product gate impact. |
-| ③ A4 calibration | PENDING EXECUTION | `nextPermittedFormalStep=cell-03-calibration`, planning-only. It must run after explicit authorization and before any ⑥ A2prime budget can be locked. |
-| ⑥ A2prime | BLOCKED | `cell-06-a2prime-blocked` until a real cell-03-derived budget/usage lock exists. M0 example budget locks are not formal evidence. |
+| Cell 03 probe execution | COMPLETE | `future-cell03-results/probe/probe-rows.jsonl` contains 2 Cell 03 probe rows with executor usage, fresh same-family reviewer usage, review verdicts, acceptance checks, hidden ground-truth checks, provider-visible workspace isolation, and B-991d provenance. |
+| Formal M2 execution | CELL 03 COMPLETE ONLY | `future-cell03-results/full/cell03-summary.json` records `finalRows=1142/1152`, `terminalExhaustedRows=10`, `pendingExecutableRows=0`, and `providerUsageRows=1142`. |
+| B-991d Cell 03 execution window | COMPLETED FOR CELL 03 | Provider calls were enabled only for B-991d Cell 03 / ③ A4 E2 same-family execution under the frozen envelope. No Cell 02, Cell 04, Cell 06, or Phase 2 rows ran. |
+| ③ A4 calibration | COMPLETE | `future-cell03-results/full/cell03-rows.jsonl` and `future-cell03-results/full/cell03-summary.json` are the real Cell 03 calibration dataset for later analysis. |
+| ⑥ A2prime | USAGE/SEQUENCING INPUT AVAILABLE; EXECUTION NOT STARTED | `future-cell03-results/cell03-usage-lock.json` is a real Cell 03-derived usage/sequencing input for a separate Cell 06 story, but it does not authorize Cell 06 execution or claims. |
 | M3 Phase 2 decision | PENDING | No Phase 1 directional readout exists yet, so the Phase 2 decision is not available. |
 | M4 powered matrix | PENDING | The powered matrix is not launched by M2 readiness. |
-| M5 analysis and recompute | PENDING | There are no result rows to analyze or recompute. |
+| M5 analysis and recompute | CELL 03 READY; PHASE 1 INCOMPLETE | `future-cell03-results/analysis-readiness.json` permits Cell 03 descriptive analysis while blocking confirmatory Phase 1, Phase 2, H-M1/H-M3, model-agnostic, product, paper, and playbook claims. |
 | M6 wording guard | PENDING | H-M1/H-M3 claims are not proven and no model-agnostic paper claim is unlocked. |
 
 Operator note: clearing M2 readiness means a future provider-execution story has deterministic local inputs to check before spending budget. It does not prove H-M1, H-M3, or model-agnostic generalization.
 
 ## Latest Local Validation
 
-Local-only validation on 2026-07-05:
+Local validation on 2026-07-07:
 
 | Command | Result |
 |---|---|
 | `node experiments/multi-model-ablation/m0-smoke-check.mjs` | PASS |
 | `node experiments/multi-model-ablation/m1-freeze-check.mjs` | PASS |
 | `node experiments/multi-model-ablation/m2-launch-readiness-check.mjs` | PASS |
-| `node experiments/multi-model-ablation/m2-provider-execution-check.mjs` | PASS; reported Cell 03 envelope frozen, pre-run dollar guess not required, provider calls disabled, postflight provider-reported usage required, and Cell 06 blocked. |
+| `node experiments/multi-model-ablation/m2-provider-execution-check.mjs` | PASS; reports Cell 03 envelope frozen, B-991d Cell 03 complete only, B-6529 no-provider-call evidence preserved, postflight provider-reported usage recorded, exact dollar cost not faked, and Cell 06 execution/claims still unauthorized. |
+| `node experiments/multi-model-ablation/future-cell03-results/full/validate-full.mjs --requireComplete` | PASS; `106607` assertions, `13` negative controls rejected, `finalRows=1142/1152`, `terminalExhaustedRows=10`, `pendingExecutableRows=0`. |
 
 M2-provider authorization metadata: DONE. B-11be records provider spend USD 0.00 as a historical no-spend boundary, not a future launch cap; no provider cells ran; no result rows exist; cell 03 is next; cell 06 remains blocked.
 
-Cell 03 execution envelope: frozen. Pre-run dollar guess: not required. Provider calls from this authorization story: disabled. Postflight usage accounting: provider-reported usage required after execution. Cell 06 A2prime: blocked.
+Cell 03 execution envelope: frozen. Pre-run dollar guess: not required. B-991d Cell 03 execution window: completed for Cell 03 only with provider calls scoped to ③ A4 E2 same-family rows. Cell 03 execution result: `finalRows=1142/1152`, `terminalExhaustedRows=10`, `pendingExecutableRows=0`. B-6529 no-provider-call readiness evidence: preserved with `providerExecutionAuthorized=false` and `providerCallEnabled=false`. Postflight provider-reported usage: `inputTokens=213133626`, `outputTokens=6119875`, `totalTokens=219253501`. Exact dollar cost is not recorded because no billing export or versioned pricingRef is present. Cell 06 A2prime: usage/sequencing input is available for a separate Cell 06 story; execution and claims remain unauthorized. Downstream claims locked.
 
-Cell 03 launch guardrail: RECORDED. B-6529 does not add provider calls, provider spend, outcome rows, or result records; cell 06 remains blocked until a real cell-03-derived budget/usage lock exists after execution.
+Cell 03 launch guardrail: completed for B-991d Cell 03. B-6529 does not become an execution story. `future-cell03-results/cell03-usage-lock.json` provides a real Cell 03-derived usage/sequencing input for future Cell 06 planning under a separate story, but does not authorize Cell 06 execution or claims.
 
-These checks are local parse and invariant checks only. They did not run provider calls, full Phase 1, full Phase 2, or any external provider execution.
+Cell 03 probe on 2026-07-07: `future-cell03-results/probe/probe-summary.json` records `rowCount=2`, `finalRows=2`, `reviewedRows=2`, `groundTruthPassRows=2`, `providerUsageRows=2`, `totalTokens=297490`, and `fullRunUnlocked=true` for CHK-006. Probe validation passed with 225 assertions and 15 negative controls rejected.
+
+These checks opened and completed only the B-991d Cell 03 execution scope. They did not run Cell 06, Cell 02, optional Cell 04, full Phase 2, product gate changes, playbook activation, or paper claim upgrades.

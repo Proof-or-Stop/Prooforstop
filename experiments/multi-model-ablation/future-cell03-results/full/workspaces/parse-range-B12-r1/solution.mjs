@@ -1,0 +1,32 @@
+export default function parseRange(input) {
+  if (typeof input !== 'string') throw new Error('input must be a string');
+  const s = input.trim();
+  if (s === '') return [];
+  const out = new Set();
+  const integerPattern = /^[+-]?\d+$/;
+  const rangePattern = /^([+-]?\d+)\s*-\s*([+-]?\d+)$/;
+
+  const parseInteger = (value) => {
+    if (!integerPattern.test(value)) throw new Error('invalid integer: ' + value);
+    const n = Number(value);
+    if (!Number.isInteger(n)) throw new Error('invalid integer: ' + value);
+    return n;
+  };
+
+  for (const rawTok of s.split(',')) {
+    const tok = rawTok.trim();
+    if (tok === '') throw new Error('empty token');
+
+    const range = tok.match(rangePattern);
+    if (range) {
+      const a = parseInteger(range[1]);
+      const b = parseInteger(range[2]);
+      if (a > b) throw new Error('reversed range');
+      for (let i = a; i <= b; i++) out.add(i);
+    } else {
+      const n = parseInteger(tok);
+      out.add(n);
+    }
+  }
+  return [...out].sort((x, y) => x - y);
+}

@@ -1,0 +1,83 @@
+{
+  "schema": "lattice.done-required-evidence",
+  "version": 1,
+  "storyId": "B-991d",
+  "status": "PASS",
+  "startedAt": "2026-07-07T05:54:01.252Z",
+  "endedAt": "2026-07-07T05:55:22.206Z",
+  "durationMs": 80954,
+  "headHash": "308819ed8ac5a0696ffce372b37bd492daf25d97",
+  "materialHash": "3e7d9ca555baa75e86253175df249bac96717ee7214794bf41521716cdaf11f8",
+  "storyFilesHash": "260b679c982555336b806a27df192378627f8794ffcc3547c41def84bae9200e",
+  "policyHash": "1f72cd38f6c94ed8e6fb8946919ac028e73770eb129ea0db75474982a61542dc",
+  "commandSetHash": "a69129533543ffdeb071da3c66fd0b8a884d1ce93d136c87df6120b3cac9dd35",
+  "receipts": [
+    {
+      "label": "packages/main build",
+      "command": "npm",
+      "args": [
+        "--prefix",
+        "packages/main",
+        "run",
+        "build"
+      ],
+      "commandSpec": {
+        "schema": "lattice.command-spec.v1",
+        "digest": "7035f382aabc4b8b6a7754fa47d9fd05ebfd98c30cfe4d4886b0d9772e791292",
+        "command": "npm",
+        "args": [
+          "--prefix",
+          "packages/main",
+          "run",
+          "build"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-991d",
+        "shell": false,
+        "env": {},
+        "timeoutMs": 290000
+      },
+      "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-991d",
+      "status": "PASS",
+      "exitCode": 0,
+      "durationMs": 8658,
+      "outputDigest": "ceaf64b08b4fc4bd10e913688046b672b79e213619dcc642b565cdfdde9dd038",
+      "outputTail": "\n> @lattice/core@0.3.166 build\n> tsc\n\n",
+      "startedAt": "2026-07-07T05:54:01.252Z",
+      "endedAt": "2026-07-07T05:54:09.911Z",
+      "headHash": "308819ed8ac5a0696ffce372b37bd492daf25d97",
+      "materialHash": "3e7d9ca555baa75e86253175df249bac96717ee7214794bf41521716cdaf11f8",
+      "storyFilesHash": "260b679c982555336b806a27df192378627f8794ffcc3547c41def84bae9200e"
+    },
+    {
+      "label": "root full test suite",
+      "command": "npm",
+      "args": [
+        "test"
+      ],
+      "commandSpec": {
+        "schema": "lattice.command-spec.v1",
+        "digest": "cea5f5c3402ae61e7d1d26dfcb75637b944cbf2696ac8278308b53d5ebfb32b3",
+        "command": "npm",
+        "args": [
+          "test"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-991d",
+        "shell": false,
+        "env": {},
+        "timeoutMs": 1200000
+      },
+      "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-991d",
+      "status": "PASS",
+      "exitCode": 0,
+      "durationMs": 71820,
+      "outputDigest": "cced478c4392bbace0d479bcaa42cac51a6343397c240db03f391e9add66eaf6",
+      "outputTail": "text-smoke: (d.4) INVALID current-round binding (round 1) -> gate BLOCK; identical with/without helper\nreview-incremental-context-smoke: (d.4) INVALID current-round binding (round 2) -> gate BLOCK; identical with/without helper\nreview-incremental-context-smoke: (d.5) VERIFIED OPEN BLOCKING FINDING (critical) -> gate BLOCK; identical with/without helper\n\nreview-incremental-context-smoke: PASS — incremental context is correct for returning/first-timer/rename (cases a–c), and canPassReviewGuard is behaviorally IDENTICAL with vs without the incremental helper across all gate branches (round-1 opt-in+quorum, round-2+ single receipt, invalid-binding-blocks-all-rounds, verified-open-blocking-finding), with the helper proven to write nothing to the store (case d).\n\n> lattice@0.3.166 test:review-assurance-floor-storyfileshash-smoke\n> node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js\n\n  ✓ (a) unrelated whole-tree drift keeps rounds valid with advisory\n  ✓ (a2) full three-part re-attestation advisory pattern\n  ✓ (b) truly-stale prior verdict does not duplicate-poison the round\n  ✓ (b2) cross-runId re-bind => only new round valid, old ignored\n  ✓ (c) real story-file change stales the rounds (anti-gaming)\n  ✓ (d) degraded fallback: storyFilesHash match => valid with advisory\n  ✓ (d) degraded fallback: real story-file change => materialHash is stale\n  ✓ baseline: no drift => valid, no re-attestation advisory\n  ✓ (1) two different-runId drifted rounds both downgraded valid\n  ✓ (2) legacy verdict (no storyFilesHash) is never downgraded\n  ✓ (3) null current storyFilesHash => no downgrade, stale, no crash\n  ✓ (4) three eras same identity diff runIds => 2 valid, no dup-identity\n  ✓ (5) two truly-stale dup-identity verdicts => ignored, no dup-identity\n  ✓ (6) one advisory per downgraded verdict (not deduplicated)\n\nreview-assurance-floor storyFilesHash smoke passed (14 checks)\n\n> lattice@0.3.166 test:docs-drift-smoke\n> node packages/main/dist/tasks/docs-drift-path-drift-smoke.js\n\ndocs-drift path+asset smoke passed\n\n> lattice@0.3.166 test:docs-drift-wrapper-root\n> npm --prefix packages/main run test:docs-drift-wrapper-root\n\n\n> @lattice/core@0.3.166 test:docs-drift-wrapper-root\n> node dist/tasks/docs-drift-wrapper-root-smoke.js\n\ndocs-drift wrapper-root smoke passed\n\n> lattice@0.3.166 test:gitroot-cwd-contract\n> node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js\n\n✓ self-test: KNOWN-GOOD fixture produces 0 violations\n✓ self-test: KNOWN-BAD fixture produces exactly 1 violation on projectRoot\n✓ self-test: ALIAS KNOWN-BAD (const gitCwd = projectRoot → git cwd) produces exactly 1 alias violation\n✓ self-test: ALIAS KNOWN-GOOD (const x = projectRoot, not a git cwd) produces 0 violations\n✓ self-test: ALIAS KNOWN-GOOD (const gitCwd = resolveGitCwd(...) → git cwd) produces 0 violations\n✓ self-test: BACKTICK KNOWN-BAD (execSync(`git`, { cwd: projectRoot })) produces exactly 1 bare violation\n✓ self-test: BACKTICK KNOWN-GOOD (execSync(`git`, { cwd: resolvedGitCwd })) produces 0 violations\n✓ self-test: docs-drift KNOWN-GOOD fixture (repoRoot: gitCwd) produces 0 violations\n✓ self-test: docs-drift KNOWN-BAD fixture (repoRoot: deps.projectRoot) is flagged\n✓ repo scan clean: 698 .ts files inspected, 0 bare-cwd violations\n✓ review-preflight docs-drift gate wires repoRoot: gitCwd (not metadataRoot)\n\n✓ gitroot-cwd-contract smoke passed\n\n> lattice@0.3.166 test:process-fact-contract\n> node scripts/verify-process-fact-contract.mjs\n\nProcess Fact Contract\nPrompt guides; CLI/handler/gate decides\n\nScope: process facts only — phase/state transitions, pass/no-issue confirmations, findings/categories/roles, and evidence/check artifacts.\nOut of scope: ordinary explanatory prose, narrative rationale, and benign Claude/Codex wording differences that do not alter commands or artifact paths.\n\n\nProcess Fact Registry\n- entries: 385 (319 CLI, 16 runtime, 10 reviewer lanes, 33 artifacts)\n- levels: L0=155, L1=39, L2=65, L3=4, L4\n...[truncated 56766 chars]",
+      "startedAt": "2026-07-07T05:54:10.106Z",
+      "endedAt": "2026-07-07T05:55:21.926Z",
+      "headHash": "308819ed8ac5a0696ffce372b37bd492daf25d97",
+      "materialHash": "3e7d9ca555baa75e86253175df249bac96717ee7214794bf41521716cdaf11f8",
+      "storyFilesHash": "260b679c982555336b806a27df192378627f8794ffcc3547c41def84bae9200e"
+    }
+  ],
+  "reasons": []
+}

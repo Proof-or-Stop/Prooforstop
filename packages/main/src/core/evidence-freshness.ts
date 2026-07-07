@@ -346,30 +346,37 @@ function changedStoryFilesBetween(gitCwd: string, fromHead: string, toHead = 'HE
   return [...files.values()].sort((a, b) => a.path.localeCompare(b.path));
 }
 
-function objectIdAtRef(gitCwd: string, ref: string, filePath: string): string | undefined {
+function objectIdsAtRef(gitCwd: string, ref: string): Map<string, string> {
+  const out = new Map<string, string>();
   try {
-    const raw = execFileSync('git', ['ls-tree', '-z', ref, '--', filePath], {
+    const raw = execFileSync('git', ['ls-tree', '-r', '-z', ref], {
       cwd: gitCwd,
       ...GIT_EXEC_OPTS,
     });
-    const first = raw.split('\0').find(Boolean);
-    if (!first) return undefined;
-    const tab = first.indexOf('\t');
-    const meta = tab >= 0 ? first.slice(0, tab) : first;
-    return meta.trim().split(/\s+/)[2] || undefined;
+    for (const entry of raw.split('\0')) {
+      if (!entry) continue;
+      const tab = entry.indexOf('\t');
+      if (tab < 0) continue;
+      const meta = entry.slice(0, tab);
+      const filePath = entry.slice(tab + 1);
+      const objectId = meta.trim().split(/\s+/)[2];
+      if (filePath && objectId) out.set(filePath, objectId);
+    }
   } catch {
-    return undefined;
+    return out;
   }
+  return out;
 }
 
 export function currentStoryFilesHash(gitCwd: string, ref = 'HEAD', metadataRoot: string = gitCwd): string | undefined {
   try {
     const base = mergeBaseWithMain(gitCwd, ref);
     if (!base) return undefined;
+    const objectIds = objectIdsAtRef(gitCwd, ref);
     const entries = changedStoryFilesBetween(gitCwd, base, ref)
       .filter(entry => !isMaterialExcludedPath(entry.path, metadataRoot))
       .map((entry) => {
-        const objectId = entry.deleted ? undefined : objectIdAtRef(gitCwd, ref, entry.path);
+        const objectId = entry.deleted ? undefined : objectIds.get(entry.path);
         return `${entry.path}\0${objectId || '<deleted>'}`;
       })
       .sort();

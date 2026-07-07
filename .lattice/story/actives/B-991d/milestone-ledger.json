@@ -1,0 +1,130 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-991d",
+  "state": "confirmed",
+  "ledgerHash": "sha256:42cf78b4c18089da78c906b424f39e5ca766fe25ae59dd3c9befb1feeb3d7344",
+  "milestones": [
+    {
+      "id": "M0",
+      "sourceRequirementId": "REQ-CELL03-REAL-EXECUTION-PLAN",
+      "claim": "Existing M2 provider execution plan contains the B-991d Cell 03 Real Execution Story section, M0-M9 ledger, and frozen-envelope preflight boundary.",
+      "doneMeans": "The plan includes the B-991d section, provider calls remain disabled until the execution window opens, B-6529 readiness evidence is preserved, and the preflight checker still reports a frozen envelope.",
+      "requiredEvidence": [
+        "docs_check",
+        "cli"
+      ],
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0",
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-B6529-PROVENANCE-PRESERVATION",
+      "claim": "Formal rows have an auditable receipt/result-row contract and Cell 03-only execution window under B-991d provenance.",
+      "doneMeans": "Result write policy defines required row bindings, and launch artifacts enable only Cell 03 with supersession/refers-to semantics preserving B-6529 readiness evidence.",
+      "requiredEvidence": [
+        "docs_check",
+        "logic_test",
+        "cli"
+      ],
+      "checklistRefs": [
+        "CHK-003",
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0",
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "REQ-CELL03-REAL-EXECUTION-PLAN",
+      "claim": "Probe and full Cell 03 execution produce bounded, non-duplicated formal rows.",
+      "doneMeans": "Probe passes before full execution and all 1,152 keys are valid or explicitly accounted for without duplicate independent rows.",
+      "requiredEvidence": [
+        "cli"
+      ],
+      "checklistRefs": [
+        "CHK-005",
+        "CHK-006"
+      ],
+      "verificationIntentRefs": [
+        "CHK-005:happy:0",
+        "CHK-005:edge:0",
+        "CHK-005:adversarial:0",
+        "CHK-006:happy:0",
+        "CHK-006:edge:0",
+        "CHK-006:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "REQ-POSTFLIGHT-USAGE-ACCOUNTING",
+      "claim": "Actual provider-reported usage/cost and downstream Cell 03 usage lock are computed after execution.",
+      "doneMeans": "Usage summary is derived from provider-reported fields and the Cell 03 usage lock is derived from actual rows without launching Cell 06.",
+      "requiredEvidence": [
+        "cli",
+        "docs_check"
+      ],
+      "checklistRefs": [
+        "CHK-007",
+        "CHK-008"
+      ],
+      "verificationIntentRefs": [
+        "CHK-007:happy:0",
+        "CHK-007:edge:0",
+        "CHK-007:adversarial:0",
+        "CHK-008:happy:0",
+        "CHK-008:edge:0",
+        "CHK-008:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "REQ-B6529-PROVENANCE-PRESERVATION",
+      "claim": "Cell 03 results become analysis-ready and DONE closure reports cost/claim boundaries without overclaiming.",
+      "doneMeans": "Analysis readiness and DONE summary state exact Cell 03 status, actual usage/cost, missing rows, and remaining blocked cells without unlocking Phase 2, Cell 06, product gates, playbooks, or paper claims.",
+      "requiredEvidence": [
+        "cli",
+        "docs_check"
+      ],
+      "checklistRefs": [
+        "CHK-009",
+        "CHK-010"
+      ],
+      "verificationIntentRefs": [
+        "CHK-009:happy:0",
+        "CHK-009:edge:0",
+        "CHK-009:adversarial:0",
+        "CHK-010:happy:0",
+        "CHK-010:edge:0",
+        "CHK-010:adversarial:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-05T23:32:27.977Z",
+  "updatedAt": "2026-07-05T23:33:40.132Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260705232930",
+    "acceptedInterpretationHash": "sha256:72dbc401ba9dc06a629dcb84e73c02708f2875d412b019ea7d28480e91a87c49",
+    "acceptedAt": "2026-07-05T23:33:40.132Z"
+  }
+}

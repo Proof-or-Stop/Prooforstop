@@ -558,19 +558,31 @@ function validateStatus(statusText) {
     "| M0 research smoke | COMPLETE |",
     "| M1 protocol freeze | COMPLETE |",
     "| M2 launch readiness | PREPARED |",
-    "| Formal M2 execution | NOT STARTED |",
-    "| ③ A4 calibration | PENDING EXECUTION |",
-    "| ⑥ A2prime | BLOCKED |",
+    "| M2 provider execution launch gate | B-6529 PRESERVED; CELL 03 COMPLETE ONLY |",
+    "| Cell 03 execution envelope | FROZEN |",
+    "| Cell 03 usage accounting | COMPLETE |",
+    "| Cell 03 launch guardrail | WINDOW CLOSED FOR CELL 03 DATA COLLECTION |",
+    "| Formal M2 execution | CELL 03 COMPLETE ONLY |",
+    "| B-991d Cell 03 execution window | COMPLETED FOR CELL 03 |",
+    "| ③ A4 calibration | COMPLETE |",
+    "| ⑥ A2prime | USAGE/SEQUENCING INPUT AVAILABLE; EXECUTION NOT STARTED |",
     "| M3 Phase 2 decision | PENDING |",
     "| M4 powered matrix | PENDING |",
-    "| M5 analysis and recompute | PENDING |",
-    "| M6 wording guard | PENDING |"
+    "| M5 analysis and recompute | CELL 03 READY; PHASE 1 INCOMPLETE |",
+    "| M6 wording guard | PENDING |",
+    "B-6529 no-provider-call readiness evidence: preserved",
+    "Postflight provider-reported usage: `inputTokens=213133626`, `outputTokens=6119875`, `totalTokens=219253501`",
+    "Exact dollar cost is not recorded because no billing export or versioned pricingRef is present",
+    "Cell 06 A2prime: usage/sequencing input is available for a separate Cell 06 story; execution and claims remain unauthorized",
+    "Downstream claims locked",
   ]) {
     assert(statusText.includes(requiredLine), `status missing row: ${requiredLine}`);
   }
+  assert(statusText.includes("providerExecutionAuthorized=false"), "status must preserve B-6529 no-execution boundary");
+  assert(statusText.includes("providerCallEnabled=false"), "status must preserve B-6529 provider-call disabled boundary");
+  assert(statusText.includes("providerCallEnabled=true"), "status must report the separate B-991d Cell 03 window");
+  assert(statusText.includes("do not authorize Cell 02, Cell 04, Cell 06"), "status must keep downstream execution locked");
   const forbiddenClaims = [
-    /Phase 1 has run/i,
-    /Phase 1 ran/i,
     /Phase 1 results are present/i,
     /Phase 1 outcome data exists/i,
     /H-M1\s*\|\s*PROVEN/i,
@@ -838,9 +850,9 @@ expectReject(
 );
 
 expectReject(
-  "status claims Phase 1 has run",
+  "status claims Phase 1 outcome data exists",
   (artifacts) => {
-    artifacts.status += "\nPhase 1 has run.\n";
+    artifacts.status += "\nPhase 1 outcome data exists.\n";
   },
   /forbidden claim/,
 );

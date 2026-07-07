@@ -1,0 +1,71 @@
+{
+  "principles": [
+    "Preserve host-neutral experiment provenance rather than binding execution semantics to a single host.",
+    "Do not optimize or automate provider execution for its own sake; only document gates needed for correct Cell 03 execution.",
+    "Keep readiness evidence, execution evidence, and paper claims separate.",
+    "Use actual provider-reported usage after execution instead of pre-run dollar guesses as a correctness gate."
+  ],
+  "drivers": [
+    "B-6529 readiness artifacts must not be rewritten into false execution evidence.",
+    "Cell 03 is the only permitted real-execution target for this story.",
+    "The user needs a status/ledger view showing done, in-progress, and remaining work."
+  ],
+  "options": [
+    {
+      "name": "extend-existing-m2-plan",
+      "pros": [
+        "Keeps the execution path next to the frozen M2 readiness plan",
+        "Avoids duplicate protocol documents drifting apart",
+        "Directly satisfies CHK-001"
+      ],
+      "cons": [
+        "The existing plan becomes longer and needs clear section boundaries"
+      ]
+    },
+    {
+      "name": "create-new-cell03-execution-document",
+      "pros": [
+        "Could isolate execution details in a shorter document"
+      ],
+      "cons": [
+        "Creates another source of truth",
+        "Reviewer already asked to avoid a standalone mega-document",
+        "Higher risk that B-6529 readiness state and B-991d execution state diverge"
+      ]
+    },
+    {
+      "name": "run-provider-calls-immediately",
+      "pros": [
+        "Would produce data faster if everything else were already ready"
+      ],
+      "cons": [
+        "Bypasses result-row contract and B-991d provenance",
+        "Risks confusing probe logs with formal rows",
+        "Violates the current checklist and planning-only edit boundary"
+      ]
+    }
+  ],
+  "chosen": "extend-existing-m2-plan",
+  "rationale": "Extend the existing M2 provider execution plan first, because the immediate correctness issue is provenance and launch ordering, not running provider calls before the execution contract exists.",
+  "preMortem": [
+    {
+      "scenario": "Readiness evidence is mistaken for real provider results.",
+      "trigger": "The plan fails to distinguish B-6529 static launch readiness from B-991d execution provenance.",
+      "consequence": "Paper or lifecycle claims could overstate what has actually run.",
+      "mitigation": "Write an explicit B-6529 preserved-readiness and B-991d supersession boundary into the plan."
+    },
+    {
+      "scenario": "Cell 06 or Phase 2 appears unlocked by Cell 03 readiness.",
+      "trigger": "The Cell 03 plan omits out-of-scope cells and claim boundaries.",
+      "consequence": "Later agents may run the wrong experiment order or overclaim evidence.",
+      "mitigation": "State that Cell 06, Cell 02, Cell 04, Phase 2, paper wording, product gates, and playbooks remain disabled."
+    },
+    {
+      "scenario": "Cost accounting is blocked by a fake pre-run budget gate.",
+      "trigger": "The plan treats guessed dollar amounts as launch requirements.",
+      "consequence": "The experiment stalls on an unknowable estimate instead of recording actual usage.",
+      "mitigation": "Make pre-run dollar guesses non-gating and require postflight provider-reported usage/cost accounting."
+    }
+  ],
+  "timestamp": "2026-07-05T23:27:54.035Z"
+}

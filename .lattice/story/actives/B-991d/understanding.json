@@ -1,0 +1,27 @@
+{
+  "task": "Document the real Cell 03 provider execution path inside the existing M2 provider execution plan, then use B-991d to gate any future provider rows under explicit provenance and postflight usage accounting.",
+  "outcome": "The existing M2 provider execution plan contains a Cell 03 real-run ledger with M0-M9, says provider calls remain disabled until B-991d opens the execution window, preserves B-6529 as no-provider-call readiness evidence, and reports that pre-run dollar guesses are not launch gates while provider-reported postflight usage is required.",
+  "facts": [
+    "B-6529 completed the static M2 launch readiness layer and explicitly made no provider calls.",
+    "Cell 03 is protocol cell ③: E2 A4 same-family reviewer calibration, expected full matrix size 1,152 rows after probe.",
+    "Cell 06 A2prime sequencing remains blocked until real Cell 03 output can derive a downstream usage lock.",
+    "The user rejected pre-run dollar caps as a launch condition and wants actual usage/cost accounted after execution.",
+    "The exact runner and actual cost are stage outputs: runner/row contract belongs to CHK-003/CHK-004, and actual usage/cost belongs to CHK-007 after provider-reported usage exists."
+  ],
+  "constraints": [
+    "Update the existing M2 provider execution plan instead of creating a new standalone mega-document.",
+    "Do not run provider calls in the planning/documentation edit.",
+    "Do not enable Cell 02, Cell 04, Cell 06, Phase 2, paper wording changes, product gates, or playbook activation from this story.",
+    "Any supersession of B-6529-authored execution artifacts must record B-991d provenance and preserve B-6529 no-provider-call readiness evidence."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+    "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+    "experiments/multi-model-ablation/m2-cell03-result-write-policy.json",
+    "experiments/multi-model-ablation/m2-cell03-provider-launch-authorization.json",
+    "experiments/multi-model-ablation/m2-provider-execution-launch.json",
+    "experiments/multi-model-ablation/m2-status.md"
+  ],
+  "timestamp": "2026-07-05T23:30:57.107Z"
+}

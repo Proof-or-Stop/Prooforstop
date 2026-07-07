@@ -1,0 +1,48 @@
+{
+  "storyId": "B-991d",
+  "changes": "Completed B-991d Cell 03 provider execution under the frozen envelope: full rows, usage-summary.json, cell03-usage-lock.json, analysis-readiness.json, done-summary.json, and m2-status.md closure updates were committed.",
+  "usage": "Use experiments/multi-model-ablation/future-cell03-results/full/validate-full.mjs --requireComplete to verify the completed Cell 03 dataset; use usage-summary.json and cell03-usage-lock.json as inputs for a future Cell 06 story.",
+  "expectedOutcome": "Cell 03 execution completes with provider-reported usage, a real Cell 03-derived usage lock, analysis readiness, and explicit blocked claims for Cell 06, Phase 2, paper, product, and playbook activation.",
+  "actualTranscript": "validate-full --requireComplete passed with 106607 assertions and 13 negative controls rejected; finalRows=1142/1152, terminalExhaustedRows=10, pendingExecutableRows=0, totalTokens=219253501.",
+  "outcomeDiff": "No difference for Cell 03 completion. Exact dollar cost remains not final because no billing export or versioned pricingRef is present; this limitation is explicitly recorded.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Cell 06, Cell 02, optional Cell 04, Phase 2, H-M1/H-M3/model-agnostic paper claims, product gates, and playbook activation remain blocked. Exact dollar cost is not recorded without billing export or versioned pricingRef.",
+  "pitfalls": "Provider-unavailable events appeared near the tail of the run; the breaker prevented polluted rows. Codex CLI auth briefly expired and had to be restored. Lattice checklist_update with large verificationEvidence and validate both hang in CLI cleanup, so compact committed artifacts carry the evidence.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 315363
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 33480
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 467899
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 100025336
+    }
+  },
+  "totalDurationMs": 100842893,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-07T03:21:01.308Z",
+  "updatedAt": "2026-07-07T03:21:01.308Z"
+}
