@@ -499,9 +499,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-07T03:05:31.285Z",
-      "endTime": null
+      "endTime": "2026-07-07T03:09:50.573Z"
     },
     {
       "id": "CHK-008",
@@ -784,6 +784,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Starting postflight provider usage and cost accounting after Cell 03 full execution completed.",
+      "agent": "codex"
+    },
+    {
+      "timestamp": "2026-07-07T03:09:50.573Z",
+      "phase": "DEV",
+      "itemId": "CHK-007",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Postflight provider-reported usage accounting artifact committed in usage-summary.json; exact dollar cost is not faked without billing export or versioned pricingRef.",
       "agent": "codex"
     }
   ]
