@@ -59,8 +59,33 @@
         "evidence.provenance",
         "scope.no_business_expansion"
       ]
+    },
+    {
+      "actor": "codex",
+      "reason": "B-991d generated thousands of scoped Cell 03 result files; the lifecycle storyFilesHash path needed a batched git object lookup plus smoke coverage so validate/review/DONE can complete without changing experiment semantics.",
+      "timestamp": "2026-07-07T04:46:43.838Z",
+      "paths": [
+        "packages/main/src/core/evidence-freshness.ts",
+        "packages/main/src/tasks/story-files-hash-batch-smoke.ts",
+        "lattice.config.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/evidence-freshness.ts",
+        "packages/main/src/tasks/story-files-hash-batch-smoke.ts",
+        "lattice.config.json"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "976e993d7dd8039fa214c41c606cd1094b977c65",
+      "materialHash": "95614a3146a1390dd37073440c570cdbaf6c2b83c964bafe7c9fa79948eb9b39",
+      "anchors": [
+        "lifecycle.storyFilesHash.performanceCorrectness",
+        "story.B991d.largeResultSetValidationUnblock",
+        "experiment.semanticsUnchanged"
+      ]
     }
   ],
   "createdAt": "2026-07-05T23:30:57.108Z",
-  "updatedAt": "2026-07-05T23:51:49.205Z"
+  "updatedAt": "2026-07-07T04:46:43.838Z"
 }
