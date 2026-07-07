@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-2fb7",
+  "checkedAt": "2026-07-07T12:43:37.185Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "0fca160f223fdab40d6c15a84ce3019a11aa93d816b8c7821bc0d16e2ea25b5d",
+  "executionBoundaryHash": "8f783727a3857b9820b6dba9d1187c918932d7929d898c4ca380a7c13b04e553",
+  "freshnessHash": "8603c2a9107343fe313c00168e2e368482b16f41fd54f6a706cfeb84a2d76651",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "customerKeyRef",
+    "Do not change unrelated story lifecycle behavior, unrelated docs, or any OMX/.omx material.",
+    "Do not rely on POSIX-only process checks unless wrapped behind a host-neutral abstraction.",
+    "Do not remove, weaken, or bypass the lifecycle idle watchdog.",
+    "Do not skip lattice validate, reduce configured validation commands, or use unlimited timeouts.",
+    "Layer4",
+    "repair UX"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Do not change unrelated story lifecycle behavior, unrelated docs, or any OMX/.omx material.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not change unrelated story lifecycle behavior, unrelated docs, or any OMX/.omx material.",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not rely on POSIX-only process checks unless wrapped behind a host-neutral abstraction.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not rely on POSIX-only process checks unless wrapped behind a host-neutral abstraction.",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not remove, weaken, or bypass the lifecycle idle watchdog.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not remove, weaken, or bypass the lifecycle idle watchdog.",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not skip lattice validate, reduce configured validation commands, or use unlimited timeouts.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not skip lattice validate, reduce configured validation commands, or use unlimited timeouts.",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "00425d8bc4dd63f44e7e7481ef809c462e522edf2edf4d700f7eb5470c464254"
+}

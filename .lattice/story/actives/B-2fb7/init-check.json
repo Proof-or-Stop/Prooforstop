@@ -1,0 +1,29 @@
+{
+  "storyId": "B-2fb7",
+  "checkedAt": "2026-07-07T12:43:57.136Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init@fallback",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "lattice-review-story-init@fallback",
+      "checkedAt": "2026-07-07T12:43:57.136Z",
+      "issues": []
+    },
+    {
+      "agentId": "product-reviewer@fallback",
+      "checkedAt": "2026-07-07T12:43:57.136Z",
+      "issues": []
+    }
+  ],
+  "fallback": {
+    "mode": "repair",
+    "reason": "Codex multi-agent tool policy forbids spawning subagents unless the user explicitly asks for subagents; manually verified B-2fb7 checklist, related execution plan, scope boundary, execution boundary, and freeze check before INIT_CHECK.",
+    "actor": "Harmonygo",
+    "session": "sess-92ebec71c42ca8f2",
+    "attestedAt": "2026-07-07T12:43:57.136Z",
+    "headHash": "43f1954de3612c80d207779cb8f01e93a6442a7f",
+    "materialHash": "24c541ef04cf6c0c200684049d3ab661c1a166ab4661159757f967104b2ced5a"
+  },
+  "_hash": "6087c08b384a22372f65edc9aaf525f9080bbe04e01488c1336c265d11368d2f"
+}

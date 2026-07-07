@@ -3,24 +3,18 @@
   "storyId": "B-2fb7",
   "mode": "correctness_fix",
   "allowed": [
-    "focused tests and regression controls",
-    "forced-exit cleanup and stale validation lock classification",
-    "infra_failure evidence classification for lifecycle runner failures",
-    "JSON-safe progress stream contract for validate --json",
-    "story_advance TEST integration with validate heartbeat",
-    "validate progress events and long-command heartbeat"
+    "Add focused tests and integration coverage for long silent validate commands, true hangs, JSON stdout cleanliness, stale locks, and failure classification.",
+    "Implement B-2fb7 checklist: JSON-safe validate progress and heartbeat, parent idle watchdog liveness refresh, per-command timeout diagnostics, forced-exit cleanup, stale validation-lock classification, and infra-failure evidence classification."
   ],
   "excluded": [
-    "changing unrelated story lifecycle behavior",
-    "implementing unrelated performance optimizations",
-    "reducing configured validate commands",
-    "removing or weakening the idle watchdog",
-    "skipping lattice validate",
-    "using unlimited timeouts"
+    "Do not change unrelated story lifecycle behavior, unrelated docs, or any OMX/.omx material.",
+    "Do not rely on POSIX-only process checks unless wrapped behind a host-neutral abstraction.",
+    "Do not remove, weaken, or bypass the lifecycle idle watchdog.",
+    "Do not skip lattice validate, reduce configured validation commands, or use unlimited timeouts."
   ],
-  "confirmedBy": "codex-side-conversation",
-  "confirmationNote": "User asked to open a story for validate progress/heartbeat plus forced-exit cleanup so another session can execute the documented plan.",
-  "createdAt": "2026-07-07T12:40:02.886Z",
-  "updatedAt": "2026-07-07T12:40:02.886Z",
-  "_hash": "1717e5227ba21b08ba04beb3ddac1b74cc726cbd7118ef755fbe3ab8d2abb186"
+  "confirmedBy": "jek",
+  "confirmationNote": "User asked Codex to take over story B-2fb7; scope is derived from the existing B-2fb7 checklist and validate-progress-heartbeat execution plan.",
+  "createdAt": "2026-07-07T12:43:19.215Z",
+  "updatedAt": "2026-07-07T12:43:19.215Z",
+  "_hash": "0fca160f223fdab40d6c15a84ce3019a11aa93d816b8c7821bc0d16e2ea25b5d"
 }

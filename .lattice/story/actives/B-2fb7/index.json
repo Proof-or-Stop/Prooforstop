@@ -4,7 +4,7 @@
   "title": "Add validate heartbeat progress and forced-exit cleanup",
   "description": "Implement the execution plan for validate progress heartbeat and forced-exit cleanup so long-running validate commands do not get killed as idle work, stale validation locks are handled safely, and infra failures are not recorded as ordinary test failures.",
   "type": "bug",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "source": "side-conversation: validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
   "keywords": [
@@ -33,6 +33,20 @@
       "user": "Harmonygo",
       "sessionId": "sess-92ebec71c42ca8f2",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-07T12:44:22.507Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-92ebec71c42ca8f2",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-2fb7",
+    "branch": "story/B-2fb7",
+    "createdAt": "2026-07-07T12:44:06.977Z"
+  }
 }

@@ -2,36 +2,51 @@
   "schemaVersion": "lattice.execution_boundary.v1",
   "storyId": "B-2fb7",
   "allowedCommands": [
+    "find *",
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git status *",
     "lattice *",
+    "ls *",
     "node *",
-    "npm run *",
-    "npm test *",
-    "pnpm *",
-    "yarn *"
+    "npm --prefix packages/main *",
+    "rg *",
+    "sed *"
   ],
   "allowedTools": [
-    "lattice CLI",
-    "local shell",
-    "test runner"
+    "apply_patch",
+    "exec_command",
+    "multi_tool_use.parallel"
   ],
   "allowedPaths": [
-    ".lattice",
+    "AGENTS.md",
     "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+    "package.json",
+    "packages/main/package.json",
     "packages/main/src",
-    "packages/main/test"
+    "packages/main/test",
+    "packages/main/tests",
+    "packages/main/tsconfig.json",
+    "packages/main/vitest.config.ts"
   ],
   "excludedCommands": [
+    "* .omx *",
     "git checkout -- *",
     "git push *",
-    "git reset --hard *"
+    "git reset --hard *",
+    "omx *"
   ],
   "excludedTools": [],
   "excludedPaths": [
-    ".omx"
+    ".omx",
+    "docs/story",
+    "packages/main/tests/fixtures",
+    "tests/fixtures"
   ],
-  "confirmedBy": "codex-side-conversation",
-  "confirmationNote": "Execution should stay local and focused on the validate heartbeat/cleanup correctness fix.",
-  "createdAt": "2026-07-07T12:40:02.886Z",
-  "updatedAt": "2026-07-07T12:40:02.886Z",
-  "_hash": "ce85ef181d8e732afbd3fca25059b99b2f2ce3926e68d5928bd888b239289875"
+  "confirmedBy": "jek",
+  "confirmationNote": "Execution boundary for B-2fb7 takeover: use Lattice CLI for story metadata; no OMX; no direct story/fixture JSON edits; no remote publish.",
+  "createdAt": "2026-07-07T12:43:30.721Z",
+  "updatedAt": "2026-07-07T12:43:30.721Z",
+  "_hash": "8f783727a3857b9820b6dba9d1187c918932d7929d898c4ca380a7c13b04e553"
 }
