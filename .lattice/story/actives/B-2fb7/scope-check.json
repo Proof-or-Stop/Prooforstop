@@ -68,22 +68,26 @@
       "q": "Should restoration of docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md be an explicit checklist/planned deliverable before DEV evidence cites it?",
       "evidence": "relatedDocs references the execution-plan path, aux_doc_list did not list it, and direct read failed with No such file or directory.",
       "sourcePointers": [
-        "CHK-001 relatedDocs",
-        "CHK-002 relatedDocs",
-        "CHK-003 relatedDocs",
-        "CHK-004 relatedDocs",
-        "CHK-005 relatedDocs",
-        "lattice plan_get rollback"
-      ]
+        "CHK-001",
+        "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+        ".lattice/story/actives/B-2fb7/plan.md"
+      ],
+      "resolution": "Resolved: restoration of docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md is in scope because all B-2fb7 checklist items already cite it as relatedDocs and the worktree lacked it only because it was untracked at INIT_CHECK. The restored doc is now explicitly bound to CHK-001 files.create and remains a requirements/source document, not an extra product feature.",
+      "resolvedAt": "2026-07-07T13:04:20.815Z"
     },
     {
       "id": "OQ-002",
       "q": "Should the plan add an explicit Non-Goals section to prevent scope expansion beyond validate heartbeat/progress, forced-exit cleanup, stale-lock handling, infra_failure classification, and TEST integration verification?",
       "evidence": "The plan has constraints that imply non-goals, but the requested review area calls for explicit non-goals and no dedicated Non-Goals section exists.",
       "sourcePointers": [
-        "lattice plan_get Constraints",
-        "lattice plan_get Goal"
-      ]
+        ".lattice/story/actives/B-2fb7/plan.md",
+        "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+        "CHK-002",
+        "CHK-003",
+        "CHK-005"
+      ],
+      "resolution": "Resolved: the plan now has an explicit Non-Goals section. It constrains the story against disabling the watchdog, skipping validate, unlimited timeouts, POSIX-only liveness checks, unrelated lifecycle/gate changes, remote authority claims, and OMX/.omx material. This narrows scope and does not add implementation work beyond B-2fb7.",
+      "resolvedAt": "2026-07-07T13:04:20.945Z"
     }
   ]
 }
