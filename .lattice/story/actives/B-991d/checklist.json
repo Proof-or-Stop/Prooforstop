@@ -569,14 +569,14 @@
         {
           "intentRef": "CHK-007:adversarial:0",
           "kind": "logic_test",
-          "file": "experiments/multi-model-ablation/future-cell03-results/usage-summary.json",
-          "command": "node <assert usage-summary exactProviderCostUsd null and estimateMayGateLaunch false>",
+          "file": "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
           "result": "pass",
-          "note": "usage-summary.json records exactProviderCostUsd=null without billing export/pricingRef and estimateMayGateLaunch=false, so diagnostic estimates cannot unlock Cell 06.",
-          "headHash": "9f08245d0635a2fbcd621d98e6bba3879a1a67fa",
+          "note": "Current executable checker verifies usage-summary keeps exactProviderCostUsd null, does not fake dollar cost, and estimates do not gate launch or downstream execution.",
+          "headHash": "64d54240d19fa4ce5d4deca39447e14aef1f65b1",
           "materialHash": "95614a3146a1390dd37073440c570cdbaf6c2b83c964bafe7c9fa79948eb9b39",
           "storyFilesHash": "8a141fcaf9b7b9e1dd5f053f90d9a91e2f4356e2c549d5545473cdac7be25385",
-          "timestamp": "2026-07-07T04:40:42.459Z"
+          "timestamp": "2026-07-07T05:04:21.886Z"
         }
       ]
     },
