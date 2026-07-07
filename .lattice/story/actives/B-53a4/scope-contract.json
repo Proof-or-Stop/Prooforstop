@@ -1,0 +1,46 @@
+{
+  "storyId": "B-53a4",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/story-create.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/handlers/planner.ts",
+    "packages/main/src/handlers/plan-skeleton.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/tests/milestone-status.test.mjs",
+    "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialize scope contract after implementing automatic milestone ledger writes at planning write points.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "ProofStory gate artifacts are required PLAN evidence for this story, and packages/main/src/core/planner.ts is required so planner drafts can carry explicit structured milestone rows without prose inference.",
+      "timestamp": "2026-07-07T13:36:15.853Z",
+      "paths": [
+        ".lattice/story/actives/B-53a4/intent-collision.json",
+        ".lattice/story/actives/B-53a4/milestone-ledger.json",
+        ".lattice/story/actives/B-53a4/original-intent-snapshot.json",
+        ".lattice/story/actives/B-53a4/proofstory.json",
+        "packages/main/src/core/planner.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-53a4/intent-collision.json",
+        ".lattice/story/actives/B-53a4/milestone-ledger.json",
+        ".lattice/story/actives/B-53a4/original-intent-snapshot.json",
+        ".lattice/story/actives/B-53a4/proofstory.json",
+        "packages/main/src/core/planner.ts"
+      ],
+      "affectedPathCount": 5,
+      "phase": "DEV",
+      "headHash": "9490a2efb627ed33fe48c8dbdc795360f86bfdfa",
+      "materialHash": "baf9c064aa92094ee920fc438003fb1d359de219aeea15279f912cbfc93745a6"
+    }
+  ],
+  "createdAt": "2026-07-07T13:27:46.139Z",
+  "updatedAt": "2026-07-07T13:36:15.853Z"
+}

@@ -1,0 +1,70 @@
+{
+  "principles": [
+    "Write ledgers only from explicit structured rows.",
+    "Keep read-only status commands free of repair side effects.",
+    "Reuse existing ProofStory ledger normalization and hash semantics.",
+    "Make malformed milestone input fail before partial ledger persistence."
+  ],
+  "drivers": [
+    "The user wants automatic creation at planning write points, not implicit status repair.",
+    "Existing explicit milestone_ledger_set/add behavior must stay compatible.",
+    "Planner and plan_skeleton must not infer rows from prose or checklist text."
+  ],
+  "options": [
+    {
+      "name": "A: Auto set complete ledger at planning write points",
+      "pros": [
+        "One atomic candidate ledger mirrors milestone_ledger_set semantics",
+        "Avoids repeated add events and duplicate row drift",
+        "Keeps status/read-only commands pure"
+      ],
+      "cons": [
+        "Callers must provide complete structured rows upfront"
+      ]
+    },
+    {
+      "name": "B: Auto add rows incrementally as planning discovers them",
+      "pros": [
+        "Can append small updates over time"
+      ],
+      "cons": [
+        "Harder to audit as one planning intent",
+        "More duplicate handling and drift risk",
+        "Encourages prose-to-row inference pressure"
+      ]
+    },
+    {
+      "name": "C: Leave only manual milestone_ledger_set/add",
+      "pros": [
+        "No behavior change"
+      ],
+      "cons": [
+        "Does not satisfy the requested automatic planning write behavior",
+        "Leaves planner-created stories missing ledgers unless the operator remembers a separate command"
+      ]
+    }
+  ],
+  "chosen": "A: Auto set complete ledger at planning write points",
+  "rationale": "A preserves the existing explicit ledger-set contract while moving the call to legitimate planning write boundaries. It creates a candidate ledger only when structured rows are supplied and keeps read-only/status surfaces side-effect free.",
+  "preMortem": [
+    {
+      "scenario": "Malformed rows create a story but no ledger",
+      "trigger": "Ledger validation runs after metadata writes",
+      "consequence": "Partial story state confuses the operator",
+      "mitigation": "Build and validate the candidate ledger before story metadata persistence, then write it after the story shell exists."
+    },
+    {
+      "scenario": "Planner starts inventing milestones from prose",
+      "trigger": "Draft prose/checklist text is used as a fallback milestone source",
+      "consequence": "Reports show false machine-countable intent",
+      "mitigation": "Only pass draft.milestones when it is an explicit structured array and never synthesize from text."
+    },
+    {
+      "scenario": "Read-only plan_skeleton or milestone_status mutates files",
+      "trigger": "Convenience repair logic is shared into status/preview paths",
+      "consequence": "Preview/report commands become hidden repair commands",
+      "mitigation": "Guard writes behind explicit --write and leave milestone_status untouched."
+    }
+  ],
+  "timestamp": "2026-07-07T13:16:38.038Z"
+}

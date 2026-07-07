@@ -121,6 +121,7 @@ export interface PlannerDraft {
     relatedDocs: string[];
     verificationIntent: VerificationIntent;
   }>;
+  milestones?: unknown[];
   plannerPolicy: PlannerPolicy;
   // Resolved, fail-closed provider policy that travels with the draft so the
   // emitted plannedSteps + JobPlan agree on which provider runs the bounded
@@ -483,6 +484,7 @@ export interface PlannerDraftArgs {
    * object or a JSON string (CLI). Omitted → fail-closed fake-only policy.
    */
   providerPolicy?: PlannerProviderPolicyInput | string;
+  milestones?: unknown[];
   allowUnattendedPlanning?: boolean;
   forceNewRun?: boolean;
   forceNewRunReason?: string;
@@ -806,6 +808,7 @@ export function buildPlannerDraft(root: string, args: PlannerDraftArgs = {}, now
     ...(args.requestFile ? { requestFile: args.requestFile } : {}),
     storyDraft,
     checklist: buildChecklist(request, developmentWorkflow),
+    ...(Array.isArray(args.milestones) && args.milestones.length > 0 ? { milestones: args.milestones } : {}),
     plannerPolicy: policy,
     providerPolicy: resolveDraftProviderPolicy(args.providerPolicy),
     ...(sourceSpec ? { sourceAlignedRedevelopmentSpec: sourceSpec } : {}),

@@ -1,0 +1,59 @@
+{
+  "storyId": "B-53a4",
+  "checkedAt": "2026-07-07T13:16:46.406Z",
+  "features": [
+    {
+      "feature": "story_create optional structured milestones write candidate ledger",
+      "covered_by": "CHK-001; packages/main/src/handlers/story-create.ts; packages/main/src/cli/command-catalog.ts",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding + checklist"
+    },
+    {
+      "feature": "planner_create_story passes explicit draft milestones through story_create",
+      "covered_by": "CHK-002; packages/main/src/handlers/planner.ts; packages/main/src/core/planner.ts",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding + checklist"
+    },
+    {
+      "feature": "plan_skeleton --write persists explicit milestones while preview remains read-only",
+      "covered_by": "CHK-003; packages/main/src/handlers/plan-skeleton.ts; packages/main/src/cli/command-catalog.ts",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding + checklist"
+    },
+    {
+      "feature": "milestone_status read-only repair behavior",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "User-approved boundary: status reports must not create or repair ledger files.",
+      "source": "scope constraint"
+    },
+    {
+      "feature": "prose/checklist milestone inference",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "User-approved boundary: structured rows only; no prose inference.",
+      "source": "scope constraint"
+    },
+    {
+      "feature": "external requirement documentation update",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "User explicitly requested implementation without writing docs.",
+      "source": "scope constraint"
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "covered": 3,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "bcf4214d6e22b21782512daa8681b47e3023491d138646f9f6f9a0cab394eb19",
+  "openQuestions": []
+}

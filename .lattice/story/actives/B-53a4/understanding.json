@@ -1,0 +1,26 @@
+{
+  "task": "Automatically persist a milestone ledger at planning write points when explicit structured milestone rows are supplied.",
+  "outcome": "story_create, planner_create_story, and plan_skeleton --write can create a candidate milestone ledger from explicit rows; read-only/status paths and prose-only planning do not write or infer ledgers.",
+  "facts": [
+    "milestone_ledger_set currently writes caller-provided rows through buildMilestoneLedger without prose inference.",
+    "story_create is already the primary planning write point for story metadata/checklist creation.",
+    "planner_create_story delegates story creation to story_create and currently does not pass milestone rows.",
+    "plan_skeleton currently writes only through understanding_set/checklist_add when --write=true and is read-only otherwise.",
+    "milestone_status must remain read-only and report missing/unknown instead of repairing files."
+  ],
+  "constraints": [
+    "Do not write or update requirement docs for this implementation.",
+    "Do not infer detailed milestones from prose, descriptions, background, or checklist text.",
+    "Only automatic ledger writes at planning write points are in scope.",
+    "Preserve existing explicit milestone_ledger_set/add behavior."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/story-create.ts",
+    "packages/main/src/handlers/planner.ts",
+    "packages/main/src/handlers/plan-skeleton.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/tests/milestone-status.test.mjs"
+  ],
+  "timestamp": "2026-07-07T13:15:00.187Z"
+}

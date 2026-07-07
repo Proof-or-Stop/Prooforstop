@@ -1,0 +1,88 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-53a4",
+  "state": "confirmed",
+  "ledgerHash": "sha256:8077818acb384c1743cd32975f0eb479eae3f751252173e29d6575595d7997dd",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-001",
+      "claim": "story_create accepts explicit structured milestones and writes a candidate milestone ledger.",
+      "doneMeans": "story_create with milestones creates milestone-ledger.json in candidate state with the supplied rows; story_create without milestones creates no ledger.",
+      "requiredEvidence": [
+        "cli_blackbox"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "REQ-002",
+      "claim": "planner_create_story passes structured draft milestones through the story_create write boundary.",
+      "doneMeans": "planner_create_story with draft milestones creates a candidate ledger and planner drafts without milestones do not infer one from prose or checklist text.",
+      "requiredEvidence": [
+        "logic"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "REQ-003",
+      "claim": "plan_skeleton --write writes explicit structured milestone rows and remains read-only without --write.",
+      "doneMeans": "plan_skeleton --write with milestones writes a candidate ledger, while read-only plan_skeleton and prose-only write calls do not synthesize rows.",
+      "requiredEvidence": [
+        "logic"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "REQ-004",
+      "claim": "Regression coverage protects the structured milestone write path and existing read-only boundary.",
+      "doneMeans": "npm build, milestone-status.test.mjs, and proofstory-intent-hardening-smoke.js pass with evidence showing no prose-only ledger creation.",
+      "requiredEvidence": [
+        "logic"
+      ],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-004:happy:0",
+        "CHK-004:happy:1",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-07T13:11:15.225Z",
+  "updatedAt": "2026-07-07T13:12:01.032Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260707131201",
+    "acceptedInterpretationHash": "sha256:12160446628f00d7f8aea38c18faefe795304aab6b2b9baf7171b3676ff8adc6",
+    "acceptedAt": "2026-07-07T13:12:01.032Z"
+  }
+}
