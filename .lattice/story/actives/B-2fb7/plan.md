@@ -10,11 +10,20 @@ Fix validate/lifecycle coordination so active long-running validation reports pr
 - Stale validation locks must be reclaimed only when the holder is vanished or mismatched; active holders are not stolen.
 - Runner/watchdog infrastructure failures are classified distinctly from ordinary validation/test assertion failures.
 
+## Non-Goals
+- Do not remove, disable, bypass, or weaken the lifecycle idle watchdog.
+- Do not skip lattice validate, reduce configured validate commands, or mark failing tests as passing.
+- Do not use unlimited timeout or let heartbeat extend a command timeoutMs wall-clock ceiling.
+- Do not rely on POSIX-only /proc checks without a host-neutral abstraction.
+- Do not change unrelated story lifecycle behavior, reviewer gates, DONE gates, dispatch behavior, or OMX/.omx material.
+- Do not present local diagnostics as remote authority receipts or production/full completion.
+
 ## Rollback
 All changes are local to validate execution, CLI watchdog integration, validation lock handling, evidence classification, task smokes, and the related execution-plan doc. If regressions appear, revert the B-2fb7 commits on story/B-2fb7 before REVIEW, rerun the red repro to confirm the baseline failure, and leave the story in DEV with findings rather than weakening gates.
 
 ## CHK-001 Add red repro for silent validate idle-kill
 - Record the existing red evidence: a temporary project with one 12s silent validate command and LATTICE_IDLE_TIMEOUT_MS=1000 is killed by the CLI idle watchdog before timeoutMs.
+- Restore the related execution-plan document on the story branch so relatedDocs resolves for reviewers and later evidence.
 - Add a durable smoke task that expresses this red/green relation without waiting five minutes by using small env-controlled heartbeat and idle intervals.
 - Ensure the repro fails only when the heartbeat/progress fix is absent; it must not pass by disabling the watchdog, skipping validate, or using unlimited timeout.
 

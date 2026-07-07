@@ -9,9 +9,12 @@
       ],
       "files": {
         "modify": [],
-        "create": [],
+        "create": [
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+        ],
         "test": [
-          "packages/main/test"
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
         ]
       },
       "status": "pending",
