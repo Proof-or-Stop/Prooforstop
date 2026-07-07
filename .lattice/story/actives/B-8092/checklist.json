@@ -1,0 +1,63 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Build or verify the local Docker Codex runner image",
+      "context": "Create or reuse a minimal local Docker image that can run codex exec non-interactively for a sterile probe.",
+      "relatedDocs": [
+        "docs/requirements/decisions/cell06-docker-server-execution-checklist.md",
+        "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md"
+      ],
+      "excludes": [
+        "complete Cell 06 dataset execution"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Generate sterile probe row inputs and shard manifests",
+      "context": "Prepare two to five local probe rows with allowlisted task files, prompt, budget, tool policy, and input manifests only.",
+      "relatedDocs": [
+        "docs/requirements/decisions/cell06-docker-server-execution-checklist.md",
+        "experiments/multi-model-ablation/future-cell03-results/cell03-usage-lock.json"
+      ],
+      "excludes": [
+        "Cell 03 solutions or reviewer feedback"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Run the local Docker probe and capture receipts",
+      "context": "Run a bounded probe through the container path, capture Codex events, final messages, receipt metadata, and account/shard ownership.",
+      "relatedDocs": [
+        "docs/requirements/decisions/cell06-docker-server-execution-checklist.md"
+      ],
+      "excludes": [
+        "silent rerun selection across accounts"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Validate contamination scan and merge checks",
+      "context": "Run checks that reject forbidden terms, duplicate ownership, missing manifest digests, and reviewer contamination.",
+      "relatedDocs": [
+        "docs/requirements/decisions/cell06-docker-server-execution-checklist.md",
+        "docs/requirements/decisions/multi-model-ablation-replication.md"
+      ],
+      "excludes": [
+        "paper claim upgrades and product gate changes"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

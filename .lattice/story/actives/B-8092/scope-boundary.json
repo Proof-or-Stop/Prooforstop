@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-8092",
+  "mode": "custom",
+  "allowed": [
+    "Documentation and probe artifacts needed to decide whether a later broad Cell 06 story can run",
+    "Local Docker probe for Cell 06 A2prime runner isolation",
+    "Probe input manifests, Docker runner smoke, contamination scan, and receipt validation"
+  ],
+  "excluded": [
+    "Cell 02 or Cell 04 execution",
+    "Full Cell 06 execution",
+    "Paper claim upgrades",
+    "Phase 2 execution",
+    "Playbook activation",
+    "Product gate changes"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "User requested local Docker probe before broad Cell 06 execution.",
+  "createdAt": "2026-07-07T10:42:39.238Z",
+  "updatedAt": "2026-07-07T10:42:39.238Z",
+  "_hash": "937f6435885dbd96b529faff03f3184dd0d059e1f4783599ef9e653122e502a8"
+}

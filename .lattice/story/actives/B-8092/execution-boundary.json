@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-8092",
+  "allowedCommands": [
+    "docker --version",
+    "docker build *",
+    "docker run *",
+    "git add *",
+    "git commit *",
+    "git status *",
+    "lattice *",
+    "node *",
+    "npm *",
+    "rg *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "docs/requirements/decisions/**",
+    "experiments/multi-model-ablation/**",
+    "lattice.config.json",
+    "packages/main/**"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx/**",
+    "docs/requirements/decisions/tier-c-powered-independent-host-campaign-protocol.md",
+    "docs/superpowers/**"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Probe may use Docker and local Node validators, but must not touch other session files or legacy OMX state.",
+  "createdAt": "2026-07-07T10:42:39.238Z",
+  "updatedAt": "2026-07-07T10:42:39.238Z",
+  "_hash": "aeae8facc2d92426f17fe60e9ea9a9b2be899ae427f210d26471f0f913fe362d"
+}

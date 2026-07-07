@@ -1,0 +1,30 @@
+{
+  "storyId": "B-8092",
+  "name": "cell06-local-docker-probe",
+  "title": "Validate a local Docker sterile Codex runner probe for Cell 06 A2prime",
+  "description": "Run a bounded local Docker probe before broader Cell 06 work so the experiment can verify Codex CLI container execution, shard/account separation, sterile inputs, contamination scanning, and receipt shape without launching the complete dataset.",
+  "type": "chore",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "cell06",
+    "docker",
+    "codex-cli",
+    "a2prime",
+    "multi-model-ablation"
+  ],
+  "createdAt": "2026-07-07T10:42:39.238Z",
+  "startedAt": "2026-07-07T10:42:39.238Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-07T10:42:40.070Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-92ebec71c42ca8f2",
+      "agent": "main"
+    }
+  ]
+}
