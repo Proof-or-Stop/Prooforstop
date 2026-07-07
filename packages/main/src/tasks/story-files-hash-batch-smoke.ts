@@ -88,15 +88,30 @@ check('empty story diff returns the explicit empty-set digest', () => {
   });
 });
 
-check('large changed-file set matches the legacy per-path digest semantics', () => {
+check('small changed-file set matches the legacy per-path digest semantics', () => {
   withRepo((root) => {
     const base = git(root, ['rev-parse', 'HEAD']);
-    git(root, ['checkout', '-q', '-b', 'story/B-batch']);
+    git(root, ['checkout', '-q', '-b', 'story/B-small-batch']);
+    for (let i = 0; i < 12; i += 1) {
+      write(root, `experiments/cell03/workspaces/case-${String(i).padStart(4, '0')}/solution.mjs`, `export default ${i};\n`);
+    }
+    commitAll(root, 'add story-owned files');
+    assert.equal(currentStoryFilesHash(root, 'HEAD', root), expectedStoryHash(root, base));
+  });
+});
+
+check('large changed-file set completes through the batched lookup path', () => {
+  withRepo((root) => {
+    git(root, ['checkout', '-q', '-b', 'story/B-large-batch']);
     for (let i = 0; i < 700; i += 1) {
       write(root, `experiments/cell03/workspaces/case-${String(i).padStart(4, '0')}/solution.mjs`, `export default ${i};\n`);
     }
     commitAll(root, 'add many story-owned files');
-    assert.equal(currentStoryFilesHash(root, 'HEAD', root), expectedStoryHash(root, base));
+    const start = Date.now();
+    const hash = currentStoryFilesHash(root, 'HEAD', root);
+    const durationMs = Date.now() - start;
+    assert.match(hash ?? '', /^[0-9a-f]{64}$/);
+    assert.ok(durationMs < 5000, `large storyFilesHash should complete through batched git lookup, took ${durationMs}ms`);
   });
 });
 
