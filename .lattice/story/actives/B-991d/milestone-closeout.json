@@ -1,0 +1,119 @@
+{
+  "schemaVersion": "proofbound.milestone_closeout.v1",
+  "storyId": "B-991d",
+  "phase": "TEST",
+  "generatedAt": "2026-07-07T06:09:49.481Z",
+  "sourceReport": {
+    "schemaVersion": "proofbound.milestone_status.v1",
+    "digest": "2c15842ab22a6f0e507255129d60eafdc81cc331f022a4ca8f06e434357c414f",
+    "ledger": {
+      "present": true,
+      "state": "confirmed",
+      "hash": "sha256:42cf78b4c18089da78c906b424f39e5ca766fe25ae59dd3c9befb1feeb3d7344"
+    },
+    "groups": {
+      "completed": [
+        "M0",
+        "M1",
+        "M2",
+        "M3",
+        "M4"
+      ],
+      "current": [],
+      "remaining": []
+    },
+    "risks": [],
+    "nextActions": [
+      "No milestone action; all ledger rows are completed or not applicable."
+    ]
+  },
+  "bindings": {
+    "headHash": "7f4739ee1174093c9135fde4de932f9c15dcc708",
+    "materialHash": "3e7d9ca555baa75e86253175df249bac96717ee7214794bf41521716cdaf11f8",
+    "storyFilesHash": "260b679c982555336b806a27df192378627f8794ffcc3547c41def84bae9200e"
+  },
+  "rows": [
+    {
+      "milestone": "M0",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Existing M2 provider execution plan contains the B-991d Cell 03 Real Execution Story section, M0-M9 ledger, and frozen-envelope preflight boundary.",
+      "acceptance": "The plan includes the B-991d section, provider calls remain disabled until the execution window opens, B-6529 readiness evidence is preserved, and the preflight checker still reports a frozen envelope.",
+      "evidence": [
+        "CHK-001:happy:0 [pass/docs_check] rg -n \"B-991d Cell 03 Real Execution|Cell 03 Real Execution Story\" docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md note=The existing M2 provider execution plan now contains the B-991d Cell 03 Real Execution Story section and the B-991d M0-M9 real-execution ledger while provider calls remain disabled until the execution window opens.",
+        "CHK-001:edge:0 [pass/docs_check] rg -n \"pre-run dollar|provider-reported usage\" docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md note=The plan states pre-run dollar guesses are not launch gates and postflight provider-reported usage/cost accounting is required after execution.",
+        "CHK-001:adversarial:0 [pass/docs_check] rg -n \"Cell 06|Phase 2|paper wording|product gates|playbook activation\" docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md note=The plan states Cell 02, Cell 04, Cell 06, Phase 2, paper wording, product gates, and playbook activation remain locked/out of scope; CHK-001 does not unlock them.",
+        "CHK-002:happy:0 [pass/manual_transcript] node experiments/multi-model-ablation/m2-provider-execution-check.mjs note=Checker passed with output: M2 provider execution checker passed; Cell 03 execution envelope: frozen.",
+        "CHK-002:edge:0 [pass/logic_test] node experiments/multi-model-ablation/m2-provider-execution-check.mjs note=Checker output confirms pre-run dollar guess is not required and postflight provider-reported usage is required after execution, so drift or missing postflight usage cannot be treated as complete execution evidence.",
+        "CHK-002:adversarial:0 [pass/logic_test] node experiments/multi-model-ablation/m2-provider-execution-check.mjs note=Checker output confirms provider calls remain disabled, no outcome records are present, and Cell 06 A2prime is blocked; host labels cannot substitute for the frozen dated provider-target envelope."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M1",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Formal rows have an auditable receipt/result-row contract and Cell 03-only execution window under B-991d provenance.",
+      "acceptance": "Result write policy defines required row bindings, and launch artifacts enable only Cell 03 with supersession/refers-to semantics preserving B-6529 readiness evidence.",
+      "evidence": [
+        "CHK-003:happy:0 [pass/docs_check] rg -n \"cellKey|providerReportedUsage|oneFinalFormalRowPerCellKey\" experiments/multi-model-ablation/m2-cell03-result-write-policy.json file=experiments/multi-model-ablation/m2-cell03-result-write-policy.json note=Result-row policy document defines required binding fields, provider usage requirement, and one-final-row-per-cell-key behavior for formal Cell 03 rows.",
+        "CHK-003:edge:0 [pass/logic_test] rg -n 'oneFinalFormalRowPerCellKey|failedRetriedVoidRowsCannotCountTwice|supersededRowsMustRemainAuditable|nonFinalRowsRemainAuditable' experiments/multi-model-ablation/m2-cell03-result-write-policy.json note=Contract preserves failed/retried/void/superseded rows as auditable non-counting records and permits only one final formal row per cell key.",
+        "CHK-003:adversarial:0 [pass/logic_test] rg -n 'missing-provider-reported-usage|missing-digest-bindings|host-label-only-snapshots|duplicate-final-row|fallback-provider-or-model-switch|cell06ExecutionAllowedByThisPolicy|phase2ExecutionAllowedByThisPolicy|playbookGateImpact|productGateImpact' experiments/multi-model-ablation/m2-cell03-result-write-policy.json note=Contract makes rows non-formal for missing provider usage, missing digest bindings, host-label-only snapshots, duplicate final rows, fallback/model switch, and confirms Cell 06/Phase 2/playbook/product gates remain unaffected.",
+        "CHK-003:adversarial:0 [pass/manual_transcript] node experiments/multi-model-ablation/m2-provider-execution-check.mjs note=Existing provider execution checker still passes with provider calls disabled, Cell 03 envelope frozen, postflight provider usage required, and Cell 06 blocked.",
+        "CHK-004:happy:0 [pass/manual_transcript] node experiments/multi-model-ablation/m2-provider-execution-check.mjs note=Checker passes and reports B-991d Cell 03 execution window open for Cell 03 only, B-6529 no-provider-call readiness evidence preserved, postflight provider-reported usage required, and Cell 06 blocked.",
+        "CHK-004:edge:0 [pass/logic_test] node experiments/multi-model-ablation/m2-provider-execution-check.mjs file=experiments/multi-model-ablation/m2-provider-execution-check.mjs note=Current executable checker verifies B-991d window drift and supersession policies: B-6529 no-provider-call evidence remains preserved, B-991d Cell03 provenance is explicit, and drift/fallback/non-Cell03 execution remains rejected.",
+        "CHK-004:adversarial:0 [pass/logic_test] node experiments/multi-model-ablation/m2-provider-execution-check.mjs note=Checker rejected 17 negative controls, including attempts to add Cell 06 to the B-991d window, remove B-991d provenance, allow provider fallback, retarget the runner to Cell 06, unlock Cell 06 sequencing, drift prompt/tool digests, or add result rows.",
+        "CHK-004:adversarial:0 [pass/logic_test] lattice scope_contract_check --storyId=B-991d --json note=Scope contract check is non-blocking: business artifacts are allowed by the contract; only acknowledged ProofStory lifecycle metadata remains as reviewer-visible warning."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M2",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Probe and full Cell 03 execution produce bounded, non-duplicated formal rows.",
+      "acceptance": "Probe passes before full execution and all 1,152 keys are valid or explicitly accounted for without duplicate independent rows.",
+      "evidence": [
+        "CHK-005:happy:0 [pass/manual_transcript] node experiments/multi-model-ablation/future-cell03-results/probe/run-probe.mjs --force && node experiments/multi-model-ablation/future-cell03-results/probe/validate-probe.mjs note=A fresh B-991d Cell 03 probe produced 2 final rows. Each row includes executor usage, fresh same-family reviewer usage, SHIP verdict, aggregate provider usage, acceptance pass, hidden ground-truth pass, B-991d provenance, and fullRunUnlocked=true for CHK-006.",
+        "CHK-005:edge:0 [pass/logic_test] node experiments/multi-model-ablation/future-cell03-results/probe/validate-probe.mjs note=Probe validator simulates a failed/nonformal row and confirms it cannot unlock the full run. It also confirms provider-visible artifact workspaces contain only prompt.md, acceptance.mjs, task.json, and solution.mjs; hidden oracle/reference files are not visible to executor or reviewer.",
+        "CHK-005:adversarial:0 [pass/logic_test] node experiments/multi-model-ablation/future-cell03-results/probe/validate-probe.mjs && node experiments/multi-model-ablation/m2-provider-execution-check.mjs note=Validator passed 225 assertions and rejected 15 negative controls, including duplicate cell keys, Cell 06 row, missing B-991d provenance, missing provider usage, fallback runner, missing reviewer snapshot, parent repo rules visible, hidden oracle visible, hidden file listed as visible, missing review gate, reviewer family drift, invalid verdict, missing reviewer usage, non-fresh reviewer context, and missing ground truth. M2 provider checker passed 1481 assertions with Cell 06, Phase 2, and outcome records blocked.",
+        "CHK-006:happy:0 [pass/manual_transcript] node experiments/multi-model-ablation/future-cell03-results/full/validate-full.mjs --requireComplete file=experiments/multi-model-ablation/future-cell03-results/full/validate-full.mjs note=Cell 03 full validator passed: 106607 assertions, 13 negative controls rejected; finalRows=1142/1152, terminalExhaustedRows=10, pendingExecutableRows=0, requireComplete=true.",
+        "CHK-006:edge:0 [pass/logic_test] node experiments/multi-model-ablation/future-cell03-results/full/validate-full.mjs --requireComplete file=experiments/multi-model-ablation/future-cell03-results/full/cell03-summary.json note=Validator accepts terminalExhaustedRows=10 as accounted terminal rows while requiring pendingExecutableRows=0, so timeouts/failures do not corrupt final row counts.",
+        "CHK-006:adversarial:0 [pass/logic_test] node experiments/multi-model-ablation/future-cell03-results/full/validate-full.mjs --requireComplete file=experiments/multi-model-ablation/future-cell03-results/full/validate-full.mjs note=Validator rejected negative controls including duplicate final row, Cell 06 row, missing B-991d provenance, missing provider usage, missing review gate, and missing ground truth."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M3",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Actual provider-reported usage/cost and downstream Cell 03 usage lock are computed after execution.",
+      "acceptance": "Usage summary is derived from provider-reported fields and the Cell 03 usage lock is derived from actual rows without launching Cell 06.",
+      "evidence": [
+        "CHK-007:happy:0 [pass/docs_check] rg -n \"Cell 03 usage accounting|totalTokens=219253501|Exact dollar cost\" experiments/multi-model-ablation/m2-status.md file=experiments/multi-model-ablation/m2-status.md note=m2-status.md documents Cell 03 usage accounting, the exact token totals, and the no-fake-dollar-cost boundary.",
+        "CHK-007:edge:0 [pass/logic_test] node experiments/multi-model-ablation/future-cell03-results/full/validate-full.mjs --requireComplete file=experiments/multi-model-ablation/future-cell03-results/full/validate-full.mjs note=Full validator rejects a final row with missing providerReportedUsage; usage-summary coverage is all_final_rows, so missing provider usage cannot be silently formal.",
+        "CHK-007:adversarial:0 [pass/logic_test] node experiments/multi-model-ablation/m2-provider-execution-check.mjs file=experiments/multi-model-ablation/m2-provider-execution-check.mjs note=Current executable checker verifies usage-summary keeps exactProviderCostUsd null, does not fake dollar cost, and estimates do not gate launch or downstream execution.",
+        "CHK-008:happy:0 [pass/manual_transcript] node experiments/multi-model-ablation/m2-provider-execution-check.mjs file=experiments/multi-model-ablation/m2-provider-execution-check.mjs note=Current executable checker verifies cell03-usage-lock is derived from real Cell 03 rows and provider usage, includes one lock per task, and records Cell06 as separate-story usage/sequencing input only.",
+        "CHK-008:edge:0 [pass/logic_test] node experiments/multi-model-ablation/m2-provider-execution-check.mjs file=experiments/multi-model-ablation/m2-provider-execution-check.mjs note=Current executable checker verifies usage lock prerequisites: Cell03 complete, pendingExecutableRows is 0, provider usage covers all final rows, and usage totals match the row artifacts.",
+        "CHK-008:adversarial:0 [pass/logic_test] node experiments/multi-model-ablation/m2-provider-execution-check.mjs file=experiments/multi-model-ablation/m2-provider-execution-check.mjs note=Current executable checker rejects declaration-only/example locks and verifies cell03-usage-lock does not authorize Cell06 execution, Phase2, paper claims, product gates, or playbook activation."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M4",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Cell 03 results become analysis-ready and DONE closure reports cost/claim boundaries without overclaiming.",
+      "acceptance": "Analysis readiness and DONE summary state exact Cell 03 status, actual usage/cost, missing rows, and remaining blocked cells without unlocking Phase 2, Cell 06, product gates, playbooks, or paper claims.",
+      "evidence": [
+        "CHK-009:happy:0 [pass/docs_check] rg -n \"analysis-readiness|model-agnostic|playbook claims|Phase 2\" experiments/multi-model-ablation/m2-status.md file=experiments/multi-model-ablation/m2-status.md note=m2-status.md documents that Cell 03 is analysis-ready only descriptively and blocks model-agnostic, Phase 2, product, paper, and playbook claims.",
+        "CHK-009:edge:0 [pass/logic_test] node experiments/multi-model-ablation/m2-provider-execution-check.mjs file=experiments/multi-model-ablation/m2-provider-execution-check.mjs note=Current executable checker verifies partial data handling: 10 terminal exhausted rows are not formal final rows, not successful recoveries, and confirmatory denominators require a later analysis plan.",
+        "CHK-009:adversarial:0 [pass/logic_test] node experiments/multi-model-ablation/m2-provider-execution-check.mjs file=experiments/multi-model-ablation/m2-provider-execution-check.mjs note=Current executable checker verifies blocked claims include runtime product gate and playbook activation; Cell03 data does not unlock model-agnostic, H-M1/H-M3, Phase2, paper, product, or playbook claims.",
+        "CHK-010:happy:0 [pass/docs_check] rg -n \"Cell 03|Cell 06|Phase 2|playbook|cost|usage|219253501|1142\" experiments/multi-model-ablation/m2-status.md experiments/multi-model-ablation/future-cell03-results/full/README.md file=experiments/multi-model-ablation/m2-status.md note=Status docs report Cell 03 completion, usage/cost boundary, row counts, and blocked Cell06/Phase2/playbook/product/paper scope.",
+        "CHK-010:edge:0 [pass/logic_test] node experiments/multi-model-ablation/m2-provider-execution-check.mjs file=experiments/multi-model-ablation/m2-provider-execution-check.mjs note=Current executable checker verifies done-summary records formalComplete false, 10 terminal exhausted rows, pendingExecutableRows 0, remaining work, and no overclaim from partial formal rows.",
+        "CHK-010:adversarial:0 [pass/logic_test] node experiments/multi-model-ablation/m2-provider-execution-check.mjs file=experiments/multi-model-ablation/m2-provider-execution-check.mjs note=Current executable checker verifies done-summary notUnlocked boundaries: Cell06 execution, Phase2, model-agnostic/H-M claims, paper, product gates, and playbook activation remain unauthorized."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    }
+  ]
+}
