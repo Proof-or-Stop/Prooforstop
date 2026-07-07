@@ -308,13 +308,14 @@
         {
           "intentRef": "CHK-004:edge:0",
           "kind": "logic_test",
-          "command": "node -e <parse B-991d window drift and supersession policies>",
+          "file": "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
           "result": "pass",
-          "note": "Both launch and guardrail artifacts bind the B-991d window, preserve B-6529 readiness evidence, deny non-Cell03 cells and fallback, and make drift/missing-provenance rows nonformal.",
-          "headHash": "8710926b5951753ebb68e942cfb03f6dfff15ab2",
+          "note": "Current executable checker verifies B-991d window drift and supersession policies: B-6529 no-provider-call evidence remains preserved, B-991d Cell03 provenance is explicit, and drift/fallback/non-Cell03 execution remains rejected.",
+          "headHash": "631895228543c53a4963096cb93a5187ca15b287",
           "materialHash": "95614a3146a1390dd37073440c570cdbaf6c2b83c964bafe7c9fa79948eb9b39",
           "storyFilesHash": "8a141fcaf9b7b9e1dd5f053f90d9a91e2f4356e2c549d5545473cdac7be25385",
-          "timestamp": "2026-07-07T04:38:37.824Z"
+          "timestamp": "2026-07-07T05:05:30.282Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
