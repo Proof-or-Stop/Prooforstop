@@ -17,6 +17,7 @@
       "files": {
         "modify": [],
         "create": [
+          "experiments/multi-model-ablation/cell06-docker-probe/",
           "experiments/multi-model-ablation/cell06-docker-probe/Dockerfile",
           "experiments/multi-model-ablation/cell06-docker-probe/run-probe.mjs",
           "experiments/multi-model-ablation/cell06-docker-probe/README.md"
@@ -48,7 +49,7 @@
           }
         ]
       },
-      "userSees": "User sees probe-summary.json report dockerImage.status=pass and containerCodexCliVersion populated, with account-b reported as pending_auth if no second auth bundle exists."
+      "userSees": "User sees: \"dockerImage.status: pass\" and \"containerCodexCliVersion: codex-cli ...\" in probe-summary.json; if no second auth exists, user sees \"account-b: pending_auth\"."
     },
     {
       "id": "CHK-002",
