@@ -290,9 +290,9 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-07T13:27:16.132Z",
       "verificationEvidence": [
         {
           "intentRef": "CHK-004:happy:0",
@@ -372,6 +372,16 @@
       "from": "pending",
       "to": "done",
       "reason": "Implemented plan_skeleton --write milestone persistence and verified preview/prose-only boundaries.",
+      "agent": "main-agent"
+    },
+    {
+      "timestamp": "2026-07-07T13:27:16.132Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Ran build, milestone-status regression, and ProofStory intent hardening smoke successfully.",
       "agent": "main-agent"
     }
   ]
