@@ -14,7 +14,7 @@
   "sourceArtifacts": {
     "m2Status": {
       "path": "experiments/multi-model-ablation/m2-status.md",
-      "digest": "sha256:3ad0fdea4ba1585670078f27b5b36c34165e6a0e46036ef48f39eceb074d0483"
+      "digest": "sha256:3b3d00205f7f3f014b41bf0a666b2063e6b3b64092b346e73a9f072c65958131"
     },
     "cell03Summary": {
       "path": "experiments/multi-model-ablation/future-cell03-results/full/cell03-summary.json",
@@ -26,11 +26,11 @@
     },
     "usageLock": {
       "path": "experiments/multi-model-ablation/future-cell03-results/cell03-usage-lock.json",
-      "digest": "sha256:883c1a82a3fb7ac5ea340b4b00d46a0353037b241a908acff9ac034c089865fc"
+      "digest": "sha256:e2c2b45b8267b1dcae12dcb2aea2a3a3999afbb35337c4357e503b43d56ac2b0"
     },
     "analysisReadiness": {
       "path": "experiments/multi-model-ablation/future-cell03-results/analysis-readiness.json",
-      "digest": "sha256:c99db255057354bfb3fc57414aa586b34296767e448d93a32baaa7512abdd5f3"
+      "digest": "sha256:4ed7a0d362be8cf9b666b32a0f6fc2a572deebd11a4d73706216ca4f3e0c5f8a"
     }
   },
   "executionResult": {
@@ -69,8 +69,14 @@
     "reason": "The run records provider-reported token usage. It does not contain a provider-reported dollar cost, billing export, or versioned pricingRef, so this summary does not invent a final dollar cost."
   },
   "unlocked": {
-    "cell03DescriptiveAnalysis": true,
-    "cell06SequencingDependency": true
+    "cell03DescriptiveAnalysis": true
+  },
+  "usageSequencingInputs": {
+    "cell06A2primePlanningInputAvailable": true,
+    "availableOnlyForSeparateCell06Story": true,
+    "cell06ExecutionAuthorized": false,
+    "cell06ClaimsAuthorized": false,
+    "reason": "The Cell 03-derived usage lock is available as input to a separate Cell 06 story; it is not a generic unlock and does not authorize Cell 06 execution or claims."
   },
   "notUnlocked": {
     "automaticCell06Execution": true,

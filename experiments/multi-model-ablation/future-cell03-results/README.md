@@ -1,17 +1,18 @@
 # Future Cell 03 Results
 
-This directory is reserved for Cell 03 result rows.
+This directory contains the B-991d Cell 03 result artifacts.
 
-It currently contains a bounded B-991d probe under `probe/`. The probe is not the
-full 1,152-row Cell 03 run and it is not an outcome-record dataset. It exists to
-prove that the Cell 03 execution window can capture executor usage, fresh
-same-family reviewer usage, response digests, acceptance checks, hidden
-ground-truth checks, provider-visible workspace isolation, and row-contract
-negative controls before CHK-006.
+`probe/` records the bounded B-991d probe. `full/` records the completed Cell
+03 / protocol ③ A4 E2 same-family run under the frozen B-6529 envelope.
 
-The full Cell 03 run may write rows here only after the probe passes and CHK-006
-starts. Cell 06, Phase 2, paper claim upgrades, product gates, and playbook
-activation remain out of scope for this directory.
+Current full-run state: `finalRows=1142/1152`, `terminalExhaustedRows=10`,
+`pendingExecutableRows=0`, and `totalTokens=219253501` across final rows with
+provider-reported usage. Exact dollar cost is not recorded or invented because
+no billing export or versioned pricingRef is attached.
+
+The Cell 03-derived usage lock is a usage/sequencing input for a separate Cell
+06 story. It does not authorize Cell 06 execution, Phase 2, paper claim
+upgrades, product gates, or playbook activation.
 
 Any future row written here must satisfy
 `../m2-cell03-result-write-policy.json`, including the required Cell 03

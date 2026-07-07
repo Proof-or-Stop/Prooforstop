@@ -54,12 +54,14 @@
     "costDerivationStatus": "withheld_until_billing_export_or_versioned_price_table"
   },
   "lockSemantics": {
-    "sequencingDependencySatisfiedForCell06": true,
+    "cell06A2primePlanningInputAvailable": true,
+    "availableOnlyForSeparateCell06Story": true,
     "cell06ExecutionAuthorizedByThisArtifact": false,
+    "cell06ClaimsAuthorizedByThisArtifact": false,
     "phase2AuthorizedByThisArtifact": false,
     "paperClaimUpgradeAuthorizedByThisArtifact": false,
     "productGateImpact": "none",
-    "reason": "The artifact is a real Cell 03-derived usage dependency lock. Cell 06 still requires a separate launch/execution story."
+    "reason": "The artifact is a real Cell 03-derived usage/sequencing input for a separate Cell 06 story. Cell 06 execution and claims remain unauthorized here."
   },
   "locks": [
     {

@@ -60,6 +60,38 @@ const CELL03_RESULT_POLICY_REF =
 const B991D_STORY_ID = "B-991d";
 const B991D_WINDOW_ID = "B-991d-cell03-execution-window-001";
 const B991D_CONFIGURED_MODEL_ID = "gpt-5.5";
+const EXPECTED_CELL03_EXECUTION = Object.freeze({
+  expectedRows: 1152,
+  finalRows: 1142,
+  terminalExhaustedRows: 10,
+  pendingExecutableRows: 0,
+  providerUsageRows: 1142,
+});
+const EXPECTED_PROVIDER_USAGE = Object.freeze({
+  inputTokens: 213133626,
+  outputTokens: 6119875,
+  totalTokens: 219253501,
+});
+const DOWNSTREAM_NOT_UNLOCKED_KEYS = Object.freeze([
+  "automaticCell06Execution",
+  "cell02Execution",
+  "optionalCell04Execution",
+  "phase2Decision",
+  "paperClaimUpgrade",
+  "modelAgnosticClaim",
+  "H_M1Claim",
+  "H_M3Claim",
+  "productGateChange",
+  "playbookActivation",
+]);
+const BLOCKED_CLAIMS = Object.freeze([
+  "model_agnostic_effect",
+  "H-M1_replicated_across_model_families",
+  "H-M3_cross_vendor_reviewer_effect",
+  "Phase2_powered_matrix_ready",
+  "paper_wording_upgrade",
+  "runtime_product_gate_or_playbook_activation",
+]);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -79,6 +111,11 @@ const paths = Object.freeze({
   toolSurface: "m2-cell03-tool-surface.json",
   resultWritePolicy: "m2-cell03-result-write-policy.json",
   status: "m2-status.md",
+  fullSummary: "future-cell03-results/full/cell03-summary.json",
+  usageSummary: "future-cell03-results/usage-summary.json",
+  usageLock: "future-cell03-results/cell03-usage-lock.json",
+  analysisReadiness: "future-cell03-results/analysis-readiness.json",
+  doneSummary: "future-cell03-results/done-summary.json",
 });
 
 let assertionCount = 0;
@@ -816,33 +853,172 @@ function validateExistingReadiness(launchReadiness, phase1Readiness) {
   assert(a2prime?.executionAllowed === false, "Cell 06 execution must remain disabled in readiness");
 }
 
+function assertCell03ExecutionCounts(summary, label) {
+  assert(summary?.expectedRows === EXPECTED_CELL03_EXECUTION.expectedRows, `${label} expected rows mismatch`);
+  assert(summary.finalRows === EXPECTED_CELL03_EXECUTION.finalRows, `${label} final rows mismatch`);
+  assert(
+    summary.terminalExhaustedRows === EXPECTED_CELL03_EXECUTION.terminalExhaustedRows,
+    `${label} terminal exhausted rows mismatch`,
+  );
+  assert(
+    summary.pendingExecutableRows === EXPECTED_CELL03_EXECUTION.pendingExecutableRows,
+    `${label} pending executable rows mismatch`,
+  );
+  assert(summary.executionComplete === true, `${label} must be execution complete`);
+  assert(summary.formalComplete === false, `${label} must not claim formal completion`);
+}
+
+function assertProviderUsageTotals(usage, label) {
+  assert(usage?.inputTokens === EXPECTED_PROVIDER_USAGE.inputTokens, `${label} input token mismatch`);
+  assert(usage.outputTokens === EXPECTED_PROVIDER_USAGE.outputTokens, `${label} output token mismatch`);
+  assert(usage.totalTokens === EXPECTED_PROVIDER_USAGE.totalTokens, `${label} total token mismatch`);
+}
+
+function assertExactDollarCostNotFaked(cost, label) {
+  assert(cost?.exactProviderCostUsd === null, `${label} exact dollar cost must stay null`);
+  assert(cost.billingExportAttached === false, `${label} must not claim a billing export`);
+  assert(cost.pricingRef === null, `${label} must not claim a pricingRef`);
+  assert(cost.derivedCostUsd === null, `${label} derived dollar cost must stay null`);
+  assert(cost.estimateMayGateLaunch === false, `${label} estimate must not gate launch`);
+  assert(
+    /cost_not_final|withheld_until_billing_export_or_versioned_price_table/.test(
+      `${cost.status || ""} ${cost.derivationStatus || ""}`,
+    ),
+    `${label} must mark dollar cost as not final`,
+  );
+}
+
+function assertCell06UsageSequencingInputOnly(input, label) {
+  assert(input?.cell06A2primePlanningInputAvailable === true, `${label} Cell 06 planning input must be available`);
+  assert(input.availableOnlyForSeparateCell06Story === true, `${label} must require a separate Cell 06 story`);
+  const executionAuthorized =
+    "cell06ExecutionAuthorizedByThisArtifact" in input
+      ? input.cell06ExecutionAuthorizedByThisArtifact
+      : input.cell06ExecutionAuthorized;
+  const claimsAuthorized =
+    "cell06ClaimsAuthorizedByThisArtifact" in input
+      ? input.cell06ClaimsAuthorizedByThisArtifact
+      : input.cell06ClaimsAuthorized;
+  assert(executionAuthorized === false, `${label} must not authorize Cell 06 execution`);
+  assert(claimsAuthorized === false, `${label} must not authorize Cell 06 claims`);
+}
+
+function assertDownstreamClaimsLocked(doneSummary, analysisReadiness) {
+  for (const key of DOWNSTREAM_NOT_UNLOCKED_KEYS) {
+    assert(doneSummary.notUnlocked?.[key] === true, `done summary must keep ${key} locked`);
+  }
+  const blockedClaims = byId(analysisReadiness.blockedClaims, "claim");
+  for (const claim of BLOCKED_CLAIMS) {
+    assert(blockedClaims.get(claim)?.status === "blocked", `analysis readiness must block ${claim}`);
+  }
+  assert(analysisReadiness.analysisReady?.phase1ConfirmatoryAnalysisReady === false, "Phase 1 analysis must remain blocked");
+  assert(analysisReadiness.analysisReady?.phase2DecisionReady === false, "Phase 2 decision must remain blocked");
+}
+
+function validatePostExecutionArtifacts(artifacts) {
+  const { fullSummary, usageSummary, usageLock, analysisReadiness, doneSummary } = artifacts;
+
+  assert(fullSummary.artifact === "B-991d-cell03-full-summary", "full summary artifact mismatch");
+  assert(fullSummary.storyId === B991D_STORY_ID, "full summary story mismatch");
+  assert(fullSummary.executionWindowId === B991D_WINDOW_ID, "full summary window mismatch");
+  assertCell03ExecutionCounts(fullSummary, "full summary");
+  assert(fullSummary.providerUsageRows === EXPECTED_CELL03_EXECUTION.providerUsageRows, "full summary provider usage rows mismatch");
+  assertProviderUsageTotals(fullSummary.totalProviderUsage, "full summary provider usage");
+
+  assert(usageSummary.artifact === "B-991d-cell03-postflight-usage-summary", "usage summary artifact mismatch");
+  assert(usageSummary.storyId === B991D_STORY_ID, "usage summary story mismatch");
+  assertCell03ExecutionCounts(usageSummary.coverage, "usage summary coverage");
+  assert(
+    usageSummary.coverage.providerUsageRows === EXPECTED_CELL03_EXECUTION.providerUsageRows,
+    "usage summary provider usage rows mismatch",
+  );
+  assertProviderUsageTotals(usageSummary.providerReportedUsage, "usage summary provider usage");
+  assertExactDollarCostNotFaked(usageSummary.costAccounting, "usage summary cost accounting");
+  assert(usageSummary.cell06Dependency?.mayUnlockFromThisArtifactAlone === false, "usage summary must not unlock Cell 06 alone");
+
+  assert(doneSummary.artifact === "B-991d-cell03-done-summary", "done summary artifact mismatch");
+  assert(doneSummary.storyId === B991D_STORY_ID, "done summary story mismatch");
+  assertCell03ExecutionCounts(doneSummary.executionResult, "done summary execution result");
+  assert(
+    doneSummary.executionResult.providerUsageRows === EXPECTED_CELL03_EXECUTION.providerUsageRows,
+    "done summary provider usage rows mismatch",
+  );
+  assertProviderUsageTotals(doneSummary.providerUsage, "done summary provider usage");
+  assertExactDollarCostNotFaked(doneSummary.costAccounting, "done summary cost accounting");
+  assert(doneSummary.unlocked?.cell03DescriptiveAnalysis === true, "done summary must unlock only Cell 03 descriptive analysis");
+  assert(
+    !Object.prototype.hasOwnProperty.call(doneSummary.unlocked || {}, "cell06SequencingDependency"),
+    "done summary must not put Cell 06 dependency under generic unlocked",
+  );
+  assertCell06UsageSequencingInputOnly(doneSummary.usageSequencingInputs, "done summary usage sequencing input");
+
+  assert(usageLock.artifact === "B-991d-cell03-derived-usage-lock", "usage lock artifact mismatch");
+  assert(usageLock.storyId === B991D_STORY_ID, "usage lock story mismatch");
+  assert(usageLock.sourceCell?.cellNumber === "③", "usage lock source cell mismatch");
+  assert(usageLock.appliesToCell?.cellNumber === "⑥", "usage lock target cell mismatch");
+  assert(usageLock.prerequisites?.cell03ExecutionComplete === true, "usage lock must require complete Cell 03 execution");
+  assert(usageLock.prerequisites?.pendingExecutableRows === 0, "usage lock must have no pending executable rows");
+  assertProviderUsageTotals(usageLock.usageBasis, "usage lock usage basis");
+  assert(usageLock.usageBasis.exactProviderCostUsd === null, "usage lock must not fake exact dollar cost");
+  assertCell06UsageSequencingInputOnly(usageLock.lockSemantics, "usage lock semantics");
+  assert(usageLock.lockSemantics.phase2AuthorizedByThisArtifact === false, "usage lock must not authorize Phase 2");
+  assert(usageLock.lockSemantics.paperClaimUpgradeAuthorizedByThisArtifact === false, "usage lock must not authorize paper claims");
+  assert(usageLock.lockSemantics.productGateImpact === "none", "usage lock product gate impact mismatch");
+  assert(Array.isArray(usageLock.locks) && usageLock.locks.length === 24, "usage lock must contain one lock per task");
+  for (const lock of usageLock.locks) {
+    assert(lock.lockState === "real_cell03_derived_usage_lock", `usage lock state mismatch for ${lock.taskId}`);
+    assert(lock.sourceCellNumber === "③", `usage lock source mismatch for ${lock.taskId}`);
+    assert(lock.appliesToCellNumber === "⑥", `usage lock Cell 06 target mismatch for ${lock.taskId}`);
+    assert(lock.appliesToArm === "A2prime", `usage lock target arm mismatch for ${lock.taskId}`);
+  }
+
+  assert(analysisReadiness.artifact === "B-991d-cell03-analysis-readiness", "analysis readiness artifact mismatch");
+  assert(analysisReadiness.storyId === B991D_STORY_ID, "analysis readiness story mismatch");
+  assertCell03ExecutionCounts(analysisReadiness.cell03Status, "analysis readiness Cell 03 status");
+  assert(
+    analysisReadiness.analysisReady?.cell03DescriptiveAnalysisReady === true,
+    "Cell 03 descriptive analysis must be ready",
+  );
+  assertCell06UsageSequencingInputOnly(analysisReadiness.usageSequencingInputs, "analysis readiness usage sequencing input");
+  const cell06Work = (analysisReadiness.nextRequiredWork || []).find((entry) => entry.cellNumber === "⑥");
+  assert(
+    cell06Work?.status === "sequencing_dependency_available_execution_not_started",
+    "Cell 06 next work must remain execution-not-started",
+  );
+  assert(/Separate Cell 06 execution story/.test(cell06Work.requiredBeforeUse || ""), "Cell 06 must require a separate story");
+  assertDownstreamClaimsLocked(doneSummary, analysisReadiness);
+}
+
 function validateStatus(statusText) {
   for (const [key, value] of Object.entries(CHECKER_RESEARCH_BOUNDARY)) {
     assert(statusText.includes(`${key}=${JSON.stringify(value)}`), `status missing ${key}=${JSON.stringify(value)}`);
   }
   for (const requiredLine of [
-    "| M2 provider execution launch gate | CELL 03 WINDOW OPEN |",
+    "| M2 provider execution launch gate | B-6529 PRESERVED; CELL 03 COMPLETE ONLY |",
     "| Cell 03 execution envelope | FROZEN |",
-    "| Cell 03 usage accounting | POSTFLIGHT REQUIRED |",
-    "| Cell 03 launch guardrail | WINDOW OPEN |",
-    "| Formal M2 execution | NOT STARTED |",
-    "| B-991d Cell 03 execution window | OPEN |",
-    "| ③ A4 calibration | PENDING EXECUTION |",
-    "| ⑥ A2prime | BLOCKED |",
+    "| Cell 03 usage accounting | COMPLETE |",
+    "| Cell 03 launch guardrail | WINDOW CLOSED FOR CELL 03 DATA COLLECTION |",
+    "| Formal M2 execution | CELL 03 COMPLETE ONLY |",
+    "| B-991d Cell 03 execution window | COMPLETED FOR CELL 03 |",
+    "| ③ A4 calibration | COMPLETE |",
+    "| ⑥ A2prime | USAGE/SEQUENCING INPUT AVAILABLE; EXECUTION NOT STARTED |",
     "Cell 03 execution envelope: frozen",
     "Pre-run dollar guess: not required",
-    "B-991d Cell 03 execution window: open for Cell 03 only",
+    "B-991d Cell 03 execution window: completed for Cell 03 only",
+    "Cell 03 execution result: `finalRows=1142/1152`, `terminalExhaustedRows=10`, `pendingExecutableRows=0`",
     "B-6529 no-provider-call readiness evidence: preserved",
-    "Postflight usage accounting: provider-reported usage required after execution",
-    "Cell 06 A2prime: blocked",
+    "Postflight provider-reported usage: `inputTokens=213133626`, `outputTokens=6119875`, `totalTokens=219253501`",
+    "Exact dollar cost is not recorded because no billing export or versioned pricingRef is present",
+    "Cell 06 A2prime: usage/sequencing input is available for a separate Cell 06 story; execution and claims remain unauthorized",
+    "Downstream claims locked",
   ]) {
     assert(statusText.includes(requiredLine), `status missing text: ${requiredLine}`);
   }
   assert(statusText.includes("providerExecutionAuthorized=false"), "status must report providerExecutionAuthorized=false");
   assert(statusText.includes("providerCallEnabled=false"), "status must report providerCallEnabled=false");
   assert(statusText.includes("providerCallEnabled=true"), "status must report the B-991d Cell 03 window providerCallEnabled=true");
-  assert(statusText.includes("no claim unlock"), "status must state no claim unlock");
-  assert(statusText.includes("no product gate impact"), "status must state no product gate impact");
+  assert(statusText.includes("do not authorize Cell 02, Cell 04, Cell 06"), "status must keep downstream execution locked");
+  assert(statusText.includes("no model-agnostic paper claim is unlocked"), "status must keep model-agnostic claim locked");
 }
 
 function validateAll(artifacts) {
@@ -891,6 +1067,7 @@ function validateAll(artifacts) {
   validateSnapshotLock(artifacts.snapshots);
   validateRunnerManifest(artifacts.runnerManifest);
   validateExistingReadiness(artifacts.m2LaunchReadiness, artifacts.phase1Readiness);
+  validatePostExecutionArtifacts(artifacts);
   validateStatus(artifacts.status);
 }
 
@@ -912,6 +1089,11 @@ function loadArtifacts() {
     toolSurface: JSON.parse(toolSurfaceText),
     resultWritePolicy: readJson(paths.resultWritePolicy),
     status: readText(paths.status),
+    fullSummary: readJson(paths.fullSummary),
+    usageSummary: readJson(paths.usageSummary),
+    usageLock: readJson(paths.usageLock),
+    analysisReadiness: readJson(paths.analysisReadiness),
+    doneSummary: readJson(paths.doneSummary),
   };
 }
 
@@ -1066,6 +1248,38 @@ expectReject(
 );
 
 expectReject(
+  "Cell 03 completion total drift",
+  (artifacts) => {
+    artifacts.fullSummary.finalRows = 1152;
+  },
+  /full summary final rows mismatch/,
+);
+
+expectReject(
+  "exact dollar cost faked",
+  (artifacts) => {
+    artifacts.doneSummary.costAccounting.exactProviderCostUsd = 12.34;
+  },
+  /exact dollar cost must stay null/,
+);
+
+expectReject(
+  "Cell 06 dependency placed under generic unlocked",
+  (artifacts) => {
+    artifacts.doneSummary.unlocked.cell06SequencingDependency = true;
+  },
+  /must not put Cell 06 dependency under generic unlocked/,
+);
+
+expectReject(
+  "usage lock authorizes Cell 06 execution",
+  (artifacts) => {
+    artifacts.usageLock.lockSemantics.cell06ExecutionAuthorizedByThisArtifact = true;
+  },
+  /must not authorize Cell 06 execution/,
+);
+
+expectReject(
   "prompt digest drift",
   (artifacts) => {
     artifacts.cell03Envelope.promptArtifact.sha256 = "sha256:" + "0".repeat(64);
@@ -1094,8 +1308,10 @@ console.log(
 );
 console.log("Cell 03 execution envelope: frozen");
 console.log("Pre-run dollar guess: not required");
-console.log("B-991d Cell 03 execution window: open for Cell 03 only");
+console.log("B-991d Cell 03 execution window: completed for Cell 03 only");
+console.log("Cell 03 execution result: finalRows=1142/1152 terminalExhaustedRows=10 pendingExecutableRows=0");
 console.log("B-6529 no-provider-call readiness evidence: preserved");
-console.log("Postflight usage accounting: provider-reported usage required after execution");
-console.log("Cell 06 A2prime: blocked");
-console.log("Provider calls are allowed only for B-991d Cell 03 probe/full rows; Cell 06, Phase 2, and outcome records remain blocked");
+console.log("Postflight provider-reported usage: inputTokens=213133626 outputTokens=6119875 totalTokens=219253501");
+console.log("Exact dollar cost: not recorded or invented without a billing export or versioned pricingRef");
+console.log("Cell 06 A2prime: usage/sequencing input available for a separate story; execution and claims remain unauthorized");
+console.log("Downstream claims locked: Cell 02, Cell 04, Cell 06, Phase 2, paper, product, and playbook remain out of scope");
