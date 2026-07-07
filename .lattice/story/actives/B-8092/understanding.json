@@ -1,0 +1,27 @@
+{
+  "task": "Validate a bounded local Docker runner path for Cell 06 A2prime before any broad provider execution.",
+  "outcome": "After this story, the user can point to a local Docker probe report showing: Codex CLI runs inside a sterile container, the two-account shard manifest path is represented, probe receipts use the expected Cell06/A2prime shape, contamination scan rejects injected Cell03 or Proofbound-memory leakage, and merge validation rejects bad or duplicate rows.",
+  "facts": [
+    "Docker is available locally: 29.2.0 linux/aarch64.",
+    "Cell 06 A2prime must not consume Proofbound dev-memory, Cell03 solutions, reviewer feedback, or prior experiment outputs.",
+    "Only one local Codex auth bundle is currently discoverable; a second account can be represented as a shard manifest path unless a second auth bundle is provided.",
+    "This story is a probe and must not run the complete Cell 06 dataset or upgrade paper claims."
+  ],
+  "constraints": [
+    "Do not mount host home, .codex, .lattice, lattice-Paper, Cell03 full outputs, or unrelated session files into the container.",
+    "Use allowlisted task inputs only and keep hidden/reference files outside the container.",
+    "Receipt validation must be deterministic and reject contamination, missing digests, bad cell labels, duplicate row ownership, and reviewer fields.",
+    "No product gate changes, playbook activation, Cell02/Cell04, Phase2, or full Cell06 execution."
+  ],
+  "unknowns": [
+    "Whether npm can install or reuse Codex CLI inside the local Docker image without network/auth failures.",
+    "Whether the current local auth bundle can run codex exec from inside a container for at least one actual smoke row.",
+    "Whether a second account auth bundle exists; if not, account-b remains a validated shard placeholder, not a second live provider run."
+  ],
+  "touchpoints": [
+    "experiments/multi-model-ablation/cell06-docker-probe/",
+    "docs/requirements/decisions/cell06-docker-server-execution-checklist.md",
+    "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md"
+  ],
+  "timestamp": "2026-07-07T10:48:11.872Z"
+}

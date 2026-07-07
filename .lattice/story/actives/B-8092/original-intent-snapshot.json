@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-8092",
+  "sourceText": "Selected request: 先本机 Docker probe。跑 2-5 rows，验证：Codex CLI 能在容器里跑；两个账户能分 shard；输入没有污染；output/receipt 格式正确；contamination scan 能挡住问题。User then requested: 那就本机吧，开始验证吧。",
+  "normalizedOutcome": "Run a bounded local Docker probe for Cell 06 A2prime with two to five rows or equivalent smoke rows: prove Codex CLI container execution for available auth, represent account shard separation without faking unavailable credentials, verify sterile input packaging, validate receipt/output format, and prove contamination scan and merge checks reject bad rows.",
+  "acceptanceClaim": "B-8092 is accepted when the worktree contains local Docker probe tooling plus probe evidence showing image/Codex CLI smoke, sterile input manifest, probe receipt rows, contamination negative controls, and merge validation results, without running full Cell06 or upgrading paper claims.",
+  "keyRequirementIds": [
+    "REQ-CELL06-DOCKER-PROBE",
+    "REQ-CONTAMINATION-SCAN",
+    "REQ-RECEIPT-VALIDATION",
+    "REQ-SHARD-OWNERSHIP",
+    "REQ-STERILE-INPUTS"
+  ],
+  "requestHash": "sha256:93e79a1b50f53001fdb6443cefdbd3e10bae76e20bae9b956f4989242a44b406",
+  "createdAt": "2026-07-07T10:48:42.570Z",
+  "updatedAt": "2026-07-07T10:48:42.570Z"
+}

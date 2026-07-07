@@ -13,7 +13,41 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/multi-model-ablation/cell06-docker-probe/Dockerfile",
+          "experiments/multi-model-ablation/cell06-docker-probe/run-probe.mjs",
+          "experiments/multi-model-ablation/cell06-docker-probe/README.md"
+        ],
+        "test": [
+          "experiments/multi-model-ablation/cell06-docker-probe/validate-probe.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Docker image build or reuse reports codex-cli version from inside the container",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Runner records unavailable second-account auth as pending_auth instead of claiming a second live account",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Visible container inventory proves no host home, .codex, .lattice, Cell03 full outputs, or lattice-Paper paths are mounted",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
