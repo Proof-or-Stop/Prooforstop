@@ -11,9 +11,9 @@
       "excludes": [
         "complete Cell 06 dataset execution"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-07T11:14:23.436Z",
       "files": {
         "modify": [],
         "create": [
@@ -336,6 +336,17 @@
           "timestamp": "2026-07-07T11:14:12.893Z"
         }
       ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-07T11:14:23.436Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Docker image built, CA cert issue fixed, container Codex CLI smoke passed, and account-b pending_auth is explicit."
     }
   ]
 }
