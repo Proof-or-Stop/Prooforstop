@@ -1,0 +1,12 @@
+{
+  "id": "input-manifest-digest-drift",
+  "expectedError": "inputManifestDigest drift",
+  "mutations": [
+    {
+      "target": "manifest",
+      "op": "set",
+      "path": "inputManifestDigest",
+      "value": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  ]
+}

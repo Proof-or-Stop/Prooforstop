@@ -7,7 +7,11 @@ WORKDIR /probe
 
 COPY container/probe-codex-version.mjs /opt/cell06/probe-codex-version.mjs
 
-RUN mkdir -p /opt/cell06 \
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends ca-certificates \
+ && update-ca-certificates \
+ && rm -rf /var/lib/apt/lists/* \
+ && mkdir -p /opt/cell06 \
  && if npm install --global @openai/codex; then \
       printf '{"status":"installed"}\n' > /opt/cell06/install-status.json; \
     else \

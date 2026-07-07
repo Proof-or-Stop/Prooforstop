@@ -10,14 +10,15 @@
   "dockerSmokeStatus": "ok",
   "codexVersion": "codex-cli 0.142.5",
   "statusCounts": {
-    "pending_auth": 2
+    "completed": 1,
+    "pending_auth": 1
   },
-  "usableRows": 0,
-  "pendingAuthRows": 2,
+  "usableRows": 1,
+  "pendingAuthRows": 1,
   "blockedRows": 0,
   "accountStatuses": {
-    "account-a": "pending_auth",
+    "account-a": "live-if-auth-present",
     "account-b": "pending_auth"
   },
-  "overallStatus": "pending_auth"
+  "overallStatus": "partial"
 }

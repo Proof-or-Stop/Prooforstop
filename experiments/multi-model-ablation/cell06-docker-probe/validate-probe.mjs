@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -76,6 +77,49 @@ function readRows(filePath) {
 
 function rel(filePath) {
   return path.relative(repoRoot, filePath).split(path.sep).join("/");
+}
+
+function sha256(value) {
+  return `sha256:${crypto.createHash("sha256").update(value).digest("hex")}`;
+}
+
+function listFiles(root) {
+  const files = [];
+  const stack = [root];
+  while (stack.length > 0) {
+    const current = stack.pop();
+    const entries = fs.readdirSync(current, { withFileTypes: true });
+    for (const entry of entries) {
+      const fullPath = path.join(current, entry.name);
+      if (entry.isDirectory()) {
+        stack.push(fullPath);
+      } else if (entry.isFile()) {
+        files.push(fullPath);
+      }
+    }
+  }
+  return files.sort();
+}
+
+function digestFile(filePath) {
+  const bytes = fs.readFileSync(filePath);
+  return {
+    path: rel(filePath),
+    bytes: bytes.length,
+    digest: sha256(bytes),
+  };
+}
+
+function digestTree(root) {
+  const items = listFiles(root).map(digestFile);
+  const lines = ["cell06-docker-probe-input-manifest-v1"];
+  for (const item of items) {
+    lines.push(`${item.path}\t${item.bytes}\t${item.digest}`);
+  }
+  return {
+    items,
+    digest: sha256(lines.join("\n")),
+  };
 }
 
 function getAtPath(root, dottedPath) {
@@ -164,6 +208,13 @@ function validateManifest(manifest, rows, summary) {
   assert(manifest.sterilePolicy?.mountRepo === false, "sterile policy must not mount repo");
   assert(Array.isArray(manifest.accounts) && manifest.accounts.length === 2, "manifest must include two accounts");
   assert(Array.isArray(manifest.shards) && manifest.shards.length === 2, "manifest must include two shards");
+  assert(typeof manifest.inputRoot === "string", "manifest inputRoot missing");
+  assert(manifest.inputRoot === "experiments/multi-model-ablation/cell06-docker-probe/inputs", "manifest inputRoot mismatch");
+  const inputRoot = path.join(repoRoot, manifest.inputRoot);
+  assert(fs.existsSync(inputRoot), "manifest inputRoot does not exist");
+  const actualInputDigest = digestTree(inputRoot);
+  assert(manifest.inputManifestDigest === actualInputDigest.digest, "inputManifestDigest drift");
+  assert(JSON.stringify(manifest.inputFiles) === JSON.stringify(actualInputDigest.items), "inputFiles digest inventory drift");
 
   const accountIds = new Set();
   for (const account of manifest.accounts) {
@@ -189,6 +240,8 @@ function validateManifest(manifest, rows, summary) {
 }
 
 function validateRow(row, manifest) {
+  const account = manifest.accounts.find((candidate) => candidate.accountId === row.accountId);
+  assert(account, `row account missing from manifest: ${row.accountId}`);
   assert(row.storyId === STORY_ID, "row storyId mismatch");
   assert(row.cellNumber === CELL_NUMBER, "row cellNumber must be ⑥");
   assert(row.cellLabel === CELL_LABEL, "row cellLabel mismatch");
@@ -218,6 +271,17 @@ function validateRow(row, manifest) {
   assert(!Object.prototype.hasOwnProperty.call(row, "reviewerNotes"), "reviewer fields are not allowed");
   assert(row.dockerSmoke?.status, "docker smoke status missing");
   assert(row.codexExec?.status === row.rowStatus, "codexExec status mismatch");
+  assert(row.accountStatus === account.status, "row accountStatus must match manifest account status");
+  if (!account.authBundlePresent) {
+    assert(row.rowStatus === "pending_auth", "auth absent account cannot produce a completed row");
+    assert(row.codexExec.attempted === false, "pending_auth row must not attempt codex exec");
+  }
+  if (row.rowStatus === "completed") {
+    assert(account.authBundlePresent === true, "completed row requires an auth bundle");
+    assert(row.codexExec.attempted === true, "completed row must attempt codex exec");
+    assert(row.codexExec.exitCode === 0, "completed row must have zero codex exit");
+    assert(typeof row.codexExec.responseDigest === "string" && row.codexExec.responseDigest.startsWith("sha256:"), "completed row response digest missing");
+  }
 }
 
 function validateSummary(summary, rows, manifest) {
@@ -226,6 +290,10 @@ function validateSummary(summary, rows, manifest) {
   assert(summary.rowCount === rows.length, "summary rowCount mismatch");
   assert(typeof summary.inputManifestDigest === "string" && summary.inputManifestDigest.startsWith("sha256:"), "inputManifestDigest missing");
   assert(summary.inputManifestDigest === manifest.inputManifestDigest, "summary inputManifestDigest mismatch");
+  assert(summary.dockerAvailable === true, "Docker must be available for this probe");
+  assert(summary.dockerBuildStatus === "built", "Docker image must be built for this probe");
+  assert(summary.dockerSmokeStatus === "ok", "Docker smoke must pass for this probe");
+  assert(typeof summary.codexVersion === "string" && summary.codexVersion.startsWith("codex-cli "), "container Codex CLI version missing");
   const countedRows = Object.values(summary.statusCounts ?? {}).reduce((sum, count) => sum + count, 0);
   assert(countedRows === rows.length, "summary statusCounts mismatch");
   assert(summary.pendingAuthRows === rows.filter((row) => row.rowStatus === "pending_auth").length, "summary pendingAuthRows mismatch");

@@ -57,9 +57,9 @@
       "exitCode": 0,
       "signal": null,
       "stdoutDigest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "stderrDigest": "sha256:7718fd18c17776837ecccf40aff8b44c2cc49a25489e585269f647e434d81b82",
+      "stderrDigest": "sha256:4c38e18a52a264b46bd072b8a91b7d9c1cc1523de6820d2e6e86cb927039b764",
       "stdoutBytes": 0,
-      "stderrBytes": 6292,
+      "stderrBytes": 6383,
       "error": null
     },
     "smoke": {
@@ -86,8 +86,8 @@
       "accountId": "account-a",
       "shardId": "shard-a",
       "authBundleEnv": "CELL06_ACCOUNT_A_AUTH_BUNDLE",
-      "authBundlePresent": false,
-      "status": "pending_auth",
+      "authBundlePresent": true,
+      "status": "live-if-auth-present",
       "authBundleSource": "env:CELL06_ACCOUNT_A_AUTH_BUNDLE"
     },
     {
