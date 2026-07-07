@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-2fb7",
+  "allowedCommands": [
+    "lattice *",
+    "node *",
+    "npm run *",
+    "npm test *",
+    "pnpm *",
+    "yarn *"
+  ],
+  "allowedTools": [
+    "lattice CLI",
+    "local shell",
+    "test runner"
+  ],
+  "allowedPaths": [
+    ".lattice",
+    "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+    "packages/main/src",
+    "packages/main/test"
+  ],
+  "excludedCommands": [
+    "git checkout -- *",
+    "git push *",
+    "git reset --hard *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx"
+  ],
+  "confirmedBy": "codex-side-conversation",
+  "confirmationNote": "Execution should stay local and focused on the validate heartbeat/cleanup correctness fix.",
+  "createdAt": "2026-07-07T12:40:02.886Z",
+  "updatedAt": "2026-07-07T12:40:02.886Z",
+  "_hash": "ce85ef181d8e732afbd3fca25059b99b2f2ce3926e68d5928bd888b239289875"
+}

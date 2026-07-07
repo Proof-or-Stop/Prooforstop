@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-2fb7",
+  "mode": "correctness_fix",
+  "allowed": [
+    "focused tests and regression controls",
+    "forced-exit cleanup and stale validation lock classification",
+    "infra_failure evidence classification for lifecycle runner failures",
+    "JSON-safe progress stream contract for validate --json",
+    "story_advance TEST integration with validate heartbeat",
+    "validate progress events and long-command heartbeat"
+  ],
+  "excluded": [
+    "changing unrelated story lifecycle behavior",
+    "implementing unrelated performance optimizations",
+    "reducing configured validate commands",
+    "removing or weakening the idle watchdog",
+    "skipping lattice validate",
+    "using unlimited timeouts"
+  ],
+  "confirmedBy": "codex-side-conversation",
+  "confirmationNote": "User asked to open a story for validate progress/heartbeat plus forced-exit cleanup so another session can execute the documented plan.",
+  "createdAt": "2026-07-07T12:40:02.886Z",
+  "updatedAt": "2026-07-07T12:40:02.886Z",
+  "_hash": "1717e5227ba21b08ba04beb3ddac1b74cc726cbd7118ef755fbe3ab8d2abb186"
+}

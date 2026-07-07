@@ -1,0 +1,96 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add red repro for silent validate idle-kill",
+      "context": "Create a focused repro showing that a long silent validate command can trigger the lifecycle idle watchdog before the fix. Acceptance: the repro fails before implementation and does not pass by disabling the watchdog or skipping validate.",
+      "relatedDocs": [
+        "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md"
+      ],
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/test"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Implement JSON-safe progress and heartbeat",
+      "context": "Emit validate command start/end progress and flushed long-command heartbeat without corrupting --json stdout. Acceptance: long-running validate commands refresh parent lastActivity, stdout remains parseable JSON, and heartbeat does not extend command timeoutMs.",
+      "relatedDocs": [
+        "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src"
+        ],
+        "create": [],
+        "test": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Harden forced-exit cleanup and stale-lock classification",
+      "context": "Ensure watchdog termination is two-stage where possible and validation locks are not considered active solely because of PID reuse. Acceptance: vanished or mismatched owners are stale, active owners are not stolen, and the approach stays host-neutral.",
+      "relatedDocs": [
+        "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src"
+        ],
+        "create": [],
+        "test": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Classify runner infrastructure failure separately from test failure",
+      "context": "Forced exits and lifecycle runner failures should be reflected as infra failures, not ordinary test failures. Acceptance: watchdog/runner failures record infra_failure while ordinary test assertion failures still record test failure.",
+      "relatedDocs": [
+        "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/test"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Verify story_advance TEST integration and safety regressions",
+      "context": "Prove story_advance --phase=TEST survives active heartbeat and true hangs still fail closed. Acceptance: REVIEW -> TEST no longer dies from validate silence, diagnostics identify timed-out commands, and non-heartbeating hangs still fail.",
+      "relatedDocs": [
+        "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md"
+      ],
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/test"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
