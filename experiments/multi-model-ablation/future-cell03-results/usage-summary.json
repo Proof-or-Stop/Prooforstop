@@ -1,0 +1,88 @@
+{
+  "artifact": "B-991d-cell03-postflight-usage-summary",
+  "artifactVersion": 1,
+  "storyId": "B-991d",
+  "cellNumber": "03",
+  "protocolCellNumber": "③",
+  "arm": "A4",
+  "runnerId": "m2-future-cell-03-e2-a4-same",
+  "executionWindowId": "B-991d-cell03-execution-window-001",
+  "createdAt": "2026-07-07T03:01:10Z",
+  "usageAccountingPolicyRef": {
+    "path": "experiments/multi-model-ablation/m2-cell03-usage-accounting-policy.json",
+    "digest": "sha256:572102cd8da11a15b29f150e1f14fa7f6e91a86e2d74e3334a6d459e99e3a4f7"
+  },
+  "sourceArtifacts": {
+    "rows": {
+      "path": "experiments/multi-model-ablation/future-cell03-results/full/cell03-rows.jsonl",
+      "digest": "sha256:a88b37bbb0e8a31a33f5f753f0cf59b1c304b022c16fe6bfac3b522c03e9fd6c"
+    },
+    "summary": {
+      "path": "experiments/multi-model-ablation/future-cell03-results/full/cell03-summary.json",
+      "digest": "sha256:2639f44fb5a15f856f3ab1e0b8b258a4a2b947174765cc2701f4ff4961dd5c48"
+    }
+  },
+  "coverage": {
+    "expectedRows": 1152,
+    "rowCount": 1187,
+    "finalRows": 1142,
+    "terminalExhaustedRows": 10,
+    "pendingExecutableRows": 0,
+    "providerUsageRows": 1142,
+    "providerUsageCoverage": "all_final_rows",
+    "executionComplete": true,
+    "formalComplete": false,
+    "formalCompleteReason": "Ten expected Cell 03 rows exhausted the two-attempt retry ceiling without a final formal row."
+  },
+  "providerReportedUsage": {
+    "source": "row.providerReportedUsage",
+    "sourceSemantics": "Aggregate of executorReportedUsage plus reviewGate.reportedUsage, validated per final row by validate-full.mjs.",
+    "providerName": "openai",
+    "providerModelId": "gpt-5.5",
+    "providerModelIdSource": "codex_cli_arg",
+    "firstReportedAt": "2026-07-06T00:26:33.185Z",
+    "lastReportedAt": "2026-07-07T03:00:26.409Z",
+    "inputTokens": 213133626,
+    "outputTokens": 6119875,
+    "totalTokens": 219253501
+  },
+  "executorReportedUsage": {
+    "source": "row.executorReportedUsage",
+    "inputTokens": 132892629,
+    "outputTokens": 3461974,
+    "totalTokens": 136354603
+  },
+  "reviewerReportedUsage": {
+    "source": "row.reviewGate.reportedUsage",
+    "inputTokens": 80240997,
+    "outputTokens": 2657901,
+    "totalTokens": 82898898
+  },
+  "outcomesOverFinalRows": {
+    "completed": 66,
+    "recovered": 968,
+    "safe-stop": 108
+  },
+  "costAccounting": {
+    "status": "provider_reported_usage_present_cost_not_final",
+    "exactProviderCostUsd": null,
+    "exactProviderCostSource": "not_present_in_codex_cli_row_provider_response",
+    "billingExportAttached": false,
+    "pricingRef": null,
+    "pricingVersion": null,
+    "derivedCostUsd": null,
+    "derivationStatus": "withheld_until_billing_export_or_versioned_price_table",
+    "estimateAllowed": true,
+    "estimateMayBeFinalUsage": false,
+    "estimateMayGateLaunch": false,
+    "diagnosticEstimateRecorded": false,
+    "reason": "The formal Cell 03 row records contain provider-reported token usage but no provider-reported dollar cost, billing export, or versioned pricingRef. Recording a guessed dollar value here would violate the usage accounting policy."
+  },
+  "cell06Dependency": {
+    "cellNumber": "06",
+    "protocolCellNumber": "⑥",
+    "arm": "A2prime",
+    "mayUnlockFromThisArtifactAlone": false,
+    "reason": "This artifact completes token usage accounting but does not by itself create the real Cell 03-derived budget/usage lock required for Cell 06."
+  }
+}
