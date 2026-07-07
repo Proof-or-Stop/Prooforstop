@@ -541,8 +541,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-07T03:10:38.803Z",
       "endTime": null
     },
     {
@@ -794,6 +794,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Postflight provider-reported usage accounting artifact committed in usage-summary.json; exact dollar cost is not faked without billing export or versioned pricingRef.",
+      "agent": "codex"
+    },
+    {
+      "timestamp": "2026-07-07T03:10:38.803Z",
+      "phase": "DEV",
+      "itemId": "CHK-008",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting Cell 03-derived usage lock after usage-summary artifact was committed.",
       "agent": "codex"
     }
   ]
