@@ -22,6 +22,7 @@ export interface ValidationCommandResult {
   output: string;
   optional?: boolean;
   timedOut?: boolean;
+  timeoutMs?: number;
   durationMs: number;
   worktreePollution?: {
     statusLines: string[];
@@ -37,6 +38,30 @@ export interface ValidationCommandResult {
     blocking?: boolean;
   };
 }
+
+export type ValidationProgressEventType =
+  | 'command_start'
+  | 'heartbeat'
+  | 'command_timeout'
+  | 'command_end';
+
+export interface ValidationProgressEvent {
+  type: ValidationProgressEventType;
+  commandIndex: number;
+  totalCommands: number;
+  label: string;
+  command: string;
+  args: string[];
+  shell?: boolean;
+  cwd?: string;
+  timeoutMs: number;
+  elapsedMs: number;
+  timestamp: string;
+  code?: number;
+  timedOut?: boolean;
+}
+
+export type ValidationProgressReporter = (event: ValidationProgressEvent) => void;
 
 export interface ValidationPlan {
   provider: string;

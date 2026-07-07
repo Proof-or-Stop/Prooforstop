@@ -960,6 +960,7 @@ export async function runCli(opts?: {
   let lastActivity = Date.now();
   const originalLog = log;
   log = (msg: string) => { lastActivity = Date.now(); originalLog(msg); };
+  ctx.log = log;
 
   const watchdog = setInterval(() => {
     const now = Date.now();

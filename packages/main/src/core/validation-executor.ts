@@ -15,6 +15,8 @@ import type {
   ValidationCommand,
   ValidationCommandResult,
   ValidationPlan,
+  ValidationProgressEvent,
+  ValidationProgressReporter,
   ValidationResult,
 } from './validation-types.js';
 
@@ -36,6 +38,19 @@ const MAX_OUTPUT_CHARS = 12000;
  * non-default override the operator owns.
  */
 export const DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS = 270_000;
+export const DEFAULT_VALIDATE_HEARTBEAT_MS = 30_000;
+
+export interface RunValidationCommandOptions {
+  progress?: ValidationProgressReporter;
+  commandIndex?: number;
+  totalCommands?: number;
+  heartbeatMs?: number;
+}
+
+export interface ExecuteValidationPlanOptions {
+  progress?: ValidationProgressReporter;
+  heartbeatMs?: number;
+}
 
 /**
  * The effective per-command timeout: an explicit positive `timeoutMs`, else `defaultMs`
@@ -53,6 +68,11 @@ export function resolveCommandTimeoutMs(
     : defaultMs;
 }
 
+export function resolveValidateHeartbeatMs(env: NodeJS.ProcessEnv = process.env): number {
+  const raw = Number(env.LATTICE_VALIDATE_HEARTBEAT_MS);
+  return Number.isFinite(raw) && raw > 0 ? Math.floor(raw) : DEFAULT_VALIDATE_HEARTBEAT_MS;
+}
+
 export function stripAnsi(str: string): string {
   return str.replace(/\x1B\[[0-9;]*m/g, '');
 }
@@ -62,12 +82,19 @@ export function formatValidationCommand(command: ValidationCommand): string {
   return [command.command, ...command.args].join(' ').trim();
 }
 
-function formatTimeoutDiagnostics(command: ValidationCommand): string[] {
-  const explicit =
-    typeof command.timeoutMs === 'number' && Number.isFinite(command.timeoutMs) && command.timeoutMs > 0;
-  const timeout = `${resolveCommandTimeoutMs(command)}ms${explicit ? '' : ' (default)'}`;
+function formatTimeoutDiagnostics(
+  command: ValidationCommand,
+  result: ValidationCommandResult,
+  commandIndex: number,
+  totalCommands: number,
+): string[] {
+  const explicit = typeof command.timeoutMs === 'number' && Number.isFinite(command.timeoutMs) && command.timeoutMs > 0;
+  const timeoutMs = result.timeoutMs ?? resolveCommandTimeoutMs(command);
+  const timeout = `${timeoutMs}ms${explicit ? '' : ' (default)'}`;
   return [
-    `  timeout diagnostic: command exceeded configured timeoutMs=${timeout}.`,
+    `  timeout diagnostic: command ${commandIndex}/${totalCommands} "${command.label}" exceeded configured timeoutMs=${timeout} after elapsedMs=${result.durationMs}.`,
+    `  command: ${command.command}`,
+    `  args: ${JSON.stringify(command.args)}`,
     '  If this command legitimately needs longer, raise lattice.config.json validate.commands[].timeoutMs for that command; otherwise investigate a hung validation command.',
   ];
 }
@@ -81,6 +108,63 @@ function trimOutput(output: string): string {
   if (output.length <= MAX_OUTPUT_CHARS) return output;
   const omitted = output.length - MAX_OUTPUT_CHARS;
   return output.slice(0, MAX_OUTPUT_CHARS) + `\n...[truncated ${omitted} chars]`;
+}
+
+function emitValidationProgress(progress: ValidationProgressReporter | undefined, event: ValidationProgressEvent): void {
+  if (!progress) return;
+  try {
+    progress(event);
+  } catch {
+    // Progress is diagnostic-only; validation results must not depend on a
+    // caller's logging sink.
+  }
+}
+
+function validationProgressEvent(
+  type: ValidationProgressEvent['type'],
+  command: ValidationCommand,
+  args: {
+    commandIndex: number;
+    totalCommands: number;
+    timeoutMs: number;
+    started: number;
+    cwd?: string;
+    code?: number;
+    timedOut?: boolean;
+  },
+): ValidationProgressEvent {
+  return {
+    type,
+    commandIndex: args.commandIndex,
+    totalCommands: args.totalCommands,
+    label: command.label,
+    command: command.command,
+    args: command.args,
+    ...(command.shell ? { shell: true } : {}),
+    ...(args.cwd ? { cwd: args.cwd } : {}),
+    timeoutMs: args.timeoutMs,
+    elapsedMs: Date.now() - args.started,
+    timestamp: new Date().toISOString(),
+    ...(typeof args.code === 'number' ? { code: args.code } : {}),
+    ...(args.timedOut ? { timedOut: true } : {}),
+  };
+}
+
+export function formatValidationProgressEvent(event: ValidationProgressEvent): string {
+  const index = `${event.commandIndex}/${event.totalCommands}`;
+  const commandText = event.shell
+    ? event.command
+    : [event.command, ...event.args].join(' ').trim();
+  switch (event.type) {
+    case 'command_start':
+      return `validate progress: command ${index} started ${event.label}: ${commandText} timeoutMs=${event.timeoutMs}`;
+    case 'heartbeat':
+      return `validate heartbeat: command ${index} ${event.label} elapsedMs=${event.elapsedMs} timeoutMs=${event.timeoutMs}`;
+    case 'command_timeout':
+      return `validate timeout: command ${index} ${event.label}: command=${event.command} args=${JSON.stringify(event.args)} timeoutMs=${event.timeoutMs} elapsedMs=${event.elapsedMs}`;
+    case 'command_end':
+      return `validate progress: command ${index} ended ${event.label}: code=${event.code ?? 'unknown'} elapsedMs=${event.elapsedMs}${event.timedOut ? ' timedOut=true' : ''}`;
+  }
 }
 
 // B-75f0 CHK-002: `gitCwd` is the resolved git working dir (runValidationCommand
@@ -196,9 +280,14 @@ export function runValidationCommand(
   command: ValidationCommand,
   projectRoot: string,
   defaultTimeoutMs: number = DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS,
+  options: RunValidationCommandOptions = {},
 ): Promise<ValidationCommandResult> {
   const cwd = commandCwd(projectRoot, command.cwd);
   const started = Date.now();
+  const timeoutMs = resolveCommandTimeoutMs(command, defaultTimeoutMs);
+  const commandIndex = options.commandIndex ?? 1;
+  const totalCommands = options.totalCommands ?? 1;
+  const heartbeatMs = options.heartbeatMs ?? resolveValidateHeartbeatMs();
   // B-75f0 CHK-002: no storyId in scope here (runValidationCommand takes only
   // projectRoot), so resolve the dirty-status probe cwd with the id-independent
   // project-level resolver — config loaded so a configured gitRoot subdir on a
@@ -217,12 +306,14 @@ export function runValidationCommand(
     let timedOut = false;
     let settled = false;
     let killTimer: NodeJS.Timeout | undefined;
+    let heartbeatTimer: NodeJS.Timeout | undefined;
 
     const finish = (rawCode: number | null) => {
       if (settled) return;
       settled = true;
       if (timer) clearTimeout(timer);
       if (killTimer) clearTimeout(killTimer);
+      if (heartbeatTimer) clearInterval(heartbeatTimer);
       // A timed-out command is ALWAYS attributed exit 124, regardless of the child's own
       // reported code. On POSIX a SIGTERM/SIGKILL gives code=null; on Windows
       // TerminateProcess gives a numeric code (≠ null), and a child that traps SIGTERM
@@ -231,7 +322,7 @@ export function runValidationCommand(
       const code = timedOut ? 124 : (rawCode ?? 1);
       const statusAfter = readGitStatus(statusGitCwd);
       const pollutionStatusLines = detectNewDirtyStatus(statusBefore, statusAfter);
-      resolveResult({
+      const result: ValidationCommandResult = {
         label: command.label,
         command: command.command,
         args: command.args,
@@ -241,6 +332,7 @@ export function runValidationCommand(
         output: trimOutput(stripAnsi(output)),
         ...(command.optional ? { optional: true } : {}),
         ...(timedOut ? { timedOut: true } : {}),
+        timeoutMs,
         durationMs: Date.now() - started,
         ...(pollutionStatusLines.length > 0
           ? {
@@ -250,7 +342,17 @@ export function runValidationCommand(
               },
             }
           : {}),
-      });
+      };
+      emitValidationProgress(options.progress, validationProgressEvent('command_end', command, {
+        commandIndex,
+        totalCommands,
+        timeoutMs,
+        started,
+        cwd,
+        code,
+        timedOut,
+      }));
+      resolveResult(result);
     };
 
     const isWindows = process.platform === 'win32';
@@ -266,6 +368,24 @@ export function runValidationCommand(
       // re-introducing the exact hang this guards against. Not unref'd: we still await it.
       ...(isWindows ? {} : { detached: true }),
     });
+
+    emitValidationProgress(options.progress, validationProgressEvent('command_start', command, {
+      commandIndex,
+      totalCommands,
+      timeoutMs,
+      started,
+      cwd,
+    }));
+    heartbeatTimer = setInterval(() => {
+      emitValidationProgress(options.progress, validationProgressEvent('heartbeat', command, {
+        commandIndex,
+        totalCommands,
+        timeoutMs,
+        started,
+        cwd,
+      }));
+    }, heartbeatMs);
+    heartbeatTimer.unref?.();
 
     // Signal the child's whole process group (POSIX) / process tree (Windows). Best-effort:
     // a race with natural exit (ESRCH) or a missing pid degrades to a direct child.kill().
@@ -294,10 +414,18 @@ export function runValidationCommand(
     // stray timer never keeps the event loop alive on its own (the awaited child does).
     const timer = setTimeout(() => {
       timedOut = true;
+      emitValidationProgress(options.progress, validationProgressEvent('command_timeout', command, {
+        commandIndex,
+        totalCommands,
+        timeoutMs,
+        started,
+        cwd,
+        timedOut: true,
+      }));
       killTree('SIGTERM');
       killTimer = setTimeout(() => killTree('SIGKILL'), 1000);
       killTimer.unref?.();
-    }, resolveCommandTimeoutMs(command, defaultTimeoutMs));
+    }, timeoutMs);
     timer.unref?.();
 
     child.stdout?.on('data', (d: Buffer) => { output += d.toString(); });
@@ -315,6 +443,7 @@ export async function executeValidationPlan(
   projectRoot: string,
   headSha?: string,
   storyId?: string,
+  options: ExecuteValidationPlanOptions = {},
 ): Promise<ValidationResult> {
   const commands: ValidationCommandResult[] = [];
   const details: string[] = [];
@@ -324,8 +453,14 @@ export async function executeValidationPlan(
     details.push(`FOCUSED VALIDATE MODE focus=${focus}: not final full validation and not DONE-required proof.`);
   }
 
-  for (const command of plan.commands) {
-    const result = await runValidationCommand(command, projectRoot);
+  for (let i = 0; i < plan.commands.length; i++) {
+    const command = plan.commands[i];
+    const result = await runValidationCommand(command, projectRoot, DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, {
+      progress: options.progress,
+      heartbeatMs: options.heartbeatMs,
+      commandIndex: i + 1,
+      totalCommands: plan.commands.length,
+    });
     commands.push(result);
 
     const failed = result.code !== 0 || Boolean(result.timedOut);
@@ -333,7 +468,7 @@ export async function executeValidationPlan(
     const suffix = result.timedOut ? ' (timed out)' : '';
     details.push(`${mark} ${result.label}: ${formatValidationCommand(command)}${suffix}`.trim());
     if (result.timedOut) {
-      details.push(...formatTimeoutDiagnostics(command));
+      details.push(...formatTimeoutDiagnostics(command, result, i + 1, plan.commands.length));
     }
     if (result.output.trim()) {
       details.push(...result.output.trim().split('\n').filter(Boolean).map((line) => `  ${line}`));

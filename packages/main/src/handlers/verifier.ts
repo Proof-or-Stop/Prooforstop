@@ -31,8 +31,14 @@ import { fileURLToPath } from 'node:url';
 import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
 import { loadConfig } from '../core/config.js';
-import type { ValidationCommand } from '../core/validation-types.js';
-import { executeValidationPlan, formatWorktreePollutionDetails, runValidationCommand, stripAnsi } from '../core/validation-executor.js';
+import type { ValidationCommand, ValidationProgressReporter } from '../core/validation-types.js';
+import {
+  executeValidationPlan,
+  formatValidationProgressEvent,
+  formatWorktreePollutionDetails,
+  runValidationCommand,
+  stripAnsi,
+} from '../core/validation-executor.js';
 import { withValidationExecutionLock } from '../core/validation-execution-lock.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -522,6 +528,12 @@ function renderExternalResult(result: any): string {
   return lines.join('\n');
 }
 
+function validationProgressReporter(ctx: HandlerContext): ValidationProgressReporter {
+  return (event) => {
+    ctx.log?.(formatValidationProgressEvent(event));
+  };
+}
+
 async function maybeHoldValidationLockSmokeHook(projectRoot: string, storyId: string | undefined): Promise<void> {
   // Internal smoke seam: verifies the lock stays held after a command exits and before evidence persists.
   const holdFile = process.env.LATTICE_VALIDATE_LOCK_SMOKE_POST_COMMAND_HOLD_FILE;
@@ -725,7 +737,9 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             commands,
             warnings: [],
             ...(focus ? { focus } : {}),
-          }, projectRoot, currentHead(handlerGitCwd), args.story);
+          }, projectRoot, currentHead(handlerGitCwd), args.story, {
+            progress: validationProgressReporter(ctx),
+          });
           await maybeHoldValidationLockSmokeHook(projectRoot, args.story);
           const summary = usingConfigured
             ? base.summary
@@ -801,7 +815,11 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         label: validateFile,
         command: 'npx',
         args: ['tsx', ...tsArgs],
-      }, projectRoot);
+      }, projectRoot, undefined, {
+        progress: validationProgressReporter(ctx),
+        commandIndex: 1,
+        totalCommands: 1,
+      });
       const runValidateFileAndRender = async () => {
         const commandResult = await runValidateFile();
         await maybeHoldValidationLockSmokeHook(projectRoot, args.story);
