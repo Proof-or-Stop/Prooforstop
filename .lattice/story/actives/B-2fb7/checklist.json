@@ -144,7 +144,31 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees timeout diagnostics that name the exact validate command and evidence classification \"infra_failure\" for runner/watchdog failures, while real test failures remain \"FAIL\" validation results.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Forced exits and lifecycle runner failures persist test evidence or validation result metadata as infra_failure, distinct from ordinary test assertion failure",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Ordinary validate command assertion failures remain normal test/validation failures and are not mislabeled as infra_failure",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A watchdog/runner timeout transcript cannot be mistaken for a passing test result or an assertion failure caused by user code",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
