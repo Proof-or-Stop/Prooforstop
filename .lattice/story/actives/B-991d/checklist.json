@@ -499,8 +499,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-07T03:05:31.285Z",
       "endTime": null
     },
     {
@@ -774,6 +774,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Cell 03 full execution completed and committed; complete validator passed with zero pending executable rows.",
+      "agent": "codex"
+    },
+    {
+      "timestamp": "2026-07-07T03:05:31.285Z",
+      "phase": "DEV",
+      "itemId": "CHK-007",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting postflight provider usage and cost accounting after Cell 03 full execution completed.",
       "agent": "codex"
     }
   ]
