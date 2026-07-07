@@ -583,8 +583,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-07T03:13:07.467Z",
       "endTime": null
     },
     {
@@ -814,6 +814,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Cell 03-derived usage lock committed; it satisfies Cell06 sequencing dependency but does not authorize Cell06 execution.",
+      "agent": "codex"
+    },
+    {
+      "timestamp": "2026-07-07T03:13:07.467Z",
+      "phase": "DEV",
+      "itemId": "CHK-009",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting analysis-readiness artifact after Cell 03 rows, usage accounting, and usage lock are complete.",
       "agent": "codex"
     }
   ]
