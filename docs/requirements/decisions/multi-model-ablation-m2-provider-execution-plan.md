@@ -45,6 +45,35 @@ do not authorize Cell 06 execution or any downstream claim.
 - Provider fallback is rejected. Any fallback, model switch, or missing dated
   snapshot must void the affected cell or require an explicit amendment.
 
+## Paper Appendix Evidence Summary
+
+This section is suitable for a methods appendix, preregistration status note, or
+evidence ledger. It is not a results section and must not be used as the paper's
+main conclusion. B-991d completes only the M2 Cell 03 / protocol ③ A4 E2
+same-family calibration run under the frozen envelope.
+
+| Field | Appendix-ready statement |
+|---|---|
+| Execution scope | Cell 03 only: E2 executor with same-family E2 reviewer for protocol cell ③ / A4. |
+| Protocol status | The Cell 03 envelope, prompt digest, tool-surface digest, duplicate policy, result output policy, and provider snapshot fields were frozen before execution. |
+| Row outcome | `finalRows=1142/1152`; `terminalExhaustedRows=10`; `pendingExecutableRows=0`. Terminal exhausted rows are accounted for but are not formal final rows. |
+| Usage accounting | Provider-reported usage is recorded as `inputTokens=213133626`, `outputTokens=6119875`, `totalTokens=219253501`. Exact dollar cost is intentionally absent until a billing export or versioned pricingRef exists. |
+| Validation evidence | `validate-full.mjs --requireComplete` passed with `106607` assertions and `13` negative controls rejected. `m2-provider-execution-check.mjs` passed and preserves the downstream lock boundaries. |
+| Claim boundary | The run supports descriptive Cell 03 analysis and sequencing input for Cell 06 only. It does not prove H-M1, H-M3, model-agnostic generalization, cross-vendor reviewer value, Phase 2 readiness, product gate changes, playbook activation, or paper wording upgrades. |
+| Next formal step | Cell 06 / protocol ⑥ A2prime should be a separate story using `future-cell03-results/cell03-usage-lock.json` as the Cell 03-derived usage/sequencing input. |
+
+Recommended paper treatment:
+
+- In methods or appendix: cite B-991d as the audited Cell 03 execution record,
+  including frozen-envelope provenance, row counts, validation results, usage
+  totals, and locked downstream claims.
+- In results: do not cite B-991d alone as a Phase 1 directional result. Wait
+  until Cell 06, cross-review cells, the Phase 2 decision, and independent
+  recompute/analysis are complete.
+- In conclusion: do not claim model-agnostic behavior, cross-vendor reviewer
+  value, or comparison against the prior `31/1800 -> 2/1800` autonomous-coding
+  lifecycle result until the full comparison matrix has been analyzed.
+
 ## Milestones
 
 | Milestone | Current state | Exit condition |
