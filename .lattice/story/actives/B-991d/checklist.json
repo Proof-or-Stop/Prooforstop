@@ -717,14 +717,14 @@
         {
           "intentRef": "CHK-009:edge:0",
           "kind": "logic_test",
-          "file": "experiments/multi-model-ablation/future-cell03-results/analysis-readiness.json",
-          "command": "node <assert partialDataHandling terminalExhaustedRows semantics>",
+          "file": "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
           "result": "pass",
-          "note": "partialDataHandling marks terminal exhausted rows as attrition/accounting only, not successful recoveries or formal final rows.",
-          "headHash": "9f08245d0635a2fbcd621d98e6bba3879a1a67fa",
+          "note": "Current executable checker verifies partial data handling: 10 terminal exhausted rows are not formal final rows, not successful recoveries, and confirmatory denominators require a later analysis plan.",
+          "headHash": "4b78cfe95861057e41331bef2f14f7b97c1efb44",
           "materialHash": "95614a3146a1390dd37073440c570cdbaf6c2b83c964bafe7c9fa79948eb9b39",
           "storyFilesHash": "8a141fcaf9b7b9e1dd5f053f90d9a91e2f4356e2c549d5545473cdac7be25385",
-          "timestamp": "2026-07-07T04:40:42.459Z"
+          "timestamp": "2026-07-07T05:04:46.469Z"
         },
         {
           "intentRef": "CHK-009:adversarial:0",
