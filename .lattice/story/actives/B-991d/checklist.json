@@ -802,14 +802,14 @@
         {
           "intentRef": "CHK-010:edge:0",
           "kind": "logic_test",
-          "file": "experiments/multi-model-ablation/future-cell03-results/done-summary.json",
-          "command": "node <assert done-summary formalComplete false and remainingWork present>",
+          "file": "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
           "result": "pass",
-          "note": "DONE summary explicitly records formalComplete=false for 10 terminal exhausted rows and lists remaining work instead of hiding partial/nonformal rows.",
-          "headHash": "9f08245d0635a2fbcd621d98e6bba3879a1a67fa",
+          "note": "Current executable checker verifies done-summary records formalComplete false, 10 terminal exhausted rows, pendingExecutableRows 0, remaining work, and no overclaim from partial formal rows.",
+          "headHash": "f47ae07a40272f36c2b074eb260c6ac665c31c41",
           "materialHash": "95614a3146a1390dd37073440c570cdbaf6c2b83c964bafe7c9fa79948eb9b39",
           "storyFilesHash": "8a141fcaf9b7b9e1dd5f053f90d9a91e2f4356e2c549d5545473cdac7be25385",
-          "timestamp": "2026-07-07T04:40:42.459Z"
+          "timestamp": "2026-07-07T05:05:04.673Z"
         },
         {
           "intentRef": "CHK-010:adversarial:0",
