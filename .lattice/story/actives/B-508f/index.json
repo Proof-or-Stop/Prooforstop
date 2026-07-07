@@ -4,7 +4,7 @@
   "title": "Run Cell06 A2prime formal execution through the sterile Docker runner",
   "description": "Create the formal Cell06/A2prime execution path after B-8092: freeze full row manifests, generate sterile inputs, run initial Docker row receipts, validate contamination and duplicate policy, and prepare resumable shard execution without unlocking paper claims.",
   "type": "feature",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "source": "user",
   "depends": [
@@ -29,6 +29,20 @@
       "user": "Harmonygo",
       "sessionId": "sess-92ebec71c42ca8f2",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-07T12:42:48.500Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-92ebec71c42ca8f2",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-508f",
+    "branch": "story/B-508f",
+    "createdAt": "2026-07-07T12:42:34.986Z"
+  }
 }

@@ -1,0 +1,35 @@
+{
+  "storyId": "B-508f",
+  "checkedAt": "2026-07-07T12:42:27.152Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init@fallback",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "lattice-review-story-init@fallback",
+      "checkedAt": "2026-07-07T12:42:27.152Z",
+      "issues": []
+    },
+    {
+      "agentId": "product-reviewer@fallback",
+      "checkedAt": "2026-07-07T12:42:27.152Z",
+      "issues": []
+    }
+  ],
+  "fallback": {
+    "mode": "fallback",
+    "reason": "Current Codex tool policy in this turn does not allow spawning independent subagents unless the user explicitly asks for subagents. I manually read the B-508f background/checklist via story_get and dispatch prompt, verified four checklist items are user-visible, verifiable, non-overlapping, and explicitly exclude Cell02, Cell04, Phase2, paper conclusions, runtime product gates, and container mounts of Proofbound/.lattice/paper/Cell03 outputs. This fallback only unlocks INIT_CHECK; formal REVIEW/TEST/DONE remain required.",
+    "evidenceRefs": [
+      "lattice story_get --storyId=B-508f --json",
+      "lattice dispatch --storyId=B-508f --agentType=lattice-review-story-init --json",
+      "docs/requirements/decisions/cell06-docker-server-execution-checklist.md",
+      "B-8092 DONE Docker probe"
+    ],
+    "actor": "codex-main",
+    "session": "sess-92ebec71c42ca8f2",
+    "attestedAt": "2026-07-07T12:42:27.152Z",
+    "headHash": "74d6c9825bc552e5241ca76c6f1f942c41a39921",
+    "materialHash": "24c541ef04cf6c0c200684049d3ab661c1a166ab4661159757f967104b2ced5a"
+  },
+  "_hash": "96c8973d30ca87ca336924e3b4decfe02f3e9d494cb508181184d5bfd5d68aa8"
+}
