@@ -180,9 +180,9 @@
       "excludes": [
         "silent rerun selection across accounts"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-07T11:14:26.066Z",
       "files": {
         "modify": [],
         "create": [
@@ -356,6 +356,15 @@
       "from": "pending",
       "to": "done",
       "reason": "Sterile two-row manifest and account/shard ownership were generated and validated."
+    },
+    {
+      "timestamp": "2026-07-07T11:14:26.066Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Local Docker probe captured one completed account-a row and one account-b pending_auth row without fake success."
     }
   ]
 }
