@@ -5,10 +5,12 @@ export default function createLRU(capacity) {
 
   const entries = new Map();
 
-  const markUsed = (key, value) => {
+  function markUsed(key) {
+    const value = entries.get(key);
     entries.delete(key);
     entries.set(key, value);
-  };
+    return value;
+  }
 
   return {
     get(key) {
@@ -16,20 +18,15 @@ export default function createLRU(capacity) {
         return undefined;
       }
 
-      const value = entries.get(key);
-      markUsed(key, value);
-      return value;
+      return markUsed(key);
     },
 
     put(key, value) {
       if (entries.has(key)) {
-        markUsed(key, value);
-        return;
-      }
-
-      if (entries.size >= capacity) {
-        const oldestKey = entries.keys().next().value;
-        entries.delete(oldestKey);
+        entries.delete(key);
+      } else if (entries.size >= capacity) {
+        const leastRecentKey = entries.keys().next().value;
+        entries.delete(leastRecentKey);
       }
 
       entries.set(key, value);

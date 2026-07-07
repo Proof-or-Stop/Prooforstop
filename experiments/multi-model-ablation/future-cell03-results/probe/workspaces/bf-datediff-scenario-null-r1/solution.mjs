@@ -1,7 +1,9 @@
-const DAYS_BEFORE_MONTH = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
+const DAYS_BEFORE_MONTH = [
+  0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334,
+];
 
 function isLeapYear(year) {
-  return year % 4 === 0 && year % 100 !== 0 || year % 400 === 0;
+  return year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
 }
 
 function daysInMonth(year, month) {
@@ -9,7 +11,7 @@ function daysInMonth(year, month) {
     return isLeapYear(year) ? 29 : 28;
   }
 
-  return [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month - 1];
+  return [4, 6, 9, 11].includes(month) ? 30 : 31;
 }
 
 function parseDate(value) {
@@ -18,7 +20,7 @@ function parseDate(value) {
   }
 
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
-  if (!match) {
+  if (match === null) {
     throw new Error("Date must be in YYYY-MM-DD form");
   }
 
@@ -30,7 +32,8 @@ function parseDate(value) {
     throw new Error("Month out of range");
   }
 
-  if (day < 1 || day > daysInMonth(year, month)) {
+  const maxDay = daysInMonth(year, month);
+  if (day < 1 || day > maxDay) {
     throw new Error("Day out of range");
   }
 
@@ -38,20 +41,28 @@ function parseDate(value) {
 }
 
 function daysBeforeYear(year) {
-  return year * 365
-    + Math.floor((year + 3) / 4)
-    - Math.floor((year + 99) / 100)
-    + Math.floor((year + 399) / 400);
-}
-
-function toOrdinal({ year, month, day }) {
-  let ordinal = daysBeforeYear(year) + DAYS_BEFORE_MONTH[month - 1] + day - 1;
-
-  if (month > 2 && isLeapYear(year)) {
-    ordinal += 1;
+  if (year === 0) {
+    return 0;
   }
 
-  return ordinal;
+  const previousYear = year - 1;
+  return (
+    365 * year +
+    Math.floor(previousYear / 4) -
+    Math.floor(previousYear / 100) +
+    Math.floor(previousYear / 400) +
+    1
+  );
+}
+
+function toOrdinal(date) {
+  return (
+    daysBeforeYear(date.year) +
+    DAYS_BEFORE_MONTH[date.month - 1] +
+    (date.month > 2 && isLeapYear(date.year) ? 1 : 0) +
+    date.day -
+    1
+  );
 }
 
 export default function daysBetween(a, b) {

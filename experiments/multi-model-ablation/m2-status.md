@@ -49,6 +49,6 @@ Cell 03 execution envelope: frozen. Pre-run dollar guess: not required. B-991d C
 
 Cell 03 launch guardrail: completed for B-991d Cell 03. B-6529 does not become an execution story. `future-cell03-results/cell03-usage-lock.json` provides a real Cell 03-derived usage/sequencing input for future Cell 06 planning under a separate story, but does not authorize Cell 06 execution or claims.
 
-Cell 03 probe on 2026-07-06: `future-cell03-results/probe/probe-summary.json` records `rowCount=2`, `finalRows=2`, `reviewedRows=2`, `groundTruthPassRows=2`, `providerUsageRows=2`, `totalTokens=315877`, and `fullRunUnlocked=true` for CHK-006. Probe validation passed with 225 assertions and 15 negative controls rejected.
+Cell 03 probe on 2026-07-07: `future-cell03-results/probe/probe-summary.json` records `rowCount=2`, `finalRows=2`, `reviewedRows=2`, `groundTruthPassRows=2`, `providerUsageRows=2`, `totalTokens=297490`, and `fullRunUnlocked=true` for CHK-006. Probe validation passed with 225 assertions and 15 negative controls rejected.
 
 These checks opened and completed only the B-991d Cell 03 execution scope. They did not run Cell 06, Cell 02, optional Cell 04, full Phase 2, product gate changes, playbook activation, or paper claim upgrades.
