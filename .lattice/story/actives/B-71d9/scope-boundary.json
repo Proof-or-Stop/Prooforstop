@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-71d9",
+  "mode": "maintenance",
+  "allowed": [
+    "post-rerun Cell03 source row/summary safety-entry and validator updates",
+    "recording external compact lattice-Paper Cell03 mirror synchronization",
+    "retroactive audit-only provenance for completed Cell03 targeted usage-limit rerun"
+  ],
+  "excluded": [
+    "Cell06 execution",
+    "new duplicate paper mirror directory",
+    "new model/provider calls",
+    "paper conclusion upgrade",
+    "Phase2 execution",
+    "provider rerun"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "User approved fastest path: do not repeat computation; synchronize prior results, prove them, and make Cell03 non-dirty through story provenance.",
+  "createdAt": "2026-07-07T18:49:43.569Z",
+  "updatedAt": "2026-07-07T18:49:43.569Z",
+  "_hash": "0c99ff205b6f3e102857de7745b16973333bd8cd132b42d8cd875d4c5537e5ec"
+}

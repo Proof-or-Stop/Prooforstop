@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-71d9",
+  "allowedCommands": [
+    "git add",
+    "git commit",
+    "git diff",
+    "git status",
+    "lattice delivery_check_set",
+    "lattice summary_set",
+    "node experiments/multi-model-ablation/future-cell03-results/full/validate-full.mjs --requireComplete",
+    "rg"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+    "docs/requirements/decisions/multi-model-ablation-replication.md",
+    "experiments/multi-model-ablation/future-cell03-results/full"
+  ],
+  "excludedCommands": [
+    "codex exec provider execution",
+    "git reset --hard",
+    "node run-full.mjs --rerunContaminatedRange"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    "experiments/multi-model-ablation/cell06-formal"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Execution is verification/provenance only. Provider rerun already happened and must not be repeated.",
+  "createdAt": "2026-07-07T18:49:43.569Z",
+  "updatedAt": "2026-07-07T18:49:43.569Z",
+  "_hash": "af05730cf2b539e0d96a3963c64e47c47963d861451ea92b087acb3ca56501ea"
+}

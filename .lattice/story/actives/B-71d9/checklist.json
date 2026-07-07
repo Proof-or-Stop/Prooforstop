@@ -1,0 +1,99 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Record Cell03 targeted rerun correction as audit-only provenance",
+      "context": "Document the already completed 506-515 usage-limit contaminated targeted rerun, preserving old failed attempts and appending attempt-3 final rows only for the approved range.",
+      "relatedDocs": [
+        "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+        "docs/requirements/decisions/multi-model-ablation-replication.md"
+      ],
+      "excludes": [
+        "provider rerun",
+        "Cell06 execution",
+        "Phase2 claim upgrade",
+        "paper conclusion upgrade"
+      ],
+      "files": {
+        "modify": [
+          "experiments/multi-model-ablation/future-cell03-results/full/run-full.mjs",
+          "experiments/multi-model-ablation/future-cell03-results/full/validate-full.mjs",
+          "experiments/multi-model-ablation/future-cell03-results/full/cell03-rows.jsonl",
+          "experiments/multi-model-ablation/future-cell03-results/full/cell03-summary.json"
+        ],
+        "create": [],
+        "test": [
+          "experiments/multi-model-ablation/future-cell03-results/full/validate-full.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Proofbound authoritative Cell03 validator passes with 1152/1152 final rows and 0 terminal exhausted rows.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Attempt index 3 is accepted only for approved usage-limit-contaminated range 506-515 with targeted rerun provenance.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Wrong contaminated range or missing targeted rerun metadata is rejected by the runner/validator safety checks.",
+            "type": "cli"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-07-07T18:49:43.569Z",
+      "endTime": "2026-07-07T18:49:43.569Z"
+    },
+    {
+      "id": "CHK-002",
+      "title": "Record external compact paper mirror synchronization without duplicating the data package",
+      "context": "Record that the existing lattice-Paper Cell03 mirror and paper evidence note were synchronized with the post-targeted-rerun counts, usage totals, and explicit wording boundary. The external paper repo files are intentionally not represented as Proofbound repo-relative paths.",
+      "relatedDocs": [
+        "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md"
+      ],
+      "excludes": [
+        "new duplicate mirror directory",
+        "paper conclusion upgrade",
+        "billing-cost estimate"
+      ],
+      "files": {
+        "modify": [
+          "experiments/multi-model-ablation/future-cell03-results/full/cell03-summary.json"
+        ],
+        "create": [],
+        "test": [
+          "experiments/multi-model-ablation/future-cell03-results/full/validate-full.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "External paper mirror validator passed with 1197 rows, 1152/1152 final rows, and 0 terminal exhausted rows.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Old 1142 count appears only as before-correction context, not as current status.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "JSON evidence, README, usage summary, and usage lock parse consistently and do not disagree on post-rerun counts.",
+            "type": "logic"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-07-07T18:49:43.569Z",
+      "endTime": "2026-07-07T18:49:43.569Z"
+    }
+  ]
+}
