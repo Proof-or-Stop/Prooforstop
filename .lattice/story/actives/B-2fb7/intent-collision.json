@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-2fb7",
+  "id": "IC-20260707124929",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Implement progress and heartbeat for active validate commands so the parent lifecycle idle watchdog sees real liveness, while preserving JSON stdout cleanliness, per-command timeoutMs, forced-exit cleanup, stale-lock safety, and infra-failure classification. This is not permission to disable the watchdog, skip validate, or make timeouts unlimited.",
+  "acceptedInterpretationHash": "sha256:4a99f3886049c3f52991e7cf7e5fec0af6ad20d42d80ccd227ff213b93c4afc9",
+  "notes": "Collision resolved against the tempting interpretation of merely extending/removing the lifecycle idle timeout. The accepted interpretation matches the B-2fb7 checklist and execution plan.",
+  "createdAt": "2026-07-07T12:49:29.281Z",
+  "updatedAt": "2026-07-07T12:49:29.281Z"
+}

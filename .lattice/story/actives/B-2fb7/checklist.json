@@ -16,7 +16,31 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees the red baseline transcript: \"validate stuck: 1 seconds without output; forcing exit\" before the fix, and the smoke exits nonzero until heartbeat is implemented.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Red smoke command reproduces baseline idle-watchdog kill for a silent long validate command before the fix",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The red repro fails because the idle watchdog kills active validation, not because validate is skipped or the per-command timeoutMs fires first",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The repro would turn green only when heartbeat/progress keeps idle liveness alive, not by disabling the watchdog or using unlimited timeouts",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

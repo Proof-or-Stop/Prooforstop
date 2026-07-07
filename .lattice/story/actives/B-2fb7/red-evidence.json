@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-2fb7",
+  "records": [
+    {
+      "id": "RED-20260707124947",
+      "trigger": "Silent long-running validate command is killed by the CLI idle watchdog before per-command timeout despite doing real work.",
+      "acceptanceTargetRef": "REQ-validate-heartbeat",
+      "baselineHeadHash": "7b1c4cb6ca7c54a34b738c2015e7ca377d0c45c8",
+      "baselineMaterialHash": "24c541ef04cf6c0c200684049d3ab661c1a166ab4661159757f967104b2ced5a",
+      "observedFailure": "Baseline reproduction command exits nonzero because global lattice validate --json on a temporary project with one 12s silent command and LATTICE_IDLE_TIMEOUT_MS=1000 exits status 2 with stderr: validate stuck: 1 seconds without output; forcing exit. Stdout is empty, so story_advance TEST would lose validation evidence.",
+      "failingCommand": "node -e \"const fs=require(\\\"fs\\\"),os=require(\\\"os\\\"),path=require(\\\"path\\\"),cp=require(\\\"child_process\\\");const root=fs.mkdtempSync(path.join(os.tmpdir(),\\\"proofbound-red-\\\"));fs.writeFileSync(path.join(root,\\\"lattice.config.json\\\"),JSON.stringify({validate:{commands:[{label:\\\"silent-long-command\\\",command:process.execPath,args:[\\\"-e\\\",\\\"setTimeout(() => {}, 12000)\\\"],timeoutMs:20000}]}}));const r=cp.spawnSync(\\\"lattice\\\",[\\\"--root\\\",root,\\\"validate\\\",\\\"--json\\\"],{env:{...process.env,LATTICE_IDLE_TIMEOUT_MS:\\\"1000\\\",LATTICE_MAX_TIMEOUT_MS:\\\"20000\\\"},encoding:\\\"utf8\\\",timeout:18000});const v=(r.stdout||\\\"\\\")+\\\"\\\\n\\\"+(r.stderr||\\\"\\\");process.exit(((r.status===2||v.includes(\\\"forcing exit\\\"))&&v.includes(\\\"stuck: 1 seconds without output\\\"))?1:0)\"",
+      "expectedGreenCommand": "npm --prefix packages/main run build && node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
+      "greenRelation": {
+        "targetRef": "REQ-validate-heartbeat",
+        "relation": "same_acceptance",
+        "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js"
+      },
+      "note": "Command was run before DEV from B-2fb7 worktree against the current global baseline and observed status=2 with validate stuck idle-watchdog output.",
+      "createdAt": "2026-07-07T12:49:47.669Z"
+    },
+    {
+      "id": "RED-validate-heartbeat-cleanup",
+      "trigger": "Silent long-running validate command is killed by the CLI idle watchdog before per-command timeout despite doing real work.",
+      "acceptanceTargetRef": "ACC-validate-heartbeat-cleanup",
+      "baselineHeadHash": "7b1c4cb6ca7c54a34b738c2015e7ca377d0c45c8",
+      "baselineMaterialHash": "24c541ef04cf6c0c200684049d3ab661c1a166ab4661159757f967104b2ced5a",
+      "observedFailure": "Baseline reproduction command exits nonzero because global lattice validate --json on a temporary project with one 12s silent command and LATTICE_IDLE_TIMEOUT_MS=1000 exits status 2 with stderr: validate stuck: 1 seconds without output; forcing exit. Stdout is empty, so story_advance TEST would lose validation evidence.",
+      "failingCommand": "node -e \"const fs=require(\\\"fs\\\"),os=require(\\\"os\\\"),path=require(\\\"path\\\"),cp=require(\\\"child_process\\\");const root=fs.mkdtempSync(path.join(os.tmpdir(),\\\"proofbound-red-\\\"));fs.writeFileSync(path.join(root,\\\"lattice.config.json\\\"),JSON.stringify({validate:{commands:[{label:\\\"silent-long-command\\\",command:process.execPath,args:[\\\"-e\\\",\\\"setTimeout(() => {}, 12000)\\\"],timeoutMs:20000}]}}));const r=cp.spawnSync(\\\"lattice\\\",[\\\"--root\\\",root,\\\"validate\\\",\\\"--json\\\"],{env:{...process.env,LATTICE_IDLE_TIMEOUT_MS:\\\"1000\\\",LATTICE_MAX_TIMEOUT_MS:\\\"20000\\\"},encoding:\\\"utf8\\\",timeout:18000});const v=(r.stdout||\\\"\\\")+\\\"\\\\n\\\"+(r.stderr||\\\"\\\");process.exit(((r.status===2||v.includes(\\\"forcing exit\\\"))&&v.includes(\\\"stuck: 1 seconds without output\\\"))?1:0)\"",
+      "expectedGreenCommand": "npm --prefix packages/main run build && node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
+      "greenRelation": {
+        "targetRef": "ACC-validate-heartbeat-cleanup",
+        "relation": "same_acceptance",
+        "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js"
+      },
+      "note": "Acceptance-bound red evidence for the ProofStory contract binding. Same observed baseline as RED-20260707124947, with targetRef aligned to ACC-validate-heartbeat-cleanup.",
+      "createdAt": "2026-07-07T12:51:02.920Z"
+    }
+  ],
+  "createdAt": "2026-07-07T12:49:47.669Z",
+  "updatedAt": "2026-07-07T12:51:02.920Z"
+}

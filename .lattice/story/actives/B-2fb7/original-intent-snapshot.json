@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-2fb7",
+  "sourceText": "User asked Codex to take over story B-2fb7. Existing story title: Add validate heartbeat progress and forced-exit cleanup. Existing checklist requires a red repro for silent validate idle-kill, JSON-safe validate progress and heartbeat, forced-exit/stale-lock hardening, infra-failure classification, and story_advance TEST integration/regression coverage.",
+  "normalizedOutcome": "Long-running validation that is doing real work emits visible heartbeat/progress so story_advance --phase=TEST does not die from idle silence; JSON stdout stays parseable; true command timeouts still fail closed with exact diagnostics; forced-exit failures and stale locks are classified as runner infrastructure issues.",
+  "acceptanceClaim": "A bounded silent validate command that previously triggers the CLI idle watchdog is kept alive by flushed validate heartbeat without corrupting --json stdout, while an over-timeout command still fails with timeout diagnostics and infra_failure classification.",
+  "keyRequirementIds": [
+    "REQ-infra-failure-classification",
+    "REQ-json-stdout-clean",
+    "REQ-stale-lock-cleanup",
+    "REQ-timeout-fail-closed",
+    "REQ-validate-heartbeat"
+  ],
+  "requestHash": "sha256:e9e8ba137fad83d3fe402a421281fea06fa66b4ab7c5c9b9ce2e75789f01693e",
+  "createdAt": "2026-07-07T12:49:22.469Z",
+  "updatedAt": "2026-07-07T12:49:22.469Z"
+}
