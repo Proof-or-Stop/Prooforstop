@@ -625,14 +625,14 @@
         {
           "intentRef": "CHK-008:happy:0",
           "kind": "manual_transcript",
-          "file": "experiments/multi-model-ablation/future-cell03-results/cell03-usage-lock.json",
-          "command": "node <assert cell03-usage-lock lockSemantics and lockDigest>",
+          "file": "experiments/multi-model-ablation/m2-provider-execution-check.mjs",
+          "command": "node experiments/multi-model-ablation/m2-provider-execution-check.mjs",
           "result": "pass",
-          "note": "cell03-usage-lock.json is derived from actual Cell 03 rows/usage, contains 24 task locks, and has lockDigest sha256:160d695ec8ca94dd57a309bc90ce77af34718ab0151feee24206b08eea266242.",
-          "headHash": "9f08245d0635a2fbcd621d98e6bba3879a1a67fa",
+          "note": "Current executable checker verifies cell03-usage-lock is derived from real Cell 03 rows and provider usage, includes 24 task locks, and records Cell06 as separate-story input only.",
+          "headHash": "1fc34515280a284c8bc5a81523de162e6e5e1264",
           "materialHash": "95614a3146a1390dd37073440c570cdbaf6c2b83c964bafe7c9fa79948eb9b39",
           "storyFilesHash": "8a141fcaf9b7b9e1dd5f053f90d9a91e2f4356e2c549d5545473cdac7be25385",
-          "timestamp": "2026-07-07T04:40:42.459Z"
+          "timestamp": "2026-07-07T05:04:24.330Z"
         },
         {
           "intentRef": "CHK-008:edge:0",
