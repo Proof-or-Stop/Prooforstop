@@ -4,7 +4,7 @@
   "title": "Validate a local Docker sterile Codex runner probe for Cell 06 A2prime",
   "description": "Run a bounded local Docker probe before broader Cell 06 work so the experiment can verify Codex CLI container execution, shard/account separation, sterile inputs, contamination scanning, and receipt shape without launching the complete dataset.",
   "type": "chore",
-  "phase": "PLAN",
+  "phase": "DEV",
   "priority": "high",
   "keywords": [
     "cell06",
@@ -39,6 +39,15 @@
       "phase": "PLAN",
       "action": "advance",
       "timestamp": "2026-07-07T10:47:35.756Z",
+      "branch": "story/B-8092",
+      "user": "Harmonygo",
+      "sessionId": "sess-2c6f05b7a24e97b8",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-07T10:59:22.769Z",
       "branch": "story/B-8092",
       "user": "Harmonygo",
       "sessionId": "sess-2c6f05b7a24e97b8",

@@ -118,6 +118,19 @@
         }
       ],
       "_hash": "71294099fdd45e6bdf1119fe76de37d919be59724490e9b3e6da3da7d1128187"
+    },
+    {
+      "timestamp": "2026-07-07T10:59:20.975Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when Build or verify the local Docker Codex runner image + Generate sterile probe row inputs and shard manifests are performed simultaneously?)"
+        }
+      ],
+      "_hash": "ce6209d14ae9344151a7fc179b8eccca337a4a5a111aec014a27e9b933ca9cf7"
     }
   ]
 }
