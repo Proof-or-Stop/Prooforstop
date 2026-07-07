@@ -564,6 +564,18 @@ function rowFor(cell, task, executor, reviewer, acceptance, groundTruth, injecti
   };
 }
 
+function isProviderUnavailable(row) {
+  if (row.providerReportedUsage) return false;
+  return (
+    row.fullRun?.providerExitCode !== 0 ||
+    row.fullRun?.providerTimedOut ||
+    row.fullRun?.providerSpawnError ||
+    row.reviewGate?.exitCode !== 0 ||
+    row.reviewGate?.timedOut ||
+    row.reviewGate?.spawnError
+  );
+}
+
 function cellKeyFor(cell) {
   return `③|A4|${cell.taskId}|${cell.scenarioId}|${cell.repeatIndex}|E2|same`;
 }
@@ -845,8 +857,6 @@ async function main() {
       const acceptance = runAcceptance(scratchWorkspace);
       const reviewer = runReviewer(cell, scratchWorkspace);
       const groundTruth = runGroundTruth(task, scratchWorkspace);
-      fs.rmSync(artifactWorkspace, { recursive: true, force: true });
-      fs.cpSync(scratchWorkspace, artifactWorkspace, { recursive: true });
       executor.workspacePolicy = {
         providerCwdKind: "external_scratch",
         parentRepoRulesVisible: false,
@@ -866,6 +876,13 @@ async function main() {
           claimArtifact: claim.claim.artifact,
         };
       }
+      if (isProviderUnavailable(row)) {
+        console.error(`[provider-unavailable] ${cellKey} executorExit=${row.fullRun.providerExitCode} reviewerExit=${row.reviewGate.exitCode}; row not written; stopping runner`);
+        process.exitCode = 75;
+        break;
+      }
+      fs.rmSync(artifactWorkspace, { recursive: true, force: true });
+      fs.cpSync(scratchWorkspace, artifactWorkspace, { recursive: true });
       newRows.push(row);
       byCell.set(cellKey, [...prior, row]);
       fs.appendFileSync(outputRowsPath, JSON.stringify(row) + "\n");
@@ -878,7 +895,7 @@ async function main() {
 
   if (parallelMode) {
     console.log(`Wrote ${newRows.length} shard row(s) to ${path.relative(repoRoot, outputRowsPath)}`);
-    if (limit != null && newRows.length < limit) process.exitCode = 2;
+    if (limit != null && newRows.length < limit && process.exitCode == null) process.exitCode = 2;
     return;
   }
 
