@@ -63,10 +63,10 @@
           "file": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
           "result": "pass",
           "note": "The fixture writes a start marker, uses a finite 20000ms command timeout, and expects the old idle watchdog kill before the command can finish.",
-          "headHash": "b722a6ced0cc54d3cc1f28c9ce7ca98844730405",
-          "materialHash": "1ff43675233c4cfd14cf3e2ec9898cc63e29d12e169282eeab62e0c0afec4ac4",
-          "storyFilesHash": "a9678e72035fe30ca271904eec107ab4133044c99feb19ee6c4ea29f19750be9",
-          "timestamp": "2026-07-07T13:15:16.174Z"
+          "headHash": "678692cde4d9ec58b1d4f42ba1689de4a450fb70",
+          "materialHash": "fe22c62dc9cdcb0b856fa19d51ca33047b16920d21a006be74be9410b870f31e",
+          "storyFilesHash": "a3d6bea3ee097ca8070c70d6e2924ee689d9602a43f1cd8f05fdf8fd3a627863",
+          "timestamp": "2026-07-07T13:45:14.634Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -74,10 +74,10 @@
           "file": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
           "result": "pass",
           "note": "The green path requires progress and heartbeat stderr lines, parseable JSON stdout, start and finish markers, elapsed command duration, and no watchdog transcript.",
-          "headHash": "b722a6ced0cc54d3cc1f28c9ce7ca98844730405",
-          "materialHash": "1ff43675233c4cfd14cf3e2ec9898cc63e29d12e169282eeab62e0c0afec4ac4",
-          "storyFilesHash": "a9678e72035fe30ca271904eec107ab4133044c99feb19ee6c4ea29f19750be9",
-          "timestamp": "2026-07-07T13:15:16.504Z"
+          "headHash": "678692cde4d9ec58b1d4f42ba1689de4a450fb70",
+          "materialHash": "fe22c62dc9cdcb0b856fa19d51ca33047b16920d21a006be74be9410b870f31e",
+          "storyFilesHash": "a3d6bea3ee097ca8070c70d6e2924ee689d9602a43f1cd8f05fdf8fd3a627863",
+          "timestamp": "2026-07-07T13:45:14.635Z"
         }
       ]
     },
@@ -129,10 +129,10 @@
           "command": "node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
           "result": "pass",
           "note": "Smoke passed: validate emitted command start, heartbeat, and command end progress while --json stdout parsed as one JSON object.",
-          "headHash": "a1bb8109bda43167e90270d979119bd641978b15",
-          "materialHash": "7a6d1329c79cc7fc0679c6cc771a325a253c9972954505e590e9251b77ef2047",
-          "storyFilesHash": "df2883e1ab5bb715053d3e41b659fa552561486e40e342fd13b391d72a4a9c9d",
-          "timestamp": "2026-07-07T13:21:55.741Z"
+          "headHash": "678692cde4d9ec58b1d4f42ba1689de4a450fb70",
+          "materialHash": "fe22c62dc9cdcb0b856fa19d51ca33047b16920d21a006be74be9410b870f31e",
+          "storyFilesHash": "a3d6bea3ee097ca8070c70d6e2924ee689d9602a43f1cd8f05fdf8fd3a627863",
+          "timestamp": "2026-07-07T13:45:14.635Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -140,10 +140,10 @@
           "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
           "result": "pass",
           "note": "Existing timeout smoke passed, proving per-command timeout remains authoritative and heartbeat does not extend timeoutMs.",
-          "headHash": "a1bb8109bda43167e90270d979119bd641978b15",
-          "materialHash": "7a6d1329c79cc7fc0679c6cc771a325a253c9972954505e590e9251b77ef2047",
-          "storyFilesHash": "df2883e1ab5bb715053d3e41b659fa552561486e40e342fd13b391d72a4a9c9d",
-          "timestamp": "2026-07-07T13:21:56.094Z"
+          "headHash": "678692cde4d9ec58b1d4f42ba1689de4a450fb70",
+          "materialHash": "fe22c62dc9cdcb0b856fa19d51ca33047b16920d21a006be74be9410b870f31e",
+          "storyFilesHash": "a3d6bea3ee097ca8070c70d6e2924ee689d9602a43f1cd8f05fdf8fd3a627863",
+          "timestamp": "2026-07-07T13:45:14.635Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -151,10 +151,10 @@
           "command": "node packages/main/dist/tasks/cli-json-stdout-contract-smoke.js",
           "result": "pass",
           "note": "CLI JSON stdout contract smoke passed after progress moved through stderr/log side channel.",
-          "headHash": "a1bb8109bda43167e90270d979119bd641978b15",
-          "materialHash": "7a6d1329c79cc7fc0679c6cc771a325a253c9972954505e590e9251b77ef2047",
-          "storyFilesHash": "df2883e1ab5bb715053d3e41b659fa552561486e40e342fd13b391d72a4a9c9d",
-          "timestamp": "2026-07-07T13:21:56.412Z"
+          "headHash": "678692cde4d9ec58b1d4f42ba1689de4a450fb70",
+          "materialHash": "fe22c62dc9cdcb0b856fa19d51ca33047b16920d21a006be74be9410b870f31e",
+          "storyFilesHash": "a3d6bea3ee097ca8070c70d6e2924ee689d9602a43f1cd8f05fdf8fd3a627863",
+          "timestamp": "2026-07-07T13:45:14.635Z"
         },
         {
           "intentRef": "CHK-002:build",
@@ -217,10 +217,10 @@
           "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
           "note": "Validation lock smoke passed with stale and vanished same-host owner reclaim coverage.",
-          "headHash": "f25162a59f1d48f5eb81f5ccd82435f75c8b73c3",
-          "materialHash": "fa457847309b913792eda60a2d2d0890dd8236935369255dac5e58b808033d42",
-          "storyFilesHash": "33bb6f064b9d97135e3ec190cb77326c74083fed8424f9a231b107beb1d792ac",
-          "timestamp": "2026-07-07T13:27:03.762Z"
+          "headHash": "678692cde4d9ec58b1d4f42ba1689de4a450fb70",
+          "materialHash": "fe22c62dc9cdcb0b856fa19d51ca33047b16920d21a006be74be9410b870f31e",
+          "storyFilesHash": "a3d6bea3ee097ca8070c70d6e2924ee689d9602a43f1cd8f05fdf8fd3a627863",
+          "timestamp": "2026-07-07T13:45:14.635Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -228,10 +228,10 @@
           "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
           "note": "Existing active validate contention and sibling-bypass checks still pass, proving live owners are not stolen.",
-          "headHash": "f25162a59f1d48f5eb81f5ccd82435f75c8b73c3",
-          "materialHash": "fa457847309b913792eda60a2d2d0890dd8236935369255dac5e58b808033d42",
-          "storyFilesHash": "33bb6f064b9d97135e3ec190cb77326c74083fed8424f9a231b107beb1d792ac",
-          "timestamp": "2026-07-07T13:27:04.209Z"
+          "headHash": "678692cde4d9ec58b1d4f42ba1689de4a450fb70",
+          "materialHash": "fe22c62dc9cdcb0b856fa19d51ca33047b16920d21a006be74be9410b870f31e",
+          "storyFilesHash": "a3d6bea3ee097ca8070c70d6e2924ee689d9602a43f1cd8f05fdf8fd3a627863",
+          "timestamp": "2026-07-07T13:45:14.635Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -239,10 +239,10 @@
           "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
           "note": "Smoke passed with mismatched holder/heartbeat identity coverage for PID-reuse-style stale locks.",
-          "headHash": "f25162a59f1d48f5eb81f5ccd82435f75c8b73c3",
-          "materialHash": "fa457847309b913792eda60a2d2d0890dd8236935369255dac5e58b808033d42",
-          "storyFilesHash": "33bb6f064b9d97135e3ec190cb77326c74083fed8424f9a231b107beb1d792ac",
-          "timestamp": "2026-07-07T13:27:04.563Z"
+          "headHash": "678692cde4d9ec58b1d4f42ba1689de4a450fb70",
+          "materialHash": "fe22c62dc9cdcb0b856fa19d51ca33047b16920d21a006be74be9410b870f31e",
+          "storyFilesHash": "a3d6bea3ee097ca8070c70d6e2924ee689d9602a43f1cd8f05fdf8fd3a627863",
+          "timestamp": "2026-07-07T13:45:14.635Z"
         },
         {
           "intentRef": "CHK-003:shared-lock-regression",
@@ -318,10 +318,10 @@
           "command": "node packages/main/dist/tasks/validation-protocol-smoke.js",
           "result": "pass",
           "note": "Validation protocol smoke passed with lifecycle timeout evidence classified as infra_failure.",
-          "headHash": "eed6f28fb63bbc58dc75be16f0dbf0706215e402",
-          "materialHash": "9c84f307282f2ec472476c9fd57f470fafe3ea57683222de1d565d641bd146f7",
-          "storyFilesHash": "d8811029af339ddc9adce4c24a5978c7c865a45a60465f92f11e1bdf5f2ddb99",
-          "timestamp": "2026-07-07T13:32:09.360Z"
+          "headHash": "678692cde4d9ec58b1d4f42ba1689de4a450fb70",
+          "materialHash": "fe22c62dc9cdcb0b856fa19d51ca33047b16920d21a006be74be9410b870f31e",
+          "storyFilesHash": "a3d6bea3ee097ca8070c70d6e2924ee689d9602a43f1cd8f05fdf8fd3a627863",
+          "timestamp": "2026-07-07T13:45:14.635Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -329,10 +329,10 @@
           "command": "node packages/main/dist/tasks/validation-protocol-smoke.js",
           "result": "pass",
           "note": "Validation protocol smoke passed with ordinary nonzero validate command evidence classified as validation_failure while preserving result=FAIL.",
-          "headHash": "eed6f28fb63bbc58dc75be16f0dbf0706215e402",
-          "materialHash": "9c84f307282f2ec472476c9fd57f470fafe3ea57683222de1d565d641bd146f7",
-          "storyFilesHash": "d8811029af339ddc9adce4c24a5978c7c865a45a60465f92f11e1bdf5f2ddb99",
-          "timestamp": "2026-07-07T13:32:11.045Z"
+          "headHash": "678692cde4d9ec58b1d4f42ba1689de4a450fb70",
+          "materialHash": "fe22c62dc9cdcb0b856fa19d51ca33047b16920d21a006be74be9410b870f31e",
+          "storyFilesHash": "a3d6bea3ee097ca8070c70d6e2924ee689d9602a43f1cd8f05fdf8fd3a627863",
+          "timestamp": "2026-07-07T13:45:14.635Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -340,10 +340,10 @@
           "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
           "result": "pass",
           "note": "Focused timeout smoke still fails closed and exposes timeout metadata for runner timeout diagnosis.",
-          "headHash": "eed6f28fb63bbc58dc75be16f0dbf0706215e402",
-          "materialHash": "9c84f307282f2ec472476c9fd57f470fafe3ea57683222de1d565d641bd146f7",
-          "storyFilesHash": "d8811029af339ddc9adce4c24a5978c7c865a45a60465f92f11e1bdf5f2ddb99",
-          "timestamp": "2026-07-07T13:32:11.443Z"
+          "headHash": "678692cde4d9ec58b1d4f42ba1689de4a450fb70",
+          "materialHash": "fe22c62dc9cdcb0b856fa19d51ca33047b16920d21a006be74be9410b870f31e",
+          "storyFilesHash": "a3d6bea3ee097ca8070c70d6e2924ee689d9602a43f1cd8f05fdf8fd3a627863",
+          "timestamp": "2026-07-07T13:45:14.635Z"
         },
         {
           "intentRef": "CHK-004:build",
