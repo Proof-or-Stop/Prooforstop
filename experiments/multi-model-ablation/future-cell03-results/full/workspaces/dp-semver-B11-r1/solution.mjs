@@ -11,12 +11,13 @@
 const CORE_RE = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
 const PRERELEASE_ID_RE = /^[0-9A-Za-z-]+$/;
 const NUMERIC_RE = /^(0|[1-9]\d*)$/;
+const DIGITS_RE = /^\d+$/;
 
 function parseVersion(v) {
   if (typeof v !== 'string') {
     throw new TypeError('compareVersions expects strings, got ' + typeof v);
   }
-  let rest = v.trim();
+  let rest = v;
   if (rest === '') throw new Error('empty version string');
 
   // strip build metadata first (does not affect precedence)
@@ -24,6 +25,12 @@ function parseVersion(v) {
   if (plus !== -1) {
     const build = rest.slice(plus + 1);
     if (build === '') throw new Error(`empty build metadata in "${v}"`);
+    const buildIds = build.split('.');
+    for (const id of buildIds) {
+      if (id === '' || !PRERELEASE_ID_RE.test(id)) {
+        throw new Error(`invalid build metadata identifier "${id}" in "${v}"`);
+      }
+    }
     rest = rest.slice(0, plus);
   }
 
@@ -38,7 +45,7 @@ function parseVersion(v) {
 
   const m = CORE_RE.exec(rest);
   if (!m) throw new Error(`invalid version core: "${rest}" in "${v}"`);
-  const core = [Number(m[1]), Number(m[2]), Number(m[3])];
+  const core = [m[1], m[2], m[3]];
 
   let ids = null;
   if (prerelease !== null) {
@@ -46,6 +53,9 @@ function parseVersion(v) {
     for (const id of ids) {
       if (id === '' || !PRERELEASE_ID_RE.test(id)) {
         throw new Error(`invalid prerelease identifier "${id}" in "${v}"`);
+      }
+      if (DIGITS_RE.test(id) && !NUMERIC_RE.test(id)) {
+        throw new Error(`invalid numeric prerelease identifier "${id}" in "${v}"`);
       }
     }
   }
@@ -61,11 +71,16 @@ function isNumericId(id) {
   return NUMERIC_RE.test(id);
 }
 
+function cmpNumericString(a, b) {
+  if (a.length !== b.length) return a.length < b.length ? -1 : 1;
+  return a < b ? -1 : a > b ? 1 : 0;
+}
+
 // Compare two single prerelease identifiers per SemVer §11.4.
 function compareIdentifier(a, b) {
   const an = isNumericId(a);
   const bn = isNumericId(b);
-  if (an && bn) return cmpNum(Number(a), Number(b));
+  if (an && bn) return cmpNumericString(a, b);
   if (an && !bn) return -1; // numeric < alphanumeric
   if (!an && bn) return 1;
   // both alphanumeric: ASCII lexical
@@ -88,7 +103,7 @@ export default function compareVersions(a, b) {
   const vb = parseVersion(b);
 
   for (let i = 0; i < 3; i++) {
-    const c = cmpNum(va.core[i], vb.core[i]);
+    const c = cmpNumericString(va.core[i], vb.core[i]);
     if (c !== 0) return c;
   }
 

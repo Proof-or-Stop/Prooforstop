@@ -6,17 +6,17 @@
 //   positionals: ordered list of non-option tokens
 
 function looksLikeOption(tok) {
-  // A token is an "option-shaped" token if it begins with a dash and is not a bare "-".
-  return typeof tok === 'string' && tok.length >= 2 && tok[0] === '-';
+  // Space-separated values are only accepted when the next token does not start with "-".
+  return typeof tok === 'string' && tok.startsWith('-');
 }
 
 function splitInline(tok) {
   // tok is "--name=value..."; return [name, value] where value is EVERYTHING after the
   // first '=' (so values may themselves contain '=' characters).
   const body = tok.slice(2);
-  const parts = body.split('=');
-  const name = parts[0];
-  const value = parts[1];
+  const eqIndex = body.indexOf('=');
+  const name = body.slice(0, eqIndex);
+  const value = body.slice(eqIndex + 1);
   return [name, value];
 }
 

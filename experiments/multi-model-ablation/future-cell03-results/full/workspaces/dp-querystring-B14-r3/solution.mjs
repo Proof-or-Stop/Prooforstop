@@ -8,8 +8,15 @@
 //   - REPEATED keys collect into an array in order of appearance
 
 // Decode one form-encoded component: '+' becomes space, then percent-decode.
+// Falls back to the raw (un-percent-decoded) string if the input contains an
+// invalid percent escape, so malformed input never throws.
 function decodeComponent(str) {
-  return decodeURIComponent(str.replace(/\+/g, ' '));
+  const plus = str.replace(/\+/g, ' ');
+  try {
+    return decodeURIComponent(plus);
+  } catch {
+    return plus;
+  }
 }
 
 // Split a query string into raw [key, value|null] pairs. value is null when the

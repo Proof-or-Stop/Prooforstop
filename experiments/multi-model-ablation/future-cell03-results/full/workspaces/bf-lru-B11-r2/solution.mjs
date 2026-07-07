@@ -21,7 +21,9 @@ export default function createLRU(capacity) {
 
   function get(key) {
     if (!store.has(key)) return undefined;
-    return store.get(key);
+    const value = store.get(key);
+    touch(key);
+    return value;
   }
 
   function put(key, value) {

@@ -8,15 +8,8 @@
 //   - REPEATED keys collect into an array in order of appearance
 
 // Decode one form-encoded component: '+' becomes space, then percent-decode.
-// Falls back to the raw (un-percent-decoded) string if the input contains an
-// invalid percent escape, so malformed input never throws.
 function decodeComponent(str) {
-  const plus = str.replace(/\+/g, ' ');
-  try {
-    return decodeURIComponent(plus);
-  } catch {
-    return plus;
-  }
+  return decodeURIComponent(str.replace(/\+/g, ' '));
 }
 
 // Split a query string into raw [key, value|null] pairs. value is null when the
@@ -37,16 +30,25 @@ function splitPairs(qs) {
 
 // Insert a decoded key/value into the accumulator, promoting to an array on the
 // second-and-later occurrence of the same key.
+function setOwn(result, key, value) {
+  Object.defineProperty(result, key, {
+    value,
+    enumerable: true,
+    configurable: true,
+    writable: true,
+  });
+}
+
 function assign(result, key, value) {
   if (!Object.prototype.hasOwnProperty.call(result, key)) {
-    result[key] = value;
+    setOwn(result, key, value);
     return;
   }
   const existing = result[key];
   if (Array.isArray(existing)) {
     existing.push(value);
   } else {
-    result[key] = value;
+    setOwn(result, key, [existing, value]);
   }
 }
 

@@ -55,12 +55,12 @@ export default function pluralize(word) {
 
   // Rule 4: terminal -y.
   if (last === 'y') {
-    if (penult !== '' && isVowel(penult)) {
+    if (penult !== '' && !isVowel(penult)) {
       // consonant + y  ->  -ies
       return word.slice(0, -1) + 'ies';
     }
     // vowel + y  ->  -s
-    return word.slice(0, -1) + 'ies';
+    return word + 's';
   }
 
   // Rule 5: terminal -o.

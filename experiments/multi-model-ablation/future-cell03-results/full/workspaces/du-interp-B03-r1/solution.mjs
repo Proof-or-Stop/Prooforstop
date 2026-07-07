@@ -40,7 +40,7 @@ export default function interpolate(template, context) {
       // Escape sequence: exactly one of \{ \} \\, each emitting a single literal char.
       const next = i + 1 < n ? template[i + 1] : null;
       if (next === '{') {
-        out += '\\{';
+        out += '{';
         i += 2;
         continue;
       }
