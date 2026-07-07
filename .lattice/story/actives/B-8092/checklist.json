@@ -97,9 +97,9 @@
       "excludes": [
         "Cell 03 solutions or reviewer feedback"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-07T11:14:24.808Z",
       "files": {
         "modify": [],
         "create": [
@@ -347,6 +347,15 @@
       "from": "pending",
       "to": "done",
       "reason": "Docker image built, CA cert issue fixed, container Codex CLI smoke passed, and account-b pending_auth is explicit."
+    },
+    {
+      "timestamp": "2026-07-07T11:14:24.808Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Sterile two-row manifest and account/shard ownership were generated and validated."
     }
   ]
 }
