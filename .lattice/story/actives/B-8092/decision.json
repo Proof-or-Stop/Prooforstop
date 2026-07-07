@@ -1,0 +1,74 @@
+{
+  "principles": [
+    "Host-neutral experiment control stays outside Codex-specific semantics except for the runner adapter smoke.",
+    "Sterility is more important than speed: only allowlisted inputs enter the container.",
+    "Probe receipts must be machine-verifiable before any broad Cell06 execution.",
+    "Do not optimize or broaden beyond the real correctness risk being tested."
+  ],
+  "drivers": [
+    "Avoid contamination from Proofbound memory, Cell03 outputs, and host workspace state.",
+    "Represent multi-account sharding without faking a second live account.",
+    "Produce compact evidence that can be audited before spending on full Cell06."
+  ],
+  "options": [
+    {
+      "name": "bounded-local-docker-probe",
+      "pros": [
+        "Validates the real container path before full Cell06",
+        "Keeps scope small and auditable",
+        "Can run with one live auth plus one pending-auth shard placeholder"
+      ],
+      "cons": [
+        "Does not prove full throughput or full two-account parallelism"
+      ]
+    },
+    {
+      "name": "run-full-cell06-now",
+      "pros": [
+        "Would produce formal A2prime rows immediately"
+      ],
+      "cons": [
+        "Too much blast radius before sterility is proven",
+        "Would risk prompt/history contamination and duplicate row accounting"
+      ]
+    },
+    {
+      "name": "document-only-checklist",
+      "pros": [
+        "Fast and cheap"
+      ],
+      "cons": [
+        "Does not prove Codex CLI works in the container or that scanners reject bad receipts"
+      ]
+    }
+  ],
+  "chosen": "bounded-local-docker-probe",
+  "rationale": "A bounded local Docker probe directly tests the concrete correctness risks before full Cell06: container execution, sterile inputs, account/shard ownership, receipt shape, and contamination rejection, while avoiding premature broad provider execution.",
+  "preMortem": [
+    {
+      "scenario": "Container accidentally sees host memory or Cell03 files",
+      "trigger": "Broad bind mount or copied repo tree",
+      "consequence": "A2prime control is contaminated and unusable",
+      "mitigation": "Mount only generated sterile inputs/output/auth temp directories and validate visible file inventory"
+    },
+    {
+      "scenario": "Second account path is silently faked",
+      "trigger": "No second auth bundle but validator reports two live accounts",
+      "consequence": "Shard proof becomes misleading",
+      "mitigation": "Receipt status must distinguish live account-a from pending-auth/account-b placeholder"
+    },
+    {
+      "scenario": "Probe receipts look valid despite contamination",
+      "trigger": "Scanner only checks success status",
+      "consequence": "Full Cell06 launch would inherit bad evidence",
+      "mitigation": "Add negative-control receipt/row fixtures and require validator rejection"
+    },
+    {
+      "scenario": "Probe expands into full experiment",
+      "trigger": "Loop keeps adding rows after smoke success",
+      "consequence": "Consumes budget and pollutes formal data before launch",
+      "mitigation": "Hard-code small probe row limit and mark full Cell06 as excluded scope"
+    }
+  ],
+  "timestamp": "2026-07-07T10:48:12.647Z"
+}

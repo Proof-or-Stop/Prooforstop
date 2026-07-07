@@ -11,9 +11,80 @@
       "excludes": [
         "complete Cell 06 dataset execution"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-07T11:14:23.436Z",
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/multi-model-ablation/cell06-docker-probe/",
+          "experiments/multi-model-ablation/cell06-docker-probe/Dockerfile",
+          "experiments/multi-model-ablation/cell06-docker-probe/run-probe.mjs",
+          "experiments/multi-model-ablation/cell06-docker-probe/README.md"
+        ],
+        "test": [
+          "experiments/multi-model-ablation/cell06-docker-probe/validate-probe.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Docker image build or reuse reports codex-cli version from inside the container",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Runner records unavailable second-account auth as pending_auth instead of claiming a second live account",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Visible container inventory proves no host home, .codex, .lattice, Cell03 full outputs, or lattice-Paper paths are mounted",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "User sees: \"dockerImage.status: pass\" and \"containerCodexCliVersion: codex-cli ...\" in probe-summary.json; if no second auth exists, user sees \"account-b: pending_auth\".",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "CELL06_ACCOUNT_A_AUTH_BUNDLE=<temp-auth-dir> node experiments/multi-model-ablation/cell06-docker-probe/run-probe.mjs --mode=local --rows=2 --json",
+          "result": "pass",
+          "note": "Probe summary shows dockerAvailable=true, dockerBuildStatus=built, dockerSmokeStatus=ok, and container codexVersion=codex-cli 0.142.5.",
+          "headHash": "37f38e9efdc79bcfac7c3503849a164e2ddf3971",
+          "materialHash": "1eaef7b8c798eafae1782f3456787fb411bd4711bc3539b08416ac310d36f342",
+          "storyFilesHash": "99f4d6d32bbc87de94c593dfc9236cb2ea046c60869003db17b979b0dec0ca5b",
+          "timestamp": "2026-07-07T11:34:59.042Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node experiments/multi-model-ablation/cell06-docker-probe/validate-probe.mjs --json",
+          "result": "pass",
+          "note": "Validator proves account-b without auth remains pending_auth and fake completed rows without auth are rejected by negative control.",
+          "headHash": "37f38e9efdc79bcfac7c3503849a164e2ddf3971",
+          "materialHash": "1eaef7b8c798eafae1782f3456787fb411bd4711bc3539b08416ac310d36f342",
+          "storyFilesHash": "99f4d6d32bbc87de94c593dfc9236cb2ea046c60869003db17b979b0dec0ca5b",
+          "timestamp": "2026-07-07T11:34:59.042Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node experiments/multi-model-ablation/cell06-docker-probe/validate-probe.mjs --json",
+          "result": "pass",
+          "note": "Rows and manifest record hostHomeMounted=false, repoMounted=false, latticeMounted=false, paperMounted=false, foreignResultsMounted=false and validator rejects host-path contamination.",
+          "headHash": "37f38e9efdc79bcfac7c3503849a164e2ddf3971",
+          "materialHash": "1eaef7b8c798eafae1782f3456787fb411bd4711bc3539b08416ac310d36f342",
+          "storyFilesHash": "99f4d6d32bbc87de94c593dfc9236cb2ea046c60869003db17b979b0dec0ca5b",
+          "timestamp": "2026-07-07T11:34:59.042Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -26,9 +97,78 @@
       "excludes": [
         "Cell 03 solutions or reviewer feedback"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-07T11:14:24.808Z",
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/multi-model-ablation/cell06-docker-probe/probe-manifest.json",
+          "experiments/multi-model-ablation/cell06-docker-probe/inputs/**"
+        ],
+        "test": [
+          "experiments/multi-model-ablation/cell06-docker-probe/validate-probe.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Probe manifest contains two to five Cell06/A2prime rows with stable inputManifestDigest values",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Account/shard manifest distinguishes account-a live path from account-b pending-auth path without duplicating row ownership",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Sterile input packaging excludes hidden/reference files and known Cell03/Proofbound-memory contamination tokens",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "User sees: \"probeRows: 2\" and \"cell: 06, arm: A2prime\" in probe-manifest.json, plus a stable \"inputManifestDigest\" for each row.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node experiments/multi-model-ablation/cell06-docker-probe/validate-probe.mjs --json",
+          "result": "pass",
+          "note": "Probe manifest contains exactly two Cell06/A2prime rows with stable sha256 inputManifestDigest values and row input digests.",
+          "headHash": "37f38e9efdc79bcfac7c3503849a164e2ddf3971",
+          "materialHash": "1eaef7b8c798eafae1782f3456787fb411bd4711bc3539b08416ac310d36f342",
+          "storyFilesHash": "99f4d6d32bbc87de94c593dfc9236cb2ea046c60869003db17b979b0dec0ca5b",
+          "timestamp": "2026-07-07T11:34:59.042Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node experiments/multi-model-ablation/cell06-docker-probe/validate-probe.mjs --json",
+          "result": "pass",
+          "note": "Manifest separates shard-a/account-a from shard-b/account-b and validator rejects duplicate row ownership.",
+          "headHash": "37f38e9efdc79bcfac7c3503849a164e2ddf3971",
+          "materialHash": "1eaef7b8c798eafae1782f3456787fb411bd4711bc3539b08416ac310d36f342",
+          "storyFilesHash": "99f4d6d32bbc87de94c593dfc9236cb2ea046c60869003db17b979b0dec0ca5b",
+          "timestamp": "2026-07-07T11:34:59.042Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node experiments/multi-model-ablation/cell06-docker-probe/validate-probe.mjs --json",
+          "result": "pass",
+          "note": "Validator recomputes the sterile input tree digest and rejects Cell03, Proofbound-memory, reviewer, host path, and digest drift negative controls.",
+          "headHash": "37f38e9efdc79bcfac7c3503849a164e2ddf3971",
+          "materialHash": "1eaef7b8c798eafae1782f3456787fb411bd4711bc3539b08416ac310d36f342",
+          "storyFilesHash": "99f4d6d32bbc87de94c593dfc9236cb2ea046c60869003db17b979b0dec0ca5b",
+          "timestamp": "2026-07-07T11:34:59.042Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -40,9 +180,78 @@
       "excludes": [
         "silent rerun selection across accounts"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-07T11:14:26.066Z",
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/multi-model-ablation/cell06-docker-probe/probe-rows.jsonl",
+          "experiments/multi-model-ablation/cell06-docker-probe/probe-summary.json"
+        ],
+        "test": [
+          "experiments/multi-model-ablation/cell06-docker-probe/validate-probe.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "At least one Docker-run probe row captures codex container execution metadata and receipt shape",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Rows that cannot run because a second auth bundle is absent are explicit pending_auth receipts, not successful provider rows",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No receipt includes reviewer fields, Cell03 output references, Proofbound memory pack ids, or host workspace paths",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "User sees: \"status: ran\" for the live Docker smoke row and \"status: pending_auth\" for any shard whose auth bundle is absent.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "CELL06_ACCOUNT_A_AUTH_BUNDLE=<temp-auth-dir> node experiments/multi-model-ablation/cell06-docker-probe/run-probe.mjs --mode=local --rows=2 --json",
+          "result": "pass",
+          "note": "Probe rows show account-a completed a real in-container codex exec with responseDigest, exitCode=0, and docker smoke metadata.",
+          "headHash": "37f38e9efdc79bcfac7c3503849a164e2ddf3971",
+          "materialHash": "1eaef7b8c798eafae1782f3456787fb411bd4711bc3539b08416ac310d36f342",
+          "storyFilesHash": "99f4d6d32bbc87de94c593dfc9236cb2ea046c60869003db17b979b0dec0ca5b",
+          "timestamp": "2026-07-07T11:34:59.042Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node experiments/multi-model-ablation/cell06-docker-probe/validate-probe.mjs --json",
+          "result": "pass",
+          "note": "Probe rows show account-b as explicit pending_auth and validator rejects any auth-absent fake completed row.",
+          "headHash": "37f38e9efdc79bcfac7c3503849a164e2ddf3971",
+          "materialHash": "1eaef7b8c798eafae1782f3456787fb411bd4711bc3539b08416ac310d36f342",
+          "storyFilesHash": "99f4d6d32bbc87de94c593dfc9236cb2ea046c60869003db17b979b0dec0ca5b",
+          "timestamp": "2026-07-07T11:34:59.042Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node experiments/multi-model-ablation/cell06-docker-probe/validate-probe.mjs --json",
+          "result": "pass",
+          "note": "Validator enforces reviewerFamily=not_applicable and rejects reviewerSnapshotId, reviewGate, reviewerNotes, Cell03 output references, Proofbound-memory tokens, and host paths.",
+          "headHash": "37f38e9efdc79bcfac7c3503849a164e2ddf3971",
+          "materialHash": "1eaef7b8c798eafae1782f3456787fb411bd4711bc3539b08416ac310d36f342",
+          "storyFilesHash": "99f4d6d32bbc87de94c593dfc9236cb2ea046c60869003db17b979b0dec0ca5b",
+          "timestamp": "2026-07-07T11:34:59.042Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -55,9 +264,116 @@
       "excludes": [
         "paper claim upgrades and product gate changes"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-07T11:14:27.371Z",
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/multi-model-ablation/cell06-docker-probe/validate-probe.mjs",
+          "experiments/multi-model-ablation/cell06-docker-probe/negative-controls/**"
+        ],
+        "test": [
+          "experiments/multi-model-ablation/cell06-docker-probe/validate-probe.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "validate-probe accepts the generated summary and rows and reports PASS",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Validator rejects duplicate row/account ownership, missing manifest digests, or wrong Cell06/A2prime labels",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Validator negative controls reject injected Cell03, reviewer, Proofbound-memory, or host-path contamination",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "User sees: \"status: PASS\" from validate-probe and negative-control lines such as \"duplicate-row: rejected\" and \"cell03-contamination: rejected\".",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/multi-model-ablation/cell06-docker-probe/validate-probe.mjs --json",
+          "result": "pass",
+          "note": "validate-probe returned ok=true with 131 assertions, 10 rejected negative controls, and overallStatus=partial.",
+          "headHash": "37f38e9efdc79bcfac7c3503849a164e2ddf3971",
+          "materialHash": "1eaef7b8c798eafae1782f3456787fb411bd4711bc3539b08416ac310d36f342",
+          "storyFilesHash": "99f4d6d32bbc87de94c593dfc9236cb2ea046c60869003db17b979b0dec0ca5b",
+          "timestamp": "2026-07-07T11:34:59.042Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "node experiments/multi-model-ablation/cell06-docker-probe/validate-probe.mjs --json",
+          "result": "pass",
+          "note": "Negative controls reject duplicate row ownership, missing inputManifestDigest, digest drift, and wrong Cell06/A2prime labels.",
+          "headHash": "37f38e9efdc79bcfac7c3503849a164e2ddf3971",
+          "materialHash": "1eaef7b8c798eafae1782f3456787fb411bd4711bc3539b08416ac310d36f342",
+          "storyFilesHash": "99f4d6d32bbc87de94c593dfc9236cb2ea046c60869003db17b979b0dec0ca5b",
+          "timestamp": "2026-07-07T11:34:59.042Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/multi-model-ablation/cell06-docker-probe/validate-probe.mjs --json",
+          "result": "pass",
+          "note": "Negative controls reject injected Cell03 contamination, reviewer contamination, Proofbound-memory contamination, host-path contamination, and reviewer fields.",
+          "headHash": "37f38e9efdc79bcfac7c3503849a164e2ddf3971",
+          "materialHash": "1eaef7b8c798eafae1782f3456787fb411bd4711bc3539b08416ac310d36f342",
+          "storyFilesHash": "99f4d6d32bbc87de94c593dfc9236cb2ea046c60869003db17b979b0dec0ca5b",
+          "timestamp": "2026-07-07T11:34:59.042Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-07T11:14:23.436Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Docker image built, CA cert issue fixed, container Codex CLI smoke passed, and account-b pending_auth is explicit."
+    },
+    {
+      "timestamp": "2026-07-07T11:14:24.808Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Sterile two-row manifest and account/shard ownership were generated and validated."
+    },
+    {
+      "timestamp": "2026-07-07T11:14:26.066Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Local Docker probe captured one completed account-a row and one account-b pending_auth row without fake success."
+    },
+    {
+      "timestamp": "2026-07-07T11:14:27.371Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "validate-probe passed with 131 assertions and 10 rejected negative controls."
     }
   ]
 }

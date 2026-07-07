@@ -1,0 +1,191 @@
+{
+  "artifact": "cell06-docker-probe-manifest-v1",
+  "storyId": "B-8092",
+  "mode": "local",
+  "runnerId": "cell06-docker-probe",
+  "cellNumber": "⑥",
+  "cellLabel": "Cell06",
+  "arm": "A2prime",
+  "executorFamily": "E2",
+  "reviewerFamily": "not_applicable",
+  "rowCount": 2,
+  "inputRoot": "experiments/multi-model-ablation/cell06-docker-probe/inputs",
+  "inputManifestDigest": "sha256:cb3d15545f580900b4857e1185efabdc5ab06ec474dd159e489e14c31873dd40",
+  "inputFiles": [
+    {
+      "path": "experiments/multi-model-ablation/cell06-docker-probe/inputs/rows/row-01/prompt.md",
+      "bytes": 155,
+      "digest": "sha256:a74ceb1c0fd8a36fd5e35042ef8307dc1edadb7e7c49f3e0374cd1e8399ef761"
+    },
+    {
+      "path": "experiments/multi-model-ablation/cell06-docker-probe/inputs/rows/row-01/task.json",
+      "bytes": 268,
+      "digest": "sha256:85bf257534f37e9fc17c2a621041d3fff32770c8e4ed1f12681c4d3f299f48ee"
+    },
+    {
+      "path": "experiments/multi-model-ablation/cell06-docker-probe/inputs/rows/row-02/prompt.md",
+      "bytes": 150,
+      "digest": "sha256:4865f45ef93b77938a2c956d1db3858a063f0077428d5819c4a6e30cbfd65027"
+    },
+    {
+      "path": "experiments/multi-model-ablation/cell06-docker-probe/inputs/rows/row-02/task.json",
+      "bytes": 258,
+      "digest": "sha256:6d684e08c7cac9582df7216fd23d6e80d7a893ea9b789207f15bc6f1dca52a0d"
+    }
+  ],
+  "runnerHost": "local-docker",
+  "authPolicy": {
+    "policyVersion": "cell06-auth-bundle-policy-v1",
+    "mode": "allowlisted-temp-roots",
+    "allowedRootLabels": [
+      "tmp",
+      "os-tmp",
+      "var-tmp"
+    ],
+    "acceptedSourceKinds": [
+      "directory-with-auth-json",
+      "auth-json-file"
+    ],
+    "requiredFileName": "auth.json",
+    "rawAbsolutePathsRecorded": false,
+    "tokenContentRecorded": false,
+    "rejectedSourceClasses": [
+      "home",
+      "repo",
+      "lattice-dir",
+      "paper-repo",
+      "prior-cell-results",
+      "future-results",
+      "outside-allowlisted-temp-root"
+    ],
+    "tokensWrittenToRepo": false,
+    "accountEnvVars": [
+      "CELL06_ACCOUNT_A_AUTH_BUNDLE",
+      "CELL06_ACCOUNT_B_AUTH_BUNDLE"
+    ]
+  },
+  "sterilePolicy": {
+    "mountHome": false,
+    "mountRepo": false,
+    "mountLattice": false,
+    "mountPaper": false,
+    "mountForeignResults": false
+  },
+  "docker": {
+    "available": true,
+    "version": "Docker version 29.2.0, build 0b9d198",
+    "build": {
+      "status": "built",
+      "imageTag": "proofbound-cell06-codex-probe:b8092",
+      "exitCode": 0,
+      "signal": null,
+      "stdoutDigest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrDigest": "sha256:2bb259ae29dfee49bb53020e5bc1f58a5a18b846cda79f1ba169569b32cd3bbd",
+      "stdoutBytes": 0,
+      "stderrBytes": 1990,
+      "error": null
+    },
+    "smoke": {
+      "status": "ok",
+      "parsed": {
+        "installStatus": "installed",
+        "installExitCode": 0,
+        "codexVersion": "codex-cli 0.142.5",
+        "versionStatus": "ok",
+        "versionExitCode": 0,
+        "stderr": null
+      },
+      "exitCode": 0,
+      "signal": null,
+      "stdoutDigest": "sha256:3ce36a3a76929ca645384eee21b5755e6faf3abb115a3e242655c9e552a44e38",
+      "stderrDigest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutBytes": 140,
+      "stderrBytes": 0,
+      "error": null
+    }
+  },
+  "accounts": [
+    {
+      "accountId": "account-a",
+      "shardId": "shard-a",
+      "authBundleEnv": "CELL06_ACCOUNT_A_AUTH_BUNDLE",
+      "authBundleConfigured": true,
+      "authBundlePresent": true,
+      "authBundleUsable": true,
+      "status": "live-if-auth-present",
+      "authBundleSource": {
+        "policyVersion": "cell06-auth-bundle-policy-v1",
+        "type": "env-auth-bundle",
+        "env": "CELL06_ACCOUNT_A_AUTH_BUNDLE",
+        "decision": "allow",
+        "safe": true,
+        "reason": "source_under_allowlisted_temp_root",
+        "sourceKind": "directory-with-auth-json",
+        "safeTempRootLabel": "tmp",
+        "sourceDepth": 1,
+        "sourcePathDigest": "sha256:f578107c330f32e3ff6de668d2198bdb379af169ac6ebefb4b1da5a4c9e99701",
+        "realpathChecked": true,
+        "rawAbsolutePathRecorded": false,
+        "tokenContentRecorded": false,
+        "authJson": {
+          "present": true,
+          "fileName": "auth.json",
+          "kind": "regular-file",
+          "bytes": 4505,
+          "contentDigestRecorded": false
+        }
+      }
+    },
+    {
+      "accountId": "account-b",
+      "shardId": "shard-b",
+      "authBundleEnv": "CELL06_ACCOUNT_B_AUTH_BUNDLE",
+      "authBundleConfigured": false,
+      "authBundlePresent": false,
+      "authBundleUsable": false,
+      "status": "pending_auth",
+      "authBundleSource": {
+        "policyVersion": "cell06-auth-bundle-policy-v1",
+        "type": "env-auth-bundle",
+        "env": "CELL06_ACCOUNT_B_AUTH_BUNDLE",
+        "decision": "missing",
+        "safe": false,
+        "reason": "env_not_set",
+        "sourceKind": "missing",
+        "safeTempRootLabel": null,
+        "sourceDepth": null,
+        "sourcePathDigest": null,
+        "realpathChecked": false,
+        "rawAbsolutePathRecorded": false,
+        "tokenContentRecorded": false,
+        "authJson": {
+          "present": false,
+          "fileName": "auth.json",
+          "kind": null,
+          "contentDigestRecorded": false
+        }
+      }
+    }
+  ],
+  "shards": [
+    {
+      "shardId": "shard-a",
+      "accountId": "account-a",
+      "rowIds": [
+        "bf-datediff-scenario-null-r1-account-a"
+      ]
+    },
+    {
+      "shardId": "shard-b",
+      "accountId": "account-b",
+      "rowIds": [
+        "bf-lru-scenario-null-r1-account-b"
+      ]
+    }
+  ],
+  "outputs": {
+    "manifestPath": "experiments/multi-model-ablation/cell06-docker-probe/probe-manifest.json",
+    "rowsPath": "experiments/multi-model-ablation/cell06-docker-probe/probe-rows.jsonl",
+    "summaryPath": "experiments/multi-model-ablation/cell06-docker-probe/probe-summary.json"
+  }
+}

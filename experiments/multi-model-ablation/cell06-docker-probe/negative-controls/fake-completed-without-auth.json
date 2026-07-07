@@ -1,0 +1,24 @@
+{
+  "id": "fake-completed-without-auth",
+  "expectedError": "auth absent account cannot produce a completed row",
+  "mutations": [
+    {
+      "target": "rows",
+      "op": "set",
+      "path": "1.rowStatus",
+      "value": "completed"
+    },
+    {
+      "target": "rows",
+      "op": "set",
+      "path": "1.usable",
+      "value": true
+    },
+    {
+      "target": "rows",
+      "op": "set",
+      "path": "1.codexExec.status",
+      "value": "completed"
+    }
+  ]
+}

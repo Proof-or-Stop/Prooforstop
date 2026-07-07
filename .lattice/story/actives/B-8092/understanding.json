@@ -1,0 +1,22 @@
+{
+  "task": "Validate a bounded local Docker runner path for Cell 06 A2prime before any broad provider execution.",
+  "outcome": "After this story, the user can point to a local Docker probe report showing: Codex CLI runs inside a sterile container, the two-account shard manifest path is represented, probe receipts use the expected Cell06/A2prime shape, contamination scan rejects injected Cell03 or Proofbound-memory leakage, and merge validation rejects bad or duplicate rows.",
+  "facts": [
+    "Docker is available locally: 29.2.0 linux/aarch64.",
+    "Cell 06 A2prime must not consume Proofbound dev-memory, Cell03 solutions, reviewer feedback, or prior experiment outputs.",
+    "Only one local Codex auth bundle is currently discoverable; a second account is represented as pending_auth unless a separate auth bundle is provided.",
+    "The unknowns are probe acceptance targets, not PLAN blockers: image install/reuse, live account-a container auth, and account-b pending-auth behavior must be reported by generated evidence.",
+    "This story is a probe and must not run the complete Cell 06 dataset or upgrade paper claims."
+  ],
+  "constraints": [
+    "Do not mount host home, .codex, .lattice, lattice-Paper, Cell03 full outputs, or unrelated session files into the container.",
+    "Use allowlisted task inputs only and keep hidden/reference files outside the container.",
+    "Receipt validation must be deterministic and reject contamination, missing digests, bad cell labels, duplicate row ownership, and reviewer fields.",
+    "No product gate changes, playbook activation, Cell02/Cell04, Phase2, or full Cell06 execution."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "experiments/multi-model-ablation/cell06-docker-probe/"
+  ],
+  "timestamp": "2026-07-07T10:56:33.554Z"
+}

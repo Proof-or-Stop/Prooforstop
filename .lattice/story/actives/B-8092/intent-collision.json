@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-8092",
+  "id": "IC-20260707104843",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Implement and run a local bounded Docker probe for Cell06 A2prime runner readiness only. The story may create probe tooling, sterile input packages, receipt/merge validators, and compact probe evidence. It must not run formal/full Cell06, must not consume Cell03 or Proofbound memory artifacts inside the container, must not fake a second live account, and must not change product gates or paper claims.",
+  "acceptedInterpretationHash": "sha256:e108e59b657a761647d92fe38f4230cc4e982e35c40bb6070767475a03440b8b",
+  "notes": "Potential ambiguous interpretations rejected: full Cell06 execution, paper result claim, product gate change, playbook activation, or two-account success without two real auth bundles. Accepted interpretation is a small local probe that proves runner path and validators.",
+  "createdAt": "2026-07-07T10:48:43.326Z",
+  "updatedAt": "2026-07-07T10:48:43.326Z"
+}

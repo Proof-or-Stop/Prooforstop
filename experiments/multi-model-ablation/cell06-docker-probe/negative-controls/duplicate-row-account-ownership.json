@@ -1,0 +1,13 @@
+{
+  "id": "duplicate-row-account-ownership",
+  "expectedError": "row ownership must be unique",
+  "mutations": [
+    {
+      "target": "manifest",
+      "op": "copy",
+      "path": "shards.1.rowIds.0",
+      "fromTarget": "manifest",
+      "fromPath": "shards.0.rowIds.0"
+    }
+  ]
+}

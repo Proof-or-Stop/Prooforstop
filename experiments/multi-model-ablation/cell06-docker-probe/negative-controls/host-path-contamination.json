@@ -1,0 +1,12 @@
+{
+  "id": "host-path-contamination",
+  "expectedError": "host path contamination detected",
+  "mutations": [
+    {
+      "target": "rows",
+      "op": "set",
+      "path": "0.runtime.mounts.0.source",
+      "value": "/Users/jek/Documents/Work/proofbound/.lattice/secret"
+    }
+  ]
+}

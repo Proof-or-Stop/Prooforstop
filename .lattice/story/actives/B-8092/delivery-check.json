@@ -1,0 +1,71 @@
+{
+  "storyId": "B-8092",
+  "checkedAt": "2026-07-07T12:27:28.753Z",
+  "headHash": "86297973f28f49d29f4103f4411b130353a44cc5",
+  "materialHash": "1eaef7b8c798eafae1782f3456787fb411bd4711bc3539b08416ac310d36f342",
+  "storyFilesHash": "99f4d6d32bbc87de94c593dfc9236cb2ea046c60869003db17b979b0dec0ca5b",
+  "reviewRound": "2026-07-07T11:32:52.516Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "experiments/multi-model-ablation/cell06-docker-probe/README.md#scope",
+      "promise": "The probe builds a minimal Docker image and reports Codex CLI availability and version without running the full Cell06 matrix.",
+      "status": "verified",
+      "verifiedBy": "manual receipt review + validate-probe",
+      "evidence": "probe-summary.json has dockerAvailable=true, dockerBuildStatus=built, dockerSmokeStatus=ok, codexVersion=codex-cli 0.142.5, rowCount=2, overallStatus=partial."
+    },
+    {
+      "docPath": "experiments/multi-model-ablation/cell06-docker-probe/README.md#scope",
+      "promise": "The probe emits only probe-manifest.json, probe-rows.jsonl, and probe-summary.json as receipts and does not write auth material into the repository.",
+      "status": "verified",
+      "verifiedBy": "manual file/receipt review",
+      "evidence": "probe-manifest outputs list exactly those three receipt paths; authPolicy records tokensWrittenToRepo=false, rawAbsolutePathsRecorded=false, tokenContentRecorded=false; no auth.json exists under the probe directory."
+    },
+    {
+      "docPath": "experiments/multi-model-ablation/cell06-docker-probe/README.md#auth-bundles",
+      "promise": "Auth bundles are accepted only from allowlisted temp roots; unsafe auth sources are blocked and missing auth is recorded as pending_auth rather than success.",
+      "status": "verified",
+      "verifiedBy": "manual code/receipt review + validate-probe",
+      "evidence": "run-probe enforces temp-root auth policy; probe rows show account-a allow/source_under_allowlisted_temp_root and account-b pending_auth; validate-probe rejects fake completed-without-auth, env-only auth, missing safety evidence, and unsafe-auth-completed controls."
+    },
+    {
+      "docPath": "docs/requirements/decisions/cell06-docker-server-execution-checklist.md#local-docker-vs-clean-server",
+      "promise": "Local Docker is acceptable only when sterile mount/auth rules are enforced and runnerHost=local-docker plus duplicate/drift/contamination checks are recorded.",
+      "status": "verified",
+      "verifiedBy": "manual receipt review + validate-probe",
+      "evidence": "probe-manifest and rows record runnerHost=local-docker; sterilePolicy forbids home/repo/lattice/paper/foreign-results mounts; rows mount only sterile input read-only; validate-probe passed current receipts with 242 assertions and 13 negative controls rejected."
+    },
+    {
+      "docPath": "docs/requirements/decisions/cell06-docker-server-execution-checklist.md#non-negotiable-experimental-boundary",
+      "promise": "The runner must not receive reviewer/playbook/dev-memory/Cell03 semantic material, and reviewerFamily must be not_applicable.",
+      "status": "verified",
+      "verifiedBy": "manual receipt review + validate-probe",
+      "evidence": "manifest and rows set reviewerFamily=not_applicable; contaminationScan is clean; validate-probe rejects Cell03, reviewer, Proofbound-memory, host-path, reviewer-fields, and wrong-label negative controls."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Real-machine Docker probe evidence: CELL06_ACCOUNT_A_AUTH_BUNDLE=<temp-auth-dir> node experiments/multi-model-ablation/cell06-docker-probe/run-probe.mjs --mode=local --rows=2 --json built the image, smoke-ran Codex in Docker, and recorded codex-cli 0.142.5."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "node experiments/multi-model-ablation/cell06-docker-probe/validate-probe.mjs --json recomputed the sterile input manifest, verified exactly two Cell06/A2prime rows, stable sha256 input digests, and unique account/shard ownership."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "probe-rows.jsonl records one completed in-container codex exec for account-a with exitCode=0 and responseDigest, plus one account-b pending_auth row with codexExec.attempted=false."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Current read-only validator run returned ok=true, assertions=242, negativeControlsRejected=13, overallStatus=partial, covering duplicate ownership, digest drift, missing auth safety, Cell03/reviewer/Proofbound-memory/host-path contamination, unsafe auth, and wrong labels."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "This delivery check covers only the bounded local Docker sterile Codex runner probe, not full Cell06 execution. The probe proves Docker Codex availability, one real in-container Codex exec, explicit pending_auth handling for the missing second account, sterile mount/auth receipts, and validator rejection of edge/adversarial negative controls."
+  },
+  "_hash": "df943e8d2d3b56d929be54159912e675b996790e5731988e53d5bf58eec1ed60"
+}

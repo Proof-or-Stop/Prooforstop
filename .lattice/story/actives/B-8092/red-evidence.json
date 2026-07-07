@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-8092",
+  "records": [
+    {
+      "id": "RED-20260707104947",
+      "trigger": "cell06-local-docker-probe-missing",
+      "acceptanceTargetRef": "AB-CELL06-DOCKER-PROBE",
+      "baselineHeadHash": "76059fea1241f95bfa84b447905f51655cea591b",
+      "baselineMaterialHash": "b0dc91b828c253c6e136704e74511caab03ce4ca6c8f6fe55aabafd8c1f77668",
+      "observedFailure": "Before the story, no cell06-docker-probe tooling, probe-summary.json, or validate-probe.mjs exists, so the requested Docker runner readiness and contamination/merge validation cannot be demonstrated.",
+      "failingCommand": "test -f experiments/multi-model-ablation/cell06-docker-probe/probe-summary.json",
+      "expectedGreenCommand": "node experiments/multi-model-ablation/cell06-docker-probe/validate-probe.mjs --summary experiments/multi-model-ablation/cell06-docker-probe/probe-summary.json --rows experiments/multi-model-ablation/cell06-docker-probe/probe-rows.jsonl --json",
+      "greenRelation": {
+        "targetRef": "AB-CELL06-DOCKER-PROBE",
+        "relation": "same_acceptance",
+        "command": "node experiments/multi-model-ablation/cell06-docker-probe/validate-probe.mjs --summary experiments/multi-model-ablation/cell06-docker-probe/probe-summary.json --rows experiments/multi-model-ablation/cell06-docker-probe/probe-rows.jsonl --json"
+      },
+      "note": "Red state verified manually: probe-summary and validator files are absent before implementation; green target is the later deterministic probe validator.",
+      "createdAt": "2026-07-07T10:49:47.903Z"
+    }
+  ],
+  "createdAt": "2026-07-07T10:49:47.903Z",
+  "updatedAt": "2026-07-07T10:49:47.903Z"
+}
