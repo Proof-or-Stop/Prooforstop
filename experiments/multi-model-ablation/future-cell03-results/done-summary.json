@@ -1,0 +1,93 @@
+{
+  "artifact": "B-991d-cell03-done-summary",
+  "artifactVersion": 1,
+  "storyId": "B-991d",
+  "createdAt": "2026-07-07T03:16:00Z",
+  "scope": {
+    "cellNumber": "③",
+    "arm": "A4",
+    "executorFamily": "E2",
+    "reviewerFamily": "same",
+    "runnerId": "m2-future-cell-03-e2-a4-same",
+    "executionWindowId": "B-991d-cell03-execution-window-001"
+  },
+  "sourceArtifacts": {
+    "m2Status": {
+      "path": "experiments/multi-model-ablation/m2-status.md",
+      "digest": "sha256:3ad0fdea4ba1585670078f27b5b36c34165e6a0e46036ef48f39eceb074d0483"
+    },
+    "cell03Summary": {
+      "path": "experiments/multi-model-ablation/future-cell03-results/full/cell03-summary.json",
+      "digest": "sha256:2639f44fb5a15f856f3ab1e0b8b258a4a2b947174765cc2701f4ff4961dd5c48"
+    },
+    "usageSummary": {
+      "path": "experiments/multi-model-ablation/future-cell03-results/usage-summary.json",
+      "digest": "sha256:82e7f2ba6d4d5a15c9cccfa41e04dd9a1cc0348bc78d0befdf6f5ee8d961789e"
+    },
+    "usageLock": {
+      "path": "experiments/multi-model-ablation/future-cell03-results/cell03-usage-lock.json",
+      "digest": "sha256:883c1a82a3fb7ac5ea340b4b00d46a0353037b241a908acff9ac034c089865fc"
+    },
+    "analysisReadiness": {
+      "path": "experiments/multi-model-ablation/future-cell03-results/analysis-readiness.json",
+      "digest": "sha256:c99db255057354bfb3fc57414aa586b34296767e448d93a32baaa7512abdd5f3"
+    }
+  },
+  "executionResult": {
+    "expectedRows": 1152,
+    "rowCount": 1187,
+    "finalRows": 1142,
+    "terminalExhaustedRows": 10,
+    "pendingExecutableRows": 0,
+    "providerUsageRows": 1142,
+    "executionComplete": true,
+    "formalComplete": false,
+    "completeValidator": {
+      "command": "node experiments/multi-model-ablation/future-cell03-results/full/validate-full.mjs --requireComplete",
+      "result": "pass",
+      "assertions": 106607,
+      "negativeControlsRejected": 13
+    }
+  },
+  "providerUsage": {
+    "providerName": "openai",
+    "providerModelId": "gpt-5.5",
+    "inputTokens": 213133626,
+    "outputTokens": 6119875,
+    "totalTokens": 219253501,
+    "executorTotalTokens": 136354603,
+    "reviewerTotalTokens": 82898898
+  },
+  "costAccounting": {
+    "exactProviderCostUsd": null,
+    "exactProviderCostSource": "not_present_in_codex_cli_row_provider_response",
+    "billingExportAttached": false,
+    "pricingRef": null,
+    "derivedCostUsd": null,
+    "status": "usage_complete_cost_not_final_without_billing_export_or_pricingRef",
+    "estimateMayGateLaunch": false,
+    "reason": "The run records provider-reported token usage. It does not contain a provider-reported dollar cost, billing export, or versioned pricingRef, so this summary does not invent a final dollar cost."
+  },
+  "unlocked": {
+    "cell03DescriptiveAnalysis": true,
+    "cell06SequencingDependency": true
+  },
+  "notUnlocked": {
+    "automaticCell06Execution": true,
+    "cell02Execution": true,
+    "optionalCell04Execution": true,
+    "phase2Decision": true,
+    "paperClaimUpgrade": true,
+    "modelAgnosticClaim": true,
+    "H_M1Claim": true,
+    "H_M3Claim": true,
+    "productGateChange": true,
+    "playbookActivation": true
+  },
+  "remainingWork": [
+    "Open a separate Cell 06 execution story if A2prime should run against the Cell 03-derived usage lock.",
+    "Open separate Cell 02 and optional Cell 04 execution stories for cross-review comparisons.",
+    "Run formal Phase 1 analysis only after paired cells exist.",
+    "Attach billing export or a versioned pricingRef if exact dollar cost is required."
+  ]
+}
