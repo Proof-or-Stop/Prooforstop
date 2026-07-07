@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-53a4",
+  "allowedCommands": [
+    "find *",
+    "git diff *",
+    "git log *",
+    "git status *",
+    "lattice *",
+    "nl *",
+    "node packages/main/dist/tasks/milestone-done-gate-reconciliation-smoke.js",
+    "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+    "node packages/main/tests/milestone-status.test.mjs",
+    "npm --prefix packages/main run build",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".lattice/story/actives",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/handlers/plan-skeleton.ts",
+    "packages/main/src/handlers/planner.ts",
+    "packages/main/src/handlers/story-create.ts",
+    "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+    "packages/main/tests/milestone-status.test.mjs"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx",
+    "docs/requirements"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Implementation and verification commands only; no new decision docs.",
+  "createdAt": "2026-07-07T13:08:44.349Z",
+  "updatedAt": "2026-07-07T13:08:44.349Z",
+  "_hash": "64ce57cc558bf1ec54d96af3be50ee3c72a78f43cfdcbb8e20d79982f55a259f"
+}
