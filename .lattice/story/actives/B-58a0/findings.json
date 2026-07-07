@@ -1,0 +1,46 @@
+{
+  "findings": [
+    {
+      "id": "B-58a0:F-001",
+      "desc": "quality-cleanup: packages/main/src/cli-engine.ts:869-878 (renderDerived) and :890-894 (realRender) use untyped bare catch blocks around store.readChecklist/readStory/readMilestoneLedger that swallow ALL errors (including JSON.parse SyntaxError from a corrupted checklist.json/index.json/milestone-ledger.json), not just the intended \"file not found\" case. Repro: write a valid story with a corrupt checklist.json (\"{ not json\") and run `summary_set` (a command that never touches checklist.json) — it succeeds and silently prints \"(no checklist items)\" / Progress 0/0/0 instead of the CHK-002-mandated visible \"⚠ Milestone Ledger: render FAILED\" block. This directly contradicts the storys own stated goal (CHK-002: replace silent catches with a visible stdout failure block) — real data corruption is masked as an empty story instead of surfacing via visibleFailure(). Fix: catch only StoryArtifactMissingError (already exported/used elsewhere in store.ts, e.g. readMilestoneLedger/readBugs) and rethrow other errors so they reach the outer try/catch -> visibleFailure() path.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-06T18:32:51.253Z",
+      "reviewRound": "2026-07-06T18:22:23.063Z",
+      "reviewRunId": "B-58a0:RR-002",
+      "_hash": "fb5f6361bb8ae41cc4d7467e888b87424247cc7b89131df340f17268b2b316b2",
+      "signatureTag": "edge|unknown|quality-cleanup-packages",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 6263680: realRender no longer catches readMilestoneLedger (corrupt ledger now throws to visibleFailure); renderDerived only swallows StoryArtifactMissingError and rethrows JSON parse errors. Added a corrupt-milestone-ledger.json CLI regression test asserting the visible ⚠ block appears while exit stays 0. Verified: node packages/main/tests/milestone-status.test.mjs → ok; manual corrupt-ledger repro shows the ⚠ block.",
+      "resolvedAt": "2026-07-06T18:37:52.565Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-58a0:F-002",
+      "desc": "All 9 verificationIntents (CHK-001/002/003 happy+edge+adversarial) have verificationEvidence bound to headHash f806f63a9/materialHash 547ccc61..., recorded before commit 62636804a (the round-1 fix that reworked cli-engine.ts realRender/renderDerived/alreadyShown and added the corrupt-milestone-ledger regression test to milestone-status.test.mjs). lattice validate confirms: Verification intent coverage: 0/9 covered (9 required missing), all 9 flagged stale via logic_test against current HEAD 44c9153. The new corrupt-ledger test genuinely exercises the fix (readMilestoneLedger throws on invalid JSON in store.ts, propagates uncaught through realRender into visibleFailure, producing the asserted stdout block with no fabricated checklist-derived render) and the full suite + validate build pass, but no verification_evidence_add has re-bound the 9 intents to current material, so none of the checklist evidence counts as valid coverage for this round.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-06T18:46:41.504Z",
+      "reviewRound": "2026-07-06T18:22:23.063Z",
+      "reviewRunId": "B-58a0:RR-006",
+      "_hash": "55eba427c334c903a13f4243f26928c8f126a491d9807367423c9fcf62519f5d",
+      "files": [
+        "packages/main/src/cli-engine.ts",
+        "packages/main/tests/milestone-status.test.mjs"
+      ],
+      "signatureTag": "missing|ts|verificationintents-happy-edge",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Re-bound all 9 verificationEvidence entries (CHK-001/002/003 × happy/edge/adversarial) to the current material after the round-1 fix commit, via verification_evidence_refresh_stale + verification_evidence_batch_add. milestone_status now reports evidence=covered and requiredEvidence=covered for all three milestones (0 stale). Test suite re-run green at current HEAD (node packages/main/tests/milestone-status.test.mjs → ok milestone-status).",
+      "resolvedAt": "2026-07-06T19:06:05.603Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

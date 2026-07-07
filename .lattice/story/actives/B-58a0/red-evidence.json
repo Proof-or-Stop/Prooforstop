@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-58a0",
+  "records": [
+    {
+      "id": "RED-20260706181439",
+      "trigger": "Mutating a no-ledger story shows no status ledger, and render failures are swallowed to stderr",
+      "acceptanceTargetRef": "M2",
+      "baselineHeadHash": "b1383e4beb733a2b57773d134f36f9124f238d58",
+      "baselineMaterialHash": "ef2de4ec0a076f8cf34d6c3749baeae6c9775ec64d2b6e249dd3848da11e5da6",
+      "observedFailure": "node packages/main/tests/milestone-status.test.mjs fails with TypeError: renderChecklistDerivedLedger is not a function — the checklist-derived ledger renderer and the always-show append fallback do not exist, so a no-ledger mutation emits no status view.",
+      "failingCommand": "node packages/main/tests/milestone-status.test.mjs",
+      "expectedGreenCommand": "node packages/main/tests/milestone-status.test.mjs",
+      "greenRelation": {
+        "targetRef": "M2",
+        "relation": "same_acceptance",
+        "command": "node packages/main/tests/milestone-status.test.mjs"
+      },
+      "note": "Baseline is the clean worktree source (implementation absent); the test file already carries the RED assertions.",
+      "createdAt": "2026-07-06T18:14:39.674Z"
+    }
+  ],
+  "createdAt": "2026-07-06T18:14:39.674Z",
+  "updatedAt": "2026-07-06T18:14:39.674Z"
+}

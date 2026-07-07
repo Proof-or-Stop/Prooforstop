@@ -1,0 +1,157 @@
+{
+  "storyId": "B-58a0",
+  "checkedAt": "2026-07-06T18:07:32.381Z",
+  "features": [
+    {
+      "feature": "Always emit a status ledger block after mutating commands even when no milestone ledger exists (checklist-derived fallback)",
+      "covered_by": "CHK-001,CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "description"
+    },
+    {
+      "feature": "New renderChecklistDerivedLedger function groups checklist items by done/in_progress/pending status",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "description"
+    },
+    {
+      "feature": "Checklist-derived ledger uses a distinct header (not the real Milestone Status header) to avoid impersonating a real milestone table",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "description"
+    },
+    {
+      "feature": "CHECKLIST_DERIVED_HEADER exported constant for dedup purposes",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "description"
+    },
+    {
+      "feature": "Empty-checklist edge case renders a non-throwing stub with a 0/0/0 progress line",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "description"
+    },
+    {
+      "feature": "appendMilestoneStatusAfterMutation reworked to render checklist-derived ledger instead of returning bare output when no ledger exists",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "description"
+    },
+    {
+      "feature": "Real milestone table still shown when a ledger exists (no regression)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "description"
+    },
+    {
+      "feature": "DONE worktree-cleanup main-root fallback path for resolving the real ledger is preserved",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "description"
+    },
+    {
+      "feature": "Silent stderr-only catch branches replaced with a visible stdout failure block on render failure",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "description"
+    },
+    {
+      "feature": "Exit code stays 0 on a render failure (mutation already committed, so failure must not look like the mutation failed)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "description"
+    },
+    {
+      "feature": "--json output still suppresses the appended ledger/status block (machine-readable purity preserved)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "description"
+    },
+    {
+      "feature": "Existing no-ledger CLI test assertion inverted to require the checklist-derived ledger and forbid the Milestone Status header",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "description"
+    },
+    {
+      "feature": "New unit test coverage for renderChecklistDerivedLedger three-status grouping plus the empty-checklist stub",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "description"
+    },
+    {
+      "feature": "Pre-existing real-ledger append and --json purity regression tests kept green",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "description"
+    },
+    {
+      "feature": "milestone_status / milestone_closeout DONE-gate stale-evidence reconciliation (evidenceIsStaleCovering) and non-throwing closeout capture",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "already implemented and closed by B-f7b3 (separate story); no checklist item in B-58a0 references it",
+      "source": "decisions:milestone-status-done-gate-reconciliation.md"
+    },
+    {
+      "feature": "Auditable notApplicableDecision justification field gating milestone not_applicable rows",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "already implemented and closed by B-f7b3 (separate story); no checklist item in B-58a0 references it",
+      "source": "decisions:milestone-not-applicable-justification.md"
+    },
+    {
+      "feature": "Milestone-triggered gate-mode default decision (observe stays default, no per-trigger enforce)",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "already decided/closed by B-f7b3 (separate story); no checklist item in B-58a0 references it",
+      "source": "decisions:milestone-triggered-gate-mode-default-decision.md"
+    },
+    {
+      "feature": "M7 follow-up scope items: duplicate ledger-row negative control, empty/all-not_applicable confirmed-ledger negative control, stale-only closeout rejection test, milestone-status.test.mjs suite-wiring",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "already implemented and closed by B-f7b3 (separate story); no checklist item in B-58a0 references it",
+      "source": "decisions:milestone-ledger-status-review-findings.md"
+    }
+  ],
+  "summary": {
+    "total": 18,
+    "covered": 14,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "6fe5f00e1722dea01e154f6e847fe3ec4c07591c0bb72ff05b205e64175c42cc",
+  "openQuestions": [
+    {
+      "id": "OQ-001",
+      "q": "No docs/requirements/decisions/*.md execution-plan or decision doc exists for this story's specific scope (checklist-derived-ledger fallback + visible render-failure surfacing on appendMilestoneStatusAfterMutation). The nearest decisions/ docs cover the related but DISTINCT B-f7b3 milestone-observability-hardening program, whose M7 follow-up scope is already complete and does not mention a checklist-derived fallback ledger or visible stdout failure surfacing. The only source for this story's functional commitments found is the story title plus decision.json (principles/drivers/chosen option), not a decisions/ spec doc. Should a decisions/ doc be authored for this scope, or is title+decision.json sufficient spec authority for this story?",
+      "evidence": "milestone-ledger-status-review-findings.md M7 follow-up scope item 1: 'Add explicit DONE/Authority/production-readiness disclaimer strings to the milestone_status / milestone_closeout rendered output...' -- no mention of a checklist-derived ledger or an always-show-on-no-ledger requirement.",
+      "sourcePointers": [
+        "docs/superpowers/specs/2026-07-06-forced-ledger-display-design.md",
+        "CHK-001",
+        "CHK-002",
+        "CHK-003"
+      ],
+      "resolution": "Accepted: for this small reporting enhancement the spec authority is the story title plus the recorded decision.json (principles, drivers, 3 options, chosen option, 4 preMortem) and the design note at docs/superpowers/specs/2026-07-06-forced-ledger-display-design.md. No new docs/requirements/decisions markdown is authored. The milestone decisions docs found by the reviewer belong to the separate completed B-f7b3 program and are not this story source-of-truth. The scope boundary of 3 allowed and 4 excluded already fixes the contract.",
+      "resolvedAt": "2026-07-06T18:08:33.378Z"
+    }
+  ]
+}

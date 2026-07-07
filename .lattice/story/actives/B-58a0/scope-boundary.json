@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-58a0",
+  "mode": "feature",
+  "allowed": [
+    "Add renderChecklistDerivedLedger renderer + CHECKLIST_DERIVED_HEADER in packages/main/src/core/milestone-status.ts",
+    "Rework appendMilestoneStatusAfterMutation in packages/main/src/cli-engine.ts for always-show fallback and visible stdout failure",
+    "Update/extend packages/main/tests/milestone-status.test.mjs (invert no-ledger assertion, add renderer unit + empty stub coverage)"
+  ],
+  "excluded": [
+    "No change to --json machine-output suppression",
+    "No expansion of MILESTONE_STATUS_APPEND_COMMANDS allowlist (validate/story_create stay out)",
+    "No non-zero exit on display failure",
+    "No story_advance freshness/display gate"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User (2026-07-06) required forced ledger display via the Lattice story workflow with genuine 3x2 and version bump; scope agreed in-session.",
+  "createdAt": "2026-07-06T18:00:00.604Z",
+  "updatedAt": "2026-07-06T18:00:00.604Z",
+  "_hash": "49243fa93b4b210953443a690f22689f7585531b7256f82cc3f3649b13076fff"
+}

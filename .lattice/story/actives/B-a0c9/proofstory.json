@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-a0c9",
+  "diagnosticOnly": false,
+  "hardeningLevel": "standard",
+  "triggerReasons": [
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "red_evidence_required",
+      "message": "Bug, regression, security/auth/session, benchmark, or explicit behavior-change work should have red evidence.",
+      "requires": "red-evidence"
+    },
+    {
+      "code": "scope_ambiguity",
+      "message": "Broad or absolute scope wording should have scope clarification before future enforcement.",
+      "requires": "scope-clarification"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:56925cc52867479f90b4359f33d32d94d91ce0810d6940806c985b8415e12db4",
+  "acceptanceBindings": [
+    {
+      "id": "ACC-001",
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0",
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "milestoneIds": [],
+      "note": "Hardened selfcheck-m3 satisfies both findings: A-M PASS at exit 0, no pos-selfcheck-m3-* leak on a failing sub-check (F-017 / CHK-001), and sub-check M asserts LOCK_DIR + holder.json survive the failed break (F-018 / CHK-002)."
+    }
+  ],
+  "diagnosticGaps": [],
+  "note": "Single-file test-hardening; acceptanceClaim maps to CHK-001 (F-017) + CHK-002 (F-018) and their verificationIntent lanes.",
+  "createdAt": "2026-07-06T10:27:55.350Z",
+  "updatedAt": "2026-07-06T10:27:55.350Z"
+}

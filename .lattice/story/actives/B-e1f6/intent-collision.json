@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-e1f6",
+  "id": "IC-20260706145414",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Implement a local, host-neutral Cell03 shard planning and merge-validation helper with dry-run/selfcheck evidence only; do not run providers, do not mutate active B-991d row ledgers, and do not claim Cell06/Phase2 or paper-result unlocks.",
+  "acceptedInterpretationHash": "sha256:06352ff4e855962f1139b3aaf5b1985aad555126c8dd19e24dc6564298c3be7a",
+  "notes": "The potential collision is between speeding up B-991d immediately and preserving evidence integrity. The accepted interpretation chooses the safety base first: shard partition, lock, and merge validation. Actual provider shard execution remains a separate operator action after this helper passes.",
+  "createdAt": "2026-07-06T14:54:14.755Z",
+  "updatedAt": "2026-07-06T14:54:14.755Z"
+}

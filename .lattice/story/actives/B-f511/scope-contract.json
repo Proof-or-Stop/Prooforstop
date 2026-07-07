@@ -1,0 +1,61 @@
+{
+  "storyId": "B-f511",
+  "mode": "enforce",
+  "allowedModify": [
+    "experiments/pos-instrument-replay/run-batch.mjs"
+  ],
+  "allowedCreate": [
+    "experiments/pos-instrument-replay/resume-probe.mjs",
+    "experiments/pos-instrument-replay/resume-reconciliation.json",
+    "experiments/pos-instrument-replay/selfcheck-m3.mjs"
+  ],
+  "allowedTest": [
+    "experiments/pos-instrument-replay/selfcheck-m3.mjs",
+    "experiments/pos-instrument-replay/protocol.json",
+    "experiments/pos-instrument-replay/lib/instrument.mjs"
+  ],
+  "protectedFiles": [
+    "experiments/pos-instrument-replay/protocol.json",
+    "experiments/pos-instrument-replay/protocol.json.sha256",
+    "experiments/pos-instrument-replay/lib/instrument.mjs",
+    "experiments/pos-instrument-replay/tamper.mjs",
+    "experiments/pos-instrument-replay/viability-check.mjs",
+    "experiments/pos-instrument-replay/build-protocol.mjs",
+    "experiments/pos-instrument-replay/selfcheck-m1.mjs",
+    "experiments/pos-instrument-replay/selfcheck-m2.mjs"
+  ],
+  "explicitExcludes": [
+    "experiments/pos-instrument-replay/analyze-batch.mjs"
+  ],
+  "scopeChangeReason": "M3 creates resume-probe.mjs + selfcheck-m3.mjs + resume-reconciliation.json and MODIFIES run-batch.mjs (additive resume); frozen protocol + M0/M1 + M2 selfchecks protected; M4 analyzer excluded.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Lattice PLAN/ProofStory lifecycle metadata written by the gate commands — command-generated bookkeeping under .lattice/, not story source code; expected out-of-scope for the experiments/pos-instrument-replay/ code story.",
+      "timestamp": "2026-07-05T21:09:48.884Z",
+      "paths": [
+        ".lattice/story/actives/B-f511/intent-collision.json",
+        ".lattice/story/actives/B-f511/milestone-ledger.json",
+        ".lattice/story/actives/B-f511/original-intent-snapshot.json",
+        ".lattice/story/actives/B-f511/proofstory.json",
+        ".lattice/story/actives/B-f511/red-evidence.json",
+        ".lattice/story/actives/B-f511/scope-check.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-f511/intent-collision.json",
+        ".lattice/story/actives/B-f511/milestone-ledger.json",
+        ".lattice/story/actives/B-f511/original-intent-snapshot.json",
+        ".lattice/story/actives/B-f511/proofstory.json",
+        ".lattice/story/actives/B-f511/red-evidence.json",
+        ".lattice/story/actives/B-f511/scope-check.json"
+      ],
+      "affectedPathCount": 6,
+      "phase": "DEV",
+      "headHash": "ecd776ac624b470fcd86dd8542730ff446d7ef1d",
+      "materialHash": "573d11ba3e5142ea088a4d0ff2dd154b50afeb22740f6f80e1abcbc7d9c1ca73"
+    }
+  ],
+  "createdAt": "2026-07-05T20:25:05.188Z",
+  "updatedAt": "2026-07-05T21:09:48.884Z"
+}

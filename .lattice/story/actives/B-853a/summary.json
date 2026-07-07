@@ -1,0 +1,56 @@
+{
+  "storyId": "B-853a",
+  "changes": "experiments/pos-instrument-replay/analyze-batch.mjs (new): a PURELY OFFLINE analyzer that reads the four committed evidence streams (batch-ledger.jsonl H1/H4, tamper-verdicts.jsonl H2, resume-reconciliation.json H3) + protocol.json, re-verifies every batch-ledger recordDigest (aborts with a named id on a naively-edited ledger), and adjudicates each hypothesis to a STRICT three-state verdict (pass|fail|inconclusive) validated down to substantive values: H1 requires exactly protocol.N[scale] well-formed (full 10-key goldMetrics + non-empty digests) pairwise-equal records with no undeclared scales; H2 binds each (class,handling) identity to its protocol-expected disposition; H3 validates the substantive kill-trial values (dup/gap/casualtyDisposition + killC.stoppedRecordPreserved); H4 requires finite non-negative elapsed <= cap. It writes report.json + report.md with a reproducible digest = sha256(canonicalJson(report minus digest)), embedding the section-3 claim text only when all-pass. selfcheck-m4.mjs (new): 19 hermetic un-gameable sub-checks A-S. report.json/report.md (new): the campaign's H1-H4 verdict + reproducible digest.",
+  "usage": "Adjudicate the campaign: node experiments/pos-instrument-replay/analyze-batch.mjs (writes report.json + report.md, prints the four verdicts + overall + digest). Prove the adjudication is un-gameable: node experiments/pos-instrument-replay/selfcheck-m4.mjs ('selfcheck-m4 PASS', A-S).",
+  "expectedOutcome": "node analyze-batch.mjs prints H1/H2/H3/H4 pass, overall: all-pass, digest 198e33866bfbc52439abb38704bb3d7bd3c5611a2337fa003fae869432dff458, and writes report.json/report.md; a second run (even on another host) prints the identical digest. node selfcheck-m4.mjs prints 'selfcheck-m4 PASS' exit 0 (A-S). lattice validate status pass, 12/12 coverage.",
+  "actualTranscript": "analyze-batch.mjs: H1/H2/H3/H4 all pass, overall: all-pass, digest 198e33866bfbc52439abb38704bb3d7bd3c5611a2337fa003fae869432dff458; two runs identical; report.json/report.md byte-identical (git status empty). Digest independently re-derived by hand AND by Codex host-2 (DIGEST REPLICATED: YES). selfcheck-m4.mjs: selfcheck-m4 PASS, exit 0, A-S all green. lattice validate: status pass, allPass true, coverage 12/12, missingRequired 0. Cross-host quorum 3/3 x 2 hosts satisfied.",
+  "outcomeDiff": "No difference. Actual matched the expected PLAN outcome on every field: the four verdicts, overall all-pass, the digest value, determinism (byte-identical regeneration + cross-vendor re-derivation), and the selfcheck A-S result.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The report asserts fail-closed / all-pass over the TESTED evidence streams and their substantive values against the FROZEN protocol; it is NOT an unconditional impossibility proof and NOT Tier-C adversarial ledger integrity (a signing adversary who recomputes digests is out of scope per plan §3). The claim text is embedded only when all four hypotheses are supported (no-overclaim). none otherwise — fully covered.",
+  "pitfalls": "The capstone ADJUDICATOR needed the hardest adversarial review of the whole campaign: over 4 review rounds Codex host-2 found real HIGH false-passes the 3 Claude lanes missed in rounds 1-2 (H1 completeness/vacuous, H2 identity + identity->disposition binding, H3 stub + nested-value, H4 non-physical) — a lenient three-state that accepts incomplete/stub/count-only/mislabeled evidence as pass silently defeats the entire campaign. The fix progression was structure->completeness->identity->VALUES: keep hardening until every stream is validated to its substantive values vs the frozen protocol AND Codex says NO REAL FINDINGS + independently re-derives the digest. Keep verification_evidence notes precise. quorum_submit needs a CURRENT review_pass_set for EVERY lane (a lane that filed a finding instead of passing blocks it) — resolve the finding and get a clean pass round first. DEV->REVIEW needs scope_contract_acknowledge for all .lattice/story/actives/<id>/*.json lifecycle metadata (enforce-mode scope gate). milestone_ledger/intent_collision/proofstory are PLAN-frozen (unavailable in DEV). validate hits the 300s idle-watchdog on the ~4-min build/selfcheck: re-run with LATTICE_IDLE_TIMEOUT_MS bumped + clear the orphan .lattice/locks/validation/<id>.lock.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 237780
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 13109
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 715183
+    },
+    "DEV": {
+      "count": 4,
+      "durationMs": 1636826
+    },
+    "REVIEW": {
+      "count": 4,
+      "durationMs": 2718845
+    },
+    "TEST": {
+      "count": 2,
+      "durationMs": 185249
+    }
+  },
+  "totalDurationMs": 5507614,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-06T08:33:17.934Z",
+  "updatedAt": "2026-07-06T08:33:17.934Z"
+}

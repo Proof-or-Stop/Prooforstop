@@ -1,0 +1,67 @@
+{
+  "principles": [
+    "Honor the fence's intent, don't game it: the allowlist must reflect the real, legitimate dependency boundary, never hide dependencies behind indirection.",
+    "Change tests and comments only; introduce zero shipping/runtime behavior change.",
+    "Keep the load-bearing security property (no finding-writer/advisory/gate import) independently enforced.",
+    "Bind every fix to a reproducible red->green transcript from a fresh build."
+  ],
+  "drivers": [
+    "playbook.ts legitimately depends on two experience-layer helpers (source-lineage-audit, playbook-seed) the smoke allowlist never learned about.",
+    "learning-store.ts has a stricter fence and cannot absorb the helpers (they import dev-memory.js / playbook-runtime-memory.js).",
+    "The smoke is off the curated validate list, so the regression was silent and must be made green without masking a real breach."
+  ],
+  "options": [
+    {
+      "name": "Widen the fence allowlist",
+      "pros": [
+        "Honestly reflects the real experience-layer/learning boundary",
+        "Touches no shipping code (helpers stay put)",
+        "The independent negative finding/advisory/gate assertion still guards the security property"
+      ],
+      "cons": [
+        "The positive allowlist grows by two entries",
+        "Requires refreshing the guardrail comment to stay truthful"
+      ]
+    },
+    {
+      "name": "Move helpers behind an allowed boundary (re-export via learning-store or a barrel module)",
+      "pros": [
+        "Keeps the allowlist literally unchanged"
+      ],
+      "cons": [
+        "learning-store's own stricter fence forbids it (helpers import dev-memory.js / playbook-runtime-memory.js)",
+        "A barrel indirection would hide the real dependency purely to satisfy a grep - fence-gaming, not fence-honoring",
+        "A larger, riskier refactor of shipping code for a test-only failure"
+      ]
+    }
+  ],
+  "chosen": "Widen the fence allowlist",
+  "rationale": "Moving is infeasible cleanly because learning-store's stricter fence cannot absorb the helpers, and a barrel would only game the grep; widening the positive allowlist honestly reflects the legitimate experience-layer boundary while the independent negative assertion still guards the security property.",
+  "preMortem": [
+    {
+      "scenario": "Widening the allowlist silently permits a genuinely dangerous import later",
+      "trigger": "A future edit adds a finding-writer/advisory/gate import to playbook.ts",
+      "consequence": "The fence no longer catches a real boundary breach",
+      "mitigation": "The separate negative assertion !/finding.js$|advisory|gate/ remains and is exercised by CHK-001's adversarial intent; the non-vacuous planted-import check still proves the scanner detects a foreign import."
+    },
+    {
+      "scenario": "The decision-doc assertion is 'fixed' by reintroducing retired wording instead of tracking the current contract",
+      "trigger": "Re-matching the old 'not remote receipt completion' string",
+      "consequence": "A stale test passes while masking real contract drift",
+      "mitigation": "CHK-002 binds the assertion to the CURRENT committed substring introduced by commit 8892270bf, verified by a green smoke run."
+    },
+    {
+      "scenario": "The fix appears green only because of a stale worktree dist",
+      "trigger": "Running the smoke against an unrebuilt dist",
+      "consequence": "False green; main stays red after merge",
+      "mitigation": "Red and green are both captured from a fresh tsc build in the story worktree; red evidence pins baseline HEAD/material and the green run rebuilds first."
+    },
+    {
+      "scenario": "The unrelated tier-c WIP on main is swept into this story's commit",
+      "trigger": "A broad git add in the worktree",
+      "consequence": "Foreign uncommitted work committed under the wrong story",
+      "mitigation": "Only the 3 scoped files are staged; excludedScope bars the tier-c docs; the worktree is isolated from main's working tree."
+    }
+  ],
+  "timestamp": "2026-07-05T21:38:00.215Z"
+}

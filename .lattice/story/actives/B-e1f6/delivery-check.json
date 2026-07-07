@@ -1,0 +1,96 @@
+{
+  "storyId": "B-e1f6",
+  "checkedAt": "2026-07-06T16:49:32.305Z",
+  "headHash": "c69564f67d66f421912ab033a7fcf90ecd80b612",
+  "materialHash": "00ceac1a7775e7b457b30f939795210e982aa9b8746c3cd1e4a7939d3866cf9a",
+  "storyFilesHash": "29d3f46122322965c8492b5704b3575fd18f2e854681813468459841c3ffeb4d",
+  "reviewRound": "2026-07-06T16:25:50.064Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "experiments/multi-model-ablation/cell03-shards/README.md#commands",
+      "promise": "node experiments/multi-model-ablation/cell03-shards/plan.mjs --shards 8 --json plans an 8-shard partition covering 1152 rows",
+      "verifiedBy": "direct execution",
+      "evidence": "ran the exact command; output totalRows=1152, uniqueRows=1152, shardCount=8, binding block with protocolDigest/taskInventoryDigest/toolSurfaceDigest/executorSnapshot/reviewerSnapshot"
+    },
+    {
+      "docPath": "experiments/multi-model-ablation/cell03-shards/README.md#commands",
+      "promise": "node .../shard-runner.mjs --shards 8 --shard 0 --outDir <dir> --json writes one fixture shard to the given output directory",
+      "verifiedBy": "direct execution",
+      "evidence": "ran the exact command against /tmp/cell03-shards-review; produced shard-00-of-08/rows.jsonl + shard-manifest.json, rowCount=144 matching plannedRowCount=144"
+    },
+    {
+      "docPath": "experiments/multi-model-ablation/cell03-shards/README.md#commands",
+      "promise": "node .../merge.mjs --inputDir <dir> --json validates a complete shard fixture set",
+      "verifiedBy": "direct execution",
+      "evidence": "wrote all 8 shards then ran merge.mjs --inputDir --json; output mergedRows=1152 expectedRows=1152 missingRows=0 duplicateRows=0"
+    },
+    {
+      "docPath": "experiments/multi-model-ablation/cell03-shards/README.md#commands",
+      "promise": "node .../selfcheck.mjs prints the exact PASS line: cell03-shards selfcheck PASS: coverage=1152 shards=8 invalidIndexReject=pass lockReject=pass rerunReject=pass mergeComplete=pass duplicateReject=pass missingReject=pass digestDriftReject=pass envelopeBindingReject=pass canonicalWriteRefused=pass canonicalUntouched=pass",
+      "verifiedBy": "direct execution",
+      "evidence": "ran node experiments/multi-model-ablation/cell03-shards/selfcheck.mjs from the worktree root; stdout matched the README expected block byte-for-byte"
+    },
+    {
+      "docPath": "experiments/multi-model-ablation/cell03-shards/README.md#boundaries",
+      "promise": "Completed shard output cannot be overwritten by a second shard run",
+      "verifiedBy": "direct execution + source read",
+      "evidence": "re-ran shard-runner.mjs against an already-written shard-00-of-08 dir; threw Error: refusing to overwrite existing shard output; shard-runner.mjs lines 84-89 check is executed inside the acquired lock (TOCTOU-safe per inline comment)"
+    },
+    {
+      "docPath": "experiments/multi-model-ablation/cell03-shards/README.md#boundaries",
+      "promise": "merge.mjs rejects duplicate final rows, missing rows, shard-count drift, wrong-shard rows, and binding/digest drift, including a shard set whose binding is internally consistent but does not match the live Cell03 envelope (checked against plan.binding, not just peer shards)",
+      "verifiedBy": "source read (selfcheck.mjs lines 63-111) + direct execution of selfcheck",
+      "evidence": "selfcheck.mjs constructs duplicateDir/missingDir/driftDir/forgedDir fixtures and expectThrow on each via mergeShardOutputs; forgedDir (lines 90-111) forges toolSurfaceDigest identically across every shard manifest AND every row binding, then recomputes each rowsDigest so the set is internally peer-consistent -- this is only rejected because merge.mjs (lines 45-69, 108) anchors binding checks to plan.binding built from the live envelope via buildCell03Binding, not to peer manifests; confirmed selfcheck PASS includes duplicateReject=pass missingReject=pass digestDriftReject=pass envelopeBindingReject=pass"
+    },
+    {
+      "docPath": "experiments/multi-model-ablation/cell03-shards/README.md#boundaries",
+      "promise": "merge.mjs --output refuses to write to cell03-rows.jsonl; formal provider evidence must use a separately approved result writer",
+      "verifiedBy": "direct execution",
+      "evidence": "ran merge.mjs --inputDir /tmp/cell03-shards-review --output experiments/multi-model-ablation/cell03-rows.jsonl --json; threw Error: refusing to write merged output to canonical cell03-rows.jsonl (merge.mjs assertSafeOutputPath, lines 25-31)"
+    },
+    {
+      "docPath": "experiments/multi-model-ablation/README.md",
+      "promise": "cell03-shards/ contains provider-free row-level shard helpers for the future Cell03 runner, separate from Parallel Wave story scheduling, validating deterministic partitioning, shard-local fixture output, lock refusal, and merge safety",
+      "verifiedBy": "diff read + cross-check against cell03-shards/ behavior verified above",
+      "evidence": "top-level README addition accurately summarizes the delivered scope; no overclaim of provider execution or Parallel Wave integration found in the diff"
+    },
+    {
+      "docPath": "experiments/multi-model-ablation/cell03-shards/README.md#does-not-make-real-provider-runs-safe",
+      "promise": "Real provider execution, per-attempt usage/accounting, retry de-dup, and the result-writer are explicitly deferred as non-goals to successor story B-fd23; the real B-991d Cell03 provider runner has not been switched to this shard runner",
+      "verifiedBy": "source read",
+      "evidence": "shard-runner.mjs line 134: if (args.executeProvider) throw new Error(provider execution is out of scope for cell03-shards); no usage-ledger, attemptId/runId accounting, or result-writer code exists anywhere in the diff; correctly scoped as non-goals rather than undelivered promises"
+    },
+    {
+      "docPath": "experiments/multi-model-ablation/cell03-shards/README.md",
+      "promise": "F-004 forged-binding selfcheck genuinely discriminates the envelope-anchored fix from a weaker peer-only comparison (round-3 fix, commit 40a53d736)",
+      "verifiedBy": "git log + source read",
+      "evidence": "git log confirms commit 40a53d736 test(cell03-shards): make F-004 selfcheck genuinely discriminating; selfcheck.mjs inline comment (lines 90-95) explicitly states forging only the manifest binding would be caught by the row-binding check regardless and would not discriminate the fix from old peer-only code -- the test forges both manifest and every row binding identically and recomputes rowsDigest to prove envelope-anchoring is what catches it"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "selfcheck.mjs lines 38-46: buildShardPlan asserts totalRows=1152, uniqueRows=1152, shard count and row-sum invariants; expectThrow covers invalid shardCount=0, negative shardIndex, and shardIndex>=count (out-of-range). Directly re-ran plan.mjs --shards 8 --json and confirmed matching output."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "selfcheck.mjs lines 47-59: acquireShardLock + writeShardOutput covers same-shard lock rejection (adversarial: concurrent writer) and completed-shard overwrite rejection (edge case). Directly re-ran shard-runner.mjs for shard 0 then re-ran the identical command to confirm the overwrite-refusal error is real, not just asserted in-process."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "selfcheck.mjs lines 60-115: mergeComplete happy path (mergedRows=1152), duplicate final row rejection, missing shard rejection, digest-drift rejection, and the F-004 envelope-binding-forgery rejection (adversarial: internally-consistent-but-stale binding across all shards) plus canonical-output-name refusal. Directly re-ran merge.mjs against a completed 8-shard fixture set and confirmed mergedRows=1152/expectedRows=1152, then confirmed --output cell03-rows.jsonl is refused live."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "README command/flag/output claims cross-checked line-by-line against direct execution of plan.mjs, shard-runner.mjs, merge.mjs, and selfcheck.mjs; the selfcheck PASS line was diffed byte-for-byte against the actual console.log output and matches exactly."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 10 docs promises verified by direct re-execution or source read; the 4 checklist items (plan/shard-runner/merge/README) each have real selfcheck.mjs coverage spanning happy, edge, and adversarial cases including the genuinely-discriminating F-004 forged-binding rejection. Deferred scope (real provider execution, usage accounting, result-writer) is correctly documented as non-goals for successor B-fd23, not undelivered promises. No TODO/FIXME found in delivered files."
+  },
+  "_hash": "b6e43f59a6597ee055c352cbe85b847622e908127963e7a23ab212d7650c6ef4"
+}

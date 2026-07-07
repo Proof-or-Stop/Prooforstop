@@ -1,0 +1,38 @@
+{
+  "storyId": "B-fd23",
+  "name": "cell03-real-runner-shard-integration",
+  "title": "Integrate cell03-shards into the real B-991d provider runner with per-attempt usage/retry accounting and a result-writer",
+  "description": "B-e1f6 delivered provider-free Cell 03 shard tooling (deterministic plan, shard-local output + lock, merge validation) and PROVED that row-level parallelism can be implemented safely. B-e1f6 explicitly did NOT touch the real provider runner, real per-attempt accounting, real provider-reported usage, retry/superseded de-duplication, the cumulative token total, or the formal result ledger. This successor story closes that gap so that a takeover Host can actually run the real Cell 03 provider matrix in parallel without polluting evidence or the cumulative usage total. Until this story is DONE, multi-host real provider runs remain unsafe even though B-e1f6 tooling exists.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "cell03",
+    "multi-model-ablation",
+    "b-991d",
+    "provider-runner",
+    "usage-ledger",
+    "attempt-accounting",
+    "result-writer"
+  ],
+  "riskSignals": [
+    {
+      "category": "Security/Credentials",
+      "matched": "token"
+    }
+  ],
+  "createdAt": "2026-07-06T15:32:01.777Z",
+  "startedAt": "2026-07-06T15:32:01.777Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-06T15:32:02.224Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "b3c93b18-2065-4593-8f52-b1753e157913",
+      "agent": "main"
+    }
+  ]
+}

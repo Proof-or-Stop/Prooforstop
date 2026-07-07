@@ -4,25 +4,232 @@
       "id": "CHK-001",
       "title": "Add an ADDITIVE resume mode to experiments/pos-instrument-replay/run-batch.mjs: on --resume (or POS_RESUME=1), read the existing batch-ledger.jsonl, skip iterationIds already recorded (proof OR stop), run only the remaining iterations, ignore/repair a truncated trailing line, and have the strict exact-multiset end-of-run guard reconcile the FINAL ledger (== protocol cross-product, 0 dup / 0 gap). The fresh-campaign path (empty/no ledger) must be UNCHANGED so M2 batch-ledger.jsonl + selfcheck-m2 stay valid",
       "context": "Additive only: resume activates only when a ledger already exists and --resume is passed. A duplicate iterationId on resume is a bug (the strict guard already rejects dups). A kill before the atomic append = no record = clean re-run; a kill mid-append = a truncated last JSONL line the resume must skip/repair. Reuse lib/instrument.mjs.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-05T20:26:44.864Z",
+      "endTime": "2026-07-05T21:00:02.309Z",
+      "userSees": "node experiments/pos-instrument-replay/run-batch.mjs --resume (with a partial batch-ledger.jsonl present) skips already-recorded iterationIds, runs only the remaining, and the strict guard reconciles the full multiset; a fresh run (no --resume / empty ledger) behaves exactly as M2 (unchanged).",
+      "files": {
+        "modify": [
+          "experiments/pos-instrument-replay/run-batch.mjs"
+        ],
+        "create": [],
+        "test": [
+          "experiments/pos-instrument-replay/selfcheck-m3.mjs",
+          "experiments/pos-instrument-replay/protocol.json",
+          "experiments/pos-instrument-replay/lib/instrument.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "run-batch --resume against a partial ledger skips already-recorded iterationIds (proof OR stop), runs only the remaining, and the strict exact-multiset guard reconciles the FINAL ledger (0 dup / 0 gap)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "a truncated trailing JSONL line (mid-append kill) is ignored/repaired by resume; that casualty iterationId then re-runs cleanly",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the fresh-campaign path (no --resume / empty ledger) is UNCHANGED: M2 selfcheck-m2 still PASSes and batch-ledger.jsonl still reproduces",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/pos-instrument-replay/selfcheck-m3.mjs",
+          "result": "pass",
+          "note": "run-batch --resume against a partial ledger skips already-recorded iterationIds and runs only the remaining; the strict guard reconciles the final 30-record small multiset (0 dup / 0 gap). Proven by selfcheck-m3 boundary-kill + mid-run-crash sub-checks (append-only preserved; resume-only stale-lock break).",
+          "headHash": "98ee3e0dbd49501a0b3a456b4e9cd35e7c0c062f",
+          "materialHash": "72235d20101e07bfddf60b0e65cf527c700c424441776e30bbc867ae206a53b8",
+          "storyFilesHash": "72dc774e8479d01609d432bbe1a5775bc3b62810d1c2381e312b51de954af7f5",
+          "timestamp": "2026-07-06T03:27:16.005Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/pos-instrument-replay/selfcheck-m3.mjs",
+          "result": "pass",
+          "note": "selfcheck-m3 E (truncated-tail) + G (valid-final-record-preserved): repairTruncatedTail now PARSES the un-terminated tail in both branches — a genuinely truncated partial write is dropped (that iteration re-runs), but a COMPLETE final record missing only its newline (replay/small/4) is PRESERVED verbatim (never dropped into a gap). 0 dup / 0 gap.",
+          "headHash": "98ee3e0dbd49501a0b3a456b4e9cd35e7c0c062f",
+          "materialHash": "72235d20101e07bfddf60b0e65cf527c700c424441776e30bbc867ae206a53b8",
+          "storyFilesHash": "72dc774e8479d01609d432bbe1a5775bc3b62810d1c2381e312b51de954af7f5",
+          "timestamp": "2026-07-06T03:27:16.005Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/pos-instrument-replay/selfcheck-m3.mjs",
+          "result": "pass",
+          "note": "Resume/lock/ledger integrity is fail-closed on every TESTED path (commit 98ee3e0db). Layered defense, each with a dedicated deterministic sub-check that leaves the campaign ledger byte-identical: F-005/F-006 conservative missing-holder=LIVE (sub-check I: missing holder -> lock NOT broken); F-007/F-008 break-mutex serializes the break critical-section so two resumers cannot both rm+mkdir (sub-check J, both directions); F-009/F-011 a fresh non-resume driver refuses a non-empty pre-existing ledger, checked UNDER the campaign lock (sub-check K); F-013/F-014/F-016 a fresh driver refuses an EXISTING-but-UNREADABLE ledger — the read-error catch fails CLOSED (sub-check L, via the POS_FAIL_LEDGER_READ fault hook). selfcheck-m3 A-M PASS exit 0.",
+          "headHash": "ce620a7cd5eec87fa31d7ecea991c3e45ffb4f99",
+          "materialHash": "72235d20101e07bfddf60b0e65cf527c700c424441776e30bbc867ae206a53b8",
+          "storyFilesHash": "72dc774e8479d01609d432bbe1a5775bc3b62810d1c2381e312b51de954af7f5",
+          "timestamp": "2026-07-06T03:27:16.730Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Build experiments/pos-instrument-replay/resume-probe.mjs (committed producer): spawn run-batch (small scale) and kill it deterministically TWICE — (a) at a frozen iteration boundary (SIGKILL after K iterations recorded), (b) mid-iteration via the crash hook POS_FAIL_APPEND_AT (after workspace write, before ledger append) — restart in --resume mode after each, and write resume-reconciliation.json with the pre/post-kill ledger diff, identity-multiset comparison, dup/gap counts (must be 0/0), and casualty disposition",
       "context": "iterationId identity-multiset must equal the protocol replay cross-product exactly. The mid-iteration casualty must resolve to a stop record OR a clean re-run, never a silent half-record. resume-reconciliation.json is the H3 evidence artifact (plan section 7).",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-05T21:00:02.900Z",
+      "userSees": "node experiments/pos-instrument-replay/resume-probe.mjs kills run-batch at a boundary (SIGKILL) and mid-iteration (POS_FAIL_APPEND_AT), restarts in --resume, and writes resume-reconciliation.json showing dup=0 gap=0, identity-multiset == protocol cross-product, casualty=stop-or-rerun; prints 'H3: 0 dup / 0 gap'.",
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/pos-instrument-replay/resume-probe.mjs",
+          "experiments/pos-instrument-replay/resume-reconciliation.json"
+        ],
+        "test": [
+          "experiments/pos-instrument-replay/selfcheck-m3.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "resume-probe.mjs spawns run-batch (small), kills it at a boundary + mid-iteration via POS_FAIL_APPEND_AT, restarts in --resume, and writes resume-reconciliation.json with pre/post-kill ledger diff + identity-multiset comparison + dup/gap counts (0/0) + casualty disposition",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "after both kills+resume the ledger has exactly one record per protocol iterationId (identity-multiset == cross-product)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the mid-iteration casualty resolves to a stop record OR a clean re-run — never a silent half-record; dup=0 gap=0",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/pos-instrument-replay/resume-probe.mjs",
+          "result": "pass",
+          "note": "resume-probe.mjs kills run-batch at a boundary (hard-crash before append at replay/small/6, leaving 5 recorded + a recordless casualty) and mid-run (replay/small/18), plus an external-SIGKILL trial; restarts in --resume each time; writes resume-reconciliation.json: killA{recordedBeforeKill:5,casualty replay/small/6,dup:0,gap:0}, killB{17,replay/small/18,dup:0,gap:0}, finalMultisetMatch:true, dupTotal:0 gapTotal:0. H3: 0 dup / 0 gap.",
+          "headHash": "98ee3e0dbd49501a0b3a456b4e9cd35e7c0c062f",
+          "materialHash": "72235d20101e07bfddf60b0e65cf527c700c424441776e30bbc867ae206a53b8",
+          "storyFilesHash": "72dc774e8479d01609d432bbe1a5775bc3b62810d1c2381e312b51de954af7f5",
+          "timestamp": "2026-07-06T03:27:16.005Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node -e \"const r=require('./experiments/pos-instrument-replay/resume-reconciliation.json');console.log(r.finalMultisetMatch,r.dupTotal,r.gapTotal)\"",
+          "result": "pass",
+          "note": "After both kills+resume the ledger identity multiset equals the protocol replay/small cross-product exactly (finalMultisetMatch true, 0 gap) — exactly one record per iterationId.",
+          "headHash": "98ee3e0dbd49501a0b3a456b4e9cd35e7c0c062f",
+          "materialHash": "72235d20101e07bfddf60b0e65cf527c700c424441776e30bbc867ae206a53b8",
+          "storyFilesHash": "72dc774e8479d01609d432bbe1a5775bc3b62810d1c2381e312b51de954af7f5",
+          "timestamp": "2026-07-06T03:27:16.005Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node -e \"const r=require('./experiments/pos-instrument-replay/resume-reconciliation.json');console.log(JSON.stringify(r.killC))\"",
+          "result": "pass",
+          "note": "Each casualty resolves to stop-or-clean-rerun, never a half-record: killA/killB (recordless hard-crash) -> proof:pass; killC (POS_FAIL_APPEND_AT -> a recorded verify_crash STOP at replay/small/3) is PRESERVED and SKIPPED on resume (not re-run into a proof); dup=0 gap=0 across all kills.",
+          "headHash": "98ee3e0dbd49501a0b3a456b4e9cd35e7c0c062f",
+          "materialHash": "72235d20101e07bfddf60b0e65cf527c700c424441776e30bbc867ae206a53b8",
+          "storyFilesHash": "72dc774e8479d01609d432bbe1a5775bc3b62810d1c2381e312b51de954af7f5",
+          "timestamp": "2026-07-06T03:27:16.005Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Add a hermetic mkdtemp-isolated selfcheck (selfcheck-m3.mjs) that runs the full boundary-kill + mid-iteration-crash + resume + reconciliation flow and asserts 0 dup / 0 gap, exactly one record per iterationId after resume, and that a mid-iteration casualty resolves to a stop-or-clean-rerun (never a half-record)",
       "context": "Per plan section 7 selfchecks: the M3 selfcheck exercises the crash hook + resume. Hermetic: mkdtemp isolation, small scale, run by node <file>. Assert the H3 evidence-complete conditions on the reconciled ledger.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-05T21:00:03.453Z",
+      "userSees": "node experiments/pos-instrument-replay/selfcheck-m3.mjs exits 0 with 'selfcheck-m3 PASS': runs the boundary-kill + mid-iteration-crash + resume + reconciliation flow hermetically and asserts 0 dup / 0 gap + exactly one record per iterationId + casualty resolves to stop-or-clean-rerun.",
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/pos-instrument-replay/selfcheck-m3.mjs"
+        ],
+        "test": [
+          "experiments/pos-instrument-replay/selfcheck-m3.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node selfcheck-m3.mjs runs the full interrupt/resume flow hermetically (mkdtemp, small) and exits 0 with PASS",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "selfcheck asserts 0 dup / 0 gap and exactly one record per protocol iterationId after the resume",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "selfcheck asserts the mid-iteration casualty resolved to a stop-or-clean-rerun (no silent half-record); it fails loudly if a dup/gap/half-record appears",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/pos-instrument-replay/selfcheck-m3.mjs",
+          "result": "pass",
+          "note": "node selfcheck-m3.mjs exits 0 'selfcheck-m3 PASS' — 13 hermetic sub-checks A-M: A boundary-kill, B mid-run-crash, C fresh-additive, D resume-no-ledger, E truncated-tail, F stop-record-resume, G valid-final-record-preserved, H live-lock-not-broken, I NO-HOLDER-lock-not-broken, J BREAK-MUTEX-SERIALIZES, K FRESH-REFUSES-NONEMPTY-LEDGER, L FRESH-FAILS-CLOSED-ON-UNREADABLE-LEDGER, M RESUME-BREAK-FAILURE-DIAGNOSTIC.",
+          "headHash": "174f2cb77483c41bf152bd2b619a49557cf580b5",
+          "materialHash": "72235d20101e07bfddf60b0e65cf527c700c424441776e30bbc867ae206a53b8",
+          "storyFilesHash": "72dc774e8479d01609d432bbe1a5775bc3b62810d1c2381e312b51de954af7f5",
+          "timestamp": "2026-07-06T03:27:17.419Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/pos-instrument-replay/selfcheck-m3.mjs",
+          "result": "pass",
+          "note": "selfcheck-m3 asserts 0 dup / 0 gap and exactly one record per protocol replay/small iterationId after each resume (finalMultisetMatch).",
+          "headHash": "98ee3e0dbd49501a0b3a456b4e9cd35e7c0c062f",
+          "materialHash": "72235d20101e07bfddf60b0e65cf527c700c424441776e30bbc867ae206a53b8",
+          "storyFilesHash": "72dc774e8479d01609d432bbe1a5775bc3b62810d1c2381e312b51de954af7f5",
+          "timestamp": "2026-07-06T03:27:16.005Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/pos-instrument-replay/selfcheck-m3.mjs",
+          "result": "pass",
+          "note": "Each finding maps to a dedicated load-bearing sub-check that fails on regression: F-001->H, F-002/F-003->E/G, F-004->F, F-005/F-006->I, F-007/F-008->J, F-009/F-011->K, F-013/F-014/F-016->L (POS_FAIL_LEDGER_READ fault hook: fresh over an unreadable ledger -> exit 3 + ledger byte-identical), F-010/F-015->M (POS_FAIL_LOCK_BREAK fault hook: a failed stale-lock break -> explicit exit-2 'could not break the stale lock' diagnostic + break-mutex released not orphaned + ledger untouched). Sub-checks L/M use deterministic env fault hooks (inert unless ==='1'); each asserts a specific exit code AND campaign-ledger integrity. Scope of the claim: these prove the TESTED fail-closed paths, not an unconditional impossibility proof.",
+          "headHash": "11fcaf515355a39a8202ac753575f46762d3aaa2",
+          "materialHash": "72235d20101e07bfddf60b0e65cf527c700c424441776e30bbc867ae206a53b8",
+          "storyFilesHash": "72dc774e8479d01609d432bbe1a5775bc3b62810d1c2381e312b51de954af7f5",
+          "timestamp": "2026-07-06T03:27:18.187Z"
+        }
+      ]
     }
   ]
 }

@@ -1,0 +1,56 @@
+{
+  "storyId": "B-a0c9",
+  "changes": "experiments/pos-instrument-replay/selfcheck-m3.mjs only. F-017: added a module-level activeSandboxes Set, a cleanupSandbox() helper (rmSync + Set.delete) replacing the inline rmSync in all 12 sub-check finally blocks, and a process.on('exit') sweep, so a sub-check that FAILS via fail()/process.exit(1) no longer leaks its mkdtemp sandbox dir. F-018: sub-check M (checkResumeBreakFailureDiagnostic) now also asserts LOCK_DIR (.batch-ledger.lock) + holder.json survive the forced break failure, mirroring sub-checks H/I.",
+  "usage": "Run: node experiments/pos-instrument-replay/selfcheck-m3.mjs  (prints sub-checks A-M each PASS, ends 'selfcheck-m3 PASS' at exit 0). Run: node experiments/pos-instrument-replay/selfcheck-m2.mjs  for non-regression.",
+  "expectedOutcome": "Running node experiments/pos-instrument-replay/selfcheck-m3.mjs prints sub-checks A-M each PASS and ends 'selfcheck-m3 PASS' at exit 0, with sub-check M also proving LOCK_DIR + holder.json survival; a failing sub-check leaves no pos-selfcheck-m3-* dir in the temp dir; node selfcheck-m2.mjs ends 'selfcheck-m2 PASS' at exit 0.",
+  "actualTranscript": "selfcheck-m3: sub-checks A-M all PASS, 'M-resume-break-failure-diagnostic PASS', ends 'selfcheck-m3 PASS' at exit 0. selfcheck-m2 PASS. lattice validate --story=B-a0c9: all 41 commands PASS. F-017 leak fix demonstrated deterministically (pre-fix pattern leaks the mkdtemp dir on process.exit(1) = RED; Set + process.on(exit) sweep removes it = GREEN); recorded as red-evidence.json.",
+  "outcomeDiff": "No difference: expected and actual match (A-M PASS, sub-check M asserts LOCK_DIR + holder.json survival, no sandbox leak on failure, selfcheck-m2 green).",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none - fully covered. Advisory only (test-coverage lane): CHK-001:edge is proven via a deterministic standalone reproduction of the exact activeSandboxes Set + process.on(exit) sweep mechanism, because selfcheck-m3 has no fault hook to force a genuine sub-check fail() without editing the file; verified by code comparison to be structurally identical to the shipped implementation.",
+  "pitfalls": "(1) The DEV->TEST validate runs 41 commands including the slow selfcheck-m3; under machine load it can exceed the default 300s idle watchdog (LATTICE_IDLE_TIMEOUT_MS) and get force-exited. Re-run validate with LATTICE_IDLE_TIMEOUT_MS raised (e.g. 1800000) and, if a validate was force-exited, remove the stale lock dir .lattice/locks/validation/<story>.lock (a mkdir dir containing holder.json) after confirming its pid is dead. (2) Running the three REVIEW reviewers in parallel can race on review_run_start/review_pass_set so one lane's pass may not persist; re-run that lane solo to record it cleanly. (3) selfcheck-m3.mjs and the resume-capable run-batch.mjs only existed on B-f511's branch, so this follow-up story was created only AFTER B-f511 merged to main (51c68420b), keeping the diff a clean ~53-line delta.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 182652
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 28839
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 1003124
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 2098710
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 2104096
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 1019379
+    }
+  },
+  "totalDurationMs": 6437616,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-06T11:58:47.084Z",
+  "updatedAt": "2026-07-06T11:58:47.084Z"
+}

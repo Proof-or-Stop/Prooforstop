@@ -1,0 +1,76 @@
+{
+  "principles": [
+    "Always show status: every mutating command emits a status block, never nothing.",
+    "Never fabricate: a checklist-derived view must be labelled distinctly and must not impersonate a milestone table.",
+    "Fail loud, not silent: display failures surface on stdout, they are not swallowed to stderr.",
+    "Honest exit codes: a display failure never fails the command, because the mutation already committed."
+  ],
+  "drivers": [
+    "The CLI cannot verify the agent forwarded output, so enforcement can only guarantee the CLI always produces a block and never hides a display failure.",
+    "An existing test deliberately forbids fabricating a milestone table when no ledger exists.",
+    "The append runs after the mutation commits, so a non-zero exit would falsely imply a bad write."
+  ],
+  "options": [
+    {
+      "name": "checklist-derived-fallback-plus-visible-failure",
+      "pros": [
+        "Always shows real per-item progress even with no milestone ledger",
+        "Distinct header preserves the anti-fabrication invariant",
+        "Render failures become visible without lying about the write"
+      ],
+      "cons": [
+        "Adds a new renderer and reworks the append control flow",
+        "Two header shapes to keep straight in dedup logic"
+      ]
+    },
+    {
+      "name": "reuse-milestone-status-missing-ledger-render",
+      "pros": [
+        "No new renderer; milestone_status already renders a missing-ledger table"
+      ],
+      "cons": [
+        "Shows only a generic 'milestone ledger required' placeholder, not checklist progress",
+        "Violates the existing anti-fabrication test that forbids the Milestone Status header on no-ledger mutations"
+      ]
+    },
+    {
+      "name": "advance-freshness-gate",
+      "pros": [
+        "Hard enforcement point at story_advance"
+      ],
+      "cons": [
+        "Unsound: the CLI generates the report itself, so the gate adds friction without assurance",
+        "Cannot observe whether the user actually saw the output"
+      ]
+    }
+  ],
+  "chosen": "checklist-derived-fallback-plus-visible-failure",
+  "rationale": "Only this option satisfies both 'always show status' and 'never fabricate' while keeping honest exit semantics; reuse shows no per-item progress and breaks the anti-fabrication test, and the freshness gate is unsound because the CLI produces the very report it would gate on.",
+  "preMortem": [
+    {
+      "scenario": "The checklist-derived table is mistaken for a real milestone ledger",
+      "trigger": "A reader skims the header and assumes milestones are defined",
+      "consequence": "False confidence that milestone tracking exists",
+      "mitigation": "Use the explicit 'Checklist-derived ledger (no milestone ledger set)' header and assert in tests that 'Milestone Status -' is absent"
+    },
+    {
+      "scenario": "A display-render failure fails the command and callers retry the mutation",
+      "trigger": "renderChecklistDerivedLedger or a store read throws inside the append",
+      "consequence": "Double-applied mutation or spurious CI failure after a successful write",
+      "mitigation": "Catch in the append, emit a visible stdout warning, and keep exit code 0; assert the warning path in review"
+    },
+    {
+      "scenario": "Machine JSON consumers break because a table is appended",
+      "trigger": "A --json command path also renders the derived block",
+      "consequence": "Unparseable JSON stdout for automation",
+      "mitigation": "Preserve the early --json suppression and keep the --json purity regression test green"
+    },
+    {
+      "scenario": "The DONE worktree-cleanup path loses its real-ledger table",
+      "trigger": "The refactor drops the main-root fallback branch",
+      "consequence": "DONE stops showing the real Milestone Status table",
+      "mitigation": "Keep the main-root fallback in realRender and keep the existing DONE CLI append test green"
+    }
+  ],
+  "timestamp": "2026-07-06T18:03:32.865Z"
+}

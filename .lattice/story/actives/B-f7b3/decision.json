@@ -1,0 +1,66 @@
+{
+  "principles": [
+    "Do not weaken the read-only or PLAN-only milestone contract validated by the B-b550 audit",
+    "Prefer additive, no-behavior-change closes; keep boundary-tightening local and test-backed",
+    "Design decisions (gate-mode default, stale-evidence reconciliation) are recorded in decision docs, not blindly flipped",
+    "Every hardening is proven by a test or an explicit recorded decision"
+  ],
+  "drivers": [
+    "Six audit-identified hardening gaps must each be closed or explicitly decided",
+    "observe->enforce gate-mode is a wide-blast-radius behavior change across every milestone-triggered story",
+    "Must not break existing DONE flows (e.g. B-b550's own confirmed-ledger closeout)"
+  ],
+  "options": [
+    {
+      "name": "additive-first-conservative",
+      "pros": [
+        "Closes all six findings",
+        "Low blast radius, no behavior change",
+        "No contract weakening; migration-safe"
+      ],
+      "cons": [
+        "not_applicable justification field is optional, not retroactively enforced on legacy rows"
+      ]
+    },
+    {
+      "name": "aggressive-enforce-mandatory",
+      "pros": [
+        "Stronger enforcement immediately"
+      ],
+      "cons": [
+        "Flips gate-mode observe->enforce for ALL milestone-triggered stories",
+        "Mandatory field breaks existing confirmed ledgers",
+        "Risks breaking B-b550 closeout and in-flight stories"
+      ]
+    }
+  ],
+  "chosen": "additive-first-conservative",
+  "rationale": "The B-b550 audit confirmed the milestone surface is safe today; the goal is to close observability/coverage gaps and tighten the boundary locally WITHOUT a behavior change. additive-first-conservative closes all six M7 findings with tests plus recorded decisions, keeps the read-only/PLAN-only contract intact, keeps gate-mode default observe (with recorded rationale), and avoids the wide-blast-radius enforce flip and mandatory-field migration that could break existing DONE flows including B-b550 own closeout.",
+  "preMortem": [
+    {
+      "scenario": "Disclaimer line shifts report line positions",
+      "trigger": "An external tool scrapes milestone_status output by fixed line number",
+      "consequence": "That scraper mis-reads the report",
+      "mitigation": "Insert as a NEW line; keep Mode/Phase/Ledger lines unchanged; tests assert by substring not line position"
+    },
+    {
+      "scenario": "notApplicableDecision field changes an existing confirmed ledger hash",
+      "trigger": "Adding the field to the ledger schema/hash",
+      "consequence": "Legacy confirmed ledgers (e.g. B-b550) become invalid",
+      "mitigation": "Make the field optional and migration-safe; do not retroactively invalidate legacy confirmed ledgers"
+    },
+    {
+      "scenario": "Closeout reconciliation lets a vacuous/stale ledger pass DONE",
+      "trigger": "Making closeout non-throwing without moving strictness elsewhere",
+      "consequence": "A confirmed-but-vacuous or stale ledger silently satisfies DONE",
+      "mitigation": "Move strictness into the designed evaluateDoneIntentEquivalence gate; add negative-control tests CHK-004/005/010 proving vacuous/stale ledgers do not pass"
+    },
+    {
+      "scenario": "Wiring milestone-status.test.mjs into run-all-smokes surfaces a latent failure",
+      "trigger": "The previously-skipped test now runs in the aggregate suite",
+      "consequence": "CI aggregate suite goes red",
+      "mitigation": "Run it standalone first and fix any real issue before wiring it into run-all-smokes"
+    }
+  ],
+  "timestamp": "2026-07-05T21:32:25.179Z"
+}

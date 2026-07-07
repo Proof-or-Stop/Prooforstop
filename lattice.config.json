@@ -59,6 +59,9 @@
       "node packages/main/dist/tasks/playbook-capability-lineage-smoke.js",
       "node packages/main/dist/tasks/capability-release-invariants-smoke.js",
       "node packages/main/dist/tasks/story-files-hash-batch-smoke.js",
+      "node packages/main/dist/tasks/capability-release-backfill-smoke.js",
+      "node packages/main/dist/tasks/capability-candidate-exposure-smoke.js",
+      "node packages/main/dist/tasks/capability-candidate-promotion-smoke.js",
       { "command": "node", "args": ["packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js"], "focus": ["fast"] },
       { "command": "node", "args": ["packages/main/dist/tasks/experience-pack-arm-switch-smoke.js"], "timeoutMs": 180000 }
     ]

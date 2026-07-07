@@ -1,0 +1,60 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-f511",
+  "state": "confirmed",
+  "ledgerHash": "sha256:5b737b082152d0484ff3ef0127d8698feadbae80f0cb98088a2db5c1bcc51570",
+  "milestones": [
+    {
+      "id": "M3-A",
+      "sourceRequirementId": "REQ-001",
+      "claim": "run-batch.mjs gains an additive resume mode (skip already-recorded iterationIds; reconcile final multiset) with the fresh path unchanged",
+      "doneMeans": "run-batch --resume against a partial ledger completes with 0 dup / 0 gap; selfcheck-m2 still PASS",
+      "requiredEvidence": [],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M3-B",
+      "sourceRequirementId": "REQ-001",
+      "claim": "resume-probe.mjs kills run-batch (boundary + mid-iteration) + resumes + writes resume-reconciliation.json with 0 dup / 0 gap and casualty=stop-or-rerun",
+      "doneMeans": "node resume-probe.mjs writes resume-reconciliation.json dup=0 gap=0",
+      "requiredEvidence": [],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M3-C",
+      "sourceRequirementId": "REQ-001",
+      "claim": "Hermetic selfcheck asserts H3 evidence-complete (0 dup / 0 gap, one record per iterationId, casualty stop-or-rerun)",
+      "doneMeans": "node selfcheck-m3.mjs exits 0",
+      "requiredEvidence": [],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:adversarial:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-05T20:24:45.874Z",
+  "updatedAt": "2026-07-05T20:24:46.196Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260705202446",
+    "acceptedInterpretationHash": "sha256:0c9fde5da79dba4f3ba4d52eb4847e8ac4b460ff4462cde52af476f85af4035e",
+    "acceptedAt": "2026-07-05T20:24:46.196Z"
+  }
+}

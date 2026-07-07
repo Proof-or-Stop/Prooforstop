@@ -1,0 +1,322 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Define deterministic Cell 03 shard plan without changing cell semantics",
+      "context": "Partition the existing expected Cell 03 cellKey set by stable ordered index modulo shard count. Acceptance: N shards cover all 1,152 expected keys exactly once; invalid shard indexes and digest drift fail closed.",
+      "relatedDocs": [
+        "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+        "docs/requirements/decisions/multi-model-ablation-replication.md"
+      ],
+      "files": {
+        "modify": [
+          "experiments/multi-model-ablation/task-inventory.m2.json",
+          "experiments/multi-model-ablation/seed-manifest.m1.json"
+        ],
+        "create": [
+          "experiments/multi-model-ablation/cell03-shards/plan.mjs"
+        ],
+        "test": [
+          "experiments/multi-model-ablation/cell03-shards/selfcheck.mjs"
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-07-06T15:04:32.423Z",
+      "endTime": "2026-07-06T15:05:21.612Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Shard plan covers every expected Cell03 key exactly once.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Invalid shard indexes or counts fail closed.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Duplicate or missing key partition cannot pass selfcheck.",
+            "type": "logic"
+          }
+        ]
+      },
+      "userSees": "node experiments/multi-model-ablation/cell03-shards/selfcheck.mjs reports coverage=1152 and invalid shard inputs fail closed.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "experiments/multi-model-ablation/cell03-shards/selfcheck.mjs",
+          "command": "node experiments/multi-model-ablation/cell03-shards/selfcheck.mjs",
+          "result": "pass",
+          "note": "Selfcheck reports coverage=1152 and shards=8, proving every expected Cell03 key is covered exactly once.",
+          "headHash": "45807b04108cf63c01cecf2511cc44ed18f0d584",
+          "materialHash": "00ceac1a7775e7b457b30f939795210e982aa9b8746c3cd1e4a7939d3866cf9a",
+          "storyFilesHash": "29d3f46122322965c8492b5704b3575fd18f2e854681813468459841c3ffeb4d",
+          "timestamp": "2026-07-06T16:42:23.465Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "experiments/multi-model-ablation/cell03-shards/selfcheck.mjs",
+          "command": "node experiments/multi-model-ablation/cell03-shards/selfcheck.mjs",
+          "result": "pass",
+          "note": "Selfcheck includes invalid shard input rejection through fail-closed shard argument validation.",
+          "headHash": "45807b04108cf63c01cecf2511cc44ed18f0d584",
+          "materialHash": "00ceac1a7775e7b457b30f939795210e982aa9b8746c3cd1e4a7939d3866cf9a",
+          "storyFilesHash": "29d3f46122322965c8492b5704b3575fd18f2e854681813468459841c3ffeb4d",
+          "timestamp": "2026-07-06T16:42:23.465Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "experiments/multi-model-ablation/cell03-shards/selfcheck.mjs",
+          "command": "node experiments/multi-model-ablation/cell03-shards/selfcheck.mjs",
+          "result": "pass",
+          "note": "Selfcheck proves duplicate/missing partition conditions cannot pass merge validation.",
+          "headHash": "45807b04108cf63c01cecf2511cc44ed18f0d584",
+          "materialHash": "00ceac1a7775e7b457b30f939795210e982aa9b8746c3cd1e4a7939d3866cf9a",
+          "storyFilesHash": "29d3f46122322965c8492b5704b3575fd18f2e854681813468459841c3ffeb4d",
+          "timestamp": "2026-07-06T16:42:23.465Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Write per-shard rows and workspaces instead of sharing the main Cell 03 ledger",
+      "context": "A shard runner must write to its own shard directory and must not append directly to the canonical cell03-rows.jsonl during parallel execution. Acceptance: shard dry-runs leave canonical rows untouched and same-shard concurrent attempts fail closed.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md"
+      ],
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/multi-model-ablation/cell03-shards/shard-runner.mjs"
+        ],
+        "test": [
+          "experiments/multi-model-ablation/cell03-shards/selfcheck.mjs"
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-07-06T15:04:33.095Z",
+      "endTime": "2026-07-06T15:05:35.497Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Shard runner writes only shard-local output in fixture/dry-run mode.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Canonical Cell03 rows stay untouched by shard selfcheck.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Concurrent same-shard acquisition fails closed.",
+            "type": "logic"
+          }
+        ]
+      },
+      "userSees": "node experiments/multi-model-ablation/cell03-shards/selfcheck.mjs reports lockReject=pass and confirms shard output stays local.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "experiments/multi-model-ablation/cell03-shards/selfcheck.mjs",
+          "command": "node experiments/multi-model-ablation/cell03-shards/selfcheck.mjs",
+          "result": "pass",
+          "note": "Selfcheck writes fixture shard rows only under temporary shard-local directories.",
+          "headHash": "45807b04108cf63c01cecf2511cc44ed18f0d584",
+          "materialHash": "00ceac1a7775e7b457b30f939795210e982aa9b8746c3cd1e4a7939d3866cf9a",
+          "storyFilesHash": "29d3f46122322965c8492b5704b3575fd18f2e854681813468459841c3ffeb4d",
+          "timestamp": "2026-07-06T16:42:23.465Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "experiments/multi-model-ablation/cell03-shards/selfcheck.mjs",
+          "command": "node experiments/multi-model-ablation/cell03-shards/selfcheck.mjs",
+          "result": "pass",
+          "note": "Selfcheck reports canonicalUntouched=pass, proving the canonical Cell03 rows ledger is not modified.",
+          "headHash": "45807b04108cf63c01cecf2511cc44ed18f0d584",
+          "materialHash": "00ceac1a7775e7b457b30f939795210e982aa9b8746c3cd1e4a7939d3866cf9a",
+          "storyFilesHash": "29d3f46122322965c8492b5704b3575fd18f2e854681813468459841c3ffeb4d",
+          "timestamp": "2026-07-06T16:42:23.465Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "experiments/multi-model-ablation/cell03-shards/selfcheck.mjs",
+          "command": "node experiments/multi-model-ablation/cell03-shards/selfcheck.mjs",
+          "result": "pass",
+          "note": "Selfcheck reports lockReject=pass and rerunReject=pass, proving duplicate same-shard ownership/output fails closed.",
+          "headHash": "45807b04108cf63c01cecf2511cc44ed18f0d584",
+          "materialHash": "00ceac1a7775e7b457b30f939795210e982aa9b8746c3cd1e4a7939d3866cf9a",
+          "storyFilesHash": "29d3f46122322965c8492b5704b3575fd18f2e854681813468459841c3ffeb4d",
+          "timestamp": "2026-07-06T16:42:23.465Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add merge validator for shard outputs",
+      "context": "Merge logic must verify identical protocol, prompt, tool, task, snapshot, runner, story/window binding, shard manifest digest, and no duplicate final rows before writing or reporting merged output. Acceptance: fixture duplicate/missing/digest-drift shards are rejected.",
+      "relatedDocs": [
+        "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+        "docs/requirements/decisions/lattice-parallel-wave.md"
+      ],
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/multi-model-ablation/cell03-shards/merge.mjs"
+        ],
+        "test": [
+          "experiments/multi-model-ablation/cell03-shards/selfcheck.mjs"
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-07-06T15:04:33.646Z",
+      "endTime": "2026-07-06T15:05:49.614Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Complete fixture shard set merges with zero duplicates and zero missing keys.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Partial shard set reports missing keys and does not write canonical evidence.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Duplicate final rows, shard-count mismatch, and digest drift are rejected.",
+            "type": "logic"
+          }
+        ]
+      },
+      "userSees": "node experiments/multi-model-ablation/cell03-shards/selfcheck.mjs reports mergeComplete=pass, duplicateReject=pass, missingReject=pass, and digestDriftReject=pass.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "experiments/multi-model-ablation/cell03-shards/selfcheck.mjs",
+          "command": "node experiments/multi-model-ablation/cell03-shards/selfcheck.mjs",
+          "result": "pass",
+          "note": "Selfcheck reports mergeComplete=pass with 1152 merged fixture rows and zero duplicates.",
+          "headHash": "45807b04108cf63c01cecf2511cc44ed18f0d584",
+          "materialHash": "00ceac1a7775e7b457b30f939795210e982aa9b8746c3cd1e4a7939d3866cf9a",
+          "storyFilesHash": "29d3f46122322965c8492b5704b3575fd18f2e854681813468459841c3ffeb4d",
+          "timestamp": "2026-07-06T16:42:23.465Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "experiments/multi-model-ablation/cell03-shards/selfcheck.mjs",
+          "command": "node experiments/multi-model-ablation/cell03-shards/selfcheck.mjs",
+          "result": "pass",
+          "note": "Selfcheck reports missingReject=pass, proving partial shard output cannot pass complete merge validation.",
+          "headHash": "45807b04108cf63c01cecf2511cc44ed18f0d584",
+          "materialHash": "00ceac1a7775e7b457b30f939795210e982aa9b8746c3cd1e4a7939d3866cf9a",
+          "storyFilesHash": "29d3f46122322965c8492b5704b3575fd18f2e854681813468459841c3ffeb4d",
+          "timestamp": "2026-07-06T16:42:23.465Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "experiments/multi-model-ablation/cell03-shards/selfcheck.mjs",
+          "command": "node experiments/multi-model-ablation/cell03-shards/selfcheck.mjs",
+          "result": "pass",
+          "note": "Selfcheck reports duplicateReject=pass and digestDriftReject=pass, proving duplicate rows and manifest/row digest drift fail closed.",
+          "headHash": "45807b04108cf63c01cecf2511cc44ed18f0d584",
+          "materialHash": "00ceac1a7775e7b457b30f939795210e982aa9b8746c3cd1e4a7939d3866cf9a",
+          "storyFilesHash": "29d3f46122322965c8492b5704b3575fd18f2e854681813468459841c3ffeb4d",
+          "timestamp": "2026-07-06T16:42:23.465Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-004",
+      "title": "Document safe operator usage and explicit non-goals",
+      "context": "README must explain that this story enables safe shard tooling only and does not itself run provider rows, unlock Cell 06, or alter paper claims. It must distinguish story-level Parallel Wave from Cell03 row-level sharding.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-parallel-wave.md"
+      ],
+      "files": {
+        "modify": [
+          "experiments/multi-model-ablation/README.md"
+        ],
+        "create": [
+          "experiments/multi-model-ablation/cell03-shards/README.md"
+        ],
+        "test": []
+      },
+      "status": "done",
+      "startTime": "2026-07-06T15:04:34.182Z",
+      "endTime": "2026-07-06T15:06:07.084Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Docs show safe shard plan, fixture shard output, and merge validation commands.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Docs distinguish Parallel Wave story scheduling from Cell03 row sharding.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Docs do not imply provider execution, Cell06 unlock, Phase2 unlock, or paper claim unlock.",
+            "type": "docs"
+          }
+        ]
+      },
+      "userSees": "The Cell03 shard README shows plan, fixture shard, and merge commands plus explicit non-goals for provider execution and claim unlocks.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "file": "experiments/multi-model-ablation/cell03-shards/README.md",
+          "result": "pass",
+          "note": "README documents plan, fixture shard output, merge validation, and selfcheck commands.",
+          "headHash": "45807b04108cf63c01cecf2511cc44ed18f0d584",
+          "materialHash": "00ceac1a7775e7b457b30f939795210e982aa9b8746c3cd1e4a7939d3866cf9a",
+          "storyFilesHash": "29d3f46122322965c8492b5704b3575fd18f2e854681813468459841c3ffeb4d",
+          "timestamp": "2026-07-06T16:42:23.465Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "file": "experiments/multi-model-ablation/cell03-shards/README.md",
+          "result": "pass",
+          "note": "README explicitly distinguishes row-level Cell03 sharding from Proofbound Parallel Wave story scheduling.",
+          "headHash": "45807b04108cf63c01cecf2511cc44ed18f0d584",
+          "materialHash": "00ceac1a7775e7b457b30f939795210e982aa9b8746c3cd1e4a7939d3866cf9a",
+          "storyFilesHash": "29d3f46122322965c8492b5704b3575fd18f2e854681813468459841c3ffeb4d",
+          "timestamp": "2026-07-06T16:42:23.465Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "file": "experiments/multi-model-ablation/cell03-shards/README.md",
+          "result": "pass",
+          "note": "README states non-goals: no provider execution, no formal rows, no Cell06 unlock, no Phase2 unlock, and no paper claim changes.",
+          "headHash": "45807b04108cf63c01cecf2511cc44ed18f0d584",
+          "materialHash": "00ceac1a7775e7b457b30f939795210e982aa9b8746c3cd1e4a7939d3866cf9a",
+          "storyFilesHash": "29d3f46122322965c8492b5704b3575fd18f2e854681813468459841c3ffeb4d",
+          "timestamp": "2026-07-06T16:42:23.465Z"
+        }
+      ]
+    }
+  ]
+}

@@ -4,7 +4,7 @@
   "title": "Harden ProofStory milestone status/ledger observability boundary (B-b550 M7 follow-up)",
   "description": "Implements the six design-hardening items the B-b550 truth-first audit recorded in the M7 follow-up scope of docs/requirements/decisions/milestone-ledger-status-review-findings.md. The milestone observability surface is safe today (no blocker); these tighten the boundary and close the audit's test gaps. Touches packages/main/src (milestone-status render + command-policy + proofstory) and packages/main/tests/smokes.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "medium",
   "keywords": [
     "milestone-ledger",
@@ -22,7 +22,7 @@
   ],
   "createdAt": "2026-07-05T17:14:25.271Z",
   "startedAt": "2026-07-05T17:14:25.271Z",
-  "endedAt": null,
+  "endedAt": "2026-07-06T07:21:00.795Z",
   "events": [
     {
       "phase": "INIT",
@@ -41,6 +41,186 @@
       "user": "Harmonygo",
       "sessionId": "e2c2f35d-9d17-4f85-9af1-de33c44c458f",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-05T21:14:09.735Z",
+      "branch": "story/B-f7b3",
+      "user": "Harmonygo",
+      "sessionId": "e2c2f35d-9d17-4f85-9af1-de33c44c458f",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-05T21:40:34.635Z",
+      "branch": "story/B-f7b3",
+      "user": "Harmonygo",
+      "sessionId": "e2c2f35d-9d17-4f85-9af1-de33c44c458f",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-06T00:03:20.761Z",
+      "branch": "story/B-f7b3",
+      "user": "Harmonygo",
+      "sessionId": "e2c2f35d-9d17-4f85-9af1-de33c44c458f",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-06T00:15:26.639Z",
+      "branch": "story/B-f7b3",
+      "user": "Harmonygo",
+      "sessionId": "e2c2f35d-9d17-4f85-9af1-de33c44c458f",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-06T00:16:09.455Z",
+      "branch": "story/B-f7b3",
+      "user": "Harmonygo",
+      "sessionId": "e2c2f35d-9d17-4f85-9af1-de33c44c458f",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-06T00:33:44.422Z",
+      "branch": "story/B-f7b3",
+      "user": "Harmonygo",
+      "sessionId": "e2c2f35d-9d17-4f85-9af1-de33c44c458f",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-06T00:33:46.044Z",
+      "branch": "story/B-f7b3",
+      "user": "Harmonygo",
+      "sessionId": "e2c2f35d-9d17-4f85-9af1-de33c44c458f",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-06T00:43:23.269Z",
+      "branch": "story/B-f7b3",
+      "user": "Harmonygo",
+      "sessionId": "e2c2f35d-9d17-4f85-9af1-de33c44c458f",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-06T01:08:14.224Z",
+      "branch": "story/B-f7b3",
+      "user": "Harmonygo",
+      "sessionId": "e2c2f35d-9d17-4f85-9af1-de33c44c458f",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-06T01:08:16.118Z",
+      "branch": "story/B-f7b3",
+      "user": "Harmonygo",
+      "sessionId": "e2c2f35d-9d17-4f85-9af1-de33c44c458f",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-06T05:21:30.774Z",
+      "branch": "story/B-f7b3",
+      "user": "Harmonygo",
+      "sessionId": "e2c2f35d-9d17-4f85-9af1-de33c44c458f",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-06T05:46:26.514Z",
+      "branch": "story/B-f7b3",
+      "user": "Harmonygo",
+      "sessionId": "e2c2f35d-9d17-4f85-9af1-de33c44c458f",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-06T05:55:08.656Z",
+      "branch": "story/B-f7b3",
+      "user": "Harmonygo",
+      "sessionId": "e2c2f35d-9d17-4f85-9af1-de33c44c458f",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-06T06:56:51.891Z",
+      "branch": "story/B-f7b3",
+      "user": "Harmonygo",
+      "sessionId": "e2c2f35d-9d17-4f85-9af1-de33c44c458f",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-06T06:56:55.018Z",
+      "branch": "story/B-f7b3",
+      "user": "Harmonygo",
+      "sessionId": "e2c2f35d-9d17-4f85-9af1-de33c44c458f",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-06T06:58:46.937Z",
+      "branch": "story/B-f7b3",
+      "user": "Harmonygo",
+      "sessionId": "e2c2f35d-9d17-4f85-9af1-de33c44c458f",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-06T07:13:50.859Z",
+      "branch": "story/B-f7b3",
+      "user": "Harmonygo",
+      "sessionId": "e2c2f35d-9d17-4f85-9af1-de33c44c458f",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-06T07:14:05.726Z",
+      "branch": "story/B-f7b3",
+      "user": "Harmonygo",
+      "sessionId": "e2c2f35d-9d17-4f85-9af1-de33c44c458f",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-06T07:15:45.634Z",
+      "branch": "story/B-f7b3",
+      "user": "Harmonygo",
+      "sessionId": "e2c2f35d-9d17-4f85-9af1-de33c44c458f",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-06T07:21:00.795Z",
+      "branch": "story/B-f7b3",
+      "user": "Harmonygo",
+      "sessionId": "e2c2f35d-9d17-4f85-9af1-de33c44c458f",
+      "agent": "main"
     }
   ],
   "riskSignalsDismissed": [
@@ -50,9 +230,5 @@
       "at": "2026-07-05T17:15:00.456Z"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-f7b3",
-    "branch": "story/B-f7b3",
-    "createdAt": "2026-07-05T17:29:49.222Z"
-  }
+  "currentReviewRound": "2026-07-06T07:14:05.726Z"
 }

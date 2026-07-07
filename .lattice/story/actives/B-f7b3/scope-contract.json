@@ -1,0 +1,110 @@
+{
+  "storyId": "B-f7b3",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/milestone-status.ts",
+    "packages/main/tests/milestone-status.test.mjs",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+    "package.json",
+    "packages/main/src/tasks/run-all-smokes.ts",
+    "packages/main/src/core/proofstory.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/handlers/phase-gates.ts",
+    "packages/main/src/handlers/milestone-status.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts"
+  ],
+  "allowedCreate": [
+    "docs/requirements/decisions/milestone-not-applicable-justification.md",
+    "docs/requirements/decisions/milestone-triggered-gate-mode-default-decision.md",
+    "docs/requirements/decisions/milestone-status-done-gate-reconciliation.md",
+    "packages/main/src/tasks/milestone-done-gate-reconciliation-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/tests/milestone-status.test.mjs",
+    "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+    "packages/main/tests/milestone-not-applicable-justification.test.mjs",
+    "packages/main/src/tasks/milestone-done-gate-reconciliation-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Story ProofStory metadata artifacts created during PLAN (intent-collision, milestone-ledger, original-intent-snapshot, proofstory contract, slice-plan) to satisfy the high-assurance DEV gate. Lattice story lifecycle metadata, not source or test code.",
+      "timestamp": "2026-07-05T23:20:29.415Z",
+      "paths": [
+        ".lattice/story/actives/B-f7b3/intent-collision.json",
+        ".lattice/story/actives/B-f7b3/milestone-ledger.json",
+        ".lattice/story/actives/B-f7b3/original-intent-snapshot.json",
+        ".lattice/story/actives/B-f7b3/proofstory.json",
+        ".lattice/story/actives/B-f7b3/slice-plan.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-f7b3/intent-collision.json",
+        ".lattice/story/actives/B-f7b3/milestone-ledger.json",
+        ".lattice/story/actives/B-f7b3/original-intent-snapshot.json",
+        ".lattice/story/actives/B-f7b3/proofstory.json",
+        ".lattice/story/actives/B-f7b3/slice-plan.json"
+      ],
+      "affectedPathCount": 5,
+      "phase": "DEV",
+      "headHash": "bca4c4c416167039a5ad88e91defdb91474b82ad",
+      "materialHash": "27855e489f62ea4669a6381def6b6c7b0f2f3cc3d94b913dce2691c22e5eba35"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "packages/main/package.json: CHK-006 added the test:milestone-status script for aggregate-suite wiring. packages/main/src/handlers/proofstory.ts: CHK-010 plumbs currentEvidenceBinding into the ProofStory diagnostic-input builder (same computation milestone_status uses) so the DONE gate honors milestone freshness. Both are in-scope for the declared work; the exact paths were not in the initial per-item files list.",
+      "timestamp": "2026-07-05T23:21:00.117Z",
+      "paths": [
+        "packages/main/package.json",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/package.json",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "bca4c4c416167039a5ad88e91defdb91474b82ad",
+      "materialHash": "27855e489f62ea4669a6381def6b6c7b0f2f3cc3d94b913dce2691c22e5eba35"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Host-B review finding F-004: not_applicable justification (CHK-007) was unrecoverable via the CLI because proofStoryMilestoneSchema here omitted notApplicableDecision, so the CLI stripped it. The CHK-007 fix required adding milestoneNotApplicableDecisionSchema and wiring it into milestone_ledger_set/add. In-scope for the not_applicable-justification milestone.",
+      "timestamp": "2026-07-06T05:55:06.137Z",
+      "paths": [
+        "packages/main/src/cli/command-catalog.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/cli/command-catalog.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "e800eb57080984767ce05e26a3e41e6228c4f936",
+      "materialHash": "c2dbf90d301f11d406f87e8e964c25824b88f965a9f9692e93d11e5889001c21"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Single-story milestone ledger self-coverage rollup: B-f7b3 has milestones M1-M6 but no child stories, so the DONE intent-equivalence gate (strict_milestone) requires a parent_ledger_rollup mapping each milestone to a covered/done child. The only child is the story itself. Intentional in-story DONE-gate artifact, not a source change.",
+      "timestamp": "2026-07-06T07:13:52.843Z",
+      "paths": [
+        ".lattice/story/actives/B-f7b3/parent-ledger-rollup.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-f7b3/parent-ledger-rollup.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "84083f3c2c34f37be5403d9e7c496fa8a9cc33ef",
+      "materialHash": "1b93755c84776d6812311e1ae7d37c58d14bb6f941d223c7d4ad41572b9093af"
+    }
+  ],
+  "createdAt": "2026-07-05T21:32:41.725Z",
+  "updatedAt": "2026-07-06T07:13:52.843Z"
+}

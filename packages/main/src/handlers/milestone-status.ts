@@ -32,6 +32,7 @@ interface MilestoneCloseoutArgs {
 
 export type MilestoneCloseoutCaptureResult =
   | { status: 'skipped'; reason: 'missing_milestone_ledger'; message: string }
+  | { status: 'skipped'; reason: 'closeout_snapshot_unbuildable'; message: string }
   | { status: 'written'; snapshot: MilestoneCloseoutSnapshot };
 
 const ALLOWED_MILESTONE_STATUS_ARG_KEYS = new Set(['storyId', 'format', 'json']);
@@ -98,11 +99,33 @@ export function captureMilestoneCloseoutSnapshotFromStore(
     summary,
     currentEvidenceBinding: options.currentEvidenceBinding,
   });
-  const snapshot = buildMilestoneCloseoutSnapshot({
-    report,
-    bindings: options.currentEvidenceBinding,
-    generatedAt: options.generatedAt,
-  });
+
+  // Reconciliation (B-f7b3 CHK-010): closeout must NOT act as a second DONE gate
+  // with throw-semantics that diverge from evaluateDoneIntentEquivalence (the
+  // single designed gate, which already ran before this DONE transition). It runs
+  // AFTER actor.send has moved the story to DONE, so a throw here would corrupt an
+  // already-committed transition that the designed gate allowed. Instead of
+  // propagating buildMilestoneCloseoutSnapshot's strict rejection, degrade to a
+  // non-throwing 'skipped' capture: capture what exists, and when the report is
+  // incomplete/risky/stale simply record that no auditable snapshot was written.
+  // buildMilestoneCloseoutSnapshot itself STAYS strict (CHK-005 still rejects a
+  // stale-only report); only this DONE-time capture path is made non-blocking.
+  let snapshot: MilestoneCloseoutSnapshot;
+  try {
+    snapshot = buildMilestoneCloseoutSnapshot({
+      report,
+      bindings: options.currentEvidenceBinding,
+      generatedAt: options.generatedAt,
+    });
+  } catch (error) {
+    return {
+      status: 'skipped',
+      reason: 'closeout_snapshot_unbuildable',
+      message:
+        `Milestone closeout snapshot not written for ${storyId}: ${error instanceof Error ? error.message : String(error)}. ` +
+        'DONE was already permitted by the ProofStory intent-equivalence gate; closeout is snapshot-only and does not re-gate DONE.',
+    };
+  }
   store.writeMilestoneCloseout(storyId, snapshot);
   return { status: 'written', snapshot };
 }

@@ -34,6 +34,7 @@ import type {
   MilestoneLedgerData,
   MilestoneLedgerItem,
   MilestoneLedgerState,
+  MilestoneNotApplicableDecision,
   MilestoneStatus,
   OriginalIntentSnapshotData,
   ProofStoryParentLedgerRollupData,
@@ -61,6 +62,10 @@ import type {
   VerificationEvidence,
   VerificationLane,
 } from './types.js';
+import {
+  evidenceIsStaleCovering,
+  type MilestoneStatusCurrentEvidenceBinding,
+} from './milestone-status.js';
 
 export const ORIGINAL_INTENT_SNAPSHOT_SCHEMA_VERSION = 'proofstory.original_intent_snapshot.v1';
 export const MILESTONE_LEDGER_SCHEMA_VERSION = 'proofstory.milestone_ledger.v1';
@@ -120,6 +125,14 @@ export interface ProofStoryDiagnosticInput {
   summary?: StorySummaryData | null;
   currentHeadHash?: string;
   currentMaterialHash?: string;
+  currentStoryFilesHash?: string;
+  /**
+   * Current evidence binding (head/material/storyFiles hashes) used by the DONE
+   * intent-equivalence gate to detect STALE milestone evidence exactly the way
+   * milestone_status demotes stale rows. When absent, freshness is not evaluated
+   * (backward-compatible: base coverage semantics are unchanged).
+   */
+  currentEvidenceBinding?: MilestoneStatusCurrentEvidenceBinding | null;
 }
 
 export interface BuildProofStoryContractArgs {
@@ -295,6 +308,43 @@ export function buildOriginalIntentSnapshot(
   };
 }
 
+/**
+ * Parse an OPTIONAL not-applicable justification. Returns undefined when the field
+ * is absent (never throws on absence). When PRESENT it must be an object with
+ * non-empty reason/decidedBy/decidedAt strings; a malformed present shape throws a
+ * structural error. Policy (a not_applicable row *should* carry a decision) is
+ * enforced downstream as a DONE-gate diagnostic, not here.
+ */
+function normalizeNotApplicableDecision(
+  value: unknown,
+  fieldName: string,
+): MilestoneNotApplicableDecision | undefined {
+  if (value == null) return undefined;
+  if (typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error(`${fieldName} must be an object`);
+  }
+  const obj = value as Record<string, unknown>;
+  return {
+    reason: requireNonEmptyString(obj.reason, `${fieldName}.reason`),
+    decidedBy: requireNonEmptyString(obj.decidedBy, `${fieldName}.decidedBy`),
+    decidedAt: requireNonEmptyString(obj.decidedAt, `${fieldName}.decidedAt`),
+  };
+}
+
+/**
+ * A not-applicable milestone justification is valid only when it carries a
+ * non-empty reason, decidedBy, and decidedAt. Used by the DONE-gate diagnostic;
+ * mirrors `validNotApplicable` in parent-roadmap-totality.
+ */
+function validMilestoneNotApplicable(
+  decision: MilestoneNotApplicableDecision | undefined,
+): boolean {
+  if (!decision) return false;
+  return decision.reason.trim().length > 0
+    && decision.decidedBy.trim().length > 0
+    && decision.decidedAt.trim().length > 0;
+}
+
 function normalizeMilestone(raw: unknown, index: number): MilestoneLedgerItem {
   if (!raw || typeof raw !== 'object') throw new Error(`milestones[${index}] must be an object`);
   const obj = raw as Record<string, unknown>;
@@ -302,7 +352,11 @@ function normalizeMilestone(raw: unknown, index: number): MilestoneLedgerItem {
   if (!VALID_MILESTONE_STATUSES.has(status as MilestoneStatus)) {
     throw new Error(`milestones[${index}].status must be one of: planned, covered, done, not_applicable`);
   }
-  return {
+  const notApplicableDecision = normalizeNotApplicableDecision(
+    obj.notApplicableDecision,
+    `milestones[${index}].notApplicableDecision`,
+  );
+  const item: MilestoneLedgerItem = {
     id: requireNonEmptyString(obj.id, `milestones[${index}].id`),
     sourceRequirementId: requireNonEmptyString(obj.sourceRequirementId, `milestones[${index}].sourceRequirementId`),
     claim: requireNonEmptyString(obj.claim, `milestones[${index}].claim`),
@@ -314,6 +368,13 @@ function normalizeMilestone(raw: unknown, index: number): MilestoneLedgerItem {
     assignedStory: optionalStoryId(obj.assignedStory, `milestones[${index}].assignedStory`),
     status: status as MilestoneStatus,
   };
+  // Only attach the field when present so rows WITHOUT a decision keep the exact
+  // same object shape (and therefore the exact same ledger hash) as before this
+  // field existed. `sha256Stable` must not observe an `undefined` key.
+  if (notApplicableDecision) {
+    item.notApplicableDecision = notApplicableDecision;
+  }
+  return item;
 }
 
 export function computeMilestoneLedgerHash(milestones: readonly MilestoneLedgerItem[]): string {
@@ -386,12 +447,20 @@ export function confirmMilestoneLedger(
 ): MilestoneLedgerData | null {
   if (!ledger) return null;
   if (!collisionAccepted(collision) || !collision.acceptedInterpretationHash) return ledger;
+  const ledgerHash = ledger.ledgerHash ?? computeMilestoneLedgerHash(ledger.milestones);
+  // Confirm-time re-check: the accepted collision recorded the ledger hash it was
+  // deciding over (collision.confirmedLedgerHash). Only mint `confirmed` when that
+  // recorded hash still matches the current ledger hash; otherwise the ledger has
+  // drifted since the intent decision and must stay a candidate (re-decide first).
+  if (collision.confirmedLedgerHash && collision.confirmedLedgerHash !== ledgerHash) {
+    return ledger;
+  }
   const now = new Date().toISOString();
   return {
     ...ledger,
     storyId,
     state: 'confirmed',
-    ledgerHash: ledger.ledgerHash ?? computeMilestoneLedgerHash(ledger.milestones),
+    ledgerHash,
     acceptedIntentBinding: {
       intentCollisionId: collision.id,
       acceptedInterpretationHash: collision.acceptedInterpretationHash,
@@ -690,14 +759,37 @@ function verificationEvidenceByRef(items: readonly ChecklistItem[]): Map<string,
   return evidence;
 }
 
+function rowCoversIntent(row: VerificationEvidence): boolean {
+  if (row.waiverType === 'deferred_gate_evidence') return false;
+  if (row.result === 'pass') return true;
+  return row.kind === 'waiver'
+    && row.waiverType === 'permanent'
+    && row.result !== 'fail';
+}
+
 function evidenceCoversIntent(evidence: Map<string, VerificationEvidence[]>, ref: string): boolean {
-  return (evidence.get(ref) ?? []).some((row) => {
-    if (row.waiverType === 'deferred_gate_evidence') return false;
-    if (row.result === 'pass') return true;
-    return row.kind === 'waiver'
-      && row.waiverType === 'permanent'
-      && row.result !== 'fail';
-  });
+  return (evidence.get(ref) ?? []).some((row) => rowCoversIntent(row));
+}
+
+/**
+ * Resolve the current evidence binding used to detect stale milestone evidence.
+ * Prefers an explicit currentEvidenceBinding, then falls back to the individual
+ * currentHeadHash / currentMaterialHash / currentStoryFilesHash fields. Returns
+ * undefined when none are supplied, in which case freshness is NOT evaluated and
+ * base coverage semantics are preserved (backward-compatible).
+ */
+function milestoneEvidenceBinding(
+  input: ProofStoryDiagnosticInput,
+): MilestoneStatusCurrentEvidenceBinding | undefined {
+  if (input.currentEvidenceBinding && Object.keys(input.currentEvidenceBinding).length > 0) {
+    return input.currentEvidenceBinding;
+  }
+  const binding: MilestoneStatusCurrentEvidenceBinding = {
+    ...(input.currentHeadHash ? { headHash: input.currentHeadHash } : {}),
+    ...(input.currentMaterialHash ? { materialHash: input.currentMaterialHash } : {}),
+    ...(input.currentStoryFilesHash ? { storyFilesHash: input.currentStoryFilesHash } : {}),
+  };
+  return Object.keys(binding).length > 0 ? binding : undefined;
 }
 
 export function collisionAccepted(collision: IntentCollisionData | null): boolean {
@@ -1350,18 +1442,77 @@ export function evaluateDoneIntentEquivalence(
       undefined,
       'fail',
     ));
+  } else if ((ledger.milestones.length ?? 0) === 0) {
+    // Guard against vacuous completeness: a confirmed but EMPTY milestone ledger
+    // has zero rows to cover, so the coverage loop below would produce no gaps and
+    // the milestone path would pass silently. An empty confirmed ledger cannot
+    // satisfy a milestone-path DONE claim — the ledger must enumerate the accepted
+    // milestones (or be explicitly reduced via a confirmed shrinkage decision).
+    gaps.push(gap(
+      'empty_confirmed_milestone_ledger',
+      'milestone-ledger.json',
+      'DONE intent equivalence requires the confirmed milestone ledger to enumerate at least one milestone; an empty ledger cannot vacuously satisfy the milestone path.',
+      undefined,
+      'fail',
+    ));
   }
   const evidence = verificationEvidenceByRef(input.checklist.items);
+  const currentBinding = milestoneEvidenceBinding(input);
+  // A ref whose covering evidence exists but is entirely stale against the
+  // current binding. Mirrors milestone_status, which demotes such a row to
+  // statusDetail=stale (evidence=stale) instead of counting it as covered.
+  // mismatchOnly=true: only a genuine hash MISMATCH demotes coverage here. A row
+  // that never carried a binding is unbound (not stale) and must not newly block —
+  // this keeps the DONE gate non-surprising for evidence recorded before binding
+  // capture, while still agreeing with milestone_status on genuinely stale rows.
+  const refCoverageIsStale = (ref: string): boolean => {
+    const rows = evidence.get(ref) ?? [];
+    if (rows.length === 0) return false;
+    if (!currentBinding) return false;
+    const anyFreshCovering = rows.some(
+      (row) => rowCoversIntent(row) && !evidenceIsStaleCovering(row, currentBinding, true),
+    );
+    const anyStaleCovering = rows.some((row) => evidenceIsStaleCovering(row, currentBinding, true));
+    return !anyFreshCovering && anyStaleCovering;
+  };
   const uncoveredRequiredMilestoneIds: string[] = [];
+  const staleMilestoneEvidenceIds: string[] = [];
+  const unjustifiedNotApplicableMilestoneIds: string[] = [];
   if (hasMilestonePath) {
     for (const milestone of ledger?.milestones ?? []) {
-      if (milestone.status === 'not_applicable') continue;
+      if (milestone.status === 'not_applicable') {
+        // A not_applicable row self-exempts from the uncovered-required set, but
+        // only when it carries a valid auditable justification. An unjustified
+        // exemption is a diagnostic gap (not a read-path throw) so the DONE gate
+        // cannot consume a zero-evidence self-exemption.
+        if (!validMilestoneNotApplicable(milestone.notApplicableDecision)) {
+          unjustifiedNotApplicableMilestoneIds.push(milestone.id);
+        }
+        continue;
+      }
       if (acceptedShrinkage.has(milestone.id)) continue;
       const refs = milestone.verificationIntentRefs;
       if (refs.length === 0 || !refs.every((ref) => evidenceCoversIntent(evidence, ref))) {
         uncoveredRequiredMilestoneIds.push(milestone.id);
+        continue;
+      }
+      // Base coverage passed. Now demote — as a NON-BLOCKING diagnostic under
+      // observe — if any covering ref's only covering evidence is stale. This
+      // reconciles evaluateDoneIntentEquivalence with milestone_status, which
+      // already treats stale covering evidence as not-covered.
+      if (refs.some((ref) => refCoverageIsStale(ref))) {
+        staleMilestoneEvidenceIds.push(milestone.id);
       }
     }
+  }
+  if (unjustifiedNotApplicableMilestoneIds.length > 0) {
+    gaps.push(gap(
+      'not_applicable_missing_decision',
+      'milestone-ledger.json',
+      `Milestone(s) marked not_applicable lack a valid auditable notApplicableDecision (reason, decidedBy, decidedAt): ${unjustifiedNotApplicableMilestoneIds.join(', ')}.`,
+      undefined,
+      'fail',
+    ));
   }
   if (uncoveredRequiredMilestoneIds.length > 0) {
     gaps.push(gap(
@@ -1370,6 +1521,19 @@ export function evaluateDoneIntentEquivalence(
       `Required milestone(s) lack passing verification evidence and no confirmed shrinkage decision removes them: ${uncoveredRequiredMilestoneIds.join(', ')}.`,
       undefined,
       'fail',
+    ));
+  }
+  if (staleMilestoneEvidenceIds.length > 0) {
+    // Severity 'warn' by design: like every other milestone gap this only blocks
+    // under enforce (blocking = mode === 'enforce' && gaps.length > 0). Under the
+    // default observe mode it is a NON-BLOCKING diagnostic that surfaces the same
+    // staleness milestone_status already reports, so the two surfaces agree.
+    gaps.push(gap(
+      'stale_milestone_evidence',
+      'milestone-ledger.json',
+      `Required milestone(s) are covered only by STALE verification evidence whose binding no longer matches the current head/material/story-files hash: ${staleMilestoneEvidenceIds.join(', ')}. Re-run the verification evidence against the current binding before treating these milestones as covered.`,
+      undefined,
+      'warn',
     ));
   }
   const rollupState = parentRollupCoversSlicePlan(input.parentLedgerRollup, input.milestoneLedger, input.slicePlan);
@@ -1396,6 +1560,7 @@ export function evaluateDoneIntentEquivalence(
     equivalenceMode,
     acceptedShrinkageMilestoneIds,
     uncoveredRequiredMilestoneIds,
+    staleMilestoneEvidenceIds,
     gaps,
   };
 }

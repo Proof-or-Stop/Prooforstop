@@ -1,0 +1,64 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-853a",
+  "state": "confirmed",
+  "ledgerHash": "sha256:d15cecb0a527f83c5cce038c59b2c630de32276fb474fb835a224e68b1da097c",
+  "milestones": [
+    {
+      "id": "M4-A",
+      "sourceRequirementId": "REQ-001",
+      "claim": "analyze-batch.mjs re-verifies input evidence integrity (per-record recordDigest) then offline-adjudicates the four committed evidence streams to a three-state H1-H4 report.json + report.md (with scale-envelope numbers, section-3 claim text when all-pass, and any instrument defect)",
+      "doneMeans": "node analyze-batch.mjs re-verifies each input record and aborts with a named id on mismatch, else prints the four verdicts + overall + digest and writes report.json + report.md; missing/insufficient evidence yields inconclusive not pass",
+      "requiredEvidence": [],
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:adversarial:0",
+        "CHK-004:happy:0",
+        "CHK-004:edge:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M4-B",
+      "sourceRequirementId": "REQ-001",
+      "claim": "the report carries a reproducible digest = sha256(canonicalJson(report minus digest)); re-runs are byte-identical",
+      "doneMeans": "two runs on the same inputs produce byte-identical report + digest; no timestamp/random in the digested preimage",
+      "requiredEvidence": [],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M4-C",
+      "sourceRequirementId": "REQ-001",
+      "claim": "a hermetic selfcheck-m4.mjs proves the three-state + input-integrity logic is un-gameable (tampered/missing evidence or a broken recordDigest -> fail/inconclusive/abort, never false pass) and a Codex host-2 replicates the digest",
+      "doneMeans": "node selfcheck-m4.mjs exits 0 selfcheck-m4 PASS; genuine Codex cross-host re-derives the identical digest",
+      "requiredEvidence": [],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:adversarial:0",
+        "CHK-004:adversarial:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-06T07:09:52.971Z",
+  "updatedAt": "2026-07-06T07:15:56.393Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260706071015",
+    "acceptedInterpretationHash": "sha256:feeb1723b33beaaea333eb747cbd3739d9c687092bde30c71d0f7c8d02c99786",
+    "acceptedAt": "2026-07-06T07:15:56.393Z"
+  }
+}

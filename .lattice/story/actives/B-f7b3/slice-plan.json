@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "proofstory.slice_plan.v1",
+  "storyId": "B-f7b3",
+  "ledgerHash": "sha256:68173e86acd0f275fc8788a7ee1f577a5446e922904285147db66aeed7fd5c8e",
+  "slices": [
+    {
+      "id": "slice-1",
+      "milestoneIds": [
+        "M1",
+        "M2",
+        "M3"
+      ],
+      "reason": "Additive, no-behavior-change closes: observability disclaimer + Authority reason string, the three negative-control tests, and wiring the milestone-status suite into the aggregate runner."
+    },
+    {
+      "id": "slice-2",
+      "milestoneIds": [
+        "M4",
+        "M5",
+        "M6"
+      ],
+      "reason": "Boundary-tightening + design-decision items: stale-evidence/second-gate reconciliation, not_applicable justification + confirm-time hash re-check, and the recorded gate-mode-default decision."
+    }
+  ],
+  "planHash": "sha256:8ba80e47d7977b447dcf1ca261bc8cb66bb503c975d9b8cb26fc94ad086ff4a3",
+  "createdAt": "2026-07-05T21:40:24.551Z",
+  "updatedAt": "2026-07-05T21:40:24.551Z"
+}

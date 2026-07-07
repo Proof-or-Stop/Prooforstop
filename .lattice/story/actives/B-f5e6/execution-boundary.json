@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-f5e6",
+  "allowedCommands": [
+    "lattice aux_doc_list",
+    "lattice checklist_get",
+    "lattice session_brief",
+    "lattice story_get",
+    "node validate-full.mjs after checkpoint",
+    "rg",
+    "sed"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "docs/requirements/decisions",
+    "experiments/multi-model-ablation/future-cell03-results/full",
+    "experiments/multi-model-ablation/m2-cell03-execution-prompt.md",
+    "experiments/multi-model-ablation/m2-cell03-tool-surface.json"
+  ],
+  "excludedCommands": [
+    "codex exec provider execution",
+    "git reset --hard",
+    "node run-full.mjs without explicit later approval"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    "experiments/multi-model-ablation/future-cell03-results/full/cell03-rows.jsonl during active B-991d execution"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Initial story is backlog/INIT only; execution waits for a stable B-991d checkpoint.",
+  "createdAt": "2026-07-06T15:39:44.774Z",
+  "updatedAt": "2026-07-06T15:39:44.774Z",
+  "_hash": "350ea0b90e75d926ddb499e5c183fbb010b5f42542a15417fbc2e06f7a710127"
+}

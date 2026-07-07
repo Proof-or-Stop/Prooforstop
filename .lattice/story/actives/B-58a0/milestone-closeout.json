@@ -1,0 +1,74 @@
+{
+  "schemaVersion": "proofbound.milestone_closeout.v1",
+  "storyId": "B-58a0",
+  "phase": "TEST",
+  "generatedAt": "2026-07-06T19:31:33.871Z",
+  "sourceReport": {
+    "schemaVersion": "proofbound.milestone_status.v1",
+    "digest": "141d2221e063f880aaae8daca34fd0009edd80cf3f8a338178bf1ea8951ea603",
+    "ledger": {
+      "present": true,
+      "state": "confirmed",
+      "hash": "sha256:fe8833a2a5025e06855118b11041ec00e2bb8ba6ed04a7d8ee849faa0344a698"
+    },
+    "groups": {
+      "completed": [
+        "M1",
+        "M2",
+        "M3"
+      ],
+      "current": [],
+      "remaining": []
+    },
+    "risks": [],
+    "nextActions": [
+      "No milestone action; all ledger rows are completed or not applicable."
+    ]
+  },
+  "bindings": {
+    "headHash": "131af3ce8ba9473a681c57296b3fa89048ae737b",
+    "materialHash": "579bad78cc2d67f9e8f72050f9330e3ecb7bd100630bdd742a9fd8a095124ffa",
+    "storyFilesHash": "8fbc9725e058746e301ca5878ff88c441d2dab20b121e098698461bd07ac27a4"
+  },
+  "rows": [
+    {
+      "milestone": "M1",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "A checklist-derived ledger renderer exists",
+      "acceptance": "renderChecklistDerivedLedger groups items by status under a distinct header and handles the empty-checklist stub",
+      "evidence": [
+        "CHK-001:happy:0 [pass/logic_test] node packages/main/tests/milestone-status.test.mjs file=packages/main/tests/milestone-status.test.mjs note=Unit test asserts the derived-ledger header, Phase/Progress lines and the ✅/⏳/⬜ grouping (derivedText block).",
+        "CHK-001:edge:0 [pass/logic_test] node packages/main/tests/milestone-status.test.mjs file=packages/main/tests/milestone-status.test.mjs note=emptyDerived assertions cover the empty-checklist stub (no checklist items) + 0/0/0 progress without throwing.",
+        "CHK-001:adversarial:0 [pass/logic_test] node packages/main/tests/milestone-status.test.mjs file=packages/main/tests/milestone-status.test.mjs note=assert.doesNotMatch(derivedText, /Milestone Status -/) proves the derived ledger never fabricates a milestone table."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M2",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Mutating commands always show a ledger and surface failures visibly",
+      "acceptance": "no-ledger mutation appends the checklist-derived ledger on stdout; render failure shows a visible warning; exit code stays 0; --json stays pure; real-ledger and DONE fallback preserved",
+      "evidence": [
+        "CHK-002:happy:0 [pass/logic_test] node packages/main/tests/milestone-status.test.mjs file=packages/main/tests/milestone-status.test.mjs note=The no-ledger CLI checklist_update path now emits the Checklist-derived ledger header + the mutated item row on stdout.",
+        "CHK-002:edge:0 [pass/logic_test] node packages/main/tests/milestone-status.test.mjs file=packages/main/tests/milestone-status.test.mjs note=The real-ledger CLI append test and the DONE main-root fallback test still assert the Milestone Status table (realRender path preserved).",
+        "CHK-002:adversarial:0 [pass/logic_test] node packages/main/tests/milestone-status.test.mjs file=packages/main/tests/milestone-status.test.mjs note=The --json purity assertion stays green (no table appended); visibleFailure keeps exit 0 (mutation already committed)."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M3",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Tests prove the behavior and guard against regression",
+      "acceptance": "inverted no-ledger assertion plus renderer unit coverage pass, and real-ledger/--json regressions stay green",
+      "evidence": [
+        "CHK-003:happy:0 [pass/logic_test] node packages/main/tests/milestone-status.test.mjs file=packages/main/tests/milestone-status.test.mjs note=The inverted no-ledger assertion now requires the derived-ledger header and forbids Milestone Status - <id>, and passes.",
+        "CHK-003:edge:0 [pass/logic_test] node packages/main/tests/milestone-status.test.mjs file=packages/main/tests/milestone-status.test.mjs note=New renderChecklistDerivedLedger unit test covers three-status grouping and the empty stub.",
+        "CHK-003:adversarial:0 [pass/logic_test] node packages/main/tests/milestone-status.test.mjs file=packages/main/tests/milestone-status.test.mjs note=Pre-existing real-ledger append and --json purity assertions remain green — verified in the same suite run (ok milestone-status)."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    }
+  ]
+}

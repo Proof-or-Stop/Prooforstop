@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-e1f6",
+  "sourceText": "User asked: 那就开始执行吧，好了告诉我. Context: create a small story to solve safe Cell03 Parallel Shard Runner so multiple agents can eventually parallelize B-991d Cell03 without polluting experiment evidence.",
+  "normalizedOutcome": "A canonical Cell03 shard helper exists and can be locally selfchecked, proving deterministic shard coverage, per-shard lock behavior, and merge rejection of duplicate, missing, or digest-drift rows without running provider work.",
+  "acceptanceClaim": "Running the local Cell03 shard selfcheck exits 0 and reports coverage, lock, merge-success, duplicate-reject, missing-reject, and digest-drift-reject checks passing.",
+  "keyRequirementIds": [
+    "REQ-cell03-shard-lock",
+    "REQ-cell03-shard-merge",
+    "REQ-cell03-shard-plan"
+  ],
+  "requestHash": "sha256:58e112de64642f2a9744ec29790ca042ceb5acf417977a8d55d38ba8164a2559",
+  "createdAt": "2026-07-06T14:54:14.754Z",
+  "updatedAt": "2026-07-06T14:54:14.754Z"
+}

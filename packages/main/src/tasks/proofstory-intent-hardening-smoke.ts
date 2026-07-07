@@ -30,7 +30,7 @@ import {
   getGuardFailureReason,
 } from '../core/machine.js';
 import { StoryStore } from '../core/store.js';
-import type { ChecklistData, StoryInfo, StoryPhase, StorySummaryData } from '../core/types.js';
+import type { ChecklistData, MilestoneLedgerData, StoryInfo, StoryPhase, StorySummaryData } from '../core/types.js';
 import { computeIntentRequestHash } from '../core/proofstory.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -358,6 +358,48 @@ try {
     }, true),
     /assignedStory/i,
     'invalid assignedStory fields fail before corrupting the artifact',
+  );
+
+  // Negative control: duplicate milestone ledger rows must be rejected, not silently kept.
+  // milestone_ledger_set with two rows sharing the same id fails before writing the artifact.
+  assert.match(
+    run(root, 'milestone_ledger_set', {
+      storyId,
+      milestones: [
+        { id: 'DUP-1', sourceRequirementId: 'REQ-001', claim: 'First DUP-1 row', doneMeans: 'ledger rejects the second DUP-1 row', checklistRefs: ['CHK-001'], verificationIntentRefs: ['CHK-001:happy:0'], status: 'covered' },
+        { id: 'DUP-1', sourceRequirementId: 'REQ-001', claim: 'Second DUP-1 row', doneMeans: 'ledger rejects the second DUP-1 row', checklistRefs: ['CHK-002'], verificationIntentRefs: ['CHK-002:happy:0'], status: 'covered' },
+      ],
+    }, true),
+    /duplicate milestone id: DUP-1/i,
+    'milestone_ledger_set rejects two rows sharing the same milestone id',
+  );
+  // milestone_ledger_add appending an id that already exists in the ledger (M1) fails before appending.
+  assert.match(
+    run(root, 'milestone_ledger_add', {
+      storyId,
+      milestone: {
+        id: 'M1',
+        sourceRequirementId: 'REQ-001',
+        claim: 'Duplicate M1 append is rejected',
+        doneMeans: 'milestone_ledger_add refuses a second row with an existing id',
+        checklistRefs: ['CHK-001'],
+        verificationIntentRefs: ['CHK-001:happy:0'],
+        status: 'covered',
+      },
+    }, true),
+    /duplicate milestone id: M1/i,
+    'milestone_ledger_add rejects appending a row whose id already exists in the ledger',
+  );
+  const ledgerAfterDupAttempts = jsonRun(root, 'milestone_ledger_get', { storyId });
+  assert.equal(
+    ledgerAfterDupAttempts.milestones.length,
+    6,
+    'rejected duplicate milestone rows do not mutate the existing ledger',
+  );
+  assert.equal(
+    new Set(ledgerAfterDupAttempts.milestones.map((row: any) => row.id)).size,
+    ledgerAfterDupAttempts.milestones.length,
+    'stored ledger milestone ids remain unique after rejected duplicate attempts',
   );
 
   coverage = jsonRun(root, 'intent_coverage_check', { storyId, mode: 'observe' });
@@ -741,6 +783,112 @@ try {
     narrowLightDone.gaps.some((gap: any) => gap.code === 'done_summary_not_accepted' || gap.code === 'unconfirmed_single_outcome_shrinkage'),
     'narrow single-outcome DONE claims require confirmed shrinkage instead of passing silently',
   );
+
+  // B-f7b3 CHK-004: a CONFIRMED milestone ledger that is empty OR whose rows are
+  // all not_applicable (without a valid decision) must NOT vacuously satisfy the
+  // milestone DONE requirement. These are negative controls over the CHK-007
+  // (not_applicable_missing_decision) and CHK-004 (empty_confirmed_milestone_ledger)
+  // guards in evaluateDoneIntentEquivalence. Ledgers are written directly as
+  // `confirmed` so the assertion isolates DONE equivalence from the collision dance.
+  const confirmedLedger = (
+    storyId: string,
+    milestones: Record<string, unknown>[],
+  ): Record<string, unknown> => ({
+    schemaVersion: 'proofstory.milestone_ledger.v1',
+    storyId,
+    state: 'confirmed',
+    ledgerHash: `sha256:confirmed-${storyId}`,
+    milestones,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  });
+
+  // Case 1: all-not_applicable confirmed ledger WITHOUT a valid notApplicableDecision.
+  // A milestone ledger with rows keeps hasMilestonePath true and the confirmed state
+  // clears missing_confirmed_milestone_ledger, so the ONLY thing standing between the
+  // gate and a vacuous pass is the CHK-007 not_applicable_missing_decision guard.
+  const notApplicableStoryId = 'B-not-applicable-only';
+  const notApplicableStory: StoryInfo = {
+    storyId: notApplicableStoryId,
+    name: 'not-applicable-only',
+    title: 'Deliver all milestones',
+    description: 'Deliver all three milestones for the accepted intent.',
+    type: 'feature',
+    phase: 'TEST',
+    priority: 'medium',
+    createdAt: new Date().toISOString(),
+    startedAt: new Date().toISOString(),
+    endedAt: null,
+    events: [],
+  };
+  store.writeStory(notApplicableStoryId, notApplicableStory);
+  store.writeChecklist(notApplicableStoryId, { items: [] });
+  store.writeMilestoneLedger(notApplicableStoryId, confirmedLedger(notApplicableStoryId, [
+    {
+      id: 'M-na-1',
+      sourceRequirementId: 'REQ-001',
+      claim: 'First milestone is marked not applicable',
+      doneMeans: 'A not_applicable row without a decision cannot self-exempt',
+      requiredEvidence: [],
+      checklistRefs: [],
+      verificationIntentRefs: [],
+      status: 'not_applicable',
+    },
+    {
+      id: 'M-na-2',
+      sourceRequirementId: 'REQ-001',
+      claim: 'Second milestone is marked not applicable',
+      doneMeans: 'A not_applicable row without a decision cannot self-exempt',
+      requiredEvidence: [],
+      checklistRefs: [],
+      verificationIntentRefs: [],
+      status: 'not_applicable',
+    },
+  ]) as unknown as MilestoneLedgerData);
+  const notApplicableDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: notApplicableStoryId, mode: 'observe' });
+  assert.equal(notApplicableDone.equivalenceMode, 'strict_milestone', 'a confirmed ledger with rows uses strict milestone equivalence');
+  assert.notEqual(notApplicableDone.status, 'pass', 'an all-not_applicable confirmed ledger without decisions must not vacuously pass');
+  const notApplicableGap = notApplicableDone.gaps.find((gap: any) => gap.code === 'not_applicable_missing_decision');
+  assert.ok(notApplicableGap, 'all-not_applicable ledger yields a not_applicable_missing_decision gap');
+  assert.match(notApplicableGap.message, /M-na-1/, 'the not_applicable_missing_decision gap names the unjustified rows');
+  assert.match(notApplicableGap.message, /M-na-2/, 'the not_applicable_missing_decision gap names every unjustified row');
+  const notApplicableEnforce = run(root, 'done_intent_equivalence_check', { storyId: notApplicableStoryId, mode: 'enforce' }, true);
+  assert.match(notApplicableEnforce, /not_applicable_missing_decision/, 'enforce mode blocks an all-not_applicable ledger without decisions');
+
+  // Case 2: an EMPTY confirmed ledger on a milestone-path story must not be treated
+  // as fully covered. Without the empty_confirmed_milestone_ledger guard the coverage
+  // loop over zero rows would produce no gaps and the milestone path would pass silently.
+  const emptyLedgerStoryId = 'B-empty-confirmed-ledger';
+  const emptyLedgerStory: StoryInfo = {
+    storyId: emptyLedgerStoryId,
+    name: 'empty-confirmed-ledger',
+    title: 'Deliver all milestones',
+    description: 'Deliver all remaining milestones for the accepted intent.',
+    type: 'feature',
+    phase: 'TEST',
+    priority: 'medium',
+    createdAt: new Date().toISOString(),
+    startedAt: new Date().toISOString(),
+    endedAt: null,
+    events: [],
+  };
+  store.writeStory(emptyLedgerStoryId, emptyLedgerStory);
+  store.writeChecklist(emptyLedgerStoryId, { items: [] });
+  store.writeMilestoneLedger(emptyLedgerStoryId, confirmedLedger(emptyLedgerStoryId, []) as unknown as MilestoneLedgerData);
+  const emptyLedgerDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: emptyLedgerStoryId, mode: 'observe' });
+  assert.equal(emptyLedgerDone.equivalenceMode, 'strict_milestone', 'a structural-milestone story stays on the strict milestone path');
+  assert.notEqual(emptyLedgerDone.status, 'pass', 'an empty confirmed ledger must not be reported as fully covered');
+  assert.ok(
+    emptyLedgerDone.gaps.some((gap: any) => gap.code === 'empty_confirmed_milestone_ledger'),
+    'an empty confirmed ledger on the milestone path yields an empty_confirmed_milestone_ledger gap',
+  );
+  assert.deepEqual(
+    emptyLedgerDone.uncoveredRequiredMilestoneIds,
+    [],
+    'the empty-ledger guard is a ledger-shape gap, not a per-row uncovered-milestone report',
+  );
+  const emptyLedgerEnforce = run(root, 'done_intent_equivalence_check', { storyId: emptyLedgerStoryId, mode: 'enforce' }, true);
+  assert.match(emptyLedgerEnforce, /empty_confirmed_milestone_ledger/, 'enforce mode blocks an empty confirmed ledger on the milestone path');
 
   const redSignalStories: StoryInfo[] = [
     {

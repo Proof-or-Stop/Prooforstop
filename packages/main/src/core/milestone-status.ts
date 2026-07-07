@@ -184,6 +184,9 @@ const READ_ONLY_MODE: MilestoneStatusMode = {
   launchReviewers: false,
 };
 
+const MILESTONE_OBSERVABILITY_DISCLAIMER =
+  'Scope: observability only - reports milestone progress from the ProofStory ledger. This is NOT a lifecycle DONE, NOT an Authority verdict, and NOT a production-readiness gate.';
+
 function unique(values: string[]): string[] {
   return [...new Set(values.filter((value) => value.trim().length > 0))];
 }
@@ -204,6 +207,38 @@ function evidenceCanCover(evidence: VerificationEvidence): boolean {
     return evidence.waiverType === 'permanent' && evidence.result !== 'fail';
   }
   return evidence.result === 'pass';
+}
+
+/**
+ * A freshness risk is a genuine MISMATCH ("stale <hash> … (current …)") rather
+ * than a mere ABSENCE ("missing <hash> binding …"). Staleness in the reconciled
+ * DONE-gate sense means the evidence WAS bound to a state that no longer matches;
+ * evidence that never carried a binding is unbound, not stale.
+ */
+function isMismatchRisk(risk: string): boolean {
+  return risk.startsWith('stale ');
+}
+
+/**
+ * Shared freshness verdict for a single verification-evidence row against the
+ * current evidence binding. Exported so the DONE gate (evaluateDoneIntentEquivalence)
+ * and milestone_status agree BY CONSTRUCTION on which evidence is stale: both call
+ * this same predicate.
+ *
+ * When `mismatchOnly` is true (the DONE-gate default), the row is stale only when
+ * a bound hash genuinely disagrees with the current binding — a missing/absent
+ * binding is NOT treated as stale, so the gate does not newly block evidence that
+ * simply predates binding capture. When false, any freshness risk (including a
+ * missing binding) counts, matching milestone_status's row-demotion detail.
+ */
+export function evidenceIsStaleCovering(
+  evidence: VerificationEvidence,
+  currentBinding: MilestoneStatusCurrentEvidenceBinding | null | undefined,
+  mismatchOnly = false,
+): boolean {
+  if (!evidenceCanCover(evidence)) return false;
+  const risks = evidenceFreshnessRisks(evidence, currentBinding);
+  return mismatchOnly ? risks.some(isMismatchRisk) : risks.length > 0;
 }
 
 function isKnownEvidenceKind(value: string): boolean {
@@ -971,6 +1006,7 @@ export function renderMilestoneCloseoutSnapshot(snapshot: MilestoneCloseoutSnaps
   const lines = [
     `Milestone Closeout - ${snapshot.storyId}`,
     'Mode: read-only historical snapshot',
+    MILESTONE_OBSERVABILITY_DISCLAIMER,
     `Phase: ${snapshot.phase}`,
     `Generated: ${snapshot.generatedAt}`,
     `Source milestone_status digest: ${snapshot.sourceReport.digest}`,
@@ -990,6 +1026,7 @@ export function renderMilestoneCloseoutMissingReport(report: MilestoneCloseoutMi
   return [
     `Milestone Closeout - ${report.storyId}`,
     'Mode: read-only historical snapshot',
+    MILESTONE_OBSERVABILITY_DISCLAIMER,
     'Snapshot: missing',
     report.expectedPath ? `Expected path: ${report.expectedPath}` : undefined,
     `Diagnostic: ${report.diagnostic}`,
@@ -1147,6 +1184,7 @@ export function renderMilestoneStatusReport(report: MilestoneStatusReport): stri
   const lines = [
     `Milestone Status - ${report.storyId}`,
     'Mode: read-only',
+    MILESTONE_OBSERVABILITY_DISCLAIMER,
     `Phase: ${report.phase}`,
     `Ledger: ${report.ledger.present ? `state=${report.ledger.state ?? 'unknown'} hash=${report.ledger.hash ?? 'unknown'}` : 'missing'}`,
     '',
@@ -1184,4 +1222,52 @@ export function renderMilestoneStatusReport(report: MilestoneStatusReport): stri
     `Next action: ${formatList(report.nextActions)}`,
   );
   return lines.join('\n');
+}
+
+export const CHECKLIST_DERIVED_HEADER = 'Checklist-derived ledger (no milestone ledger set)';
+
+/**
+ * Compact status view rendered when a story has no milestone ledger yet.
+ *
+ * This deliberately does NOT reuse the `Milestone Status - <id>` header: a
+ * milestone ledger has not been set, so presenting a milestone table would
+ * fabricate status that does not exist. Instead it groups the story's checklist
+ * items by their own status so the user always sees *some* progress ledger after
+ * a mutating command, clearly labelled as checklist-derived.
+ */
+export function renderChecklistDerivedLedger(
+  storyId: string,
+  checklist: ChecklistData,
+  phase: string,
+): string {
+  const items = checklist.items ?? [];
+  const groups: Record<'done' | 'in_progress' | 'pending', ChecklistItem[]> = {
+    done: [],
+    in_progress: [],
+    pending: [],
+  };
+  for (const item of items) {
+    (groups[item.status] ?? groups.pending).push(item);
+  }
+  const lines = [
+    `${CHECKLIST_DERIVED_HEADER} - ${storyId}`,
+    `Phase: ${phase}`,
+    `Progress: ${groups.done.length} done / ${groups.in_progress.length} in progress / ${groups.pending.length} not started (${items.length} total)`,
+    '',
+  ];
+  const renderGroup = (label: string, marker: string, groupItems: ChecklistItem[]): void => {
+    if (groupItems.length === 0) return;
+    lines.push(label);
+    for (const item of groupItems) {
+      lines.push(`${marker} ${item.id} — ${item.title}`);
+    }
+    lines.push('');
+  };
+  renderGroup('Done', '✅', groups.done);
+  renderGroup('In progress', '⏳', groups.in_progress);
+  renderGroup('Not started', '⬜', groups.pending);
+  if (items.length === 0) {
+    lines.push('(no checklist items)', '');
+  }
+  return lines.join('\n').replace(/\n+$/, '');
 }

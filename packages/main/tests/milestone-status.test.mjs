@@ -22,12 +22,14 @@ const {
   milestoneStatusReportDigest,
   renderMilestoneCloseoutSnapshot,
   renderMilestoneStatusReport,
+  renderChecklistDerivedLedger,
 } = await import(join(distRoot, 'core/milestone-status.js'));
 const {
   EMPTY_STORY_FILES_HASH,
   currentMaterialHash,
 } = await import(join(distRoot, 'core/evidence-freshness.js'));
 const { signDeliveryCheck } = await import(join(distRoot, 'core/delivery-check-hash.js'));
+const { evaluateDoneIntentEquivalence } = await import(join(distRoot, 'core/proofstory.js'));
 const { StoryStore } = await import(join(distRoot, 'core/store.js'));
 const {
   captureMilestoneCloseoutSnapshotFromStore,
@@ -220,6 +222,25 @@ function writeTestConfig(root) {
   assert.match(missingText, /\| none \| none \| none \| none \| none \| none \| none \|/);
   assert.doesNotMatch(missingText, /\| none \| none \| [✅⏳🟡⬜🔴❌] none \|/, 'placeholder none rows stay unmarked');
 
+  // Checklist-derived ledger (no milestone ledger set): groups by checklist status.
+  const derivedText = renderChecklistDerivedLedger('B-derived', {
+    items: [
+      { id: 'CHK-A', title: 'alpha', status: 'done', startTime: null, endTime: null },
+      { id: 'CHK-B', title: 'beta', status: 'in_progress', startTime: null, endTime: null },
+      { id: 'CHK-C', title: 'gamma', status: 'pending', startTime: null, endTime: null },
+    ],
+  }, 'DEV');
+  assert.match(derivedText, /^Checklist-derived ledger \(no milestone ledger set\) - B-derived/);
+  assert.doesNotMatch(derivedText, /Milestone Status -/, 'derived ledger must not fabricate a milestone table');
+  assert.match(derivedText, /Progress: 1 done \/ 1 in progress \/ 1 not started \(3 total\)/);
+  assert.match(derivedText, /✅ CHK-A — alpha/);
+  assert.match(derivedText, /⏳ CHK-B — beta/);
+  assert.match(derivedText, /⬜ CHK-C — gamma/);
+  // Empty checklist (e.g. IDEA) still renders a stub, never throws.
+  const emptyDerived = renderChecklistDerivedLedger('B-empty', { items: [] }, 'IDEA');
+  assert.match(emptyDerived, /Progress: 0 done \/ 0 in progress \/ 0 not started \(0 total\)/);
+  assert.match(emptyDerived, /\(no checklist items\)/);
+
   const cliMarkerStoryId = 'B-cli-marker-icons';
   const root = mkdtempSync(join(tmpdir(), 'lattice-milestone-status-icons-'));
   try {
@@ -298,10 +319,55 @@ function writeTestConfig(root) {
       'in_progress',
     ], { cwd: root, encoding: 'utf8' });
     assert.match(noLedgerStdout, /Checklist CHK-MARKER-NO-LEDGER:/);
+    // A missing-ledger story must NOT fabricate a milestone status table...
     assert.equal(
       noLedgerStdout.includes(`Milestone Status - ${noLedgerStoryId}`),
       false,
       'missing-ledger story mutations must not fabricate a milestone status table',
+    );
+    // ...but the mutation MUST still always show a status view: the
+    // checklist-derived ledger, distinctly labelled and grouping items by status.
+    assert.match(
+      noLedgerStdout,
+      new RegExp(`Checklist-derived ledger \\(no milestone ledger set\\) - ${noLedgerStoryId}`),
+      'missing-ledger story mutations must still show a checklist-derived ledger',
+    );
+    assert.match(noLedgerStdout, /⏳ CHK-MARKER-NO-LEDGER —/);
+
+    // Round-1 review (Codex host-2 + Claude quality F-001): a CORRUPT artifact must
+    // surface a visible failure, never be masked as an empty story. A corrupt
+    // milestone-ledger.json makes readMilestoneLedger throw; the error must reach the
+    // visible ⚠ block, and the exit code must stay 0 (the mutation already committed).
+    const corruptStoryId = 'B-cli-marker-corrupt';
+    const corruptStoryDir = join(root, '.lattice', 'story', 'actives', corruptStoryId);
+    mkdirSync(corruptStoryDir, { recursive: true });
+    writeJson(join(corruptStoryDir, 'index.json'), story(corruptStoryId));
+    writeJson(join(corruptStoryDir, 'checklist.json'), {
+      items: [checklistItem('CHK-CORRUPT', 'pending')],
+    });
+    writeFileSync(join(corruptStoryDir, 'milestone-ledger.json'), 'THIS IS NOT JSON {{{');
+    const corruptStdout = execFileSync(process.execPath, [
+      cliPath,
+      'checklist_update',
+      '--root',
+      root,
+      '--storyId',
+      corruptStoryId,
+      '--itemId',
+      'CHK-CORRUPT',
+      '--status',
+      'in_progress',
+    ], { cwd: root, encoding: 'utf8' });
+    assert.match(corruptStdout, /Checklist CHK-CORRUPT:/, 'the mutation itself still succeeds');
+    assert.match(
+      corruptStdout,
+      new RegExp(`⚠ Milestone Ledger: render FAILED for ${corruptStoryId}`),
+      'a corrupt milestone ledger must surface a visible render-failure block, not be swallowed',
+    );
+    assert.doesNotMatch(
+      corruptStdout,
+      new RegExp(`Checklist-derived ledger \\(no milestone ledger set\\) - ${corruptStoryId}`),
+      'corruption must not be masked as a clean no-ledger checklist-derived render',
     );
 
     const jsonStoryId = 'B-cli-marker-json';
@@ -361,6 +427,8 @@ function assertTextContract(text) {
   for (const label of [
     'Milestone Status - B-7ba7',
     'Mode: read-only',
+    'observability only',
+    'NOT a lifecycle DONE',
     'Completed',
     'Current',
     'Remaining',
@@ -379,6 +447,8 @@ function assertCloseoutTextContract(text) {
   for (const label of [
     'Milestone Closeout',
     'Mode: read-only historical snapshot',
+    'observability only',
+    'NOT a lifecycle DONE',
     '| Milestone | Status | Solved Problem | Acceptance | Evidence | Risks | Next Action |',
   ]) {
     assert.ok(text.includes(label), `closeout text output must include ${label}`);
@@ -1957,10 +2027,16 @@ function assertEvidenceRefShape(evidenceRef) {
 }
 
 {
+  // B-f7b3 CHK-010 reconciliation (b): the DONE-time closeout capture must NOT
+  // act as an undesigned second DONE gate with throw-semantics. On an incomplete
+  // report (which buildMilestoneCloseoutSnapshot still rejects at the pure-builder
+  // level) capture must DEGRADE to a non-throwing 'skipped' result and write
+  // nothing — leaving evaluateDoneIntentEquivalence as the single designed gate.
   const storyId = 'B-capture-incomplete';
   const writes = [];
-  assert.throws(
-    () => captureMilestoneCloseoutSnapshotFromStore({
+  let result;
+  assert.doesNotThrow(() => {
+    result = captureMilestoneCloseoutSnapshotFromStore({
       readMilestoneLedger() {
         return ledger([
           milestone({
@@ -1991,10 +2067,240 @@ function assertEvidenceRefShape(evidenceRef) {
       writeMilestoneCloseout() {
         writes.push('write');
       },
-    }, storyId),
+    }, storyId);
+  }, 'DONE-time closeout capture must not throw on an incomplete report (no divergent second gate)');
+  assert.equal(result.status, 'skipped', 'incomplete capture must degrade to a skipped result');
+  assert.equal(result.reason, 'closeout_snapshot_unbuildable', 'incomplete capture must report closeout_snapshot_unbuildable');
+  assert.match(result.message, /incomplete milestone rows: M-incomplete=current/, 'skip message must carry the builder rejection reason');
+  assert.deepEqual(writes, [], 'incomplete capture must not write a closeout');
+}
+
+{
+  // The pure builder buildMilestoneCloseoutSnapshot STAYS strict: it still throws
+  // on an incomplete report. Only the DONE-time capture wrapper is non-blocking.
+  const storyId = 'B-builder-incomplete-strict';
+  const strictReport = buildMilestoneStatusReport({
+    story: story(storyId),
+    checklist: { items: [checklistItem('CHK-INCOMPLETE', 'done', [], intent('missing evidence'))] },
+    milestoneLedger: ledger([
+      milestone({
+        id: 'M-incomplete',
+        sourceRequirementId: 'REQ-incomplete',
+        claim: 'Incomplete rows block the pure builder',
+        doneMeans: 'Missing evidence cannot be frozen as success',
+        requiredEvidence: [],
+        checklistRefs: ['CHK-INCOMPLETE'],
+        verificationIntentRefs: ['CHK-INCOMPLETE:happy:0'],
+        status: 'done',
+      }),
+    ], storyId),
+  });
+  assert.throws(
+    () => buildMilestoneCloseoutSnapshot({ report: strictReport }),
     /incomplete milestone rows: M-incomplete=current/,
+    'the pure closeout builder must stay strict and reject an incomplete report',
   );
-  assert.deepEqual(writes, [], 'incomplete capture must fail before writing a closeout');
+}
+
+{
+  // B-f7b3 CHK-005: the pure builder buildMilestoneCloseoutSnapshot must reject a
+  // report whose ONLY defect is STALE milestone evidence. The CHK-010 blocks above
+  // cover an incomplete report caused by MISSING evidence; this block isolates the
+  // stale-ONLY case (evidence is present and passing, but its binding no longer
+  // matches the current head/material/story-files binding). The DONE-time capture
+  // wrapper degrades such a report to a non-throwing skip, but the pure builder
+  // must stay strict and never freeze stale passing evidence as historical success.
+  const staleOnlyBinding = {
+    headHash: 'head-current',
+    materialHash: 'material-current',
+    storyFilesHash: 'story-current',
+  };
+  const staleOnlyReport = buildMilestoneStatusReport({
+    story: story('B-builder-stale-only-strict'),
+    checklist: {
+      items: [
+        checklistItem('CHK-STALE-ONLY', 'done', [
+          evidence('CHK-STALE-ONLY:happy:0', 'pass', {
+            headHash: 'head-old',
+            materialHash: 'material-old',
+            storyFilesHash: 'story-old',
+          }),
+        ], intent('stale-only report is otherwise complete')),
+      ],
+    },
+    milestoneLedger: ledger([
+      milestone({
+        id: 'M-stale-only',
+        sourceRequirementId: 'REQ-stale-only',
+        claim: 'Stale-only reports must not be frozen as success',
+        doneMeans: 'Passing but stale evidence is the report\'s ONLY defect',
+        requiredEvidence: [],
+        checklistRefs: ['CHK-STALE-ONLY'],
+        verificationIntentRefs: ['CHK-STALE-ONLY:happy:0'],
+        status: 'done',
+      }),
+    ], 'B-builder-stale-only-strict'),
+    currentEvidenceBinding: staleOnlyBinding,
+  });
+  // Precondition: the ONLY reason this row is not completed is stale evidence.
+  assert.deepEqual(staleOnlyReport.groups.completed, [], 'stale-only report has no completed rows');
+  assert.deepEqual(staleOnlyReport.groups.current, ['M-stale-only'], 'the stale row is the sole defect (demoted to current)');
+  const staleOnlyRow = staleOnlyReport.milestones.find((row) => row.id === 'M-stale-only');
+  assert.ok(staleOnlyRow);
+  assert.match(staleOnlyRow.statusDetail, /evidence=stale/, 'the sole defect is evidence=stale, not missing/failed');
+  assert.throws(
+    () => buildMilestoneCloseoutSnapshot({ report: staleOnlyReport }),
+    /incomplete milestone rows: M-stale-only=current/,
+    'the pure closeout builder must reject a report whose only defect is stale milestone evidence',
+  );
+
+  // The DONE-time capture wrapper must DEGRADE the same stale-only report to a
+  // non-throwing skip and write nothing (the pure builder stays strict; only the
+  // wrapper is non-blocking so evaluateDoneIntentEquivalence remains the one gate).
+  const staleOnlyWrites = [];
+  let staleOnlyCaptureResult;
+  assert.doesNotThrow(() => {
+    staleOnlyCaptureResult = captureMilestoneCloseoutSnapshotFromStore({
+      readMilestoneLedger() {
+        return ledger([
+          milestone({
+            id: 'M-stale-only',
+            sourceRequirementId: 'REQ-stale-only',
+            claim: 'Stale-only reports must not be frozen as success',
+            doneMeans: 'Passing but stale evidence is the report\'s ONLY defect',
+            requiredEvidence: [],
+            checklistRefs: ['CHK-STALE-ONLY'],
+            verificationIntentRefs: ['CHK-STALE-ONLY:happy:0'],
+            status: 'done',
+          }),
+        ], 'B-capture-stale-only');
+      },
+      readStory() {
+        return story('B-capture-stale-only');
+      },
+      readChecklist() {
+        return {
+          items: [
+            checklistItem('CHK-STALE-ONLY', 'done', [
+              evidence('CHK-STALE-ONLY:happy:0', 'pass', {
+                headHash: 'head-old',
+                materialHash: 'material-old',
+                storyFilesHash: 'story-old',
+              }),
+            ], intent('stale-only report is otherwise complete')),
+          ],
+        };
+      },
+      readSummary() {
+        return null;
+      },
+      writeMilestoneCloseout() {
+        staleOnlyWrites.push('write');
+      },
+    }, 'B-capture-stale-only', { currentEvidenceBinding: staleOnlyBinding });
+  }, 'DONE-time capture must not throw on a stale-only report');
+  assert.equal(staleOnlyCaptureResult.status, 'skipped', 'stale-only capture must degrade to a skipped result');
+  assert.equal(staleOnlyCaptureResult.reason, 'closeout_snapshot_unbuildable', 'stale-only capture reports closeout_snapshot_unbuildable');
+  assert.match(staleOnlyCaptureResult.message, /incomplete milestone rows: M-stale-only=current/, 'skip message carries the stale-only builder rejection reason');
+  assert.deepEqual(staleOnlyWrites, [], 'stale-only capture must not write a closeout');
+}
+
+{
+  // B-f7b3 CHK-004: a CONFIRMED milestone ledger that is empty OR whose rows are
+  // all not_applicable (without a valid decision) must NOT vacuously satisfy the
+  // DONE milestone requirement. Assert directly against the pure
+  // evaluateDoneIntentEquivalence gate (imported from dist/core/proofstory.js),
+  // isolating the coverage semantics from the CLI collision dance.
+  const structuralStory = (storyId) => ({
+    ...story(storyId),
+    phase: 'TEST',
+    priority: 'medium',
+    // Structural multi-deliverable signal ("all milestones") keeps hasMilestonePath
+    // true even when the ledger is empty, so the empty-ledger guard is exercised
+    // rather than the story silently dropping onto the lightweight path.
+    description: 'Deliver all milestones for the accepted intent.',
+  });
+  const doneEquivalenceInput = (storyId, checklist, milestoneLedger, overrides = {}) => ({
+    story: structuralStory(storyId),
+    checklist,
+    originalIntentSnapshot: null,
+    milestoneLedger,
+    slicePlan: null,
+    parentLedgerRollup: null,
+    proofStoryContract: null,
+    intentCollision: null,
+    scopeContract: null,
+    scopeShrinkageDecision: null,
+    redEvidence: null,
+    spikeEvidence: null,
+    summary: null,
+    ...overrides,
+  });
+  const notApplicableDecision = {
+    reason: 'This milestone is out of scope for the accepted intent.',
+    decidedBy: 'milestone-status-test',
+    decidedAt: '2026-07-06T00:00:00.000Z',
+  };
+
+  // Negative control 1: empty confirmed ledger must fail (not vacuously pass).
+  const emptyLedger = ledger([], 'B-empty-confirmed-ledger');
+  const emptyReport = evaluateDoneIntentEquivalence(
+    doneEquivalenceInput('B-empty-confirmed-ledger', { items: [] }, emptyLedger),
+    'enforce',
+  );
+  assert.equal(emptyReport.equivalenceMode, 'strict_milestone', 'a structural-milestone story stays on the strict milestone path');
+  assert.equal(emptyReport.status, 'fail', 'an empty confirmed ledger must not vacuously pass DONE equivalence');
+  assert.equal(emptyReport.blocking, true, 'the empty-ledger gap blocks under enforce');
+  const emptyGap = emptyReport.gaps.find((g) => g.code === 'empty_confirmed_milestone_ledger');
+  assert.ok(emptyGap, 'empty confirmed ledger yields an empty_confirmed_milestone_ledger gap');
+  assert.equal(emptyGap.severity, 'fail', 'the empty-ledger gap is severity fail');
+  assert.match(emptyGap.artifact ?? '', /milestone-ledger\.json/, 'the empty-ledger gap points at milestone-ledger.json');
+
+  // Negative control 2: all-not_applicable confirmed ledger WITHOUT a valid decision
+  // must fail — the uncovered loop `continue`s every row, so only the CHK-007
+  // not_applicable_missing_decision guard stands between the gate and a vacuous pass.
+  const naLedger = ledger([
+    milestone({ id: 'M-na-1', checklistRefs: [], verificationIntentRefs: [], status: 'not_applicable' }),
+    milestone({ id: 'M-na-2', checklistRefs: [], verificationIntentRefs: [], status: 'not_applicable' }),
+  ], 'B-not-applicable-only');
+  const naReport = evaluateDoneIntentEquivalence(
+    doneEquivalenceInput('B-not-applicable-only', { items: [] }, naLedger),
+    'enforce',
+  );
+  assert.equal(naReport.status, 'fail', 'an all-not_applicable ledger without decisions must not vacuously pass');
+  assert.equal(naReport.blocking, true, 'the all-not_applicable ledger blocks under enforce');
+  const naGap = naReport.gaps.find((g) => g.code === 'not_applicable_missing_decision');
+  assert.ok(naGap, 'all-not_applicable ledger yields a not_applicable_missing_decision gap');
+  assert.match(naGap.message, /M-na-1/, 'the gap names every unjustified not_applicable row');
+  assert.match(naGap.message, /M-na-2/, 'the gap names every unjustified not_applicable row');
+
+  // Positive control: the guard must NOT over-fire. A confirmed ledger with an
+  // applicable, fully-covered milestone (plus a justified not_applicable row) passes.
+  const coveredChecklist = {
+    items: [
+      checklistItem('CHK-COVERED', 'done', [evidence('CHK-COVERED:happy:0')], intent('covered applicable milestone')),
+    ],
+  };
+  const coveredLedger = ledger([
+    milestone({
+      id: 'M-covered',
+      checklistRefs: ['CHK-COVERED'],
+      verificationIntentRefs: ['CHK-COVERED:happy:0'],
+      status: 'done',
+    }),
+    milestone({ id: 'M-na-justified', checklistRefs: [], verificationIntentRefs: [], status: 'not_applicable', notApplicableDecision }),
+  ], 'B-covered-plus-na');
+  const coveredReport = evaluateDoneIntentEquivalence(
+    doneEquivalenceInput('B-covered-plus-na', coveredChecklist, coveredLedger),
+    'enforce',
+  );
+  assert.equal(coveredReport.status, 'pass', 'a genuinely-covered ledger with one applicable row still passes');
+  assert.deepEqual(coveredReport.uncoveredRequiredMilestoneIds, [], 'the covered applicable row is not reported uncovered');
+  assert.equal(
+    coveredReport.gaps.some((g) => g.code === 'empty_confirmed_milestone_ledger' || g.code === 'not_applicable_missing_decision'),
+    false,
+    'the negative-control guards do not over-fire on a genuinely-satisfied ledger',
+  );
 }
 
 {

@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-58a0",
+  "allowedCommands": [
+    "git *",
+    "node packages/main/dist/cli.js *",
+    "node packages/main/tests/milestone-status.test.mjs",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    "docs/superpowers/specs/",
+    "packages/main/dist/",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/milestone-status.ts",
+    "packages/main/tests/milestone-status.test.mjs"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".worktrees/B-991d/"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Implementation touches the derived-ledger renderer, the CLI append helper, and its test; build+test via packages/main. Do not touch other hosts worktrees.",
+  "createdAt": "2026-07-06T18:00:17.226Z",
+  "updatedAt": "2026-07-06T18:00:17.226Z",
+  "_hash": "5840c009a9dfa010a6c09dcdfba77d11865b68c81dcefa4ded37f9f26def9cf6"
+}

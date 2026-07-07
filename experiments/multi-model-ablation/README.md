@@ -4,6 +4,8 @@ This directory contains provider-free research scaffolding for the protocol in `
 
 These files are not executable Phase 1 or Phase 2 result artifacts. They do not call providers, do not contain ablation results, do not unlock product gates, and do not alter DONE, playbook, runtime, or default agent guidance.
 
+`cell03-shards/` contains provider-free row-level shard helpers for the future Cell03 runner. They are separate from Proofbound Parallel Wave story scheduling and only validate deterministic partitioning, shard-local fixture output, lock refusal, and merge safety.
+
 ## Files
 
 ### M2 Launch Readiness

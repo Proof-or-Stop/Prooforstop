@@ -1,0 +1,66 @@
+{
+  "storyId": "B-853a",
+  "checkedAt": "2026-07-06T08:38:18.695Z",
+  "headHash": "076e046c2f421375bbdaa7af82c50115e9352dbe",
+  "materialHash": "5a3e6f24df532d7775ca3d62fad871b9ee002df55941b235382a36ab7bea9fe4",
+  "storyFilesHash": "1c8d0b619b5a698ff50c54b109e22793c90303154a9346b5bebc272c20d9a14e",
+  "reviewRound": "2026-07-06T08:24:02.364Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-853a/summary.json#changes",
+      "promise": "analyze-batch.mjs is a purely offline analyzer reading batch-ledger.jsonl (H1/H4), tamper-verdicts.jsonl (H2), resume-reconciliation.json (H3), protocol.json; re-verifies each ledger recordDigest and aborts on a naively-edited ledger",
+      "verifiedBy": "diff/read+rerun",
+      "evidence": "experiments/pos-instrument-replay/analyze-batch.mjs lines 21-24 (only fs/path/url + lib/instrument.mjs imports, no execFileSync/spawn), lines 122-142 (per-record recordDigest re-derivation with fatal() abort naming rec.iterationId on mismatch); re-ran selfcheck-m4 sub-check H live: analyzer aborted exit 1, message contained input-integrity and the offending iterationId, no report written"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-853a/summary.json#changes",
+      "promise": "adjudicates each hypothesis to a STRICT three-state verdict (pass|fail|inconclusive) validated to substantive values: H1 completeness+full-goldMetrics+no-undeclared-scale; H2 (class,handling)->protocol-expected-disposition binding; H3 substantive kill-trial values incl. killC.stoppedRecordPreserved; H4 finite non-negative elapsed<=cap",
+      "verifiedBy": "diff/read+rerun",
+      "evidence": "analyze-batch.mjs adjudicateH1 (lines 290-364: closed-scale-set + total-count + full EXPECTED_GOLD_METRIC_KEYS check + pairwise equality), adjudicateH2 (lines 371-524: identity-set coverage + identity->disposition binding map + per-row conformance), adjudicateH3 (lines 576-632: kill*.postResume substantive values incl. killC.stoppedRecordPreserved), adjudicateH4 (lines 641-677: finite/non-negative/<=cap, no null coercion). Live re-run of selfcheck-m4.mjs exercised all 19 sub-checks (A-S) and every adversarial mutation correctly flipped the targeted hypothesis to fail/inconclusive/abort, never a false pass."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-853a/summary.json#changes",
+      "promise": "writes report.json + report.md with digest = sha256(canonicalJson(report minus digest)) = 198e33866bfbc52439abb38704bb3d7bd3c5611a2337fa003fae869432dff458, embedding the section-3 claim text only when all-pass",
+      "verifiedBy": "rerun",
+      "evidence": "Live re-ran node analyze-batch.mjs in the worktree: printed digest 198e33866bfbc52439abb38704bb3d7bd3c5611a2337fa003fae869432dff458 (exact match to the committed report.json digest field and the summary/transcript claim); re-generated report.json/report.md are byte-identical to the committed versions (diff empty); code confirms claim field is added to the report object only inside if (overall === 'all-pass') (line 212-214) and report.md renderMarkdown only emits the Claim (asserted) section under the same condition (line 759-763), with a distinct 'Claim NOT asserted' branch otherwise (line 764-769)"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-853a/summary.json#changes",
+      "promise": "selfcheck-m4.mjs: 19 hermetic un-gameable sub-checks A-S",
+      "verifiedBy": "diff/read+rerun",
+      "evidence": "experiments/pos-instrument-replay/selfcheck-m4.mjs defines checkA..checkS (19 named functions, main() calls all 19 in sequence then prints selfcheck-m4 PASS and exit 0). Each builds a fresh mkdtemp sandbox via cpSync of the real evidence files, mutates the SANDBOX COPY only (never the committed evidence), re-signs recordDigest where needed to isolate the semantic check being tested, executes the actual analyze-batch.mjs as a child process, and asserts on real stdout/report.json/report.md content. Live re-ran: all 19 printed PASS, exit 0, no crash."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-853a/summary.json#changes",
+      "promise": "report.json/report.md (new): the campaign H1-H4 verdict + reproducible digest",
+      "verifiedBy": "diff/read+rerun",
+      "evidence": "experiments/pos-instrument-replay/report.json (121 new lines) and report.md (27 new lines) present in the diff, both containing all four hypothesis verdicts (all pass), scaleEnvelope, instrumentDefects:[], overall:all-pass, and matching digest 198e33866bfbc52439abb38704bb3d7bd3c5611a2337fa003fae869432dff458; live re-run reproduced both files byte-for-byte"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Live re-ran node experiments/pos-instrument-replay/analyze-batch.mjs in the worktree: printed H1/H2/H3/H4 all pass, overall: all-pass, digest 198e33866bfbc52439abb38704bb3d7bd3c5611a2337fa003fae869432dff458 (exact match to committed report.json and the summary claim); report.json/report.md regenerated byte-identical to the committed copies (diff empty, git status clean on those files)"
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Live re-ran analyze-batch.mjs twice consecutively; both runs printed the identical digest and produced byte-identical report.json/report.md (verified via diff against a pre-run backup copy)"
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Live re-ran node experiments/pos-instrument-replay/selfcheck-m4.mjs: all 19 sub-checks (A-happy through S-h1-partial-gold) printed PASS, final line selfcheck-m4 PASS, exit code 0 (~1.3s). Confirmed via source read that each sub-check performs a genuine mutation of a sandboxed evidence copy (e.g. C flips a proof digests value + re-signs recordDigest so only H1 well-formedness is exercised; H edits a ledger field WITHOUT re-signing to exercise the integrity abort path; L/Q construct count-preserving identity/binding attacks; R zeroes out postResume nested values) and asserts a specific real-verdict outcome via parseVerdicts(stdout) / readJson(report.json), not a stub/no-op assertion"
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Live re-run of selfcheck-m4 sub-check H confirmed: editing a ledger record field without recomputing recordDigest makes analyze-batch exit nonzero, name the offending iterationId (replay/small/1) in the error message, and write no all-pass report; sub-check I confirmed report.md omits the claim text and states Claim NOT asserted when overall is not all-pass; live analyze-batch run on the real (clean) evidence produced report.json/report.md containing per-scale scaleEnvelope numbers and instrumentDefects:[] (empty, clean)"
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All summary.json/transcript-diff.md claims independently re-verified against source and a live re-run in this worktree: node analyze-batch.mjs reproduced the exact promised digest 198e33866bfbc52439abb38704bb3d7bd3c5611a2337fa003fae869432dff458 with byte-identical report.json/report.md, and node selfcheck-m4.mjs reproduced all 19 genuine (non-stub) adversarial sub-checks A-S passing, exit 0. No TODO/FIXME/HACK in the delivered files; the diff touches only the 4 promised experiment files plus story metadata."
+  },
+  "_hash": "25d53cee193c936acca18ff1c15b34d94dc061f48cf73cc5622e8c4dc8af1dc8"
+}

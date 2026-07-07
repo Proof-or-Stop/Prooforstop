@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-e1f6",
+  "mode": "feature",
+  "allowed": [
+    "Cell03 deterministic shard planning and local dry-run/selfcheck support",
+    "merge validation over shard outputs",
+    "per-shard output paths and shard locks for future provider execution",
+    "README/operator guidance for safe shard use"
+  ],
+  "excluded": [
+    "changing multi-model protocol semantics",
+    "modifying B-991d current cell03-rows.jsonl evidence",
+    "running Cell 06 or Phase 2",
+    "running provider rows",
+    "spawning sub-agents"
+  ],
+  "confirmedBy": "codex-side-conversation",
+  "confirmationNote": "User explicitly requested a small story to solve safe Cell03 parallel shard runner support after verifying existing parallel development mechanisms are insufficient.",
+  "createdAt": "2026-07-06T14:51:27.310Z",
+  "updatedAt": "2026-07-06T14:51:27.310Z",
+  "_hash": "231261dd94d26a4374405ddaf538fce79a7715c44449c9d5c427ea6f90d78958"
+}

@@ -1,6 +1,6 @@
 {
   "name": "lattice",
-  "version": "0.3.162",
+  "version": "0.3.166",
   "description": "",
   "main": "index.js",
   "directories": {
@@ -12,7 +12,7 @@
     "build:lab": "npm --prefix packages/lab run build",
     "package:desktop:host": "node scripts/package-desktop.mjs host",
     "package:desktop:release": "node scripts/package-desktop.mjs release",
-    "test": "npm run test:main-write-lock-coverage && npm run test:lattice-residue && npm run test:review-convergence-smoke && npm run test:review-incremental-context-smoke && npm run test:review-assurance-floor-storyfileshash-smoke && npm run test:docs-drift-smoke && npm run test:docs-drift-wrapper-root && npm run test:gitroot-cwd-contract && npm run test:process-fact-contract && npm run test:runtime-fact-contract && npm run test:evidence-quality && npm run test:anti-stall && npm run test:storydir-inside-gitroot-smoke && npm run test:gitroot-cwd-routing && npm run test:bare-gate-gitroot-cwd && npm run test:project-gitroot-cwd && npm run test:done-oracle-wrapper-root && npm run test:done-premerge-mainsha-recheck && npm run test:done-escalation-drift-advisory && npm run test:review-escalation-freshness-root && npm run test:dispatch-checklist-doctor-wrapper-root && npm run test:graceful-sites-gitroot-cwd && npm run test:experience-hint-worktree-cache && npm run test:done-merge-experience-refresh && npm run test:experience-coverage-gap && npm run test:nested-worktree-bootstrap && npm run test:e2e && npm run test:experience-arm-gate && npm run test:experience-arm-isolation-e2e && npm run test:experiments",
+    "test": "npm run test:main-write-lock-coverage && npm run test:lattice-residue && npm run test:review-convergence-smoke && npm run test:milestone-status && npm run test:review-incremental-context-smoke && npm run test:review-assurance-floor-storyfileshash-smoke && npm run test:docs-drift-smoke && npm run test:docs-drift-wrapper-root && npm run test:gitroot-cwd-contract && npm run test:process-fact-contract && npm run test:runtime-fact-contract && npm run test:evidence-quality && npm run test:anti-stall && npm run test:storydir-inside-gitroot-smoke && npm run test:gitroot-cwd-routing && npm run test:bare-gate-gitroot-cwd && npm run test:project-gitroot-cwd && npm run test:done-oracle-wrapper-root && npm run test:done-premerge-mainsha-recheck && npm run test:done-escalation-drift-advisory && npm run test:review-escalation-freshness-root && npm run test:dispatch-checklist-doctor-wrapper-root && npm run test:graceful-sites-gitroot-cwd && npm run test:experience-hint-worktree-cache && npm run test:done-merge-experience-refresh && npm run test:experience-coverage-gap && npm run test:nested-worktree-bootstrap && npm run test:e2e && npm run test:experience-arm-gate && npm run test:experience-arm-isolation-e2e && npm run test:experiments",
     "test:all": "node packages/main/dist/tasks/run-all-smokes.js",
     "test:legacy": "node packages/main/dist/tasks/run-all-smokes.js --select",
     "test:coverage": "NODE_OPTIONS=--max-old-space-size=8192 c8 node packages/main/dist/tasks/run-all-smokes.js --jobs 1",
@@ -21,6 +21,7 @@
     "test:nested-worktree-bootstrap": "node scripts/verify-nested-worktree-bootstrap.mjs",
     "test:main-write-lock-coverage": "node packages/main/dist/tasks/main-write-lock-coverage.js",
     "test:review-convergence-smoke": "node packages/main/dist/tasks/review-convergence-smoke.js",
+    "test:milestone-status": "npm --prefix packages/main run test:milestone-status",
     "test:review-incremental-context-smoke": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
     "test:review-assurance-floor-storyfileshash-smoke": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
     "test:review-run-clean-tree-preflight": "node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js",

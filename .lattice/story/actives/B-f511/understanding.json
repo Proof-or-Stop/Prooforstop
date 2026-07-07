@@ -1,0 +1,30 @@
+{
+  "task": "Build the interrupt/resume idempotence probe (H3): add an additive resume mode to run-batch.mjs, and a resume-probe.mjs that kills the driver deterministically (boundary + mid-iteration) and reconciles the ledger identity-multiset (0 dup / 0 gap) into resume-reconciliation.json.",
+  "outcome": "node resume-probe.mjs spawns run-batch (small), kills it at a boundary (SIGKILL) and mid-iteration (POS_FAIL_APPEND_AT), restarts in --resume, and writes resume-reconciliation.json showing the ledger identity-multiset == protocol cross-product exactly (0 dup / 0 gap) with the casualty resolved to a stop-or-clean-rerun; a hermetic selfcheck-m3 asserts H3 evidence-complete.",
+  "facts": [
+    "M2 run-batch.mjs is append-only + identity-keyed (iterationId=replay/<scale>/<index>) but has NO resume: it runs the full campaign and its strict exact-multiset guard would reject a restart into a partial ledger.",
+    "The mid-iteration crash hook already exists: POS_FAIL_APPEND_AT (fail at the append step = after workspace write, before ledger append).",
+    "The record append is one atomic JSONL line: a kill before append = no record (clean re-run on resume); a kill mid-append = a truncated trailing line resume must skip/repair.",
+    "H3 = 100% iterations terminate in exactly one ledger record after the probed kills+resume; ledger identity multiset == protocol cross-product (0 dup / 0 gap); casualty resolves to a stop or clean re-run, never a silent half-record.",
+    "Reuses lib/instrument.mjs; reads the frozen protocol.json for the cross-product."
+  ],
+  "constraints": [
+    "Instrument + frozen protocol.json read-only.",
+    "The run-batch resume mode is ADDITIVE: the fresh-campaign (empty/no ledger) path is UNCHANGED so M2 batch-ledger.jsonl + selfcheck-m2 stay valid.",
+    "All work in mkdtemp isolation; small scale for speed.",
+    "A duplicate iterationId on resume is a bug (the strict guard rejects dups).",
+    "resume-reconciliation.json is the H3 evidence artifact."
+  ],
+  "unknowns": [
+    "Whether a mid-append truncated line actually occurs under POS_FAIL_APPEND_AT (the fault throws before write vs during) — resolved by the probe run; resume must be robust either way."
+  ],
+  "touchpoints": [
+    "experiments/pos-instrument-replay/run-batch.mjs (modify: additive resume)",
+    "experiments/pos-instrument-replay/resume-probe.mjs",
+    "experiments/pos-instrument-replay/resume-reconciliation.json",
+    "experiments/pos-instrument-replay/selfcheck-m3.mjs",
+    "experiments/pos-instrument-replay/protocol.json (read-only)",
+    "experiments/pos-instrument-replay/lib/instrument.mjs (read-only reuse)"
+  ],
+  "timestamp": "2026-07-05T20:23:35.389Z"
+}
