@@ -31,7 +31,30 @@
     "experiments/multi-model-ablation/future-cell03-results/**"
   ],
   "scopeChangeReason": "Refresh scope contract after adding directory touchpoint coverage; scope remains local Docker probe only.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "These are CLI-written ProofStory intent and red-evidence lifecycle artifacts required by the DEV admission gate for B-8092; they do not expand product or experiment scope.",
+      "timestamp": "2026-07-07T11:15:08.773Z",
+      "paths": [
+        ".lattice/story/actives/B-8092/intent-collision.json",
+        ".lattice/story/actives/B-8092/original-intent-snapshot.json",
+        ".lattice/story/actives/B-8092/proofstory.json",
+        ".lattice/story/actives/B-8092/red-evidence.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-8092/intent-collision.json",
+        ".lattice/story/actives/B-8092/original-intent-snapshot.json",
+        ".lattice/story/actives/B-8092/proofstory.json",
+        ".lattice/story/actives/B-8092/red-evidence.json"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "6ef8fa38c2d91a702b2e658e12718444cd1de5bd",
+      "materialHash": "cfab5717ddde065ed6b4012f63ce441ff7212f8a6d5497e47c289762adfeb599"
+    }
+  ],
   "createdAt": "2026-07-07T10:57:11.151Z",
-  "updatedAt": "2026-07-07T10:58:03.308Z"
+  "updatedAt": "2026-07-07T11:15:08.773Z"
 }
