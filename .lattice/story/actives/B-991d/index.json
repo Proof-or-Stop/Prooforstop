@@ -4,7 +4,7 @@
   "title": "Run M2 Cell 03 provider execution under frozen envelope and postflight usage accounting",
   "description": "Move Cell 03 from B-6529 authorization-ready metadata into a separate auditable execution story: open only the Cell 03 provider execution window, run probe then full rows, bind receipts, record provider-reported usage and derived cost after completion, and keep Cell 06 and Phase 2 disabled.",
   "type": "feature",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "source": "user-approved-follow-up-to-B-6529",
   "depends": [
@@ -92,6 +92,15 @@
       "user": "Harmonygo",
       "sessionId": "sess-24a3a893b768f5f8",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-07T05:27:39.686Z",
+      "branch": "story/B-991d",
+      "user": "Harmonygo",
+      "sessionId": "sess-24a3a893b768f5f8",
+      "agent": "main"
     }
   ],
   "worktree": {
@@ -99,5 +108,5 @@
     "branch": "story/B-991d",
     "createdAt": "2026-07-05T23:25:32.088Z"
   },
-  "currentReviewRound": "2026-07-07T05:13:13.956Z"
+  "currentReviewRound": "2026-07-07T05:27:39.686Z"
 }
