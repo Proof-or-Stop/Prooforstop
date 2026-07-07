@@ -146,7 +146,7 @@
           }
         ]
       },
-      "userSees": "User sees probe-rows.jsonl containing at least one Docker-run receipt row and explicit pending_auth rows instead of fake successes for missing auth."
+      "userSees": "User sees: \"status: ran\" for the live Docker smoke row and \"status: pending_auth\" for any shard whose auth bundle is absent."
     },
     {
       "id": "CHK-004",
