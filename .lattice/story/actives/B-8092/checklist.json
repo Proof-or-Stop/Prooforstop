@@ -157,7 +157,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/multi-model-ablation/cell06-docker-probe/validate-probe.mjs",
+          "experiments/multi-model-ablation/cell06-docker-probe/negative-controls/**"
+        ],
+        "test": [
+          "experiments/multi-model-ablation/cell06-docker-probe/validate-probe.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "validate-probe accepts the generated summary and rows and reports PASS",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Validator rejects duplicate row/account ownership, missing manifest digests, or wrong Cell06/A2prime labels",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Validator negative controls reject injected Cell03, reviewer, Proofbound-memory, or host-path contamination",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
