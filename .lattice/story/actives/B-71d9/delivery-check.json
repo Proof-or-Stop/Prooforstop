@@ -1,0 +1,45 @@
+{
+  "storyId": "B-71d9",
+  "checkedAt": "2026-07-07T18:52:16.788Z",
+  "headHash": "36d377fd2b6f0bee44979f542a86113ede9031dc",
+  "materialHash": "f48dc64f84b6a0709bf7889c10380840751be5a98fed7ce016c4a3fd14c4a6d0",
+  "reviewRound": "",
+  "agentId": "codex-side-conversation",
+  "docsPromises": [
+    {
+      "docPath": "paper/evidence/cell03-full-provider-execution.md",
+      "promise": "Paper-facing Cell03 evidence records post-targeted-rerun counts and warns not to claim Cell06, Phase2, powered matrix, paper conclusion, product gate, runtime, playbook, or Authority completion from Cell03 alone.",
+      "status": "verified",
+      "verifiedBy": "manual + rg + validator output",
+      "evidence": "Evidence note updated in lattice-Paper; old 1142 count remains only in before-correction context."
+    },
+    {
+      "docPath": "experiments/multi-model-ablation/cell03-full/README.md",
+      "promise": "Compact paper mirror records 1197 row records, 1152 final formal rows, zero terminal exhausted rows, ten targeted rerun rows, and validator command output.",
+      "status": "verified",
+      "verifiedBy": "node validate-full.mjs --requireComplete",
+      "evidence": "Paper compact validator passed: rows=1197 finalRows=1152/1152 terminalExhaustedRows=0."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Proofbound authoritative validator: Cell 03 full validator passed: 107527 assertions; 13 negative controls rejected; rows=1197 finalRows=1152/1152 terminalExhaustedRows=0 pendingExecutableRows=0 requireComplete=true."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "lattice-Paper compact validator: Cell 03 full validator passed: 100345 assertions; 13 negative controls rejected; rows=1197 finalRows=1152/1152 terminalExhaustedRows=0 pendingExecutableRows=0 requireComplete=true."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "JSON parse consistency check passed for paper evidence JSON, Cell03 summary, usage summary, usage lock, and provenance. Old 1142 count appears only in before-correction context."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "B-71d9 is audit-only provenance for completed Cell03 targeted rerun correction. Provider computation was not repeated during closure; source and paper mirror validators passed; Cell06/Phase2/paper conclusions remain out of scope."
+  },
+  "_hash": "505311d4971d2a6daaa4170e51959935b86158225b5d8f598b038dd95fad143a"
+}

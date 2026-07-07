@@ -1,0 +1,36 @@
+{
+  "storyId": "B-71d9",
+  "changes": "Recorded the Cell03 usage-limit targeted rerun as audit-only provenance. Proofbound source now has a narrow 506-515 rerun entry, attempt-3 provenance validation, 1197 rows, 1152/1152 final rows, 0 terminal exhausted rows, and the external lattice-Paper mirror has matching post-rerun counts and wording.",
+  "usage": "Use the Cell03 evidence as a post-targeted-rerun dataset: run node experiments/multi-model-ablation/future-cell03-results/full/validate-full.mjs --requireComplete in the Proofbound B-508f worktree, and node validate-full.mjs --requireComplete in the lattice-Paper cell03-full mirror.",
+  "expectedOutcome": "Cell03 targeted usage-limit contamination is no longer dirty or memory-less: the correction is story-recorded, committed, and validator-backed without repeating provider computation.",
+  "actualTranscript": "Proofbound validator passed: rows=1197 finalRows=1152/1152 terminalExhaustedRows=0 pendingExecutableRows=0 requireComplete=true. Paper mirror validator passed with the same final-row counts.",
+  "outcomeDiff": "No difference: the expected audit-only provenance and validator-backed mirror synchronization were achieved. The story does not claim Cell06, Phase2, or paper conclusions are complete.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "audit_only",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "This story records and verifies an already completed targeted rerun; it does not re-run providers, upgrade paper conclusions, complete Cell06, or replace the separate B-f5e6 clean-input audit story.",
+  "pitfalls": "A duplicate partial story was briefly created during retry because one story_create attempt failed on absolute external paths while another succeeded; the usable tracked DONE story is B-71d9. External lattice-Paper paths cannot be represented as Proofbound repo-relative executionBoundary paths, so paper mirror evidence is recorded in prose and committed in the paper repo separately.",
+  "phaseStats": {
+    "DONE": {
+      "count": 1,
+      "durationMs": 0
+    }
+  },
+  "totalDurationMs": 0,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-07T18:52:01.686Z",
+  "updatedAt": "2026-07-07T18:52:01.686Z"
+}
