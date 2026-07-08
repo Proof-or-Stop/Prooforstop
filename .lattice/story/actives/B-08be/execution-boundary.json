@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-08be",
+  "allowedCommands": [
+    "lattice --version",
+    "lattice aux_doc_list",
+    "lattice checklist_*",
+    "lattice done_prepare",
+    "lattice review_*",
+    "lattice scope_*",
+    "lattice session_brief",
+    "lattice story_*",
+    "lattice validate",
+    "node packages/main/dist/tasks/scope-contract-smoke.js",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".lattice/story/actives",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/core/lattice-brand.ts",
+    "packages/main/src/handlers/phase-gates.ts",
+    "packages/main/src/handlers/scope-contract.ts",
+    "packages/main/src/tasks/scope-contract-smoke.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    "docs/requirements/decisions/multi-model-ablation-*",
+    "docs/superpowers/**"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "Execution is limited to formalizing and reviewing the Proofbound CLI scope gate hotfix.",
+  "createdAt": "2026-07-08T14:29:52.020Z",
+  "updatedAt": "2026-07-08T14:29:52.020Z",
+  "_hash": "16f4e46ddd9c44e7af0227448a28c655e09e8df7bb5d555a587f601b32085f03"
+}

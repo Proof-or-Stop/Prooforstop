@@ -1,0 +1,87 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Route story scope git diffs through the authoritative story worktree cwd",
+      "context": "Use resolveGitCwd for scope_contract_check and runScopeTransitionGate while preserving metadataRoot for story metadata and material hash exclusion.",
+      "relatedDocs": [
+        "AGENTS.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/scope-contract.ts",
+          "packages/main/src/handlers/phase-gates.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/scope-contract-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A story with a clean authoritative worktree passes scope_contract_check even when metadataRoot has unrelated dirty files.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "story_advance REVIEW scope rows show only the story-owned changed files from the worktree, not metadataRoot dirt.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Do not acknowledge or whitelist unrelated metadataRoot paths; the regression must fail if the gate reads the wrong cwd again.",
+            "type": "logic"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Apply Proofbound CLI patch-version discipline for this runtime behavior change",
+      "context": "If this Story adopts the hotfix, bump the Proofbound CLI patch version and verify build/version output through the normal lifecycle.",
+      "relatedDocs": [
+        "AGENTS.md"
+      ],
+      "files": {
+        "modify": [
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/lattice-brand.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm --prefix packages/main run build succeeds and lattice --version reports the bumped patch version.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The version bump is scoped to Proofbound CLI package and brand surfaces, not downstream project Ranking versions.",
+            "type": "manual"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "This Story must not claim DONE until REVIEW, TEST, summary, delivery, and done_prepare gates pass.",
+            "type": "manual"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
