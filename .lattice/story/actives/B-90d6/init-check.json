@@ -1,0 +1,34 @@
+{
+  "storyId": "B-90d6",
+  "checkedAt": "2026-07-08T22:39:46.312Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init@fallback",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "lattice-review-story-init@fallback",
+      "checkedAt": "2026-07-08T22:39:46.312Z",
+      "issues": []
+    },
+    {
+      "agentId": "product-reviewer@fallback",
+      "checkedAt": "2026-07-08T22:39:46.312Z",
+      "issues": []
+    }
+  ],
+  "fallback": {
+    "mode": "fallback",
+    "reason": "Current Codex tool policy does not allow spawning reviewer subagents without explicit subagent authorization in this turn; manually checked M0-M1 story scope, checklist, related decision doc, scope boundary, execution boundary, and confirmed no high or critical INIT blockers while preserving later PLAN/DEV/REVIEW/TEST gates.",
+    "evidenceRefs": [
+      "docs/requirements/decisions/pos-agent-drivability-optimization.md",
+      "lattice init_preflight --storyId=B-90d6",
+      "lattice story_get --storyId=B-90d6"
+    ],
+    "actor": "codex",
+    "session": "sess-4a9def8b93649d84",
+    "attestedAt": "2026-07-08T22:39:46.312Z",
+    "headHash": "115166e98a11db8b7613a39c5a8fcc8d2609c67a",
+    "materialHash": "b4c51a0a8d2b150b92883553d9e170028610f147eb518c96a4cd1c1aba6f2c17"
+  },
+  "_hash": "609c03371cfcea7342edba41fe9add93f9450c25344871ab6e3b2dcd0ddd58c5"
+}
