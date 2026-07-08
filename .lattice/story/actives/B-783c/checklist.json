@@ -35,6 +35,18 @@
             "priority": "must"
           }
         ]
+      },
+      "userSees": "In a global-thin project, `lattice codex verify` reaches `Global fallback heartbeat` and reports a codex/global-fallback heartbeat instead of `no activity heartbeat for session ...`.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/config.ts",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/codex-adapter-checks.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/thin-init-assets-smoke.ts"
+        ]
       }
     },
     {
