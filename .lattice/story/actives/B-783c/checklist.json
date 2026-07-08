@@ -47,7 +47,30 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A focused regression test proves a normal canonical project containing lattice.config.json still writes successful command activity to <root>/.lattice/activity.jsonl. WHY: preserves the existing canonical activity logging behavior while changing runtime root detection.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A focused regression test proves a managed global-thin project containing .lattice/lattice.json with assetMode=global-thin, and no lattice.config.json or local bin wrappers, writes successful command activity to <root>/.lattice/activity.jsonl. WHY: covers the new global-thin heartbeat path directly.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A focused regression test proves an unrelated directory without canonical config and without a valid managed global-thin manifest does not create or append .lattice/activity.jsonl and is not treated as a project root. WHY: guards against over-broad root detection and accidental writes outside managed projects.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
