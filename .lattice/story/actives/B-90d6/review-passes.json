@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-90d6:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept/product review passed: INIT guidance routes high-traffic surfaces to read-only init_preflight before INIT_CHECK; story-level lattice-review-scope-plan dispatch remains prompt-only and requires reviewer-written scope_check_save for gate evidence; checklist_add milestone ledger guidance and forced milestone status display are advisory/read-only and do not mutate milestone ledgers or weaken lifecycle/review gates. Verified focused tests: node packages/main/tests/b90d6-init-dispatch-guidance.test.mjs and npm --prefix packages/main run test:milestone-status.",
+      "createdAt": "2026-07-08T23:30:08.255Z",
+      "reviewRound": "2026-07-08T23:26:45.118Z",
+      "reviewRunId": "B-90d6:RR-001",
+      "_hash": "12f615f5380c6a52c5e7e73dbc8c3e951a3764bc98725ae2b2c450451217e855"
+    }
+  ]
+}
