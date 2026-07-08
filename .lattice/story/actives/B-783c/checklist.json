@@ -82,7 +82,30 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After rebuilding the Proofbound CLI and running the relevant local regression tests, lattice codex verify passes when executed in /Users/jek/Documents/Work/deepswe-pos-codex-gpt55-run/solver-visible. WHY: proves the user-visible global-thin Codex adapter smoke succeeds in the originally failing project.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The solver-visible smoke confirms the command path is appropriate for global-thin projects: local bin wrappers and .lattice-codex assets are not required, and the verified CLI version/build corresponds to the fixed worktree rather than a stale global install. WHY: avoids a false pass from the wrong adapter mode or stale binary.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The solver-visible smoke explicitly rules out the prior failure signature: Global fallback heartbeat must not report a missing activity heartbeat for the codex-check-global session, and the resulting activity evidence must show codex/global-fallback attribution in .lattice/activity.jsonl. WHY: prevents accepting a generic verify pass that skipped the broken heartbeat path.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
