@@ -170,7 +170,30 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A failed INIT_CHECK advancement on missing prerequisites includes exact guidance to run lattice init_preflight --storyId=<id> so all missing prerequisites are visible.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Existing fail-closed scope anti-expansion behavior remains intact unless a later structural story changes aggregation.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The failure guidance does not bypass dual INIT reviewers, auto-exempt by task size/risk, or claim production/full completion.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
