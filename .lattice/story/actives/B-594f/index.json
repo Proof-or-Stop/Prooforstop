@@ -1,0 +1,51 @@
+{
+  "storyId": "B-594f",
+  "name": "scope-gate-worktree-cwd-regression",
+  "title": "Fix scope gate to read changed files from the story worktree cwd",
+  "description": "Backfill a formal Proofbound Story for the temporary local CLI hotfix made on 2026-07-08 while Prodenovo story B-35f0 was blocked. The observed bug is that scope_contract_check and story_advance REVIEW scope gates can read changed files from metadataRoot instead of the authoritative story worktree, causing unrelated dirty files in the host project to block a clean story worktree.",
+  "type": "bug",
+  "phase": "DISCARDED",
+  "priority": "high",
+  "source": "User requested formal Proofbound Story after B-35f0 exposed the CLI bug.",
+  "keywords": [
+    "scope-gate",
+    "worktree",
+    "metadataRoot",
+    "resolveGitCwd",
+    "story_advance"
+  ],
+  "riskSignals": [
+    {
+      "category": "State Machine/Gate",
+      "matched": "story_advance"
+    },
+    {
+      "category": "Production/Emergency",
+      "matched": "hotfix"
+    }
+  ],
+  "createdAt": "2026-07-08T14:28:13.751Z",
+  "startedAt": "2026-07-08T14:28:13.751Z",
+  "endedAt": "2026-07-08T14:30:03.241Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-08T14:28:14.272Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-4a9def8b93649d84",
+      "agent": "main"
+    },
+    {
+      "phase": "DISCARDED",
+      "action": "discard",
+      "timestamp": "2026-07-08T14:30:03.241Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-4a9def8b93649d84",
+      "agent": "main",
+      "reason": "Discard malformed duplicate left by failed story_create validation; formal replacement is B-08be."
+    }
+  ]
+}

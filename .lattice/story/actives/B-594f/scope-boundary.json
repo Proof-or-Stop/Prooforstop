@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-594f",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Add regression smoke coverage",
+    "Apply CLI patch-version discipline only if the fix is adopted",
+    "Fix Proofbound CLI scope gate cwd resolution for story-scoped git diffs"
+  ],
+  "excluded": [
+    "Do not acknowledge unrelated dirty files as scope expansions",
+    "Do not modify Prodenovo Ranking code in this Story",
+    "Do not push remotely or claim DONE without full Proofbound lifecycle"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "User requested a formal Proofbound Story for the temporary CLI hotfix and set a rule that future Proofbound CLI code changes must go through Story flow.",
+  "createdAt": "2026-07-08T14:28:13.751Z",
+  "updatedAt": "2026-07-08T14:28:13.751Z",
+  "_hash": "9ec460187ab31da5d61cc8aec27bab60b069149200baa187498afd113f95f77f"
+}
