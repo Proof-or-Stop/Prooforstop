@@ -18,8 +18,25 @@
       },
       "note": "Baseline failure reproduced before source edits in B-783c. The only hard failure is the missing activity heartbeat for the global fallback session.",
       "createdAt": "2026-07-08T23:52:28.694Z"
+    },
+    {
+      "id": "RED-20260708235427",
+      "trigger": "Pre-fix solver-visible Codex adapter verify global fallback heartbeat failure",
+      "acceptanceTargetRef": "global-thin-codex-verify-heartbeat",
+      "baselineHeadHash": "ba5f844dd4281d6b748fa1615cd7d014eddb7dca",
+      "baselineMaterialHash": "b4c51a0a8d2b150b92883553d9e170028610f147eb518c96a4cd1c1aba6f2c17",
+      "observedFailure": "Running `lattice codex verify` in `/Users/jek/Documents/Work/deepswe-pos-codex-gpt55-run/solver-visible` exits 1 with `✗ Codex adapter checks failed (1 hard failure(s))`; the failing row is `[✗] Global fallback heartbeat: no activity heartbeat for session codex-check-global-1783554731360`, while the command hint is `LATTICE_ACTIVITY_SOURCE=codex LATTICE_ACTIVITY_RECORD_READONLY=1 LATTICE_CODEX_ENTRYPOINT=global-fallback lattice session_brief`.",
+      "failingCommand": "cd /Users/jek/Documents/Work/deepswe-pos-codex-gpt55-run/solver-visible && lattice codex verify",
+      "expectedGreenCommand": "cd /Users/jek/Documents/Work/deepswe-pos-codex-gpt55-run/solver-visible && lattice codex verify",
+      "greenRelation": {
+        "targetRef": "global-thin-codex-verify-heartbeat",
+        "relation": "same_acceptance",
+        "command": "cd /Users/jek/Documents/Work/deepswe-pos-codex-gpt55-run/solver-visible && lattice codex verify"
+      },
+      "note": "Second red evidence record binds to the ProofStory acceptance binding id, which is the target set consumed by the DEV gate. Baseline failure was reproduced before source edits.",
+      "createdAt": "2026-07-08T23:54:27.792Z"
     }
   ],
   "createdAt": "2026-07-08T23:52:28.694Z",
-  "updatedAt": "2026-07-08T23:52:28.694Z"
+  "updatedAt": "2026-07-08T23:54:27.792Z"
 }
