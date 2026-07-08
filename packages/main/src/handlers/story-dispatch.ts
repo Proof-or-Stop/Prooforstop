@@ -190,10 +190,19 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     agentType?: string;
   }): { prompt: string } {
     if (!args.storyId) throw new Error('storyId is required');
-    try {
-      store.readStory(args.storyId);
-    } catch {
-      throw new Error(`story ${args.storyId} not found`);
+    const story = (() => {
+      try {
+        return store.readStory(args.storyId);
+      } catch {
+        throw new Error(`story ${args.storyId} not found`);
+      }
+    })();
+    if (story.phase !== 'PLAN') {
+      throw new Error(
+        `scope_check_save is PLAN-only; current phase ${story.phase} is unsupported for ` +
+        `story-level lattice-review-scope-plan dispatch on ${args.storyId}. ` +
+        'Run this dispatch only while the story is in PLAN, or use lattice session_brief / lattice next for current-phase guidance.',
+      );
     }
 
     const storyDir = `${store.storyDirRel()}/${args.storyId}`;

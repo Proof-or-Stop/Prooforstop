@@ -6,6 +6,7 @@
  *   node packages/main/tests/b90d6-init-dispatch-guidance.test.mjs
  */
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -16,7 +17,10 @@ const { resetConfigCache } = await import(join(distRoot, 'core/config.js'));
 const { StoryStore } = await import(join(distRoot, 'core/store.js'));
 const { getGuardFailureReason } = await import(join(distRoot, 'core/machine.js'));
 const { createInitCheckHandlers } = await import(join(distRoot, 'handlers/init-check.js'));
+const { createInitPreflightHandlers } = await import(join(distRoot, 'handlers/init-preflight.js'));
+const { createSessionHandlers } = await import(join(distRoot, 'handlers/session.js'));
 const { createScopeAntiExpansionHandlers } = await import(join(distRoot, 'handlers/scope-anti-expansion.js'));
+const { createStoryCreateHandlers } = await import(join(distRoot, 'handlers/story-create.js'));
 const { createStoryDispatchHandlers } = await import(join(distRoot, 'handlers/story-dispatch.js'));
 const { createStoryReviewHandlers } = await import(join(distRoot, 'handlers/story-review.js'));
 
@@ -37,6 +41,18 @@ function makeRoot() {
   }, null, 2));
   resetConfigCache();
   return root;
+}
+
+function ctx(root, store) {
+  return { root, store, scanRoot: join(root, 'packages/main') };
+}
+
+function initGitRoot(root) {
+  execFileSync('git', ['init', '-b', 'main'], { cwd: root, stdio: ['pipe', 'pipe', 'pipe'] });
+  execFileSync('git', ['config', 'user.name', 'B90d6 Test'], { cwd: root, stdio: ['pipe', 'pipe', 'pipe'] });
+  execFileSync('git', ['config', 'user.email', 'b90d6@example.local'], { cwd: root, stdio: ['pipe', 'pipe', 'pipe'] });
+  execFileSync('git', ['add', 'lattice.config.json'], { cwd: root, stdio: ['pipe', 'pipe', 'pipe'] });
+  execFileSync('git', ['commit', '-m', 'init'], { cwd: root, stdio: ['pipe', 'pipe', 'pipe'] });
 }
 
 function seedStory(store, storyId, phase = 'INIT') {
@@ -72,7 +88,7 @@ function seedStory(store, storyId, phase = 'INIT') {
 }
 
 function scopeHandlers(root, store) {
-  return createScopeAntiExpansionHandlers({ root, store, scanRoot: join(root, 'packages/main') });
+  return createScopeAntiExpansionHandlers(ctx(root, store));
 }
 
 function freezeScope(root, store, storyId) {
@@ -136,7 +152,7 @@ function assertInitCheckGuardGuidance() {
     assert.match(missingInitCheck ?? '', /missing_init_check/);
     assertIncludesInitPreflight(missingInitCheck, storyId, 'missing init-check guidance');
 
-    createInitCheckHandlers({ root, store, scanRoot: join(root, 'packages/main') }).init_check_set({
+    createInitCheckHandlers(ctx(root, store)).init_check_set({
       storyId,
       issues: [],
       agentId: 'lattice-review-story-init',
@@ -145,6 +161,112 @@ function assertInitCheckGuardGuidance() {
     assert.match(missingInitAgent ?? '', /missing_init_check_agent/);
     assert.match(missingInitAgent ?? '', /product-reviewer/);
     assertIncludesInitPreflight(missingInitAgent, storyId, 'missing init-check agent guidance');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function assertInitPreflightFailureRouting() {
+  const storyId = 'B-preflight';
+  const root = makeRoot();
+  try {
+    const store = new StoryStore(root);
+    seedStory(store, storyId);
+
+    const report = createInitPreflightHandlers(ctx(root, store)).init_preflight({ storyId });
+    assert.match(report, new RegExp(`INIT preflight \\(${storyId}`));
+    assert.match(report, /mode: read-only \(no commands run, no evidence written\)/);
+    assert.match(report, /\[MISSING\] scope-boundary/);
+    assert.match(report, /gate: BLOCKED/);
+    assert.match(report, new RegExp(`lattice init_preflight --storyId=${storyId}`));
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function assertSessionAndNextInitGuidance() {
+  const storyId = 'B-session';
+  const root = makeRoot();
+  try {
+    initGitRoot(root);
+    const store = new StoryStore(root);
+    seedStory(store, storyId);
+    const session = createSessionHandlers(ctx(root, store));
+
+    const brief = session.session_brief({ concise: true });
+    assert.match(brief, new RegExp(`Story ${storyId} is in INIT with no worktree`));
+    assert.match(brief, new RegExp(`lattice init_preflight --storyId=${storyId}`));
+    assert.match(brief, /read-only; it does not write evidence or create worktrees/);
+    assert.match(brief, new RegExp(`lattice story_advance --storyId=${storyId} --phase=INIT_CHECK`));
+
+    const next = session.next({ concise: true });
+    assert.match(next, new RegExp(`lattice init_preflight --storyId=${storyId}`));
+    assert.match(next, /INIT_CHECK/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function validBackground() {
+  return [
+    '## Trigger Event',
+    'B-90d6 review found that INIT guidance evidence named high-traffic command surfaces that needed direct executable coverage.',
+    'The trigger is specific and current enough for intake validation while staying focused on command guidance behavior.',
+    '',
+    '## Key Insights',
+    'Agents repeatedly start from session restoration, story creation output, and global help before they inspect lower-level docs.',
+    'Those surfaces should point toward init_preflight before INIT_CHECK without suggesting evidence writes or worktree creation.',
+    '',
+    '## Solution Tradeoffs',
+    'Focused assertions on stable command names provide useful regression coverage without freezing complete human-readable output.',
+    'The test keeps temporary project state small and avoids depending on the developer checkout branch or story metadata.',
+    '',
+    '## Conversational Texture',
+    'The reviewer feedback asks for practical guidance a working agent can follow during the first moments of a story lifecycle.',
+    'The desired experience is plain and procedural: read status, run preflight, then advance only after the preflight is ready.',
+  ].join('\n');
+}
+
+function assertStoryCreateAndGlobalHelpInitGuidance() {
+  const root = makeRoot();
+  try {
+    const store = new StoryStore(root);
+    const output = createStoryCreateHandlers(ctx(root, store)).story_create({
+      name: 'init-guidance',
+      title: 'INIT guidance coverage',
+      description: 'Cover story_create guidance that points agents through INIT preflight.',
+      type: 'chore',
+      priority: 'medium',
+      background: validBackground(),
+      checklist: [{
+        title: 'Check INIT guidance surfaces',
+        context: 'Review findings require direct coverage of story_create INIT routing text.',
+      }],
+      forceNew: true,
+    });
+    const storyId = output.match(/Story (B-[a-f0-9]+) created/)?.[1];
+    assert.ok(storyId, 'story_create output should include the created story id');
+    assert.match(output, /spawn two INIT reviewers in parallel/);
+    assert.match(output, /lattice-review-story-init/);
+    assert.match(output, /product-reviewer/);
+    assert.match(output, new RegExp(`lattice init_preflight --storyId=${storyId}`));
+    assert.match(output, /read-only, writes no evidence, and creates no worktree/);
+    assert.match(output, new RegExp(`"phase":"INIT_CHECK"`));
+
+    const helpRoot = makeRoot();
+    try {
+      const help = execFileSync(process.execPath, [join(distRoot, 'cli.js'), '--root', helpRoot, 'help'], {
+        cwd: helpRoot,
+        encoding: 'utf8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+      });
+      assert.match(help, /lattice story_create/);
+      assert.match(help, /lattice init_preflight --storyId=B-xxx/);
+      assert.match(help, /Read-only INIT_CHECK prerequisite report; writes no evidence and creates no worktree/);
+      assert.match(help, /After preflight READY; create local worktree\/local branch/);
+    } finally {
+      rmSync(helpRoot, { recursive: true, force: true });
+    }
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -166,7 +288,7 @@ function assertScopePlanDispatchAndReviewGuidance() {
       timestamp: '2026-07-08T12:00:00.000Z',
     });
 
-    const dispatch = createStoryDispatchHandlers({ root, store, scanRoot: join(root, 'packages/main') });
+    const dispatch = createStoryDispatchHandlers(ctx(root, store));
     const result = dispatch.dispatch({ storyId, agentType: 'lattice-review-scope-plan' });
     assert.match(result.prompt, /Review PLAN scope coverage/);
     assert.match(result.prompt, /Must read story artifacts/);
@@ -174,7 +296,7 @@ function assertScopePlanDispatchAndReviewGuidance() {
     assert.match(result.prompt, /lattice scope_check_save/);
     assert.equal(store.readScopeCheck(storyId), null, 'dispatch must not create scope-check gate evidence');
 
-    const storyReview = createStoryReviewHandlers({ root, store, scanRoot: join(root, 'packages/main') })
+    const storyReview = createStoryReviewHandlers(ctx(root, store))
       .story_review({ storyId });
     const issue = storyReview.issues.find((entry) => entry.type === 'missing_scope_check');
     assert.ok(issue, 'story_review should report missing_scope_check');
@@ -186,6 +308,34 @@ function assertScopePlanDispatchAndReviewGuidance() {
   }
 }
 
+function assertScopePlanDispatchPhaseGate() {
+  for (const phase of ['DEV', 'REVIEW']) {
+    const storyId = `B-${phase.toLowerCase()}`;
+    const root = makeRoot();
+    try {
+      const store = new StoryStore(root);
+      seedStory(store, storyId, phase);
+      const dispatch = createStoryDispatchHandlers(ctx(root, store));
+
+      assert.throws(
+        () => dispatch.dispatch({ storyId, agentType: 'lattice-review-scope-plan' }),
+        new RegExp(`scope_check_save is PLAN-only; current phase ${phase} is unsupported`),
+      );
+      assert.equal(
+        store.readProcessEvents(storyId).some((event) => event.targetKind === 'scope-plan-review'),
+        false,
+        'refused scope-plan dispatch must not append a dispatch event',
+      );
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  }
+}
+
 assertInitCheckGuardGuidance();
+assertInitPreflightFailureRouting();
+assertSessionAndNextInitGuidance();
+assertStoryCreateAndGlobalHelpInitGuidance();
 assertScopePlanDispatchAndReviewGuidance();
+assertScopePlanDispatchPhaseGate();
 console.log('b90d6-init-dispatch-guidance: ALL PASS');
