@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-783c",
+  "allowedCommands": [
+    "lattice aux_doc_list",
+    "lattice checklist_*",
+    "lattice codex verify",
+    "lattice decision_*",
+    "lattice done_*",
+    "lattice execution_boundary_set",
+    "lattice finding_*",
+    "lattice review_*",
+    "lattice scope_boundary_set",
+    "lattice session_brief",
+    "lattice story_*",
+    "lattice understanding_*",
+    "lattice validate*",
+    "node packages/main/dist/cli.js *",
+    "node packages/main/src/tasks/*",
+    "npm --prefix packages/main run *",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "git read-only/status/diff/add/commit",
+    "lattice",
+    "node",
+    "npm",
+    "shell"
+  ],
+  "allowedPaths": [
+    "AGENTS.md",
+    "lattice.config.json",
+    "package-lock.json",
+    "package.json",
+    "packages/main/package-lock.json",
+    "packages/main/package.json",
+    "packages/main/src",
+    "packages/main/tests"
+  ],
+  "excludedCommands": [
+    "commands run from /Users/jek/Documents/Work/Orchestrate",
+    "git checkout -- *",
+    "git clean *",
+    "git reset --hard *",
+    "omx *"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "The external solver-visible directory is allowed only as a command cwd for the final lattice codex verify smoke; do not edit files there. Do not modify /Users/jek/Documents/Work/Orchestrate. Do not make loadConfig parse .lattice/lattice.json as canonical config.",
+  "createdAt": "2026-07-08T23:38:44.437Z",
+  "updatedAt": "2026-07-08T23:38:44.437Z",
+  "_hash": "31a9fa85784c4dfc8a6ced777e90cf7895f0b50e3f3160404322600c406bb8d7"
+}
