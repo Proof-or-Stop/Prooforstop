@@ -161,37 +161,49 @@ function firstHardScopeIssue(check: ScopeFreezeCheckData): ScopeFreezeIssue | nu
   return check.issues.find(issue => issue.severity === 'hard') ?? null;
 }
 
+function initPreflightGuidance(storyId: string): string {
+  return `→ To see all INIT_CHECK prerequisites, run \`lattice init_preflight --storyId=${storyId}\`.`;
+}
+
 function renderScopeFreezeIssue(storyId: string, issue: ScopeFreezeIssue): string {
   if (issue.code === 'missing_scope_boundary') {
     return `Cannot enter INIT_CHECK: scope-boundary.json is missing or invalid for ${storyId}. [missing_scope_boundary]\n` +
+      `${initPreflightGuidance(storyId)}\n` +
       `→ Run scope_boundary_set with userConfirmed:true before creating the worktree.`;
   }
   if (issue.code === 'missing_execution_boundary') {
     return `Cannot enter INIT_CHECK: execution-boundary.json is missing or invalid for ${storyId}. [missing_execution_boundary]\n` +
+      `${initPreflightGuidance(storyId)}\n` +
       `→ Run execution_boundary_set before creating the worktree.`;
   }
   if (issue.code === 'future_capability_keyword') {
     const source = issue.source ? ` in ${issue.source}${issue.itemId ? ` (${issue.itemId})` : ''}` : '';
     const keyword = issue.keyword ? `"${issue.keyword}"` : 'an excluded keyword';
     return `Cannot enter INIT_CHECK: excluded scope keyword ${keyword} appears${source}. [excluded_keyword]\n` +
+      `${initPreflightGuidance(storyId)}\n` +
       `→ Remove the expansion from the frozen INIT text, or record a scope_extension_proposal and explicit decision before rerunning scope_freeze_check.`;
   }
   if (issue.code === 'repeat_discard_without_mitigation') {
     const digest = issue.digest ? ` ${issue.digest}` : '';
     return `Cannot enter INIT_CHECK: current direction repeats a discarded direction${digest} without mitigation. [repeat_discarded_direction]\n` +
+      `${initPreflightGuidance(storyId)}\n` +
       `→ Provide repeatDiscardMitigation when rerunning scope_freeze_check, or choose a different scope boundary.`;
   }
-  return `Cannot enter INIT_CHECK: scope-freeze-check failed for ${storyId}. [scope_freeze_check_failed]`;
+  return `Cannot enter INIT_CHECK: scope-freeze-check failed for ${storyId}. [scope_freeze_check_failed]\n` +
+    `${initPreflightGuidance(storyId)}`;
 }
 
-function readScopeGateFailure<T>(label: string, fn: () => T): { value: T; reason: null } | { value: null; reason: string } {
+function readScopeGateFailure<T>(storyId: string, label: string, fn: () => T): { value: T; reason: null } | { value: null; reason: string } {
   try {
     return { value: fn(), reason: null };
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
+    const guidance = ['scope-boundary.json', 'execution-boundary.json', 'scope-freeze-check.json'].includes(label)
+      ? `\n${initPreflightGuidance(storyId)}`
+      : '';
     return {
       value: null,
-      reason: `Cannot enter INIT_CHECK: ${label} could not be read. [${label.replace(/\.json$/, '').replaceAll('-', '_')}_unreadable]\n  - ${msg}`,
+      reason: `Cannot enter INIT_CHECK: ${label} could not be read. [${label.replace(/\.json$/, '').replaceAll('-', '_')}_unreadable]\n  - ${msg}${guidance}`,
     };
   }
 }
@@ -200,16 +212,16 @@ export function evaluateScopeAntiExpansionGate(
   storyId: string,
   store: StoryStore,
 ): ScopeAntiExpansionGateResult {
-  const scopeBoundary = readScopeGateFailure('scope-boundary.json', () => store.readScopeBoundary(storyId));
+  const scopeBoundary = readScopeGateFailure(storyId, 'scope-boundary.json', () => store.readScopeBoundary(storyId));
   if (scopeBoundary.reason) return { ok: false, reason: scopeBoundary.reason };
 
-  const executionBoundary = readScopeGateFailure('execution-boundary.json', () => store.readExecutionBoundary(storyId));
+  const executionBoundary = readScopeGateFailure(storyId, 'execution-boundary.json', () => store.readExecutionBoundary(storyId));
   if (executionBoundary.reason) return { ok: false, reason: executionBoundary.reason };
 
-  const freezeCheck = readScopeGateFailure('scope-freeze-check.json', () => store.readScopeFreezeCheck(storyId));
+  const freezeCheck = readScopeGateFailure(storyId, 'scope-freeze-check.json', () => store.readScopeFreezeCheck(storyId));
   if (freezeCheck.reason) return { ok: false, reason: freezeCheck.reason };
 
-  const proposals = readScopeGateFailure('scope-extension-proposals.json', () => store.readScopeExtensionProposals(storyId));
+  const proposals = readScopeGateFailure(storyId, 'scope-extension-proposals.json', () => store.readScopeExtensionProposals(storyId));
   if (proposals.reason) return { ok: false, reason: proposals.reason };
   if (!proposals.value) {
     return {
@@ -218,7 +230,7 @@ export function evaluateScopeAntiExpansionGate(
     };
   }
 
-  const discardDigest = readScopeGateFailure('scope-discard-digest.json', () => store.readScopeDiscardDigestForFreeze(storyId));
+  const discardDigest = readScopeGateFailure(storyId, 'scope-discard-digest.json', () => store.readScopeDiscardDigestForFreeze(storyId));
   if (discardDigest.reason) return { ok: false, reason: discardDigest.reason };
 
   const storedCheck = freezeCheck.value;
@@ -249,6 +261,7 @@ export function evaluateScopeAntiExpansionGate(
     return {
       ok: false,
       reason: `Cannot enter INIT_CHECK: scope-freeze-check.json is missing. [missing_scope_freeze_check]\n` +
+        `${initPreflightGuidance(storyId)}\n` +
         `→ Run scope_freeze_check after scope_boundary_set and execution_boundary_set.`,
     };
   }
@@ -256,6 +269,7 @@ export function evaluateScopeAntiExpansionGate(
     return {
       ok: false,
       reason: `Cannot enter INIT_CHECK: scope-freeze-check.json hash is stale or tampered. [scope_freeze_check_stale]\n` +
+        `${initPreflightGuidance(storyId)}\n` +
         `→ Rerun scope_freeze_check before creating the worktree.`,
     };
   }
@@ -265,7 +279,7 @@ export function evaluateScopeAntiExpansionGate(
       ok: false,
       reason: storedIssue
         ? renderScopeFreezeIssue(storyId, storedIssue)
-        : `Cannot enter INIT_CHECK: scope-freeze-check.json status is ${storedCheck.status}. [scope_freeze_check_failed]\n→ Resolve the freeze issues and rerun scope_freeze_check.`,
+        : `Cannot enter INIT_CHECK: scope-freeze-check.json status is ${storedCheck.status}. [scope_freeze_check_failed]\n${initPreflightGuidance(storyId)}\n→ Resolve the freeze issues and rerun scope_freeze_check.`,
     };
   }
   if (
@@ -276,6 +290,7 @@ export function evaluateScopeAntiExpansionGate(
     return {
       ok: false,
       reason: `Cannot enter INIT_CHECK: scope-freeze-check.json is stale relative to current scope/checklist/proposal inputs. [scope_freeze_check_stale]\n` +
+        `${initPreflightGuidance(storyId)}\n` +
         `→ Rerun scope_freeze_check before creating the worktree.`,
     };
   }
@@ -907,6 +922,7 @@ export function getGuardFailureReason(
     const initCheck = store.readInitCheck(storyId);
     if (!initCheck) {
       return `Cannot enter INIT_CHECK: init-check.json is missing. [missing_init_check]\n` +
+        `${initPreflightGuidance(storyId)}\n` +
         `Missing required reviewer records: ${REQUIRED_INIT_CHECK_AGENTS.join(', ')}\n` +
         `→ Preferred: spawn an independent reviewer\n` +
         `   Agent({ subagent_type: "lattice-review-story-init", prompt: \`lattice dispatch '{"storyId":"${storyId}","agentType":"lattice-review-story-init"}'\` })\n` +
@@ -921,6 +937,7 @@ export function getGuardFailureReason(
     const missingAgents = missingRequiredInitCheckAgents(initCheck);
     if (missingAgents.length > 0) {
       return `Cannot enter INIT_CHECK: init-check.json is missing required reviewer records: ${missingAgents.join(', ')}. [missing_init_check_agent]\n` +
+        `${initPreflightGuidance(storyId)}\n` +
         `→ Preferred: separately run lattice dispatch '{"storyId":"${storyId}","agentType":"lattice-review-story-init"}' and product-reviewer; every reviewer must call init_check_set regardless of pass/fail.\n` +
         `→ Fallback (only when subagents cannot be spawned, controlled and audited):\n` +
         `   lattice init_check_repair '{"storyId":"${storyId}","acknowledge":true,"fallbackReason":"<why the reviewer cannot run + what you manually verified, >=30 chars>"}'`;

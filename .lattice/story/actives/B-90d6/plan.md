@@ -85,3 +85,20 @@ Verify:
 - story_review still blocks until scope_check_save exists.
 
 Out of scope: full M4 open-question UX redesign, main-agent self-signing, or any gate exemption.
+
+## CHK-007
+
+Goal: make checklist_add expose milestone-ledger sync risk when new checklist work is added to a story that already has a milestone ledger.
+
+Steps:
+1. Inspect packages/main/src/handlers/checklist.ts for the checklist_add success path and existing story/checklist reads.
+2. Detect whether the story already has a milestone ledger after the checklist item is appended.
+3. Append a precise advisory line to checklist_add output that says the ledger exists and, if the item changes milestone coverage, the agent should run lattice milestone_ledger_add or otherwise update the ledger.
+4. Keep the command advisory only: checklist_add must not auto-create milestone rows, mark milestone status, or change milestone_status semantics.
+
+Verify:
+- A focused test or smoke proves checklist_add on a ledger-backed story prints the ledger-sync hint and names lattice milestone_ledger_add.
+- A no-ledger story does not get a misleading ledger-required message.
+- The hint does not claim gate evidence, milestone coverage, or production readiness.
+
+Out of scope: automatic ledger inference, milestone_status mutation, and ProofStory gate relaxation.

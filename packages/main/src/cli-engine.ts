@@ -469,6 +469,7 @@ const STRICT_COMMAND_ARG_COMMANDS = new Set([
 const MILESTONE_STATUS_APPEND_COMMANDS = new Set([
   'milestone_ledger_set',
   'milestone_ledger_add',
+  'checklist_add',
   'checklist_update',
   'verification_evidence_add',
   'verification_evidence_batch_add',

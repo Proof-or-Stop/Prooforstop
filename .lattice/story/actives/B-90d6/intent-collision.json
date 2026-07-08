@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-90d6",
+  "id": "IC-20260708225148",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "B-90d6 is accepted as the M0-M1 INIT drivability implementation slice plus two explicitly requested small blockers: minimal story-level scope-plan reviewer dispatch and checklist_add milestone-ledger sync guidance. M2, broad M3, full M4, M5, M6 execution, and M7 ceremony redesign remain outside this story.",
+  "acceptedInterpretationHash": "sha256:a7238f154bb6202a3268796ae1ee474245f81273feb8fc3c9fd0da5773b95f8e",
+  "notes": "Confirms the candidate milestone ledger rows M0, M1, M4-min, and M1-ledger-hint as the intended pre-DEV coverage for this story. checklist_add must only warn about ledger sync; it must not infer milestone rows or satisfy gate evidence.",
+  "ledgerHashBeforeDecision": "sha256:6a60173dac5780c11fe61cfc6d9e868ed2ed1e63f7706633ac2e87e46d87df50",
+  "confirmedLedgerHash": "sha256:6a60173dac5780c11fe61cfc6d9e868ed2ed1e63f7706633ac2e87e46d87df50",
+  "createdAt": "2026-07-08T22:51:48.806Z",
+  "updatedAt": "2026-07-08T22:51:48.806Z"
+}

@@ -636,7 +636,7 @@ export function computeNextStep(c: NextStepCtx): string {
       if (!c.gitReady && !c.configuredGitRootResolved) {
         return `Story is in INIT phase, but the current project is not a git repository. You can continue recording metadata; to enter the INIT_CHECK/worktree flow, first run git init && git add . && git commit -m "init"`;
       }
-      return `Story is in INIT phase. Next step: lattice story_advance --storyId=${sid} --phase=INIT_CHECK to create the worktree, then cd into it`;
+      return `Story is in INIT phase. Next step: lattice init_preflight --storyId=${sid} (read-only; it does not write evidence or create worktrees). After it reports READY, run lattice story_advance --storyId=${sid} --phase=INIT_CHECK to create the worktree, then cd into it`;
     case 'INIT_CHECK':
       if (!c.gitReady && !c.configuredGitRootResolved) {
         return `Story is in the pre-INIT_CHECK phase, but the current project is not a git repository. Run git init + initial commit first, then continue with worktree / PLAN flow`;
@@ -1027,6 +1027,8 @@ export function createSessionHandlers(ctx: HandlerContext) {
               ? `worktree phase ${top.phase} is authoritative; main metadata mirror is lagging at ${top.mainPhase}`
               : `${top.phase} from ${top.phaseAuthority} metadata`;
             lines.push(`  Resume: cd ${wt} (story ${top.storyId}; authority: ${authority})`);
+          } else if (top.phase === 'INIT') {
+            lines.push(`  Story ${top.storyId} is in INIT with no worktree. First run \`lattice init_preflight --storyId=${top.storyId}\` (read-only; it does not write evidence or create worktrees), then after READY run \`lattice story_advance --storyId=${top.storyId} --phase=INIT_CHECK\` to create one.`);
           } else {
             lines.push(`  Story ${top.storyId} is in ${top.phase} but has no worktree. Try \`lattice story_advance --storyId=${top.storyId} --phase=INIT_CHECK\` to create one.`);
           }

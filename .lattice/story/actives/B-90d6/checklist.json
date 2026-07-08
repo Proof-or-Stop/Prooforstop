@@ -293,6 +293,108 @@
       "status": "pending",
       "startTime": null,
       "endTime": null
+    },
+    {
+      "id": "CHK-007",
+      "title": "Warn when checklist_add may require milestone ledger sync",
+      "context": "Small drivability bug found while adding CHK-006: checklist_add can append a requirement on a story that already has a milestone ledger, but the command output does not surface that milestone_ledger_add or ledger update may be needed, so milestone_status can appear to omit the new work.",
+      "relatedDocs": [
+        "docs/requirements/decisions/pos-agent-drivability-optimization.md",
+        "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md"
+      ],
+      "userSees": "After checklist_add on a story with an existing milestone ledger, the terminal includes \"Milestone ledger exists; if this item changes milestone coverage, update the ledger with lattice milestone_ledger_add\".",
+      "excludes": [
+        "Do not auto-create milestone rows from checklist text",
+        "Do not change milestone_status read-only projection semantics",
+        "Do not weaken ProofStory ledger confirmation or DONE gates"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "checklist_add on a story with an existing milestone ledger prints a clear milestone ledger sync hint naming lattice milestone_ledger_add.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "checklist_add on a story without a milestone ledger keeps the existing checklist-derived flow and does not imply a ledger is required.",
+            "type": "logic",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The hint does not auto-create milestone rows, does not mark milestones covered, and does not change milestone_status from read-only projection to mutation.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-008",
+      "title": "Force milestone ledger status display during development UX",
+      "context": "When a story already has a milestone ledger, developers should see the live read-only milestone status during normal development/planning command output, not only when manually running milestone_status or on narrow mutation commands. Current CLI has MILESTONE_STATUS_APPEND_COMMANDS, but it omits checklist_add and likely misses common DEV visibility surfaces, so ledger-backed work can feel invisible in the UX.",
+      "relatedDocs": [
+        "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+        "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+        "docs/requirements/decisions/pos-agent-drivability-optimization.md"
+      ],
+      "userSees": "For a ledger-backed story, common development command output includes \"Milestone Status - <storyId>\" automatically, with the read-only disclaimer, without requiring a separate milestone_status command.",
+      "excludes": [
+        "Do not make milestone_status a gate pass or production-readiness claim",
+        "Do not auto-update milestone rows",
+        "Do not append milestone status to machine JSON output",
+        "Do not hide render failures silently"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/milestone-status.test.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "For a ledger-backed active DEV story, common developer commands such as checklist_add append a visible Milestone Status - <storyId> block automatically.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Machine JSON output is not polluted by forced milestone status, and stories without a milestone ledger still use the existing checklist-derived or no-ledger behavior without fabricated milestone rows.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A milestone_status render failure remains visible as a display failure and does not imply the preceding command failed or that milestone data was changed.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
     }
   ],
   "auditLog": [
@@ -306,6 +408,17 @@
       "reason": "Current PLAN gate is blocked by the documented #6 drivability gap; user explicitly requested this be solved in the current work so future agents do not rediscover it.",
       "addedTitle": "Add story-level scope-plan reviewer dispatch",
       "addedContext": "Fix the documented #6 blocker from pos-agent-drivability: lattice dispatch currently requires itemId/findingId/clusterId except INIT reviewers, so a story-level lattice-review-scope-plan reviewer cannot get a prompt that terminates in scope_check_save. Add the minimal story-level dispatch branch and prompt builder needed for scope-plan reviewer evidence."
+    },
+    {
+      "timestamp": "2026-07-08T22:50:16.970Z",
+      "phase": "PLAN",
+      "itemId": "CHK-007",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "User explicitly requested the checklist_add milestone-ledger guidance bug be fixed in this same story so future agents do not rediscover the mismatch.",
+      "addedTitle": "Warn when checklist_add may require milestone ledger sync",
+      "addedContext": "Small drivability bug found while adding CHK-006: checklist_add can append a requirement on a story that already has a milestone ledger, but the command output does not surface that milestone_ledger_add or ledger update may be needed, so milestone_status can appear to omit the new work."
     }
   ]
 }

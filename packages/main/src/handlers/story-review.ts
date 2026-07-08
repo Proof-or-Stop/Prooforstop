@@ -463,7 +463,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
         issues.push({
           type: 'missing_scope_check',
           severity: 'blocker',
-          message: 'missing_scope_check: scope-check.json is missing PLAN gate evidence. `scope_check_save` already exists; a lattice-review-scope-plan / scope-plan reviewer must persist the result through `scope_check_save`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not remote completion and must not be presented as receipt verification or production/full completion.',
+          message: `missing_scope_check: scope-check.json is missing PLAN gate evidence. Start a story-level PLAN scope reviewer with \`lattice dispatch --storyId=${args.storyId} --agentType=lattice-review-scope-plan\`; dispatch output is not gate evidence, and the lattice-review-scope-plan / scope-plan reviewer must finish by calling \`lattice scope_check_save\`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not remote completion and must not be presented as receipt verification or production/full completion.`,
         });
       } else if (scopeData) {
         // Verify signature using shared signScopeCheck function

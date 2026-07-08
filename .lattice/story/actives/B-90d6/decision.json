@@ -4,24 +4,36 @@
     "Prefer exact next commands over prose-only guidance.",
     "Keep init_preflight read-only and evidence-neutral.",
     "Keep scope_check_save reviewer-written, not main-agent self-signed.",
-    "Make regressions mechanically testable."
+    "Keep checklist_add advisory about milestone ledgers; do not infer or auto-create ledger rows."
   ],
   "drivers": [
     "The current failure wastes command budget before DEV.",
     "The PLAN scope-check dispatch gap blocks this story before implementation can begin.",
+    "The checklist_add ledger-sync gap made milestone_status look misleading after CHK-006 was added.",
     "The safety contract must not be weakened by convenience automation."
   ],
   "options": [
     {
-      "name": "M0-M1 plus minimal #6 dispatch unblocker",
+      "name": "M0-M1 plus minimal #6 dispatch and checklist_add ledger hint",
       "pros": [
         "Addresses the largest INIT discovery waste and the PLAN blocker that prevents this story from reaching DEV.",
         "Keeps evidence contracts unchanged because scope_check_save remains reviewer evidence.",
+        "Prevents checklist_add from silently creating ledger/status drift while keeping milestone_status read-only.",
         "Can be tested with focused command-output and dispatch assertions."
       ],
       "cons": [
-        "Slightly broadens the first slice beyond pure M0-M1.",
-        "Does not yet solve M2 checklist self-seeding, M3 parser/help schema fixes, M5 asset repair, or M7 ceremony redesign."
+        "Broadens the first slice beyond pure M0-M1.",
+        "Does not yet solve M2 checklist self-seeding, M3 parser/schema fixes, M5 asset repair, or M7 ceremony redesign."
+      ]
+    },
+    {
+      "name": "M0-M1 plus minimal #6 only",
+      "pros": [
+        "Smaller than the chosen scope and addresses the immediate PLAN scope reviewer blocker."
+      ],
+      "cons": [
+        "Leaves checklist_add capable of hiding new checklist work from milestone_status until an agent manually notices ledger drift.",
+        "Would make future agents rediscover the same checklist/milestone mismatch."
       ]
     },
     {
@@ -31,7 +43,7 @@
       ],
       "cons": [
         "Leaves the current story blocked at PLAN by the documented #6 gap.",
-        "Future agents would rediscover the story-level scope-plan dispatch failure."
+        "Leaves the checklist/milestone guidance bug unaddressed."
       ]
     },
     {
@@ -56,8 +68,8 @@
       ]
     }
   ],
-  "chosen": "M0-M1 plus minimal #6 dispatch unblocker",
-  "rationale": "The story-level scope-plan dispatch gap is not optional for this work: it blocks PLAN review before implementation and is explicitly documented as finding #6. Adding the minimal dispatch branch keeps reviewer evidence intact while preventing every future agent from rediscovering the same missing path.",
+  "chosen": "M0-M1 plus minimal #6 dispatch and checklist_add ledger hint",
+  "rationale": "The user explicitly requested the checklist/milestone mismatch be solved in this same pass. The safest implementation is a command-output hint from checklist_add when a ledger exists: it fixes the rediscovery problem without letting checklist_add invent milestone claims or mutate gate evidence.",
   "preMortem": [
     {
       "scenario": "A help or session hint says init_preflight is enough to advance",
@@ -72,10 +84,16 @@
       "mitigation": "Prompt and tests must state dispatch output is not gate evidence; reviewer must call scope_check_save."
     },
     {
+      "scenario": "checklist_add starts inventing milestone rows",
+      "trigger": "The ledger-sync hint is implemented as automatic milestone mutation instead of guidance.",
+      "consequence": "Milestone claims become guessed from checklist prose and ProofStory intent accounting weakens.",
+      "mitigation": "Only print an advisory next command; do not mutate milestone-ledger.json from checklist_add."
+    },
+    {
       "scenario": "Tests assert brittle full help output",
       "trigger": "Snapshotting too much global help text.",
       "consequence": "Routine command catalog edits break unrelated tests.",
-      "mitigation": "Use focused substring/ordering assertions around init_preflight and scope-plan dispatch wording."
+      "mitigation": "Use focused substring/ordering assertions around init_preflight, scope-plan dispatch, and ledger-sync hint wording."
     },
     {
       "scenario": "The story grows into M2-M7",
@@ -90,5 +108,5 @@
       "mitigation": "Preserve the fallback warning and rely on normal PLAN/DEV/REVIEW/TEST gates before any implementation claim."
     }
   ],
-  "timestamp": "2026-07-08T22:44:28.489Z"
+  "timestamp": "2026-07-08T22:51:13.489Z"
 }

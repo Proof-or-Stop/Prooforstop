@@ -289,23 +289,24 @@ export function printHelp(options: GlobalHelpOptions) {
   Development flow:
     ── PLAN ──
     1. lattice story_create '{"name":"x","title":"..","description":"..","type":"feature","priority":"high","checklist":[{"title":"what to do","context":"context"}]}'
-    2. lattice story_advance --storyId=B-xxx --phase=INIT_CHECK # Create local worktree/local branch
-    3. cd .worktrees/B-xxx
-    4. lattice story_review --storyId=B-xxx                     # Review passes, then enter DEV
-    5. lattice story_advance --storyId=B-xxx --phase=DEV
+    2. lattice init_preflight --storyId=B-xxx                   # Read-only INIT_CHECK prerequisite report; writes no evidence and creates no worktree
+    3. lattice story_advance --storyId=B-xxx --phase=INIT_CHECK # After preflight READY; create local worktree/local branch
+    4. cd .worktrees/B-xxx
+    5. lattice story_review --storyId=B-xxx                     # Review passes, then enter DEV
+    6. lattice story_advance --storyId=B-xxx --phase=DEV
 
     ── DEV ──
-    6. Implement the code and its verification (fixtures, project-native tests, or optional validate.ts)
-    7. lattice validate                                         # Verification (auto-detect by project language or read config)
-    8. lattice checklist_update --storyId=B-xxx --itemId=CHK-001 --status=done
+    7. Implement the code and its verification (fixtures, project-native tests, or optional validate.ts)
+    8. lattice validate                                         # Verification (auto-detect by project language or read config)
+    9. lattice checklist_update --storyId=B-xxx --itemId=CHK-001 --status=done
 
     ── REVIEW ──
-    9. lattice story_advance --storyId=B-xxx --phase=REVIEW    # Enter code review
-   10. Proofbound reviewer reviews code and raises findings       # critical/high must resolve
+   10. lattice story_advance --storyId=B-xxx --phase=REVIEW    # Enter code review
+   11. Proofbound reviewer reviews code and raises findings       # critical/high must resolve
 
     ── TEST → DONE ──
-   11. lattice story_advance --storyId=B-xxx --phase=TEST
-   12. lattice story_advance --storyId=B-xxx --phase=DONE     # Merge back to local main and clean worktree
+   12. lattice story_advance --storyId=B-xxx --phase=TEST
+   13. lattice story_advance --storyId=B-xxx --phase=DONE     # Merge back to local main and clean worktree
 
   Parallelism and branch discipline:
     Proofbound parallel development uses only local git worktrees plus local branches; do not create or push GitHub/origin feature branches.

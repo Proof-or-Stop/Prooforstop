@@ -1,8 +1,8 @@
 {
   "schemaVersion": "proofstory.milestone_ledger.v1",
   "storyId": "B-90d6",
-  "state": "candidate",
-  "ledgerHash": "sha256:74346d4653f5328ebbc7dd190a89c1e8a01b1285a4cc81b4c7ef706849471a4e",
+  "state": "confirmed",
+  "ledgerHash": "sha256:6a60173dac5780c11fe61cfc6d9e868ed2ed1e63f7706633ac2e87e46d87df50",
   "milestones": [
     {
       "id": "M0",
@@ -60,8 +60,30 @@
         "CHK-006:happy:0"
       ],
       "status": "planned"
+    },
+    {
+      "id": "M1-ledger-hint",
+      "sourceRequirementId": "POS-DRIVE-LEDGER-HINT",
+      "claim": "checklist_add surfaces milestone ledger sync guidance when adding work to a ledger-backed story.",
+      "doneMeans": "When checklist_add appends an item to a story that already has milestone-ledger.json, command output names the ledger sync risk and the exact lattice milestone_ledger_add follow-up, without mutating the ledger automatically.",
+      "requiredEvidence": [
+        "focused_checklist_add_test",
+        "manual_cli_transcript"
+      ],
+      "checklistRefs": [
+        "CHK-007"
+      ],
+      "verificationIntentRefs": [
+        "CHK-007:happy:0"
+      ],
+      "status": "planned"
     }
   ],
   "createdAt": "2026-07-08T22:36:55.377Z",
-  "updatedAt": "2026-07-08T22:45:28.188Z"
+  "updatedAt": "2026-07-08T22:51:48.807Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260708225148",
+    "acceptedInterpretationHash": "sha256:a7238f154bb6202a3268796ae1ee474245f81273feb8fc3c9fd0da5773b95f8e",
+    "acceptedAt": "2026-07-08T22:51:48.807Z"
+  }
 }
