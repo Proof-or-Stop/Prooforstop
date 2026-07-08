@@ -1,0 +1,50 @@
+{
+  "storyId": "B-08be",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/scope-contract.ts",
+    "packages/main/src/handlers/phase-gates.ts",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/core/lattice-brand.ts",
+    "package-lock.json",
+    "packages/main/package-lock.json"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/scope-contract-smoke.ts",
+    "packages/main/tests/**",
+    "packages/main/src/tasks/*scope*.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "**/.omx/**"
+  ],
+  "scopeChangeReason": "Limit B-08be to Proofbound CLI gate cwd/scope behavior and patch-version surfaces; downstream Prodenovo dirty files are outside this repository and must not be edited as a workaround.",
+  "acknowledgements": [
+    {
+      "actor": "codex-b08be-takeover",
+      "reason": "Acknowledge existing B-08be ProofStory process artifacts created during PLAN to enter DEV; they are story-owned metadata, not source-code scope expansion or unrelated metadataRoot dirt.",
+      "timestamp": "2026-07-08T14:49:37.790Z",
+      "paths": [
+        ".lattice/story/actives/B-08be/intent-collision.json",
+        ".lattice/story/actives/B-08be/original-intent-snapshot.json",
+        ".lattice/story/actives/B-08be/proofstory.json",
+        ".lattice/story/actives/B-08be/red-evidence.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-08be/intent-collision.json",
+        ".lattice/story/actives/B-08be/original-intent-snapshot.json",
+        ".lattice/story/actives/B-08be/proofstory.json",
+        ".lattice/story/actives/B-08be/red-evidence.json"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "6850e72652d69c6cefbfcbc5f8d8d5557fc21d60",
+      "materialHash": "78e9315bdb183f92ae7dea2c54ba64a5a3f55d67f44e871b74bfa793b0010e77"
+    }
+  ],
+  "createdAt": "2026-07-08T14:44:09.601Z",
+  "updatedAt": "2026-07-08T14:49:37.790Z"
+}

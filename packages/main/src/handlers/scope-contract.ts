@@ -23,6 +23,7 @@ import {
 import { buildScopeDiffPack } from '../core/scope-diff-pack.js';
 import { checkSemanticScope, mergeSemanticScopeResult } from '../core/semantic-scope-gate.js';
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
+import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 
 type StructuredScopeAcknowledgement = ScopeContractAcknowledgement & {
   assuranceLabel?: 'acknowledged-expansion';
@@ -157,7 +158,8 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
         if (args.json) return JSON.stringify(result, null, 2);
         return result.summary;
       }
-      const diffPack = buildScopeDiffPack(root);
+      const gitCwd = resolveGitCwd({ store, storyId: args.storyId, metadataRoot: root, projectRoot: root });
+      const diffPack = buildScopeDiffPack(gitCwd);
       const result = mergeSemanticScopeResult(
         checkScopeContract(contract, diffPack.changedFiles),
         checkSemanticScope(contract, diffPack),
@@ -334,13 +336,14 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
 export function runScopeGate(
   storyId: string,
   store: import('../core/store.js').StoryStore,
-  projectRoot: string,
+  metadataRoot: string,
   gitReader?: (root: string) => string[],
+  gitCwd?: string,
 ): import('../core/types.js').ScopeCheckResult | null {
   const contract = store.readScopeContract(storyId);
   if (!contract) return null;
-  if (gitReader) return checkScopeContract(contract, gitReader(projectRoot));
-  const diffPack = buildScopeDiffPack(projectRoot);
+  if (gitReader) return checkScopeContract(contract, gitReader(gitCwd ?? metadataRoot));
+  const diffPack = buildScopeDiffPack(gitCwd ?? metadataRoot);
   return mergeSemanticScopeResult(
     checkScopeContract(contract, diffPack.changedFiles),
     checkSemanticScope(contract, diffPack),

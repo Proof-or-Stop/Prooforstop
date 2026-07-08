@@ -1,0 +1,31 @@
+{
+  "passes": [
+    {
+      "id": "B-08be:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept review for B-08be: checked authoritative worktree cwd semantics, metadataRoot preservation, and version-bump concept; found no blocker.",
+      "createdAt": "2026-07-08T15:12:13.922Z",
+      "reviewRound": "2026-07-08T14:49:54.971Z",
+      "reviewRunId": "B-08be:RR-001",
+      "_hash": "aa1f2f8759ccd1cb1efe700aebcce503fa3641a7cbd6b7924e762805a7877a41"
+    },
+    {
+      "id": "B-08be:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review for B-08be: checked verificationIntent coverage, scope-contract regression, build/version evidence, and adversarial metadataRoot-dirt coverage; found no blocker.",
+      "createdAt": "2026-07-08T15:13:31.388Z",
+      "reviewRound": "2026-07-08T14:49:54.971Z",
+      "reviewRunId": "B-08be:RR-004",
+      "_hash": "771e26166cbcae293353b8c74e2a961dc73ca3e9306cb8998992e6b55c6e435d"
+    },
+    {
+      "id": "B-08be:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Quality review for B-08be: checked implementation quality, API compatibility, smoke robustness, and scoped version bump; found no blocker.",
+      "createdAt": "2026-07-08T15:14:09.340Z",
+      "reviewRound": "2026-07-08T14:49:54.971Z",
+      "reviewRunId": "B-08be:RR-002",
+      "_hash": "af2e53e35693008c1288bc2ac9fbd5023b3aefcea48851d7c294a3e46b11f6bb"
+    }
+  ]
+}

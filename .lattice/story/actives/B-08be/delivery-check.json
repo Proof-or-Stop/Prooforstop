@@ -1,0 +1,27 @@
+{
+  "storyId": "B-08be",
+  "checkedAt": "2026-07-08T15:35:25.368Z",
+  "headHash": "39112cb90228245ea5b82378dfa95b5ca00db309",
+  "materialHash": "78e9315bdb183f92ae7dea2c54ba64a5a3f55d67f44e871b74bfa793b0010e77",
+  "storyFilesHash": "2131b44816e864d270b56506f7e9eb30a57a0ff73004f8e7a39101fe02437862",
+  "reviewRound": "2026-07-08T14:49:54.971Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "scope_contract_check is warn with no unacknowledged blocking violations; scope-contract-smoke recorded pass; lattice validate PASS 43/43; regression confirms metadataRoot dirty files are not reported when story worktree diff is clean/legal."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "packages/main build passed; node packages/main/dist/cli.js --version and global lattice --version both reported Proofbound CLI 0.3.169; done_required_validate PASS included packages/main build and root npm test."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery verified against story worktree diff behavior, phase gate integration, regression coverage, version outputs, full validation, DONE-required evidence, and independent review quorum."
+  },
+  "_hash": "b371daec0a843843271c187ca45414972a162dec0104ff011e297fc436c78408"
+}

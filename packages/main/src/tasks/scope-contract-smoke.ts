@@ -27,6 +27,7 @@ import { fileURLToPath } from 'node:url';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, StoryInfo } from '../core/types.js';
 import { checkScopeContract, validatePaths } from '../core/scope-contract.js';
+import { createScopeContractHandlers } from '../handlers/scope-contract.js';
 import { runScopeTransitionGate } from '../handlers/phase-gates.js';
 import type { HandlerContext } from '../handlers/context.js';
 
@@ -368,6 +369,100 @@ try {
   run(root, 'scope_contract_set', { storyId, mode: 'shadow', allowedModify: ['src/allowed.ts'] });
   const resetShow = run(root, 'scope_contract_show', { storyId });
   assert.match(resetShow, /Mode: shadow/, 'CHK-004: scope_contract_set always updates the contract regardless of phase');
+
+  // B-08be CHK-001 regression: direct and lifecycle scope gates must read git
+  // diffs from the authoritative story worktree, not unrelated metadataRoot
+  // dirt. This fixture intentionally calls the handler with root=metadataRoot
+  // while the story metadata points at a linked story worktree.
+  const authorityRoot = mkdtempSync(join(tmpdir(), 'lattice-scope-authority-'));
+  try {
+    git(authorityRoot, ['init', '-b', 'main']);
+    git(authorityRoot, ['config', 'user.email', 'scope-authority@example.test']);
+    git(authorityRoot, ['config', 'user.name', 'Scope Authority Smoke']);
+    write(authorityRoot, '.gitignore', '.worktrees/\n');
+    write(authorityRoot, 'lattice.config.json', JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      storyDir: '.lattice/story/actives',
+      requirementsDir: 'docs/requirements',
+      storyPrefix: 'B',
+      worktreeDir: '.worktrees',
+    }, null, 2));
+    write(authorityRoot, 'src/allowed.ts', 'export const allowed = 1;\n');
+    git(authorityRoot, ['add', '.']);
+    git(authorityRoot, ['commit', '-m', 'init']);
+
+    const authorityStoryId = 'B-authority';
+    const authorityStore = new StoryStore(authorityRoot);
+    const authorityWorktreeRel = `.worktrees/${authorityStoryId}`;
+    const authorityWorktreePath = join(authorityRoot, authorityWorktreeRel);
+    const authorityStory: StoryInfo = {
+      storyId: authorityStoryId,
+      name: 'scope-authority-smoke',
+      title: 'Scope authority smoke',
+      description: 'Verify scope gates read the authoritative story worktree diff.',
+      type: 'feature',
+      phase: 'DEV',
+      priority: 'high',
+      createdAt: new Date().toISOString(),
+      startedAt: new Date().toISOString(),
+      endedAt: null,
+      events: [],
+      worktree: {
+        path: authorityWorktreeRel,
+        branch: `story/${authorityStoryId}`,
+        createdAt: new Date().toISOString(),
+      },
+    };
+    authorityStore.writeStory(authorityStoryId, authorityStory);
+    authorityStore.writeChecklist(authorityStoryId, {
+      items: [{
+        id: 'CHK-001',
+        title: 'Allowed source change',
+        status: 'in_progress',
+        startTime: null,
+        endTime: null,
+        files: { modify: ['src/allowed.ts'], create: [], test: [] },
+      }],
+    });
+    authorityStore.writeScopeContract(authorityStoryId, {
+      storyId: authorityStoryId,
+      mode: 'enforce',
+      allowedModify: ['src/allowed.ts'],
+      allowedCreate: [],
+      allowedTest: [],
+      protectedFiles: [],
+      explicitExcludes: [],
+      acknowledgements: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+    git(authorityRoot, ['add', '.lattice']);
+    git(authorityRoot, ['commit', '-m', 'story metadata']);
+    git(authorityRoot, ['branch', `story/${authorityStoryId}`]);
+    git(authorityRoot, ['worktree', 'add', authorityWorktreePath, `story/${authorityStoryId}`]);
+
+    write(authorityRoot, 'src/root-dirt.ts', 'export const rootDirt = true;\n');
+    write(authorityWorktreePath, 'src/allowed.ts', 'export const allowed = 2;\n');
+
+    const authorityCtx = { store: authorityStore, root: authorityRoot } as HandlerContext;
+    const directResult = JSON.parse(createScopeContractHandlers(authorityCtx).scope_contract_check({
+      storyId: authorityStoryId,
+      json: true,
+    }));
+    assert.equal(directResult.status, 'pass', 'B-08be: direct scope_contract_check uses story worktree diff');
+    assert.deepEqual(directResult.changedFiles, ['src/allowed.ts'], 'B-08be: direct scope check ignores metadataRoot dirt');
+    assert.ok(
+      !directResult.changedFiles.includes('src/root-dirt.ts'),
+      'B-08be: metadataRoot dirty file must not appear in direct scope changedFiles',
+    );
+
+    const lifecycleOutput = runScopeTransitionGate(authorityCtx, authorityStoryId, 'REVIEW');
+    assert.match(lifecycleOutput, /Scope gate: pass/, 'B-08be: lifecycle scope transition gate passes from story worktree diff');
+    assert.doesNotMatch(lifecycleOutput, /root-dirt/, 'B-08be: lifecycle scope rows must not report metadataRoot dirt');
+  } finally {
+    rmSync(authorityRoot, { recursive: true, force: true });
+  }
 
   console.log('scope contract smoke passed');
 } finally {

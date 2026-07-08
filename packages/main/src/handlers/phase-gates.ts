@@ -388,7 +388,8 @@ export function runScopeTransitionGate(
 ): string {
   let result;
   try {
-    result = runScopeGate(storyId, ctx.store, ctx.root);
+    const gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
+    result = runScopeGate(storyId, ctx.store, ctx.root, undefined, gitCwd);
   } catch (e) {
     // B-6bfd CHK-006 fail-closed: readScopeContract throws when an existing
     // scope-contract.json is corrupt/unreadable (vs. null for a genuinely

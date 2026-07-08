@@ -1,0 +1,70 @@
+{
+  "principles": [
+    "Use the authoritative story worktree for git state and diff decisions; keep metadataRoot for story metadata, config, and material-hash exclusion semantics.",
+    "Fail closed on real scope violations and never acknowledge or whitelist unrelated metadataRoot dirt.",
+    "Keep the runtime behavior change narrow, reviewable, and covered by a focused regression smoke.",
+    "Apply Proofbound CLI lifecycle discipline: patch bump, build, version output, review, test, summary, and DONE preparation remain required."
+  ],
+  "drivers": [
+    "A downstream story is blocked because scope/preflight gates can observe unrelated dirty files outside the authoritative story worktree.",
+    "B-08be changes Proofbound CLI gate behavior, so it is high-risk process/runtime work with strict role and evidence boundaries.",
+    "Scope reviewer evidence must remain reviewer-written; the implementation owner can plan and implement but must not self-sign PLAN scope review."
+  ],
+  "options": [
+    {
+      "name": "Resolve git cwd at scope gate boundaries",
+      "pros": [
+        "Matches existing evidence freshness and dirty-gate patterns that already call resolveGitCwd.",
+        "Keeps metadataRoot available for metadata storage and material-hash exclusions.",
+        "Limits the change to the scope contract handler and lifecycle scope transition gate."
+      ],
+      "cons": [
+        "Requires focused regression coverage for both direct scope_contract_check and story_advance lifecycle rendering paths."
+      ]
+    },
+    {
+      "name": "Thread git cwd through all low-level diff-pack APIs",
+      "pros": [
+        "Makes cwd choice explicit at lower layers.",
+        "Could help future non-story callers reason about git roots."
+      ],
+      "cons": [
+        "Wider API churn across core helpers for the same immediate bug.",
+        "Higher risk of mixing metadataRoot and gitCwd semantics in unrelated callers."
+      ]
+    },
+    {
+      "name": "Whitelist unrelated metadataRoot dirty paths",
+      "pros": [
+        "Could unblock one observed case quickly."
+      ],
+      "cons": [
+        "Hides real scope violations and trains the gate to ignore the wrong data source.",
+        "Does not prove the authoritative story worktree is being used."
+      ]
+    }
+  ],
+  "chosen": "Resolve git cwd at scope gate boundaries",
+  "rationale": "The chosen option fixes the actual cwd authority bug at the smallest gate boundary while preserving metadataRoot for story metadata and material-hash semantics.",
+  "preMortem": [
+    {
+      "scenario": "Lifecycle scope gate still reads metadataRoot after the direct command is fixed.",
+      "trigger": "runScopeTransitionGate continues to pass ctx.root directly into runScopeGate.",
+      "consequence": "story_advance REVIEW/TEST can still block on unrelated workspace dirt.",
+      "mitigation": "Add a regression where metadataRoot is dirty but the authoritative story worktree only has allowed files; assert lifecycle scope rows only include story worktree paths."
+    },
+    {
+      "scenario": "Material freshness semantics drift while fixing git cwd.",
+      "trigger": "A helper starts resolving config or material exclusions from gitCwd instead of metadataRoot.",
+      "consequence": "Evidence hashes can be recorded or compared against the wrong story metadata exclusions.",
+      "mitigation": "Keep metadataRoot threaded into material-hash calls and restrict this change to git diff/status cwd resolution."
+    },
+    {
+      "scenario": "Runtime behavior ships without synchronized version proof.",
+      "trigger": "Only LATTICE_CLI_VERSION or only package manifests are bumped, or build/version checks are skipped.",
+      "consequence": "Users cannot tell which global Proofbound CLI contains the gate fix.",
+      "mitigation": "Bump exactly one patch version across package.json, packages/main/package.json, lockfile, and lattice-brand, then run build and lattice --version checks."
+    }
+  ],
+  "timestamp": "2026-07-08T14:44:01.582Z"
+}

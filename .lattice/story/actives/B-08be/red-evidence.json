@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-08be",
+  "records": [
+    {
+      "id": "RED-20260708144345",
+      "trigger": "metadata-root dirty files block a clean downstream story worktree during REVIEW-to-TEST preflight",
+      "acceptanceTargetRef": "CHK-001:happy:0",
+      "baselineHeadHash": "3bc8fb34748fe841b2bcf4873333a9830315019c",
+      "baselineMaterialHash": "f48dc64f84b6a0709bf7889c10380840751be5a98fed7ce016c4a3fd14c4a6d0",
+      "observedFailure": "Running Prodenovo B-35f0 story_advance --phase=TEST from its clean story worktree failed lint because Lattice scanned the metadata root and reported unrelated files, including untracked antibody_0.1.py and root-level tracked imports, rather than only story-owned worktree material.",
+      "failingCommand": "cd /Users/jek/Library/Mobile Documents/com~apple~CloudDocs/Prodenovo-tools/Prodenovo Antibody Filter/.worktrees/B-35f0 && lattice story_advance --storyId=B-35f0 --phase=TEST",
+      "expectedGreenCommand": "cd /Users/jek/Library/Mobile Documents/com~apple~CloudDocs/Prodenovo-tools/Prodenovo Antibody Filter/.worktrees/B-35f0 && lattice story_advance --storyId=B-35f0 --phase=TEST --takeover",
+      "greenRelation": {
+        "targetRef": "CHK-001:happy:0",
+        "relation": "same_acceptance",
+        "command": "cd /Users/jek/Library/Mobile Documents/com~apple~CloudDocs/Prodenovo-tools/Prodenovo Antibody Filter/.worktrees/B-35f0 && lattice story_advance --storyId=B-35f0 --phase=TEST --takeover"
+      },
+      "note": "Captured from the active Prodenovo unblocker; do not fix by editing downstream dirty files.",
+      "createdAt": "2026-07-08T14:43:45.330Z"
+    }
+  ],
+  "createdAt": "2026-07-08T14:43:45.330Z",
+  "updatedAt": "2026-07-08T14:43:45.330Z"
+}
