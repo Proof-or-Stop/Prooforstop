@@ -103,11 +103,12 @@
       "q": "The related decision doc is absent from the story worktree but present as an untracked file in the parent checkout. Should DEV add/import docs/requirements/decisions/pos-agent-drivability-optimization.md into story/B-90d6 before CHK-001, or should CHK-001 be adjusted to a worktree-available source?",
       "evidence": "In /Users/jek/Documents/Work/proofbound/.worktrees/B-90d6, rg --files and git ls-files found no docs/requirements/decisions/pos-agent-drivability-optimization.md. In /Users/jek/Documents/Work/proofbound, the same path exists and git status reports it as untracked (??). Story artifacts nevertheless reference that doc as CHK-001 relatedDocs and allowed scope.",
       "sourcePointers": [
-        ".lattice/story/actives/B-90d6/checklist.json:CHK-001",
-        ".lattice/story/actives/B-90d6/background.md",
-        "docs/requirements/decisions/pos-agent-drivability-optimization.md (missing in story worktree)",
-        "/Users/jek/Documents/Work/proofbound/docs/requirements/decisions/pos-agent-drivability-optimization.md (parent checkout, untracked)"
-      ]
+        "docs/requirements/decisions/pos-agent-drivability-optimization.md",
+        "CHK-001",
+        "CHK-006"
+      ],
+      "resolution": "Resolution: include docs/requirements/decisions/pos-agent-drivability-optimization.md in this story worktree during DEV. The parent checkout untracked copy is not sufficient delivery evidence; the story branch must carry the decision-doc roadmap update alongside the code changes.",
+      "resolvedAt": "2026-07-08T22:49:17.550Z"
     },
     {
       "id": "OQ-2",
