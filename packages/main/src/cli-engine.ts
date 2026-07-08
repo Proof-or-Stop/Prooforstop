@@ -16,7 +16,7 @@ import { StoryStore } from './core/store.js';
 import { createMainRegistry, type Registry } from './registry.js';
 import type { HandlerContext } from './handlers/context.js';
 import { execFileSync, execSync } from 'child_process';
-import { loadConfig, isCommandAllowed, getAllowedPatterns, hasProjectConfigFile } from './core/config.js';
+import { loadConfig, isCommandAllowed, getAllowedPatterns, hasProjectConfigFile, isRuntimeActivityRoot } from './core/config.js';
 import { formatCommandLifecycleHint, isMemoryRetrievalCommand } from './core/command-policy.js';
 import { resolveExperimentArm } from './core/experiment-arm.js';
 import { decorateResult, wantsMachineJson, type ActiveStoryInfo } from './handlers/hints.js';
@@ -994,7 +994,7 @@ export async function runCli(opts?: {
       // path, we re-create dirs and leave a dangling audit log that
       // masquerades as an active worktree.
       //
-      // Detect this by checking if `root` still has lattice.config.json.
+      // Detect this by checking if `root` is still activity-log eligible.
       // If not (the worktree was removed), prefer the durable main-root
       // fallback captured at command start — it was computed while root/.git
       // still existed, so it points at the real main project even after the
@@ -1002,14 +1002,14 @@ export async function runCli(opts?: {
       // cwd-walk may resolve to (and appendActivityLog would then recreate)
       // the now-deleted ghost worktree dir. Only use resolveRoot() if the
       // durable fallback is unavailable/stale, and skip logging entirely if
-      // neither has a project config file rather than pollute the filesystem.
+      // neither has an activity-log eligible root rather than pollute the filesystem.
       let effectiveRoot = root;
-      if (!hasProjectConfigFile(effectiveRoot)) {
-        if (mainRootFallback && hasProjectConfigFile(mainRootFallback)) {
+      if (!isRuntimeActivityRoot(effectiveRoot)) {
+        if (mainRootFallback && isRuntimeActivityRoot(mainRootFallback)) {
           effectiveRoot = mainRootFallback;
         } else {
           effectiveRoot = resolveRoot();
-          if (!hasProjectConfigFile(effectiveRoot)) {
+          if (!isRuntimeActivityRoot(effectiveRoot)) {
             return;
           }
         }
