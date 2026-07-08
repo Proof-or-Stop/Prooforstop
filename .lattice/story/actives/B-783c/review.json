@@ -65,6 +65,39 @@
         }
       ],
       "_hash": "0c5005c4f56bbb49a2a263810c39d4fb4ee98d618e958c1f8c0114031e0417ff"
+    },
+    {
+      "timestamp": "2026-07-08T23:50:53.918Z",
+      "issueCount": 5,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Recognize managed global-thin projects as activity-log writable roots + Cover canonical and global-thin activity logging behavior with regression tests are performed simultaneously?)"
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_original_intent_snapshot: Intent MVP requires original_intent_snapshot_set with sourceText, normalizedOutcome, and acceptanceClaim. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_intent_collision: Intent collision is triggered but no pass decision with acceptedInterpretation is present. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_red_evidence: Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-783c is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "7c66823ebd03a440b2bda1f02bafcd435384aa837ab078203b414e5e500ca80f"
     }
   ]
 }
