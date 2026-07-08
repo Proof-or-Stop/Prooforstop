@@ -1,72 +1,70 @@
 {
   "principles": [
-    "Use the authoritative story worktree for code and lint/scope inspection.",
-    "Keep metadataRoot responsible only for story metadata and cross-worktree state.",
-    "Fail closed when the authoritative cwd cannot be resolved instead of silently scanning a broader root.",
-    "Preserve existing material-hash and exclusion semantics unless they directly cause the cwd bug."
+    "Use the authoritative story worktree for git state and diff decisions; keep metadataRoot for story metadata, config, and material-hash exclusion semantics.",
+    "Fail closed on real scope violations and never acknowledge or whitelist unrelated metadataRoot dirt.",
+    "Keep the runtime behavior change narrow, reviewable, and covered by a focused regression smoke.",
+    "Apply Proofbound CLI lifecycle discipline: patch bump, build, version output, review, test, summary, and DONE preparation remain required."
   ],
   "drivers": [
-    "Prodenovo B-35f0 is blocked by unrelated dirty files in its metadata root.",
-    "Proofbound CLI behavior changes must be made through a Proofbound Story and version bump.",
-    "The fix must not require downstream projects to clean unrelated local scratch files."
+    "A downstream story is blocked because scope/preflight gates can observe unrelated dirty files outside the authoritative story worktree.",
+    "B-08be changes Proofbound CLI gate behavior, so it is high-risk process/runtime work with strict role and evidence boundaries.",
+    "Scope reviewer evidence must remain reviewer-written; the implementation owner can plan and implement but must not self-sign PLAN scope review."
   ],
   "options": [
     {
-      "name": "Patch downstream project dirt",
+      "name": "Resolve git cwd at scope gate boundaries",
       "pros": [
-        "Fast for the immediate Prodenovo case"
+        "Matches existing evidence freshness and dirty-gate patterns that already call resolveGitCwd.",
+        "Keeps metadataRoot available for metadata storage and material-hash exclusions.",
+        "Limits the change to the scope contract handler and lifecycle scope transition gate."
       ],
       "cons": [
-        "Touches unrelated user files",
-        "Does not fix the Proofbound CLI bug",
-        "Can recur in any dirty project root"
+        "Requires focused regression coverage for both direct scope_contract_check and story_advance lifecycle rendering paths."
       ]
     },
     {
-      "name": "Route gates through authoritative worktree cwd",
+      "name": "Thread git cwd through all low-level diff-pack APIs",
       "pros": [
-        "Fixes the root cause",
-        "Keeps downstream story worktrees isolated",
-        "Matches Proofbound worktree authority model"
+        "Makes cwd choice explicit at lower layers.",
+        "Could help future non-story callers reason about git roots."
       ],
       "cons": [
-        "Requires CLI code and regression coverage",
-        "Needs patch-version bump"
+        "Wider API churn across core helpers for the same immediate bug.",
+        "Higher risk of mixing metadataRoot and gitCwd semantics in unrelated callers."
       ]
     },
     {
-      "name": "Skip lint/scope gates for B-35f0",
+      "name": "Whitelist unrelated metadataRoot dirty paths",
       "pros": [
-        "Would unblock one transition quickly"
+        "Could unblock one observed case quickly."
       ],
       "cons": [
-        "Weakens lifecycle assurance",
-        "Creates an unaudited special case",
-        "Contradicts proof-or-stop semantics"
+        "Hides real scope violations and trains the gate to ignore the wrong data source.",
+        "Does not prove the authoritative story worktree is being used."
       ]
     }
   ],
-  "chosen": "Route gates through authoritative worktree cwd",
-  "rationale": "This fixes the actual CLI authority boundary bug while preserving downstream project files and the lifecycle gate model.",
+  "chosen": "Resolve git cwd at scope gate boundaries",
+  "rationale": "The chosen option fixes the actual cwd authority bug at the smallest gate boundary while preserving metadataRoot for story metadata and material-hash semantics.",
   "preMortem": [
     {
-      "scenario": "Gate still scans metadataRoot for lint after scope-contract changes",
-      "trigger": "Only scope_contract_check is patched while phase-gates lint keeps using project root",
-      "consequence": "B-35f0 remains blocked by unrelated antibody_0.1.py",
-      "mitigation": "Add a regression that creates metadata-root dirt and asserts lint/scope changed files come from the story worktree."
+      "scenario": "Lifecycle scope gate still reads metadataRoot after the direct command is fixed.",
+      "trigger": "runScopeTransitionGate continues to pass ctx.root directly into runScopeGate.",
+      "consequence": "story_advance REVIEW/TEST can still block on unrelated workspace dirt.",
+      "mitigation": "Add a regression where metadataRoot is dirty but the authoritative story worktree only has allowed files; assert lifecycle scope rows only include story worktree paths."
     },
     {
-      "scenario": "Metadata reads are accidentally moved into the worktree",
-      "trigger": "A broad cwd replacement changes story metadata paths",
-      "consequence": "Story phase/reviewer evidence appears stale or missing",
-      "mitigation": "Limit cwd routing to code diff/lint/scope inspection and keep metadataRoot for story metadata."
+      "scenario": "Material freshness semantics drift while fixing git cwd.",
+      "trigger": "A helper starts resolving config or material exclusions from gitCwd instead of metadataRoot.",
+      "consequence": "Evidence hashes can be recorded or compared against the wrong story metadata exclusions.",
+      "mitigation": "Keep metadataRoot threaded into material-hash calls and restrict this change to git diff/status cwd resolution."
     },
     {
-      "scenario": "Version bump is forgotten after CLI behavior changes",
-      "trigger": "Code fix passes tests but package and brand constants stay at the previous version",
-      "consequence": "Global lattice rebuild is ambiguous and users cannot tell which gate behavior is installed",
-      "mitigation": "Bump the Proofbound CLI patch version and verify build/version output before DONE."
+      "scenario": "Runtime behavior ships without synchronized version proof.",
+      "trigger": "Only LATTICE_CLI_VERSION or only package manifests are bumped, or build/version checks are skipped.",
+      "consequence": "Users cannot tell which global Proofbound CLI contains the gate fix.",
+      "mitigation": "Bump exactly one patch version across package.json, packages/main/package.json, lockfile, and lattice-brand, then run build and lattice --version checks."
     }
   ],
-  "timestamp": "2026-07-08T14:42:28.015Z"
+  "timestamp": "2026-07-08T14:44:01.582Z"
 }

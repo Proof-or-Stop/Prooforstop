@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-08be",
+  "sourceText": "User required that any Proofbound CLI code changes must go through the Proofbound Story process, then asked to finish the Prodenovo Ranking B-35f0 lifecycle. B-35f0 was blocked because Lattice REVIEW-to-TEST gates scanned unrelated metadata-root dirty files instead of the clean story worktree.",
+  "normalizedOutcome": "Proofbound CLI gates inspect the authoritative story worktree for story-owned code/lint/scope checks, so B-35f0 can advance without touching unrelated Prodenovo main-workspace dirty files.",
+  "acceptanceClaim": "A clean story worktree is no longer blocked by unrelated dirty or untracked files in its metadata root during REVIEW-to-TEST gate preflight.",
+  "keyRequirementIds": [
+    "REQ-001",
+    "REQ-002"
+  ],
+  "requestHash": "sha256:6545bef460b20227b477c8a2f77ccaa4aa2cd8bb9c437c8df2ab0f866556c37b",
+  "createdAt": "2026-07-08T14:43:27.830Z",
+  "updatedAt": "2026-07-08T14:43:27.830Z"
+}

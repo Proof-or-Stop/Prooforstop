@@ -1,0 +1,27 @@
+{
+  "storyId": "B-08be",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/scope-contract.ts",
+    "packages/main/src/handlers/phase-gates.ts",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/core/lattice-brand.ts",
+    "package-lock.json",
+    "packages/main/package-lock.json"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/scope-contract-smoke.ts",
+    "packages/main/tests/**",
+    "packages/main/src/tasks/*scope*.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "**/.omx/**"
+  ],
+  "scopeChangeReason": "Limit B-08be to Proofbound CLI gate cwd/scope behavior and patch-version surfaces; downstream Prodenovo dirty files are outside this repository and must not be edited as a workaround.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-08T14:44:09.601Z",
+  "updatedAt": "2026-07-08T14:44:09.601Z"
+}

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-08be",
+  "id": "IC-20260708144338",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "The accepted scope is to fix Proofbound CLI gate cwd resolution so code/lint/scope inspection uses the authoritative story worktree, while metadataRoot remains the source for story metadata. It excludes editing downstream Prodenovo dirty files or weakening lifecycle gates.",
+  "acceptedInterpretationHash": "sha256:a26470df456accb109a79bc5f895a0156a555e3f62fe2699ce6477c08bbc8bf7",
+  "notes": "This resolves the apparent collision between finishing Prodenovo B-35f0 quickly and the user rule that Proofbound CLI code changes must go through a Proofbound Story.",
+  "createdAt": "2026-07-08T14:43:38.245Z",
+  "updatedAt": "2026-07-08T14:43:38.245Z"
+}
