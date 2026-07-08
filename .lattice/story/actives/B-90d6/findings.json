@@ -1,0 +1,23 @@
+{
+  "findings": [
+    {
+      "id": "B-90d6:F-001",
+      "desc": "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs:189 WHY CHK-005 requires focused tests/smokes for session_brief, story_create/global help, and INIT_CHECK failure guidance, but the only executable init_preflight assertion in packages/main/tests/*.mjs is the INIT_CHECK guard-failure helper in this file. The recorded CHK-005 evidence at .lattice/story/actives/B-90d6/checklist.json:399 marks this test as covering those surfaces, yet it never drives session_brief, next, story_create, or lattice --help output; regressions in the high-traffic INIT guidance surfaces would pass this suite.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-08T23:28:56.307Z",
+      "reviewRound": "2026-07-08T23:26:45.118Z",
+      "reviewRunId": "B-90d6:RR-003",
+      "_hash": "92df394d92da25e7e7f0cab647fe6e776fb487005cc507152913a5231b691ebb",
+      "files": [
+        "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
+        ".lattice/story/actives/B-90d6/checklist.json"
+      ],
+      "signatureTag": "missing|mjs|packages-main-tests",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
