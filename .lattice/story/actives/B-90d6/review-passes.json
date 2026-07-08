@@ -17,6 +17,15 @@
       "reviewRound": "2026-07-08T23:39:05.748Z",
       "reviewRunId": "B-90d6:RR-005",
       "_hash": "6bbadd4788360af713c529dab74d5d462a11d1b5b66cc9103dab4ff697cb9370"
+    },
+    {
+      "id": "B-90d6:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Docs review pass: verified F-002 fix in docs/CLI.md. The milestone status docs now distinguish the real Milestone Status table for stories with milestone-ledger.json from the Checklist-derived ledger fallback for ledgerless stories, and preserve read-only/no evidence write/no phase advance/no production-readiness claims. pos-agent-drivability-optimization.md remains framed as proposal/regression-contract only and does not overclaim gate evidence or production readiness. Cross-checked cli-engine forced append behavior and milestone-status tests; npm --prefix packages/main run test:milestone-status passed.",
+      "createdAt": "2026-07-08T23:42:52.788Z",
+      "reviewRound": "2026-07-08T23:39:05.748Z",
+      "reviewRunId": "B-90d6:RR-008",
+      "_hash": "8b967e2de8fd33eeee637e044a2259e2225819b865df1a2a53521914ec556726"
     }
   ]
 }
