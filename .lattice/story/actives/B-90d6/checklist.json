@@ -218,7 +218,30 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Focused tests or smokes assert that session guidance, story_create/global help guidance, and INIT_CHECK failure guidance name init_preflight.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Tests avoid brittle full-help snapshots and assert only the relevant routing and no-overclaim language.",
+            "type": "logic",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Tests fail if new output claims init_preflight writes evidence, launches reviewers, advances phase, or grants production/readiness authority.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
