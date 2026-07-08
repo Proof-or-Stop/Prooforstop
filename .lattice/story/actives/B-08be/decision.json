@@ -1,0 +1,72 @@
+{
+  "principles": [
+    "Use the authoritative story worktree for code and lint/scope inspection.",
+    "Keep metadataRoot responsible only for story metadata and cross-worktree state.",
+    "Fail closed when the authoritative cwd cannot be resolved instead of silently scanning a broader root.",
+    "Preserve existing material-hash and exclusion semantics unless they directly cause the cwd bug."
+  ],
+  "drivers": [
+    "Prodenovo B-35f0 is blocked by unrelated dirty files in its metadata root.",
+    "Proofbound CLI behavior changes must be made through a Proofbound Story and version bump.",
+    "The fix must not require downstream projects to clean unrelated local scratch files."
+  ],
+  "options": [
+    {
+      "name": "Patch downstream project dirt",
+      "pros": [
+        "Fast for the immediate Prodenovo case"
+      ],
+      "cons": [
+        "Touches unrelated user files",
+        "Does not fix the Proofbound CLI bug",
+        "Can recur in any dirty project root"
+      ]
+    },
+    {
+      "name": "Route gates through authoritative worktree cwd",
+      "pros": [
+        "Fixes the root cause",
+        "Keeps downstream story worktrees isolated",
+        "Matches Proofbound worktree authority model"
+      ],
+      "cons": [
+        "Requires CLI code and regression coverage",
+        "Needs patch-version bump"
+      ]
+    },
+    {
+      "name": "Skip lint/scope gates for B-35f0",
+      "pros": [
+        "Would unblock one transition quickly"
+      ],
+      "cons": [
+        "Weakens lifecycle assurance",
+        "Creates an unaudited special case",
+        "Contradicts proof-or-stop semantics"
+      ]
+    }
+  ],
+  "chosen": "Route gates through authoritative worktree cwd",
+  "rationale": "This fixes the actual CLI authority boundary bug while preserving downstream project files and the lifecycle gate model.",
+  "preMortem": [
+    {
+      "scenario": "Gate still scans metadataRoot for lint after scope-contract changes",
+      "trigger": "Only scope_contract_check is patched while phase-gates lint keeps using project root",
+      "consequence": "B-35f0 remains blocked by unrelated antibody_0.1.py",
+      "mitigation": "Add a regression that creates metadata-root dirt and asserts lint/scope changed files come from the story worktree."
+    },
+    {
+      "scenario": "Metadata reads are accidentally moved into the worktree",
+      "trigger": "A broad cwd replacement changes story metadata paths",
+      "consequence": "Story phase/reviewer evidence appears stale or missing",
+      "mitigation": "Limit cwd routing to code diff/lint/scope inspection and keep metadataRoot for story metadata."
+    },
+    {
+      "scenario": "Version bump is forgotten after CLI behavior changes",
+      "trigger": "Code fix passes tests but package and brand constants stay at the previous version",
+      "consequence": "Global lattice rebuild is ambiguous and users cannot tell which gate behavior is installed",
+      "mitigation": "Bump the Proofbound CLI patch version and verify build/version output before DONE."
+    }
+  ],
+  "timestamp": "2026-07-08T14:42:28.015Z"
+}

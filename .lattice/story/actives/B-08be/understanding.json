@@ -1,0 +1,26 @@
+{
+  "task": "Fix Proofbound CLI REVIEW-to-TEST gate cwd/scope resolution so story gates inspect the authoritative story worktree instead of unrelated metadata-root dirt.",
+  "outcome": "When Prodenovo B-35f0 runs lattice story_advance --phase=TEST from its clean story worktree, the lint/scope preflight no longer reports unrelated files from the dirty main workspace; it proceeds based on the B-35f0 worktree material.",
+  "facts": [
+    "B-35f0 is blocked by Lattice validate --lint scanning metadataRoot and seeing unrelated Prodenovo root files such as antibody_0.1.py.",
+    "B-08be is the Proofbound CLI Story authorized to fix CLI behavior through the formal flow.",
+    "The Story checklist already identifies scope-contract and phase-gate handlers as likely touchpoints."
+  ],
+  "constraints": [
+    "Do not touch Prodenovo dirty files as a workaround.",
+    "Keep metadataRoot for story metadata and material hash semantics.",
+    "Apply Proofbound patch-version discipline for CLI runtime behavior changes."
+  ],
+  "unknowns": [
+    "Exact call sites that choose metadataRoot instead of the resolved story worktree cwd for lint/scope gates."
+  ],
+  "touchpoints": [
+    "packages/main/src/handlers/scope-contract.ts",
+    "packages/main/src/handlers/phase-gates.ts",
+    "packages/main/src/tasks/scope-contract-smoke.ts",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/core/lattice-brand.ts"
+  ],
+  "timestamp": "2026-07-08T14:40:48.350Z"
+}
