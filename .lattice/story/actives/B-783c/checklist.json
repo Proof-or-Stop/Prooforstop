@@ -82,6 +82,14 @@
             "priority": "must"
           }
         ]
+      },
+      "userSees": "The focused smoke output completes without assertion failures after proving canonical projects log activity, managed global-thin projects log activity, and malformed/unmanaged roots do not create `.lattice/activity.jsonl`.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/thin-init-assets-smoke.ts"
+        ]
       }
     },
     {
