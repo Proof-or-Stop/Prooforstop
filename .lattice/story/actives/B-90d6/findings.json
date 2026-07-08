@@ -5,7 +5,7 @@
       "desc": "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs:189 WHY CHK-005 requires focused tests/smokes for session_brief, story_create/global help, and INIT_CHECK failure guidance, but the only executable init_preflight assertion in packages/main/tests/*.mjs is the INIT_CHECK guard-failure helper in this file. The recorded CHK-005 evidence at .lattice/story/actives/B-90d6/checklist.json:399 marks this test as covering those surfaces, yet it never drives session_brief, next, story_create, or lattice --help output; regressions in the high-traffic INIT guidance surfaces would pass this suite.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-08T23:28:56.307Z",
@@ -17,7 +17,11 @@
         ".lattice/story/actives/B-90d6/checklist.json"
       ],
       "signatureTag": "missing|mjs|packages-main-tests",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit b12d2e5f3: expanded packages/main/tests/b90d6-init-dispatch-guidance.test.mjs to exercise session_brief/next INIT routing, story_create/global help INIT routing, INIT_CHECK guard failure guidance, and PLAN/non-PLAN scope-plan dispatch behavior. Verified with node packages/main/tests/b90d6-init-dispatch-guidance.test.mjs, npm --prefix packages/main run test:milestone-status, npm --prefix packages/main run build, and lattice scope_contract_check --storyId=B-90d6.",
+      "resolvedAt": "2026-07-08T23:40:17.505Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-90d6:F-002",
