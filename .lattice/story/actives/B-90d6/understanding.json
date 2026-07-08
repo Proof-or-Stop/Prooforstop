@@ -1,0 +1,32 @@
+{
+  "task": "Implement the M0-M1 slice of the Proof-or-Stop agent-drivability roadmap so INIT guidance routes agents to init_preflight before INIT_CHECK advancement.",
+  "outcome": "After this story, when a user creates or resumes an INIT story and runs lattice session_brief, lattice next, lattice --help, or hits an INIT_CHECK gate failure, the terminal output clearly tells them to run lattice init_preflight --storyId=<id> and does not imply that evidence gates were skipped.",
+  "facts": [
+    "The decision doc is docs/requirements/decisions/pos-agent-drivability-optimization.md.",
+    "The confirmed failure mode is discoverability/routing, not weak gate semantics.",
+    "init_preflight already exists and aggregates INIT_CHECK prerequisites read-only.",
+    "Current session_brief/next and global help still route directly to story_advance INIT_CHECK.",
+    "M0-M1 must not implement M2 checklist self-seeding, M4 scope-plan dispatch, M5 global-thin CLAUDE.md repair, or M7 ceremony redesign."
+  ],
+  "constraints": [
+    "Do not weaken dual INIT reviewer, scope anti-expansion, verificationIntent, review, TEST, DONE, or production-readiness gates.",
+    "Do not auto-run commands or write evidence from init_preflight/session_brief/help surfaces.",
+    "Keep changes scoped to M0-M1 routing and baseline contract.",
+    "Story operations must go through lattice commands, not direct JSON edits.",
+    "Remote publish is out of scope."
+  ],
+  "unknowns": [
+    "Which existing focused test file is the smallest stable home for M1 routing assertions.",
+    "Whether the M0 baseline contract should live only in the decision doc or also in a small machine-readable test fixture."
+  ],
+  "touchpoints": [
+    "docs/requirements/decisions/pos-agent-drivability-optimization.md",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/handlers/story-create.ts",
+    "packages/main/src/cli/help-renderer.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/handlers/init-preflight.ts",
+    "packages/main/tests"
+  ],
+  "timestamp": "2026-07-08T22:40:46.760Z"
+}

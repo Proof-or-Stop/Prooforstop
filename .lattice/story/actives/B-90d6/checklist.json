@@ -23,7 +23,30 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "M0 baseline contract records commands-to-DEV baseline as 80+ commands and never reached DEV, plus comparison rules for future M6 runs.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Baseline wording does not treat agent transcript narration as proof and distinguishes M0 baseline from M6 execution results.",
+            "type": "docs",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No text implies that M0 or init_preflight can satisfy lifecycle gates, production readiness, or reviewer evidence.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
