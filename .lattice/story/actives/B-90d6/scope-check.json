@@ -115,13 +115,12 @@
       "q": "Current checklist/decision/user scope include the minimal #6 story-level scope-plan dispatch unblocker, but scope-boundary/execution-boundary/scope-freeze-check still reflect an earlier M0-M1-only boundary that excludes M4 PLAN scope-plan dispatch. Should those boundary artifacts be refreshed before DEV?",
       "evidence": "CHK-006 and decision.json choose M0-M1 plus minimal #6 dispatch. milestone-ledger includes M4-min. But scope-boundary.json excludes M4 PLAN scope-plan dispatch, execution-boundary.json allowed paths omit story-dispatch.ts and story-review.ts, and scope-freeze-check effectiveExcludedKeywords still include M4 PLAN scope-plan dispatch.",
       "sourcePointers": [
-        ".lattice/story/actives/B-90d6/checklist.json:CHK-006",
-        ".lattice/story/actives/B-90d6/decision.json",
-        ".lattice/story/actives/B-90d6/milestone-ledger.json",
-        ".lattice/story/actives/B-90d6/scope-boundary.json",
-        ".lattice/story/actives/B-90d6/execution-boundary.json",
-        ".lattice/story/actives/B-90d6/scope-freeze-check.json"
-      ]
+        "CHK-006",
+        "M4-min",
+        "docs/requirements/decisions/pos-agent-drivability-optimization.md#6"
+      ],
+      "resolution": "Resolution: CHK-006 and M4-min intentionally bring only the minimal story-level lattice-review-scope-plan dispatch unblocker into this story. Older boundary text excluding broad M4 remains valid for full PLAN drivability; it is superseded only for this narrow dispatch path so scope_check_save stays reviewer-written and no gate is weakened.",
+      "resolvedAt": "2026-07-08T22:49:22.988Z"
     }
   ]
 }
