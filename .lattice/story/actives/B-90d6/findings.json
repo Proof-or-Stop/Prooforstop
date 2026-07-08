@@ -28,7 +28,7 @@
       "desc": "docs/CLI.md:329-331 says automatic milestone-status append is skipped when the target story has no milestone-ledger.json, but packages/main/src/cli-engine.ts:903-904 falls back to an always-shown checklist-derived ledger and packages/main/tests/milestone-status.test.mjs:322-327 asserts missing-ledger story mutations must still show that checklist-derived status view. This docs drift contradicts CHK-008 forced status display behavior and can train agents to expect no status output for ledgerless stories; update the docs to distinguish real milestone_status tables from checklist-derived status output without implying a ledger mutation or gate pass.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-08T23:29:30.297Z",
@@ -36,7 +36,11 @@
       "reviewRunId": "B-90d6:RR-004",
       "_hash": "aedc21ab0ae455da61f93277f6d699b8d716f224f59bf6219ec7ab2fc0c752e3",
       "signatureTag": "missing|unknown|docs-says-automatic",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit b12d2e5f3: updated docs/CLI.md to distinguish the real Milestone Status - <storyId> table when milestone-ledger.json exists from the checklist-derived status block when no ledger exists. The docs no longer imply that forced status append is skipped for ledgerless stories, and they avoid claiming ledger mutation or gate pass behavior. Verified with npm --prefix packages/main run build and npm --prefix packages/main run test:milestone-status.",
+      "resolvedAt": "2026-07-08T23:40:22.906Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-90d6:F-003",
