@@ -2,6 +2,7 @@
   "storyId": "B-90d6",
   "mode": "enforce",
   "allowedModify": [
+    "docs/CLI.md",
     "docs/requirements/decisions/pos-agent-drivability-optimization.md",
     "packages/main/src/handlers/session.ts",
     "packages/main/src/handlers/story-create.ts",
@@ -29,7 +30,7 @@
     "Full M4 PLAN drivability beyond story-level lattice-review-scope-plan dispatch",
     "Milestone ledger mutation after DEV admission"
   ],
-  "scopeChangeReason": "User explicitly expanded DEV UX scope to restore forced read-only milestone status display for ledger-backed development commands. cli-engine.ts is now in scope only for output append policy; milestone ledger mutation remains excluded after DEV.",
+  "scopeChangeReason": "REVIEW finding B-90d6:F-002 required synchronizing docs/CLI.md with the already-implemented forced milestone status display behavior. This adds only documentation alignment for the reviewed behavior; no new functional scope is added.",
   "acknowledgements": [
     {
       "actor": "main-agent",
@@ -57,5 +58,5 @@
     }
   ],
   "createdAt": "2026-07-08T22:52:31.075Z",
-  "updatedAt": "2026-07-08T23:22:46.980Z"
+  "updatedAt": "2026-07-08T23:38:44.380Z"
 }
