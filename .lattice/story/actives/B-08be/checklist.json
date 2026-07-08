@@ -41,7 +41,48 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/scope-contract-smoke.ts",
+          "command": "node packages/main/dist/tasks/scope-contract-smoke.js",
+          "result": "pass",
+          "note": "Regression fixture creates unrelated metadataRoot dirt while the authoritative story worktree only changes an allowed file; direct scope_contract_check passes and changedFiles contains only src/allowed.ts.",
+          "headHash": "e3dc091f2b98082d7f78d88feddd5291f3ddc01b",
+          "materialHash": "78e9315bdb183f92ae7dea2c54ba64a5a3f55d67f44e871b74bfa793b0010e77",
+          "storyFilesHash": "2131b44816e864d270b56506f7e9eb30a57a0ff73004f8e7a39101fe02437862",
+          "timestamp": "2026-07-08T14:48:49.773Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/scope-contract-smoke.ts",
+          "command": "node packages/main/dist/tasks/scope-contract-smoke.js",
+          "result": "pass",
+          "note": "The same regression fixture calls runScopeTransitionGate from metadataRoot and asserts the lifecycle output reports Scope gate: pass without the metadataRoot dirty path.",
+          "headHash": "e3dc091f2b98082d7f78d88feddd5291f3ddc01b",
+          "materialHash": "78e9315bdb183f92ae7dea2c54ba64a5a3f55d67f44e871b74bfa793b0010e77",
+          "storyFilesHash": "2131b44816e864d270b56506f7e9eb30a57a0ff73004f8e7a39101fe02437862",
+          "timestamp": "2026-07-08T14:48:49.773Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/scope-contract-smoke.ts",
+          "command": "node packages/main/dist/tasks/scope-contract-smoke.js",
+          "result": "pass",
+          "note": "The test fails if the gate reads metadataRoot again because src/root-dirt.ts would appear as an out-of-scope changed file; no acknowledgement or whitelist is used for that root dirt.",
+          "headHash": "e3dc091f2b98082d7f78d88feddd5291f3ddc01b",
+          "materialHash": "78e9315bdb183f92ae7dea2c54ba64a5a3f55d67f44e871b74bfa793b0010e77",
+          "storyFilesHash": "2131b44816e864d270b56506f7e9eb30a57a0ff73004f8e7a39101fe02437862",
+          "timestamp": "2026-07-08T14:48:49.773Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -81,7 +122,45 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "npm --prefix packages/main run build; node packages/main/dist/cli.js --version; lattice --version",
+          "result": "pass",
+          "note": "Build succeeded, node packages/main/dist/cli.js --version printed Proofbound CLI 0.3.169, and lattice --version also printed Proofbound CLI 0.3.169.",
+          "headHash": "e3dc091f2b98082d7f78d88feddd5291f3ddc01b",
+          "materialHash": "78e9315bdb183f92ae7dea2c54ba64a5a3f55d67f44e871b74bfa793b0010e77",
+          "storyFilesHash": "2131b44816e864d270b56506f7e9eb30a57a0ff73004f8e7a39101fe02437862",
+          "timestamp": "2026-07-08T14:48:49.773Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "rg -n \"0\\.3\\.168|0\\.3\\.169\" package.json packages/main/package.json package-lock.json packages/main/package-lock.json packages/main/src/core/lattice-brand.ts",
+          "result": "pass",
+          "note": "Only Proofbound CLI version surfaces were bumped to 0.3.169: root/package manifests, both package locks, and LATTICE_CLI_VERSION. No downstream project Ranking/package version files were touched.",
+          "headHash": "e3dc091f2b98082d7f78d88feddd5291f3ddc01b",
+          "materialHash": "78e9315bdb183f92ae7dea2c54ba64a5a3f55d67f44e871b74bfa793b0010e77",
+          "storyFilesHash": "2131b44816e864d270b56506f7e9eb30a57a0ff73004f8e7a39101fe02437862",
+          "timestamp": "2026-07-08T14:48:49.773Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "lattice session_brief; lattice checklist_get --storyId=B-08be",
+          "result": "pass",
+          "note": "This evidence records build/version proof only; the story remains in DEV until checklist, REVIEW, TEST, summary, delivery, done_prepare, and DONE gates pass.",
+          "headHash": "e3dc091f2b98082d7f78d88feddd5291f3ddc01b",
+          "materialHash": "78e9315bdb183f92ae7dea2c54ba64a5a3f55d67f44e871b74bfa793b0010e77",
+          "storyFilesHash": "2131b44816e864d270b56506f7e9eb30a57a0ff73004f8e7a39101fe02437862",
+          "timestamp": "2026-07-08T14:48:49.773Z"
+        }
+      ]
     }
   ]
 }
