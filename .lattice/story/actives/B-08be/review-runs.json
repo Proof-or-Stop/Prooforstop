@@ -1,0 +1,166 @@
+{
+  "runs": [
+    {
+      "reviewRunId": "B-08be:RR-001",
+      "storyId": "B-08be",
+      "agent": "lattice-review-concept",
+      "lane": "lattice-review-concept",
+      "reviewRound": "2026-07-08T14:49:54.971Z",
+      "startedAt": "2026-07-08T15:10:47.795Z",
+      "headHash": "e2ad5aa55f7a6459d9ba18634e07d84e03272bda",
+      "materialHash": "78e9315bdb183f92ae7dea2c54ba64a5a3f55d67f44e871b74bfa793b0010e77",
+      "storyFilesHash": "2131b44816e864d270b56506f7e9eb30a57a0ff73004f8e7a39101fe02437862",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "311e24a999524699678f8df1dec669f366d472fa2f5576ced5b6cea5279f56f7",
+        "diffPackHash": "d2a0cf9450828926cb3862faee771eb07254e95951b9bfb46278f3a10363f6a8",
+        "reviewedChangedFiles": [
+          "package-lock.json",
+          "package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/scope-contract.ts",
+          "packages/main/src/tasks/scope-contract-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1d2e5842af9b150d118497ddf1ccf9c4b43d2b14adb8851c8a096733b7044dfe",
+          "21346e8d3c44a285cec9b6104e806bd46cd9f0679e964ab7f6b02b103454d1d1",
+          "23985723893ee9633bea4bc131e2fd0937a0201f10e0310e793426c043589a81",
+          "27fe73b388075166166a692bc310759be3e9cf76a031ba99323061a531439b72",
+          "48d3a90ffeb86a46492d95028f537a282839c02ac76ec818cd38b56e48bbbb16",
+          "5494e7f54dc16720f79602c3cf32b3cf27bf4837d1b8b12d0073f5f86c1b0356",
+          "6cd4184a49df3c34257b1e2c7d6c9b329a50fe1bbfc3d4a30b3360b2d4b45076",
+          "6d5705d7ecb279a11f105e27943373fbdc6422e848e6d7e98866757891cc4c06",
+          "7037cb16a313bf83c5be0e40bc81daa6c00647c13484cde19c7233c3c61861a3",
+          "cb2b251ec932b5a4dc0c3048427872a129e2a95533d9163f9c82d1750e81a2e6",
+          "ffc1561434b9b882712604a0f8ddaf3fae5a9c455f80d3af6abc84342de84d51"
+        ],
+        "bindingHash": "66c3239e2819595ad17923cf6490811e0473b9f984a395f31caf367d7924ac69"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-08be",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-08be",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-08be",
+        "workspaceMode": "story-worktree",
+        "headHash": "e2ad5aa55f7a6459d9ba18634e07d84e03272bda",
+        "materialHash": "78e9315bdb183f92ae7dea2c54ba64a5a3f55d67f44e871b74bfa793b0010e77",
+        "storyFilesHash": "2131b44816e864d270b56506f7e9eb30a57a0ff73004f8e7a39101fe02437862",
+        "bindingHash": "f6dcfa2900bbc33b73b461d87bc00fc27bbbed76527348da61ee5f44d64831aa"
+      },
+      "_hash": "35e012cb3905a066e18e045be86d5bff81c77c271c3961ca4f77b683fa8eb43b"
+    },
+    {
+      "reviewRunId": "B-08be:RR-002",
+      "storyId": "B-08be",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-07-08T14:49:54.971Z",
+      "startedAt": "2026-07-08T15:11:06.849Z",
+      "headHash": "e2ad5aa55f7a6459d9ba18634e07d84e03272bda",
+      "materialHash": "78e9315bdb183f92ae7dea2c54ba64a5a3f55d67f44e871b74bfa793b0010e77",
+      "storyFilesHash": "2131b44816e864d270b56506f7e9eb30a57a0ff73004f8e7a39101fe02437862",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "311e24a999524699678f8df1dec669f366d472fa2f5576ced5b6cea5279f56f7",
+        "diffPackHash": "d2a0cf9450828926cb3862faee771eb07254e95951b9bfb46278f3a10363f6a8",
+        "reviewedChangedFiles": [
+          "package-lock.json",
+          "package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/scope-contract.ts",
+          "packages/main/src/tasks/scope-contract-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1d2e5842af9b150d118497ddf1ccf9c4b43d2b14adb8851c8a096733b7044dfe",
+          "21346e8d3c44a285cec9b6104e806bd46cd9f0679e964ab7f6b02b103454d1d1",
+          "23985723893ee9633bea4bc131e2fd0937a0201f10e0310e793426c043589a81",
+          "27fe73b388075166166a692bc310759be3e9cf76a031ba99323061a531439b72",
+          "48d3a90ffeb86a46492d95028f537a282839c02ac76ec818cd38b56e48bbbb16",
+          "5494e7f54dc16720f79602c3cf32b3cf27bf4837d1b8b12d0073f5f86c1b0356",
+          "6cd4184a49df3c34257b1e2c7d6c9b329a50fe1bbfc3d4a30b3360b2d4b45076",
+          "6d5705d7ecb279a11f105e27943373fbdc6422e848e6d7e98866757891cc4c06",
+          "7037cb16a313bf83c5be0e40bc81daa6c00647c13484cde19c7233c3c61861a3",
+          "cb2b251ec932b5a4dc0c3048427872a129e2a95533d9163f9c82d1750e81a2e6",
+          "ffc1561434b9b882712604a0f8ddaf3fae5a9c455f80d3af6abc84342de84d51"
+        ],
+        "bindingHash": "66c3239e2819595ad17923cf6490811e0473b9f984a395f31caf367d7924ac69"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-08be",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-08be",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-08be",
+        "workspaceMode": "story-worktree",
+        "headHash": "e2ad5aa55f7a6459d9ba18634e07d84e03272bda",
+        "materialHash": "78e9315bdb183f92ae7dea2c54ba64a5a3f55d67f44e871b74bfa793b0010e77",
+        "storyFilesHash": "2131b44816e864d270b56506f7e9eb30a57a0ff73004f8e7a39101fe02437862",
+        "bindingHash": "f6dcfa2900bbc33b73b461d87bc00fc27bbbed76527348da61ee5f44d64831aa"
+      },
+      "_hash": "739df3ca45473490fadeb1ad21991e8e7265d0e8954785beff70d2242b14be6c"
+    },
+    {
+      "reviewRunId": "B-08be:RR-003",
+      "storyId": "B-08be",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-07-08T14:49:54.971Z",
+      "startedAt": "2026-07-08T15:11:20.863Z",
+      "headHash": "e2ad5aa55f7a6459d9ba18634e07d84e03272bda",
+      "materialHash": "78e9315bdb183f92ae7dea2c54ba64a5a3f55d67f44e871b74bfa793b0010e77",
+      "storyFilesHash": "2131b44816e864d270b56506f7e9eb30a57a0ff73004f8e7a39101fe02437862",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "311e24a999524699678f8df1dec669f366d472fa2f5576ced5b6cea5279f56f7",
+        "diffPackHash": "d2a0cf9450828926cb3862faee771eb07254e95951b9bfb46278f3a10363f6a8",
+        "reviewedChangedFiles": [
+          "package-lock.json",
+          "package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/scope-contract.ts",
+          "packages/main/src/tasks/scope-contract-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1d2e5842af9b150d118497ddf1ccf9c4b43d2b14adb8851c8a096733b7044dfe",
+          "21346e8d3c44a285cec9b6104e806bd46cd9f0679e964ab7f6b02b103454d1d1",
+          "23985723893ee9633bea4bc131e2fd0937a0201f10e0310e793426c043589a81",
+          "27fe73b388075166166a692bc310759be3e9cf76a031ba99323061a531439b72",
+          "48d3a90ffeb86a46492d95028f537a282839c02ac76ec818cd38b56e48bbbb16",
+          "5494e7f54dc16720f79602c3cf32b3cf27bf4837d1b8b12d0073f5f86c1b0356",
+          "6cd4184a49df3c34257b1e2c7d6c9b329a50fe1bbfc3d4a30b3360b2d4b45076",
+          "6d5705d7ecb279a11f105e27943373fbdc6422e848e6d7e98866757891cc4c06",
+          "7037cb16a313bf83c5be0e40bc81daa6c00647c13484cde19c7233c3c61861a3",
+          "cb2b251ec932b5a4dc0c3048427872a129e2a95533d9163f9c82d1750e81a2e6",
+          "ffc1561434b9b882712604a0f8ddaf3fae5a9c455f80d3af6abc84342de84d51"
+        ],
+        "bindingHash": "66c3239e2819595ad17923cf6490811e0473b9f984a395f31caf367d7924ac69"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-08be",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-08be",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-08be",
+        "workspaceMode": "story-worktree",
+        "headHash": "e2ad5aa55f7a6459d9ba18634e07d84e03272bda",
+        "materialHash": "78e9315bdb183f92ae7dea2c54ba64a5a3f55d67f44e871b74bfa793b0010e77",
+        "storyFilesHash": "2131b44816e864d270b56506f7e9eb30a57a0ff73004f8e7a39101fe02437862",
+        "bindingHash": "f6dcfa2900bbc33b73b461d87bc00fc27bbbed76527348da61ee5f44d64831aa"
+      },
+      "_hash": "d1c39e1738a368b5a03379174236b7e1a9c64627984156649af1006df3ff42a6"
+    }
+  ]
+}
