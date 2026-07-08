@@ -1,0 +1,56 @@
+{
+  "storyId": "B-08be",
+  "changes": "Scope gate now resolves the authoritative story worktree git cwd before reading diff packs; REVIEW phase gate threads that cwd; scope-contract smoke covers metadataRoot dirty files versus clean legal story worktree diffs; Proofbound CLI patch version is 0.3.169 across package metadata, lockfiles, and lattice-brand.",
+  "usage": "Run npm --prefix packages/main run build, node packages/main/dist/tasks/scope-contract-smoke.js, node packages/main/dist/cli.js --version, lattice --version, and lattice validate --story=B-08be --json to verify the B-08be behavior.",
+  "expectedOutcome": "Scope gate ignores unrelated metadataRoot dirt and evaluates only the authoritative story worktree diff; CLI reports Proofbound CLI 0.3.169.",
+  "actualTranscript": "Build passed, scope contract smoke passed, node CLI version returned Proofbound CLI 0.3.169, global lattice version returned Proofbound CLI 0.3.169, lattice validate passed 43 of 43 commands, and done_required_validate passed build plus root npm test.",
+  "outcomeDiff": "No difference: observed behavior matches the expected worktree-diff and version outcomes.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none - fully covered by build, targeted smoke, version checks, lattice validate, done-required validation, and independent reviews.",
+  "pitfalls": "Scope gate still reports acknowledged advisory warnings for existing ProofStory metadata artifacts from PLAN; owner lease sometimes required explicit forceTakeover; the regression fixture needed a story branch before git worktree add.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 630852
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 8915
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 221958
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 340628
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 1744151
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 735366
+    }
+  },
+  "totalDurationMs": 3682468,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-08T15:31:14.488Z",
+  "updatedAt": "2026-07-08T15:31:14.488Z"
+}
