@@ -120,7 +120,30 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "story_create success guidance and the global development-flow help mention init_preflight before direct INIT_CHECK advancement.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The updated help still keeps the normal worktree path visible after prerequisites are ready and does not rewrite unrelated help sections.",
+            "type": "docs",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No help text suggests checklist self-seeding, parser repairs, scope-plan dispatch, global-thin asset repair, or ceremony redesign are included in this M1 story.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
