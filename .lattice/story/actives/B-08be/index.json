@@ -4,7 +4,7 @@
   "title": "Fix scope gate to read changed files from the story worktree cwd",
   "description": "Backfill a formal Proofbound Story for the temporary local CLI hotfix made on 2026-07-08 while Prodenovo story B-35f0 was blocked. The observed bug is that scope_contract_check and story_advance REVIEW scope gates can read changed files from metadataRoot instead of the authoritative story worktree, causing unrelated dirty files in the host project to block a clean story worktree.",
   "type": "bug",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "source": "User requested formal Proofbound Story after B-35f0 exposed the CLI bug.",
   "keywords": [
@@ -26,7 +26,7 @@
   ],
   "createdAt": "2026-07-08T14:29:52.020Z",
   "startedAt": "2026-07-08T14:29:52.020Z",
-  "endedAt": null,
+  "endedAt": "2026-07-08T15:42:51.509Z",
   "events": [
     {
       "phase": "INIT",
@@ -81,12 +81,16 @@
       "user": "Harmonygo",
       "sessionId": "sess-16f8eeeabd7410ce",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-08T15:42:51.509Z",
+      "branch": "story/B-08be",
+      "user": "Harmonygo",
+      "sessionId": "sess-16f8eeeabd7410ce",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-08be",
-    "branch": "story/B-08be",
-    "createdAt": "2026-07-08T14:40:21.638Z"
-  },
   "currentReviewRound": "2026-07-08T14:49:54.971Z"
 }
