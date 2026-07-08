@@ -71,7 +71,30 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "For an INIT story, session_brief and next render lattice init_preflight --storyId=<id> as the next diagnostic step before story_advance INIT_CHECK.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Non-git INIT guidance remains intact and does not claim init_preflight can create a worktree or write evidence.",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The guidance does not auto-run init_preflight, write evidence, or imply reviewer/scope gates are optional.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
