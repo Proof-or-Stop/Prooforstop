@@ -1,0 +1,132 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Freeze the M0 drivability baseline fixture contract",
+      "context": "Record a stable regression fixture contract for the rule-free fix-git run: baseline commands-to-DEV is 80+ commands and never reached DEV; the fixture must define what is measured and how future M6 comparison reports are interpreted without treating an agent narrative as proof.",
+      "relatedDocs": [
+        "docs/requirements/decisions/pos-agent-drivability-optimization.md#M0----Baseline-and-regression-fixture"
+      ],
+      "userSees": "A future maintainer can identify the exact baseline metric and fixture contract before changing INIT guidance.",
+      "excludes": [
+        "Do not run the full autonomous fix-git experiment in this story unless a lightweight deterministic fixture already exists.",
+        "Do not change any lifecycle evidence requirement."
+      ],
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/pos-agent-drivability-optimization.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Route session_brief and next INIT guidance to init_preflight",
+      "context": "Update INIT-phase next-step logic so session_brief / next point agents to lattice init_preflight --storyId=<id> before story_advance INIT_CHECK. Preserve non-git guidance and read-only behavior.",
+      "relatedDocs": [
+        "docs/requirements/decisions/pos-agent-drivability-optimization.md#M1----INIT-drivability-and-init_preflight-routing"
+      ],
+      "userSees": "For an INIT story, lattice session_brief and lattice next tell the agent to run init_preflight instead of blindly attempting story_advance INIT_CHECK.",
+      "excludes": [
+        "Do not auto-run init_preflight from session_brief.",
+        "Do not write evidence or advance phase."
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/session.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Route story_create and global help INIT flow through init_preflight",
+      "context": "Update story_create INIT hint and the global lattice --help development-flow block so agents see the full INIT prerequisite route before story_advance INIT_CHECK.",
+      "relatedDocs": [
+        "docs/requirements/decisions/pos-agent-drivability-optimization.md#M1----INIT-drivability-and-init_preflight-routing"
+      ],
+      "userSees": "Freshly created INIT stories and top-level help no longer advertise a direct INIT_CHECK jump without preflight guidance.",
+      "excludes": [
+        "Do not implement M2 checklist self-seeding in this story.",
+        "Do not alter unrelated help sections."
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/cli/help-renderer.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Add INIT_CHECK failure guidance toward init_preflight without weakening gates",
+      "context": "When the INIT_CHECK gate fails on the first missing prerequisite, append exact guidance to run init_preflight so the agent can see all missing prerequisites. Keep evaluateScopeAntiExpansionGate fail-closed unless a separate structural story changes aggregation.",
+      "relatedDocs": [
+        "docs/requirements/decisions/pos-agent-drivability-optimization.md#M1----INIT-drivability-and-init_preflight-routing"
+      ],
+      "userSees": "A failed story_advance INIT_CHECK points to init_preflight and controlled init_check_repair guidance where relevant, without implying any evidence exemption.",
+      "excludes": [
+        "Do not bypass dual INIT reviewers.",
+        "Do not auto-exempt by task size or risk.",
+        "Do not implement M7 ceremony redesign."
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/init-preflight.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Add focused tests for M1 routing behavior",
+      "context": "Add or update focused tests/smokes that assert INIT session guidance, story_create hint, global help flow, and INIT_CHECK failure guidance name init_preflight and do not claim readiness or production completion.",
+      "relatedDocs": [
+        "docs/requirements/decisions/pos-agent-drivability-optimization.md#Finding-to-milestone-coverage"
+      ],
+      "userSees": "The M1 routing fixes are protected against regression by machine checks rather than relying on prose review.",
+      "excludes": [
+        "Do not require network or real external hosts.",
+        "Do not depend on hidden scorer state."
+      ],
+      "files": {
+        "modify": [
+          "packages/main/tests"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

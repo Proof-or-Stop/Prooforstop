@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-90d6",
+  "mode": "correctness_fix",
+  "allowed": [
+    "docs/requirements/decisions/pos-agent-drivability-optimization.md",
+    "packages/main/src/cli/help-renderer.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/handlers/init-preflight.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/handlers/story-create.ts",
+    "packages/main/tests"
+  ],
+  "excluded": [
+    "M2 checklist self-seeding",
+    "M3 parser/help schema fixes beyond init_preflight wording",
+    "M4 PLAN scope-plan dispatch",
+    "M5 global-thin CLAUDE.md profile asset repair",
+    "M7 ceremony redesign or evidence exemptions",
+    "remote publish or git push"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "User asked to open a story to begin repairing the POS agent-drivability roadmap; this first story is scoped to M0-M1 only.",
+  "createdAt": "2026-07-08T22:36:55.377Z",
+  "updatedAt": "2026-07-08T22:36:55.377Z",
+  "_hash": "13cc6e7feeeac89489e1e4761c22d113679d07b7130999b350ebde86ea85b9cb"
+}

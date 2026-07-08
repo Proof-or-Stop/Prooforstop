@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-90d6",
+  "state": "candidate",
+  "ledgerHash": "sha256:64e1b522289933930c0539d0239e02adf207abd211554ba327b23b9a1e1ee946",
+  "milestones": [
+    {
+      "id": "M0",
+      "sourceRequirementId": "POS-DRIVE-M0",
+      "claim": "The commands-to-DEV baseline fixture contract is frozen for the rule-free fix-git run.",
+      "doneMeans": "A committed doc/test artifact records baseline commands-to-DEV, timeout meaning, and comparison rules for future M6 runs.",
+      "requiredEvidence": [
+        "baseline_contract",
+        "focused_test_or_doc_check"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M1",
+      "sourceRequirementId": "POS-DRIVE-M1",
+      "claim": "INIT high-traffic surfaces route agents to init_preflight before INIT_CHECK advancement.",
+      "doneMeans": "session_brief/next, story_create hint, global help flow, and INIT_CHECK gate failure guidance all name init_preflight, and tests prove no gate is weakened.",
+      "requiredEvidence": [
+        "focused_tests",
+        "manual_cli_transcript"
+      ],
+      "checklistRefs": [
+        "CHK-002",
+        "CHK-003",
+        "CHK-004",
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-003:happy:0",
+        "CHK-004:happy:0",
+        "CHK-005:happy:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-08T22:36:55.377Z",
+  "updatedAt": "2026-07-08T22:36:55.377Z"
+}

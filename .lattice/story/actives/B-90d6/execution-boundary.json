@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-90d6",
+  "allowedCommands": [
+    "git diff *",
+    "git status *",
+    "lattice --help",
+    "lattice aux_doc_list",
+    "lattice init_preflight",
+    "lattice next",
+    "lattice session_brief",
+    "lattice story_advance",
+    "lattice story_create",
+    "lattice validate",
+    "node bin/lattice.js *",
+    "node packages/main/dist/cli.js *",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main run test:*",
+    "npm --prefix packages/main test",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "shell"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/pos-agent-drivability-optimization.md",
+    "package-lock.json",
+    "packages/main/package.json",
+    "packages/main/src/cli/help-renderer.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/handlers/init-preflight.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/handlers/story-create.ts",
+    "packages/main/tests"
+  ],
+  "excludedCommands": [
+    "git push *",
+    "lattice release_approve_push *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "Execution is limited to local CLI/source/test work for M0-M1 drivability routing.",
+  "createdAt": "2026-07-08T22:36:55.377Z",
+  "updatedAt": "2026-07-08T22:36:55.377Z",
+  "_hash": "32e1b4840a90c305cc9aa5d8eda13897ec1d64d6acf0620e23d913a47c9f7f92"
+}
