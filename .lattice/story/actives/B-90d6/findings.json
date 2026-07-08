@@ -33,6 +33,25 @@
       "_hash": "aedc21ab0ae455da61f93277f6d699b8d716f224f59bf6219ec7ab2fc0c752e3",
       "signatureTag": "missing|unknown|docs-says-automatic",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-90d6:F-003",
+      "desc": "packages/main/src/handlers/story-dispatch.ts:193 WHY buildScopePlanReviewPrompt only verifies that the story exists, then packages/main/src/handlers/story-dispatch.ts:230-231 emits a reviewer prompt that must finish by calling scope_check_save. But scope_check_save is allowed only in PLAN (packages/main/src/core/command-policy.ts:394), so dispatching lattice-review-scope-plan for a DEV/REVIEW/TEST story advertises a guaranteed-failing next command; reproduced in this REVIEW worktree with `node packages/main/dist/cli.js dispatch --root /Users/jek/Documents/Work/proofbound/.worktrees/B-90d6 --storyId B-90d6 --agentType lattice-review-scope-plan`, which returned a scope_check_save prompt for B-90d6. This violates the story invariant to never advertise a command that will fail in the current phase; phase-gate the story-level scope-plan prompt or make it explicitly refuse/redirect outside PLAN.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-08T23:31:29.144Z",
+      "reviewRound": "2026-07-08T23:26:45.118Z",
+      "reviewRunId": "B-90d6:RR-002",
+      "_hash": "ccc4636b7994143a12a28e77ed4b5119c31a43d720d3d961e5be6c0e8a71989b",
+      "files": [
+        "packages/main/src/handlers/story-dispatch.ts",
+        "packages/main/src/core/command-policy.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
