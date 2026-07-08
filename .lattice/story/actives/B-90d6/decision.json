@@ -3,24 +3,35 @@
     "Improve agent routing without changing gate authority.",
     "Prefer exact next commands over prose-only guidance.",
     "Keep init_preflight read-only and evidence-neutral.",
-    "Make regressions mechanically testable.",
-    "Keep this story limited to M0-M1."
+    "Keep scope_check_save reviewer-written, not main-agent self-signed.",
+    "Make regressions mechanically testable."
   ],
   "drivers": [
     "The current failure wastes command budget before DEV.",
-    "The safety contract must not be weakened by convenience automation.",
-    "The fix should land as small focused CLI/help/session changes."
+    "The PLAN scope-check dispatch gap blocks this story before implementation can begin.",
+    "The safety contract must not be weakened by convenience automation."
   ],
   "options": [
     {
-      "name": "M0-M1 focused routing slice",
+      "name": "M0-M1 plus minimal #6 dispatch unblocker",
       "pros": [
-        "Addresses the largest confirmed INIT discovery waste first.",
-        "Keeps evidence contracts unchanged.",
-        "Can be tested with focused command-output assertions."
+        "Addresses the largest INIT discovery waste and the PLAN blocker that prevents this story from reaching DEV.",
+        "Keeps evidence contracts unchanged because scope_check_save remains reviewer evidence.",
+        "Can be tested with focused command-output and dispatch assertions."
       ],
       "cons": [
-        "Does not yet solve checklist self-seeding, parser help, PLAN scope-plan dispatch, or global-thin CLAUDE.md issues."
+        "Slightly broadens the first slice beyond pure M0-M1.",
+        "Does not yet solve M2 checklist self-seeding, M3 parser/help schema fixes, M5 asset repair, or M7 ceremony redesign."
+      ]
+    },
+    {
+      "name": "M0-M1 only",
+      "pros": [
+        "Smallest original slice and lowest blast radius."
+      ],
+      "cons": [
+        "Leaves the current story blocked at PLAN by the documented #6 gap.",
+        "Future agents would rediscover the story-level scope-plan dispatch failure."
       ]
     },
     {
@@ -41,12 +52,12 @@
       ],
       "cons": [
         "Cross-vendor audit vetoed agent-self-attested risk/size downgrades as an evasion bypass.",
-        "Would attack ceremony cost before measuring the discovery-cost fixes."
+        "Would attack ceremony cost before measuring discovery-cost fixes."
       ]
     }
   ],
-  "chosen": "M0-M1 focused routing slice",
-  "rationale": "The focused slice removes the largest confirmed discovery failures while preserving all Proof-or-Stop evidence gates and leaving broader milestones for later stories.",
+  "chosen": "M0-M1 plus minimal #6 dispatch unblocker",
+  "rationale": "The story-level scope-plan dispatch gap is not optional for this work: it blocks PLAN review before implementation and is explicitly documented as finding #6. Adding the minimal dispatch branch keeps reviewer evidence intact while preventing every future agent from rediscovering the same missing path.",
   "preMortem": [
     {
       "scenario": "A help or session hint says init_preflight is enough to advance",
@@ -55,23 +66,29 @@
       "mitigation": "Every new hint must keep init_preflight read-only and mention story_advance only after prerequisites are satisfied."
     },
     {
+      "scenario": "Scope-plan dispatch becomes gate evidence by implication",
+      "trigger": "The new dispatch path returns a prompt and agents treat that as a pass.",
+      "consequence": "PLAN could advance without reviewer-written scope_check_save evidence.",
+      "mitigation": "Prompt and tests must state dispatch output is not gate evidence; reviewer must call scope_check_save."
+    },
+    {
       "scenario": "Tests assert brittle full help output",
       "trigger": "Snapshotting too much global help text.",
       "consequence": "Routine command catalog edits break unrelated tests.",
-      "mitigation": "Use focused substring/ordering assertions around init_preflight and no-production/no-auto-run language."
+      "mitigation": "Use focused substring/ordering assertions around init_preflight and scope-plan dispatch wording."
     },
     {
       "scenario": "The story grows into M2-M7",
-      "trigger": "While touching help/parser files, nearby issues are tempting to fix opportunistically.",
-      "consequence": "Scope expands and review cannot isolate whether M1 routing worked.",
-      "mitigation": "Keep M2 checklist self-seeding, M3 parser/schema fixes, M4 scope-plan dispatch, M5 asset repair, and M7 redesign explicitly excluded."
+      "trigger": "While touching help/parser/dispatch files, nearby issues are tempting to fix opportunistically.",
+      "consequence": "Scope expands and review cannot isolate whether the routing fixes worked.",
+      "mitigation": "Keep M2 checklist self-seeding, M3 parser/schema fixes, M5 asset repair, and M7 redesign explicitly excluded."
     },
     {
       "scenario": "Fallback INIT attestation is misread as independent reviewer approval",
-      "trigger": "The story used init_check_repair fallback because subagent spawning was not explicitly authorized.",
+      "trigger": "The story used init_check_repair fallback because subagent spawning was not explicitly authorized earlier.",
       "consequence": "Reviewers might overtrust the INIT gate evidence.",
       "mitigation": "Preserve the fallback warning and rely on normal PLAN/DEV/REVIEW/TEST gates before any implementation claim."
     }
   ],
-  "timestamp": "2026-07-08T22:40:58.810Z"
+  "timestamp": "2026-07-08T22:44:28.489Z"
 }

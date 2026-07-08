@@ -2,7 +2,7 @@
   "schemaVersion": "proofstory.milestone_ledger.v1",
   "storyId": "B-90d6",
   "state": "candidate",
-  "ledgerHash": "sha256:64e1b522289933930c0539d0239e02adf207abd211554ba327b23b9a1e1ee946",
+  "ledgerHash": "sha256:74346d4653f5328ebbc7dd190a89c1e8a01b1285a4cc81b4c7ef706849471a4e",
   "milestones": [
     {
       "id": "M0",
@@ -43,8 +43,25 @@
         "CHK-005:happy:0"
       ],
       "status": "planned"
+    },
+    {
+      "id": "M4-min",
+      "sourceRequirementId": "POS-DRIVE-F6",
+      "claim": "Story-level scope-plan reviewer dispatch exists for PLAN scope evidence.",
+      "doneMeans": "lattice dispatch with storyId and agentType=lattice-review-scope-plan returns a story-level reviewer prompt that terminates in scope_check_save, while existing INIT and item-scoped dispatch paths remain unchanged.",
+      "requiredEvidence": [
+        "focused_dispatch_test",
+        "manual_cli_transcript"
+      ],
+      "checklistRefs": [
+        "CHK-006"
+      ],
+      "verificationIntentRefs": [
+        "CHK-006:happy:0"
+      ],
+      "status": "planned"
     }
   ],
   "createdAt": "2026-07-08T22:36:55.377Z",
-  "updatedAt": "2026-07-08T22:36:55.377Z"
+  "updatedAt": "2026-07-08T22:45:28.188Z"
 }

@@ -1,0 +1,126 @@
+{
+  "storyId": "B-90d6",
+  "checkedAt": "2026-07-08T22:47:38.585Z",
+  "features": [
+    {
+      "feature": "M0 baseline contract for rule-free fix-git commands-to-DEV",
+      "covered_by": "CHK-001 freezes the 80+ commands / never reached DEV baseline contract and future M6 comparison rules",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-90d6/checklist.json; milestone-ledger M0; pos-agent-drivability decision M0"
+    },
+    {
+      "feature": "INIT session_brief and next routing to init_preflight",
+      "covered_by": "CHK-002 updates session_brief/next INIT guidance and preserves read-only/non-git wording",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-90d6/checklist.json; pos-agent-drivability decision M1 findings #2/#3"
+    },
+    {
+      "feature": "story_create and global help INIT flow route through init_preflight",
+      "covered_by": "CHK-003 updates story_create INIT hint and global development-flow help before direct INIT_CHECK advancement",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-90d6/checklist.json; pos-agent-drivability decision M1 findings #4/#13"
+    },
+    {
+      "feature": "INIT_CHECK failure guidance points to init_preflight without weakening gates",
+      "covered_by": "CHK-004 adds missing-prerequisite failure guidance while preserving fail-closed scope anti-expansion and controlled repair fallback",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-90d6/checklist.json; pos-agent-drivability decision M1 findings #2/#5"
+    },
+    {
+      "feature": "Focused M1 regression tests for routing and no-overclaim language",
+      "covered_by": "CHK-005 requires focused assertions for session, story_create/global help, and INIT_CHECK failure guidance",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-90d6/checklist.json; milestone-ledger M1"
+    },
+    {
+      "feature": "Story-level lattice-review-scope-plan dispatch unblocker for scope_check_save",
+      "covered_by": "CHK-006 adds the minimal story-level dispatch branch/prompt ending in reviewer-written scope_check_save and preserves existing dispatch paths",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-90d6/checklist.json; decision.json chosen option; pos-agent-drivability finding #6 / M4-min"
+    },
+    {
+      "feature": "M2 checklist self-seeding and IDEA checklist dead-end repair",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicit non-goal in user scope, decision option, and CHK-003 exclude; not needed for M0-M1 plus minimal #6",
+      "source": "pos-agent-drivability decision M2; .lattice/story/actives/B-90d6/checklist.json"
+    },
+    {
+      "feature": "Broad M3 parser/schema/help-renderer fixes beyond init_preflight wording",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicit non-goal; CHK-003 adversarial scope excludes parser repairs and the intended story only touches routing language/tests",
+      "source": "pos-agent-drivability decision M3; .lattice/story/actives/B-90d6/decision.json"
+    },
+    {
+      "feature": "M5 global-thin CLAUDE asset repair",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicit non-goal in user scope and decision rationale; no checklist item covers global-thin profile asset repair",
+      "source": "pos-agent-drivability decision M5; .lattice/story/actives/B-90d6/decision.json"
+    },
+    {
+      "feature": "M7 ceremony redesign, gate exemptions, or agent self-attested express lane",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicit non-goal; decision vetoes gate weakening and CHK-004/CHK-006 preserve evidence requirements",
+      "source": "pos-agent-drivability decision M7; .lattice/story/actives/B-90d6/checklist.json"
+    },
+    {
+      "feature": "Full M4 PLAN drivability beyond the minimal story-level dispatch blocker",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-006 explicitly excludes full M4 open-question UX redesign and only covers the #6 dispatch unblocker",
+      "source": "pos-agent-drivability decision M4; .lattice/story/actives/B-90d6/checklist.json"
+    },
+    {
+      "feature": "Scope/execution boundary freshness after adding CHK-006",
+      "covered_by": null,
+      "status": "orphan-suspect",
+      "excluded_by": null,
+      "source": "scope-boundary and execution-boundary still exclude M4 PLAN scope-plan dispatch while checklist/decision include CHK-006"
+    }
+  ],
+  "summary": {
+    "total": 12,
+    "covered": 6,
+    "excluded": 5,
+    "gaps": 0,
+    "orphanSuspect": 1,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "3c14e3fcd349742c9da96a0cb5140cd5911c415c430f8867c6300412f4f638b4",
+  "openQuestions": [
+    {
+      "id": "OQ-1",
+      "q": "The related decision doc is absent from the story worktree but present as an untracked file in the parent checkout. Should DEV add/import docs/requirements/decisions/pos-agent-drivability-optimization.md into story/B-90d6 before CHK-001, or should CHK-001 be adjusted to a worktree-available source?",
+      "evidence": "In /Users/jek/Documents/Work/proofbound/.worktrees/B-90d6, rg --files and git ls-files found no docs/requirements/decisions/pos-agent-drivability-optimization.md. In /Users/jek/Documents/Work/proofbound, the same path exists and git status reports it as untracked (??). Story artifacts nevertheless reference that doc as CHK-001 relatedDocs and allowed scope.",
+      "sourcePointers": [
+        ".lattice/story/actives/B-90d6/checklist.json:CHK-001",
+        ".lattice/story/actives/B-90d6/background.md",
+        "docs/requirements/decisions/pos-agent-drivability-optimization.md (missing in story worktree)",
+        "/Users/jek/Documents/Work/proofbound/docs/requirements/decisions/pos-agent-drivability-optimization.md (parent checkout, untracked)"
+      ]
+    },
+    {
+      "id": "OQ-2",
+      "q": "Current checklist/decision/user scope include the minimal #6 story-level scope-plan dispatch unblocker, but scope-boundary/execution-boundary/scope-freeze-check still reflect an earlier M0-M1-only boundary that excludes M4 PLAN scope-plan dispatch. Should those boundary artifacts be refreshed before DEV?",
+      "evidence": "CHK-006 and decision.json choose M0-M1 plus minimal #6 dispatch. milestone-ledger includes M4-min. But scope-boundary.json excludes M4 PLAN scope-plan dispatch, execution-boundary.json allowed paths omit story-dispatch.ts and story-review.ts, and scope-freeze-check effectiveExcludedKeywords still include M4 PLAN scope-plan dispatch.",
+      "sourcePointers": [
+        ".lattice/story/actives/B-90d6/checklist.json:CHK-006",
+        ".lattice/story/actives/B-90d6/decision.json",
+        ".lattice/story/actives/B-90d6/milestone-ledger.json",
+        ".lattice/story/actives/B-90d6/scope-boundary.json",
+        ".lattice/story/actives/B-90d6/execution-boundary.json",
+        ".lattice/story/actives/B-90d6/scope-freeze-check.json"
+      ]
+    }
+  ]
+}

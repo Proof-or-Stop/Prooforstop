@@ -242,6 +242,70 @@
           }
         ]
       }
+    },
+    {
+      "id": "CHK-006",
+      "title": "Add story-level scope-plan reviewer dispatch",
+      "context": "Fix the documented #6 blocker from pos-agent-drivability: lattice dispatch currently requires itemId/findingId/clusterId except INIT reviewers, so a story-level lattice-review-scope-plan reviewer cannot get a prompt that terminates in scope_check_save. Add the minimal story-level dispatch branch and prompt builder needed for scope-plan reviewer evidence.",
+      "relatedDocs": [
+        "docs/requirements/decisions/pos-agent-drivability-optimization.md#6-PLANTODEV-scope-plan-reviewer-has-no-story-level-dispatch-path-the-terminal-wall-at-timeout",
+        "docs/requirements/decisions/pos-agent-drivability-optimization.md#M4----PLANTODEV-scope-plan-drivability"
+      ],
+      "userSees": "A PLAN story can run lattice dispatch with storyId and agentType=lattice-review-scope-plan and receive a reviewer prompt that tells the reviewer to call scope_check_save.",
+      "excludes": [
+        "Do not let the main implementation agent self-sign scope_check_save.",
+        "Do not implement open-question resolution UX beyond the existing scope_question_resolve command.",
+        "Do not implement full M4 beyond the minimal story-level scope-plan dispatch blocker."
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/handlers/story-review.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lattice dispatch with storyId and agentType=lattice-review-scope-plan succeeds without itemId and returns a prompt for story-level PLAN scope review ending in scope_check_save.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Existing item-scoped reviewer dispatch and INIT reviewer dispatch behavior remain unchanged.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The new path does not allow the main implementation agent to self-sign scope evidence and does not treat dispatch output as gate evidence until scope_check_save is written by the reviewer lane.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-08T22:43:44.273Z",
+      "phase": "PLAN",
+      "itemId": "CHK-006",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Current PLAN gate is blocked by the documented #6 drivability gap; user explicitly requested this be solved in the current work so future agents do not rediscover it.",
+      "addedTitle": "Add story-level scope-plan reviewer dispatch",
+      "addedContext": "Fix the documented #6 blocker from pos-agent-drivability: lattice dispatch currently requires itemId/findingId/clusterId except INIT reviewers, so a story-level lattice-review-scope-plan reviewer cannot get a prompt that terminates in scope_check_save. Add the minimal story-level dispatch branch and prompt builder needed for scope-plan reviewer evidence."
     }
   ]
 }
