@@ -18,6 +18,21 @@
       ],
       "signatureTag": "missing|mjs|packages-main-tests",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-90d6:F-002",
+      "desc": "docs/CLI.md:329-331 says automatic milestone-status append is skipped when the target story has no milestone-ledger.json, but packages/main/src/cli-engine.ts:903-904 falls back to an always-shown checklist-derived ledger and packages/main/tests/milestone-status.test.mjs:322-327 asserts missing-ledger story mutations must still show that checklist-derived status view. This docs drift contradicts CHK-008 forced status display behavior and can train agents to expect no status output for ledgerless stories; update the docs to distinguish real milestone_status tables from checklist-derived status output without implying a ledger mutation or gate pass.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-08T23:29:30.297Z",
+      "reviewRound": "2026-07-08T23:26:45.118Z",
+      "reviewRunId": "B-90d6:RR-004",
+      "_hash": "aedc21ab0ae455da61f93277f6d699b8d716f224f59bf6219ec7ab2fc0c752e3",
+      "signatureTag": "missing|unknown|docs-says-automatic",
+      "signatureTagSource": "auto"
     }
   ]
 }
