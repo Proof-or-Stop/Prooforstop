@@ -12,7 +12,30 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A managed global-thin project with .lattice/lattice.json declaring assetMode=global-thin and no lattice.config.json runs a heartbeat/log-producing read-only command and writes a current row to that project root .lattice/activity.jsonl. WHY: proves runtime activity-root detection accepts the managed global-thin manifest.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The global-thin runtime/log-root helper remains separate from canonical configuration loading: loadConfig/findProjectRoot behavior still requires lattice.config.json for canonical project config fields and does not parse .lattice/lattice.json as a substitute project config. WHY: prevents managed adapter metadata from becoming canonical workflow config.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Directories with no lattice.config.json and no valid managed global-thin .lattice/lattice.json, including malformed or wrong-assetMode manifests, are not promoted to writable activity roots and do not gain stray .lattice/activity.jsonl logs. WHY: prevents unrelated directories from becoming Proofbound roots accidentally.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

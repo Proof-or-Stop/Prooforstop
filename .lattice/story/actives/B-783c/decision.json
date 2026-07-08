@@ -1,0 +1,69 @@
+{
+  "principles": [
+    "Activity logging may recognize runtime-managed roots without expanding canonical project config semantics.",
+    "Canonical lattice.config.json parsing must remain schema-stable and backward compatible.",
+    "Codex verify should prove the same user-visible heartbeat path that failed in solver-visible."
+  ],
+  "drivers": [
+    "global-thin managed projects can be valid adapter roots with only .lattice/lattice.json",
+    "writeLog currently skips all roots without canonical project config",
+    "runHeartbeat validates by reading the session record from .lattice/activity.jsonl"
+  ],
+  "options": [
+    {
+      "name": "A: Add .lattice/lattice.json to PROJECT_CONFIG_FILENAMES",
+      "pros": [
+        "Smallest code diff",
+        "Existing hasProjectConfigFile callers would see global-thin roots"
+      ],
+      "cons": [
+        "Would make loadConfig try to parse a different schema as canonical project config",
+        "Risks changing unrelated project-root semantics"
+      ]
+    },
+    {
+      "name": "B: Add an explicit runtime activity-root helper",
+      "pros": [
+        "Preserves canonical config behavior",
+        "Limits .lattice/lattice.json recognition to activity logging/root detection",
+        "Matches the observed failure path directly"
+      ],
+      "cons": [
+        "Requires replacing specific hasProjectConfigFile checks where activity logging needs runtime-root semantics"
+      ]
+    },
+    {
+      "name": "C: Special-case Codex heartbeat to create activity logs directly",
+      "pros": [
+        "Could fix the single failing verify check"
+      ],
+      "cons": [
+        "Bypasses the shared CLI activity logging path",
+        "Leaves session_brief global-fallback behavior inconsistent for other activity readers"
+      ]
+    }
+  ],
+  "chosen": "B: Add an explicit runtime activity-root helper",
+  "rationale": "The bug is in runtime activity-root detection, not canonical config loading. Option B fixes the missing heartbeat while keeping loadConfig scoped to lattice.config.json and avoiding schema confusion.",
+  "preMortem": [
+    {
+      "scenario": "The helper accepts any .lattice/lattice.json and treats arbitrary directories as Proofbound roots.",
+      "trigger": "Detection only checks file existence instead of assetMode global-thin.",
+      "consequence": "Read-only commands could create .lattice/activity.jsonl in unrelated directories.",
+      "mitigation": "Parse JSON defensively and require assetMode exactly global-thin; add an adversarial regression for non-global-thin metadata."
+    },
+    {
+      "scenario": "DONE worktree cleanup fallback regresses because writeLog no longer uses canonical project config checks for main fallback.",
+      "trigger": "Replacing all hasProjectConfigFile calls indiscriminately.",
+      "consequence": "Post-DONE logging could recreate ghost worktree directories or pick the wrong root.",
+      "mitigation": "Use the activity-root helper only where logging root eligibility is intended, preserving the durable fallback order and canonical checks where appropriate."
+    },
+    {
+      "scenario": "The smoke passes via direct runCodexAdapterChecks but the real installed lattice command still fails.",
+      "trigger": "Tests avoid executing the child process heartbeat path or use a root with lattice.config.json.",
+      "consequence": "solver-visible remains broken despite green local tests.",
+      "mitigation": "Add a managed global-thin-only heartbeat smoke and run real `lattice codex verify` in solver-visible after build."
+    }
+  ],
+  "timestamp": "2026-07-08T23:39:36.335Z"
+}
