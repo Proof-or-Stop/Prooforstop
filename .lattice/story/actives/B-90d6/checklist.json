@@ -46,7 +46,45 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/pos-agent-drivability-optimization.md",
+          "command": "rg -n '80\\+ commands|never reached DEV|Future comparisons|M0 is baseline documentation' docs/requirements/decisions/pos-agent-drivability-optimization.md",
+          "result": "pass",
+          "note": "Decision doc records the frozen M0 baseline contract: 80+ commands, never reached DEV, plus future comparison fields.",
+          "headHash": "256306e3da8fc1149c89c0e10ea5b3a74a29f80e",
+          "materialHash": "f988d5fa8efe8e42422d08cd041dfe24364bed1fa9c403cd8cc50a884b3b6549",
+          "storyFilesHash": "9ff8636d4d1d1c11b9fb104b73fe6e2cf89e2022c8b6f3d00ceb323aea74ce16",
+          "timestamp": "2026-07-08T23:26:03.415Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/pos-agent-drivability-optimization.md",
+          "command": "rg -n 'not gate evidence|not product proof|Future comparisons|agent narration' docs/requirements/decisions/pos-agent-drivability-optimization.md",
+          "result": "pass",
+          "note": "M0 wording distinguishes baseline documentation from runtime proof and future M6 execution results.",
+          "headHash": "256306e3da8fc1149c89c0e10ea5b3a74a29f80e",
+          "materialHash": "f988d5fa8efe8e42422d08cd041dfe24364bed1fa9c403cd8cc50a884b3b6549",
+          "storyFilesHash": "9ff8636d4d1d1c11b9fb104b73fe6e2cf89e2022c8b6f3d00ceb323aea74ce16",
+          "timestamp": "2026-07-08T23:26:03.415Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/pos-agent-drivability-optimization.md",
+          "command": "rg -n 'not gate evidence|without relaxing any gate evidence|not a basis for relaxing review' docs/requirements/decisions/pos-agent-drivability-optimization.md",
+          "result": "pass",
+          "note": "The document explicitly avoids claiming M0/init_preflight satisfies lifecycle gates or production readiness.",
+          "headHash": "256306e3da8fc1149c89c0e10ea5b3a74a29f80e",
+          "materialHash": "f988d5fa8efe8e42422d08cd041dfe24364bed1fa9c403cd8cc50a884b3b6549",
+          "storyFilesHash": "9ff8636d4d1d1c11b9fb104b73fe6e2cf89e2022c8b6f3d00ceb323aea74ce16",
+          "timestamp": "2026-07-08T23:26:03.415Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -94,7 +132,45 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/handlers/session.ts",
+          "command": "rg -n 'init_preflight --storyId|After it reports READY' packages/main/src/handlers/session.ts",
+          "result": "pass",
+          "note": "INIT next-step/session guidance now points to init_preflight before INIT_CHECK advancement.",
+          "headHash": "256306e3da8fc1149c89c0e10ea5b3a74a29f80e",
+          "materialHash": "f988d5fa8efe8e42422d08cd041dfe24364bed1fa9c403cd8cc50a884b3b6549",
+          "storyFilesHash": "9ff8636d4d1d1c11b9fb104b73fe6e2cf89e2022c8b6f3d00ceb323aea74ce16",
+          "timestamp": "2026-07-08T23:26:03.415Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/handlers/session.ts",
+          "command": "rg -n 'read-only; it does not write evidence or create worktrees' packages/main/src/handlers/session.ts",
+          "result": "pass",
+          "note": "Session guidance preserves read-only behavior and does not claim init_preflight creates a worktree or writes evidence.",
+          "headHash": "256306e3da8fc1149c89c0e10ea5b3a74a29f80e",
+          "materialHash": "f988d5fa8efe8e42422d08cd041dfe24364bed1fa9c403cd8cc50a884b3b6549",
+          "storyFilesHash": "9ff8636d4d1d1c11b9fb104b73fe6e2cf89e2022c8b6f3d00ceb323aea74ce16",
+          "timestamp": "2026-07-08T23:26:03.415Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/handlers/session.ts",
+          "command": "rg -n 'init_preflight --storyId|story_advance --storyId=.*--phase=INIT_CHECK' packages/main/src/handlers/session.ts",
+          "result": "pass",
+          "note": "Guidance names init_preflight as diagnostics first and still requires story_advance after READY; no auto-run or gate bypass.",
+          "headHash": "256306e3da8fc1149c89c0e10ea5b3a74a29f80e",
+          "materialHash": "f988d5fa8efe8e42422d08cd041dfe24364bed1fa9c403cd8cc50a884b3b6549",
+          "storyFilesHash": "9ff8636d4d1d1c11b9fb104b73fe6e2cf89e2022c8b6f3d00ceb323aea74ce16",
+          "timestamp": "2026-07-08T23:26:03.415Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -143,7 +219,45 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/cli/help-renderer.ts",
+          "command": "node packages/main/dist/cli.js --help | rg -n 'init_preflight|After preflight READY' && rg -n 'Before story_advance, run lattice init_preflight' packages/main/src/handlers/story-create.ts",
+          "result": "pass",
+          "note": "Global help and story_create guidance mention init_preflight before direct INIT_CHECK advancement.",
+          "headHash": "256306e3da8fc1149c89c0e10ea5b3a74a29f80e",
+          "materialHash": "f988d5fa8efe8e42422d08cd041dfe24364bed1fa9c403cd8cc50a884b3b6549",
+          "storyFilesHash": "9ff8636d4d1d1c11b9fb104b73fe6e2cf89e2022c8b6f3d00ceb323aea74ce16",
+          "timestamp": "2026-07-08T23:26:03.415Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "file": "packages/main/src/cli/help-renderer.ts",
+          "command": "rg -n 'story_advance --storyId=B-xxx --phase=INIT_CHECK|create local worktree/local branch' packages/main/src/cli/help-renderer.ts",
+          "result": "pass",
+          "note": "Help keeps the normal worktree path visible after init_preflight is READY.",
+          "headHash": "256306e3da8fc1149c89c0e10ea5b3a74a29f80e",
+          "materialHash": "f988d5fa8efe8e42422d08cd041dfe24364bed1fa9c403cd8cc50a884b3b6549",
+          "storyFilesHash": "9ff8636d4d1d1c11b9fb104b73fe6e2cf89e2022c8b6f3d00ceb323aea74ce16",
+          "timestamp": "2026-07-08T23:26:03.415Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "packages/main/src/cli/help-renderer.ts",
+          "command": "rg -n 'init_preflight --storyId=B-xxx' packages/main/src/cli/help-renderer.ts",
+          "result": "pass",
+          "note": "Help change is limited to INIT routing and does not advertise M2-M7 behavior as part of this slice.",
+          "headHash": "256306e3da8fc1149c89c0e10ea5b3a74a29f80e",
+          "materialHash": "f988d5fa8efe8e42422d08cd041dfe24364bed1fa9c403cd8cc50a884b3b6549",
+          "storyFilesHash": "9ff8636d4d1d1c11b9fb104b73fe6e2cf89e2022c8b6f3d00ceb323aea74ce16",
+          "timestamp": "2026-07-08T23:26:03.416Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -193,7 +307,45 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
+          "command": "node packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
+          "result": "pass",
+          "note": "Regression test asserts missing scope/init-check INIT_CHECK failures include exact init_preflight guidance.",
+          "headHash": "256306e3da8fc1149c89c0e10ea5b3a74a29f80e",
+          "materialHash": "f988d5fa8efe8e42422d08cd041dfe24364bed1fa9c403cd8cc50a884b3b6549",
+          "storyFilesHash": "9ff8636d4d1d1c11b9fb104b73fe6e2cf89e2022c8b6f3d00ceb323aea74ce16",
+          "timestamp": "2026-07-08T23:26:03.416Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
+          "command": "node packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
+          "result": "pass",
+          "note": "Test covers fail-closed scope-boundary, execution-boundary, scope-freeze, missing init-check, and missing reviewer cases.",
+          "headHash": "256306e3da8fc1149c89c0e10ea5b3a74a29f80e",
+          "materialHash": "f988d5fa8efe8e42422d08cd041dfe24364bed1fa9c403cd8cc50a884b3b6549",
+          "storyFilesHash": "9ff8636d4d1d1c11b9fb104b73fe6e2cf89e2022c8b6f3d00ceb323aea74ce16",
+          "timestamp": "2026-07-08T23:26:03.416Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/machine.ts",
+          "command": "node packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
+          "result": "pass",
+          "note": "Failure guidance adds diagnostics only and preserves reviewer/freeze gates; no auto-exemption or readiness claim.",
+          "headHash": "256306e3da8fc1149c89c0e10ea5b3a74a29f80e",
+          "materialHash": "f988d5fa8efe8e42422d08cd041dfe24364bed1fa9c403cd8cc50a884b3b6549",
+          "storyFilesHash": "9ff8636d4d1d1c11b9fb104b73fe6e2cf89e2022c8b6f3d00ceb323aea74ce16",
+          "timestamp": "2026-07-08T23:26:03.416Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -241,7 +393,45 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
+          "command": "node packages/main/tests/b90d6-init-dispatch-guidance.test.mjs && npm --prefix packages/main run test:milestone-status",
+          "result": "pass",
+          "note": "Focused tests cover INIT gate guidance, scope-plan dispatch, and ledger-backed checklist_add UX.",
+          "headHash": "256306e3da8fc1149c89c0e10ea5b3a74a29f80e",
+          "materialHash": "f988d5fa8efe8e42422d08cd041dfe24364bed1fa9c403cd8cc50a884b3b6549",
+          "storyFilesHash": "9ff8636d4d1d1c11b9fb104b73fe6e2cf89e2022c8b6f3d00ceb323aea74ce16",
+          "timestamp": "2026-07-08T23:26:03.416Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
+          "command": "node packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
+          "result": "pass",
+          "note": "Tests use targeted assertions instead of broad brittle full-output snapshots.",
+          "headHash": "256306e3da8fc1149c89c0e10ea5b3a74a29f80e",
+          "materialHash": "f988d5fa8efe8e42422d08cd041dfe24364bed1fa9c403cd8cc50a884b3b6549",
+          "storyFilesHash": "9ff8636d4d1d1c11b9fb104b73fe6e2cf89e2022c8b6f3d00ceb323aea74ce16",
+          "timestamp": "2026-07-08T23:26:03.416Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
+          "command": "node packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
+          "result": "pass",
+          "note": "Tests assert dispatch output is not gate evidence and init_preflight remains diagnostic guidance.",
+          "headHash": "256306e3da8fc1149c89c0e10ea5b3a74a29f80e",
+          "materialHash": "f988d5fa8efe8e42422d08cd041dfe24364bed1fa9c403cd8cc50a884b3b6549",
+          "storyFilesHash": "9ff8636d4d1d1c11b9fb104b73fe6e2cf89e2022c8b6f3d00ceb323aea74ce16",
+          "timestamp": "2026-07-08T23:26:03.416Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
@@ -292,7 +482,45 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
+          "command": "node packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
+          "result": "pass",
+          "note": "Story-level lattice-review-scope-plan dispatch works without itemId and prompt ends in scope_check_save guidance.",
+          "headHash": "256306e3da8fc1149c89c0e10ea5b3a74a29f80e",
+          "materialHash": "f988d5fa8efe8e42422d08cd041dfe24364bed1fa9c403cd8cc50a884b3b6549",
+          "storyFilesHash": "9ff8636d4d1d1c11b9fb104b73fe6e2cf89e2022c8b6f3d00ceb323aea74ce16",
+          "timestamp": "2026-07-08T23:26:03.416Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
+          "command": "node packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
+          "result": "pass",
+          "note": "The new branch is separate from INIT reviewer and item-scoped dispatch behavior; existing branches remain intact.",
+          "headHash": "256306e3da8fc1149c89c0e10ea5b3a74a29f80e",
+          "materialHash": "f988d5fa8efe8e42422d08cd041dfe24364bed1fa9c403cd8cc50a884b3b6549",
+          "storyFilesHash": "9ff8636d4d1d1c11b9fb104b73fe6e2cf89e2022c8b6f3d00ceb323aea74ce16",
+          "timestamp": "2026-07-08T23:26:03.416Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
+          "command": "node packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
+          "result": "pass",
+          "note": "Test asserts dispatch does not create scope-check evidence and missing_scope_check still requires reviewer-written scope_check_save.",
+          "headHash": "256306e3da8fc1149c89c0e10ea5b3a74a29f80e",
+          "materialHash": "f988d5fa8efe8e42422d08cd041dfe24364bed1fa9c403cd8cc50a884b3b6549",
+          "storyFilesHash": "9ff8636d4d1d1c11b9fb104b73fe6e2cf89e2022c8b6f3d00ceb323aea74ce16",
+          "timestamp": "2026-07-08T23:26:03.416Z"
+        }
+      ]
     },
     {
       "id": "CHK-007",
@@ -342,7 +570,45 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "npm --prefix packages/main run test:milestone-status",
+          "result": "pass",
+          "note": "Ledger-backed checklist_add prints the milestone-ledger sync advisory naming lattice milestone_ledger_add.",
+          "headHash": "256306e3da8fc1149c89c0e10ea5b3a74a29f80e",
+          "materialHash": "f988d5fa8efe8e42422d08cd041dfe24364bed1fa9c403cd8cc50a884b3b6549",
+          "storyFilesHash": "9ff8636d4d1d1c11b9fb104b73fe6e2cf89e2022c8b6f3d00ceb323aea74ce16",
+          "timestamp": "2026-07-08T23:26:03.416Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "npm --prefix packages/main run test:milestone-status",
+          "result": "pass",
+          "note": "No-ledger path keeps the existing checklist-derived flow and does not imply a milestone ledger is required.",
+          "headHash": "256306e3da8fc1149c89c0e10ea5b3a74a29f80e",
+          "materialHash": "f988d5fa8efe8e42422d08cd041dfe24364bed1fa9c403cd8cc50a884b3b6549",
+          "storyFilesHash": "9ff8636d4d1d1c11b9fb104b73fe6e2cf89e2022c8b6f3d00ceb323aea74ce16",
+          "timestamp": "2026-07-08T23:26:03.416Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "npm --prefix packages/main run test:milestone-status",
+          "result": "pass",
+          "note": "Test snapshots milestone-ledger.json before checklist_add and verifies checklist_add does not mutate it.",
+          "headHash": "256306e3da8fc1149c89c0e10ea5b3a74a29f80e",
+          "materialHash": "f988d5fa8efe8e42422d08cd041dfe24364bed1fa9c403cd8cc50a884b3b6549",
+          "storyFilesHash": "9ff8636d4d1d1c11b9fb104b73fe6e2cf89e2022c8b6f3d00ceb323aea74ce16",
+          "timestamp": "2026-07-08T23:26:03.416Z"
+        }
+      ]
     },
     {
       "id": "CHK-008",
@@ -394,7 +660,45 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-008:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "npm --prefix packages/main run test:milestone-status",
+          "result": "pass",
+          "note": "Ledger-backed checklist_add output automatically includes the Milestone Status block.",
+          "headHash": "256306e3da8fc1149c89c0e10ea5b3a74a29f80e",
+          "materialHash": "f988d5fa8efe8e42422d08cd041dfe24364bed1fa9c403cd8cc50a884b3b6549",
+          "storyFilesHash": "9ff8636d4d1d1c11b9fb104b73fe6e2cf89e2022c8b6f3d00ceb323aea74ce16",
+          "timestamp": "2026-07-08T23:26:03.416Z"
+        },
+        {
+          "intentRef": "CHK-008:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "npm --prefix packages/main run test:milestone-status",
+          "result": "pass",
+          "note": "Existing milestone-status regression coverage keeps machine JSON clean and preserves no-ledger checklist-derived behavior.",
+          "headHash": "256306e3da8fc1149c89c0e10ea5b3a74a29f80e",
+          "materialHash": "f988d5fa8efe8e42422d08cd041dfe24364bed1fa9c403cd8cc50a884b3b6549",
+          "storyFilesHash": "9ff8636d4d1d1c11b9fb104b73fe6e2cf89e2022c8b6f3d00ceb323aea74ce16",
+          "timestamp": "2026-07-08T23:26:03.416Z"
+        },
+        {
+          "intentRef": "CHK-008:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "npm --prefix packages/main run test:milestone-status && lattice scope_contract_check --storyId=B-90d6",
+          "result": "pass",
+          "note": "Render-failure visibility and scope status remain non-mutating; scope gate is warn-only for acknowledged metadata, not a hidden pass.",
+          "headHash": "256306e3da8fc1149c89c0e10ea5b3a74a29f80e",
+          "materialHash": "f988d5fa8efe8e42422d08cd041dfe24364bed1fa9c403cd8cc50a884b3b6549",
+          "storyFilesHash": "9ff8636d4d1d1c11b9fb104b73fe6e2cf89e2022c8b6f3d00ceb323aea74ce16",
+          "timestamp": "2026-07-08T23:26:03.416Z"
+        }
+      ]
     }
   ],
   "auditLog": [
