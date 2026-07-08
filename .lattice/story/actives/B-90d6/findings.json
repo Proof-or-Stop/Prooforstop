@@ -47,7 +47,7 @@
       "desc": "packages/main/src/handlers/story-dispatch.ts:193 WHY buildScopePlanReviewPrompt only verifies that the story exists, then packages/main/src/handlers/story-dispatch.ts:230-231 emits a reviewer prompt that must finish by calling scope_check_save. But scope_check_save is allowed only in PLAN (packages/main/src/core/command-policy.ts:394), so dispatching lattice-review-scope-plan for a DEV/REVIEW/TEST story advertises a guaranteed-failing next command; reproduced in this REVIEW worktree with `node packages/main/dist/cli.js dispatch --root /Users/jek/Documents/Work/proofbound/.worktrees/B-90d6 --storyId B-90d6 --agentType lattice-review-scope-plan`, which returned a scope_check_save prompt for B-90d6. This violates the story invariant to never advertise a command that will fail in the current phase; phase-gate the story-level scope-plan prompt or make it explicitly refuse/redirect outside PLAN.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-08T23:31:29.144Z",
@@ -59,7 +59,11 @@
         "packages/main/src/core/command-policy.ts"
       ],
       "signatureTag": "edge|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit b12d2e5f3: story-level lattice-review-scope-plan dispatch is now phase-gated. PLAN emits the scope_check_save reviewer prompt, while DEV/REVIEW and other non-PLAN phases return an explicit refusal/redirect instead of advertising a guaranteed-failing PLAN-only command. Covered by packages/main/tests/b90d6-init-dispatch-guidance.test.mjs and verified with npm --prefix packages/main run build.",
+      "resolvedAt": "2026-07-08T23:40:28.099Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
