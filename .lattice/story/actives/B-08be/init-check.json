@@ -1,0 +1,29 @@
+{
+  "storyId": "B-08be",
+  "checkedAt": "2026-07-08T14:40:16.412Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init@fallback",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "lattice-review-story-init@fallback",
+      "checkedAt": "2026-07-08T14:40:16.412Z",
+      "issues": []
+    },
+    {
+      "agentId": "product-reviewer@fallback",
+      "checkedAt": "2026-07-08T14:40:16.412Z",
+      "issues": []
+    }
+  ],
+  "fallback": {
+    "mode": "repair",
+    "reason": "This Codex tool session does not have user-authorized subagent spawning for reviewer lanes. I manually verified the user request, duplicate-discard mitigation, scope freeze PASS, and that B-08be is limited to the Proofbound CLI gate cwd/scope bug needed to unblock Prodenovo B-35f0 without touching unrelated project files.",
+    "actor": "Harmonygo",
+    "session": "sess-4a9def8b93649d84",
+    "attestedAt": "2026-07-08T14:40:16.412Z",
+    "headHash": "2c2ef006f86d8f344532b63a26bbfe5d8aada432",
+    "materialHash": "f48dc64f84b6a0709bf7889c10380840751be5a98fed7ce016c4a3fd14c4a6d0"
+  },
+  "_hash": "47cd685ce02bb8f4ef146920edf0852ca26810feee1d68313e5bb509c4e04ad2"
+}
