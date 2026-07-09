@@ -1,0 +1,87 @@
+{
+  "storyId": "B-eb92",
+  "generatedFor": "delivery-review",
+  "diff": {
+    "changedFiles": [
+      ".lattice/story/actives/B-eb92/checklist.json",
+      ".lattice/story/actives/B-eb92/decision.json",
+      ".lattice/story/actives/B-eb92/done-required-evidence.json",
+      ".lattice/story/actives/B-eb92/evidence/transcript-diff.md",
+      ".lattice/story/actives/B-eb92/findings.json",
+      ".lattice/story/actives/B-eb92/index.json",
+      ".lattice/story/actives/B-eb92/intent-collision.json",
+      ".lattice/story/actives/B-eb92/milestone-ledger.json",
+      ".lattice/story/actives/B-eb92/original-intent-snapshot.json",
+      ".lattice/story/actives/B-eb92/plan.md",
+      ".lattice/story/actives/B-eb92/process-events.jsonl",
+      ".lattice/story/actives/B-eb92/process-metrics.json",
+      ".lattice/story/actives/B-eb92/proofstory.json",
+      ".lattice/story/actives/B-eb92/red-evidence.json",
+      ".lattice/story/actives/B-eb92/review-passes.json",
+      ".lattice/story/actives/B-eb92/review-runs.json",
+      ".lattice/story/actives/B-eb92/review.json",
+      ".lattice/story/actives/B-eb92/scope-check.json",
+      ".lattice/story/actives/B-eb92/scope-contract.json",
+      ".lattice/story/actives/B-eb92/test-evidence.json",
+      ".lattice/story/actives/B-eb92/understanding.json",
+      "packages/main/package.json",
+      "packages/main/src/core/done-oracle.ts",
+      "packages/main/src/core/lifecycle-readiness.ts",
+      "packages/main/src/core/review-assurance-floor.ts",
+      "packages/main/src/handlers/done-prepare.ts",
+      "packages/main/src/handlers/review-escalation.ts",
+      "packages/main/src/handlers/transition-effects.ts",
+      "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+      "packages/main/src/tasks/review-assurance-surfacing-smoke.ts"
+    ],
+    "summary": " .lattice/story/actives/B-eb92/checklist.json       | 191 ++++-\n .lattice/story/actives/B-eb92/decision.json        |  73 ++\n .../actives/B-eb92/done-required-evidence.json     |  83 ++\n .../actives/B-eb92/evidence/transcript-diff.md     |  31 +\n .lattice/story/actives/B-eb92/findings.json        | 123 +++\n .lattice/story/actives/B-eb92/index.json           | 104 ++-\n .../story/actives/B-eb92/intent-collision.json     |  14 +\n .../story/actives/B-eb92/milestone-ledger.json     |  15 +-\n .../actives/B-eb92/original-intent-snapshot.json   |  14 +\n .lattice/story/actives/B-eb92/plan.md              |  25 +\n .lattice/story/actives/B-eb92/process-events.jsonl |  28 +\n .lattice/story/actives/B-eb92/process-metrics.json | 363 ++++++++\n .lattice/story/actives/B-eb92/proofstory.json      |  77 ++\n .lattice/story/actives/B-eb92/red-evidence.json    |  42 +\n .lattice/story/actives/B-eb92/review-passes.json   |  76 ++\n .lattice/story/actives/B-eb92/review-runs.json     | 943 +++++++++++++++++++++\n .lattice/story/actives/B-eb92/review.json          | 214 +++++\n .lattice/story/actives/B-eb92/scope-check.json     |  52 ++\n .lattice/story/actives/B-eb92/scope-contract.json  |  64 ++\n .lattice/story/actives/B-eb92/test-evidence.json   | 206 +++++\n .lattice/story/actives/B-eb92/understanding.json   |  34 +\n packages/main/package.json                         |   1 +\n packages/main/src/core/done-oracle.ts              |   7 +-\n packages/main/src/core/lifecycle-readiness.ts      |   5 +\n packages/main/src/core/review-assurance-floor.ts   | 396 ++++++++-\n packages/main/src/handlers/done-prepare.ts         | 138 ++-\n packages/main/src/handlers/review-escalation.ts    |  28 +-\n packages/main/src/handlers/transition-effects.ts   |  51 +-\n .../main/src/tasks/review-assurance-floor-smoke.ts |  68 +-\n .../src/tasks/review-assurance-surfacing-smoke.ts  | 459 ++++++++++\n 30 files changed, 3885 insertions(+), 40 deletions(-)"
+  },
+  "docsPromises": [
+    {
+      "source": "userSees",
+      "promise": "\"Review assurance required: reason=first-round-problems, materialHash=<sha>, storyFilesHash=<sha>, legal writers=independent reviewer lanes or host quorum; fallback eligibility=<eligible/not eligible>; owner/main cannot auto-sign reviewer pass, finding resolution, delivery check, host verdict, or degraded fallback evidence.\""
+    },
+    {
+      "source": "userSees",
+      "promise": "\"Before DONE: review assurance required for this story. Run lattice review_escalation_status --storyId=<id>; then get independent reviewer/host evidence or approved fallback before DONE. This is advisory at TEST entry and does not block TEST.\""
+    },
+    {
+      "source": "userSees",
+      "promise": "\"DONE prepare blockers: review-assurance requires independent review/host evidence; generated metadata may be committed only for listed lattice files; stale material requires rerun/refresh; cannot auto-sign reviewer pass, delivery check, host verdict, or degraded fallback from owner session.\""
+    }
+  ],
+  "realMachineTests": {
+    "transcriptDiff": true,
+    "testFiles": [
+      "packages/main/package.json",
+      "packages/main/src/tasks/review-assurance-surfacing-smoke.ts"
+    ],
+    "evidenceCommands": [
+      "node packages/main/dist/tasks/review-assurance-floor-smoke.js",
+      "npm --prefix packages/main run test:review-assurance-surfacing-smoke",
+      "npm run test:process-fact-contract && npm --prefix packages/main run test:runtime-fact-contract && npm --prefix packages/main run test:review-assurance-surfacing-smoke"
+    ]
+  },
+  "validation": {
+    "source": "test-evidence.json",
+    "result": "PASS",
+    "timestamp": "2026-07-09T12:35:54.556Z",
+    "headHash": "b190f85e66929a0c066c4912ef83d224353a1c75",
+    "materialHash": "14b25b78b06ec2e992b9eae4d558932522fbaa29fdac27135546a24395b06bec",
+    "storyFilesHash": "d1823d28861a8bb6d5508e5caa2f2eb356ad5f61e204428e6f651c1ababe9989"
+  },
+  "reviewRound": "2026-07-09T12:39:20.988Z",
+  "deliveryCheck": {
+    "status": "missing",
+    "ref": null
+  },
+  "waiver": {
+    "status": "none"
+  },
+  "isSigner": false,
+  "claims": {
+    "authorityDone": false,
+    "fullAuthorityDone": false,
+    "productionDone": false
+  }
+}
