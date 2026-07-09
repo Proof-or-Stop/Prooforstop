@@ -1,0 +1,24 @@
+{
+  "storyId": "B-fbcf",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/package.json"
+  ],
+  "allowedCreate": [
+    "docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md",
+    "packages/main/src/core/done-prepare-generated-metadata.ts",
+    "packages/main/src/core/done-prepare-validation-reuse.ts",
+    "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-09T23:27:39.190Z",
+  "updatedAt": "2026-07-09T23:27:39.190Z"
+}
