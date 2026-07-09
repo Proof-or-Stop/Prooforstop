@@ -4,7 +4,7 @@
   "title": "Implement Proof-or-Stop agent drivability M0-M1 baseline and INIT routing",
   "description": "Create the first implementation story for the Proof-or-Stop Agent-Drivability Optimization roadmap. This slice freezes the rule-free fix-git commands-to-DEV baseline and routes INIT high-traffic guidance through init_preflight so agents see the full INIT_CHECK prerequisite set before attempting phase advancement.",
   "type": "bug",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "proof-or-stop",
@@ -25,7 +25,7 @@
   ],
   "createdAt": "2026-07-08T22:36:55.377Z",
   "startedAt": "2026-07-08T22:36:55.377Z",
-  "endedAt": null,
+  "endedAt": "2026-07-09T00:24:28.044Z",
   "events": [
     {
       "phase": "INIT",
@@ -98,12 +98,16 @@
       "user": "Harmonygo",
       "sessionId": "sess-780264319a464eae",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-09T00:24:28.044Z",
+      "branch": "story/B-90d6",
+      "user": "Harmonygo",
+      "sessionId": "sess-780264319a464eae",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-90d6",
-    "branch": "story/B-90d6",
-    "createdAt": "2026-07-08T22:39:55.751Z"
-  },
   "currentReviewRound": "2026-07-08T23:39:05.748Z"
 }
