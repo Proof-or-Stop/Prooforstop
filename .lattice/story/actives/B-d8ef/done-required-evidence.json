@@ -2,13 +2,13 @@
   "schema": "lattice.done-required-evidence",
   "version": 1,
   "storyId": "B-d8ef",
-  "status": "FAIL",
-  "startedAt": "2026-07-09T22:44:32.949Z",
-  "endedAt": "2026-07-09T22:45:00.885Z",
-  "durationMs": 27936,
-  "headHash": "7bd2d20022956018f254cd09d54ccc50d98056a4",
-  "materialHash": "6a259b0e72989e9538e0243092a59383e4e647d432b05889509ef1b41fc07e38",
-  "storyFilesHash": "fb5e0119eb12f405818c7bcb832c652ea80ad6d7a167385b58062656b167d3bc",
+  "status": "PASS",
+  "startedAt": "2026-07-09T23:02:39.429Z",
+  "endedAt": "2026-07-09T23:03:59.434Z",
+  "durationMs": 80005,
+  "headHash": "96ebaacf95e830aa9b57a589f8ed740a2c2af15b",
+  "materialHash": "8e9e976b43d9599109d117095d224ed4a92acf2188a1df2e840013f176446d0c",
+  "storyFilesHash": "26f26a0a9824b5c0ada4229092a310575daf7301791a32128739a00720b5d7c3",
   "policyHash": "1f72cd38f6c94ed8e6fb8946919ac028e73770eb129ea0db75474982a61542dc",
   "commandSetHash": "a69129533543ffdeb071da3c66fd0b8a884d1ce93d136c87df6120b3cac9dd35",
   "receipts": [
@@ -39,14 +39,14 @@
       "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-d8ef",
       "status": "PASS",
       "exitCode": 0,
-      "durationMs": 6615,
+      "durationMs": 6327,
       "outputDigest": "cbb870a7f4c525062bf7ae4c2a835514d2998074e4ebdab65e97ade4cb40207f",
       "outputTail": "\n> @lattice/core@0.3.177 build\n> tsc\n\n",
-      "startedAt": "2026-07-09T22:44:32.949Z",
-      "endedAt": "2026-07-09T22:44:39.564Z",
-      "headHash": "7bd2d20022956018f254cd09d54ccc50d98056a4",
-      "materialHash": "6a259b0e72989e9538e0243092a59383e4e647d432b05889509ef1b41fc07e38",
-      "storyFilesHash": "fb5e0119eb12f405818c7bcb832c652ea80ad6d7a167385b58062656b167d3bc"
+      "startedAt": "2026-07-09T23:02:39.429Z",
+      "endedAt": "2026-07-09T23:02:45.756Z",
+      "headHash": "96ebaacf95e830aa9b57a589f8ed740a2c2af15b",
+      "materialHash": "8e9e976b43d9599109d117095d224ed4a92acf2188a1df2e840013f176446d0c",
+      "storyFilesHash": "26f26a0a9824b5c0ada4229092a310575daf7301791a32128739a00720b5d7c3"
     },
     {
       "label": "root full test suite",
@@ -67,19 +67,17 @@
         "timeoutMs": 1200000
       },
       "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-d8ef",
-      "status": "FAIL",
-      "exitCode": 1,
-      "durationMs": 21058,
-      "outputDigest": "bb92b67aaf868ed42c4f20f23e5d8a61f88c70aaab7355d51d7ab5cbaee670b0",
-      "outputTail": "horitative gateEvidence=false\n  packDigest: 4befb202ee3bae02827d9b6c08b4fd2792a0a4a520e3bc1e8fa649d6eb383939\n  topHitIds: 9890b83, a4d08a8\n  freshness: fresh\n  sourceDigests: project=none global=889ac11e70324e9d28e316839b209a85edc8e1492050106cb1a8c24c6a59d9a6 playbooks=none signatures=none\n  Dev-memory (2):\n    - 9890b83 failure-mode/global: Old plan documents can mislead hosts after implementation is already DONE.\n      lesson: When a document describes future or plan-only work, do not conclude the task is undone from that document alone. First check current Lattice facts: session_brief, story phase/summary, convergence_check or gap_analyze, and concrete code/data evidence. Treat accepted outcome records, DONE summaries, current code, and fresh validation as stronger than stale planning prose.\n      reuse: Before telling the user a task is missing, search dev-memory for stale-doc or truth-first lessons and verify with live Lattice facts.\n    - a4d08a8 workflow/global: Canonical Lattice execution hosts are Codex CLI, Claude Code CLI, and Antigravity CLI.\n      lesson: Use exactly three current host labels for Lattice multi-host work: Codex CLI, Claude Code CLI, and Antigravity CLI. Antigravity CLI is launched with `agy`; the old Gemini CLI naming/semantics are deprecated and should not be used for new docs, host policies, verdict labels, or developer-facing instructions.\n      reuse: When host taxonomy, multi-host review, host verdicts, or CLI delegation names are needed, retrieve the canonical hosts memory: Codex CLI, Claude Code CLI, Antigravity CLI (`agy`), not Gemini CLI.\n  render: maxLines=60 omittedCount=0\n⚠ 1 other stories were also created within the last 30 minutes:\n  - B-5da2 [INIT] Auto ledger story create\n[0.4s] story_create done\n[0.0s] running planner_draft...\n[0.0s] planner_draft done\n[0.0s] running planner_create_story...\n⚠ Runtime memory STORY_INTAKE advisory only; it is not gate evidence and cannot satisfy DONE.\n## Memory Runtime Preflight\n  authority=non_authoritative gateEvidence=false\n  packDigest: 847aaaba33330b18bfce1a7a73188468ed1ccf6842c1212bd204bb1819491bfc\n  topHitIds: 9890b83, a4d08a8\n  freshness: fresh\n  sourceDigests: project=none global=889ac11e70324e9d28e316839b209a85edc8e1492050106cb1a8c24c6a59d9a6 playbooks=none signatures=none\n  Dev-memory (2):\n    - 9890b83 failure-mode/global: Old plan documents can mislead hosts after implementation is already DONE.\n      lesson: When a document describes future or plan-only work, do not conclude the task is undone from that document alone. First check current Lattice facts: session_brief, story phase/summary, convergence_check or gap_analyze, and concrete code/data evidence. Treat accepted outcome records, DONE summaries, current code, and fresh validation as stronger than stale planning prose.\n      reuse: Before telling the user a task is missing, search dev-memory for stale-doc or truth-first lessons and verify with live Lattice facts.\n    - a4d08a8 workflow/global: Canonical Lattice execution hosts are Codex CLI, Claude Code CLI, and Antigravity CLI.\n      lesson: Use exactly three current host labels for Lattice multi-host work: Codex CLI, Claude Code CLI, and Antigravity CLI. Antigravity CLI is launched with `agy`; the old Gemini CLI naming/semantics are deprecated and should not be used for new docs, host policies, verdict labels, or developer-facing instructions.\n      reuse: When host taxonomy, multi-host review, host verdicts, or CLI delegation names are needed, retrieve the canonical hosts memory: Codex CLI, Claude Code CLI, Antigravity CLI (`agy`), not Gemini CLI.\n  render: maxLines=60 omittedCount=0\n⚠ 2 other stories were also created within the last 30 minutes:\n  - B-5da2 [INIT] Auto ledger story create\n  - B-6b6e [INIT] Auto ledger story create no rows\n[0.4s] planner_create_story done\n[0.0s] running planner_draft...\n[0.0s] planner_draft done\n[0.0s] running planner_create_story...\n⚠ Runtime memory STORY_INTAKE adviso\n...[truncated 6497 chars]",
-      "startedAt": "2026-07-09T22:44:39.678Z",
-      "endedAt": "2026-07-09T22:45:00.736Z",
-      "headHash": "7bd2d20022956018f254cd09d54ccc50d98056a4",
-      "materialHash": "6a259b0e72989e9538e0243092a59383e4e647d432b05889509ef1b41fc07e38",
-      "storyFilesHash": "fb5e0119eb12f405818c7bcb832c652ea80ad6d7a167385b58062656b167d3bc"
+      "status": "PASS",
+      "exitCode": 0,
+      "durationMs": 73415,
+      "outputDigest": "221d566ed0c64c1d32290a6e48070ddfd58861322cbc42b39f959cf0c09a687c",
+      "outputTail": "oritative gateEvidence=false\n  packDigest: 45757156b60bb7e388a708397dc4b2cd49e448a17ac33b033260389f73f8e20e\n  topHitIds: 9890b83, a4d08a8\n  freshness: fresh\n  sourceDigests: project=none global=889ac11e70324e9d28e316839b209a85edc8e1492050106cb1a8c24c6a59d9a6 playbooks=none signatures=none\n  Dev-memory (2):\n    - 9890b83 failure-mode/global: Old plan documents can mislead hosts after implementation is already DONE.\n      lesson: When a document describes future or plan-only work, do not conclude the task is undone from that document alone. First check current Lattice facts: session_brief, story phase/summary, convergence_check or gap_analyze, and concrete code/data evidence. Treat accepted outcome records, DONE summaries, current code, and fresh validation as stronger than stale planning prose.\n      reuse: Before telling the user a task is missing, search dev-memory for stale-doc or truth-first lessons and verify with live Lattice facts.\n    - a4d08a8 workflow/global: Canonical Lattice execution hosts are Codex CLI, Claude Code CLI, and Antigravity CLI.\n      lesson: Use exactly three current host labels for Lattice multi-host work: Codex CLI, Claude Code CLI, and Antigravity CLI. Antigravity CLI is launched with `agy`; the old Gemini CLI naming/semantics are deprecated and should not be used for new docs, host policies, verdict labels, or developer-facing instructions.\n      reuse: When host taxonomy, multi-host review, host verdicts, or CLI delegation names are needed, retrieve the canonical hosts memory: Codex CLI, Claude Code CLI, Antigravity CLI (`agy`), not Gemini CLI.\n  render: maxLines=60 omittedCount=0\n⚠ 1 other stories were also created within the last 30 minutes:\n  - B-b4e5 [INIT] Auto ledger story create\n[0.4s] story_create done\n[0.1s] running planner_draft...\n[0.1s] planner_draft done\n[0.0s] running planner_create_story...\n⚠ Runtime memory STORY_INTAKE advisory only; it is not gate evidence and cannot satisfy DONE.\n## Memory Runtime Preflight\n  authority=non_authoritative gateEvidence=false\n  packDigest: ae56c931a9e7fc1881474bbe56a0f97c5c338fcf64de9167c5dcb12124ea9131\n  topHitIds: 9890b83, a4d08a8\n  freshness: fresh\n  sourceDigests: project=none global=889ac11e70324e9d28e316839b209a85edc8e1492050106cb1a8c24c6a59d9a6 playbooks=none signatures=none\n  Dev-memory (2):\n    - 9890b83 failure-mode/global: Old plan documents can mislead hosts after implementation is already DONE.\n      lesson: When a document describes future or plan-only work, do not conclude the task is undone from that document alone. First check current Lattice facts: session_brief, story phase/summary, convergence_check or gap_analyze, and concrete code/data evidence. Treat accepted outcome records, DONE summaries, current code, and fresh validation as stronger than stale planning prose.\n      reuse: Before telling the user a task is missing, search dev-memory for stale-doc or truth-first lessons and verify with live Lattice facts.\n    - a4d08a8 workflow/global: Canonical Lattice execution hosts are Codex CLI, Claude Code CLI, and Antigravity CLI.\n      lesson: Use exactly three current host labels for Lattice multi-host work: Codex CLI, Claude Code CLI, and Antigravity CLI. Antigravity CLI is launched with `agy`; the old Gemini CLI naming/semantics are deprecated and should not be used for new docs, host policies, verdict labels, or developer-facing instructions.\n      reuse: When host taxonomy, multi-host review, host verdicts, or CLI delegation names are needed, retrieve the canonical hosts memory: Codex CLI, Claude Code CLI, Antigravity CLI (`agy`), not Gemini CLI.\n  render: maxLines=60 omittedCount=0\n⚠ 2 other stories were also created within the last 30 minutes:\n  - B-b4e5 [INIT] Auto ledger story create\n  - B-f873 [INIT] Auto ledger story create no rows\n[0.4s] planner_create_story done\n[0.0s] running planner_draft...\n[0.0s] planner_draft done\n[0.0s] running planner_create_story...\n⚠ Runtime memory STORY_INTAKE adviso\n...[truncated 65335 chars]",
+      "startedAt": "2026-07-09T23:02:45.877Z",
+      "endedAt": "2026-07-09T23:03:59.292Z",
+      "headHash": "96ebaacf95e830aa9b57a589f8ed740a2c2af15b",
+      "materialHash": "8e9e976b43d9599109d117095d224ed4a92acf2188a1df2e840013f176446d0c",
+      "storyFilesHash": "26f26a0a9824b5c0ada4229092a310575daf7301791a32128739a00720b5d7c3"
     }
   ],
-  "reasons": [
-    "command-failed: FAIL root full test suite: npm test exitCode=1"
-  ]
+  "reasons": []
 }
