@@ -167,7 +167,35 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "DONE optimization table ready: every concrete document optimization is listed with reason, evidence, 3x2 source, and affected contract area.",
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Final optimization table lists every concrete optimization made, its reason, supporting project evidence, motivating 3x2 finding or host/lens, and affected area.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Table distinguishes concrete applied optimizations from deferred or rejected suggestions and does not imply unimplemented code behavior has shipped.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "DONE response and document table cannot claim completion unless the target document contains or is accompanied by the required evidence-backed optimization table.",
+            "type": "docs"
+          }
+        ]
+      }
     }
   ]
 }
