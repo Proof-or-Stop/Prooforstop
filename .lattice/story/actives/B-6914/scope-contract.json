@@ -1,0 +1,60 @@
+{
+  "storyId": "B-6914",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/done-recover.ts",
+    "packages/main/src/handlers/done-effects.ts",
+    "packages/main/src/core/version-bump.ts",
+    "packages/main/src/tasks/version-bump-smoke.ts",
+    "package.json",
+    "package-lock.json",
+    "packages/main/package.json",
+    "packages/main/package-lock.json",
+    "packages/main/src/core/lattice-brand.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/worktree-repair-smoke.ts",
+    "packages/main/src/tasks/version-bump-smoke.ts",
+    "packages/main/src/tasks/artifact-release-ledger-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "remote git push",
+    "npm publish",
+    "scripts/release.mjs publish"
+  ],
+  "scopeChangeReason": "B-6914 scope covers local DONE/recovery version finalizer parity, five-point package/lockfile sync, the 0.3.172 local version boundary, finalizer idempotence, and related smoke evidence.",
+  "acknowledgements": [
+    {
+      "actor": "codex-side-conversation",
+      "reason": "These are command-generated ProofStory lifecycle artifacts required by DEV gate hardening and evidence binding for B-6914; they are not product/runtime code changes.",
+      "timestamp": "2026-07-09T01:24:15.573Z",
+      "paths": [
+        ".lattice/story/actives/B-6914/intent-collision.json",
+        ".lattice/story/actives/B-6914/milestone-ledger.json",
+        ".lattice/story/actives/B-6914/original-intent-snapshot.json",
+        ".lattice/story/actives/B-6914/proofstory.json",
+        ".lattice/story/actives/B-6914/red-evidence.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-6914/intent-collision.json",
+        ".lattice/story/actives/B-6914/milestone-ledger.json",
+        ".lattice/story/actives/B-6914/original-intent-snapshot.json",
+        ".lattice/story/actives/B-6914/proofstory.json",
+        ".lattice/story/actives/B-6914/red-evidence.json"
+      ],
+      "affectedPathCount": 5,
+      "phase": "DEV",
+      "headHash": "432df4d7b394c990c67862a3d421f199e9334411",
+      "materialHash": "1e78fc5135023f9cb8149603552139183a00ea66fed41a4e97c778445b632445",
+      "anchors": [
+        "proofstory_dev_gate_artifacts",
+        "b6914_lifecycle_metadata"
+      ]
+    }
+  ],
+  "createdAt": "2026-07-09T01:23:29.442Z",
+  "updatedAt": "2026-07-09T01:24:15.573Z"
+}

@@ -1,0 +1,94 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-6914",
+  "diagnosticOnly": false,
+  "hardeningLevel": "high_assurance",
+  "triggerReasons": [
+    {
+      "code": "milestones_provided",
+      "message": "A milestone ledger exists, so every ledger row needs checklist and verificationIntent coverage.",
+      "requires": "milestone-ledger"
+    },
+    {
+      "code": "high_assurance_risk",
+      "message": "High-risk or gate/security wording selects high-assurance intent hardening.",
+      "requires": "high-assurance"
+    },
+    {
+      "code": "collision_required_high_assurance",
+      "message": "High-assurance work requires an independent intent-collision result.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "red_evidence_required",
+      "message": "Bug, regression, security/auth/session, benchmark, or explicit behavior-change work should have red evidence.",
+      "requires": "red-evidence"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:6d8109b717d07c11477175c207436152615f2b0bd324cbe7662e06b5ee5cd827",
+  "confirmedMilestoneLedgerHash": "sha256:4b24a67605ee457536f30bb4b556a2a5197dfbf8339242b76988d2f9b6cc706c",
+  "acceptanceBindings": [
+    {
+      "id": "ACCEPT-B6914-version-finalizer",
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002",
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0",
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0",
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ],
+      "milestoneIds": [
+        "M1",
+        "M2",
+        "M3"
+      ],
+      "note": "Binds the original user acceptance claim to the runtime recovery bump, lockfile sync, and final local version boundary milestones."
+    }
+  ],
+  "diagnosticGaps": [
+    {
+      "code": "milestone_source_requirement_unbound",
+      "severity": "warn",
+      "artifact": "milestone-ledger.json",
+      "message": "M1 references sourceRequirementId B90D6-RECOVERY-BUMP, which is not in original intent keyRequirementIds.",
+      "triggeredBy": [
+        "milestones_provided"
+      ]
+    },
+    {
+      "code": "milestone_source_requirement_unbound",
+      "severity": "warn",
+      "artifact": "milestone-ledger.json",
+      "message": "M2 references sourceRequirementId LOCKFILE-SYNC, which is not in original intent keyRequirementIds.",
+      "triggeredBy": [
+        "milestones_provided"
+      ]
+    },
+    {
+      "code": "milestone_source_requirement_unbound",
+      "severity": "warn",
+      "artifact": "milestone-ledger.json",
+      "message": "M3 references sourceRequirementId B90D6-CONSUMABLE-VERSION, which is not in original intent keyRequirementIds.",
+      "triggeredBy": [
+        "milestones_provided"
+      ]
+    }
+  ],
+  "note": "ProofStory contract for B-6914 local DONE/recovery version finalizer repair; remote push/publish remains out of scope.",
+  "createdAt": "2026-07-09T01:01:49.528Z",
+  "updatedAt": "2026-07-09T01:01:49.528Z"
+}

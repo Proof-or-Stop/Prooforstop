@@ -1,1 +1,15 @@
 {"type":"init_check_fallback","mode":"fallback","actor":"codex-side-conversation","session":"sess-3d1880b40d393f50","headHash":"1f00beb7c29d909030241cf34535388732ef9689","timestamp":"2026-07-09T00:48:53.565Z"}
+{"type":"plan_reviewed","round":1,"blockerCount":1,"issueCount":10,"timestamp":"2026-07-09T00:50:16.041Z"}
+{"type":"dispatch","checklistId":"CHK-001","timestamp":"2026-07-09T00:56:59.935Z"}
+{"type":"dispatch","checklistId":"CHK-002","timestamp":"2026-07-09T00:57:06.853Z"}
+{"type":"subagent_result","checklistId":"CHK-001","success":true,"timestamp":"2026-07-09T00:59:22.332Z"}
+{"type":"subagent_result","checklistId":"CHK-002","success":true,"timestamp":"2026-07-09T00:59:32.750Z"}
+{"type":"plan_reviewed","round":2,"blockerCount":1,"issueCount":9,"timestamp":"2026-07-09T00:59:56.225Z"}
+{"type":"plan_reviewed","round":3,"blockerCount":1,"issueCount":7,"timestamp":"2026-07-09T01:02:09.157Z"}
+{"type":"plan_reviewed","round":4,"blockerCount":1,"issueCount":4,"timestamp":"2026-07-09T01:03:49.887Z"}
+{"type":"subagent_result","checklistId":"CHK-003","success":true,"timestamp":"2026-07-09T01:22:43.706Z"}
+{"type":"plan_reviewed","round":5,"blockerCount":0,"issueCount":3,"timestamp":"2026-07-09T01:23:10.062Z"}
+{"type":"review_pass","storyId":"B-6914","command":"review_pass_set","role":"reviewer","agent":"lattice-review-test-coverage","result":"pass","reviewPassId":"B-6914:RP-001","timestamp":"2026-07-09T01:25:29.382Z"}
+{"type":"review_pass","storyId":"B-6914","command":"review_pass_set","role":"reviewer","agent":"lattice-review-concept","result":"pass","reviewPassId":"B-6914:RP-002","timestamp":"2026-07-09T01:25:30.322Z"}
+{"type":"review_pass","storyId":"B-6914","command":"review_pass_set","role":"reviewer","agent":"lattice-review-quality","result":"pass","reviewPassId":"B-6914:RP-003","timestamp":"2026-07-09T01:25:31.238Z"}
+{"type":"host_verdict","mode":"local","verdictId":"verdict-f47551391f1368c6","runId":"B-6914-local-assurance-r1","hostId":"codex-side-conversation","provider":"openai-codex-cli","sessionId":"sess-8823bd4cad41fb26","keyId":"codex-side-local-key","decision":"pass","materialDigest":"c7c1931e17f7ef0e4ba20ef06139f6da309507cf3be621533ed0bc41dc67885f","storyFilesHash":"c6766260c9004be83ad6742395b1a575c3c6a91632ff581da315df2909921347","validationDigest":"ebd012c89397aa24deb801a913832da55a77aa215b49b7a11e727d1f3ec91ec4","promptDigest":"51e03c9d2bbbc689706a8ad02972f2e6465c69c6e6cd7bd5dc09b99ca11747c3","timestamp":"2026-07-09T01:42:06.134Z"}
