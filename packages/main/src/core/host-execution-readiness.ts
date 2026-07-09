@@ -71,23 +71,17 @@ export function canonicalReviewHostLauncherSpec(host: CanonicalReviewHost): Host
     return {
       host,
       command: 'claude',
-      launcher: 'claude --print --verbose --output-format stream-json',
+      launcher: 'claude --print --verbose --output-format=stream-json',
       launcherArgv: [
         'claude',
         '--print',
         '--verbose',
-        '--output-format',
-        'stream-json',
-        '--no-session-persistence',
-        '--permission-mode',
-        'bypassPermissions',
-        '--max-budget-usd',
-        '0.25',
-        '<prompt>',
+        '--output-format=stream-json',
+        '<prompt-file>',
       ],
       progressMode: 'stream-json',
       observable: true,
-      remediation: 'Use claude --print --verbose --output-format stream-json for long reviewer work.',
+      remediation: 'Use claude --print --verbose --output-format=stream-json for long reviewer work.',
     };
   }
   if (host === 'agy') {
@@ -149,7 +143,7 @@ function launcherArgsForExecution(spec: HostExecutionLauncherSpec): string[] {
   const prompt = 'Reply READY and do not run tools.';
   return spec.launcherArgv
     .slice(1)
-    .map(arg => arg === '<prompt>' ? prompt : arg);
+    .map(arg => arg === '<prompt>' || arg === '<prompt-file>' ? prompt : arg);
 }
 
 export function classifyReviewHostLauncher(host: CanonicalReviewHost, argv: readonly string[]): HostLauncherClassification {
