@@ -53,6 +53,15 @@
       "reviewRound": "2026-07-09T17:34:47.565Z",
       "reviewRunId": "B-cee5:RR-010",
       "_hash": "3ec6e7a27a41cebaddef36957ef29673d9621c0ec0b7cef04a84291dddc1055c"
+    },
+    {
+      "id": "B-cee5:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Round 3: verified F-005 fix. Loose only-with proximity branch removed; escalationConditioningPattern now only 3 strict idioms (recorded scanEscalationReason | write the scanEscalationReason | escalated via scanEscalationReason). Independently re-derived pattern and confirmed: (a) round-2 hostile proximity variant (only with scanEscalationReason lying around unused) is NOT exempt -> falls through to banned-pattern check, matching the new positive control at lines 114-121; (b) all 6 legitimate escalation lines across the six guarded prompt copies (template/.claude/.lattice-codex x scope-plan/behavior) independently re-tested true against the strict idiom set, case-insensitivity confirmed; (c) npm --prefix packages/main run build clean, node dist/tasks/reviewer-scan-budget-guard-smoke.js -> PASS (6 prompt copies clean, 4 required phrases present); (d) documented out-of-scope boundary for deliberate idiom-gaming (e.g. recorded scanEscalationReason of N/A) is an acceptable terminal state for this low-severity static line-level guard -- no new in-scope accidental-regression hole found. No new findings.",
+      "createdAt": "2026-07-09T17:36:32.221Z",
+      "reviewRound": "2026-07-09T17:34:47.565Z",
+      "reviewRunId": "B-cee5:RR-011",
+      "_hash": "614eb9eb8713d4adc051df64617acd2590112f9b2b94236a90c9341f97779128"
     }
   ]
 }
