@@ -26,6 +26,15 @@
       "reviewRound": "2026-07-09T14:23:03.268Z",
       "reviewRunId": "B-d8ef:RR-006",
       "_hash": "4126b2eb03cfba1bf6309c0038aec44f859541ab7640c3561297f8e4e624d79b"
+    },
+    {
+      "id": "B-d8ef:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage pass: build plus review-host readiness, usage-ledger dispatch, and unattended dispatch smokes cover canonical executable host readiness, degraded fallback rejection, observable Claude stream-json verbose split-argv launcher, agy prompt-file rejection, Codex auth classification, and Claude stream-json NDJSON parsing. dispatch-run-smoke was observed to pollute source after passing and is excluded from this receipt.",
+      "createdAt": "2026-07-09T14:52:56.472Z",
+      "reviewRound": "2026-07-09T14:23:03.268Z",
+      "reviewRunId": "B-d8ef:RR-010",
+      "_hash": "01321a4cd15629ab80b2282833c0e01c8ceb0a094df107d7c664cd8f2b92ea84"
     }
   ]
 }
