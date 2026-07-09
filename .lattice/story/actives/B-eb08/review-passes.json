@@ -224,6 +224,15 @@
       "reviewRound": "2026-07-09T03:59:57.281Z",
       "reviewRunId": "B-eb08:RR-038",
       "_hash": "af919f71c340a88e29dbff9634fe57aad068761169087607a71d47ab1eb75d10"
+    },
+    {
+      "id": "B-eb08:RP-026",
+      "agent": "lattice-review-quality",
+      "note": "Quality current-round pass after F-008 resolution. Reviewed abort/deadline propagation from done_prepare into done_required_validate, validation-executor abort timeout/process-group kill and listener/timer cleanup, pre-write deadline checks preventing late PASS evidence, and unchanged default behavior for existing validate callers. Verified npm --prefix packages/main run build; npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke; node packages/main/dist/tasks/validate-command-timeout-smoke.js; plus abort/process-group probe returned code 124 timedOut=true in 220ms.",
+      "createdAt": "2026-07-09T04:03:10.829Z",
+      "reviewRound": "2026-07-09T03:59:57.281Z",
+      "reviewRunId": "B-eb08:RR-036",
+      "_hash": "464215ab82497600eb7484bda402c02c63873b0240cd490faeb97e530559a721"
     }
   ]
 }
