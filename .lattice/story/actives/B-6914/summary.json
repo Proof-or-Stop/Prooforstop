@@ -1,0 +1,56 @@
+{
+  "storyId": "B-6914",
+  "changes": "Fixed DONE/recovery version finalizer gaps: recovery now calls the same version bump path as normal DONE, package/lockfile/brand sync now covers five points, 0.3.172 is the local CLI version boundary, and normal/recovery finalizers skip a second bump when a story branch already carries nextPatch(mainVersion).",
+  "usage": "Use lattice normally; runtime-changing DONE or done_recover flows now report a visible version bump or already-present bump line, rebuild packages/main, and keep package.json, package-lock.json, packages/main package metadata, and LATTICE_CLI_VERSION aligned.",
+  "expectedOutcome": "User sees Proofbound CLI 0.3.172 and version-sync-pass 0.3.172; no git push, npm publish, or release publish occurs.",
+  "actualTranscript": "Live smoke output: Proofbound CLI 0.3.172; version-sync-pass 0.3.172. Validate also passed all 43 configured commands.",
+  "outcomeDiff": "No difference for the local version boundary. Delivery is local-only and intentionally does not publish remotely.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Independent reviewer sub-agents were unavailable in this side conversation, so review/scope/delivery records are local degraded evidence rather than independent multi-host assurance. Remote publish remains out of scope.",
+  "pitfalls": "The work initially stopped too early after implementation and misread 0.3.171 as the final boundary. Main was already at 0.3.171 with stale lockfiles, so B-6914 correctly needed 0.3.172 plus a pre-bump idempotence guard to avoid DONE moving it to 0.3.173.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 36124
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 11675
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 2041380
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 69100
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 354042
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 67539
+    }
+  },
+  "totalDurationMs": 2580497,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-09T01:31:25.941Z",
+  "updatedAt": "2026-07-09T01:31:25.941Z"
+}
