@@ -107,6 +107,15 @@
       "reviewRound": "2026-07-09T17:47:43.007Z",
       "reviewRunId": "B-cee5:RR-015",
       "_hash": "c7ff1a527563f062f8350cb2104e86133d8801e40224d6cd2311056c5a948a1c"
+    },
+    {
+      "id": "B-cee5:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 4 incremental (delta since RP-009: only packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts changed, commit 43c2094cc, confirmed via git diff HEAD~1 --stat and HEAD~2 for source diff). Verified CHK-006 verificationIntent/verificationEvidence remain honest under the strengthened guard: (1) npm --prefix packages/main run build clean, then node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js -> PASS (6 prompt copies clean, 4 required phrases present), exit 0, matching CHK-006:happy:0 evidence. (2) CHK-006:edge:0 (escalation wording does not false-positive) re-verified against the two NEW banned rules added this round: independently re-derived and executed the regex full-content (?:directory )?scan of the whole against the two real whole-directory escalation lines (lattice-review-behavior.md:131, lattice-review-scope-plan.md:152) -- both trip the new banned rule but both are correctly exempted by lineIsEscalationPath because both carry a conditioning idiom on the same line (recorded scanEscalationReason / write the scanEscalationReason); confirmed via direct node -e reproduction (bannedRuleMatches=true, lineIsEscalationPath=true for both lines). The new read each one\\b rule targets only retired wording; grep confirms it has zero live matches in any of the 6 guarded prompt copies today (no false positive introduced). (3) CHK-006:adversarial:0 hostile-injection control live-replayed: reintroduced the legacy full-scan phrase into .claude/agents/lattice-review-scope-plan.md -> guard failed exit 1 flagging line 195 [always scan full decisions]; restored the file -> guard passed exit 0; git status confirmed tree clean before and after. (4) The rebuilt exempt positive control (assertPositiveControls) executed as part of the smoke run and passed, including its new soundness assertion (escalatedWithoutIdiom re-trips the banned rule once recorded is stripped from the idiom) -- proves the exemption path is genuinely exercised, closing the round-3 Codex host-review gap. Story-owned headHash/materialHash drift on CHK-006 evidence rows relative to the pre-fix commit is expected per the story-owned hash-drift note (source file changed this round); CHK-001/002/004/007 unchanged since RP-005/RP-009, no re-verification needed this round -- cite RP-009 for that unchanged evidence. No blocker.",
+      "createdAt": "2026-07-09T17:52:16.276Z",
+      "reviewRound": "2026-07-09T17:47:43.007Z",
+      "reviewRunId": "B-cee5:RR-018",
+      "_hash": "062fc90c05657cab9c45802b75b50bfacc5952b395048f0e34272ac366994f5a"
     }
   ]
 }
