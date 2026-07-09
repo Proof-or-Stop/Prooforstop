@@ -1,0 +1,121 @@
+{
+  "passes": [
+    {
+      "id": "B-cee5:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept-residue check: the unconditional full decisions-directory scan instruction set (banned phrases: always scan the full decisions, must/read every .md file, read every .md file one by one, full directory scan of, all .md files under ...decisions, always defer to the full decisions directory) was greped across active prompt surfaces - packages/main/templates/agents/{lattice-review-scope-plan,lattice-review-behavior}.md and their .claude/agents + .lattice-codex/agents mirrors (6 files) - zero residual hits. Confirmed template vs .claude vs .lattice-codex copies are byte-identical (diff exit 0 x4). Ran the new reviewer-scan-budget-guard-smoke.ts directly: PASS (6 prompt copies clean, 4 required phrases present). Checked the other 10 reviewer-family templates (lattice-review-channel/concept/delivery/docs/quality/story-init/test-coverage, product-reviewer, test-case-reviewer, test-intent) for the old channel wording (same channel as lattice-review-scope-plan) and any independent decisions/-scan language: only lattice-review-behavior.md references that channel and all 3 copies now consistently say same bounded channel as lattice-review-scope-plan; none of the other 10 templates mention it or the decisions/ corpus at all. lattice-review-docs.md contains an unrelated pre-existing Fallback-1 full-text scan over touchpoints-derived .md files + CLAUDE.md (git diff main...HEAD shows this file untouched by B-cee5) - different concept (doc-consistency touchpoints, not the decisions/ spec-boundary corpus), not a residual. Full-repo grep for the banned phrases outside node_modules/dist/.git found only expected exempt hits: B-cee5 story metadata (background.md, plan.md narrating what was replaced) and the smoke tests own pattern definitions/positive-control string (intentional quoting of banned phrases as test fixtures). No blocker.",
+      "createdAt": "2026-07-09T17:22:20.642Z",
+      "reviewRound": "2026-07-09T17:19:07.755Z",
+      "reviewRunId": "B-cee5:RR-004",
+      "_hash": "02bc0c754f747ac2125f563753908ac7cf754f7ddc281be3392ce7ed3257efa6"
+    },
+    {
+      "id": "B-cee5:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Code-quality lane checked: packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts (new), plus the 4 mirrored prompt files it guards (packages/main/templates/agents + .claude/agents + .lattice-codex/agents copies of lattice-review-scope-plan.md and lattice-review-behavior.md). Verified: npm --prefix packages/main run build succeeds under strict TS; node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js exits 0 (PASS, 6 prompt copies clean, 4 required phrases present); no dead code (all interfaces/functions/consts used); no as-any/empty-catch; repoRoot derivation from dist/tasks (4x join(..)) verified correct against actual dist layout via git rev-parse; assert-based failure path verified to produce non-zero process exit (Node ESM top-level throw); all 4 mirror files byte-identical to their templates via diff; readFileSync ENOENT on a missing guarded file fails loud with a clear message (acceptable for a smoke gate); I/O-shell isolation N/A (no bridge.ts/shells in this diff -- pure prompt docs + a standalone Node task script). One non-blocking low finding filed (B-cee5:F-003) on the scanEscalationReason line-exemption granularity, which mirrors an existing accepted idiom already in the codebase (retired-authority-vocabulary-guard-smoke.ts). No blockers.",
+      "createdAt": "2026-07-09T17:23:51.152Z",
+      "reviewRound": "2026-07-09T17:19:07.755Z",
+      "reviewRunId": "B-cee5:RR-002",
+      "_hash": "47170887b4ebd086ca5b8a4c7a7697057106b4cb902cf8d7efe7b155270bc7be"
+    },
+    {
+      "id": "B-cee5:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round 2: re-scanned all ACTIVE surfaces (CLAUDE.md, packages/main/templates/agents/lattice-review-behavior.md + lattice-review-scope-plan.md, .claude/agents + .lattice-codex/agents mirrors, other reviewer templates, docs/, README.md, reviewer-scan-budget-guard-smoke.ts) for residuals of the old unconditional full decisions-directory scan concept. Verified CLAUDE.md:626 no longer presents 全目录 (full-directory) unconditional reading as current behavior -- it now describes the bounded search-budget contract (完整枚举文件名 + candidateSpecSet 有界全文阅读, full-directory full-content scan gated to scanEscalationReason escalation path only). All six guarded prompt copies (template + .claude + .lattice-codex x{scope-plan,behavior}) consistently use candidateSpecSet/scanEscalationReason/advisory-only/gateEvidence=false wording with no bare full-scan phrasing outside the escalation path. Confirmed F-002 fix landed: aux_doc_list now present in both scope-plan (line 124) and behavior (line 130) candidateSpecSet source lists, closing the prior source-list drift. Ran reviewer-scan-budget-guard-smoke.ts directly: PASS (6 prompt copies clean, 4 required phrases present). Remaining 全目录/full-scan hits are confined to historical story artifacts (background.md, plan.md, understanding.json, red-evidence.json, findings.json, test-evidence.json, checklist.json) documenting the pre-fix baseline, and the smoke file's own quoted positive-control/banned-pattern strings -- both exempt per lane mandate. No residue found; no blocker.",
+      "createdAt": "2026-07-09T17:30:08.169Z",
+      "reviewRound": "2026-07-09T17:28:18.626Z",
+      "reviewRunId": "B-cee5:RR-006",
+      "_hash": "fbc9b52ecd001f95b41c67dd9ab828014ce01f5bd2b489386c5123e7e011803b"
+    },
+    {
+      "id": "B-cee5:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "Round 2 re-verification of F-001/F-002 fixes: (1) F-001 fixed — CLAUDE.md:626 OQ-channel paragraph no longer asserts unconditional full-directory read (removed old \"读 <requirementsDir>/decisions/ 全目录\" wording); now describes the search budget contract (filename enumeration + candidateSpecSet bounded full-text reads + scanEscalationReason-gated full-directory scan escalation), matching the implemented prompt contract verified in packages/main/templates/agents/lattice-review-scope-plan.md:120-131 and lattice-review-behavior.md:126-131. (2) F-002 fixed — item-by-item candidateSpecSet source-list comparison: scope-plan.md:124 vs behavior.md:130 both list identically: checklist relatedDocs; story title/description/keywords/riskSignals; changed files/symbols; command/config names; lattice aux_doc_list output; top-N rg keyword matches over decisions/ — aux_doc_list now present in both, parity confirmed, same-bounded-channel claim in behavior.md:163 is now accurate. (3) All six prompt copies (scope-plan + behavior x {packages/main/templates/agents, .claude/agents, .lattice-codex/agents}) are byte-identical via diff (all exit 0). (4) reviewer-scan-budget-guard-smoke.ts header comment (lines 5-10, conditioning-wording exemption) matches implementation: lineIsEscalationPath() (lines 65-70) requires escalationConditioningPattern match, not bare scanEscalationReason substring, consistent with F-003 hardening comment at lines 61-64; smoke run PASS (6 prompt copies clean, 4 required phrases present). No new inconsistencies found within diff-referenced scope.",
+      "createdAt": "2026-07-09T17:30:35.899Z",
+      "reviewRound": "2026-07-09T17:28:18.626Z",
+      "reviewRunId": "B-cee5:RR-008",
+      "_hash": "25cdbaec9b4b973bc9964ba27b6a3c1883a94d0aac53d479030db2aebb05b220"
+    },
+    {
+      "id": "B-cee5:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "F-004 verified fixed: CHK-002:adversarial:0 corrected command (rg -n -e \"advisory only\" -e \"gateEvidence=false\" -e \"NEVER satisfy\" packages/main/templates/agents/lattice-review-scope-plan.md packages/main/templates/agents/lattice-review-behavior.md) replayed exit 0 with real matches at scope-plan:122 and behavior:128 (advisory only / gateEvidence=false / NEVER satisfy all present verbatim). F-003 guard hardening spot-replayed: node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js PASS (6 prompt copies clean, 4 required phrases present) after fresh tsc rebuild; source diff confirms lineIsEscalationPath now requires escalationConditioningPattern plus a hostile positive control (ignore scanEscalationReason) that correctly fails. F-001 (CLAUDE.md) and F-002 (aux_doc_list parity) fixes also confirmed live in committed content. Re-audited full checklist_get: all 7 items (CHK-001..CHK-007) have happy/edge/adversarial columns with concrete, re-runnable evidence bound; no fail results; no vague broad-descriptions. Evidence headHash values trail current HEAD only by lattice own metadata-recording commits (.lattice/story/actives/B-cee5/*) plus the already-applied fix commit -- diff-verified zero additional prompt/code drift, i.e. story-owned drift, not dishonest evidence. Test coverage review passed.",
+      "createdAt": "2026-07-09T17:33:13.196Z",
+      "reviewRound": "2026-07-09T17:28:18.626Z",
+      "reviewRunId": "B-cee5:RR-009",
+      "_hash": "5c798e6eb9daa4dcca092dd7e0e3229ae52d6b124133c7a46b68393a15bb57c7"
+    },
+    {
+      "id": "B-cee5:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Round-3 incremental: delta is solely packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts (F-005 fix - escalationConditioningPattern tightened to 3 strict idioms, loose only-with branch removed, new hostileProximity positive control added, comments extended). Confirmed via git diff HEAD~1 (non-.lattice) that no prompt copies or docs changed - the 6 guarded prompt files are byte-identical to prior commit (RP-003 baseline stands, cited not re-swept). Grepped repo for retired loose regex fragment only with(?: a| an)? [^.;]*scanEscalationReason: sole hit is in findings.json historical F-003-follow-up record (expected audit history), zero residue in active code/prompt surfaces. Remaining only with occurrences in the .ts file are intentional quoted test fixtures (pre-existing escalation positive control + new hostile positive control), not reintroduced unconditional-full-scan prose. Rebuilt dist and reran node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js: PASS (6 prompt copies clean, 4 required phrases present), exit 0. No blocker.",
+      "createdAt": "2026-07-09T17:36:26.383Z",
+      "reviewRound": "2026-07-09T17:34:47.565Z",
+      "reviewRunId": "B-cee5:RR-010",
+      "_hash": "3ec6e7a27a41cebaddef36957ef29673d9621c0ec0b7cef04a84291dddc1055c"
+    },
+    {
+      "id": "B-cee5:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Round 3: verified F-005 fix. Loose only-with proximity branch removed; escalationConditioningPattern now only 3 strict idioms (recorded scanEscalationReason | write the scanEscalationReason | escalated via scanEscalationReason). Independently re-derived pattern and confirmed: (a) round-2 hostile proximity variant (only with scanEscalationReason lying around unused) is NOT exempt -> falls through to banned-pattern check, matching the new positive control at lines 114-121; (b) all 6 legitimate escalation lines across the six guarded prompt copies (template/.claude/.lattice-codex x scope-plan/behavior) independently re-tested true against the strict idiom set, case-insensitivity confirmed; (c) npm --prefix packages/main run build clean, node dist/tasks/reviewer-scan-budget-guard-smoke.js -> PASS (6 prompt copies clean, 4 required phrases present); (d) documented out-of-scope boundary for deliberate idiom-gaming (e.g. recorded scanEscalationReason of N/A) is an acceptable terminal state for this low-severity static line-level guard -- no new in-scope accidental-regression hole found. No new findings.",
+      "createdAt": "2026-07-09T17:36:32.221Z",
+      "reviewRound": "2026-07-09T17:34:47.565Z",
+      "reviewRunId": "B-cee5:RR-011",
+      "_hash": "614eb9eb8713d4adc051df64617acd2590112f9b2b94236a90c9341f97779128"
+    },
+    {
+      "id": "B-cee5:RP-008",
+      "agent": "lattice-review-docs",
+      "note": "Round 3 incremental: only packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts changed (F-005 fix, commit 1c76eb0dc); confirmed via git diff HEAD~1 no .md files touched. Verified header comment (a line that names scanEscalationReason may describe a full scan) and inline F-005 comment (deliberate idiom gaming out of scope, loose only-with branch removed) both accurately describe the hardened code: escalationConditioningPattern now only matches the three strict idioms (recorded scanEscalationReason / write the scanEscalationReason / escalated via scanEscalationReason), grep-confirmed all 6 guarded prompt copies use only these idioms, and the new hostileProximity positive control exercises exactly the removed loose branch. Ran smoke directly: PASS (6 prompt copies clean, 4 required phrases present). All unchanged .md surfaces carried forward from RP-004 (round 2), not re-compared per scope.",
+      "createdAt": "2026-07-09T17:36:39.353Z",
+      "reviewRound": "2026-07-09T17:34:47.565Z",
+      "reviewRunId": "B-cee5:RR-013",
+      "_hash": "8dcf4e52fbc993c0b14319336e13d143a15be826947af7c5da8986fd83bc0ec9"
+    },
+    {
+      "id": "B-cee5:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 3 incremental: replayed node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js after F-005 fix (commit 1c76eb0dc, dist rebuilt) - PASS, 6 prompt copies clean, 4 required phrases present, new F-005 hostile-proximity positive control included. Confirmed all scanEscalationReason mentions in all six guarded prompt copies match one of the three retained strict idioms (recorded/write the/escalated via scanEscalationReason) - tightened regex invalidates none of CHK-003/CHK-005/CHK-006/CHK-007 coverage. Live-replayed CHK-006 adversarial hostile-injection control (inject banned unconditional phrase -> guard fails exit 1; restore -> guard passes exit 0, tree clean). Evidence headHash drift to pre-fix commit 4e788150 is expected per story-owned hash drift note; CHK-001/002/004 unchanged, cite RP-005. No blocker.",
+      "createdAt": "2026-07-09T17:38:55.159Z",
+      "reviewRound": "2026-07-09T17:34:47.565Z",
+      "reviewRunId": "B-cee5:RR-014",
+      "_hash": "4c3219d4e9c8b0cd615eb58c3a1930a474ca163c05190d7ca42d267b73a703da"
+    },
+    {
+      "id": "B-cee5:RP-010",
+      "agent": "lattice-review-concept",
+      "note": "Round 4 incremental: delta since RP-006 is scoped to packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts only (git diff HEAD~1 confirmed no prompt copies or docs changed). No concept deletion/replacement this round — the fix adds two new banned-pattern rules (legacy read-each-one phrase, whole-directory full-content-scan phrase) and rebuilds the exempt positive control so it actually trips a banned rule unless exempted by the conditioning idiom, plus a soundness assertion. Verified: (1) node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js -> PASS (6 prompt copies clean, 4 required phrases present), exit 0; (2) grepped repo for the retired \"read each one\" phrase and the \"full-content...scan of the whole\" phrase outside dist/node_modules/.git — the former appears only as the smoke test's own comment+pattern definition (intentional quoting, not live prompt residue); the latter appears only in the six guarded prompt copies, each carrying the recorded-scanEscalationReason conditioning idiom that the guard's escalation-exemption logic requires (matches the mechanical PASS). No blocker.",
+      "createdAt": "2026-07-09T17:48:56.964Z",
+      "reviewRound": "2026-07-09T17:47:43.007Z",
+      "reviewRunId": "B-cee5:RR-016",
+      "_hash": "ff1a7a12cd1e2550f08abd0eaff94e50cf9d1037a7b35deb627dfdd1002fa1f6"
+    },
+    {
+      "id": "B-cee5:RP-011",
+      "agent": "lattice-review-docs",
+      "note": "Round 4 incremental: only packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts changed (git diff HEAD~1). Verified both new inline comments against logic: (1) codex host-review-catch comment above the two new bannedUnconditionalRules entries (glob then read each one / whole-directory full-content scan) accurately describes what they guard — confirmed the second rule pattern /full-content (?:directory )?scan of the whole/i matches the real, properly-conditioned escalation line present in all 6 guarded prompt copies (packages/main/templates + .claude + .lattice-codex lattice-review-scope-plan.md/lattice-review-behavior.md), and lineIsEscalationPath correctly exempts it only when the conditioning phrase stays on the same line. (2) exempt-control comment (assertPositiveControls) accurately describes the rebuilt escalatedLine/escalatedWithoutIdiom pair: escalatedLine now starts from the banned wording (Always scan the full decisions/ directory) so it WOULD trip a rule, then the escalation idiom exempts it (assert.equal 0), and stripping recorded from the idiom removes the exemption and trips the rule again (soundness assertion, assert.ok >0) — matches code exactly. Ran the smoke directly (npx tsx): PASS (6 prompt copies clean, 4 required phrases present), exit 0. No .md file changed in HEAD~1..HEAD (confirmed via git diff --stat and git diff -- *.md), so RP-008 conclusions for .md surfaces stand unchanged. No doc paragraphs reference the two new rule labels/patterns as they are internal regression-guard logic, not documented API. No inconsistencies found.",
+      "createdAt": "2026-07-09T17:49:39.805Z",
+      "reviewRound": "2026-07-09T17:47:43.007Z",
+      "reviewRunId": "B-cee5:RR-017",
+      "_hash": "fbcf2eb46779933e3083368f44ec407a0881f4bdf06d391eff375c790afca7e6"
+    },
+    {
+      "id": "B-cee5:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "Round 4: verified Codex host-review fixes in reviewer-scan-budget-guard-smoke.ts (commit 43c2094cc). (a) Retired phrase Use Glob to list ..., Read each one now trips new rule /read each one\\b/i (reproduced via node -e). (b) Both real whole-directory escalation lines (lattice-review-behavior.md:131, lattice-review-scope-plan.md:152) now match the new /full-content (?:directory )?scan of the whole/i rule but remain exempt today via conditioning idiom (recorded scanEscalationReason / write the scanEscalationReason); stripping recorded un-exempts the scope-plan line, proving idiom-stripping regressions are now caught (behavior line stays exempt only via its separate valid write the scanEscalationReason idiom - correct, not a gap). (c) Exempt-control soundness assertion verified correct by direct execution: control trips banned rule raw, is exempted with idiom, re-trips when idiom stripped. (d) npm --prefix packages/main run build clean; node dist/tasks/reviewer-scan-budget-guard-smoke.js -> PASS (6 prompt copies clean, 4 required phrases present); tsc --noEmit clean. (e) No as any, no empty catch, no unused imports/dead code in the diff; .claude and .lattice-codex prompt copies byte-identical to templates; new smoke auto-discovered by run-all-smokes.js directory-scan fallback (verified via --select), so no manifest-wiring gap despite no smoke-manifest.json entry. No new findings.",
+      "createdAt": "2026-07-09T17:51:05.159Z",
+      "reviewRound": "2026-07-09T17:47:43.007Z",
+      "reviewRunId": "B-cee5:RR-015",
+      "_hash": "c7ff1a527563f062f8350cb2104e86133d8801e40224d6cd2311056c5a948a1c"
+    },
+    {
+      "id": "B-cee5:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 4 incremental (delta since RP-009: only packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts changed, commit 43c2094cc, confirmed via git diff HEAD~1 --stat and HEAD~2 for source diff). Verified CHK-006 verificationIntent/verificationEvidence remain honest under the strengthened guard: (1) npm --prefix packages/main run build clean, then node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js -> PASS (6 prompt copies clean, 4 required phrases present), exit 0, matching CHK-006:happy:0 evidence. (2) CHK-006:edge:0 (escalation wording does not false-positive) re-verified against the two NEW banned rules added this round: independently re-derived and executed the regex full-content (?:directory )?scan of the whole against the two real whole-directory escalation lines (lattice-review-behavior.md:131, lattice-review-scope-plan.md:152) -- both trip the new banned rule but both are correctly exempted by lineIsEscalationPath because both carry a conditioning idiom on the same line (recorded scanEscalationReason / write the scanEscalationReason); confirmed via direct node -e reproduction (bannedRuleMatches=true, lineIsEscalationPath=true for both lines). The new read each one\\b rule targets only retired wording; grep confirms it has zero live matches in any of the 6 guarded prompt copies today (no false positive introduced). (3) CHK-006:adversarial:0 hostile-injection control live-replayed: reintroduced the legacy full-scan phrase into .claude/agents/lattice-review-scope-plan.md -> guard failed exit 1 flagging line 195 [always scan full decisions]; restored the file -> guard passed exit 0; git status confirmed tree clean before and after. (4) The rebuilt exempt positive control (assertPositiveControls) executed as part of the smoke run and passed, including its new soundness assertion (escalatedWithoutIdiom re-trips the banned rule once recorded is stripped from the idiom) -- proves the exemption path is genuinely exercised, closing the round-3 Codex host-review gap. Story-owned headHash/materialHash drift on CHK-006 evidence rows relative to the pre-fix commit is expected per the story-owned hash-drift note (source file changed this round); CHK-001/002/004/007 unchanged since RP-005/RP-009, no re-verification needed this round -- cite RP-009 for that unchanged evidence. No blocker.",
+      "createdAt": "2026-07-09T17:52:16.276Z",
+      "reviewRound": "2026-07-09T17:47:43.007Z",
+      "reviewRunId": "B-cee5:RR-018",
+      "_hash": "062fc90c05657cab9c45802b75b50bfacc5952b395048f0e34272ac366994f5a"
+    }
+  ]
+}
