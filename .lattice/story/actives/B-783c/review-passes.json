@@ -8,6 +8,15 @@
       "reviewRound": "2026-07-09T00:02:08.322Z",
       "reviewRunId": "B-783c:RR-002",
       "_hash": "bb1f998e48c782e70cbc78f954f85f7885433e5658c8a777fc0f7c85fbc0667b"
+    },
+    {
+      "id": "B-783c:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage review pass. Inspected verificationIntent/evidence for CHK-001..003, patch surface, and smoke source. Local reviewer reran npm --prefix packages/main run build and node packages/main/dist/tasks/thin-init-assets-smoke.js successfully. Smoke covers canonical lattice.config.json activity roots, global-thin-only .lattice/lattice.json roots, malformed/wrong-assetMode manifests, and loadConfig separation. The real heartbeat failure signature is covered by session_brief activity assertions plus fresh solver-visible manual transcript evidence noting lattice codex verify passed and the codex-check-global activity row has source=codex entrypoint=global-fallback; dedicated live_smoke_transcript artifact is absent but evidence_manifest/lifecycle_check classify checklist evidence fresh for unchanged material.",
+      "createdAt": "2026-07-09T00:06:21.441Z",
+      "reviewRound": "2026-07-09T00:02:08.322Z",
+      "reviewRunId": "B-783c:RR-003",
+      "_hash": "af60220e50f1f84cf97bf4ba0288185e09c85ff6c9885057c3f262cc55d2f448"
     }
   ]
 }
