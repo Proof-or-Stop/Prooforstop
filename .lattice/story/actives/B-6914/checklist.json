@@ -132,7 +132,7 @@
       "status": "done",
       "startTime": "2026-07-09T00:57:06.852Z",
       "endTime": "2026-07-09T00:59:31.905Z",
-      "userSees": "When a DONE version bump runs, the terminal reports 5 synchronized version files, and lockfile drift now fails loudly instead of silently leaving package-lock.json behind.",
+      "userSees": "User sees \"✓ version auto-bumped <old> → <new> across 5 sync points after DONE merge\"; if a lockfile drifts, the command fails with \"version sync mismatch before bump\" naming the mismatched lockfile value.",
       "verificationEvidence": [
         {
           "intentRef": "CHK-002:happy:0",

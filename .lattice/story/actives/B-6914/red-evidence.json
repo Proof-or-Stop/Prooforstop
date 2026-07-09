@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-6914",
+  "records": [
+    {
+      "id": "RED-B6914-runtime-recovery",
+      "trigger": "B-90d6 exposed that a runtime-changing partial-DONE/recovery path could finish without a package patch bump.",
+      "acceptanceTargetRef": "CHK-001:happy:0",
+      "baselineHeadHash": "3b4d7b09d0738e31eff80fc8f91202ca2895c5ee",
+      "baselineMaterialHash": "3955f76ce61d5d007830583a13ddbd43552cc760f9abc7e9bb1b83248e2842a1",
+      "observedFailure": "At the pre-fix baseline, done_recover computed runtimeSemverChanged but did not import or call bumpVersionOnDoneMerge before build/recovery completion.",
+      "failingCommand": "git grep bumpVersionOnDoneMerge 3b4d7b09d0738e31eff80fc8f91202ca2895c5ee -- packages/main/src/handlers/done-recover.ts",
+      "expectedGreenCommand": "node packages/main/dist/tasks/artifact-release-ledger-smoke.js",
+      "greenRelation": {
+        "targetRef": "CHK-001:happy:0",
+        "relation": "same_acceptance",
+        "command": "node packages/main/dist/tasks/artifact-release-ledger-smoke.js",
+        "greenHeadHash": "21494f6cdf84efc19befdd648944d5b0feab1536"
+      },
+      "note": "Green command passed at current HEAD with the new partial-DONE runtime recovery auto-bump fixture.",
+      "createdAt": "2026-07-09T01:01:07.967Z"
+    },
+    {
+      "id": "RED-B6914-lockfile-sync",
+      "trigger": "B-90d6 left main with package/package brand at 0.3.170 while package-lock files still reported 0.3.169.",
+      "acceptanceTargetRef": "CHK-002:happy:0",
+      "baselineHeadHash": "3b4d7b09d0738e31eff80fc8f91202ca2895c5ee",
+      "baselineMaterialHash": "3955f76ce61d5d007830583a13ddbd43552cc760f9abc7e9bb1b83248e2842a1",
+      "observedFailure": "At the pre-fix baseline, package.json was 0.3.170 but root/package main package-lock versions were still 0.3.169, and the bump synchronizer did not include lockfiles.",
+      "failingCommand": "node -e \"const cp=require(\\\"child_process\\\"); const show=p=>JSON.parse(cp.execFileSync(\\\"git\\\",[\\\"show\\\",\\\"3b4d7b09d0738e31eff80fc8f91202ca2895c5ee:\\\"+p],\\\"utf8\\\")); const pkg=show(\\\"package.json\\\").version; const rootLock=show(\\\"package-lock.json\\\").version; const mainLock=show(\\\"packages/main/package-lock.json\\\").version; if (pkg !== rootLock || pkg !== mainLock) process.exit(1);\"",
+      "expectedGreenCommand": "node packages/main/dist/tasks/version-bump-smoke.js",
+      "greenRelation": {
+        "targetRef": "CHK-002:happy:0",
+        "relation": "same_acceptance",
+        "command": "node packages/main/dist/tasks/version-bump-smoke.js",
+        "greenHeadHash": "21494f6cdf84efc19befdd648944d5b0feab1536"
+      },
+      "note": "Green command passed at current HEAD and proves five-point version sync with lockfile drift/rollback coverage.",
+      "createdAt": "2026-07-09T01:01:16.177Z"
+    }
+  ],
+  "createdAt": "2026-07-09T01:01:07.967Z",
+  "updatedAt": "2026-07-09T01:01:16.177Z"
+}

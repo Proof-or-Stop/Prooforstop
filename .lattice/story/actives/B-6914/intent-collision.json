@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-6914",
+  "id": "IC-20260709010041",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Fix the local Proofbound DONE/recovery version finalizer so runtime-changing recovery cannot skip a patch bump, and extend the bump to synchronize package lockfiles. Do not perform git push, npm publish, or a remote release.",
+  "acceptedInterpretationHash": "sha256:e75239eb1b548616a77aa4d8114dce0622a0309dc4465b1294a22b6538aa4216",
+  "notes": "This resolves the apparent collision between manually bumping B-90d6 immediately and repairing the mechanism: manual pre-bump inside the story branch is rejected because the DONE finalizer would double-bump later; the accepted interpretation is mechanism repair plus final local DONE boundary.",
+  "ledgerHashBeforeDecision": "sha256:4b24a67605ee457536f30bb4b556a2a5197dfbf8339242b76988d2f9b6cc706c",
+  "confirmedLedgerHash": "sha256:4b24a67605ee457536f30bb4b556a2a5197dfbf8339242b76988d2f9b6cc706c",
+  "createdAt": "2026-07-09T01:00:41.958Z",
+  "updatedAt": "2026-07-09T01:00:41.958Z"
+}
