@@ -208,7 +208,7 @@
       "desc": "Host readiness proof records canonical launcher argv while executing a different argv shape. probeHostExecutionReadiness replaces both <prompt> and <prompt-file> with inline prompt text through launcherArgsForExecution, then classifyHostExecutionReadiness records spec.launcherArgv rather than the actual spawned argv. For Claude this can execute claude --print --verbose --output-format=stream-json 'Reply READY...' while evidence reports claude --print --verbose --output-format=stream-json <prompt-file>, so gate evidence can claim the canonical launcher was observed without proving that exact launcher. Fix by materializing bounded prompt-file launchers as real temp prompt files, passing the actual executed argv into readiness classification/evidence, and updating the smoke to assert the exact argv used by the probe.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-09T21:30:53.377Z",
@@ -220,7 +220,11 @@
         "packages/main/src/tasks/review-host-execution-readiness-smoke.ts"
       ],
       "signatureTag": "spec-boundary:host-readiness-records-executed-launcher",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by b5a7923cf and 4f4e38199: probeHostExecutionReadiness now builds an execution plan from the canonical launcher, materializes <prompt-file> launchers as a bounded temporary prompt file, substitutes <prompt> with bounded prompt text only for prompt-valued launchers, executes that concrete argv, and passes observedLauncherArgv into classifyHostExecutionReadiness so evidence records the exact launched argv. review-host-execution-readiness-smoke now captures fake host argv and asserts row.launcherArgv matches the actual executed argv, Claude uses an absolute prompt-file path that is cleaned up, placeholders are absent from evidence, and raw stdout/stderr are not persisted. Verified with npm --prefix packages/main run build, node packages/main/dist/tasks/review-host-execution-readiness-smoke.js, and git diff --check.",
+      "resolvedAt": "2026-07-09T21:40:20.950Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
