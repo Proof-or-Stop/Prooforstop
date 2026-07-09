@@ -107,7 +107,41 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Smoke output shows the failing-before case: missing/contradictory host proof blocks single-host degraded fallback, while insufficient hosts or explicit human approval produce clearly labeled degraded-single-host status.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/review-escalation-smoke.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-escalation-smoke.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "review-escalation smoke proves probe-present insufficient-host fallback passes as degraded-single-host and reports canonical host proof diagnostics.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "review-assurance-floor smoke proves explicit-human-approval remains allowed but visibly lower assurance and non-Authority.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "smoke tests prove missing probe and probe-with-two-available-hosts reject single-host-environment fallback; process fact contract verification covers new command/fact registry entries.",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
