@@ -270,7 +270,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'handoff_receipt_submit', 'handoff_worktree_create', // B-aa98: overflow receipt/worktree diagnostic projections
     'dispatch_plan', 'dispatch_prepare', 'dispatch_run', 'overflow_auto', // B-106b: supervised dispatch runtime surfaces
     'dispatch_collect', 'dispatch_receipt_create', 'dispatch_status', 'dispatch_list', // B-106b: persisted dispatch lifecycle + receipt helpers
-    'dispatch_resume', 'dispatch_cancel', 'dispatch_review', 'dispatch_merge_plan', // B-106b: lifecycle control + manual review/merge guidance
+    'dispatch_resume', 'dispatch_reassign', 'dispatch_cancel', 'dispatch_review', 'dispatch_merge_plan', // B-106b/B-99d4: lifecycle control + fresh-context reassignment + manual review/merge guidance
     'dispatch_policy_create', 'dispatch_policy_get', 'dispatch_policy_check', 'dispatch_auto', 'dispatch_watch', // B-a5c2: policy-authorized dispatch controls + read-only watch
     'autopilot_*', // Proofbound unattended/autopilot surfaces declare allowedPhases:all in command-policy; phaseTools must match
     'quorum_submit', // local voluntary 3x2 floor helper; handler refuses without current reviewer pass evidence

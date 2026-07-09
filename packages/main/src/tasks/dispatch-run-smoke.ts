@@ -31,6 +31,7 @@ import type {
   DispatchMergePlanResult,
   DispatchPlanResult,
   DispatchReceiptDraft,
+  DispatchReassignResult,
   DispatchRecord,
   DispatchReviewResult,
   DispatchRunResult,
@@ -60,6 +61,7 @@ const EXPECTED_COMMANDS = [
   'dispatch_status',
   'dispatch_list',
   'dispatch_resume',
+  'dispatch_reassign',
   'dispatch_cancel',
   'dispatch_review',
   'dispatch_merge_plan',
@@ -172,9 +174,34 @@ function writeDispatch(root: string, dispatchId: string, record: DispatchRecord)
   writeFileSync(join(root, '.lattice/dispatches', dispatchId, 'dispatch.json'), JSON.stringify(record, null, 2) + '\n');
 }
 
-function readPack(root: string, dispatchId: string): { toHost: string; executionInstructions: string[] } {
+function readPack(root: string, dispatchId: string): {
+  packId: string;
+  packHash: string;
+  fromHost: string;
+  toHost: string;
+  baseSha?: string;
+  role?: string;
+  objective?: string;
+  allowedPaths: string[];
+  deniedPaths: string[];
+  requiredCommands: string[];
+  successCriteria: string[];
+  authorityBoundary: { summary: string };
+  executionInstructions: string[];
+} {
   return JSON.parse(readFileSync(join(root, '.lattice/dispatches', dispatchId, 'pack.json'), 'utf8')) as {
+    packId: string;
+    packHash: string;
+    fromHost: string;
     toHost: string;
+    baseSha?: string;
+    role?: string;
+    objective?: string;
+    allowedPaths: string[];
+    deniedPaths: string[];
+    requiredCommands: string[];
+    successCriteria: string[];
+    authorityBoundary: { summary: string };
     executionInstructions: string[];
   };
 }
@@ -256,6 +283,8 @@ try {
   assert.equal(relativePathStaysWithinRoot('D:\\outside', win32.isAbsolute), false, 'win32 cross-drive absolute relative() result must escape root');
 
   for (const command of EXPECTED_COMMANDS) assertFiveWayRegistration(command, registry);
+  assert.equal(PROCESS_FACT_LEVEL_BY_NAME.dispatch_reassign?.level, 'L1', 'dispatch_reassign must be L1 dispatch metadata');
+  assert.equal(PROCESS_FACT_LEVEL_BY_NAME.dispatch_reassign?.category, 'lattice-dispatch', 'dispatch_reassign must be lattice-dispatch category');
 
   const runtimeList = run<HostRuntimeList>('host_runtime_list');
   assert.equal(runtimeList.schemaVersion, 'lattice.host_runtime_list.v1');
@@ -447,6 +476,9 @@ try {
   assert.equal(existsSync(join(root, prepared.packFile)), true);
   assert.equal(existsSync(join(root, prepared.promptFile)), true);
   assert.equal(existsSync(resolve(root, prepared.worktree.worktreePath)), false, 'dispatch_prepare must not create a worktree');
+  const preparedPrompt = readFileSync(join(root, prepared.promptFile), 'utf8');
+  assert.match(preparedPrompt, /Role: overflow-worker/, 'normal dispatch prompt must show default role');
+  assert.match(preparedPrompt, /Objective: Prepare only\./, 'normal dispatch prompt must show objective');
   assertAuthorityFalse(prepared, 'prepared');
 
   const unconstrainedPrepared = run<DispatchRecord>('dispatch_prepare', {
@@ -728,6 +760,99 @@ try {
   assert.equal(resumed.status, 'accepted_local');
   assert.equal(resumed.receipt?.status, 'accepted-local');
 
+  const previousCancelPack = readPack(root, cancelRecord.dispatchId);
+  const oldRecordBeforeReassign = JSON.stringify(readDispatch(root, cancelRecord.dispatchId));
+  const reassigned = run<DispatchReassignResult>('dispatch_reassign', {
+    dispatchId: cancelRecord.dispatchId,
+    role: 'implementation-worker',
+    objective: 'Continue the completed worker output with explicit fresh-context instructions.',
+  });
+  assert.equal(reassigned.schemaVersion, 'lattice.dispatch_reassign.v1');
+  assert.equal(reassigned.mode, 'fresh-context');
+  assert.equal(reassigned.previousDispatchId, cancelRecord.dispatchId);
+  assert.notEqual(reassigned.dispatchId, cancelRecord.dispatchId);
+  assert.equal(reassigned.role, 'implementation-worker');
+  assert.equal(reassigned.roleSource, 'requested');
+  assert.equal(reassigned.objective, 'Continue the completed worker output with explicit fresh-context instructions.');
+  assert.match(reassigned.nextAction, /Worker reassignment ready/i);
+  assert.match(reassigned.nextAction, /no full-history fork is required/i);
+  assert.equal(JSON.stringify(readDispatch(root, cancelRecord.dispatchId)), oldRecordBeforeReassign, 'dispatch_reassign must leave old record untouched');
+  const reassignedRecord = readDispatch(root, reassigned.dispatchId);
+  const reassignedPack = readPack(root, reassigned.dispatchId);
+  assert.equal(reassignedRecord.parentDispatchId, cancelRecord.dispatchId);
+  assert.equal(reassigned.promptFile, reassignedRecord.promptFile);
+  assert.equal(reassignedPack.role, 'implementation-worker');
+  assert.equal(reassignedPack.objective, 'Continue the completed worker output with explicit fresh-context instructions.');
+  assert.deepEqual(reassignedPack.allowedPaths, previousCancelPack.allowedPaths, 'reassignment should default allowedPaths from previous pack');
+  assert.deepEqual(reassignedPack.deniedPaths, previousCancelPack.deniedPaths, 'reassignment should default deniedPaths from previous pack');
+  assert.deepEqual(reassignedPack.requiredCommands, previousCancelPack.requiredCommands, 'reassignment should default requiredCommands from previous pack');
+  assert.deepEqual(reassignedPack.successCriteria, previousCancelPack.successCriteria, 'reassignment should default successCriteria from previous pack');
+  assert.equal(reassignedPack.fromHost, previousCancelPack.fromHost, 'reassignment should default fromHost from previous pack');
+  assert.equal(reassignedPack.baseSha, previousCancelPack.baseSha, 'reassignment should default baseSha from previous pack');
+  const reassignedPrompt = readFileSync(join(root, reassigned.promptFile), 'utf8');
+  assert.match(reassignedPrompt, /Role: implementation-worker/, 'reassignment prompt must include explicit role');
+  assert.match(reassignedPrompt, /Objective: Continue the completed worker output with explicit fresh-context instructions\./, 'reassignment prompt must include objective');
+  assert.match(reassignedPrompt, /## Fresh-context Continuity/, 'reassignment prompt must include continuity section');
+  assert.match(reassignedPrompt, /mode: fresh-context/, 'reassignment prompt must state fresh-context mode');
+  assert.match(reassignedPrompt, new RegExp(`Previous dispatch: ${cancelRecord.dispatchId}`), 'reassignment prompt must reference previous dispatch');
+  assert.match(reassignedPrompt, /summary-only continuity/i, 'reassignment prompt must limit continuity to summary material');
+  assert.match(reassignedPrompt, /no full-history fork is required/i, 'reassignment prompt must reject full-history fork dependency');
+  assert.doesNotMatch(reassignedPrompt, /full-history fork has been created|full-history inheritance/i, 'reassignment prompt must not claim full-history inheritance');
+  assert.doesNotMatch(reassignedPrompt, /receipt verified|production DONE achieved|authority changed/i, 'reassignment prompt must not claim receipt verification, production DONE, or authority changes');
+  assertAuthorityFalse(reassigned, 'reassigned');
+
+  const defaultRoleReassigned = run<DispatchReassignResult>('dispatch_reassign', {
+    dispatchId: cancelRecord.dispatchId,
+  });
+  assert.equal(defaultRoleReassigned.role, 'overflow-worker');
+  assert.equal(defaultRoleReassigned.roleSource, 'default');
+  assert.equal(defaultRoleReassigned.previousDispatchId, cancelRecord.dispatchId);
+  assert.equal(readDispatch(root, defaultRoleReassigned.dispatchId).parentDispatchId, cancelRecord.dispatchId);
+  const defaultRolePrompt = readFileSync(join(root, defaultRoleReassigned.promptFile), 'utf8');
+  assert.match(defaultRolePrompt, /Role: overflow-worker/, 'omitted-role reassignment must use explicit default worker role');
+  assert.match(defaultRolePrompt, /no full-history fork is required/i);
+  assertAuthorityFalse(defaultRoleReassigned, 'defaultRoleReassigned');
+
+  assert.equal(existsSync(join(root, unconstrainedPrepared.receiptFile)), false, 'missing-summary fixture must not have a receipt');
+  const missingSummaryReassigned = run<DispatchReassignResult>('dispatch_reassign', {
+    dispatchId: unconstrainedPrepared.dispatchId,
+    role: 'summary-worker',
+    objective: 'Render bounded continuity when previous receipt data is absent.',
+    allowedPaths: ['packages/main/src/generated/missing-summary-reassign.txt'],
+  });
+  const missingSummaryPrompt = readFileSync(join(root, missingSummaryReassigned.promptFile), 'utf8');
+  assert.match(missingSummaryPrompt, new RegExp(`Previous dispatch: ${unconstrainedPrepared.dispatchId}`), 'missing-summary reassignment must keep bounded lineage');
+  assert.match(missingSummaryPrompt, /summary-only continuity/i);
+  assert.match(missingSummaryPrompt, /no full-history fork is required/i);
+  assert.doesNotMatch(missingSummaryPrompt, /receipt verified|production DONE achieved|authority changed/i);
+  assertAuthorityFalse(missingSummaryReassigned, 'missingSummaryReassigned');
+
+  const reassignText = runText('dispatch_reassign', {
+    dispatchId: cancelRecord.dispatchId,
+    role: 'text-worker',
+    objective: 'Render text reassignment output.',
+    allowedPaths: ['packages/main/src/generated/text-reassign.txt'],
+  });
+  assert.match(reassignText, /Worker reassignment ready/);
+  assert.match(reassignText, /mode: fresh-context/);
+  assert.match(reassignText, /previousDispatchId: D-cancel-resume/);
+  assert.match(reassignText, /role: text-worker/);
+  assert.match(reassignText, /promptFile:/);
+  assert.match(reassignText, /no full-history fork is required/i);
+
+  const resumeRegressionRecord = run<DispatchRecord>('dispatch_prepare', {
+    storyId: 'B-dispatch',
+    dispatchId: 'D-resume-regression',
+    host: 'fake',
+    objective: 'dispatch_resume must rerun the original dispatch metadata.',
+    allowedPaths: ['packages/main/src/generated/resume-regression.txt'],
+  });
+  const countBeforeResumeRegression = dispatchCount(root);
+  const resumeRegression = run<DispatchRunResult>('dispatch_resume', { dispatchId: resumeRegressionRecord.dispatchId });
+  assert.equal(resumeRegression.dispatchId, resumeRegressionRecord.dispatchId, 'dispatch_resume must return original dispatch id');
+  assert.equal(dispatchCount(root), countBeforeResumeRegression, 'dispatch_resume must not create a follow-up dispatch');
+  assert.equal(readDispatch(root, resumeRegressionRecord.dispatchId).parentDispatchId, resumeRegressionRecord.parentDispatchId, 'dispatch_resume must keep original lineage metadata shape');
+
   const expiredRecord = run<DispatchRecord>('dispatch_prepare', {
     storyId: 'B-dispatch',
     dispatchId: 'D-expired',
@@ -886,6 +1011,7 @@ try {
     ['dispatch_collect', { dispatchId: maliciousDispatchId }],
     ['dispatch_receipt_create', { dispatchId: maliciousDispatchId }],
     ['dispatch_resume', { dispatchId: maliciousDispatchId }],
+    ['dispatch_reassign', { dispatchId: maliciousDispatchId }],
     ['dispatch_cancel', { dispatchId: maliciousDispatchId }],
     ['dispatch_review', { dispatchId: maliciousDispatchId }],
     ['dispatch_merge_plan', { dispatchId: maliciousDispatchId }],
@@ -913,6 +1039,7 @@ try {
     ['dispatch_collect', { dispatchId: unknownValidDispatchId }],
     ['dispatch_receipt_create', { dispatchId: unknownValidDispatchId }],
     ['dispatch_resume', { dispatchId: unknownValidDispatchId }],
+    ['dispatch_reassign', { dispatchId: unknownValidDispatchId }],
     ['dispatch_cancel', { dispatchId: unknownValidDispatchId }],
     ['dispatch_review', { dispatchId: unknownValidDispatchId }],
     ['dispatch_merge_plan', { dispatchId: unknownValidDispatchId }],
