@@ -62,6 +62,15 @@
       "reviewRound": "2026-07-09T17:34:47.565Z",
       "reviewRunId": "B-cee5:RR-011",
       "_hash": "614eb9eb8713d4adc051df64617acd2590112f9b2b94236a90c9341f97779128"
+    },
+    {
+      "id": "B-cee5:RP-008",
+      "agent": "lattice-review-docs",
+      "note": "Round 3 incremental: only packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts changed (F-005 fix, commit 1c76eb0dc); confirmed via git diff HEAD~1 no .md files touched. Verified header comment (a line that names scanEscalationReason may describe a full scan) and inline F-005 comment (deliberate idiom gaming out of scope, loose only-with branch removed) both accurately describe the hardened code: escalationConditioningPattern now only matches the three strict idioms (recorded scanEscalationReason / write the scanEscalationReason / escalated via scanEscalationReason), grep-confirmed all 6 guarded prompt copies use only these idioms, and the new hostileProximity positive control exercises exactly the removed loose branch. Ran smoke directly: PASS (6 prompt copies clean, 4 required phrases present). All unchanged .md surfaces carried forward from RP-004 (round 2), not re-compared per scope.",
+      "createdAt": "2026-07-09T17:36:39.353Z",
+      "reviewRound": "2026-07-09T17:34:47.565Z",
+      "reviewRunId": "B-cee5:RR-013",
+      "_hash": "8dcf4e52fbc993c0b14319336e13d143a15be826947af7c5da8986fd83bc0ec9"
     }
   ]
 }
