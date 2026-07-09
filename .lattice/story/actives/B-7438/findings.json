@@ -29,7 +29,7 @@
       "desc": "regression: CHK-002's new host-availability-probe gate on review_escalation_fallback_set / reviewEscalationFallbackRecordFromEvent (packages/main/src/core/review-escalation.ts:580-653, esp. the required hostAvailabilityProbeId+command+authorityDone checks at lines 600-636) breaks two pre-existing smoke suites that ARE wired into the root `npm run test` chain (package.json:15 lists both test:review-assurance-floor-storyfileshash-smoke and test:review-escalation-freshness-root). Reproduced by building (npm --prefix packages/main run build) and running the compiled tasks directly: (1) node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js throws AssertionError 'fallback record must be valid under storyFilesHash match' (false !== true) at check (d) because packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts:76-93 builds a review_escalation_fallback event for eligibility=single-host-environment without command/hostAvailabilityProbeId/authorityDone fields, and the story's diff did not update this fixture file. (2) node packages/main/dist/tasks/review-escalation-freshness-root-smoke.js throws an uncaught Error 'no fresh review_host_availability_probe record found for current material' because packages/main/src/tasks/review-escalation-freshness-root-smoke.ts:519-531 calls handlers.review_escalation_fallback_set({eligibility:'single-host-environment',...}) directly without first calling review_host_availability_probe, and this fixture file was likewise not updated. Only review-escalation-smoke.ts and review-assurance-floor-smoke.ts (the two files the plan.md CHK-002/CHK-003 sections named) were updated with probe fixtures; two other existing call sites of the same eligibility values were missed, so `npm run test` (and therefore any CI/validate path that runs it) now fails on this branch. Fix: add review_host_availability_probe fixture events (or switch eligibility to explicit-human-approval) in both missed smoke files so they reflect the new required contract, then rerun `npm run test` to confirm green.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-09T11:46:14.346Z",
@@ -42,7 +42,11 @@
         "packages/main/src/core/review-escalation.ts"
       ],
       "signatureTag": "missing|ts|regression-host-availability",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed the two missed root-chain smokes: review-assurance-floor-storyfileshash now includes a fresh host availability probe fixture and review-escalation-freshness-root uses explicit-human-approval for gitCwd/material binding; verified by the two target smokes and root npm run test.",
+      "resolvedAt": "2026-07-09T11:56:29.128Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
