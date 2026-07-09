@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-d8ef",
+  "records": [
+    {
+      "id": "RED-20260709130810",
+      "trigger": "Baseline host proof is version-only and launcher templates are not readiness-safe.",
+      "acceptanceTargetRef": "B-d8ef:accepted-intent",
+      "baselineHeadHash": "9c0e7f6cca7ed016c4814fb34a9713e5483da0b6",
+      "baselineMaterialHash": "00673d61b1874343698f1b19ae619c64a89a38b2e72a6e4bce0e36782111b7c4",
+      "observedFailure": "Baseline read-only assertion fails with missing executionReady/reviewReady/progressMode/failureKind/reviewReadyHostCount, agyUsesPromptFile=true, and claudeLacksObservableStream=true.",
+      "failingCommand": "node - <<'NODE'\nconst fs = require('fs');\nconst review = fs.readFileSync('packages/main/src/core/review-escalation.ts', 'utf8');\nconst dispatch = fs.readFileSync('packages/main/src/core/lattice-dispatch.ts', 'utf8');\nconst missingReviewFields = ['executionReady', 'reviewReady', 'progressMode', 'failureKind', 'reviewReadyHostCount'].filter((term) => !review.includes(term));\nconst agyUsesPromptFile = dispatch.includes(\"'--prompt-file'\") || dispatch.includes('\"--prompt-file\"');\nconst claudeLacksObservableStream = !(dispatch.includes(\"'--verbose'\") || dispatch.includes('\"--verbose\"')) || !dispatch.includes('stream-json');\nif (missingReviewFields.length > 0 || agyUsesPromptFile || claudeLacksObservableStream) {\n  console.error(JSON.stringify({ baselineRed: true, missingReviewFields, agyUsesPromptFile, claudeLacksObservableStream }));\n  process.exit(1);\n}\nconsole.log('launcher readiness contract present');\nNODE",
+      "expectedGreenCommand": "node - <<'NODE'\nconst fs = require('fs');\nconst review = fs.readFileSync('packages/main/src/core/review-escalation.ts', 'utf8');\nconst dispatch = fs.readFileSync('packages/main/src/core/lattice-dispatch.ts', 'utf8');\nconst missingReviewFields = ['executionReady', 'reviewReady', 'progressMode', 'failureKind', 'reviewReadyHostCount'].filter((term) => !review.includes(term));\nconst agyUsesPromptFile = dispatch.includes(\"'--prompt-file'\") || dispatch.includes('\"--prompt-file\"');\nconst claudeLacksObservableStream = !(dispatch.includes(\"'--verbose'\") || dispatch.includes('\"--verbose\"')) || !dispatch.includes('stream-json');\nif (missingReviewFields.length > 0 || agyUsesPromptFile || claudeLacksObservableStream) {\n  console.error(JSON.stringify({ baselineRed: true, missingReviewFields, agyUsesPromptFile, claudeLacksObservableStream }));\n  process.exit(1);\n}\nconsole.log('launcher readiness contract present');\nNODE",
+      "greenRelation": {
+        "targetRef": "B-d8ef:accepted-intent",
+        "relation": "same_acceptance",
+        "command": "node - <<'NODE'\nconst fs = require('fs');\nconst review = fs.readFileSync('packages/main/src/core/review-escalation.ts', 'utf8');\nconst dispatch = fs.readFileSync('packages/main/src/core/lattice-dispatch.ts', 'utf8');\nconst missingReviewFields = ['executionReady', 'reviewReady', 'progressMode', 'failureKind', 'reviewReadyHostCount'].filter((term) => !review.includes(term));\nconst agyUsesPromptFile = dispatch.includes(\"'--prompt-file'\") || dispatch.includes('\"--prompt-file\"');\nconst claudeLacksObservableStream = !(dispatch.includes(\"'--verbose'\") || dispatch.includes('\"--verbose\"')) || !dispatch.includes('stream-json');\nif (missingReviewFields.length > 0 || agyUsesPromptFile || claudeLacksObservableStream) {\n  console.error(JSON.stringify({ baselineRed: true, missingReviewFields, agyUsesPromptFile, claudeLacksObservableStream }));\n  process.exit(1);\n}\nconsole.log('launcher readiness contract present');\nNODE"
+      },
+      "note": "Red evidence maps directly to user request: wrong/silent launcher and version-only host proof must stop before degraded fallback.",
+      "createdAt": "2026-07-09T13:08:10.148Z"
+    }
+  ],
+  "createdAt": "2026-07-09T13:08:10.148Z",
+  "updatedAt": "2026-07-09T13:08:10.148Z"
+}
