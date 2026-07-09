@@ -399,6 +399,52 @@ async function assertSynchronousGitTimeoutFailsClosed(): Promise<void> {
   }
 }
 
+async function assertSynchronousDoneClosureGitTimeoutFailsClosed(): Promise<void> {
+  const { root, storyId } = setupFixture();
+  const oldCwd = process.cwd();
+  try {
+    process.chdir(root);
+    const storySnapshotBefore = readTreeSnapshot(root, `.lattice/story/actives/${storyId}`);
+    const logs: string[] = [];
+    const prepare = createDonePrepareHandlers(mkCtx(root, (msg) => logs.push(msg)));
+    const started = Date.now();
+    const transcript = await withEnv({
+      LATTICE_DONE_PREPARE_HEARTBEAT_MS: '20',
+      LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS: '5000',
+      LATTICE_DONE_PREPARE_DONE_CLOSURE_TIMEOUT_MS: '120',
+      LATTICE_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_PHASE: 'doneClosure',
+      LATTICE_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_MS: '5000',
+    }, async () => String(await prepare.done_prepare({
+      storyId,
+      mergeMain: false,
+      refreshStale: false,
+      validate: false,
+      dryRun: true,
+    })));
+    const elapsedMs = Date.now() - started;
+
+    assert.ok(logs.includes('done_prepare progress: evaluating DONE closure'), 'execSync git timeout emits the exact done-closure progress label');
+    assert.ok(
+      elapsedMs < 2_000,
+      `done-closure execSync timeout should be bounded by the phase deadline, not the sleeping child duration; elapsedMs=${elapsedMs}`,
+    );
+    assert.ok(transcript.startsWith('DONE prepare: BLOCKED'), `execSync git timeout must return a BLOCKED transcript:\n${transcript}`);
+    assert.match(transcript, /^blockedAt: doneClosure$/m);
+    assert.match(transcript, /reason: done_prepare phase "evaluating DONE closure" exceeded 120ms timeout/);
+    assert.match(transcript, /heartbeat output is diagnostic only and does not extend the phase deadline/);
+    assert.ok(!transcript.includes('ETIMEDOUT'), 'execSync child timeout should be attributed to the done_prepare phase');
+    assert.deepEqual(
+      readTreeSnapshot(root, `.lattice/story/actives/${storyId}`),
+      storySnapshotBefore,
+      'execSync timeout diagnostics must not write gate evidence or story metadata',
+    );
+    assert.ok(!existsSync(join(root, '.lattice', 'activity.jsonl')), 'execSync timeout progress does not depend on activity-root logging');
+  } finally {
+    process.chdir(oldCwd);
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 void (async () => {
   const fixture = setupFixture();
   try {
@@ -406,6 +452,7 @@ void (async () => {
     assertJsonStdoutParseable(fixture.root, fixture.storyId);
     await assertHungPhaseFailsClosed();
     await assertSynchronousGitTimeoutFailsClosed();
+    await assertSynchronousDoneClosureGitTimeoutFailsClosed();
     console.log('done-prepare-closure-heartbeat smoke passed');
   } catch (error) {
     console.error(error instanceof Error ? (error.stack ?? error.message) : String(error));

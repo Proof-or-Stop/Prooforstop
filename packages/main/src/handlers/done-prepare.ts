@@ -1,4 +1,4 @@
-import childProcess, { type ExecFileSyncOptions } from 'child_process';
+import childProcess, { type ExecFileSyncOptions, type ExecSyncOptions } from 'child_process';
 import { createHash } from 'crypto';
 import { existsSync, readFileSync, statSync } from 'fs';
 import { syncBuiltinESMExports } from 'module';
@@ -473,7 +473,25 @@ function boundedExecFileSyncOptions(
   };
 }
 
-function isExecFileSyncOptions(value: unknown): value is ExecFileSyncOptions {
+function boundedExecSyncOptions(
+  options: ExecSyncOptions | undefined,
+  remainingMs: number,
+): { options: ExecSyncOptions; phaseBounded: boolean } {
+  const existingTimeout = options?.timeout;
+  const hasShorterTimeout = typeof existingTimeout === 'number'
+    && Number.isFinite(existingTimeout)
+    && existingTimeout > 0
+    && existingTimeout <= remainingMs;
+  return {
+    options: {
+      ...(options ?? {}),
+      timeout: hasShorterTimeout ? Math.floor(existingTimeout) : remainingMs,
+    },
+    phaseBounded: !hasShorterTimeout,
+  };
+}
+
+function isChildProcessOptions(value: unknown): value is ExecFileSyncOptions {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
@@ -481,8 +499,12 @@ function commandLeaf(command: string): string {
   return command.split(/[\\/]/).pop() || command;
 }
 
+function isGitCommand(command: string): boolean {
+  return commandLeaf(command) === 'git' || /^\s*(?:"git"|'git'|git)(?:\s|$)/.test(command);
+}
+
 function shouldSmokeHangSyncGitCommand(deadline: CloseoutPhaseChildProcessDeadline, command: string): boolean {
-  return commandLeaf(command) === 'git'
+  return isGitCommand(command)
     && phaseEnvMatches(DONE_PREPARE_SMOKE_SYNC_GIT_HANG_PHASE_ENV, deadline.phase);
 }
 
@@ -492,6 +514,11 @@ function smokeSyncGitHangArgs(): string[] {
     DEFAULT_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_MS,
   );
   return ['-e', `setTimeout(() => {}, ${hangMs});`];
+}
+
+function smokeSyncGitHangCommand(): string {
+  const [flag, script] = smokeSyncGitHangArgs();
+  return `${JSON.stringify(process.execPath)} ${flag} ${JSON.stringify(script)}`;
 }
 
 function isChildProcessTimeoutError(err: unknown): boolean {
@@ -505,6 +532,7 @@ function installCloseoutPhaseChildProcessDeadline(
   started: number,
 ): CloseoutPhaseChildProcessDeadline {
   const previousExecFileSync = childProcess.execFileSync;
+  const previousExecSync = childProcess.execSync;
   const deadline: CloseoutPhaseChildProcessDeadline = {
     phase,
     timeoutMs,
@@ -512,7 +540,7 @@ function installCloseoutPhaseChildProcessDeadline(
     restore: () => {},
   };
 
-  const runWithDeadline = (
+  const runExecFileSyncWithDeadline = (
     command: string,
     argsOrOptions?: readonly string[] | ExecFileSyncOptions,
     options?: ExecFileSyncOptions,
@@ -529,7 +557,7 @@ function installCloseoutPhaseChildProcessDeadline(
         const bounded = boundedExecFileSyncOptions(options, remainingMs);
         phaseBounded = bounded.phaseBounded;
         result = previousExecFileSync(commandToRun, argsToRun, bounded.options);
-      } else if (isExecFileSyncOptions(argsToRun)) {
+      } else if (isChildProcessOptions(argsToRun)) {
         const bounded = boundedExecFileSyncOptions(argsToRun, remainingMs);
         phaseBounded = bounded.phaseBounded;
         result = previousExecFileSync(commandToRun, bounded.options);
@@ -548,12 +576,32 @@ function installCloseoutPhaseChildProcessDeadline(
     }
   };
 
-  // Closeout helpers import execFileSync directly; sync the builtin named exports
+  const runExecSyncWithDeadline = (command: string, options?: ExecSyncOptions) => {
+    const remainingMs = remainingChildProcessTimeoutMs(deadline);
+    const commandToRun = shouldSmokeHangSyncGitCommand(deadline, command)
+      ? smokeSyncGitHangCommand()
+      : command;
+    const bounded = boundedExecSyncOptions(options, remainingMs);
+    try {
+      const result = previousExecSync(commandToRun, bounded.options);
+      if (Date.now() >= deadline.deadlineAt) throw markChildProcessPhaseTimeout(deadline);
+      return result;
+    } catch (err) {
+      if ((bounded.phaseBounded && isChildProcessTimeoutError(err)) || Date.now() >= deadline.deadlineAt) {
+        throw markChildProcessPhaseTimeout(deadline);
+      }
+      throw err;
+    }
+  };
+
+  // Closeout helpers import execFileSync/execSync directly; sync the builtin named exports
   // so those existing imports see the active phase deadline guard.
-  childProcess.execFileSync = runWithDeadline as typeof childProcess.execFileSync;
+  childProcess.execFileSync = runExecFileSyncWithDeadline as typeof childProcess.execFileSync;
+  childProcess.execSync = runExecSyncWithDeadline as typeof childProcess.execSync;
   syncBuiltinESMExports();
   deadline.restore = () => {
     childProcess.execFileSync = previousExecFileSync;
+    childProcess.execSync = previousExecSync;
     syncBuiltinESMExports();
   };
   return deadline;
