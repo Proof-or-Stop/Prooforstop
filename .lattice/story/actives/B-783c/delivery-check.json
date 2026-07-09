@@ -1,0 +1,53 @@
+{
+  "storyId": "B-783c",
+  "checkedAt": "2026-07-09T00:54:05.435Z",
+  "headHash": "c890f4898fed6eaa2f8ed12a691b1e28dd7f9822",
+  "materialHash": "beea5f966d2607c5b1b2df50cc81733815fb3b962beae8ddaedf7fdce7f0b079",
+  "storyFilesHash": "01578ecdea1ca920c81fea97c2dec4002c9f246b981ba6a66425f758ac349f0d",
+  "reviewRound": "2026-07-09T00:40:21.448Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "checklist:CHK-001:userSees",
+      "promise": "Global-thin lattice codex verify reaches Global fallback heartbeat and reports codex/global-fallback instead of no activity heartbeat for session.",
+      "status": "verified",
+      "verifiedBy": "solver-visible live smoke + activity log grep",
+      "evidence": "In /Users/jek/Documents/Work/deepswe-pos-codex-gpt55-run/solver-visible, PATH wrapper to /Users/jek/Documents/Work/proofbound/.worktrees/B-783c/packages/main/dist/cli.js ran lattice codex verify exit 0. Output included Global fallback heartbeat: source=codex session=codex-check-global-1783558421755 entrypoint=global-fallback; rg found matching .lattice/activity.jsonl row with source=codex, entrypoint=global-fallback, tool=session_brief, status=ok."
+    },
+    {
+      "docPath": "checklist:CHK-002:userSees",
+      "promise": "Focused smoke completes after proving canonical roots log activity, managed global-thin roots log activity, and unmanaged or malformed roots do not create activity logs.",
+      "status": "verified",
+      "verifiedBy": "focused smoke",
+      "evidence": "node packages/main/dist/tasks/thin-init-assets-smoke.js exited 0 and printed: global-thin init assets smoke passed."
+    },
+    {
+      "docPath": "checklist:CHK-003:userSees",
+      "promise": "From solver-visible, lattice codex verify exits successfully and output does not contain the old missing heartbeat failure.",
+      "status": "verified",
+      "verifiedBy": "solver-visible live smoke",
+      "evidence": "Temporary PATH wrapper resolved lattice to /tmp/lattice-b783c-delivery.CEe8IX/lattice delegating to the B-783c worktree dist. lattice codex verify exited 0 with Codex adapter checks passed (8/8 pass), included Global fallback heartbeat source=codex entrypoint=global-fallback, and did not print Global fallback heartbeat: no activity heartbeat for session."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "solver-visible live smoke: PATH wrapper to B-783c dist; lattice codex verify exit 0; output included [✓] Global fallback heartbeat: source=codex session=codex-check-global-1783558421755 entrypoint=global-fallback; .lattice/activity.jsonl row confirmed source=codex, entrypoint=global-fallback, tool=session_brief, status=ok."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "node packages/main/dist/tasks/thin-init-assets-smoke.js exit 0; output: ✓ global-thin init assets smoke passed. This focused smoke covers canonical logging, managed global-thin logging, and malformed/wrong-assetMode roots not creating activity logs."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "cd /Users/jek/Documents/Work/deepswe-pos-codex-gpt55-run/solver-visible with temporary PATH lattice wrapper; command -v lattice showed wrapper; lattice codex verify exit 0 with ✓ Codex adapter checks passed (8/8 pass) and no old no-activity-heartbeat failure."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery promises are verified against fresh machine evidence: findings are empty, REVIEW lanes concept/quality/test-coverage have PASS records with scopeChanged=false, routine validation passed 43/43 commands at materialHash beea5f966d2607c5b1b2df50cc81733815fb3b962beae8ddaedf7fdce7f0b079, DONE-required validation passed, voluntary local quorum shows 3/3 rounds x 2 hosts for current material, focused smoke passed, and solver-visible lattice codex verify passed with codex/global-fallback heartbeat instead of the old missing heartbeat failure. Separate DONE readiness still reports branch-synced-main behind main by 2 commits, but the delivery/user-visible promises themselves are met for the current material hash."
+  },
+  "_hash": "e459f835b615f75381a432be1b61c9ad78cdc1348d427423ca95f937f137441b"
+}

@@ -16,7 +16,7 @@ import {
   summarizeAgentAssetResolution,
   type AgentAssetResolution,
 } from './agent-asset-resolution.js';
-import { loadConfig } from './config.js';
+import { isManagedGlobalThinRoot, loadConfig } from './config.js';
 import { resolveProjectGitCwd } from './story-signed-workspace-resolution.js';
 import {
   promptRegistryManifest,
@@ -219,20 +219,7 @@ interface CodexManifestSelection {
   brand: 'lattice';
 }
 
-function isGlobalThinProject(root: string): boolean {
-  try {
-    const configPath = [
-      join(root, '.lattice', 'lattice.json'),
-      join(root, '.Lattice', 'lattice.json'),
-    ].find(candidate => existsSync(candidate));
-    if (!configPath) return false;
-    const text = readFileSync(configPath, 'utf-8');
-    const parsed = JSON.parse(text);
-    return isRecord(parsed) && parsed['assetMode'] === 'global-thin';
-  } catch {
-    return false;
-  }
-}
+const isGlobalThinProject = isManagedGlobalThinRoot;
 
 function resolveCodexManifest(root: string): CodexManifestSelection | null {
   if (existsSync(join(root, '.lattice-codex', 'lattice.json'))) {
