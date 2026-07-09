@@ -107,6 +107,15 @@
       "reviewRound": "2026-07-09T03:07:08.561Z",
       "reviewRunId": "B-eb08:RR-019",
       "_hash": "7c0c1d4bf8d25407c6edee9020bf7af6e126fb224e469aa67ae63a5d529bc8dd"
+    },
+    {
+      "id": "B-eb08:RP-013",
+      "agent": "lattice-review-quality",
+      "note": "Quality review passed: F-003/F-005 execSync deadline gaps are fixed; done_prepare closeout wrapper patches and restores both execFileSync and execSync with syncBuiltinESMExports in finally; JSON stdout remains parseable while progress is emitted on stderr. Verified with npm --prefix packages/main run build and npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke.",
+      "createdAt": "2026-07-09T03:11:10.467Z",
+      "reviewRound": "2026-07-09T03:07:08.561Z",
+      "reviewRunId": "B-eb08:RR-015",
+      "_hash": "323c27bde86dc3807f0660aad26c35b0b72feef0d0a96a179360d5d2dd41ee5b"
     }
   ]
 }
