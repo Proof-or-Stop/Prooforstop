@@ -143,6 +143,15 @@
       "reviewRound": "2026-07-09T03:15:15.358Z",
       "reviewRunId": "B-eb08:RR-026",
       "_hash": "02bfe333377b7fcc58d9157fc12d637abca1b4ffbd5e288f541320aba7120e51"
+    },
+    {
+      "id": "B-eb08:RP-017",
+      "agent": "lattice-review-concept",
+      "note": "Round 5 concept pass: F-006/F-007 smoke-targeting class fixed. LATTICE_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_KIND gates execFileSync vs execSync injection, doneClosure regression sets execSync-only so earlier execFileSync probes cannot satisfy it; rebuilt focused smoke passes; progress labels/JSON side-channel/gate-evidence isolation remain satisfied.",
+      "createdAt": "2026-07-09T03:18:24.672Z",
+      "reviewRound": "2026-07-09T03:15:15.358Z",
+      "reviewRunId": "B-eb08:RR-025",
+      "_hash": "8279b4afceb50780906fcb80dadfd129ec686553a997adedfb433c300af39fe2"
     }
   ]
 }
