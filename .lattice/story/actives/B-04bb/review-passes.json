@@ -17,6 +17,15 @@
       "reviewRound": "2026-07-09T19:20:36.605Z",
       "reviewRunId": "B-04bb:RR-002",
       "_hash": "5f9f8ab218560c13417b8b65fd585d1f15d51b66daff5a97eef5bc147e9dc357"
+    },
+    {
+      "id": "B-04bb:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "reviewed CHK-001: verified the single bare-string entry node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js is placed immediately after retired-authority-vocabulary-guard-smoke.js in validate.commands, matching the declared pattern; git diff vs main shows this line as the sole material change (lattice.config.json only); JSON parses cleanly; B-cee5 confirmed merged to main (commit 7cda28285). Independently re-ran full lattice validate from a fresh shell: 44/44 commands passed with no non-zero exit codes, and validate.commands[3] executed reviewer-scan-budget-guard-smoke.js printing PASS (6 prompt copies clean, 4 required phrases present), matching recorded evidence. Scope contract correctly limits allowedModify to lattice.config.json with explicit excludes for the guard source and run-all-smokes. decision.json has 4 preMortem scenarios covering the high-risk Validation Framework signal. No blocker found.",
+      "createdAt": "2026-07-09T21:13:13.678Z",
+      "reviewRound": "2026-07-09T19:20:36.605Z",
+      "reviewRunId": "B-04bb:RR-003",
+      "_hash": "24458328be25cecab91336f2ee78fe76c08a2c219a5e66fb8ae14373ea9be7fa"
     }
   ]
 }
