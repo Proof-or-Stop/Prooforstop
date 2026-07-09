@@ -17,6 +17,15 @@
       "reviewRound": "2026-07-09T11:56:20.945Z",
       "reviewRunId": "B-7438:RR-004",
       "_hash": "7ef42f12728b4dba75f924d293e0aec25ed1837b0b646222b301fb5a69b29ce5"
+    },
+    {
+      "id": "B-7438:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 targeted re-check after F-001/F-002 fixes. Verified the review_host_availability_probe concept (new command) is fully wired: command-catalog, alias-normalizer, config phase-tools, types.ts ProcessEventType, handler, core probe/assessment logic, process-fact-levels, process-fact-registry, and scripts/verify-process-fact-contract.mjs all reference it consistently; grep found zero orphan references. Verified the fallbackRecordFromEvent consolidation (review-assurance-floor.ts now delegates to the exported reviewEscalationFallbackRecordFromEvent instead of a duplicated local copy): grep for the old unexported name and the retired test title (\"explicit degraded 3x1 fallback passes as degraded only\") found no residue outside historical B-6de6 story archive files (legitimate history, not active code/docs). storyFilesHash downgrade-advisory logic is preserved verbatim in the consolidated function. Ran the four targeted smoke tasks (review-escalation-smoke, review-assurance-floor-smoke, review-assurance-floor-storyfileshash-smoke, review-escalation-freshness-root-smoke) after npm run build; all pass, including temporary-host-unavailability coverage, storyFilesHash-fallback-with-fresh-probe fixtures, and the freshness-root explicit-human-approval fixture. No blocker.",
+      "createdAt": "2026-07-09T11:58:31.312Z",
+      "reviewRound": "2026-07-09T11:56:20.945Z",
+      "reviewRunId": "B-7438:RR-005",
+      "_hash": "3404b7973f5f78a64d696f960f6124cf799eed762890c0a1e053ad14136b7c84"
     }
   ]
 }
