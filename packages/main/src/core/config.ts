@@ -337,6 +337,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'finding_add',
     'validate', 'status', 'serve',
     'review_escalation_policy_set',
+    'review_host_availability_probe',
     'story_advance',
     // B-a4e3 CHK-005: removed dead story_dispatch / finding_dispatch alias entries; the unified `dispatch` is granted all-phase via the '*' block.
     'finding_cluster',  // B-8bb5: DEV 中已有 finding 时，允许先聚簇再派发修复
@@ -358,6 +359,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'delivery_check_set', 'delivery_waiver_add', // delivery reviewer 在 REVIEW 阶段写签名/豁免，TEST→DONE gate 消费
     'review_loop_start', 'review_loop_iteration_add', 'review_loop_close',
     'review_escalation_policy_set',
+    'review_host_availability_probe',
     'story_advance',
     'scope_contract_acknowledge',
     'scope_shrinkage_decision_set',
@@ -372,6 +374,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'bug_report', 'bug_update', 'bug_list', 'bug_analyze',
     'delivery_check_set', 'delivery_waiver_add', // B-b089: delivery reviewer 在 TEST 阶段写签名
     'review_escalation_policy_set',
+    'review_host_availability_probe',
     'review_escalation_fallback_set',
     'scope_shrinkage_decision_set',
     'parent_ledger_rollup_set',
@@ -379,6 +382,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
   ],
   DONE: [
     'review_escalation_policy_set',
+    'review_host_availability_probe',
     'review_escalation_fallback_set',
   ],
 };

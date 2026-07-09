@@ -10,9 +10,83 @@
         "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-09T11:19:54.841Z",
+      "endTime": "2026-07-09T11:40:25.807Z",
+      "userSees": "`lattice review_host_availability_probe --storyId=<id>` prints a probe id, materialHash, and canonical host rows for codex, claude, and agy with available/path/version/error fields.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/core/review-escalation.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/alias-normalizer.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-escalation-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Running review_host_availability_probe records a process event bound to current materialHash/storyFilesHash and reports codex, claude, and agy canonical host rows.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Unavailable hosts are recorded as unavailable with an error or missing path instead of being silently omitted, so availableHostCount cannot be inflated by absence.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The probe evidence is registered as a gate-consumed process fact; process fact contract verification fails if the command/fact registry is missing.",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js review_host_availability_probe '{\"storyId\":\"B-7438\",\"json\":true}'",
+          "result": "pass",
+          "note": "Fresh probe B-7438:RHP-mrdfomgf recorded process event bound to current materialHash/storyFilesHash and reported canonical codex, claude, and agy rows; root npm run test also passed after the follow-up smoke fixes.",
+          "headHash": "498ce9af155389c4104e669f5853b797e6b72fd9",
+          "materialHash": "ef40ac96cec58c99a62a7de9c15790f78bdb35428cc3ca38e00c1f947078bced",
+          "storyFilesHash": "9c4b4d5018a1a14c907850e56c442d783c3a0ed0b9a15ee43a8196960183af83",
+          "timestamp": "2026-07-09T12:10:02.819Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-escalation-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
+          "result": "pass",
+          "note": "Review-escalation smoke now includes unavailable-host preservation plus temporary-host-unavailability stale/missing/two-host rejection coverage.",
+          "headHash": "498ce9af155389c4104e669f5853b797e6b72fd9",
+          "materialHash": "ef40ac96cec58c99a62a7de9c15790f78bdb35428cc3ca38e00c1f947078bced",
+          "storyFilesHash": "9c4b4d5018a1a14c907850e56c442d783c3a0ed0b9a15ee43a8196960183af83",
+          "timestamp": "2026-07-09T12:10:02.819Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process fact contract verifies review_host_availability_probe remains an L4 gate-consumed host-availability process fact and root npm run test passed.",
+          "headHash": "498ce9af155389c4104e669f5853b797e6b72fd9",
+          "materialHash": "ef40ac96cec58c99a62a7de9c15790f78bdb35428cc3ca38e00c1f947078bced",
+          "storyFilesHash": "9c4b4d5018a1a14c907850e56c442d783c3a0ed0b9a15ee43a8196960183af83",
+          "timestamp": "2026-07-09T12:10:02.819Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -23,9 +97,80 @@
         "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
         "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-09T11:40:26.299Z",
+      "userSees": "If a fresh probe shows two or more canonical hosts available, `lattice review_escalation_fallback_set --eligibility=single-host-environment ...` fails and tells the user to use full 3x2 or explicit-human-approval instead.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/core/review-escalation.ts",
+          "packages/main/src/core/review-assurance-floor.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-escalation-smoke.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "single-host-environment fallback is accepted only when the latest fresh host availability probe shows fewer than two executable canonical hosts and the story still has the required 3x1 PASS rounds.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "explicit-human-approval with an approvalRef can still produce degraded-single-host lower assurance without proving host scarcity, and reports it as lower assurance rather than full 3x2.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Missing, stale, or contradictory host probe evidence makes single-host-environment and temporary-host-unavailability fallback records invalid in both review_escalation_status and review assurance floor evaluation, even if evidenceRefs prose exists.",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-escalation-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js",
+          "result": "pass",
+          "note": "Both smokes prove probe-present insufficient-host fallback passes only as degraded-single-host with hostAvailabilityProbeId.",
+          "headHash": "498ce9af155389c4104e669f5853b797e6b72fd9",
+          "materialHash": "ef40ac96cec58c99a62a7de9c15790f78bdb35428cc3ca38e00c1f947078bced",
+          "storyFilesHash": "9c4b4d5018a1a14c907850e56c442d783c3a0ed0b9a15ee43a8196960183af83",
+          "timestamp": "2026-07-09T12:10:02.819Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-smoke.js",
+          "result": "pass",
+          "note": "Assurance-floor smoke verifies explicit-human-approval remains lower assurance/non-Authority and does not require host scarcity proof.",
+          "headHash": "498ce9af155389c4104e669f5853b797e6b72fd9",
+          "materialHash": "ef40ac96cec58c99a62a7de9c15790f78bdb35428cc3ca38e00c1f947078bced",
+          "storyFilesHash": "9c4b4d5018a1a14c907850e56c442d783c3a0ed0b9a15ee43a8196960183af83",
+          "timestamp": "2026-07-09T12:10:02.819Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-escalation-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js && node packages/main/dist/tasks/review-escalation-freshness-root-smoke.js",
+          "result": "pass",
+          "note": "Smokes now cover single-host-environment and temporary-host-unavailability missing/stale/two-host rejection; missed storyFilesHash and freshness-root suites are repaired.",
+          "headHash": "498ce9af155389c4104e669f5853b797e6b72fd9",
+          "materialHash": "ef40ac96cec58c99a62a7de9c15790f78bdb35428cc3ca38e00c1f947078bced",
+          "storyFilesHash": "9c4b4d5018a1a14c907850e56c442d783c3a0ed0b9a15ee43a8196960183af83",
+          "timestamp": "2026-07-09T12:10:02.819Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -35,9 +180,81 @@
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-09T11:40:40.464Z",
+      "userSees": "Smoke output includes lines like `missing probe blocks single-host degraded fallback`, `two available canonical hosts reject single-host fallback`, `insufficient hosts permits degraded-single-host`, and `explicit-human-approval remains degraded-single-host, not full-3x2`.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/review-escalation-smoke.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-escalation-smoke.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "review-escalation smoke proves probe-present insufficient-host fallback passes as degraded-single-host and reports canonical host proof diagnostics.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "review-assurance-floor smoke proves explicit-human-approval remains allowed but visibly lower assurance and non-Authority.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "smoke tests prove missing probe and probe-with-two-available-hosts reject single-host-environment fallback; process fact contract verification covers new command/fact registry entries.",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/review-escalation-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
+          "result": "pass",
+          "note": "Review-escalation smoke output includes missing probe, temporary-host-unavailability rejection, insufficient-host degraded pass, two-host rejection, and explicit-human-approval degraded-only cases.",
+          "headHash": "498ce9af155389c4104e669f5853b797e6b72fd9",
+          "materialHash": "ef40ac96cec58c99a62a7de9c15790f78bdb35428cc3ca38e00c1f947078bced",
+          "storyFilesHash": "9c4b4d5018a1a14c907850e56c442d783c3a0ed0b9a15ee43a8196960183af83",
+          "timestamp": "2026-07-09T12:10:02.819Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-smoke.js",
+          "result": "pass",
+          "note": "Review-assurance-floor smoke output covers explicit-human-approval as lower assurance, temporary-host-unavailability rejection, and non-Authority/non-production guarantees.",
+          "headHash": "498ce9af155389c4104e669f5853b797e6b72fd9",
+          "materialHash": "ef40ac96cec58c99a62a7de9c15790f78bdb35428cc3ca38e00c1f947078bced",
+          "storyFilesHash": "9c4b4d5018a1a14c907850e56c442d783c3a0ed0b9a15ee43a8196960183af83",
+          "timestamp": "2026-07-09T12:10:02.819Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "package.json",
+          "command": "npm run test",
+          "result": "pass",
+          "note": "Root npm run test passed after repairing missed review-assurance-floor-storyfileshash and review-escalation-freshness-root smoke suites, so the branch no longer breaks the root test chain.",
+          "headHash": "498ce9af155389c4104e669f5853b797e6b72fd9",
+          "materialHash": "ef40ac96cec58c99a62a7de9c15790f78bdb35428cc3ca38e00c1f947078bced",
+          "storyFilesHash": "9c4b4d5018a1a14c907850e56c442d783c3a0ed0b9a15ee43a8196960183af83",
+          "timestamp": "2026-07-09T12:10:02.819Z"
+        }
+      ]
     }
   ]
 }

@@ -4,7 +4,7 @@
   "title": "Require host availability proof before degraded single-host review fallback",
   "description": "Fix Proof-or-stop bug: review_escalation_fallback_set currently accepts eligibility=single-host-environment based on operator prose without mechanically proving that fewer than two canonical host CLIs are available. Add fresh host availability evidence for codex, claude, and agy; reject single-host degraded fallback when two or more independent hosts are executable; make DONE/review assurance gates reject degraded 3x1 fallback records that are not bound to fresh host availability evidence unless the fallback is explicit-human-approval.",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "review-escalation",
@@ -15,7 +15,7 @@
   ],
   "createdAt": "2026-07-09T11:05:06.681Z",
   "startedAt": "2026-07-09T11:05:06.681Z",
-  "endedAt": null,
+  "endedAt": "2026-07-09T12:28:56.858Z",
   "events": [
     {
       "phase": "INIT",
@@ -34,11 +34,88 @@
       "user": "Harmonygo",
       "sessionId": "sess-3d1880b40d393f50",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-09T11:10:14.238Z",
+      "branch": "story/B-7438",
+      "user": "Harmonygo",
+      "sessionId": "sess-f82658bef27a7726",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-09T11:19:30.359Z",
+      "branch": "story/B-7438",
+      "user": "Harmonygo",
+      "sessionId": "sess-f82658bef27a7726",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-09T11:42:00.164Z",
+      "branch": "story/B-7438",
+      "user": "Harmonygo",
+      "sessionId": "sess-f82658bef27a7726",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-09T11:47:07.524Z",
+      "branch": "story/B-7438",
+      "user": "Harmonygo",
+      "sessionId": "sess-f82658bef27a7726",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-09T11:56:20.945Z",
+      "branch": "story/B-7438",
+      "user": "Harmonygo",
+      "sessionId": "sess-f82658bef27a7726",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-09T12:05:36.514Z",
+      "branch": "story/B-7438",
+      "user": "Harmonygo",
+      "sessionId": "sess-f82658bef27a7726",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-09T12:13:19.411Z",
+      "branch": "story/B-7438",
+      "user": "Harmonygo",
+      "sessionId": "sess-f82658bef27a7726",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-09T12:16:11.119Z",
+      "branch": "story/B-7438",
+      "user": "Harmonygo",
+      "sessionId": "sess-f82658bef27a7726",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-09T12:28:56.858Z",
+      "branch": "story/B-7438",
+      "user": "Harmonygo",
+      "sessionId": "sess-f82658bef27a7726",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-7438",
-    "branch": "story/B-7438",
-    "createdAt": "2026-07-09T11:10:04.560Z"
-  }
+  "currentReviewRound": "2026-07-09T12:13:19.411Z"
 }

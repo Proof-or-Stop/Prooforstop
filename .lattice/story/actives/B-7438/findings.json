@@ -1,0 +1,52 @@
+{
+  "findings": [
+    {
+      "id": "B-7438:F-001",
+      "desc": "CHK-002:adversarial:0 verificationIntent explicitly promises that missing/stale/contradictory host probe evidence invalidates fallback records for BOTH eligibility=single-host-environment AND eligibility=temporary-host-unavailability. Implementation (reviewHostAvailabilityProbeRequiredForEligibility in packages/main/src/core/review-escalation.ts:548-550) does gate both values identically, but no verificationEvidence actually exercises eligibility=temporary-host-unavailability anywhere: grep for the literal string across packages/main/src/tasks/review-escalation-smoke.ts, packages/main/src/tasks/review-assurance-floor-smoke.ts, and tests/ finds zero matches (it only appears in production source: review-escalation.ts, command-policy.ts, command-schemas.ts). The recorded CHK-002:adversarial:0 evidence note itself only claims single-host-environment coverage (\"reject single-host-environment fallback when a fresh probe shows two or more executable canonical hosts\"), which is narrower than the intent text it is meant to satisfy. Add a smoke check that constructs a review_escalation_fallback record with eligibility=temporary-host-unavailability and asserts it is rejected under missing/stale probe evidence the same way single-host-environment is, in both evaluateReviewEscalation and evaluateReviewAssuranceFloor.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-09T11:44:51.297Z",
+      "reviewRound": "2026-07-09T11:42:00.164Z",
+      "reviewRunId": "B-7438:RR-002",
+      "_hash": "eb739f05d28fca95b9f79b4c2500901b08bc39a667f8c3424948ff4ef55d34e9",
+      "files": [
+        "packages/main/src/tasks/review-escalation-smoke.ts",
+        "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+        "packages/main/src/core/review-escalation.ts"
+      ],
+      "signatureTag": "missing|ts|adversarial-verificationintent-explicitly",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by adding temporary-host-unavailability missing/stale/two-host rejection coverage to review-escalation-smoke and review-assurance-floor-smoke; verified by build, both smokes, the two missed suites, and root npm run test.",
+      "resolvedAt": "2026-07-09T11:56:28.665Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7438:F-002",
+      "desc": "regression: CHK-002's new host-availability-probe gate on review_escalation_fallback_set / reviewEscalationFallbackRecordFromEvent (packages/main/src/core/review-escalation.ts:580-653, esp. the required hostAvailabilityProbeId+command+authorityDone checks at lines 600-636) breaks two pre-existing smoke suites that ARE wired into the root `npm run test` chain (package.json:15 lists both test:review-assurance-floor-storyfileshash-smoke and test:review-escalation-freshness-root). Reproduced by building (npm --prefix packages/main run build) and running the compiled tasks directly: (1) node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js throws AssertionError 'fallback record must be valid under storyFilesHash match' (false !== true) at check (d) because packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts:76-93 builds a review_escalation_fallback event for eligibility=single-host-environment without command/hostAvailabilityProbeId/authorityDone fields, and the story's diff did not update this fixture file. (2) node packages/main/dist/tasks/review-escalation-freshness-root-smoke.js throws an uncaught Error 'no fresh review_host_availability_probe record found for current material' because packages/main/src/tasks/review-escalation-freshness-root-smoke.ts:519-531 calls handlers.review_escalation_fallback_set({eligibility:'single-host-environment',...}) directly without first calling review_host_availability_probe, and this fixture file was likewise not updated. Only review-escalation-smoke.ts and review-assurance-floor-smoke.ts (the two files the plan.md CHK-002/CHK-003 sections named) were updated with probe fixtures; two other existing call sites of the same eligibility values were missed, so `npm run test` (and therefore any CI/validate path that runs it) now fails on this branch. Fix: add review_host_availability_probe fixture events (or switch eligibility to explicit-human-approval) in both missed smoke files so they reflect the new required contract, then rerun `npm run test` to confirm green.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-09T11:46:14.346Z",
+      "reviewRound": "2026-07-09T11:42:00.164Z",
+      "reviewRunId": "B-7438:RR-001",
+      "_hash": "6d4b2b36a60d7e70f1919bc603cef8574dc854f4c7834c782d510c171abc6dec",
+      "files": [
+        "packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts",
+        "packages/main/src/tasks/review-escalation-freshness-root-smoke.ts",
+        "packages/main/src/core/review-escalation.ts"
+      ],
+      "signatureTag": "missing|ts|regression-host-availability",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed the two missed root-chain smokes: review-assurance-floor-storyfileshash now includes a fresh host availability probe fixture and review-escalation-freshness-root uses explicit-human-approval for gitCwd/material binding; verified by the two target smokes and root npm run test.",
+      "resolvedAt": "2026-07-09T11:56:29.128Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

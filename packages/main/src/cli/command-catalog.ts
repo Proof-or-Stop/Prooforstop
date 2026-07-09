@@ -1123,6 +1123,15 @@ Behavior:
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
   }},
+  { name: 'review_host_availability_probe', description: 'Probe canonical review hosts codex, claude, and agy by executable path plus --version, and record material-bound gate evidence. Alias: lattice review host availability probe', schema: {
+    storyId: z.string().describe('Story ID'),
+    materialHash: z.string().optional().describe('Optional expected current material hash; stale values are rejected'),
+    storyFilesHash: z.string().optional().describe('Optional expected current story-owned file hash; stale values are rejected when computable'),
+    timeoutMs: z.number().int().positive().max(30000).optional().describe('Per-host --version timeout in milliseconds (default 5000, max 30000)'),
+    actor: z.string().optional().describe('Operator recording the probe'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    json: z.boolean().optional().describe('Shortcut for --format=json'),
+  }},
   { name: 'review_escalation_fallback_set', description: 'Record explicit degraded 3x1 review escalation fallback evidence bound to the current material hash and optional storyFilesHash. Alias: lattice review escalation fallback set', schema: {
     storyId: z.string().describe('Story ID'),
     eligibility: reviewEscalationFallbackEligibilitySchema.describe('Allowed degraded fallback eligibility'),
