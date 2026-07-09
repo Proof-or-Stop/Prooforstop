@@ -158,9 +158,12 @@ Current code-backed evidence:
   and/or aggregate reviewer state into the status projection.
 - The rendered UX has six user-facing row states: Done, In Progress, Pending
   Review, Not Started, Blocked, and Failed.
-- When no `milestone-ledger.json` exists, the UX must show the distinct
-  `Checklist-derived ledger (no milestone ledger set)` block. It must not fake
-  a real milestone ledger.
+- Standalone `lattice milestone_status` with no `milestone-ledger.json` renders
+  a normal `Milestone Status - <storyId>` report with `Ledger: missing` and a
+  blocked current row. The distinct `Checklist-derived ledger (no milestone
+  ledger set)` block is the CLI auto-append fallback for configured mutating
+  commands when no real ledger is available. Neither path may fake a real
+  milestone ledger.
 
 Rules for this prompt consolidation:
 
@@ -169,7 +172,7 @@ Rules for this prompt consolidation:
 | A command changes story phase, checklist status, milestone ledger, verification evidence, delivery check, or summary state. | The user must see current progress UX in the same human-facing interaction. Prefer the CLI auto-append path. |
 | A command changes reviewer pass/finding state. | Current code does not auto-append progress UX for this path. Until a later implementation story changes that, the host must show reviewer impact through normal review output and run `lattice milestone_status --storyId=<id>` before a human-facing handoff when progress state is relevant. |
 | The command output already includes `Milestone Status - <storyId>` or `Checklist-derived ledger (no milestone ledger set) - <storyId>`. | Do not duplicate the table. The UX requirement is satisfied. |
-| The command does not auto-append progress UX but the response is human-facing. | The host/owner session must run `lattice milestone_status --storyId=<id>` and show or attach the result. |
+| A progress-relevant state-changing command, handoff, or final response does not auto-append progress UX but the response is human-facing. | The host/owner session must run `lattice milestone_status --storyId=<id>` and show or attach the result. This does not apply to unrelated read-only command output. |
 | Output is machine JSON (`--json` / `--format=json`). | Do not inject Markdown into machine stdout. The next human-facing handoff or final response must include the progress view when progress is relevant. |
 | An agent is producing findings, passes, evaluator JSON, delivery input, or implementation evidence. | The agent must not hand-write or guess milestone status. It writes structured facts; `milestone_status` renders the UX. |
 
