@@ -126,7 +126,7 @@
       "desc": "agent:\"lattice-review-concept\" Round 4 smoke still does not prove the doneClosure execSync hang path from F-004. The new done-closure case sets LATTICE_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_PHASE=doneClosure in packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts:411-417, but installCloseoutPhaseChildProcessDeadline applies that smoke hook to both execFileSync and execSync in packages/main/src/handlers/done-prepare.ts:543-587. In the production doneClosure path, buildDoneClosureRunbook calls buildDoneChecklist at packages/main/src/handlers/done-closure.ts:165-179, and buildDoneChecklist first calls captureEvidenceHashSnapshot at packages/main/src/core/done-oracle.ts:276-281. That snapshot reads git status with execFileSync before the execSync probes: packages/main/src/core/evidence-freshness.ts:178-185 and :151-156. Therefore the smoke times out on a doneClosure execFileSync call before it can reach readGitStatusLines execSync in packages/main/src/core/dirty-worktree-gate.ts:40-47 or checkMainDivergence/related-doc execSync in packages/main/src/core/done-oracle.ts:66-70 and :575-581. This leaves the requested F-004 regression evidence uncovered; add a smoke that bypasses or separately targets the earlier execFileSync probes and forces a doneClosure execSync git call to hang under the phase deadline.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-09T03:10:37.374Z",
@@ -141,14 +141,18 @@
         "packages/main/src/core/dirty-worktree-gate.ts"
       ],
       "signatureTag": "edge-ts-done-prepare-execsync-smoke-coverage",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by commit 91a6d07ea: the done_prepare smoke hook now distinguishes execFileSync vs execSync with LATTICE_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_KIND, and the doneClosure regression sets execSync-only so earlier execFileSync probes cannot satisfy the test. Verified with npm --prefix packages/main run build, npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke, and npm exec --yes --package typescript -- tsc -p packages/main/tsconfig.json --noEmit.",
+      "resolvedAt": "2026-07-09T03:15:24.548Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-eb08:F-007",
       "desc": "Quality regression blocker: the Round 4 doneClosure execSync smoke does not actually force a production execSync git probe to hang. LATTICE_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_PHASE=doneClosure is consumed by installCloseoutPhaseChildProcessDeadline for both execFileSync and execSync, and buildDoneClosureRunbook reaches buildDoneChecklist, which first calls captureEvidenceHashSnapshot/readMaterialDirtyFiles via execFileSync before readGitStatusLines/checkMainDivergence/related-doc execSync probes. The smoke can therefore pass by timing out the earlier execFileSync path, leaving the F-003/F-005 execSync regression evidence unproven. Add coverage that bypasses or separately targets the earlier execFileSync probes and demonstrates a doneClosure execSync git hang is converted to DonePreparePhaseTimeoutError under the phase deadline.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-09T03:12:24.695Z",
@@ -163,7 +167,11 @@
         "packages/main/src/core/dirty-worktree-gate.ts"
       ],
       "signatureTag": "edge-ts-done-prepare-execsync-smoke-coverage-quality",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by commit 91a6d07ea: the done_prepare smoke hook now distinguishes execFileSync vs execSync with LATTICE_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_KIND, and the doneClosure regression sets execSync-only so earlier execFileSync probes cannot satisfy the test. Verified with npm --prefix packages/main run build, npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke, and npm exec --yes --package typescript -- tsc -p packages/main/tsconfig.json --noEmit.",
+      "resolvedAt": "2026-07-09T03:15:24.575Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
