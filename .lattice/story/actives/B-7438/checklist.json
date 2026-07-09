@@ -108,7 +108,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Smoke output shows the failing-before case: missing/contradictory host proof blocks single-host degraded fallback, while insufficient hosts or explicit human approval produce clearly labeled degraded-single-host status.",
+      "userSees": "Smoke output includes lines like `missing probe blocks single-host degraded fallback`, `two available canonical hosts reject single-host fallback`, `insufficient hosts permits degraded-single-host`, and `explicit-human-approval remains degraded-single-host, not full-3x2`.",
       "files": {
         "modify": [
           "packages/main/src/tasks/review-escalation-smoke.ts",
