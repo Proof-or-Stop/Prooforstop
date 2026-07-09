@@ -6,7 +6,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { signDeliveryCheck } from '../core/delivery-check-hash.js';
-import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
+import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { resetConfigCache } from '../core/config.js';
 import {
   canFinishGuard,
@@ -162,6 +162,7 @@ function twoHostRounds(materialHash: string): ProcessEvent[] {
 function fallback(materialHash: string, overrides: Partial<ProcessEvent> = {}): ProcessEvent {
   return {
     type: 'review_escalation_fallback',
+    command: 'review_escalation_fallback_set',
     timestamp: '2026-06-19T11:30:00.000Z',
     fallbackId: `${STORY_ID}:REF-001`,
     eligibility: 'single-host-environment',
@@ -169,6 +170,33 @@ function fallback(materialHash: string, overrides: Partial<ProcessEvent> = {}): 
     evidenceRefs: ['manual:smoke-single-host-only'],
     materialHash,
     assuranceLevel: 'degraded-single-host',
+    authorityDone: false,
+    fullAuthorityDone: false,
+    productionDone: false,
+    ...overrides,
+  };
+}
+
+function hostAvailabilityProbe(materialHash: string, availableHosts: string[], overrides: Partial<ProcessEvent> = {}): ProcessEvent {
+  const available = new Set(availableHosts);
+  const hosts = ['codex', 'claude', 'agy'].map(host => ({
+    host,
+    command: host,
+    ...(available.has(host) ? { executablePath: `/fake/bin/${host}` } : {}),
+    versionOk: available.has(host),
+    available: available.has(host),
+    ...(available.has(host) ? { versionOutput: `${host} 1.0.0` } : { error: 'executable not found in PATH' }),
+  }));
+  return {
+    type: 'review_host_availability_probe',
+    command: 'review_host_availability_probe',
+    timestamp: '2026-06-19T11:20:00.000Z',
+    probeId: `${STORY_ID}:RHP-001`,
+    checkedAt: '2026-06-19T11:20:00.000Z',
+    materialHash,
+    hosts,
+    availableHostCount: availableHosts.length,
+    unavailableHostCount: 3 - availableHosts.length,
     authorityDone: false,
     fullAuthorityDone: false,
     productionDone: false,
@@ -245,6 +273,8 @@ const root = makeRepo();
 try {
   const materialHash = currentMaterialHash(root);
   assert.ok(materialHash, 'smoke repo must have a material hash');
+  const storyFilesHash = currentStoryFilesHash(root);
+  assert.ok(storyFilesHash, 'smoke repo must have a story files hash');
 
   check('docs-only markdown is not overblocked', () => {
     const report = evaluateReviewAssuranceFloor({
@@ -412,6 +442,7 @@ try {
     assert.equal(full.fullAuthorityDone, false);
     assert.equal(full.productionDone, false);
 
+    const availabilityProbe = hostAvailabilityProbe(materialHash, ['codex'], { storyFilesHash });
     const degraded = evaluateReviewAssuranceFloor({
       projectRoot: root,
       story: story({
@@ -419,7 +450,11 @@ try {
         riskSignals: [{ category: 'state machine/gate', matched: 'gate' }],
       }),
       changedFiles: ['packages/main/src/core/machine.ts'],
-      processEvents: [...singleHostRounds(materialHash), fallback(materialHash)],
+      processEvents: [
+        ...singleHostRounds(materialHash),
+        availabilityProbe,
+        fallback(materialHash, { hostAvailabilityProbeId: availabilityProbe.probeId }),
+      ],
       materialHash,
     });
     assert.equal(degraded.ok, true);
@@ -440,7 +475,11 @@ try {
         riskSignals: [{ category: 'state machine/gate', matched: 'gate' }],
       }),
       changedFiles: ['packages/main/src/core/machine.ts'],
-      processEvents: [...singleHostRounds(materialHash), fallback('stale-material')],
+      processEvents: [
+        ...singleHostRounds(materialHash),
+        availabilityProbe,
+        fallback('stale-material', { hostAvailabilityProbeId: availabilityProbe.probeId }),
+      ],
       materialHash,
     });
     assert.equal(staleFallback.ok, false);
@@ -458,10 +497,12 @@ try {
       changedFiles: ['packages/main/src/core/machine.ts'],
       processEvents: [
         ...singleHostRounds(materialHash),
+        availabilityProbe,
         fallback(materialHash, {
           eligibility: 'not-a-valid-eligibility',
           evidenceRefs: [],
           assuranceLevel: 'local-one-round',
+          hostAvailabilityProbeId: availabilityProbe.probeId,
         }),
       ],
       materialHash,
@@ -473,6 +514,98 @@ try {
     assert.match(invalidFallbackShape.reasons.join('\n'), /fallback invalid: fallback requires evidenceRefs or approvalRef/);
     assert.match(invalidFallbackShape.reasons.join('\n'), /fallback invalid: assuranceLevel must be degraded-single-host/);
     assertProofAdmissibilityBlocked(invalidFallbackShape);
+  });
+
+  check('missing host availability probe blocks non-human high-risk degraded fallback', () => {
+    const report = evaluateReviewAssuranceFloor({
+      projectRoot: root,
+      story: story({
+        priority: 'high',
+        riskSignals: [{ category: 'state machine/gate', matched: 'gate' }],
+      }),
+      changedFiles: ['packages/main/src/core/machine.ts'],
+      processEvents: [
+        ...singleHostRounds(materialHash),
+        fallback(materialHash),
+      ],
+      materialHash,
+    });
+    assert.equal(report.ok, false);
+    assert.equal(report.degradedFallback.record?.valid, false);
+    assert.match(report.reasons.join('\n'), /hostAvailabilityProbeId is required|no fresh review_host_availability_probe/);
+    assertProofAdmissibilityBlocked(report);
+  });
+
+  check('probe with fewer than two available canonical hosts permits high-risk degraded 3x1', () => {
+    const probe = hostAvailabilityProbe(materialHash, ['codex'], { storyFilesHash });
+    const report = evaluateReviewAssuranceFloor({
+      projectRoot: root,
+      story: story({
+        priority: 'high',
+        riskSignals: [{ category: 'state machine/gate', matched: 'gate' }],
+      }),
+      changedFiles: ['packages/main/src/core/machine.ts'],
+      processEvents: [
+        ...singleHostRounds(materialHash),
+        probe,
+        fallback(materialHash, { hostAvailabilityProbeId: probe.probeId }),
+      ],
+      materialHash,
+    });
+    assert.equal(report.ok, true);
+    assert.equal(report.assuranceLevel, 'degraded-single-host');
+    assert.equal(report.degradedFallback.record?.hostAvailabilityProbeId, probe.probeId);
+    assert.equal(report.fullAuthorityDone, false);
+    assert.equal(report.productionDone, false);
+  });
+
+  check('probe with two executable canonical hosts blocks high-risk single-host fallback', () => {
+    const probe = hostAvailabilityProbe(materialHash, ['codex', 'claude'], { storyFilesHash });
+    const report = evaluateReviewAssuranceFloor({
+      projectRoot: root,
+      story: story({
+        priority: 'high',
+        riskSignals: [{ category: 'state machine/gate', matched: 'gate' }],
+      }),
+      changedFiles: ['packages/main/src/core/machine.ts'],
+      processEvents: [
+        ...singleHostRounds(materialHash),
+        probe,
+        fallback(materialHash, { hostAvailabilityProbeId: probe.probeId }),
+      ],
+      materialHash,
+    });
+    assert.equal(report.ok, false);
+    assert.equal(report.degradedFallback.record?.valid, false);
+    assert.match(report.reasons.join('\n'), /found 2\/3 canonical hosts available; use full 3x2 or explicit-human-approval/);
+    assertProofAdmissibilityBlocked(report);
+  });
+
+  check('explicit-human-approval remains lower assurance without host probe', () => {
+    const report = evaluateReviewAssuranceFloor({
+      projectRoot: root,
+      story: story({
+        priority: 'high',
+        riskSignals: [{ category: 'state machine/gate', matched: 'gate' }],
+      }),
+      changedFiles: ['packages/main/src/core/machine.ts'],
+      processEvents: [
+        ...singleHostRounds(materialHash),
+        fallback(materialHash, {
+          eligibility: 'explicit-human-approval',
+          approvalRef: 'approval:human-review-lead',
+          evidenceRefs: ['manual:human-approval'],
+        }),
+      ],
+      materialHash,
+    });
+    assert.equal(report.ok, true);
+    assert.equal(report.assuranceLevel, 'degraded-single-host');
+    assert.equal(report.localRounds.ok, false);
+    assert.equal(report.degradedFallback.ok, true);
+    assert.equal(report.authorityDone, false);
+    assert.equal(report.fullAuthorityDone, false);
+    assert.equal(report.productionDone, false);
   });
 
   check('forged local Authority completion fields remain non-authority', () => {

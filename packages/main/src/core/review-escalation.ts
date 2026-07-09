@@ -15,6 +15,9 @@
  *   - [CHK-002] Expose the exact requirement predicate in code metadata so
  *     gap_analyze can bind the roadmap requirement to runtime coverage.
  */
+import { spawnSync } from 'node:child_process';
+import { accessSync, constants, realpathSync } from 'node:fs';
+import { delimiter, extname, join } from 'node:path';
 import { currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
 import {
   evaluateHostVerdictRounds,
@@ -37,6 +40,13 @@ export const REVIEW_ESCALATION_FULL_HOSTS_PER_ROUND = 2;
 export const REVIEW_ESCALATION_DEGRADED_HOSTS_PER_ROUND = 1;
 export const REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_EVENT = 'review_escalation_policy';
 export const REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_PREDICATE = 'explicitlyConfiguredHighRiskPolicyRequires3x2';
+export const REVIEW_HOST_AVAILABILITY_PROBE_EVENT = 'review_host_availability_probe';
+export const REVIEW_HOST_AVAILABILITY_PROBE_COMMAND = 'review_host_availability_probe';
+export const REVIEW_HOST_AVAILABILITY_REQUIRED_AVAILABLE_HOSTS = 2;
+export const REVIEW_HOST_AVAILABILITY_DEFAULT_TIMEOUT_MS = 5000;
+
+export const REVIEW_HOST_AVAILABILITY_CANONICAL_HOSTS = ['codex', 'claude', 'agy'] as const;
+export type ReviewHostAvailabilityCanonicalHost = typeof REVIEW_HOST_AVAILABILITY_CANONICAL_HOSTS[number];
 
 export const REVIEW_ESCALATION_FALLBACK_ELIGIBILITIES = [
   'single-host-environment',
@@ -65,12 +75,60 @@ export interface ReviewEscalationFallbackRecord {
   reason?: string;
   evidenceRefs: string[];
   approvalRef?: string;
+  hostAvailabilityProbeId?: string;
   materialHash?: string;
   storyFilesHash?: string;
   assuranceLevel?: string;
   valid: boolean;
   reasons: string[];
   advisories?: string[];
+}
+
+export interface ReviewHostAvailabilityProbeHostRow {
+  host: ReviewHostAvailabilityCanonicalHost;
+  command: string;
+  executablePath?: string;
+  versionOk: boolean;
+  available: boolean;
+  versionOutput?: string;
+  error?: string;
+}
+
+export interface ReviewHostAvailabilityProbeRecord {
+  index: number;
+  probeId?: string;
+  checkedAt?: string;
+  materialHash?: string;
+  storyFilesHash?: string;
+  hosts: ReviewHostAvailabilityProbeHostRow[];
+  availableHostCount?: number;
+  unavailableHostCount?: number;
+  valid: boolean;
+  reasons: string[];
+}
+
+export interface ReviewHostAvailabilityProbeEvent {
+  type: typeof REVIEW_HOST_AVAILABILITY_PROBE_EVENT;
+  command: typeof REVIEW_HOST_AVAILABILITY_PROBE_COMMAND;
+  storyId: string;
+  probeId: string;
+  checkedAt: string;
+  materialHash: string;
+  storyFilesHash?: string;
+  hosts: ReviewHostAvailabilityProbeHostRow[];
+  availableHostCount: number;
+  unavailableHostCount: number;
+  authorityDone: false;
+  fullAuthorityDone: false;
+  productionDone: false;
+}
+
+export interface ReviewHostAvailabilityEligibilityAssessment {
+  required: boolean;
+  ok: boolean;
+  latestFreshProbe: ReviewHostAvailabilityProbeRecord | null;
+  records: ReviewHostAvailabilityProbeRecord[];
+  reasons: string[];
 }
 
 export interface ReviewEscalationExplicitHighRiskPolicyRecord {
@@ -197,6 +255,126 @@ function normalizeString(value: unknown): string {
   return typeof value === 'string' ? value.trim() : '';
 }
 
+function isCanonicalHost(value: unknown): value is ReviewHostAvailabilityCanonicalHost {
+  return typeof value === 'string' && (REVIEW_HOST_AVAILABILITY_CANONICAL_HOSTS as readonly string[]).includes(value);
+}
+
+function canonicalHostCommand(host: ReviewHostAvailabilityCanonicalHost): string {
+  return host;
+}
+
+function pathEnvValue(env: NodeJS.ProcessEnv): string {
+  return env.PATH ?? env.Path ?? env.path ?? '';
+}
+
+function executableNames(command: string, env: NodeJS.ProcessEnv): string[] {
+  if (process.platform !== 'win32') return [command];
+  if (extname(command)) return [command];
+  const pathext = env.PATHEXT || '.COM;.EXE;.BAT;.CMD';
+  return pathext.split(';').filter(Boolean).map(ext => `${command}${ext.toLowerCase()}`);
+}
+
+function resolveExecutablePath(command: string, env: NodeJS.ProcessEnv = process.env): string | null {
+  const pathValue = pathEnvValue(env);
+  if (!pathValue) return null;
+  for (const dir of pathValue.split(delimiter).filter(Boolean)) {
+    for (const name of executableNames(command, env)) {
+      const candidate = join(dir, name);
+      try {
+        accessSync(candidate, constants.X_OK);
+        return realpathSync(candidate);
+      } catch {
+        // keep scanning PATH
+      }
+    }
+  }
+  return null;
+}
+
+function boundedOutput(value: unknown): string {
+  if (typeof value !== 'string') return '';
+  return value.trim().replace(/\s+/g, ' ').slice(0, 500);
+}
+
+function probeCanonicalHost(args: {
+  host: ReviewHostAvailabilityCanonicalHost;
+  cwd?: string;
+  env?: NodeJS.ProcessEnv;
+  timeoutMs?: number;
+}): ReviewHostAvailabilityProbeHostRow {
+  const command = canonicalHostCommand(args.host);
+  const env = args.env ?? process.env;
+  const timeoutMs = args.timeoutMs ?? REVIEW_HOST_AVAILABILITY_DEFAULT_TIMEOUT_MS;
+  const executablePath = resolveExecutablePath(command, env);
+  if (!executablePath) {
+    return {
+      host: args.host,
+      command,
+      versionOk: false,
+      available: false,
+      error: 'executable not found in PATH',
+    };
+  }
+
+  const result = spawnSync(executablePath, ['--version'], {
+    cwd: args.cwd,
+    env,
+    encoding: 'utf8',
+    timeout: timeoutMs,
+    maxBuffer: 1024 * 1024,
+  });
+  const versionOutput = boundedOutput(result.stdout) || boundedOutput(result.stderr);
+  const versionOk = !result.error && result.status === 0;
+  const error = result.error
+    ? result.error.message
+    : versionOk
+      ? ''
+      : `--version exited ${result.status ?? result.signal ?? 'without status'}`;
+  return {
+    host: args.host,
+    command,
+    executablePath,
+    versionOk,
+    available: versionOk,
+    ...(versionOutput ? { versionOutput } : {}),
+    ...(error ? { error } : {}),
+  };
+}
+
+export function probeReviewHostAvailability(args: {
+  storyId: string;
+  materialHash: string;
+  storyFilesHash?: string | null;
+  probeId?: string;
+  checkedAt?: string;
+  cwd?: string;
+  env?: NodeJS.ProcessEnv;
+  timeoutMs?: number;
+}): ReviewHostAvailabilityProbeEvent {
+  const hosts = REVIEW_HOST_AVAILABILITY_CANONICAL_HOSTS.map(host => probeCanonicalHost({
+    host,
+    cwd: args.cwd,
+    env: args.env,
+    timeoutMs: args.timeoutMs,
+  }));
+  const availableHostCount = hosts.filter(host => host.available).length;
+  return {
+    type: REVIEW_HOST_AVAILABILITY_PROBE_EVENT,
+    command: REVIEW_HOST_AVAILABILITY_PROBE_COMMAND,
+    storyId: args.storyId,
+    probeId: args.probeId || `${args.storyId}:RHP-${Date.now().toString(36)}`,
+    checkedAt: args.checkedAt || new Date().toISOString(),
+    materialHash: args.materialHash,
+    ...(args.storyFilesHash ? { storyFilesHash: args.storyFilesHash } : {}),
+    hosts,
+    availableHostCount,
+    unavailableHostCount: REVIEW_HOST_AVAILABILITY_CANONICAL_HOSTS.length - availableHostCount,
+    authorityDone: false,
+    fullAuthorityDone: false,
+    productionDone: false,
+  };
+}
+
 function latestByIndex<T extends { index: number }>(items: T[]): T | null {
   return items.length === 0 ? null : [...items].sort((a, b) => b.index - a.index)[0];
 }
@@ -259,11 +437,152 @@ export function isReviewEscalationFallbackEligibility(value: unknown): value is 
   return typeof value === 'string' && (REVIEW_ESCALATION_FALLBACK_ELIGIBILITIES as readonly string[]).includes(value);
 }
 
-function fallbackRecordFromEvent(
+export function reviewHostAvailabilityProbeRecordFromEvent(
   event: ProcessEvent,
   index: number,
   expectedMaterialHash: string,
   expectedStoryFilesHash: string | null,
+): ReviewHostAvailabilityProbeRecord {
+  const probeId = normalizeString(event.probeId);
+  const checkedAt = normalizeString(event.checkedAt);
+  const materialHash = normalizeString(event.materialHash);
+  const storyFilesHash = normalizeString(event.storyFilesHash);
+  const rows = Array.isArray(event.hosts) ? event.hosts : [];
+  const hosts: ReviewHostAvailabilityProbeHostRow[] = [];
+  const reasons: string[] = [];
+  const seenHosts = new Set<string>();
+
+  if (normalizeString(event.command) !== REVIEW_HOST_AVAILABILITY_PROBE_COMMAND) {
+    reasons.push(`command must be ${REVIEW_HOST_AVAILABILITY_PROBE_COMMAND}`);
+  }
+  if (!probeId) reasons.push('missing probeId');
+  if (!checkedAt) reasons.push('missing checkedAt');
+  else if (!Number.isFinite(Date.parse(checkedAt))) reasons.push('checkedAt must be an ISO timestamp');
+  if (!materialHash) reasons.push('missing materialHash');
+  else if (materialHash !== expectedMaterialHash) reasons.push('materialHash is stale');
+  if (expectedStoryFilesHash) {
+    if (!storyFilesHash) reasons.push('missing storyFilesHash');
+    else if (storyFilesHash !== expectedStoryFilesHash) reasons.push('storyFilesHash is stale');
+  }
+  if (event.authorityDone !== false) reasons.push('authorityDone must be false');
+  if (event.fullAuthorityDone !== false) reasons.push('fullAuthorityDone must be false');
+  if (event.productionDone !== false) reasons.push('productionDone must be false');
+
+  for (const row of rows) {
+    if (!row || typeof row !== 'object' || Array.isArray(row)) {
+      reasons.push('hosts rows must be objects');
+      continue;
+    }
+    const record = row as Record<string, unknown>;
+    const host = normalizeString(record.host);
+    const command = normalizeString(record.command);
+    const executablePath = normalizeString(record.executablePath);
+    const versionOk = record.versionOk;
+    const available = record.available;
+    if (!isCanonicalHost(host)) {
+      reasons.push(`hosts row has non-canonical host ${host || '<missing>'}`);
+      continue;
+    }
+    if (seenHosts.has(host)) reasons.push(`duplicate host row ${host}`);
+    seenHosts.add(host);
+    if (command !== canonicalHostCommand(host)) reasons.push(`hosts.${host}.command must be ${canonicalHostCommand(host)}`);
+    if (typeof versionOk !== 'boolean') reasons.push(`hosts.${host}.versionOk must be boolean`);
+    if (typeof available !== 'boolean') reasons.push(`hosts.${host}.available must be boolean`);
+    const expectedAvailable = Boolean(executablePath) && versionOk === true;
+    if (available !== expectedAvailable) {
+      reasons.push(`hosts.${host}.available must equal executablePath present and versionOk=true`);
+    }
+    if (available === true && !executablePath) reasons.push(`hosts.${host}.executablePath is required when available`);
+    hosts.push({
+      host,
+      command,
+      ...(executablePath ? { executablePath } : {}),
+      versionOk: versionOk === true,
+      available: available === true,
+      ...(normalizeString(record.versionOutput) ? { versionOutput: normalizeString(record.versionOutput) } : {}),
+      ...(normalizeString(record.error) ? { error: normalizeString(record.error) } : {}),
+    });
+  }
+
+  for (const host of REVIEW_HOST_AVAILABILITY_CANONICAL_HOSTS) {
+    if (!seenHosts.has(host)) reasons.push(`missing canonical host row ${host}`);
+  }
+  const availableHostCount = typeof event.availableHostCount === 'number' && Number.isInteger(event.availableHostCount)
+    ? event.availableHostCount
+    : undefined;
+  const unavailableHostCount = typeof event.unavailableHostCount === 'number' && Number.isInteger(event.unavailableHostCount)
+    ? event.unavailableHostCount
+    : undefined;
+  const computedAvailable = hosts.filter(host => host.available).length;
+  const computedUnavailable = REVIEW_HOST_AVAILABILITY_CANONICAL_HOSTS.length - computedAvailable;
+  if (availableHostCount === undefined) reasons.push('availableHostCount must be an integer');
+  else if (availableHostCount !== computedAvailable) reasons.push('availableHostCount contradicts host rows');
+  if (unavailableHostCount === undefined) reasons.push('unavailableHostCount must be an integer');
+  else if (unavailableHostCount !== computedUnavailable) reasons.push('unavailableHostCount contradicts host rows');
+
+  return {
+    index,
+    ...(probeId ? { probeId } : {}),
+    ...(checkedAt ? { checkedAt } : {}),
+    ...(materialHash ? { materialHash } : {}),
+    ...(storyFilesHash ? { storyFilesHash } : {}),
+    hosts,
+    ...(availableHostCount !== undefined ? { availableHostCount } : {}),
+    ...(unavailableHostCount !== undefined ? { unavailableHostCount } : {}),
+    valid: reasons.length === 0,
+    reasons,
+  };
+}
+
+export function reviewHostAvailabilityProbeRecords(
+  events: ProcessEvent[],
+  expectedMaterialHash: string,
+  expectedStoryFilesHash: string | null,
+): ReviewHostAvailabilityProbeRecord[] {
+  return events
+    .map((event, index) => ({ event, index }))
+    .filter(({ event }) => event.type === REVIEW_HOST_AVAILABILITY_PROBE_EVENT)
+    .map(({ event, index }) => reviewHostAvailabilityProbeRecordFromEvent(event, index, expectedMaterialHash, expectedStoryFilesHash));
+}
+
+export function reviewHostAvailabilityProbeRequiredForEligibility(eligibility: unknown): boolean {
+  return eligibility === 'single-host-environment' || eligibility === 'temporary-host-unavailability';
+}
+
+export function assessReviewHostAvailabilityForFallbackEligibility(
+  events: ProcessEvent[],
+  eligibility: unknown,
+  expectedMaterialHash: string,
+  expectedStoryFilesHash: string | null,
+): ReviewHostAvailabilityEligibilityAssessment {
+  const required = reviewHostAvailabilityProbeRequiredForEligibility(eligibility);
+  const records = reviewHostAvailabilityProbeRecords(events, expectedMaterialHash, expectedStoryFilesHash);
+  if (!required) {
+    return { required, ok: true, latestFreshProbe: null, records, reasons: [] };
+  }
+  const validRecords = records.filter(record => record.valid);
+  const latestFreshProbe = latestByIndex(validRecords);
+  const reasons: string[] = [];
+  if (!latestFreshProbe) {
+    reasons.push('no fresh review_host_availability_probe record found for current material; run review_host_availability_probe or use explicit-human-approval');
+  } else if ((latestFreshProbe.availableHostCount ?? REVIEW_HOST_AVAILABILITY_CANONICAL_HOSTS.length) >= REVIEW_HOST_AVAILABILITY_REQUIRED_AVAILABLE_HOSTS) {
+    reasons.push(`fresh host availability probe ${latestFreshProbe.probeId ?? `event#${latestFreshProbe.index}`} found ${latestFreshProbe.availableHostCount}/${REVIEW_HOST_AVAILABILITY_CANONICAL_HOSTS.length} canonical hosts available; use full 3x2 or explicit-human-approval`);
+  }
+  return {
+    required,
+    ok: reasons.length === 0,
+    latestFreshProbe,
+    records,
+    reasons,
+  };
+}
+
+export function reviewEscalationFallbackRecordFromEvent(
+  event: ProcessEvent,
+  index: number,
+  expectedMaterialHash: string,
+  expectedStoryFilesHash: string | null,
+  events: ProcessEvent[],
 ): ReviewEscalationFallbackRecord {
   const eligibility = normalizeString(event.eligibility);
   const reason = normalizeString(event.reason);
@@ -271,12 +590,16 @@ function fallbackRecordFromEvent(
     ? event.evidenceRefs.map(ref => normalizeString(ref)).filter(Boolean)
     : [];
   const approvalRef = normalizeString(event.approvalRef);
+  const hostAvailabilityProbeId = normalizeString(event.hostAvailabilityProbeId);
   const materialHash = normalizeString(event.materialHash);
   const storyFilesHash = normalizeString(event.storyFilesHash);
   const assuranceLevel = normalizeString(event.assuranceLevel);
   const reasons: string[] = [];
   const advisories: string[] = [];
 
+  if (normalizeString(event.command) !== 'review_escalation_fallback_set') {
+    reasons.push('command must be review_escalation_fallback_set');
+  }
   if (!isReviewEscalationFallbackEligibility(eligibility)) {
     reasons.push(`eligibility must be one of ${REVIEW_ESCALATION_FALLBACK_ELIGIBILITIES.join('|')}`);
   }
@@ -293,6 +616,24 @@ function fallbackRecordFromEvent(
   if (assuranceLevel !== 'degraded-single-host') {
     reasons.push('assuranceLevel must be degraded-single-host');
   }
+  if (event.authorityDone !== false) reasons.push('authorityDone must be false');
+  if (event.fullAuthorityDone !== false) reasons.push('fullAuthorityDone must be false');
+  if (event.productionDone !== false) reasons.push('productionDone must be false');
+
+  if (reviewHostAvailabilityProbeRequiredForEligibility(eligibility)) {
+    const assessment = assessReviewHostAvailabilityForFallbackEligibility(events, eligibility, expectedMaterialHash, expectedStoryFilesHash);
+    const referencedProbe = assessment.records.find(record => record.probeId === hostAvailabilityProbeId);
+    if (!hostAvailabilityProbeId) {
+      reasons.push('hostAvailabilityProbeId is required for non-human degraded fallback eligibility');
+    } else if (!referencedProbe) {
+      reasons.push(`hostAvailabilityProbeId ${hostAvailabilityProbeId} was not found`);
+    } else if (!referencedProbe.valid) {
+      reasons.push(`hostAvailabilityProbeId ${hostAvailabilityProbeId} is not fresh/valid: ${referencedProbe.reasons.join('; ')}`);
+    } else if ((referencedProbe.availableHostCount ?? REVIEW_HOST_AVAILABILITY_CANONICAL_HOSTS.length) >= REVIEW_HOST_AVAILABILITY_REQUIRED_AVAILABLE_HOSTS) {
+      reasons.push(`hostAvailabilityProbeId ${hostAvailabilityProbeId} found ${referencedProbe.availableHostCount}/${REVIEW_HOST_AVAILABILITY_CANONICAL_HOSTS.length} canonical hosts available; use full 3x2 or explicit-human-approval`);
+    }
+    if (!assessment.ok) reasons.push(...assessment.reasons.map(reason => `host availability probe invalid: ${reason}`));
+  }
 
   return {
     index,
@@ -301,6 +642,7 @@ function fallbackRecordFromEvent(
     ...(reason ? { reason } : {}),
     evidenceRefs,
     ...(approvalRef ? { approvalRef } : {}),
+    ...(hostAvailabilityProbeId ? { hostAvailabilityProbeId } : {}),
     ...(materialHash ? { materialHash } : {}),
     ...(storyFilesHash ? { storyFilesHash } : {}),
     ...(assuranceLevel ? { assuranceLevel } : {}),
@@ -388,7 +730,7 @@ function latestFallbackRecord(events: ProcessEvent[], expectedMaterialHash: stri
   const records = events
     .map((event, index) => ({ event, index }))
     .filter(({ event }) => event.type === 'review_escalation_fallback')
-    .map(({ event, index }) => fallbackRecordFromEvent(event, index, expectedMaterialHash, expectedStoryFilesHash));
+    .map(({ event, index }) => reviewEscalationFallbackRecordFromEvent(event, index, expectedMaterialHash, expectedStoryFilesHash, events));
   return latestByIndex(records);
 }
 

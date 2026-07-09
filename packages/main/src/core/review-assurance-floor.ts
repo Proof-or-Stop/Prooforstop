@@ -6,9 +6,8 @@ import {
   type IgnoredHostVerdict,
 } from './host-independence.js';
 import {
-  REVIEW_ESCALATION_FALLBACK_ELIGIBILITIES,
   eventsWithStoryFilesHashDowngrade,
-  isReviewEscalationFallbackEligibility,
+  reviewEscalationFallbackRecordFromEvent,
 } from './review-escalation.js';
 import { isReviewerAgent } from './review-run.js';
 import type { BugData, Finding, ProcessEvent, StoryInfo, TestEvidenceData, UnderstandingData } from './types.js';
@@ -68,6 +67,7 @@ export interface ReviewAssuranceFloorFallbackRecord {
   reason?: string;
   evidenceRefs: string[];
   approvalRef?: string;
+  hostAvailabilityProbeId?: string;
   materialHash?: string;
   storyFilesHash?: string;
   assuranceLevel?: string;
@@ -646,60 +646,16 @@ function fallbackRecordFromEvent(
   index: number,
   expectedMaterialHash: string,
   expectedStoryFilesHash: string | null,
+  events: ProcessEvent[],
 ): ReviewAssuranceFloorFallbackRecord {
-  const eligibility = normalizeString(event.eligibility);
-  const reason = normalizeString(event.reason);
-  const evidenceRefs = Array.isArray(event.evidenceRefs)
-    ? event.evidenceRefs.map(ref => normalizeString(ref)).filter(Boolean)
-    : [];
-  const approvalRef = normalizeString(event.approvalRef);
-  const materialHash = normalizeString(event.materialHash);
-  const storyFilesHash = normalizeString(event.storyFilesHash);
-  const assuranceLevel = normalizeString(event.assuranceLevel);
-  const reasons: string[] = [];
-  const advisories: string[] = [];
-
-  if (!isReviewEscalationFallbackEligibility(eligibility)) {
-    reasons.push(`eligibility must be one of ${REVIEW_ESCALATION_FALLBACK_ELIGIBILITIES.join('|')}`);
-  }
-  if (reason.length < 20) reasons.push('reason must be at least 20 characters');
-  if (evidenceRefs.length === 0 && !approvalRef) reasons.push('fallback requires evidenceRefs or approvalRef');
-  if (!materialHash) reasons.push('missing materialHash');
-  // B-6de6: the fallback event carries event.materialHash (NOT materialDigest),
-  // so eventsWithStoryFilesHashDowngrade does not rewrite it; apply the SAME
-  // storyFilesHash downgrade-accept that review-escalation uses here.
-  else if (materialHash !== expectedMaterialHash) {
-    if (expectedStoryFilesHash && storyFilesHash && storyFilesHash === expectedStoryFilesHash) {
-      advisories.push('materialHash is stale but storyFilesHash matches; re-attestation advisory required');
-    } else {
-      reasons.push('materialHash is stale');
-    }
-  }
-  if (assuranceLevel !== 'degraded-single-host') {
-    reasons.push('assuranceLevel must be degraded-single-host');
-  }
-
-  return {
-    index,
-    ...(normalizeString(event.fallbackId) ? { fallbackId: normalizeString(event.fallbackId) } : {}),
-    ...(eligibility ? { eligibility } : {}),
-    ...(reason ? { reason } : {}),
-    evidenceRefs,
-    ...(approvalRef ? { approvalRef } : {}),
-    ...(materialHash ? { materialHash } : {}),
-    ...(storyFilesHash ? { storyFilesHash } : {}),
-    ...(assuranceLevel ? { assuranceLevel } : {}),
-    valid: reasons.length === 0,
-    reasons,
-    ...(advisories.length > 0 ? { advisories } : {}),
-  };
+  return reviewEscalationFallbackRecordFromEvent(event, index, expectedMaterialHash, expectedStoryFilesHash, events);
 }
 
 function latestFallbackRecord(events: ProcessEvent[], expectedMaterialHash: string, expectedStoryFilesHash: string | null): ReviewAssuranceFloorFallbackRecord | null {
   const records = events
     .map((event, index) => ({ event, index }))
     .filter(({ event }) => event.type === 'review_escalation_fallback')
-    .map(({ event, index }) => fallbackRecordFromEvent(event, index, expectedMaterialHash, expectedStoryFilesHash));
+    .map(({ event, index }) => fallbackRecordFromEvent(event, index, expectedMaterialHash, expectedStoryFilesHash, events));
   return latestByIndex(records);
 }
 
