@@ -51,7 +51,7 @@
       "desc": "Existing usage-ledger-budget smoke is failing because it still expects the old plain claude --print/JSON append behavior. B-d8ef cannot proceed while the branch is not test-clean; update the smoke expectations or launcher integration so existing coverage passes.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-09T13:43:14.933Z",
@@ -63,7 +63,11 @@
         "packages/main/src/core/lattice-dispatch.ts"
       ],
       "signatureTag": "missing|ts|existing-usage-ledger",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by a2405256b plus scope acknowledgement 4b5fe2c63: usage-ledger parsing now handles Claude stream-json result events and usage-ledger/unattended dispatch smokes expect the canonical observable Claude launcher. Verified with node packages/main/dist/tasks/usage-ledger-budget-smoke.js, node packages/main/dist/tasks/usage-ledger-default-on-smoke.js, node packages/main/dist/tasks/usage-ledger-dispatch-smoke.js, review-escalation-smoke.js, review-assurance-floor-smoke.js, and node scripts/verify-process-fact-contract.mjs.",
+      "resolvedAt": "2026-07-09T14:05:39.673Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
