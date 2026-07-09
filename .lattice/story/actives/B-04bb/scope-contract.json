@@ -1,0 +1,18 @@
+{
+  "storyId": "B-04bb",
+  "mode": "enforce",
+  "allowedModify": [
+    "lattice.config.json"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+    "packages/main/src/tasks/run-all-smokes.ts"
+  ],
+  "scopeChangeReason": "Follow-up wiring story: the only material change is one validate.commands entry in lattice.config.json; guard source and run-all-smokes are explicitly out of scope (B-04bb non-goals).",
+  "acknowledgements": [],
+  "createdAt": "2026-07-09T18:19:23.886Z",
+  "updatedAt": "2026-07-09T18:19:44.284Z"
+}

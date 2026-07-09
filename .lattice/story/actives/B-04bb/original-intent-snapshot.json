@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-04bb",
+  "sourceText": "User request 2026-07-09: story B-cee5 shipped packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts (static guard preventing reviewer prompts from regressing to unconditional full decisions-directory scans), but wiring it into lattice validate required editing lattice.config.json, which was outside that story execution-boundary allowedPaths. Open a small follow-up Lattice story that adds one entry to lattice.config.json validate.commands: node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js (same pattern as retired-authority-vocabulary-guard-smoke.js at line ~27). Note: run-all-smokes.js already auto-discovers the guard via directory scan, so an alternative is wiring run-all-smokes if the team prefers aggregate execution. Verify with lattice validate after wiring.",
+  "normalizedOutcome": "lattice validate runs reviewer-scan-budget-guard-smoke.js as one of its validate.commands entries, so the guard shipped by B-cee5 is actually enforced on every validate run.",
+  "acceptanceClaim": "A full lattice validate run in the B-04bb worktree, with B-cee5 landed on main and merged in, executes node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js and exits 0 overall.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:ff9276f7ec3a335a5f7bea1900a667e44d488d8f9cbbd730c2c2e143197bb899",
+  "createdAt": "2026-07-09T18:19:15.978Z",
+  "updatedAt": "2026-07-09T18:19:15.978Z"
+}

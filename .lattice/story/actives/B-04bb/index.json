@@ -4,7 +4,7 @@
   "title": "Wire reviewer-scan-budget-guard smoke into lattice validate commands",
   "description": "Story B-cee5 shipped packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts, a static guard that prevents reviewer prompts from regressing to unconditional full decisions-directory scans. Wiring the guard into lattice validate required editing lattice.config.json, which was outside B-cee5's execution-boundary allowedPaths, so the guard currently never runs during validate. This follow-up adds one entry to the validate.commands array: node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js, following the same bare-string pattern as retired-authority-vocabulary-guard-smoke.js (currently line 27 of lattice.config.json). Alternative considered: packages/main/dist/tasks/run-all-smokes.js already auto-discovers the guard via directory scan, but run-all-smokes is itself not part of validate.commands, and the established convention is one explicit entry per guard smoke, so the explicit entry is preferred. Dependency: B-cee5 (currently in REVIEW) must reach DONE and merge to main before this story's DEV verification can pass, because the guard source only exists on branch story/B-cee5; until it lands on main the referenced dist file cannot be built. Non-goals: no changes to the guard itself, no changes to run-all-smokes, no reordering or semantic changes to other validate.commands entries.",
   "type": "chore",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "source": "user-request: follow-up wiring for B-cee5 guard on 2026-07-09",
   "depends": [
@@ -41,6 +41,15 @@
       "action": "advance",
       "timestamp": "2026-07-09T18:16:39.485Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "453320bf-5e43-48e6-9028-c2f4860e85c9",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-09T18:16:56.141Z",
+      "branch": "story/B-04bb",
       "user": "Harmonygo",
       "sessionId": "453320bf-5e43-48e6-9028-c2f4860e85c9",
       "agent": "main"

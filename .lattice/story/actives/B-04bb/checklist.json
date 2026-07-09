@@ -6,7 +6,30 @@
       "context": "One bare-string entry: node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js, placed with the other guard smokes, same pattern as retired-authority-vocabulary-guard-smoke.js at line 27. Requires B-cee5 merged to main first.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lattice.config.json validate.commands contains exactly one new bare-string entry \"node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js\" placed after the retired-authority-vocabulary-guard-smoke.js entry; git diff vs main shows only that config line as the sole material change (plus story metadata).",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "lattice.config.json still parses as strict JSON after the edit (node -e JSON.parse check exits 0 and produces no syntax error).",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The referenced dist file packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js actually exists after building merged main (guards against wiring a path that 404s and breaks validate for everyone).",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
