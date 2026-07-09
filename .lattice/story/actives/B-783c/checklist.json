@@ -10,9 +10,9 @@
         "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md",
         "docs/requirements/decisions/lifecycle-artifact-scope.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-08T23:54:54.937Z",
-      "endTime": null,
+      "endTime": "2026-07-09T00:00:45.480Z",
       "verificationIntent": {
         "happy": [
           {
@@ -47,7 +47,45 @@
         "test": [
           "packages/main/src/tasks/thin-init-assets-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/thin-init-assets-smoke.ts",
+          "command": "node packages/main/dist/tasks/thin-init-assets-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke passed and includes a managed global-thin root with only .lattice/lattice.json assetMode=global-thin; session_brief writes .lattice/activity.jsonl with source=codex.",
+          "headHash": "1ccaa921c97b62711a7959fecb3cbd20551d3340",
+          "materialHash": "e03b3abb8f68c388d50ec7b97da6090ba5eb88bb58108ac01ce0fdba009dda98",
+          "storyFilesHash": "abbf067ddfc433b9db9b44a5e9cbcbd449c2021cf8b0964b69849c2ab970c065",
+          "timestamp": "2026-07-09T00:00:45.812Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/thin-init-assets-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/thin-init-assets-smoke.js",
+          "result": "pass",
+          "note": "Build passed and smoke asserts loadConfig on a global-thin-only root keeps defaults from canonical lattice.config.json behavior rather than parsing .lattice/lattice.json.",
+          "headHash": "1ccaa921c97b62711a7959fecb3cbd20551d3340",
+          "materialHash": "e03b3abb8f68c388d50ec7b97da6090ba5eb88bb58108ac01ce0fdba009dda98",
+          "storyFilesHash": "abbf067ddfc433b9db9b44a5e9cbcbd449c2021cf8b0964b69849c2ab970c065",
+          "timestamp": "2026-07-09T00:00:46.110Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/thin-init-assets-smoke.ts",
+          "command": "node packages/main/dist/tasks/thin-init-assets-smoke.js",
+          "result": "pass",
+          "note": "Smoke covers malformed .lattice/lattice.json and wrong assetMode roots and asserts no .lattice/activity.jsonl is created.",
+          "headHash": "1ccaa921c97b62711a7959fecb3cbd20551d3340",
+          "materialHash": "e03b3abb8f68c388d50ec7b97da6090ba5eb88bb58108ac01ce0fdba009dda98",
+          "storyFilesHash": "abbf067ddfc433b9db9b44a5e9cbcbd449c2021cf8b0964b69849c2ab970c065",
+          "timestamp": "2026-07-09T00:00:46.394Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -145,6 +183,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Begin DEV implementation for activity-root helper and logging integration."
+    },
+    {
+      "timestamp": "2026-07-09T00:00:45.480Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implementation committed in 1ccaa921c; build, focused smoke, and solver-visible activity smoke passed."
     }
   ]
 }
