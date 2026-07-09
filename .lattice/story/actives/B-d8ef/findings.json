@@ -141,6 +141,26 @@
       "_hash": "18d1d307287f14d8430bbdd626084bc7980e0e80d7c41f76917de3067eedd22d",
       "signatureTag": "missing|unknown|missing-packages-main",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d8ef:F-008",
+      "desc": "packages/main/src/core/usage-ledger/dispatch-usage.ts:167-247 adds Claude stream-json NDJSON output parsing (parseClaudeJsonEnvelope/selectClaudeStreamResultEvent), a direct consequence of CHK-002/CHK-003 switching the canonical Claude launcher to --output-format=stream-json (previously a single JSON envelope was expected). This is real production behavior with real ad hoc test coverage (usage-ledger-dispatch-smoke.ts CHK-002-labeled happy/edge checks at lines ~139-186, usage-ledger-prototype-pollution-smoke.ts LOAD-BEARING stream-json checks at lines ~519-576), matching the exact gap already caught once by lattice-review-concept as F-003 (resolved). But no checklist item declares dispatch-usage.ts or the usage-ledger-*-smoke.ts test files as touchpoints, and CHK-002/CHK-003 verificationIntent (happy/edge/adversarial) only describe host readiness/fallback gating and launcher argv shape - none mention stream-json usage-ledger output parsing. No verificationEvidence intentRef maps to this behavior. If this parsing regresses again, the formal intent-coverage system will not catch it (only an ad hoc concept re-review would, as happened before).",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-09T16:17:22.227Z",
+      "reviewRound": "2026-07-09T16:07:24.768Z",
+      "reviewRunId": "B-d8ef:RR-023",
+      "_hash": "33f4b4306fb193dfdd0e21b29557734cc55f7d22e5682fc9546a66429ca9b066",
+      "files": [
+        "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+        "packages/main/src/tasks/usage-ledger-dispatch-smoke.ts",
+        "packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
