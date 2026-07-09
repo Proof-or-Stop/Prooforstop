@@ -1,0 +1,65 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-eb92",
+  "allowedCommands": [
+    "git diff *",
+    "git log *",
+    "git show *",
+    "git status --short",
+    "lattice aux_doc_list",
+    "lattice checklist_* --storyId=B-eb92 *",
+    "lattice delivery_* --storyId=B-eb92 *",
+    "lattice done_prepare --storyId=B-eb92 *",
+    "lattice finding_* --storyId=B-eb92 *",
+    "lattice init_preflight --storyId=B-eb92",
+    "lattice milestone_status --storyId=B-eb92",
+    "lattice quorum_submit --storyId=B-eb92 *",
+    "lattice review_* --storyId=B-eb92 *",
+    "lattice scope_freeze_check --storyId=B-eb92",
+    "lattice session_brief",
+    "lattice story_advance --storyId=B-eb92 *",
+    "lattice validate --story=B-eb92 --json",
+    "node packages/main/dist/tasks/review-assurance-surfacing-smoke.js",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main run test:review-assurance-surfacing-smoke"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "git",
+    "jq",
+    "lattice",
+    "node",
+    "npm",
+    "rg",
+    "sed"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/B-eb92/**",
+    "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+    "packages/main/package.json",
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/core/lifecycle-readiness.ts",
+    "packages/main/src/core/review-assurance-floor.ts",
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/handlers/review-escalation.ts",
+    "packages/main/src/tasks/review-assurance-surfacing-smoke.ts"
+  ],
+  "excludedCommands": [
+    "git checkout -- *",
+    "git push *",
+    "git reset --hard *",
+    "omx *",
+    "rm -rf *"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx/**"
+  ],
+  "confirmedBy": "codex-main",
+  "confirmationNote": "B-eb92 implements M3-M4 only: review-assurance surfacing and actionable done_prepare blocker guidance. It must not auto-sign host verdicts/fallback evidence, weaken assurance gates, claim Authority/full production DONE, rework B-eb08 heartbeat, or implement B-b264 merge-preflight/rerun-delta UX.",
+  "createdAt": "2026-07-09T04:33:28.855Z",
+  "updatedAt": "2026-07-09T04:33:28.855Z",
+  "_hash": "e12e5347e38037450c3c5ef5ccb414a30a20a91977d19e82611f26bedf173aa6"
+}
