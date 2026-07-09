@@ -1,12 +1,12 @@
 {
   "storyId": "B-2861",
-  "generatedAt": "2026-07-09T14:48:10.819Z",
+  "generatedAt": "2026-07-09T15:24:14.456Z",
   "sourceSnapshot": {
     "hasUnderstanding": true,
     "hasDecision": true,
-    "hasPlan": false,
+    "hasPlan": true,
     "checklistItems": 5,
-    "reviewRounds": 1,
+    "reviewRounds": 2,
     "findings": 0,
     "bugs": 0,
     "testRuns": 0,
@@ -81,7 +81,7 @@
       },
       "metrics": {
         "planArtifactsPresent": {
-          "value": false,
+          "value": true,
           "unit": "bool",
           "confidence": "high",
           "sources": [
@@ -184,7 +184,7 @@
     },
     "planning": {
       "effective": {
-        "value": false,
+        "value": true,
         "unit": "bool",
         "confidence": "high",
         "sources": [
@@ -194,7 +194,7 @@
       },
       "metrics": {
         "hasPlanArtifact": {
-          "value": false,
+          "value": true,
           "unit": "bool",
           "confidence": "high",
           "sources": [
@@ -202,7 +202,7 @@
           ]
         },
         "planCoverageRatio": {
-          "value": 0,
+          "value": 1,
           "unit": "ratio",
           "confidence": "high",
           "sources": [
@@ -211,13 +211,12 @@
           ]
         },
         "itemsWithVerifyRatio": {
-          "value": null,
+          "value": 1,
           "unit": "ratio",
-          "confidence": "unknown",
+          "confidence": "high",
           "sources": [
             "plan.md"
-          ],
-          "note": "no plan.md"
+          ]
         },
         "devToPlanBounceCount": {
           "value": 0,
@@ -239,24 +238,25 @@
     },
     "subagentCollaboration": {
       "effective": {
-        "value": false,
-        "unit": "bool",
+        "value": "n/a",
+        "unit": "text",
         "confidence": "high",
         "sources": [
-          "findings.json"
-        ]
+          "checklist.json",
+          "index.json"
+        ],
+        "note": "fast channel — main agent allowed to write code itself"
       },
       "metrics": {
         "normalChannelUsesSubagent": {
-          "value": false,
-          "unit": "bool",
-          "confidence": "low",
+          "value": "n/a",
+          "unit": "text",
+          "confidence": "high",
           "sources": [
-            "findings.json",
             "checklist.json",
             "index.json"
           ],
-          "note": "proxy: uses reviewer findings as signal, not git commit author data"
+          "note": "fast channel — main agent allowed to write code itself"
         },
         "reviewerIndependence": {
           "value": false,
@@ -267,15 +267,13 @@
           ]
         },
         "mainAgentCodeViolation": {
-          "value": true,
+          "value": false,
           "unit": "bool",
-          "confidence": "low",
+          "confidence": "high",
           "sources": [
-            "findings.json",
-            "checklist.json",
-            "index.json"
+            "checklist.json"
           ],
-          "note": "proxy: no reviewer findings may indicate missing review, not code violation"
+          "note": "fast channel — main agent allowed to write code itself — no violation possible"
         },
         "parallelBatchCount": {
           "value": 1,
@@ -310,7 +308,7 @@
       },
       "metrics": {
         "storyReviewRounds": {
-          "value": 1,
+          "value": 2,
           "unit": "count",
           "confidence": "medium",
           "sources": [

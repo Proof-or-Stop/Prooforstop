@@ -8,7 +8,8 @@
     "Project memory says Codex CLI and Claude Code CLI are primary independent hosts, with Antigravity CLI available as fallback/substitute unless explicitly needed.",
     "The user explicitly requested a new story to review this large document and perform 3x2, with DONE output as an optimization table containing reasons and evidence.",
     "Decision A resolves host selection: this story uses user-requested 3x2 with Codex CLI, Claude Code CLI, and Antigravity CLI, without changing global default host policy.",
-    "Decision A resolves document-shape uncertainty: 3x2 findings may add sections/tables to the target document, but CLI/runtime implementation changes stay out of scope."
+    "Decision A resolves document-shape uncertainty: 3x2 findings may add sections/tables to the target document, but CLI/runtime implementation changes stay out of scope.",
+    "Current-code evidence sources include docs/CLI.md, AGENTS.md, CLAUDE.md, packages/main/src/core/machine.ts, review-run/finding/evaluate/milestone-status handlers, command policy, process-fact levels, and milestone-status tests; these are read-only evidence sources, not edit touchpoints."
   ],
   "constraints": [
     "Do not weaken INIT, REVIEW, TEST, or DONE hard gates.",
@@ -20,19 +21,7 @@
   ],
   "unknowns": [],
   "touchpoints": [
-    "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
-    "docs/CLI.md",
-    "AGENTS.md",
-    "CLAUDE.md",
-    "packages/main/src/core/machine.ts",
-    "packages/main/src/core/review-run.ts",
-    "packages/main/src/handlers/finding.ts",
-    "packages/main/src/core/process-fact-levels.ts",
-    "packages/main/src/core/command-policy.ts",
-    "packages/main/src/handlers/evaluate.ts",
-    "packages/main/src/handlers/milestone-status.ts",
-    "packages/main/src/cli-engine.ts",
-    "packages/main/tests/milestone-status.test.mjs"
+    "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
   ],
-  "timestamp": "2026-07-09T14:48:02.599Z"
+  "timestamp": "2026-07-09T15:24:31.325Z"
 }
