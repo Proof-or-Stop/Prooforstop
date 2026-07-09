@@ -50,7 +50,35 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "3x2 review complete: Codex CLI, Claude Code CLI, and explicit Agy review perspectives are recorded with lifecycle/gate and prompt/routing/UX findings.",
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Review records cover three host labels and two lenses per host: lifecycle/gate correctness and prompt/routing/UX practicality.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Review wording scopes Antigravity CLI to this explicit 3x2 review and does not rewrite global default host policy.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Review findings cite project evidence rather than accepting advice or prompt prose without verification.",
+            "type": "docs"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
