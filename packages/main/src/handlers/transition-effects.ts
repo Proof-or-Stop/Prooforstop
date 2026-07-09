@@ -39,6 +39,16 @@ import { assessReviewConvergenceAtEntry } from '../core/review-convergence.js';
 import { resolveReviewRoundCount } from '../core/advisory.js';
 import { reviewIncrementalContext } from '../core/review-incremental-context.js';
 import { surfaceExperienceHints } from '../core/experience-hint-surface.js';
+import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
+import {
+  evaluateReviewEscalation,
+} from '../core/review-escalation.js';
+import {
+  buildReviewEscalationGuidance,
+  buildReviewAssuranceFloorGuidance,
+  evaluateReviewAssuranceFloor,
+  renderReviewAssuranceGuidance,
+} from '../core/review-assurance-floor.js';
 import { computeActiveReviewers, renderActiveReviewersText } from './reviewer-list.js';
 import { existsSync } from 'fs';
 import { join } from 'path';
@@ -150,6 +160,45 @@ export function renderRelatedDocsHint(
     }
   } catch { /* ignore */ }
   return docsHint;
+}
+
+function renderReviewAssuranceBeforeDoneAdvisory(
+  store: StoryStore,
+  root: string,
+  storyId: string,
+): string {
+  try {
+    const story = store.readStory(storyId);
+    if (story.phase !== 'TEST') return '';
+    const gitCwd = resolveGitCwd({ store, storyId, metadataRoot: root, projectRoot: root });
+    const escalation = evaluateReviewEscalation({
+      projectRoot: root,
+      gitCwd,
+      storyId,
+      store,
+    });
+    const floor = evaluateReviewAssuranceFloor({
+      projectRoot: root,
+      gitCwd,
+      storyId,
+      store,
+    });
+    const guidances = [
+      buildReviewEscalationGuidance(escalation, storyId),
+      buildReviewAssuranceFloorGuidance(floor),
+    ].filter((guidance) => guidance.required);
+    if (guidances.length === 0) return '';
+    const rendered = guidances
+      .map((guidance) => renderReviewAssuranceGuidance(guidance, '  '))
+      .join('\n');
+    return [
+      '',
+      'Review assurance before DONE (advisory only; TEST is not blocked by this advisory):',
+      rendered,
+    ].join('\n');
+  } catch {
+    return '';
+  }
 }
 
 /**
@@ -340,7 +389,7 @@ ${agentLines}
     TEST_CASE_REVIEW: `→ Legacy phase. Recommend directly story_advance(${storyId}, TEST) to enter verification`,
     TEST: `→ Must execute immediately: lattice validate to run verification, write bug/evidence. fail auto aux_diagnose + bug_report, pass auto marks bug fixed.
 ⚠ Engineering verification ≠ user acceptance: even if validate is fully pass, you must run it once on a real machine from the user's perspective (rhythm: treat PLAN outcome as expected → run → treat actual output as actual → diff). After verifying, put the actual transcript + diff notes in ${store.storyDirRel()}/${storyId}/evidence/transcript-diff.md. The "user value acceptance" section in CLAUDE.md has the complete 5-question self-check list.
-⚠ delivery-check hard gate: before DONE you must spawn the lattice-review-delivery reviewer to write the delivery-check.json signature. The reviewer reverse-scans git diff to verify doc promises are delivered + real-machine test coverage. Fallback is compliant only with lattice-review-delivery provenance / agentId=lattice-review-delivery; the main agent must not self-sign. Unsigned → story_advance DONE will be blocked by [missing_delivery_check].`,
+⚠ delivery-check hard gate: before DONE you must spawn the lattice-review-delivery reviewer to write the delivery-check.json signature. The reviewer reverse-scans git diff to verify doc promises are delivered + real-machine test coverage. Fallback is compliant only with lattice-review-delivery provenance / agentId=lattice-review-delivery; the main agent must not self-sign. Unsigned → story_advance DONE will be blocked by [missing_delivery_check].${renderReviewAssuranceBeforeDoneAdvisory(store, root, storyId)}`,
     DONE: `→ Must execute immediately: tell the user the Story summary paragraph below in your own words (what changed / how to use / real-machine coverage / limitations / pitfalls), then convergence_check to check project convergence state
 ⚠ DONE self-check 5 questions (CLAUDE.md "User value acceptance" section): (1) Is the PLAN outcome a concrete transcript or abstract? (2) During real-machine testing, did you read the user-perspective output or only look at the event log? (3) When the user sees the last line of the actual transcript, would they consider the work done or still wonder what comes next? (4) Are there any engineering logs that are noise/duplicates in the user's eyes? (5) Is there a plain-language summary of the task result? If any question is answered "not done", return to DEV and do not force-push DONE.`,
   };

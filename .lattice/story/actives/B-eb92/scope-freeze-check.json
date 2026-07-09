@@ -1,0 +1,76 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-eb92",
+  "checkedAt": "2026-07-09T10:54:01.867Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "e02afb9cd2835703ed649db18d2edaf373f5c742f80143fef0c437ae1bbdcb8a",
+  "executionBoundaryHash": "2a9b1442994914068b407570862ab3b7083a3a00394d6f9692724bac3c2ba6d4",
+  "freshnessHash": "3128ed4100ddc63c0a9db9c02506be4a8b1145572bfd0be8b542639ff4b592b5",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "Auto-writing delivery_check, delivery waiver, or delivery reviewer evidence from the owner/main agent",
+    "Auto-writing host verdicts or degraded fallback evidence",
+    "Auto-writing reviewer evidence, review pass evidence, or finding resolution evidence from the owner/main agent",
+    "Changing review-assurance pass criteria",
+    "Claiming Authority/full/production DONE from local evidence",
+    "customerKeyRef",
+    "Implementing done_prepare closure heartbeat hard deadlines",
+    "Implementing merge-preflight or rerun-delta UX",
+    "Layer4",
+    "repair UX"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Authority",
+      "source": "scopeBoundary.excluded",
+      "text": "Claiming Authority/full/production DONE from local evidence",
+      "excluded": true
+    },
+    {
+      "keyword": "Auto-writing delivery_check, delivery waiver, or delivery reviewer evidence from the owner/main agent",
+      "source": "scopeBoundary.excluded",
+      "text": "Auto-writing delivery_check, delivery waiver, or delivery reviewer evidence from the owner/main agent",
+      "excluded": true
+    },
+    {
+      "keyword": "Auto-writing host verdicts or degraded fallback evidence",
+      "source": "scopeBoundary.excluded",
+      "text": "Auto-writing host verdicts or degraded fallback evidence",
+      "excluded": true
+    },
+    {
+      "keyword": "Auto-writing reviewer evidence, review pass evidence, or finding resolution evidence from the owner/main agent",
+      "source": "scopeBoundary.excluded",
+      "text": "Auto-writing reviewer evidence, review pass evidence, or finding resolution evidence from the owner/main agent",
+      "excluded": true
+    },
+    {
+      "keyword": "Changing review-assurance pass criteria",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing review-assurance pass criteria",
+      "excluded": true
+    },
+    {
+      "keyword": "Claiming Authority/full/production DONE from local evidence",
+      "source": "scopeBoundary.excluded",
+      "text": "Claiming Authority/full/production DONE from local evidence",
+      "excluded": true
+    },
+    {
+      "keyword": "Implementing done_prepare closure heartbeat hard deadlines",
+      "source": "scopeBoundary.excluded",
+      "text": "Implementing done_prepare closure heartbeat hard deadlines",
+      "excluded": true
+    },
+    {
+      "keyword": "Implementing merge-preflight or rerun-delta UX",
+      "source": "scopeBoundary.excluded",
+      "text": "Implementing merge-preflight or rerun-delta UX",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "a60bf924f6c2f4dff1fcb3939c2d88cb04c33fffb2488abd3203d3fed76de293"
+}

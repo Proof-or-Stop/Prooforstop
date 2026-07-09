@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-4a78",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git log *",
+    "git merge main",
+    "git status",
+    "grep *",
+    "lattice *",
+    "node *",
+    "npm *",
+    "npx *",
+    "rg *",
+    "tsc"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".claude/",
+    ".codex/",
+    "docs/",
+    "packages/main/",
+    "scripts/",
+    "tests/"
+  ],
+  "excludedCommands": [
+    "git push*",
+    "git reset --hard*",
+    "rm -rf /*"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".lattice/story/"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Story files are CLI-managed: mutate via lattice commands only, never direct Edit/Write (CLAUDE.md rule 8). Generated hook artifacts (.claude/hooks/*, .codex/hooks/*) must be changed via their generator sources (init-assets / core/managed-assets), not hand-edited. Remote publish stays human-gated via release_approve_push.",
+  "createdAt": "2026-07-09T21:10:11.116Z",
+  "updatedAt": "2026-07-09T21:10:11.116Z",
+  "_hash": "b3662ef0b8a23ee43d8156e8455be1a9cefe34e787373206f3e451ffd3faf6e1"
+}

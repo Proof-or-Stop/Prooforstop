@@ -1,0 +1,265 @@
+{
+  "passes": [
+    {
+      "id": "B-eb08:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage review passed: focused smoke and fresh validation evidence cover human progress labels, JSON stdout parseability with progress on stderr, hung heartbeating phase timeout, and diagnostic-only/no gate-evidence writes across all nine verificationIntent refs.",
+      "createdAt": "2026-07-09T02:09:09.103Z",
+      "reviewRound": "2026-07-09T02:06:03.454Z",
+      "reviewRunId": "B-eb08:RR-003",
+      "_hash": "769aee553d159e24f6cac9a97e00f4faefc74ea38a16a81106f128967ad997c2"
+    },
+    {
+      "id": "B-eb08:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2 test-coverage pass: build and focused done_prepare closure heartbeat smoke passed; smoke covers human progress labels, JSON-safe stderr side channel, diagnostic-only no metadata writes, async hung phase, and synchronous git child hang failing closed before global idle timeout; evidence_plan reports 9/9 fresh with 0 missing required.",
+      "createdAt": "2026-07-09T02:35:35.880Z",
+      "reviewRound": "2026-07-09T02:32:25.380Z",
+      "reviewRunId": "B-eb08:RR-005",
+      "_hash": "afa9e2a714911d2c66932bab44b896223932d32ec9f011d819d6f29fee4f49e1"
+    },
+    {
+      "id": "B-eb08:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept review pass: M0/M1/M2 ledger rows are covered by fresh evidence; done_prepare closeout phases emit required progress labels, keep JSON stdout parseable, and install per-phase child_process.execFileSync deadlines so synchronous git/status/diff hangs fail closed with attributed phase timeouts. Focused smoke and tsc --noEmit passed during review.",
+      "createdAt": "2026-07-09T02:35:38.519Z",
+      "reviewRound": "2026-07-09T02:32:25.380Z",
+      "reviewRunId": "B-eb08:RR-004",
+      "_hash": "24d76cf7bf97595d22ec2aab0c820e6a3919bab2ce65c3e64fabd2dc04bd2293"
+    },
+    {
+      "id": "B-eb08:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 quality review passed. Inspected done_prepare closeout phase wrapper, child_process.execFileSync deadline monkeypatch/restore with syncBuiltinESMExports, timeout attribution, CLI JSON side-channel behavior, command schema, smoke coverage, and story evidence. Focused smoke and tsc --noEmit both passed; no high or critical blocker remains.",
+      "createdAt": "2026-07-09T02:36:32.756Z",
+      "reviewRound": "2026-07-09T02:32:25.380Z",
+      "reviewRunId": "B-eb08:RR-006",
+      "_hash": "e0a5b75e8b07d3cf0300fbca56d719f8a248465fa0364e4b73842fb81903c838"
+    },
+    {
+      "id": "B-eb08:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 concept review after merge-main: M0/M1/M2 closeout promises remain delivered. Verified milestone_status coverage, inspected done_prepare closeout phase wrappers, JSON side-channel behavior, independent phase deadline handling including synchronous git deadline wrapper, reviewer_batch merge-drift files (version finalizer/recovery only), and reran npm --prefix packages/main run build && npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke. No high/critical blocker found.",
+      "createdAt": "2026-07-09T02:57:19.493Z",
+      "reviewRound": "2026-07-09T02:53:26.256Z",
+      "reviewRunId": "B-eb08:RR-007",
+      "_hash": "2c20abb471d0ea10f7dfea69c2542571b5ec2f6668590b2de4a55f6e945d9181"
+    },
+    {
+      "id": "B-eb08:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Concept review after merge-main: M0/M1/M2 behavior remains satisfied; progress labels, JSON side-channel contract, independent closeout deadlines, and smoke coverage still align with the story requirements. No high or critical blocker found.",
+      "createdAt": "2026-07-09T02:57:26.799Z",
+      "reviewRound": "2026-07-09T02:53:26.256Z",
+      "reviewRunId": "B-eb08:RR-010",
+      "_hash": "afeb202c2cfcd588abd1401d05ff0c053d6d5efeaacb5ae62e70a421928d8594"
+    },
+    {
+      "id": "B-eb08:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Quality review after merge-main: bounded execFileSync phase deadline wrapper restores in finally, timeout attribution remains DONE prepare BLOCKED by phase, stdout JSON remains parseable with human progress on side channel, and merge-main files do not alter done_prepare closeout behavior. build, tsc, and closure heartbeat smoke passed. No high or critical blocker found.",
+      "createdAt": "2026-07-09T02:57:46.371Z",
+      "reviewRound": "2026-07-09T02:53:26.256Z",
+      "reviewRunId": "B-eb08:RR-011",
+      "_hash": "248f2ab953207870203e690215ecf0bdf40f5fd437fb81e888d20f7daf025ecf"
+    },
+    {
+      "id": "B-eb08:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review after merge-main: evidence_plan is fresh for all 9 intents; smoke covers human progress labels, JSON side-channel safety, async phase timeout, and synchronous git hang fail-closed behavior. build, tsc, and done_prepare closure heartbeat smoke passed. No high or critical blocker found.",
+      "createdAt": "2026-07-09T02:57:59.928Z",
+      "reviewRound": "2026-07-09T02:53:26.256Z",
+      "reviewRunId": "B-eb08:RR-012",
+      "_hash": "43f5f5b90c0351d11353774ffc4b808d77248939af7a86ac4e5fcf4088f9fcd0"
+    },
+    {
+      "id": "B-eb08:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Concept review PASS for current round: done_prepare closeout phases emit explicit progress labels, keep JSON stdout parseable via side-channel progress, and now bind both execFileSync and execSync child-process hangs to attributed phase timeouts; build, focused smoke, and tsc passed.",
+      "createdAt": "2026-07-09T03:10:31.901Z",
+      "reviewRound": "2026-07-09T03:07:08.561Z",
+      "reviewRunId": "B-eb08:RR-017",
+      "_hash": "20864c9d4c0ff3b18ab7dbe570fce2f6ef35d7bf8489b6959a46716581e69f07"
+    },
+    {
+      "id": "B-eb08:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Quality review PASS for current round: wrapper patches and restores execFileSync plus execSync, syncs builtin ESM named exports, attributes child timeouts to DonePreparePhaseTimeoutError without leaking ETIMEDOUT, and progress remains diagnostic only; build, focused smoke, and tsc passed.",
+      "createdAt": "2026-07-09T03:10:42.636Z",
+      "reviewRound": "2026-07-09T03:07:08.561Z",
+      "reviewRunId": "B-eb08:RR-018",
+      "_hash": "0d4dba2e07512504b0391da488491a1ac7502520518147bd3ecb5c88e961ebce"
+    },
+    {
+      "id": "B-eb08:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "Round 4 concept pass: verified F-004 execSync deadline class is fixed. done_prepare wraps execFileSync and execSync during each closeout phase, syncs builtin ESM exports, restores both in finally, preserves JSON stdout with progress on stderr, and the focused smoke passes including runtimeChange sync git timeout and doneClosure execSync git timeout without story/gate-evidence pollution.",
+      "createdAt": "2026-07-09T03:10:55.065Z",
+      "reviewRound": "2026-07-09T03:07:08.561Z",
+      "reviewRunId": "B-eb08:RR-016",
+      "_hash": "f94e1c341f47cd4e2adf29c4cb6bf9c9c1742e0bdd227e36914ad1e67ca0a084"
+    },
+    {
+      "id": "B-eb08:RP-012",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review PASS for current round: focused smoke covers human progress labels, JSON stdout side channel, diagnostic-only metadata non-mutation, async runtimeChange hang, execFileSync git hang, and doneClosure execSync git hang; build, smoke, and tsc passed.",
+      "createdAt": "2026-07-09T03:10:58.968Z",
+      "reviewRound": "2026-07-09T03:07:08.561Z",
+      "reviewRunId": "B-eb08:RR-019",
+      "_hash": "7c0c1d4bf8d25407c6edee9020bf7af6e126fb224e469aa67ae63a5d529bc8dd"
+    },
+    {
+      "id": "B-eb08:RP-013",
+      "agent": "lattice-review-quality",
+      "note": "Quality review passed: F-003/F-005 execSync deadline gaps are fixed; done_prepare closeout wrapper patches and restores both execFileSync and execSync with syncBuiltinESMExports in finally; JSON stdout remains parseable while progress is emitted on stderr. Verified with npm --prefix packages/main run build and npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke.",
+      "createdAt": "2026-07-09T03:11:10.467Z",
+      "reviewRound": "2026-07-09T03:07:08.561Z",
+      "reviewRunId": "B-eb08:RR-015",
+      "_hash": "323c27bde86dc3807f0660aad26c35b0b72feef0d0a96a179360d5d2dd41ee5b"
+    },
+    {
+      "id": "B-eb08:RP-014",
+      "agent": "lattice-review-concept",
+      "note": "Concept review PASS after F-006 fix: smoke hook now targets execFileSync vs execSync explicitly, doneClosure regression reaches execSync-only hang, closeout phase deadlines remain attributed and diagnostic-only, JSON stdout stays parseable, and full validate 43/43 passed.",
+      "createdAt": "2026-07-09T03:17:53.564Z",
+      "reviewRound": "2026-07-09T03:15:15.358Z",
+      "reviewRunId": "B-eb08:RR-021",
+      "_hash": "529d1f0372489803dcbd65a72979f848150c34af8dfe59437b4cc0eb264393b0"
+    },
+    {
+      "id": "B-eb08:RP-015",
+      "agent": "lattice-review-quality",
+      "note": "Quality review PASS after F-006/F-007 fix: env selector is smoke-only and defaults compatibly, doneClosure test now bypasses earlier execFileSync probes and proves execSync timeout attribution, restore/syncBuiltinESMExports behavior remains scoped, and full validate 43/43 passed.",
+      "createdAt": "2026-07-09T03:18:04.021Z",
+      "reviewRound": "2026-07-09T03:15:15.358Z",
+      "reviewRunId": "B-eb08:RR-024",
+      "_hash": "5b8bac01d1b0795b9c33d5157e95eff49375d992dccce5e15e19eb50be155c67"
+    },
+    {
+      "id": "B-eb08:RP-016",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage PASS after F-006/F-007 fix: focused smoke explicitly covers human progress labels, JSON stdout side-channel, diagnostic-only metadata non-mutation, async runtimeChange hang, execFileSync runtimeChange git hang, and doneClosure execSync-only git hang; full validate 43/43 passed.",
+      "createdAt": "2026-07-09T03:18:15.464Z",
+      "reviewRound": "2026-07-09T03:15:15.358Z",
+      "reviewRunId": "B-eb08:RR-026",
+      "_hash": "02bfe333377b7fcc58d9157fc12d637abca1b4ffbd5e288f541320aba7120e51"
+    },
+    {
+      "id": "B-eb08:RP-017",
+      "agent": "lattice-review-concept",
+      "note": "Round 5 concept pass: F-006/F-007 smoke-targeting class fixed. LATTICE_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_KIND gates execFileSync vs execSync injection, doneClosure regression sets execSync-only so earlier execFileSync probes cannot satisfy it; rebuilt focused smoke passes; progress labels/JSON side-channel/gate-evidence isolation remain satisfied.",
+      "createdAt": "2026-07-09T03:18:24.672Z",
+      "reviewRound": "2026-07-09T03:15:15.358Z",
+      "reviewRunId": "B-eb08:RR-025",
+      "_hash": "8279b4afceb50780906fcb80dadfd129ec686553a997adedfb433c300af39fe2"
+    },
+    {
+      "id": "B-eb08:RP-018",
+      "agent": "lattice-review-concept",
+      "note": "Concept PASS for scope acknowledgement round: delivery-context-pack scope expansion is TEST delivery-review metadata only, no material code change since F-006 fix, done_prepare progress/deadline concept remains satisfied, validate and done-required evidence are passing.",
+      "createdAt": "2026-07-09T03:25:29.512Z",
+      "reviewRound": "2026-07-09T03:25:01.057Z",
+      "reviewRunId": "B-eb08:RR-027",
+      "_hash": "ad9e2355171d3c420ce05a98c7749fc63a57a27d08599d7be22eea425f4ad844"
+    },
+    {
+      "id": "B-eb08:RP-019",
+      "agent": "lattice-review-concept",
+      "note": "Concept re-review after delivery-context scope acknowledgement: review_incremental_context reports scopeChanged=false and no changed files since prior concept pass; inspected current done_prepare heartbeat, JSON side-channel, phase-deadline implementation, review-assurance status, and relevant execution plan; no concept blocker remains.",
+      "createdAt": "2026-07-09T03:27:26.032Z",
+      "reviewRound": "2026-07-09T03:25:01.057Z",
+      "reviewRunId": "B-eb08:RR-029",
+      "_hash": "dbd326bc01a93bf50e6821caaa008e81e0121b1d37f10c3ea80e36b18424fe7a"
+    },
+    {
+      "id": "B-eb08:RP-020",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage pass after delivery-context scope acknowledgement: incremental context shows no material delta since prior test-coverage pass, all CHK-001/002/003 intents are bound, focused smoke covers human/json progress labels plus async, execFileSync, and execSync hard-deadline hangs, and npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke passes.",
+      "createdAt": "2026-07-09T03:28:01.880Z",
+      "reviewRound": "2026-07-09T03:25:01.057Z",
+      "reviewRunId": "B-eb08:RR-030",
+      "_hash": "acb32f8b5a48ad43263d5fa7409c64215548080f103210da5674437bc7011662"
+    },
+    {
+      "id": "B-eb08:RP-021",
+      "agent": "lattice-review-quality",
+      "note": "PASS: scoped to current material after delivery-context scope acknowledgement. Quality incremental context reports no scopeChanged files since prior quality pass; focused review of done_prepare closeout heartbeat/deadline implementation found no remaining blocker. Verified npm --prefix packages/main run build and npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke at current HEAD.",
+      "createdAt": "2026-07-09T03:28:44.887Z",
+      "reviewRound": "2026-07-09T03:25:01.057Z",
+      "reviewRunId": "B-eb08:RR-031",
+      "_hash": "ee697b3b5d709f3f6107ff8bceb56fb6c22408f34538921e1d27099574f9e509"
+    },
+    {
+      "id": "B-eb08:RP-022",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS test-coverage: inspected f0bff65a5 and focused smoke. New isolated fixture runs done_prepare --validate=true with configured validate.commands and delayed doneRequiredCommands, asserts validate command completion precedes DONE-required progress, asserts DONE-required heartbeat, parses JSON stdout, and checks stdout excludes progress/heartbeat text without invoking full project validate. Focused smoke passed: npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke.",
+      "createdAt": "2026-07-09T03:50:25.472Z",
+      "reviewRound": "2026-07-09T03:48:23.418Z",
+      "reviewRunId": "B-eb08:RR-034",
+      "_hash": "1917b8dd6f4989825f0da11bfec85112b583a5dd6ca3306385c333aad1ccbf14"
+    },
+    {
+      "id": "B-eb08:RP-023",
+      "agent": "lattice-review-concept",
+      "note": "Concept review PASS: inspected f0bff65a5 and current B-eb08 context. done_prepare --validate now wraps required done_required_validate JSON call in the same closeout phase heartbeat/deadline wrapper, so after configured validate.commands complete it emits DONE-required progress/heartbeat on stderr while stdout remains JSON-only; phase timeout remains independent and fail-closed. Rebuilt packages/main and ran focused done-prepare closure heartbeat smoke successfully.",
+      "createdAt": "2026-07-09T03:51:24.220Z",
+      "reviewRound": "2026-07-09T03:48:23.418Z",
+      "reviewRunId": "B-eb08:RR-032",
+      "_hash": "cff428074b1d7f3a4b56c1c6fea3d6a0b6c70cfa9620b9cb68d546af6fc2e9b6"
+    },
+    {
+      "id": "B-eb08:RP-024",
+      "agent": "lattice-review-concept",
+      "note": "Current-round concept PASS by lattice-review-concept. Reviewed commits f0bff65a5 and d30173a65 plus F-008 resolution. User-visible contract holds: done_prepare surfaces DONE-required progress after validate command completion; DONE-required phase deadline aborts/kills validation and checks deadline before evidence write so timeout is fail-closed with no late PASS evidence; progress/heartbeat stays on stderr and JSON stdout remains parseable. Verified with npm --prefix packages/main run build and npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke.",
+      "createdAt": "2026-07-09T04:02:39.475Z",
+      "reviewRound": "2026-07-09T03:59:57.281Z",
+      "reviewRunId": "B-eb08:RR-037",
+      "_hash": "e9ea06cee3e95172ae1d3aa43eebd43cdc418911997c47d215eef0ce27d32e88"
+    },
+    {
+      "id": "B-eb08:RP-025",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: current-round test coverage review after f0bff65a5, d30173a65, and F-008 resolution. Inspected done-prepare-closure-heartbeat-smoke.ts and related done_prepare/DONE-required validation plumbing. Smoke covers real done_prepare --validate=true via donePrepareRealValidateArgs, asserts DONE-required progress after validate command completion, keeps JSON stdout free of done_prepare/validate progress, and waits past a delayed DONE-required child duration before asserting no late PASS evidence. Ran npm --prefix packages/main run build and npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke on current material; both passed.",
+      "createdAt": "2026-07-09T04:02:59.809Z",
+      "reviewRound": "2026-07-09T03:59:57.281Z",
+      "reviewRunId": "B-eb08:RR-038",
+      "_hash": "af919f71c340a88e29dbff9634fe57aad068761169087607a71d47ab1eb75d10"
+    },
+    {
+      "id": "B-eb08:RP-026",
+      "agent": "lattice-review-quality",
+      "note": "Quality current-round pass after F-008 resolution. Reviewed abort/deadline propagation from done_prepare into done_required_validate, validation-executor abort timeout/process-group kill and listener/timer cleanup, pre-write deadline checks preventing late PASS evidence, and unchanged default behavior for existing validate callers. Verified npm --prefix packages/main run build; npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke; node packages/main/dist/tasks/validate-command-timeout-smoke.js; plus abort/process-group probe returned code 124 timedOut=true in 220ms.",
+      "createdAt": "2026-07-09T04:03:10.829Z",
+      "reviewRound": "2026-07-09T03:59:57.281Z",
+      "reviewRunId": "B-eb08:RR-036",
+      "_hash": "464215ab82497600eb7484bda402c02c63873b0240cd490faeb97e530559a721"
+    },
+    {
+      "id": "B-eb08:RP-027",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: test coverage is sufficient for done_prepare closure heartbeat story. Reviewed packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts, packages/main/package.json, packages/main/src/handlers/done-prepare.ts, packages/main/src/core/done-required-validation.ts, and packages/main/src/core/validation-executor.ts. Coverage includes human progress labels, JSON stdout side-channel safety, real --validate path followed by DONE-required validation, DONE-required heartbeat during slow command, phase timeout fail-closed behavior, prevention of late PASS evidence after timeout, and execSync/execFileSync timeout paths. Verified npm --prefix packages/main run build and npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke both passed.",
+      "createdAt": "2026-07-09T04:24:34.859Z",
+      "reviewRound": "2026-07-09T04:22:30.984Z",
+      "reviewRunId": "B-eb08:RR-040",
+      "_hash": "ac5d75043aa3c29a09f562bd4f0140c22a1cb4cd5f58e7b873ca02797521c35a"
+    },
+    {
+      "id": "B-eb08:RP-028",
+      "agent": "lattice-review-quality",
+      "note": "PASS: quality review found no blocker. Reviewed runCloseoutPhase hard deadlines and AbortController propagation, sync child_process deadline guard/restore via syncBuiltinESMExports, DONE-required abort/deadline checks before evidence writes, progress/heartbeat stderr side channel for JSON safety, and timeout/error attribution for async and sync child process paths. Implementation fails closed to BLOCKED on phase timeout, does not extend deadlines via heartbeat, prevents late PASS DONE-required evidence after caller timeout, and smoke coverage exercises JSON-safe progress, DONE-required timeout, hung phase, execFileSync git timeout, and execSync git timeout behavior.",
+      "createdAt": "2026-07-09T04:25:22.376Z",
+      "reviewRound": "2026-07-09T04:22:30.984Z",
+      "reviewRunId": "B-eb08:RR-041",
+      "_hash": "08da3e5b3867a7aa207dc6c6e8ac50a78e8d76f4e931cf34f708def2a6f0c672"
+    },
+    {
+      "id": "B-eb08:RP-029",
+      "agent": "lattice-review-concept",
+      "note": "PASS: concept review found no blocker. Reviewed done_prepare closeout heartbeat requirements and current material across packages/main/src/handlers/done-prepare.ts, packages/main/src/core/done-required-validation.ts, packages/main/src/core/validation-executor.ts, packages/main/src/handlers/done-required-validation.ts, packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts, and docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md. Verified conceptually that after configured validation completes, DONE-required validation and closeout phases emit progress/completed/heartbeat labels, long DONE-required validation receives heartbeat plus caller deadline/abort controls, JSON stdout remains machine-parseable through the CLI liveness side channel, and heartbeat/progress are diagnostic only while gate evidence remains done_required_validate evidence. Ran npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke successfully; worktree dist CLI dry-run JSON was parseable. Global lattice lag noted as non-material per story context.",
+      "createdAt": "2026-07-09T04:25:42.203Z",
+      "reviewRound": "2026-07-09T04:22:30.984Z",
+      "reviewRunId": "B-eb08:RR-039",
+      "_hash": "9a8de6190ebbe62105754909e34c2596e76ed7264c1c51c00dd5546776827b1e"
+    }
+  ]
+}

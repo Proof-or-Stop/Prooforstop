@@ -19,6 +19,7 @@ export type ProcessFactKind =
   | 'review-pass'
   | 'finding'
   | 'flow-policy'
+  | 'host-availability-probe'
   | 'host-verdict'
   | 'reviewer-lane'
   | 'signed-artifact'
@@ -33,6 +34,8 @@ export type ProcessFactSemantic =
   | 'flow-policy'
   | 'freshness-policy'
   | 'gate-evidence'
+  | 'host-availability'
+  | 'host-readiness'
   | 'host-verdict'
   | 'no-blocker-evidence'
   | 'normalization-policy'
@@ -96,6 +99,7 @@ export const PROCESS_FACT_KIND_BY_COMMAND: Record<string, ProcessFactKind> = {
   decision_doc_proposal: 'gate-evidence',
   decision_doc_save: 'gate-evidence',
   review_escalation_policy_set: 'gate-evidence',
+  review_host_availability_probe: 'host-availability-probe',
   review_escalation_fallback_set: 'gate-evidence',
   story_create_from_repro: 'gate-evidence',
 };
@@ -126,7 +130,8 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   decision_doc_proposal: ['schema-contract', 'gate-evidence'],
   decision_doc_save: ['artifact', 'schema-contract', 'execution-evidence', 'gate-evidence'],
   review_escalation_policy_set: ['schema-contract', 'gate-evidence'],
-  review_escalation_fallback_set: ['schema-contract', 'gate-evidence'],
+  review_host_availability_probe: ['host-availability', 'host-readiness', 'execution-evidence', 'freshness-policy', 'schema-contract', 'gate-evidence'],
+  review_escalation_fallback_set: ['schema-contract', 'freshness-policy', 'host-availability', 'host-readiness', 'gate-evidence'],
   story_create_from_repro: ['artifact', 'schema-contract', 'workspace-binding', 'gate-evidence'],
   original_intent_snapshot_set: ['schema-contract', 'gate-evidence'],
   milestone_ledger_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
@@ -151,8 +156,8 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
 } as const satisfies Record<string, readonly ProcessFactSemantic[]>;
 
 export const PROCESS_FACT_RUNTIME_SEMANTICS = {
-  'runtime:review_escalation_done_gate': ['runtime-behavior', 'host-verdict', 'gate-evidence'],
-  'runtime:review_assurance_floor_done_gate': ['runtime-behavior', 'host-verdict', 'gate-evidence'],
+  'runtime:review_escalation_done_gate': ['runtime-behavior', 'host-verdict', 'host-availability', 'gate-evidence'],
+  'runtime:review_assurance_floor_done_gate': ['runtime-behavior', 'host-verdict', 'host-availability', 'gate-evidence'],
   'runtime:review_run_story_files_hash_gate': ['runtime-behavior', 'freshness-policy', 'workspace-binding', 'review-run', 'gate-evidence'],
   'runtime:story_files_hash_freshness_gate': ['runtime-behavior', 'freshness-policy', 'workspace-binding', 'verification-evidence', 'review-run', 'host-verdict', 'gate-evidence'],
   'runtime:repro_first_story_intake_preflight': ['runtime-behavior', 'schema-contract', 'workspace-binding', 'gate-evidence'],
@@ -574,6 +579,13 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     signed: false,
     producerCommand: 'review_escalation_policy_set',
     consumerGate: 'storyMachine.canFinish DONE review escalation gate',
+  },
+  review_host_availability_probe: {
+    name: 'process-events.jsonl',
+    path: 'process-events.jsonl',
+    signed: false,
+    producerCommand: 'review_host_availability_probe',
+    consumerGate: 'storyMachine.canFinish DONE review escalation gate and storyMachine.canFinish DONE review assurance floor gate',
   },
   review_escalation_fallback_set: {
     name: 'process-events.jsonl',

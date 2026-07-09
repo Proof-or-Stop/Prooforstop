@@ -1,0 +1,23 @@
+{
+  "storyId": "B-7438",
+  "checkedAt": "2026-07-09T12:17:59.032Z",
+  "headHash": "163502807ec0f9e5b84864309493a7705b21df04",
+  "materialHash": "ef40ac96cec58c99a62a7de9c15790f78bdb35428cc3ca38e00c1f947078bced",
+  "storyFilesHash": "9c4b4d5018a1a14c907850e56c442d783c3a0ed0b9a15ee43a8196960183af83",
+  "reviewRound": "2026-07-09T12:13:19.411Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": ".lattice/story/actives/B-7438/evidence/transcript-diff.md shows review_host_availability_probe found 3/3 canonical hosts (codex 0.141.0, claude 2.1.202, agy 1.1.0) then review_escalation_fallback_set with eligibility=single-host-environment exited 1 with message citing probe B-7438:RHP-mrdh19fw and refusing degraded fallback (\"use full 3x2 or explicit-human-approval\")"
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Fresh host availability probe now gates single-host degraded review fallback; transcript shows 3/3 hosts detected and fallback correctly refused instead of trusting agent self-report."
+  },
+  "_hash": "94e6f82027664aca4ea738ddf66d6117669c7964879c0075475730ceaf7c0b0c"
+}

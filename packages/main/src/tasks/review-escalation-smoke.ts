@@ -2,9 +2,9 @@
 
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
+import { delimiter, dirname, join } from 'node:path';
 import { currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import {
   REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_PREDICATE,
@@ -17,10 +17,12 @@ import type { Finding, ProcessEvent, StoryInfo } from '../core/types.js';
 import { StoryStore } from '../core/store.js';
 import { createVerdictHandlers } from '../handlers/verdict.js';
 import { createReviewEscalationHandlers } from '../handlers/review-escalation.js';
+import { canonicalReviewHostLauncherSpec, type CanonicalReviewHost } from '../core/host-execution-readiness.js';
 
 const STORY_ID = 'B-review-escalation';
 const ROUND_1 = '2026-06-13T10:00:00.000Z';
 const ROUND_2 = '2026-06-13T11:00:00.000Z';
+const SMOKE_PROMPT = 'Reply READY and do not run tools.';
 
 function git(root: string, args: string[]): string {
   return execFileSync('git', args, {
@@ -34,6 +36,27 @@ function write(root: string, path: string, content: string): void {
   const absolute = join(root, path);
   mkdirSync(dirname(absolute), { recursive: true });
   writeFileSync(absolute, content);
+}
+
+function writeExecutable(root: string, path: string, content: string): void {
+  write(root, path, content);
+  chmodSync(join(root, path), 0o755);
+}
+
+function withFakeCanonicalHostPath(root: string, hosts: string[], fn: () => void): void {
+  const bin = join(root, 'fake-host-bin');
+  mkdirSync(bin, { recursive: true });
+  for (const host of hosts) {
+    writeExecutable(root, `fake-host-bin/${host}`, `#!/bin/sh\necho "${host} 1.0.0"\n`);
+  }
+  const oldPath = process.env.PATH;
+  process.env.PATH = [bin, '/usr/bin', '/bin', '/usr/sbin', '/sbin'].join(delimiter);
+  try {
+    fn();
+  } finally {
+    if (oldPath === undefined) delete process.env.PATH;
+    else process.env.PATH = oldPath;
+  }
 }
 
 function makeRepo(): string {
@@ -124,6 +147,7 @@ function withStoryFilesHash(events: ProcessEvent[], storyFilesHash: string): Pro
 function fallback(materialHash: string, overrides: Partial<ProcessEvent> = {}): ProcessEvent {
   return {
     type: 'review_escalation_fallback',
+    command: 'review_escalation_fallback_set',
     timestamp: '2026-06-13T12:30:00.000Z',
     fallbackId: `${STORY_ID}:REF-001`,
     eligibility: 'explicit-human-approval',
@@ -131,6 +155,58 @@ function fallback(materialHash: string, overrides: Partial<ProcessEvent> = {}): 
     evidenceRefs: ['manual-approval:ticket-123'],
     materialHash,
     assuranceLevel: 'degraded-single-host',
+    authorityDone: false,
+    fullAuthorityDone: false,
+    productionDone: false,
+    ...overrides,
+  };
+}
+
+function concreteLauncherArgv(host: CanonicalReviewHost): string[] {
+  return canonicalReviewHostLauncherSpec(host).launcherArgv.map(arg => {
+    if (arg === '<prompt>') return SMOKE_PROMPT;
+    if (arg === '<prompt-file>') return join(tmpdir(), `review-escalation-${host}-prompt.txt`);
+    return arg;
+  });
+}
+
+function hostAvailabilityProbe(materialHash: string, availableHosts: string[], overrides: Partial<ProcessEvent> = {}): ProcessEvent {
+  const available = new Set(availableHosts);
+  const hosts = (['codex', 'claude', 'agy'] as CanonicalReviewHost[]).map(host => {
+    const spec = canonicalReviewHostLauncherSpec(host);
+    const ready = available.has(host);
+    return {
+      host,
+      command: host,
+      ...(ready ? { executablePath: `/fake/bin/${host}` } : {}),
+      versionOk: ready,
+      available: ready,
+      launcher: spec.launcher,
+      launcherArgv: ready ? concreteLauncherArgv(host) : spec.launcherArgv,
+      launcherSupport: ready ? 'supported' : 'unverified',
+      launcherOk: ready,
+      executionReady: ready,
+      reviewReady: ready,
+      progressMode: spec.progressMode,
+      failureKind: ready ? 'none' : 'missing_executable',
+      durationMs: ready ? 12 : 0,
+      ...(ready ? { firstProgressMs: 12, exitCode: 0 } : {}),
+      ...(ready ? {} : { error: 'executable not found in PATH' }),
+      remediation: ready ? '' : `Install or expose ${host} in PATH.`,
+    };
+  });
+  return {
+    type: 'review_host_availability_probe',
+    command: 'review_host_availability_probe',
+    timestamp: '2026-06-13T12:20:00.000Z',
+    probeId: `${STORY_ID}:RHP-001`,
+    checkedAt: '2026-06-13T12:20:00.000Z',
+    materialHash,
+    hosts,
+    availableHostCount: availableHosts.length,
+    unavailableHostCount: 3 - availableHosts.length,
+    executionReadyHostCount: availableHosts.length,
+    reviewReadyHostCount: availableHosts.length,
     authorityDone: false,
     fullAuthorityDone: false,
     productionDone: false,
@@ -238,18 +314,30 @@ try {
       }) as any;
       assert.equal(verdict.storyFilesHash, storyFilesHash);
 
-      const fallbackResult = createReviewEscalationHandlers(ctx).review_escalation_fallback_set({
-        storyId: STORY_ID,
-        eligibility: 'explicit-human-approval',
-        reason: 'Operator approved degraded fallback because only one verifier host was available.',
-        evidenceRefs: ['manual-approval:ticket-456'],
-        json: true,
-      }) as any;
-      assert.equal(fallbackResult.storyFilesHash, storyFilesHash);
+      withFakeCanonicalHostPath(commandRoot, ['codex'], () => {
+        const probeResult = createReviewEscalationHandlers(ctx).review_host_availability_probe({
+          storyId: STORY_ID,
+          json: true,
+        }) as any;
+        assert.equal(probeResult.storyFilesHash, storyFilesHash);
+        assert.equal(probeResult.availableHostCount, 1);
+
+        const fallbackResult = createReviewEscalationHandlers(ctx).review_escalation_fallback_set({
+          storyId: STORY_ID,
+          eligibility: 'single-host-environment',
+          reason: 'Operator approved degraded fallback because only one verifier host was available.',
+          evidenceRefs: ['manual-approval:ticket-456'],
+          json: true,
+        }) as any;
+        assert.equal(fallbackResult.storyFilesHash, storyFilesHash);
+        assert.equal(fallbackResult.hostAvailabilityProbeId, probeResult.probeId);
+      });
 
       const events = store.readProcessEvents(STORY_ID);
       assert.equal(events.find(event => event.type === 'host_verdict')?.storyFilesHash, storyFilesHash);
+      assert.equal(events.find(event => event.type === 'review_host_availability_probe')?.storyFilesHash, storyFilesHash);
       assert.equal(events.find(event => event.type === 'review_escalation_fallback')?.storyFilesHash, storyFilesHash);
+      assert.equal(events.find(event => event.type === 'review_escalation_fallback')?.hostAvailabilityProbeId, events.find(event => event.type === 'review_host_availability_probe')?.probeId);
     } finally {
       rmSync(commandRoot, { recursive: true, force: true });
     }
@@ -386,7 +474,7 @@ try {
     assert.equal(report.fullQuorum.ignoredVerdicts.some(v => v.reasons.some(r => r.includes('decision is blocked'))), true);
   });
 
-  check('explicit degraded 3x1 fallback passes as degraded only', () => {
+  check('explicit-human-approval remains lower assurance degraded fallback', () => {
     const fresh = currentMaterialHash(root)!;
     const report = evaluateReviewEscalation({
       projectRoot: root,
@@ -401,6 +489,131 @@ try {
     assert.equal(report.authorityDone, false);
     assert.equal(report.fullAuthorityDone, false);
     assert.equal(report.productionDone, false);
+  });
+
+  check('missing host readiness probe blocks non-human degraded fallback', () => {
+    const fresh = currentMaterialHash(root)!;
+    const report = evaluateReviewEscalation({
+      projectRoot: root,
+      story: story(),
+      findings: [finding('032'), finding('033')],
+      processEvents: [
+        ...singleHostRounds(fresh),
+        fallback(fresh, {
+          eligibility: 'single-host-environment',
+          hostAvailabilityProbeId: '',
+        }),
+      ],
+    });
+    assert.equal(report.ok, false);
+    assert.equal(report.degradedFallback.record?.valid, false);
+    assert.match(report.reasons.join('\n'), /hostAvailabilityProbeId is required|no fresh review_host_availability_probe/);
+  });
+
+  check('temporary host unavailability also requires fresh insufficient-host proof', () => {
+    const fresh = currentMaterialHash(root)!;
+    const storyFilesHash = currentStoryFilesHash(root)!;
+    const missingProbe = evaluateReviewEscalation({
+      projectRoot: root,
+      story: story(),
+      findings: [finding('032-temp-a'), finding('033-temp-a')],
+      processEvents: [
+        ...singleHostRounds(fresh),
+        fallback(fresh, {
+          eligibility: 'temporary-host-unavailability',
+          hostAvailabilityProbeId: '',
+        }),
+      ],
+    });
+    assert.equal(missingProbe.ok, false);
+    assert.match(missingProbe.reasons.join('\n'), /hostAvailabilityProbeId is required|no fresh review_host_availability_probe/);
+
+    const staleProbe = hostAvailabilityProbe('stale-material', ['codex'], { storyFilesHash });
+    const staleProbeReport = evaluateReviewEscalation({
+      projectRoot: root,
+      story: story(),
+      findings: [finding('032-temp-b'), finding('033-temp-b')],
+      processEvents: [
+        ...singleHostRounds(fresh),
+        staleProbe,
+        fallback(fresh, {
+          eligibility: 'temporary-host-unavailability',
+          hostAvailabilityProbeId: staleProbe.probeId,
+        }),
+      ],
+    });
+    assert.equal(staleProbeReport.ok, false);
+    assert.match(staleProbeReport.reasons.join('\n'), /not fresh\/valid: materialHash is stale|no fresh review_host_availability_probe/);
+
+    const twoHostProbe = hostAvailabilityProbe(fresh, ['codex', 'claude'], { storyFilesHash });
+    const twoHostReport = evaluateReviewEscalation({
+      projectRoot: root,
+      story: story(),
+      findings: [finding('032-temp-c'), finding('033-temp-c')],
+      processEvents: [
+        ...singleHostRounds(fresh),
+        twoHostProbe,
+        fallback(fresh, {
+          eligibility: 'temporary-host-unavailability',
+          hostAvailabilityProbeId: twoHostProbe.probeId,
+        }),
+      ],
+    });
+    assert.equal(twoHostReport.ok, false);
+    assert.match(twoHostReport.reasons.join('\n'), /reviewReadyHostCount=2\/3; use full 3x2 or explicit-human-approval/);
+  });
+
+  check('probe with reviewReadyHostCount below two permits degraded 3x1', () => {
+    const fresh = currentMaterialHash(root)!;
+    const probe = hostAvailabilityProbe(fresh, ['codex'], { storyFilesHash: currentStoryFilesHash(root)! });
+    const report = evaluateReviewEscalation({
+      projectRoot: root,
+      story: story(),
+      findings: [finding('034'), finding('035')],
+      processEvents: [
+        ...singleHostRounds(fresh),
+        probe,
+        fallback(fresh, {
+          eligibility: 'single-host-environment',
+          hostAvailabilityProbeId: probe.probeId,
+        }),
+      ],
+    });
+    assert.equal(report.ok, true);
+    assert.equal(report.assuranceLevel, 'degraded-single-host');
+    assert.equal(report.degradedFallback.record?.hostAvailabilityProbeId, probe.probeId);
+    assert.equal(report.authorityDone, false);
+    assert.equal(report.fullAuthorityDone, false);
+    assert.equal(report.productionDone, false);
+  });
+
+  check('probe with two executable canonical hosts blocks single-host fallback', () => {
+    const commandRoot = makeRepo();
+    try {
+      write(commandRoot, 'packages/main/src/story.ts', 'export const story = 1;\n');
+      git(commandRoot, ['add', '.']);
+      git(commandRoot, ['commit', '-m', 'story file']);
+      const store = new StoryStore(commandRoot);
+      store.writeStory(STORY_ID, story());
+      const ctx = { store, root: commandRoot, scanRoot: join(commandRoot, 'packages/main') };
+      withFakeCanonicalHostPath(commandRoot, ['codex', 'claude'], () => {
+        const handlers = createReviewEscalationHandlers(ctx);
+        const probeResult = handlers.review_host_availability_probe({
+          storyId: STORY_ID,
+          json: true,
+        }) as any;
+        assert.equal(probeResult.availableHostCount, 2);
+        assert.throws(() => handlers.review_escalation_fallback_set({
+          storyId: STORY_ID,
+          eligibility: 'single-host-environment',
+          reason: 'Operator requested degraded fallback even though two hosts are available.',
+          evidenceRefs: ['manual:should-block'],
+          json: true,
+        }), /reviewReadyHostCount=2\/3; use full 3x2 or explicit-human-approval/);
+      });
+    } finally {
+      rmSync(commandRoot, { recursive: true, force: true });
+    }
   });
 
   check('degraded fallback requires approval or evidence and fresh material binding', () => {

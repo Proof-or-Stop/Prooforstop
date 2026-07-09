@@ -15,10 +15,12 @@ import {
   evaluateReviewAssuranceFloor,
   type EvaluateReviewAssuranceFloorArgs,
 } from '../core/review-assurance-floor.js';
+import { canonicalReviewHostLauncherSpec, type CanonicalReviewHost } from '../core/host-execution-readiness.js';
 import type { ProcessEvent, StoryInfo } from '../core/types.js';
 
 const STORY_ID = 'B-review-assurance-floor-storyfileshash';
 const PROJECT_ROOT = '/tmp/review-assurance-floor-storyfileshash-smoke-offline';
+const SMOKE_PROMPT = 'Reply READY and do not run tools.';
 
 // Synthetic, deterministic hashes (never derived from git in this smoke).
 const MATERIAL_X = 'material-x-original';
@@ -80,6 +82,7 @@ function fallback(
 ): ProcessEvent {
   return {
     type: 'review_escalation_fallback',
+    command: 'review_escalation_fallback_set',
     timestamp: '2026-06-19T11:30:00.000Z',
     fallbackId: `${STORY_ID}:REF-001`,
     eligibility: 'single-host-environment',
@@ -87,7 +90,69 @@ function fallback(
     evidenceRefs: ['manual:smoke-single-host-only'],
     materialHash,
     assuranceLevel: 'degraded-single-host',
+    authorityDone: false,
+    fullAuthorityDone: false,
+    productionDone: false,
     ...(storyFilesHash ? { storyFilesHash } : {}),
+    ...overrides,
+  };
+}
+
+function concreteLauncherArgv(host: CanonicalReviewHost): string[] {
+  return canonicalReviewHostLauncherSpec(host).launcherArgv.map(arg => {
+    if (arg === '<prompt>') return SMOKE_PROMPT;
+    if (arg === '<prompt-file>') return `/tmp/review-assurance-floor-storyfileshash-${host}-prompt.txt`;
+    return arg;
+  });
+}
+
+function hostAvailabilityProbe(
+  materialHash: string,
+  storyFilesHash: string | undefined,
+  availableHosts: string[],
+  overrides: Partial<ProcessEvent> = {},
+): ProcessEvent {
+  const available = new Set(availableHosts);
+  const hosts = (['codex', 'claude', 'agy'] as CanonicalReviewHost[]).map(host => {
+    const ready = available.has(host);
+    const spec = canonicalReviewHostLauncherSpec(host);
+    return {
+      host,
+      command: host,
+      ...(ready ? { executablePath: `/fake/bin/${host}` } : {}),
+      versionOk: ready,
+      available: ready,
+      ...(ready ? { versionOutput: `${host} 1.0.0` } : { error: 'executable not found in PATH' }),
+      launcher: spec.launcher,
+      launcherArgv: ready ? concreteLauncherArgv(host) : spec.launcherArgv,
+      launcherSupport: ready ? 'supported' : 'unverified',
+      launcherOk: ready,
+      executionReady: ready,
+      reviewReady: ready,
+      progressMode: spec.progressMode,
+      failureKind: ready ? 'none' : 'missing_executable',
+      durationMs: ready ? 12 : 0,
+      ...(ready ? { firstProgressMs: 12, exitCode: 0 } : {}),
+      remediation: ready ? '' : `Install or expose ${host} in PATH.`,
+    };
+  });
+  return {
+    schemaVersion: 'lattice.review_host_availability_probe.v2',
+    type: 'review_host_availability_probe',
+    command: 'review_host_availability_probe',
+    timestamp: '2026-06-19T11:20:00.000Z',
+    probeId: `${STORY_ID}:RHP-001`,
+    checkedAt: '2026-06-19T11:20:00.000Z',
+    materialHash,
+    ...(storyFilesHash ? { storyFilesHash } : {}),
+    hosts,
+    availableHostCount: availableHosts.length,
+    unavailableHostCount: 3 - availableHosts.length,
+    executionReadyHostCount: hosts.filter(host => host.executionReady).length,
+    reviewReadyHostCount: hosts.filter(host => host.reviewReady).length,
+    authorityDone: false,
+    fullAuthorityDone: false,
+    productionDone: false,
     ...overrides,
   };
 }
@@ -254,6 +319,7 @@ const highRiskStory = () =>
   });
 
 check('(d) degraded fallback: storyFilesHash match => valid with advisory', () => {
+  const probe = hostAvailabilityProbe(MATERIAL_Y, STORY_FILES_S, ['codex']);
   const report = evaluate({
     storyId: STORY_ID,
     story: highRiskStory(),
@@ -262,7 +328,8 @@ check('(d) degraded fallback: storyFilesHash match => valid with advisory', () =
     // plus an explicit fallback recorded at X with S.
     processEvents: [
       ...singleHostRounds(MATERIAL_X, STORY_FILES_S),
-      fallback(MATERIAL_X, STORY_FILES_S),
+      probe,
+      fallback(MATERIAL_X, STORY_FILES_S, { hostAvailabilityProbeId: probe.probeId }),
     ],
     materialHash: MATERIAL_Y,
     storyFilesHash: STORY_FILES_S,
@@ -282,13 +349,15 @@ check('(d) degraded fallback: storyFilesHash match => valid with advisory', () =
 });
 
 check('(d) degraded fallback: real story-file change => materialHash is stale', () => {
+  const probe = hostAvailabilityProbe(MATERIAL_Y, STORY_FILES_S2, ['codex']);
   const report = evaluate({
     storyId: STORY_ID,
     story: highRiskStory(),
     changedFiles: [HIGH_RISK_FILE],
     processEvents: [
       ...singleHostRounds(MATERIAL_X, STORY_FILES_S),
-      fallback(MATERIAL_X, STORY_FILES_S),
+      probe,
+      fallback(MATERIAL_X, STORY_FILES_S, { hostAvailabilityProbeId: probe.probeId }),
     ],
     materialHash: MATERIAL_Y,
     storyFilesHash: STORY_FILES_S2,

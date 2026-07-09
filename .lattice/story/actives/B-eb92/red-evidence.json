@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-eb92",
+  "records": [
+    {
+      "id": "RED-20260709110314",
+      "trigger": "review-assurance UX guidance is discovered too late or without safe legal writer paths",
+      "acceptanceTargetRef": "REQ-B-eb92-M3-M4",
+      "baselineHeadHash": "ddf873228ae405b465f6f13853a2decce06dfecc",
+      "baselineMaterialHash": "b63c7e7bc9a8362f0825d2757c5e616c059f124e7e1c3d80e71111845c8b2026",
+      "observedFailure": "Current pre-fix commands do not provide complete pre-DONE review-assurance guidance: done_prepare on B-eb92 stops at phase preflight with only 'story phase is PLAN, expected TEST' and suggests TEST advancement, while review_escalation_status only reports raw local-review fields and does not print canonical legal-writer, fallback-eligibility, and cannot-auto-sign guidance for the owner session.",
+      "failingCommand": "lattice done_prepare --storyId=B-eb92 --dryRun && lattice review_escalation_status --storyId=B-eb92",
+      "expectedGreenCommand": "npm --prefix packages/main run test:review-assurance-surfacing-smoke",
+      "greenRelation": {
+        "targetRef": "REQ-B-eb92-M3-M4",
+        "relation": "same_acceptance",
+        "command": "npm --prefix packages/main run test:review-assurance-surfacing-smoke"
+      },
+      "note": "This red evidence captures the current UX/drivability gap before implementation. The green command will be the focused smoke added by this story; it proves surfaced guidance, parseable machine output, and no owner auto-sign path.",
+      "createdAt": "2026-07-09T11:03:14.306Z"
+    },
+    {
+      "id": "RED-20260709110418",
+      "trigger": "review-assurance UX guidance is discovered too late or without safe legal writer paths",
+      "acceptanceTargetRef": "ACCEPT-B-eb92-M3-M4",
+      "baselineHeadHash": "ddf873228ae405b465f6f13853a2decce06dfecc",
+      "baselineMaterialHash": "b63c7e7bc9a8362f0825d2757c5e616c059f124e7e1c3d80e71111845c8b2026",
+      "observedFailure": "Current pre-fix commands do not provide complete pre-DONE review-assurance guidance: done_prepare on B-eb92 stops at phase preflight with only 'story phase is PLAN, expected TEST' and suggests TEST advancement, while review_escalation_status only reports raw local-review fields and does not print canonical legal-writer, fallback-eligibility, and cannot-auto-sign guidance for the owner session.",
+      "failingCommand": "lattice done_prepare --storyId=B-eb92 --dryRun && lattice review_escalation_status --storyId=B-eb92",
+      "expectedGreenCommand": "npm --prefix packages/main run test:review-assurance-surfacing-smoke",
+      "greenRelation": {
+        "targetRef": "ACCEPT-B-eb92-M3-M4",
+        "relation": "same_acceptance",
+        "command": "npm --prefix packages/main run test:review-assurance-surfacing-smoke"
+      },
+      "note": "Correctly binds the pre-fix UX gap to the ProofStory acceptance binding that covers M3/M4, CHK-001..003, and the required verification intents.",
+      "createdAt": "2026-07-09T11:04:18.526Z"
+    }
+  ],
+  "createdAt": "2026-07-09T11:03:14.306Z",
+  "updatedAt": "2026-07-09T11:04:18.526Z"
+}

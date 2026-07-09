@@ -1,12 +1,12 @@
 {
   "schemaVersion": "proofstory.milestone_ledger.v1",
   "storyId": "B-eb08",
-  "state": "candidate",
-  "ledgerHash": "sha256:99048b8ea47c6f9575f86f44a8b344865c6d8400ca54ca66d615ca51b67a14ab",
+  "state": "confirmed",
+  "ledgerHash": "sha256:db1fe4432a5c68f5585abdbfd78f79ca567727d7695440573fb9c73df55def4a",
   "milestones": [
     {
       "id": "M0",
-      "sourceRequirementId": "DOC-M0",
+      "sourceRequirementId": "CHK-003",
       "claim": "B-90d6 silent closeout behavior is represented by a regression fixture or test harness.",
       "doneMeans": "A focused test fixture covers post-validation done_prepare closeout progress behavior without asserting a fixed validate command count.",
       "requiredEvidence": [
@@ -22,7 +22,7 @@
     },
     {
       "id": "M1",
-      "sourceRequirementId": "DOC-M1",
+      "sourceRequirementId": "CHK-001",
       "claim": "done_prepare has a stable post-validation progress label contract.",
       "doneMeans": "Human output prints required progress labels and --json stdout remains parseable.",
       "requiredEvidence": [
@@ -40,7 +40,7 @@
     },
     {
       "id": "M2",
-      "sourceRequirementId": "DOC-M2",
+      "sourceRequirementId": "CHK-002",
       "claim": "Heartbeating closeout phases still fail closed on real hangs.",
       "doneMeans": "A hung heartbeating closeout fixture fails via independent phase deadline.",
       "requiredEvidence": [
@@ -57,5 +57,10 @@
     }
   ],
   "createdAt": "2026-07-09T01:27:42.194Z",
-  "updatedAt": "2026-07-09T01:27:42.194Z"
+  "updatedAt": "2026-07-09T01:38:56.647Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260709013753",
+    "acceptedInterpretationHash": "sha256:b1f4a767f4ba4384dcc98f974499d7672eab4a84d1528080740ead1a3d4ae320",
+    "acceptedAt": "2026-07-09T01:38:56.647Z"
+  }
 }

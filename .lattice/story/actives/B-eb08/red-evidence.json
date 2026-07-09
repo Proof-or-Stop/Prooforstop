@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-eb08",
+  "records": [
+    {
+      "id": "RED-20260709013832",
+      "trigger": "done_prepare closeout UX regression",
+      "acceptanceTargetRef": "ACCEPT-B-eb08-STORY-A",
+      "baselineHeadHash": "931c5362c86705fb6ee344060f4c4dac70b5ea14",
+      "baselineMaterialHash": "6e2f107460b29f2ec7844dec46d42a885c397939c2e343b2b5245ac52645ee03",
+      "observedFailure": "Before Story A, done_prepare can finish validation and then enter DONE closure/runtime/clean-tree projection without any post-validation progress labels; a heartbeating closeout helper would also lack an independent per-phase deadline, so terminal liveness could mask a true hang.",
+      "failureReceiptHash": "sha256:6063b8c4710a2e5feaee13a38e05884b5ae692bea3b0bb5eb10df8e656c3ceb3",
+      "expectedGreenCommand": "npm --prefix packages/main run build && node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js",
+      "greenRelation": {
+        "targetRef": "ACCEPT-B-eb08-STORY-A",
+        "relation": "same_acceptance",
+        "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js"
+      },
+      "note": "Pre-fix failure is the B-90d6/B-eb08 baseline captured before implementing Story A; green proof is the focused smoke plus build added in this story.",
+      "createdAt": "2026-07-09T01:38:32.538Z"
+    }
+  ],
+  "createdAt": "2026-07-09T01:38:32.538Z",
+  "updatedAt": "2026-07-09T01:38:32.538Z"
+}

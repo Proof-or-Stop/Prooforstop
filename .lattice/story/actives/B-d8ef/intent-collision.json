@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-d8ef",
+  "id": "IC-20260709130927",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Implement the host-readiness hardening requested by the user: extend canonical review host availability proof from executable/version checks to bounded noninteractive launcher readiness for Codex CLI, Claude Code CLI, and agy; feed execution/review-ready counts into degraded fallback and diagnostics; and add focused smoke coverage for Claude verbose stream-json, Codex exec auth failure, and agy print launcher semantics. Do not claim remote completion, release readiness, or read/copy auth-profile token material.",
+  "acceptedInterpretationHash": "sha256:e026ce03f50895ea7902e2c0b237fd0cd782c4185084461df2e26417ba22ac3e",
+  "notes": "No conflicting interpretation accepted: this is a local Proofbound drivability/gate hardening story, not a Tier-C provider campaign, not a production release, and not permission to expose secrets or run unbounded reviewer prompts.",
+  "ledgerHashBeforeDecision": "sha256:cab2bd32af4aba315ff6dfe5a969d155d94158737f1effbecf80e35aac7b69d8",
+  "confirmedLedgerHash": "sha256:cab2bd32af4aba315ff6dfe5a969d155d94158737f1effbecf80e35aac7b69d8",
+  "createdAt": "2026-07-09T13:09:27.449Z",
+  "updatedAt": "2026-07-09T13:09:50.050Z"
+}

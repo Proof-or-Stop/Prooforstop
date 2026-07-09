@@ -37,6 +37,7 @@ import {
 import type { StoryStore } from './store.js';
 import { resolveGitCwd } from './story-signed-workspace-resolution.js';
 import { getSessionId } from './owner-session.js';
+import { canonicalReviewHostLauncherSpec } from './host-execution-readiness.js';
 // B-ceed: codex + legacy gemini live-dispatch — bounded provider seams (real spawn).
 import { codexCliAvailable, runBoundedCodexProvider } from '../providers/codex-cli.js';
 import { geminiCliAvailable, runBoundedGeminiProvider } from '../providers/gemini-cli.js';
@@ -82,7 +83,7 @@ export type EnvSafetyPosture = 'sandboxed' | 'inherited' | 'unverified';
 export type LoginReadiness = 'ready' | 'requires-login' | 'unknown';
 export type ReceiptSupport = 'structured' | 'transcript-capture' | 'unverified';
 
-const CLAUDE_PRINT_LAUNCHER = 'claude --print <prompt-file>';
+const CLAUDE_PRINT_LAUNCHER = canonicalReviewHostLauncherSpec('claude').launcherArgv.join(' ');
 
 export interface HostRuntimeProbe {
   schemaVersion: 'lattice.host_runtime_probe.v1';
@@ -247,6 +248,35 @@ export interface DispatchRunResult {
   productionDone: false;
 }
 
+export interface DispatchReassignResult {
+  schemaVersion: 'lattice.dispatch_reassign.v1';
+  mode: 'fresh-context';
+  previousDispatchId: string;
+  dispatchId: string;
+  storyId: string;
+  role: string;
+  roleSource: 'requested' | 'default';
+  objective: string;
+  promptFile: string;
+  dispatch: DispatchRecord;
+  previous: {
+    dispatchId: string;
+    status: DispatchLifecycleStatus;
+    host: HostRuntimeId;
+    packId: string;
+    packHash: string;
+    promptFile: string;
+    role?: string;
+    objective?: string;
+    nextAction: string;
+  };
+  warnings: string[];
+  nextAction: string;
+  authorityChanged: false;
+  receiptVerified: false;
+  productionDone: false;
+}
+
 export interface DispatchStatusResult {
   schemaVersion: 'lattice.dispatch_status.v1';
   dispatch: DispatchRecord;
@@ -385,14 +415,46 @@ type DispatchPlanArgs = {
   parallel?: number;
 };
 
+type DispatchPromptContinuity = {
+  mode: 'fresh-context';
+  previousDispatchId: string;
+  previousStatus: DispatchLifecycleStatus;
+  previousHost: HostRuntimeId;
+  previousPackId: string;
+  previousPackHash: string;
+  previousPromptFile: string;
+  previousRole?: string;
+  previousObjective?: string;
+  previousNextAction: string;
+};
+
 type DispatchPrepareArgs = DispatchPlanArgs & {
   dispatchId?: string;
+  parentDispatchId?: string;
+  promptContinuity?: DispatchPromptContinuity;
 };
 
 type DispatchRunArgs = DispatchPrepareArgs & {
   dispatchId?: string;
   executionPolicy?: DispatchCommandExecutionPolicy;
   allowRealHostSubprocess?: boolean;
+};
+
+type DispatchReassignArgs = {
+  dispatchId: string;
+  host?: string;
+  fromHost?: string;
+  role?: string;
+  objective?: string;
+  allowedPaths?: string[];
+  deniedPaths?: string[];
+  requiredCommands?: string[];
+  successCriteria?: string[];
+  baseSha?: string;
+  packId?: string;
+  authorityBoundary?: string;
+  executionInstructions?: string[];
+  parallel?: number;
 };
 
 type DispatchCommandExecutionPolicy = {
@@ -481,10 +543,10 @@ function currentCodexSessionAvailable(): boolean {
 
 function runtimeTemplate(host: HostRuntimeId): string[] | undefined {
   if (host === 'fake') return ['fake-runtime', '--deterministic'];
-  if (host === 'claude-code') return ['claude', '--print', '<prompt-file>'];
-  if (host === 'antigravity') return ['agy', '--prompt-file', '<prompt-file>'];
+  if (host === 'claude-code') return canonicalReviewHostLauncherSpec('claude').launcherArgv;
+  if (host === 'antigravity') return canonicalReviewHostLauncherSpec('agy').launcherArgv;
   if (host === 'gemini') return ['gemini', '--prompt-file', '<prompt-file>'];
-  return ['codex', 'exec', '--prompt-file', '<prompt-file>'];
+  return canonicalReviewHostLauncherSpec('codex').launcherArgv;
 }
 
 interface RealHostCapabilities {
@@ -910,6 +972,13 @@ function normalizeList(values: string[] | undefined): string[] {
   return normalized;
 }
 
+function rewriteRoleExecutionInstruction(instructions: string[] | undefined, role: string): string[] {
+  const nextRoleInstruction = `Work in role: ${role}.`;
+  return normalizeList(normalizeList(instructions).map(instruction =>
+    /^Work in role:\s*[^.]+\.?$/i.test(instruction) ? nextRoleInstruction : instruction,
+  ));
+}
+
 function normalizeDispatchId(dispatchId: string, label = 'dispatchId'): string {
   const trimmed = dispatchId.trim();
   if (!trimmed) {
@@ -988,12 +1057,19 @@ function createDispatchId(storyId: string, host: HostRuntimeId): string {
   return `D-${sanitizeSegment(storyId)}-${sanitizeSegment(host)}-${stamp}`;
 }
 
-function dispatchPrompt(pack: HandoffPack, runtime: HostRuntimeProbe, dispatchId: string): string {
-  return [
+function dispatchPrompt(
+  pack: HandoffPack,
+  runtime: HostRuntimeProbe,
+  dispatchId: string,
+  continuity?: DispatchPromptContinuity,
+): string {
+  const lines = [
     `# Proofbound Dispatch ${dispatchId}`,
     '',
     `Story: ${pack.storyId}`,
     `Host runtime: ${runtime.host}`,
+    `Role: ${pack.role || 'overflow-worker'}`,
+    `Objective: ${pack.objective || `Dispatch runtime work for ${pack.storyId}`}`,
     `Pack: ${pack.packId} (${pack.packHash})`,
     '',
     '## Execution Instructions',
@@ -1008,7 +1084,25 @@ function dispatchPrompt(pack: HandoffPack, runtime: HostRuntimeProbe, dispatchId
     '## Authority Boundary',
     `- ${pack.authorityBoundary.summary}`,
     ...pack.authorityBoundary.notes.map(line => `- ${line}`),
-  ].join('\n') + '\n';
+  ];
+  if (continuity) {
+    lines.push(
+      '',
+      '## Fresh-context Continuity',
+      `- mode: ${continuity.mode}`,
+      `- Previous dispatch: ${continuity.previousDispatchId}`,
+      `- Previous status: ${continuity.previousStatus}`,
+      `- Previous host: ${continuity.previousHost}`,
+      `- Previous pack: ${continuity.previousPackId} (${continuity.previousPackHash})`,
+      `- Previous prompt file: ${continuity.previousPromptFile}`,
+      ...(continuity.previousRole ? [`- Previous role: ${continuity.previousRole}`] : []),
+      ...(continuity.previousObjective ? [`- Previous objective: ${continuity.previousObjective}`] : []),
+      `- Previous next action: ${continuity.previousNextAction}`,
+      '- Use this summary-only continuity block plus the new handoff pack; no full-history fork is required.',
+      '- This prompt does not inherit conversation history, verify receipts, claim release readiness, mark release completion, or change authority.',
+    );
+  }
+  return lines.join('\n') + '\n';
 }
 
 function handoffTargetForRuntime(host: HostRuntimeId): string {
@@ -1182,6 +1276,19 @@ function resolveEffectiveStatus(record: DispatchRecord): DispatchLifecycleStatus
   return record.status;
 }
 
+function requireReassignablePreviousDispatch(root: string, record: DispatchRecord): DispatchLifecycleStatus {
+  const effectiveStatus = resolveEffectiveStatus(record);
+  const receiptStatus = maybeReadReceiptSubmission(root, record)?.status ?? 'missing';
+  if (effectiveStatus === 'accepted_local' && receiptStatus === 'accepted-local') {
+    return effectiveStatus;
+  }
+  throw new Error(
+    `dispatch_reassign requires a completed/accepted previous dispatch with an accepted-local receipt; `
+    + `${record.dispatchId} has status=${effectiveStatus} and localReceiptStatus=${receiptStatus}. `
+    + 'Run dispatch_run or dispatch_resume to completion before reassigning follow-up work.',
+  );
+}
+
 function ensurePreparedPackForFake(root: string, dispatchId: string, pack: HandoffPack): HandoffPack {
   if (pack.allowedPaths.length > 0) return pack;
   const safePath = `.lattice/dispatches/${dispatchId}/worker/fake-result.txt`;
@@ -1239,7 +1346,7 @@ function assertClaudePrintLauncherAllowed(
 ): void {
   if (commandAllowlistAllowsClaudePrint(commandAllowlist)) return;
   throw new Error(
-    `${refusalPrefix} policy commandAllowlist must include canonical launcher "${CLAUDE_PRINT_LAUNCHER}" before Proofbound may start claude --print.`,
+    `${refusalPrefix} policy commandAllowlist must include canonical observable launcher "${CLAUDE_PRINT_LAUNCHER}" before Proofbound may start claude --print.`,
   );
 }
 
@@ -1480,6 +1587,33 @@ function appendTranscript(file: string, lines: string[]): void {
   const previous = existsSync(file) ? readFileSync(file, 'utf8') : '';
   const payload = `${previous}${lines.join('\n')}\n`;
   writeFileSync(file, payload, 'utf8');
+}
+
+function renderRuntimeInvocationTemplate(
+  template: string[] | undefined,
+  opts: {
+    promptFile: string;
+    worktreePath: string;
+    promptMode: 'contents' | 'reference' | 'stdin';
+  },
+): string[] {
+  const parts = template ?? [];
+  const needsPromptContents = parts.includes('<prompt>') && opts.promptMode === 'contents';
+  const promptReplacement = opts.promptMode === 'contents'
+    ? needsPromptContents ? readFileSync(opts.promptFile, 'utf8') : ''
+    : opts.promptMode === 'stdin'
+      ? '-'
+      : `[prompt contents from ${opts.promptFile}]`;
+  return parts.map(part => {
+    if (part === '<prompt>') return promptReplacement;
+    if (part === '<prompt-file>') return opts.promptFile;
+    if (part === '<worktree>') return opts.worktreePath;
+    return part;
+  });
+}
+
+function runtimeTemplateHasPromptPlaceholder(template: string[] | undefined): boolean {
+  return (template ?? []).includes('<prompt>');
 }
 
 function gitOutput(cwd: string, args: string[]): string {
@@ -1851,8 +1985,11 @@ export function prepareDispatch(store: StoryStore, root: string, args: DispatchP
   const worktree = buildHandoffWorktreeProjection(pack);
   const promptFile = dispatchFile(root, dispatchId, 'prompt.md');
   const transcriptFile = dispatchFile(root, dispatchId, 'transcript.log');
-  writeFileSync(promptFile, dispatchPrompt(pack, plan.runtime, dispatchId), 'utf8');
+  writeFileSync(promptFile, dispatchPrompt(pack, plan.runtime, dispatchId, args.promptContinuity), 'utf8');
   if (!existsSync(transcriptFile)) writeFileSync(transcriptFile, '', 'utf8');
+  const parentDispatchId = args.parentDispatchId?.trim()
+    ? normalizeDispatchId(args.parentDispatchId, 'parentDispatchId')
+    : requestedDispatchId;
   const record: DispatchRecord = {
     schemaVersion: 'lattice.dispatch_record.v1',
     dispatchId,
@@ -1882,12 +2019,95 @@ export function prepareDispatch(store: StoryStore, root: string, args: DispatchP
       cleanupCommand: worktree.cleanupCommand,
     },
     workerIds: [],
-    ...(requestedDispatchId ? { parentDispatchId: requestedDispatchId } : {}),
+    ...(parentDispatchId ? { parentDispatchId } : {}),
     authorityChanged: false,
     receiptVerified: false,
     productionDone: false,
   };
   return writeRecord(root, record);
+}
+
+export function reassignDispatch(store: StoryStore, root: string, args: DispatchReassignArgs): DispatchReassignResult {
+  const previousDispatchId = normalizeDispatchId(args.dispatchId);
+  const previous = readRecord(root, previousDispatchId);
+  const previousStatus = requireReassignablePreviousDispatch(root, previous);
+  const previousPack = readPack(root, previous.dispatchId);
+  const requestedRole = args.role?.trim();
+  const role = requestedRole || 'overflow-worker';
+  const objective = args.objective?.trim()
+    || previousPack.objective?.trim()
+    || `Dispatch runtime work for ${previous.storyId}`;
+  const host = args.host?.trim() || previous.selectedHost;
+  const prepareArgs: DispatchPrepareArgs = {
+    storyId: previous.storyId,
+    host,
+    fromHost: args.fromHost?.trim() || previousPack.fromHost,
+    role,
+    objective,
+    allowedPaths: args.allowedPaths !== undefined ? args.allowedPaths : [...previousPack.allowedPaths],
+    deniedPaths: args.deniedPaths !== undefined ? args.deniedPaths : [...previousPack.deniedPaths],
+    requiredCommands: args.requiredCommands !== undefined ? args.requiredCommands : [...previousPack.requiredCommands],
+    successCriteria: args.successCriteria !== undefined ? args.successCriteria : [...previousPack.successCriteria],
+    baseSha: args.baseSha?.trim() || previousPack.baseSha,
+    packId: args.packId?.trim() || undefined,
+    authorityBoundary: args.authorityBoundary?.trim() || previousPack.authorityBoundary.summary,
+    executionInstructions: rewriteRoleExecutionInstruction(
+      args.executionInstructions !== undefined ? args.executionInstructions : previousPack.executionInstructions,
+      role,
+    ),
+    parallel: Math.max(1, args.parallel ?? 1),
+    parentDispatchId: previous.dispatchId,
+    promptContinuity: {
+      mode: 'fresh-context',
+      previousDispatchId: previous.dispatchId,
+      previousStatus,
+      previousHost: previous.selectedHost,
+      previousPackId: previousPack.packId,
+      previousPackHash: previousPack.packHash,
+      previousPromptFile: previous.promptFile,
+      ...(previousPack.role ? { previousRole: previousPack.role } : {}),
+      ...(previousPack.objective ? { previousObjective: previousPack.objective } : {}),
+      previousNextAction: previous.nextAction,
+    },
+  };
+  const record = prepareDispatch(store, root, prepareArgs);
+  const nextAction = `Worker reassignment ready. Open ${record.promptFile} and launch role=${role} with fresh context; no full-history fork is required.`;
+  const updated = writeRecord(root, {
+    ...record,
+    nextAction,
+  });
+  const newPack = readPack(root, updated.dispatchId);
+  return {
+    schemaVersion: 'lattice.dispatch_reassign.v1',
+    mode: 'fresh-context',
+    previousDispatchId: previous.dispatchId,
+    dispatchId: updated.dispatchId,
+    storyId: updated.storyId,
+    role,
+    roleSource: requestedRole ? 'requested' : 'default',
+    objective: newPack.objective || objective,
+    promptFile: updated.promptFile,
+    dispatch: updated,
+    previous: {
+      dispatchId: previous.dispatchId,
+      status: previousStatus,
+      host: previous.selectedHost,
+      packId: previousPack.packId,
+      packHash: previousPack.packHash,
+      promptFile: previous.promptFile,
+      ...(previousPack.role ? { role: previousPack.role } : {}),
+      ...(previousPack.objective ? { objective: previousPack.objective } : {}),
+      nextAction: previous.nextAction,
+    },
+    warnings: [
+      ...updated.warnings,
+      'Reassignment uses summary-only fresh-context continuity; no full-history fork is required.',
+    ],
+    nextAction,
+    authorityChanged: false,
+    receiptVerified: false,
+    productionDone: false,
+  };
 }
 
 function runFakeLeafDispatch(
@@ -2006,16 +2226,14 @@ const DISPATCH_LEDGER_AGENT_TYPE = 'lattice-dispatch:claude-code';
 const DISPATCH_LEDGER_ESTIMATE_MODEL = 'claude-code';
 
 /**
- * Pure spawn-arg builder for the claude-code leaf dispatch. EXTRACTED so the
- * OFF-vs-ON arg shape is unit-testable WITHOUT changing OFF behavior:
- *   - ledger OFF -> exactly ['--print', promptFile] (byte-identical to today);
- *   - ledger ON  -> ['--print', promptFile, '--output-format', 'json'] so the
- *     host emits the JSON envelope we parse for usage.
- * The OFF branch returns the literal original array; the ON branch only APPENDS.
+ * Pure spawn-arg builder for the claude-code leaf dispatch. The canonical
+ * launcher carries a `<prompt-file>` placeholder, and real dispatch renders that
+ * placeholder to the prompt file path.
  */
-export function buildClaudeSpawnArgs(promptFile: string, ledgerOn: boolean): string[] {
-  if (!ledgerOn) return ['--print', promptFile];
-  return ['--print', promptFile, '--output-format', 'json'];
+export function buildClaudeSpawnArgs(promptFile: string): string[] {
+  return canonicalReviewHostLauncherSpec('claude').launcherArgv
+    .slice(1)
+    .map(arg => arg === '<prompt>' || arg === '<prompt-file>' ? promptFile : arg);
 }
 
 /** Deterministic projectRootHash for ledger records (sha256 of the root path). */
@@ -2098,9 +2316,14 @@ function runBoundedRealLeafDispatch(
   const startedAt = nowIso();
   const promptFile = resolve(root, record.promptFile);
   const transcriptPath = resolve(root, record.transcriptFile);
-  const invocation = runtime.invocationTemplate?.map(part =>
-    part === '<prompt-file>' ? promptFile : part === '<worktree>' ? record.worktree.worktreePath : part,
-  ) ?? [];
+  const worktreeAbs = resolve(root, record.worktree.worktreePath);
+  const usesPromptStdin = hostKind === 'codex' && (runtime.invocationTemplate ?? []).includes('<prompt>');
+  const promptStdin = usesPromptStdin ? readFileSync(promptFile, 'utf8') : undefined;
+  const invocation = renderRuntimeInvocationTemplate(runtime.invocationTemplate, {
+    promptFile,
+    worktreePath: record.worktree.worktreePath,
+    promptMode: usesPromptStdin ? 'stdin' : 'reference',
+  });
   const argv = invocation.length > 1 ? invocation.slice(1) : [];
   const timeoutMs = Math.ceil(executionPolicy.maxRuntimeMs);
   const runner = hostKind === 'codex' ? runBoundedCodexProvider : runBoundedGeminiProvider;
@@ -2137,7 +2360,7 @@ function runBoundedRealLeafDispatch(
   let ledgerHandle: ReturnType<typeof recordDispatchPreflight> = null;
   if (ledgerOn) {
     try {
-      const promptText = readFileSync(promptFile, 'utf8');
+      const promptText = promptStdin ?? readFileSync(promptFile, 'utf8');
       ledgerHandle = recordDispatchPreflight(root, ledgerCtx, promptText, ledgerOpts);
     } catch (error) {
       appendTranscript(transcriptPath, [
@@ -2149,10 +2372,11 @@ function runBoundedRealLeafDispatch(
   const result = runner({
     provider: hostKind,
     argv,
-    cwd: record.worktree.worktreePath,
+    cwd: worktreeAbs,
     timeoutMs,
     maxAttempts: 1,
     env: providerEnv,
+    ...(promptStdin !== undefined ? { stdin: promptStdin } : {}),
   });
 
   if (ledgerOn) {
@@ -2177,14 +2401,20 @@ function runBoundedRealLeafDispatch(
   const endedAt = nowIso();
   appendTranscript(transcriptPath, [
     `[${startedAt}] ${hostKind} real subprocess started (worktree ${record.worktree.worktreePath})`,
+    ...(promptStdin !== undefined ? [`[${startedAt}] prompt delivered via stdin from ${promptFile}`] : []),
     `[${endedAt}] exitCode=${result.exitCode ?? 'null'} durationMs=${result.durationMs} spawnError=${result.spawnError} timedOut=${result.timedOut}`,
   ]);
   const status: DispatchLifecycleStatus = result.exitCode === 0 && !result.spawnError && !result.timedOut
     ? 'accepted_local'
     : 'diagnostic';
+  const spawnFailureHint = result.spawnErrorKind === 'argv_too_large'
+    ? ' (spawn failed: argv_too_large; use stdin or prompt-file rendering for large prompts)'
+    : result.spawnErrorKind
+      ? ` (spawn failed: ${result.spawnErrorKind}${result.spawnErrorCode ? `/${result.spawnErrorCode}` : ''})`
+      : '';
   const nextAction = status === 'accepted_local'
     ? `${hostKind} real subprocess completed cleanly in ${record.worktree.worktreePath}. Review the transcript before merge planning.`
-    : `${hostKind} real subprocess returned exitCode=${result.exitCode ?? 'null'}. Review the transcript and decide whether to retry or escalate.`;
+    : `${hostKind} real subprocess returned exitCode=${result.exitCode ?? 'null'}${spawnFailureHint}. Review the transcript and decide whether to retry or escalate.`;
   const updated = writeRecord(root, {
     ...record,
     status,
@@ -2237,15 +2467,15 @@ function runClaudeCodeRealLeafDispatch(
   const runnerStartedAt = nowIso();
   const promptFile = resolve(root, record.promptFile);
   assertClaudePrintLauncherAllowed(executionPolicy.commandAllowlist, 'dispatch_run:');
-  const commandTemplate = runtime.invocationTemplate ?? ['claude', '--print', '<prompt-file>'];
+  const commandTemplate = runtime.invocationTemplate ?? canonicalReviewHostLauncherSpec('claude').launcherArgv;
   const commandLabel = CLAUDE_PRINT_LAUNCHER;
   const transcriptPath = resolve(root, record.transcriptFile);
   const commandEnv = buildRequiredCommandEnv(executionPolicy);
   const timeoutMs = Math.ceil(executionPolicy.maxRuntimeMs);
 
-  // ---- THIN ONE-WAY USAGE-LEDGER SEAM (opt-in; OFF path is byte-identical) ----
-  // INV-1: ledgerOn drives the arg shape; when OFF the builder returns the literal
-  // original ['--print', promptFile] and stdout is used raw, exactly as before.
+  // ---- THIN ONE-WAY USAGE-LEDGER SEAM (opt-in; usage extraction best-effort) ----
+  // INV-1: dispatch always uses the observable Claude stream-json launcher; when
+  // the ledger is OFF stdout is still captured raw for the local receipt.
   // INV-3: every ledger call below is wrapped in try/catch and proceeds on error.
   const ledgerOn = isUsageLedgerEnabled();
   const ledgerCtx: DispatchUsageContext = {
@@ -2266,11 +2496,39 @@ function runClaudeCodeRealLeafDispatch(
     env: process.env,
   };
   let ledgerHandle: ReturnType<typeof recordDispatchPreflight> = null;
-  let ledgerPromptText = '';
+  let promptText = '';
+  try {
+    promptText = readFileSync(promptFile, 'utf8');
+  } catch (error) {
+    const detail = String((error as Error)?.message ?? error);
+    appendTranscript(transcriptPath, [
+      `[${nowIso()}] claude-code dispatch failed before spawn: could not read prompt file ${promptFile}: ${detail}`,
+    ]);
+    const failed = writeRecord(root, {
+      ...record,
+      status: 'failed',
+      warnings: [...record.warnings, `Could not read dispatch prompt file ${record.promptFile}: ${detail}`],
+      nextAction: `Claude Code subprocess was not started because ${record.promptFile} could not be read. Regenerate the dispatch prompt, then rerun dispatch_run.`,
+    });
+    return {
+      schemaVersion: 'lattice.dispatch_run.v1',
+      dispatchId: failed.dispatchId,
+      storyId: failed.storyId,
+      host: failed.selectedHost,
+      status: failed.status,
+      parallel: failed.parallel,
+      runtime: failed.runtime,
+      workers: [],
+      warnings: [...failed.warnings],
+      nextAction: failed.nextAction,
+      authorityChanged: false,
+      receiptVerified: false,
+      productionDone: false,
+    };
+  }
   if (ledgerOn) {
     try {
-      ledgerPromptText = readFileSync(promptFile, 'utf8');
-      ledgerHandle = recordDispatchPreflight(root, ledgerCtx, ledgerPromptText, ledgerOpts);
+      ledgerHandle = recordDispatchPreflight(root, ledgerCtx, promptText, ledgerOpts);
     } catch (error) {
       appendTranscript(transcriptPath, [
         `[${nowIso()}] usage-ledger preflight skipped (non-fatal): ${String((error as Error)?.message ?? error)}`,
@@ -2292,7 +2550,7 @@ function runClaudeCodeRealLeafDispatch(
       root,
       ledgerCtx,
       ledgerHandle,
-      ledgerPromptText,
+      promptText,
       ledgerOpts,
     );
     if (budgetDecision.blocked) {
@@ -2309,12 +2567,17 @@ function runClaudeCodeRealLeafDispatch(
     }
   }
 
-  const spawnArgs = buildClaudeSpawnArgs(promptFile, ledgerOn);
-  const invocation = ['claude', ...spawnArgs];
+  const spawnArgs = buildClaudeSpawnArgs(promptFile);
+  const displayInvocation = renderRuntimeInvocationTemplate(commandTemplate, {
+    promptFile,
+    worktreePath: record.worktree.worktreePath,
+    promptMode: 'reference',
+  });
   appendTranscript(transcriptPath, [
     `[${nowIso()}] claude-code real subprocess starting`,
     `[${nowIso()}] cwd ${record.worktree.worktreePath} (${worktreeAbs})`,
-    `[${nowIso()}] invocation ${invocation.join(' ')}`,
+    `[${nowIso()}] invocation ${displayInvocation.length > 0 ? displayInvocation.join(' ') : commandLabel}`,
+    `[${nowIso()}] prompt argument rendered from ${promptFile}`,
   ]);
 
   const result = spawnSync('claude', spawnArgs, {
@@ -2327,9 +2590,9 @@ function runClaudeCodeRealLeafDispatch(
   const timedOut = spawnTimedOut(result, timeoutMs);
   const exitCode = spawnExitCode(result, timedOut);
   const rawStdout = spawnOutputText(result.stdout).trimEnd();
-  // INV-1/INV-2: OFF -> stdout is the raw text, byte-identical to today. ON ->
-  // parse the JSON envelope; resultText is the downstream text (raw fallback when
-  // the output is not JSON/usage), and the parsed usage feeds the final record.
+  // INV-1/INV-2: OFF -> stdout is the raw captured stream. ON -> parse usage on a
+  // best-effort basis; stream-json falls back to raw text when not a single JSON
+  // envelope, and the parsed usage feeds the final record when available.
   let stdout = rawStdout;
   if (ledgerOn) {
     try {
@@ -2370,7 +2633,7 @@ function runClaudeCodeRealLeafDispatch(
     dispatchId: record.dispatchId,
     host: record.selectedHost,
     commandTemplate,
-    invocation,
+    invocation: displayInvocation,
     cwd: record.worktree.worktreePath,
     transcriptPath: record.transcriptFile,
     startedAt: runnerStartedAt,
@@ -2727,16 +2990,23 @@ export function runDispatch(store: StoryStore, root: string, args: DispatchRunAr
   }
   const scaffoldStartedAt = nowIso();
   const promptFile = resolve(root, record.promptFile);
-  const invocation = runtime.invocationTemplate?.map(part =>
-    part === '<prompt-file>' ? promptFile : part === '<worktree>' ? record.worktree.worktreePath : part,
-  ) ?? [];
+  const invocation = renderRuntimeInvocationTemplate(runtime.invocationTemplate, {
+    promptFile,
+    worktreePath: record.worktree.worktreePath,
+    promptMode: 'reference',
+  });
+  const hasPromptPlaceholder = runtimeTemplateHasPromptPlaceholder(runtime.invocationTemplate);
   appendTranscript(resolve(root, record.transcriptFile), [
     `[${nowIso()}] scaffolded runtime ${runtime.host}`,
     `[${nowIso()}] worktree ready ${record.worktree.worktreePath} (${worktreeAbs})`,
     invocation.length > 0 ? invocation.join(' ') : '(no invocation template)',
+    ...(hasPromptPlaceholder ? [`[${nowIso()}] replace the prompt reference with the contents of ${promptFile} before launching manually`] : []),
   ]);
   const status: DispatchLifecycleStatus = 'needs_receipt';
-  const nextAction = `Manual-first only. Worktree is ready at ${record.worktree.worktreePath}. Run ${invocation.join(' ')} there, then return a local receipt via dispatch_collect/dispatch_receipt_create.`;
+  const promptInstruction = hasPromptPlaceholder
+    ? ` The prompt argument shown above is a compact reference; replace it with the contents of ${promptFile} before launching.`
+    : '';
+  const nextAction = `Manual-first only. Worktree is ready at ${record.worktree.worktreePath}. Run ${invocation.join(' ')} there, then return a local receipt via dispatch_collect/dispatch_receipt_create.${promptInstruction}`;
   const scaffoldedRunner = buildScaffoldedRunnerRecord({
     dispatchId: record.dispatchId,
     host: record.selectedHost,
@@ -3464,6 +3734,27 @@ export function renderDispatchRunText(result: DispatchRunResult): string {
     lines.push('', 'workers:');
     lines.push(...result.workers.map(worker => `  - ${worker.dispatchId}: ${worker.status}`));
   }
+  if (result.warnings.length > 0) {
+    lines.push('', 'warnings:');
+    lines.push(...result.warnings.map(warning => `  - ${warning}`));
+  }
+  return lines.join('\n');
+}
+
+export function renderDispatchReassignText(result: DispatchReassignResult): string {
+  const lines = [
+    `Worker reassignment ready (${result.schemaVersion})`,
+    `mode: ${result.mode}`,
+    `previousDispatchId: ${result.previousDispatchId}`,
+    `dispatchId: ${result.dispatchId}`,
+    `storyId: ${result.storyId}`,
+    `role: ${result.role}`,
+    `roleSource: ${result.roleSource}`,
+    `objective: ${result.objective}`,
+    `parentDispatchId: ${result.dispatch.parentDispatchId}`,
+    `promptFile: ${result.promptFile}`,
+    `nextAction: ${result.nextAction}`,
+  ];
   if (result.warnings.length > 0) {
     lines.push('', 'warnings:');
     lines.push(...result.warnings.map(warning => `  - ${warning}`));

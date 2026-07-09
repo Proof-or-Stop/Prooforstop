@@ -1,0 +1,72 @@
+{
+  "principles": [
+    "Visibility must not weaken fail-closed behavior.",
+    "Human progress output and JSON stdout must have separate clean contracts.",
+    "Reuse existing done_prepare flow and add the smallest safe wrapper points.",
+    "Do not redo B-783c activity-root logging work."
+  ],
+  "drivers": [
+    "B-90d6 showed post-validation done_prepare silence during DONE closure projection.",
+    "The global CLI watchdog treats output as liveness, so heartbeats need independent phase deadlines.",
+    "The change touches high-risk lifecycle closeout behavior."
+  ],
+  "options": [
+    {
+      "name": "diagnostic-progress-with-phase-deadlines",
+      "pros": [
+        "Adds real-time user visibility after validation.",
+        "Preserves fail-closed behavior by bounding every heartbeating phase.",
+        "Can be tested with focused fixtures without changing DONE gates."
+      ],
+      "cons": [
+        "Requires careful stdout/stderr routing for JSON mode.",
+        "Adds some complexity around phase wrappers."
+      ]
+    },
+    {
+      "name": "activity-log-only",
+      "pros": [
+        "Reuses B-783c activity logging and avoids output changes."
+      ],
+      "cons": [
+        "Does not solve real-time silence for operators.",
+        "Activity logs do not refresh terminal confidence and cannot replace progress output.",
+        "Does not address heartbeating hang safety."
+      ]
+    },
+    {
+      "name": "remove-idle-watchdog",
+      "pros": [
+        "Would avoid false stuck exits."
+      ],
+      "cons": [
+        "Weakens fail-closed protection.",
+        "Contradicts the execution document and reviewer audit findings.",
+        "Could hide true hangs for too long."
+      ]
+    }
+  ],
+  "chosen": "diagnostic-progress-with-phase-deadlines",
+  "rationale": "This option fixes the user-visible silence while preserving Proofbound fail-closed lifecycle semantics and JSON contracts.",
+  "preMortem": [
+    {
+      "scenario": "Heartbeat output keeps a hung closeout phase alive.",
+      "trigger": "A timer emits progress without an independent phase deadline.",
+      "consequence": "The global idle watchdog is defeated and a true hang runs until max timeout or longer.",
+      "mitigation": "Require per-phase hard deadlines and a hung-heartbeat regression smoke."
+    },
+    {
+      "scenario": "JSON consumers break because progress pollutes stdout.",
+      "trigger": "Human progress text is written to stdout while --json is requested.",
+      "consequence": "Agents or scripts fail to parse done_prepare JSON output.",
+      "mitigation": "Route JSON-mode progress to stderr or a side channel and test stdout parseability."
+    },
+    {
+      "scenario": "Progress output is mistaken for gate evidence.",
+      "trigger": "Messages use pass/evidence language or write lifecycle artifacts.",
+      "consequence": "Operators over-trust diagnostic output and gate separation is blurred.",
+      "mitigation": "Keep wording diagnostic-only and test that no review/DONE/Authority evidence is written by progress output."
+    }
+  ],
+  "timestamp": "2026-07-09T01:32:42.381Z"
+}

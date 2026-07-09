@@ -6,11 +6,21 @@ import {
   resolveDoneRequiredPolicy,
   runDoneRequiredValidation,
 } from '../core/done-required-validation.js';
+import type { ValidationProgressReporter } from '../core/validation-types.js';
 import { withValidationExecutionLock } from '../core/validation-execution-lock.js';
 
 export function createDoneRequiredValidationHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
   return {
-    async done_required_validate(args: { storyId?: string; story?: string; json?: boolean }) {
+    async done_required_validate(args: {
+      storyId?: string;
+      story?: string;
+      json?: boolean;
+      progress?: ValidationProgressReporter;
+      heartbeatMs?: number;
+      abortSignal?: AbortSignal;
+      deadlineAt?: number;
+      deadlineError?: () => Error;
+    }) {
       const storyId = (args.storyId ?? args.story ?? '').trim();
       if (!storyId) throw new Error('done_required_validate requires --storyId=<id>');
       assertCwdInWorktree(ctx.store, storyId);
@@ -40,6 +50,13 @@ export function createDoneRequiredValidationHandlers(ctx: HandlerContext): Recor
         storyId,
         store: ctx.store,
         gitCwd,
+        options: {
+          progress: args.progress,
+          heartbeatMs: args.heartbeatMs,
+          abortSignal: args.abortSignal,
+          deadlineAt: args.deadlineAt,
+          deadlineError: args.deadlineError,
+        },
       }));
       if (args.json) return JSON.stringify(evidence);
       return renderDoneRequiredEvidence(evidence);

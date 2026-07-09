@@ -270,7 +270,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'handoff_receipt_submit', 'handoff_worktree_create', // B-aa98: overflow receipt/worktree diagnostic projections
     'dispatch_plan', 'dispatch_prepare', 'dispatch_run', 'overflow_auto', // B-106b: supervised dispatch runtime surfaces
     'dispatch_collect', 'dispatch_receipt_create', 'dispatch_status', 'dispatch_list', // B-106b: persisted dispatch lifecycle + receipt helpers
-    'dispatch_resume', 'dispatch_cancel', 'dispatch_review', 'dispatch_merge_plan', // B-106b: lifecycle control + manual review/merge guidance
+    'dispatch_resume', 'dispatch_reassign', 'dispatch_cancel', 'dispatch_review', 'dispatch_merge_plan', // B-106b/B-99d4: lifecycle control + fresh-context reassignment + manual review/merge guidance
     'dispatch_policy_create', 'dispatch_policy_get', 'dispatch_policy_check', 'dispatch_auto', 'dispatch_watch', // B-a5c2: policy-authorized dispatch controls + read-only watch
     'autopilot_*', // Proofbound unattended/autopilot surfaces declare allowedPhases:all in command-policy; phaseTools must match
     'quorum_submit', // local voluntary 3x2 floor helper; handler refuses without current reviewer pass evidence
@@ -337,6 +337,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'finding_add',
     'validate', 'status', 'serve',
     'review_escalation_policy_set',
+    'review_host_availability_probe',
     'story_advance',
     // B-a4e3 CHK-005: removed dead story_dispatch / finding_dispatch alias entries; the unified `dispatch` is granted all-phase via the '*' block.
     'finding_cluster',  // B-8bb5: DEV 中已有 finding 时，允许先聚簇再派发修复
@@ -358,6 +359,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'delivery_check_set', 'delivery_waiver_add', // delivery reviewer 在 REVIEW 阶段写签名/豁免，TEST→DONE gate 消费
     'review_loop_start', 'review_loop_iteration_add', 'review_loop_close',
     'review_escalation_policy_set',
+    'review_host_availability_probe',
     'story_advance',
     'scope_contract_acknowledge',
     'scope_shrinkage_decision_set',
@@ -372,6 +374,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'bug_report', 'bug_update', 'bug_list', 'bug_analyze',
     'delivery_check_set', 'delivery_waiver_add', // B-b089: delivery reviewer 在 TEST 阶段写签名
     'review_escalation_policy_set',
+    'review_host_availability_probe',
     'review_escalation_fallback_set',
     'scope_shrinkage_decision_set',
     'parent_ledger_rollup_set',
@@ -379,6 +382,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
   ],
   DONE: [
     'review_escalation_policy_set',
+    'review_host_availability_probe',
     'review_escalation_fallback_set',
   ],
 };

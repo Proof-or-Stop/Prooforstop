@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-7438",
+  "id": "IC-20260709111826",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Implement the mechanical proof layer for degraded fallback eligibility: availability means canonical CLI executable/version-responsive; single-host-environment and temporary-host-unavailability require fresh probe evidence showing fewer than two available hosts, while explicit-human-approval remains an explicit lower-assurance override with approvalRef.",
+  "acceptedInterpretationHash": "sha256:1c5b0af3e5bcae5b8044a19ccd71e3f5183989ece302bbf5ecdbd0d603b732f1",
+  "notes": "This resolves the apparent collision between version-responsive CLI availability and deeper auth/quota readiness by keeping this story at the executable/version proof layer and requiring explicit-human-approval for deliberate lower-assurance override.",
+  "createdAt": "2026-07-09T11:18:26.510Z",
+  "updatedAt": "2026-07-09T11:18:26.510Z"
+}

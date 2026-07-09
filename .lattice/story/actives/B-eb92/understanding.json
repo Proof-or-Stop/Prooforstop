@@ -1,0 +1,34 @@
+{
+  "task": "Surface review-assurance requirements before DONE closeout and make done_prepare blockers actionable without auto-signing evidence.",
+  "outcome": "When a story triggers review assurance, the terminal prints guidance such as: Review assurance required: reason=first-round-problems/repeated-rework, materialHash=<current>, storyFilesHash=<current>, legal writers=independent reviewer or host quorum, fallback eligibility=<eligible/not eligible>, cannot auto-sign reviewer pass, delivery check, host verdict, or degraded fallback evidence from the owner session; next commands show review_escalation_status/quorum_submit or delivery reviewer paths before DONE.",
+  "facts": [
+    "B-eb92 covers M3-M4 from done-prepare-heartbeat-review-assurance-ux-execution-plan.md.",
+    "The canonical gate predicate already decides review escalation and review assurance floor status for DONE.",
+    "Current CLI surfaces some review-assurance blockers too late, mostly inside DONE/done_prepare closeout.",
+    "INIT reviewer required transition-effects.ts because story_advance --phase=TEST advisory output is part of M3.",
+    "Owner/main agent must not auto-write reviewer evidence, delivery-check evidence, host verdicts, or degraded fallback attestations."
+  ],
+  "constraints": [
+    "Do not weaken or bypass DONE review-assurance gates.",
+    "Display-only guidance must not create pass evidence or claim Authority/production DONE.",
+    "Keep JSON/machine-readable outputs parseable while adding human guidance to text surfaces.",
+    "Scope excludes B-eb08 heartbeat/deadline work and B-b264 merge-preflight/rerun-delta UX.",
+    "Use a focused smoke to prove the surfaces and no-auto-sign guidance."
+  ],
+  "unknowns": [
+    "Exact existing helper names for review-assurance floor status and DONE closure blocker rows.",
+    "Whether transition-effects already has a reusable advisory hook for TEST entry.",
+    "Best minimal fixture shape for two first-round findings and high-risk/repeated-rework signals."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/review-assurance-floor.ts",
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/core/lifecycle-readiness.ts",
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/handlers/review-escalation.ts",
+    "packages/main/src/handlers/transition-effects.ts",
+    "packages/main/src/tasks/review-assurance-surfacing-smoke.ts",
+    "packages/main/package.json"
+  ],
+  "timestamp": "2026-07-09T10:56:47.328Z"
+}

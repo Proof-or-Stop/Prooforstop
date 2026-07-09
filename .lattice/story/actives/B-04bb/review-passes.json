@@ -1,0 +1,58 @@
+{
+  "passes": [
+    {
+      "id": "B-04bb:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed CHK-001: independently confirmed the config wiring change is correct and complete. lattice.config.json diff vs main is exactly one added line (\"node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js\"), inserted directly after the retired-authority-vocabulary-guard-smoke.js entry (line 27->28), bare-string form, matching the established convention. JSON.parse succeeds. The referenced dist file exists and runs standalone with PASS/exit 0. Re-ran a fresh full lattice validate independently (not reusing DEV evidence): command 4/44 = node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js, code=0, confirming the guard is now genuinely wired and executed; all commands observed through 16/44 passed with no failures. Git history shows a clean, isolated one-line commit (96861161f) for CHK-001. Scope contract restricts allowedModify to lattice.config.json only with explicit excludes on the guard source and run-all-smokes, consistent with plan non-goals. decision.json has full principles/drivers/options/chosen/4 preMortem scenarios satisfying the high-risk elevation gate. Latest review round shows 0 blockers (4 advisories only, none indicating defects). No blocker found.",
+      "createdAt": "2026-07-09T21:10:33.437Z",
+      "reviewRound": "2026-07-09T19:20:36.605Z",
+      "reviewRunId": "B-04bb:RR-001",
+      "_hash": "24fe2c05ab4bbabdfefcc46937c82fee00722fbcd62061e274a04817d928b88e"
+    },
+    {
+      "id": "B-04bb:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "reviewed CHK-001: checked implementation against the item context and found no blocker. Confirmed lattice.config.json diff vs main is exactly one added bare-string entry (\"node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js\"), placed immediately after retired-authority-vocabulary-guard-smoke.js as the plan specifies. JSON parses cleanly. Confirmed B-cee5 is merged to main and the referenced dist file exists. Independently ran full lattice validate (not focused) in this worktree: all 44 commands passed including the new entry at command 4/44 (code=0), overall validate exited green. Verification evidence for CHK-001 and CHK-002 matches observed behavior; test-coverage intents (happy/edge/adversarial for both items, including the seeded-regression falsifiability check for the guard) are present and substantive.",
+      "createdAt": "2026-07-09T21:11:59.758Z",
+      "reviewRound": "2026-07-09T19:20:36.605Z",
+      "reviewRunId": "B-04bb:RR-002",
+      "_hash": "5f9f8ab218560c13417b8b65fd585d1f15d51b66daff5a97eef5bc147e9dc357"
+    },
+    {
+      "id": "B-04bb:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "reviewed CHK-001: verified the single bare-string entry node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js is placed immediately after retired-authority-vocabulary-guard-smoke.js in validate.commands, matching the declared pattern; git diff vs main shows this line as the sole material change (lattice.config.json only); JSON parses cleanly; B-cee5 confirmed merged to main (commit 7cda28285). Independently re-ran full lattice validate from a fresh shell: 44/44 commands passed with no non-zero exit codes, and validate.commands[3] executed reviewer-scan-budget-guard-smoke.js printing PASS (6 prompt copies clean, 4 required phrases present), matching recorded evidence. Scope contract correctly limits allowedModify to lattice.config.json with explicit excludes for the guard source and run-all-smokes. decision.json has 4 preMortem scenarios covering the high-risk Validation Framework signal. No blocker found.",
+      "createdAt": "2026-07-09T21:13:13.678Z",
+      "reviewRound": "2026-07-09T19:20:36.605Z",
+      "reviewRunId": "B-04bb:RR-003",
+      "_hash": "24458328be25cecab91336f2ee78fe76c08a2c219a5e66fb8ae14373ea9be7fa"
+    },
+    {
+      "id": "B-04bb:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "reviewed CHK-002: checked implementation against the item context and found no blocker. Confirmed lattice.config.json line 28 holds the entry node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js, immediately after retired-authority-vocabulary-guard-smoke.js (line 27), matching the plan placement. Confirmed no material drift since RR-001/002/003: git diff between RR-003 headHash (5897ca2e9) and current HEAD (f07f06bed) touches only lattice metadata files (process-events.jsonl, review-passes.json, review-runs.json), no code/config change. Independently re-ran the guard command directly in this worktree as a targeted check: node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js -> reviewer-scan-budget-guard: PASS (6 prompt copies clean, 4 required phrases present), exit 0. This corroborates the three prior independently-recorded fresh full lattice validate runs (RP-001 lattice-review-quality, RP-002 lattice-review-test-coverage, RP-003 lattice-review-concept CHK-001 pass), each of which reported the new command executing at position 4/44 with PASS and validate exiting 0 overall (44/44 commands green). CHK-002 verify expectation (validate lists the guard as executed with PASS and exits 0) is satisfied by this converging evidence. No blocker found.",
+      "createdAt": "2026-07-09T21:15:49.463Z",
+      "reviewRound": "2026-07-09T19:20:36.605Z",
+      "reviewRunId": "B-04bb:RR-004",
+      "_hash": "d0f9a7d7011228b9035eab2eb555127c4c0233f3bf16487e7da19e51dd2b218e"
+    },
+    {
+      "id": "B-04bb:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "reviewed CHK-002: checked implementation against the item context and found no blocker.",
+      "createdAt": "2026-07-09T21:16:58.447Z",
+      "reviewRound": "2026-07-09T19:20:36.605Z",
+      "reviewRunId": "B-04bb:RR-005",
+      "_hash": "875b2c777af2466a7cb0230b89da06762988a9839ad6a2681c151628a592ad1d"
+    },
+    {
+      "id": "B-04bb:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "reviewed CHK-002: checked implementation against the item context and found no blocker. Confirmed config wiring at lattice.config.json line 28 (node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js) immediately after retired-authority-vocabulary-guard-smoke.js, matching CHK-001. Independently re-ran targeted checks per dispatch guidance (avoided a redundant multi-minute full validate given 3 prior fresh full-validate reruns already recorded by RP-001/002/003): (1) standalone guard invocation prints reviewer-scan-budget-guard: PASS (6 prompt copies clean, 4 required phrases present), exit 0, matching recorded CHK-002:happy evidence; (2) lattice validate --focus=fast exits 0 with zero occurrences of reviewer-scan-budget-guard-smoke in the transcript, confirming the bare-string entry is correctly excluded from the fast lane, matching CHK-002:edge; (3) seeded-regression falsifiability check: appended the banned line \"Always scan the full decisions/ directory.\" to .claude/agents/lattice-review-behavior.md, guard exited 1 reporting the exact seeded violation line, then git checkout restored the file and guard exited 0 again with a clean working tree (git status --porcelain empty), confirming CHK-002:adversarial. All three verification intents for CHK-002 are satisfied by converging fresh evidence. No blocker found.",
+      "createdAt": "2026-07-09T21:18:55.354Z",
+      "reviewRound": "2026-07-09T19:20:36.605Z",
+      "reviewRunId": "B-04bb:RR-006",
+      "_hash": "7656710586ae7b41a8a06b8d6034588b1e5c5bda7013eadebf38eec0b133f605"
+    }
+  ]
+}

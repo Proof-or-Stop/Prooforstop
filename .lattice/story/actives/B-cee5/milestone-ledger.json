@@ -1,0 +1,105 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-cee5",
+  "state": "confirmed",
+  "ledgerHash": "sha256:5e6313806385ff8ebc03a3ec95f92dd8a25f41463640780f8d135d0cdf1f4c30",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-001",
+      "claim": "The story identifies the concrete token-heavy broad-scan sources and quantifies the baseline decisions corpus.",
+      "doneMeans": "Evidence references show decisions corpus size and exact prompt instructions that currently default to full scans.",
+      "requiredEvidence": [
+        "baseline_counts",
+        "prompt_line_refs"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "REQ-001",
+      "claim": "Broad-scan reviewer prompts consume bounded memory/playbook advisory context before candidate search or full scan.",
+      "doneMeans": "Scope-plan and behavior prompt outputs include bounded memory/playbook preflight guidance and state that it is not gate evidence.",
+      "requiredEvidence": [
+        "agent_prompt_output",
+        "prompt_diff"
+      ],
+      "checklistRefs": [
+        "CHK-002",
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0",
+        "CHK-005:happy:0",
+        "CHK-005:edge:0",
+        "CHK-005:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "REQ-001",
+      "claim": "candidateSpecSet-first routing replaces default full decisions scans while retaining explicit escalation.",
+      "doneMeans": "Prompts require candidateSpecSet sources and scanEscalationReason before a full decisions scan, and behavior review consumes scope_check_save by default.",
+      "requiredEvidence": [
+        "prompt_diff",
+        "agent_prompt_output"
+      ],
+      "checklistRefs": [
+        "CHK-003",
+        "CHK-004",
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0",
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0",
+        "CHK-005:happy:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "REQ-001",
+      "claim": "Static verification prevents unconditional full-scan wording from returning.",
+      "doneMeans": "A focused test or task fails on unconditional read-every-decisions-file wording but permits explicit escalation-path language.",
+      "requiredEvidence": [
+        "static_test",
+        "validation_command"
+      ],
+      "checklistRefs": [
+        "CHK-006",
+        "CHK-007"
+      ],
+      "verificationIntentRefs": [
+        "CHK-006:happy:0",
+        "CHK-006:edge:0",
+        "CHK-006:adversarial:0",
+        "CHK-007:happy:0",
+        "CHK-007:edge:0",
+        "CHK-007:adversarial:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-09T16:25:27.686Z",
+  "updatedAt": "2026-07-09T17:05:48.369Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260709170318",
+    "acceptedInterpretationHash": "sha256:4349260a1b97c92235d8a51051f776192032152970a380469345c4c117c78f2b",
+    "acceptedAt": "2026-07-09T17:05:48.369Z"
+  }
+}

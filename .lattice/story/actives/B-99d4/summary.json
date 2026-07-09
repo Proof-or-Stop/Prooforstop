@@ -1,0 +1,56 @@
+{
+  "storyId": "B-99d4",
+  "changes": "Added dispatch_reassign so an accepted/completed worker dispatch can be reassigned as a fresh-context follow-up with explicit worker role, parentDispatchId lineage, accepted-local previous dispatch guard, role-consistent prompt instructions, command aliases, phase/process policy registration, and smoke coverage.",
+  "usage": "After a worker dispatch has accepted-local receipt, run lattice dispatch_reassign --dispatchId=<previous> --role=lattice-implementer --objective=<follow-up instructions>; open the returned promptFile and launch that role with fresh context.",
+  "expectedOutcome": "The CLI reports Worker reassignment ready with mode=fresh-context, role=lattice-implementer, previousDispatchId, a new dispatchId, parentDispatchId, promptFile, and no full-history fork requirement.",
+  "actualTranscript": "User acceptance transcript recorded dispatch_reassign output: Worker reassignment ready, mode: fresh-context, previousDispatchId: D-B-99d4-user-acceptance-final, dispatchId: D-B-99d4-fake-mrcz2hq3, role: lattice-implementer, promptFile present, and nextAction says no full-history fork is required; prompt contains Role: lattice-implementer and Work in role: lattice-implementer.",
+  "outcomeDiff": "No user-visible difference remains; the observed output matches the expected role-aware fresh-context reassignment, and BUG-001 fixed the earlier stale Work in role: overflow-worker prompt conflict.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Uses accepted-local previous dispatch evidence before reassignment; unrun/prepared dispatches are intentionally rejected instead of being reassigned.",
+  "pitfalls": "Review found two high issues plus a TEST bug: initial smoke used a generic role, prepared-only dispatches could be reassigned, and inherited execution instructions kept the old role. All were fixed with reviewer passes, validate PASS, done-required PASS, delivery PASS, and transcript evidence.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 95807
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 7678
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 348647
+    },
+    "DEV": {
+      "count": 3,
+      "durationMs": 1810023
+    },
+    "REVIEW": {
+      "count": 3,
+      "durationMs": 1702436
+    },
+    "TEST": {
+      "count": 2,
+      "durationMs": 1152630
+    }
+  },
+  "totalDurationMs": 5117943,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 1,
+    "fixed": 1,
+    "open": 0
+  },
+  "createdAt": "2026-07-09T04:04:38.106Z",
+  "updatedAt": "2026-07-09T04:04:38.106Z"
+}

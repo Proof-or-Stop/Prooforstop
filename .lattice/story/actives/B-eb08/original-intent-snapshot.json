@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-eb08",
+  "sourceText": "Split docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md into three Proofbound stories and implement them sequentially to DONE. Story A covers M0-M2: done_prepare closure progress heartbeat, JSON-safe liveness, and independent closeout phase deadlines.",
+  "normalizedOutcome": "B-eb08 makes lattice done_prepare visibly report post-validation closeout progress while preserving JSON stdout and fail-closed lifecycle semantics.",
+  "acceptanceClaim": "A TEST-story done_prepare run emits diagnostic progress for evaluating DONE closure, checking review assurance, computing runtime-change status, checking clean tree, and producing the DONE command; --json stdout remains parseable; and a deliberately hung closeout phase blocks with an attributed phase-timeout.",
+  "keyRequirementIds": [
+    "CHK-001",
+    "CHK-002",
+    "CHK-003"
+  ],
+  "requestHash": "sha256:98753d250cfb30735cf03904f8a5d3de30dd4734f53b53872847390eaf423b3f",
+  "createdAt": "2026-07-09T01:37:47.603Z",
+  "updatedAt": "2026-07-09T01:37:47.603Z"
+}

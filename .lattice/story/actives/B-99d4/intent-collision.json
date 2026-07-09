@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-99d4",
+  "id": "IC-B-99d4-worker-reassign",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "The accepted intent is to let a completed worker/subagent receive a new follow-up assignment under an explicit worker role using fresh-context prompt material and bounded prior-summary/instructions; it is not a requirement to preserve full chat history or hidden worker memory.",
+  "acceptedInterpretationHash": "sha256:32b2e5457a756d566ead2265199ebdf4c0028d1b45e471f0d164763e9cd3a466",
+  "notes": "This resolves the possible collision between full-history fork continuity and role-aware fresh worker restart in favor of explicit fresh-context reassignment.",
+  "createdAt": "2026-07-09T02:44:15.117Z",
+  "updatedAt": "2026-07-09T02:44:15.117Z"
+}

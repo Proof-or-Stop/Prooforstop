@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-99d4",
+  "diagnosticOnly": false,
+  "hardeningLevel": "high_assurance",
+  "triggerReasons": [
+    {
+      "code": "high_assurance_risk",
+      "message": "High-risk or gate/security wording selects high-assurance intent hardening.",
+      "requires": "high-assurance"
+    },
+    {
+      "code": "collision_required_high_assurance",
+      "message": "High-assurance work requires an independent intent-collision result.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:eae6ad6885ce0207e98c3a994e90510f5bcdfbbad2153a871241114356f290a1",
+  "acceptanceBindings": [
+    {
+      "id": "AB-worker-reassign-role",
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002",
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0",
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0",
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ],
+      "milestoneIds": [],
+      "acceptanceClaim": "A completed dispatch can be reassigned through a role-aware fresh-context command that creates a new linked dispatch, renders the requested worker role and prompt path, and avoids any full-history inheritance claim.",
+      "note": "Binds the user-visible worker reassignment claim to role-aware command behavior, summary-only fresh-context prompt wording, lineage/regression coverage, and process-fact registration."
+    }
+  ],
+  "diagnosticGaps": [],
+  "note": "ProofStory contract for role-aware fresh-context worker reassignment. No milestone ledger is needed because this is a single deliverable below the configured milestone threshold.",
+  "createdAt": "2026-07-09T02:46:30.228Z",
+  "updatedAt": "2026-07-09T02:46:30.228Z"
+}

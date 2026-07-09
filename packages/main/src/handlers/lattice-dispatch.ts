@@ -21,6 +21,7 @@ import {
   renderDispatchMergePlanText,
   renderDispatchPlanText,
   renderDispatchReceiptDraftText,
+  renderDispatchReassignText,
   renderDispatchRecordText,
   renderDispatchReviewText,
   renderDispatchRunText,
@@ -30,6 +31,7 @@ import {
   renderHostRuntimeProbeText,
   reviewDispatch,
   runDispatch,
+  reassignDispatch,
   resumeDispatch,
 } from '../core/lattice-dispatch.js';
 import {
@@ -334,6 +336,42 @@ export function createLatticeDispatchHandlers(ctx: HandlerContext): Record<strin
       const outputNote = maybeWriteOutput(ctx.root, args.output, result);
       if (wantsJson(args)) return result;
       return `${renderDispatchRunText(result)}${outputNote}`;
+    },
+    dispatch_reassign(args: {
+      dispatchId: string;
+      host?: string;
+      fromHost?: string;
+      role?: string;
+      objective?: string;
+      allowedPaths?: string[] | string;
+      deniedPaths?: string[] | string;
+      requiredCommands?: string[] | string;
+      successCriteria?: string[] | string;
+      baseSha?: string;
+      packId?: string;
+      authorityBoundary?: string;
+      executionInstructions?: string[] | string;
+      parallel?: number;
+    } & FormatArgs) {
+      const result = reassignDispatch(ctx.store, ctx.root, {
+        dispatchId: args.dispatchId,
+        host: args.host,
+        fromHost: args.fromHost,
+        role: args.role,
+        objective: args.objective,
+        allowedPaths: normalizeList(args.allowedPaths),
+        deniedPaths: normalizeList(args.deniedPaths),
+        requiredCommands: normalizeList(args.requiredCommands),
+        successCriteria: normalizeList(args.successCriteria),
+        baseSha: args.baseSha,
+        packId: args.packId,
+        authorityBoundary: args.authorityBoundary,
+        executionInstructions: normalizeList(args.executionInstructions),
+        parallel: args.parallel,
+      });
+      const outputNote = maybeWriteOutput(ctx.root, args.output, result);
+      if (wantsJson(args)) return result;
+      return `${renderDispatchReassignText(result)}${outputNote}`;
     },
     dispatch_cancel(args: { dispatchId: string } & FormatArgs) {
       const result = cancelDispatch(ctx.root, args.dispatchId);

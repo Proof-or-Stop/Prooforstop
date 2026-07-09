@@ -1,0 +1,53 @@
+{
+  "storyId": "B-99d4",
+  "checkedAt": "2026-07-09T04:02:34.703Z",
+  "headHash": "3e30310662314ccae5ea03e3915ffa3c3d32a459",
+  "materialHash": "b6acd0695ace2a05f02791d925bbb053425078820a3fdf6fb7ab488b495e0359",
+  "storyFilesHash": "9927844f3ccfcede444a7d743cf40dc11c928c042a98745815d97d256845b2d2",
+  "reviewRound": "2026-07-09T03:45:18.798Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/pos-agent-drivability-optimization.md",
+      "promise": "Agent guidance should name exact actionable commands and improve dispatch discoverability without weakening L4 evidence contracts.",
+      "status": "verified",
+      "verifiedBy": "manual doc review plus implementation and validation",
+      "evidence": "Doc lines 23-29 and 83-89 are background direction, not a conflicting user-facing command promise. dispatch_reassign and alias dispatch reassign add explicit worker reassignment routing; validate --story=B-99d4 --json PASS confirms evidence contracts remain covered."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+      "promise": "Workflow commands remain host-neutral, Codex namespace is not expanded, and this story must not claim Authority, production, release, or convergence readiness from command guidance alone.",
+      "status": "verified",
+      "verifiedBy": "manual doc review plus source inspection",
+      "evidence": "Doc lines 47-65 list delivery_check_set and workflow commands as host-neutral; lines 134-141 and 363-397 reject overclaim. Source adds host-neutral dispatch_reassign plus alias dispatch reassign, not a Codex-prefixed workflow command; command policy/process-fact mark it L1 diagnostic metadata with no authority, receipt verification, release readiness, or DONE semantics."
+    },
+    {
+      "docPath": "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+      "promise": "Worker/learning surfaces must remain non-authoritative and cannot create review, validation, delivery, DONE, receipt, release, or production evidence.",
+      "status": "verified",
+      "verifiedBy": "manual doc review plus source inspection",
+      "evidence": "Doc lines 49-54, 108-164, and 783-798 are related safety background. dispatch_reassign is not a promotion worker and does not create lifecycle proof; implementation and prompt text keep authorityChanged=false, receiptVerified=false, productionDone=false and explicitly avoid receipt, release, DONE, or authority claims."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": ".lattice/story/actives/B-99d4/evidence/transcript-diff.md shows dispatch_reassign after accepted dispatch_run output: Worker reassignment ready, mode=fresh-context, role=lattice-implementer, roleSource=requested, previousDispatchId and parentDispatchId set, promptFile emitted, and prompt contains Work in role: lattice-implementer. with no Work in role: overflow-worker. Fresh lattice validate --story=B-99d4 --json returned status=pass/allPass=true; DONE-required validation PASS."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": ".lattice/story/actives/B-99d4/evidence/transcript-diff.md shows summary-only fresh-context continuity and explicit wording that no full-history fork is required. Prompt check states it does not inherit conversation history, verify receipts, claim release readiness, mark release completion, or change authority. validate PASS and DONE-required PASS were rerun before signing."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "dispatch-run-smoke coverage recorded by validate covers explicit role propagation, default-role behavior, parentDispatchId lineage, original dispatch unchanged, accepted-local previous dispatch guard, dispatch_resume regression, and process-fact L1/no-gate semantics. The user acceptance transcript confirms the real CLI output for role=lattice-implementer and the prompt role rewrite; validate PASS and DONE-required PASS are fresh."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery verified against transcript, implementation, related docs, validate PASS, and DONE-required PASS; no conflicting doc promise or authority overclaim found."
+  },
+  "_hash": "d1aae1afeb39dd60433e56732a328949b283d1cfe677da09ac37d05eff8c2fcb"
+}

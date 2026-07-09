@@ -1,0 +1,57 @@
+{
+  "storyId": "B-eb92",
+  "checkedAt": "2026-07-09T12:49:11.514Z",
+  "headHash": "5b79598bb2b8c30a46877973c3f31d36a6a46b69",
+  "materialHash": "14b25b78b06ec2e992b9eae4d558932522fbaa29fdac27135546a24395b06bec",
+  "storyFilesHash": "d1823d28861a8bb6d5508e5caa2f2eb356ad5f61e204428e6f651c1ababe9989",
+  "reviewRound": "2026-07-09T12:39:20.988Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/story/actives/B-eb92#CHK-001-userSees",
+      "promise": "Review assurance required: reason=first-round-problems, materialHash=<sha>, storyFilesHash=<sha>, legal writers=independent reviewer lanes or host quorum; fallback eligibility; owner/main cannot auto-sign reviewer pass, finding resolution, delivery check, host verdict, or degraded fallback evidence.",
+      "status": "verified",
+      "verifiedBy": "code inspection + logic test",
+      "evidence": "packages/main/src/core/review-assurance-floor.ts renderReviewAssuranceGuidance emits reasonCode, currentBinding materialHash/storyFilesHash, legalWriterPaths (ownerRunnable/reviewerHost/humanApprovedFallback), fallbackEligibility, and cannotAutoSign warning; review-assurance-surfacing-smoke assertGuidanceText verifies reasonCode, 64-hex materialHash binding, fallback eligibility reason codes, quorum_submit/autopilot_review_submit/review_escalation_fallback_set writer paths, and the 'will not auto-write reviewer evidence, host verdicts, delivery checks, or degraded fallback evidence' warning. Smoke re-run 2026-07-09 by delivery reviewer: 'review-assurance-surfacing smoke passed'."
+    },
+    {
+      "docPath": "docs/story/actives/B-eb92#CHK-002-userSees",
+      "promise": "Before DONE: review assurance required for this story. Run lattice review_escalation_status --storyId=<id>; then get independent reviewer/host evidence or approved fallback before DONE. Advisory at TEST entry, does not block TEST.",
+      "status": "verified",
+      "verifiedBy": "code inspection + logic test",
+      "evidence": "packages/main/src/handlers/transition-effects.ts (buildNextSteps TEST entry, line ~196) appends 'Review assurance before DONE (advisory only; TEST is not blocked by this advisory):' plus rendered canonical guidance only when guidance.required; smoke asserts buildNextSteps(...).TEST matches the advisory text and full guidance content, and review_escalation_status handler renders the same guidance with review_escalation_status as owner-runnable next command. B-eb92 itself entered TEST successfully with the advisory non-blocking."
+    },
+    {
+      "docPath": "docs/story/actives/B-eb92#CHK-003-userSees",
+      "promise": "DONE prepare blockers: review-assurance requires independent review/host evidence; stale material requires rerun/refresh; cannot auto-sign reviewer pass, delivery check, host verdict, or degraded fallback from owner session.",
+      "status": "verified",
+      "verifiedBy": "code inspection + logic test",
+      "evidence": "packages/main/src/handlers/done-prepare.ts renders 'Review assurance blocker classification:' with per-gate reasonCode/requiredAssurance/fallback, separated 'owner-runnable commands' vs 'reviewer/host writer paths (do not run from owner/main session)' vs 'human-approved fallback writer paths (only when eligible)', plus 'cannot-auto-sign warnings' and canonical guidance. Smoke asserts done_prepare --dryRun output is BLOCKED with this classification, that the actionable commands block contains only owner-runnable commands (no quorum_submit/autopilot_review_submit/review_escalation_fallback_set), and that dryRun does not mutate git state; JSON output (lattice.done_prepare.v1) carries the same transcript."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "npm --prefix packages/main run test:review-assurance-surfacing-smoke -> 'review-assurance-surfacing smoke passed' (re-run independently by delivery reviewer 2026-07-09). Fixture with >=2 countable first-round findings and high-risk lifecycle work produces canonical guidance with reasonCode=review_assurance_floor_high_risk_3x2_or_fallback_missing, material binding, fallback eligibility, legal writer paths, cannot-auto-sign warning; fallback writer omitted when ineligible."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Same smoke run asserts buildNextSteps TEST guidance contains 'Review assurance before DONE (advisory only; TEST is not blocked by this advisory)' plus full guidance; session next/session_brief render 'DONE pre-check still has 1 item(s) not passing: review-assurance-floor' with the guidance block. Live confirmation: B-eb92 advanced into TEST with the advisory present and non-blocking."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Same smoke run drives done_prepare --dryRun on the blocked fixture: output matches 'DONE prepare: BLOCKED', 'Review assurance blocker classification:', owner-runnable vs reviewer/host vs human-approved fallback writer path sections, cannot-auto-sign warnings, and git status is byte-identical before/after (no mutation). JSON mode returns schemaVersion lattice.done_prepare.v1 with status=blocked and same transcript."
+    },
+    {
+      "featureId": "DONE-required",
+      "transcript": "lattice validate --story=B-eb92 --json PASS at 2026-07-09T12:35:54.556Z (43/43 configured commands, verification intent coverage 9/9, headHash b190f85, materialHash 14b25b78..., storyFilesHash d1823d28...). transcript-diff.md records expected-vs-actual with no functional difference; node packages/main/dist/tasks/review-assurance-floor-smoke.js and test:review-assurance-surfacing-smoke included in the suite."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All three userSees promises for B-eb92 (canonical review-assurance guidance, TEST-entry advisory, done_prepare blocker classification) are implemented in review-assurance-floor.ts / transition-effects.ts / done-prepare.ts and mechanically verified by review-assurance-surfacing-smoke (independently re-run by delivery reviewer, PASS) plus a fresh full validate PASS (43/43, 9/9 intents) recorded in transcript-diff.md; edge (fallback ineligible omits writer) and adversarial (display-only, no git mutation, owner cannot run writer commands) cases are covered."
+  },
+  "_hash": "7c51b082258fca803e2666c586c725b67d30ad096a94173c7e5016863e056abe"
+}

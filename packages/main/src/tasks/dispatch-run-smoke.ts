@@ -13,12 +13,13 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve, win32 } from 'node:path';
+import { delimiter, dirname, join, resolve, win32 } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { MAIN_TOOLS } from '../cli-engine.js';
 import { COMMAND_POLICIES } from '../core/command-policy.js';
 import { resetConfigCache } from '../core/config.js';
 import { PROCESS_FACT_LEVEL_BY_NAME } from '../core/process-fact-levels.js';
+import { canonicalReviewHostLauncherSpec } from '../core/host-execution-readiness.js';
 import { StoryStore } from '../core/store.js';
 import type {
   ChecklistData,
@@ -31,6 +32,7 @@ import type {
   DispatchMergePlanResult,
   DispatchPlanResult,
   DispatchReceiptDraft,
+  DispatchReassignResult,
   DispatchRecord,
   DispatchReviewResult,
   DispatchRunResult,
@@ -40,7 +42,7 @@ import type {
   HostRuntimeList,
   HostRuntimeProbe,
 } from '../core/lattice-dispatch.js';
-import { relativePathStaysWithinRoot } from '../core/lattice-dispatch.js';
+import { relativePathStaysWithinRoot, runDispatch } from '../core/lattice-dispatch.js';
 import type {
   DispatchPolicy,
   DispatchPolicyCheckResult,
@@ -60,6 +62,7 @@ const EXPECTED_COMMANDS = [
   'dispatch_status',
   'dispatch_list',
   'dispatch_resume',
+  'dispatch_reassign',
   'dispatch_cancel',
   'dispatch_review',
   'dispatch_merge_plan',
@@ -172,9 +175,34 @@ function writeDispatch(root: string, dispatchId: string, record: DispatchRecord)
   writeFileSync(join(root, '.lattice/dispatches', dispatchId, 'dispatch.json'), JSON.stringify(record, null, 2) + '\n');
 }
 
-function readPack(root: string, dispatchId: string): { toHost: string; executionInstructions: string[] } {
+function readPack(root: string, dispatchId: string): {
+  packId: string;
+  packHash: string;
+  fromHost: string;
+  toHost: string;
+  baseSha?: string;
+  role?: string;
+  objective?: string;
+  allowedPaths: string[];
+  deniedPaths: string[];
+  requiredCommands: string[];
+  successCriteria: string[];
+  authorityBoundary: { summary: string };
+  executionInstructions: string[];
+} {
   return JSON.parse(readFileSync(join(root, '.lattice/dispatches', dispatchId, 'pack.json'), 'utf8')) as {
+    packId: string;
+    packHash: string;
+    fromHost: string;
     toHost: string;
+    baseSha?: string;
+    role?: string;
+    objective?: string;
+    allowedPaths: string[];
+    deniedPaths: string[];
+    requiredCommands: string[];
+    successCriteria: string[];
+    authorityBoundary: { summary: string };
     executionInstructions: string[];
   };
 }
@@ -218,10 +246,32 @@ function assertFiveWayRegistration(command: string, registry: ReturnType<typeof 
   }
 }
 
+function writeFakeCodexBinary(binDir: string): void {
+  mkdirSync(binDir, { recursive: true });
+  writeFileSync(join(binDir, 'codex'), [
+    '#!/usr/bin/env node',
+    "const fs = require('node:fs');",
+    'const argvFile = process.env.LATTICE_FAKE_CODEX_ARGV_FILE;',
+    'if (!argvFile) process.exit(64);',
+    'const stdinFile = process.env.LATTICE_FAKE_CODEX_STDIN_FILE;',
+    "let input = '';",
+    "process.stdin.setEncoding('utf8');",
+    "process.stdin.on('data', chunk => { input += chunk; });",
+    "process.stdin.on('end', () => {",
+    "  fs.writeFileSync(argvFile, JSON.stringify(process.argv.slice(2)), 'utf8');",
+    "  if (stdinFile) fs.writeFileSync(stdinFile, input, 'utf8');",
+    "  process.stdout.write(JSON.stringify({ model: 'fake-codex-model', usage: { prompt_tokens: 2, completion_tokens: 3 } }) + '\\n');",
+    '});',
+  ].join('\n') + '\n', { encoding: 'utf8', mode: 0o755 });
+}
+
 const sandboxRoot = mkdtempSync(join(tmpdir(), 'lattice-dispatch-run-suite-'));
 const root = join(sandboxRoot, 'repo', 'root');
 const externalDir = mkdtempSync(join(tmpdir(), 'lattice-dispatch-run-external-'));
 const externalMarker = join(externalDir, 'blocked-by-symlink.txt');
+const fakeCodexBinDir = join(sandboxRoot, 'fake-codex-bin');
+const fakeCodexArgvFile = join(sandboxRoot, 'fake-codex-argv.json');
+const fakeCodexStdinFile = join(sandboxRoot, 'fake-codex-stdin.txt');
 const escapedHostRuntimeListOutput = resolve(root, '../escape.json');
 const escapedDispatchPlanOutput = resolve(root, '../../escape.json');
 const outputSymlinkEscapeMarker = join(externalDir, 'nested/output-symlink-escape.json');
@@ -231,6 +281,7 @@ const fakeAncestorExternalDir = mkdtempSync(join(tmpdir(), 'lattice-dispatch-run
 const realAncestorExternalDir = mkdtempSync(join(tmpdir(), 'lattice-dispatch-run-real-ancestor-'));
 try {
   initRepo(root, externalDir);
+  writeFakeCodexBinary(fakeCodexBinDir);
   resetConfigCache();
   const store = new StoryStore(root);
   seedStory(store);
@@ -256,6 +307,8 @@ try {
   assert.equal(relativePathStaysWithinRoot('D:\\outside', win32.isAbsolute), false, 'win32 cross-drive absolute relative() result must escape root');
 
   for (const command of EXPECTED_COMMANDS) assertFiveWayRegistration(command, registry);
+  assert.equal(PROCESS_FACT_LEVEL_BY_NAME.dispatch_reassign?.level, 'L1', 'dispatch_reassign must be L1 dispatch metadata');
+  assert.equal(PROCESS_FACT_LEVEL_BY_NAME.dispatch_reassign?.category, 'lattice-dispatch', 'dispatch_reassign must be lattice-dispatch category');
 
   const runtimeList = run<HostRuntimeList>('host_runtime_list');
   assert.equal(runtimeList.schemaVersion, 'lattice.host_runtime_list.v1');
@@ -284,6 +337,11 @@ try {
   const claudeProbe = run<HostRuntimeProbe>('host_runtime_probe', { host: 'claude-code' });
   assert.equal(claudeProbe.host, 'claude-code');
   assert.equal(claudeProbe.schemaVersion, 'lattice.host_runtime_probe.v1');
+  assert.deepEqual(
+    claudeProbe.invocationTemplate,
+    canonicalReviewHostLauncherSpec('claude').launcherArgv,
+    'claude-code invocationTemplate must use observable --verbose stream-json launcher',
+  );
   // Structured feasibility fields must always be present
   assert.ok(['detected', 'unavailable', 'unknown'].includes(claudeProbe.versionStatus), `claude versionStatus must be a known value, got ${claudeProbe.versionStatus}`);
   assert.ok(['supported', 'unverified', 'unsupported'].includes(claudeProbe.noninteractiveSupport), `claude noninteractiveSupport must be a known value, got ${claudeProbe.noninteractiveSupport}`);
@@ -312,6 +370,10 @@ try {
   assert.equal(antigravityProbe.requestedHost, 'antigravity');
   assert.equal(antigravityProbe.schemaVersion, 'lattice.host_runtime_probe.v1');
   assert.equal(antigravityProbe.cliCommand, 'agy');
+  assert.ok(antigravityProbe.invocationTemplate?.includes('--print'), 'antigravity template must use agy --print');
+  assert.ok(antigravityProbe.invocationTemplate?.includes('--print-timeout'), 'antigravity template must include --print-timeout');
+  assert.ok(antigravityProbe.invocationTemplate?.includes('<prompt>'), 'antigravity template must carry canonical prompt placeholder');
+  assert.equal(antigravityProbe.invocationTemplate?.includes('--prompt-file'), false, 'antigravity template must not use unsupported --prompt-file');
   assert.equal(antigravityProbe.unattendedSafe, false, 'antigravity must not claim unattendedSafe=true');
   assert.ok(Array.isArray(antigravityProbe.unattendedReasons), 'antigravity probe must have unattendedReasons array');
   assert.ok(
@@ -326,6 +388,12 @@ try {
   assert.equal(agyProbe.matchedFallback, true, 'agy aliases to the current Antigravity runtime');
   assert.equal(agyProbe.cliCommand, 'agy');
   assertAuthorityFalse(agyProbe, 'agyProbe');
+
+  const codexProbe = run<HostRuntimeProbe>('host_runtime_probe', { host: 'codex' });
+  assert.ok(codexProbe.invocationTemplate?.includes('exec'), 'codex template must use codex exec');
+  assert.ok(codexProbe.invocationTemplate?.includes('--json'), 'codex template must use --json for observable events');
+  assert.ok(codexProbe.invocationTemplate?.includes('<prompt>'), 'codex template must carry canonical prompt placeholder');
+  assert.equal(codexProbe.invocationTemplate?.includes('--prompt-file'), false, 'codex template must not use --prompt-file');
 
   // If claude is installed, additional shape assertions apply
   if (claudeProbe.available) {
@@ -447,6 +515,9 @@ try {
   assert.equal(existsSync(join(root, prepared.packFile)), true);
   assert.equal(existsSync(join(root, prepared.promptFile)), true);
   assert.equal(existsSync(resolve(root, prepared.worktree.worktreePath)), false, 'dispatch_prepare must not create a worktree');
+  const preparedPrompt = readFileSync(join(root, prepared.promptFile), 'utf8');
+  assert.match(preparedPrompt, /Role: overflow-worker/, 'normal dispatch prompt must show default role');
+  assert.match(preparedPrompt, /Objective: Prepare only\./, 'normal dispatch prompt must show objective');
   assertAuthorityFalse(prepared, 'prepared');
 
   const unconstrainedPrepared = run<DispatchRecord>('dispatch_prepare', {
@@ -728,6 +799,113 @@ try {
   assert.equal(resumed.status, 'accepted_local');
   assert.equal(resumed.receipt?.status, 'accepted-local');
 
+  const previousCancelPack = readPack(root, cancelRecord.dispatchId);
+  const oldRecordBeforeReassign = JSON.stringify(readDispatch(root, cancelRecord.dispatchId));
+  const explicitWorkerRole = 'lattice-implementer';
+  const reassigned = run<DispatchReassignResult>('dispatch_reassign', {
+    dispatchId: cancelRecord.dispatchId,
+    role: explicitWorkerRole,
+    objective: 'Continue the completed worker output with explicit fresh-context instructions.',
+  });
+  assert.equal(reassigned.schemaVersion, 'lattice.dispatch_reassign.v1');
+  assert.equal(reassigned.mode, 'fresh-context');
+  assert.equal(reassigned.previousDispatchId, cancelRecord.dispatchId);
+  assert.notEqual(reassigned.dispatchId, cancelRecord.dispatchId);
+  assert.equal(reassigned.role, explicitWorkerRole);
+  assert.equal(reassigned.roleSource, 'requested');
+  assert.equal(reassigned.objective, 'Continue the completed worker output with explicit fresh-context instructions.');
+  assert.match(reassigned.nextAction, /Worker reassignment ready/i);
+  assert.match(reassigned.nextAction, /no full-history fork is required/i);
+  assert.equal(JSON.stringify(readDispatch(root, cancelRecord.dispatchId)), oldRecordBeforeReassign, 'dispatch_reassign must leave old record untouched');
+  const reassignedRecord = readDispatch(root, reassigned.dispatchId);
+  const reassignedPack = readPack(root, reassigned.dispatchId);
+  assert.equal(reassignedRecord.parentDispatchId, cancelRecord.dispatchId);
+  assert.equal(reassigned.promptFile, reassignedRecord.promptFile);
+  assert.equal(reassignedPack.role, explicitWorkerRole);
+  assert.equal(reassignedPack.objective, 'Continue the completed worker output with explicit fresh-context instructions.');
+  assert.deepEqual(reassignedPack.allowedPaths, previousCancelPack.allowedPaths, 'reassignment should default allowedPaths from previous pack');
+  assert.deepEqual(reassignedPack.deniedPaths, previousCancelPack.deniedPaths, 'reassignment should default deniedPaths from previous pack');
+  assert.deepEqual(reassignedPack.requiredCommands, previousCancelPack.requiredCommands, 'reassignment should default requiredCommands from previous pack');
+  assert.deepEqual(reassignedPack.successCriteria, previousCancelPack.successCriteria, 'reassignment should default successCriteria from previous pack');
+  assert.equal(reassignedPack.fromHost, previousCancelPack.fromHost, 'reassignment should default fromHost from previous pack');
+  assert.equal(reassignedPack.baseSha, previousCancelPack.baseSha, 'reassignment should default baseSha from previous pack');
+  assert.deepEqual(
+    reassignedPack.executionInstructions.filter(instruction => /^Work in role:/i.test(instruction)),
+    [`Work in role: ${explicitWorkerRole}.`],
+    'explicit role reassignment must rewrite inherited execution role instructions',
+  );
+  const reassignedPrompt = readFileSync(join(root, reassigned.promptFile), 'utf8');
+  assert.match(reassignedPrompt, new RegExp(`Role: ${explicitWorkerRole}`), 'reassignment prompt must include explicit role');
+  assert.match(reassignedPrompt, new RegExp(`Work in role: ${explicitWorkerRole}\\.`), 'reassignment prompt execution instructions must use explicit role');
+  assert.doesNotMatch(reassignedPrompt, /Work in role: overflow-worker\./, 'reassignment prompt must not retain the previous worker role instruction');
+  assert.match(reassignedPrompt, /Objective: Continue the completed worker output with explicit fresh-context instructions\./, 'reassignment prompt must include objective');
+  assert.match(reassignedPrompt, /## Fresh-context Continuity/, 'reassignment prompt must include continuity section');
+  assert.match(reassignedPrompt, /mode: fresh-context/, 'reassignment prompt must state fresh-context mode');
+  assert.match(reassignedPrompt, new RegExp(`Previous dispatch: ${cancelRecord.dispatchId}`), 'reassignment prompt must reference previous dispatch');
+  assert.match(reassignedPrompt, /summary-only continuity/i, 'reassignment prompt must limit continuity to summary material');
+  assert.match(reassignedPrompt, /no full-history fork is required/i, 'reassignment prompt must reject full-history fork dependency');
+  assert.doesNotMatch(reassignedPrompt, /full-history fork has been created|full-history inheritance/i, 'reassignment prompt must not claim full-history inheritance');
+  assert.doesNotMatch(reassignedPrompt, /receipt verified|production DONE achieved|authority changed/i, 'reassignment prompt must not claim receipt verification, production DONE, or authority changes');
+  assertAuthorityFalse(reassigned, 'reassigned');
+
+  const defaultRoleReassigned = run<DispatchReassignResult>('dispatch_reassign', {
+    dispatchId: cancelRecord.dispatchId,
+  });
+  assert.equal(defaultRoleReassigned.role, 'overflow-worker');
+  assert.equal(defaultRoleReassigned.roleSource, 'default');
+  assert.equal(defaultRoleReassigned.previousDispatchId, cancelRecord.dispatchId);
+  assert.equal(readDispatch(root, defaultRoleReassigned.dispatchId).parentDispatchId, cancelRecord.dispatchId);
+  const defaultRolePrompt = readFileSync(join(root, defaultRoleReassigned.promptFile), 'utf8');
+  assert.match(defaultRolePrompt, /Role: overflow-worker/, 'omitted-role reassignment must use explicit default worker role');
+  assert.match(defaultRolePrompt, /no full-history fork is required/i);
+  assertAuthorityFalse(defaultRoleReassigned, 'defaultRoleReassigned');
+
+  assert.equal(existsSync(join(root, unconstrainedPrepared.receiptFile)), false, 'prepared-only fixture must not have a receipt');
+  const countBeforePreparedReassign = dispatchCount(root);
+  let preparedReassignError: Error | undefined;
+  try {
+    run<DispatchReassignResult>('dispatch_reassign', {
+      dispatchId: unconstrainedPrepared.dispatchId,
+      role: 'summary-worker',
+      objective: 'Render bounded continuity when previous receipt data is absent.',
+      allowedPaths: ['packages/main/src/generated/missing-summary-reassign.txt'],
+    });
+  } catch (error) {
+    preparedReassignError = error as Error;
+  }
+  assert.ok(preparedReassignError, 'prepared-only dispatch_reassign must be rejected');
+  assert.match(preparedReassignError.message, /requires a completed\/accepted previous dispatch/i);
+  assert.match(preparedReassignError.message, /status=prepared/i);
+  assert.match(preparedReassignError.message, /localReceiptStatus=missing/i);
+  assert.doesNotMatch(preparedReassignError.message, /Worker reassignment ready/i);
+  assert.equal(dispatchCount(root), countBeforePreparedReassign, 'rejected prepared-only reassign must not create a follow-up dispatch');
+
+  const reassignText = runText('dispatch_reassign', {
+    dispatchId: cancelRecord.dispatchId,
+    role: 'text-worker',
+    objective: 'Render text reassignment output.',
+    allowedPaths: ['packages/main/src/generated/text-reassign.txt'],
+  });
+  assert.match(reassignText, /Worker reassignment ready/);
+  assert.match(reassignText, /mode: fresh-context/);
+  assert.match(reassignText, /previousDispatchId: D-cancel-resume/);
+  assert.match(reassignText, /role: text-worker/);
+  assert.match(reassignText, /promptFile:/);
+  assert.match(reassignText, /no full-history fork is required/i);
+
+  const resumeRegressionRecord = run<DispatchRecord>('dispatch_prepare', {
+    storyId: 'B-dispatch',
+    dispatchId: 'D-resume-regression',
+    host: 'fake',
+    objective: 'dispatch_resume must rerun the original dispatch metadata.',
+    allowedPaths: ['packages/main/src/generated/resume-regression.txt'],
+  });
+  const countBeforeResumeRegression = dispatchCount(root);
+  const resumeRegression = run<DispatchRunResult>('dispatch_resume', { dispatchId: resumeRegressionRecord.dispatchId });
+  assert.equal(resumeRegression.dispatchId, resumeRegressionRecord.dispatchId, 'dispatch_resume must return original dispatch id');
+  assert.equal(dispatchCount(root), countBeforeResumeRegression, 'dispatch_resume must not create a follow-up dispatch');
+  assert.equal(readDispatch(root, resumeRegressionRecord.dispatchId).parentDispatchId, resumeRegressionRecord.parentDispatchId, 'dispatch_resume must keep original lineage metadata shape');
+
   const expiredRecord = run<DispatchRecord>('dispatch_prepare', {
     storyId: 'B-dispatch',
     dispatchId: 'D-expired',
@@ -886,6 +1064,7 @@ try {
     ['dispatch_collect', { dispatchId: maliciousDispatchId }],
     ['dispatch_receipt_create', { dispatchId: maliciousDispatchId }],
     ['dispatch_resume', { dispatchId: maliciousDispatchId }],
+    ['dispatch_reassign', { dispatchId: maliciousDispatchId }],
     ['dispatch_cancel', { dispatchId: maliciousDispatchId }],
     ['dispatch_review', { dispatchId: maliciousDispatchId }],
     ['dispatch_merge_plan', { dispatchId: maliciousDispatchId }],
@@ -913,6 +1092,7 @@ try {
     ['dispatch_collect', { dispatchId: unknownValidDispatchId }],
     ['dispatch_receipt_create', { dispatchId: unknownValidDispatchId }],
     ['dispatch_resume', { dispatchId: unknownValidDispatchId }],
+    ['dispatch_reassign', { dispatchId: unknownValidDispatchId }],
     ['dispatch_cancel', { dispatchId: unknownValidDispatchId }],
     ['dispatch_review', { dispatchId: unknownValidDispatchId }],
     ['dispatch_merge_plan', { dispatchId: unknownValidDispatchId }],
@@ -954,6 +1134,54 @@ try {
     assert.equal(realHostRun.status, 'needs_receipt');
     assert.equal(existsSync(resolve(root, realHostReady.worktree.worktreePath)), true, 'available real-host scaffold should create the isolated worktree');
     assert.match(realHostRun.nextAction, new RegExp(realHostReady.worktree.worktreePath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+
+    const savedPath = process.env.PATH;
+    const savedArgvFile = process.env.LATTICE_FAKE_CODEX_ARGV_FILE;
+    const savedStdinFile = process.env.LATTICE_FAKE_CODEX_STDIN_FILE;
+    try {
+      process.env.PATH = `${fakeCodexBinDir}${delimiter}${savedPath ?? ''}`;
+      process.env.LATTICE_FAKE_CODEX_ARGV_FILE = fakeCodexArgvFile;
+      process.env.LATTICE_FAKE_CODEX_STDIN_FILE = fakeCodexStdinFile;
+      rmSync(fakeCodexArgvFile, { force: true });
+      rmSync(fakeCodexStdinFile, { force: true });
+      const codexPromptReady = run<DispatchRecord>('dispatch_prepare', {
+        storyId: 'B-dispatch',
+        dispatchId: 'D-real-host-codex-prompt-argv',
+        host: 'codex',
+        objective: 'REAL_PROMPT_SENTINEL_123 must reach spawned codex stdin, not argv.',
+        allowedPaths: ['packages/main/src/generated/real-host-codex-prompt-argv.txt'],
+      });
+      const codexPromptText = readFileSync(join(root, codexPromptReady.promptFile), 'utf8');
+      const codexPromptRun = runDispatch(store, root, {
+        storyId: codexPromptReady.storyId,
+        dispatchId: codexPromptReady.dispatchId,
+        allowRealHostSubprocess: true,
+        executionPolicy: {
+          envAllowlist: ['LATTICE_FAKE_CODEX_ARGV_FILE', 'LATTICE_FAKE_CODEX_STDIN_FILE'],
+          envDenylist: [],
+          commandAllowlist: [],
+          maxRuntimeMs: 5000,
+        },
+      });
+      const codexPromptTranscript = readFileSync(join(root, codexPromptReady.transcriptFile), 'utf8');
+      assert.equal(codexPromptRun.status, 'accepted_local', `fake codex real subprocess should complete cleanly; status=${codexPromptRun.status}; transcript:\n${codexPromptTranscript}`);
+      const spawnedArgv = JSON.parse(readFileSync(fakeCodexArgvFile, 'utf8')) as string[];
+      assert.equal(spawnedArgv.includes('<prompt>'), false, 'spawned codex argv must not receive literal <prompt>');
+      assert.equal(spawnedArgv.includes('<prompt-file>'), false, 'spawned codex argv must not receive literal <prompt-file>');
+      assert.ok(spawnedArgv.includes('-'), 'spawned codex argv must request stdin prompt mode');
+      assert.equal(spawnedArgv.includes(codexPromptText), false, 'spawned codex argv must not receive prompt contents as an argv item');
+      assert.equal(spawnedArgv.some(arg => /REAL_PROMPT_SENTINEL_123/.test(arg)), false, 'spawned codex argv must not include story prompt content');
+      const spawnedStdin = readFileSync(fakeCodexStdinFile, 'utf8');
+      assert.equal(spawnedStdin, codexPromptText, 'spawned codex stdin must receive the prompt file contents');
+      assert.match(spawnedStdin, /REAL_PROMPT_SENTINEL_123/, 'spawned codex stdin must include the story prompt content');
+    } finally {
+      if (savedPath === undefined) delete process.env.PATH;
+      else process.env.PATH = savedPath;
+      if (savedArgvFile === undefined) delete process.env.LATTICE_FAKE_CODEX_ARGV_FILE;
+      else process.env.LATTICE_FAKE_CODEX_ARGV_FILE = savedArgvFile;
+      if (savedStdinFile === undefined) delete process.env.LATTICE_FAKE_CODEX_STDIN_FILE;
+      else process.env.LATTICE_FAKE_CODEX_STDIN_FILE = savedStdinFile;
+    }
 
     const realHostSymlinkEscape = run<DispatchRecord>('dispatch_prepare', {
       storyId: 'B-dispatch',
@@ -1588,6 +1816,12 @@ try {
       assert.equal(scaffoldedStatus.runner!.exitCode, undefined, 'scaffolded runner must not have exitCode (not actually run)');
       assert.ok(scaffoldedStatus.runner!.commandTemplate.length > 0, 'scaffolded runner must have commandTemplate');
       assert.ok(scaffoldedStatus.runner!.invocation.length > 0, 'scaffolded runner must have resolved invocation');
+      assert.equal(scaffoldedStatus.runner!.invocation.includes('<prompt>'), false, 'scaffolded invocation must not leave a literal <prompt>');
+      assert.equal(scaffoldedStatus.runner!.invocation.includes('<prompt-file>'), false, 'scaffolded invocation must not leave a literal <prompt-file>');
+      assert.ok(
+        scaffoldedStatus.runner!.invocation.some(part => part.includes(resolve(root, scaffoldedStatus.dispatch.promptFile))),
+        'scaffolded invocation must point to the prompt file instead of dumping prompt contents',
+      );
       assertAuthorityFalse(scaffoldedStatus.runner, 'scaffoldedStatus.runner');
       // Text rendering
       const scaffoldedText = runText('dispatch_status', { dispatchId: 'D-chk005-scaffolded' });

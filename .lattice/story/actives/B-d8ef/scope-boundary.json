@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-d8ef",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Canonical review host readiness probe for codex, claude, and agy",
+    "Degraded fallback gating over execution/review-ready host counts",
+    "Focused smoke tests and process-fact contract updates for the above",
+    "Host dispatch/runtime template diagnostics for canonical launchers",
+    "Observable noninteractive launcher metadata and bounded smoke classification"
+  ],
+  "excluded": [
+    "Adding new production authority claims or release readiness semantics",
+    "Changing unrelated multi-model ablation docs or scripts already dirty in main",
+    "Pushing to remote or release publishing",
+    "Reading or modifying ~/.codex/auth-profiles or ~/.claude/auth-profiles token contents"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User explicitly asked on 2026-07-09 to combine the Claude stream-json --verbose finding, Codex/Claude/agy probe command details, and wrong launcher risks into a fix.",
+  "createdAt": "2026-07-09T12:58:28.667Z",
+  "updatedAt": "2026-07-09T12:58:28.667Z",
+  "_hash": "f8eb5ed90c37b9b32aeb09ec26d5c8fa12dd87f620ce9e592dc7afdb9a72e2b3"
+}

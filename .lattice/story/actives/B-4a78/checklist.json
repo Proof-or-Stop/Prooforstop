@@ -1,0 +1,52 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Extend scope_check_save schema with a required signed readManifest field",
+      "context": "Shape: {filesReadFully[], filesTriagedByName[], scanEscalationReason|null}. Validate the shape, include readManifest in the scope-check signature domain (_hash), and reject saves that omit it. Keep the existing anti-self-absolution boundaries (resolutions/OQ stay outside the signature domain) unchanged.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Extend review_pass_set schema with the same required readManifest field",
+      "context": "Same shape and signing treatment as scope-check so REVIEW-phase passes carry read evidence; the ledger must expose the field so runs can be compared over time (trend queries).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Update reviewer templates and dispatch prompts to submit readManifest",
+      "context": "scope-plan and REVIEW-phase reviewer templates must instruct submitting the structured field (B-cee5 bounded-contract language already exists in the templates); a missing submission must surface as a gate rejection, not a silent pass.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "M2: derive a mechanical per-run read log for decisions/*.md",
+      "context": "Either retain the reviewer's stream-json transcript at dispatch and extract the Read-call list (productize the fa1777b analyze_arm.py approach), or add a PreToolUse Read hook following the .claude/hooks/lattice-scope-pretool.cjs pattern; bind the read-log digest as run evidence.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "M2: flag self-report vs mechanical-log mismatch and unrecorded full scans",
+      "context": "A full-content directory read of docs/requirements/decisions/ without a recorded scanEscalationReason is the defined failure signal; a mismatch between readManifest and the mechanical read log files a finding. Recording only — do not block or alter the escalation path itself, and do not make memory/playbook output gate evidence.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "Guard smoke coverage for the readManifest gate and mismatch detector",
+      "context": "Extend packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts (from B-cee5) so validate catches regressions: missing readManifest passing a save, and mismatch/unrecorded-full-scan cases going unflagged. Align with the B-04bb validate wiring follow-up.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

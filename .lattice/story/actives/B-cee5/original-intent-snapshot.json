@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-cee5",
+  "sourceText": "User (2026-07-09, during B-2861 document review): token consumption across host accounts is the highest-priority problem. Open a separate high-priority story to stop token exhaustion before the larger document rollout completes. Only change scope-plan / behavior prompt search strategy, necessary prompt mirrors, and static tests; do not change lifecycle gates / DONE gates / memory gate-evidence semantics.",
+  "normalizedOutcome": "Default scope-plan and behavior reviewer runs stop reading the full docs/requirements/decisions corpus (111 files, ~2.4MB); they use bounded memory/playbook preflight plus a candidateSpecSet (<=15 full reads) and only full-scan with a recorded scanEscalationReason, with mirrors synced and a static guard preventing regression.",
+  "acceptanceClaim": "All six active prompt copies contain the bounded preflight + candidateSpecSet + scanEscalationReason wording with no unconditional full-scan instruction, and the reviewer-scan-budget guard smoke passes while a temporary reintroduction of the old wording makes it fail.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:6608996be8af955c360eb79e164992d6f114069ab09f58cc099474aabcacb28a",
+  "createdAt": "2026-07-09T16:59:51.224Z",
+  "updatedAt": "2026-07-09T16:59:51.224Z"
+}

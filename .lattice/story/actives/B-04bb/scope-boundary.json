@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-04bb",
+  "mode": "maintenance",
+  "allowed": [
+    "Add one bare-string entry node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js to validate.commands in lattice.config.json",
+    "Merge main into the story worktree once B-cee5 lands so the guard source is buildable",
+    "Run lattice validate in the story worktree to verify the new entry executes and passes"
+  ],
+  "excluded": [
+    "Any change to reviewer-scan-budget-guard-smoke.ts itself",
+    "Any change to run-all-smokes or its discovery logic",
+    "Any lifecycle gate or DONE semantics change",
+    "Reordering or modifying other validate.commands entries"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User request 2026-07-09: open a small follow-up Lattice story that adds one entry to lattice.config.json validate.commands: node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js (same pattern as retired-authority-vocabulary-guard-smoke.js at line ~27); verify with lattice validate after wiring.",
+  "createdAt": "2026-07-09T18:16:08.504Z",
+  "updatedAt": "2026-07-09T18:16:08.504Z",
+  "_hash": "93cf479443bf0cc23d21b155bed0cbd8fcd08681cd7c9e8d8b1993c5905701fc"
+}

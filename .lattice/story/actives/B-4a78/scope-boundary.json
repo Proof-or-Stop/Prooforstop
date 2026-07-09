@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-4a78",
+  "mode": "feature",
+  "allowed": [
+    "Extend packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts to cover the readManifest gate and mismatch detector; align with B-04bb validate wiring",
+    "M1: extend review_pass_set schema with the same required readManifest field, exposed in the ledger for trend comparison",
+    "M1: extend scope_check_save schema with required signed readManifest {filesReadFully[], filesTriagedByName[], scanEscalationReason|null} inside the signature domain",
+    "M1: update scope-plan and REVIEW-phase reviewer templates/dispatch prompts to require submitting readManifest; missing field = gate rejection",
+    "M2: flag self-report vs mechanical-log mismatch as a finding, and flag full-content directory reads lacking a recorded scanEscalationReason",
+    "M2: mechanical per-run read log for docs/requirements/decisions/*.md via reviewer stream-json transcript retention + Read-call extraction, or a PreToolUse Read hook per the .claude/hooks/lattice-scope-pretool.cjs pattern; bind read-log digest as run evidence"
+  ],
+  "excluded": [
+    "Do not block or alter the scan-escalation path itself: escalation is recorded, never prevented",
+    "Memory/playbook output does NOT become gate evidence (explicit non-goal)",
+    "No remote publishing; story branch stays local per repo discipline"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User task card 2026-07-09: two-tier plan written into the task card — M1 signed structured readManifest on scope_check_save/review_pass_set (spot-checkable, ledger trend comparison, missing = gate reject); M2 mechanical read log (stream-json transcript extraction or PreToolUse Read hook), mismatch between self-report and mechanical log is itself a finding. Non-goals stated verbatim: do not make memory/playbook output gate evidence; keep the escalation path intact. User: a new story is needed to solve this.",
+  "createdAt": "2026-07-09T21:09:57.674Z",
+  "updatedAt": "2026-07-09T21:09:57.674Z",
+  "_hash": "98714e3b3c62bf8733781ad796512fd8a24a037bb1759baf9114aa05631c8676"
+}

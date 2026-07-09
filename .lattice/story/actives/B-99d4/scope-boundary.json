@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-99d4",
+  "mode": "feature",
+  "allowed": [
+    "Add a role-aware way to reassign or relaunch a completed worker/subagent for follow-up work.",
+    "Add focused smoke/unit coverage for the reassignment path.",
+    "Allow the follow-up launch to use a fresh context with explicit instructions and bounded prior-result summary instead of full-history inheritance.",
+    "Thread the requested worker role through the CLI/dispatch launch material and status/projection surfaces needed for operator use."
+  ],
+  "excluded": [
+    "Do not build a general long-term memory system for workers.",
+    "Do not change remote publish, authority, DONE, or production receipt semantics.",
+    "Do not modify docs/story or test fixture JSON directly; all story metadata and verification must go through Lattice commands.",
+    "Do not require full conversation history inheritance for the follow-up worker."
+  ],
+  "confirmedBy": "codex-main",
+  "confirmationNote": "User clarified on 2026-07-09: after a subagent finishes, they want to assign that agent more work; full-history fork cannot specify the worker role, and explicit instructions in a fresh worker are enough.",
+  "createdAt": "2026-07-09T02:40:16.569Z",
+  "updatedAt": "2026-07-09T02:40:16.569Z",
+  "_hash": "d2c09b611262bc1026edcee3db2d38572c66728e68aa3f00de94263e7d92ad1d"
+}

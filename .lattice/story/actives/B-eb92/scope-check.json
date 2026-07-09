@@ -1,0 +1,52 @@
+{
+  "storyId": "B-eb92",
+  "checkedAt": "2026-07-09T11:00:36.021Z",
+  "features": [
+    {
+      "feature": "canonical review-assurance guidance projection",
+      "covered_by": "CHK-001; PLAN CHK-001 central projection in review-assurance-floor.ts; decision central-guidance-helper; scope-boundary allows review-assurance-floor.ts, review-escalation.ts, and done-prepare.ts; docs M3 and review-assurance-floor source.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md#M3---Early-Review-Assurance-Surfacing; docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+    },
+    {
+      "feature": "early command surfaces including session_brief, review_escalation_status, story_advance TEST advisory, and done_prepare dryRun",
+      "covered_by": "CHK-002 names all required surfaces; PLAN CHK-002 preserves JSON parseability; CHK-002 files cover lifecycle-readiness.ts, done-oracle.ts, done-prepare.ts, review-escalation.ts, transition-effects.ts, review-assurance-surfacing-smoke.ts, and packages/main/package.json; execution-boundary allowedPaths/allowedCommands include these surfaces and smoke/build commands.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md#M3---Early-Review-Assurance-Surfacing; docs/requirements/decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "done_prepare safe blocker grouping and cannot-auto-sign guidance",
+      "covered_by": "CHK-003 requires M4 blocker grouping for required gate, missing evidence, generated metadata, stale material, and cannot-auto-sign cases; PLAN CHK-003 separates owner-runnable commands from reviewer/host/human-approved fallback paths; CHK-003 files cover done-prepare.ts, review-assurance-floor.ts, and the surfacing smoke task; decision preMortem guards against owner self-signing wording and stale/unsafe next commands.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md#M4---Actionable-Blocker-Summary; docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+    },
+    {
+      "feature": "no-auto-sign evidence boundary",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope-boundary excludes owner/main auto-writing delivery_check, delivery waiver, delivery reviewer evidence, host verdicts, degraded fallback evidence, reviewer evidence, review pass evidence, and finding resolution evidence; execution-boundary excludedCommands block main-owned autopilot_review_submit, delivery_check_set, delivery_waiver_add, finding_resolve, review_escalation_fallback_set, and review_pass_set; PLAN/decision say display-only guidance must not write review, delivery, host, fallback, Authority, or production evidence.",
+      "source": ".lattice/story/actives/B-eb92/scope-boundary.json; .lattice/story/actives/B-eb92/execution-boundary.json"
+    },
+    {
+      "feature": "non-goals B-eb08 heartbeat and B-b264 merge-preflight/rerun-delta",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "understanding constraints explicitly exclude B-eb08 heartbeat/deadline work and B-b264 merge-preflight/rerun-delta UX; scope-boundary excludes implementing done_prepare closure heartbeat hard deadlines and implementing merge-preflight or rerun-delta UX; source plan splits B-eb92 as early review-assurance surfacing and blocker recipes while heartbeat and merge-preflight/rerun-delta are separate stories.",
+      "source": "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md; .lattice/story/actives/B-eb92/scope-boundary.json"
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "covered": 3,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "a30cc0e2b2c5f363cc4f8aff6d21b314dd96725db66b5a8cbafbd6b629f84a13",
+  "openQuestions": []
+}

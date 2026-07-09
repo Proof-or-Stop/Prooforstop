@@ -1,0 +1,74 @@
+{
+  "principles": [
+    "Make the operator action explicit and auditable.",
+    "Prefer fresh bounded worker context over hidden inherited conversation state.",
+    "Do not widen authority, receipt, merge, or DONE semantics for dispatch follow-up work."
+  ],
+  "drivers": [
+    "A completed worker needs a second assignment path that can set the worker role.",
+    "Full-history fork is not required and currently prevents role selection.",
+    "Existing dispatch metadata already has most of the needed pack/prompt/worktree machinery."
+  ],
+  "options": [
+    {
+      "name": "A: Extend dispatch_resume to accept new role/objective",
+      "pros": [
+        "Small command surface change",
+        "Reuses an existing verb users may know"
+      ],
+      "cons": [
+        "Confuses rerun/resume of the same dispatch with assigning a new follow-up task",
+        "Harder to preserve original dispatch metadata and create clear lineage",
+        "Existing dispatch_resume intentionally means same bounded metadata"
+      ]
+    },
+    {
+      "name": "B: Add dispatch_reassign that creates a fresh follow-up dispatch linked to the completed one",
+      "pros": [
+        "Matches the user model: assign new work after completion",
+        "Can set role/objective/instructions without mutating the old dispatch",
+        "Uses parentDispatchId lineage and fresh prompt/worktree metadata",
+        "Keeps full-history fork out of the critical path"
+      ],
+      "cons": [
+        "Adds one new command and policy/fact registrations",
+        "Needs focused help text and smoke coverage"
+      ]
+    },
+    {
+      "name": "C: Document manual dispatch_prepare workaround only",
+      "pros": [
+        "No code change",
+        "Lowest immediate implementation cost"
+      ],
+      "cons": [
+        "Does not solve the ergonomic pitfall",
+        "Loses prior worker lineage",
+        "Still leaves users guessing how to restart under worker role"
+      ]
+    }
+  ],
+  "chosen": "B: Add dispatch_reassign that creates a fresh follow-up dispatch linked to the completed one",
+  "rationale": "The user wants to assign more work after a worker finishes, not simply rerun the same dispatch. A new dispatch_reassign command can read the prior dispatch, require explicit follow-up instructions, create fresh role-aware prompt metadata, set parentDispatchId to the prior dispatch, and clearly state that this is summary/instruction continuity rather than full-history inheritance.",
+  "preMortem": [
+    {
+      "scenario": "The command accidentally mutates or reruns the original dispatch instead of creating a follow-up dispatch.",
+      "trigger": "Implementation reuses dispatch_resume or writes over the old dispatch id.",
+      "consequence": "The prior worker evidence and receipt lineage become ambiguous.",
+      "mitigation": "Create a new dispatch id by default, store parentDispatchId as the previous dispatch id, and add smoke assertions for old/new ids."
+    },
+    {
+      "scenario": "The worker still cannot tell which role it should use.",
+      "trigger": "Role remains only in pack JSON and not visible in prompt/status text.",
+      "consequence": "The follow-up launch behaves like a generic worker and repeats the reported pitfall.",
+      "mitigation": "Render role/objective/continuity mode in prompt and reassign output; assert prompt text includes requested role."
+    },
+    {
+      "scenario": "The new path overclaims memory continuity or authority.",
+      "trigger": "Output implies inherited history or accepted receipt from the previous worker.",
+      "consequence": "Operators may trust stale or hidden context as evidence.",
+      "mitigation": "Use fresh-context wording, carry only explicit prior summary/instructions, and preserve authorityChanged=false, receiptVerified=false, productionDone=false in result types."
+    }
+  ],
+  "timestamp": "2026-07-09T02:42:37.973Z"
+}

@@ -1,0 +1,296 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Record canonical noninteractive launcher readiness per review host",
+      "context": "Extend host availability proof beyond binary/version presence. Each canonical host row should report the launcher shape used for reviewer work, whether the CLI supports it, whether a bounded smoke can start/finish or produce first progress, and a failureKind for auth, wrong flags, timeout, missing executable, or silent-final-output only.",
+      "relatedDocs": [
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+        "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+        "docs/requirements/decisions/host-overflow.md"
+      ],
+      "status": "done",
+      "startTime": "2026-07-09T13:10:52.259Z",
+      "endTime": "2026-07-09T13:27:22.127Z",
+      "userSees": "Probe JSON includes \"host=claude-code executionReady=true reviewReady=true progressMode=stream-json failureKind=none\" and failed rows such as \"host=codex executionReady=false reviewReady=false failureKind=auth\" with bounded firstProgressMs/durationMs and no raw transcript.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/review-escalation.ts",
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts"
+        ],
+        "create": [
+          "packages/main/src/core/host-execution-readiness.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/review-host-execution-readiness-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "review_host_availability_probe records per-host launcher readiness rows for codex, claude, and agy including launcher argv, executionReady/reviewReady, progressMode, failureKind, firstProgressMs or durationMs, and no raw provider transcript.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A host with executable path and versionOk=true but noninteractive launcher/auth failure remains available=true but executionReady=false/reviewReady=false with a specific failureKind.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Forged or contradictory readiness counts are rejected: reviewReadyHostCount must match host rows and retired completion fields must remain false.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js",
+          "result": "pass",
+          "note": "Readiness smoke verified canonical codex/claude/agy rows include launcherArgv, executionReady/reviewReady, progressMode, failureKind, bounded timing fields, and no raw transcript fields.",
+          "headHash": "f9b8364f511e3dc2b3ee85f99e985f5106c76af0",
+          "materialHash": "8e9e976b43d9599109d117095d224ed4a92acf2188a1df2e840013f176446d0c",
+          "storyFilesHash": "26f26a0a9824b5c0ada4229092a310575daf7301791a32128739a00720b5d7c3",
+          "timestamp": "2026-07-09T22:56:02.741Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-host-execution-readiness-smoke.js",
+          "result": "pass",
+          "note": "Smoke classified codex exec refresh_token_invalidated as failureKind=auth with executionReady=false/reviewReady=false despite version-capable executable assumptions.",
+          "headHash": "f9b8364f511e3dc2b3ee85f99e985f5106c76af0",
+          "materialHash": "8e9e976b43d9599109d117095d224ed4a92acf2188a1df2e840013f176446d0c",
+          "storyFilesHash": "26f26a0a9824b5c0ada4229092a310575daf7301791a32128739a00720b5d7c3",
+          "timestamp": "2026-07-09T22:56:02.741Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Smoke rejects legacy/contradictory readiness probes; process fact contract requires host-readiness semantics and reviewReadyHostCount in gate evidence.",
+          "headHash": "f9b8364f511e3dc2b3ee85f99e985f5106c76af0",
+          "materialHash": "8e9e976b43d9599109d117095d224ed4a92acf2188a1df2e840013f176446d0c",
+          "storyFilesHash": "26f26a0a9824b5c0ada4229092a310575daf7301791a32128739a00720b5d7c3",
+          "timestamp": "2026-07-09T22:56:02.741Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Use execution-ready host counts for degraded fallback and host dispatch diagnostics",
+      "context": "Non-human degraded fallback must not be eligible just because two hosts fail launcher/auth readiness after passing --version. The gate should distinguish availableHostCount from reviewReadyHostCount/executionReadyHostCount and explain when Codex token invalidation, Claude silent mode, or agy wrong flags require full 3x2 remediation or explicit-human-approval.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+        "docs/requirements/decisions/host-neutral-observability-console.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-07-09T13:27:34.618Z",
+      "userSees": "Fallback diagnostics include \"reviewReadyHostCount=1 below required=2; degraded fallback remains lower-assurance\" when only one host is review-ready, and \"refusing single-host-environment: reviewReadyHostCount=2\" when two independent hosts can run.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/review-escalation.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/core/lattice-dispatch.ts",
+          "packages/main/src/core/command-policy.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-escalation-smoke.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "packages/main/src/tasks/dispatch-run-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Non-human degraded fallback accepts only when a fresh current-material probe shows reviewReadyHostCount below two and records lower assurance diagnostics.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Legacy B-7438-style probes without readiness fields do not silently satisfy review-ready proof for non-human degraded fallback; diagnostics explain to rerun the stronger probe or use explicit-human-approval.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "If two or more canonical hosts are review-ready, single-host-environment and temporary-host-unavailability fallback are refused even when version-only availability data or prose evidenceRefs claim otherwise.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js",
+          "result": "pass",
+          "note": "Fresh current-HEAD transcript evidence: observed smoke output includes reviewReadyHostCount below two permitting degraded 3x1 and two review-ready canonical hosts blocking single-host fallback for both escalation and assurance floor gates.",
+          "headHash": "f9b8364f511e3dc2b3ee85f99e985f5106c76af0",
+          "materialHash": "8e9e976b43d9599109d117095d224ed4a92acf2188a1df2e840013f176446d0c",
+          "storyFilesHash": "26f26a0a9824b5c0ada4229092a310575daf7301791a32128739a00720b5d7c3",
+          "timestamp": "2026-07-09T22:56:02.741Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node packages/main/dist/tasks/review-escalation-smoke.js",
+          "result": "pass",
+          "note": "Legacy version-only probe records are rejected for non-human fallback and diagnostics require rerunning the v2 readiness probe or using explicit-human-approval.",
+          "headHash": "f9b8364f511e3dc2b3ee85f99e985f5106c76af0",
+          "materialHash": "8e9e976b43d9599109d117095d224ed4a92acf2188a1df2e840013f176446d0c",
+          "storyFilesHash": "26f26a0a9824b5c0ada4229092a310575daf7301791a32128739a00720b5d7c3",
+          "timestamp": "2026-07-09T22:56:02.741Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js",
+          "result": "pass",
+          "note": "Fallback is refused when two canonical hosts are reviewReady even if single-host-environment or temporary-host-unavailability is claimed.",
+          "headHash": "f9b8364f511e3dc2b3ee85f99e985f5106c76af0",
+          "materialHash": "8e9e976b43d9599109d117095d224ed4a92acf2188a1df2e840013f176446d0c",
+          "storyFilesHash": "26f26a0a9824b5c0ada4229092a310575daf7301791a32128739a00720b5d7c3",
+          "timestamp": "2026-07-09T22:56:02.741Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js",
+          "result": "pass",
+          "note": "Observed smoke output included probe with reviewReadyHostCount below two permits degraded 3x1 and probe with two executable canonical hosts blocks single-host fallback for both escalation and assurance floor paths.",
+          "headHash": "b98b78f6b8f1db9228b01dcbdc2095c50990902a",
+          "materialHash": "00673d61b1874343698f1b19ae619c64a89a38b2e72a6e4bce0e36782111b7c4",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-09T13:27:35.235Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Cover Claude stream-json verbose, Codex exec auth, and agy print launcher with smoke tests",
+      "context": "Add focused smoke coverage that proves Claude observable launcher is claude --print --verbose --output-format=stream-json, plain --print is classified as silent/non-progress for long reviewer work, agy --prompt-file is rejected while agy --print/--print-timeout is canonical, and Codex version/login without codex exec success is not review-ready.",
+      "relatedDocs": [
+        "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+        "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md",
+        "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-07-09T13:27:42.460Z",
+      "userSees": "Smoke output prints \"PASS claude launcher uses --print --verbose --output-format stream-json\", \"PASS agy --prompt-file classified wrong_launcher\", and \"PASS codex exec token_invalidated classified auth\".",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/review-escalation-smoke.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "packages/main/src/tasks/command-catalog-smoke.ts",
+          "packages/main/src/providers/claude-cli.ts",
+          "packages/main/src/providers/codex-cli.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/review-host-execution-readiness-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/review-host-execution-readiness-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Smoke tests prove Claude observable reviewer launcher includes --print --verbose --output-format=stream-json and reports progress-capable mode.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke tests prove agy --prompt-file is classified as wrong_launcher while agy --print with --print-timeout is the canonical noninteractive launcher.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Reconstructed from logic_test evidence: Covers Claude --output-format=stream-json downstream usage-ledger parsing: usage-ledger-dispatch-smoke verifies NDJSON final result event...",
+            "type": "logic",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke tests prove Codex can pass version/login checks but fail codex exec with token_invalidated/refresh_token_invalidated, and that state is classified as auth failure rather than review-ready.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node packages/main/dist/tasks/dispatch-run-smoke.js",
+          "result": "pass",
+          "note": "Readiness smoke proves canonical Claude launcher uses --print --verbose --output-format stream-json and dispatch smoke verifies claude invocationTemplate starts with that observable launcher.",
+          "headHash": "f9b8364f511e3dc2b3ee85f99e985f5106c76af0",
+          "materialHash": "8e9e976b43d9599109d117095d224ed4a92acf2188a1df2e840013f176446d0c",
+          "storyFilesHash": "26f26a0a9824b5c0ada4229092a310575daf7301791a32128739a00720b5d7c3",
+          "timestamp": "2026-07-09T22:56:02.741Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node packages/main/dist/tasks/dispatch-run-smoke.js",
+          "result": "pass",
+          "note": "Smoke classifies agy --prompt-file as wrong_launcher while dispatch scaffolding uses agy --print with --print-timeout and no --prompt-file.",
+          "headHash": "f9b8364f511e3dc2b3ee85f99e985f5106c76af0",
+          "materialHash": "8e9e976b43d9599109d117095d224ed4a92acf2188a1df2e840013f176446d0c",
+          "storyFilesHash": "26f26a0a9824b5c0ada4229092a310575daf7301791a32128739a00720b5d7c3",
+          "timestamp": "2026-07-09T22:56:02.741Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-host-execution-readiness-smoke.js",
+          "result": "pass",
+          "note": "Smoke proves codex exec token_invalidated/refresh_token_invalidated output is classified as failureKind=auth with reviewReady=false, rather than counting version/login as executable review readiness.",
+          "headHash": "f9b8364f511e3dc2b3ee85f99e985f5106c76af0",
+          "materialHash": "8e9e976b43d9599109d117095d224ed4a92acf2188a1df2e840013f176446d0c",
+          "storyFilesHash": "26f26a0a9824b5c0ada4229092a310575daf7301791a32128739a00720b5d7c3",
+          "timestamp": "2026-07-09T22:56:02.742Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-dispatch-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-ledger-dispatch-smoke.js",
+          "result": "pass",
+          "note": "Covers Claude --output-format=stream-json downstream usage-ledger parsing: usage-ledger-dispatch-smoke verifies NDJSON final result event selection, malformed/truncated stream-json fallback, token usage extraction, and prototype-pollution resistance in packages/main/src/core/usage-ledger/dispatch-usage.ts.",
+          "headHash": "f9b8364f511e3dc2b3ee85f99e985f5106c76af0",
+          "materialHash": "8e9e976b43d9599109d117095d224ed4a92acf2188a1df2e840013f176446d0c",
+          "storyFilesHash": "26f26a0a9824b5c0ada4229092a310575daf7301791a32128739a00720b5d7c3",
+          "timestamp": "2026-07-09T22:56:02.742Z"
+        }
+      ]
+    }
+  ]
+}

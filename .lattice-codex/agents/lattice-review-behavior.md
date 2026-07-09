@@ -123,10 +123,13 @@ You do one thing only: check whether the behavior claimed by each checklist item
    - Operations after terminal state (e.g., clicking again after game over)
    - Whether error paths have user-readable error messages (not raw stack traces)
 
-4. Spec boundary perspective (full directory scan of `<requirementsDir>/decisions/`):
+4. Spec boundary perspective (bounded candidateSpecSet routing over `<requirementsDir>/decisions/` — search budget contract, B-cee5):
    - `requirementsDir` is read from lattice config, defaults to `docs/requirements`
-   - Use Glob to list `<requirementsDir>/decisions/*.md`, Read each one (same channel as lattice-review-scope-plan)
-   - Enumerate spec-declared boundary cases from each decisions/ md; typical types include:
+   - **Bounded memory/playbook preflight first (advisory only)**: consume the session's Memory Runtime Preflight block if present, or run `lattice dev_memory_preflight` / bounded `lattice dev_memory_search`; note any active playbook advisory. If no memory/playbook surface is available, proceed directly to candidate routing — never substitute a full directory read for a missing preflight. This output is advisory only, non-authoritative (gateEvidence=false), and can NEVER satisfy or be cited as gate evidence — it only seeds the candidate search.
+   - Default inputs: the `lattice scope_check_save` result recorded by lattice-review-scope-plan (it already mapped spec coverage), the current `git diff main...HEAD`, checklist commitments (title/userSees), and the candidateSpecSet
+   - Build the candidateSpecSet: enumerate `<requirementsDir>/decisions/*.md` FILENAMES with Glob (complete list, cheap), then select candidates from checklist relatedDocs, story title/description/keywords/riskSignals, changed files/symbols, command/config names, `lattice aux_doc_list` output, and top-N `rg` keyword matches; full-read at most 15 candidate docs, filename/title triage for the rest
+   - A full-content scan of the whole decisions/ directory is allowed only with a recorded scanEscalationReason, restricted to: high-risk lifecycle/gate change, process-fact change, global rename, candidate ambiguity, explicit reviewer escalation; write the scanEscalationReason into your review output when you escalate, and treat candidate ambiguity as a reason to escalate rather than guess
+   - Enumerate spec-declared boundary cases from each candidate decisions/ md; typical types include:
      - **error path**: failure/rejection paths listed in the spec (e.g., `start_game_rejected`, input validation failure, insufficient permissions)
      - **state transition**: state-jump boundaries described by the spec (e.g., trigger conditions for phase transitioning A → B, terminal-state behavior)
      - **rate limit / quota**: rate limits / quotas / caps defined by the spec (e.g., rejection_cap, retry count, concurrency limits)
@@ -157,7 +160,7 @@ Your input contains only the following, not the main agent's full conversation h
 - checklist item (**title / userSees are readable**, **reading context is forbidden** — context is the implementer's subjective notes)
 - corresponding section of plan.md (if any)
 - necessary understanding / decision summaries (if any)
-- **all .md files under `<requirementsDir>/decisions/`** (objective spec source of truth, enabled only in the spec-boundary perspective step; requirementsDir defaults to `docs/requirements`, same channel as `lattice-review-scope-plan`)
+- **candidateSpecSet docs under `<requirementsDir>/decisions/`** plus the scope-plan `scope_check_save` result (objective spec source of truth consumed through the search budget contract in the spec-boundary step; requirementsDir defaults to `docs/requirements`, same bounded channel as `lattice-review-scope-plan`; whole-directory full-content reads only with a recorded scanEscalationReason)
 
 **Forbidden**:
 - Do not assume you know the main agent's intent or context — infer only from the inputs above

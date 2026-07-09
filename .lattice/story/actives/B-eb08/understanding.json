@@ -1,0 +1,23 @@
+{
+  "task": "Make done_prepare closeout visible after validation without weakening fail-closed lifecycle behavior.",
+  "outcome": "When the user runs lattice done_prepare on a TEST story, the terminal continues printing lines such as done_prepare progress: evaluating DONE closure, done_prepare progress: checking review assurance, done_prepare progress: computing runtime-change status, and done_prepare progress: checking clean tree; if a closeout phase hangs, the user sees an attributed done_prepare phase-timeout error instead of silence.",
+  "facts": [
+    "B-90d6 exposed a silent post-validation done_prepare closeout period.",
+    "B-783c already fixed global-thin activity-log heartbeat persistence and must not be reimplemented here.",
+    "done_prepare is implemented in packages/main/src/handlers/done-prepare.ts inside runDonePrepare after validation, DONE closure, runtime detection, and clean-tree checks.",
+    "A focused smoke can exercise exported or local helper behavior and the CLI output contract without touching activity-root logging."
+  ],
+  "constraints": [
+    "Do not change DONE, review, delivery, scope, Authority, or production-readiness gate criteria.",
+    "Heartbeat/progress output is diagnostic only and cannot be evidence.",
+    "Every heartbeating closeout phase needs an independent hard deadline.",
+    "No OMX or .omx usage."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+    "packages/main/package.json"
+  ],
+  "timestamp": "2026-07-09T01:33:08.155Z"
+}

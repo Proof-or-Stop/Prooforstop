@@ -1,0 +1,67 @@
+{
+  "principles": [
+    "Gate-consumed degraded fallback eligibility must be mechanically proven, not inferred from prose.",
+    "Canonical host availability is local diagnostic evidence only; it must never imply Authority or production completion.",
+    "Fail closed when host proof is missing, stale, or contradicts single-host scarcity."
+  ],
+  "drivers": [
+    "User found codex, claude, and agy on PATH after a degraded fallback had claimed only one host was available.",
+    "Existing fallback records are consumed by DONE review escalation and review assurance floor gates.",
+    "Implementation should remain small and testable without building the entire cross-host runner."
+  ],
+  "options": [
+    {
+      "name": "A: Add a review_host_availability_probe command and require its fresh event for non-human degraded fallback",
+      "pros": [
+        "Creates a durable process event that gates can consume",
+        "Keeps probing reusable for status diagnostics and user transcripts",
+        "Allows explicit-human-approval to remain a separate lower-assurance path"
+      ],
+      "cons": [
+        "Adds one new CLI command and process fact registration"
+      ]
+    },
+    {
+      "name": "B: Inline command -v checks inside review_escalation_fallback_set only",
+      "pros": [
+        "Smaller surface area"
+      ],
+      "cons": [
+        "DONE/status evaluators still cannot independently reject stale or missing proof",
+        "No durable evidence artifact for audit"
+      ]
+    },
+    {
+      "name": "C: Remove degraded fallback entirely",
+      "pros": [
+        "Strongest assurance"
+      ],
+      "cons": [
+        "Breaks documented policy for temporary host unavailability and explicit human approval"
+      ]
+    }
+  ],
+  "chosen": "A: Add a review_host_availability_probe command and require its fresh event for non-human degraded fallback",
+  "rationale": "Option A matches the Proof-or-stop two-layer contract: prompt/operator guidance points to the probe, while handler/evaluator gates consume a structured process fact. It fixes the current false-degraded path without overbuilding automatic cross-host review.",
+  "preMortem": [
+    {
+      "scenario": "Probe records only prose or evidenceRefs instead of actual command results",
+      "trigger": "The implementation accepts user-supplied host availability arrays without running command lookups",
+      "consequence": "The same self-report bug persists under a new field name",
+      "mitigation": "Handler runs command lookup/version probes itself and records path/version/error per canonical host"
+    },
+    {
+      "scenario": "Fallback set blocks but DONE status still accepts old fallback records",
+      "trigger": "Only review_escalation_fallback_set is changed while evaluateReviewEscalation/evaluateReviewAssuranceFloor keep accepting legacy records",
+      "consequence": "Existing or manually injected events can still satisfy DONE with no host proof",
+      "mitigation": "Add evaluator-level fallback validation requiring fresh probe for single-host-environment and temporary-host-unavailability"
+    },
+    {
+      "scenario": "A machine with codex and claude available still passes single-host fallback",
+      "trigger": "Availability predicate counts host verdict labels instead of executable host CLIs, or treats agy-only fallback incorrectly",
+      "consequence": "The exact user-reported failure recurs",
+      "mitigation": "Smoke tests inject process events/probe results proving >=2 executable canonical hosts reject single-host eligibility and <2 permits it"
+    }
+  ],
+  "timestamp": "2026-07-09T11:11:26.173Z"
+}
