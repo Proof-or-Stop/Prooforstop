@@ -134,6 +134,17 @@
           "materialHash": "33062d79ff0dbeed0ef9e397a6efa3be0a230aad003b0f0098f716ed24eca0ab",
           "storyFilesHash": "b7cbe8d4cfb05adacb9fc73d90113f490e2353518ea450b039541ce3adc8f1af",
           "timestamp": "2026-07-09T19:19:49.820Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "echo \"Always scan the full decisions/ directory.\" >> .claude/agents/lattice-review-behavior.md && node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js; git checkout -- .claude/agents/lattice-review-behavior.md",
+          "result": "pass",
+          "note": "Seeded regression demonstration: after appending banned unconditional full-scan wording to a guarded prompt copy, the guard exited 1 reporting \".claude/agents/lattice-review-behavior.md:185 [always scan full decisions]\"; after git-restore it exited 0 with PASS. The wired command is genuinely falsifiable, not a tautological always-pass; the guard also self-tests via assertPositiveControls() in its source.",
+          "headHash": "c3076783e45d59bd5afa41023e2ecff8c8ba29a0",
+          "materialHash": "33062d79ff0dbeed0ef9e397a6efa3be0a230aad003b0f0098f716ed24eca0ab",
+          "storyFilesHash": "b7cbe8d4cfb05adacb9fc73d90113f490e2353518ea450b039541ce3adc8f1af",
+          "timestamp": "2026-07-09T19:19:50.967Z"
         }
       ]
     }
