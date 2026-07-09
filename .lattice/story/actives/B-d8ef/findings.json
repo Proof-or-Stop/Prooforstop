@@ -126,6 +126,21 @@
       "_hash": "494f207349a4ed87d5f73650bf2ee38e6bb72972e40bf8781d12e96049769af6",
       "signatureTag": "missing|unknown|missing-packages-main",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d8ef:F-007",
+      "desc": "missing: packages/main/src/core/host-execution-readiness.ts:260-343 classifyHostExecutionReadiness always classifies canonicalReviewHostLauncherSpec(host).launcherArgv against itself (line 272: classifyReviewHostLauncher(args.host, spec.launcherArgv)) because its args type carries no observed-argv field; probeHostExecutionReadiness (the only real caller) always executes the hardcoded canonical argv. Since the canonical spec by construction satisfies its own classifyReviewHostLauncher checks, launcher.launcherOk is always true and the wrong_launcher branch at lines 305-319 is structurally unreachable in production, despite HostExecutionFailureKind listing wrong_launcher as a possible outcome of this function. Real observed-argv wrong-launcher detection only happens via the separate classifyReviewHostLauncher(host, launcherArgv) call on stored/submitted probe rows in review-escalation.ts:603, not via fresh probes.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-09T16:17:16.459Z",
+      "reviewRound": "2026-07-09T16:07:24.768Z",
+      "reviewRunId": "B-d8ef:RR-024",
+      "_hash": "18d1d307287f14d8430bbdd626084bc7980e0e80d7c41f76917de3067eedd22d",
+      "signatureTag": "missing|unknown|missing-packages-main",
+      "signatureTagSource": "auto"
     }
   ]
 }
