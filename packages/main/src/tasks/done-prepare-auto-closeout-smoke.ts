@@ -426,6 +426,41 @@ function assertPreexistingLifecycleMetadataIsUnsafe(): void {
   }
 }
 
+function assertDeletesAndRenamesAreUnsafe(): void {
+  for (const mode of ['delete', 'rename'] as const) {
+    const { root, storyId } = setupFixture();
+    try {
+      const testEvidencePath = `.lattice/story/actives/${storyId}/test-evidence.json`;
+      const baseline = captureDonePrepareGeneratedMetadataBaseline({
+        root,
+        storyDirRel: '.lattice/story/actives',
+        storyId,
+        initialDirtyRows: [],
+      });
+      if (mode === 'delete') {
+        git(root, ['rm', testEvidencePath]);
+      } else {
+        git(root, ['mv', testEvidencePath, `${testEvidencePath}.renamed`]);
+      }
+      const manifest = buildDonePrepareGeneratedMetadataManifest({
+        root,
+        storyId,
+        storyDirRel: '.lattice/story/actives',
+        baseline,
+        statusRows: gitStatusRowsForDonePrepareGeneratedMetadata(root),
+      });
+      assert.equal(manifest.safePaths.length, 0, `${mode} must not produce safe auto-stage paths`);
+      assert.ok(manifest.unsafePaths.length > 0, `${mode} must produce unsafe paths`);
+      assert.ok(
+        manifest.entries.some((entry) => entry.safety === (mode === 'delete' ? 'unsafe_deleted' : 'unsafe_rename')),
+        `${mode} must be classified as unsafe`,
+      );
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  }
+}
+
 function assertMissingHashesRefuseReuse(): void {
   const { root, storyId } = setupFixture();
   try {
@@ -448,6 +483,55 @@ function assertMissingHashesRefuseReuse(): void {
     });
     assert.equal(result.ok, false, 'missing material/story hashes must not be eligible for validation reuse');
     assert.match(result.reasons.join('\n'), /test-evidence materialHash does not match current materialHash/);
+    assert.equal((store.readDoneRequiredEvidence(storyId) as any)?.donePrepareValidationReuse, undefined);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function assertReuseRefusesConfigAndMaterialDrift(): void {
+  const { root, storyId } = setupFixture();
+  try {
+    const store = new StoryStore(root);
+    const basis = captureDonePrepareValidationReuseBasis({ root, gitCwd: root, storyId, store });
+    write(root, 'README.md', '# done_prepare auto-closeout fixture changed\n');
+    write(root, 'lattice.config.json', JSON.stringify({
+      scanRoot: '.',
+      rootDir: '.',
+      testsDir: 'tests',
+      fixturesDir: 'tests/fixtures',
+      storyDir: '.lattice/story/actives',
+      requirementsDir: 'docs/requirements',
+      workflow: { profile: 'light' },
+      validate: {
+        commands: [{
+          label: 'changed validate',
+          command: process.execPath,
+          args: ['-e', 'process.exit(0)'],
+          timeoutMs: 2000,
+        }],
+      },
+      doneRequiredCommands: [{
+        label: 'changed DONE-required validation',
+        command: process.execPath,
+        args: ['-e', 'process.exit(0)'],
+        timeoutMs: 2000,
+      }],
+    }, null, 2) + '\n');
+    const result = writeDonePrepareValidationReuseRecord({
+      root,
+      gitCwd: root,
+      storyId,
+      store,
+      basis,
+      generatedMetadataPaths: [`.lattice/story/actives/${storyId}/test-evidence.json`],
+    });
+    assert.equal(result.ok, false, 'material/config drift must not be eligible for validation reuse');
+    const reasons = result.reasons.join('\n');
+    assert.match(reasons, /materialHash changed/);
+    assert.match(reasons, /validateCommandSetHash changed/);
+    assert.match(reasons, /doneRequiredCommandSetHash changed/);
+    assert.match(reasons, /configHash changed/);
     assert.equal((store.readDoneRequiredEvidence(storyId) as any)?.donePrepareValidationReuse, undefined);
   } finally {
     rmSync(root, { recursive: true, force: true });
@@ -483,7 +567,9 @@ void (async () => {
     await assertManifestOnlyAutoCloseout();
     await assertUnsafePathRefusesBeforeReuseRecord();
     assertPreexistingLifecycleMetadataIsUnsafe();
+    assertDeletesAndRenamesAreUnsafe();
     assertMissingHashesRefuseReuse();
+    assertReuseRefusesConfigAndMaterialDrift();
     assertJsonStdoutClean();
     console.log('done-prepare-auto-closeout smoke passed');
   } catch (error) {
