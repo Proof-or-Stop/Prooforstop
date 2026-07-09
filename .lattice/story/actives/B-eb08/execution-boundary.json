@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-eb08",
+  "allowedCommands": [
+    "git diff*",
+    "git show*",
+    "git status*",
+    "lattice done_prepare*",
+    "lattice review_escalation_status*",
+    "lattice story_advance*",
+    "lattice validate*",
+    "nl *",
+    "node packages/main/dist/tasks/*",
+    "npm --prefix packages/main run build",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command",
+    "multi_tool_use.parallel"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/B-eb08",
+    "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+    "packages/main/package.json",
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/tasks"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "Story A may edit only done_prepare closure progress/deadline implementation and focused tests; do not redo B-783c activity-root logging or alter DONE/review gate criteria.",
+  "createdAt": "2026-07-09T01:29:15.653Z",
+  "updatedAt": "2026-07-09T01:29:15.653Z",
+  "_hash": "52a9da4b85dbb3b985c51252fd09faa86c506aec11f9c5deb0acb7616e39a04d"
+}

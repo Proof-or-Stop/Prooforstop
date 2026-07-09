@@ -4,7 +4,7 @@
   "title": "Add done_prepare closure progress heartbeat and hard deadlines",
   "description": "Implement M0-M2 from docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md: make post-validation done_prepare closeout visible with progress labels, JSON-safe liveness, and independent hard deadlines so real hangs still fail closed.",
   "type": "bug",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "source": "user-request-2026-07-09",
   "keywords": [
@@ -25,6 +25,20 @@
       "user": "Harmonygo",
       "sessionId": "sess-3d1880b40d393f50",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-09T01:31:59.935Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-3d1880b40d393f50",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-eb08",
+    "branch": "story/B-eb08",
+    "createdAt": "2026-07-09T01:31:57.164Z"
+  }
 }
