@@ -268,6 +268,11 @@ try {
     const forgedRecord = reviewHostAvailabilityProbeRecordFromEvent(forged, 0, MATERIAL, STORY_FILES_HASH);
     assert.equal(forgedRecord.valid, false);
     assert.match(forgedRecord.reasons.join('\n'), /retired completion flag must be false when present/);
+
+    const wrongEventType = { ...event, type: 'dispatch' as const };
+    const wrongTypeRecord = reviewHostAvailabilityProbeRecordFromEvent(wrongEventType, 0, MATERIAL, STORY_FILES_HASH);
+    assert.equal(wrongTypeRecord.valid, false);
+    assert.match(wrongTypeRecord.reasons.join('\n'), /retired completion flag must be false/);
   });
 
   check('two review-ready hosts block non-human degraded fallback', () => {

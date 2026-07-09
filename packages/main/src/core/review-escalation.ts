@@ -292,7 +292,8 @@ export const RETIRED_COMPLETION_FALSE_FIELDS = [
 ] as const;
 
 function requireRetiredCompletionFieldsFalse(event: ProcessEvent, reasons: string[]): void {
-  const allowsOmittedRetiredFields = event.schemaVersion === REVIEW_HOST_AVAILABILITY_PROBE_SCHEMA_VERSION;
+  const allowsOmittedRetiredFields = event.type === REVIEW_HOST_AVAILABILITY_PROBE_EVENT
+    && event.schemaVersion === REVIEW_HOST_AVAILABILITY_PROBE_SCHEMA_VERSION;
   for (const field of RETIRED_COMPLETION_FALSE_FIELDS) {
     if (event[field] === undefined) {
       if (!allowsOmittedRetiredFields) reasons.push('retired completion flag must be false');
