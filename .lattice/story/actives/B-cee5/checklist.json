@@ -55,6 +55,17 @@
           "materialHash": "2129600913e88693d4e5986538beca1b15432d378b1fb18b9b126d64d6e96cdb",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "timestamp": "2026-07-09T17:08:31.222Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "diff packages/main/templates/agents/lattice-review-scope-plan.md .claude/agents/lattice-review-scope-plan.md; diff packages/main/templates/agents/lattice-review-behavior.md .claude/agents/lattice-review-behavior.md; diff packages/main/templates/agents/lattice-review-scope-plan.md .lattice-codex/agents/lattice-review-scope-plan.md; diff packages/main/templates/agents/lattice-review-behavior.md .lattice-codex/agents/lattice-review-behavior.md",
+          "result": "pass",
+          "note": "All four pre-edit diffs empty: both templates byte-identical to their .claude and .lattice-codex mirrors, so the baseline cannot hide pre-existing mirror drift.",
+          "headHash": "b52c3063ea0a91be4c3f168ffad79fdaab60e7ee",
+          "materialHash": "2129600913e88693d4e5986538beca1b15432d378b1fb18b9b126d64d6e96cdb",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-09T17:08:32.810Z"
         }
       ]
     },
