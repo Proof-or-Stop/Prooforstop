@@ -1,0 +1,24 @@
+{
+  "findings": [
+    {
+      "id": "B-eb08:F-001",
+      "desc": "agent:\"lattice-review-concept\" packages/main/src/handlers/done-prepare.ts:429-456 implements closeout phase deadlines with Promise.race/setTimeout, but real wrapped closeout work still runs synchronously: git() uses execFileSync at packages/main/src/handlers/done-prepare.ts:199-204, runtimeChange calls synchronous git diff/comment scans at packages/main/src/handlers/done-prepare.ts:679-686, and cleanTree calls synchronous git status/classification at packages/main/src/handlers/done-prepare.ts:1167-1174. While one of those synchronous operations is blocked, Node cannot run the timeout or heartbeat callbacks, so a real hung git/status/diff child can still outlive the phase deadline instead of failing closed by the independent deadline required by CHK-002/M2. The smoke only proves an async pending-promise injection at packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts:321-331, so it does not cover the real synchronous closeout hang path.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-09T02:08:42.923Z",
+      "reviewRound": "2026-07-09T02:06:03.454Z",
+      "reviewRunId": "B-eb08:RR-002",
+      "_hash": "ebe8ba170f6dc4f1d952b816d6afc1ed32c21c46f201e3f446dd291270db254c",
+      "files": [
+        "packages/main/src/handlers/done-prepare.ts",
+        "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+        "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md"
+      ],
+      "signatureTag": "adversarial|ts|agent-lattice-review",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
