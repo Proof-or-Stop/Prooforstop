@@ -89,7 +89,35 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Optimization ledger complete: each 3x2 finding is classified as accept, reject, or defer with owner milestone, reason, and evidence.",
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Reconciliation ledger deduplicates host/lens findings and classifies each actionable item as accept, reject, or defer.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Deferred and rejected suggestions include explicit code or policy evidence explaining why they are not applied now.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Ledger does not hide disagreement between hosts or collapse conflicting findings into vague consensus.",
+            "type": "docs"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
