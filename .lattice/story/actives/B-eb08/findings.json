@@ -52,7 +52,7 @@
       "desc": "done_prepare closeout hard deadlines are incomplete: installCloseoutPhaseChildProcessDeadline only replaces childProcess.execFileSync and syncs that named export, but the wrapped DONE-closure phase calls buildDoneClosureRunbook, which reaches execSync-based git probes such as readGitStatusLines (git status) and checkMainDivergence (git rev-list). A hung execSync blocks the event loop, prevents the Promise.race timeout/heartbeat from firing, and is never converted to DonePreparePhaseTimeoutError, so the phase can hang past its configured hard deadline. Patch execSync as well or convert these DONE-closure git probes to the bounded execFileSync path, and add smoke coverage for an execSync git hang.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-09T02:58:22.463Z",
@@ -65,7 +65,11 @@
         "packages/main/src/core/done-oracle.ts"
       ],
       "signatureTag": "edge|ts|prepare-closeout-hard",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 3f8c62469: done_prepare closeout phase deadline wrapper now patches both execFileSync and execSync, restores both in finally, syncs builtin ESM exports, and the focused smoke covers a doneClosure execSync git hang failing closed under the phase deadline.",
+      "resolvedAt": "2026-07-09T03:07:16.155Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-eb08:F-004",
