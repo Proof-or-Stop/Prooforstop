@@ -618,6 +618,70 @@
         "bindingHash": "2495d02a1e215fdd440529c48447e82bd8139996ceed7f16f1180d410853d876"
       },
       "_hash": "44abb3867e06e0dab16ad51b185293f22ba3f8bfac8ffe47c18f2e1acc9190eb"
+    },
+    {
+      "reviewRunId": "B-eb92:RR-011",
+      "storyId": "B-eb92",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-07-09T12:03:49.417Z",
+      "startedAt": "2026-07-09T12:24:27.572Z",
+      "headHash": "3982160cb767462e2b6a5dca251b49a88dcf9c26",
+      "materialHash": "fec8ef1f42f92caa69128ab5a15ad164e6920b8953e0811889c665f4789d91d6",
+      "storyFilesHash": "91db335a44d67e6565139af5df7e2b7c264a98a926907c3f645696b600032db8",
+      "promptHash": "7e70da74d8f5e7b391b7ded04dc0f7b4d95bb599f871ee03a80b76bf2e1c12b3",
+      "scopeBinding": {
+        "scopeContractHash": "b0003ee1aed216c13d20602394b6b85979385854f0e37fa3973ac6f2d2b759f8",
+        "diffPackHash": "5cf21c7db76bc89355500026625c8e1c6ba2eb7d05aca13dd5a67ec4ecc6531c",
+        "reviewedChangedFiles": [
+          "packages/main/package.json",
+          "packages/main/src/core/done-oracle.ts",
+          "packages/main/src/core/lifecycle-readiness.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/handlers/transition-effects.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "packages/main/src/tasks/review-assurance-surfacing-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "004b87d16eee7e31af851f856c082ded8d186a564fef51324386a6abf9330f06",
+          "0bc39aa134ad9db1622f5d5f313e1f0b3cdd18eda42bc4afea21d1a44bda32bc",
+          "170ece5031a4938b9a8986283eb0a59f5d99f8d020647ab3fb0788a3acdad954",
+          "173a0ca24a9a8bad57e4538f3ef500db8c43ddf242d891e5b98c5397d8c2c2a3",
+          "1ed8bb4963c645fd9d77e346ff986e54d908e708ad756c8184f5d43057cf66dd",
+          "25b2e1af6a2e30baa1dabf3c10d49725943a2aeaf3d03b61a59adaaae8a7fd38",
+          "2e68a7a31e5df0f498eb26c318e64d923f0aa0f734c228f2554ac6a2b3dfedb3",
+          "470af954ab882a6ff45a82925fc78034411c160345bceff214d64989757dcf8d",
+          "4da6a4a8e0440f9f7f42c3ed589b06ab26c704910c325ee09492badcb89b77f4",
+          "4f939b71da232d95e6d81c5122b2ee8853affe7728ece4ddcb9fdadf2ca77c20",
+          "6de42623c047931680fcac87b22ea94075b2383b52d082f2cbed779cf0b4846b",
+          "80214c92d645bcb11e17b844a64d8a0947b28ab429351d5824803cb8adac6a16",
+          "aa8bf723a5a6554defbba9d2d33fdb24687f12bf30e7a5d8f366abb07f352795",
+          "b802496235e709a5d6a0ce7adce0e27aa3815845a24d3fac431a3ba4b71db5b5",
+          "bd855d81b90e1e7b505e22bb4cee932762413894fae973afb6130efba5079012",
+          "c782ea111930dd15674c4257cf39957e7a610b984032ed968601e538e2f53086",
+          "d668005fec73e1e2b98fce3f5870cfc31b69e0cd2936aff3204c8a1c929b5127",
+          "e1d16d91526557cd4773549f0f4efa265ea714cc2df99dd03e43450b7a5e1514",
+          "fd7f8b507e5a088c6d3dfbfb747726e15a5075016ecdbb5806a9a8d79a4a33a3",
+          "ffe2f454e492877e08612abff2bdb4eb42cef2722d266105305b71cbc18e4bf9"
+        ],
+        "bindingHash": "8baef25d8588720ea02a427079cdb9ccbbb2bcae1126e2530ee029f6ec5e7832"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-eb92",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-eb92",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-eb92",
+        "workspaceMode": "story-worktree",
+        "headHash": "3982160cb767462e2b6a5dca251b49a88dcf9c26",
+        "materialHash": "fec8ef1f42f92caa69128ab5a15ad164e6920b8953e0811889c665f4789d91d6",
+        "storyFilesHash": "91db335a44d67e6565139af5df7e2b7c264a98a926907c3f645696b600032db8",
+        "bindingHash": "7aea4a0e2af45aec36ec7e48805f53909a2f5542d8c0543d2835c51faaeb25bc"
+      },
+      "_hash": "d8a0035545e3dfdaada5ac5ffd5bd8d6a0622e274c3506b49e573a1f7a20238a"
     }
   ]
 }
