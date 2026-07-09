@@ -52,10 +52,10 @@
           "command": "npm --prefix packages/main run test:review-assurance-surfacing-smoke",
           "result": "pass",
           "note": "Smoke fixture asserts canonical review-assurance guidance before DONE, including reasonCode, current material/story binding, fallback eligibility, legal writer paths, and cannot-auto-sign warning.",
-          "headHash": "813fe24d5b17747b62bd7d864927f62f9496c467",
-          "materialHash": "143e8e816bec448969b15774a4e8d48781eb9ddb9567282fa482aae16c5bc109",
-          "storyFilesHash": "1f7d9761d646125ab18617103b77926746752de66f59a780a4032427d1b4e4f9",
-          "timestamp": "2026-07-09T11:19:33.456Z"
+          "headHash": "2c3714cba4c0ce2a7cfbfbe77237e15d559227c0",
+          "materialHash": "690f54e93891f9ecb2e28580b38a43efab057a8c78b290af5c9dd9fc139c3c87",
+          "storyFilesHash": "81b5b65fb763a95473c25e110230ad49eae92d138f031e9e04687293821014e7",
+          "timestamp": "2026-07-09T11:47:14.364Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -64,10 +64,10 @@
           "command": "npm --prefix packages/main run test:review-assurance-surfacing-smoke",
           "result": "pass",
           "note": "Smoke asserts fallback guidance is generated from canonical high-risk review-assurance status and includes review_escalation_fallback_set only under eligible fallback status.",
-          "headHash": "813fe24d5b17747b62bd7d864927f62f9496c467",
-          "materialHash": "143e8e816bec448969b15774a4e8d48781eb9ddb9567282fa482aae16c5bc109",
-          "storyFilesHash": "1f7d9761d646125ab18617103b77926746752de66f59a780a4032427d1b4e4f9",
-          "timestamp": "2026-07-09T11:19:33.456Z"
+          "headHash": "2c3714cba4c0ce2a7cfbfbe77237e15d559227c0",
+          "materialHash": "690f54e93891f9ecb2e28580b38a43efab057a8c78b290af5c9dd9fc139c3c87",
+          "storyFilesHash": "81b5b65fb763a95473c25e110230ad49eae92d138f031e9e04687293821014e7",
+          "timestamp": "2026-07-09T11:47:14.364Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -76,10 +76,10 @@
           "command": "npm --prefix packages/main run test:review-assurance-surfacing-smoke",
           "result": "pass",
           "note": "Smoke asserts display-only guidance does not mutate git state during done_prepare dryRun and separates evidence-writing reviewer/host/fallback paths from owner-runnable commands.",
-          "headHash": "813fe24d5b17747b62bd7d864927f62f9496c467",
-          "materialHash": "143e8e816bec448969b15774a4e8d48781eb9ddb9567282fa482aae16c5bc109",
-          "storyFilesHash": "1f7d9761d646125ab18617103b77926746752de66f59a780a4032427d1b4e4f9",
-          "timestamp": "2026-07-09T11:19:33.456Z"
+          "headHash": "2c3714cba4c0ce2a7cfbfbe77237e15d559227c0",
+          "materialHash": "690f54e93891f9ecb2e28580b38a43efab057a8c78b290af5c9dd9fc139c3c87",
+          "storyFilesHash": "81b5b65fb763a95473c25e110230ad49eae92d138f031e9e04687293821014e7",
+          "timestamp": "2026-07-09T11:47:14.364Z"
         }
       ]
     },
@@ -140,10 +140,10 @@
           "command": "npm --prefix packages/main run test:review-assurance-surfacing-smoke",
           "result": "pass",
           "note": "Smoke covers lifecycle readiness, review_escalation_status, TEST next-step advisory, and done_prepare dryRun surfacing of the triggered review-assurance requirement.",
-          "headHash": "813fe24d5b17747b62bd7d864927f62f9496c467",
-          "materialHash": "143e8e816bec448969b15774a4e8d48781eb9ddb9567282fa482aae16c5bc109",
-          "storyFilesHash": "1f7d9761d646125ab18617103b77926746752de66f59a780a4032427d1b4e4f9",
-          "timestamp": "2026-07-09T11:19:33.456Z"
+          "headHash": "2c3714cba4c0ce2a7cfbfbe77237e15d559227c0",
+          "materialHash": "690f54e93891f9ecb2e28580b38a43efab057a8c78b290af5c9dd9fc139c3c87",
+          "storyFilesHash": "81b5b65fb763a95473c25e110230ad49eae92d138f031e9e04687293821014e7",
+          "timestamp": "2026-07-09T11:47:14.364Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -152,10 +152,10 @@
           "command": "npm --prefix packages/main run test:review-assurance-surfacing-smoke",
           "result": "pass",
           "note": "Smoke asserts TEST next-step text says review assurance before DONE is advisory only and does not convert TEST entry into a review-assurance gate.",
-          "headHash": "813fe24d5b17747b62bd7d864927f62f9496c467",
-          "materialHash": "143e8e816bec448969b15774a4e8d48781eb9ddb9567282fa482aae16c5bc109",
-          "storyFilesHash": "1f7d9761d646125ab18617103b77926746752de66f59a780a4032427d1b4e4f9",
-          "timestamp": "2026-07-09T11:19:33.456Z"
+          "headHash": "2c3714cba4c0ce2a7cfbfbe77237e15d559227c0",
+          "materialHash": "690f54e93891f9ecb2e28580b38a43efab057a8c78b290af5c9dd9fc139c3c87",
+          "storyFilesHash": "81b5b65fb763a95473c25e110230ad49eae92d138f031e9e04687293821014e7",
+          "timestamp": "2026-07-09T11:47:14.364Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -164,10 +164,10 @@
           "command": "npm run test:process-fact-contract && npm --prefix packages/main run test:runtime-fact-contract && npm --prefix packages/main run test:review-assurance-surfacing-smoke",
           "result": "pass",
           "note": "Process fact contract, runtime fact contract, and smoke passed; review_escalation_status JSON and done_prepare JSON remain structured and parseable with guidance in structured fields/transcript.",
-          "headHash": "813fe24d5b17747b62bd7d864927f62f9496c467",
-          "materialHash": "143e8e816bec448969b15774a4e8d48781eb9ddb9567282fa482aae16c5bc109",
-          "storyFilesHash": "1f7d9761d646125ab18617103b77926746752de66f59a780a4032427d1b4e4f9",
-          "timestamp": "2026-07-09T11:19:33.456Z"
+          "headHash": "2c3714cba4c0ce2a7cfbfbe77237e15d559227c0",
+          "materialHash": "690f54e93891f9ecb2e28580b38a43efab057a8c78b290af5c9dd9fc139c3c87",
+          "storyFilesHash": "81b5b65fb763a95473c25e110230ad49eae92d138f031e9e04687293821014e7",
+          "timestamp": "2026-07-09T11:47:14.364Z"
         }
       ]
     },
@@ -224,10 +224,10 @@
           "command": "npm --prefix packages/main run test:review-assurance-surfacing-smoke",
           "result": "pass",
           "note": "Smoke asserts done_prepare classifies review-assurance blockers, prints required gate reason codes, owner-runnable commands, reviewer/host writer paths, fallback writer paths, warnings, and canonical guidance.",
-          "headHash": "813fe24d5b17747b62bd7d864927f62f9496c467",
-          "materialHash": "143e8e816bec448969b15774a4e8d48781eb9ddb9567282fa482aae16c5bc109",
-          "storyFilesHash": "1f7d9761d646125ab18617103b77926746752de66f59a780a4032427d1b4e4f9",
-          "timestamp": "2026-07-09T11:19:33.456Z"
+          "headHash": "2c3714cba4c0ce2a7cfbfbe77237e15d559227c0",
+          "materialHash": "690f54e93891f9ecb2e28580b38a43efab057a8c78b290af5c9dd9fc139c3c87",
+          "storyFilesHash": "81b5b65fb763a95473c25e110230ad49eae92d138f031e9e04687293821014e7",
+          "timestamp": "2026-07-09T11:47:14.364Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -236,10 +236,10 @@
           "command": "npm --prefix packages/main run test:review-assurance-surfacing-smoke",
           "result": "pass",
           "note": "Smoke asserts done_prepare dryRun does not mutate git state and the owner command block omits evidence-writing quorum_submit, autopilot_review_submit, and review_escalation_fallback_set paths.",
-          "headHash": "813fe24d5b17747b62bd7d864927f62f9496c467",
-          "materialHash": "143e8e816bec448969b15774a4e8d48781eb9ddb9567282fa482aae16c5bc109",
-          "storyFilesHash": "1f7d9761d646125ab18617103b77926746752de66f59a780a4032427d1b4e4f9",
-          "timestamp": "2026-07-09T11:19:33.456Z"
+          "headHash": "2c3714cba4c0ce2a7cfbfbe77237e15d559227c0",
+          "materialHash": "690f54e93891f9ecb2e28580b38a43efab057a8c78b290af5c9dd9fc139c3c87",
+          "storyFilesHash": "81b5b65fb763a95473c25e110230ad49eae92d138f031e9e04687293821014e7",
+          "timestamp": "2026-07-09T11:47:14.364Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -248,10 +248,10 @@
           "command": "npm --prefix packages/main run test:review-assurance-surfacing-smoke",
           "result": "pass",
           "note": "Smoke asserts cannot-auto-sign guidance appears for reviewer evidence, host verdicts, delivery checks, and degraded fallback evidence, while legal writer paths remain explicitly non-owner.",
-          "headHash": "813fe24d5b17747b62bd7d864927f62f9496c467",
-          "materialHash": "143e8e816bec448969b15774a4e8d48781eb9ddb9567282fa482aae16c5bc109",
-          "storyFilesHash": "1f7d9761d646125ab18617103b77926746752de66f59a780a4032427d1b4e4f9",
-          "timestamp": "2026-07-09T11:19:33.456Z"
+          "headHash": "2c3714cba4c0ce2a7cfbfbe77237e15d559227c0",
+          "materialHash": "690f54e93891f9ecb2e28580b38a43efab057a8c78b290af5c9dd9fc139c3c87",
+          "storyFilesHash": "81b5b65fb763a95473c25e110230ad49eae92d138f031e9e04687293821014e7",
+          "timestamp": "2026-07-09T11:47:14.364Z"
         }
       ]
     }
