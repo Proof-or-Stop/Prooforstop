@@ -19,6 +19,25 @@
       ],
       "signatureTag": "adversarial|ts|agent-lattice-review",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-eb08:F-002",
+      "desc": "packages/main/src/handlers/done-prepare.ts:449 starts the closeout work in the same event-loop turn and line 455 relies on Promise.race for the phase deadline. The wrapped production phases still call synchronous helpers such as execFileSync-backed git at packages/main/src/handlers/done-prepare.ts:199 and runtime/clean-tree phase work at packages/main/src/handlers/done-prepare.ts:1157 and packages/main/src/handlers/done-prepare.ts:1167. While any of those synchronous calls is blocked, the timeout callback cannot run, so a hung git/filesystem closeout can outlive LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS and fall back to the global idle watchdog instead of the promised independent hard deadline. The smoke only injects an async pending promise at packages/main/src/handlers/done-prepare.ts:424, so it does not cover this real synchronous failure mode.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-09T02:10:11.627Z",
+      "reviewRound": "2026-07-09T02:06:03.454Z",
+      "reviewRunId": "B-eb08:RR-001",
+      "_hash": "f3fe3b07e50a1b632e82676bf4491d7ab3e3fc5ef6c595cd3deddaa63826a87a",
+      "files": [
+        "packages/main/src/handlers/done-prepare.ts",
+        "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
