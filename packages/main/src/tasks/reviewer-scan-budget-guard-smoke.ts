@@ -58,10 +58,15 @@ const requiredPhrases = [
   'gateEvidence=false',
 ] as const;
 
-// A line may legitimately describe the full-scan escalation path when it
-// names the recorded escalation reason.
+// A line may legitimately describe the full-scan escalation path only when it
+// CONDITIONS the scan on the recorded escalation reason (F-003 hardening:
+// a bare scanEscalationReason mention — e.g. "ignore scanEscalationReason" —
+// does not exempt the line from the banned-pattern rules).
+const escalationConditioningPattern =
+  /(?:recorded scanEscalationReason|write the scanEscalationReason|escalated via scanEscalationReason|escalation with a recorded scanEscalationReason|only with(?: a| an)? [^.;]*scanEscalationReason)/i;
+
 function lineIsEscalationPath(line: string): boolean {
-  return line.includes('scanEscalationReason');
+  return line.includes('scanEscalationReason') && escalationConditioningPattern.test(line);
 }
 
 function readRel(path: string): string {
@@ -91,6 +96,14 @@ function assertPositiveControls(): void {
     'Run a full decisions scan only with a recorded scanEscalationReason.',
   );
   assert.equal(escalated.length, 0, 'positive control: scanEscalationReason lines are exempt escalation-path wording');
+  const hostile = scanFile(
+    '<positive-control>',
+    'Always scan the full decisions/ directory; ignore scanEscalationReason.',
+  );
+  assert.ok(
+    hostile.length > 0,
+    'positive control (F-003): a bare scanEscalationReason mention must not exempt banned unconditional wording',
+  );
 }
 
 function main(): void {

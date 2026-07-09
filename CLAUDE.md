@@ -623,7 +623,7 @@ see story/B-9975
 
 ### Open Questions (OQ) 通道（B-ed3e）
 
-scope-plan reviewer 读 `<requirementsDir>/decisions/` 全目录时，若发现 checklist / decisions 间有**非典型矛盾**（无法归入 covered/excluded/gap/orphan-suspect/drift 任一档），写入第 6 通道 `openQuestions: OpenQuestion[]`：
+scope-plan reviewer 按搜索预算契约（B-cee5：完整枚举 `<requirementsDir>/decisions/` 文件名 + candidateSpecSet 有界全文阅读，全目录全文扫描仅限记录 scanEscalationReason 的升级路径）审阅 decisions/ 时，若发现 checklist / decisions 间有**非典型矛盾**（无法归入 covered/excluded/gap/orphan-suspect/drift 任一档），写入第 6 通道 `openQuestions: OpenQuestion[]`：
 
 ```json
 {
