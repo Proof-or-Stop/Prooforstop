@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-b264",
+  "state": "candidate",
+  "ledgerHash": "sha256:5c0d2ea4f2150ab7bc6b7f66d2b21f96d04e932952597d01539829dbe36f5379",
+  "milestones": [
+    {
+      "id": "M5",
+      "sourceRequirementId": "DOC-M5",
+      "claim": "done_prepare explains reruns and preflights merge hazards safely.",
+      "doneMeans": "Rerun delta and merge hazard fixtures print exact paths and safe next steps without mutating unrelated files.",
+      "requiredEvidence": [
+        "test"
+      ],
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-002:happy:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M6",
+      "sourceRequirementId": "DOC-M6-remaining",
+      "claim": "Remaining closeout safety regressions are covered.",
+      "doneMeans": "dryRun immutability, generated-file ownership, unrelated dirty-file safety, and hash-impact warnings are covered by focused tests.",
+      "requiredEvidence": [
+        "test",
+        "process-fact-contract"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:adversarial:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-09T01:28:39.822Z",
+  "updatedAt": "2026-07-09T01:28:39.822Z"
+}

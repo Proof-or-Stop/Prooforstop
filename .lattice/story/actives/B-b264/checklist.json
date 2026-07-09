@@ -1,0 +1,140 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add pre-DONE merge hazard guidance",
+      "context": "Detect and explain untracked-overwrite, branch divergence, generated metadata, and unrelated dirty-file hazards before DONE state becomes confusing. Print exact paths and safe next steps, but do not auto-resolve conflicts or stash user work.",
+      "relatedDocs": [
+        "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md#M5---Re-run-And-Merge-Preflight-UX",
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+      ],
+      "userSees": "done_prepare reports merge hazards with exact paths and says what to preserve or commit before retrying.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/done-prepare.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A fixture with an untracked-overwrite hazard reports the exact path and blocks before ambiguous DONE recovery.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A normal no-hazard story proceeds through the existing done_prepare flow unchanged except for clearer status text.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The command never stashes, deletes, commits, or overwrites unrelated user files during hazard reporting.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Explain repeated done_prepare runs and metadata deltas",
+      "context": "When a previous run generated metadata, merged main, changed material, or refreshed evidence, the next run should summarize the delta and explain why rerun is required or why validation can be skipped if fresh.",
+      "relatedDocs": [
+        "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md#M5---Re-run-And-Merge-Preflight-UX",
+        "docs/requirements/decisions/story-files-hash-material-drift.md"
+      ],
+      "userSees": "A rerun prints a compact reason such as generated done-required evidence, material/storyFiles hash change, or review assurance needs current binding.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/done-prepare.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A fixture with generated metadata on the previous run prints a clear rerun reason and next action.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Hash-excluded generated metadata does not force review rebinding, while hash-included metadata warns about required rebinding or is proven not to loop.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The guidance never suggests committing unrelated dirty files or self-attesting reviewer/host evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Prove done_prepare dryRun and generated-file ownership are safe",
+      "context": "Add smoke coverage proving done_prepare --dryRun changes no git state, evidence files, lifecycle metadata, process events, review artifacts, or gate-participating timestamps. Generated-file guidance must identify files produced by the current run.",
+      "relatedDocs": [
+        "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md#M6---Regression-Verification",
+        "docs/dev/test-coverage.md"
+      ],
+      "userSees": "The focused smoke passes and proves dryRun is inspect-only while real runs list only generated files they produced.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/done-prepare.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+          "packages/main/package.json"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "done_prepare --dryRun leaves git status and story metadata byte-identical in the fixture.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Generated-file guidance distinguishes current-run files from pre-existing dirty lifecycle metadata.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "dryRun cannot write evidence, process events, review artifacts, or timestamps consumed by gates.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
