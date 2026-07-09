@@ -177,6 +177,27 @@
       "resolvedAt": "2026-07-09T16:26:37.304Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-d8ef:F-009",
+      "desc": "Provider spawn error classification added E2BIG => argv_too_large and default spawn_failed plus widened spawnError handling, but provider-codex-smoke/provider-gemini-smoke do not exercise non-ENOENT/non-timeout spawn failures or assert spawnErrorKind/spawnErrorCode. Add coverage for argv_too_large and generic spawn_failed classification.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-09T21:15:50.030Z",
+      "reviewRound": "2026-07-09T16:07:24.768Z",
+      "reviewRunId": "B-d8ef:RR-027",
+      "_hash": "d97c1cb91b0d0f478adce69ee75677ee712a41813fc7bbd5a8348326d2386e6e",
+      "files": [
+        "packages/main/src/providers/codex-cli.ts",
+        "packages/main/src/providers/gemini-cli.ts",
+        "packages/main/src/tasks/provider-codex-smoke.ts",
+        "packages/main/src/tasks/provider-gemini-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|provider-spawn-error-kind-coverage",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
