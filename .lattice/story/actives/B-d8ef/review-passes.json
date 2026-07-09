@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-d8ef:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Executable readiness probe is real execution proof: probeHostExecutionReadiness spawns the canonical launcher argv with a live prompt (fake-host smoke fails --help/support probes, passes only on actual prompt run). Codex auth/token_invalidated maps to failureKind=auth -> executionReady=false/unverified with Codex-auth remediation; Claude pinned to --print --verbose stream-json (plain --print = silent_final_output); agy print+timeout enforced, --prompt-file = wrong_launcher. Degraded fallback consumes reviewReadyHostCount fail-closed: missing count defaults to all-ready (rejects fallback), legacy version-only probes invalid, counts cross-checked vs host rows, >=2 review-ready blocks non-human fallback. Minor non-blocking note: observable/progressMode are static spec fields, probe does not verify stream output shape; acceptable since argv is canonical-pinned.",
+      "createdAt": "2026-07-09T13:38:41.164Z",
+      "reviewRound": "2026-07-09T13:34:45.169Z",
+      "reviewRunId": "B-d8ef:RR-002",
+      "_hash": "95ca0717d591f237b1cde49dcc3699f9b89598b282ce8adf1b895b60f5ec25ce"
+    }
+  ]
+}
