@@ -41,8 +41,24 @@
       "phase": "DEV",
       "headHash": "ebbc6edaa056a3153c17df7dede505a57ca716b5",
       "materialHash": "143e8e816bec448969b15774a4e8d48781eb9ddb9567282fa482aae16c5bc109"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Reviewer findings B-eb92:F-004 and B-eb92:F-005 require extending coverage into the existing review-assurance floor smoke so DONE-row stale recovery command hints are tested for shell-safe placeholders and Legal reviewer/host only labeling.",
+      "timestamp": "2026-07-09T12:03:30.034Z",
+      "paths": [
+        "packages/main/src/tasks/review-assurance-floor-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/review-assurance-floor-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "2e7e0d8e3ca5e2a645618be54e6ebe559d5d358b",
+      "materialHash": "fec8ef1f42f92caa69128ab5a15ad164e6920b8953e0811889c665f4789d91d6"
     }
   ],
   "createdAt": "2026-07-09T11:19:53.503Z",
-  "updatedAt": "2026-07-09T11:20:18.537Z"
+  "updatedAt": "2026-07-09T12:03:30.034Z"
 }
