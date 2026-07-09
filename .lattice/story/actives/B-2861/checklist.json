@@ -163,9 +163,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-09T15:51:04.006Z",
-      "endTime": null,
+      "endTime": "2026-07-09T15:51:08.938Z",
       "userSees": "User sees \"Optimization ledger complete for B-2861: findings are classified accept/reject/defer with evidence.\"",
       "files": {
         "modify": [],
@@ -424,6 +424,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Reconciling host findings into accepted, boundary, warning/deferred, and rejected outcomes."
+    },
+    {
+      "timestamp": "2026-07-09T15:51:08.938Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "The B-2861 optimization ledger records accepted, scoped, deferred-warning, and rejected findings with reasons and evidence."
     }
   ]
 }
