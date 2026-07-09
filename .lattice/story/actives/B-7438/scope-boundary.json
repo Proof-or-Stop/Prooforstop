@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-7438",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Add canonical host availability probe evidence for review escalation degraded fallback decisions",
+    "Keep explicit-human-approval as explicit lower-assurance fallback without pretending host scarcity",
+    "Reject single-host degraded fallback when two or more canonical hosts are executable",
+    "Require eligibility=single-host-environment to bind to fresh host availability proof",
+    "Update review escalation / review assurance floor diagnostics and smoke coverage for the host-proof rule"
+  ],
+  "excluded": [
+    "Do not change release/push semantics",
+    "Do not claim remote Authority completion or production DONE",
+    "Do not modify unrelated active stories or existing human-written experiment documents",
+    "Do not redesign the full host runner or quorum_submit transport"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User requested immediate fix after identifying that Codex, Claude CLI, and agy CLI exist and degraded fallback had not checked host availability.",
+  "createdAt": "2026-07-09T11:05:41.135Z",
+  "updatedAt": "2026-07-09T11:05:41.135Z",
+  "_hash": "1a0169e05c13da687571432adae08d6406e550eca6fccc75516bd7fef03f8223"
+}
