@@ -126,7 +126,21 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "command": "npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke",
+          "result": "pass",
+          "note": "Focused smoke covers normally completing closeout phases and verifies progress output completes before the independent phase deadline.",
+          "headHash": "9949600fc2cd7b4e41e052a5571c807d030ad68e",
+          "materialHash": "e6e55c7b0a5a5641e1e90684bc502ea506d23ad1e7367dceba93371050f628aa",
+          "storyFilesHash": "ff44a7acd65e92521b982990b81d15cf1b481e02c6479c2c73c74c5d25e2675f",
+          "timestamp": "2026-07-09T02:00:12.249Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
