@@ -263,16 +263,22 @@ try {
     assert.equal(record.valid, true);
     assert.deepEqual(record.reasons, []);
 
-    const forgedField = RETIRED_COMPLETION_FALSE_FIELDS[0];
-    const forged = { ...event, [forgedField]: true };
-    const forgedRecord = reviewHostAvailabilityProbeRecordFromEvent(forged, 0, MATERIAL, STORY_FILES_HASH);
-    assert.equal(forgedRecord.valid, false);
-    assert.match(forgedRecord.reasons.join('\n'), /retired completion flag must be false when present/);
+    for (const forgedField of RETIRED_COMPLETION_FALSE_FIELDS) {
+      const forged = { ...event, [forgedField]: true };
+      const forgedRecord = reviewHostAvailabilityProbeRecordFromEvent(forged, 0, MATERIAL, STORY_FILES_HASH);
+      assert.equal(forgedRecord.valid, false);
+      assert.match(forgedRecord.reasons.join('\n'), /retired completion flag must be false when present/);
+    }
 
     const wrongEventType = { ...event, type: 'dispatch' as const };
     const wrongTypeRecord = reviewHostAvailabilityProbeRecordFromEvent(wrongEventType, 0, MATERIAL, STORY_FILES_HASH);
     assert.equal(wrongTypeRecord.valid, false);
     assert.match(wrongTypeRecord.reasons.join('\n'), /retired completion flag must be false/);
+
+    const wrongSchemaVersion = { ...event, schemaVersion: 'lattice.review_host_availability_probe.v1' };
+    const wrongSchemaRecord = reviewHostAvailabilityProbeRecordFromEvent(wrongSchemaVersion, 0, MATERIAL, STORY_FILES_HASH);
+    assert.equal(wrongSchemaRecord.valid, false);
+    assert.match(wrongSchemaRecord.reasons.join('\n'), /retired completion flag must be false/);
   });
 
   check('two review-ready hosts block non-human degraded fallback', () => {
