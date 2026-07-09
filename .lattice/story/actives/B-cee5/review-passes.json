@@ -8,6 +8,15 @@
       "reviewRound": "2026-07-09T17:19:07.755Z",
       "reviewRunId": "B-cee5:RR-004",
       "_hash": "02bc0c754f747ac2125f563753908ac7cf754f7ddc281be3392ce7ed3257efa6"
+    },
+    {
+      "id": "B-cee5:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Code-quality lane checked: packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts (new), plus the 4 mirrored prompt files it guards (packages/main/templates/agents + .claude/agents + .lattice-codex/agents copies of lattice-review-scope-plan.md and lattice-review-behavior.md). Verified: npm --prefix packages/main run build succeeds under strict TS; node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js exits 0 (PASS, 6 prompt copies clean, 4 required phrases present); no dead code (all interfaces/functions/consts used); no as-any/empty-catch; repoRoot derivation from dist/tasks (4x join(..)) verified correct against actual dist layout via git rev-parse; assert-based failure path verified to produce non-zero process exit (Node ESM top-level throw); all 4 mirror files byte-identical to their templates via diff; readFileSync ENOENT on a missing guarded file fails loud with a clear message (acceptable for a smoke gate); I/O-shell isolation N/A (no bridge.ts/shells in this diff -- pure prompt docs + a standalone Node task script). One non-blocking low finding filed (B-cee5:F-003) on the scanEscalationReason line-exemption granularity, which mirrors an existing accepted idiom already in the codebase (retired-authority-vocabulary-guard-smoke.ts). No blockers.",
+      "createdAt": "2026-07-09T17:23:51.152Z",
+      "reviewRound": "2026-07-09T17:19:07.755Z",
+      "reviewRunId": "B-cee5:RR-002",
+      "_hash": "47170887b4ebd086ca5b8a4c7a7697057106b4cb902cf8d7efe7b155270bc7be"
     }
   ]
 }
