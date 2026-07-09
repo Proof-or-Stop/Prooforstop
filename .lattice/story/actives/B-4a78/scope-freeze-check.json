@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-4a78",
+  "checkedAt": "2026-07-09T21:10:21.804Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "98714e3b3c62bf8733781ad796512fd8a24a037bb1759baf9114aa05631c8676",
+  "executionBoundaryHash": "b3662ef0b8a23ee43d8156e8455be1a9cefe34e787373206f3e451ffd3faf6e1",
+  "freshnessHash": "7c1599915d08638abfce7e51d7e579c0a7a7f17c9139b5bae4afa10f9bf2e9ca",
+  "effectiveExcludedKeywords": [
+    "Do not block or alter the scan-escalation path itself: escalation is recorded, never prevented",
+    "Memory/playbook output does NOT become gate evidence (explicit non-goal)",
+    "No remote publishing; story branch stays local per repo discipline"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Do not block or alter the scan-escalation path itself: escalation is recorded, never prevented",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not block or alter the scan-escalation path itself: escalation is recorded, never prevented",
+      "excluded": true
+    },
+    {
+      "keyword": "Memory/playbook output does NOT become gate evidence (explicit non-goal)",
+      "source": "scopeBoundary.excluded",
+      "text": "Memory/playbook output does NOT become gate evidence (explicit non-goal)",
+      "excluded": true
+    },
+    {
+      "keyword": "No remote publishing; story branch stays local per repo discipline",
+      "source": "scopeBoundary.excluded",
+      "text": "No remote publishing; story branch stays local per repo discipline",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "f68c11dc907c1140195785c0fe8e51e9ca5c78ad05ece8ff8cde996967554d28"
+}

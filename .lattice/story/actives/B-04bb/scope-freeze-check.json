@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-04bb",
+  "checkedAt": "2026-07-09T18:16:21.422Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "93cf479443bf0cc23d21b155bed0cbd8fcd08681cd7c9e8d8b1993c5905701fc",
+  "executionBoundaryHash": "e77904fa7f2239894b232d298d5cadb7d8c1c5e3e13ff21cf5d7bd4083d7318d",
+  "freshnessHash": "e67f066df803650f87e5e205833c2e7635c1f65b4868ef58e7df44ff42901396",
+  "effectiveExcludedKeywords": [
+    "Any change to reviewer-scan-budget-guard-smoke.ts itself",
+    "Any change to run-all-smokes or its discovery logic",
+    "Any lifecycle gate or DONE semantics change",
+    "Reordering or modifying other validate.commands entries"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Any change to reviewer-scan-budget-guard-smoke.ts itself",
+      "source": "scopeBoundary.excluded",
+      "text": "Any change to reviewer-scan-budget-guard-smoke.ts itself",
+      "excluded": true
+    },
+    {
+      "keyword": "Any change to run-all-smokes or its discovery logic",
+      "source": "scopeBoundary.excluded",
+      "text": "Any change to run-all-smokes or its discovery logic",
+      "excluded": true
+    },
+    {
+      "keyword": "Any lifecycle gate or DONE semantics change",
+      "source": "scopeBoundary.excluded",
+      "text": "Any lifecycle gate or DONE semantics change",
+      "excluded": true
+    },
+    {
+      "keyword": "Reordering or modifying other validate.commands entries",
+      "source": "scopeBoundary.excluded",
+      "text": "Reordering or modifying other validate.commands entries",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "81dfd34d93deebd1fba2fcd5a383712b4c4abdf051591111f026e51d302dee61"
+}

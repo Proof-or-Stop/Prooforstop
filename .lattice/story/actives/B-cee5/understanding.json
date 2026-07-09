@@ -1,0 +1,35 @@
+{
+  "task": "Reviewer prompts for scope-plan and behavior force full docs/requirements/decisions scans (111 files, ~2.4MB) on every run, exhausting token budgets across host accounts; make bounded memory/playbook preflight plus candidateSpecSet-first routing the default and demote full scans to a recorded escalation path.",
+  "outcome": "Default scope-plan and behavior reviewer flows read only bounded memory/playbook context plus a candidate doc set; full decisions scans happen only with a recorded scanEscalationReason; static regression tests fail if unconditional full-scan wording returns; mirrored .claude and .lattice-codex prompt assets match the templates.",
+  "facts": [
+    "docs/requirements/decisions has 111 Markdown files, about 319,612 words and 2,400,226 bytes (re-verified 2026-07-09)",
+    "packages/main/templates/agents/lattice-review-scope-plan.md lines 122/158/191 instruct: always scan the full decisions/ directory",
+    "packages/main/templates/agents/lattice-review-behavior.md lines 126/160 mandate a full directory scan of <requirementsDir>/decisions/ for the spec-boundary perspective",
+    "Only 2 of 12 reviewer prompt templates scan the decisions directory (independent survey during INIT review)",
+    "Memory Runtime Preflight, dev_memory_preflight/search, and playbook advisory surfaces already exist and are non-authoritative (gateEvidence=false)",
+    "Prompt mirrors are full materialized template copies, byte-identical today; lattice check --apply syncs managed asset drift; .lattice-codex content substitutes .claude/agents/ paths per prompt-registry.ts:172",
+    "Static guard tests live as standalone packages/main/src/tasks/*-smoke.ts scripts wired into lattice.config.json validate.commands (model: retired-authority-vocabulary-guard-smoke.ts); lattice.config.json is outside this story allowedPaths so wiring needs a scope extension proposal",
+    "lattice agent_prompt --role=<basename> prints the canonical rendered prompt body from the registry, so rendered output can be asserted after edits",
+    "prompt-token-cost-smoke.ts holds 63KB byte baselines per template with current templates at ~12KB, leaving ample headroom for added wording",
+    "The consolidation execution plan doc exists only on the B-2861 branch until that story merges; live templates are the authoritative grounding"
+  ],
+  "constraints": [
+    "Do not change lifecycle gate semantics or DONE evidence semantics",
+    "Memory/playbook output stays advisory only and can never satisfy gate evidence",
+    "Do not remove full decisions-scan capability; keep it behind an explicit scanEscalationReason",
+    "Only touch the two prompt templates, their .claude/.lattice-codex mirrors, and static tests under packages/main/src/tasks/** or packages/main/tests/**",
+    "Story artifacts must be English",
+    "No CLI metrics sink or candidateSpecSet runtime service in this stopgap"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/templates/agents/lattice-review-scope-plan.md",
+    "packages/main/templates/agents/lattice-review-behavior.md",
+    ".claude/agents/lattice-review-scope-plan.md",
+    ".claude/agents/lattice-review-behavior.md",
+    ".lattice-codex/agents/lattice-review-scope-plan.md",
+    ".lattice-codex/agents/lattice-review-behavior.md",
+    "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts"
+  ],
+  "timestamp": "2026-07-09T16:54:29.756Z"
+}

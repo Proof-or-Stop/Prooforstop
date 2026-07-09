@@ -1,0 +1,81 @@
+{
+  "principles": [
+    "Cut default token spend without weakening review coverage guarantees",
+    "Memory and playbook output stays advisory only (gateEvidence=false), never gate evidence",
+    "Full-scan capability is demoted, not deleted: always reachable via a recorded scanEscalationReason",
+    "Prompt-only stopgap: no runtime, gate, or DONE semantic changes",
+    "Every regression path is guarded by a static test that runs automatically"
+  ],
+  "drivers": [
+    "Token exhaustion across host accounts is the highest-priority operational problem (2026-07-09)",
+    "Execution boundary restricts edits to two prompt templates, their mirrors, and static tests",
+    "Scope-plan coverage checking must stay sound: decisions/ remains the objective truth source"
+  ],
+  "options": [
+    {
+      "name": "prompt-stopgap-candidate-first",
+      "pros": [
+        "Immediate token reduction on every scope-plan/behavior run",
+        "Smallest blast radius: prompt text + one new smoke test",
+        "Keeps full-scan escape hatch with an auditable escalation reason",
+        "Enumeration + keyword matching keeps coverage checking sound (candidateSpecSet never degenerates to relatedDocs-only)"
+      ],
+      "cons": [
+        "Prompt wording is advisory to the agent, not mechanically enforced at runtime",
+        "candidate selection quality depends on keyword heuristics; a poorly-named decision doc could be missed at triage"
+      ]
+    },
+    {
+      "name": "runtime-candidateSpecSet-service",
+      "pros": [
+        "Mechanical enforcement: CLI computes and injects the candidate set, agents cannot ignore it",
+        "Could log scan metrics for later analysis"
+      ],
+      "cons": [
+        "Explicitly excluded by scope boundary (no runtime service, no metrics sink in this stopgap)",
+        "Days of work touching dispatch/prompt-registry runtime while accounts keep burning tokens",
+        "Higher regression risk across all reviewer lanes"
+      ]
+    },
+    {
+      "name": "shrink-decisions-corpus",
+      "pros": [
+        "Attacks corpus size itself; benefits every consumer"
+      ],
+      "cons": [
+        "Requires mass doc archival decisions far outside this story scope",
+        "Does not fix the unconditional full-scan instruction; reviewers would still read whatever remains",
+        "Conflicts with decisions/ being append-mostly audit history"
+      ]
+    }
+  ],
+  "chosen": "prompt-stopgap-candidate-first",
+  "rationale": "Only the prompt stopgap fits the frozen scope/execution boundary and lands token relief immediately; enumeration-plus-keyword-match keeps scope-plan coverage sound while the recorded scanEscalationReason path preserves full-scan capability for the five high-risk triggers. The runtime service and corpus-shrink options are explicitly out of scope for this story and slower to land.",
+  "preMortem": [
+    {
+      "scenario": "Reviewers ignore the new bounded-search instructions and full-scan anyway",
+      "trigger": "Prompt wording ambiguous or buried; agent defaults to old habits from training or cached prompts",
+      "consequence": "Token spend stays high despite the story landing",
+      "mitigation": "Put the search-budget rules at the top of the search-strategy section with imperative wording; static smoke asserts the required phrases exist in all six active copies; CHK-007 verifies rendered agent_prompt output"
+    },
+    {
+      "scenario": "Scope review quality drops and a spec commitment is missed",
+      "trigger": "candidateSpecSet triage misses a relevant decision doc whose filename and keywords do not match the story",
+      "consequence": "Checklist coverage gap ships; scope reviewer approves an under-scoped plan",
+      "mitigation": "Keep mandatory full-filename enumeration plus title triage of every decisions doc; candidate ambiguity is an explicit scanEscalationReason trigger, instructing escalation instead of guessing"
+    },
+    {
+      "scenario": "Prompt mirrors drift after the template edit",
+      "trigger": "Only the template is edited; .claude or .lattice-codex copy keeps the old full-scan wording",
+      "consequence": "Codex or Claude hosts keep burning tokens with the old instructions; guard smoke gives false confidence",
+      "mitigation": "CHK-005 syncs all copies and diffs them; the new smoke scans all six copies, not just templates"
+    },
+    {
+      "scenario": "New smoke never runs automatically",
+      "trigger": "lattice.config.json wiring blocked because the file is outside the execution boundary allowedPaths",
+      "consequence": "Regression protection exists but is dead code; old wording could return unnoticed",
+      "mitigation": "File scope_extension_proposal for the one-line wiring; if declined, bind explicit smoke execution as story verification evidence and surface the wiring gap to the user at DONE"
+    }
+  ],
+  "timestamp": "2026-07-09T16:53:33.296Z"
+}
