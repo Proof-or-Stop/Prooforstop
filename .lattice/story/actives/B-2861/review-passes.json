@@ -35,6 +35,15 @@
       "reviewRound": "2026-07-09T15:57:10.374Z",
       "reviewRunId": "B-2861:RR-005",
       "_hash": "5abafbbae1061cae6585f9e080ef9d9d2431994cc3ada539d2558122da27e96d"
+    },
+    {
+      "id": "B-2861:RP-005",
+      "agent": "lattice-review-docs",
+      "note": "Targeted round-2 docs re-review PASS for B-2861:F-002. The execution plan now distinguishes standalone lattice milestone_status without milestone-ledger.json as normal Milestone Status output with Ledger: missing and a blocked row from the distinct Checklist-derived ledger auto-append fallback for configured mutating commands when no real ledger is available (docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:161-166, 172-175). This matches current runtime evidence: missingLedgerReport fail-closes and does not create a derived ledger (packages/main/src/core/milestone-status.ts:790-813), the CLI append path only falls back to renderChecklistDerivedLedger after configured mutating commands when realRender returns null (packages/main/src/cli-engine.ts:843-845, 903-936), and command policy keeps milestone_status read-only with no evidence writes, reviewer launch, phase advance, DONE, production, or remote Authority readiness claims (packages/main/src/core/command-policy.ts:240). No unsupported CLI/runtime claims found in the reviewed UX section.",
+      "createdAt": "2026-07-09T15:59:41.060Z",
+      "reviewRound": "2026-07-09T15:57:10.374Z",
+      "reviewRunId": "B-2861:RR-008",
+      "_hash": "4d454bc2cc67f79dc686c0c62362d717341ad6ccfe5f77729ee28c77aac6b8e6"
     }
   ]
 }
