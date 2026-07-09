@@ -48,6 +48,11 @@ const bannedUnconditionalRules: PatternRule[] = [
   { label: 'all md files under decisions', pattern: /all \.md files under .*decisions/i },
   { label: 'no cherry-picking full read', pattern: /read every \.md file one by one/i },
   { label: 'always defer to full decisions directory', pattern: /always defer to the full decisions/i },
+  // Codex host-review catches (2026-07-09): the retired behavior wording
+  // "Use Glob to list ..., Read each one" matched no rule, and softening a
+  // real escalation line by deleting its conditioning clause was uncovered.
+  { label: 'glob then read each one', pattern: /read each one\b/i },
+  { label: 'whole-directory full-content scan', pattern: /full-content (?:directory )?scan of the whole/i },
 ];
 
 // Phrases the bounded-search contract requires in every guarded copy.
@@ -98,11 +103,17 @@ function assertPositiveControls(): void {
   const control = 'Always scan the **full decisions/ directory**.';
   const hits = scanFile('<positive-control>', control);
   assert.ok(hits.length > 0, 'positive control: banned pattern set must match the legacy full-scan wording');
-  const escalated = scanFile(
-    '<positive-control>',
-    'Run a full decisions scan only with a recorded scanEscalationReason.',
+  // Codex host-review fix (2026-07-09): the exempt control must be a line
+  // that WOULD trip a banned rule, so it actually proves the exemption path.
+  const escalatedLine =
+    'Always scan the **full decisions/ directory** only with a recorded scanEscalationReason.';
+  const escalated = scanFile('<positive-control>', escalatedLine);
+  assert.equal(escalated.length, 0, 'positive control: conditioning-idiom lines are exempt escalation-path wording');
+  const escalatedWithoutIdiom = scanFile('<positive-control>', escalatedLine.replace('recorded ', ''));
+  assert.ok(
+    escalatedWithoutIdiom.length > 0,
+    'positive control soundness: the exempt line must trip a banned rule once its conditioning idiom is removed',
   );
-  assert.equal(escalated.length, 0, 'positive control: scanEscalationReason lines are exempt escalation-path wording');
   const hostile = scanFile(
     '<positive-control>',
     'Always scan the full decisions/ directory; ignore scanEscalationReason.',
