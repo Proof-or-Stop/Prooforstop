@@ -80,6 +80,18 @@
           "materialHash": "690f54e93891f9ecb2e28580b38a43efab057a8c78b290af5c9dd9fc139c3c87",
           "storyFilesHash": "81b5b65fb763a95473c25e110230ad49eae92d138f031e9e04687293821014e7",
           "timestamp": "2026-07-09T11:47:14.364Z"
+        },
+        {
+          "intentRef": "B-eb92:F-005:done-row-stale-recovery-coverage",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-smoke.js",
+          "result": "pass",
+          "note": "Floor smoke covers the DONE-row review-assurance hint formatter path so stale recovery commands cannot expose angle-bracket templates or unlabeled owner-visible host verdict writer guidance.",
+          "headHash": "b2a3244bd1b4fad2d6ed264bd64895daea3d5a8d",
+          "materialHash": "fec8ef1f42f92caa69128ab5a15ad164e6920b8953e0811889c665f4789d91d6",
+          "storyFilesHash": "91db335a44d67e6565139af5df7e2b7c264a98a926907c3f645696b600032db8",
+          "timestamp": "2026-07-09T11:59:46.149Z"
         }
       ]
     },
@@ -252,6 +264,18 @@
           "materialHash": "690f54e93891f9ecb2e28580b38a43efab057a8c78b290af5c9dd9fc139c3c87",
           "storyFilesHash": "81b5b65fb763a95473c25e110230ad49eae92d138f031e9e04687293821014e7",
           "timestamp": "2026-07-09T11:47:14.364Z"
+        },
+        {
+          "intentRef": "B-eb92:F-004:stale-recovery-shell-safe",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-smoke.js",
+          "result": "pass",
+          "note": "Floor smoke now asserts stale recovery formatter uses shell-safe placeholders, labels the re-submit command as Legal reviewer/host only, and parses inline lattice command fragments with zsh -n.",
+          "headHash": "b2a3244bd1b4fad2d6ed264bd64895daea3d5a8d",
+          "materialHash": "fec8ef1f42f92caa69128ab5a15ad164e6920b8953e0811889c665f4789d91d6",
+          "storyFilesHash": "91db335a44d67e6565139af5df7e2b7c264a98a926907c3f645696b600032db8",
+          "timestamp": "2026-07-09T11:59:46.149Z"
         }
       ]
     }
