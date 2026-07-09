@@ -98,6 +98,15 @@
       "reviewRound": "2026-07-09T17:47:43.007Z",
       "reviewRunId": "B-cee5:RR-017",
       "_hash": "fbcf2eb46779933e3083368f44ec407a0881f4bdf06d391eff375c790afca7e6"
+    },
+    {
+      "id": "B-cee5:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "Round 4: verified Codex host-review fixes in reviewer-scan-budget-guard-smoke.ts (commit 43c2094cc). (a) Retired phrase Use Glob to list ..., Read each one now trips new rule /read each one\\b/i (reproduced via node -e). (b) Both real whole-directory escalation lines (lattice-review-behavior.md:131, lattice-review-scope-plan.md:152) now match the new /full-content (?:directory )?scan of the whole/i rule but remain exempt today via conditioning idiom (recorded scanEscalationReason / write the scanEscalationReason); stripping recorded un-exempts the scope-plan line, proving idiom-stripping regressions are now caught (behavior line stays exempt only via its separate valid write the scanEscalationReason idiom - correct, not a gap). (c) Exempt-control soundness assertion verified correct by direct execution: control trips banned rule raw, is exempted with idiom, re-trips when idiom stripped. (d) npm --prefix packages/main run build clean; node dist/tasks/reviewer-scan-budget-guard-smoke.js -> PASS (6 prompt copies clean, 4 required phrases present); tsc --noEmit clean. (e) No as any, no empty catch, no unused imports/dead code in the diff; .claude and .lattice-codex prompt copies byte-identical to templates; new smoke auto-discovered by run-all-smokes.js directory-scan fallback (verified via --select), so no manifest-wiring gap despite no smoke-manifest.json entry. No new findings.",
+      "createdAt": "2026-07-09T17:51:05.159Z",
+      "reviewRound": "2026-07-09T17:47:43.007Z",
+      "reviewRunId": "B-cee5:RR-015",
+      "_hash": "c7ff1a527563f062f8350cb2104e86133d8801e40224d6cd2311056c5a948a1c"
     }
   ]
 }
