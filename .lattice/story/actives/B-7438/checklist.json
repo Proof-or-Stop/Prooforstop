@@ -49,7 +49,44 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js review_host_availability_probe '{\"storyId\":\"B-7438\",\"json\":true}'",
+          "result": "pass",
+          "note": "Fresh probe B-7438:RHP-mrdfomgf recorded process event bound to current materialHash/storyFilesHash and reported canonical codex, claude, and agy rows; this machine had availableHostCount=3.",
+          "headHash": "93ac7659c9592b781c0bbf75b5f6c44ddf87733d",
+          "materialHash": "d81e995a0432caafa72e67803bb5cdbcff58bd87cd6164817bd3ae1af8192361",
+          "storyFilesHash": "ce3ca675e105257d8748a0939d12fa15a0d0eea83a081f7809cae039e7104db6",
+          "timestamp": "2026-07-09T11:39:47.224Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-escalation-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
+          "result": "pass",
+          "note": "Smoke helper covers canonical probe rows with unavailable hosts preserved as unavailable/error rows and verifies producer command records storyFilesHash plus hostAvailabilityProbeId.",
+          "headHash": "93ac7659c9592b781c0bbf75b5f6c44ddf87733d",
+          "materialHash": "d81e995a0432caafa72e67803bb5cdbcff58bd87cd6164817bd3ae1af8192361",
+          "storyFilesHash": "ce3ca675e105257d8748a0939d12fa15a0d0eea83a081f7809cae039e7104db6",
+          "timestamp": "2026-07-09T11:39:47.224Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process fact contract verifies review_host_availability_probe is an L4 gate-consumed host-availability process fact registered in command policy, fact levels, fact registry, CLI schema, and runtime gate semantics.",
+          "headHash": "93ac7659c9592b781c0bbf75b5f6c44ddf87733d",
+          "materialHash": "d81e995a0432caafa72e67803bb5cdbcff58bd87cd6164817bd3ae1af8192361",
+          "storyFilesHash": "ce3ca675e105257d8748a0939d12fa15a0d0eea83a081f7809cae039e7104db6",
+          "timestamp": "2026-07-09T11:39:47.224Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -95,7 +132,45 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-escalation-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
+          "result": "pass",
+          "note": "Smoke includes probe-with-fewer-than-two canonical hosts permitting degraded 3x1 only with required single-host PASS rounds and a bound hostAvailabilityProbeId.",
+          "headHash": "93ac7659c9592b781c0bbf75b5f6c44ddf87733d",
+          "materialHash": "d81e995a0432caafa72e67803bb5cdbcff58bd87cd6164817bd3ae1af8192361",
+          "storyFilesHash": "ce3ca675e105257d8748a0939d12fa15a0d0eea83a081f7809cae039e7104db6",
+          "timestamp": "2026-07-09T11:39:47.224Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-smoke.js",
+          "result": "pass",
+          "note": "Assurance-floor smoke verifies explicit-human-approval remains allowed without host scarcity proof but stays degraded-single-host, non-Authority, and non-production.",
+          "headHash": "93ac7659c9592b781c0bbf75b5f6c44ddf87733d",
+          "materialHash": "d81e995a0432caafa72e67803bb5cdbcff58bd87cd6164817bd3ae1af8192361",
+          "storyFilesHash": "ce3ca675e105257d8748a0939d12fa15a0d0eea83a081f7809cae039e7104db6",
+          "timestamp": "2026-07-09T11:39:47.224Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-escalation-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js",
+          "result": "pass",
+          "note": "Both evaluators reject missing host probe and reject single-host-environment fallback when a fresh probe shows two or more executable canonical hosts; prose evidenceRefs alone no longer satisfy degraded eligibility.",
+          "headHash": "93ac7659c9592b781c0bbf75b5f6c44ddf87733d",
+          "materialHash": "d81e995a0432caafa72e67803bb5cdbcff58bd87cd6164817bd3ae1af8192361",
+          "storyFilesHash": "ce3ca675e105257d8748a0939d12fa15a0d0eea83a081f7809cae039e7104db6",
+          "timestamp": "2026-07-09T11:39:47.224Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -141,7 +216,45 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/review-escalation-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
+          "result": "pass",
+          "note": "Review-escalation smoke output includes missing probe, insufficient-host degraded pass, two-host rejection, and explicit-human-approval degraded-only cases.",
+          "headHash": "93ac7659c9592b781c0bbf75b5f6c44ddf87733d",
+          "materialHash": "d81e995a0432caafa72e67803bb5cdbcff58bd87cd6164817bd3ae1af8192361",
+          "storyFilesHash": "ce3ca675e105257d8748a0939d12fa15a0d0eea83a081f7809cae039e7104db6",
+          "timestamp": "2026-07-09T11:39:47.224Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-smoke.js",
+          "result": "pass",
+          "note": "Review-assurance-floor smoke output covers explicit-human-approval as lower assurance and verifies forged Authority/fullAuthority/production fields remain false.",
+          "headHash": "93ac7659c9592b781c0bbf75b5f6c44ddf87733d",
+          "materialHash": "d81e995a0432caafa72e67803bb5cdbcff58bd87cd6164817bd3ae1af8192361",
+          "storyFilesHash": "ce3ca675e105257d8748a0939d12fa15a0d0eea83a081f7809cae039e7104db6",
+          "timestamp": "2026-07-09T11:39:47.224Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Combined smoke and process-fact contract prove missing probe and probe-with-two-hosts reject non-human single-host fallback, while registry drift for the new command/fact would fail contract verification.",
+          "headHash": "93ac7659c9592b781c0bbf75b5f6c44ddf87733d",
+          "materialHash": "d81e995a0432caafa72e67803bb5cdbcff58bd87cd6164817bd3ae1af8192361",
+          "storyFilesHash": "ce3ca675e105257d8748a0939d12fa15a0d0eea83a081f7809cae039e7104db6",
+          "timestamp": "2026-07-09T11:39:47.224Z"
+        }
+      ]
     }
   ]
 }
