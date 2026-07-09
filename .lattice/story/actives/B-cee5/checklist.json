@@ -266,7 +266,27 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "agent_prompt output for both roles contains the new bounded wording and lacks unconditional full-scan wording; build and guard smoke green",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "before/after budget evidence records the default-path reduction from 111 full-content reads to at most 15 candidate reads plus filename triage",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "all evidence commands bound literally via verification_evidence_add so the delivery reviewer can re-run them verbatim",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
