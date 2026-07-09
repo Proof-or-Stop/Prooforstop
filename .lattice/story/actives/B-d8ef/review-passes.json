@@ -179,6 +179,15 @@
       "reviewRound": "2026-07-09T22:49:36.804Z",
       "reviewRunId": "B-d8ef:RR-040",
       "_hash": "58817e18adc6101fbdb5d202ec5b76458322d45c3750de74051e5b146e3da7ae"
+    },
+    {
+      "id": "B-d8ef:RP-021",
+      "agent": "lattice-review-test-coverage",
+      "note": "Targeted test-coverage re-review for packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts. Inspected incremental diff from prior PASS B-d8ef:RP-017 and confirmed the ready-host fixture now records concrete launcher argv while keeping unavailable-host templates. Verified target smoke still covers storyFilesHash drift acceptance with advisory, true story-file change rejection, degraded fallback acceptance/advisory, real story-file fallback rejection, and stale fallback/verdict controls. Ran node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js PASS (14 checks) and node packages/main/dist/tasks/review-host-execution-readiness-smoke.js PASS (9 checks). No blocking test-coverage findings.",
+      "createdAt": "2026-07-09T22:52:00.726Z",
+      "reviewRound": "2026-07-09T22:49:36.804Z",
+      "reviewRunId": "B-d8ef:RR-041",
+      "_hash": "320546e00e3e7f3a0de92c49688f1e9247bcd2b8778f231ed9f528aeff520700"
     }
   ]
 }
