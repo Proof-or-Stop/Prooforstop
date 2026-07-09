@@ -132,36 +132,46 @@ const root = mkdtempSync(join(tmpdir(), 'review-host-readiness-'));
 try {
   check('canonical Claude launcher is observable stream-json, plain --print is not progress-capable', () => {
     const spec = canonicalReviewHostLauncherSpec('claude');
-    assert.equal(spec.launcher, 'claude --print --verbose --output-format=stream-json');
+    assert.equal(spec.launcher, 'claude --print --verbose --output-format stream-json');
     assert.deepEqual(spec.launcherArgv, [
       'claude',
       '--print',
       '--verbose',
-      '--output-format=stream-json',
-      '<prompt-file>',
+      '--output-format',
+      'stream-json',
+      '--no-session-persistence',
+      '--permission-mode',
+      'bypassPermissions',
+      '--max-budget-usd',
+      '0.25',
+      '<prompt>',
     ]);
     const canonical = classifyReviewHostLauncher('claude', spec.launcherArgv);
     assert.equal(canonical.launcherOk, true);
     assert.equal(canonical.progressMode, 'stream-json');
 
-    const plain = classifyReviewHostLauncher('claude', ['claude', '--print', '<prompt-file>']);
+    const plain = classifyReviewHostLauncher('claude', ['claude', '--print', '<prompt>']);
     assert.equal(plain.launcherOk, false);
     assert.equal(plain.progressMode, 'bounded-final-output');
     assert.equal(plain.failureKind, 'silent_final_output');
     assert.match(plain.reasons.join('\n'), /--verbose/);
     assert.match(plain.reasons.join('\n'), /stream-json/);
 
-    const splitOutputFormat = classifyReviewHostLauncher('claude', [
+    const equalsOutputFormat = classifyReviewHostLauncher('claude', [
       'claude',
       '--print',
       '--verbose',
-      '--output-format',
-      'stream-json',
-      '<prompt-file>',
+      '--output-format=stream-json',
+      '--no-session-persistence',
+      '--permission-mode',
+      'bypassPermissions',
+      '--max-budget-usd',
+      '0.25',
+      '<prompt>',
     ]);
-    assert.equal(splitOutputFormat.launcherOk, false);
-    assert.equal(splitOutputFormat.launcherSupport, 'wrong_launcher');
-    assert.match(splitOutputFormat.reasons.join('\n'), /canonical/);
+    assert.equal(equalsOutputFormat.launcherOk, false);
+    assert.equal(equalsOutputFormat.launcherSupport, 'wrong_launcher');
+    assert.match(equalsOutputFormat.reasons.join('\n'), /canonical/);
   });
 
   check('agy --prompt-file is classified as the wrong launcher', () => {

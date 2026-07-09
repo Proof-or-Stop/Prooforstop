@@ -2225,14 +2225,14 @@ const DISPATCH_LEDGER_ESTIMATE_MODEL = 'claude-code';
 
 /**
  * Pure spawn-arg builder for the claude-code leaf dispatch. The canonical
- * launcher carries a `<prompt-file>` placeholder, and real dispatch renders that
- * placeholder to the prompt file path.
+ * launcher carries a `<prompt>` placeholder, and real dispatch renders that
+ * placeholder to the prompt contents read from the prompt file.
  */
-export function buildClaudeSpawnArgs(promptFile: string, ledgerOn: boolean): string[] {
+export function buildClaudeSpawnArgs(promptText: string, ledgerOn: boolean): string[] {
   void ledgerOn;
   return canonicalReviewHostLauncherSpec('claude').launcherArgv
     .slice(1)
-    .map(arg => arg === '<prompt>' || arg === '<prompt-file>' ? promptFile : arg);
+    .map(arg => arg === '<prompt>' ? promptText : arg);
 }
 
 /** Deterministic projectRootHash for ledger records (sha256 of the root path). */
