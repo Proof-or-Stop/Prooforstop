@@ -4,11 +4,11 @@
   "title": "Allow completed worker subagents to be reassigned under worker role",
   "description": "After a subagent completes one assignment, the operator may want to assign that same worker another task. The existing full-history fork path is awkward because it may preserve memory/history but cannot specify the worker role. Add a role-aware reassignment path that can restart a worker with explicit instructions without requiring full-history inheritance.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "createdAt": "2026-07-09T02:39:20.163Z",
   "startedAt": "2026-07-09T02:39:20.163Z",
-  "endedAt": null,
+  "endedAt": "2026-07-09T04:08:53.239Z",
   "events": [
     {
       "phase": "INIT",
@@ -27,11 +27,97 @@
       "user": "Harmonygo",
       "sessionId": "sess-3d1880b40d393f50",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-09T02:41:04.370Z",
+      "branch": "story/B-99d4",
+      "user": "Harmonygo",
+      "sessionId": "sess-48d6eda6ff756d3f",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-09T02:46:53.017Z",
+      "branch": "story/B-99d4",
+      "user": "Harmonygo",
+      "sessionId": "sess-48d6eda6ff756d3f",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-09T03:02:35.460Z",
+      "branch": "story/B-99d4",
+      "user": "Harmonygo",
+      "sessionId": "sess-48d6eda6ff756d3f",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-09T03:07:13.317Z",
+      "branch": "story/B-99d4",
+      "user": "Harmonygo",
+      "sessionId": "sess-48d6eda6ff756d3f",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-09T03:12:49.388Z",
+      "branch": "story/B-99d4",
+      "user": "Harmonygo",
+      "sessionId": "sess-48d6eda6ff756d3f",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-09T03:31:38.740Z",
+      "branch": "story/B-99d4",
+      "user": "Harmonygo",
+      "sessionId": "sess-48d6eda6ff756d3f",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-09T03:36:27.289Z",
+      "branch": "story/B-99d4",
+      "user": "Harmonygo",
+      "sessionId": "sess-48d6eda6ff756d3f",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-09T03:45:18.798Z",
+      "branch": "story/B-99d4",
+      "user": "Harmonygo",
+      "sessionId": "sess-48d6eda6ff756d3f",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-09T03:50:14.025Z",
+      "branch": "story/B-99d4",
+      "user": "Harmonygo",
+      "sessionId": "sess-48d6eda6ff756d3f",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-09T04:08:53.239Z",
+      "branch": "story/B-99d4",
+      "user": "Harmonygo",
+      "sessionId": "sess-48d6eda6ff756d3f",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-99d4",
-    "branch": "story/B-99d4",
-    "createdAt": "2026-07-09T02:40:53.741Z"
-  }
+  "currentReviewRound": "2026-07-09T03:45:18.798Z"
 }

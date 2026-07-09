@@ -14,6 +14,7 @@ export const NESTED_SPACE_ALIASES: Record<string, string> = {
   'dispatch status': 'dispatch_status',
   'dispatch list': 'dispatch_list',
   'dispatch resume': 'dispatch_resume',
+  'dispatch reassign': 'dispatch_reassign',
   'dispatch cancel': 'dispatch_cancel',
   'dispatch review': 'dispatch_review',
   'dispatch merge plan': 'dispatch_merge_plan',
