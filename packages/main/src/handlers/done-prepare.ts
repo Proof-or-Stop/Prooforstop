@@ -29,6 +29,19 @@ import {
   evaluateReviewEscalation,
 } from '../core/review-escalation.js';
 import {
+  buildDonePrepareGeneratedMetadataManifest,
+  captureDonePrepareGeneratedMetadataBaseline,
+  commitDonePrepareGeneratedMetadata,
+  gitStatusRowsForDonePrepareGeneratedMetadata,
+  type DonePrepareGeneratedMetadataBaseline,
+  type DonePrepareGeneratedMetadataCommitResult,
+} from '../core/done-prepare-generated-metadata.js';
+import {
+  captureDonePrepareValidationReuseBasis,
+  writeDonePrepareValidationReuseRecord,
+  type DonePrepareValidationReuseBasis,
+} from '../core/done-prepare-validation-reuse.js';
+import {
   buildReviewEscalationGuidance,
   buildReviewAssuranceFloorGuidance,
   evaluateReviewAssuranceFloor,
@@ -55,6 +68,8 @@ interface DonePrepareArgs {
   build?: boolean;
   dryRun?: boolean;
   json?: boolean;
+  autoCloseGeneratedMetadata?: boolean;
+  reuseFreshValidation?: boolean;
 }
 
 interface DonePrepareStep {
@@ -248,6 +263,8 @@ function defaulted(args: DonePrepareArgs): Required<DonePrepareArgs> {
     build: args.build === true,
     dryRun: args.dryRun === true,
     json: args.json === true,
+    autoCloseGeneratedMetadata: args.autoCloseGeneratedMetadata === true,
+    reuseFreshValidation: args.reuseFreshValidation === true,
   };
 }
 
@@ -1139,6 +1156,24 @@ function renderPass(args: {
   return lines.join('\n');
 }
 
+function injectAutoCloseoutSummary(
+  transcript: string,
+  commitResult: DonePrepareGeneratedMetadataCommitResult,
+): string {
+  const lines = transcript.split('\n');
+  const first = lines.shift() ?? transcript;
+  const summary = [
+    'autoCloseGeneratedMetadata: PASS',
+    `autoCloseoutCommit: ${commitResult.commitSha || '(unknown)'}`,
+    `autoCloseoutMessage: ${commitResult.message}`,
+    'validationReused: true',
+    'validationReuseRecord: done-required-evidence.json',
+    'autoCloseoutFiles:',
+    ...commitResult.files.map((file) => `  - ${file}`),
+  ];
+  return [first, ...summary, ...lines].join('\n');
+}
+
 async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Promise<string> {
   const args = defaulted(rawArgs);
   const storyId = args.storyId.trim();
@@ -1286,6 +1321,13 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
       steps,
     });
   }
+  const generatedMetadataBaseline = captureDonePrepareGeneratedMetadataBaseline({
+    root: ctx.root,
+    storyDirRel: ctx.store.storyDirRel(),
+    storyId,
+    initialDirtyRows: nonLeaseDirtyRows(ctx, storyId, gitStatusRows(gitCwd)),
+  });
+  let validationReuseBasis: DonePrepareValidationReuseBasis | undefined;
 
   let stalePlan: StaleEvidencePlan;
   try {
@@ -1409,6 +1451,12 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
       validationSummaries.join('; '),
       `lattice validate --story=${storyId} --json`,
     );
+    validationReuseBasis = captureDonePrepareValidationReuseBasis({
+      root: ctx.root,
+      gitCwd,
+      storyId,
+      store: ctx.store,
+    });
   }
 
   const prepareMutationEndHead = currentGitHead(gitCwd);
@@ -1548,6 +1596,97 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
   }
   if (finalBlockingEntries.length > 0) {
     const files = entryFiles(finalBlockingEntries);
+    if (args.autoCloseGeneratedMetadata && !args.dryRun) {
+      if (!args.reuseFreshValidation) {
+        setStep(steps, 'cleanTree', 'blocked', 'auto-closeout requires reuseFreshValidation=true to re-evaluate without rerunning validation');
+        return block({
+          blockedAt: 'cleanTree',
+          reason: 'autoCloseGeneratedMetadata was requested, but reuseFreshValidation=false; refusing to skip validation after metadata-only HEAD drift',
+          files,
+          next: `rerun lattice done_prepare '{"storyId":"${storyId}","autoCloseGeneratedMetadata":true,"reuseFreshValidation":true}' when validation reuse is intended`,
+          steps,
+        });
+      }
+      if (!validationReuseBasis) {
+        setStep(steps, 'validate', 'blocked', 'validation reuse basis is missing');
+        return block({
+          blockedAt: 'validate',
+          reason: 'reuseFreshValidation requires this done_prepare invocation to run validation and DONE-required validation before auto-closeout',
+          files,
+          next: `lattice done_prepare '{"storyId":"${storyId}","validate":true,"autoCloseGeneratedMetadata":true,"reuseFreshValidation":true}'`,
+          steps,
+        });
+      }
+      const manifestPreflight = buildDonePrepareGeneratedMetadataManifest({
+        root: ctx.root,
+        storyId,
+        storyDirRel: ctx.store.storyDirRel(),
+        baseline: generatedMetadataBaseline,
+        statusRows: nonLeaseDirtyRows(ctx, storyId, gitStatusRowsForDonePrepareGeneratedMetadata(gitCwd)),
+      });
+      if (manifestPreflight.safePaths.length === 0 || manifestPreflight.unsafePaths.length > 0) {
+        const reason = manifestPreflight.safePaths.length === 0
+          ? 'no current-run generated DONE/test lifecycle metadata is safe to auto-close'
+          : 'git status contains path(s) outside the safe generated metadata manifest';
+        setStep(steps, 'cleanTree', 'blocked', reason);
+        return block({
+          blockedAt: 'cleanTree',
+          reason: `DONE prepare auto-closeout refused: ${reason}`,
+          files: manifestPreflight.unsafePaths.length > 0 ? manifestPreflight.unsafePaths : files,
+          next: 'inspect git status and commit only generated Proofbound lifecycle metadata manually, then rerun done_prepare',
+          steps,
+        });
+      }
+      const reuse = writeDonePrepareValidationReuseRecord({
+        root: ctx.root,
+        gitCwd,
+        storyId,
+        store: ctx.store,
+        basis: validationReuseBasis,
+        generatedMetadataPaths: manifestPreflight.safePaths,
+      });
+      if (!reuse.ok) {
+        setStep(steps, 'validate', 'blocked', `validation reuse not eligible: ${reuse.reasons.join('; ')}`);
+        return block({
+          blockedAt: 'validate',
+          reason: `validation reuse not eligible: ${reuse.reasons.join('; ')}`,
+          files,
+          next: `rerun full validation: lattice done_prepare '{"storyId":"${storyId}","validate":true}'`,
+          steps,
+        });
+      }
+      const autoCommit = commitDonePrepareGeneratedMetadata({
+        root: ctx.root,
+        gitCwd,
+        storyId,
+        storyDirRel: ctx.store.storyDirRel(),
+        baseline: generatedMetadataBaseline,
+        ignoredPaths: [ownerLeaseRelPath(ctx, storyId)],
+      });
+      if (!autoCommit.ok) {
+        setStep(steps, 'cleanTree', 'blocked', autoCommit.reason || 'auto-closeout refused');
+        return block({
+          blockedAt: 'cleanTree',
+          reason: `DONE prepare auto-closeout refused: ${autoCommit.reason || 'unsafe generated metadata manifest'}`,
+          files: autoCommit.files.length > 0 ? autoCommit.files : files,
+          next: 'inspect git status and commit only generated Proofbound lifecycle metadata manually, then rerun done_prepare',
+          steps,
+        });
+      }
+      ctx.log?.(`done_prepare auto-closeout: committed generated metadata ${autoCommit.commitSha}`);
+      const reevaluated = await runDonePrepare(ctx, {
+        storyId,
+        mergeMain: false,
+        refreshStale: false,
+        validate: false,
+        build: false,
+        dryRun: false,
+        json: false,
+        autoCloseGeneratedMetadata: false,
+        reuseFreshValidation: false,
+      });
+      return injectAutoCloseoutSummary(reevaluated, autoCommit);
+    }
     setStep(steps, 'cleanTree', 'blocked', 'done_prepare produced files that must be committed before DONE');
     return block({
       blockedAt: 'cleanTree',
