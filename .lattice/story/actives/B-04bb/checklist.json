@@ -37,7 +37,24 @@
       "context": "Full lattice validate in the story worktree after main (with B-cee5 landed) is merged in; the new command must appear in validate output and exit 0.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Full (non-focused) lattice validate output lists node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js as an executed command with PASS, and validate exits 0 overall.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [],
+        "adversarial": [
+          {
+            "desc": "The wired guard is genuinely capable of failing: its source contains an explicit failure path (non-zero exit on budget-exceeding scan pattern), or a seeded regression fixture triggers non-zero exit, confirming the command is not a tautological always-pass.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
