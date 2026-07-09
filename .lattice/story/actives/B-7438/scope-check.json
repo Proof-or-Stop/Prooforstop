@@ -117,11 +117,13 @@
       "q": "For CHK-001 and CHK-002, should available mean executable and version-responsive only, or review-capable including auth, quota, outage, and rate-limit readiness for temporary-host-unavailability?",
       "evidence": "The plan says the probe checks codex, claude, and agy command lookup/version and rejects when two or more canonical hosts are executable, while the related review escalation decision allows temporary-host-unavailability when a second host was attempted or probed and unavailable because of credits, auth, runtime, outage, or rate limits. This predicate affects the probe schema, fallback validator, and smoke tests before DEV.",
       "sourcePointers": [
-        ".lattice/story/actives/B-7438/plan.md#CHK-001",
-        ".lattice/story/actives/B-7438/plan.md#CHK-002",
-        ".lattice/story/actives/B-7438/checklist.json:CHK-002",
-        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md:102-114"
-      ]
+        "CHK-001",
+        "CHK-002",
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md#degraded-single-host-fallback",
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+      ],
+      "resolution": "For this story, available means the canonical local host CLI is executable and version-responsive during the fresh probe: codex --version, claude --version, or agy --version returns successfully. This intentionally does not try to prove quota/auth/model-review capability. If two or more canonical CLIs are executable/version-responsive, single-host-environment and temporary-host-unavailability cannot claim host scarcity in this story; operators who knowingly accept lower assurance despite executable hosts must use explicit-human-approval with approvalRef. A richer review-capability probe is a separate future story, not a prose bypass here.",
+      "resolvedAt": "2026-07-09T11:16:47.386Z"
     }
   ]
 }
