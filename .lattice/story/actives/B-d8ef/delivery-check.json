@@ -1,64 +1,103 @@
 {
   "storyId": "B-d8ef",
-  "checkedAt": "2026-07-09T16:02:16.884Z",
-  "headHash": "ae2e9b493cb6620b7d032c182145c6d64ff3847b",
-  "materialHash": "330ff03333fbf7c0b5ac4874aea1e03a152174f143c2e972ca8f38d19207ee06",
-  "storyFilesHash": "f79f281a1a55c1f814bb4a87aa546d0f8dcbabe76881175815906ea55b7ebdd6",
-  "reviewRound": "2026-07-09T14:23:03.268Z",
+  "checkedAt": "2026-07-09T22:21:29.198Z",
+  "headHash": "6d5e17e3f228f09f162a41c2b6813d77d3e1babf",
+  "materialHash": "01fcc9bbdc043169a493838ea1877eeb5a8d5881b930fe1ff309ecf95f873fae",
+  "storyFilesHash": "904e54ad723b2cd6bf1dd915e087437307ecc7b6d46e04a0b0ac1740f83a9924",
+  "reviewRound": "2026-07-09T21:56:08.141Z",
   "agentId": "lattice-review-delivery",
   "docsPromises": [
     {
-      "docPath": ".lattice/story/actives/B-d8ef/decision.json",
-      "promise": "Chosen option A strengthens review_host_availability_probe with bounded launcher-readiness rows and gates degraded fallback on reviewReadyHostCount.",
+      "docPath": ".lattice/story/actives/B-d8ef/plan.md#rollback-path",
+      "promise": "No token values, raw transcripts, or auth profile contents are persisted.",
       "status": "verified",
-      "verifiedBy": "decision and smoke review",
-      "evidence": "Implemented in host-execution-readiness/review-escalation paths; readiness smoke and review-escalation smoke passed."
+      "verifiedBy": "diff/grep",
+      "evidence": "host-execution-readiness stores bounded outputBytes/diagnostic/remediation only; readiness smoke asserts JSON excludes stdout/stderr and token-invalidated transcript text; provider comments document transcript whitelist."
     },
     {
-      "docPath": ".lattice/story/actives/B-d8ef/plan.md",
-      "promise": "CHK-001 records canonical noninteractive launcher readiness per review host without raw provider transcript text.",
+      "docPath": ".lattice/story/actives/B-d8ef/plan.md#CHK-001",
+      "promise": "review_host_availability_probe emits codex, claude-code, and agy rows with executionReady, reviewReady, progressMode, failureKind, firstProgressMs, and durationMs without raw transcript text.",
       "status": "verified",
-      "verifiedBy": "lattice validate and readiness smoke",
-      "evidence": "lattice validate --story=B-d8ef --json passed 43/43; review-host-execution-readiness-smoke passed 8 checks."
+      "verifiedBy": "diff/grep + transcript",
+      "evidence": "handlers/review-escalation text output includes executionReadyHostCount/reviewReadyHostCount and per-row readiness fields; review-escalation validates row fields; transcript-diff records validate pass."
     },
     {
-      "docPath": ".lattice/story/actives/B-d8ef/plan.md",
-      "promise": "CHK-002 uses execution-ready host counts for degraded fallback diagnostics and refuses fallback when two hosts are review-ready.",
+      "docPath": ".lattice/story/actives/B-d8ef/plan.md#CHK-001",
+      "promise": "Canonical host rows separate binary/version availability from launcher execution readiness, derive reviewReadyHostCount from row-level reviewReady=true, reject contradictory counts, and keep retired completion fields false.",
       "status": "verified",
-      "verifiedBy": "review escalation and assurance smokes",
-      "evidence": "review-escalation-smoke passed 19 checks and review-assurance-floor-smoke passed 15 checks; 3x2 quorum status is full-3x2."
+      "verifiedBy": "diff/grep",
+      "evidence": "reviewHostAvailabilityProbeRecordFromEvent validates executionReady/reviewReady booleans, recomputes executionReadyHostCount/reviewReadyHostCount, rejects contradictions, and calls requireRetiredCompletionFieldsFalse; smoke covers forged counts and retired markers."
     },
     {
-      "docPath": ".lattice/story/actives/B-d8ef/plan.md",
-      "promise": "CHK-003 covers Claude stream-json verbose, Codex exec auth failure, and agy launcher classification with smoke tests.",
+      "docPath": ".lattice/story/actives/B-d8ef/plan.md#CHK-002",
+      "promise": "Non-human degraded fallback refuses single-host-environment or temporary-host-unavailability when at least two independent hosts are review-ready.",
       "status": "verified",
-      "verifiedBy": "readiness smoke and process fact contract",
-      "evidence": "review-host-execution-readiness-smoke passed 8 checks; retired vocabulary guard passed; process fact contract included host-readiness semantics."
+      "verifiedBy": "diff/grep",
+      "evidence": "assessReviewHostAvailabilityForFallbackEligibility and referenced fallback checks reject reviewReadyHostCount>=2 with diagnostic use full 3x2 or explicit-human-approval; review escalation and assurance floor smokes assert the two-host refusal."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-d8ef/plan.md#CHK-002",
+      "promise": "Legacy B-7438 version-only probes do not satisfy stronger readiness proof and diagnostics tell the operator to rerun review_host_availability_probe or use explicit-human-approval.",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "missing reviewReadyHostCount/executionReadyHostCount invalidates probe records; fallback assessment reports version-only or lacks launcher readiness fields and tells rerun review_host_availability_probe or use explicit-human-approval; smoke covers legacy version-only probe."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-d8ef/plan.md#CHK-002",
+      "promise": "Diagnostics name concrete causes such as auth, wrong_launcher, timeout, or silent-final-output.",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "HostExecutionFailureKind includes auth, wrong_launcher, timeout, silent_final_output; classifyHostExecutionFailure maps token invalidation, unknown flags, and timeouts; handler row output prints failureKind and diagnostic/remediation."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-d8ef/plan.md#CHK-003",
+      "promise": "Claude reviewer launcher is modeled as claude --print --verbose --output-format stream-json rather than plain final-output --print.",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "canonicalReviewHostLauncherSpec(claude) returns claude --print --verbose --output-format=stream-json; dispatch runtime templates use the canonical spec; smoke rejects plain --print as silent_final_output."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-d8ef/plan.md#CHK-003",
+      "promise": "agy --prompt-file is mechanically classified as wrong_launcher and canonical agy uses --print plus --print-timeout.",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "canonicalReviewHostLauncherSpec(agy) uses agy --print <prompt> --print-timeout 30s; classifyReviewHostLauncher marks --prompt-file as wrong_launcher; dispatch smoke checks antigravity template excludes --prompt-file."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-d8ef/plan.md#CHK-003",
+      "promise": "Codex --version or login presence is not enough; codex exec auth failures such as token_invalidated or refresh_token_invalidated classify as auth and are not review-ready.",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "canonical Codex launcher is codex exec --json; classifyHostExecutionFailure maps token_invalidated/refresh_token_invalidated/auth strings to auth; classifyHostExecutionReadiness sets executionReady=false and reviewReady=false; smoke asserts no raw token text is persisted."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-d8ef/plan.md#CHK-001-CHK-003-verify-output",
+      "promise": "Smoke commands print literal PASS labels such as PASS claude launcher uses --print --verbose --output-format stream-json, PASS agy --prompt-file classified wrong_launcher, and PASS codex exec token_invalidated classified auth.",
+      "status": "waived",
+      "verifiedBy": "diff/grep",
+      "evidence": "The smoke assertions exist and print check labels with a checkmark prefix rather than literal PASS text; behavior is covered but exact story-local wording is not literal.",
+      "waiverReason": "Story-local plan wording promised exact PASS label text, but the implemented smoke runner prints checkmark labels while asserting the same behaviors; this wording mismatch is not product behavior."
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "lattice validate --story=B-d8ef --json passed 43/43 configured commands; readiness smoke passed 8 checks including canonical Claude stream-json launcher and no raw transcript fields."
+      "transcript": "Real-machine evidence: transcript-diff records lattice validate --story=B-d8ef --json ran 43 configured commands with status=pass/allPass=true. Code coverage checked in review-host-execution-readiness-smoke: canonical rows, concrete executed argv, no raw stdout/stderr/token text, legacy probe rejection, forged marker rejection, contradictory count rejection."
     },
     {
       "featureId": "CHK-002",
-      "transcript": "review escalation and review assurance floor smokes passed; quorum_submit recorded 3 rounds x 2 hosts using claude-cli and agy-cli, review_escalation_status returned ok=true assuranceLevel=full-3x2."
+      "transcript": "Real-machine evidence: transcript-diff validation pass plus review-escalation-smoke and review-assurance-floor-smoke assertions for reviewReadyHostCount below two permitting degraded 3x1 and reviewReadyHostCount=2 blocking non-human single-host fallback."
     },
     {
       "featureId": "CHK-003",
-      "transcript": "readiness smoke passed Codex auth failure, agy wrong launcher, and Claude --print --verbose --output-format=stream-json assertions; retired vocabulary guard passed."
-    },
-    {
-      "featureId": "DONE-required",
-      "transcript": "lattice done_required_validate --storyId=B-d8ef --json returned status=PASS for packages/main build and root full test suite."
+      "transcript": "Real-machine evidence: transcript-diff validation pass plus grep-confirmed smoke assertions for Claude --print --verbose --output-format=stream-json, agy --prompt-file wrong_launcher, Codex refresh_token_invalidated auth classification, dispatch launcher templates, and stream-json usage parsing edge cases."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "Delivery reviewer confirms B-d8ef promises are met by real-machine validation, DONE-required validation, smoke coverage for edge/adversarial readiness cases, and full 3x2 local review assurance."
+    "summary": "Delivery is acceptable: implementation and smoke coverage satisfy the host-readiness, fallback, and launcher behavior promises. One story-local output-label promise is waived because the smoke prints checkmark labels rather than literal PASS strings while testing the same behavior."
   },
-  "_hash": "817acc4dc3f275df890e9afdfabf6b941eb43a65fc313b2668c3b740595f58b8"
+  "_hash": "42d41ab069319a1486277f20247a5e8a8389605909f988c339568ec4e165c1b0"
 }
