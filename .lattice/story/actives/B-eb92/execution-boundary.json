@@ -8,13 +8,14 @@
     "git status --short",
     "lattice aux_doc_list",
     "lattice checklist_* --storyId=B-eb92 *",
-    "lattice delivery_* --storyId=B-eb92 *",
+    "lattice delivery_context_pack --storyId=B-eb92 *",
     "lattice done_prepare --storyId=B-eb92 *",
-    "lattice finding_* --storyId=B-eb92 *",
+    "lattice finding_list --storyId=B-eb92 *",
     "lattice init_preflight --storyId=B-eb92",
     "lattice milestone_status --storyId=B-eb92",
     "lattice quorum_submit --storyId=B-eb92 *",
-    "lattice review_* --storyId=B-eb92 *",
+    "lattice review_escalation_status --storyId=B-eb92 *",
+    "lattice review_run_start --storyId=B-eb92 *",
     "lattice scope_freeze_check --storyId=B-eb92",
     "lattice session_brief",
     "lattice story_advance --storyId=B-eb92 *",
@@ -42,12 +43,20 @@
     "packages/main/src/core/review-assurance-floor.ts",
     "packages/main/src/handlers/done-prepare.ts",
     "packages/main/src/handlers/review-escalation.ts",
+    "packages/main/src/handlers/transition-effects.ts",
     "packages/main/src/tasks/review-assurance-surfacing-smoke.ts"
   ],
   "excludedCommands": [
     "git checkout -- *",
     "git push *",
     "git reset --hard *",
+    "lattice autopilot_review_submit --storyId=B-eb92 --hostId=main*",
+    "lattice delivery_check_set --storyId=B-eb92 --agentId=main*",
+    "lattice delivery_waiver_add --storyId=B-eb92 --agentId=main*",
+    "lattice finding_resolve --storyId=B-eb92 --agent=main*",
+    "lattice review_escalation_fallback_set --storyId=B-eb92 --agentId=main*",
+    "lattice review_pass_set --storyId=B-eb92 --agent=main*",
+    "lattice review_pass_set --storyId=B-eb92 --agentId=main*",
     "omx *",
     "rm -rf *"
   ],
@@ -58,8 +67,8 @@
     ".omx/**"
   ],
   "confirmedBy": "codex-main",
-  "confirmationNote": "B-eb92 implements M3-M4 only: review-assurance surfacing and actionable done_prepare blocker guidance. It must not auto-sign host verdicts/fallback evidence, weaken assurance gates, claim Authority/full production DONE, rework B-eb08 heartbeat, or implement B-b264 merge-preflight/rerun-delta UX.",
-  "createdAt": "2026-07-09T04:33:28.855Z",
-  "updatedAt": "2026-07-09T04:33:28.855Z",
-  "_hash": "e12e5347e38037450c3c5ef5ccb414a30a20a91977d19e82611f26bedf173aa6"
+  "confirmationNote": "B-eb92 implements M3-M4 only. It may surface canonical review-assurance guidance and safe next commands, including TEST-entry advisory rendering in transition-effects.ts. It must not auto-sign host verdicts, degraded fallback, reviewer pass/finding resolution evidence, delivery checks, or delivery waivers from the owner/main agent; those remain reviewer/host lanes.",
+  "createdAt": "2026-07-09T10:53:56.949Z",
+  "updatedAt": "2026-07-09T10:53:56.949Z",
+  "_hash": "2a9b1442994914068b407570862ab3b7083a3a00394d6f9692724bac3c2ba6d4"
 }

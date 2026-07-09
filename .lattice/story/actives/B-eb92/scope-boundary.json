@@ -9,18 +9,21 @@
     "packages/main/src/core/review-assurance-floor.ts",
     "packages/main/src/handlers/done-prepare.ts",
     "packages/main/src/handlers/review-escalation.ts",
+    "packages/main/src/handlers/transition-effects.ts",
     "packages/main/src/tasks/*review*assurance*surfacing*"
   ],
   "excluded": [
+    "Auto-writing delivery_check, delivery waiver, or delivery reviewer evidence from the owner/main agent",
     "Auto-writing host verdicts or degraded fallback evidence",
+    "Auto-writing reviewer evidence, review pass evidence, or finding resolution evidence from the owner/main agent",
     "Changing review-assurance pass criteria",
     "Claiming Authority/full/production DONE from local evidence",
     "Implementing done_prepare closure heartbeat hard deadlines",
     "Implementing merge-preflight or rerun-delta UX"
   ],
-  "confirmedBy": "codex",
-  "confirmationNote": "User asked to split the execution document into three stories and finish them sequentially; this story covers M3-M4 after B-eb08.",
-  "createdAt": "2026-07-09T01:28:12.311Z",
-  "updatedAt": "2026-07-09T01:28:12.311Z",
-  "_hash": "93a066fcab3de68afcc24376e8e0621963feb840ef249a4c0c208df1a4e2f778"
+  "confirmedBy": "codex-main",
+  "confirmationNote": "INIT reviewer found B-eb92 M3 requires TEST-entry advisory rendering in transition-effects.ts and full no-auto-sign boundary must include reviewer and delivery evidence. User authorized continuing all split stories to DONE; this boundary keeps B-eb92 scoped to M3-M4 only.",
+  "createdAt": "2026-07-09T10:53:44.238Z",
+  "updatedAt": "2026-07-09T10:53:44.238Z",
+  "_hash": "e02afb9cd2835703ed649db18d2edaf373f5c742f80143fef0c437ae1bbdcb8a"
 }
