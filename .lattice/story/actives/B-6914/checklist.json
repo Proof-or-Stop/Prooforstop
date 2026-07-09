@@ -42,10 +42,51 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-09T00:56:59.935Z",
-      "endTime": null,
-      "userSees": "During DONE recovery after a runtime-changing partial merge, the terminal prints \"✓ version auto-bumped <old> → <new> across 5 sync points after DONE merge\" before the recovery build completes."
+      "endTime": "2026-07-09T00:59:21.521Z",
+      "userSees": "During DONE recovery after a runtime-changing partial merge, the terminal prints \"✓ version auto-bumped <old> → <new> across 5 sync points after DONE merge\" before the recovery build completes.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/artifact-release-ledger-smoke.ts",
+          "command": "node packages/main/dist/tasks/artifact-release-ledger-smoke.js",
+          "result": "pass",
+          "note": "Current HEAD passed 11 assertions, including partial-DONE recovery auto-bumps runtime version before build and reports the version auto-bumped line.",
+          "headHash": "b75c71b4b53a2b502138a74b137b99d24d84870b",
+          "materialHash": "78f163531375673608a116cf0767d19ce982e36251f83a958b20367de0775603",
+          "storyFilesHash": "0a3f376f506c8da800e90f3d1d514e193effb8162f4dff3c6fcc7bb7d1c8c4aa",
+          "timestamp": "2026-07-09T00:59:21.807Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/version-bump-smoke.ts",
+          "command": "node packages/main/dist/tasks/version-bump-smoke.js",
+          "result": "pass",
+          "note": "Current HEAD passed 83 assertions, including skip behavior when changed paths do not qualify for a runtime version bump; recovery now delegates false runtimeSemverChanged to the same bump gate.",
+          "headHash": "b75c71b4b53a2b502138a74b137b99d24d84870b",
+          "materialHash": "78f163531375673608a116cf0767d19ce982e36251f83a958b20367de0775603",
+          "storyFilesHash": "0a3f376f506c8da800e90f3d1d514e193effb8162f4dff3c6fcc7bb7d1c8c4aa",
+          "timestamp": "2026-07-09T00:59:22.070Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/artifact-release-ledger-smoke.ts",
+          "command": "node packages/main/dist/tasks/artifact-release-ledger-smoke.js",
+          "result": "pass",
+          "note": "The new partial-DONE runtime recovery fixture asserts build execution observes the bumped version, preventing runtimeSemverChanged=true recovery from finishing without bumpVersionOnDoneMerge.",
+          "headHash": "b75c71b4b53a2b502138a74b137b99d24d84870b",
+          "materialHash": "78f163531375673608a116cf0767d19ce982e36251f83a958b20367de0775603",
+          "storyFilesHash": "0a3f376f506c8da800e90f3d1d514e193effb8162f4dff3c6fcc7bb7d1c8c4aa",
+          "timestamp": "2026-07-09T00:59:22.331Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -140,6 +181,17 @@
       "status": "pending",
       "startTime": null,
       "endTime": null
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-09T00:59:21.521Z",
+      "phase": "PLAN",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implemented and committed DONE recovery runtime version bump path in b75c71b4b53a2b502138a74b137b99d24d84870b."
     }
   ]
 }
