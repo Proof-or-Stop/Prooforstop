@@ -142,6 +142,28 @@
       ],
       "signatureTag": "edge-ts-done-prepare-execsync-smoke-coverage",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-eb08:F-007",
+      "desc": "Quality regression blocker: the Round 4 doneClosure execSync smoke does not actually force a production execSync git probe to hang. LATTICE_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_PHASE=doneClosure is consumed by installCloseoutPhaseChildProcessDeadline for both execFileSync and execSync, and buildDoneClosureRunbook reaches buildDoneChecklist, which first calls captureEvidenceHashSnapshot/readMaterialDirtyFiles via execFileSync before readGitStatusLines/checkMainDivergence/related-doc execSync probes. The smoke can therefore pass by timing out the earlier execFileSync path, leaving the F-003/F-005 execSync regression evidence unproven. Add coverage that bypasses or separately targets the earlier execFileSync probes and demonstrates a doneClosure execSync git hang is converted to DonePreparePhaseTimeoutError under the phase deadline.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-09T03:12:24.695Z",
+      "reviewRound": "2026-07-09T03:07:08.561Z",
+      "reviewRunId": "B-eb08:RR-015",
+      "_hash": "04e5fab8aa43f89d483c72ffaa2e083947f871eae46eaae2742afe5546dea033",
+      "files": [
+        "packages/main/src/handlers/done-prepare.ts",
+        "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+        "packages/main/src/core/evidence-freshness.ts",
+        "packages/main/src/core/done-oracle.ts",
+        "packages/main/src/core/dirty-worktree-gate.ts"
+      ],
+      "signatureTag": "edge-ts-done-prepare-execsync-smoke-coverage-quality",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
