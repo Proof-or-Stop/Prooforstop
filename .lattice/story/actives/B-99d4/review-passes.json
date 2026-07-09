@@ -53,6 +53,15 @@
       "reviewRound": "2026-07-09T03:45:18.798Z",
       "reviewRunId": "B-99d4:RR-011",
       "_hash": "4432f90e3da8ebe1975fcb3b7d17496d910721a9994ac9ec1c44044e61a2fe87"
+    },
+    {
+      "id": "B-99d4:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Quality review pass: inspected current HEAD for dispatch_reassign eligibility, role/objective propagation, executionInstructions role rewrite, prompt wording, command/policy/process-fact registration, and local-assurance semantics. No blockers found: reassignment is gated on accepted_local plus accepted-local receipt, creates fresh-context child dispatch metadata with parentDispatchId, rewrites inherited Work in role instructions, preserves requested/default role and objective in pack/result/prompt, and avoids receipt verification, release readiness, production DONE, or authority overclaim. Verified with npm --prefix packages/main run build -- --noEmit --pretty false, node scripts/verify-process-fact-contract.mjs, and node packages/main/dist/tasks/dispatch-run-smoke.js.",
+      "createdAt": "2026-07-09T03:49:39.456Z",
+      "reviewRound": "2026-07-09T03:45:18.798Z",
+      "reviewRunId": "B-99d4:RR-012",
+      "_hash": "3499f1df16c38ae8c85e349eb6874a595acd143d93635c00c1b1bd27dbf0086f"
     }
   ]
 }
