@@ -186,7 +186,20 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"Enumerate decisions/ filenames completely|Build the candidateSpecSet|full-read at most 15 candidate docs|Read full content only for candidateSpecSet members\" packages/main/templates/agents/lattice-review-scope-plan.md",
+          "result": "pass",
+          "note": "Scope-plan default flow: complete filename enumeration, candidateSpecSet built from the six sources (relatedDocs, story metadata/riskSignals, changed files/symbols, command/config names, aux_doc_list, top-N rg matches), full reads capped at 15 candidates, triage for the rest.",
+          "headHash": "5236de5e2e2926d67c06f8d94043989871ed8384",
+          "materialHash": "2129600913e88693d4e5986538beca1b15432d378b1fb18b9b126d64d6e96cdb",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-09T17:16:29.959Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
