@@ -240,9 +240,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-09T15:51:14.812Z",
-      "endTime": null,
+      "endTime": "2026-07-09T15:51:21.004Z",
       "userSees": "User sees \"Approved optimizations applied to the Proof-or-Stop execution plan without code-scope expansion.\"",
       "files": {
         "modify": [],
@@ -442,6 +442,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Applying and verifying approved documentation optimizations only."
+    },
+    {
+      "timestamp": "2026-07-09T15:51:21.004Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Approved documentation optimizations are committed in fac8f979a; runtime/code changes remain deferred to future implementation stories."
     }
   ]
 }
