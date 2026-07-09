@@ -5,7 +5,7 @@
       "desc": "Coverage is missing/misleading for the session_brief/next and fallback/no-owner-self-sign acceptance surface. The focused smoke asserts buildNextSteps(...).TEST and done_prepare safe command separation, but it never invokes createSessionHandlers(...).session_brief/next or the CLI next path. The actual TEST next path summarizes DONE row hints from done-oracle/session.ts, and the review-assurance formatter still emits autopilot_review_submit in its recovery text; review-escalation failure text likewise names autopilot_review_submit/review_escalation_fallback_set. Because the smoke does not cover session_brief/next, it would not catch owner-visible self-sign command exposure outside done_prepare. The smoke also only exercises the fallback-eligible positive case and does not assert the not-eligible/not-applicable case omits fallback writer guidance, so CHK-001 edge fallback eligibility is not fully covered.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-09T11:24:55.340Z",
@@ -19,7 +19,11 @@
         "packages/main/src/core/review-escalation.ts"
       ],
       "signatureTag": "missing|ts|coverage-missing-misleading",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commits 2c3714cba and 931609335: surfacing smoke now invokes actual session next/session_brief, covers fallback not-applicable omission, review-escalation-only text/JSON, and command template parsing; floor smoke now covers DONE-row stale recovery inline command exposure. Full lattice validate passed 43/43 with coverage 9/9.",
+      "resolvedAt": "2026-07-09T12:04:18.078Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-eb92:F-002",
