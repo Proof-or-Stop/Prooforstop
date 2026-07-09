@@ -1,0 +1,20 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add reviewer-scan-budget-guard-smoke entry to validate.commands in lattice.config.json",
+      "context": "One bare-string entry: node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js, placed with the other guard smokes, same pattern as retired-authority-vocabulary-guard-smoke.js at line 27. Requires B-cee5 merged to main first.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Run lattice validate and confirm the new guard command executes and passes",
+      "context": "Full lattice validate in the story worktree after main (with B-cee5 landed) is merged in; the new command must appear in validate output and exit 0.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
