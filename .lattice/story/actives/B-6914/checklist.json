@@ -129,10 +129,51 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-09T00:57:06.852Z",
-      "endTime": null,
-      "userSees": "When a DONE version bump runs, the terminal reports 5 synchronized version files, and lockfile drift now fails loudly instead of silently leaving package-lock.json behind."
+      "endTime": "2026-07-09T00:59:31.905Z",
+      "userSees": "When a DONE version bump runs, the terminal reports 5 synchronized version files, and lockfile drift now fails loudly instead of silently leaving package-lock.json behind.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/version-bump-smoke.ts",
+          "command": "node packages/main/dist/tasks/version-bump-smoke.js",
+          "result": "pass",
+          "note": "Current HEAD passed 83 assertions, including package.json, packages/main/package.json, both package-lock files, and LATTICE_CLI_VERSION moving to the same next patch.",
+          "headHash": "b75c71b4b53a2b502138a74b137b99d24d84870b",
+          "materialHash": "78f163531375673608a116cf0767d19ce982e36251f83a958b20367de0775603",
+          "storyFilesHash": "0a3f376f506c8da800e90f3d1d514e193effb8162f4dff3c6fcc7bb7d1c8c4aa",
+          "timestamp": "2026-07-09T00:59:32.196Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/version-bump-smoke.ts",
+          "command": "node packages/main/dist/tasks/version-bump-smoke.js",
+          "result": "pass",
+          "note": "Current HEAD verifies root package-lock and packages/main package-lock drift fails loudly before a partial bump is committed.",
+          "headHash": "b75c71b4b53a2b502138a74b137b99d24d84870b",
+          "materialHash": "78f163531375673608a116cf0767d19ce982e36251f83a958b20367de0775603",
+          "storyFilesHash": "0a3f376f506c8da800e90f3d1d514e193effb8162f4dff3c6fcc7bb7d1c8c4aa",
+          "timestamp": "2026-07-09T00:59:32.475Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/version-bump-smoke.ts",
+          "command": "node packages/main/dist/tasks/version-bump-smoke.js",
+          "result": "pass",
+          "note": "Current HEAD verifies post-write verification failure involving lockfiles rolls back all version sync files instead of leaving mismatched versions.",
+          "headHash": "b75c71b4b53a2b502138a74b137b99d24d84870b",
+          "materialHash": "78f163531375673608a116cf0767d19ce982e36251f83a958b20367de0775603",
+          "storyFilesHash": "0a3f376f506c8da800e90f3d1d514e193effb8162f4dff3c6fcc7bb7d1c8c4aa",
+          "timestamp": "2026-07-09T00:59:32.749Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -192,6 +233,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Implemented and committed DONE recovery runtime version bump path in b75c71b4b53a2b502138a74b137b99d24d84870b."
+    },
+    {
+      "timestamp": "2026-07-09T00:59:31.905Z",
+      "phase": "PLAN",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implemented and committed five-point version sync with lockfile drift and rollback coverage in b75c71b4b53a2b502138a74b137b99d24d84870b."
     }
   ]
 }
