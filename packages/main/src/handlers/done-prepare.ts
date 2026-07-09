@@ -1,6 +1,7 @@
+import childProcess, { type ExecFileSyncOptions, type ExecSyncOptions } from 'child_process';
 import { createHash } from 'crypto';
-import { execFileSync } from 'child_process';
 import { existsSync, readFileSync, statSync } from 'fs';
+import { syncBuiltinESMExports } from 'module';
 import { join } from 'path';
 import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
@@ -11,6 +12,7 @@ import { createVerifierHandlers } from './verifier.js';
 import { loadConfig } from '../core/config.js';
 import { resolveDoneRequiredPolicy } from '../core/done-required-validation.js';
 import { checkEvidenceFreshnessForGit, currentGitHead, currentMaterialHash, currentStoryFilesHash, isStoryMetadataPath } from '../core/evidence-freshness.js';
+import { formatValidationProgressEvent } from '../core/validation-executor.js';
 import { buildVerificationCoverage } from '../core/verification.js';
 import {
   classifyGitStatusRows,
@@ -42,6 +44,7 @@ interface DonePrepareArgs {
   validate?: boolean;
   build?: boolean;
   dryRun?: boolean;
+  json?: boolean;
 }
 
 interface DonePrepareStep {
@@ -86,6 +89,108 @@ interface RuntimeChangeReport {
   versionMismatches: string[];
 }
 
+type CloseoutPhaseId =
+  | 'doneRequiredValidation'
+  | 'doneClosure'
+  | 'reviewAssurance'
+  | 'runtimeChange'
+  | 'cleanTree'
+  | 'produceCommand';
+
+interface CloseoutPhase {
+  id: CloseoutPhaseId;
+  label: string;
+  stepId: StepId;
+  timeoutEnv: string;
+}
+
+interface DonePrepareJsonResult {
+  schemaVersion: 'lattice.done_prepare.v1';
+  storyId: string;
+  status: 'pass' | 'blocked' | 'unknown';
+  transcript: string;
+  blockedAt?: string;
+  reason?: string;
+}
+
+class DonePreparePhaseTimeoutError extends Error {
+  readonly phase: CloseoutPhase;
+  readonly timeoutMs: number;
+
+  constructor(phase: CloseoutPhase, timeoutMs: number) {
+    super(`done_prepare phase "${phase.label}" exceeded ${timeoutMs}ms timeout`);
+    this.name = 'DonePreparePhaseTimeoutError';
+    this.phase = phase;
+    this.timeoutMs = timeoutMs;
+  }
+}
+
+interface CloseoutPhaseChildProcessDeadline {
+  phase: CloseoutPhase;
+  timeoutMs: number;
+  deadlineAt: number;
+  timeoutError?: DonePreparePhaseTimeoutError;
+  restore: () => void;
+}
+
+interface CloseoutPhaseControl {
+  signal: AbortSignal;
+  deadlineAt: number;
+  timeoutMs: number;
+  timeoutError: () => DonePreparePhaseTimeoutError;
+}
+
+type SmokeSyncGitHangKind = 'execFileSync' | 'execSync';
+
+const DONE_PREPARE_HEARTBEAT_ENV = 'LATTICE_DONE_PREPARE_HEARTBEAT_MS';
+const DONE_PREPARE_PHASE_TIMEOUT_ENV = 'LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS';
+const DONE_PREPARE_SMOKE_HANG_PHASE_ENV = 'LATTICE_DONE_PREPARE_SMOKE_HANG_PHASE';
+const DONE_PREPARE_SMOKE_SYNC_GIT_HANG_PHASE_ENV = 'LATTICE_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_PHASE';
+const DONE_PREPARE_SMOKE_SYNC_GIT_HANG_KIND_ENV = 'LATTICE_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_KIND';
+const DONE_PREPARE_SMOKE_SYNC_GIT_HANG_MS_ENV = 'LATTICE_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_MS';
+const DEFAULT_DONE_PREPARE_HEARTBEAT_MS = 30_000;
+const DEFAULT_DONE_PREPARE_PHASE_TIMEOUT_MS = 240_000;
+const DEFAULT_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_MS = 30_000;
+
+const CLOSEOUT_PHASES: Record<CloseoutPhaseId, CloseoutPhase> = {
+  doneRequiredValidation: {
+    id: 'doneRequiredValidation',
+    label: 'running DONE-required validation',
+    stepId: 'validate',
+    timeoutEnv: 'LATTICE_DONE_PREPARE_DONE_REQUIRED_VALIDATION_TIMEOUT_MS',
+  },
+  doneClosure: {
+    id: 'doneClosure',
+    label: 'evaluating DONE closure',
+    stepId: 'doneClosure',
+    timeoutEnv: 'LATTICE_DONE_PREPARE_DONE_CLOSURE_TIMEOUT_MS',
+  },
+  reviewAssurance: {
+    id: 'reviewAssurance',
+    label: 'checking review assurance',
+    stepId: 'doneClosure',
+    timeoutEnv: 'LATTICE_DONE_PREPARE_REVIEW_ASSURANCE_TIMEOUT_MS',
+  },
+  runtimeChange: {
+    id: 'runtimeChange',
+    label: 'computing runtime-change status',
+    stepId: 'runtimeChange',
+    timeoutEnv: 'LATTICE_DONE_PREPARE_RUNTIME_CHANGE_TIMEOUT_MS',
+  },
+  cleanTree: {
+    id: 'cleanTree',
+    label: 'checking clean tree',
+    stepId: 'cleanTree',
+    timeoutEnv: 'LATTICE_DONE_PREPARE_CLEAN_TREE_TIMEOUT_MS',
+  },
+  produceCommand: {
+    id: 'produceCommand',
+    label: 'producing DONE command',
+    stepId: 'doneClosure',
+    timeoutEnv: 'LATTICE_DONE_PREPARE_PRODUCE_COMMAND_TIMEOUT_MS',
+  },
+};
+
 const VERSION_SOURCE_FILES = [
   'package.json',
   'package-lock.json',
@@ -117,11 +222,12 @@ function defaulted(args: DonePrepareArgs): Required<DonePrepareArgs> {
     validate: args.validate !== false,
     build: args.build === true,
     dryRun: args.dryRun === true,
+    json: args.json === true,
   };
 }
 
 function git(gitCwd: string, args: string[]): string {
-  return execFileSync('git', args, {
+  return childProcess.execFileSync('git', args, {
     cwd: gitCwd,
     encoding: 'utf-8',
     stdio: ['pipe', 'pipe', 'pipe'],
@@ -319,6 +425,310 @@ function asText(value: unknown): string {
   if (typeof value === 'string') return value;
   if (value === undefined || value === null) return '';
   return JSON.stringify(value, null, 2);
+}
+
+function envPositiveInt(name: string, fallback: number): number {
+  const raw = process.env[name];
+  if (!raw) return fallback;
+  const parsed = Number(raw);
+  if (!Number.isFinite(parsed) || parsed <= 0) return fallback;
+  return Math.max(1, Math.floor(parsed));
+}
+
+function donePrepareHeartbeatMs(): number {
+  return envPositiveInt(DONE_PREPARE_HEARTBEAT_ENV, DEFAULT_DONE_PREPARE_HEARTBEAT_MS);
+}
+
+function donePreparePhaseTimeoutMs(phase: CloseoutPhase): number {
+  const globalTimeout = envPositiveInt(DONE_PREPARE_PHASE_TIMEOUT_ENV, DEFAULT_DONE_PREPARE_PHASE_TIMEOUT_MS);
+  return envPositiveInt(phase.timeoutEnv, globalTimeout);
+}
+
+function phaseEnvMatches(name: string, phase: CloseoutPhase): boolean {
+  const raw = process.env[name];
+  if (!raw) return false;
+  const wanted = raw.split(',').map((entry) => entry.trim()).filter(Boolean);
+  return wanted.includes(phase.id) || wanted.includes(phase.label);
+}
+
+function shouldSmokeHangCloseoutPhase(phase: CloseoutPhase): boolean {
+  return phaseEnvMatches(DONE_PREPARE_SMOKE_HANG_PHASE_ENV, phase);
+}
+
+async function maybeSmokeHangCloseoutPhase(phase: CloseoutPhase): Promise<void> {
+  if (!shouldSmokeHangCloseoutPhase(phase)) return;
+  await new Promise(() => { /* smoke-only pending promise; the phase deadline must reject first. */ });
+}
+
+function markChildProcessPhaseTimeout(deadline: CloseoutPhaseChildProcessDeadline): DonePreparePhaseTimeoutError {
+  if (!deadline.timeoutError) {
+    deadline.timeoutError = new DonePreparePhaseTimeoutError(deadline.phase, deadline.timeoutMs);
+  }
+  return deadline.timeoutError;
+}
+
+function remainingChildProcessTimeoutMs(deadline: CloseoutPhaseChildProcessDeadline): number {
+  const remainingMs = Math.floor(deadline.deadlineAt - Date.now());
+  if (remainingMs <= 0) throw markChildProcessPhaseTimeout(deadline);
+  return Math.max(1, remainingMs);
+}
+
+function boundedExecFileSyncOptions(
+  options: ExecFileSyncOptions | undefined,
+  remainingMs: number,
+): { options: ExecFileSyncOptions; phaseBounded: boolean } {
+  const existingTimeout = options?.timeout;
+  const hasShorterTimeout = typeof existingTimeout === 'number'
+    && Number.isFinite(existingTimeout)
+    && existingTimeout > 0
+    && existingTimeout <= remainingMs;
+  return {
+    options: {
+      ...(options ?? {}),
+      timeout: hasShorterTimeout ? Math.floor(existingTimeout) : remainingMs,
+    },
+    phaseBounded: !hasShorterTimeout,
+  };
+}
+
+function boundedExecSyncOptions(
+  options: ExecSyncOptions | undefined,
+  remainingMs: number,
+): { options: ExecSyncOptions; phaseBounded: boolean } {
+  const existingTimeout = options?.timeout;
+  const hasShorterTimeout = typeof existingTimeout === 'number'
+    && Number.isFinite(existingTimeout)
+    && existingTimeout > 0
+    && existingTimeout <= remainingMs;
+  return {
+    options: {
+      ...(options ?? {}),
+      timeout: hasShorterTimeout ? Math.floor(existingTimeout) : remainingMs,
+    },
+    phaseBounded: !hasShorterTimeout,
+  };
+}
+
+function isChildProcessOptions(value: unknown): value is ExecFileSyncOptions {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function commandLeaf(command: string): string {
+  return command.split(/[\\/]/).pop() || command;
+}
+
+function isGitCommand(command: string): boolean {
+  return commandLeaf(command) === 'git' || /^\s*(?:"git"|'git'|git)(?:\s|$)/.test(command);
+}
+
+function smokeSyncGitHangKindMatches(kind: SmokeSyncGitHangKind): boolean {
+  const raw = process.env[DONE_PREPARE_SMOKE_SYNC_GIT_HANG_KIND_ENV];
+  if (!raw) return true;
+  const wanted = raw.split(',').map((entry) => entry.trim().toLowerCase()).filter(Boolean);
+  return wanted.includes('all') || wanted.includes('any') || wanted.includes(kind.toLowerCase());
+}
+
+function shouldSmokeHangSyncGitCommand(
+  deadline: CloseoutPhaseChildProcessDeadline,
+  command: string,
+  kind: SmokeSyncGitHangKind,
+): boolean {
+  return isGitCommand(command)
+    && phaseEnvMatches(DONE_PREPARE_SMOKE_SYNC_GIT_HANG_PHASE_ENV, deadline.phase)
+    && smokeSyncGitHangKindMatches(kind);
+}
+
+function smokeSyncGitHangArgs(): string[] {
+  const hangMs = envPositiveInt(
+    DONE_PREPARE_SMOKE_SYNC_GIT_HANG_MS_ENV,
+    DEFAULT_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_MS,
+  );
+  return ['-e', `setTimeout(() => {}, ${hangMs});`];
+}
+
+function smokeSyncGitHangCommand(): string {
+  const [flag, script] = smokeSyncGitHangArgs();
+  return `${JSON.stringify(process.execPath)} ${flag} ${JSON.stringify(script)}`;
+}
+
+function isChildProcessTimeoutError(err: unknown): boolean {
+  const value = err as { code?: unknown; message?: unknown };
+  return value?.code === 'ETIMEDOUT' || /\bETIMEDOUT\b|timed out|timeout/i.test(String(value?.message ?? ''));
+}
+
+function installCloseoutPhaseChildProcessDeadline(
+  phase: CloseoutPhase,
+  timeoutMs: number,
+  started: number,
+): CloseoutPhaseChildProcessDeadline {
+  const previousExecFileSync = childProcess.execFileSync;
+  const previousExecSync = childProcess.execSync;
+  const deadline: CloseoutPhaseChildProcessDeadline = {
+    phase,
+    timeoutMs,
+    deadlineAt: started + timeoutMs,
+    restore: () => {},
+  };
+
+  const runExecFileSyncWithDeadline = (
+    command: string,
+    argsOrOptions?: readonly string[] | ExecFileSyncOptions,
+    options?: ExecFileSyncOptions,
+  ) => {
+    const remainingMs = remainingChildProcessTimeoutMs(deadline);
+    const useSmokeHang = shouldSmokeHangSyncGitCommand(deadline, command, 'execFileSync');
+    const commandToRun = useSmokeHang ? process.execPath : command;
+    const argsToRun = useSmokeHang ? smokeSyncGitHangArgs() : argsOrOptions;
+    let phaseBounded = true;
+
+    try {
+      let result: string | Buffer;
+      if (Array.isArray(argsToRun)) {
+        const bounded = boundedExecFileSyncOptions(options, remainingMs);
+        phaseBounded = bounded.phaseBounded;
+        result = previousExecFileSync(commandToRun, argsToRun, bounded.options);
+      } else if (isChildProcessOptions(argsToRun)) {
+        const bounded = boundedExecFileSyncOptions(argsToRun, remainingMs);
+        phaseBounded = bounded.phaseBounded;
+        result = previousExecFileSync(commandToRun, bounded.options);
+      } else {
+        const bounded = boundedExecFileSyncOptions(undefined, remainingMs);
+        phaseBounded = bounded.phaseBounded;
+        result = previousExecFileSync(commandToRun, [], bounded.options);
+      }
+      if (Date.now() >= deadline.deadlineAt) throw markChildProcessPhaseTimeout(deadline);
+      return result;
+    } catch (err) {
+      if ((phaseBounded && isChildProcessTimeoutError(err)) || Date.now() >= deadline.deadlineAt) {
+        throw markChildProcessPhaseTimeout(deadline);
+      }
+      throw err;
+    }
+  };
+
+  const runExecSyncWithDeadline = (command: string, options?: ExecSyncOptions) => {
+    const remainingMs = remainingChildProcessTimeoutMs(deadline);
+    const commandToRun = shouldSmokeHangSyncGitCommand(deadline, command, 'execSync')
+      ? smokeSyncGitHangCommand()
+      : command;
+    const bounded = boundedExecSyncOptions(options, remainingMs);
+    try {
+      const result = previousExecSync(commandToRun, bounded.options);
+      if (Date.now() >= deadline.deadlineAt) throw markChildProcessPhaseTimeout(deadline);
+      return result;
+    } catch (err) {
+      if ((bounded.phaseBounded && isChildProcessTimeoutError(err)) || Date.now() >= deadline.deadlineAt) {
+        throw markChildProcessPhaseTimeout(deadline);
+      }
+      throw err;
+    }
+  };
+
+  // Closeout helpers import execFileSync/execSync directly; sync the builtin named exports
+  // so those existing imports see the active phase deadline guard.
+  childProcess.execFileSync = runExecFileSyncWithDeadline as typeof childProcess.execFileSync;
+  childProcess.execSync = runExecSyncWithDeadline as typeof childProcess.execSync;
+  syncBuiltinESMExports();
+  deadline.restore = () => {
+    childProcess.execFileSync = previousExecFileSync;
+    childProcess.execSync = previousExecSync;
+    syncBuiltinESMExports();
+  };
+  return deadline;
+}
+
+async function runCloseoutPhase<T>(
+  ctx: HandlerContext,
+  phase: CloseoutPhase,
+  work: (control: CloseoutPhaseControl) => T | Promise<T>,
+): Promise<T> {
+  const heartbeatMs = donePrepareHeartbeatMs();
+  const timeoutMs = donePreparePhaseTimeoutMs(phase);
+  const started = Date.now();
+  const childProcessDeadline = installCloseoutPhaseChildProcessDeadline(phase, timeoutMs, started);
+  const abortController = new AbortController();
+  const timeoutError = () => markChildProcessPhaseTimeout(childProcessDeadline);
+  const phaseControl: CloseoutPhaseControl = {
+    signal: abortController.signal,
+    deadlineAt: childProcessDeadline.deadlineAt,
+    timeoutMs,
+    timeoutError,
+  };
+  ctx.log?.(`done_prepare progress: ${phase.label}`);
+
+  const heartbeat = setInterval(() => {
+    ctx.log?.(`done_prepare heartbeat: ${phase.label} elapsedMs=${Date.now() - started} timeoutMs=${timeoutMs}`);
+  }, heartbeatMs);
+  heartbeat.unref?.();
+
+  let timeout: NodeJS.Timeout | undefined;
+  const deadline = new Promise<never>((_resolve, reject) => {
+    timeout = setTimeout(() => {
+      const err = timeoutError();
+      abortController.abort(err);
+      reject(err);
+    }, timeoutMs);
+  });
+
+  const task = Promise.resolve().then(async () => {
+    try {
+      await maybeSmokeHangCloseoutPhase(phase);
+      const result = await work(phaseControl);
+      if (childProcessDeadline.timeoutError) throw childProcessDeadline.timeoutError;
+      return result;
+    } catch (err) {
+      if (childProcessDeadline.timeoutError) throw childProcessDeadline.timeoutError;
+      throw err;
+    }
+  });
+
+  try {
+    const result = await Promise.race([task, deadline]);
+    ctx.log?.(`done_prepare progress: completed ${phase.label} elapsedMs=${Date.now() - started}`);
+    return result;
+  } catch (err) {
+    if (isDonePreparePhaseTimeout(err) && !abortController.signal.aborted) {
+      abortController.abort(err);
+    }
+    throw err;
+  } finally {
+    clearInterval(heartbeat);
+    if (timeout) clearTimeout(timeout);
+    childProcessDeadline.restore();
+  }
+}
+
+function isDonePreparePhaseTimeout(err: unknown): err is DonePreparePhaseTimeoutError {
+  return err instanceof DonePreparePhaseTimeoutError;
+}
+
+function phaseTimeoutBlock(storyId: string, steps: DonePrepareStep[], err: DonePreparePhaseTimeoutError): string {
+  const reason = `${err.message}; heartbeat output is diagnostic only and does not extend the phase deadline`;
+  setStep(steps, err.phase.stepId, 'blocked', reason);
+  return block({
+    blockedAt: err.phase.stepId,
+    reason,
+    next: `inspect the "${err.phase.label}" closeout phase, then rerun lattice done_prepare '{"storyId":"${storyId}"}'`,
+    steps,
+  });
+}
+
+function donePrepareJsonResult(storyId: string, transcript: string): DonePrepareJsonResult {
+  const status: DonePrepareJsonResult['status'] = transcript.startsWith('DONE prepare: PASS')
+    ? 'pass'
+    : transcript.startsWith('DONE prepare: BLOCKED')
+      ? 'blocked'
+      : 'unknown';
+  const blockedAt = transcript.match(/^blockedAt: (.+)$/m)?.[1];
+  const reason = transcript.match(/^reason: (.+)$/m)?.[1];
+  return {
+    schemaVersion: 'lattice.done_prepare.v1',
+    storyId,
+    status,
+    transcript,
+    ...(blockedAt ? { blockedAt } : {}),
+    ...(reason ? { reason } : {}),
+  };
 }
 
 function parseValidateOutput(text: string, next = 'lattice validate --story=<storyId> --json'): { ok: boolean; summary: string; next: string } {
@@ -845,8 +1255,22 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
       const command = `lattice done_required_validate --storyId=${storyId}`;
       let doneRequiredText = '';
       try {
-        doneRequiredText = asText(await doneRequiredHandlers.done_required_validate({ storyId, json: true }));
+        doneRequiredText = asText(await runCloseoutPhase(
+          ctx,
+          CLOSEOUT_PHASES.doneRequiredValidation,
+          (phaseControl) => doneRequiredHandlers.done_required_validate({
+            storyId,
+            json: true,
+            progress: (event: Parameters<typeof formatValidationProgressEvent>[0]) => {
+              ctx.log?.(formatValidationProgressEvent(event));
+            },
+            abortSignal: phaseControl.signal,
+            deadlineAt: phaseControl.deadlineAt,
+            deadlineError: phaseControl.timeoutError,
+          }),
+        ));
       } catch (err: any) {
+        if (isDonePreparePhaseTimeout(err)) return phaseTimeoutBlock(storyId, steps, err);
         setStep(steps, 'validate', 'blocked', err?.message || 'DONE-required validation failed', command);
         return block({
           blockedAt: 'validate',
@@ -902,12 +1326,12 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
       setStep(steps, 'worktreeVersionCheck', 'skipped', 'planned mutation skipped: dryRun does not build');
     } else {
       try {
-        execFileSync('npm', ['--prefix', 'packages/main', 'run', 'build'], {
+        childProcess.execFileSync('npm', ['--prefix', 'packages/main', 'run', 'build'], {
           cwd: ctx.root,
           encoding: 'utf-8',
           stdio: ['pipe', 'pipe', 'pipe'],
         });
-        execFileSync(process.execPath, ['packages/main/dist/cli.js', '--version'], {
+        childProcess.execFileSync(process.execPath, ['packages/main/dist/cli.js', '--version'], {
           cwd: ctx.root,
           encoding: 'utf-8',
           stdio: ['pipe', 'pipe', 'pipe'],
@@ -925,22 +1349,47 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     }
   }
 
-  const runbook = buildDoneClosureRunbook(ctx, storyId);
-  // B-ab8d CHK-002: experiment-arm surfacing for the done_prepare entrypoint —
-  // the runbook pack is already computed; fire the once-per-key event on both
-  // arms and gate ONLY the rendered summary section (control hides it).
-  const packSurface = surfaceRuntimeMemoryPack(ctx.root, {
-    consumer: 'done_prepare',
-    storyId,
-    roundKey: story.phase,
-    buildPack: () => runbook.memoryFreshnessPack,
-  });
-  const blockers = blockingRows(runbook);
-  const nonCleanBlockers = blockers.filter((row) => row.id !== 'git-working-tree');
+  let runbook: DoneClosureRunbook;
+  let packSurface: ReturnType<typeof surfaceRuntimeMemoryPack>;
+  try {
+    ({ runbook, packSurface } = await runCloseoutPhase(ctx, CLOSEOUT_PHASES.doneClosure, () => {
+      const computedRunbook = buildDoneClosureRunbook(ctx, storyId);
+      // B-ab8d CHK-002: experiment-arm surfacing for the done_prepare entrypoint —
+      // the runbook pack is already computed; fire the once-per-key event on both
+      // arms and gate ONLY the rendered summary section (control hides it).
+      const computedPackSurface = surfaceRuntimeMemoryPack(ctx.root, {
+        consumer: 'done_prepare',
+        storyId,
+        roundKey: story.phase,
+        buildPack: () => computedRunbook.memoryFreshnessPack,
+      });
+      return { runbook: computedRunbook, packSurface: computedPackSurface };
+    }));
+  } catch (err) {
+    if (isDonePreparePhaseTimeout(err)) return phaseTimeoutBlock(storyId, steps, err);
+    throw err;
+  }
+
+  let nonCleanBlockers: ReturnType<typeof blockingRows>;
+  let reviewAssuranceBlocked = false;
+  let reviewAssuranceCurrentBinding: DonePrepareCurrentBinding | undefined;
+  try {
+    ({ nonCleanBlockers, reviewAssuranceBlocked, currentBinding: reviewAssuranceCurrentBinding } = await runCloseoutPhase(ctx, CLOSEOUT_PHASES.reviewAssurance, () => {
+      const allBlockers = blockingRows(runbook);
+      const assuranceBlocked = hasReviewAssuranceBlocker(runbook);
+      return {
+        nonCleanBlockers: allBlockers.filter((row) => row.id !== 'git-working-tree'),
+        reviewAssuranceBlocked: assuranceBlocked,
+        currentBinding: assuranceBlocked ? currentDoneMaterialBinding(ctx, gitCwd) : undefined,
+      };
+    }));
+  } catch (err) {
+    if (isDonePreparePhaseTimeout(err)) return phaseTimeoutBlock(storyId, steps, err);
+    throw err;
+  }
+
   if (nonCleanBlockers.length > 0) {
-    const currentBinding = hasReviewAssuranceBlocker(runbook)
-      ? currentDoneMaterialBinding(ctx, gitCwd)
-      : undefined;
+    const currentBinding = reviewAssuranceBlocked ? reviewAssuranceCurrentBinding : undefined;
     const reason = nonCleanBlockers.map((row) => `${row.id}: ${row.reason}`).join('; ');
     setStep(steps, 'doneClosure', 'blocked', reason);
     return block({
@@ -955,14 +1404,32 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
   }
   setStep(steps, 'doneClosure', 'pass', runbook.canAttemptDone ? 'canAttemptDone=true' : 'only git clean-tree remains');
 
-  const runtime = detectRuntimeChanges(ctx.root, gitCwd);
+  let runtime: RuntimeChangeReport;
+  try {
+    runtime = await runCloseoutPhase(ctx, CLOSEOUT_PHASES.runtimeChange, () => detectRuntimeChanges(ctx.root, gitCwd));
+  } catch (err) {
+    if (isDonePreparePhaseTimeout(err)) return phaseTimeoutBlock(storyId, steps, err);
+    throw err;
+  }
   setStep(steps, 'runtimeChange', 'pass', runtime.postDoneRuntimeVersionBumpRequired ? 'runtime behavior change detected' : 'no runtime version bump required before DONE');
 
-  const finalDirty = nonLeaseDirtyRows(ctx, storyId, gitStatusRows(gitCwd));
-  const finalDirtyClassification = classifyDirtyRows(ctx, storyId, finalDirty);
-  const finalBlockingEntries = finalDirtyClassification.entries.filter(
-    (entry) => !unchangedFromInitialAllowedMetadata(ctx, storyId, gitCwd, entry, initialAllowedMetadataSignatures),
-  );
+  let finalDirtyClassification: DirtyWorktreeClassification;
+  let finalBlockingEntries: DirtyWorktreeEntry[];
+  try {
+    ({ finalDirtyClassification, finalBlockingEntries } = await runCloseoutPhase(ctx, CLOSEOUT_PHASES.cleanTree, () => {
+      const finalDirty = nonLeaseDirtyRows(ctx, storyId, gitStatusRows(gitCwd));
+      const classification = classifyDirtyRows(ctx, storyId, finalDirty);
+      return {
+        finalDirtyClassification: classification,
+        finalBlockingEntries: classification.entries.filter(
+          (entry) => !unchangedFromInitialAllowedMetadata(ctx, storyId, gitCwd, entry, initialAllowedMetadataSignatures),
+        ),
+      };
+    }));
+  } catch (err) {
+    if (isDonePreparePhaseTimeout(err)) return phaseTimeoutBlock(storyId, steps, err);
+    throw err;
+  }
   if (finalBlockingEntries.length > 0) {
     const files = entryFiles(finalBlockingEntries);
     setStep(steps, 'cleanTree', 'blocked', 'done_prepare produced files that must be committed before DONE');
@@ -981,21 +1448,28 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     finalDirtyClassification.total > 0 ? 'only unchanged pre-existing Proofbound story lifecycle metadata remains dirty' : undefined,
   );
 
-  return renderPass({
-    storyId,
-    phase: story.phase,
-    steps,
-    runbook,
-    runtime,
-    dryRun: args.dryRun,
-    showMemoryPack: packSurface.shouldRender,
-  });
+  try {
+    return await runCloseoutPhase(ctx, CLOSEOUT_PHASES.produceCommand, () => renderPass({
+      storyId,
+      phase: story.phase,
+      steps,
+      runbook,
+      runtime,
+      dryRun: args.dryRun,
+      showMemoryPack: packSurface.shouldRender,
+    }));
+  } catch (err) {
+    if (isDonePreparePhaseTimeout(err)) return phaseTimeoutBlock(storyId, steps, err);
+    throw err;
+  }
 }
 
 export function createDonePrepareHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
   return {
-    done_prepare(args: DonePrepareArgs) {
-      return runDonePrepare(ctx, args);
+    async done_prepare(args: DonePrepareArgs) {
+      const transcript = await runDonePrepare(ctx, args);
+      if (args?.json === true) return donePrepareJsonResult(args.storyId ?? '', transcript);
+      return transcript;
     },
   };
 }

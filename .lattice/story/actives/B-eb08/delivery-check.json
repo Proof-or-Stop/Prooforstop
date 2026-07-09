@@ -1,0 +1,57 @@
+{
+  "storyId": "B-eb08",
+  "checkedAt": "2026-07-09T04:31:46.460Z",
+  "headHash": "05d5b815ee27fb5346f60e103900fdba8e15c0ba",
+  "materialHash": "24bbac3d19350ba9d63aa4edbc87543dca3717642b3758dc923c6457a9a32be3",
+  "storyFilesHash": "c2b7f6a5942ec8029e8b6e298781823d2d95bd0af33f91e48c8d1adaacb8d19b",
+  "reviewRound": "2026-07-09T04:22:30.984Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+      "promise": "M1: done_prepare closeout exposes stable progress labels after validation while preserving JSON stdout parseability.",
+      "status": "verified",
+      "verifiedBy": "source inspection, focused smoke, full validate",
+      "evidence": "packages/main/src/handlers/done-prepare.ts defines closeout labels for running DONE-required validation, evaluating DONE closure, checking review assurance, computing runtime-change status, checking clean tree, and producing DONE command. packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts asserts human side-channel progress, JSON stdout parseability, and no progress text in JSON stdout. lattice validate --story=B-eb08 --json passed at 2026-07-09T04:29:07.289Z with 43/43 commands and materialHash 24bbac3d19350ba9d63aa4edbc87543dca3717642b3758dc923c6457a9a32be3."
+    },
+    {
+      "docPath": "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+      "promise": "M2: post-validation done_prepare phases heartbeat and also fail closed on independent hard deadlines.",
+      "status": "verified",
+      "verifiedBy": "source inspection and timeout smoke coverage",
+      "evidence": "runCloseoutPhase emits progress and heartbeat lines, arms a per-phase timeout, aborts on timeout, and reports done_prepare phase \"<label>\" exceeded <ms> timeout; installCloseoutPhaseChildProcessDeadline bounds execFileSync and execSync calls. The focused smoke covers a slow DONE-required validation heartbeat, delayed DONE-required timeout, pending runtimeChange hang, execFileSync runtimeChange hang, and execSync doneClosure hang with attributed BLOCKED results."
+    },
+    {
+      "docPath": "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+      "promise": "M6: regression verification proves the UX improvement without weakening gates or relying on B-783c activity logging as a substitute.",
+      "status": "verified",
+      "verifiedBy": "focused smoke, transcript evidence, delivery review",
+      "evidence": "npm --prefix packages/main run build and npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke passed. The smoke snapshots story metadata and asserts progress is diagnostic only, writes no gate evidence, does not depend on .lattice/activity.jsonl, and keeps dry-run/timeout paths immutable. Review escalation status is ok/full-3x2 for the same materialHash and storyFilesHash. The observed global npm lattice lag is a self-hosting dist freshness issue; worktree packages/main/dist/cli.js showed the new progress and heartbeat labels."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "B-eb08-full-validation-current-material",
+      "transcript": "lattice validate --story=B-eb08 --json PASS at 2026-07-09T04:29:07.289Z: 43/43 configured validation commands passed, verificationCoverage total=9 required=7 covered=9 missingRequired=0, materialHash=24bbac3d19350ba9d63aa4edbc87543dca3717642b3758dc923c6457a9a32be3, storyFilesHash=c2b7f6a5942ec8029e8b6e298781823d2d95bd0af33f91e48c8d1adaacb8d19b."
+    },
+    {
+      "featureId": "done-prepare-closure-heartbeat-smoke",
+      "transcript": "npm --prefix packages/main run build PASS and npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke PASS with output: done-prepare-closure-heartbeat smoke passed. The smoke covers human progress labels, JSON-safe side-channel output, DONE-required heartbeat, independent phase timeouts, child-process timeout attribution, dry-run immutability, and diagnostic-only gate separation."
+    },
+    {
+      "featureId": "real-worktree-cli-acceptance",
+      "transcript": "node packages/main/dist/cli.js done_prepare --storyId=B-eb08 --mergeMain --refreshStale --validate --forceTakeover showed done_prepare progress: running DONE-required validation, heartbeat elapsedMs=30000 and 60000, completed running DONE-required validation, evaluating DONE closure, and checking review assurance after 43/43 validation. It blocked only because delivery/review evidence was stale then, not because heartbeat/progress failed."
+    },
+    {
+      "featureId": "review-escalation-current-material",
+      "transcript": "lattice review_escalation_status --storyId=B-eb08 reports ok=true, assuranceLevel=full-3x2, fullQuorum=3/3 rounds x 2 hosts, materialHash=24bbac3d19350ba9d63aa4edbc87543dca3717642b3758dc923c6457a9a32be3, storyFilesHash=c2b7f6a5942ec8029e8b6e298781823d2d95bd0af33f91e48c8d1adaacb8d19b."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "PASS accepted by lattice-review-delivery: docs promises M1, M2, and M6 are bound to current source, focused smoke/build, real worktree CLI output, fresh full validate, and current full-3x2 review escalation. No material blocker found; global npm lattice lag is self-hosting dist freshness, not a failure of the worktree implementation."
+  },
+  "_hash": "1460f33f717d747fb438d0fce6054a4361cc9da28c3e7e989bc373193b00dd73"
+}

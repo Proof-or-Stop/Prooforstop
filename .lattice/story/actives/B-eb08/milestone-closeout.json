@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "proofbound.milestone_closeout.v1",
+  "storyId": "B-eb08",
+  "phase": "TEST",
+  "generatedAt": "2026-07-09T04:32:26.920Z",
+  "sourceReport": {
+    "schemaVersion": "proofbound.milestone_status.v1",
+    "digest": "f8a0191e9f19f9c9c504d7b5e27f80074912938fcb7ff7130c20303adfd59a2f",
+    "ledger": {
+      "present": true,
+      "state": "confirmed",
+      "hash": "sha256:db1fe4432a5c68f5585abdbfd78f79ca567727d7695440573fb9c73df55def4a"
+    },
+    "groups": {
+      "completed": [
+        "M0",
+        "M1",
+        "M2"
+      ],
+      "current": [],
+      "remaining": []
+    },
+    "risks": [],
+    "nextActions": [
+      "No milestone action; all ledger rows are completed or not applicable."
+    ]
+  },
+  "bindings": {
+    "headHash": "2ef641a968efd8e0fde16e11776862b69059e143",
+    "materialHash": "24bbac3d19350ba9d63aa4edbc87543dca3717642b3758dc923c6457a9a32be3",
+    "storyFilesHash": "c2b7f6a5942ec8029e8b6e298781823d2d95bd0af33f91e48c8d1adaacb8d19b"
+  },
+  "rows": [
+    {
+      "milestone": "M0",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "B-90d6 silent closeout behavior is represented by a regression fixture or test harness.",
+      "acceptance": "A focused test fixture covers post-validation done_prepare closeout progress behavior without asserting a fixed validate command count.",
+      "evidence": [
+        "CHK-003:happy:0 [pass/manual_transcript] npm --prefix packages/main run build && npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke file=packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts note=After merging main, npm --prefix packages/main run build and npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke both passed on @lattice/core@0.3.173."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M1",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "done_prepare has a stable post-validation progress label contract.",
+      "acceptance": "Human output prints required progress labels and --json stdout remains parseable.",
+      "evidence": [
+        "CHK-001:happy:0 [pass/manual_transcript] npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke file=packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts note=Focused smoke passed after merging main and asserts human done_prepare emits required post-validation progress labels on the CLI side channel, including real --validate DONE-required progress after full validate commands complete.",
+        "CHK-001:edge:0 [pass/manual_transcript] npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke file=packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts note=Focused smoke passed after merging main; it runs done_prepare --json, parses stdout as JSON, and asserts progress/heartbeat/validate progress stay on stderr rather than JSON stdout."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M2",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Heartbeating closeout phases still fail closed on real hangs.",
+      "acceptance": "A hung heartbeating closeout fixture fails via independent phase deadline.",
+      "evidence": [
+        "CHK-002:adversarial:0 [pass/logic_test] npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke file=packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts note=Focused smoke deliberately hangs runtimeChange and separately times out a delayed DONE-required command; done_prepare returns an attributed BLOCKED phase timeout and the delayed child cannot late-write PASS evidence."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    }
+  ]
+}

@@ -3,7 +3,7 @@ import { isAbsolute, resolve } from 'node:path';
 import { loadConfig, type LatticeConfig } from './config.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
 import type { StoryStore } from './store.js';
-import { formatValidationCommand, resolveCommandTimeoutMs, runValidationCommand } from './validation-executor.js';
+import { DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, formatValidationCommand, resolveCommandTimeoutMs, runValidationCommand } from './validation-executor.js';
 import type {
   DoneRequiredCommandSpecEnvelope,
   DoneRequiredCommandReceipt,
@@ -11,6 +11,7 @@ import type {
   DoneRequiredEvidenceStatus,
   ValidationCommand,
   ValidationCommandResult,
+  ValidationProgressReporter,
 } from './validation-types.js';
 import {
   buildProofAdmissibilityDiagnostic,
@@ -61,6 +62,14 @@ export interface DoneRequiredGateEvaluation {
   policy: DoneRequiredPolicy;
   evidence: DoneRequiredEvidenceData | null;
   proofAdmissibility: ProofAdmissibilityDiagnostic;
+}
+
+interface DoneRequiredValidationRuntimeOptions {
+  progress?: ValidationProgressReporter;
+  heartbeatMs?: number;
+  abortSignal?: AbortSignal;
+  deadlineAt?: number;
+  deadlineError?: () => Error;
 }
 
 function splitShellWords(command: string): string[] {
@@ -328,6 +337,19 @@ function commandStatus(code: number, timedOut?: boolean): DoneRequiredEvidenceSt
   return code === 0 && !timedOut ? 'PASS' : 'FAIL';
 }
 
+function doneRequiredDeadlineError(options: DoneRequiredValidationRuntimeOptions): Error {
+  const reason = (options.abortSignal as (AbortSignal & { reason?: unknown }) | undefined)?.reason;
+  if (reason instanceof Error) return reason;
+  return options.deadlineError?.() ?? new Error('DONE-required validation aborted by caller deadline');
+}
+
+function throwIfDoneRequiredDeadlineExceeded(options: DoneRequiredValidationRuntimeOptions): void {
+  if (options.abortSignal?.aborted) throw doneRequiredDeadlineError(options);
+  if (typeof options.deadlineAt === 'number' && Number.isFinite(options.deadlineAt) && Date.now() >= options.deadlineAt) {
+    throw doneRequiredDeadlineError(options);
+  }
+}
+
 function receiptLine(receipt: DoneRequiredCommandReceipt): string {
   const args = Array.isArray(receipt.args) ? receipt.args : [];
   return `${receipt.status} ${receipt.label}: ${receipt.command} ${args.join(' ')}`.trim();
@@ -510,7 +532,10 @@ export async function runDoneRequiredValidation(args: {
   storyId: string;
   store: StoryStore;
   gitCwd: string;
+  options?: DoneRequiredValidationRuntimeOptions;
 }): Promise<DoneRequiredEvidenceData> {
+  const runtimeOptions = args.options ?? {};
+  throwIfDoneRequiredDeadlineExceeded(runtimeOptions);
   const policy = resolveDoneRequiredPolicy(args.projectRoot);
   const startedMs = Date.now();
   const startedAt = new Date(startedMs).toISOString();
@@ -525,10 +550,20 @@ export async function runDoneRequiredValidation(args: {
   }
 
   if (policy.required && policy.configErrors.length === 0) {
-    for (const command of policy.commands) {
+    for (let i = 0; i < policy.commands.length; i++) {
+      const command = policy.commands[i];
+      throwIfDoneRequiredDeadlineExceeded(runtimeOptions);
       const receiptStartedMs = Date.now();
       const receiptStartedAt = new Date(receiptStartedMs).toISOString();
-      const result = await runValidationCommand(command, args.projectRoot);
+      const result = await runValidationCommand(command, args.projectRoot, DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, {
+        progress: runtimeOptions.progress,
+        heartbeatMs: runtimeOptions.heartbeatMs,
+        abortSignal: runtimeOptions.abortSignal,
+        deadlineAt: runtimeOptions.deadlineAt,
+        commandIndex: i + 1,
+        totalCommands: policy.commands.length,
+      });
+      throwIfDoneRequiredDeadlineExceeded(runtimeOptions);
       const receiptEndedAt = new Date().toISOString();
       const headHash = currentGitHead(args.gitCwd);
       const materialHash = currentMaterialHash(args.gitCwd, 'HEAD', args.projectRoot);
@@ -560,6 +595,7 @@ export async function runDoneRequiredValidation(args: {
     }
   }
 
+  throwIfDoneRequiredDeadlineExceeded(runtimeOptions);
   reasons.push(...validateSelfHostBuildProof({ receipts }, args.projectRoot, policy.commands));
 
   const endedMs = Date.now();
@@ -584,6 +620,7 @@ export async function runDoneRequiredValidation(args: {
     reasons,
     ...(policy.configErrors.length > 0 ? { configErrors: policy.configErrors } : {}),
   };
+  throwIfDoneRequiredDeadlineExceeded(runtimeOptions);
   args.store.writeDoneRequiredEvidence(args.storyId, evidence);
   return evidence;
 }

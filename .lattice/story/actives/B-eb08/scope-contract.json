@@ -1,0 +1,112 @@
+{
+  "storyId": "B-eb08",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/cli/command-catalog.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+    "packages/main/package.json"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Add command-catalog schema row because CHK-001 requires done_prepare --json to parse and the command schema must accept that flag.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "ProofStory DEV admission required these CLI-generated intent, contract, red-evidence, and corrected milestone ledger artifacts before implementation; they are gate evidence metadata, not product scope expansion.",
+      "timestamp": "2026-07-09T01:53:40.555Z",
+      "paths": [
+        ".lattice/story/actives/B-eb08/original-intent-snapshot.json",
+        ".lattice/story/actives/B-eb08/intent-collision.json",
+        ".lattice/story/actives/B-eb08/proofstory.json",
+        ".lattice/story/actives/B-eb08/red-evidence.json",
+        ".lattice/story/actives/B-eb08/milestone-ledger.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-eb08/original-intent-snapshot.json",
+        ".lattice/story/actives/B-eb08/intent-collision.json",
+        ".lattice/story/actives/B-eb08/proofstory.json",
+        ".lattice/story/actives/B-eb08/red-evidence.json",
+        ".lattice/story/actives/B-eb08/milestone-ledger.json"
+      ],
+      "affectedPathCount": 5,
+      "phase": "DEV",
+      "headHash": "85e296905125f76a948d5658372369e646be8ce4",
+      "materialHash": "e6e55c7b0a5a5641e1e90684bc502ea506d23ad1e7367dceba93371050f628aa"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Delivery context pack is Lattice-generated reviewer input evidence for B-eb08 DONE delivery review and does not expand product runtime scope.",
+      "timestamp": "2026-07-09T03:24:47.881Z",
+      "paths": [
+        ".lattice/story/actives/B-eb08/evidence/delivery-context-pack.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-eb08/evidence/delivery-context-pack.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "760e3e19910ffdf6c0ec12959d51d40f847dc043",
+      "materialHash": "66d31ae9618c6e36792e2dda80bb9afc53f1c0878976466305e79a88b84077ee"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Delivery context pack is required TEST-phase evidence for lattice-review-delivery to verify doc promises and real-machine coverage before DONE.",
+      "timestamp": "2026-07-09T03:24:48.582Z",
+      "paths": [
+        ".lattice/story/actives/B-eb08/evidence/delivery-context-pack.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-eb08/evidence/delivery-context-pack.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "760e3e19910ffdf6c0ec12959d51d40f847dc043",
+      "materialHash": "66d31ae9618c6e36792e2dda80bb9afc53f1c0878976466305e79a88b84077ee"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Delivery context pack is Lattice-generated story evidence required for the delivery reviewer to bind docs promises, real machine tests, validation, and current delivery-check state before DONE.",
+      "timestamp": "2026-07-09T03:24:49.928Z",
+      "paths": [
+        ".lattice/story/actives/B-eb08/evidence/delivery-context-pack.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-eb08/evidence/delivery-context-pack.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "3b9a17201510a78c990fa9bfb3e908414cf674c7",
+      "materialHash": "66d31ae9618c6e36792e2dda80bb9afc53f1c0878976466305e79a88b84077ee"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "F-008 cannot be fixed safely inside done_prepare alone: DONE-required validation and validation-executor must accept abort/deadline control so a done_prepare phase timeout kills the child process and prevents late PASS evidence writes.",
+      "timestamp": "2026-07-09T03:59:42.642Z",
+      "paths": [
+        "packages/main/src/core/done-required-validation.ts",
+        "packages/main/src/core/validation-executor.ts",
+        "packages/main/src/handlers/done-required-validation.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/done-required-validation.ts",
+        "packages/main/src/core/validation-executor.ts",
+        "packages/main/src/handlers/done-required-validation.ts"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "829355e66a68c0930d7c4344afada00b7aa1b3ff",
+      "materialHash": "cc4b6612e6eacdce015d11a3222c88780e62d393efada0fe6dfbda37801782b4"
+    }
+  ],
+  "createdAt": "2026-07-09T01:40:07.146Z",
+  "updatedAt": "2026-07-09T03:59:42.642Z"
+}

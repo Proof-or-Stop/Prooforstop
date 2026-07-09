@@ -1,0 +1,38 @@
+{
+  "storyId": "B-eb08",
+  "checkedAt": "2026-07-09T01:34:27.246Z",
+  "features": [
+    {
+      "feature": "M0 Incident Fixture: capture the done_prepare closeout regression through focused Story A smoke/fixture coverage without redoing unrelated B-783c activity-root persistence",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md#M0---Incident-Fixture"
+    },
+    {
+      "feature": "M1 Closure Progress Contract: emit done_prepare post-validation progress labels and preserve JSON-safe liveness/stdout parsing",
+      "covered_by": "CHK-001, CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md#M1---Closure-Progress-Contract"
+    },
+    {
+      "feature": "M2 Closure Heartbeat Implementation: add independent hard deadlines for heartbeating post-validation closeout phases so diagnostic output cannot keep hangs alive",
+      "covered_by": "CHK-002, CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md#M2---Closure-Heartbeat-Implementation"
+    }
+  ],
+  "summary": {
+    "total": 3,
+    "covered": 3,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "757767468d5c47056b09b94f349f2038b17ed8596478ef80b031c6879484c7a2",
+  "openQuestions": []
+}
