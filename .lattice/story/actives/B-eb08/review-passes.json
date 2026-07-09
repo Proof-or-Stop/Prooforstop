@@ -188,6 +188,15 @@
       "reviewRound": "2026-07-09T03:25:01.057Z",
       "reviewRunId": "B-eb08:RR-031",
       "_hash": "ee697b3b5d709f3f6107ff8bceb56fb6c22408f34538921e1d27099574f9e509"
+    },
+    {
+      "id": "B-eb08:RP-022",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS test-coverage: inspected f0bff65a5 and focused smoke. New isolated fixture runs done_prepare --validate=true with configured validate.commands and delayed doneRequiredCommands, asserts validate command completion precedes DONE-required progress, asserts DONE-required heartbeat, parses JSON stdout, and checks stdout excludes progress/heartbeat text without invoking full project validate. Focused smoke passed: npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke.",
+      "createdAt": "2026-07-09T03:50:25.472Z",
+      "reviewRound": "2026-07-09T03:48:23.418Z",
+      "reviewRunId": "B-eb08:RR-034",
+      "_hash": "1917b8dd6f4989825f0da11bfec85112b583a5dd6ca3306385c333aad1ccbf14"
     }
   ]
 }
