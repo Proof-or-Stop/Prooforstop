@@ -51,11 +51,11 @@
           "file": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
           "command": "npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke",
           "result": "pass",
-          "note": "Focused smoke asserts human done_prepare emits required post-validation progress labels on the CLI side channel, including real --validate DONE-required progress after validate commands complete.",
-          "headHash": "1d21774287161b9d798d5007590c74234dca1e9a",
-          "materialHash": "cc4b6612e6eacdce015d11a3222c88780e62d393efada0fe6dfbda37801782b4",
-          "storyFilesHash": "de1d89a5e517ca56286c2365bb0797fbecd241186805cdab873bbad3a76b4898",
-          "timestamp": "2026-07-09T04:07:34.137Z"
+          "note": "Focused smoke passed after merging main and asserts human done_prepare emits required post-validation progress labels on the CLI side channel, including real --validate DONE-required progress after full validate commands complete.",
+          "headHash": "393f863288f05d3a98e8ae5b6d7af4b471856f7b",
+          "materialHash": "24bbac3d19350ba9d63aa4edbc87543dca3717642b3758dc923c6457a9a32be3",
+          "storyFilesHash": "c2b7f6a5942ec8029e8b6e298781823d2d95bd0af33f91e48c8d1adaacb8d19b",
+          "timestamp": "2026-07-09T04:12:55.767Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -63,11 +63,11 @@
           "file": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
           "command": "npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke",
           "result": "pass",
-          "note": "Focused smoke runs done_prepare --json, parses stdout as JSON, and asserts progress/heartbeat/validate progress stay on stderr rather than JSON stdout.",
-          "headHash": "1d21774287161b9d798d5007590c74234dca1e9a",
-          "materialHash": "cc4b6612e6eacdce015d11a3222c88780e62d393efada0fe6dfbda37801782b4",
-          "storyFilesHash": "de1d89a5e517ca56286c2365bb0797fbecd241186805cdab873bbad3a76b4898",
-          "timestamp": "2026-07-09T04:07:34.137Z"
+          "note": "Focused smoke passed after merging main; it runs done_prepare --json, parses stdout as JSON, and asserts progress/heartbeat/validate progress stay on stderr rather than JSON stdout.",
+          "headHash": "393f863288f05d3a98e8ae5b6d7af4b471856f7b",
+          "materialHash": "24bbac3d19350ba9d63aa4edbc87543dca3717642b3758dc923c6457a9a32be3",
+          "storyFilesHash": "c2b7f6a5942ec8029e8b6e298781823d2d95bd0af33f91e48c8d1adaacb8d19b",
+          "timestamp": "2026-07-09T04:12:55.767Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -76,10 +76,10 @@
           "command": "npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke",
           "result": "pass",
           "note": "Focused smoke snapshots story metadata and verifies progress labels remain diagnostic only: they do not write review, DONE, Authority, or production gate evidence.",
-          "headHash": "1d21774287161b9d798d5007590c74234dca1e9a",
-          "materialHash": "cc4b6612e6eacdce015d11a3222c88780e62d393efada0fe6dfbda37801782b4",
-          "storyFilesHash": "de1d89a5e517ca56286c2365bb0797fbecd241186805cdab873bbad3a76b4898",
-          "timestamp": "2026-07-09T04:07:34.137Z"
+          "headHash": "393f863288f05d3a98e8ae5b6d7af4b471856f7b",
+          "materialHash": "24bbac3d19350ba9d63aa4edbc87543dca3717642b3758dc923c6457a9a32be3",
+          "storyFilesHash": "c2b7f6a5942ec8029e8b6e298781823d2d95bd0af33f91e48c8d1adaacb8d19b",
+          "timestamp": "2026-07-09T04:12:55.767Z"
         }
       ]
     },
@@ -134,11 +134,11 @@
           "file": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
           "command": "npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke",
           "result": "pass",
-          "note": "Focused smoke covers normally completing closeout and DONE-required validation phases, verifies progress output and heartbeat while work is running, and exits before the phase deadline.",
-          "headHash": "1d21774287161b9d798d5007590c74234dca1e9a",
-          "materialHash": "cc4b6612e6eacdce015d11a3222c88780e62d393efada0fe6dfbda37801782b4",
-          "storyFilesHash": "de1d89a5e517ca56286c2365bb0797fbecd241186805cdab873bbad3a76b4898",
-          "timestamp": "2026-07-09T04:07:34.137Z"
+          "note": "Focused smoke covers normally completing closeout and DONE-required validation phases, verifies progress output and heartbeat while work is running, and exits before the phase deadline after the main merge.",
+          "headHash": "393f863288f05d3a98e8ae5b6d7af4b471856f7b",
+          "materialHash": "24bbac3d19350ba9d63aa4edbc87543dca3717642b3758dc923c6457a9a32be3",
+          "storyFilesHash": "c2b7f6a5942ec8029e8b6e298781823d2d95bd0af33f91e48c8d1adaacb8d19b",
+          "timestamp": "2026-07-09T04:12:55.767Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -146,11 +146,11 @@
           "file": "packages/main/src/handlers/done-prepare.ts",
           "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke",
           "result": "pass",
-          "note": "Implementation gives each wrapped done_prepare phase a per-phase timeout with env override and passes abort/deadline control into DONE-required validation below the global idle watchdog.",
-          "headHash": "1d21774287161b9d798d5007590c74234dca1e9a",
-          "materialHash": "cc4b6612e6eacdce015d11a3222c88780e62d393efada0fe6dfbda37801782b4",
-          "storyFilesHash": "de1d89a5e517ca56286c2365bb0797fbecd241186805cdab873bbad3a76b4898",
-          "timestamp": "2026-07-09T04:07:34.137Z"
+          "note": "Build and focused smoke passed after merging main. Implementation gives each wrapped done_prepare phase a per-phase timeout with env override and passes abort/deadline control into DONE-required validation below the global idle watchdog.",
+          "headHash": "393f863288f05d3a98e8ae5b6d7af4b471856f7b",
+          "materialHash": "24bbac3d19350ba9d63aa4edbc87543dca3717642b3758dc923c6457a9a32be3",
+          "storyFilesHash": "c2b7f6a5942ec8029e8b6e298781823d2d95bd0af33f91e48c8d1adaacb8d19b",
+          "timestamp": "2026-07-09T04:12:55.767Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -159,10 +159,10 @@
           "command": "npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke",
           "result": "pass",
           "note": "Focused smoke deliberately hangs runtimeChange and separately times out a delayed DONE-required command; done_prepare returns an attributed BLOCKED phase timeout and the delayed child cannot late-write PASS evidence.",
-          "headHash": "1d21774287161b9d798d5007590c74234dca1e9a",
-          "materialHash": "cc4b6612e6eacdce015d11a3222c88780e62d393efada0fe6dfbda37801782b4",
-          "storyFilesHash": "de1d89a5e517ca56286c2365bb0797fbecd241186805cdab873bbad3a76b4898",
-          "timestamp": "2026-07-09T04:07:34.137Z"
+          "headHash": "393f863288f05d3a98e8ae5b6d7af4b471856f7b",
+          "materialHash": "24bbac3d19350ba9d63aa4edbc87543dca3717642b3758dc923c6457a9a32be3",
+          "storyFilesHash": "c2b7f6a5942ec8029e8b6e298781823d2d95bd0af33f91e48c8d1adaacb8d19b",
+          "timestamp": "2026-07-09T04:12:55.767Z"
         }
       ]
     },
@@ -216,11 +216,11 @@
           "file": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
           "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke",
           "result": "pass",
-          "note": "Build and focused smoke both passed after the F-008 fail-closed implementation; full story_advance validate also ran all 43 configured commands successfully before coverage gating.",
-          "headHash": "1d21774287161b9d798d5007590c74234dca1e9a",
-          "materialHash": "cc4b6612e6eacdce015d11a3222c88780e62d393efada0fe6dfbda37801782b4",
-          "storyFilesHash": "de1d89a5e517ca56286c2365bb0797fbecd241186805cdab873bbad3a76b4898",
-          "timestamp": "2026-07-09T04:07:34.137Z"
+          "note": "After merging main, npm --prefix packages/main run build and npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke both passed on @lattice/core@0.3.173.",
+          "headHash": "393f863288f05d3a98e8ae5b6d7af4b471856f7b",
+          "materialHash": "24bbac3d19350ba9d63aa4edbc87543dca3717642b3758dc923c6457a9a32be3",
+          "storyFilesHash": "c2b7f6a5942ec8029e8b6e298781823d2d95bd0af33f91e48c8d1adaacb8d19b",
+          "timestamp": "2026-07-09T04:12:55.767Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -228,11 +228,11 @@
           "file": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
           "command": "git show --name-only --format= HEAD",
           "result": "pass",
-          "note": "Diff touches done_prepare, DONE-required validation, validation-executor abort handling, command schema/package script, and focused smoke only; cli-engine activity logging and runtime-root detection were not modified, so thin-init-assets-smoke is not required.",
-          "headHash": "1d21774287161b9d798d5007590c74234dca1e9a",
-          "materialHash": "cc4b6612e6eacdce015d11a3222c88780e62d393efada0fe6dfbda37801782b4",
-          "storyFilesHash": "de1d89a5e517ca56286c2365bb0797fbecd241186805cdab873bbad3a76b4898",
-          "timestamp": "2026-07-09T04:07:34.137Z"
+          "note": "The merge HEAD inspection showed no cli-engine activity logging or runtime-root detection edits for this story path; B-eb08 remains focused on done_prepare/DONE-required validation/validation-executor abort handling and the focused smoke, so thin-init-assets-smoke is not required.",
+          "headHash": "393f863288f05d3a98e8ae5b6d7af4b471856f7b",
+          "materialHash": "24bbac3d19350ba9d63aa4edbc87543dca3717642b3758dc923c6457a9a32be3",
+          "storyFilesHash": "c2b7f6a5942ec8029e8b6e298781823d2d95bd0af33f91e48c8d1adaacb8d19b",
+          "timestamp": "2026-07-09T04:12:55.767Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -241,10 +241,10 @@
           "command": "npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke",
           "result": "pass",
           "note": "Focused smoke proves progress/heartbeat output is diagnostic only and cannot satisfy lifecycle or Authority gates by itself; gate evidence remains explicit verification records and reviewer receipts.",
-          "headHash": "1d21774287161b9d798d5007590c74234dca1e9a",
-          "materialHash": "cc4b6612e6eacdce015d11a3222c88780e62d393efada0fe6dfbda37801782b4",
-          "storyFilesHash": "de1d89a5e517ca56286c2365bb0797fbecd241186805cdab873bbad3a76b4898",
-          "timestamp": "2026-07-09T04:07:34.137Z"
+          "headHash": "393f863288f05d3a98e8ae5b6d7af4b471856f7b",
+          "materialHash": "24bbac3d19350ba9d63aa4edbc87543dca3717642b3758dc923c6457a9a32be3",
+          "storyFilesHash": "c2b7f6a5942ec8029e8b6e298781823d2d95bd0af33f91e48c8d1adaacb8d19b",
+          "timestamp": "2026-07-09T04:12:55.767Z"
         }
       ]
     }
