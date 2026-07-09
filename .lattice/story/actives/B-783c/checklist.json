@@ -56,10 +56,10 @@
           "command": "node packages/main/dist/tasks/thin-init-assets-smoke.js",
           "result": "pass",
           "note": "Focused smoke passed and includes a managed global-thin root with only .lattice/lattice.json assetMode=global-thin; session_brief writes .lattice/activity.jsonl with source=codex.",
-          "headHash": "1ccaa921c97b62711a7959fecb3cbd20551d3340",
-          "materialHash": "e03b3abb8f68c388d50ec7b97da6090ba5eb88bb58108ac01ce0fdba009dda98",
-          "storyFilesHash": "abbf067ddfc433b9db9b44a5e9cbcbd449c2021cf8b0964b69849c2ab970c065",
-          "timestamp": "2026-07-09T00:00:45.812Z"
+          "headHash": "3303cc26902f58dcf038a3f0522df27a47a86ec0",
+          "materialHash": "beea5f966d2607c5b1b2df50cc81733815fb3b962beae8ddaedf7fdce7f0b079",
+          "storyFilesHash": "01578ecdea1ca920c81fea97c2dec4002c9f246b981ba6a66425f758ac349f0d",
+          "timestamp": "2026-07-09T00:31:04.804Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -68,10 +68,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/thin-init-assets-smoke.js",
           "result": "pass",
           "note": "Build passed and smoke asserts loadConfig on a global-thin-only root keeps defaults from canonical lattice.config.json behavior rather than parsing .lattice/lattice.json.",
-          "headHash": "1ccaa921c97b62711a7959fecb3cbd20551d3340",
-          "materialHash": "e03b3abb8f68c388d50ec7b97da6090ba5eb88bb58108ac01ce0fdba009dda98",
-          "storyFilesHash": "abbf067ddfc433b9db9b44a5e9cbcbd449c2021cf8b0964b69849c2ab970c065",
-          "timestamp": "2026-07-09T00:00:46.110Z"
+          "headHash": "3303cc26902f58dcf038a3f0522df27a47a86ec0",
+          "materialHash": "beea5f966d2607c5b1b2df50cc81733815fb3b962beae8ddaedf7fdce7f0b079",
+          "storyFilesHash": "01578ecdea1ca920c81fea97c2dec4002c9f246b981ba6a66425f758ac349f0d",
+          "timestamp": "2026-07-09T00:31:04.804Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -80,10 +80,10 @@
           "command": "node packages/main/dist/tasks/thin-init-assets-smoke.js",
           "result": "pass",
           "note": "Smoke covers malformed .lattice/lattice.json and wrong assetMode roots and asserts no .lattice/activity.jsonl is created.",
-          "headHash": "1ccaa921c97b62711a7959fecb3cbd20551d3340",
-          "materialHash": "e03b3abb8f68c388d50ec7b97da6090ba5eb88bb58108ac01ce0fdba009dda98",
-          "storyFilesHash": "abbf067ddfc433b9db9b44a5e9cbcbd449c2021cf8b0964b69849c2ab970c065",
-          "timestamp": "2026-07-09T00:00:46.394Z"
+          "headHash": "3303cc26902f58dcf038a3f0522df27a47a86ec0",
+          "materialHash": "beea5f966d2607c5b1b2df50cc81733815fb3b962beae8ddaedf7fdce7f0b079",
+          "storyFilesHash": "01578ecdea1ca920c81fea97c2dec4002c9f246b981ba6a66425f758ac349f0d",
+          "timestamp": "2026-07-09T00:31:04.804Z"
         }
       ]
     },
@@ -137,10 +137,10 @@
           "command": "node packages/main/dist/tasks/thin-init-assets-smoke.js",
           "result": "pass",
           "note": "Smoke creates a canonical lattice.config.json root and verifies session_brief activity is written to .lattice/activity.jsonl.",
-          "headHash": "00cb0be2ab57164c236751affe92214851558496",
-          "materialHash": "e03b3abb8f68c388d50ec7b97da6090ba5eb88bb58108ac01ce0fdba009dda98",
-          "storyFilesHash": "abbf067ddfc433b9db9b44a5e9cbcbd449c2021cf8b0964b69849c2ab970c065",
-          "timestamp": "2026-07-09T00:00:59.638Z"
+          "headHash": "3303cc26902f58dcf038a3f0522df27a47a86ec0",
+          "materialHash": "beea5f966d2607c5b1b2df50cc81733815fb3b962beae8ddaedf7fdce7f0b079",
+          "storyFilesHash": "01578ecdea1ca920c81fea97c2dec4002c9f246b981ba6a66425f758ac349f0d",
+          "timestamp": "2026-07-09T00:31:04.804Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -149,10 +149,10 @@
           "command": "node packages/main/dist/tasks/thin-init-assets-smoke.js",
           "result": "pass",
           "note": "Smoke creates a global-thin-only root with .lattice/lattice.json assetMode=global-thin and no lattice.config.json, then verifies session_brief activity is written.",
-          "headHash": "00cb0be2ab57164c236751affe92214851558496",
-          "materialHash": "e03b3abb8f68c388d50ec7b97da6090ba5eb88bb58108ac01ce0fdba009dda98",
-          "storyFilesHash": "abbf067ddfc433b9db9b44a5e9cbcbd449c2021cf8b0964b69849c2ab970c065",
-          "timestamp": "2026-07-09T00:00:59.915Z"
+          "headHash": "3303cc26902f58dcf038a3f0522df27a47a86ec0",
+          "materialHash": "beea5f966d2607c5b1b2df50cc81733815fb3b962beae8ddaedf7fdce7f0b079",
+          "storyFilesHash": "01578ecdea1ca920c81fea97c2dec4002c9f246b981ba6a66425f758ac349f0d",
+          "timestamp": "2026-07-09T00:31:04.804Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -161,10 +161,10 @@
           "command": "node packages/main/dist/tasks/thin-init-assets-smoke.js",
           "result": "pass",
           "note": "Smoke creates malformed and wrong-assetMode .lattice/lattice.json roots and verifies no .lattice/activity.jsonl is created.",
-          "headHash": "00cb0be2ab57164c236751affe92214851558496",
-          "materialHash": "e03b3abb8f68c388d50ec7b97da6090ba5eb88bb58108ac01ce0fdba009dda98",
-          "storyFilesHash": "abbf067ddfc433b9db9b44a5e9cbcbd449c2021cf8b0964b69849c2ab970c065",
-          "timestamp": "2026-07-09T00:01:00.199Z"
+          "headHash": "3303cc26902f58dcf038a3f0522df27a47a86ec0",
+          "materialHash": "beea5f966d2607c5b1b2df50cc81733815fb3b962beae8ddaedf7fdce7f0b079",
+          "storyFilesHash": "01578ecdea1ca920c81fea97c2dec4002c9f246b981ba6a66425f758ac349f0d",
+          "timestamp": "2026-07-09T00:31:04.804Z"
         }
       ]
     },
@@ -217,10 +217,10 @@
           "command": "cd /Users/jek/Documents/Work/deepswe-pos-codex-gpt55-run/solver-visible && PATH=/tmp/lattice-b783c-bin.t9gEsv:$PATH lattice codex verify",
           "result": "pass",
           "note": "Using a temporary executable lattice wrapper pointed at the rebuilt B-783c worktree dist, solver-visible `lattice codex verify` exited 0 with `✓ Codex adapter checks passed (8/8 pass)`.",
-          "headHash": "7a2cedbb35e8bb60aaa0ad53615ac5deaa6563c7",
-          "materialHash": "e03b3abb8f68c388d50ec7b97da6090ba5eb88bb58108ac01ce0fdba009dda98",
-          "storyFilesHash": "abbf067ddfc433b9db9b44a5e9cbcbd449c2021cf8b0964b69849c2ab970c065",
-          "timestamp": "2026-07-09T00:01:18.018Z"
+          "headHash": "3303cc26902f58dcf038a3f0522df27a47a86ec0",
+          "materialHash": "beea5f966d2607c5b1b2df50cc81733815fb3b962beae8ddaedf7fdce7f0b079",
+          "storyFilesHash": "01578ecdea1ca920c81fea97c2dec4002c9f246b981ba6a66425f758ac349f0d",
+          "timestamp": "2026-07-09T00:31:04.804Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -228,10 +228,10 @@
           "command": "command -v lattice && lattice codex verify",
           "result": "pass",
           "note": "Transcript showed `command -v lattice` resolved to `/tmp/lattice-b783c-bin.t9gEsv/lattice`, a wrapper delegating to /Users/jek/Documents/Work/proofbound/.worktrees/B-783c/packages/main/dist/cli.js, so the smoke used the fixed worktree build rather than the stale installed global binary.",
-          "headHash": "7a2cedbb35e8bb60aaa0ad53615ac5deaa6563c7",
-          "materialHash": "e03b3abb8f68c388d50ec7b97da6090ba5eb88bb58108ac01ce0fdba009dda98",
-          "storyFilesHash": "abbf067ddfc433b9db9b44a5e9cbcbd449c2021cf8b0964b69849c2ab970c065",
-          "timestamp": "2026-07-09T00:01:18.311Z"
+          "headHash": "3303cc26902f58dcf038a3f0522df27a47a86ec0",
+          "materialHash": "beea5f966d2607c5b1b2df50cc81733815fb3b962beae8ddaedf7fdce7f0b079",
+          "storyFilesHash": "01578ecdea1ca920c81fea97c2dec4002c9f246b981ba6a66425f758ac349f0d",
+          "timestamp": "2026-07-09T00:31:04.804Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -239,10 +239,10 @@
           "command": "rg -n codex-check-global-1783555223544 .lattice/activity.jsonl",
           "result": "pass",
           "note": "Verify output did not contain the prior `no activity heartbeat for session` failure. The solver-visible activity log contains session codex-check-global-1783555223544 with source=codex, entrypoint=global-fallback, tool=session_brief, status=ok.",
-          "headHash": "7a2cedbb35e8bb60aaa0ad53615ac5deaa6563c7",
-          "materialHash": "e03b3abb8f68c388d50ec7b97da6090ba5eb88bb58108ac01ce0fdba009dda98",
-          "storyFilesHash": "abbf067ddfc433b9db9b44a5e9cbcbd449c2021cf8b0964b69849c2ab970c065",
-          "timestamp": "2026-07-09T00:01:18.608Z"
+          "headHash": "3303cc26902f58dcf038a3f0522df27a47a86ec0",
+          "materialHash": "beea5f966d2607c5b1b2df50cc81733815fb3b962beae8ddaedf7fdce7f0b079",
+          "storyFilesHash": "01578ecdea1ca920c81fea97c2dec4002c9f246b981ba6a66425f758ac349f0d",
+          "timestamp": "2026-07-09T00:31:04.804Z"
         }
       ]
     }
