@@ -96,6 +96,21 @@
       "resolvedAt": "2026-07-09T14:23:18.150Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-d8ef:F-005",
+      "desc": "missing: packages/main/src/core/lattice-dispatch.ts:1601-1614,2318-2323 real codex dispatch now inlines the full prompt-file contents as a literal codex exec argv element (renderRuntimeInvocationTemplate with promptMode:'contents', used because canonicalReviewHostLauncherSpec('codex').launcherArgv ends in a positional <prompt> instead of the old --prompt-file <path>). There is no size guard before spawnSync(codex, argv, ...) in providers/codex-cli.ts. Realistic reviewer/dispatch prompts (plan.md sections, diffs, story context) can exceed OS ARG_MAX, and runBoundedCodexProvider only classifies spawnError for ENOENT, so an oversized-argv spawn failure surfaces as an opaque exitCode=null diagnostic status with no argv-size hint. Only the smoke test in dispatch-run-smoke.ts exercises this with a one-line sentinel prompt, not a realistic large prompt.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-09T16:16:57.586Z",
+      "reviewRound": "2026-07-09T16:07:24.768Z",
+      "reviewRunId": "B-d8ef:RR-024",
+      "_hash": "85f324cad1b9476f0fd7ac8a7eb586b4b5c8879b8423caffa2a6dbbb05f0634f",
+      "signatureTag": "missing|unknown|missing-packages-main",
+      "signatureTagSource": "auto"
     }
   ]
 }
