@@ -28,7 +28,7 @@
       "desc": "dispatch_reassign is intended for accepted/completed worker dispatches, but reassignDispatch reads the previous record and immediately prepares a follow-up without checking resolveEffectiveStatus(previous) or local receipt acceptance. The text renderer then reports `Worker reassignment ready` without surfacing previous status, and dispatch-run-smoke explicitly proves reassignment from an unrun prepared dispatch with no receipt succeeds (unconstrainedPrepared at dispatch-run-smoke.ts:816-822). This can turn an incomplete/failed/diagnostic dispatch into a fresh ready worker assignment, misleading operators and violating CHK-001 completed-worker semantics. Require previous status/receipt acceptance or downgrade the output with an explicit non-completed warning and matching tests.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-09T03:06:33.884Z",
@@ -40,7 +40,11 @@
         "packages/main/src/tasks/dispatch-run-smoke.ts"
       ],
       "signatureTag": "edge|ts|dispatch-reassign-intended",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "dispatch_reassign now requires the previous dispatch to have effective status accepted_local and an accepted-local receipt before creating follow-up work. The prepared-only smoke case now throws a clear completed/accepted requirement error, emits no ready text, and verifies dispatch count is unchanged; node packages/main/dist/tasks/dispatch-run-smoke.js passed.",
+      "resolvedAt": "2026-07-09T03:13:01.213Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
