@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-99d4",
+  "sourceText": "第二个小坑：全历史 fork 不能指定 worker 角色。我不需要它继承全历史，给它明确指令就够了，重新按 worker 角色启动。补充：应该是派子agent工作完之后，想再指派这个agent干活（可能有之前记忆），但是无法指派了。",
+  "normalizedOutcome": "After a worker/subagent finishes, the operator can assign follow-up work under a worker role using explicit instructions and a fresh context, without using a full-history fork.",
+  "acceptanceClaim": "A completed dispatch can be reassigned through a role-aware fresh-context command that creates a new linked dispatch, renders the requested worker role and prompt path, and avoids any full-history inheritance claim.",
+  "keyRequirementIds": [
+    "REQ-fresh-context-no-full-history",
+    "REQ-worker-reassign-role"
+  ],
+  "requestHash": "sha256:eae6ad6885ce0207e98c3a994e90510f5bcdfbbad2153a871241114356f290a1",
+  "createdAt": "2026-07-09T02:44:10.076Z",
+  "updatedAt": "2026-07-09T02:44:10.076Z"
+}

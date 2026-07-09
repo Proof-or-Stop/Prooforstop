@@ -1,0 +1,45 @@
+{
+  "storyId": "B-99d4",
+  "checkedAt": "2026-07-09T02:45:53.555Z",
+  "features": [
+    {
+      "feature": "Role-aware reassignment of a completed worker/subagent under an explicit worker role",
+      "covered_by": "CHK-001; plan CHK-001; understanding task/outcome",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "lattice checklist_get CHK-001; lattice plan_get CHK-001"
+    },
+    {
+      "feature": "Summary-only fresh worker context for follow-up work without full-history fork inheritance",
+      "covered_by": "CHK-002; plan CHK-002; decision chosen option B and rationale",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "lattice checklist_get CHK-002; lattice plan_get CHK-002; lattice decision_get"
+    },
+    {
+      "feature": "Verification and process-fact registration for dispatch_reassign as diagnostic-only dispatch metadata",
+      "covered_by": "CHK-003; plan CHK-003; source surfaces: command catalog, command policy, DEFAULT_PHASE_TOOLS, PROCESS_FACT_LEVELS, verify-process-fact-contract",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "lattice checklist_get CHK-003; lattice plan_get CHK-003; targeted rg source check"
+    },
+    {
+      "feature": "Non-goals exclude full-history inheritance, long-term worker memory, authority/receipt/DONE semantic changes, and remote publishing",
+      "covered_by": "plan Non-Goals; understanding constraints; decision preMortem authority/memory mitigation",
+      "status": "excluded",
+      "excluded_by": "Do not implement long-term worker memory; do not inherit full parent conversation history; do not change receipt verification, authority, merge, DONE, or production readiness semantics; no remote publishing in story scope",
+      "source": "lattice plan_get Non-Goals; lattice understanding_get constraints; lattice decision_get preMortem"
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "covered": 3,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "aca89d1d567d840339cfb07dccdd768620bdaa2a6ba73769423273d1fe863244",
+  "openQuestions": []
+}
