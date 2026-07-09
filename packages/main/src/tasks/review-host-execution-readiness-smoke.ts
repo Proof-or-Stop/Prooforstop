@@ -12,6 +12,7 @@ import {
 } from '../core/host-execution-readiness.js';
 import {
   REVIEW_HOST_AVAILABILITY_CANONICAL_HOSTS,
+  RETIRED_COMPLETION_FALSE_FIELDS,
   assessReviewHostAvailabilityForFallbackEligibility,
   probeReviewHostAvailability,
   reviewHostAvailabilityProbeRecordFromEvent,
@@ -262,7 +263,7 @@ try {
     assert.equal(record.valid, true);
     assert.deepEqual(record.reasons, []);
 
-    const forgedField = ['authority', 'Done'].join('');
+    const forgedField = RETIRED_COMPLETION_FALSE_FIELDS[0];
     const forged = { ...event, [forgedField]: true };
     const forgedRecord = reviewHostAvailabilityProbeRecordFromEvent(forged, 0, MATERIAL, STORY_FILES_HASH);
     assert.equal(forgedRecord.valid, false);

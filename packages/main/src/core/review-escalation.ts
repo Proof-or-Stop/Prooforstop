@@ -285,7 +285,7 @@ function normalizeString(value: unknown): string {
   return typeof value === 'string' ? value.trim() : '';
 }
 
-const RETIRED_COMPLETION_FALSE_FIELDS = [
+export const RETIRED_COMPLETION_FALSE_FIELDS = [
   'authorityDone',
   'fullAuthorityDone',
   'productionDone',
