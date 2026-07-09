@@ -54,7 +54,27 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "rendered agent_prompt for both roles contains the bounded memory/playbook preflight step ordered before any decisions read",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "preflight wording covers the memory-surface-unavailable case: proceed with candidate routing, never fall back to a full scan",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "wording states advisory-only / gateEvidence=false verbatim so a reviewer cannot cite memory or playbook output as gate evidence",
+            "type": "docs"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
