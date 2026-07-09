@@ -418,7 +418,20 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build; node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js",
+          "result": "pass",
+          "note": "New guard passes on the updated six prompt copies: 0 banned unconditional broad-scan phrases, 4 required bounded-search phrases present, positive controls green.",
+          "headHash": "189b90513d1d018e0e6ab4336e4c1c47f9be007a",
+          "materialHash": "2129600913e88693d4e5986538beca1b15432d378b1fb18b9b126d64d6e96cdb",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-09T17:16:45.525Z"
+        }
+      ]
     },
     {
       "id": "CHK-007",
