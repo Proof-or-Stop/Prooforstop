@@ -97,7 +97,7 @@
       "desc": "quality-cleanup (F-003 follow-up, residual): reviewer-scan-budget-guard-smoke.ts:65-66 escalationConditioningPattern branch `only with(?: a| an)? [^.;]*scanEscalationReason` is a proximity/keyword match, not a semantic conditioning check, so it can still be satisfied by a hostile line that pairs an unconditional full-scan instruction with a scanEscalationReason mention that does not actually gate the scan on the same clause. Verified bypasses (all return lineIsEscalationPath=true, i.e. wrongly exempted from bannedUnconditionalRules): (1) \"Always scan the full decisions/ directory only with scanEscalationReason lying around unused.\"; (2) \"Always scan the full decisions/ directory with a recorded scanEscalationReason of \\\"N/A\\\".\"; (3) \"Always scan the full decisions/ directory; only with a scanEscalationReason value, which can be empty.\". All six current prompt-copy lines remain correctly exempted (verified) and the round-1 hostile line (\"...ignore scanEscalationReason.\") is now correctly flagged (verified) -- F-003 itself is fixed. This is a lower-bar residual: the guard cannot parse true semantic conditioning (e.g. an if/only-when clause actually governing the verb), so any hostile edit that keeps the literal words \\\"only with ... scanEscalationReason\\\" near an unconditional-scan sentence still slips through undetected. Low severity per round-1 bar; worth a follow-up if this guard is hardened again (e.g. require the conditioning phrase to be the clause immediately governing the banned verb, not merely present anywhere on the line).",
       "severity": "low",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-09T17:30:53.167Z",
@@ -105,7 +105,11 @@
       "reviewRunId": "B-cee5:RR-007",
       "_hash": "5b6ea54a849cefb09b36cb8f547df2caec94c91f6d69e4b3c25c42214e0a8532",
       "signatureTag": "edge|unknown|quality-cleanup-follow",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Loose only-with proximity branch removed from escalationConditioningPattern (unused by all six legitimate lines), hostile proximity variant added as positive control, guard scope documented as accidental-regression protection (commit 1c76eb0dc); verified by quality lane RR-011/RP-007.",
+      "resolvedAt": "2026-07-09T17:37:37.967Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
