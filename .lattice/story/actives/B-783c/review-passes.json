@@ -26,6 +26,15 @@
       "reviewRound": "2026-07-09T00:02:08.322Z",
       "reviewRunId": "B-783c:RR-004",
       "_hash": "b7ad6525f56155c8b9dbd3d9adf7a44b6b1a060ff70ee65ac606fdbeed3b99d4"
+    },
+    {
+      "id": "B-783c:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage PASS. Inspected checklist evidence and packages/main/src/tasks/thin-init-assets-smoke.ts on current REVIEW head 00dce5d95. Smoke covers canonical lattice.config.json roots writing .lattice/activity.jsonl; global-thin-only roots with .lattice/lattice.json assetMode=global-thin writing activity; malformed and wrong-assetMode manifests producing no activity log; and loadConfig() retaining canonical lattice.config.json behavior/defaults rather than parsing the managed manifest. Solver-visible evidence for CHK-003 records the rebuilt worktree wrapper, codex verify 8/8 pass, absence of the prior missing activity heartbeat failure, and codex/global-fallback activity row. Fresh reruns in the story worktree passed: npm --prefix packages/main run build; node packages/main/dist/tasks/thin-init-assets-smoke.js.",
+      "createdAt": "2026-07-09T00:42:09.360Z",
+      "reviewRound": "2026-07-09T00:40:21.448Z",
+      "reviewRunId": "B-783c:RR-007",
+      "_hash": "9c1d37f0816ce86483015a49e764dcd2babd6317d90956b4de96c969e08c7c1c"
     }
   ]
 }
