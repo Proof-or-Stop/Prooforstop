@@ -30,7 +30,7 @@
       "desc": "doc-code-drift: packages/main/templates/agents/lattice-review-behavior.md line 163 claims its candidateSpecSet inputs are consumed through the \"same bounded channel as lattice-review-scope-plan\", but the two prompts define different candidateSpecSet source lists. scope-plan (line 124): checklist relatedDocs; story title/description/keywords/riskSignals; changed files and symbols; command/config names; `lattice aux_doc_list` output; and top-N rg keyword matches. behavior (line 130): checklist relatedDocs, story title/description/keywords/riskSignals, changed files/symbols, command/config names, and top-N rg keyword matches -- `lattice aux_doc_list` output is omitted. Same discrepancy is mirrored identically in .claude/agents/lattice-review-behavior.md and .lattice-codex/agents/lattice-review-behavior.md (byte-identical to the template). Either behavior silently drops an input source scope-plan uses (breaking the claimed shared-channel guarantee) or the \"same bounded channel\" wording is inaccurate.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-09T17:22:46.670Z",
@@ -44,7 +44,11 @@
         ".lattice-codex/agents/lattice-review-behavior.md"
       ],
       "signatureTag": "missing|md|code-drift-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "lattice aux_doc_list added to behavior candidateSpecSet source list (commit 1dec06106), restoring parity with scope-plan; verified item-by-item by docs lane RP-004 (table) and concept lane RP-003.",
+      "resolvedAt": "2026-07-09T17:37:33.683Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-cee5:F-003",
