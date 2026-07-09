@@ -8,7 +8,7 @@
         "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md#M3---Early-Review-Assurance-Surfacing",
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
       ],
-      "userSees": "When review assurance is required, status output names the canonical reason, current material binding, legal writer, and fallback eligibility.",
+      "userSees": "\"Review assurance required: reason=first-round-problems, materialHash=<sha>, storyFilesHash=<sha>, legal writers=independent reviewer lanes or host quorum; fallback eligibility=<eligible/not eligible>; owner/main cannot auto-sign reviewer pass, finding resolution, delivery check, host verdict, or degraded fallback evidence.\"",
       "files": {
         "modify": [
           "packages/main/src/core/review-assurance-floor.ts",
