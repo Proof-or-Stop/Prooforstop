@@ -79,14 +79,8 @@ const root = mkdtempSync(join(tmpdir(), 'usage-ledger-default-on-'));
 const EXPECTED_CLAUDE_SPAWN_ARGS = [
   '--print',
   '--verbose',
-  '--output-format',
-  'stream-json',
-  '--no-session-persistence',
-  '--permission-mode',
-  'bypassPermissions',
-  '--max-budget-usd',
-  '0.25',
-  '<prompt>',
+  '--output-format=stream-json',
+  '<prompt-file>',
 ] as const;
 
 let counter = 0;
@@ -108,7 +102,7 @@ function opts(env: NodeJS.ProcessEnv) {
   return {
     recordedAt: '2026-06-16T00:00:00.000Z',
     projectRootHash: 'sha256:deadbeef',
-    command: 'claude --print --verbose --output-format stream-json --no-session-persistence --permission-mode bypassPermissions --max-budget-usd 0.25 <prompt>',
+    command: 'claude --print --verbose --output-format=stream-json <prompt-file>',
     host: { kind: 'claude-code' } as UsageLedgerRecordInput['host'],
     env,
   };
@@ -248,7 +242,7 @@ try {
   });
 
   check('CHK-002 =0 => buildClaudeSpawnArgs(prompt,false) preserves canonical observable/bounded launcher', () => {
-    assert.deepEqual(buildClaudeSpawnArgs('<prompt>', false), [...EXPECTED_CLAUDE_SPAWN_ARGS]);
+    assert.deepEqual(buildClaudeSpawnArgs('<prompt-file>', false), [...EXPECTED_CLAUDE_SPAWN_ARGS]);
   });
 
   check('CHK-002 =0 => recordDispatchPreflight returns null, writes nothing', () => {
@@ -361,7 +355,7 @@ try {
   });
 
   check('CHK-003 ON path: buildClaudeSpawnArgs(prompt,true) uses same canonical observable/bounded launcher', () => {
-    assert.deepEqual(buildClaudeSpawnArgs('<prompt>', true), [...EXPECTED_CLAUDE_SPAWN_ARGS]);
+    assert.deepEqual(buildClaudeSpawnArgs('<prompt-file>', true), [...EXPECTED_CLAUDE_SPAWN_ARGS]);
   });
 
   check('CHK-003 parse: valid JSON envelope => resultText + anthropicUsage + model', () => {
