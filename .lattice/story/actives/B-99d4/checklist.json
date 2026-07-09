@@ -221,11 +221,11 @@
           "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
           "command": "node packages/main/dist/tasks/dispatch-run-smoke.js",
           "result": "pass",
-          "note": "BUG-001 regression: dispatch_reassign with role lattice-implementer now rewrites inherited Work in role execution instructions to Work in role: lattice-implementer. and the generated prompt no longer contains Work in role: overflow-worker.",
-          "headHash": "e9551a872c6cb9a605f1485beba4db4efb6de1f5",
-          "materialHash": "ec087ac5796b4dc15641e3000a76fe7361bf208e8a23b4d13d80a36303c97e24",
-          "storyFilesHash": "9b2858030a22676bb7b7596c89909bd927e866c8eacb1c3035952e86315c4a58",
-          "timestamp": "2026-07-09T03:39:54.361Z"
+          "note": "Post-code-commit BUG-001 regression: dispatch_reassign with role lattice-implementer rewrites inherited Work in role execution instructions to Work in role: lattice-implementer. and the generated prompt does not retain Work in role: overflow-worker.",
+          "headHash": "192b8b345afe81ede689ea105f83c25e0a363245",
+          "materialHash": "b6acd0695ace2a05f02791d925bbb053425078820a3fdf6fb7ab488b495e0359",
+          "storyFilesHash": "9927844f3ccfcede444a7d743cf40dc11c928c042a98745815d97d256845b2d2",
+          "timestamp": "2026-07-09T03:41:17.577Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
