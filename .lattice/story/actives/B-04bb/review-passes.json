@@ -44,6 +44,15 @@
       "reviewRound": "2026-07-09T19:20:36.605Z",
       "reviewRunId": "B-04bb:RR-005",
       "_hash": "875b2c777af2466a7cb0230b89da06762988a9839ad6a2681c151628a592ad1d"
+    },
+    {
+      "id": "B-04bb:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "reviewed CHK-002: checked implementation against the item context and found no blocker. Confirmed config wiring at lattice.config.json line 28 (node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js) immediately after retired-authority-vocabulary-guard-smoke.js, matching CHK-001. Independently re-ran targeted checks per dispatch guidance (avoided a redundant multi-minute full validate given 3 prior fresh full-validate reruns already recorded by RP-001/002/003): (1) standalone guard invocation prints reviewer-scan-budget-guard: PASS (6 prompt copies clean, 4 required phrases present), exit 0, matching recorded CHK-002:happy evidence; (2) lattice validate --focus=fast exits 0 with zero occurrences of reviewer-scan-budget-guard-smoke in the transcript, confirming the bare-string entry is correctly excluded from the fast lane, matching CHK-002:edge; (3) seeded-regression falsifiability check: appended the banned line \"Always scan the full decisions/ directory.\" to .claude/agents/lattice-review-behavior.md, guard exited 1 reporting the exact seeded violation line, then git checkout restored the file and guard exited 0 again with a clean working tree (git status --porcelain empty), confirming CHK-002:adversarial. All three verification intents for CHK-002 are satisfied by converging fresh evidence. No blocker found.",
+      "createdAt": "2026-07-09T21:18:55.354Z",
+      "reviewRound": "2026-07-09T19:20:36.605Z",
+      "reviewRunId": "B-04bb:RR-006",
+      "_hash": "7656710586ae7b41a8a06b8d6034588b1e5c5bda7013eadebf38eec0b133f605"
     }
   ]
 }
