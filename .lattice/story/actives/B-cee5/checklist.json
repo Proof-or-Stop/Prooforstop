@@ -284,6 +284,17 @@
           "materialHash": "2129600913e88693d4e5986538beca1b15432d378b1fb18b9b126d64d6e96cdb",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "timestamp": "2026-07-09T17:16:37.010Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"category=missing|spec-boundary: \" packages/main/templates/agents/lattice-review-behavior.md",
+          "result": "pass",
+          "note": "Finding taxonomy untouched: category=missing with spec-boundary: desc prefix wording remains exactly as before the search-strategy change.",
+          "headHash": "cc756cf8405341654978cbd6ef1e42cdbae9c6b5",
+          "materialHash": "2129600913e88693d4e5986538beca1b15432d378b1fb18b9b126d64d6e96cdb",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-09T17:16:38.712Z"
         }
       ]
     },
