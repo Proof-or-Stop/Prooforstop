@@ -790,8 +790,15 @@ try {
   assert.deepEqual(reassignedPack.successCriteria, previousCancelPack.successCriteria, 'reassignment should default successCriteria from previous pack');
   assert.equal(reassignedPack.fromHost, previousCancelPack.fromHost, 'reassignment should default fromHost from previous pack');
   assert.equal(reassignedPack.baseSha, previousCancelPack.baseSha, 'reassignment should default baseSha from previous pack');
+  assert.deepEqual(
+    reassignedPack.executionInstructions.filter(instruction => /^Work in role:/i.test(instruction)),
+    [`Work in role: ${explicitWorkerRole}.`],
+    'explicit role reassignment must rewrite inherited execution role instructions',
+  );
   const reassignedPrompt = readFileSync(join(root, reassigned.promptFile), 'utf8');
   assert.match(reassignedPrompt, new RegExp(`Role: ${explicitWorkerRole}`), 'reassignment prompt must include explicit role');
+  assert.match(reassignedPrompt, new RegExp(`Work in role: ${explicitWorkerRole}\\.`), 'reassignment prompt execution instructions must use explicit role');
+  assert.doesNotMatch(reassignedPrompt, /Work in role: overflow-worker\./, 'reassignment prompt must not retain the previous worker role instruction');
   assert.match(reassignedPrompt, /Objective: Continue the completed worker output with explicit fresh-context instructions\./, 'reassignment prompt must include objective');
   assert.match(reassignedPrompt, /## Fresh-context Continuity/, 'reassignment prompt must include continuity section');
   assert.match(reassignedPrompt, /mode: fresh-context/, 'reassignment prompt must state fresh-context mode');

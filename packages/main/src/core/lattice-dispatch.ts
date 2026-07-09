@@ -971,6 +971,13 @@ function normalizeList(values: string[] | undefined): string[] {
   return normalized;
 }
 
+function rewriteRoleExecutionInstruction(instructions: string[] | undefined, role: string): string[] {
+  const nextRoleInstruction = `Work in role: ${role}.`;
+  return normalizeList(normalizeList(instructions).map(instruction =>
+    /^Work in role:\s*[^.]+\.?$/i.test(instruction) ? nextRoleInstruction : instruction,
+  ));
+}
+
 function normalizeDispatchId(dispatchId: string, label = 'dispatchId'): string {
   const trimmed = dispatchId.trim();
   if (!trimmed) {
@@ -2016,9 +2023,10 @@ export function reassignDispatch(store: StoryStore, root: string, args: Dispatch
     baseSha: args.baseSha?.trim() || previousPack.baseSha,
     packId: args.packId?.trim() || undefined,
     authorityBoundary: args.authorityBoundary?.trim() || previousPack.authorityBoundary.summary,
-    executionInstructions: args.executionInstructions !== undefined
-      ? args.executionInstructions
-      : [...previousPack.executionInstructions],
+    executionInstructions: rewriteRoleExecutionInstruction(
+      args.executionInstructions !== undefined ? args.executionInstructions : previousPack.executionInstructions,
+      role,
+    ),
     parallel: Math.max(1, args.parallel ?? 1),
     parentDispatchId: previous.dispatchId,
     promptContinuity: {
