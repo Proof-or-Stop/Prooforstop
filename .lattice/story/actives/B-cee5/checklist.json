@@ -179,7 +179,27 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "post-edit diff shows template equals .claude mirror for both roles; .lattice-codex differs only by the known .claude/agents path substitution",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "lattice check reports no managed-asset drift for the touched agent files after sync",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "guard smoke scans all six copies so a stale mirror keeping old full-scan wording fails the test",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-006",
