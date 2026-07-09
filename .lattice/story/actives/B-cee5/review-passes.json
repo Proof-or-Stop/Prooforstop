@@ -17,6 +17,15 @@
       "reviewRound": "2026-07-09T17:19:07.755Z",
       "reviewRunId": "B-cee5:RR-002",
       "_hash": "47170887b4ebd086ca5b8a4c7a7697057106b4cb902cf8d7efe7b155270bc7be"
+    },
+    {
+      "id": "B-cee5:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round 2: re-scanned all ACTIVE surfaces (CLAUDE.md, packages/main/templates/agents/lattice-review-behavior.md + lattice-review-scope-plan.md, .claude/agents + .lattice-codex/agents mirrors, other reviewer templates, docs/, README.md, reviewer-scan-budget-guard-smoke.ts) for residuals of the old unconditional full decisions-directory scan concept. Verified CLAUDE.md:626 no longer presents 全目录 (full-directory) unconditional reading as current behavior -- it now describes the bounded search-budget contract (完整枚举文件名 + candidateSpecSet 有界全文阅读, full-directory full-content scan gated to scanEscalationReason escalation path only). All six guarded prompt copies (template + .claude + .lattice-codex x{scope-plan,behavior}) consistently use candidateSpecSet/scanEscalationReason/advisory-only/gateEvidence=false wording with no bare full-scan phrasing outside the escalation path. Confirmed F-002 fix landed: aux_doc_list now present in both scope-plan (line 124) and behavior (line 130) candidateSpecSet source lists, closing the prior source-list drift. Ran reviewer-scan-budget-guard-smoke.ts directly: PASS (6 prompt copies clean, 4 required phrases present). Remaining 全目录/full-scan hits are confined to historical story artifacts (background.md, plan.md, understanding.json, red-evidence.json, findings.json, test-evidence.json, checklist.json) documenting the pre-fix baseline, and the smoke file's own quoted positive-control/banned-pattern strings -- both exempt per lane mandate. No residue found; no blocker.",
+      "createdAt": "2026-07-09T17:30:08.169Z",
+      "reviewRound": "2026-07-09T17:28:18.626Z",
+      "reviewRunId": "B-cee5:RR-006",
+      "_hash": "fbc9b52ecd001f95b41c67dd9ab828014ce01f5bd2b489386c5123e7e011803b"
     }
   ]
 }
