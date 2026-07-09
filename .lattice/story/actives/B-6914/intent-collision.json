@@ -4,11 +4,11 @@
   "id": "IC-20260709010041",
   "decision": "pass",
   "status": "accepted",
-  "acceptedInterpretation": "Fix the local Proofbound DONE/recovery version finalizer so runtime-changing recovery cannot skip a patch bump, and extend the bump to synchronize package lockfiles. Do not perform git push, npm publish, or a remote release.",
-  "acceptedInterpretationHash": "sha256:e75239eb1b548616a77aa4d8114dce0622a0309dc4465b1294a22b6538aa4216",
-  "notes": "This resolves the apparent collision between manually bumping B-90d6 immediately and repairing the mechanism: manual pre-bump inside the story branch is rejected because the DONE finalizer would double-bump later; the accepted interpretation is mechanism repair plus final local DONE boundary.",
-  "ledgerHashBeforeDecision": "sha256:4b24a67605ee457536f30bb4b556a2a5197dfbf8339242b76988d2f9b6cc706c",
-  "confirmedLedgerHash": "sha256:4b24a67605ee457536f30bb4b556a2a5197dfbf8339242b76988d2f9b6cc706c",
+  "acceptedInterpretation": "Fix the local Proofbound DONE/recovery version finalizer so runtime-changing recovery cannot skip a patch bump, extend the bump to synchronize package lockfiles, and complete with a local-only version boundary. Do not perform git push, npm publish, or a remote release.",
+  "acceptedInterpretationHash": "sha256:df22c8c5a6b47b3985807b944df93b9b3f9849694ba80befc0f42778bc6ca7af",
+  "notes": "Re-confirms the milestone ledger after aligning sourceRequirementId values to the immutable original intent snapshot keyRequirementIds.",
+  "ledgerHashBeforeDecision": "sha256:a4f6932e63a5a0ea70c996da3d6cca44cc38d8444d0dae8450fa9b210427cbab",
+  "confirmedLedgerHash": "sha256:a4f6932e63a5a0ea70c996da3d6cca44cc38d8444d0dae8450fa9b210427cbab",
   "createdAt": "2026-07-09T01:00:41.958Z",
-  "updatedAt": "2026-07-09T01:00:41.958Z"
+  "updatedAt": "2026-07-09T01:03:17.654Z"
 }
