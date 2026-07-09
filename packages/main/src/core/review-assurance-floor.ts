@@ -194,15 +194,15 @@ const REVIEW_ASSURANCE_CANNOT_AUTO_SIGN_WARNING =
   'done_prepare, story_advance, and the story owner/main session will not auto-write reviewer evidence, host verdicts, delivery checks, or degraded fallback evidence; those records must come from their legal reviewer/host or explicit human-approved writer path and bind to the current material.';
 
 function storyRef(storyId?: string): string {
-  return storyId && storyId.trim() ? storyId.trim() : '<storyId>';
+  return storyId && storyId.trim() ? storyId.trim() : '{storyId}';
 }
 
 function materialRef(materialHash: string | null): string {
-  return materialHash || '<current-materialHash>';
+  return materialHash || '{current-materialHash}';
 }
 
 function storyFilesRef(storyFilesHash: string | null): string {
-  return storyFilesHash || '<current-storyFilesHash>';
+  return storyFilesHash || '{current-storyFilesHash}';
 }
 
 function reviewEscalationStatusCommand(storyId?: string): string {
@@ -226,16 +226,16 @@ function donePrepareCommand(storyId?: string): string {
 }
 
 function autopilotReviewSubmitCommand(storyId: string | undefined, materialHash: string | null, storyFilesHash: string | null): string {
-  return `lattice autopilot_review_submit --storyId=${storyRef(storyId)} --runId=<round-id> --hostId=<host> --sessionId=<session> --keyId=<key> --decision=pass --materialDigest=${materialRef(materialHash)} --storyFilesHash=${storyFilesRef(storyFilesHash)} --validationDigest=<fresh-validation-digest> --promptDigest=<current-prompt-digest>`;
+  return `lattice autopilot_review_submit --storyId=${storyRef(storyId)} --runId={round-id} --hostId={host} --sessionId={session} --keyId={key} --decision=pass --materialDigest=${materialRef(materialHash)} --storyFilesHash=${storyFilesRef(storyFilesHash)} --validationDigest={fresh-validation-digest} --promptDigest={current-prompt-digest}`;
 }
 
 function quorumSubmitCommand(storyId?: string): string {
-  return `lattice quorum_submit '{"storyId":"${storyRef(storyId)}","hostA":"<independent-host-a>","hostB":"<independent-host-b>"}'`;
+  return `lattice quorum_submit '{"storyId":"${storyRef(storyId)}","hostA":"{independent-host-a}","hostB":"{independent-host-b}"}'`;
 }
 
 function fallbackSetCommand(storyId: string | undefined, fallback: ReviewAssuranceGuidance['fallback']): string {
   const eligibility = fallback.eligibilityValues.join('|') || 'single-host-environment|temporary-host-unavailability|explicit-human-approval';
-  return `lattice review_escalation_fallback_set '{"storyId":"${storyRef(storyId)}","eligibility":"<${eligibility}>","reason":"<why degraded-single-host fallback is approved>","evidenceRefs":["<supporting-ref>"]}'`;
+  return `lattice review_escalation_fallback_set '{"storyId":"${storyRef(storyId)}","eligibility":"{${eligibility}}","reason":"{why degraded-single-host fallback is approved}","evidenceRefs":["{supporting-ref}"]}'`;
 }
 
 export function buildReviewAssuranceGuidance(input: BuildReviewAssuranceGuidanceInput): ReviewAssuranceGuidance {
@@ -1175,7 +1175,7 @@ export function formatReviewAssuranceFloorFailure(report: ReviewAssuranceFloorRe
     'Stale material recovery:',
     `  1. Re-run validation: lattice validate --story=${storyRef} --json`,
     `  2. Refresh stale verificationEvidence: lattice verification_evidence_refresh_stale --storyId=${storyRef} --dryRun; rerun listed evidence commands; rerun without --dryRun.`,
-    `  3. Re-submit local host verdicts over materialHash=${materialRef}: lattice autopilot_review_submit --storyId=${storyRef} --runId=<round-id> --hostId=<host> --sessionId=<session> --keyId=<key> --decision=pass --materialDigest=${materialRef} --validationDigest=<fresh-validation-digest> --promptDigest=<current-prompt-digest>`,
+    `  3. Legal reviewer/host only: re-submit local host verdicts over materialHash=${materialRef}: lattice autopilot_review_submit --storyId=${storyRef} --runId={round-id} --hostId={host} --sessionId={session} --keyId={key} --decision=pass --materialDigest=${materialRef} --validationDigest={fresh-validation-digest} --promptDigest={current-prompt-digest}`,
     `  4. Re-check local diagnostics: lattice autopilot_review_status --storyId=${storyRef}; lattice review_escalation_status --storyId=${storyRef}`,
     '  - Do not bypass stale material checks; stale verdicts/evidence stay ignored until refreshed or resubmitted over the current material.',
   );

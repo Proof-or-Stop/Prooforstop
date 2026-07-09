@@ -108,8 +108,8 @@ export function createReviewEscalationHandlers(ctx: HandlerContext) {
           reviewAssuranceGuidance,
         };
       }
-      const extraGuidance = floorGuidance.required
-        ? `\n\n${renderReviewAssuranceGuidance(floorGuidance)}`
+      const extraGuidance = reviewAssuranceGuidance.length > 0
+        ? `\n\n${reviewAssuranceGuidance.map((guidance) => renderReviewAssuranceGuidance(guidance)).join('\n\n')}`
         : '';
       return `${formatReviewEscalationReport(projectedReport)}${extraGuidance}`;
     },
