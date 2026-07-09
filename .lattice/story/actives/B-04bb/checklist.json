@@ -69,7 +69,14 @@
           }
         ]
       },
-      "userSees": "lattice validate output includes a line showing node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js executed with the guard printing \"reviewer-scan-budget-guard: PASS (...)\", and the overall validate run ends green with exit 0."
+      "userSees": "lattice validate output includes a line showing node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js executed with the guard printing \"reviewer-scan-budget-guard: PASS (...)\", and the overall validate run ends green with exit 0.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js"
+        ]
+      }
     }
   ]
 }
