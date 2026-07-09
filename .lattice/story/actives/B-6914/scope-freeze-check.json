@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-6914",
+  "checkedAt": "2026-07-09T00:48:40.614Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "ee479c13e21600bf200061c14c8e97e9f5bfc2b34ebc5a405e90ad2f2d3238c0",
+  "executionBoundaryHash": "8d661680bdc96fe22dd0ee7b10316102909b1d3650257b2a8c210eaf5bc98717",
+  "freshnessHash": "5851294d273bee4812a06386ef17e7f302a66936e5353a475bbc7048142f5ebe",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "customerKeyRef",
+    "Do not edit unrelated dirty user files on main",
+    "Do not push to origin or publish npm/GitHub releases",
+    "Do not redesign package semver or capability release semantics",
+    "Layer4",
+    "repair UX"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Do not edit unrelated dirty user files on main",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not edit unrelated dirty user files on main",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not push to origin or publish npm/GitHub releases",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not push to origin or publish npm/GitHub releases",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not redesign package semver or capability release semantics",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not redesign package semver or capability release semantics",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "22c980263402ed45f18944cef68927f8359e2d3e2453b17ca473e2535b098ea9"
+}

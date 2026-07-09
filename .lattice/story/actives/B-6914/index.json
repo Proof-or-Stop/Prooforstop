@@ -4,7 +4,7 @@
   "title": "Fix DONE version finalizer gaps for recovery and lockfile sync",
   "description": "B-90d6 changed Proofbound CLI/runtime behavior and reached DONE on local main, but the package version stayed at 0.3.170 because the abnormal/manual recovery path bypassed the DONE post-merge version finalizer. The fix should make recovery paths apply the same runtime semver bump and lockfile synchronization as the normal DONE path, and leave the next local version state ready for playbook/runtime consumption.",
   "type": "bug",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "keywords": [
     "version-bump",
@@ -25,6 +25,20 @@
       "user": "Harmonygo",
       "sessionId": "sess-3d1880b40d393f50",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-09T00:49:02.205Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-3d1880b40d393f50",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-6914",
+    "branch": "story/B-6914",
+    "createdAt": "2026-07-09T00:48:58.893Z"
+  }
 }
