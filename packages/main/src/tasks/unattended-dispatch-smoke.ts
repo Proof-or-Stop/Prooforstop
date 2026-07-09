@@ -87,21 +87,27 @@ if (process.argv[2] === '--version') {
   process.exit(0);
 }
 if (process.argv[2] === '--help') {
-  console.log('Usage: claude --print --verbose --output-format=stream-json <prompt-file>');
+  console.log('Usage: claude --print --verbose --output-format stream-json --no-session-persistence --permission-mode bypassPermissions --max-budget-usd 0.25 <prompt>');
   process.exit(0);
 }
 const args = process.argv.slice(2);
 if (
   args[0] !== '--print' ||
   args[1] !== '--verbose' ||
-  args[2] !== '--output-format=stream-json' ||
-  !args[3]
+  args[2] !== '--output-format' ||
+  args[3] !== 'stream-json' ||
+  args[4] !== '--no-session-persistence' ||
+  args[5] !== '--permission-mode' ||
+  args[6] !== 'bypassPermissions' ||
+  args[7] !== '--max-budget-usd' ||
+  args[8] !== '0.25' ||
+  !args[9]
 ) {
-  console.error('expected claude --print --verbose --output-format=stream-json <prompt-file>');
+  console.error('expected claude --print --verbose --output-format stream-json --no-session-persistence --permission-mode bypassPermissions --max-budget-usd 0.25 <prompt>');
   process.exit(64);
 }
 
-const prompt = fs.readFileSync(args[3], 'utf8');
+const prompt = args[9];
 const mode = process.env.LATTICE_FAKE_CLAUDE_MODE || 'success';
 function writeRelative(file, body) {
   fs.mkdirSync(path.dirname(file), { recursive: true });
@@ -599,7 +605,7 @@ try {
         allowedPaths: ['packages/main/src/generated/claude-missing-launcher.txt'],
         objective: 'CHK-008 missing canonical claude launcher must refuse',
       })),
-      /commandAllowlist|claude --print --verbose --output-format=stream-json <prompt-file>/i,
+      /commandAllowlist|claude --print --verbose --output-format stream-json --no-session-persistence --permission-mode bypassPermissions --max-budget-usd 0\.25 <prompt>/i,
       'dispatch_auto must refuse real claude launch when policy.commandAllowlist omits the canonical launcher',
     );
     assert.equal(dispatchCount(root), before,
