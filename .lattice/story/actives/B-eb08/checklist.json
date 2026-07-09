@@ -68,6 +68,18 @@
           "materialHash": "e6e55c7b0a5a5641e1e90684bc502ea506d23ad1e7367dceba93371050f628aa",
           "storyFilesHash": "ff44a7acd65e92521b982990b81d15cf1b481e02c6479c2c73c74c5d25e2675f",
           "timestamp": "2026-07-09T02:00:09.315Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "command": "npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke",
+          "result": "pass",
+          "note": "Focused smoke snapshots story metadata and verifies progress labels remain diagnostic: they do not write review, DONE, Authority, or gate evidence.",
+          "headHash": "398e7c35daf3c2aadb53757f9dad55fb3caa8c98",
+          "materialHash": "e6e55c7b0a5a5641e1e90684bc502ea506d23ad1e7367dceba93371050f628aa",
+          "storyFilesHash": "ff44a7acd65e92521b982990b81d15cf1b481e02c6479c2c73c74c5d25e2675f",
+          "timestamp": "2026-07-09T02:00:10.765Z"
         }
       ]
     },
