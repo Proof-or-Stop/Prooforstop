@@ -320,7 +320,8 @@ async function assertHungPhaseFailsClosed(): Promise<void> {
     const prepare = createDonePrepareHandlers(mkCtx(root, (msg) => logs.push(msg)));
     const transcript = await withEnv({
       LATTICE_DONE_PREPARE_HEARTBEAT_MS: '20',
-      LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS: '120',
+      LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS: '5000',
+      LATTICE_DONE_PREPARE_RUNTIME_CHANGE_TIMEOUT_MS: '120',
       LATTICE_DONE_PREPARE_SMOKE_HANG_PHASE: 'runtimeChange',
     }, async () => String(await prepare.done_prepare({
       storyId,
@@ -352,12 +353,59 @@ async function assertHungPhaseFailsClosed(): Promise<void> {
   }
 }
 
+async function assertSynchronousGitTimeoutFailsClosed(): Promise<void> {
+  const { root, storyId } = setupFixture();
+  const oldCwd = process.cwd();
+  try {
+    process.chdir(root);
+    const storySnapshotBefore = readTreeSnapshot(root, `.lattice/story/actives/${storyId}`);
+    const logs: string[] = [];
+    const prepare = createDonePrepareHandlers(mkCtx(root, (msg) => logs.push(msg)));
+    const started = Date.now();
+    const transcript = await withEnv({
+      LATTICE_DONE_PREPARE_HEARTBEAT_MS: '20',
+      LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS: '5000',
+      LATTICE_DONE_PREPARE_RUNTIME_CHANGE_TIMEOUT_MS: '120',
+      LATTICE_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_PHASE: 'runtimeChange',
+      LATTICE_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_MS: '5000',
+    }, async () => String(await prepare.done_prepare({
+      storyId,
+      mergeMain: false,
+      refreshStale: false,
+      validate: false,
+      dryRun: true,
+    })));
+    const elapsedMs = Date.now() - started;
+
+    assert.ok(logs.includes('done_prepare progress: computing runtime-change status'), 'sync git timeout emits the exact progress label');
+    assert.ok(
+      elapsedMs < 2_000,
+      `sync git timeout should be bounded by the phase deadline, not the sleeping child duration; elapsedMs=${elapsedMs}`,
+    );
+    assert.ok(transcript.startsWith('DONE prepare: BLOCKED'), `sync git timeout must return a BLOCKED transcript:\n${transcript}`);
+    assert.match(transcript, /^blockedAt: runtimeChange$/m);
+    assert.match(transcript, /reason: done_prepare phase "computing runtime-change status" exceeded 120ms timeout/);
+    assert.match(transcript, /heartbeat output is diagnostic only and does not extend the phase deadline/);
+    assert.ok(!transcript.includes('ETIMEDOUT'), 'sync child timeout should be attributed to the done_prepare phase');
+    assert.deepEqual(
+      readTreeSnapshot(root, `.lattice/story/actives/${storyId}`),
+      storySnapshotBefore,
+      'sync child timeout diagnostics must not write gate evidence or story metadata',
+    );
+    assert.ok(!existsSync(join(root, '.lattice', 'activity.jsonl')), 'sync timeout progress does not depend on activity-root logging');
+  } finally {
+    process.chdir(oldCwd);
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 void (async () => {
   const fixture = setupFixture();
   try {
     assertHumanCliProgress(fixture.root, fixture.storyId);
     assertJsonStdoutParseable(fixture.root, fixture.storyId);
     await assertHungPhaseFailsClosed();
+    await assertSynchronousGitTimeoutFailsClosed();
     console.log('done-prepare-closure-heartbeat smoke passed');
   } catch (error) {
     console.error(error instanceof Error ? (error.stack ?? error.message) : String(error));

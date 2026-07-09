@@ -1,6 +1,7 @@
+import childProcess, { type ExecFileSyncOptions } from 'child_process';
 import { createHash } from 'crypto';
-import { execFileSync } from 'child_process';
 import { existsSync, readFileSync, statSync } from 'fs';
+import { syncBuiltinESMExports } from 'module';
 import { join } from 'path';
 import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
@@ -122,11 +123,22 @@ class DonePreparePhaseTimeoutError extends Error {
   }
 }
 
+interface CloseoutPhaseChildProcessDeadline {
+  phase: CloseoutPhase;
+  timeoutMs: number;
+  deadlineAt: number;
+  timeoutError?: DonePreparePhaseTimeoutError;
+  restore: () => void;
+}
+
 const DONE_PREPARE_HEARTBEAT_ENV = 'LATTICE_DONE_PREPARE_HEARTBEAT_MS';
 const DONE_PREPARE_PHASE_TIMEOUT_ENV = 'LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS';
 const DONE_PREPARE_SMOKE_HANG_PHASE_ENV = 'LATTICE_DONE_PREPARE_SMOKE_HANG_PHASE';
+const DONE_PREPARE_SMOKE_SYNC_GIT_HANG_PHASE_ENV = 'LATTICE_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_PHASE';
+const DONE_PREPARE_SMOKE_SYNC_GIT_HANG_MS_ENV = 'LATTICE_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_MS';
 const DEFAULT_DONE_PREPARE_HEARTBEAT_MS = 30_000;
 const DEFAULT_DONE_PREPARE_PHASE_TIMEOUT_MS = 240_000;
+const DEFAULT_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_MS = 30_000;
 
 const CLOSEOUT_PHASES: Record<CloseoutPhaseId, CloseoutPhase> = {
   doneClosure: {
@@ -197,7 +209,7 @@ function defaulted(args: DonePrepareArgs): Required<DonePrepareArgs> {
 }
 
 function git(gitCwd: string, args: string[]): string {
-  return execFileSync('git', args, {
+  return childProcess.execFileSync('git', args, {
     cwd: gitCwd,
     encoding: 'utf-8',
     stdio: ['pipe', 'pipe', 'pipe'],
@@ -414,16 +426,137 @@ function donePreparePhaseTimeoutMs(phase: CloseoutPhase): number {
   return envPositiveInt(phase.timeoutEnv, globalTimeout);
 }
 
-function shouldSmokeHangCloseoutPhase(phase: CloseoutPhase): boolean {
-  const raw = process.env[DONE_PREPARE_SMOKE_HANG_PHASE_ENV];
+function phaseEnvMatches(name: string, phase: CloseoutPhase): boolean {
+  const raw = process.env[name];
   if (!raw) return false;
   const wanted = raw.split(',').map((entry) => entry.trim()).filter(Boolean);
   return wanted.includes(phase.id) || wanted.includes(phase.label);
 }
 
+function shouldSmokeHangCloseoutPhase(phase: CloseoutPhase): boolean {
+  return phaseEnvMatches(DONE_PREPARE_SMOKE_HANG_PHASE_ENV, phase);
+}
+
 async function maybeSmokeHangCloseoutPhase(phase: CloseoutPhase): Promise<void> {
   if (!shouldSmokeHangCloseoutPhase(phase)) return;
   await new Promise(() => { /* smoke-only pending promise; the phase deadline must reject first. */ });
+}
+
+function markChildProcessPhaseTimeout(deadline: CloseoutPhaseChildProcessDeadline): DonePreparePhaseTimeoutError {
+  if (!deadline.timeoutError) {
+    deadline.timeoutError = new DonePreparePhaseTimeoutError(deadline.phase, deadline.timeoutMs);
+  }
+  return deadline.timeoutError;
+}
+
+function remainingChildProcessTimeoutMs(deadline: CloseoutPhaseChildProcessDeadline): number {
+  const remainingMs = Math.floor(deadline.deadlineAt - Date.now());
+  if (remainingMs <= 0) throw markChildProcessPhaseTimeout(deadline);
+  return Math.max(1, remainingMs);
+}
+
+function boundedExecFileSyncOptions(
+  options: ExecFileSyncOptions | undefined,
+  remainingMs: number,
+): { options: ExecFileSyncOptions; phaseBounded: boolean } {
+  const existingTimeout = options?.timeout;
+  const hasShorterTimeout = typeof existingTimeout === 'number'
+    && Number.isFinite(existingTimeout)
+    && existingTimeout > 0
+    && existingTimeout <= remainingMs;
+  return {
+    options: {
+      ...(options ?? {}),
+      timeout: hasShorterTimeout ? Math.floor(existingTimeout) : remainingMs,
+    },
+    phaseBounded: !hasShorterTimeout,
+  };
+}
+
+function isExecFileSyncOptions(value: unknown): value is ExecFileSyncOptions {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function commandLeaf(command: string): string {
+  return command.split(/[\\/]/).pop() || command;
+}
+
+function shouldSmokeHangSyncGitCommand(deadline: CloseoutPhaseChildProcessDeadline, command: string): boolean {
+  return commandLeaf(command) === 'git'
+    && phaseEnvMatches(DONE_PREPARE_SMOKE_SYNC_GIT_HANG_PHASE_ENV, deadline.phase);
+}
+
+function smokeSyncGitHangArgs(): string[] {
+  const hangMs = envPositiveInt(
+    DONE_PREPARE_SMOKE_SYNC_GIT_HANG_MS_ENV,
+    DEFAULT_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_MS,
+  );
+  return ['-e', `setTimeout(() => {}, ${hangMs});`];
+}
+
+function isChildProcessTimeoutError(err: unknown): boolean {
+  const value = err as { code?: unknown; message?: unknown };
+  return value?.code === 'ETIMEDOUT' || /\bETIMEDOUT\b|timed out|timeout/i.test(String(value?.message ?? ''));
+}
+
+function installCloseoutPhaseChildProcessDeadline(
+  phase: CloseoutPhase,
+  timeoutMs: number,
+  started: number,
+): CloseoutPhaseChildProcessDeadline {
+  const previousExecFileSync = childProcess.execFileSync;
+  const deadline: CloseoutPhaseChildProcessDeadline = {
+    phase,
+    timeoutMs,
+    deadlineAt: started + timeoutMs,
+    restore: () => {},
+  };
+
+  const runWithDeadline = (
+    command: string,
+    argsOrOptions?: readonly string[] | ExecFileSyncOptions,
+    options?: ExecFileSyncOptions,
+  ) => {
+    const remainingMs = remainingChildProcessTimeoutMs(deadline);
+    const useSmokeHang = shouldSmokeHangSyncGitCommand(deadline, command);
+    const commandToRun = useSmokeHang ? process.execPath : command;
+    const argsToRun = useSmokeHang ? smokeSyncGitHangArgs() : argsOrOptions;
+    let phaseBounded = true;
+
+    try {
+      let result: string | Buffer;
+      if (Array.isArray(argsToRun)) {
+        const bounded = boundedExecFileSyncOptions(options, remainingMs);
+        phaseBounded = bounded.phaseBounded;
+        result = previousExecFileSync(commandToRun, argsToRun, bounded.options);
+      } else if (isExecFileSyncOptions(argsToRun)) {
+        const bounded = boundedExecFileSyncOptions(argsToRun, remainingMs);
+        phaseBounded = bounded.phaseBounded;
+        result = previousExecFileSync(commandToRun, bounded.options);
+      } else {
+        const bounded = boundedExecFileSyncOptions(undefined, remainingMs);
+        phaseBounded = bounded.phaseBounded;
+        result = previousExecFileSync(commandToRun, [], bounded.options);
+      }
+      if (Date.now() >= deadline.deadlineAt) throw markChildProcessPhaseTimeout(deadline);
+      return result;
+    } catch (err) {
+      if ((phaseBounded && isChildProcessTimeoutError(err)) || Date.now() >= deadline.deadlineAt) {
+        throw markChildProcessPhaseTimeout(deadline);
+      }
+      throw err;
+    }
+  };
+
+  // Closeout helpers import execFileSync directly; sync the builtin named exports
+  // so those existing imports see the active phase deadline guard.
+  childProcess.execFileSync = runWithDeadline as typeof childProcess.execFileSync;
+  syncBuiltinESMExports();
+  deadline.restore = () => {
+    childProcess.execFileSync = previousExecFileSync;
+    syncBuiltinESMExports();
+  };
+  return deadline;
 }
 
 async function runCloseoutPhase<T>(
@@ -434,6 +567,7 @@ async function runCloseoutPhase<T>(
   const heartbeatMs = donePrepareHeartbeatMs();
   const timeoutMs = donePreparePhaseTimeoutMs(phase);
   const started = Date.now();
+  const childProcessDeadline = installCloseoutPhaseChildProcessDeadline(phase, timeoutMs, started);
   ctx.log?.(`done_prepare progress: ${phase.label}`);
 
   const heartbeat = setInterval(() => {
@@ -447,8 +581,15 @@ async function runCloseoutPhase<T>(
   });
 
   const task = Promise.resolve().then(async () => {
-    await maybeSmokeHangCloseoutPhase(phase);
-    return work();
+    try {
+      await maybeSmokeHangCloseoutPhase(phase);
+      const result = await work();
+      if (childProcessDeadline.timeoutError) throw childProcessDeadline.timeoutError;
+      return result;
+    } catch (err) {
+      if (childProcessDeadline.timeoutError) throw childProcessDeadline.timeoutError;
+      throw err;
+    }
   });
 
   try {
@@ -458,6 +599,7 @@ async function runCloseoutPhase<T>(
   } finally {
     clearInterval(heartbeat);
     if (timeout) clearTimeout(timeout);
+    childProcessDeadline.restore();
   }
 }
 
@@ -1075,12 +1217,12 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
       setStep(steps, 'worktreeVersionCheck', 'skipped', 'planned mutation skipped: dryRun does not build');
     } else {
       try {
-        execFileSync('npm', ['--prefix', 'packages/main', 'run', 'build'], {
+        childProcess.execFileSync('npm', ['--prefix', 'packages/main', 'run', 'build'], {
           cwd: ctx.root,
           encoding: 'utf-8',
           stdio: ['pipe', 'pipe', 'pipe'],
         });
-        execFileSync(process.execPath, ['packages/main/dist/cli.js', '--version'], {
+        childProcess.execFileSync(process.execPath, ['packages/main/dist/cli.js', '--version'], {
           cwd: ctx.root,
           encoding: 'utf-8',
           stdio: ['pipe', 'pipe', 'pipe'],
@@ -1121,12 +1263,15 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
 
   let nonCleanBlockers: ReturnType<typeof blockingRows>;
   let reviewAssuranceBlocked = false;
+  let reviewAssuranceCurrentBinding: DonePrepareCurrentBinding | undefined;
   try {
-    ({ nonCleanBlockers, reviewAssuranceBlocked } = await runCloseoutPhase(ctx, CLOSEOUT_PHASES.reviewAssurance, () => {
+    ({ nonCleanBlockers, reviewAssuranceBlocked, currentBinding: reviewAssuranceCurrentBinding } = await runCloseoutPhase(ctx, CLOSEOUT_PHASES.reviewAssurance, () => {
       const allBlockers = blockingRows(runbook);
+      const assuranceBlocked = hasReviewAssuranceBlocker(runbook);
       return {
         nonCleanBlockers: allBlockers.filter((row) => row.id !== 'git-working-tree'),
-        reviewAssuranceBlocked: hasReviewAssuranceBlocker(runbook),
+        reviewAssuranceBlocked: assuranceBlocked,
+        currentBinding: assuranceBlocked ? currentDoneMaterialBinding(ctx, gitCwd) : undefined,
       };
     }));
   } catch (err) {
@@ -1135,9 +1280,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
   }
 
   if (nonCleanBlockers.length > 0) {
-    const currentBinding = reviewAssuranceBlocked
-      ? currentDoneMaterialBinding(ctx, gitCwd)
-      : undefined;
+    const currentBinding = reviewAssuranceBlocked ? reviewAssuranceCurrentBinding : undefined;
     const reason = nonCleanBlockers.map((row) => `${row.id}: ${row.reason}`).join('; ');
     setStep(steps, 'doneClosure', 'blocked', reason);
     return block({
