@@ -13,7 +13,37 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "These ProofStory gate artifacts were required by the enforced DEV gate before any source edits; they bind original intent, independent intent collision, acceptance, and red evidence for this story without widening implementation scope.",
+      "timestamp": "2026-07-09T00:01:46.203Z",
+      "paths": [
+        ".lattice/story/actives/B-783c/intent-collision.json",
+        ".lattice/story/actives/B-783c/original-intent-snapshot.json",
+        ".lattice/story/actives/B-783c/proofstory.json",
+        ".lattice/story/actives/B-783c/red-evidence.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-783c/intent-collision.json",
+        ".lattice/story/actives/B-783c/original-intent-snapshot.json",
+        ".lattice/story/actives/B-783c/proofstory.json",
+        ".lattice/story/actives/B-783c/red-evidence.json"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "0f37d0a04d8c57e1d8b4567397804e93aeb8da5b",
+      "materialHash": "e03b3abb8f68c388d50ec7b97da6090ba5eb88bb58108ac01ce0fdba009dda98",
+      "anchors": [
+        "ProofStory.DEVGate",
+        "ProofStory.OriginalIntentSnapshot",
+        "ProofStory.IntentCollision",
+        "ProofStory.RedEvidence",
+        "ProofStory.AcceptanceBinding"
+      ]
+    }
+  ],
   "createdAt": "2026-07-08T23:54:59.114Z",
-  "updatedAt": "2026-07-08T23:54:59.114Z"
+  "updatedAt": "2026-07-09T00:01:46.203Z"
 }
