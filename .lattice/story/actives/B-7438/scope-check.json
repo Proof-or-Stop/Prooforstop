@@ -1,0 +1,129 @@
+{
+  "storyId": "B-7438",
+  "checkedAt": "2026-07-09T11:16:00.927Z",
+  "features": [
+    {
+      "feature": "Proof-or-stop requires mechanical host availability evidence before accepting degraded single-host fallback.",
+      "covered_by": "CHK-001,CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-7438/background.md; .lattice/story/actives/B-7438/understanding.json"
+    },
+    {
+      "feature": "Expose review_host_availability_probe so users can see a probe id, materialHash, and canonical rows for codex, claude, and agy.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-7438/checklist.json:CHK-001 userSees; .lattice/story/actives/B-7438/plan.md#CHK-001"
+    },
+    {
+      "feature": "Persist probe evidence as local process evidence bound to current material state, with host rows, availableHostCount, and process-fact registry coverage.",
+      "covered_by": "CHK-001,CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-7438/checklist.json:CHK-001; .lattice/story/actives/B-7438/plan.md#CHK-001"
+    },
+    {
+      "feature": "Probe implementation must derive host availability internally and must not accept caller-supplied host status as proof.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-7438/plan.md#CHK-001"
+    },
+    {
+      "feature": "Unavailable canonical hosts are represented as unavailable rows with path/version/error details instead of being omitted.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-7438/checklist.json:CHK-001 verificationIntent edge; .lattice/story/actives/B-7438/plan.md#CHK-001"
+    },
+    {
+      "feature": "single-host-environment and temporary-host-unavailability fallback records require fresh probe evidence and reject when two or more canonical hosts are available.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-7438/checklist.json:CHK-002; .lattice/story/actives/B-7438/plan.md#CHK-002"
+    },
+    {
+      "feature": "review_escalation_status and review assurance floor evaluators mark missing, stale, contradictory, legacy, or manually injected fallback evidence invalid.",
+      "covered_by": "CHK-002,CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-7438/checklist.json:CHK-002; .lattice/story/actives/B-7438/plan.md#CHK-002"
+    },
+    {
+      "feature": "explicit-human-approval remains available only as visible degraded-single-host lower assurance with approvalRef or evidence and never full 3x2 or Authority completion.",
+      "covered_by": "CHK-002,CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-7438/checklist.json:CHK-002,CHK-003; docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+    },
+    {
+      "feature": "Smoke tests and diagnostics cover missing probe, two available hosts, insufficient hosts, explicit human approval, and recovery guidance.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-7438/checklist.json:CHK-003; .lattice/story/actives/B-7438/plan.md#CHK-003"
+    },
+    {
+      "feature": "Gate-consumed host proof facts are registered in process-fact levels, process-fact registry, command policy, and verify-process-fact-contract coverage.",
+      "covered_by": "CHK-001,CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-7438/understanding.json; .lattice/story/actives/B-7438/plan.md#CHK-001"
+    },
+    {
+      "feature": "Do not redesign or implement the full cross-host review runner or broader Tier-C collection mechanism.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Story background and decision choose a narrow host availability evidence path, not a runner redesign.",
+      "source": ".lattice/story/actives/B-7438/background.md; docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md"
+    },
+    {
+      "feature": "Do not create Authority, production, remote release, or cryptographic Tier-C proof from this local host availability diagnostic.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Related decisions keep local diagnostic and local review quorum evidence non-Authority and non-production.",
+      "source": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md; docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+    },
+    {
+      "feature": "Do not change ordinary review escalation triggers or force every story through 3x2.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Related review escalation policy keeps existing first-review-round trigger and this story only hardens degraded fallback admissibility.",
+      "source": "docs/requirements/decisions/review-assurance-floor-execution-plan.md; docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+    },
+    {
+      "feature": "Temporary host unavailability for an executable host with auth, quota, outage, or rate-limit failure has an ambiguous coverage boundary under the proposed path/version probe.",
+      "covered_by": null,
+      "status": "orphan-suspect",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md; .lattice/story/actives/B-7438/plan.md#CHK-001-CHK-002"
+    }
+  ],
+  "summary": {
+    "total": 14,
+    "covered": 10,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 1,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "accc350b45f72602372e3bb25ad72e2b7500867d54e4686e28b24f8b8156911d",
+  "openQuestions": [
+    {
+      "id": "OQ-001",
+      "q": "For CHK-001 and CHK-002, should available mean executable and version-responsive only, or review-capable including auth, quota, outage, and rate-limit readiness for temporary-host-unavailability?",
+      "evidence": "The plan says the probe checks codex, claude, and agy command lookup/version and rejects when two or more canonical hosts are executable, while the related review escalation decision allows temporary-host-unavailability when a second host was attempted or probed and unavailable because of credits, auth, runtime, outage, or rate limits. This predicate affects the probe schema, fallback validator, and smoke tests before DEV.",
+      "sourcePointers": [
+        "CHK-001",
+        "CHK-002",
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md#degraded-single-host-fallback",
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+      ],
+      "resolution": "For this story, available means the canonical local host CLI is executable and version-responsive during the fresh probe: codex --version, claude --version, or agy --version returns successfully. This intentionally does not try to prove quota/auth/model-review capability. If two or more canonical CLIs are executable/version-responsive, single-host-environment and temporary-host-unavailability cannot claim host scarcity in this story; operators who knowingly accept lower assurance despite executable hosts must use explicit-human-approval with approvalRef. A richer review-capability probe is a separate future story, not a prose bypass here.",
+      "resolvedAt": "2026-07-09T11:16:47.386Z"
+    }
+  ]
+}

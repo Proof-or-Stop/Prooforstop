@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-7438",
+  "sourceText": "User selected the proposed hard constraint: degraded fallback must mechanically bind fresh multi-host availability probe, must check canonical hosts codex/claude/agy, must reject single-host-environment when two or more independent hosts are executable, and DONE gates must not accept missing-probe degraded 3x1 unless explicit-human-approval is used.",
+  "normalizedOutcome": "A user cannot record or finish with single-host degraded fallback based only on prose when codex/claude/agy availability proof shows two or more executable canonical hosts.",
+  "acceptanceClaim": "The CLI records fresh canonical host availability proof and rejects single-host-environment degraded fallback with a clear diagnostic whenever two or more canonical host CLIs are executable/version-responsive.",
+  "keyRequirementIds": [
+    "REQ-001-host-probe",
+    "REQ-002-reject-contradictory-single-host",
+    "REQ-003-done-gate-consumes-probe"
+  ],
+  "requestHash": "sha256:d97b4ed653e31a679e664dbc066bac0b87c5ad37bc6904e39770bff32e7ce7b3",
+  "createdAt": "2026-07-09T11:18:26.170Z",
+  "updatedAt": "2026-07-09T11:18:26.170Z"
+}

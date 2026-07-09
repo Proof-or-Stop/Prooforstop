@@ -1,0 +1,32 @@
+{
+  "storyId": "B-7438",
+  "checkedAt": "2026-07-09T11:09:08.583Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "I-2",
+      "severity": "low",
+      "desc": "Prior execution-boundary completeness issue is resolved: packages/main/src/core/process-fact-registry.ts is now allowed. However, init_preflight now reports scope-freeze-check.json is stale relative to the updated execution boundary, so the INIT artifacts are not mechanically fresh for INIT_CHECK until scope_freeze_check is rerun by the owning flow."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-07-09T11:06:55.782Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-07-09T11:09:08.583Z",
+      "issues": [
+        {
+          "id": "I-2",
+          "severity": "low",
+          "desc": "Prior execution-boundary completeness issue is resolved: packages/main/src/core/process-fact-registry.ts is now allowed. However, init_preflight now reports scope-freeze-check.json is stale relative to the updated execution boundary, so the INIT artifacts are not mechanically fresh for INIT_CHECK until scope_freeze_check is rerun by the owning flow."
+        }
+      ]
+    }
+  ],
+  "_hash": "85baa70919b85c7eb305540ad0d6f4562f7336b7cd89084f2ea85b2ed2b26fe1"
+}

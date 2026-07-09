@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-7438",
+  "checkedAt": "2026-07-09T11:09:48.725Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "1a0169e05c13da687571432adae08d6406e550eca6fccc75516bd7fef03f8223",
+  "executionBoundaryHash": "5030d8d26881e8db392f8cb982eb772c4fe159bef83d6f0764a81c9387ebb729",
+  "freshnessHash": "23c5ee25252154f4827c9d8470427eaaef7e3541b2ee0e460478711d50cf7290",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "customerKeyRef",
+    "Do not change release/push semantics",
+    "Do not claim remote Authority completion or production DONE",
+    "Do not modify unrelated active stories or existing human-written experiment documents",
+    "Do not redesign the full host runner or quorum_submit transport",
+    "Layer4",
+    "repair UX"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Authority",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not claim remote Authority completion or production DONE",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not change release/push semantics",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not change release/push semantics",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not claim remote Authority completion or production DONE",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not claim remote Authority completion or production DONE",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not modify unrelated active stories or existing human-written experiment documents",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not modify unrelated active stories or existing human-written experiment documents",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not redesign the full host runner or quorum_submit transport",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not redesign the full host runner or quorum_submit transport",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "e9565ab55c8927a9261008cc4369fb894dfb862c6cedc5f53e114adcaa02b849"
+}

@@ -1,0 +1,67 @@
+{
+  "passes": [
+    {
+      "id": "B-7438:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round: story B-7438 is purely additive (new review_host_availability_probe command + hostAvailabilityProbeId linkage on single-host-environment/temporary-host-unavailability fallback eligibility). Checked: (1) private fallbackRecordFromEvent in review-escalation.ts renamed to exported reviewEscalationFallbackRecordFromEvent with all in-file call sites updated (grep confirms zero residual references to the old bare name in that file); (2) review-assurance-floor.ts local fallbackRecordFromEvent is an intentional thin wrapper delegating to the shared function (old duplicated validation body fully removed, not orphaned); (3) removed now-unused imports REVIEW_ESCALATION_FALLBACK_ELIGIBILITIES/isReviewEscalationFallbackEligibility from review-assurance-floor.ts have zero remaining references in that file; (4) new command wiring (review_host_availability_probe) is consistently registered across command-catalog, alias-normalizer, command-policy, config phase tools, process-fact-levels, process-fact-registry, types.ts, and the handler; (5) no doc (CLAUDE.md/README) references the old renamed symbol. Concept residue check complete, no blocker.",
+      "createdAt": "2026-07-09T11:44:59.709Z",
+      "reviewRound": "2026-07-09T11:42:00.164Z",
+      "reviewRunId": "B-7438:RR-003",
+      "_hash": "ab35da3a4946dc8974550007e216d32dd014d7c3f75354e85b2d9488572f2fe5"
+    },
+    {
+      "id": "B-7438:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review round 2 passed: verified temporary-host-unavailability missing/stale/two-host rejection is covered concretely in review-escalation-smoke.ts and review-assurance-floor-smoke.ts (independently re-ran, all checks pass); confirmed the two previously missed suites (review-assurance-floor-storyfileshash-smoke, review-escalation-freshness-root-smoke) are wired into package.json root npm run test and pass; process-fact-contract verified. No blocker.",
+      "createdAt": "2026-07-09T11:57:42.287Z",
+      "reviewRound": "2026-07-09T11:56:20.945Z",
+      "reviewRunId": "B-7438:RR-004",
+      "_hash": "7ef42f12728b4dba75f924d293e0aec25ed1837b0b646222b301fb5a69b29ce5"
+    },
+    {
+      "id": "B-7438:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 targeted re-check after F-001/F-002 fixes. Verified the review_host_availability_probe concept (new command) is fully wired: command-catalog, alias-normalizer, config phase-tools, types.ts ProcessEventType, handler, core probe/assessment logic, process-fact-levels, process-fact-registry, and scripts/verify-process-fact-contract.mjs all reference it consistently; grep found zero orphan references. Verified the fallbackRecordFromEvent consolidation (review-assurance-floor.ts now delegates to the exported reviewEscalationFallbackRecordFromEvent instead of a duplicated local copy): grep for the old unexported name and the retired test title (\"explicit degraded 3x1 fallback passes as degraded only\") found no residue outside historical B-6de6 story archive files (legitimate history, not active code/docs). storyFilesHash downgrade-advisory logic is preserved verbatim in the consolidated function. Ran the four targeted smoke tasks (review-escalation-smoke, review-assurance-floor-smoke, review-assurance-floor-storyfileshash-smoke, review-escalation-freshness-root-smoke) after npm run build; all pass, including temporary-host-unavailability coverage, storyFilesHash-fallback-with-fresh-probe fixtures, and the freshness-root explicit-human-approval fixture. No blocker.",
+      "createdAt": "2026-07-09T11:58:31.312Z",
+      "reviewRound": "2026-07-09T11:56:20.945Z",
+      "reviewRunId": "B-7438:RR-005",
+      "_hash": "3404b7973f5f78a64d696f960f6124cf799eed762890c0a1e053ad14136b7c84"
+    },
+    {
+      "id": "B-7438:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 targeted re-check of F-001/F-002 fixes. Verified: (1) root npm run test now exits 0 (full log captured), including the two previously-broken suites review-assurance-floor-storyfileshash-smoke and review-escalation-freshness-root-smoke, without any standalone-flag workaround — they run as part of the same root chain as before. (2) The fix does not weaken production gates: review_escalation_fallback_set (handlers/review-escalation.ts) still throws before writing an invalid fallback event when host-availability evidence is missing/stale/insufficient for single-host-environment or temporary-host-unavailability; explicit-human-approval correctly remains exempt and lower-assurance. (3) Old-event compatibility: legacy/manually-injected fallback events lacking command/hostAvailabilityProbeId are now correctly marked invalid by reviewEscalationFallbackRecordFromEvent — this is the intended CHK-002 behavior per plan.md (not an unintended regression), and review-assurance-floor.ts consolidates onto the same shared function instead of duplicating validation logic (no dead code left behind, old local implementation fully removed). (4) Smoke fixtures are correct: hostAvailabilityProbe() fixtures in review-escalation-smoke.ts, review-assurance-floor-smoke.ts, and review-assurance-floor-storyfileshash-smoke.ts produce host rows whose available flag matches the required invariant (available === executablePath present && versionOk===true), materialHash/storyFilesHash bindings in the storyfileshash-smoke cases are correctly paired with probe and fallback events per the (d) checks, and the freshness-root-smoke fix correctly switches to explicit-human-approval+approvalRef rather than papering over the single-host-environment gate. (5) tsc --noEmit -p packages/main is clean, node scripts/verify-process-fact-contract.mjs passes, no unused imports/dead code/any-casts introduced beyond pre-existing test-file style, no I/O shell-isolation concerns (no shells touched). No proof-metadata dual-location concern applies (this diff uses story process-events.jsonl gate evidence, not job.metadata/run.metadata proof keys). No blocking issues found this round.",
+      "createdAt": "2026-07-09T12:00:33.951Z",
+      "reviewRound": "2026-07-09T11:56:20.945Z",
+      "reviewRunId": "B-7438:RR-006",
+      "_hash": "c2e48dc203b76291b13033f96126273e4029fbd7da528da866b144bccd39345f"
+    },
+    {
+      "id": "B-7438:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 3 targeted re-review: all 3 checklist items have full verificationIntent/Evidence coverage (9/9 pass, 0 fail, 0 waivers). review-escalation-smoke (19 checks), review-assurance-floor-smoke (15 checks), retired-authority-vocabulary-guard-smoke all pass, covering missing/stale/two-host probe rejection, temporary-host-unavailability, explicit-human-approval degraded fallback, and retired vocabulary guard. Process fact contract verified. No coverage gaps found.",
+      "createdAt": "2026-07-09T12:15:14.616Z",
+      "reviewRound": "2026-07-09T12:13:19.411Z",
+      "reviewRunId": "B-7438:RR-008",
+      "_hash": "ecb3b2a12cba441ccd083f1659a5f021b347e2e561404ad5b7bc43d7d996c065"
+    },
+    {
+      "id": "B-7438:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Round 3 targeted quality review: reviewed generic requireRetiredCompletionFieldsFalse helper (review-escalation.ts) applied uniformly to probe/policy/fallback events; command-policy.ts wording for review_host_availability_probe and review_escalation_fallback_set accurately describes implementation; vocabulary guard quarantine addition for review-assurance-floor-storyfileshash-smoke.ts is consistent with existing pattern (authorityDone/fullAuthorityDone/productionDone literals in fixture). Build clean; review-escalation-smoke (19 checks), review-assurance-floor-smoke (15 checks), retired-authority-vocabulary-guard-smoke, and verify-process-fact-contract all pass. No broken diagnostics, no hidden authority semantics, no stale impossible tests, no weakening of probe validation found.",
+      "createdAt": "2026-07-09T12:15:39.445Z",
+      "reviewRound": "2026-07-09T12:13:19.411Z",
+      "reviewRunId": "B-7438:RR-007",
+      "_hash": "67a70a36052dd4b03a83482408f5d7a4f298187cbe90088f5719696dc5b61592"
+    },
+    {
+      "id": "B-7438:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 targeted concept review: probe-bound degraded 3x1 fallback (single-host-environment/temporary-host-unavailability require fresh review_host_availability_probe with <2 canonical hosts, mechanically bound to current material/storyFilesHash); explicit-human-approval remains lower assurance without probe; retired authorityDone/fullAuthorityDone/productionDone forced false on new probe event; retired-vocab quarantine of review-assurance-floor-storyfileshash-smoke.ts verified legitimate (pre-guard legacy fixture already sets flags false). review-escalation-smoke, review-assurance-floor-smoke, retired-authority-vocabulary-guard-smoke all pass.",
+      "createdAt": "2026-07-09T12:15:42.502Z",
+      "reviewRound": "2026-07-09T12:13:19.411Z",
+      "reviewRunId": "B-7438:RR-009",
+      "_hash": "c6252399a564e31070a3a5655d6e7824b8acb5062cfe35333521e93fd48a56f9"
+    }
+  ]
+}

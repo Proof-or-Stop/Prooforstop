@@ -7,9 +7,13 @@ import {
   REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_EVENT,
   REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_PREDICATE,
   REVIEW_ESCALATION_FALLBACK_ELIGIBILITIES,
+  REVIEW_HOST_AVAILABILITY_CANONICAL_HOSTS,
+  REVIEW_HOST_AVAILABILITY_PROBE_COMMAND,
+  assessReviewHostAvailabilityForFallbackEligibility,
   evaluateReviewEscalation,
   formatReviewEscalationReport,
   isReviewEscalationFallbackEligibility,
+  probeReviewHostAvailability,
   resolveCompletedReviewEscalationSnapshot,
   type ReviewEscalationFallbackEligibility,
 } from '../core/review-escalation.js';
@@ -34,6 +38,14 @@ type ReviewEscalationFallbackSetArgs = {
   approvalRef?: string;
   materialHash?: string;
   storyFilesHash?: string;
+  actor?: string;
+} & FormatArgs;
+
+type ReviewHostAvailabilityProbeArgs = {
+  storyId: string;
+  materialHash?: string;
+  storyFilesHash?: string;
+  timeoutMs?: number;
   actor?: string;
 } & FormatArgs;
 
@@ -211,6 +223,56 @@ export function createReviewEscalationHandlers(ctx: HandlerContext) {
       ].filter(Boolean).join('\n');
     },
 
+    review_host_availability_probe(args: ReviewHostAvailabilityProbeArgs) {
+      assertCwdInWorktree(ctx.store, args.storyId);
+      const gitCwd = resolveGitCwd({ store: ctx.store, storyId: args.storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
+      const freshMaterialHash = currentMaterialHash(gitCwd, 'HEAD', ctx.root);
+      if (!freshMaterialHash) {
+        throw new Error('review_host_availability_probe: cannot compute current material hash');
+      }
+      const suppliedMaterialHash = normalizeString(args.materialHash);
+      if (suppliedMaterialHash && suppliedMaterialHash !== freshMaterialHash) {
+        throw new Error('review_host_availability_probe: supplied materialHash is stale and does not match current material hash');
+      }
+      const freshStoryFilesHash = currentStoryFilesHash(gitCwd, 'HEAD', ctx.root);
+      const suppliedStoryFilesHash = normalizeString(args.storyFilesHash);
+      if (suppliedStoryFilesHash && freshStoryFilesHash && suppliedStoryFilesHash !== freshStoryFilesHash) {
+        throw new Error('review_host_availability_probe: supplied storyFilesHash is stale and does not match current story-owned file hash');
+      }
+      const timeoutMs = Number.isFinite(args.timeoutMs) && args.timeoutMs && args.timeoutMs > 0
+        ? Math.min(Math.floor(args.timeoutMs), 30000)
+        : undefined;
+      const event = probeReviewHostAvailability({
+        storyId: args.storyId,
+        materialHash: freshMaterialHash,
+        storyFilesHash: freshStoryFilesHash || suppliedStoryFilesHash || undefined,
+        cwd: gitCwd,
+        timeoutMs,
+      });
+      ctx.store.appendProcessEvent(args.storyId, {
+        ...event,
+        ...(normalizeString(args.actor) ? { actor: normalizeString(args.actor) } : {}),
+      });
+      const commitHint = autoCommitStoryMetadata(ctx.root, args.storyId, REVIEW_HOST_AVAILABILITY_PROBE_COMMAND);
+      if (wantsJson(args)) {
+        return {
+          schemaVersion: 'lattice.review_host_availability_probe.v1',
+          ...event,
+        };
+      }
+      return [
+        `Review host availability probe ${event.probeId} recorded`,
+        `canonicalHosts: ${REVIEW_HOST_AVAILABILITY_CANONICAL_HOSTS.join(', ')}`,
+        `availableHostCount: ${event.availableHostCount}`,
+        `unavailableHostCount: ${event.unavailableHostCount}`,
+        `materialHash: ${freshMaterialHash}`,
+        ...(event.storyFilesHash ? [`storyFilesHash: ${event.storyFilesHash}`] : []),
+        ...event.hosts.map(row => `  - ${row.host}: ${row.available ? 'available' : 'unavailable'}${row.executablePath ? ` path=${row.executablePath}` : ''}${row.error ? ` (${row.error})` : ''}`),
+        'evidenceScope: review-host-availability-probe',
+        commitHint.trim(),
+      ].filter(Boolean).join('\n');
+    },
+
     review_escalation_fallback_set(args: ReviewEscalationFallbackSetArgs) {
       assertCwdInWorktree(ctx.store, args.storyId);
       const gitCwd = resolveGitCwd({ store: ctx.store, storyId: args.storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
@@ -240,6 +302,18 @@ export function createReviewEscalationHandlers(ctx: HandlerContext) {
         throw new Error('review_escalation_fallback_set: supplied storyFilesHash is stale and does not match current story-owned file hash');
       }
       const storyFilesHash = freshStoryFilesHash || suppliedStoryFilesHash;
+      const hostAvailability = assessReviewHostAvailabilityForFallbackEligibility(
+        ctx.store.readProcessEvents(args.storyId),
+        args.eligibility,
+        freshMaterialHash,
+        storyFilesHash || null,
+      );
+      if (!hostAvailability.ok) {
+        throw new Error(`review_escalation_fallback_set: ${hostAvailability.reasons.join('; ')}`);
+      }
+      const hostAvailabilityProbeId = hostAvailability.required
+        ? hostAvailability.latestFreshProbe?.probeId
+        : undefined;
 
       const fallbackId = `${args.storyId}:REF-${Date.now().toString(36)}`;
       const actor = normalizeString(args.actor) || process.env.LATTICE_AGENT || process.env.USER || 'main';
@@ -252,6 +326,7 @@ export function createReviewEscalationHandlers(ctx: HandlerContext) {
         reason,
         evidenceRefs,
         ...(approvalRef ? { approvalRef } : {}),
+        ...(hostAvailabilityProbeId ? { hostAvailabilityProbeId } : {}),
         materialHash: freshMaterialHash,
         ...(storyFilesHash ? { storyFilesHash } : {}),
         assuranceLevel: 'degraded-single-host',
@@ -274,6 +349,7 @@ export function createReviewEscalationHandlers(ctx: HandlerContext) {
           fallbackId,
           materialHash: freshMaterialHash,
           ...(storyFilesHash ? { storyFilesHash } : {}),
+          ...(hostAvailabilityProbeId ? { hostAvailabilityProbeId } : {}),
           assuranceLevel: 'degraded-single-host',
           authorityDone: false,
           fullAuthorityDone: false,
@@ -286,6 +362,7 @@ export function createReviewEscalationHandlers(ctx: HandlerContext) {
         `assuranceLevel: degraded-single-host`,
         `materialHash: ${freshMaterialHash}`,
         ...(storyFilesHash ? [`storyFilesHash: ${storyFilesHash}`] : []),
+        ...(hostAvailabilityProbeId ? [`hostAvailabilityProbeId: ${hostAvailabilityProbeId}`] : []),
         `reviewEscalationOk: ${report.ok}`,
         'admissibilityStatus: degraded-local-review-recorded',
         'assuranceLevel: degraded-single-host',

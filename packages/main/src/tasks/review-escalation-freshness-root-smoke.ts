@@ -519,9 +519,10 @@ function story(): StoryInfo {
     // CHK-003:happy:2 — review_escalation_fallback_set binds the floor materialHash DIRECTLY.
     const fallbackResult = handlers.review_escalation_fallback_set({
       storyId: STORE_STORY_ID,
-      eligibility: 'single-host-environment',
-      reason: 'single-host smoke fixture exercising the gitCwd-aware fallback freshness probe',
+      eligibility: 'explicit-human-approval',
+      reason: 'explicit human approval smoke fixture exercising the gitCwd-aware fallback freshness probe',
       evidenceRefs: ['smoke-evidence'],
+      approvalRef: 'smoke-approval:wrapper-root',
       json: true,
     }) as { report: { materialHash: string | null } };
     assert.equal(

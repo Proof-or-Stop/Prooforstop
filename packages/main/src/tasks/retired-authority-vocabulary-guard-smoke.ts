@@ -118,6 +118,7 @@ const explicitLegacyTaskQuarantineFiles = new Set([
   'packages/main/src/tasks/reviewer-batch-smoke.ts',
   'packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts',
   'packages/main/src/tasks/story-review-ergonomics-smoke.ts',
+  'packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts',
   'packages/main/src/tasks/unattended-dispatch-smoke.ts',
   'packages/main/src/tasks/worktree-policy-smoke.ts',
 ]);
