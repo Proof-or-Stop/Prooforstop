@@ -1113,8 +1113,13 @@ export function buildReviewAssuranceFloorGuidance(report: ReviewAssuranceFloorRe
 
 export function formatReviewAssuranceFloorFailure(report: ReviewAssuranceFloorReport): string {
   if (report.ok) return '';
-  const storyRef = report.storyId ?? '<storyId>';
-  const materialRef = report.materialHash ?? '<current-materialHash>';
+  const renderedStoryRef = storyRef(report.storyId);
+  const renderedMaterialRef = materialRef(report.materialHash);
+  const renderedHostVerdictSubmitCommand = autopilotReviewSubmitCommand(
+    report.storyId,
+    report.materialHash,
+    report.storyFilesHash ?? null,
+  );
   const signalSummary = report.failureSignals.length > 0
     ? report.failureSignals.map(signal => `${signal.kind}${signal.id ? `:${signal.id}` : ''}`).join(', ')
     : 'none';
@@ -1173,10 +1178,10 @@ export function formatReviewAssuranceFloorFailure(report: ReviewAssuranceFloorRe
   lines.push('', renderReviewAssuranceGuidance(buildReviewAssuranceFloorGuidance(report)));
   lines.push(
     'Stale material recovery:',
-    `  1. Re-run validation: lattice validate --story=${storyRef} --json`,
-    `  2. Refresh stale verificationEvidence: lattice verification_evidence_refresh_stale --storyId=${storyRef} --dryRun; rerun listed evidence commands; rerun without --dryRun.`,
-    `  3. Legal reviewer/host only: re-submit local host verdicts over materialHash=${materialRef}: lattice autopilot_review_submit --storyId=${storyRef} --runId={round-id} --hostId={host} --sessionId={session} --keyId={key} --decision=pass --materialDigest=${materialRef} --validationDigest={fresh-validation-digest} --promptDigest={current-prompt-digest}`,
-    `  4. Re-check local diagnostics: lattice autopilot_review_status --storyId=${storyRef}; lattice review_escalation_status --storyId=${storyRef}`,
+    `  1. Re-run validation: lattice validate --story=${renderedStoryRef} --json`,
+    `  2. Refresh stale verificationEvidence: lattice verification_evidence_refresh_stale --storyId=${renderedStoryRef} --dryRun; rerun listed evidence commands; rerun without --dryRun.`,
+    `  3. Legal reviewer/host only: re-submit local host verdicts over materialHash=${renderedMaterialRef}: ${renderedHostVerdictSubmitCommand}`,
+    `  4. Re-check local diagnostics: lattice autopilot_review_status --storyId=${renderedStoryRef}; lattice review_escalation_status --storyId=${renderedStoryRef}`,
     '  - Do not bypass stale material checks; stale verdicts/evidence stay ignored until refreshed or resubmitted over the current material.',
   );
   return lines.join('\n');

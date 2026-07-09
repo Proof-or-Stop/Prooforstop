@@ -233,6 +233,47 @@ function check(name: string, fn: () => void): void {
   console.log(`  ✓ ${name}`);
 }
 
+function staleRecoveryBlock(text: string): string {
+  const start = text.indexOf('Stale material recovery:');
+  assert.notEqual(start, -1, 'formatted floor failure must include stale material recovery guidance');
+  return text.slice(start);
+}
+
+function renderedLatticeCommandFragments(text: string): string[] {
+  const commands: string[] = [];
+  for (const line of text.split('\n')) {
+    const uncommented = line.split(' # ')[0];
+    for (const segment of uncommented.split(';')) {
+      const commandStart = segment.indexOf('lattice ');
+      if (commandStart >= 0) {
+        commands.push(segment.slice(commandStart).trim().replace(/[.,]$/, ''));
+      }
+    }
+  }
+  return commands;
+}
+
+function assertShellSafeLatticeCommandFragments(text: string): string[] {
+  const commands = renderedLatticeCommandFragments(text);
+  assert.ok(commands.length > 0, 'expected at least one rendered lattice command fragment');
+  for (const command of commands) {
+    assert.doesNotMatch(command, /<[^>\n]+>/, `angle placeholder in rendered command: ${command}`);
+    execFileSync('zsh', ['-n', '-c', command], { stdio: ['ignore', 'pipe', 'pipe'] });
+  }
+  return commands;
+}
+
+function assertStaleRecoveryCommandsShellSafe(formatted: string): string[] {
+  const commands = assertShellSafeLatticeCommandFragments(staleRecoveryBlock(formatted));
+  assert.equal(commands.length, 5, 'stale recovery must expose every inline lattice command fragment');
+  assert.equal(commands.some((command) => command.startsWith('lattice validate ')), true);
+  assert.equal(commands.some((command) => command.startsWith('lattice verification_evidence_refresh_stale ')), true);
+  assert.equal(commands.some((command) => command.startsWith('lattice autopilot_review_submit ')), true);
+  assert.equal(commands.some((command) => command.startsWith('lattice autopilot_review_status ')), true);
+  assert.equal(commands.some((command) => command.startsWith('lattice review_escalation_status ')), true);
+  return commands;
+}
+
 function assertProofAdmissibilityBlocked(report: ReviewAssuranceFloorReport): void {
   assert.equal(report.proofAdmissibility.blocking, true);
   assert.equal(report.proofAdmissibility.allowed, false);
@@ -311,10 +352,34 @@ try {
     assert.match(formatted, /stale host verdicts: round-1-codex-a@round-1 materialDigest=stale-material/);
     assert.match(formatted, new RegExp(`lattice validate --story=${STORY_ID} --json`));
     assert.match(formatted, new RegExp(`lattice verification_evidence_refresh_stale --storyId=${STORY_ID} --dryRun`));
-    assert.match(formatted, new RegExp(`Re-submit local host verdicts over materialHash=${materialHash}`));
+    assert.match(formatted, new RegExp(`Legal reviewer/host only: re-submit local host verdicts over materialHash=${materialHash}`));
     assert.match(formatted, /lattice autopilot_review_submit/);
+    assert.match(formatted, /--storyFilesHash=/);
     assert.match(formatted, /Do not bypass stale material checks/);
     assert.doesNotMatch(formatted, /remote receipt server|remote proof|productionDone/);
+    assertStaleRecoveryCommandsShellSafe(formatted);
+  });
+
+  check('stale recovery placeholder commands are shell-safe without story or material bindings', () => {
+    const report = evaluateReviewAssuranceFloor({
+      projectRoot: root,
+      story: story(),
+      changedFiles: ['packages/main/src/index.ts'],
+      processEvents: [verdict('round-1', 'codex-a', 'stale-material')],
+      materialHash,
+    });
+    const { storyId: _storyId, ...reportWithoutStoryId } = report;
+    const formatted = formatReviewAssuranceFloorFailure({
+      ...reportWithoutStoryId,
+      materialHash: null,
+      storyFilesHash: null,
+    });
+    assert.match(formatted, /lattice validate --story=\{storyId\} --json/);
+    assert.match(formatted, /Legal reviewer\/host only: re-submit local host verdicts over materialHash=\{current-materialHash\}/);
+    assert.match(formatted, /--materialDigest=\{current-materialHash\}/);
+    assert.doesNotMatch(staleRecoveryBlock(formatted), /<storyId>|<current-materialHash>/);
+    const commands = assertStaleRecoveryCommandsShellSafe(formatted);
+    assert.equal(commands.some((command) => command.includes('--storyId={storyId}')), true);
   });
 
   check('stale recovery output truncates ignored verdict details', () => {
@@ -336,6 +401,7 @@ try {
     assert.match(formatted, /Stale material recovery:/);
     assert.match(formatted, /lattice autopilot_review_status --storyId=B-review-assurance-floor/);
     assert.doesNotMatch(formatted, /skip stale|force DONE|override stale/i);
+    assertStaleRecoveryCommandsShellSafe(formatted);
   });
 
   check('failure signals require sticky 3x1 local rounds', () => {
