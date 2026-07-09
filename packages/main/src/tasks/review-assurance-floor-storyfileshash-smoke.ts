@@ -15,11 +15,12 @@ import {
   evaluateReviewAssuranceFloor,
   type EvaluateReviewAssuranceFloorArgs,
 } from '../core/review-assurance-floor.js';
-import { canonicalReviewHostLauncherSpec } from '../core/host-execution-readiness.js';
+import { canonicalReviewHostLauncherSpec, type CanonicalReviewHost } from '../core/host-execution-readiness.js';
 import type { ProcessEvent, StoryInfo } from '../core/types.js';
 
 const STORY_ID = 'B-review-assurance-floor-storyfileshash';
 const PROJECT_ROOT = '/tmp/review-assurance-floor-storyfileshash-smoke-offline';
+const SMOKE_PROMPT = 'Reply READY and do not run tools.';
 
 // Synthetic, deterministic hashes (never derived from git in this smoke).
 const MATERIAL_X = 'material-x-original';
@@ -97,6 +98,14 @@ function fallback(
   };
 }
 
+function concreteLauncherArgv(host: CanonicalReviewHost): string[] {
+  return canonicalReviewHostLauncherSpec(host).launcherArgv.map(arg => {
+    if (arg === '<prompt>') return SMOKE_PROMPT;
+    if (arg === '<prompt-file>') return `/tmp/review-assurance-floor-storyfileshash-${host}-prompt.txt`;
+    return arg;
+  });
+}
+
 function hostAvailabilityProbe(
   materialHash: string,
   storyFilesHash: string | undefined,
@@ -104,7 +113,7 @@ function hostAvailabilityProbe(
   overrides: Partial<ProcessEvent> = {},
 ): ProcessEvent {
   const available = new Set(availableHosts);
-  const hosts = (['codex', 'claude', 'agy'] as const).map(host => {
+  const hosts = (['codex', 'claude', 'agy'] as CanonicalReviewHost[]).map(host => {
     const ready = available.has(host);
     const spec = canonicalReviewHostLauncherSpec(host);
     return {
@@ -115,7 +124,7 @@ function hostAvailabilityProbe(
       available: ready,
       ...(ready ? { versionOutput: `${host} 1.0.0` } : { error: 'executable not found in PATH' }),
       launcher: spec.launcher,
-      launcherArgv: spec.launcherArgv,
+      launcherArgv: ready ? concreteLauncherArgv(host) : spec.launcherArgv,
       launcherSupport: ready ? 'supported' : 'unverified',
       launcherOk: ready,
       executionReady: ready,
