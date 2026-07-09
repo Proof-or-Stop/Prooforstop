@@ -1,6 +1,6 @@
 {
   "storyId": "B-fbcf",
-  "checkedAt": "2026-07-09T23:23:25.895Z",
+  "checkedAt": "2026-07-09T23:23:38.862Z",
   "features": [
     {
       "feature": "Opt-in fail-closed done_prepare generated-metadata auto-closeout for the narrow B-6914 loop",
@@ -242,9 +242,9 @@
     },
     {
       "feature": "done_prepare phase eligibility remains TEST-only; DONE recovery support would require a separate lifecycle semantics story",
-      "covered_by": null,
-      "status": "excluded",
-      "excluded_by": "Explicit non-goal in canonical execution plan and understanding constraints",
+      "covered_by": "understanding constraints; canonical Purpose and Non-Goals",
+      "status": "covered",
+      "excluded_by": null,
       "source": ".lattice/story/actives/B-fbcf/understanding.json; docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md"
     }
   ],
@@ -257,6 +257,6 @@
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "a1ea7951ca825f97e42da6876008bae802f8b40381f0475d26847c84efdba6b0",
+  "_hash": "28fbcedd7a98ae4e526bacbeb68d3201dbcb097834f30caddc3f4a02ee42ab14",
   "openQuestions": []
 }
