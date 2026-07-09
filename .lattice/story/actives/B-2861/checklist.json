@@ -317,8 +317,8 @@
       "relatedDocs": [
         "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-09T15:51:26.013Z",
       "endTime": null,
       "userSees": "User sees \"DONE optimization table ready: every applied document optimization has reason, evidence, 3x2 source, and affected contract area.\"",
       "files": {
@@ -451,6 +451,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Approved documentation optimizations are committed in fac8f979a; runtime/code changes remain deferred to future implementation stories."
+    },
+    {
+      "timestamp": "2026-07-09T15:51:26.013Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Final DONE optimization table is being tied to the completion definition."
     }
   ]
 }
