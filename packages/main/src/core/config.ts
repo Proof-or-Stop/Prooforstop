@@ -4,7 +4,7 @@ import { join } from 'path';
 import type { WorkflowProfile } from './types.js';
 import { resolveAuditConfig as _resolveAuditConfig, type AuditConfig } from './audit-config.js';
 import { getCommandLifecyclePolicy, getCommandPolicyEntries, policyAllowedPhaseLabels } from './command-policy.js';
-import { LATTICE_STORY_DIR } from './lattice-paths.js';
+import { LATTICE_DIR, LATTICE_STORY_DIR } from './lattice-paths.js';
 
 /**
  * audit-config 扩展点（B-9bd9 CHK-004）：
@@ -450,6 +450,35 @@ export const PROJECT_CONFIG_FILENAMES: readonly string[] = [
 /** True if the canonical Proofbound project config file exists in dir. */
 export function hasProjectConfigFile(dir: string): boolean {
   return PROJECT_CONFIG_FILENAMES.some((name) => existsSync(join(dir, name)));
+}
+
+const GLOBAL_THIN_ACTIVITY_MANIFEST_PATHS = [
+  join(LATTICE_DIR, 'lattice.json'),
+  join('.Lattice', 'lattice.json'),
+] as const;
+
+function isJsonRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+}
+
+/** True for runtime-managed global-thin roots that may receive activity logs. */
+export function isManagedGlobalThinRoot(dir: string): boolean {
+  for (const relPath of GLOBAL_THIN_ACTIVITY_MANIFEST_PATHS) {
+    const candidate = join(dir, relPath);
+    if (!existsSync(candidate)) continue;
+    try {
+      const parsed = JSON.parse(readFileSync(candidate, 'utf-8'));
+      if (isJsonRecord(parsed) && parsed.assetMode === 'global-thin') return true;
+    } catch {
+      return false;
+    }
+  }
+  return false;
+}
+
+/** Root eligibility for runtime activity logging only; not canonical config loading. */
+export function isRuntimeActivityRoot(dir: string): boolean {
+  return hasProjectConfigFile(dir) || isManagedGlobalThinRoot(dir);
 }
 
 /**

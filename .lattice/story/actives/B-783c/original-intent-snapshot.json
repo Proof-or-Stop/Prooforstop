@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-783c",
+  "sourceText": "Fix `lattice codex verify` in the global-thin project `/Users/jek/Documents/Work/deepswe-pos-codex-gpt55-run/solver-visible`, where only `Global fallback heartbeat` fails with `no activity heartbeat for session codex-check-global-...`. The root cause is Proofbound CLI activity logging using canonical `lattice.config.json` detection while global-thin managed projects only have `.lattice/lattice.json`. Add a narrow runtime/activity root helper that accepts canonical `lattice.config.json` and `.lattice/lattice.json` with `assetMode: global-thin`, without making `loadConfig()` parse `.lattice/lattice.json`; add regression/smoke coverage; build and rerun the solver-visible verify.",
+  "normalizedOutcome": "Running `lattice codex verify` in `/Users/jek/Documents/Work/deepswe-pos-codex-gpt55-run/solver-visible` no longer fails Global fallback heartbeat with `no activity heartbeat for session ...`; the heartbeat records to `.lattice/activity.jsonl` with `source=codex` and `entrypoint=global-fallback`.",
+  "acceptanceClaim": "The fixed Proofbound CLI preserves canonical config loading while activity logging recognizes managed global-thin roots, and the real solver-visible `lattice codex verify` smoke exits successfully without the prior Global fallback heartbeat hard failure.",
+  "keyRequirementIds": [
+    "REQ-global-thin-activity-root",
+    "REQ-preserve-canonical-config",
+    "REQ-solver-visible-codex-verify"
+  ],
+  "requestHash": "sha256:aefc840535e9dd311dd9c9efe09fc4997451ceefeed37ec96b8ce7a1d5b058f9",
+  "createdAt": "2026-07-08T23:52:21.733Z",
+  "updatedAt": "2026-07-08T23:52:21.733Z"
+}

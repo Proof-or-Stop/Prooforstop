@@ -1,0 +1,21 @@
+{
+  "storyId": "B-783c",
+  "expected": "In a global-thin project, `lattice codex verify` reaches `Global fallback heartbeat` and reports a codex/global-fallback heartbeat instead of `no activity heartbeat for session ...`.",
+  "actual": {
+    "command": "tmpbin=$(mktemp -d /tmp/lattice-b783c-live.XXXXXX); printf '%s\\n' '#!/bin/sh' 'exec node /Users/jek/Documents/Work/proofbound/.worktrees/B-783c/packages/main/dist/cli.js \"$@\"' > \"$tmpbin/lattice\"; chmod +x \"$tmpbin/lattice\"; cd /Users/jek/Documents/Work/deepswe-pos-codex-gpt55-run/solver-visible && PATH=\"$tmpbin:$PATH\" lattice codex verify; rc=$?; rm -rf \"$tmpbin\"; exit $rc",
+    "exitCode": 0,
+    "stdout": "✓ Codex adapter checks passed (8/8 pass)\n  [✓] Codex agent asset resolution: mode=runtime-owned; promptRegistryHash=33c90d52979f; assets absent=2 matches-runtime=0 stale=0 override=0; authorityBoundary=localNonAuthorityAudit; This projection is a local admissibility audit of prompt asset ownership; lifecycle completion stays with local gate evidence, receipt bundles, and review quorum.\n  [✓] Codex manifest: global-thin project: Codex adapter behavior runs from global lattice CLI (.lattice/lattice.json present)\n  [✓] Codex prompt registry: 16 prompt(s) render from package registry; hash=33c90d52979f\n  [✓] Codex runtime exclusions: no uppercase-only .lattice-codex/hooks or .lattice-codex/settings.json\n  [✓] Codex native PreToolUse hook: .codex/hooks.json wires apply_patch/Edit/Write to lattice-scope-pretool.cjs\n  [✓] Local Codex wrapper: global-thin project: local wrapper not required; use global lattice codex verify / lattice codex doctor\n  [✓] Global fallback heartbeat: source=codex session=codex-check-global-1783556532905 entrypoint=global-fallback\n  [✓] Aux command availability: aux_doc_list registered\n",
+    "stderr": "[0.1s] running verify_codex...\n[1.5s] verify_codex done\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-07-09T00:22:14.168Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "4aeccf4a2e5960a40baa89a7801ce8a3b74c24f6",
+  "materialHash": "e03b3abb8f68c388d50ec7b97da6090ba5eb88bb58108ac01ce0fdba009dda98"
+}

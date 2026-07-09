@@ -1,0 +1,26 @@
+{
+  "task": "Fix Proofbound CLI activity logging so Codex global fallback heartbeat works in global-thin managed projects without lattice.config.json.",
+  "outcome": "When the user runs `lattice codex verify` from `/Users/jek/Documents/Work/deepswe-pos-codex-gpt55-run/solver-visible`, the terminal no longer shows `Global fallback heartbeat: no activity heartbeat for session ...`; instead the Global fallback heartbeat check passes with `source=codex` and `entrypoint=global-fallback`, and the verify summary has no hard failure for that check.",
+  "facts": [
+    "The global lattice binary resolves through /Users/jek/.nvm/versions/node/v22.13.0/bin/lattice to proofbound/packages/main/dist/cli.js.",
+    "The solver-visible target is global-thin managed and has .lattice/lattice.json but lacks lattice.config.json.",
+    "packages/main/src/cli-engine.ts writeLog currently requires hasProjectConfigFile before appending .lattice/activity.jsonl.",
+    "packages/main/src/core/config.ts intentionally treats only lattice.config.json as canonical project config.",
+    "packages/main/src/core/codex-adapter-checks.ts already has global-thin detection for Codex verify behavior and reads activity via readActivityLogTail."
+  ],
+  "constraints": [
+    "Do not modify /Users/jek/Documents/Work/Orchestrate.",
+    "Do not edit solver-visible project code; use it only for the final smoke command.",
+    "Do not make loadConfig parse .lattice/lattice.json as canonical config because that file has a different adapter metadata schema.",
+    "Keep canonical lattice.config.json behavior unchanged.",
+    "Do not directly read or write docs/story or tests/fixtures JSON files."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/config.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/codex-adapter-checks.ts",
+    "packages/main/src/tasks/thin-init-assets-smoke.ts"
+  ],
+  "timestamp": "2026-07-08T23:39:24.488Z"
+}

@@ -1,0 +1,58 @@
+{
+  "passes": [
+    {
+      "id": "B-783c:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept review pass: the implementation keeps .lattice/lattice.json out of canonical config discovery/loadConfig, limits the new helper to runtime activity-root eligibility and Codex global-thin detection, preserves canonical lattice.config.json activity logging, and adds smoke coverage for canonical, managed global-thin, malformed/wrong-mode, and loadConfig non-adoption. Verified with npm --prefix packages/main run build && node packages/main/dist/tasks/thin-init-assets-smoke.js, plus node bin/lattice.js verify_codex after building packages/utils.",
+      "createdAt": "2026-07-09T00:06:15.799Z",
+      "reviewRound": "2026-07-09T00:02:08.322Z",
+      "reviewRunId": "B-783c:RR-002",
+      "_hash": "bb1f998e48c782e70cbc78f954f85f7885433e5658c8a777fc0f7c85fbc0667b"
+    },
+    {
+      "id": "B-783c:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage review pass. Inspected verificationIntent/evidence for CHK-001..003, patch surface, and smoke source. Local reviewer reran npm --prefix packages/main run build and node packages/main/dist/tasks/thin-init-assets-smoke.js successfully. Smoke covers canonical lattice.config.json activity roots, global-thin-only .lattice/lattice.json roots, malformed/wrong-assetMode manifests, and loadConfig separation. The real heartbeat failure signature is covered by session_brief activity assertions plus fresh solver-visible manual transcript evidence noting lattice codex verify passed and the codex-check-global activity row has source=codex entrypoint=global-fallback; dedicated live_smoke_transcript artifact is absent but evidence_manifest/lifecycle_check classify checklist evidence fresh for unchanged material.",
+      "createdAt": "2026-07-09T00:06:21.441Z",
+      "reviewRound": "2026-07-09T00:02:08.322Z",
+      "reviewRunId": "B-783c:RR-003",
+      "_hash": "af60220e50f1f84cf97bf4ba0288185e09c85ff6c9885057c3f262cc55d2f448"
+    },
+    {
+      "id": "B-783c:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Quality review pass: inspected diff in cli-engine, config, codex-adapter checks, and thin-init smoke. The implementation limits global-thin recognition to runtime activity-root eligibility, preserves loadConfig/findProjectRoot canonical config behavior, keeps malformed/wrong-assetMode manifests non-writable, and does not regress cli-engine success/failure activity logging flow. Verified current HEAD with npm --prefix packages/main run build, node packages/main/dist/tasks/thin-init-assets-smoke.js, and node bin/lattice.js verify_codex.",
+      "createdAt": "2026-07-09T00:07:29.984Z",
+      "reviewRound": "2026-07-09T00:02:08.322Z",
+      "reviewRunId": "B-783c:RR-004",
+      "_hash": "b7ad6525f56155c8b9dbd3d9adf7a44b6b1a060ff70ee65ac606fdbeed3b99d4"
+    },
+    {
+      "id": "B-783c:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage PASS. Inspected checklist evidence and packages/main/src/tasks/thin-init-assets-smoke.ts on current REVIEW head 00dce5d95. Smoke covers canonical lattice.config.json roots writing .lattice/activity.jsonl; global-thin-only roots with .lattice/lattice.json assetMode=global-thin writing activity; malformed and wrong-assetMode manifests producing no activity log; and loadConfig() retaining canonical lattice.config.json behavior/defaults rather than parsing the managed manifest. Solver-visible evidence for CHK-003 records the rebuilt worktree wrapper, codex verify 8/8 pass, absence of the prior missing activity heartbeat failure, and codex/global-fallback activity row. Fresh reruns in the story worktree passed: npm --prefix packages/main run build; node packages/main/dist/tasks/thin-init-assets-smoke.js.",
+      "createdAt": "2026-07-09T00:42:09.360Z",
+      "reviewRound": "2026-07-09T00:40:21.448Z",
+      "reviewRunId": "B-783c:RR-007",
+      "_hash": "9c1d37f0816ce86483015a49e764dcd2babd6317d90956b4de96c969e08c7c1c"
+    },
+    {
+      "id": "B-783c:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Concept pass: canonical config behavior remains bound to lattice.config.json via loadConfig, pickProjectConfigPath, and findProjectRootByMarker. The global-thin .lattice/lattice.json check is shared only for runtime-managed global-thin recognition and activity-log eligibility/Codex adapter manifest behavior, not canonical config loading. Verified npm --prefix packages/main run build and node packages/main/dist/tasks/thin-init-assets-smoke.js.",
+      "createdAt": "2026-07-09T00:42:24.089Z",
+      "reviewRound": "2026-07-09T00:40:21.448Z",
+      "reviewRunId": "B-783c:RR-008",
+      "_hash": "49cba00ca2b468304e45d64d0d9d863a235c754f221f17c87b4477f6405599bd"
+    },
+    {
+      "id": "B-783c:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Quality review passed after inspecting packages/main/src/core/config.ts, packages/main/src/cli-engine.ts, packages/main/src/core/codex-adapter-checks.ts, and packages/main/src/tasks/thin-init-assets-smoke.ts. No blocker found for root detection, malformed manifest handling, managed-root activity logging, parsing reuse, or smoke-test maintainability. Focused verification: npm --prefix packages/main run build; node packages/main/dist/tasks/thin-init-assets-smoke.js.",
+      "createdAt": "2026-07-09T00:43:16.915Z",
+      "reviewRound": "2026-07-09T00:40:21.448Z",
+      "reviewRunId": "B-783c:RR-009",
+      "_hash": "d297cc5ae3977fa6ea5eb5070d967737bd34a6b718d3c7b46918bcf30e51ef6d"
+    }
+  ]
+}

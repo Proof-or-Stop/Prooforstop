@@ -1,0 +1,52 @@
+{
+  "storyId": "B-783c",
+  "checkedAt": "2026-07-08T23:50:42.474Z",
+  "features": [
+    {
+      "feature": "Managed global-thin projects are recognized as activity-log writable runtime roots without lattice.config.json",
+      "covered_by": "CHK-001; plan.md lines 17-20; understanding facts say solver-visible has .lattice/lattice.json but lacks lattice.config.json",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "story/checklist/plan"
+    },
+    {
+      "feature": "Canonical project config semantics remain limited to lattice.config.json; .lattice/lattice.json is not parsed by loadConfig as canonical config",
+      "covered_by": "CHK-001 edge verificationIntent; decision option B rationale; plan.md line 15 and lines 37-38",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding/decision/checklist/plan"
+    },
+    {
+      "feature": "Malformed, wrong-assetMode, or unmanaged directories are not promoted to activity roots and do not receive stray activity logs",
+      "covered_by": "CHK-001 adversarial verificationIntent; CHK-002 adversarial verificationIntent; decision preMortem 1; plan.md lines 34 and 38-39",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decision/checklist/plan"
+    },
+    {
+      "feature": "Regression coverage proves canonical roots still log, global-thin roots log, and unrelated directories do not log",
+      "covered_by": "CHK-002; plan.md lines 31-39; test target packages/main/src/tasks/thin-init-assets-smoke.ts",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist/plan"
+    },
+    {
+      "feature": "User-visible solver-visible Codex adapter verification passes after rebuild and rules out the prior Global fallback heartbeat failure",
+      "covered_by": "CHK-003; understanding outcome; plan.md lines 50-58",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding/checklist/plan"
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "covered": 5,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "7bd86b60280ac2a8c93ae2e8a619f7a74d96716df8e565c6d7556886c7025460",
+  "openQuestions": []
+}

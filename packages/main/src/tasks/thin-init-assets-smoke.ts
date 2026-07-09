@@ -22,7 +22,9 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { getRuntimeActivityLogPath, readActivityLogTail } from '../core/activity-log.js';
 import { renderCodexAdapterChecks, runCodexAdapterChecks } from '../core/codex-adapter-checks.js';
+import { loadConfig, resetConfigCache } from '../core/config.js';
 import { renderManagedAssetCheck, runManagedAssetCheck, runtimeIgnoreMissing } from '../core/managed-assets.js';
 import { listRuntimeArtifactIgnorePatterns } from '../core/runtime-artifact-registry.js';
 
@@ -65,6 +67,32 @@ function assertCodexOk(root: string): void {
   assert.equal(result.ok, true, renderCodexAdapterChecks(result));
 }
 
+function runSessionBriefHeartbeat(root: string, session: string): void {
+  const env = { ...process.env };
+  delete env.LATTICE_PROJECT_ROOT;
+  execFileSync(process.execPath, [cliPath, 'session_brief'], {
+    cwd: root,
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+    env: {
+      ...env,
+      LATTICE_ACTIVITY_RECORD_READONLY: '1',
+      LATTICE_ACTIVITY_SOURCE: 'codex',
+      LATTICE_ACTIVITY_SESSION: session,
+      LATTICE_CODEX_ENTRYPOINT: 'global-fallback',
+    },
+  });
+}
+
+function assertSessionBriefActivity(root: string, session: string): void {
+  assert.equal(existsSync(getRuntimeActivityLogPath(root)), true, '.lattice/activity.jsonl should exist');
+  const record = readActivityLogTail(root, 20).find(entry =>
+    entry.session === session && entry.tool === 'session_brief');
+  assert.ok(record, `session_brief heartbeat should be recorded for ${session}`);
+  assert.equal(record.source, 'codex');
+  assert.equal(record.status, 'ok');
+}
+
 // B-4fd3 regression guard: the .gitignore produced by init must cover the FULL
 // runtime-artifact registry ignore set, not just whatever the copied template
 // happened to contain. This mechanically catches any future registry→.gitignore
@@ -81,6 +109,56 @@ function assertGitignoreCoversRegistry(root: string): void {
     0,
     `init .gitignore is missing registry runtime ignore pattern(s): ${missing.join(', ')} (full set: ${listRuntimeArtifactIgnorePatterns().join(', ')})`,
   );
+}
+
+// ─── Activity Root Regressions ───────────────────────────────────────────────
+const canonicalActivityRoot = makeRoot('activity-canonical');
+try {
+  writeText(canonicalActivityRoot, 'lattice.config.json', '{}\n');
+  runSessionBriefHeartbeat(canonicalActivityRoot, 'smoke-canonical-activity');
+  assertSessionBriefActivity(canonicalActivityRoot, 'smoke-canonical-activity');
+} finally {
+  rmSync(canonicalActivityRoot, { recursive: true, force: true });
+}
+
+const managedGlobalThinActivityRoot = makeRoot('activity-global-thin');
+try {
+  writeText(managedGlobalThinActivityRoot, '.lattice/lattice.json', JSON.stringify({ assetMode: 'global-thin' }, null, 2));
+  runSessionBriefHeartbeat(managedGlobalThinActivityRoot, 'smoke-global-thin-activity');
+  assertSessionBriefActivity(managedGlobalThinActivityRoot, 'smoke-global-thin-activity');
+} finally {
+  rmSync(managedGlobalThinActivityRoot, { recursive: true, force: true });
+}
+
+for (const [name, manifest] of [
+  ['activity-malformed-global-thin', '{not valid json'],
+  ['activity-wrong-asset-mode', JSON.stringify({ assetMode: 'thin' }, null, 2)],
+] as const) {
+  const root = makeRoot(name);
+  try {
+    writeText(root, '.lattice/lattice.json', manifest);
+    runSessionBriefHeartbeat(root, `smoke-${name}`);
+    assertAbsent(root, '.lattice/activity.jsonl');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+const loadConfigGlobalThinOnlyRoot = makeRoot('loadconfig-global-thin-only');
+try {
+  writeText(loadConfigGlobalThinOnlyRoot, '.lattice/lattice.json', JSON.stringify({
+    assetMode: 'global-thin',
+    scanRoot: 'managed-manifest-must-not-win',
+    storyPrefix: 'Z',
+  }, null, 2));
+  resetConfigCache();
+  const config = loadConfig(loadConfigGlobalThinOnlyRoot);
+  assert.equal(config.scanRoot, 'src');
+  assert.equal(config.storyPrefix, 'B');
+  assertAbsent(loadConfigGlobalThinOnlyRoot, 'lattice.config.json');
+} finally {
+  resetConfigCache();
+  rmSync(loadConfigGlobalThinOnlyRoot, { recursive: true, force: true });
 }
 
 // ─── Test 1: Fresh default (global-thin) ─────────────────────────────────────
