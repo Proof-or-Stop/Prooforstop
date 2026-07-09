@@ -136,7 +136,27 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "behavior spec-boundary step consumes scope_check_save result, current diff, story commitments, and candidate docs by default; no unconditional full-scan wording remains",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the five escalation triggers are enumerated verbatim so high-risk lifecycle/gate stories still get a full scan with a recorded reason",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "finding taxonomy unchanged (category=missing with spec-boundary: desc prefix) so the token change cannot silently alter review semantics",
+            "type": "docs"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
