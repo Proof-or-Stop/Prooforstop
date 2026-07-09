@@ -1,6 +1,7 @@
 import { execFileSync } from 'child_process';
 import type { HandlerContext } from './context.js';
 import { StoryStore } from '../core/store.js';
+import { bumpVersionOnDoneMerge } from '../core/version-bump.js';
 import {
   assertMainWorktreeClean,
   assertStoryWorktreeClean,
@@ -103,6 +104,12 @@ export function createDoneRecoverHandlers(ctx: HandlerContext) {
         mainShaAfterRecoveryMerge,
       );
       const runtimeSemverChanged = shouldBuildDoneMainPackageForChangedPaths(recoveryMergeChangedPaths);
+
+      lines.push(bumpVersionOnDoneMerge({
+        mainMergeRoot,
+        shouldBump: runtimeSemverChanged,
+        runGit: (gitArgs, cwd) => git(cwd, gitArgs),
+      }));
 
       lines.push(runDoneMainPackageBuildAfterMerge(
         mainMergeRoot,

@@ -1,10 +1,12 @@
 /**
  * Auto patch-version bump on DONE merge to local main (B-aa8a).
  *
- * The CLI version lives in THREE sync points that rollout-check enforces identical:
+ * The CLI version lives in FIVE sync points that rollout-check enforces identical:
  *   1. <root>/package.json                              "version"
- *   2. <root>/packages/main/package.json                "version"
- *   3. <root>/packages/main/src/core/lattice-brand.ts   export const LATTICE_CLI_VERSION
+ *   2. <root>/package-lock.json                         "version" + root package entry
+ *   3. <root>/packages/main/package.json                "version"
+ *   4. <root>/packages/main/package-lock.json           "version" + root package entry
+ *   5. <root>/packages/main/src/core/lattice-brand.ts   export const LATTICE_CLI_VERSION
  *
  * This module is PURE (no git, no done-effects import — avoids a circular dependency;
  * done-effects passes in the `shouldBump` decision and a `runGit` runner). It reads all
@@ -23,14 +25,18 @@ import { join } from 'node:path';
 /** Relative paths (from the repo root) of the three version sync points. */
 export const VERSION_SYNC_FILES = {
   rootPackageJson: 'package.json',
+  rootPackageLock: 'package-lock.json',
   mainPackageJson: 'packages/main/package.json',
+  mainPackageLock: 'packages/main/package-lock.json',
   brand: 'packages/main/src/core/lattice-brand.ts',
 } as const;
 
 /** Ordered list of the three relative sync-point paths (for `git add`). */
 export const VERSION_SYNC_PATHS: readonly string[] = [
   VERSION_SYNC_FILES.rootPackageJson,
+  VERSION_SYNC_FILES.rootPackageLock,
   VERSION_SYNC_FILES.mainPackageJson,
+  VERSION_SYNC_FILES.mainPackageLock,
   VERSION_SYNC_FILES.brand,
 ];
 
@@ -77,13 +83,67 @@ export function nextPatch(version: string): string {
   return formatSemver({ major: v.major, minor: v.minor, patch: v.patch + 1 });
 }
 
-/** Read the structural top-level `version` from a package.json. */
+/** Read the structural top-level `version` from a package.json/package-lock.json. */
 function readJsonVersion(absPath: string): string {
   const parsed = JSON.parse(readFileSync(absPath, 'utf-8')) as { version?: unknown };
   if (typeof parsed.version !== 'string') {
     throw new Error(`version-bump: ${absPath} has no string top-level "version" field`);
   }
   return parsed.version;
+}
+
+type JsonRecord = Record<string, unknown>;
+
+function isRecord(value: unknown): value is JsonRecord {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function readLockPackageVersion(parsed: JsonRecord, packageKey: string, label: string): string {
+  const packages = parsed.packages;
+  if (!isRecord(packages)) {
+    throw new Error(`version-bump: ${label} has no object "packages" field`);
+  }
+  const entry = packages[packageKey];
+  if (!isRecord(entry)) {
+    throw new Error(`version-bump: ${label} has no object packages[${JSON.stringify(packageKey)}] entry`);
+  }
+  if (typeof entry.version !== 'string') {
+    throw new Error(`version-bump: ${label} packages[${JSON.stringify(packageKey)}] has no string "version" field`);
+  }
+  return entry.version;
+}
+
+function readOptionalLockPackageVersion(parsed: JsonRecord, packageKey: string, label: string): string | null {
+  const packages = parsed.packages;
+  if (!isRecord(packages)) {
+    throw new Error(`version-bump: ${label} has no object "packages" field`);
+  }
+  const entry = packages[packageKey];
+  if (entry === undefined) return null;
+  if (!isRecord(entry)) {
+    throw new Error(`version-bump: ${label} packages[${JSON.stringify(packageKey)}] is not an object`);
+  }
+  if (entry.version === undefined) return null;
+  if (typeof entry.version !== 'string') {
+    throw new Error(`version-bump: ${label} packages[${JSON.stringify(packageKey)}] has non-string "version" field`);
+  }
+  return entry.version;
+}
+
+function readPackageLockVersions(absPath: string, label: string, optionalPackageKeys: string[] = []): Array<{ label: string; version: string }> {
+  const parsed = JSON.parse(readFileSync(absPath, 'utf-8')) as JsonRecord;
+  if (typeof parsed.version !== 'string') {
+    throw new Error(`version-bump: ${label} has no string top-level "version" field`);
+  }
+  const versions = [
+    { label, version: parsed.version },
+    { label: `${label} packages[""]`, version: readLockPackageVersion(parsed, '', label) },
+  ];
+  for (const key of optionalPackageKeys) {
+    const version = readOptionalLockPackageVersion(parsed, key, label);
+    if (version !== null) versions.push({ label: `${label} packages[${JSON.stringify(key)}]`, version });
+  }
+  return versions;
 }
 
 /** Return a package.json content string with ONLY the top-level `version` set to `to`. */
@@ -93,6 +153,52 @@ function bumpJsonVersionContent(content: string, from: string, to: string, label
     throw new Error(`version-bump: ${label} top-level version is "${String(parsed.version)}", expected "${from}"`);
   }
   parsed.version = to;
+  return `${JSON.stringify(parsed, null, 2)}\n`;
+}
+
+function bumpRequiredLockPackageVersion(parsed: JsonRecord, packageKey: string, from: string, to: string, label: string): void {
+  const packages = parsed.packages;
+  if (!isRecord(packages)) {
+    throw new Error(`version-bump: ${label} has no object "packages" field`);
+  }
+  const entry = packages[packageKey];
+  if (!isRecord(entry)) {
+    throw new Error(`version-bump: ${label} has no object packages[${JSON.stringify(packageKey)}] entry`);
+  }
+  if (entry.version !== from) {
+    throw new Error(`version-bump: ${label} packages[${JSON.stringify(packageKey)}] version is "${String(entry.version)}", expected "${from}"`);
+  }
+  entry.version = to;
+}
+
+function bumpOptionalLockPackageVersion(parsed: JsonRecord, packageKey: string, from: string, to: string, label: string): void {
+  const packages = parsed.packages;
+  if (!isRecord(packages)) {
+    throw new Error(`version-bump: ${label} has no object "packages" field`);
+  }
+  const entry = packages[packageKey];
+  if (entry === undefined) return;
+  if (!isRecord(entry)) {
+    throw new Error(`version-bump: ${label} packages[${JSON.stringify(packageKey)}] is not an object`);
+  }
+  if (entry.version === undefined) return;
+  if (entry.version !== from) {
+    throw new Error(`version-bump: ${label} packages[${JSON.stringify(packageKey)}] version is "${String(entry.version)}", expected "${from}"`);
+  }
+  entry.version = to;
+}
+
+/** Return a package-lock.json content string with top-level and package-entry versions set to `to`. */
+function bumpPackageLockVersionContent(content: string, from: string, to: string, label: string, optionalPackageKeys: string[] = []): string {
+  const parsed = JSON.parse(content) as JsonRecord;
+  if (parsed.version !== from) {
+    throw new Error(`version-bump: ${label} top-level version is "${String(parsed.version)}", expected "${from}"`);
+  }
+  parsed.version = to;
+  bumpRequiredLockPackageVersion(parsed, '', from, to, label);
+  for (const key of optionalPackageKeys) {
+    bumpOptionalLockPackageVersion(parsed, key, from, to, label);
+  }
   return `${JSON.stringify(parsed, null, 2)}\n`;
 }
 
@@ -127,23 +233,28 @@ function bumpBrandContent(content: string, from: string, to: string): string {
 }
 
 /**
- * Read the version from all three sync points and assert they are identical.
+ * Read the version from all sync points and assert they are identical.
  * Throws a drift error naming each value if they disagree — the DONE merge then
  * surfaces it as a loud failure instead of silently bumping an inconsistent set.
  */
 export function readSyncedVersion(root: string): string {
-  const rootV = readJsonVersion(join(root, VERSION_SYNC_FILES.rootPackageJson));
-  const mainV = readJsonVersion(join(root, VERSION_SYNC_FILES.mainPackageJson));
-  const brandV = readBrandVersion(join(root, VERSION_SYNC_FILES.brand));
-  if (rootV !== mainV || rootV !== brandV) {
+  const versions = [
+    { label: 'root', version: readJsonVersion(join(root, VERSION_SYNC_FILES.rootPackageJson)) },
+    ...readPackageLockVersions(join(root, VERSION_SYNC_FILES.rootPackageLock), 'root lockfile', ['packages/main']),
+    { label: 'packages/main', version: readJsonVersion(join(root, VERSION_SYNC_FILES.mainPackageJson)) },
+    ...readPackageLockVersions(join(root, VERSION_SYNC_FILES.mainPackageLock), 'packages/main lockfile'),
+    { label: 'lattice-brand', version: readBrandVersion(join(root, VERSION_SYNC_FILES.brand)) },
+  ];
+  const [first] = versions;
+  if (versions.some((entry) => entry.version !== first.version)) {
     throw new Error(
-      `version-bump: the 3 version sync points are out of sync ` +
-      `(root=${rootV}, packages/main=${mainV}, lattice-brand=${brandV}); ` +
-      `refusing to bump. Reconcile all three to the same X.Y.Z first.`,
+      `version-bump: the version sync points are out of sync ` +
+      `(${versions.map((entry) => `${entry.label}=${entry.version}`).join(', ')}); ` +
+      `refusing to bump. Reconcile all version sources to the same X.Y.Z first.`,
     );
   }
-  parseSemver(rootV); // catch a synced-but-malformed value early
-  return rootV;
+  parseSemver(first.version); // catch a synced-but-malformed value early
+  return first.version;
 }
 
 export interface PatchBumpResult {
@@ -162,26 +273,30 @@ export interface ApplyPatchBumpTestHooks {
 }
 
 /**
- * Patch-bump all three sync points in `root`. Pure filesystem (no git), so it is
+ * Patch-bump all sync points in `root`. Pure filesystem (no git), so it is
  * hermetically testable against a temp fixture dir. Computes every replacement in memory
- * first (structural JSON for the two package.json, anchored single-match regex for the
- * brand) so any ambiguity/missing target throws BEFORE any write; then writes all three
- * and re-reads to verify. On ANY write failure OR a failed post-write verification it
- * rolls every file back to `from`, so the three points are never left drifted.
+ * first (structural JSON for package.json/package-lock.json files, anchored single-match
+ * regex for the brand) so any ambiguity/missing target throws BEFORE any write; then
+ * writes all files and re-reads to verify. On ANY write failure OR a failed post-write
+ * verification it rolls every file back to `from`, so sync points are never left drifted.
  */
 export function applyPatchBump(root: string, opts?: ApplyPatchBumpTestHooks): PatchBumpResult {
   const from = readSyncedVersion(root);
   const to = nextPatch(from);
 
   const rootPkgPath = join(root, VERSION_SYNC_FILES.rootPackageJson);
+  const rootLockPath = join(root, VERSION_SYNC_FILES.rootPackageLock);
   const mainPkgPath = join(root, VERSION_SYNC_FILES.mainPackageJson);
+  const mainLockPath = join(root, VERSION_SYNC_FILES.mainPackageLock);
   const brandPath = join(root, VERSION_SYNC_FILES.brand);
 
   // Compute all three new contents in memory first; a structural problem throws here,
   // before a single byte is written.
   const plan = [
     { path: rootPkgPath, next: bumpJsonVersionContent(readFileSync(rootPkgPath, 'utf-8'), from, to, 'root package.json') },
+    { path: rootLockPath, next: bumpPackageLockVersionContent(readFileSync(rootLockPath, 'utf-8'), from, to, 'root package-lock.json', ['packages/main']) },
     { path: mainPkgPath, next: bumpJsonVersionContent(readFileSync(mainPkgPath, 'utf-8'), from, to, 'packages/main package.json') },
+    { path: mainLockPath, next: bumpPackageLockVersionContent(readFileSync(mainLockPath, 'utf-8'), from, to, 'packages/main package-lock.json') },
     { path: brandPath, next: bumpBrandContent(readFileSync(brandPath, 'utf-8'), from, to) },
   ];
 
@@ -247,7 +362,7 @@ export function bumpVersionOnDoneMerge(opts: BumpOnDoneMergeOptions): string {
   } catch (e: any) {
     throw new Error(
       `DONE post-merge version bump failed before any commit: ${e?.message ?? e}\n` +
-      `Recovery: reconcile the 3 version sync points (${VERSION_SYNC_PATHS.join(', ')}) to the same X.Y.Z, then re-run the bump or bump manually.`,
+      `Recovery: reconcile the version sync points (${VERSION_SYNC_PATHS.join(', ')}) to the same X.Y.Z, then re-run the bump or bump manually.`,
     );
   }
 
@@ -267,5 +382,5 @@ export function bumpVersionOnDoneMerge(opts: BumpOnDoneMergeOptions): string {
     );
   }
 
-  return `✓ version auto-bumped ${bump.from} → ${bump.to} across 3 sync points after DONE merge`;
+  return `✓ version auto-bumped ${bump.from} → ${bump.to} across ${bump.files.length} sync points after DONE merge`;
 }
