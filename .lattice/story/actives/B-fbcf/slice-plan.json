@@ -1,7 +1,7 @@
 {
   "schemaVersion": "proofstory.slice_plan.v1",
   "storyId": "B-fbcf",
-  "ledgerHash": "sha256:d06210bda4816b596550a7bf4b98e25179417d223d7d8512ef6096383c8feba4",
+  "ledgerHash": "sha256:1e5cfc7c342b30efda74e86fe5a500c2eb8273a92ff9bf8b80b0def28f25866a",
   "slices": [
     {
       "id": "slice-1",
@@ -12,7 +12,7 @@
         "M3",
         "M4"
       ],
-      "reason": "The core automation path is tightly coupled and must be implemented against the post-B-eb08/B-eb92/B-b264 done_prepare surfaces to avoid conflicting behavior.",
+      "reason": "Core auto-closeout behavior is tightly coupled: no-overlap scope, generated metadata manifest, safe commit, validation reuse, and closure re-evaluation must be verified together.",
       "assignedStory": "B-fbcf"
     },
     {
@@ -20,11 +20,11 @@
       "milestoneIds": [
         "M5"
       ],
-      "reason": "Regression and safety coverage is tracked separately but remains in this story because it proves the automation does not duplicate or weaken the related UX/gate stories.",
+      "reason": "Regression and safety coverage is tracked as a separate slice but remains in B-fbcf because it proves the automation does not weaken adjacent UX/gate stories.",
       "assignedStory": "B-fbcf"
     }
   ],
-  "planHash": "sha256:836d46760dc100af50ae4d4dd65bb7d769e1c38370e8a88011ed1d537e8c220b",
+  "planHash": "sha256:3e76ba8cc417bfdde2deb8b1e18d624867bf9e234ac88adfc2d3ebe3cde24c25",
   "createdAt": "2026-07-09T02:43:37.536Z",
-  "updatedAt": "2026-07-09T02:43:37.536Z"
+  "updatedAt": "2026-07-09T23:25:45.004Z"
 }

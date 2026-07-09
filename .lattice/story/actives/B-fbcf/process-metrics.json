@@ -1,12 +1,12 @@
 {
   "storyId": "B-fbcf",
-  "generatedAt": "2026-07-09T23:14:58.272Z",
+  "generatedAt": "2026-07-09T23:24:05.033Z",
   "sourceSnapshot": {
     "hasUnderstanding": true,
     "hasDecision": true,
     "hasPlan": true,
     "checklistItems": 5,
-    "reviewRounds": 2,
+    "reviewRounds": 3,
     "findings": 0,
     "bugs": 0,
     "testRuns": 0,
@@ -228,13 +228,12 @@
           ]
         },
         "blockedTaskCount": {
-          "value": 0,
+          "value": 1,
           "unit": "count",
           "confidence": "medium",
           "sources": [
             "process-events.jsonl"
-          ],
-          "note": "no dispatch events"
+          ]
         }
       }
     },
@@ -284,8 +283,7 @@
           "confidence": "medium",
           "sources": [
             "process-events.jsonl"
-          ],
-          "note": "no dispatch events"
+          ]
         },
         "blockedReturnCount": {
           "value": 0,
@@ -312,7 +310,7 @@
       },
       "metrics": {
         "storyReviewRounds": {
-          "value": 2,
+          "value": 3,
           "unit": "count",
           "confidence": "medium",
           "sources": [
@@ -347,13 +345,12 @@
           "note": "no test runs"
         },
         "reviewAfterEachBatch": {
-          "value": "n/a",
-          "unit": "text",
+          "value": false,
+          "unit": "bool",
           "confidence": "medium",
           "sources": [
             "process-events.jsonl"
-          ],
-          "note": "no dispatch events"
+          ]
         }
       }
     }
