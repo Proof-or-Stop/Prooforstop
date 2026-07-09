@@ -1,0 +1,33 @@
+{
+  "storyId": "B-cee5",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/templates/agents/lattice-review-scope-plan.md",
+    "packages/main/templates/agents/lattice-review-behavior.md",
+    ".claude/agents/lattice-review-scope-plan.md",
+    ".claude/agents/lattice-review-behavior.md",
+    ".lattice-codex/agents/lattice-review-scope-plan.md",
+    ".lattice-codex/agents/lattice-review-behavior.md"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/**",
+    "packages/main/tests/**"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "packages/main/src/handlers/**",
+    "packages/main/src/core/lifecycle*",
+    "packages/main/src/core/gates/**",
+    ".omx/**",
+    "docs/story/**",
+    "packages/main/tests/fixtures/**",
+    "tests/fixtures/**"
+  ],
+  "scopeChangeReason": "Stopgap prompt/search-strategy story: allowed surface is the two reviewer prompt templates, their .claude/.lattice-codex mirrors, and static guard tests; lifecycle/gate/DONE semantics and runtime services are out of scope per user-confirmed scope boundary.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-09T17:01:10.930Z",
+  "updatedAt": "2026-07-09T17:01:10.930Z"
+}
