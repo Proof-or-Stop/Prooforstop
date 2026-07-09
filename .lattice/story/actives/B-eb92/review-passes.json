@@ -1,0 +1,85 @@
+{
+  "passes": [
+    {
+      "id": "B-eb92:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept review: checked review_escalation_status text/json handling and the escalation-only smoke fixture after 2c3714c/f00a9db/9cc08bc/6758ea. Prior B-eb92:F-002 is resolved: required review-escalation guidance is rendered in human text output, JSON still carries reviewAssuranceGuidance, and the smoke covers an escalation-only path where the floor predicate is not required. No concept blocker remains.",
+      "createdAt": "2026-07-09T11:52:03.405Z",
+      "reviewRound": "2026-07-09T11:50:01.412Z",
+      "reviewRunId": "B-eb92:RR-005",
+      "_hash": "2fb4952c3c0d34cf3f940e114353a3b31c49b8f4a8930058130c63b34bd1758a"
+    },
+    {
+      "id": "B-eb92:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Current scope (review-assurance-floor.ts stale-recovery guidance + floor smoke): concept preserved and strengthened. Guidance still surfaces review assurance before DONE, keeps Legal reviewer/host-only + cannot-auto-sign role separation, adds no owner self-sign path; placeholders moved from non-shell-safe <...> to {...} with storyFilesHash binding, and smoke proves shell-safety via zsh -n. No concept blocker.",
+      "createdAt": "2026-07-09T12:21:25.459Z",
+      "reviewRound": "2026-07-09T12:03:49.417Z",
+      "reviewRunId": "B-eb92:RR-008",
+      "_hash": "6c6915a83dbee1c55d48d0d321b4b32a4e5bca29bc8d6259054502538e53e846"
+    },
+    {
+      "id": "B-eb92:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Concept pass: current floor guidance and floor smoke preserve review assurance before DONE, role separation, no auto-signing, and shell-safe actionable commands.",
+      "createdAt": "2026-07-09T12:23:27.189Z",
+      "reviewRound": "2026-07-09T12:03:49.417Z",
+      "reviewRunId": "B-eb92:RR-010",
+      "_hash": "81c66d778c48454ca0e7d8156c8fb9cb7e982cdbf2bc02690f7ba85a92823c22"
+    },
+    {
+      "id": "B-eb92:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Quality pass: current floor guidance and floor smoke address F-004, keep shell-safe placeholders, consistent guidance structure, and non-owner reviewer/host labels.",
+      "createdAt": "2026-07-09T12:24:54.493Z",
+      "reviewRound": "2026-07-09T12:03:49.417Z",
+      "reviewRunId": "B-eb92:RR-011",
+      "_hash": "98bc2ad6cd24e44146b15618c036bb769596605120077c55c54c761f93ed4ac8"
+    },
+    {
+      "id": "B-eb92:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage pass: floor smoke covers F-005 stale-recovery rendered commands, null fallback placeholders, reviewer/host-only labels, no angle placeholders, and zsh syntax parsing.",
+      "createdAt": "2026-07-09T12:26:21.154Z",
+      "reviewRound": "2026-07-09T12:03:49.417Z",
+      "reviewRunId": "B-eb92:RR-012",
+      "_hash": "1debe85bde316d7d9a38919ca90a3662f0477f47aa121d144899cc986876ae53"
+    },
+    {
+      "id": "B-eb92:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Post-merge concept pass: current scope still surfaces review assurance before DONE, preserves role separation/no auto-signing, and keeps actionable canonical guidance.",
+      "createdAt": "2026-07-09T12:40:37.178Z",
+      "reviewRound": "2026-07-09T12:39:20.988Z",
+      "reviewRunId": "B-eb92:RR-013",
+      "_hash": "e8a98913c7e0c900324219e278a1d94ee89d6670a16e02e87ac9bff17113592d"
+    },
+    {
+      "id": "B-eb92:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Post-merge quality pass: conflict resolution reuses main fallback helper, build/guidance consistency holds, placeholders are shell-safe, and labels preserve non-owner evidence writing.",
+      "createdAt": "2026-07-09T12:42:24.118Z",
+      "reviewRound": "2026-07-09T12:39:20.988Z",
+      "reviewRunId": "B-eb92:RR-014",
+      "_hash": "d74d0570cc70e1fe35807c9eb0682629b2273c84176017a8859d5a8b00e2327b"
+    },
+    {
+      "id": "B-eb92:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "Post-merge test coverage pass: surfacing/floor smokes cover stale recovery, shell-safe commands, null placeholders, role separation, storyFilesHash freshness, and DONE guidance paths.",
+      "createdAt": "2026-07-09T12:44:35.579Z",
+      "reviewRound": "2026-07-09T12:39:20.988Z",
+      "reviewRunId": "B-eb92:RR-015",
+      "_hash": "abf3e65cf7422e3f193c0db8ce3e4b0f27026c9ab1fb7c7dac638cceb51c76b6"
+    },
+    {
+      "id": "B-eb92:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Round 5 concept pass: no scope change since prior concept pass; delivery context scope acknowledgement is lifecycle closeout evidence and does not alter product behavior.",
+      "createdAt": "2026-07-09T12:52:54.724Z",
+      "reviewRound": "2026-07-09T12:51:46.245Z",
+      "reviewRunId": "B-eb92:RR-016",
+      "_hash": "cb2fae588735c06cda19108abe8959391e5e3495a439c2533f043f16c5e620ad"
+    }
+  ]
+}

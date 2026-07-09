@@ -1,0 +1,73 @@
+{
+  "principles": [
+    "Single source of truth: review-assurance guidance must be derived from the canonical DONE/review-assurance predicate.",
+    "No evidence side effects: status text may guide but must never satisfy review, delivery, host, fallback, Authority, or production gates.",
+    "Human text can be richer, machine output must stay parseable and contract-compatible.",
+    "Guidance must name legal writers and safe next command families instead of encouraging owner self-signing.",
+    "Keep implementation scoped to M3-M4 surfaces and focused smoke coverage."
+  ],
+  "drivers": [
+    "Users currently discover review-assurance blockers too late in DONE closeout.",
+    "Reviewer/process evidence has strict provenance and cannot be fabricated by main/owner sessions.",
+    "The lifecycle CLI has multiple surfaces that must stay consistent: session_brief, story_advance TEST advisory, review_escalation_status, done_prepare, and JSON outputs."
+  ],
+  "options": [
+    {
+      "name": "central-guidance-helper",
+      "pros": [
+        "Keeps reason codes, material binding, legal writers, fallback eligibility, and cannot-auto-sign text consistent across surfaces",
+        "Minimizes risk of weakening gate logic by separating guidance rendering from predicate evaluation",
+        "Easy to cover with a single focused smoke fixture"
+      ],
+      "cons": [
+        "Requires touching several CLI surfaces to thread the helper output"
+      ]
+    },
+    {
+      "name": "surface-local-messages",
+      "pros": [
+        "Small changes at each command surface",
+        "Fast to implement if each surface already has local blocker text"
+      ],
+      "cons": [
+        "Likely diverges from canonical gate predicate",
+        "Higher chance one surface suggests unsafe self-signing or stale commands",
+        "Harder to prove consistency"
+      ]
+    },
+    {
+      "name": "gate-only-no-new-text",
+      "pros": [
+        "Lowest implementation risk",
+        "No JSON compatibility concerns"
+      ],
+      "cons": [
+        "Does not solve the user problem because agents still learn the requirement too late",
+        "Fails M3/M4 acceptance intents"
+      ]
+    }
+  ],
+  "chosen": "central-guidance-helper",
+  "rationale": "A shared guidance helper preserves the canonical gate as source of truth while projecting safe, early, non-evidence-producing instructions across all required surfaces.",
+  "preMortem": [
+    {
+      "scenario": "Guidance text drifts from DONE gate behavior",
+      "trigger": "A surface recomputes reason/fallback independently",
+      "consequence": "Agent sees misleading next commands or misses required quorum",
+      "mitigation": "Derive guidance from existing review assurance status/runbook rows and cover with smoke fixtures."
+    },
+    {
+      "scenario": "Owner session appears allowed to self-sign evidence",
+      "trigger": "Next-command text includes review_pass_set, delivery_check_set, fallback, or host verdict commands without legal-writer warnings",
+      "consequence": "Process provenance bug and invalid DONE evidence",
+      "mitigation": "Add cannot-auto-sign guidance and blocked execution-boundary patterns; smoke asserts wording for reviewer, host, fallback, and delivery cases."
+    },
+    {
+      "scenario": "JSON output becomes unparsable",
+      "trigger": "Human guidance is written to JSON stdout",
+      "consequence": "Automation and process-fact consumers break",
+      "mitigation": "Keep human guidance in text/stderr or structured JSON fields only where already designed; smoke parses touched JSON outputs."
+    }
+  ],
+  "timestamp": "2026-07-09T10:57:02.370Z"
+}

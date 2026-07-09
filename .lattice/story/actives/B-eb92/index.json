@@ -4,7 +4,7 @@
   "title": "Surface review assurance requirements before DONE closeout",
   "description": "Implement M3-M4 from docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md: expose review-assurance requirements from the canonical gate predicate before DONE, and classify done_prepare blockers with safe legal next commands.",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "source": "user-request-2026-07-09",
   "depends": [
@@ -24,7 +24,7 @@
   ],
   "createdAt": "2026-07-09T01:28:12.311Z",
   "startedAt": "2026-07-09T01:28:12.311Z",
-  "endedAt": null,
+  "endedAt": "2026-07-09T13:06:22.428Z",
   "events": [
     {
       "phase": "INIT",
@@ -43,11 +43,142 @@
       "user": "Harmonygo",
       "sessionId": "sess-3d1880b40d393f50",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-09T10:56:25.684Z",
+      "branch": "story/B-eb92",
+      "user": "Harmonygo",
+      "sessionId": "sess-0ea50cb33fc3a805",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-09T11:04:30.887Z",
+      "branch": "story/B-eb92",
+      "user": "Harmonygo",
+      "sessionId": "sess-0ea50cb33fc3a805",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-09T11:20:35.943Z",
+      "branch": "story/B-eb92",
+      "user": "Harmonygo",
+      "sessionId": "sess-0ea50cb33fc3a805",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-09T11:27:18.360Z",
+      "branch": "story/B-eb92",
+      "user": "Harmonygo",
+      "sessionId": "sess-0ea50cb33fc3a805",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-09T11:50:01.412Z",
+      "branch": "story/B-eb92",
+      "user": "Harmonygo",
+      "sessionId": "sess-0ea50cb33fc3a805",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-09T11:54:20.959Z",
+      "branch": "story/B-eb92",
+      "user": "Harmonygo",
+      "sessionId": "sess-0ea50cb33fc3a805",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-09T12:03:49.417Z",
+      "branch": "story/B-eb92",
+      "user": "Harmonygo",
+      "sessionId": "sess-0ea50cb33fc3a805",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-09T12:27:10.371Z",
+      "branch": "story/B-eb92",
+      "user": "Harmonygo",
+      "sessionId": "sess-0ea50cb33fc3a805",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-09T12:38:54.847Z",
+      "branch": "story/B-eb92",
+      "user": "Harmonygo",
+      "sessionId": "sess-0ea50cb33fc3a805",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-09T12:39:20.988Z",
+      "branch": "story/B-eb92",
+      "user": "Harmonygo",
+      "sessionId": "sess-0ea50cb33fc3a805",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-09T12:45:19.582Z",
+      "branch": "story/B-eb92",
+      "user": "Harmonygo",
+      "sessionId": "sess-0ea50cb33fc3a805",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-09T12:51:17.900Z",
+      "branch": "story/B-eb92",
+      "user": "Harmonygo",
+      "sessionId": "sess-0ea50cb33fc3a805",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-09T12:51:46.245Z",
+      "branch": "story/B-eb92",
+      "user": "Harmonygo",
+      "sessionId": "sess-0ea50cb33fc3a805",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-09T12:53:32.598Z",
+      "branch": "story/B-eb92",
+      "user": "Harmonygo",
+      "sessionId": "sess-0ea50cb33fc3a805",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-09T13:06:22.428Z",
+      "branch": "story/B-eb92",
+      "user": "Harmonygo",
+      "sessionId": "sess-0ea50cb33fc3a805",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-eb92",
-    "branch": "story/B-eb92",
-    "createdAt": "2026-07-09T10:55:56.719Z"
-  }
+  "currentReviewRound": "2026-07-09T12:51:46.245Z"
 }

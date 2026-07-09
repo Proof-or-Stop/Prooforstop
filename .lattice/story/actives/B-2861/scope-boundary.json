@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-2861",
+  "mode": "maintenance",
+  "allowed": [
+    "Produce a DONE table of concrete document optimizations with reasons and evidence",
+    "Review and optimize docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+    "Run a 3x2 document review using Codex CLI, Claude Code CLI, and Antigravity CLI perspectives",
+    "Use current project code, CLI docs, command policy, process-fact registry, reviewer lane, evaluator, and milestone_status evidence to judge the document"
+  ],
+  "excluded": [
+    "Implement Proof-or-Stop prompt registry or gate code changes in this story",
+    "Modify docs/story or tests/fixtures directly",
+    "Rewrite unrelated decision documents",
+    "Weaken lifecycle gates or treat prompt prose as gate evidence"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User requested a new review story for the large Proof-or-Stop execution plan document, including 3x2 review and a DONE optimization table with reasons and evidence.",
+  "createdAt": "2026-07-09T14:37:08.481Z",
+  "updatedAt": "2026-07-09T14:37:08.481Z",
+  "_hash": "aacc66836c98217b026ded3852997ea19637394f59b9cfc9927a35c881c9b632"
+}

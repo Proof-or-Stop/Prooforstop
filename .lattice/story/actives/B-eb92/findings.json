@@ -1,0 +1,123 @@
+{
+  "findings": [
+    {
+      "id": "B-eb92:F-001",
+      "desc": "Coverage is missing/misleading for the session_brief/next and fallback/no-owner-self-sign acceptance surface. The focused smoke asserts buildNextSteps(...).TEST and done_prepare safe command separation, but it never invokes createSessionHandlers(...).session_brief/next or the CLI next path. The actual TEST next path summarizes DONE row hints from done-oracle/session.ts, and the review-assurance formatter still emits autopilot_review_submit in its recovery text; review-escalation failure text likewise names autopilot_review_submit/review_escalation_fallback_set. Because the smoke does not cover session_brief/next, it would not catch owner-visible self-sign command exposure outside done_prepare. The smoke also only exercises the fallback-eligible positive case and does not assert the not-eligible/not-applicable case omits fallback writer guidance, so CHK-001 edge fallback eligibility is not fully covered.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-09T11:24:55.340Z",
+      "reviewRound": "2026-07-09T11:20:35.943Z",
+      "reviewRunId": "B-eb92:RR-003",
+      "_hash": "2d732e6c267e5dd4bc4058638510a01cc1c018a989d2474b2fa39001c8279941",
+      "files": [
+        "packages/main/src/tasks/review-assurance-surfacing-smoke.ts",
+        "packages/main/src/handlers/session.ts",
+        "packages/main/src/core/review-assurance-floor.ts",
+        "packages/main/src/core/review-escalation.ts"
+      ],
+      "signatureTag": "missing|ts|coverage-missing-misleading",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commits 2c3714cba and 931609335: surfacing smoke now invokes actual session next/session_brief, covers fallback not-applicable omission, review-escalation-only text/JSON, and command template parsing; floor smoke now covers DONE-row stale recovery inline command exposure. Full lattice validate passed 43/43 with coverage 9/9.",
+      "resolvedAt": "2026-07-09T12:04:18.078Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-eb92:F-002",
+      "desc": "review_escalation_status builds canonical review-escalation guidance but drops it from human text output, rendering only floor guidance at packages/main/src/handlers/review-escalation.ts:111. A story whose canonical review escalation predicate fires without the floor predicate, such as first-round countable findings on non-code material or an explicit high-risk policy fact, will not receive the new legal-writer, fallback, and cannot-auto-sign guidance on the primary status surface. The smoke fixture at packages/main/src/tasks/review-assurance-surfacing-smoke.ts:150 does not seed first-round findings and only asserts the floor reason code, so this canonical escalation path is untested.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-09T11:25:13.480Z",
+      "reviewRound": "2026-07-09T11:20:35.943Z",
+      "reviewRunId": "B-eb92:RR-004",
+      "_hash": "63346cc63b629b27157d8206061ea3f7303edfa471b0624e7d44f96aa84a86f9",
+      "files": [
+        "packages/main/src/handlers/review-escalation.ts",
+        "packages/main/src/tasks/review-assurance-surfacing-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|review-escalation-status",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 2c3714cba: review_escalation_status now renders every reviewAssuranceGuidance entry in human text, not only floor guidance. The escalation-only fixture asserts human text includes Review assurance guidance (review-escalation), JSON includes the review-escalation guidance, and floor guidance is not incorrectly rendered. Concept reviewer pass B-eb92:RP-001 confirmed no concept blocker remains.",
+      "resolvedAt": "2026-07-09T12:04:23.420Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-eb92:F-003",
+      "desc": "Unsafe review-assurance command recipes render shell-active angle placeholders. review_escalation_status/done_prepare guidance emits commands such as lattice autopilot_review_submit --storyId=B-eb92 --runId=<round-id> ... from packages/main/src/core/review-assurance-floor.ts:228-229 and the stale-material recovery repeats the pattern at line 1178. In zsh/bash, --runId=<round-id> is parsed as redirection/syntax, so copying the advertised legal writer path fails before lattice receives it. These recipes should use shell-safe placeholders or quoted JSON/flag values and be covered by a smoke that actually parses/runs the rendered command templates.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-09T11:26:20.531Z",
+      "reviewRound": "2026-07-09T11:20:35.943Z",
+      "reviewRunId": "B-eb92:RR-002",
+      "_hash": "da4e196bcc186f9fca7f6df1ea9e7726210366d9cbd247e7fdf00eb43f309985",
+      "files": [
+        "packages/main/src/core/review-assurance-floor.ts"
+      ],
+      "signatureTag": "missing|ts|unsafe-review-assurance",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed across commits 2c3714cba and 931609335: main review-assurance command recipes and stale-material recovery now use shell-safe brace placeholders instead of shell-active angle placeholders. review-assurance-surfacing-smoke and review-assurance-floor-smoke parse rendered command templates/fragments with zsh -n and reject <...> placeholders. Full lattice validate passed 43/43.",
+      "resolvedAt": "2026-07-09T12:04:10.737Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-eb92:F-004",
+      "desc": "B-eb92:F-003 is only partially fixed: the main guidance recipes now use {round-id}, but formatReviewAssuranceFloorFailure still defines storyRef/materialRef as <storyId>/<current-materialHash> and embeds them in Stale material recovery command lines; if those optional report fields are absent the CLI hint emits shell-active redirection placeholders. The added zsh -n assertions only cover review-assurance-surfacing smoke output, not this failure/recovery renderer. Directly running node packages/main/dist/tasks/review-assurance-floor-smoke.js also fails on stale recovery text, showing the existing recovery smoke was not updated or extended to parse the rendered commands.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-09T11:53:12.864Z",
+      "reviewRound": "2026-07-09T11:50:01.412Z",
+      "reviewRunId": "B-eb92:RR-006",
+      "_hash": "46204ebc31d1a277b65d937c8580a5365d90879d9132a6c231aa5b4c33c2ada1",
+      "files": [
+        "packages/main/src/core/review-assurance-floor.ts",
+        "packages/main/src/tasks/review-assurance-surfacing-smoke.ts",
+        "packages/main/src/tasks/review-assurance-floor-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|eb92-partially-fixed",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by implementer commit 931609335: formatReviewAssuranceFloorFailure now uses shell-safe {storyId}/{current-materialHash} fallbacks, and review-assurance-floor-smoke asserts stale recovery commands have no angle placeholders, include Legal reviewer/host only labeling, and parse inline lattice command fragments with zsh -n. Verified by build, review-assurance-floor smoke, surfacing smoke, retired vocabulary guard, and full lattice validate PASS 43/43.",
+      "resolvedAt": "2026-07-09T12:03:57.989Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-eb92:F-005",
+      "desc": "F-001 remains partially uncovered: the new surfacing smoke parses only command lines that start with `lattice ` inside renderReviewAssuranceGuidance output, but the DONE review-assurance row still exposes its full operator recovery text through done-oracle hint=formatReviewAssuranceFloorFailure. That hint contains the stale-material recovery inline autopilot_review_submit command in packages/main/src/core/review-assurance-floor.ts:1175-1179. Current tests only assert the row detail reason/fallback in packages/main/src/tasks/review-assurance-surfacing-smoke.ts:341-347, and the older floor smoke only checks that Stale material recovery/autopilot_review_submit exist, not that the line is labeled Legal reviewer/host only or that its placeholders are shell-safe/no angle-bracket templates. This leaves the prior owner-self-sign / DONE row recovery regression path outside the updated coverage even though session_brief/next, fallback-not-applicable, and escalation-only text/JSON are now covered.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-09T11:53:44.372Z",
+      "reviewRound": "2026-07-09T11:50:01.412Z",
+      "reviewRunId": "B-eb92:RR-007",
+      "_hash": "70ceb72fd368da200bdf98af509b4f55614d0e078fa4341bb5947d9cb234ab7e",
+      "files": [
+        "packages/main/src/tasks/review-assurance-surfacing-smoke.ts",
+        "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+        "packages/main/src/core/review-assurance-floor.ts",
+        "packages/main/src/core/done-oracle.ts"
+      ],
+      "signatureTag": "missing|ts|remains-partially-uncovered",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 931609335 and evidenced by c7c9ec6/4d53b6e/2e7e0d8: review-assurance-floor-smoke now covers the DONE-row review-assurance hint formatter path, including stale recovery inline commands, Legal reviewer/host only labeling, no angle-bracket templates, and zsh -n parsing. Full lattice validate passed 43/43 with coverage 9/9.",
+      "resolvedAt": "2026-07-09T12:04:03.561Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

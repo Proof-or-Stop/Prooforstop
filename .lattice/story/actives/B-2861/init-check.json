@@ -1,0 +1,30 @@
+{
+  "storyId": "B-2861",
+  "checkedAt": "2026-07-09T14:37:17.510Z",
+  "reviewRound": "",
+  "agentId": "product-reviewer",
+  "issues": [
+    {
+      "severity": "medium",
+      "desc": "CHK-002 hardcodes Antigravity CLI as one of the three primary 3x2 host labels, but current project memory says default 3x2 host verification uses codex-cli and claude-cli as primary hosts, with agy-cli only as fallback when a primary host is unavailable or standby/substitute execution is explicitly needed. From product/user-value closure, the story should preserve the requested 3x2 independent review while wording the third lane as a current-facts-compliant fallback/substitute host, or explicitly record why Antigravity is intentionally required for this review. The rest of the background and checklist does align with the user request to review the large document against current project facts and produce a DONE optimization table with concrete changes, reasons, and evidence."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-07-09T14:37:09.175Z",
+      "issues": []
+    },
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-07-09T14:37:17.510Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "CHK-002 hardcodes Antigravity CLI as one of the three primary 3x2 host labels, but current project memory says default 3x2 host verification uses codex-cli and claude-cli as primary hosts, with agy-cli only as fallback when a primary host is unavailable or standby/substitute execution is explicitly needed. From product/user-value closure, the story should preserve the requested 3x2 independent review while wording the third lane as a current-facts-compliant fallback/substitute host, or explicitly record why Antigravity is intentionally required for this review. The rest of the background and checklist does align with the user request to review the large document against current project facts and produce a DONE optimization table with concrete changes, reasons, and evidence."
+        }
+      ]
+    }
+  ],
+  "_hash": "9057fe93ca65a7266d50d136b0dfec1c5489d538a54b34b01efd7342c40156e3"
+}
