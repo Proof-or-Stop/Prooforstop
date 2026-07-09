@@ -12,7 +12,44 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "`lattice review_host_availability_probe --storyId=<id>` prints a probe id, materialHash, and canonical host rows for codex, claude, and agy with available/path/version/error fields.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/core/review-escalation.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/alias-normalizer.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-escalation-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Running review_host_availability_probe records a process event bound to current materialHash/storyFilesHash and reports codex, claude, and agy canonical host rows.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Unavailable hosts are recorded as unavailable with an error or missing path instead of being silently omitted, so availableHostCount cannot be inflated by absence.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The probe evidence is registered as a gate-consumed process fact; process fact contract verification fails if the command/fact registry is missing.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

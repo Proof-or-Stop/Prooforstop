@@ -1,0 +1,33 @@
+{
+  "task": "Fix degraded single-host review fallback so Proof-or-stop requires mechanical host availability proof before accepting lower-assurance fallback.",
+  "outcome": "When the user runs `lattice review_escalation_fallback_set --storyId=<id> --eligibility=single-host-environment ...` on a machine where codex and claude are executable, the terminal rejects it with text like `fresh host availability probe shows 2 available canonical hosts; use full 3x2 or explicit-human-approval`, and `lattice review_escalation_status --storyId=<id>` says degraded fallback is invalid until a fresh probe proves fewer than two hosts or explicit human approval is recorded.",
+  "facts": [
+    "2026-07-09 user identified that codex, claude, and agy CLIs are available on this machine, contradicting a single-host fallback claim.",
+    "Current review_escalation_fallback_set validates eligibility/reason/evidence/hash but does not mechanically probe canonical host availability.",
+    "Review assurance floor and review escalation DONE gates consume degraded fallback process events, so this is a gate-consumed process fact bug.",
+    "Canonical hosts from dev-memory are Codex CLI, Claude Code CLI, and Antigravity CLI via agy; codex+claude are preferred, agy is fallback.",
+    "Chosen design is a new review_host_availability_probe command that records structured process evidence consumed by fallback handlers and DONE/status evaluators."
+  ],
+  "constraints": [
+    "Do not use operator prose as proof for single-host scarcity.",
+    "Do not claim degraded 3x1 equals full 3x2 or Authority completion.",
+    "Register new gate-consumed process facts in process-fact-levels/process-fact-registry and contract verification.",
+    "Keep explicit-human-approval available as explicit lower-assurance fallback with approvalRef.",
+    "Do not redesign the full cross-host runner or remote release path."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/review-escalation.ts",
+    "packages/main/src/core/review-escalation.ts",
+    "packages/main/src/core/review-assurance-floor.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/cli/alias-normalizer.ts",
+    "packages/main/src/tasks/review-escalation-smoke.ts",
+    "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "timestamp": "2026-07-09T11:11:37.370Z"
+}
