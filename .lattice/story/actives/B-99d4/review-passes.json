@@ -1,0 +1,67 @@
+{
+  "passes": [
+    {
+      "id": "B-99d4:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept pass: dispatch_reassign creates a new fresh-context worker dispatch from the previous dispatch, supports requested worker role with overflow-worker default, preserves bounded summary-only continuity via parentDispatchId/prompt metadata, keeps dispatch_resume separate, and does not claim full-history inheritance, receipt verification, authority changes, release readiness, or production DONE.",
+      "createdAt": "2026-07-09T03:05:35.672Z",
+      "reviewRound": "2026-07-09T03:02:35.460Z",
+      "reviewRunId": "B-99d4:RR-001",
+      "_hash": "9526c011b52fb797d0a05d317b6aba400fb5522f24073f2bff1a2e066901fd0d"
+    },
+    {
+      "id": "B-99d4:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept review pass for current HEAD 4a679b0: dispatch_reassign only accepts previous dispatches with status=accepted_local and accepted-local receipt, creates a new fresh-context follow-up dispatch with parentDispatchId lineage, preserves the previous record, and renders explicit role/objective/summary-only continuity without full-history fork or authority/release claims. No concept/requirements blocker found.",
+      "createdAt": "2026-07-09T03:28:55.304Z",
+      "reviewRound": "2026-07-09T03:12:49.388Z",
+      "reviewRunId": "B-99d4:RR-005",
+      "_hash": "5d857d6514ba6afc67a75858a90a0346cf94a38ca26ceadfcb73f162b11a90f4"
+    },
+    {
+      "id": "B-99d4:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2 test-coverage pass on HEAD 4a679b0207552b13e7bb778d69024eb7349d3ac0. Reviewed verificationIntent coverage for completed worker reassignment, explicit lattice-implementer role propagation, fresh-context summary-only continuity, old dispatch preservation, prepared-only previous dispatch rejection, dispatch_resume regression, and absence of receipt/release/DONE/authority overclaim wording. checklist_get shows evidence for all 9 intents. Source and smoke assertions cover: accepted_local plus accepted-local receipt eligibility before reassignment; requested role lattice-implementer in result, pack, and prompt; omitted role default overflow-worker; previous record unchanged; new dispatch has parentDispatchId; prompts/output state fresh-context and no full-history fork; prepared-only reassignment throws without ready text or new dispatch; dispatch_resume returns original id and creates no follow-up. Independently ran node packages/main/dist/tasks/dispatch-run-smoke.js PASS and node scripts/verify-process-fact-contract.mjs PASS; registry keeps dispatch_reassign as L1 lattice-dispatch metadata, not gate evidence. No blocker found.",
+      "createdAt": "2026-07-09T03:29:21.973Z",
+      "reviewRound": "2026-07-09T03:12:49.388Z",
+      "reviewRunId": "B-99d4:RR-006",
+      "_hash": "c7e305a037869a98542367379aa41110cc31e5e083dd48fbd45c5abad6025f01"
+    },
+    {
+      "id": "B-99d4:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Quality review pass. Implementation code reviewed at 4a679b0; current HEAD 11a5499 differs only by Lattice review metadata. dispatch_reassign requires previous status=accepted_local plus accepted-local receipt before creating a follow-up; rejected prepared-only reassignment creates no follow-up. Role/objective and summary-only fresh-context continuity propagate into pack/prompt. CLI registration, alias, command policy, phase tools, and process fact L1 diagnostic semantics are present. Wording and result flags do not claim receipt verification, release/DONE completion, or authority changes. Verified with node packages/main/dist/tasks/dispatch-run-smoke.js and node scripts/verify-process-fact-contract.mjs.",
+      "createdAt": "2026-07-09T03:30:33.869Z",
+      "reviewRound": "2026-07-09T03:12:49.388Z",
+      "reviewRunId": "B-99d4:RR-007",
+      "_hash": "8ce47db431bba7cb5460523d1c0d5b4e82c58a5dad188d65108bdd7161cdbb27"
+    },
+    {
+      "id": "B-99d4:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Concept/user-value pass: dispatch_reassign now lets a completed accepted-local worker dispatch create a fresh-context follow-up with --role=lattice-implementer. The generated pack/prompt bind the new role, rewrite inherited Work in role instructions to the requested reassignment role, include summary-only continuity, explicitly state no full-history fork is required, and avoid contradictory authority/receipt/release claims. Smoke coverage checks explicit role, default role, prepared-only rejection, summary-only fresh-context text, no stale overflow-worker role instruction, and no full-history inheritance wording.",
+      "createdAt": "2026-07-09T03:47:21.450Z",
+      "reviewRound": "2026-07-09T03:45:18.798Z",
+      "reviewRunId": "B-99d4:RR-008",
+      "_hash": "c94ea6b7dc6da320361bbee5e16a07377130f12bdb254f7965b55faf9f012757"
+    },
+    {
+      "id": "B-99d4:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS test coverage for final round. Inspected current implementation and dispatch smoke assertions covering completed accepted worker reassign, explicit role lattice-implementer, BUG-001 stale role instruction regression, fresh-context/no full-history wording, old dispatch unchanged, prepared-only rejection with no follow-up, dispatch_resume no follow-up, and no receipt/release/DONE/authority claims. Evidence commands reported PASS: build, dispatch-run-smoke, unattended-dispatch-smoke, process-fact contract, and lattice validate.",
+      "createdAt": "2026-07-09T03:48:45.125Z",
+      "reviewRound": "2026-07-09T03:45:18.798Z",
+      "reviewRunId": "B-99d4:RR-011",
+      "_hash": "4432f90e3da8ebe1975fcb3b7d17496d910721a9994ac9ec1c44044e61a2fe87"
+    },
+    {
+      "id": "B-99d4:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Quality review pass: inspected current HEAD for dispatch_reassign eligibility, role/objective propagation, executionInstructions role rewrite, prompt wording, command/policy/process-fact registration, and local-assurance semantics. No blockers found: reassignment is gated on accepted_local plus accepted-local receipt, creates fresh-context child dispatch metadata with parentDispatchId, rewrites inherited Work in role instructions, preserves requested/default role and objective in pack/result/prompt, and avoids receipt verification, release readiness, production DONE, or authority overclaim. Verified with npm --prefix packages/main run build -- --noEmit --pretty false, node scripts/verify-process-fact-contract.mjs, and node packages/main/dist/tasks/dispatch-run-smoke.js.",
+      "createdAt": "2026-07-09T03:49:39.456Z",
+      "reviewRound": "2026-07-09T03:45:18.798Z",
+      "reviewRunId": "B-99d4:RR-012",
+      "_hash": "3499f1df16c38ae8c85e349eb6874a595acd143d93635c00c1b1bd27dbf0086f"
+    }
+  ]
+}

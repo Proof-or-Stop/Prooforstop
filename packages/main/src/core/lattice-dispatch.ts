@@ -247,6 +247,35 @@ export interface DispatchRunResult {
   productionDone: false;
 }
 
+export interface DispatchReassignResult {
+  schemaVersion: 'lattice.dispatch_reassign.v1';
+  mode: 'fresh-context';
+  previousDispatchId: string;
+  dispatchId: string;
+  storyId: string;
+  role: string;
+  roleSource: 'requested' | 'default';
+  objective: string;
+  promptFile: string;
+  dispatch: DispatchRecord;
+  previous: {
+    dispatchId: string;
+    status: DispatchLifecycleStatus;
+    host: HostRuntimeId;
+    packId: string;
+    packHash: string;
+    promptFile: string;
+    role?: string;
+    objective?: string;
+    nextAction: string;
+  };
+  warnings: string[];
+  nextAction: string;
+  authorityChanged: false;
+  receiptVerified: false;
+  productionDone: false;
+}
+
 export interface DispatchStatusResult {
   schemaVersion: 'lattice.dispatch_status.v1';
   dispatch: DispatchRecord;
@@ -385,14 +414,46 @@ type DispatchPlanArgs = {
   parallel?: number;
 };
 
+type DispatchPromptContinuity = {
+  mode: 'fresh-context';
+  previousDispatchId: string;
+  previousStatus: DispatchLifecycleStatus;
+  previousHost: HostRuntimeId;
+  previousPackId: string;
+  previousPackHash: string;
+  previousPromptFile: string;
+  previousRole?: string;
+  previousObjective?: string;
+  previousNextAction: string;
+};
+
 type DispatchPrepareArgs = DispatchPlanArgs & {
   dispatchId?: string;
+  parentDispatchId?: string;
+  promptContinuity?: DispatchPromptContinuity;
 };
 
 type DispatchRunArgs = DispatchPrepareArgs & {
   dispatchId?: string;
   executionPolicy?: DispatchCommandExecutionPolicy;
   allowRealHostSubprocess?: boolean;
+};
+
+type DispatchReassignArgs = {
+  dispatchId: string;
+  host?: string;
+  fromHost?: string;
+  role?: string;
+  objective?: string;
+  allowedPaths?: string[];
+  deniedPaths?: string[];
+  requiredCommands?: string[];
+  successCriteria?: string[];
+  baseSha?: string;
+  packId?: string;
+  authorityBoundary?: string;
+  executionInstructions?: string[];
+  parallel?: number;
 };
 
 type DispatchCommandExecutionPolicy = {
@@ -910,6 +971,13 @@ function normalizeList(values: string[] | undefined): string[] {
   return normalized;
 }
 
+function rewriteRoleExecutionInstruction(instructions: string[] | undefined, role: string): string[] {
+  const nextRoleInstruction = `Work in role: ${role}.`;
+  return normalizeList(normalizeList(instructions).map(instruction =>
+    /^Work in role:\s*[^.]+\.?$/i.test(instruction) ? nextRoleInstruction : instruction,
+  ));
+}
+
 function normalizeDispatchId(dispatchId: string, label = 'dispatchId'): string {
   const trimmed = dispatchId.trim();
   if (!trimmed) {
@@ -988,12 +1056,19 @@ function createDispatchId(storyId: string, host: HostRuntimeId): string {
   return `D-${sanitizeSegment(storyId)}-${sanitizeSegment(host)}-${stamp}`;
 }
 
-function dispatchPrompt(pack: HandoffPack, runtime: HostRuntimeProbe, dispatchId: string): string {
-  return [
+function dispatchPrompt(
+  pack: HandoffPack,
+  runtime: HostRuntimeProbe,
+  dispatchId: string,
+  continuity?: DispatchPromptContinuity,
+): string {
+  const lines = [
     `# Proofbound Dispatch ${dispatchId}`,
     '',
     `Story: ${pack.storyId}`,
     `Host runtime: ${runtime.host}`,
+    `Role: ${pack.role || 'overflow-worker'}`,
+    `Objective: ${pack.objective || `Dispatch runtime work for ${pack.storyId}`}`,
     `Pack: ${pack.packId} (${pack.packHash})`,
     '',
     '## Execution Instructions',
@@ -1008,7 +1083,25 @@ function dispatchPrompt(pack: HandoffPack, runtime: HostRuntimeProbe, dispatchId
     '## Authority Boundary',
     `- ${pack.authorityBoundary.summary}`,
     ...pack.authorityBoundary.notes.map(line => `- ${line}`),
-  ].join('\n') + '\n';
+  ];
+  if (continuity) {
+    lines.push(
+      '',
+      '## Fresh-context Continuity',
+      `- mode: ${continuity.mode}`,
+      `- Previous dispatch: ${continuity.previousDispatchId}`,
+      `- Previous status: ${continuity.previousStatus}`,
+      `- Previous host: ${continuity.previousHost}`,
+      `- Previous pack: ${continuity.previousPackId} (${continuity.previousPackHash})`,
+      `- Previous prompt file: ${continuity.previousPromptFile}`,
+      ...(continuity.previousRole ? [`- Previous role: ${continuity.previousRole}`] : []),
+      ...(continuity.previousObjective ? [`- Previous objective: ${continuity.previousObjective}`] : []),
+      `- Previous next action: ${continuity.previousNextAction}`,
+      '- Use this summary-only continuity block plus the new handoff pack; no full-history fork is required.',
+      '- This prompt does not inherit conversation history, verify receipts, claim release readiness, mark release completion, or change authority.',
+    );
+  }
+  return lines.join('\n') + '\n';
 }
 
 function handoffTargetForRuntime(host: HostRuntimeId): string {
@@ -1180,6 +1273,19 @@ function resolveEffectiveStatus(record: DispatchRecord): DispatchLifecycleStatus
     return 'expired';
   }
   return record.status;
+}
+
+function requireReassignablePreviousDispatch(root: string, record: DispatchRecord): DispatchLifecycleStatus {
+  const effectiveStatus = resolveEffectiveStatus(record);
+  const receiptStatus = maybeReadReceiptSubmission(root, record)?.status ?? 'missing';
+  if (effectiveStatus === 'accepted_local' && receiptStatus === 'accepted-local') {
+    return effectiveStatus;
+  }
+  throw new Error(
+    `dispatch_reassign requires a completed/accepted previous dispatch with an accepted-local receipt; `
+    + `${record.dispatchId} has status=${effectiveStatus} and localReceiptStatus=${receiptStatus}. `
+    + 'Run dispatch_run or dispatch_resume to completion before reassigning follow-up work.',
+  );
 }
 
 function ensurePreparedPackForFake(root: string, dispatchId: string, pack: HandoffPack): HandoffPack {
@@ -1851,8 +1957,11 @@ export function prepareDispatch(store: StoryStore, root: string, args: DispatchP
   const worktree = buildHandoffWorktreeProjection(pack);
   const promptFile = dispatchFile(root, dispatchId, 'prompt.md');
   const transcriptFile = dispatchFile(root, dispatchId, 'transcript.log');
-  writeFileSync(promptFile, dispatchPrompt(pack, plan.runtime, dispatchId), 'utf8');
+  writeFileSync(promptFile, dispatchPrompt(pack, plan.runtime, dispatchId, args.promptContinuity), 'utf8');
   if (!existsSync(transcriptFile)) writeFileSync(transcriptFile, '', 'utf8');
+  const parentDispatchId = args.parentDispatchId?.trim()
+    ? normalizeDispatchId(args.parentDispatchId, 'parentDispatchId')
+    : requestedDispatchId;
   const record: DispatchRecord = {
     schemaVersion: 'lattice.dispatch_record.v1',
     dispatchId,
@@ -1882,12 +1991,95 @@ export function prepareDispatch(store: StoryStore, root: string, args: DispatchP
       cleanupCommand: worktree.cleanupCommand,
     },
     workerIds: [],
-    ...(requestedDispatchId ? { parentDispatchId: requestedDispatchId } : {}),
+    ...(parentDispatchId ? { parentDispatchId } : {}),
     authorityChanged: false,
     receiptVerified: false,
     productionDone: false,
   };
   return writeRecord(root, record);
+}
+
+export function reassignDispatch(store: StoryStore, root: string, args: DispatchReassignArgs): DispatchReassignResult {
+  const previousDispatchId = normalizeDispatchId(args.dispatchId);
+  const previous = readRecord(root, previousDispatchId);
+  const previousStatus = requireReassignablePreviousDispatch(root, previous);
+  const previousPack = readPack(root, previous.dispatchId);
+  const requestedRole = args.role?.trim();
+  const role = requestedRole || 'overflow-worker';
+  const objective = args.objective?.trim()
+    || previousPack.objective?.trim()
+    || `Dispatch runtime work for ${previous.storyId}`;
+  const host = args.host?.trim() || previous.selectedHost;
+  const prepareArgs: DispatchPrepareArgs = {
+    storyId: previous.storyId,
+    host,
+    fromHost: args.fromHost?.trim() || previousPack.fromHost,
+    role,
+    objective,
+    allowedPaths: args.allowedPaths !== undefined ? args.allowedPaths : [...previousPack.allowedPaths],
+    deniedPaths: args.deniedPaths !== undefined ? args.deniedPaths : [...previousPack.deniedPaths],
+    requiredCommands: args.requiredCommands !== undefined ? args.requiredCommands : [...previousPack.requiredCommands],
+    successCriteria: args.successCriteria !== undefined ? args.successCriteria : [...previousPack.successCriteria],
+    baseSha: args.baseSha?.trim() || previousPack.baseSha,
+    packId: args.packId?.trim() || undefined,
+    authorityBoundary: args.authorityBoundary?.trim() || previousPack.authorityBoundary.summary,
+    executionInstructions: rewriteRoleExecutionInstruction(
+      args.executionInstructions !== undefined ? args.executionInstructions : previousPack.executionInstructions,
+      role,
+    ),
+    parallel: Math.max(1, args.parallel ?? 1),
+    parentDispatchId: previous.dispatchId,
+    promptContinuity: {
+      mode: 'fresh-context',
+      previousDispatchId: previous.dispatchId,
+      previousStatus,
+      previousHost: previous.selectedHost,
+      previousPackId: previousPack.packId,
+      previousPackHash: previousPack.packHash,
+      previousPromptFile: previous.promptFile,
+      ...(previousPack.role ? { previousRole: previousPack.role } : {}),
+      ...(previousPack.objective ? { previousObjective: previousPack.objective } : {}),
+      previousNextAction: previous.nextAction,
+    },
+  };
+  const record = prepareDispatch(store, root, prepareArgs);
+  const nextAction = `Worker reassignment ready. Open ${record.promptFile} and launch role=${role} with fresh context; no full-history fork is required.`;
+  const updated = writeRecord(root, {
+    ...record,
+    nextAction,
+  });
+  const newPack = readPack(root, updated.dispatchId);
+  return {
+    schemaVersion: 'lattice.dispatch_reassign.v1',
+    mode: 'fresh-context',
+    previousDispatchId: previous.dispatchId,
+    dispatchId: updated.dispatchId,
+    storyId: updated.storyId,
+    role,
+    roleSource: requestedRole ? 'requested' : 'default',
+    objective: newPack.objective || objective,
+    promptFile: updated.promptFile,
+    dispatch: updated,
+    previous: {
+      dispatchId: previous.dispatchId,
+      status: previousStatus,
+      host: previous.selectedHost,
+      packId: previousPack.packId,
+      packHash: previousPack.packHash,
+      promptFile: previous.promptFile,
+      ...(previousPack.role ? { role: previousPack.role } : {}),
+      ...(previousPack.objective ? { objective: previousPack.objective } : {}),
+      nextAction: previous.nextAction,
+    },
+    warnings: [
+      ...updated.warnings,
+      'Reassignment uses summary-only fresh-context continuity; no full-history fork is required.',
+    ],
+    nextAction,
+    authorityChanged: false,
+    receiptVerified: false,
+    productionDone: false,
+  };
 }
 
 function runFakeLeafDispatch(
@@ -3464,6 +3656,27 @@ export function renderDispatchRunText(result: DispatchRunResult): string {
     lines.push('', 'workers:');
     lines.push(...result.workers.map(worker => `  - ${worker.dispatchId}: ${worker.status}`));
   }
+  if (result.warnings.length > 0) {
+    lines.push('', 'warnings:');
+    lines.push(...result.warnings.map(warning => `  - ${warning}`));
+  }
+  return lines.join('\n');
+}
+
+export function renderDispatchReassignText(result: DispatchReassignResult): string {
+  const lines = [
+    `Worker reassignment ready (${result.schemaVersion})`,
+    `mode: ${result.mode}`,
+    `previousDispatchId: ${result.previousDispatchId}`,
+    `dispatchId: ${result.dispatchId}`,
+    `storyId: ${result.storyId}`,
+    `role: ${result.role}`,
+    `roleSource: ${result.roleSource}`,
+    `objective: ${result.objective}`,
+    `parentDispatchId: ${result.dispatch.parentDispatchId}`,
+    `promptFile: ${result.promptFile}`,
+    `nextAction: ${result.nextAction}`,
+  ];
   if (result.warnings.length > 0) {
     lines.push('', 'warnings:');
     lines.push(...result.warnings.map(warning => `  - ${warning}`));
