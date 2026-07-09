@@ -26,6 +26,15 @@
       "reviewRound": "2026-07-09T17:28:18.626Z",
       "reviewRunId": "B-cee5:RR-006",
       "_hash": "fbc9b52ecd001f95b41c67dd9ab828014ce01f5bd2b489386c5123e7e011803b"
+    },
+    {
+      "id": "B-cee5:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "Round 2 re-verification of F-001/F-002 fixes: (1) F-001 fixed — CLAUDE.md:626 OQ-channel paragraph no longer asserts unconditional full-directory read (removed old \"读 <requirementsDir>/decisions/ 全目录\" wording); now describes the search budget contract (filename enumeration + candidateSpecSet bounded full-text reads + scanEscalationReason-gated full-directory scan escalation), matching the implemented prompt contract verified in packages/main/templates/agents/lattice-review-scope-plan.md:120-131 and lattice-review-behavior.md:126-131. (2) F-002 fixed — item-by-item candidateSpecSet source-list comparison: scope-plan.md:124 vs behavior.md:130 both list identically: checklist relatedDocs; story title/description/keywords/riskSignals; changed files/symbols; command/config names; lattice aux_doc_list output; top-N rg keyword matches over decisions/ — aux_doc_list now present in both, parity confirmed, same-bounded-channel claim in behavior.md:163 is now accurate. (3) All six prompt copies (scope-plan + behavior x {packages/main/templates/agents, .claude/agents, .lattice-codex/agents}) are byte-identical via diff (all exit 0). (4) reviewer-scan-budget-guard-smoke.ts header comment (lines 5-10, conditioning-wording exemption) matches implementation: lineIsEscalationPath() (lines 65-70) requires escalationConditioningPattern match, not bare scanEscalationReason substring, consistent with F-003 hardening comment at lines 61-64; smoke run PASS (6 prompt copies clean, 4 required phrases present). No new inconsistencies found within diff-referenced scope.",
+      "createdAt": "2026-07-09T17:30:35.899Z",
+      "reviewRound": "2026-07-09T17:28:18.626Z",
+      "reviewRunId": "B-cee5:RR-008",
+      "_hash": "25cdbaec9b4b973bc9964ba27b6a3c1883a94d0aac53d479030db2aebb05b220"
     }
   ]
 }
