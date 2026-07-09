@@ -4,7 +4,7 @@
   "title": "Probe canonical host execution readiness and observable launchers",
   "description": "Fix the Proof-or-stop gap where host availability proof only checks executable path plus --version. Codex/Claude/agy hosts must also have canonical noninteractive launcher probes that fail fast, expose progress where possible, and catch wrong launcher templates such as agy --prompt-file or Claude stream-json without --verbose before degraded fallback or reviewer dispatch relies on them.",
   "type": "bug",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "riskSignals": [
     {
@@ -14,7 +14,7 @@
   ],
   "createdAt": "2026-07-09T12:58:00.780Z",
   "startedAt": "2026-07-09T12:58:00.780Z",
-  "endedAt": null,
+  "endedAt": "2026-07-09T23:13:27.092Z",
   "events": [
     {
       "phase": "INIT",
@@ -258,12 +258,16 @@
       "user": "Harmonygo",
       "sessionId": "sess-037bb35e001f5e54",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-09T23:13:27.092Z",
+      "branch": "story/B-d8ef",
+      "user": "Harmonygo",
+      "sessionId": "sess-037bb35e001f5e54",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-d8ef",
-    "branch": "story/B-d8ef",
-    "createdAt": "2026-07-09T13:00:06.169Z"
-  },
   "currentReviewRound": "2026-07-09T22:49:36.804Z"
 }
