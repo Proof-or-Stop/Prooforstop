@@ -1,0 +1,24 @@
+{
+  "findings": [
+    {
+      "id": "B-7438:F-001",
+      "desc": "CHK-002:adversarial:0 verificationIntent explicitly promises that missing/stale/contradictory host probe evidence invalidates fallback records for BOTH eligibility=single-host-environment AND eligibility=temporary-host-unavailability. Implementation (reviewHostAvailabilityProbeRequiredForEligibility in packages/main/src/core/review-escalation.ts:548-550) does gate both values identically, but no verificationEvidence actually exercises eligibility=temporary-host-unavailability anywhere: grep for the literal string across packages/main/src/tasks/review-escalation-smoke.ts, packages/main/src/tasks/review-assurance-floor-smoke.ts, and tests/ finds zero matches (it only appears in production source: review-escalation.ts, command-policy.ts, command-schemas.ts). The recorded CHK-002:adversarial:0 evidence note itself only claims single-host-environment coverage (\"reject single-host-environment fallback when a fresh probe shows two or more executable canonical hosts\"), which is narrower than the intent text it is meant to satisfy. Add a smoke check that constructs a review_escalation_fallback record with eligibility=temporary-host-unavailability and asserts it is rejected under missing/stale probe evidence the same way single-host-environment is, in both evaluateReviewEscalation and evaluateReviewAssuranceFloor.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-09T11:44:51.297Z",
+      "reviewRound": "2026-07-09T11:42:00.164Z",
+      "reviewRunId": "B-7438:RR-002",
+      "_hash": "eb739f05d28fca95b9f79b4c2500901b08bc39a667f8c3424948ff4ef55d34e9",
+      "files": [
+        "packages/main/src/tasks/review-escalation-smoke.ts",
+        "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+        "packages/main/src/core/review-escalation.ts"
+      ],
+      "signatureTag": "missing|ts|adversarial-verificationintent-explicitly",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
