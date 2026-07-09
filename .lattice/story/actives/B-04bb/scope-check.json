@@ -1,0 +1,101 @@
+{
+  "storyId": "B-04bb",
+  "checkedAt": "2026-07-09T18:27:41.428Z",
+  "features": [
+    {
+      "feature": "Add one bare-string entry \"node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js\" to validate.commands in lattice.config.json",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-04bb/checklist.json"
+    },
+    {
+      "feature": "Place the new entry immediately after the retired-authority-vocabulary-guard-smoke.js entry (established per-guard convention)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-04bb/plan.md"
+    },
+    {
+      "feature": "lattice.config.json must still parse as strict JSON after the edit",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-04bb/checklist.json"
+    },
+    {
+      "feature": "Referenced dist file must actually exist post-merge (guard against wiring a 404 path that breaks validate)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-04bb/checklist.json"
+    },
+    {
+      "feature": "Hard dependency: B-cee5 must reach DONE and merge to main before this story validates/merges",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-04bb/plan.md"
+    },
+    {
+      "feature": "Run full (non-focused) lattice validate; new command must appear in output as executed with PASS and overall exit 0",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-04bb/checklist.json"
+    },
+    {
+      "feature": "Wired guard must be genuinely capable of failing (non-tautological), confirmed via source failure path or seeded regression fixture",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-04bb/checklist.json"
+    },
+    {
+      "feature": "Diff minimality: git diff vs main limited to the one config line plus story metadata",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-04bb/checklist.json"
+    },
+    {
+      "feature": "No change to reviewer-scan-budget-guard-smoke.ts source itself",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded list; plan.md Non-goals",
+      "source": ".lattice/story/actives/B-04bb/scope-boundary.json"
+    },
+    {
+      "feature": "No change to run-all-smokes or its discovery logic",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded list; plan.md rejects run-all-smokes aggregate alternative as out of scope",
+      "source": ".lattice/story/actives/B-04bb/scope-boundary.json"
+    },
+    {
+      "feature": "No lifecycle gate or DONE semantics change",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded list; plan.md Non-goals",
+      "source": ".lattice/story/actives/B-04bb/scope-boundary.json"
+    },
+    {
+      "feature": "No reordering or modifying other validate.commands entries",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded list; plan.md Non-goals",
+      "source": ".lattice/story/actives/B-04bb/scope-boundary.json"
+    }
+  ],
+  "summary": {
+    "total": 12,
+    "covered": 8,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "9b086e56bbbb9b0547968faa12ca457fc2ee990e44b4b4d2acb6c67becdd72c3",
+  "openQuestions": []
+}

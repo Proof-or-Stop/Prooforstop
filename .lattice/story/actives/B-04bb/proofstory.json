@@ -33,20 +33,19 @@
         "CHK-001",
         "CHK-002"
       ],
-      "verificationIntentRefs": [],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0",
+        "CHK-002:happy:0",
+        "CHK-002:adversarial:0"
+      ],
       "milestoneIds": [],
-      "note": "Acceptance claim (full lattice validate executes the new reviewer-scan-budget-guard-smoke command and exits 0) is proven by CHK-001 (config entry added) plus CHK-002 (full validate run passes with the new command executed)."
+      "note": "Acceptance claim (full lattice validate executes the new reviewer-scan-budget-guard-smoke command and exits 0) is proven by CHK-001 (config entry added, JSON still parses, dist file exists) plus CHK-002 (full validate passes with the new command executed; guard is genuinely falsifiable)."
     }
   ],
-  "diagnosticGaps": [
-    {
-      "code": "acceptance_binding_missing_verification_intent_refs",
-      "severity": "warn",
-      "artifact": "proofstory.json",
-      "message": "AB-001 has no verificationIntentRefs."
-    }
-  ],
+  "diagnosticGaps": [],
   "note": "Single-claim chore story: one validate.commands wiring line, verified by a full lattice validate run.",
   "createdAt": "2026-07-09T18:22:21.719Z",
-  "updatedAt": "2026-07-09T18:22:21.719Z"
+  "updatedAt": "2026-07-09T18:26:53.934Z"
 }
