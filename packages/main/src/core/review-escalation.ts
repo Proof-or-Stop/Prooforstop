@@ -255,6 +255,18 @@ function normalizeString(value: unknown): string {
   return typeof value === 'string' ? value.trim() : '';
 }
 
+const RETIRED_COMPLETION_FALSE_FIELDS = [
+  'authorityDone',
+  'fullAuthorityDone',
+  'productionDone',
+] as const;
+
+function requireRetiredCompletionFieldsFalse(event: ProcessEvent, reasons: string[]): void {
+  for (const field of RETIRED_COMPLETION_FALSE_FIELDS) {
+    if (event[field] !== false) reasons.push('retired completion flag must be false');
+  }
+}
+
 function isCanonicalHost(value: unknown): value is ReviewHostAvailabilityCanonicalHost {
   return typeof value === 'string' && (REVIEW_HOST_AVAILABILITY_CANONICAL_HOSTS as readonly string[]).includes(value);
 }
@@ -464,9 +476,7 @@ export function reviewHostAvailabilityProbeRecordFromEvent(
     if (!storyFilesHash) reasons.push('missing storyFilesHash');
     else if (storyFilesHash !== expectedStoryFilesHash) reasons.push('storyFilesHash is stale');
   }
-  if (event.authorityDone !== false) reasons.push('authorityDone must be false');
-  if (event.fullAuthorityDone !== false) reasons.push('fullAuthorityDone must be false');
-  if (event.productionDone !== false) reasons.push('productionDone must be false');
+  requireRetiredCompletionFieldsFalse(event, reasons);
 
   for (const row of rows) {
     if (!row || typeof row !== 'object' || Array.isArray(row)) {
@@ -616,9 +626,7 @@ export function reviewEscalationFallbackRecordFromEvent(
   if (assuranceLevel !== 'degraded-single-host') {
     reasons.push('assuranceLevel must be degraded-single-host');
   }
-  if (event.authorityDone !== false) reasons.push('authorityDone must be false');
-  if (event.fullAuthorityDone !== false) reasons.push('fullAuthorityDone must be false');
-  if (event.productionDone !== false) reasons.push('productionDone must be false');
+  requireRetiredCompletionFieldsFalse(event, reasons);
 
   if (reviewHostAvailabilityProbeRequiredForEligibility(eligibility)) {
     const assessment = assessReviewHostAvailabilityForFallbackEligibility(events, eligibility, expectedMaterialHash, expectedStoryFilesHash);

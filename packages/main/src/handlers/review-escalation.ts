@@ -242,9 +242,6 @@ export function createReviewEscalationHandlers(ctx: HandlerContext) {
         `materialHash: ${freshMaterialHash}`,
         ...(event.storyFilesHash ? [`storyFilesHash: ${event.storyFilesHash}`] : []),
         ...event.hosts.map(row => `  - ${row.host}: ${row.available ? 'available' : 'unavailable'}${row.executablePath ? ` path=${row.executablePath}` : ''}${row.error ? ` (${row.error})` : ''}`),
-        'authorityDone: false',
-        'fullAuthorityDone: false',
-        'productionDone: false',
         'evidenceScope: review-host-availability-probe',
         commitHint.trim(),
       ].filter(Boolean).join('\n');
