@@ -63,7 +63,7 @@
       "desc": "B-eb92:F-003 is only partially fixed: the main guidance recipes now use {round-id}, but formatReviewAssuranceFloorFailure still defines storyRef/materialRef as <storyId>/<current-materialHash> and embeds them in Stale material recovery command lines; if those optional report fields are absent the CLI hint emits shell-active redirection placeholders. The added zsh -n assertions only cover review-assurance-surfacing smoke output, not this failure/recovery renderer. Directly running node packages/main/dist/tasks/review-assurance-floor-smoke.js also fails on stale recovery text, showing the existing recovery smoke was not updated or extended to parse the rendered commands.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-09T11:53:12.864Z",
@@ -76,7 +76,11 @@
         "packages/main/src/tasks/review-assurance-floor-smoke.ts"
       ],
       "signatureTag": "missing|ts|eb92-partially-fixed",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by implementer commit 931609335: formatReviewAssuranceFloorFailure now uses shell-safe {storyId}/{current-materialHash} fallbacks, and review-assurance-floor-smoke asserts stale recovery commands have no angle placeholders, include Legal reviewer/host only labeling, and parse inline lattice command fragments with zsh -n. Verified by build, review-assurance-floor smoke, surfacing smoke, retired vocabulary guard, and full lattice validate PASS 43/43.",
+      "resolvedAt": "2026-07-09T12:03:57.989Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-eb92:F-005",
