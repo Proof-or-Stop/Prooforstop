@@ -1,0 +1,42 @@
+{
+  "task": "Implement the M0-M1 slice of the Proof-or-Stop agent-drivability roadmap plus minimal #6 scope-plan dispatch and checklist_add ledger-sync guidance so INIT and PLAN guidance route agents to the right preflight, reviewer, and ledger commands.",
+  "outcome": "After this story, INIT story guidance routes through init_preflight, story-level scope-plan reviewers can be dispatched to write scope_check_save evidence, and checklist_add on ledger-backed stories warns agents to synchronize milestone ledger coverage without auto-creating evidence.",
+  "facts": [
+    "The decision doc is docs/requirements/decisions/pos-agent-drivability-optimization.md.",
+    "The confirmed failure mode is discoverability/routing, not weak gate semantics.",
+    "init_preflight already exists and aggregates INIT_CHECK prerequisites read-only.",
+    "Current session_brief/next and global help still route directly to story_advance INIT_CHECK.",
+    "Current lattice dispatch rejects story-level lattice-review-scope-plan without itemId, which is the documented #6 blocker.",
+    "checklist_add can add checklist items to a story that already has milestone-ledger.json while only telling the agent to run story_review, leaving milestone_status to project an incomplete ledger until someone manually notices.",
+    "This story includes the minimal #6 dispatch unblocker and the small checklist_add ledger-sync hint because both prevent repeat agent rediscovery of known planning dead ends."
+  ],
+  "constraints": [
+    "Do not weaken dual INIT reviewer, scope anti-expansion, verificationIntent, review, TEST, DONE, or production-readiness gates.",
+    "Do not auto-run commands or write evidence from init_preflight/session_brief/help surfaces.",
+    "Do not let the main implementation agent self-sign scope_check_save.",
+    "Do not let checklist_add auto-create milestone rows or infer milestone claims from checklist prose.",
+    "Keep milestone_status read-only and projection-based.",
+    "Keep changes scoped to INIT routing, minimal story-level scope-plan dispatch, and checklist_add ledger-sync guidance.",
+    "Story operations must go through lattice commands, not direct JSON edits.",
+    "Remote publish is out of scope."
+  ],
+  "unknowns": [
+    "Which existing focused test file is the smallest stable home for M1 routing assertions.",
+    "Whether the M0 baseline contract should live only in the decision doc or also in a small machine-readable test fixture.",
+    "Whether existing dispatch tests already cover story-level INIT reviewers and item-scoped reviewers enough to extend safely.",
+    "Whether checklist_add has a central output helper or needs a direct handler-level hint after writes."
+  ],
+  "touchpoints": [
+    "docs/requirements/decisions/pos-agent-drivability-optimization.md",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/handlers/story-create.ts",
+    "packages/main/src/handlers/story-dispatch.ts",
+    "packages/main/src/handlers/story-review.ts",
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/cli/help-renderer.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/handlers/init-preflight.ts",
+    "packages/main/tests"
+  ],
+  "timestamp": "2026-07-08T22:50:57.006Z"
+}

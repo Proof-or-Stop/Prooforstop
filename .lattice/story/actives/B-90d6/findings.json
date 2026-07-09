@@ -1,0 +1,69 @@
+{
+  "findings": [
+    {
+      "id": "B-90d6:F-001",
+      "desc": "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs:189 WHY CHK-005 requires focused tests/smokes for session_brief, story_create/global help, and INIT_CHECK failure guidance, but the only executable init_preflight assertion in packages/main/tests/*.mjs is the INIT_CHECK guard-failure helper in this file. The recorded CHK-005 evidence at .lattice/story/actives/B-90d6/checklist.json:399 marks this test as covering those surfaces, yet it never drives session_brief, next, story_create, or lattice --help output; regressions in the high-traffic INIT guidance surfaces would pass this suite.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-08T23:28:56.307Z",
+      "reviewRound": "2026-07-08T23:26:45.118Z",
+      "reviewRunId": "B-90d6:RR-003",
+      "_hash": "92df394d92da25e7e7f0cab647fe6e776fb487005cc507152913a5231b691ebb",
+      "files": [
+        "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
+        ".lattice/story/actives/B-90d6/checklist.json"
+      ],
+      "signatureTag": "missing|mjs|packages-main-tests",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit b12d2e5f3: expanded packages/main/tests/b90d6-init-dispatch-guidance.test.mjs to exercise session_brief/next INIT routing, story_create/global help INIT routing, INIT_CHECK guard failure guidance, and PLAN/non-PLAN scope-plan dispatch behavior. Verified with node packages/main/tests/b90d6-init-dispatch-guidance.test.mjs, npm --prefix packages/main run test:milestone-status, npm --prefix packages/main run build, and lattice scope_contract_check --storyId=B-90d6.",
+      "resolvedAt": "2026-07-08T23:40:17.505Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-90d6:F-002",
+      "desc": "docs/CLI.md:329-331 says automatic milestone-status append is skipped when the target story has no milestone-ledger.json, but packages/main/src/cli-engine.ts:903-904 falls back to an always-shown checklist-derived ledger and packages/main/tests/milestone-status.test.mjs:322-327 asserts missing-ledger story mutations must still show that checklist-derived status view. This docs drift contradicts CHK-008 forced status display behavior and can train agents to expect no status output for ledgerless stories; update the docs to distinguish real milestone_status tables from checklist-derived status output without implying a ledger mutation or gate pass.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-08T23:29:30.297Z",
+      "reviewRound": "2026-07-08T23:26:45.118Z",
+      "reviewRunId": "B-90d6:RR-004",
+      "_hash": "aedc21ab0ae455da61f93277f6d699b8d716f224f59bf6219ec7ab2fc0c752e3",
+      "signatureTag": "missing|unknown|docs-says-automatic",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit b12d2e5f3: updated docs/CLI.md to distinguish the real Milestone Status - <storyId> table when milestone-ledger.json exists from the checklist-derived status block when no ledger exists. The docs no longer imply that forced status append is skipped for ledgerless stories, and they avoid claiming ledger mutation or gate pass behavior. Verified with npm --prefix packages/main run build and npm --prefix packages/main run test:milestone-status.",
+      "resolvedAt": "2026-07-08T23:40:22.906Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-90d6:F-003",
+      "desc": "packages/main/src/handlers/story-dispatch.ts:193 WHY buildScopePlanReviewPrompt only verifies that the story exists, then packages/main/src/handlers/story-dispatch.ts:230-231 emits a reviewer prompt that must finish by calling scope_check_save. But scope_check_save is allowed only in PLAN (packages/main/src/core/command-policy.ts:394), so dispatching lattice-review-scope-plan for a DEV/REVIEW/TEST story advertises a guaranteed-failing next command; reproduced in this REVIEW worktree with `node packages/main/dist/cli.js dispatch --root /Users/jek/Documents/Work/proofbound/.worktrees/B-90d6 --storyId B-90d6 --agentType lattice-review-scope-plan`, which returned a scope_check_save prompt for B-90d6. This violates the story invariant to never advertise a command that will fail in the current phase; phase-gate the story-level scope-plan prompt or make it explicitly refuse/redirect outside PLAN.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-08T23:31:29.144Z",
+      "reviewRound": "2026-07-08T23:26:45.118Z",
+      "reviewRunId": "B-90d6:RR-002",
+      "_hash": "ccc4636b7994143a12a28e77ed4b5119c31a43d720d3d961e5be6c0e8a71989b",
+      "files": [
+        "packages/main/src/handlers/story-dispatch.ts",
+        "packages/main/src/core/command-policy.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-handlers",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit b12d2e5f3: story-level lattice-review-scope-plan dispatch is now phase-gated. PLAN emits the scope_check_save reviewer prompt, while DEV/REVIEW and other non-PLAN phases return an explicit refusal/redirect instead of advertising a guaranteed-failing PLAN-only command. Covered by packages/main/tests/b90d6-init-dispatch-guidance.test.mjs and verified with npm --prefix packages/main run build.",
+      "resolvedAt": "2026-07-08T23:40:28.099Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

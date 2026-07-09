@@ -1,0 +1,108 @@
+{
+  "storyId": "B-90d6",
+  "checkedAt": "2026-07-09T00:05:50.577Z",
+  "headHash": "6abaf95cab51b2075faaccdb61f9c82828d40541",
+  "materialHash": "3955f76ce61d5d007830583a13ddbd43552cc760f9abc7e9bb1b83248e2842a1",
+  "storyFilesHash": "c3008b896e62bfd5f6c813c85179f381dffa2d007841ddb944a57c077441b597",
+  "reviewRound": "2026-07-08T23:39:05.748Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/pos-agent-drivability-optimization.md",
+      "promise": "A future maintainer can identify the exact baseline metric and fixture contract before changing INIT guidance.",
+      "status": "verified",
+      "verifiedBy": "docs_check",
+      "evidence": "transcript-diff.md plus rg evidence for the M0 baseline wording."
+    },
+    {
+      "docPath": "packages/main/src/handlers/session.ts",
+      "promise": "For an INIT story, lattice session_brief and lattice next tell the agent to run init_preflight instead of blindly attempting story_advance INIT_CHECK.",
+      "status": "verified",
+      "verifiedBy": "logic_test",
+      "evidence": "b90d6-init-dispatch-guidance test and session guidance source inspection."
+    },
+    {
+      "docPath": "packages/main/src/cli/help-renderer.ts",
+      "promise": "Freshly created INIT stories and top-level help no longer advertise a direct INIT_CHECK jump without preflight guidance.",
+      "status": "verified",
+      "verifiedBy": "manual_transcript",
+      "evidence": "node packages/main/dist/cli.js --help shows init_preflight before INIT_CHECK; story-create source includes the preflight hint."
+    },
+    {
+      "docPath": "packages/main/src/core/machine.ts",
+      "promise": "A failed story_advance INIT_CHECK points to init_preflight and controlled init_check_repair guidance where relevant, without implying any evidence exemption.",
+      "status": "verified",
+      "verifiedBy": "logic_test",
+      "evidence": "b90d6-init-dispatch-guidance test covers INIT_CHECK failure guidance without gate bypass."
+    },
+    {
+      "docPath": "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
+      "promise": "The M1 routing fixes are protected against regression by machine checks rather than relying on prose review.",
+      "status": "verified",
+      "verifiedBy": "test",
+      "evidence": "node packages/main/tests/b90d6-init-dispatch-guidance.test.mjs passed."
+    },
+    {
+      "docPath": "packages/main/src/handlers/story-dispatch.ts",
+      "promise": "A PLAN story can run lattice dispatch with storyId and agentType=lattice-review-scope-plan and receive a reviewer prompt that tells the reviewer to call scope_check_save.",
+      "status": "verified",
+      "verifiedBy": "logic_test",
+      "evidence": "b90d6-init-dispatch-guidance test covers PLAN success and non-PLAN refusal."
+    },
+    {
+      "docPath": "packages/main/src/handlers/checklist.ts",
+      "promise": "After checklist_add on a story with an existing milestone ledger, the terminal includes a milestone ledger sync advisory naming lattice milestone_ledger_add.",
+      "status": "verified",
+      "verifiedBy": "test",
+      "evidence": "npm --prefix packages/main run test:milestone-status passed and asserts the advisory."
+    },
+    {
+      "docPath": "packages/main/src/cli-engine.ts",
+      "promise": "For a ledger-backed story, common development command output includes Milestone Status - <storyId> automatically, with the read-only disclaimer, without requiring a separate milestone_status command.",
+      "status": "verified",
+      "verifiedBy": "test",
+      "evidence": "npm --prefix packages/main run test:milestone-status passed and transcript-diff.md records the visible milestone status output."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "lattice validate passed 43/43; rg evidence confirms M0 baseline wording in pos-agent-drivability-optimization.md."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "node packages/main/tests/b90d6-init-dispatch-guidance.test.mjs passed; session guidance source names init_preflight before INIT_CHECK."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "node packages/main/dist/cli.js --help shows lattice init_preflight --storyId=B-xxx before story_advance --phase=INIT_CHECK, with After preflight READY wording."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "node packages/main/tests/b90d6-init-dispatch-guidance.test.mjs passed for INIT_CHECK failure guidance without gate bypass."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "node packages/main/tests/b90d6-init-dispatch-guidance.test.mjs and npm --prefix packages/main run test:milestone-status passed."
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "node packages/main/tests/b90d6-init-dispatch-guidance.test.mjs passed for PLAN scope-plan dispatch success and non-PLAN refusal."
+    },
+    {
+      "featureId": "CHK-007",
+      "transcript": "npm --prefix packages/main run test:milestone-status passed for checklist_add milestone ledger sync advisory and non-mutation."
+    },
+    {
+      "featureId": "CHK-008",
+      "transcript": "npm --prefix packages/main run test:milestone-status passed for forced Milestone Status block on ledger-backed command output; transcript-diff.md records visible read-only milestone_status output."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review verified docs promises, real-machine transcript coverage, edge/adversarial tests, read-only milestone status semantics, and no unresolved TODOs for B-90d6."
+  },
+  "_hash": "a9d4b14464c4f71df41939bbe1c483948bb701bbbafaa3478a8665773d08b37f"
+}

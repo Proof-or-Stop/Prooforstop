@@ -1126,7 +1126,8 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
           `  · Do not have the main agent self-invoke lattice init_check_set (the CLI does not mechanically validate agentId, but the reviewer template fresh-context fence + CLAUDE.md behavior rules require invocation by an independent subagent—main agent self-invocation effectively bypasses the reviewer, violating the anti-self-absolution convention)\n` +
           `  · If a reviewer produces no output for 4 minutes, treat as stuck: rerun lattice dispatch to fetch the prompt and restart the reviewer; if the old reviewer returns later, take the latest init_check_set as authoritative\n` +
           `  · INIT_CHECK gate requires both lattice-review-story-init and product-reviewer to have persisted via init_check_set; critical/high issues will block advancement\n` +
-          `  · After review passes, call lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}' to enter INIT_CHECK`;
+          `  · Before story_advance, run lattice init_preflight --storyId=${storyId}; it is read-only, writes no evidence, and creates no worktree\n` +
+          `  · After init_preflight reports READY, call lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}' to enter INIT_CHECK`;
         const nonGitHint = !isGitRepository(ctx.root)
           ? `\n⚠ Current directory is not a git repo: story is recorded, but INIT_CHECK/worktree flow still requires git init + initial commit first.`
           : '';

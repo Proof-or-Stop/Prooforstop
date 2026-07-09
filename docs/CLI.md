@@ -327,12 +327,15 @@ Host Progress Reporting Contract:
   deterministic table output. `❌` means Failed; it must not be used for Not
   Started rows.
 - Automatic append is skipped for `--json` / `--format=json` so machine stdout
-  remains parseable, and it is skipped when the target story has no
-  `milestone-ledger.json`.
+  remains parseable. For human-text mutation output, a story with
+  `milestone-ledger.json` appends the real `Milestone Status - <id>` table; a
+  story without a ledger appends a distinct
+  `Checklist-derived ledger (no milestone ledger set) - <id>` status block.
 - Missing `milestone-ledger.json` is a blocker in the live projection. The
-  command reports a clear next action and does not infer completion from
-  checklist text alone. A DONE closeout-backed report uses the ledger summary
-  already frozen in the closeout snapshot.
+  checklist-derived block is display-only fallback status: it reports a clear
+  next action and does not infer completion from checklist text alone. A DONE
+  closeout-backed report uses the ledger summary already frozen in the closeout
+  snapshot.
 - Detail granularity comes from the authored milestone ledger, checklist refs,
   verificationIntent refs, and verificationEvidence. Future completion or
   executor ledgers can improve state-change deltas, but V1 does not require them

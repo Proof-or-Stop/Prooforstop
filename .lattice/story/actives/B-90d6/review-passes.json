@@ -1,0 +1,49 @@
+{
+  "passes": [
+    {
+      "id": "B-90d6:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept/product review passed: INIT guidance routes high-traffic surfaces to read-only init_preflight before INIT_CHECK; story-level lattice-review-scope-plan dispatch remains prompt-only and requires reviewer-written scope_check_save for gate evidence; checklist_add milestone ledger guidance and forced milestone status display are advisory/read-only and do not mutate milestone ledgers or weaken lifecycle/review gates. Verified focused tests: node packages/main/tests/b90d6-init-dispatch-guidance.test.mjs and npm --prefix packages/main run test:milestone-status.",
+      "createdAt": "2026-07-08T23:30:08.255Z",
+      "reviewRound": "2026-07-08T23:26:45.118Z",
+      "reviewRunId": "B-90d6:RR-001",
+      "_hash": "12f615f5380c6a52c5e7e73dbc8c3e951a3764bc98725ae2b2c450451217e855"
+    },
+    {
+      "id": "B-90d6:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "F-001 coverage gap is fixed: b90d6 focused test now executes session_brief/next INIT routing, story_create/global help INIT routing, INIT_CHECK/init_preflight guidance, and PLAN vs non-PLAN scope-plan dispatch; milestone-status focused suite still covers ledger advisory/status/json/non-mutation behavior.",
+      "createdAt": "2026-07-08T23:42:34.952Z",
+      "reviewRound": "2026-07-08T23:39:05.748Z",
+      "reviewRunId": "B-90d6:RR-005",
+      "_hash": "6bbadd4788360af713c529dab74d5d462a11d1b5b66cc9103dab4ff697cb9370"
+    },
+    {
+      "id": "B-90d6:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Docs review pass: verified F-002 fix in docs/CLI.md. The milestone status docs now distinguish the real Milestone Status table for stories with milestone-ledger.json from the Checklist-derived ledger fallback for ledgerless stories, and preserve read-only/no evidence write/no phase advance/no production-readiness claims. pos-agent-drivability-optimization.md remains framed as proposal/regression-contract only and does not overclaim gate evidence or production readiness. Cross-checked cli-engine forced append behavior and milestone-status tests; npm --prefix packages/main run test:milestone-status passed.",
+      "createdAt": "2026-07-08T23:42:52.788Z",
+      "reviewRound": "2026-07-08T23:39:05.748Z",
+      "reviewRunId": "B-90d6:RR-008",
+      "_hash": "8b967e2de8fd33eeee637e044a2259e2225819b865df1a2a53521914ec556726"
+    },
+    {
+      "id": "B-90d6:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Quality re-review passed: F-003 is fixed; story-level lattice-review-scope-plan dispatch now refuses outside PLAN instead of advertising PLAN-only scope_check_save, with focused regression coverage and build/test verification.",
+      "createdAt": "2026-07-08T23:43:09.644Z",
+      "reviewRound": "2026-07-08T23:39:05.748Z",
+      "reviewRunId": "B-90d6:RR-007",
+      "_hash": "ff681c3bd542d4a0e84a3cd3b09194fbfcafe6b9a0546166d51121468c12d1d3"
+    },
+    {
+      "id": "B-90d6:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Concept pass after b12d2e5f3/c802dd689: resolved findings align with story scope. INIT guidance remains read-only and routes to init_preflight; scope-plan dispatch is PLAN-gated and remains reviewer-evidence only via scope_check_save; milestone status/checklist ledger guidance stays advisory/read-only and does not weaken gates.",
+      "createdAt": "2026-07-08T23:43:25.953Z",
+      "reviewRound": "2026-07-08T23:39:05.748Z",
+      "reviewRunId": "B-90d6:RR-006",
+      "_hash": "5d6cbdbfae22deb0297b5671e829fc3ce9da8fdb4055122a658a8a105e87a809"
+    }
+  ]
+}

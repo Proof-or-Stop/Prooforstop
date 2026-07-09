@@ -69,7 +69,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
   function appendDispatchEvent(args: {
     storyId: string;
     agentType?: string;
-    targetKind: 'init-review' | 'checklist' | 'finding' | 'cluster';
+    targetKind: 'init-review' | 'scope-plan-review' | 'checklist' | 'finding' | 'cluster';
     itemId?: string;
     findingId?: string;
     clusterId?: string;
@@ -183,6 +183,64 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         '- Do not edit story files directly.',
       ].join('\n'),
     };
+  }
+
+  function buildScopePlanReviewPrompt(args: {
+    storyId: string;
+    agentType?: string;
+  }): { prompt: string } {
+    if (!args.storyId) throw new Error('storyId is required');
+    const story = (() => {
+      try {
+        return store.readStory(args.storyId);
+      } catch {
+        throw new Error(`story ${args.storyId} not found`);
+      }
+    })();
+    if (story.phase !== 'PLAN') {
+      throw new Error(
+        `scope_check_save is PLAN-only; current phase ${story.phase} is unsupported for ` +
+        `story-level lattice-review-scope-plan dispatch on ${args.storyId}. ` +
+        'Run this dispatch only while the story is in PLAN, or use lattice session_brief / lattice next for current-phase guidance.',
+      );
+    }
+
+    const storyDir = `${store.storyDirRel()}/${args.storyId}`;
+    const bgPath = `${storyDir}/background.md`;
+    const understandingPath = `${storyDir}/understanding.json`;
+    const checklistPath = `${storyDir}/checklist.json`;
+    const planPath = `${storyDir}/plan.md`;
+    const decisionPath = `${storyDir}/decision.json`;
+
+    const lines: string[] = [];
+    lines.push(`Review PLAN scope coverage for story ${args.storyId}.`);
+    lines.push('');
+    lines.push('You are the lattice-review-scope-plan reviewer; review in a fresh context and do not carry over the main agent\'s conclusions.');
+    lines.push(`Working directory (subagent must cd here): ${root}`);
+    lines.push('');
+    appendDispatchLivenessGuidance(lines, 'lattice-review-scope-plan/story-scope');
+    lines.push('Role boundary:');
+    lines.push('- Review only; do not change code, tests, checklist items, plan text, or story metadata.');
+    lines.push('- Dispatch output is not gate evidence; only scope_check_save writes the PLAN scope evidence consumed by story_review.');
+    lines.push('');
+    lines.push('Must read story artifacts:');
+    lines.push(`1. ${bgPath}`);
+    lines.push(`2. ${understandingPath}`);
+    lines.push(`3. ${checklistPath}`);
+    lines.push(`4. ${planPath}`);
+    lines.push(`5. ${decisionPath} (if present)`);
+    lines.push('- Also read relatedDocs referenced by checklist items and any decisions/docs cited by the story artifacts.');
+    lines.push('');
+    lines.push('Review focus:');
+    lines.push('- Identify every user-visible promise, scope constraint, exclusion, and acceptance expectation in the story artifacts.');
+    lines.push('- Classify each feature as covered, excluded, gap, orphan-suspect, or drift using the scope_check_save schema.');
+    lines.push('- Record open questions when the artifacts conflict or a promise is visible but cannot be safely classified.');
+    lines.push('');
+    lines.push('Finish by calling scope_check_save:');
+    lines.push(`- lattice scope_check_save '{"storyId":"${args.storyId}","features":[{"feature":"<promise or constraint>","covered_by":"<CHK-xxx or null>","status":"covered|excluded|gap|orphan-suspect|drift","excluded_by":"<reason or null>","source":"<artifact path>"}],"summary":{"total":1,"covered":0,"excluded":0,"gaps":1},"openQuestions":[]}'`);
+    lines.push('- If there are no gaps, still call scope_check_save with the complete feature list and accurate summary counts.');
+
+    return { prompt: lines.join('\n') };
   }
 
   function buildFindingPrompt(args: {
@@ -436,7 +494,8 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
      * dispatch is now the only entry. buildItemPrompt / buildFindingPrompt remain — they are used here.)
      *
      * Dispatch by exactly one of itemId / findingId / clusterId; if only
-     * agentType=lattice-review-story-init is passed, generate the INIT reviewer prompt.
+     * agentType=lattice-review-story-init/product-reviewer/lattice-review-scope-plan is passed,
+     * generate the corresponding story-level reviewer prompt.
      *
      * Mutual exclusion validation: exactly one of the three must be provided; more / fewer both throw Error.
      * Returns: { prompt: string } — byte-identical to the old entry (clusterId branch reuses cluster.ts text).
@@ -480,8 +539,20 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         });
         return result;
       }
+      if (provided.length === 0 && normalizedAgentType === 'lattice-review-scope-plan') {
+        const result = buildScopePlanReviewPrompt({
+          storyId: args.storyId,
+          agentType: args.agentType,
+        });
+        appendDispatchEvent({
+          storyId: args.storyId,
+          agentType: args.agentType,
+          targetKind: 'scope-plan-review',
+        });
+        return result;
+      }
       if (provided.length !== 1) {
-        throw new Error('dispatch requires exactly one of itemId / findingId / clusterId; INIT reviewer may pass only agentType=lattice-review-story-init or product-reviewer');
+        throw new Error('dispatch requires exactly one of itemId / findingId / clusterId; story-level reviewers may pass only agentType=lattice-review-story-init, product-reviewer, or lattice-review-scope-plan');
       }
 
       if (args.itemId) {

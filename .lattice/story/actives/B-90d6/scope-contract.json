@@ -1,0 +1,62 @@
+{
+  "storyId": "B-90d6",
+  "mode": "enforce",
+  "allowedModify": [
+    "docs/CLI.md",
+    "docs/requirements/decisions/pos-agent-drivability-optimization.md",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/handlers/story-create.ts",
+    "packages/main/src/handlers/story-dispatch.ts",
+    "packages/main/src/handlers/story-review.ts",
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/cli/help-renderer.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/machine.ts"
+  ],
+  "allowedCreate": [
+    "docs/requirements/decisions/pos-agent-drivability-optimization.md",
+    "packages/main/tests/fixtures/*",
+    "packages/main/tests/*"
+  ],
+  "allowedTest": [
+    "packages/main/tests/**"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "M2 checklist self-seeding and IDEA checklist dead-end repair",
+    "Broad M3 parser/schema/help renderer fixes unrelated to init_preflight wording",
+    "M5 global-thin CLAUDE asset repair",
+    "M7 ceremony redesign or express-lane gate relaxation",
+    "Full M4 PLAN drivability beyond story-level lattice-review-scope-plan dispatch",
+    "Milestone ledger mutation after DEV admission"
+  ],
+  "scopeChangeReason": "REVIEW finding B-90d6:F-002 required synchronizing docs/CLI.md with the already-implemented forced milestone status display behavior. This adds only documentation alignment for the reviewed behavior; no new functional scope is added.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "These are intentional ProofStory/story metadata artifacts written through lattice commands during PLAN/DEV gate preparation for B-90d6; they are not business-code scope expansion, and milestone-ledger changes predate DEV admission except the failed DEV add attempt which did not write.",
+      "timestamp": "2026-07-08T23:22:46.980Z",
+      "paths": [
+        ".lattice/story/actives/B-90d6/intent-collision.json",
+        ".lattice/story/actives/B-90d6/milestone-ledger.json",
+        ".lattice/story/actives/B-90d6/original-intent-snapshot.json",
+        ".lattice/story/actives/B-90d6/proofstory.json",
+        ".lattice/story/actives/B-90d6/red-evidence.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-90d6/intent-collision.json",
+        ".lattice/story/actives/B-90d6/milestone-ledger.json",
+        ".lattice/story/actives/B-90d6/original-intent-snapshot.json",
+        ".lattice/story/actives/B-90d6/proofstory.json",
+        ".lattice/story/actives/B-90d6/red-evidence.json"
+      ],
+      "affectedPathCount": 5,
+      "phase": "DEV",
+      "headHash": "d7db20b54114a02d9dd58154a050fd21a96cc512",
+      "materialHash": "b4c51a0a8d2b150b92883553d9e170028610f147eb518c96a4cd1c1aba6f2c17"
+    }
+  ],
+  "createdAt": "2026-07-08T22:52:31.075Z",
+  "updatedAt": "2026-07-08T23:38:44.380Z"
+}

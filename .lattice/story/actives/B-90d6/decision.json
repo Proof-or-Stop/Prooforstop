@@ -1,0 +1,112 @@
+{
+  "principles": [
+    "Improve agent routing without changing gate authority.",
+    "Prefer exact next commands over prose-only guidance.",
+    "Keep init_preflight read-only and evidence-neutral.",
+    "Keep scope_check_save reviewer-written, not main-agent self-signed.",
+    "Keep checklist_add advisory about milestone ledgers; do not infer or auto-create ledger rows."
+  ],
+  "drivers": [
+    "The current failure wastes command budget before DEV.",
+    "The PLAN scope-check dispatch gap blocks this story before implementation can begin.",
+    "The checklist_add ledger-sync gap made milestone_status look misleading after CHK-006 was added.",
+    "The safety contract must not be weakened by convenience automation."
+  ],
+  "options": [
+    {
+      "name": "M0-M1 plus minimal #6 dispatch and checklist_add ledger hint",
+      "pros": [
+        "Addresses the largest INIT discovery waste and the PLAN blocker that prevents this story from reaching DEV.",
+        "Keeps evidence contracts unchanged because scope_check_save remains reviewer evidence.",
+        "Prevents checklist_add from silently creating ledger/status drift while keeping milestone_status read-only.",
+        "Can be tested with focused command-output and dispatch assertions."
+      ],
+      "cons": [
+        "Broadens the first slice beyond pure M0-M1.",
+        "Does not yet solve M2 checklist self-seeding, M3 parser/schema fixes, M5 asset repair, or M7 ceremony redesign."
+      ]
+    },
+    {
+      "name": "M0-M1 plus minimal #6 only",
+      "pros": [
+        "Smaller than the chosen scope and addresses the immediate PLAN scope reviewer blocker."
+      ],
+      "cons": [
+        "Leaves checklist_add capable of hiding new checklist work from milestone_status until an agent manually notices ledger drift.",
+        "Would make future agents rediscover the same checklist/milestone mismatch."
+      ]
+    },
+    {
+      "name": "M0-M1 only",
+      "pros": [
+        "Smallest original slice and lowest blast radius."
+      ],
+      "cons": [
+        "Leaves the current story blocked at PLAN by the documented #6 gap.",
+        "Leaves the checklist/milestone guidance bug unaddressed."
+      ]
+    },
+    {
+      "name": "Implement all M0-M7 milestones at once",
+      "pros": [
+        "Could reduce all known friction in one broad effort."
+      ],
+      "cons": [
+        "Large blast radius across parser, dispatch, help, assets, tests, and ceremony policy.",
+        "Higher risk of accidentally weakening gate semantics.",
+        "Harder to isolate regression evidence."
+      ]
+    },
+    {
+      "name": "Skip routing and add an express lane",
+      "pros": [
+        "Could make trivial tasks faster on paper."
+      ],
+      "cons": [
+        "Cross-vendor audit vetoed agent-self-attested risk/size downgrades as an evasion bypass.",
+        "Would attack ceremony cost before measuring discovery-cost fixes."
+      ]
+    }
+  ],
+  "chosen": "M0-M1 plus minimal #6 dispatch and checklist_add ledger hint",
+  "rationale": "The user explicitly requested the checklist/milestone mismatch be solved in this same pass. The safest implementation is a command-output hint from checklist_add when a ledger exists: it fixes the rediscovery problem without letting checklist_add invent milestone claims or mutate gate evidence.",
+  "preMortem": [
+    {
+      "scenario": "A help or session hint says init_preflight is enough to advance",
+      "trigger": "Wording blurs read-only diagnostics with gate evidence.",
+      "consequence": "Agents overclaim readiness or skip required reviewer/scope evidence.",
+      "mitigation": "Every new hint must keep init_preflight read-only and mention story_advance only after prerequisites are satisfied."
+    },
+    {
+      "scenario": "Scope-plan dispatch becomes gate evidence by implication",
+      "trigger": "The new dispatch path returns a prompt and agents treat that as a pass.",
+      "consequence": "PLAN could advance without reviewer-written scope_check_save evidence.",
+      "mitigation": "Prompt and tests must state dispatch output is not gate evidence; reviewer must call scope_check_save."
+    },
+    {
+      "scenario": "checklist_add starts inventing milestone rows",
+      "trigger": "The ledger-sync hint is implemented as automatic milestone mutation instead of guidance.",
+      "consequence": "Milestone claims become guessed from checklist prose and ProofStory intent accounting weakens.",
+      "mitigation": "Only print an advisory next command; do not mutate milestone-ledger.json from checklist_add."
+    },
+    {
+      "scenario": "Tests assert brittle full help output",
+      "trigger": "Snapshotting too much global help text.",
+      "consequence": "Routine command catalog edits break unrelated tests.",
+      "mitigation": "Use focused substring/ordering assertions around init_preflight, scope-plan dispatch, and ledger-sync hint wording."
+    },
+    {
+      "scenario": "The story grows into M2-M7",
+      "trigger": "While touching help/parser/dispatch files, nearby issues are tempting to fix opportunistically.",
+      "consequence": "Scope expands and review cannot isolate whether the routing fixes worked.",
+      "mitigation": "Keep M2 checklist self-seeding, M3 parser/schema fixes, M5 asset repair, and M7 redesign explicitly excluded."
+    },
+    {
+      "scenario": "Fallback INIT attestation is misread as independent reviewer approval",
+      "trigger": "The story used init_check_repair fallback because subagent spawning was not explicitly authorized earlier.",
+      "consequence": "Reviewers might overtrust the INIT gate evidence.",
+      "mitigation": "Preserve the fallback warning and rely on normal PLAN/DEV/REVIEW/TEST gates before any implementation claim."
+    }
+  ],
+  "timestamp": "2026-07-08T22:51:13.489Z"
+}

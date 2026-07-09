@@ -182,6 +182,18 @@ function assertChecklistScopeChangeAllowed(
   );
 }
 
+function hasMilestoneLedgerArtifact(store: HandlerContext['store'], storyId: string): boolean {
+  try {
+    return store.readMilestoneLedger(storyId) !== null;
+  } catch {
+    return existsSync(store.storyFilePath(storyId, 'milestone-ledger.json'));
+  }
+}
+
+function checklistAddMilestoneLedgerAdvisory(storyId: string, itemId: string): string {
+  return `Advisory: milestone ledger exists for ${storyId}; if this new checklist item (${itemId}) changes milestone coverage, update/sync the ledger with \`lattice milestone_ledger_add\` or an explicit ledger update.`;
+}
+
 export function assertChecklistAddAllowed(
   store: HandlerContext['store'],
   args: {
@@ -444,7 +456,10 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       } catch (e) {
         console.warn(`[process-events] append failed for ${args.storyId}:`, (e as Error).message);
       }
-      return `Checklist item ${nextId} added to ${args.storyId}`;
+      const advisory = hasMilestoneLedgerArtifact(store, args.storyId)
+        ? `\n${checklistAddMilestoneLedgerAdvisory(args.storyId, nextId)}`
+        : '';
+      return `Checklist item ${nextId} added to ${args.storyId}${advisory}`;
       });
     },
 

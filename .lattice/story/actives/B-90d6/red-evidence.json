@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-90d6",
+  "records": [
+    {
+      "id": "RED-20260708225154",
+      "trigger": "checklist_add ledger-backed story output omits milestone ledger sync guidance",
+      "acceptanceTargetRef": "CHK-007:happy:0",
+      "baselineHeadHash": "d7db20b54114a02d9dd58154a050fd21a96cc512",
+      "baselineMaterialHash": "b4c51a0a8d2b150b92883553d9e170028610f147eb518c96a4cd1c1aba6f2c17",
+      "observedFailure": "On B-90d6, checklist_add added CHK-007 to a story that already had milestone-ledger.json but printed only 'Checklist item CHK-007 added' and 'run lattice story_review', with no hint that milestone_ledger_add or ledger update was needed for milestone_status coverage.",
+      "failureReceiptHash": "sha256:56e7329840988f62498167dae072ca3d3be4ad3db7abb4ecb01e0573bd7d2464",
+      "expectedGreenCommand": "focused checklist_add test: ledger-backed story output includes 'Milestone ledger exists' and 'lattice milestone_ledger_add' without mutating milestone-ledger.json automatically",
+      "greenRelation": {
+        "targetRef": "CHK-007:happy:0",
+        "relation": "same_acceptance",
+        "command": "focused checklist_add test: ledger-backed story output includes 'Milestone ledger exists' and 'lattice milestone_ledger_add' without mutating milestone-ledger.json automatically"
+      },
+      "note": "Red evidence uses the actual CHK-007 add transcript from the PLAN session; command replay would mutate story metadata, so a receipt hash is recorded instead of a repeatable mutating command.",
+      "createdAt": "2026-07-08T22:51:54.555Z"
+    }
+  ],
+  "createdAt": "2026-07-08T22:51:54.555Z",
+  "updatedAt": "2026-07-08T22:51:54.555Z"
+}

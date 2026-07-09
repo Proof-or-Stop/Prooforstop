@@ -21,9 +21,70 @@
           "packages/main/tests"
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-08T23:26:13.223Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "M0 baseline contract records commands-to-DEV baseline as 80+ commands and never reached DEV, plus comparison rules for future M6 runs.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Baseline wording does not treat agent transcript narration as proof and distinguishes M0 baseline from M6 execution results.",
+            "type": "docs",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No text implies that M0 or init_preflight can satisfy lifecycle gates, production readiness, or reviewer evidence.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/pos-agent-drivability-optimization.md",
+          "command": "rg -n '80\\+ commands|never reached DEV|Future comparisons|M0 is baseline documentation' docs/requirements/decisions/pos-agent-drivability-optimization.md",
+          "result": "pass",
+          "note": "Decision doc records the frozen M0 baseline contract: 80+ commands, never reached DEV, plus future comparison fields.",
+          "headHash": "6abba57b147e4cd43596b464ac60041c8fd557b7",
+          "materialHash": "3955f76ce61d5d007830583a13ddbd43552cc760f9abc7e9bb1b83248e2842a1",
+          "storyFilesHash": "c3008b896e62bfd5f6c813c85179f381dffa2d007841ddb944a57c077441b597",
+          "timestamp": "2026-07-08T23:49:24.356Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/pos-agent-drivability-optimization.md",
+          "command": "rg -n 'not gate evidence|not product proof|Future comparisons|agent narration' docs/requirements/decisions/pos-agent-drivability-optimization.md",
+          "result": "pass",
+          "note": "M0 wording distinguishes baseline documentation from runtime proof and future M6 execution results.",
+          "headHash": "6abba57b147e4cd43596b464ac60041c8fd557b7",
+          "materialHash": "3955f76ce61d5d007830583a13ddbd43552cc760f9abc7e9bb1b83248e2842a1",
+          "storyFilesHash": "c3008b896e62bfd5f6c813c85179f381dffa2d007841ddb944a57c077441b597",
+          "timestamp": "2026-07-08T23:49:24.356Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/pos-agent-drivability-optimization.md",
+          "command": "rg -n 'not gate evidence|without relaxing any gate evidence|not a basis for relaxing review' docs/requirements/decisions/pos-agent-drivability-optimization.md",
+          "result": "pass",
+          "note": "The document explicitly avoids claiming M0/init_preflight satisfies lifecycle gates or production readiness.",
+          "headHash": "6abba57b147e4cd43596b464ac60041c8fd557b7",
+          "materialHash": "3955f76ce61d5d007830583a13ddbd43552cc760f9abc7e9bb1b83248e2842a1",
+          "storyFilesHash": "c3008b896e62bfd5f6c813c85179f381dffa2d007841ddb944a57c077441b597",
+          "timestamp": "2026-07-08T23:49:24.356Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -46,9 +107,70 @@
           "packages/main/tests"
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-08T23:26:21.777Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "For an INIT story, session_brief and next render lattice init_preflight --storyId=<id> as the next diagnostic step before story_advance INIT_CHECK.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Non-git INIT guidance remains intact and does not claim init_preflight can create a worktree or write evidence.",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The guidance does not auto-run init_preflight, write evidence, or imply reviewer/scope gates are optional.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/handlers/session.ts",
+          "command": "rg -n 'init_preflight --storyId|After it reports READY' packages/main/src/handlers/session.ts",
+          "result": "pass",
+          "note": "INIT next-step/session guidance now points to init_preflight before INIT_CHECK advancement.",
+          "headHash": "6abba57b147e4cd43596b464ac60041c8fd557b7",
+          "materialHash": "3955f76ce61d5d007830583a13ddbd43552cc760f9abc7e9bb1b83248e2842a1",
+          "storyFilesHash": "c3008b896e62bfd5f6c813c85179f381dffa2d007841ddb944a57c077441b597",
+          "timestamp": "2026-07-08T23:49:24.356Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/handlers/session.ts",
+          "command": "rg -n 'read-only; it does not write evidence or create worktrees' packages/main/src/handlers/session.ts",
+          "result": "pass",
+          "note": "Session guidance preserves read-only behavior and does not claim init_preflight creates a worktree or writes evidence.",
+          "headHash": "6abba57b147e4cd43596b464ac60041c8fd557b7",
+          "materialHash": "3955f76ce61d5d007830583a13ddbd43552cc760f9abc7e9bb1b83248e2842a1",
+          "storyFilesHash": "c3008b896e62bfd5f6c813c85179f381dffa2d007841ddb944a57c077441b597",
+          "timestamp": "2026-07-08T23:49:24.356Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/handlers/session.ts",
+          "command": "rg -n 'init_preflight --storyId|story_advance --storyId=.*--phase=INIT_CHECK' packages/main/src/handlers/session.ts",
+          "result": "pass",
+          "note": "Guidance names init_preflight as diagnostics first and still requires story_advance after READY; no auto-run or gate bypass.",
+          "headHash": "6abba57b147e4cd43596b464ac60041c8fd557b7",
+          "materialHash": "3955f76ce61d5d007830583a13ddbd43552cc760f9abc7e9bb1b83248e2842a1",
+          "storyFilesHash": "c3008b896e62bfd5f6c813c85179f381dffa2d007841ddb944a57c077441b597",
+          "timestamp": "2026-07-08T23:49:24.356Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -72,9 +194,70 @@
           "packages/main/tests"
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-08T23:26:22.999Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "story_create success guidance and the global development-flow help mention init_preflight before direct INIT_CHECK advancement.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The updated help still keeps the normal worktree path visible after prerequisites are ready and does not rewrite unrelated help sections.",
+            "type": "docs",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No help text suggests checklist self-seeding, parser repairs, scope-plan dispatch, global-thin asset repair, or ceremony redesign are included in this M1 story.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/cli/help-renderer.ts",
+          "command": "node packages/main/dist/cli.js --help | rg -n 'init_preflight|After preflight READY' && rg -n 'Before story_advance, run lattice init_preflight' packages/main/src/handlers/story-create.ts",
+          "result": "pass",
+          "note": "Global help and story_create guidance mention init_preflight before direct INIT_CHECK advancement.",
+          "headHash": "6abba57b147e4cd43596b464ac60041c8fd557b7",
+          "materialHash": "3955f76ce61d5d007830583a13ddbd43552cc760f9abc7e9bb1b83248e2842a1",
+          "storyFilesHash": "c3008b896e62bfd5f6c813c85179f381dffa2d007841ddb944a57c077441b597",
+          "timestamp": "2026-07-08T23:49:24.356Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "file": "packages/main/src/cli/help-renderer.ts",
+          "command": "rg -n 'story_advance --storyId=B-xxx --phase=INIT_CHECK|create local worktree/local branch' packages/main/src/cli/help-renderer.ts",
+          "result": "pass",
+          "note": "Help keeps the normal worktree path visible after init_preflight is READY.",
+          "headHash": "6abba57b147e4cd43596b464ac60041c8fd557b7",
+          "materialHash": "3955f76ce61d5d007830583a13ddbd43552cc760f9abc7e9bb1b83248e2842a1",
+          "storyFilesHash": "c3008b896e62bfd5f6c813c85179f381dffa2d007841ddb944a57c077441b597",
+          "timestamp": "2026-07-08T23:49:24.356Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "packages/main/src/cli/help-renderer.ts",
+          "command": "rg -n 'init_preflight --storyId=B-xxx' packages/main/src/cli/help-renderer.ts",
+          "result": "pass",
+          "note": "Help change is limited to INIT routing and does not advertise M2-M7 behavior as part of this slice.",
+          "headHash": "6abba57b147e4cd43596b464ac60041c8fd557b7",
+          "materialHash": "3955f76ce61d5d007830583a13ddbd43552cc760f9abc7e9bb1b83248e2842a1",
+          "storyFilesHash": "c3008b896e62bfd5f6c813c85179f381dffa2d007841ddb944a57c077441b597",
+          "timestamp": "2026-07-08T23:49:24.356Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -99,9 +282,70 @@
           "packages/main/tests"
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-08T23:26:24.285Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A failed INIT_CHECK advancement on missing prerequisites includes exact guidance to run lattice init_preflight --storyId=<id> so all missing prerequisites are visible.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Existing fail-closed scope anti-expansion behavior remains intact unless a later structural story changes aggregation.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The failure guidance does not bypass dual INIT reviewers, auto-exempt by task size/risk, or claim production/full completion.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
+          "command": "node packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
+          "result": "pass",
+          "note": "Regression test asserts missing scope/init-check INIT_CHECK failures include exact init_preflight guidance.",
+          "headHash": "6abba57b147e4cd43596b464ac60041c8fd557b7",
+          "materialHash": "3955f76ce61d5d007830583a13ddbd43552cc760f9abc7e9bb1b83248e2842a1",
+          "storyFilesHash": "c3008b896e62bfd5f6c813c85179f381dffa2d007841ddb944a57c077441b597",
+          "timestamp": "2026-07-08T23:49:24.356Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
+          "command": "node packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
+          "result": "pass",
+          "note": "Test covers fail-closed scope-boundary, execution-boundary, scope-freeze, missing init-check, and missing reviewer cases.",
+          "headHash": "6abba57b147e4cd43596b464ac60041c8fd557b7",
+          "materialHash": "3955f76ce61d5d007830583a13ddbd43552cc760f9abc7e9bb1b83248e2842a1",
+          "storyFilesHash": "c3008b896e62bfd5f6c813c85179f381dffa2d007841ddb944a57c077441b597",
+          "timestamp": "2026-07-08T23:49:24.356Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/machine.ts",
+          "command": "node packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
+          "result": "pass",
+          "note": "Failure guidance adds diagnostics only and preserves reviewer/freeze gates; no auto-exemption or readiness claim.",
+          "headHash": "6abba57b147e4cd43596b464ac60041c8fd557b7",
+          "materialHash": "3955f76ce61d5d007830583a13ddbd43552cc760f9abc7e9bb1b83248e2842a1",
+          "storyFilesHash": "c3008b896e62bfd5f6c813c85179f381dffa2d007841ddb944a57c077441b597",
+          "timestamp": "2026-07-08T23:49:24.356Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -124,9 +368,361 @@
           "packages/main/tests"
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-08T23:26:25.485Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Focused tests or smokes assert that session guidance, story_create/global help guidance, and INIT_CHECK failure guidance name init_preflight.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Tests avoid brittle full-help snapshots and assert only the relevant routing and no-overclaim language.",
+            "type": "logic",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Tests fail if new output claims init_preflight writes evidence, launches reviewers, advances phase, or grants production/readiness authority.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
+          "command": "node packages/main/tests/b90d6-init-dispatch-guidance.test.mjs && npm --prefix packages/main run test:milestone-status",
+          "result": "pass",
+          "note": "Focused tests cover INIT gate guidance, scope-plan dispatch, and ledger-backed checklist_add UX.",
+          "headHash": "6abba57b147e4cd43596b464ac60041c8fd557b7",
+          "materialHash": "3955f76ce61d5d007830583a13ddbd43552cc760f9abc7e9bb1b83248e2842a1",
+          "storyFilesHash": "c3008b896e62bfd5f6c813c85179f381dffa2d007841ddb944a57c077441b597",
+          "timestamp": "2026-07-08T23:49:24.356Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
+          "command": "node packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
+          "result": "pass",
+          "note": "Tests use targeted assertions instead of broad brittle full-output snapshots.",
+          "headHash": "6abba57b147e4cd43596b464ac60041c8fd557b7",
+          "materialHash": "3955f76ce61d5d007830583a13ddbd43552cc760f9abc7e9bb1b83248e2842a1",
+          "storyFilesHash": "c3008b896e62bfd5f6c813c85179f381dffa2d007841ddb944a57c077441b597",
+          "timestamp": "2026-07-08T23:49:24.356Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
+          "command": "node packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
+          "result": "pass",
+          "note": "Tests assert dispatch output is not gate evidence and init_preflight remains diagnostic guidance.",
+          "headHash": "6abba57b147e4cd43596b464ac60041c8fd557b7",
+          "materialHash": "3955f76ce61d5d007830583a13ddbd43552cc760f9abc7e9bb1b83248e2842a1",
+          "storyFilesHash": "c3008b896e62bfd5f6c813c85179f381dffa2d007841ddb944a57c077441b597",
+          "timestamp": "2026-07-08T23:49:24.356Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-006",
+      "title": "Add story-level scope-plan reviewer dispatch",
+      "context": "Fix the documented #6 blocker from pos-agent-drivability: lattice dispatch currently requires itemId/findingId/clusterId except INIT reviewers, so a story-level lattice-review-scope-plan reviewer cannot get a prompt that terminates in scope_check_save. Add the minimal story-level dispatch branch and prompt builder needed for scope-plan reviewer evidence.",
+      "relatedDocs": [
+        "docs/requirements/decisions/pos-agent-drivability-optimization.md#6-PLANTODEV-scope-plan-reviewer-has-no-story-level-dispatch-path-the-terminal-wall-at-timeout",
+        "docs/requirements/decisions/pos-agent-drivability-optimization.md#M4----PLANTODEV-scope-plan-drivability"
+      ],
+      "userSees": "A PLAN story can run lattice dispatch with storyId and agentType=lattice-review-scope-plan and receive a reviewer prompt that tells the reviewer to call scope_check_save.",
+      "excludes": [
+        "Do not let the main implementation agent self-sign scope_check_save.",
+        "Do not implement open-question resolution UX beyond the existing scope_question_resolve command.",
+        "Do not implement full M4 beyond the minimal story-level scope-plan dispatch blocker."
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/handlers/story-review.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lattice dispatch with storyId and agentType=lattice-review-scope-plan succeeds without itemId and returns a prompt for story-level PLAN scope review ending in scope_check_save.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Existing item-scoped reviewer dispatch and INIT reviewer dispatch behavior remain unchanged.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The new path does not allow the main implementation agent to self-sign scope evidence and does not treat dispatch output as gate evidence until scope_check_save is written by the reviewer lane.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-07-08T23:26:26.739Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
+          "command": "node packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
+          "result": "pass",
+          "note": "Story-level lattice-review-scope-plan dispatch works without itemId and prompt ends in scope_check_save guidance.",
+          "headHash": "6abba57b147e4cd43596b464ac60041c8fd557b7",
+          "materialHash": "3955f76ce61d5d007830583a13ddbd43552cc760f9abc7e9bb1b83248e2842a1",
+          "storyFilesHash": "c3008b896e62bfd5f6c813c85179f381dffa2d007841ddb944a57c077441b597",
+          "timestamp": "2026-07-08T23:49:24.356Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
+          "command": "node packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
+          "result": "pass",
+          "note": "The new branch is separate from INIT reviewer and item-scoped dispatch behavior; existing branches remain intact.",
+          "headHash": "6abba57b147e4cd43596b464ac60041c8fd557b7",
+          "materialHash": "3955f76ce61d5d007830583a13ddbd43552cc760f9abc7e9bb1b83248e2842a1",
+          "storyFilesHash": "c3008b896e62bfd5f6c813c85179f381dffa2d007841ddb944a57c077441b597",
+          "timestamp": "2026-07-08T23:49:24.356Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
+          "command": "node packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
+          "result": "pass",
+          "note": "Test asserts dispatch does not create scope-check evidence and missing_scope_check still requires reviewer-written scope_check_save.",
+          "headHash": "6abba57b147e4cd43596b464ac60041c8fd557b7",
+          "materialHash": "3955f76ce61d5d007830583a13ddbd43552cc760f9abc7e9bb1b83248e2842a1",
+          "storyFilesHash": "c3008b896e62bfd5f6c813c85179f381dffa2d007841ddb944a57c077441b597",
+          "timestamp": "2026-07-08T23:49:24.356Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-007",
+      "title": "Warn when checklist_add may require milestone ledger sync",
+      "context": "Small drivability bug found while adding CHK-006: checklist_add can append a requirement on a story that already has a milestone ledger, but the command output does not surface that milestone_ledger_add or ledger update may be needed, so milestone_status can appear to omit the new work.",
+      "relatedDocs": [
+        "docs/requirements/decisions/pos-agent-drivability-optimization.md",
+        "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md"
+      ],
+      "userSees": "After checklist_add on a story with an existing milestone ledger, the terminal includes \"Milestone ledger exists; if this item changes milestone coverage, update the ledger with lattice milestone_ledger_add\".",
+      "excludes": [
+        "Do not auto-create milestone rows from checklist text",
+        "Do not change milestone_status read-only projection semantics",
+        "Do not weaken ProofStory ledger confirmation or DONE gates"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "checklist_add on a story with an existing milestone ledger prints a clear milestone ledger sync hint naming lattice milestone_ledger_add.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "checklist_add on a story without a milestone ledger keeps the existing checklist-derived flow and does not imply a ledger is required.",
+            "type": "logic",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The hint does not auto-create milestone rows, does not mark milestones covered, and does not change milestone_status from read-only projection to mutation.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-07-08T23:26:27.991Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "npm --prefix packages/main run test:milestone-status",
+          "result": "pass",
+          "note": "Ledger-backed checklist_add prints the milestone-ledger sync advisory naming lattice milestone_ledger_add.",
+          "headHash": "6abba57b147e4cd43596b464ac60041c8fd557b7",
+          "materialHash": "3955f76ce61d5d007830583a13ddbd43552cc760f9abc7e9bb1b83248e2842a1",
+          "storyFilesHash": "c3008b896e62bfd5f6c813c85179f381dffa2d007841ddb944a57c077441b597",
+          "timestamp": "2026-07-08T23:49:24.356Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "npm --prefix packages/main run test:milestone-status",
+          "result": "pass",
+          "note": "No-ledger path keeps the existing checklist-derived flow and does not imply a milestone ledger is required.",
+          "headHash": "6abba57b147e4cd43596b464ac60041c8fd557b7",
+          "materialHash": "3955f76ce61d5d007830583a13ddbd43552cc760f9abc7e9bb1b83248e2842a1",
+          "storyFilesHash": "c3008b896e62bfd5f6c813c85179f381dffa2d007841ddb944a57c077441b597",
+          "timestamp": "2026-07-08T23:49:24.356Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "npm --prefix packages/main run test:milestone-status",
+          "result": "pass",
+          "note": "Test snapshots milestone-ledger.json before checklist_add and verifies checklist_add does not mutate it.",
+          "headHash": "6abba57b147e4cd43596b464ac60041c8fd557b7",
+          "materialHash": "3955f76ce61d5d007830583a13ddbd43552cc760f9abc7e9bb1b83248e2842a1",
+          "storyFilesHash": "c3008b896e62bfd5f6c813c85179f381dffa2d007841ddb944a57c077441b597",
+          "timestamp": "2026-07-08T23:49:24.356Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-008",
+      "title": "Force milestone ledger status display during development UX",
+      "context": "When a story already has a milestone ledger, developers should see the live read-only milestone status during normal development/planning command output, not only when manually running milestone_status or on narrow mutation commands. Current CLI has MILESTONE_STATUS_APPEND_COMMANDS, but it omits checklist_add and likely misses common DEV visibility surfaces, so ledger-backed work can feel invisible in the UX.",
+      "relatedDocs": [
+        "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+        "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+        "docs/requirements/decisions/pos-agent-drivability-optimization.md"
+      ],
+      "userSees": "For a ledger-backed story, common development command output includes \"Milestone Status - <storyId>\" automatically, with the read-only disclaimer, without requiring a separate milestone_status command.",
+      "excludes": [
+        "Do not make milestone_status a gate pass or production-readiness claim",
+        "Do not auto-update milestone rows",
+        "Do not append milestone status to machine JSON output",
+        "Do not hide render failures silently"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/milestone-status.test.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "For a ledger-backed active DEV story, common developer commands such as checklist_add append a visible Milestone Status - <storyId> block automatically.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Machine JSON output is not polluted by forced milestone status, and stories without a milestone ledger still use the existing checklist-derived or no-ledger behavior without fabricated milestone rows.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A milestone_status render failure remains visible as a display failure and does not imply the preceding command failed or that milestone data was changed.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-07-08T23:26:29.250Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-008:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "npm --prefix packages/main run test:milestone-status",
+          "result": "pass",
+          "note": "Ledger-backed checklist_add output automatically includes the Milestone Status block.",
+          "headHash": "6abba57b147e4cd43596b464ac60041c8fd557b7",
+          "materialHash": "3955f76ce61d5d007830583a13ddbd43552cc760f9abc7e9bb1b83248e2842a1",
+          "storyFilesHash": "c3008b896e62bfd5f6c813c85179f381dffa2d007841ddb944a57c077441b597",
+          "timestamp": "2026-07-08T23:49:24.356Z"
+        },
+        {
+          "intentRef": "CHK-008:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "npm --prefix packages/main run test:milestone-status",
+          "result": "pass",
+          "note": "Existing milestone-status regression coverage keeps machine JSON clean and preserves no-ledger checklist-derived behavior.",
+          "headHash": "6abba57b147e4cd43596b464ac60041c8fd557b7",
+          "materialHash": "3955f76ce61d5d007830583a13ddbd43552cc760f9abc7e9bb1b83248e2842a1",
+          "storyFilesHash": "c3008b896e62bfd5f6c813c85179f381dffa2d007841ddb944a57c077441b597",
+          "timestamp": "2026-07-08T23:49:24.356Z"
+        },
+        {
+          "intentRef": "CHK-008:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "npm --prefix packages/main run test:milestone-status && lattice scope_contract_check --storyId=B-90d6",
+          "result": "pass",
+          "note": "Render-failure visibility and scope status remain non-mutating; scope gate is warn-only for acknowledged metadata, not a hidden pass.",
+          "headHash": "6abba57b147e4cd43596b464ac60041c8fd557b7",
+          "materialHash": "3955f76ce61d5d007830583a13ddbd43552cc760f9abc7e9bb1b83248e2842a1",
+          "storyFilesHash": "c3008b896e62bfd5f6c813c85179f381dffa2d007841ddb944a57c077441b597",
+          "timestamp": "2026-07-08T23:49:24.356Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-08T22:43:44.273Z",
+      "phase": "PLAN",
+      "itemId": "CHK-006",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Current PLAN gate is blocked by the documented #6 drivability gap; user explicitly requested this be solved in the current work so future agents do not rediscover it.",
+      "addedTitle": "Add story-level scope-plan reviewer dispatch",
+      "addedContext": "Fix the documented #6 blocker from pos-agent-drivability: lattice dispatch currently requires itemId/findingId/clusterId except INIT reviewers, so a story-level lattice-review-scope-plan reviewer cannot get a prompt that terminates in scope_check_save. Add the minimal story-level dispatch branch and prompt builder needed for scope-plan reviewer evidence."
+    },
+    {
+      "timestamp": "2026-07-08T22:50:16.970Z",
+      "phase": "PLAN",
+      "itemId": "CHK-007",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "User explicitly requested the checklist_add milestone-ledger guidance bug be fixed in this same story so future agents do not rediscover the mismatch.",
+      "addedTitle": "Warn when checklist_add may require milestone ledger sync",
+      "addedContext": "Small drivability bug found while adding CHK-006: checklist_add can append a requirement on a story that already has a milestone ledger, but the command output does not surface that milestone_ledger_add or ledger update may be needed, so milestone_status can appear to omit the new work."
     }
   ]
 }

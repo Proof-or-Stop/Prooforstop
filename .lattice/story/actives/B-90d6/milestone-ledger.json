@@ -1,8 +1,8 @@
 {
   "schemaVersion": "proofstory.milestone_ledger.v1",
   "storyId": "B-90d6",
-  "state": "candidate",
-  "ledgerHash": "sha256:64e1b522289933930c0539d0239e02adf207abd211554ba327b23b9a1e1ee946",
+  "state": "confirmed",
+  "ledgerHash": "sha256:6a60173dac5780c11fe61cfc6d9e868ed2ed1e63f7706633ac2e87e46d87df50",
   "milestones": [
     {
       "id": "M0",
@@ -43,8 +43,47 @@
         "CHK-005:happy:0"
       ],
       "status": "planned"
+    },
+    {
+      "id": "M4-min",
+      "sourceRequirementId": "POS-DRIVE-F6",
+      "claim": "Story-level scope-plan reviewer dispatch exists for PLAN scope evidence.",
+      "doneMeans": "lattice dispatch with storyId and agentType=lattice-review-scope-plan returns a story-level reviewer prompt that terminates in scope_check_save, while existing INIT and item-scoped dispatch paths remain unchanged.",
+      "requiredEvidence": [
+        "focused_dispatch_test",
+        "manual_cli_transcript"
+      ],
+      "checklistRefs": [
+        "CHK-006"
+      ],
+      "verificationIntentRefs": [
+        "CHK-006:happy:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M1-ledger-hint",
+      "sourceRequirementId": "POS-DRIVE-LEDGER-HINT",
+      "claim": "checklist_add surfaces milestone ledger sync guidance when adding work to a ledger-backed story.",
+      "doneMeans": "When checklist_add appends an item to a story that already has milestone-ledger.json, command output names the ledger sync risk and the exact lattice milestone_ledger_add follow-up, without mutating the ledger automatically.",
+      "requiredEvidence": [
+        "focused_checklist_add_test",
+        "manual_cli_transcript"
+      ],
+      "checklistRefs": [
+        "CHK-007"
+      ],
+      "verificationIntentRefs": [
+        "CHK-007:happy:0"
+      ],
+      "status": "planned"
     }
   ],
   "createdAt": "2026-07-08T22:36:55.377Z",
-  "updatedAt": "2026-07-08T22:36:55.377Z"
+  "updatedAt": "2026-07-08T22:51:48.807Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260708225148",
+    "acceptedInterpretationHash": "sha256:a7238f154bb6202a3268796ae1ee474245f81273feb8fc3c9fd0da5773b95f8e",
+    "acceptedAt": "2026-07-08T22:51:48.807Z"
+  }
 }

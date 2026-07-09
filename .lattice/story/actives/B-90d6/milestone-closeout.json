@@ -1,0 +1,83 @@
+{
+  "schemaVersion": "proofbound.milestone_closeout.v1",
+  "storyId": "B-90d6",
+  "phase": "TEST",
+  "generatedAt": "2026-07-09T00:24:28.043Z",
+  "sourceReport": {
+    "schemaVersion": "proofbound.milestone_status.v1",
+    "digest": "01a9289f8f8b1fc11e169b2ce88abf288313e939792fc3140a8ffb5f7bce6b9e",
+    "ledger": {
+      "present": true,
+      "state": "confirmed",
+      "hash": "sha256:6a60173dac5780c11fe61cfc6d9e868ed2ed1e63f7706633ac2e87e46d87df50"
+    },
+    "groups": {
+      "completed": [
+        "M0",
+        "M1",
+        "M4-min",
+        "M1-ledger-hint"
+      ],
+      "current": [],
+      "remaining": []
+    },
+    "risks": [],
+    "nextActions": [
+      "No milestone action; all ledger rows are completed or not applicable."
+    ]
+  },
+  "bindings": {
+    "headHash": "3281e07d0298cd53b5978fff92b7fafa5439d210",
+    "materialHash": "3955f76ce61d5d007830583a13ddbd43552cc760f9abc7e9bb1b83248e2842a1",
+    "storyFilesHash": "c3008b896e62bfd5f6c813c85179f381dffa2d007841ddb944a57c077441b597"
+  },
+  "rows": [
+    {
+      "milestone": "M0",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "The commands-to-DEV baseline fixture contract is frozen for the rule-free fix-git run.",
+      "acceptance": "A committed doc/test artifact records baseline commands-to-DEV, timeout meaning, and comparison rules for future M6 runs.",
+      "evidence": [
+        "CHK-001:happy:0 [pass/docs_check] rg -n '80\\+ commands|never reached DEV|Future comparisons|M0 is baseline documentation' docs/requirements/decisions/pos-agent-drivability-optimization.md file=docs/requirements/decisions/pos-agent-drivability-optimization.md note=Decision doc records the frozen M0 baseline contract: 80+ commands, never reached DEV, plus future comparison fields."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M1",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "INIT high-traffic surfaces route agents to init_preflight before INIT_CHECK advancement.",
+      "acceptance": "session_brief/next, story_create hint, global help flow, and INIT_CHECK gate failure guidance all name init_preflight, and tests prove no gate is weakened.",
+      "evidence": [
+        "CHK-002:happy:0 [pass/logic_test] rg -n 'init_preflight --storyId|After it reports READY' packages/main/src/handlers/session.ts file=packages/main/src/handlers/session.ts note=INIT next-step/session guidance now points to init_preflight before INIT_CHECK advancement.",
+        "CHK-003:happy:0 [pass/manual_transcript] node packages/main/dist/cli.js --help | rg -n 'init_preflight|After preflight READY' && rg -n 'Before story_advance, run lattice init_preflight' packages/main/src/handlers/story-create.ts file=packages/main/src/cli/help-renderer.ts note=Global help and story_create guidance mention init_preflight before direct INIT_CHECK advancement.",
+        "CHK-004:happy:0 [pass/logic_test] node packages/main/tests/b90d6-init-dispatch-guidance.test.mjs file=packages/main/tests/b90d6-init-dispatch-guidance.test.mjs note=Regression test asserts missing scope/init-check INIT_CHECK failures include exact init_preflight guidance.",
+        "CHK-005:happy:0 [pass/logic_test] node packages/main/tests/b90d6-init-dispatch-guidance.test.mjs && npm --prefix packages/main run test:milestone-status file=packages/main/tests/b90d6-init-dispatch-guidance.test.mjs note=Focused tests cover INIT gate guidance, scope-plan dispatch, and ledger-backed checklist_add UX."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M4-min",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Story-level scope-plan reviewer dispatch exists for PLAN scope evidence.",
+      "acceptance": "lattice dispatch with storyId and agentType=lattice-review-scope-plan returns a story-level reviewer prompt that terminates in scope_check_save, while existing INIT and item-scoped dispatch paths remain unchanged.",
+      "evidence": [
+        "CHK-006:happy:0 [pass/logic_test] node packages/main/tests/b90d6-init-dispatch-guidance.test.mjs file=packages/main/tests/b90d6-init-dispatch-guidance.test.mjs note=Story-level lattice-review-scope-plan dispatch works without itemId and prompt ends in scope_check_save guidance."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M1-ledger-hint",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "checklist_add surfaces milestone ledger sync guidance when adding work to a ledger-backed story.",
+      "acceptance": "When checklist_add appends an item to a story that already has milestone-ledger.json, command output names the ledger sync risk and the exact lattice milestone_ledger_add follow-up, without mutating the ledger automatically.",
+      "evidence": [
+        "CHK-007:happy:0 [pass/logic_test] npm --prefix packages/main run test:milestone-status file=packages/main/tests/milestone-status.test.mjs note=Ledger-backed checklist_add prints the milestone-ledger sync advisory naming lattice milestone_ledger_add."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    }
+  ]
+}

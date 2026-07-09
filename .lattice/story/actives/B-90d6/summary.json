@@ -1,0 +1,56 @@
+{
+  "storyId": "B-90d6",
+  "changes": "Updated the drivability decision doc and CLI guidance so INIT routes through init_preflight; added story-level scope-plan dispatch with phase-aware refusal outside PLAN; added checklist_add milestone ledger sync advisory and forced read-only milestone status display for ledger-backed developer UX; added focused tests and CLI docs.",
+  "usage": "Use lattice init_preflight --storyId=B-xxx before INIT_CHECK when an INIT story is blocked; use lattice milestone_status --storyId=B-xxx or covered developer commands to see the read-only milestone table; use lattice dispatch --storyId=B-xxx --agentType=lattice-review-scope-plan only during PLAN for reviewer-written scope evidence.",
+  "expectedOutcome": "A developer or agent sees the next correct lifecycle command instead of guessing: INIT guidance names init_preflight, non-PLAN scope-plan dispatch refuses instead of suggesting a failing scope_check_save command, and milestone status is visible as read-only UX when ledger-backed developer commands run.",
+  "actualTranscript": "TEST evidence captured in .lattice/story/actives/B-90d6/evidence/transcript-diff.md: lattice validate passed 43/43 commands; lattice milestone_status --storyId=B-90d6 rendered Milestone Status - B-90d6 in TEST with confirmed ledger; CLI help shows init_preflight before INIT_CHECK; focused init-dispatch and milestone-status tests passed.",
+  "outcomeDiff": "No user-value gap found; actual CLI output matches the expected visible behavior. Milestone status is displayed as read-only observability and does not mutate the ledger or claim DONE/Authority/production readiness.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Scope warnings remain for acknowledged command-generated ProofStory metadata paths only; CHK-008 was added after DEV so it is covered by checklist/evidence/tests but not a pre-DEV milestone-ledger row.",
+  "pitfalls": "Initial TEST advance failed because review metadata commits made verification evidence stale even though all 43 validation commands passed; recovery was verification_evidence_refresh_stale followed by validate and then story_advance TEST. Also, checklist_add should not auto-sync milestone ledger because that would mix planning/ledger intent with checklist mutation.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 181867
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 7786
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 749060
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 2468698
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 1267757
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 388458
+    }
+  },
+  "totalDurationMs": 5064007,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-09T00:01:19.384Z",
+  "updatedAt": "2026-07-09T00:01:19.384Z"
+}

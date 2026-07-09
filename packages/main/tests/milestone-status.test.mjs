@@ -291,7 +291,8 @@ function storyDirs(root) {
     writeTestConfig(root);
     writeJson(join(storyDir, 'index.json'), story(cliMarkerStoryId));
     writeJson(join(storyDir, 'checklist.json'), markerChecklist);
-    writeJson(join(storyDir, 'milestone-ledger.json'), ledger(markerLedger.milestones, cliMarkerStoryId));
+    const milestoneLedgerPath = join(storyDir, 'milestone-ledger.json');
+    writeJson(milestoneLedgerPath, ledger(markerLedger.milestones, cliMarkerStoryId));
 
     const cliText = execFileSync(process.execPath, [
       cliPath,
@@ -338,6 +339,31 @@ function storyDirs(root) {
     assert.match(autoAppendText, /⬜ Not Started CHK-MARKER-CURRENT \[pending\] CHK-MARKER-CURRENT title/);
     assert.match(autoAppendText, /⬜ Not Started CHK-MARKER-REMAINING \[pending\] CHK-MARKER-REMAINING title/);
     assert.match(autoAppendText, /❌ Failed CHK-MARKER-FAILED:happy:0 \[fail\/logic_test\]/);
+
+    const ledgerBeforeChecklistAdd = readFileSync(milestoneLedgerPath, 'utf8');
+    const checklistAddText = execFileSync(process.execPath, [
+      cliPath,
+      'checklist_add',
+      '--root',
+      root,
+      '--storyId',
+      cliMarkerStoryId,
+      '--title',
+      'Exercise ledger-backed checklist add UX',
+      '--context',
+      'Adding a checklist row to a ledger-backed story should show status and advisory text without changing milestone-ledger.json.',
+    ], { cwd: root, encoding: 'utf8' });
+    assert.match(checklistAddText, /Checklist item CHK-001 added to B-cli-marker-icons/);
+    assert.ok(
+      checklistAddText.includes('Advisory: milestone ledger exists for B-cli-marker-icons; if this new checklist item (CHK-001) changes milestone coverage, update/sync the ledger with `lattice milestone_ledger_add` or an explicit ledger update.'),
+      'ledger-backed checklist_add output includes the milestone ledger advisory',
+    );
+    assert.match(checklistAddText, /Milestone Status - B-cli-marker-icons/);
+    assert.equal(
+      readFileSync(milestoneLedgerPath, 'utf8'),
+      ledgerBeforeChecklistAdd,
+      'checklist_add must not mutate milestone-ledger.json',
+    );
 
     const noLedgerStoryId = 'B-cli-marker-no-ledger';
     const noLedgerStoryDir = join(root, '.lattice', 'story', 'actives', noLedgerStoryId);
