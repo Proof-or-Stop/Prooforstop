@@ -1,0 +1,64 @@
+{
+  "storyId": "B-d8ef",
+  "checkedAt": "2026-07-09T16:02:16.884Z",
+  "headHash": "ae2e9b493cb6620b7d032c182145c6d64ff3847b",
+  "materialHash": "330ff03333fbf7c0b5ac4874aea1e03a152174f143c2e972ca8f38d19207ee06",
+  "storyFilesHash": "f79f281a1a55c1f814bb4a87aa546d0f8dcbabe76881175815906ea55b7ebdd6",
+  "reviewRound": "2026-07-09T14:23:03.268Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-d8ef/decision.json",
+      "promise": "Chosen option A strengthens review_host_availability_probe with bounded launcher-readiness rows and gates degraded fallback on reviewReadyHostCount.",
+      "status": "verified",
+      "verifiedBy": "decision and smoke review",
+      "evidence": "Implemented in host-execution-readiness/review-escalation paths; readiness smoke and review-escalation smoke passed."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-d8ef/plan.md",
+      "promise": "CHK-001 records canonical noninteractive launcher readiness per review host without raw provider transcript text.",
+      "status": "verified",
+      "verifiedBy": "lattice validate and readiness smoke",
+      "evidence": "lattice validate --story=B-d8ef --json passed 43/43; review-host-execution-readiness-smoke passed 8 checks."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-d8ef/plan.md",
+      "promise": "CHK-002 uses execution-ready host counts for degraded fallback diagnostics and refuses fallback when two hosts are review-ready.",
+      "status": "verified",
+      "verifiedBy": "review escalation and assurance smokes",
+      "evidence": "review-escalation-smoke passed 19 checks and review-assurance-floor-smoke passed 15 checks; 3x2 quorum status is full-3x2."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-d8ef/plan.md",
+      "promise": "CHK-003 covers Claude stream-json verbose, Codex exec auth failure, and agy launcher classification with smoke tests.",
+      "status": "verified",
+      "verifiedBy": "readiness smoke and process fact contract",
+      "evidence": "review-host-execution-readiness-smoke passed 8 checks; retired vocabulary guard passed; process fact contract included host-readiness semantics."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "lattice validate --story=B-d8ef --json passed 43/43 configured commands; readiness smoke passed 8 checks including canonical Claude stream-json launcher and no raw transcript fields."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "review escalation and review assurance floor smokes passed; quorum_submit recorded 3 rounds x 2 hosts using claude-cli and agy-cli, review_escalation_status returned ok=true assuranceLevel=full-3x2."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "readiness smoke passed Codex auth failure, agy wrong launcher, and Claude --print --verbose --output-format=stream-json assertions; retired vocabulary guard passed."
+    },
+    {
+      "featureId": "DONE-required",
+      "transcript": "lattice done_required_validate --storyId=B-d8ef --json returned status=PASS for packages/main build and root full test suite."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery reviewer confirms B-d8ef promises are met by real-machine validation, DONE-required validation, smoke coverage for edge/adversarial readiness cases, and full 3x2 local review assurance."
+  },
+  "_hash": "817acc4dc3f275df890e9afdfabf6b941eb43a65fc313b2668c3b740595f58b8"
+}
