@@ -219,10 +219,10 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
-      "userSees": "User sees \"Proofbound CLI 0.3.171\" from the local CLI version check, package metadata/lockfile/brand checks all print \"0.3.171\", and there is no \"git push\", \"npm publish\", or release output.",
+      "endTime": "2026-07-09T01:22:43.705Z",
+      "userSees": "User sees \"Proofbound CLI 0.3.172\" from the local CLI version check, package metadata/lockfile/brand checks all print \"0.3.172\", and there is no \"git push\", \"npm publish\", or release output.",
       "verificationEvidence": [
         {
           "intentRef": "CHK-003:happy:0",
@@ -284,6 +284,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Implemented and committed five-point version sync with lockfile drift and rollback coverage in b75c71b4b53a2b502138a74b137b99d24d84870b."
+    },
+    {
+      "timestamp": "2026-07-09T01:22:43.705Z",
+      "phase": "PLAN",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "B-6914 now establishes the local 0.3.172 version boundary on the story branch, with five-point sync and a DONE finalizer guard preventing a second bump to 0.3.173."
     }
   ]
 }
