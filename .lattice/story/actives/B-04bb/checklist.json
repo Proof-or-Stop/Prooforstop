@@ -46,7 +46,13 @@
             "priority": "must"
           }
         ],
-        "edge": [],
+        "edge": [
+          {
+            "desc": "The new bare-string entry has no focus tag, so a focused/fast-lane validate run (lattice validate --focus=fast) does not execute the reviewer-scan-budget-guard-smoke command and still exits 0, confirming the wiring does not break the fast lane while the full run does execute it.",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
         "adversarial": [
           {
             "desc": "The wired guard is genuinely capable of failing: its source contains an explicit failure path (non-zero exit on budget-exceeding scan pattern), or a seeded regression fixture triggers non-zero exit, confirming the command is not a tautological always-pass.",

@@ -1,0 +1,24 @@
+{
+  "task": "Wire the B-cee5 reviewer-scan-budget guard smoke into lattice validate by adding one validate.commands entry in lattice.config.json.",
+  "outcome": "Full lattice validate executes node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js and exits 0, so the guard is enforced on every validate run.",
+  "facts": [
+    "The guard source packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts exists only on branch story/B-cee5 (story in TEST), not on main",
+    "lattice.config.json validate.commands line 27 holds the copy-target bare-string entry retired-authority-vocabulary-guard-smoke.js",
+    "Standalone run of the guard in the B-cee5 worktree prints PASS (6 prompt copies clean, 4 required phrases present) and exits 0",
+    "run-all-smokes.js auto-discovers the guard but is itself not wired into validate.commands, so it enforces nothing today"
+  ],
+  "constraints": [
+    "Only lattice.config.json may be materially modified (scope contract allowedModify)",
+    "B-cee5 must reach DONE and merge to main before the new entry can pass validate",
+    "No changes to the guard source, run-all-smokes, other validate entries, or lifecycle gates",
+    "Bare-string entry form (no focus tag), matching the retired-authority guard pattern"
+  ],
+  "unknowns": [
+    "Exact time when B-cee5 lands on main (story driven by another session; DEV waits on it)"
+  ],
+  "touchpoints": [
+    "lattice.config.json validate.commands array (one added line)",
+    "packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js (build artifact referenced by the new entry)"
+  ],
+  "timestamp": "2026-07-09T18:30:00.798Z"
+}
