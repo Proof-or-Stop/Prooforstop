@@ -11,7 +11,35 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Evidence pack complete: current document state, code-backed truth sources, and review references are listed for B-2861.",
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Evidence pack cites the target document, current diff/status, and current code/CLI truth sources needed to review gates, reviewer lanes, evaluator evidence, milestone_status UX, and prompt registry behavior.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Evidence pack distinguishes current code facts from stale planning prose and records when a referenced behavior is only planned.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Evidence pack does not treat prompt text, raw evaluator JSON, or host review prose as gate evidence.",
+            "type": "docs"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

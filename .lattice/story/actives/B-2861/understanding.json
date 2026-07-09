@@ -1,0 +1,38 @@
+{
+  "task": "Review and optimize the Proof-or-Stop agent prompt consolidation execution plan using current project evidence and a 3x2 independent-host review.",
+  "outcome": "User sees a reviewed Proof-or-Stop execution-plan document plus a DONE table listing every concrete optimization, why it was made, the project evidence behind it, and which 3x2 finding motivated it.",
+  "facts": [
+    "Target document is docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md.",
+    "Story B-2861 is scoped to documentation review and optimization only; code is read as evidence, not modified.",
+    "INIT reviewers passed with no critical/high blockers; product reviewer recorded a medium advisory about Antigravity CLI default-host wording.",
+    "Project memory says Codex CLI and Claude Code CLI are primary independent hosts, with Antigravity CLI available as fallback/substitute unless explicitly needed.",
+    "The user explicitly requested a new story to review this large document and perform 3x2, with DONE output as an optimization table containing reasons and evidence.",
+    "Decision A resolves host selection: this story uses user-requested 3x2 with Codex CLI, Claude Code CLI, and Antigravity CLI, without changing global default host policy.",
+    "Decision A resolves document-shape uncertainty: 3x2 findings may add sections/tables to the target document, but CLI/runtime implementation changes stay out of scope."
+  ],
+  "constraints": [
+    "Do not weaken INIT, REVIEW, TEST, or DONE hard gates.",
+    "Do not treat prompt prose or raw evaluator JSON as gate evidence.",
+    "Do not edit Proofbound CLI/runtime code in this story.",
+    "Do not directly read or write docs/story or tests/fixtures files.",
+    "Preserve milestone_status as the mandatory progress UX source rather than agent-handwritten status.",
+    "Document Agy as explicit 3x2 review coverage, not as a replacement for ordinary Codex/Claude primary-host policy."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+    "docs/CLI.md",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/review-run.ts",
+    "packages/main/src/handlers/finding.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/handlers/evaluate.ts",
+    "packages/main/src/handlers/milestone-status.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/tests/milestone-status.test.mjs"
+  ],
+  "timestamp": "2026-07-09T14:48:02.599Z"
+}
