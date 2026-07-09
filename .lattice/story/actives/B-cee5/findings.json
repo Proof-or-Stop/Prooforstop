@@ -5,7 +5,7 @@
       "desc": "doc-code-drift: CLAUDE.md §\"Open Questions (OQ) 通道 (B-ed3e)\" (line 626) still says the scope-plan reviewer reads the `<requirementsDir>/decisions/` 全目录 (FULL directory) unconditionally. This diff replaces that unconditional full-scan behavior in packages/main/templates/agents/lattice-review-scope-plan.md (and its .claude/.lattice-codex mirrors) with a bounded candidateSpecSet-first routing contract (memory/playbook preflight -> filename enumeration -> candidateSpecSet build, max 15 full-reads -> scanEscalationReason-gated full scan). CLAUDE.md has zero mentions of candidateSpecSet, scanEscalationReason, or the search budget contract anywhere in the file, so it documents the old always-full-scan behavior as still current.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-09T17:22:42.624Z",
@@ -19,7 +19,11 @@
         ".lattice-codex/agents/lattice-review-scope-plan.md"
       ],
       "signatureTag": "missing|md|code-drift-claude",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "CLAUDE.md:626 OQ-channel paragraph rewritten to the bounded search-budget contract wording (commit 1dec06106); verified fixed by docs lane round-2 pass RP-004 and concept lane RP-003.",
+      "resolvedAt": "2026-07-09T17:37:32.519Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-cee5:F-002",
