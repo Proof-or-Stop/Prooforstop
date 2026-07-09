@@ -353,6 +353,9 @@ async function assertManifestOnlyAutoCloseout(): Promise<void> {
     assert.equal(evidence.donePrepareValidationReuse?.status, 'reused');
     assert.equal(evidence.donePrepareValidationReuse?.commandsRerunAfterAutoCloseout, false);
     assert.match(evidence.donePrepareValidationReuse?.statement ?? '', /not rerun/);
+    assert.equal(evidence.donePrepareValidationReuse?.priorEvidenceRefs?.testEvidence?.command, `lattice validate --story=${storyId} --json`);
+    assert.equal(evidence.donePrepareValidationReuse?.priorEvidenceRefs?.doneRequiredEvidence?.receipts?.[0]?.label, 'smoke DONE-required validation');
+    assert.match(evidence.donePrepareValidationReuse?.priorEvidenceRefs?.doneRequiredEvidence?.receipts?.[0]?.outputDigest ?? '', /^[a-f0-9]{64}$/);
     assert.equal(
       readFileSync(join(root, '.lattice', 'story', 'actives', storyId, 'delivery-check.json'), 'utf8'),
       deliveryBefore,
@@ -489,11 +492,25 @@ function assertMissingHashesRefuseReuse(): void {
   }
 }
 
-function assertReuseRefusesConfigAndMaterialDrift(): void {
+async function assertReuseRefusesConfigAndMaterialDrift(): Promise<void> {
   const { root, storyId } = setupFixture();
+  const oldCwd = process.cwd();
   try {
+    process.chdir(root);
+    const prepare = await withEnv(gitIdentityEnv(), async () => String(await createDonePrepareHandlers(mkCtx(root)).done_prepare({
+      storyId,
+      mergeMain: false,
+      refreshStale: false,
+      validate: true,
+      autoCloseGeneratedMetadata: true,
+      reuseFreshValidation: true,
+    })));
+    assert.match(prepare, /^DONE prepare: PASS/, prepare);
+
     const store = new StoryStore(root);
     const basis = captureDonePrepareValidationReuseBasis({ root, gitCwd: root, storyId, store });
+    assert.ok(basis.doneRequiredEvidence, 'drift refusal fixture must have DONE-required evidence before drift');
+    const reuseRecordBeforeDrift = JSON.stringify((store.readDoneRequiredEvidence(storyId) as any)?.donePrepareValidationReuse ?? null);
     write(root, 'README.md', '# done_prepare auto-closeout fixture changed\n');
     write(root, 'lattice.config.json', JSON.stringify({
       scanRoot: '.',
@@ -518,6 +535,10 @@ function assertReuseRefusesConfigAndMaterialDrift(): void {
         timeoutMs: 2000,
       }],
     }, null, 2) + '\n');
+    git(root, ['add', 'README.md', 'lattice.config.json']);
+    git(root, ['commit', '-m', 'drift material and validation config']);
+    resetConfigCache();
+
     const result = writeDonePrepareValidationReuseRecord({
       root,
       gitCwd: root,
@@ -532,8 +553,13 @@ function assertReuseRefusesConfigAndMaterialDrift(): void {
     assert.match(reasons, /validateCommandSetHash changed/);
     assert.match(reasons, /doneRequiredCommandSetHash changed/);
     assert.match(reasons, /configHash changed/);
-    assert.equal((store.readDoneRequiredEvidence(storyId) as any)?.donePrepareValidationReuse, undefined);
+    assert.equal(
+      JSON.stringify((store.readDoneRequiredEvidence(storyId) as any)?.donePrepareValidationReuse ?? null),
+      reuseRecordBeforeDrift,
+      'failed drift reuse must not rewrite the prior reuse record',
+    );
   } finally {
+    process.chdir(oldCwd);
     rmSync(root, { recursive: true, force: true });
   }
 }
@@ -569,7 +595,7 @@ void (async () => {
     assertPreexistingLifecycleMetadataIsUnsafe();
     assertDeletesAndRenamesAreUnsafe();
     assertMissingHashesRefuseReuse();
-    assertReuseRefusesConfigAndMaterialDrift();
+    await assertReuseRefusesConfigAndMaterialDrift();
     assertJsonStdoutClean();
     console.log('done-prepare-auto-closeout smoke passed');
   } catch (error) {
