@@ -26,6 +26,7 @@ import type { BugData, Finding, ProcessEvent, StoryInfo } from '../core/types.js
 
 const STORY_ID = 'B-review-assurance-floor';
 const REVIEW_ROUND = '2026-06-19T10:00:00.000Z';
+const SMOKE_PROMPT = 'Reply READY and do not run tools.';
 
 function git(root: string, args: string[]): string {
   return execFileSync('git', args, {
@@ -160,6 +161,14 @@ function twoHostRounds(materialHash: string): ProcessEvent[] {
   ];
 }
 
+function concreteLauncherArgv(host: CanonicalReviewHost): string[] {
+  return canonicalReviewHostLauncherSpec(host).launcherArgv.map(arg => {
+    if (arg === '<prompt>') return SMOKE_PROMPT;
+    if (arg === '<prompt-file>') return join(tmpdir(), `review-assurance-floor-${host}-prompt.txt`);
+    return arg;
+  });
+}
+
 function fallback(materialHash: string, overrides: Partial<ProcessEvent> = {}): ProcessEvent {
   return {
     type: 'review_escalation_fallback',
@@ -190,7 +199,7 @@ function hostAvailabilityProbe(materialHash: string, availableHosts: string[], o
       versionOk: ready,
       available: ready,
       launcher: spec.launcher,
-      launcherArgv: spec.launcherArgv,
+      launcherArgv: ready ? concreteLauncherArgv(host) : spec.launcherArgv,
       launcherSupport: ready ? 'supported' : 'unverified',
       launcherOk: ready,
       executionReady: ready,
