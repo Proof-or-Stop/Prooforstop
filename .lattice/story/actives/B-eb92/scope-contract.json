@@ -1,0 +1,48 @@
+{
+  "storyId": "B-eb92",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/review-assurance-floor.ts",
+    "packages/main/src/handlers/review-escalation.ts",
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/core/lifecycle-readiness.ts",
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/handlers/transition-effects.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/review-assurance-surfacing-smoke.ts",
+    "packages/main/package.json"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialize scope contract from B-eb92 PLAN checklist files before REVIEW.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "ProofStory DEV gate required these story-local intent, ledger, acceptance-binding, and red-evidence artifacts before implementation; they are auditable lifecycle metadata for B-eb92, not business-code scope expansion.",
+      "timestamp": "2026-07-09T11:20:18.537Z",
+      "paths": [
+        ".lattice/story/actives/B-eb92/intent-collision.json",
+        ".lattice/story/actives/B-eb92/milestone-ledger.json",
+        ".lattice/story/actives/B-eb92/original-intent-snapshot.json",
+        ".lattice/story/actives/B-eb92/proofstory.json",
+        ".lattice/story/actives/B-eb92/red-evidence.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-eb92/intent-collision.json",
+        ".lattice/story/actives/B-eb92/milestone-ledger.json",
+        ".lattice/story/actives/B-eb92/original-intent-snapshot.json",
+        ".lattice/story/actives/B-eb92/proofstory.json",
+        ".lattice/story/actives/B-eb92/red-evidence.json"
+      ],
+      "affectedPathCount": 5,
+      "phase": "DEV",
+      "headHash": "ebbc6edaa056a3153c17df7dede505a57ca716b5",
+      "materialHash": "143e8e816bec448969b15774a4e8d48781eb9ddb9567282fa482aae16c5bc109"
+    }
+  ],
+  "createdAt": "2026-07-09T11:19:53.503Z",
+  "updatedAt": "2026-07-09T11:20:18.537Z"
+}
