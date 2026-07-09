@@ -76,7 +76,7 @@
       "desc": "agent:\"lattice-review-concept\" The post-validation done_prepare progress and JSON side-channel contract is present, but the hard-deadline concept is still incomplete for the real DONE-closure path. runCloseoutPhase installs a deadline wrapper only for childProcess.execFileSync at packages/main/src/handlers/done-prepare.ts:502-559, while the wrapped DONE-closure phase calls buildDoneClosureRunbook at packages/main/src/handlers/done-prepare.ts:1246-1258. That runbook reaches execSync-backed git probes: checkMainDivergence uses git rev-list via execSync at packages/main/src/core/done-oracle.ts:66-75 and readGitStatusLines uses git status via execSync at packages/main/src/core/dirty-worktree-gate.ts:40-50. If one of those synchronous git calls hangs, Node cannot run the Promise.race timeout or heartbeat callbacks, and the call is not converted into DonePreparePhaseTimeoutError. This violates CHK-002/M2: every heartbeating closeout phase must fail closed by an independent attributed phase deadline below the global idle watchdog. Patch/bound execSync or remove it from the wrapped closeout path and add smoke coverage for an execSync git hang.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-09T02:58:56.510Z",
@@ -89,7 +89,11 @@
         "packages/main/src/core/dirty-worktree-gate.ts"
       ],
       "signatureTag": "edge-ts-done-prepare-execsync-deadline",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by commit 3f8c62469: done_prepare closeout phase deadline wrapper now patches both execFileSync and execSync, restores both in finally, syncs builtin ESM exports, and the focused smoke covers a doneClosure execSync git hang failing closed under the phase deadline.",
+      "resolvedAt": "2026-07-09T03:07:20.672Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-eb08:F-005",
