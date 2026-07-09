@@ -89,6 +89,15 @@
       "reviewRound": "2026-07-09T17:47:43.007Z",
       "reviewRunId": "B-cee5:RR-016",
       "_hash": "ff1a7a12cd1e2550f08abd0eaff94e50cf9d1037a7b35deb627dfdd1002fa1f6"
+    },
+    {
+      "id": "B-cee5:RP-011",
+      "agent": "lattice-review-docs",
+      "note": "Round 4 incremental: only packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts changed (git diff HEAD~1). Verified both new inline comments against logic: (1) codex host-review-catch comment above the two new bannedUnconditionalRules entries (glob then read each one / whole-directory full-content scan) accurately describes what they guard — confirmed the second rule pattern /full-content (?:directory )?scan of the whole/i matches the real, properly-conditioned escalation line present in all 6 guarded prompt copies (packages/main/templates + .claude + .lattice-codex lattice-review-scope-plan.md/lattice-review-behavior.md), and lineIsEscalationPath correctly exempts it only when the conditioning phrase stays on the same line. (2) exempt-control comment (assertPositiveControls) accurately describes the rebuilt escalatedLine/escalatedWithoutIdiom pair: escalatedLine now starts from the banned wording (Always scan the full decisions/ directory) so it WOULD trip a rule, then the escalation idiom exempts it (assert.equal 0), and stripping recorded from the idiom removes the exemption and trips the rule again (soundness assertion, assert.ok >0) — matches code exactly. Ran the smoke directly (npx tsx): PASS (6 prompt copies clean, 4 required phrases present), exit 0. No .md file changed in HEAD~1..HEAD (confirmed via git diff --stat and git diff -- *.md), so RP-008 conclusions for .md surfaces stand unchanged. No doc paragraphs reference the two new rule labels/patterns as they are internal regression-guard logic, not documented API. No inconsistencies found.",
+      "createdAt": "2026-07-09T17:49:39.805Z",
+      "reviewRound": "2026-07-09T17:47:43.007Z",
+      "reviewRunId": "B-cee5:RR-017",
+      "_hash": "fbcf2eb46779933e3083368f44ec407a0881f4bdf06d391eff375c790afca7e6"
     }
   ]
 }
