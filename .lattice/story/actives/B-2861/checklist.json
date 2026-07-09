@@ -128,7 +128,35 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Approved document optimizations applied: the execution plan reflects evidence-backed 3x2 findings without weakening gates or expanding code scope.",
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Accepted 3x2 findings are applied to the target document and each edit preserves hard gates, structured evidence boundaries, legacy compatibility, and milestone_status UX rules.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "If a finding implies a future code change, the document records it as a future implementation story rather than changing code in B-2861.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Document edits do not introduce new prompt-only gate evidence, direct story-file writes, or silent reviewer overlap.",
+            "type": "docs"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
