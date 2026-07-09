@@ -272,6 +272,18 @@
           "materialHash": "f585265d9820698a3e1a44637fb2f8e45067d00ac9f39bbac0a12f615db76044",
           "storyFilesHash": "e68396e49217def3e873d7f7c3b36f967ff81b1fed159f869c41edb2fc00887c",
           "timestamp": "2026-07-09T16:04:26.826Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-ledger-dispatch-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-ledger-dispatch-smoke.js",
+          "result": "pass",
+          "note": "Covers Claude --output-format=stream-json downstream usage-ledger parsing: usage-ledger-dispatch-smoke verifies NDJSON final result event selection, malformed/truncated stream-json fallback, token usage extraction, and prototype-pollution resistance in packages/main/src/core/usage-ledger/dispatch-usage.ts.",
+          "headHash": "07a289876eafb2c12a05ffbdedb258e88e42ea7e",
+          "materialHash": "a17734756213cf9e73cdb8fbe7e4031e755deb84fd18fa3ff603ea5872b08f26",
+          "storyFilesHash": "45e212a64bf95782f3132e1ba0064c16409e3325f1c961d41d8d45e9a8ca486b",
+          "timestamp": "2026-07-09T16:25:43.921Z"
         }
       ]
     }
