@@ -229,6 +229,11 @@
             "desc": "Smoke tests prove agy --prompt-file is classified as wrong_launcher while agy --print with --print-timeout is the canonical noninteractive launcher.",
             "type": "logic",
             "priority": "must"
+          },
+          {
+            "desc": "Reconstructed from logic_test evidence: Covers Claude --output-format=stream-json downstream usage-ledger parsing: usage-ledger-dispatch-smoke verifies NDJSON final result event...",
+            "type": "logic",
+            "priority": "should"
           }
         ],
         "adversarial": [
