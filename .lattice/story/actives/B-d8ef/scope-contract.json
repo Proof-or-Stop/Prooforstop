@@ -60,8 +60,40 @@
       "phase": "DEV",
       "headHash": "bd3f579319f7bf1ffe8732aaf511eefafc4f6218",
       "materialHash": "00673d61b1874343698f1b19ae619c64a89a38b2e72a6e4bce0e36782111b7c4"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Concept review F-003 proved the Claude launcher readiness fix changes the real dispatch argv and stream-json output shape. Usage-ledger parsing and usage-ledger/unattended dispatch smokes must be synchronized so existing budget and ledger coverage remains test-clean under the canonical observable Claude launcher.",
+      "timestamp": "2026-07-09T14:01:03.307Z",
+      "paths": [
+        "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+        "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+        "packages/main/src/tasks/usage-ledger-budget-smoke.ts",
+        "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+        "packages/main/src/tasks/usage-ledger-dispatch-smoke.ts",
+        "packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+        "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+        "packages/main/src/tasks/usage-ledger-budget-smoke.ts",
+        "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+        "packages/main/src/tasks/usage-ledger-dispatch-smoke.ts",
+        "packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts"
+      ],
+      "affectedPathCount": 6,
+      "phase": "DEV",
+      "headHash": "a2405256bb71f0c64fc619947d4916769e2fe277",
+      "materialHash": "3315d012a73aa860f6d71b538f7b4e669eff9d63dc4836fecb3e7a3dd4de540b",
+      "anchors": [
+        "concept_finding_F003",
+        "claude_stream_json_launcher",
+        "usage_ledger_dispatch_parse",
+        "review_host_readiness"
+      ]
     }
   ],
   "createdAt": "2026-07-09T13:10:38.969Z",
-  "updatedAt": "2026-07-09T13:27:00.196Z"
+  "updatedAt": "2026-07-09T14:01:03.307Z"
 }
