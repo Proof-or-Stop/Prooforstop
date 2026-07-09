@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-d8ef",
+  "id": "IC-20260709130927",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "B-d8ef strengthens the existing review_host_availability_probe/degraded-fallback path: canonical hosts Codex CLI, Claude Code CLI, and agy CLI must report execution readiness (executionReady/reviewReady/progressMode/failureKind) with observable launchers (claude --print --verbose --output-format stream-json; agy --print/--print-timeout, --prompt-file rejected as wrong_launcher; codex exec success not just version/login), and non-human degraded fallback consumes only fresh reviewReadyHostCount, with explicit-human-approval preserved as lower assurance and no optional Claude hook events in scope.",
+  "acceptedInterpretationHash": "sha256:2308bf0b696c19fe6bb9f263e38570e5f4d0500009c3c5181c2e8a0d2cef1e8a",
+  "notes": "Independent Claude intent-collision reviewer PASS: original intent snapshot, checklist CHK-001..003, and plan.md are mutually consistent; no second interpretation or scope drift found. Reviewer attempted intent_collision_set but owner lease blocked the write, so owner session records the independent verdict text unchanged.",
+  "ledgerHashBeforeDecision": "sha256:3bcdc84a5b6a3919b0168272c3fe53a5d29805e736515d2f41d3fd3bff896d08",
+  "confirmedLedgerHash": "sha256:3bcdc84a5b6a3919b0168272c3fe53a5d29805e736515d2f41d3fd3bff896d08",
+  "createdAt": "2026-07-09T13:09:27.449Z",
+  "updatedAt": "2026-07-09T13:09:27.449Z"
+}
