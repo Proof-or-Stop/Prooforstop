@@ -2,48 +2,45 @@
 
 Story: B-d8ef - Probe canonical host execution readiness and observable launchers
 Phase observed: TEST
-Observed at: 2026-07-09T16:01:23Z
+Observed at: 2026-07-09T22:16:40Z
+Observed head: 7bd2e0314401d734594012f89f08df64673eceab
+Material hash: 01fcc9bbdc043169a493838ea1877eeb5a8d5881b930fe1ff309ecf95f873fae
+Story files hash: 904e54ad723b2cd6bf1dd915e087437307ecc7b6d46e04a0b0ac1740f83a9924
 
 ## Expected
 
-- Review host readiness must be based on executable noninteractive launcher readiness, not only binary/version presence.
-- Claude reviewer launchers must use `claude --print --verbose --output-format=stream-json <prompt-file>`.
-- Legacy/version-only host probes must not satisfy non-human degraded fallback proof.
-- Review fallback diagnostics must use `reviewReadyHostCount` and block single-host fallback when two canonical hosts are review-ready.
-- New v2 host probes may omit retired completion markers, while forged non-false marker values, wrong event types, and wrong schema versions are rejected.
+- Review host readiness is based on executable noninteractive launcher readiness, not only binary or version presence.
+- Claude reviewer launchers use observable print mode with verbose stream-json output.
+- Codex auth failures and agy wrong-launcher templates are classified as not review-ready.
+- Legacy or version-only host probes do not satisfy non-human degraded fallback proof.
+- Review fallback diagnostics use `reviewReadyHostCount` and block single-host fallback when two canonical hosts are review-ready.
+- v2 host readiness proof rejects forged readiness counts, contradictory rows, wrong schemas, and retired completion markers.
 
 ## Actual Transcript
 
 - `lattice story_advance --storyId=B-d8ef --phase=TEST`
   - REVIEW completeness: pass.
   - CLI gate preflight: all pass.
-  - Configured validation: 43/43 commands passed.
+  - Existing validation PASS was fresh enough for REVIEW -> TEST.
   - Result: story advanced to TEST.
 
+- `lattice verification_evidence_refresh_stale --storyId=B-d8ef --dryRun --json`
+  - Result: no stale verification evidence.
+
 - `lattice validate --story=B-d8ef --json`
-  - Configured validation: 43/43 commands passed.
+  - Ran 43 configured validation commands on this machine.
   - Result: `status=pass`, `allPass=true`, summary `Project validation commands passed`.
-
-- `lattice done_required_validate --storyId=B-d8ef --json`
-  - `packages/main build`: PASS.
-  - `root full test suite`: PASS.
-  - Result: `status=PASS`.
-
-- `lattice quorum_submit --storyId=B-d8ef --hostA=claude-cli --hostB=agy-cli --providerA=claude --providerB=agy --rounds=3`
-  - Emitted 6 local non-authority host verdicts.
-  - Review escalation: `ok=true`, `assuranceLevel=full-3x2`.
-  - Review assurance floor: satisfied via full 3x2.
+  - Verification coverage: total 10, required 9, covered 10, missing required 0.
 
 ## Expected vs Actual Diff
 
 - No functional difference observed.
-- The implementation met the launcher-readiness, fallback-diagnostic, retired-marker, and canonical-host expectations.
-- The formal project validation and DONE-required validation both passed on this machine.
+- Launcher readiness, fallback diagnostics, auth failure handling, wrong-launcher handling, and forged-proof rejection all matched the expected behavior.
+- The TEST-phase validation run passed on the current workspace without stale verification evidence.
 
 ## Closing Self-Check
 
-- Real-machine test run: yes, `lattice validate --story=B-d8ef --json` and `lattice done_required_validate --storyId=B-d8ef --json`.
-- Edge cases covered: yes, legacy probes, auth failures, wrong launchers, forged retired markers, wrong event type, wrong schema version, and two-review-ready-host fallback refusal.
-- Unresolved TODOs: none observed for this story.
-- User-visible outcome: the CLI now reports observable launcher readiness and blocks misleading fallback proof instead of silently relying on version-only availability.
-- Pitfalls: Codex auth-profile accounts were unavailable, so 3x2 review assurance used Claude CLI plus Agy CLI rather than degraded fallback.
+- Real-machine TEST run: yes, `lattice validate --story=B-d8ef --json`.
+- Edge cases covered: yes, legacy probes, auth failures, wrong launchers, forged or contradictory readiness counts, wrong schemas, and two-review-ready-host fallback refusal.
+- Unresolved TODOs: none observed for this story at TEST validation.
+- User-visible outcome: the CLI reports executable launcher readiness and avoids misleading fallback proof based only on binary/version availability.
