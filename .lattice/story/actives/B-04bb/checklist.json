@@ -49,6 +49,17 @@
           "materialHash": "33062d79ff0dbeed0ef9e397a6efa3be0a230aad003b0f0098f716ed24eca0ab",
           "storyFilesHash": "b7cbe8d4cfb05adacb9fc73d90113f490e2353518ea450b039541ce3adc8f1af",
           "timestamp": "2026-07-09T19:19:31.904Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node -e \"JSON.parse(require('fs').readFileSync('lattice.config.json','utf8'))\"",
+          "result": "pass",
+          "note": "lattice.config.json parses as strict JSON after the edit; command printed JSON_PARSE_OK and exited 0.",
+          "headHash": "97b4b4b1ef1b2015d97e2b20dd7e36dece92b9fa",
+          "materialHash": "33062d79ff0dbeed0ef9e397a6efa3be0a230aad003b0f0098f716ed24eca0ab",
+          "storyFilesHash": "b7cbe8d4cfb05adacb9fc73d90113f490e2353518ea450b039541ce3adc8f1af",
+          "timestamp": "2026-07-09T19:19:33.110Z"
         }
       ]
     },
