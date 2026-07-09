@@ -265,14 +265,14 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-004:happy:0",
-          "kind": "docs_check",
-          "command": "rg -n \"Default inputs: the .lattice scope_check_save. result\" packages/main/templates/agents/lattice-review-behavior.md; rg -n -i \"full directory scan of|all \\.md files under\" packages/main/templates/agents/lattice-review-behavior.md --include-zero || echo no-unconditional-hits",
+          "kind": "manual_transcript",
+          "command": "rg -n \"Default inputs: the .lattice scope_check_save. result\" packages/main/templates/agents/lattice-review-behavior.md && node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js",
           "result": "pass",
-          "note": "Behavior spec-boundary step defaults to scope_check_save result + current diff + checklist commitments + candidateSpecSet; the old unconditional full-scan wording at former lines 126/160 is gone (guard smoke enforces).",
-          "headHash": "3d5feed5b921ef5ed9fa4caed236b8d28b89fb91",
+          "note": "Replayable replacement for the earlier CHK-004 happy row (whose rg used --include-zero without --count and would error on replay): positive match proves the new default-input wording at line 129, and the guard smoke enforces zero unconditional full-scan phrases across all six copies.",
+          "headHash": "475200fae121b0d1ba6ef045acbf1d5dfcafaaaa",
           "materialHash": "2129600913e88693d4e5986538beca1b15432d378b1fb18b9b126d64d6e96cdb",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-07-09T17:16:35.268Z"
+          "timestamp": "2026-07-09T17:17:39.348Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
