@@ -85,8 +85,28 @@
       "phase": "DEV",
       "headHash": "3b9a17201510a78c990fa9bfb3e908414cf674c7",
       "materialHash": "66d31ae9618c6e36792e2dda80bb9afc53f1c0878976466305e79a88b84077ee"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "F-008 cannot be fixed safely inside done_prepare alone: DONE-required validation and validation-executor must accept abort/deadline control so a done_prepare phase timeout kills the child process and prevents late PASS evidence writes.",
+      "timestamp": "2026-07-09T03:59:42.642Z",
+      "paths": [
+        "packages/main/src/core/done-required-validation.ts",
+        "packages/main/src/core/validation-executor.ts",
+        "packages/main/src/handlers/done-required-validation.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/done-required-validation.ts",
+        "packages/main/src/core/validation-executor.ts",
+        "packages/main/src/handlers/done-required-validation.ts"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "829355e66a68c0930d7c4344afada00b7aa1b3ff",
+      "materialHash": "cc4b6612e6eacdce015d11a3222c88780e62d393efada0fe6dfbda37801782b4"
     }
   ],
   "createdAt": "2026-07-09T01:40:07.146Z",
-  "updatedAt": "2026-07-09T03:24:49.928Z"
+  "updatedAt": "2026-07-09T03:59:42.642Z"
 }
