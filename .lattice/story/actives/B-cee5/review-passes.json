@@ -71,6 +71,15 @@
       "reviewRound": "2026-07-09T17:34:47.565Z",
       "reviewRunId": "B-cee5:RR-013",
       "_hash": "8dcf4e52fbc993c0b14319336e13d143a15be826947af7c5da8986fd83bc0ec9"
+    },
+    {
+      "id": "B-cee5:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 3 incremental: replayed node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js after F-005 fix (commit 1c76eb0dc, dist rebuilt) - PASS, 6 prompt copies clean, 4 required phrases present, new F-005 hostile-proximity positive control included. Confirmed all scanEscalationReason mentions in all six guarded prompt copies match one of the three retained strict idioms (recorded/write the/escalated via scanEscalationReason) - tightened regex invalidates none of CHK-003/CHK-005/CHK-006/CHK-007 coverage. Live-replayed CHK-006 adversarial hostile-injection control (inject banned unconditional phrase -> guard fails exit 1; restore -> guard passes exit 0, tree clean). Evidence headHash drift to pre-fix commit 4e788150 is expected per story-owned hash drift note; CHK-001/002/004 unchanged, cite RP-005. No blocker.",
+      "createdAt": "2026-07-09T17:38:55.159Z",
+      "reviewRound": "2026-07-09T17:34:47.565Z",
+      "reviewRunId": "B-cee5:RR-014",
+      "_hash": "4c3219d4e9c8b0cd615eb58c3a1930a474ca163c05190d7ca42d267b73a703da"
     }
   ]
 }
