@@ -35,10 +35,16 @@ function writeExecutable(path: string, body: string): void {
   chmodSync(path, 0o755);
 }
 
-function installFakeHosts(root: string, hosts: readonly CanonicalReviewHost[]): string {
+function shellSingleQuoted(value: string): string {
+  return `'${value.replace(/'/g, `'\\''`)}'`;
+}
+
+function installFakeHosts(root: string, hosts: readonly CanonicalReviewHost[], argvLog: string): string {
   const bin = join(root, 'bin');
   mkdirSync(bin, { recursive: true });
+  const quotedArgvLog = shellSingleQuoted(argvLog);
   const script = `#!/bin/sh
+argv_log=${quotedArgvLog}
 case " $* " in
   *" --version "*)
     echo "fake-host 1.0.0"
@@ -60,18 +66,16 @@ if [ "$has_ready" -ne 1 ]; then
     fi
   done
 fi
-if [ -n "\${READINESS_ARGV_LOG:-}" ]; then
-  {
-    printf 'host=%s\\n' "\${0##*/}"
-    printf 'argc=%s\\n' "$#"
-    i=0
-    for arg do
-      i=$((i + 1))
-      printf 'arg%s=%s\\n' "$i" "$arg"
-    done
-    printf -- '---\\n'
-  } >> "$READINESS_ARGV_LOG"
-fi
+{
+  printf 'host=%s\\n' "\${0##*/}"
+  printf 'argc=%s\\n' "$#"
+  i=0
+  for arg do
+    i=$((i + 1))
+    printf 'arg%s=%s\\n' "$i" "$arg"
+  done
+  printf -- '---\\n'
+} >> "$argv_log"
 if [ "$has_ready" -eq 1 ]; then
   echo "READY"
   exit 0
@@ -252,8 +256,8 @@ try {
   });
 
   check('bounded probe checks launcher readiness with a smoke prompt', () => {
-    const bin = installFakeHosts(root, ['codex', 'claude', 'agy']);
     const argvLog = join(root, 'readiness-argv.log');
+    const bin = installFakeHosts(root, ['codex', 'claude', 'agy'], argvLog);
     const event = probeReviewHostAvailability({
       storyId: STORY_ID,
       materialHash: MATERIAL,
@@ -262,7 +266,6 @@ try {
       env: {
         ...process.env,
         PATH: [bin, '/usr/bin', '/bin', '/usr/sbin', '/sbin'].join(delimiter),
-        READINESS_ARGV_LOG: argvLog,
       },
       timeoutMs: 1000,
     });
