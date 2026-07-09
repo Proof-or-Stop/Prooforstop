@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-cee5",
+  "allowedCommands": [
+    "git add",
+    "git commit",
+    "git diff",
+    "git status",
+    "lattice agent_prompt",
+    "lattice aux_doc_list",
+    "lattice checklist_get",
+    "lattice checklist_update",
+    "lattice session_brief",
+    "lattice story_get",
+    "lattice validate",
+    "lattice verification_evidence_add",
+    "nl",
+    "node bin/lattice.js verify_codex",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main test",
+    "rg",
+    "sed"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".claude/agents/lattice-review-behavior.md",
+    ".claude/agents/lattice-review-scope-plan.md",
+    ".lattice-codex/agents/lattice-review-behavior.md",
+    ".lattice-codex/agents/lattice-review-scope-plan.md",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "docs/CLI.md",
+    "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+    "packages/main/src/tasks/**",
+    "packages/main/templates/agents/lattice-review-behavior.md",
+    "packages/main/templates/agents/lattice-review-scope-plan.md",
+    "packages/main/tests/**"
+  ],
+  "excludedCommands": [
+    "git checkout --",
+    "git clean",
+    "git push",
+    "git reset --hard",
+    "lattice story_advance --phase=DONE",
+    "omx"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx/**",
+    "docs/story/**",
+    "packages/main/tests/fixtures/**",
+    "tests/fixtures/**"
+  ],
+  "confirmedBy": "codex-side-conversation",
+  "confirmationNote": "Stopgap execution is limited to prompt wording, prompt mirrors, and static verification for broad-scan token budget behavior.",
+  "createdAt": "2026-07-09T16:25:27.686Z",
+  "updatedAt": "2026-07-09T16:25:27.686Z",
+  "_hash": "0145fa070bb25c8e5907f704278770ad943fb865a8964355f7916be9cb4ebb98"
+}

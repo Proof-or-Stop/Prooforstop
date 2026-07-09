@@ -1,0 +1,139 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Confirm broad-scan token baseline and affected prompts",
+      "context": "Reconfirm the decisions corpus size and locate exact full-scan instructions in scope-plan and behavior prompts. Evidence should include file counts/word or byte counts and prompt line references. Do not rely on memory alone.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+      ],
+      "userSees": "A short evidence summary identifies the token-heavy scans and the two prompt surfaces that must change.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add bounded memory/playbook preflight requirement to broad-scan prompts",
+      "context": "Update scope-plan and behavior prompt templates so any broad docs/spec scan first consumes bounded Memory Runtime Preflight or dev_memory_preflight/search plus active playbook advisory when available. State clearly that memory/playbook output is advisory only and cannot satisfy gate evidence.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+      ],
+      "userSees": "Reviewer prompts now start broad-scan work with bounded memory/playbook context instead of immediately reading the full decisions directory.",
+      "files": {
+        "modify": [
+          "packages/main/templates/agents/lattice-review-scope-plan.md",
+          "packages/main/templates/agents/lattice-review-behavior.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Replace default full decisions scan with candidateSpecSet-first routing",
+      "context": "Change prompt instructions so candidateSpecSet is generated or consumed before full scan. Sources should include relatedDocs, story title/description/risk signals, changed files/symbols, command/config names, aux_doc_list, and top-N rg matches. Full scan remains available only with scanEscalationReason.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+      ],
+      "userSees": "The default reviewer flow uses candidate docs first and records why any full decisions scan was escalated.",
+      "files": {
+        "modify": [
+          "packages/main/templates/agents/lattice-review-scope-plan.md",
+          "packages/main/templates/agents/lattice-review-behavior.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Forbid REVIEW behavior from default full decisions scans",
+      "context": "Behavior review should consume scope_check_save, current diff, current story commitments, userSees, and transcript context. It may full-scan only for high-risk lifecycle/gate/process-fact/global rename/candidate ambiguity/explicit reviewer escalation with a recorded scanEscalationReason.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+      ],
+      "userSees": "Behavior review no longer repeats scope-plan's historical decisions sweep during normal REVIEW.",
+      "files": {
+        "modify": [
+          "packages/main/templates/agents/lattice-review-behavior.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Synchronize materialized prompt assets if required",
+      "context": "If the repository uses full materialized Claude/Codex prompt copies, update the mirrored .claude and .lattice-codex prompt assets consistently with templates, or run the existing generator if available. Do not invent unrelated prompt changes.",
+      "relatedDocs": [
+        "docs/CLI.md",
+        "AGENTS.md"
+      ],
+      "userSees": "Codex and Claude prompt assets expose the same bounded search behavior as the source templates.",
+      "files": {
+        "modify": [
+          ".claude/agents/lattice-review-scope-plan.md",
+          ".claude/agents/lattice-review-behavior.md",
+          ".lattice-codex/agents/lattice-review-scope-plan.md",
+          ".lattice-codex/agents/lattice-review-behavior.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "Add static regression tests for broad-scan budget rules",
+      "context": "Add a focused prompt scan or task test that fails if active reviewer prompts reintroduce unconditional phrases such as read every decisions file, always scan the full decisions directory, or behavior default full decisions scan without escalation language. The test should allow explicit escalation-path wording.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+      ],
+      "userSees": "Automated checks prevent the old default full-scan instructions from returning.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/**",
+          "packages/main/tests/**"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-007",
+      "title": "Verify prompt output and record expected token-savings evidence",
+      "context": "Run the relevant prompt/adaptor checks, inspect agent_prompt output for the changed roles, and record before/after search budget evidence. Expected result: default flow no longer reads all 112 decision docs unless scanEscalationReason is present.",
+      "relatedDocs": [
+        "docs/CLI.md",
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+      ],
+      "userSees": "Verification shows the stopgap is active and explains the expected reduction from full decisions scans to bounded memory plus candidate docs.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/**",
+          "packages/main/tests/**"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

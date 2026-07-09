@@ -1,0 +1,74 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-cee5",
+  "state": "candidate",
+  "ledgerHash": "sha256:d5ef416f19d1c8f39e170637c5afa6d8f209fc534a370b21868f312086e2e491",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-TOKEN-BASELINE",
+      "claim": "The story identifies the concrete token-heavy broad-scan sources and quantifies the baseline decisions corpus.",
+      "doneMeans": "Evidence references show decisions corpus size and exact prompt instructions that currently default to full scans.",
+      "requiredEvidence": [
+        "baseline_counts",
+        "prompt_line_refs"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "REQ-BOUNDED-PREFLIGHT",
+      "claim": "Broad-scan reviewer prompts consume bounded memory/playbook advisory context before candidate search or full scan.",
+      "doneMeans": "Scope-plan and behavior prompt outputs include bounded memory/playbook preflight guidance and state that it is not gate evidence.",
+      "requiredEvidence": [
+        "agent_prompt_output",
+        "prompt_diff"
+      ],
+      "checklistRefs": [
+        "CHK-002",
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [],
+      "status": "planned"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "REQ-CANDIDATE-FIRST",
+      "claim": "candidateSpecSet-first routing replaces default full decisions scans while retaining explicit escalation.",
+      "doneMeans": "Prompts require candidateSpecSet sources and scanEscalationReason before a full decisions scan, and behavior review consumes scope_check_save by default.",
+      "requiredEvidence": [
+        "prompt_diff",
+        "agent_prompt_output"
+      ],
+      "checklistRefs": [
+        "CHK-003",
+        "CHK-004",
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [],
+      "status": "planned"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "REQ-REGRESSION-GUARD",
+      "claim": "Static verification prevents unconditional full-scan wording from returning.",
+      "doneMeans": "A focused test or task fails on unconditional read-every-decisions-file wording but permits explicit escalation-path language.",
+      "requiredEvidence": [
+        "static_test",
+        "validation_command"
+      ],
+      "checklistRefs": [
+        "CHK-006",
+        "CHK-007"
+      ],
+      "verificationIntentRefs": [],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-09T16:25:27.686Z",
+  "updatedAt": "2026-07-09T16:25:27.686Z"
+}
