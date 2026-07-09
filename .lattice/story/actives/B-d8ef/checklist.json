@@ -142,14 +142,14 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-002:happy:0",
-          "kind": "logic_test",
+          "kind": "manual_transcript",
           "command": "node packages/main/dist/tasks/review-escalation-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js",
           "result": "pass",
-          "note": "Both degraded fallback gates accept only when a fresh current-material probe reports reviewReadyHostCount below two and keep degraded-single-host lower-assurance semantics.",
-          "headHash": "2beda9567cad24cc9073db72da565ca8225a0612",
+          "note": "Fresh current-HEAD transcript evidence: observed smoke output includes reviewReadyHostCount below two permitting degraded 3x1 and two review-ready canonical hosts blocking single-host fallback for both escalation and assurance floor gates.",
+          "headHash": "e41d547e7712942c6b6ec7252736faacfc09ba2b",
           "materialHash": "548961557edf5ece791954920667cd300524f3ab72b4a77967fdcefc7e962a89",
           "storyFilesHash": "2530875b7431050ab7447167c76cddc939e29096ae6d6fea859c5e3a4735fbb8",
-          "timestamp": "2026-07-09T13:34:22.419Z"
+          "timestamp": "2026-07-09T13:34:33.909Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
