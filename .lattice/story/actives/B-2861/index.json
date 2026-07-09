@@ -1,0 +1,29 @@
+{
+  "storyId": "B-2861",
+  "name": "review-proof-or-stop-agent-prompt-consolidation-3x2",
+  "title": "3x2 review of Proof-or-Stop agent prompt consolidation execution plan",
+  "description": "Review the large Proof-or-Stop agent prompt consolidation execution plan document against the current project implementation. The review must use current code and CLI evidence rather than stale planning prose, run a 3x2 independent-host review over the document, reconcile findings, apply approved documentation optimizations, and on DONE provide a complete table of every concrete optimization with its reason and evidence. Target document: docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md. The review must preserve hard gates, structured evidence semantics, milestone_status UX rules, legacy compatibility, and proof-or-stop-* migration discipline.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "Data Migration/Destructive",
+      "matched": "migration"
+    }
+  ],
+  "createdAt": "2026-07-09T14:36:08.939Z",
+  "startedAt": "2026-07-09T14:36:08.939Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-09T14:36:09.244Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-3d1880b40d393f50",
+      "agent": "main"
+    }
+  ]
+}

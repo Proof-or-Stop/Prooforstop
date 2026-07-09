@@ -1,0 +1,61 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Build the review evidence pack for the execution plan document",
+      "context": "Collect the target document state, current diff, and code-backed truth sources needed for review: prompt registry, agent_prompt, reviewer lanes, review_run_start/finding/pass, init-check gate, evaluator save/eval-evidence, milestone_status UX, process-fact registry, command policy, and existing CLI docs. The evidence pack must explicitly prefer current code facts over stale plan prose.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+        "docs/CLI.md",
+        "AGENTS.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Run the 3x2 independent review over the document",
+      "context": "Use Codex CLI, Claude Code CLI, and Antigravity CLI as the three host labels. Each host should inspect the document from two lenses: lifecycle/gate correctness and prompt/routing/UX practicality. Reviewers must cite concrete project evidence and identify blockers, risks, and suggested optimizations without treating prompt text as gate evidence.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Reconcile 3x2 findings into an actionable optimization ledger",
+      "context": "Deduplicate overlapping findings, classify each as accept/reject/defer, identify owner milestone/story impact, and record evidence references. The ledger must explain when a suggestion is rejected or deferred because current code evidence contradicts it.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Apply approved documentation optimizations without weakening gates",
+      "context": "Update the execution plan only where evidence supports the change. Preserve hard lifecycle gates, reviewer-run binding, evaluator raw-vs-saved evidence boundary, milestone_status UX contract, legacy read compatibility, canonical proof-or-stop-* writes, and no direct story-file artifact mutation by prompts.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Produce DONE optimization table with reasons and evidence",
+      "context": "Before marking DONE, add or provide a complete table listing each concrete optimization made, why it was made, what project evidence supports it, which 3x2 finding or host/lens motivated it, and whether it changed milestone order, agent responsibility, input/output contract, UX contract, or validation coverage.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
