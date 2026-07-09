@@ -92,8 +92,30 @@
         "usage_ledger_dispatch_parse",
         "review_host_readiness"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Required to resolve review findings F-005 and F-009: codex prompt delivery moved to bounded stdin and provider spawn diagnostics gained spawnErrorKind/spawnErrorCode, so shared provider types, gemini parity, and codex/gemini provider smoke coverage must be in scope.",
+      "timestamp": "2026-07-09T21:19:22.358Z",
+      "paths": [
+        "packages/main/src/providers/gemini-cli.ts",
+        "packages/main/src/providers/types.ts",
+        "packages/main/src/tasks/provider-codex-smoke.ts",
+        "packages/main/src/tasks/provider-gemini-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/providers/gemini-cli.ts",
+        "packages/main/src/providers/types.ts",
+        "packages/main/src/tasks/provider-codex-smoke.ts",
+        "packages/main/src/tasks/provider-gemini-smoke.ts"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "28d1ad8f155f0a7a609d23c9aafbb46544a56123",
+      "materialHash": "5fdab30daf4e72d2a096970a39d10bd959e1290c397000979b1ada4e3d3a80bb"
     }
   ],
   "createdAt": "2026-07-09T13:10:38.969Z",
-  "updatedAt": "2026-07-09T14:01:03.307Z"
+  "updatedAt": "2026-07-09T21:19:22.358Z"
 }
