@@ -762,16 +762,17 @@ try {
 
   const previousCancelPack = readPack(root, cancelRecord.dispatchId);
   const oldRecordBeforeReassign = JSON.stringify(readDispatch(root, cancelRecord.dispatchId));
+  const explicitWorkerRole = 'lattice-implementer';
   const reassigned = run<DispatchReassignResult>('dispatch_reassign', {
     dispatchId: cancelRecord.dispatchId,
-    role: 'implementation-worker',
+    role: explicitWorkerRole,
     objective: 'Continue the completed worker output with explicit fresh-context instructions.',
   });
   assert.equal(reassigned.schemaVersion, 'lattice.dispatch_reassign.v1');
   assert.equal(reassigned.mode, 'fresh-context');
   assert.equal(reassigned.previousDispatchId, cancelRecord.dispatchId);
   assert.notEqual(reassigned.dispatchId, cancelRecord.dispatchId);
-  assert.equal(reassigned.role, 'implementation-worker');
+  assert.equal(reassigned.role, explicitWorkerRole);
   assert.equal(reassigned.roleSource, 'requested');
   assert.equal(reassigned.objective, 'Continue the completed worker output with explicit fresh-context instructions.');
   assert.match(reassigned.nextAction, /Worker reassignment ready/i);
@@ -781,7 +782,7 @@ try {
   const reassignedPack = readPack(root, reassigned.dispatchId);
   assert.equal(reassignedRecord.parentDispatchId, cancelRecord.dispatchId);
   assert.equal(reassigned.promptFile, reassignedRecord.promptFile);
-  assert.equal(reassignedPack.role, 'implementation-worker');
+  assert.equal(reassignedPack.role, explicitWorkerRole);
   assert.equal(reassignedPack.objective, 'Continue the completed worker output with explicit fresh-context instructions.');
   assert.deepEqual(reassignedPack.allowedPaths, previousCancelPack.allowedPaths, 'reassignment should default allowedPaths from previous pack');
   assert.deepEqual(reassignedPack.deniedPaths, previousCancelPack.deniedPaths, 'reassignment should default deniedPaths from previous pack');
@@ -790,7 +791,7 @@ try {
   assert.equal(reassignedPack.fromHost, previousCancelPack.fromHost, 'reassignment should default fromHost from previous pack');
   assert.equal(reassignedPack.baseSha, previousCancelPack.baseSha, 'reassignment should default baseSha from previous pack');
   const reassignedPrompt = readFileSync(join(root, reassigned.promptFile), 'utf8');
-  assert.match(reassignedPrompt, /Role: implementation-worker/, 'reassignment prompt must include explicit role');
+  assert.match(reassignedPrompt, new RegExp(`Role: ${explicitWorkerRole}`), 'reassignment prompt must include explicit role');
   assert.match(reassignedPrompt, /Objective: Continue the completed worker output with explicit fresh-context instructions\./, 'reassignment prompt must include objective');
   assert.match(reassignedPrompt, /## Fresh-context Continuity/, 'reassignment prompt must include continuity section');
   assert.match(reassignedPrompt, /mode: fresh-context/, 'reassignment prompt must state fresh-context mode');
@@ -813,19 +814,25 @@ try {
   assert.match(defaultRolePrompt, /no full-history fork is required/i);
   assertAuthorityFalse(defaultRoleReassigned, 'defaultRoleReassigned');
 
-  assert.equal(existsSync(join(root, unconstrainedPrepared.receiptFile)), false, 'missing-summary fixture must not have a receipt');
-  const missingSummaryReassigned = run<DispatchReassignResult>('dispatch_reassign', {
-    dispatchId: unconstrainedPrepared.dispatchId,
-    role: 'summary-worker',
-    objective: 'Render bounded continuity when previous receipt data is absent.',
-    allowedPaths: ['packages/main/src/generated/missing-summary-reassign.txt'],
-  });
-  const missingSummaryPrompt = readFileSync(join(root, missingSummaryReassigned.promptFile), 'utf8');
-  assert.match(missingSummaryPrompt, new RegExp(`Previous dispatch: ${unconstrainedPrepared.dispatchId}`), 'missing-summary reassignment must keep bounded lineage');
-  assert.match(missingSummaryPrompt, /summary-only continuity/i);
-  assert.match(missingSummaryPrompt, /no full-history fork is required/i);
-  assert.doesNotMatch(missingSummaryPrompt, /receipt verified|production DONE achieved|authority changed/i);
-  assertAuthorityFalse(missingSummaryReassigned, 'missingSummaryReassigned');
+  assert.equal(existsSync(join(root, unconstrainedPrepared.receiptFile)), false, 'prepared-only fixture must not have a receipt');
+  const countBeforePreparedReassign = dispatchCount(root);
+  let preparedReassignError: Error | undefined;
+  try {
+    run<DispatchReassignResult>('dispatch_reassign', {
+      dispatchId: unconstrainedPrepared.dispatchId,
+      role: 'summary-worker',
+      objective: 'Render bounded continuity when previous receipt data is absent.',
+      allowedPaths: ['packages/main/src/generated/missing-summary-reassign.txt'],
+    });
+  } catch (error) {
+    preparedReassignError = error as Error;
+  }
+  assert.ok(preparedReassignError, 'prepared-only dispatch_reassign must be rejected');
+  assert.match(preparedReassignError.message, /requires a completed\/accepted previous dispatch/i);
+  assert.match(preparedReassignError.message, /status=prepared/i);
+  assert.match(preparedReassignError.message, /localReceiptStatus=missing/i);
+  assert.doesNotMatch(preparedReassignError.message, /Worker reassignment ready/i);
+  assert.equal(dispatchCount(root), countBeforePreparedReassign, 'rejected prepared-only reassign must not create a follow-up dispatch');
 
   const reassignText = runText('dispatch_reassign', {
     dispatchId: cancelRecord.dispatchId,

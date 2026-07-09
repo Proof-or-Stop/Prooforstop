@@ -1268,6 +1268,19 @@ function resolveEffectiveStatus(record: DispatchRecord): DispatchLifecycleStatus
   return record.status;
 }
 
+function requireReassignablePreviousDispatch(root: string, record: DispatchRecord): DispatchLifecycleStatus {
+  const effectiveStatus = resolveEffectiveStatus(record);
+  const receiptStatus = maybeReadReceiptSubmission(root, record)?.status ?? 'missing';
+  if (effectiveStatus === 'accepted_local' && receiptStatus === 'accepted-local') {
+    return effectiveStatus;
+  }
+  throw new Error(
+    `dispatch_reassign requires a completed/accepted previous dispatch with an accepted-local receipt; `
+    + `${record.dispatchId} has status=${effectiveStatus} and localReceiptStatus=${receiptStatus}. `
+    + 'Run dispatch_run or dispatch_resume to completion before reassigning follow-up work.',
+  );
+}
+
 function ensurePreparedPackForFake(root: string, dispatchId: string, pack: HandoffPack): HandoffPack {
   if (pack.allowedPaths.length > 0) return pack;
   const safePath = `.lattice/dispatches/${dispatchId}/worker/fake-result.txt`;
@@ -1982,6 +1995,7 @@ export function prepareDispatch(store: StoryStore, root: string, args: DispatchP
 export function reassignDispatch(store: StoryStore, root: string, args: DispatchReassignArgs): DispatchReassignResult {
   const previousDispatchId = normalizeDispatchId(args.dispatchId);
   const previous = readRecord(root, previousDispatchId);
+  const previousStatus = requireReassignablePreviousDispatch(root, previous);
   const previousPack = readPack(root, previous.dispatchId);
   const requestedRole = args.role?.trim();
   const role = requestedRole || 'overflow-worker';
@@ -2010,7 +2024,7 @@ export function reassignDispatch(store: StoryStore, root: string, args: Dispatch
     promptContinuity: {
       mode: 'fresh-context',
       previousDispatchId: previous.dispatchId,
-      previousStatus: resolveEffectiveStatus(previous),
+      previousStatus,
       previousHost: previous.selectedHost,
       previousPackId: previousPack.packId,
       previousPackHash: previousPack.packHash,
@@ -2040,7 +2054,7 @@ export function reassignDispatch(store: StoryStore, root: string, args: Dispatch
     dispatch: updated,
     previous: {
       dispatchId: previous.dispatchId,
-      status: resolveEffectiveStatus(previous),
+      status: previousStatus,
       host: previous.selectedHost,
       packId: previousPack.packId,
       packHash: previousPack.packHash,
