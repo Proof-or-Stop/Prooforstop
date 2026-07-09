@@ -3,10 +3,22 @@
     {
       "id": "BUG-001",
       "title": "dispatch_reassign prompt retains previous role in execution instructions after explicit reassignment role",
-      "status": "open",
+      "status": "fixed",
       "foundAt": "2026-07-09T03:36:15.798Z",
-      "fixedAt": null,
-      "checklistId": "CHK-002"
+      "fixedAt": "2026-07-09T03:45:35.264Z",
+      "checklistId": "CHK-002",
+      "evidence": {
+        "symptom": "A real dispatch_reassign prompt with --role=lattice-implementer rendered top-level Role: lattice-implementer but inherited Execution Instructions still said Work in role: overflow-worker.",
+        "reproSteps": [
+          "Create and run a fake dispatch to accepted_local with previous role overflow-worker.",
+          "Run dispatch_reassign --dispatchId=<previous> --role=lattice-implementer --objective=<follow-up>.",
+          "Open the generated prompt.md and observe conflicting role instructions."
+        ],
+        "hypothesis": "Reassignment reused previous executionInstructions verbatim, including old role-specific lines.",
+        "rootCause": "reassignDispatch inherited the previous pack executionInstructions without normalizing role-specific instructions for the requested reassignment role.",
+        "fixEvidence": "Reassignment now rewrites inherited Work in role instructions to the current reassignment role; smoke asserts Role: lattice-implementer and Work in role: lattice-implementer are present while Work in role: overflow-worker is absent.",
+        "reproTest": "packages/main/src/tasks/dispatch-run-smoke.ts dispatch_reassign explicit role prompt assertions; node packages/main/dist/tasks/dispatch-run-smoke.js passed; lattice validate --story=B-99d4 --json passed."
+      }
     }
   ]
 }
