@@ -17,6 +17,15 @@
       "reviewRound": "2026-07-09T03:12:49.388Z",
       "reviewRunId": "B-99d4:RR-005",
       "_hash": "5d857d6514ba6afc67a75858a90a0346cf94a38ca26ceadfcb73f162b11a90f4"
+    },
+    {
+      "id": "B-99d4:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2 test-coverage pass on HEAD 4a679b0207552b13e7bb778d69024eb7349d3ac0. Reviewed verificationIntent coverage for completed worker reassignment, explicit lattice-implementer role propagation, fresh-context summary-only continuity, old dispatch preservation, prepared-only previous dispatch rejection, dispatch_resume regression, and absence of receipt/release/DONE/authority overclaim wording. checklist_get shows evidence for all 9 intents. Source and smoke assertions cover: accepted_local plus accepted-local receipt eligibility before reassignment; requested role lattice-implementer in result, pack, and prompt; omitted role default overflow-worker; previous record unchanged; new dispatch has parentDispatchId; prompts/output state fresh-context and no full-history fork; prepared-only reassignment throws without ready text or new dispatch; dispatch_resume returns original id and creates no follow-up. Independently ran node packages/main/dist/tasks/dispatch-run-smoke.js PASS and node scripts/verify-process-fact-contract.mjs PASS; registry keeps dispatch_reassign as L1 lattice-dispatch metadata, not gate evidence. No blocker found.",
+      "createdAt": "2026-07-09T03:29:21.973Z",
+      "reviewRound": "2026-07-09T03:12:49.388Z",
+      "reviewRunId": "B-99d4:RR-006",
+      "_hash": "c7e305a037869a98542367379aa41110cc31e5e083dd48fbd45c5abad6025f01"
     }
   ]
 }
