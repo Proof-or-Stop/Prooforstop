@@ -5,7 +5,7 @@
       "desc": "Canonical Claude launcher proof/allowlist does not match the actual dispatch launcher shape: readiness uses split --output-format stream-json and extra args, while dispatch executes --output-format=stream-json with a prompt file. The allowlist must authorize the exact observable launcher shape actually used.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-09T13:43:14.657Z",
@@ -17,7 +17,11 @@
         "packages/main/src/core/lattice-dispatch.ts"
       ],
       "signatureTag": "spec-boundary|ts|canonical-claude-launcher",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by a2405256b and preserved after cleanup: Claude canonical launcher and dispatch allowlist now use the same observable argv shape, --print --verbose --output-format=stream-json <prompt-file>, and readiness smoke verifies the canonical equals-form. Verified with npm --prefix packages/main run build and npm --prefix packages/main run test:review-host-launcher-readiness-smoke.",
+      "resolvedAt": "2026-07-09T14:05:29.584Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-d8ef:F-002",
