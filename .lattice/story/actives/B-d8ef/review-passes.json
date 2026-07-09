@@ -107,6 +107,15 @@
       "reviewRound": "2026-07-09T14:23:03.268Z",
       "reviewRunId": "B-d8ef:RR-018",
       "_hash": "4831699a25c16811b72543ece30585a5c2b0aa43822b99465e21619ecefec5d5"
+    },
+    {
+      "id": "B-d8ef:RP-013",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement gaps found. availableHostCount->reviewReadyHostCount/executionReadyHostCount fallback-gating rename is fully threaded through review-escalation.ts and review-assurance-floor.ts (delegates via reviewEscalationFallbackRecordFromEvent); zero grep residue for retired constant REVIEW_HOST_AVAILABILITY_REQUIRED_AVAILABLE_HOSTS or availableHostCount-based fallback gating outside intentional legacy-probe compat/test fixtures. Retired authority fields (authorityDone/fullAuthorityDone/productionDone) remain enforced false-or-absent for v2 schema events, never revived as true; guard branches covered by new smoke test. Ran build + review-host-execution-readiness-smoke, review-escalation-smoke, review-assurance-floor-smoke, dispatch-run-smoke, and verify-process-fact-contract.mjs directly (validate CLI is owner-gated to the main session); all passed.",
+      "createdAt": "2026-07-09T16:13:58.701Z",
+      "reviewRound": "2026-07-09T16:07:24.768Z",
+      "reviewRunId": "B-d8ef:RR-022",
+      "_hash": "1e6bd3d7da5d2d35541e1cffee30bf1af269b3848d491e38145e90d650e221a0"
     }
   ]
 }
