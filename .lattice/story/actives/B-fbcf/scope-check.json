@@ -275,9 +275,11 @@
       "q": "Should validation reuse require a configurable freshness window in addition to unchanged hashes, or are unchanged material/storyFiles/command/policy hashes sufficient for B-fbcf?",
       "evidence": "Legacy plan lists a configurable freshness-window question; B-fbcf checklist and plan only specify hash/config/policy gates.",
       "sourcePointers": [
-        "/Users/jek/Documents/Work/Orchestrate/docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md#Open Questions",
-        ".lattice/story/actives/B-fbcf/checklist.json#CHK-003"
-      ]
+        "docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md#Resolved Design Decisions",
+        ".lattice/story/actives/B-fbcf/plan.md#CHK-003"
+      ],
+      "resolution": "Resolved for B-fbcf: do not add a configurable wall-clock freshness window. Reuse is structural and hash-bound only: materialHash, storyFilesHash, validation commandSetHash, DONE-required commandSetHash, scope/classifier/config/policy hashes, and prior PASS evidence must match. Evidence timestamps remain audit metadata. A max-age freshness policy would change lifecycle policy and should be handled by a separate story if needed.",
+      "resolvedAt": "2026-07-09T23:21:08.754Z"
     }
   ]
 }
