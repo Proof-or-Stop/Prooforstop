@@ -22,6 +22,7 @@ import { canonicalReviewHostLauncherSpec, type CanonicalReviewHost } from '../co
 const STORY_ID = 'B-review-escalation';
 const ROUND_1 = '2026-06-13T10:00:00.000Z';
 const ROUND_2 = '2026-06-13T11:00:00.000Z';
+const SMOKE_PROMPT = 'Reply READY and do not run tools.';
 
 function git(root: string, args: string[]): string {
   return execFileSync('git', args, {
@@ -161,6 +162,14 @@ function fallback(materialHash: string, overrides: Partial<ProcessEvent> = {}): 
   };
 }
 
+function concreteLauncherArgv(host: CanonicalReviewHost): string[] {
+  return canonicalReviewHostLauncherSpec(host).launcherArgv.map(arg => {
+    if (arg === '<prompt>') return SMOKE_PROMPT;
+    if (arg === '<prompt-file>') return join(tmpdir(), `review-escalation-${host}-prompt.txt`);
+    return arg;
+  });
+}
+
 function hostAvailabilityProbe(materialHash: string, availableHosts: string[], overrides: Partial<ProcessEvent> = {}): ProcessEvent {
   const available = new Set(availableHosts);
   const hosts = (['codex', 'claude', 'agy'] as CanonicalReviewHost[]).map(host => {
@@ -173,7 +182,7 @@ function hostAvailabilityProbe(materialHash: string, availableHosts: string[], o
       versionOk: ready,
       available: ready,
       launcher: spec.launcher,
-      launcherArgv: spec.launcherArgv,
+      launcherArgv: ready ? concreteLauncherArgv(host) : spec.launcherArgv,
       launcherSupport: ready ? 'supported' : 'unverified',
       launcherOk: ready,
       executionReady: ready,

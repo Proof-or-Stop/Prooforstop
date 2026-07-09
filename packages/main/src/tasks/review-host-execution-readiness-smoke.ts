@@ -22,6 +22,7 @@ import type { ProcessEvent } from '../core/types.js';
 const STORY_ID = 'B-review-host-readiness';
 const MATERIAL = 'material-readiness-smoke';
 const STORY_FILES_HASH = 'story-files-readiness-smoke';
+const SMOKE_PROMPT = 'Reply READY and do not run tools.';
 
 let passed = 0;
 function check(name: string, fn: () => void): void {
@@ -134,6 +135,14 @@ function legacyVersionOnlyProbe(availableHosts: readonly CanonicalReviewHost[]):
   };
 }
 
+function concreteLauncherArgv(host: CanonicalReviewHost): string[] {
+  return canonicalReviewHostLauncherSpec(host).launcherArgv.map(arg => {
+    if (arg === '<prompt>') return SMOKE_PROMPT;
+    if (arg === '<prompt-file>') return join(tmpdir(), `review-host-readiness-${host}-prompt.txt`);
+    return arg;
+  });
+}
+
 function readinessRow(host: CanonicalReviewHost, ready: boolean, overrides: Record<string, unknown> = {}) {
   const spec = canonicalReviewHostLauncherSpec(host);
   return {
@@ -143,7 +152,7 @@ function readinessRow(host: CanonicalReviewHost, ready: boolean, overrides: Reco
     versionOk: ready,
     available: ready,
     launcher: spec.launcher,
-    launcherArgv: spec.launcherArgv,
+    launcherArgv: ready ? concreteLauncherArgv(host) : spec.launcherArgv,
     launcherSupport: ready ? 'supported' : 'unverified',
     launcherOk: ready,
     executionReady: ready,
@@ -333,6 +342,20 @@ try {
     const record = reviewHostAvailabilityProbeRecordFromEvent(event, 0, MATERIAL, STORY_FILES_HASH);
     assert.equal(record.valid, false);
     assert.match(record.reasons.join('\n'), /agy.*launcherArgv.*--prompt-file|agy.*launcher must/);
+  });
+
+  check('ready rows with placeholder launcher argv are rejected as non-executed evidence', () => {
+    const rows = [
+      readinessRow('codex', true, {
+        launcherArgv: canonicalReviewHostLauncherSpec('codex').launcherArgv,
+      }),
+      readinessRow('claude', false),
+      readinessRow('agy', false),
+    ];
+    const event = readinessProbe(rows);
+    const record = reviewHostAvailabilityProbeRecordFromEvent(event, 0, MATERIAL, STORY_FILES_HASH);
+    assert.equal(record.valid, false);
+    assert.match(record.reasons.join('\n'), /codex.*concrete executed argv|codex.*placeholders/);
   });
 
   check('v2 readiness probe may omit retired markers and still rejects forged marker values', () => {

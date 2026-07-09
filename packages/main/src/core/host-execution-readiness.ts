@@ -153,6 +153,10 @@ function launcherArgvPartMatchesCanonical(expected: string, actual: string | und
   return expected === actual;
 }
 
+export function launcherArgvHasPromptPlaceholder(argv: readonly string[]): boolean {
+  return argv.includes('<prompt>') || argv.includes('<prompt-file>');
+}
+
 export function launcherArgvMatchesCanonical(host: CanonicalReviewHost, argv: readonly string[]): boolean {
   const expected = canonicalReviewHostLauncherSpec(host).launcherArgv;
   return expected.length === argv.length && expected.every((part, index) => launcherArgvPartMatchesCanonical(part, argv[index]));

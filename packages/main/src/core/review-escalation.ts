@@ -36,6 +36,7 @@ import {
 import {
   canonicalReviewHostCommand,
   canonicalReviewHostLauncherSpec,
+  launcherArgvHasPromptPlaceholder,
   classifyReviewHostLauncher,
   probeHostExecutionReadiness,
   type HostExecutionFailureKind,
@@ -603,6 +604,9 @@ export function reviewHostAvailabilityProbeRecordFromEvent(
       const launcherClassification = classifyReviewHostLauncher(host, launcherArgv);
       if (!launcherClassification.launcherOk) {
         reasons.push(`hosts.${host}.launcherArgv is not canonical: ${launcherClassification.reasons.join('; ')}`);
+      }
+      if ((available === true || executionReady === true || reviewReady === true) && launcherArgvHasPromptPlaceholder(launcherArgv)) {
+        reasons.push(`hosts.${host}.launcherArgv must record concrete executed argv when available, executionReady, or reviewReady is true; placeholders are only valid for static launcher templates`);
       }
     }
     const expectedAvailable = Boolean(executablePath) && versionOk === true;
