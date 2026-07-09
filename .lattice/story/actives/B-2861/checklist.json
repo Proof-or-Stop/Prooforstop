@@ -163,8 +163,8 @@
       "relatedDocs": [
         "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-09T15:51:04.006Z",
       "endTime": null,
       "userSees": "User sees \"Optimization ledger complete for B-2861: findings are classified accept/reject/defer with evidence.\"",
       "files": {
@@ -415,6 +415,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Codex CLI, Claude Code CLI, and Antigravity CLI 3x2 review results are recorded in the B-2861 review ledger."
+    },
+    {
+      "timestamp": "2026-07-09T15:51:04.006Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Reconciling host findings into accepted, boundary, warning/deferred, and rejected outcomes."
     }
   ]
 }
