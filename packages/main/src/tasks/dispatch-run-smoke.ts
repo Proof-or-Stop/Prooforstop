@@ -253,8 +253,15 @@ function writeFakeCodexBinary(binDir: string): void {
     "const fs = require('node:fs');",
     'const argvFile = process.env.LATTICE_FAKE_CODEX_ARGV_FILE;',
     'if (!argvFile) process.exit(64);',
-    "fs.writeFileSync(argvFile, JSON.stringify(process.argv.slice(2)), 'utf8');",
-    "process.stdout.write(JSON.stringify({ model: 'fake-codex-model', usage: { prompt_tokens: 2, completion_tokens: 3 } }) + '\\n');",
+    'const stdinFile = process.env.LATTICE_FAKE_CODEX_STDIN_FILE;',
+    "let input = '';",
+    "process.stdin.setEncoding('utf8');",
+    "process.stdin.on('data', chunk => { input += chunk; });",
+    "process.stdin.on('end', () => {",
+    "  fs.writeFileSync(argvFile, JSON.stringify(process.argv.slice(2)), 'utf8');",
+    "  if (stdinFile) fs.writeFileSync(stdinFile, input, 'utf8');",
+    "  process.stdout.write(JSON.stringify({ model: 'fake-codex-model', usage: { prompt_tokens: 2, completion_tokens: 3 } }) + '\\n');",
+    '});',
   ].join('\n') + '\n', { encoding: 'utf8', mode: 0o755 });
 }
 
@@ -264,6 +271,7 @@ const externalDir = mkdtempSync(join(tmpdir(), 'lattice-dispatch-run-external-')
 const externalMarker = join(externalDir, 'blocked-by-symlink.txt');
 const fakeCodexBinDir = join(sandboxRoot, 'fake-codex-bin');
 const fakeCodexArgvFile = join(sandboxRoot, 'fake-codex-argv.json');
+const fakeCodexStdinFile = join(sandboxRoot, 'fake-codex-stdin.txt');
 const escapedHostRuntimeListOutput = resolve(root, '../escape.json');
 const escapedDispatchPlanOutput = resolve(root, '../../escape.json');
 const outputSymlinkEscapeMarker = join(externalDir, 'nested/output-symlink-escape.json');
@@ -1129,15 +1137,18 @@ try {
 
     const savedPath = process.env.PATH;
     const savedArgvFile = process.env.LATTICE_FAKE_CODEX_ARGV_FILE;
+    const savedStdinFile = process.env.LATTICE_FAKE_CODEX_STDIN_FILE;
     try {
       process.env.PATH = `${fakeCodexBinDir}${delimiter}${savedPath ?? ''}`;
       process.env.LATTICE_FAKE_CODEX_ARGV_FILE = fakeCodexArgvFile;
+      process.env.LATTICE_FAKE_CODEX_STDIN_FILE = fakeCodexStdinFile;
       rmSync(fakeCodexArgvFile, { force: true });
+      rmSync(fakeCodexStdinFile, { force: true });
       const codexPromptReady = run<DispatchRecord>('dispatch_prepare', {
         storyId: 'B-dispatch',
         dispatchId: 'D-real-host-codex-prompt-argv',
         host: 'codex',
-        objective: 'REAL_PROMPT_SENTINEL_123 must reach the spawned codex argv as prompt contents.',
+        objective: 'REAL_PROMPT_SENTINEL_123 must reach spawned codex stdin, not argv.',
         allowedPaths: ['packages/main/src/generated/real-host-codex-prompt-argv.txt'],
       });
       const codexPromptText = readFileSync(join(root, codexPromptReady.promptFile), 'utf8');
@@ -1146,7 +1157,7 @@ try {
         dispatchId: codexPromptReady.dispatchId,
         allowRealHostSubprocess: true,
         executionPolicy: {
-          envAllowlist: ['LATTICE_FAKE_CODEX_ARGV_FILE'],
+          envAllowlist: ['LATTICE_FAKE_CODEX_ARGV_FILE', 'LATTICE_FAKE_CODEX_STDIN_FILE'],
           envDenylist: [],
           commandAllowlist: [],
           maxRuntimeMs: 5000,
@@ -1157,13 +1168,19 @@ try {
       const spawnedArgv = JSON.parse(readFileSync(fakeCodexArgvFile, 'utf8')) as string[];
       assert.equal(spawnedArgv.includes('<prompt>'), false, 'spawned codex argv must not receive literal <prompt>');
       assert.equal(spawnedArgv.includes('<prompt-file>'), false, 'spawned codex argv must not receive literal <prompt-file>');
-      assert.ok(spawnedArgv.includes(codexPromptText), 'spawned codex argv must receive the prompt file contents as one argv item');
-      assert.ok(spawnedArgv.some(arg => /REAL_PROMPT_SENTINEL_123/.test(arg)), 'spawned codex argv must include the story prompt content');
+      assert.ok(spawnedArgv.includes('-'), 'spawned codex argv must request stdin prompt mode');
+      assert.equal(spawnedArgv.includes(codexPromptText), false, 'spawned codex argv must not receive prompt contents as an argv item');
+      assert.equal(spawnedArgv.some(arg => /REAL_PROMPT_SENTINEL_123/.test(arg)), false, 'spawned codex argv must not include story prompt content');
+      const spawnedStdin = readFileSync(fakeCodexStdinFile, 'utf8');
+      assert.equal(spawnedStdin, codexPromptText, 'spawned codex stdin must receive the prompt file contents');
+      assert.match(spawnedStdin, /REAL_PROMPT_SENTINEL_123/, 'spawned codex stdin must include the story prompt content');
     } finally {
       if (savedPath === undefined) delete process.env.PATH;
       else process.env.PATH = savedPath;
       if (savedArgvFile === undefined) delete process.env.LATTICE_FAKE_CODEX_ARGV_FILE;
       else process.env.LATTICE_FAKE_CODEX_ARGV_FILE = savedArgvFile;
+      if (savedStdinFile === undefined) delete process.env.LATTICE_FAKE_CODEX_STDIN_FILE;
+      else process.env.LATTICE_FAKE_CODEX_STDIN_FILE = savedStdinFile;
     }
 
     const realHostSymlinkEscape = run<DispatchRecord>('dispatch_prepare', {

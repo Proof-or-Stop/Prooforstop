@@ -385,7 +385,7 @@ async function main(): Promise<void> {
   // CHK-003/CHK-004: shouldBlockDispatch + recordBudgetBlock 4-quadrant logic
   // ======================================================================
   await check('CHK-004 QUADRANT A: ledger OFF -> spawn args stay canonical observable stream-json', () => {
-    assert.deepEqual(buildClaudeSpawnArgs('<prompt-file>', false), [...EXPECTED_CLAUDE_SPAWN_ARGS]);
+    assert.deepEqual(buildClaudeSpawnArgs('<prompt-file>'), [...EXPECTED_CLAUDE_SPAWN_ARGS]);
     // shouldBlockDispatch with enabled=false never blocks and never reads a budget.
     const d = shouldBlockDispatch(false, { LATTICE_HARD_BUDGET_TOKENS: '1' }, 999999);
     assert.equal(d.block, false);
@@ -393,7 +393,7 @@ async function main(): Promise<void> {
   });
 
   await check('CHK-004 A-vs-B spawn-args parity: ledger ON uses same canonical launcher', () => {
-    assert.deepEqual(buildClaudeSpawnArgs('<prompt-file>', true), [...EXPECTED_CLAUDE_SPAWN_ARGS]);
+    assert.deepEqual(buildClaudeSpawnArgs('<prompt-file>'), [...EXPECTED_CLAUDE_SPAWN_ARGS]);
   });
 
   await check('CHK-004 QUADRANT B: ON + no budget env -> proceeds, budget null, no record', () => {

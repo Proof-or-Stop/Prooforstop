@@ -16,7 +16,7 @@
  *     the whole pipeline is a strict no-op — appendUsageRecord writes nothing and
  *     creates no file/dir, recordDispatchPreflight returns null, recordDispatchFinal
  *     writes nothing, recordBudgetBlock is inert (no block) even with a budget set,
- *     and buildClaudeSpawnArgs(file,false) preserves the canonical observable
+ *     and buildClaudeSpawnArgs(file) preserves the canonical observable
  *     stream-json launcher. A stale legacy alias=0 no longer triggers the no-op
  *     (default-ON wins).
  *   - CHK-003 default-on safety: with the env UNSET, isUsageLedgerEnabled() is true,
@@ -241,8 +241,8 @@ try {
     assert.equal(existsSync(resolveLedgerPath(sub)), false);
   });
 
-  check('CHK-002 =0 => buildClaudeSpawnArgs(prompt,false) preserves canonical observable/bounded launcher', () => {
-    assert.deepEqual(buildClaudeSpawnArgs('<prompt-file>', false), [...EXPECTED_CLAUDE_SPAWN_ARGS]);
+  check('CHK-002 =0 => buildClaudeSpawnArgs(prompt) preserves canonical observable/bounded launcher', () => {
+    assert.deepEqual(buildClaudeSpawnArgs('<prompt-file>'), [...EXPECTED_CLAUDE_SPAWN_ARGS]);
   });
 
   check('CHK-002 =0 => recordDispatchPreflight returns null, writes nothing', () => {
@@ -354,8 +354,8 @@ try {
     });
   });
 
-  check('CHK-003 ON path: buildClaudeSpawnArgs(prompt,true) uses same canonical observable/bounded launcher', () => {
-    assert.deepEqual(buildClaudeSpawnArgs('<prompt-file>', true), [...EXPECTED_CLAUDE_SPAWN_ARGS]);
+  check('CHK-003 ON path: buildClaudeSpawnArgs(prompt) uses same canonical observable/bounded launcher', () => {
+    assert.deepEqual(buildClaudeSpawnArgs('<prompt-file>'), [...EXPECTED_CLAUDE_SPAWN_ARGS]);
   });
 
   check('CHK-003 parse: valid JSON envelope => resultText + anthropicUsage + model', () => {

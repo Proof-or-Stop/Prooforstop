@@ -1594,14 +1594,16 @@ function renderRuntimeInvocationTemplate(
   opts: {
     promptFile: string;
     worktreePath: string;
-    promptMode: 'contents' | 'reference';
+    promptMode: 'contents' | 'reference' | 'stdin';
   },
 ): string[] {
   const parts = template ?? [];
   const needsPromptContents = parts.includes('<prompt>') && opts.promptMode === 'contents';
   const promptReplacement = opts.promptMode === 'contents'
     ? needsPromptContents ? readFileSync(opts.promptFile, 'utf8') : ''
-    : `[prompt contents from ${opts.promptFile}]`;
+    : opts.promptMode === 'stdin'
+      ? '-'
+      : `[prompt contents from ${opts.promptFile}]`;
   return parts.map(part => {
     if (part === '<prompt>') return promptReplacement;
     if (part === '<prompt-file>') return opts.promptFile;
@@ -2228,8 +2230,7 @@ const DISPATCH_LEDGER_ESTIMATE_MODEL = 'claude-code';
  * launcher carries a `<prompt-file>` placeholder, and real dispatch renders that
  * placeholder to the prompt file path.
  */
-export function buildClaudeSpawnArgs(promptFile: string, ledgerOn: boolean): string[] {
-  void ledgerOn;
+export function buildClaudeSpawnArgs(promptFile: string): string[] {
   return canonicalReviewHostLauncherSpec('claude').launcherArgv
     .slice(1)
     .map(arg => arg === '<prompt>' || arg === '<prompt-file>' ? promptFile : arg);
@@ -2316,10 +2317,12 @@ function runBoundedRealLeafDispatch(
   const promptFile = resolve(root, record.promptFile);
   const transcriptPath = resolve(root, record.transcriptFile);
   const worktreeAbs = resolve(root, record.worktree.worktreePath);
+  const usesPromptStdin = hostKind === 'codex' && (runtime.invocationTemplate ?? []).includes('<prompt>');
+  const promptStdin = usesPromptStdin ? readFileSync(promptFile, 'utf8') : undefined;
   const invocation = renderRuntimeInvocationTemplate(runtime.invocationTemplate, {
     promptFile,
     worktreePath: record.worktree.worktreePath,
-    promptMode: 'contents',
+    promptMode: usesPromptStdin ? 'stdin' : 'reference',
   });
   const argv = invocation.length > 1 ? invocation.slice(1) : [];
   const timeoutMs = Math.ceil(executionPolicy.maxRuntimeMs);
@@ -2357,7 +2360,7 @@ function runBoundedRealLeafDispatch(
   let ledgerHandle: ReturnType<typeof recordDispatchPreflight> = null;
   if (ledgerOn) {
     try {
-      const promptText = readFileSync(promptFile, 'utf8');
+      const promptText = promptStdin ?? readFileSync(promptFile, 'utf8');
       ledgerHandle = recordDispatchPreflight(root, ledgerCtx, promptText, ledgerOpts);
     } catch (error) {
       appendTranscript(transcriptPath, [
@@ -2373,6 +2376,7 @@ function runBoundedRealLeafDispatch(
     timeoutMs,
     maxAttempts: 1,
     env: providerEnv,
+    ...(promptStdin !== undefined ? { stdin: promptStdin } : {}),
   });
 
   if (ledgerOn) {
@@ -2397,14 +2401,20 @@ function runBoundedRealLeafDispatch(
   const endedAt = nowIso();
   appendTranscript(transcriptPath, [
     `[${startedAt}] ${hostKind} real subprocess started (worktree ${record.worktree.worktreePath})`,
+    ...(promptStdin !== undefined ? [`[${startedAt}] prompt delivered via stdin from ${promptFile}`] : []),
     `[${endedAt}] exitCode=${result.exitCode ?? 'null'} durationMs=${result.durationMs} spawnError=${result.spawnError} timedOut=${result.timedOut}`,
   ]);
   const status: DispatchLifecycleStatus = result.exitCode === 0 && !result.spawnError && !result.timedOut
     ? 'accepted_local'
     : 'diagnostic';
+  const spawnFailureHint = result.spawnErrorKind === 'argv_too_large'
+    ? ' (spawn failed: argv_too_large; use stdin or prompt-file rendering for large prompts)'
+    : result.spawnErrorKind
+      ? ` (spawn failed: ${result.spawnErrorKind}${result.spawnErrorCode ? `/${result.spawnErrorCode}` : ''})`
+      : '';
   const nextAction = status === 'accepted_local'
     ? `${hostKind} real subprocess completed cleanly in ${record.worktree.worktreePath}. Review the transcript before merge planning.`
-    : `${hostKind} real subprocess returned exitCode=${result.exitCode ?? 'null'}. Review the transcript and decide whether to retry or escalate.`;
+    : `${hostKind} real subprocess returned exitCode=${result.exitCode ?? 'null'}${spawnFailureHint}. Review the transcript and decide whether to retry or escalate.`;
   const updated = writeRecord(root, {
     ...record,
     status,
@@ -2557,7 +2567,7 @@ function runClaudeCodeRealLeafDispatch(
     }
   }
 
-  const spawnArgs = buildClaudeSpawnArgs(promptFile, ledgerOn);
+  const spawnArgs = buildClaudeSpawnArgs(promptFile);
   const displayInvocation = renderRuntimeInvocationTemplate(commandTemplate, {
     promptFile,
     worktreePath: record.worktree.worktreePath,

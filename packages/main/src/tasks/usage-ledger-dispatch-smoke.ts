@@ -453,13 +453,8 @@ async function main(): Promise<void> {
   // ======================================================================
   // CHK-004: regression safety (canonical observable arg shape + parse fallback)
   // ======================================================================
-  await check('CHK-004 OFF: buildClaudeSpawnArgs(prompt,false) preserves canonical observable/bounded launcher', () => {
-    const args = buildClaudeSpawnArgs('<prompt-file>', false);
-    assert.deepEqual(args, [...EXPECTED_CLAUDE_SPAWN_ARGS]);
-  });
-
-  await check('CHK-004 ON: buildClaudeSpawnArgs(prompt,true) uses same canonical observable/bounded launcher', () => {
-    const args = buildClaudeSpawnArgs('<prompt-file>', true);
+  await check('CHK-004: buildClaudeSpawnArgs(prompt) preserves canonical observable/bounded launcher', () => {
+    const args = buildClaudeSpawnArgs('<prompt-file>');
     assert.deepEqual(args, [...EXPECTED_CLAUDE_SPAWN_ARGS]);
   });
 

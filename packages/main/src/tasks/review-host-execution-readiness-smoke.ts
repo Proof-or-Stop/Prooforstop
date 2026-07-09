@@ -165,6 +165,18 @@ try {
     assert.equal(wrong.launcherSupport, 'wrong_launcher');
     assert.equal(wrong.failureKind, 'wrong_launcher');
     assert.match(wrong.reasons.join('\n'), /--prompt-file/);
+
+    const observed = classifyHostExecutionReadiness({
+      host: 'agy',
+      executablePath: '/fake/bin/agy',
+      versionOk: true,
+      durationMs: 12,
+      observedLauncherArgv: ['agy', '--prompt-file', '<prompt-file>'],
+    });
+    assert.equal(observed.launcherOk, false);
+    assert.equal(observed.launcherSupport, 'wrong_launcher');
+    assert.equal(observed.failureKind, 'wrong_launcher');
+    assert.deepEqual(observed.launcherArgv, ['agy', '--prompt-file', '<prompt-file>']);
   });
 
   check('codex exec auth/token invalidation is not review-ready', () => {

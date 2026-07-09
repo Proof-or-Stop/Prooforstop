@@ -267,15 +267,17 @@ export function classifyHostExecutionReadiness(args: {
   exitCode?: number;
   timedOut?: boolean;
   outputBytes?: number;
+  observedLauncherArgv?: string[];
 }): HostExecutionReadinessProbe {
   const spec = canonicalReviewHostLauncherSpec(args.host);
-  const launcher = classifyReviewHostLauncher(args.host, spec.launcherArgv);
+  const launcherArgv = args.observedLauncherArgv ?? spec.launcherArgv;
+  const launcher = classifyReviewHostLauncher(args.host, launcherArgv);
   const durationMs = Math.max(0, Math.floor(args.durationMs));
 
   if (!args.executablePath) {
     return {
       launcher: spec.launcher,
-      launcherArgv: spec.launcherArgv,
+      launcherArgv,
       launcherSupport: 'unverified',
       launcherOk: launcher.launcherOk,
       executionReady: false,
@@ -290,7 +292,7 @@ export function classifyHostExecutionReadiness(args: {
   if (!args.versionOk) {
     return {
       launcher: spec.launcher,
-      launcherArgv: spec.launcherArgv,
+      launcherArgv,
       launcherSupport: 'unverified',
       launcherOk: launcher.launcherOk,
       executionReady: false,
@@ -305,7 +307,7 @@ export function classifyHostExecutionReadiness(args: {
   if (!launcher.launcherOk) {
     return {
       launcher: spec.launcher,
-      launcherArgv: spec.launcherArgv,
+      launcherArgv,
       launcherSupport: launcher.launcherSupport,
       launcherOk: false,
       executionReady: false,
@@ -325,7 +327,7 @@ export function classifyHostExecutionReadiness(args: {
   const outputBytes = args.outputBytes ?? (args.result ? outputByteCount(args.result) : undefined);
   return {
     launcher: spec.launcher,
-    launcherArgv: spec.launcherArgv,
+    launcherArgv,
     launcherSupport,
     launcherOk: launcherSupport === 'supported',
     executionReady,
