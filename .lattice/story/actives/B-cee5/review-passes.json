@@ -44,6 +44,15 @@
       "reviewRound": "2026-07-09T17:28:18.626Z",
       "reviewRunId": "B-cee5:RR-009",
       "_hash": "5c798e6eb9daa4dcca092dd7e0e3229ae52d6b124133c7a46b68393a15bb57c7"
+    },
+    {
+      "id": "B-cee5:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Round-3 incremental: delta is solely packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts (F-005 fix - escalationConditioningPattern tightened to 3 strict idioms, loose only-with branch removed, new hostileProximity positive control added, comments extended). Confirmed via git diff HEAD~1 (non-.lattice) that no prompt copies or docs changed - the 6 guarded prompt files are byte-identical to prior commit (RP-003 baseline stands, cited not re-swept). Grepped repo for retired loose regex fragment only with(?: a| an)? [^.;]*scanEscalationReason: sole hit is in findings.json historical F-003-follow-up record (expected audit history), zero residue in active code/prompt surfaces. Remaining only with occurrences in the .ts file are intentional quoted test fixtures (pre-existing escalation positive control + new hostile positive control), not reintroduced unconditional-full-scan prose. Rebuilt dist and reran node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js: PASS (6 prompt copies clean, 4 required phrases present), exit 0. No blocker.",
+      "createdAt": "2026-07-09T17:36:26.383Z",
+      "reviewRound": "2026-07-09T17:34:47.565Z",
+      "reviewRunId": "B-cee5:RR-010",
+      "_hash": "3ec6e7a27a41cebaddef36957ef29673d9621c0ec0b7cef04a84291dddc1055c"
     }
   ]
 }
