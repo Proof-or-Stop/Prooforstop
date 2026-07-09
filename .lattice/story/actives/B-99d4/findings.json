@@ -1,0 +1,23 @@
+{
+  "findings": [
+    {
+      "id": "B-99d4:F-001",
+      "desc": "CHK-001:happy:0 and userSees require dispatch_reassign with the explicit worker role `lattice-implementer`, but the smoke evidence in packages/main/src/tasks/dispatch-run-smoke.ts uses and asserts `implementation-worker` instead (lines 767, 774, 784, 793). This proves generic role propagation but does not cover the canonical/user-visible role named in the verificationIntent, so the claimed coverage for explicit worker-role reassignment is incomplete.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-09T03:05:53.514Z",
+      "reviewRound": "2026-07-09T03:02:35.460Z",
+      "reviewRunId": "B-99d4:RR-002",
+      "_hash": "04471e82c3f9ee088a1dc8a5ab9830285a6275462ececf7e780b555b639fff09",
+      "files": [
+        "packages/main/src/tasks/dispatch-run-smoke.ts",
+        "packages/main/src/cli/command-catalog.ts"
+      ],
+      "signatureTag": "missing|ts|happy-usersees-require",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
