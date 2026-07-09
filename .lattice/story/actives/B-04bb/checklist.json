@@ -37,7 +37,20 @@
         ],
         "create": [],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "git diff main -- lattice.config.json",
+          "result": "pass",
+          "note": "Diff vs main shows exactly one added line in validate.commands: \"node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js\" inserted directly after the retired-authority-vocabulary-guard-smoke.js entry; 1 file changed, 1 insertion(+), no other material change.",
+          "headHash": "96861161f1e6140df5a2c1058edacf62da71b361",
+          "materialHash": "33062d79ff0dbeed0ef9e397a6efa3be0a230aad003b0f0098f716ed24eca0ab",
+          "storyFilesHash": "b7cbe8d4cfb05adacb9fc73d90113f490e2353518ea450b039541ce3adc8f1af",
+          "timestamp": "2026-07-09T19:19:31.904Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
