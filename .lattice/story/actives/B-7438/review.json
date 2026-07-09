@@ -48,6 +48,44 @@
         }
       ],
       "_hash": "114e575f58421c7c3a8b6d57d78d66aff0858dc406db20200bfdac57a4a41b67"
+    },
+    {
+      "timestamp": "2026-07-09T11:16:58.435Z",
+      "issueCount": 6,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Record fresh canonical host availability evidence for review fallback decisions + Reject single-host degraded fallback when fresh host proof shows two or more hosts available are performed simultaneously?)"
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_original_intent_snapshot: Intent MVP requires original_intent_snapshot_set with sourceText, normalizedOutcome, and acceptanceClaim. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_intent_collision: Intent collision is triggered but no pass decision with acceptedInterpretation is present. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_red_evidence: Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "scope_orphan_suspect",
+          "severity": "advisory",
+          "message": "scope feature Temporary host unavailability for an executable host with auth, quota, outage, or rate-limit failure has an ambiguous coverage boundary under the proposed path/version probe. orphan-suspect: see docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md; .lattice/story/actives/B-7438/plan.md#CHK-001-CHK-002 is not covered by any CHK but is not explicitly excluded, please confirm"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-7438 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "82be089027b7f05baf7d53e79129e64a1db4896e9cae0d0c1a2ec4b2ac37597b"
     }
   ]
 }
