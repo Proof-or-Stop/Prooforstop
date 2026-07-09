@@ -77,8 +77,24 @@
         "root_test_chain",
         "temporary_host_unavailability"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Vocabulary guard smoke needed a narrow quarantine update so the new host-availability probe can keep retired completion wording out of active code while allowing legacy fixture text.",
+      "timestamp": "2026-07-09T12:13:07.893Z",
+      "paths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "eec0ec1801144ec56437a44292ed0048e5a528b7",
+      "materialHash": "ef40ac96cec58c99a62a7de9c15790f78bdb35428cc3ca38e00c1f947078bced"
     }
   ],
   "createdAt": "2026-07-09T11:40:58.810Z",
-  "updatedAt": "2026-07-09T11:56:07.217Z"
+  "updatedAt": "2026-07-09T12:13:07.893Z"
 }
