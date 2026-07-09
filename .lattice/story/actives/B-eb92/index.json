@@ -4,7 +4,7 @@
   "title": "Surface review assurance requirements before DONE closeout",
   "description": "Implement M3-M4 from docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md: expose review-assurance requirements from the canonical gate predicate before DONE, and classify done_prepare blockers with safe legal next commands.",
   "type": "bug",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "source": "user-request-2026-07-09",
   "depends": [
@@ -24,7 +24,7 @@
   ],
   "createdAt": "2026-07-09T01:28:12.311Z",
   "startedAt": "2026-07-09T01:28:12.311Z",
-  "endedAt": null,
+  "endedAt": "2026-07-09T13:06:22.428Z",
   "events": [
     {
       "phase": "INIT",
@@ -169,12 +169,16 @@
       "user": "Harmonygo",
       "sessionId": "sess-0ea50cb33fc3a805",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-09T13:06:22.428Z",
+      "branch": "story/B-eb92",
+      "user": "Harmonygo",
+      "sessionId": "sess-0ea50cb33fc3a805",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-eb92",
-    "branch": "story/B-eb92",
-    "createdAt": "2026-07-09T10:55:56.719Z"
-  },
   "currentReviewRound": "2026-07-09T12:51:46.245Z"
 }

@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "proofbound.milestone_closeout.v1",
+  "storyId": "B-eb92",
+  "phase": "TEST",
+  "generatedAt": "2026-07-09T13:06:22.428Z",
+  "sourceReport": {
+    "schemaVersion": "proofbound.milestone_status.v1",
+    "digest": "5367a6a4dfaf40c4565e76325d13f4cb04f566b0375fd15657370265d0851dc0",
+    "ledger": {
+      "present": true,
+      "state": "confirmed",
+      "hash": "sha256:3188c3432f939c5d24e3c6e2c9284052b10ab747c0413ed447c494d43cbee4e4"
+    },
+    "groups": {
+      "completed": [
+        "M3",
+        "M4"
+      ],
+      "current": [],
+      "remaining": []
+    },
+    "risks": [],
+    "nextActions": [
+      "No milestone action; all ledger rows are completed or not applicable."
+    ]
+  },
+  "bindings": {
+    "headHash": "23ddc0fe2cd247a10ef6883ed153b3f95130b203",
+    "materialHash": "14b25b78b06ec2e992b9eae4d558932522fbaa29fdac27135546a24395b06bec",
+    "storyFilesHash": "d1823d28861a8bb6d5508e5caa2f2eb356ad5f61e204428e6f651c1ababe9989"
+  },
+  "rows": [
+    {
+      "milestone": "M3",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Review-assurance requirements are surfaced before DONE from the canonical gate predicate.",
+      "acceptance": "Required surfaces show reason code, current material binding, legal writer, and fallback eligibility without changing gate criteria.",
+      "evidence": [
+        "CHK-001:happy:0 [pass/logic_test] npm --prefix packages/main run test:review-assurance-surfacing-smoke file=packages/main/src/tasks/review-assurance-surfacing-smoke.ts note=Smoke fixture asserts canonical review-assurance guidance before DONE, including reasonCode, current material/story binding, fallback eligibility, legal writer paths, and cannot-auto-sign warning.",
+        "CHK-002:happy:0 [pass/manual_transcript] npm --prefix packages/main run test:review-assurance-surfacing-smoke file=packages/main/src/tasks/review-assurance-surfacing-smoke.ts note=Smoke covers lifecycle readiness, review_escalation_status, TEST next-step advisory, and done_prepare dryRun surfacing of the triggered review-assurance requirement.",
+        "CHK-002:adversarial:0 [pass/manual_transcript] npm run test:process-fact-contract && npm --prefix packages/main run test:runtime-fact-contract && npm --prefix packages/main run test:review-assurance-surfacing-smoke file=packages/main/src/tasks/review-assurance-surfacing-smoke.ts note=Process fact contract, runtime fact contract, and smoke passed; review_escalation_status JSON and done_prepare JSON remain structured and parseable with guidance in structured fields/transcript."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M4",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "done_prepare blockers are actionable and safe.",
+      "acceptance": "Blockers are grouped by operator action and cannot suggest auto-signing or unrelated commits.",
+      "evidence": [
+        "CHK-003:happy:0 [pass/manual_transcript] npm --prefix packages/main run test:review-assurance-surfacing-smoke file=packages/main/src/tasks/review-assurance-surfacing-smoke.ts note=Smoke asserts done_prepare classifies review-assurance blockers, prints required gate reason codes, owner-runnable commands, reviewer/host writer paths, fallback writer paths, warnings, and canonical guidance.",
+        "CHK-003:adversarial:0 [pass/logic_test] npm --prefix packages/main run test:review-assurance-surfacing-smoke file=packages/main/src/tasks/review-assurance-surfacing-smoke.ts note=Smoke asserts cannot-auto-sign guidance appears for reviewer evidence, host verdicts, delivery checks, and degraded fallback evidence, while legal writer paths remain explicitly non-owner."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    }
+  ]
+}
