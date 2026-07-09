@@ -1,0 +1,81 @@
+{
+  "principles": [
+    "Every runtime-changing DONE completion site must pass through the same semver finalization contract.",
+    "Version state must be structurally synchronized, including lockfiles, before build or user-visible version checks are trusted.",
+    "Recovery must be idempotent and loud on failure; no silent skip when runtimeSemverChanged is true.",
+    "Do not broaden local version finalization into remote publish or product capability semver.",
+    "Keep the patch focused enough that existing DONE/recovery behavior and ledgers remain stable."
+  ],
+  "drivers": [
+    "B-90d6 proved runtime changes can reach main without a new consumable version if finalization is bypassed.",
+    "Existing normal DONE path already has a bump hook; done_recover is the immediate missing completion site.",
+    "The current lockfile drift shows the three-point sync model is narrower than the documented version discipline."
+  ],
+  "options": [
+    {
+      "name": "A: Minimal finalizer parity plus lockfile sync",
+      "pros": [
+        "Adds bumpVersionOnDoneMerge to done_recover before build with the existing changed-path predicate.",
+        "Extends the existing version-bump module instead of inventing a release manager.",
+        "Keeps remote release/publish unchanged and human-approved."
+      ],
+      "cons": [
+        "Manual git fast-forward outside Lattice still cannot be fully prevented by this patch alone.",
+        "The first DONE of this story may need local CLI/dist awareness so the new lockfile-sync bump code is what runs."
+      ]
+    },
+    {
+      "name": "B: New global release manager and DONE gate",
+      "pros": [
+        "Could enforce every possible manual recovery path and centralize release policy.",
+        "Could add richer user prompts for defer/bump decisions."
+      ],
+      "cons": [
+        "Much larger scope than the observed bug.",
+        "Higher risk of changing package semver and capability release semantics together.",
+        "Would delay the immediate B-90d6 version repair."
+      ]
+    },
+    {
+      "name": "C: Only manually bump B-90d6 to 0.3.171",
+      "pros": [
+        "Fastest visible repair for the current version number.",
+        "No lifecycle code risk."
+      ],
+      "cons": [
+        "Leaves done_recover able to miss future bumps.",
+        "Leaves lockfile sync bug intact.",
+        "Would not satisfy the mechanism issue the user asked to inspect and fix."
+      ]
+    }
+  ],
+  "chosen": "A: Minimal finalizer parity plus lockfile sync",
+  "rationale": "Choose the smallest mechanism repair that directly closes the observed bug class: done_recover gets the same bump finalizer as normal DONE, the bump finalizer synchronizes lockfiles, and tests pin both behaviors without changing remote release policy.",
+  "preMortem": [
+    {
+      "scenario": "done_recover bump runs after build or not at all",
+      "trigger": "The patch adds bump code in the wrong order or only updates tests.",
+      "consequence": "Recovered runtime-changing stories can still finish with stale lattice --version.",
+      "mitigation": "Place bumpVersionOnDoneMerge immediately after changedPaths/runtimeSemverChanged calculation and before runDoneMainPackageBuildAfterMerge; assert output order in smoke."
+    },
+    {
+      "scenario": "Lockfiles remain stale after auto bump",
+      "trigger": "VERSION_SYNC_PATHS excludes package-lock files or smoke fixture does not model them.",
+      "consequence": "Package metadata looks bumped but install/release tooling still sees old versions.",
+      "mitigation": "Add lockfiles to VERSION_SYNC_FILES/VERSION_SYNC_PATHS, read/verify their versions, and extend version-bump-smoke fixtures and assertions."
+    },
+    {
+      "scenario": "Story DONE uses old global dist and misses the new lockfile-sync behavior",
+      "trigger": "Self-hosted global lattice binary points at main dist before this story merges.",
+      "consequence": "Final state after DONE has package/brand at 0.3.171 but lockfiles stale.",
+      "mitigation": "Build the story worktree and, if needed for DONE, run the worktree dist CLI so the new finalizer performs the merge/bump; verify final version sync afterward."
+    },
+    {
+      "scenario": "Repair accidentally publishes remotely",
+      "trigger": "Release scripts or git push are folded into the fix.",
+      "consequence": "Local story work leaks to origin without human release approval.",
+      "mitigation": "Do not run git push, npm publish, or scripts/release.mjs publish; verification explicitly checks local-only behavior."
+    }
+  ],
+  "timestamp": "2026-07-09T00:49:55.614Z"
+}
