@@ -134,6 +134,15 @@
       "reviewRound": "2026-07-09T21:56:08.141Z",
       "reviewRunId": "B-d8ef:RR-034",
       "_hash": "d5583122a63097d54835e787354b8fcc839ff5158bbef8f94e1a2f11edf5900c"
+    },
+    {
+      "id": "B-d8ef:RP-016",
+      "agent": "lattice-review-concept",
+      "note": "PASS: external concept review confirmed F-010/F-011 are fixed. Readiness probe substitutes placeholders before spawn and records observed executed argv; validation rejects <prompt>/<prompt-file> placeholders for available/executionReady/reviewReady rows while keeping static templates valid; readiness evidence persists only bounded metadata, not raw stdout/stderr/provider text. Smoke execution was sandbox-limited for Codex, but code/diff inspection found no blocker.",
+      "createdAt": "2026-07-09T22:03:52.183Z",
+      "reviewRound": "2026-07-09T21:56:08.141Z",
+      "reviewRunId": "B-d8ef:RR-035",
+      "_hash": "cc58f22e6e51d307e4471a07b8043d10c7d29203ef39112af439fa64bb78679b"
     }
   ]
 }
