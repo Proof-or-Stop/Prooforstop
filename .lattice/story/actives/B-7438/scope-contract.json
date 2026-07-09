@@ -23,7 +23,39 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Required for B-7438: ProofStory DEV gate artifacts are story-owned lifecycle evidence, and command-policy/types changes are necessary to expose and govern the new review_host_availability_probe process event and command.",
+      "timestamp": "2026-07-09T11:41:47.507Z",
+      "paths": [
+        ".lattice/story/actives/B-7438/intent-collision.json",
+        ".lattice/story/actives/B-7438/original-intent-snapshot.json",
+        ".lattice/story/actives/B-7438/proofstory.json",
+        ".lattice/story/actives/B-7438/red-evidence.json",
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/core/types.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-7438/intent-collision.json",
+        ".lattice/story/actives/B-7438/original-intent-snapshot.json",
+        ".lattice/story/actives/B-7438/proofstory.json",
+        ".lattice/story/actives/B-7438/red-evidence.json",
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/core/types.ts"
+      ],
+      "affectedPathCount": 6,
+      "phase": "DEV",
+      "headHash": "5b2f136796cc2194e34d4c93f6bd5b171adfdec3",
+      "materialHash": "d81e995a0432caafa72e67803bb5cdbcff58bd87cd6164817bd3ae1af8192361",
+      "anchors": [
+        "review_host_availability_probe",
+        "review_escalation_fallback_set",
+        "proofstory_dev_evidence"
+      ]
+    }
+  ],
   "createdAt": "2026-07-09T11:40:58.810Z",
-  "updatedAt": "2026-07-09T11:40:58.810Z"
+  "updatedAt": "2026-07-09T11:41:47.507Z"
 }
