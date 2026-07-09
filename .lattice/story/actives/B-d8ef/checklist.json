@@ -80,6 +80,29 @@
           "packages/main/src/tasks/review-assurance-floor-smoke.ts",
           "packages/main/src/tasks/dispatch-run-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Non-human degraded fallback accepts only when a fresh current-material probe shows reviewReadyHostCount below two and records lower assurance diagnostics.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Legacy B-7438-style probes without readiness fields do not silently satisfy review-ready proof for non-human degraded fallback; diagnostics explain to rerun the stronger probe or use explicit-human-approval.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "If two or more canonical hosts are review-ready, single-host-environment and temporary-host-unavailability fallback are refused even when version-only availability data or prose evidenceRefs claim otherwise.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
