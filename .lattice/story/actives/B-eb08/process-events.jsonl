@@ -28,3 +28,4 @@
 {"type":"review_pass","storyId":"B-eb08","command":"review_pass_set","role":"reviewer","agent":"lattice-review-quality","result":"pass","reviewPassId":"B-eb08:RP-013","timestamp":"2026-07-09T03:11:10.467Z"}
 {"type":"dispatch","storyId":"B-eb08","phase":"DEV","source":"lattice dispatch","targetKind":"finding","agentType":"lattice-implementer","findingId":"B-eb08:F-006","timestamp":"2026-07-09T03:11:59.571Z"}
 {"type":"reviewer_finding","storyId":"B-eb08","command":"finding_add","role":"reviewer","agent":"lattice-review-quality","result":"pass","findingId":"B-eb08:F-007","severity":"high","missingAttribution":false,"timestamp":"2026-07-09T03:12:24.784Z"}
+{"type":"dirty_gate_audit","storyId":"B-eb08","gate":"validate-side-effect","category":"lattice_metadata_changes","pathCount":1,"paths":[".lattice/story/actives/B-eb08/review-runs.json"],"reason":"lattice-owned story metadata; auto-committed by B-3506 helper","timestamp":"2026-07-09T03:16:14.612Z"}
