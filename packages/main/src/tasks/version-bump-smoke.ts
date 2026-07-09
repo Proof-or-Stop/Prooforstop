@@ -175,6 +175,18 @@ void (async () => {
     check('chore:bump commit was issued', gitCalls.some((c) => c.args.includes('commit') && c.args.some((a) => a === 'chore: bump lattice cli to 0.9.10')));
     check('git ran in the main merge root', gitCalls.every((c) => c.cwd === f6));
 
+    const f6pre = fixture('0.9.10');
+    let preBumpedGitCalls = 0;
+    const preBumpedLine = bumpVersionOnDoneMerge({
+      mainMergeRoot: f6pre,
+      shouldBump: true,
+      preMergeVersion: '0.9.9',
+      runGit: () => { preBumpedGitCalls += 1; return ''; },
+    });
+    check('pre-bumped DONE finalizer reports already present 0.9.9 -> 0.9.10', preBumpedLine.includes('already present 0.9.9') && preBumpedLine.includes('0.9.10'));
+    check('pre-bumped DONE finalizer makes no git commit', preBumpedGitCalls === 0);
+    check('pre-bumped DONE finalizer leaves version at next patch only', readSyncedVersion(f6pre) === '0.9.10');
+
     // 7. Idempotent: each applyPatchBump call increments by exactly one (no accumulation).
     const f7 = fixture('0.9.9');
     check('first bump -> 0.9.10', applyPatchBump(f7).to === '0.9.10');

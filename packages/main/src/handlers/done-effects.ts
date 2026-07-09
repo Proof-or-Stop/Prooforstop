@@ -1091,6 +1091,17 @@ export async function applyDoneMergeEffects(
       // 必须让 user 知道还有手动收尾要做。
       const mainBranch = runGitArgs(['rev-parse', '--abbrev-ref', 'HEAD'], mainMergeRoot);
       const mainShaBeforeDoneMerge = runGitArgs(['rev-parse', 'HEAD'], mainMergeRoot);
+      let preDoneMergeVersion: string | undefined;
+      try {
+        const preDoneMergePackage = JSON.parse(
+          runGitArgs(['show', `${mainShaBeforeDoneMerge}:package.json`], mainMergeRoot),
+        ) as { version?: unknown };
+        preDoneMergeVersion = typeof preDoneMergePackage.version === 'string'
+          ? preDoneMergePackage.version
+          : undefined;
+      } catch {
+        preDoneMergeVersion = undefined;
+      }
       let mainShaAfterDoneMerge = mainShaBeforeDoneMerge;
       try {
         runGitArgs(
@@ -1237,6 +1248,7 @@ export async function applyDoneMergeEffects(
       mergeLines.push(bumpVersionOnDoneMerge({
         mainMergeRoot,
         shouldBump: runtimeSemverChanged,
+        preMergeVersion: preDoneMergeVersion,
         runGit: runGitArgs,
       }));
 

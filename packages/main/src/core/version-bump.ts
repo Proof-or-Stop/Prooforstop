@@ -339,6 +339,11 @@ export interface BumpOnDoneMergeOptions {
   mainMergeRoot: string;
   /** True only when the DONE merge changed watched CLI/runtime or capability contract inputs. */
   shouldBump: boolean;
+  /**
+   * Optional version read from main before the DONE merge. When the story branch already
+   * carries exactly nextPatch(preMergeVersion), the finalizer must not bump twice.
+   */
+  preMergeVersion?: string;
   /** Git runner (done-effects passes its runGitArgs; tests inject a spy). */
   runGit: BumpGitRunner;
 }
@@ -355,6 +360,14 @@ export const VERSION_BUMP_SKIPPED_LINE = '✓ version bump skipped (no watched C
  */
 export function bumpVersionOnDoneMerge(opts: BumpOnDoneMergeOptions): string {
   if (!opts.shouldBump) return VERSION_BUMP_SKIPPED_LINE;
+
+  if (opts.preMergeVersion) {
+    const expectedPreBump = nextPatch(opts.preMergeVersion);
+    const current = readSyncedVersion(opts.mainMergeRoot);
+    if (current === expectedPreBump) {
+      return `✓ version bump already present ${opts.preMergeVersion} → ${current} across ${VERSION_SYNC_PATHS.length} sync points after DONE merge`;
+    }
+  }
 
   let bump: PatchBumpResult;
   try {

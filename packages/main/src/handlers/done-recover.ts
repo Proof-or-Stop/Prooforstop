@@ -82,6 +82,17 @@ export function createDoneRecoverHandlers(ctx: HandlerContext) {
       const lines: string[] = [];
       git(mainMergeRoot, ['merge-tree', '--write-tree', 'main', partial.branch]);
       const mainShaBeforeRecoveryMerge = git(mainMergeRoot, ['rev-parse', 'HEAD']);
+      let preRecoveryMergeVersion: string | undefined;
+      try {
+        const preRecoveryMergePackage = JSON.parse(
+          git(mainMergeRoot, ['show', `${mainShaBeforeRecoveryMerge}:package.json`]),
+        ) as { version?: unknown };
+        preRecoveryMergeVersion = typeof preRecoveryMergePackage.version === 'string'
+          ? preRecoveryMergePackage.version
+          : undefined;
+      } catch {
+        preRecoveryMergeVersion = undefined;
+      }
       let mainShaAfterRecoveryMerge = mainShaBeforeRecoveryMerge;
       git(
         mainMergeRoot,
@@ -108,6 +119,7 @@ export function createDoneRecoverHandlers(ctx: HandlerContext) {
       lines.push(bumpVersionOnDoneMerge({
         mainMergeRoot,
         shouldBump: runtimeSemverChanged,
+        preMergeVersion: preRecoveryMergeVersion,
         runGit: (gitArgs, cwd) => git(cwd, gitArgs),
       }));
 
