@@ -213,9 +213,9 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-09T11:19:42.687Z",
       "verificationEvidence": [
         {
           "intentRef": "CHK-003:happy:0",
@@ -274,6 +274,15 @@
       "from": "pending",
       "to": "done",
       "reason": "Implemented in commit 813fe24d5 and covered by review-assurance-surfacing smoke, process fact contract, and runtime fact contract evidence."
+    },
+    {
+      "timestamp": "2026-07-09T11:19:42.687Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implemented in commit 813fe24d5 and covered by done_prepare blocker classification assertions in review-assurance-surfacing smoke."
     }
   ]
 }
