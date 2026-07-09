@@ -237,14 +237,16 @@
         },
         {
           "intentRef": "CHK-003:edge:0",
-          "kind": "waiver",
-          "verdict": "waived",
-          "waiverType": "deferred_gate_evidence",
-          "note": "Deferred until final DONE command. Remote publish/push remains prohibited by project policy; current work has not run git push, npm publish, or scripts/release.mjs publish.",
-          "headHash": "fe5ce68a195b3c75e2eb6fce306d6f69d63a75c9",
-          "materialHash": "78f163531375673608a116cf0767d19ce982e36251f83a958b20367de0775603",
-          "storyFilesHash": "0a3f376f506c8da800e90f3d1d514e193effb8162f4dff3c6fcc7bb7d1c8c4aa",
-          "timestamp": "2026-07-09T01:15:40.897Z"
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "AGENTS.md",
+          "command": "git log --oneline --grep=\"B-6914: bump CLI to 0.3.172\" -1 && git status --short",
+          "result": "pass",
+          "note": "No git push, npm publish, or release publish command was run; this is a local story branch version boundary only.",
+          "headHash": "ecabdf21056a110a329ae248b62378ad23dfabee",
+          "materialHash": "1e78fc5135023f9cb8149603552139183a00ea66fed41a4e97c778445b632445",
+          "storyFilesHash": "c6766260c9004be83ad6742395b1a575c3c6a91632ff581da315df2909921347",
+          "timestamp": "2026-07-09T01:21:53.142Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
