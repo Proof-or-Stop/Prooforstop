@@ -1,0 +1,55 @@
+{
+  "storyId": "B-cee5",
+  "changes": "Rewrote the search strategy of the two token-heavy reviewer prompts (lattice-review-scope-plan, lattice-review-behavior) from unconditional full decisions-directory scans (111 files, ~2.4MB per run) to a search budget contract: bounded memory/playbook preflight (advisory only, gateEvidence=false), complete filename enumeration, candidateSpecSet routing with at most 15 full-content reads, and whole-directory scans only behind a recorded scanEscalationReason (five triggers). Synced all .claude and .lattice-codex mirrors, updated the stale CLAUDE.md OQ-channel paragraph, and added a static regression guard packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts banning the legacy wording across all six prompt copies.",
+  "usage": "No user action needed: the next scope-plan or behavior reviewer run automatically follows the new bounded instructions. Run the guard manually with: node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js (also auto-discovered by run-all-smokes.js). Full decisions scans remain available to reviewers by recording a scanEscalationReason for the five high-risk triggers.",
+  "expectedOutcome": "Default reviewer runs stop full-reading the decisions corpus; token spend per scope-plan/behavior run drops from 111 full-content doc reads to bounded preflight plus at most 15 candidate reads; reintroducing old full-scan wording fails the guard smoke.",
+  "actualTranscript": "Guard smoke: PASS (6 prompt copies clean, 4 required phrases present), exit 0; red demonstrations: injected legacy phrase flagged at .claude/agents/lattice-review-scope-plan.md:195 with exit 1, restored to exit 0; rendered prompts via node bin/lattice.js agent_prompt contain candidateSpecSet/scanEscalationReason/advisory-only wording (scope-plan 7x/5x/2x, behavior 4x/3x/2x) and zero unconditional full-scan phrases; lattice validate 43/43 commands green; independent Codex CLI host review round 1 VERDICT FAIL (2 guard weaknesses) fixed in 43c2094cc, re-review VERDICT PASS 10/10 checks; 3x2 quorum recorded (assuranceLevel=full-3x2).",
+  "outcomeDiff": "Expected vs actual: matched for everything statically verifiable. Honest hedge: prompts instruct (not mechanically enforce) bounded reading, so realized token savings depend on reviewer compliance; the instructed default-path reduction is from 111 full reads to at most 15.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The guard smoke is not yet wired into lattice.config.json validate.commands (outside this story allowedPaths); a follow-up story (task chip already spawned, B-04bb in progress) adds the one-line wiring. Runtime metrics for actual token savings are explicitly out of scope for this stopgap.",
+  "pitfalls": "The globally installed lattice CLI renders agent_prompt from the installed package (main repo), not the worktree — worktree verification must use node bin/lattice.js. Static line-level guards cannot stop deliberate idiom gaming (documented in the smoke); they defend against accidental regression only. When editing prompt templates, always resync both mirror sets or the guard fails on the stale copy.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 931117
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 395524
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 1094605
+    },
+    "DEV": {
+      "count": 4,
+      "durationMs": 1117202
+    },
+    "REVIEW": {
+      "count": 4,
+      "durationMs": 2915515
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 777761
+    }
+  },
+  "totalDurationMs": 7232526,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-09T18:26:00.212Z",
+  "updatedAt": "2026-07-09T18:26:00.212Z"
+}
