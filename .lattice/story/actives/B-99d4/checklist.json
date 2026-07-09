@@ -94,9 +94,9 @@
         "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
         "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-09T02:58:27.490Z",
       "userSees": "User opens the generated prompt and sees `Continuity: summary-only fresh context`, the previous dispatch id, explicit follow-up instructions, and no claim that full conversation history was inherited.",
       "files": {
         "modify": [
@@ -131,7 +131,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/dispatch-run-smoke.js",
+          "result": "pass",
+          "note": "Dispatch smoke reads reassignment prompts and asserts they include Role, Objective, Fresh-context Continuity, mode fresh-context, previous dispatch id, and summary-only continuity wording.",
+          "headHash": "dd4167e23868f7917af43905e1e94c5f715242ec",
+          "materialHash": "b9e93476c1e29a51af8ed5e3e49b1b61a2ee960a9454e9b2e8b5c03739c1d53f",
+          "storyFilesHash": "8e93eabeb0596d06dcf043028b2dd265e4cc2239055c5cd607aa2c361e280c0d",
+          "timestamp": "2026-07-09T02:58:27.954Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/dispatch-run-smoke.js",
+          "result": "pass",
+          "note": "Dispatch smoke reassigns an unrun prepared dispatch with no receipt file and verifies the prompt still renders bounded previous-dispatch lineage and summary-only continuity without full-history dependence.",
+          "headHash": "dd4167e23868f7917af43905e1e94c5f715242ec",
+          "materialHash": "b9e93476c1e29a51af8ed5e3e49b1b61a2ee960a9454e9b2e8b5c03739c1d53f",
+          "storyFilesHash": "8e93eabeb0596d06dcf043028b2dd265e4cc2239055c5cd607aa2c361e280c0d",
+          "timestamp": "2026-07-09T02:58:28.493Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/dispatch-run-smoke.js",
+          "result": "pass",
+          "note": "Dispatch smoke asserts reassignment prompts include no full-history fork is required and do not match forbidden claims for full-history inheritance, receipt verification, production DONE, or authority changes.",
+          "headHash": "dd4167e23868f7917af43905e1e94c5f715242ec",
+          "materialHash": "b9e93476c1e29a51af8ed5e3e49b1b61a2ee960a9454e9b2e8b5c03739c1d53f",
+          "storyFilesHash": "8e93eabeb0596d06dcf043028b2dd265e4cc2239055c5cd607aa2c361e280c0d",
+          "timestamp": "2026-07-09T02:58:28.934Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
