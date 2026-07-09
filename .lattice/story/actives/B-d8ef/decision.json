@@ -1,0 +1,78 @@
+{
+  "principles": [
+    "Separate binary availability from reviewer execution readiness.",
+    "Prefer observable bounded launchers over silent final-output launchers for reviewer work.",
+    "Fail closed for non-human degraded fallback when readiness evidence is missing or contradictory.",
+    "Never expose secrets or raw provider transcripts as gate evidence.",
+    "Keep old probe events readable but make new gates consume stronger fields."
+  ],
+  "drivers": [
+    "User needs operators to see progress/failure instead of waiting on silent commands.",
+    "DONE gates consume this as process fact evidence, so schema and registry must change with runtime behavior.",
+    "Host CLIs differ: Claude needs --verbose stream-json, agy uses --print/--print-timeout, Codex can have auth failure despite login status."
+  ],
+  "options": [
+    {
+      "name": "A: Extend review_host_availability_probe with bounded launcher-readiness rows and gate on reviewReadyHostCount",
+      "pros": [
+        "One fresh artifact answers both degraded fallback and operator diagnostics",
+        "Keeps B-7438 probe/fallback path as the mechanical enforcement point",
+        "Can classify wrong flags/auth/silent output without introducing another required command"
+      ],
+      "cons": [
+        "Probe schema grows and must stay backward-compatible with B-7438 tests"
+      ]
+    },
+    {
+      "name": "B: Add a separate review_host_execution_probe command and leave availability probe unchanged",
+      "pros": [
+        "Cleaner separation of version availability and execution readiness",
+        "Less risk to existing probe event schema"
+      ],
+      "cons": [
+        "Degraded fallback would now need two artifacts and operators may run only the weaker one",
+        "More gate plumbing and more ways to forget the stronger proof"
+      ]
+    },
+    {
+      "name": "C: Only update docs/prompts to recommend Claude stream-json verbose and agy print",
+      "pros": [
+        "Smallest implementation",
+        "Avoids any behavior change"
+      ],
+      "cons": [
+        "Does not mechanically prevent wrong launchers or silent hangs",
+        "Repeats the B-7438 self-report failure mode"
+      ]
+    }
+  ],
+  "chosen": "A: Extend review_host_availability_probe with bounded launcher-readiness rows and gate on reviewReadyHostCount",
+  "rationale": "Choose A because the existing degraded fallback gate already requires a fresh host probe; strengthening that artifact gives operators one proof-or-stop surface instead of another optional command. Compatibility can be preserved by treating legacy events as version-only and not review-ready for non-human degraded fallback.",
+  "preMortem": [
+    {
+      "scenario": "Probe performs expensive live LLM calls by default and burns quota or hangs",
+      "trigger": "Implementation uses full reviewer prompts instead of tiny bounded launcher smoke or help classification",
+      "consequence": "Operators avoid the probe or experience the same long no-output waits",
+      "mitigation": "Use short timeout, tiny prompt, stream/progress-capable modes, and classify metadata separately from optional live execution"
+    },
+    {
+      "scenario": "Legacy probe events without reviewReadyHostCount accidentally satisfy degraded fallback",
+      "trigger": "Gate falls back from missing reviewReadyHostCount to availableHostCount",
+      "consequence": "A host that only passes --version can still justify single-host fallback",
+      "mitigation": "For non-human degraded fallback require reviewReadyHostCount or valid per-host executionReady rows; missing readiness is not eligible"
+    },
+    {
+      "scenario": "Launcher registry drifts from actual CLI flags",
+      "trigger": "Agy template remains --prompt-file or Claude stream-json omits --verbose",
+      "consequence": "Reviewers hang or fail after gate says hosts are usable",
+      "mitigation": "Centralize canonical launcher builders and add smoke assertions for Claude verbose stream-json, agy --print/--print-timeout, and Codex auth failure classification"
+    },
+    {
+      "scenario": "Probe leaks tokens or raw provider output into story process events",
+      "trigger": "Auth/readiness smoke records stdout/stderr verbatim",
+      "consequence": "Credentials or prompt content enter gate evidence",
+      "mitigation": "Record only bounded labels, byte counts, first progress timing, exit status, and sanitized failureKind/remediation"
+    }
+  ],
+  "timestamp": "2026-07-09T13:01:39.194Z"
+}

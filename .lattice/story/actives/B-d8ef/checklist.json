@@ -29,6 +29,29 @@
         "test": [
           "packages/main/src/tasks/review-host-execution-readiness-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "review_host_availability_probe records per-host launcher readiness rows for codex, claude, and agy including launcher argv, executionReady/reviewReady, progressMode, failureKind, firstProgressMs or durationMs, and no raw provider transcript.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A host with executable path and versionOk=true but noninteractive launcher/auth failure remains available=true but executionReady=false/reviewReady=false with a specific failureKind.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Forged or contradictory readiness counts are rejected: reviewReadyHostCount must match host rows and retired completion fields must remain false.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
