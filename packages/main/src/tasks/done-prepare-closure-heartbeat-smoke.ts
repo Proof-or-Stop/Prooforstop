@@ -43,6 +43,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 const cliPath = join(here, '..', 'cli.js');
 const NOW = '2026-07-09T00:00:00.000Z';
 const STORY_ID = 'B-done-prepare-heartbeat';
+const DONE_REQUIRED_PROGRESS_LABEL = 'done_prepare progress: running DONE-required validation';
 
 const REQUIRED_PROGRESS_LABELS = [
   'done_prepare progress: evaluating DONE closure',
@@ -52,9 +53,22 @@ const REQUIRED_PROGRESS_LABELS = [
   'done_prepare progress: producing DONE command',
 ] as const;
 
+const REQUIRED_REAL_VALIDATE_PROGRESS_LABELS = [
+  DONE_REQUIRED_PROGRESS_LABEL,
+  'done_prepare progress: evaluating DONE closure',
+  'done_prepare progress: checking review assurance',
+  'done_prepare progress: computing runtime-change status',
+  'done_prepare progress: checking clean tree',
+] as const;
+
 type Fixture = {
   root: string;
   storyId: string;
+};
+
+type FixtureOptions = {
+  realValidate?: boolean;
+  doneRequiredDelayMs?: number;
 };
 
 type CliResult = {
@@ -149,9 +163,9 @@ function seedDoneGateEvidence(root: string, storyId: string): void {
   store.writeDeliveryCheck(storyId, deliveryCheck);
 }
 
-function setupFixture(): Fixture {
+function setupFixture(options: FixtureOptions = {}): Fixture {
   const root = mkdtempSync(join(tmpdir(), 'lattice-done-prepare-heartbeat-'));
-  write(root, 'lattice.config.json', JSON.stringify({
+  const config: Record<string, unknown> = {
     scanRoot: '.',
     rootDir: '.',
     testsDir: 'tests',
@@ -165,7 +179,25 @@ function setupFixture(): Fixture {
       idleLattice: 10_000_000,
       bugStale: 10_000_000,
     },
-  }, null, 2) + '\n');
+  };
+  if (options.realValidate) {
+    const doneRequiredDelayMs = options.doneRequiredDelayMs ?? 160;
+    config.validate = {
+      commands: [{
+        label: 'smoke validate',
+        command: process.execPath,
+        args: ['-e', 'process.exit(0)'],
+        timeoutMs: 2000,
+      }],
+    };
+    config.doneRequiredCommands = [{
+      label: 'smoke DONE-required validation',
+      command: process.execPath,
+      args: ['-e', `setTimeout(() => process.exit(0), ${doneRequiredDelayMs})`],
+      timeoutMs: 2000,
+    }];
+  }
+  write(root, 'lattice.config.json', JSON.stringify(config, null, 2) + '\n');
   write(root, '.gitignore', [
     '.lattice/activity.jsonl',
     '.lattice/learning/runtime-memory-pack-cache/',
@@ -245,8 +277,19 @@ function donePrepareFlagArgs(storyId: string, json = false): string[] {
   ];
 }
 
-function assertProgressLabels(text: string): void {
-  for (const label of REQUIRED_PROGRESS_LABELS) {
+function donePrepareRealValidateArgs(storyId: string, json = false): string[] {
+  return [
+    'done_prepare',
+    '--storyId', storyId,
+    '--mergeMain=false',
+    '--refreshStale=false',
+    '--validate=true',
+    ...(json ? ['--json'] : []),
+  ];
+}
+
+function assertProgressLabels(text: string, labels: readonly string[] = REQUIRED_PROGRESS_LABELS): void {
+  for (const label of labels) {
     assert.ok(text.includes(label), `missing progress label ${JSON.stringify(label)} in:\n${text}`);
   }
 }
@@ -308,6 +351,46 @@ function assertJsonStdoutParseable(root: string, storyId: string): void {
   assert.equal(parsed.storyId, storyId);
   assert.equal(parsed.status, 'pass');
   assert.ok(parsed.transcript?.startsWith('DONE prepare: PASS'), 'JSON payload carries the final transcript');
+}
+
+function assertRealValidateDoneRequiredProgressJsonSafe(): void {
+  const { root, storyId } = setupFixture({ realValidate: true, doneRequiredDelayMs: 160 });
+  try {
+    const result = runCli(root, donePrepareRealValidateArgs(storyId, true), {
+      LATTICE_DONE_PREPARE_HEARTBEAT_MS: '20',
+      LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS: '5000',
+      LATTICE_DONE_PREPARE_DONE_REQUIRED_VALIDATION_TIMEOUT_MS: '3000',
+      LATTICE_VALIDATE_HEARTBEAT_MS: '20',
+    });
+    assert.equal(result.status, 0, `real validate done_prepare should return a JSON result:\n${result.stderr}\n${result.stdout}`);
+    assertProgressLabels(result.stderr, REQUIRED_REAL_VALIDATE_PROGRESS_LABELS);
+    assert.ok(
+      result.stderr.includes('done_prepare heartbeat: running DONE-required validation elapsedMs='),
+      `DONE-required validation must heartbeat while its command is still running:\n${result.stderr}`,
+    );
+    const validateEndedIndex = result.stderr.indexOf('validate progress: command 1/1 ended smoke validate: code=0');
+    const doneRequiredIndex = result.stderr.indexOf(DONE_REQUIRED_PROGRESS_LABEL);
+    assert.ok(validateEndedIndex >= 0, `fixture validate command must complete before the DONE-required subphase:\n${result.stderr}`);
+    assert.ok(
+      doneRequiredIndex > validateEndedIndex,
+      `DONE-required progress must be emitted after configured validate.commands complete:\n${result.stderr}`,
+    );
+    assert.ok(!result.stdout.includes('done_prepare progress:'), `JSON stdout must not contain done_prepare progress text:\n${result.stdout}`);
+    assert.ok(!result.stdout.includes('done_prepare heartbeat:'), `JSON stdout must not contain done_prepare heartbeat text:\n${result.stdout}`);
+    assert.ok(!result.stdout.includes('validate progress:'), `JSON stdout must not contain validate progress text:\n${result.stdout}`);
+    const parsed = JSON.parse(result.stdout) as {
+      schemaVersion?: string;
+      storyId?: string;
+      status?: string;
+      transcript?: string;
+    };
+    assert.equal(parsed.schemaVersion, 'lattice.done_prepare.v1');
+    assert.equal(parsed.storyId, storyId);
+    assert.equal(parsed.status, 'blocked');
+    assert.match(parsed.transcript ?? '', /^blockedAt: cleanTree$/m);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 }
 
 async function assertHungPhaseFailsClosed(): Promise<void> {
@@ -452,6 +535,7 @@ void (async () => {
   try {
     assertHumanCliProgress(fixture.root, fixture.storyId);
     assertJsonStdoutParseable(fixture.root, fixture.storyId);
+    assertRealValidateDoneRequiredProgressJsonSafe();
     await assertHungPhaseFailsClosed();
     await assertSynchronousGitTimeoutFailsClosed();
     await assertSynchronousDoneClosureGitTimeoutFailsClosed();

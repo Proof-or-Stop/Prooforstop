@@ -89,6 +89,7 @@ interface RuntimeChangeReport {
 }
 
 type CloseoutPhaseId =
+  | 'doneRequiredValidation'
   | 'doneClosure'
   | 'reviewAssurance'
   | 'runtimeChange'
@@ -144,6 +145,12 @@ const DEFAULT_DONE_PREPARE_PHASE_TIMEOUT_MS = 240_000;
 const DEFAULT_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_MS = 30_000;
 
 const CLOSEOUT_PHASES: Record<CloseoutPhaseId, CloseoutPhase> = {
+  doneRequiredValidation: {
+    id: 'doneRequiredValidation',
+    label: 'running DONE-required validation',
+    stepId: 'validate',
+    timeoutEnv: 'LATTICE_DONE_PREPARE_DONE_REQUIRED_VALIDATION_TIMEOUT_MS',
+  },
   doneClosure: {
     id: 'doneClosure',
     label: 'evaluating DONE closure',
@@ -1223,8 +1230,13 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
       const command = `lattice done_required_validate --storyId=${storyId}`;
       let doneRequiredText = '';
       try {
-        doneRequiredText = asText(await doneRequiredHandlers.done_required_validate({ storyId, json: true }));
+        doneRequiredText = asText(await runCloseoutPhase(
+          ctx,
+          CLOSEOUT_PHASES.doneRequiredValidation,
+          () => doneRequiredHandlers.done_required_validate({ storyId, json: true }),
+        ));
       } catch (err: any) {
+        if (isDonePreparePhaseTimeout(err)) return phaseTimeoutBlock(storyId, steps, err);
         setStep(steps, 'validate', 'blocked', err?.message || 'DONE-required validation failed', command);
         return block({
           blockedAt: 'validate',
