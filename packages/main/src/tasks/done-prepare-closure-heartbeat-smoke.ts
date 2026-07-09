@@ -367,6 +367,7 @@ async function assertSynchronousGitTimeoutFailsClosed(): Promise<void> {
       LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS: '5000',
       LATTICE_DONE_PREPARE_RUNTIME_CHANGE_TIMEOUT_MS: '120',
       LATTICE_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_PHASE: 'runtimeChange',
+      LATTICE_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_KIND: 'execFileSync',
       LATTICE_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_MS: '5000',
     }, async () => String(await prepare.done_prepare({
       storyId,
@@ -413,6 +414,7 @@ async function assertSynchronousDoneClosureGitTimeoutFailsClosed(): Promise<void
       LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS: '5000',
       LATTICE_DONE_PREPARE_DONE_CLOSURE_TIMEOUT_MS: '120',
       LATTICE_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_PHASE: 'doneClosure',
+      LATTICE_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_KIND: 'execSync',
       LATTICE_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_MS: '5000',
     }, async () => String(await prepare.done_prepare({
       storyId,

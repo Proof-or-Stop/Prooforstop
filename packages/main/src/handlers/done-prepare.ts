@@ -131,10 +131,13 @@ interface CloseoutPhaseChildProcessDeadline {
   restore: () => void;
 }
 
+type SmokeSyncGitHangKind = 'execFileSync' | 'execSync';
+
 const DONE_PREPARE_HEARTBEAT_ENV = 'LATTICE_DONE_PREPARE_HEARTBEAT_MS';
 const DONE_PREPARE_PHASE_TIMEOUT_ENV = 'LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS';
 const DONE_PREPARE_SMOKE_HANG_PHASE_ENV = 'LATTICE_DONE_PREPARE_SMOKE_HANG_PHASE';
 const DONE_PREPARE_SMOKE_SYNC_GIT_HANG_PHASE_ENV = 'LATTICE_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_PHASE';
+const DONE_PREPARE_SMOKE_SYNC_GIT_HANG_KIND_ENV = 'LATTICE_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_KIND';
 const DONE_PREPARE_SMOKE_SYNC_GIT_HANG_MS_ENV = 'LATTICE_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_MS';
 const DEFAULT_DONE_PREPARE_HEARTBEAT_MS = 30_000;
 const DEFAULT_DONE_PREPARE_PHASE_TIMEOUT_MS = 240_000;
@@ -503,9 +506,21 @@ function isGitCommand(command: string): boolean {
   return commandLeaf(command) === 'git' || /^\s*(?:"git"|'git'|git)(?:\s|$)/.test(command);
 }
 
-function shouldSmokeHangSyncGitCommand(deadline: CloseoutPhaseChildProcessDeadline, command: string): boolean {
+function smokeSyncGitHangKindMatches(kind: SmokeSyncGitHangKind): boolean {
+  const raw = process.env[DONE_PREPARE_SMOKE_SYNC_GIT_HANG_KIND_ENV];
+  if (!raw) return true;
+  const wanted = raw.split(',').map((entry) => entry.trim().toLowerCase()).filter(Boolean);
+  return wanted.includes('all') || wanted.includes('any') || wanted.includes(kind.toLowerCase());
+}
+
+function shouldSmokeHangSyncGitCommand(
+  deadline: CloseoutPhaseChildProcessDeadline,
+  command: string,
+  kind: SmokeSyncGitHangKind,
+): boolean {
   return isGitCommand(command)
-    && phaseEnvMatches(DONE_PREPARE_SMOKE_SYNC_GIT_HANG_PHASE_ENV, deadline.phase);
+    && phaseEnvMatches(DONE_PREPARE_SMOKE_SYNC_GIT_HANG_PHASE_ENV, deadline.phase)
+    && smokeSyncGitHangKindMatches(kind);
 }
 
 function smokeSyncGitHangArgs(): string[] {
@@ -546,7 +561,7 @@ function installCloseoutPhaseChildProcessDeadline(
     options?: ExecFileSyncOptions,
   ) => {
     const remainingMs = remainingChildProcessTimeoutMs(deadline);
-    const useSmokeHang = shouldSmokeHangSyncGitCommand(deadline, command);
+    const useSmokeHang = shouldSmokeHangSyncGitCommand(deadline, command, 'execFileSync');
     const commandToRun = useSmokeHang ? process.execPath : command;
     const argsToRun = useSmokeHang ? smokeSyncGitHangArgs() : argsOrOptions;
     let phaseBounded = true;
@@ -578,7 +593,7 @@ function installCloseoutPhaseChildProcessDeadline(
 
   const runExecSyncWithDeadline = (command: string, options?: ExecSyncOptions) => {
     const remainingMs = remainingChildProcessTimeoutMs(deadline);
-    const commandToRun = shouldSmokeHangSyncGitCommand(deadline, command)
+    const commandToRun = shouldSmokeHangSyncGitCommand(deadline, command, 'execSync')
       ? smokeSyncGitHangCommand()
       : command;
     const bounded = boundedExecSyncOptions(options, remainingMs);
