@@ -1,0 +1,71 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-2861",
+  "allowedCommands": [
+    "agy",
+    "claude",
+    "codex",
+    "git diff",
+    "git show",
+    "git status",
+    "lattice agent_prompt",
+    "lattice checklist_get",
+    "lattice checklist_update",
+    "lattice decision_set",
+    "lattice done_prepare",
+    "lattice finding_add",
+    "lattice init_preflight",
+    "lattice milestone_status",
+    "lattice review_pass_set",
+    "lattice review_run_start",
+    "lattice reviewer_list",
+    "lattice session_brief",
+    "lattice story_advance",
+    "lattice story_get",
+    "lattice story_review",
+    "lattice understanding_set",
+    "lattice validate",
+    "nl",
+    "rg",
+    "sed"
+  ],
+  "allowedTools": [
+    "Antigravity CLI",
+    "apply_patch",
+    "Claude Code CLI",
+    "Codex CLI",
+    "lattice CLI",
+    "shell read commands"
+  ],
+  "allowedPaths": [
+    ".claude",
+    ".lattice-codex",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "docs/CLI.md",
+    "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+    "packages/main/src",
+    "packages/main/tests"
+  ],
+  "excludedCommands": [
+    "git checkout --",
+    "git clean -fd",
+    "git push",
+    "git push --force",
+    "git reset --hard",
+    "omx"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Document-review story. Edit scope is the target execution-plan markdown only unless the user explicitly expands scope. Code and prompt assets may be read as evidence, not modified.",
+  "createdAt": "2026-07-09T14:37:08.482Z",
+  "updatedAt": "2026-07-09T14:37:08.482Z",
+  "_hash": "5c32989a36c3101cc91350b9c9c7470c71da9ab23b668b36ad1232cd6d91faa6"
+}
