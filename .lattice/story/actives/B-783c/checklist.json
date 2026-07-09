@@ -95,9 +95,9 @@
         "docs/dev/test-coverage.md",
         "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-09T00:00:51.492Z",
-      "endTime": null,
+      "endTime": "2026-07-09T00:00:59.348Z",
       "verificationIntent": {
         "happy": [
           {
@@ -128,7 +128,45 @@
         "test": [
           "packages/main/src/tasks/thin-init-assets-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/thin-init-assets-smoke.ts",
+          "command": "node packages/main/dist/tasks/thin-init-assets-smoke.js",
+          "result": "pass",
+          "note": "Smoke creates a canonical lattice.config.json root and verifies session_brief activity is written to .lattice/activity.jsonl.",
+          "headHash": "00cb0be2ab57164c236751affe92214851558496",
+          "materialHash": "e03b3abb8f68c388d50ec7b97da6090ba5eb88bb58108ac01ce0fdba009dda98",
+          "storyFilesHash": "abbf067ddfc433b9db9b44a5e9cbcbd449c2021cf8b0964b69849c2ab970c065",
+          "timestamp": "2026-07-09T00:00:59.638Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/thin-init-assets-smoke.ts",
+          "command": "node packages/main/dist/tasks/thin-init-assets-smoke.js",
+          "result": "pass",
+          "note": "Smoke creates a global-thin-only root with .lattice/lattice.json assetMode=global-thin and no lattice.config.json, then verifies session_brief activity is written.",
+          "headHash": "00cb0be2ab57164c236751affe92214851558496",
+          "materialHash": "e03b3abb8f68c388d50ec7b97da6090ba5eb88bb58108ac01ce0fdba009dda98",
+          "storyFilesHash": "abbf067ddfc433b9db9b44a5e9cbcbd449c2021cf8b0964b69849c2ab970c065",
+          "timestamp": "2026-07-09T00:00:59.915Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/thin-init-assets-smoke.ts",
+          "command": "node packages/main/dist/tasks/thin-init-assets-smoke.js",
+          "result": "pass",
+          "note": "Smoke creates malformed and wrong-assetMode .lattice/lattice.json roots and verifies no .lattice/activity.jsonl is created.",
+          "headHash": "00cb0be2ab57164c236751affe92214851558496",
+          "materialHash": "e03b3abb8f68c388d50ec7b97da6090ba5eb88bb58108ac01ce0fdba009dda98",
+          "storyFilesHash": "abbf067ddfc433b9db9b44a5e9cbcbd449c2021cf8b0964b69849c2ab970c065",
+          "timestamp": "2026-07-09T00:01:00.199Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -201,6 +239,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Record regression-test evidence for activity logging behavior."
+    },
+    {
+      "timestamp": "2026-07-09T00:00:59.348Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Focused regression smoke passed after implementation commit 1ccaa921c."
     }
   ]
 }
