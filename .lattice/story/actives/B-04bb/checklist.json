@@ -60,6 +60,17 @@
           "materialHash": "33062d79ff0dbeed0ef9e397a6efa3be0a230aad003b0f0098f716ed24eca0ab",
           "storyFilesHash": "b7cbe8d4cfb05adacb9fc73d90113f490e2353518ea450b039541ce3adc8f1af",
           "timestamp": "2026-07-09T19:19:33.110Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "ls -la packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js && node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js",
+          "result": "pass",
+          "note": "Referenced dist file exists after building merged main (7069 bytes, built 2026-07-09) and runs standalone: \"reviewer-scan-budget-guard: PASS (6 prompt copies clean, 4 required phrases present)\", exit 0. Guards against wiring a path that 404s.",
+          "headHash": "3368929cf4e2991468ee23ec349470702cc8e059",
+          "materialHash": "33062d79ff0dbeed0ef9e397a6efa3be0a230aad003b0f0098f716ed24eca0ab",
+          "storyFilesHash": "b7cbe8d4cfb05adacb9fc73d90113f490e2353518ea450b039541ce3adc8f1af",
+          "timestamp": "2026-07-09T19:19:34.243Z"
         }
       ]
     },
