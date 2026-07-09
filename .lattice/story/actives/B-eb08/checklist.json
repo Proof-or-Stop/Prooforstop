@@ -1,0 +1,138 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Define and emit done_prepare closure progress labels",
+      "context": "Implement M1 label output for post-validation done_prepare phases: evaluating DONE closure, checking review assurance, computing runtime-change status, checking clean tree, and producing DONE command. Keep labels as diagnostic progress only.",
+      "relatedDocs": [
+        "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md#M1---Closure-Progress-Contract",
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+      ],
+      "userSees": "A long done_prepare closeout prints explicit progress lines after validation instead of going silent.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/done-prepare.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A done_prepare fixture that reaches post-validation closeout emits the M1 progress labels in human-readable output.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "done_prepare --json keeps stdout parseable while progress/liveness output uses a safe side channel.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Progress labels are diagnostic only and do not mark DONE readiness or write gate evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add independent hard deadlines for heartbeating closeout phases",
+      "context": "Implement M2 safety: every heartbeating post-validation closure phase has a bounded hard deadline independent of the global idle watchdog, so timer output cannot keep a genuinely hung phase alive indefinitely.",
+      "relatedDocs": [
+        "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md#M2---Closure-Heartbeat-Implementation",
+        "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md"
+      ],
+      "userSees": "If a done_prepare closeout phase hangs, the CLI fails with an attributed phase-timeout diagnostic instead of silently running forever.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/done-prepare.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A slow but completing closeout phase emits heartbeat/progress and exits successfully before its phase deadline.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A closeout phase needing longer work is split into bounded checked steps or uses an explicit phase deadline below the global idle timeout.",
+            "type": "logic",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A deliberately hung heartbeating closeout phase fails closed by its independent phase deadline even though heartbeat output continues.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add regression coverage for human and JSON liveness contracts",
+      "context": "Add focused smoke coverage proving human output gains progress, JSON stdout remains parseable, and the new heartbeat/deadline behavior does not depend on B-783c activity-log persistence.",
+      "relatedDocs": [
+        "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md#M6---Regression-Verification",
+        "docs/dev/test-coverage.md"
+      ],
+      "userSees": "The focused smoke passes and documents that B-783c activity logging is a baseline, not a substitute for real-time done_prepare progress.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "packages/main/package.json"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Focused smoke passes after npm --prefix packages/main run build.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "If cli-engine activity logging or runtime root detection is untouched, thin-init-assets-smoke is not required for this story; if touched, it is run.",
+            "type": "logic",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The smoke proves heartbeat output cannot satisfy review, delivery, DONE, Authority, or production gates by itself.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

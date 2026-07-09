@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-eb08",
+  "mode": "correctness_fix",
+  "allowed": [
+    "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/tasks/*done*prepare*heartbeat*"
+  ],
+  "excluded": [
+    "Changing DONE/review gate pass criteria",
+    "Implementing DONE merge-preflight or rerun-delta UX",
+    "Implementing review-assurance early surfacing beyond done_prepare labels",
+    "Reworking global-thin activity-root logging from B-783c"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "User asked to split the execution document into three stories and finish them sequentially; this story covers M0-M2 only.",
+  "createdAt": "2026-07-09T01:27:42.194Z",
+  "updatedAt": "2026-07-09T01:27:42.194Z",
+  "_hash": "fa6431dbac98069607fb830615e40a80d55d0d9f725d77e4217b6e76a7161a59"
+}

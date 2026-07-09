@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-eb08",
+  "state": "candidate",
+  "ledgerHash": "sha256:99048b8ea47c6f9575f86f44a8b344865c6d8400ca54ca66d615ca51b67a14ab",
+  "milestones": [
+    {
+      "id": "M0",
+      "sourceRequirementId": "DOC-M0",
+      "claim": "B-90d6 silent closeout behavior is represented by a regression fixture or test harness.",
+      "doneMeans": "A focused test fixture covers post-validation done_prepare closeout progress behavior without asserting a fixed validate command count.",
+      "requiredEvidence": [
+        "test"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M1",
+      "sourceRequirementId": "DOC-M1",
+      "claim": "done_prepare has a stable post-validation progress label contract.",
+      "doneMeans": "Human output prints required progress labels and --json stdout remains parseable.",
+      "requiredEvidence": [
+        "test"
+      ],
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "DOC-M2",
+      "claim": "Heartbeating closeout phases still fail closed on real hangs.",
+      "doneMeans": "A hung heartbeating closeout fixture fails via independent phase deadline.",
+      "requiredEvidence": [
+        "test"
+      ],
+      "checklistRefs": [
+        "CHK-002",
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:adversarial:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-09T01:27:42.194Z",
+  "updatedAt": "2026-07-09T01:27:42.194Z"
+}
