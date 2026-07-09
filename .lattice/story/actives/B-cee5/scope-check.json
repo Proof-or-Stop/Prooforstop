@@ -1,0 +1,192 @@
+{
+  "storyId": "B-cee5",
+  "checkedAt": "2026-07-09T16:56:19.319Z",
+  "features": [
+    {
+      "feature": "Re-measure and record decisions corpus size + exact full-scan instruction locations as evidence",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Add bounded Memory Runtime Preflight / dev_memory_preflight/search consumption step to scope-plan prompt before broad scan",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Add bounded Memory Runtime Preflight / dev_memory_preflight/search consumption step to behavior prompt before broad scan",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Add active playbook advisory consumption to broad-scan prompts",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "State memory/playbook output is advisory only / non-authoritative / gateEvidence=false and cannot satisfy gate evidence",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Replace scope-plan default full-directory content read with candidateSpecSet-first routing",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "candidateSpecSet built from relatedDocs, story title/description/risk signals, changed files/symbols, command/config names, aux_doc_list, top-N rg matches",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Full decisions scan remains available only via recorded scanEscalationReason (scope-plan)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Behavior review spec-boundary perspective stops defaulting to full directory scan",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Behavior review full-scan permitted only for high-risk lifecycle/gate/process-fact/global-rename/candidate-ambiguity/explicit-escalation triggers, with recorded scanEscalationReason",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Sync .claude/agents and .lattice-codex/agents mirrors of both templates",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:understanding.json touchpoints (story artifact, not decisions/ dir)"
+    },
+    {
+      "feature": ".lattice-codex path-substitution convention preserved during mirror sync",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "plan.md"
+    },
+    {
+      "feature": "Static regression test fails if unconditional full-scan wording returns to any active prompt copy",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Regression test scans all six active prompt copies (2 templates + 2 .claude + 2 .lattice-codex)",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "plan.md"
+    },
+    {
+      "feature": "Regression test allows explicit escalation-path wording rather than a blanket ban",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Wiring the new smoke into lattice validate requires scope_extension_proposal since lattice.config.json is outside allowedPaths",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "plan.md"
+    },
+    {
+      "feature": "Verify rendered agent_prompt output for both roles contains new wording and no unconditional full-scan instruction",
+      "covered_by": "CHK-007",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Record before/after token-savings evidence (111 docs vs bounded preflight + <=15 candidate docs)",
+      "covered_by": "CHK-007",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Do not change lifecycle gate semantics or DONE evidence semantics",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded list: Changing lifecycle gate semantics or DONE evidence semantics",
+      "source": "description"
+    },
+    {
+      "feature": "Do not implement a full CLI metrics sink or candidateSpecSet runtime service in this stopgap",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded list: Implementing a full CLI metrics sink or broad candidateSpecSet runtime service in this stopgap story",
+      "source": "description"
+    },
+    {
+      "feature": "Do not remove full decisions-scan capability entirely (kept as escalation path)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded list: Removing full decisions-directory scan capability entirely",
+      "source": "description"
+    },
+    {
+      "feature": "Do not make memory/playbook output gate evidence",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded list: Making memory/playbook output gate evidence",
+      "source": "description"
+    },
+    {
+      "feature": "Keep scope-plan coverage-checking sound: candidateSpecSet must not degenerate to relatedDocs-only (mandatory filename enumeration + keyword triage of every doc)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decision.json preMortem mitigation"
+    },
+    {
+      "feature": "Update scope-plan template frontmatter/description line to describe candidate-first routing while preserving provenance tag (B-ed3e S2)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "plan.md"
+    },
+    {
+      "feature": "Keep behavior reviews existing finding taxonomy (category=missing + spec-boundary: description prefix) untouched",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "plan.md"
+    }
+  ],
+  "summary": {
+    "total": 24,
+    "covered": 20,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "2a8a49d0753ab23cb4dde20e21d4b1be143982bf284abd79565b81f220414428",
+  "openQuestions": []
+}

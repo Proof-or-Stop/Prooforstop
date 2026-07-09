@@ -1,0 +1,90 @@
+{
+  "storyId": "B-cee5",
+  "checkedAt": "2026-07-09T18:29:03.499Z",
+  "headHash": "17c61dda23fc97d0cb8606a019b7cd422b913eac",
+  "materialHash": "f482e7f4cd7aa524859361668fc24e9edbfe19cdd6d12e047eb0807a10cea349",
+  "storyFilesHash": "9e1c67536944305f0a4efde19e05b60b2f5bb7fc8d3c60e89e81cd2d846fcccb",
+  "reviewRound": "2026-07-09T17:47:43.007Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "packages/main/templates/agents/lattice-review-scope-plan.md#search-strategy",
+      "promise": "Default reviewer flow starts with a bounded memory/playbook preflight (advisory only, gateEvidence=false, non-authoritative) before any decisions scan, and falls back to candidate routing (never a full read) when no memory surface is available",
+      "status": "verified",
+      "verifiedBy": "rg + diff/grep",
+      "evidence": "line 122: 'Bounded memory/playbook preflight (advisory only)' ... 'This output is advisory only, non-authoritative (gateEvidence=false); it may seed or order your candidate search but can NEVER satisfy, replace, or be cited as gate evidence.' Verified byte-identical in .claude/agents and .lattice-codex/agents mirrors (diff exit 0 x4)."
+    },
+    {
+      "docPath": "packages/main/templates/agents/lattice-review-scope-plan.md#candidatespecset",
+      "promise": "Default scope-plan flow enumerates decisions/ filenames completely, builds candidateSpecSet from relatedDocs + story metadata + changed files/symbols + command/config names + aux_doc_list + top-N rg matches (never relatedDocs-only), and full-reads at most 15 candidates; full-directory scans require a recorded scanEscalationReason",
+      "status": "verified",
+      "verifiedBy": "rg + logic test replay",
+      "evidence": "line 124: 'Build the candidateSpecSet from ALL of these sources ... lattice aux_doc_list output ... Budget: full-read at most 15 candidate docs.' line 131: 'never degenerates to relatedDocs-only.' Confirmed via rg replay (exit 0) and node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js (PASS, exit 0)."
+    },
+    {
+      "docPath": "packages/main/templates/agents/lattice-review-behavior.md#spec-boundary",
+      "promise": "Behavior REVIEW defaults to scope_check_save result + current diff + story commitments + candidateSpecSet docs instead of an unconditional full decisions-directory scan; full scan only under 5 named escalation triggers with a recorded scanEscalationReason; candidateSpecSet source list now includes lattice aux_doc_list output at parity with scope-plan (F-002 fix)",
+      "status": "verified",
+      "verifiedBy": "rg + logic test replay",
+      "evidence": "line 129: 'Default inputs: the lattice scope_check_save result ...'. line 130: candidateSpecSet source list includes 'lattice aux_doc_list output' matching scope-plan line 124. Both confirmed via rg replay (exit 0) and guard smoke PASS."
+    },
+    {
+      "docPath": ".claude/agents/lattice-review-scope-plan.md, .claude/agents/lattice-review-behavior.md, .lattice-codex/agents/lattice-review-scope-plan.md, .lattice-codex/agents/lattice-review-behavior.md",
+      "promise": "Mirrored Claude/Codex prompt assets are synchronized byte-identical to the source templates (CHK-005)",
+      "status": "verified",
+      "verifiedBy": "diff",
+      "evidence": "diff packages/main/templates/agents/{lattice-review-scope-plan,lattice-review-behavior}.md vs each of the 4 mirror files: all 4 diffs empty (IDENTICAL) as independently re-run by this reviewer."
+    },
+    {
+      "docPath": "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+      "promise": "New static regression guard scans all six active prompt copies, fails on unconditional broad-scan wording unless legitimately escalation-conditioned, fails if required bounded-search phrases are missing, and ships with positive/negative controls including hostile-line regressions for F-003 and F-005",
+      "status": "verified",
+      "verifiedBy": "read source + real-machine run",
+      "evidence": "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts:32-56 (6 guarded files, 10 banned-pattern rules incl. Codex-caught 'read each one'/'full-content scan of the whole'), :58-64 (4 required phrases), :80-132 (assertPositiveControls with F-003 hostile-ignore control and F-005 hostile-proximity control). Independently rebuilt (npm --prefix packages/main run build) and ran node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js: PASS (6 prompt copies clean, 4 required phrases present), exit 0."
+    },
+    {
+      "docPath": "CLAUDE.md#open-questions-oq-b-ed3e",
+      "promise": "The OQ-channel paragraph documenting scope-plan reviewer behavior is updated from 'reads the full decisions/ directory' to the new bounded search-budget contract (F-001 fix)",
+      "status": "verified",
+      "verifiedBy": "diff",
+      "evidence": "git diff main...HEAD -- CLAUDE.md: single paragraph at line 626 rewritten from '读 <requirementsDir>/decisions/ 全目录时' to '按搜索预算契约（B-cee5：完整枚举 <requirementsDir>/decisions/ 文件名 + candidateSpecSet 有界全文阅读，全目录全文扫描仅限记录 scanEscalationReason 的升级路径）审阅 decisions/ 时'. One-paragraph, single-hunk change confined to the B-ed3e OQ section as scoped."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-cee5/plan.md#chk-006",
+      "promise": "The guard smoke is NOT wired into lattice validate in this story (that one-line lattice.config.json addition is outside allowedPaths); a scope_extension_proposal path was documented but the smoke ships and is run explicitly as bound verification evidence if the extension is not taken, with the wiring gap left for an explicit follow-up",
+      "status": "verified",
+      "verifiedBy": "grep + story metadata read",
+      "evidence": "grep 'reviewer-scan-budget' lattice.config.json: no match (guard is not wired into validate.commands). decision.json:77 records the mitigation ('File scope_extension_proposal ... if declined, bind explicit smoke execution as story verification evidence'). No scope_extension_proposal was actually filed (consciously left as follow-up). Follow-up story B-04bb 'Wire reviewer-scan-budget-guard smoke into lattice validate commands' confirmed to exist (phase=INIT) via lattice story_get. summary.json 'limitations' field states this explicitly and cites B-04bb."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-006",
+      "transcript": "Independently rebuilt with npm --prefix packages/main run build (tsc, no errors) and ran node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js: 'reviewer-scan-budget-guard: PASS (6 prompt copies clean, 4 required phrases present)', exit 0. Source inspection confirms real assertions (assert.equal/assert.ok on violations.length and missing.length, non-zero process exit on failure via Node ESM top-level throw), not a trivial no-op test. Covers happy path (0 violations across 6 files), edge (escalation-conditioned lines correctly exempted, verified by in-source positive control), and adversarial (F-003 hostile 'ignore scanEscalationReason' line and F-005 hostile 'only with scanEscalationReason lying around unused' proximity line both correctly still flagged as violations per assertPositiveControls at lines 117-132)."
+    },
+    {
+      "featureId": "CHK-007",
+      "transcript": "Replayed literal verificationEvidence commands: (1) CHK-001 happy wc/rg command reproduces the exact baseline 111 files / 319612 words / 2400226 bytes, matching recorded evidence exactly. (2) CHK-002 adversarial rg -e 'advisory only' -e 'gateEvidence=false' -e 'NEVER satisfy' on both templates: exit 0, both patterns present (F-004 fix verified — all three patterns behind -e flags, no bare positional argument). (3) CHK-003 adversarial rg 'never degenerates to relatedDocs-only' plus guard smoke: exit 0. (4) CHK-004 happy rg 'Default inputs: the `lattice scope_check_save` result' plus guard smoke: exit 0. All four spot-checked commands are genuinely re-runnable from the worktree and reproduce the recorded pass results."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "Independently re-ran diff packages/main/templates/agents/{lattice-review-scope-plan,lattice-review-behavior}.md against .claude/agents/ and .lattice-codex/agents/ counterparts: all 4 diffs empty. Mirror synchronization is a real, machine-verifiable byte-identity property, not just a docs claim."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "F-002 (aux_doc_list parity) re-verified independently: rg 'aux_doc_list' on both templates shows the phrase present in both scope-plan candidateSpecSet source list (line 124) and behavior candidateSpecSet source list (line 130), confirming the previously-flagged asymmetry is fixed."
+    },
+    {
+      "featureId": "CHK-001",
+      "transcript": "Pure baseline-measurement and mirror pre-identity checklist item; re-verified as part of CHK-007 replay above (wc counts reproduce exactly). No additional runtime behavior to test beyond the shared replay.",
+      "waiverReason": "CHK-001 is a re-measurement/evidence-baseline task (find/wc/rg over the decisions corpus), not a shipped runtime feature; its only testable artifact is the literal command replay already covered under CHK-007's realMachineTests entry, so no separate feature-behavior transcript applies."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 7 docsPromises independently verified against source: six prompt copies are byte-identical, contain the bounded-preflight/candidateSpecSet/scanEscalationReason/advisory-only wording, and the CLAUDE.md OQ paragraph and F-001/F-002/F-004 fixes are confirmed present in the diff. The one real-machine test (reviewer-scan-budget-guard-smoke.js) independently rebuilt and reproduced PASS/exit 0, with genuine happy/edge/adversarial coverage including two hostile-line regression controls (F-003, F-005). All 5 findings (F-001..F-005) are status=resolved with fixes visible in the diff and independently re-verified. The honest hedge (prompts instruct but do not mechanically enforce bounded reading) and the guard-not-wired-into-validate gap are consciously documented in plan.md, decision.json, scope-contract.json, and summary.json, with a real follow-up story B-04bb already created. No TODO/FIXME/HACK found in the diff. No unresolved delivery gaps found."
+  },
+  "_hash": "573a6aaed06bca0c814497ceb5cb30acf12c8a911bef1930d8ccb2c47c476b6a"
+}
