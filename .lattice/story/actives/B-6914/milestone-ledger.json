@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-6914",
+  "state": "candidate",
+  "ledgerHash": "sha256:4b24a67605ee457536f30bb4b556a2a5197dfbf8339242b76988d2f9b6cc706c",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "B90D6-RECOVERY-BUMP",
+      "claim": "Runtime-changing DONE recovery cannot skip package patch bump.",
+      "doneMeans": "done_recover regression proves runtimeSemverChanged=true invokes version bump before build.",
+      "requiredEvidence": [
+        "smoke-test",
+        "source-diff"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "LOCKFILE-SYNC",
+      "claim": "Patch bump keeps package and lockfile version sources synchronized.",
+      "doneMeans": "version-bump smoke covers root/main package json and lockfile sync plus rollback behavior.",
+      "requiredEvidence": [
+        "smoke-test",
+        "build"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "B90D6-CONSUMABLE-VERSION",
+      "claim": "The B-90d6 runtime changes become visible behind a new local package version.",
+      "doneMeans": "local version files, dist brand, and lattice --version align on the next patch; no remote release is performed.",
+      "requiredEvidence": [
+        "build",
+        "cli-version-check"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-09T00:48:25.444Z",
+  "updatedAt": "2026-07-09T00:48:25.444Z"
+}

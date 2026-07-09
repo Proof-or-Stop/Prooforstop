@@ -1,0 +1,34 @@
+{
+  "storyId": "B-6914",
+  "checkedAt": "2026-07-09T00:48:53.316Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init@fallback",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "lattice-review-story-init@fallback",
+      "checkedAt": "2026-07-09T00:48:53.316Z",
+      "issues": []
+    },
+    {
+      "agentId": "product-reviewer@fallback",
+      "checkedAt": "2026-07-09T00:48:53.316Z",
+      "issues": []
+    }
+  ],
+  "fallback": {
+    "mode": "fallback",
+    "reason": "Side conversation policy forbids sub-agents, so independent INIT reviewer spawning is unavailable here. Manual attestation checked B-6914 background, checklist, milestones, scope boundary, execution boundary, and related docs for the bounded version-finalizer bug; no high or critical INIT blockers found.",
+    "evidenceRefs": [
+      "lattice init_preflight --storyId=B-6914 showed only missing scope_freeze_check/init-check before repair",
+      "lattice scope_freeze_check --storyId=B-6914 saved PASS",
+      "Related docs: AGENTS.md version discipline; docs/requirements/decisions/done-prepare-automation-execution-plan.md; docs/CLI.md"
+    ],
+    "actor": "codex-side-conversation",
+    "session": "sess-3d1880b40d393f50",
+    "attestedAt": "2026-07-09T00:48:53.316Z",
+    "headHash": "1f00beb7c29d909030241cf34535388732ef9689",
+    "materialHash": "3955f76ce61d5d007830583a13ddbd43552cc760f9abc7e9bb1b83248e2842a1"
+  },
+  "_hash": "b83d8c4884568775592de64595a83bb6f0f5dbbe07933871f9ff1cf55c511f1f"
+}

@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-6914",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git log *",
+    "git show *",
+    "git status *",
+    "lattice *",
+    "node packages/main/dist/cli.js *",
+    "node packages/main/dist/tasks/version-bump-smoke.js",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main run test:*"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "docs/CLI.md",
+    "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+    "package-lock.json",
+    "package.json",
+    "packages/main/package-lock.json",
+    "packages/main/package.json",
+    "packages/main/src/core/lattice-brand.ts",
+    "packages/main/src/core/version-bump.ts",
+    "packages/main/src/handlers/done-recover.ts",
+    "packages/main/src/tasks/artifact-release-ledger-smoke.ts",
+    "packages/main/src/tasks/version-bump-smoke.ts",
+    "packages/main/src/tasks/worktree-repair-smoke.ts"
+  ],
+  "excludedCommands": [
+    "git push *",
+    "node scripts/release.mjs publish",
+    "npm publish *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Bounded to local version finalizer code, tests, package metadata, and docs.",
+  "createdAt": "2026-07-09T00:48:25.444Z",
+  "updatedAt": "2026-07-09T00:48:25.444Z",
+  "_hash": "8d661680bdc96fe22dd0ee7b10316102909b1d3650257b2a8c210eaf5bc98717"
+}

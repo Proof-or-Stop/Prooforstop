@@ -1,0 +1,143 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Make recovery run the same runtime version bump as normal DONE",
+      "context": "done_recover currently computes recoveryMergeChangedPaths and runtimeSemverChanged but only runs build plus artifact/capability ledgers. It must invoke bumpVersionOnDoneMerge before build when watched runtime inputs changed, using the same changed paths predicate as normal DONE.",
+      "relatedDocs": [
+        "AGENTS.md#版本递增纪律",
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+        "docs/CLI.md"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/done-recover.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/worktree-repair-smoke.ts",
+          "packages/main/src/tasks/version-bump-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A partial-DONE recovery fixture with packages/main/src changes records a patch bump before the recovery build and reports the version auto-bumped line.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Metadata-only recovery keeps the skip behavior and does not create a version bump commit.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "If the recovery merge changes watched runtime inputs, done_recover cannot finish with runtimeSemverChanged=true but no bumpVersionOnDoneMerge call.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Synchronize lockfiles in patch version bump",
+      "context": "AGENTS and done_prepare docs say package lockfiles are part of version state. Extend version-bump sync points so root package-lock.json and packages/main/package-lock.json move with package.json and LATTICE_CLI_VERSION, with rollback and drift checks preserved.",
+      "relatedDocs": [
+        "AGENTS.md#版本递增纪律",
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/version-bump.ts",
+          "packages/main/src/tasks/version-bump-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/version-bump-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "applyPatchBump updates package.json, packages/main/package.json, both package-lock files, and LATTICE_CLI_VERSION to the same next patch.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A lockfile drift or missing top-level lockfile version fails loudly before a partial bump is committed.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A post-write verification failure involving lockfiles rolls back all version sync files instead of leaving package and lockfile versions mismatched.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Restore the post-B-90d6 consumable version boundary",
+      "context": "The current main has B-90d6 runtime changes at version 0.3.170 with lockfiles still at 0.3.169. Completing this story should produce the next local patch version with package, lockfile, brand, dist, and lattice --version aligned, without remote publish.",
+      "relatedDocs": [
+        "docs/requirements/decisions/pos-agent-drivability-optimization.md",
+        "docs/CLI.md"
+      ],
+      "files": {
+        "modify": [
+          "package.json",
+          "package-lock.json",
+          "packages/main/package.json",
+          "packages/main/package-lock.json",
+          "packages/main/src/core/lattice-brand.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/version-bump-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After local build, package metadata and lattice --version report the same new patch version beyond 0.3.170.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "No git push, npm publish, or GitHub release is performed; this remains a local version boundary only.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The story cannot claim DONE if package.json, packages/main/package.json, lockfiles, source brand, and dist brand disagree.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
