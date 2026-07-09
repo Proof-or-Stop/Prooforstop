@@ -293,7 +293,7 @@ const RETIRED_COMPLETION_FALSE_FIELDS = [
 
 function requireRetiredCompletionFieldsFalse(event: ProcessEvent, reasons: string[]): void {
   for (const field of RETIRED_COMPLETION_FALSE_FIELDS) {
-    if (event[field] !== false) reasons.push('retired completion flag must be false');
+    if (event[field] !== undefined && event[field] !== false) reasons.push('retired completion flag must be false when present');
   }
 }
 

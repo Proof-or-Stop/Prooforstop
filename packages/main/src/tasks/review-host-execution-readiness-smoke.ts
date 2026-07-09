@@ -78,9 +78,6 @@ function legacyVersionOnlyProbe(availableHosts: readonly CanonicalReviewHost[]):
     })),
     availableHostCount: availableHosts.length,
     unavailableHostCount: REVIEW_HOST_AVAILABILITY_CANONICAL_HOSTS.length - availableHosts.length,
-    authorityDone: false,
-    fullAuthorityDone: false,
-    productionDone: false,
   };
 }
 
@@ -122,9 +119,6 @@ function readinessProbe(rows: ReturnType<typeof readinessRow>[]): ProcessEvent {
     unavailableHostCount: REVIEW_HOST_AVAILABILITY_CANONICAL_HOSTS.length - rows.filter(row => row.available).length,
     executionReadyHostCount: rows.filter(row => row.executionReady).length,
     reviewReadyHostCount: rows.filter(row => row.reviewReady).length,
-    authorityDone: false,
-    fullAuthorityDone: false,
-    productionDone: false,
   };
 }
 
