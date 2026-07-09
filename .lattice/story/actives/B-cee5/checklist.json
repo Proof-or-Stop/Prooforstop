@@ -96,7 +96,27 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "scope-plan default flow: enumerate decisions filenames, build candidateSpecSet from the six listed sources, full-read only candidate members within the N<=15 budget",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "candidate-ambiguity path instructs escalation with a recorded scanEscalationReason instead of guessing when triage is unclear",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "candidateSpecSet cannot degenerate to relatedDocs-only: mandatory enumeration plus keyword-match wording exists and the static guard asserts the phrases",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
