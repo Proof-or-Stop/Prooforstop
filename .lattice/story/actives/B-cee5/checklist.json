@@ -198,6 +198,17 @@
           "materialHash": "2129600913e88693d4e5986538beca1b15432d378b1fb18b9b126d64d6e96cdb",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "timestamp": "2026-07-09T17:16:29.959Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"candidate ambiguity\" packages/main/templates/agents/lattice-review-scope-plan.md packages/main/templates/agents/lattice-review-behavior.md",
+          "result": "pass",
+          "note": "Candidate ambiguity is an explicit scanEscalationReason trigger in both templates; scope-plan step 4(a) additionally instructs escalation instead of guessing when triage suggests hidden commitments.",
+          "headHash": "cbfbd5bebf9c5edffa10e38b41c669912e47c800",
+          "materialHash": "2129600913e88693d4e5986538beca1b15432d378b1fb18b9b126d64d6e96cdb",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-09T17:16:31.777Z"
         }
       ]
     },
