@@ -48,10 +48,10 @@
           "command": "rg -n \"^(#|##|###) \" docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
           "result": "pass",
           "note": "Evidence pack is present in the document heading map and includes the B-2861 3x2 review ledger, gate/UX sections, execution matrix, artifact schema, story breakdown, and completion definition.",
-          "headHash": "fac8f979adc268a48c183c0d76694585c6398792",
-          "materialHash": "9b72745d1cb7fb011392b16226486cb34395ef7b232144771bb795905a441344",
-          "storyFilesHash": "bf80ee232cdb7089a72cc47c138e2c4367563c775d704d8d5be2e06f9a63b083",
-          "timestamp": "2026-07-09T15:50:35.155Z"
+          "headHash": "382fc4c473131ff0ea36391468907e57d48d3bcd",
+          "materialHash": "4f808805bc9cceb1ece25425e9e98dd1b1075aff2ed755b00d5cb354c9e6b722",
+          "storyFilesHash": "c2af2d28b3964fad12b86aa9fc929b7da6d1a4fe24f2336f0dc81a6e5722f769",
+          "timestamp": "2026-07-09T15:57:43.280Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -60,10 +60,10 @@
           "command": "rg -n \"review-run.ts|init-check-gate.ts|milestone_status|done-required|openQuestions\" docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md packages/main/src/core/review-run.ts packages/main/src/core/init-check-gate.ts docs/CLI.md",
           "result": "pass",
           "note": "Evidence pack distinguishes current code facts from planning prose, including reviewer lane prefixes, INIT required agents, milestone UX behavior, DONE-required policy, and unsigned openQuestions.",
-          "headHash": "fac8f979adc268a48c183c0d76694585c6398792",
-          "materialHash": "9b72745d1cb7fb011392b16226486cb34395ef7b232144771bb795905a441344",
-          "storyFilesHash": "bf80ee232cdb7089a72cc47c138e2c4367563c775d704d8d5be2e06f9a63b083",
-          "timestamp": "2026-07-09T15:50:35.155Z"
+          "headHash": "382fc4c473131ff0ea36391468907e57d48d3bcd",
+          "materialHash": "4f808805bc9cceb1ece25425e9e98dd1b1075aff2ed755b00d5cb354c9e6b722",
+          "storyFilesHash": "c2af2d28b3964fad12b86aa9fc929b7da6d1a4fe24f2336f0dc81a6e5722f769",
+          "timestamp": "2026-07-09T15:57:43.280Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -72,10 +72,10 @@
           "command": "lattice scope_contract_check {\"storyId\":\"B-2861\"}",
           "result": "pass",
           "note": "Scope contract now reports only acknowledged warnings for required ProofStory metadata; the target document is within the document-review scope and no runtime/code files were changed.",
-          "headHash": "fac8f979adc268a48c183c0d76694585c6398792",
-          "materialHash": "9b72745d1cb7fb011392b16226486cb34395ef7b232144771bb795905a441344",
-          "storyFilesHash": "bf80ee232cdb7089a72cc47c138e2c4367563c775d704d8d5be2e06f9a63b083",
-          "timestamp": "2026-07-09T15:50:35.155Z"
+          "headHash": "382fc4c473131ff0ea36391468907e57d48d3bcd",
+          "materialHash": "4f808805bc9cceb1ece25425e9e98dd1b1075aff2ed755b00d5cb354c9e6b722",
+          "storyFilesHash": "c2af2d28b3964fad12b86aa9fc929b7da6d1a4fe24f2336f0dc81a6e5722f769",
+          "timestamp": "2026-07-09T15:57:43.280Z"
         }
       ]
     },
@@ -125,10 +125,10 @@
           "command": "codex exec, claude --print, and agy --print review runs",
           "result": "pass",
           "note": "Three hosts completed: Codex CLI from a prepared evidence pack, Claude Code CLI read-only against the worktree, and Antigravity CLI read-only against the worktree.",
-          "headHash": "fac8f979adc268a48c183c0d76694585c6398792",
-          "materialHash": "9b72745d1cb7fb011392b16226486cb34395ef7b232144771bb795905a441344",
-          "storyFilesHash": "bf80ee232cdb7089a72cc47c138e2c4367563c775d704d8d5be2e06f9a63b083",
-          "timestamp": "2026-07-09T15:50:35.155Z"
+          "headHash": "382fc4c473131ff0ea36391468907e57d48d3bcd",
+          "materialHash": "4f808805bc9cceb1ece25425e9e98dd1b1075aff2ed755b00d5cb354c9e6b722",
+          "storyFilesHash": "c2af2d28b3964fad12b86aa9fc929b7da6d1a4fe24f2336f0dc81a6e5722f769",
+          "timestamp": "2026-07-09T15:57:43.280Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -137,10 +137,10 @@
           "command": "rg -n \"B-2861 3x2 Review Follow-Up Ledger|Codex CLI|Claude Code CLI|Antigravity\" docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
           "result": "pass",
           "note": "The document records all three host labels and their two-lens review framing, including the limitation on the interrupted Codex run and evidence-pack rerun.",
-          "headHash": "fac8f979adc268a48c183c0d76694585c6398792",
-          "materialHash": "9b72745d1cb7fb011392b16226486cb34395ef7b232144771bb795905a441344",
-          "storyFilesHash": "bf80ee232cdb7089a72cc47c138e2c4367563c775d704d8d5be2e06f9a63b083",
-          "timestamp": "2026-07-09T15:50:35.155Z"
+          "headHash": "382fc4c473131ff0ea36391468907e57d48d3bcd",
+          "materialHash": "4f808805bc9cceb1ece25425e9e98dd1b1075aff2ed755b00d5cb354c9e6b722",
+          "storyFilesHash": "c2af2d28b3964fad12b86aa9fc929b7da6d1a4fe24f2336f0dc81a6e5722f769",
+          "timestamp": "2026-07-09T15:57:43.280Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -149,10 +149,10 @@
           "command": "rg -n \"Rejected for this story|design input, not gate evidence|document-only\" docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
           "result": "pass",
           "note": "The 3x2 output is not blindly accepted as gate evidence; runtime-code suggestions are explicitly rejected for this document-only story and reclassified as future implementation constraints.",
-          "headHash": "fac8f979adc268a48c183c0d76694585c6398792",
-          "materialHash": "9b72745d1cb7fb011392b16226486cb34395ef7b232144771bb795905a441344",
-          "storyFilesHash": "bf80ee232cdb7089a72cc47c138e2c4367563c775d704d8d5be2e06f9a63b083",
-          "timestamp": "2026-07-09T15:50:35.155Z"
+          "headHash": "382fc4c473131ff0ea36391468907e57d48d3bcd",
+          "materialHash": "4f808805bc9cceb1ece25425e9e98dd1b1075aff2ed755b00d5cb354c9e6b722",
+          "storyFilesHash": "c2af2d28b3964fad12b86aa9fc929b7da6d1a4fe24f2336f0dc81a6e5722f769",
+          "timestamp": "2026-07-09T15:57:43.280Z"
         }
       ]
     },
@@ -202,10 +202,10 @@
           "command": "rg -n \"Optimization / finding|Accepted|Rejected for this story\" docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
           "result": "pass",
           "note": "Optimization ledger classifies accepted and rejected findings with source host/lens, applied document change, reason, and evidence.",
-          "headHash": "fac8f979adc268a48c183c0d76694585c6398792",
-          "materialHash": "9b72745d1cb7fb011392b16226486cb34395ef7b232144771bb795905a441344",
-          "storyFilesHash": "bf80ee232cdb7089a72cc47c138e2c4367563c775d704d8d5be2e06f9a63b083",
-          "timestamp": "2026-07-09T15:50:35.155Z"
+          "headHash": "382fc4c473131ff0ea36391468907e57d48d3bcd",
+          "materialHash": "4f808805bc9cceb1ece25425e9e98dd1b1075aff2ed755b00d5cb354c9e6b722",
+          "storyFilesHash": "c2af2d28b3964fad12b86aa9fc929b7da6d1a4fe24f2336f0dc81a6e5722f769",
+          "timestamp": "2026-07-09T15:57:43.280Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -214,10 +214,10 @@
           "command": "rg -n \"scope-check.openQuestions|reviewer pass/finding|lattice-review-channel|26 Lattice stories\" docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
           "result": "pass",
           "note": "Ledger preserves nuanced items rather than hiding disagreement: openQuestions are warning/deferred-code, reviewer UX is accepted with scope boundary, channel is read-compatible legacy, and M0.5 is split.",
-          "headHash": "fac8f979adc268a48c183c0d76694585c6398792",
-          "materialHash": "9b72745d1cb7fb011392b16226486cb34395ef7b232144771bb795905a441344",
-          "storyFilesHash": "bf80ee232cdb7089a72cc47c138e2c4367563c775d704d8d5be2e06f9a63b083",
-          "timestamp": "2026-07-09T15:50:35.155Z"
+          "headHash": "382fc4c473131ff0ea36391468907e57d48d3bcd",
+          "materialHash": "4f808805bc9cceb1ece25425e9e98dd1b1075aff2ed755b00d5cb354c9e6b722",
+          "storyFilesHash": "c2af2d28b3964fad12b86aa9fc929b7da6d1a4fe24f2336f0dc81a6e5722f769",
+          "timestamp": "2026-07-09T15:57:43.280Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -226,10 +226,10 @@
           "command": "rg -n \"Immediately update runtime code|Rejected for this story|not gate evidence\" docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
           "result": "pass",
           "note": "The ledger explicitly rejects scope creep into runtime code and states 3x2 outputs are design input, not gate evidence.",
-          "headHash": "fac8f979adc268a48c183c0d76694585c6398792",
-          "materialHash": "9b72745d1cb7fb011392b16226486cb34395ef7b232144771bb795905a441344",
-          "storyFilesHash": "bf80ee232cdb7089a72cc47c138e2c4367563c775d704d8d5be2e06f9a63b083",
-          "timestamp": "2026-07-09T15:50:35.155Z"
+          "headHash": "382fc4c473131ff0ea36391468907e57d48d3bcd",
+          "materialHash": "4f808805bc9cceb1ece25425e9e98dd1b1075aff2ed755b00d5cb354c9e6b722",
+          "storyFilesHash": "c2af2d28b3964fad12b86aa9fc929b7da6d1a4fe24f2336f0dc81a6e5722f769",
+          "timestamp": "2026-07-09T15:57:43.280Z"
         }
       ]
     },
@@ -279,10 +279,10 @@
           "command": "git show --stat --oneline HEAD",
           "result": "pass",
           "note": "Committed document optimizations in fac8f979a, adding the execution plan and scope acknowledgement without runtime code changes.",
-          "headHash": "fac8f979adc268a48c183c0d76694585c6398792",
-          "materialHash": "9b72745d1cb7fb011392b16226486cb34395ef7b232144771bb795905a441344",
-          "storyFilesHash": "bf80ee232cdb7089a72cc47c138e2c4367563c775d704d8d5be2e06f9a63b083",
-          "timestamp": "2026-07-09T15:50:35.155Z"
+          "headHash": "382fc4c473131ff0ea36391468907e57d48d3bcd",
+          "materialHash": "4f808805bc9cceb1ece25425e9e98dd1b1075aff2ed755b00d5cb354c9e6b722",
+          "storyFilesHash": "c2af2d28b3964fad12b86aa9fc929b7da6d1a4fe24f2336f0dc81a6e5722f769",
+          "timestamp": "2026-07-09T15:57:43.280Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -291,10 +291,10 @@
           "command": "rg -n \"finding_add|review_pass_set|done_required_validate|openQuestions|REQUIRED_INIT_CHECK_AGENTS|isReviewerAgent\" docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
           "result": "pass",
           "note": "Approved optimizations are applied: reviewer UX boundary, DONE-required evidence, openQuestions warning, INIT required-agent normalization, and reviewer predicate risk are documented.",
-          "headHash": "fac8f979adc268a48c183c0d76694585c6398792",
-          "materialHash": "9b72745d1cb7fb011392b16226486cb34395ef7b232144771bb795905a441344",
-          "storyFilesHash": "bf80ee232cdb7089a72cc47c138e2c4367563c775d704d8d5be2e06f9a63b083",
-          "timestamp": "2026-07-09T15:50:35.155Z"
+          "headHash": "382fc4c473131ff0ea36391468907e57d48d3bcd",
+          "materialHash": "4f808805bc9cceb1ece25425e9e98dd1b1075aff2ed755b00d5cb354c9e6b722",
+          "storyFilesHash": "c2af2d28b3964fad12b86aa9fc929b7da6d1a4fe24f2336f0dc81a6e5722f769",
+          "timestamp": "2026-07-09T15:57:43.280Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -303,10 +303,10 @@
           "command": "git diff --check && lattice scope_contract_check {\"storyId\":\"B-2861\"}",
           "result": "pass",
           "note": "Whitespace check passes and scope contract has no blocking violations after acknowledgement; code/CLI docs remain read-only evidence sources.",
-          "headHash": "fac8f979adc268a48c183c0d76694585c6398792",
-          "materialHash": "9b72745d1cb7fb011392b16226486cb34395ef7b232144771bb795905a441344",
-          "storyFilesHash": "bf80ee232cdb7089a72cc47c138e2c4367563c775d704d8d5be2e06f9a63b083",
-          "timestamp": "2026-07-09T15:50:35.155Z"
+          "headHash": "382fc4c473131ff0ea36391468907e57d48d3bcd",
+          "materialHash": "4f808805bc9cceb1ece25425e9e98dd1b1075aff2ed755b00d5cb354c9e6b722",
+          "storyFilesHash": "c2af2d28b3964fad12b86aa9fc929b7da6d1a4fe24f2336f0dc81a6e5722f769",
+          "timestamp": "2026-07-09T15:57:43.280Z"
         }
       ]
     },
@@ -356,10 +356,10 @@
           "command": "rg -n \"Optimization / finding|Reason and evidence|Completion Definition\" docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
           "result": "pass",
           "note": "The DONE optimization table is the B-2861 3x2 Review Follow-Up Ledger and includes reason/evidence columns plus completion-definition linkage.",
-          "headHash": "fac8f979adc268a48c183c0d76694585c6398792",
-          "materialHash": "9b72745d1cb7fb011392b16226486cb34395ef7b232144771bb795905a441344",
-          "storyFilesHash": "bf80ee232cdb7089a72cc47c138e2c4367563c775d704d8d5be2e06f9a63b083",
-          "timestamp": "2026-07-09T15:50:35.155Z"
+          "headHash": "382fc4c473131ff0ea36391468907e57d48d3bcd",
+          "materialHash": "4f808805bc9cceb1ece25425e9e98dd1b1075aff2ed755b00d5cb354c9e6b722",
+          "storyFilesHash": "c2af2d28b3964fad12b86aa9fc929b7da6d1a4fe24f2336f0dc81a6e5722f769",
+          "timestamp": "2026-07-09T15:57:43.280Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -368,10 +368,10 @@
           "command": "rg -n \"Accepted with scope boundary|Accepted as warning|Rejected for this story\" docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
           "result": "pass",
           "note": "The DONE table separates accepted, accepted-with-boundary, warning/deferred-code, and rejected items instead of claiming every suggestion was applied.",
-          "headHash": "fac8f979adc268a48c183c0d76694585c6398792",
-          "materialHash": "9b72745d1cb7fb011392b16226486cb34395ef7b232144771bb795905a441344",
-          "storyFilesHash": "bf80ee232cdb7089a72cc47c138e2c4367563c775d704d8d5be2e06f9a63b083",
-          "timestamp": "2026-07-09T15:50:35.155Z"
+          "headHash": "382fc4c473131ff0ea36391468907e57d48d3bcd",
+          "materialHash": "4f808805bc9cceb1ece25425e9e98dd1b1075aff2ed755b00d5cb354c9e6b722",
+          "storyFilesHash": "c2af2d28b3964fad12b86aa9fc929b7da6d1a4fe24f2336f0dc81a6e5722f769",
+          "timestamp": "2026-07-09T15:57:43.280Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -380,10 +380,10 @@
           "command": "git diff --check; rg -n \"^### [0-9]+\\. `proof-or-stop-\" docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md | wc -l",
           "result": "pass",
           "note": "Final checks found no whitespace errors and verified the document still lists all 16 proof-or-stop agent migration sections.",
-          "headHash": "fac8f979adc268a48c183c0d76694585c6398792",
-          "materialHash": "9b72745d1cb7fb011392b16226486cb34395ef7b232144771bb795905a441344",
-          "storyFilesHash": "bf80ee232cdb7089a72cc47c138e2c4367563c775d704d8d5be2e06f9a63b083",
-          "timestamp": "2026-07-09T15:50:35.155Z"
+          "headHash": "382fc4c473131ff0ea36391468907e57d48d3bcd",
+          "materialHash": "4f808805bc9cceb1ece25425e9e98dd1b1075aff2ed755b00d5cb354c9e6b722",
+          "storyFilesHash": "c2af2d28b3964fad12b86aa9fc929b7da6d1a4fe24f2336f0dc81a6e5722f769",
+          "timestamp": "2026-07-09T15:57:43.280Z"
         }
       ]
     }
