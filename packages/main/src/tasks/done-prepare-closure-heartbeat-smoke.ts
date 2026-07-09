@@ -327,6 +327,10 @@ function withEnv<T>(patch: Record<string, string>, fn: () => Promise<T>): Promis
   });
 }
 
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolveSleep) => setTimeout(resolveSleep, ms));
+}
+
 function assertHumanCliProgress(root: string, storyId: string): void {
   const result = runCli(root, donePrepareFlagArgs(storyId));
   assert.equal(result.status, 0, `human done_prepare should exit 0:\n${result.stderr}\n${result.stdout}`);
@@ -388,6 +392,51 @@ function assertRealValidateDoneRequiredProgressJsonSafe(): void {
     assert.equal(parsed.storyId, storyId);
     assert.equal(parsed.status, 'blocked');
     assert.match(parsed.transcript ?? '', /^blockedAt: cleanTree$/m);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+async function assertDoneRequiredPhaseTimeoutFailsClosed(): Promise<void> {
+  const childDurationMs = 1_000;
+  const { root, storyId } = setupFixture({ realValidate: true, doneRequiredDelayMs: childDurationMs });
+  try {
+    const result = runCli(root, donePrepareRealValidateArgs(storyId, true), {
+      LATTICE_DONE_PREPARE_HEARTBEAT_MS: '20',
+      LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS: '5000',
+      LATTICE_DONE_PREPARE_DONE_REQUIRED_VALIDATION_TIMEOUT_MS: '100',
+      LATTICE_VALIDATE_HEARTBEAT_MS: '20',
+    });
+    assert.equal(result.status, 0, `phase-timeout done_prepare should return a blocked JSON result:\n${result.stderr}\n${result.stdout}`);
+    assert.ok(
+      result.stderr.includes(DONE_REQUIRED_PROGRESS_LABEL),
+      `DONE-required validation phase must be attributed in progress output:\n${result.stderr}`,
+    );
+    assert.ok(!result.stdout.includes('done_prepare progress:'), `JSON stdout must not contain done_prepare progress text:\n${result.stdout}`);
+    assert.ok(!result.stdout.includes('done_prepare heartbeat:'), `JSON stdout must not contain done_prepare heartbeat text:\n${result.stdout}`);
+    assert.ok(!result.stdout.includes('validate progress:'), `JSON stdout must not contain validate progress text:\n${result.stdout}`);
+    const parsed = JSON.parse(result.stdout) as {
+      status?: string;
+      blockedAt?: string;
+      reason?: string;
+      transcript?: string;
+    };
+    assert.equal(parsed.status, 'blocked');
+    assert.equal(parsed.blockedAt, 'validate');
+    assert.match(parsed.reason ?? '', /done_prepare phase "running DONE-required validation" exceeded 100ms timeout/);
+    assert.match(parsed.reason ?? '', /heartbeat output is diagnostic only and does not extend the phase deadline/);
+    assert.match(parsed.transcript ?? '', /^blockedAt: validate$/m);
+
+    await sleep(childDurationMs + 250);
+    const evidencePath = join(root, '.lattice', 'story', 'actives', storyId, 'done-required-evidence.json');
+    if (existsSync(evidencePath)) {
+      const evidence = JSON.parse(readFileSync(evidencePath, 'utf8')) as { status?: string };
+      assert.notEqual(
+        evidence.status,
+        'PASS',
+        `DONE-required phase timeout must not allow a late PASS evidence write:\n${readFileSync(evidencePath, 'utf8')}`,
+      );
+    }
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -536,6 +585,7 @@ void (async () => {
     assertHumanCliProgress(fixture.root, fixture.storyId);
     assertJsonStdoutParseable(fixture.root, fixture.storyId);
     assertRealValidateDoneRequiredProgressJsonSafe();
+    await assertDoneRequiredPhaseTimeoutFailsClosed();
     await assertHungPhaseFailsClosed();
     await assertSynchronousGitTimeoutFailsClosed();
     await assertSynchronousDoneClosureGitTimeoutFailsClosed();

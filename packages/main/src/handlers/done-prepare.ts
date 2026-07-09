@@ -12,6 +12,7 @@ import { createVerifierHandlers } from './verifier.js';
 import { loadConfig } from '../core/config.js';
 import { resolveDoneRequiredPolicy } from '../core/done-required-validation.js';
 import { checkEvidenceFreshnessForGit, currentGitHead, currentMaterialHash, currentStoryFilesHash, isStoryMetadataPath } from '../core/evidence-freshness.js';
+import { formatValidationProgressEvent } from '../core/validation-executor.js';
 import { buildVerificationCoverage } from '../core/verification.js';
 import {
   classifyGitStatusRows,
@@ -130,6 +131,13 @@ interface CloseoutPhaseChildProcessDeadline {
   deadlineAt: number;
   timeoutError?: DonePreparePhaseTimeoutError;
   restore: () => void;
+}
+
+interface CloseoutPhaseControl {
+  signal: AbortSignal;
+  deadlineAt: number;
+  timeoutMs: number;
+  timeoutError: () => DonePreparePhaseTimeoutError;
 }
 
 type SmokeSyncGitHangKind = 'execFileSync' | 'execSync';
@@ -632,12 +640,20 @@ function installCloseoutPhaseChildProcessDeadline(
 async function runCloseoutPhase<T>(
   ctx: HandlerContext,
   phase: CloseoutPhase,
-  work: () => T | Promise<T>,
+  work: (control: CloseoutPhaseControl) => T | Promise<T>,
 ): Promise<T> {
   const heartbeatMs = donePrepareHeartbeatMs();
   const timeoutMs = donePreparePhaseTimeoutMs(phase);
   const started = Date.now();
   const childProcessDeadline = installCloseoutPhaseChildProcessDeadline(phase, timeoutMs, started);
+  const abortController = new AbortController();
+  const timeoutError = () => markChildProcessPhaseTimeout(childProcessDeadline);
+  const phaseControl: CloseoutPhaseControl = {
+    signal: abortController.signal,
+    deadlineAt: childProcessDeadline.deadlineAt,
+    timeoutMs,
+    timeoutError,
+  };
   ctx.log?.(`done_prepare progress: ${phase.label}`);
 
   const heartbeat = setInterval(() => {
@@ -647,13 +663,17 @@ async function runCloseoutPhase<T>(
 
   let timeout: NodeJS.Timeout | undefined;
   const deadline = new Promise<never>((_resolve, reject) => {
-    timeout = setTimeout(() => reject(new DonePreparePhaseTimeoutError(phase, timeoutMs)), timeoutMs);
+    timeout = setTimeout(() => {
+      const err = timeoutError();
+      abortController.abort(err);
+      reject(err);
+    }, timeoutMs);
   });
 
   const task = Promise.resolve().then(async () => {
     try {
       await maybeSmokeHangCloseoutPhase(phase);
-      const result = await work();
+      const result = await work(phaseControl);
       if (childProcessDeadline.timeoutError) throw childProcessDeadline.timeoutError;
       return result;
     } catch (err) {
@@ -666,6 +686,11 @@ async function runCloseoutPhase<T>(
     const result = await Promise.race([task, deadline]);
     ctx.log?.(`done_prepare progress: completed ${phase.label} elapsedMs=${Date.now() - started}`);
     return result;
+  } catch (err) {
+    if (isDonePreparePhaseTimeout(err) && !abortController.signal.aborted) {
+      abortController.abort(err);
+    }
+    throw err;
   } finally {
     clearInterval(heartbeat);
     if (timeout) clearTimeout(timeout);
@@ -1233,7 +1258,16 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
         doneRequiredText = asText(await runCloseoutPhase(
           ctx,
           CLOSEOUT_PHASES.doneRequiredValidation,
-          () => doneRequiredHandlers.done_required_validate({ storyId, json: true }),
+          (phaseControl) => doneRequiredHandlers.done_required_validate({
+            storyId,
+            json: true,
+            progress: (event: Parameters<typeof formatValidationProgressEvent>[0]) => {
+              ctx.log?.(formatValidationProgressEvent(event));
+            },
+            abortSignal: phaseControl.signal,
+            deadlineAt: phaseControl.deadlineAt,
+            deadlineError: phaseControl.timeoutError,
+          }),
         ));
       } catch (err: any) {
         if (isDonePreparePhaseTimeout(err)) return phaseTimeoutBlock(storyId, steps, err);

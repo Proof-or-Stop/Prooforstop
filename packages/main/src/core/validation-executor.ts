@@ -46,6 +46,8 @@ export interface RunValidationCommandOptions {
   commandIndex?: number;
   totalCommands?: number;
   heartbeatMs?: number;
+  abortSignal?: AbortSignal;
+  deadlineAt?: number;
 }
 
 export interface ExecuteValidationPlanOptions {
@@ -295,7 +297,13 @@ export function runValidationCommand(
 ): Promise<ValidationCommandResult> {
   const cwd = commandCwd(projectRoot, command.cwd);
   const started = Date.now();
-  const timeoutMs = resolveCommandTimeoutMs(command, defaultTimeoutMs);
+  const configuredTimeoutMs = resolveCommandTimeoutMs(command, defaultTimeoutMs);
+  const deadlineRemainingMs = typeof options.deadlineAt === 'number' && Number.isFinite(options.deadlineAt)
+    ? Math.max(1, Math.floor(options.deadlineAt - Date.now()))
+    : undefined;
+  const timeoutMs = deadlineRemainingMs === undefined
+    ? configuredTimeoutMs
+    : Math.min(configuredTimeoutMs, deadlineRemainingMs);
   const commandIndex = options.commandIndex ?? 1;
   const totalCommands = options.totalCommands ?? 1;
   const heartbeatMs = options.heartbeatMs ?? resolveValidateHeartbeatMs();
@@ -317,6 +325,7 @@ export function runValidationCommand(
     let timedOut = false;
     let runnerFailure = false;
     let settled = false;
+    let timer: NodeJS.Timeout | undefined;
     let killTimer: NodeJS.Timeout | undefined;
     let heartbeatTimer: NodeJS.Timeout | undefined;
 
@@ -326,6 +335,7 @@ export function runValidationCommand(
       if (timer) clearTimeout(timer);
       if (killTimer) clearTimeout(killTimer);
       if (heartbeatTimer) clearInterval(heartbeatTimer);
+      options.abortSignal?.removeEventListener('abort', abortCommand);
       // A timed-out command is ALWAYS attributed exit 124, regardless of the child's own
       // reported code. On POSIX a SIGTERM/SIGKILL gives code=null; on Windows
       // TerminateProcess gives a numeric code (≠ null), and a child that traps SIGTERM
@@ -422,11 +432,8 @@ export function runValidationCommand(
       }
     };
 
-    // Always arm a per-command timeout: explicit timeoutMs, else the default ceiling. A
-    // hung command is then killed (whole group) + attributed (exit 124) here, instead of
-    // the global idle watchdog silently force-exiting the whole validate. unref() so a
-    // stray timer never keeps the event loop alive on its own (the awaited child does).
-    const timer = setTimeout(() => {
+    const timeOutCommand = (escalationMs: number): void => {
+      if (settled || timedOut) return;
       timedOut = true;
       emitValidationProgress(options.progress, validationProgressEvent('command_timeout', command, {
         commandIndex,
@@ -437,8 +444,26 @@ export function runValidationCommand(
         timedOut: true,
       }));
       killTree('SIGTERM');
-      killTimer = setTimeout(() => killTree('SIGKILL'), 1000);
+      killTimer = setTimeout(() => killTree('SIGKILL'), escalationMs);
       killTimer.unref?.();
+    };
+
+    const abortCommand = (): void => {
+      timeOutCommand(50);
+    };
+
+    if (options.abortSignal?.aborted) {
+      abortCommand();
+    } else {
+      options.abortSignal?.addEventListener('abort', abortCommand, { once: true });
+    }
+
+    // Always arm a per-command timeout: explicit timeoutMs, else the default ceiling. A
+    // hung command is then killed (whole group) + attributed (exit 124) here, instead of
+    // the global idle watchdog silently force-exiting the whole validate. unref() so a
+    // stray timer never keeps the event loop alive on its own (the awaited child does).
+    timer = setTimeout(() => {
+      timeOutCommand(1000);
     }, timeoutMs);
     timer.unref?.();
 
