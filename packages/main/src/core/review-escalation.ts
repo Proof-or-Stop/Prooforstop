@@ -292,8 +292,13 @@ const RETIRED_COMPLETION_FALSE_FIELDS = [
 ] as const;
 
 function requireRetiredCompletionFieldsFalse(event: ProcessEvent, reasons: string[]): void {
+  const allowsOmittedRetiredFields = event.schemaVersion === REVIEW_HOST_AVAILABILITY_PROBE_SCHEMA_VERSION;
   for (const field of RETIRED_COMPLETION_FALSE_FIELDS) {
-    if (event[field] !== undefined && event[field] !== false) reasons.push('retired completion flag must be false when present');
+    if (event[field] === undefined) {
+      if (!allowsOmittedRetiredFields) reasons.push('retired completion flag must be false');
+      continue;
+    }
+    if (event[field] !== false) reasons.push('retired completion flag must be false when present');
   }
 }
 

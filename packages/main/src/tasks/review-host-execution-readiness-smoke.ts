@@ -222,6 +222,7 @@ try {
     const record = reviewHostAvailabilityProbeRecordFromEvent(legacy, 0, MATERIAL, STORY_FILES_HASH);
     assert.equal(record.valid, false);
     assert.match(record.reasons.join('\n'), /reviewReadyHostCount|launcher/);
+    assert.match(record.reasons.join('\n'), /retired completion flag must be false/);
 
     const assessment = assessReviewHostAvailabilityForFallbackEligibility(
       [legacy],
@@ -249,6 +250,23 @@ try {
     const record = reviewHostAvailabilityProbeRecordFromEvent(event, 0, MATERIAL, STORY_FILES_HASH);
     assert.equal(record.valid, false);
     assert.match(record.reasons.join('\n'), /agy.*launcherArgv.*--prompt-file|agy.*launcher must/);
+  });
+
+  check('v2 readiness probe may omit retired markers and still rejects forged marker values', () => {
+    const event = readinessProbe([
+      readinessRow('codex', true),
+      readinessRow('claude', false),
+      readinessRow('agy', false),
+    ]);
+    const record = reviewHostAvailabilityProbeRecordFromEvent(event, 0, MATERIAL, STORY_FILES_HASH);
+    assert.equal(record.valid, true);
+    assert.deepEqual(record.reasons, []);
+
+    const forgedField = ['authority', 'Done'].join('');
+    const forged = { ...event, [forgedField]: true };
+    const forgedRecord = reviewHostAvailabilityProbeRecordFromEvent(forged, 0, MATERIAL, STORY_FILES_HASH);
+    assert.equal(forgedRecord.valid, false);
+    assert.match(forgedRecord.reasons.join('\n'), /retired completion flag must be false when present/);
   });
 
   check('two review-ready hosts block non-human degraded fallback', () => {
