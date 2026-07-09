@@ -58,10 +58,10 @@
           "command": "node packages/main/dist/tasks/dispatch-run-smoke.js",
           "result": "pass",
           "note": "Dispatch smoke now uses and asserts the canonical explicit worker role lattice-implementer in dispatch_reassign output, pack metadata, and generated prompt, covering the user-visible role named by the intent.",
-          "headHash": "49ffc2e1430f881cc099d9b7f74493e1c1d626d9",
-          "materialHash": "c90041f3a82c6464815acdde122cebace62d6d8beb006396cbbbb1514e99ebce",
-          "storyFilesHash": "11f45c6b818e9c685628df92ed1bff6800f248d1c784abb044deaab5d370759e",
-          "timestamp": "2026-07-09T03:12:01.073Z"
+          "headHash": "f3f94e2804414d7699f5c7058b06af6565e1ca5c",
+          "materialHash": "ec087ac5796b4dc15641e3000a76fe7361bf208e8a23b4d13d80a36303c97e24",
+          "storyFilesHash": "9b2858030a22676bb7b7596c89909bd927e866c8eacb1c3035952e86315c4a58",
+          "timestamp": "2026-07-09T03:23:18.876Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -69,10 +69,10 @@
           "command": "node packages/main/dist/tasks/dispatch-run-smoke.js",
           "result": "pass",
           "note": "Dispatch smoke asserts omitted-role reassignment returns explicit default role overflow-worker and renders Role: overflow-worker in the generated prompt.",
-          "headHash": "073b791f73fc625bc5ebbb69302e231e5bd2c033",
-          "materialHash": "c90041f3a82c6464815acdde122cebace62d6d8beb006396cbbbb1514e99ebce",
-          "storyFilesHash": "11f45c6b818e9c685628df92ed1bff6800f248d1c784abb044deaab5d370759e",
-          "timestamp": "2026-07-09T03:12:37.290Z"
+          "headHash": "f3f94e2804414d7699f5c7058b06af6565e1ca5c",
+          "materialHash": "ec087ac5796b4dc15641e3000a76fe7361bf208e8a23b4d13d80a36303c97e24",
+          "storyFilesHash": "9b2858030a22676bb7b7596c89909bd927e866c8eacb1c3035952e86315c4a58",
+          "timestamp": "2026-07-09T03:23:18.876Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -80,10 +80,10 @@
           "command": "node packages/main/dist/tasks/dispatch-run-smoke.js",
           "result": "pass",
           "note": "Dispatch smoke snapshots the original dispatch record before reassignment, verifies it is unchanged afterward, and verifies the new record parentDispatchId points to the previous dispatch.",
-          "headHash": "073b791f73fc625bc5ebbb69302e231e5bd2c033",
-          "materialHash": "c90041f3a82c6464815acdde122cebace62d6d8beb006396cbbbb1514e99ebce",
-          "storyFilesHash": "11f45c6b818e9c685628df92ed1bff6800f248d1c784abb044deaab5d370759e",
-          "timestamp": "2026-07-09T03:12:37.290Z"
+          "headHash": "f3f94e2804414d7699f5c7058b06af6565e1ca5c",
+          "materialHash": "ec087ac5796b4dc15641e3000a76fe7361bf208e8a23b4d13d80a36303c97e24",
+          "storyFilesHash": "9b2858030a22676bb7b7596c89909bd927e866c8eacb1c3035952e86315c4a58",
+          "timestamp": "2026-07-09T03:23:18.876Z"
         }
       ]
     },
@@ -140,10 +140,10 @@
           "command": "node packages/main/dist/tasks/dispatch-run-smoke.js",
           "result": "pass",
           "note": "Dispatch smoke reads reassignment prompts and asserts they include Role, Objective, Fresh-context Continuity, mode fresh-context, previous dispatch id, and summary-only continuity wording.",
-          "headHash": "073b791f73fc625bc5ebbb69302e231e5bd2c033",
-          "materialHash": "c90041f3a82c6464815acdde122cebace62d6d8beb006396cbbbb1514e99ebce",
-          "storyFilesHash": "11f45c6b818e9c685628df92ed1bff6800f248d1c784abb044deaab5d370759e",
-          "timestamp": "2026-07-09T03:12:37.290Z"
+          "headHash": "f3f94e2804414d7699f5c7058b06af6565e1ca5c",
+          "materialHash": "ec087ac5796b4dc15641e3000a76fe7361bf208e8a23b4d13d80a36303c97e24",
+          "storyFilesHash": "9b2858030a22676bb7b7596c89909bd927e866c8eacb1c3035952e86315c4a58",
+          "timestamp": "2026-07-09T03:23:18.876Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -152,10 +152,10 @@
           "command": "node packages/main/dist/tasks/dispatch-run-smoke.js",
           "result": "pass",
           "note": "Dispatch smoke now treats an unrun prepared previous dispatch with no accepted-local receipt as a blocked/rejected edge case: dispatch_reassign throws a clear completed/accepted requirement error, emits no Worker reassignment ready text, and creates no follow-up dispatch. Accepted reassignment still renders summary-only fresh-context continuity.",
-          "headHash": "e309ae3d4141322551a1d4b9d3be733d3b5b81a6",
-          "materialHash": "c90041f3a82c6464815acdde122cebace62d6d8beb006396cbbbb1514e99ebce",
-          "storyFilesHash": "11f45c6b818e9c685628df92ed1bff6800f248d1c784abb044deaab5d370759e",
-          "timestamp": "2026-07-09T03:12:06.360Z"
+          "headHash": "f3f94e2804414d7699f5c7058b06af6565e1ca5c",
+          "materialHash": "ec087ac5796b4dc15641e3000a76fe7361bf208e8a23b4d13d80a36303c97e24",
+          "storyFilesHash": "9b2858030a22676bb7b7596c89909bd927e866c8eacb1c3035952e86315c4a58",
+          "timestamp": "2026-07-09T03:23:18.876Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -163,10 +163,10 @@
           "command": "node packages/main/dist/tasks/dispatch-run-smoke.js",
           "result": "pass",
           "note": "Dispatch smoke asserts reassignment prompts include no full-history fork is required and do not match forbidden claims for full-history inheritance, receipt verification, production DONE, or authority changes.",
-          "headHash": "073b791f73fc625bc5ebbb69302e231e5bd2c033",
-          "materialHash": "c90041f3a82c6464815acdde122cebace62d6d8beb006396cbbbb1514e99ebce",
-          "storyFilesHash": "11f45c6b818e9c685628df92ed1bff6800f248d1c784abb044deaab5d370759e",
-          "timestamp": "2026-07-09T03:12:37.290Z"
+          "headHash": "f3f94e2804414d7699f5c7058b06af6565e1ca5c",
+          "materialHash": "ec087ac5796b4dc15641e3000a76fe7361bf208e8a23b4d13d80a36303c97e24",
+          "storyFilesHash": "9b2858030a22676bb7b7596c89909bd927e866c8eacb1c3035952e86315c4a58",
+          "timestamp": "2026-07-09T03:23:18.876Z"
         }
       ]
     },
@@ -222,10 +222,10 @@
           "command": "node packages/main/dist/tasks/dispatch-run-smoke.js",
           "result": "pass",
           "note": "Dispatch smoke passes after fixing the review findings: completed fake worker reassignment uses role lattice-implementer, preserves parentDispatchId lineage, keeps fresh-context wording, and rejects prepared-only reassignment without creating a new dispatch.",
-          "headHash": "bce916c60053f81406f75ccac2757e3fff6022e8",
-          "materialHash": "c90041f3a82c6464815acdde122cebace62d6d8beb006396cbbbb1514e99ebce",
-          "storyFilesHash": "11f45c6b818e9c685628df92ed1bff6800f248d1c784abb044deaab5d370759e",
-          "timestamp": "2026-07-09T03:12:13.230Z"
+          "headHash": "f3f94e2804414d7699f5c7058b06af6565e1ca5c",
+          "materialHash": "ec087ac5796b4dc15641e3000a76fe7361bf208e8a23b4d13d80a36303c97e24",
+          "storyFilesHash": "9b2858030a22676bb7b7596c89909bd927e866c8eacb1c3035952e86315c4a58",
+          "timestamp": "2026-07-09T03:23:18.876Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -233,10 +233,10 @@
           "command": "node packages/main/dist/tasks/dispatch-run-smoke.js",
           "result": "pass",
           "note": "Dispatch smoke adds a dispatch_resume regression proving resume returns the original dispatch id and does not create a follow-up reassignment record.",
-          "headHash": "073b791f73fc625bc5ebbb69302e231e5bd2c033",
-          "materialHash": "c90041f3a82c6464815acdde122cebace62d6d8beb006396cbbbb1514e99ebce",
-          "storyFilesHash": "11f45c6b818e9c685628df92ed1bff6800f248d1c784abb044deaab5d370759e",
-          "timestamp": "2026-07-09T03:12:37.290Z"
+          "headHash": "f3f94e2804414d7699f5c7058b06af6565e1ca5c",
+          "materialHash": "ec087ac5796b4dc15641e3000a76fe7361bf208e8a23b4d13d80a36303c97e24",
+          "storyFilesHash": "9b2858030a22676bb7b7596c89909bd927e866c8eacb1c3035952e86315c4a58",
+          "timestamp": "2026-07-09T03:23:18.876Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -245,10 +245,10 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Process fact contract verification still passes with dispatch_reassign registered as L1 lattice-dispatch metadata after adding the previous-dispatch accepted-local eligibility guard.",
-          "headHash": "7649ef7054a935716098a097608fe6b7274fcad5",
-          "materialHash": "c90041f3a82c6464815acdde122cebace62d6d8beb006396cbbbb1514e99ebce",
-          "storyFilesHash": "11f45c6b818e9c685628df92ed1bff6800f248d1c784abb044deaab5d370759e",
-          "timestamp": "2026-07-09T03:12:19.409Z"
+          "headHash": "f3f94e2804414d7699f5c7058b06af6565e1ca5c",
+          "materialHash": "ec087ac5796b4dc15641e3000a76fe7361bf208e8a23b4d13d80a36303c97e24",
+          "storyFilesHash": "9b2858030a22676bb7b7596c89909bd927e866c8eacb1c3035952e86315c4a58",
+          "timestamp": "2026-07-09T03:23:18.876Z"
         },
         {
           "intentRef": "CHK-003:happy:0",
