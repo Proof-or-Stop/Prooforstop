@@ -1,103 +1,53 @@
 {
   "storyId": "B-d8ef",
-  "checkedAt": "2026-07-09T22:21:29.198Z",
-  "headHash": "6d5e17e3f228f09f162a41c2b6813d77d3e1babf",
-  "materialHash": "01fcc9bbdc043169a493838ea1877eeb5a8d5881b930fe1ff309ecf95f873fae",
-  "storyFilesHash": "904e54ad723b2cd6bf1dd915e087437307ecc7b6d46e04a0b0ac1740f83a9924",
-  "reviewRound": "2026-07-09T21:56:08.141Z",
+  "checkedAt": "2026-07-09T23:07:46.924Z",
+  "headHash": "fd5f24e68103fecc1b63cb2a58a4e2a2de2b4734",
+  "materialHash": "8e9e976b43d9599109d117095d224ed4a92acf2188a1df2e840013f176446d0c",
+  "storyFilesHash": "26f26a0a9824b5c0ada4229092a310575daf7301791a32128739a00720b5d7c3",
+  "reviewRound": "2026-07-09T22:49:36.804Z",
   "agentId": "lattice-review-delivery",
   "docsPromises": [
     {
-      "docPath": ".lattice/story/actives/B-d8ef/plan.md#rollback-path",
-      "promise": "No token values, raw transcripts, or auth profile contents are persisted.",
+      "docPath": "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+      "promise": "Review assurance/fallback decisions must be based on current-material review-ready host counts, not binary/version-only availability.",
       "status": "verified",
-      "verifiedBy": "diff/grep",
-      "evidence": "host-execution-readiness stores bounded outputBytes/diagnostic/remediation only; readiness smoke asserts JSON excludes stdout/stderr and token-invalidated transcript text; provider comments document transcript whitelist."
+      "verifiedBy": "checklist_get + milestone_status + validate",
+      "evidence": "CHK-001 and CHK-002 are done; verification evidence bound to materialHash=8e9e976b43d9599109d117095d224ed4a92acf2188a1df2e840013f176446d0c proves readiness rows, rejected legacy probes, and fallback refusal when two hosts are review-ready."
     },
     {
-      "docPath": ".lattice/story/actives/B-d8ef/plan.md#CHK-001",
-      "promise": "review_host_availability_probe emits codex, claude-code, and agy rows with executionReady, reviewReady, progressMode, failureKind, firstProgressMs, and durationMs without raw transcript text.",
+      "docPath": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+      "promise": "Reviewer host availability and escalation diagnostics expose canonical host launcher readiness and admissible lower-assurance fallback reasons.",
       "status": "verified",
-      "verifiedBy": "diff/grep + transcript",
-      "evidence": "handlers/review-escalation text output includes executionReadyHostCount/reviewReadyHostCount and per-row readiness fields; review-escalation validates row fields; transcript-diff records validate pass."
+      "verifiedBy": "checklist_get + milestone_status + validate",
+      "evidence": "CHK-001 records codex/claude/agy launcherArgv, executionReady/reviewReady, progressMode, failureKind, and bounded timing with no raw transcript; CHK-002 evidence covers degraded fallback diagnostics and refusal paths."
     },
     {
-      "docPath": ".lattice/story/actives/B-d8ef/plan.md#CHK-001",
-      "promise": "Canonical host rows separate binary/version availability from launcher execution readiness, derive reviewReadyHostCount from row-level reviewReady=true, reject contradictory counts, and keep retired completion fields false.",
+      "docPath": "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+      "promise": "Canonical host launchers used for quorum/reviewer work are observable noninteractive launchers with smoke coverage for Claude stream-json, Codex exec auth failure, and agy print mode.",
       "status": "verified",
-      "verifiedBy": "diff/grep",
-      "evidence": "reviewHostAvailabilityProbeRecordFromEvent validates executionReady/reviewReady booleans, recomputes executionReadyHostCount/reviewReadyHostCount, rejects contradictions, and calls requireRetiredCompletionFieldsFalse; smoke covers forged counts and retired markers."
-    },
-    {
-      "docPath": ".lattice/story/actives/B-d8ef/plan.md#CHK-002",
-      "promise": "Non-human degraded fallback refuses single-host-environment or temporary-host-unavailability when at least two independent hosts are review-ready.",
-      "status": "verified",
-      "verifiedBy": "diff/grep",
-      "evidence": "assessReviewHostAvailabilityForFallbackEligibility and referenced fallback checks reject reviewReadyHostCount>=2 with diagnostic use full 3x2 or explicit-human-approval; review escalation and assurance floor smokes assert the two-host refusal."
-    },
-    {
-      "docPath": ".lattice/story/actives/B-d8ef/plan.md#CHK-002",
-      "promise": "Legacy B-7438 version-only probes do not satisfy stronger readiness proof and diagnostics tell the operator to rerun review_host_availability_probe or use explicit-human-approval.",
-      "status": "verified",
-      "verifiedBy": "diff/grep",
-      "evidence": "missing reviewReadyHostCount/executionReadyHostCount invalidates probe records; fallback assessment reports version-only or lacks launcher readiness fields and tells rerun review_host_availability_probe or use explicit-human-approval; smoke covers legacy version-only probe."
-    },
-    {
-      "docPath": ".lattice/story/actives/B-d8ef/plan.md#CHK-002",
-      "promise": "Diagnostics name concrete causes such as auth, wrong_launcher, timeout, or silent-final-output.",
-      "status": "verified",
-      "verifiedBy": "diff/grep",
-      "evidence": "HostExecutionFailureKind includes auth, wrong_launcher, timeout, silent_final_output; classifyHostExecutionFailure maps token invalidation, unknown flags, and timeouts; handler row output prints failureKind and diagnostic/remediation."
-    },
-    {
-      "docPath": ".lattice/story/actives/B-d8ef/plan.md#CHK-003",
-      "promise": "Claude reviewer launcher is modeled as claude --print --verbose --output-format stream-json rather than plain final-output --print.",
-      "status": "verified",
-      "verifiedBy": "diff/grep",
-      "evidence": "canonicalReviewHostLauncherSpec(claude) returns claude --print --verbose --output-format=stream-json; dispatch runtime templates use the canonical spec; smoke rejects plain --print as silent_final_output."
-    },
-    {
-      "docPath": ".lattice/story/actives/B-d8ef/plan.md#CHK-003",
-      "promise": "agy --prompt-file is mechanically classified as wrong_launcher and canonical agy uses --print plus --print-timeout.",
-      "status": "verified",
-      "verifiedBy": "diff/grep",
-      "evidence": "canonicalReviewHostLauncherSpec(agy) uses agy --print <prompt> --print-timeout 30s; classifyReviewHostLauncher marks --prompt-file as wrong_launcher; dispatch smoke checks antigravity template excludes --prompt-file."
-    },
-    {
-      "docPath": ".lattice/story/actives/B-d8ef/plan.md#CHK-003",
-      "promise": "Codex --version or login presence is not enough; codex exec auth failures such as token_invalidated or refresh_token_invalidated classify as auth and are not review-ready.",
-      "status": "verified",
-      "verifiedBy": "diff/grep",
-      "evidence": "canonical Codex launcher is codex exec --json; classifyHostExecutionFailure maps token_invalidated/refresh_token_invalidated/auth strings to auth; classifyHostExecutionReadiness sets executionReady=false and reviewReady=false; smoke asserts no raw token text is persisted."
-    },
-    {
-      "docPath": ".lattice/story/actives/B-d8ef/plan.md#CHK-001-CHK-003-verify-output",
-      "promise": "Smoke commands print literal PASS labels such as PASS claude launcher uses --print --verbose --output-format stream-json, PASS agy --prompt-file classified wrong_launcher, and PASS codex exec token_invalidated classified auth.",
-      "status": "waived",
-      "verifiedBy": "diff/grep",
-      "evidence": "The smoke assertions exist and print check labels with a checkmark prefix rather than literal PASS text; behavior is covered but exact story-local wording is not literal.",
-      "waiverReason": "Story-local plan wording promised exact PASS label text, but the implemented smoke runner prints checkmark labels while asserting the same behaviors; this wording mismatch is not product behavior."
+      "verifiedBy": "checklist_get + milestone_status + validate",
+      "evidence": "CHK-003 is done with logic tests for Claude --print --verbose --output-format stream-json, agy --print/--print-timeout versus wrong_launcher --prompt-file, Codex exec token_invalidated auth classification, and dispatch-run smoke coverage."
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "Real-machine evidence: transcript-diff records lattice validate --story=B-d8ef --json ran 43 configured commands with status=pass/allPass=true. Code coverage checked in review-host-execution-readiness-smoke: canonical rows, concrete executed argv, no raw stdout/stderr/token text, legacy probe rejection, forged marker rejection, contradictory count rejection."
+      "transcript": "PASS: checklist and milestone evidence show review_host_availability_probe records canonical codex/claude/agy launcher readiness rows including launcherArgv, executionReady/reviewReady, progressMode, failureKind, firstProgressMs/durationMs, and no raw transcript. Fresh validation completed 44/44 PASS, including delivery-check-freshness smoke and the owner-provided DONE-required npm test PASS."
     },
     {
       "featureId": "CHK-002",
-      "transcript": "Real-machine evidence: transcript-diff validation pass plus review-escalation-smoke and review-assurance-floor-smoke assertions for reviewReadyHostCount below two permitting degraded 3x1 and reviewReadyHostCount=2 blocking non-human single-host fallback."
+      "transcript": "PASS: checklist evidence shows review-escalation and review-assurance-floor smokes use reviewReadyHostCount/executionReadyHostCount for degraded fallback diagnostics, reject legacy version-only probes, permit degraded 3x1 only below two review-ready hosts, and refuse single-host fallback when two canonical hosts are review-ready. Fresh validation completed 44/44 PASS."
     },
     {
       "featureId": "CHK-003",
-      "transcript": "Real-machine evidence: transcript-diff validation pass plus grep-confirmed smoke assertions for Claude --print --verbose --output-format=stream-json, agy --prompt-file wrong_launcher, Codex refresh_token_invalidated auth classification, dispatch launcher templates, and stream-json usage parsing edge cases."
+      "transcript": "PASS: smoke evidence covers Claude observable launcher --print --verbose --output-format stream-json, agy --prompt-file classified wrong_launcher while agy --print with --print-timeout is canonical, and Codex exec token_invalidated/refresh_token_invalidated classified as auth failure rather than review-ready. Fresh validation completed 44/44 PASS."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "Delivery is acceptable: implementation and smoke coverage satisfy the host-readiness, fallback, and launcher behavior promises. One story-local output-label promise is waived because the smoke prints checkmark labels rather than literal PASS strings while testing the same behavior."
+    "summary": "Delivery review PASS for B-d8ef. CHK-001, CHK-002, and CHK-003 are done; milestone_status reports all three milestones completed/pending review with required evidence covered; checklist evidence is bound to materialHash=8e9e976b43d9599109d117095d224ed4a92acf2188a1df2e840013f176446d0c and storyFilesHash=26f26a0a9824b5c0ada4229092a310575daf7301791a32128739a00720b5d7c3. Fresh lattice validate --story=B-d8ef --json completed 44/44 PASS, and the just-completed owner validation includes DONE-required root npm test PASS. No unresolved delivery TODOs found in the inspected story/checklist/milestone evidence."
   },
-  "_hash": "42d41ab069319a1486277f20247a5e8a8389605909f988c339568ec4e165c1b0"
+  "_hash": "bb816826f2959c663220789b5d23c301ef3de6ff0ac9855d794c8943aade8b21"
 }
