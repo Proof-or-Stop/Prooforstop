@@ -213,7 +213,9 @@
       "userSees": "Automated checks prevent the old default full-scan instructions from returning.",
       "files": {
         "modify": [],
-        "create": [],
+        "create": [
+          "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts"
+        ],
         "test": [
           "packages/main/src/tasks/**",
           "packages/main/tests/**"
@@ -221,7 +223,27 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "new reviewer-scan-budget-guard-smoke passes against the updated six prompt copies",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "legitimate scanEscalationReason escalation wording does not false-positive the banned-phrase patterns",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "red demonstration: temporarily reintroducing an unconditional full-scan phrase into one copy makes the smoke exit non-zero",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-007",
