@@ -69,10 +69,10 @@
           "command": "node packages/main/dist/tasks/dispatch-run-smoke.js",
           "result": "pass",
           "note": "Dispatch smoke asserts omitted-role reassignment returns explicit default role overflow-worker and renders Role: overflow-worker in the generated prompt.",
-          "headHash": "0d469ed2cf6cb74ac76f50a5aaafd87b4ed1afd0",
-          "materialHash": "b9e93476c1e29a51af8ed5e3e49b1b61a2ee960a9454e9b2e8b5c03739c1d53f",
-          "storyFilesHash": "8e93eabeb0596d06dcf043028b2dd265e4cc2239055c5cd607aa2c361e280c0d",
-          "timestamp": "2026-07-09T02:58:18.964Z"
+          "headHash": "073b791f73fc625bc5ebbb69302e231e5bd2c033",
+          "materialHash": "c90041f3a82c6464815acdde122cebace62d6d8beb006396cbbbb1514e99ebce",
+          "storyFilesHash": "11f45c6b818e9c685628df92ed1bff6800f248d1c784abb044deaab5d370759e",
+          "timestamp": "2026-07-09T03:12:37.290Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -80,10 +80,10 @@
           "command": "node packages/main/dist/tasks/dispatch-run-smoke.js",
           "result": "pass",
           "note": "Dispatch smoke snapshots the original dispatch record before reassignment, verifies it is unchanged afterward, and verifies the new record parentDispatchId points to the previous dispatch.",
-          "headHash": "0d469ed2cf6cb74ac76f50a5aaafd87b4ed1afd0",
-          "materialHash": "b9e93476c1e29a51af8ed5e3e49b1b61a2ee960a9454e9b2e8b5c03739c1d53f",
-          "storyFilesHash": "8e93eabeb0596d06dcf043028b2dd265e4cc2239055c5cd607aa2c361e280c0d",
-          "timestamp": "2026-07-09T02:58:19.238Z"
+          "headHash": "073b791f73fc625bc5ebbb69302e231e5bd2c033",
+          "materialHash": "c90041f3a82c6464815acdde122cebace62d6d8beb006396cbbbb1514e99ebce",
+          "storyFilesHash": "11f45c6b818e9c685628df92ed1bff6800f248d1c784abb044deaab5d370759e",
+          "timestamp": "2026-07-09T03:12:37.290Z"
         }
       ]
     },
@@ -140,10 +140,10 @@
           "command": "node packages/main/dist/tasks/dispatch-run-smoke.js",
           "result": "pass",
           "note": "Dispatch smoke reads reassignment prompts and asserts they include Role, Objective, Fresh-context Continuity, mode fresh-context, previous dispatch id, and summary-only continuity wording.",
-          "headHash": "dd4167e23868f7917af43905e1e94c5f715242ec",
-          "materialHash": "b9e93476c1e29a51af8ed5e3e49b1b61a2ee960a9454e9b2e8b5c03739c1d53f",
-          "storyFilesHash": "8e93eabeb0596d06dcf043028b2dd265e4cc2239055c5cd607aa2c361e280c0d",
-          "timestamp": "2026-07-09T02:58:27.954Z"
+          "headHash": "073b791f73fc625bc5ebbb69302e231e5bd2c033",
+          "materialHash": "c90041f3a82c6464815acdde122cebace62d6d8beb006396cbbbb1514e99ebce",
+          "storyFilesHash": "11f45c6b818e9c685628df92ed1bff6800f248d1c784abb044deaab5d370759e",
+          "timestamp": "2026-07-09T03:12:37.290Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -163,10 +163,10 @@
           "command": "node packages/main/dist/tasks/dispatch-run-smoke.js",
           "result": "pass",
           "note": "Dispatch smoke asserts reassignment prompts include no full-history fork is required and do not match forbidden claims for full-history inheritance, receipt verification, production DONE, or authority changes.",
-          "headHash": "dd4167e23868f7917af43905e1e94c5f715242ec",
-          "materialHash": "b9e93476c1e29a51af8ed5e3e49b1b61a2ee960a9454e9b2e8b5c03739c1d53f",
-          "storyFilesHash": "8e93eabeb0596d06dcf043028b2dd265e4cc2239055c5cd607aa2c361e280c0d",
-          "timestamp": "2026-07-09T02:58:28.934Z"
+          "headHash": "073b791f73fc625bc5ebbb69302e231e5bd2c033",
+          "materialHash": "c90041f3a82c6464815acdde122cebace62d6d8beb006396cbbbb1514e99ebce",
+          "storyFilesHash": "11f45c6b818e9c685628df92ed1bff6800f248d1c784abb044deaab5d370759e",
+          "timestamp": "2026-07-09T03:12:37.290Z"
         }
       ]
     },
@@ -233,10 +233,10 @@
           "command": "node packages/main/dist/tasks/dispatch-run-smoke.js",
           "result": "pass",
           "note": "Dispatch smoke adds a dispatch_resume regression proving resume returns the original dispatch id and does not create a follow-up reassignment record.",
-          "headHash": "433e6933901c43b39210e313175ad553354e502e",
-          "materialHash": "b9e93476c1e29a51af8ed5e3e49b1b61a2ee960a9454e9b2e8b5c03739c1d53f",
-          "storyFilesHash": "8e93eabeb0596d06dcf043028b2dd265e4cc2239055c5cd607aa2c361e280c0d",
-          "timestamp": "2026-07-09T02:58:38.828Z"
+          "headHash": "073b791f73fc625bc5ebbb69302e231e5bd2c033",
+          "materialHash": "c90041f3a82c6464815acdde122cebace62d6d8beb006396cbbbb1514e99ebce",
+          "storyFilesHash": "11f45c6b818e9c685628df92ed1bff6800f248d1c784abb044deaab5d370759e",
+          "timestamp": "2026-07-09T03:12:37.290Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
