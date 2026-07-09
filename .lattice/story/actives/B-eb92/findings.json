@@ -45,7 +45,7 @@
       "desc": "Unsafe review-assurance command recipes render shell-active angle placeholders. review_escalation_status/done_prepare guidance emits commands such as lattice autopilot_review_submit --storyId=B-eb92 --runId=<round-id> ... from packages/main/src/core/review-assurance-floor.ts:228-229 and the stale-material recovery repeats the pattern at line 1178. In zsh/bash, --runId=<round-id> is parsed as redirection/syntax, so copying the advertised legal writer path fails before lattice receives it. These recipes should use shell-safe placeholders or quoted JSON/flag values and be covered by a smoke that actually parses/runs the rendered command templates.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-09T11:26:20.531Z",
@@ -56,7 +56,11 @@
         "packages/main/src/core/review-assurance-floor.ts"
       ],
       "signatureTag": "missing|ts|unsafe-review-assurance",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed across commits 2c3714cba and 931609335: main review-assurance command recipes and stale-material recovery now use shell-safe brace placeholders instead of shell-active angle placeholders. review-assurance-surfacing-smoke and review-assurance-floor-smoke parse rendered command templates/fragments with zsh -n and reject <...> placeholders. Full lattice validate passed 43/43.",
+      "resolvedAt": "2026-07-09T12:04:10.737Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-eb92:F-004",
