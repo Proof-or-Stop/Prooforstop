@@ -1,4 +1,7 @@
 import { spawnSync, type SpawnSyncReturns } from 'node:child_process';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { isAbsolute, join } from 'node:path';
 
 export type CanonicalReviewHost = 'codex' | 'claude' | 'agy';
 
@@ -61,6 +64,9 @@ export interface HostExecutionReadinessProbe {
   diagnostic?: string;
   remediation: string;
 }
+
+const HOST_EXECUTION_READINESS_PROMPT = 'Reply READY and do not run tools.';
+const HOST_EXECUTION_READINESS_PROMPT_MAX_CHARS = 128;
 
 export function canonicalReviewHostCommand(host: CanonicalReviewHost): string {
   return host;
@@ -134,16 +140,55 @@ function outputFormatValue(argv: readonly string[]): string {
   return '';
 }
 
-export function launcherArgvMatchesCanonical(host: CanonicalReviewHost, argv: readonly string[]): boolean {
-  const expected = canonicalReviewHostLauncherSpec(host).launcherArgv;
-  return expected.length === argv.length && expected.every((part, index) => part === argv[index]);
+function launcherArgvPartMatchesCanonical(expected: string, actual: string | undefined): boolean {
+  if (actual === undefined) return false;
+  if (expected === '<prompt>') {
+    if (actual === '<prompt>') return true;
+    return actual.trim().length > 0 && actual !== '<prompt-file>' && !isAbsolute(actual);
+  }
+  if (expected === '<prompt-file>') {
+    if (actual === '<prompt-file>') return true;
+    return actual.trim().length > 0 && actual !== '<prompt>' && isAbsolute(actual);
+  }
+  return expected === actual;
 }
 
-function launcherArgsForExecution(spec: HostExecutionLauncherSpec): string[] {
-  const prompt = 'Reply READY and do not run tools.';
-  return spec.launcherArgv
-    .slice(1)
-    .map(arg => arg === '<prompt>' || arg === '<prompt-file>' ? prompt : arg);
+export function launcherArgvMatchesCanonical(host: CanonicalReviewHost, argv: readonly string[]): boolean {
+  const expected = canonicalReviewHostLauncherSpec(host).launcherArgv;
+  return expected.length === argv.length && expected.every((part, index) => launcherArgvPartMatchesCanonical(part, argv[index]));
+}
+
+function boundedReadinessPrompt(): string {
+  return HOST_EXECUTION_READINESS_PROMPT.slice(0, HOST_EXECUTION_READINESS_PROMPT_MAX_CHARS);
+}
+
+function launcherExecutionPlan(spec: HostExecutionLauncherSpec): {
+  observedLauncherArgv: string[];
+  spawnArgv: string[];
+  cleanup: () => void;
+} {
+  const prompt = boundedReadinessPrompt();
+  let promptFile: string | undefined;
+  let promptDir: string | undefined;
+  const observedLauncherArgv = spec.launcherArgv.map(arg => {
+    if (arg === '<prompt>') return prompt;
+    if (arg === '<prompt-file>') {
+      if (!promptFile) {
+        promptDir = mkdtempSync(join(tmpdir(), 'lattice-host-readiness-'));
+        promptFile = join(promptDir, 'prompt.txt');
+        writeFileSync(promptFile, prompt, { encoding: 'utf8', mode: 0o600 });
+      }
+      return promptFile;
+    }
+    return arg;
+  });
+  return {
+    observedLauncherArgv,
+    spawnArgv: observedLauncherArgv.slice(1),
+    cleanup: () => {
+      if (promptDir) rmSync(promptDir, { recursive: true, force: true });
+    },
+  };
 }
 
 export function classifyReviewHostLauncher(host: CanonicalReviewHost, argv: readonly string[]): HostLauncherClassification {
@@ -362,28 +407,34 @@ export function probeHostExecutionReadiness(args: {
     });
   }
 
+  const execution = launcherExecutionPlan(spec);
   const started = Date.now();
-  const result = spawnSync(args.executablePath, launcherArgsForExecution(spec), {
-    cwd: args.cwd,
-    env: args.env,
-    encoding: 'utf8',
-    timeout: args.timeoutMs,
-    maxBuffer: 256 * 1024,
-    input: '',
-  });
-  const durationMs = Math.max(0, Date.now() - started);
-  const failureKind = classifyHostExecutionFailure(result);
-  const timedOut = failureKind === 'timeout';
-  const outputBytes = Buffer.byteLength(result.stdout || '', 'utf8') + Buffer.byteLength(result.stderr || '', 'utf8');
-  return classifyHostExecutionReadiness({
-    host: args.host,
-    executablePath: args.executablePath,
-    versionOk: args.versionOk,
-    durationMs,
-    result,
-    ...(typeof result.status === 'number' ? { exitCode: result.status } : {}),
-    ...(timedOut ? { timedOut: true } : {}),
-    ...(outputBytes > 0 ? { firstProgressMs: durationMs } : {}),
-    outputBytes,
-  });
+  try {
+    const result = spawnSync(args.executablePath, execution.spawnArgv, {
+      cwd: args.cwd,
+      env: args.env,
+      encoding: 'utf8',
+      timeout: args.timeoutMs,
+      maxBuffer: 256 * 1024,
+      input: '',
+    });
+    const durationMs = Math.max(0, Date.now() - started);
+    const failureKind = classifyHostExecutionFailure(result);
+    const timedOut = failureKind === 'timeout';
+    const outputBytes = Buffer.byteLength(result.stdout || '', 'utf8') + Buffer.byteLength(result.stderr || '', 'utf8');
+    return classifyHostExecutionReadiness({
+      host: args.host,
+      executablePath: args.executablePath,
+      versionOk: args.versionOk,
+      durationMs,
+      result,
+      ...(typeof result.status === 'number' ? { exitCode: result.status } : {}),
+      ...(timedOut ? { timedOut: true } : {}),
+      ...(outputBytes > 0 ? { firstProgressMs: durationMs } : {}),
+      outputBytes,
+      observedLauncherArgv: execution.observedLauncherArgv,
+    });
+  } finally {
+    execution.cleanup();
+  }
 }

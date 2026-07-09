@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
 import assert from 'node:assert/strict';
-import { chmodSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { delimiter, join } from 'node:path';
+import { delimiter, isAbsolute, join } from 'node:path';
 import {
   canonicalReviewHostLauncherSpec,
   classifyHostExecutionReadiness,
@@ -48,16 +48,64 @@ case " $* " in
     echo "help probe is not readiness evidence" >&2
     exit 66
     ;;
-  *READY*)
-    echo "READY"
-    exit 0
-    ;;
 esac
+has_ready=0
+case "$*" in
+  *READY*) has_ready=1 ;;
+esac
+if [ "$has_ready" -ne 1 ]; then
+  for arg do
+    if [ -f "$arg" ] && grep -q "READY" "$arg"; then
+      has_ready=1
+    fi
+  done
+fi
+if [ -n "\${READINESS_ARGV_LOG:-}" ]; then
+  {
+    printf 'host=%s\\n' "\${0##*/}"
+    printf 'argc=%s\\n' "$#"
+    i=0
+    for arg do
+      i=$((i + 1))
+      printf 'arg%s=%s\\n' "$i" "$arg"
+    done
+    printf -- '---\\n'
+  } >> "$READINESS_ARGV_LOG"
+fi
+if [ "$has_ready" -eq 1 ]; then
+  echo "READY"
+  exit 0
+fi
 echo "unexpected readiness argv: $*" >&2
 exit 64
 `;
   for (const host of hosts) writeExecutable(join(bin, host), script);
   return bin;
+}
+
+function readCapturedLaunches(path: string): { host: string; argv: string[] }[] {
+  const text = existsSync(path) ? readFileSync(path, 'utf8') : '';
+  const launches: { host: string; argv: string[] }[] = [];
+  let block = new Map<string, string>();
+  function flush(): void {
+    if (block.size === 0) return;
+    const host = block.get('host') ?? '';
+    const argc = Number(block.get('argc') ?? 0);
+    const argv: string[] = [];
+    for (let i = 1; i <= argc; i++) argv.push(block.get(`arg${i}`) ?? '');
+    launches.push({ host, argv });
+    block = new Map<string, string>();
+  }
+  for (const line of text.split('\n')) {
+    if (line === '---') {
+      flush();
+      continue;
+    }
+    const separator = line.indexOf('=');
+    if (separator > 0) block.set(line.slice(0, separator), line.slice(separator + 1));
+  }
+  flush();
+  return launches;
 }
 
 function legacyVersionOnlyProbe(availableHosts: readonly CanonicalReviewHost[]): ProcessEvent {
@@ -205,29 +253,48 @@ try {
 
   check('bounded probe checks launcher readiness with a smoke prompt', () => {
     const bin = installFakeHosts(root, ['codex', 'claude', 'agy']);
-    const oldPath = process.env.PATH;
-    process.env.PATH = [bin, '/usr/bin', '/bin', '/usr/sbin', '/sbin'].join(delimiter);
-    try {
-      const event = probeReviewHostAvailability({
-        storyId: STORY_ID,
-        materialHash: MATERIAL,
-        storyFilesHash: STORY_FILES_HASH,
-        cwd: root,
-        timeoutMs: 1000,
-      });
-      assert.equal(event.executionReadyHostCount, 3);
-      assert.equal(event.reviewReadyHostCount, 3);
-      for (const row of event.hosts) {
-        const spec = canonicalReviewHostLauncherSpec(row.host);
-        assert.deepEqual(row.launcherArgv, spec.launcherArgv);
-        assert.equal(row.launcherSupport, 'supported');
-        assert.equal(row.failureKind, 'none');
-        assert.equal(row.remediation, '');
+    const argvLog = join(root, 'readiness-argv.log');
+    const event = probeReviewHostAvailability({
+      storyId: STORY_ID,
+      materialHash: MATERIAL,
+      storyFilesHash: STORY_FILES_HASH,
+      cwd: root,
+      env: {
+        ...process.env,
+        PATH: [bin, '/usr/bin', '/bin', '/usr/sbin', '/sbin'].join(delimiter),
+        READINESS_ARGV_LOG: argvLog,
+      },
+      timeoutMs: 1000,
+    });
+    assert.equal(event.executionReadyHostCount, 3);
+    assert.equal(event.reviewReadyHostCount, 3);
+    const launches = readCapturedLaunches(argvLog);
+    assert.equal(launches.length, 3);
+    for (const row of event.hosts) {
+      const spec = canonicalReviewHostLauncherSpec(row.host);
+      const launch = launches.find(candidate => candidate.host === row.host);
+      assert.ok(launch, `${row.host} readiness launch should be captured`);
+      assert.deepEqual(row.launcherArgv, [row.command, ...launch.argv]);
+      assert.equal(row.launcherArgv.includes('<prompt>'), false);
+      assert.equal(row.launcherArgv.includes('<prompt-file>'), false);
+      if (row.host === 'claude') {
+        const promptPath = row.launcherArgv[spec.launcherArgv.indexOf('<prompt-file>')];
+        assert.ok(promptPath);
+        assert.equal(isAbsolute(promptPath), true);
+        assert.doesNotMatch(promptPath, /Reply READY/);
+        assert.equal(existsSync(promptPath), false, 'Claude readiness prompt file should be cleaned up');
+      } else {
+        const prompt = row.launcherArgv[spec.launcherArgv.indexOf('<prompt>')];
+        assert.match(prompt, /Reply READY and do not run tools/);
+        assert.equal(prompt.length <= 128, true);
       }
-    } finally {
-      if (oldPath === undefined) delete process.env.PATH;
-      else process.env.PATH = oldPath;
+      assert.equal(row.launcherSupport, 'supported');
+      assert.equal(row.failureKind, 'none');
+      assert.equal(row.remediation, '');
     }
+    const record = reviewHostAvailabilityProbeRecordFromEvent(event as unknown as ProcessEvent, 0, MATERIAL, STORY_FILES_HASH);
+    assert.equal(record.valid, true);
+    assert.doesNotMatch(JSON.stringify(event), /"stdout"|"stderr"|fake-host 1\.0\.0|unexpected readiness argv/);
   });
 
   check('legacy version-only probe cannot satisfy non-human fallback readiness proof', () => {
