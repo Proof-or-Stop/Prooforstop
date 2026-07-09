@@ -28,7 +28,7 @@
       "desc": "Readiness evidence can persist bounded stdout/stderr provider output as diagnostic text, and the handler can then append/print it. B-d8ef acceptance forbids secrets or raw provider transcripts in gate evidence; store only enum-style sanitized diagnostics and remediation labels.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-09T13:43:14.658Z",
@@ -40,7 +40,11 @@
         "packages/main/src/handlers/review-escalation.ts"
       ],
       "signatureTag": "adversarial|ts|readiness-evidence-persist",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by a2405256b: readiness diagnostics no longer persist provider stdout/stderr snippets; evidence records use bounded enum-style failureKind, remediation, and status fields instead of raw transcripts. Verified by review-host launcher readiness smoke and node scripts/verify-process-fact-contract.mjs.",
+      "resolvedAt": "2026-07-09T14:05:34.979Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-d8ef:F-003",
