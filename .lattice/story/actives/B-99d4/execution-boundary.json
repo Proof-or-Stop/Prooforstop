@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-99d4",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git status *",
+    "lattice aux_doc_list",
+    "lattice checklist_get",
+    "lattice checklist_update",
+    "lattice decision_set",
+    "lattice done_prepare",
+    "lattice done_required_validate",
+    "lattice session_brief",
+    "lattice story_advance",
+    "lattice story_get",
+    "lattice story_review",
+    "lattice understanding_set",
+    "lattice validate",
+    "node packages/main/dist/cli.js *",
+    "node packages/main/src/tasks/*",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main run test:*",
+    "rg *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "lattice CLI",
+    "shell"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+    "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+    "docs/requirements/decisions/pos-agent-drivability-optimization.md",
+    "package-lock.json",
+    "package.json",
+    "packages/main/package-lock.json",
+    "packages/main/package.json",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/lattice-dispatch.ts",
+    "packages/main/src/handlers/lattice-dispatch.ts",
+    "packages/main/src/tasks/*dispatch*.ts",
+    "packages/main/src/tasks/dispatch-run-smoke.ts",
+    "packages/main/src/tasks/unattended-dispatch-smoke.ts"
+  ],
+  "excludedCommands": [
+    "git checkout -- *",
+    "git clean *",
+    "git push *",
+    "git reset --hard *",
+    "omx *"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx/**",
+    "docs/story/**",
+    "packages/main/tests/fixtures/**"
+  ],
+  "confirmedBy": "codex-main",
+  "confirmationNote": "Keep implementation scoped to dispatch/worker reassignment behavior and verification. Story metadata and fixture operations must use Lattice commands, not direct file edits.",
+  "createdAt": "2026-07-09T02:40:24.832Z",
+  "updatedAt": "2026-07-09T02:40:24.832Z",
+  "_hash": "cee76e24176de9e35e82b961e94952c70a066d891878ae87e51e0797d28cb05e"
+}

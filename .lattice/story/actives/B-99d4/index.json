@@ -4,7 +4,7 @@
   "title": "Allow completed worker subagents to be reassigned under worker role",
   "description": "After a subagent completes one assignment, the operator may want to assign that same worker another task. The existing full-history fork path is awkward because it may preserve memory/history but cannot specify the worker role. Add a role-aware reassignment path that can restart a worker with explicit instructions without requiring full-history inheritance.",
   "type": "feature",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "createdAt": "2026-07-09T02:39:20.163Z",
   "startedAt": "2026-07-09T02:39:20.163Z",
@@ -18,6 +18,20 @@
       "user": "Harmonygo",
       "sessionId": "sess-3d1880b40d393f50",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-09T02:40:56.692Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-3d1880b40d393f50",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-99d4",
+    "branch": "story/B-99d4",
+    "createdAt": "2026-07-09T02:40:53.741Z"
+  }
 }
