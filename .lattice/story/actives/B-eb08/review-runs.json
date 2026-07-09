@@ -157,6 +157,147 @@
         "bindingHash": "a17c2995222dab3a4b4d8e137696b9471a8ef7e4446744a24c96c6279f08f38c"
       },
       "_hash": "65a19b115c8c54182c21d81dd5e899cc2b5930cd97f796e0e67a566d7acb4882"
+    },
+    {
+      "reviewRunId": "B-eb08:RR-004",
+      "storyId": "B-eb08",
+      "agent": "lattice-review-concept",
+      "lane": "lattice-review-concept",
+      "reviewRound": "2026-07-09T02:32:25.380Z",
+      "startedAt": "2026-07-09T02:33:56.278Z",
+      "headHash": "3461ecd9869d78dd5e183304ef47b17cfdb7c6d6",
+      "materialHash": "8af6e00e71a16a50533b35c1ea7e623b85acabebbb24fbbef8307a3bd4c47694",
+      "storyFilesHash": "21157f14c81215f78d50d3b31921c3e4e898584809d50ea02a0c087215658570",
+      "promptHash": "1652ac4b366d1265239beb952e8673953206f66a62df4c08533596cc33fc76a4",
+      "scopeBinding": {
+        "scopeContractHash": "79bc984378b51be141b2838399fafe1895c473d618909bdd759f7d7adbd68668",
+        "diffPackHash": "43d2eae938cd496b80230b021063b4b986329553a3cd1a1d141b1dd7f4103f7e",
+        "reviewedChangedFiles": [
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "0b5bc3d9b63e901f3dbebf57164f022cac434078ff4ef12d9d05bb886581f91b",
+          "3be8be5bb55d3df32561292f29424a09c73817aadf1a6e69731f12f987649e34",
+          "61dab83379c45f69b62c9df8ffe28ab18f4e6d093fdd69ea50a0d4ebfaa6ba5a",
+          "8511abe2c71fb4d94231abe8747ed25f2bb71d90d861f86dc1b30bac5a840846",
+          "abde05da28a66922db573c9c023e902557bb9fba31f8273bdb7bb7ba6df415c5",
+          "b9db00a19958f649c82a49dc1d05cc5bfade19607d9e24ce49c35a8033261431",
+          "da3f4fbe48dbd8f17b2a493cb61779462448748a989bc925bb399a323d986fad",
+          "eaf1b4a12157e1b92ef789156732d48861ad4c2ae5f10fc68e9d72bb8a51ec57"
+        ],
+        "bindingHash": "97f74ca9bcadddcbd69efc498322db94a4f861a7fc092dcf0837a0038c4d5f38"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-eb08",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-eb08",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-eb08",
+        "workspaceMode": "story-worktree",
+        "headHash": "3461ecd9869d78dd5e183304ef47b17cfdb7c6d6",
+        "materialHash": "8af6e00e71a16a50533b35c1ea7e623b85acabebbb24fbbef8307a3bd4c47694",
+        "storyFilesHash": "21157f14c81215f78d50d3b31921c3e4e898584809d50ea02a0c087215658570",
+        "bindingHash": "82660f2be74ac52311975a6b3f1f978dda806af18cd9f5f7997d7b7b85c335c5"
+      },
+      "_hash": "9e8251876ba53745f5b0af67d6d47fe44681fbd8fa7c7d0a37b6a5837cc7fdab"
+    },
+    {
+      "reviewRunId": "B-eb08:RR-005",
+      "storyId": "B-eb08",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-07-09T02:32:25.380Z",
+      "startedAt": "2026-07-09T02:34:10.482Z",
+      "headHash": "3461ecd9869d78dd5e183304ef47b17cfdb7c6d6",
+      "materialHash": "8af6e00e71a16a50533b35c1ea7e623b85acabebbb24fbbef8307a3bd4c47694",
+      "storyFilesHash": "21157f14c81215f78d50d3b31921c3e4e898584809d50ea02a0c087215658570",
+      "promptHash": "f53fa02b41a025140a43d5399d373e0d13185a733f428f2ceca766488855d69a",
+      "scopeBinding": {
+        "scopeContractHash": "79bc984378b51be141b2838399fafe1895c473d618909bdd759f7d7adbd68668",
+        "diffPackHash": "43d2eae938cd496b80230b021063b4b986329553a3cd1a1d141b1dd7f4103f7e",
+        "reviewedChangedFiles": [
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "0b5bc3d9b63e901f3dbebf57164f022cac434078ff4ef12d9d05bb886581f91b",
+          "3be8be5bb55d3df32561292f29424a09c73817aadf1a6e69731f12f987649e34",
+          "61dab83379c45f69b62c9df8ffe28ab18f4e6d093fdd69ea50a0d4ebfaa6ba5a",
+          "8511abe2c71fb4d94231abe8747ed25f2bb71d90d861f86dc1b30bac5a840846",
+          "abde05da28a66922db573c9c023e902557bb9fba31f8273bdb7bb7ba6df415c5",
+          "b9db00a19958f649c82a49dc1d05cc5bfade19607d9e24ce49c35a8033261431",
+          "da3f4fbe48dbd8f17b2a493cb61779462448748a989bc925bb399a323d986fad",
+          "eaf1b4a12157e1b92ef789156732d48861ad4c2ae5f10fc68e9d72bb8a51ec57"
+        ],
+        "bindingHash": "97f74ca9bcadddcbd69efc498322db94a4f861a7fc092dcf0837a0038c4d5f38"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-eb08",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-eb08",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-eb08",
+        "workspaceMode": "story-worktree",
+        "headHash": "3461ecd9869d78dd5e183304ef47b17cfdb7c6d6",
+        "materialHash": "8af6e00e71a16a50533b35c1ea7e623b85acabebbb24fbbef8307a3bd4c47694",
+        "storyFilesHash": "21157f14c81215f78d50d3b31921c3e4e898584809d50ea02a0c087215658570",
+        "bindingHash": "82660f2be74ac52311975a6b3f1f978dda806af18cd9f5f7997d7b7b85c335c5"
+      },
+      "_hash": "2dee1fafcbf9452b20aaed1d790383e7bd49ed15b6ab05353fac9d801340a454"
+    },
+    {
+      "reviewRunId": "B-eb08:RR-006",
+      "storyId": "B-eb08",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-07-09T02:32:25.380Z",
+      "startedAt": "2026-07-09T02:34:13.186Z",
+      "headHash": "3461ecd9869d78dd5e183304ef47b17cfdb7c6d6",
+      "materialHash": "8af6e00e71a16a50533b35c1ea7e623b85acabebbb24fbbef8307a3bd4c47694",
+      "storyFilesHash": "21157f14c81215f78d50d3b31921c3e4e898584809d50ea02a0c087215658570",
+      "promptHash": "5f250410d889b90951b0f5fde854a3a039ecd5029211b1c1193de33ceb076968",
+      "scopeBinding": {
+        "scopeContractHash": "79bc984378b51be141b2838399fafe1895c473d618909bdd759f7d7adbd68668",
+        "diffPackHash": "43d2eae938cd496b80230b021063b4b986329553a3cd1a1d141b1dd7f4103f7e",
+        "reviewedChangedFiles": [
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "0b5bc3d9b63e901f3dbebf57164f022cac434078ff4ef12d9d05bb886581f91b",
+          "3be8be5bb55d3df32561292f29424a09c73817aadf1a6e69731f12f987649e34",
+          "61dab83379c45f69b62c9df8ffe28ab18f4e6d093fdd69ea50a0d4ebfaa6ba5a",
+          "8511abe2c71fb4d94231abe8747ed25f2bb71d90d861f86dc1b30bac5a840846",
+          "abde05da28a66922db573c9c023e902557bb9fba31f8273bdb7bb7ba6df415c5",
+          "b9db00a19958f649c82a49dc1d05cc5bfade19607d9e24ce49c35a8033261431",
+          "da3f4fbe48dbd8f17b2a493cb61779462448748a989bc925bb399a323d986fad",
+          "eaf1b4a12157e1b92ef789156732d48861ad4c2ae5f10fc68e9d72bb8a51ec57"
+        ],
+        "bindingHash": "97f74ca9bcadddcbd69efc498322db94a4f861a7fc092dcf0837a0038c4d5f38"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-eb08",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-eb08",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-eb08",
+        "workspaceMode": "story-worktree",
+        "headHash": "3461ecd9869d78dd5e183304ef47b17cfdb7c6d6",
+        "materialHash": "8af6e00e71a16a50533b35c1ea7e623b85acabebbb24fbbef8307a3bd4c47694",
+        "storyFilesHash": "21157f14c81215f78d50d3b31921c3e4e898584809d50ea02a0c087215658570",
+        "bindingHash": "82660f2be74ac52311975a6b3f1f978dda806af18cd9f5f7997d7b7b85c335c5"
+      },
+      "_hash": "e154135a0f59491c03c36b658cc7b29914f56626935a51afe659e89040b7b40c"
     }
   ]
 }
