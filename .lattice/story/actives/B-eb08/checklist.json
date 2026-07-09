@@ -52,10 +52,10 @@
           "command": "npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke",
           "result": "pass",
           "note": "Focused smoke asserts human done_prepare emits the required post-validation progress labels on the CLI liveness side channel.",
-          "headHash": "9d9cf0643037bd495444eab33719809a0ac657e4",
-          "materialHash": "8af6e00e71a16a50533b35c1ea7e623b85acabebbb24fbbef8307a3bd4c47694",
-          "storyFilesHash": "21157f14c81215f78d50d3b31921c3e4e898584809d50ea02a0c087215658570",
-          "timestamp": "2026-07-09T02:27:07.126Z"
+          "headHash": "3d001e580ce4ba7030e224d5e02ba3ec22f6f818",
+          "materialHash": "41fe813af3fe158ff3c52cdc7ceb68065f80548c1d0f263f16ea69dfc6d9398d",
+          "storyFilesHash": "fbda7ee807ba028b862f1e0a207b8e7afa2b590b4a28e28955f1b4825f30767e",
+          "timestamp": "2026-07-09T02:53:10.463Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -64,10 +64,10 @@
           "command": "npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke",
           "result": "pass",
           "note": "Focused smoke runs done_prepare --json, JSON.parse(stdout) succeeds, and progress labels are asserted on stderr rather than stdout.",
-          "headHash": "9d9cf0643037bd495444eab33719809a0ac657e4",
-          "materialHash": "8af6e00e71a16a50533b35c1ea7e623b85acabebbb24fbbef8307a3bd4c47694",
-          "storyFilesHash": "21157f14c81215f78d50d3b31921c3e4e898584809d50ea02a0c087215658570",
-          "timestamp": "2026-07-09T02:27:07.126Z"
+          "headHash": "3d001e580ce4ba7030e224d5e02ba3ec22f6f818",
+          "materialHash": "41fe813af3fe158ff3c52cdc7ceb68065f80548c1d0f263f16ea69dfc6d9398d",
+          "storyFilesHash": "fbda7ee807ba028b862f1e0a207b8e7afa2b590b4a28e28955f1b4825f30767e",
+          "timestamp": "2026-07-09T02:53:10.463Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -76,10 +76,10 @@
           "command": "npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke",
           "result": "pass",
           "note": "Focused smoke snapshots story metadata and verifies progress labels remain diagnostic: they do not write review, DONE, Authority, or gate evidence.",
-          "headHash": "9d9cf0643037bd495444eab33719809a0ac657e4",
-          "materialHash": "8af6e00e71a16a50533b35c1ea7e623b85acabebbb24fbbef8307a3bd4c47694",
-          "storyFilesHash": "21157f14c81215f78d50d3b31921c3e4e898584809d50ea02a0c087215658570",
-          "timestamp": "2026-07-09T02:27:07.126Z"
+          "headHash": "3d001e580ce4ba7030e224d5e02ba3ec22f6f818",
+          "materialHash": "41fe813af3fe158ff3c52cdc7ceb68065f80548c1d0f263f16ea69dfc6d9398d",
+          "storyFilesHash": "fbda7ee807ba028b862f1e0a207b8e7afa2b590b4a28e28955f1b4825f30767e",
+          "timestamp": "2026-07-09T02:53:10.463Z"
         }
       ]
     },
@@ -135,10 +135,10 @@
           "command": "npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke",
           "result": "pass",
           "note": "Focused smoke covers normally completing closeout phases and verifies progress output completes before the independent phase deadline.",
-          "headHash": "9d9cf0643037bd495444eab33719809a0ac657e4",
-          "materialHash": "8af6e00e71a16a50533b35c1ea7e623b85acabebbb24fbbef8307a3bd4c47694",
-          "storyFilesHash": "21157f14c81215f78d50d3b31921c3e4e898584809d50ea02a0c087215658570",
-          "timestamp": "2026-07-09T02:27:07.126Z"
+          "headHash": "3d001e580ce4ba7030e224d5e02ba3ec22f6f818",
+          "materialHash": "41fe813af3fe158ff3c52cdc7ceb68065f80548c1d0f263f16ea69dfc6d9398d",
+          "storyFilesHash": "fbda7ee807ba028b862f1e0a207b8e7afa2b590b4a28e28955f1b4825f30767e",
+          "timestamp": "2026-07-09T02:53:10.463Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -147,10 +147,10 @@
           "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke",
           "result": "pass",
           "note": "Implementation gives every wrapped closeout phase a per-phase timeout with env override and a 240000ms default below the 300000ms global idle timeout.",
-          "headHash": "9d9cf0643037bd495444eab33719809a0ac657e4",
-          "materialHash": "8af6e00e71a16a50533b35c1ea7e623b85acabebbb24fbbef8307a3bd4c47694",
-          "storyFilesHash": "21157f14c81215f78d50d3b31921c3e4e898584809d50ea02a0c087215658570",
-          "timestamp": "2026-07-09T02:27:07.126Z"
+          "headHash": "3d001e580ce4ba7030e224d5e02ba3ec22f6f818",
+          "materialHash": "41fe813af3fe158ff3c52cdc7ceb68065f80548c1d0f263f16ea69dfc6d9398d",
+          "storyFilesHash": "fbda7ee807ba028b862f1e0a207b8e7afa2b590b4a28e28955f1b4825f30767e",
+          "timestamp": "2026-07-09T02:53:10.463Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -159,10 +159,10 @@
           "command": "npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke",
           "result": "pass",
           "note": "Focused smoke deliberately hangs runtimeChange while heartbeat continues; done_prepare returns BLOCKED at runtimeChange with an attributed phase-timeout.",
-          "headHash": "9d9cf0643037bd495444eab33719809a0ac657e4",
-          "materialHash": "8af6e00e71a16a50533b35c1ea7e623b85acabebbb24fbbef8307a3bd4c47694",
-          "storyFilesHash": "21157f14c81215f78d50d3b31921c3e4e898584809d50ea02a0c087215658570",
-          "timestamp": "2026-07-09T02:27:07.126Z"
+          "headHash": "3d001e580ce4ba7030e224d5e02ba3ec22f6f818",
+          "materialHash": "41fe813af3fe158ff3c52cdc7ceb68065f80548c1d0f263f16ea69dfc6d9398d",
+          "storyFilesHash": "fbda7ee807ba028b862f1e0a207b8e7afa2b590b4a28e28955f1b4825f30767e",
+          "timestamp": "2026-07-09T02:53:10.463Z"
         }
       ]
     },
@@ -217,10 +217,10 @@
           "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke",
           "result": "pass",
           "note": "Build and focused smoke both passed after the implementation commit.",
-          "headHash": "9d9cf0643037bd495444eab33719809a0ac657e4",
-          "materialHash": "8af6e00e71a16a50533b35c1ea7e623b85acabebbb24fbbef8307a3bd4c47694",
-          "storyFilesHash": "21157f14c81215f78d50d3b31921c3e4e898584809d50ea02a0c087215658570",
-          "timestamp": "2026-07-09T02:27:07.126Z"
+          "headHash": "3d001e580ce4ba7030e224d5e02ba3ec22f6f818",
+          "materialHash": "41fe813af3fe158ff3c52cdc7ceb68065f80548c1d0f263f16ea69dfc6d9398d",
+          "storyFilesHash": "fbda7ee807ba028b862f1e0a207b8e7afa2b590b4a28e28955f1b4825f30767e",
+          "timestamp": "2026-07-09T02:53:10.463Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -229,10 +229,10 @@
           "command": "git show --name-only --format= HEAD",
           "result": "pass",
           "note": "Diff touches done_prepare, command schema, package script, and focused smoke only; cli-engine activity logging and runtime-root detection were not modified, so thin-init-assets-smoke is not required.",
-          "headHash": "9d9cf0643037bd495444eab33719809a0ac657e4",
-          "materialHash": "8af6e00e71a16a50533b35c1ea7e623b85acabebbb24fbbef8307a3bd4c47694",
-          "storyFilesHash": "21157f14c81215f78d50d3b31921c3e4e898584809d50ea02a0c087215658570",
-          "timestamp": "2026-07-09T02:27:07.126Z"
+          "headHash": "3d001e580ce4ba7030e224d5e02ba3ec22f6f818",
+          "materialHash": "41fe813af3fe158ff3c52cdc7ceb68065f80548c1d0f263f16ea69dfc6d9398d",
+          "storyFilesHash": "fbda7ee807ba028b862f1e0a207b8e7afa2b590b4a28e28955f1b4825f30767e",
+          "timestamp": "2026-07-09T02:53:10.463Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -241,10 +241,10 @@
           "command": "npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke",
           "result": "pass",
           "note": "Focused smoke proves progress/heartbeat output is diagnostic only and cannot satisfy lifecycle or Authority gates by writing evidence.",
-          "headHash": "9d9cf0643037bd495444eab33719809a0ac657e4",
-          "materialHash": "8af6e00e71a16a50533b35c1ea7e623b85acabebbb24fbbef8307a3bd4c47694",
-          "storyFilesHash": "21157f14c81215f78d50d3b31921c3e4e898584809d50ea02a0c087215658570",
-          "timestamp": "2026-07-09T02:27:07.126Z"
+          "headHash": "3d001e580ce4ba7030e224d5e02ba3ec22f6f818",
+          "materialHash": "41fe813af3fe158ff3c52cdc7ceb68065f80548c1d0f263f16ea69dfc6d9398d",
+          "storyFilesHash": "fbda7ee807ba028b862f1e0a207b8e7afa2b590b4a28e28955f1b4825f30767e",
+          "timestamp": "2026-07-09T02:53:10.463Z"
         }
       ]
     }
