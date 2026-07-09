@@ -42,6 +42,7 @@ interface DonePrepareArgs {
   validate?: boolean;
   build?: boolean;
   dryRun?: boolean;
+  json?: boolean;
 }
 
 interface DonePrepareStep {
@@ -86,6 +87,80 @@ interface RuntimeChangeReport {
   versionMismatches: string[];
 }
 
+type CloseoutPhaseId =
+  | 'doneClosure'
+  | 'reviewAssurance'
+  | 'runtimeChange'
+  | 'cleanTree'
+  | 'produceCommand';
+
+interface CloseoutPhase {
+  id: CloseoutPhaseId;
+  label: string;
+  stepId: StepId;
+  timeoutEnv: string;
+}
+
+interface DonePrepareJsonResult {
+  schemaVersion: 'lattice.done_prepare.v1';
+  storyId: string;
+  status: 'pass' | 'blocked' | 'unknown';
+  transcript: string;
+  blockedAt?: string;
+  reason?: string;
+}
+
+class DonePreparePhaseTimeoutError extends Error {
+  readonly phase: CloseoutPhase;
+  readonly timeoutMs: number;
+
+  constructor(phase: CloseoutPhase, timeoutMs: number) {
+    super(`done_prepare phase "${phase.label}" exceeded ${timeoutMs}ms timeout`);
+    this.name = 'DonePreparePhaseTimeoutError';
+    this.phase = phase;
+    this.timeoutMs = timeoutMs;
+  }
+}
+
+const DONE_PREPARE_HEARTBEAT_ENV = 'LATTICE_DONE_PREPARE_HEARTBEAT_MS';
+const DONE_PREPARE_PHASE_TIMEOUT_ENV = 'LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS';
+const DONE_PREPARE_SMOKE_HANG_PHASE_ENV = 'LATTICE_DONE_PREPARE_SMOKE_HANG_PHASE';
+const DEFAULT_DONE_PREPARE_HEARTBEAT_MS = 30_000;
+const DEFAULT_DONE_PREPARE_PHASE_TIMEOUT_MS = 240_000;
+
+const CLOSEOUT_PHASES: Record<CloseoutPhaseId, CloseoutPhase> = {
+  doneClosure: {
+    id: 'doneClosure',
+    label: 'evaluating DONE closure',
+    stepId: 'doneClosure',
+    timeoutEnv: 'LATTICE_DONE_PREPARE_DONE_CLOSURE_TIMEOUT_MS',
+  },
+  reviewAssurance: {
+    id: 'reviewAssurance',
+    label: 'checking review assurance',
+    stepId: 'doneClosure',
+    timeoutEnv: 'LATTICE_DONE_PREPARE_REVIEW_ASSURANCE_TIMEOUT_MS',
+  },
+  runtimeChange: {
+    id: 'runtimeChange',
+    label: 'computing runtime-change status',
+    stepId: 'runtimeChange',
+    timeoutEnv: 'LATTICE_DONE_PREPARE_RUNTIME_CHANGE_TIMEOUT_MS',
+  },
+  cleanTree: {
+    id: 'cleanTree',
+    label: 'checking clean tree',
+    stepId: 'cleanTree',
+    timeoutEnv: 'LATTICE_DONE_PREPARE_CLEAN_TREE_TIMEOUT_MS',
+  },
+  produceCommand: {
+    id: 'produceCommand',
+    label: 'producing DONE command',
+    stepId: 'doneClosure',
+    timeoutEnv: 'LATTICE_DONE_PREPARE_PRODUCE_COMMAND_TIMEOUT_MS',
+  },
+};
+
 const VERSION_SOURCE_FILES = [
   'package.json',
   'package-lock.json',
@@ -117,6 +192,7 @@ function defaulted(args: DonePrepareArgs): Required<DonePrepareArgs> {
     validate: args.validate !== false,
     build: args.build === true,
     dryRun: args.dryRun === true,
+    json: args.json === true,
   };
 }
 
@@ -319,6 +395,103 @@ function asText(value: unknown): string {
   if (typeof value === 'string') return value;
   if (value === undefined || value === null) return '';
   return JSON.stringify(value, null, 2);
+}
+
+function envPositiveInt(name: string, fallback: number): number {
+  const raw = process.env[name];
+  if (!raw) return fallback;
+  const parsed = Number(raw);
+  if (!Number.isFinite(parsed) || parsed <= 0) return fallback;
+  return Math.max(1, Math.floor(parsed));
+}
+
+function donePrepareHeartbeatMs(): number {
+  return envPositiveInt(DONE_PREPARE_HEARTBEAT_ENV, DEFAULT_DONE_PREPARE_HEARTBEAT_MS);
+}
+
+function donePreparePhaseTimeoutMs(phase: CloseoutPhase): number {
+  const globalTimeout = envPositiveInt(DONE_PREPARE_PHASE_TIMEOUT_ENV, DEFAULT_DONE_PREPARE_PHASE_TIMEOUT_MS);
+  return envPositiveInt(phase.timeoutEnv, globalTimeout);
+}
+
+function shouldSmokeHangCloseoutPhase(phase: CloseoutPhase): boolean {
+  const raw = process.env[DONE_PREPARE_SMOKE_HANG_PHASE_ENV];
+  if (!raw) return false;
+  const wanted = raw.split(',').map((entry) => entry.trim()).filter(Boolean);
+  return wanted.includes(phase.id) || wanted.includes(phase.label);
+}
+
+async function maybeSmokeHangCloseoutPhase(phase: CloseoutPhase): Promise<void> {
+  if (!shouldSmokeHangCloseoutPhase(phase)) return;
+  await new Promise(() => { /* smoke-only pending promise; the phase deadline must reject first. */ });
+}
+
+async function runCloseoutPhase<T>(
+  ctx: HandlerContext,
+  phase: CloseoutPhase,
+  work: () => T | Promise<T>,
+): Promise<T> {
+  const heartbeatMs = donePrepareHeartbeatMs();
+  const timeoutMs = donePreparePhaseTimeoutMs(phase);
+  const started = Date.now();
+  ctx.log?.(`done_prepare progress: ${phase.label}`);
+
+  const heartbeat = setInterval(() => {
+    ctx.log?.(`done_prepare heartbeat: ${phase.label} elapsedMs=${Date.now() - started} timeoutMs=${timeoutMs}`);
+  }, heartbeatMs);
+  heartbeat.unref?.();
+
+  let timeout: NodeJS.Timeout | undefined;
+  const deadline = new Promise<never>((_resolve, reject) => {
+    timeout = setTimeout(() => reject(new DonePreparePhaseTimeoutError(phase, timeoutMs)), timeoutMs);
+  });
+
+  const task = Promise.resolve().then(async () => {
+    await maybeSmokeHangCloseoutPhase(phase);
+    return work();
+  });
+
+  try {
+    const result = await Promise.race([task, deadline]);
+    ctx.log?.(`done_prepare progress: completed ${phase.label} elapsedMs=${Date.now() - started}`);
+    return result;
+  } finally {
+    clearInterval(heartbeat);
+    if (timeout) clearTimeout(timeout);
+  }
+}
+
+function isDonePreparePhaseTimeout(err: unknown): err is DonePreparePhaseTimeoutError {
+  return err instanceof DonePreparePhaseTimeoutError;
+}
+
+function phaseTimeoutBlock(storyId: string, steps: DonePrepareStep[], err: DonePreparePhaseTimeoutError): string {
+  const reason = `${err.message}; heartbeat output is diagnostic only and does not extend the phase deadline`;
+  setStep(steps, err.phase.stepId, 'blocked', reason);
+  return block({
+    blockedAt: err.phase.stepId,
+    reason,
+    next: `inspect the "${err.phase.label}" closeout phase, then rerun lattice done_prepare '{"storyId":"${storyId}"}'`,
+    steps,
+  });
+}
+
+function donePrepareJsonResult(storyId: string, transcript: string): DonePrepareJsonResult {
+  const status: DonePrepareJsonResult['status'] = transcript.startsWith('DONE prepare: PASS')
+    ? 'pass'
+    : transcript.startsWith('DONE prepare: BLOCKED')
+      ? 'blocked'
+      : 'unknown';
+  const blockedAt = transcript.match(/^blockedAt: (.+)$/m)?.[1];
+  const reason = transcript.match(/^reason: (.+)$/m)?.[1];
+  return {
+    schemaVersion: 'lattice.done_prepare.v1',
+    storyId,
+    status,
+    transcript,
+    ...(blockedAt ? { blockedAt } : {}),
+    ...(reason ? { reason } : {}),
+  };
 }
 
 function parseValidateOutput(text: string, next = 'lattice validate --story=<storyId> --json'): { ok: boolean; summary: string; next: string } {
@@ -925,20 +1098,44 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     }
   }
 
-  const runbook = buildDoneClosureRunbook(ctx, storyId);
-  // B-ab8d CHK-002: experiment-arm surfacing for the done_prepare entrypoint —
-  // the runbook pack is already computed; fire the once-per-key event on both
-  // arms and gate ONLY the rendered summary section (control hides it).
-  const packSurface = surfaceRuntimeMemoryPack(ctx.root, {
-    consumer: 'done_prepare',
-    storyId,
-    roundKey: story.phase,
-    buildPack: () => runbook.memoryFreshnessPack,
-  });
-  const blockers = blockingRows(runbook);
-  const nonCleanBlockers = blockers.filter((row) => row.id !== 'git-working-tree');
+  let runbook: DoneClosureRunbook;
+  let packSurface: ReturnType<typeof surfaceRuntimeMemoryPack>;
+  try {
+    ({ runbook, packSurface } = await runCloseoutPhase(ctx, CLOSEOUT_PHASES.doneClosure, () => {
+      const computedRunbook = buildDoneClosureRunbook(ctx, storyId);
+      // B-ab8d CHK-002: experiment-arm surfacing for the done_prepare entrypoint —
+      // the runbook pack is already computed; fire the once-per-key event on both
+      // arms and gate ONLY the rendered summary section (control hides it).
+      const computedPackSurface = surfaceRuntimeMemoryPack(ctx.root, {
+        consumer: 'done_prepare',
+        storyId,
+        roundKey: story.phase,
+        buildPack: () => computedRunbook.memoryFreshnessPack,
+      });
+      return { runbook: computedRunbook, packSurface: computedPackSurface };
+    }));
+  } catch (err) {
+    if (isDonePreparePhaseTimeout(err)) return phaseTimeoutBlock(storyId, steps, err);
+    throw err;
+  }
+
+  let nonCleanBlockers: ReturnType<typeof blockingRows>;
+  let reviewAssuranceBlocked = false;
+  try {
+    ({ nonCleanBlockers, reviewAssuranceBlocked } = await runCloseoutPhase(ctx, CLOSEOUT_PHASES.reviewAssurance, () => {
+      const allBlockers = blockingRows(runbook);
+      return {
+        nonCleanBlockers: allBlockers.filter((row) => row.id !== 'git-working-tree'),
+        reviewAssuranceBlocked: hasReviewAssuranceBlocker(runbook),
+      };
+    }));
+  } catch (err) {
+    if (isDonePreparePhaseTimeout(err)) return phaseTimeoutBlock(storyId, steps, err);
+    throw err;
+  }
+
   if (nonCleanBlockers.length > 0) {
-    const currentBinding = hasReviewAssuranceBlocker(runbook)
+    const currentBinding = reviewAssuranceBlocked
       ? currentDoneMaterialBinding(ctx, gitCwd)
       : undefined;
     const reason = nonCleanBlockers.map((row) => `${row.id}: ${row.reason}`).join('; ');
@@ -955,14 +1152,32 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
   }
   setStep(steps, 'doneClosure', 'pass', runbook.canAttemptDone ? 'canAttemptDone=true' : 'only git clean-tree remains');
 
-  const runtime = detectRuntimeChanges(ctx.root, gitCwd);
+  let runtime: RuntimeChangeReport;
+  try {
+    runtime = await runCloseoutPhase(ctx, CLOSEOUT_PHASES.runtimeChange, () => detectRuntimeChanges(ctx.root, gitCwd));
+  } catch (err) {
+    if (isDonePreparePhaseTimeout(err)) return phaseTimeoutBlock(storyId, steps, err);
+    throw err;
+  }
   setStep(steps, 'runtimeChange', 'pass', runtime.postDoneRuntimeVersionBumpRequired ? 'runtime behavior change detected' : 'no runtime version bump required before DONE');
 
-  const finalDirty = nonLeaseDirtyRows(ctx, storyId, gitStatusRows(gitCwd));
-  const finalDirtyClassification = classifyDirtyRows(ctx, storyId, finalDirty);
-  const finalBlockingEntries = finalDirtyClassification.entries.filter(
-    (entry) => !unchangedFromInitialAllowedMetadata(ctx, storyId, gitCwd, entry, initialAllowedMetadataSignatures),
-  );
+  let finalDirtyClassification: DirtyWorktreeClassification;
+  let finalBlockingEntries: DirtyWorktreeEntry[];
+  try {
+    ({ finalDirtyClassification, finalBlockingEntries } = await runCloseoutPhase(ctx, CLOSEOUT_PHASES.cleanTree, () => {
+      const finalDirty = nonLeaseDirtyRows(ctx, storyId, gitStatusRows(gitCwd));
+      const classification = classifyDirtyRows(ctx, storyId, finalDirty);
+      return {
+        finalDirtyClassification: classification,
+        finalBlockingEntries: classification.entries.filter(
+          (entry) => !unchangedFromInitialAllowedMetadata(ctx, storyId, gitCwd, entry, initialAllowedMetadataSignatures),
+        ),
+      };
+    }));
+  } catch (err) {
+    if (isDonePreparePhaseTimeout(err)) return phaseTimeoutBlock(storyId, steps, err);
+    throw err;
+  }
   if (finalBlockingEntries.length > 0) {
     const files = entryFiles(finalBlockingEntries);
     setStep(steps, 'cleanTree', 'blocked', 'done_prepare produced files that must be committed before DONE');
@@ -981,21 +1196,28 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     finalDirtyClassification.total > 0 ? 'only unchanged pre-existing Proofbound story lifecycle metadata remains dirty' : undefined,
   );
 
-  return renderPass({
-    storyId,
-    phase: story.phase,
-    steps,
-    runbook,
-    runtime,
-    dryRun: args.dryRun,
-    showMemoryPack: packSurface.shouldRender,
-  });
+  try {
+    return await runCloseoutPhase(ctx, CLOSEOUT_PHASES.produceCommand, () => renderPass({
+      storyId,
+      phase: story.phase,
+      steps,
+      runbook,
+      runtime,
+      dryRun: args.dryRun,
+      showMemoryPack: packSurface.shouldRender,
+    }));
+  } catch (err) {
+    if (isDonePreparePhaseTimeout(err)) return phaseTimeoutBlock(storyId, steps, err);
+    throw err;
+  }
 }
 
 export function createDonePrepareHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
   return {
-    done_prepare(args: DonePrepareArgs) {
-      return runDonePrepare(ctx, args);
+    async done_prepare(args: DonePrepareArgs) {
+      const transcript = await runDonePrepare(ctx, args);
+      if (args?.json === true) return donePrepareJsonResult(args.storyId ?? '', transcript);
+      return transcript;
     },
   };
 }
