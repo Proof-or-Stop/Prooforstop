@@ -221,11 +221,11 @@
           "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
           "command": "node packages/main/dist/tasks/dispatch-run-smoke.js",
           "result": "pass",
-          "note": "Dispatch smoke passes after fixing the review findings: completed fake worker reassignment uses role lattice-implementer, preserves parentDispatchId lineage, keeps fresh-context wording, and rejects prepared-only reassignment without creating a new dispatch.",
-          "headHash": "f3f94e2804414d7699f5c7058b06af6565e1ca5c",
+          "note": "BUG-001 regression: dispatch_reassign with role lattice-implementer now rewrites inherited Work in role execution instructions to Work in role: lattice-implementer. and the generated prompt no longer contains Work in role: overflow-worker.",
+          "headHash": "e9551a872c6cb9a605f1485beba4db4efb6de1f5",
           "materialHash": "ec087ac5796b4dc15641e3000a76fe7361bf208e8a23b4d13d80a36303c97e24",
           "storyFilesHash": "9b2858030a22676bb7b7596c89909bd927e866c8eacb1c3035952e86315c4a58",
-          "timestamp": "2026-07-09T03:23:18.876Z"
+          "timestamp": "2026-07-09T03:39:54.361Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
