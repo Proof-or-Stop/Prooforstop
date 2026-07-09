@@ -10,9 +10,9 @@
         "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
         "docs/requirements/decisions/host-overflow.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-09T13:10:52.259Z",
-      "endTime": null,
+      "endTime": "2026-07-09T13:27:22.127Z",
       "userSees": "Probe JSON includes \"host=claude-code executionReady=true reviewReady=true progressMode=stream-json failureKind=none\" and failed rows such as \"host=codex executionReady=false reviewReady=false failureKind=auth\" with bounded firstProgressMs/durationMs and no raw transcript.",
       "files": {
         "modify": [
@@ -52,7 +52,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js",
+          "result": "pass",
+          "note": "Readiness smoke verified canonical codex/claude/agy rows include launcherArgv, executionReady/reviewReady, progressMode, failureKind, bounded timing fields, and no raw transcript fields.",
+          "headHash": "bd3f579319f7bf1ffe8732aaf511eefafc4f6218",
+          "materialHash": "00673d61b1874343698f1b19ae619c64a89a38b2e72a6e4bce0e36782111b7c4",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-09T13:27:22.285Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-host-execution-readiness-smoke.js",
+          "result": "pass",
+          "note": "Smoke classified codex exec refresh_token_invalidated as failureKind=auth with executionReady=false/reviewReady=false despite version-capable executable assumptions.",
+          "headHash": "bd3f579319f7bf1ffe8732aaf511eefafc4f6218",
+          "materialHash": "00673d61b1874343698f1b19ae619c64a89a38b2e72a6e4bce0e36782111b7c4",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-09T13:27:22.431Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Smoke rejects legacy/contradictory readiness probes; process fact contract requires host-readiness semantics and reviewReadyHostCount in gate evidence.",
+          "headHash": "bd3f579319f7bf1ffe8732aaf511eefafc4f6218",
+          "materialHash": "00673d61b1874343698f1b19ae619c64a89a38b2e72a6e4bce0e36782111b7c4",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-09T13:27:22.572Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
