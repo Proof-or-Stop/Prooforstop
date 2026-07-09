@@ -11,7 +11,8 @@
  *     and duration, and NEVER surfaces raw output (no credential/transcript
  *     leakage);
  *   - stdin is closed so a bounded action cannot hang on an interactive prompt;
- *   - a non-zero exit, a missing binary, and a timeout each classify correctly.
+ *   - a non-zero exit, missing binary, argv-too-large spawn failure, generic
+ *     spawn failure, and a timeout each classify correctly.
  *
  * Run: npm run test:legacy -- provider-gemini
  */
@@ -116,8 +117,49 @@ try {
   assert.equal(missing.spawnError, true, 'a missing gemini binary is a spawnError');
   assert.equal(missing.exitCode, null, 'spawnError yields a null exit code');
   assert.equal(missing.attempts, 1, 'a missing binary is not retryable');
+  assert.equal(missing.spawnErrorKind, 'missing_executable', 'ENOENT is classified as missing_executable');
+  assert.equal(missing.spawnErrorCode, 'ENOENT', 'spawnErrorCode preserves ENOENT');
 
-  // 6. Timeout -> timedOut true (bounded wall-clock is enforced via the kill signal).
+  // 6. Spawn setup failures classify E2BIG distinctly from generic spawn errors.
+  const argvTooLarge = runBoundedGeminiProvider({
+    provider: 'gemini',
+    argv: ['chat', 'large-prompt-placeholder'],
+    cwd: projectRoot,
+    timeoutMs: 5_000,
+    maxAttempts: 3,
+    env: { PATH: binDir },
+  }, () => ({
+    status: null,
+    stdout: '',
+    stderr: '',
+    error: Object.assign(new Error('argv too large'), { code: 'E2BIG' }) as NodeJS.ErrnoException,
+  }));
+  assert.equal(argvTooLarge.spawnError, true, 'E2BIG is a spawnError');
+  assert.equal(argvTooLarge.exitCode, null, 'E2BIG spawn failure yields a null exit code');
+  assert.equal(argvTooLarge.spawnErrorKind, 'argv_too_large', 'E2BIG is classified as argv_too_large');
+  assert.equal(argvTooLarge.spawnErrorCode, 'E2BIG', 'spawnErrorCode preserves E2BIG');
+  assert.equal(argvTooLarge.attempts, 1, 'E2BIG is not retried');
+
+  const genericSpawnFailure = runBoundedGeminiProvider({
+    provider: 'gemini',
+    argv: ['chat'],
+    cwd: projectRoot,
+    timeoutMs: 5_000,
+    maxAttempts: 3,
+    env: { PATH: binDir },
+  }, () => ({
+    status: null,
+    stdout: '',
+    stderr: '',
+    error: Object.assign(new Error('permission denied'), { code: 'EACCES' }) as NodeJS.ErrnoException,
+  }));
+  assert.equal(genericSpawnFailure.spawnError, true, 'non-timeout spawn error is a spawnError');
+  assert.equal(genericSpawnFailure.exitCode, null, 'generic spawn failure yields a null exit code');
+  assert.equal(genericSpawnFailure.spawnErrorKind, 'spawn_failed', 'non-ENOENT/E2BIG spawn errors classify as spawn_failed');
+  assert.equal(genericSpawnFailure.spawnErrorCode, 'EACCES', 'spawnErrorCode preserves the original generic spawn error code');
+  assert.equal(genericSpawnFailure.attempts, 1, 'generic spawn setup failure is not retried');
+
+  // 7. Timeout -> timedOut true (bounded wall-clock is enforced via the kill signal).
   installFakeGemini('while :; do :; done');
   const timed = runBoundedGeminiProvider({
     provider: 'gemini',
@@ -130,7 +172,7 @@ try {
   assert.equal(timed.timedOut, true, 'a bounded timeout is detected from the kill signal');
   assert.equal(timed.attempts, 1);
 
-  console.log('✓ provider gemini smoke passed: real geminiCliAvailable preflight; bounded spawn capture (digest/bytes/exit/duration, no raw transcript leakage); stdin-closed no-hang; non-zero/missing/timeout classification');
+  console.log('✓ provider gemini smoke passed: real geminiCliAvailable preflight; bounded spawn capture (digest/bytes/exit/duration, no raw transcript leakage); stdin-closed no-hang; non-zero/missing/E2BIG/generic-spawn/timeout classification');
 } finally {
   rmSync(work, { recursive: true, force: true });
 }
