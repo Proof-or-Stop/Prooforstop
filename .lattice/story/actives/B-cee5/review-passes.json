@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-cee5:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept-residue check: the unconditional full decisions-directory scan instruction set (banned phrases: always scan the full decisions, must/read every .md file, read every .md file one by one, full directory scan of, all .md files under ...decisions, always defer to the full decisions directory) was greped across active prompt surfaces - packages/main/templates/agents/{lattice-review-scope-plan,lattice-review-behavior}.md and their .claude/agents + .lattice-codex/agents mirrors (6 files) - zero residual hits. Confirmed template vs .claude vs .lattice-codex copies are byte-identical (diff exit 0 x4). Ran the new reviewer-scan-budget-guard-smoke.ts directly: PASS (6 prompt copies clean, 4 required phrases present). Checked the other 10 reviewer-family templates (lattice-review-channel/concept/delivery/docs/quality/story-init/test-coverage, product-reviewer, test-case-reviewer, test-intent) for the old channel wording (same channel as lattice-review-scope-plan) and any independent decisions/-scan language: only lattice-review-behavior.md references that channel and all 3 copies now consistently say same bounded channel as lattice-review-scope-plan; none of the other 10 templates mention it or the decisions/ corpus at all. lattice-review-docs.md contains an unrelated pre-existing Fallback-1 full-text scan over touchpoints-derived .md files + CLAUDE.md (git diff main...HEAD shows this file untouched by B-cee5) - different concept (doc-consistency touchpoints, not the decisions/ spec-boundary corpus), not a residual. Full-repo grep for the banned phrases outside node_modules/dist/.git found only expected exempt hits: B-cee5 story metadata (background.md, plan.md narrating what was replaced) and the smoke tests own pattern definitions/positive-control string (intentional quoting of banned phrases as test fixtures). No blocker.",
+      "createdAt": "2026-07-09T17:22:20.642Z",
+      "reviewRound": "2026-07-09T17:19:07.755Z",
+      "reviewRunId": "B-cee5:RR-004",
+      "_hash": "02bc0c754f747ac2125f563753908ac7cf754f7ddc281be3392ce7ed3257efa6"
+    }
+  ]
+}
