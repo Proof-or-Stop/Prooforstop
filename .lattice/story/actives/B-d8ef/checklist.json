@@ -60,10 +60,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js",
           "result": "pass",
           "note": "Readiness smoke verified canonical codex/claude/agy rows include launcherArgv, executionReady/reviewReady, progressMode, failureKind, bounded timing fields, and no raw transcript fields.",
-          "headHash": "ec4dc3f450e3e965970b21dab2b11badf132cb35",
-          "materialHash": "6a259b0e72989e9538e0243092a59383e4e647d432b05889509ef1b41fc07e38",
-          "storyFilesHash": "fb5e0119eb12f405818c7bcb832c652ea80ad6d7a167385b58062656b167d3bc",
-          "timestamp": "2026-07-09T22:38:36.441Z"
+          "headHash": "f9b8364f511e3dc2b3ee85f99e985f5106c76af0",
+          "materialHash": "8e9e976b43d9599109d117095d224ed4a92acf2188a1df2e840013f176446d0c",
+          "storyFilesHash": "26f26a0a9824b5c0ada4229092a310575daf7301791a32128739a00720b5d7c3",
+          "timestamp": "2026-07-09T22:56:02.741Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -71,10 +71,10 @@
           "command": "node packages/main/dist/tasks/review-host-execution-readiness-smoke.js",
           "result": "pass",
           "note": "Smoke classified codex exec refresh_token_invalidated as failureKind=auth with executionReady=false/reviewReady=false despite version-capable executable assumptions.",
-          "headHash": "ec4dc3f450e3e965970b21dab2b11badf132cb35",
-          "materialHash": "6a259b0e72989e9538e0243092a59383e4e647d432b05889509ef1b41fc07e38",
-          "storyFilesHash": "fb5e0119eb12f405818c7bcb832c652ea80ad6d7a167385b58062656b167d3bc",
-          "timestamp": "2026-07-09T22:38:36.441Z"
+          "headHash": "f9b8364f511e3dc2b3ee85f99e985f5106c76af0",
+          "materialHash": "8e9e976b43d9599109d117095d224ed4a92acf2188a1df2e840013f176446d0c",
+          "storyFilesHash": "26f26a0a9824b5c0ada4229092a310575daf7301791a32128739a00720b5d7c3",
+          "timestamp": "2026-07-09T22:56:02.741Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -82,10 +82,10 @@
           "command": "node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Smoke rejects legacy/contradictory readiness probes; process fact contract requires host-readiness semantics and reviewReadyHostCount in gate evidence.",
-          "headHash": "ec4dc3f450e3e965970b21dab2b11badf132cb35",
-          "materialHash": "6a259b0e72989e9538e0243092a59383e4e647d432b05889509ef1b41fc07e38",
-          "storyFilesHash": "fb5e0119eb12f405818c7bcb832c652ea80ad6d7a167385b58062656b167d3bc",
-          "timestamp": "2026-07-09T22:38:36.441Z"
+          "headHash": "f9b8364f511e3dc2b3ee85f99e985f5106c76af0",
+          "materialHash": "8e9e976b43d9599109d117095d224ed4a92acf2188a1df2e840013f176446d0c",
+          "storyFilesHash": "26f26a0a9824b5c0ada4229092a310575daf7301791a32128739a00720b5d7c3",
+          "timestamp": "2026-07-09T22:56:02.741Z"
         }
       ]
     },
@@ -146,10 +146,10 @@
           "command": "node packages/main/dist/tasks/review-escalation-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js",
           "result": "pass",
           "note": "Fresh current-HEAD transcript evidence: observed smoke output includes reviewReadyHostCount below two permitting degraded 3x1 and two review-ready canonical hosts blocking single-host fallback for both escalation and assurance floor gates.",
-          "headHash": "ec4dc3f450e3e965970b21dab2b11badf132cb35",
-          "materialHash": "6a259b0e72989e9538e0243092a59383e4e647d432b05889509ef1b41fc07e38",
-          "storyFilesHash": "fb5e0119eb12f405818c7bcb832c652ea80ad6d7a167385b58062656b167d3bc",
-          "timestamp": "2026-07-09T22:38:36.441Z"
+          "headHash": "f9b8364f511e3dc2b3ee85f99e985f5106c76af0",
+          "materialHash": "8e9e976b43d9599109d117095d224ed4a92acf2188a1df2e840013f176446d0c",
+          "storyFilesHash": "26f26a0a9824b5c0ada4229092a310575daf7301791a32128739a00720b5d7c3",
+          "timestamp": "2026-07-09T22:56:02.741Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -157,10 +157,10 @@
           "command": "node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node packages/main/dist/tasks/review-escalation-smoke.js",
           "result": "pass",
           "note": "Legacy version-only probe records are rejected for non-human fallback and diagnostics require rerunning the v2 readiness probe or using explicit-human-approval.",
-          "headHash": "ec4dc3f450e3e965970b21dab2b11badf132cb35",
-          "materialHash": "6a259b0e72989e9538e0243092a59383e4e647d432b05889509ef1b41fc07e38",
-          "storyFilesHash": "fb5e0119eb12f405818c7bcb832c652ea80ad6d7a167385b58062656b167d3bc",
-          "timestamp": "2026-07-09T22:38:36.441Z"
+          "headHash": "f9b8364f511e3dc2b3ee85f99e985f5106c76af0",
+          "materialHash": "8e9e976b43d9599109d117095d224ed4a92acf2188a1df2e840013f176446d0c",
+          "storyFilesHash": "26f26a0a9824b5c0ada4229092a310575daf7301791a32128739a00720b5d7c3",
+          "timestamp": "2026-07-09T22:56:02.741Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -168,10 +168,10 @@
           "command": "node packages/main/dist/tasks/review-escalation-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js",
           "result": "pass",
           "note": "Fallback is refused when two canonical hosts are reviewReady even if single-host-environment or temporary-host-unavailability is claimed.",
-          "headHash": "ec4dc3f450e3e965970b21dab2b11badf132cb35",
-          "materialHash": "6a259b0e72989e9538e0243092a59383e4e647d432b05889509ef1b41fc07e38",
-          "storyFilesHash": "fb5e0119eb12f405818c7bcb832c652ea80ad6d7a167385b58062656b167d3bc",
-          "timestamp": "2026-07-09T22:38:36.441Z"
+          "headHash": "f9b8364f511e3dc2b3ee85f99e985f5106c76af0",
+          "materialHash": "8e9e976b43d9599109d117095d224ed4a92acf2188a1df2e840013f176446d0c",
+          "storyFilesHash": "26f26a0a9824b5c0ada4229092a310575daf7301791a32128739a00720b5d7c3",
+          "timestamp": "2026-07-09T22:56:02.741Z"
         },
         {
           "intentRef": "CHK-002:happy:0",
@@ -251,10 +251,10 @@
           "command": "node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node packages/main/dist/tasks/dispatch-run-smoke.js",
           "result": "pass",
           "note": "Readiness smoke proves canonical Claude launcher uses --print --verbose --output-format stream-json and dispatch smoke verifies claude invocationTemplate starts with that observable launcher.",
-          "headHash": "ec4dc3f450e3e965970b21dab2b11badf132cb35",
-          "materialHash": "6a259b0e72989e9538e0243092a59383e4e647d432b05889509ef1b41fc07e38",
-          "storyFilesHash": "fb5e0119eb12f405818c7bcb832c652ea80ad6d7a167385b58062656b167d3bc",
-          "timestamp": "2026-07-09T22:38:36.441Z"
+          "headHash": "f9b8364f511e3dc2b3ee85f99e985f5106c76af0",
+          "materialHash": "8e9e976b43d9599109d117095d224ed4a92acf2188a1df2e840013f176446d0c",
+          "storyFilesHash": "26f26a0a9824b5c0ada4229092a310575daf7301791a32128739a00720b5d7c3",
+          "timestamp": "2026-07-09T22:56:02.741Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -262,10 +262,10 @@
           "command": "node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node packages/main/dist/tasks/dispatch-run-smoke.js",
           "result": "pass",
           "note": "Smoke classifies agy --prompt-file as wrong_launcher while dispatch scaffolding uses agy --print with --print-timeout and no --prompt-file.",
-          "headHash": "ec4dc3f450e3e965970b21dab2b11badf132cb35",
-          "materialHash": "6a259b0e72989e9538e0243092a59383e4e647d432b05889509ef1b41fc07e38",
-          "storyFilesHash": "fb5e0119eb12f405818c7bcb832c652ea80ad6d7a167385b58062656b167d3bc",
-          "timestamp": "2026-07-09T22:38:36.441Z"
+          "headHash": "f9b8364f511e3dc2b3ee85f99e985f5106c76af0",
+          "materialHash": "8e9e976b43d9599109d117095d224ed4a92acf2188a1df2e840013f176446d0c",
+          "storyFilesHash": "26f26a0a9824b5c0ada4229092a310575daf7301791a32128739a00720b5d7c3",
+          "timestamp": "2026-07-09T22:56:02.741Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -273,10 +273,10 @@
           "command": "node packages/main/dist/tasks/review-host-execution-readiness-smoke.js",
           "result": "pass",
           "note": "Smoke proves codex exec token_invalidated/refresh_token_invalidated output is classified as failureKind=auth with reviewReady=false, rather than counting version/login as executable review readiness.",
-          "headHash": "ec4dc3f450e3e965970b21dab2b11badf132cb35",
-          "materialHash": "6a259b0e72989e9538e0243092a59383e4e647d432b05889509ef1b41fc07e38",
-          "storyFilesHash": "fb5e0119eb12f405818c7bcb832c652ea80ad6d7a167385b58062656b167d3bc",
-          "timestamp": "2026-07-09T22:38:36.441Z"
+          "headHash": "f9b8364f511e3dc2b3ee85f99e985f5106c76af0",
+          "materialHash": "8e9e976b43d9599109d117095d224ed4a92acf2188a1df2e840013f176446d0c",
+          "storyFilesHash": "26f26a0a9824b5c0ada4229092a310575daf7301791a32128739a00720b5d7c3",
+          "timestamp": "2026-07-09T22:56:02.742Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
@@ -285,10 +285,10 @@
           "command": "node packages/main/dist/tasks/usage-ledger-dispatch-smoke.js",
           "result": "pass",
           "note": "Covers Claude --output-format=stream-json downstream usage-ledger parsing: usage-ledger-dispatch-smoke verifies NDJSON final result event selection, malformed/truncated stream-json fallback, token usage extraction, and prototype-pollution resistance in packages/main/src/core/usage-ledger/dispatch-usage.ts.",
-          "headHash": "ec4dc3f450e3e965970b21dab2b11badf132cb35",
-          "materialHash": "6a259b0e72989e9538e0243092a59383e4e647d432b05889509ef1b41fc07e38",
-          "storyFilesHash": "fb5e0119eb12f405818c7bcb832c652ea80ad6d7a167385b58062656b167d3bc",
-          "timestamp": "2026-07-09T22:38:36.441Z"
+          "headHash": "f9b8364f511e3dc2b3ee85f99e985f5106c76af0",
+          "materialHash": "8e9e976b43d9599109d117095d224ed4a92acf2188a1df2e840013f176446d0c",
+          "storyFilesHash": "26f26a0a9824b5c0ada4229092a310575daf7301791a32128739a00720b5d7c3",
+          "timestamp": "2026-07-09T22:56:02.742Z"
         }
       ]
     }
