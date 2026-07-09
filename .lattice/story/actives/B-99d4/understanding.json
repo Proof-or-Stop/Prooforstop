@@ -1,0 +1,32 @@
+{
+  "task": "Allow an operator to reassign a completed worker/subagent for follow-up work under an explicit worker role without using full-history fork.",
+  "outcome": "After a worker finishes, the operator can run a follow-up command and see: \"Worker reassignment ready\" plus the previous dispatch id, new dispatch id, \"mode: fresh-context\", \"role: <requested worker role>\", a promptFile path, and nextAction text saying the worker can be started from explicit instructions with no full-history fork required.",
+  "facts": [
+    "User clarified the pain point: after a subagent completes, they want to assign that agent more work, but the available full-history fork path cannot specify the worker role.",
+    "Existing dispatch commands already accept role on plan/prepare/run/auto, but dispatch_resume only resumes an existing dispatch id with the original selected host and no new role/objective arguments.",
+    "Existing dispatch records materialize prompt.md, worktree metadata, status/review output, workerIds for parallel workers, and role inside the handoff pack preview.",
+    "DispatchRecord already has an optional parentDispatchId field that can represent follow-up lineage.",
+    "The command registry supports adding dispatch_reassign through command-catalog, alias-normalizer, handler map, command-policy, DEFAULT_PHASE_TOOLS, and PROCESS_FACT_LEVELS."
+  ],
+  "constraints": [
+    "Do not require or implement full conversation history inheritance.",
+    "Keep authority/receipt/DONE semantics unchanged; a reassignment is local dispatch metadata/worker guidance, not production acceptance.",
+    "Do not directly read or edit docs/story or tests/fixtures; use Lattice commands for story metadata and source/task smoke files for code verification.",
+    "Preserve existing dispatch_run, dispatch_resume, and dispatch_auto behavior unless the caller explicitly uses the reassignment path.",
+    "Because dispatch_reassign writes local dispatch metadata, register it in command-policy and process fact levels with L1 diagnostic-only semantics."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/lattice-dispatch.ts",
+    "packages/main/src/handlers/lattice-dispatch.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/cli/alias-normalizer.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/tasks/dispatch-run-smoke.ts",
+    "packages/main/src/tasks/unattended-dispatch-smoke.ts"
+  ],
+  "timestamp": "2026-07-09T02:42:22.659Z"
+}
