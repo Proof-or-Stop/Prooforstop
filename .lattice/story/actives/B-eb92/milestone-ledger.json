@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-eb92",
+  "state": "candidate",
+  "ledgerHash": "sha256:4332134558e35e25a0adf3495b765f83914032a7f12b6f97f7e1d1cb2939a369",
+  "milestones": [
+    {
+      "id": "M3",
+      "sourceRequirementId": "DOC-M3",
+      "claim": "Review-assurance requirements are surfaced before DONE from the canonical gate predicate.",
+      "doneMeans": "Required surfaces show reason code, current material binding, legal writer, and fallback eligibility without changing gate criteria.",
+      "requiredEvidence": [
+        "test",
+        "process-fact-contract"
+      ],
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-002:happy:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "DOC-M4",
+      "claim": "done_prepare blockers are actionable and safe.",
+      "doneMeans": "Blockers are grouped by operator action and cannot suggest auto-signing or unrelated commits.",
+      "requiredEvidence": [
+        "test"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:adversarial:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-09T01:28:12.311Z",
+  "updatedAt": "2026-07-09T01:28:12.311Z"
+}

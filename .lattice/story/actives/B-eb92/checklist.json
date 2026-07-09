@@ -1,0 +1,143 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Generate review-assurance guidance from the canonical gate predicate",
+      "context": "Use the same canonical review-assurance/DONE-closure source of truth used by the gate. The output must include reason code, current material binding, legal writer, fallback eligibility, and cannot-auto-sign explanation.",
+      "relatedDocs": [
+        "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md#M3---Early-Review-Assurance-Surfacing",
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+      ],
+      "userSees": "When review assurance is required, status output names the canonical reason, current material binding, legal writer, and fallback eligibility.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/handlers/done-prepare.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A fixture with >=2 countable first-round findings and high-risk lifecycle work prints canonical review-assurance guidance before DONE.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Fallback guidance is printed only when canonical status says degraded-single-host fallback is eligible.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Display-only code cannot satisfy or weaken the DONE review-assurance gate and cannot auto-write verdict/fallback evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Surface review assurance before DONE at required command surfaces",
+      "context": "Make review-assurance requirements visible at required first implementation surfaces: review finding or first-round summary, review_escalation_status, story_advance --phase=TEST as advisory, session_brief/next, and done_prepare/done_prepare --dryRun.",
+      "relatedDocs": [
+        "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md#M3---Early-Review-Assurance-Surfacing",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "userSees": "Before attempting DONE, the agent sees that review assurance is required and knows the next legal command family.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lifecycle-readiness.ts",
+          "packages/main/src/core/done-oracle.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/handlers/review-escalation.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-assurance-surfacing-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "session_brief/next and done_prepare --dryRun surface the requirement for a triggered story before DONE.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "story_advance --phase=TEST surfaces review assurance as advisory and does not convert it into a TEST gate.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Machine-readable output remains parseable for every touched surface and process-fact contract tests pass.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Classify done_prepare blockers with safe next-command recipes",
+      "context": "Implement M4 blocker grouping for required gate, missing evidence, generated metadata, stale material, and cannot-auto-sign cases. The guidance must separate legal writer paths from owner-only commands.",
+      "relatedDocs": [
+        "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md#M4---Actionable-Blocker-Summary",
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+      ],
+      "userSees": "done_prepare blockers are grouped by action type and explain whether the agent can run a command or must ask a reviewer/host/human-approved fallback path.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/core/review-assurance-floor.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-assurance-surfacing-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "done_prepare classifies a missing review assurance blocker and prints canonical next-command guidance.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Generated metadata blockers are not allowed to suggest committing unrelated user changes.",
+            "type": "logic",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Cannot-auto-sign guidance appears for host verdicts, degraded fallback, reviewer evidence, and delivery checks where applicable.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

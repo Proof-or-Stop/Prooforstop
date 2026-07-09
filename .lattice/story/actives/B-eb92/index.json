@@ -1,0 +1,39 @@
+{
+  "storyId": "B-eb92",
+  "name": "review-assurance-early-surfacing",
+  "title": "Surface review assurance requirements before DONE closeout",
+  "description": "Implement M3-M4 from docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md: expose review-assurance requirements from the canonical gate predicate before DONE, and classify done_prepare blockers with safe legal next commands.",
+  "type": "bug",
+  "phase": "INIT",
+  "priority": "high",
+  "source": "user-request-2026-07-09",
+  "depends": [
+    "B-eb08"
+  ],
+  "keywords": [
+    "review-assurance",
+    "done_prepare",
+    "done-gate",
+    "process-fact"
+  ],
+  "riskSignals": [
+    {
+      "category": "State Machine/Gate",
+      "matched": "story_advance"
+    }
+  ],
+  "createdAt": "2026-07-09T01:28:12.311Z",
+  "startedAt": "2026-07-09T01:28:12.311Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-09T01:28:13.108Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-3d1880b40d393f50",
+      "agent": "main"
+    }
+  ]
+}
