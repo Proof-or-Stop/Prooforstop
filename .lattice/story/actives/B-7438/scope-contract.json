@@ -54,8 +54,31 @@
         "review_escalation_fallback_set",
         "proofstory_dev_evidence"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Required to resolve reviewer findings F-001 and F-002: these existing root-chain smoke suites exercise the new host-availability fallback contract and prevent npm run test regressions.",
+      "timestamp": "2026-07-09T11:56:07.217Z",
+      "paths": [
+        "packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts",
+        "packages/main/src/tasks/review-escalation-freshness-root-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts",
+        "packages/main/src/tasks/review-escalation-freshness-root-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "55a3b9101b44dbac3a2153979e42df0c25879af0",
+      "materialHash": "221fcacf3817ff1f986f444ed128b44e48a2f34ecfac193714b52f3c23a2dd2d",
+      "anchors": [
+        "reviewer_finding_fix",
+        "root_test_chain",
+        "temporary_host_unavailability"
+      ]
     }
   ],
   "createdAt": "2026-07-09T11:40:58.810Z",
-  "updatedAt": "2026-07-09T11:41:47.507Z"
+  "updatedAt": "2026-07-09T11:56:07.217Z"
 }
