@@ -4,7 +4,7 @@
   "title": "Stop high-token reviewer scans with bounded memory preflight and candidate spec routing",
   "description": "Problem: current Proof-or-Stop reviewer prompts can force broad or full docs/requirements/decisions/*.md scans before using bounded recall or candidate selection, causing very high token spend across host accounts. Evidence re-verified on 2026-07-09: docs/requirements/decisions currently has 111 Markdown files, about 319,612 words and 2,400,226 bytes (story-creation snapshot said 112 files; one file left main since — magnitude unchanged); the scope-plan prompt tells reviewers to read every decision file, and behavior review also performs a full decisions-directory spec-boundary scan. Existing runtime already has non-authoritative Memory Runtime Preflight, dev_memory_preflight/search, and playbook runtime advisory wiring, but the high-token reviewer prompts do not consistently use those surfaces before broad scans. Goal: ship a stopgap prompt-and-test change that makes bounded memory/playbook preflight plus candidateSpecSet the default path before broad scans, while keeping full decisions scan available only as a recorded escalation path for high-risk lifecycle/gate/process-fact/global rename/candidate ambiguity/reviewer escalation. Dependency: the referenced consolidation execution plan doc lands on main via B-2861 (in TEST); this stopgap intentionally precedes it and grounds on the live prompt templates. Non-goals: do not make memory/playbook gate evidence, do not weaken scope review, do not remove full scan capability, do not implement a full CLI metrics sink, and do not change lifecycle gates or DONE semantics.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "source": "user-request: token consumption is highest priority on 2026-07-09",
   "keywords": [
@@ -24,7 +24,7 @@
   ],
   "createdAt": "2026-07-09T16:25:27.686Z",
   "startedAt": "2026-07-09T16:25:27.686Z",
-  "endedAt": null,
+  "endedAt": "2026-07-09T18:40:41.671Z",
   "events": [
     {
       "phase": "INIT",
@@ -133,12 +133,16 @@
       "user": "Harmonygo",
       "sessionId": "24c9290f-0fbd-491e-a89d-376f37dc7e02",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-09T18:40:41.671Z",
+      "branch": "story/B-cee5",
+      "user": "Harmonygo",
+      "sessionId": "24c9290f-0fbd-491e-a89d-376f37dc7e02",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-cee5",
-    "branch": "story/B-cee5",
-    "createdAt": "2026-07-09T16:40:56.384Z"
-  },
   "currentReviewRound": "2026-07-09T17:47:43.007Z"
 }

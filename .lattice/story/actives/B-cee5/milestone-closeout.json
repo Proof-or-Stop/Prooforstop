@@ -1,0 +1,98 @@
+{
+  "schemaVersion": "proofbound.milestone_closeout.v1",
+  "storyId": "B-cee5",
+  "phase": "TEST",
+  "generatedAt": "2026-07-09T18:40:41.670Z",
+  "sourceReport": {
+    "schemaVersion": "proofbound.milestone_status.v1",
+    "digest": "c6c46ac71c0481baa259919809517b628e2349db6f6b736277d29d345cabd651",
+    "ledger": {
+      "present": true,
+      "state": "confirmed",
+      "hash": "sha256:5e6313806385ff8ebc03a3ec95f92dd8a25f41463640780f8d135d0cdf1f4c30"
+    },
+    "groups": {
+      "completed": [
+        "M1",
+        "M2",
+        "M3",
+        "M4"
+      ],
+      "current": [],
+      "remaining": []
+    },
+    "risks": [],
+    "nextActions": [
+      "No milestone action; all ledger rows are completed or not applicable."
+    ]
+  },
+  "bindings": {
+    "headHash": "33264160e8c67bcba98e3d5191f745f1e2cd33fa",
+    "materialHash": "f482e7f4cd7aa524859361668fc24e9edbfe19cdd6d12e047eb0807a10cea349",
+    "storyFilesHash": "9e1c67536944305f0a4efde19e05b60b2f5bb7fc8d3c60e89e81cd2d846fcccb"
+  },
+  "rows": [
+    {
+      "milestone": "M1",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "The story identifies the concrete token-heavy broad-scan sources and quantifies the baseline decisions corpus.",
+      "acceptance": "Evidence references show decisions corpus size and exact prompt instructions that currently default to full scans.",
+      "evidence": [
+        "CHK-001:happy:0 [pass/manual_transcript] sh -c 'find docs/requirements/decisions -name \"*.md\" | wc -l; find docs/requirements/decisions -name \"*.md\" -exec cat {} + | wc -w; find docs/requirements/decisions -name \"*.md\" -exec cat {} + | wc -c'; rg -n -e \"Always scan the \\*\\*full decisions/ directory\\*\\*\" -e \"You must Read every \\.md file\" -e \"Read every \\.md file one by one\" -e \"always defer to the full decisions/ directory\" packages/main/templates/agents/lattice-review-scope-plan.md; rg -n -e \"full directory scan of\" -e \"all \\.md files under\" packages/main/templates/agents/lattice-review-behavior.md note=Reproduced baseline: 111 md files / 319,612 words / 2,400,226 bytes in docs/requirements/decisions. Full-scan instructions located at scope-plan lines 117/122/142/191 and behavior lines 126/160, matching the story-cited surfaces.",
+        "CHK-001:edge:0 [pass/manual_transcript] sh -c 'find docs/requirements/decisions -name \"*.md\" | wc -l' note=Baseline bound as literal re-runnable commands; live count 111 vs story-creation snapshot 112 is recorded with the drift explanation in background.md, so same-day corpus drift is detectable and explained rather than silently stale.",
+        "CHK-001:adversarial:0 [pass/manual_transcript] diff packages/main/templates/agents/lattice-review-scope-plan.md .claude/agents/lattice-review-scope-plan.md; diff packages/main/templates/agents/lattice-review-behavior.md .claude/agents/lattice-review-behavior.md; diff packages/main/templates/agents/lattice-review-scope-plan.md .lattice-codex/agents/lattice-review-scope-plan.md; diff packages/main/templates/agents/lattice-review-behavior.md .lattice-codex/agents/lattice-review-behavior.md note=All four pre-edit diffs empty: both templates byte-identical to their .claude and .lattice-codex mirrors, so the baseline cannot hide pre-existing mirror drift."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M2",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Broad-scan reviewer prompts consume bounded memory/playbook advisory context before candidate search or full scan.",
+      "acceptance": "Scope-plan and behavior prompt outputs include bounded memory/playbook preflight guidance and state that it is not gate evidence.",
+      "evidence": [
+        "CHK-002:happy:0 [pass/manual_transcript] node bin/lattice.js agent_prompt --role=lattice-review-scope-plan | rg -n \"Bounded memory/playbook preflight\"; node bin/lattice.js agent_prompt --role=lattice-review-behavior | rg -n \"Bounded memory/playbook preflight first\" note=Rendered prompts for both roles open the search-strategy path with the bounded memory/playbook preflight step, ordered before any decisions read (scope-plan search budget contract step 1; behavior spec-boundary step first bullet).",
+        "CHK-002:edge:0 [pass/docs_check] rg -n \"never substitute a full directory read for a missing preflight\" packages/main/templates/agents/lattice-review-scope-plan.md packages/main/templates/agents/lattice-review-behavior.md note=Both templates explicitly cover the memory-surface-unavailable case: proceed to candidate routing, never substitute a full directory read.",
+        "CHK-002:adversarial:0 [pass/docs_check] rg -n -e \"advisory only\" -e \"gateEvidence=false\" -e \"NEVER satisfy\" packages/main/templates/agents/lattice-review-scope-plan.md packages/main/templates/agents/lattice-review-behavior.md note=F-004 fix: replaces the earlier malformed row (bare pattern mixed with -e flags made rg treat \"advisory only\" as a file path, replay exit 2). Corrected command puts all three patterns behind -e; replayed exit 0, both templates carry advisory only + gateEvidence=false + NEVER satisfy wording verbatim.",
+        "CHK-005:happy:0 [pass/manual_transcript] diff packages/main/templates/agents/lattice-review-scope-plan.md .claude/agents/lattice-review-scope-plan.md; diff packages/main/templates/agents/lattice-review-behavior.md .claude/agents/lattice-review-behavior.md; diff packages/main/templates/agents/lattice-review-scope-plan.md .lattice-codex/agents/lattice-review-scope-plan.md; diff packages/main/templates/agents/lattice-review-behavior.md .lattice-codex/agents/lattice-review-behavior.md note=All four post-edit diffs empty: templates and both mirror sets are byte-identical (these two prompts contain no .claude/agents path references, so the codex substitution is a no-op, matching pre-edit state).",
+        "CHK-005:edge:0 [pass/manual_transcript] lattice check note=lattice check drift report contains no entries for the four touched agent mirror files; the three reported items (gitignore runtime patterns, AGENTS.md managed section, codex pretool hook) are pre-existing repo-level staleness unrelated to this story and were left untouched.",
+        "CHK-005:adversarial:0 [pass/logic_test] node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js note=Guard smoke scans all six copies (two templates + two .claude + two .lattice-codex); the red demonstration was performed on a .claude mirror specifically, proving stale-mirror wording fails the test."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M3",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "candidateSpecSet-first routing replaces default full decisions scans while retaining explicit escalation.",
+      "acceptance": "Prompts require candidateSpecSet sources and scanEscalationReason before a full decisions scan, and behavior review consumes scope_check_save by default.",
+      "evidence": [
+        "CHK-003:happy:0 [pass/docs_check] rg -n \"Enumerate decisions/ filenames completely|Build the candidateSpecSet|full-read at most 15 candidate docs|Read full content only for candidateSpecSet members\" packages/main/templates/agents/lattice-review-scope-plan.md note=Scope-plan default flow: complete filename enumeration, candidateSpecSet built from the six sources (relatedDocs, story metadata/riskSignals, changed files/symbols, command/config names, aux_doc_list, top-N rg matches), full reads capped at 15 candidates, triage for the rest.",
+        "CHK-003:edge:0 [pass/docs_check] rg -n \"candidate ambiguity\" packages/main/templates/agents/lattice-review-scope-plan.md packages/main/templates/agents/lattice-review-behavior.md note=Candidate ambiguity is an explicit scanEscalationReason trigger in both templates; scope-plan step 4(a) additionally instructs escalation instead of guessing when triage suggests hidden commitments.",
+        "CHK-003:adversarial:0 [pass/logic_test] rg -n \"never degenerates to relatedDocs-only\" packages/main/templates/agents/lattice-review-scope-plan.md; node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js note=relatedDocs-alone is forbidden wording is present, and the guard smoke asserts candidateSpecSet/scanEscalationReason/advisory-only/gateEvidence=false phrases exist in all six copies.",
+        "CHK-004:happy:0 [pass/manual_transcript] rg -n \"Default inputs: the .lattice scope_check_save. result\" packages/main/templates/agents/lattice-review-behavior.md && node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js note=Replayable replacement for the earlier CHK-004 happy row (whose rg used --include-zero without --count and would error on replay): positive match proves the new default-input wording at line 129, and the guard smoke enforces zero unconditional full-scan phrases across all six copies.",
+        "CHK-004:edge:0 [pass/docs_check] rg -n \"high-risk lifecycle/gate change, process-fact change, global rename, candidate ambiguity, explicit reviewer escalation\" packages/main/templates/agents/lattice-review-behavior.md packages/main/templates/agents/lattice-review-scope-plan.md note=All five escalation triggers are enumerated verbatim in both templates so high-risk stories still get a full scan with a recorded scanEscalationReason.",
+        "CHK-004:adversarial:0 [pass/docs_check] rg -n \"category=missing|spec-boundary: \" packages/main/templates/agents/lattice-review-behavior.md note=Finding taxonomy untouched: category=missing with spec-boundary: desc prefix wording remains exactly as before the search-strategy change.",
+        "CHK-005:happy:0 [pass/manual_transcript] diff packages/main/templates/agents/lattice-review-scope-plan.md .claude/agents/lattice-review-scope-plan.md; diff packages/main/templates/agents/lattice-review-behavior.md .claude/agents/lattice-review-behavior.md; diff packages/main/templates/agents/lattice-review-scope-plan.md .lattice-codex/agents/lattice-review-scope-plan.md; diff packages/main/templates/agents/lattice-review-behavior.md .lattice-codex/agents/lattice-review-behavior.md note=All four post-edit diffs empty: templates and both mirror sets are byte-identical (these two prompts contain no .claude/agents path references, so the codex substitution is a no-op, matching pre-edit state)."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M4",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Static verification prevents unconditional full-scan wording from returning.",
+      "acceptance": "A focused test or task fails on unconditional read-every-decisions-file wording but permits explicit escalation-path language.",
+      "evidence": [
+        "CHK-006:happy:0 [pass/logic_test] npm --prefix packages/main run build; node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js note=New guard passes on the updated six prompt copies: 0 banned unconditional broad-scan phrases, 4 required bounded-search phrases present, positive controls green.",
+        "CHK-006:edge:0 [pass/logic_test] node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js note=Escalation-path wording does not false-positive: templates contain multiple scanEscalationReason lines describing full-scan escalation and the guard exempts them (in-test positive control asserts the exemption).",
+        "CHK-006:adversarial:0 [pass/logic_test] sed -i '' 's/^## Rules$/## Rules\\n\\n- Always scan the **full decisions\\/ directory**./' .claude/agents/lattice-review-scope-plan.md; node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js; cp packages/main/templates/agents/lattice-review-scope-plan.md .claude/agents/lattice-review-scope-plan.md note=Red demonstration executed: reintroducing the legacy phrase into .claude/agents/lattice-review-scope-plan.md made the smoke exit 1 flagging line 195 [always scan full decisions]; restoring the mirror returned exit 0.",
+        "CHK-007:happy:0 [pass/manual_transcript] npm --prefix packages/main run build; node bin/lattice.js agent_prompt --role=lattice-review-scope-plan; node bin/lattice.js agent_prompt --role=lattice-review-behavior; node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js note=Worktree-rendered prompts contain the new bounded wording (scope-plan: 7x candidateSpecSet / 5x scanEscalationReason / 2x advisory only / 1x gateEvidence=false; behavior: 4x/3x/2x/1x) and zero unconditional full-scan phrases; build and guard green. Note: the globally installed lattice CLI renders from the installed package, so worktree verification must use node bin/lattice.js.",
+        "CHK-007:edge:0 [pass/docs_check] rg -n \"full-read at most 15 candidate docs\" packages/main/templates/agents/lattice-review-scope-plan.md packages/main/templates/agents/lattice-review-behavior.md note=Before/after budget: previous default instructed full-content reads of all 111 decisions docs (~2,400,226 bytes) on every scope-plan AND behavior run; new default is bounded preflight + at most 15 candidate full reads + filename triage, cutting default spec-reading volume by roughly 85-100 docs per reviewer run, with full scans only under a recorded scanEscalationReason.",
+        "CHK-007:adversarial:0 [pass/manual_transcript] lattice checklist_get --storyId=B-cee5 note=Every evidence row on CHK-001..CHK-007 binds the literal re-runnable command used, so the delivery reviewer can replay each verification verbatim from the worktree."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    }
+  ]
+}
