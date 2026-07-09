@@ -86,9 +86,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-09T15:50:49.322Z",
-      "endTime": null,
+      "endTime": "2026-07-09T15:50:57.557Z",
       "userSees": "User sees \"3x2 review complete for B-2861: six host/lens findings are recorded or explicitly classified.\"",
       "files": {
         "modify": [],
@@ -406,6 +406,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Recording the completed three-host two-lens review work."
+    },
+    {
+      "timestamp": "2026-07-09T15:50:57.557Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Codex CLI, Claude Code CLI, and Antigravity CLI 3x2 review results are recorded in the B-2861 review ledger."
     }
   ]
 }
