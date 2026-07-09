@@ -74,7 +74,7 @@
       "desc": "CHK-002:adversarial:0 verificationEvidence command 'rg -n \"advisory only\" -e \"gateEvidence=false\" -e \"NEVER satisfy\" packages/main/templates/agents/lattice-review-scope-plan.md packages/main/templates/agents/lattice-review-behavior.md' is not genuinely re-runnable as bound: once any -e flag is present, ripgrep treats the bare positional \"advisory only\" as a PATH argument, not a search pattern (ripgrep 14.1.1 semantics). Replaying the literal command exits 2 with 'rg: advisory only: No such file or directory (os error 2)', not 0/pass as recorded -- the first pattern is silently never searched and the command errors rather than succeeding. It still prints matches for the other two -e patterns before erroring, which is why it can look like a pass on casual inspection, but exit code and true coverage do not match the recorded result=pass. Fix: move all three patterns behind -e (e.g. rg -n -e \"advisory only\" -e \"gateEvidence=false\" -e \"NEVER satisfy\" ...) and rebind evidence with the corrected literal command.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-09T17:24:45.518Z",
@@ -86,7 +86,11 @@
         "packages/main/templates/agents/lattice-review-behavior.md"
       ],
       "signatureTag": "missing|md|adversarial-verificationevidence-command",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "CHK-002:adversarial:0 evidence rebound with all rg patterns behind -e (commit 1dec06106); replayed exit 0 by test-coverage lane RR-009/RP-005.",
+      "resolvedAt": "2026-07-09T17:37:36.548Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-cee5:F-005",
