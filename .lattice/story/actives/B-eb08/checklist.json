@@ -151,6 +151,18 @@
           "materialHash": "e6e55c7b0a5a5641e1e90684bc502ea506d23ad1e7367dceba93371050f628aa",
           "storyFilesHash": "ff44a7acd65e92521b982990b81d15cf1b481e02c6479c2c73c74c5d25e2675f",
           "timestamp": "2026-07-09T02:00:13.694Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "command": "npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke",
+          "result": "pass",
+          "note": "Focused smoke deliberately hangs runtimeChange while heartbeat continues; done_prepare returns BLOCKED at runtimeChange with an attributed phase-timeout.",
+          "headHash": "99dbee8b2a192879293955f4120302796487f32a",
+          "materialHash": "e6e55c7b0a5a5641e1e90684bc502ea506d23ad1e7367dceba93371050f628aa",
+          "storyFilesHash": "ff44a7acd65e92521b982990b81d15cf1b481e02c6479c2c73c74c5d25e2675f",
+          "timestamp": "2026-07-09T02:00:15.136Z"
         }
       ]
     },
