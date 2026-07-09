@@ -317,9 +317,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-09T15:51:26.013Z",
-      "endTime": null,
+      "endTime": "2026-07-09T15:51:33.834Z",
       "userSees": "User sees \"DONE optimization table ready: every applied document optimization has reason, evidence, 3x2 source, and affected contract area.\"",
       "files": {
         "modify": [],
@@ -460,6 +460,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Final DONE optimization table is being tied to the completion definition."
+    },
+    {
+      "timestamp": "2026-07-09T15:51:33.834Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "DONE optimization table is present as the B-2861 3x2 Review Follow-Up Ledger with reason/evidence columns and completion-definition linkage."
     }
   ]
 }
