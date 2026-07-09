@@ -430,6 +430,17 @@
           "materialHash": "2129600913e88693d4e5986538beca1b15432d378b1fb18b9b126d64d6e96cdb",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "timestamp": "2026-07-09T17:16:45.525Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js",
+          "result": "pass",
+          "note": "Escalation-path wording does not false-positive: templates contain multiple scanEscalationReason lines describing full-scan escalation and the guard exempts them (in-test positive control asserts the exemption).",
+          "headHash": "9d034781800eff6cd33057f118ba8ea06d5529cc",
+          "materialHash": "2129600913e88693d4e5986538beca1b15432d378b1fb18b9b126d64d6e96cdb",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-09T17:16:47.170Z"
         }
       ]
     },
