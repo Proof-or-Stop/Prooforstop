@@ -1,0 +1,64 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-d8ef",
+  "allowedCommands": [
+    "agy --print *",
+    "claude --print --verbose --output-format=stream-json *",
+    "codex exec *",
+    "git diff *",
+    "git log *",
+    "git status *",
+    "lattice *",
+    "node packages/main/dist/tasks/*.js",
+    "node scripts/*.mjs",
+    "npm --prefix packages/main run build",
+    "npm run test",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [
+    "agy CLI",
+    "apply_patch",
+    "Bash",
+    "Claude CLI",
+    "Codex CLI",
+    "Read"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/host-neutral-observability-console.md",
+    "docs/requirements/decisions/host-overflow.md",
+    "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md",
+    "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+    "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+    "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+    "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+    "packages/main/src/cli",
+    "packages/main/src/core",
+    "packages/main/src/handlers",
+    "packages/main/src/providers",
+    "packages/main/src/tasks",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "cat ~/.claude/auth-profiles/*",
+    "cat ~/.codex/auth-profiles/*",
+    "git checkout -- *",
+    "git push *",
+    "git reset --hard *",
+    "omx *"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+    "docs/requirements/decisions/multi-model-ablation-replication.md",
+    "scripts/release.mjs"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Use bounded local smoke commands only; do not read token files directly. Host auth status should be classified through CLI exit/output, not by copying credentials.",
+  "createdAt": "2026-07-09T12:58:38.499Z",
+  "updatedAt": "2026-07-09T12:58:38.499Z",
+  "_hash": "6724b9438fb23eca371b9b1d130d92296dcba9c725d88fa4b0fb60ed6a23a239"
+}

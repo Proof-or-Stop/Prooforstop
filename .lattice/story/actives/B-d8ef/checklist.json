@@ -1,0 +1,44 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Record canonical noninteractive launcher readiness per review host",
+      "context": "Extend host availability proof beyond binary/version presence. Each canonical host row should report the launcher shape used for reviewer work, whether the CLI supports it, whether a bounded smoke can start/finish or produce first progress, and a failureKind for auth, wrong flags, timeout, missing executable, or silent-final-output only.",
+      "relatedDocs": [
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+        "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+        "docs/requirements/decisions/host-overflow.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Use execution-ready host counts for degraded fallback and host dispatch diagnostics",
+      "context": "Non-human degraded fallback must not be eligible just because two hosts fail launcher/auth readiness after passing --version. The gate should distinguish availableHostCount from reviewReadyHostCount/executionReadyHostCount and explain when Codex token invalidation, Claude silent mode, or agy wrong flags require full 3x2 remediation or explicit-human-approval.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+        "docs/requirements/decisions/host-neutral-observability-console.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Cover Claude stream-json verbose, Codex exec auth, and agy print launcher with smoke tests",
+      "context": "Add focused smoke coverage that proves Claude observable launcher is claude --print --verbose --output-format=stream-json, plain --print is classified as silent/non-progress for long reviewer work, agy --prompt-file is rejected while agy --print/--print-timeout is canonical, and Codex version/login without codex exec success is not review-ready.",
+      "relatedDocs": [
+        "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+        "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md",
+        "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
