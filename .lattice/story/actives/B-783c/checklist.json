@@ -95,8 +95,8 @@
         "docs/dev/test-coverage.md",
         "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-09T00:00:51.492Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
@@ -192,6 +192,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Implementation committed in 1ccaa921c; build, focused smoke, and solver-visible activity smoke passed."
+    },
+    {
+      "timestamp": "2026-07-09T00:00:51.492Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Record regression-test evidence for activity logging behavior."
     }
   ]
 }
