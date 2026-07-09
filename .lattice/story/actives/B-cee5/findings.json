@@ -20,6 +20,27 @@
       ],
       "signatureTag": "missing|md|code-drift-claude",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cee5:F-002",
+      "desc": "doc-code-drift: packages/main/templates/agents/lattice-review-behavior.md line 163 claims its candidateSpecSet inputs are consumed through the \"same bounded channel as lattice-review-scope-plan\", but the two prompts define different candidateSpecSet source lists. scope-plan (line 124): checklist relatedDocs; story title/description/keywords/riskSignals; changed files and symbols; command/config names; `lattice aux_doc_list` output; and top-N rg keyword matches. behavior (line 130): checklist relatedDocs, story title/description/keywords/riskSignals, changed files/symbols, command/config names, and top-N rg keyword matches -- `lattice aux_doc_list` output is omitted. Same discrepancy is mirrored identically in .claude/agents/lattice-review-behavior.md and .lattice-codex/agents/lattice-review-behavior.md (byte-identical to the template). Either behavior silently drops an input source scope-plan uses (breaking the claimed shared-channel guarantee) or the \"same bounded channel\" wording is inaccurate.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-09T17:22:46.670Z",
+      "reviewRound": "2026-07-09T17:19:07.755Z",
+      "reviewRunId": "B-cee5:RR-003",
+      "_hash": "487165ff3434e6765d56146bd65eb964c2de5c958afde40e9e454c2451f3c45b",
+      "files": [
+        "packages/main/templates/agents/lattice-review-behavior.md",
+        "packages/main/templates/agents/lattice-review-scope-plan.md",
+        ".claude/agents/lattice-review-behavior.md",
+        ".lattice-codex/agents/lattice-review-behavior.md"
+      ],
+      "signatureTag": "missing|md|code-drift-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
