@@ -172,6 +172,27 @@
       "resolvedAt": "2026-07-09T03:15:24.575Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-eb08:F-008",
+      "desc": "Wrapping done_required_validate in runCloseoutPhase is not fail-closed for async validation commands. runCloseoutPhase races the handler deadline at packages/main/src/handlers/done-prepare.ts:1233, but runDoneRequiredValidation awaits runValidationCommand at packages/main/src/core/done-required-validation.ts:531 and writes done-required-evidence.json at packages/main/src/core/done-required-validation.ts:587. Because runValidationCommand owns an independent child timeout at packages/main/src/core/validation-executor.ts:429 and receives no abort signal, a phase timeout returns DONE prepare BLOCKED while the child continues and can later write PASS DONE-required evidence. Verified with a temp fixture: LATTICE_DONE_PREPARE_DONE_REQUIRED_VALIDATION_TIMEOUT_MS=100, a DONE-required node command sleeping 1000ms, done_prepare returned blockedAt validate, then done-required-evidence.json appeared afterward with status PASS. This violates timeout/error mapping and fail-closed semantics; cancel/abort the DONE-required run or prevent evidence writes after the phase deadline before wrapping it.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-09T03:52:51.087Z",
+      "reviewRound": "2026-07-09T03:48:23.418Z",
+      "reviewRunId": "B-eb08:RR-035",
+      "_hash": "02482d2e25b235106d81f26f87a7689b9cda5916840f28629a4d5232c4dfce87",
+      "files": [
+        "packages/main/src/handlers/done-prepare.ts",
+        "packages/main/src/core/done-required-validation.ts",
+        "packages/main/src/core/validation-executor.ts",
+        "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|wrapping-required-validate",
+      "signatureTagSource": "auto"
     }
   ]
 }
