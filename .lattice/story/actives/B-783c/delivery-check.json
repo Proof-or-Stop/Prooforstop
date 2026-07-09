@@ -1,53 +1,53 @@
 {
   "storyId": "B-783c",
-  "checkedAt": "2026-07-09T00:28:43.056Z",
-  "headHash": "9dba7b9460602999102172b495cb505267341e48",
-  "materialHash": "e03b3abb8f68c388d50ec7b97da6090ba5eb88bb58108ac01ce0fdba009dda98",
-  "storyFilesHash": "abbf067ddfc433b9db9b44a5e9cbcbd449c2021cf8b0964b69849c2ab970c065",
-  "reviewRound": "2026-07-09T00:02:08.322Z",
+  "checkedAt": "2026-07-09T00:54:05.435Z",
+  "headHash": "c890f4898fed6eaa2f8ed12a691b1e28dd7f9822",
+  "materialHash": "beea5f966d2607c5b1b2df50cc81733815fb3b962beae8ddaedf7fdce7f0b079",
+  "storyFilesHash": "01578ecdea1ca920c81fea97c2dec4002c9f246b981ba6a66425f758ac349f0d",
+  "reviewRound": "2026-07-09T00:40:21.448Z",
   "agentId": "lattice-review-delivery",
   "docsPromises": [
     {
-      "docPath": "checklist:CHK-001 userSees",
-      "promise": "In a global-thin project, lattice codex verify reaches Global fallback heartbeat and reports codex/global-fallback heartbeat instead of no activity heartbeat for session.",
+      "docPath": "checklist:CHK-001:userSees",
+      "promise": "Global-thin lattice codex verify reaches Global fallback heartbeat and reports codex/global-fallback instead of no activity heartbeat for session.",
       "status": "verified",
-      "verifiedBy": "delivery_context_pack, source diff, live-smoke transcript",
-      "evidence": "cli-engine now uses isRuntimeActivityRoot; managed global-thin roots are accepted only through .lattice/lattice.json assetMode=global-thin; live smoke stdout contains Global fallback heartbeat: source=codex session=codex-check-global-1783556532905 entrypoint=global-fallback."
+      "verifiedBy": "solver-visible live smoke + activity log grep",
+      "evidence": "In /Users/jek/Documents/Work/deepswe-pos-codex-gpt55-run/solver-visible, PATH wrapper to /Users/jek/Documents/Work/proofbound/.worktrees/B-783c/packages/main/dist/cli.js ran lattice codex verify exit 0. Output included Global fallback heartbeat: source=codex session=codex-check-global-1783558421755 entrypoint=global-fallback; rg found matching .lattice/activity.jsonl row with source=codex, entrypoint=global-fallback, tool=session_brief, status=ok."
     },
     {
-      "docPath": "checklist:CHK-002 userSees",
-      "promise": "Focused smoke completes without assertion failures after proving canonical projects log activity, managed global-thin projects log activity, and malformed or unmanaged roots do not create .lattice/activity.jsonl.",
+      "docPath": "checklist:CHK-002:userSees",
+      "promise": "Focused smoke completes after proving canonical roots log activity, managed global-thin roots log activity, and unmanaged or malformed roots do not create activity logs.",
       "status": "verified",
-      "verifiedBy": "thin-init-assets-smoke plus validation evidence",
-      "evidence": "packages/main/src/tasks/thin-init-assets-smoke.ts covers canonical lattice.config.json, managed global-thin manifest, malformed manifest, wrong assetMode, and loadConfig separation. lattice validate PASS and done_required_validate PASS."
+      "verifiedBy": "focused smoke",
+      "evidence": "node packages/main/dist/tasks/thin-init-assets-smoke.js exited 0 and printed: global-thin init assets smoke passed."
     },
     {
-      "docPath": "checklist:CHK-003 userSees",
-      "promise": "From solver-visible, lattice codex verify exits successfully and output does not contain Global fallback heartbeat: no activity heartbeat for session.",
+      "docPath": "checklist:CHK-003:userSees",
+      "promise": "From solver-visible, lattice codex verify exits successfully and output does not contain the old missing heartbeat failure.",
       "status": "verified",
-      "verifiedBy": "live-smoke-transcript.json",
-      "evidence": "Live smoke in /Users/jek/Documents/Work/deepswe-pos-codex-gpt55-run/solver-visible exited 0 with Codex adapter checks passed (8/8 pass) and source=codex entrypoint=global-fallback for the global fallback heartbeat."
+      "verifiedBy": "solver-visible live smoke",
+      "evidence": "Temporary PATH wrapper resolved lattice to /tmp/lattice-b783c-delivery.CEe8IX/lattice delegating to the B-783c worktree dist. lattice codex verify exited 0 with Codex adapter checks passed (8/8 pass), included Global fallback heartbeat source=codex entrypoint=global-fallback, and did not print Global fallback heartbeat: no activity heartbeat for session."
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "Source diff adds isManagedGlobalThinRoot/isRuntimeActivityRoot and uses it for activity logging. Focused smoke ran session_brief with LATTICE_ACTIVITY_SOURCE=codex and LATTICE_CODEX_ENTRYPOINT=global-fallback in a managed global-thin root and observed .lattice/activity.jsonl with source=codex/status=ok. Edge coverage: loadConfig still ignores .lattice/lattice.json as canonical config. Adversarial coverage: malformed and wrong-assetMode manifests do not create activity logs."
+      "transcript": "solver-visible live smoke: PATH wrapper to B-783c dist; lattice codex verify exit 0; output included [✓] Global fallback heartbeat: source=codex session=codex-check-global-1783558421755 entrypoint=global-fallback; .lattice/activity.jsonl row confirmed source=codex, entrypoint=global-fallback, tool=session_brief, status=ok."
     },
     {
       "featureId": "CHK-002",
-      "transcript": "Regression smoke covers canonical lattice.config.json roots, managed global-thin roots with no lattice.config.json, malformed manifests, wrong assetMode manifests, and unrelated roots. Evidence includes lattice validate PASS at 2026-07-09T00:18:34.059Z and done_required_validate PASS for packages/main build and root npm test."
+      "transcript": "node packages/main/dist/tasks/thin-init-assets-smoke.js exit 0; output: ✓ global-thin init assets smoke passed. This focused smoke covers canonical logging, managed global-thin logging, and malformed/wrong-assetMode roots not creating activity logs."
     },
     {
       "featureId": "CHK-003",
-      "transcript": "Live solver-visible smoke command used the rebuilt B-783c worktree dist through a temporary PATH wrapper, exited 0, printed Codex adapter checks passed (8/8 pass), did not print the prior no activity heartbeat failure, and printed Global fallback heartbeat: source=codex session=codex-check-global-1783556532905 entrypoint=global-fallback."
+      "transcript": "cd /Users/jek/Documents/Work/deepswe-pos-codex-gpt55-run/solver-visible with temporary PATH lattice wrapper; command -v lattice showed wrapper; lattice codex verify exit 0 with ✓ Codex adapter checks passed (8/8 pass) and no old no-activity-heartbeat failure."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "Delivery accepted: docs promises for CHK-001 through CHK-003 are matched by source diff, focused smoke coverage, validation evidence, and the live solver-visible codex verify transcript. No unresolved TODO/FIXME markers were found in changed source files."
+    "summary": "Delivery promises are verified against fresh machine evidence: findings are empty, REVIEW lanes concept/quality/test-coverage have PASS records with scopeChanged=false, routine validation passed 43/43 commands at materialHash beea5f966d2607c5b1b2df50cc81733815fb3b962beae8ddaedf7fdce7f0b079, DONE-required validation passed, voluntary local quorum shows 3/3 rounds x 2 hosts for current material, focused smoke passed, and solver-visible lattice codex verify passed with codex/global-fallback heartbeat instead of the old missing heartbeat failure. Separate DONE readiness still reports branch-synced-main behind main by 2 commits, but the delivery/user-visible promises themselves are met for the current material hash."
   },
-  "_hash": "c1080abc6d9366e004f13886a528ab92d39e68b93c3afaa0de9a5cc138c5344b"
+  "_hash": "e459f835b615f75381a432be1b61c9ad78cdc1348d427423ca95f937f137441b"
 }
