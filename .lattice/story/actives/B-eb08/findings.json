@@ -100,7 +100,7 @@
       "desc": "done_prepare closeout hard deadlines still do not cover all production synchronous child-process work after the merge-main refresh. runCloseoutPhase wraps buildDoneClosureRunbook at packages/main/src/handlers/done-prepare.ts:1246-1258 and installs installCloseoutPhaseChildProcessDeadline at packages/main/src/handlers/done-prepare.ts:502-559, but that installer only replaces childProcess.execFileSync / synced ESM named exports. buildDoneClosureRunbook reaches buildDoneChecklist at packages/main/src/handlers/done-closure.ts:165-179, and that path imports and calls execSync directly for git probes including checkMainDivergence (packages/main/src/core/done-oracle.ts:66-70), related-doc diff (packages/main/src/core/done-oracle.ts:575-581), and readGitStatusLines (packages/main/src/core/dirty-worktree-gate.ts:40-47). A hung execSync blocks the event loop, so the Promise.race timer/heartbeat cannot fire and the child-process deadline wrapper never converts it to DonePreparePhaseTimeoutError. The focused smoke passes for the execFileSync hook, but it does not inject or cover an execSync git hang; patch/restore execSync too or move these closeout probes onto the bounded execFileSync path and add smoke coverage for that case.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-09T02:59:52.079Z",
@@ -115,7 +115,11 @@
         "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts"
       ],
       "signatureTag": "edge|ts|prepare-closeout-hard",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by commit 3f8c62469: done_prepare closeout phase deadline wrapper now patches both execFileSync and execSync, restores both in finally, syncs builtin ESM exports, and the focused smoke covers a doneClosure execSync git hang failing closed under the phase deadline.",
+      "resolvedAt": "2026-07-09T03:07:24.858Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
