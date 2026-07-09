@@ -12,7 +12,24 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "review_host_availability_probe output shows each canonical host with versionOk, available, launcher, executionReady, progressMode, failureKind, and bounded firstProgressMs/durationMs diagnostics.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/review-escalation.ts",
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts"
+        ],
+        "create": [
+          "packages/main/src/core/host-execution-readiness.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/review-host-execution-readiness-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-002",
