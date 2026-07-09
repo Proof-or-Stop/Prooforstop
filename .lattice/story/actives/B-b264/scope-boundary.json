@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-b264",
+  "mode": "correctness_fix",
+  "allowed": [
+    "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+    "packages/main/src/core/git*.ts",
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/tasks/*done*prepare*"
+  ],
+  "excluded": [
+    "Auto-resolving merge conflicts",
+    "Changing DONE gate pass criteria",
+    "Implementing closure heartbeat hard deadlines",
+    "Implementing review-assurance early surfacing",
+    "Stashing or committing unrelated user changes"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "User asked to split the execution document into three stories and finish them sequentially; this story covers M5 and remaining closeout safety after B-eb92.",
+  "createdAt": "2026-07-09T01:28:39.822Z",
+  "updatedAt": "2026-07-09T01:28:39.822Z",
+  "_hash": "db3339848e49dd642f2c54ccbe2013f4963f6c97ef0c6ff0232bd83ff68ec891"
+}

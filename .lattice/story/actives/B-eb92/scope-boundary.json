@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-eb92",
+  "mode": "correctness_fix",
+  "allowed": [
+    "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/core/lifecycle-readiness.ts",
+    "packages/main/src/core/review-assurance-floor.ts",
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/handlers/review-escalation.ts",
+    "packages/main/src/tasks/*review*assurance*surfacing*"
+  ],
+  "excluded": [
+    "Auto-writing host verdicts or degraded fallback evidence",
+    "Changing review-assurance pass criteria",
+    "Claiming Authority/full/production DONE from local evidence",
+    "Implementing done_prepare closure heartbeat hard deadlines",
+    "Implementing merge-preflight or rerun-delta UX"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "User asked to split the execution document into three stories and finish them sequentially; this story covers M3-M4 after B-eb08.",
+  "createdAt": "2026-07-09T01:28:12.311Z",
+  "updatedAt": "2026-07-09T01:28:12.311Z",
+  "_hash": "93a066fcab3de68afcc24376e8e0621963feb840ef249a4c0c208df1a4e2f778"
+}
