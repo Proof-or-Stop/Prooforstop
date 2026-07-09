@@ -222,9 +222,50 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-09T23:49:02.912Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "command": "npm --prefix packages/main run test:done-prepare-auto-closeout-smoke",
+          "result": "pass",
+          "note": "assertManifestOnlyAutoCloseout verifies validationReused=true after metadata-only auto-closeout and commandsRerunAfterAutoCloseout=false.",
+          "headHash": "6c27aa13bfb851160ecc36f0a9ab5424fd4e5fa1",
+          "materialHash": "6eb914f8d518ed01e9febf44f48ae9de653476a3c423821b145ade0950c475a5",
+          "storyFilesHash": "821eadc046e39e73f186d8bc23634745e6e2afc3d8b2d4a34dde965f7f40c621",
+          "timestamp": "2026-07-09T23:49:03.072Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "command": "npm --prefix packages/main run test:done-prepare-auto-closeout-smoke",
+          "result": "pass",
+          "note": "assertMissingHashesRefuseReuse and assertReuseRefusesConfigAndMaterialDrift prove missing hashes, material drift, validate command drift, DONE-required command drift, and config drift refuse reuse.",
+          "headHash": "6c27aa13bfb851160ecc36f0a9ab5424fd4e5fa1",
+          "materialHash": "6eb914f8d518ed01e9febf44f48ae9de653476a3c423821b145ade0950c475a5",
+          "storyFilesHash": "821eadc046e39e73f186d8bc23634745e6e2afc3d8b2d4a34dde965f7f40c621",
+          "timestamp": "2026-07-09T23:49:03.218Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "command": "npm --prefix packages/main run test:done-prepare-auto-closeout-smoke",
+          "result": "pass",
+          "note": "Smoke asserts the reuse record says not rerun, commandsRerunAfterAutoCloseout=false, and priorEvidenceRefs preserve the validate command and DONE-required receipt digest.",
+          "headHash": "6c27aa13bfb851160ecc36f0a9ab5424fd4e5fa1",
+          "materialHash": "6eb914f8d518ed01e9febf44f48ae9de653476a3c423821b145ade0950c475a5",
+          "storyFilesHash": "821eadc046e39e73f186d8bc23634745e6e2afc3d8b2d4a34dde965f7f40c621",
+          "timestamp": "2026-07-09T23:49:03.350Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
