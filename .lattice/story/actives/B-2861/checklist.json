@@ -9,9 +9,9 @@
         "docs/CLI.md",
         "AGENTS.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-09T15:30:09.985Z",
-      "endTime": null,
+      "endTime": "2026-07-09T15:50:43.751Z",
       "userSees": "User sees \"Evidence pack complete for B-2861: document state, diff, and code-backed review references are listed.\"",
       "files": {
         "modify": [],
@@ -386,6 +386,17 @@
           "timestamp": "2026-07-09T15:50:35.155Z"
         }
       ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-09T15:50:43.751Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Evidence pack, 3x2 review records, scope check, and committed document evidence are complete."
     }
   ]
 }
