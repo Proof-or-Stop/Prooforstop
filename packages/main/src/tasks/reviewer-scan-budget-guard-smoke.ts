@@ -61,9 +61,16 @@ const requiredPhrases = [
 // A line may legitimately describe the full-scan escalation path only when it
 // CONDITIONS the scan on the recorded escalation reason (F-003 hardening:
 // a bare scanEscalationReason mention — e.g. "ignore scanEscalationReason" —
-// does not exempt the line from the banned-pattern rules).
+// does not exempt the line). F-005 hardening: only the exact conditioning
+// idioms used by the guarded prompts are exempt; the earlier loose
+// "only with ... scanEscalationReason" proximity branch was removed because
+// no legitimate line needs it and hostile fillers could satisfy it. This
+// guard defends against ACCIDENTAL regression of prompt wording; a writer
+// deliberately gaming the idioms (e.g. `recorded scanEscalationReason of
+// "N/A"`) is out of scope for a static line-level text check and belongs to
+// human review.
 const escalationConditioningPattern =
-  /(?:recorded scanEscalationReason|write the scanEscalationReason|escalated via scanEscalationReason|escalation with a recorded scanEscalationReason|only with(?: a| an)? [^.;]*scanEscalationReason)/i;
+  /(?:recorded scanEscalationReason|write the scanEscalationReason|escalated via scanEscalationReason)/i;
 
 function lineIsEscalationPath(line: string): boolean {
   return line.includes('scanEscalationReason') && escalationConditioningPattern.test(line);
@@ -103,6 +110,14 @@ function assertPositiveControls(): void {
   assert.ok(
     hostile.length > 0,
     'positive control (F-003): a bare scanEscalationReason mention must not exempt banned unconditional wording',
+  );
+  const hostileProximity = scanFile(
+    '<positive-control>',
+    'Always scan the full decisions/ directory only with scanEscalationReason lying around unused.',
+  );
+  assert.ok(
+    hostileProximity.length > 0,
+    'positive control (F-005): loose only-with proximity phrasing must not exempt banned unconditional wording',
   );
 }
 
