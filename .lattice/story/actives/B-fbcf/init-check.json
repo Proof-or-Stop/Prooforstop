@@ -1,0 +1,47 @@
+{
+  "storyId": "B-fbcf",
+  "checkedAt": "2026-07-09T02:35:49.370Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init@fallback",
+  "issues": [
+    {
+      "id": "I-legacy-doc-canonicalization",
+      "severity": "medium",
+      "desc": "The execution-plan source exists under the retired Orchestrate path, while the B-fbcf relatedDocs reference a Proofbound path that does not currently exist. Treat this as a source-of-truth cleanup requirement during PLAN/DEV, not as independent approval of missing docs."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "lattice-review-story-init@fallback",
+      "checkedAt": "2026-07-09T02:35:49.370Z",
+      "issues": [
+        {
+          "id": "I-legacy-doc-canonicalization",
+          "severity": "medium",
+          "desc": "The execution-plan source exists under the retired Orchestrate path, while the B-fbcf relatedDocs reference a Proofbound path that does not currently exist. Treat this as a source-of-truth cleanup requirement during PLAN/DEV, not as independent approval of missing docs."
+        }
+      ]
+    },
+    {
+      "agentId": "product-reviewer@fallback",
+      "checkedAt": "2026-07-09T02:35:49.370Z",
+      "issues": []
+    }
+  ],
+  "fallback": {
+    "mode": "fallback",
+    "reason": "Current Codex turn does not expose independent INIT reviewer subagents. I manually checked the user-provided execution plan, current B-fbcf checklist, scope/execution boundaries, and init_preflight output. The story is high-risk gate automation and must still pass PLAN decision/plan review plus DEV/REVIEW/TEST/DONE gates. The main audit caveat is that the source decision document is currently in the legacy Orchestrate path, while B-fbcf relatedDocs point to the missing Proofbound canonical path; implementation must materialize or reconcile that canonical source before completion.",
+    "evidenceRefs": [
+      "/Users/jek/Documents/Work/Orchestrate/docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md",
+      "lattice story_get --storyId=B-fbcf",
+      "lattice init_preflight --storyId=B-fbcf",
+      "lattice story_review --storyId=B-fbcf"
+    ],
+    "actor": "codex",
+    "session": "sess-3d1880b40d393f50",
+    "attestedAt": "2026-07-09T02:35:49.370Z",
+    "headHash": "108e91fb07770ad2103ef17173e31fe6b582cfbd",
+    "materialHash": "c7c1931e17f7ef0e4ba20ef06139f6da309507cf3be621533ed0bc41dc67885f"
+  },
+  "_hash": "1c4de3f90e8a512bd600243ae1c4ec5ff3f9eb58afbc92dd13b1e0bd5af2cb70"
+}

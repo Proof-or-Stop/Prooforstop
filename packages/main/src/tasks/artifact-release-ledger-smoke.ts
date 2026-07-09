@@ -17,6 +17,7 @@ import {
   selectArtifactReleasePathsV1,
 } from '../core/artifact-release.js';
 import { StoryStore } from '../core/store.js';
+import { readSyncedVersion } from '../core/version-bump.js';
 import { createArtifactReleaseHandlers } from '../handlers/artifact-release.js';
 import { createDoneRecoverHandlers } from '../handlers/done-recover.js';
 import {
@@ -104,6 +105,75 @@ function makePartialDoneRecoveryFixture(): { root: string; storyId: string } {
   }, null, 2) + '\n');
   git(root, ['add', '.']);
   git(root, ['commit', '-m', 'story done']);
+  git(root, ['checkout', 'main']);
+  return { root, storyId };
+}
+
+function writeVersionSyncFiles(root: string, version: string): void {
+  write(root, 'package.json', JSON.stringify({ name: 'lattice', version }, null, 2) + '\n');
+  write(root, 'package-lock.json', JSON.stringify({
+    name: 'lattice',
+    version,
+    lockfileVersion: 3,
+    packages: {
+      '': { name: 'lattice', version },
+    },
+  }, null, 2) + '\n');
+  write(root, 'packages/main/package.json', JSON.stringify({
+    name: '@lattice/core',
+    version,
+    type: 'module',
+  }, null, 2) + '\n');
+  write(root, 'packages/main/package-lock.json', JSON.stringify({
+    name: '@lattice/core',
+    version,
+    lockfileVersion: 3,
+    packages: {
+      '': { name: '@lattice/core', version },
+    },
+  }, null, 2) + '\n');
+  write(root, 'packages/main/src/core/lattice-brand.ts', [
+    "import { basename } from 'path';",
+    '',
+    `export const LATTICE_CLI_VERSION = '${version}' as const;`,
+    "export const LATTICE_PRODUCT_NAME = 'Proofbound CLI' as const;",
+    'void basename;',
+    '',
+  ].join('\n'));
+}
+
+function makeRuntimePartialDoneRecoveryFixture(): { root: string; storyId: string } {
+  const root = mkdtemp('artifact-release-ledger-recover-runtime-');
+  const storyId = 'B-recover-runtime';
+  const now = '2026-07-05T00:07:00.000Z';
+  writeLatticeConfig(root);
+  git(root, ['init', '-b', 'main']);
+  git(root, ['config', 'user.email', 'smoke@example.test']);
+  git(root, ['config', 'user.name', 'Runtime Recovery Smoke']);
+  write(root, '.gitignore', '.lattice/locks/\n');
+  write(root, 'README.md', '# fixture\n');
+  writeVersionSyncFiles(root, '0.9.9');
+  write(root, 'packages/main/src/runtime.ts', 'export const runtime = false;\n');
+  git(root, ['add', '.']);
+  git(root, ['commit', '-m', 'initial runtime fixture']);
+
+  git(root, ['checkout', '-b', `story/${storyId}`]);
+  write(root, 'packages/main/src/runtime.ts', 'export const runtime = true;\n');
+  write(root, `.lattice/story/actives/${storyId}/index.json`, JSON.stringify({
+    storyId,
+    name: 'recover-runtime-version-bump',
+    title: 'Recover runtime version bump',
+    description: 'partial DONE runtime recovery fixture',
+    type: 'bug',
+    phase: 'DONE',
+    priority: 'high',
+    createdAt: now,
+    startedAt: now,
+    endedAt: now,
+    events: [{ phase: 'DONE', action: 'advance', timestamp: now }],
+  }, null, 2) + '\n');
+  git(root, ['add', '.']);
+  git(root, ['commit', '-m', 'story done runtime change']);
   git(root, ['checkout', 'main']);
   return { root, storyId };
 }
@@ -228,6 +298,33 @@ try {
     assert.deepEqual(records[0].paths, ['docs/recovered.md', 'experiments/recovery/result.txt']);
     assert.equal(records[0].runtimeSemverChanged, false);
     assert.ok(git(recoveryRoot, ['show', `HEAD:${ARTIFACT_RELEASE_LEDGER_REL_PATH}`]).includes('"storyId":"B-recover"'));
+    assert.equal(git(recoveryRoot, ['status', '--short']), '');
+    assert.equal(git(recoveryRoot, ['branch', '--list', `story/${storyId}`]), '');
+  });
+
+  check('partial-DONE recovery auto-bumps runtime version before build', () => {
+    const { root: recoveryRoot, storyId } = makeRuntimePartialDoneRecoveryFixture();
+    cleanup.push(recoveryRoot);
+    const store = new StoryStore(recoveryRoot);
+    let buildObservedVersion = '';
+    const handlers = createDoneRecoverHandlers({
+      root: recoveryRoot,
+      store,
+      scanRoot: join(recoveryRoot, 'packages/main'),
+      doneMainBuildRunner: (cwd) => {
+        buildObservedVersion = readSyncedVersion(cwd);
+        return { status: 0, stdout: 'runtime build ok\n', stderr: '' };
+      },
+    });
+
+    const output = handlers.done_recover({ storyId });
+    assert.match(output, /partial-DONE recovered: B-recover-runtime/);
+    assert.match(output, /version auto-bumped 0\.9\.9 → 0\.9\.10/);
+    assert.match(output, /packages\/main build refreshed after DONE merge/);
+    assert.equal(buildObservedVersion, '0.9.10');
+    assert.equal(readSyncedVersion(recoveryRoot), '0.9.10');
+    const log = git(recoveryRoot, ['log', '--oneline', '-n', '4']);
+    assert.match(log, /chore: bump lattice cli to 0\.9\.10/);
     assert.equal(git(recoveryRoot, ['status', '--short']), '');
     assert.equal(git(recoveryRoot, ['branch', '--list', `story/${storyId}`]), '');
   });

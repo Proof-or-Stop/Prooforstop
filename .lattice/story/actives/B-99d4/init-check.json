@@ -1,0 +1,35 @@
+{
+  "storyId": "B-99d4",
+  "checkedAt": "2026-07-09T02:40:46.736Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init@fallback",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "lattice-review-story-init@fallback",
+      "checkedAt": "2026-07-09T02:40:46.736Z",
+      "issues": []
+    },
+    {
+      "agentId": "product-reviewer@fallback",
+      "checkedAt": "2026-07-09T02:40:46.736Z",
+      "issues": []
+    }
+  ],
+  "fallback": {
+    "mode": "fallback",
+    "reason": "Current Codex environment exposes only generic multi-agent roles, not the project-defined lattice-review-story-init and product-reviewer subagent_type launchers requested by the INIT prompt. I manually checked the four-section background, checklist items, user-confirmed scope boundary, execution boundary, and scope freeze for the 2026-07-09 worker reassignment problem; no critical/high INIT issues found. This is a fallback attestation only and does not weaken later PLAN/DEV/REVIEW/TEST gates.",
+    "evidenceRefs": [
+      "lattice story_create output for B-99d4 with four-section background and 3 checklist items",
+      "lattice scope_boundary_set B-99d4 hash d2c09b611262bc1026edcee3db2d38572c66728e68aa3f00de94263e7d92ad1d",
+      "lattice execution_boundary_set B-99d4 hash cee76e24176de9e35e82b961e94952c70a066d891878ae87e51e0797d28cb05e",
+      "lattice scope_freeze_check B-99d4 PASS"
+    ],
+    "actor": "codex-main",
+    "session": "sess-3d1880b40d393f50",
+    "attestedAt": "2026-07-09T02:40:46.736Z",
+    "headHash": "396a323c1aef8dafeb92e1e2b97e9860cab289d8",
+    "materialHash": "c7c1931e17f7ef0e4ba20ef06139f6da309507cf3be621533ed0bc41dc67885f"
+  },
+  "_hash": "fbeae7743c9ec89bc08b378d367c75f3d4fd8ef67acce3c006c59244a92dfc67"
+}

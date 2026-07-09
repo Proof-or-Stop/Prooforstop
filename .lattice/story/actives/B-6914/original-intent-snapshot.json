@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-6914",
+  "sourceText": "User asked why B-90d6 reached DONE without package.json version bump/release and then requested to fix the mechanism together, including self-repair in this side conversation.",
+  "normalizedOutcome": "DONE/recovery paths that change Proofbound CLI runtime behavior cannot silently finish without a local package patch bump, and the bump keeps package.json, lockfiles, source brand, dist brand, and CLI version synchronized without remote push or publish.",
+  "acceptanceClaim": "A runtime-changing done_recover fixture auto-bumps before build, version-bump smoke proves five-point package and lockfile synchronization with drift/rollback guards, and the story can only complete when the final local version boundary is aligned beyond 0.3.170.",
+  "keyRequirementIds": [
+    "REQ-local-only-no-publish",
+    "REQ-lockfile-version-sync",
+    "REQ-runtime-recovery-version-bump"
+  ],
+  "requestHash": "sha256:6d8109b717d07c11477175c207436152615f2b0bd324cbe7662e06b5ee5cd827",
+  "createdAt": "2026-07-09T01:00:36.824Z",
+  "updatedAt": "2026-07-09T01:00:36.824Z"
+}

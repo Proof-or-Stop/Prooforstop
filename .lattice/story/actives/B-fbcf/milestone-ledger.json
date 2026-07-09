@@ -1,0 +1,117 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-fbcf",
+  "state": "candidate",
+  "ledgerHash": "sha256:d06210bda4816b596550a7bf4b98e25179417d223d7d8512ef6096383c8feba4",
+  "milestones": [
+    {
+      "id": "M0",
+      "sourceRequirementId": "AUTO-CLOSEOUT-NO-OVERLAP",
+      "claim": "The story adds only safe auto-closeout automation and does not duplicate B-eb08, B-eb92, or B-b264.",
+      "doneMeans": "Scope and tests prove no new heartbeat, review-assurance surfacing, or rerun-explanation behavior is introduced.",
+      "requiredEvidence": [
+        "scope_review",
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M1",
+      "sourceRequirementId": "AUTO-CLOSEOUT-MANIFEST",
+      "claim": "done_prepare records current-run generated metadata as a safe manifest.",
+      "doneMeans": "A fixture records only current-run lifecycle metadata and rejects pre-existing or unsafe files.",
+      "requiredEvidence": [
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "AUTO-CLOSEOUT-SAFE-COMMIT",
+      "claim": "Opt-in mode commits only manifest-listed lifecycle metadata.",
+      "doneMeans": "The command stages explicit manifest paths only and refuses unrelated dirt before commit.",
+      "requiredEvidence": [
+        "cli_transcript",
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "AUTO-CLOSEOUT-VALIDATION-REUSE",
+      "claim": "Full validation is skipped only for proven metadata-only HEAD drift.",
+      "doneMeans": "Validation reuse requires unchanged materialHash, storyFilesHash, commandSetHash, DONE-required commandSetHash, and policyHash.",
+      "requiredEvidence": [
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "AUTO-CLOSEOUT-RECHECK",
+      "claim": "done_prepare re-evaluates closure after safe auto-closeout and returns PASS or real blockers.",
+      "doneMeans": "A prior two-run metadata-only fixture reaches PASS in one opt-in command without auto-advancing DONE.",
+      "requiredEvidence": [
+        "cli_transcript"
+      ],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M5",
+      "sourceRequirementId": "AUTO-CLOSEOUT-SAFETY-SMOKE",
+      "claim": "Regression coverage proves safety, JSON cleanliness, and no auto-sign/no remote behavior.",
+      "doneMeans": "Focused smoke and build pass, covering success and refusal cases.",
+      "requiredEvidence": [
+        "smoke_test"
+      ],
+      "checklistRefs": [
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [
+        "CHK-005:happy:0",
+        "CHK-005:edge:0",
+        "CHK-005:adversarial:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-09T02:09:45.393Z",
+  "updatedAt": "2026-07-09T02:09:45.393Z"
+}

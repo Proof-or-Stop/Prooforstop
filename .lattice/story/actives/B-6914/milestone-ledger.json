@@ -1,12 +1,12 @@
 {
   "schemaVersion": "proofstory.milestone_ledger.v1",
   "storyId": "B-6914",
-  "state": "candidate",
-  "ledgerHash": "sha256:4b24a67605ee457536f30bb4b556a2a5197dfbf8339242b76988d2f9b6cc706c",
+  "state": "confirmed",
+  "ledgerHash": "sha256:a4f6932e63a5a0ea70c996da3d6cca44cc38d8444d0dae8450fa9b210427cbab",
   "milestones": [
     {
       "id": "M1",
-      "sourceRequirementId": "B90D6-RECOVERY-BUMP",
+      "sourceRequirementId": "REQ-runtime-recovery-version-bump",
       "claim": "Runtime-changing DONE recovery cannot skip package patch bump.",
       "doneMeans": "done_recover regression proves runtimeSemverChanged=true invokes version bump before build.",
       "requiredEvidence": [
@@ -25,7 +25,7 @@
     },
     {
       "id": "M2",
-      "sourceRequirementId": "LOCKFILE-SYNC",
+      "sourceRequirementId": "REQ-lockfile-version-sync",
       "claim": "Patch bump keeps package and lockfile version sources synchronized.",
       "doneMeans": "version-bump smoke covers root/main package json and lockfile sync plus rollback behavior.",
       "requiredEvidence": [
@@ -44,7 +44,7 @@
     },
     {
       "id": "M3",
-      "sourceRequirementId": "B90D6-CONSUMABLE-VERSION",
+      "sourceRequirementId": "REQ-local-only-no-publish",
       "claim": "The B-90d6 runtime changes become visible behind a new local package version.",
       "doneMeans": "local version files, dist brand, and lattice --version align on the next patch; no remote release is performed.",
       "requiredEvidence": [
@@ -63,5 +63,10 @@
     }
   ],
   "createdAt": "2026-07-09T00:48:25.444Z",
-  "updatedAt": "2026-07-09T00:48:25.444Z"
+  "updatedAt": "2026-07-09T01:03:17.654Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260709010041",
+    "acceptedInterpretationHash": "sha256:df22c8c5a6b47b3985807b944df93b9b3f9849694ba80befc0f42778bc6ca7af",
+    "acceptedAt": "2026-07-09T01:03:17.654Z"
+  }
 }

@@ -2,10 +2,11 @@
  * Smoke: auto patch-version bump on DONE merge (B-aa8a).
  *
  * Hermetic — every case runs against a fresh temp fixture dir (os.tmpdir) holding copies
- * of the three version sync points, so the real repo version files are never touched.
+ * of the version sync points, so the real repo version files are never touched.
  *
- * Proves: nextPatch is patch-only; applyPatchBump syncs all 3 points to the same new
- * patch and verifies the result; drift across the 3 points fails loud; the bump gate
+ * Proves: nextPatch is patch-only; applyPatchBump syncs all package/lockfile/brand
+ * points to the same new patch and verifies the result; drift across any sync point
+ * fails loud; the bump gate
  * (shouldBuildDoneMainPackageForChangedPaths) fires on watched CLI/runtime or bounded
  * capability contract/proof inputs but NOT on metadata-only, arbitrary-doc, or offline
  * experiment-harness changes; bumpVersionOnDoneMerge skips cleanly when not qualifying
@@ -43,21 +44,53 @@ function throws(name: string, fn: () => unknown): void {
   check(name, threw);
 }
 
-/** Build a fresh temp fixture root with the 3 sync points at `version` (or per-file overrides). */
-function makeFixture(version: string, over?: { root?: string; main?: string; brand?: string }): string {
+type VersionOverrides = {
+  root?: string;
+  rootLock?: string;
+  rootLockPackage?: string;
+  rootLockMainPackage?: string;
+  main?: string;
+  mainLock?: string;
+  mainLockPackage?: string;
+  brand?: string;
+};
+
+/** Build a fresh temp fixture root with the sync files at `version` (or per-entry overrides). */
+function makeFixture(version: string, over?: VersionOverrides): string {
   const dir = mkdtempSync(join(tmpdir(), 'version-bump-smoke-'));
   mkdirSync(join(dir, 'packages/main/src/core'), { recursive: true });
   writeFileSync(join(dir, VERSION_SYNC_FILES.rootPackageJson), `{\n  "name": "lattice",\n  "version": "${over?.root ?? version}",\n  "description": ""\n}\n`);
+  writeFileSync(join(dir, VERSION_SYNC_FILES.rootPackageLock), JSON.stringify({
+    name: 'lattice',
+    version: over?.rootLock ?? version,
+    lockfileVersion: 3,
+    packages: {
+      '': { name: 'lattice', version: over?.rootLockPackage ?? over?.rootLock ?? version },
+      'packages/main': { name: '@lattice/core', version: over?.rootLockMainPackage ?? over?.rootLock ?? version },
+    },
+  }, null, 2) + '\n');
   writeFileSync(join(dir, VERSION_SYNC_FILES.mainPackageJson), `{\n  "name": "@lattice/core",\n  "version": "${over?.main ?? version}",\n  "type": "module"\n}\n`);
+  writeFileSync(join(dir, VERSION_SYNC_FILES.mainPackageLock), JSON.stringify({
+    name: '@lattice/core',
+    version: over?.mainLock ?? version,
+    lockfileVersion: 3,
+    packages: {
+      '': { name: '@lattice/core', version: over?.mainLockPackage ?? over?.mainLock ?? version },
+    },
+  }, null, 2) + '\n');
   writeFileSync(join(dir, VERSION_SYNC_FILES.brand), `import { basename } from 'path';\n\nexport const LATTICE_CLI_VERSION = '${over?.brand ?? version}' as const;\nexport const LATTICE_PRODUCT_NAME = 'Proofbound CLI' as const;\nvoid basename;\n`);
   return dir;
 }
 
 const cleanup: string[] = [];
-function fixture(version: string, over?: { root?: string; main?: string; brand?: string }): string {
+function fixture(version: string, over?: VersionOverrides): string {
   const d = makeFixture(version, over);
   cleanup.push(d);
   return d;
+}
+
+function readJson(path: string): any {
+  return JSON.parse(readFileSync(path, 'utf-8'));
 }
 
 void (async () => {
@@ -69,24 +102,38 @@ void (async () => {
     throws('parseSemver rejects malformed "1.2"', () => parseSemver('1.2'));
     throws('parseSemver rejects pre-release "1.2.3-rc1"', () => parseSemver('1.2.3-rc1'));
 
-    // 2. applyPatchBump syncs all 3 points to the same new patch and verifies.
+    // 2. applyPatchBump syncs all package, lockfile, and brand points to the same new patch and verifies.
     const f2 = fixture('0.9.9');
     const r2 = applyPatchBump(f2);
     check('applyPatchBump from=0.9.9', r2.from === '0.9.9');
     check('applyPatchBump to=0.9.10', r2.to === '0.9.10');
-    check('applyPatchBump reports 3 files', r2.files.length === 3);
-    check('all 3 sync points now read 0.9.10', readSyncedVersion(f2) === '0.9.10');
+    check('applyPatchBump reports 5 files', r2.files.length === 5);
+    check('all sync points now read 0.9.10', readSyncedVersion(f2) === '0.9.10');
     check('root package.json bumped', readFileSync(join(f2, VERSION_SYNC_FILES.rootPackageJson), 'utf-8').includes('"version": "0.9.10"'));
+    const f2RootLock = readJson(join(f2, VERSION_SYNC_FILES.rootPackageLock));
+    check('root package-lock top-level bumped', f2RootLock.version === '0.9.10');
+    check('root package-lock root package entry bumped', f2RootLock.packages[''].version === '0.9.10');
+    check('root package-lock packages/main entry bumped when present', f2RootLock.packages['packages/main'].version === '0.9.10');
     check('main package.json bumped', readFileSync(join(f2, VERSION_SYNC_FILES.mainPackageJson), 'utf-8').includes('"version": "0.9.10"'));
+    const f2MainLock = readJson(join(f2, VERSION_SYNC_FILES.mainPackageLock));
+    check('packages/main package-lock top-level bumped', f2MainLock.version === '0.9.10');
+    check('packages/main package-lock root package entry bumped', f2MainLock.packages[''].version === '0.9.10');
     check('lattice-brand bumped', readFileSync(join(f2, VERSION_SYNC_FILES.brand), 'utf-8').includes("LATTICE_CLI_VERSION = '0.9.10'"));
 
-    // 3. Drift across the 3 points fails loud (no silent pick) and NAMES each value.
+    // 3. Drift across the sync points fails loud (no silent pick) and NAMES each value.
     const f3 = fixture('0.9.9', { main: '0.9.8' });
     throws('readSyncedVersion throws on drift', () => readSyncedVersion(f3));
     throws('applyPatchBump throws on drift', () => applyPatchBump(f3));
     let driftMsg = '';
     try { readSyncedVersion(f3); } catch (e) { driftMsg = e instanceof Error ? e.message : String(e); }
     check('drift error names each sync point value', driftMsg.includes('root=0.9.9') && driftMsg.includes('packages/main=0.9.8') && driftMsg.includes('lattice-brand=0.9.9'));
+    const f3lock = fixture('0.9.9', { rootLock: '0.9.8' });
+    throws('root package-lock top-level drift -> readSyncedVersion throws', () => readSyncedVersion(f3lock));
+    let lockDriftMsg = '';
+    try { readSyncedVersion(f3lock); } catch (e) { lockDriftMsg = e instanceof Error ? e.message : String(e); }
+    check('lockfile drift error names root lockfile value', lockDriftMsg.includes('root lockfile=0.9.8'));
+    const f3lockEntry = fixture('0.9.9', { mainLockPackage: '0.9.8' });
+    throws('packages/main package-lock package entry drift -> applyPatchBump throws', () => applyPatchBump(f3lockEntry));
 
     // 4. The bump gate matches watched CLI/runtime inputs, skips metadata-only and
     //    offline experiment harnesses. It also watches bounded CLI capability
@@ -124,8 +171,21 @@ void (async () => {
     check('bump line contains the "auto-bumped" keyword (per the intent)', line6.includes('auto-bumped'));
     check('bump wrote the new version', readSyncedVersion(f6) === '0.9.10');
     check('git add was issued', gitCalls.some((c) => c.args[0] === 'add' && c.args.includes(VERSION_SYNC_FILES.brand)));
+    check('git add includes package lockfiles', gitCalls.some((c) => c.args[0] === 'add' && c.args.includes(VERSION_SYNC_FILES.rootPackageLock) && c.args.includes(VERSION_SYNC_FILES.mainPackageLock)));
     check('chore:bump commit was issued', gitCalls.some((c) => c.args.includes('commit') && c.args.some((a) => a === 'chore: bump lattice cli to 0.9.10')));
     check('git ran in the main merge root', gitCalls.every((c) => c.cwd === f6));
+
+    const f6pre = fixture('0.9.10');
+    let preBumpedGitCalls = 0;
+    const preBumpedLine = bumpVersionOnDoneMerge({
+      mainMergeRoot: f6pre,
+      shouldBump: true,
+      preMergeVersion: '0.9.9',
+      runGit: () => { preBumpedGitCalls += 1; return ''; },
+    });
+    check('pre-bumped DONE finalizer reports already present 0.9.9 -> 0.9.10', preBumpedLine.includes('already present 0.9.9') && preBumpedLine.includes('0.9.10'));
+    check('pre-bumped DONE finalizer makes no git commit', preBumpedGitCalls === 0);
+    check('pre-bumped DONE finalizer leaves version at next patch only', readSyncedVersion(f6pre) === '0.9.10');
 
     // 7. Idempotent: each applyPatchBump call increments by exactly one (no accumulation).
     const f7 = fixture('0.9.9');
@@ -257,20 +317,40 @@ void (async () => {
     // 18. Adversarial: a post-write VERIFICATION throw (drift introduced after writes) rolls back.
     const fverThrow = fixture('0.9.9');
     throws('verify-throw (post-write drift) -> applyPatchBump throws', () => applyPatchBump(fverThrow, {
-      afterWriteForTest: () => writeFileSync(join(fverThrow, VERSION_SYNC_FILES.brand), `export const LATTICE_CLI_VERSION = '5.5.5' as const;\n`),
+      afterWriteForTest: () => writeFileSync(join(fverThrow, VERSION_SYNC_FILES.mainPackageLock), JSON.stringify({
+        name: '@lattice/core',
+        version: '5.5.5',
+        lockfileVersion: 3,
+        packages: { '': { name: '@lattice/core', version: '5.5.5' } },
+      }, null, 2) + '\n'),
     }));
-    check('verify-throw rolled back: all 3 restored to 0.9.9', readSyncedVersion(fverThrow) === '0.9.9');
+    check('verify-throw rolled back: all sync points restored to 0.9.9', readSyncedVersion(fverThrow) === '0.9.9');
 
     // 19. Adversarial: a post-write WRONG-VALUE (synced but != to) also rolls back.
     const fverWrong = fixture('0.9.9');
     throws('verify wrong-value -> applyPatchBump throws', () => applyPatchBump(fverWrong, {
       afterWriteForTest: () => {
         writeFileSync(join(fverWrong, VERSION_SYNC_FILES.rootPackageJson), `{\n  "name": "lattice",\n  "version": "7.7.7"\n}\n`);
+        writeFileSync(join(fverWrong, VERSION_SYNC_FILES.rootPackageLock), JSON.stringify({
+          name: 'lattice',
+          version: '7.7.7',
+          lockfileVersion: 3,
+          packages: {
+            '': { name: 'lattice', version: '7.7.7' },
+            'packages/main': { name: '@lattice/core', version: '7.7.7' },
+          },
+        }, null, 2) + '\n');
         writeFileSync(join(fverWrong, VERSION_SYNC_FILES.mainPackageJson), `{\n  "name": "@lattice/core",\n  "version": "7.7.7"\n}\n`);
+        writeFileSync(join(fverWrong, VERSION_SYNC_FILES.mainPackageLock), JSON.stringify({
+          name: '@lattice/core',
+          version: '7.7.7',
+          lockfileVersion: 3,
+          packages: { '': { name: '@lattice/core', version: '7.7.7' } },
+        }, null, 2) + '\n');
         writeFileSync(join(fverWrong, VERSION_SYNC_FILES.brand), `export const LATTICE_CLI_VERSION = '7.7.7' as const;\n`);
       },
     }));
-    check('verify wrong-value rolled back: all 3 restored to 0.9.9', readSyncedVersion(fverWrong) === '0.9.9');
+    check('verify wrong-value rolled back: all sync points restored to 0.9.9', readSyncedVersion(fverWrong) === '0.9.9');
 
     console.log(`version-bump smoke passed: ${passed} assertions`);
   } catch (e) {

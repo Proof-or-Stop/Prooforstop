@@ -11,12 +11,14 @@
       ],
       "files": {
         "modify": [
-          "packages/main/src/handlers/done-recover.ts"
+          "packages/main/src/handlers/done-recover.ts",
+          "packages/main/src/handlers/done-effects.ts"
         ],
         "create": [],
         "test": [
           "packages/main/src/tasks/worktree-repair-smoke.ts",
-          "packages/main/src/tasks/version-bump-smoke.ts"
+          "packages/main/src/tasks/version-bump-smoke.ts",
+          "packages/main/src/tasks/artifact-release-ledger-smoke.ts"
         ]
       },
       "verificationIntent": {
@@ -42,9 +44,51 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-09T00:56:59.935Z",
+      "endTime": "2026-07-09T00:59:21.521Z",
+      "userSees": "During DONE recovery after a runtime-changing partial merge, the terminal prints \"✓ version auto-bumped <old> → <new> across 5 sync points after DONE merge\" before the recovery build completes.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/artifact-release-ledger-smoke.ts",
+          "command": "node packages/main/dist/tasks/artifact-release-ledger-smoke.js",
+          "result": "pass",
+          "note": "Current 0.3.172 head passed 11 assertions, including partial-DONE recovery auto-bumps runtime version before build and reports the version auto-bumped line.",
+          "headHash": "1fdfcfef58086c835143ac1e765ab6aebc2c6aa8",
+          "materialHash": "1e78fc5135023f9cb8149603552139183a00ea66fed41a4e97c778445b632445",
+          "storyFilesHash": "c6766260c9004be83ad6742395b1a575c3c6a91632ff581da315df2909921347",
+          "timestamp": "2026-07-09T01:22:33.637Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/version-bump-smoke.ts",
+          "command": "node packages/main/dist/tasks/version-bump-smoke.js",
+          "result": "pass",
+          "note": "Current 0.3.172 head passed 86 assertions, including skip behavior when changed paths do not qualify for a runtime version bump.",
+          "headHash": "1fdfcfef58086c835143ac1e765ab6aebc2c6aa8",
+          "materialHash": "1e78fc5135023f9cb8149603552139183a00ea66fed41a4e97c778445b632445",
+          "storyFilesHash": "c6766260c9004be83ad6742395b1a575c3c6a91632ff581da315df2909921347",
+          "timestamp": "2026-07-09T01:22:33.637Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/artifact-release-ledger-smoke.ts",
+          "command": "node packages/main/dist/tasks/artifact-release-ledger-smoke.js",
+          "result": "pass",
+          "note": "The partial-DONE runtime recovery fixture asserts build execution observes the bumped version, preventing runtimeSemverChanged=true recovery from finishing without bumpVersionOnDoneMerge.",
+          "headHash": "1fdfcfef58086c835143ac1e765ab6aebc2c6aa8",
+          "materialHash": "1e78fc5135023f9cb8149603552139183a00ea66fed41a4e97c778445b632445",
+          "storyFilesHash": "c6766260c9004be83ad6742395b1a575c3c6a91632ff581da315df2909921347",
+          "timestamp": "2026-07-09T01:22:33.637Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -87,9 +131,51 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-09T00:57:06.852Z",
+      "endTime": "2026-07-09T00:59:31.905Z",
+      "userSees": "User sees \"✓ version auto-bumped <old> → <new> across 5 sync points after DONE merge\"; if a lockfile drifts, the command fails with \"version sync mismatch before bump\" naming the mismatched lockfile value.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/version-bump-smoke.ts",
+          "command": "node packages/main/dist/tasks/version-bump-smoke.js",
+          "result": "pass",
+          "note": "Current 0.3.172 head passed 86 assertions, including package.json, packages/main/package.json, both package-lock files, and LATTICE_CLI_VERSION moving to the same next patch.",
+          "headHash": "1fdfcfef58086c835143ac1e765ab6aebc2c6aa8",
+          "materialHash": "1e78fc5135023f9cb8149603552139183a00ea66fed41a4e97c778445b632445",
+          "storyFilesHash": "c6766260c9004be83ad6742395b1a575c3c6a91632ff581da315df2909921347",
+          "timestamp": "2026-07-09T01:22:33.637Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/version-bump-smoke.ts",
+          "command": "node packages/main/dist/tasks/version-bump-smoke.js",
+          "result": "pass",
+          "note": "Current 0.3.172 head verifies root package-lock and packages/main package-lock drift fails loudly before a partial bump is committed.",
+          "headHash": "1fdfcfef58086c835143ac1e765ab6aebc2c6aa8",
+          "materialHash": "1e78fc5135023f9cb8149603552139183a00ea66fed41a4e97c778445b632445",
+          "storyFilesHash": "c6766260c9004be83ad6742395b1a575c3c6a91632ff581da315df2909921347",
+          "timestamp": "2026-07-09T01:22:33.637Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/version-bump-smoke.ts",
+          "command": "node packages/main/dist/tasks/version-bump-smoke.js",
+          "result": "pass",
+          "note": "Current 0.3.172 head verifies post-write verification failure involving lockfiles rolls back all version sync files instead of leaving mismatched versions.",
+          "headHash": "1fdfcfef58086c835143ac1e765ab6aebc2c6aa8",
+          "materialHash": "1e78fc5135023f9cb8149603552139183a00ea66fed41a4e97c778445b632445",
+          "storyFilesHash": "c6766260c9004be83ad6742395b1a575c3c6a91632ff581da315df2909921347",
+          "timestamp": "2026-07-09T01:22:33.637Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -105,7 +191,10 @@
           "package-lock.json",
           "packages/main/package.json",
           "packages/main/package-lock.json",
-          "packages/main/src/core/lattice-brand.ts"
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/version-bump.ts",
+          "packages/main/src/handlers/done-effects.ts",
+          "packages/main/src/handlers/done-recover.ts"
         ],
         "create": [],
         "test": [
@@ -135,9 +224,80 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-09T01:22:43.705Z",
+      "userSees": "User sees \"Proofbound CLI 0.3.172\" from the local CLI version check, package metadata/lockfile/brand checks all print \"0.3.172\", and there is no \"git push\", \"npm publish\", or release output.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/core/lattice-brand.ts",
+          "command": "node packages/main/dist/cli.js --version && node -e version-sync-check",
+          "result": "pass",
+          "note": "Current 0.3.172 head reports Proofbound CLI 0.3.172 and package.json, package-lock.json, packages/main/package.json, packages/main/package-lock.json, source brand, and dist brand all agree on 0.3.172.",
+          "headHash": "1fdfcfef58086c835143ac1e765ab6aebc2c6aa8",
+          "materialHash": "1e78fc5135023f9cb8149603552139183a00ea66fed41a4e97c778445b632445",
+          "storyFilesHash": "c6766260c9004be83ad6742395b1a575c3c6a91632ff581da315df2909921347",
+          "timestamp": "2026-07-09T01:22:33.637Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "AGENTS.md",
+          "command": "git log --oneline --grep=B-6914 -1 && git status --short",
+          "result": "pass",
+          "note": "No git push, npm publish, or release publish command was run; this remains a local story branch version boundary only.",
+          "headHash": "1fdfcfef58086c835143ac1e765ab6aebc2c6aa8",
+          "materialHash": "1e78fc5135023f9cb8149603552139183a00ea66fed41a4e97c778445b632445",
+          "storyFilesHash": "c6766260c9004be83ad6742395b1a575c3c6a91632ff581da315df2909921347",
+          "timestamp": "2026-07-09T01:22:33.637Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/version-bump-smoke.ts",
+          "command": "node packages/main/dist/tasks/version-bump-smoke.js",
+          "result": "pass",
+          "note": "Current 0.3.172 head passed 86 assertions, including five-point version sync and the pre-bumped DONE finalizer guard that prevents 0.3.172 from being bumped again to 0.3.173.",
+          "headHash": "1fdfcfef58086c835143ac1e765ab6aebc2c6aa8",
+          "materialHash": "1e78fc5135023f9cb8149603552139183a00ea66fed41a4e97c778445b632445",
+          "storyFilesHash": "c6766260c9004be83ad6742395b1a575c3c6a91632ff581da315df2909921347",
+          "timestamp": "2026-07-09T01:22:33.637Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-09T00:59:21.521Z",
+      "phase": "PLAN",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implemented and committed DONE recovery runtime version bump path in b75c71b4b53a2b502138a74b137b99d24d84870b."
+    },
+    {
+      "timestamp": "2026-07-09T00:59:31.905Z",
+      "phase": "PLAN",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implemented and committed five-point version sync with lockfile drift and rollback coverage in b75c71b4b53a2b502138a74b137b99d24d84870b."
+    },
+    {
+      "timestamp": "2026-07-09T01:22:43.705Z",
+      "phase": "PLAN",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "B-6914 now establishes the local 0.3.172 version boundary on the story branch, with five-point sync and a DONE finalizer guard preventing a second bump to 0.3.173."
     }
   ]
 }

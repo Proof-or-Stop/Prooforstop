@@ -1,0 +1,20 @@
+{
+  "storyId": "B-6914",
+  "expected": "During DONE recovery after a runtime-changing partial merge, the terminal prints \"✓ version auto-bumped <old> → <new> across 5 sync points after DONE merge\" before the recovery build completes.",
+  "actual": {
+    "command": "sh -lc \"node packages/main/dist/cli.js --version && node -e \\\"const fs=require(\\\\\\\"fs\\\\\\\"); const paths=[\\\\\\\"package.json\\\\\\\",\\\\\\\"package-lock.json\\\\\\\",\\\\\\\"packages/main/package.json\\\\\\\",\\\\\\\"packages/main/package-lock.json\\\\\\\"]; const versions=paths.map(p=>JSON.parse(fs.readFileSync(p,\\\\\\\"utf8\\\\\\\")).version); const src=fs.readFileSync(\\\\\\\"packages/main/src/core/lattice-brand.ts\\\\\\\",\\\\\\\"utf8\\\\\\\").includes(\\\\\\\"0.3.172\\\\\\\")?\\\\\\\"0.3.172\\\\\\\":\\\\\\\"src-mismatch\\\\\\\"; const dist=fs.readFileSync(\\\\\\\"packages/main/dist/core/lattice-brand.js\\\\\\\",\\\\\\\"utf8\\\\\\\").includes(\\\\\\\"0.3.172\\\\\\\")?\\\\\\\"0.3.172\\\\\\\":\\\\\\\"dist-mismatch\\\\\\\"; const all=[...versions,src,dist]; if(!all.every(v=>v===\\\\\\\"0.3.172\\\\\\\")) throw new Error(all.join(\\\\\\\",\\\\\\\")); console.log(\\\\\\\"version-sync-pass 0.3.172\\\\\\\");\\\"\"",
+    "exitCode": 0,
+    "stdout": "Proofbound CLI 0.3.172\nversion-sync-pass 0.3.172\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-07-09T01:30:47.503Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "88ec83ab795a13579fc3b5e201f866227f6690de",
+  "materialHash": "1e78fc5135023f9cb8149603552139183a00ea66fed41a4e97c778445b632445"
+}

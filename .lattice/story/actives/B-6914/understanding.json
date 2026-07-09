@@ -1,0 +1,33 @@
+{
+  "task": "Fix the DONE version finalizer so runtime-changing recovery paths cannot skip the package patch bump, and make patch bump synchronize lockfiles.",
+  "outcome": "When the user runs a runtime-changing DONE or done_recover flow, the terminal shows a version auto-bumped line, the build completes, and package.json, package-lock.json, packages/main/package.json, packages/main/package-lock.json, source brand, dist brand, and lattice --version all agree on the new patch version; no remote push or publish is performed.",
+  "facts": [
+    "B-90d6 changed watched runtime inputs but main stayed at 0.3.170 after a fast-forward recovery-like merge.",
+    "Current changed-path predicate returns true for B-90d6 runtime/docs/tests paths.",
+    "Normal DONE path calls bumpVersionOnDoneMerge before build, but done_recover currently only builds and writes artifact/capability release ledgers.",
+    "version-bump.ts currently synchronizes three points, while AGENTS/done_prepare docs require package lockfiles too.",
+    "Remote release/publish remains explicitly human-approved and out of scope."
+  ],
+  "constraints": [
+    "Do not use sub-agents in this side conversation.",
+    "Do not push to origin, publish npm, or run scripts/release.mjs publish.",
+    "Do not edit unrelated dirty main files.",
+    "Preserve package semver separation from artifact/capability release ledgers.",
+    "Use story worktree and Lattice CLI for story state rather than editing story JSON directly."
+  ],
+  "unknowns": [
+    "Whether existing recovery smoke fixtures can be extended cheaply or whether version-bump-smoke should carry the main proof.",
+    "Whether DONE finalization should be factored into a shared helper now or kept as a minimal done_recover call to avoid broader churn.",
+    "Whether worktree dependency absence requires local install or can use existing build paths after copying/symlinking dependencies."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/version-bump.ts",
+    "packages/main/src/handlers/done-recover.ts",
+    "packages/main/src/tasks/version-bump-smoke.ts",
+    "packages/main/src/tasks/worktree-repair-smoke.ts",
+    "package-lock.json",
+    "packages/main/package-lock.json",
+    "packages/main/src/core/lattice-brand.ts"
+  ],
+  "timestamp": "2026-07-09T00:49:38.077Z"
+}

@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-fbcf",
+  "allowedCommands": [
+    "git diff",
+    "git show",
+    "git status",
+    "lattice init_preflight",
+    "lattice story_advance",
+    "lattice story_create",
+    "lattice story_get",
+    "node packages/main/dist/tasks/done-prepare-auto-closeout-smoke.js",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main run test:done-prepare-auto-closeout-smoke"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "git",
+    "lattice",
+    "node",
+    "npm"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives",
+    "docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md",
+    "packages/main/package.json",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/done-prepare-generated-metadata.ts",
+    "packages/main/src/core/done-prepare-validation-reuse.ts",
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts"
+  ],
+  "excludedCommands": [
+    "git checkout -- .",
+    "git clean",
+    "git push",
+    "git reset --hard",
+    "git stash",
+    "npm publish",
+    "scripts/release.mjs publish"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx"
+  ],
+  "confirmedBy": "codex-side-conversation",
+  "confirmationNote": "Execution is local-only and story-scoped; remote publish and destructive git commands are excluded.",
+  "createdAt": "2026-07-09T02:09:45.393Z",
+  "updatedAt": "2026-07-09T02:09:45.393Z",
+  "_hash": "01bbc4fcbf26c69c0ac231d720124144faee22b69e024e3bfdceaac691afb62f"
+}
