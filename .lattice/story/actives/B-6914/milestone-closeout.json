@@ -1,0 +1,74 @@
+{
+  "schemaVersion": "proofbound.milestone_closeout.v1",
+  "storyId": "B-6914",
+  "phase": "TEST",
+  "generatedAt": "2026-07-09T01:50:19.705Z",
+  "sourceReport": {
+    "schemaVersion": "proofbound.milestone_status.v1",
+    "digest": "cdce61312045414944d4284ae82d91fb32a1796e48f6e91f7dd8ba6f72171e7f",
+    "ledger": {
+      "present": true,
+      "state": "confirmed",
+      "hash": "sha256:a4f6932e63a5a0ea70c996da3d6cca44cc38d8444d0dae8450fa9b210427cbab"
+    },
+    "groups": {
+      "completed": [
+        "M1",
+        "M2",
+        "M3"
+      ],
+      "current": [],
+      "remaining": []
+    },
+    "risks": [],
+    "nextActions": [
+      "No milestone action; all ledger rows are completed or not applicable."
+    ]
+  },
+  "bindings": {
+    "headHash": "b06f96f187be2e00a4b8757237233700ae49784f",
+    "materialHash": "c7c1931e17f7ef0e4ba20ef06139f6da309507cf3be621533ed0bc41dc67885f",
+    "storyFilesHash": "c6766260c9004be83ad6742395b1a575c3c6a91632ff581da315df2909921347"
+  },
+  "rows": [
+    {
+      "milestone": "M1",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Runtime-changing DONE recovery cannot skip package patch bump.",
+      "acceptance": "done_recover regression proves runtimeSemverChanged=true invokes version bump before build.",
+      "evidence": [
+        "CHK-001:happy:0 [pass/manual_transcript] node packages/main/dist/tasks/artifact-release-ledger-smoke.js file=packages/main/src/tasks/artifact-release-ledger-smoke.ts note=Current 0.3.172 head passed 11 assertions, including partial-DONE recovery auto-bumps runtime version before build and reports the version auto-bumped line.",
+        "CHK-001:edge:0 [pass/manual_transcript] node packages/main/dist/tasks/version-bump-smoke.js file=packages/main/src/tasks/version-bump-smoke.ts note=Current 0.3.172 head passed 86 assertions, including skip behavior when changed paths do not qualify for a runtime version bump.",
+        "CHK-001:adversarial:0 [pass/integration_test] node packages/main/dist/tasks/artifact-release-ledger-smoke.js file=packages/main/src/tasks/artifact-release-ledger-smoke.ts note=The partial-DONE runtime recovery fixture asserts build execution observes the bumped version, preventing runtimeSemverChanged=true recovery from finishing without bumpVersionOnDoneMerge."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M2",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Patch bump keeps package and lockfile version sources synchronized.",
+      "acceptance": "version-bump smoke covers root/main package json and lockfile sync plus rollback behavior.",
+      "evidence": [
+        "CHK-002:happy:0 [pass/logic_test] node packages/main/dist/tasks/version-bump-smoke.js file=packages/main/src/tasks/version-bump-smoke.ts note=Current 0.3.172 head passed 86 assertions, including package.json, packages/main/package.json, both package-lock files, and LATTICE_CLI_VERSION moving to the same next patch.",
+        "CHK-002:edge:0 [pass/logic_test] node packages/main/dist/tasks/version-bump-smoke.js file=packages/main/src/tasks/version-bump-smoke.ts note=Current 0.3.172 head verifies root package-lock and packages/main package-lock drift fails loudly before a partial bump is committed.",
+        "CHK-002:adversarial:0 [pass/logic_test] node packages/main/dist/tasks/version-bump-smoke.js file=packages/main/src/tasks/version-bump-smoke.ts note=Current 0.3.172 head verifies post-write verification failure involving lockfiles rolls back all version sync files instead of leaving mismatched versions."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M3",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "The B-90d6 runtime changes become visible behind a new local package version.",
+      "acceptance": "local version files, dist brand, and lattice --version align on the next patch; no remote release is performed.",
+      "evidence": [
+        "CHK-003:happy:0 [pass/manual_transcript] node packages/main/dist/cli.js --version && node -e version-sync-check file=packages/main/src/core/lattice-brand.ts note=Current 0.3.172 head reports Proofbound CLI 0.3.172 and package.json, package-lock.json, packages/main/package.json, packages/main/package-lock.json, source brand, and dist brand all agree on 0.3.172.",
+        "CHK-003:edge:0 [pass/logic_test] git log --oneline --grep=B-6914 -1 && git status --short file=AGENTS.md note=No git push, npm publish, or release publish command was run; this remains a local story branch version boundary only.",
+        "CHK-003:adversarial:0 [pass/manual_transcript] node packages/main/dist/tasks/version-bump-smoke.js file=packages/main/src/tasks/version-bump-smoke.ts note=Current 0.3.172 head passed 86 assertions, including five-point version sync and the pre-bumped DONE finalizer guard that prevents 0.3.172 from being bumped again to 0.3.173."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    }
+  ]
+}
