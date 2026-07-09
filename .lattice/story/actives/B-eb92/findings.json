@@ -77,6 +77,27 @@
       ],
       "signatureTag": "missing|ts|eb92-partially-fixed",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-eb92:F-005",
+      "desc": "F-001 remains partially uncovered: the new surfacing smoke parses only command lines that start with `lattice ` inside renderReviewAssuranceGuidance output, but the DONE review-assurance row still exposes its full operator recovery text through done-oracle hint=formatReviewAssuranceFloorFailure. That hint contains the stale-material recovery inline autopilot_review_submit command in packages/main/src/core/review-assurance-floor.ts:1175-1179. Current tests only assert the row detail reason/fallback in packages/main/src/tasks/review-assurance-surfacing-smoke.ts:341-347, and the older floor smoke only checks that Stale material recovery/autopilot_review_submit exist, not that the line is labeled Legal reviewer/host only or that its placeholders are shell-safe/no angle-bracket templates. This leaves the prior owner-self-sign / DONE row recovery regression path outside the updated coverage even though session_brief/next, fallback-not-applicable, and escalation-only text/JSON are now covered.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-09T11:53:44.372Z",
+      "reviewRound": "2026-07-09T11:50:01.412Z",
+      "reviewRunId": "B-eb92:RR-007",
+      "_hash": "70ceb72fd368da200bdf98af509b4f55614d0e078fa4341bb5947d9cb234ab7e",
+      "files": [
+        "packages/main/src/tasks/review-assurance-surfacing-smoke.ts",
+        "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+        "packages/main/src/core/review-assurance-floor.ts",
+        "packages/main/src/core/done-oracle.ts"
+      ],
+      "signatureTag": "missing|ts|remains-partially-uncovered",
+      "signatureTagSource": "auto"
     }
   ]
 }
