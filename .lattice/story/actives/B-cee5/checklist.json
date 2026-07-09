@@ -209,6 +209,17 @@
           "materialHash": "2129600913e88693d4e5986538beca1b15432d378b1fb18b9b126d64d6e96cdb",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "timestamp": "2026-07-09T17:16:31.777Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "rg -n \"never degenerates to relatedDocs-only\" packages/main/templates/agents/lattice-review-scope-plan.md; node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js",
+          "result": "pass",
+          "note": "relatedDocs-alone is forbidden wording is present, and the guard smoke asserts candidateSpecSet/scanEscalationReason/advisory-only/gateEvidence=false phrases exist in all six copies.",
+          "headHash": "f3be9b5d0c1b4c347e2feff4a3740405e6c31d97",
+          "materialHash": "2129600913e88693d4e5986538beca1b15432d378b1fb18b9b126d64d6e96cdb",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-09T17:16:33.544Z"
         }
       ]
     },
