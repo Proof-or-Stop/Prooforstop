@@ -62,7 +62,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "If a fresh probe shows two or more canonical hosts available, `lattice review_escalation_fallback_set --eligibility=single-host-environment ...` fails and tells the user to use full 3x2 or explicit-human-approval instead.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/core/review-escalation.ts",
+          "packages/main/src/core/review-assurance-floor.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-escalation-smoke.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "single-host-environment fallback is accepted only when the latest fresh host availability probe shows fewer than two executable canonical hosts and the story still has the required 3x1 PASS rounds.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "explicit-human-approval with an approvalRef can still produce degraded-single-host lower assurance without proving host scarcity, and reports it as lower assurance rather than full 3x2.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Missing, stale, or contradictory host probe evidence makes single-host-environment and temporary-host-unavailability fallback records invalid in both review_escalation_status and review assurance floor evaluation, even if evidenceRefs prose exists.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
