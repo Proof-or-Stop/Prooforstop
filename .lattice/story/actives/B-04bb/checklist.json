@@ -29,7 +29,8 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "userSees": "git diff vs main shows one added line in lattice.config.json: \"node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js\" directly after the retired-authority-vocabulary-guard-smoke.js entry, and node -e JSON.parse on the file exits 0 silently."
     },
     {
       "id": "CHK-002",
