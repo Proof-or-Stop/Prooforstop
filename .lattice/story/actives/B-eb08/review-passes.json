@@ -215,6 +215,15 @@
       "reviewRound": "2026-07-09T03:59:57.281Z",
       "reviewRunId": "B-eb08:RR-037",
       "_hash": "e9ea06cee3e95172ae1d3aa43eebd43cdc418911997c47d215eef0ce27d32e88"
+    },
+    {
+      "id": "B-eb08:RP-025",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: current-round test coverage review after f0bff65a5, d30173a65, and F-008 resolution. Inspected done-prepare-closure-heartbeat-smoke.ts and related done_prepare/DONE-required validation plumbing. Smoke covers real done_prepare --validate=true via donePrepareRealValidateArgs, asserts DONE-required progress after validate command completion, keeps JSON stdout free of done_prepare/validate progress, and waits past a delayed DONE-required child duration before asserting no late PASS evidence. Ran npm --prefix packages/main run build and npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke on current material; both passed.",
+      "createdAt": "2026-07-09T04:02:59.809Z",
+      "reviewRound": "2026-07-09T03:59:57.281Z",
+      "reviewRunId": "B-eb08:RR-038",
+      "_hash": "af919f71c340a88e29dbff9634fe57aad068761169087607a71d47ab1eb75d10"
     }
   ]
 }
