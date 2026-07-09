@@ -19,6 +19,7 @@ import { MAIN_TOOLS } from '../cli-engine.js';
 import { COMMAND_POLICIES } from '../core/command-policy.js';
 import { resetConfigCache } from '../core/config.js';
 import { PROCESS_FACT_LEVEL_BY_NAME } from '../core/process-fact-levels.js';
+import { canonicalReviewHostLauncherSpec } from '../core/host-execution-readiness.js';
 import { StoryStore } from '../core/store.js';
 import type {
   ChecklistData,
@@ -313,6 +314,11 @@ try {
   const claudeProbe = run<HostRuntimeProbe>('host_runtime_probe', { host: 'claude-code' });
   assert.equal(claudeProbe.host, 'claude-code');
   assert.equal(claudeProbe.schemaVersion, 'lattice.host_runtime_probe.v1');
+  assert.deepEqual(
+    claudeProbe.invocationTemplate,
+    canonicalReviewHostLauncherSpec('claude').launcherArgv,
+    'claude-code invocationTemplate must use observable --verbose stream-json launcher',
+  );
   // Structured feasibility fields must always be present
   assert.ok(['detected', 'unavailable', 'unknown'].includes(claudeProbe.versionStatus), `claude versionStatus must be a known value, got ${claudeProbe.versionStatus}`);
   assert.ok(['supported', 'unverified', 'unsupported'].includes(claudeProbe.noninteractiveSupport), `claude noninteractiveSupport must be a known value, got ${claudeProbe.noninteractiveSupport}`);
@@ -341,6 +347,9 @@ try {
   assert.equal(antigravityProbe.requestedHost, 'antigravity');
   assert.equal(antigravityProbe.schemaVersion, 'lattice.host_runtime_probe.v1');
   assert.equal(antigravityProbe.cliCommand, 'agy');
+  assert.ok(antigravityProbe.invocationTemplate?.includes('--print'), 'antigravity template must use agy --print');
+  assert.ok(antigravityProbe.invocationTemplate?.includes('--print-timeout'), 'antigravity template must include --print-timeout');
+  assert.equal(antigravityProbe.invocationTemplate?.includes('--prompt-file'), false, 'antigravity template must not use unsupported --prompt-file');
   assert.equal(antigravityProbe.unattendedSafe, false, 'antigravity must not claim unattendedSafe=true');
   assert.ok(Array.isArray(antigravityProbe.unattendedReasons), 'antigravity probe must have unattendedReasons array');
   assert.ok(
@@ -355,6 +364,11 @@ try {
   assert.equal(agyProbe.matchedFallback, true, 'agy aliases to the current Antigravity runtime');
   assert.equal(agyProbe.cliCommand, 'agy');
   assertAuthorityFalse(agyProbe, 'agyProbe');
+
+  const codexProbe = run<HostRuntimeProbe>('host_runtime_probe', { host: 'codex' });
+  assert.ok(codexProbe.invocationTemplate?.includes('exec'), 'codex template must use codex exec');
+  assert.ok(codexProbe.invocationTemplate?.includes('--json'), 'codex template must use --json for observable events');
+  assert.equal(codexProbe.invocationTemplate?.includes('--prompt-file'), false, 'codex template must not use --prompt-file');
 
   // If claude is installed, additional shape assertions apply
   if (claudeProbe.available) {

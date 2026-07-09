@@ -229,19 +229,18 @@ export function createReviewEscalationHandlers(ctx: HandlerContext) {
       });
       const commitHint = autoCommitStoryMetadata(ctx.root, args.storyId, REVIEW_HOST_AVAILABILITY_PROBE_COMMAND);
       if (wantsJson(args)) {
-        return {
-          schemaVersion: 'lattice.review_host_availability_probe.v1',
-          ...event,
-        };
+        return event;
       }
       return [
         `Review host availability probe ${event.probeId} recorded`,
         `canonicalHosts: ${REVIEW_HOST_AVAILABILITY_CANONICAL_HOSTS.join(', ')}`,
         `availableHostCount: ${event.availableHostCount}`,
         `unavailableHostCount: ${event.unavailableHostCount}`,
+        `executionReadyHostCount: ${event.executionReadyHostCount}`,
+        `reviewReadyHostCount: ${event.reviewReadyHostCount}`,
         `materialHash: ${freshMaterialHash}`,
         ...(event.storyFilesHash ? [`storyFilesHash: ${event.storyFilesHash}`] : []),
-        ...event.hosts.map(row => `  - ${row.host}: ${row.available ? 'available' : 'unavailable'}${row.executablePath ? ` path=${row.executablePath}` : ''}${row.error ? ` (${row.error})` : ''}`),
+        ...event.hosts.map(row => `  - ${row.host}: launcherSupport=${row.launcherSupport} executionReady=${row.executionReady} reviewReady=${row.reviewReady} progressMode=${row.progressMode} failureKind=${row.failureKind}${row.executablePath ? ` path=${row.executablePath}` : ''}${row.diagnostic ? ` (${row.diagnostic})` : row.error ? ` (${row.error})` : ''}${row.remediation ? ` remediation=${row.remediation}` : ''}`),
         'evidenceScope: review-host-availability-probe',
         commitHint.trim(),
       ].filter(Boolean).join('\n');

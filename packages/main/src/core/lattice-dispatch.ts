@@ -37,6 +37,7 @@ import {
 import type { StoryStore } from './store.js';
 import { resolveGitCwd } from './story-signed-workspace-resolution.js';
 import { getSessionId } from './owner-session.js';
+import { canonicalReviewHostLauncherSpec } from './host-execution-readiness.js';
 // B-ceed: codex + legacy gemini live-dispatch — bounded provider seams (real spawn).
 import { codexCliAvailable, runBoundedCodexProvider } from '../providers/codex-cli.js';
 import { geminiCliAvailable, runBoundedGeminiProvider } from '../providers/gemini-cli.js';
@@ -82,7 +83,7 @@ export type EnvSafetyPosture = 'sandboxed' | 'inherited' | 'unverified';
 export type LoginReadiness = 'ready' | 'requires-login' | 'unknown';
 export type ReceiptSupport = 'structured' | 'transcript-capture' | 'unverified';
 
-const CLAUDE_PRINT_LAUNCHER = 'claude --print <prompt-file>';
+const CLAUDE_PRINT_LAUNCHER = canonicalReviewHostLauncherSpec('claude').launcherArgv.join(' ');
 
 export interface HostRuntimeProbe {
   schemaVersion: 'lattice.host_runtime_probe.v1';
@@ -542,10 +543,10 @@ function currentCodexSessionAvailable(): boolean {
 
 function runtimeTemplate(host: HostRuntimeId): string[] | undefined {
   if (host === 'fake') return ['fake-runtime', '--deterministic'];
-  if (host === 'claude-code') return ['claude', '--print', '<prompt-file>'];
-  if (host === 'antigravity') return ['agy', '--prompt-file', '<prompt-file>'];
+  if (host === 'claude-code') return canonicalReviewHostLauncherSpec('claude').launcherArgv;
+  if (host === 'antigravity') return canonicalReviewHostLauncherSpec('agy').launcherArgv;
   if (host === 'gemini') return ['gemini', '--prompt-file', '<prompt-file>'];
-  return ['codex', 'exec', '--prompt-file', '<prompt-file>'];
+  return canonicalReviewHostLauncherSpec('codex').launcherArgv;
 }
 
 interface RealHostCapabilities {
@@ -1345,7 +1346,7 @@ function assertClaudePrintLauncherAllowed(
 ): void {
   if (commandAllowlistAllowsClaudePrint(commandAllowlist)) return;
   throw new Error(
-    `${refusalPrefix} policy commandAllowlist must include canonical launcher "${CLAUDE_PRINT_LAUNCHER}" before Proofbound may start claude --print.`,
+    `${refusalPrefix} policy commandAllowlist must include canonical observable launcher "${CLAUDE_PRINT_LAUNCHER}" before Proofbound may start claude --print.`,
   );
 }
 
@@ -2198,16 +2199,14 @@ const DISPATCH_LEDGER_AGENT_TYPE = 'lattice-dispatch:claude-code';
 const DISPATCH_LEDGER_ESTIMATE_MODEL = 'claude-code';
 
 /**
- * Pure spawn-arg builder for the claude-code leaf dispatch. EXTRACTED so the
- * OFF-vs-ON arg shape is unit-testable WITHOUT changing OFF behavior:
- *   - ledger OFF -> exactly ['--print', promptFile] (byte-identical to today);
- *   - ledger ON  -> ['--print', promptFile, '--output-format', 'json'] so the
- *     host emits the JSON envelope we parse for usage.
- * The OFF branch returns the literal original array; the ON branch only APPENDS.
+ * Pure spawn-arg builder for the claude-code leaf dispatch. Reviewer work needs
+ * the observable Claude Code shape, otherwise long `--print` runs can look
+ * stalled until the final answer. Usage ledger parsing remains best-effort when
+ * stream-json is enabled.
  */
 export function buildClaudeSpawnArgs(promptFile: string, ledgerOn: boolean): string[] {
-  if (!ledgerOn) return ['--print', promptFile];
-  return ['--print', promptFile, '--output-format', 'json'];
+  void ledgerOn;
+  return ['--print', '--verbose', '--output-format=stream-json', promptFile];
 }
 
 /** Deterministic projectRootHash for ledger records (sha256 of the root path). */
@@ -2429,15 +2428,15 @@ function runClaudeCodeRealLeafDispatch(
   const runnerStartedAt = nowIso();
   const promptFile = resolve(root, record.promptFile);
   assertClaudePrintLauncherAllowed(executionPolicy.commandAllowlist, 'dispatch_run:');
-  const commandTemplate = runtime.invocationTemplate ?? ['claude', '--print', '<prompt-file>'];
+  const commandTemplate = runtime.invocationTemplate ?? canonicalReviewHostLauncherSpec('claude').launcherArgv;
   const commandLabel = CLAUDE_PRINT_LAUNCHER;
   const transcriptPath = resolve(root, record.transcriptFile);
   const commandEnv = buildRequiredCommandEnv(executionPolicy);
   const timeoutMs = Math.ceil(executionPolicy.maxRuntimeMs);
 
-  // ---- THIN ONE-WAY USAGE-LEDGER SEAM (opt-in; OFF path is byte-identical) ----
-  // INV-1: ledgerOn drives the arg shape; when OFF the builder returns the literal
-  // original ['--print', promptFile] and stdout is used raw, exactly as before.
+  // ---- THIN ONE-WAY USAGE-LEDGER SEAM (opt-in; usage extraction best-effort) ----
+  // INV-1: dispatch always uses the observable Claude stream-json launcher; when
+  // the ledger is OFF stdout is still captured raw for the local receipt.
   // INV-3: every ledger call below is wrapped in try/catch and proceeds on error.
   const ledgerOn = isUsageLedgerEnabled();
   const ledgerCtx: DispatchUsageContext = {
@@ -2519,9 +2518,9 @@ function runClaudeCodeRealLeafDispatch(
   const timedOut = spawnTimedOut(result, timeoutMs);
   const exitCode = spawnExitCode(result, timedOut);
   const rawStdout = spawnOutputText(result.stdout).trimEnd();
-  // INV-1/INV-2: OFF -> stdout is the raw text, byte-identical to today. ON ->
-  // parse the JSON envelope; resultText is the downstream text (raw fallback when
-  // the output is not JSON/usage), and the parsed usage feeds the final record.
+  // INV-1/INV-2: OFF -> stdout is the raw captured stream. ON -> parse usage on a
+  // best-effort basis; stream-json falls back to raw text when not a single JSON
+  // envelope, and the parsed usage feeds the final record when available.
   let stdout = rawStdout;
   if (ledgerOn) {
     try {

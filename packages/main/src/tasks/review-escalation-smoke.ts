@@ -17,6 +17,7 @@ import type { Finding, ProcessEvent, StoryInfo } from '../core/types.js';
 import { StoryStore } from '../core/store.js';
 import { createVerdictHandlers } from '../handlers/verdict.js';
 import { createReviewEscalationHandlers } from '../handlers/review-escalation.js';
+import { canonicalReviewHostLauncherSpec, type CanonicalReviewHost } from '../core/host-execution-readiness.js';
 
 const STORY_ID = 'B-review-escalation';
 const ROUND_1 = '2026-06-13T10:00:00.000Z';
@@ -162,14 +163,29 @@ function fallback(materialHash: string, overrides: Partial<ProcessEvent> = {}): 
 
 function hostAvailabilityProbe(materialHash: string, availableHosts: string[], overrides: Partial<ProcessEvent> = {}): ProcessEvent {
   const available = new Set(availableHosts);
-  const hosts = ['codex', 'claude', 'agy'].map(host => ({
-    host,
-    command: host,
-    ...(available.has(host) ? { executablePath: `/fake/bin/${host}` } : {}),
-    versionOk: available.has(host),
-    available: available.has(host),
-    ...(available.has(host) ? { versionOutput: `${host} 1.0.0` } : { error: 'executable not found in PATH' }),
-  }));
+  const hosts = (['codex', 'claude', 'agy'] as CanonicalReviewHost[]).map(host => {
+    const spec = canonicalReviewHostLauncherSpec(host);
+    const ready = available.has(host);
+    return {
+      host,
+      command: host,
+      ...(ready ? { executablePath: `/fake/bin/${host}` } : {}),
+      versionOk: ready,
+      available: ready,
+      launcher: spec.launcher,
+      launcherArgv: spec.launcherArgv,
+      launcherSupport: ready ? 'supported' : 'unverified',
+      launcherOk: ready,
+      executionReady: ready,
+      reviewReady: ready,
+      progressMode: spec.progressMode,
+      failureKind: ready ? 'none' : 'missing_executable',
+      durationMs: ready ? 12 : 0,
+      ...(ready ? { firstProgressMs: 12, exitCode: 0 } : {}),
+      ...(ready ? {} : { error: 'executable not found in PATH' }),
+      remediation: ready ? '' : `Install or expose ${host} in PATH.`,
+    };
+  });
   return {
     type: 'review_host_availability_probe',
     command: 'review_host_availability_probe',
@@ -180,6 +196,8 @@ function hostAvailabilityProbe(materialHash: string, availableHosts: string[], o
     hosts,
     availableHostCount: availableHosts.length,
     unavailableHostCount: 3 - availableHosts.length,
+    executionReadyHostCount: availableHosts.length,
+    reviewReadyHostCount: availableHosts.length,
     authorityDone: false,
     fullAuthorityDone: false,
     productionDone: false,
@@ -464,7 +482,7 @@ try {
     assert.equal(report.productionDone, false);
   });
 
-  check('missing host availability probe blocks non-human degraded fallback', () => {
+  check('missing host readiness probe blocks non-human degraded fallback', () => {
     const fresh = currentMaterialHash(root)!;
     const report = evaluateReviewEscalation({
       projectRoot: root,
@@ -533,10 +551,10 @@ try {
       ],
     });
     assert.equal(twoHostReport.ok, false);
-    assert.match(twoHostReport.reasons.join('\n'), /found 2\/3 canonical hosts available; use full 3x2 or explicit-human-approval/);
+    assert.match(twoHostReport.reasons.join('\n'), /reviewReadyHostCount=2\/3; use full 3x2 or explicit-human-approval/);
   });
 
-  check('probe with fewer than two available canonical hosts permits degraded 3x1', () => {
+  check('probe with reviewReadyHostCount below two permits degraded 3x1', () => {
     const fresh = currentMaterialHash(root)!;
     const probe = hostAvailabilityProbe(fresh, ['codex'], { storyFilesHash: currentStoryFilesHash(root)! });
     const report = evaluateReviewEscalation({
@@ -582,7 +600,7 @@ try {
           reason: 'Operator requested degraded fallback even though two hosts are available.',
           evidenceRefs: ['manual:should-block'],
           json: true,
-        }), /found 2\/3 canonical hosts available; use full 3x2 or explicit-human-approval/);
+        }), /reviewReadyHostCount=2\/3; use full 3x2 or explicit-human-approval/);
       });
     } finally {
       rmSync(commandRoot, { recursive: true, force: true });
