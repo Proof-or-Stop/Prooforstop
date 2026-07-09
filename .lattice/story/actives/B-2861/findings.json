@@ -1,0 +1,24 @@
+{
+  "findings": [
+    {
+      "id": "B-2861:F-001",
+      "desc": "Mandatory Progress UX row is broader than the surrounding state-change contract: docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:141 and :169 scope mandatory progress UX to state-changing commands, but :172 says any human-facing command that does not auto-append progress UX must run milestone_status. Current docs/CLI.md:309-315 and packages/main/src/cli-engine.ts:843-846 scope automatic append to configured story-scoped mutating commands, so the execution-plan row should be narrowed to non-auto-appended state-changing/progress-relevant commands to avoid implementing noisy or unsafe progress requirements for unrelated read-only output.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-09T15:54:48.207Z",
+      "reviewRound": "2026-07-09T15:52:24.629Z",
+      "reviewRunId": "B-2861:RR-002",
+      "_hash": "c83b11a332af919f0db9d20f42b1d41e1d6e99367f77b8d9ef7fd2db6fd17820",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+        "docs/CLI.md",
+        "packages/main/src/cli-engine.ts"
+      ],
+      "signatureTag": "spec-boundary|md|mandatory-progress-broader",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
