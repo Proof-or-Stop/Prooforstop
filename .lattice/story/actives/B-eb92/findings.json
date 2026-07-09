@@ -1,0 +1,25 @@
+{
+  "findings": [
+    {
+      "id": "B-eb92:F-001",
+      "desc": "Coverage is missing/misleading for the session_brief/next and fallback/no-owner-self-sign acceptance surface. The focused smoke asserts buildNextSteps(...).TEST and done_prepare safe command separation, but it never invokes createSessionHandlers(...).session_brief/next or the CLI next path. The actual TEST next path summarizes DONE row hints from done-oracle/session.ts, and the review-assurance formatter still emits autopilot_review_submit in its recovery text; review-escalation failure text likewise names autopilot_review_submit/review_escalation_fallback_set. Because the smoke does not cover session_brief/next, it would not catch owner-visible self-sign command exposure outside done_prepare. The smoke also only exercises the fallback-eligible positive case and does not assert the not-eligible/not-applicable case omits fallback writer guidance, so CHK-001 edge fallback eligibility is not fully covered.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-09T11:24:55.340Z",
+      "reviewRound": "2026-07-09T11:20:35.943Z",
+      "reviewRunId": "B-eb92:RR-003",
+      "_hash": "2d732e6c267e5dd4bc4058638510a01cc1c018a989d2474b2fa39001c8279941",
+      "files": [
+        "packages/main/src/tasks/review-assurance-surfacing-smoke.ts",
+        "packages/main/src/handlers/session.ts",
+        "packages/main/src/core/review-assurance-floor.ts",
+        "packages/main/src/core/review-escalation.ts"
+      ],
+      "signatureTag": "missing|ts|coverage-missing-misleading",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
