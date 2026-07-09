@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-6914",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Add focused regression coverage for recovery bump and lockfile sync",
+    "Extend patch bump synchronization to package-lock.json and packages/main/package-lock.json",
+    "Patch DONE/done_recover version finalization for runtime-changing story merges",
+    "Repair the current post-B-90d6 local version state through the story completion path"
+  ],
+  "excluded": [
+    "Do not edit unrelated dirty user files on main",
+    "Do not push to origin or publish npm/GitHub releases",
+    "Do not redesign package semver or capability release semantics"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "User explicitly requested fixing the version mechanism and B-90d6 missed bump together after the 2026-07-09 investigation.",
+  "createdAt": "2026-07-09T00:48:25.444Z",
+  "updatedAt": "2026-07-09T00:48:25.444Z",
+  "_hash": "ee479c13e21600bf200061c14c8e97e9f5bfc2b34ebc5a405e90ad2f2d3238c0"
+}
