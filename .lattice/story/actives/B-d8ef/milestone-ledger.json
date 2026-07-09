@@ -2,11 +2,11 @@
   "schemaVersion": "proofstory.milestone_ledger.v1",
   "storyId": "B-d8ef",
   "state": "confirmed",
-  "ledgerHash": "sha256:3bcdc84a5b6a3919b0168272c3fe53a5d29805e736515d2f41d3fd3bff896d08",
+  "ledgerHash": "sha256:cab2bd32af4aba315ff6dfe5a969d155d94158737f1effbecf80e35aac7b69d8",
   "milestones": [
     {
       "id": "M1",
-      "sourceRequirementId": "B-d8ef.CHK-001",
+      "sourceRequirementId": "REQ-host-readiness-probe",
       "claim": "Canonical review hosts report noninteractive launcher execution readiness, not only binary/version presence.",
       "doneMeans": "Host readiness output shows launcher shape, support status, first-progress/completion signal, and failureKind for auth, wrong flags, timeout, missing executable, or silent-final-output.",
       "requiredEvidence": [
@@ -25,7 +25,7 @@
     },
     {
       "id": "M2",
-      "sourceRequirementId": "B-d8ef.CHK-002",
+      "sourceRequirementId": "REQ-degraded-fallback-ready-hosts",
       "claim": "Review assurance fallback and host dispatch diagnostics use execution-ready host counts.",
       "doneMeans": "Gate diagnostics distinguish availableHostCount from reviewReadyHostCount/executionReadyHostCount and explain why auth, silent-output, or wrong-flag hosts do not qualify for non-human degraded fallback.",
       "requiredEvidence": [
@@ -44,7 +44,7 @@
     },
     {
       "id": "M3",
-      "sourceRequirementId": "B-d8ef.CHK-003",
+      "sourceRequirementId": "REQ-observable-launchers",
       "claim": "Focused smokes cover Claude stream-json verbose, Codex exec auth, and agy print launcher readiness.",
       "doneMeans": "Smoke tests prove Claude observable launcher is --print --verbose --output-format=stream-json, plain --print is silent/non-progress for long reviewer work, agy --print/--print-timeout is canonical while --prompt-file is rejected, and Codex login/version alone is not review-ready without codex exec success.",
       "requiredEvidence": [
@@ -63,10 +63,10 @@
     }
   ],
   "createdAt": "2026-07-09T13:07:38.735Z",
-  "updatedAt": "2026-07-09T13:09:27.449Z",
+  "updatedAt": "2026-07-09T13:09:50.051Z",
   "acceptedIntentBinding": {
     "intentCollisionId": "IC-20260709130927",
-    "acceptedInterpretationHash": "sha256:2308bf0b696c19fe6bb9f263e38570e5f4d0500009c3c5181c2e8a0d2cef1e8a",
-    "acceptedAt": "2026-07-09T13:09:27.449Z"
+    "acceptedInterpretationHash": "sha256:e026ce03f50895ea7902e2c0b237fd0cd782c4185084461df2e26417ba22ac3e",
+    "acceptedAt": "2026-07-09T13:09:50.051Z"
   }
 }

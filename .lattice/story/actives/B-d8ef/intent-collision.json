@@ -4,11 +4,11 @@
   "id": "IC-20260709130927",
   "decision": "pass",
   "status": "accepted",
-  "acceptedInterpretation": "B-d8ef strengthens the existing review_host_availability_probe/degraded-fallback path: canonical hosts Codex CLI, Claude Code CLI, and agy CLI must report execution readiness (executionReady/reviewReady/progressMode/failureKind) with observable launchers (claude --print --verbose --output-format stream-json; agy --print/--print-timeout, --prompt-file rejected as wrong_launcher; codex exec success not just version/login), and non-human degraded fallback consumes only fresh reviewReadyHostCount, with explicit-human-approval preserved as lower assurance and no optional Claude hook events in scope.",
-  "acceptedInterpretationHash": "sha256:2308bf0b696c19fe6bb9f263e38570e5f4d0500009c3c5181c2e8a0d2cef1e8a",
-  "notes": "Independent Claude intent-collision reviewer PASS: original intent snapshot, checklist CHK-001..003, and plan.md are mutually consistent; no second interpretation or scope drift found. Reviewer attempted intent_collision_set but owner lease blocked the write, so owner session records the independent verdict text unchanged.",
-  "ledgerHashBeforeDecision": "sha256:3bcdc84a5b6a3919b0168272c3fe53a5d29805e736515d2f41d3fd3bff896d08",
-  "confirmedLedgerHash": "sha256:3bcdc84a5b6a3919b0168272c3fe53a5d29805e736515d2f41d3fd3bff896d08",
+  "acceptedInterpretation": "Implement the host-readiness hardening requested by the user: extend canonical review host availability proof from executable/version checks to bounded noninteractive launcher readiness for Codex CLI, Claude Code CLI, and agy; feed execution/review-ready counts into degraded fallback and diagnostics; and add focused smoke coverage for Claude verbose stream-json, Codex exec auth failure, and agy print launcher semantics. Do not claim remote completion, release readiness, or read/copy auth-profile token material.",
+  "acceptedInterpretationHash": "sha256:e026ce03f50895ea7902e2c0b237fd0cd782c4185084461df2e26417ba22ac3e",
+  "notes": "No conflicting interpretation accepted: this is a local Proofbound drivability/gate hardening story, not a Tier-C provider campaign, not a production release, and not permission to expose secrets or run unbounded reviewer prompts.",
+  "ledgerHashBeforeDecision": "sha256:cab2bd32af4aba315ff6dfe5a969d155d94158737f1effbecf80e35aac7b69d8",
+  "confirmedLedgerHash": "sha256:cab2bd32af4aba315ff6dfe5a969d155d94158737f1effbecf80e35aac7b69d8",
   "createdAt": "2026-07-09T13:09:27.449Z",
-  "updatedAt": "2026-07-09T13:09:27.449Z"
+  "updatedAt": "2026-07-09T13:09:50.050Z"
 }
