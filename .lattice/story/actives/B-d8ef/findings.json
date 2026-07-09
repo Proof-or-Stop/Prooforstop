@@ -225,6 +225,26 @@
       "resolvedAt": "2026-07-09T21:40:20.950Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-d8ef:F-011",
+      "desc": "Readiness probe generation now records concrete executed argv, but evidence validation still accepts literal <prompt> and <prompt-file> placeholders for ready host rows. launcherArgvPartMatchesCanonical treats placeholders as valid, reviewHostAvailabilityProbeRecordFromEvent accepts that classification, and the smoke helper readinessRow emits spec.launcherArgv for ready rows, so gate-valid readiness evidence can still omit the exact argv that was actually executed. Reject placeholders for available/executionReady/reviewReady host rows while keeping placeholders only for static specs/templates; update smoke to require concrete ready-row argv and add a negative assertion that placeholder argv on a ready host invalidates the record.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-09T21:48:34.538Z",
+      "reviewRound": "2026-07-09T21:39:58.228Z",
+      "reviewRunId": "B-d8ef:RR-033",
+      "_hash": "be7eef0f5613c2c32afe5073dabd0818c270dc858250b15ef450b39477bad7dd",
+      "files": [
+        "packages/main/src/core/host-execution-readiness.ts",
+        "packages/main/src/core/review-escalation.ts",
+        "packages/main/src/tasks/review-host-execution-readiness-smoke.ts"
+      ],
+      "signatureTag": "spec-boundary:readiness-validator-rejects-placeholder-executed-argv",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
