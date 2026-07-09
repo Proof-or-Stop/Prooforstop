@@ -20,6 +20,25 @@
       ],
       "signatureTag": "missing|ts|coverage-missing-misleading",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-eb92:F-002",
+      "desc": "review_escalation_status builds canonical review-escalation guidance but drops it from human text output, rendering only floor guidance at packages/main/src/handlers/review-escalation.ts:111. A story whose canonical review escalation predicate fires without the floor predicate, such as first-round countable findings on non-code material or an explicit high-risk policy fact, will not receive the new legal-writer, fallback, and cannot-auto-sign guidance on the primary status surface. The smoke fixture at packages/main/src/tasks/review-assurance-surfacing-smoke.ts:150 does not seed first-round findings and only asserts the floor reason code, so this canonical escalation path is untested.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-09T11:25:13.480Z",
+      "reviewRound": "2026-07-09T11:20:35.943Z",
+      "reviewRunId": "B-eb92:RR-004",
+      "_hash": "63346cc63b629b27157d8206061ea3f7303edfa471b0624e7d44f96aa84a86f9",
+      "files": [
+        "packages/main/src/handlers/review-escalation.ts",
+        "packages/main/src/tasks/review-assurance-surfacing-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|review-escalation-status",
+      "signatureTagSource": "auto"
     }
   ]
 }
