@@ -9,6 +9,7 @@ import {
   REVIEW_ESCALATION_FALLBACK_ELIGIBILITIES,
   eventsWithStoryFilesHashDowngrade,
   isReviewEscalationFallbackEligibility,
+  type ReviewEscalationReport,
 } from './review-escalation.js';
 import { isReviewerAgent } from './review-run.js';
 import type { BugData, Finding, ProcessEvent, StoryInfo, TestEvidenceData, UnderstandingData } from './types.js';
@@ -131,6 +132,325 @@ export interface EvaluateReviewAssuranceFloorArgs {
   changedFiles?: string[];
   materialHash?: string;
   storyFilesHash?: string;
+}
+
+export type ReviewAssuranceGuidanceSource = 'review-escalation' | 'review-assurance-floor';
+export type ReviewAssuranceGuidanceOwner = 'owner' | 'reviewer-host' | 'human-approved';
+
+export interface ReviewAssuranceCommandRecipe {
+  owner: ReviewAssuranceGuidanceOwner;
+  command: string;
+  purpose: string;
+  writesEvidence: boolean;
+  safeForStoryOwner: boolean;
+}
+
+export interface ReviewAssuranceGuidance {
+  schemaVersion: 'lattice.review_assurance_guidance.v1';
+  source: ReviewAssuranceGuidanceSource;
+  storyId?: string;
+  required: boolean;
+  ok: boolean;
+  reasonCode: string;
+  reason: string;
+  requiredAssurance: string;
+  assuranceLevel: string;
+  currentBinding: {
+    materialHash: string | null;
+    storyFilesHash: string | null;
+  };
+  legalWriterPaths: {
+    ownerRunnable: ReviewAssuranceCommandRecipe[];
+    reviewerHost: ReviewAssuranceCommandRecipe[];
+    humanApprovedFallback: ReviewAssuranceCommandRecipe[];
+  };
+  fallback: {
+    status: 'not-applicable' | 'eligible' | 'not-eligible' | 'satisfied';
+    eligible: boolean;
+    reasonCode: string;
+    reason: string;
+    eligibilityValues: readonly string[];
+  };
+  cannotAutoSignWarning: string;
+}
+
+interface BuildReviewAssuranceGuidanceInput {
+  source: ReviewAssuranceGuidanceSource;
+  storyId?: string;
+  required: boolean;
+  ok: boolean;
+  reasonCode: string;
+  reason: string;
+  requiredAssurance: string;
+  assuranceLevel: string;
+  materialHash: string | null;
+  storyFilesHash: string | null;
+  fallback: ReviewAssuranceGuidance['fallback'];
+  requireFullQuorumPath: boolean;
+  requireSingleHostPath: boolean;
+}
+
+const REVIEW_ASSURANCE_CANNOT_AUTO_SIGN_WARNING =
+  'done_prepare, story_advance, and the story owner/main session will not auto-write reviewer evidence, host verdicts, delivery checks, or degraded fallback evidence; those records must come from their legal reviewer/host or explicit human-approved writer path and bind to the current material.';
+
+function storyRef(storyId?: string): string {
+  return storyId && storyId.trim() ? storyId.trim() : '<storyId>';
+}
+
+function materialRef(materialHash: string | null): string {
+  return materialHash || '<current-materialHash>';
+}
+
+function storyFilesRef(storyFilesHash: string | null): string {
+  return storyFilesHash || '<current-storyFilesHash>';
+}
+
+function reviewEscalationStatusCommand(storyId?: string): string {
+  return `lattice review_escalation_status '{"storyId":"${storyRef(storyId)}"}'`;
+}
+
+function autopilotReviewStatusCommand(storyId?: string): string {
+  return `lattice autopilot_review_status --storyId=${storyRef(storyId)}`;
+}
+
+function validationCommand(storyId?: string): string {
+  return `lattice validate --story=${storyRef(storyId)} --json`;
+}
+
+function staleEvidenceDryRunCommand(storyId?: string): string {
+  return `lattice verification_evidence_refresh_stale --storyId=${storyRef(storyId)} --dryRun`;
+}
+
+function donePrepareCommand(storyId?: string): string {
+  return `lattice done_prepare '{"storyId":"${storyRef(storyId)}"}'`;
+}
+
+function autopilotReviewSubmitCommand(storyId: string | undefined, materialHash: string | null, storyFilesHash: string | null): string {
+  return `lattice autopilot_review_submit --storyId=${storyRef(storyId)} --runId=<round-id> --hostId=<host> --sessionId=<session> --keyId=<key> --decision=pass --materialDigest=${materialRef(materialHash)} --storyFilesHash=${storyFilesRef(storyFilesHash)} --validationDigest=<fresh-validation-digest> --promptDigest=<current-prompt-digest>`;
+}
+
+function quorumSubmitCommand(storyId?: string): string {
+  return `lattice quorum_submit '{"storyId":"${storyRef(storyId)}","hostA":"<independent-host-a>","hostB":"<independent-host-b>"}'`;
+}
+
+function fallbackSetCommand(storyId: string | undefined, fallback: ReviewAssuranceGuidance['fallback']): string {
+  const eligibility = fallback.eligibilityValues.join('|') || 'single-host-environment|temporary-host-unavailability|explicit-human-approval';
+  return `lattice review_escalation_fallback_set '{"storyId":"${storyRef(storyId)}","eligibility":"<${eligibility}>","reason":"<why degraded-single-host fallback is approved>","evidenceRefs":["<supporting-ref>"]}'`;
+}
+
+export function buildReviewAssuranceGuidance(input: BuildReviewAssuranceGuidanceInput): ReviewAssuranceGuidance {
+  const ownerRunnable: ReviewAssuranceCommandRecipe[] = [
+    {
+      owner: 'owner',
+      command: reviewEscalationStatusCommand(input.storyId),
+      purpose: 'Inspect the canonical review escalation and review-assurance diagnostics.',
+      writesEvidence: false,
+      safeForStoryOwner: true,
+    },
+    {
+      owner: 'owner',
+      command: autopilotReviewStatusCommand(input.storyId),
+      purpose: 'Inspect submitted local host verdicts and ignored/stale verdict reasons.',
+      writesEvidence: false,
+      safeForStoryOwner: true,
+    },
+    {
+      owner: 'owner',
+      command: validationCommand(input.storyId),
+      purpose: 'Refresh owner-runnable validation evidence before reviewer/host verdicts bind to current material.',
+      writesEvidence: true,
+      safeForStoryOwner: true,
+    },
+    {
+      owner: 'owner',
+      command: staleEvidenceDryRunCommand(input.storyId),
+      purpose: 'Preview stale verificationEvidence refresh; rerun listed evidence commands before applying refresh.',
+      writesEvidence: false,
+      safeForStoryOwner: true,
+    },
+    {
+      owner: 'owner',
+      command: donePrepareCommand(input.storyId),
+      purpose: 'Re-run the DONE preparation preflight after legal review-assurance writers have produced evidence.',
+      writesEvidence: false,
+      safeForStoryOwner: true,
+    },
+  ];
+
+  const reviewerHost: ReviewAssuranceCommandRecipe[] = [];
+  if (input.requireSingleHostPath || input.requireFullQuorumPath) {
+    reviewerHost.push({
+      owner: 'reviewer-host',
+      command: autopilotReviewSubmitCommand(input.storyId, input.materialHash, input.storyFilesHash),
+      purpose: 'Reviewer/host path: submit a PASS host verdict bound to the current material.',
+      writesEvidence: true,
+      safeForStoryOwner: false,
+    });
+  }
+  if (input.requireFullQuorumPath) {
+    reviewerHost.push({
+      owner: 'reviewer-host',
+      command: quorumSubmitCommand(input.storyId),
+      purpose: 'Reviewer/host path: bulk-record local non-authority 3x2 host verdict evidence when policy permits.',
+      writesEvidence: true,
+      safeForStoryOwner: false,
+    });
+  }
+
+  const humanApprovedFallback = input.fallback.eligible
+    ? [{
+        owner: 'human-approved' as const,
+        command: fallbackSetCommand(input.storyId, input.fallback),
+        purpose: 'Explicit human-approved degraded-single-host fallback writer; use only when the canonical status says fallback is eligible.',
+        writesEvidence: true,
+        safeForStoryOwner: false,
+      }]
+    : [];
+
+  return {
+    schemaVersion: 'lattice.review_assurance_guidance.v1',
+    source: input.source,
+    ...(input.storyId ? { storyId: input.storyId } : {}),
+    required: input.required,
+    ok: input.ok,
+    reasonCode: input.reasonCode,
+    reason: input.reason,
+    requiredAssurance: input.requiredAssurance,
+    assuranceLevel: input.assuranceLevel,
+    currentBinding: {
+      materialHash: input.materialHash,
+      storyFilesHash: input.storyFilesHash,
+    },
+    legalWriterPaths: {
+      ownerRunnable,
+      reviewerHost,
+      humanApprovedFallback,
+    },
+    fallback: input.fallback,
+    cannotAutoSignWarning: REVIEW_ASSURANCE_CANNOT_AUTO_SIGN_WARNING,
+  };
+}
+
+function reviewEscalationReasonCode(report: ReviewEscalationReport): string {
+  if (!report.required) return 'review_assurance_escalation_not_required';
+  if (report.ok) return 'review_assurance_escalation_satisfied';
+  if (!report.materialHash) return 'review_assurance_material_hash_unavailable';
+  if (report.trigger.explicitHighRiskPolicy.validPolicy?.degradedFallbackAllowed === false) {
+    return 'review_assurance_escalation_3x2_only_missing';
+  }
+  return 'review_assurance_escalation_3x2_or_fallback_missing';
+}
+
+function reviewEscalationFallbackStatus(report: ReviewEscalationReport): ReviewAssuranceGuidance['fallback'] {
+  if (!report.required) {
+    return {
+      status: 'not-applicable',
+      eligible: false,
+      reasonCode: 'fallback_not_applicable_review_escalation_not_required',
+      reason: 'Review escalation is not required.',
+      eligibilityValues: REVIEW_ESCALATION_FALLBACK_ELIGIBILITIES,
+    };
+  }
+  if (report.trigger.explicitHighRiskPolicy.validPolicy?.degradedFallbackAllowed === false) {
+    return {
+      status: 'not-eligible',
+      eligible: false,
+      reasonCode: 'fallback_disallowed_by_explicit_high_risk_policy',
+      reason: 'The explicit high-risk policy requires full 3x2 review assurance and disallows degraded fallback.',
+      eligibilityValues: REVIEW_ESCALATION_FALLBACK_ELIGIBILITIES,
+    };
+  }
+  if (report.degradedFallback.ok) {
+    return {
+      status: 'satisfied',
+      eligible: true,
+      reasonCode: 'fallback_satisfied',
+      reason: 'A valid degraded-single-host fallback is already recorded for current material.',
+      eligibilityValues: REVIEW_ESCALATION_FALLBACK_ELIGIBILITIES,
+    };
+  }
+  return {
+    status: 'eligible',
+    eligible: true,
+    reasonCode: 'fallback_eligible_review_escalation',
+    reason: 'A degraded-single-host fallback may be recorded only through review_escalation_fallback_set when a listed eligibility applies.',
+    eligibilityValues: REVIEW_ESCALATION_FALLBACK_ELIGIBILITIES,
+  };
+}
+
+export function buildReviewEscalationGuidance(report: ReviewEscalationReport, storyId?: string): ReviewAssuranceGuidance {
+  return buildReviewAssuranceGuidance({
+    source: 'review-escalation',
+    storyId,
+    required: report.required,
+    ok: report.ok,
+    reasonCode: reviewEscalationReasonCode(report),
+    reason: report.reasons[0] || (report.required ? 'Review escalation assurance is required by the canonical status.' : 'Review escalation assurance is not required.'),
+    requiredAssurance: report.required ? 'three-round-two-hosts-or-degraded-single-host' : 'none',
+    assuranceLevel: report.assuranceLevel,
+    materialHash: report.materialHash,
+    storyFilesHash: report.storyFilesHash,
+    fallback: reviewEscalationFallbackStatus(report),
+    requireFullQuorumPath: report.required,
+    requireSingleHostPath: report.required,
+  });
+}
+
+function commandNames(commands: ReviewAssuranceCommandRecipe[]): string {
+  const names = commands
+    .map((recipe) => recipe.command.split(/\s+/)[1] || recipe.command)
+    .filter(Boolean);
+  return names.length > 0 ? [...new Set(names)].join(',') : 'none';
+}
+
+export function renderReviewAssuranceGuidanceSummary(guidance: ReviewAssuranceGuidance): string {
+  return [
+    `reasonCode=${guidance.reasonCode}`,
+    `materialHash=${guidance.currentBinding.materialHash ?? '<missing>'}`,
+    `storyFilesHash=${guidance.currentBinding.storyFilesHash ?? '<missing>'}`,
+    `fallback=${guidance.fallback.status}/${guidance.fallback.reasonCode}`,
+    `ownerRunnable=${commandNames(guidance.legalWriterPaths.ownerRunnable)}`,
+    `reviewerHostWriters=${commandNames(guidance.legalWriterPaths.reviewerHost)}`,
+    `humanApprovedFallbackWriters=${commandNames(guidance.legalWriterPaths.humanApprovedFallback)}`,
+    'cannotAutoSign=owner-main-session',
+  ].join('; ');
+}
+
+export function renderReviewAssuranceGuidance(guidance: ReviewAssuranceGuidance, indent = ''): string {
+  const lines = [
+    `${indent}Review assurance guidance (${guidance.source}):`,
+    `${indent}  reasonCode: ${guidance.reasonCode}`,
+    `${indent}  required: ${guidance.required}`,
+    `${indent}  ok: ${guidance.ok}`,
+    `${indent}  requiredAssurance: ${guidance.requiredAssurance}`,
+    `${indent}  assuranceLevel: ${guidance.assuranceLevel}`,
+    `${indent}  currentBinding: storyId=${guidance.storyId ?? '<storyId>'} materialHash=${guidance.currentBinding.materialHash ?? '<missing>'} storyFilesHash=${guidance.currentBinding.storyFilesHash ?? '<missing>'}`,
+    `${indent}  fallbackEligibility: ${guidance.fallback.status} reasonCode=${guidance.fallback.reasonCode}`,
+    `${indent}  fallbackReason: ${guidance.fallback.reason}`,
+    `${indent}  legalWriterPaths:`,
+    `${indent}    ownerRunnable:`,
+  ];
+  for (const recipe of guidance.legalWriterPaths.ownerRunnable) {
+    lines.push(`${indent}      - ${recipe.command} # ${recipe.purpose}`);
+  }
+  lines.push(`${indent}    reviewerHost:`);
+  if (guidance.legalWriterPaths.reviewerHost.length === 0) {
+    lines.push(`${indent}      - none`);
+  } else {
+    for (const recipe of guidance.legalWriterPaths.reviewerHost) {
+      lines.push(`${indent}      - ${recipe.command} # ${recipe.purpose}`);
+    }
+  }
+  lines.push(`${indent}    humanApprovedFallback:`);
+  if (guidance.legalWriterPaths.humanApprovedFallback.length === 0) {
+    lines.push(`${indent}      - none`);
+  } else {
+    for (const recipe of guidance.legalWriterPaths.humanApprovedFallback) {
+      lines.push(`${indent}      - ${recipe.command} # ${recipe.purpose}`);
+    }
+  }
+  lines.push(`${indent}  cannotAutoSign: ${guidance.cannotAutoSignWarning}`);
+  return lines.join('\n');
 }
 
 function normalizeString(value: unknown): string {
@@ -734,6 +1054,63 @@ function formatIgnoredVerdictSummary(verdict: IgnoredHostVerdict): string {
   return `${id}${run}${material}`;
 }
 
+function reviewAssuranceFloorReasonCode(report: ReviewAssuranceFloorReport): string {
+  if (!report.required) return 'review_assurance_floor_not_required';
+  if (report.ok) return 'review_assurance_floor_satisfied';
+  if (!report.materialHash) return 'review_assurance_material_hash_unavailable';
+  if (report.requiredAssurance === 'one-local-round') return 'review_assurance_floor_one_local_round_missing';
+  if (report.requiredAssurance === 'three-local-rounds') return 'review_assurance_floor_failure_3x1_missing';
+  return 'review_assurance_floor_high_risk_3x2_or_fallback_missing';
+}
+
+function reviewAssuranceFloorFallbackStatus(report: ReviewAssuranceFloorReport): ReviewAssuranceGuidance['fallback'] {
+  const eligibilityValues = REVIEW_ESCALATION_FALLBACK_ELIGIBILITIES;
+  if (report.requiredAssurance !== 'three-round-two-hosts-or-degraded-single-host') {
+    return {
+      status: 'not-applicable',
+      eligible: false,
+      reasonCode: 'fallback_not_applicable_floor_does_not_require_high_risk_path',
+      reason: 'The current floor can be satisfied by the ordinary local review path and does not use degraded fallback evidence.',
+      eligibilityValues,
+    };
+  }
+  if (report.degradedFallback.ok) {
+    return {
+      status: 'satisfied',
+      eligible: true,
+      reasonCode: 'fallback_satisfied',
+      reason: 'A valid degraded-single-host fallback is already recorded for current material.',
+      eligibilityValues,
+    };
+  }
+  return {
+    status: 'eligible',
+    eligible: true,
+    reasonCode: 'fallback_eligible_high_risk_review_assurance_floor',
+    reason: 'High-risk review assurance may use explicit degraded-single-host fallback only through review_escalation_fallback_set when a listed eligibility applies.',
+    eligibilityValues,
+  };
+}
+
+export function buildReviewAssuranceFloorGuidance(report: ReviewAssuranceFloorReport): ReviewAssuranceGuidance {
+  const highRiskPath = report.requiredAssurance === 'three-round-two-hosts-or-degraded-single-host';
+  return buildReviewAssuranceGuidance({
+    source: 'review-assurance-floor',
+    storyId: report.storyId,
+    required: report.required,
+    ok: report.ok,
+    reasonCode: reviewAssuranceFloorReasonCode(report),
+    reason: report.reasons[0] || (report.required ? 'Review assurance floor is required by the canonical DONE status.' : 'Review assurance floor is not required.'),
+    requiredAssurance: report.requiredAssurance,
+    assuranceLevel: report.assuranceLevel,
+    materialHash: report.materialHash,
+    storyFilesHash: report.storyFilesHash ?? null,
+    fallback: reviewAssuranceFloorFallbackStatus(report),
+    requireFullQuorumPath: highRiskPath,
+    requireSingleHostPath: report.required,
+  });
+}
+
 export function formatReviewAssuranceFloorFailure(report: ReviewAssuranceFloorReport): string {
   if (report.ok) return '';
   const storyRef = report.storyId ?? '<storyId>';
@@ -793,6 +1170,7 @@ export function formatReviewAssuranceFloorFailure(report: ReviewAssuranceFloorRe
   for (const reason of report.reasons) {
     lines.push(`  - ${reason}`);
   }
+  lines.push('', renderReviewAssuranceGuidance(buildReviewAssuranceFloorGuidance(report)));
   lines.push(
     'Stale material recovery:',
     `  1. Re-run validation: lattice validate --story=${storyRef} --json`,

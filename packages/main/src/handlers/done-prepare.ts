@@ -25,6 +25,16 @@ import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { renderMemoryFreshnessPackSummary } from '../core/playbook-runtime-memory.js';
 import { surfaceRuntimeMemoryPack } from '../core/experience-pack-surface.js';
 import type { MemoryFreshnessPack } from '../core/playbook-runtime-memory.js';
+import {
+  evaluateReviewEscalation,
+} from '../core/review-escalation.js';
+import {
+  buildReviewEscalationGuidance,
+  buildReviewAssuranceFloorGuidance,
+  evaluateReviewAssuranceFloor,
+  renderReviewAssuranceGuidance,
+  type ReviewAssuranceGuidance,
+} from '../core/review-assurance-floor.js';
 
 type StepStatus = 'pending' | 'skipped' | 'pass' | 'blocked';
 type StepId =
@@ -59,6 +69,7 @@ interface DonePrepareBlocked {
   reason: string;
   next: string;
   currentBinding?: DonePrepareCurrentBinding;
+  reviewAssurancePlan?: DonePrepareReviewAssurancePlan;
   memoryFreshnessPack?: MemoryFreshnessPack;
   files?: string[];
   commits?: string[];
@@ -70,6 +81,20 @@ interface DonePrepareCurrentBinding {
   currentHead?: string;
   currentMaterialHash?: string;
   currentStoryFilesHash?: string;
+}
+
+interface DonePrepareReviewAssurancePlan {
+  requiredGates: Array<{
+    source: ReviewAssuranceGuidance['source'];
+    reasonCode: string;
+    requiredAssurance: string;
+    fallbackStatus: ReviewAssuranceGuidance['fallback']['status'];
+  }>;
+  ownerRunnableCommands: string[];
+  reviewerHostWriterPaths: string[];
+  humanApprovedFallbackWriterPaths: string[];
+  warnings: string[];
+  renderedGuidance: string[];
 }
 
 interface StaleEvidencePlan {
@@ -395,6 +420,32 @@ function block(args: DonePrepareBlocked): string {
     lines.push(`  currentHead: ${args.currentBinding.currentHead || '(unavailable)'}`);
     lines.push(`  currentMaterialHash: ${args.currentBinding.currentMaterialHash || '(unavailable)'}`);
     lines.push(`  currentStoryFilesHash: ${args.currentBinding.currentStoryFilesHash || '(unavailable)'}`);
+  }
+  if (args.reviewAssurancePlan) {
+    lines.push('Review assurance blocker classification:');
+    for (const gate of args.reviewAssurancePlan.requiredGates) {
+      lines.push(`  - ${gate.source}: reasonCode=${gate.reasonCode}; requiredAssurance=${gate.requiredAssurance}; fallback=${gate.fallbackStatus}`);
+    }
+    lines.push('owner-runnable commands:');
+    for (const command of args.reviewAssurancePlan.ownerRunnableCommands) lines.push(`  - ${command}`);
+    lines.push('reviewer/host writer paths (do not run from owner/main session):');
+    if (args.reviewAssurancePlan.reviewerHostWriterPaths.length === 0) {
+      lines.push('  - none');
+    } else {
+      for (const command of args.reviewAssurancePlan.reviewerHostWriterPaths) lines.push(`  - ${command}`);
+    }
+    lines.push('human-approved fallback writer paths (only when eligible):');
+    if (args.reviewAssurancePlan.humanApprovedFallbackWriterPaths.length === 0) {
+      lines.push('  - none');
+    } else {
+      for (const command of args.reviewAssurancePlan.humanApprovedFallbackWriterPaths) lines.push(`  - ${command}`);
+    }
+    lines.push('cannot-auto-sign warnings:');
+    for (const warning of args.reviewAssurancePlan.warnings) lines.push(`  - ${warning}`);
+    lines.push('canonical guidance:');
+    for (const rendered of args.reviewAssurancePlan.renderedGuidance) {
+      lines.push(...rendered.split('\n').map((line) => `  ${line}`));
+    }
   }
   if (args.commands && args.commands.length > 0) {
     lines.push('commands:');
@@ -815,9 +866,68 @@ function hasReviewAssuranceBlocker(runbook: DoneClosureRunbook): boolean {
   return blockingRows(runbook).some((row) => row.id === 'review-assurance-floor' || row.id === 'review-escalation');
 }
 
-function nextForDoneClosureBlock(storyId: string, runbook: DoneClosureRunbook): string {
+function uniqueStrings(values: string[]): string[] {
+  return [...new Set(values.filter(Boolean))];
+}
+
+function buildDonePrepareReviewAssurancePlan(
+  ctx: HandlerContext,
+  storyId: string,
+  gitCwd: string,
+  currentBinding: DonePrepareCurrentBinding,
+): DonePrepareReviewAssurancePlan {
+  const materialHash = currentBinding.currentMaterialHash;
+  const storyFilesHash = currentBinding.currentStoryFilesHash;
+  const escalation = evaluateReviewEscalation({
+    projectRoot: ctx.root,
+    gitCwd,
+    storyId,
+    store: ctx.store,
+    ...(materialHash ? { materialHash } : {}),
+    ...(storyFilesHash ? { storyFilesHash } : {}),
+  });
+  const floor = evaluateReviewAssuranceFloor({
+    projectRoot: ctx.root,
+    gitCwd,
+    storyId,
+    store: ctx.store,
+    ...(materialHash ? { materialHash } : {}),
+    ...(storyFilesHash ? { storyFilesHash } : {}),
+  });
+  const guidances = [
+    buildReviewEscalationGuidance(escalation, storyId),
+    buildReviewAssuranceFloorGuidance(floor),
+  ].filter((guidance) => guidance.required && !guidance.ok);
+  const ownerRunnableCommands = uniqueStrings(guidances.flatMap((guidance) =>
+    guidance.legalWriterPaths.ownerRunnable.map((recipe) => recipe.command),
+  ));
+  return {
+    requiredGates: guidances.map((guidance) => ({
+      source: guidance.source,
+      reasonCode: guidance.reasonCode,
+      requiredAssurance: guidance.requiredAssurance,
+      fallbackStatus: guidance.fallback.status,
+    })),
+    ownerRunnableCommands,
+    reviewerHostWriterPaths: uniqueStrings(guidances.flatMap((guidance) =>
+      guidance.legalWriterPaths.reviewerHost.map((recipe) => recipe.command),
+    )),
+    humanApprovedFallbackWriterPaths: uniqueStrings(guidances.flatMap((guidance) =>
+      guidance.legalWriterPaths.humanApprovedFallback.map((recipe) => recipe.command),
+    )),
+    warnings: uniqueStrings(guidances.map((guidance) => guidance.cannotAutoSignWarning)),
+    renderedGuidance: guidances.map((guidance) => renderReviewAssuranceGuidance(guidance)),
+  };
+}
+
+function nextForDoneClosureBlock(
+  storyId: string,
+  runbook: DoneClosureRunbook,
+  reviewAssurancePlan?: DonePrepareReviewAssurancePlan,
+): string {
   if (hasReviewAssuranceBlocker(runbook)) {
-    return `inspect review status, submit current-material review/quorum evidence, then rerun lattice done_prepare '{"storyId":"${storyId}"}'`;
+    return reviewAssurancePlan?.ownerRunnableCommands[0]
+      || `inspect review status, submit current-material review/quorum evidence through legal reviewer/host paths, then rerun lattice done_prepare '{"storyId":"${storyId}"}'`;
   }
   const row = blockingRows(runbook).find((candidate) => candidate.nextCommand);
   return row?.nextCommand || `lattice done_closure '{"storyId":"${storyId}"}'`;
@@ -826,15 +936,15 @@ function nextForDoneClosureBlock(storyId: string, runbook: DoneClosureRunbook): 
 function commandsForDoneClosureBlock(
   storyId: string,
   runbook: DoneClosureRunbook,
-  currentBinding?: DonePrepareCurrentBinding,
+  reviewAssurancePlan?: DonePrepareReviewAssurancePlan,
 ): string[] {
   if (hasReviewAssuranceBlocker(runbook)) {
-    const currentMaterialHashValue = currentBinding?.currentMaterialHash || '<current-materialHash>';
-    const currentStoryFilesHashValue = currentBinding?.currentStoryFilesHash || '<current-storyFilesHash>';
+    if (reviewAssurancePlan) return reviewAssurancePlan.ownerRunnableCommands;
     return [
       `lattice review_escalation_status '{"storyId":"${storyId}"}'`,
-      `lattice quorum_submit '{"storyId":"${storyId}","hostA":"<independent-host-a>","hostB":"<independent-host-b>"}'`,
-      `lattice autopilot_review_submit --storyId=${storyId} --runId=<round-id> --hostId=<host> --sessionId=<session> --keyId=<key> --decision=pass --materialDigest=${currentMaterialHashValue} --storyFilesHash=${currentStoryFilesHashValue} --validationDigest=<fresh-validation-digest> --promptDigest=<current-prompt-digest>`,
+      `lattice autopilot_review_status --storyId=${storyId}`,
+      `lattice validate --story=${storyId} --json`,
+      `lattice verification_evidence_refresh_stale --storyId=${storyId} --dryRun`,
       `lattice done_prepare '{"storyId":"${storyId}"}'`,
     ];
   }
@@ -1373,14 +1483,19 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
   let nonCleanBlockers: ReturnType<typeof blockingRows>;
   let reviewAssuranceBlocked = false;
   let reviewAssuranceCurrentBinding: DonePrepareCurrentBinding | undefined;
+  let reviewAssurancePlan: DonePrepareReviewAssurancePlan | undefined;
   try {
-    ({ nonCleanBlockers, reviewAssuranceBlocked, currentBinding: reviewAssuranceCurrentBinding } = await runCloseoutPhase(ctx, CLOSEOUT_PHASES.reviewAssurance, () => {
+    ({ nonCleanBlockers, reviewAssuranceBlocked, currentBinding: reviewAssuranceCurrentBinding, reviewAssurancePlan } = await runCloseoutPhase(ctx, CLOSEOUT_PHASES.reviewAssurance, () => {
       const allBlockers = blockingRows(runbook);
       const assuranceBlocked = hasReviewAssuranceBlocker(runbook);
+      const currentBinding = assuranceBlocked ? currentDoneMaterialBinding(ctx, gitCwd) : undefined;
       return {
         nonCleanBlockers: allBlockers.filter((row) => row.id !== 'git-working-tree'),
         reviewAssuranceBlocked: assuranceBlocked,
-        currentBinding: assuranceBlocked ? currentDoneMaterialBinding(ctx, gitCwd) : undefined,
+        currentBinding,
+        reviewAssurancePlan: currentBinding
+          ? buildDonePrepareReviewAssurancePlan(ctx, storyId, gitCwd, currentBinding)
+          : undefined,
       };
     }));
   } catch (err) {
@@ -1396,9 +1511,10 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
       blockedAt: 'doneClosure',
       reason,
       currentBinding,
+      reviewAssurancePlan,
       ...(packSurface.shouldRender ? { memoryFreshnessPack: runbook.memoryFreshnessPack } : {}),
-      next: nextForDoneClosureBlock(storyId, runbook),
-      commands: commandsForDoneClosureBlock(storyId, runbook, currentBinding),
+      next: nextForDoneClosureBlock(storyId, runbook, reviewAssurancePlan),
+      commands: commandsForDoneClosureBlock(storyId, runbook, reviewAssurancePlan),
       steps,
     });
   }

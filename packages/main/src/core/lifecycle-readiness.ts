@@ -584,6 +584,11 @@ function doneRowNextCommand(storyId: string, row: DoneCheckRow): string | undefi
       return row.blocking
         ? `lattice delivery_check_set --storyId=${storyId} --agentId=lattice-review-delivery ...`
         : undefined;
+    case 'review-escalation':
+    case 'review-assurance-floor':
+      return row.blocking
+        ? `lattice review_escalation_status '{"storyId":"${storyId}"}'`
+        : undefined;
     case 'eval-evidence':
     case 'codex-adapter-evidence':
       return row.blocking ? row.hint : undefined;
