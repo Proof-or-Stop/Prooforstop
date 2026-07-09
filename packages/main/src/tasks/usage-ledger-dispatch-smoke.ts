@@ -83,7 +83,7 @@ function opts(env: NodeJS.ProcessEnv) {
   return {
     recordedAt: '2026-06-16T00:00:00.000Z',
     projectRootHash: 'sha256:deadbeef',
-    command: 'claude --print --verbose --output-format stream-json --no-session-persistence --permission-mode bypassPermissions --max-budget-usd 0.25 <prompt>',
+    command: 'claude --print --verbose --output-format=stream-json <prompt-file>',
     host: { kind: 'claude-code' },
     env,
   };
@@ -92,14 +92,8 @@ function opts(env: NodeJS.ProcessEnv) {
 const EXPECTED_CLAUDE_SPAWN_ARGS = [
   '--print',
   '--verbose',
-  '--output-format',
-  'stream-json',
-  '--no-session-persistence',
-  '--permission-mode',
-  'bypassPermissions',
-  '--max-budget-usd',
-  '0.25',
-  '<prompt>',
+  '--output-format=stream-json',
+  '<prompt-file>',
 ] as const;
 
 /** Read the ledger lines under a fresh sub-root, verifying the chain. */
@@ -460,12 +454,12 @@ async function main(): Promise<void> {
   // CHK-004: regression safety (canonical observable arg shape + parse fallback)
   // ======================================================================
   await check('CHK-004 OFF: buildClaudeSpawnArgs(prompt,false) preserves canonical observable/bounded launcher', () => {
-    const args = buildClaudeSpawnArgs('<prompt>', false);
+    const args = buildClaudeSpawnArgs('<prompt-file>', false);
     assert.deepEqual(args, [...EXPECTED_CLAUDE_SPAWN_ARGS]);
   });
 
   await check('CHK-004 ON: buildClaudeSpawnArgs(prompt,true) uses same canonical observable/bounded launcher', () => {
-    const args = buildClaudeSpawnArgs('<prompt>', true);
+    const args = buildClaudeSpawnArgs('<prompt-file>', true);
     assert.deepEqual(args, [...EXPECTED_CLAUDE_SPAWN_ARGS]);
   });
 
