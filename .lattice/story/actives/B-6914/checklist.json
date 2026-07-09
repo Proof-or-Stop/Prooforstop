@@ -222,7 +222,20 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "User sees \"Proofbound CLI 0.3.171\" from the local CLI version check, package metadata/lockfile/brand checks all print \"0.3.171\", and there is no \"git push\", \"npm publish\", or release output."
+      "userSees": "User sees \"Proofbound CLI 0.3.171\" from the local CLI version check, package metadata/lockfile/brand checks all print \"0.3.171\", and there is no \"git push\", \"npm publish\", or release output.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "waiver",
+          "verdict": "waived",
+          "waiverType": "deferred_gate_evidence",
+          "note": "Deferred until TEST→DONE because the local package version boundary is produced by the DONE post-merge finalizer. Pre-bumping inside the story branch would double-bump when the finalizer runs.",
+          "headHash": "8866671a03e11fb40ee7a5d5520cf1337f95b1bd",
+          "materialHash": "78f163531375673608a116cf0767d19ce982e36251f83a958b20367de0775603",
+          "storyFilesHash": "0a3f376f506c8da800e90f3d1d514e193effb8162f4dff3c6fcc7bb7d1c8c4aa",
+          "timestamp": "2026-07-09T01:15:40.224Z"
+        }
+      ]
     }
   ],
   "auditLog": [
