@@ -35,6 +35,15 @@
       "reviewRound": "2026-07-09T17:28:18.626Z",
       "reviewRunId": "B-cee5:RR-008",
       "_hash": "25cdbaec9b4b973bc9964ba27b6a3c1883a94d0aac53d479030db2aebb05b220"
+    },
+    {
+      "id": "B-cee5:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "F-004 verified fixed: CHK-002:adversarial:0 corrected command (rg -n -e \"advisory only\" -e \"gateEvidence=false\" -e \"NEVER satisfy\" packages/main/templates/agents/lattice-review-scope-plan.md packages/main/templates/agents/lattice-review-behavior.md) replayed exit 0 with real matches at scope-plan:122 and behavior:128 (advisory only / gateEvidence=false / NEVER satisfy all present verbatim). F-003 guard hardening spot-replayed: node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js PASS (6 prompt copies clean, 4 required phrases present) after fresh tsc rebuild; source diff confirms lineIsEscalationPath now requires escalationConditioningPattern plus a hostile positive control (ignore scanEscalationReason) that correctly fails. F-001 (CLAUDE.md) and F-002 (aux_doc_list parity) fixes also confirmed live in committed content. Re-audited full checklist_get: all 7 items (CHK-001..CHK-007) have happy/edge/adversarial columns with concrete, re-runnable evidence bound; no fail results; no vague broad-descriptions. Evidence headHash values trail current HEAD only by lattice own metadata-recording commits (.lattice/story/actives/B-cee5/*) plus the already-applied fix commit -- diff-verified zero additional prompt/code drift, i.e. story-owned drift, not dishonest evidence. Test coverage review passed.",
+      "createdAt": "2026-07-09T17:33:13.196Z",
+      "reviewRound": "2026-07-09T17:28:18.626Z",
+      "reviewRunId": "B-cee5:RR-009",
+      "_hash": "5c798e6eb9daa4dcca092dd7e0e3229ae52d6b124133c7a46b68393a15bb57c7"
     }
   ]
 }
