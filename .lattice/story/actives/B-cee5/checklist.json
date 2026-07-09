@@ -109,7 +109,20 @@
             "type": "docs"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js agent_prompt --role=lattice-review-scope-plan | rg -n \"Bounded memory/playbook preflight\"; node bin/lattice.js agent_prompt --role=lattice-review-behavior | rg -n \"Bounded memory/playbook preflight first\"",
+          "result": "pass",
+          "note": "Rendered prompts for both roles open the search-strategy path with the bounded memory/playbook preflight step, ordered before any decisions read (scope-plan search budget contract step 1; behavior spec-boundary step first bullet).",
+          "headHash": "6e4b5943c33b60a4a38017eb09bcbf122cf0c4a6",
+          "materialHash": "2129600913e88693d4e5986538beca1b15432d378b1fb18b9b126d64d6e96cdb",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-09T17:16:24.334Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
