@@ -1091,7 +1091,7 @@ function dispatchPrompt(
       ...(continuity.previousObjective ? [`- Previous objective: ${continuity.previousObjective}`] : []),
       `- Previous next action: ${continuity.previousNextAction}`,
       '- Use this summary-only continuity block plus the new handoff pack; no full-history fork is required.',
-      '- This prompt does not inherit conversation history, verify receipts, claim release readiness, mark production DONE, or change authority.',
+      '- This prompt does not inherit conversation history, verify receipts, claim release readiness, mark release completion, or change authority.',
     );
   }
   return lines.join('\n') + '\n';
