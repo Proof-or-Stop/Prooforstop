@@ -140,6 +140,53 @@
         "bindingHash": "26ccb79db38034c2fc2c40b0e1c8a02572152c9b409c5e9391d985f42a12a0c5"
       },
       "_hash": "57d383f3714f20fbf7c033f1c6d60a0d68a58d07e02d906a7268d2656085ddb7"
+    },
+    {
+      "reviewRunId": "B-783c:RR-004",
+      "storyId": "B-783c",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-07-09T00:02:08.322Z",
+      "startedAt": "2026-07-09T00:06:23.260Z",
+      "headHash": "7de44949a25a23cdf93781267a3e10826e15f3eb",
+      "materialHash": "e03b3abb8f68c388d50ec7b97da6090ba5eb88bb58108ac01ce0fdba009dda98",
+      "storyFilesHash": "abbf067ddfc433b9db9b44a5e9cbcbd449c2021cf8b0964b69849c2ab970c065",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "f48140e280b78f66925f1ed2b0238e89edaa9b7e16e084fb1d05a4809143d7ab",
+        "diffPackHash": "6fe8491b84bb745ba2baea5d79d140938e8d90664b00570d3ba581e087b02d84",
+        "reviewedChangedFiles": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/tasks/thin-init-assets-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "0d34dcc50288515b037e7e00920af8a67c3f46c7c420842fef4dfd9bc2838a10",
+          "18947e0b1ca48e4148c3978cac8690cf78890a36960fc9d1bcfabe10511777fe",
+          "192dfc6760762be259abb77a5bd626522f8a8678f7c164f5916f24808ecb6b62",
+          "480c157e2b481ee32c9e3461c5d43b66f813305811b288f99aa1ed10558783cd",
+          "4f6aeceb0d8e1082a6c9a1fceeb12e2afe05d5ebd14da3cefa9fb9f08f06d0e9",
+          "6ce4a38a91c52b8610f040f49b948d976c05a7d96d0b6f50d7964e3498c5e6cb",
+          "9a2853ae00d00f15428fce7bd4155e735666c4c1f0a9097ad78dc1de4732facf",
+          "c0fa81e48f21aa1e3a67cb241e864550c44bf5676df267aaddf57dbb00b9c9c9"
+        ],
+        "bindingHash": "fe1bd60f6893276f7b0886ae3a98307e0d9be45ba0217c8ec4caf095f3947e73"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-783c",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-783c",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-783c",
+        "workspaceMode": "story-worktree",
+        "headHash": "7de44949a25a23cdf93781267a3e10826e15f3eb",
+        "materialHash": "e03b3abb8f68c388d50ec7b97da6090ba5eb88bb58108ac01ce0fdba009dda98",
+        "storyFilesHash": "abbf067ddfc433b9db9b44a5e9cbcbd449c2021cf8b0964b69849c2ab970c065",
+        "bindingHash": "7870b17ba9039299a4d4093b7950c86e800aee6d93c7ffc67939a99c3675fdb9"
+      },
+      "_hash": "ce1733e26cba378b95ac0ad2e1776a1cb22be8a7b8bd3cf983315a9058a3989a"
     }
   ]
 }
