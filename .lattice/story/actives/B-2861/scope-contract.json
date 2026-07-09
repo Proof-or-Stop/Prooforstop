@@ -1,0 +1,25 @@
+{
+  "storyId": "B-2861",
+  "mode": "enforce",
+  "allowedModify": [],
+  "allowedCreate": [
+    "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+  ],
+  "allowedTest": [],
+  "protectedFiles": [
+    "packages/main/src/**",
+    "packages/main/tests/**",
+    "docs/CLI.md",
+    "AGENTS.md",
+    "CLAUDE.md"
+  ],
+  "explicitExcludes": [
+    "docs/story/**",
+    "tests/fixtures/**",
+    ".omx/**"
+  ],
+  "scopeChangeReason": "B-2861 is a document-review story. Only the target Proof-or-Stop execution-plan markdown may be created/modified; code and CLI docs are read-only evidence sources.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-09T15:29:22.360Z",
+  "updatedAt": "2026-07-09T15:29:22.360Z"
+}
