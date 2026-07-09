@@ -18,6 +18,25 @@
       ],
       "signatureTag": "missing|ts|happy-usersees-require",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-99d4:F-002",
+      "desc": "dispatch_reassign is intended for accepted/completed worker dispatches, but reassignDispatch reads the previous record and immediately prepares a follow-up without checking resolveEffectiveStatus(previous) or local receipt acceptance. The text renderer then reports `Worker reassignment ready` without surfacing previous status, and dispatch-run-smoke explicitly proves reassignment from an unrun prepared dispatch with no receipt succeeds (unconstrainedPrepared at dispatch-run-smoke.ts:816-822). This can turn an incomplete/failed/diagnostic dispatch into a fresh ready worker assignment, misleading operators and violating CHK-001 completed-worker semantics. Require previous status/receipt acceptance or downgrade the output with an explicit non-completed warning and matching tests.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-09T03:06:33.884Z",
+      "reviewRound": "2026-07-09T03:02:35.460Z",
+      "reviewRunId": "B-99d4:RR-003",
+      "_hash": "b0986e2253dc668ba526aa8e53be9cc19faa74ebeac81aa21b8dfbdc7b34bd74",
+      "files": [
+        "packages/main/src/core/lattice-dispatch.ts",
+        "packages/main/src/tasks/dispatch-run-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|dispatch-reassign-intended",
+      "signatureTagSource": "auto"
     }
   ]
 }
