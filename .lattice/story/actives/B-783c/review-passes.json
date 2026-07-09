@@ -35,6 +35,15 @@
       "reviewRound": "2026-07-09T00:40:21.448Z",
       "reviewRunId": "B-783c:RR-007",
       "_hash": "9c1d37f0816ce86483015a49e764dcd2babd6317d90956b4de96c969e08c7c1c"
+    },
+    {
+      "id": "B-783c:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Concept pass: canonical config behavior remains bound to lattice.config.json via loadConfig, pickProjectConfigPath, and findProjectRootByMarker. The global-thin .lattice/lattice.json check is shared only for runtime-managed global-thin recognition and activity-log eligibility/Codex adapter manifest behavior, not canonical config loading. Verified npm --prefix packages/main run build and node packages/main/dist/tasks/thin-init-assets-smoke.js.",
+      "createdAt": "2026-07-09T00:42:24.089Z",
+      "reviewRound": "2026-07-09T00:40:21.448Z",
+      "reviewRunId": "B-783c:RR-008",
+      "_hash": "49cba00ca2b468304e45d64d0d9d863a235c754f221f17c87b4477f6405599bd"
     }
   ]
 }
