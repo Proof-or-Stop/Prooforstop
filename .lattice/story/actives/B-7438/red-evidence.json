@@ -18,8 +18,25 @@
       },
       "note": "Red evidence is receipt-based because the failure was exposed by the B-99d4 closeout transcript plus immediate host CLI probes rather than a standalone pre-existing smoke command.",
       "createdAt": "2026-07-09T11:18:26.884Z"
+    },
+    {
+      "id": "RED-20260709111924",
+      "trigger": "B-99d4 degraded fallback was accepted without proving host scarcity even though codex, claude, and agy were executable on 2026-07-09.",
+      "acceptanceTargetRef": "AB-001",
+      "baselineHeadHash": "01834eaaddfb193968c1bc8fe0d7e18c02e07e1d",
+      "baselineMaterialHash": "b63c7e7bc9a8362f0825d2757c5e616c059f124e7e1c3d80e71111845c8b2026",
+      "observedFailure": "Pre-fix, review_escalation_fallback_set and DONE evaluators could accept eligibility=single-host-environment from operator prose/evidenceRefs without a fresh canonical host availability probe, allowing a false lower-assurance path when multiple host CLIs existed.",
+      "failureReceiptHash": "1ba0d0e06474d9b091d9435116b3133ad3a3239736c02bc0b0bae466d3429416",
+      "expectedGreenCommand": "node packages/main/dist/tasks/review-escalation-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js",
+      "greenRelation": {
+        "targetRef": "AB-001",
+        "relation": "same_acceptance",
+        "command": "node packages/main/dist/tasks/review-escalation-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js"
+      },
+      "note": "Targets ProofStory acceptance binding AB-001 so DEV gate can verify red-to-green relation for the user-facing host-proof claim.",
+      "createdAt": "2026-07-09T11:19:24.072Z"
     }
   ],
   "createdAt": "2026-07-09T11:18:26.884Z",
-  "updatedAt": "2026-07-09T11:18:26.884Z"
+  "updatedAt": "2026-07-09T11:19:24.072Z"
 }
