@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-7438:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round: story B-7438 is purely additive (new review_host_availability_probe command + hostAvailabilityProbeId linkage on single-host-environment/temporary-host-unavailability fallback eligibility). Checked: (1) private fallbackRecordFromEvent in review-escalation.ts renamed to exported reviewEscalationFallbackRecordFromEvent with all in-file call sites updated (grep confirms zero residual references to the old bare name in that file); (2) review-assurance-floor.ts local fallbackRecordFromEvent is an intentional thin wrapper delegating to the shared function (old duplicated validation body fully removed, not orphaned); (3) removed now-unused imports REVIEW_ESCALATION_FALLBACK_ELIGIBILITIES/isReviewEscalationFallbackEligibility from review-assurance-floor.ts have zero remaining references in that file; (4) new command wiring (review_host_availability_probe) is consistently registered across command-catalog, alias-normalizer, command-policy, config phase tools, process-fact-levels, process-fact-registry, types.ts, and the handler; (5) no doc (CLAUDE.md/README) references the old renamed symbol. Concept residue check complete, no blocker.",
+      "createdAt": "2026-07-09T11:44:59.709Z",
+      "reviewRound": "2026-07-09T11:42:00.164Z",
+      "reviewRunId": "B-7438:RR-003",
+      "_hash": "ab35da3a4946dc8974550007e216d32dd014d7c3f75354e85b2d9488572f2fe5"
+    }
+  ]
+}
