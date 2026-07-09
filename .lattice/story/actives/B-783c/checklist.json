@@ -176,9 +176,9 @@
         "AGENTS.md#Codex adapter verification",
         "docs/CLI.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-09T00:01:07.641Z",
-      "endTime": null,
+      "endTime": "2026-07-09T00:01:17.717Z",
       "verificationIntent": {
         "happy": [
           {
@@ -209,7 +209,42 @@
         "test": [
           "packages/main/src/tasks/thin-init-assets-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "cd /Users/jek/Documents/Work/deepswe-pos-codex-gpt55-run/solver-visible && PATH=/tmp/lattice-b783c-bin.t9gEsv:$PATH lattice codex verify",
+          "result": "pass",
+          "note": "Using a temporary executable lattice wrapper pointed at the rebuilt B-783c worktree dist, solver-visible `lattice codex verify` exited 0 with `✓ Codex adapter checks passed (8/8 pass)`.",
+          "headHash": "7a2cedbb35e8bb60aaa0ad53615ac5deaa6563c7",
+          "materialHash": "e03b3abb8f68c388d50ec7b97da6090ba5eb88bb58108ac01ce0fdba009dda98",
+          "storyFilesHash": "abbf067ddfc433b9db9b44a5e9cbcbd449c2021cf8b0964b69849c2ab970c065",
+          "timestamp": "2026-07-09T00:01:18.018Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "command -v lattice && lattice codex verify",
+          "result": "pass",
+          "note": "Transcript showed `command -v lattice` resolved to `/tmp/lattice-b783c-bin.t9gEsv/lattice`, a wrapper delegating to /Users/jek/Documents/Work/proofbound/.worktrees/B-783c/packages/main/dist/cli.js, so the smoke used the fixed worktree build rather than the stale installed global binary.",
+          "headHash": "7a2cedbb35e8bb60aaa0ad53615ac5deaa6563c7",
+          "materialHash": "e03b3abb8f68c388d50ec7b97da6090ba5eb88bb58108ac01ce0fdba009dda98",
+          "storyFilesHash": "abbf067ddfc433b9db9b44a5e9cbcbd449c2021cf8b0964b69849c2ab970c065",
+          "timestamp": "2026-07-09T00:01:18.311Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "rg -n codex-check-global-1783555223544 .lattice/activity.jsonl",
+          "result": "pass",
+          "note": "Verify output did not contain the prior `no activity heartbeat for session` failure. The solver-visible activity log contains session codex-check-global-1783555223544 with source=codex, entrypoint=global-fallback, tool=session_brief, status=ok.",
+          "headHash": "7a2cedbb35e8bb60aaa0ad53615ac5deaa6563c7",
+          "materialHash": "e03b3abb8f68c388d50ec7b97da6090ba5eb88bb58108ac01ce0fdba009dda98",
+          "storyFilesHash": "abbf067ddfc433b9db9b44a5e9cbcbd449c2021cf8b0964b69849c2ab970c065",
+          "timestamp": "2026-07-09T00:01:18.608Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -257,6 +292,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Record solver-visible global-thin codex verify smoke evidence."
+    },
+    {
+      "timestamp": "2026-07-09T00:01:17.717Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Solver-visible codex verify smoke passed against the fixed worktree build and activity heartbeat row was observed."
     }
   ]
 }
