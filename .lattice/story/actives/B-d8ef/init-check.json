@@ -1,0 +1,47 @@
+{
+  "storyId": "B-d8ef",
+  "checkedAt": "2026-07-09T12:59:38.428Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "severity": "low",
+      "desc": "Checklist items lack userSees fields; each item should state the exact observable output (e.g. probe row text or gate diagnostic message) so DONE verification has a concrete target."
+    },
+    {
+      "severity": "low",
+      "desc": "Story type is bug but the work adds new probe fields/gate semantics (feature-shaped hardening); riskSignal auth is real (credential/readiness classification), so normal channel with PLAN decision + preMortem should be followed, not fast-tracked."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-07-09T12:59:36.067Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "No checklist item specifies userSees / concrete user-visible output text (e.g., the exact host-row rendering or gate diagnostic message showing launcher readiness and failureKind), so completion cannot be recognized from observable output alone."
+        },
+        {
+          "severity": "medium",
+          "desc": "Background/checklist lack an explicit end-state the operator can recognize as done, e.g., a sample probe output showing executionReady=false with failureKind and the corresponding gate explanation; without it users may wonder whether diagnostics are wired end-to-end or only stored as fields."
+        }
+      ]
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-07-09T12:59:38.428Z",
+      "issues": [
+        {
+          "severity": "low",
+          "desc": "Checklist items lack userSees fields; each item should state the exact observable output (e.g. probe row text or gate diagnostic message) so DONE verification has a concrete target."
+        },
+        {
+          "severity": "low",
+          "desc": "Story type is bug but the work adds new probe fields/gate semantics (feature-shaped hardening); riskSignal auth is real (credential/readiness classification), so normal channel with PLAN decision + preMortem should be followed, not fast-tracked."
+        }
+      ]
+    }
+  ],
+  "_hash": "a88c30c7759e843a79af586def8fa06a48b4e93f3717d9294c0eb0b7383bb661"
+}

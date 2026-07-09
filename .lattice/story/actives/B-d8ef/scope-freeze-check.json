@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-d8ef",
+  "checkedAt": "2026-07-09T12:58:44.426Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "f8eb5ed90c37b9b32aeb09ec26d5c8fa12dd87f620ce9e592dc7afdb9a72e2b3",
+  "executionBoundaryHash": "6724b9438fb23eca371b9b1d130d92296dcba9c725d88fa4b0fb60ed6a23a239",
+  "freshnessHash": "5a1342e0a3dd12aeca66e2e6f391427a060809a952b093ef936630f3f34c0b1c",
+  "effectiveExcludedKeywords": [
+    "Adding new production authority claims or release readiness semantics",
+    "Authority",
+    "Changing unrelated multi-model ablation docs or scripts already dirty in main",
+    "customerKeyRef",
+    "Layer4",
+    "Pushing to remote or release publishing",
+    "Reading or modifying ~/.codex/auth-profiles or ~/.claude/auth-profiles token contents",
+    "repair UX"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Adding new production authority claims or release readiness semantics",
+      "source": "scopeBoundary.excluded",
+      "text": "Adding new production authority claims or release readiness semantics",
+      "excluded": true
+    },
+    {
+      "keyword": "Authority",
+      "source": "scopeBoundary.excluded",
+      "text": "Adding new production authority claims or release readiness semantics",
+      "excluded": true
+    },
+    {
+      "keyword": "Changing unrelated multi-model ablation docs or scripts already dirty in main",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing unrelated multi-model ablation docs or scripts already dirty in main",
+      "excluded": true
+    },
+    {
+      "keyword": "Pushing to remote or release publishing",
+      "source": "scopeBoundary.excluded",
+      "text": "Pushing to remote or release publishing",
+      "excluded": true
+    },
+    {
+      "keyword": "Reading or modifying ~/.codex/auth-profiles or ~/.claude/auth-profiles token contents",
+      "source": "scopeBoundary.excluded",
+      "text": "Reading or modifying ~/.codex/auth-profiles or ~/.claude/auth-profiles token contents",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "8121b043ff21cf5648f88eb406fac75b1c3c20e9dfb4b4dbfec47875f088e1a4"
+}
