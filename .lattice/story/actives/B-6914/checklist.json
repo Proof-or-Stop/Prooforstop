@@ -245,6 +245,17 @@
           "materialHash": "78f163531375673608a116cf0767d19ce982e36251f83a958b20367de0775603",
           "storyFilesHash": "0a3f376f506c8da800e90f3d1d514e193effb8162f4dff3c6fcc7bb7d1c8c4aa",
           "timestamp": "2026-07-09T01:15:40.897Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "waiver",
+          "verdict": "waived",
+          "waiverType": "deferred_gate_evidence",
+          "note": "Deferred until after DONE finalizer has run, when package.json, package-lock.json, packages/main/package.json, packages/main/package-lock.json, source brand, dist brand, and lattice --version can be checked against the same new patch version.",
+          "headHash": "17fad7c3af91cb79c706019a509d4c83c73e7894",
+          "materialHash": "78f163531375673608a116cf0767d19ce982e36251f83a958b20367de0775603",
+          "storyFilesHash": "0a3f376f506c8da800e90f3d1d514e193effb8162f4dff3c6fcc7bb7d1c8c4aa",
+          "timestamp": "2026-07-09T01:15:41.541Z"
         }
       ]
     }
