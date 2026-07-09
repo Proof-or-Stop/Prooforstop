@@ -483,6 +483,59 @@ try {
     assert.match(report.reasons.join('\n'), /hostAvailabilityProbeId is required|no fresh review_host_availability_probe/);
   });
 
+  check('temporary host unavailability also requires fresh insufficient-host proof', () => {
+    const fresh = currentMaterialHash(root)!;
+    const storyFilesHash = currentStoryFilesHash(root)!;
+    const missingProbe = evaluateReviewEscalation({
+      projectRoot: root,
+      story: story(),
+      findings: [finding('032-temp-a'), finding('033-temp-a')],
+      processEvents: [
+        ...singleHostRounds(fresh),
+        fallback(fresh, {
+          eligibility: 'temporary-host-unavailability',
+          hostAvailabilityProbeId: '',
+        }),
+      ],
+    });
+    assert.equal(missingProbe.ok, false);
+    assert.match(missingProbe.reasons.join('\n'), /hostAvailabilityProbeId is required|no fresh review_host_availability_probe/);
+
+    const staleProbe = hostAvailabilityProbe('stale-material', ['codex'], { storyFilesHash });
+    const staleProbeReport = evaluateReviewEscalation({
+      projectRoot: root,
+      story: story(),
+      findings: [finding('032-temp-b'), finding('033-temp-b')],
+      processEvents: [
+        ...singleHostRounds(fresh),
+        staleProbe,
+        fallback(fresh, {
+          eligibility: 'temporary-host-unavailability',
+          hostAvailabilityProbeId: staleProbe.probeId,
+        }),
+      ],
+    });
+    assert.equal(staleProbeReport.ok, false);
+    assert.match(staleProbeReport.reasons.join('\n'), /not fresh\/valid: materialHash is stale|no fresh review_host_availability_probe/);
+
+    const twoHostProbe = hostAvailabilityProbe(fresh, ['codex', 'claude'], { storyFilesHash });
+    const twoHostReport = evaluateReviewEscalation({
+      projectRoot: root,
+      story: story(),
+      findings: [finding('032-temp-c'), finding('033-temp-c')],
+      processEvents: [
+        ...singleHostRounds(fresh),
+        twoHostProbe,
+        fallback(fresh, {
+          eligibility: 'temporary-host-unavailability',
+          hostAvailabilityProbeId: twoHostProbe.probeId,
+        }),
+      ],
+    });
+    assert.equal(twoHostReport.ok, false);
+    assert.match(twoHostReport.reasons.join('\n'), /found 2\/3 canonical hosts available; use full 3x2 or explicit-human-approval/);
+  });
+
   check('probe with fewer than two available canonical hosts permits degraded 3x1', () => {
     const fresh = currentMaterialHash(root)!;
     const probe = hostAvailabilityProbe(fresh, ['codex'], { storyFilesHash: currentStoryFilesHash(root)! });

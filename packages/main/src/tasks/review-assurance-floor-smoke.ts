@@ -536,6 +536,60 @@ try {
     assertProofAdmissibilityBlocked(report);
   });
 
+  check('temporary host unavailability also requires fresh insufficient-host proof', () => {
+    const base = {
+      projectRoot: root,
+      story: story({
+        priority: 'high',
+        riskSignals: [{ category: 'state machine/gate', matched: 'gate' }],
+      }),
+      changedFiles: ['packages/main/src/core/machine.ts'],
+      materialHash,
+    };
+    const missingProbe = evaluateReviewAssuranceFloor({
+      ...base,
+      processEvents: [
+        ...singleHostRounds(materialHash),
+        fallback(materialHash, { eligibility: 'temporary-host-unavailability' }),
+      ],
+    });
+    assert.equal(missingProbe.ok, false);
+    assert.match(missingProbe.reasons.join('\n'), /hostAvailabilityProbeId is required|no fresh review_host_availability_probe/);
+    assertProofAdmissibilityBlocked(missingProbe);
+
+    const staleProbe = hostAvailabilityProbe('stale-material', ['codex'], { storyFilesHash });
+    const staleProbeReport = evaluateReviewAssuranceFloor({
+      ...base,
+      processEvents: [
+        ...singleHostRounds(materialHash),
+        staleProbe,
+        fallback(materialHash, {
+          eligibility: 'temporary-host-unavailability',
+          hostAvailabilityProbeId: staleProbe.probeId,
+        }),
+      ],
+    });
+    assert.equal(staleProbeReport.ok, false);
+    assert.match(staleProbeReport.reasons.join('\n'), /not fresh\/valid: materialHash is stale|no fresh review_host_availability_probe/);
+    assertProofAdmissibilityBlocked(staleProbeReport);
+
+    const twoHostProbe = hostAvailabilityProbe(materialHash, ['codex', 'claude'], { storyFilesHash });
+    const twoHostReport = evaluateReviewAssuranceFloor({
+      ...base,
+      processEvents: [
+        ...singleHostRounds(materialHash),
+        twoHostProbe,
+        fallback(materialHash, {
+          eligibility: 'temporary-host-unavailability',
+          hostAvailabilityProbeId: twoHostProbe.probeId,
+        }),
+      ],
+    });
+    assert.equal(twoHostReport.ok, false);
+    assert.match(twoHostReport.reasons.join('\n'), /found 2\/3 canonical hosts available; use full 3x2 or explicit-human-approval/);
+    assertProofAdmissibilityBlocked(twoHostReport);
+  });
+
   check('probe with fewer than two available canonical hosts permits high-risk degraded 3x1', () => {
     const probe = hostAvailabilityProbe(materialHash, ['codex'], { storyFilesHash });
     const report = evaluateReviewAssuranceFloor({
