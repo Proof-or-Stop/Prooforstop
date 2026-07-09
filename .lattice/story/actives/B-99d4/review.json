@@ -114,6 +114,29 @@
         }
       ],
       "_hash": "a9fa59e5bb4c5d693394c5e1635aa3e2fe5471dedfc7ab2cfb4e88969b930cca"
+    },
+    {
+      "timestamp": "2026-07-09T02:46:08.593Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Support reassignment of a completed worker with an explicit worker role + Preserve useful prior worker context without depending on full-history fork are performed simultaneously?)"
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_acceptance_binding: No ProofStory acceptance binding maps the snapshot acceptanceClaim to checklist/verificationIntent refs. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-99d4 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "758648758e6776db698e262758bf8a7a8d67c6f3d4e4c7fff50047c73c22136b"
     }
   ]
 }
