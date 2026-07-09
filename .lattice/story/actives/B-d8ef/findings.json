@@ -202,6 +202,25 @@
       "resolvedAt": "2026-07-09T21:21:30.821Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-d8ef:F-010",
+      "desc": "Host readiness proof records canonical launcher argv while executing a different argv shape. probeHostExecutionReadiness replaces both <prompt> and <prompt-file> with inline prompt text through launcherArgsForExecution, then classifyHostExecutionReadiness records spec.launcherArgv rather than the actual spawned argv. For Claude this can execute claude --print --verbose --output-format=stream-json 'Reply READY...' while evidence reports claude --print --verbose --output-format=stream-json <prompt-file>, so gate evidence can claim the canonical launcher was observed without proving that exact launcher. Fix by materializing bounded prompt-file launchers as real temp prompt files, passing the actual executed argv into readiness classification/evidence, and updating the smoke to assert the exact argv used by the probe.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-09T21:30:53.377Z",
+      "reviewRound": "2026-07-09T21:20:00.788Z",
+      "reviewRunId": "B-d8ef:RR-028",
+      "_hash": "5ba4574bb2e2e0cdd34a070d978ae6165f21757579263440c54f1a929f237347",
+      "files": [
+        "packages/main/src/core/host-execution-readiness.ts",
+        "packages/main/src/tasks/review-host-execution-readiness-smoke.ts"
+      ],
+      "signatureTag": "spec-boundary:host-readiness-records-executed-launcher",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
