@@ -44,6 +44,17 @@
           "materialHash": "2129600913e88693d4e5986538beca1b15432d378b1fb18b9b126d64d6e96cdb",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "timestamp": "2026-07-09T17:08:29.552Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "sh -c 'find docs/requirements/decisions -name \"*.md\" | wc -l'",
+          "result": "pass",
+          "note": "Baseline bound as literal re-runnable commands; live count 111 vs story-creation snapshot 112 is recorded with the drift explanation in background.md, so same-day corpus drift is detectable and explained rather than silently stale.",
+          "headHash": "19343f4f22add0faf737263cb905de5fabad4e2e",
+          "materialHash": "2129600913e88693d4e5986538beca1b15432d378b1fb18b9b126d64d6e96cdb",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-09T17:08:31.222Z"
         }
       ]
     },
