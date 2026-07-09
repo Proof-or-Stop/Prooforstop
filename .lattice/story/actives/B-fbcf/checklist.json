@@ -57,10 +57,10 @@
           "command": "npm --prefix packages/main run test:done-prepare-auto-closeout-smoke",
           "result": "pass",
           "note": "assertManifestOnlyAutoCloseout verifies the current-run manifest captures done-required-evidence.json and test-evidence.json and commits exactly those files.",
-          "headHash": "24a3cc52dad2e0036d873cf09842df3205efca7c",
-          "materialHash": "f8b54ec2b951f50210ac49c4362cf565db7ff3efb40410c83979be10caf722d3",
-          "storyFilesHash": "b1aa073f89728ac269f49af781e0de0a31e36cbbb46b220c49056c541aee9708",
-          "timestamp": "2026-07-09T23:44:56.729Z"
+          "headHash": "cc850b77fa0520f9f673adcf39e912842f97448a",
+          "materialHash": "6eb914f8d518ed01e9febf44f48ae9de653476a3c423821b145ade0950c475a5",
+          "storyFilesHash": "821eadc046e39e73f186d8bc23634745e6e2afc3d8b2d4a34dde965f7f40c621",
+          "timestamp": "2026-07-09T23:50:26.235Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -70,10 +70,10 @@
           "command": "npm --prefix packages/main run test:done-prepare-auto-closeout-smoke",
           "result": "pass",
           "note": "assertPreexistingLifecycleMetadataIsUnsafe verifies pre-existing test-evidence.json dirt is unsafe_preexisting_dirty and not current-run generated metadata.",
-          "headHash": "24a3cc52dad2e0036d873cf09842df3205efca7c",
-          "materialHash": "f8b54ec2b951f50210ac49c4362cf565db7ff3efb40410c83979be10caf722d3",
-          "storyFilesHash": "b1aa073f89728ac269f49af781e0de0a31e36cbbb46b220c49056c541aee9708",
-          "timestamp": "2026-07-09T23:44:56.868Z"
+          "headHash": "cc850b77fa0520f9f673adcf39e912842f97448a",
+          "materialHash": "6eb914f8d518ed01e9febf44f48ae9de653476a3c423821b145ade0950c475a5",
+          "storyFilesHash": "821eadc046e39e73f186d8bc23634745e6e2afc3d8b2d4a34dde965f7f40c621",
+          "timestamp": "2026-07-09T23:50:26.235Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -83,10 +83,10 @@
           "command": "git diff --unified=0 main...HEAD -- packages/main/src/handlers/done-prepare.ts packages/main/src/cli/command-catalog.ts packages/main/src/core/done-prepare-generated-metadata.ts packages/main/src/core/done-prepare-validation-reuse.ts | rg added heartbeat/review/rerun strings",
           "result": "pass",
           "note": "No implementation additions match done_prepare progress labels, review-assurance guidance, rerun-delta, or merge-preflight strings; this story stays on auto-closeout scope.",
-          "headHash": "24a3cc52dad2e0036d873cf09842df3205efca7c",
-          "materialHash": "f8b54ec2b951f50210ac49c4362cf565db7ff3efb40410c83979be10caf722d3",
-          "storyFilesHash": "b1aa073f89728ac269f49af781e0de0a31e36cbbb46b220c49056c541aee9708",
-          "timestamp": "2026-07-09T23:44:57.015Z"
+          "headHash": "cc850b77fa0520f9f673adcf39e912842f97448a",
+          "materialHash": "6eb914f8d518ed01e9febf44f48ae9de653476a3c423821b145ade0950c475a5",
+          "storyFilesHash": "821eadc046e39e73f186d8bc23634745e6e2afc3d8b2d4a34dde965f7f40c621",
+          "timestamp": "2026-07-09T23:50:26.235Z"
         }
       ]
     },
@@ -145,10 +145,10 @@
           "command": "npm --prefix packages/main run test:done-prepare-auto-closeout-smoke",
           "result": "pass",
           "note": "assertManifestOnlyAutoCloseout verifies opt-in auto-closeout creates the deterministic auto-close commit and the commit contains only done-required-evidence.json and test-evidence.json.",
-          "headHash": "09bd3d176abb4ab75655306b4bc8ca69e1ef2fd3",
-          "materialHash": "89b10d1fbbc9750657778c5082cc801789268d2c5b32b5bb8702ab820a8f16cd",
-          "storyFilesHash": "2552eff0fbe86774ea3d0d7149b536038d0a84f565a9746d88f78aa73e5b485e",
-          "timestamp": "2026-07-09T23:46:04.590Z"
+          "headHash": "cc850b77fa0520f9f673adcf39e912842f97448a",
+          "materialHash": "6eb914f8d518ed01e9febf44f48ae9de653476a3c423821b145ade0950c475a5",
+          "storyFilesHash": "821eadc046e39e73f186d8bc23634745e6e2afc3d8b2d4a34dde965f7f40c621",
+          "timestamp": "2026-07-09T23:50:26.235Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -158,10 +158,10 @@
           "command": "npm --prefix packages/main run test:done-prepare-auto-closeout-smoke",
           "result": "pass",
           "note": "Smoke covers unsafe docs side effect before reuse metadata and helper classifications for pre-existing dirt, deletes, and renames as unsafe with no safe auto-stage paths.",
-          "headHash": "09bd3d176abb4ab75655306b4bc8ca69e1ef2fd3",
-          "materialHash": "89b10d1fbbc9750657778c5082cc801789268d2c5b32b5bb8702ab820a8f16cd",
-          "storyFilesHash": "2552eff0fbe86774ea3d0d7149b536038d0a84f565a9746d88f78aa73e5b485e",
-          "timestamp": "2026-07-09T23:46:04.722Z"
+          "headHash": "cc850b77fa0520f9f673adcf39e912842f97448a",
+          "materialHash": "6eb914f8d518ed01e9febf44f48ae9de653476a3c423821b145ade0950c475a5",
+          "storyFilesHash": "821eadc046e39e73f186d8bc23634745e6e2afc3d8b2d4a34dde965f7f40c621",
+          "timestamp": "2026-07-09T23:50:26.235Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -171,10 +171,10 @@
           "command": "npm --prefix packages/main run test:done-prepare-auto-closeout-smoke",
           "result": "pass",
           "note": "installCommandSpy asserts auto-closeout never uses git push, stash, reset, clean, checkout, switch, --no-verify, release, publish, delivery_check_set, review_pass_set, quorum_submit, or authority operations.",
-          "headHash": "09bd3d176abb4ab75655306b4bc8ca69e1ef2fd3",
-          "materialHash": "89b10d1fbbc9750657778c5082cc801789268d2c5b32b5bb8702ab820a8f16cd",
-          "storyFilesHash": "2552eff0fbe86774ea3d0d7149b536038d0a84f565a9746d88f78aa73e5b485e",
-          "timestamp": "2026-07-09T23:46:04.848Z"
+          "headHash": "cc850b77fa0520f9f673adcf39e912842f97448a",
+          "materialHash": "6eb914f8d518ed01e9febf44f48ae9de653476a3c423821b145ade0950c475a5",
+          "storyFilesHash": "821eadc046e39e73f186d8bc23634745e6e2afc3d8b2d4a34dde965f7f40c621",
+          "timestamp": "2026-07-09T23:50:26.235Z"
         }
       ]
     },
