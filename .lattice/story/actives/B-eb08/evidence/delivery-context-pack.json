@@ -1,0 +1,89 @@
+{
+  "storyId": "B-eb08",
+  "generatedFor": "delivery-review",
+  "diff": {
+    "changedFiles": [
+      ".lattice/story/actives/B-eb08/checklist.json",
+      ".lattice/story/actives/B-eb08/decision.json",
+      ".lattice/story/actives/B-eb08/delivery-check.json",
+      ".lattice/story/actives/B-eb08/evidence/transcript-diff.md",
+      ".lattice/story/actives/B-eb08/findings.json",
+      ".lattice/story/actives/B-eb08/index.json",
+      ".lattice/story/actives/B-eb08/intent-collision.json",
+      ".lattice/story/actives/B-eb08/milestone-ledger.json",
+      ".lattice/story/actives/B-eb08/original-intent-snapshot.json",
+      ".lattice/story/actives/B-eb08/plan.md",
+      ".lattice/story/actives/B-eb08/process-events.jsonl",
+      ".lattice/story/actives/B-eb08/process-metrics.json",
+      ".lattice/story/actives/B-eb08/proofstory.json",
+      ".lattice/story/actives/B-eb08/red-evidence.json",
+      ".lattice/story/actives/B-eb08/review-passes.json",
+      ".lattice/story/actives/B-eb08/review-runs.json",
+      ".lattice/story/actives/B-eb08/review.json",
+      ".lattice/story/actives/B-eb08/scope-check.json",
+      ".lattice/story/actives/B-eb08/scope-contract.json",
+      ".lattice/story/actives/B-eb08/test-evidence.json",
+      ".lattice/story/actives/B-eb08/understanding.json",
+      "packages/main/package.json",
+      "packages/main/src/cli/command-catalog.ts",
+      "packages/main/src/handlers/done-prepare.ts",
+      "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts"
+    ],
+    "summary": " .lattice/story/actives/B-eb08/checklist.json       |  126 +-\n .lattice/story/actives/B-eb08/decision.json        |   72 ++\n .lattice/story/actives/B-eb08/delivery-check.json  |   53 +\n .../actives/B-eb08/evidence/transcript-diff.md     |   53 +\n .lattice/story/actives/B-eb08/findings.json        |  177 +++\n .lattice/story/actives/B-eb08/index.json           |  122 +-\n .../story/actives/B-eb08/intent-collision.json     |   14 +\n .../story/actives/B-eb08/milestone-ledger.json     |   17 +-\n .../actives/B-eb08/original-intent-snapshot.json   |   15 +\n .lattice/story/actives/B-eb08/plan.md              |   41 +\n .lattice/story/actives/B-eb08/process-events.jsonl |   48 +\n .lattice/story/actives/B-eb08/process-metrics.json |  359 ++++++\n .lattice/story/actives/B-eb08/proofstory.json      |  106 ++\n .lattice/story/actives/B-eb08/red-evidence.json    |   25 +\n .lattice/story/actives/B-eb08/review-passes.json   |  157 +++\n .lattice/story/actives/B-eb08/review-runs.json     | 1333 ++++++++++++++++++++\n .lattice/story/actives/B-eb08/review.json          |  157 +++\n .lattice/story/actives/B-eb08/scope-check.json     |   38 +\n .lattice/story/actives/B-eb08/scope-contract.json  |   44 +\n .lattice/story/actives/B-eb08/test-evidence.json   |  206 +++\n .lattice/story/actives/B-eb08/understanding.json   |   23 +\n packages/main/package.json                         |    1 +\n packages/main/src/cli/command-catalog.ts           |    1 +\n packages/main/src/handlers/done-prepare.ts         |  500 +++++++-\n .../tasks/done-prepare-closure-heartbeat-smoke.ts  |  465 +++++++\n 25 files changed, 4103 insertions(+), 50 deletions(-)"
+  },
+  "docsPromises": [
+    {
+      "source": "userSees",
+      "promise": "A long done_prepare closeout prints explicit progress lines after validation instead of going silent."
+    },
+    {
+      "source": "userSees",
+      "promise": "If a done_prepare closeout phase hangs, the CLI fails with an attributed phase-timeout diagnostic instead of silently running forever."
+    },
+    {
+      "source": "userSees",
+      "promise": "The focused smoke passes and documents that B-783c activity logging is a baseline, not a substitute for real-time done_prepare progress."
+    }
+  ],
+  "realMachineTests": {
+    "transcriptDiff": true,
+    "testFiles": [
+      "packages/main/package.json",
+      "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts"
+    ],
+    "evidenceCommands": [
+      "git show --name-only --format= HEAD",
+      "npm --prefix packages/main run build && npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke",
+      "npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke"
+    ]
+  },
+  "validation": {
+    "source": "test-evidence.json",
+    "result": "PASS",
+    "timestamp": "2026-07-09T03:21:54.182Z",
+    "headHash": "d4670294ed8904e2cf4e8b65f9d3a7d9b044989b",
+    "materialHash": "66d31ae9618c6e36792e2dda80bb9afc53f1c0878976466305e79a88b84077ee",
+    "storyFilesHash": "d9eaf0b5305b23f1de378a19473ff639363ba9c71fa608a997a7faf71aed90fd"
+  },
+  "reviewRound": "2026-07-09T03:15:15.358Z",
+  "deliveryCheck": {
+    "status": "stale",
+    "ref": {
+      "source": "delivery-check.json",
+      "checkedAt": "2026-07-09T02:46:55.928Z",
+      "headHash": "4e45879d8b40962d4e65da58500d0d222fb206b1",
+      "materialHash": "8af6e00e71a16a50533b35c1ea7e623b85acabebbb24fbbef8307a3bd4c47694",
+      "reviewRound": "2026-07-09T02:32:25.380Z",
+      "hash": "42ae433c36cc139b7a5d73fe605f33dfdc2b7cc8bf6670ef96efc20791108a0b"
+    }
+  },
+  "waiver": {
+    "status": "none"
+  },
+  "isSigner": false,
+  "claims": {
+    "authorityDone": false,
+    "fullAuthorityDone": false,
+    "productionDone": false
+  }
+}
