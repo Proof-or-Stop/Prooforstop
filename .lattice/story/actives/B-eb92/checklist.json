@@ -103,7 +103,7 @@
         "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md#M4---Actionable-Blocker-Summary",
         "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
       ],
-      "userSees": "done_prepare blockers are grouped by action type and explain whether the agent can run a command or must ask a reviewer/host/human-approved fallback path.",
+      "userSees": "\"DONE prepare blockers: review-assurance requires independent review/host evidence; generated metadata may be committed only for listed lattice files; stale material requires rerun/refresh; cannot auto-sign reviewer pass, delivery check, host verdict, or degraded fallback from owner session.\"",
       "files": {
         "modify": [
           "packages/main/src/handlers/done-prepare.ts",
