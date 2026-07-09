@@ -132,6 +132,29 @@
           "packages/main/src/tasks/review-host-execution-readiness-smoke.ts",
           "scripts/verify-process-fact-contract.mjs"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Smoke tests prove Claude observable reviewer launcher includes --print --verbose --output-format=stream-json and reports progress-capable mode.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke tests prove agy --prompt-file is classified as wrong_launcher while agy --print with --print-timeout is the canonical noninteractive launcher.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke tests prove Codex can pass version/login checks but fail codex exec with token_invalidated/refresh_token_invalidated, and that state is classified as auth failure rather than review-ready.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
       }
     }
   ]
