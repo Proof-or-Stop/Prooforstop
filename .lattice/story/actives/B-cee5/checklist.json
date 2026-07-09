@@ -508,6 +508,17 @@
           "materialHash": "2129600913e88693d4e5986538beca1b15432d378b1fb18b9b126d64d6e96cdb",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "timestamp": "2026-07-09T17:16:50.414Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"full-read at most 15 candidate docs\" packages/main/templates/agents/lattice-review-scope-plan.md packages/main/templates/agents/lattice-review-behavior.md",
+          "result": "pass",
+          "note": "Before/after budget: previous default instructed full-content reads of all 111 decisions docs (~2,400,226 bytes) on every scope-plan AND behavior run; new default is bounded preflight + at most 15 candidate full reads + filename triage, cutting default spec-reading volume by roughly 85-100 docs per reviewer run, with full scans only under a recorded scanEscalationReason.",
+          "headHash": "6204f352f143f78d24169c644b117234ae3ba7a4",
+          "materialHash": "2129600913e88693d4e5986538beca1b15432d378b1fb18b9b126d64d6e96cdb",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-09T17:16:52.028Z"
         }
       ]
     }
