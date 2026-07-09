@@ -117,13 +117,15 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Smoke output includes PASS lines for Claude observable launcher requiring --verbose + stream-json, Codex exec auth failure classified as auth, and agy --prompt-file rejected while agy --print/--print-timeout is canonical.",
+      "userSees": "Smoke output prints \"PASS claude launcher uses --print --verbose --output-format stream-json\", \"PASS agy --prompt-file classified wrong_launcher\", and \"PASS codex exec token_invalidated classified auth\".",
       "files": {
         "modify": [
           "packages/main/src/tasks/review-escalation-smoke.ts",
           "packages/main/src/tasks/review-assurance-floor-smoke.ts",
           "packages/main/src/tasks/dispatch-run-smoke.ts",
-          "packages/main/src/tasks/command-catalog-smoke.ts"
+          "packages/main/src/tasks/command-catalog-smoke.ts",
+          "packages/main/src/providers/claude-cli.ts",
+          "packages/main/src/providers/codex-cli.ts"
         ],
         "create": [
           "packages/main/src/tasks/review-host-execution-readiness-smoke.ts"
