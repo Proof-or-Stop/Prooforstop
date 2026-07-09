@@ -74,7 +74,7 @@
       "desc": "Concept re-review found the prompt-content Claude launcher contract was reapplied on current HEAD 7fbc9de0. Canonical readiness now uses split --output-format stream-json plus extra flags and <prompt>, buildClaudeSpawnArgs substitutes prompt contents, actual claude dispatch passes promptText, and smokes assert the drifted launcher. B-d8ef requires claude --print --verbose --output-format=stream-json <prompt-file> consistently across readiness, allowlist, actual spawn, and smokes.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-09T14:20:51.431Z",
@@ -91,7 +91,11 @@
         "packages/main/src/tasks/usage-ledger-dispatch-smoke.ts"
       ],
       "signatureTag": "spec-boundary|ts|canonical-claude-launcher-regression",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 2a92b42c5: restored the required prompt-file Claude launcher contract across readiness, dispatch spawn args, unattended fake Claude smoke, and usage-ledger smokes. Verified with npm --prefix packages/main run build, npm --prefix packages/main run test:review-host-launcher-readiness-smoke, node packages/main/dist/tasks/unattended-dispatch-smoke.js, node packages/main/dist/tasks/usage-ledger-budget-smoke.js, node packages/main/dist/tasks/usage-ledger-default-on-smoke.js, node packages/main/dist/tasks/usage-ledger-dispatch-smoke.js, review-escalation-smoke.js, review-assurance-floor-smoke.js, and node scripts/verify-process-fact-contract.mjs.",
+      "resolvedAt": "2026-07-09T14:23:18.150Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
