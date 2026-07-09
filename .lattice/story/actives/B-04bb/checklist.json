@@ -4,17 +4,149 @@
       "id": "CHK-001",
       "title": "Add reviewer-scan-budget-guard-smoke entry to validate.commands in lattice.config.json",
       "context": "One bare-string entry: node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js, placed with the other guard smokes, same pattern as retired-authority-vocabulary-guard-smoke.js at line 27. Requires B-cee5 merged to main first.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-09T18:57:27.836Z",
+      "endTime": "2026-07-09T19:19:59.024Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lattice.config.json validate.commands contains exactly one new bare-string entry \"node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js\" placed after the retired-authority-vocabulary-guard-smoke.js entry; git diff vs main shows only that config line as the sole material change (plus story metadata).",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "lattice.config.json still parses as strict JSON after the edit (node -e JSON.parse check exits 0 and produces no syntax error).",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The referenced dist file packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js actually exists after building merged main (guards against wiring a path that 404s and breaks validate for everyone).",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "git diff vs main shows one added line in lattice.config.json: \"node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js\" directly after the retired-authority-vocabulary-guard-smoke.js entry, and node -e JSON.parse on the file exits 0 silently.",
+      "files": {
+        "modify": [
+          "lattice.config.json"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "git diff main -- lattice.config.json",
+          "result": "pass",
+          "note": "Diff vs main shows exactly one added line in validate.commands: \"node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js\" inserted directly after the retired-authority-vocabulary-guard-smoke.js entry; 1 file changed, 1 insertion(+), no other material change.",
+          "headHash": "96861161f1e6140df5a2c1058edacf62da71b361",
+          "materialHash": "33062d79ff0dbeed0ef9e397a6efa3be0a230aad003b0f0098f716ed24eca0ab",
+          "storyFilesHash": "b7cbe8d4cfb05adacb9fc73d90113f490e2353518ea450b039541ce3adc8f1af",
+          "timestamp": "2026-07-09T19:19:31.904Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node -e \"JSON.parse(require('fs').readFileSync('lattice.config.json','utf8'))\"",
+          "result": "pass",
+          "note": "lattice.config.json parses as strict JSON after the edit; command printed JSON_PARSE_OK and exited 0.",
+          "headHash": "97b4b4b1ef1b2015d97e2b20dd7e36dece92b9fa",
+          "materialHash": "33062d79ff0dbeed0ef9e397a6efa3be0a230aad003b0f0098f716ed24eca0ab",
+          "storyFilesHash": "b7cbe8d4cfb05adacb9fc73d90113f490e2353518ea450b039541ce3adc8f1af",
+          "timestamp": "2026-07-09T19:19:33.110Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "ls -la packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js && node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js",
+          "result": "pass",
+          "note": "Referenced dist file exists after building merged main (7069 bytes, built 2026-07-09) and runs standalone: \"reviewer-scan-budget-guard: PASS (6 prompt copies clean, 4 required phrases present)\", exit 0. Guards against wiring a path that 404s.",
+          "headHash": "3368929cf4e2991468ee23ec349470702cc8e059",
+          "materialHash": "33062d79ff0dbeed0ef9e397a6efa3be0a230aad003b0f0098f716ed24eca0ab",
+          "storyFilesHash": "b7cbe8d4cfb05adacb9fc73d90113f490e2353518ea450b039541ce3adc8f1af",
+          "timestamp": "2026-07-09T19:19:34.243Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Run lattice validate and confirm the new guard command executes and passes",
       "context": "Full lattice validate in the story worktree after main (with B-cee5 landed) is merged in; the new command must appear in validate output and exit 0.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-09T19:20:00.087Z",
+      "endTime": "2026-07-09T19:20:01.250Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Full (non-focused) lattice validate output lists node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js as an executed command with PASS, and validate exits 0 overall.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The new bare-string entry has no focus tag, so a focused/fast-lane validate run (lattice validate --focus=fast) does not execute the reviewer-scan-budget-guard-smoke command and still exits 0, confirming the wiring does not break the fast lane while the full run does execute it.",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The wired guard is genuinely capable of failing: its source contains an explicit failure path (non-zero exit on budget-exceeding scan pattern), or a seeded regression fixture triggers non-zero exit, confirming the command is not a tautological always-pass.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "lattice validate output includes a line showing node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js executed with the guard printing \"reviewer-scan-budget-guard: PASS (...)\", and the overall validate run ends green with exit 0.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "Full (non-focused) lattice validate executed the new entry as validate.commands[3] (command 4/44): log shows \"ran: node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js\" and \"reviewer-scan-budget-guard: PASS (6 prompt copies clean, 4 required phrases present)\"; overall validate exited 0. Full transcript captured in session scratchpad validate-full.log.",
+          "headHash": "4aa65384902532e8099f071002ed114744e23a5a",
+          "materialHash": "33062d79ff0dbeed0ef9e397a6efa3be0a230aad003b0f0098f716ed24eca0ab",
+          "storyFilesHash": "b7cbe8d4cfb05adacb9fc73d90113f490e2353518ea450b039541ce3adc8f1af",
+          "timestamp": "2026-07-09T19:19:48.705Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "lattice validate --focus=fast",
+          "result": "pass",
+          "note": "Focused fast-lane validate exited 0 and its transcript contains zero occurrences of reviewer-scan-budget-guard-smoke, confirming the bare-string entry (no focus tag) does not run in and does not break the fast lane, while the full run executes it.",
+          "headHash": "72ad448fbbe97422eeec9a9f4057c79e6b5e8f0e",
+          "materialHash": "33062d79ff0dbeed0ef9e397a6efa3be0a230aad003b0f0098f716ed24eca0ab",
+          "storyFilesHash": "b7cbe8d4cfb05adacb9fc73d90113f490e2353518ea450b039541ce3adc8f1af",
+          "timestamp": "2026-07-09T19:19:49.820Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "echo \"Always scan the full decisions/ directory.\" >> .claude/agents/lattice-review-behavior.md && node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js; git checkout -- .claude/agents/lattice-review-behavior.md",
+          "result": "pass",
+          "note": "Seeded regression demonstration: after appending banned unconditional full-scan wording to a guarded prompt copy, the guard exited 1 reporting \".claude/agents/lattice-review-behavior.md:185 [always scan full decisions]\"; after git-restore it exited 0 with PASS. The wired command is genuinely falsifiable, not a tautological always-pass; the guard also self-tests via assertPositiveControls() in its source.",
+          "headHash": "c3076783e45d59bd5afa41023e2ecff8c8ba29a0",
+          "materialHash": "33062d79ff0dbeed0ef9e397a6efa3be0a230aad003b0f0098f716ed24eca0ab",
+          "storyFilesHash": "b7cbe8d4cfb05adacb9fc73d90113f490e2353518ea450b039541ce3adc8f1af",
+          "timestamp": "2026-07-09T19:19:50.967Z"
+        }
+      ]
     }
   ]
 }
