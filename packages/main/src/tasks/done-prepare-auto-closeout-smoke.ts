@@ -20,6 +20,11 @@ import { resetConfigCache } from '../core/config.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash, EMPTY_STORY_FILES_HASH } from '../core/evidence-freshness.js';
 import { signDeliveryCheck } from '../core/delivery-check-hash.js';
 import { StoryStore } from '../core/store.js';
+import {
+  buildDonePrepareGeneratedMetadataManifest,
+  captureDonePrepareGeneratedMetadataBaseline,
+  gitStatusRowsForDonePrepareGeneratedMetadata,
+} from '../core/done-prepare-generated-metadata.js';
 import type {
   ChecklistData,
   ClosingSelfCheck,
@@ -389,6 +394,38 @@ async function assertUnsafePathRefusesBeforeReuseRecord(): Promise<void> {
   }
 }
 
+function assertPreexistingLifecycleMetadataIsUnsafe(): void {
+  const { root, storyId } = setupFixture();
+  try {
+    const testEvidencePath = `.lattice/story/actives/${storyId}/test-evidence.json`;
+    write(root, testEvidencePath, JSON.stringify({ preexisting: true }, null, 2) + '\n');
+    const rows = gitStatusRowsForDonePrepareGeneratedMetadata(root);
+    assert.match(rows.join('\n'), /test-evidence\.json/, 'fixture must have pre-existing lifecycle metadata dirt');
+    const baseline = captureDonePrepareGeneratedMetadataBaseline({
+      root,
+      storyDirRel: '.lattice/story/actives',
+      storyId,
+      initialDirtyRows: rows,
+    });
+    const manifest = buildDonePrepareGeneratedMetadataManifest({
+      root,
+      storyId,
+      storyDirRel: '.lattice/story/actives',
+      baseline,
+      statusRows: rows,
+    });
+    const entry = manifest.entries.find((candidate) => candidate.path === testEvidencePath);
+    assert.ok(entry, 'pre-existing lifecycle metadata dirt must appear in the manifest');
+    assert.equal(entry.safety, 'unsafe_preexisting_dirty');
+    assert.equal(entry.currentRunGenerated, false);
+    assert.equal(entry.safeToAutoStage, false);
+    assert.deepEqual(manifest.safePaths, []);
+    assert.deepEqual(manifest.unsafePaths, [testEvidencePath]);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 function assertMissingHashesRefuseReuse(): void {
   const { root, storyId } = setupFixture();
   try {
@@ -445,6 +482,7 @@ void (async () => {
   try {
     await assertManifestOnlyAutoCloseout();
     await assertUnsafePathRefusesBeforeReuseRecord();
+    assertPreexistingLifecycleMetadataIsUnsafe();
     assertMissingHashesRefuseReuse();
     assertJsonStdoutClean();
     console.log('done-prepare-auto-closeout smoke passed');
