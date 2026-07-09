@@ -88,14 +88,8 @@ const root = mkdtempSync(join(tmpdir(), 'usage-ledger-budget-'));
 const EXPECTED_CLAUDE_SPAWN_ARGS = [
   '--print',
   '--verbose',
-  '--output-format',
-  'stream-json',
-  '--no-session-persistence',
-  '--permission-mode',
-  'bypassPermissions',
-  '--max-budget-usd',
-  '0.25',
-  '<prompt>',
+  '--output-format=stream-json',
+  '<prompt-file>',
 ] as const;
 
 function ctx(over: Partial<DispatchUsageContext> = {}): DispatchUsageContext {
@@ -112,7 +106,7 @@ function opts(env: NodeJS.ProcessEnv) {
   return {
     recordedAt: '2026-06-16T00:00:00.000Z',
     projectRootHash: 'sha256:deadbeef',
-    command: 'claude --print --verbose --output-format stream-json --no-session-persistence --permission-mode bypassPermissions --max-budget-usd 0.25 <prompt>',
+    command: 'claude --print --verbose --output-format=stream-json <prompt-file>',
     host: { kind: 'claude-code' },
     env,
   };
@@ -129,7 +123,7 @@ function prodOpts() {
   return {
     recordedAt: '2026-06-16T00:00:00.000Z',
     projectRootHash: 'sha256:deadbeef',
-    command: 'claude --print --verbose --output-format stream-json --no-session-persistence --permission-mode bypassPermissions --max-budget-usd 0.25 <prompt>',
+    command: 'claude --print --verbose --output-format=stream-json <prompt-file>',
     host: { kind: 'claude-code' },
     // Intentionally NO `env` key -> the seam relies on the process.env default.
   };
@@ -391,7 +385,7 @@ async function main(): Promise<void> {
   // CHK-003/CHK-004: shouldBlockDispatch + recordBudgetBlock 4-quadrant logic
   // ======================================================================
   await check('CHK-004 QUADRANT A: ledger OFF -> spawn args stay canonical observable stream-json', () => {
-    assert.deepEqual(buildClaudeSpawnArgs('<prompt>', false), [...EXPECTED_CLAUDE_SPAWN_ARGS]);
+    assert.deepEqual(buildClaudeSpawnArgs('<prompt-file>', false), [...EXPECTED_CLAUDE_SPAWN_ARGS]);
     // shouldBlockDispatch with enabled=false never blocks and never reads a budget.
     const d = shouldBlockDispatch(false, { LATTICE_HARD_BUDGET_TOKENS: '1' }, 999999);
     assert.equal(d.block, false);
@@ -399,7 +393,7 @@ async function main(): Promise<void> {
   });
 
   await check('CHK-004 A-vs-B spawn-args parity: ledger ON uses same canonical launcher', () => {
-    assert.deepEqual(buildClaudeSpawnArgs('<prompt>', true), [...EXPECTED_CLAUDE_SPAWN_ARGS]);
+    assert.deepEqual(buildClaudeSpawnArgs('<prompt-file>', true), [...EXPECTED_CLAUDE_SPAWN_ARGS]);
   });
 
   await check('CHK-004 QUADRANT B: ON + no budget env -> proceeds, budget null, no record', () => {
