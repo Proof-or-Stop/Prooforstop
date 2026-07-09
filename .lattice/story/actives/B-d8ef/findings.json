@@ -1,0 +1,61 @@
+{
+  "findings": [
+    {
+      "id": "B-d8ef:F-001",
+      "desc": "Canonical Claude launcher proof/allowlist does not match the actual dispatch launcher shape: readiness uses split --output-format stream-json and extra args, while dispatch executes --output-format=stream-json with a prompt file. The allowlist must authorize the exact observable launcher shape actually used.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-09T13:43:14.657Z",
+      "reviewRound": "2026-07-09T13:34:45.169Z",
+      "reviewRunId": "B-d8ef:RR-003",
+      "_hash": "89249ada9a531f17fc4d1989292588f611882c72d8338875a3c7283905e9178e",
+      "files": [
+        "packages/main/src/core/host-execution-readiness.ts",
+        "packages/main/src/core/lattice-dispatch.ts"
+      ],
+      "signatureTag": "spec-boundary|ts|canonical-claude-launcher",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d8ef:F-002",
+      "desc": "Readiness evidence can persist bounded stdout/stderr provider output as diagnostic text, and the handler can then append/print it. B-d8ef acceptance forbids secrets or raw provider transcripts in gate evidence; store only enum-style sanitized diagnostics and remediation labels.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-09T13:43:14.658Z",
+      "reviewRound": "2026-07-09T13:34:45.169Z",
+      "reviewRunId": "B-d8ef:RR-003",
+      "_hash": "669691579a0dd8cf901bc0cc8471bcae64504d528a232313412af2274ff1e55f",
+      "files": [
+        "packages/main/src/core/host-execution-readiness.ts",
+        "packages/main/src/handlers/review-escalation.ts"
+      ],
+      "signatureTag": "adversarial|ts|readiness-evidence-persist",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d8ef:F-003",
+      "desc": "Existing usage-ledger-budget smoke is failing because it still expects the old plain claude --print/JSON append behavior. B-d8ef cannot proceed while the branch is not test-clean; update the smoke expectations or launcher integration so existing coverage passes.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-09T13:43:14.933Z",
+      "reviewRound": "2026-07-09T13:34:45.169Z",
+      "reviewRunId": "B-d8ef:RR-003",
+      "_hash": "1646b75857a1a9d628066855f29bb65e23f177a0ca7c9c13db30b91b9902fcda",
+      "files": [
+        "packages/main/src/tasks/usage-ledger-budget-smoke.ts",
+        "packages/main/src/core/lattice-dispatch.ts"
+      ],
+      "signatureTag": "missing|ts|existing-usage-ledger",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
