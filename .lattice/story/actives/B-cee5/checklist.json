@@ -136,13 +136,13 @@
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "docs_check",
-          "command": "rg -n \"advisory only\" -e \"gateEvidence=false\" -e \"NEVER satisfy\" packages/main/templates/agents/lattice-review-scope-plan.md packages/main/templates/agents/lattice-review-behavior.md",
+          "command": "rg -n -e \"advisory only\" -e \"gateEvidence=false\" -e \"NEVER satisfy\" packages/main/templates/agents/lattice-review-scope-plan.md packages/main/templates/agents/lattice-review-behavior.md",
           "result": "pass",
-          "note": "Both templates state verbatim that memory/playbook output is advisory only, non-authoritative (gateEvidence=false), and can never satisfy or be cited as gate evidence.",
-          "headHash": "4e78815048144640ce3f23cd6c2802f4dce342d2",
+          "note": "F-004 fix: replaces the earlier malformed row (bare pattern mixed with -e flags made rg treat \"advisory only\" as a file path, replay exit 2). Corrected command puts all three patterns behind -e; replayed exit 0, both templates carry advisory only + gateEvidence=false + NEVER satisfy wording verbatim.",
+          "headHash": "bd4fdb123486d28fe0a3c68c24a6602abbc051c3",
           "materialHash": "872615496a8e5cb590baa3d9e40172c276196bcfe36a4a6a19113dd0bce8aad0",
           "storyFilesHash": "0154c44bfb7760cabb61de1ff8edcb4f3e4370b821a74d89f44acb1e1dafc0de",
-          "timestamp": "2026-07-09T17:20:01.265Z"
+          "timestamp": "2026-07-09T17:27:22.472Z"
         }
       ]
     },
