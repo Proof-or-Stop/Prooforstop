@@ -133,9 +133,50 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-09T23:46:04.401Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "command": "npm --prefix packages/main run test:done-prepare-auto-closeout-smoke",
+          "result": "pass",
+          "note": "assertManifestOnlyAutoCloseout verifies opt-in auto-closeout creates the deterministic auto-close commit and the commit contains only done-required-evidence.json and test-evidence.json.",
+          "headHash": "09bd3d176abb4ab75655306b4bc8ca69e1ef2fd3",
+          "materialHash": "89b10d1fbbc9750657778c5082cc801789268d2c5b32b5bb8702ab820a8f16cd",
+          "storyFilesHash": "2552eff0fbe86774ea3d0d7149b536038d0a84f565a9746d88f78aa73e5b485e",
+          "timestamp": "2026-07-09T23:46:04.590Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "command": "npm --prefix packages/main run test:done-prepare-auto-closeout-smoke",
+          "result": "pass",
+          "note": "Smoke covers unsafe docs side effect before reuse metadata and helper classifications for pre-existing dirt, deletes, and renames as unsafe with no safe auto-stage paths.",
+          "headHash": "09bd3d176abb4ab75655306b4bc8ca69e1ef2fd3",
+          "materialHash": "89b10d1fbbc9750657778c5082cc801789268d2c5b32b5bb8702ab820a8f16cd",
+          "storyFilesHash": "2552eff0fbe86774ea3d0d7149b536038d0a84f565a9746d88f78aa73e5b485e",
+          "timestamp": "2026-07-09T23:46:04.722Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "command": "npm --prefix packages/main run test:done-prepare-auto-closeout-smoke",
+          "result": "pass",
+          "note": "installCommandSpy asserts auto-closeout never uses git push, stash, reset, clean, checkout, switch, --no-verify, release, publish, delivery_check_set, review_pass_set, quorum_submit, or authority operations.",
+          "headHash": "09bd3d176abb4ab75655306b4bc8ca69e1ef2fd3",
+          "materialHash": "89b10d1fbbc9750657778c5082cc801789268d2c5b32b5bb8702ab820a8f16cd",
+          "storyFilesHash": "2552eff0fbe86774ea3d0d7149b536038d0a84f565a9746d88f78aa73e5b485e",
+          "timestamp": "2026-07-09T23:46:04.848Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
