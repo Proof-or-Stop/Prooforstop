@@ -241,13 +241,14 @@
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "integration_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Process fact verifier passes with dispatch_reassign registered as L1 lattice-dispatch metadata, and the dispatch smoke five-way registration also checks command catalog, handler registry, command policy, process fact level, and phase tools.",
-          "headHash": "433e6933901c43b39210e313175ad553354e502e",
-          "materialHash": "b9e93476c1e29a51af8ed5e3e49b1b61a2ee960a9454e9b2e8b5c03739c1d53f",
-          "storyFilesHash": "8e93eabeb0596d06dcf043028b2dd265e4cc2239055c5cd607aa2c361e280c0d",
-          "timestamp": "2026-07-09T02:58:39.112Z"
+          "note": "Process fact contract verification still passes with dispatch_reassign registered as L1 lattice-dispatch metadata after adding the previous-dispatch accepted-local eligibility guard.",
+          "headHash": "7649ef7054a935716098a097608fe6b7274fcad5",
+          "materialHash": "c90041f3a82c6464815acdde122cebace62d6d8beb006396cbbbb1514e99ebce",
+          "storyFilesHash": "11f45c6b818e9c685628df92ed1bff6800f248d1c784abb044deaab5d370759e",
+          "timestamp": "2026-07-09T03:12:19.409Z"
         },
         {
           "intentRef": "CHK-003:happy:0",
