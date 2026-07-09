@@ -12,7 +12,28 @@
     "packages/main/src/tasks/run-all-smokes.ts"
   ],
   "scopeChangeReason": "Follow-up wiring story: the only material change is one validate.commands entry in lattice.config.json; guard source and run-all-smokes are explicitly out of scope (B-04bb non-goals).",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Command-generated ProofStory intent MVP lifecycle metadata (intent_collision_set / original_intent_snapshot_set / proofstory_contract_set) required by the enforce-mode DEV gate for this story; not hand-edited material code. These artifact types are not yet in the lifecycle registry so the shared scope classifier fails closed on them.",
+      "timestamp": "2026-07-09T19:20:35.141Z",
+      "paths": [
+        ".lattice/story/actives/B-04bb/intent-collision.json",
+        ".lattice/story/actives/B-04bb/original-intent-snapshot.json",
+        ".lattice/story/actives/B-04bb/proofstory.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-04bb/intent-collision.json",
+        ".lattice/story/actives/B-04bb/original-intent-snapshot.json",
+        ".lattice/story/actives/B-04bb/proofstory.json"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "a1df5af62ad3e2696afe6210ea251989f820033c",
+      "materialHash": "33062d79ff0dbeed0ef9e397a6efa3be0a230aad003b0f0098f716ed24eca0ab"
+    }
+  ],
   "createdAt": "2026-07-09T18:19:23.886Z",
-  "updatedAt": "2026-07-09T18:19:44.284Z"
+  "updatedAt": "2026-07-09T19:20:35.141Z"
 }
