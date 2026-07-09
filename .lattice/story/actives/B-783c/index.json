@@ -4,11 +4,11 @@
   "title": "Make Codex verify heartbeat activity logging work in global-thin managed projects",
   "description": "Fix lattice codex verify so the global fallback heartbeat records activity in managed global-thin projects that have .lattice/lattice.json but no canonical lattice.config.json, while preserving canonical lattice.config.json behavior.",
   "type": "bug",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "createdAt": "2026-07-08T23:37:08.006Z",
   "startedAt": "2026-07-08T23:37:08.006Z",
-  "endedAt": null,
+  "endedAt": "2026-07-09T01:02:20.314Z",
   "events": [
     {
       "phase": "INIT",
@@ -90,12 +90,16 @@
       "user": "Harmonygo",
       "sessionId": "sess-af55aa73befa8f0d",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-09T01:02:20.314Z",
+      "branch": "story/B-783c",
+      "user": "Harmonygo",
+      "sessionId": "sess-af55aa73befa8f0d",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-783c",
-    "branch": "story/B-783c",
-    "createdAt": "2026-07-08T23:38:54.285Z"
-  },
   "currentReviewRound": "2026-07-09T00:40:21.448Z"
 }
