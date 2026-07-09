@@ -87,7 +87,7 @@
       "desc": "F-001 remains partially uncovered: the new surfacing smoke parses only command lines that start with `lattice ` inside renderReviewAssuranceGuidance output, but the DONE review-assurance row still exposes its full operator recovery text through done-oracle hint=formatReviewAssuranceFloorFailure. That hint contains the stale-material recovery inline autopilot_review_submit command in packages/main/src/core/review-assurance-floor.ts:1175-1179. Current tests only assert the row detail reason/fallback in packages/main/src/tasks/review-assurance-surfacing-smoke.ts:341-347, and the older floor smoke only checks that Stale material recovery/autopilot_review_submit exist, not that the line is labeled Legal reviewer/host only or that its placeholders are shell-safe/no angle-bracket templates. This leaves the prior owner-self-sign / DONE row recovery regression path outside the updated coverage even though session_brief/next, fallback-not-applicable, and escalation-only text/JSON are now covered.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-09T11:53:44.372Z",
@@ -101,7 +101,11 @@
         "packages/main/src/core/done-oracle.ts"
       ],
       "signatureTag": "missing|ts|remains-partially-uncovered",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 931609335 and evidenced by c7c9ec6/4d53b6e/2e7e0d8: review-assurance-floor-smoke now covers the DONE-row review-assurance hint formatter path, including stale recovery inline commands, Legal reviewer/host only labeling, no angle-bracket templates, and zsh -n parsing. Full lattice validate passed 43/43 with coverage 9/9.",
+      "resolvedAt": "2026-07-09T12:04:03.561Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
