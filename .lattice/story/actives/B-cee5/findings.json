@@ -41,6 +41,21 @@
       ],
       "signatureTag": "missing|md|code-drift-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cee5:F-003",
+      "desc": "reviewer-scan-budget-guard-smoke.ts:63-65 lineIsEscalationPath() exempts any line containing the bare substring \"scanEscalationReason\" from all banned-pattern checks, regardless of whether the mention actually conditions/gates the scan on that line. A future prompt edit could combine an unconditional full-scan instruction with an unrelated scanEscalationReason mention on the same line (e.g. \"Always scan the full decisions/ directory; ignore scanEscalationReason.\") and the guard would silently pass it (verified: this hostile line matches bannedUnconditionalRules[\"always scan full decisions\"] but is exempted before the rule loop runs). All current prompt usages are legitimately gated today, and the same substring-exemption idiom is already used by the sibling retired-authority-vocabulary-guard-smoke.ts (lineIsQuarantined), so this is an accepted line-granularity tradeoff rather than a novel defect -- flagging as low severity so a tighter same-clause check (e.g. requiring only-with/unless adjacency to scanEscalationReason) can be considered if this guard is hardened later.",
+      "severity": "low",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-09T17:23:39.423Z",
+      "reviewRound": "2026-07-09T17:19:07.755Z",
+      "reviewRunId": "B-cee5:RR-002",
+      "_hash": "c0908894f353a233cc0a5d0369aa56f146c36b3b717202038d32f1acca9a1ce1",
+      "signatureTag": "edge|unknown|reviewer-scan-budget",
+      "signatureTagSource": "auto"
     }
   ]
 }
