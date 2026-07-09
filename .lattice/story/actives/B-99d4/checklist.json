@@ -107,7 +107,41 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees the verification run pass with assertions covering `dispatch_reassign`, requested role propagation, fresh-context prompt wording, parentDispatchId lineage, and unchanged dispatch_resume behavior.",
+      "files": {
+        "modify": [
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "packages/main/src/tasks/unattended-dispatch-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Smoke coverage proves a completed fake worker can be reassigned with an explicit worker role and follow-up instructions, producing the expected output and prompt metadata.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Regression coverage proves existing dispatch_resume still resumes/reruns the original dispatch metadata and does not silently create a follow-up reassignment.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Process-fact verification recognizes dispatch_reassign as an L1 diagnostic-only dispatch command with no gate evidence, receipt verification, or production DONE semantics.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
