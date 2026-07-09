@@ -175,9 +175,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/pos-agent-drivability-optimization.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-09T02:58:38.247Z",
       "userSees": "User sees the verification run pass with assertions covering `dispatch_reassign`, requested role propagation, fresh-context prompt wording, parentDispatchId lineage, and unchanged dispatch_resume behavior.",
       "files": {
         "modify": [
@@ -211,7 +211,64 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/dispatch-run-smoke.js",
+          "result": "pass",
+          "note": "Dispatch smoke covers completed fake worker reassignment with explicit worker role, follow-up objective, output text, prompt metadata, parentDispatchId lineage, and fresh-context wording.",
+          "headHash": "433e6933901c43b39210e313175ad553354e502e",
+          "materialHash": "b9e93476c1e29a51af8ed5e3e49b1b61a2ee960a9454e9b2e8b5c03739c1d53f",
+          "storyFilesHash": "8e93eabeb0596d06dcf043028b2dd265e4cc2239055c5cd607aa2c361e280c0d",
+          "timestamp": "2026-07-09T02:58:38.548Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/dispatch-run-smoke.js",
+          "result": "pass",
+          "note": "Dispatch smoke adds a dispatch_resume regression proving resume returns the original dispatch id and does not create a follow-up reassignment record.",
+          "headHash": "433e6933901c43b39210e313175ad553354e502e",
+          "materialHash": "b9e93476c1e29a51af8ed5e3e49b1b61a2ee960a9454e9b2e8b5c03739c1d53f",
+          "storyFilesHash": "8e93eabeb0596d06dcf043028b2dd265e4cc2239055c5cd607aa2c361e280c0d",
+          "timestamp": "2026-07-09T02:58:38.828Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "integration_test",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process fact verifier passes with dispatch_reassign registered as L1 lattice-dispatch metadata, and the dispatch smoke five-way registration also checks command catalog, handler registry, command policy, process fact level, and phase tools.",
+          "headHash": "433e6933901c43b39210e313175ad553354e502e",
+          "materialHash": "b9e93476c1e29a51af8ed5e3e49b1b61a2ee960a9454e9b2e8b5c03739c1d53f",
+          "storyFilesHash": "8e93eabeb0596d06dcf043028b2dd265e4cc2239055c5cd607aa2c361e280c0d",
+          "timestamp": "2026-07-09T02:58:39.112Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build passed after adding dispatch_reassign core, handler, catalog, policy, config, process-fact, and smoke coverage.",
+          "headHash": "433e6933901c43b39210e313175ad553354e502e",
+          "materialHash": "b9e93476c1e29a51af8ed5e3e49b1b61a2ee960a9454e9b2e8b5c03739c1d53f",
+          "storyFilesHash": "8e93eabeb0596d06dcf043028b2dd265e4cc2239055c5cd607aa2c361e280c0d",
+          "timestamp": "2026-07-09T02:58:39.414Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
+          "result": "pass",
+          "note": "Unattended dispatch smoke passed after command registration and dispatch policy changes.",
+          "headHash": "433e6933901c43b39210e313175ad553354e502e",
+          "materialHash": "b9e93476c1e29a51af8ed5e3e49b1b61a2ee960a9454e9b2e8b5c03739c1d53f",
+          "storyFilesHash": "8e93eabeb0596d06dcf043028b2dd265e4cc2239055c5cd607aa2c361e280c0d",
+          "timestamp": "2026-07-09T02:58:39.769Z"
+        }
+      ]
     }
   ]
 }
