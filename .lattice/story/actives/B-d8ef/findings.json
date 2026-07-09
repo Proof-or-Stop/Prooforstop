@@ -140,7 +140,7 @@
       "desc": "missing: packages/main/src/core/host-execution-readiness.ts:260-343 classifyHostExecutionReadiness always classifies canonicalReviewHostLauncherSpec(host).launcherArgv against itself (line 272: classifyReviewHostLauncher(args.host, spec.launcherArgv)) because its args type carries no observed-argv field; probeHostExecutionReadiness (the only real caller) always executes the hardcoded canonical argv. Since the canonical spec by construction satisfies its own classifyReviewHostLauncher checks, launcher.launcherOk is always true and the wrong_launcher branch at lines 305-319 is structurally unreachable in production, despite HostExecutionFailureKind listing wrong_launcher as a possible outcome of this function. Real observed-argv wrong-launcher detection only happens via the separate classifyReviewHostLauncher(host, launcherArgv) call on stored/submitted probe rows in review-escalation.ts:603, not via fresh probes.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-09T16:17:16.459Z",
@@ -148,7 +148,11 @@
       "reviewRunId": "B-d8ef:RR-024",
       "_hash": "18d1d307287f14d8430bbdd626084bc7980e0e80d7c41f76917de3067eedd22d",
       "signatureTag": "missing|unknown|missing-packages-main",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 2e223d3a3: classifyHostExecutionReadiness now accepts observedLauncherArgv and classifies that observed argv instead of always comparing the canonical spec to itself; the smoke now proves an observed agy --prompt-file argv returns wrong_launcher through the readiness classifier. Verified with npm --prefix packages/main run build and review-host-execution-readiness-smoke.",
+      "resolvedAt": "2026-07-09T16:25:16.319Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-d8ef:F-008",
