@@ -186,6 +186,29 @@
         }
       ],
       "_hash": "fa6412da6d4ccf6c5f5c9f8e2cce6b22246a70d8f8ac2fe7439379b1d26823d5"
+    },
+    {
+      "timestamp": "2026-07-09T01:23:10.061Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Make recovery run the same runtime version bump as normal DONE + Synchronize lockfiles in patch version bump are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 3 undigested unknowns: Whether existing recovery smoke fixtures can be extended cheaply or whether version-bump-smoke should carry the main proof.; Whether DONE finalization should be factored into a shared helper now or kept as a minimal done_recover call to avoid broader churn.; Whether worktree dependency absence requires local install or can use existing build paths after copying/symlinking dependencies."
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-6914 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "17dc044a2de6f7e4f759d30f583ae1887ab302d1a5f255eb1eaeaeb84dbef288"
     }
   ]
 }

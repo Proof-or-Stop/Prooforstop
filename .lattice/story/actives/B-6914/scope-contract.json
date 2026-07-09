@@ -1,0 +1,29 @@
+{
+  "storyId": "B-6914",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/done-recover.ts",
+    "packages/main/src/core/version-bump.ts",
+    "packages/main/src/tasks/version-bump-smoke.ts",
+    "package.json",
+    "package-lock.json",
+    "packages/main/package.json",
+    "packages/main/package-lock.json",
+    "packages/main/src/core/lattice-brand.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/worktree-repair-smoke.ts",
+    "packages/main/src/tasks/version-bump-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "remote git push",
+    "npm publish",
+    "scripts/release.mjs publish"
+  ],
+  "scopeChangeReason": "B-6914 scope is limited to local DONE/recovery version finalizer behavior, lockfile synchronization, 0.3.172 local version boundary, and related tests/metadata.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-09T01:23:29.442Z",
+  "updatedAt": "2026-07-09T01:23:29.442Z"
+}

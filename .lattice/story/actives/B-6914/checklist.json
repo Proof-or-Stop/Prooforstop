@@ -11,12 +11,14 @@
       ],
       "files": {
         "modify": [
-          "packages/main/src/handlers/done-recover.ts"
+          "packages/main/src/handlers/done-recover.ts",
+          "packages/main/src/handlers/done-effects.ts"
         ],
         "create": [],
         "test": [
           "packages/main/src/tasks/worktree-repair-smoke.ts",
-          "packages/main/src/tasks/version-bump-smoke.ts"
+          "packages/main/src/tasks/version-bump-smoke.ts",
+          "packages/main/src/tasks/artifact-release-ledger-smoke.ts"
         ]
       },
       "verificationIntent": {
