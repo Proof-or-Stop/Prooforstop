@@ -309,9 +309,50 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-09T23:49:37.080Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "command": "npm --prefix packages/main run test:done-prepare-auto-closeout-smoke",
+          "result": "pass",
+          "note": "assertManifestOnlyAutoCloseout verifies one opt-in done_prepare reaches PASS after auto-closeout and prints the next legal story_advance DONE command.",
+          "headHash": "ad05230272293e025711388a4bcd4f19f12d6250",
+          "materialHash": "6eb914f8d518ed01e9febf44f48ae9de653476a3c423821b145ade0950c475a5",
+          "storyFilesHash": "821eadc046e39e73f186d8bc23634745e6e2afc3d8b2d4a34dde965f7f40c621",
+          "timestamp": "2026-07-09T23:49:37.278Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-assurance-surfacing-smoke.ts",
+          "command": "npm --prefix packages/main run test:review-assurance-surfacing-smoke",
+          "result": "pass",
+          "note": "review-assurance-surfacing smoke verifies missing review assurance remains a done_prepare doneClosure blocker with canonical owner-runnable guidance instead of auto-writing verdicts.",
+          "headHash": "ad05230272293e025711388a4bcd4f19f12d6250",
+          "materialHash": "6eb914f8d518ed01e9febf44f48ae9de653476a3c423821b145ade0950c475a5",
+          "storyFilesHash": "821eadc046e39e73f186d8bc23634745e6e2afc3d8b2d4a34dde965f7f40c621",
+          "timestamp": "2026-07-09T23:49:37.412Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "command": "npm --prefix packages/main run test:done-prepare-auto-closeout-smoke",
+          "result": "pass",
+          "note": "installCommandSpy and delivery-check byte comparison prove done_prepare auto-closeout does not auto-advance DONE, bump versions, push, publish, claim Authority or production readiness, or self-sign delivery/review evidence.",
+          "headHash": "ad05230272293e025711388a4bcd4f19f12d6250",
+          "materialHash": "6eb914f8d518ed01e9febf44f48ae9de653476a3c423821b145ade0950c475a5",
+          "storyFilesHash": "821eadc046e39e73f186d8bc23634745e6e2afc3d8b2d4a34dde965f7f40c621",
+          "timestamp": "2026-07-09T23:49:37.546Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
