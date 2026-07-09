@@ -178,7 +178,7 @@
       "desc": "Wrapping done_required_validate in runCloseoutPhase is not fail-closed for async validation commands. runCloseoutPhase races the handler deadline at packages/main/src/handlers/done-prepare.ts:1233, but runDoneRequiredValidation awaits runValidationCommand at packages/main/src/core/done-required-validation.ts:531 and writes done-required-evidence.json at packages/main/src/core/done-required-validation.ts:587. Because runValidationCommand owns an independent child timeout at packages/main/src/core/validation-executor.ts:429 and receives no abort signal, a phase timeout returns DONE prepare BLOCKED while the child continues and can later write PASS DONE-required evidence. Verified with a temp fixture: LATTICE_DONE_PREPARE_DONE_REQUIRED_VALIDATION_TIMEOUT_MS=100, a DONE-required node command sleeping 1000ms, done_prepare returned blockedAt validate, then done-required-evidence.json appeared afterward with status PASS. This violates timeout/error mapping and fail-closed semantics; cancel/abort the DONE-required run or prevent evidence writes after the phase deadline before wrapping it.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-09T03:52:51.087Z",
@@ -192,7 +192,11 @@
         "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts"
       ],
       "signatureTag": "edge|ts|wrapping-required-validate",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit d30173a65: done_prepare passes abort/deadline control into DONE-required validation; validation-executor kills the child process on abort; runDoneRequiredValidation checks deadline before commands, after command completion, and before writing done-required-evidence.json. Verified with npm --prefix packages/main run build and npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke, including a delayed DONE-required command that times out and cannot late-write PASS evidence.",
+      "resolvedAt": "2026-07-09T04:00:08.255Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
