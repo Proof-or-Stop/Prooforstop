@@ -66,6 +66,26 @@
       ],
       "signatureTag": "edge|ts|prepare-closeout-hard",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-eb08:F-004",
+      "desc": "agent:\"lattice-review-concept\" The post-validation done_prepare progress and JSON side-channel contract is present, but the hard-deadline concept is still incomplete for the real DONE-closure path. runCloseoutPhase installs a deadline wrapper only for childProcess.execFileSync at packages/main/src/handlers/done-prepare.ts:502-559, while the wrapped DONE-closure phase calls buildDoneClosureRunbook at packages/main/src/handlers/done-prepare.ts:1246-1258. That runbook reaches execSync-backed git probes: checkMainDivergence uses git rev-list via execSync at packages/main/src/core/done-oracle.ts:66-75 and readGitStatusLines uses git status via execSync at packages/main/src/core/dirty-worktree-gate.ts:40-50. If one of those synchronous git calls hangs, Node cannot run the Promise.race timeout or heartbeat callbacks, and the call is not converted into DonePreparePhaseTimeoutError. This violates CHK-002/M2: every heartbeating closeout phase must fail closed by an independent attributed phase deadline below the global idle watchdog. Patch/bound execSync or remove it from the wrapped closeout path and add smoke coverage for an execSync git hang.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-09T02:58:56.510Z",
+      "reviewRound": "2026-07-09T02:53:26.256Z",
+      "reviewRunId": "B-eb08:RR-008",
+      "_hash": "2c3918f57e83aebddcce699742efe137755eb0f6a1d0d65d0ee38be23baec039",
+      "files": [
+        "packages/main/src/handlers/done-prepare.ts",
+        "packages/main/src/core/done-oracle.ts",
+        "packages/main/src/core/dirty-worktree-gate.ts"
+      ],
+      "signatureTag": "edge-ts-done-prepare-execsync-deadline",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
