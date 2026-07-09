@@ -264,9 +264,11 @@
       "q": "Should metadata-only validation reuse be represented as a new evidence artifact or as an extension to done-required-evidence.json? Current B-fbcf plan requires an explicit reuse record but does not settle the storage contract.",
       "evidence": "Legacy plan lists this as an Open Question; B-fbcf CHK-003 says preserve prior transcript and write an explicit metadata-only reuse record without naming the artifact/schema.",
       "sourcePointers": [
-        "/Users/jek/Documents/Work/Orchestrate/docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md#Open Questions",
+        "docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md#Resolved Design Decisions",
         ".lattice/story/actives/B-fbcf/plan.md#CHK-003"
-      ]
+      ],
+      "resolution": "Resolved for B-fbcf: represent metadata-only validation reuse as an extension of done-required-evidence.json. The record must reference prior validation and DONE-required evidence, preserve prior command transcripts, and explicitly state validation was reused rather than rerun. It is not a new reviewer, host, delivery, fallback, Authority, release, or production evidence artifact.",
+      "resolvedAt": "2026-07-09T23:21:02.677Z"
     },
     {
       "id": "OQ-B-fbcf-002",

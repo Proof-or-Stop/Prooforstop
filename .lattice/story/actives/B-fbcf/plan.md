@@ -10,7 +10,8 @@ Development rule: do not start B-fbcf code edits against stale main if B-eb08 is
 
 ## Audit Summary
 
-The user-provided execution plan is coherent and safety-oriented, but the source document currently lives only under the retired Orchestrate path. B-fbcf will first materialize that plan into the canonical Proofbound docs path so relatedDocs are real.
+The user-provided execution plan is coherent and safety-oriented. B-fbcf has now materialized that plan into the canonical Proofbound docs path so relatedDocs are real:
+docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md
 
 The chosen implementation is narrow: explicit opt-in flags, current-run generated lifecycle metadata only, strict validation reuse bindings, a single post-commit done_prepare re-evaluation, and no DONE advancement or authority-sensitive evidence writes.
 
@@ -30,6 +31,10 @@ Verification focus: success commits only manifest paths; refusal happens before 
 
 Add validation reuse logic that compares prior PASS evidence with the new HEAD after the safe metadata commit. Required matches include materialHash, storyFilesHash, validation commandSetHash, DONE-required commandSetHash, scope contract hash, lifecycle classifier version, validation config hash, DONE-required config hash, and relevant gate policy/config hash. Preserve prior transcripts and write an explicit metadata-only reuse record.
 
+Resolved storage contract: the metadata-only reuse record is an extension of done-required-evidence.json. It must reference the prior validation and DONE-required evidence records, preserve their command transcripts as reused evidence, and explicitly say validation was reused rather than rerun. B-fbcf does not create a separate authority or reviewer evidence artifact for reuse.
+
+Resolved freshness contract: B-fbcf does not add a configurable wall-clock freshness window. Reuse is structural and hash-bound: if material/storyFiles/command/policy/config hashes match and the prior evidence is PASS, the timestamp remains audit metadata only. A max-age freshness policy would be a separate lifecycle-policy story.
+
 Verification focus: metadata-only drift does not execute full validate commands; material/story/config/policy drift refuses reuse; reuse output never claims commands were rerun.
 
 ## CHK-004 - Re-evaluate DONE prepare after safe auto-closeout without auto-advancing DONE
@@ -41,5 +46,7 @@ Verification focus: the former done_prepare -> commit -> done_prepare fixture re
 ## CHK-005 - Add regression coverage for safety and JSON cleanliness
 
 Add a focused smoke task and package script. Cover success, unrelated dirt refusal, material drift, missing review assurance, JSON parseability compatible with B-eb08, no auto-signing, and no remote/publish behavior. Keep the smoke focused so it does not expand unrelated validate surfaces.
+
+Sibling-smoke mapping: B-fbcf must run current-main sibling smokes for consumed surfaces when those smoke scripts exist. Future B-eb92/B-b264 smoke scripts that are not merged into the baseline are not B-fbcf completion criteria; B-fbcf instead verifies non-duplication and fail-closed behavior for their owned surfaces.
 
 Verification focus: build plus smoke pass; JSON mode stdout parses; authority-sensitive artifacts/events are not written; B-eb08/B-eb92/B-b264 behavior is not duplicated.
