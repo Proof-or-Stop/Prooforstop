@@ -362,6 +362,17 @@
           "materialHash": "2129600913e88693d4e5986538beca1b15432d378b1fb18b9b126d64d6e96cdb",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "timestamp": "2026-07-09T17:16:42.068Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js",
+          "result": "pass",
+          "note": "Guard smoke scans all six copies (two templates + two .claude + two .lattice-codex); the red demonstration was performed on a .claude mirror specifically, proving stale-mirror wording fails the test.",
+          "headHash": "9d8650f508a524c7138f6c42f7e8ea1b8f629640",
+          "materialHash": "2129600913e88693d4e5986538beca1b15432d378b1fb18b9b126d64d6e96cdb",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-09T17:16:43.576Z"
         }
       ]
     },
