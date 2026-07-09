@@ -261,7 +261,20 @@
             "type": "docs"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"Default inputs: the .lattice scope_check_save. result\" packages/main/templates/agents/lattice-review-behavior.md; rg -n -i \"full directory scan of|all \\.md files under\" packages/main/templates/agents/lattice-review-behavior.md --include-zero || echo no-unconditional-hits",
+          "result": "pass",
+          "note": "Behavior spec-boundary step defaults to scope_check_save result + current diff + checklist commitments + candidateSpecSet; the old unconditional full-scan wording at former lines 126/160 is gone (guard smoke enforces).",
+          "headHash": "3d5feed5b921ef5ed9fa4caed236b8d28b89fb91",
+          "materialHash": "2129600913e88693d4e5986538beca1b15432d378b1fb18b9b126d64d6e96cdb",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-09T17:16:35.268Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
