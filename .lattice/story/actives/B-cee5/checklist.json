@@ -441,6 +441,17 @@
           "materialHash": "2129600913e88693d4e5986538beca1b15432d378b1fb18b9b126d64d6e96cdb",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "timestamp": "2026-07-09T17:16:47.170Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "logic_test",
+          "command": "sed -i '' 's/^## Rules$/## Rules\\n\\n- Always scan the **full decisions\\/ directory**./' .claude/agents/lattice-review-scope-plan.md; node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js; cp packages/main/templates/agents/lattice-review-scope-plan.md .claude/agents/lattice-review-scope-plan.md",
+          "result": "pass",
+          "note": "Red demonstration executed: reintroducing the legacy phrase into .claude/agents/lattice-review-scope-plan.md made the smoke exit 1 flagging line 195 [always scan full decisions]; restoring the mirror returned exit 0.",
+          "headHash": "75dd7f675930e7dbaf4b260303029c9c7019c60a",
+          "materialHash": "2129600913e88693d4e5986538beca1b15432d378b1fb18b9b126d64d6e96cdb",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-09T17:16:48.707Z"
         }
       ]
     },
