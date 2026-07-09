@@ -1,0 +1,43 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Record fresh canonical host availability evidence for review fallback decisions",
+      "context": "Introduce a command/handler or helper that probes canonical hosts codex, claude, and agy, records availability/version/fresh material binding, and registers the evidence as a process fact so fallback gates can consume it.",
+      "relatedDocs": [
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+        "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Reject single-host degraded fallback when fresh host proof shows two or more hosts available",
+      "context": "review_escalation_fallback_set and the review escalation/floor evaluators must require a fresh probe for eligibility=single-host-environment and reject it when at least two canonical hosts are executable. explicit-human-approval may still permit lower-assurance degraded fallback, but must be rendered explicitly lower assurance.",
+      "relatedDocs": [
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+        "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Cover host-proof fallback behavior with smoke tests and user-visible diagnostics",
+      "context": "Add smoke coverage proving missing probe blocks single-host fallback, probe with codex+claude available blocks single-host fallback, insufficient hosts permits the explicit single-host path, and status/DONE diagnostics explain how to run the probe instead of silently accepting prose.",
+      "relatedDocs": [
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
