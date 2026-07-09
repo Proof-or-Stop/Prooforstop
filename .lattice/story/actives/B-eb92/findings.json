@@ -30,7 +30,7 @@
       "desc": "review_escalation_status builds canonical review-escalation guidance but drops it from human text output, rendering only floor guidance at packages/main/src/handlers/review-escalation.ts:111. A story whose canonical review escalation predicate fires without the floor predicate, such as first-round countable findings on non-code material or an explicit high-risk policy fact, will not receive the new legal-writer, fallback, and cannot-auto-sign guidance on the primary status surface. The smoke fixture at packages/main/src/tasks/review-assurance-surfacing-smoke.ts:150 does not seed first-round findings and only asserts the floor reason code, so this canonical escalation path is untested.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-09T11:25:13.480Z",
@@ -42,7 +42,11 @@
         "packages/main/src/tasks/review-assurance-surfacing-smoke.ts"
       ],
       "signatureTag": "missing|ts|review-escalation-status",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 2c3714cba: review_escalation_status now renders every reviewAssuranceGuidance entry in human text, not only floor guidance. The escalation-only fixture asserts human text includes Review assurance guidance (review-escalation), JSON includes the review-escalation guidance, and floor guidance is not incorrectly rendered. Concept reviewer pass B-eb92:RP-001 confirmed no concept blocker remains.",
+      "resolvedAt": "2026-07-09T12:04:23.420Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-eb92:F-003",
