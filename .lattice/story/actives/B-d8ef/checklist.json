@@ -98,9 +98,9 @@
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
         "docs/requirements/decisions/host-neutral-observability-console.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-09T13:27:34.618Z",
       "userSees": "Fallback diagnostics include \"reviewReadyHostCount=1 below required=2; degraded fallback remains lower-assurance\" when only one host is review-ready, and \"refusing single-host-environment: reviewReadyHostCount=2\" when two independent hosts can run.",
       "files": {
         "modify": [
@@ -138,7 +138,53 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js",
+          "result": "pass",
+          "note": "Both degraded fallback gates accept only when a fresh current-material probe reports reviewReadyHostCount below two and keep degraded-single-host lower-assurance semantics.",
+          "headHash": "b98b78f6b8f1db9228b01dcbdc2095c50990902a",
+          "materialHash": "00673d61b1874343698f1b19ae619c64a89a38b2e72a6e4bce0e36782111b7c4",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-09T13:27:34.801Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node packages/main/dist/tasks/review-escalation-smoke.js",
+          "result": "pass",
+          "note": "Legacy version-only probe records are rejected for non-human fallback and diagnostics require rerunning the v2 readiness probe or using explicit-human-approval.",
+          "headHash": "b98b78f6b8f1db9228b01dcbdc2095c50990902a",
+          "materialHash": "00673d61b1874343698f1b19ae619c64a89a38b2e72a6e4bce0e36782111b7c4",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-09T13:27:34.944Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js",
+          "result": "pass",
+          "note": "Fallback is refused when two canonical hosts are reviewReady even if single-host-environment or temporary-host-unavailability is claimed.",
+          "headHash": "b98b78f6b8f1db9228b01dcbdc2095c50990902a",
+          "materialHash": "00673d61b1874343698f1b19ae619c64a89a38b2e72a6e4bce0e36782111b7c4",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-09T13:27:35.092Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js",
+          "result": "pass",
+          "note": "Observed smoke output included probe with reviewReadyHostCount below two permits degraded 3x1 and probe with two executable canonical hosts blocks single-host fallback for both escalation and assurance floor paths.",
+          "headHash": "b98b78f6b8f1db9228b01dcbdc2095c50990902a",
+          "materialHash": "00673d61b1874343698f1b19ae619c64a89a38b2e72a6e4bce0e36782111b7c4",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-09T13:27:35.235Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
