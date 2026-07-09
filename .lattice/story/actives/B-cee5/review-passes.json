@@ -80,6 +80,15 @@
       "reviewRound": "2026-07-09T17:34:47.565Z",
       "reviewRunId": "B-cee5:RR-014",
       "_hash": "4c3219d4e9c8b0cd615eb58c3a1930a474ca163c05190d7ca42d267b73a703da"
+    },
+    {
+      "id": "B-cee5:RP-010",
+      "agent": "lattice-review-concept",
+      "note": "Round 4 incremental: delta since RP-006 is scoped to packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts only (git diff HEAD~1 confirmed no prompt copies or docs changed). No concept deletion/replacement this round — the fix adds two new banned-pattern rules (legacy read-each-one phrase, whole-directory full-content-scan phrase) and rebuilds the exempt positive control so it actually trips a banned rule unless exempted by the conditioning idiom, plus a soundness assertion. Verified: (1) node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js -> PASS (6 prompt copies clean, 4 required phrases present), exit 0; (2) grepped repo for the retired \"read each one\" phrase and the \"full-content...scan of the whole\" phrase outside dist/node_modules/.git — the former appears only as the smoke test's own comment+pattern definition (intentional quoting, not live prompt residue); the latter appears only in the six guarded prompt copies, each carrying the recorded-scanEscalationReason conditioning idiom that the guard's escalation-exemption logic requires (matches the mechanical PASS). No blocker.",
+      "createdAt": "2026-07-09T17:48:56.964Z",
+      "reviewRound": "2026-07-09T17:47:43.007Z",
+      "reviewRunId": "B-cee5:RR-016",
+      "_hash": "ff1a7a12cd1e2550f08abd0eaff94e50cf9d1037a7b35deb627dfdd1002fa1f6"
     }
   ]
 }
