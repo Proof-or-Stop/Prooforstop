@@ -41,9 +41,9 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-09T11:19:41.054Z",
       "verificationEvidence": [
         {
           "intentRef": "CHK-001:happy:0",
@@ -254,6 +254,17 @@
           "timestamp": "2026-07-09T11:19:33.456Z"
         }
       ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-09T11:19:41.054Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implemented in commit 813fe24d5 and covered by review-assurance-surfacing smoke plus recorded verification evidence."
     }
   ]
 }
