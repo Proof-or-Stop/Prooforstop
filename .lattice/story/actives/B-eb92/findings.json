@@ -57,6 +57,26 @@
       ],
       "signatureTag": "missing|ts|unsafe-review-assurance",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-eb92:F-004",
+      "desc": "B-eb92:F-003 is only partially fixed: the main guidance recipes now use {round-id}, but formatReviewAssuranceFloorFailure still defines storyRef/materialRef as <storyId>/<current-materialHash> and embeds them in Stale material recovery command lines; if those optional report fields are absent the CLI hint emits shell-active redirection placeholders. The added zsh -n assertions only cover review-assurance-surfacing smoke output, not this failure/recovery renderer. Directly running node packages/main/dist/tasks/review-assurance-floor-smoke.js also fails on stale recovery text, showing the existing recovery smoke was not updated or extended to parse the rendered commands.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-09T11:53:12.864Z",
+      "reviewRound": "2026-07-09T11:50:01.412Z",
+      "reviewRunId": "B-eb92:RR-006",
+      "_hash": "46204ebc31d1a277b65d937c8580a5365d90879d9132a6c231aa5b4c33c2ada1",
+      "files": [
+        "packages/main/src/core/review-assurance-floor.ts",
+        "packages/main/src/tasks/review-assurance-surfacing-smoke.ts",
+        "packages/main/src/tasks/review-assurance-floor-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|eb92-partially-fixed",
+      "signatureTagSource": "auto"
     }
   ]
 }
