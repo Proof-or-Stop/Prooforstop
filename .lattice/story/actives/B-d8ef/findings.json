@@ -183,7 +183,7 @@
       "desc": "Provider spawn error classification added E2BIG => argv_too_large and default spawn_failed plus widened spawnError handling, but provider-codex-smoke/provider-gemini-smoke do not exercise non-ENOENT/non-timeout spawn failures or assert spawnErrorKind/spawnErrorCode. Add coverage for argv_too_large and generic spawn_failed classification.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-09T21:15:50.030Z",
@@ -197,7 +197,11 @@
         "packages/main/src/tasks/provider-gemini-smoke.ts"
       ],
       "signatureTag": "missing|ts|provider-spawn-error-kind-coverage",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 28d1ad8f1: provider-codex-smoke and provider-gemini-smoke now assert ENOENT => missing_executable, E2BIG => argv_too_large, and EACCES/default => spawn_failed, including spawnErrorCode preservation, null exitCode, spawnError=true, and no retry for spawn setup failures. Verified with npm --prefix packages/main run build, node packages/main/dist/tasks/provider-codex-smoke.js, and node packages/main/dist/tasks/provider-gemini-smoke.js.",
+      "resolvedAt": "2026-07-09T21:21:30.821Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
