@@ -44,6 +44,15 @@
       "reviewRound": "2026-07-09T12:13:19.411Z",
       "reviewRunId": "B-7438:RR-008",
       "_hash": "ecb3b2a12cba441ccd083f1659a5f021b347e2e561404ad5b7bc43d7d996c065"
+    },
+    {
+      "id": "B-7438:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Round 3 targeted quality review: reviewed generic requireRetiredCompletionFieldsFalse helper (review-escalation.ts) applied uniformly to probe/policy/fallback events; command-policy.ts wording for review_host_availability_probe and review_escalation_fallback_set accurately describes implementation; vocabulary guard quarantine addition for review-assurance-floor-storyfileshash-smoke.ts is consistent with existing pattern (authorityDone/fullAuthorityDone/productionDone literals in fixture). Build clean; review-escalation-smoke (19 checks), review-assurance-floor-smoke (15 checks), retired-authority-vocabulary-guard-smoke, and verify-process-fact-contract all pass. No broken diagnostics, no hidden authority semantics, no stale impossible tests, no weakening of probe validation found.",
+      "createdAt": "2026-07-09T12:15:39.445Z",
+      "reviewRound": "2026-07-09T12:13:19.411Z",
+      "reviewRunId": "B-7438:RR-007",
+      "_hash": "67a70a36052dd4b03a83482408f5d7a4f298187cbe90088f5719696dc5b61592"
     }
   ]
 }
