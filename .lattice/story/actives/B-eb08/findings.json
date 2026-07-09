@@ -29,7 +29,7 @@
       "desc": "packages/main/src/handlers/done-prepare.ts:449 starts the closeout work in the same event-loop turn and line 455 relies on Promise.race for the phase deadline. The wrapped production phases still call synchronous helpers such as execFileSync-backed git at packages/main/src/handlers/done-prepare.ts:199 and runtime/clean-tree phase work at packages/main/src/handlers/done-prepare.ts:1157 and packages/main/src/handlers/done-prepare.ts:1167. While any of those synchronous calls is blocked, the timeout callback cannot run, so a hung git/filesystem closeout can outlive LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS and fall back to the global idle watchdog instead of the promised independent hard deadline. The smoke only injects an async pending promise at packages/main/src/handlers/done-prepare.ts:424, so it does not cover this real synchronous failure mode.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-09T02:10:11.627Z",
@@ -41,7 +41,11 @@
         "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 9d9cf06430: done_prepare closeout phases now install a bounded child_process.execFileSync deadline wrapper for each heartbeating phase, restore it in finally, and the smoke covers a synchronous git hang failing closed before the global idle timeout.",
+      "resolvedAt": "2026-07-09T02:32:50.649Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
