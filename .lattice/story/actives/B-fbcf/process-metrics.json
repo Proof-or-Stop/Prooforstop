@@ -1,12 +1,12 @@
 {
   "storyId": "B-fbcf",
-  "generatedAt": "2026-07-09T02:34:30.203Z",
+  "generatedAt": "2026-07-09T23:14:58.272Z",
   "sourceSnapshot": {
-    "hasUnderstanding": false,
-    "hasDecision": false,
-    "hasPlan": false,
+    "hasUnderstanding": true,
+    "hasDecision": true,
+    "hasPlan": true,
     "checklistItems": 5,
-    "reviewRounds": 1,
+    "reviewRounds": 2,
     "findings": 0,
     "bugs": 0,
     "testRuns": 0,
@@ -81,7 +81,7 @@
       },
       "metrics": {
         "planArtifactsPresent": {
-          "value": false,
+          "value": true,
           "unit": "bool",
           "confidence": "high",
           "sources": [
@@ -194,7 +194,7 @@
       },
       "metrics": {
         "hasPlanArtifact": {
-          "value": false,
+          "value": true,
           "unit": "bool",
           "confidence": "high",
           "sources": [
@@ -217,7 +217,7 @@
           "sources": [
             "plan.md"
           ],
-          "note": "no plan.md"
+          "note": "no CHK sections in plan"
         },
         "devToPlanBounceCount": {
           "value": 0,
@@ -312,7 +312,7 @@
       },
       "metrics": {
         "storyReviewRounds": {
-          "value": 1,
+          "value": 2,
           "unit": "count",
           "confidence": "medium",
           "sources": [

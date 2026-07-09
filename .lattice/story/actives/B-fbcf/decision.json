@@ -1,0 +1,103 @@
+{
+  "principles": [
+    "Fail closed before every mutation.",
+    "Do not duplicate active sibling-story UX ownership.",
+    "Opt-in automation cannot create or refresh authority-sensitive evidence.",
+    "Structured hashes/manifests are stronger than operator narration.",
+    "Canonical docs and JSON compatibility are part of the command contract."
+  ],
+  "drivers": [
+    "B-6914 exposed a safe but costly done_prepare rerun loop caused by generated metadata commits rebinding HEAD.",
+    "B-eb08 already changes done_prepare closeout heartbeat/json behavior and will conflict if B-fbcf edits the same regions from stale main.",
+    "B-eb92 and B-b264 own adjacent done_prepare guidance semantics, so B-fbcf must layer automation on top rather than rewording their guidance.",
+    "Operators need a deterministic path that stages only current-run lifecycle metadata and refuses unrelated dirt.",
+    "Skipping validation is admissible only when material/story-owned files and validation policy inputs are mechanically unchanged."
+  ],
+  "options": [
+    {
+      "name": "A: implement B-fbcf directly on current main",
+      "pros": [
+        "Fastest start"
+      ],
+      "cons": [
+        "Likely merge conflict with B-eb08",
+        "Risk of duplicating sibling UX work"
+      ]
+    },
+    {
+      "name": "B: wait for B-eb08/B-eb92/B-b264 all to merge before any B-fbcf DEV",
+      "pros": [
+        "Lowest semantic conflict risk"
+      ],
+      "cons": [
+        "Blocks this story on multiple unfinished stories"
+      ]
+    },
+    {
+      "name": "C: plan now, then start B-fbcf DEV only after B-eb08 is merged or explicitly integrated; treat B-eb92/B-b264 as semantic boundaries unless they merge first",
+      "pros": [
+        "Avoids the known code conflict while preserving progress",
+        "Lets tests assert non-duplication without depending on unfinished strings"
+      ],
+      "cons": [
+        "Requires a pre-DEV main sync/integration checkpoint"
+      ]
+    },
+    {
+      "name": "D: combine B-fbcf with B-eb08/B-eb92/B-b264 into one large done_prepare story",
+      "pros": [
+        "Single edit surface"
+      ],
+      "cons": [
+        "Destroys ownership boundaries and creates a risky oversized gate story"
+      ]
+    }
+  ],
+  "chosen": "C: plan now, then start B-fbcf DEV only after B-eb08 is merged or explicitly integrated; treat B-eb92/B-b264 as semantic boundaries unless they merge first",
+  "rationale": "Choose C because B-eb08 already has a real done_prepare.ts/code-catalog/package diff, so B-fbcf implementation from stale main would be wasteful and risky. B-fbcf can still complete PLAN, canonicalize the doc, and define fail-closed contracts now. DEV must begin from a baseline that includes or deliberately integrates B-eb08; B-eb92/B-b264 remain non-overlap boundaries unless merged before B-fbcf reaches those code paths.",
+  "preMortem": [
+    {
+      "scenario": "B-fbcf overwrites B-eb08 heartbeat/json behavior.",
+      "trigger": "Implementation edits done_prepare.ts from main without integrating story/B-eb08.",
+      "consequence": "Merge conflict or lost liveness behavior.",
+      "mitigation": "Before DEV code edits, merge main after B-eb08 DONE or explicitly integrate story/B-eb08 as a known dependency; keep auto-closeout code behind B-eb08-compatible json/liveness APIs."
+    },
+    {
+      "scenario": "B-fbcf duplicates B-eb92 review assurance guidance.",
+      "trigger": "Auto-closeout blockers invent cannot-auto-sign or fallback wording.",
+      "consequence": "Conflicting review assurance instructions.",
+      "mitigation": "Use canonical review-assurance status/guidance functions when available; otherwise only assert that B-fbcf does not auto-write review/fallback evidence."
+    },
+    {
+      "scenario": "B-fbcf duplicates B-b264 rerun/merge guidance.",
+      "trigger": "Auto-closeout refusal text starts explaining merge hazards or generic rerun deltas.",
+      "consequence": "Overlapping UX ownership and stale guidance.",
+      "mitigation": "Limit refusal text to auto-closeout safety refusal and defer merge/rerun explanation to B-b264 surfaces."
+    },
+    {
+      "scenario": "Manifest classifier is too broad and stages user work.",
+      "trigger": "A dirty docs/source/runtime file appears under a path that looks lifecycle-adjacent.",
+      "consequence": "auto-closeout commits unrelated or unsafe changes.",
+      "mitigation": "Reuse lifecycle artifact classifier, require current-run producer records, re-read git status, refuse non-manifest dirt, and stage exact manifest paths only."
+    },
+    {
+      "scenario": "Validation reuse accepts stale evidence after semantic drift.",
+      "trigger": "materialHash, storyFilesHash, commandSetHash, policy/config hash, scope contract hash, or DONE-required inputs changed.",
+      "consequence": "DONE prepare reports PASS without rerunning commands that should have been rerun.",
+      "mitigation": "Require every binding hash to match prior PASS evidence; otherwise refuse reuse and follow normal validation path."
+    },
+    {
+      "scenario": "JSON output is polluted by human auto-closeout text.",
+      "trigger": "Progress or refusal strings are written to stdout in JSON mode.",
+      "consequence": "automation callers fail to parse done_prepare output.",
+      "mitigation": "Honor B-eb08 JSON contract and add parseability smoke tests."
+    },
+    {
+      "scenario": "Auto-closeout starts acting like authority evidence.",
+      "trigger": "A helper writes review pass, host verdict, delivery check, fallback, receipt, release, or production readiness facts.",
+      "consequence": "The feature weakens DONE gates instead of reducing a metadata loop.",
+      "mitigation": "Add no such write calls, assert no authority-sensitive artifacts/events are created, and leave story_advance DONE manual."
+    }
+  ],
+  "timestamp": "2026-07-09T02:44:30.031Z"
+}

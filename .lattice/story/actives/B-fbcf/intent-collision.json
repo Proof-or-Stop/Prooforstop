@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-fbcf",
+  "id": "IC-20260709024337",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Implement the user-provided done_prepare generated-metadata auto-closeout plan as a Proofbound CLI story after auditing conflicts: materialize the legacy decision document into the canonical Proofbound docs path, then add only opt-in, fail-closed TEST-phase automation that commits current-run lifecycle metadata, reuses validation only under strict unchanged-hash gates, and re-evaluates done_prepare without duplicating B-eb08/B-eb92/B-b264 UX ownership.",
+  "acceptedInterpretationHash": "sha256:997544f65aca026a06cd9604d4ee1d37a7fc33060b3667f90bb0c4ad560f45e0",
+  "notes": "No intent collision after audit. B-eb08 owns closure heartbeat/progress and json liveness; B-eb92 owns review-assurance surfacing and cannot-auto-sign guidance; B-b264 owns merge/rerun hazard and generated-file ownership explanation. B-fbcf must be layered after or reconciled with those changes and must not overwrite their behavior.",
+  "ledgerHashBeforeDecision": "sha256:d06210bda4816b596550a7bf4b98e25179417d223d7d8512ef6096383c8feba4",
+  "confirmedLedgerHash": "sha256:d06210bda4816b596550a7bf4b98e25179417d223d7d8512ef6096383c8feba4",
+  "createdAt": "2026-07-09T02:43:37.070Z",
+  "updatedAt": "2026-07-09T02:43:37.070Z"
+}
