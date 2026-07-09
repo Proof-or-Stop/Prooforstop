@@ -12,7 +12,27 @@
       "userSees": "A short evidence summary identifies the token-heavy scans and the two prompt surfaces that must change.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "find/wc reproduce the decisions corpus baseline (~111 files / ~2.4MB) and rg locates the full-scan instructions at the cited lines in both templates",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "baseline recorded with exact literal commands so same-day corpus drift (plus/minus a file) is detectable and explainable rather than silently stale",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "pre-edit diff proves mirrors are byte-identical to templates so the baseline cannot hide pre-existing mirror drift",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

@@ -1,12 +1,12 @@
 {
   "storyId": "B-cee5",
-  "generatedAt": "2026-07-09T16:53:54.273Z",
+  "generatedAt": "2026-07-09T16:56:59.932Z",
   "sourceSnapshot": {
     "hasUnderstanding": true,
     "hasDecision": true,
     "hasPlan": true,
     "checklistItems": 7,
-    "reviewRounds": 1,
+    "reviewRounds": 4,
     "findings": 0,
     "bugs": 0,
     "testRuns": 0,
@@ -228,13 +228,12 @@
           ]
         },
         "blockedTaskCount": {
-          "value": 0,
+          "value": 1,
           "unit": "count",
           "confidence": "medium",
           "sources": [
             "process-events.jsonl"
-          ],
-          "note": "no dispatch events"
+          ]
         }
       }
     },
@@ -284,8 +283,7 @@
           "confidence": "medium",
           "sources": [
             "process-events.jsonl"
-          ],
-          "note": "no dispatch events"
+          ]
         },
         "blockedReturnCount": {
           "value": 0,
@@ -312,7 +310,7 @@
       },
       "metrics": {
         "storyReviewRounds": {
-          "value": 1,
+          "value": 4,
           "unit": "count",
           "confidence": "medium",
           "sources": [
@@ -347,13 +345,12 @@
           "note": "no test runs"
         },
         "reviewAfterEachBatch": {
-          "value": "n/a",
-          "unit": "text",
+          "value": false,
+          "unit": "bool",
           "confidence": "medium",
           "sources": [
             "process-events.jsonl"
-          ],
-          "note": "no dispatch events"
+          ]
         }
       }
     }
