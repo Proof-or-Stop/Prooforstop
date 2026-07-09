@@ -496,7 +496,20 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build; node bin/lattice.js agent_prompt --role=lattice-review-scope-plan; node bin/lattice.js agent_prompt --role=lattice-review-behavior; node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js",
+          "result": "pass",
+          "note": "Worktree-rendered prompts contain the new bounded wording (scope-plan: 7x candidateSpecSet / 5x scanEscalationReason / 2x advisory only / 1x gateEvidence=false; behavior: 4x/3x/2x/1x) and zero unconditional full-scan phrases; build and guard green. Note: the globally installed lattice CLI renders from the installed package, so worktree verification must use node bin/lattice.js.",
+          "headHash": "a15ba739f79b09de3e53bc700b2a5974b14d624d",
+          "materialHash": "2129600913e88693d4e5986538beca1b15432d378b1fb18b9b126d64d6e96cdb",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-09T17:16:50.414Z"
+        }
+      ]
     }
   ]
 }
