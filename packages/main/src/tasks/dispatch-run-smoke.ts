@@ -13,7 +13,7 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve, win32 } from 'node:path';
+import { delimiter, dirname, join, resolve, win32 } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { MAIN_TOOLS } from '../cli-engine.js';
 import { COMMAND_POLICIES } from '../core/command-policy.js';
@@ -42,7 +42,7 @@ import type {
   HostRuntimeList,
   HostRuntimeProbe,
 } from '../core/lattice-dispatch.js';
-import { relativePathStaysWithinRoot } from '../core/lattice-dispatch.js';
+import { relativePathStaysWithinRoot, runDispatch } from '../core/lattice-dispatch.js';
 import type {
   DispatchPolicy,
   DispatchPolicyCheckResult,
@@ -246,10 +246,24 @@ function assertFiveWayRegistration(command: string, registry: ReturnType<typeof 
   }
 }
 
+function writeFakeCodexBinary(binDir: string): void {
+  mkdirSync(binDir, { recursive: true });
+  writeFileSync(join(binDir, 'codex'), [
+    '#!/usr/bin/env node',
+    "const fs = require('node:fs');",
+    'const argvFile = process.env.LATTICE_FAKE_CODEX_ARGV_FILE;',
+    'if (!argvFile) process.exit(64);',
+    "fs.writeFileSync(argvFile, JSON.stringify(process.argv.slice(2)), 'utf8');",
+    "process.stdout.write(JSON.stringify({ model: 'fake-codex-model', usage: { prompt_tokens: 2, completion_tokens: 3 } }) + '\\n');",
+  ].join('\n') + '\n', { encoding: 'utf8', mode: 0o755 });
+}
+
 const sandboxRoot = mkdtempSync(join(tmpdir(), 'lattice-dispatch-run-suite-'));
 const root = join(sandboxRoot, 'repo', 'root');
 const externalDir = mkdtempSync(join(tmpdir(), 'lattice-dispatch-run-external-'));
 const externalMarker = join(externalDir, 'blocked-by-symlink.txt');
+const fakeCodexBinDir = join(sandboxRoot, 'fake-codex-bin');
+const fakeCodexArgvFile = join(sandboxRoot, 'fake-codex-argv.json');
 const escapedHostRuntimeListOutput = resolve(root, '../escape.json');
 const escapedDispatchPlanOutput = resolve(root, '../../escape.json');
 const outputSymlinkEscapeMarker = join(externalDir, 'nested/output-symlink-escape.json');
@@ -259,6 +273,7 @@ const fakeAncestorExternalDir = mkdtempSync(join(tmpdir(), 'lattice-dispatch-run
 const realAncestorExternalDir = mkdtempSync(join(tmpdir(), 'lattice-dispatch-run-real-ancestor-'));
 try {
   initRepo(root, externalDir);
+  writeFakeCodexBinary(fakeCodexBinDir);
   resetConfigCache();
   const store = new StoryStore(root);
   seedStory(store);
@@ -349,6 +364,7 @@ try {
   assert.equal(antigravityProbe.cliCommand, 'agy');
   assert.ok(antigravityProbe.invocationTemplate?.includes('--print'), 'antigravity template must use agy --print');
   assert.ok(antigravityProbe.invocationTemplate?.includes('--print-timeout'), 'antigravity template must include --print-timeout');
+  assert.ok(antigravityProbe.invocationTemplate?.includes('<prompt>'), 'antigravity template must carry canonical prompt placeholder');
   assert.equal(antigravityProbe.invocationTemplate?.includes('--prompt-file'), false, 'antigravity template must not use unsupported --prompt-file');
   assert.equal(antigravityProbe.unattendedSafe, false, 'antigravity must not claim unattendedSafe=true');
   assert.ok(Array.isArray(antigravityProbe.unattendedReasons), 'antigravity probe must have unattendedReasons array');
@@ -368,6 +384,7 @@ try {
   const codexProbe = run<HostRuntimeProbe>('host_runtime_probe', { host: 'codex' });
   assert.ok(codexProbe.invocationTemplate?.includes('exec'), 'codex template must use codex exec');
   assert.ok(codexProbe.invocationTemplate?.includes('--json'), 'codex template must use --json for observable events');
+  assert.ok(codexProbe.invocationTemplate?.includes('<prompt>'), 'codex template must carry canonical prompt placeholder');
   assert.equal(codexProbe.invocationTemplate?.includes('--prompt-file'), false, 'codex template must not use --prompt-file');
 
   // If claude is installed, additional shape assertions apply
@@ -1110,6 +1127,45 @@ try {
     assert.equal(existsSync(resolve(root, realHostReady.worktree.worktreePath)), true, 'available real-host scaffold should create the isolated worktree');
     assert.match(realHostRun.nextAction, new RegExp(realHostReady.worktree.worktreePath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
 
+    const savedPath = process.env.PATH;
+    const savedArgvFile = process.env.LATTICE_FAKE_CODEX_ARGV_FILE;
+    try {
+      process.env.PATH = `${fakeCodexBinDir}${delimiter}${savedPath ?? ''}`;
+      process.env.LATTICE_FAKE_CODEX_ARGV_FILE = fakeCodexArgvFile;
+      rmSync(fakeCodexArgvFile, { force: true });
+      const codexPromptReady = run<DispatchRecord>('dispatch_prepare', {
+        storyId: 'B-dispatch',
+        dispatchId: 'D-real-host-codex-prompt-argv',
+        host: 'codex',
+        objective: 'REAL_PROMPT_SENTINEL_123 must reach the spawned codex argv as prompt contents.',
+        allowedPaths: ['packages/main/src/generated/real-host-codex-prompt-argv.txt'],
+      });
+      const codexPromptText = readFileSync(join(root, codexPromptReady.promptFile), 'utf8');
+      const codexPromptRun = runDispatch(store, root, {
+        storyId: codexPromptReady.storyId,
+        dispatchId: codexPromptReady.dispatchId,
+        allowRealHostSubprocess: true,
+        executionPolicy: {
+          envAllowlist: ['LATTICE_FAKE_CODEX_ARGV_FILE'],
+          envDenylist: [],
+          commandAllowlist: [],
+          maxRuntimeMs: 5000,
+        },
+      });
+      const codexPromptTranscript = readFileSync(join(root, codexPromptReady.transcriptFile), 'utf8');
+      assert.equal(codexPromptRun.status, 'accepted_local', `fake codex real subprocess should complete cleanly; status=${codexPromptRun.status}; transcript:\n${codexPromptTranscript}`);
+      const spawnedArgv = JSON.parse(readFileSync(fakeCodexArgvFile, 'utf8')) as string[];
+      assert.equal(spawnedArgv.includes('<prompt>'), false, 'spawned codex argv must not receive literal <prompt>');
+      assert.equal(spawnedArgv.includes('<prompt-file>'), false, 'spawned codex argv must not receive literal <prompt-file>');
+      assert.ok(spawnedArgv.includes(codexPromptText), 'spawned codex argv must receive the prompt file contents as one argv item');
+      assert.ok(spawnedArgv.some(arg => /REAL_PROMPT_SENTINEL_123/.test(arg)), 'spawned codex argv must include the story prompt content');
+    } finally {
+      if (savedPath === undefined) delete process.env.PATH;
+      else process.env.PATH = savedPath;
+      if (savedArgvFile === undefined) delete process.env.LATTICE_FAKE_CODEX_ARGV_FILE;
+      else process.env.LATTICE_FAKE_CODEX_ARGV_FILE = savedArgvFile;
+    }
+
     const realHostSymlinkEscape = run<DispatchRecord>('dispatch_prepare', {
       storyId: 'B-dispatch',
       dispatchId: 'D-real-host-symlink-escape',
@@ -1743,6 +1799,12 @@ try {
       assert.equal(scaffoldedStatus.runner!.exitCode, undefined, 'scaffolded runner must not have exitCode (not actually run)');
       assert.ok(scaffoldedStatus.runner!.commandTemplate.length > 0, 'scaffolded runner must have commandTemplate');
       assert.ok(scaffoldedStatus.runner!.invocation.length > 0, 'scaffolded runner must have resolved invocation');
+      assert.equal(scaffoldedStatus.runner!.invocation.includes('<prompt>'), false, 'scaffolded invocation must not leave a literal <prompt>');
+      assert.equal(scaffoldedStatus.runner!.invocation.includes('<prompt-file>'), false, 'scaffolded invocation must not leave a literal <prompt-file>');
+      assert.ok(
+        scaffoldedStatus.runner!.invocation.some(part => part.includes(resolve(root, scaffoldedStatus.dispatch.promptFile))),
+        'scaffolded invocation must point to the prompt file instead of dumping prompt contents',
+      );
       assertAuthorityFalse(scaffoldedStatus.runner, 'scaffoldedStatus.runner');
       // Text rendering
       const scaffoldedText = runText('dispatch_status', { dispatchId: 'D-chk005-scaffolded' });

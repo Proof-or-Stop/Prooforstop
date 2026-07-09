@@ -57,6 +57,7 @@ export interface HostExecutionReadinessProbe {
   firstProgressMs?: number;
   exitCode?: number;
   timedOut?: boolean;
+  outputBytes?: number;
   diagnostic?: string;
   remediation: string;
 }
@@ -70,23 +71,17 @@ export function canonicalReviewHostLauncherSpec(host: CanonicalReviewHost): Host
     return {
       host,
       command: 'claude',
-      launcher: 'claude --print --verbose --output-format stream-json',
+      launcher: 'claude --print --verbose --output-format=stream-json',
       launcherArgv: [
         'claude',
         '--print',
         '--verbose',
-        '--output-format',
-        'stream-json',
-        '--no-session-persistence',
-        '--permission-mode',
-        'bypassPermissions',
-        '--max-budget-usd',
-        '0.25',
-        '<prompt>',
+        '--output-format=stream-json',
+        '<prompt-file>',
       ],
       progressMode: 'stream-json',
       observable: true,
-      remediation: 'Use claude --print --verbose --output-format stream-json for long reviewer work.',
+      remediation: 'Use claude --print --verbose --output-format=stream-json for long reviewer work.',
     };
   }
   if (host === 'agy') {
@@ -148,7 +143,7 @@ function launcherArgsForExecution(spec: HostExecutionLauncherSpec): string[] {
   const prompt = 'Reply READY and do not run tools.';
   return spec.launcherArgv
     .slice(1)
-    .map(arg => arg === '<prompt>' ? prompt : arg);
+    .map(arg => arg === '<prompt>' || arg === '<prompt-file>' ? prompt : arg);
 }
 
 export function classifyReviewHostLauncher(host: CanonicalReviewHost, argv: readonly string[]): HostLauncherClassification {
@@ -165,7 +160,7 @@ export function classifyReviewHostLauncher(host: CanonicalReviewHost, argv: read
     progressMode = hasStreamJson ? 'stream-json' : hasPrint ? 'bounded-final-output' : 'none';
     if (!hasPrint) reasons.push('claude launcher must use --print/-p for noninteractive reviewer work');
     if (!hasVerbose) reasons.push('claude stream-json launcher must include --verbose for observable progress');
-    if (!hasStreamJson) reasons.push('claude reviewer launcher must use --output-format=stream-json');
+    if (!hasStreamJson) reasons.push('claude reviewer launcher must use --output-format stream-json');
     if (reasons.length > 0) {
       failureKind = hasPrint ? 'silent_final_output' : 'wrong_launcher';
       launcherSupport = hasPrint ? 'unsupported' : 'wrong_launcher';
@@ -218,20 +213,28 @@ export function classifyReviewHostLauncher(host: CanonicalReviewHost, argv: read
   };
 }
 
-function boundedDiagnostic(value: unknown): string {
+function boundedOutputForClassification(value: unknown): string {
   if (typeof value !== 'string') return '';
   return value.trim().replace(/\s+/g, ' ').slice(0, 240);
 }
 
-function outputText(result: SpawnSyncReturns<string>): string {
-  return `${boundedDiagnostic(result.stderr)} ${boundedDiagnostic(result.stdout)}`.trim();
+function outputByteCount(result: Pick<SpawnSyncReturns<string>, 'stderr' | 'stdout'>): number {
+  return Buffer.byteLength(result.stdout || '', 'utf8') + Buffer.byteLength(result.stderr || '', 'utf8');
+}
+
+function launcherFailureDiagnostic(failureKind: HostExecutionFailureKind): string {
+  return `launcher:${failureKind}`;
+}
+
+function executionFailureDiagnostic(failureKind: HostExecutionFailureKind): string {
+  return `execution_failure:${failureKind}`;
 }
 
 export function classifyHostExecutionFailure(
   result: Pick<SpawnSyncReturns<string>, 'error' | 'signal' | 'stderr' | 'stdout' | 'status'>,
   fallback: HostExecutionFailureKind = 'unknown',
 ): HostExecutionFailureKind {
-  const text = `${boundedDiagnostic(result.stderr)} ${boundedDiagnostic(result.stdout)}`.trim().toLowerCase();
+  const text = `${boundedOutputForClassification(result.stderr)} ${boundedOutputForClassification(result.stdout)}`.trim().toLowerCase();
   if (result.error && /timed?out|etimedout/i.test(result.error.message)) return 'timeout';
   if (result.signal === 'SIGTERM' || result.signal === 'SIGKILL') return 'timeout';
   if (/token_invalidated|refresh_token_invalidated|invalidated token|unauthori[sz]ed|authentication|auth required|not logged in|login required|please login|invalid api key|401/.test(text)) {
@@ -263,6 +266,7 @@ export function classifyHostExecutionReadiness(args: {
   firstProgressMs?: number;
   exitCode?: number;
   timedOut?: boolean;
+  outputBytes?: number;
 }): HostExecutionReadinessProbe {
   const spec = canonicalReviewHostLauncherSpec(args.host);
   const launcher = classifyReviewHostLauncher(args.host, spec.launcherArgv);
@@ -279,7 +283,7 @@ export function classifyHostExecutionReadiness(args: {
       progressMode: launcher.progressMode,
       failureKind: 'missing_executable',
       durationMs,
-      diagnostic: 'executable not found in PATH',
+      diagnostic: 'missing_executable',
       remediation: `Install or expose ${spec.command} in PATH.`,
     };
   }
@@ -294,7 +298,7 @@ export function classifyHostExecutionReadiness(args: {
       progressMode: launcher.progressMode,
       failureKind: 'version_failed',
       durationMs,
-      diagnostic: 'version probe failed before launcher readiness could be confirmed',
+      diagnostic: 'version_probe_failed',
       remediation: `Repair ${spec.command} installation until the CLI starts cleanly, then rerun review_host_availability_probe.`,
     };
   }
@@ -309,7 +313,7 @@ export function classifyHostExecutionReadiness(args: {
       progressMode: launcher.progressMode,
       failureKind: launcher.failureKind,
       durationMs,
-      diagnostic: launcher.reasons.join('; '),
+      diagnostic: launcherFailureDiagnostic(launcher.failureKind),
       remediation: launcher.remediation,
     };
   }
@@ -318,6 +322,7 @@ export function classifyHostExecutionReadiness(args: {
   const executionReady = failureKind === 'none';
   const launcherSupport = supportForFailure(failureKind);
   const reviewReady = executionReady && spec.observable;
+  const outputBytes = args.outputBytes ?? (args.result ? outputByteCount(args.result) : undefined);
   return {
     launcher: spec.launcher,
     launcherArgv: spec.launcherArgv,
@@ -331,7 +336,8 @@ export function classifyHostExecutionReadiness(args: {
     ...(args.firstProgressMs !== undefined ? { firstProgressMs: Math.max(0, Math.floor(args.firstProgressMs)) } : {}),
     ...(args.exitCode !== undefined ? { exitCode: args.exitCode } : {}),
     ...(args.timedOut ? { timedOut: true } : {}),
-    ...(executionReady ? {} : { diagnostic: args.result ? outputText(args.result as SpawnSyncReturns<string>) || 'launcher readiness probe failed' : 'launcher readiness probe failed' }),
+    ...(outputBytes !== undefined ? { outputBytes: Math.max(0, Math.floor(outputBytes)) } : {}),
+    ...(executionReady ? {} : { diagnostic: executionFailureDiagnostic(failureKind) }),
     remediation: executionReady ? '' : spec.remediation,
   };
 }
@@ -376,5 +382,6 @@ export function probeHostExecutionReadiness(args: {
     ...(typeof result.status === 'number' ? { exitCode: result.status } : {}),
     ...(timedOut ? { timedOut: true } : {}),
     ...(outputBytes > 0 ? { firstProgressMs: durationMs } : {}),
+    outputBytes,
   });
 }

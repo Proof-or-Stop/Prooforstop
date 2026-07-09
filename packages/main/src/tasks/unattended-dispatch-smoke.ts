@@ -42,6 +42,7 @@ import type {
   DispatchPolicy,
   DispatchPolicyCheckResult,
 } from '../core/dispatch-policy.js';
+import { canonicalReviewHostLauncherSpec } from '../core/host-execution-readiness.js';
 import type { HandlerContext } from '../handlers/context.js';
 import { createMainRegistry } from '../registry.js';
 import { execFileSync } from 'node:child_process';
@@ -49,6 +50,8 @@ import { execFileSync } from 'node:child_process';
 type DispatchPolicyWithRealHost = DispatchPolicy & {
   allowRealHostSubprocess?: boolean;
 };
+
+const CANONICAL_CLAUDE_LAUNCHER = canonicalReviewHostLauncherSpec('claude').launcherArgv.join(' ');
 
 function git(root: string, args: string[]): string {
   return execFileSync('git', args, {
@@ -84,15 +87,27 @@ if (process.argv[2] === '--version') {
   process.exit(0);
 }
 if (process.argv[2] === '--help') {
-  console.log('Usage: claude --print <prompt-file>');
+  console.log('Usage: claude --print --verbose --output-format stream-json --no-session-persistence --permission-mode bypassPermissions --max-budget-usd 0.25 <prompt>');
   process.exit(0);
 }
-if (process.argv[2] !== '--print' || !process.argv[3]) {
-  console.error('expected claude --print <prompt-file>');
+const args = process.argv.slice(2);
+if (
+  args[0] !== '--print' ||
+  args[1] !== '--verbose' ||
+  args[2] !== '--output-format' ||
+  args[3] !== 'stream-json' ||
+  args[4] !== '--no-session-persistence' ||
+  args[5] !== '--permission-mode' ||
+  args[6] !== 'bypassPermissions' ||
+  args[7] !== '--max-budget-usd' ||
+  args[8] !== '0.25' ||
+  !args[9]
+) {
+  console.error('expected claude --print --verbose --output-format stream-json --no-session-persistence --permission-mode bypassPermissions --max-budget-usd 0.25 <prompt>');
   process.exit(64);
 }
 
-const prompt = fs.readFileSync(process.argv[3], 'utf8');
+const prompt = args[9];
 const mode = process.env.LATTICE_FAKE_CLAUDE_MODE || 'success';
 function writeRelative(file, body) {
   fs.mkdirSync(path.dirname(file), { recursive: true });
@@ -229,7 +244,7 @@ function realClaudePolicy(opts: {
     network: 'restricted',
     envAllowlist: opts.envAllowlist ?? ['LATTICE_FAKE_CLAUDE_MODE'],
     envDenylist: opts.envDenylist ?? [],
-    commandAllowlist: opts.commandAllowlist ?? ['claude --print <prompt-file>'],
+    commandAllowlist: opts.commandAllowlist ?? [CANONICAL_CLAUDE_LAUNCHER],
     retryLimit: 0,
     requireReceipt: true,
     requireReview: true,
@@ -590,7 +605,7 @@ try {
         allowedPaths: ['packages/main/src/generated/claude-missing-launcher.txt'],
         objective: 'CHK-008 missing canonical claude launcher must refuse',
       })),
-      /commandAllowlist|claude --print <prompt-file>/i,
+      /commandAllowlist|claude --print --verbose --output-format stream-json --no-session-persistence --permission-mode bypassPermissions --max-budget-usd 0\.25 <prompt>/i,
       'dispatch_auto must refuse real claude launch when policy.commandAllowlist omits the canonical launcher',
     );
     assert.equal(dispatchCount(root), before,
@@ -622,8 +637,8 @@ try {
     const realSuccessStatus = run<DispatchStatusResult>('dispatch_status', { dispatchId: realSuccess.dispatchId });
     assert.equal(realSuccessStatus.runner?.runnerKind, 'claude-code-real',
       'runnerKind must identify the policy-bound real claude path');
-    assert.deepEqual(realSuccessStatus.runner?.commandTemplate, ['claude', '--print', '<prompt-file>'],
-      'runner commandTemplate must record claude --print <prompt-file>');
+    assert.deepEqual(realSuccessStatus.runner?.commandTemplate, canonicalReviewHostLauncherSpec('claude').launcherArgv,
+      'runner commandTemplate must record canonical observable claude launcher');
     assert.equal(realSuccessStatus.runner?.invocation[0], 'claude',
       'runner invocation must start claude');
     assert.equal(realSuccessStatus.runner?.invocation[1], '--print',

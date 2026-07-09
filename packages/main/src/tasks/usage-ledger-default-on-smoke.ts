@@ -3,8 +3,8 @@
  * B-1b28: smoke suite for the LLM usage ledger DEFAULT-ON flip.
  *
  * The ledger writer is now active by default; LATTICE_USAGE_LEDGER=0 is the
- * explicit escape hatch that restores the byte-identical legacy default-off
- * behavior. The legacy retired-brand env alias was removed (B-b837); a stale
+ * explicit escape hatch that restores the legacy default-off no-op behavior.
+ * The legacy retired-brand env alias was removed (B-b837); a stale
  * retired-brand-prefixed value is silently ignored. This smoke proves the
  * behavioral contracts of that flip:
  *
@@ -12,12 +12,13 @@
  *     ('0'/'false'/'off'/'no'/'') read as OFF; the truthy strings
  *     ('1'/'true'/'on'/'yes', trimmed/case-insensitive) read as ON; a stale
  *     legacy alias env is ignored; the flag is re-read every call (not memoized).
- *   - CHK-002 escape hatch (=0 byte-identical legacy): with LATTICE_USAGE_LEDGER=0
+ *   - CHK-002 escape hatch (=0 guard-inert): with LATTICE_USAGE_LEDGER=0
  *     the whole pipeline is a strict no-op — appendUsageRecord writes nothing and
  *     creates no file/dir, recordDispatchPreflight returns null, recordDispatchFinal
  *     writes nothing, recordBudgetBlock is inert (no block) even with a budget set,
- *     and buildClaudeSpawnArgs(file,false) === ['--print', file] (no --output-format
- *     json). A stale legacy alias=0 no longer triggers the no-op (default-ON wins).
+ *     and buildClaudeSpawnArgs(file,false) preserves the canonical observable
+ *     stream-json launcher. A stale legacy alias=0 no longer triggers the no-op
+ *     (default-ON wins).
  *   - CHK-003 default-on safety: with the env UNSET, isUsageLedgerEnabled() is true,
  *     appendUsageRecord WRITES, a parse failure still yields raw text (the B-0f7c
  *     fallback), a thrown ledger op does NOT propagate to the dispatch caller, and
@@ -75,6 +76,13 @@ function check(label: string, fn: () => void): void {
 
 const root = mkdtempSync(join(tmpdir(), 'usage-ledger-default-on-'));
 
+const EXPECTED_CLAUDE_SPAWN_ARGS = [
+  '--print',
+  '--verbose',
+  '--output-format=stream-json',
+  '<prompt-file>',
+] as const;
+
 let counter = 0;
 function freshRoot(): string {
   return join(root, `case-${counter++}`);
@@ -94,7 +102,7 @@ function opts(env: NodeJS.ProcessEnv) {
   return {
     recordedAt: '2026-06-16T00:00:00.000Z',
     projectRootHash: 'sha256:deadbeef',
-    command: 'claude --print <prompt-file>',
+    command: 'claude --print --verbose --output-format=stream-json <prompt-file>',
     host: { kind: 'claude-code' } as UsageLedgerRecordInput['host'],
     env,
   };
@@ -208,7 +216,7 @@ try {
   });
 
   // ======================================================================
-  // CHK-002: escape hatch (=0) restores byte-identical legacy behavior
+  // CHK-002: escape hatch (=0) restores ledger no-op behavior
   // ======================================================================
   const OFF = { LATTICE_USAGE_LEDGER: '0' } as NodeJS.ProcessEnv;
 
@@ -233,9 +241,8 @@ try {
     assert.equal(existsSync(resolveLedgerPath(sub)), false);
   });
 
-  check('CHK-002 =0 => buildClaudeSpawnArgs(file,false) === ["--print", file] (byte-identical)', () => {
-    // The OFF path uses ledgerOn=false -> the literal original args, no --output-format.
-    assert.deepEqual(buildClaudeSpawnArgs('/tmp/prompt.md', false), ['--print', '/tmp/prompt.md']);
+  check('CHK-002 =0 => buildClaudeSpawnArgs(prompt,false) preserves canonical observable/bounded launcher', () => {
+    assert.deepEqual(buildClaudeSpawnArgs('<prompt-file>', false), [...EXPECTED_CLAUDE_SPAWN_ARGS]);
   });
 
   check('CHK-002 =0 => recordDispatchPreflight returns null, writes nothing', () => {
@@ -347,13 +354,8 @@ try {
     });
   });
 
-  check('CHK-003 ON path: buildClaudeSpawnArgs(file,true) appends --output-format json', () => {
-    assert.deepEqual(buildClaudeSpawnArgs('/tmp/prompt.md', true), [
-      '--print',
-      '/tmp/prompt.md',
-      '--output-format',
-      'json',
-    ]);
+  check('CHK-003 ON path: buildClaudeSpawnArgs(prompt,true) uses same canonical observable/bounded launcher', () => {
+    assert.deepEqual(buildClaudeSpawnArgs('<prompt-file>', true), [...EXPECTED_CLAUDE_SPAWN_ARGS]);
   });
 
   check('CHK-003 parse: valid JSON envelope => resultText + anthropicUsage + model', () => {

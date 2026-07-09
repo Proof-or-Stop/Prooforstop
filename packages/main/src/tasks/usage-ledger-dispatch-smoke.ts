@@ -10,9 +10,9 @@
  *   - CHK-002 parser: usage extracted from a sample JSON envelope; raw-text /
  *     malformed / empty / type-confused / no-usage / huge / deeply-nested all
  *     fall back gracefully to usage=null; never throws;
- *   - CHK-004 regression safety: with the flag OFF the spawn args produced by the
- *     extracted arg-builder are EXACTLY ['--print', promptFile] (no --output-format
- *     json) and the result is raw stdout; with the flag ON but non-JSON stdout the
+ *   - CHK-004 regression safety: the spawn args produced by the extracted
+ *     arg-builder remain the canonical observable/bounded stream-json launcher
+ *     with a prompt-contents argv slot; with the flag ON but non-JSON stdout the
  *     parser returns raw text + null and recordDispatchFinal records 'unavailable'
  *     (nothing throws); various falsy env strings all read as OFF;
  *   - CHK-005 simulated end-to-end: sample Claude JSON envelope -> parse -> record
@@ -83,11 +83,18 @@ function opts(env: NodeJS.ProcessEnv) {
   return {
     recordedAt: '2026-06-16T00:00:00.000Z',
     projectRootHash: 'sha256:deadbeef',
-    command: 'claude --print <prompt-file>',
+    command: 'claude --print --verbose --output-format=stream-json <prompt-file>',
     host: { kind: 'claude-code' },
     env,
   };
 }
+
+const EXPECTED_CLAUDE_SPAWN_ARGS = [
+  '--print',
+  '--verbose',
+  '--output-format=stream-json',
+  '<prompt-file>',
+] as const;
 
 /** Read the ledger lines under a fresh sub-root, verifying the chain. */
 function readLedger(subRoot: string) {
@@ -127,6 +134,55 @@ async function main(): Promise<void> {
     assert.equal(parsed.anthropicUsage?.cache_creation_input_tokens, 5);
     assert.equal(parsed.anthropicUsage?.cache_read_input_tokens, 200);
     assert.equal(parsed.model, 'claude-opus-4-8');
+  });
+
+  await check('CHK-002 happy: Claude stream-json NDJSON -> final result event extracted', () => {
+    const stream = [
+      JSON.stringify({ type: 'system', subtype: 'init' }),
+      JSON.stringify({ type: 'result', result: 'older partial result', model: 'claude-old', usage: { input_tokens: 1, output_tokens: 1 } }),
+      JSON.stringify({
+        type: 'result',
+        result: 'Final stream result',
+        model: 'claude-sonnet-4-5',
+        usage: {
+          input_tokens: 42,
+          output_tokens: 11,
+          cache_creation_input_tokens: 3,
+          cache_read_input_tokens: 7,
+        },
+      }),
+    ].join('\n');
+    const parsed = parseClaudeCliOutput(stream);
+    assert.equal(parsed.resultText, 'Final stream result');
+    assert.ok(parsed.anthropicUsage);
+    assert.equal(parsed.anthropicUsage?.input_tokens, 42);
+    assert.equal(parsed.anthropicUsage?.output_tokens, 11);
+    assert.equal(parsed.anthropicUsage?.cache_creation_input_tokens, 3);
+    assert.equal(parsed.anthropicUsage?.cache_read_input_tokens, 7);
+    assert.equal(parsed.model, 'claude-sonnet-4-5');
+  });
+
+  await check('CHK-002 happy: Claude stream-json can select final own-result event without type=result', () => {
+    const stream = [
+      JSON.stringify({ type: 'assistant', message: { content: 'progress' } }),
+      JSON.stringify({ result: 'Final by own result', usage: { input_tokens: 9, output_tokens: 4, model: 'claude-usage-model' } }),
+    ].join('\n');
+    const parsed = parseClaudeCliOutput(stream);
+    assert.equal(parsed.resultText, 'Final by own result');
+    assert.equal(parsed.anthropicUsage?.input_tokens, 9);
+    assert.equal(parsed.anthropicUsage?.output_tokens, 4);
+    assert.equal(parsed.model, 'claude-usage-model');
+  });
+
+  await check('CHK-002 edge: Claude stream-json without result event -> raw text + null usage + null model', () => {
+    const stream = [
+      JSON.stringify({ type: 'system', subtype: 'init' }),
+      JSON.stringify({ type: 'assistant', message: { usage: { input_tokens: 5, output_tokens: 2 } } }),
+    ].join('\n');
+    const parsed = parseClaudeCliOutput(stream);
+    assert.equal(parsed.resultText, stream);
+    assert.equal(parsed.anthropicUsage, null);
+    assert.equal(parsed.model, null);
   });
 
   await check('CHK-002 happy: plain text stdout -> raw text + null usage + null model', () => {
@@ -395,18 +451,16 @@ async function main(): Promise<void> {
   });
 
   // ======================================================================
-  // CHK-004: regression safety (OFF byte-identical arg shape + parse fallback)
+  // CHK-004: regression safety (canonical observable arg shape + parse fallback)
   // ======================================================================
-  await check('CHK-004 OFF byte-identical: buildClaudeSpawnArgs(file,false) === ["--print",file]', () => {
-    const args = buildClaudeSpawnArgs('/tmp/prompt.md', false);
-    assert.deepEqual(args, ['--print', '/tmp/prompt.md']);
+  await check('CHK-004 OFF: buildClaudeSpawnArgs(prompt,false) preserves canonical observable/bounded launcher', () => {
+    const args = buildClaudeSpawnArgs('<prompt-file>', false);
+    assert.deepEqual(args, [...EXPECTED_CLAUDE_SPAWN_ARGS]);
   });
 
-  await check('CHK-004 ON: buildClaudeSpawnArgs(file,true) appends --output-format json', () => {
-    const args = buildClaudeSpawnArgs('/tmp/prompt.md', true);
-    assert.deepEqual(args, ['--print', '/tmp/prompt.md', '--output-format', 'json']);
-    // The first two args are still the original pair (one-way APPEND only).
-    assert.deepEqual(args.slice(0, 2), ['--print', '/tmp/prompt.md']);
+  await check('CHK-004 ON: buildClaudeSpawnArgs(prompt,true) uses same canonical observable/bounded launcher', () => {
+    const args = buildClaudeSpawnArgs('<prompt-file>', true);
+    assert.deepEqual(args, [...EXPECTED_CLAUDE_SPAWN_ARGS]);
   });
 
   await check('CHK-004 parse-failure fallback: ON + non-JSON -> raw text; final records unavailable', () => {

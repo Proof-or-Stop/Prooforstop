@@ -529,6 +529,23 @@ async function main(): Promise<void> {
     assertNoPollution(final.usage);
   });
 
+  await check('container-pollution dispatch stream-json (LOAD-BEARING): inherited result-event.usage is NOT accepted', () => {
+    const proto = Object.prototype as unknown as Record<string, unknown>;
+    assert.ok(!Object.prototype.hasOwnProperty.call(Object.prototype, 'usage'), 'precondition: no own Object.prototype.usage');
+    try {
+      proto.usage = { input_tokens: 999, output_tokens: 999 };
+      const stdout = [
+        JSON.stringify({ type: 'system', subtype: 'init' }),
+        JSON.stringify({ type: 'result', result: 'hi', model: 'srv-model' }),
+      ].join('\n');
+      const parsed = parseClaudeCliOutput(stdout);
+      assert.equal(parsed.resultText, 'hi');
+      assert.equal(parsed.anthropicUsage, null, 'inherited stream result-event.usage container must be treated as absent');
+    } finally {
+      delete proto.usage;
+    }
+  });
+
   await check('result-pollution dispatch (LOAD-BEARING): inherited envelope.result is NOT used (falls back to raw stdout)', () => {
     const proto = Object.prototype as unknown as Record<string, unknown>;
     assert.ok(!Object.prototype.hasOwnProperty.call(Object.prototype, 'result'), 'precondition: no own Object.prototype.result');
@@ -542,6 +559,23 @@ async function main(): Promise<void> {
       const parsed = parseClaudeCliOutput(stdout);
       assert.notEqual(parsed.resultText, 'INHERITED-EVIL', 'inherited envelope.result must NOT be used as the result text');
       assert.equal(parsed.resultText, stdout, 'result text must fall back to the raw stdout when there is no OWN result');
+    } finally {
+      delete proto.result;
+    }
+  });
+
+  await check('result-pollution dispatch stream-json (LOAD-BEARING): inherited result-event.result is NOT used', () => {
+    const proto = Object.prototype as unknown as Record<string, unknown>;
+    assert.ok(!Object.prototype.hasOwnProperty.call(Object.prototype, 'result'), 'precondition: no own Object.prototype.result');
+    try {
+      proto.result = 'INHERITED-EVIL';
+      const stdout = [
+        JSON.stringify({ type: 'assistant', message: { content: 'progress' } }),
+        JSON.stringify({ type: 'result', model: 'srv-model' }),
+      ].join('\n');
+      const parsed = parseClaudeCliOutput(stdout);
+      assert.notEqual(parsed.resultText, 'INHERITED-EVIL', 'inherited stream result-event.result must NOT be used');
+      assert.equal(parsed.resultText, stdout, 'stream result text must fall back to raw stdout when there is no OWN result');
     } finally {
       delete proto.result;
     }

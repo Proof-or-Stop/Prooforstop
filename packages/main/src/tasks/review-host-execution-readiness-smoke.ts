@@ -131,7 +131,16 @@ function readinessProbe(rows: ReturnType<typeof readinessRow>[]): ProcessEvent {
 const root = mkdtempSync(join(tmpdir(), 'review-host-readiness-'));
 try {
   check('canonical Claude launcher is observable stream-json, plain --print is not progress-capable', () => {
-    const canonical = classifyReviewHostLauncher('claude', canonicalReviewHostLauncherSpec('claude').launcherArgv);
+    const spec = canonicalReviewHostLauncherSpec('claude');
+    assert.equal(spec.launcher, 'claude --print --verbose --output-format=stream-json');
+    assert.deepEqual(spec.launcherArgv, [
+      'claude',
+      '--print',
+      '--verbose',
+      '--output-format=stream-json',
+      '<prompt-file>',
+    ]);
+    const canonical = classifyReviewHostLauncher('claude', spec.launcherArgv);
     assert.equal(canonical.launcherOk, true);
     assert.equal(canonical.progressMode, 'stream-json');
 
@@ -141,6 +150,18 @@ try {
     assert.equal(plain.failureKind, 'silent_final_output');
     assert.match(plain.reasons.join('\n'), /--verbose/);
     assert.match(plain.reasons.join('\n'), /stream-json/);
+
+    const splitOutputFormat = classifyReviewHostLauncher('claude', [
+      'claude',
+      '--print',
+      '--verbose',
+      '--output-format',
+      'stream-json',
+      '<prompt-file>',
+    ]);
+    assert.equal(splitOutputFormat.launcherOk, false);
+    assert.equal(splitOutputFormat.launcherSupport, 'wrong_launcher');
+    assert.match(splitOutputFormat.reasons.join('\n'), /canonical/);
   });
 
   check('agy --prompt-file is classified as the wrong launcher', () => {
@@ -169,7 +190,10 @@ try {
     assert.equal(codex.executionReady, false);
     assert.equal(codex.reviewReady, false);
     assert.equal(codex.launcherSupport, 'unverified');
+    assert.equal(codex.diagnostic, 'execution_failure:auth');
+    assert.equal(codex.outputBytes, Buffer.byteLength('refresh_token_invalidated: please login again', 'utf8'));
     assert.match(codex.remediation, /Codex auth/);
+    assert.doesNotMatch(JSON.stringify(codex), /refresh_token_invalidated|please login again/);
   });
 
   check('bounded probe checks launcher readiness with a smoke prompt', () => {

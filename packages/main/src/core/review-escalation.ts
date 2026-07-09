@@ -112,6 +112,7 @@ export interface ReviewHostAvailabilityProbeHostRow {
   firstProgressMs?: number;
   exitCode?: number;
   timedOut?: boolean;
+  outputBytes?: number;
   diagnostic?: string;
   remediation: string;
   versionOutput?: string;
@@ -567,6 +568,9 @@ export function reviewHostAvailabilityProbeRecordFromEvent(
       ? record.exitCode
       : undefined;
     const timedOut = typeof record.timedOut === 'boolean' ? record.timedOut : undefined;
+    const outputBytes = typeof record.outputBytes === 'number' && Number.isFinite(record.outputBytes)
+      ? Math.max(0, Math.floor(record.outputBytes))
+      : undefined;
     const remediation = normalizeString(record.remediation);
     if (!isCanonicalHost(host)) {
       reasons.push(`hosts row has non-canonical host ${host || '<missing>'}`);
@@ -626,6 +630,7 @@ export function reviewHostAvailabilityProbeRecordFromEvent(
       ...(firstProgressMs !== undefined ? { firstProgressMs } : {}),
       ...(exitCode !== undefined ? { exitCode } : {}),
       ...(timedOut !== undefined ? { timedOut } : {}),
+      ...(outputBytes !== undefined ? { outputBytes } : {}),
       ...(normalizeString(record.diagnostic) ? { diagnostic: normalizeString(record.diagnostic) } : {}),
       remediation,
       ...(normalizeString(record.versionOutput) ? { versionOutput: normalizeString(record.versionOutput) } : {}),
