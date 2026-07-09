@@ -8,9 +8,9 @@
         "docs/requirements/decisions/pos-agent-drivability-optimization.md",
         "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-09T02:47:40.990Z",
-      "endTime": null,
+      "endTime": "2026-07-09T02:58:18.384Z",
       "userSees": "User sees `Worker reassignment ready`, `mode: fresh-context`, `role: lattice-implementer`, the old dispatch id, the new dispatch id, and a promptFile path for the follow-up worker.",
       "files": {
         "modify": [
@@ -49,7 +49,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/dispatch-run-smoke.js",
+          "result": "pass",
+          "note": "Dispatch smoke asserts dispatch_reassign on a completed dispatch returns lattice.dispatch_reassign.v1, mode fresh-context, previous and new dispatch ids, requested implementation-worker role, objective, promptFile, and Worker reassignment ready nextAction.",
+          "headHash": "0d469ed2cf6cb74ac76f50a5aaafd87b4ed1afd0",
+          "materialHash": "b9e93476c1e29a51af8ed5e3e49b1b61a2ee960a9454e9b2e8b5c03739c1d53f",
+          "storyFilesHash": "8e93eabeb0596d06dcf043028b2dd265e4cc2239055c5cd607aa2c361e280c0d",
+          "timestamp": "2026-07-09T02:58:18.689Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/dispatch-run-smoke.js",
+          "result": "pass",
+          "note": "Dispatch smoke asserts omitted-role reassignment returns explicit default role overflow-worker and renders Role: overflow-worker in the generated prompt.",
+          "headHash": "0d469ed2cf6cb74ac76f50a5aaafd87b4ed1afd0",
+          "materialHash": "b9e93476c1e29a51af8ed5e3e49b1b61a2ee960a9454e9b2e8b5c03739c1d53f",
+          "storyFilesHash": "8e93eabeb0596d06dcf043028b2dd265e4cc2239055c5cd607aa2c361e280c0d",
+          "timestamp": "2026-07-09T02:58:18.964Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/dispatch-run-smoke.js",
+          "result": "pass",
+          "note": "Dispatch smoke snapshots the original dispatch record before reassignment, verifies it is unchanged afterward, and verifies the new record parentDispatchId points to the previous dispatch.",
+          "headHash": "0d469ed2cf6cb74ac76f50a5aaafd87b4ed1afd0",
+          "materialHash": "b9e93476c1e29a51af8ed5e3e49b1b61a2ee960a9454e9b2e8b5c03739c1d53f",
+          "storyFilesHash": "8e93eabeb0596d06dcf043028b2dd265e4cc2239055c5cd607aa2c361e280c0d",
+          "timestamp": "2026-07-09T02:58:19.238Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
