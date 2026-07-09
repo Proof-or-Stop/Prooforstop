@@ -111,7 +111,20 @@
         "test": [
           "packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "lattice validate",
+          "result": "pass",
+          "note": "Full (non-focused) lattice validate executed the new entry as validate.commands[3] (command 4/44): log shows \"ran: node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js\" and \"reviewer-scan-budget-guard: PASS (6 prompt copies clean, 4 required phrases present)\"; overall validate exited 0. Full transcript captured in session scratchpad validate-full.log.",
+          "headHash": "4aa65384902532e8099f071002ed114744e23a5a",
+          "materialHash": "33062d79ff0dbeed0ef9e397a6efa3be0a230aad003b0f0098f716ed24eca0ab",
+          "storyFilesHash": "b7cbe8d4cfb05adacb9fc73d90113f490e2353518ea450b039541ce3adc8f1af",
+          "timestamp": "2026-07-09T19:19:48.705Z"
+        }
+      ]
     }
   ]
 }
