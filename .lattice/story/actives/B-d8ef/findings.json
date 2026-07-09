@@ -121,7 +121,7 @@
       "desc": "missing: packages/main/src/core/lattice-dispatch.ts:2233-2238 buildClaudeSpawnArgs still takes a ledgerOn boolean parameter but now discards it with void ledgerOn and always returns the canonical launcher argv regardless of value (both call-site tests assert OFF and ON now produce identical output). The dead parameter is threaded through the one call site with no comment explaining why it is retained instead of removed.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-09T16:17:03.808Z",
@@ -129,7 +129,11 @@
       "reviewRunId": "B-d8ef:RR-024",
       "_hash": "494f207349a4ed87d5f73650bf2ee38e6bb72972e40bf8781d12e96049769af6",
       "signatureTag": "missing|unknown|missing-packages-main",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 2e223d3a3: removed the dead ledgerOn parameter from buildClaudeSpawnArgs and updated all usage-ledger smokes to assert the single canonical Claude prompt-file launcher independent of ledger state. Verified with npm --prefix packages/main run build, usage-ledger-budget-smoke, usage-ledger-default-on-smoke, and usage-ledger-dispatch-smoke.",
+      "resolvedAt": "2026-07-09T16:24:45.202Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-d8ef:F-007",
