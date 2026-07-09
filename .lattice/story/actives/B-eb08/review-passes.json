@@ -197,6 +197,15 @@
       "reviewRound": "2026-07-09T03:48:23.418Z",
       "reviewRunId": "B-eb08:RR-034",
       "_hash": "1917b8dd6f4989825f0da11bfec85112b583a5dd6ca3306385c333aad1ccbf14"
+    },
+    {
+      "id": "B-eb08:RP-023",
+      "agent": "lattice-review-concept",
+      "note": "Concept review PASS: inspected f0bff65a5 and current B-eb08 context. done_prepare --validate now wraps required done_required_validate JSON call in the same closeout phase heartbeat/deadline wrapper, so after configured validate.commands complete it emits DONE-required progress/heartbeat on stderr while stdout remains JSON-only; phase timeout remains independent and fail-closed. Rebuilt packages/main and ran focused done-prepare closure heartbeat smoke successfully.",
+      "createdAt": "2026-07-09T03:51:24.220Z",
+      "reviewRound": "2026-07-09T03:48:23.418Z",
+      "reviewRunId": "B-eb08:RR-032",
+      "_hash": "cff428074b1d7f3a4b56c1c6fea3d6a0b6c70cfa9620b9cb68d546af6fc2e9b6"
     }
   ]
 }
