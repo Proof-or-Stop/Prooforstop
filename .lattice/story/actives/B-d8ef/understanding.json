@@ -1,0 +1,36 @@
+{
+  "task": "Make canonical host proof distinguish binary availability from noninteractive reviewer execution readiness and observable launcher correctness.",
+  "outcome": "A user runs lattice review_host_availability_probe --storyId=B-d8ef --json and sees codex/claude/agy rows with executionReady/progressMode/failureKind; fallback diagnostics then use reviewReadyHostCount and name wrong launcher/auth/silent-output causes instead of appearing to hang.",
+  "facts": [
+    "Current review_host_availability_probe records executable path plus --version responsiveness only.",
+    "Claude --print is valid but final-output oriented; observable reviewer execution should use claude --print --verbose --output-format=stream-json, optionally with --include-hook-events.",
+    "Claude stream-json without --verbose was observed to be the wrong shape for realtime visibility.",
+    "Installed agy CLI rejects --prompt-file and supports --print/--prompt plus --print-timeout.",
+    "Codex login status can appear logged in while codex exec fails with token_invalidated or refresh_token_invalidated.",
+    "Decision: extend the existing host availability probe with bounded launcher-readiness rows rather than adding a separate required command.",
+    "Decision: non-human degraded fallback consumes reviewReadyHostCount/executionReadyHostCount, with legacy version-only events not eligible as review-ready proof."
+  ],
+  "constraints": [
+    "Do not read or copy auth-profile token files directly.",
+    "Do not run omx or touch .omx.",
+    "Do not mutate unrelated dirty main files.",
+    "Do not promote local host evidence into release readiness or retired completion fields.",
+    "Keep probes bounded and avoid expensive long live LLM calls in routine paths.",
+    "Process facts consumed by DONE gates must be schema-checked and registered."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/review-escalation.ts",
+    "packages/main/src/handlers/review-escalation.ts",
+    "packages/main/src/core/lattice-dispatch.ts",
+    "packages/main/src/providers/claude-cli.ts",
+    "packages/main/src/providers/codex-cli.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/tasks/review-escalation-smoke.ts",
+    "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+    "packages/main/src/tasks/dispatch-run-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "timestamp": "2026-07-09T13:01:50.177Z"
+}

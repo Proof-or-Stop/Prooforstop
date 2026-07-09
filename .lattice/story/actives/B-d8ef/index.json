@@ -4,7 +4,7 @@
   "title": "Probe canonical host execution readiness and observable launchers",
   "description": "Fix the Proof-or-stop gap where host availability proof only checks executable path plus --version. Codex/Claude/agy hosts must also have canonical noninteractive launcher probes that fail fast, expose progress where possible, and catch wrong launcher templates such as agy --prompt-file or Claude stream-json without --verbose before degraded fallback or reviewer dispatch relies on them.",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "riskSignals": [
     {
@@ -14,7 +14,7 @@
   ],
   "createdAt": "2026-07-09T12:58:00.780Z",
   "startedAt": "2026-07-09T12:58:00.780Z",
-  "endedAt": null,
+  "endedAt": "2026-07-09T23:13:27.092Z",
   "events": [
     {
       "phase": "INIT",
@@ -33,11 +33,241 @@
       "user": "Harmonygo",
       "sessionId": "sess-3d1880b40d393f50",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-09T13:00:30.530Z",
+      "branch": "story/B-d8ef",
+      "user": "Harmonygo",
+      "sessionId": "sess-d800862d898f748e",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-09T13:10:11.151Z",
+      "branch": "story/B-d8ef",
+      "user": "Harmonygo",
+      "sessionId": "sess-d800862d898f748e",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-09T13:34:45.169Z",
+      "branch": "story/B-d8ef",
+      "user": "Harmonygo",
+      "sessionId": "sess-d800862d898f748e",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-09T13:43:36.085Z",
+      "branch": "story/B-d8ef",
+      "user": "Harmonygo",
+      "sessionId": "sess-d800862d898f748e",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-09T14:05:14.920Z",
+      "branch": "story/B-d8ef",
+      "user": "Harmonygo",
+      "sessionId": "sess-d800862d898f748e",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-09T14:06:00.185Z",
+      "branch": "story/B-d8ef",
+      "user": "Harmonygo",
+      "sessionId": "sess-d800862d898f748e",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-09T14:11:22.304Z",
+      "branch": "story/B-d8ef",
+      "user": "Harmonygo",
+      "sessionId": "sess-d800862d898f748e",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-09T14:21:29.793Z",
+      "branch": "story/B-d8ef",
+      "user": "Harmonygo",
+      "sessionId": "sess-d800862d898f748e",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-09T14:23:03.268Z",
+      "branch": "story/B-d8ef",
+      "user": "Harmonygo",
+      "sessionId": "sess-d800862d898f748e",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-09T15:52:17.233Z",
+      "branch": "story/B-d8ef",
+      "user": "Harmonygo",
+      "sessionId": "sess-bffc762ae03ce853",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-09T16:07:17.830Z",
+      "branch": "story/B-d8ef",
+      "user": "Harmonygo",
+      "sessionId": "sess-bffc762ae03ce853",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-09T16:07:24.768Z",
+      "branch": "story/B-d8ef",
+      "user": "Harmonygo",
+      "sessionId": "sess-bffc762ae03ce853",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-09T21:16:07.249Z",
+      "branch": "story/B-d8ef",
+      "user": "Harmonygo",
+      "sessionId": "sess-037bb35e001f5e54",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-09T21:20:00.788Z",
+      "branch": "story/B-d8ef",
+      "user": "Harmonygo",
+      "sessionId": "sess-037bb35e001f5e54",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-09T21:31:08.129Z",
+      "branch": "story/B-d8ef",
+      "user": "Harmonygo",
+      "sessionId": "sess-037bb35e001f5e54",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-09T21:39:58.228Z",
+      "branch": "story/B-d8ef",
+      "user": "Harmonygo",
+      "sessionId": "sess-037bb35e001f5e54",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-09T21:48:47.750Z",
+      "branch": "story/B-d8ef",
+      "user": "Harmonygo",
+      "sessionId": "sess-037bb35e001f5e54",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-09T21:56:08.141Z",
+      "branch": "story/B-d8ef",
+      "user": "Harmonygo",
+      "sessionId": "sess-037bb35e001f5e54",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-09T22:13:25.028Z",
+      "branch": "story/B-d8ef",
+      "user": "Harmonygo",
+      "sessionId": "sess-037bb35e001f5e54",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-09T22:28:08.305Z",
+      "branch": "story/B-d8ef",
+      "user": "Harmonygo",
+      "sessionId": "sess-037bb35e001f5e54",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-09T22:30:33.452Z",
+      "branch": "story/B-d8ef",
+      "user": "Harmonygo",
+      "sessionId": "sess-037bb35e001f5e54",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-09T22:41:34.024Z",
+      "branch": "story/B-d8ef",
+      "user": "Harmonygo",
+      "sessionId": "sess-037bb35e001f5e54",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-09T22:45:45.409Z",
+      "branch": "story/B-d8ef",
+      "user": "Harmonygo",
+      "sessionId": "sess-037bb35e001f5e54",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-09T22:49:36.804Z",
+      "branch": "story/B-d8ef",
+      "user": "Harmonygo",
+      "sessionId": "sess-037bb35e001f5e54",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-09T22:59:32.931Z",
+      "branch": "story/B-d8ef",
+      "user": "Harmonygo",
+      "sessionId": "sess-037bb35e001f5e54",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-09T23:13:27.092Z",
+      "branch": "story/B-d8ef",
+      "user": "Harmonygo",
+      "sessionId": "sess-037bb35e001f5e54",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-d8ef",
-    "branch": "story/B-d8ef",
-    "createdAt": "2026-07-09T13:00:06.169Z"
-  }
+  "currentReviewRound": "2026-07-09T22:49:36.804Z"
 }
