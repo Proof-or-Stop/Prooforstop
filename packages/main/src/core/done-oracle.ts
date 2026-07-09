@@ -49,8 +49,11 @@ import {
   formatReviewEscalationFailure,
 } from './review-escalation.js';
 import {
+  buildReviewEscalationGuidance,
+  buildReviewAssuranceFloorGuidance,
   evaluateReviewAssuranceFloor,
   formatReviewAssuranceFloorFailure,
+  renderReviewAssuranceGuidanceSummary,
 } from './review-assurance-floor.js';
 import { evaluateDoneRequiredEvidence } from './done-required-validation.js';
 
@@ -809,7 +812,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       ...(currentBindingStoryFilesHash ? { storyFilesHash: currentBindingStoryFilesHash } : {}),
     });
     const escalationBaseDetail = escalation.required
-      ? `${escalation.assuranceLevel}; first-round problems ${escalation.trigger.countableProblems.length}/${escalation.trigger.requiredProblemCount}`
+      ? `${escalation.assuranceLevel}; first-round problems ${escalation.trigger.countableProblems.length}/${escalation.trigger.requiredProblemCount}; ${renderReviewAssuranceGuidanceSummary(buildReviewEscalationGuidance(escalation, storyId))}`
       : `not required; first-round problems ${escalation.trigger.countableProblems.length}/${escalation.trigger.requiredProblemCount}`;
     // Surface re-attestation advisories on the PASS path: when a host verdict is
     // downgrade-accepted (whole-tree materialHash drifted but the story's
@@ -846,7 +849,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       ...(currentBindingStoryFilesHash ? { storyFilesHash: currentBindingStoryFilesHash } : {}),
     });
     const floorBaseDetail = floor.required
-      ? `${floor.assuranceLevel}; material code paths ${floor.materialCodePaths.length}; local rounds ${floor.localRounds.validRounds.length}/${floor.localRounds.requiredRounds}`
+      ? `${floor.assuranceLevel}; material code paths ${floor.materialCodePaths.length}; local rounds ${floor.localRounds.validRounds.length}/${floor.localRounds.requiredRounds}; ${renderReviewAssuranceGuidanceSummary(buildReviewAssuranceFloorGuidance(floor))}`
       : `not required; material code paths ${floor.materialCodePaths.length}`;
     // Surface re-attestation advisories on the PASS path, mirroring the
     // escalation row above: when a host verdict is downgrade-accepted (whole-tree

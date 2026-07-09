@@ -8,7 +8,7 @@
         "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md#M3---Early-Review-Assurance-Surfacing",
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
       ],
-      "userSees": "When review assurance is required, status output names the canonical reason, current material binding, legal writer, and fallback eligibility.",
+      "userSees": "\"Review assurance required: reason=first-round-problems, materialHash=<sha>, storyFilesHash=<sha>, legal writers=independent reviewer lanes or host quorum; fallback eligibility=<eligible/not eligible>; owner/main cannot auto-sign reviewer pass, finding resolution, delivery check, host verdict, or degraded fallback evidence.\"",
       "files": {
         "modify": [
           "packages/main/src/core/review-assurance-floor.ts",
@@ -41,9 +41,59 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-09T11:19:41.054Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-assurance-surfacing-smoke.ts",
+          "command": "npm --prefix packages/main run test:review-assurance-surfacing-smoke",
+          "result": "pass",
+          "note": "Smoke fixture asserts canonical review-assurance guidance before DONE, including reasonCode, current material/story binding, fallback eligibility, legal writer paths, and cannot-auto-sign warning.",
+          "headHash": "8592e846bbedc1ceb0f515627e10c35228bbda5a",
+          "materialHash": "14b25b78b06ec2e992b9eae4d558932522fbaa29fdac27135546a24395b06bec",
+          "storyFilesHash": "d1823d28861a8bb6d5508e5caa2f2eb356ad5f61e204428e6f651c1ababe9989",
+          "timestamp": "2026-07-09T12:33:07.016Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-assurance-surfacing-smoke.ts",
+          "command": "npm --prefix packages/main run test:review-assurance-surfacing-smoke",
+          "result": "pass",
+          "note": "Smoke asserts fallback guidance is generated from canonical high-risk review-assurance status and includes review_escalation_fallback_set only under eligible fallback status.",
+          "headHash": "8592e846bbedc1ceb0f515627e10c35228bbda5a",
+          "materialHash": "14b25b78b06ec2e992b9eae4d558932522fbaa29fdac27135546a24395b06bec",
+          "storyFilesHash": "d1823d28861a8bb6d5508e5caa2f2eb356ad5f61e204428e6f651c1ababe9989",
+          "timestamp": "2026-07-09T12:33:07.016Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-assurance-surfacing-smoke.ts",
+          "command": "npm --prefix packages/main run test:review-assurance-surfacing-smoke",
+          "result": "pass",
+          "note": "Smoke asserts display-only guidance does not mutate git state during done_prepare dryRun and separates evidence-writing reviewer/host/fallback paths from owner-runnable commands.",
+          "headHash": "8592e846bbedc1ceb0f515627e10c35228bbda5a",
+          "materialHash": "14b25b78b06ec2e992b9eae4d558932522fbaa29fdac27135546a24395b06bec",
+          "storyFilesHash": "d1823d28861a8bb6d5508e5caa2f2eb356ad5f61e204428e6f651c1ababe9989",
+          "timestamp": "2026-07-09T12:33:07.016Z"
+        },
+        {
+          "intentRef": "B-eb92:F-005:done-row-stale-recovery-coverage",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-smoke.js",
+          "result": "pass",
+          "note": "Floor smoke covers the DONE-row review-assurance hint formatter path so stale recovery commands cannot expose angle-bracket templates or unlabeled owner-visible host verdict writer guidance.",
+          "headHash": "b2a3244bd1b4fad2d6ed264bd64895daea3d5a8d",
+          "materialHash": "fec8ef1f42f92caa69128ab5a15ad164e6920b8953e0811889c665f4789d91d6",
+          "storyFilesHash": "91db335a44d67e6565139af5df7e2b7c264a98a926907c3f645696b600032db8",
+          "timestamp": "2026-07-09T11:59:46.149Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -53,17 +103,19 @@
         "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md#M3---Early-Review-Assurance-Surfacing",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "userSees": "Before attempting DONE, the agent sees that review assurance is required and knows the next legal command family.",
+      "userSees": "\"Before DONE: review assurance required for this story. Run lattice review_escalation_status --storyId=<id>; then get independent reviewer/host evidence or approved fallback before DONE. This is advisory at TEST entry and does not block TEST.\"",
       "files": {
         "modify": [
           "packages/main/src/core/lifecycle-readiness.ts",
           "packages/main/src/core/done-oracle.ts",
           "packages/main/src/handlers/done-prepare.ts",
-          "packages/main/src/handlers/review-escalation.ts"
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/handlers/transition-effects.ts"
         ],
         "create": [],
         "test": [
-          "packages/main/src/tasks/review-assurance-surfacing-smoke.ts"
+          "packages/main/src/tasks/review-assurance-surfacing-smoke.ts",
+          "packages/main/package.json"
         ]
       },
       "verificationIntent": {
@@ -89,9 +141,47 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-09T11:19:41.927Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/review-assurance-surfacing-smoke.ts",
+          "command": "npm --prefix packages/main run test:review-assurance-surfacing-smoke",
+          "result": "pass",
+          "note": "Smoke covers lifecycle readiness, review_escalation_status, TEST next-step advisory, and done_prepare dryRun surfacing of the triggered review-assurance requirement.",
+          "headHash": "8592e846bbedc1ceb0f515627e10c35228bbda5a",
+          "materialHash": "14b25b78b06ec2e992b9eae4d558932522fbaa29fdac27135546a24395b06bec",
+          "storyFilesHash": "d1823d28861a8bb6d5508e5caa2f2eb356ad5f61e204428e6f651c1ababe9989",
+          "timestamp": "2026-07-09T12:33:07.016Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/review-assurance-surfacing-smoke.ts",
+          "command": "npm --prefix packages/main run test:review-assurance-surfacing-smoke",
+          "result": "pass",
+          "note": "Smoke asserts TEST next-step text says review assurance before DONE is advisory only and does not convert TEST entry into a review-assurance gate.",
+          "headHash": "8592e846bbedc1ceb0f515627e10c35228bbda5a",
+          "materialHash": "14b25b78b06ec2e992b9eae4d558932522fbaa29fdac27135546a24395b06bec",
+          "storyFilesHash": "d1823d28861a8bb6d5508e5caa2f2eb356ad5f61e204428e6f651c1ababe9989",
+          "timestamp": "2026-07-09T12:33:07.016Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/review-assurance-surfacing-smoke.ts",
+          "command": "npm run test:process-fact-contract && npm --prefix packages/main run test:runtime-fact-contract && npm --prefix packages/main run test:review-assurance-surfacing-smoke",
+          "result": "pass",
+          "note": "Process fact contract, runtime fact contract, and smoke passed; review_escalation_status JSON and done_prepare JSON remain structured and parseable with guidance in structured fields/transcript.",
+          "headHash": "8592e846bbedc1ceb0f515627e10c35228bbda5a",
+          "materialHash": "14b25b78b06ec2e992b9eae4d558932522fbaa29fdac27135546a24395b06bec",
+          "storyFilesHash": "d1823d28861a8bb6d5508e5caa2f2eb356ad5f61e204428e6f651c1ababe9989",
+          "timestamp": "2026-07-09T12:33:07.016Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -101,7 +191,7 @@
         "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md#M4---Actionable-Blocker-Summary",
         "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
       ],
-      "userSees": "done_prepare blockers are grouped by action type and explain whether the agent can run a command or must ask a reviewer/host/human-approved fallback path.",
+      "userSees": "\"DONE prepare blockers: review-assurance requires independent review/host evidence; generated metadata may be committed only for listed lattice files; stale material requires rerun/refresh; cannot auto-sign reviewer pass, delivery check, host verdict, or degraded fallback from owner session.\"",
       "files": {
         "modify": [
           "packages/main/src/handlers/done-prepare.ts",
@@ -135,9 +225,88 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-09T11:19:42.687Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/review-assurance-surfacing-smoke.ts",
+          "command": "npm --prefix packages/main run test:review-assurance-surfacing-smoke",
+          "result": "pass",
+          "note": "Smoke asserts done_prepare classifies review-assurance blockers, prints required gate reason codes, owner-runnable commands, reviewer/host writer paths, fallback writer paths, warnings, and canonical guidance.",
+          "headHash": "8592e846bbedc1ceb0f515627e10c35228bbda5a",
+          "materialHash": "14b25b78b06ec2e992b9eae4d558932522fbaa29fdac27135546a24395b06bec",
+          "storyFilesHash": "d1823d28861a8bb6d5508e5caa2f2eb356ad5f61e204428e6f651c1ababe9989",
+          "timestamp": "2026-07-09T12:33:07.016Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-assurance-surfacing-smoke.ts",
+          "command": "npm --prefix packages/main run test:review-assurance-surfacing-smoke",
+          "result": "pass",
+          "note": "Smoke asserts done_prepare dryRun does not mutate git state and the owner command block omits evidence-writing quorum_submit, autopilot_review_submit, and review_escalation_fallback_set paths.",
+          "headHash": "8592e846bbedc1ceb0f515627e10c35228bbda5a",
+          "materialHash": "14b25b78b06ec2e992b9eae4d558932522fbaa29fdac27135546a24395b06bec",
+          "storyFilesHash": "d1823d28861a8bb6d5508e5caa2f2eb356ad5f61e204428e6f651c1ababe9989",
+          "timestamp": "2026-07-09T12:33:07.016Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-assurance-surfacing-smoke.ts",
+          "command": "npm --prefix packages/main run test:review-assurance-surfacing-smoke",
+          "result": "pass",
+          "note": "Smoke asserts cannot-auto-sign guidance appears for reviewer evidence, host verdicts, delivery checks, and degraded fallback evidence, while legal writer paths remain explicitly non-owner.",
+          "headHash": "8592e846bbedc1ceb0f515627e10c35228bbda5a",
+          "materialHash": "14b25b78b06ec2e992b9eae4d558932522fbaa29fdac27135546a24395b06bec",
+          "storyFilesHash": "d1823d28861a8bb6d5508e5caa2f2eb356ad5f61e204428e6f651c1ababe9989",
+          "timestamp": "2026-07-09T12:33:07.016Z"
+        },
+        {
+          "intentRef": "B-eb92:F-004:stale-recovery-shell-safe",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-smoke.js",
+          "result": "pass",
+          "note": "Floor smoke now asserts stale recovery formatter uses shell-safe placeholders, labels the re-submit command as Legal reviewer/host only, and parses inline lattice command fragments with zsh -n.",
+          "headHash": "b2a3244bd1b4fad2d6ed264bd64895daea3d5a8d",
+          "materialHash": "fec8ef1f42f92caa69128ab5a15ad164e6920b8953e0811889c665f4789d91d6",
+          "storyFilesHash": "91db335a44d67e6565139af5df7e2b7c264a98a926907c3f645696b600032db8",
+          "timestamp": "2026-07-09T11:59:46.149Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-09T11:19:41.054Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implemented in commit 813fe24d5 and covered by review-assurance-surfacing smoke plus recorded verification evidence."
+    },
+    {
+      "timestamp": "2026-07-09T11:19:41.927Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implemented in commit 813fe24d5 and covered by review-assurance-surfacing smoke, process fact contract, and runtime fact contract evidence."
+    },
+    {
+      "timestamp": "2026-07-09T11:19:42.687Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implemented in commit 813fe24d5 and covered by done_prepare blocker classification assertions in review-assurance-surfacing smoke."
     }
   ]
 }

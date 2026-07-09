@@ -1,12 +1,12 @@
 {
   "schemaVersion": "proofstory.milestone_ledger.v1",
   "storyId": "B-eb92",
-  "state": "candidate",
-  "ledgerHash": "sha256:4332134558e35e25a0adf3495b765f83914032a7f12b6f97f7e1d1cb2939a369",
+  "state": "confirmed",
+  "ledgerHash": "sha256:3188c3432f939c5d24e3c6e2c9284052b10ab747c0413ed447c494d43cbee4e4",
   "milestones": [
     {
       "id": "M3",
-      "sourceRequirementId": "DOC-M3",
+      "sourceRequirementId": "REQ-B-eb92-M3",
       "claim": "Review-assurance requirements are surfaced before DONE from the canonical gate predicate.",
       "doneMeans": "Required surfaces show reason code, current material binding, legal writer, and fallback eligibility without changing gate criteria.",
       "requiredEvidence": [
@@ -26,7 +26,7 @@
     },
     {
       "id": "M4",
-      "sourceRequirementId": "DOC-M4",
+      "sourceRequirementId": "REQ-B-eb92-M4",
       "claim": "done_prepare blockers are actionable and safe.",
       "doneMeans": "Blockers are grouped by operator action and cannot suggest auto-signing or unrelated commits.",
       "requiredEvidence": [
@@ -43,5 +43,10 @@
     }
   ],
   "createdAt": "2026-07-09T01:28:12.311Z",
-  "updatedAt": "2026-07-09T01:28:12.311Z"
+  "updatedAt": "2026-07-09T11:04:04.182Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260709110308",
+    "acceptedInterpretationHash": "sha256:62581efcab197dc62c4db15d07b749e9b70877ed759e5efe80f3d72a60705725",
+    "acceptedAt": "2026-07-09T11:04:04.182Z"
+  }
 }

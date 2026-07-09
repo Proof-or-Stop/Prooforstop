@@ -17,6 +17,12 @@ import {
   resolveCompletedReviewEscalationSnapshot,
   type ReviewEscalationFallbackEligibility,
 } from '../core/review-escalation.js';
+import {
+  buildReviewEscalationGuidance,
+  buildReviewAssuranceFloorGuidance,
+  evaluateReviewAssuranceFloor,
+  renderReviewAssuranceGuidance,
+} from '../core/review-assurance-floor.js';
 
 type FormatArgs = { json?: boolean; format?: 'text' | 'json' };
 
@@ -97,7 +103,27 @@ export function createReviewEscalationHandlers(ctx: HandlerContext) {
             ],
           }
         : report;
-      return wantsJson(args) ? projectedReport : formatReviewEscalationReport(projectedReport);
+      const floor = evaluateReviewAssuranceFloor({
+        projectRoot: ctx.root,
+        gitCwd,
+        storyId: args.storyId,
+        store: ctx.store,
+        ...(completedSnapshot ? { materialHash: completedSnapshot.materialHash } : {}),
+        ...(completedSnapshot?.storyFilesHash ? { storyFilesHash: completedSnapshot.storyFilesHash } : {}),
+      });
+      const escalationGuidance = buildReviewEscalationGuidance(projectedReport, args.storyId);
+      const floorGuidance = buildReviewAssuranceFloorGuidance(floor);
+      const reviewAssuranceGuidance = [escalationGuidance, floorGuidance].filter((guidance) => guidance.required);
+      if (wantsJson(args)) {
+        return {
+          ...projectedReport,
+          reviewAssuranceGuidance,
+        };
+      }
+      const extraGuidance = reviewAssuranceGuidance.length > 0
+        ? `\n\n${reviewAssuranceGuidance.map((guidance) => renderReviewAssuranceGuidance(guidance)).join('\n\n')}`
+        : '';
+      return `${formatReviewEscalationReport(projectedReport)}${extraGuidance}`;
     },
 
     review_escalation_policy_set(args: ReviewEscalationPolicySetArgs) {

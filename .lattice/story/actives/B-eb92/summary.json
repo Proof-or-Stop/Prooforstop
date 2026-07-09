@@ -1,0 +1,56 @@
+{
+  "storyId": "B-eb92",
+  "changes": "Implemented B-eb92 review-assurance surfacing before DONE: canonical guidance from review-assurance floor/escalation, done_prepare blocker grouping, lifecycle readiness/transition/done-oracle surfacing, and post-merge delivery evidence.",
+  "usage": "Run lattice session_brief, lattice review_escalation_status --storyId=B-eb92, or lattice done_prepare {\"storyId\":\"B-eb92\"} to see actionable review-assurance guidance before DONE.",
+  "expectedOutcome": "Users and agents see why review assurance is required before DONE, the current material/storyFilesHash binding, legal reviewer/host writer paths, fallback eligibility, and cannot-auto-sign warnings.",
+  "actualTranscript": "Real-machine validation passed: lattice validate --story=B-eb92 --json ran 43/43 configured commands successfully; verification intent coverage was 9/9; delivery reviewer verified all three documented promises.",
+  "outcomeDiff": "No difference: expected guidance, validation coverage, role separation, and delivery promises were observed.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none - fully covered by review-assurance surfacing smoke, floor smoke, process/runtime fact contracts, done-required validation, delivery-check, and full-3x2 review assurance quorum",
+  "pitfalls": "Main merge changed final bindings, so stale reviewer evidence had to be regenerated through a new REVIEW round before quorum_submit could legally certify the review-assurance floor.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 34065475
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 27101
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 485203
+    },
+    "DEV": {
+      "count": 4,
+      "durationMs": 2922707
+    },
+    "REVIEW": {
+      "count": 4,
+      "durationMs": 2421512
+    },
+    "TEST": {
+      "count": 2,
+      "durationMs": 1047331
+    }
+  },
+  "totalDurationMs": 40970126,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-09T12:51:02.438Z",
+  "updatedAt": "2026-07-09T12:51:02.438Z"
+}
