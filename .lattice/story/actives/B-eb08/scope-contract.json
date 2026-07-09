@@ -1,0 +1,44 @@
+{
+  "storyId": "B-eb08",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/cli/command-catalog.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+    "packages/main/package.json"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Add command-catalog schema row because CHK-001 requires done_prepare --json to parse and the command schema must accept that flag.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "ProofStory DEV admission required these CLI-generated intent, contract, red-evidence, and corrected milestone ledger artifacts before implementation; they are gate evidence metadata, not product scope expansion.",
+      "timestamp": "2026-07-09T01:53:40.555Z",
+      "paths": [
+        ".lattice/story/actives/B-eb08/original-intent-snapshot.json",
+        ".lattice/story/actives/B-eb08/intent-collision.json",
+        ".lattice/story/actives/B-eb08/proofstory.json",
+        ".lattice/story/actives/B-eb08/red-evidence.json",
+        ".lattice/story/actives/B-eb08/milestone-ledger.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-eb08/original-intent-snapshot.json",
+        ".lattice/story/actives/B-eb08/intent-collision.json",
+        ".lattice/story/actives/B-eb08/proofstory.json",
+        ".lattice/story/actives/B-eb08/red-evidence.json",
+        ".lattice/story/actives/B-eb08/milestone-ledger.json"
+      ],
+      "affectedPathCount": 5,
+      "phase": "DEV",
+      "headHash": "85e296905125f76a948d5658372369e646be8ce4",
+      "materialHash": "e6e55c7b0a5a5641e1e90684bc502ea506d23ad1e7367dceba93371050f628aa"
+    }
+  ],
+  "createdAt": "2026-07-09T01:40:07.146Z",
+  "updatedAt": "2026-07-09T01:53:40.555Z"
+}
