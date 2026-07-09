@@ -26,6 +26,15 @@
       "reviewRound": "2026-07-09T11:56:20.945Z",
       "reviewRunId": "B-7438:RR-005",
       "_hash": "3404b7973f5f78a64d696f960f6124cf799eed762890c0a1e053ad14136b7c84"
+    },
+    {
+      "id": "B-7438:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 targeted re-check of F-001/F-002 fixes. Verified: (1) root npm run test now exits 0 (full log captured), including the two previously-broken suites review-assurance-floor-storyfileshash-smoke and review-escalation-freshness-root-smoke, without any standalone-flag workaround — they run as part of the same root chain as before. (2) The fix does not weaken production gates: review_escalation_fallback_set (handlers/review-escalation.ts) still throws before writing an invalid fallback event when host-availability evidence is missing/stale/insufficient for single-host-environment or temporary-host-unavailability; explicit-human-approval correctly remains exempt and lower-assurance. (3) Old-event compatibility: legacy/manually-injected fallback events lacking command/hostAvailabilityProbeId are now correctly marked invalid by reviewEscalationFallbackRecordFromEvent — this is the intended CHK-002 behavior per plan.md (not an unintended regression), and review-assurance-floor.ts consolidates onto the same shared function instead of duplicating validation logic (no dead code left behind, old local implementation fully removed). (4) Smoke fixtures are correct: hostAvailabilityProbe() fixtures in review-escalation-smoke.ts, review-assurance-floor-smoke.ts, and review-assurance-floor-storyfileshash-smoke.ts produce host rows whose available flag matches the required invariant (available === executablePath present && versionOk===true), materialHash/storyFilesHash bindings in the storyfileshash-smoke cases are correctly paired with probe and fallback events per the (d) checks, and the freshness-root-smoke fix correctly switches to explicit-human-approval+approvalRef rather than papering over the single-host-environment gate. (5) tsc --noEmit -p packages/main is clean, node scripts/verify-process-fact-contract.mjs passes, no unused imports/dead code/any-casts introduced beyond pre-existing test-file style, no I/O shell-isolation concerns (no shells touched). No proof-metadata dual-location concern applies (this diff uses story process-events.jsonl gate evidence, not job.metadata/run.metadata proof keys). No blocking issues found this round.",
+      "createdAt": "2026-07-09T12:00:33.951Z",
+      "reviewRound": "2026-07-09T11:56:20.945Z",
+      "reviewRunId": "B-7438:RR-006",
+      "_hash": "c2e48dc203b76291b13033f96126273e4029fbd7da528da866b144bccd39345f"
     }
   ]
 }
