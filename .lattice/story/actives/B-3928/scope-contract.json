@@ -1,0 +1,45 @@
+{
+  "storyId": "B-3928",
+  "mode": "enforce",
+  "allowedModify": [
+    "package.json"
+  ],
+  "allowedCreate": [
+    "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+    "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md"
+  ],
+  "allowedTest": [
+    "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "These files are required ProofStory gate evidence produced by Lattice CLI before DEV admission; they are not product implementation files and are acknowledged for scope-contract review.",
+      "timestamp": "2026-07-10T03:38:12.179Z",
+      "paths": [
+        ".lattice/story/actives/B-3928/intent-collision.json",
+        ".lattice/story/actives/B-3928/milestone-ledger.json",
+        ".lattice/story/actives/B-3928/original-intent-snapshot.json",
+        ".lattice/story/actives/B-3928/proofstory.json",
+        ".lattice/story/actives/B-3928/red-evidence.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-3928/intent-collision.json",
+        ".lattice/story/actives/B-3928/milestone-ledger.json",
+        ".lattice/story/actives/B-3928/original-intent-snapshot.json",
+        ".lattice/story/actives/B-3928/proofstory.json",
+        ".lattice/story/actives/B-3928/red-evidence.json"
+      ],
+      "affectedPathCount": 5,
+      "phase": "DEV",
+      "headHash": "643fe0dcbfd3a66b4e055f5ccb35ae9253a62cca",
+      "materialHash": "7d369b91deccbe12b49755cc11f219521b6fffc52617e8e8e5bf678a4c744985"
+    }
+  ],
+  "createdAt": "2026-07-10T03:37:45.345Z",
+  "updatedAt": "2026-07-10T03:38:12.179Z"
+}
