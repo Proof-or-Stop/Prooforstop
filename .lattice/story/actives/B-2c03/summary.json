@@ -1,6 +1,6 @@
 {
   "storyId": "B-2c03",
-  "changes": "evaluateDoneIntentEquivalence (packages/main/src/core/proofstory.ts) now sanitizes narrowingText with stripCodeLikeTokens before the claimsShrinkage scan: fenced code blocks, whitespace-free inline backtick spans, slash tokens carrying an explicit path marker (leading / ~/ ./ ../ prefix, URL scheme, or final segment ending in a known unambiguous file extension), and dotted tokens with an unambiguous extension plus a code-shaped stem are replaced by spaces; everything else is kept. The trigger vocabulary was revised: the bare leftover-word trigger now requires a following scope noun, and the multi-word trigger phrases accept whitespace, hyphen, underscore, slash, and dot connectors. The proofstory-intent-hardening smoke gained 26 heuristic regression cases including the B-d6a0 repro where summary.changes names the hyphenated recovery-helper .ts file that originally tripped the gate. Seven verified review findings (F-001, F-002, F-003, F-005, F-006, F-007, F-008, F-009; F-004 was a dismissed duplicate) were fixed RED-first during REVIEW.",
+  "changes": "evaluateDoneIntentEquivalence (packages/main/src/core/proofstory.ts) now sanitizes narrowingText with stripCodeLikeTokens before the claimsShrinkage scan: fenced code blocks, whitespace-free inline backtick spans, slash tokens carrying an explicit path marker (leading / ~/ ./ ../ prefix, URL scheme, or final segment ending in a known unambiguous file extension), and dotted tokens with an unambiguous extension plus a code-shaped stem are replaced by spaces; everything else is kept. The trigger vocabulary was revised: the bare leftover-word trigger now requires a following scope noun, and the multi-word trigger phrases accept whitespace, hyphen, underscore, slash, and dot connectors, with the leftover-word trigger pairing to its scope noun through a bounded same-sentence character window (any modifier count, commas, and unicode dashes included). The proofstory-intent-hardening smoke gained 26 heuristic regression cases including the B-d6a0 repro where summary.changes names the hyphenated recovery-helper .ts file that originally tripped the gate. Eight verified review findings (F-001, F-002, F-003, F-005, F-006, F-007, F-008, F-009; F-004 was a dismissed duplicate) were fixed RED-first during REVIEW. Two independent codex host-B review rounds then drove the window revision, a linear rewrite of the token scan, and a documented classification of by-requirement strip classes; the claude-side test-coverage lane additionally caught a concurrent-reviewer revert that had silently dropped smoke cases from a commit (F-011, fixed by re-committing them).",
   "usage": "No new commands. Once this fix is the installed CLI, DONE summaries may name files, paths, backticked code tokens, and URLs without tripping unconfirmed_single_outcome_shrinkage; genuine prose scope-reduction claims (including hyphen-, underscore-, slash-, or dot-glued trigger-phrase forms) still block DONE until a user-confirmed scope decision artifact exists. Run node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js to exercise the heuristic cases.",
   "expectedOutcome": "A lightweight-path DONE summary that merely names the files it touched passes done_intent_equivalence_check with no unconfirmed_single_outcome_shrinkage gap, while genuinely reduced-delivery prose still fails closed; the breadth decision for the leftover trigger word is documented with rationale in plan.md.",
   "actualTranscript": "Pre-fix RED run: the new smoke case failed at baseline head 2db38feff1, asserting that a summary naming the B-d6a0 recovery-helper file must not produce the unconfirmed_single_outcome_shrinkage gap (bound in red-evidence.json). Post-fix at current head: proofstory-intent-hardening smoke prints ProofStory intent hardening smoke passed with all 26 heuristic cases green; milestone-done-gate-reconciliation smoke OK; milestone-status tests pass; packages/main e2e ALL PASS; lattice validate --story=B-2c03 reports all configured commands pass with 9/9 verification intents covered.",
@@ -11,7 +11,7 @@
     "skipped": []
   },
   "limitations": "The heuristic stays deterministic and fail-safe rather than perfect: bare extensionless hyphenated file names, dotted identifiers with non-extension tails, trigger-stemmed files with ambiguous common-word extensions, prefix-free extensionless directory paths, scheme-less URLs, and summaries that quote the trigger vocabulary itself as bare prose can still false-positive (the gate fires and asks for a confirmed decision); authors can backtick the token or use a dotted or prefix-qualified path, both of which the sanitizer removes. Prose hidden inside a fenced code block is treated as code by convention and is the single documented false-negative direction. Because the installed CLI still runs the pre-fix heuristic until this story merges, this very summary had to paraphrase the trigger vocabulary and the B-d6a0 file name - a live illustration of the bug being fixed. Two pre-existing repo-level failures are unrelated to this story: control-arm-retrieval-gate.test.mjs fails identically on unmodified main (uppercase CONTROL arm value), and the root full test suite exceeds the done_prepare 240s phase deadline on this machine (standalone lattice validate covers the same commands and passes).",
-  "pitfalls": "The sanitizer runs only in the lightweight single-outcome DONE path; the strict milestone path is untouched. When editing CODE_FILE_EXTENSION_PATTERN keep it free of extensions that double as short English words (go, c, h, m, log, map, sh, zip, less, snap, lock) or trigger words gain a silent bypass (F-005 class). Any future connector or strip-rule change should add RED-first cases in proofstory-intent-hardening-smoke.ts in BOTH directions (must-fire and must-not-fire) - every one of the seven findings came from a one-sided change.",
+  "pitfalls": "The sanitizer runs only in the lightweight single-outcome DONE path; the strict milestone path is untouched. When editing CODE_FILE_EXTENSION_PATTERN keep it free of extensions that double as short English words (go, c, h, m, log, map, sh, zip, less, snap, lock) or trigger words gain a silent bypass (F-005 class). Any future connector or strip-rule change should add RED-first cases in proofstory-intent-hardening-smoke.ts in BOTH directions (must-fire and must-not-fire) - every one of the eight findings came from a one-sided change. Reviewer subagents must never leave probe edits in tracked files: a concurrent cleanup revert silently dropped freshly-written smoke cases from a commit (F-011) - always re-check git show --stat after committing near parallel reviewers.",
   "phaseStats": {
     "INIT": {
       "count": 1,
@@ -26,19 +26,19 @@
       "durationMs": 592548
     },
     "DEV": {
-      "count": 1,
-      "durationMs": 303665
+      "count": 2,
+      "durationMs": 313266
     },
     "REVIEW": {
-      "count": 1,
-      "durationMs": 12385882
+      "count": 2,
+      "durationMs": 13463209
     },
     "TEST": {
       "count": 1,
-      "durationMs": 1780798
+      "durationMs": 2753386
     }
   },
-  "totalDurationMs": 15200208,
+  "totalDurationMs": 17259724,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -51,5 +51,5 @@
     "open": 0
   },
   "createdAt": "2026-07-10T18:34:03.482Z",
-  "updatedAt": "2026-07-10T18:37:16.895Z"
+  "updatedAt": "2026-07-10T19:11:36.411Z"
 }
