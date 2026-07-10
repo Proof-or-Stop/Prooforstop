@@ -1,0 +1,202 @@
+{
+  "passes": [
+    {
+      "id": "B-d8ef:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Executable readiness probe is real execution proof: probeHostExecutionReadiness spawns the canonical launcher argv with a live prompt (fake-host smoke fails --help/support probes, passes only on actual prompt run). Codex auth/token_invalidated maps to failureKind=auth -> executionReady=false/unverified with Codex-auth remediation; Claude pinned to --print --verbose stream-json (plain --print = silent_final_output); agy print+timeout enforced, --prompt-file = wrong_launcher. Degraded fallback consumes reviewReadyHostCount fail-closed: missing count defaults to all-ready (rejects fallback), legacy version-only probes invalid, counts cross-checked vs host rows, >=2 review-ready blocks non-human fallback. Minor non-blocking note: observable/progressMode are static spec fields, probe does not verify stream output shape; acceptable since argv is canonical-pinned.",
+      "createdAt": "2026-07-09T13:38:41.164Z",
+      "reviewRound": "2026-07-09T13:34:45.169Z",
+      "reviewRunId": "B-d8ef:RR-002",
+      "_hash": "95ca0717d591f237b1cde49dcc3699f9b89598b282ce8adf1b895b60f5ec25ce"
+    },
+    {
+      "id": "B-d8ef:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept pass on current HEAD 917f22afe: F-004 regression is fixed by 2a92b42c5; Claude readiness, allowlist, actual dispatch spawn args, unattended fake Claude smoke, and usage-ledger smokes all align on claude --print --verbose --output-format=stream-json <prompt-file>. Readiness evidence remains sanitized and all concept findings are resolved.",
+      "createdAt": "2026-07-09T14:24:06.523Z",
+      "reviewRound": "2026-07-09T14:23:03.268Z",
+      "reviewRunId": "B-d8ef:RR-005",
+      "_hash": "ecfcc4683d3c9c6b3bccdb7a4fd27db1a61f1f330ed0684f03dbc5e01023a405"
+    },
+    {
+      "id": "B-d8ef:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Quality pass: current implementation is consistent across readiness, dispatch, command allowlist, fake Claude dispatch smoke, and usage-ledger smokes. No dirty worktree or open high findings; build, review-host readiness, unattended-dispatch, usage-ledger budget/default-on/dispatch, review-escalation, review-assurance-floor, and process-fact contract checks passed.",
+      "createdAt": "2026-07-09T14:24:20.238Z",
+      "reviewRound": "2026-07-09T14:23:03.268Z",
+      "reviewRunId": "B-d8ef:RR-006",
+      "_hash": "4126b2eb03cfba1bf6309c0038aec44f859541ab7640c3561297f8e4e624d79b"
+    },
+    {
+      "id": "B-d8ef:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage pass: build plus review-host readiness, usage-ledger dispatch, and unattended dispatch smokes cover canonical executable host readiness, degraded fallback rejection, observable Claude stream-json verbose split-argv launcher, agy prompt-file rejection, Codex auth classification, and Claude stream-json NDJSON parsing. dispatch-run-smoke was observed to pollute source after passing and is excluded from this receipt.",
+      "createdAt": "2026-07-09T14:52:56.472Z",
+      "reviewRound": "2026-07-09T14:23:03.268Z",
+      "reviewRunId": "B-d8ef:RR-010",
+      "_hash": "01321a4cd15629ab80b2282833c0e01c8ceb0a094df107d7c664cd8f2b92ea84"
+    },
+    {
+      "id": "B-d8ef:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Concept pass: final implementation binds degraded fallback to fresh canonical host readiness, checks Codex CLI / Claude Code CLI / agy readiness, rejects single-host fallback when >=2 hosts are review-ready, and uses observable Claude stream-json verbose prompt-content launcher.",
+      "createdAt": "2026-07-09T14:53:19.441Z",
+      "reviewRound": "2026-07-09T14:23:03.268Z",
+      "reviewRunId": "B-d8ef:RR-011",
+      "_hash": "2e7c16101f7e0bd58380f69b7d6ed484e2eb36346f410f46787247c79e304048"
+    },
+    {
+      "id": "B-d8ef:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Quality pass: canonical launcher, prompt-content dispatch, prompt-file display boundary, auth classification, bounded execution checks, and Claude stream-json NDJSON parser are coherent; focused smokes pass and no quality blocker remains.",
+      "createdAt": "2026-07-09T14:53:28.143Z",
+      "reviewRound": "2026-07-09T14:23:03.268Z",
+      "reviewRunId": "B-d8ef:RR-012",
+      "_hash": "4bc4310973feaf28372486b8b114198299fffccb9b8f5aaf3a2ee9a2b13d687b"
+    },
+    {
+      "id": "B-d8ef:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Concept review passes current HEAD 1c99c07. Canonical Claude launcher is consistently prompt-file based, readiness separates binary availability from execution/review readiness, and degraded fallback diagnostics consume reviewReadyHostCount rather than version-only prose.",
+      "createdAt": "2026-07-09T14:56:32.147Z",
+      "reviewRound": "2026-07-09T14:23:03.268Z",
+      "reviewRunId": "B-d8ef:RR-013",
+      "_hash": "7397c93a04b570ad954b778b10d07292cdfafaaa0fe5a4f0daab672980c8b699"
+    },
+    {
+      "id": "B-d8ef:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Quality review passes current HEAD after prompt-file launcher restoration. Implementation is consistent across readiness, dispatch, unattended fake Claude, and usage-ledger smokes; no raw provider transcript persistence regression observed.",
+      "createdAt": "2026-07-09T14:56:48.660Z",
+      "reviewRound": "2026-07-09T14:23:03.268Z",
+      "reviewRunId": "B-d8ef:RR-014",
+      "_hash": "6179fc45fc8dabf3f7553f83a5740e0951833eb975c779eac086cba7639ddc27"
+    },
+    {
+      "id": "B-d8ef:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review passes current HEAD. Verified npm build plus focused readiness, unattended dispatch, usage-ledger budget/default/dispatch, review-escalation, review-assurance-floor, and process-fact contract smokes; coverage directly exercises prompt-file Claude launcher contract.",
+      "createdAt": "2026-07-09T14:57:07.858Z",
+      "reviewRound": "2026-07-09T14:23:03.268Z",
+      "reviewRunId": "B-d8ef:RR-015",
+      "_hash": "49d5e79e76b8f4e0c69ca499696a277cd1c368ede6f6fe5386283fc2c977a353"
+    },
+    {
+      "id": "B-d8ef:RP-010",
+      "agent": "lattice-review-concept",
+      "note": "Claude concept reviewer PASS: type+schema scoped v2 host-probe omission is conceptually correct, forged retired marker values still reject, and launcher/readiness fallback behavior is unchanged.",
+      "createdAt": "2026-07-09T15:45:25.554Z",
+      "reviewRound": "2026-07-09T14:23:03.268Z",
+      "reviewRunId": "B-d8ef:RR-016",
+      "_hash": "bdf7c266e0c664f053381024cd62633598b9a4682b6e0d9b2c13a636cc23f77a"
+    },
+    {
+      "id": "B-d8ef:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "Claude quality reviewer PASS: scoped type+schema guard preserves runtime anti-forgery behavior, canonical marker export avoids fixture drift, and reviewed changes show no blocking regression.",
+      "createdAt": "2026-07-09T15:45:37.061Z",
+      "reviewRound": "2026-07-09T14:23:03.268Z",
+      "reviewRunId": "B-d8ef:RR-017",
+      "_hash": "6521f237a3638bb54c8ed29d24cc6c083165945560da5713205c0e131da081d6"
+    },
+    {
+      "id": "B-d8ef:RP-012",
+      "agent": "lattice-review-test-coverage",
+      "note": "Claude test-coverage reviewer PASS: smoke coverage now exercises v2 omission, all retired marker forged values, wrong event type, wrong schema version, legacy rejection, launcher contract, and fallback block.",
+      "createdAt": "2026-07-09T15:45:50.167Z",
+      "reviewRound": "2026-07-09T14:23:03.268Z",
+      "reviewRunId": "B-d8ef:RR-018",
+      "_hash": "4831699a25c16811b72543ece30585a5c2b0aa43822b99465e21619ecefec5d5"
+    },
+    {
+      "id": "B-d8ef:RP-013",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement gaps found. availableHostCount->reviewReadyHostCount/executionReadyHostCount fallback-gating rename is fully threaded through review-escalation.ts and review-assurance-floor.ts (delegates via reviewEscalationFallbackRecordFromEvent); zero grep residue for retired constant REVIEW_HOST_AVAILABILITY_REQUIRED_AVAILABLE_HOSTS or availableHostCount-based fallback gating outside intentional legacy-probe compat/test fixtures. Retired authority fields (authorityDone/fullAuthorityDone/productionDone) remain enforced false-or-absent for v2 schema events, never revived as true; guard branches covered by new smoke test. Ran build + review-host-execution-readiness-smoke, review-escalation-smoke, review-assurance-floor-smoke, dispatch-run-smoke, and verify-process-fact-contract.mjs directly (validate CLI is owner-gated to the main session); all passed.",
+      "createdAt": "2026-07-09T16:13:58.701Z",
+      "reviewRound": "2026-07-09T16:07:24.768Z",
+      "reviewRunId": "B-d8ef:RR-022",
+      "_hash": "1e6bd3d7da5d2d35541e1cffee30bf1af269b3848d491e38145e90d650e221a0"
+    },
+    {
+      "id": "B-d8ef:RP-014",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: external test-coverage review confirmed coverage for actual executed argv equals readiness evidence, Claude absolute temp prompt-file and cleanup, generated ready evidence has no placeholders, validator rejects placeholder argv on ready rows, fallback smoke uses concrete ready argv, and provider codex/gemini smokes retain ENOENT/E2BIG/generic spawn failure coverage. Build and relevant smokes reported passing; no coverage blockers.",
+      "createdAt": "2026-07-09T22:03:51.003Z",
+      "reviewRound": "2026-07-09T21:56:08.141Z",
+      "reviewRunId": "B-d8ef:RR-036",
+      "_hash": "a67c3ba7bfd13ff270f1511587fe9a99bdd95322cea290bd293e2bb820fa5372"
+    },
+    {
+      "id": "B-d8ef:RP-015",
+      "agent": "lattice-review-quality",
+      "note": "PASS: external quality review found readiness argv fixes correct and maintainable. Temp prompt-file execution is scoped and cleaned via try/finally; observedLauncherArgv is propagated into evidence; placeholder rejection uses exact-element matching gated on host-readiness flags with sound cross-field consistency. Build, readiness smoke, escalation smoke, and process-fact contract verifier were reported green; no blocker-level quality issues.",
+      "createdAt": "2026-07-09T22:03:51.606Z",
+      "reviewRound": "2026-07-09T21:56:08.141Z",
+      "reviewRunId": "B-d8ef:RR-034",
+      "_hash": "d5583122a63097d54835e787354b8fcc839ff5158bbef8f94e1a2f11edf5900c"
+    },
+    {
+      "id": "B-d8ef:RP-016",
+      "agent": "lattice-review-concept",
+      "note": "PASS: external concept review confirmed F-010/F-011 are fixed. Readiness probe substitutes placeholders before spawn and records observed executed argv; validation rejects <prompt>/<prompt-file> placeholders for available/executionReady/reviewReady rows while keeping static templates valid; readiness evidence persists only bounded metadata, not raw stdout/stderr/provider text. Smoke execution was sandbox-limited for Codex, but code/diff inspection found no blocker.",
+      "createdAt": "2026-07-09T22:03:52.183Z",
+      "reviewRound": "2026-07-09T21:56:08.141Z",
+      "reviewRunId": "B-d8ef:RR-035",
+      "_hash": "cc58f22e6e51d307e4471a07b8043d10c7d29203ef39112af439fa64bb78679b"
+    },
+    {
+      "id": "B-d8ef:RP-017",
+      "agent": "lattice-review-test-coverage",
+      "note": "Targeted test-coverage re-review of 7bf99ec..HEAD: concrete launcher argv fixture is exercised by review-assurance-floor degraded fallback pass plus readiness placeholder-rejection smoke; stale/fallback negative cases still assert stale material, missing probe, invalid fallback shape, stale probe, and two-host fallback rejection. Targeted smokes passed.",
+      "createdAt": "2026-07-09T22:33:30.609Z",
+      "reviewRound": "2026-07-09T22:30:33.452Z",
+      "reviewRunId": "B-d8ef:RR-037",
+      "_hash": "e71f95bd7fbcf13f5c9e2d669ef911a57fc6115dc9ecfd275f6de381d7eeae8d"
+    },
+    {
+      "id": "B-d8ef:RP-018",
+      "agent": "lattice-review-quality",
+      "note": "Quality re-review checked diff since prior quality pass RP-015, especially review-assurance-floor concrete launcher argv fixture, launcher readiness validation, prompt-budget smoke guard, package/version drift, and shell/path safety. Targeted smokes passed and no blocking correctness or maintainability issues remain.",
+      "createdAt": "2026-07-09T22:33:41.501Z",
+      "reviewRound": "2026-07-09T22:30:33.452Z",
+      "reviewRunId": "B-d8ef:RR-038",
+      "_hash": "10f9e2e8351f9fc126d8e161ab3905e9904157115badb0351f9b4e29052e8b67"
+    },
+    {
+      "id": "B-d8ef:RP-019",
+      "agent": "lattice-review-concept",
+      "note": "Concept re-review passed: current scope changes preserve canonical host launcher/readiness/fallback boundaries; smoke fixtures now use concrete launcher argv for ready hosts; prompt-budget guard remains bounded and non-gate-evidence.",
+      "createdAt": "2026-07-09T22:33:42.711Z",
+      "reviewRound": "2026-07-09T22:30:33.452Z",
+      "reviewRunId": "B-d8ef:RR-039",
+      "_hash": "f4fbca02478c9e73887bbc28dae38e55d2d2aea3a2e573752405fb20f5b9de26"
+    },
+    {
+      "id": "B-d8ef:RP-020",
+      "agent": "lattice-review-concept",
+      "note": "Concept re-review passed: storyFilesHash smoke now models concrete executed launcher argv for ready host rows while preserving advisory-only acceptance for unrelated whole-tree material drift and rejection of real story-file changes.",
+      "createdAt": "2026-07-09T22:51:19.042Z",
+      "reviewRound": "2026-07-09T22:49:36.804Z",
+      "reviewRunId": "B-d8ef:RR-040",
+      "_hash": "58817e18adc6101fbdb5d202ec5b76458322d45c3750de74051e5b146e3da7ae"
+    },
+    {
+      "id": "B-d8ef:RP-021",
+      "agent": "lattice-review-test-coverage",
+      "note": "Targeted test-coverage re-review for packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts. Inspected incremental diff from prior PASS B-d8ef:RP-017 and confirmed the ready-host fixture now records concrete launcher argv while keeping unavailable-host templates. Verified target smoke still covers storyFilesHash drift acceptance with advisory, true story-file change rejection, degraded fallback acceptance/advisory, real story-file fallback rejection, and stale fallback/verdict controls. Ran node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js PASS (14 checks) and node packages/main/dist/tasks/review-host-execution-readiness-smoke.js PASS (9 checks). No blocking test-coverage findings.",
+      "createdAt": "2026-07-09T22:52:00.726Z",
+      "reviewRound": "2026-07-09T22:49:36.804Z",
+      "reviewRunId": "B-d8ef:RR-041",
+      "_hash": "320546e00e3e7f3a0de92c49688f1e9247bcd2b8778f231ed9f528aeff520700"
+    },
+    {
+      "id": "B-d8ef:RP-022",
+      "agent": "lattice-review-quality",
+      "note": "Quality re-review of packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts: inspected source diff, source/dist smoke target, review host readiness validator, and ran storyFilesHash plus launcher-readiness smokes; no blocker found.",
+      "createdAt": "2026-07-09T22:52:22.194Z",
+      "reviewRound": "2026-07-09T22:49:36.804Z",
+      "reviewRunId": "B-d8ef:RR-042",
+      "_hash": "8cd4f6e46a5c56395a1a999d5d320a02012ea26fce6e20244621545e6ec2ec71"
+    }
+  ]
+}

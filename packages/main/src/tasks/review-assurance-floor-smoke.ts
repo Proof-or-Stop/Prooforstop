@@ -21,10 +21,12 @@ import {
   formatReviewAssuranceFloorFailure,
   type ReviewAssuranceFloorReport,
 } from '../core/review-assurance-floor.js';
+import { canonicalReviewHostLauncherSpec, type CanonicalReviewHost } from '../core/host-execution-readiness.js';
 import type { BugData, Finding, ProcessEvent, StoryInfo } from '../core/types.js';
 
 const STORY_ID = 'B-review-assurance-floor';
 const REVIEW_ROUND = '2026-06-19T10:00:00.000Z';
+const SMOKE_PROMPT = 'Reply READY and do not run tools.';
 
 function git(root: string, args: string[]): string {
   return execFileSync('git', args, {
@@ -159,6 +161,14 @@ function twoHostRounds(materialHash: string): ProcessEvent[] {
   ];
 }
 
+function concreteLauncherArgv(host: CanonicalReviewHost): string[] {
+  return canonicalReviewHostLauncherSpec(host).launcherArgv.map(arg => {
+    if (arg === '<prompt>') return SMOKE_PROMPT;
+    if (arg === '<prompt-file>') return join(tmpdir(), `review-assurance-floor-${host}-prompt.txt`);
+    return arg;
+  });
+}
+
 function fallback(materialHash: string, overrides: Partial<ProcessEvent> = {}): ProcessEvent {
   return {
     type: 'review_escalation_fallback',
@@ -179,14 +189,29 @@ function fallback(materialHash: string, overrides: Partial<ProcessEvent> = {}): 
 
 function hostAvailabilityProbe(materialHash: string, availableHosts: string[], overrides: Partial<ProcessEvent> = {}): ProcessEvent {
   const available = new Set(availableHosts);
-  const hosts = ['codex', 'claude', 'agy'].map(host => ({
-    host,
-    command: host,
-    ...(available.has(host) ? { executablePath: `/fake/bin/${host}` } : {}),
-    versionOk: available.has(host),
-    available: available.has(host),
-    ...(available.has(host) ? { versionOutput: `${host} 1.0.0` } : { error: 'executable not found in PATH' }),
-  }));
+  const hosts = (['codex', 'claude', 'agy'] as CanonicalReviewHost[]).map(host => {
+    const spec = canonicalReviewHostLauncherSpec(host);
+    const ready = available.has(host);
+    return {
+      host,
+      command: host,
+      ...(ready ? { executablePath: `/fake/bin/${host}` } : {}),
+      versionOk: ready,
+      available: ready,
+      launcher: spec.launcher,
+      launcherArgv: ready ? concreteLauncherArgv(host) : spec.launcherArgv,
+      launcherSupport: ready ? 'supported' : 'unverified',
+      launcherOk: ready,
+      executionReady: ready,
+      reviewReady: ready,
+      progressMode: spec.progressMode,
+      failureKind: ready ? 'none' : 'missing_executable',
+      durationMs: ready ? 12 : 0,
+      ...(ready ? { firstProgressMs: 12, exitCode: 0 } : {}),
+      ...(ready ? {} : { error: 'executable not found in PATH' }),
+      remediation: ready ? '' : `Install or expose ${host} in PATH.`,
+    };
+  });
   return {
     type: 'review_host_availability_probe',
     command: 'review_host_availability_probe',
@@ -197,6 +222,8 @@ function hostAvailabilityProbe(materialHash: string, availableHosts: string[], o
     hosts,
     availableHostCount: availableHosts.length,
     unavailableHostCount: 3 - availableHosts.length,
+    executionReadyHostCount: availableHosts.length,
+    reviewReadyHostCount: availableHosts.length,
     authorityDone: false,
     fullAuthorityDone: false,
     productionDone: false,
@@ -582,7 +609,7 @@ try {
     assertProofAdmissibilityBlocked(invalidFallbackShape);
   });
 
-  check('missing host availability probe blocks non-human high-risk degraded fallback', () => {
+  check('missing host readiness probe blocks non-human high-risk degraded fallback', () => {
     const report = evaluateReviewAssuranceFloor({
       projectRoot: root,
       story: story({
@@ -652,11 +679,11 @@ try {
       ],
     });
     assert.equal(twoHostReport.ok, false);
-    assert.match(twoHostReport.reasons.join('\n'), /found 2\/3 canonical hosts available; use full 3x2 or explicit-human-approval/);
+    assert.match(twoHostReport.reasons.join('\n'), /reviewReadyHostCount=2\/3; use full 3x2 or explicit-human-approval/);
     assertProofAdmissibilityBlocked(twoHostReport);
   });
 
-  check('probe with fewer than two available canonical hosts permits high-risk degraded 3x1', () => {
+  check('probe with reviewReadyHostCount below two permits high-risk degraded 3x1', () => {
     const probe = hostAvailabilityProbe(materialHash, ['codex'], { storyFilesHash });
     const report = evaluateReviewAssuranceFloor({
       projectRoot: root,
@@ -697,7 +724,7 @@ try {
     });
     assert.equal(report.ok, false);
     assert.equal(report.degradedFallback.record?.valid, false);
-    assert.match(report.reasons.join('\n'), /found 2\/3 canonical hosts available; use full 3x2 or explicit-human-approval/);
+    assert.match(report.reasons.join('\n'), /reviewReadyHostCount=2\/3; use full 3x2 or explicit-human-approval/);
     assertProofAdmissibilityBlocked(report);
   });
 

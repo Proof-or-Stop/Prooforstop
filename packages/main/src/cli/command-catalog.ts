@@ -1118,6 +1118,8 @@ Behavior:
     build: z.boolean().optional().describe('Optional worktree-local npm build + CLI version execution check; does not check global lattice.'),
     dryRun: z.boolean().optional().describe('Inspect and report planned steps without mutating git, evidence, build outputs, or version files.'),
     json: z.boolean().optional().describe('Return a JSON object; progress still uses the CLI liveness side channel.'),
+    autoCloseGeneratedMetadata: z.boolean().optional().describe('Opt-in: commit only current-run generated DONE/test lifecycle metadata after manifest safety checks (default false).'),
+    reuseFreshValidation: z.boolean().optional().describe('Opt-in: after a safe generated-metadata commit, reuse same-run validation only when structural hashes are unchanged (default false).'),
     versionBump: z.never().optional().describe('Unsupported: done_prepare never bumps versions before DONE.'),
     bumpVersion: z.never().optional().describe('Unsupported: done_prepare never bumps versions before DONE.'),
     postDoneVersionBump: z.never().optional().describe('Unsupported: done_prepare only reports post-DONE version bump need.'),
@@ -1153,11 +1155,11 @@ Behavior:
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
   }},
-  { name: 'review_host_availability_probe', description: 'Probe canonical review hosts codex, claude, and agy by executable path plus --version, and record material-bound gate evidence. Alias: lattice review host availability probe', schema: {
+  { name: 'review_host_availability_probe', description: 'Probe canonical review hosts codex, claude, and agy by executable path, --version, and bounded noninteractive launcher readiness, then record material-bound gate evidence. Alias: lattice review host availability probe', schema: {
     storyId: z.string().describe('Story ID'),
     materialHash: z.string().optional().describe('Optional expected current material hash; stale values are rejected'),
     storyFilesHash: z.string().optional().describe('Optional expected current story-owned file hash; stale values are rejected when computable'),
-    timeoutMs: z.number().int().positive().max(30000).optional().describe('Per-host --version timeout in milliseconds (default 5000, max 30000)'),
+    timeoutMs: z.number().int().positive().max(30000).optional().describe('Per-host version and launcher readiness timeout in milliseconds (default 5000, max 30000)'),
     actor: z.string().optional().describe('Operator recording the probe'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),

@@ -164,40 +164,7 @@ function extractModel(envelope: Record<string, unknown>): string | null {
   return null;
 }
 
-/**
- * Parse Claude Code CLI stdout into {resultText, anthropicUsage, model}.
- *
- * - When stdout is the Claude Code CLI JSON envelope (e.g.
- *   `{type, result, model, usage:{input_tokens,output_tokens,...}, ...}`),
- *   extract `.result` as the result text, the `.usage` object, and the served
- *   model (top-level `.model`, else `.usage.model`).
- * - When stdout is NOT valid JSON, is not an object, lacks `.result`, or lacks a
- *   usable `.usage`, fall back to `{resultText: <raw stdout>, anthropicUsage:
- *   null, model: null}`.
- * - NEVER throws (JSON.parse is wrapped). Empty / huge / deeply-nested input all
- *   degrade gracefully.
- *
- * PURE: no fs, no clock, no provider client. A defensive non-string input is
- * coerced to '' so the caller never sees a crash.
- */
-export function parseClaudeCliOutput(stdout: string): ParsedClaudeCliOutput {
-  const raw = typeof stdout === 'string' ? stdout : '';
-
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(raw);
-  } catch {
-    // Not JSON at all -> raw-text fallback, no usage, no model.
-    return { resultText: raw, anthropicUsage: null, model: null };
-  }
-
-  // Valid JSON but not a plain object (array, number, string, null) -> the raw
-  // stdout is the human result; there is no envelope to read usage/model from.
-  if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
-    return { resultText: raw, anthropicUsage: null, model: null };
-  }
-
-  const envelope = parsed as Record<string, unknown>;
+function parseClaudeJsonEnvelope(envelope: Record<string, unknown>, raw: string): ParsedClaudeCliOutput {
   // B-6878: own-property guard the CONTAINER read of `usage`. An inherited
   // (prototype-polluted) Object.prototype.usage on an envelope that has no OWN
   // usage is treated as ABSENT, so the polluted container never reaches the
@@ -217,6 +184,68 @@ export function parseClaudeCliOutput(stdout: string): ParsedClaudeCliOutput {
   const resultText = typeof ownResult === 'string' ? ownResult : raw;
 
   return { resultText, anthropicUsage, model };
+}
+
+function selectClaudeStreamResultEvent(raw: string): Record<string, unknown> | null {
+  let selected: Record<string, unknown> | null = null;
+  for (const line of raw.split(/\r?\n/)) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(trimmed);
+    } catch {
+      continue;
+    }
+    if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) continue;
+    const event = parsed as Record<string, unknown>;
+    const type = ownProp(event, 'type') ? event.type : undefined;
+    const result = ownProp(event, 'result') ? event.result : undefined;
+    if (type === 'result' || typeof result === 'string') {
+      selected = event;
+    }
+  }
+  return selected;
+}
+
+/**
+ * Parse Claude Code CLI stdout into {resultText, anthropicUsage, model}.
+ *
+ * - When stdout is the Claude Code CLI JSON envelope (e.g.
+ *   `{type, result, model, usage:{input_tokens,output_tokens,...}, ...}`),
+ *   extract `.result` as the result text, the `.usage` object, and the served
+ *   model (top-level `.model`, else `.usage.model`).
+ * - When stdout is Claude Code stream-json NDJSON, select the final result event
+ *   line and extract the same result/usage/model fields from that event.
+ * - When stdout is NOT valid JSON, is not an object, lacks `.result`, or lacks a
+ *   usable `.usage`, fall back to `{resultText: <raw stdout>, anthropicUsage:
+ *   null, model: null}`.
+ * - NEVER throws (JSON.parse is wrapped). Empty / huge / deeply-nested input all
+ *   degrade gracefully.
+ *
+ * PURE: no fs, no clock, no provider client. A defensive non-string input is
+ * coerced to '' so the caller never sees a crash.
+ */
+export function parseClaudeCliOutput(stdout: string): ParsedClaudeCliOutput {
+  const raw = typeof stdout === 'string' ? stdout : '';
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    const streamResult = selectClaudeStreamResultEvent(raw);
+    if (streamResult) return parseClaudeJsonEnvelope(streamResult, raw);
+    // Not JSON / no usable stream-json result event -> raw-text fallback.
+    return { resultText: raw, anthropicUsage: null, model: null };
+  }
+
+  // Valid JSON but not a plain object (array, number, string, null) -> the raw
+  // stdout is the human result; there is no envelope to read usage/model from.
+  if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+    return { resultText: raw, anthropicUsage: null, model: null };
+  }
+
+  return parseClaudeJsonEnvelope(parsed as Record<string, unknown>, raw);
 }
 
 // =============================================================================

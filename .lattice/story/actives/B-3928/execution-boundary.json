@@ -1,0 +1,71 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-3928",
+  "allowedCommands": [
+    "git add",
+    "git commit",
+    "git diff",
+    "git log",
+    "git status",
+    "lattice agent_prompt",
+    "lattice aux_doc_list",
+    "lattice checklist_get",
+    "lattice decision_set",
+    "lattice delivery_check_set",
+    "lattice done_prepare",
+    "lattice done_required_validate",
+    "lattice session_brief",
+    "lattice story_advance",
+    "lattice story_get",
+    "lattice story_review",
+    "lattice understanding_set",
+    "lattice validate",
+    "node",
+    "npm",
+    "rg"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "MultiEdit",
+    "Read"
+  ],
+  "allowedPaths": [
+    "docs/requirements/baselines/**",
+    "docs/requirements/decisions/*baseline*",
+    "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+    "lattice.config.json",
+    "package-lock.json",
+    "package.json",
+    "packages/main/package-lock.json",
+    "packages/main/package.json",
+    "packages/main/src/tasks/**",
+    "packages/main/tests/**",
+    "scripts/**"
+  ],
+  "excludedCommands": [
+    "git checkout --",
+    "git clean -fd",
+    "git push --force",
+    "git reset --hard",
+    "omx"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".claude/agents/**",
+    ".lattice-codex/agents/**",
+    ".omx/**",
+    "docs/story/**",
+    "packages/main/src/runtime-assets/templates/agents/**",
+    "tests/fixtures/**"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "M0 may read prompt assets through CLI/source inspection but must not edit prompt bodies. Prefer generated baseline artifacts plus verification scripts/tests. Any need to touch registry/runtime code must be justified against the M0 exit criteria before editing.",
+  "createdAt": "2026-07-10T03:03:55.883Z",
+  "updatedAt": "2026-07-10T03:03:55.883Z",
+  "_hash": "98f23e72a731e1d9861ce77f9f110aa2110a07b6c0174ff517d2290dd18a1bc2"
+}

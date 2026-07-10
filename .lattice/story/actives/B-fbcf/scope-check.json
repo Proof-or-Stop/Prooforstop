@@ -1,0 +1,262 @@
+{
+  "storyId": "B-fbcf",
+  "checkedAt": "2026-07-09T23:23:38.862Z",
+  "features": [
+    {
+      "feature": "Opt-in fail-closed done_prepare generated-metadata auto-closeout for the narrow B-6914 loop",
+      "covered_by": "CHK-002; CHK-004; understanding.outcome; decision chosen option C; canonical execution plan Purpose",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-fbcf/understanding.json; .lattice/story/actives/B-fbcf/checklist.json; .lattice/story/actives/B-fbcf/plan.md; docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md"
+    },
+    {
+      "feature": "Canonical Proofbound decision doc exists at docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md and is the relatedDocs target for B-fbcf",
+      "covered_by": "CHK-001; plan Audit Summary; canonical file presence verified; aux_doc_list lists the doc",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-fbcf/checklist.json; .lattice/story/actives/B-fbcf/plan.md; docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md"
+    },
+    {
+      "feature": "Current-run generated metadata manifest records path, before hash, after hash, producer phase, reason, command-backed status, and safe-to-auto-stage classification",
+      "covered_by": "CHK-001; plan CHK-001; canonical plan M1",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-fbcf/checklist.json; .lattice/story/actives/B-fbcf/plan.md; docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md"
+    },
+    {
+      "feature": "Manifest safety uses existing lifecycle artifact classifier and configured storyDir handling rather than hard-coded story paths",
+      "covered_by": "CHK-001; plan CHK-001; canonical plan M1; lifecycle artifact scope relatedDoc",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-fbcf/plan.md; docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md; docs/requirements/decisions/lifecycle-artifact-scope.md"
+    },
+    {
+      "feature": "Pre-existing lifecycle metadata dirt is not classified as current-run generated metadata",
+      "covered_by": "CHK-001 edge verification; canonical plan M1 verification",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-fbcf/checklist.json; docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md"
+    },
+    {
+      "feature": "Only explicit opt-in flags enable auto-closeout and validation reuse",
+      "covered_by": "CHK-002; CHK-003; understanding.constraints; canonical operator contract",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-fbcf/understanding.json; .lattice/story/actives/B-fbcf/checklist.json; .lattice/story/actives/B-fbcf/plan.md; docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md"
+    },
+    {
+      "feature": "Safe auto-commit stages exact manifest paths only and uses a deterministic generated-metadata commit message",
+      "covered_by": "CHK-002; plan CHK-002; canonical plan M2",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-fbcf/checklist.json; .lattice/story/actives/B-fbcf/plan.md; docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md"
+    },
+    {
+      "feature": "Unrelated dirty docs, source/runtime changes, untracked files, deletes, renames, unsafe paths, missing manifest, unsafe staged entries, commit-hook failure, or missing git identity refuse before commit",
+      "covered_by": "CHK-002 edge; plan CHK-002; canonical plan Preconditions and M2",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-fbcf/checklist.json; .lattice/story/actives/B-fbcf/plan.md; docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md"
+    },
+    {
+      "feature": "No broad git add, stash, checkout, reset, clean, push, publish, release, or no-verify commit behavior",
+      "covered_by": "CHK-002 adversarial; scope-boundary excluded; execution-boundary excluded; canonical Non-Goals and M2",
+      "status": "excluded",
+      "excluded_by": "Explicit safety exclusion; only exact manifest staging followed by normal hook-respecting commit is in scope",
+      "source": ".lattice/story/actives/B-fbcf/checklist.json; .lattice/story/actives/B-fbcf/scope-boundary.json; .lattice/story/actives/B-fbcf/execution-boundary.json; docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md"
+    },
+    {
+      "feature": "Validation reuse requires unchanged materialHash, storyFilesHash, validation commandSetHash, DONE-required commandSetHash, scope contract hash, lifecycle classifier version, validation and DONE-required config hashes, and relevant policy/config hashes against prior PASS evidence",
+      "covered_by": "CHK-003; plan CHK-003; canonical Resolved Design Decisions and M3",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-fbcf/checklist.json; .lattice/story/actives/B-fbcf/plan.md; docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md; docs/requirements/decisions/story-files-hash-material-drift.md; docs/requirements/decisions/done-full-test-gate-execution-plan.md"
+    },
+    {
+      "feature": "Material edits, storyFiles changes, validation config changes, policy changes, scope/classifier changes, stale DONE-required evidence, or failing prior evidence force normal validation or a hard blocker",
+      "covered_by": "CHK-003 edge; plan CHK-003; canonical M3 verification",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-fbcf/checklist.json; .lattice/story/actives/B-fbcf/plan.md; docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md; docs/requirements/decisions/story-files-hash-material-drift.md; docs/requirements/decisions/done-full-test-gate-execution-plan.md"
+    },
+    {
+      "feature": "Validation reuse preserves prior command transcripts and must not pretend validation commands were rerun",
+      "covered_by": "CHK-003 adversarial; plan CHK-003; canonical Resolved Design Decisions and M3",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-fbcf/checklist.json; .lattice/story/actives/B-fbcf/plan.md; docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md"
+    },
+    {
+      "feature": "Metadata-only validation reuse record storage is resolved as an extension of done-required-evidence.json, not a new gate evidence artifact",
+      "covered_by": "Resolved OQ-B-fbcf-001; plan CHK-003 storage contract; canonical Resolved Design Decisions",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-fbcf/scope-check.json openQuestions resolutions; .lattice/story/actives/B-fbcf/plan.md; docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md"
+    },
+    {
+      "feature": "A configurable wall-clock freshness window for B-fbcf validation reuse",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Resolved OQ-B-fbcf-002 excludes wall-clock freshness for this story; reuse is structural and hash-bound only, with timestamps retained as audit metadata",
+      "source": ".lattice/story/actives/B-fbcf/scope-check.json openQuestions resolutions; .lattice/story/actives/B-fbcf/plan.md; docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md"
+    },
+    {
+      "feature": "After safe auto-closeout, re-evaluate doneClosure, runtimeChange, and cleanTree from the new HEAD",
+      "covered_by": "CHK-004; plan CHK-004; canonical M4",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-fbcf/checklist.json; .lattice/story/actives/B-fbcf/plan.md; docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md; docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md"
+    },
+    {
+      "feature": "If generated metadata was the only blocker, DONE prepare reaches PASS and prints the next legal story_advance command",
+      "covered_by": "CHK-004 happy verification; understanding.outcome; canonical operator contract and Done Means",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-fbcf/understanding.json; .lattice/story/actives/B-fbcf/checklist.json; docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md"
+    },
+    {
+      "feature": "Real blockers remain blocked and use canonical done_prepare, B-eb92, or B-b264 guidance instead of parallel B-fbcf wording",
+      "covered_by": "CHK-004 edge; decision preMortem; plan CHK-004; canonical Non-Goals",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-fbcf/checklist.json; .lattice/story/actives/B-fbcf/plan.md; .lattice/story/actives/B-fbcf/decision.json; docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md; docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+    },
+    {
+      "feature": "Auto-advancing DONE by default",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicit non-goal; command prints the next story_advance command only",
+      "source": ".lattice/story/actives/B-fbcf/scope-boundary.json; .lattice/story/actives/B-fbcf/plan.md; docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md"
+    },
+    {
+      "feature": "Separate future explicit advanceDone flag possibility",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Any automatic DONE advancement is outside B-fbcf and would require a later gate review or story",
+      "source": "docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md"
+    },
+    {
+      "feature": "No runtime version file mutation or pre-DONE version bump",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "done_prepare remains pre-DONE readiness; runtime version changes are out of scope",
+      "source": ".lattice/story/actives/B-fbcf/checklist.json; .lattice/story/actives/B-fbcf/plan.md; docs/requirements/decisions/done-prepare-automation-execution-plan.md; docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md"
+    },
+    {
+      "feature": "No auto-signing reviewer evidence, host verdicts, delivery checks, degraded fallback, Authority receipts, release readiness, production readiness, or Authority/production DONE claims",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Authority-sensitive evidence and claims stay on their legal writer, receipt, release, and production paths",
+      "source": ".lattice/story/actives/B-fbcf/checklist.json; .lattice/story/actives/B-fbcf/scope-boundary.json; docs/requirements/decisions/review-assurance-floor-execution-plan.md; docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md; docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md"
+    },
+    {
+      "feature": "Human auto-closeout progress/refusal text must not pollute JSON stdout; JSON stays parseable and B-eb08-compatible",
+      "covered_by": "CHK-005 edge; decision preMortem; understanding constraints; canonical M5",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-fbcf/checklist.json; .lattice/story/actives/B-fbcf/decision.json; .lattice/story/actives/B-fbcf/understanding.json; docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md; docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md"
+    },
+    {
+      "feature": "Focused smoke coverage for success, refusal cases, validation reuse, material drift, missing review assurance, JSON cleanliness, no auto-signing, and no remote/publish behavior",
+      "covered_by": "CHK-005; canonical M5; docs/dev/test-coverage.md establishes focused smoke conventions",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-fbcf/checklist.json; .lattice/story/actives/B-fbcf/plan.md; docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md; docs/dev/test-coverage.md"
+    },
+    {
+      "feature": "Build plus done-prepare-auto-closeout smoke pass",
+      "covered_by": "CHK-005 happy verification; canonical M5 verification",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-fbcf/checklist.json; docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md; docs/dev/test-coverage.md"
+    },
+    {
+      "feature": "Sibling-smoke acceptance is limited to current-main smokes for consumed surfaces when those scripts exist; unmerged future B-eb92/B-b264 smokes are not B-fbcf completion criteria",
+      "covered_by": "plan CHK-005 sibling-smoke mapping; canonical Resolved Design Decisions and M5",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-fbcf/plan.md; docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md"
+    },
+    {
+      "feature": "B-eb08 heartbeat/progress labels, independent phase deadlines, JSON liveness, and done_prepare json flag",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Owned by B-eb08; B-fbcf must wait, integrate, and consume, not duplicate",
+      "source": ".lattice/story/actives/B-fbcf/plan.md; .lattice/story/actives/B-fbcf/decision.json; docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md"
+    },
+    {
+      "feature": "B-eb92 early review-assurance surfacing, reason/fallback/legal-writer guidance, and cannot-auto-sign blocker guidance",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Owned by B-eb92; B-fbcf may surface canonical blockers only",
+      "source": ".lattice/story/actives/B-fbcf/plan.md; .lattice/story/actives/B-fbcf/decision.json; docs/requirements/decisions/review-assurance-floor-execution-plan.md; docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md"
+    },
+    {
+      "feature": "B-b264 rerun-delta explanation, merge hazard guidance, generated-file ownership reporting, and dryRun immutability",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Owned by B-b264 except consumed inputs and canonical blockers",
+      "source": ".lattice/story/actives/B-fbcf/plan.md; .lattice/story/actives/B-fbcf/decision.json; docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md"
+    },
+    {
+      "feature": "B-fbcf DEV must not start against stale main if B-eb08 is unmerged; wait for B-eb08 or explicitly integrate it before code edits",
+      "covered_by": "decision chosen C; plan conflict audit; understanding constraints",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-fbcf/decision.json; .lattice/story/actives/B-fbcf/plan.md; .lattice/story/actives/B-fbcf/understanding.json"
+    },
+    {
+      "feature": "B-eb92 and B-b264 are semantic boundaries rather than PLAN blockers",
+      "covered_by": "decision chosen C; plan conflict audit; understanding constraints",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-fbcf/decision.json; .lattice/story/actives/B-fbcf/plan.md; .lattice/story/actives/B-fbcf/understanding.json"
+    },
+    {
+      "feature": "Dispatch, worker reuse, full-history fork behavior, role prompts, and bounded context pack behavior remain untouched",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicit non-goal and outside B-fbcf scope",
+      "source": ".lattice/story/actives/B-fbcf/intent-collision.json; docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md"
+    },
+    {
+      "feature": "Do not change REVIEW, TEST, DONE pass criteria or relax evidence/material hash freshness checks",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "done_prepare automation orchestrates only safe metadata closeout; lifecycle gates remain intact",
+      "source": "docs/requirements/decisions/done-prepare-automation-execution-plan.md; docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md"
+    },
+    {
+      "feature": "Touchpoints are limited to canonical doc, done_prepare handler, generated-metadata helper, validation-reuse helper, command catalog, package script, and focused smoke",
+      "covered_by": "understanding.touchpoints; execution-boundary allowedPaths; checklist files",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-fbcf/understanding.json; .lattice/story/actives/B-fbcf/execution-boundary.json; .lattice/story/actives/B-fbcf/checklist.json"
+    },
+    {
+      "feature": "Local-only execution; no remote publish or destructive git operations",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Parallel Proofbound work is local-only and remote/destructive operations are excluded",
+      "source": "AGENTS.md; .lattice/story/actives/B-fbcf/execution-boundary.json; .lattice/story/actives/B-fbcf/scope-boundary.json"
+    },
+    {
+      "feature": "done_prepare phase eligibility remains TEST-only; DONE recovery support would require a separate lifecycle semantics story",
+      "covered_by": "understanding constraints; canonical Purpose and Non-Goals",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-fbcf/understanding.json; docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 35,
+    "covered": 23,
+    "excluded": 12,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "28fbcedd7a98ae4e526bacbeb68d3201dbcb097834f30caddc3f4a02ee42ab14",
+  "openQuestions": []
+}

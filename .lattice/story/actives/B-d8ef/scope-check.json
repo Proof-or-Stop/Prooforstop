@@ -1,0 +1,129 @@
+{
+  "storyId": "B-d8ef",
+  "checkedAt": "2026-07-09T13:06:28.455Z",
+  "features": [
+    {
+      "feature": "Per-host launcher readiness rows (launcher argv, executionReady, reviewReady, progressMode, failureKind, firstProgressMs/durationMs) in review_host_availability_probe",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-d8ef/checklist.json"
+    },
+    {
+      "feature": "reviewReadyHostCount derived only from row-level reviewReady=true; contradictory/forged counts rejected",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-d8ef/plan.md#CHK-001"
+    },
+    {
+      "feature": "No raw provider transcripts, tokens, or auth-profile contents persisted in probe evidence",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-d8ef/plan.md (rollback/security note) + understanding.json constraints"
+    },
+    {
+      "feature": "available=true but executionReady=false with specific failureKind when launcher/auth fails despite versionOk",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json CHK-001 edge intent"
+    },
+    {
+      "feature": "Non-human degraded fallback consumes reviewReadyHostCount/executionReadyHostCount instead of availableHostCount",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding.json facts + checklist CHK-002"
+    },
+    {
+      "feature": "Refuse single-host-environment / temporary-host-unavailability fallback when >=2 hosts are review-ready, even against prose evidenceRefs",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist CHK-002 adversarial intent"
+    },
+    {
+      "feature": "Legacy B-7438 version-only probe events not eligible as review-ready proof; diagnostics direct rerun or explicit-human-approval",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist CHK-002 edge intent"
+    },
+    {
+      "feature": "Fallback diagnostics name concrete causes (auth, wrong_launcher, timeout, silent-final-output)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "plan.md CHK-002 DoneWhen"
+    },
+    {
+      "feature": "Explicit-human-approval path preserved as lower-assurance alternative",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "background.md Solution Tradeoffs + plan.md CHK-002"
+    },
+    {
+      "feature": "Claude observable reviewer launcher modeled as claude --print --verbose --output-format=stream-json; plain --print classified silent/non-progress",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist CHK-003 happy intent"
+    },
+    {
+      "feature": "agy --prompt-file classified wrong_launcher; canonical agy launcher --print + --print-timeout",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist CHK-003 edge intent"
+    },
+    {
+      "feature": "Codex version/login success without codex exec success (token_invalidated/refresh_token_invalidated) classified as auth failure, not review-ready",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist CHK-003 adversarial intent"
+    },
+    {
+      "feature": "Process-fact schema/registry updated and verify-process-fact-contract passes for gate-consumed readiness fields",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding.json constraints + plan.md CHK-003 Verify"
+    },
+    {
+      "feature": "Retired completion fields (authorityDone/fullAuthorityDone/productionDone) remain false; local host evidence not promoted to release readiness",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist CHK-001 adversarial + decisions/review-assurance-floor-execution-plan.md L71"
+    },
+    {
+      "feature": "Probes stay bounded; no expensive long live LLM calls in routine paths",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding.json constraints + decision.json preMortem 1"
+    },
+    {
+      "feature": "Optional claude --include-hook-events flag support",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Background marks it explicitly optional; canonical launcher contract is --print --verbose --output-format=stream-json, and no checklist/plan artifact promises hook-event support",
+      "source": ".lattice/story/actives/B-d8ef/background.md Conversational Texture"
+    }
+  ],
+  "summary": {
+    "total": 16,
+    "covered": 15,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "7a25a2230a7c4c4c7de9a7ab011d1af5af2884238ffc13f25991c12aaeb673a4",
+  "openQuestions": []
+}

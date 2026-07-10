@@ -2421,7 +2421,7 @@ function assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelR
     assert(probePolicy.gateEvidence, `${commandPolicyPath}: ${probeCommand} must be gateEvidence`);
     assert(probePolicy.destructiveRisk === 'metadata-write', `${commandPolicyPath}: ${probeCommand} destructiveRisk must stay metadata-write`);
     assert(policyBlockHasOwnershipClass(probePolicy, 'storyScopedMutating'), `${commandPolicyPath}: ${probeCommand} must stay storyScopedMutating`);
-    for (const token of ['codex', 'claude', 'agy', '--version', 'material hash', 'storyFilesHash', 'review escalation DONE gate', 'review assurance floor DONE gate']) {
+    for (const token of ['codex', 'claude', 'agy', '--version', 'executionReady', 'reviewReady', 'progressMode', 'failureKind', 'reviewReadyHostCount', 'material hash', 'storyFilesHash', 'review escalation DONE gate', 'review assurance floor DONE gate']) {
       assert(new RegExp(token, 'i').test(probePolicy.reason), `${commandPolicyPath}: ${probeCommand} policy must name ${token}`);
     }
     assertLocalAssuranceNoReleaseBoundary(probePolicy.reason, `${commandPolicyPath}: ${probeCommand} policy`);
@@ -2433,7 +2433,7 @@ function assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelR
     assert(probeLevel.category === 'review-host-availability-probe', `${processFactLevelRegistryPath}: ${probeCommand} category drifted`);
     assert(probeLevel.owner === 'handlers/review-escalation', `${processFactLevelRegistryPath}: ${probeCommand} owner drifted`);
     assert(/review_host_availability_probe/i.test(probeLevel.rationale), `${processFactLevelRegistryPath}: ${probeCommand} rationale must name review_host_availability_probe`);
-    assert(/fewer than 2 available canonical hosts/i.test(probeLevel.rationale), `${processFactLevelRegistryPath}: ${probeCommand} rationale must name the degraded fallback availability threshold`);
+    assert(/reviewReadyHostCount below 2 canonical hosts/i.test(probeLevel.rationale), `${processFactLevelRegistryPath}: ${probeCommand} rationale must name the degraded fallback review-readiness threshold`);
     assert(/review escalation/i.test(probeLevel.gateConsumer || ''), `${processFactLevelRegistryPath}: ${probeCommand} gateConsumer must name review escalation`);
     assert(/review assurance floor/i.test(probeLevel.gateConsumer || ''), `${processFactLevelRegistryPath}: ${probeCommand} gateConsumer must name review assurance floor`);
   }
@@ -2444,6 +2444,7 @@ function assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelR
     assert(probeRegistry.kind === 'host-availability-probe', `${processFactRegistryPath}: ${probeCommand} registry kind must stay host-availability-probe`);
     assert(probeRegistry.gateEvidence === true, `${processFactRegistryPath}: ${probeCommand} registry gateEvidence must stay true`);
     assert(probeRegistry.semantics.includes('host-availability'), `${processFactRegistryPath}: ${probeCommand} registry missing host-availability semantic`);
+    assert(probeRegistry.semantics.includes('host-readiness'), `${processFactRegistryPath}: ${probeCommand} registry missing host-readiness semantic`);
     assert(probeRegistry.artifact?.path === 'process-events.jsonl', `${processFactRegistryPath}: ${probeCommand} must record process-events.jsonl evidence`);
     assert(/review escalation/i.test(probeRegistry.consumerGate), `${processFactRegistryPath}: ${probeCommand} consumerGate must name review escalation`);
     assert(/review assurance floor/i.test(probeRegistry.consumerGate), `${processFactRegistryPath}: ${probeCommand} consumerGate must name review assurance floor`);
@@ -2459,7 +2460,7 @@ function assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelR
     assert(policyBlockHasOwnershipClass(fallbackPolicy, 'storyScopedMutating'), `${commandPolicyPath}: ${fallbackCommand} must stay storyScopedMutating`);
     assert(/degraded 3x1|degraded-single-host|current material hash/i.test(fallbackPolicy.reason), `${commandPolicyPath}: ${fallbackCommand} must describe degraded-single-host material binding`);
     assert(/storyFilesHash/i.test(fallbackPolicy.reason), `${commandPolicyPath}: ${fallbackCommand} must describe storyFilesHash binding`);
-    assert(/review_host_availability_probe|fewer than 2 available canonical hosts/i.test(fallbackPolicy.reason), `${commandPolicyPath}: ${fallbackCommand} policy must describe fresh host availability probe binding for non-human fallback`);
+    assert(/review_host_availability_probe|reviewReadyHostCount below 2 canonical hosts/i.test(fallbackPolicy.reason), `${commandPolicyPath}: ${fallbackCommand} policy must describe fresh host readiness probe binding for non-human fallback`);
     assert(/review escalation DONE gate/i.test(fallbackPolicy.reason), `${commandPolicyPath}: ${fallbackCommand} policy must name the local review escalation DONE gate`);
     assert(/review assurance floor DONE gate/i.test(fallbackPolicy.reason), `${commandPolicyPath}: ${fallbackCommand} policy must name the review assurance floor DONE gate`);
     assertLocalAssuranceNoReleaseBoundary(fallbackPolicy.reason, `${commandPolicyPath}: ${fallbackCommand} policy`);
@@ -2481,6 +2482,7 @@ function assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelR
     assert(fallbackRegistry.level === 'L4', `${processFactRegistryPath}: ${fallbackCommand} registry level must stay L4`);
     assert(fallbackRegistry.gateEvidence === true, `${processFactRegistryPath}: ${fallbackCommand} registry gateEvidence must stay true`);
     assert(fallbackRegistry.semantics.includes('host-availability'), `${processFactRegistryPath}: ${fallbackCommand} registry missing host-availability semantic`);
+    assert(fallbackRegistry.semantics.includes('host-readiness'), `${processFactRegistryPath}: ${fallbackCommand} registry missing host-readiness semantic`);
     assert(fallbackRegistry.artifact?.path === 'process-events.jsonl', `${processFactRegistryPath}: ${fallbackCommand} must record process-events.jsonl evidence`);
     assert(/review escalation/i.test(fallbackRegistry.consumerGate), `${processFactRegistryPath}: ${fallbackCommand} consumerGate drifted`);
     assert(/review assurance floor/i.test(fallbackRegistry.consumerGate), `${processFactRegistryPath}: ${fallbackCommand} consumerGate must name review assurance floor`);
@@ -2608,8 +2610,8 @@ function assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelR
     'valid explicit high-risk policy fact requires 3x2 without first-round problems',
     'high-risk prose or paths do not trigger without explicit policy fact',
     'explicit high-risk policy can disallow degraded single-host fallback',
-    'missing host availability probe blocks non-human degraded fallback',
-    'probe with fewer than two available canonical hosts permits degraded 3x1',
+    'missing host readiness probe blocks non-human degraded fallback',
+    'probe with reviewReadyHostCount below two permits degraded 3x1',
     'probe with two executable canonical hosts blocks single-host fallback',
     'explicit-human-approval remains lower assurance degraded fallback',
   ]) {
@@ -2673,8 +2675,8 @@ function assertReviewAssuranceFloorContract(registry, levelRegistry) {
     'docs-only markdown is not overblocked',
     'failure signals require sticky 3x1 local rounds',
     'high-risk lifecycle gate work requires 3x2 or explicit degraded fallback',
-    'missing host availability probe blocks non-human high-risk degraded fallback',
-    'probe with fewer than two available canonical hosts permits high-risk degraded 3x1',
+    'missing host readiness probe blocks non-human high-risk degraded fallback',
+    'probe with reviewReadyHostCount below two permits high-risk degraded 3x1',
     'probe with two executable canonical hosts blocks high-risk single-host fallback',
     'explicit-human-approval remains lower assurance without host probe',
     'wrapper-root machine DONE guard uses resolved gitCwd',

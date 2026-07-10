@@ -1,0 +1,42 @@
+{
+  "storyId": "B-04bb",
+  "checkedAt": "2026-07-09T21:49:44.238Z",
+  "headHash": "38683ed49564c331dfdf98739b03ff83b7e7263f",
+  "materialHash": "33062d79ff0dbeed0ef9e397a6efa3be0a230aad003b0f0098f716ed24eca0ab",
+  "storyFilesHash": "b7cbe8d4cfb05adacb9fc73d90113f490e2353518ea450b039541ce3adc8f1af",
+  "reviewRound": "2026-07-09T19:20:36.605Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "lattice.config.json",
+      "promise": "validate.commands contains exactly one new bare-string entry node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js placed immediately after retired-authority-vocabulary-guard-smoke.js, per plan.md CHK-001.",
+      "status": "verified",
+      "verifiedBy": "manual",
+      "evidence": "Reverse-scanned git diff main -- lattice.config.json: single added line at the correct position; independently confirmed with node JSON.parse index scan showing entry at validate.commands[3], directly after index [2] retired-authority-vocabulary-guard-smoke.js."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-04bb/plan.md",
+      "promise": "CHK-002: full lattice validate executes the new guard command and exits 0; fast-lane validate skips it; the guard is genuinely falsifiable (seeded-regression fails, restore passes).",
+      "status": "verified",
+      "verifiedBy": "test",
+      "evidence": "Independently re-ran full lattice validate, 44/44 commands: validate.commands[3] reviewer-scan-budget-guard-smoke.js code=0, overall EXIT=0. Independently re-ran lattice validate with focus=fast: zero occurrences of reviewer-scan-budget-guard, exit 0. Independently reproduced seeded regression: appended banned unconditional-scan wording to .claude/agents/lattice-review-behavior.md, guard exited 1 with AssertionError naming the violated line; git checkout restored the file and guard returned to PASS exit 0; git status clean after restore. All results match the persisted verificationEvidence and test-evidence.json transcript exactly."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "git diff main -- lattice.config.json shows 1 insertion, the new bare-string entry, and no other change to the file. node JSON.parse syntax check exits 0. ls plus standalone run of packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js confirms the dist file exists and prints PASS, exit 0."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "lattice validate, full non-focused: 44 of 44 commands passed, command 4 of 44 equals validate.commands[3] reviewer-scan-budget-guard-smoke.js code=0 elapsedMs=260, transcript line reviewer-scan-budget-guard: PASS, 6 prompt copies clean, 4 required phrases present; overall EXIT=0. lattice validate with focus=fast: exit 0, zero mentions of reviewer-scan-budget-guard, bare-string entry correctly excluded from fast lane. Seeded-regression falsifiability reproduced live: injected banned phrase leads to guard exit 1 with named violation; git checkout restore leads to guard exit 0 PASS; working tree clean after restore."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review for B-04bb CHK-002, TEST-phase delivery-check gate, dispatched itemId=CHK-002. Reverse-scanned git diff vs main: exactly one added validate.commands line, correctly positioned. Independently re-ran, not merely re-read, all three pieces of verification evidence claimed by the story: full validate 44 of 44 PASS with the guard at commands[3] PASS exit 0, fast-lane skip, and seeded-regression falsifiability; every result matched the persisted evidence exactly, with matching materialHash across CHK-001 and CHK-002 entries and current HEAD. Confirmed the story-metadata-only files intent-collision.json, original-intent-snapshot.json, and proofstory.json have a recorded, substantively reasoned scope-contract acknowledgement: ProofStory intent MVP lifecycle metadata, not hand-edited material code, classifier not yet registry-aware. Investigated an apparent anomaly in the diff, deletion of unrelated story B-4a78 metadata files, and confirmed via git log that story/B-04bb to main shows exactly the 2 commits that created B-4a78, so this is benign branch drift where B-04bb's tip predates B-4a78's creation on main, not a deletion introduced by this story; it does not affect CHK-002's deliverable. No blockers found, no unresolved TODOs, closing self-check is honest and grounded in independently reproduced command output, not restated claims."
+  },
+  "_hash": "87133782c0824016f9dbb37abe81cfe42f2a1130ab6e5eabb3d01b8ced2cc3dd"
+}

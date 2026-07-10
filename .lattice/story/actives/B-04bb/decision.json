@@ -1,0 +1,75 @@
+{
+  "principles": [
+    "Enforcement point over discovery: a guard only protects if validate actually runs it",
+    "Smallest possible diff: one config line, no semantic changes to other commands",
+    "Follow the established per-guard convention already used by ~30 entries",
+    "Never merge a validate entry whose referenced dist file does not exist on main"
+  ],
+  "drivers": [
+    "Guard shipped by B-cee5 is currently unenforced (never runs during validate)",
+    "Scope limited to lattice.config.json by scope contract and story non-goals",
+    "Hard dependency: guard source lands on main only when B-cee5 is DONE"
+  ],
+  "options": [
+    {
+      "name": "explicit-bare-string-entry",
+      "pros": [
+        "Matches the user-stated primary ask and the existing per-guard pattern (retired-authority guard, line 27)",
+        "Granular validate output per guard",
+        "No semantic change to other smokes"
+      ],
+      "cons": [
+        "validate.commands array keeps growing one line per guard"
+      ]
+    },
+    {
+      "name": "wire-run-all-smokes-aggregate",
+      "pros": [
+        "Auto-discovers future guards without config edits"
+      ],
+      "cons": [
+        "Changes execution semantics for all smokes in one story",
+        "User framed it only as a fallback if the team prefers aggregate execution",
+        "Coarser failure attribution in validate output"
+      ]
+    },
+    {
+      "name": "do-nothing",
+      "pros": [
+        "Zero risk"
+      ],
+      "cons": [
+        "Guard stays unenforced, defeating B-cee5"
+      ]
+    }
+  ],
+  "chosen": "explicit-bare-string-entry",
+  "rationale": "The user made the explicit one-line entry the primary ask; it matches the established one-entry-per-guard convention, keeps validate output granular, and confines the change to a single config line, while the aggregate alternative would change semantics for all smokes and was only offered as a conditional fallback.",
+  "preMortem": [
+    {
+      "scenario": "B-cee5 is reworked or never merges to main",
+      "trigger": "Dependency story fails REVIEW/TEST or is abandoned",
+      "consequence": "The new entry references a missing dist file and every validate on main goes red",
+      "mitigation": "depends=[B-cee5] recorded; DEV waits for the merge; story is not merged until a full validate passes in the worktree with B-cee5 landed"
+    },
+    {
+      "scenario": "Path typo in the new entry",
+      "trigger": "Hand-typed dist path differs from the built filename",
+      "consequence": "validate fails at the new command for everyone",
+      "mitigation": "Copy the exact path verified by a standalone run in the B-cee5 worktree; adversarial intent CHK-001:adversarial:0 checks the dist file exists after build"
+    },
+    {
+      "scenario": "JSON syntax error introduced by the edit",
+      "trigger": "Trailing comma or quote mistake in lattice.config.json",
+      "consequence": "Config parse failure breaks every lattice command, not just validate",
+      "mitigation": "node -e JSON.parse syntax check immediately after the edit (CHK-001:edge:0) before running validate; rollback path is git revert of the one-line change"
+    },
+    {
+      "scenario": "Guard is tautological (always passes)",
+      "trigger": "Smoke lacks a real failure path",
+      "consequence": "Wiring gives false assurance while regressions pass silently",
+      "mitigation": "Adversarial intent CHK-002:adversarial:0 requires demonstrating the guard can exit non-zero on a seeded regression"
+    }
+  ],
+  "timestamp": "2026-07-09T18:30:20.896Z"
+}

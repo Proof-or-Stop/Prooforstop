@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-2861",
+  "id": "IC-20260709152922",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "This story reviews and optimizes only docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md, using current project code/CLI facts and explicit user-requested 3x2 host perspectives; it does not implement Proof-or-Stop runtime, prompt registry, or gate code changes.",
+  "acceptedInterpretationHash": "sha256:df8b96137fb08a329c8851dbc2ffb82c3e1a786070e160f8518a984ffd412d41",
+  "notes": "Accepted interpretation resolves ambiguity between document review and code implementation. Antigravity CLI is included for this explicit 3x2 review while global default host policy remains Codex/Claude primary with Agy fallback/substitute unless explicitly requested.",
+  "createdAt": "2026-07-09T15:29:22.257Z",
+  "updatedAt": "2026-07-09T15:29:22.257Z"
+}

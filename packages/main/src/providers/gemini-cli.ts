@@ -41,7 +41,7 @@ export interface ProviderProcessOutcome {
 export type ProviderProcessRunner = (
   binary: string,
   argv: string[],
-  opts: { cwd: string; env: NodeJS.ProcessEnv; timeoutMs: number },
+  opts: { cwd: string; env: NodeJS.ProcessEnv; timeoutMs: number; stdin?: string },
 ) => ProviderProcessOutcome;
 
 const defaultGeminiProcessRunner: ProviderProcessRunner = (binary, argv, opts) => {
@@ -52,7 +52,7 @@ const defaultGeminiProcessRunner: ProviderProcessRunner = (binary, argv, opts) =
     // Close stdin: a bounded, non-interactive action must never block waiting
     // for a prompt. An unattended runner must not hang on an open gemini
     // stdin pipe.
-    input: '',
+    input: opts.stdin ?? '',
     encoding: 'utf8',
     maxBuffer: 8 * 1024 * 1024,
   });
@@ -67,6 +67,12 @@ const defaultGeminiProcessRunner: ProviderProcessRunner = (binary, argv, opts) =
 
 function providerDigest(value: unknown): string {
   return createHash('sha256').update(JSON.stringify(value), 'utf8').digest('hex');
+}
+
+function classifySpawnErrorKind(code: string | undefined): ProviderExecResult['spawnErrorKind'] {
+  if (code === 'ENOENT') return 'missing_executable';
+  if (code === 'E2BIG') return 'argv_too_large';
+  return 'spawn_failed';
 }
 
 /** Best-effort model extraction from Gemini JSON output; never required for success. */
@@ -203,6 +209,8 @@ export function runBoundedGeminiProvider(
   let stdout = '';
   let stderr = '';
   let spawnError = false;
+  let spawnErrorCode: string | undefined;
+  let spawnErrorKind: ProviderExecResult['spawnErrorKind'] | undefined;
   let timedOut = false;
 
   while (attempts < maxAttempts) {
@@ -211,14 +219,17 @@ export function runBoundedGeminiProvider(
       cwd: request.cwd,
       env: request.env,
       timeoutMs: request.timeoutMs,
+      stdin: request.stdin,
     });
-    spawnError = !!out.error && out.error.code === 'ENOENT';
     timedOut = out.signal === 'SIGTERM' || out.signal === 'SIGKILL'
       || (!!out.error && out.error.code === 'ETIMEDOUT');
+    spawnError = !!out.error && !timedOut;
+    spawnErrorCode = spawnError ? out.error?.code : undefined;
+    spawnErrorKind = spawnError ? classifySpawnErrorKind(spawnErrorCode) : undefined;
     status = out.status;
     stdout = out.stdout ?? '';
     stderr = out.stderr ?? '';
-    if (spawnError) break; // missing binary is not retryable
+    if (spawnError) break; // spawn setup failures are not retryable
     if (!timedOut) break;  // success or non-zero exit is terminal
   }
 
@@ -238,5 +249,7 @@ export function runBoundedGeminiProvider(
     attempts,
     timedOut,
     spawnError,
+    ...(spawnErrorCode ? { spawnErrorCode } : {}),
+    ...(spawnErrorKind ? { spawnErrorKind } : {}),
   };
 }

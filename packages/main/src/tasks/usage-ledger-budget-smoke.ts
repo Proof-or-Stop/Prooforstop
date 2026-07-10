@@ -4,8 +4,8 @@
  * (Touchpoint 4) on the Claude dispatch seam.
  *
  * Hard invariants exercised here:
- *   - INV-A: budget UNSET or ledger flag OFF => the guard is a no-op and the
- *     dispatch arg shape is byte-identical (buildClaudeSpawnArgs OFF/ON parity).
+ *   - INV-A: budget UNSET or ledger flag OFF => the guard is a no-op while the
+ *     dispatch arg shape stays the canonical observable stream-json launcher.
  *   - INV-B: a BLOCK fires ONLY when the ledger flag is ON AND a hard budget is
  *     configured AND the preflight estimate strictly EXCEEDS it.
  *   - INV-C: a budget-check error PROCEEDS (never wrongly blocks).
@@ -85,6 +85,13 @@ const OFF = { LATTICE_USAGE_LEDGER: '0' } as NodeJS.ProcessEnv;
 
 const root = mkdtempSync(join(tmpdir(), 'usage-ledger-budget-'));
 
+const EXPECTED_CLAUDE_SPAWN_ARGS = [
+  '--print',
+  '--verbose',
+  '--output-format=stream-json',
+  '<prompt-file>',
+] as const;
+
 function ctx(over: Partial<DispatchUsageContext> = {}): DispatchUsageContext {
   return {
     storyId: 'S-budget',
@@ -99,7 +106,7 @@ function opts(env: NodeJS.ProcessEnv) {
   return {
     recordedAt: '2026-06-16T00:00:00.000Z',
     projectRootHash: 'sha256:deadbeef',
-    command: 'claude --print <prompt-file>',
+    command: 'claude --print --verbose --output-format=stream-json <prompt-file>',
     host: { kind: 'claude-code' },
     env,
   };
@@ -116,7 +123,7 @@ function prodOpts() {
   return {
     recordedAt: '2026-06-16T00:00:00.000Z',
     projectRootHash: 'sha256:deadbeef',
-    command: 'claude --print <prompt-file>',
+    command: 'claude --print --verbose --output-format=stream-json <prompt-file>',
     host: { kind: 'claude-code' },
     // Intentionally NO `env` key -> the seam relies on the process.env default.
   };
@@ -377,22 +384,16 @@ async function main(): Promise<void> {
   // ======================================================================
   // CHK-003/CHK-004: shouldBlockDispatch + recordBudgetBlock 4-quadrant logic
   // ======================================================================
-  await check('CHK-004 QUADRANT A: ledger OFF -> spawn args byte-identical (no --output-format)', () => {
-    // OFF builds the literal original args; the budget guard is never reached.
-    assert.deepEqual(buildClaudeSpawnArgs('/tmp/prompt.md', false), ['--print', '/tmp/prompt.md']);
+  await check('CHK-004 QUADRANT A: ledger OFF -> spawn args stay canonical observable stream-json', () => {
+    assert.deepEqual(buildClaudeSpawnArgs('<prompt-file>'), [...EXPECTED_CLAUDE_SPAWN_ARGS]);
     // shouldBlockDispatch with enabled=false never blocks and never reads a budget.
     const d = shouldBlockDispatch(false, { LATTICE_HARD_BUDGET_TOKENS: '1' }, 999999);
     assert.equal(d.block, false);
     assert.equal(d.budget, null);
   });
 
-  await check('CHK-004 A-vs-B spawn-args parity: ON only appends --output-format json', () => {
-    assert.deepEqual(buildClaudeSpawnArgs('/tmp/prompt.md', true), [
-      '--print',
-      '/tmp/prompt.md',
-      '--output-format',
-      'json',
-    ]);
+  await check('CHK-004 A-vs-B spawn-args parity: ledger ON uses same canonical launcher', () => {
+    assert.deepEqual(buildClaudeSpawnArgs('<prompt-file>'), [...EXPECTED_CLAUDE_SPAWN_ARGS]);
   });
 
   await check('CHK-004 QUADRANT B: ON + no budget env -> proceeds, budget null, no record', () => {

@@ -1,0 +1,61 @@
+{
+  "storyId": "B-2861",
+  "checkedAt": "2026-07-10T00:15:04.111Z",
+  "headHash": "7ca26626be0e5d48d3a9c5a284cfc6d722b96c65",
+  "materialHash": "6571a3dec65e91a5d474adca7778a859b7bd8554e9230d024239cdda4a2bdf13",
+  "storyFilesHash": "22110631356debbb8fff42b80e1aa56817419b8acd643be11b89cd35ee34db40",
+  "reviewRound": "2026-07-10T00:02:24.661Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+      "promise": "Target decision doc records the final B-2861 3x2 review optimization ledger with accepted deferred and rejected items tied to reasons and local evidence.",
+      "status": "verified",
+      "verifiedBy": "test -f plus rg and sed inspection of B-2861 3x2 Review Follow-Up Ledger and Completion Definition",
+      "evidence": "Target doc exists. rg found B-2861 3x2 Review Follow-Up Ledger, Search / Memory Budget Contract, Cross-Cutting Validation Matrix, Suggested Final Prompt Set, and Completion Definition. sed output for lines 88-114 shows optimization and finding rows with decisions, applied document changes, reasons, and evidence. Lines 1462-1484 state this ledger is the required DONE optimization table."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+      "promise": "Target decision doc enumerates the 16 proof-or-stop agent prompts, their purposes, overlap boundaries, current status, and lifecycle execution contracts.",
+      "status": "verified",
+      "verifiedBy": "rg heading count and section inspection",
+      "evidence": "rg heading count for numbered proof-or-stop agent sections returned 16. Heading scan shows Detailed 16-Agent Migration Specification, New Flow Execution Table, Agent Execution Matrix, Exact Contract Summary, and Prompt Count By Target Status."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+      "promise": "Target decision doc includes the Search / Memory Budget Contract and M6 integration so broad scans are bounded and memory or playbook remains advisory rather than gate evidence.",
+      "status": "verified",
+      "verifiedBy": "rg inspection for Search / Memory Budget Contract, candidateSpecSet, and M6.8",
+      "evidence": "rg found Search / Memory Budget Contract, candidateSpecSet, M6.1 through M6.8 integration, and validation rows for memory or playbook advisory status and no-hit bounded candidateSpecSet behavior."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "session_brief reports Last test run at 2026-07-10T00:11:39.791Z result PASS; DONE pre-check reports Test evidence PASS, Verification intent coverage 15/15 covered, and Evidence freshness PASS. checklist_get reports CHK-001 status done with verificationEvidence total 3, passing 3, failing 0, waivers 0."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "session_brief reports Last test run at 2026-07-10T00:11:39.791Z result PASS; DONE pre-check reports Test evidence PASS, Verification intent coverage 15/15 covered, and Evidence freshness PASS. checklist_get reports CHK-002 status done with verificationEvidence total 3, passing 3, failing 0, waivers 0."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "session_brief reports Last test run at 2026-07-10T00:11:39.791Z result PASS; DONE pre-check reports Test evidence PASS, Verification intent coverage 15/15 covered, and Evidence freshness PASS. checklist_get reports CHK-003 status done with verificationEvidence total 3, passing 3, failing 0, waivers 0."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "session_brief reports Last test run at 2026-07-10T00:11:39.791Z result PASS; DONE pre-check reports Test evidence PASS, Verification intent coverage 15/15 covered, and Evidence freshness PASS. checklist_get reports CHK-004 status done with verificationEvidence total 3, passing 3, failing 0, waivers 0."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "session_brief reports Last test run at 2026-07-10T00:11:39.791Z result PASS; DONE pre-check reports Test evidence PASS, Verification intent coverage 15/15 covered, and Evidence freshness PASS. checklist_get reports CHK-005 status done with verificationEvidence total 3, passing 3, failing 0, waivers 0."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery check verified target doc existence and required content, TEST PASS and fresh evidence from session_brief, 5/5 checklist done with 15/15 covered verification intents, no open blocker findings from finding_list, and no unresolved TODO FIXME TBD markers in the target doc."
+  },
+  "_hash": "9e2f3ecc68766da0388262a0531afac2b78519b3b79f441bfa13416c90e3ccb3"
+}
