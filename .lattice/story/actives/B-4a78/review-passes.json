@@ -134,6 +134,42 @@
       },
       "readDiagnostics": [],
       "_hash": "87db68fb5de5180d94298e0c6275fb793a1ce3f9a684112fd915c076df8aca62"
+    },
+    {
+      "id": "B-4a78:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Concept review after main-merge material checked readManifest/readLog signing, decisions-doc diagnostics, null token semantics, source-file manifest triage, non-reviewer bypass, CLI schema, and focused smoke; no blocker found.",
+      "createdAt": "2026-07-10T03:27:12.038Z",
+      "reviewRound": "2026-07-10T03:21:22.297Z",
+      "reviewRunId": "B-4a78:RR-008",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/pos-agent-drivability-optimization.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/finding-verify.ts",
+          "packages/main/src/core/reviewer-read-evidence.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/scope-check.ts",
+          "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/pos-agent-drivability-optimization.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "bc92772fa503ecdd9dcd6718e70b569734781cb580d1565958a9db4491dc5e5f"
+      },
+      "readDiagnostics": [],
+      "_hash": "bc781fc36e772582bd6cea19e071cdb68b0c53f265fbb6221b59489061534c11"
     }
   ]
 }
