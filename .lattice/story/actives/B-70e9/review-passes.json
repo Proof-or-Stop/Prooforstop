@@ -216,6 +216,31 @@
         "scanEscalationReason": null
       },
       "_hash": "15deda7811934be5d20320784b5676825a8f45cf1907dff368bf5fc1e0d72e65"
+    },
+    {
+      "id": "B-70e9:RP-009",
+      "agent": "lattice-review-docs",
+      "note": "Pure-docs diff (docs/host-run-usage.md, 199 lines new; symbol-extraction step 1 yielded 0 exported-symbol diff hits inside the .md itself, so fallback-1 full-doc scan applied against the code diff of core/host-run.ts + handlers/host-run.ts). Verified against commit 4f5e980f1 exactly: (1) passthrough routing table -- text mode routes host stdout->process.stdout / stderr->process.stderr with handler returning empty string (no double-print), json mode routes ALL host output to process.stderr keeping process.stdout clean for the single JSON result whose stdout field is the bounded parse tail not the transcript -- matches handlers/host-run.ts lines 180-246 and smoke F-006 double-print check; (2) 1 MiB bounded line retention with honest unavailable-on-truncation -- HOST_RUN_RETAINED_LINE_CAP=1024*1024 in core/host-run.ts, UsageLineScanner drops (not retains) an over-cap line and sets retentionTruncated, empty retention flows through scanCodexTurnCompletedUsage->null->recordDispatchUnavailableFinal, confirmed end-to-end passing in the oversized-usage-line smoke; (3) store-backed phase resolution -- resolvePhase in core/host-run.ts consults deps.resolveStory ONLY on the storyId+no-explicit-phase path, an explicit --phase short-circuits before any store read (asserted resolverCalls===0 in smoke F-005), handler builds resolveStory from ctx.store.readStory (configured store, not a hardcoded path). CHANGELOG.md B-70e9 entry and command-catalog.ts host_run/usage_sweep schemas match the doc examples exactly. npm run test:host-run-usage rerun clean at HEAD: 33/33 passed. No promised-but-undelivered gaps found. No blocking findings.",
+      "createdAt": "2026-07-10T09:03:24.909Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-012",
+      "readManifest": {
+        "filesReadFully": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ed10f43a7cd5617a78e53639993d620922851ecb4f979e6626b09e4c73d09bf6"
     }
   ]
 }
