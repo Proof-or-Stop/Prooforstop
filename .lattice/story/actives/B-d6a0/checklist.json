@@ -4,8 +4,8 @@
       "id": "CHK-001",
       "title": "Fix readMaterialDirtyFiles full-output trim in core/evidence-freshness.ts",
       "context": "readMaterialDirtyFiles (~line 153) does execFileSync('git',['status','--porcelain','--untracked-files=all']).trim() then line.slice(3): the first modified-tracked row's path loses its first character and isMaterialExcludedPath misfires, polluting materialDirty inside captureEvidenceHashSnapshot. Rework to the untrimmed raw-read pattern (see gitRaw in core/done-prepare-generated-metadata.ts:247) with per-line trimEnd.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-10T09:19:10.282Z",
       "endTime": null,
       "userSees": "✓ evidence-freshness: first-row \" M .lattice/…\" row stays excluded from materialDirty; material path reported exactly",
       "files": {
