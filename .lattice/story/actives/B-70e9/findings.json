@@ -279,7 +279,7 @@
       "desc": "[codex host-B, cross_host_review B-70e9-xhr-r6] Truncated final usage line can record stale provider usage: UsageLineScanner keeps the previously retained usage line when a later over-cap line is dropped and sets retentionTruncated, but runHostRun (~line 1094) ignores spawn.retentionTruncated and passes only spawn.stdout to recordFinalForHost. If a codex/claude run emits a valid usage event and then the REAL final usage-bearing line exceeds the 1MiB cap, the ledger records the stale earlier provider-reported usage instead of unavailable - violating the no-fabricated/no-stale-value contract and mis-counting the run. Fix direction: thread spawn.retentionTruncated into recordFinalForHost and when true record a provider-specific unavailable final (reason retention_truncated) without parsing retained stdout; regression: valid usage line followed by over-cap final usage line.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host-b",
       "createdAt": "2026-07-10T10:40:49.786Z",
@@ -290,7 +290,11 @@
         "packages/main/src/tasks/host-run-usage-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|codex-host-cross",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit a967792ab4: runHostRun threads spawn.retentionTruncated into recordFinalForHost; when true, codex/claude record a provider-specific unavailable final (reason usage_line_retention_truncated) WITHOUT parsing the retained stdout, and the usage summary reports unavailable with that reason (agy keeps its more specific reason). Two regression checks drive the REAL runner+scanner path: valid usage line followed by an over-cap final line asserts precondition (stale line retained), then unavailable final + zero provider-reported rows + no stale numbers in the summary. Failing-before proven by reverting the call site flag in the compiled output (both checks fail recording the stale final); host-run smoke 41/41.",
+      "resolvedAt": "2026-07-10T10:48:50.976Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
