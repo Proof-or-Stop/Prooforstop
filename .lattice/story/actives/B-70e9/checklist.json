@@ -237,14 +237,79 @@
       "id": "CHK-005",
       "title": "M2: Add a read-only usage sweep command scanning ~/.codex/sessions rollouts and ~/.claude/projects transcripts since a cutoff and emitting a non-authoritative attribution report",
       "context": "Per session extract: token totals (codex: last token_count event_msg info.total_token_usage, cumulative semantics; claude: sum of assistant message.usage four fields), story-id mentions (B-hex4 regex), cwd, originator (desktop vs exec), timestamps. Output human table plus JSON, distinguishing lattice-launched sessions (correlatable to ledger rows) from foreign sessions labeled estimate/non-authoritative.",
-      "userSees": "lattice usage_sweep --since <date> prints an attribution table of host-side sessions with token totals and story mentions, clearly labeled non-authoritative; a JSON output mode supports scripting.",
+      "userSees": "lattice usage_sweep --since 2026-07-01 prints a table headed \"NON-AUTHORITATIVE ESTIMATE\" with one row per host session: host, session, cwd, originator, tokens, story mentions; --json emits the same data machine-readably",
       "excludes": [
         "No ledger backfill from swept sessions",
         "No gate or lifecycle behavior reads sweep output"
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "create": [
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/usage-sweep.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Fixture codex rollout: totals equal the LAST non-null cumulative info.total_token_usage; session_meta yields cwd/originator; story mentions extracted via B-hex4 regex",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Fixture claude transcript: four-field usage summed with dedupe by requestId/message.id keeping last value; cwd and sessionId reported",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "--since cutoff excludes older files by mtime before reading",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Rollout with only null-info token_count lines reports usage unknown, not zero",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Split assistant events sharing message.id count once (dedupe fixture)",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Empty or missing store dirs produce an empty report, not an error",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Sweep makes zero writes (asserted by store dir mtime/content snapshot before/after in smoke)",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Malformed JSONL lines are skipped without aborting the scan and are counted in a parse-error diagnostic",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "--out refuses paths outside the project root",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-006",
