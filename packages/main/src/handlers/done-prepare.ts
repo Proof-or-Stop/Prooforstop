@@ -299,7 +299,14 @@ function gitMaybe(gitCwd: string, args: string[]): { ok: true; output: string } 
 }
 
 function gitStatusRows(gitCwd: string): string[] {
-  const raw = git(gitCwd, ['status', '--porcelain=v1', '--untracked-files=all']);
+  // Do not reuse git(): its full-output trim() strips the first porcelain row's
+  // leading status space (" M path" -> "M path"), which shifts the fixed-width
+  // path offset and corrupts the first reported path (".lattice/x" -> "lattice/x").
+  const raw = childProcess.execFileSync('git', ['status', '--porcelain=v1', '--untracked-files=all'], {
+    cwd: gitCwd,
+    encoding: 'utf-8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
   return raw.split('\n').map((line) => line.trimEnd()).filter(Boolean);
 }
 
