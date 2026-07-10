@@ -273,6 +273,24 @@
       "resolvedAt": "2026-07-10T10:23:30.903Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-70e9:F-013",
+      "desc": "[codex host-B, cross_host_review B-70e9-xhr-r6] Truncated final usage line can record stale provider usage: UsageLineScanner keeps the previously retained usage line when a later over-cap line is dropped and sets retentionTruncated, but runHostRun (~line 1094) ignores spawn.retentionTruncated and passes only spawn.stdout to recordFinalForHost. If a codex/claude run emits a valid usage event and then the REAL final usage-bearing line exceeds the 1MiB cap, the ledger records the stale earlier provider-reported usage instead of unavailable - violating the no-fabricated/no-stale-value contract and mis-counting the run. Fix direction: thread spawn.retentionTruncated into recordFinalForHost and when true record a provider-specific unavailable final (reason retention_truncated) without parsing retained stdout; regression: valid usage line followed by over-cap final usage line.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host-b",
+      "createdAt": "2026-07-10T10:40:49.786Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "_hash": "d7c653b8e619ae1d165b0aebe2988560832a93a680a51979b88181a7e5db751f",
+      "files": [
+        "packages/main/src/core/host-run.ts",
+        "packages/main/src/tasks/host-run-usage-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|codex-host-cross",
+      "signatureTagSource": "auto"
     }
   ]
 }
