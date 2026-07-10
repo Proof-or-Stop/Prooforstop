@@ -52,7 +52,7 @@
       "desc": "CHK-005:adversarial:0 lacks valid verification coverage for actionable edit instructions. The committed classifier recognizes only shell redirection or echo as direct-write; exact in-memory execution of classifyStoryFinding classifies explicit Edit, Write, tee, and sed -i instructions targeting docs/story as other with grandfathered:true, and verifyNoUnregisteredDirectStoryWrite skips non-direct-write findings. The current passing verifier evidence therefore does not prove the required distinction between harmless policy reminders and actionable edit instructions. Add committed adversarial cases for non-redirection write forms and make them fail closed as direct-write.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-10T04:19:59.179Z",
@@ -64,7 +64,11 @@
         "scripts/verify-proof-or-stop-prompt-baseline.mjs:716"
       ],
       "signatureTag": "missing|mjs:315|adversarial-lacks-valid",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 6aef18eb8: the direct-story classifier now fails closed for actionable Edit, Write, tee, sed -i, Directly Read/Edit, and conditional echo/redirection targeting docs/story while preserving genuinely negative reminders, with committed adversarial probes. Current materialHash 69f774ee02a1edeac5a6f9b62f987ea59d9ef709bdba5df0dd1da65c717e9a1c was reverified and recorded by 591b314ae. npm --prefix packages/main run build passed with @lattice/core@0.3.179 build and tsc. node scripts/verify-proof-or-stop-prompt-baseline.mjs passed all seven lines: PASS proof-or-stop prompt baseline: roleCount=16 registry hashes verified; PASS proof-or-stop prompt baseline: agent_prompt output hashes verified for 16 roles; PASS proof-or-stop prompt baseline: overlap matrix verified for 16 roles; PASS proof-or-stop prompt baseline: exhaustive role matrix source claims verified for 16 roles; PASS proof-or-stop prompt baseline: role matrix unsupported-claim mutation probe rejected; PASS proof-or-stop prompt baseline: legacy vocabulary findings classified; PASS proof-or-stop prompt baseline: direct story-file findings classified. node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-direct-story-classifier passed: PASS direct story-file classifier adversarial probes: 9 cases. npm run test:proof-or-stop-prompt-baseline passed with the same seven PASS lines.",
+      "resolvedAt": "2026-07-10T09:23:51.254Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3928:F-004",
