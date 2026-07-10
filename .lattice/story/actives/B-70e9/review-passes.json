@@ -2101,6 +2101,29 @@
         "scanEscalationReason": null
       },
       "_hash": "028efdb6ab4a4fc03fd9c6629ec8de09bd7ae5e991bc4f97544eeb44ff017cf1"
+    },
+    {
+      "id": "B-70e9:RP-085",
+      "agent": "lattice-review-docs",
+      "note": "Docs-only diff (round 23, commit 43ea459): git diff main...HEAD symbol-set extraction yields no changed export/class/function/const/interface/type/enum/def declarations attributable to docs/host-run-usage.md itself (a new doc file); the code-side diff (cli-engine.ts) exports isReadOnlyCommand (re-exported, already existed) with no new public signature. Falls to Fallback-1 full-text scan of touchpoint docs/host-run-usage.md plus CHANGELOG.md consistency check: 2 files/paragraphs compared (the extended F-028/F-032 read-only-contract bullet + the CHANGELOG B-70e9 summary entry). Verified the extended bullet against cli-engine.ts writeCodexProcessEvent (lines 1050-1090): self-gates via if (isReadOnlyCommand(entry.command, argsObject)) return placed right after the isCodexActivitySource() guard, firing at both the success (line 1182) and error (line 1226) call sites -- matches the doc claim that a plain (no --out) usage_sweep appends no process event while --out keeps it. Traced isReadOnlyCommand/usageSweepWritesReport in activity-policy.ts confirming usage_sweep classification is arg-aware (empty --out -> read-only, non-empty --out -> write), matching the doc table. Verified the lease-heartbeat-exemption claim: acquireOrRefreshOwnerLease is invoked only from cli/ownership-gate.ts on the storyScopedMutating/dangerousMutating ownership-class path, a separate gating axis from isReadOnlyCommand -- usage_sweep without --out is classified readOnly so it never reaches lease refresh, matching doc wording. Cross-checked usage-sweep-smoke.ts check 19 (F-032), which drives the real built CLI with LATTICE_ACTIVITY_SOURCE=codex against a fixture story and asserts process-events.jsonl stays byte-identical after a plain sweep and gains exactly one codex_cli event after --out. CHANGELOG.md B-70e9 entry already describes usage_sweep as strictly read-only at summary level; no contradiction, no promised-but-undelivered gap, no edit needed for this narrow internal-contract fix. No inconsistencies found; 0 findings registered this round.",
+      "createdAt": "2026-07-10T19:52:48.930Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-096",
+      "readManifest": {
+        "filesReadFully": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/activity-policy.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/core/story-owner-lease.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "453500e34150173595170ce1ecd5be51e6dc4175b998d20a49940fe95cd137a3"
     }
   ]
 }
