@@ -830,6 +830,29 @@
         "scanEscalationReason": null
       },
       "_hash": "a9786642f4376a7a569865ce983b331b2c903de5ef24ac5519c0a1525f8d02e3"
+    },
+    {
+      "id": "B-70e9:RP-034",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 9 (final) test-coverage re-review after fix commit 3f3dea9bcd (F-016) + main 0.3.182 merge (7705f1e8a7). Verified the 2 new host-run-usage-smoke checks bind F-016 by name and content: (1) budget refusal pre-spawn (LATTICE_HARD_BUDGET_TOKENS=1) asserts runner NOT invoked, blocked row reasonCode=hard_budget_exceeded provider=anthropic agentType=autopilot-repair, and no slot dir created (proves budget gate runs before any slot acquire, matching runHostRun ordering); (2) saturated-concurrency refusal asserts runner NOT invoked + blocked row reasonCode=concurrency_cap_exceeded, then proves ledger-OFF ignores the same saturated cap (sink.calls=1, byte-identical argv, zero rows added), then frees the slot and proves a normal ON repair HOLDS slot-0 during the runner call (observed from inside the fake runner) and RELEASES it after (re-admission at cap=1 succeeds). Commit message states failing-before was proven against the pre-fix executor (runner invoked despite caps, no blocked rows); code inspection of core/autopilot-executor.ts confirms the admission chain (recordBudgetBlock -> acquireHostRunSlot -> spawn in try -> releaseSlot in finally) did not exist before this commit -- the diff is a pure insertion of that chain plus a fail-closed registry-error branch, so the failing-before reasoning is sound. evidence_plan (not validate) reports missing=0 rerun=0 refreshOnly=0 fresh=42, matching all 42 must-priority verificationEvidence rows across CHK-001..CHK-007 (8+5+6+4+9+4+6=42) -- confirmed via checklist_get that every item still carries full happy/edge/adversarial verificationIntent columns with a matching evidence row count, so re-stamping did not silently drop coverage. Re-ran both npm smokes fresh at current HEAD: npm --prefix packages/main run test:host-run-usage = 44/44 pass (up from 42, the 2 new checks both green and both explicitly F-016-labeled in their check titles); npm --prefix packages/main run test:usage-sweep = 17/17 pass (unaffected by this fix, confirms no regression). Also ran the full configured validate suite (45/45 commands) end-to-end: status=pass allPass=true. All 16 findings F-001..F-016 across every round are dismissed/resolved (F-016 resolutionType=fixed, resolveEvidenceStrength=strong). No coverage gap found between verificationIntent and verificationEvidence for CHK-001..CHK-007. No blocker.",
+      "createdAt": "2026-07-10T11:46:00.893Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-039",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/tasks/usage-ledger-budget-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f40af98fa5ea6c2e6db933d7cc622b87ecbfbc387cd2e4c31a6b5f3de48e14d8"
     }
   ]
 }
