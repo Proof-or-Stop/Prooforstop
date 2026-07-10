@@ -1,0 +1,151 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-07-10T04:18:37.691Z",
+      "issueCount": 12,
+      "blockerCount": 2,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Add pre-DONE merge hazard guidance + Explain repeated done_prepare runs and metadata deltas are performed simultaneously?)"
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_original_intent_snapshot: Intent MVP requires original_intent_snapshot_set with sourceText, normalizedOutcome, and acceptanceClaim. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_intent_collision: Intent collision is triggered but no pass decision with acceptedInterpretation is present. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_red_evidence: Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "scope_ambiguity: Scope ambiguity is triggered but no scope contract or explicit shrinkage decision is configured. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "missing_decision",
+          "severity": "blocker",
+          "message": "High-risk story must fill decision.json (principles/drivers/options/chosen/>= 3 preMortem). Call: lattice decision_set '{...}'"
+        },
+        {
+          "type": "missing_understanding",
+          "severity": "advisory",
+          "message": "understanding snapshot not filled. Recommend calling understanding_set before breaking down checklist to record the 6 fields task/outcome/facts/constraints/unknowns/touchpoints, avoiding expensive late fixes for misunderstandings"
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "blocker",
+          "message": "High-risk stories must have plan.md (execution plan). Write it following the plan.md template in CLAUDE.md, one section per CHK-xxx"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-b264 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "4527b77d2020d7600af4768de83f305e0cf2ce85c6699bddd83b090fc8cb262a"
+    },
+    {
+      "timestamp": "2026-07-10T04:20:21.045Z",
+      "issueCount": 13,
+      "blockerCount": 4,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Add pre-DONE merge hazard guidance + Explain repeated done_prepare runs and metadata deltas are performed simultaneously?)"
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_original_intent_snapshot: Intent MVP requires original_intent_snapshot_set with sourceText, normalizedOutcome, and acceptanceClaim. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_intent_collision: Intent collision is triggered but no pass decision with acceptedInterpretation is present. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_red_evidence: Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "scope_ambiguity: Scope ambiguity is triggered but no scope contract or explicit shrinkage decision is configured. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: docs/requirements/decisions/done-prepare-automation-execution-plan.md is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: docs/requirements/decisions/story-files-hash-material-drift.md is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "missing_scope_check: scope-check.json is missing PLAN gate evidence. Start a story-level PLAN scope reviewer with `lattice dispatch --storyId=B-b264 --agentType=lattice-review-scope-plan`; dispatch output is not gate evidence, and the lattice-review-scope-plan / scope-plan reviewer must finish by calling `lattice scope_check_save`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not remote completion and must not be presented as receipt verification or production/full completion."
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-b264 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "532e2fa6cd526f256cf94eee5552490545843650746d73732bbd019e91be3b38"
+    }
+  ]
+}

@@ -8,7 +8,7 @@
         "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md#M5---Re-run-And-Merge-Preflight-UX",
         "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
       ],
-      "userSees": "done_prepare reports merge hazards with exact paths and says what to preserve or commit before retrying.",
+      "userSees": "done_prepare prints \"merge hazard: untracked file would be overwritten\" with the exact path and \"preserve or move the file, then rerun done_prepare\".",
       "files": {
         "modify": [
           "packages/main/src/handlers/done-prepare.ts"

@@ -1,0 +1,75 @@
+{
+  "principles": [
+    "Make operator-visible guidance come from the same state that gates already consume.",
+    "Fail closed on merge and dirty-file hazards while printing exact safe next steps.",
+    "Keep dryRun inspect-only and prove that boundary mechanically.",
+    "Preserve reviewer and host evidence separation; guidance must not become self-attestation."
+  ],
+  "drivers": [
+    "User confusion came from repeated done_prepare runs and silent or late closure context.",
+    "The current story scope is UX/drivability, not changing DONE gate semantics.",
+    "Regression proof must be focused enough to run during normal story closure."
+  ],
+  "options": [
+    {
+      "name": "Inline done_prepare preflight and rerun summary with focused smoke",
+      "pros": [
+        "Smallest scoped change because the existing command already owns merge, refresh, validate, and clean-tree reporting.",
+        "Lets the smoke exercise the real user-facing transcript without adding a new orchestration surface.",
+        "Keeps gate criteria and evidence writers unchanged."
+      ],
+      "cons": [
+        "Requires careful helper extraction to avoid making done_prepare.ts harder to read."
+      ]
+    },
+    {
+      "name": "Add a separate preflight command before done_prepare",
+      "pros": [
+        "Cleaner isolation of hazard detection from done_prepare execution.",
+        "Could be reused by other DONE commands later."
+      ],
+      "cons": [
+        "Adds a second command users must remember and does not solve repeated done_prepare confusion in the command they actually run."
+      ]
+    },
+    {
+      "name": "Only document the workflow without command changes",
+      "pros": [
+        "Lowest implementation risk.",
+        "No behavior change to CLI output."
+      ],
+      "cons": [
+        "Does not fix the runtime drivability bug because agents still discover hazards one failure at a time."
+      ]
+    }
+  ],
+  "chosen": "Inline done_prepare preflight and rerun summary with focused smoke",
+  "rationale": "Chosen because the failure is in the done_prepare operator experience itself. The best fix is to surface hazards, rerun reasons, and generated-file ownership in the command users already run, while proving dryRun remains side-effect free and leaving all gate and evidence writer semantics untouched. The separate-command and docs-only alternatives are excluded because they would preserve the confusing path that caused the incident.",
+  "preMortem": [
+    {
+      "scenario": "Guidance accidentally suggests committing unrelated dirty files.",
+      "trigger": "dirty-tree reporting groups generated metadata and unrelated user edits together.",
+      "consequence": "An agent may commit another story or user change while trying to close DONE.",
+      "mitigation": "Classify current-run generated files separately from pre-existing or unrelated dirty rows and cover the transcript in the focused smoke."
+    },
+    {
+      "scenario": "dryRun mutates lifecycle metadata or process events while reporting planned actions.",
+      "trigger": "new helper reuses the normal write path before checking dryRun.",
+      "consequence": "A read-only diagnostic command changes gate-participating state and invalidates evidence freshness expectations.",
+      "mitigation": "Snapshot git status and story metadata before and after dryRun in the smoke and fail if bytes or status change."
+    },
+    {
+      "scenario": "Preflight blocks legitimate same-story generated metadata that done_prepare is allowed to report.",
+      "trigger": "the hazard classifier treats all .lattice story files as unrelated dirty files.",
+      "consequence": "The command regresses the existing metadata auto-closeout path and forces manual guessing again.",
+      "mitigation": "Test same-story generated metadata as a distinct guidance class while unrelated story metadata remains blocked."
+    },
+    {
+      "scenario": "Rerun delta output implies review or host evidence can be auto-rebound.",
+      "trigger": "message text says refresh or rebind without naming the legal writer boundary.",
+      "consequence": "Agent may self-attest evidence that should come from reviewer or host lanes.",
+      "mitigation": "Keep rerun guidance to reasons and legal next actions, and assert it does not contain self-attestation language."
+    }
+  ],
+  "timestamp": "2026-07-10T04:20:17.092Z"
+}
