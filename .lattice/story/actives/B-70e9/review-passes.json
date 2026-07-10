@@ -64,6 +64,46 @@
         "scanEscalationReason": null
       },
       "_hash": "18341c6c20f1912a0854fb6ffbc2f83da370e92d35167ab20765671ecbb041a8"
+    },
+    {
+      "id": "B-70e9:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed full diff main...HEAD (excl. .lattice/story metadata): all core+handler+doc changes for host_run choke point, usage_sweep, and CHK-003 coverage additions. Checked dead code/unused imports/as any/empty catches/I-O isolation/proof-metadata-dual-location; none found introduced by this diff. Cross-checked docs/host-run-usage.md claims against code (all accurate). Verified build clean; test:host-run-usage 25/25, test:usage-sweep 11/11, related smokes (cross-host-review, review-escalation, review-host-execution-readiness, docs-drift, command-catalog, usage-ledger group 12/12) all pass; test:process-fact-contract passes. One minor non-blocking observation (duplicated probe-prompt literal) noted but not filed as a finding since it only affects a diagnostic estimate.",
+      "createdAt": "2026-07-10T07:28:59.051Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-002",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/alias-normalizer.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/host-execution-readiness.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/usage-ledger/adapters/openai.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/usage-ledger-budget-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "43aa929bc51560301387c8609d5eb3ac6a7ea5b184a38efc8023fe0d008f4435"
     }
   ]
 }
