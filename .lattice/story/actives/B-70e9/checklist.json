@@ -81,7 +81,51 @@
       "context": "review-runs.json rows carry reviewRunId like B-xxxx:RR-001 plus agent/lane; usage rows launched for a review run should carry the same identifiers so ledger rows and readManifest-bearing review passes can be joined. Coordinate with B-4a78 readManifest fields.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "A ledger row for a reviewer host run shows \"threadId\":\"B-70e9:RR-001\" and \"subagentId\":\"lattice-review-quality\" matching the review-runs.json identifiers",
+      "files": {
+        "modify": [
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/handlers/host-run.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "host_run --reviewRunId B-70e9:RR-001 --lane lattice-review-quality writes rows with threadId=reviewRunId and subagentId=lane",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "With --storyId and no --phase, phase resolves from the story index at call time",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Omitting reviewRunId/lane leaves threadId/subagentId null (no empty-string pollution)",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Unknown storyId fails with a clear error before any spawn",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A reviewRunId for a different story than --storyId is refused (cross-story binding mismatch) so rows cannot silently mis-join",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
