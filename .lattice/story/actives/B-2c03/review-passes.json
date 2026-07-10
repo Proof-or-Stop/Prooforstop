@@ -405,6 +405,31 @@
         "scanEscalationReason": null
       },
       "_hash": "c7dbc3a91360f6e05ce03b114b4e3ffc2e014932a40b379080740cd8b622b5ca"
+    },
+    {
+      "id": "B-2c03:RP-019",
+      "agent": "lattice-review-test-coverage",
+      "note": "Fresh round at commit f45f77ecfa (HEAD; 9eb4a9423b plus metadata-only commits on top, zero source diff since). Verified tracked-file coverage matches plan.md convergence claims: remainingWindowClaims has exactly 9 must-fire entries (incl. codex round-4 of/UI-UX cases) and remainingCrossClauseControls has exactly 6 must-not-fire cross-clause entries (F-012 x3 + F-013 x3), byte-identical between working tree and git-show-HEAD for both packages/main/src/core/proofstory.ts and packages/main/src/tasks/proofstory-intent-hardening-smoke.ts (no untracked drift). Rebuilt (tsc clean) and reran proofstory-intent-hardening-smoke.js green plus milestone-done-gate-reconciliation-smoke.js OK. Independently re-derived the claimsShrinkageRegex from committed source and probed all 9 must-fire plus 6 must-not-fire committed cases plus 4 adversarial variants of my own (comma-modifier-of chains, persist+comma-and, bare of-noun, of-clause insertion): all matched the documented design, no verified regression vs pre-story behavior found. All 13 findings (F-001..F-013; F-004/F-010 dismissed as duplicate/placeholder) are resolved with strong evidence. Ran full lattice validate: all 45 configured commands exit 0; verificationCoverage reports the 9 CHK-001/002/003 evidence rows as headHash-stale (evidence bound at an earlier commit than the current metadata-only HEAD) but every evidence.result is pass, none failing -- mechanical freshness bookkeeping, not a content coverage gap, consistent with this lanes prior RP-008/RP-013/RP-015 classification and the storys convergence-floor (blocking only on verified regressions vs pre-story behavior). No coverage gaps found; test coverage review passed.",
+      "createdAt": "2026-07-10T19:53:11.752Z",
+      "reviewRound": "2026-07-10T18:53:39.083Z",
+      "reviewRunId": "B-2c03:RR-032",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2c03/checklist.json",
+          ".lattice/story/actives/B-2c03/findings.json",
+          ".lattice/story/actives/B-2c03/plan.md",
+          ".lattice/story/actives/B-2c03/review-passes.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2c03/index.json",
+          ".lattice/story/actives/B-2c03/red-evidence.json",
+          ".lattice/story/actives/B-2c03/review.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b11c0936e32ed1ed30a6c732aaa39a50255238b0751255f0f133c9c1d560f59e"
     }
   ]
 }
