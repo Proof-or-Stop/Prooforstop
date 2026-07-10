@@ -368,10 +368,59 @@
       "relatedDocs": [
         ".lattice/story/actives/B-70e9/background.md"
       ],
-      "userSees": "Launching more concurrent host runs than the cap refuses (or queues) with a clear message, and an over-budget dispatch is blocked before spawn with a blocked ledger row.",
+      "userSees": "Exceeding the concurrency cap prints \"host_run refused: 4 live host runs (cap 4)\" with the live-run list and a nonzero exit; an over-budget run prints the existing hard-budget refusal and writes a blocked ledger row",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "docs/host-run-usage.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Over-budget preflight estimate refuses before spawn via shouldBlockDispatch/recordBudgetBlock with decision.kind=blocked (reasonCode hard_budget_exceeded)",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "A 5th concurrent run under default cap 4 refuses fail-closed with exit != 0, prints the live-run list, and writes a blocked row with reasonCode concurrency_cap_exceeded",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Stale slots (dead pid or old mtime) are reclaimed automatically so a crashed run never wedges the cap",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "LATTICE_HOST_RUN_MAX_CONCURRENT unset or invalid falls back to default 4; explicit higher value honored",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Two runs racing for the last slot cannot both acquire it (atomic slot creation, e.g. exclusive-create semantics asserted in smoke)",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Slot files cannot be used to inject content into ledger rows (slots carry pid/timestamps only)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ],
   "auditLog": [
