@@ -122,6 +122,45 @@
         "scanEscalationReason": null
       },
       "_hash": "c829e03724f3084d812d341cac30b2da98262e28143af512ba57cc89175813f9"
+    },
+    {
+      "id": "B-b264:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Round 3 quality re-review after F-002 fix. Confirmed gitStatusRowsForDonePrepareGeneratedMetadata (done-prepare-generated-metadata.ts:246-252) now uses the non-trimming gitRaw() helper (defined line 238), matching the execFileSync-based fix already applied to gitStatusRows() in done-prepare.ts:301-309. Searched all porcelain-status consumers in the repo (grep -rn porcelain packages/main/src) and confirmed no other consumer touched by this story diff still uses the whole-output-trimming git() helper; all other porcelain call sites (dashboard.ts, cli-engine.ts, dirty-worktree-gate.ts, etc.) are outside git diff main...HEAD and out of scope. Regression coverage verified: assertModifiedTrackedPathExactness (done-prepare-merge-rerun-smoke.ts:366-410) directly asserts the core helpers first row keeps its leading status space and parseGitPorcelainRow resolves the exact dotted path. Audited full diff (done-prepare.ts, done-prepare-generated-metadata.ts, done-prepare-merge-rerun-smoke.ts, package.json) for dead code / type safety / silent catches: no unused imports/exports, all new symbols (DonePrepareGuidanceSection, DonePrepareGeneratedMetadataManifest import, pathExistsOnMain, dirtyCategoryLabel, dirtyEntryDisplayPath, buildInitialDirtyGuidance, buildMergeConflictGuidance, buildRerunReasonGuidance, buildGeneratedMetadataDirtyGuidance) are used; no as any; no empty catch blocks. blocked() wrapper and phaseTimeoutBlock(...,args.dryRun) consistently thread dryRun across all 26 blocked()/block() call sites (verified via grep, all 6 phaseTimeoutBlock call sites pass args.dryRun). F-002 fix also removed a pre-existing duplicate buildDonePrepareGeneratedMetadataManifest computation (single call at line 1745, reused as manifestPreflight) rather than reintroducing it. Ran npm --prefix packages/main run build (clean tsc) and npm --prefix packages/main run test:done-prepare-merge-rerun-smoke (passed), plus adjacent test:done-prepare-closure-heartbeat-smoke and test:done-prepare-auto-closeout-smoke (both passed, no regression). No blocker.",
+      "createdAt": "2026-07-10T05:54:38.623Z",
+      "reviewRound": "2026-07-10T05:34:01.890Z",
+      "reviewRunId": "B-b264:RR-008",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/package.json",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-b264/checklist.json",
+          ".lattice/story/actives/B-b264/decision.json",
+          ".lattice/story/actives/B-b264/findings.json",
+          ".lattice/story/actives/B-b264/index.json",
+          ".lattice/story/actives/B-b264/intent-collision.json",
+          ".lattice/story/actives/B-b264/milestone-ledger.json",
+          ".lattice/story/actives/B-b264/original-intent-snapshot.json",
+          ".lattice/story/actives/B-b264/plan.md",
+          ".lattice/story/actives/B-b264/process-events.jsonl",
+          ".lattice/story/actives/B-b264/process-metrics.json",
+          ".lattice/story/actives/B-b264/proofstory.json",
+          ".lattice/story/actives/B-b264/red-evidence.json",
+          ".lattice/story/actives/B-b264/review-passes.json",
+          ".lattice/story/actives/B-b264/review-runs.json",
+          ".lattice/story/actives/B-b264/review.json",
+          ".lattice/story/actives/B-b264/scope-check.json",
+          ".lattice/story/actives/B-b264/scope-contract.json",
+          ".lattice/story/actives/B-b264/test-evidence.json",
+          ".lattice/story/actives/B-b264/understanding.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0a86ef39e451b4c7597f3c80de6555a3ceb40b51bfee77927e168328a5e95ee9"
     }
   ]
 }
