@@ -29,6 +29,16 @@
  *     exits 0 (no crash), releases its slot, records the ledger final, and
  *     surfaces a non-null passthroughError instead of dying on an unhandled
  *     stdout/stderr 'error' event.
+ *     F-023 / F-024: the residual EPIPE-window class is closed on BOTH the final
+ *     diagnostic writes AND the live passthrough. F-024 covers the DEFAULT text-mode
+ *     host STDOUT path: every passthrough + diagnostic write is settle-aware with
+ *     outstanding-write accounting (write + counted callback, throughput NOT
+ *     serialized), and the finally drains the pending counter (bounded by a 2s
+ *     defensive cap) BEFORE removing the 'error' listeners, so a late EPIPE from the
+ *     FINAL chunk fires while the listeners are still attached — a real subprocess
+ *     bursts stdout chunks to exit while the parent destroys the driver's STDOUT
+ *     read end mid/late-stream, and the driver exits 0, releases its slot, and
+ *     records the ledger final.
  *     F-011: the spawn plan binds cwd to the resolved project root (args.cwd,
  *     the same value the ledger attributes) — proven with a fake runner while
  *     the smoke process is chdir'd elsewhere, with a fail-closed empty-cwd
@@ -1082,6 +1092,105 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
     assert.equal(res.reAcquired, true, 'a fresh cap=1 slot admission succeeds after the run (the slot was truly released)');
     const records = readLedger(sub);
     assert.ok(records.some((r) => r.usage.source === 'provider-reported'), 'the ledger final row recorded intact despite the closed-before-first-write stderr');
+  });
+
+  // =========================================================================
+  // F-024: the LAST member of the F-020/F-023 EPIPE-window class, now on the LIVE
+  // stdout passthrough itself. F-020 attaches stdout/stderr 'error' listeners for
+  // the run and F-023 awaits the final DIAGNOSTIC writes, but the live TEXT-mode
+  // host stdout CHUNK writes (process.stdout.write(chunk.text)) were fire-and-forget:
+  // a late EPIPE from the FINAL chunk(s) can land asynchronously AFTER the finally
+  // removes the listeners (zero 'error' listeners -> process crash) — and text mode
+  // (host stdout -> process.stdout) is the DEFAULT path, previously exercised only
+  // on stderr. The fix gives every passthrough + diagnostic write outstanding-write
+  // accounting (write + counted callback, NOT serialized) and drains the pending
+  // counter (bounded by a 2s defensive cap) BEFORE listener removal, so the final
+  // chunk's EPIPE fires while our named listeners are still attached.
+  // Real subprocess (mirrors the F-023 harness but kills STDOUT, not stderr): the
+  // driver runs host_run in TEXT mode against a stdout-only runner bursting chunks
+  // right up to process exit; the parent pipes the driver's STDOUT and DESTROYS its
+  // read end mid/late-stream, so the driver's live chunk writes hit a real EPIPE.
+  // =========================================================================
+  await checkAsync('F-024: real subprocess — TEXT-mode live stdout passthrough whose consumer destroys the driver STDOUT mid/late-stream is CONTAINED: driver exits 0, slot released, ledger final recorded (no post-finally async EPIPE crash on the final chunk)', async () => {
+    const sub = freshRoot();
+    mkdirSync(sub, { recursive: true });
+    const resultFile = join(sub, 'f024-result.json');
+    const driverFile = join(sub, 'f024-driver.mjs');
+
+    // TEXT mode (json omitted): host stdout chunks route to process.stdout — the
+    // very pipe the parent destroys. The runner emits a SYNCHRONOUS burst of large
+    // stdout chunks and then returns (a burst right up to process exit): every live
+    // write is issued in ONE tick so asyncStreamError stays null across the whole
+    // burst, and the chunks that overflow the pipe buffer stay queued in the
+    // driver's writable — when the parent destroys the read end they all fail with a
+    // real EPIPE. Against the pre-F-024 handler (fire-and-forget stdout writes, no
+    // drain) host_run returns and the driver WRITES ITS RESULT, then the buffered
+    // writes' EPIPE lands AFTER the finally removed the stdout 'error' listener —
+    // zero listeners -> the driver crashes (nonzero) post-completion. The fix's
+    // outstanding-write accounting + bounded drain settles those writes' callbacks
+    // BEFORE listener removal, so the EPIPE is contained. Chunks carry no newline;
+    // the codex usage line parses without a trailing newline.
+    const driverScript = `
+import { writeFileSync, readdirSync } from 'node:fs';
+const ROOT = process.env.F024_ROOT;
+const RESULT = process.env.F024_RESULT;
+const { createHostRunHandlers } = await import(process.env.F024_HANDLER_URL);
+const { hostRunSlotsDir, acquireHostRunSlot } = await import(process.env.F024_CORE_URL);
+const store = { readStory() { throw new Error('no store'); } };
+const ctx = { store, root: ROOT, scanRoot: ROOT };
+const runner = (plan) => {
+  // Synchronous burst: 40 x 64 KiB stdout chunks then return. The pipe buffer holds
+  // ~64 KiB; the remaining ~2.5 MiB stays queued in the driver's writable and fails
+  // with EPIPE the instant the parent destroys the read end.
+  const chunk = 'z'.repeat(65536);
+  for (let i = 0; i < 40; i++) { if (plan.onChunk) plan.onChunk({ stream: 'stdout', text: chunk }); }
+  return { stdout: JSON.stringify({ type: 'turn.completed', usage: { input_tokens: 9, cached_input_tokens: 0, output_tokens: 4 } }), stderr: '', exitCode: 0, timedOut: false };
+};
+const handlers = createHostRunHandlers(ctx, { runner });
+// TEXT mode (json omitted): success returns '' after the usage line hits stderr.
+const out = await handlers.host_run({ host: 'codex', agentType: 'reviewer', prompt: 'driver prompt', phase: 'adhoc' });
+let leftover = [];
+try { leftover = readdirSync(hostRunSlotsDir(ROOT)).filter((f) => f.startsWith('slot-') && f.endsWith('.json')); } catch { /* no slot dir */ }
+const reAcquired = acquireHostRunSlot(hostRunSlotsDir(ROOT), 1, 6 * 60 * 60 * 1000, Date.now(), { pid: process.pid, startedAt: new Date().toISOString(), host: 'codex', storyId: null, agentType: 'after' }) !== null;
+writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquired }));
+`;
+    writeFileSync(driverFile, driverScript, 'utf8');
+
+    const childEnv = {
+      ...process.env,
+      LATTICE_USAGE_LEDGER: '1',
+      LATTICE_HOST_RUN_MAX_CONCURRENT: '1',
+      F024_ROOT: sub,
+      F024_RESULT: resultFile,
+      F024_HANDLER_URL: new URL('../handlers/host-run.js', import.meta.url).href,
+      F024_CORE_URL: new URL('../core/host-run.js', import.meta.url).href,
+    } as NodeJS.ProcessEnv;
+
+    // TEXT mode routes host stdout to process.stdout; PIPE that (fd 1) and DESTROY
+    // the read end the instant the first data arrives (mid-stream) so the driver's
+    // still-queued live chunk writes hit a real EPIPE. stderr stays ignored (the
+    // usage line writes fine there) — the window under test is purely the live
+    // stdout passthrough.
+    const exitCode = await new Promise<number | null>((resolve) => {
+      const child = spawn(process.execPath, [driverFile], { env: childEnv, stdio: ['ignore', 'pipe', 'ignore'] });
+      let closed = false;
+      child.stdout?.on('data', () => {
+        if (!closed) {
+          closed = true;
+          child.stdout?.destroy();
+        }
+      });
+      child.on('close', (code) => resolve(code));
+    });
+
+    assert.equal(exitCode, 0, 'the driver exited 0 — the async EPIPE on the still-queued LIVE stdout passthrough writes was CONTAINED (the pre-F-024 handler crashes nonzero here, post-completion, on the unhandled stdout error event)');
+    assert.ok(existsSync(resultFile), 'the driver wrote its result AFTER host_run returned (it never crashed mid/after run)');
+    const res = JSON.parse(readFileSync(resultFile, 'utf8')) as { completed: unknown; leftover: unknown; reAcquired: unknown };
+    assert.equal(res.completed, true, 'host_run returned normally in text mode (empty string) — no crash');
+    assert.deepEqual(res.leftover, [], 'the concurrency slot was released (no leftover slot files after the run)');
+    assert.equal(res.reAcquired, true, 'a fresh cap=1 slot admission succeeds after the run (the slot was truly released)');
+    const records = readLedger(sub);
+    assert.ok(records.some((r) => r.usage.source === 'provider-reported'), 'the ledger final row recorded intact despite the destroyed live stdout pipe');
   });
 
   // =========================================================================

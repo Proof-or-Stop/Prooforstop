@@ -75,10 +75,14 @@ stream error too. `host_run` attaches (and, in a `finally`, removes) its own
 stdout/stderr `'error'` listeners for the duration of the run, so a real EPIPE is
 contained into the same `passthroughError` state instead of crashing the process;
 once a stream is known broken, the best-effort diagnostic writes to it are
-skipped rather than risk a late unhandled `'error'`, and each final diagnostic
-write is **awaited to settle** before that `finally` removes the listeners so a
-late EPIPE from the FIRST stderr write of a quiet run (which never tripped the
-skip) still fires while a listener is attached.
+skipped rather than risk a late unhandled `'error'`, and **every** live
+passthrough chunk write *and* final diagnostic write is settle-aware:
+outstanding writes are tracked with a shared pending counter (throughput is never
+serialized) that the `finally` **drains before removing the listeners** — bounded
+by a defensive ~2s cap so a pathologically wedged stream can never hang the
+command — so a late EPIPE from the FINAL live stdout chunk of a text-mode run, or
+from the FIRST stderr write of a quiet run (which never tripped the skip), still
+fires while a listener is attached.
 
 Exactly one of `--prompt` / `--promptFile` is required. A host non-zero exit (or
 a cap refusal) propagates as a non-zero process exit; in `--json` mode the

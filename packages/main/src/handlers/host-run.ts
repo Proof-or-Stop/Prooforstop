@@ -200,37 +200,26 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
       // dead pipe), and the handler also merges it into the surfaced
       // passthroughError as a backstop for an error that lands after the last chunk.
       let asyncStreamError: string | null = null;
-      // F-020: track a broken STDERR specifically. The post-run diagnostic writes
-      // (usage line, warning) go to process.stderr; issuing one to a stderr we
-      // already know is broken would queue an async EPIPE 'error' that can fire
-      // AFTER the per-call listener is removed (zero listeners -> process crash).
-      // We skip those writes instead — honest degradation, since passthroughError
-      // already records the failure.
+      // F-020 / F-024: track a broken STDOUT and STDERR specifically. Any chunk or
+      // diagnostic write issued to a stream we already KNOW is broken would queue an
+      // async EPIPE 'error' that can fire AFTER the per-call listener is removed
+      // (zero listeners -> process crash). We skip those writes instead — honest
+      // degradation, since passthroughError already records the failure.
+      let stdoutBroken = false;
       let stderrBroken = false;
-      const passthrough: HostRunPassthrough = (chunk: HostRunChunk) => {
-        if (asyncStreamError !== null) {
-          // The stream already emitted an async 'error' — the pipe is gone. Throw
-          // through (the same contract as a sync write failure) so the core flips
-          // its passthrough-broken flag instead of writing to a broken stream.
-          throw new Error(asyncStreamError);
-        }
-        try {
-          if (json || chunk.stream === 'stderr') process.stderr.write(chunk.text);
-          else process.stdout.write(chunk.text);
-        } catch (err) {
-          throw err instanceof Error ? err : new Error(`host_run passthrough write failed: ${String(err)}`);
-        }
-      };
 
       // F-020: contain ASYNC stream 'error' events (real EPIPE) for the DURATION of
       // the run. Node terminates the process only when a stream has ZERO 'error'
       // listeners, so simply attaching ours is sufficient containment: we swallow
       // the error and record the first message. Hygiene: exactly our two named
-      // listeners are added here and removed with removeListener in the finally
-      // below — never removeAllListeners, since other code may hold its own
-      // listeners on these shared streams.
+      // listeners are added below and removed with removeListener in the finally
+      // — never removeAllListeners, since other code may hold its own listeners on
+      // these shared streams. F-024: a write error surfaced through a write CALLBACK
+      // folds into the SAME state, so a late EPIPE reported via callback and one
+      // reported via the 'error' event are handled identically.
       const recordStreamError = (streamName: 'stdout' | 'stderr') => (err: unknown): void => {
         if (streamName === 'stderr') stderrBroken = true;
+        else stdoutBroken = true;
         if (asyncStreamError === null) {
           const message = err instanceof Error ? err.message : String(err);
           asyncStreamError = `host_run passthrough ${streamName} stream error: ${message}`;
@@ -239,29 +228,118 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
       const onStdoutError = recordStreamError('stdout');
       const onStderrError = recordStreamError('stderr');
 
-      // F-020 / F-023: gated, SETTLE-AWARE stderr diagnostics. Never write to a
-      // stderr already known broken (avoids a late async EPIPE 'error' firing with
-      // no listener). When we DO write, resolve only after the write CALLBACK fires
-      // — the handler awaits every emitStderr BEFORE the finally removes the error
-      // listeners. Otherwise a real EPIPE queued by this very write would fire
-      // ASYNCHRONOUSLY after removal with zero 'error' listeners and crash the
-      // process (F-023): the crux case is a quiet text-mode run whose stderr is
-      // already closed, where this final usage line is the FIRST stderr write, so
-      // stderrBroken never opened and nothing skipped it. A callback-reported error
-      // is folded into the SAME broken/async-error state as the 'error' listener
-      // (recordStreamError via onStderrError) and swallowed — best-effort
+      // F-024: outstanding-write accounting for the live passthrough AND the final
+      // diagnostics, WITHOUT serializing throughput. Every write below is issued as
+      // write(text, cb) and is NOT awaited per-chunk; the callback decrements a
+      // shared pending counter. drainPending() — awaited by the finally BEFORE the
+      // error listeners are removed — resolves once every in-flight write has
+      // settled, so a late EPIPE from the FINAL chunk(s) fires while our named
+      // 'error' listeners are still attached. This closes the residual window that
+      // F-020/F-023 left on fire-and-forget live passthrough writes.
+      let pendingWrites = 0;
+      let onDrained: (() => void) | null = null;
+      const settleWrite = (): void => {
+        pendingWrites -= 1;
+        if (pendingWrites <= 0) {
+          pendingWrites = 0;
+          if (onDrained) {
+            const notify = onDrained;
+            onDrained = null;
+            notify();
+          }
+        }
+      };
+      // Defensive cap: a genuinely WEDGED stream (a write that neither flushes nor
+      // errors) must never hang host_run. On timeout we mark both streams broken and
+      // proceed with listener removal; the ONLY regression is that, for such a
+      // pathologically wedged stream, we revert to the pre-fix crash window (a
+      // post-removal EPIPE could still be unhandled). Every real closed/broken pipe
+      // settles its write callback (with or without error) well within this cap, so
+      // in practice drainPending resolves as soon as the last chunk's EPIPE lands.
+      const DRAIN_CAP_MS = 2000;
+      const drainPending = (): Promise<void> => {
+        if (pendingWrites <= 0) return Promise.resolve();
+        return new Promise<void>((resolve) => {
+          let settled = false;
+          const timer = setTimeout(() => {
+            if (settled) return;
+            settled = true;
+            onDrained = null;
+            stdoutBroken = true;
+            stderrBroken = true;
+            resolve();
+          }, DRAIN_CAP_MS);
+          if (typeof timer.unref === 'function') timer.unref();
+          onDrained = () => {
+            if (settled) return;
+            settled = true;
+            clearTimeout(timer);
+            resolve();
+          };
+        });
+      };
+
+      // F-006 / F-008 / F-020 / F-024: live passthrough. text mode routes host
+      // stdout->stdout / stderr->stderr; json mode routes EVERYTHING to stderr so
+      // stdout stays clean for the JSON result. Each chunk write is settle-aware
+      // (write + counted callback) but NOT awaited, so throughput is never
+      // serialized. A SYNCHRONOUS write failure is still thrown through to the CORE
+      // guard (F-008: delivery stops, the run still completes, passthroughError
+      // surfaces); an ASYNCHRONOUS 'error' recorded via the callback/listener flips
+      // asyncStreamError so the NEXT chunk throws through instead of hammering a dead
+      // pipe (F-020).
+      const passthrough: HostRunPassthrough = (chunk: HostRunChunk) => {
+        if (asyncStreamError !== null) {
+          // The stream already emitted an async 'error' — the pipe is gone. Throw
+          // through (the same contract as a sync write failure) so the core flips
+          // its passthrough-broken flag instead of writing to a broken stream.
+          throw new Error(asyncStreamError);
+        }
+        const toStderr = json || chunk.stream === 'stderr';
+        const streamName: 'stdout' | 'stderr' = toStderr ? 'stderr' : 'stdout';
+        // Skip a stream already known broken (honest degradation; passthroughError
+        // already records the failure) — never queue a fresh write onto a dead pipe.
+        if (toStderr ? stderrBroken : stdoutBroken) return;
+        const stream = toStderr ? process.stderr : process.stdout;
+        pendingWrites += 1;
+        try {
+          stream.write(chunk.text, (err) => {
+            if (err) recordStreamError(streamName)(err);
+            settleWrite();
+          });
+        } catch (err) {
+          // Rare synchronous throw (e.g. write-after-end): settle the counter, then
+          // throw through so the core flips its passthrough-broken flag (F-008).
+          settleWrite();
+          throw err instanceof Error ? err : new Error(`host_run passthrough write failed: ${String(err)}`);
+        }
+      };
+
+      // F-020 / F-023 / F-024: gated, SETTLE-AWARE stderr diagnostics that also join
+      // the pendingWrites accounting. Never write to a stderr already known broken
+      // (avoids a late async EPIPE 'error' firing with no listener). When we DO
+      // write, the promise resolves on the write CALLBACK and the SAME callback
+      // decrements the shared counter — so both the per-call await (F-023) AND the
+      // unified drainPending() (F-024) cover this write. The crux F-023 case is a
+      // quiet text-mode run whose stderr is already closed, where this final usage
+      // line is the FIRST stderr write (stderrBroken never opened, nothing skipped
+      // it). A callback/synchronous error folds into the SAME broken/async-error
+      // state (recordStreamError via onStderrError) and is swallowed — best-effort
       // diagnostics must never turn a completed run into a crash (F-008 contract).
       const emitStderr = (text: string): Promise<void> => {
         if (stderrBroken) return Promise.resolve();
         return new Promise<void>((resolve) => {
+          pendingWrites += 1;
           try {
             process.stderr.write(text, (err) => {
               if (err) onStderrError(err);
+              settleWrite();
               resolve();
             });
           } catch (err) {
             // Rare synchronous throw — flip broken state and settle.
             onStderrError(err);
+            settleWrite();
             resolve();
           }
         });
@@ -364,6 +442,11 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
         await emitStderr(`${usageLine}\n`);
         return '';
       } finally {
+        // F-024: await all in-flight passthrough + diagnostic writes (bounded by the
+        // defensive DRAIN_CAP_MS) BEFORE removing the error listeners, so a late
+        // EPIPE from the FINAL chunk(s) fires while our named 'error' listeners are
+        // still attached. Resolves immediately when nothing is pending.
+        await drainPending();
         // F-020: listener hygiene — remove exactly our two listeners, leaving any
         // other listeners on these shared streams untouched.
         process.stdout.removeListener('error', onStdoutError);
