@@ -292,7 +292,7 @@
       "desc": "Verified natural-prose false-positive regression in the same-sentence character-window fix for host-B finding 1 (packages/main/src/core/proofstory.ts:1497-1506, commit 6a06ea3c13). The new claimsShrinkage regex replaced the fixed 0-3-modifier-word bound with an open same-sentence window: remaining(?:\\\\.(?!\\\\s)|[^.!?;:\\\\n]){1,60}?(?<![A-Za-z0-9])<scope-noun>(?![A-Za-z0-9]). This only requires \"remaining\" and a scope-noun WORD to co-occur within 60 characters of the same sentence, not that the noun be the grammatical object of \"remaining\" — so a comma-joined UNRELATED clause containing an incidental scope-noun word now false-positives, reproducing exactly the false-positive class CHK-003 was written to eliminate (bare \"remaining\" describing pre-existing/unrelated state, not story scope shrinkage). Verified live end-to-end via the real dist/cli.js done_intent_equivalence_check (not a standalone regex extraction; script used mkdtemp git init + original_intent_snapshot_set + summary.json write, matching the smoke harness pattern): (1) limitations=\"Two remaining flaky tests, unrelated to this fix, cover edge cases in CI.\" -> gaps includes unconfirmed_single_outcome_shrinkage (should NOT fire: this sentence is describing pre-existing flaky tests, same class as the CHK-003 canonical negative control, and \"cases\" only appears in the unrelated CI-coverage clause). (2) limitations=\"The remaining CI flakes are old infra items, not part of this change.\" -> also fires (item is an unrelated noun in a different clause). (3) limitations=\"The two remaining suite failures are pre-existing issues, not new test cases from this change.\" -> also fires. Boundary-mapped the exact window: remaining<N filler chars>scope fires for N<=58 and stays silent for N>=59 (60-char cap), confirming the window is purely a character-count proximity test with no clause/dependency boundary. This is a distinct, independently-reachable regression from the CHK-003 canonical negative control (\"Two remaining suite failures are pre-existing upstream issues unrelated to this story.\" still correctly stays silent because that exact sentence has no scope-noun word within 60 chars) -- it only reproduces when a scope-noun word happens to appear later in the SAME sentence via an unrelated clause, which is common natural DONE-summary phrasing (e.g. any sentence mentioning both \"remaining X\" and \"test/existing/current cases/coverage/work\" for unrelated reasons). The new smoke coverage added in the same commit (remainingWindowClaims positive cases; windowControlNoNoun and windowControlNextSentence negative controls) does not cover this comma-clause/unrelated-noun-in-window class -- both negative controls test \"no noun anywhere in the window\" and \"noun only in the next sentence,\" neither of which is this bug. Recommend requiring the window match to stop at a comma/semicolon (or other clause boundary) in addition to sentence terminators, or scoping the noun match to not cross a subordinate/relative clause, and adding a smoke case for a comma-separated unrelated clause containing a scope-noun word.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-10T19:13:08.421Z",
@@ -305,7 +305,11 @@
         ".lattice/story/actives/B-2c03/plan.md"
       ],
       "signatureTag": "adversarial|ts|verified-natural-prose",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "The remaining trigger no longer uses raw character proximity: chain words exclude clause-marking stop words so all three F-012 cross-clause sentences stay quiet (remainingCrossClauseControls smoke cases, verified firing pre-fix and quiet post-fix), while codex round-3 long-chain and heading-colon claims fire (added to remainingWindowClaims). Full smoke, reconciliation smoke, milestone-status tests, and e2e ALL PASS at current head.",
+      "resolvedAt": "2026-07-10T19:29:36.027Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
