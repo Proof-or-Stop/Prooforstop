@@ -32,7 +32,38 @@
     "docs/requirements/decisions/pos-agent-drivability-optimization.md"
   ],
   "scopeChangeReason": "Refresh scope contract after CHK-007/CHK-008 and files mappings were added to close scope reviewer gaps.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Acknowledge Lattice-generated ProofStory planning metadata produced by lifecycle commands for B-4a78; implementation scope remains limited to reviewer read evidence code, config, templates, and tests.",
+      "timestamp": "2026-07-10T01:41:25.382Z",
+      "paths": [
+        ".lattice/story/actives/B-4a78/intent-collision.json",
+        ".lattice/story/actives/B-4a78/milestone-ledger.json",
+        ".lattice/story/actives/B-4a78/original-intent-snapshot.json",
+        ".lattice/story/actives/B-4a78/proofstory.json",
+        ".lattice/story/actives/B-4a78/red-evidence.json",
+        ".lattice/story/actives/B-4a78/slice-plan.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-4a78/intent-collision.json",
+        ".lattice/story/actives/B-4a78/milestone-ledger.json",
+        ".lattice/story/actives/B-4a78/original-intent-snapshot.json",
+        ".lattice/story/actives/B-4a78/proofstory.json",
+        ".lattice/story/actives/B-4a78/red-evidence.json",
+        ".lattice/story/actives/B-4a78/slice-plan.json"
+      ],
+      "affectedPathCount": 6,
+      "phase": "DEV",
+      "headHash": "d88dec6c924d9ba8e8c466977dc982c93dcb4917",
+      "materialHash": "a3e78bc3e65beb3a492ef5df8b3e9b47ffa9b4c3b01eef19bc59ba11267a4ba7",
+      "anchors": [
+        "lifecycle_metadata",
+        "proofstory_planning_artifacts"
+      ]
+    }
+  ],
   "createdAt": "2026-07-10T01:13:02.275Z",
-  "updatedAt": "2026-07-10T01:20:39.603Z"
+  "updatedAt": "2026-07-10T01:41:25.382Z"
 }
