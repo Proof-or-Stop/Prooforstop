@@ -133,6 +133,28 @@
         "scanEscalationReason": null
       },
       "_hash": "42b9e13a8d375c760614c0d1d67475f5c04e727a73eeeaf71e3b4fc2457d6ed9"
+    },
+    {
+      "id": "B-2c03:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round. Diff (vs main) only ADDS a new sanitizer helper stripCodeLikeTokens + constant CODE_FILE_EXTENSION_PATTERN and narrows the existing claimsShrinkage regex connectors (whitespace-only -> [\\s_-]+ for out-of-scope/not-covered/remaining-<noun>); no prior identifier, regex pattern, or vocabulary was deleted or renamed elsewhere in the repo. Grepped for claimsShrinkage|CODE_FILE_EXTENSION_PATTERN|dottedFileTokenRegex|stripCodeLikeTokens across *.ts/*.md/*.json (excluding node_modules/dist/.git): only hits are this story metadata plus proofstory.ts and proofstory-intent-hardening-smoke.ts, both touched by this diff — zero residue elsewhere. Confirmed the fresh F-005 fix (extension whitelist narrowed to unambiguous technical suffixes; multi-word trigger connectors widened) reads as intended in the current file.",
+      "createdAt": "2026-07-10T15:22:45.095Z",
+      "reviewRound": "2026-07-10T14:41:10.214Z",
+      "reviewRunId": "B-2c03:RR-012",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2c03/plan.md",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2c03/background.md",
+          ".lattice/story/actives/B-2c03/checklist.json",
+          ".lattice/story/actives/B-2c03/findings.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "fe1ee5efbc98052ec80aeb2a89fb65d0133f964557f14fee6a2698fdf5e43395"
     }
   ]
 }
