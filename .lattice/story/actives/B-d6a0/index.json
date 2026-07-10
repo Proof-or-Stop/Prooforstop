@@ -4,7 +4,7 @@
   "title": "Audit remaining git-status porcelain call sites for the whole-output-trim first-row bug and fix affected consumers",
   "description": "B-b264 (merge 2895bbb5e, v0.3.181) fixed a porcelain-parsing bug class in done-prepare.ts and done-prepare-generated-metadata.ts: a git helper that .trim()s the FULL `git status --porcelain=v1` output strips the first row's leading status column, so the first modified-tracked row (e.g. ' M .lattice/x') parses to a corrupted path ('lattice/x' after slice(3)) and downstream prefix-based material/volatile classification misfires. Untracked '??' rows are immune, so untracked-only test fixtures never catch it. The B-b264 quality reviewer (run B-b264:RR-008) noted other porcelain consumers exist outside that story's scope. A full audit of `grep -rn porcelain packages/main/src` (2026-07-10) found four consumers where the corrupted first row reaches material/volatile classification logic: (1) core/evidence-freshness.ts readMaterialDirtyFiles — full trim + slice(3) feeds isMaterialExcludedPath, so a first-row .lattice metadata change is counted as material dirt inside evidence hash snapshots; (2) handlers/cross-host-review.ts assertMaterialCleanForReview — full trim + slice(3) means a first-row .lattice row misreads as material and false-blocks the cross-host review preflight; (3) handlers/story-query.ts gitPorcelainPaths (via gitOutput full trim) — the story_sync_main dirty preflight filters with isVolatileRuntimeArtifactPath on a corrupted first-row path and can false-block sync; (4) core/partial-done-recovery.ts assertMainWorktreeClean — git() full trim feeds materialStatusLines/statusLinePath, so a first-row volatile runtime artifact is counted as material and done_recover falsely refuses. Two further sites corrupt display-only output (handlers/session.ts readGitStatus brief rows; handlers/story-query.ts DONE-residue status text). All other porcelain call sites were audited and are safe (per-line trimEnd, count-only or emptiness-only usage, bounded-path emptiness checks, or `git worktree list --porcelain` whose rows never start with a space). This story fixes the affected consumers using the raw-read pattern established by B-b264 (gitStatusRows in handlers/done-prepare.ts, gitRaw in core/done-prepare-generated-metadata.ts), adds first-row modified-tracked regression assertions (pattern: assertModifiedTrackedPathExactness in tasks/done-prepare-merge-rerun-smoke.ts), and records the per-site audit verdict so the next consumer author can see which helpers are safe to copy.",
   "type": "bug",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "keywords": [
     "porcelain",
@@ -56,11 +56,21 @@
       "user": "Harmonygo",
       "sessionId": "ea9644ce-552c-4ff7-bcc4-578f2da7842b",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-10T10:11:26.540Z",
+      "branch": "story/B-d6a0",
+      "user": "Harmonygo",
+      "sessionId": "ea9644ce-552c-4ff7-bcc4-578f2da7842b",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-d6a0",
     "branch": "story/B-d6a0",
     "createdAt": "2026-07-10T09:04:31.709Z"
-  }
+  },
+  "currentReviewRound": "2026-07-10T10:11:26.540Z"
 }

@@ -18,7 +18,32 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "ProofStory high-assurance DEV-gate artifacts (intent snapshot, collision decision, contract envelope, red evidence) plus the story-evidence repro script backing red-evidence.json; command-generated/story-scoped metadata not yet in the lifecycle registry, not product source changes.",
+      "timestamp": "2026-07-10T10:11:25.438Z",
+      "paths": [
+        ".lattice/story/actives/B-d6a0/intent-collision.json",
+        ".lattice/story/actives/B-d6a0/original-intent-snapshot.json",
+        ".lattice/story/actives/B-d6a0/proofstory.json",
+        ".lattice/story/actives/B-d6a0/red-evidence.json",
+        ".lattice/story/actives/B-d6a0/evidence/repro-porcelain-first-row.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-d6a0/intent-collision.json",
+        ".lattice/story/actives/B-d6a0/original-intent-snapshot.json",
+        ".lattice/story/actives/B-d6a0/proofstory.json",
+        ".lattice/story/actives/B-d6a0/red-evidence.json",
+        ".lattice/story/actives/B-d6a0/evidence/repro-porcelain-first-row.mjs"
+      ],
+      "affectedPathCount": 5,
+      "phase": "DEV",
+      "headHash": "6a20c5236d3e5af781dd1a795b43c8891d664bb9",
+      "materialHash": "21a825b93245e7064d15d29c692b7688b51f7d731d7851d5d467ef8efd027e02"
+    }
+  ],
   "createdAt": "2026-07-10T09:14:23.550Z",
-  "updatedAt": "2026-07-10T09:14:23.550Z"
+  "updatedAt": "2026-07-10T10:11:25.438Z"
 }
