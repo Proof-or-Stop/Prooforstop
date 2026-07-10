@@ -2684,6 +2684,65 @@
         "bindingHash": "8f41c78f89d21faea3a9db54e4d22255e8f8431f4491e2e08b161371cf94eefa"
       },
       "_hash": "9d9322b0c27e6eb252f140baeacaf466bb0ade5649f3cb62fe176fbc260925ff"
+    },
+    {
+      "reviewRunId": "B-70e9:RR-029",
+      "storyId": "B-70e9",
+      "agent": "lattice-review-docs",
+      "lane": "lattice-review-docs",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "startedAt": "2026-07-10T10:25:33.781Z",
+      "headHash": "c78eeb364b65671a6d8ad36e3409c5605cd5e698",
+      "materialHash": "7f7bd81392f7c2d739a1b0f394eeeea5d4be7ce8acce5ec7a8539cb7d1be782c",
+      "storyFilesHash": "2644d7951ab2b80707b2b246f5e2b51ad7e99ea8fae793adce217f787cff2551",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "ac7c9497afd85ad38745e23c3147a6887f9354d84b1ea9b1c02da26137552627",
+        "diffPackHash": "5b66d79fbf7f22f6a2e0a691bb4530b2627a5f78b7134a7f193d4dcf2b0467b3",
+        "reviewedChangedFiles": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/alias-normalizer.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/host-execution-readiness.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/usage-ledger/adapters/openai.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/core/usage-ledger/writer.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "packages/main/src/tasks/usage-ledger-budget-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [],
+        "bindingHash": "b4f31c0db3093e6b52c2671031f65a6937b7bea88d2bff95f9a01c7406ee9c0f"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-70e9",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-70e9",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-70e9",
+        "workspaceMode": "story-worktree",
+        "headHash": "c78eeb364b65671a6d8ad36e3409c5605cd5e698",
+        "materialHash": "7f7bd81392f7c2d739a1b0f394eeeea5d4be7ce8acce5ec7a8539cb7d1be782c",
+        "storyFilesHash": "2644d7951ab2b80707b2b246f5e2b51ad7e99ea8fae793adce217f787cff2551",
+        "bindingHash": "9bdba130f8f9df2ef71d320520e9668e109a43b9ee628b12242505ebf739bfd0"
+      },
+      "_hash": "f74dbf4e3dc67a65da2eeaa9d99b4faa3494fa6256ee7026e4c75824842e6d99"
     }
   ]
 }

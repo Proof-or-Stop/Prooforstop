@@ -565,6 +565,25 @@
         "scanEscalationReason": null
       },
       "_hash": "78eb71a9645d05f2f7bda8c7581350cff21f7d09b28e0cd97e6f6427bc362811"
+    },
+    {
+      "id": "B-70e9:RP-024",
+      "agent": "lattice-review-docs",
+      "note": "Round 7, narrow scope: verified the single sentence added by bc966e3247 to docs/host-run-usage.md concurrency section (lock at writer choke point / atomic llm-usage.jsonl.lock dir / bounded wait+stale reclaim / skip-not-corrupt under-count) against writer.ts (acquireLedgerLock, USAGE_LEDGER_LOCK_SUFFIX, LATTICE_USAGE_LEDGER_LOCK_WAIT_MS, LATTICE_USAGE_LEDGER_LOCK_STALE_MS, throw-on-exhaustion) and dispatch-usage.ts (every appendUsageRecord call wrapped try/catch, fail-open). 1 doc paragraph vs 1 commit diff. CHANGELOG.md untouched by bc966e3247 and needs no update (its one B-70e9 entry is a story-level summary from an earlier commit). No drift found.",
+      "createdAt": "2026-07-10T10:25:40.468Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-029",
+      "readManifest": {
+        "filesReadFully": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/core/usage-ledger/writer.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "b42328654dac40ee6a7c44ff65f1770b9417980a960ec3ae002f76945093db01"
     }
   ]
 }
