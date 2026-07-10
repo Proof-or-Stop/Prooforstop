@@ -486,13 +486,13 @@
           "intentRef": "CHK-004:happy:1",
           "kind": "docs_check",
           "file": "docs/host-run-usage.md",
-          "command": "rg -n \"threadId|LATTICE_HOST_RUN_MAX_CONCURRENT|gateEvidence=false\" docs/host-run-usage.md",
-          "result": "fail",
+          "command": "grep -nE \"threadId|LATTICE_HOST_RUN_MAX_CONCURRENT|gateEvidence=false\" docs/host-run-usage.md",
+          "result": "pass",
           "note": "doc documents binding conventions (threadId=reviewRunId, subagentId=lane), cap envs, agy unavailable semantics, non-goals incl. gateEvidence=false",
-          "headHash": "cfbc0490187f399ae1eefed0bb7fc4f065ef759d",
+          "headHash": "25f24e3b5926148df4b43c26b7447f5893814893",
           "materialHash": "9a34267cfc576a5198b54b34edebacab9d3db95b7cf9a62511a26960debe9169",
           "storyFilesHash": "9df50ebfa33bf98831fcb1d9b2aea402d8d6750256e08b9ab080558a92e233aa",
-          "timestamp": "2026-07-10T07:11:36.327Z"
+          "timestamp": "2026-07-10T07:12:17.774Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
