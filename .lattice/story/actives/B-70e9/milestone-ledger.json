@@ -2,24 +2,34 @@
   "schemaVersion": "proofstory.milestone_ledger.v1",
   "storyId": "B-70e9",
   "state": "confirmed",
-  "ledgerHash": "sha256:ebe4f0d3834dc09e3ea54acfe91c2729566eefa7df0bc84cb733f20323168f47",
+  "ledgerHash": "sha256:ff7c04e742986b689d16b4957bc2e08d085160663f83ddc002a5bee15c4b0ec5",
   "milestones": [
     {
       "id": "M1-CAPTURE",
       "sourceRequirementId": "REQ-M1-CAPTURE",
-      "claim": "A host_run choke-point command launches codex/claude/agy via canonical launcher argv and writes correlated preflight+final usage rows bound to storyId/agentType/phase/provider",
-      "doneMeans": "host-run-usage smoke proves estimate+final rows for all three hosts (codex turn.completed mapping, claude stream-json usage, agy unavailable) with binding fields set",
+      "claim": "A host_run choke-point command launches codex/claude/agy via canonical launcher argv and writes correlated preflight+final usage rows bound to storyId/agentType/phase/provider, with reviewer/quorum binding fields",
+      "doneMeans": "host-run-usage smoke proves estimate+final rows for all three hosts (codex turn.completed mapping, claude stream-json usage, agy unavailable) with storyId/phase/agentType plus threadId=reviewRunId and subagentId=lane binding",
       "requiredEvidence": [
-        "smoke:host-run-usage",
-        "ledger-row-samples"
+        "smoke:host-run-usage"
       ],
       "checklistRefs": [
         "CHK-001",
         "CHK-002"
       ],
       "verificationIntentRefs": [
-        "CHK-001",
-        "CHK-002"
+        "CHK-001:happy:0",
+        "CHK-001:happy:1",
+        "CHK-001:happy:2",
+        "CHK-001:edge:0",
+        "CHK-001:edge:1",
+        "CHK-001:edge:2",
+        "CHK-001:adversarial:0",
+        "CHK-001:adversarial:1",
+        "CHK-002:happy:0",
+        "CHK-002:happy:1",
+        "CHK-002:edge:0",
+        "CHK-002:edge:1",
+        "CHK-002:adversarial:0"
       ],
       "status": "planned"
     },
@@ -35,7 +45,12 @@
         "CHK-003"
       ],
       "verificationIntentRefs": [
-        "CHK-003"
+        "CHK-003:happy:0",
+        "CHK-003:happy:1",
+        "CHK-003:happy:2",
+        "CHK-003:edge:0",
+        "CHK-003:edge:1",
+        "CHK-003:adversarial:0"
       ],
       "status": "planned"
     },
@@ -52,7 +67,10 @@
         "CHK-004"
       ],
       "verificationIntentRefs": [
-        "CHK-004"
+        "CHK-004:happy:0",
+        "CHK-004:happy:1",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0"
       ],
       "status": "planned"
     },
@@ -68,48 +86,51 @@
         "CHK-007"
       ],
       "verificationIntentRefs": [
-        "CHK-007"
+        "CHK-007:happy:0",
+        "CHK-007:happy:1",
+        "CHK-007:edge:0",
+        "CHK-007:edge:1",
+        "CHK-007:adversarial:0",
+        "CHK-007:adversarial:1"
       ],
       "status": "planned"
     },
     {
       "id": "M2-SWEEP",
       "sourceRequirementId": "REQ-M2-SWEEP",
-      "claim": "A read-only usage_sweep scans codex rollouts and claude project transcripts since a cutoff and emits a non-authoritative attribution report",
-      "doneMeans": "usage-sweep smoke proves cumulative codex totals, claude dedupe-by-message-id sums, story-mention extraction, cwd/originator fields, NON-AUTHORITATIVE labeling, and zero writes",
+      "claim": "A read-only usage_sweep scans codex rollouts and claude project transcripts since a cutoff and emits a non-authoritative attribution report, with both smokes wired as npm scripts and docs/CHANGELOG updated",
+      "doneMeans": "usage-sweep smoke proves cumulative codex totals, claude dedupe-by-message-id sums, story-mention extraction, cwd/originator fields, NON-AUTHORITATIVE labeling, zero writes; test:host-run-usage and test:usage-sweep pass via npm",
       "requiredEvidence": [
-        "smoke:usage-sweep"
-      ],
-      "checklistRefs": [
-        "CHK-005"
-      ],
-      "verificationIntentRefs": [
-        "CHK-005"
-      ],
-      "status": "planned"
-    },
-    {
-      "id": "QA-WIRING",
-      "sourceRequirementId": "REQ-M1-CAPTURE",
-      "claim": "Both smokes are wired as npm scripts and the aggregate runner, with docs/CHANGELOG updated",
-      "doneMeans": "test:host-run-usage and test:usage-sweep pass via npm and the aggregate runner includes them",
-      "requiredEvidence": [
+        "smoke:usage-sweep",
         "npm-script-runs"
       ],
       "checklistRefs": [
+        "CHK-005",
         "CHK-006"
       ],
       "verificationIntentRefs": [
-        "CHK-006"
+        "CHK-005:happy:0",
+        "CHK-005:happy:1",
+        "CHK-005:happy:2",
+        "CHK-005:edge:0",
+        "CHK-005:edge:1",
+        "CHK-005:edge:2",
+        "CHK-005:adversarial:0",
+        "CHK-005:adversarial:1",
+        "CHK-005:adversarial:2",
+        "CHK-006:happy:0",
+        "CHK-006:happy:1",
+        "CHK-006:edge:0",
+        "CHK-006:adversarial:0"
       ],
       "status": "planned"
     }
   ],
   "createdAt": "2026-07-10T05:32:07.266Z",
-  "updatedAt": "2026-07-10T05:34:52.999Z",
+  "updatedAt": "2026-07-10T05:39:50.702Z",
   "acceptedIntentBinding": {
     "intentCollisionId": "IC-20260710053452",
-    "acceptedInterpretationHash": "sha256:3bcbbbbdf35f2c57cb52c8fcbd3e6d12a0c3c9d6d18dd3f2fafd634e187e51a4",
-    "acceptedAt": "2026-07-10T05:34:52.999Z"
+    "acceptedInterpretationHash": "sha256:f81972f83b1325aa9455d65cc6ad560348776c9fbabbff516cd74eb3d0ef4fd1",
+    "acceptedAt": "2026-07-10T05:39:50.702Z"
   }
 }
