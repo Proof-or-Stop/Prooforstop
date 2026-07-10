@@ -57,7 +57,55 @@
       "context": "grep the repo excluding .lattice story artifacts, .claude/worktrees and node_modules; docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md:403 is a historical B-320f evidence row and stays untouched",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run `grep -rn autopilot-resume-smoke . --include=\"*.json\" --include=\"*.ts\" --include=\"*.js\" --include=\"*.yml\" --include=\"*.yaml\" --include=\"*.sh\" --include=\"*.md\" --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=dist --exclude-dir=.worktrees --exclude-dir=.claude` and filter out .lattice/story lines -> only surviving hit is docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md:403; WHY: confirms no runnable reference (npm script, CI config, shell script, smoke manifest) remains after CHK-001",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Verify the surviving hit at docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md:403 is a historical evidence table row (contains B-320f and is inside a markdown table) and is NOT a runnable invocation -> line content is a pipe-delimited table row mentioning B-320f; WHY: confirms the only remaining mention is a historical record, not an active command",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run the grep without file-type filters (all files) to catch references in unexpected file types like Makefile, Dockerfile, or .env files -> no additional runnable hits beyond the known decision-doc row; WHY: file-type-filtered grep can miss references in non-standard file types that could still be executed",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Search specifically in root package.json for autopilot-resume-smoke -> no match; WHY: the plan notes root package.json has no mirror but this should be independently verified, not trusted from the plan description alone",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Check that .lattice/story/actives/ may contain references in closed-story artifacts and that these are correctly excluded from the runnable-reference scope -> any hits in .lattice/story are story metadata, not runnable scripts; WHY: prevents false positives from story artifacts being flagged as missed cleanup",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Search for partial-match variants that could hide a reference: grep for resume-smoke (without the autopilot- prefix) across runnable file types excluding the known exclusion dirs -> no unexpected hits that reference the deleted smoke under a different prefix or alias; WHY: catches cases where the script was referenced by a shortened name or where a wrapper script uses a substring match",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Verify that no npm lifecycle hook (pretest, posttest, prepare, etc.) in packages/main/package.json invokes test:autopilot-resume-smoke indirectly via npm run -> inspect all lifecycle-hook script values for the substring; WHY: npm lifecycle hooks execute implicitly and a hidden reference would cause silent failures during npm install/test/publish",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Check that the decision-doc line at :403 was NOT modified by this story (git diff of that file shows no changes) -> diff is empty for that file; WHY: scope contract explicitly excludes this file; any edit would violate the scope boundary and corrupt historical evidence",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
