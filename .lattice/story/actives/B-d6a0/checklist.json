@@ -1,0 +1,44 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Fix readMaterialDirtyFiles full-output trim in core/evidence-freshness.ts",
+      "context": "readMaterialDirtyFiles (~line 153) does execFileSync('git',['status','--porcelain','--untracked-files=all']).trim() then line.slice(3): the first modified-tracked row's path loses its first character and isMaterialExcludedPath misfires, polluting materialDirty inside captureEvidenceHashSnapshot. Rework to the untrimmed raw-read pattern (see gitRaw in core/done-prepare-generated-metadata.ts:247) with per-line trimEnd.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Fix assertMaterialCleanForReview full-output trim in handlers/cross-host-review.ts",
+      "context": "assertMaterialCleanForReview (~line 74) trims the full porcelain output then slice(3): a first-row ' M .lattice/...' metadata change parses as 'lattice/...' which fails the .lattice/ material-exclusion prefix and false-blocks the cross-host review dirty preflight. Same untrimmed raw-read fix.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Fix gitPorcelainPaths and DONE-residue status trim in handlers/story-query.ts",
+      "context": "gitPorcelainPaths (line 226) builds on gitOutput() which trims the full output, then slice(3): story_sync_main's dirty preflight (line 945) filters the corrupted first-row path through isVolatileRuntimeArtifactPath and can false-block sync with a corrupted path in the error. Also the DONE-residue probe (~line 1017) stores a full-trimmed status string whose first row is corrupted in display. Fix both reads to not trim leading output.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Fix assertMainWorktreeClean input trim in core/partial-done-recovery.ts and brief rows in handlers/session.ts",
+      "context": "partial-done-recovery.ts git() (line 23) trims full output; assertMainWorktreeClean (line 179) feeds it to materialStatusLines/statusLinePath (slice(3)) so a first-row volatile runtime artifact counts as material and done_recover falsely refuses. session.ts readGitStatus (line 150) trims full output before splitting rows for the session brief, so the first displayed row loses its status column. Fix both reads; keep bounded emptiness-only call sites unchanged.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Add first-row modified-tracked regression smoke and record the per-site audit verdict",
+      "context": "New smoke task exercising the fixed consumers against a temp git repo whose FIRST porcelain row is a modified tracked file (' M' row, e.g. a .lattice/ or volatile path) plus a material row: assert exact path classification (pattern: assertModifiedTrackedPathExactness in tasks/done-prepare-merge-rerun-smoke.ts). Record the audit table (every porcelain call site -> fixed / safe-by-read-pattern / safe-by-usage / immune-by-format) in plan.md so untouched sites are auditable.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
