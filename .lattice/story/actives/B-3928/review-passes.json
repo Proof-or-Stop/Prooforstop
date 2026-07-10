@@ -17,6 +17,15 @@
       "reviewRound": "2026-07-10T03:38:27.147Z",
       "reviewRunId": "B-3928:RR-002",
       "_hash": "2a76511315007f599fff21abed02872e2642eb3eab50bd70d3da04d675d61b59"
+    },
+    {
+      "id": "B-3928:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "PASS docs baseline review. Checked docs/requirements/baselines/proof-or-stop-prompt-baseline.json and docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md against B-3928:F-002 focus: every one of the 16 roleMatrix entries has a non-empty directFileAccess field, the markdown matrix includes a Direct file access column populated for all roles, directStoryFileReferences classifies 24 docs/story references, and the single direct-write finding is explicitly grandfathered. Also ran node scripts/verify-proof-or-stop-prompt-baseline.mjs, which passed registry hashes, agent_prompt hashes, overlap matrix parity, legacy vocabulary classification, and direct story-file classification.",
+      "createdAt": "2026-07-10T03:49:58.317Z",
+      "reviewRound": "2026-07-10T03:45:55.285Z",
+      "reviewRunId": "B-3928:RR-007",
+      "_hash": "04571dbae2835113ebb0a682bb336bca6bd772538376e889d7222b8295f9ab50"
     }
   ]
 }
