@@ -36,8 +36,24 @@
       "phase": "DEV",
       "headHash": "ff2e957b2e5c6a4313a01afa667b6160fe185764",
       "materialHash": "d05bb4fe8179a49615a6ba87ee0f8f5af6cb702aa4f5179dd8176737bed8411a"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Quality review finding B-b264:F-002: this story widened buildDonePrepareGeneratedMetadataManifest to every blocked cleanTree path and prints its paths in user-facing guidance, so the pre-existing whole-output-trim porcelain bug in gitStatusRowsForDonePrepareGeneratedMetadata (same class as the gitStatusRows fix in handlers/done-prepare.ts) became reachable through this story's new UX surface. Fix switches the helper to the pre-existing non-trimming gitRaw(); regression assertion added in the story smoke. Reviewed and passed by all three lanes in round 3 (RP-005/RP-006/RP-007).",
+      "timestamp": "2026-07-10T05:59:08.229Z",
+      "paths": [
+        "packages/main/src/core/done-prepare-generated-metadata.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/done-prepare-generated-metadata.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "REVIEW",
+      "headHash": "270583365c1a8e2870d8175d485e77239d88e646",
+      "materialHash": "ba36c671941eeba2377ad1a8a3f9b777887692a2d798549352006b79665e9c88"
     }
   ],
   "createdAt": "2026-07-10T04:23:46.812Z",
-  "updatedAt": "2026-07-10T04:25:14.834Z"
+  "updatedAt": "2026-07-10T05:59:08.229Z"
 }
