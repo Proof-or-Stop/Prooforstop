@@ -4,7 +4,7 @@
   "title": "3x2 review of Proof-or-Stop agent prompt consolidation execution plan",
   "description": "Review the large Proof-or-Stop agent prompt consolidation execution plan document against the current project implementation. The review must use current code and CLI evidence rather than stale planning prose, run a 3x2 independent-host review over the document, reconcile findings, apply approved documentation optimizations, and on DONE provide a complete table of every concrete optimization with its reason and evidence. Target document: docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md. The review must preserve hard gates, structured evidence semantics, milestone_status UX rules, legacy compatibility, and proof-or-stop-* migration discipline.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "riskSignals": [
     {
@@ -14,7 +14,7 @@
   ],
   "createdAt": "2026-07-09T14:36:08.939Z",
   "startedAt": "2026-07-09T14:36:08.939Z",
-  "endedAt": null,
+  "endedAt": "2026-07-10T00:46:49.610Z",
   "events": [
     {
       "phase": "INIT",
@@ -114,13 +114,17 @@
       "user": "Harmonygo",
       "sessionId": "sess-4cad5bf0c6479374",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-10T00:46:49.610Z",
+      "branch": "story/B-2861",
+      "user": "Harmonygo",
+      "sessionId": "sess-4cad5bf0c6479374",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-2861",
-    "branch": "story/B-2861",
-    "createdAt": "2026-07-09T14:37:31.950Z"
-  },
   "riskSignalsDismissed": [
     {
       "category": "Data Migration/Destructive",
