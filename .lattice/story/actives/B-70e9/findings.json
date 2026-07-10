@@ -324,7 +324,7 @@
       "desc": "[codex host-B, cross_host_review B-70e9-xhr-r7] Host readiness ledger records phantom LLM calls: recordHostReadinessProbeUsage (handlers/review-escalation.ts ~191) writes preflight+unavailable finals for EVERY probed host, but the availability probe returns rows for hosts that never spawned the readiness prompt at all (missing executable, failed --version). Those non-calls become ledger records and inflate unknown attempt counts, contradicting host-side LLM usage capture. Fix direction: filter on whether an execution attempt actually happened (probe result failureKind not in {missing_executable, version_failed} / executablePath+versionOk present) before recording rows; skip ledger writes for hosts where no LLM subprocess launched.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host-b",
       "createdAt": "2026-07-10T11:01:25.028Z",
@@ -335,7 +335,11 @@
         "packages/main/src/tasks/host-run-usage-smoke.ts"
       ],
       "signatureTag": "edge|ts|codex-host-cross",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 2951090b79: recordHostReadinessProbeUsage filters through readinessProbeSubprocessLaunched - skips missing_executable, version_failed, and pre-spawn wrong_launcher (no exitCode/outputBytes evidence), keeps timeout/auth/silent_final_output/none which imply a real spawn; call site threads failureKind/exitCode/outputBytes from the frozen probe rows. Smoke constructs all four cases from real classifyHostExecutionReadiness rows and proves rows exist only for the attempted host. Failing-before: every probed host produced 2 phantom rows.",
+      "resolvedAt": "2026-07-10T11:16:07.739Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
