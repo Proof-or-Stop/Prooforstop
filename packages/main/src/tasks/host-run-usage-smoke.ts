@@ -1749,6 +1749,46 @@ async function main(): Promise<void> {
     rmSync(lockDir, { recursive: true, force: true });
   });
 
+  check('F-018/F-019 owner-write-failure rollback: when owner.json cannot be written after a successful mkdir, acquire returns null AND gives the dir back — no ownerless lock left behind', () => {
+    const sub = freshRoot();
+    const lockDir = resolveLedgerLockPath(sub);
+    const ownerPath = join(lockDir, USAGE_LEDGER_LOCK_OWNER_FILENAME);
+    // The usage dir (the lock dir's PARENT) is created BEFORE the umask change
+    // so it stays writable: rmdir of the lock dir needs write on the parent
+    // only, so the rollback itself is never blocked by this setup.
+    mkdirSync(dirname(lockDir), { recursive: true });
+    // Deterministic owner-write failure WITHOUT touching the writer (its ESM
+    // named fs imports are snapshot bindings, so monkey-patching fs from here
+    // would not intercept): a 0o277 umask makes acquire's own mkdirSync create
+    // the lock dir as 0o500 (dr-x------), so the immediately following
+    // writeFileSync(owner.json) fails EACCES (non-root) — exactly the
+    // mkdir-succeeded-but-owner-write-failed branch. WAIT_MS=0 bounds the
+    // retry loop to a single pass through that branch.
+    const env = { LATTICE_USAGE_LEDGER: '1', LATTICE_USAGE_LEDGER_LOCK_WAIT_MS: '0' } as NodeJS.ProcessEnv;
+    const prevUmask = process.umask(0o277);
+    let res: string | null;
+    try {
+      res = acquireLedgerLock(lockDir, env);
+    } finally {
+      process.umask(prevUmask);
+    }
+    assert.equal(res, null, 'the failed acquire returns null — no lock is held by the caller');
+    assert.equal(
+      existsSync(lockDir),
+      false,
+      'rollback: the just-created lock dir was given back (rmdirSync ran) — an ownerless lock that only the mtime backstop could age out is never left behind',
+    );
+    assert.equal(existsSync(ownerPath), false, 'the failure path never wrote a partial owner.json');
+    // The same lock path is immediately acquirable once writes succeed again.
+    const token = acquireLedgerLock(lockDir, ON);
+    assert.ok(token, 'a subsequent unimpaired acquire succeeds');
+    const owner = JSON.parse(readFileSync(ownerPath, 'utf8')) as { pid?: number; token?: string };
+    assert.equal(owner.pid, process.pid, 'owner.json records the holder pid after the clean acquire');
+    assert.equal(owner.token, token, 'owner.json records the minted token after the clean acquire');
+    releaseLedgerLock(lockDir, token as string);
+    assert.equal(existsSync(lockDir), false, 'the clean acquire releases normally');
+  });
+
   // =========================================================================
   // Isolation
   // =========================================================================
