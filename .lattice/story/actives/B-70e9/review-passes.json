@@ -1023,6 +1023,26 @@
         "scanEscalationReason": null
       },
       "_hash": "89ce3f3e780b1f17d86fbb08910ba83377a2cd1d8d7655aa570919aba28dc611"
+    },
+    {
+      "id": "B-70e9:RP-043",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 12 re-review after smoke-only fix 2675c4ed0e for F-019: host-run-usage-smoke.ts gained the F-018/F-019 owner-write-failure rollback check (umask 0o277 forces mkdir-succeeded/writeFileSync(owner.json)-EACCES branch; asserts null return, lock dir absent post-rollback, no partial owner.json, and a clean subsequent acquire+release) - verified this binds exactly to acquireLedgerLock writer.ts:322-333 (writeLockOwner returns null -> rmdirSync). All 19 findings F-001..F-019 are dismissed/resolved (0 open). evidence_plan: missing=0 rerun=0 refreshOnly=0 fresh=42/42. Rebuilt dist and re-ran both suites green: test:host-run-usage 51/51, test:usage-sweep 17/17. No new coverage gap found; test coverage review passed.",
+      "createdAt": "2026-07-10T12:47:43.077Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-050",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/usage-ledger/writer.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/package.json",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "679ae5e49c47d5a7a38ec9cee27194c2a493bb33123a0b3522230ae8a8742a6c"
     }
   ]
 }
