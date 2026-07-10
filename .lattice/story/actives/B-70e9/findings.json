@@ -121,7 +121,7 @@
       "desc": "[codex host-B, cross_host_review B-70e9-xhr-r2c] host_run buffers instead of streaming host stdout: the default runner uses spawnSync with piped stdio, withholding all host output until exit, despite the documented contract (docs/host-run-usage.md + CHK-001 DoneWhen: host stdout passes through live, line-streamed, memory-bounded). Long reviewer/quorum runs lose progress observability (the exact B-d8ef complaint) and outputs beyond the 64MiB maxBuffer fail/truncate rather than stream. Fix direction: production runner switches to async spawn, chunks pass through to the caller as they arrive (text mode; json mode routes passthrough to stderr or suppresses it, documented), retaining only bounded data for usage parsing; injected runner seam stays for tests.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host-b",
       "createdAt": "2026-07-10T08:39:18.180Z",
@@ -133,7 +133,11 @@
         "docs/host-run-usage.md"
       ],
       "signatureTag": "edge|ts|codex-host-cross",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 4f5e980f1: default runner switched to async child_process.spawn with live chunk passthrough (text mode stdout->stdout, json mode->stderr keeping stdout clean), UsageLineScanner retains only the last usage-bearing line capped at 1MiB with honest retentionTruncated -> unavailable on parse miss, no 64MiB maxBuffer, exactly-once delivery (no double print), SIGKILL/timeout semantics preserved. Streaming smoke asserts first line reaches the sink >=80ms before exit; smoke total now 33.",
+      "resolvedAt": "2026-07-10T09:00:33.590Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
