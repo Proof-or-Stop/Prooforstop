@@ -218,6 +218,11 @@ particular) at least visible.
     so an inside-root symlink cannot redirect the report outside the project.
   - Missing report directories are created only **after** all of those checks
     pass.
+  - Because `--out` writes a file into the material tree, a **non-empty `--out`
+    is dynamically classified `storyScopedMutating`** by the ownership gate
+    (F-014), so it is refused in read-only reviewer mode
+    (`LATTICE_REVIEWER_READONLY=1`) and on a retired root; without `--out`,
+    `usage_sweep` stays read-only and runnable by any session.
 
 ## Non-goals
 

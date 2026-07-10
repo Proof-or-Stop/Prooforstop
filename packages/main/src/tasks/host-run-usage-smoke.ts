@@ -96,6 +96,7 @@ import {
   HOST_READINESS_PROBE_AGENT_TYPE,
   HOST_READINESS_PROBE_UNAVAILABLE_REASON,
 } from '../handlers/review-escalation.js';
+import { classifyHostExecutionReadiness } from '../core/host-execution-readiness.js';
 import {
   runCodexReviewLeaf,
   CODEX_REVIEW_VERDICT_SCHEMA,
@@ -1123,7 +1124,13 @@ async function main(): Promise<void> {
   // =========================================================================
   check('CHK-003 probe wiring: per-host preflight+unavailable rows (agentType host-readiness-probe), provider mapping, documented reason', () => {
     const sub = freshRoot();
-    const hosts = [{ host: 'codex' }, { host: 'claude' }, { host: 'agy' }];
+    // All three hosts SPAWNED the readiness prompt (F-015 keep-recording kinds:
+    // none = success, timeout / auth = spawned-but-failed) so all three record.
+    const hosts = [
+      { host: 'codex', failureKind: 'none' as const, outputBytes: 12 },
+      { host: 'claude', failureKind: 'timeout' as const, outputBytes: 0 },
+      { host: 'agy', failureKind: 'auth' as const, outputBytes: 40, exitCode: 1 },
+    ];
     const rows = recordHostReadinessProbeUsage({
       root: sub, storyId: 'B-70e9', phase: 'REVIEW', hosts,
       env: ON, recordedAt: '2026-07-10T00:00:00.000Z', projectRootHash: 'sha256:testroot',
@@ -1151,7 +1158,8 @@ async function main(): Promise<void> {
     assert.equal(providerByCommand.get('host-readiness-probe:claude'), 'anthropic');
     assert.equal(providerByCommand.get('host-readiness-probe:agy'), 'antigravity');
 
-    // A failure-shaped probe result records the SAME way (helper reads only host name).
+    // Re-running with the same spawned hosts records the SAME 3 rows (these all
+    // spawned; F-015 filtering is exercised by the dedicated check below).
     const sub2 = freshRoot();
     const rows2 = recordHostReadinessProbeUsage({
       root: sub2, storyId: 'B-70e9', phase: 'probe', hosts,
@@ -1169,6 +1177,80 @@ async function main(): Promise<void> {
     });
     assert.equal(rows3.length, 0, 'OFF -> no rows returned');
     assert.equal(existsSync(join(sub3, '.lattice')), false, 'OFF -> no .lattice dir');
+  });
+
+  // =========================================================================
+  // F-015: no phantom rows for hosts that never spawned the readiness prompt.
+  // The probe returns rows for hosts that never launched a subprocess
+  // (missing_executable / version_failed) or were rejected at launcher-argv
+  // classification BEFORE spawnSync (pre-spawn wrong_launcher). Those must NOT
+  // become usage rows; only a host that actually attempted the readiness
+  // subprocess (here: a timed-out real spawn) may.
+  // =========================================================================
+  check('F-015 probe filter: rows recorded ONLY for hosts whose readiness prompt actually spawned (missing_executable / version_failed / pre-spawn wrong_launcher skipped)', () => {
+    // Build the four honest probe row shapes via the REAL classifier so the
+    // discriminator is exercised against production failureKinds, not hand-forged
+    // labels.
+    const missing = classifyHostExecutionReadiness({ host: 'codex', versionOk: false, durationMs: 0 });
+    assert.equal(missing.failureKind, 'missing_executable', 'no executablePath -> missing_executable (no --version, no readiness spawn)');
+    assert.equal(missing.outputBytes, undefined, 'missing_executable carries no spawn-result evidence');
+
+    const versionFailed = classifyHostExecutionReadiness({ host: 'claude', executablePath: '/usr/bin/claude', versionOk: false, durationMs: 0 });
+    assert.equal(versionFailed.failureKind, 'version_failed', '--version failed -> version_failed (readiness prompt never spawned)');
+    assert.equal(versionFailed.outputBytes, undefined, 'version_failed carries no spawn-result evidence');
+
+    // Pre-spawn wrong_launcher: executablePath+versionOk but a bad launcher argv is
+    // classified BEFORE spawnSync, so no result / no outputBytes.
+    const wrongLauncher = classifyHostExecutionReadiness({ host: 'agy', executablePath: '/usr/bin/agy', versionOk: true, durationMs: 0, observedLauncherArgv: ['agy'] });
+    assert.equal(wrongLauncher.failureKind, 'wrong_launcher', 'bad launcher argv -> wrong_launcher (launcher classification, no spawn)');
+    assert.equal(wrongLauncher.outputBytes, undefined, 'pre-spawn wrong_launcher carries no spawn-result evidence');
+    assert.equal(wrongLauncher.exitCode, undefined, 'pre-spawn wrong_launcher has no exit code');
+
+    // Real attempted host: executablePath+versionOk with a classified spawn result
+    // (a timeout) -> DID launch, so it must record.
+    const attempted = classifyHostExecutionReadiness({
+      host: 'codex',
+      executablePath: '/usr/bin/codex',
+      versionOk: true,
+      durationMs: 5,
+      result: { error: Object.assign(new Error('etimedout'), {}), signal: 'SIGTERM', stderr: '', stdout: '', status: null },
+      timedOut: true,
+      outputBytes: 0,
+    });
+    assert.equal(attempted.failureKind, 'timeout', 'a timed-out spawn is a real launch (keep recording)');
+    assert.notEqual(attempted.outputBytes, undefined, 'a spawned host carries outputBytes (present even at 0)');
+
+    const sub = freshRoot();
+    const rows = recordHostReadinessProbeUsage({
+      root: sub, storyId: 'B-70e9', phase: 'REVIEW',
+      hosts: [
+        { host: 'codex-missing', failureKind: missing.failureKind, ...(missing.exitCode !== undefined ? { exitCode: missing.exitCode } : {}), ...(missing.outputBytes !== undefined ? { outputBytes: missing.outputBytes } : {}) },
+        { host: 'claude-versionfailed', failureKind: versionFailed.failureKind, ...(versionFailed.exitCode !== undefined ? { exitCode: versionFailed.exitCode } : {}), ...(versionFailed.outputBytes !== undefined ? { outputBytes: versionFailed.outputBytes } : {}) },
+        { host: 'agy-wronglauncher', failureKind: wrongLauncher.failureKind, ...(wrongLauncher.exitCode !== undefined ? { exitCode: wrongLauncher.exitCode } : {}), ...(wrongLauncher.outputBytes !== undefined ? { outputBytes: wrongLauncher.outputBytes } : {}) },
+        { host: 'codex-attempted', failureKind: attempted.failureKind, ...(attempted.exitCode !== undefined ? { exitCode: attempted.exitCode } : {}), ...(attempted.outputBytes !== undefined ? { outputBytes: attempted.outputBytes } : {}) },
+      ],
+      env: ON, recordedAt: '2026-07-10T00:00:00.000Z', projectRootHash: 'sha256:testroot',
+    });
+
+    // Only the attempted host is returned + written.
+    assert.equal(rows.length, 1, 'exactly one host recorded (the attempted spawn)');
+    assert.equal(rows[0].host, 'codex-attempted', 'the recorded host is the one that actually spawned');
+    const records = readLedger(sub);
+    assert.equal(records.length, 2, 'one recorded host -> estimate + unavailable final only');
+    for (const r of records) {
+      assert.equal(r.command, 'host-readiness-probe:codex-attempted', 'no ledger row for a non-spawning host');
+    }
+
+    // OFF is still a strict no-op even with a spawning host present.
+    const subOff = freshRoot();
+    const OFF = { LATTICE_USAGE_LEDGER: '0' } as NodeJS.ProcessEnv;
+    const offRows = recordHostReadinessProbeUsage({
+      root: subOff, storyId: 'B-70e9', phase: 'REVIEW',
+      hosts: [{ host: 'codex-attempted', failureKind: 'timeout', outputBytes: 0 }],
+      env: OFF, recordedAt: '2026-07-10T00:00:00.000Z', projectRootHash: 'sha256:testroot',
+    });
+    assert.equal(offRows.length, 0, 'OFF -> no rows even for a spawned host');
+    assert.equal(existsSync(join(subOff, '.lattice')), false, 'OFF -> no .lattice dir');
   });
 
   // =========================================================================
@@ -1245,7 +1327,12 @@ async function main(): Promise<void> {
     const sub2 = freshRoot();
     seedCorruptLedger(sub2);
     const rows = recordHostReadinessProbeUsage({
-      root: sub2, storyId: 'B-70e9', phase: 'probe', hosts: [{ host: 'codex' }, { host: 'claude' }, { host: 'agy' }],
+      root: sub2, storyId: 'B-70e9', phase: 'probe',
+      hosts: [
+        { host: 'codex', failureKind: 'none', outputBytes: 12 },
+        { host: 'claude', failureKind: 'timeout', outputBytes: 0 },
+        { host: 'agy', failureKind: 'auth', outputBytes: 40, exitCode: 1 },
+      ],
       env: ON, recordedAt: '2026-07-10T00:00:00.000Z', projectRootHash: 'sha256:testroot',
     });
     assert.equal(rows.length, 3, 'probe wiring returned without throwing');

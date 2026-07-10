@@ -32,6 +32,7 @@ import {
   evaluateReviewAssuranceFloor,
   renderReviewAssuranceGuidance,
 } from '../core/review-assurance-floor.js';
+import type { HostExecutionFailureKind } from '../core/host-execution-readiness.js';
 
 type FormatArgs = { json?: boolean; format?: 'text' | 'json' };
 
@@ -125,12 +126,24 @@ function probeProviderName(host: string): string {
   return host === 'codex' ? 'openai' : host === 'claude' ? 'anthropic' : 'antigravity';
 }
 
+/** The per-host discriminator fields read from the frozen probe row shape (F-015). */
+export interface HostReadinessProbeAttempt {
+  host: string;
+  failureKind: HostExecutionFailureKind;
+  exitCode?: number;
+  outputBytes?: number;
+}
+
 export interface HostReadinessProbeUsageInput {
   root: string;
   storyId: string | null;
   phase: string;
-  /** The probed hosts (only the `host` name is read; the probe row shape is otherwise frozen). */
-  hosts: ReadonlyArray<{ host: string }>;
+  /**
+   * The probed hosts. `host` names the provider; `failureKind` (+ exitCode/outputBytes
+   * for the wrong_launcher case) is the F-015 discriminator for whether a readiness
+   * subprocess actually launched — see readinessProbeSubprocessLaunched.
+   */
+  hosts: ReadonlyArray<HostReadinessProbeAttempt>;
   env: NodeJS.ProcessEnv;
   recordedAt: string;
   projectRootHash: string;
@@ -139,6 +152,42 @@ export interface HostReadinessProbeUsageInput {
 export interface HostReadinessProbeUsageRow {
   host: string;
   recordId: string | null;
+}
+
+/**
+ * F-015 discriminator: did this host's readiness-prompt subprocess actually launch?
+ *
+ * probeHostExecutionReadiness() only reaches the readiness-prompt spawnSync when a
+ * host has BOTH an executablePath AND versionOk. Two failureKinds are decided
+ * strictly BEFORE that spawn, so they represent NO subprocess and NO LLM call:
+ *   - missing_executable : resolveExecutablePath found nothing (no --version, no readiness spawn)
+ *   - version_failed     : --version ran but failed, so the readiness prompt was never spawned
+ *
+ * wrong_launcher is ambiguous. classifyHostExecutionReadiness() returns it from the
+ * launcher-argv classification path BEFORE spawnSync (a non-spawn that carries NO
+ * spawn-result evidence — no exitCode, no outputBytes), while
+ * classifyHostExecutionFailure() can ALSO return it AFTER a real spawn when the
+ * launched CLI rejected a flag (a classified result → outputBytes present). Only the
+ * pre-spawn variety is a non-call, so wrong_launcher is skipped ONLY when the row
+ * carries no spawn-result evidence.
+ *
+ * Every other failureKind (none / timeout / auth / silent_final_output / unsupported /
+ * unknown) implies a classified spawn result — the subprocess DID launch — so those
+ * keep recording a usage row. This is exactly the honest boundary the finding asks
+ * for: skip phantom rows for hosts that never spawned the readiness prompt.
+ */
+function readinessProbeSubprocessLaunched(probed: HostReadinessProbeAttempt): boolean {
+  if (probed.failureKind === 'missing_executable' || probed.failureKind === 'version_failed') {
+    return false;
+  }
+  if (
+    probed.failureKind === 'wrong_launcher' &&
+    probed.exitCode === undefined &&
+    probed.outputBytes === undefined
+  ) {
+    return false;
+  }
+  return true;
 }
 
 /**
@@ -152,6 +201,10 @@ export function recordHostReadinessProbeUsage(input: HostReadinessProbeUsageInpu
   if (!isUsageLedgerEnabled(input.env)) return rows;
 
   for (const probed of input.hosts) {
+    // F-015: skip hosts whose readiness prompt never spawned (missing_executable /
+    // version_failed / pre-spawn wrong_launcher). Recording preflight+unavailable
+    // rows for them would fabricate phantom LLM calls the host never made.
+    if (!readinessProbeSubprocessLaunched(probed)) continue;
     const host = probed.host;
     const ctx: DispatchUsageContext = {
       storyId: input.storyId,
@@ -389,7 +442,14 @@ export function createReviewEscalationHandlers(ctx: HandlerContext) {
           root: ctx.root,
           storyId: args.storyId,
           phase: resolveProbeStoryPhase(ctx, args.storyId),
-          hosts: event.hosts.map(row => ({ host: row.host })),
+          // Carry the F-015 discriminator (failureKind + spawn-result evidence) so the
+          // helper records ONLY hosts whose readiness prompt actually spawned.
+          hosts: event.hosts.map(row => ({
+            host: row.host,
+            failureKind: row.failureKind,
+            ...(row.exitCode !== undefined ? { exitCode: row.exitCode } : {}),
+            ...(row.outputBytes !== undefined ? { outputBytes: row.outputBytes } : {}),
+          })),
           env: process.env,
           recordedAt: new Date().toISOString(),
           projectRootHash: projectRootHashForProbe(ctx.root),

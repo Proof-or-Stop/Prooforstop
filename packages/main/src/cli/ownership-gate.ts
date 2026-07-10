@@ -130,6 +130,20 @@ export function resolveEffectiveOwnershipClass(
     cls = args.write === true || args.write === 'true' ? 'storyScopedMutating' : 'readOnly';
   }
 
+  if (cmd === 'usage_sweep') {
+    // F-014: usage_sweep is a read-only diagnostic, but an explicit --out writes a
+    // JSON report file INSIDE the project root. Mirror the --write boundary rules
+    // (plan_skeleton/evidence_refresh/live_smoke_transcript/delivery_context_pack):
+    // a non-empty --out is dynamically treated as storyScopedMutating so a read-only
+    // reviewer session (LATTICE_REVIEWER_READONLY / retired root) can NOT create a
+    // file in the material tree. Without --out it writes nothing and stays
+    // readOnly/ungated (runnable by any session). The path is normalized the same
+    // way the handler does (typeof string + trim) so a blank/whitespace --out is
+    // NOT a write.
+    const out = args.out;
+    cls = typeof out === 'string' && out.trim().length > 0 ? 'storyScopedMutating' : 'readOnly';
+  }
+
   if (cmd === 'done_prepare' && args.dryRun === true) {
     cls = 'readOnly';
   }

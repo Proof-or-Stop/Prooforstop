@@ -52,6 +52,8 @@ import {
 import { StoryStore } from '../core/store.js';
 import { createUsageSweepHandlers, NON_AUTHORITATIVE_HEADER } from '../handlers/usage-sweep.js';
 import type { HandlerContext } from '../handlers/context.js';
+import { getCommandPolicy } from '../core/command-policy.js';
+import { resolveEffectiveOwnershipClass } from '../cli/ownership-gate.js';
 
 let passed = 0;
 const failures: string[] = [];
@@ -423,6 +425,39 @@ async function main(): Promise<void> {
       );
     }
     assert.ok(!existsSync(join(root, 'escape.json')), 'no traversal file appeared outside the fixture project root');
+  });
+
+  // ── 17. F-014: --out escalates the effective ownership class ───────────────
+  // usage_sweep is a readOnly diagnostic, but --out writes a file inside the
+  // project root, so a read-only reviewer session must not be able to run it.
+  // The base policy stays readOnly (default preview ungated); the ownership gate
+  // dynamically escalates a non-empty --out to storyScopedMutating (mirrors the
+  // plan_skeleton/evidence_refresh/live_smoke_transcript/delivery_context_pack
+  // --write boundary rules). Asserted as a pure resolver call like the other
+  // policy smokes.
+  await checkAsync('F-014: --out resolves usage_sweep to storyScopedMutating; no --out stays readOnly (base policy still readOnly/none)', async () => {
+    const policy = getCommandPolicy('usage_sweep');
+    assert.equal(policy?.ownershipClass, 'readOnly', 'usage_sweep base policy is readOnly');
+    assert.equal(policy?.destructiveRisk, 'none', 'usage_sweep base policy has no static destructive risk');
+
+    // No --out (read-only preview) → effectively readOnly (runnable by any session).
+    assert.equal(
+      resolveEffectiveOwnershipClass('usage_sweep', { since: '7d' }, null),
+      'readOnly',
+      'usage_sweep without --out is effectively readOnly',
+    );
+    // A blank / whitespace-only --out is NOT a write → still readOnly.
+    assert.equal(
+      resolveEffectiveOwnershipClass('usage_sweep', { since: '7d', out: '   ' }, null),
+      'readOnly',
+      'a blank --out is not a write and stays readOnly',
+    );
+    // A non-empty --out escalates to owner-gated storyScopedMutating.
+    assert.equal(
+      resolveEffectiveOwnershipClass('usage_sweep', { since: '7d', out: 'reports/sweep.json' }, null),
+      'storyScopedMutating',
+      'a non-empty --out is effectively storyScopedMutating (a read-only reviewer session cannot create the file)',
+    );
   });
 }
 
