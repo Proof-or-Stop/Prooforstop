@@ -1106,6 +1106,25 @@
         "scanEscalationReason": null
       },
       "_hash": "85ae8d174ac141d9873a0ed0e0b876e40dc73330d31b76534e1c566f96a87f02"
+    },
+    {
+      "id": "B-70e9:RP-047",
+      "agent": "lattice-review-docs",
+      "note": "Round 13 re-review of handler-only fix e78408cb5c. Symbol extraction (Step 1) against the full main...HEAD diff yielded ~400 symbols (whole-story scope); narrowed per this re-review task to the single commit under test. Compared the extended docs/host-run-usage.md sentence (lines 67-78, naming async stream errors/EPIPE explicitly) against packages/main/src/handlers/host-run.ts: listener attach at lines 265-266 and removal in the finally block at lines 353-357 matches the doc's attach-and-remove claim; recordStreamError / asyncStreamError (lines 216, 246-254) merged into the surfaced passthroughError at line 301 matches the containment claim; emitStderr gated by stderrBroken (lines 223, 247, 258-261) matches the skipped-diagnostic-writes claim; the sync-vs-async distinction in the doc matches the passthrough sink try/catch (lines 224-237) vs the async listeners. Cross-checked tasks/host-run-usage-smoke.ts (F-020 block, lines 27-31) which independently describes the same real-EPIPE / driver-exit-0 / non-null-passthroughError behavior consistently with the doc. Confirmed docs/host-run-usage.md is the only markdown location mentioning EPIPE or passthroughError (grep across docs/, CLAUDE.md, README files) so no other paragraph went stale. CHANGELOG.md was not touched by this commit; its existing high-level B-70e9 entry does not itemize this micro-fix, consistent with prior granularity. No inconsistencies found.",
+      "createdAt": "2026-07-10T13:19:20.302Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-056",
+      "readManifest": {
+        "filesReadFully": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "0a2cf004f5c7741e3b2b4da0284790e2e49f89fc36070d2c54a4429ad20a3b01"
     }
   ]
 }
