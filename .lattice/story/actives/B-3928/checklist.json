@@ -148,15 +148,16 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "node scripts/verify-proof-or-stop-prompt-baseline.mjs reports legacy verification vocabulary findings are baseline-classified and no unregistered active-prompt legacy vocabulary exists.",
+      "userSees": "User sees \"PASS proof-or-stop prompt baseline: legacy vocabulary findings classified\" in node scripts/verify-proof-or-stop-prompt-baseline.mjs output.",
       "files": {
-        "modify": [],
+        "modify": [
+          "package.json"
+        ],
         "create": [
           "docs/requirements/baselines/proof-or-stop-prompt-baseline.json"
         ],
         "test": [
-          "scripts/verify-proof-or-stop-prompt-baseline.mjs",
-          "package.json"
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
         ]
       },
       "verificationIntent": {
