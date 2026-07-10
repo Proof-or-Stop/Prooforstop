@@ -1318,6 +1318,24 @@
         "scanEscalationReason": null
       },
       "_hash": "0b4e76f5028405a97634352cccd5403050fe3282dbd80ee50371cd9e232b4320"
+    },
+    {
+      "id": "B-70e9:RP-056",
+      "agent": "lattice-review-concept",
+      "note": "Round-16 concept residue check on F-023 fix (commit 30d8ffa117). No concept was deleted or replaced en masse: safeWriteStderr was removed as a named helper and folded directly into emitStderr (now settle-aware, returns Promise<void>, writes via process.stderr.write(text, callback) and resolves on the callback), but this is a refactor/inlining of a private helper, not a concept rename requiring repo-wide propagation. grep -rn safeWriteStderr across *.ts/*.md/*.json (excluding node_modules/dist/.git) finds zero hits in live source or docs; all 3 remaining hits are inside .lattice/story/actives/B-70e9/{findings.json,review-passes.json} — append-only historical audit records describing prior-round code/findings, not code or doc residue. Confirmed emitStderr(text) is awaited at all 3 call sites in handlers/host-run.ts. stderrBroken gate variable retained verbatim. New F-023 smoke check and the one doc-clause addition both verified to match shipped emitStderr behavior (doc-promise cross-check: pass). Ran build (tsc clean) and host-run-usage smoke myself: 55/55 including the new F-023 check. No blocker.",
+      "createdAt": "2026-07-10T14:15:07.236Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-065",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "3dbb8214c068a1a0ae34f745f51a45746bf864c1eeffe2f3998d74d77142243c"
     }
   ]
 }
