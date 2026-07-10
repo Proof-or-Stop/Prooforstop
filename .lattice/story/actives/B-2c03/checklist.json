@@ -223,11 +223,11 @@
           "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
           "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
           "result": "pass",
-          "note": "Decision NARROW implemented: bare 'remaining' no longer matches; 'remaining <scope-noun>' (work/scope/items/cases/tasks/milestones/features/functionality/coverage/requirements/deliverables) still matches. Smoke asserts both directions (preexistingDone=no gap, remainingScopeDone=gap).",
-          "headHash": "2cbf29dac8ae720710778e7371df82d35528b7e4",
+          "note": "Re-bound at post-review head: NARROW decision implemented as remaining[\\s./_-]+<scope-noun> (connector widened by F-003/F-008); behavior matches plan.md decision section.",
+          "headHash": "c930a29f173fc79b78f26c54af012df6f80d02d9",
           "materialHash": "7806164814b9e7f47c83fdc67a22b912be27a9a17d3b7d5dd5ef957fabcc5c11",
           "storyFilesHash": "d3cadf890d2c2b0a74e1d2429b37587035eea4c5b32155d35e009d816878e6c8",
-          "timestamp": "2026-07-10T17:56:39.261Z"
+          "timestamp": "2026-07-10T17:57:33.549Z"
         },
         {
           "intentRef": "remaining-breadth-decision:edge",
