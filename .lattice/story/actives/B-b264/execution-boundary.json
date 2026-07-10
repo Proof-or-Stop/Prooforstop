@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-b264",
+  "allowedCommands": [
+    "git diff *",
+    "git log *",
+    "git status *",
+    "node packages/main/dist/cli.js *",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main run test:done-prepare-merge-rerun-smoke",
+    "npm test -- --runInBand",
+    "rg *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "multi_agent",
+    "shell"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/B-b264/**",
+    "docs/dev/test-coverage.md",
+    "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+    "docs/requirements/decisions/story-files-hash-material-drift.md",
+    "packages/main/package.json",
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts"
+  ],
+  "excludedCommands": [
+    "git checkout -- *",
+    "git clean *",
+    "git reset --hard *",
+    "omx *",
+    "rm -rf *"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx/**"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "B-b264 is limited to done_prepare merge/rerun UX, dryRun safety proof, and focused regression wiring. Do not auto-resolve merge conflicts, stash/delete unrelated files, or self-sign reviewer/host evidence.",
+  "createdAt": "2026-07-10T04:10:30.545Z",
+  "updatedAt": "2026-07-10T04:10:30.545Z",
+  "_hash": "8ccecdea28c9d689660906d69a3d6db35113ee41ac6280edcc876d8a56f37481"
+}
