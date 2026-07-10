@@ -21,7 +21,9 @@
  *     (slot-0..slot-(cap-1) wx create IS the cap decision) under real contention
  *     (cap=1 double-admission, stale-reclaim race with exactly one winner).
  *     F-004: blocked rows are provider-honest (codex=openai, agy=antigravity,
- *     claude=anthropic byte-compat).
+ *     claude=anthropic byte-compat). F-008: a throwing passthrough sink degrades
+ *     honestly (run completes, no per-chunk retry, usage final records, slot
+ *     releases, passthroughError reported) instead of crashing the run.
  *   - CHK-003: the remaining lattice-initiated host spawns route through the same
  *     seam — autopilot claude repair (ledger ON adds --output-format json + records
  *     estimate/final rows with agentType autopilot-repair and an envelope-parsed
@@ -632,6 +634,69 @@ async function main(): Promise<void> {
     );
     assert.equal(summ.usageSummary.recorded, 'unavailable', 'empty retention -> unavailable, not a fabricated zero');
     assert.equal(summ.usageSummary.input, null);
+  });
+
+  // =========================================================================
+  // F-008: a throwing passthrough sink must degrade honestly, never crash the
+  // run. Against the OLD code this check dies twice: (a) the default runner
+  // let the onChunk throw escape a stdout 'data' listener as an uncaught
+  // EventEmitter exception (process crash, orphaned child, leaked slot); (b)
+  // the core's onChunk wrapper rethrew, so runHostRun rejected with NO ledger
+  // final and NO result.
+  // =========================================================================
+  await checkAsync('F-008: throwing passthrough — run completes, no retry, final row records, slot releases, exit + passthroughError propagate', async () => {
+    // (a) Default streaming runner + real child: onChunk throws on the FIRST
+    // chunk; later chunks must NOT retry the broken sink but MUST still reach
+    // the usage scanner; the child's exit code must still propagate.
+    let onChunkCalls = 0;
+    const script =
+      'process.stdout.write("first-chunk\\n");' +
+      'setTimeout(function(){' +
+      'process.stdout.write(JSON.stringify({type:"turn.completed",usage:{input_tokens:5,cached_input_tokens:0,output_tokens:2}})+"\\n");' +
+      'setTimeout(function(){process.exit(7);}, 60);' +
+      '}, 120);';
+    const spawnResult = await defaultHostRunRunner({
+      command: process.execPath,
+      argv: ['-e', script],
+      env: process.env,
+      host: 'codex',
+      retainUsageLine: usageLineRetainerFor('codex'),
+      onChunk: () => {
+        onChunkCalls += 1;
+        throw new Error('EPIPE: simulated consumer closed the pipe');
+      },
+    });
+    assert.equal(onChunkCalls, 1, 'delivery stops at the FIRST sink failure (no per-chunk retry)');
+    assert.equal(spawnResult.exitCode, 7, 'child exit code still propagates');
+    assert.ok(spawnResult.passthroughError?.includes('EPIPE'), 'runner result reports the sink failure');
+    const retained = scanCodexTurnCompletedUsage(spawnResult.stdout) as Record<string, unknown> | null;
+    assert.ok(retained && retained.input_tokens === 5, 'usage scanner kept consuming after the sink broke');
+
+    // (b) End-to-end through runHostRun (ledger ON, cap=1): a streaming fake
+    // runner drives the core onChunk wrapper against a throwing passthrough dep.
+    const sub = freshRoot();
+    const env = { LATTICE_USAGE_LEDGER: '1', LATTICE_HOST_RUN_MAX_CONCURRENT: '1' } as NodeJS.ProcessEnv;
+    let sinkCalls = 0;
+    const passthrough: HostRunPassthrough = () => {
+      sinkCalls += 1;
+      throw new Error('EPIPE: simulated consumer closed the pipe');
+    };
+    const streamingRunner: HostRunRunner = (plan) => {
+      plan.onChunk?.({ stream: 'stdout', text: 'live-one\n' });
+      plan.onChunk?.({ stream: 'stdout', text: CODEX_STDOUT });
+      return { stdout: CODEX_STDOUT, stderr: '', exitCode: 0, timedOut: false };
+    };
+    const result = await runHostRun(baseArgs({ root: sub, host: 'codex', env }), { runner: streamingRunner, passthrough });
+    assert.equal(sinkCalls, 1, 'core wrapper never re-invokes the broken sink');
+    assert.equal(result.spawned, true, 'the run completed instead of crashing');
+    assert.equal(result.exitCode, 0, 'exit code propagates');
+    assert.ok(result.passthroughError?.includes('EPIPE'), 'result surfaces passthroughError honestly');
+    const records = readLedger(sub);
+    assert.ok(records.some((r) => r.usage.source === 'provider-reported'), 'the ledger final row still records');
+    // Slot released despite the broken sink: a fresh cap=1 admission succeeds.
+    const dir = hostRunSlotsDir(sub);
+    const after = acquireHostRunSlot(dir, 1, 6 * 60 * 60 * 1000, Date.now(), slotMeta('after-broken-sink'));
+    assert.equal(after, join(dir, 'slot-0.json'), 'concurrency slot was released (cap=1 re-admission succeeds)');
   });
 
   // =========================================================================

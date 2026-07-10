@@ -57,6 +57,11 @@ In `--json` mode the full host transcript is delivered live on **stderr** so tha
 **stdout stays clean** for the one JSON result; the JSON `stdout` field therefore
 carries only the bounded usage-parse tail, not the full transcript.
 
+If the live passthrough sink fails mid-run (e.g. `EPIPE` after the consuming
+pipe closes), delivery stops at the first failure but the run, usage recording,
+and slot release still complete: text mode prints a `host_run warning:` line to
+stderr and the `--json` result carries a non-null `passthroughError` field.
+
 Exactly one of `--prompt` / `--promptFile` is required. A host non-zero exit (or
 a cap refusal) propagates as a non-zero process exit; in `--json` mode the
 command never throws and `exitCode` is a field.

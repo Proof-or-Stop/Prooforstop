@@ -58,7 +58,11 @@ export interface HostRunCommandArgs extends FormatArgs {
 }
 
 export interface CreateHostRunHandlersOptions {
-  /** Test seam: inject a fake host runner (production uses the piped spawnSync default). */
+  /**
+   * Test seam: inject a fake host runner. Production uses the async streaming
+   * defaultHostRunRunner (core/host-run.ts): child_process.spawn with live
+   * chunk passthrough and bounded usage-line retention.
+   */
   runner?: HostRunRunner;
 }
 
@@ -77,6 +81,8 @@ export interface HostRunCommandResult {
   stdout: string;
   stderr: string;
   usage: HostRunResult['usageSummary'];
+  /** F-008: non-null when the live output passthrough failed mid-run (run still completed). */
+  passthroughError: string | null;
 }
 
 function normalizeString(value: unknown): string {
@@ -97,6 +103,20 @@ function normalizeHost(raw: string): HostRunHost {
 
 function projectRootHashFor(root: string): string {
   return `sha256:${createHash('sha256').update(root, 'utf8').digest('hex')}`;
+}
+
+/**
+ * F-008: the handler's own diagnostic writes (usage line, passthrough warning)
+ * are best-effort — a broken stderr must not turn a completed run into a crash.
+ * Consistent with the core's passthrough guard, which contains sink failures
+ * during the run itself.
+ */
+function safeWriteStderr(text: string): void {
+  try {
+    process.stderr.write(text);
+  } catch {
+    // best-effort diagnostics
+  }
 }
 
 /** Format the single stderr usage-summary / refusal line. */
@@ -179,9 +199,18 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
 
       // F-006: live passthrough. text mode routes host stdout->stdout / stderr->stderr;
       // json mode routes EVERYTHING to stderr so stdout stays clean for the JSON result.
+      // F-008: a synchronous write failure (e.g. EPIPE after the consumer closed the
+      // pipe) is normalized and thrown to the CORE guard, which flips its
+      // passthrough-broken flag: delivery stops, the run still completes, and
+      // result.passthroughError surfaces the failure honestly. Swallowing here would
+      // hide the failure from that flag.
       const passthrough: HostRunPassthrough = (chunk: HostRunChunk) => {
-        if (json || chunk.stream === 'stderr') process.stderr.write(chunk.text);
-        else process.stdout.write(chunk.text);
+        try {
+          if (json || chunk.stream === 'stderr') process.stderr.write(chunk.text);
+          else process.stdout.write(chunk.text);
+        } catch (err) {
+          throw err instanceof Error ? err : new Error(`host_run passthrough write failed: ${String(err)}`);
+        }
       };
 
       const result = await runHostRun(
@@ -205,11 +234,17 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
 
       const usageLine = formatUsageLine(result);
 
+      // F-008: honest degradation notice — the run completed, but live output
+      // delivery broke partway (text mode prints it; json mode carries the field).
+      const passthroughWarning = result.passthroughError
+        ? `host_run warning: live output passthrough failed (${result.passthroughError}); output delivery degraded but the run and usage recording completed\n`
+        : null;
+
       if (json) {
         // Machine mode: the full host transcript already streamed to stderr; the
         // JSON payload (exitCode, usage, refusal, bounded stdout tail) is the
         // single stdout line. The engine prints it; exitCode is a field.
-        process.stderr.write(`${usageLine}\n`);
+        safeWriteStderr(`${usageLine}\n`);
         return {
           schemaVersion: 'lattice.host_run.v1',
           host: result.host,
@@ -225,15 +260,17 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
           stdout: result.stdout,
           stderr: result.stderr,
           usage: result.usageSummary,
+          passthroughError: result.passthroughError,
         };
       }
 
       // Text mode. Host output already streamed live through the passthrough, so
       // the handler never re-prints it (no double-print).
+      if (passthroughWarning) safeWriteStderr(passthroughWarning);
       if (result.blocked || result.exitCode !== 0 || result.timedOut) {
         // Failure / refusal: usage/refusal line to stderr, then throw so the
         // process exits nonzero (engine forces exit 0 on a normal return).
-        process.stderr.write(`${usageLine}\n`);
+        safeWriteStderr(`${usageLine}\n`);
         if (result.blocked) {
           throw new Error(`host_run refused (${result.refusalReason}); no host was launched`);
         }
@@ -242,7 +279,7 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
       }
 
       // Success: output already streamed; nothing left to print.
-      process.stderr.write(`${usageLine}\n`);
+      safeWriteStderr(`${usageLine}\n`);
       return '';
     },
   };

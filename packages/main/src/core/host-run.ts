@@ -133,6 +133,13 @@ export interface HostRunSpawnResult {
    * value) because there is no reliable parse target.
    */
   retentionTruncated?: boolean;
+  /**
+   * F-008: non-null when the live passthrough sink threw (e.g. EPIPE after the
+   * consumer closed the pipe). Delivery stopped at the FIRST failure (no
+   * per-chunk retry) but the run itself completed and usage scanning continued;
+   * the message surfaces the degradation honestly instead of crashing the run.
+   */
+  passthroughError?: string | null;
 }
 
 export type HostRunRunner = (plan: HostRunSpawnPlan) => HostRunSpawnResult | Promise<HostRunSpawnResult>;
@@ -212,6 +219,13 @@ export interface HostRunResult {
   stdout: string;
   stderr: string;
   usageSummary: HostRunUsageSummary;
+  /**
+   * F-008: non-null when the live passthrough sink failed mid-run (first failure
+   * disables further delivery; the run, usage parsing, slot release, and the
+   * ledger final all still complete). Null when live output delivered cleanly
+   * or the run never spawned.
+   */
+  passthroughError: string | null;
 }
 
 /** Nonzero process-exit sentinel for a fail-closed cap refusal. */
@@ -722,6 +736,24 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan): Promise<HostRunSpa
     let timedOut = false;
     let timer: NodeJS.Timeout | null = null;
 
+    // F-008: a throwing onChunk (e.g. EPIPE from a closed consumer pipe) must
+    // never escape a 'data' listener as an uncaught EventEmitter exception —
+    // that would crash the process, orphan the child, and leak the concurrency
+    // slot. First failure flips the flag: delivery stops (no per-chunk retry),
+    // chunks keep flowing to the usage scanner, and the run finishes normally
+    // with the failure surfaced on the result.
+    let passthroughBroken = false;
+    let passthroughError: string | null = null;
+    const deliver = (chunk: HostRunChunk): void => {
+      if (passthroughBroken || !plan.onChunk) return;
+      try {
+        plan.onChunk(chunk);
+      } catch (err) {
+        passthroughBroken = true;
+        passthroughError = err instanceof Error ? err.message : String(err);
+      }
+    };
+
     const finish = (exitCode: number): void => {
       if (settled) return;
       settled = true;
@@ -733,6 +765,7 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan): Promise<HostRunSpa
         exitCode,
         timedOut,
         retentionTruncated: scanner.truncated,
+        passthroughError,
       });
     };
 
@@ -768,12 +801,12 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan): Promise<HostRunSpa
 
     child.stdout?.setEncoding('utf8');
     child.stdout?.on('data', (text: string) => {
-      if (plan.onChunk) plan.onChunk({ stream: 'stdout', text });
+      deliver({ stream: 'stdout', text });
       scanner.push(text);
     });
     child.stderr?.setEncoding('utf8');
     child.stderr?.on('data', (text: string) => {
-      if (plan.onChunk) plan.onChunk({ stream: 'stderr', text });
+      deliver({ stream: 'stderr', text });
     });
 
     child.on('error', () => finish(timedOut ? 124 : 1));
@@ -848,12 +881,26 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
    * runner delivers nothing live, so its buffered stdout/stderr is flushed to the
    * passthrough ONCE here. Either way host output reaches the sink EXACTLY ONCE,
    * so the handler never double-prints.
+   *
+   * F-008: every passthrough invocation is guarded. A throwing sink flips
+   * `passthroughFailure` on the FIRST failure and delivery stops (no per-chunk
+   * retry) — the run, usage parsing, slot release, and the ledger final all
+   * still complete, and the failure is surfaced on the result.
    */
+  let passthroughFailure: string | null = null;
+  const safeDeliver = (chunk: HostRunChunk): void => {
+    if (passthroughFailure !== null) return;
+    try {
+      passthrough(chunk);
+    } catch (err) {
+      passthroughFailure = err instanceof Error ? err.message : String(err);
+    }
+  };
   const invokeRunner = async (launch: MaterializedLaunch): Promise<HostRunSpawnResult> => {
     let streamed = false;
     const onChunk = (chunk: HostRunChunk): void => {
       streamed = true;
-      passthrough(chunk);
+      safeDeliver(chunk);
     };
     let spawn: HostRunSpawnResult;
     try {
@@ -871,8 +918,13 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
       launch.cleanup();
     }
     if (!streamed) {
-      if (spawn.stdout.length > 0) passthrough({ stream: 'stdout', text: spawn.stdout });
-      if (spawn.stderr.length > 0) passthrough({ stream: 'stderr', text: spawn.stderr });
+      if (spawn.stdout.length > 0) safeDeliver({ stream: 'stdout', text: spawn.stdout });
+      if (spawn.stderr.length > 0) safeDeliver({ stream: 'stderr', text: spawn.stderr });
+    }
+    // A runner that guards its own onChunk calls (the default) reports the sink
+    // failure on ITS result; merge it so the caller sees one honest field.
+    if (passthroughFailure === null && typeof spawn.passthroughError === 'string' && spawn.passthroughError.length > 0) {
+      passthroughFailure = spawn.passthroughError;
     }
     return spawn;
   };
@@ -912,6 +964,7 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
       stdout: spawn.stdout,
       stderr: spawn.stderr,
       usageSummary: disabledSummary(),
+      passthroughError: passthroughFailure,
     };
   }
 
@@ -954,6 +1007,7 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
           budget.hardBudgetTokens !== null ? `, cap ${budget.hardBudgetTokens}` : ''
         })`,
       },
+      passthroughError: null,
     };
   }
 
@@ -999,6 +1053,7 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
         recordId: blockRow.recordId,
         reason: `concurrency_cap_exceeded (${live.length} live host runs, cap ${cap})`,
       },
+      passthroughError: null,
     };
   }
 
@@ -1025,6 +1080,7 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
     stdout: spawn.stdout,
     stderr: spawn.stderr,
     usageSummary: summary,
+    passthroughError: passthroughFailure,
   };
 }
 
