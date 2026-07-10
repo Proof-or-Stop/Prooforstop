@@ -1,0 +1,105 @@
+{
+  "storyId": "B-b264",
+  "checkedAt": "2026-07-10T04:22:53.056Z",
+  "features": [
+    {
+      "feature": "Pre-DONE merge hazard guidance for untracked-overwrite hazards, branch divergence, generated metadata blockers, and unrelated dirty files with exact paths and safe next steps.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist_get CHK-001; plan_get CHK-001; docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md#M5---Re-run-And-Merge-Preflight-UX"
+    },
+    {
+      "feature": "Hazard reporting must not auto-resolve merge conflicts, stash, delete, overwrite, or commit unrelated user work.",
+      "covered_by": "CHK-001; CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist_get CHK-001 adversarial; checklist_get CHK-003 adversarial; plan_get Scope Boundary; docs/requirements/decisions/done-prepare-automation-execution-plan.md#Scope"
+    },
+    {
+      "feature": "done_prepare rerun reason summary for previous generated metadata, main merge, material/storyFiles binding changes, and refreshed evidence.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist_get CHK-002; plan_get CHK-002; docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md#M5---Re-run-And-Merge-Preflight-UX"
+    },
+    {
+      "feature": "Rerun guidance must explain current material binding and must not imply reviewer, host, fallback, quorum, delivery, or review-assurance evidence can be self-attested.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist_get CHK-002 adversarial; plan_get CHK-002; docs/requirements/decisions/done-prepare-automation-execution-plan.md#Command-Contract"
+    },
+    {
+      "feature": "Generated metadata guidance distinguishes files produced by the current done_prepare run from pre-existing same-story lifecycle metadata and unrelated dirty rows, including hash-included or hash-excluded binding impact.",
+      "covered_by": "CHK-002; CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist_get CHK-002 edge; checklist_get CHK-003 edge; docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md#M4---Actionable-Blocker-Summary; docs/requirements/decisions/story-files-hash-material-drift.md"
+    },
+    {
+      "feature": "done_prepare --dryRun remains side-effect free for git state, evidence files, lifecycle metadata, process events, review artifacts, and gate-participating timestamps.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist_get CHK-003; plan_get CHK-003; docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md#M5---Re-run-And-Merge-Preflight-UX"
+    },
+    {
+      "feature": "Focused regression smoke and package script prove merge/rerun hazards, generated-file ownership, and dryRun immutability without broad lifecycle refactors.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist_get CHK-003 files.test; plan_get CHK-003; docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md#M6---Regression-Verification"
+    },
+    {
+      "feature": "M0-M2 incident fixture, closure progress labels, and post-validation heartbeat implementation.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Out of B-b264 Story C scope; handled by the earlier split for done_prepare post-validation progress and heartbeat.",
+      "source": "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md#Story-Slicing-Recommendation"
+    },
+    {
+      "feature": "M3-M4 early review-assurance surfacing and the broad blocker-summary surfaces outside merge/rerun UX.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Out of B-b264 Story C scope; handled by separate review-assurance/blocker-summary work and not required for CHK-001/002/003.",
+      "source": "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md#Story-Slicing-Recommendation"
+    },
+    {
+      "feature": "B-783c global-thin activity-root or cli-engine runtime activity logging changes.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicit non-goal unless this story touches cli-engine activity logging, runtime root detection, or Codex global fallback paths.",
+      "source": "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md#Existing-Coverage-From-B-783c"
+    },
+    {
+      "feature": "Gate relaxation, pre-DONE version bumping, remote push, DONE auto-advance, Authority or production completion claims, and automatic reviewer/host/fallback evidence writing.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicit non-goals and done_prepare command contract preservation; B-b264 may add guidance/tests only, not new authority or attestation paths.",
+      "source": "plan_get Scope Boundary; docs/requirements/decisions/done-prepare-automation-execution-plan.md#Scope; docs/requirements/decisions/done-prepare-automation-execution-plan.md#Host-Neutral-Authority-Boundary"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+      "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+      "docs/requirements/decisions/story-files-hash-material-drift.md"
+    ],
+    "filesTriagedByName": [
+      "docs/dev/test-coverage.md"
+    ],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 11,
+    "covered": 7,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "3b2668e36ea85541881f23eb88aba3328eb1ba53db48970c073ed25141643a5a",
+  "openQuestions": []
+}
