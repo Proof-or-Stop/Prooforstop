@@ -478,6 +478,29 @@
         "scanEscalationReason": null
       },
       "_hash": "74b62f7247c44755488de9e99ebc3333fb3f68b9f1542cd179f260577dbb7f5f"
+    },
+    {
+      "id": "B-70e9:RP-020",
+      "agent": "lattice-review-docs",
+      "note": "Round 6 convergence check on fix commit e27341a4ff (one new paragraph in docs/host-run-usage.md host_run section). Narrowed to the single new paragraph per round-6 scope. Compared it against core/host-run.ts (HostRunArgs.cwd required, empty cwd refused pre-spawn before any ledger row; HostRunSpawnPlan.cwd required, threaded into every spawn path) and handlers/host-run.ts (cwd: ctx.root bound identically to ledger root/projectRootHash). Traced ctx.root to HandlerContext.root populated from --root via resolveRootForCommand in cli-engine.ts, confirming the docs claim is accurate. Ran npm run test:host-run-usage fresh: 36/36 pass including the two new F-011 checks proving plan.cwd equals the injected root while the smoke process itself is chdir-ed elsewhere, and a real spawned child prints process.cwd() equal to the injected root. CHANGELOG.md B-70e9 entry is a story-level summary with no contradicting claim - no drift. Cross-checked finding_list: F-011 (codex-host-B, severity high) describes exactly this bug and is resolved by e27341a4ff, so the paragraph documents delivered code, not an undelivered promise. No inconsistency found.",
+      "createdAt": "2026-07-10T10:03:18.276Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-024",
+      "readManifest": {
+        "filesReadFully": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/host-run.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4b1a493dcf2ab0badbf4a53b25f2704a797b05584edef804dd2c88fa7bcd396d"
     }
   ]
 }
