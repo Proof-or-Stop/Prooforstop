@@ -1,6 +1,6 @@
 {
   "storyId": "B-4a78",
-  "checkedAt": "2026-07-10T01:17:41.593Z",
+  "checkedAt": "2026-07-10T01:22:46.203Z",
   "features": [
     {
       "feature": "scope_check_save requires structured readManifest {filesReadFully[], filesTriagedByName[], scanEscalationReason|null}",
@@ -221,17 +221,17 @@
     },
     {
       "feature": "Every review emits token usage/counts as part of the promised (files-read-fully, triaged-by-name, tokens, escalation-reason) ledger tuple",
-      "covered_by": null,
-      "status": "gap",
+      "covered_by": "CHK-007",
+      "status": "covered",
       "excluded_by": null,
-      "source": "index.json description; background.md Conversational Texture"
+      "source": "index.json description; background.md Conversational Texture; checklist.json:CHK-007; plan.md:CHK-007; milestone-ledger.json:M4"
     },
     {
       "feature": "Hook-based read capture must not break non-reviewer Read usage if the PreToolUse implementation path is selected",
-      "covered_by": null,
-      "status": "gap",
+      "covered_by": "CHK-008",
+      "status": "covered",
       "excluded_by": null,
-      "source": "background.md Solution Tradeoffs"
+      "source": "background.md Solution Tradeoffs; checklist.json:CHK-008; plan.md:CHK-008; milestone-ledger.json:M5; docs/guide-hooks.md Behavior Contract"
     },
     {
       "feature": "Memory/playbook output becomes Proofbound gate evidence",
@@ -267,17 +267,59 @@
       "status": "excluded",
       "excluded_by": "execution-boundary.json excludes .lattice/story path edits; user role boundary allows only scope_check_save write",
       "source": "execution-boundary.json; user dispatch prompt"
+    },
+    {
+      "feature": "Mechanical read-log evidence exposes readLog.summary.readCount and readLog.summary.tokenCount next to filesReadFully and filesTriagedByName",
+      "covered_by": "CHK-007",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json:CHK-007 userSees/verificationIntent.happy; plan.md:CHK-007"
+    },
+    {
+      "feature": "When provider transcript token usage is unavailable, tokenCount is explicitly null/unknown rather than fabricated while readCount remains deterministic",
+      "covered_by": "CHK-007",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json:CHK-007 verificationIntent.edge; plan.md:CHK-007"
+    },
+    {
+      "feature": "Changing token/read-count inputs changes the read-log digest and missing count fields fail focused smoke coverage",
+      "covered_by": "CHK-007",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json:CHK-007 verificationIntent.adversarial; milestone-ledger.json:M4"
+    },
+    {
+      "feature": "Reviewer-lane read capture records decisions-doc read evidence only when reviewer context is present",
+      "covered_by": "CHK-008",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json:CHK-008 verificationIntent.happy; plan.md:CHK-008"
+    },
+    {
+      "feature": "Non-reviewer or missing-reviewer context bypasses read capture safely without throwing, mutating reviewer evidence, or blocking ordinary reads",
+      "covered_by": "CHK-008",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json:CHK-008 verificationIntent.edge; plan.md:CHK-008; docs/guide-hooks.md Behavior Contract"
+    },
+    {
+      "feature": "A hook/capture event that looks like a non-reviewer Read cannot produce reviewer gate evidence or a mismatch finding",
+      "covered_by": "CHK-008",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json:CHK-008 verificationIntent.adversarial; milestone-ledger.json:M5"
     }
   ],
   "summary": {
-    "total": 38,
-    "covered": 31,
+    "total": 44,
+    "covered": 39,
     "excluded": 5,
-    "gaps": 2,
+    "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "924b8e381dadd5e16785fb641bd85301b1eab3e743884522259725fdc30ed75f",
+  "_hash": "c6a2f51ff69521e6f2b5a7d40d95edb8c793ebc1416cbd31108bfe2e211af044",
   "openQuestions": []
 }
