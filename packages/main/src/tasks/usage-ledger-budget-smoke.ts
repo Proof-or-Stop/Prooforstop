@@ -628,6 +628,11 @@ async function main(): Promise<void> {
       // shouldBlockDispatch/recordBudgetBlock" instruction) BEFORE spawning a host,
       // so it is an expected importer of the budget primitives.
       join('core', 'host-run.ts'),
+      // B-70e9 F-016: the autopilot claude repair is a lattice-initiated host
+      // run, so it passes the SAME pre-spawn budget admission as host_run —
+      // recordBudgetBlock before the claude runner is invoked (ledger-ON only;
+      // OFF stays byte-identical). Third authorized dispatch site.
+      join('core', 'autopilot-executor.ts'),
       join('tasks', 'usage-ledger-budget-smoke.ts'),
       // B-1b28: the default-on smoke exercises the budget guard's inert behavior
       // (no block when the ledger is OFF / no budget configured) as part of its

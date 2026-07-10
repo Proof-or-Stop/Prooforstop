@@ -14,12 +14,25 @@ import {
 import {
   isUsageLedgerEnabled,
   parseClaudeCliOutput,
+  recordBudgetBlock,
+  recordConcurrencyBlock,
   recordDispatchFinal,
   recordDispatchPreflight,
   type DispatchPreflightHandle,
   type DispatchUsageContext,
   type DispatchUsageOptions,
 } from './usage-ledger/dispatch-usage.js';
+// F-016: lateral core->core import of the host-run admission primitives. Safe
+// (no cycle): host-run.ts imports only host-execution-readiness.js and
+// usage-ledger/dispatch-usage.js — neither reaches back into this module.
+import {
+  acquireHostRunSlot,
+  hostRunSlotsDir,
+  releaseSlot,
+  resolveMaxConcurrent,
+  resolveSlotStaleMs,
+  HOST_RUN_REFUSAL_EXIT_CODE,
+} from './host-run.js';
 
 export type AutopilotExecuteStepStatus = 'passed' | 'failed' | 'skipped';
 
@@ -248,6 +261,15 @@ function projectRootHashFor(root: string): string {
  * superseding the estimate). Every ledger call is fail-open (never throws to the
  * repair) and the whole thing is a STRICT no-op when the ledger is OFF.
  *
+ * F-016: the repair also passes the SAME pre-spawn admission as runHostRun —
+ * hard-budget guard (recordBudgetBlock) then atomic concurrency-slot admission
+ * (acquireHostRunSlot; released in a finally) — so LATTICE_HARD_BUDGET_TOKENS
+ * and LATTICE_HOST_RUN_MAX_CONCURRENT stop an autopilot repair exactly like any
+ * other lattice-initiated host run. A refusal records the same blocked ledger
+ * row (provider anthropic — a repair is always a claude launch) and returns a
+ * 'failed' attempt WITHOUT invoking the runner. Admission only exists in the
+ * ledger-ON path; OFF stays byte-identical (no admission, no slot dirs, no rows).
+ *
  * Ledger-ON vs OFF contract (load-bearing invariant):
  *   - OFF (LATTICE_USAGE_LEDGER=0): argv and behavior are BYTE-IDENTICAL to before
  *     this change — no `--output-format json`, no rows, no dirs. The existing
@@ -285,6 +307,13 @@ export function runClaudeRepair(
     claudeArgs.push('--permission-mode', args.claudePermissionMode);
   }
 
+  // The human-facing command label (prompt redacted). Built up front so a
+  // pre-spawn admission refusal (F-016) reports the exact launch it refused.
+  const displayArgs = ['-p', '<repair-prompt>'];
+  if (ledgerOn) displayArgs.push('--output-format', 'json');
+  if (args.claudePermissionMode) displayArgs.push('--permission-mode', args.claudePermissionMode);
+  const commandLabel = [claudeCommand, ...displayArgs].join(' ');
+
   // Attribution: storyId from the plan (null when unbound); phase = the target phase
   // the autopilot is driving toward (the honest phase the repair ran under) else a
   // stable 'autopilot-repair' label; agentType 'autopilot-repair'.
@@ -311,12 +340,77 @@ export function runClaudeRepair(
     }
   }
 
-  const repairResult = runner({
-    executable: claudeCommand,
-    args: claudeArgs,
-    cwd: root,
-    timeoutMS: positiveInteger(args.claudeTimeoutMS, DEFAULT_CLAUDE_TIMEOUT_MS),
-  });
+  // F-016: pre-spawn admission — the SAME gates, in the SAME order, as
+  // runHostRun (preflight -> budget -> concurrency -> spawn). ON-path only, so
+  // the ledger-OFF repair stays byte-identical (no admission, no slot dirs).
+  let slotFile: string | null = null;
+  if (ledgerOn) {
+    // (1) Hard-budget admission (fail-closed; the blocked row is written inside
+    // recordBudgetBlock, which never throws). A repair is always a claude
+    // launch, so the anthropic provider binding mirrors host_run's claude path.
+    const budget = recordBudgetBlock(root, ctx, handle, prompt, opts, { name: 'anthropic', model: null });
+    if (budget.blocked) {
+      return blockedRepairAttempt(
+        step,
+        commandLabel,
+        `autopilot repair refused pre-spawn: hard_budget_exceeded (${budget.budgetPolicyId ?? 'hard-budget'}${
+          budget.hardBudgetTokens !== null ? `, cap ${budget.hardBudgetTokens}` : ''
+        }); the claude runner was never invoked`,
+      );
+    }
+
+    // (2) Concurrency admission via the SAME atomic fixed-slot registry as
+    // host_run: acquire before the spawn, release in the finally below. On a
+    // cap refusal, record the concurrency blocked row and return WITHOUT
+    // spawning. A slot-registry error also refuses fail-closed (an admission
+    // error must never grant an unguarded spawn) but never throws out of the
+    // repair — unlike runHostRun, whose caller owns that failure directly.
+    const cap = resolveMaxConcurrent(env);
+    let registryError: string | null = null;
+    try {
+      slotFile = acquireHostRunSlot(hostRunSlotsDir(root), cap, resolveSlotStaleMs(env), Date.now(), {
+        pid: process.pid,
+        startedAt: opts.recordedAt,
+        host: 'claude',
+        storyId: ctx.storyId,
+        agentType: ctx.agentType,
+      });
+    } catch (err) {
+      registryError = err instanceof Error ? err.message : String(err);
+      slotFile = null;
+    }
+    if (slotFile === null) {
+      if (registryError !== null) {
+        // An honest registry-failure refusal: no concurrency_cap_exceeded row is
+        // fabricated for a refusal that was not a cap decision.
+        return blockedRepairAttempt(
+          step,
+          commandLabel,
+          `autopilot repair refused pre-spawn: host-run slot registry error (${registryError}); refusing fail-closed, the claude runner was never invoked`,
+        );
+      }
+      recordConcurrencyBlock(root, ctx, handle, prompt, cap, opts, { name: 'anthropic', model: null });
+      return blockedRepairAttempt(
+        step,
+        commandLabel,
+        `autopilot repair refused pre-spawn: concurrency_cap_exceeded (cap ${cap}, every host-run slot held by a live run); the claude runner was never invoked`,
+      );
+    }
+  }
+
+  let repairResult: AutopilotCommandResult;
+  try {
+    repairResult = runner({
+      executable: claudeCommand,
+      args: claudeArgs,
+      cwd: root,
+      timeoutMS: positiveInteger(args.claudeTimeoutMS, DEFAULT_CLAUDE_TIMEOUT_MS),
+    });
+  } finally {
+    // F-016: release the admission slot exactly like host_run (best-effort; the
+    // staleness backstop reclaims a leak). null (ledger OFF) is a no-op.
+    releaseSlot(slotFile);
+  }
 
   // Final row + excerpt. When the ledger is ON, parse the JSON envelope so (a) the
   // final binds the anthropic four-field usage + served model, and (b) the recorded
@@ -343,17 +437,37 @@ export function runClaudeRepair(
     }
   }
 
-  const displayArgs = ['-p', '<repair-prompt>'];
-  if (ledgerOn) displayArgs.push('--output-format', 'json');
-  if (args.claudePermissionMode) displayArgs.push('--permission-mode', args.claudePermissionMode);
-
   return {
     stepId: step.id,
-    command: [claudeCommand, ...displayArgs].join(' '),
+    command: commandLabel,
     status: repairResult.exitCode === 0 ? 'passed' : 'failed',
     exitCode: repairResult.exitCode,
     stdoutExcerpt: excerpt(stdoutForExcerpt),
     stderrExcerpt: excerpt(repairResult.stderr),
+  };
+}
+
+/**
+ * F-016: the honest attempt row for a pre-spawn admission refusal. The repair
+ * never launched, so:
+ *   - status is 'failed' — of AutopilotRepairAttempt's three statuses this is
+ *     the least surprising: 'skipped' is what the executor uses for steps that
+ *     are NOT APPLICABLE (and skipped steps carry exitCode null, which this
+ *     shape cannot express), while a fail-closed cap refusal IS a failed repair
+ *     attempt; the executor's repair loop already stops on any non-'passed'.
+ *   - exitCode is the host-run refusal sentinel (3), matching a host_run cap
+ *     refusal for the same condition.
+ *   - command is the exact launch that was refused (prompt redacted) and
+ *     stderrExcerpt carries the refusal reason; stdout is honestly empty.
+ */
+function blockedRepairAttempt(step: AutopilotStep, command: string, reason: string): AutopilotRepairAttempt {
+  return {
+    stepId: step.id,
+    command,
+    status: 'failed',
+    exitCode: HOST_RUN_REFUSAL_EXIT_CODE,
+    stdoutExcerpt: '',
+    stderrExcerpt: reason,
   };
 }
 

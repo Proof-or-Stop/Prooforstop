@@ -174,6 +174,13 @@ Blocked rows are provider-honest: a refusal records the provider of the host
 that was asked to run (`openai` for codex, `anthropic` for claude,
 `antigravity` for agy), never a hard-coded default.
 
+The autopilot claude repair launch (`lattice autopilot execute
+--allowClaudeRepair`) passes the **same pre-spawn admission**: with the ledger
+ON, an over-budget or over-cap repair is refused before the claude runner is
+invoked (recording the same blocked row, provider `anthropic`) and holds a
+concurrency slot for the duration of the run; with the ledger OFF the repair
+stays byte-identical (no admission, no slots, no rows).
+
 Concurrent runs' ledger appends are serialized by a cross-process lock at the
 writer choke point (an atomic `llm-usage.jsonl.lock/` directory with a bounded
 wait and stale-lock reclaim), so parallel host runs can never interleave

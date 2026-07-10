@@ -39,7 +39,12 @@
  *   - CHK-003: the remaining lattice-initiated host spawns route through the same
  *     seam — autopilot claude repair (ledger ON adds --output-format json + records
  *     estimate/final rows with agentType autopilot-repair and an envelope-parsed
- *     excerpt; ledger OFF byte-identical), host readiness probes (per-host preflight
+ *     excerpt; ledger OFF byte-identical). F-016: the repair also passes the SAME
+ *     pre-spawn admission as host_run — an over-budget repair refuses before the
+ *     runner is invoked (blocked row hard_budget_exceeded), a saturated
+ *     concurrency cap refuses with a concurrency_cap_exceeded row and no spawn,
+ *     the slot is HELD during a normal repair and released after, and ledger OFF
+ *     applies no admission at all. Host readiness probes (per-host preflight
  *     + unavailable final agentType host-readiness-probe), the cross-host-review
  *     codex leaf (preflight + unavailable final with the documented reason, argv
  *     unchanged), and the seam-never-throws contract under a corrupt ledger.
@@ -73,6 +78,7 @@ import {
   hostRunSlotsDir,
   resolveMaxConcurrent,
   writeSlotFileExclusive,
+  HOST_RUN_REFUSAL_EXIT_CODE,
   HOST_RUN_RETAINED_LINE_CAP,
   HOST_RUN_RETENTION_TRUNCATED_REASON,
   type HostRunArgs,
@@ -1093,8 +1099,15 @@ async function main(): Promise<void> {
     assert.equal(final!.usage.cacheReadInputTokens, 300);
   });
 
-  check('CHK-003 autopilot repair OFF: byte-identical argv (no --output-format json), zero rows, zero dirs', () => {
-    const OFF = { LATTICE_USAGE_LEDGER: '0' } as NodeJS.ProcessEnv;
+  check('CHK-003 autopilot repair OFF: byte-identical argv (no --output-format json), zero rows, zero dirs — even with budget/cap env set (F-016: no admission when OFF)', () => {
+    // F-016 hard invariant: with the ledger OFF, the budget/cap env vars that
+    // would refuse an ON repair pre-spawn are NEVER consulted — the repair
+    // spawns byte-identically and creates no dirs (so no slot registry either).
+    const OFF = {
+      LATTICE_USAGE_LEDGER: '0',
+      LATTICE_HARD_BUDGET_TOKENS: '1',
+      LATTICE_HOST_RUN_MAX_CONCURRENT: '1',
+    } as NodeJS.ProcessEnv;
     // Capture an ON run's prompt arg to prove the OFF argv only DROPPED the ledger
     // flag (same prompt text), i.e. the ON path merely ADDED flags.
     const sinkOn: RepairSink = { calls: 0, lastArgs: null };
@@ -1117,6 +1130,102 @@ async function main(): Promise<void> {
     assert.equal(offAttempt.stdoutExcerpt, plainStdout, 'OFF excerpt is the raw stdout (unchanged)');
     assert.equal(existsSync(resolveLedgerPath(sub)), false, 'no ledger file when OFF');
     assert.equal(existsSync(join(sub, '.lattice')), false, 'no .lattice dir when OFF');
+    assert.equal(existsSync(hostRunSlotsDir(sub)), false, 'no slot registry when OFF (admission never ran)');
+  });
+
+  // =========================================================================
+  // F-016: the autopilot repair passes the SAME pre-spawn admission as host_run.
+  // Against the old code both checks below fail loudly: the repair recorded the
+  // preflight and then invoked the runner directly (sink.calls === 1, no blocked
+  // row, no slot ever held), so LATTICE_HARD_BUDGET_TOKENS and a saturated
+  // LATTICE_HOST_RUN_MAX_CONCURRENT could not stop an autopilot repair.
+  // =========================================================================
+  check('F-016 repair budget admission: ledger ON + LATTICE_HARD_BUDGET_TOKENS=1 refuses PRE-SPAWN (runner never invoked) + blocked row (hard_budget_exceeded, anthropic, autopilot-repair)', () => {
+    const sub = freshRoot();
+    const env = { LATTICE_USAGE_LEDGER: '1', LATTICE_HARD_BUDGET_TOKENS: '1' } as NodeJS.ProcessEnv;
+    const sink: RepairSink = { calls: 0, lastArgs: null };
+    const attempt = runClaudeRepair(
+      sub, NO_REPAIR_ARGS, makeRepairRunner({ exitCode: 0, stdout: '{}', stderr: '' }, sink),
+      repairStep(), repairRequest(), repairFailResult(), repairPlan('B-70e9', 'REVIEW'), env,
+    );
+
+    assert.equal(sink.calls, 0, 'runner NOT invoked when the hard budget refuses the launch');
+    assert.equal(attempt.status, 'failed', 'a refused repair is an honestly FAILED attempt (never passed/skipped)');
+    assert.equal(attempt.exitCode, HOST_RUN_REFUSAL_EXIT_CODE, 'refusal sentinel matches a host_run cap refusal');
+    assert.ok(attempt.stderrExcerpt.includes('hard_budget_exceeded'), 'stderrExcerpt names the refusal reason');
+    assert.ok(attempt.command.includes('--output-format json'), 'command reports the exact launch that was refused');
+    assert.equal(attempt.stdoutExcerpt, '', 'no fabricated output for a launch that never happened');
+
+    const records = readLedger(sub);
+    const blocked = records.find((r) => r.decision.kind === 'blocked');
+    assert.ok(blocked, 'a blocked ledger row is written');
+    assert.equal(blocked!.decision.reasonCode, 'hard_budget_exceeded');
+    assert.equal(blocked!.provider?.name, 'anthropic', 'a repair is a claude launch -> anthropic');
+    assert.equal(blocked!.agentType, 'autopilot-repair');
+    assert.ok(records.some((r) => r.usage.source === 'prompt-size-estimate'), 'preflight estimate still present');
+    assert.equal(records.some((r) => r.usage.source === 'provider-reported'), false, 'no final row for a run that never spawned');
+    // Same ordering as runHostRun: budget refuses BEFORE any slot machinery.
+    assert.equal(existsSync(hostRunSlotsDir(sub)), false, 'budget refusal happens before any slot acquire (no slot dir)');
+  });
+
+  check('F-016 repair concurrency admission: saturated cap refuses pre-spawn (concurrency_cap_exceeded row, no spawn); OFF ignores the cap; slot HELD during a normal run and RELEASED after', () => {
+    const sub = freshRoot();
+    const dir = hostRunSlotsDir(sub);
+    const env = { LATTICE_USAGE_LEDGER: '1', LATTICE_HOST_RUN_MAX_CONCURRENT: '1' } as NodeJS.ProcessEnv;
+    seedSlot(dir, 0, process.pid); // a live occupant saturates cap=1
+
+    const sink: RepairSink = { calls: 0, lastArgs: null };
+    const attempt = runClaudeRepair(
+      sub, NO_REPAIR_ARGS, makeRepairRunner({ exitCode: 0, stdout: '{}', stderr: '' }, sink),
+      repairStep(), repairRequest(), repairFailResult(), repairPlan('B-70e9', 'REVIEW'), env,
+    );
+    assert.equal(sink.calls, 0, 'runner NOT invoked at the concurrency cap');
+    assert.equal(attempt.status, 'failed');
+    assert.equal(attempt.exitCode, HOST_RUN_REFUSAL_EXIT_CODE);
+    assert.ok(attempt.stderrExcerpt.includes('concurrency_cap_exceeded'), 'stderrExcerpt names the refusal reason');
+    const afterRefusal = readLedger(sub);
+    const blocked = afterRefusal.find((r) => r.decision.kind === 'blocked');
+    assert.ok(blocked, 'a blocked ledger row is written');
+    assert.equal(blocked!.decision.reasonCode, 'concurrency_cap_exceeded');
+    assert.equal(blocked!.provider?.name, 'anthropic');
+    assert.equal(blocked!.agentType, 'autopilot-repair');
+
+    // Ledger OFF against the SAME saturated registry: no admission, the repair
+    // spawns with the byte-identical OFF argv, and zero rows are added.
+    const sinkOff: RepairSink = { calls: 0, lastArgs: null };
+    const off = runClaudeRepair(
+      sub, NO_REPAIR_ARGS, makeRepairRunner({ exitCode: 0, stdout: 'plain', stderr: '' }, sinkOff),
+      repairStep(), repairRequest(), repairFailResult(), repairPlan('B-70e9', 'REVIEW'),
+      { LATTICE_USAGE_LEDGER: '0', LATTICE_HOST_RUN_MAX_CONCURRENT: '1' } as NodeJS.ProcessEnv,
+    );
+    assert.equal(sinkOff.calls, 1, 'OFF: the repair spawns despite the saturated cap (no admission when OFF)');
+    assert.equal(off.status, 'passed');
+    assert.equal(sinkOff.lastArgs!.includes('--output-format'), false, 'OFF argv byte-identical');
+    assert.equal(readLedger(sub).length, afterRefusal.length, 'OFF adds zero rows');
+
+    // Free the seeded slot: a normal ON repair must ACQUIRE slot-0 for the
+    // duration of the run (observed from inside the fake runner) and RELEASE it
+    // after, so a fresh cap=1 admission succeeds.
+    rmSync(join(dir, 'slot-0.json'), { force: true });
+    let slotHeldDuringRun = false;
+    const envelope = JSON.stringify({
+      type: 'result',
+      result: 'fixed',
+      model: CLAUDE_MODEL,
+      usage: { input_tokens: 10, output_tokens: 5, cache_creation_input_tokens: 0, cache_read_input_tokens: 0 },
+    });
+    const observingRunner: AutopilotCommandRunner = () => {
+      slotHeldDuringRun = existsSync(join(dir, 'slot-0.json'));
+      return { exitCode: 0, stdout: envelope, stderr: '' };
+    };
+    const ok = runClaudeRepair(
+      sub, NO_REPAIR_ARGS, observingRunner,
+      repairStep(), repairRequest(), repairFailResult(), repairPlan('B-70e9', 'REVIEW'), env,
+    );
+    assert.equal(ok.status, 'passed', 'the repair runs normally once a slot is free');
+    assert.equal(slotHeldDuringRun, true, 'the repair HELD slot-0 while the runner executed');
+    const after = acquireHostRunSlot(dir, 1, 6 * 60 * 60 * 1000, Date.now(), slotMeta('after-repair'));
+    assert.equal(after, join(dir, 'slot-0.json'), 'slot released after the repair (cap=1 re-admission succeeds)');
   });
 
   // =========================================================================

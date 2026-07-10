@@ -361,7 +361,8 @@ export function resolveMaxConcurrent(env: NodeJS.ProcessEnv): number {
   return value;
 }
 
-function resolveSlotStaleMs(env: NodeJS.ProcessEnv): number {
+/** Resolve the slot staleness window; invalid / <=0 / unset falls back to 6h. */
+export function resolveSlotStaleMs(env: NodeJS.ProcessEnv): number {
   const raw = env.LATTICE_HOST_RUN_SLOT_STALE_MS;
   if (typeof raw !== 'string' || raw.trim().length === 0) return HOST_RUN_SLOT_STALE_MS_DEFAULT;
   const value = Number(raw.trim());
@@ -551,7 +552,11 @@ export function acquireHostRunSlot(
   return null;
 }
 
-function releaseSlot(file: string | null): void {
+/**
+ * Best-effort slot release (null is a no-op). Exported so the autopilot claude
+ * repair path (F-016) releases its admission slot the same way host_run does.
+ */
+export function releaseSlot(file: string | null): void {
   if (!file) return;
   try {
     unlinkSync(file);
