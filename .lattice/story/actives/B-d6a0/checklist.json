@@ -157,8 +157,8 @@
       "id": "CHK-005",
       "title": "Add first-row modified-tracked regression smoke and record the per-site audit verdict",
       "context": "New smoke task exercising the fixed consumers against a temp git repo whose FIRST porcelain row is a modified tracked file (' M' row, e.g. a .lattice/ or volatile path) plus a material row: assert exact path classification (pattern: assertModifiedTrackedPathExactness in tasks/done-prepare-merge-rerun-smoke.ts). Record the audit table (every porcelain call site -> fixed / safe-by-read-pattern / safe-by-usage / immune-by-format) in plan.md so untouched sites are auditable.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-10T10:09:51.693Z",
       "endTime": null,
       "userSees": "porcelain-first-row-audit-smoke: ALL PASS; run-all-smokes suite green",
       "files": {
