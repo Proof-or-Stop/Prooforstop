@@ -316,7 +316,7 @@
       "desc": "quality-cleanup(F-012 class revival): packages/main/src/core/proofstory.ts:1513 remainingStopWord list does not distinguish an intra-noun-phrase coordinating conjunction (\"and\" joining two coordinate modifiers, e.g. \"Safari mobile localization AND reduced-motion edge cases\") from a clause-coordinating conjunction joining two INDEPENDENT clauses. Because the chain treats any of and/or/yet as a pass-through connector (only but/while/so/nor happen to be blocked, and only because they already appear in the stop-word list for other reasons), a compound sentence of the shape \"<remaining-clause-with-unrelated-noun>, and <unrelated-clause-with-scope-noun>\" lets the chain walk straight through the clause boundary into a scope noun that belongs to a semantically unrelated second clause. Live-CLI-verified natural-prose false positives via done_intent_equivalence_check (mode=observe) on a lightweight-path story: \"Two remaining issues exist, and scope work continues in a follow-up story.\" -> fires (match: remaining issues exist, and scope); \"Two remaining test failures linger, and coverage improvements are tracked in a follow-up.\" -> fires (match: remaining test failures linger, and coverage); also reproduces with or/yet in place of and (e.g. \"Two remaining issues linger or scope work continues elsewhere.\" -> fires). This is the exact CHK-003/F-012 false-positive class the story exists to fix (environment-state prose about unrelated leftover issues, no scope-shrinkage claim), reviving through the and/or/yet clause-coordinator vector rather than the three already-covered F-012 comma-only controls in proofstory-intent-hardening-smoke.ts (which lack a following independent-clause verb+conjunction structure). Not covered by any documented accepted-design tradeoff (fenced-code-block, line-wrap fail-safe, by-requirement strip classes, out-of-scope vocabulary/verb recall, exotic typography) — this is a structural clause-boundary gap in the modifier-chain design itself.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-10T19:36:32.670Z",
@@ -324,7 +324,11 @@
       "reviewRunId": "B-2c03:RR-028",
       "_hash": "fcf4a2042a392bf3905459556f3bb7611d628aa4cadab069a4c7dd684d2816c9",
       "signatureTag": "adversarial|unknown|quality-cleanup-class",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Conjunctions no longer bridge clauses: ', and'/', or'/', yet' block the chain (comma+conjunction = clause coordination) and state verbs exist/linger/persist/continue/remain are stop words, so all three F-013 sentences (comma and no-comma variants) stay quiet (remainingCrossClauseControls, verified firing pre-fix and quiet post-fix). Bare intra-phrase conjunctions still pass (codex round-3 long-chain case fires). codex round-4 recall cases (remaining set of cases, remaining UI/UX cases) added as must-fire. Full smoke, reconciliation smoke, milestone-status tests, e2e ALL PASS at current head.",
+      "resolvedAt": "2026-07-10T19:42:42.109Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
