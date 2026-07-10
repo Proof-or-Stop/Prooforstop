@@ -60,11 +60,13 @@ Rationale:
   - inline backtick spans ONLY when whitespace-free (`` `deferred` `` strips;
     `` `the remaining scope items were deferred` `` is quoted prose and KEPT —
     F-006.1);
-  - slash tokens ONLY when path-shaped: a dot anywhere in the token, or a
-    leading `./`, `../`, `~/`, `/` prefix (`core/partial-done-recovery.ts`
-    strips; `remaining/scope` prose is KEPT — F-006.2; slash COUNT alone is
-    never sufficient, so English enumerations like `excluded/deferred/partial`
-    are KEPT — F-007);
+  - slash tokens ONLY with an EXPLICIT path marker: a leading `./`, `../`,
+    `~/`, `/` prefix, a URL scheme (`https://...`), or a final segment ending
+    in a known file extension, ignoring trailing sentence punctuation
+    (`core/partial-done-recovery.ts` strips; `remaining/scope` prose is KEPT —
+    F-006.2; slash COUNT alone is never sufficient, so enumerations like
+    `excluded/deferred/partial` are KEPT — F-007; an incidental dotted segment
+    like `excluded/deferred/v2.1` does NOT make it a path — F-009);
   - dotted tokens ONLY with a known UNAMBIGUOUS extension (F-005: `go`, `c`,
     `h`, `m`, `log`, `map`, `sh`, `zip`, ... are excluded from the whitelist)
     AND a code-shaped stem — a hyphen/underscore or a second dot
@@ -81,10 +83,12 @@ Rationale:
   convention: prose hidden inside a fenced code block is treated as code — a
   summary whose ONLY shrinkage claim lives inside a fenced block is adversarial
   authoring, outside the honest-summary threat model of this heuristic.
-- (F-003 class, applied to all multi-word triggers) `out of scope`,
-  `not covered`, and `remaining <scope-noun>` accept `[\s/_-]+` connectors so
-  hyphen/underscore/slash compounds (`out-of-scope`, `not-covered`,
-  `remaining-scope`, `remaining/scope`) cannot slip past the vocabulary.
+- (F-003 class, applied to all multi-word triggers; extended by F-008) `out of
+  scope`, `not covered`, and `remaining <scope-noun>` accept `[\s./_-]+`
+  connectors so hyphen/underscore/slash/dot compounds (`out-of-scope`,
+  `not-covered`, `remaining-scope`, `remaining/scope`, `remaining.scope`,
+  `out.of.scope`) cannot slip past the vocabulary. Dot-glued compounds are
+  never stripped first because their suffix is not a file extension.
 - Guard-weakening risk is covered by adversarial smoke controls (prose claim
   next to a path token; `remaining <scope-noun>`; existing `partial` verdict
   control at the narrow-delivery case).

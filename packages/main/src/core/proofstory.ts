@@ -1405,15 +1405,23 @@ const dottedFileTokenRegex = new RegExp(
   `(?<![A-Za-z0-9_])(?:[A-Za-z0-9]*[-_][A-Za-z0-9_-]*(?:\\.[A-Za-z0-9_-]+)*|[A-Za-z0-9_-]+(?:\\.[A-Za-z0-9_-]+)+)\\.(?:${CODE_FILE_EXTENSION_PATTERN})(?![A-Za-z0-9_])`,
   'gi',
 );
+const finalSegmentExtensionRegex = new RegExp(`\\.(?:${CODE_FILE_EXTENSION_PATTERN})$`, 'i');
 function stripCodeLikeTokens(text: string): string {
   return text
     .replace(/```[\s\S]*?```/g, ' ')
     .replace(/`[^`\s]*`/g, ' ')
     .replace(/[^\s`]*\/[^\s`]*/g, (token) => {
-      // F-007: slash count alone is not path semantics — English enumerations
-      // (excluded/deferred/partial) must survive. Only a dot somewhere in the
-      // token or an explicit leading path prefix marks it as a real path.
-      const pathShaped = token.includes('.') || /^~?\//.test(token);
+      // F-007/F-009: neither slash count nor an incidental dotted segment
+      // (excluded/deferred/v2.1) is path semantics — English enumerations must
+      // survive. A slash token strips only with an EXPLICIT path marker: a
+      // leading / ~/ ./ ../ prefix, a URL scheme, or a final segment ending in
+      // a known file extension (core/partial-done-recovery.ts). Trailing
+      // sentence punctuation is ignored when testing the final segment.
+      const trimmed = token.replace(/[.,;:!?)\]}"']+$/, '');
+      const finalSegment = trimmed.slice(trimmed.lastIndexOf('/') + 1);
+      const pathShaped = /^(?:\.{1,2}|~)?\//.test(trimmed)
+        || /^[a-z][a-z0-9+.-]*:\/\//i.test(trimmed)
+        || finalSegmentExtensionRegex.test(finalSegment);
       return pathShaped ? ' ' : token;
     })
     .replace(dottedFileTokenRegex, ' ');
@@ -1471,7 +1479,7 @@ export function evaluateDoneIntentEquivalence(
       input.summary?.outcomeDiff ?? '',
       input.summary?.limitations ?? '',
     ].join('\n'));
-    const claimsShrinkage = /\b(?:partial|narrow(?:er|ed)?|shrink(?:age|s|ing)?|out[\s/_-]+of[\s/_-]+scope|not[\s/_-]+covered|deferred|remaining[\s/_-]+(?:work|scope|items?|cases?|tasks?|milestones?|features?|functionality|coverage|requirements?|deliverables?)|excluded)\b/i.test(narrowingText);
+    const claimsShrinkage = /\b(?:partial|narrow(?:er|ed)?|shrink(?:age|s|ing)?|out[\s./_-]+of[\s./_-]+scope|not[\s./_-]+covered|deferred|remaining[\s./_-]+(?:work|scope|items?|cases?|tasks?|milestones?|features?|functionality|coverage|requirements?|deliverables?)|excluded)\b/i.test(narrowingText);
     if (claimsShrinkage && acceptedShrinkageMilestoneIds.length === 0) {
       gaps.push(gap(
         'unconfirmed_single_outcome_shrinkage',

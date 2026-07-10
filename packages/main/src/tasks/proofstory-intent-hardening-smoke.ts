@@ -1063,6 +1063,80 @@ try {
     false,
     'prefix-led (./excluded/queue) and dotted (src/deferred/list.ts) paths still strip (F-007 control)',
   );
+  // B-2c03 F-008: dot-glued multi-word triggers are prose too. Such tokens
+  // survive the sanitizer (their suffix is not a file extension), so the
+  // trigger connectors must accept a dot alongside whitespace/slash/dash.
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'The remaining.scope work was intentionally cut from this delivery.',
+    actualTranscript: 'The label normalizer output is unchanged.',
+    outcomeDiff: 'No difference from the original request.',
+  }));
+  const dotRemainingDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    dotRemainingDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    true,
+    'dot-glued "remaining.scope" phrasing is still a shrinkage claim (F-008)',
+  );
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Added label normalization.',
+    limitations: 'The out.of.scope items were skipped too.',
+  }));
+  const dotOutOfScopeDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    dotOutOfScopeDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    true,
+    'dot-glued "out.of.scope" phrasing is still a shrinkage claim (F-008)',
+  );
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Added label normalization.',
+    limitations: 'Two edge branches were left not.covered by the new tests.',
+  }));
+  const dotNotCoveredDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    dotNotCoveredDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    true,
+    'dot-glued "not.covered" phrasing is still a shrinkage claim (F-008)',
+  );
+  // B-2c03 F-009: an incidental dotted segment inside a slash enumeration
+  // (excluded/deferred/v2.1) must not turn the whole token into a "path" —
+  // only explicit path markers (leading prefix, URL scheme, or a final segment
+  // ending in a known extension) strip.
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'The excluded/deferred/v2.1 items were dropped from this delivery.',
+    actualTranscript: 'The label normalizer output is unchanged.',
+    outcomeDiff: 'No difference from the original request.',
+  }));
+  const slashEnumerationDotDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    slashEnumerationDotDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    true,
+    'a slash enumeration with an incidental dotted segment (excluded/deferred/v2.1) still fires (F-009)',
+  );
+  // Control: URL-scheme tokens naming trigger words are paths, not prose.
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Documented the flow at https://example.com/deferred/setup.md for operators.',
+    actualTranscript: 'The label normalizer output is unchanged.',
+    outcomeDiff: 'No difference from the original request.',
+  }));
+  const urlControlDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    urlControlDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    false,
+    'URL-scheme tokens (https://example.com/deferred/setup.md) still strip (F-009 control)',
+  );
+  // Control: a dotted token whose tail IS a scope noun but whose head is not a
+  // trigger (label.scope) must not fire, and file names stay stripped.
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Refactored the label.scope helper and renamed partial-done-recovery.ts.',
+    actualTranscript: 'The helpers behave as before.',
+    outcomeDiff: 'No difference from the original request.',
+  }));
+  const dotControlDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    dotControlDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    false,
+    'non-trigger dotted identifiers (label.scope) and real file names still do not fire (F-008 control)',
+  );
 
   // B-f7b3 CHK-004: a CONFIRMED milestone ledger that is empty OR whose rows are
   // all not_applicable (without a valid decision) must NOT vacuously satisfy the
