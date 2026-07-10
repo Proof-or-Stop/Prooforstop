@@ -150,11 +150,11 @@
           "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
           "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
           "result": "pass",
-          "note": "Pre-fix RED captured: same command failed with AssertionError 'a summary naming core/partial-done-recovery.ts is not a shrinkage claim (B-d6a0 false positive)' at baseline head 2db38feff1; bound in red-evidence.json (target regression-test-filename-summary:happy, greenRelation same_acceptance).",
-          "headHash": "2cbf29dac8ae720710778e7371df82d35528b7e4",
+          "note": "Pre-fix RED remains bound in red-evidence.json (baseline head 2db38feff1, AssertionError on the file-name case); post-fix same command green at current head (same_acceptance).",
+          "headHash": "9c3ffefcd08465456219be586968790bd22990a4",
           "materialHash": "7806164814b9e7f47c83fdc67a22b912be27a9a17d3b7d5dd5ef957fabcc5c11",
           "storyFilesHash": "d3cadf890d2c2b0a74e1d2429b37587035eea4c5b32155d35e009d816878e6c8",
-          "timestamp": "2026-07-10T17:56:39.261Z"
+          "timestamp": "2026-07-10T17:57:30.778Z"
         },
         {
           "intentRef": "regression-test-filename-summary:adversarial",
