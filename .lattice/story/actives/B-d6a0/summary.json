@@ -1,9 +1,9 @@
 {
   "storyId": "B-d6a0",
-  "changes": "Audited every git status --porcelain consumer in packages/main/src for the B-b264 whole-output-trim first-row bug class. Fixed the four consumers where the corrupted first row reached classification logic — core/evidence-freshness.ts readMaterialDirtyFiles (evidence hash snapshots), handlers/cross-host-review.ts assertMaterialCleanForReview (review dirty preflight), handlers/story-query.ts gitPorcelainPaths (story_sync_main preflight; also rename rows now resolve to the new path) and core/partial-done-recovery.ts assertMainWorktreeClean (done_recover clean guard) — plus two display-only sites (handlers/session.ts brief rows, story-query DONE-residue status text). All use the B-b264 raw-read pattern: no full-output trim, split then per-line trimEnd, emptiness decided on rows.length. Added packages/main/src/tasks/porcelain-first-row-audit-smoke.ts (11 scenarios staging a modified-TRACKED first porcelain row with a fixture-shape guard) and the test:porcelain-first-row-audit script. The per-site audit verdict table for all untouched call sites (safe by read pattern, safe by usage, shift-tolerant worktree.ts:617, immune-by-format worktree-list sites) is recorded in plan.md.",
-  "usage": "No new commands or flags. Existing flows simply classify correctly now: cross_host_review and story_sync_main no longer false-block on a first-row .lattice metadata change, done_recover no longer refuses a volatile-only dirty main, evidence snapshots exclude first-row volatile artifacts, session brief shows intact status columns. Regression test: node packages/main/dist/tasks/porcelain-first-row-audit-smoke.js (or npm --prefix packages/main run test:porcelain-first-row-audit).",
-  "expectedOutcome": "porcelain-first-row-audit-smoke passes all 11 scenarios against the fixed tree, the story-evidence repro (exit 1 at pre-fix baseline 2d08e79) exits 0, lattice validate all green, run-all-smokes shows PASS porcelain-first-row-audit with no new failures vs the pre-change baseline.",
-  "actualTranscript": "node packages/main/dist/tasks/porcelain-first-row-audit-smoke.js -> 11x ✓ + porcelain-first-row-audit-smoke: ALL PASS (exit 0). node .lattice/story/actives/B-d6a0/evidence/repro-porcelain-first-row.mjs -> GREEN (exit 0; RED exit 1 recorded at baseline 2d08e79 in red-evidence.json). lattice validate --story=B-d6a0 -> all 45 commands code=0, status pass. run-all-smokes -> PASS porcelain-first-row-audit (3.2s); remaining failures reproduced on unfixed main (stale retired-authority manifest entries, pre-existing smoke failures, slow playbook smokes that pass standalone).",
+  "changes": "Audited every git status --porcelain consumer in packages/main/src for the B-b264 whole-output-trim first-row bug class. Fixed the four consumers where the corrupted first row reached classification logic — core/evidence-freshness.ts readMaterialDirtyFiles (evidence hash snapshots), handlers/cross-host-review.ts assertMaterialCleanForReview (review dirty preflight), handlers/story-query.ts gitPorcelainPaths (story_sync_main preflight; rename rows now resolve to the new path) and core/partial-done-recovery.ts assertMainWorktreeClean (done_recover clean guard) — plus two display-only sites (handlers/session.ts brief rows, story-query DONE-residue status text). All use the B-b264 raw-read pattern: no full-output trim, split then per-line trimEnd, emptiness decided on rows.length. Added packages/main/src/tasks/porcelain-first-row-audit-smoke.ts (11 scenarios staging a modified-TRACKED first porcelain row with a fixture-shape guard) and the test:porcelain-first-row-audit script. The per-site audit verdict table for every untouched call site (safe by read pattern, safe by usage, shift-tolerant worktree.ts:617, immune-by-format worktree-list sites) is recorded in plan.md.",
+  "usage": "No new commands or flags. Existing flows simply classify correctly now: cross_host_review and story_sync_main no longer false-block on a first-row .lattice metadata change, done_recover no longer refuses a volatile-only dirty main, evidence snapshots drop first-row volatile artifacts correctly, session brief shows intact status columns. Regression test: node packages/main/dist/tasks/porcelain-first-row-audit-smoke.js (or npm --prefix packages/main run test:porcelain-first-row-audit).",
+  "expectedOutcome": "porcelain-first-row-audit-smoke passes all 11 scenarios against the fixed tree, the story-evidence repro (exit 1 at pre-fix baseline 2d08e79) exits 0, lattice validate all green, run-all-smokes shows PASS porcelain-first-row-audit with zero new failures versus the pre-change baseline.",
+  "actualTranscript": "node packages/main/dist/tasks/porcelain-first-row-audit-smoke.js -> 11x ✓ + porcelain-first-row-audit-smoke: ALL PASS (exit 0). node .lattice/story/actives/B-d6a0/evidence/repro-porcelain-first-row.mjs -> GREEN (exit 0; RED exit 1 recorded at baseline 2d08e79 in red-evidence.json). lattice validate --story=B-d6a0 -> all 45 commands code=0, status pass. run-all-smokes -> PASS porcelain-first-row-audit (3.2s); every other suite failure also reproduces on unfixed main (stale retired-authority manifest entries and pre-existing smoke failures, plus slow playbook smokes that pass standalone), so this story introduces zero regressions.",
   "outcomeDiff": "none — expected and actual match on all four evidence commands",
   "acceptanceVerdict": "accepted",
   "outcomeKind": "success",
@@ -11,7 +11,7 @@
     "ran": [],
     "skipped": []
   },
-  "limitations": "Cosmetic first-row corruption inside error-message echoes of emptiness-only call sites (release.ts, worktree.ts wtStatus sites, auxiliary-worktree-cleanup.ts) is documented in the plan.md audit table, not fixed (no classification impact). worktree.ts:617 purgeSafeInitCommit keeps its shift-tolerant parse (correct today, documented as load-bearing). Future porcelain consumers can still hand-roll a full-trim helper; the audit table plus the regression smoke are the guard, not a type-level constraint.",
+  "limitations": "Cosmetic first-row corruption inside error-message echoes of emptiness-only call sites (release.ts, worktree.ts wtStatus sites, auxiliary-worktree-cleanup.ts) is documented in the plan.md audit table rather than patched, per the INIT user-confirmed scope boundary (no classification impact there). worktree.ts:617 purgeSafeInitCommit keeps its shift-tolerant parse (correct today, documented as load-bearing). Future porcelain consumers could still hand-roll a full-trim helper; the audit table plus the regression smoke are the guard, not a type-level constraint.",
   "pitfalls": "Untracked-only fixtures cannot detect this bug class — regression tests must stage a modified-TRACKED first porcelain row and assert row shape (/^ M /) before asserting classification. Do not reuse trimming helpers (git()/gitOutput()) for porcelain reads; use the raw-read pattern. materialDirtyFiles (not dirty.files) is the snapshot field name.",
   "phaseStats": {
     "INIT": {
@@ -36,10 +36,10 @@
     },
     "TEST": {
       "count": 1,
-      "durationMs": 97402
+      "durationMs": 1318356
     }
   },
-  "totalDurationMs": 5715070,
+  "totalDurationMs": 6936024,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -52,5 +52,5 @@
     "open": 0
   },
   "createdAt": "2026-07-10T10:36:30.429Z",
-  "updatedAt": "2026-07-10T10:36:30.429Z"
+  "updatedAt": "2026-07-10T10:56:51.383Z"
 }
