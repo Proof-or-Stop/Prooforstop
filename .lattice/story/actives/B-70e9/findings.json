@@ -250,6 +250,25 @@
       "resolvedAt": "2026-07-10T10:00:51.519Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-70e9:F-012",
+      "desc": "[codex host-B, cross_host_review B-70e9-xhr-r5] Concurrent host_run ledger writes can corrupt the hash chain: host_run writes the preflight row BEFORE slot admission so simultaneous starts all reach appendUsageRecord, and appendUsageRecord computes previousRecordHash by reading the current last line then appending with no cross-process lock - two processes can read the same predecessor and append rows whose previousRecordHash makes verifyLedgerChain fail. Ledger is default-ON and host_run explicitly supports concurrency (cap 4), so the race is in the feature expected path. Fix direction: serialize appends with a cross-process lock around read-last-hash..append at the single-writer choke point (writer), plus a parallel-writes smoke asserting verifyLedgerChain passes after concurrent preflight/final/block writes.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host-b",
+      "createdAt": "2026-07-10T10:10:58.159Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "_hash": "ca93a15cfd4f3fd63ba58ba2a733af40a62310bd83bcf4ae069c1f8aa3ea776b",
+      "files": [
+        "packages/main/src/core/usage-ledger/writer.ts",
+        "packages/main/src/core/host-run.ts",
+        "packages/main/src/tasks/host-run-usage-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|codex-host-cross",
+      "signatureTagSource": "auto"
     }
   ]
 }
