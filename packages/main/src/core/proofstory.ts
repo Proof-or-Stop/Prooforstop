@@ -1415,8 +1415,9 @@ function stripCodeLikeTokens(text: string): string {
     .split(/(\s+)/)
     .map((part) => {
       if (part === '' || /^\s/.test(part)) return part;
-      // codex round 7: a :line[:col] qualifier (path.ts:42) is still a path.
-      const trimmed = part.replace(/^[("'[{]+/, '').replace(/[.,;:!?)\]}"']+$/, '').replace(/(?::\d+){1,2}$/, '');
+      // codex rounds 7+8: :line[:col] and GitHub #L anchor qualifiers
+      // (path.ts:42, path.ts#L42, path.ts#L42-L50) are still paths.
+      const trimmed = part.replace(/^[("'[{]+/, '').replace(/[.,;:!?)\]}"']+$/, '').replace(/(?:(?::\d+){1,2}|#L?\d+(?:-L?\d+)?)$/i, '');
       if (trimmed.includes('/')) {
         // F-007/F-009: neither slash count nor an incidental dotted segment
         // (excluded/deferred/v2.1) is path semantics — English enumerations

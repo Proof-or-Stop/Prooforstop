@@ -1267,6 +1267,18 @@ try {
     false,
     'a line-qualified path token (partial-done-recovery.ts:42) still strips (codex round 7)',
   );
+  // codex round 8: GitHub #L anchors are the same qualifier class.
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Fixed the first-row corruption in core/partial-done-recovery.ts#L42 and updated its callers.',
+    actualTranscript: 'The porcelain audit output is correct for the first row.',
+    outcomeDiff: 'No difference from the original request.',
+  }));
+  const anchorQualifiedPathDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    anchorQualifiedPathDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    false,
+    'an anchor-qualified path token (partial-done-recovery.ts#L42) still strips (codex round 8)',
+  );
   // Delivery-review record: a trigger-stemmed FILE NAME with an unambiguous
   // extension (deferred-query.sql) is stripped BY REQUIREMENT — it is
   // shape-identical to partial-done-recovery.ts, the token class B-d6a0
