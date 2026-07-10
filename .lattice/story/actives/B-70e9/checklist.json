@@ -133,7 +133,57 @@
       "context": "autopilot-executor runClaudeRepair spawns claude with no ledger seam; host-execution-readiness probes make real (tiny) LLM calls with no ledger rows. Wire both at their callers, keeping core/usage-ledger free of new cross-module imports.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "After an autopilot repair or a host readiness probe, the usage report shows new rows with agentType \"autopilot-repair\" or \"host-readiness-probe\" instead of the runs being invisible",
+      "files": {
+        "modify": [
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/handlers/cross-host-review.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "runClaudeRepair with ledger ON adds --output-format json, records preflight+final (agentType autopilot-repair), and the repair excerpt comes from the parsed envelope result",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Readiness probe call sites record per-host preflight+final rows with agentType host-readiness-probe",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "cross_host_review codex leaf records preflight + unavailable final with argv unchanged",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Ledger OFF keeps runClaudeRepair byte-identical to today (no --output-format json, no rows)",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Probe failure paths (missing executable, auth, timeout) still write their preflight/unavailable rows without breaking the probe result",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A ledger write failure must never fail the autopilot repair, the probe, or the cross-host review (seam never-throws contract exercised in smoke)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
