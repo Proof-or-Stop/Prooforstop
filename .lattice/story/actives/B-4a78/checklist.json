@@ -440,8 +440,8 @@
       "id": "CHK-006",
       "title": "Guard smoke coverage for the readManifest gate and mismatch detector",
       "context": "Extend packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts (from B-cee5) so validate catches regressions: missing readManifest passing a save, and mismatch/unrecorded-full-scan cases going unflagged. Align with the B-04bb validate wiring follow-up.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-10T01:43:01.521Z",
       "endTime": null,
       "userSees": "The focused reviewer scan guard smoke fails on missing readManifest or mismatch regressions and passes on the expected safe cases.",
       "verificationIntent": {
