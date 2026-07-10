@@ -1,0 +1,73 @@
+{
+  "storyId": "B-4a78",
+  "checkedAt": "2026-07-10T03:10:40.980Z",
+  "headHash": "3f1b18a66c35487b0f9095c3054046a62f271197",
+  "materialHash": "e729f0f9118f83f96430f0ae283a40772ed2f271a18c152d27a0f380095b6c46",
+  "storyFilesHash": "60ce2f4602ba7cc58929c2fc87c9704fe5b4fe9c5d19674a7e3880190ae18d0e",
+  "reviewRound": "2026-07-10T02:42:21.948Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "packages/main/templates/agents/lattice-review-scope-plan.md#readManifest",
+      "promise": "Scope-plan reviewer instructions require readManifest with filesReadFully, filesTriagedByName, and scanEscalationReason for scope_check_save, and state missing, duplicate, unsafe, or malformed values are rejected.",
+      "status": "verified",
+      "verifiedBy": "diff/grep plus smoke evidence",
+      "evidence": "command-catalog.ts exposes required scope_check_save.readManifest; scope-check.ts normalizes, persists, and signs readManifest; reviewer-scan-budget-guard smoke PASS in validate."
+    },
+    {
+      "docPath": "packages/main/templates/agents/lattice-review-behavior.md#review-pass-readManifest",
+      "promise": "Behavior reviewer instructions require no-blocker review_pass_set evidence to include the structured readManifest contract.",
+      "status": "verified",
+      "verifiedBy": "diff/grep plus signature verification code",
+      "evidence": "command-catalog.ts exposes required review_pass_set.readManifest; finding.ts records it through recordReviewPass; finding-verify.ts v2 signs readManifest/readLog/readDiagnostics; smoke covers missing and tamper cases."
+    },
+    {
+      "docPath": ".claude/agents and .lattice-codex mirrored reviewer prompt copies#readManifest",
+      "promise": "Mirrored reviewer prompt copies keep bounded scanEscalationReason wording and include readManifest fields without promoting memory or playbook output to gate evidence.",
+      "status": "verified",
+      "verifiedBy": "configured validation transcript",
+      "evidence": "validate output records reviewer-scan-budget-guard PASS: 6 prompt copies clean and 7 required phrases present, including readManifest, filesReadFully, filesTriagedByName."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "PASS. Test evidence covers scope_check_save readManifest: valid payload persists normalized manifest and binds it into the scope-check signature; edge process-fact contract remains signed gate evidence; adversarial missing, malformed, unsafe, duplicate, and readManifest-only tamper cases fail. Evidence command: npm --prefix packages/main run test:reviewer-scan-budget-guard; validate 2026-07-10T03:02:17.303Z allPass=true."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "PASS. Test evidence covers review_pass_set readManifest: valid payload persists normalized manifest and signs it into review pass integrity material; edge comparable ordering/null scanEscalationReason is covered by process fact contract; adversarial missing, malformed duplicate, and tampered readManifest fail. Evidence command: npm --prefix packages/main run test:reviewer-scan-budget-guard."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "PASS. Prompt/template guard verifies the exact readManifest shape and required phrases in scope-plan and behavior reviewer prompt copies, preserves bounded scanEscalationReason wording, and proves command validation fails closed when readManifest is omitted despite prompt prose. Validate output records reviewer-scan-budget-guard PASS with 6 prompt copies clean and 7 required phrases present."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "PASS. Synthetic reviewer read-call events for docs/requirements/decisions/*.md normalize into a stable mechanical read log with deterministic digest; non-decisions files, duplicate reads, relative path variants, and triage-only events do not pollute decisions-doc full-read evidence; digest changes with mechanical event input."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "PASS. Mismatch detector tests cover exact match with no diagnostics, escalated full decisions-doc scan with non-empty scanEscalationReason, missing self-report entries, extra self-report entries, and full decisions-doc scans without scanEscalationReason being diagnosed."
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "PASS. Guard smoke is wired into validation via lattice.config.json validate.commands and package script test:reviewer-scan-budget-guard. Validation output records build PASS, reviewer-scan-budget-guard PASS, 24/24 verification intents covered, and full validate allPass=true."
+    },
+    {
+      "featureId": "CHK-007",
+      "transcript": "PASS. Read evidence tuple tests cover deterministic readCount, tokenCount summing when available, explicit null tokenCount when provider token usage is unavailable, digest changes when token/read-count inputs change, and missing count semantics guarded by focused smoke."
+    },
+    {
+      "featureId": "CHK-008",
+      "transcript": "PASS. Non-reviewer safety tests cover reviewer-lane capture when context is present, missing or non-reviewer context bypass without throwing or mutating reviewer evidence, and adversarial non-reviewer Read not producing reviewer gate evidence or mismatch findings. Validate transcript includes non-reviewer read capture bypass: PASS."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery reviewer checked diff, prompt docs promises, implementation code, checklist evidence, validate output, and DONE-required evidence. Three docs promises are verified; all eight checklist features have current real-machine evidence, including happy, edge, and adversarial coverage. validate is PASS with 24/24 verification intents covered, DONE-required build plus root npm test are PASS, and diff TODO/FIXME/HACK search found no unresolved todos."
+  },
+  "_hash": "1ed6474df6065cc86a4089feb9a5ff1f15deefd6e320835e318803ec9cf4ccc2"
+}
