@@ -738,6 +738,35 @@
         "scanEscalationReason": null
       },
       "_hash": "801fcafddcf419147b77e8b5646cc055c653fd4fb441cb7e28c6ad0380beae13"
+    },
+    {
+      "id": "B-70e9:RP-031",
+      "agent": "lattice-review-concept",
+      "note": "Round 9 (final) residue check on F-016 fix (3f3dea9bcd) + merge of main 0.3.182 (B-d6a0). F-016 diff is purely additive: new pre-spawn admission chain in runClaudeRepair mirroring runHostRun, host-run.ts widens resolveSlotStaleMs/releaseSlot from unexported to export function (same names/file, no rename), autopilot-executor.ts added to usage-ledger-budget-smoke allowlist as third authorized recordBudgetBlock site, +2 smoke checks, one doc clause. No concept word deleted/replaced en masse; grep confirms resolveSlotStaleMs/releaseSlot have zero shadow/duplicate defs and all call sites resolve to the new exports (no import cycle). Merge commit 7705f1e8a7 verified as clean pass-through of main (B-d6a0 porcelain-first-row fix: trim()->split/trimEnd/filter pattern in evidence-freshness.ts, partial-done-recovery.ts, session.ts, story-query.ts, cross-host-review.ts) that correctly preserved B-70e9-authored usageLedger/projectRootHashFor/resolveStoryPhaseForUsage wiring in cross-host-review.ts (present both pre-merge and post-merge). B-d6a0 story metadata files out of scope (owned by another story, arrived via merge from main). No blocker.",
+      "createdAt": "2026-07-10T11:44:04.555Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-037",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/partial-done-recovery.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "packages/main/src/tasks/usage-ledger-budget-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/lattice-brand.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "45b47d1098a070b0ffde83751826b18c608a6a25b40110fdbbc0ab16f382d523"
     }
   ]
 }
