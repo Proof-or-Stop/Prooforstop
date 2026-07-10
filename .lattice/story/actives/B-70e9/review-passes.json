@@ -547,6 +547,24 @@
         "scanEscalationReason": null
       },
       "_hash": "09764fc362fb914c6a03ec7051f60bb3b9adcf8d8c2f1738db980b34f1c3e4ea"
+    },
+    {
+      "id": "B-70e9:RP-023",
+      "agent": "lattice-review-concept",
+      "note": "Round 7 (post bc966e3247, F-012 fix): diff is writer.ts cross-process mkdir-lock addition (new exports resolveLedgerLockPath/USAGE_LEDGER_LOCK_SUFFIX), 3 new smoke checks in host-run-usage-smoke.ts, and one new doc sentence in docs/host-run-usage.md. Verified against the full commit diff: no concept word was deleted or mass-replaced -- the only removed lines are the pre-existing read-hash/build-record/validate/append statements re-indented unchanged under a new try/finally, plus two import lines widened to add appendUsageRecord/resolveLedgerLockPath/UsageLedgerRecordInput (no symbol dropped). AppendOptions.env and the utimesSync/rmSync smoke imports were already present before this commit, not newly invented. New exports resolveLedgerLockPath/USAGE_LEDGER_LOCK_SUFFIX have consistent, complete usage (grep: only writer.ts definition + host-run-usage-smoke.ts consumers, no stale/dangling references). No concept-deletion/replacement in this round -> nothing to residue-check. Scope: writer.ts touch matches recorded scope-ack (paths=[writer.ts], headHash=bc966e3247b6, reason=F-012), no other explicitly-excluded usage-ledger file touched.",
+      "createdAt": "2026-07-10T10:25:11.074Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-027",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/usage-ledger/writer.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "78eb71a9645d05f2f7bda8c7581350cff21f7d09b28e0cd97e6f6427bc362811"
     }
   ]
 }
