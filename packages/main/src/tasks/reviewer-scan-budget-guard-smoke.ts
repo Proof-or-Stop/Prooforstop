@@ -145,6 +145,12 @@ function assertSchemaExposesMechanicalReadInputs(command: string): void {
   assert.ok(schema.readEvents, `${command} schema exposes readEvents`);
   assert.ok(schema.readLog, `${command} schema exposes readLog`);
   assert.equal(schema.readEvents.safeParse([{ path: 'docs/requirements/decisions/a.md', action: 'Read', tokenCount: 1 }]).success, true);
+  assert.equal(schema.readEvents.safeParse([{ path: 'docs/requirements/decisions/a.md', action: 'Read', tokenCount: null }]).success, true);
+  assert.equal(schema.readEvents.safeParse([{ path: 'docs/requirements/decisions/a.md', action: 'Read', tokens: null }]).success, true);
+  assert.equal(schema.readEvents.safeParse([{ path: 'docs/requirements/decisions/a.md', action: 'Read', tokenCount: -1 }]).success, false);
+  assert.equal(schema.readEvents.safeParse([{ path: 'docs/requirements/decisions/a.md', action: 'Read', tokens: -1 }]).success, false);
+  assert.equal(schema.readEvents.safeParse([{ path: 'docs/requirements/decisions/a.md', action: 'Read', tokenCount: 'unknown' }]).success, false);
+  assert.equal(schema.readEvents.safeParse([{ path: 'docs/requirements/decisions/a.md', action: 'Read', tokens: 'unknown' }]).success, false);
   assert.equal(schema.readLog.safeParse({ events: [{ path: 'docs/requirements/decisions/a.md', mode: 'full' }] }).success, true);
 }
 
@@ -475,7 +481,7 @@ function assertRealHandlerReadLogEvidencePath(): void {
     scanEscalationReason: null,
   };
   const readEvents = [
-    { path: 'docs/requirements/decisions/a.md', action: 'Read', tokenCount: 5 },
+    { path: 'docs/requirements/decisions/a.md', action: 'Read', tokenCount: null },
     { path: 'docs/requirements/decisions/b.md', mode: 'triage' },
     { path: 'packages/main/src/core/types.ts', action: 'Read', tokenCount: 99 },
   ];
@@ -492,6 +498,7 @@ function assertRealHandlerReadLogEvidencePath(): void {
   assert.ok(pass.readLog?.digest, 'real review_pass_set persists mechanical readLog digest');
   assert.deepEqual(pass.readLog.filesReadFully, ['docs/requirements/decisions/a.md']);
   assert.deepEqual(pass.readLog.filesTriagedByName, ['docs/requirements/decisions/b.md']);
+  assert.equal(pass.readLog.summary.tokenCount, null, 'real review_pass_set persists unknown readLog tokenCount from null readEvents');
   assert.deepEqual(pass.readManifest?.filesTriagedByName, [
     'docs/requirements/decisions/b.md',
     'packages/main/src/core/types.ts',

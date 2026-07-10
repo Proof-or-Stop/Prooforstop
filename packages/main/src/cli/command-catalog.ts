@@ -124,6 +124,7 @@ const reviewerReadManifestSchema = z.object({
   filesTriagedByName: z.array(z.string()).describe('Relative files the reviewer only triaged by filename/title. Decisions-doc entries are mechanically compared to readLog; non-decision entries remain signed manifest evidence.'),
   scanEscalationReason: z.string().nullable().describe('Reason for full decisions-directory escalation, or null when no escalation occurred.'),
 }).describe('Required reviewer read evidence: {filesReadFully:string[], filesTriagedByName:string[], scanEscalationReason:string|null}. Runtime rejects duplicates, unsafe paths, and malformed values.');
+const reviewerReadTokenCountSchema = z.number().nonnegative().nullable();
 const reviewerReadEventSchema = z.object({
   path: z.string().optional().describe('Relative or project-root absolute path read by the reviewer.'),
   filePath: z.string().optional().describe('Alias for path.'),
@@ -135,8 +136,8 @@ const reviewerReadEventSchema = z.object({
   kind: z.string().optional().describe('Tool event kind.'),
   readType: z.string().optional().describe('Read type alias.'),
   readFully: z.boolean().optional().describe('True for a full read, false for filename/title triage.'),
-  tokenCount: z.number().optional().describe('Observed token count for a full read when available.'),
-  tokens: z.number().optional().describe('Alias for tokenCount.'),
+  tokenCount: reviewerReadTokenCountSchema.optional().describe('Observed token count for a full read, or null when unavailable.'),
+  tokens: reviewerReadTokenCountSchema.optional().describe('Alias for tokenCount.'),
 }).passthrough().describe('Mechanical reviewer read event captured from tool usage.');
 const reviewerReadEventsSchema = z.array(reviewerReadEventSchema)
   .describe('Mechanical reviewer read events. Runtime keeps only lattice-review-* decisions-doc reads, derives the signed readLog digest/summary, and scopes mismatch diagnostics to decisions docs.');
