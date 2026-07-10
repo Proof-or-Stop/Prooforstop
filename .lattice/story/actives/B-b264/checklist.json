@@ -98,7 +98,7 @@
         "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md#M6---Regression-Verification",
         "docs/dev/test-coverage.md"
       ],
-      "userSees": "The focused smoke passes and proves dryRun is inspect-only while real runs list only generated files they produced.",
+      "userSees": "The smoke prints \"done_prepare merge/rerun smoke PASS\" and dryRun output says \"dryRun: no files will be written\" while git/story metadata remains unchanged.",
       "files": {
         "modify": [
           "packages/main/src/handlers/done-prepare.ts"
