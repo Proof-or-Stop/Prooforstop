@@ -1663,6 +1663,49 @@
         "scanEscalationReason": null
       },
       "_hash": "9cb0937c0df3e2bd23a18d6217dd34f72bb19dd7e7a69bf800b28d18fddcc6f8"
+    },
+    {
+      "id": "B-70e9:RP-070",
+      "agent": "lattice-review-quality",
+      "note": "Round 19 re-review of F-027 fix (commit 2f42209a92). Verified: (1) composed-reason format matches the finding request - refusalDetail + '; ' + ledger_append_failed(...)/blocked_record_build_failed on a swallowed blocked-row append; refusal unchanged (fail-closed, no spawn, nonzero exit); (2) both host-run.ts refusal paths (hard-budget ~1157-1192, concurrency ~1214-1246) gate recorded/recordId on the actual append outcome (rowAppended / blockRow.recorded) - grepped all recorded: sites, confirmed the only two static blocked literals are now conditional; (3) traced recordConcurrencyBlock's usage_ledger_disabled OFF-reason and recordBudgetBlock's OFF no-op: unreachable from host_run (host-run.ts:1124 returns disabledSummary() before line 1157/1214 run when ledgerOn is false) and unreachable from the other two production callers (autopilot-executor.ts, codex-review-leaf.ts), which both gate the same calls behind their own ledgerOn check - no misleading OFF-path surface; (4) BudgetGuardDecision appended?/appendFailureReason? are additive optional fields; pre-existing legacy call sites (dispatch seam, autopilot repair, codex review leaf) read only blocked/budgetPolicyId/hardBudgetTokens and never reference the new fields - compatible; (5) noted a pre-existing (not introduced by this commit, outside this diff) asymmetry where recordBudgetBlock fails OPEN on blocked_record_build_failed while recordConcurrencyBlock stays fail-closed with a reason - confirmed via git diff this line is unchanged by 2f42209a92, out of scope for this round. Reran build (clean tsc) + test:host-run-usage (63/63, incl. 2 new F-027 corrupt-ledger checks + positive-path guards on CHK-007a/007b) + usage-ledger-budget-smoke (41/41) + usage-ledger-dispatch-smoke (40/40) + usage-ledger-default-on-smoke (30/30) + test:usage-sweep (17/17). No blocking issues found.",
+      "createdAt": "2026-07-10T17:27:59.152Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-081",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/alias-normalizer.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/host-execution-readiness.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/usage-ledger/adapters/openai.ts",
+          "packages/main/src/core/usage-ledger/writer.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/usage-ledger-budget-smoke.ts",
+          "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "00dc02d5f47eca27534f4784cdeb95ae2d9fb25f01c517dca97a9685ad17098e"
     }
   ]
 }
