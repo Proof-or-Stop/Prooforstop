@@ -1398,6 +1398,31 @@
         "scanEscalationReason": null
       },
       "_hash": "8bbc19a4039dca75aa2fb366c7eadbeaff4b8eb263637cb119f01dc3396f5d9b"
+    },
+    {
+      "id": "B-70e9:RP-059",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 16, post F-023 fix commit 30d8ffa117): all 7 checklist items carry full happy/edge/adversarial verificationIntent columns as required for this high-priority story; evidence_plan reports fresh=42/42 (missing=0, rerun=0, refreshOnly=0), zero fail results, zero waivers. Re-ran test:host-run-usage (55/55, includes the new F-023 regression: quiet TEXT-mode run with stderr destroyed at spawn before the first stderr write) and test:usage-sweep (17/17) directly, both green. Independently verified the F-023 fix is load-bearing: hand-reverted emitStderr in dist/handlers/host-run.js to the pre-fix fire-and-forget write (no settle-await before finally removes the stderr error listener) and reran the smoke -- F-023 genuinely FAILED (driver exit 1, unhandled async EPIPE) while F-020 still PASSED, confirming the two checks cover distinct crash windows exactly as claimed; rebuilt dist from source to restore the fix and reconfirmed 55/55 and 17/17. All findings F-001..F-023 are dismissed/resolved with verified evidenceState. No coverage gaps found; no blocker.",
+      "createdAt": "2026-07-10T14:20:23.529Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-068",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-70e9/checklist.json",
+          ".lattice/story/actives/B-70e9/findings.json",
+          ".lattice/story/actives/B-70e9/red-evidence.json",
+          ".lattice/story/index.json",
+          "docs/host-run-usage.md",
+          "packages/main/dist/handlers/host-run.js",
+          "packages/main/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1b59d0705cd0f2a64099d770f273e9d97ecddbce7655485b872d8c5c41bc816b"
     }
   ]
 }
