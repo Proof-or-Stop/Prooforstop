@@ -22,7 +22,6 @@
  */
 
 import { spawnSync } from 'node:child_process';
-import { randomUUID } from 'node:crypto';
 import {
   existsSync,
   mkdirSync,
@@ -157,6 +156,16 @@ function ledgerHostKind(host: HostRunHost): string {
 }
 
 /**
+ * B-70e9 F-004: the ledger provider.name for each launcher host, threaded into
+ * the blocked-record paths (budget + concurrency) so a codex/agy refusal is
+ * recorded under openai/antigravity — never mis-attributed to anthropic. Mirrors
+ * the provider names the per-host FINAL recorders already bind.
+ */
+function hostProviderName(host: HostRunHost): string {
+  return host === 'codex' ? 'openai' : host === 'claude' ? 'anthropic' : 'antigravity';
+}
+
+/**
  * Resolve the attribution phase. When storyId is set, the story index MUST exist
  * (unknown storyId fails fast, pre-spawn); phase comes from an explicit arg else
  * the story's current phase. When storyId is null, the run is adhoc.
@@ -269,6 +278,12 @@ function ownNumber(obj: Record<string, unknown>, key: string): number | null {
  * Scan the slot registry: reclaim (unlink) any slot whose pid is dead or whose
  * mtime is older than the staleness window, and return the live descriptors.
  * A missing dir yields an empty list (no dir is created here).
+ *
+ * B-70e9 F-003: this scan is REPORTING + staleness backstop only — the cap
+ * admission decision is acquireHostRunSlot's atomic per-index wx create, never
+ * a count taken here (a scan-then-acquire count is exactly the TOCTOU that let
+ * concurrent starts all pass). It reads EVERY live slot file, including any at
+ * index >= a lowered cap, so the refusal live-list stays honest mid-flight.
  */
 export function scanLiveSlots(dir: string, now: number, staleMs: number): HostRunLiveDescriptor[] {
   let entries: string[];
@@ -333,17 +348,89 @@ export function writeSlotFileExclusive(file: string, meta: SlotMeta): boolean {
   }
 }
 
-let slotSequence = 0;
-
-/** Acquire a fresh slot (unique `<pid>-<monotonic>.json`), creating the dir. */
-function acquireSlot(dir: string, meta: SlotMeta): string {
-  mkdirSync(dir, { recursive: true });
-  for (let attempt = 0; attempt < 16; attempt++) {
-    const name = `${meta.pid}-${Date.now().toString(36)}-${(slotSequence++).toString(36)}-${randomUUID().slice(0, 8)}.json`;
-    const file = join(dir, name);
-    if (writeSlotFileExclusive(file, meta)) return file;
+/**
+ * FRESH staleness probe for a single slot file, taken immediately before any
+ * reclaim attempt (never from a cached earlier scan) so the check-to-unlink
+ * window is a single stat/read-to-unlink syscall pair. A slot is stale when its
+ * pid is dead (process.kill(pid,0) throws non-EPERM) or its mtime is older than
+ * the staleness window. A file that vanished between the wx failure and this
+ * probe is treated as reclaimable — the wx re-create below is what decides.
+ */
+function isSlotFileStale(file: string, now: number, staleMs: number): boolean {
+  let mtimeMs: number;
+  try {
+    mtimeMs = statSync(file).mtimeMs;
+  } catch {
+    return true;
   }
-  throw new Error('host_run: could not acquire a concurrency slot after retries');
+  const ageMs = now - mtimeMs;
+  if (!Number.isFinite(ageMs) || ageMs > staleMs) return true;
+  let meta: Record<string, unknown> = {};
+  try {
+    const parsed = JSON.parse(readFileSync(file, 'utf8')) as unknown;
+    if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) meta = parsed as Record<string, unknown>;
+  } catch {
+    meta = {};
+  }
+  const pid = ownNumber(meta, 'pid');
+  return pid === null || !isPidAlive(pid);
+}
+
+/**
+ * B-70e9 F-003: ATOMIC cap admission via FIXED numbered slots.
+ *
+ * The admission decision IS the exclusive create: slot files are named
+ * `slot-0.json` .. `slot-(cap-1).json`, and each index is tried in order with an
+ * atomic `wx` create — success on index i means this process is admitted (only
+ * `cap` contenders can ever hold the `cap` fixed names, so N concurrent starts
+ * can never all pass the way the old scan-then-unique-acquire TOCTOU allowed).
+ *
+ * Per-index staleness reclaim: when an index is occupied, a FRESH staleness
+ * probe runs immediately before any reclaim. A stale slot (dead pid, or mtime
+ * older than LATTICE_HOST_RUN_SLOT_STALE_MS) is reclaimed by unlink followed by
+ * a NEW wx create. The wx decides the winner among racing reclaimers — a lost
+ * race (EEXIST after our unlink, because another reclaimer re-created first)
+ * just moves on to the next index; unlink+create is NEVER treated as guaranteed
+ * admission. The mtime backstop re-reclaims anything this best-effort pass
+ * misses.
+ *
+ * Cap semantics under a mid-flight change: a cap RAISE simply exposes more
+ * indexes to try; a cap LOWER means live slots at index >= cap still count as
+ * "live" for reporting (scanLiveSlots reads every slot file) but new acquires
+ * only ever try slot-0..slot-(cap-1), so admissions converge onto the lowered
+ * cap as the high-index runs drain.
+ *
+ * Returns the acquired slot path, or null when every index 0..cap-1 is held by
+ * a live run (the caller refuses fail-closed). Slot content stays metadata-only
+ * (pid/startedAt/host/storyId/agentType) and is never copied into a ledger row.
+ */
+export function acquireHostRunSlot(
+  dir: string,
+  cap: number,
+  staleMs: number,
+  now: number,
+  meta: SlotMeta,
+): string | null {
+  mkdirSync(dir, { recursive: true });
+  const boundedCap = Number.isFinite(cap) && Number.isInteger(cap) && cap > 0 ? cap : HOST_RUN_MAX_CONCURRENT_DEFAULT;
+  for (let index = 0; index < boundedCap; index++) {
+    const file = join(dir, `slot-${index}.json`);
+    // Free index: the exclusive create IS the atomic admission.
+    if (writeSlotFileExclusive(file, meta)) return file;
+
+    // Occupied: fresh staleness probe immediately before any reclaim.
+    if (!isSlotFileStale(file, now, staleMs)) continue;
+
+    // Stale: reclaim = unlink (best-effort) then a fresh exclusive create.
+    try {
+      unlinkSync(file);
+    } catch {
+      // Another reclaimer unlinked first; the wx below still decides the winner.
+    }
+    if (writeSlotFileExclusive(file, meta)) return file;
+    // Lost the reclaim race to another contender — move on to the next index.
+  }
+  return null;
 }
 
 function releaseSlot(file: string | null): void {
@@ -532,8 +619,12 @@ export function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): HostRunRe
     handle = null;
   }
 
+  // The ledger provider for THIS host — threaded into both blocked-record paths
+  // (F-004) so a codex/agy refusal is never attributed to anthropic.
+  const blockedProvider = { name: hostProviderName(args.host), model: null };
+
   // CHK-007a: hard-budget cap (fail-closed BEFORE spawn).
-  const budget = recordBudgetBlock(args.root, ctx, handle, args.promptText, opts);
+  const budget = recordBudgetBlock(args.root, ctx, handle, args.promptText, opts, blockedProvider);
   if (budget.blocked) {
     return {
       host: args.host,
@@ -564,12 +655,24 @@ export function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): HostRunRe
 
   // CHK-007b: concurrency cap (fail-closed BEFORE spawn). Slot registry is only
   // touched when the ledger is ON (keeps the OFF path dir-free).
+  //
+  // F-003: admission is ATOMIC — acquireHostRunSlot's per-index exclusive create
+  // IS the cap decision (no scan-then-acquire TOCTOU). scanLiveSlots below runs
+  // ONLY on the refusal path, purely to report the live-run list.
   const dir = hostRunSlotsDir(args.root);
   const cap = resolveMaxConcurrent(args.env);
   const staleMs = resolveSlotStaleMs(args.env);
-  const live = scanLiveSlots(dir, Date.now(), staleMs);
-  if (live.length >= cap) {
-    const blockRow = recordConcurrencyBlock(args.root, ctx, handle, args.promptText, cap, opts);
+  const slotMeta: SlotMeta = {
+    pid: process.pid,
+    startedAt: args.recordedAt,
+    host: args.host,
+    storyId: args.storyId,
+    agentType: args.agentType,
+  };
+  const slotFile = acquireHostRunSlot(dir, cap, staleMs, Date.now(), slotMeta);
+  if (slotFile === null) {
+    const live = scanLiveSlots(dir, Date.now(), staleMs);
+    const blockRow = recordConcurrencyBlock(args.root, ctx, handle, args.promptText, cap, opts, blockedProvider);
     return {
       host: args.host,
       storyId: args.storyId,
@@ -594,15 +697,6 @@ export function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): HostRunRe
       },
     };
   }
-
-  const slotMeta: SlotMeta = {
-    pid: process.pid,
-    startedAt: args.recordedAt,
-    host: args.host,
-    storyId: args.storyId,
-    agentType: args.agentType,
-  };
-  const slotFile = acquireSlot(dir, slotMeta);
 
   const launch = materializeLaunch(args);
   let spawn: HostRunSpawnResult;

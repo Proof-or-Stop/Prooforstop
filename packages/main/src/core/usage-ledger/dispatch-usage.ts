@@ -702,6 +702,12 @@ export const CONCURRENCY_CAP_REASON_CODE = 'concurrency_cap_exceeded';
  * NEVER throws: gated OFF => no-op; any assembly/write error is swallowed (the
  * caller still refuses fail-closed — a write failure never converts a refusal into
  * a spawn).
+ *
+ * B-70e9 F-004: the optional `provider` binds the blocked row's provider
+ * ({name, model}); when omitted the record keeps the legacy default
+ * ('anthropic' + the ctx model fallback) byte-identical. host_run passes the
+ * real per-host provider so an agy/codex concurrency refusal is attributed to
+ * antigravity/openai.
  */
 export function recordConcurrencyBlock(
   root: string,
@@ -710,6 +716,7 @@ export function recordConcurrencyBlock(
   promptText: string,
   cap: number,
   opts: DispatchUsageOptions,
+  provider?: { name: string; model: string | null },
 ): { recorded: boolean; recordId: string | null } {
   if (!isUsageLedgerEnabled(opts.env)) return { recorded: false, recordId: null };
 
@@ -728,14 +735,21 @@ export function recordConcurrencyBlock(
 
     const correlation = handle?.correlation ?? mintCallCorrelation();
     const budgetPolicyId = `concurrency-cap:${Number.isFinite(cap) ? cap : 0}`;
+    // F-004: the blocked record's model prefers the caller-supplied provider
+    // model, then the ctx model, then the builder's 'unknown' default. NOTE:
+    // finalContext's provider field is IGNORED by buildBlockedBudgetRecord (the
+    // builder binds provider itself) — the parametric providerName below is the
+    // single provider chokepoint for blocked rows.
+    const modelForRecord = provider?.model ?? ctx.model ?? null;
     const record = buildBlockedBudgetRecord(
-      ctx.model ?? null,
+      modelForRecord,
       { estimatedInputTokens, estimateRecordId: handle?.estimateRecordId ?? null },
       correlation,
       attributionFor(ctx),
-      finalContext(opts, ctx.model ?? null),
+      finalContext(opts, modelForRecord),
       budgetPolicyId,
       CONCURRENCY_CAP_REASON_CODE,
+      provider?.name ?? 'anthropic',
     );
     if (record === null) return { recorded: false, recordId: null };
     try {
@@ -965,6 +979,11 @@ export function isOverHardBudget(estimatedInputTokens: number, hardBudgetTokens:
  * Returns a record that PASSES validateUsageLedgerRecord. NEVER throws: any
  * assembly/validation failure is swallowed and `null` is returned so the guard
  * can decide how to proceed (fail-open) rather than crashing dispatch.
+ *
+ * B-70e9 F-004: `providerName` binds the record's provider.name. It DEFAULTS to
+ * 'anthropic' so every legacy caller (the claude dispatch seam) stays
+ * byte-identical; host_run threads the real per-host provider (openai /
+ * anthropic / antigravity) so a codex/agy refusal is never mis-attributed.
  */
 export function buildBlockedBudgetRecord(
   model: string | null,
@@ -974,6 +993,7 @@ export function buildBlockedBudgetRecord(
   context: RecordContext,
   budgetPolicyId: string,
   reasonCode: string = HARD_BUDGET_REASON_CODE,
+  providerName: string = 'anthropic',
 ): UsageLedgerRecordInput | null {
   try {
     const boundModel = model && model.length > 0 ? model : DEFAULT_ESTIMATE_MODEL;
@@ -1026,7 +1046,9 @@ export function buildBlockedBudgetRecord(
         reasonCode: reasonCode && reasonCode.length > 0 ? reasonCode : HARD_BUDGET_REASON_CODE,
       },
       usage,
-      provider: { name: 'anthropic', model: boundModel },
+      // F-004: parametric provider (default 'anthropic' keeps legacy callers
+      // byte-identical); an empty/blank name defensively falls back too.
+      provider: { name: providerName && providerName.length > 0 ? providerName : 'anthropic', model: boundModel },
       ...(context.command !== undefined ? { command: context.command } : {}),
       ...(context.host !== undefined ? { host: context.host } : {}),
       privacy: {
@@ -1105,6 +1127,13 @@ export interface BudgetGuardDecision {
  * build/check error BEFORE the block decision is fail-open (proceeds).
  *
  * NEVER throws: every step is wrapped so a budget error cannot break dispatch.
+ *
+ * B-70e9 F-004: the optional `provider` binds the blocked row's provider
+ * ({name, model}); when omitted the record keeps the legacy default
+ * ('anthropic' + the ctx model fallback) byte-identical — the existing claude
+ * dispatch seam passes nothing and is unchanged. host_run passes the real
+ * per-host provider so a codex/agy hard-budget refusal is attributed to
+ * openai/antigravity.
  */
 export function recordBudgetBlock(
   root: string,
@@ -1112,6 +1141,7 @@ export function recordBudgetBlock(
   handle: DispatchPreflightHandle | null,
   promptText: string,
   opts: DispatchUsageOptions,
+  provider?: { name: string; model: string | null },
 ): BudgetGuardDecision {
   const notBlocked: BudgetGuardDecision = {
     blocked: false,
@@ -1148,16 +1178,21 @@ export function recordBudgetBlock(
   // blocked record still has stable ids (it then supersedes nothing).
   try {
     const correlation = handle?.correlation ?? mintCallCorrelation();
+    // F-004: provider-parametric blocked row (see recordConcurrencyBlock). The
+    // no-provider call is byte-identical to the legacy anthropic default.
+    const modelForRecord = provider?.model ?? ctx.model ?? null;
     const record = buildBlockedBudgetRecord(
-      ctx.model ?? null,
+      modelForRecord,
       {
         estimatedInputTokens,
         estimateRecordId: handle?.estimateRecordId ?? null,
       },
       correlation,
       attributionFor(ctx),
-      finalContext(opts, ctx.model ?? null),
+      finalContext(opts, modelForRecord),
       budget.budgetPolicyId,
+      HARD_BUDGET_REASON_CODE,
+      provider?.name ?? 'anthropic',
     );
     if (record === null) {
       // The blocked-record builder failed (validator rejected the assembled

@@ -115,14 +115,27 @@ recorded as a `decision.kind=blocked` ledger row (diagnostics-honest).
   preflight guard per call. An over-budget preflight estimate refuses with
   `reasonCode hard_budget_exceeded` before spawning.
 - **Host-run concurrency** — a slot registry under `.lattice/usage/host-run-slots/`
-  holds one file per live run (pid + `startedAt`). Acquiring beyond
-  `LATTICE_HOST_RUN_MAX_CONCURRENT` (default **4**; unset / invalid / `<=0`
-  falls back to the default; an explicit larger value is honored) refuses
-  fail-closed with a non-zero exit, prints the live-run list, and writes a
-  blocked row with `reasonCode concurrency_cap_exceeded`. Slots with a dead pid
-  or an mtime older than `LATTICE_HOST_RUN_SLOT_STALE_MS` (default **6h**) are
-  reclaimed automatically, so a crashed run never wedges the cap. Slot release
-  on exit is best-effort, with staleness as the backstop.
+  holds **fixed numbered slots** `slot-0.json` .. `slot-(cap-1).json`, one per
+  live run (pid + `startedAt`). Admission is **atomic**: each index is tried in
+  order with an exclusive (`wx`) create, and winning an index *is* the
+  admission — only `cap` contenders can ever hold the `cap` fixed names, so
+  simultaneous starts cannot all slip past the cap (no check-then-acquire
+  race). When every index under `LATTICE_HOST_RUN_MAX_CONCURRENT` (default
+  **4**; unset / invalid / `<=0` falls back to the default; an explicit larger
+  value is honored) is held, the run refuses fail-closed with a non-zero exit,
+  prints the live-run list, and writes a blocked row with
+  `reasonCode concurrency_cap_exceeded`. Slots with a dead pid or an mtime
+  older than `LATTICE_HOST_RUN_SLOT_STALE_MS` (default **6h**) are reclaimed
+  in place (unlink + fresh exclusive create; a lost reclaim race just moves to
+  the next index), so a crashed run never wedges the cap. Raising the cap
+  mid-flight exposes more indexes; lowering it lets high-index live runs drain
+  (they still count in the reported live list) while new admissions only try
+  the lowered range. Slot release on exit is best-effort, with staleness as
+  the backstop.
+
+Blocked rows are provider-honest: a refusal records the provider of the host
+that was asked to run (`openai` for codex, `anthropic` for claude,
+`antigravity` for agy), never a hard-coded default.
 
 There is **no queuing** in this story: over the cap means refuse, not wait.
 

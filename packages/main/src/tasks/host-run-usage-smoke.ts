@@ -16,8 +16,12 @@
  *     refused pre-spawn (runner never invoked).
  *   - CHK-007: hard-budget block (no spawn, blocked row); concurrency cap (5th run
  *     refused, blocked row reasonCode concurrency_cap_exceeded, live-run list),
- *     stale/dead-pid slot reclaim, atomic wx slot race, cap env parsing, and the
- *     slot-content-never-in-ledger invariant.
+ *     stale/dead-pid slot reclaim, cap env parsing, and the
+ *     slot-content-never-in-ledger invariant. F-003: ATOMIC fixed-index admission
+ *     (slot-0..slot-(cap-1) wx create IS the cap decision) under real contention
+ *     (cap=1 double-admission, stale-reclaim race with exactly one winner).
+ *     F-004: blocked rows are provider-honest (codex=openai, agy=antigravity,
+ *     claude=anthropic byte-compat).
  *   - CHK-003: the remaining lattice-initiated host spawns route through the same
  *     seam — autopilot claude repair (ledger ON adds --output-format json + records
  *     estimate/final rows with agentType autopilot-repair and an envelope-parsed
@@ -45,6 +49,7 @@ import { tmpdir } from 'node:os';
 import { dirname, isAbsolute, join } from 'node:path';
 
 import {
+  acquireHostRunSlot,
   runHostRun,
   scanCodexTurnCompletedUsage,
   hostRunSlotsDir,
@@ -192,11 +197,16 @@ function seedStoryIndex(sub: string, storyId: string, phase: string): void {
   writeFileSync(join(dir, 'index.json'), JSON.stringify({ storyId, phase }), 'utf8');
 }
 
-function seedSlot(dir: string, pid: number, marker: string): string {
+/** Seed a FIXED-INDEX slot file (`slot-<index>.json`) as a live/stale occupant. */
+function seedSlot(dir: string, index: number, pid: number): string {
   mkdirSync(dir, { recursive: true });
-  const file = join(dir, `${pid}-${marker}.json`);
+  const file = join(dir, `slot-${index}.json`);
   writeFileSync(file, JSON.stringify({ pid, startedAt: '2000-01-01T00:00:00.000Z', host: 'codex', storyId: null, agentType: 'reviewer' }), 'utf8');
   return file;
+}
+
+function slotMeta(agentType: string): { pid: number; startedAt: string; host: string; storyId: string | null; agentType: string } {
+  return { pid: process.pid, startedAt: '2026-07-10T00:00:00.000Z', host: 'codex', storyId: null, agentType };
 }
 
 const DEAD_PID = 2147483646; // a pid that is (all but certainly) not running
@@ -511,13 +521,40 @@ async function main(): Promise<void> {
     assert.ok(records.some((r) => r.usage.source === 'prompt-size-estimate'), 'preflight estimate present');
   });
 
+  check('CHK-007a budget (F-004): blocked rows are provider-honest — codex=openai, claude=anthropic (legacy shape byte-compat)', () => {
+    const env = { LATTICE_USAGE_LEDGER: '1', LATTICE_HARD_BUDGET_TOKENS: '1' } as NodeJS.ProcessEnv;
+
+    // codex budget refusal -> provider.name openai (was mis-attributed anthropic).
+    const sub1 = freshRoot();
+    const r1 = runHostRun(baseArgs({ root: sub1, host: 'codex', env }), { runner: makeRunner({ stdout: CODEX_STDOUT }) });
+    assert.equal(r1.blocked, true);
+    const b1 = readLedger(sub1).find((r) => r.decision.kind === 'blocked');
+    assert.ok(b1, 'codex blocked row written');
+    assert.equal(b1!.provider?.name, 'openai', 'codex budget block attributed to openai (F-004)');
+    assert.equal(b1!.decision.reasonCode, 'hard_budget_exceeded');
+
+    // claude budget refusal -> provider.name anthropic, and the legacy blocked-row
+    // shape is unchanged (source/estimator/model default byte-compat).
+    const sub2 = freshRoot();
+    const r2 = runHostRun(baseArgs({ root: sub2, host: 'claude', env }), { runner: makeRunner({ stdout: CLAUDE_STDOUT }) });
+    assert.equal(r2.blocked, true);
+    const b2 = readLedger(sub2).find((r) => r.decision.kind === 'blocked');
+    assert.ok(b2, 'claude blocked row written');
+    assert.equal(b2!.provider?.name, 'anthropic', 'claude blocked row stays anthropic');
+    assert.equal(b2!.provider?.model, 'unknown', 'model default unchanged');
+    assert.equal(b2!.usage.source, 'prompt-size-estimate', 'blocked usage stays the preflight estimate');
+    assert.equal(b2!.usage.estimator?.name, 'bytes-chars-heuristic', 'estimator provenance unchanged');
+    assert.equal(b2!.decision.kind, 'blocked');
+    assert.equal(b2!.decision.reasonCode, 'hard_budget_exceeded');
+  });
+
   // =========================================================================
   // CHK-007b: concurrency cap
   // =========================================================================
   check('CHK-007b concurrency: 5th run under cap 4 refuses, writes blocked row (concurrency_cap_exceeded)', () => {
     const sub = freshRoot();
     const dir = hostRunSlotsDir(sub);
-    for (let i = 0; i < 4; i++) seedSlot(dir, process.pid, `live-${i}`);
+    for (let i = 0; i < 4; i++) seedSlot(dir, i, process.pid); // slot-0..slot-3 held live
     const sink: RunnerSink = { calls: 0, lastPlan: null };
     const result = runHostRun(baseArgs({ root: sub, host: 'codex' }), { runner: makeRunner({ stdout: CODEX_STDOUT }, sink) });
     assert.equal(sink.calls, 0, 'runner NOT invoked when at the concurrency cap');
@@ -529,6 +566,8 @@ async function main(): Promise<void> {
     const blocked = records.find((r) => r.decision.kind === 'blocked');
     assert.ok(blocked);
     assert.equal(blocked!.decision.reasonCode, 'concurrency_cap_exceeded');
+    // F-004: a codex refusal is attributed to openai, never anthropic.
+    assert.equal(blocked!.provider?.name, 'openai', 'codex concurrency block attributed to openai');
     // Slot metadata never leaks into a ledger row (slots carry pid/timestamps only).
     const ledgerText = readFileSync(resolveLedgerPath(sub), 'utf8');
     assert.equal(ledgerText.includes('2000-01-01T00:00:00.000Z'), false, 'slot startedAt marker must not appear in the ledger');
@@ -537,10 +576,10 @@ async function main(): Promise<void> {
   check('CHK-007b concurrency: dead-pid slot is reclaimed so the run proceeds', () => {
     const sub = freshRoot();
     const dir = hostRunSlotsDir(sub);
-    const dead = seedSlot(dir, DEAD_PID, 'dead');
+    const dead = seedSlot(dir, 0, DEAD_PID);
     const sink: RunnerSink = { calls: 0, lastPlan: null };
     const result = runHostRun(baseArgs({ root: sub, host: 'codex' }), { runner: makeRunner({ stdout: CODEX_STDOUT }, sink) });
-    assert.equal(existsSync(dead), false, 'dead-pid slot reclaimed');
+    assert.equal(existsSync(dead), false, 'dead-pid slot reclaimed (reused + released)');
     assert.equal(sink.calls, 1, 'run proceeds after reclaim');
     assert.equal(result.blocked, false);
   });
@@ -548,7 +587,7 @@ async function main(): Promise<void> {
   check('CHK-007b concurrency: stale-mtime slot (live pid) is reclaimed by the staleness backstop', () => {
     const sub = freshRoot();
     const dir = hostRunSlotsDir(sub);
-    const stale = seedSlot(dir, process.pid, 'stale');
+    const stale = seedSlot(dir, 0, process.pid);
     const old = new Date(Date.now() - 7 * 60 * 60 * 1000); // 7h > 6h window
     utimesSync(stale, old, old);
     const sink: RunnerSink = { calls: 0, lastPlan: null };
@@ -558,16 +597,56 @@ async function main(): Promise<void> {
     assert.equal(result.blocked, false);
   });
 
-  check('CHK-007b adversarial: two acquires for the same slot path cannot both win (atomic wx)', () => {
+  check('CHK-007b adversarial (F-003): cap=1 real contention — second admission fails while the first holds (index wx IS the cap decision)', () => {
     const sub = freshRoot();
     const dir = hostRunSlotsDir(sub);
-    mkdirSync(dir, { recursive: true });
-    const file = join(dir, `${process.pid}-race.json`);
-    const meta = { pid: process.pid, startedAt: '2026-07-10T00:00:00.000Z', host: 'codex', storyId: null, agentType: 'reviewer' };
-    const first = writeSlotFileExclusive(file, meta);
-    const second = writeSlotFileExclusive(file, meta);
-    assert.equal(first, true, 'first acquire wins');
-    assert.equal(second, false, 'second acquire loses the wx race');
+    const staleMs = 6 * 60 * 60 * 1000;
+
+    // Two concurrent admissions: the first wx-wins slot-0; the second (NO release
+    // in between) must be refused. Against the old check-then-acquire design both
+    // would have been admitted (unique names always wx-succeed after a racy scan).
+    const first = acquireHostRunSlot(dir, 1, staleMs, Date.now(), slotMeta('winner'));
+    assert.equal(first, join(dir, 'slot-0.json'), 'first admission wins slot-0');
+    const second = acquireHostRunSlot(dir, 1, staleMs, Date.now(), slotMeta('loser'));
+    assert.equal(second, null, 'second admission refused while the first still holds (atomic, no TOCTOU)');
+
+    // Full-run refusal under the held slot: an agy run with cap=1 must refuse
+    // fail-closed with the blocked row attributed to antigravity (F-004).
+    const sink: RunnerSink = { calls: 0, lastPlan: null };
+    const env = { LATTICE_USAGE_LEDGER: '1', LATTICE_HOST_RUN_MAX_CONCURRENT: '1' } as NodeJS.ProcessEnv;
+    const result = runHostRun(baseArgs({ root: sub, host: 'agy', env }), { runner: makeRunner({ stdout: AGY_STDOUT }, sink) });
+    assert.equal(sink.calls, 0, 'runner NOT invoked under contention refusal');
+    assert.equal(result.blocked, true);
+    assert.equal(result.refusalReason, 'concurrency_cap_exceeded');
+    assert.equal(result.liveRuns?.length, 1, 'live-run list surfaced');
+    assert.notEqual(result.exitCode, 0);
+    const blocked = readLedger(sub).find((r) => r.decision.kind === 'blocked');
+    assert.ok(blocked, 'blocked ledger row written');
+    assert.equal(blocked!.decision.reasonCode, 'concurrency_cap_exceeded');
+    assert.equal(blocked!.provider?.name, 'antigravity', 'agy concurrency block attributed to antigravity (F-004)');
+  });
+
+  check('CHK-007b adversarial (F-003): stale-reclaim race — exactly one of two reclaimers wins the wx re-create', () => {
+    const sub = freshRoot();
+    const dir = hostRunSlotsDir(sub);
+    const staleMs = 6 * 60 * 60 * 1000;
+    const file = seedSlot(dir, 0, DEAD_PID); // dead pid => stale occupant of slot-0
+    const old = new Date(Date.now() - 7 * 60 * 60 * 1000);
+    utimesSync(file, old, old);
+
+    // Reclaimer A: observes staleness, unlink + wx re-create — wins slot-0.
+    const a = acquireHostRunSlot(dir, 1, staleMs, Date.now(), slotMeta('reclaimer-a'));
+    assert.equal(a, file, 'reclaimer A wins the stale slot');
+    // Reclaimer B races the SAME slot: its fresh pre-unlink staleness probe now
+    // sees A's live fresh slot (NOT stale => it must not unlink A), and cap=1
+    // leaves no other index => B loses.
+    const b = acquireHostRunSlot(dir, 1, staleMs, Date.now(), slotMeta('reclaimer-b'));
+    assert.equal(b, null, 'reclaimer B loses (never unlinks the winner)');
+    // The slot on disk is A's, untouched by B; and a direct wx re-create (the
+    // losing half of the reclaim race) fails EEXIST-atomically.
+    const held = JSON.parse(readFileSync(file, 'utf8')) as { agentType?: string };
+    assert.equal(held.agentType, 'reclaimer-a', 'winner slot content intact');
+    assert.equal(writeSlotFileExclusive(file, slotMeta('reclaimer-b')), false, 'losing wx re-create fails atomically');
   });
 
   check('CHK-007b edge: LATTICE_HOST_RUN_MAX_CONCURRENT unset/invalid falls back to 4; valid honored', () => {
