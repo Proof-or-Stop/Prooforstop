@@ -430,6 +430,24 @@
         "scanEscalationReason": null
       },
       "_hash": "b11c0936e32ed1ed30a6c732aaa39a50255238b0751255f0f133c9c1d560f59e"
+    },
+    {
+      "id": "B-2c03:RP-020",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round. Delta vs prior pass (HEAD~1..HEAD) is a single-token reclassification: bare not moved from the remainingStopWord alternation to the remainingConjunction alternation in packages/main/src/core/proofstory.ts (evaluateDoneIntentEquivalence claimsShrinkage regex), plus one new smoke case and matching plan.md prose update. Both remainingStopWord and remainingConjunction constants are unchanged in name/structure/usage and both still exist; grep confirms exactly 4 references, all in proofstory.ts, all consistent. No concept was deleted or mass-replaced, so no residue scan applies. Concept residue check completed, no blocker.",
+      "createdAt": "2026-07-10T20:01:31.723Z",
+      "reviewRound": "2026-07-10T18:53:39.083Z",
+      "reviewRunId": "B-2c03:RR-034",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2c03/plan.md",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "a462b852420ed5cbfc46cbc638722808c09257d88388c3851af73eff927889a2"
     }
   ]
 }
