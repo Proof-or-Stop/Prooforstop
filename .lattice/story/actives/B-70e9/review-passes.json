@@ -372,6 +372,25 @@
         "scanEscalationReason": null
       },
       "_hash": "bee64e21b15bd7d2e2768763c3b8ec8bde5ce8bc583f211592e10806359992e5"
+    },
+    {
+      "id": "B-70e9:RP-015",
+      "agent": "lattice-review-concept",
+      "note": "Round 5 (post F-010 fix, commit e3ac9b651): concept deletion = lexical resolveOutPathWithinRoot replaced by hardened openReportFileExclusive in core/usage-sweep.ts. Repo-wide grep (unrestricted, excluding node_modules/dist/.git) for resolveOutPathWithinRoot returns exactly one hit: .lattice/story/actives/B-70e9/findings.json resolvedReason field, a historical audit-trail record of the fix itself, not a code/doc/comment residue. New name openReportFileExclusive is used consistently across core/usage-sweep.ts (definition), handlers/usage-sweep.ts (import+call), and tasks/usage-sweep-smoke.ts (import+5 new checks). No blocker.",
+      "createdAt": "2026-07-10T09:41:02.137Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-018",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "02c78947995932eaeba7fff4278239cf79bfc63470b6b1b24ca5af37fa6365d2"
     }
   ]
 }
