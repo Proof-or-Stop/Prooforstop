@@ -702,7 +702,7 @@
       "desc": "[codex host-B, cross_host_review B-70e9-xhr-r18b] Plain usage_sweep is still not read-only under Codex activity logging: cli-engine run() calls writeCodexProcessEvent() unconditionally after every successful command (~line 1168); with LATTICE_ACTIVITY_SOURCE=codex and an inferred active story, a no---out usage_sweep passes the F-028 read-only gate for hooks/activity-log but then appends a story process event - mutating story metadata against the zero-write contract. Same contract class as F-028, third surface. Fix direction: gate writeCodexProcessEvent (and enumerate/gate EVERY remaining unconditional post-command write surface in cli-engine run()) with the same isReadOnlyCommand(cmd, args) predicate; CLI-level smoke with LATTICE_ACTIVITY_SOURCE=codex + active story asserting no---out leaves process-events byte-identical while --out remains mutating.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host-b",
       "createdAt": "2026-07-10T19:31:12.800Z",
@@ -714,7 +714,11 @@
         "packages/main/src/tasks/usage-sweep-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|codex-host-cross",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 43ea459: writeCodexProcessEvent gated at its single internal choke point on isReadOnlyCommand(entry.command, args) - covers success path, error path, and future callers; complete post-command write-surface enumeration recorded (11 surfaces: hooks/activity-log already gated, owner-lease heartbeat intentionally class-gated, retrieval-violation and onError hooks documented exempt as non-story-metadata; codex process-event was the only ungated story-metadata write). End-to-end CLI smoke: real dist/cli.js on a fixture story branch under LATTICE_ACTIVITY_SOURCE=codex - plain usage_sweep leaves process-events byte-identical (failing-before reproduced the exact appended event), --out appends exactly one bound codex_cli event. usage-sweep smoke 19; host-run 65; catalog/ownership/cli-surface green.",
+      "resolvedAt": "2026-07-10T19:49:08.247Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
