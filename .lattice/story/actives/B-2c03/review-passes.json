@@ -203,6 +203,28 @@
         "scanEscalationReason": null
       },
       "_hash": "6d4195a61941cb0b1fd4a54752791eace0af6dfb4c5ce7ad4c5254be876503e6"
+    },
+    {
+      "id": "B-2c03:RP-010",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round. Diff (git diff main...HEAD) is confined to: (1) proofstory.ts adding stripCodeLikeTokens/dottedFileTokenRegex/CODE_FILE_EXTENSION_PATTERN as new helpers plus widening the claimsShrinkage connector regex (F-007 fix: pathShaped no longer counts raw slash count, only a dot or leading /~/ prefix strips) - no existing exported symbol, type, or vocabulary was renamed or removed; (2) proofstory-intent-hardening-smoke.ts adding new regression cases (slashEnumerationDone, slashEnumerationRemainingDone, pathPrefixDone) plus the full F-001..F-006 case history, purely additive; (3) .lattice/story/actives/B-2c03/* story metadata (checklist/findings/review/plan/process-events/etc.), not source concepts. Grepped the touched identifiers (stripCodeLikeTokens, dottedFileTokenRegex, CODE_FILE_EXTENSION_PATTERN, claimsShrinkage, pathShaped) across *.ts/*.md/*.json outside node_modules/dist/.git: all hits are within proofstory.ts + its smoke test + story metadata, consistent with net-new additions, zero stale/orphaned references to a deleted concept. No blocker.",
+      "createdAt": "2026-07-10T17:22:23.854Z",
+      "reviewRound": "2026-07-10T14:41:10.214Z",
+      "reviewRunId": "B-2c03:RR-018",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2c03/checklist.json",
+          ".lattice/story/actives/B-2c03/findings.json",
+          ".lattice/story/actives/B-2c03/plan.md",
+          ".lattice/story/actives/B-2c03/review.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "33b548e0e9516ec0adb690d731f7f1cbfadc8f50cf11eebdbcfe519204b0bd61"
     }
   ]
 }
