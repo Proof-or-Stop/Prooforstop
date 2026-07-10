@@ -841,7 +841,7 @@ inventing new required fields where the CLI already has a schema.
 | `milestone-ledger.json` | Owner/CLI via PLAN-only `milestone_ledger_set` / `milestone_ledger_add`. | `proofstory.milestone_ledger.v1`, `storyId`, candidate/confirmed `state`, `ledgerHash`, optional accepted-intent binding, milestone rows, timestamps. | ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates. | `ledgerHash` is derived from normalized rows; mutations return the ledger to candidate until an accepted intent-collision binding confirms the current hash. | Scope-defining trusted metadata. Current gap: the process-fact registry covers both writers, but `LIFECYCLE_ARTIFACTS` omits the path. Register it in the closed lifecycle set and include its digest in closeout review-retention checks. |
 | `slice-plan.json` | Owner/CLI via PLAN-only `slice_plan_set`. | `proofstory.slice_plan.v1`, `storyId`, current `ledgerHash`, complete `slices[]`, `planHash`, timestamps. | ProofStory DEV admission and DONE intent-equivalence gates. | The plan must cover every ledger milestone; `ledgerHash` must match the current ledger and `planHash` binds the ledger plus sorted slices. | Scope-defining trusted metadata. Current gap: the process-fact registry covers the writer, but `LIFECYCLE_ARTIFACTS` omits the path. Register it and include its digest in closeout review-retention checks. |
 | `parent-ledger-rollup.json` | Owner/CLI via `parent_ledger_rollup_set`, currently allowed in PLAN/DEV/REVIEW/TEST. | `proofstory.parent_ledger_rollup.v1`, `storyId`, `ledgerHash`, optional `slicePlanHash`, child coverage/evidence refs, `rollupHash`, timestamps. | ProofStory DONE intent-equivalence gate. | `rollupHash` binds the current ledger/slice-plan hashes and sorted children; DONE treats mismatched ledger/plan hashes, missing coverage, or empty evidence refs as stale/incomplete. | Closeout-evidence trusted metadata. Current gap: the process-fact registry covers the writer, but `LIFECYCLE_ARTIFACTS` omits the path, so a canonical TEST closeout write can be mistaken for unclassified scope drift. Fix classification/order in the independent M4 CLI story; do not hand-write or scope-acknowledge this artifact. |
-| `scope-contract.json` acknowledgements | Owner/CLI via `scope_contract_acknowledge`, deliberately allowed only in DEV/REVIEW. | Existing contract plus append-only acknowledgement facts: actor, reason, timestamp, paths, optional anchors/hunk digest(s), and current structured phase/head/material provenance. | REVIEW/TEST/DONE scope gates and review-run scope binding through `digestScopeContract`. | Path/hunk acknowledgements affect the scope-contract digest. A real expansion after review must return to DEV/REVIEW and obtain new review evidence; TEST acknowledgement remains forbidden. | Scope-defining trusted metadata. Current gap: `LIFECYCLE_ARTIFACTS` omits `scope-contract.json`, and no composite digest yet joins it with milestone ledger and slice plan for conditional closeout re-attestation. Do not broaden acknowledgement to TEST. |
+| `scope-contract.json` acknowledgements | Owner/CLI via `scope_contract_acknowledge`, deliberately allowed only in DEV/REVIEW. | Existing contract plus append-only acknowledgement facts: actor, reason, timestamp, paths, optional anchors/hunk digest(s), and current structured phase/head/material provenance. | Acknowledgement paths are consumed by the path scope gate today. Review scope binding separately uses `digestScopeContract`. | `digestScopeContract` hashes mode, allow/create/test paths, protected files, explicit excludes, file rules, and protected anchors; it explicitly excludes runtime acknowledgements. Acknowledgements therefore do not change the current review-binding digest. | `scope-contract.json` is already recognized by the scope classifier through `LATTICE_LIFECYCLE_ARTIFACT_FILENAMES`, despite not being in the base `LIFECYCLE_ARTIFACTS` array; there is no current path-classification gap for it. The semantic gap is that acknowledgement content/provenance is absent from review binding. M4.C1 must add a planned composite scope-defining digest/re-attestation contract covering semantically relevant acknowledgements plus milestone ledger and slice plan. Do not broaden acknowledgement to TEST. |
 | Review run | `review_run_start`. | lane from `REVIEW_RUN_LANES`, `reviewRunId`, review round, `headHash`, `materialHash`, optional `storyFilesHash`, prompt hash, workspace binding. | `finding_add`, `review_pass_set`, REVIEW->TEST gate, quorum. | Evidence must bind to the current run/round and fresh workspace binding. Current code only accepts `lattice-review-*` lanes. | M0.5 must normalize canonical `proof-or-stop-*` roles before new reviewer evidence writes. |
 | Finding / review pass | `finding_add`, `review_pass_set`. | Signed finding/pass with `agent`, `reviewRunId`, severity/category or note; `evidenceState` defaults to verified. | REVIEW->TEST in `core/machine.ts`; review escalation/floor downstream. | Reviewer evidence must pass signature/run binding; suspected/disproven findings are advisory. | Keep pass-only `finding_add` normalization, but ensure canonical role IDs are written after M0.5. |
 | `verificationEvidence` | `verification_evidence_add`; legacy compatibility through `checklist_update verificationEvidence`. | `intentRef`, `kind`, `note`, optional `file`, `command`, `result`, `verdict`, `waiverType`, `attestation`, `actorTrust`, `factProvenance`; writer auto-stamps `headHash`, `materialHash`, `storyFilesHash`, `timestamp`. | DEV->REVIEW evidence gate, REVIEW coverage, `lattice validate`, DONE stale-evidence hints. | `checkEvidenceFreshnessForGit` compares current material/story files; storyFilesHash match can downgrade whole-tree drift to re-attestation advisory. | Prefer `verification_evidence_add`; document minimum fields from the existing schema, not a new ad hoc schema. |
@@ -866,10 +866,15 @@ claim the bug is fixed. Current code reproduces the mismatch:
   round boundary instead of merely completing TEST closeout.
 - `packages/main/src/core/lifecycle-registry.ts` currently omits
   `milestone-ledger.json`, `slice-plan.json`, `parent-ledger-rollup.json`, and
-  `evidence/delivery-context-pack.json` from its closed lifecycle artifact set.
+  `evidence/delivery-context-pack.json` from the base `LIFECYCLE_ARTIFACTS`
+  array and from the corresponding filename/relative-path classifier sets.
   `packages/main/src/core/process-fact-registry.ts` already records canonical
   writers/consumers for the first three, so the registries disagree about
   lifecycle classification.
+- This omission does not apply to `scope-contract.json`:
+  `LATTICE_LIFECYCLE_ARTIFACT_FILENAMES` already recognizes it as canonical
+  lifecycle metadata even though the base `LIFECYCLE_ARTIFACTS` array does not.
+  There is no current scope-contract path-classification gap.
 
 Prompt text cannot repair that disagreement. The CLI must classify canonical
 closeout writes before it decides that a TEST story needs scope acknowledgement
@@ -882,7 +887,7 @@ Trusted story metadata has two closed classes:
 
 | Class | Closed paths | Meaning |
 |---|---|---|
-| Scope-defining | `milestone-ledger.json`, `slice-plan.json`, and `scope-contract.json` including acknowledgements. | Defines intended scope, decomposition, exclusions, and reviewed expansion. A digest change is review-significant even though story metadata is excluded from material/story file hashes. |
+| Scope-defining | `milestone-ledger.json`, `slice-plan.json`, and `scope-contract.json` including semantically relevant acknowledgement content/provenance. | Defines intended scope, decomposition, exclusions, and reviewed expansion. The planned M4.C1 composite digest must make a semantic change review-significant even though story metadata is excluded from material/story file hashes; current `digestScopeContract` does not include acknowledgements. |
 | Closeout-evidence | `parent-ledger-rollup.json`, `evidence/delivery-context-pack.json`, plus already registered validation/delivery artifacts such as `test-evidence.json`, policy-configured `done-required-evidence.json`, `delivery-check.json`, `eval-evidence.json`, `summary.json`, and transcript/live-smoke evidence. | Records completion evidence after scope is fixed. A path can be classified as closeout metadata without making its payload sufficient, fresh, signed, or gate-admissible. |
 
 Path trust requires both membership in a closed-set lifecycle registry and a
@@ -902,7 +907,8 @@ The required closeout order is:
 3. The CLI classifies that canonical path/writer as closeout evidence without
    requesting `scope_contract_acknowledge`.
 4. Before retaining review evidence, compare the reviewed product/material diff
-   and semantic scope binding, then compare the scope-defining artifact digest.
+   and current semantic scope binding, then compare the planned composite
+   scope-defining artifact digest.
 5. Run `lattice validate`; run `done_required_validate` only when the project
    configures a DONE-required policy.
 6. Regenerate delivery context and invoke the delivery agent. The delivery
@@ -915,9 +921,9 @@ The required closeout order is:
 8. Advance to DONE only after `done_prepare` passes.
 
 Unknown artifact paths, changed source/tests/docs, a changed product/material
-diff, changed scope semantics, or a changed scope-defining digest must still
-force DEV/REVIEW. Canonical closeout classification is not a waiver for real
-scope or implementation drift.
+diff, changed scope semantics, or (once M4.C1 exists) a changed planned
+composite scope-defining digest must still force DEV/REVIEW. Canonical closeout
+classification is not a waiver for real scope or implementation drift.
 
 Reviewer evidence retention for metadata-only closeout must be conditional,
 never blanket. `storyFilesHash` alone is insufficient because
@@ -929,10 +935,15 @@ when all of these hold:
 - the existing review scope binding (scope-contract hash, diff-pack hash, and
   reviewed hunk set) still matches;
 - a composite digest of the scope-defining artifacts is unchanged, covering the
-  full scope contract including acknowledgements, milestone ledger, and slice
-  plan; and
+  semantically relevant scope-contract acknowledgement content/provenance,
+  milestone ledger, and slice plan; and
 - every intervening change is an allowlisted canonical closeout-evidence write
   with valid writer provenance.
+
+That composite digest and its re-attestation use are planned M4.C1 behavior, not
+an existing mechanism. Current `digestScopeContract` cannot satisfy the
+acknowledgement portion because it intentionally excludes runtime
+acknowledgements.
 
 If a new `currentReviewRound` has already been opened, old passes must not be
 auto-reused. Reuse across that boundary requires a separately designed,
@@ -1231,9 +1242,10 @@ Subprojects:
 
 - M4.C1 Add one independent CLI lifecycle story for closed-set trusted metadata
   classification and the Closeout Evidence Ordering Contract. Register the
-  scope-defining and closeout-evidence paths, preserve canonical writer
-  provenance, add the composite scope-defining digest/re-attestation boundary,
-  and prevent canonical TEST roll-up writes from being misclassified as scope
+  missing scope-defining and closeout-evidence paths, preserve the existing
+  `scope-contract.json` classifier membership and canonical writer provenance,
+  add the planned composite scope-defining digest/re-attestation boundary, and
+  prevent canonical TEST roll-up writes from being misclassified as scope
   expansion. Although logically owned by M4, this story is an early serial
   prerequisite immediately after M0; it must land before prompt consolidation
   depends on closeout ordering. It does not rewrite prompts, and it must not
@@ -1275,10 +1287,10 @@ Exit criteria:
   changed source/tests/docs/product scope or a changed scope-defining digest
   still does.
 - Metadata-only review retention is fail-closed: it requires unchanged
-  product/material diff, existing scope binding, unchanged composite
-  scope-defining digest, and only allowlisted canonical closeout writes. No old
-  pass is reused after a new review round without an explicit signed
-  re-attestation design.
+  product/material diff, existing scope binding, an unchanged value from the
+  planned composite scope-defining digest, and only allowlisted canonical
+  closeout writes. No old pass is reused after a new review round without an
+  explicit signed re-attestation design.
 - Each M4 sub-story can be rolled back without reverting unrelated reader,
   writer, INIT, or channel changes.
 
@@ -1463,9 +1475,10 @@ Subprojects:
   manifests, wrappers, or telemetry/gate code changed.
 - M9.10 Add the TEST parent-roll-up regression: a canonical
   `parent_ledger_rollup_set` write with unchanged product/material diff,
-  unchanged review scope binding, and unchanged scope-defining digest must not
-  alone force TEST->DEV->REVIEW. A changed source/test/docs file or semantic
-  scope fact must still require DEV/REVIEW and fresh review evidence.
+  unchanged review scope binding, and an unchanged value from the planned
+  composite scope-defining digest must not alone force TEST->DEV->REVIEW. A
+  changed source/test/docs file or semantic scope fact must still require
+  DEV/REVIEW and fresh review evidence.
 
 Exit criteria:
 
@@ -1498,7 +1511,7 @@ Exit criteria:
 | Prompt tells agent to edit story files | Static scan for direct write language under `docs/story`; prompt tests fail on new violations. |
 | Canonical closeout metadata is mistaken for a TEST scope expansion | Lifecycle-registry contract enumerates the closed scope-defining and closeout-evidence paths and verifies each trusted path has a canonical CLI writer/provenance record. A TEST `parent_ledger_rollup_set` fixture stays in TEST when product/material and semantic scope are unchanged. |
 | Closeout classification weakens real scope control | Negative fixtures change source, tests, docs, an unknown artifact path, scope acknowledgements, milestone ledger, or slice plan and require DEV/REVIEW. Command-policy tests keep `scope_contract_acknowledge` DEV/REVIEW-only and reject TEST invocation. |
-| Metadata-only review evidence is reused from `storyFilesHash` alone | Retention tests require unchanged product/material diff, current review scope binding, unchanged composite digest of scope contract + milestone ledger + slice plan, and only allowlisted canonical closeout writes. Each missing condition fails closed. |
+| Metadata-only review evidence is reused from `storyFilesHash` alone | Retention tests require unchanged product/material diff, current review scope binding, an unchanged value from the planned M4.C1 composite digest of semantically relevant scope-contract acknowledgement content/provenance + milestone ledger + slice plan, and only allowlisted canonical closeout writes. Each missing condition fails closed. |
 | A new review round silently inherits old passes | Transition regression enters REVIEW again and proves old passes are not auto-reused without an explicit signed re-attestation artifact bound to the new round. |
 | Delivery reviewer authors parent roll-up facts | Prompt/command ownership tests require delivery to report missing roll-up coverage and use `delivery_check_set` only; owner/CLI fixtures use `parent_ledger_rollup_set`, and reviewer attempts are rejected or treated as non-authoritative. |
 | Evaluator output is mistaken for gate evidence | Evaluator prompt and routing label raw JSON as advisory; only `evaluate_save` output can satisfy evaluator policy. |
