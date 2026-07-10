@@ -502,9 +502,11 @@
       "q": "Does CHK-007's per-dispatch budget cap (LATTICE_HARD_BUDGET_TOKENS reused via shouldBlockDispatch) apply per-provider or globally across concurrently in-flight host runs, and is it a single-call ceiling or a rolling window?",
       "evidence": "checklist.json CHK-007 and plan.md describe reusing the existing shouldBlockDispatch/recordBudgetBlock guard without redefining its semantics; the plan does not state whether the cap is evaluated per-call (as today) or needs new cross-run aggregation now that host_run introduces a new call site alongside dispatch_run. Not a gap since the plan explicitly scopes this as reuse, not redefinition, but flagging since it is the first time this guard fires from a second call site.",
       "sourcePointers": [
-        ".lattice/story/actives/B-70e9/checklist.json#CHK-007",
-        ".lattice/story/actives/B-70e9/plan.md"
-      ]
+        "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+        "CHK-007"
+      ],
+      "resolution": "CHK-007 reuses the existing semantics exactly: LATTICE_HARD_BUDGET_TOKENS is a global (not per-provider) per-call ceiling compared against the single preflight prompt-size estimate of one host_run invocation via shouldBlockDispatch; there is no rolling window and no per-provider split in this story. Anything beyond that (rolling windows, per-provider budgets) is out of scope and will be documented as such in docs/host-run-usage.md.",
+      "resolvedAt": "2026-07-10T05:29:57.571Z"
     }
   ]
 }
