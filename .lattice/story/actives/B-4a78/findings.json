@@ -23,6 +23,90 @@
       "resolvedAt": "2026-07-10T02:13:22.869Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-4a78:F-002",
+      "desc": "F-001 is not fully fixed for the reviewer read evidence shape this lane must record. The command schema and reviewer instructions allow readManifest.filesTriagedByName to include source implementation files, and this review must report source files as triaged by name. But captureReviewerReadEvent keeps only docs/requirements/decisions/*.md events, so source-file triage readEvents are dropped before diagnoseReviewerReadEvidence compares readLog to readManifest. A no-blocker review_pass_set with the required manifest plus mechanical events for source files would fail with read_manifest_extra_triage diagnostics instead of accepting and persisting the requested real read evidence. Fix by either mechanically capturing non-decision triage events or narrowing the readManifest schema/instructions to decisions-doc paths only.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-10T02:17:29.862Z",
+      "reviewRound": "2026-07-10T02:13:15.840Z",
+      "reviewRunId": "B-4a78:RR-002",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/pos-agent-drivability-optimization.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/finding-verify.ts",
+          "packages/main/src/core/reviewer-read-evidence.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/pos-agent-drivability-optimization.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "bc92772fa503ecdd9dcd6718e70b569734781cb580d1565958a9db4491dc5e5f"
+      },
+      "readDiagnostics": [
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "packages/main/src/cli/command-catalog.ts",
+          "message": "readManifest.filesTriagedByName self-reports a file absent from the mechanical read log: packages/main/src/cli/command-catalog.ts"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "packages/main/src/core/finding-verify.ts",
+          "message": "readManifest.filesTriagedByName self-reports a file absent from the mechanical read log: packages/main/src/core/finding-verify.ts"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "packages/main/src/core/reviewer-read-evidence.ts",
+          "message": "readManifest.filesTriagedByName self-reports a file absent from the mechanical read log: packages/main/src/core/reviewer-read-evidence.ts"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "packages/main/src/core/types.ts",
+          "message": "readManifest.filesTriagedByName self-reports a file absent from the mechanical read log: packages/main/src/core/types.ts"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "packages/main/src/handlers/finding.ts",
+          "message": "readManifest.filesTriagedByName self-reports a file absent from the mechanical read log: packages/main/src/handlers/finding.ts"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+          "message": "readManifest.filesTriagedByName self-reports a file absent from the mechanical read log: packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts"
+        }
+      ],
+      "_hash": "5f2d479ae6fc083d6be487ddb2f76503a83eb7b3411fd9aead118985c669dfba",
+      "files": [
+        "packages/main/src/core/reviewer-read-evidence.ts",
+        "packages/main/src/handlers/finding.ts",
+        "packages/main/src/cli/command-catalog.ts",
+        "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|fully-fixed-reviewer",
+      "signatureTagSource": "auto"
     }
   ]
 }
