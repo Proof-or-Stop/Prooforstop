@@ -5,7 +5,7 @@
       "desc": "Commit-hook failure is not fail-closed for validation reuse: done_prepare writes donePrepareValidationReuse before commitDonePrepareGeneratedMetadata attempts git commit, so a rejected auto-close commit leaves done-required-evidence.json claiming reused validation even though no auto-closeout commit exists and generated files remain staged. Reproduced in a temp TEST fixture with a failing pre-commit hook: transcript BLOCKED with git commit failed, last commit unchanged, hasReuseRecord=true, status shows staged done-required-evidence.json/test-evidence.json. Move reuse-record persistence after a successful safe commit or roll it back on commit failure.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-09T23:58:49.441Z",
@@ -19,7 +19,11 @@
         "packages/main/src/core/done-prepare-generated-metadata.ts:413"
       ],
       "signatureTag": "edge|ts:1640|commit-hook-failure",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 180fd8726: done_prepare now captures a generated-metadata transaction before writing the validation reuse record and rolls back safe-path worktree/index state when auto-closeout git commit fails. Verified by npm --prefix packages/main run build PASS and npm --prefix packages/main run test:done-prepare-auto-closeout-smoke PASS, including failing pre-commit hook coverage asserting HEAD unchanged, generated metadata unstaged, and donePrepareValidationReuse removed.",
+      "resolvedAt": "2026-07-10T00:08:11.343Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
