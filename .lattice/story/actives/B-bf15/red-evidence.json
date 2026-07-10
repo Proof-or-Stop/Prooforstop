@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-bf15",
+  "records": [
+    {
+      "id": "RED-20260710142904",
+      "trigger": "npm script test:autopilot-resume-smoke fails with MODULE_NOT_FOUND in any clean build because src/tasks/autopilot-resume-smoke.ts was deleted in 5d3d7bd686",
+      "acceptanceTargetRef": "CHK-001",
+      "baselineHeadHash": "6e68a2eb99059a5d161365efbcb8d848c600cc14",
+      "baselineMaterialHash": "47f3b5a4560f61c2cb528c1c98d478237ec717bde13e8860f90b9ec6f6cc8e0d",
+      "observedFailure": "In the fresh B-bf15 worktree after npm --prefix packages/main run build: Error: Cannot find module .../packages/main/dist/tasks/autopilot-resume-smoke.js, code MODULE_NOT_FOUND, exit 1 (dist file absent because its TypeScript source no longer exists)",
+      "failingCommand": "npm --prefix packages/main run test:autopilot-resume-smoke",
+      "expectedGreenCommand": "npm --prefix packages/main run | grep -c \"test:autopilot-resume-smoke\" | grep -qx 0",
+      "greenRelation": {
+        "targetRef": "CHK-001",
+        "relation": "replacement",
+        "command": "npm --prefix packages/main run | grep -c \"test:autopilot-resume-smoke\" | grep -qx 0"
+      },
+      "note": "Chore removes the dead script entry; green state = script no longer listed, so the missing-file failure is unreachable.",
+      "createdAt": "2026-07-10T14:29:04.230Z"
+    },
+    {
+      "id": "RED-001",
+      "trigger": "npm script test:autopilot-resume-smoke fails with MODULE_NOT_FOUND in any clean build because src/tasks/autopilot-resume-smoke.ts was deleted in 5d3d7bd686",
+      "acceptanceTargetRef": "AB-001",
+      "baselineHeadHash": "6e68a2eb99059a5d161365efbcb8d848c600cc14",
+      "baselineMaterialHash": "47f3b5a4560f61c2cb528c1c98d478237ec717bde13e8860f90b9ec6f6cc8e0d",
+      "observedFailure": "In the fresh B-bf15 worktree after npm --prefix packages/main run build: Error: Cannot find module .../packages/main/dist/tasks/autopilot-resume-smoke.js, code MODULE_NOT_FOUND, exit 1 (dist file absent because its TypeScript source no longer exists)",
+      "failingCommand": "npm --prefix packages/main run test:autopilot-resume-smoke",
+      "expectedGreenCommand": "npm --prefix packages/main run | grep -c \"test:autopilot-resume-smoke\" | grep -qx 0",
+      "greenRelation": {
+        "targetRef": "AB-001",
+        "relation": "replacement",
+        "command": "npm --prefix packages/main run | grep -c \"test:autopilot-resume-smoke\" | grep -qx 0"
+      },
+      "note": "Chore removes the dead script entry; green state = script no longer listed, so the missing-file failure is unreachable. Supersedes the earlier record that targeted CHK-001 (not a valid red target).",
+      "createdAt": "2026-07-10T14:32:08.441Z"
+    }
+  ],
+  "createdAt": "2026-07-10T14:29:04.230Z",
+  "updatedAt": "2026-07-10T14:32:08.441Z"
+}
