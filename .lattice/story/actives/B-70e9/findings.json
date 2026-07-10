@@ -93,6 +93,24 @@
       "resolvedAt": "2026-07-10T08:09:01.783Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-70e9:F-005",
+      "desc": "[codex host-B, cross_host_review B-70e9-xhr-r2c] Story-bound host_run ignores configured storyDir: resolvePhase hard-codes .lattice/story/actives (host-run.ts ~line 177) before honoring even an explicit --phase. Projects configuring storyDir in lattice.config.json use the store/config for story metadata everywhere else in the CLI; in such projects every story-bound host_run is refused as unknown story and no host launches. Fix direction: resolve the story via the handler ctx.store (or loadConfig storyDir) and only fail unknown-story against the configured path; when --phase is supplied do not require the index read at all.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host-b",
+      "createdAt": "2026-07-10T08:39:16.902Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "_hash": "771455bde096816329fcf875792748be79e8049e232491beb2b867751d76fe85",
+      "files": [
+        "packages/main/src/core/host-run.ts",
+        "packages/main/src/handlers/host-run.ts"
+      ],
+      "signatureTag": "edge|ts|codex-host-cross",
+      "signatureTagSource": "auto"
     }
   ]
 }
