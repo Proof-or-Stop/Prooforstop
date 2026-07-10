@@ -194,6 +194,28 @@
         "scanEscalationReason": null
       },
       "_hash": "c350b38030802a85152c13327f3837f6e62ab889c9133f6d2d1c3cd62c938383"
+    },
+    {
+      "id": "B-70e9:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Re-review round 2 (post fix commit 8a8cd2407) scoped to code-quality lane. Scrutinized F-003 atomic fixed-slot admission (TOCTOU closed, fresh-probe reclaim, lost-race fallthrough correct, cap raise/lower comments accurate) and F-004 provider-parametric blocked path (byte-compat default preserved for claude seam). No dead code, no as-any, no empty catches, no console.log; tsc clean. Independently rebuilt and ran smokes myself (not trusting commit message): test:host-run-usage 27/27 (both new F-003 real-contention checks + F-004 attribution checks verified), usage-ledger-dispatch-smoke 40/40, usage-ledger-budget-smoke 41/41, usage-ledger-default-on-smoke 30/30, usage-ledger-codex-gemini-smoke 53/53, usage-ledger-adapter-smoke 50/50, usage-ledger-diagnostics-smoke 34/34, usage-ledger-prototype-pollution-smoke 32/32, usage-sweep 11/11, cross-host-review 24/24, review-escalation 19/19, review-escalation-freshness-root pass -- all match commit-message counts exactly. Doc (docs/host-run-usage.md) accurately reflects the new admission/reclaim/provider-attribution semantics, no doc-promise-undelivered gap. No Proof Metadata Review Coverage concern (diff does not touch job.metadata/run.metadata proof-key semantics). No quality-lane blockers; F-003/F-004 genuinely resolved.",
+      "createdAt": "2026-07-10T08:14:55.355Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-009",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-70e9/checklist.json",
+          ".lattice/story/actives/B-70e9/findings.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "15deda7811934be5d20320784b5676825a8f45cf1907dff368bf5fc1e0d72e65"
     }
   ]
 }
