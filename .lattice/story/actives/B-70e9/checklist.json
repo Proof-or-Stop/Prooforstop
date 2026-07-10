@@ -4,14 +4,76 @@
       "id": "CHK-001",
       "title": "M1: Add a host-run choke-point command that launches codex/claude/agy via the B-d8ef canonical launcher argv and writes preflight plus final usage rows bound to storyId, agentType, phase, and provider",
       "context": "Reuse core/usage-ledger dispatch-usage seam (recordDispatchPreflight, budget guard, recordDispatchFinal/recordDispatchFinalForProvider). Codex: parse stdout turn.completed usage (input_tokens/cached_input_tokens/output_tokens/reasoning_output_tokens). Claude: parse stream-json result usage via parseClaudeCliOutput. agy: record usage.source=unavailable (verified no usage surface).",
-      "userSees": "Running the command launches the host with canonical argv, passes host output through, and appends correlated ledger rows visible via the usage report command.",
+      "userSees": "Running lattice host_run --host codex --storyId B-70e9 --agentType reviewer --promptFile p.txt streams the host output live and ends with a stderr line like: \"usage recorded: provider=openai input=10202 cacheRead=11008 output=85 (recordId llmuse_...)\"",
       "excludes": [
         "No change to gate semantics: usage rows stay gateEvidence=false diagnostics",
         "No interception of interactive desktop sessions"
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/host-execution-readiness.ts",
+          "packages/main/src/core/command-policy.ts"
+        ],
+        "create": [
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/handlers/host-run.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Fake codex runner emitting a turn.completed usage event: host_run writes a sequence-1 estimate row and a sequence-2 provider-reported final superseding it, storyId/phase/agentType bound, mapping input=input_tokens-cached_input_tokens, cacheRead=cached_input_tokens, cacheCreation=null, output=output_tokens",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Fake claude runner: stream-json result usage mapped via parseClaudeCliOutput with served model bound",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Fake agy runner: unavailable final with provider name antigravity and explicit unavailableReason",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Fake codex run ending in turn.failed with no usage event records an unavailable final, never a fabricated zero",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "LATTICE_USAGE_LEDGER=0 leaves the run byte-identical: no rows, no dirs created",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Host non-zero exit code propagates to the caller while rows still record",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Prototype-polluted or wrong-typed usage payload must not fabricate counts: own-property projection keeps reads honest and the raw digest covers the ORIGINAL payload",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "A runner flooding stdout cannot exhaust memory: parse buffer is line-streamed and bounded while passthrough continues",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -57,6 +119,31 @@
       "status": "pending",
       "startTime": null,
       "endTime": null
+    },
+    {
+      "id": "CHK-007",
+      "title": "M1: Enforce a per-dispatch token budget cap and a host-run concurrency cap at the choke point",
+      "context": "User follow-up T2 (2026-07-10, task_3868995d): burn evidence includes five parallel codex exec reviewers consuming ~16M input tokens in about one minute, so the choke-point command must support (a) a per-dispatch hard budget ceiling (reuse/extend the existing fail-closed LATTICE_HARD_BUDGET_TOKENS preflight guard, decision.kind=blocked row on refusal) and (b) a concurrency cap on simultaneous lattice-initiated host runs (fail-closed refusal or bounded queue with a visible diagnostic), both diagnostics-honest in the ledger.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-70e9/background.md"
+      ],
+      "userSees": "Launching more concurrent host runs than the cap refuses (or queues) with a clear message, and an over-budget dispatch is blocked before spawn with a blocked ledger row.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-10T05:13:32.463Z",
+      "phase": "PLAN",
+      "itemId": "CHK-007",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "User follow-up T2 folded into this story per operator instruction on 2026-07-10 instead of opening a separate story.",
+      "addedTitle": "M1: Enforce a per-dispatch token budget cap and a host-run concurrency cap at the choke point",
+      "addedContext": "User follow-up T2 (2026-07-10, task_3868995d): burn evidence includes five parallel codex exec reviewers consuming ~16M input tokens in about one minute, so the choke-point command must support (a) a per-dispatch hard budget ceiling (reuse/extend the existing fail-closed LATTICE_HARD_BUDGET_TOKENS preflight guard, decision.kind=blocked row on refusal) and (b) a concurrency cap on simultaneous lattice-initiated host runs (fail-closed refusal or bounded queue with a visible diagnostic), both diagnostics-honest in the ledger."
     }
   ]
 }
