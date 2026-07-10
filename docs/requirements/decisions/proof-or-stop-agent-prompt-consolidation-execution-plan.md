@@ -108,7 +108,7 @@ they are supported by current project code or CLI documentation.
 | Clarify progress UX for reviewer pass/finding changes. | Codex A, Agy A. | Accepted with scope boundary. | Mandatory Progress UX now says `finding_add` / `review_pass_set` are not currently auto-appended and require either host follow-up or a later CLI auto-append/status aggregation story. | `packages/main/src/cli-engine.ts` auto-appends milestone status for checklist/evidence/story/delivery/summary commands, not reviewer pass/finding commands; `milestone_status` reads story/checklist/ledger/summary. |
 | Add DONE-required evidence to final-gate contracts. | Agy A. | Accepted. | Artifact schema and delivery contract now mention `done_required_validate` / `done-required-evidence.json` when project policy configures DONE-required commands. | AGENTS and CLI docs require fresh DONE-required evidence only when `doneRequiredCommands` / policy are configured; prompts must not invent it otherwise. |
 | Treat `scope-check.openQuestions` as non-tamper-evident until hardened. | Codex B, Agy A. | Accepted as warning; code change deferred. | The scope artifact row now says prompts must not rely on unsigned `openQuestions` as tamper-evident blockers unless resolved through a structured command or signature-domain update. | `scope-check.ts` passes `openQuestions` through outside the signature domain; process-fact registry records that choice. |
-| Split M0.5 into smaller, rollback-safe implementation stories. | Claude A, Agy B. | Accepted. | Added a story breakdown and parallel execution plan with 26 recommended stories and explicit serial/parallel boundaries. | M0.5 touches registry, host shims, review-run lanes, init gate, process-fact registry, and legacy evidence readers; one giant story would be hard to review or revert. |
+| Split M0.5 into smaller, rollback-safe implementation stories. | Claude A, Agy B. | Accepted. | Added a story breakdown and parallel execution plan with 27 recommended stories: 26 prompt-consolidation stories plus one independent CLI lifecycle story, with explicit serial/parallel boundaries. | M0.5 touches registry, host shims, review-run lanes, init gate, process-fact registry, and legacy evidence readers; one giant story would be hard to review or revert. |
 | Add bounded search / memory budget for broad scans. | User follow-up, owner analysis. | Accepted. | Added a Search / Memory Budget Contract and expanded M6 around `candidateSpecSet`, full-scan escalation reasons, and token/search metrics. | Memory Runtime Preflight is explicitly non-authoritative and not gate evidence; over-broad scanning was already observed as a review execution risk. The plan now keeps full scan as an escalation path instead of a default. |
 | Immediately update runtime code in this story. | Agy A/B. | Rejected for this story. | No runtime code changes are included here. | B-2861 scope is a document review and optimization story; code changes belong in the later implementation stories described by the plan. |
 
@@ -838,13 +838,106 @@ inventing new required fields where the CLI already has a schema.
 |---|---|---|---|---|---|
 | `init-check.json` | `init_check_set`; controlled fallback `init_check_repair`. | `storyId`, `checkedAt`, `reviewRound`, `agentId`, `issues`, `agentResults`, `_hash`; required agent set currently includes `lattice-review-story-init` and `product-reviewer`. | INIT->INIT_CHECK in `core/machine.ts`; process-fact registry reviewer lanes. | `_hash` covers story background/title/description/checklist hash/reviewRound; high/critical issues block; fallback is marked with `@fallback`. | Preserve this fence while renaming to `proof-or-stop-*`; do not remove `product-reviewer` until required-agent migration passes tests. |
 | `scope-check.json` | `scope_check_save`. | `features[]`, five-tier `status`, `summary`, optional `openQuestions`, `_hash`. | PLAN scope review / story review consumers. | `_hash` covers storyId/timestamp/gaps/covered/reviewRound; `openQuestions` are currently outside signature domain. | M1/M4 must decide whether `openQuestions` need stronger gate binding before prompts rely on them as blockers. Until then, prompts must treat open questions as review context or require `scope_question_resolve` / a signature-domain update before claiming tamper-evident blocker status. |
+| `milestone-ledger.json` | Owner/CLI via PLAN-only `milestone_ledger_set` / `milestone_ledger_add`. | `proofstory.milestone_ledger.v1`, `storyId`, candidate/confirmed `state`, `ledgerHash`, optional accepted-intent binding, milestone rows, timestamps. | ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates. | `ledgerHash` is derived from normalized rows; mutations return the ledger to candidate until an accepted intent-collision binding confirms the current hash. | Scope-defining trusted metadata. Current gap: the process-fact registry covers both writers, but `LIFECYCLE_ARTIFACTS` omits the path. Register it in the closed lifecycle set and include its digest in closeout review-retention checks. |
+| `slice-plan.json` | Owner/CLI via PLAN-only `slice_plan_set`. | `proofstory.slice_plan.v1`, `storyId`, current `ledgerHash`, complete `slices[]`, `planHash`, timestamps. | ProofStory DEV admission and DONE intent-equivalence gates. | The plan must cover every ledger milestone; `ledgerHash` must match the current ledger and `planHash` binds the ledger plus sorted slices. | Scope-defining trusted metadata. Current gap: the process-fact registry covers the writer, but `LIFECYCLE_ARTIFACTS` omits the path. Register it and include its digest in closeout review-retention checks. |
+| `parent-ledger-rollup.json` | Owner/CLI via `parent_ledger_rollup_set`, currently allowed in PLAN/DEV/REVIEW/TEST. | `proofstory.parent_ledger_rollup.v1`, `storyId`, `ledgerHash`, optional `slicePlanHash`, child coverage/evidence refs, `rollupHash`, timestamps. | ProofStory DONE intent-equivalence gate. | `rollupHash` binds the current ledger/slice-plan hashes and sorted children; DONE treats mismatched ledger/plan hashes, missing coverage, or empty evidence refs as stale/incomplete. | Closeout-evidence trusted metadata. Current gap: the process-fact registry covers the writer, but `LIFECYCLE_ARTIFACTS` omits the path, so a canonical TEST closeout write can be mistaken for unclassified scope drift. Fix classification/order in the independent M4 CLI story; do not hand-write or scope-acknowledge this artifact. |
+| `scope-contract.json` acknowledgements | Owner/CLI via `scope_contract_acknowledge`, deliberately allowed only in DEV/REVIEW. | Existing contract plus append-only acknowledgement facts: actor, reason, timestamp, paths, optional anchors/hunk digest(s), and current structured phase/head/material provenance. | REVIEW/TEST/DONE scope gates and review-run scope binding through `digestScopeContract`. | Path/hunk acknowledgements affect the scope-contract digest. A real expansion after review must return to DEV/REVIEW and obtain new review evidence; TEST acknowledgement remains forbidden. | Scope-defining trusted metadata. Current gap: `LIFECYCLE_ARTIFACTS` omits `scope-contract.json`, and no composite digest yet joins it with milestone ledger and slice plan for conditional closeout re-attestation. Do not broaden acknowledgement to TEST. |
 | Review run | `review_run_start`. | lane from `REVIEW_RUN_LANES`, `reviewRunId`, review round, `headHash`, `materialHash`, optional `storyFilesHash`, prompt hash, workspace binding. | `finding_add`, `review_pass_set`, REVIEW->TEST gate, quorum. | Evidence must bind to the current run/round and fresh workspace binding. Current code only accepts `lattice-review-*` lanes. | M0.5 must normalize canonical `proof-or-stop-*` roles before new reviewer evidence writes. |
 | Finding / review pass | `finding_add`, `review_pass_set`. | Signed finding/pass with `agent`, `reviewRunId`, severity/category or note; `evidenceState` defaults to verified. | REVIEW->TEST in `core/machine.ts`; review escalation/floor downstream. | Reviewer evidence must pass signature/run binding; suspected/disproven findings are advisory. | Keep pass-only `finding_add` normalization, but ensure canonical role IDs are written after M0.5. |
 | `verificationEvidence` | `verification_evidence_add`; legacy compatibility through `checklist_update verificationEvidence`. | `intentRef`, `kind`, `note`, optional `file`, `command`, `result`, `verdict`, `waiverType`, `attestation`, `actorTrust`, `factProvenance`; writer auto-stamps `headHash`, `materialHash`, `storyFilesHash`, `timestamp`. | DEV->REVIEW evidence gate, REVIEW coverage, `lattice validate`, DONE stale-evidence hints. | `checkEvidenceFreshnessForGit` compares current material/story files; storyFilesHash match can downgrade whole-tree drift to re-attestation advisory. | Prefer `verification_evidence_add`; document minimum fields from the existing schema, not a new ad hoc schema. |
 | `test-evidence.json` | `lattice validate`. | PASS/FAIL plus head/material binding. | DONE gate and DONE pre-check. | DONE verifies PASS and recorded snapshot/material binding. | No prompt writes. Keep as CLI-owned validation evidence. |
 | `done-required-evidence.json` | `done_required_validate`. | Command-set/policy result bound to current HEAD/material/storyFiles/policy when `doneRequiredCommands` or DONE-required policy is configured. | DONE-required gate only for projects that opt in. | Fresh PASS evidence is blocking only under configured policy; without policy the command is advisory/no full-suite assurance. | Delivery and final prompts may cite this evidence when present, but must not imply it exists or is required for projects without a DONE-required policy. |
 | `delivery-check.json` | `delivery_check_set`. | `docsPromises`, `realMachineTests`, `closingSelfCheck`, `agentId`, `headHash`, `materialHash`, optional `storyFilesHash`, review round, `_hash`. | TEST/DONE closeout and DONE gate. | `_hash` covers promises/tests/self-check/reviewRound/materialHash/storyFilesHash; material drift is stale unless signed storyFilesHash still matches. | Delivery prompt can cite evaluator transcript only when it exists; docs fallback only when docs reviewer was not routed. |
+| `evidence/delivery-context-pack.json` | Owner/CLI via explicit `delivery_context_pack --write`; default command is read-only. | Persisted delivery-review context: delivery diff, docs promises, real-machine test refs, validation ref, review round, delivery-check/waiver status, `isSigner:false`, and false Authority/production claims. | Delivery reviewer context only; it is not a signer and no gate consumes it as a delivery pass. | Atomic write validates the shape, but the artifact has no signature or independent freshness hash; regenerate it from current facts before delivery review. | Closeout-evidence trusted metadata only after closed-set registration and canonical writer provenance. Current gap: lifecycle artifacts omit the path and the process-fact artifact registry has no gate-artifact entry for it; path trust must not promote its contents to gate evidence. |
 | `eval-evidence.json` | `evaluate_save`. | Parsed evaluator JSON with `scores`, `total`, `pass`, `itemResults`, `findings`, `timestamp`. | DONE evaluator row when browser project policy requires it. | Raw evaluator JSON is not gate evidence; only persisted `eval-evidence.json` is consumed. | M1 should classify evaluator prompts as raw advisory producers plus optional `evaluate_save` evidence source, not invent a parallel sink unless replacing this one. |
+
+### Closeout Evidence Ordering Contract
+
+This is a required CLI lifecycle/drivability contract and an unresolved current
+implementation gap. It is not a prompt-only cleanup and this plan does not
+claim the bug is fixed. Current code reproduces the mismatch:
+
+- `packages/main/src/core/command-policy.ts` allows
+  `parent_ledger_rollup_set` in PLAN/DEV/REVIEW/TEST, while
+  `scope_contract_acknowledge` is intentionally limited to DEV/REVIEW.
+- `packages/main/src/handlers/transition-orchestrator.ts` assigns a new
+  `currentReviewRound` every time a story enters REVIEW. A recovery that sends
+  canonical closeout metadata through DEV->REVIEW can therefore invalidate the
+  round boundary instead of merely completing TEST closeout.
+- `packages/main/src/core/lifecycle-registry.ts` currently omits
+  `milestone-ledger.json`, `slice-plan.json`, `parent-ledger-rollup.json`, and
+  `evidence/delivery-context-pack.json` from its closed lifecycle artifact set.
+  `packages/main/src/core/process-fact-registry.ts` already records canonical
+  writers/consumers for the first three, so the registries disagree about
+  lifecycle classification.
+
+Prompt text cannot repair that disagreement. The CLI must classify canonical
+closeout writes before it decides that a TEST story needs scope acknowledgement
+or another REVIEW round. At the same time,
+`scope_contract_acknowledge` must remain DEV/REVIEW-only. Broadening it to TEST
+is rejected: a real post-review expansion of product, source, test, docs, or
+semantic scope must still return to DEV/REVIEW and receive fresh review.
+
+Trusted story metadata has two closed classes:
+
+| Class | Closed paths | Meaning |
+|---|---|---|
+| Scope-defining | `milestone-ledger.json`, `slice-plan.json`, and `scope-contract.json` including acknowledgements. | Defines intended scope, decomposition, exclusions, and reviewed expansion. A digest change is review-significant even though story metadata is excluded from material/story file hashes. |
+| Closeout-evidence | `parent-ledger-rollup.json`, `evidence/delivery-context-pack.json`, plus already registered validation/delivery artifacts such as `test-evidence.json`, policy-configured `done-required-evidence.json`, `delivery-check.json`, `eval-evidence.json`, `summary.json`, and transcript/live-smoke evidence. | Records completion evidence after scope is fixed. A path can be classified as closeout metadata without making its payload sufficient, fresh, signed, or gate-admissible. |
+
+Path trust requires both membership in a closed-set lifecycle registry and a
+canonical CLI writer/provenance record. An unknown path, a hand-written copy,
+or an artifact with no recognized writer is not trusted metadata. Conversely,
+trusted path provenance does not automatically make the contents gate evidence:
+each existing gate still validates its own schema, hash/signature, freshness,
+policy, reviewer lane, and semantic coverage.
+
+The required closeout order is:
+
+1. Enumerate all TEST/DONE blockers through read-only status/readiness commands,
+   including parent-ledger coverage, validation, configured DONE-required
+   policy, delivery, summary, and scope state.
+2. When slice-plan child coverage is missing, the story owner invokes the
+   canonical `parent_ledger_rollup_set` writer with evidence-backed child rows.
+3. The CLI classifies that canonical path/writer as closeout evidence without
+   requesting `scope_contract_acknowledge`.
+4. Before retaining review evidence, compare the reviewed product/material diff
+   and semantic scope binding, then compare the scope-defining artifact digest.
+5. Run `lattice validate`; run `done_required_validate` only when the project
+   configures a DONE-required policy.
+6. Regenerate delivery context and invoke the delivery agent. The delivery
+   agent identifies/reports missing roll-up coverage and verifies delivery, but
+   never guesses child facts or hand-writes/calls the parent roll-up writer. It
+   owns only `delivery_check_set`; the owner/CLI owns
+   `parent_ledger_rollup_set`.
+7. The owner records the summary, then runs `done_prepare` for ordered merge,
+   stale-evidence recovery, validation, and final blocker aggregation.
+8. Advance to DONE only after `done_prepare` passes.
+
+Unknown artifact paths, changed source/tests/docs, a changed product/material
+diff, changed scope semantics, or a changed scope-defining digest must still
+force DEV/REVIEW. Canonical closeout classification is not a waiver for real
+scope or implementation drift.
+
+Reviewer evidence retention for metadata-only closeout must be conditional,
+never blanket. `storyFilesHash` alone is insufficient because
+`isMaterialExcludedPath` excludes story metadata from both material and
+story-owned file hashes. Reuse or signed re-attestation may be considered only
+when all of these hold:
+
+- the product/material diff is unchanged from the reviewed diff;
+- the existing review scope binding (scope-contract hash, diff-pack hash, and
+  reviewed hunk set) still matches;
+- a composite digest of the scope-defining artifacts is unchanged, covering the
+  full scope contract including acknowledgements, milestone ledger, and slice
+  plan; and
+- every intervening change is an allowlisted canonical closeout-evidence write
+  with valid writer provenance.
+
+If a new `currentReviewRound` has already been opened, old passes must not be
+auto-reused. Reuse across that boundary requires a separately designed,
+explicitly signed re-attestation contract; until such a design exists, the new
+round requires current-round reviewer evidence.
 
 ### Prompt Count By Target Status
 
@@ -1130,10 +1223,21 @@ Exit criteria:
 
 ### M4 - CLI-Mediated Story Artifact Discipline
 
-**Goal:** Remove prompt instructions that directly write story artifacts.
+**Goal:** Remove prompt instructions that directly write story artifacts and
+make canonical closeout metadata lifecycle-drivable without weakening scope
+review.
 
 Subprojects:
 
+- M4.C1 Add one independent CLI lifecycle story for closed-set trusted metadata
+  classification and the Closeout Evidence Ordering Contract. Register the
+  scope-defining and closeout-evidence paths, preserve canonical writer
+  provenance, add the composite scope-defining digest/re-attestation boundary,
+  and prevent canonical TEST roll-up writes from being misclassified as scope
+  expansion. Although logically owned by M4, this story is an early serial
+  prerequisite immediately after M0; it must land before prompt consolidation
+  depends on closeout ordering. It does not rewrite prompts, and it must not
+  broaden `scope_contract_acknowledge` to TEST.
 - M4.0 Split M4 into rollback-safe implementation stories: direct-write ban
   first, direct-read replacement second, INIT self-check migration third, and
   channel retirement/static scans last.
@@ -1165,6 +1269,16 @@ Exit criteria:
   preserved by a CLI-mediated artifact consumed by the same gate.
 - Static scans distinguish allowed legacy aliases from accidental active
   `lattice-*` role residue.
+- The lifecycle artifact registry and process-fact writer provenance agree on
+  scope-defining and closeout-evidence paths. A canonical TEST
+  `parent_ledger_rollup_set` write does not itself force TEST->DEV->REVIEW, while
+  changed source/tests/docs/product scope or a changed scope-defining digest
+  still does.
+- Metadata-only review retention is fail-closed: it requires unchanged
+  product/material diff, existing scope binding, unchanged composite
+  scope-defining digest, and only allowlisted canonical closeout writes. No old
+  pass is reused after a new review round without an explicit signed
+  re-attestation design.
 - Each M4 sub-story can be rolled back without reverting unrelated reader,
   writer, INIT, or channel changes.
 
@@ -1268,6 +1382,11 @@ Subprojects:
   `delivery_check_set`.
 - M7.5 Add guidance for when transcript/delivery evidence is required and how
   non-mechanical user approval must be labeled.
+- M7.6 Separate closeout reporting from owner mutation: the delivery reviewer
+  identifies and reports missing parent-ledger coverage and owns
+  `delivery_check_set`; the story owner/CLI alone owns
+  `parent_ledger_rollup_set`. The reviewer must never guess child coverage,
+  hand-write the roll-up, or call the roll-up setter.
 
 Exit criteria:
 
@@ -1276,6 +1395,8 @@ Exit criteria:
   evidence only under workflow policy.
 - Delivery review does not pretend browser/API exercise happened unless an
   evaluator or transcript actually provided it.
+- Delivery review reports roll-up blockers without manufacturing roll-up facts;
+  parent roll-up and delivery-check writers remain separate owners.
 - `proof-or-stop-product-reviewer` is not downgraded while INIT still requires
   its output.
 
@@ -1326,8 +1447,9 @@ Subprojects:
 - M9.2 Run process-fact contract tests.
 - M9.3 Run Codex adapter verification if prompt assets, manifests, or adapter
   routing changed.
-- M9.4 Run a sample story through INIT/PLAN/DEV/REVIEW/TEST using the new
-  prompt routing.
+- M9.4 Run a sample story through INIT/PLAN/DEV/REVIEW/TEST/DONE using the new
+  prompt routing and the ordered validate / configured done-required /
+  delivery / summary / `done_prepare` closeout sequence.
 - M9.5 Confirm no active prompt directly writes story files, uses legacy
   verification vocabulary, or duplicates another prompt's owner check.
 - M9.6 Run static scans for non-allowlisted `lattice-*` role residue, unprefixed
@@ -1339,10 +1461,16 @@ Subprojects:
   package/lock/version constants, rebuild, and verify `lattice --version`.
 - M9.9 Run `node bin/lattice.js verify_codex` when Codex prompt assets,
   manifests, wrappers, or telemetry/gate code changed.
+- M9.10 Add the TEST parent-roll-up regression: a canonical
+  `parent_ledger_rollup_set` write with unchanged product/material diff,
+  unchanged review scope binding, and unchanged scope-defining digest must not
+  alone force TEST->DEV->REVIEW. A changed source/test/docs file or semantic
+  scope fact must still require DEV/REVIEW and fresh review evidence.
 
 Exit criteria:
 
-- The sample story reaches TEST without legacy prompt usage.
+- The sample story reaches DONE without legacy prompt usage and only after the
+  ordered closeout gates pass.
 - REVIEW findings/pass records are structured and bound to current review runs.
 - Delivery evidence remains signed and separate from ordinary prose.
 - No DONE, review, or verification gate is weakened.
@@ -1351,6 +1479,9 @@ Exit criteria:
   checks.
 - Legacy aliases are warning/compatibility only and do not create new evidence
   under old names.
+- Canonical TEST parent roll-up closeout does not create a synthetic scope
+  expansion or review round, while real product/material/scope changes remain
+  blocking and route back through DEV/REVIEW.
 - Speed metrics show the smaller default prompt set does not remove required
   assurance.
 
@@ -1365,6 +1496,11 @@ Exit criteria:
 | Duplicate doc findings overwhelm REVIEW | One injected docs-promise defect creates one owner finding from `proof-or-stop-review-docs`. |
 | Retired channel reviewer still blocks or duplicates CLI gate | `reviewer_list` excludes `proof-or-stop-review-channel`; `validate --channel` remains authoritative. |
 | Prompt tells agent to edit story files | Static scan for direct write language under `docs/story`; prompt tests fail on new violations. |
+| Canonical closeout metadata is mistaken for a TEST scope expansion | Lifecycle-registry contract enumerates the closed scope-defining and closeout-evidence paths and verifies each trusted path has a canonical CLI writer/provenance record. A TEST `parent_ledger_rollup_set` fixture stays in TEST when product/material and semantic scope are unchanged. |
+| Closeout classification weakens real scope control | Negative fixtures change source, tests, docs, an unknown artifact path, scope acknowledgements, milestone ledger, or slice plan and require DEV/REVIEW. Command-policy tests keep `scope_contract_acknowledge` DEV/REVIEW-only and reject TEST invocation. |
+| Metadata-only review evidence is reused from `storyFilesHash` alone | Retention tests require unchanged product/material diff, current review scope binding, unchanged composite digest of scope contract + milestone ledger + slice plan, and only allowlisted canonical closeout writes. Each missing condition fails closed. |
+| A new review round silently inherits old passes | Transition regression enters REVIEW again and proves old passes are not auto-reused without an explicit signed re-attestation artifact bound to the new round. |
+| Delivery reviewer authors parent roll-up facts | Prompt/command ownership tests require delivery to report missing roll-up coverage and use `delivery_check_set` only; owner/CLI fixtures use `parent_ledger_rollup_set`, and reviewer attempts are rejected or treated as non-authoritative. |
 | Evaluator output is mistaken for gate evidence | Evaluator prompt and routing label raw JSON as advisory; only `evaluate_save` output can satisfy evaluator policy. |
 | Raw evaluator JSON bypasses DONE | Negative test writes raw evaluator JSON without `evaluate_save`; DONE must not treat it as evaluator pass evidence. |
 | Status-changing command hides progress from the user | Mutation-output tests assert either a real `Milestone Status - <storyId>` table or the distinct checklist-derived block appears for human text output; prompt tests forbid agents from hand-writing milestone status. |
@@ -1374,6 +1510,7 @@ Exit criteria:
 | Memory no-hit causes unbounded scan | PLAN/REVIEW fixtures simulate no memory/playbook hit and require a bounded `candidateSpecSet` plus skip/escalation reason before any full decisions scan is allowed. |
 | Search budget silently expands | Fixture or snapshot asserts the default `candidateSpecSet <= 8`, `rg` query count `<= 10`, full-scan yes/no, `scanEscalationReason`, metric sink, and evaluator opt-in cost accounting are emitted. |
 | Alias sunset scan misses legacy evidence | Migration scan fixture includes non-terminal story artifact stores plus prompt registry/frontmatter, host manifests, reviewer/init/process-fact registries, package templates, and confirms terminal story evidence remains read-only historical evidence. |
+| Sample flow stops at TEST and misses closeout ordering | M9 E2E reaches DONE through blocker enumeration, canonical roll-up when required, validation, configured DONE-required policy, delivery, summary, `done_prepare`, and only then `story_advance --phase=DONE`. |
 
 ## Suggested Final Prompt Set
 
@@ -1407,10 +1544,12 @@ coverage:
 
 ## Story Breakdown And Parallel Execution Plan
 
-Recommended implementation size: **26 Lattice stories**. This is the smallest
-recommended breakdown that keeps the dangerous rename, gate, prompt, routing,
-and rollout changes independently reviewable and revertible without making each
-prompt a separate tiny story.
+Recommended implementation size: **27 Lattice stories**: **26
+prompt-consolidation stories plus 1 independent CLI lifecycle story**. This is
+the smallest recommended breakdown that keeps the dangerous rename, gate,
+prompt, routing, and rollout changes independently reviewable and revertible
+without making each prompt a separate tiny story. The independent story is
+logically owned by M4 and does not add a twelfth milestone.
 
 | Milestone area | Story count | Story boundary | Parallelism |
 |---|---:|---|---|
@@ -1419,23 +1558,25 @@ prompt a separate tiny story.
 | M1 registry metadata | 3 | Metadata schema/status fields; evaluator `evidenceMode`; reviewer/routing status output. | Can partly parallelize after M0.5 read compatibility exists. |
 | M2 legacy verification migration | 3 | `testIntent` prompt migration or legacy banners; active prompt vocabulary scans; express/fast evidence-policy examples. | Parallel with M3/M5 after M1 status fields exist. |
 | M3 duplicate responsibility split | 3 | Docs owner split; behavior/quality/concept cleanup and implementation-reviewer fold; delivery fallback contract. | Parallel with M2/M5/M6 once M1 status metadata exists. |
-| M4 CLI-mediated artifact discipline | 4 | Direct-write ban; direct-read replacement APIs; INIT self-check migration; channel retirement/static scans. | Internal order should stay mostly serial; can run beside M2/M3 if it does not touch the same prompt bodies. |
+| M4 CLI-mediated artifact discipline | 5 | Early independent CLI lifecycle classification/order fix; direct-write ban; direct-read replacement APIs; INIT self-check migration; channel retirement/static scans. | The lifecycle classification/order story is serial immediately after M0. The remaining four M4 stories stay at the normal M4 position and mostly serial; they can run beside M2/M3 if they do not touch the same prompt bodies. |
 | M5 runtime guide consistency | 2 | Guide insertion/sync; prompt registry smoke tests. | Parallel with M2/M3 after M1 metadata exists. |
 | M6 scope/spec scan narrowing | 1 | Candidate spec set, bounded memory/playbook preflight, default search budgets, skip reasons, token/search metrics, and full-scan trigger rules. | Parallel after M1, but before M8 routing help freezes. |
 | M7 product/delivery/evaluator boundary | 1 | Product-reviewer fold/advisory decision and evaluator transcript boundary. | Parallel after evaluator `evidenceMode` is decided in M1. |
 | M8 routing/help/spawn guidance | 1 | Human and host routing output, skipped reviewer reasons, legacy alias guidance. | Late serial merge point after M2-M7 semantics stabilize. |
 | M9 E2E regression and rollout | 1 | Prompt registry, process-fact, adapter, sample lifecycle, speed metrics, and release/version checks if runtime changed. | Final serial closure. |
-| **Total** | **26** |  |  |
+| **Total** | **27** |  |  |
 
 Critical path:
 
 1. M0 baseline.
-2. M0.5 read compatibility.
-3. M0.5 canonical write compatibility.
-4. M1 registry metadata and evaluator evidence mode.
-5. Parallel lanes M2, M3, M4, M5, M6, and M7, with local conflict checks.
-6. M8 routing/help once semantics stop moving.
-7. M9 end-to-end rollout.
+2. M4.C1 independent CLI lifecycle classification/order prerequisite.
+3. M0.5 read compatibility.
+4. M0.5 canonical write compatibility.
+5. M1 registry metadata and evaluator evidence mode.
+6. Parallel lanes M2, M3, remaining M4 prompt/artifact discipline, M5, M6,
+   and M7, with local conflict checks.
+7. M8 routing/help once semantics stop moving.
+8. M9 end-to-end rollout through DONE.
 
 Parallel development is supported because each story gets its own worktree, but
 parallel stories must avoid touching the same prompt body, registry file, or
@@ -1448,24 +1589,32 @@ main and rerun the relevant contract tests before DONE.
 Recommended execution order:
 
 1. M0 baseline inventory.
-2. M0.5 role rename compatibility: legacy read path first, canonical writes
+2. M4.C1 independent CLI lifecycle classification/order fix as the early serial
+   prerequisite; do not change prompt bodies in this story.
+3. M0.5 role rename compatibility: legacy read path first, canonical writes
    second, host golden fixtures third.
-3. M1 registry metadata and evaluator evidenceMode decision.
-4. M2 legacy verification migration.
-5. M3 duplicate responsibility split.
-6. M4 story artifact discipline and early static scans.
-7. M5 runtime guide consistency.
-8. M6 scope scan narrowing.
-9. M7 product/delivery/evaluator boundary.
-10. M8 routing and help updates.
-11. M9 end-to-end regression.
+4. M1 registry metadata and evaluator evidenceMode decision.
+5. M2 legacy verification migration.
+6. M3 duplicate responsibility split.
+7. Remaining M4 story artifact discipline and early static scans.
+8. M5 runtime guide consistency.
+9. M6 scope scan narrowing.
+10. M7 product/delivery/evaluator boundary.
+11. M8 routing and help updates.
+12. M9 end-to-end regression through DONE.
 
-M0.5 must land before broad prompt rewrites, because every later artifact should
-write canonical `proof-or-stop-*` role IDs while still reading in-flight legacy
-evidence. The read-path and write-path parts of M0.5 should remain separately
-revertible. M1 must decide evaluator evidenceMode before M7 describes evaluator
-semantics. M2 and M3 should land before large body rewrites; they remove the
-biggest semantic ambiguity first. M4 and M5 should land before host adapter
+This list has 12 execution positions only because M4.C1 lands early and the
+remaining M4 work returns to its normal position. The plan still has the same
+11 milestones, M0 through M9 including M0.5; no twelfth milestone is created.
+
+M4.C1 must land immediately after M0 so closeout metadata is classified before
+later stories depend on TEST/DONE ordering. M0.5 must land before broad prompt
+rewrites, because every later artifact should write canonical
+`proof-or-stop-*` role IDs while still reading in-flight legacy evidence. The
+read-path and write-path parts of M0.5 should remain separately revertible. M1
+must decide evaluator evidenceMode before M7 describes evaluator semantics. M2
+and M3 should land before large body rewrites; they remove the biggest semantic
+ambiguity first. The remaining M4 work and M5 should land before host adapter
 verification so prompt output and process-fact guidance are stable. M8 should
 be late because routing should point to the new stable taxonomy, not to an
 intermediate state.
