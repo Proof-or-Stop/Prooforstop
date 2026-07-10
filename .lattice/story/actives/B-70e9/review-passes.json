@@ -789,6 +789,47 @@
         "scanEscalationReason": null
       },
       "_hash": "c8171132b7e0c5876a51f58d74e872f269b113735cc55b55989cb53a5f24b305"
+    },
+    {
+      "id": "B-70e9:RP-033",
+      "agent": "lattice-review-quality",
+      "note": "Round 9 re-review of F-016 fix (3f3dea9bcd) + clean main-0.3.182 merge (7705f1e8a7). Admission chain in autopilot-executor.ts matches runHostRun ordering exactly (preflight->recordBudgetBlock->acquireHostRunSlot->spawn->releaseSlot-in-finally). No import cycle: host-run.ts imports only host-execution-readiness.js + usage-ledger/dispatch-usage.js. Static CHK-005 fences pass and correctly allowlist autopilot-executor.ts as third recordBudgetBlock site. Refusal path returns honest failed attempt (exitCode 3, redacted command, no fabricated stdout); slot-registry throw fails closed (reasonable deliberate divergence from runHostRun, not a regression). Ledger-OFF byte-identical, verified with budget/cap env pinned to prove OFF ignores them. No dead code / as-any / empty catches; all 6 imported host-run symbols used. Build clean. test:host-run-usage 44/44, test:usage-sweep 17/17, usage-ledger-budget-smoke 41/41, usage-ledger-dispatch-smoke 40/40 all pass. Diff does not touch proof/receipt job.metadata/run.metadata semantics (usage-ledger diagnostics only). Main-merge brought unrelated files with no overlap; clean, no conflict residue. All 7 checklist items done, zero failing/waivers. No blocking issues.",
+      "createdAt": "2026-07-10T11:45:50.686Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-036",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/tasks/usage-ledger-budget-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/host-execution-readiness.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/usage-ledger/adapters/openai.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/core/usage-ledger/writer.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a9786642f4376a7a569865ce983b331b2c903de5ef24ac5519c0a1525f8d02e3"
     }
   ]
 }
