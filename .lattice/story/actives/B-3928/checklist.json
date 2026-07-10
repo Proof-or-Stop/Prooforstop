@@ -268,9 +268,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md#M0---Baseline-Inventory-And-Lockfile"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-10T03:37:26.389Z",
       "userSees": "User sees \"PASS proof-or-stop prompt baseline: legacy vocabulary findings classified\" in node scripts/verify-proof-or-stop-prompt-baseline.mjs output.",
       "files": {
         "modify": [
@@ -463,6 +463,15 @@
       "from": "pending",
       "to": "done",
       "reason": "Overlap matrix markdown covers all 16 roles and verifier evidence covers all CHK-003 intents."
+    },
+    {
+      "timestamp": "2026-07-10T03:37:26.389Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Verifier records and enforces classified legacy verification vocabulary findings; verificationEvidence covers all CHK-004 intents."
     }
   ]
 }
