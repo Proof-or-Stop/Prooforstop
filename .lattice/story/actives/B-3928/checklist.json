@@ -95,11 +95,44 @@
       "title": "Produce a role-overlap matrix for all 16 prompts",
       "context": "M0.3 requires phase, allowed commands, direct file access, output artifact, status, and overlap category for every prompt so M1/M3 can split responsibilities without guessing.",
       "relatedDocs": [
-        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md#M0---Baseline-Inventory-And-Lockfile"
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md shows 16 roles with purpose, phase, commands, input, output, and overlap classification.",
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md"
+        ],
+        "test": [
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-003:happy:0",
+            "desc": "The overlap matrix includes all 16 roles with phase, purpose, command surface, input, output artifact, current status, and overlap category.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-003:edge:0",
+            "desc": "The verifier fails if any baseline role is missing from the overlap matrix or if the matrix role count differs from the registry count.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-003:adversarial:0",
+            "desc": "The matrix explicitly marks legacy, retired, conditional, or overlapping responsibilities instead of hiding them under generic active labels.",
+            "type": "docs"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
