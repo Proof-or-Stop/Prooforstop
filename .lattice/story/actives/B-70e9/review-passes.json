@@ -35,6 +35,35 @@
         "scanEscalationReason": null
       },
       "_hash": "fcbfde7cd0758532dde121a8a18b9c70457dbd1bae9cf25ff38711be248c4bba"
+    },
+    {
+      "id": "B-70e9:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "Docs lane (touchpoints .md): CHANGELOG.md and docs/host-run-usage.md verified word-for-word against the implementation (host-run.ts, handlers/host-run.ts, usage-sweep.ts, handlers/usage-sweep.ts, command-catalog.ts, package.json scripts). CLI flag names, default caps (concurrency 4, stale 6h), env var names, codex/claude/agy usage mapping, stderr usage-line format, JSON never-throws contract, and usage_sweep read-only/--out-root-refusal claims all check out exactly. One low finding (F-001, doc-promise-undelivered) filed: CHK-004 userSees claims reviewer_batch/escalation guidance now print host_run launch lines, but reviewer-batch.ts has zero diff and still only emits Agent(...); the checklist text was not corrected even though CHK-004 evidence notes acknowledge no raw-launch strings existed to rewrite. Non-blocking: the two .md files themselves make no false claim.",
+      "createdAt": "2026-07-10T07:25:06.354Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-003",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-70e9/plan.md",
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/handlers/reviewer-batch.ts",
+          "packages/main/src/handlers/usage-sweep.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-70e9/checklist.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/usage-sweep.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "18341c6c20f1912a0854fb6ffbc2f83da370e92d35167ab20765671ecbb041a8"
     }
   ]
 }
