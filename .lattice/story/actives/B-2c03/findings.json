@@ -70,6 +70,25 @@
       "resolvedAt": "2026-07-10T15:11:22.450Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-2c03:F-004",
+      "desc": "packages/main/src/core/proofstory.ts:1389-1393 dottedFileTokenRegex (F-002 fix) still allows a fourth, independently-reachable bypass class: CODE_FILE_EXTENSION_PATTERN is a curated list of file extensions, several of which are also ordinary short English words (go, c, h, m, log, map, rb, cs, rs, sh). A hyphenated trigger word followed by a dot and one of these common-word extensions is fully erased before the claimsShrinkage scan runs, exactly like the F-001/F-002/F-003 bypass classes, and this exact vulnerability class is NOT covered by the story's documented residuals (plan.md 'Risk notes' only accepts false-POSITIVE residuals -- config.partial.enabled, bare partial-done-recovery -- never a false-NEGATIVE/bypass residual). Verified live twice: (1) standalone copy of the exact current stripCodeLikeTokens/dottedFileTokenRegex/CODE_FILE_EXTENSION_PATTERN source run directly, and (2) executing the actual CLI/dist build via a temporary smoke assertion (done_intent_equivalence_check on a lightweight story), both showing zero gaps for both of the following natural-prose DONE-summary limitations texts: 'The excluded-approach.log entry was removed from this delivery.' -> stripCodeLikeTokens produces 'The   entry was removed.' (excluded silently erased, done_intent_equivalence_check gaps=[]); 'The deferred-plan.go decision was made anyway, skipping the rest.' -> 'The   decision was made anyway, skipping the rest.' (deferred silently erased, gaps=[]). Same reproduces for partial-credit.c, narrow-margin.m, deferred-query.sql, narrow-focus.go -- any hyphenated trigger word whose dotted suffix happens to be a curated extension. This means a genuine narrow/partial-delivery DONE summary phrased with an ordinary hyphen-dot-word construction can silently bypass unconfirmed_single_outcome_shrinkage and reach DONE without a confirmed shrinkage decision -- the same guard-weakening risk the CHK-001 adversarial verification intent (sanitize-path-tokens:adversarial) and F-001/F-002/F-003 resolutions were meant to close. No smoke coverage exists for extension-collision tokens (proofstory-intent-hardening-smoke.ts covers only .rc1/.next/.v2/.beta/.ts/.mjs style suffixes, none of which collide with a trigger-adjacent common word). Recommend one of: (a) require the extension segment to be preceded by a genuine multi-char identifier-like prefix AND require the whole token to also satisfy a minimum-token-count or slash-adjacency heuristic before stripping (reduces prose collision surface), (b) narrow CODE_FILE_EXTENSION_PATTERN to drop 1-2 letter/common-word entries (c, h, m, go, rs, cs, rb, sh, log, map) or require a longer curated set with a length floor, or (c) split the dotted-suffix strip so only the suffix segment (e.g. '.go') is removed rather than the entire hyphen-joined token, so 'deferred-plan' survives even when '.go' is stripped (mirrors the F-002 recommendation (c) that was not adopted). Add smoke coverage for at least one extension-collision case in both directions (bypass reproduced pre-fix, blocked post-fix).",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-07-10T15:15:12.580Z",
+      "reviewRound": "2026-07-10T14:41:10.214Z",
+      "reviewRunId": "B-2c03:RR-010",
+      "_hash": "9ecc654e1ed4ffb5db09f67e8a019f98b26f6bfb01e84e1f724df4995a87386c",
+      "files": [
+        "packages/main/src/core/proofstory.ts",
+        "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+      ],
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
