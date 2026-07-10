@@ -1,17 +1,17 @@
 {
   "storyId": "B-fbcf",
-  "generatedAt": "2026-07-09T02:34:30.203Z",
+  "generatedAt": "2026-07-10T01:06:26.353Z",
   "sourceSnapshot": {
-    "hasUnderstanding": false,
-    "hasDecision": false,
-    "hasPlan": false,
+    "hasUnderstanding": true,
+    "hasDecision": true,
+    "hasPlan": true,
     "checklistItems": 5,
-    "reviewRounds": 1,
-    "findings": 0,
+    "reviewRounds": 3,
+    "findings": 1,
     "bugs": 0,
     "testRuns": 0,
     "hasEvalEvidence": false,
-    "hasSummary": false
+    "hasSummary": true
   },
   "dimensions": {
     "tdd": {
@@ -27,13 +27,12 @@
       },
       "metrics": {
         "findingCoverageRatio": {
-          "value": null,
+          "value": 1,
           "unit": "ratio",
-          "confidence": "unknown",
+          "confidence": "medium",
           "sources": [
             "findings.json"
-          ],
-          "note": "no data (0 denominator)"
+          ]
         },
         "bugFixWithReproEvidenceRatio": {
           "value": null,
@@ -81,7 +80,7 @@
       },
       "metrics": {
         "planArtifactsPresent": {
-          "value": false,
+          "value": true,
           "unit": "bool",
           "confidence": "high",
           "sources": [
@@ -194,7 +193,7 @@
       },
       "metrics": {
         "hasPlanArtifact": {
-          "value": false,
+          "value": true,
           "unit": "bool",
           "confidence": "high",
           "sources": [
@@ -217,7 +216,7 @@
           "sources": [
             "plan.md"
           ],
-          "note": "no plan.md"
+          "note": "no CHK sections in plan"
         },
         "devToPlanBounceCount": {
           "value": 0,
@@ -228,19 +227,18 @@
           ]
         },
         "blockedTaskCount": {
-          "value": 0,
+          "value": 1,
           "unit": "count",
           "confidence": "medium",
           "sources": [
             "process-events.jsonl"
-          ],
-          "note": "no dispatch events"
+          ]
         }
       }
     },
     "subagentCollaboration": {
       "effective": {
-        "value": false,
+        "value": true,
         "unit": "bool",
         "confidence": "high",
         "sources": [
@@ -249,7 +247,7 @@
       },
       "metrics": {
         "normalChannelUsesSubagent": {
-          "value": false,
+          "value": true,
           "unit": "bool",
           "confidence": "low",
           "sources": [
@@ -260,7 +258,7 @@
           "note": "proxy: uses reviewer findings as signal, not git commit author data"
         },
         "reviewerIndependence": {
-          "value": false,
+          "value": true,
           "unit": "bool",
           "confidence": "high",
           "sources": [
@@ -268,7 +266,7 @@
           ]
         },
         "mainAgentCodeViolation": {
-          "value": true,
+          "value": false,
           "unit": "bool",
           "confidence": "low",
           "sources": [
@@ -284,8 +282,7 @@
           "confidence": "medium",
           "sources": [
             "process-events.jsonl"
-          ],
-          "note": "no dispatch events"
+          ]
         },
         "blockedReturnCount": {
           "value": 0,
@@ -312,7 +309,7 @@
       },
       "metrics": {
         "storyReviewRounds": {
-          "value": 1,
+          "value": 3,
           "unit": "count",
           "confidence": "medium",
           "sources": [
@@ -321,7 +318,7 @@
           ]
         },
         "formalFindingCount": {
-          "value": 0,
+          "value": 1,
           "unit": "count",
           "confidence": "high",
           "sources": [
@@ -347,13 +344,12 @@
           "note": "no test runs"
         },
         "reviewAfterEachBatch": {
-          "value": "n/a",
-          "unit": "text",
+          "value": false,
+          "unit": "bool",
           "confidence": "medium",
           "sources": [
             "process-events.jsonl"
-          ],
-          "note": "no dispatch events"
+          ]
         }
       }
     }

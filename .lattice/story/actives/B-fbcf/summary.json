@@ -1,0 +1,55 @@
+{
+  "storyId": "B-fbcf",
+  "changes": "Added opt-in done_prepare generated-metadata auto-closeout with manifest-only commits, validation reuse guards, and rollback on failed auto-closeout commit.",
+  "usage": "Run done_prepare with autoCloseGeneratedMetadata and reuseFreshValidation when generated lifecycle metadata is the only closeout dirt; otherwise follow the blocker guidance.",
+  "expectedOutcome": "Safe generated lifecycle metadata can close in one opt-in done_prepare flow without auto-signing review, delivery, quorum, Authority, release, remote, or DONE evidence.",
+  "actualTranscript": "TEST ran lattice validate --story=B-fbcf --json with PASS 44/44 configured commands and 15/15 verification intents covered. Targeted npm --prefix packages/main run test:done-prepare-auto-closeout-smoke also passed with done-prepare-auto-closeout smoke passed.",
+  "outcomeDiff": "Expected safe auto-closeout and validation reuse behavior matched actual validation and targeted smoke output; no product mismatch observed.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "No known product limitations from acceptance; role-separated delivery-check and review-assurance evidence remain lifecycle gates, not auto-written by done_prepare.",
+  "pitfalls": "Do not treat autoCloseGeneratedMetadata as permission to auto-sign reviewer, delivery, host, Authority, release, remote, or DONE evidence.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 1583319
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 25676
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 74968008
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 2145222
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 3013706
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 575783
+    }
+  },
+  "totalDurationMs": 82312516,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-10T01:01:37.909Z",
+  "updatedAt": "2026-07-10T01:01:37.909Z"
+}

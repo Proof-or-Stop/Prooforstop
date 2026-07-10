@@ -1,12 +1,12 @@
 {
   "schemaVersion": "proofstory.milestone_ledger.v1",
   "storyId": "B-fbcf",
-  "state": "candidate",
-  "ledgerHash": "sha256:d06210bda4816b596550a7bf4b98e25179417d223d7d8512ef6096383c8feba4",
+  "state": "confirmed",
+  "ledgerHash": "sha256:1e5cfc7c342b30efda74e86fe5a500c2eb8273a92ff9bf8b80b0def28f25866a",
   "milestones": [
     {
       "id": "M0",
-      "sourceRequirementId": "AUTO-CLOSEOUT-NO-OVERLAP",
+      "sourceRequirementId": "REQ-conflict-audit",
       "claim": "The story adds only safe auto-closeout automation and does not duplicate B-eb08, B-eb92, or B-b264.",
       "doneMeans": "Scope and tests prove no new heartbeat, review-assurance surfacing, or rerun-explanation behavior is introduced.",
       "requiredEvidence": [
@@ -23,7 +23,7 @@
     },
     {
       "id": "M1",
-      "sourceRequirementId": "AUTO-CLOSEOUT-MANIFEST",
+      "sourceRequirementId": "REQ-fail-closed-auto-closeout",
       "claim": "done_prepare records current-run generated metadata as a safe manifest.",
       "doneMeans": "A fixture records only current-run lifecycle metadata and rejects pre-existing or unsafe files.",
       "requiredEvidence": [
@@ -40,7 +40,7 @@
     },
     {
       "id": "M2",
-      "sourceRequirementId": "AUTO-CLOSEOUT-SAFE-COMMIT",
+      "sourceRequirementId": "REQ-fail-closed-auto-closeout",
       "claim": "Opt-in mode commits only manifest-listed lifecycle metadata.",
       "doneMeans": "The command stages explicit manifest paths only and refuses unrelated dirt before commit.",
       "requiredEvidence": [
@@ -59,7 +59,7 @@
     },
     {
       "id": "M3",
-      "sourceRequirementId": "AUTO-CLOSEOUT-VALIDATION-REUSE",
+      "sourceRequirementId": "REQ-fail-closed-auto-closeout",
       "claim": "Full validation is skipped only for proven metadata-only HEAD drift.",
       "doneMeans": "Validation reuse requires unchanged materialHash, storyFilesHash, commandSetHash, DONE-required commandSetHash, and policyHash.",
       "requiredEvidence": [
@@ -77,7 +77,7 @@
     },
     {
       "id": "M4",
-      "sourceRequirementId": "AUTO-CLOSEOUT-RECHECK",
+      "sourceRequirementId": "REQ-fail-closed-auto-closeout",
       "claim": "done_prepare re-evaluates closure after safe auto-closeout and returns PASS or real blockers.",
       "doneMeans": "A prior two-run metadata-only fixture reaches PASS in one opt-in command without auto-advancing DONE.",
       "requiredEvidence": [
@@ -95,7 +95,7 @@
     },
     {
       "id": "M5",
-      "sourceRequirementId": "AUTO-CLOSEOUT-SAFETY-SMOKE",
+      "sourceRequirementId": "REQ-fail-closed-auto-closeout",
       "claim": "Regression coverage proves safety, JSON cleanliness, and no auto-sign/no remote behavior.",
       "doneMeans": "Focused smoke and build pass, covering success and refusal cases.",
       "requiredEvidence": [
@@ -113,5 +113,10 @@
     }
   ],
   "createdAt": "2026-07-09T02:09:45.393Z",
-  "updatedAt": "2026-07-09T02:09:45.393Z"
+  "updatedAt": "2026-07-09T23:25:14.615Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260709024337",
+    "acceptedInterpretationHash": "sha256:76f2e9ff93e4c1cd3f13523ff7e43ef048f560ceead9f0f8eb5037ea8d234a7e",
+    "acceptedAt": "2026-07-09T23:25:14.615Z"
+  }
 }

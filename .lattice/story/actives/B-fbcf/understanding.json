@@ -1,0 +1,36 @@
+{
+  "task": "Implement safe done_prepare generated-metadata auto-closeout after conflict audit.",
+  "outcome": "When a TEST story has only current-run done_prepare lifecycle metadata to commit, the operator can run lattice done_prepare --storyId=B-xxxx --autoCloseGeneratedMetadata --reuseFreshValidation and see DONE prepare auto-closeout: generated metadata committed: <sha>; validation reused: materialHash/storyFilesHash/commandSetHash/policyHash unchanged; doneClosure: PASS; runtimeChange: PASS; cleanTree: PASS; next: lattice story_advance --storyId=B-xxxx --phase=DONE, while B-eb08 heartbeat/json liveness, B-eb92 review-assurance guidance, and B-b264 rerun/merge guidance remain owned by those stories.",
+  "facts": [
+    "B-fbcf is in PLAN and owns opt-in generated-metadata auto-closeout only.",
+    "The user-provided execution plan currently exists only under /Users/jek/Documents/Work/Orchestrate, while B-fbcf relatedDocs point to a missing Proofbound canonical docs path.",
+    "B-eb08 has an active story/B-eb08 branch with a large done_prepare.ts change: closeout phase labels, heartbeat/deadline handling, json output support, command-catalog json flag, package script, and done-prepare-closure-heartbeat smoke.",
+    "B-eb92 is INIT and plans to modify done_prepare.ts, review-assurance-floor.ts, review-escalation.ts, lifecycle-readiness.ts, and done-oracle.ts for review-assurance surfacing and safe next-command guidance.",
+    "B-b264 is INIT and plans to modify done_prepare.ts for merge hazard guidance, rerun delta explanations, generated-file ownership reporting, and dryRun immutability smoke.",
+    "Therefore B-fbcf must not implement closure heartbeat/progress labels, review-assurance surfacing/cannot-auto-sign guidance, or rerun/merge hazard explanations; it must consume those outputs when present.",
+    "Current done_prepare can produce done-required-evidence.json and test-evidence.json, then block on cleanTree because generated metadata must be committed before DONE.",
+    "done_prepare is local assurance and must never advance DONE, mutate runtime version files, sign reviewer/host/delivery/fallback evidence, push, publish, or claim Authority/production readiness."
+  ],
+  "constraints": [
+    "Do not start B-fbcf implementation against stale main if B-eb08 done_prepare changes are not merged; either wait for B-eb08 or explicitly merge/rebase and resolve against it before DEV code edits.",
+    "B-eb92 and B-b264 do not block PLAN, but B-fbcf tests must assert non-duplication boundaries unless those stories merge first.",
+    "Only explicit opt-in flags may enable auto-closeout.",
+    "The path remains TEST-phase only and must preserve normal done_prepare phase eligibility.",
+    "Only current-run manifest-listed Proofbound lifecycle metadata may be staged and committed.",
+    "No broad git add, stash, checkout, reset, clean, push, publish, release, or no-verify commit behavior is allowed.",
+    "Validation reuse requires unchanged materialHash, storyFilesHash, validation commandSetHash, DONE-required commandSetHash, scope contract hash, lifecycle classifier version, and relevant policy/config hash.",
+    "Machine JSON output must remain parseable and compatible with B-eb08 json support; human auto-closeout progress/refusal text must not pollute JSON stdout.",
+    "Unsafe cases must fail closed before commit or before reuse."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md",
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/core/done-prepare-generated-metadata.ts",
+    "packages/main/src/core/done-prepare-validation-reuse.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/package.json",
+    "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts"
+  ],
+  "timestamp": "2026-07-09T02:44:29.494Z"
+}

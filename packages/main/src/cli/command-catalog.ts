@@ -1088,6 +1088,8 @@ Behavior:
     build: z.boolean().optional().describe('Optional worktree-local npm build + CLI version execution check; does not check global lattice.'),
     dryRun: z.boolean().optional().describe('Inspect and report planned steps without mutating git, evidence, build outputs, or version files.'),
     json: z.boolean().optional().describe('Return a JSON object; progress still uses the CLI liveness side channel.'),
+    autoCloseGeneratedMetadata: z.boolean().optional().describe('Opt-in: commit only current-run generated DONE/test lifecycle metadata after manifest safety checks (default false).'),
+    reuseFreshValidation: z.boolean().optional().describe('Opt-in: after a safe generated-metadata commit, reuse same-run validation only when structural hashes are unchanged (default false).'),
     versionBump: z.never().optional().describe('Unsupported: done_prepare never bumps versions before DONE.'),
     bumpVersion: z.never().optional().describe('Unsupported: done_prepare never bumps versions before DONE.'),
     postDoneVersionBump: z.never().optional().describe('Unsupported: done_prepare only reports post-DONE version bump need.'),

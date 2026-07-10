@@ -1,0 +1,63 @@
+{
+  "storyId": "B-fbcf",
+  "checkedAt": "2026-07-10T01:04:13.077Z",
+  "headHash": "88bb826a978a127aa51b0557f250f24356c9c080",
+  "materialHash": "358d73400a6c481515e960a92baa4e400789d0cb121ac94be883fce44642c2d2",
+  "storyFilesHash": "e90cc4284d57516fdf8fd61f26ed284e9a0236977e51dd878f3d855df397131e",
+  "reviewRound": "2026-07-10T00:08:02.138Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md",
+      "promise": "Opt-in done_prepare auto-closeout commits only current-run generated DONE/test lifecycle metadata from a safe manifest.",
+      "status": "verified",
+      "verifiedBy": "decision doc plus code and smoke scan",
+      "evidence": "Command catalog exposes autoCloseGeneratedMetadata and reuseFreshValidation as opt-in flags; commitDonePrepareGeneratedMetadata builds a story-scoped manifest, stages only manifest.safePaths with explicit git add -- pathspecs, commits only those paths, and the smoke assertManifestOnlyAutoCloseout verifies only done-required-evidence.json and test-evidence.json are committed."
+    },
+    {
+      "docPath": "docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md",
+      "promise": "Validation reuse is allowed only for proven metadata-only drift with unchanged material, storyFiles, command, policy, config, scope, and lifecycle classifier inputs.",
+      "status": "verified",
+      "verifiedBy": "validation reuse helper scan plus TEST evidence",
+      "evidence": "done-prepare-validation-reuse.ts compares materialHash, storyFilesHash, validateCommandSetHash, doneRequiredCommandSetHash, doneRequiredPolicyHash, configHash, scopeContractHash, lifecycleRegistryHash, classifier version, and PASS test/DONE-required evidence before writing a reuse record. TEST evidence is PASS on materialHash 358d73400a6c481515e960a92baa4e400789d0cb121ac94be883fce44642c2d2 and storyFilesHash e90cc4284d57516fdf8fd61f26ed284e9a0236977e51dd878f3d855df397131e."
+    },
+    {
+      "docPath": "docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md",
+      "promise": "Failed auto-closeout commit, including failing pre-commit hooks, fails closed and rolls back transient index and validation reuse state.",
+      "status": "verified",
+      "verifiedBy": "smoke scan",
+      "evidence": "assertCommitHookFailureRollsBackReuseAndIndex installs a failing pre-commit hook, confirms DONE prepare is BLOCKED, HEAD does not advance, generated metadata is unstaged after rollback, the validation reuse claim is removed, and rollback restores index entries via git update-index."
+    },
+    {
+      "docPath": "docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md",
+      "promise": "JSON stdout stays parseable and progress or auto-closeout side-channel text is kept off stdout.",
+      "status": "verified",
+      "verifiedBy": "smoke scan and acceptance transcript",
+      "evidence": "assertJsonStdoutClean runs the auto-closeout path with --json, parses stdout as lattice.done_prepare.v1, asserts status pass and autoCloseGeneratedMetadata PASS in the transcript, and verifies progress/auto-closeout side-channel text is absent from stdout while progress remains on stderr."
+    },
+    {
+      "docPath": "docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md",
+      "promise": "The automation does not auto-sign review, host, delivery, fallback, Authority, release, production, remote, or DONE evidence and does not push, publish, release, or advance DONE.",
+      "status": "verified",
+      "verifiedBy": "code and smoke scan",
+      "evidence": "Command catalog describes done_prepare as never advancing DONE or mutating version files; installCommandSpy forbids push, stash, reset, clean, checkout, switch, --no-verify, release, publish, delivery_check_set, review_pass_set, quorum_submit, and authority operations; the smoke also byte-compares delivery-check.json before and after to prove no self-signing."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "B-fbcf-validation",
+      "transcript": "lattice validate --story=B-fbcf --json recorded PASS on 2026-07-10T00:59:29.728Z for head d05395a35688a7bb6972dcb26c8fffed0834ad50, materialHash 358d73400a6c481515e960a92baa4e400789d0cb121ac94be883fce44642c2d2, storyFilesHash e90cc4284d57516fdf8fd61f26ed284e9a0236977e51dd878f3d855df397131e. The validation transcript lists configured validate.commands[0] through [43] as PASS, so 44/44 configured commands passed, and test-evidence reports verification coverage 15/15 covered with 0 missing required."
+    },
+    {
+      "featureId": "B-fbcf-auto-closeout-smoke",
+      "transcript": "npm --prefix packages/main run test:done-prepare-auto-closeout-smoke recorded PASS in checklist and acceptance transcript. The transcript shows node dist/tasks/done-prepare-auto-closeout-smoke.js ending with done-prepare-auto-closeout smoke passed from /Users/jek/Documents/Work/proofbound/.worktrees/B-fbcf."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review verified the documented opt-in auto-closeout, strict validation reuse, failed commit rollback, JSON cleanliness, and no auto-sign/no DONE/no remote behavior against code, transcript-diff, checklist evidence, fresh TEST validation, and DONE-required evidence. No delivery blocker found; separate review-assurance floor remains a lifecycle gate outside this delivery-check signature."
+  },
+  "_hash": "461e920c8d191b675d6f9abb140e478c69028477e22a2b1e7b3af10c3d908f83"
+}
