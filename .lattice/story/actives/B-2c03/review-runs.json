@@ -999,6 +999,46 @@
         "bindingHash": "e08089db8c3277b9e0dab7d70017f16fbb364f84a0c731e6d7288eb6686e9a0c"
       },
       "_hash": "b0fa756cd62fd287e3c03f89d3525897dfe4e8c3098fa3445b53992b21d379c6"
+    },
+    {
+      "reviewRunId": "B-2c03:RR-026",
+      "storyId": "B-2c03",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-07-10T18:53:39.083Z",
+      "startedAt": "2026-07-10T19:12:31.227Z",
+      "headHash": "8fe2a04b6b6cb17f3b9c9954ecc4e2dfb99c4f5f",
+      "materialHash": "da3d501ee2a9810dc5b5e108f3827a7c96d5d94d975cf5b11479e4a61a394ca6",
+      "storyFilesHash": "119a01245bdb211864984cd519db701815e4e51fa90f956480bb2595c09cfc45",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "02a392bdacfd0aaeb70f45ce54eefd639f3906afbbe1fce28691fcc4143dd965",
+        "diffPackHash": "eedfdf708c28bc932a56d55e4991fe2b4067339d257bc9cb8849581cd7f4c288",
+        "reviewedChangedFiles": [
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "605678797348f6b6eafd7a0d5a976070a5d7e67bf42a89c522a074660a344a56",
+          "9d576f048a14406792c8e1d382023e69ccdb372404cd7fca3d16504ed25b561e",
+          "e5b5a42262d7719eccc2bf67fe10654212448b67a9770c8cb14de606793465ed"
+        ],
+        "bindingHash": "130e8bc0663bc8931fc8eeee188c3ef965280e644f818ba6ad3adb840a385cbe"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-2c03",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-2c03",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-2c03",
+        "workspaceMode": "story-worktree",
+        "headHash": "8fe2a04b6b6cb17f3b9c9954ecc4e2dfb99c4f5f",
+        "materialHash": "da3d501ee2a9810dc5b5e108f3827a7c96d5d94d975cf5b11479e4a61a394ca6",
+        "storyFilesHash": "119a01245bdb211864984cd519db701815e4e51fa90f956480bb2595c09cfc45",
+        "bindingHash": "d7454a946723fa69fc4085a5360ef631df3d3fc0a692812f5893e147b0647ec7"
+      },
+      "_hash": "59d2320b8d242e53592611801708155ae27a71887108d2184c5d6cba4f8d3b58"
     }
   ]
 }
