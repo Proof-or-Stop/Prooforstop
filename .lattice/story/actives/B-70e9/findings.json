@@ -111,6 +111,25 @@
       ],
       "signatureTag": "edge|ts|codex-host-cross",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-70e9:F-006",
+      "desc": "[codex host-B, cross_host_review B-70e9-xhr-r2c] host_run buffers instead of streaming host stdout: the default runner uses spawnSync with piped stdio, withholding all host output until exit, despite the documented contract (docs/host-run-usage.md + CHK-001 DoneWhen: host stdout passes through live, line-streamed, memory-bounded). Long reviewer/quorum runs lose progress observability (the exact B-d8ef complaint) and outputs beyond the 64MiB maxBuffer fail/truncate rather than stream. Fix direction: production runner switches to async spawn, chunks pass through to the caller as they arrive (text mode; json mode routes passthrough to stderr or suppresses it, documented), retaining only bounded data for usage parsing; injected runner seam stays for tests.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host-b",
+      "createdAt": "2026-07-10T08:39:18.180Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "_hash": "2e73924cd6314a370e167d6b45d92941c9638021da132a2e026517ff863f2880",
+      "files": [
+        "packages/main/src/core/host-run.ts",
+        "packages/main/src/handlers/host-run.ts",
+        "docs/host-run-usage.md"
+      ],
+      "signatureTag": "edge|ts|codex-host-cross",
+      "signatureTagSource": "auto"
     }
   ]
 }
