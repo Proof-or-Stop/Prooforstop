@@ -51,6 +51,21 @@
       "resolvedAt": "2026-07-10T15:04:37.431Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-2c03:F-003",
+      "desc": "packages/main/src/core/proofstory.ts:1454 the CHK-003 narrowed remaining-trigger regex (remaining\\s+(?:work|scope|items?|cases?|...)) requires WHITESPACE between \"remaining\" and the scope noun, so a hyphen-joined natural phrasing like \"remaining-scope\", \"remaining-work\", or \"remaining-cases\" never matches at all -- the text is not even touched by stripCodeLikeTokens (verified live: stripCodeLikeTokens(\"The remaining-scope items were pushed to a follow-up story.\") returns the string UNCHANGED, yet claimsShrinkage regex still returns false because \\s+ cannot span the hyphen). This is a distinct, independently-fixable bug from the F-001/F-002 sanitizer-stripping class (no stripping happens here at all) and is reachable through entirely natural prose -- hyphenated compounds are the dominant style already used elsewhere in this very story (partial-done-recovery, deferred-for-now, excluded-here). It defeats the CHK-003 checklist item this diff explicitly introduces: a genuine DONE-summary shrinkage claim phrased as \"remaining-scope items were pushed to a follow-up story\" silently produces NO unconfirmed_single_outcome_shrinkage gap, i.e. narrow/partial delivery could be marked DONE without a confirmed shrinkage decision. No smoke coverage exists for the hyphenated form (proofstory-intent-hardening-smoke.ts only covers whitespace-separated \"remaining scope\"/\"remaining cases\"). Recommend widening the connector from \\s+ to [\\s-]+ (or [\\s_-]+) in the remaining alternative so remaining-scope/remaining_scope/remaining scope all match consistently.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-10T15:07:39.532Z",
+      "reviewRound": "2026-07-10T14:41:10.214Z",
+      "reviewRunId": "B-2c03:RR-009",
+      "_hash": "be50684377c0364c6738b94578eeec5a98b60548902286cc53f4576089d8a2cd",
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
