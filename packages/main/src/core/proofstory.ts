@@ -1394,15 +1394,26 @@ function confirmedShrinkageIds(decision: ScopeShrinkageDecisionData | null): Set
 // Authors naming such files can backtick them or use the directory-qualified
 // path, both of which strip.
 const CODE_FILE_EXTENSION_PATTERN = 'ts|tsx|js|jsx|mjs|cjs|json|jsonl|md|mdx|txt|ya?ml|toml|ini|css|scss|html?|xml|svg|zsh|ps1|py|java|kt|kts|cc|cpp|hpp|sql|csv|tsv|proto|pdf|png|jpe?g|gif|webp|ico|gz|tgz';
+// F-006: every stripping rule must target TOKENS, never prose, so that a
+// genuine shrinkage claim cannot be erased. Inline backtick spans are stripped
+// only when whitespace-free (a span with spaces is quoted prose). Slash tokens
+// are stripped only when path-shaped: at least two slashes, or a dot, or a
+// leading ./ ../ ~/ or / prefix — "remaining/scope" prose survives. Dotted
+// tokens need a known extension AND a code-shaped stem (a hyphen/underscore or
+// a second dot) — "partial.md" mid-sentence is ambiguous and fails safe.
 const dottedFileTokenRegex = new RegExp(
-  `(?<![A-Za-z0-9_])[A-Za-z0-9_-]+(?:\\.[A-Za-z0-9_-]+)*\\.(?:${CODE_FILE_EXTENSION_PATTERN})(?![A-Za-z0-9_])`,
+  `(?<![A-Za-z0-9_])(?:[A-Za-z0-9]*[-_][A-Za-z0-9_-]*(?:\\.[A-Za-z0-9_-]+)*|[A-Za-z0-9_-]+(?:\\.[A-Za-z0-9_-]+)+)\\.(?:${CODE_FILE_EXTENSION_PATTERN})(?![A-Za-z0-9_])`,
   'gi',
 );
 function stripCodeLikeTokens(text: string): string {
   return text
     .replace(/```[\s\S]*?```/g, ' ')
-    .replace(/`[^`\n]*`/g, ' ')
-    .replace(/[^\s`]*\/[^\s`]*/g, ' ')
+    .replace(/`[^`\s]*`/g, ' ')
+    .replace(/[^\s`]*\/[^\s`]*/g, (token) => {
+      const slashCount = (token.match(/\//g) ?? []).length;
+      const pathShaped = slashCount >= 2 || token.includes('.') || /^(?:\.{1,2}|~)?\//.test(token);
+      return pathShaped ? ' ' : token;
+    })
     .replace(dottedFileTokenRegex, ' ');
 }
 
@@ -1458,7 +1469,7 @@ export function evaluateDoneIntentEquivalence(
       input.summary?.outcomeDiff ?? '',
       input.summary?.limitations ?? '',
     ].join('\n'));
-    const claimsShrinkage = /\b(?:partial|narrow(?:er|ed)?|shrink(?:age|s|ing)?|out[\s_-]+of[\s_-]+scope|not[\s_-]+covered|deferred|remaining[\s_-]+(?:work|scope|items?|cases?|tasks?|milestones?|features?|functionality|coverage|requirements?|deliverables?)|excluded)\b/i.test(narrowingText);
+    const claimsShrinkage = /\b(?:partial|narrow(?:er|ed)?|shrink(?:age|s|ing)?|out[\s/_-]+of[\s/_-]+scope|not[\s/_-]+covered|deferred|remaining[\s/_-]+(?:work|scope|items?|cases?|tasks?|milestones?|features?|functionality|coverage|requirements?|deliverables?)|excluded)\b/i.test(narrowingText);
     if (claimsShrinkage && acceptedShrinkageMilestoneIds.length === 0) {
       gaps.push(gap(
         'unconfirmed_single_outcome_shrinkage',

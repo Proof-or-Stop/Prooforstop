@@ -988,6 +988,44 @@ try {
     true,
     'a trigger word with an ambiguous common-word suffix (deferred-plan.go) fails safe and still fires (F-005)',
   );
+  // B-2c03 F-006: the stripping rules must not erase genuine prose claims.
+  // (1) Backticked spans containing whitespace are quoted prose, not code
+  // tokens, and must keep firing.
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Added label normalization.',
+    limitations: 'Note: `the remaining scope items were deferred` due to time constraints.',
+  }));
+  const backtickProseDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    backtickProseDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    true,
+    'a backticked span containing whitespace is quoted prose and still fires (F-006)',
+  );
+  // (2) A single slash between two prose words is not a path.
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'The remaining/scope work was intentionally cut from this delivery.',
+    actualTranscript: 'The label normalizer output is unchanged.',
+    outcomeDiff: 'No difference from the original request.',
+  }));
+  const slashProseDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    slashProseDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    true,
+    'a single slash between prose words (remaining/scope) is not a path and still fires (F-006)',
+  );
+  // (3) A bare trigger word with a dot-extension but a simple stem (partial.md)
+  // is ambiguous between a file name and mid-sentence prose — fail safe.
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'We decided the partial.md approach was best for now.',
+    actualTranscript: 'The label normalizer output is unchanged.',
+    outcomeDiff: 'No difference from the original request.',
+  }));
+  const simpleStemDotDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    simpleStemDotDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    true,
+    'a trigger word with a simple stem and dot extension (partial.md) fails safe and still fires (F-006)',
+  );
 
   // B-f7b3 CHK-004: a CONFIRMED milestone ledger that is empty OR whose rows are
   // all not_applicable (without a valid decision) must NOT vacuously satisfy the
