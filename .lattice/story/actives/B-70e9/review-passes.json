@@ -391,6 +391,30 @@
         "scanEscalationReason": null
       },
       "_hash": "02c78947995932eaeba7fff4278239cf79bfc63470b6b1b24ca5af37fa6365d2"
+    },
+    {
+      "id": "B-70e9:RP-016",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 5 convergence re-review after fix commit e3ac9b651 (F-010). Verified the 5 new usage-sweep-smoke checks (11->16) directly bind F-010's failure modes: absolute --out refused outright (check 12, nothing written), existing-file --out refused byte-identical (check 13, proves no overwrite of e.g. package.json), symlinked-ancestor --out refused with outside-dir emptiness assertion (check 14, proves no escape), happy nested create + second-run refusal (check 15, proves create-only both directions), and .. traversal still refused (check 16, regression guard). Read the e3ac9b651 diff of core/usage-sweep.ts: openReportFileExclusive replaces the old lexical-only resolveOutPathWithinRoot+writeFileSync with relative-only enforcement, per-ancestor lstat symlink rejection, realpath containment, and O_EXCL wx exclusive-create (EEXIST also fires on symlink targets); each new check fails against the pre-fix code (no absolute rejection, no existing-file rejection, no symlink rejection), so they are genuine regression proofs. Re-ran both npm smokes fresh at current HEAD 38eec47ed: test:usage-sweep 16/16 pass, test:host-run-usage 34/34 pass. evidence_plan at current HEAD reports missing=0 rerun=0 refreshOnly=0 fresh=42, matching expectation exactly. All findings F-001..F-010 are dismissed/resolved with evidenceState=verified. No coverage gaps found; test coverage review passed.",
+      "createdAt": "2026-07-10T09:41:51.196Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-020",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-70e9/checklist.json",
+          ".lattice/story/actives/B-70e9/findings.json",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-70e9/index.json",
+          ".lattice/story/actives/B-70e9/review-runs.json",
+          "docs/host-run-usage.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0cc9edcd71a696a1df0ab946212fb2c5d010b611aa8ec08c5f0b87dbefbd6014"
     }
   ]
 }
