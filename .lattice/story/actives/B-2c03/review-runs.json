@@ -1639,6 +1639,46 @@
         "bindingHash": "aee1ea27387e379172a5e7480f9fe5f3b7a22536d95325e21dfe06f86d11e399"
       },
       "_hash": "55b2e5b76f2809f1596eef44d42981e680dd0ddc2503a29fbbedda22109ab15a"
+    },
+    {
+      "reviewRunId": "B-2c03:RR-042",
+      "storyId": "B-2c03",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-07-10T18:53:39.083Z",
+      "startedAt": "2026-07-10T20:52:41.725Z",
+      "headHash": "f74202614715bebabef94aa8b31dda384311318e",
+      "materialHash": "16c3456a6c8c032dcd40df44fa4864b507d52c5d224f9aeec8ce3721008dab6f",
+      "storyFilesHash": "a6197f061e5eea13d986963dbe081374ef73ec289edfe709bdbc1af471325b10",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "02a392bdacfd0aaeb70f45ce54eefd639f3906afbbe1fce28691fcc4143dd965",
+        "diffPackHash": "bb744603d344a5535b2a4d34a1831cb36db34c46619ecc9c5059aafe1e5c000d",
+        "reviewedChangedFiles": [
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "37152d50fac7a6a2c0d89f077819b90e2c0110ef6e0f3f1ca3a8b49830fa9e08",
+          "94ca01001653c0f48f38ec98b90d2a6ebadf5adeb4f4b0f5b8fed980c89bb026",
+          "c434439ed45ad35eeb2a7f5460f629e9e4a87cd0491021d78206d5c42952191c"
+        ],
+        "bindingHash": "6e1b514c2f7229f909f929b1dde690c271bbd587700ff19c54eb80bab5baf2a8"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-2c03",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-2c03",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-2c03",
+        "workspaceMode": "story-worktree",
+        "headHash": "f74202614715bebabef94aa8b31dda384311318e",
+        "materialHash": "16c3456a6c8c032dcd40df44fa4864b507d52c5d224f9aeec8ce3721008dab6f",
+        "storyFilesHash": "a6197f061e5eea13d986963dbe081374ef73ec289edfe709bdbc1af471325b10",
+        "bindingHash": "8300e86188e8a5722b2d61c0b770f5e09a1efe38d586e9f33fd2921055495818"
+      },
+      "_hash": "927b8a7bbedeb88e91c7093517af849bdd79a766c154cf531fb6394863e1432d"
     }
   ]
 }
