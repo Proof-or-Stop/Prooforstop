@@ -112,6 +112,18 @@
           "materialHash": "9a34267cfc576a5198b54b34edebacab9d3db95b7cf9a62511a26960debe9169",
           "storyFilesHash": "9df50ebfa33bf98831fcb1d9b2aea402d8d6750256e08b9ab080558a92e233aa",
           "timestamp": "2026-07-10T07:09:47.139Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "command": "npm --prefix packages/main run test:host-run-usage",
+          "result": "pass",
+          "note": "host-run-usage smoke asserts the per-host row pipeline (codex turn.completed mapping incl. uncached remainder + original-payload digest, claude stream-json usage, agy unavailable), OFF byte-identical, exit propagation, pollution guards and bounded parse",
+          "headHash": "89d6e94fa547eb195488bfe3b1f6837c27c7904b",
+          "materialHash": "9a34267cfc576a5198b54b34edebacab9d3db95b7cf9a62511a26960debe9169",
+          "storyFilesHash": "9df50ebfa33bf98831fcb1d9b2aea402d8d6750256e08b9ab080558a92e233aa",
+          "timestamp": "2026-07-10T07:09:48.633Z"
         }
       ]
     },
