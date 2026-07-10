@@ -335,7 +335,7 @@
       "desc": "All 9 verificationEvidence rows across CHK-001/CHK-002/CHK-003 are bound to materialHash 7806164814b9e7f47c83fdc67a22b912be27a9a17d3b7d5dd5ef957fabcc5c11 / headHash 204061622e57d2c4cbc3a664db5429d3041551e9, which predates codex rounds 3-7 (F-003,F-005..F-009,F-011..F-013) that materially changed packages/main/src/core/proofstory.ts and the smoke file. Current frozen head 0251d41ab4 computes materialHash 16c3456a6c8c032dcd40df44fa4864b507d52c5d224f9aeec8ce3721008dab6f (confirmed via evidence_inspect: freshness=stale, staleRefs=9, and evidence_refresh dry-run: 9/9 candidates flagged storyFilesHash drift). Re-running the exact bound command (node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js) at current HEAD still passes, and grep-verified counts (15 remainingWindowClaims, 7 remainingCrossClauseControls, lineQualifiedPathDone present) match plan.md, so this is not a behavioral regression - but the recorded evidence rows do not attest to the current code state and should be re-bound (verification_evidence_refresh_stale / re-run + verification_evidence_add) before DONE so the checklist evidence truthfully maps to current HEAD.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-10T20:53:52.648Z",
@@ -348,7 +348,11 @@
         ".lattice/story/actives/B-2c03/checklist.json"
       ],
       "signatureTag": "missing|ts|verificationevidence-rows-across",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "All 9 verification evidence rows re-added at final head (post 16c97d4009) after re-running the literal smoke command green; evidence_plan reports missing=0 fresh=9. The stale bindings were review-treadmill churn (51 commits of finding-fix rounds), not a coverage gap - the coverage itself was verified sound by the filing reviewer.",
+      "resolvedAt": "2026-07-10T21:02:24.062Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
