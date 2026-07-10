@@ -54,10 +54,10 @@
           "command": "npm --prefix packages/main run build && node scripts/verify-proof-or-stop-prompt-baseline.mjs && npm run test:proof-or-stop-prompt-baseline",
           "result": "pass",
           "note": "Baseline JSON records 16 registry roles, filenames, bytes, lines, template hashes, and material hash. Happy path covered by committed M0 artifacts and verifier output from commit 961d52f6.",
-          "headHash": "d3a39cb6ea2bd41d8c049f952fa816a65ad7aa7e",
-          "materialHash": "b5fd1b15fd07f5e8a0a2062719808ec14147b46de6e2b9bf93ae359bce9b65ce",
-          "storyFilesHash": "74644226b4e7a36b5c2f0ee1fce9c6be8d664f56f6d8eae891dc67b2dd085518",
-          "timestamp": "2026-07-10T03:47:45.104Z"
+          "headHash": "5e1b042d1ca94a2d0e4c036b0f204d2b12ce4c2f",
+          "materialHash": "69f774ee02a1edeac5a6f9b62f987ea59d9ef709bdba5df0dd1da65c717e9a1c",
+          "storyFilesHash": "dacb0f6c016baffc0cad1ad3799177aaffc515b10b4d64c39796e877ef7dbdaa",
+          "timestamp": "2026-07-10T09:21:00.567Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -67,10 +67,10 @@
           "command": "npm --prefix packages/main run build && node scripts/verify-proof-or-stop-prompt-baseline.mjs && npm run test:proof-or-stop-prompt-baseline",
           "result": "pass",
           "note": "Baseline JSON records 16 registry roles, filenames, bytes, lines, template hashes, and material hash. Edge guard covered because the verifier recomputes current registry/output/matrix/findings and fails on unregistered drift.",
-          "headHash": "d3a39cb6ea2bd41d8c049f952fa816a65ad7aa7e",
-          "materialHash": "b5fd1b15fd07f5e8a0a2062719808ec14147b46de6e2b9bf93ae359bce9b65ce",
-          "storyFilesHash": "74644226b4e7a36b5c2f0ee1fce9c6be8d664f56f6d8eae891dc67b2dd085518",
-          "timestamp": "2026-07-10T03:47:45.104Z"
+          "headHash": "5e1b042d1ca94a2d0e4c036b0f204d2b12ce4c2f",
+          "materialHash": "69f774ee02a1edeac5a6f9b62f987ea59d9ef709bdba5df0dd1da65c717e9a1c",
+          "storyFilesHash": "dacb0f6c016baffc0cad1ad3799177aaffc515b10b4d64c39796e877ef7dbdaa",
+          "timestamp": "2026-07-10T09:21:00.567Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -80,10 +80,10 @@
           "command": "npm --prefix packages/main run build && node scripts/verify-proof-or-stop-prompt-baseline.mjs && npm run test:proof-or-stop-prompt-baseline",
           "result": "pass",
           "note": "Baseline JSON records 16 registry roles, filenames, bytes, lines, template hashes, and material hash. Adversarial guard covered by recomputing source facts instead of trusting prose-only baseline claims.",
-          "headHash": "d3a39cb6ea2bd41d8c049f952fa816a65ad7aa7e",
-          "materialHash": "b5fd1b15fd07f5e8a0a2062719808ec14147b46de6e2b9bf93ae359bce9b65ce",
-          "storyFilesHash": "74644226b4e7a36b5c2f0ee1fce9c6be8d664f56f6d8eae891dc67b2dd085518",
-          "timestamp": "2026-07-10T03:47:45.104Z"
+          "headHash": "5e1b042d1ca94a2d0e4c036b0f204d2b12ce4c2f",
+          "materialHash": "69f774ee02a1edeac5a6f9b62f987ea59d9ef709bdba5df0dd1da65c717e9a1c",
+          "storyFilesHash": "dacb0f6c016baffc0cad1ad3799177aaffc515b10b4d64c39796e877ef7dbdaa",
+          "timestamp": "2026-07-10T09:21:00.567Z"
         }
       ]
     },
@@ -141,10 +141,10 @@
           "command": "npm --prefix packages/main run build && node scripts/verify-proof-or-stop-prompt-baseline.mjs && npm run test:proof-or-stop-prompt-baseline",
           "result": "pass",
           "note": "Baseline JSON records and verifies agent_prompt output hashes, byte counts, and line counts for all 16 roles. Happy path covered by committed M0 artifacts and verifier output from commit 961d52f6.",
-          "headHash": "d3a39cb6ea2bd41d8c049f952fa816a65ad7aa7e",
-          "materialHash": "b5fd1b15fd07f5e8a0a2062719808ec14147b46de6e2b9bf93ae359bce9b65ce",
-          "storyFilesHash": "74644226b4e7a36b5c2f0ee1fce9c6be8d664f56f6d8eae891dc67b2dd085518",
-          "timestamp": "2026-07-10T03:47:45.104Z"
+          "headHash": "5e1b042d1ca94a2d0e4c036b0f204d2b12ce4c2f",
+          "materialHash": "69f774ee02a1edeac5a6f9b62f987ea59d9ef709bdba5df0dd1da65c717e9a1c",
+          "storyFilesHash": "dacb0f6c016baffc0cad1ad3799177aaffc515b10b4d64c39796e877ef7dbdaa",
+          "timestamp": "2026-07-10T09:21:00.567Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -154,10 +154,10 @@
           "command": "npm --prefix packages/main run build && node scripts/verify-proof-or-stop-prompt-baseline.mjs && npm run test:proof-or-stop-prompt-baseline",
           "result": "pass",
           "note": "Baseline JSON records and verifies agent_prompt output hashes, byte counts, and line counts for all 16 roles. Edge guard covered because the verifier recomputes current registry/output/matrix/findings and fails on unregistered drift.",
-          "headHash": "d3a39cb6ea2bd41d8c049f952fa816a65ad7aa7e",
-          "materialHash": "b5fd1b15fd07f5e8a0a2062719808ec14147b46de6e2b9bf93ae359bce9b65ce",
-          "storyFilesHash": "74644226b4e7a36b5c2f0ee1fce9c6be8d664f56f6d8eae891dc67b2dd085518",
-          "timestamp": "2026-07-10T03:47:45.104Z"
+          "headHash": "5e1b042d1ca94a2d0e4c036b0f204d2b12ce4c2f",
+          "materialHash": "69f774ee02a1edeac5a6f9b62f987ea59d9ef709bdba5df0dd1da65c717e9a1c",
+          "storyFilesHash": "dacb0f6c016baffc0cad1ad3799177aaffc515b10b4d64c39796e877ef7dbdaa",
+          "timestamp": "2026-07-10T09:21:00.567Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -167,10 +167,10 @@
           "command": "npm --prefix packages/main run build && node scripts/verify-proof-or-stop-prompt-baseline.mjs && npm run test:proof-or-stop-prompt-baseline",
           "result": "pass",
           "note": "Baseline JSON records and verifies agent_prompt output hashes, byte counts, and line counts for all 16 roles. Adversarial guard covered by recomputing source facts instead of trusting prose-only baseline claims.",
-          "headHash": "d3a39cb6ea2bd41d8c049f952fa816a65ad7aa7e",
-          "materialHash": "b5fd1b15fd07f5e8a0a2062719808ec14147b46de6e2b9bf93ae359bce9b65ce",
-          "storyFilesHash": "74644226b4e7a36b5c2f0ee1fce9c6be8d664f56f6d8eae891dc67b2dd085518",
-          "timestamp": "2026-07-10T03:47:45.104Z"
+          "headHash": "5e1b042d1ca94a2d0e4c036b0f204d2b12ce4c2f",
+          "materialHash": "69f774ee02a1edeac5a6f9b62f987ea59d9ef709bdba5df0dd1da65c717e9a1c",
+          "storyFilesHash": "dacb0f6c016baffc0cad1ad3799177aaffc515b10b4d64c39796e877ef7dbdaa",
+          "timestamp": "2026-07-10T09:21:00.567Z"
         }
       ]
     },
@@ -228,10 +228,10 @@
           "command": "npm --prefix packages/main run build && node scripts/verify-proof-or-stop-prompt-baseline.mjs && npm run test:proof-or-stop-prompt-baseline",
           "result": "pass",
           "note": "Overlap matrix covers all 16 roles with status, phase, purpose, commands, inputs, outputs, capability, overlap, and notes. Happy path covered by committed M0 artifacts and verifier output from commit 961d52f6.",
-          "headHash": "d3a39cb6ea2bd41d8c049f952fa816a65ad7aa7e",
-          "materialHash": "b5fd1b15fd07f5e8a0a2062719808ec14147b46de6e2b9bf93ae359bce9b65ce",
-          "storyFilesHash": "74644226b4e7a36b5c2f0ee1fce9c6be8d664f56f6d8eae891dc67b2dd085518",
-          "timestamp": "2026-07-10T03:47:45.104Z"
+          "headHash": "5e1b042d1ca94a2d0e4c036b0f204d2b12ce4c2f",
+          "materialHash": "69f774ee02a1edeac5a6f9b62f987ea59d9ef709bdba5df0dd1da65c717e9a1c",
+          "storyFilesHash": "dacb0f6c016baffc0cad1ad3799177aaffc515b10b4d64c39796e877ef7dbdaa",
+          "timestamp": "2026-07-10T09:21:00.567Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -241,10 +241,10 @@
           "command": "npm --prefix packages/main run build && node scripts/verify-proof-or-stop-prompt-baseline.mjs && npm run test:proof-or-stop-prompt-baseline",
           "result": "pass",
           "note": "Overlap matrix covers all 16 roles with status, phase, purpose, commands, inputs, outputs, capability, overlap, and notes. Edge guard covered because the verifier recomputes current registry/output/matrix/findings and fails on unregistered drift.",
-          "headHash": "d3a39cb6ea2bd41d8c049f952fa816a65ad7aa7e",
-          "materialHash": "b5fd1b15fd07f5e8a0a2062719808ec14147b46de6e2b9bf93ae359bce9b65ce",
-          "storyFilesHash": "74644226b4e7a36b5c2f0ee1fce9c6be8d664f56f6d8eae891dc67b2dd085518",
-          "timestamp": "2026-07-10T03:47:45.104Z"
+          "headHash": "5e1b042d1ca94a2d0e4c036b0f204d2b12ce4c2f",
+          "materialHash": "69f774ee02a1edeac5a6f9b62f987ea59d9ef709bdba5df0dd1da65c717e9a1c",
+          "storyFilesHash": "dacb0f6c016baffc0cad1ad3799177aaffc515b10b4d64c39796e877ef7dbdaa",
+          "timestamp": "2026-07-10T09:21:00.567Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -254,10 +254,10 @@
           "command": "npm --prefix packages/main run build && node scripts/verify-proof-or-stop-prompt-baseline.mjs && npm run test:proof-or-stop-prompt-baseline",
           "result": "pass",
           "note": "Overlap matrix covers all 16 roles with status, phase, purpose, commands, inputs, outputs, capability, overlap, and notes. Adversarial guard covered by recomputing source facts instead of trusting prose-only baseline claims.",
-          "headHash": "d3a39cb6ea2bd41d8c049f952fa816a65ad7aa7e",
-          "materialHash": "b5fd1b15fd07f5e8a0a2062719808ec14147b46de6e2b9bf93ae359bce9b65ce",
-          "storyFilesHash": "74644226b4e7a36b5c2f0ee1fce9c6be8d664f56f6d8eae891dc67b2dd085518",
-          "timestamp": "2026-07-10T03:47:45.104Z"
+          "headHash": "5e1b042d1ca94a2d0e4c036b0f204d2b12ce4c2f",
+          "materialHash": "69f774ee02a1edeac5a6f9b62f987ea59d9ef709bdba5df0dd1da65c717e9a1c",
+          "storyFilesHash": "dacb0f6c016baffc0cad1ad3799177aaffc515b10b4d64c39796e877ef7dbdaa",
+          "timestamp": "2026-07-10T09:21:00.567Z"
         }
       ]
     },
@@ -315,10 +315,10 @@
           "command": "npm --prefix packages/main run build && node scripts/verify-proof-or-stop-prompt-baseline.mjs && npm run test:proof-or-stop-prompt-baseline",
           "result": "pass",
           "note": "Legacy vocabulary scanner records 52 classified baseline findings and fails on new unclassified findings. Happy path covered by committed M0 artifacts and verifier output from commit 961d52f6.",
-          "headHash": "d3a39cb6ea2bd41d8c049f952fa816a65ad7aa7e",
-          "materialHash": "b5fd1b15fd07f5e8a0a2062719808ec14147b46de6e2b9bf93ae359bce9b65ce",
-          "storyFilesHash": "74644226b4e7a36b5c2f0ee1fce9c6be8d664f56f6d8eae891dc67b2dd085518",
-          "timestamp": "2026-07-10T03:47:45.104Z"
+          "headHash": "5e1b042d1ca94a2d0e4c036b0f204d2b12ce4c2f",
+          "materialHash": "69f774ee02a1edeac5a6f9b62f987ea59d9ef709bdba5df0dd1da65c717e9a1c",
+          "storyFilesHash": "dacb0f6c016baffc0cad1ad3799177aaffc515b10b4d64c39796e877ef7dbdaa",
+          "timestamp": "2026-07-10T09:21:00.567Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -328,10 +328,10 @@
           "command": "npm --prefix packages/main run build && node scripts/verify-proof-or-stop-prompt-baseline.mjs && npm run test:proof-or-stop-prompt-baseline",
           "result": "pass",
           "note": "Legacy vocabulary scanner records 52 classified baseline findings and fails on new unclassified findings. Edge guard covered because the verifier recomputes current registry/output/matrix/findings and fails on unregistered drift.",
-          "headHash": "d3a39cb6ea2bd41d8c049f952fa816a65ad7aa7e",
-          "materialHash": "b5fd1b15fd07f5e8a0a2062719808ec14147b46de6e2b9bf93ae359bce9b65ce",
-          "storyFilesHash": "74644226b4e7a36b5c2f0ee1fce9c6be8d664f56f6d8eae891dc67b2dd085518",
-          "timestamp": "2026-07-10T03:47:45.104Z"
+          "headHash": "5e1b042d1ca94a2d0e4c036b0f204d2b12ce4c2f",
+          "materialHash": "69f774ee02a1edeac5a6f9b62f987ea59d9ef709bdba5df0dd1da65c717e9a1c",
+          "storyFilesHash": "dacb0f6c016baffc0cad1ad3799177aaffc515b10b4d64c39796e877ef7dbdaa",
+          "timestamp": "2026-07-10T09:21:00.567Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -341,10 +341,10 @@
           "command": "npm --prefix packages/main run build && node scripts/verify-proof-or-stop-prompt-baseline.mjs && npm run test:proof-or-stop-prompt-baseline",
           "result": "pass",
           "note": "Legacy vocabulary scanner records 52 classified baseline findings and fails on new unclassified findings. Adversarial guard covered by recomputing source facts instead of trusting prose-only baseline claims.",
-          "headHash": "d3a39cb6ea2bd41d8c049f952fa816a65ad7aa7e",
-          "materialHash": "b5fd1b15fd07f5e8a0a2062719808ec14147b46de6e2b9bf93ae359bce9b65ce",
-          "storyFilesHash": "74644226b4e7a36b5c2f0ee1fce9c6be8d664f56f6d8eae891dc67b2dd085518",
-          "timestamp": "2026-07-10T03:47:45.104Z"
+          "headHash": "5e1b042d1ca94a2d0e4c036b0f204d2b12ce4c2f",
+          "materialHash": "69f774ee02a1edeac5a6f9b62f987ea59d9ef709bdba5df0dd1da65c717e9a1c",
+          "storyFilesHash": "dacb0f6c016baffc0cad1ad3799177aaffc515b10b4d64c39796e877ef7dbdaa",
+          "timestamp": "2026-07-10T09:21:00.567Z"
         }
       ]
     },
@@ -402,10 +402,10 @@
           "command": "npm --prefix packages/main run build && node scripts/verify-proof-or-stop-prompt-baseline.mjs && npm run test:proof-or-stop-prompt-baseline",
           "result": "pass",
           "note": "Direct story-file scanner records 24 classified baseline findings and fails on new unregistered direct-write instructions. Happy path covered by committed M0 artifacts and verifier output from commit 961d52f6.",
-          "headHash": "d3a39cb6ea2bd41d8c049f952fa816a65ad7aa7e",
-          "materialHash": "b5fd1b15fd07f5e8a0a2062719808ec14147b46de6e2b9bf93ae359bce9b65ce",
-          "storyFilesHash": "74644226b4e7a36b5c2f0ee1fce9c6be8d664f56f6d8eae891dc67b2dd085518",
-          "timestamp": "2026-07-10T03:47:45.104Z"
+          "headHash": "5e1b042d1ca94a2d0e4c036b0f204d2b12ce4c2f",
+          "materialHash": "69f774ee02a1edeac5a6f9b62f987ea59d9ef709bdba5df0dd1da65c717e9a1c",
+          "storyFilesHash": "dacb0f6c016baffc0cad1ad3799177aaffc515b10b4d64c39796e877ef7dbdaa",
+          "timestamp": "2026-07-10T09:21:00.567Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -415,10 +415,10 @@
           "command": "npm --prefix packages/main run build && node scripts/verify-proof-or-stop-prompt-baseline.mjs && npm run test:proof-or-stop-prompt-baseline",
           "result": "pass",
           "note": "Direct story-file scanner records 24 classified baseline findings and fails on new unregistered direct-write instructions. Edge guard covered because the verifier recomputes current registry/output/matrix/findings and fails on unregistered drift.",
-          "headHash": "d3a39cb6ea2bd41d8c049f952fa816a65ad7aa7e",
-          "materialHash": "b5fd1b15fd07f5e8a0a2062719808ec14147b46de6e2b9bf93ae359bce9b65ce",
-          "storyFilesHash": "74644226b4e7a36b5c2f0ee1fce9c6be8d664f56f6d8eae891dc67b2dd085518",
-          "timestamp": "2026-07-10T03:47:45.104Z"
+          "headHash": "5e1b042d1ca94a2d0e4c036b0f204d2b12ce4c2f",
+          "materialHash": "69f774ee02a1edeac5a6f9b62f987ea59d9ef709bdba5df0dd1da65c717e9a1c",
+          "storyFilesHash": "dacb0f6c016baffc0cad1ad3799177aaffc515b10b4d64c39796e877ef7dbdaa",
+          "timestamp": "2026-07-10T09:21:00.567Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -428,10 +428,10 @@
           "command": "npm --prefix packages/main run build && node scripts/verify-proof-or-stop-prompt-baseline.mjs && npm run test:proof-or-stop-prompt-baseline",
           "result": "pass",
           "note": "Direct story-file scanner records 24 classified baseline findings and fails on new unregistered direct-write instructions. Adversarial guard covered by recomputing source facts instead of trusting prose-only baseline claims.",
-          "headHash": "d3a39cb6ea2bd41d8c049f952fa816a65ad7aa7e",
-          "materialHash": "b5fd1b15fd07f5e8a0a2062719808ec14147b46de6e2b9bf93ae359bce9b65ce",
-          "storyFilesHash": "74644226b4e7a36b5c2f0ee1fce9c6be8d664f56f6d8eae891dc67b2dd085518",
-          "timestamp": "2026-07-10T03:47:45.104Z"
+          "headHash": "5e1b042d1ca94a2d0e4c036b0f204d2b12ce4c2f",
+          "materialHash": "69f774ee02a1edeac5a6f9b62f987ea59d9ef709bdba5df0dd1da65c717e9a1c",
+          "storyFilesHash": "dacb0f6c016baffc0cad1ad3799177aaffc515b10b4d64c39796e877ef7dbdaa",
+          "timestamp": "2026-07-10T09:21:00.567Z"
         }
       ]
     }
