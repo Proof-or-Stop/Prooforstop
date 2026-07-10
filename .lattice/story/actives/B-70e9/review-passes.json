@@ -872,6 +872,30 @@
         "scanEscalationReason": null
       },
       "_hash": "66e59e97716f42e670eebb7929db66e97257e5770e0aed4cb007c884af0bb58a"
+    },
+    {
+      "id": "B-70e9:RP-036",
+      "agent": "lattice-review-docs",
+      "note": "Fallback-1 full-text scan (pure docs diff: fix commit b5df58d44d touches only docs/host-run-usage.md +7 lines besides code/tests, symbol-set extraction from git diff main...HEAD yields no anchor for this docs-only clause). Compared the added clause (docs/host-run-usage.md lines 184-190, one paragraph under Caps) against packages/main/src/core/codex-review-leaf.ts runCodexReviewLeaf: verified the ledger-ON admission chain runs recordBudgetBlock then acquireHostRunSlot (same order/provider openai as claimed), a refusal returns blockedLeafResult with a synthesized decision=blocked verdict (materialHash bound to opts.materialHash, never a fabricated pass/fail) via HOST_RUN_REFUSAL_EXIT_CODE without invoking the runner, and ledger OFF / no usageLedger binding takes the pre-existing runner-call path unchanged (byte-identical). Verified jointDecision in core/cross-host-review.ts: hostBVerdict=blocked (not pass) forces jointDecision=blocked with reason host B decision is blocked (materialHash bound equal so no fabricated mismatch reason), and handlers/cross-host-review.ts plumbs hostBVerdict.reason into hostB.reason with no handler changes needed, matching the fix commit claim. Ran the two relevant smokes for empirical confirmation: test:host-run-usage (47/47 passed, including the 3 new F-017 checks) and usage-ledger-budget-smoke (41/41 passed, including CHK-005 import-fence confirming codex-review-leaf.ts as the 4th allowlisted recordBudgetBlock site). Checked CHANGELOG.md: the single B-70e9 entry already states the same admission seam now covers the cross-host-review codex leaf, consistent with the new docs clause. No inconsistencies found.",
+      "createdAt": "2026-07-10T12:10:07.433Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-044",
+      "readManifest": {
+        "filesReadFully": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/core/cross-host-review.ts",
+          "packages/main/src/handlers/cross-host-review.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "packages/main/src/tasks/usage-ledger-budget-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "263f9110d4ad55a30959e41f27e74aed621fe9d1571c5a2e54c877870f5fed17"
     }
   ]
 }
