@@ -332,6 +332,46 @@
         "scanEscalationReason": null
       },
       "_hash": "14fcba4125916e2cf39e6d69aeb329393f982bcb774092402628b53868eaa2d0"
+    },
+    {
+      "id": "B-70e9:RP-014",
+      "agent": "lattice-review-quality",
+      "note": "Round 4 convergence re-review of F-008 fix (commit b8908661f). Scrutinized both delivery sites: (1) defaultHostRunRunner data listeners (core/host-run.ts:747-770) deliver() wraps plan.onChunk in try/catch, passthroughBroken flips on first throw (no per-chunk retry), scanner.push still runs unconditionally so usage parsing continues, finish() closure captures passthroughError for every exit path (spawn-error, timeout+SIGKILL, normal close). (2) runHostRun invokeRunner (core/host-run.ts:890-929) safeDeliver guards both the streaming onChunk path and the non-streaming buffered-flush fallback; merges spawn.passthroughError from a self-guarding default runner into the same passthroughFailure field. All 4 HostRunResult return sites (967 ledger-OFF, 1010 budget-blocked, 1056 concurrency-blocked, 1083 ledger-ON success) carry passthroughError with correct semantics (null on the two pre-spawn-refusal paths, merged failure on the two spawn paths). Handler (handlers/host-run.ts:207-214) passthrough sink normalizes non-Error throwables and RETHROWS to the core guard - no swallowing that hides passthroughError; handler's own diagnostic writes use a separate best-effort safeWriteStderr. JSON payload and text-mode stderr warning both wire result.passthroughError through. HEAD moved from bound review-run head 6a07cf9ca to current only via another reviewer lane's story-metadata commits; git diff 6a07cf9ca..HEAD --stat shows zero changes to reviewed source files. Ran build myself (tsc clean) and both smokes myself: test:host-run-usage 34/34 (incl. new F-008 check) and test:usage-sweep 11/11. F-007/F-009 stale JSDoc corrected and consistent with the new async runner description; docs/host-run-usage.md addition matches shipped behavior (no doc-promise-undelivered gap). No blocking issues found.",
+      "createdAt": "2026-07-10T09:20:04.771Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-014",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/alias-normalizer.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/host-execution-readiness.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/usage-ledger/adapters/openai.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/usage-ledger-budget-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bee64e21b15bd7d2e2768763c3b8ec8bde5ce8bc583f211592e10806359992e5"
     }
   ]
 }
