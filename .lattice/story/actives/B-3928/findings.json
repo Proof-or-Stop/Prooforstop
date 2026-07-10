@@ -130,7 +130,7 @@
       "desc": "doc-promise-undelivered: scripts/verify-proof-or-stop-prompt-baseline.mjs prints that the overlap matrix is verified, but collectCurrentBaseline builds roleMatrix only from hardcoded ROLE_MATRIX_DEFAULTS and verifyMatrix only compares those defaults with the committed JSON/Markdown; it never checks matrix facts against the prompt bodies or source-plan contracts. Concrete drift is already present: matrix line 22 says product-reviewer commands are none although its prompt lines 31-39 mandate init_check_set; line 13 assigns scope_check_save to lattice-review-behavior although its prompt only consumes that artifact and writes finding/pass; line 14 lists dispatch for lattice-review-channel although that reviewer only inspects dispatch evidence; and line 12 claims lattice-implementer outputs verificationEvidence although its whitelist limits checklist_update to status/times. Correct the rows and add prompt/contract-backed assertions before emitting the verified claim.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-10T04:21:35.147Z",
@@ -147,7 +147,11 @@
         "packages/main/templates/agents/lattice-review-implementer.md"
       ],
       "signatureTag": "missing|md|promise-undelivered-scripts",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commits 6aef18eb8 and c874f10f3: the false ownership rows called out for product-reviewer, behavior, evaluator, delivery, scope-plan, channel, and implementer were corrected across ROLE_MATRIX_DEFAULTS, baseline JSON, and Markdown. The verified claim is mechanically grounded in canonical prompts through exhaustive command claim-to-snippet mappings, exact normalized command-set equality including none, and explicit whole-field outputs/directFileAccess evidence; no second ungrounded truth table was added. Current materialHash 69f774ee02a1edeac5a6f9b62f987ea59d9ef709bdba5df0dd1da65c717e9a1c was reverified and recorded by 591b314ae. npm --prefix packages/main run build passed with @lattice/core@0.3.179 build and tsc. node scripts/verify-proof-or-stop-prompt-baseline.mjs passed all seven lines: PASS proof-or-stop prompt baseline: roleCount=16 registry hashes verified; PASS proof-or-stop prompt baseline: agent_prompt output hashes verified for 16 roles; PASS proof-or-stop prompt baseline: overlap matrix verified for 16 roles; PASS proof-or-stop prompt baseline: exhaustive role matrix source claims verified for 16 roles; PASS proof-or-stop prompt baseline: role matrix unsupported-claim mutation probe rejected; PASS proof-or-stop prompt baseline: legacy vocabulary findings classified; PASS proof-or-stop prompt baseline: direct story-file findings classified. node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-role-matrix-evidence passed: PASS role matrix source-evidence mutation probes: 1 refreshed-baseline injection rejected during collection and verification. node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-direct-story-classifier passed: PASS direct story-file classifier adversarial probes: 9 cases. npm run test:proof-or-stop-prompt-baseline passed with the same seven PASS lines.",
+      "resolvedAt": "2026-07-10T09:24:25.852Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3928:F-007",
