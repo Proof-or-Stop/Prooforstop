@@ -228,6 +228,18 @@
           "materialHash": "47f3b5a4560f61c2cb528c1c98d478237ec717bde13e8860f90b9ec6f6cc8e0d",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "timestamp": "2026-07-10T14:40:14.614Z"
+        },
+        {
+          "intentRef": "remaining-breadth-decision:edge",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "Edge pair covered in smoke: 'Two remaining suite failures are pre-existing upstream issues' does NOT trigger (preexistingDone); 'The remaining cases were left for a follow-up story' DOES trigger (remainingScopeDone).",
+          "headHash": "f252945776bc1374834f519380bb3d9d83b19e49",
+          "materialHash": "47f3b5a4560f61c2cb528c1c98d478237ec717bde13e8860f90b9ec6f6cc8e0d",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-10T14:40:15.263Z"
         }
       ]
     }
