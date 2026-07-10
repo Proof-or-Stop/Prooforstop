@@ -43,7 +43,21 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+          "command": "npm --prefix packages/main run test:done-prepare-merge-rerun-smoke",
+          "result": "pass",
+          "note": "assertUntrackedOverwriteHazard: BLOCKED with exact path (merge hazard: untracked file would be overwritten: notes/main-only.txt) plus safe next step before any DONE recovery; assertModifiedTrackedPathExactness proves first-row modified paths keep exact form after the porcelain trim fix.",
+          "headHash": "3b8661606f36dd17d79465cd889d0ee26db12038",
+          "materialHash": "629ca6c3184088f0e8299b3c454ca0f12ebc20a3b0aa9cdc50925b7717f44d4f",
+          "storyFilesHash": "280e1fa00e2ee162d2eec9e7211bc3b97d595ef75062fc12e0eae88070f8cc98",
+          "timestamp": "2026-07-10T05:33:09.725Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
