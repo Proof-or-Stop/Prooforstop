@@ -245,6 +245,54 @@
       },
       "readDiagnostics": [],
       "_hash": "68c7ca9c244684f36e304d1ce0e0346b9d91a82ed1c0e52137bf276c45ffaabb"
+    },
+    {
+      "id": "B-4a78:RP-008",
+      "agent": "lattice-review-docs",
+      "note": "Docs reviewer checked signed readManifest/readEvents docs, reviewer prompts, dispatch guidance, CLI schema, handler persistence, and smoke coverage; no blocker found.",
+      "createdAt": "2026-07-10T03:39:17.769Z",
+      "reviewRound": "2026-07-10T03:21:22.297Z",
+      "reviewRunId": "B-4a78:RR-011",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4a78/plan.md",
+          ".lattice/story/actives/B-4a78/summary.json",
+          "docs/requirements/decisions/dev-memory.md",
+          "docs/requirements/decisions/pos-agent-drivability-optimization.md",
+          "packages/main/src/core/reviewer-read-evidence.ts",
+          "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+          "packages/main/templates/agents/lattice-review-behavior.md",
+          "packages/main/templates/agents/lattice-review-scope-plan.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-review-behavior.md",
+          ".lattice-codex/agents/lattice-review-behavior.md",
+          "docs/CLI.md",
+          "lattice.config.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/finding-verify.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/scope-check.ts",
+          "packages/main/src/handlers/story-dispatch.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dev-memory.md",
+          "docs/requirements/decisions/pos-agent-drivability-optimization.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "7a2014fc49d3f1c82bd6112a5642a238ec12a82f3fa0be04ae6c19a7b969dc5e"
+      },
+      "readDiagnostics": [],
+      "_hash": "315ddea24adf8f4bdccc0688f396530de5438f88ee4489ac0f22dc76551b5142"
     }
   ]
 }
