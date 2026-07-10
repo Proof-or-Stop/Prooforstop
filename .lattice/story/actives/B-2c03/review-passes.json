@@ -225,6 +225,27 @@
         "scanEscalationReason": null
       },
       "_hash": "33b548e0e9516ec0adb690d731f7f1cbfadc8f50cf11eebdbcfe519204b0bd61"
+    },
+    {
+      "id": "B-2c03:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "Fresh round after F-008+F-009 fix (a7437cfe85: claimsShrinkage connectors widened to [\\s./_-]+; slash tokens now strip only with an explicit path marker — leading prefix, URL scheme, or final segment with known extension). git diff main...HEAD touches packages/main/src/core/proofstory.ts (stripCodeLikeTokens/dottedFileTokenRegex/CODE_FILE_EXTENSION_PATTERN/finalSegmentExtensionRegex sanitizer, evolving net-new across this story F-001..F-009) and packages/main/src/tasks/proofstory-intent-hardening-smoke.ts (354 insertions, 0 deletions — new regression cases only), plus .lattice story metadata. No concept word deleted or replaced en masse this round: only two inline const lines (narrowingText/claimsShrinkage construction) were refactored to call the existing stripCodeLikeTokens wrapper with the same variable names; the regex connector class was widened and the slash-strip predicate was tightened to require an explicit path marker, not renamed. Grepped stripCodeLikeTokens/CODE_FILE_EXTENSION_PATTERN/dottedFileTokenRegex/finalSegmentExtensionRegex repo-wide (excluding node_modules/dist/.git): all matches are within proofstory.ts itself plus expected historical prose in story findings/review-passes metadata — zero residual references to a removed/renamed identifier. No concept deletion/replacement this round; concept residue check completed, no blocker.",
+      "createdAt": "2026-07-10T17:40:58.013Z",
+      "reviewRound": "2026-07-10T14:41:10.214Z",
+      "reviewRunId": "B-2c03:RR-021",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/proofstory.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2c03/checklist.json",
+          ".lattice/story/actives/B-2c03/findings.json",
+          ".lattice/story/actives/B-2c03/plan.md",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "54a49f92a03c15014e85a5a3726e31ac18852fd2e203e93f501372f3af6752d8"
     }
   ]
 }
