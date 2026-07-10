@@ -1043,6 +1043,28 @@
         "scanEscalationReason": null
       },
       "_hash": "679ae5e49c47d5a7a38ec9cee27194c2a493bb33123a0b3522230ae8a8742a6c"
+    },
+    {
+      "id": "B-70e9:RP-044",
+      "agent": "lattice-review-quality",
+      "note": "Round 12 re-review of F-019 fix (commit 2675c4ed0e, smoke-only). Verified the new host-run-usage-smoke.ts check genuinely drives writer.ts acquireLedgerLock owner-write-failure rollback branch: independently reproduced umask(0o277)+mkdirSync -> mode 0500 -> writeFileSync(owner.json) EACCES, and that rollback rmdirSync still succeeds (parent-dir writable governs rmdir, not child mode). try/finally umask restore correct. writer.ts confirmed untouched by this commit. No leftover probes (grep-verified). No dead code / as any / empty catches; imports reused. Build clean; test:host-run-usage 51/51; test:usage-sweep 17/17. No doc changes to cross-check. No blocking findings.",
+      "createdAt": "2026-07-10T12:48:33.755Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-052",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/usage-ledger/writer.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-70e9/checklist.json",
+          ".lattice/story/actives/B-70e9/findings.json",
+          "CHANGELOG.md",
+          "docs/host-run-usage.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "43f5a267b42d9aae4dc3ad5908651339216003d65736ab98218128129ed765c2"
     }
   ]
 }
