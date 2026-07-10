@@ -4,7 +4,7 @@
   "title": "Make reviewer reads first-class evidence: signed readManifest (M1) + mechanical read log (M2)",
   "description": "B-cee5's A/B effect measurement (dev-memory fa1777b) proved that what a reviewer actually READ is only self-reported prose: no mechanical evidence exists, so scan-budget compliance (bounded candidateSpecSet reads vs unrecorded full scans of docs/requirements/decisions/) can neither be proven nor compared over time. Two-tier fix. M1 (cheap, immediately comparable): extend the scope_check_save and review_pass_set schemas with a required structured readManifest field {filesReadFully[], filesTriagedByName[], scanEscalationReason|null} — still self-report, but upgraded from prose to a signed structured field: spot-checkable, ledger-comparable for trends, missing field = gate rejection. M2 (strong proof): mechanical read-logging — when reviewers are dispatched, retain their stream-json transcript and extract the Read-call list (productizing the ad-hoc analyze_arm.py transcript analyzer used in the fa1777b measurement), or reuse the PreToolUse hook pattern of .claude/hooks/lattice-scope-pretool.cjs to intercept Read calls on decisions/*.md; bind the read-log digest as run evidence. A mismatch between the self-report and the mechanical log is itself a finding, and a full-content directory read lacking a recorded scanEscalationReason (the defined failure signal, currently undetectable) gets flagged. With M2, every review emits a (files-read-fully, triaged-by-name, tokens, escalation-reason) tuple into the ledger, so instruction-layer stopgap failures are mechanically detectable instead of discovered by luck. Governance escalates tier by tier: M1 makes deviation require forging a signed field (an accountable actor); M2 makes deviation directly contradicted by logs. This is exactly the runtime enforcement B-cee5 explicitly deferred; the fa1777b result is the evidence to start it now. Non-goals: memory/playbook output does NOT become gate evidence; the scan-escalation path itself stays intact (we record escalation, we do not block it). References: B-cee5 (merge 7cda28285), guard smoke packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts, follow-up B-04bb (validate wiring).",
   "type": "feature",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "high",
   "keywords": [
     "read-evidence",
@@ -120,6 +120,15 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-07-10T02:42:21.948Z",
+      "branch": "story/B-4a78",
+      "user": "Harmonygo",
+      "sessionId": "sess-3b8a85697cfc8d0d",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-10T02:56:03.042Z",
       "branch": "story/B-4a78",
       "user": "Harmonygo",
       "sessionId": "sess-3b8a85697cfc8d0d",
