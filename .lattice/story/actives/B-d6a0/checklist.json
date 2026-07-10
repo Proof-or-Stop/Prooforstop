@@ -42,8 +42,8 @@
       "id": "CHK-002",
       "title": "Fix assertMaterialCleanForReview full-output trim in handlers/cross-host-review.ts",
       "context": "assertMaterialCleanForReview (~line 74) trims the full porcelain output then slice(3): a first-row ' M .lattice/...' metadata change parses as 'lattice/...' which fails the .lattice/ material-exclusion prefix and false-blocks the cross-host review dirty preflight. Same untrimmed raw-read fix.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-10T10:09:18.102Z",
       "endTime": null,
       "userSees": "✓ cross-host-review: .lattice-only dirty tree passes the review preflight; a material row still refuses with the exact path",
       "files": {
