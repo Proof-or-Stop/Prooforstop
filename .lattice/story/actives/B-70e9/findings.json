@@ -655,7 +655,7 @@
       "desc": "[self-audit during F-029 fix, same class] recordDispatchFinalForProvider (dispatch-usage.ts ~538-565, the void codex/gemini sibling used by lattice-dispatch runBoundedRealLeafDispatch) has the SAME build+append conflation F-029 fixed in recordDispatchFinalCodex: its inner try wraps buildProviderRecord AND appendUsageRecord, so a transient append throw falls through to the unavailable fallback and can land a FALSE source=unavailable row although provider usage was parsed. Callers: lattice-dispatch.ts ~2384. Fix direction: mirror F-029 - separate build (fallback allowed) from append (no second append on throw); function stays void/never-throw, honest under-count.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main-agent",
       "createdAt": "2026-07-10T18:16:31.527Z",
@@ -666,7 +666,11 @@
         "packages/main/src/tasks/host-run-usage-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|self-audit-during",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 3f2bed8c4a: recordDispatchFinalForProvider mirrors the F-029 restructure - build in its own try (failure -> existing unavailable fallback), append in its own try (throw -> swallow and return void, no unavailable attempt, honest under-count). RED proven with a one-shot dist fault-injection harness (first append throws, second succeeds): OLD landed a false unavailable row (rows=1 source=unavailable), NEW lands zero rows; harness removed, dist rebuilt clean. host-run smoke 65/65; usage group 12/12.",
+      "resolvedAt": "2026-07-10T18:28:14.708Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
