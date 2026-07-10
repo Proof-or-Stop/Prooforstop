@@ -118,9 +118,9 @@
       "id": "CHK-004",
       "title": "Fix assertMainWorktreeClean input trim in core/partial-done-recovery.ts and brief rows in handlers/session.ts",
       "context": "partial-done-recovery.ts git() (line 23) trims full output; assertMainWorktreeClean (line 179) feeds it to materialStatusLines/statusLinePath (slice(3)) so a first-row volatile runtime artifact counts as material and done_recover falsely refuses. session.ts readGitStatus (line 150) trims full output before splitting rows for the session brief, so the first displayed row loses its status column. Fix both reads; keep bounded emptiness-only call sites unchanged.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-10T10:09:36.895Z",
-      "endTime": null,
+      "endTime": "2026-07-10T10:09:37.490Z",
       "userSees": "✓ partial-done-recovery: volatile-only first row no longer refuses done_recover; session brief rows keep their status columns",
       "files": {
         "modify": [
