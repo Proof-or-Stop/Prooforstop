@@ -75,7 +75,7 @@
       "desc": "responsibility-boundary: M0.3 is not a truthful command/output ownership inventory. The committed matrix assigns scope_check_save to lattice-review-behavior even though that prompt only consumes the scope-plan artifact and the source plan reserves scope_check_save writes to scope-plan; it also assigns reviewer-run/finding/pass writes to evaluator/delivery rows whose role-specific contracts are raw JSON or delivery_check_set-only, while product-reviewer is listed with commands=none despite its conditional init_check_set call. The verifier cannot detect these semantic errors because collectCurrentBaseline builds current.roleMatrix from the same hard-coded ROLE_MATRIX_DEFAULTS that seed the baseline/Markdown, then verifyMatrix checks only parity with those constants. As a result it prints overlap matrix verified for a false responsibility boundary. Audit and correct all 16 command/output rows against the role-specific prompt contracts and add an independent source-backed semantic check or explicitly stop claiming semantic verification.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-10T04:20:40.620Z",
@@ -95,7 +95,11 @@
         "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:823"
       ],
       "signatureTag": "missing|md:11|responsibility-boundary-truthful",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commits 6aef18eb8 and c874f10f3: all 16 ROLE_MATRIX_DEFAULTS commands, outputs, and directFileAccess rows were audited against canonical prompts, and source evidence is now exhaustive claim-to-snippet coverage for every semicolon-delimited command claim plus exact whole-field bindings for outputs and directFileAccess. Current materialHash 69f774ee02a1edeac5a6f9b62f987ea59d9ef709bdba5df0dd1da65c717e9a1c was reverified and recorded by 591b314ae. npm --prefix packages/main run build passed with @lattice/core@0.3.179 build and tsc. node scripts/verify-proof-or-stop-prompt-baseline.mjs passed all seven lines: PASS proof-or-stop prompt baseline: roleCount=16 registry hashes verified; PASS proof-or-stop prompt baseline: agent_prompt output hashes verified for 16 roles; PASS proof-or-stop prompt baseline: overlap matrix verified for 16 roles; PASS proof-or-stop prompt baseline: exhaustive role matrix source claims verified for 16 roles; PASS proof-or-stop prompt baseline: role matrix unsupported-claim mutation probe rejected; PASS proof-or-stop prompt baseline: legacy vocabulary findings classified; PASS proof-or-stop prompt baseline: direct story-file findings classified. node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-role-matrix-evidence passed: PASS role matrix source-evidence mutation probes: 1 refreshed-baseline injection rejected during collection and verification. node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-direct-story-classifier passed: PASS direct story-file classifier adversarial probes: 9 cases. npm run test:proof-or-stop-prompt-baseline passed with the same seven PASS lines.",
+      "resolvedAt": "2026-07-10T09:24:03.173Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3928:F-005",
