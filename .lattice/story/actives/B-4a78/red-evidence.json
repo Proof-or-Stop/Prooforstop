@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-4a78",
+  "records": [
+    {
+      "id": "RED-20260710012424",
+      "trigger": "PLAN scope reviewer found reviewer-read evidence promises not covered before CHK-007/CHK-008",
+      "acceptanceTargetRef": "AB-001-reviewer-read-evidence",
+      "baselineHeadHash": "cd0522638f48199cf461035937ae82dd041791aa",
+      "baselineMaterialHash": "4eff1333d2b6b360c5324a4a75d3cea8653bd0419f39c50359d68c6523ccb507",
+      "observedFailure": "First scope-plan review recorded scope-check summary total=38 covered=31 excluded=5 gaps=2. The gaps were token usage/read counts in the promised reviewer read-evidence tuple and hook/capture safety for non-reviewer Read usage.",
+      "failureReceiptHash": "sha256:dae4b2aac596f61aeb75cde70d15abddcf9424b7a3fd1ff9f157a09fce273b96",
+      "expectedGreenCommand": "lattice story_review --storyId=B-4a78",
+      "greenRelation": {
+        "targetRef": "AB-001-reviewer-read-evidence",
+        "relation": "same_acceptance",
+        "command": "lattice story_review --storyId=B-4a78"
+      },
+      "note": "Red evidence uses the independent scope-plan reviewer receipt from commit cd0522638 before CHK-007/CHK-008 were added; the later scope reviewer recorded gaps=0 for the same acceptance target.",
+      "createdAt": "2026-07-10T01:24:24.296Z"
+    }
+  ],
+  "createdAt": "2026-07-10T01:24:24.296Z",
+  "updatedAt": "2026-07-10T01:24:24.296Z"
+}

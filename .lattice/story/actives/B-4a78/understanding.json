@@ -1,29 +1,39 @@
 {
   "task": "Make reviewer read coverage first-class evidence instead of unverifiable prose.",
-  "outcome": "scope_check_save and review_pass_set require signed structured readManifest evidence, reviewer dispatch asks for it, and a mechanical read-log path can detect self-report mismatches and unrecorded full decisions-doc scans.",
+  "outcome": "scope_check_save and review_pass_set require signed structured readManifest evidence, reviewer prompts ask for it, and mechanical read-log/mismatch diagnostics expose unrecorded decisions-doc full scans while preserving non-reviewer Read safety.",
   "facts": [
     "B-cee5/fa1777b showed reviewer read coverage is currently self-reported prose with no ground truth.",
-    "Existing scope_check_save and review_pass_set evidence should keep role-separation and anti-self-absolution boundaries.",
-    "The story already has six checklist rows covering schema, templates, mechanical read-log, mismatch finding, and smoke coverage.",
-    "Memory/playbook output must remain advisory context only, never gate evidence."
+    "scope_check_save is implemented in packages/main/src/handlers/scope-check.ts and its public schema is registered in packages/main/src/cli/command-catalog.ts.",
+    "review_pass_set is implemented in packages/main/src/handlers/finding.ts and signs through packages/main/src/core/finding-verify.ts.",
+    "reviewer prompt surfaces include packages/main/templates/agents, .claude/agents, .lattice-codex/agents, and story-dispatch prompt generation.",
+    "Scope reviewer second pass recorded 44 total features, 39 covered, 5 excluded, 0 gaps after CHK-007 and CHK-008 were added."
   ],
   "constraints": [
-    "Do not make the main agent self-sign reviewer evidence.",
+    "Do not make memory/playbook output gate evidence.",
     "Do not block legitimate scan escalation; record scanEscalationReason and flag unrecorded full scans.",
-    "Keep JSON outputs parseable and signatures deterministic.",
-    "Use existing Lattice CLI/story helpers rather than hand-editing story JSON."
+    "Keep reviewer/main role separation; main agent must not self-sign reviewer evidence.",
+    "Keep JSON stdout parseable for JSON mode commands.",
+    "If hook-like capture is used, non-reviewer reads must bypass safely and not create reviewer evidence."
   ],
-  "unknowns": [
-    "Exact source locations for scope_check_save and review_pass_set argument parsing/signature domains.",
-    "Whether transcript retention or hook-based capture is the smallest safe M2 implementation for current dispatch paths.",
-    "Existing smoke boundaries in reviewer-scan-budget-guard-smoke and validate wiring."
-  ],
+  "unknowns": [],
   "touchpoints": [
-    "packages/main/src/**/*.ts handlers for scope_check_save and review_pass_set",
-    "packages/main/src/core/** signing, evidence, reviewer, or scope-check helpers",
+    "packages/main/src/handlers/scope-check.ts",
+    "packages/main/src/handlers/finding.ts",
+    "packages/main/src/core/finding-verify.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/reviewer-read-evidence.ts",
+    "packages/main/templates/agents/lattice-review-scope-plan.md",
+    "packages/main/templates/agents/lattice-review-behavior.md",
+    ".claude/agents/lattice-review-scope-plan.md",
+    ".claude/agents/lattice-review-behavior.md",
+    ".lattice-codex/agents/lattice-review-scope-plan.md",
+    ".lattice-codex/agents/lattice-review-behavior.md",
+    "packages/main/src/handlers/story-dispatch.ts",
     "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
-    "reviewer template and dispatch prompt sources under packages/main/src or docs",
-    "scripts/verify-process-fact-contract.mjs and runtime fact contract tests"
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/package.json",
+    "lattice.config.json"
   ],
-  "timestamp": "2026-07-10T01:10:00.721Z"
+  "timestamp": "2026-07-10T01:23:28.679Z"
 }
