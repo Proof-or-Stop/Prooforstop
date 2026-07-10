@@ -1,0 +1,20 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Remove the test:autopilot-resume-smoke script entry from packages/main/package.json",
+      "context": "Line 70: \"test:autopilot-resume-smoke\": \"node dist/tasks/autopilot-resume-smoke.js\" — source deleted in 5d3d7bd686; root package.json has no mirror of this script",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Verify no remaining runnable reference to autopilot-resume-smoke outside historical story artifacts and decision-doc evidence records",
+      "context": "grep the repo excluding .lattice story artifacts, .claude/worktrees and node_modules; docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md:403 is a historical B-320f evidence row and stays untouched",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

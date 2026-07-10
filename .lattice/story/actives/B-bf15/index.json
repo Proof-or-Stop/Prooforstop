@@ -1,0 +1,31 @@
+{
+  "storyId": "B-bf15",
+  "name": "remove-stale-autopilot-resume-smoke-script",
+  "title": "Remove the stale test:autopilot-resume-smoke npm script whose source was deleted in the Authority retirement cleanup",
+  "description": "packages/main/package.json line 70 still defines test:autopilot-resume-smoke -> node dist/tasks/autopilot-resume-smoke.js, but the TypeScript source src/tasks/autopilot-resume-smoke.ts was deleted in commit 5d3d7bd686 (Complete Authority Server retirement cleanup). In any fresh worktree or clean build the dist file does not exist, so the script fails with a missing-file error; on stale checkouts it silently runs an outdated compiled artifact. The smoke tested checkpoint-ledger-backed resume projection against the retired Authority boundary, so the correct fix is removal, not repointing.",
+  "type": "chore",
+  "phase": "INIT",
+  "priority": "low",
+  "keywords": [
+    "npm-scripts",
+    "package.json",
+    "authority-retirement",
+    "stale-artifact",
+    "autopilot",
+    "smoke-test"
+  ],
+  "createdAt": "2026-07-10T14:24:07.333Z",
+  "startedAt": "2026-07-10T14:24:07.333Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-10T14:24:07.713Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "8541abb5-287a-42fe-97dd-987df991e729",
+      "agent": "main"
+    }
+  ]
+}
