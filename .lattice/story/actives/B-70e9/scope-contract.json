@@ -19,7 +19,9 @@
     "packages/main/src/core/registry-command-policy.ts",
     "packages/main/src/registry.ts",
     "packages/main/src/cli/alias-normalizer.ts",
-    "packages/main/src/tasks/usage-ledger-budget-smoke.ts"
+    "packages/main/src/tasks/usage-ledger-budget-smoke.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/process-fact-levels.ts"
   ],
   "allowedCreate": [
     "packages/main/src/core/host-run.ts",
@@ -42,8 +44,8 @@
     ".lattice/**",
     "docs/requirements/decisions/**"
   ],
-  "scopeChangeReason": "DEV Stage A required two mechanical additions: cli/alias-normalizer.ts (1 line, host_run command registration mirror of dispatch_run) and tasks/usage-ledger-budget-smoke.ts (6 lines, its static import-boundary allowlist must name core/host-run.ts because plan CHK-007 mandates REUSING recordBudgetBlock, making host-run a legitimate budget-primitive importer). Forbidden ledger schema/writer files remain untouched.",
+  "scopeChangeReason": "Stage C required two additive registration entries so usage_sweep works as a read-only diagnostic in active-story worktrees: core/config.ts (DEFAULT_PHASE_TOOLS[*] entry; no usage_* wildcard exists) and core/process-fact-levels.ts (L0 lattice-usage-read level required by lifecycle-registry-contract for allowedPhases:all commands), both mirroring milestone_status. Ledger schema/writer files remain untouched.",
   "acknowledgements": [],
   "createdAt": "2026-07-10T05:32:56.378Z",
-  "updatedAt": "2026-07-10T06:12:28.173Z"
+  "updatedAt": "2026-07-10T06:54:29.237Z"
 }
