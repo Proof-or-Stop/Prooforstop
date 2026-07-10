@@ -1295,6 +1295,29 @@
         "scanEscalationReason": null
       },
       "_hash": "8bf905d14d7f9be33c3d2f6e0f31ff623f6c392935f130ea50321c513079975b"
+    },
+    {
+      "id": "B-70e9:RP-055",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: round 15 re-review after commit d638945a8a (F-022 fix). evidence_plan fresh=42/42, missing=0, rerun=0, refreshOnly=0 across all 7 checklist items (CHK-001..CHK-007). Re-ran test:host-run-usage 54/54 pass and test:usage-sweep 17/17 pass. Verified via git show d638945a8a that the CHK-003 final-swallow check label/body drift F-022 flagged is fixed: title now reads (returns appended:false status, no throw) and body captures + asserts status?.appended===false, matching the DispatchFinalStatus contract. All 22 findings (F-001..F-022) are dismissed/resolved with evidenceState=verified. No coverage gap found; no blocker.",
+      "createdAt": "2026-07-10T13:55:24.503Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-061",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-70e9/checklist.json",
+          ".lattice/story/actives/B-70e9/findings.json",
+          "packages/main/src/tasks/usage-ledger-default-on-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-70e9/index.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/tasks/run-all-smokes.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0b4e76f5028405a97634352cccd5403050fe3282dbd80ee50371cd9e232b4320"
     }
   ]
 }
