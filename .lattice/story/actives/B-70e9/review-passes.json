@@ -1969,6 +1969,24 @@
         "scanEscalationReason": null
       },
       "_hash": "9e6678ddf66679f5d2dc17578e09d58613bd3361cc4b878fb9ed768867822552"
+    },
+    {
+      "id": "B-70e9:RP-079",
+      "agent": "lattice-review-concept",
+      "note": "Round 22, doc-only fix commit d9a9203424 (F-031): single qualifier clause added to docs/host-run-usage.md re-stating usage_sweep no-activity-log-entry as by-default with LATTICE_ACTIVITY_RECORD_READONLY=1 override caveat, cross-referenced to docs/CLI.md where that env var is documented (verified present). No concept deletion/replacement; no code files touched (docs/host-run-usage.md only, 4 insertions/3 deletions). No residue grep applicable, no blocker.",
+      "createdAt": "2026-07-10T18:38:17.304Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-090",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f2af8798c4c6fa90bc7db85d10383b1e86c0bcc060660d65af1496c7073e7a93"
     }
   ]
 }
