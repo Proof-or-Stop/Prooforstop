@@ -24,6 +24,14 @@ const REVIEW_LANES = [
   'lattice-review-test-coverage',
 ] as const;
 
+function reviewerReadManifest(lane: string): Record<string, unknown> {
+  return {
+    filesReadFully: [`docs/requirements/decisions/${lane}.md`],
+    filesTriagedByName: [],
+    scanEscalationReason: null,
+  };
+}
+
 function git(cwd: string, args: string[]): string {
   return execFileSync('git', args, {
     cwd,
@@ -161,6 +169,7 @@ function startRunAndPass(registry: ReturnType<typeof createMainRegistry>, lane: 
     agent: lane,
     reviewRunId: match[1],
     note: `No blocking issue found by ${lane} for quorum_submit smoke.`,
+    readManifest: reviewerReadManifest(lane),
   });
 }
 
