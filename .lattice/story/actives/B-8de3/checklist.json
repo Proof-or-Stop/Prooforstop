@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Write content-addressed objects atomically via same-directory tmp file plus renameSync",
+      "context": "packages/main/src/core/evidence/artifact-store.ts writeArtifact(): objects/sha256/<digest>.json must never be observable in a partially written state. Follow the tmp+renameSync idiom already used by playbook-runtime-memory-cache.ts and playbook-runtime-memory-index.ts.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Write refs/by-id/<artifactId>.json atomically with the same tmp+rename treatment",
+      "context": "Same writeArtifact() function; the ref pointer write has the identical non-atomic writeFileSync weakness.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Dedupe path heals a corrupt existing object instead of failing forever",
+      "context": "When objPath exists but its content fails JSON.parse, rebuild the artifact from the current call's payload and atomically replace the corrupt file, returning the rebuilt artifact. Keep the current behavior (parse and return) when the existing object is valid.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Regression test covering poisoning recovery and same-digest double write",
+      "context": "Test A: truncate an existing object file, call writeArtifact with the same content, expect success and a healed valid object plus working readArtifact round-trip. Test B: two sequential writeArtifact calls with identical content yield one valid object and status quo ledger semantics (append-only event log untouched by the fix).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
