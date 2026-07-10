@@ -37,6 +37,7 @@ import {
   rollbackDonePrepareGeneratedMetadataTransaction,
   type DonePrepareGeneratedMetadataBaseline,
   type DonePrepareGeneratedMetadataCommitResult,
+  type DonePrepareGeneratedMetadataManifest,
   type DonePrepareGeneratedMetadataTransaction,
 } from '../core/done-prepare-generated-metadata.js';
 import {
@@ -86,13 +87,20 @@ interface DonePrepareBlocked {
   blockedAt: StepId | 'evidenceFreshness';
   reason: string;
   next: string;
+  dryRun?: boolean;
   currentBinding?: DonePrepareCurrentBinding;
   reviewAssurancePlan?: DonePrepareReviewAssurancePlan;
   memoryFreshnessPack?: MemoryFreshnessPack;
   files?: string[];
   commits?: string[];
   commands?: string[];
+  guidanceSections?: DonePrepareGuidanceSection[];
   steps: DonePrepareStep[];
+}
+
+interface DonePrepareGuidanceSection {
+  title: string;
+  lines: string[];
 }
 
 interface DonePrepareCurrentBinding {
@@ -291,7 +299,14 @@ function gitMaybe(gitCwd: string, args: string[]): { ok: true; output: string } 
 }
 
 function gitStatusRows(gitCwd: string): string[] {
-  const raw = git(gitCwd, ['status', '--porcelain=v1', '--untracked-files=all']);
+  // Do not reuse git(): its full-output trim() strips the first porcelain row's
+  // leading status space (" M path" -> "M path"), which shifts the fixed-width
+  // path offset and corrupts the first reported path (".lattice/x" -> "lattice/x").
+  const raw = childProcess.execFileSync('git', ['status', '--porcelain=v1', '--untracked-files=all'], {
+    cwd: gitCwd,
+    encoding: 'utf-8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
   return raw.split('\n').map((line) => line.trimEnd()).filter(Boolean);
 }
 
@@ -399,6 +414,105 @@ function unchangedFromInitialAllowedMetadata(
     && initialAllowedMetadataSignatures.has(dirtyEntrySignature(gitCwd, entry));
 }
 
+function pathExistsOnMain(gitCwd: string, path: string): boolean {
+  return gitMaybe(gitCwd, ['cat-file', '-e', `main:${path}`]).ok;
+}
+
+function dirtyCategoryLabel(entry: DirtyWorktreeEntry): string {
+  switch (entry.category) {
+    case 'lattice_metadata_changes':
+      return 'Proofbound metadata outside the current-run safe lifecycle metadata set';
+    case 'runtime_artifact_changes':
+      return entry.runtimeArtifactId
+        ? `runtime artifact (${entry.runtimeArtifactId})`
+        : 'runtime artifact';
+    case 'declared_artifact_changes':
+      return 'declared artifact';
+    case 'material_source_changes':
+      return 'story or project material source';
+    case 'fixture_changes':
+      return 'fixture';
+    case 'unexpected_dirty_files':
+      return 'unrelated dirty file';
+  }
+}
+
+function dirtyEntryDisplayPath(entry: DirtyWorktreeEntry): string {
+  const paths = dirtyEntryPaths(entry);
+  return paths.length > 0 ? paths.join(' -> ') : entry.rawPath || entry.raw;
+}
+
+function buildInitialDirtyGuidance(
+  gitCwd: string,
+  entries: DirtyWorktreeEntry[],
+): DonePrepareGuidanceSection[] {
+  const mergeHazards = entries
+    .filter((entry) => entry.statusCode === '??' && pathExistsOnMain(gitCwd, entry.path))
+    .sort((left, right) => left.path.localeCompare(right.path));
+  const lines: string[] = [];
+
+  for (const entry of mergeHazards) {
+    lines.push(`merge hazard: untracked file would be overwritten: ${entry.path}`);
+  }
+  if (mergeHazards.length > 0) {
+    lines.push('safe next step: preserve or move the file, then rerun done_prepare');
+  }
+
+  lines.push('dirty file classification:');
+  for (const entry of entries) {
+    lines.push(`  - ${dirtyEntryDisplayPath(entry)}: ${dirtyCategoryLabel(entry)}`);
+  }
+
+  return [{ title: 'pre-DONE dirty guidance', lines }];
+}
+
+function buildMergeConflictGuidance(): DonePrepareGuidanceSection[] {
+  return [{
+    title: 'merge conflict guidance',
+    lines: [
+      'merge conflict files require manual resolution; done_prepare will not auto-resolve them',
+      'next action: resolve the listed files, commit the merge, then rerun done_prepare',
+    ],
+  }];
+}
+
+function buildRerunReasonGuidance(
+  commits: string[],
+  binding: DonePrepareCurrentBinding,
+): DonePrepareGuidanceSection[] {
+  const lines = commits.length > 0
+    ? commits.map((commit) => `generated commit: ${commit}`)
+    : ['generated commit: (unavailable)'];
+  lines.push('current binding:');
+  lines.push(`  currentHead: ${binding.currentHead || '(unavailable)'}`);
+  lines.push(`  currentMaterialHash: ${binding.currentMaterialHash || '(unavailable)'}`);
+  lines.push(`  currentStoryFilesHash: ${binding.currentStoryFilesHash || '(unavailable)'}`);
+  return [{ title: 'done_prepare re-run reason', lines }];
+}
+
+function buildGeneratedMetadataDirtyGuidance(
+  manifest: DonePrepareGeneratedMetadataManifest,
+): DonePrepareGuidanceSection[] {
+  const currentRun = manifest.entries
+    .filter((entry) => entry.currentRunGenerated && entry.safeToAutoStage)
+    .sort((left, right) => left.path.localeCompare(right.path));
+  const unsafe = manifest.entries
+    .filter((entry) => !entry.safeToAutoStage)
+    .sort((left, right) => left.path.localeCompare(right.path));
+  const lines: string[] = [];
+
+  if (currentRun.length > 0) {
+    lines.push('generated by this done_prepare run:');
+    for (const entry of currentRun) lines.push(`  - ${entry.path}`);
+  }
+  if (unsafe.length > 0) {
+    lines.push('unsafe or pre-existing dirty files:');
+    for (const entry of unsafe) lines.push(`  - ${entry.path}: ${entry.reason}`);
+  }
+
+  return lines.length > 0 ? [{ title: 'generated metadata delta', lines }] : [];
+}
+
 function isMainAncestor(gitCwd: string): boolean {
   return gitMaybe(gitCwd, ['merge-base', '--is-ancestor', 'main', 'HEAD']).ok;
 }
@@ -431,6 +545,9 @@ function block(args: DonePrepareBlocked): string {
     `blockedAt: ${args.blockedAt}`,
     `reason: ${args.reason}`,
   ];
+  if (args.dryRun) {
+    lines.push('dryRun: no files will be written');
+  }
   if (args.files && args.files.length > 0) {
     lines.push('files:');
     for (const file of args.files) lines.push(`  - ${file}`);
@@ -438,6 +555,13 @@ function block(args: DonePrepareBlocked): string {
   if (args.commits && args.commits.length > 0) {
     lines.push('commits:');
     for (const commit of args.commits) lines.push(`  - ${commit}`);
+  }
+  if (args.guidanceSections) {
+    for (const section of args.guidanceSections) {
+      if (section.lines.length === 0) continue;
+      lines.push(`${section.title}:`);
+      lines.push(...section.lines.map((line) => `  ${line}`));
+    }
   }
   if (args.currentBinding) {
     lines.push('Current material binding:');
@@ -777,12 +901,13 @@ function isDonePreparePhaseTimeout(err: unknown): err is DonePreparePhaseTimeout
   return err instanceof DonePreparePhaseTimeoutError;
 }
 
-function phaseTimeoutBlock(storyId: string, steps: DonePrepareStep[], err: DonePreparePhaseTimeoutError): string {
+function phaseTimeoutBlock(storyId: string, steps: DonePrepareStep[], err: DonePreparePhaseTimeoutError, dryRun = false): string {
   const reason = `${err.message}; heartbeat output is diagnostic only and does not extend the phase deadline`;
   setStep(steps, err.phase.stepId, 'blocked', reason);
   return block({
     blockedAt: err.phase.stepId,
     reason,
+    dryRun,
     next: `inspect the "${err.phase.label}" closeout phase, then rerun lattice done_prepare '{"storyId":"${storyId}"}'`,
     steps,
   });
@@ -1133,6 +1258,7 @@ function renderPass(args: {
     `storyId: ${args.storyId}`,
     `phase: ${args.phase}`,
     `dryRun: ${args.dryRun}`,
+    ...(args.dryRun ? ['dryRun: no files will be written'] : []),
     `mergeMain: ${ensureStep(args.steps, 'mergeMain').status.toUpperCase()}`,
     `staleEvidenceRefresh: ${ensureStep(args.steps, 'staleEvidenceRefresh').status.toUpperCase()}`,
     `validate: ${ensureStep(args.steps, 'validate').status.toUpperCase()}`,
@@ -1193,10 +1319,14 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     { id: 'runtimeChange', status: 'pending' },
     { id: 'cleanTree', status: 'pending' },
   ];
+  const blocked = (blockedArgs: Omit<DonePrepareBlocked, 'dryRun'>): string => block({
+    ...blockedArgs,
+    dryRun: args.dryRun,
+  });
 
   if (!storyId) {
     setStep(steps, 'preflight', 'blocked', 'storyId is required');
-    return block({
+    return blocked({
       blockedAt: 'preflight',
       reason: 'storyId is required',
       next: 'lattice done_prepare \'{"storyId":"B-xxxx"}\'',
@@ -1209,7 +1339,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     story = ctx.store.readStory(storyId);
   } catch (err: any) {
     setStep(steps, 'preflight', 'blocked', `story ${storyId} cannot be read`);
-    return block({
+    return blocked({
       blockedAt: 'preflight',
       reason: err?.message || `story ${storyId} cannot be read`,
       next: `lattice story_get '{"storyId":"${storyId}"}'`,
@@ -1223,7 +1353,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     assertCwdInWorktree(ctx.store, storyId);
   } catch (err: any) {
     setStep(steps, 'preflight', 'blocked', 'current cwd is not the requested story worktree');
-    return block({
+    return blocked({
       blockedAt: 'preflight',
       reason: err?.message || 'current cwd is not the requested story worktree',
       next: story.worktree?.path ? `cd ${story.worktree.path}` : `lattice story_resolve '{"storyId":"${storyId}"}'`,
@@ -1233,7 +1363,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
 
   if (story.phase !== 'TEST') {
     setStep(steps, 'preflight', 'blocked', `story phase is ${story.phase}, expected TEST`);
-    return block({
+    return blocked({
       blockedAt: 'preflight',
       reason: `story ${storyId} is in ${story.phase}; done_prepare only runs for TEST stories`,
       next: `lattice story_advance '{"storyId":"${storyId}","phase":"TEST"}'`,
@@ -1245,7 +1375,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
   const branch = gitMaybe(gitCwd, ['rev-parse', '--abbrev-ref', 'HEAD']);
   if (!branch.ok || branch.output !== expectedBranch) {
     setStep(steps, 'preflight', 'blocked', `current branch is ${branch.ok ? branch.output : '<unknown>'}, expected ${expectedBranch}`);
-    return block({
+    return blocked({
       blockedAt: 'preflight',
       reason: `current branch is ${branch.ok ? branch.output : '<unknown>'}, expected ${expectedBranch}`,
       next: story.worktree?.path ? `cd ${story.worktree.path}` : `git switch ${expectedBranch}`,
@@ -1256,7 +1386,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
   const mainRef = gitMaybe(gitCwd, ['rev-parse', '--verify', 'main^{commit}']);
   if (!mainRef.ok) {
     setStep(steps, 'preflight', 'blocked', 'local main ref is unavailable');
-    return block({
+    return blocked({
       blockedAt: 'preflight',
       reason: `local main cannot be found: ${mainRef.error}`,
       next: 'fetch or create a local main branch, then rerun lattice done_prepare',
@@ -1269,12 +1399,18 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
   const initialBlockingEntries = initialDonePrepareBlockingEntries(ctx, storyId, initialDirtyClassification);
   if (initialBlockingEntries.length > 0) {
     const files = entryFiles(initialBlockingEntries);
+    const hasMergeOverwriteHazard = initialBlockingEntries.some(
+      (entry) => entry.statusCode === '??' && pathExistsOnMain(gitCwd, entry.path),
+    );
     setStep(steps, 'cleanTree', 'blocked', 'worktree must be clean before DONE prepare can mutate');
-    return block({
+    return blocked({
       blockedAt: 'cleanTree',
       reason: 'worktree has dirty files that are not Proofbound story lifecycle metadata; done_prepare cannot mutate yet',
       files,
-      next: 'git status --short',
+      guidanceSections: buildInitialDirtyGuidance(gitCwd, initialBlockingEntries),
+      next: hasMergeOverwriteHazard
+        ? 'preserve or move the file, then rerun done_prepare'
+        : 'inspect the dirty file classification above, then rerun done_prepare after the worktree is safe',
       steps,
     });
   }
@@ -1307,11 +1443,12 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     if (!merge.ok) {
       const files = conflictFiles(gitCwd);
       setStep(steps, 'mergeMain', 'blocked', 'git merge main failed with conflicts', 'git merge main');
-      return block({
+      return blocked({
         blockedAt: 'mergeMain',
         reason: merge.error || 'git merge main failed',
         files,
-        next: 'resolve conflicts, git add the resolved files, commit the merge, then rerun lattice done_prepare',
+        guidanceSections: buildMergeConflictGuidance(),
+        next: 'resolve the listed merge conflict files manually, commit the merge, then rerun lattice done_prepare',
         steps,
       });
     }
@@ -1321,7 +1458,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
   const prepareMutationStartHead = currentGitHead(gitCwd);
   if (!prepareMutationStartHead) {
     setStep(steps, 'preflight', 'blocked', 'cannot read git HEAD before refresh/validate');
-    return block({
+    return blocked({
       blockedAt: 'preflight',
       reason: 'cannot read git HEAD before refresh/validate',
       next: 'git rev-parse HEAD',
@@ -1341,7 +1478,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     stalePlan = classifyStaleEvidence(ctx, storyId, gitCwd);
   } catch (err: any) {
     setStep(steps, 'staleEvidenceRefresh', 'blocked', err?.message || 'stale evidence classification failed');
-    return block({
+    return blocked({
       blockedAt: 'evidenceFreshness',
       reason: err?.message || 'stale evidence classification failed',
       next: `lattice verification_evidence_refresh_stale --storyId=${storyId} --dryRun`,
@@ -1353,7 +1490,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     setStep(steps, 'staleEvidenceRefresh', 'pass', 'no stale verification evidence');
   } else if (!args.refreshStale) {
     setStep(steps, 'staleEvidenceRefresh', 'blocked', `${stalePlan.staleCount} stale evidence item(s); refreshStale=false`);
-    return block({
+    return blocked({
       blockedAt: 'evidenceFreshness',
       reason: `${stalePlan.staleCount} stale verification evidence item(s) found; refreshStale=false`,
       next: `lattice verification_evidence_refresh_stale --storyId=${storyId}`,
@@ -1363,7 +1500,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
   } else if (stalePlan.rerunRequired.length > 0) {
     const commands = [...new Set(stalePlan.rerunRequired.map((entry) => entry.command))];
     setStep(steps, 'staleEvidenceRefresh', 'blocked', 'stale command-backed evidence must be rerun');
-    return block({
+    return blocked({
       blockedAt: 'evidenceFreshness',
       reason: 'stale command-backed verification evidence must be rerun; done_prepare will not freshen it by rewriting hashes',
       commands,
@@ -1389,7 +1526,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
       validateText = asText(await verifier.validate({ story: storyId, json: true, noSync: true }));
     } catch (err: any) {
       setStep(steps, 'validate', 'blocked', err?.message || 'lattice validate failed');
-      return block({
+      return blocked({
         blockedAt: 'validate',
         reason: err?.message || 'lattice validate failed',
         next: `lattice validate --story=${storyId} --json`,
@@ -1399,7 +1536,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     const parsed = parseValidateOutput(validateText);
     if (!parsed.ok) {
       setStep(steps, 'validate', 'blocked', parsed.summary);
-      return block({
+      return blocked({
         blockedAt: 'validate',
         reason: parsed.summary,
         next: parsed.next.replace('<storyId>', storyId),
@@ -1429,9 +1566,9 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
           }),
         ));
       } catch (err: any) {
-        if (isDonePreparePhaseTimeout(err)) return phaseTimeoutBlock(storyId, steps, err);
+        if (isDonePreparePhaseTimeout(err)) return phaseTimeoutBlock(storyId, steps, err, args.dryRun);
         setStep(steps, 'validate', 'blocked', err?.message || 'DONE-required validation failed', command);
-        return block({
+        return blocked({
           blockedAt: 'validate',
           reason: err?.message || 'DONE-required validation failed',
           next: command,
@@ -1441,7 +1578,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
       const parsedDoneRequired = parseValidateOutput(doneRequiredText, command);
       if (!parsedDoneRequired.ok) {
         setStep(steps, 'validate', 'blocked', parsedDoneRequired.summary, command);
-        return block({
+        return blocked({
           blockedAt: 'validate',
           reason: parsedDoneRequired.summary,
           next: parsedDoneRequired.next,
@@ -1471,12 +1608,14 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     const commits = commitSummariesSince(gitCwd, prepareMutationStartHead, prepareMutationEndHead);
     const dirtyRows = nonLeaseDirtyRows(ctx, storyId, gitStatusRows(gitCwd));
     const files = statusFiles(dirtyRows);
+    const currentBinding = currentDoneMaterialBinding(ctx, gitCwd);
     setStep(steps, 'cleanTree', 'blocked', 'refresh/validate produced commit(s); rerun from the new HEAD before DONE');
-    return block({
+    return blocked({
       blockedAt: 'cleanTree',
       reason: 'done_prepare produced commit(s) during refresh/validate; rerun from the new HEAD before DONE',
       commits,
       ...(files.length > 0 ? { files } : {}),
+      guidanceSections: buildRerunReasonGuidance(commits, currentBinding),
       commands: [
         `git log --oneline ${prepareMutationStartHead}..HEAD`,
         `lattice done_prepare '{"storyId":"${storyId}"}'`,
@@ -1504,7 +1643,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
         setStep(steps, 'worktreeVersionCheck', 'pass', 'worktree CLI build executes');
       } catch (err: any) {
         setStep(steps, 'worktreeVersionCheck', 'blocked', 'worktree CLI build does not execute');
-        return block({
+        return blocked({
           blockedAt: 'worktreeVersionCheck',
           reason: String(err?.stderr || err?.stdout || err?.message || err).trim() || 'worktree CLI build does not execute',
           next: 'npm --prefix packages/main run build',
@@ -1531,7 +1670,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
       return { runbook: computedRunbook, packSurface: computedPackSurface };
     }));
   } catch (err) {
-    if (isDonePreparePhaseTimeout(err)) return phaseTimeoutBlock(storyId, steps, err);
+    if (isDonePreparePhaseTimeout(err)) return phaseTimeoutBlock(storyId, steps, err, args.dryRun);
     throw err;
   }
 
@@ -1554,7 +1693,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
       };
     }));
   } catch (err) {
-    if (isDonePreparePhaseTimeout(err)) return phaseTimeoutBlock(storyId, steps, err);
+    if (isDonePreparePhaseTimeout(err)) return phaseTimeoutBlock(storyId, steps, err, args.dryRun);
     throw err;
   }
 
@@ -1562,7 +1701,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     const currentBinding = reviewAssuranceBlocked ? reviewAssuranceCurrentBinding : undefined;
     const reason = nonCleanBlockers.map((row) => `${row.id}: ${row.reason}`).join('; ');
     setStep(steps, 'doneClosure', 'blocked', reason);
-    return block({
+    return blocked({
       blockedAt: 'doneClosure',
       reason,
       currentBinding,
@@ -1579,7 +1718,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
   try {
     runtime = await runCloseoutPhase(ctx, CLOSEOUT_PHASES.runtimeChange, () => detectRuntimeChanges(ctx.root, gitCwd));
   } catch (err) {
-    if (isDonePreparePhaseTimeout(err)) return phaseTimeoutBlock(storyId, steps, err);
+    if (isDonePreparePhaseTimeout(err)) return phaseTimeoutBlock(storyId, steps, err, args.dryRun);
     throw err;
   }
   setStep(steps, 'runtimeChange', 'pass', runtime.postDoneRuntimeVersionBumpRequired ? 'runtime behavior change detected' : 'no runtime version bump required before DONE');
@@ -1598,48 +1737,52 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
       };
     }));
   } catch (err) {
-    if (isDonePreparePhaseTimeout(err)) return phaseTimeoutBlock(storyId, steps, err);
+    if (isDonePreparePhaseTimeout(err)) return phaseTimeoutBlock(storyId, steps, err, args.dryRun);
     throw err;
   }
   if (finalBlockingEntries.length > 0) {
     const files = entryFiles(finalBlockingEntries);
+    const generatedMetadataManifest = buildDonePrepareGeneratedMetadataManifest({
+      root: ctx.root,
+      storyId,
+      storyDirRel: ctx.store.storyDirRel(),
+      baseline: generatedMetadataBaseline,
+      statusRows: nonLeaseDirtyRows(ctx, storyId, gitStatusRowsForDonePrepareGeneratedMetadata(gitCwd)),
+    });
     if (args.autoCloseGeneratedMetadata && !args.dryRun) {
       if (!args.reuseFreshValidation) {
         setStep(steps, 'cleanTree', 'blocked', 'auto-closeout requires reuseFreshValidation=true to re-evaluate without rerunning validation');
-        return block({
+        return blocked({
           blockedAt: 'cleanTree',
           reason: 'autoCloseGeneratedMetadata was requested, but reuseFreshValidation=false; refusing to skip validation after metadata-only HEAD drift',
           files,
+          guidanceSections: buildGeneratedMetadataDirtyGuidance(generatedMetadataManifest),
           next: `rerun lattice done_prepare '{"storyId":"${storyId}","autoCloseGeneratedMetadata":true,"reuseFreshValidation":true}' when validation reuse is intended`,
           steps,
         });
       }
       if (!validationReuseBasis) {
         setStep(steps, 'validate', 'blocked', 'validation reuse basis is missing');
-        return block({
+        return blocked({
           blockedAt: 'validate',
           reason: 'reuseFreshValidation requires this done_prepare invocation to run validation and DONE-required validation before auto-closeout',
           files,
+          guidanceSections: buildGeneratedMetadataDirtyGuidance(generatedMetadataManifest),
           next: `lattice done_prepare '{"storyId":"${storyId}","validate":true,"autoCloseGeneratedMetadata":true,"reuseFreshValidation":true}'`,
           steps,
         });
       }
-      const manifestPreflight = buildDonePrepareGeneratedMetadataManifest({
-        root: ctx.root,
-        storyId,
-        storyDirRel: ctx.store.storyDirRel(),
-        baseline: generatedMetadataBaseline,
-        statusRows: nonLeaseDirtyRows(ctx, storyId, gitStatusRowsForDonePrepareGeneratedMetadata(gitCwd)),
-      });
+      const manifestPreflight = generatedMetadataManifest;
       if (manifestPreflight.safePaths.length === 0 || manifestPreflight.unsafePaths.length > 0) {
         const reason = manifestPreflight.safePaths.length === 0
           ? 'no current-run generated DONE/test lifecycle metadata is safe to auto-close'
           : 'git status contains path(s) outside the safe generated metadata manifest';
         setStep(steps, 'cleanTree', 'blocked', reason);
-        return block({
+        return blocked({
           blockedAt: 'cleanTree',
           reason: `DONE prepare auto-closeout refused: ${reason}`,
           files: manifestPreflight.unsafePaths.length > 0 ? manifestPreflight.unsafePaths : files,
+          guidanceSections: buildGeneratedMetadataDirtyGuidance(manifestPreflight),
           next: 'inspect git status and commit only generated Proofbound lifecycle metadata manually, then rerun done_prepare',
           steps,
         });
@@ -1656,10 +1799,11 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
       } catch (err: any) {
         const reason = `auto-closeout transaction capture failed: ${String(err?.stderr || err?.stdout || err?.message || err).trim()}`;
         setStep(steps, 'cleanTree', 'blocked', reason);
-        return block({
+        return blocked({
           blockedAt: 'cleanTree',
           reason: `DONE prepare auto-closeout refused: ${reason}`,
           files,
+          guidanceSections: buildGeneratedMetadataDirtyGuidance(generatedMetadataManifest),
           next: 'inspect git status and commit only generated Proofbound lifecycle metadata manually, then rerun done_prepare',
           steps,
         });
@@ -1674,10 +1818,11 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
       });
       if (!reuse.ok) {
         setStep(steps, 'validate', 'blocked', `validation reuse not eligible: ${reuse.reasons.join('; ')}`);
-        return block({
+        return blocked({
           blockedAt: 'validate',
           reason: `validation reuse not eligible: ${reuse.reasons.join('; ')}`,
           files,
+          guidanceSections: buildGeneratedMetadataDirtyGuidance(generatedMetadataManifest),
           next: `rerun full validation: lattice done_prepare '{"storyId":"${storyId}","validate":true}'`,
           steps,
         });
@@ -1698,10 +1843,11 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
         });
         const rollbackSuffix = rollback.ok ? '' : `; rollback failed: ${rollback.errors.join('; ')}`;
         setStep(steps, 'cleanTree', 'blocked', `${autoCommit.reason || 'auto-closeout refused'}${rollbackSuffix}`);
-        return block({
+        return blocked({
           blockedAt: 'cleanTree',
           reason: `DONE prepare auto-closeout refused: ${autoCommit.reason || 'unsafe generated metadata manifest'}${rollbackSuffix}`,
           files: autoCommit.files.length > 0 ? autoCommit.files : files,
+          guidanceSections: buildGeneratedMetadataDirtyGuidance(generatedMetadataManifest),
           next: 'inspect git status and commit only generated Proofbound lifecycle metadata manually, then rerun done_prepare',
           steps,
         });
@@ -1721,11 +1867,19 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
       return injectAutoCloseoutSummary(reevaluated, autoCommit);
     }
     setStep(steps, 'cleanTree', 'blocked', 'done_prepare produced files that must be committed before DONE');
-    return block({
+    const generatedPaths = generatedMetadataManifest.safePaths;
+    const unsafePaths = generatedMetadataManifest.unsafePaths;
+    const next = generatedPaths.length > 0 && unsafePaths.length === 0
+      ? `git add ${generatedPaths.map((file) => `"${file}"`).join(' ')} && git commit -m "lattice: prepare ${storyId} for DONE"`
+      : generatedPaths.length > 0
+        ? 'commit only the current-run generated metadata listed above; preserve or resolve unsafe/pre-existing dirty files separately, then rerun done_prepare'
+        : 'inspect the unsafe/pre-existing dirty files listed above, then rerun done_prepare after the worktree is safe';
+    return blocked({
       blockedAt: 'cleanTree',
       reason: 'done_prepare produced metadata changes that must be committed before DONE',
       files,
-      next: `git add ${files.map((file) => `"${file}"`).join(' ')} && git commit -m "lattice: prepare ${storyId} for DONE"`,
+      guidanceSections: buildGeneratedMetadataDirtyGuidance(generatedMetadataManifest),
+      next,
       steps,
     });
   }
@@ -1747,7 +1901,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
       showMemoryPack: packSurface.shouldRender,
     }));
   } catch (err) {
-    if (isDonePreparePhaseTimeout(err)) return phaseTimeoutBlock(storyId, steps, err);
+    if (isDonePreparePhaseTimeout(err)) return phaseTimeoutBlock(storyId, steps, err, args.dryRun);
     throw err;
   }
 }

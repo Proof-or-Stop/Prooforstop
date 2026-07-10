@@ -4,7 +4,7 @@
   "title": "Add DONE merge-preflight and done_prepare rerun-delta UX",
   "description": "Implement M5 and the remaining M6 safeguards from docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md: explain repeated done_prepare runs, preflight merge hazards, protect unrelated dirty files, and prove dryRun remains side-effect free.",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "source": "user-request-2026-07-09",
   "depends": [
@@ -18,7 +18,7 @@
   ],
   "createdAt": "2026-07-09T01:28:39.822Z",
   "startedAt": "2026-07-09T01:28:39.822Z",
-  "endedAt": null,
+  "endedAt": "2026-07-10T06:37:18.122Z",
   "events": [
     {
       "phase": "INIT",
@@ -37,11 +37,52 @@
       "user": "Harmonygo",
       "sessionId": "sess-d8ea249c0401e4e8",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-10T04:18:25.665Z",
+      "branch": "story/B-b264",
+      "user": "Harmonygo",
+      "sessionId": "sess-bedf4df2807e6b4d",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-10T04:24:38.090Z",
+      "branch": "story/B-b264",
+      "user": "Harmonygo",
+      "sessionId": "sess-bedf4df2807e6b4d",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-10T05:34:01.890Z",
+      "branch": "story/B-b264",
+      "user": "Harmonygo",
+      "sessionId": "033827cb-c705-461e-8e72-2656108f13f4",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-10T05:59:33.774Z",
+      "branch": "story/B-b264",
+      "user": "Harmonygo",
+      "sessionId": "033827cb-c705-461e-8e72-2656108f13f4",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-10T06:37:18.122Z",
+      "branch": "story/B-b264",
+      "user": "Harmonygo",
+      "sessionId": "033827cb-c705-461e-8e72-2656108f13f4",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-b264",
-    "branch": "story/B-b264",
-    "createdAt": "2026-07-10T04:16:22.767Z"
-  }
+  "currentReviewRound": "2026-07-10T05:34:01.890Z"
 }

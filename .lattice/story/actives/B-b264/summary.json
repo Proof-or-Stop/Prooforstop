@@ -1,0 +1,56 @@
+{
+  "storyId": "B-b264",
+  "changes": "done_prepare now prints pre-DONE merge-hazard guidance with exact paths (untracked-overwrite, branch divergence, merge conflicts, unrelated dirty files), a done_prepare re-run reason section (generated commits plus current head/material/storyFiles binding), and a generated-metadata delta that separates current-run generated files from pre-existing dirty lifecycle metadata. Fixed first-porcelain-row path corruption in handlers/done-prepare.ts gitStatusRows and core/done-prepare-generated-metadata.ts (whole-output trim stripped the leading status space, corrupting the first modified path and misclassifying lifecycle metadata as unrelated).",
+  "usage": "lattice done_prepare '{\"storyId\":\"B-xxxx\",\"mergeMain\":true,\"refreshStale\":true,\"validate\":true}' — on hazards it blocks with exact paths and safe next steps; commit the listed generated metadata and rerun, or use autoCloseGeneratedMetadata plus reuseFreshValidation for the one-command closeout; --dryRun inspects without writing.",
+  "expectedOutcome": "Hazard fixtures report exact file paths and block before ambiguous DONE state; reruns print a compact reason (generated commit + current binding); a clean no-hazard story reaches DONE prepare: PASS unchanged; --dryRun leaves git status and story metadata byte-identical.",
+  "actualTranscript": "npm --prefix packages/main run test:done-prepare-merge-rerun-smoke: done-prepare-merge-rerun smoke passed (7 scenarios); lattice validate: 45 commands, status pass, allPass true, verification coverage 9/9.",
+  "outcomeDiff": "No difference — every scenario asserts the expected transcript lines and byte-identical snapshots explicitly.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Guidance is print-only and fail-closed: done_prepare never auto-resolves conflicts, stashes, or commits unrelated work. The re-run reason section appears when a run itself produced commits (refresh/auto-closeout paths). Porcelain consumers outside this story's call graph (dashboard.ts, cli-engine.ts, dirty-worktree-gate.ts) keep the pre-existing trimming helper untouched.",
+  "pitfalls": "The first-row porcelain corruption is invisible to tests that only use untracked fixtures: ?? rows survive a whole-output trim, but ' M' rows lose their first path char — probe with modified tracked files sorted first. The F-002 fix touched a core file outside the scope contract and required scope_contract_acknowledge during REVIEW (fail-closed gate). Evidence storyFilesHash goes stale after every code commit; verification_evidence_refresh_stale rebinds it after the bound command is re-run green.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 96464293
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 120902
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 372425
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 4163800
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 1531884
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 1468079
+    }
+  },
+  "totalDurationMs": 104122031,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-10T06:24:01.853Z",
+  "updatedAt": "2026-07-10T06:24:01.853Z"
+}

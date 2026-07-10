@@ -1,0 +1,186 @@
+{
+  "passes": [
+    {
+      "id": "B-b264:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round; this is additive UX guidance (merge-hazard section, rerun-reason section, generated-metadata classification) plus one bug fix in gitStatusRows (direct execFileSync replacing the trimming git() helper, which remains defined/used elsewhere). Grepped for old next=git status --short string, old merge-conflict guidance text, and confirmed the new smoke script/npm alias/type export are fully wired with no orphaned references. tsc --noEmit clean. No blocker.",
+      "createdAt": "2026-07-10T05:37:01.373Z",
+      "reviewRound": "2026-07-10T05:34:01.890Z",
+      "reviewRunId": "B-b264:RR-001",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/package.json",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-b264/checklist.json",
+          ".lattice/story/actives/B-b264/plan.md",
+          "packages/main/src/core/done-prepare-generated-metadata.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4407cdcacc91540edd7553c4eedd55a62e2cf5aba1437bd4ab5b95deb6a83bb7"
+    },
+    {
+      "id": "B-b264:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed done-prepare.ts (new guidance builders buildMergeConflictGuidance/buildRerunReasonGuidance/buildGeneratedMetadataDirtyGuidance/buildInitialDirtyGuidance, hazard classification wiring, gitStatusRows porcelain fix) and done-prepare-merge-rerun-smoke.ts (6 scenarios). No dead code (all 4 new guidance builders are called; dirtyCategoryLabel switch is exhaustive per clean tsc build); no as-any; no empty/silent catches introduced; all new smoke-test imports used. blocked() wrapper correctly threads dryRun through all ~26 call sites (only the standalone phaseTimeoutBlock uses raw block() with an explicit dryRun param, which is correct since it sits outside runDonePrepare's closure). gitStatusRows fix is well-commented and reproduced correct (verified the leading-space-strip bug with a standalone repro). Investigated whether the sibling gitStatusRowsForDonePrepareGeneratedMetadata (called at done-prepare.ts:1750, used by the new buildGeneratedMetadataDirtyGuidance path) has the identical trim() bug -- confirmed it does, but that helper lives entirely in done-prepare-generated-metadata.ts which has 0 diff lines in this story (pre-existing from B-fbcf), and its practical effect on the new guidance output is neutralized by that file's existing canonicalStatusPath self-healing fallback (path field only; the new guidance never displays the corrupted statusCode). Out of scope for this diff per changed-files-only review rule; flagged verbally as a follow-up candidate, not filed as a blocker. npm --prefix packages/main run build is clean (tsc, no errors). npm --prefix packages/main run test:done-prepare-merge-rerun-smoke passes (all 6 scenarios). No I/O isolation concerns (no bridge.ts in this project). No proof/receipt/job.metadata semantics touched. No README/CLAUDE.md changes in this diff, so no doc-promise-undelivered risk.",
+      "createdAt": "2026-07-10T05:40:07.549Z",
+      "reviewRound": "2026-07-10T05:34:01.890Z",
+      "reviewRunId": "B-b264:RR-002",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/package.json",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/dirty-worktree.ts",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/evidence-freshness.js"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "45418e3ba58a3e56562de2da0aae577c62fc6a256cb06c98ecf43484c931bb5a"
+    },
+    {
+      "id": "B-b264:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Reviewed git diff main...HEAD (round 2, head f37bcd9) covering done-prepare.ts, new done-prepare-merge-rerun-smoke.ts, package.json script wiring, and story lifecycle metadata. No concept was deleted or mass-replaced this round: diff is additive (new optional dryRun field on DonePrepareBlocked, new DonePrepareGuidanceSection type + builder helpers, new npm test:done-prepare-merge-rerun-smoke script, new assertPlainNoHazardPass scenario resolving prior finding F-001). One localized fix swaps git() for a direct childProcess.execFileSync call in gitStatusRows with an inline comment explaining a trim() bug it avoids; the git() helper itself is untouched and still used elsewhere. Word-level diff of removed-vs-added identifiers found only INIT_CHECK and a timestamp value inside index.json, both ordinary story-phase lifecycle churn (INIT_CHECK -> PLAN -> DEV -> REVIEW), not code concepts. No grep residue check applicable; no blocker.",
+      "createdAt": "2026-07-10T05:45:53.314Z",
+      "reviewRound": "2026-07-10T05:34:01.890Z",
+      "reviewRunId": "B-b264:RR-004",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-b264/index.json",
+          "packages/main/package.json",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-b264/checklist.json",
+          ".lattice/story/actives/B-b264/decision.json",
+          ".lattice/story/actives/B-b264/findings.json",
+          ".lattice/story/actives/B-b264/intent-collision.json",
+          ".lattice/story/actives/B-b264/milestone-ledger.json",
+          ".lattice/story/actives/B-b264/original-intent-snapshot.json",
+          ".lattice/story/actives/B-b264/plan.md",
+          ".lattice/story/actives/B-b264/process-events.jsonl",
+          ".lattice/story/actives/B-b264/process-metrics.json",
+          ".lattice/story/actives/B-b264/proofstory.json",
+          ".lattice/story/actives/B-b264/red-evidence.json",
+          ".lattice/story/actives/B-b264/review-passes.json",
+          ".lattice/story/actives/B-b264/review-runs.json",
+          ".lattice/story/actives/B-b264/review.json",
+          ".lattice/story/actives/B-b264/scope-check.json",
+          ".lattice/story/actives/B-b264/scope-contract.json",
+          ".lattice/story/actives/B-b264/test-evidence.json",
+          ".lattice/story/actives/B-b264/understanding.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "eca66dfdecb5d25ac31316f6d281eebe71f5b3510898d31ed4d6989b45e08722"
+    },
+    {
+      "id": "B-b264:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2: verified F-001 fix is real. assertPlainNoHazardPass (done-prepare-merge-rerun-smoke.ts:513-548) exercises a genuine first-run/default-flags/clean-fixture done_prepare reaching DONE prepare: PASS with doneClosure: PASS and worktreeClean: PASS, explicitly asserting absence of merge hazard, dirty file classification, generated-metadata, re-run reason, and autoClose sections, plus byte-identical git status and story metadata snapshots. This matches the rebound CHK-001:edge:0 evidence note verbatim. Ran npm --prefix packages/main run test:done-prepare-merge-rerun-smoke: done-prepare-merge-rerun smoke passed. Since RR-003, only 38 lines were added to the smoke file (git diff b18d0b16e~1..HEAD --stat) and done-prepare.ts was untouched, so the other 8 must-intent evidence notes (CHK-001:happy/adversarial, CHK-002:happy/edge/adversarial, CHK-003:happy/edge/adversarial) still correspond to unchanged assertion functions (assertUntrackedOverwriteHazard, assertRerunReasonAfterRefreshCommit, assertMetadataCommitNoRebindAndAutoCloseExit, assertDryRunNoMutation, assertGeneratedMetadataGuidance, assertModifiedTrackedPathExactness) and were re-checked line-by-line against their notes with no drift. No coverage gap found; no blocker.",
+      "createdAt": "2026-07-10T05:48:21.575Z",
+      "reviewRound": "2026-07-10T05:34:01.890Z",
+      "reviewRunId": "B-b264:RR-006",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "packages/main/src/handlers/done-prepare.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ffc22f2465500a7a602a2cadbd5998b11d1a8d9d11172cb43dd5614fa68e05fc"
+    },
+    {
+      "id": "B-b264:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Fresh round 3 pass. Diff scope: packages/main/src/core/done-prepare-generated-metadata.ts (gitStatusRowsForDonePrepareGeneratedMetadata switched from trimming git() helper to existing gitRaw()) and packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts (new F-002 regression assertion importing gitStatusRowsForDonePrepareGeneratedMetadata and asserting the leading-space-preserving porcelain row). No concept deletion or mass rename in this diff. Verified git() is still legitimately used in the same file only for single-line outputs (gitMaybe wrapping var/commit, and rev-parse HEAD) where whole-output trim is correct and harmless; gitRaw is now used at both porcelain-parsing call sites (status and ls-files). Grepped repo-wide for gitStatusRowsForDonePrepareGeneratedMetadata and the local git() helper name: all call sites (done-prepare.ts:1750, done-prepare-generated-metadata.ts:447/509, done-prepare-auto-closeout-smoke.ts:460/508, new done-prepare-merge-rerun-smoke.ts:382) consistently route through the fixed gitRaw-based export; no residual references to a removed/renamed symbol; no dangling comments referencing a deleted concept. No blocker.",
+      "createdAt": "2026-07-10T05:52:27.893Z",
+      "reviewRound": "2026-07-10T05:34:01.890Z",
+      "reviewRunId": "B-b264:RR-007",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-b264/findings.json",
+          ".lattice/story/actives/B-b264/review-passes.json",
+          "packages/main/package.json",
+          "packages/main/src/handlers/done-prepare.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c829e03724f3084d812d341cac30b2da98262e28143af512ba57cc89175813f9"
+    },
+    {
+      "id": "B-b264:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Round 3 quality re-review after F-002 fix. Confirmed gitStatusRowsForDonePrepareGeneratedMetadata (done-prepare-generated-metadata.ts:246-252) now uses the non-trimming gitRaw() helper (defined line 238), matching the execFileSync-based fix already applied to gitStatusRows() in done-prepare.ts:301-309. Searched all porcelain-status consumers in the repo (grep -rn porcelain packages/main/src) and confirmed no other consumer touched by this story diff still uses the whole-output-trimming git() helper; all other porcelain call sites (dashboard.ts, cli-engine.ts, dirty-worktree-gate.ts, etc.) are outside git diff main...HEAD and out of scope. Regression coverage verified: assertModifiedTrackedPathExactness (done-prepare-merge-rerun-smoke.ts:366-410) directly asserts the core helpers first row keeps its leading status space and parseGitPorcelainRow resolves the exact dotted path. Audited full diff (done-prepare.ts, done-prepare-generated-metadata.ts, done-prepare-merge-rerun-smoke.ts, package.json) for dead code / type safety / silent catches: no unused imports/exports, all new symbols (DonePrepareGuidanceSection, DonePrepareGeneratedMetadataManifest import, pathExistsOnMain, dirtyCategoryLabel, dirtyEntryDisplayPath, buildInitialDirtyGuidance, buildMergeConflictGuidance, buildRerunReasonGuidance, buildGeneratedMetadataDirtyGuidance) are used; no as any; no empty catch blocks. blocked() wrapper and phaseTimeoutBlock(...,args.dryRun) consistently thread dryRun across all 26 blocked()/block() call sites (verified via grep, all 6 phaseTimeoutBlock call sites pass args.dryRun). F-002 fix also removed a pre-existing duplicate buildDonePrepareGeneratedMetadataManifest computation (single call at line 1745, reused as manifestPreflight) rather than reintroducing it. Ran npm --prefix packages/main run build (clean tsc) and npm --prefix packages/main run test:done-prepare-merge-rerun-smoke (passed), plus adjacent test:done-prepare-closure-heartbeat-smoke and test:done-prepare-auto-closeout-smoke (both passed, no regression). No blocker.",
+      "createdAt": "2026-07-10T05:54:38.623Z",
+      "reviewRound": "2026-07-10T05:34:01.890Z",
+      "reviewRunId": "B-b264:RR-008",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/package.json",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-b264/checklist.json",
+          ".lattice/story/actives/B-b264/decision.json",
+          ".lattice/story/actives/B-b264/findings.json",
+          ".lattice/story/actives/B-b264/index.json",
+          ".lattice/story/actives/B-b264/intent-collision.json",
+          ".lattice/story/actives/B-b264/milestone-ledger.json",
+          ".lattice/story/actives/B-b264/original-intent-snapshot.json",
+          ".lattice/story/actives/B-b264/plan.md",
+          ".lattice/story/actives/B-b264/process-events.jsonl",
+          ".lattice/story/actives/B-b264/process-metrics.json",
+          ".lattice/story/actives/B-b264/proofstory.json",
+          ".lattice/story/actives/B-b264/red-evidence.json",
+          ".lattice/story/actives/B-b264/review-passes.json",
+          ".lattice/story/actives/B-b264/review-runs.json",
+          ".lattice/story/actives/B-b264/review.json",
+          ".lattice/story/actives/B-b264/scope-check.json",
+          ".lattice/story/actives/B-b264/scope-contract.json",
+          ".lattice/story/actives/B-b264/test-evidence.json",
+          ".lattice/story/actives/B-b264/understanding.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0a86ef39e451b4c7597f3c80de6555a3ceb40b51bfee77927e168328a5e95ee9"
+    },
+    {
+      "id": "B-b264:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-3 coverage re-check after F-002 fix: gitStatusRowsForDonePrepareGeneratedMetadata now uses non-trimming gitRaw() (packages/main/src/core/done-prepare-generated-metadata.ts), preserving the first porcelain row leading status space. New direct-helper regression assertModifiedTrackedPathExactness (packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts) imports the core helper directly and asserts the first modified row matches /^ M \\./ and parseGitPorcelainRow keeps the leading dot in the path. All 9 must intents across CHK-001/002/003 have pass evidence bound to head 4dfe2a737 (F-002 fix commit), materialHash ba36c67.., storyFilesHash 53529a0... npm --prefix packages/main run test:done-prepare-merge-rerun-smoke passes directly (done-prepare-merge-rerun smoke passed). Full lattice validate (45 configured commands) allPass=true, verificationCoverage 9/9 covered, 0 missing, no warnings. No coverage gaps found; no blocker.",
+      "createdAt": "2026-07-10T05:58:12.574Z",
+      "reviewRound": "2026-07-10T05:34:01.890Z",
+      "reviewRunId": "B-b264:RR-009",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/dirty-worktree.js",
+          "packages/main/src/handlers/done-prepare.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a70bb208c7ef3afc7134af59ffdc1bb68964db9b5ad6243d55835f4bdd61d5f7"
+    }
+  ]
+}

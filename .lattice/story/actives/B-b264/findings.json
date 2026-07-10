@@ -1,0 +1,50 @@
+{
+  "findings": [
+    {
+      "id": "B-b264:F-001",
+      "desc": "CHK-001:edge:0 evidence note overclaims: the intent 'A normal no-hazard story proceeds through the existing done_prepare flow unchanged except for clearer status text' is bound to the second run inside assertMetadataCommitNoRebindAndAutoCloseExit (done-prepare-merge-rerun-smoke.ts:490-507), but that scenario is NOT a normal/default no-hazard run — it requires a prior BLOCKED run, a manual commit of generated metadata, and non-default flags autoCloseGeneratedMetadata=true + reuseFreshValidation=true. The resulting PASS transcript is not 'unchanged except for clearer status text': injectAutoCloseoutSummary() (done-prepare.ts:1292-1308, invoked at line 1867) splices in an extra autoCloseGeneratedMetadata: PASS / autoCloseoutCommit: / autoCloseoutFiles: block that a genuinely normal no-hazard done_prepare call never prints. No scenario in this smoke file exercises a plain first-run, no-special-flags, no-hazard done_prepare reaching PASS (the only literal 'DONE prepare: PASS' assertion in the file is this auto-closeout one; assertDryRunNoMutation only asserts PASS|BLOCKED, not PASS specifically). Recommend either adding a dedicated no-hazard-default-flow PASS assertion, or correcting the CHK-001:edge:0 intent/evidence note to describe the auto-closeout scenario actually tested.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-10T05:40:28.267Z",
+      "reviewRound": "2026-07-10T05:34:01.890Z",
+      "reviewRunId": "B-b264:RR-003",
+      "_hash": "1224c429462335405668c5e72a773010bb7fca5823252a892488cb2a36a83b85",
+      "files": [
+        "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+        "packages/main/src/handlers/done-prepare.ts"
+      ],
+      "signatureTag": "missing|ts|edge-evidence-note",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added assertPlainNoHazardPass to done-prepare-merge-rerun-smoke (commit b18d0b16e): a first-run, default-flags, clean-fixture done_prepare reaches DONE prepare: PASS with no merge-hazard/dirty-classification/rerun-reason/autoClose sections and byte-identical git status + story metadata. CHK-001:edge:0 evidence rebound to this scenario, replacing the overclaiming auto-closeout citation. Smoke re-run green at current HEAD.",
+      "resolvedAt": "2026-07-10T05:44:29.993Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-b264:F-002",
+      "desc": "done-prepare.ts:1746-1755 now unconditionally computes generatedMetadataManifest (via buildDonePrepareGeneratedMetadataManifest -> gitStatusRowsForDonePrepareGeneratedMetadata) on every blocked cleanTree path, and the new buildGeneratedMetadataDirtyGuidance() surfaces its entry.path values directly to the user in every done_prepare BLOCKED transcript. gitStatusRowsForDonePrepareGeneratedMetadata (done-prepare-generated-metadata.ts:246-248) still uses the whole-output-trim git() helper (done-prepare-generated-metadata.ts:222-228, .trim() on the full multi-line porcelain output) instead of the raw execFileSync fix this same story applied to gitStatusRows() in done-prepare.ts:301-309 (commit fixing the ' M path' -> 'M path' first-row corruption, covered by assertModifiedTrackedPathExactness). Reproduced live: with a leading-dot tracked path as the first porcelain row (e.g. modified .lattice/story/actives/<id>/process-metrics.json), the leading status-code space is stripped by the whole-output trim, shifting the fixed-width path offset so the first reported path loses its leading dot (renders as lattice/story/actives/.../process-metrics.json instead of .lattice/story/actives/.../process-metrics.json). Because this diff widened gitStatusRowsForDonePrepareGeneratedMetadata's call site from auto-closeout-only to every blocked cleanTree case, and now prints its paths in user-facing guidance, the same corruption this story fixed for gitStatusRows() can still surface to users through the new generated-metadata-delta guidance section. Recommend applying the same execFileSync-based fix to gitStatusRowsForDonePrepareGeneratedMetadata (a gitRaw() helper already exists in that file at line 238, currently only used by ls-files) since this diff is what newly exposes it on the default blocked-path UX.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-10T05:48:07.127Z",
+      "reviewRound": "2026-07-10T05:34:01.890Z",
+      "reviewRunId": "B-b264:RR-005",
+      "_hash": "fbb5a208631d14dbc6fb860fe5c67b4bac2ac1831da94e171e8d65e6355e2eff",
+      "files": [
+        "packages/main/src/handlers/done-prepare.ts",
+        "packages/main/src/core/done-prepare-generated-metadata.ts"
+      ],
+      "signatureTag": "missing|ts|prepare-1746-1755",
+      "signatureTagSource": "auto",
+      "resolvedReason": "gitStatusRowsForDonePrepareGeneratedMetadata now reads porcelain via the existing non-trimming gitRaw() helper (same fix pattern as gitStatusRows in done-prepare.ts). Regression added in done-prepare-merge-rerun smoke: with a first-row ' M .lattice/...' fixture, the core helper's row keeps its leading status space and parseGitPorcelainRow yields the exact dotted path. Build clean, smoke green at current HEAD.",
+      "resolvedAt": "2026-07-10T05:51:38.350Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}
