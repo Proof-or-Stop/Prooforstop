@@ -293,6 +293,51 @@
       },
       "readDiagnostics": [],
       "_hash": "315ddea24adf8f4bdccc0688f396530de5438f88ee4489ac0f22dc76551b5142"
+    },
+    {
+      "id": "B-4a78:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Concept review RR-012: incremental diff from prior concept PASS 8c513e24 to 4a379460 is lifecycle metadata only; parent-ledger-rollup and scope acknowledgement are DONE intent-equivalence closeout metadata, with no source/test changes and no impact on readManifest/readLog behavior. Re-checked read evidence handler, signing, schema, and smoke coverage; no blocker.",
+      "createdAt": "2026-07-10T03:58:18.390Z",
+      "reviewRound": "2026-07-10T03:55:21.957Z",
+      "reviewRunId": "B-4a78:RR-012",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4a78/parent-ledger-rollup.json",
+          ".lattice/story/actives/B-4a78/scope-contract.json",
+          "packages/main/src/core/finding-verify.ts",
+          "packages/main/src/core/reviewer-read-evidence.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3928/index.json",
+          ".lattice/story/actives/B-4a78/delivery-check.json",
+          ".lattice/story/actives/B-4a78/done-required-evidence.json",
+          ".lattice/story/actives/B-4a78/index.json",
+          ".lattice/story/actives/B-4a78/test-evidence.json",
+          "AGENTS.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "aa784fc00c7f098398240f6d9b3e77ff0ecef4dda1d7a62de603741c2b235942"
+      },
+      "readDiagnostics": [],
+      "_hash": "b013b2a5508a57e289e08a3fd5e30c82d8e41a80b10a101665bb24944ace29aa"
     }
   ]
 }
