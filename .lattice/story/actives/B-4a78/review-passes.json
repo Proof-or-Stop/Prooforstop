@@ -100,6 +100,40 @@
       },
       "readDiagnostics": [],
       "_hash": "cf8ba515b88b4bd125f325cf90a2acb9c42519a3fa120d1c505c2697277bc483"
+    },
+    {
+      "id": "B-4a78:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "Docs/touchpoint consistency review after F-001/F-002/F-003: help, dispatch, templates, generated prompt copies, and focused smoke checked; no blocker found.",
+      "createdAt": "2026-07-10T02:54:03.194Z",
+      "reviewRound": "2026-07-10T02:42:21.948Z",
+      "reviewRunId": "B-4a78:RR-007",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/pos-agent-drivability-optimization.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+          "packages/main/templates/agents/lattice-review-behavior.md",
+          "packages/main/templates/agents/lattice-review-scope-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/pos-agent-drivability-optimization.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "bc92772fa503ecdd9dcd6718e70b569734781cb580d1565958a9db4491dc5e5f"
+      },
+      "readDiagnostics": [],
+      "_hash": "87db68fb5de5180d94298e0c6275fb793a1ce3f9a684112fd915c076df8aca62"
     }
   ]
 }
