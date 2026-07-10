@@ -80,6 +80,15 @@
       "reviewRound": "2026-07-10T00:02:24.661Z",
       "reviewRunId": "B-2861:RR-011",
       "_hash": "789cc7505735e05cf86bf524e9e2fff32fd44c2b914ef1ec6b8aa7721d714d58"
+    },
+    {
+      "id": "B-2861:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Targeted docs re-review after c784c2553/4c71bb3 passed. Checked proof-or-stop-agent-prompt-consolidation-execution-plan.md for M0/M0.5/M6 numbering, Search/Memory full-scan contract consistency, validation/completion closure, and table/Markdown shape. M0/M0.5/M6 subproject IDs are distinct; M0.6 is a non-blocking numbering gap because headings separate the top-level M0.5 milestone. The full-scan trigger list is consistent across the Search / Memory Budget Contract, scope-plan requirements, behavior-review requirements, and M6. Validation/completion sections cover advisory non-gate memory labeling, no-hit candidateSpecSet tests, token/search metrics, scanEscalationReason, and completion speed metrics. git diff --check passed and contiguous-table pipe-count check passed; generic markdownlint only reports existing long-row/compact-table style noise.",
+      "createdAt": "2026-07-10T00:05:04.282Z",
+      "reviewRound": "2026-07-10T00:02:24.661Z",
+      "reviewRunId": "B-2861:RR-013",
+      "_hash": "dc1f5fe32c150bcb1634cb4221e8c9a384bf8ae70c63f6d83534411efdba26a8"
     }
   ]
 }
