@@ -625,6 +625,34 @@
         "scanEscalationReason": null
       },
       "_hash": "1e9d26f36d5a22127bb1568113bf8bfeb0279fad9d7b30cb22be231456d493d9"
+    },
+    {
+      "id": "B-70e9:RP-026",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 7 re-review after fix commit bc966e3247 (F-012). Read story_get/checklist_get/validate per protocol: validate allPass=true (1 pass, 0 fail). evidence_plan (NOT validate) confirms fresh=42, missing=0, rerun=0, refresh-only=0 across all 7 checklist items. All 12 findings F-001..F-012 dismissed/resolved with strong evidence. Independently verified F-012 fix genuinely binds by reading the bc966e3247 diff: writer.ts adds a cross-process mkdir-based mutex around read-last-hash->append with bounded wait, stale-lock reclaim, and skip-not-corrupt throw on exhaustion. host-run-usage-smoke.ts adds 3 real checks: (1) 6 GENUINE OS child processes via node:child_process spawn (not fakes) each appending 5 real records to a shared ledger, asserting zero non-zero exits, calling the pre-existing independent verifyLedgerChain to recompute every hash link, asserting no lost writes and lock release; (2) stale-lock reclaim with a real aged lock dir; (3) bounded-wait skip proving the append throws skip-not-corrupt, foreign lock not stolen, chain stays valid. verifyLedgerChain predates this fix so is not self-serving. Re-ran both suites myself: test:host-run-usage 39/39 pass (all 3 new F-012 checks present by name) and test:usage-sweep 16/16 pass. Coverage: 7 checklist items, 42 must-priority intents, all 42 fresh non-fail evidence, 0 gaps, 0 waivers. No blocking test-coverage gap found this round; test coverage review passed.",
+      "createdAt": "2026-07-10T10:34:42.544Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-031",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-70e9/checklist.json",
+          ".lattice/story/actives/B-70e9/index.json",
+          "packages/main/src/core/usage-ledger/writer.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b19ee23d769fd16632c44015318de5f2fe531eb6741ab89ff60415a4ece900b5"
     }
   ]
 }
