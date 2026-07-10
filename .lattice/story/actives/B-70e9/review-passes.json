@@ -1784,6 +1784,50 @@
         "scanEscalationReason": null
       },
       "_hash": "21d54da2c0290000ccff43162b47dff3a302dbf1b4bc8f1a7c099cccc26619ad"
+    },
+    {
+      "id": "B-70e9:RP-074",
+      "agent": "lattice-review-quality",
+      "note": "Round 20 (final convergence): no story-code changes since round 19; only main 0.3.183 merged in (unrelated B-bf15 npm-script removal of test:host-run-usage/test:usage-sweep from package.json + packages/main/package.json). Diffed merge parents directly (5f5485f774..6c4dacb450) and confirmed the removal only touched those two script lines plus version bump/lattice-brand.ts; diffed eb8499d417..HEAD for every story-touched file (27 files) and found zero further changes, confirming the merge fully preserved this stor's npm-script additions with no overlap or regression. Rebuilt (npm run build, clean) and re-ran both smokes at the merged tree: test:host-run-usage 63/63 passed, test:usage-sweep 17/17 passed. Quality checklist (dead code / type safety / I-O isolation / proof-metadata job+run.metadata coverage) all previously clean through round 19 with zero code delta since. No findings.",
+      "createdAt": "2026-07-10T17:31:37.580Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-083",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/lattice-brand.ts"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/cli/alias-normalizer.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/host-execution-readiness.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/usage-ledger/adapters/openai.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/core/usage-ledger/writer.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "packages/main/src/tasks/usage-ledger-budget-smoke.ts",
+          "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a65d71a7dc1c93332ea10282682ecd995c6b131665f1395222c4cb16f22df13f"
     }
   ]
 }
