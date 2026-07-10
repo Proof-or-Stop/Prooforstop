@@ -261,6 +261,18 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+          "packages/main/package.json",
+          "lattice.config.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
       }
     },
     {
