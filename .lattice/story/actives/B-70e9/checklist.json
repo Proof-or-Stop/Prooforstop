@@ -916,6 +916,18 @@
           "materialHash": "9a34267cfc576a5198b54b34edebacab9d3db95b7cf9a62511a26960debe9169",
           "storyFilesHash": "9df50ebfa33bf98831fcb1d9b2aea402d8d6750256e08b9ab080558a92e233aa",
           "timestamp": "2026-07-10T07:10:41.681Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "command": "npm --prefix packages/main run test:host-run-usage",
+          "result": "pass",
+          "note": "host-run-usage smoke asserts hard-budget block without spawn, concurrency refusal row reasonCode=concurrency_cap_exceeded with live-slot listing, stale-slot reclaim, atomic wx slot race, and default-4 cap resolution",
+          "headHash": "b9bf230246339f935178fe55da5131a0b381b584",
+          "materialHash": "9a34267cfc576a5198b54b34edebacab9d3db95b7cf9a62511a26960debe9169",
+          "storyFilesHash": "9df50ebfa33bf98831fcb1d9b2aea402d8d6750256e08b9ab080558a92e233aa",
+          "timestamp": "2026-07-10T07:10:43.074Z"
         }
       ]
     }
