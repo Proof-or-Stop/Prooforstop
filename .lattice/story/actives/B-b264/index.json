@@ -4,7 +4,7 @@
   "title": "Add DONE merge-preflight and done_prepare rerun-delta UX",
   "description": "Implement M5 and the remaining M6 safeguards from docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md: explain repeated done_prepare runs, preflight merge hazards, protect unrelated dirty files, and prove dryRun remains side-effect free.",
   "type": "bug",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "source": "user-request-2026-07-09",
   "depends": [
@@ -28,6 +28,20 @@
       "user": "Harmonygo",
       "sessionId": "sess-3d1880b40d393f50",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-10T04:16:24.763Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-d8ea249c0401e4e8",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-b264",
+    "branch": "story/B-b264",
+    "createdAt": "2026-07-10T04:16:22.767Z"
+  }
 }
