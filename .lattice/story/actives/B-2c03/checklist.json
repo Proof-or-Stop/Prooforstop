@@ -53,11 +53,11 @@
           "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
           "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
           "result": "pass",
-          "note": "Re-bound at post-review head: fileNameDone asserts a summary naming core/partial-done-recovery.ts produces no unconfirmed_single_outcome_shrinkage gap; smoke green at current head.",
-          "headHash": "556e53d269b02ce526607350208494b338c2abea",
-          "materialHash": "7806164814b9e7f47c83fdc67a22b912be27a9a17d3b7d5dd5ef957fabcc5c11",
-          "storyFilesHash": "d3cadf890d2c2b0a74e1d2429b37587035eea4c5b32155d35e009d816878e6c8",
-          "timestamp": "2026-07-10T17:57:26.121Z"
+          "note": "fileNameDone plus the full strip-rule battery (16 strip/keep cases) green at final head 16c97d4009",
+          "headHash": "16c97d4009edc05df5edcb7fe7dc11e7e37f1575",
+          "materialHash": "cd6eed7f3c2821bce29d74c39f6000f3a619e401bc0b58440fad255a16bf9777",
+          "storyFilesHash": "8f7363b1cd635279d8c1298f696d89b62fa094648b38e0060490a1b1784ad210",
+          "timestamp": "2026-07-10T21:02:04.732Z"
         },
         {
           "intentRef": "sanitize-path-tokens:edge",
