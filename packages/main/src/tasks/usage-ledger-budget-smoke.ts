@@ -622,6 +622,12 @@ async function main(): Promise<void> {
     }
     const allowed = new Set([
       join('core', 'lattice-dispatch.ts'),
+      // B-70e9: the host-run choke point (host_run command) is the SECOND
+      // authorized dispatch site. Its CHK-007 hard-budget cap reuses the same
+      // recordBudgetBlock orchestrator (per the plan's "reuse
+      // shouldBlockDispatch/recordBudgetBlock" instruction) BEFORE spawning a host,
+      // so it is an expected importer of the budget primitives.
+      join('core', 'host-run.ts'),
       join('tasks', 'usage-ledger-budget-smoke.ts'),
       // B-1b28: the default-on smoke exercises the budget guard's inert behavior
       // (no block when the ledger is OFF / no budget configured) as part of its
