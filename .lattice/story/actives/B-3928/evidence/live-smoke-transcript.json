@@ -1,0 +1,20 @@
+{
+  "storyId": "B-3928",
+  "expected": "User sees \"PASS proof-or-stop prompt baseline: roleCount=16 registry hashes verified\" in node scripts/verify-proof-or-stop-prompt-baseline.mjs output.",
+  "actual": {
+    "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+    "exitCode": 0,
+    "stdout": "PASS proof-or-stop prompt baseline: roleCount=16 registry hashes verified\nPASS proof-or-stop prompt baseline: agent_prompt output hashes verified for 16 roles\nPASS proof-or-stop prompt baseline: overlap matrix verified for 16 roles\nPASS proof-or-stop prompt baseline: legacy vocabulary findings classified\nPASS proof-or-stop prompt baseline: direct story-file findings classified\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-07-10T03:59:00.765Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "b814ac9d6b96442253cb780e89f4cdebbdfd6aa2",
+  "materialHash": "b5fd1b15fd07f5e8a0a2062719808ec14147b46de6e2b9bf93ae359bce9b65ce"
+}
