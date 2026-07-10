@@ -1125,6 +1125,47 @@
         "scanEscalationReason": null
       },
       "_hash": "0a2cf004f5c7741e3b2b4da0284790e2e49f89fc36070d2c54a4429ad20a3b01"
+    },
+    {
+      "id": "B-70e9:RP-048",
+      "agent": "lattice-review-quality",
+      "note": "Round 13 re-review of handler-only F-020 fix (commit e78408cb5c), scope handlers/host-run.ts. Verified: (1) listener add/remove pairing - named error listeners attached once before the try, removed via removeListener with exact function references in a finally covering every exit path (json return, text success return, blocked throw, non-zero-exit throw, runHostRun exception); no removeAllListeners. (2) stderrBroken gating - post-run diagnostics gated via emitStderr; live passthrough sink write correctly ungated (that IS the delivery whose failure sets the flag); once asyncStreamError is set the sink throws-through on every subsequent chunk without touching either stream. (3) merge precedence result.passthroughError ?? asyncStreamError is correct - covers the async-error-after-final-chunk backstop case. (4) smoke driver realism - new F-020 check spawns a REAL child process, fake streaming runner, PARENT destroys the child's stderr pipe mid-stream causing a genuine async EPIPE; asserts exit 0, slot released, ledger final recorded, passthroughError present. Build (tsc) clean; compiled dist matches source. test:host-run-usage 52/52 passed; test:usage-sweep 17/17 passed. No dead code/unused imports/as any; two catch{} blocks are documented best-effort/fallback patterns. docs/host-run-usage.md F-020 section cross-checked against code, no doc-promise-undelivered. Non-blocking observation: no test proves listener count returns to 0 across REPEATED host_run calls within one live process, but host_run has zero in-process call sites in production (one-CLI-process-per-invocation via registry.ts), so not a practical risk; finally-based exact-reference removeListener is correct by inspection. No blocking findings this round.",
+      "createdAt": "2026-07-10T13:21:09.956Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-053",
+      "readManifest": {
+        "filesReadFully": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/dist/handlers/host-run.js",
+          "packages/main/src/cli/alias-normalizer.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/host-execution-readiness.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/usage-ledger/adapters/openai.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/core/usage-ledger/writer.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/usage-ledger-budget-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b877b4b581ba5f8b6c78361dcc2c226a90166cf7ec9d0b621e86f9800c55caf4"
     }
   ]
 }
