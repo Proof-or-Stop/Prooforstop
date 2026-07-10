@@ -233,7 +233,7 @@
       "desc": "[codex host-B, cross_host_review B-70e9-xhr-r4] host_run launches hosts from the caller cwd instead of the resolved project root: runHostRun builds HostRunSpawnPlan without cwd (core/host-run.ts ~line 907) although defaultHostRunRunner honors plan.cwd; the CLI engine resolves --root into ctx.root but does not chdir, so lattice --root <worktree> host_run invoked from elsewhere spawns codex/claude/agy in the wrong working directory while ledger attribution still points at the requested story/root - an independent reviewer can inspect the wrong repository. Fix direction: thread explicit cwd through HostRunArgs/HostRunSpawnPlan, set to the resolved project/worktree root in the handler, pass into the runner plan, smoke test with process.cwd != ctx.root.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host-b",
       "createdAt": "2026-07-10T09:53:07.069Z",
@@ -245,7 +245,11 @@
         "packages/main/src/tasks/host-run-usage-smoke.ts"
       ],
       "signatureTag": "edge|ts|codex-host-cross",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit e27341a4ff: HostRunArgs gains required cwd threaded into HostRunSpawnPlan for every spawn path with a pre-spawn fail-closed guard (missing cwd refuses before any ledger row); handler binds cwd: ctx.root - literally the same value used as ledger root/projectRootHash so execution and attribution cannot diverge (deliberately NOT resolveStoryCommandWorkspace, which throws for adhoc runs and itself consults process.cwd). Two new smoke checks: fake-runner plan.cwd equals injected root while process.cwd differs, and a real child printing process.cwd bound to the injected root. host-run smoke 36/36.",
+      "resolvedAt": "2026-07-10T10:00:51.519Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
