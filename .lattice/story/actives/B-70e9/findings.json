@@ -204,6 +204,25 @@
       "resolvedAt": "2026-07-10T09:17:17.860Z",
       "resolutionType": "duplicate",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-70e9:F-010",
+      "desc": "[codex host-B, cross_host_review B-70e9-xhr-r3] usage_sweep --out can clobber arbitrary project files despite the read-only classification: handlers/usage-sweep.ts ~line 173 writes the report with writeFileSync directly to the caller-selected --out path after only a lexical inside-root check. A non-owner session can pass --out package.json (or any tracked file) and truncate/replace it, and the guard does not reject symlink ancestors so an inside-root symlink can redirect the write outside the project. Violates the command read-only/no-mutation contract. Fix direction (codex): hardened output helper - require a relative report path, reject existing files, lstat/realpath every existing ancestor rejecting symlink traversal or outside-root resolution, write with exclusive create flag.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host-b",
+      "createdAt": "2026-07-10T09:30:21.736Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "_hash": "1e7f9f818d14b1557d8e2593e6e2a5d060008b1b7fee337154384764e0c4a567",
+      "files": [
+        "packages/main/src/handlers/usage-sweep.ts",
+        "packages/main/src/core/usage-sweep.ts",
+        "packages/main/src/tasks/usage-sweep-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|codex-host-cross",
+      "signatureTagSource": "auto"
     }
   ]
 }
