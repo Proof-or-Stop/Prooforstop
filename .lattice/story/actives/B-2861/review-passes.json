@@ -62,6 +62,15 @@
       "reviewRound": "2026-07-10T00:02:24.661Z",
       "reviewRunId": "B-2861:RR-009",
       "_hash": "e79d69eeb8d060c6c12e26149663e6462736dfa2fb1161f203fb8aeeee724cfe"
+    },
+    {
+      "id": "B-2861:RP-008",
+      "agent": "lattice-review-docs",
+      "note": "Targeted docs consistency PASS after c784c2553/4c71bb3. Search/Memory contract says memory/playbook is advisory and non-gate evidence, requires candidateSpecSet before full scan, makes full scan escalation-only, and states the contract is not runtime implementation (doc lines 186-231). M6.1-M6.8 align with that contract via candidateSpecSet, scope_check_save consumption, scanEscalationReason, metrics, and non-gate memory preflight (lines 1176-1214). Matrix/completion include memory/no-hit/token-search/full-scan risks and metrics (lines 1337-1338, 1489-1492). Negative scan found no stale wording making full decisions scan default REVIEW behavior; remaining mentions are historical problem statements, escalation rules, or metrics.",
+      "createdAt": "2026-07-10T00:04:27.060Z",
+      "reviewRound": "2026-07-10T00:02:24.661Z",
+      "reviewRunId": "B-2861:RR-012",
+      "_hash": "d6f47c3c2c7caa0a940008641b43d5f3106ae51a12311ac5064c9cd51371f888"
     }
   ]
 }
