@@ -756,7 +756,21 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-sweep-smoke.ts",
+          "command": "npm --prefix packages/main run test:usage-sweep",
+          "result": "pass",
+          "note": "npm --prefix packages/main run test:usage-sweep passes; sibling script test:host-run-usage covered by CHK-006:happy:1 evidence",
+          "headHash": "604ed702900b919545e58b0db1a979fc88f5b683",
+          "materialHash": "9a34267cfc576a5198b54b34edebacab9d3db95b7cf9a62511a26960debe9169",
+          "storyFilesHash": "9df50ebfa33bf98831fcb1d9b2aea402d8d6750256e08b9ab080558a92e233aa",
+          "timestamp": "2026-07-10T07:10:31.606Z"
+        }
+      ]
     },
     {
       "id": "CHK-007",
