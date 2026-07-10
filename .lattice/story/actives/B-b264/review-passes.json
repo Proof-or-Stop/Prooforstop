@@ -43,6 +43,44 @@
         "scanEscalationReason": null
       },
       "_hash": "45418e3ba58a3e56562de2da0aae577c62fc6a256cb06c98ecf43484c931bb5a"
+    },
+    {
+      "id": "B-b264:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Reviewed git diff main...HEAD (round 2, head f37bcd9) covering done-prepare.ts, new done-prepare-merge-rerun-smoke.ts, package.json script wiring, and story lifecycle metadata. No concept was deleted or mass-replaced this round: diff is additive (new optional dryRun field on DonePrepareBlocked, new DonePrepareGuidanceSection type + builder helpers, new npm test:done-prepare-merge-rerun-smoke script, new assertPlainNoHazardPass scenario resolving prior finding F-001). One localized fix swaps git() for a direct childProcess.execFileSync call in gitStatusRows with an inline comment explaining a trim() bug it avoids; the git() helper itself is untouched and still used elsewhere. Word-level diff of removed-vs-added identifiers found only INIT_CHECK and a timestamp value inside index.json, both ordinary story-phase lifecycle churn (INIT_CHECK -> PLAN -> DEV -> REVIEW), not code concepts. No grep residue check applicable; no blocker.",
+      "createdAt": "2026-07-10T05:45:53.314Z",
+      "reviewRound": "2026-07-10T05:34:01.890Z",
+      "reviewRunId": "B-b264:RR-004",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-b264/index.json",
+          "packages/main/package.json",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-b264/checklist.json",
+          ".lattice/story/actives/B-b264/decision.json",
+          ".lattice/story/actives/B-b264/findings.json",
+          ".lattice/story/actives/B-b264/intent-collision.json",
+          ".lattice/story/actives/B-b264/milestone-ledger.json",
+          ".lattice/story/actives/B-b264/original-intent-snapshot.json",
+          ".lattice/story/actives/B-b264/plan.md",
+          ".lattice/story/actives/B-b264/process-events.jsonl",
+          ".lattice/story/actives/B-b264/process-metrics.json",
+          ".lattice/story/actives/B-b264/proofstory.json",
+          ".lattice/story/actives/B-b264/red-evidence.json",
+          ".lattice/story/actives/B-b264/review-passes.json",
+          ".lattice/story/actives/B-b264/review-runs.json",
+          ".lattice/story/actives/B-b264/review.json",
+          ".lattice/story/actives/B-b264/scope-check.json",
+          ".lattice/story/actives/B-b264/scope-contract.json",
+          ".lattice/story/actives/B-b264/test-evidence.json",
+          ".lattice/story/actives/B-b264/understanding.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "eca66dfdecb5d25ac31316f6d281eebe71f5b3510898d31ed4d6989b45e08722"
     }
   ]
 }
