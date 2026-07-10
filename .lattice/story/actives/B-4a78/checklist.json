@@ -77,6 +77,22 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/core/finding-verify.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/reviewer-read-evidence.ts"
+        ],
+        "create": [
+          "packages/main/src/core/reviewer-read-evidence.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
       }
     },
     {
