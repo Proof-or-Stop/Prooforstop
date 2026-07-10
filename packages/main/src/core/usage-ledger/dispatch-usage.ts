@@ -22,6 +22,7 @@
  */
 
 import { type AnthropicUsage, ANTHROPIC_USAGE_WHITELIST } from './adapters/anthropic.js';
+import { adaptCodexTurnUsage } from './adapters/openai.js';
 import {
   buildProviderRecord,
   type RecordAttribution,
@@ -42,6 +43,7 @@ import {
   SCHEMA_VERSION,
   validateUsageLedgerRecord,
   type LedgerUsage,
+  type UsageCanonical,
   type UsageLedgerRecordInput,
 } from './record.js';
 import { appendUsageRecord, isUsageLedgerEnabled } from './writer.js';
@@ -526,6 +528,225 @@ export function recordDispatchFinalForProvider(
     appendUsageRecord(root, unavailable, { env: opts.env });
   } catch {
     // Never propagate a ledger error to the dispatch caller.
+  }
+}
+
+// =============================================================================
+// B-70e9 CHK-001: host-run choke-point final recorders (codex mapping, provider-
+// parametric unavailable) — gated OFF => strict no-op, NEVER throw. These extend
+// the seam WITHIN this module only (record.ts / writer.ts / assemble.ts stay
+// untouched); they route through the same buildProviderRecord + appendUsageRecord
+// choke point as the existing dispatch finals.
+// =============================================================================
+
+/** Result of recording a codex final: the mapped canonical dims + provenance. */
+export interface CodexFinalResult {
+  recorded: boolean;
+  recordId: string | null;
+  source: 'provider-reported' | 'unavailable';
+  /** The mapped canonical dims (uncached-remainder input + cacheRead) when provider-reported. */
+  mapped: UsageCanonical | null;
+  unavailableReason: string | null;
+}
+
+/**
+ * Record a codex `turn.completed` usage as the provider-reported final (openai
+ * provider), superseding the preflight estimate. The codex adapter
+ * (adaptCodexTurnUsage) computes canonical.input as the UNCACHED remainder
+ * (input_tokens - cached_input_tokens) with cacheRead carried separately, and the
+ * raw digest covers the ORIGINAL codex usage payload (reasoning_output_tokens
+ * preserved). A malformed / missing usage maps to an 'unavailable' final with the
+ * adapter's reason — never a fabricated zero.
+ *
+ * Uses the buildProviderRecord `usage` override so OUR codex canonical mapping and
+ * original-payload digest are recorded verbatim (the openai adapter never carves
+ * cached out of input, so the mapping is computed in the adapter, not here).
+ *
+ * NEVER throws: gated OFF => no-op; any assembly/write error is swallowed.
+ */
+export function recordDispatchFinalCodex(
+  root: string,
+  ctx: DispatchUsageContext,
+  correlation: CallCorrelation | null,
+  estimateRecordId: string | null,
+  rawCodexUsage: unknown,
+  model: string | null,
+  opts: DispatchUsageOptions,
+): CodexFinalResult {
+  const off: CodexFinalResult = { recorded: false, recordId: null, source: 'unavailable', mapped: null, unavailableReason: null };
+  if (!isUsageLedgerEnabled(opts.env)) return off;
+
+  try {
+    const usage = adaptCodexTurnUsage(rawCodexUsage);
+    const corr = correlation ?? mintCallCorrelation();
+
+    // A usage the codex adapter accepted (provider-reported) is recorded first; a
+    // validation throw (e.g. a non-integer count that survived the adapter's shape
+    // gate) falls through to the unavailable branch so the preflight estimate is
+    // STILL superseded — never left orphaned — and no count is fabricated. Mirrors
+    // recordDispatchFinalForProvider's inner-try fallback.
+    if (usage.source === 'provider-reported') {
+      try {
+        const record = buildProviderRecord(
+          'openai',
+          {},
+          {
+            ledgerCallId: corr.ledgerCallId,
+            attemptId: corr.attemptId,
+            sequence: 2,
+            supersedesRecordIds: buildSupersedes(estimateRecordId),
+          },
+          attributionFor(ctx),
+          finalContextForProvider(opts, 'openai', model),
+          { usage },
+        );
+        appendUsageRecord(root, record, { env: opts.env });
+        return { recorded: true, recordId: record.recordId, source: 'provider-reported', mapped: usage.canonical ?? null, unavailableReason: null };
+      } catch {
+        // Build/validation failed on a malformed usage: fall through to unavailable.
+      }
+    }
+
+    const reason = usage.source === 'unavailable' && usage.unavailableReason
+      ? usage.unavailableReason
+      : 'codex: turn.completed usage failed record validation';
+    const res = recordDispatchUnavailableFinal(root, ctx, corr, estimateRecordId, { name: 'openai', model }, reason, opts);
+    return { recorded: res.recorded, recordId: res.recordId, source: 'unavailable', mapped: null, unavailableReason: reason };
+  } catch {
+    return off;
+  }
+}
+
+/**
+ * Record a provider-parametric 'unavailable' final, superseding the preflight
+ * estimate. Used by host_run for hosts / paths with no usable usage surface:
+ *   - agy print mode (provider name 'antigravity', reason 'agy_print_mode_reports_no_usage');
+ *   - codex with no turn.completed usage event (provider 'openai', reason 'no_turn_completed_usage_event').
+ *
+ * Unlike buildUnavailableFinalRecord (hardcoded provider 'anthropic' + reason via
+ * finalContext), this binds an arbitrary provider NAME and an explicit reason. A
+ * null/empty model falls back to the best-effort default ('unknown').
+ *
+ * NEVER throws: gated OFF => no-op; any assembly/write error is swallowed.
+ */
+export function recordDispatchUnavailableFinal(
+  root: string,
+  ctx: DispatchUsageContext,
+  correlation: CallCorrelation | null,
+  estimateRecordId: string | null,
+  provider: { name: string; model: string | null },
+  unavailableReason: string,
+  opts: DispatchUsageOptions,
+): { recorded: boolean; recordId: string | null } {
+  if (!isUsageLedgerEnabled(opts.env)) return { recorded: false, recordId: null };
+
+  try {
+    const corr = correlation ?? mintCallCorrelation();
+    const supersedes = buildSupersedes(estimateRecordId);
+    const boundModel = provider.model && provider.model.length > 0 ? provider.model : DEFAULT_ESTIMATE_MODEL;
+    const usage: LedgerUsage = {
+      source: 'unavailable',
+      inputTokens: null,
+      outputTokens: null,
+      cacheCreationInputTokens: null,
+      cacheReadInputTokens: null,
+      estimator: null,
+      unavailableReason: unavailableReason && unavailableReason.length > 0 ? unavailableReason : 'host run reported no usage',
+    };
+    const context: RecordContext = {
+      recordedAt: opts.recordedAt,
+      projectRootHash: opts.projectRootHash,
+      redactionProfile: opts.redactionProfile,
+      command: opts.command,
+      host: opts.host,
+      provider: { name: provider.name, model: boundModel },
+    };
+    const record = buildProviderRecord(
+      'openai',
+      {},
+      {
+        ledgerCallId: corr.ledgerCallId,
+        attemptId: corr.attemptId,
+        sequence: 2,
+        supersedesRecordIds: supersedes,
+      },
+      attributionFor(ctx),
+      context,
+      { usage },
+    );
+    appendUsageRecord(root, record, { env: opts.env });
+    return { recorded: true, recordId: record.recordId };
+  } catch {
+    return { recorded: false, recordId: null };
+  }
+}
+
+// =============================================================================
+// B-70e9 CHK-007: host-run concurrency-cap blocked record (diagnostics-honest).
+// Reuses the parametric buildBlockedBudgetRecord (reasonCode is already a param)
+// so a concurrency refusal is a decision.kind='blocked' ledger row that supersedes
+// the preflight estimate, exactly like a hard-budget block. record.ts is NOT
+// touched — only this dispatch-usage entry point is added.
+// =============================================================================
+
+/** Reason code recorded on a host-run concurrency-cap refusal. */
+export const CONCURRENCY_CAP_REASON_CODE = 'concurrency_cap_exceeded';
+
+/**
+ * Append a decision.kind='blocked' record for a host-run concurrency-cap refusal,
+ * superseding the preflight estimate. The recorded usage is the prompt-size
+ * estimate that would have been spawned (input only), NOT a provider usage — the
+ * host was never launched. `cap` is folded into a stable budgetPolicyId
+ * (`concurrency-cap:<cap>`); the reasonCode is CONCURRENCY_CAP_REASON_CODE.
+ *
+ * NEVER throws: gated OFF => no-op; any assembly/write error is swallowed (the
+ * caller still refuses fail-closed — a write failure never converts a refusal into
+ * a spawn).
+ */
+export function recordConcurrencyBlock(
+  root: string,
+  ctx: DispatchUsageContext,
+  handle: DispatchPreflightHandle | null,
+  promptText: string,
+  cap: number,
+  opts: DispatchUsageOptions,
+): { recorded: boolean; recordId: string | null } {
+  if (!isUsageLedgerEnabled(opts.env)) return { recorded: false, recordId: null };
+
+  try {
+    let estimatedInputTokens: number;
+    if (handle && Number.isFinite(handle.estimatedInputTokens)) {
+      estimatedInputTokens = handle.estimatedInputTokens;
+    } else {
+      try {
+        const model = ctx.model && ctx.model.length > 0 ? ctx.model : DEFAULT_ESTIMATE_MODEL;
+        estimatedInputTokens = bytesCharsEstimator(model, promptText).estimatedInputTokens;
+      } catch {
+        estimatedInputTokens = 0;
+      }
+    }
+
+    const correlation = handle?.correlation ?? mintCallCorrelation();
+    const budgetPolicyId = `concurrency-cap:${Number.isFinite(cap) ? cap : 0}`;
+    const record = buildBlockedBudgetRecord(
+      ctx.model ?? null,
+      { estimatedInputTokens, estimateRecordId: handle?.estimateRecordId ?? null },
+      correlation,
+      attributionFor(ctx),
+      finalContext(opts, ctx.model ?? null),
+      budgetPolicyId,
+      CONCURRENCY_CAP_REASON_CODE,
+    );
+    if (record === null) return { recorded: false, recordId: null };
+    try {
+      appendUsageRecord(root, record, { env: opts.env });
+    } catch {
+      // Fail-closed: the caller refuses regardless; a write failure never spawns.
+      return { recorded: false, recordId: record.recordId };
+    }
+    return { recorded: true, recordId: record.recordId };
+  } catch {
+    return { recorded: false, recordId: null };
   }
 }
 
