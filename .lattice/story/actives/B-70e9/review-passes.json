@@ -2052,6 +2052,25 @@
         "scanEscalationReason": null
       },
       "_hash": "2e680dc51abda6c7f387cc77e64e1a4f11c2823b2c0a8051168529c11a1ccff5"
+    },
+    {
+      "id": "B-70e9:RP-083",
+      "agent": "lattice-review-concept",
+      "note": "Round 23 (post-commit 43ea459, F-032 fix): reviewed cli-engine.ts, tasks/usage-sweep-smoke.ts, docs/host-run-usage.md. Purely additive change — new isReadOnlyCommand guard clause at the writeCodexProcessEvent call site (success + error paths), pointer comments, one new CLI end-to-end smoke check, and an extended F-028 doc bullet. isReadOnlyCommand is a pre-existing exported symbol from cli/activity-policy.ts already used elsewhere in cli-engine.ts (preCommand/postCommand hook gates) — reused, not renamed or newly introduced. No concept word was deleted or replaced in this commit; nothing to grep for residue.",
+      "createdAt": "2026-07-10T19:50:47.343Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-094",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "a9f92f9e3e31e450c8e2e7e17b748da82cdd9df645a0fe121bdeb4e991813693"
     }
   ]
 }
