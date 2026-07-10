@@ -58,6 +58,18 @@
           "materialHash": "47f3b5a4560f61c2cb528c1c98d478237ec717bde13e8860f90b9ec6f6cc8e0d",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "timestamp": "2026-07-10T14:39:51.390Z"
+        },
+        {
+          "intentRef": "sanitize-path-tokens:edge",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "GREEN smoke assertion: backticked `deferred` span and slash path src/excluded/list.ts do not trigger the gap (codeTokenDone case), while the same words as prose still trigger (proseShrinkDone/narrowLightDone controls).",
+          "headHash": "241b014d2d0b6a1c543d5be1214925ad78f64e19",
+          "materialHash": "47f3b5a4560f61c2cb528c1c98d478237ec717bde13e8860f90b9ec6f6cc8e0d",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-10T14:39:52.008Z"
         }
       ]
     },
