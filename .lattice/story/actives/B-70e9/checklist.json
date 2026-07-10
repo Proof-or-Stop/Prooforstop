@@ -16,7 +16,9 @@
         "modify": [
           "packages/main/src/cli/command-catalog.ts",
           "packages/main/src/core/host-execution-readiness.ts",
-          "packages/main/src/core/command-policy.ts"
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/core/usage-ledger/adapters/openai.ts"
         ],
         "create": [
           "packages/main/src/core/host-run.ts",

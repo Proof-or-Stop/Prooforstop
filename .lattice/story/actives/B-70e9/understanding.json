@@ -8,11 +8,12 @@
     "codex exec --json (codex-cli 0.141.0) emits a terminal turn.completed event with usage {input_tokens (includes cached), cached_input_tokens, output_tokens, reasoning_output_tokens}; --ephemeral means NO rollout file is written for canonical runs",
     "agy print mode surfaces no per-call usage on any stable surface (verified via agy --print probe 2026-07-10 and earlier B-fbb6 probe): stdout is response text only",
     "claude stream-json result usage is already parseable via parseClaudeCliOutput (anthropic four-field usage + served model)",
-    "The ledger schema already carries subagentId/threadId nullable strings usable for reviewer lane / reviewRunId binding without schema changes",
+    "The ledger schema already carries subagentId/threadId nullable strings usable for reviewer lane / reviewRunId binding without schema changes; record validator does not enum-restrict provider.name or decision.reasonCode, so antigravity unavailable finals and a concurrency_cap_exceeded reasonCode are schema-safe",
     "review-runs.json rows carry reviewRunId (B-xxxx:RR-001), lane, storyId - the binding identifiers to share",
     "~/.codex/sessions/YYYY/MM/DD/rollout-*.jsonl: first line session_meta has cwd/originator/source; token_count event_msg carries CUMULATIVE info.total_token_usage; desktop threads can be hundreds of MB",
     "~/.claude/projects/<munged-cwd>/<uuid>.jsonl: assistant events carry message.usage four-field; ONE assistant message may span MULTIPLE events sharing message.id so naive summing double-counts",
-    "LATTICE_HARD_BUDGET_TOKENS fail-closed preflight guard exists (shouldBlockDispatch/recordBudgetBlock) and can be reused for the per-dispatch cap"
+    "LATTICE_HARD_BUDGET_TOKENS fail-closed preflight guard exists (shouldBlockDispatch/recordBudgetBlock) and can be reused for the per-dispatch cap",
+    "cross_host_review verdict parsing reads plain codex stdout, so its argv stays unchanged in this story and its ledger rows record an unavailable final with a documented reason"
   ],
   "constraints": [
     "Single-writer choke point: no second ledger writer path (usage-ledger execution plan completeness guarantee)",
@@ -22,27 +23,29 @@
     "No interception of interactive desktop sessions",
     "English-only story artifacts; canonical launcher argv must stay compatible with launcherArgvMatchesCanonical (agy print-timeout slot needs a deliberate, matcher-aware parameterization for long reviews)"
   ],
-  "unknowns": [
-    "Whether assemble.ts buildProviderRecord supports an antigravity/agy provider label for unavailable finals or needs a small extension",
-    "Exact reasonCode whitelist in record.ts for a concurrency-cap blocked row (may need a new allowed reasonCode)",
-    "Whether cross_host_review can adopt --json without breaking its verdict parser (M1 falls back to preflight+unavailable final if not)",
-    "Best default for LATTICE_HOST_RUN_MAX_CONCURRENT (proposal: 4) and whether refusal should offer queuing"
-  ],
+  "unknowns": [],
   "touchpoints": [
-    "packages/main/src/core/usage-ledger/dispatch-usage.ts (reuse; possible provider-parametric unavailable final)",
-    "packages/main/src/core/usage-ledger/adapters/openai.ts or a codex-exec mapping for turn.completed usage",
-    "packages/main/src/core/host-execution-readiness.ts (launcher spec parameterization for timeout slot)",
-    "packages/main/src/core/host-run.ts (new: choke-point core with injected runner)",
-    "packages/main/src/handlers/host-run.ts (new: CLI handler)",
-    "packages/main/src/cli/command-catalog.ts (register host_run + usage_sweep)",
-    "packages/main/src/core/autopilot-executor.ts (runClaudeRepair seam)",
-    "packages/main/src/handlers/review-escalation.ts (probe caller seam)",
-    "packages/main/src/core/codex-review-leaf.ts / handlers/cross-host-review.ts (ledger rows for codex review leaf)",
-    "packages/main/src/core/usage-sweep.ts (new: read-only scanners)",
-    "packages/main/src/handlers/usage-sweep.ts (new: report command)",
-    "packages/main/src/tasks/host-run-usage-smoke.ts + usage-sweep-smoke.ts (new smokes)",
-    "package.json / packages/main/package.json (npm scripts)",
-    "docs + reviewer/quorum guidance surfaces (CHK-004)"
+    "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+    "packages/main/src/core/usage-ledger/adapters/openai.ts",
+    "packages/main/src/core/host-execution-readiness.ts",
+    "packages/main/src/core/host-run.ts",
+    "packages/main/src/handlers/host-run.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/autopilot-executor.ts",
+    "packages/main/src/handlers/review-escalation.ts",
+    "packages/main/src/handlers/cross-host-review.ts",
+    "packages/main/src/core/codex-review-leaf.ts",
+    "packages/main/src/core/usage-sweep.ts",
+    "packages/main/src/handlers/usage-sweep.ts",
+    "packages/main/src/tasks/host-run-usage-smoke.ts",
+    "packages/main/src/tasks/usage-sweep-smoke.ts",
+    "packages/main/src/tasks/run-all-smokes.ts",
+    "packages/main/src/handlers/reviewer-batch.ts",
+    "packages/main/package.json",
+    "package.json",
+    "docs/host-run-usage.md",
+    "CHANGELOG.md"
   ],
-  "timestamp": "2026-07-10T05:17:49.591Z"
+  "timestamp": "2026-07-10T05:24:47.463Z"
 }
