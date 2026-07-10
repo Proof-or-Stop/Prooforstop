@@ -339,6 +339,26 @@
         "scanEscalationReason": "Re-verified F-011 (test-coverage lane finding) resolution against commit 6a06ea3c13 per main-agent instruction: grepped smoke file for the five named case identifiers, ran git show --stat, rebuilt and reran the smoke twice (before and after a concurrent hosts F-012 fix landed on top) to confirm the F-011 remediation cases remain intact and green."
       },
       "_hash": "5d84d89e57ae641e125ddca86250285f9100ab4886e2d4dede37e7bc29a846b8"
+    },
+    {
+      "id": "B-2c03:RP-016",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round (F-012 fix at cb2c00d2dd + metadata commits through 97f23b4d6a): diff adds a stripCodeLikeTokens sanitizer and refines the inline claimsShrinkage regex into claimsShrinkageRegex with clause-aware remaining-modifier-chain constants. Only removed lines in proofstory.ts are the two inline narrowingText/claimsShrinkage statements, replaced by same-named variables producing the same unconfirmed_single_outcome_shrinkage gap; smoke test file has zero deletions. Repo-wide grep for claimsShrinkage/narrowingText/unconfirmed_single_outcome_shrinkage shows consistent references only in the two implementation/test files plus story metadata, no orphaned old-concept residue. Concept residue check completed, no blocker.",
+      "createdAt": "2026-07-10T19:34:59.622Z",
+      "reviewRound": "2026-07-10T18:53:39.083Z",
+      "reviewRunId": "B-2c03:RR-030",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2c03/checklist.json",
+          ".lattice/story/actives/B-2c03/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "621e959641b0e3c5845fca05e81f974252c4f27dad7fd2b532a20651d5f43e06"
     }
   ]
 }
