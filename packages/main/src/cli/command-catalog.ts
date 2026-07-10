@@ -2866,6 +2866,14 @@ Behavior:
     json: z.boolean().optional().describe('Output the structured host_run result as JSON (exitCode is a field)'),
     format: z.enum(['text', 'json']).optional().describe('Output format'),
   }},
+  { name: 'usage_sweep', description: 'Read-only NON-AUTHORITATIVE usage sweep: streams ~/.codex/sessions rollouts and ~/.claude/projects transcripts since a cutoff and reports per-session token totals, originator (desktop vs exec vs claude-code), cwd, first/last timestamps, and B-xxxx story mentions plus a per-story rollup and grand totals. Estimates only (attribution from host transcript stores, not billing truth); performs no ledger backfill and no gate/lifecycle changes, and writes nothing unless --out is explicitly passed. Alias: lattice usage sweep', schema: {
+    since: z.string().describe('Cutoff: YYYY-MM-DD, ISO datetime, or <N>d shorthand (e.g. 7d). Files with mtime before the cutoff are skipped before reading'),
+    codexSessionsDir: z.string().optional().describe('Override the codex sessions dir (default ~/.codex/sessions)'),
+    claudeProjectsDir: z.string().optional().describe('Override the claude projects dir (default ~/.claude/projects)'),
+    out: z.string().optional().describe('Write the JSON report to this path (must resolve INSIDE the project root); the only write this command performs'),
+    json: z.boolean().optional().describe('Emit the full report object as JSON (carries the same NON-AUTHORITATIVE ESTIMATE label)'),
+    format: z.enum(['text', 'json']).optional().describe('Output format'),
+  }},
   { name: 'autopilot_review_status', description: 'Summarize local independent host verdicts. Alias: lattice autopilot review status', schema: {
     storyId: z.string().describe('Story id'),
     runId: z.string().optional().describe('Local run id'),

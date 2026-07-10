@@ -7,6 +7,7 @@ export const NESTED_SPACE_ALIASES: Record<string, string> = {
   'host runtime probe': 'host_runtime_probe',
   'host install': 'host_install',
   'host dispatch': 'host_dispatch',
+  'usage sweep': 'usage_sweep',
   'dispatch plan': 'dispatch_plan',
   'dispatch prepare': 'dispatch_prepare',
   'dispatch run': 'dispatch_run',
