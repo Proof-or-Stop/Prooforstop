@@ -633,7 +633,7 @@
       "desc": "[codex host-B, cross_host_review B-70e9-xhr-r17] Codex append failures can be re-recorded as false unavailable usage: recordDispatchFinalCodex (dispatch-usage.ts ~650) catches build/validation failures and appendUsageRecord failures in the SAME catch; a valid provider-reported codex record whose append fails transiently (writer lock skip) falls through to recordDispatchUnavailableFinal, and if that second append succeeds the ledger records source=unavailable although provider usage WAS parsed - corrupting source semantics and undercounting real codex usage. Fix direction: separate construction/validation from append; only fall back to unavailable when BUILDING the provider-reported record fails; on append-throw return recorded=false with describeLedgerAppendFailure(err) and do NOT attempt an unavailable final.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host-b",
       "createdAt": "2026-07-10T17:45:16.738Z",
@@ -644,7 +644,11 @@
         "packages/main/src/tasks/host-run-usage-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|codex-host-cross",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 81c5bc42ea: recordDispatchFinalCodex separates build/validate (failure -> unchanged unavailable fallback) from append (throw -> {recorded:false, source:provider-reported, unavailableReason:ledger_append_failed(...)} with NO second append); host-run caller already gates on codex.recorded so the honest recorded=none state surfaces. RED proven by reverting the restructure in dist (check fails with actual unavailable vs expected provider-reported). Claude-path audit: recordDispatchFinal and recordDispatchUnavailableFinal verified conflation-free; the void sibling recordDispatchFinalForProvider had the same class and was filed as F-030.",
+      "resolvedAt": "2026-07-10T18:28:13.210Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-70e9:F-030",
