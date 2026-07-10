@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Extend scope_check_save schema with a required signed readManifest field",
       "context": "Shape: {filesReadFully[], filesTriagedByName[], scanEscalationReason|null}. Validate the shape, include readManifest in the scope-check signature domain (_hash), and reject saves that omit it. Keep the existing anti-self-absolution boundaries (resolutions/OQ stay outside the signature domain) unchanged.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-10T01:42:55.402Z",
-      "endTime": null,
+      "endTime": "2026-07-10T01:42:56.009Z",
       "userSees": "Missing readManifest in scope_check_save is rejected with a clear validation error; valid scope-check evidence shows a signed readManifest field.",
       "verificationIntent": {
         "happy": [
