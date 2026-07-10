@@ -3,19 +3,31 @@
  *
  * A thin wrapper over the core choke point (core/host-run.ts): it validates the
  * args (exactly one of --prompt / --promptFile, canonical host, story/reviewRunId
- * binding), reads the prompt, and delegates to runHostRun. The HOST STDOUT is the
- * command output (echoed to stdout); a usage-summary line is written to stderr;
- * the process exit reflects success (host exit 0) vs a host failure / cap refusal.
+ * binding), reads the prompt, builds the store-backed story resolver (F-005) and
+ * the live passthrough sink (F-006), and delegates to runHostRun. Host output is
+ * STREAMED LIVE through the passthrough as it arrives; a usage-summary line is
+ * written to stderr; the process exit reflects success vs a host failure / cap
+ * refusal.
+ *
+ * Passthrough routing (F-006):
+ *   - text mode -> host stdout chunks go to process.stdout live, host stderr to
+ *     process.stderr; the handler does NOT re-print buffered output (no
+ *     double-print), so on success it returns an empty string;
+ *   - json mode -> ALL host output is routed to process.stderr so process.stdout
+ *     stays clean for the single JSON result; the JSON `stdout` field carries only
+ *     the bounded usage-parse tail, since the full transcript already streamed to
+ *     stderr.
  *
  * Output/exit contract (bounded by the CLI engine, which prints the handler
  * return and forces exit 0 on a normal return):
- *   - text mode, success -> RETURN the host stdout (engine prints it), usage line
- *     to stderr, process exit 0;
- *   - text mode, host failure / cap refusal -> echo host stdout to stdout directly,
+ *   - text mode, success -> host stdout already streamed live; RETURN '' (nothing
+ *     to re-print), usage line to stderr, process exit 0;
+ *   - text mode, host failure / cap refusal -> host output already streamed;
  *     usage/refusal line to stderr, THROW a concise error so the process exits
  *     nonzero (the exact host code + refusal reason are in the message);
- *   - json mode -> RETURN the structured result (host stdout, exitCode, usage, and
- *     any refusal are FIELDS); never throws, so machine consumers read exitCode.
+ *   - json mode -> RETURN the structured result (exitCode, usage, refusal, and the
+ *     bounded stdout tail are FIELDS); never throws, so machine consumers read
+ *     exitCode.
  */
 
 import { createHash } from 'node:crypto';
@@ -24,9 +36,12 @@ import type { HandlerContext } from './context.js';
 import type { FormatArgs } from './verdict.js';
 import {
   runHostRun,
+  type HostRunChunk,
   type HostRunHost,
+  type HostRunPassthrough,
   type HostRunResult,
   type HostRunRunner,
+  type HostRunStoryResolver,
 } from '../core/host-run.js';
 
 export interface HostRunCommandArgs extends FormatArgs {
@@ -147,8 +162,29 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
       }
       const lane = normalizeString(args.lane) || null;
       const agyPrintTimeout = normalizeString(args.agyPrintTimeout) || undefined;
+      const json = wantsJson(args);
 
-      const result = runHostRun(
+      // F-005: resolve story phase + existence through the CONFIGURED store, so a
+      // project that configures storyDir is honored (the core stays path-free). An
+      // explicit --phase never reaches this (the core skips the store entirely).
+      const resolveStory: HostRunStoryResolver = (id: string) => {
+        try {
+          const story = ctx.store.readStory(id);
+          const p = typeof story.phase === 'string' && story.phase.length > 0 ? story.phase : null;
+          return { phase: p };
+        } catch {
+          return null; // unknown story per the configured store
+        }
+      };
+
+      // F-006: live passthrough. text mode routes host stdout->stdout / stderr->stderr;
+      // json mode routes EVERYTHING to stderr so stdout stays clean for the JSON result.
+      const passthrough: HostRunPassthrough = (chunk: HostRunChunk) => {
+        if (json || chunk.stream === 'stderr') process.stderr.write(chunk.text);
+        else process.stdout.write(chunk.text);
+      };
+
+      const result = await runHostRun(
         {
           host,
           storyId,
@@ -164,14 +200,15 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
           recordedAt: new Date().toISOString(),
           projectRootHash: projectRootHashFor(ctx.root),
         },
-        { runner: options.runner },
+        { runner: options.runner, resolveStory, passthrough },
       );
 
       const usageLine = formatUsageLine(result);
 
-      if (wantsJson(args)) {
-        // Machine mode: the whole result (incl. host stdout, exitCode, usage,
-        // refusal) is the JSON payload. The engine prints it; exitCode is a field.
+      if (json) {
+        // Machine mode: the full host transcript already streamed to stderr; the
+        // JSON payload (exitCode, usage, refusal, bounded stdout tail) is the
+        // single stdout line. The engine prints it; exitCode is a field.
         process.stderr.write(`${usageLine}\n`);
         return {
           schemaVersion: 'lattice.host_run.v1',
@@ -191,11 +228,11 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
         };
       }
 
-      // Text mode.
+      // Text mode. Host output already streamed live through the passthrough, so
+      // the handler never re-prints it (no double-print).
       if (result.blocked || result.exitCode !== 0 || result.timedOut) {
-        // Failure / refusal: echo any host stdout directly, then throw so the
+        // Failure / refusal: usage/refusal line to stderr, then throw so the
         // process exits nonzero (engine forces exit 0 on a normal return).
-        if (result.stdout.length > 0) process.stdout.write(result.stdout.endsWith('\n') ? result.stdout : `${result.stdout}\n`);
         process.stderr.write(`${usageLine}\n`);
         if (result.blocked) {
           throw new Error(`host_run refused (${result.refusalReason}); no host was launched`);
@@ -204,9 +241,9 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
         throw new Error(`host_run: ${result.host} exited ${result.exitCode}${timeoutNote}`);
       }
 
-      // Success: the engine prints the returned host stdout to stdout.
+      // Success: output already streamed; nothing left to print.
       process.stderr.write(`${usageLine}\n`);
-      return result.stdout;
+      return '';
     },
   };
 }

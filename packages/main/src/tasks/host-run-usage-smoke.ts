@@ -50,15 +50,21 @@ import { dirname, isAbsolute, join } from 'node:path';
 
 import {
   acquireHostRunSlot,
+  defaultHostRunRunner,
   runHostRun,
   scanCodexTurnCompletedUsage,
+  usageLineRetainerFor,
   hostRunSlotsDir,
   resolveMaxConcurrent,
   writeSlotFileExclusive,
+  HOST_RUN_RETAINED_LINE_CAP,
   type HostRunArgs,
+  type HostRunChunk,
+  type HostRunPassthrough,
   type HostRunRunner,
   type HostRunSpawnPlan,
   type HostRunSpawnResult,
+  type HostRunStoryResolver,
 } from '../core/host-run.js';
 import {
   runClaudeRepair,
@@ -191,10 +197,13 @@ function readLedger(sub: string): UsageLedgerRecord[] {
   return verifyLedgerChain(path);
 }
 
-function seedStoryIndex(sub: string, storyId: string, phase: string): void {
-  const dir = join(sub, '.lattice', 'story', 'actives', storyId);
-  mkdirSync(dir, { recursive: true });
-  writeFileSync(join(dir, 'index.json'), JSON.stringify({ storyId, phase }), 'utf8');
+/**
+ * F-005 seam: a fake store-backed story resolver. Maps known storyIds to their
+ * phase; an unknown storyId resolves to null (so the core refuses it pre-spawn),
+ * exactly like ctx.store.readStory throwing for a missing story.
+ */
+function fakeStoreResolver(phases: Record<string, string>): HostRunStoryResolver {
+  return (storyId: string) => (Object.prototype.hasOwnProperty.call(phases, storyId) ? { phase: phases[storyId] } : null);
 }
 
 /** Seed a FIXED-INDEX slot file (`slot-<index>.json`) as a live/stale occupant. */
@@ -255,10 +264,10 @@ async function main(): Promise<void> {
   // =========================================================================
   // CHK-001 happy: codex turn.completed -> estimate + provider-reported final
   // =========================================================================
-  check('CHK-001 codex happy: estimate(seq1) + provider-reported final(seq2) with uncached-remainder mapping', () => {
+  await checkAsync('CHK-001 codex happy: estimate(seq1) + provider-reported final(seq2) with uncached-remainder mapping', async () => {
     const sub = freshRoot();
     const sink: RunnerSink = { calls: 0, lastPlan: null };
-    const result = runHostRun(baseArgs({ root: sub, host: 'codex' }), { runner: makeRunner({ stdout: CODEX_STDOUT }, sink) });
+    const result = await runHostRun(baseArgs({ root: sub, host: 'codex' }), { runner: makeRunner({ stdout: CODEX_STDOUT }, sink) });
 
     assert.equal(sink.calls, 1, 'runner invoked once');
     assert.equal(result.exitCode, 0);
@@ -303,10 +312,10 @@ async function main(): Promise<void> {
   // =========================================================================
   // CHK-001 happy: claude stream-json result -> provider-reported final
   // =========================================================================
-  check('CHK-001 claude happy: stream-json result -> provider-reported final with served model', () => {
+  await checkAsync('CHK-001 claude happy: stream-json result -> provider-reported final with served model', async () => {
     const sub = freshRoot();
     const sink: RunnerSink = { calls: 0, lastPlan: null };
-    const result = runHostRun(baseArgs({ root: sub, host: 'claude' }), { runner: makeRunner({ stdout: CLAUDE_STDOUT }, sink) });
+    const result = await runHostRun(baseArgs({ root: sub, host: 'claude' }), { runner: makeRunner({ stdout: CLAUDE_STDOUT }, sink) });
 
     assert.equal(sink.calls, 1);
     // claude launcher materializes an absolute prompt-file path (no placeholder).
@@ -333,10 +342,10 @@ async function main(): Promise<void> {
   // =========================================================================
   // CHK-001 happy: agy -> unavailable final (provider antigravity)
   // =========================================================================
-  check('CHK-001 agy happy: unavailable final, provider antigravity, explicit reason', () => {
+  await checkAsync('CHK-001 agy happy: unavailable final, provider antigravity, explicit reason', async () => {
     const sub = freshRoot();
     const sink: RunnerSink = { calls: 0, lastPlan: null };
-    const result = runHostRun(baseArgs({ root: sub, host: 'agy', agyPrintTimeout: '30m' }), { runner: makeRunner({ stdout: AGY_STDOUT }, sink) });
+    const result = await runHostRun(baseArgs({ root: sub, host: 'agy', agyPrintTimeout: '30m' }), { runner: makeRunner({ stdout: AGY_STDOUT }, sink) });
 
     assert.equal(sink.calls, 1);
     // agy print-timeout override flows into the canonical launcher.
@@ -358,9 +367,9 @@ async function main(): Promise<void> {
   // =========================================================================
   // CHK-001 edge: codex turn.failed (no usage) -> unavailable-with-reason
   // =========================================================================
-  check('CHK-001 codex edge: turn.failed / no usage -> unavailable (no_turn_completed_usage_event), never a fabricated zero', () => {
+  await checkAsync('CHK-001 codex edge: turn.failed / no usage -> unavailable (no_turn_completed_usage_event), never a fabricated zero', async () => {
     const sub = freshRoot();
-    const result = runHostRun(baseArgs({ root: sub, host: 'codex' }), { runner: makeRunner({ stdout: CODEX_FAILED_STDOUT, exitCode: 1 }) });
+    const result = await runHostRun(baseArgs({ root: sub, host: 'codex' }), { runner: makeRunner({ stdout: CODEX_FAILED_STDOUT, exitCode: 1 }) });
     const records = readLedger(sub);
     const final = records.find((r) => r.usage.source === 'unavailable');
     assert.ok(final);
@@ -373,11 +382,11 @@ async function main(): Promise<void> {
   // =========================================================================
   // CHK-001 edge: LATTICE_USAGE_LEDGER=0 -> byte-identical (zero rows, zero dirs)
   // =========================================================================
-  check('CHK-001 edge: ledger OFF -> zero rows, zero dirs, run still spawns + exit propagates', () => {
+  await checkAsync('CHK-001 edge: ledger OFF -> zero rows, zero dirs, run still spawns + exit propagates', async () => {
     const sub = freshRoot();
     const sink: RunnerSink = { calls: 0, lastPlan: null };
     const OFF = { LATTICE_USAGE_LEDGER: '0' } as NodeJS.ProcessEnv;
-    const result = runHostRun(baseArgs({ root: sub, host: 'codex', env: OFF }), { runner: makeRunner({ stdout: CODEX_STDOUT, exitCode: 2 }, sink) });
+    const result = await runHostRun(baseArgs({ root: sub, host: 'codex', env: OFF }), { runner: makeRunner({ stdout: CODEX_STDOUT, exitCode: 2 }, sink) });
     assert.equal(sink.calls, 1, 'runner still invoked when ledger OFF');
     assert.equal(result.exitCode, 2, 'exit propagates when OFF');
     assert.equal(result.usageSummary.recorded, 'disabled');
@@ -389,9 +398,9 @@ async function main(): Promise<void> {
   // =========================================================================
   // CHK-001 edge: host non-zero exit propagates while rows still record
   // =========================================================================
-  check('CHK-001 edge: host non-zero exit propagates while codex rows still record', () => {
+  await checkAsync('CHK-001 edge: host non-zero exit propagates while codex rows still record', async () => {
     const sub = freshRoot();
-    const result = runHostRun(baseArgs({ root: sub, host: 'codex' }), { runner: makeRunner({ stdout: CODEX_STDOUT, exitCode: 2 }) });
+    const result = await runHostRun(baseArgs({ root: sub, host: 'codex' }), { runner: makeRunner({ stdout: CODEX_STDOUT, exitCode: 2 }) });
     assert.equal(result.exitCode, 2);
     const records = readLedger(sub);
     assert.equal(records.length, 2, 'estimate + final still recorded on host failure');
@@ -416,7 +425,7 @@ async function main(): Promise<void> {
   // =========================================================================
   // CHK-001 adversarial: prototype-pollution / wrong-typed payload honesty
   // =========================================================================
-  check('CHK-001 adversarial: inherited/polluted usage never fabricates counts (own-property projection)', () => {
+  await checkAsync('CHK-001 adversarial: inherited/polluted usage never fabricates counts (own-property projection)', async () => {
     // Only inherited primaries -> unavailable (no own counts to read).
     const inheritedOnly = Object.create({ input_tokens: 5, cached_input_tokens: 2, output_tokens: 3 });
     const u1 = adaptCodexTurnUsage(inheritedOnly);
@@ -435,7 +444,7 @@ async function main(): Promise<void> {
     // string tokens -> the assembled record is rejected -> the seam records unavailable (never throws).
     const sub = freshRoot();
     const badStdout = JSON.stringify({ type: 'turn.completed', usage: { input_tokens: 'lots', output_tokens: 5 } }) + '\n';
-    const result = runHostRun(baseArgs({ root: sub, host: 'codex' }), { runner: makeRunner({ stdout: badStdout }) });
+    const result = await runHostRun(baseArgs({ root: sub, host: 'codex' }), { runner: makeRunner({ stdout: badStdout }) });
     assert.equal(result.exitCode, 0);
     const records = readLedger(sub);
     assert.ok(records.some((r) => r.usage.source === 'unavailable'), 'wrong-typed usage -> unavailable final');
@@ -445,14 +454,13 @@ async function main(): Promise<void> {
   // =========================================================================
   // CHK-002: binding (threadId=reviewRunId, subagentId=lane) + phase resolution
   // =========================================================================
-  check('CHK-002 binding: reviewRunId->threadId, lane->subagentId, phase resolves from story index', () => {
+  await checkAsync('CHK-002 binding: reviewRunId->threadId, lane->subagentId, phase resolves from the configured store', async () => {
     const sub = freshRoot();
-    seedStoryIndex(sub, 'B-70e9', 'REVIEW');
-    const result = runHostRun(
+    const result = await runHostRun(
       baseArgs({ root: sub, host: 'codex', storyId: 'B-70e9', reviewRunId: 'B-70e9:RR-001', lane: 'lattice-review-quality', agentType: 'reviewer' }),
-      { runner: makeRunner({ stdout: CODEX_STDOUT }) },
+      { runner: makeRunner({ stdout: CODEX_STDOUT }), resolveStory: fakeStoreResolver({ 'B-70e9': 'REVIEW' }) },
     );
-    assert.equal(result.phase, 'REVIEW', 'phase resolved from story index');
+    assert.equal(result.phase, 'REVIEW', 'phase resolved from the configured store (no story-path read)');
     const records = readLedger(sub);
     assert.ok(records.length >= 1);
     for (const r of records) {
@@ -463,9 +471,9 @@ async function main(): Promise<void> {
     }
   });
 
-  check('CHK-002 edge: omitted reviewRunId/lane -> threadId/subagentId null (no empty-string pollution)', () => {
+  await checkAsync('CHK-002 edge: omitted reviewRunId/lane -> threadId/subagentId null (no empty-string pollution)', async () => {
     const sub = freshRoot();
-    const result = runHostRun(baseArgs({ root: sub, host: 'codex', phase: 'adhoc' }), { runner: makeRunner({ stdout: CODEX_STDOUT }) });
+    const result = await runHostRun(baseArgs({ root: sub, host: 'codex', phase: 'adhoc' }), { runner: makeRunner({ stdout: CODEX_STDOUT }) });
     assert.equal(result.phase, 'adhoc');
     const records = readLedger(sub);
     for (const r of records) {
@@ -476,25 +484,27 @@ async function main(): Promise<void> {
     }
   });
 
-  check('CHK-002 edge: unknown storyId fails pre-spawn (runner never invoked)', () => {
+  await checkAsync('CHK-002 edge: unknown storyId (per configured store) fails pre-spawn (runner never invoked)', async () => {
     const sub = freshRoot();
     const sink: RunnerSink = { calls: 0, lastPlan: null };
-    assert.throws(
-      () => runHostRun(baseArgs({ root: sub, host: 'codex', storyId: 'B-9999' }), { runner: makeRunner({ stdout: CODEX_STDOUT }, sink) }),
+    await assert.rejects(
+      () => runHostRun(
+        baseArgs({ root: sub, host: 'codex', storyId: 'B-9999' }),
+        { runner: makeRunner({ stdout: CODEX_STDOUT }, sink), resolveStory: fakeStoreResolver({ 'B-70e9': 'REVIEW' }) },
+      ),
       /unknown story/i,
     );
     assert.equal(sink.calls, 0, 'no spawn on unknown story');
     assert.equal(existsSync(resolveLedgerPath(sub)), false, 'no rows written for an unknown-story refusal');
   });
 
-  check('CHK-002 adversarial: cross-story reviewRunId refused pre-spawn (runner never invoked)', () => {
+  await checkAsync('CHK-002 adversarial: cross-story reviewRunId refused pre-spawn (runner never invoked)', async () => {
     const sub = freshRoot();
-    seedStoryIndex(sub, 'B-70e9', 'REVIEW');
     const sink: RunnerSink = { calls: 0, lastPlan: null };
-    assert.throws(
+    await assert.rejects(
       () => runHostRun(
         baseArgs({ root: sub, host: 'codex', storyId: 'B-70e9', reviewRunId: 'B-1234:RR-009' }),
-        { runner: makeRunner({ stdout: CODEX_STDOUT }, sink) },
+        { runner: makeRunner({ stdout: CODEX_STDOUT }, sink), resolveStory: fakeStoreResolver({ 'B-70e9': 'REVIEW' }) },
       ),
       /does not belong to story/i,
     );
@@ -502,13 +512,136 @@ async function main(): Promise<void> {
   });
 
   // =========================================================================
+  // F-005: story metadata resolves through the configured store, NOT a hard-coded
+  // .lattice/story/actives path; an explicit --phase never reads the store.
+  // =========================================================================
+  await checkAsync('F-005: explicit --phase is honored AS-IS with NO story-store read (fake resolver never consulted)', async () => {
+    const sub = freshRoot();
+    let resolverCalls = 0;
+    const resolveStory: HostRunStoryResolver = (id: string) => {
+      resolverCalls += 1;
+      return id === 'B-70e9' ? { phase: 'REVIEW' } : null;
+    };
+    const sink: RunnerSink = { calls: 0, lastPlan: null };
+    const result = await runHostRun(
+      baseArgs({ root: sub, host: 'codex', storyId: 'B-70e9', phase: 'DEV' }),
+      { runner: makeRunner({ stdout: CODEX_STDOUT }, sink), resolveStory },
+    );
+    assert.equal(result.phase, 'DEV', 'explicit --phase used verbatim');
+    assert.equal(resolverCalls, 0, 'the configured store is NEVER consulted when --phase is explicit');
+    assert.equal(sink.calls, 1, 'the host still launches');
+  });
+
+  await checkAsync('F-005: unknown story is NOT refused when --phase overrides (the exact configured-storyDir bug)', async () => {
+    const sub = freshRoot();
+    const sink: RunnerSink = { calls: 0, lastPlan: null };
+    // The resolver would refuse B-9999 (unknown per the store), but --phase means
+    // the store is never asked, so the host launches. Under the old hard-coded
+    // .lattice/story/actives read this was refused pre-spawn.
+    const result = await runHostRun(
+      baseArgs({ root: sub, host: 'codex', storyId: 'B-9999', phase: 'REVIEW' }),
+      { runner: makeRunner({ stdout: CODEX_STDOUT }, sink), resolveStory: fakeStoreResolver({ 'B-70e9': 'REVIEW' }) },
+    );
+    assert.equal(sink.calls, 1, 'host launches even though the store does not know B-9999');
+    assert.equal(result.phase, 'REVIEW', 'explicit phase honored');
+    assert.equal(result.spawned, true);
+  });
+
+  await checkAsync('F-005: storyId with a store phase of null falls back to adhoc (no fabricated phase)', async () => {
+    const sub = freshRoot();
+    const result = await runHostRun(
+      baseArgs({ root: sub, host: 'codex', storyId: 'B-70e9' }),
+      { runner: makeRunner({ stdout: CODEX_STDOUT }), resolveStory: () => ({ phase: null }) },
+    );
+    assert.equal(result.phase, 'adhoc', 'a store with no recorded phase resolves to adhoc');
+  });
+
+  // =========================================================================
+  // F-006: the DEFAULT production runner streams host output live (async spawn),
+  // retains only bounded usage state, and never OOMs / fabricates on huge lines.
+  // =========================================================================
+  await checkAsync('F-006: default runner streams stdout live — first line reaches the sink BEFORE process exit', async () => {
+    const chunks: Array<{ stream: string; text: string; at: number }> = [];
+    // Print a line immediately, sleep, then print the usage event line. If the
+    // runner buffered (old spawnSync), the first line would only arrive at exit.
+    const script =
+      'process.stdout.write("hello-live\\n");' +
+      'setTimeout(function(){process.stdout.write(JSON.stringify({type:"turn.completed",usage:{input_tokens:5,cached_input_tokens:0,output_tokens:2}})+"\\n");}, 150);';
+    const result = await defaultHostRunRunner({
+      command: process.execPath,
+      argv: ['-e', script],
+      env: process.env,
+      host: 'codex',
+      retainUsageLine: usageLineRetainerFor('codex'),
+      onChunk: (c: HostRunChunk) => chunks.push({ stream: c.stream, text: c.text, at: Date.now() }),
+    });
+    const resolvedAt = Date.now();
+    const first = chunks.find((c) => c.text.includes('hello-live'));
+    assert.ok(first, 'the first line streamed through the passthrough');
+    assert.ok(
+      resolvedAt - first!.at >= 80,
+      `first line was delivered live, well before exit (gap ${resolvedAt - first!.at}ms >= the host sleep, proving streaming not buffering)`,
+    );
+    assert.equal(result.exitCode, 0);
+    // Only the BOUNDED usage line is retained for parsing (not the first line).
+    const usage = scanCodexTurnCompletedUsage(result.stdout) as Record<string, unknown> | null;
+    assert.ok(usage && usage.input_tokens === 5, 'the retained usage line parses to the reported counts');
+    assert.equal(result.retentionTruncated, false, 'a normal line is not flagged truncated');
+  });
+
+  await checkAsync('F-006: host output is delivered through the passthrough EXACTLY once (no double-print) with a buffered runner', async () => {
+    const sub = freshRoot();
+    const seen: string[] = [];
+    const passthrough: HostRunPassthrough = (c) => { if (c.stream === 'stdout') seen.push(c.text); };
+    // A buffered fake runner streams nothing live; the core flushes its stdout to
+    // the passthrough once. The handler returns '' in text mode, so there is no
+    // second copy.
+    const result = await runHostRun(
+      baseArgs({ root: sub, host: 'codex' }),
+      { runner: makeRunner({ stdout: CODEX_STDOUT }), passthrough },
+    );
+    const occurrences = seen.join('').split('turn.completed').length - 1;
+    assert.equal(occurrences, 1, 'buffered host stdout reached the passthrough exactly once');
+    assert.equal(result.spawned, true);
+  });
+
+  await checkAsync('F-006: an oversized single usage line is bounded (dropped + truncation flag) -> no parse target, never OOM/fabrication', async () => {
+    // Build a turn.completed line whose padding pushes it past the 1 MiB cap.
+    const padLen = HOST_RUN_RETAINED_LINE_CAP + 4096;
+    const script =
+      `var pad="a".repeat(${padLen});` +
+      'process.stdout.write(JSON.stringify({type:"turn.completed",usage:{input_tokens:1,cached_input_tokens:0,output_tokens:1},pad:pad})+"\\n");';
+    const result = await defaultHostRunRunner({
+      command: process.execPath,
+      argv: ['-e', script],
+      env: process.env,
+      host: 'codex',
+      retainUsageLine: usageLineRetainerFor('codex'),
+      onChunk: () => { /* discard live (bounded memory) */ },
+    });
+    assert.equal(result.retentionTruncated, true, 'the over-cap line is flagged truncated');
+    assert.equal(result.stdout, '', 'the over-cap line is NOT retained as a parse target');
+    assert.equal(scanCodexTurnCompletedUsage(result.stdout), null, 'no usage can be parsed from an empty retention');
+
+    // End-to-end: an empty retention (the bounded-drop outcome) records an honest
+    // `unavailable` final via the seam, never a fabricated count.
+    const sub = freshRoot();
+    const summ = await runHostRun(
+      baseArgs({ root: sub, host: 'codex' }),
+      { runner: makeRunner({ stdout: '' }) },
+    );
+    assert.equal(summ.usageSummary.recorded, 'unavailable', 'empty retention -> unavailable, not a fabricated zero');
+    assert.equal(summ.usageSummary.input, null);
+  });
+
+  // =========================================================================
   // CHK-007a: hard-budget cap
   // =========================================================================
-  check('CHK-007a budget: over-budget preflight refuses before spawn, writes blocked row (hard_budget_exceeded)', () => {
+  await checkAsync('CHK-007a budget: over-budget preflight refuses before spawn, writes blocked row (hard_budget_exceeded)', async () => {
     const sub = freshRoot();
     const sink: RunnerSink = { calls: 0, lastPlan: null };
     const env = { LATTICE_USAGE_LEDGER: '1', LATTICE_HARD_BUDGET_TOKENS: '1' } as NodeJS.ProcessEnv;
-    const result = runHostRun(baseArgs({ root: sub, host: 'codex', env }), { runner: makeRunner({ stdout: CODEX_STDOUT }, sink) });
+    const result = await runHostRun(baseArgs({ root: sub, host: 'codex', env }), { runner: makeRunner({ stdout: CODEX_STDOUT }, sink) });
     assert.equal(sink.calls, 0, 'runner NOT invoked when over budget');
     assert.equal(result.blocked, true);
     assert.equal(result.spawned, false);
@@ -521,12 +654,12 @@ async function main(): Promise<void> {
     assert.ok(records.some((r) => r.usage.source === 'prompt-size-estimate'), 'preflight estimate present');
   });
 
-  check('CHK-007a budget (F-004): blocked rows are provider-honest — codex=openai, claude=anthropic (legacy shape byte-compat)', () => {
+  await checkAsync('CHK-007a budget (F-004): blocked rows are provider-honest — codex=openai, claude=anthropic (legacy shape byte-compat)', async () => {
     const env = { LATTICE_USAGE_LEDGER: '1', LATTICE_HARD_BUDGET_TOKENS: '1' } as NodeJS.ProcessEnv;
 
     // codex budget refusal -> provider.name openai (was mis-attributed anthropic).
     const sub1 = freshRoot();
-    const r1 = runHostRun(baseArgs({ root: sub1, host: 'codex', env }), { runner: makeRunner({ stdout: CODEX_STDOUT }) });
+    const r1 = await runHostRun(baseArgs({ root: sub1, host: 'codex', env }), { runner: makeRunner({ stdout: CODEX_STDOUT }) });
     assert.equal(r1.blocked, true);
     const b1 = readLedger(sub1).find((r) => r.decision.kind === 'blocked');
     assert.ok(b1, 'codex blocked row written');
@@ -536,7 +669,7 @@ async function main(): Promise<void> {
     // claude budget refusal -> provider.name anthropic, and the legacy blocked-row
     // shape is unchanged (source/estimator/model default byte-compat).
     const sub2 = freshRoot();
-    const r2 = runHostRun(baseArgs({ root: sub2, host: 'claude', env }), { runner: makeRunner({ stdout: CLAUDE_STDOUT }) });
+    const r2 = await runHostRun(baseArgs({ root: sub2, host: 'claude', env }), { runner: makeRunner({ stdout: CLAUDE_STDOUT }) });
     assert.equal(r2.blocked, true);
     const b2 = readLedger(sub2).find((r) => r.decision.kind === 'blocked');
     assert.ok(b2, 'claude blocked row written');
@@ -551,12 +684,12 @@ async function main(): Promise<void> {
   // =========================================================================
   // CHK-007b: concurrency cap
   // =========================================================================
-  check('CHK-007b concurrency: 5th run under cap 4 refuses, writes blocked row (concurrency_cap_exceeded)', () => {
+  await checkAsync('CHK-007b concurrency: 5th run under cap 4 refuses, writes blocked row (concurrency_cap_exceeded)', async () => {
     const sub = freshRoot();
     const dir = hostRunSlotsDir(sub);
     for (let i = 0; i < 4; i++) seedSlot(dir, i, process.pid); // slot-0..slot-3 held live
     const sink: RunnerSink = { calls: 0, lastPlan: null };
-    const result = runHostRun(baseArgs({ root: sub, host: 'codex' }), { runner: makeRunner({ stdout: CODEX_STDOUT }, sink) });
+    const result = await runHostRun(baseArgs({ root: sub, host: 'codex' }), { runner: makeRunner({ stdout: CODEX_STDOUT }, sink) });
     assert.equal(sink.calls, 0, 'runner NOT invoked when at the concurrency cap');
     assert.equal(result.blocked, true);
     assert.equal(result.refusalReason, 'concurrency_cap_exceeded');
@@ -573,31 +706,31 @@ async function main(): Promise<void> {
     assert.equal(ledgerText.includes('2000-01-01T00:00:00.000Z'), false, 'slot startedAt marker must not appear in the ledger');
   });
 
-  check('CHK-007b concurrency: dead-pid slot is reclaimed so the run proceeds', () => {
+  await checkAsync('CHK-007b concurrency: dead-pid slot is reclaimed so the run proceeds', async () => {
     const sub = freshRoot();
     const dir = hostRunSlotsDir(sub);
     const dead = seedSlot(dir, 0, DEAD_PID);
     const sink: RunnerSink = { calls: 0, lastPlan: null };
-    const result = runHostRun(baseArgs({ root: sub, host: 'codex' }), { runner: makeRunner({ stdout: CODEX_STDOUT }, sink) });
+    const result = await runHostRun(baseArgs({ root: sub, host: 'codex' }), { runner: makeRunner({ stdout: CODEX_STDOUT }, sink) });
     assert.equal(existsSync(dead), false, 'dead-pid slot reclaimed (reused + released)');
     assert.equal(sink.calls, 1, 'run proceeds after reclaim');
     assert.equal(result.blocked, false);
   });
 
-  check('CHK-007b concurrency: stale-mtime slot (live pid) is reclaimed by the staleness backstop', () => {
+  await checkAsync('CHK-007b concurrency: stale-mtime slot (live pid) is reclaimed by the staleness backstop', async () => {
     const sub = freshRoot();
     const dir = hostRunSlotsDir(sub);
     const stale = seedSlot(dir, 0, process.pid);
     const old = new Date(Date.now() - 7 * 60 * 60 * 1000); // 7h > 6h window
     utimesSync(stale, old, old);
     const sink: RunnerSink = { calls: 0, lastPlan: null };
-    const result = runHostRun(baseArgs({ root: sub, host: 'codex' }), { runner: makeRunner({ stdout: CODEX_STDOUT }, sink) });
+    const result = await runHostRun(baseArgs({ root: sub, host: 'codex' }), { runner: makeRunner({ stdout: CODEX_STDOUT }, sink) });
     assert.equal(existsSync(stale), false, 'stale slot reclaimed by mtime backstop');
     assert.equal(sink.calls, 1);
     assert.equal(result.blocked, false);
   });
 
-  check('CHK-007b adversarial (F-003): cap=1 real contention — second admission fails while the first holds (index wx IS the cap decision)', () => {
+  await checkAsync('CHK-007b adversarial (F-003): cap=1 real contention — second admission fails while the first holds (index wx IS the cap decision)', async () => {
     const sub = freshRoot();
     const dir = hostRunSlotsDir(sub);
     const staleMs = 6 * 60 * 60 * 1000;
@@ -614,7 +747,7 @@ async function main(): Promise<void> {
     // fail-closed with the blocked row attributed to antigravity (F-004).
     const sink: RunnerSink = { calls: 0, lastPlan: null };
     const env = { LATTICE_USAGE_LEDGER: '1', LATTICE_HOST_RUN_MAX_CONCURRENT: '1' } as NodeJS.ProcessEnv;
-    const result = runHostRun(baseArgs({ root: sub, host: 'agy', env }), { runner: makeRunner({ stdout: AGY_STDOUT }, sink) });
+    const result = await runHostRun(baseArgs({ root: sub, host: 'agy', env }), { runner: makeRunner({ stdout: AGY_STDOUT }, sink) });
     assert.equal(sink.calls, 0, 'runner NOT invoked under contention refusal');
     assert.equal(result.blocked, true);
     assert.equal(result.refusalReason, 'concurrency_cap_exceeded');

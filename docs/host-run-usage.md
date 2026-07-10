@@ -31,12 +31,31 @@ lattice host_run --host <codex|claude|agy> --agentType <type> \
   [--timeoutMs <ms>] [--agyPrintTimeout 30m] [--json]
 ```
 
-The host stdout streams through live. On success the command returns the host
-stdout and writes a one-line usage summary to stderr, for example:
+The host stdout streams through **live**: the default production runner is an
+async `child_process.spawn`, and host output passes through to the parent as it
+arrives (no buffering-until-exit, no `maxBuffer` truncation). A one-line usage
+summary is written to stderr, for example:
 
 ```
 usage recorded: provider=openai input=10202 cacheRead=11008 output=85 (recordId llmuse_...)
 ```
+
+Only a **bounded** amount of state is retained for usage parsing — the last
+usage-bearing line (codex `turn.completed` / the claude `result` envelope),
+capped at 1 MiB per line. A line over the cap is dropped (not retained) and the
+usage final records `unavailable` rather than a fabricated value, so a flooding
+host can never exhaust memory or manufacture a count.
+
+### Passthrough routing (text vs `--json`)
+
+| Mode | Host stdout | Host stderr | Process stdout carries |
+|---|---|---|---|
+| text (default) | streamed live to **process.stdout** | streamed live to **process.stderr** | the live host stdout (the handler does not re-print it — no double-print) |
+| `--json` | streamed live to **process.stderr** | streamed live to **process.stderr** | ONLY the single JSON result line (kept clean) |
+
+In `--json` mode the full host transcript is delivered live on **stderr** so that
+**stdout stays clean** for the one JSON result; the JSON `stdout` field therefore
+carries only the bounded usage-parse tail, not the full transcript.
 
 Exactly one of `--prompt` / `--promptFile` is required. A host non-zero exit (or
 a cap refusal) propagates as a non-zero process exit; in `--json` mode the
@@ -77,7 +96,7 @@ Every usage row carries the attribution passed to `host_run`:
 |---|---|---|
 | `--storyId` | `storyId` | Canonical Story id. Omit for an adhoc run. |
 | `--agentType` | `agentType` | e.g. `reviewer`, `autopilot-repair`, `host-readiness-probe`. Required. |
-| `--phase` | `phase` | When omitted and `--storyId` is set, the phase resolves from the story index at call time. |
+| `--phase` | `phase` | When omitted and `--storyId` is set, the phase resolves from the **configured story store** at call time (honoring a project's `storyDir`); an explicit `--phase` is used as-is and the store is never read. |
 | `--reviewRunId` | `threadId` | e.g. `B-xxxx:RR-001`. Joins rows against `review-runs.json`. |
 | `--lane` | `subagentId` | e.g. `lattice-review-quality`. |
 
@@ -85,6 +104,12 @@ Every usage row carries the attribution passed to `host_run`:
 ledger row can never silently mis-join across stories — a mismatch is refused
 before any host is spawned. Omitting `--reviewRunId` / `--lane` leaves
 `threadId` / `subagentId` null (no empty-string pollution).
+
+When `--storyId` is given **without** `--phase`, the phase is resolved through the
+configured story store; a story unknown to that store is refused pre-spawn. When
+`--phase` is supplied the store is never consulted, so `--phase` works with or
+without `--storyId` even in a project whose story metadata lives under a
+custom `storyDir`.
 
 ## Per-host usage semantics
 

@@ -9,8 +9,20 @@
  *
  * Design:
  *   - PURE-ISH CORE with an INJECTED runner (like providers/*-cli.ts) so smokes
- *     drive it with fake hosts and no real subprocess. The default runner is a
- *     piped spawnSync; the HANDLER (not this core) echoes captured stdout.
+ *     drive it with fake hosts and no real subprocess. The default PRODUCTION
+ *     runner is an ASYNC child_process.spawn that PASSES HOST OUTPUT THROUGH LIVE
+ *     (F-006): stdout/stderr chunks reach the injected `passthrough` sink as they
+ *     arrive, and only BOUNDED state is retained for usage parsing (the last
+ *     usage-bearing line — codex turn.completed / the claude result envelope —
+ *     capped per line, with an honest truncation flag so a parse miss records
+ *     `unavailable` and never a fabricated value). The core delivers host output
+ *     to the passthrough EXACTLY ONCE (live for the streaming runner; a single
+ *     buffered flush for a non-streaming fake runner), so the HANDLER never
+ *     re-prints it.
+ *   - F-005: this core keeps ZERO story-path/config knowledge. Phase + story
+ *     existence are resolved through the injected `resolveStory` seam (the HANDLER
+ *     builds it from the configured StoryStore); an explicit --phase is honored
+ *     as-is WITHOUT consulting the store at all.
  *   - The ledger seam mirrors runClaudeCodeRealLeafDispatch (lattice-dispatch.ts):
  *     preflight estimate (sequence 1) -> budget guard -> concurrency guard ->
  *     spawn -> provider/unavailable final (sequence 2, supersedes the estimate).
@@ -21,7 +33,7 @@
  *     (the single thin import surface); it never reaches into other ledger modules.
  */
 
-import { spawnSync } from 'node:child_process';
+import { spawn } from 'node:child_process';
 import {
   existsSync,
   mkdirSync,
@@ -57,7 +69,31 @@ import {
 
 export type HostRunHost = CanonicalReviewHost;
 
-/** The plan handed to the injected runner (or the default spawnSync runner). */
+/** A single live output chunk from a host, as it arrives. */
+export interface HostRunChunk {
+  stream: 'stdout' | 'stderr';
+  text: string;
+}
+
+/**
+ * Live passthrough sink: the default streaming runner (via the core) forwards
+ * every host chunk here as it arrives. The HANDLER supplies the real sink and
+ * decides routing (text mode: stdout->process.stdout, stderr->process.stderr;
+ * json mode: EVERYTHING->process.stderr so process.stdout stays clean for the
+ * JSON result). The core default is a no-op so smokes stay quiet unless they
+ * inject a recording sink.
+ */
+export type HostRunPassthrough = (chunk: HostRunChunk) => void;
+
+/**
+ * A predicate over a COMPLETE host output line: does this line carry the
+ * usage-bearing event the default runner must retain for parsing? The streaming
+ * runner keeps only the LAST line for which this returns true (bounded state).
+ * When omitted (agy, which surfaces no usage) nothing is retained.
+ */
+export type HostRunUsageLineRetainer = (line: string) => boolean;
+
+/** The plan handed to the injected runner (or the default streaming runner). */
 export interface HostRunSpawnPlan {
   /** Executable name (host command: codex / claude / agy). */
   command: string;
@@ -68,23 +104,57 @@ export interface HostRunSpawnPlan {
   timeoutMs?: number;
   /** The absolute prompt-file path for claude (informational; runner reads argv). */
   promptFile?: string;
+  /** The launcher host (lets the default runner pick the right usage-line scanner). */
+  host?: HostRunHost;
+  /** Which complete lines to retain for usage parsing (bounded, last-wins). */
+  retainUsageLine?: HostRunUsageLineRetainer;
+  /** Live passthrough for host output chunks (the streaming runner calls this). */
+  onChunk?: (chunk: HostRunChunk) => void;
 }
 
-/** What the injected runner returns after the host run completes. */
+/**
+ * What the injected runner returns after the host run completes.
+ *
+ * NOTE (F-006): for the default STREAMING runner `stdout` is the BOUNDED
+ * usage-parse text (the last retained usage-bearing line, capped) — NOT a full
+ * transcript. The full transcript is delivered live via the passthrough. Fake
+ * runners may still return the full buffered stdout (small in tests); the core
+ * treats `stdout` uniformly as "the text to parse for usage", and both the codex
+ * and claude parsers accept a single line or a multi-line buffer.
+ */
 export interface HostRunSpawnResult {
   stdout: string;
   stderr: string;
   exitCode: number;
   timedOut: boolean;
+  /**
+   * True when a retained line exceeded the per-line cap and was dropped rather
+   * than retained. The usage final then records `unavailable` (never a fabricated
+   * value) because there is no reliable parse target.
+   */
+  retentionTruncated?: boolean;
 }
 
-export type HostRunRunner = (plan: HostRunSpawnPlan) => HostRunSpawnResult;
+export type HostRunRunner = (plan: HostRunSpawnPlan) => HostRunSpawnResult | Promise<HostRunSpawnResult>;
+
+/** Story metadata the core needs for phase attribution (resolved by the handler). */
+export interface HostRunStoryMeta {
+  /** The story's current phase, or null when the store has none recorded. */
+  phase: string | null;
+}
+
+/**
+ * F-005 seam: resolve a story's metadata through the CONFIGURED store. Returns
+ * null when the story does not exist per that store (so the core can refuse an
+ * unknown story pre-spawn). The core never touches a story path itself.
+ */
+export type HostRunStoryResolver = (storyId: string) => HostRunStoryMeta | null;
 
 export interface HostRunArgs {
   host: HostRunHost;
   storyId: string | null;
   agentType: string;
-  /** When omitted and storyId is set, resolved from the story index; else 'adhoc'. */
+  /** When omitted and storyId is set, resolved from the configured store; else 'adhoc'. */
   phase?: string;
   promptText: string;
   /** Optional label for diagnostics only (never stored raw). */
@@ -101,8 +171,16 @@ export interface HostRunArgs {
 }
 
 export interface HostRunDeps {
-  /** Injected runner (default: piped spawnSync). */
+  /** Injected runner (default: the async streaming child_process.spawn runner). */
   runner?: HostRunRunner;
+  /**
+   * F-005: resolve story phase + existence via the configured store. Required in
+   * production for a story-bound run with no explicit --phase; smokes inject a
+   * fake resolver. Omitting it is only valid for adhoc / explicit-phase runs.
+   */
+  resolveStory?: HostRunStoryResolver;
+  /** F-006: live host-output passthrough sink (default: no-op). */
+  passthrough?: HostRunPassthrough;
 }
 
 /** A compact description of what the ledger recorded for this run. */
@@ -139,7 +217,6 @@ export interface HostRunResult {
 /** Nonzero process-exit sentinel for a fail-closed cap refusal. */
 export const HOST_RUN_REFUSAL_EXIT_CODE = 3;
 
-const STORY_ACTIVES_RELATIVE = join('.lattice', 'story', 'actives');
 const HOST_RUN_SLOTS_RELATIVE = join('.lattice', 'usage', 'host-run-slots');
 
 export const HOST_RUN_MAX_CONCURRENT_DEFAULT = 4;
@@ -166,32 +243,39 @@ function hostProviderName(host: HostRunHost): string {
 }
 
 /**
- * Resolve the attribution phase. When storyId is set, the story index MUST exist
- * (unknown storyId fails fast, pre-spawn); phase comes from an explicit arg else
- * the story's current phase. When storyId is null, the run is adhoc.
+ * Resolve the attribution phase WITHOUT any story-path/config knowledge (F-005).
+ *
+ *   - storyId null            -> explicit phase else 'adhoc' (no store read).
+ *   - explicit --phase given  -> used AS-IS, the store is NEVER consulted (so an
+ *                                explicit phase works with or without a storyId,
+ *                                even if the store cannot resolve the story).
+ *   - storyId + no --phase    -> resolved through the injected `resolveStory`
+ *                                seam; an unknown story (resolver returns null)
+ *                                refuses pre-spawn with a clear error.
+ *
+ * The store is only ever touched on the storyId+no-phase path, which is exactly
+ * the case the configured StoryStore can answer.
  */
-function resolvePhase(root: string, storyId: string | null, explicitPhase: string | undefined): string {
+function resolvePhase(
+  storyId: string | null,
+  explicitPhase: string | undefined,
+  resolveStory: HostRunStoryResolver | undefined,
+): string {
   if (storyId === null) {
     return explicitPhase && explicitPhase.length > 0 ? explicitPhase : 'adhoc';
   }
-  const indexPath = join(root, STORY_ACTIVES_RELATIVE, storyId, 'index.json');
-  let raw: string;
-  try {
-    raw = readFileSync(indexPath, 'utf8');
-  } catch {
-    throw new Error(`host_run: unknown story "${storyId}" (no ${STORY_ACTIVES_RELATIVE}/${storyId}/index.json); refuse pre-spawn`);
-  }
   if (explicitPhase && explicitPhase.length > 0) return explicitPhase;
-  try {
-    const parsed = JSON.parse(raw) as unknown;
-    if (typeof parsed === 'object' && parsed !== null && Object.prototype.hasOwnProperty.call(parsed, 'phase')) {
-      const phase = (parsed as Record<string, unknown>).phase;
-      if (typeof phase === 'string' && phase.length > 0) return phase;
-    }
-  } catch {
-    // fall through to a defensive default
+  if (!resolveStory) {
+    throw new Error(
+      `host_run: cannot resolve a phase for story "${storyId}" without --phase and without a configured story resolver ` +
+      `(internal: the handler must inject resolveStory); pass --phase or run adhoc`,
+    );
   }
-  return 'adhoc';
+  const meta = resolveStory(storyId);
+  if (meta === null) {
+    throw new Error(`host_run: unknown story "${storyId}" (not found in the configured story store); refuse pre-spawn`);
+  }
+  return meta.phase && meta.phase.length > 0 ? meta.phase : 'adhoc';
 }
 
 /**
@@ -487,29 +571,219 @@ export function scanCodexTurnCompletedUsage(stdout: string): unknown | null {
 }
 
 // ---------------------------------------------------------------------------
-// Default runner
+// Default runner (F-006): async streaming spawn with bounded usage retention
 // ---------------------------------------------------------------------------
 
-function defaultHostRunRunner(plan: HostRunSpawnPlan): HostRunSpawnResult {
-  const result = spawnSync(plan.command, plan.argv, {
-    cwd: plan.cwd,
-    env: plan.env,
-    encoding: 'utf8',
-    timeout: plan.timeoutMs,
-    maxBuffer: 64 * 1024 * 1024,
-    input: '',
+/** Per-retained-line cap. A single line over this is dropped (not retained). */
+export const HOST_RUN_RETAINED_LINE_CAP = 1024 * 1024; // 1 MiB
+
+/**
+ * A memory-BOUNDED line scanner. It reads host stdout chunk-by-chunk and keeps
+ * only the LAST complete line for which `retain(line)` is true, capped at
+ * HOST_RUN_RETAINED_LINE_CAP. A line that exceeds the cap (with or without a
+ * terminating newline) is DROPPED and flagged truncated — never retained as a
+ * bogus parse target and never accumulated in full (an over-cap line switches to
+ * skip-until-newline mode, so a flooding host cannot exhaust memory).
+ */
+export class UsageLineScanner {
+  private partial = '';
+  private retained: string | null = null;
+  private truncatedFlag = false;
+  private skipping = false;
+
+  constructor(
+    private readonly retain: HostRunUsageLineRetainer | undefined,
+    private readonly cap: number = HOST_RUN_RETAINED_LINE_CAP,
+  ) {}
+
+  push(text: string): void {
+    if (!this.retain || text.length === 0) return;
+    let data = text;
+    while (data.length > 0) {
+      const nl = data.indexOf('\n');
+      if (nl === -1) {
+        if (this.skipping) return; // still dropping an over-cap line
+        if (this.partial.length + data.length > this.cap) {
+          // This line has already blown the cap without a newline: drop it and
+          // skip until its newline (bounded memory).
+          this.truncatedFlag = true;
+          this.skipping = true;
+          this.partial = '';
+          return;
+        }
+        this.partial += data;
+        return;
+      }
+      const segment = data.slice(0, nl);
+      data = data.slice(nl + 1);
+      if (this.skipping) {
+        // Reached the newline that ends the over-cap line: resume normal scan.
+        this.skipping = false;
+        this.partial = '';
+        continue;
+      }
+      if (this.partial.length + segment.length > this.cap) {
+        this.truncatedFlag = true;
+        this.partial = '';
+        continue; // drop this over-cap line
+      }
+      const line = this.partial + segment;
+      this.partial = '';
+      this.consider(line);
+    }
+  }
+
+  /** Fold any trailing partial (a final line with no newline) into the scan. */
+  flush(): void {
+    if (!this.retain) return;
+    if (this.skipping) {
+      this.skipping = false;
+      this.partial = '';
+      return;
+    }
+    if (this.partial.length > 0) this.consider(this.partial);
+    this.partial = '';
+  }
+
+  private consider(line: string): void {
+    if (line.length > this.cap) {
+      this.truncatedFlag = true;
+      return;
+    }
+    try {
+      if (this.retain && this.retain(line)) this.retained = line;
+    } catch {
+      // A retain predicate must never throw; ignore a malformed line.
+    }
+  }
+
+  /** The retained usage-bearing line (or '' when none was retained). */
+  retainedText(): string {
+    return this.retained ?? '';
+  }
+
+  get truncated(): boolean {
+    return this.truncatedFlag;
+  }
+}
+
+/**
+ * Build the per-host usage-line retainer. codex keeps the last `turn.completed`
+ * event that carries a usage object; claude keeps the last stream-json `result`
+ * envelope; agy has no usage surface, so nothing is retained.
+ */
+export function usageLineRetainerFor(host: HostRunHost): HostRunUsageLineRetainer | undefined {
+  if (host === 'codex') {
+    return (line: string): boolean => {
+      const event = parseJsonObjectLine(line);
+      if (event === null) return false;
+      const type = Object.prototype.hasOwnProperty.call(event, 'type') ? event.type : undefined;
+      if (type !== 'turn.completed') return false;
+      const usage = Object.prototype.hasOwnProperty.call(event, 'usage') ? event.usage : undefined;
+      return typeof usage === 'object' && usage !== null && !Array.isArray(usage);
+    };
+  }
+  if (host === 'claude') {
+    return (line: string): boolean => {
+      const event = parseJsonObjectLine(line);
+      if (event === null) return false;
+      const type = Object.prototype.hasOwnProperty.call(event, 'type') ? event.type : undefined;
+      const result = Object.prototype.hasOwnProperty.call(event, 'result') ? event.result : undefined;
+      return type === 'result' || typeof result === 'string';
+    };
+  }
+  return undefined;
+}
+
+function parseJsonObjectLine(line: string): Record<string, unknown> | null {
+  const trimmed = line.trim();
+  if (trimmed.length === 0) return null;
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(trimmed);
+  } catch {
+    return null;
+  }
+  if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) return null;
+  return parsed as Record<string, unknown>;
+}
+
+/**
+ * The default PRODUCTION runner: async child_process.spawn that streams host
+ * output to `plan.onChunk` as it arrives (live passthrough) while retaining only
+ * the bounded last usage-bearing line for parsing. Exit-code / timeout semantics
+ * match the previous piped implementation (SIGKILL on timeoutMs -> timedOut=true,
+ * exit 124; a spawn error -> exit 1).
+ */
+export function defaultHostRunRunner(plan: HostRunSpawnPlan): Promise<HostRunSpawnResult> {
+  return new Promise<HostRunSpawnResult>((resolve) => {
+    const scanner = new UsageLineScanner(plan.retainUsageLine);
+    let settled = false;
+    let timedOut = false;
+    let timer: NodeJS.Timeout | null = null;
+
+    const finish = (exitCode: number): void => {
+      if (settled) return;
+      settled = true;
+      if (timer) clearTimeout(timer);
+      scanner.flush();
+      resolve({
+        stdout: scanner.retainedText(),
+        stderr: '',
+        exitCode,
+        timedOut,
+        retentionTruncated: scanner.truncated,
+      });
+    };
+
+    let child;
+    try {
+      child = spawn(plan.command, plan.argv, {
+        cwd: plan.cwd,
+        env: plan.env,
+        stdio: ['pipe', 'pipe', 'pipe'],
+      });
+    } catch {
+      finish(1);
+      return;
+    }
+
+    // No stdin payload — mirror the previous `input: ''`.
+    try {
+      child.stdin?.end();
+    } catch {
+      // best-effort
+    }
+
+    if (plan.timeoutMs && plan.timeoutMs > 0) {
+      timer = setTimeout(() => {
+        timedOut = true;
+        try {
+          child.kill('SIGKILL');
+        } catch {
+          // best-effort
+        }
+      }, plan.timeoutMs);
+    }
+
+    child.stdout?.setEncoding('utf8');
+    child.stdout?.on('data', (text: string) => {
+      if (plan.onChunk) plan.onChunk({ stream: 'stdout', text });
+      scanner.push(text);
+    });
+    child.stderr?.setEncoding('utf8');
+    child.stderr?.on('data', (text: string) => {
+      if (plan.onChunk) plan.onChunk({ stream: 'stderr', text });
+    });
+
+    child.on('error', () => finish(timedOut ? 124 : 1));
+    child.on('close', (code, signal) => {
+      const timed = timedOut || signal === 'SIGKILL' || signal === 'SIGTERM';
+      timedOut = timed;
+      const exitCode = typeof code === 'number' ? code : timed ? 124 : 1;
+      finish(exitCode);
+    });
   });
-  const timedOut =
-    (!!result.error && /ETIMEDOUT|timed?\s*out/i.test(String(result.error.message))) ||
-    result.signal === 'SIGTERM' ||
-    result.signal === 'SIGKILL';
-  const exitCode = typeof result.status === 'number' ? result.status : timedOut ? 124 : 1;
-  return {
-    stdout: result.stdout ?? '',
-    stderr: result.stderr ?? '',
-    exitCode,
-    timedOut,
-  };
 }
 
 // ---------------------------------------------------------------------------
@@ -555,7 +829,7 @@ function disabledSummary(): HostRunUsageSummary {
  * reviewRunId) THROW pre-spawn; cap refusals return a blocked result (a ledger
  * blocked row is written) with a nonzero exit and NO spawn.
  */
-export function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): HostRunResult {
+export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Promise<HostRunResult> {
   if (args.host !== 'codex' && args.host !== 'claude' && args.host !== 'agy') {
     throw new Error(`host_run: unsupported host "${String(args.host)}" (expected codex | claude | agy)`);
   }
@@ -564,8 +838,44 @@ export function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): HostRunRe
   }
 
   const runner = deps.runner ?? defaultHostRunRunner;
-  const phase = resolvePhase(args.root, args.storyId, args.phase);
+  const passthrough = deps.passthrough ?? (() => {});
+  const phase = resolvePhase(args.storyId, args.phase, deps.resolveStory);
   assertReviewRunIdBinding(args.storyId, args.reviewRunId);
+
+  /**
+   * Invoke the runner with the live passthrough wired in. The streaming default
+   * runner delivers host output via onChunk as it arrives; a non-streaming fake
+   * runner delivers nothing live, so its buffered stdout/stderr is flushed to the
+   * passthrough ONCE here. Either way host output reaches the sink EXACTLY ONCE,
+   * so the handler never double-prints.
+   */
+  const invokeRunner = async (launch: MaterializedLaunch): Promise<HostRunSpawnResult> => {
+    let streamed = false;
+    const onChunk = (chunk: HostRunChunk): void => {
+      streamed = true;
+      passthrough(chunk);
+    };
+    let spawn: HostRunSpawnResult;
+    try {
+      spawn = await runner({
+        command: launch.command,
+        argv: launch.argv,
+        env: args.env,
+        timeoutMs: args.timeoutMs,
+        promptFile: launch.promptFile,
+        host: args.host,
+        retainUsageLine: usageLineRetainerFor(args.host),
+        onChunk,
+      });
+    } finally {
+      launch.cleanup();
+    }
+    if (!streamed) {
+      if (spawn.stdout.length > 0) passthrough({ stream: 'stdout', text: spawn.stdout });
+      if (spawn.stderr.length > 0) passthrough({ stream: 'stderr', text: spawn.stderr });
+    }
+    return spawn;
+  };
 
   const ctx: DispatchUsageContext = {
     storyId: args.storyId,
@@ -587,13 +897,7 @@ export function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): HostRunRe
   // OFF path: byte-identical to a raw launch — no preflight, no caps (no dirs), no
   // final. Just materialize argv + spawn + return.
   if (!ledgerOn) {
-    const launch = materializeLaunch(args);
-    let spawn: HostRunSpawnResult;
-    try {
-      spawn = runner({ command: launch.command, argv: launch.argv, env: args.env, timeoutMs: args.timeoutMs, promptFile: launch.promptFile });
-    } finally {
-      launch.cleanup();
-    }
+    const spawn = await invokeRunner(materializeLaunch(args));
     return {
       host: args.host,
       storyId: args.storyId,
@@ -698,12 +1002,10 @@ export function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): HostRunRe
     };
   }
 
-  const launch = materializeLaunch(args);
   let spawn: HostRunSpawnResult;
   try {
-    spawn = runner({ command: launch.command, argv: launch.argv, env: args.env, timeoutMs: args.timeoutMs, promptFile: launch.promptFile });
+    spawn = await invokeRunner(materializeLaunch(args));
   } finally {
-    launch.cleanup();
     releaseSlot(slotFile);
   }
 
