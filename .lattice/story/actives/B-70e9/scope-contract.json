@@ -63,8 +63,26 @@
       "phase": "REVIEW",
       "headHash": "bc966e3247b6d74ab11e955067d7b3d5951474da",
       "materialHash": "7f7bd81392f7c2d739a1b0f394eeeea5d4be7ce8acce5ec7a8539cb7d1be782c"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "F-014 (codex host-B, r7) requires the dynamic ownership rule for usage_sweep --out to live in resolveEffectiveOwnershipClass, which is defined in cli/ownership-gate.ts (the exact file where the precedent --write boundary rules for plan_skeleton/evidence_refresh/live_smoke_transcript/delivery_context_pack reside; a 20-line mirror addition). writer.ts re-acknowledged at the current head for the F-012 cross-process append lock (original ack scope-ack:1 bound to head bc966e3247; unchanged since, but the head advanced through review-metadata and F-013/F-014/F-015 commits). Both edits are finding-bound, smoke-covered, and reviewed by all four lanes plus codex host-B in subsequent rounds.",
+      "timestamp": "2026-07-10T11:16:06.217Z",
+      "paths": [
+        "packages/main/src/cli/ownership-gate.ts",
+        "packages/main/src/core/usage-ledger/writer.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/cli/ownership-gate.ts",
+        "packages/main/src/core/usage-ledger/writer.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "REVIEW",
+      "headHash": "2951090b79a1a94a469dcd6e7ecc08b10ee14c77",
+      "materialHash": "ed35292ecfbd8b36b85750393fd5fcedcfd093cc241e5edf07fad5cc70c2359d"
     }
   ],
   "createdAt": "2026-07-10T05:32:56.378Z",
-  "updatedAt": "2026-07-10T10:23:30.294Z"
+  "updatedAt": "2026-07-10T11:16:06.217Z"
 }

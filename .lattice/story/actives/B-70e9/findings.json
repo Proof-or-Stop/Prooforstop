@@ -301,7 +301,7 @@
       "desc": "[codex host-B, cross_host_review B-70e9-xhr-r7] usage_sweep --out bypasses read-only gates: the command is ownershipClass=readOnly / destructiveRisk=none (command-policy.ts ~471) but the handler creates a report file when --out is supplied; reviewer-readonly and retired-root gates allow effective readOnly commands, so a read-only reviewer session can still create arbitrary new files inside the project root and change the material tree. Fix direction: make usage_sweep dynamically mutating when args.out is non-empty (mirror the existing --write boundary rules in resolveEffectiveOwnershipClass) and update policy/process-fact/destructive-risk text, or reject --out under reviewer read-only/retired-root modes.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host-b",
       "createdAt": "2026-07-10T11:01:24.335Z",
@@ -313,7 +313,11 @@
         "packages/main/src/tasks/usage-sweep-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|codex-host-cross",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 2951090b79: resolveEffectiveOwnershipClass (cli/ownership-gate.ts) gains the usage_sweep rule mirroring the --write precedents - non-empty args.out resolves to storyScopedMutating (blocked by reviewer-readonly and retired-root gates), absent/blank --out stays readOnly; policy/process-fact text updated honestly; smoke check 17 asserts both branches as a pure resolver call. Failing-before: the resolver returned readOnly with out set, so reviewer gates allowed file creation.",
+      "resolvedAt": "2026-07-10T11:16:07.165Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-70e9:F-015",
