@@ -17,7 +17,9 @@
     "package.json",
     "CHANGELOG.md",
     "packages/main/src/core/registry-command-policy.ts",
-    "packages/main/src/registry.ts"
+    "packages/main/src/registry.ts",
+    "packages/main/src/cli/alias-normalizer.ts",
+    "packages/main/src/tasks/usage-ledger-budget-smoke.ts"
   ],
   "allowedCreate": [
     "packages/main/src/core/host-run.ts",
@@ -40,8 +42,8 @@
     ".lattice/**",
     "docs/requirements/decisions/**"
   ],
-  "scopeChangeReason": "Initial DEV scope contract derived from plan.md files declarations; ledger schema/writer/validator files are explicitly out of scope (single-writer invariant, no schema change needed).",
+  "scopeChangeReason": "DEV Stage A required two mechanical additions: cli/alias-normalizer.ts (1 line, host_run command registration mirror of dispatch_run) and tasks/usage-ledger-budget-smoke.ts (6 lines, its static import-boundary allowlist must name core/host-run.ts because plan CHK-007 mandates REUSING recordBudgetBlock, making host-run a legitimate budget-primitive importer). Forbidden ledger schema/writer files remain untouched.",
   "acknowledgements": [],
   "createdAt": "2026-07-10T05:32:56.378Z",
-  "updatedAt": "2026-07-10T05:32:56.378Z"
+  "updatedAt": "2026-07-10T06:12:28.173Z"
 }
