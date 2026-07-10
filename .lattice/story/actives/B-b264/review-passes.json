@@ -161,6 +161,26 @@
         "scanEscalationReason": null
       },
       "_hash": "0a86ef39e451b4c7597f3c80de6555a3ceb40b51bfee77927e168328a5e95ee9"
+    },
+    {
+      "id": "B-b264:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-3 coverage re-check after F-002 fix: gitStatusRowsForDonePrepareGeneratedMetadata now uses non-trimming gitRaw() (packages/main/src/core/done-prepare-generated-metadata.ts), preserving the first porcelain row leading status space. New direct-helper regression assertModifiedTrackedPathExactness (packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts) imports the core helper directly and asserts the first modified row matches /^ M \\./ and parseGitPorcelainRow keeps the leading dot in the path. All 9 must intents across CHK-001/002/003 have pass evidence bound to head 4dfe2a737 (F-002 fix commit), materialHash ba36c67.., storyFilesHash 53529a0... npm --prefix packages/main run test:done-prepare-merge-rerun-smoke passes directly (done-prepare-merge-rerun smoke passed). Full lattice validate (45 configured commands) allPass=true, verificationCoverage 9/9 covered, 0 missing, no warnings. No coverage gaps found; no blocker.",
+      "createdAt": "2026-07-10T05:58:12.574Z",
+      "reviewRound": "2026-07-10T05:34:01.890Z",
+      "reviewRunId": "B-b264:RR-009",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/dirty-worktree.js",
+          "packages/main/src/handlers/done-prepare.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a70bb208c7ef3afc7134af59ffdc1bb68964db9b5ad6243d55835f4bdd61d5f7"
     }
   ]
 }
