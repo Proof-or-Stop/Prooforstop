@@ -7,9 +7,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md#M0---Baseline-Inventory-And-Lockfile"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-10T03:37:11.454Z",
       "userSees": "User sees \"PASS proof-or-stop prompt baseline: roleCount=16 registry hashes verified\" in node scripts/verify-proof-or-stop-prompt-baseline.mjs output.",
       "files": {
         "modify": [
@@ -434,6 +434,17 @@
           "timestamp": "2026-07-10T03:37:04.411Z"
         }
       ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-10T03:37:11.454Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "M0 baseline JSON and verifier evidence committed in 961d52f6; verificationEvidence covers all CHK-001 intents."
     }
   ]
 }
