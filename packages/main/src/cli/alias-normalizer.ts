@@ -2,6 +2,7 @@ export const NESTED_SPACE_ALIASES: Record<string, string> = {
   'host list': 'host_list',
   'host probe': 'host_probe',
   'host status': 'host_status',
+  'host run': 'host_run',
   'host runtime list': 'host_runtime_list',
   'host runtime probe': 'host_runtime_probe',
   'host install': 'host_install',

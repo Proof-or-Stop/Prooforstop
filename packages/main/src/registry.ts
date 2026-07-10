@@ -118,6 +118,7 @@ import { createStoryResolveHandlers } from './handlers/story-resolve.js';
 import { createVerdictHandlers } from './handlers/verdict.js';
 import { createQuorumSubmitHandlers } from './handlers/quorum-submit.js';
 import { createCrossHostReviewHandlers } from './handlers/cross-host-review.js';
+import { createHostRunHandlers } from './handlers/host-run.js';
 import { createBaselineHandlers } from './handlers/baseline.js';
 import { createBaselineSuiteHandlers } from './handlers/baseline-suite.js';
 import { nextStoryId } from './handlers/context.js';
@@ -380,6 +381,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   registry.registerBatch(createVerdictHandlers(ctx));
   registry.registerBatch(createQuorumSubmitHandlers(ctx));
   registry.registerBatch(createCrossHostReviewHandlers(ctx));
+  registry.registerBatch(createHostRunHandlers(ctx));
   registry.registerBatch(createBaselineHandlers(ctx));
   registry.registerBatch(createBaselineSuiteHandlers(ctx));
   registry.registerBatch(createRolloutCheckHandlers(ctx));
