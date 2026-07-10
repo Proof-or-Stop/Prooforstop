@@ -1166,6 +1166,28 @@
         "scanEscalationReason": null
       },
       "_hash": "b877b4b581ba5f8b6c78361dcc2c226a90166cf7ec9d0b621e86f9800c55caf4"
+    },
+    {
+      "id": "B-70e9:RP-049",
+      "agent": "lattice-review-docs",
+      "note": "Round-14 re-review after fix 0042a4a1f4 (F-021 honest append-status). Fallback-1 full-text scan (docs-only commit, no exported-symbol diff anchor): compared the new docs/host-run-usage.md paragraph (lines 154-160, recorded=none / ledger_append_failed skipped state) against core/host-run.ts appendFailedSummary (line 900) and all 4 call sites (claude/codex/agy/retention-truncated, lines 1179/1197/1249/1283) plus dispatch-usage.ts DispatchFinalStatus/describeLedgerAppendFailure, and handlers/host-run.ts formatUsageLine (line 144, recorded=none falls through to \"usage: <reason>\" distinct from the \"usage recorded:\" prefix used by provider-reported/unavailable/disabled). All doc claims verified literally true: skipped state never claims usage recorded, provider still surfaced, counts null, applies to all three hosts. CHANGELOG.md B-70e9 entry (added earlier in story) makes no claim contradicted by this fix; no other .md touchpoints reference this surface. host-run-usage smoke 54/54 including the two new F-021 corrupt-ledger checks. No doc-code drift found.",
+      "createdAt": "2026-07-10T13:49:37.933Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-060",
+      "readManifest": {
+        "filesReadFully": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/handlers/host-run.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c8f2f4525616d6aa4891cda0b7265aa09e73e9a70ab67d790661da847dffed8d"
     }
   ]
 }
