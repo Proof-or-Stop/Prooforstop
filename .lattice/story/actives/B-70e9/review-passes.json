@@ -1767,6 +1767,23 @@
         "scanEscalationReason": null
       },
       "_hash": "51049cbdab7c62ac0ae316f214b36cf3c12bc116bd09325f67114cd259ca6156"
+    },
+    {
+      "id": "B-70e9:RP-073",
+      "agent": "lattice-review-docs",
+      "note": "Round 20 FINAL convergence pass. No .md changes since round-19 content commit (verified via git diff 2f42209a92..HEAD -- *.md: only unrelated stories B-2c03/B-8de3/B-bf15 internal metadata, not this story touchpoints). Confirmed main 0.3.183 merge (eb8499d417) touched only package.json/package-lock.json/lattice-brand.ts version-bump files, no intersection with docs/host-run-usage.md or CHANGELOG.md. Symbol set from Step 1: 0 new symbols since round 19. Fallback 1 no-op docs round. No doc-code drift found. No blockers.",
+      "createdAt": "2026-07-10T17:31:36.638Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-085",
+      "readManifest": {
+        "filesReadFully": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "21d54da2c0290000ccff43162b47dff3a302dbf1b4bc8f1a7c099cccc26619ad"
     }
   ]
 }
