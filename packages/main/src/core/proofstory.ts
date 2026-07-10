@@ -1510,12 +1510,23 @@ export function evaluateDoneIntentEquivalence(
     // separate zero-modifier path so the connector and word classes stay
     // disjoint and the scan stays linear; the noun uses alphanumeric
     // lookarounds instead of \b so underscore glue (remaining_work) matches.
-    const remainingStopWord = String.raw`(?:is|are|was|were|be|been|being|has|have|had|do|does|did|not|no|nor|it|its|this|that|these|those|they|them|to|of|in|on|at|by|for|from|with|as|but|so|than|then|there|here|when|while|which|who|whose|will|would|can|could|should|must|may|might)`;
-    const remainingModifierWord = String.raw`(?!${remainingStopWord}(?![a-z0-9'’()–—_-]))[a-z0-9'’()–—_-]+`;
+    // Chain-word taxonomy (codex round 4 + F-013): "of" is noun-phrase
+    // internal ("the remaining set of cases") so it is NOT a stop word, while
+    // state verbs (exist/linger/persist/continue/remain) mark a clause and
+    // are. Conjunctions are allowed only WITHOUT a preceding comma — bare
+    // "and" coordinates modifiers ("localization and reduced-motion edge
+    // cases") while ", and" coordinates clauses ("issues exist, and scope
+    // work continues") and must not bridge the chain. Modifier words accept
+    // '/' (UI/UX).
+    const remainingStopWord = String.raw`(?:is|are|was|were|be|been|being|has|have|had|do|does|did|not|no|nor|it|its|this|that|these|those|they|them|to|in|on|at|by|for|from|with|as|but|so|than|then|there|here|when|while|which|who|whose|will|would|can|could|should|must|may|might|exists?|existed|lingers?|lingered|persists?|persisted|continues?|continued|remains?|remained)`;
+    const remainingConjunction = String.raw`(?:and|or|yet|plus)`;
+    const remainingWordCharClass = String.raw`[a-z0-9'’()/–—_-]`;
+    const remainingModifierWord = String.raw`(?!(?:${remainingStopWord}|${remainingConjunction})(?!${remainingWordCharClass}))${remainingWordCharClass}+`;
+    const remainingChainStep = String.raw`(?:[,:]?\s+${remainingModifierWord}|\s+${remainingConjunction}(?!${remainingWordCharClass}))`;
     const remainingGlue = String.raw`(?:[/_–—-]|\.(?!\s))+`;
     const remainingScopeNoun = String.raw`(?<![A-Za-z0-9])(?:work|scope|items?|cases?|tasks?|milestones?|features?|functionality|coverage|requirements?|deliverables?)(?![A-Za-z0-9])`;
     const claimsShrinkageRegex = new RegExp(
-      String.raw`\b(?:partial|narrow(?:er|ed)?|shrink(?:age|s|ing)?|out[\s./_-]+of[\s./_-]+scope|not[\s./_-]+covered|deferred|remaining(?:[,:]?\s+${remainingModifierWord}){0,8}?(?:[,:]?\s+|${remainingGlue})${remainingScopeNoun}|excluded)\b`,
+      String.raw`\b(?:partial|narrow(?:er|ed)?|shrink(?:age|s|ing)?|out[\s./_-]+of[\s./_-]+scope|not[\s./_-]+covered|deferred|remaining${remainingChainStep}{0,8}?(?:[,:]?\s+|${remainingGlue})${remainingScopeNoun}|excluded)\b`,
       'i',
     );
     const claimsShrinkage = claimsShrinkageRegex.test(narrowingText);

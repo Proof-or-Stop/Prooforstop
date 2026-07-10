@@ -96,14 +96,27 @@ in a DIFFERENT clause — "remaining flaky tests, unrelated to this fix, cover
 edge cases" — reviving the CHK-003 false-positive class), and a third codex
 round showed pure word-count windows fail in the other direction (a genuine
 7-modifier chain with "and"; heading-style "Remaining:"). Word count cannot
-separate those cases — the distinguishing feature is CLAUSE STRUCTURE. Final
-form: the chain allows up to eight modifier words that must not be
-clause-marking stop words (verbs of being, pronouns, prepositions;
-conjunctions stay allowed), coordinate-adjective commas and a heading colon
-are accepted, sentence punctuation blocks the chain, line wraps do not
-(fail-safe: hard-wrapped genuine claims must not escape), and the scope noun
-must terminate the chain. Both directions are pinned: seven must-fire window
-claims and three F-012 cross-clause must-not-fire controls.
+separate those cases — the distinguishing feature is CLAUSE STRUCTURE. A
+fourth codex round ("remaining set of cases", "remaining UI/UX cases") and
+quality finding F-013 (", and" bridging independent clauses) refined the
+chain-word taxonomy once more. Final form: the chain allows up to eight
+modifier words; stop words mark a clause (verbs of being, state verbs like
+exist/linger/persist/continue/remain, pronouns, prepositions — but NOT "of",
+which is noun-phrase internal); conjunctions pass only WITHOUT a preceding
+comma (bare "and" coordinates modifiers, ", and" coordinates clauses);
+modifier words accept '/' (UI/UX); coordinate-adjective commas and a heading
+colon are accepted; sentence punctuation blocks the chain; line wraps do not
+(fail-safe); the scope noun must terminate the chain. Both directions are
+pinned: nine must-fire window claims and six cross-clause must-not-fire
+controls.
+
+**Convergence statement**: the chain-word taxonomy is a documented lexical
+heuristic, not a parser. The review floor for this story is: a change is
+blocking only if it is a VERIFIED regression vs pre-story behavior (a sentence
+the bare trigger caught that now escapes, or a false-positive class CHK-003
+was written to eliminate that returns). Marginal precision/recall cases
+beyond that floor (novel verbs, rare constructions, typography) belong to the
+follow-up vocabulary story, not to further rounds of this one.
 
 ## Risk notes
 

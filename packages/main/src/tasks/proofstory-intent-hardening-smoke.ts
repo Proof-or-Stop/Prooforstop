@@ -955,6 +955,10 @@ try {
     // colon prose are genuine claims the bare pre-story trigger caught.
     'The remaining browser-only Safari mobile localization and reduced-motion edge cases were left to a follow-up story.',
     'Remaining: mobile Safari cases are left for a follow-up story.',
+    // codex round 4: collective "of" constructions and slash-delimited
+    // modifiers are noun-phrase internal, not clause breaks.
+    'The remaining set of cases was left for a follow-up story.',
+    'The remaining UI/UX cases were left for a follow-up story.',
   ];
   for (const claim of remainingWindowClaims) {
     store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
@@ -997,6 +1001,11 @@ try {
     'Two remaining flaky tests, unrelated to this fix, cover edge cases in CI.',
     'The remaining CI flakes are old infra items, not part of this change.',
     'The two remaining suite failures are pre-existing issues, not new test cases from this change.',
+    // F-013: clause-coordinating conjunctions (comma+conjunction, or a state
+    // verb before a bare conjunction) must not bridge into the next clause.
+    'Two remaining issues exist, and scope work continues in a follow-up story.',
+    'Two remaining test failures linger, and coverage improvements are tracked in a follow-up.',
+    'Two remaining issues exist and scope work continues in a follow-up story.',
   ];
   for (const control of remainingCrossClauseControls) {
     store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
