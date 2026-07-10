@@ -106,6 +106,8 @@ import { classifyHostExecutionReadiness } from '../core/host-execution-readiness
 import {
   runCodexReviewLeaf,
   CODEX_REVIEW_VERDICT_SCHEMA,
+  CODEX_REVIEW_BUDGET_BLOCKED,
+  CODEX_REVIEW_CONCURRENCY_CAP_EXCEEDED,
   CROSS_HOST_REVIEW_CODEX_AGENT_TYPE,
   CROSS_HOST_REVIEW_CODEX_NO_USAGE_REASON,
   type CodexReviewRunner,
@@ -1399,22 +1401,122 @@ async function main(): Promise<void> {
     assert.equal(final!.usage.inputTokens, null, 'no fabricated count from plain stdout');
   });
 
-  await checkAsync('CHK-003 cross-host-review codex leaf: absent binding AND ledger OFF both record zero rows (byte-identical to non-opt-in callers)', async () => {
+  await checkAsync('CHK-003/F-017 cross-host-review codex leaf: absent binding AND ledger OFF both byte-identical — runner invoked, zero rows, NO admission even with budget/cap env set', async () => {
     const MH = 'sha256:deadbeefcafefeed0000000000000000000000000000000000000000';
     const verdict = JSON.stringify({ schemaVersion: CODEX_REVIEW_VERDICT_SCHEMA, decision: 'pass', materialHash: MH, findings: [], summary: 'ok' });
-    const runner: CodexReviewRunner = () => ({ stdout: `${verdict}\n`, exitCode: 0, timedOut: false });
 
+    // Absent binding: ledger gating never runs, so no admission fires and no
+    // rows/dirs are created — the runner still executes.
     const sub1 = freshRoot();
-    await runCodexReviewLeaf({ storyId: 'B-70e9', storyWorktree: sub1, materialHash: MH, timeoutMs: 1000 }, runner);
+    let calls1 = 0;
+    const runner1: CodexReviewRunner = () => { calls1 += 1; return { stdout: `${verdict}\n`, exitCode: 0, timedOut: false }; };
+    const leaf1 = await runCodexReviewLeaf({ storyId: 'B-70e9', storyWorktree: sub1, materialHash: MH, timeoutMs: 1000 }, runner1);
+    assert.equal(calls1, 1, 'no binding -> the codex runner still runs (no admission)');
+    assert.equal(leaf1.hostBVerdict.decision, 'pass');
     assert.equal(existsSync(resolveLedgerPath(sub1)), false, 'no rows without a usageLedger binding');
+    assert.equal(existsSync(hostRunSlotsDir(sub1)), false, 'no slot registry without a binding');
 
+    // Ledger OFF hard invariant (F-017): the budget/cap env vars that would
+    // refuse an ON leaf pre-spawn are NEVER consulted — the leaf runs, creates
+    // no dirs (so no slot registry), and adds zero rows.
     const sub2 = freshRoot();
-    const OFF = { LATTICE_USAGE_LEDGER: '0' } as NodeJS.ProcessEnv;
-    await runCodexReviewLeaf(
+    const OFF = { LATTICE_USAGE_LEDGER: '0', LATTICE_HARD_BUDGET_TOKENS: '1', LATTICE_HOST_RUN_MAX_CONCURRENT: '1' } as NodeJS.ProcessEnv;
+    let calls2 = 0;
+    const runner2: CodexReviewRunner = () => { calls2 += 1; return { stdout: `${verdict}\n`, exitCode: 0, timedOut: false }; };
+    const leaf2 = await runCodexReviewLeaf(
       { storyId: 'B-70e9', storyWorktree: sub2, materialHash: MH, timeoutMs: 1000, usageLedger: { root: sub2, recordedAt: '2026-07-10T00:00:00.000Z', projectRootHash: 'sha256:testroot', env: OFF, phase: 'REVIEW' } },
+      runner2,
+    );
+    assert.equal(calls2, 1, 'OFF: the leaf runs despite budget/cap env (no admission when OFF)');
+    assert.equal(leaf2.hostBVerdict.decision, 'pass');
+    assert.equal(existsSync(resolveLedgerPath(sub2)), false, 'no rows when ledger OFF');
+    assert.equal(existsSync(hostRunSlotsDir(sub2)), false, 'no slot registry when OFF (admission never ran)');
+  });
+
+  // =========================================================================
+  // F-017: the cross-host-review codex leaf passes the SAME pre-spawn admission
+  // as host_run / the autopilot repair. Against the old leaf all three checks
+  // fail loudly: the leaf recorded the preflight and then invoked the runner
+  // directly (calls === 1, no blocked row, no slot ever held), so
+  // LATTICE_HARD_BUDGET_TOKENS and a saturated LATTICE_HOST_RUN_MAX_CONCURRENT
+  // could not stop the codex review spawn.
+  // =========================================================================
+  await checkAsync('F-017 codex leaf budget admission: ledger ON + LATTICE_HARD_BUDGET_TOKENS=1 refuses PRE-SPAWN (runner never invoked) + blocked row (hard_budget_exceeded, openai) + synthesized blocked verdict', async () => {
+    const sub = freshRoot();
+    const env = { LATTICE_USAGE_LEDGER: '1', LATTICE_HARD_BUDGET_TOKENS: '1' } as NodeJS.ProcessEnv;
+    const MH = 'sha256:deadbeefcafefeed0000000000000000000000000000000000000000';
+    const verdict = JSON.stringify({ schemaVersion: CODEX_REVIEW_VERDICT_SCHEMA, decision: 'pass', materialHash: MH, findings: [], summary: 'ok' });
+    let calls = 0;
+    const runner: CodexReviewRunner = () => { calls += 1; return { stdout: `${verdict}\n`, exitCode: 0, timedOut: false }; };
+    const leaf = await runCodexReviewLeaf(
+      { storyId: 'B-70e9', storyWorktree: sub, materialHash: MH, timeoutMs: 1000, usageLedger: { root: sub, recordedAt: '2026-07-10T00:00:00.000Z', projectRootHash: 'sha256:testroot', env, phase: 'REVIEW' } },
       runner,
     );
-    assert.equal(existsSync(resolveLedgerPath(sub2)), false, 'no rows when ledger OFF');
+    assert.equal(calls, 0, 'the codex runner is NOT invoked when the hard budget refuses the launch');
+    assert.equal(leaf.hostBVerdict.decision, 'blocked', 'a refused leaf synthesizes a BLOCKED verdict (never a fabricated pass/fail)');
+    assert.equal(leaf.hostBVerdict.reason, CODEX_REVIEW_BUDGET_BLOCKED, 'the synthesized verdict names the budget refusal');
+    assert.equal(leaf.hostBVerdict.materialHash, MH, 'the synthesized verdict binds the reviewed materialHash (jointDecision sees NO material mismatch)');
+    assert.equal(leaf.exitCode, HOST_RUN_REFUSAL_EXIT_CODE, 'refusal sentinel matches a host_run cap refusal');
+    assert.equal(leaf.timedOut, false, 'a refusal is not a timeout');
+
+    const records = readLedger(sub);
+    const blocked = records.find((r) => r.decision.kind === 'blocked');
+    assert.ok(blocked, 'a blocked ledger row is written');
+    assert.equal(blocked!.decision.reasonCode, 'hard_budget_exceeded');
+    assert.equal(blocked!.provider?.name, 'openai', 'a codex leaf is a codex launch -> openai');
+    assert.equal(blocked!.agentType, CROSS_HOST_REVIEW_CODEX_AGENT_TYPE);
+    assert.ok(records.some((r) => r.usage.source === 'prompt-size-estimate'), 'preflight estimate still present');
+    assert.equal(records.some((r) => r.usage.source === 'unavailable'), false, 'no unavailable final for a leaf that never spawned');
+    // Same ordering as runHostRun: budget refuses BEFORE any slot machinery.
+    assert.equal(existsSync(hostRunSlotsDir(sub)), false, 'budget refusal happens before any slot acquire (no slot dir)');
+  });
+
+  await checkAsync('F-017 codex leaf concurrency admission: saturated cap refuses pre-spawn (concurrency_cap_exceeded row provider openai, no spawn) + synthesized blocked verdict', async () => {
+    const sub = freshRoot();
+    const dir = hostRunSlotsDir(sub);
+    const env = { LATTICE_USAGE_LEDGER: '1', LATTICE_HOST_RUN_MAX_CONCURRENT: '1' } as NodeJS.ProcessEnv;
+    seedSlot(dir, 0, process.pid); // a live occupant saturates cap=1
+    const MH = 'sha256:deadbeefcafefeed0000000000000000000000000000000000000000';
+    const verdict = JSON.stringify({ schemaVersion: CODEX_REVIEW_VERDICT_SCHEMA, decision: 'pass', materialHash: MH, findings: [], summary: 'ok' });
+    let calls = 0;
+    const runner: CodexReviewRunner = () => { calls += 1; return { stdout: `${verdict}\n`, exitCode: 0, timedOut: false }; };
+    const leaf = await runCodexReviewLeaf(
+      { storyId: 'B-70e9', storyWorktree: sub, materialHash: MH, timeoutMs: 1000, usageLedger: { root: sub, recordedAt: '2026-07-10T00:00:00.000Z', projectRootHash: 'sha256:testroot', env, phase: 'REVIEW' } },
+      runner,
+    );
+    assert.equal(calls, 0, 'the codex runner is NOT invoked at the concurrency cap');
+    assert.equal(leaf.hostBVerdict.decision, 'blocked');
+    assert.equal(leaf.hostBVerdict.reason, CODEX_REVIEW_CONCURRENCY_CAP_EXCEEDED);
+    assert.equal(leaf.exitCode, HOST_RUN_REFUSAL_EXIT_CODE);
+
+    const records = readLedger(sub);
+    const blocked = records.find((r) => r.decision.kind === 'blocked');
+    assert.ok(blocked, 'a blocked ledger row is written');
+    assert.equal(blocked!.decision.reasonCode, 'concurrency_cap_exceeded');
+    assert.equal(blocked!.provider?.name, 'openai');
+    assert.equal(blocked!.agentType, CROSS_HOST_REVIEW_CODEX_AGENT_TYPE);
+    assert.equal(records.some((r) => r.usage.source === 'unavailable'), false, 'no final row for a leaf that never spawned');
+  });
+
+  await checkAsync('F-017 codex leaf normal run: the admission slot is HELD during the run and RELEASED after (cap=1 re-admission succeeds)', async () => {
+    const sub = freshRoot();
+    const dir = hostRunSlotsDir(sub);
+    const env = { LATTICE_USAGE_LEDGER: '1', LATTICE_HOST_RUN_MAX_CONCURRENT: '1' } as NodeJS.ProcessEnv;
+    const MH = 'sha256:deadbeefcafefeed0000000000000000000000000000000000000000';
+    const verdict = JSON.stringify({ schemaVersion: CODEX_REVIEW_VERDICT_SCHEMA, decision: 'pass', materialHash: MH, findings: [], summary: 'ok' });
+    let slotHeldDuringRun = false;
+    const runner: CodexReviewRunner = () => {
+      slotHeldDuringRun = existsSync(join(dir, 'slot-0.json'));
+      return { stdout: `${verdict}\n`, exitCode: 0, timedOut: false };
+    };
+    const leaf = await runCodexReviewLeaf(
+      { storyId: 'B-70e9', storyWorktree: sub, materialHash: MH, timeoutMs: 1000, usageLedger: { root: sub, recordedAt: '2026-07-10T00:00:00.000Z', projectRootHash: 'sha256:testroot', env, phase: 'REVIEW' } },
+      runner,
+    );
+    assert.equal(leaf.hostBVerdict.decision, 'pass', 'a normal admitted leaf still returns its real verdict');
+    assert.equal(slotHeldDuringRun, true, 'the leaf HELD slot-0 while the runner executed');
+    const after = acquireHostRunSlot(dir, 1, 6 * 60 * 60 * 1000, Date.now(), slotMeta('after-codex-leaf'));
+    assert.equal(after, join(dir, 'slot-0.json'), 'slot released after the leaf (cap=1 re-admission succeeds)');
   });
 
   // =========================================================================

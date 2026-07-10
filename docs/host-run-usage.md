@@ -181,6 +181,13 @@ invoked (recording the same blocked row, provider `anthropic`) and holds a
 concurrency slot for the duration of the run; with the ledger OFF the repair
 stays byte-identical (no admission, no slots, no rows).
 
+The `cross_host_review` codex review leaf passes the **same pre-spawn
+admission** (provider `openai`): with the ledger ON, an over-budget or over-cap
+review is refused before the codex runner is invoked (recording the same
+blocked row) and instead surfaces a synthesized `blocked` host-B verdict, so the
+joint decision is `blocked` rather than a fabricated pass/fail; with the ledger
+OFF the leaf stays byte-identical.
+
 Concurrent runs' ledger appends are serialized by a cross-process lock at the
 writer choke point (an atomic `llm-usage.jsonl.lock/` directory with a bounded
 wait and stale-lock reclaim), so parallel host runs can never interleave
