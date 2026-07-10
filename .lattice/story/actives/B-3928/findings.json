@@ -182,7 +182,7 @@
       "desc": "delivery-evidence-scope: .lattice/story/actives/B-3928/evidence/delivery-context-pack.json:5 records 25 changed files and sets transcriptDiff=true, but a direct comparison with git diff main...HEAD --name-only found 26 committed files; the omitted file is .lattice/story/actives/B-3928/evidence/transcript-diff.md. The pack also has no top-level captured head or scope hash that would identify this as an older snapshot. A delivery reviewer consuming this pack can therefore miss the newly added transcript evidence while being told the transcript diff is present. Regenerate the pack after adding the transcript diff, or bind the pack to an explicit captured commit and complete file list.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-10T04:21:52.358Z",
@@ -194,7 +194,11 @@
         ".lattice/story/actives/B-3928/evidence/transcript-diff.md:1"
       ],
       "signatureTag": "missing|json:5|delivery-evidence-scope",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 424eb89d4 after product fixes 6aef18eb8 and c874f10f3: lattice delivery_context_pack --storyId=B-3928 --write --json regenerated and persisted the delivery context pack. Its committed changedFiles array now contains 27 paths including .lattice/story/actives/B-3928/evidence/transcript-diff.md, and its summary explicitly includes transcript-diff.md; the read-only committed-pack assertions returned true, true, and 27. Current materialHash 69f774ee02a1edeac5a6f9b62f987ea59d9ef709bdba5df0dd1da65c717e9a1c was reverified and recorded by 591b314ae. npm --prefix packages/main run build passed with @lattice/core@0.3.179 build and tsc. node scripts/verify-proof-or-stop-prompt-baseline.mjs passed all seven lines: PASS proof-or-stop prompt baseline: roleCount=16 registry hashes verified; PASS proof-or-stop prompt baseline: agent_prompt output hashes verified for 16 roles; PASS proof-or-stop prompt baseline: overlap matrix verified for 16 roles; PASS proof-or-stop prompt baseline: exhaustive role matrix source claims verified for 16 roles; PASS proof-or-stop prompt baseline: role matrix unsupported-claim mutation probe rejected; PASS proof-or-stop prompt baseline: legacy vocabulary findings classified; PASS proof-or-stop prompt baseline: direct story-file findings classified. node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-direct-story-classifier passed: PASS direct story-file classifier adversarial probes: 9 cases. node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-role-matrix-evidence passed: PASS role matrix source-evidence mutation probes: 1 refreshed-baseline injection rejected during collection and verification. npm run test:proof-or-stop-prompt-baseline passed with the same seven PASS lines.",
+      "resolvedAt": "2026-07-10T09:24:47.563Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
