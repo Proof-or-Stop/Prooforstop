@@ -1,0 +1,75 @@
+{
+  "schemaVersion": "proofbound.milestone_closeout.v1",
+  "storyId": "B-d8ef",
+  "phase": "TEST",
+  "generatedAt": "2026-07-09T23:13:27.091Z",
+  "sourceReport": {
+    "schemaVersion": "proofbound.milestone_status.v1",
+    "digest": "cf17d71241db1559f39d0451128ce0f56d24dfb3fdd51cd8ec5e1ca0cf92d5b2",
+    "ledger": {
+      "present": true,
+      "state": "confirmed",
+      "hash": "sha256:cab2bd32af4aba315ff6dfe5a969d155d94158737f1effbecf80e35aac7b69d8"
+    },
+    "groups": {
+      "completed": [
+        "M1",
+        "M2",
+        "M3"
+      ],
+      "current": [],
+      "remaining": []
+    },
+    "risks": [],
+    "nextActions": [
+      "No milestone action; all ledger rows are completed or not applicable."
+    ]
+  },
+  "bindings": {
+    "headHash": "226b1ef5b31ff91d23ca9dc1fc69a103ed3e7872",
+    "materialHash": "8e9e976b43d9599109d117095d224ed4a92acf2188a1df2e840013f176446d0c",
+    "storyFilesHash": "26f26a0a9824b5c0ada4229092a310575daf7301791a32128739a00720b5d7c3"
+  },
+  "rows": [
+    {
+      "milestone": "M1",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Canonical review hosts report noninteractive launcher execution readiness, not only binary/version presence.",
+      "acceptance": "Host readiness output shows launcher shape, support status, first-progress/completion signal, and failureKind for auth, wrong flags, timeout, missing executable, or silent-final-output.",
+      "evidence": [
+        "CHK-001:happy:0 [pass/logic_test] npm --prefix packages/main run build && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js note=Readiness smoke verified canonical codex/claude/agy rows include launcherArgv, executionReady/reviewReady, progressMode, failureKind, bounded timing fields, and no raw transcript fields.",
+        "CHK-001:edge:0 [pass/logic_test] node packages/main/dist/tasks/review-host-execution-readiness-smoke.js note=Smoke classified codex exec refresh_token_invalidated as failureKind=auth with executionReady=false/reviewReady=false despite version-capable executable assumptions.",
+        "CHK-001:adversarial:0 [pass/logic_test] node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs note=Smoke rejects legacy/contradictory readiness probes; process fact contract requires host-readiness semantics and reviewReadyHostCount in gate evidence."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M2",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Review assurance fallback and host dispatch diagnostics use execution-ready host counts.",
+      "acceptance": "Gate diagnostics distinguish availableHostCount from reviewReadyHostCount/executionReadyHostCount and explain why auth, silent-output, or wrong-flag hosts do not qualify for non-human degraded fallback.",
+      "evidence": [
+        "CHK-002:happy:0 [pass/manual_transcript] node packages/main/dist/tasks/review-escalation-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js note=Fresh current-HEAD transcript evidence: observed smoke output includes reviewReadyHostCount below two permitting degraded 3x1 and two review-ready canonical hosts blocking single-host fallback for both escalation and assurance floor gates.",
+        "CHK-002:happy:0 [pass/manual_transcript] node packages/main/dist/tasks/review-escalation-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js note=Observed smoke output included probe with reviewReadyHostCount below two permits degraded 3x1 and probe with two executable canonical hosts blocks single-host fallback for both escalation and assurance floor paths.",
+        "CHK-002:edge:0 [pass/logic_test] node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node packages/main/dist/tasks/review-escalation-smoke.js note=Legacy version-only probe records are rejected for non-human fallback and diagnostics require rerunning the v2 readiness probe or using explicit-human-approval.",
+        "CHK-002:adversarial:0 [pass/logic_test] node packages/main/dist/tasks/review-escalation-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js note=Fallback is refused when two canonical hosts are reviewReady even if single-host-environment or temporary-host-unavailability is claimed."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M3",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Focused smokes cover Claude stream-json verbose, Codex exec auth, and agy print launcher readiness.",
+      "acceptance": "Smoke tests prove Claude observable launcher is --print --verbose --output-format=stream-json, plain --print is silent/non-progress for long reviewer work, agy --print/--print-timeout is canonical while --prompt-file is rejected, and Codex login/version alone is not review-ready without codex exec success.",
+      "evidence": [
+        "CHK-003:happy:0 [pass/logic_test] node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node packages/main/dist/tasks/dispatch-run-smoke.js note=Readiness smoke proves canonical Claude launcher uses --print --verbose --output-format stream-json and dispatch smoke verifies claude invocationTemplate starts with that observable launcher.",
+        "CHK-003:edge:0 [pass/logic_test] node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node packages/main/dist/tasks/dispatch-run-smoke.js note=Smoke classifies agy --prompt-file as wrong_launcher while dispatch scaffolding uses agy --print with --print-timeout and no --prompt-file.",
+        "CHK-003:adversarial:0 [pass/logic_test] node packages/main/dist/tasks/review-host-execution-readiness-smoke.js note=Smoke proves codex exec token_invalidated/refresh_token_invalidated output is classified as failureKind=auth with reviewReady=false, rather than counting version/login as executable review readiness."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    }
+  ]
+}

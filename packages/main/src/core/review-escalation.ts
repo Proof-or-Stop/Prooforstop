@@ -33,6 +33,16 @@ import {
   resolveProofAdmissibilityPolicy,
   type ProofAdmissibilityDiagnostic,
 } from './proof-admissibility-gates.js';
+import {
+  canonicalReviewHostCommand,
+  canonicalReviewHostLauncherSpec,
+  launcherArgvHasPromptPlaceholder,
+  classifyReviewHostLauncher,
+  probeHostExecutionReadiness,
+  type HostExecutionFailureKind,
+  type HostExecutionProgressMode,
+  type HostLauncherSupport,
+} from './host-execution-readiness.js';
 
 export const REVIEW_ESCALATION_TRIGGER_PROBLEM_COUNT = 2;
 export const REVIEW_ESCALATION_REQUIRED_ROUNDS = 3;
@@ -42,7 +52,8 @@ export const REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_EVENT = 'review_escalat
 export const REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_PREDICATE = 'explicitlyConfiguredHighRiskPolicyRequires3x2';
 export const REVIEW_HOST_AVAILABILITY_PROBE_EVENT = 'review_host_availability_probe';
 export const REVIEW_HOST_AVAILABILITY_PROBE_COMMAND = 'review_host_availability_probe';
-export const REVIEW_HOST_AVAILABILITY_REQUIRED_AVAILABLE_HOSTS = 2;
+export const REVIEW_HOST_AVAILABILITY_PROBE_SCHEMA_VERSION = 'lattice.review_host_availability_probe.v2';
+export const REVIEW_HOST_AVAILABILITY_REQUIRED_REVIEW_READY_HOSTS = 2;
 export const REVIEW_HOST_AVAILABILITY_DEFAULT_TIMEOUT_MS = 5000;
 
 export const REVIEW_HOST_AVAILABILITY_CANONICAL_HOSTS = ['codex', 'claude', 'agy'] as const;
@@ -90,6 +101,21 @@ export interface ReviewHostAvailabilityProbeHostRow {
   executablePath?: string;
   versionOk: boolean;
   available: boolean;
+  launcher: string;
+  launcherArgv: string[];
+  launcherSupport: HostLauncherSupport;
+  launcherOk: boolean;
+  executionReady: boolean;
+  reviewReady: boolean;
+  progressMode: HostExecutionProgressMode;
+  failureKind: HostExecutionFailureKind;
+  durationMs: number;
+  firstProgressMs?: number;
+  exitCode?: number;
+  timedOut?: boolean;
+  outputBytes?: number;
+  diagnostic?: string;
+  remediation: string;
   versionOutput?: string;
   error?: string;
 }
@@ -103,11 +129,14 @@ export interface ReviewHostAvailabilityProbeRecord {
   hosts: ReviewHostAvailabilityProbeHostRow[];
   availableHostCount?: number;
   unavailableHostCount?: number;
+  executionReadyHostCount?: number;
+  reviewReadyHostCount?: number;
   valid: boolean;
   reasons: string[];
 }
 
 export interface ReviewHostAvailabilityProbeEvent {
+  schemaVersion: typeof REVIEW_HOST_AVAILABILITY_PROBE_SCHEMA_VERSION;
   type: typeof REVIEW_HOST_AVAILABILITY_PROBE_EVENT;
   command: typeof REVIEW_HOST_AVAILABILITY_PROBE_COMMAND;
   storyId: string;
@@ -118,6 +147,8 @@ export interface ReviewHostAvailabilityProbeEvent {
   hosts: ReviewHostAvailabilityProbeHostRow[];
   availableHostCount: number;
   unavailableHostCount: number;
+  executionReadyHostCount: number;
+  reviewReadyHostCount: number;
   authorityDone: false;
   fullAuthorityDone: false;
   productionDone: false;
@@ -255,15 +286,21 @@ function normalizeString(value: unknown): string {
   return typeof value === 'string' ? value.trim() : '';
 }
 
-const RETIRED_COMPLETION_FALSE_FIELDS = [
+export const RETIRED_COMPLETION_FALSE_FIELDS = [
   'authorityDone',
   'fullAuthorityDone',
   'productionDone',
 ] as const;
 
 function requireRetiredCompletionFieldsFalse(event: ProcessEvent, reasons: string[]): void {
+  const allowsOmittedRetiredFields = event.type === REVIEW_HOST_AVAILABILITY_PROBE_EVENT
+    && event.schemaVersion === REVIEW_HOST_AVAILABILITY_PROBE_SCHEMA_VERSION;
   for (const field of RETIRED_COMPLETION_FALSE_FIELDS) {
-    if (event[field] !== false) reasons.push('retired completion flag must be false');
+    if (event[field] === undefined) {
+      if (!allowsOmittedRetiredFields) reasons.push('retired completion flag must be false');
+      continue;
+    }
+    if (event[field] !== false) reasons.push('retired completion flag must be false when present');
   }
 }
 
@@ -272,7 +309,7 @@ function isCanonicalHost(value: unknown): value is ReviewHostAvailabilityCanonic
 }
 
 function canonicalHostCommand(host: ReviewHostAvailabilityCanonicalHost): string {
-  return host;
+  return canonicalReviewHostCommand(host);
 }
 
 function pathEnvValue(env: NodeJS.ProcessEnv): string {
@@ -303,11 +340,6 @@ function resolveExecutablePath(command: string, env: NodeJS.ProcessEnv = process
   return null;
 }
 
-function boundedOutput(value: unknown): string {
-  if (typeof value !== 'string') return '';
-  return value.trim().replace(/\s+/g, ' ').slice(0, 500);
-}
-
 function probeCanonicalHost(args: {
   host: ReviewHostAvailabilityCanonicalHost;
   cwd?: string;
@@ -319,11 +351,19 @@ function probeCanonicalHost(args: {
   const timeoutMs = args.timeoutMs ?? REVIEW_HOST_AVAILABILITY_DEFAULT_TIMEOUT_MS;
   const executablePath = resolveExecutablePath(command, env);
   if (!executablePath) {
+    const readiness = probeHostExecutionReadiness({
+      host: args.host,
+      versionOk: false,
+      cwd: args.cwd,
+      env,
+      timeoutMs,
+    });
     return {
       host: args.host,
       command,
       versionOk: false,
       available: false,
+      ...readiness,
       error: 'executable not found in PATH',
     };
   }
@@ -335,20 +375,28 @@ function probeCanonicalHost(args: {
     timeout: timeoutMs,
     maxBuffer: 1024 * 1024,
   });
-  const versionOutput = boundedOutput(result.stdout) || boundedOutput(result.stderr);
   const versionOk = !result.error && result.status === 0;
   const error = result.error
     ? result.error.message
     : versionOk
       ? ''
       : `--version exited ${result.status ?? result.signal ?? 'without status'}`;
+  const available = versionOk;
+  const readiness = probeHostExecutionReadiness({
+    host: args.host,
+    executablePath,
+    versionOk,
+    cwd: args.cwd,
+    env,
+    timeoutMs,
+  });
   return {
     host: args.host,
     command,
     executablePath,
     versionOk,
-    available: versionOk,
-    ...(versionOutput ? { versionOutput } : {}),
+    available,
+    ...readiness,
     ...(error ? { error } : {}),
   };
 }
@@ -370,7 +418,10 @@ export function probeReviewHostAvailability(args: {
     timeoutMs: args.timeoutMs,
   }));
   const availableHostCount = hosts.filter(host => host.available).length;
+  const executionReadyHostCount = hosts.filter(host => host.executionReady).length;
+  const reviewReadyHostCount = hosts.filter(host => host.reviewReady).length;
   return {
+    schemaVersion: REVIEW_HOST_AVAILABILITY_PROBE_SCHEMA_VERSION,
     type: REVIEW_HOST_AVAILABILITY_PROBE_EVENT,
     command: REVIEW_HOST_AVAILABILITY_PROBE_COMMAND,
     storyId: args.storyId,
@@ -381,6 +432,8 @@ export function probeReviewHostAvailability(args: {
     hosts,
     availableHostCount,
     unavailableHostCount: REVIEW_HOST_AVAILABILITY_CANONICAL_HOSTS.length - availableHostCount,
+    executionReadyHostCount,
+    reviewReadyHostCount,
     authorityDone: false,
     fullAuthorityDone: false,
     productionDone: false,
@@ -463,6 +516,19 @@ export function reviewHostAvailabilityProbeRecordFromEvent(
   const hosts: ReviewHostAvailabilityProbeHostRow[] = [];
   const reasons: string[] = [];
   const seenHosts = new Set<string>();
+  const validProgressModes = new Set<HostExecutionProgressMode>(['jsonl', 'stream-json', 'bounded-final-output', 'none']);
+  const validLauncherSupport = new Set<HostLauncherSupport>(['supported', 'unsupported', 'wrong_launcher', 'unverified']);
+  const validFailureKinds = new Set<HostExecutionFailureKind>([
+    'none',
+    'missing_executable',
+    'version_failed',
+    'wrong_launcher',
+    'auth',
+    'timeout',
+    'silent_final_output',
+    'unsupported',
+    'unknown',
+  ]);
 
   if (normalizeString(event.command) !== REVIEW_HOST_AVAILABILITY_PROBE_COMMAND) {
     reasons.push(`command must be ${REVIEW_HOST_AVAILABILITY_PROBE_COMMAND}`);
@@ -489,6 +555,30 @@ export function reviewHostAvailabilityProbeRecordFromEvent(
     const executablePath = normalizeString(record.executablePath);
     const versionOk = record.versionOk;
     const available = record.available;
+    const launcher = normalizeString(record.launcher);
+    const launcherArgv = Array.isArray(record.launcherArgv)
+      ? record.launcherArgv.map(arg => normalizeString(arg)).filter(Boolean)
+      : [];
+    const launcherSupport = normalizeString(record.launcherSupport) as HostLauncherSupport;
+    const launcherOk = record.launcherOk;
+    const executionReady = record.executionReady;
+    const reviewReady = record.reviewReady;
+    const progressMode = normalizeString(record.progressMode) as HostExecutionProgressMode;
+    const failureKind = normalizeString(record.failureKind) as HostExecutionFailureKind;
+    const durationMs = typeof record.durationMs === 'number' && Number.isFinite(record.durationMs)
+      ? Math.max(0, Math.floor(record.durationMs))
+      : undefined;
+    const firstProgressMs = typeof record.firstProgressMs === 'number' && Number.isFinite(record.firstProgressMs)
+      ? Math.max(0, Math.floor(record.firstProgressMs))
+      : undefined;
+    const exitCode = typeof record.exitCode === 'number' && Number.isInteger(record.exitCode)
+      ? record.exitCode
+      : undefined;
+    const timedOut = typeof record.timedOut === 'boolean' ? record.timedOut : undefined;
+    const outputBytes = typeof record.outputBytes === 'number' && Number.isFinite(record.outputBytes)
+      ? Math.max(0, Math.floor(record.outputBytes))
+      : undefined;
+    const remediation = normalizeString(record.remediation);
     if (!isCanonicalHost(host)) {
       reasons.push(`hosts row has non-canonical host ${host || '<missing>'}`);
       continue;
@@ -498,17 +588,61 @@ export function reviewHostAvailabilityProbeRecordFromEvent(
     if (command !== canonicalHostCommand(host)) reasons.push(`hosts.${host}.command must be ${canonicalHostCommand(host)}`);
     if (typeof versionOk !== 'boolean') reasons.push(`hosts.${host}.versionOk must be boolean`);
     if (typeof available !== 'boolean') reasons.push(`hosts.${host}.available must be boolean`);
+    if (!launcher) reasons.push(`hosts.${host}.launcher is required`);
+    if (launcherArgv.length === 0) reasons.push(`hosts.${host}.launcherArgv is required`);
+    if (!validLauncherSupport.has(launcherSupport)) reasons.push(`hosts.${host}.launcherSupport must be supported|unsupported|wrong_launcher|unverified`);
+    if (typeof launcherOk !== 'boolean') reasons.push(`hosts.${host}.launcherOk must be boolean`);
+    if (typeof executionReady !== 'boolean') reasons.push(`hosts.${host}.executionReady must be boolean`);
+    if (typeof reviewReady !== 'boolean') reasons.push(`hosts.${host}.reviewReady must be boolean`);
+    if (!validProgressModes.has(progressMode)) reasons.push(`hosts.${host}.progressMode must be a known progress mode`);
+    if (!validFailureKinds.has(failureKind)) reasons.push(`hosts.${host}.failureKind must be a known failure kind`);
+    if (durationMs === undefined) reasons.push(`hosts.${host}.durationMs must be a finite number`);
+    if (typeof record.remediation !== 'string') reasons.push(`hosts.${host}.remediation must be a string`);
+    const spec = canonicalReviewHostLauncherSpec(host);
+    if (launcher && launcher !== spec.launcher) reasons.push(`hosts.${host}.launcher must be ${spec.launcher}`);
+    if (launcherArgv.length > 0) {
+      const launcherClassification = classifyReviewHostLauncher(host, launcherArgv);
+      if (!launcherClassification.launcherOk) {
+        reasons.push(`hosts.${host}.launcherArgv is not canonical: ${launcherClassification.reasons.join('; ')}`);
+      }
+      if ((available === true || executionReady === true || reviewReady === true) && launcherArgvHasPromptPlaceholder(launcherArgv)) {
+        reasons.push(`hosts.${host}.launcherArgv must record concrete executed argv when available, executionReady, or reviewReady is true; placeholders are only valid for static launcher templates`);
+      }
+    }
     const expectedAvailable = Boolean(executablePath) && versionOk === true;
     if (available !== expectedAvailable) {
       reasons.push(`hosts.${host}.available must equal executablePath present and versionOk=true`);
     }
     if (available === true && !executablePath) reasons.push(`hosts.${host}.executablePath is required when available`);
+    if (executionReady === true && available !== true) reasons.push(`hosts.${host}.executionReady requires available=true`);
+    if (launcherSupport === 'supported' && launcherOk !== true) reasons.push(`hosts.${host}.launcherSupport=supported requires launcherOk=true`);
+    if (launcherSupport !== 'supported' && executionReady === true) reasons.push(`hosts.${host}.executionReady requires launcherSupport=supported`);
+    if (reviewReady === true && (available !== true || launcherSupport !== 'supported' || launcherOk !== true || executionReady !== true || failureKind !== 'none')) {
+      reasons.push(`hosts.${host}.reviewReady requires available, launcherSupport=supported, launcherOk, executionReady, and failureKind=none`);
+    }
+    if (executionReady === true && failureKind !== 'none') reasons.push(`hosts.${host}.executionReady requires failureKind=none`);
+    if (timedOut === true && failureKind !== 'timeout') reasons.push(`hosts.${host}.timedOut requires failureKind=timeout`);
     hosts.push({
       host,
       command,
       ...(executablePath ? { executablePath } : {}),
       versionOk: versionOk === true,
       available: available === true,
+      launcher,
+      launcherArgv,
+      launcherSupport: validLauncherSupport.has(launcherSupport) ? launcherSupport : 'unverified',
+      launcherOk: launcherOk === true,
+      executionReady: executionReady === true,
+      reviewReady: reviewReady === true,
+      progressMode: validProgressModes.has(progressMode) ? progressMode : 'none',
+      failureKind: validFailureKinds.has(failureKind) ? failureKind : 'unknown',
+      durationMs: durationMs ?? 0,
+      ...(firstProgressMs !== undefined ? { firstProgressMs } : {}),
+      ...(exitCode !== undefined ? { exitCode } : {}),
+      ...(timedOut !== undefined ? { timedOut } : {}),
+      ...(outputBytes !== undefined ? { outputBytes } : {}),
+      ...(normalizeString(record.diagnostic) ? { diagnostic: normalizeString(record.diagnostic) } : {}),
+      remediation,
       ...(normalizeString(record.versionOutput) ? { versionOutput: normalizeString(record.versionOutput) } : {}),
       ...(normalizeString(record.error) ? { error: normalizeString(record.error) } : {}),
     });
@@ -523,12 +657,24 @@ export function reviewHostAvailabilityProbeRecordFromEvent(
   const unavailableHostCount = typeof event.unavailableHostCount === 'number' && Number.isInteger(event.unavailableHostCount)
     ? event.unavailableHostCount
     : undefined;
+  const executionReadyHostCount = typeof event.executionReadyHostCount === 'number' && Number.isInteger(event.executionReadyHostCount)
+    ? event.executionReadyHostCount
+    : undefined;
+  const reviewReadyHostCount = typeof event.reviewReadyHostCount === 'number' && Number.isInteger(event.reviewReadyHostCount)
+    ? event.reviewReadyHostCount
+    : undefined;
   const computedAvailable = hosts.filter(host => host.available).length;
   const computedUnavailable = REVIEW_HOST_AVAILABILITY_CANONICAL_HOSTS.length - computedAvailable;
+  const computedExecutionReady = hosts.filter(host => host.executionReady).length;
+  const computedReviewReady = hosts.filter(host => host.reviewReady).length;
   if (availableHostCount === undefined) reasons.push('availableHostCount must be an integer');
   else if (availableHostCount !== computedAvailable) reasons.push('availableHostCount contradicts host rows');
   if (unavailableHostCount === undefined) reasons.push('unavailableHostCount must be an integer');
   else if (unavailableHostCount !== computedUnavailable) reasons.push('unavailableHostCount contradicts host rows');
+  if (executionReadyHostCount === undefined) reasons.push('executionReadyHostCount must be an integer; rerun review_host_availability_probe for launcher readiness evidence');
+  else if (executionReadyHostCount !== computedExecutionReady) reasons.push('executionReadyHostCount contradicts host rows');
+  if (reviewReadyHostCount === undefined) reasons.push('reviewReadyHostCount must be an integer; legacy version-only probes cannot satisfy non-human degraded fallback');
+  else if (reviewReadyHostCount !== computedReviewReady) reasons.push('reviewReadyHostCount contradicts host rows');
 
   return {
     index,
@@ -539,6 +685,8 @@ export function reviewHostAvailabilityProbeRecordFromEvent(
     hosts,
     ...(availableHostCount !== undefined ? { availableHostCount } : {}),
     ...(unavailableHostCount !== undefined ? { unavailableHostCount } : {}),
+    ...(executionReadyHostCount !== undefined ? { executionReadyHostCount } : {}),
+    ...(reviewReadyHostCount !== undefined ? { reviewReadyHostCount } : {}),
     valid: reasons.length === 0,
     reasons,
   };
@@ -574,9 +722,14 @@ export function assessReviewHostAvailabilityForFallbackEligibility(
   const latestFreshProbe = latestByIndex(validRecords);
   const reasons: string[] = [];
   if (!latestFreshProbe) {
-    reasons.push('no fresh review_host_availability_probe record found for current material; run review_host_availability_probe or use explicit-human-approval');
-  } else if ((latestFreshProbe.availableHostCount ?? REVIEW_HOST_AVAILABILITY_CANONICAL_HOSTS.length) >= REVIEW_HOST_AVAILABILITY_REQUIRED_AVAILABLE_HOSTS) {
-    reasons.push(`fresh host availability probe ${latestFreshProbe.probeId ?? `event#${latestFreshProbe.index}`} found ${latestFreshProbe.availableHostCount}/${REVIEW_HOST_AVAILABILITY_CANONICAL_HOSTS.length} canonical hosts available; use full 3x2 or explicit-human-approval`);
+    const latestInvalid = latestByIndex(records);
+    if (latestInvalid?.reasons.some(reason => /reviewReadyHostCount|executionReadyHostCount|launcher|executionReady|reviewReady|progressMode|failureKind/.test(reason))) {
+      reasons.push(`latest review_host_availability_probe ${latestInvalid.probeId ?? `event#${latestInvalid.index}`} is version-only or lacks launcher readiness fields; rerun review_host_availability_probe or use explicit-human-approval`);
+    } else {
+      reasons.push('no fresh review_host_availability_probe record found for current material; run review_host_availability_probe or use explicit-human-approval');
+    }
+  } else if ((latestFreshProbe.reviewReadyHostCount ?? REVIEW_HOST_AVAILABILITY_CANONICAL_HOSTS.length) >= REVIEW_HOST_AVAILABILITY_REQUIRED_REVIEW_READY_HOSTS) {
+    reasons.push(`fresh host readiness probe ${latestFreshProbe.probeId ?? `event#${latestFreshProbe.index}`} found reviewReadyHostCount=${latestFreshProbe.reviewReadyHostCount}/${REVIEW_HOST_AVAILABILITY_CANONICAL_HOSTS.length}; use full 3x2 or explicit-human-approval`);
   }
   return {
     required,
@@ -637,10 +790,10 @@ export function reviewEscalationFallbackRecordFromEvent(
       reasons.push(`hostAvailabilityProbeId ${hostAvailabilityProbeId} was not found`);
     } else if (!referencedProbe.valid) {
       reasons.push(`hostAvailabilityProbeId ${hostAvailabilityProbeId} is not fresh/valid: ${referencedProbe.reasons.join('; ')}`);
-    } else if ((referencedProbe.availableHostCount ?? REVIEW_HOST_AVAILABILITY_CANONICAL_HOSTS.length) >= REVIEW_HOST_AVAILABILITY_REQUIRED_AVAILABLE_HOSTS) {
-      reasons.push(`hostAvailabilityProbeId ${hostAvailabilityProbeId} found ${referencedProbe.availableHostCount}/${REVIEW_HOST_AVAILABILITY_CANONICAL_HOSTS.length} canonical hosts available; use full 3x2 or explicit-human-approval`);
+    } else if ((referencedProbe.reviewReadyHostCount ?? REVIEW_HOST_AVAILABILITY_CANONICAL_HOSTS.length) >= REVIEW_HOST_AVAILABILITY_REQUIRED_REVIEW_READY_HOSTS) {
+      reasons.push(`hostAvailabilityProbeId ${hostAvailabilityProbeId} found reviewReadyHostCount=${referencedProbe.reviewReadyHostCount}/${REVIEW_HOST_AVAILABILITY_CANONICAL_HOSTS.length}; use full 3x2 or explicit-human-approval`);
     }
-    if (!assessment.ok) reasons.push(...assessment.reasons.map(reason => `host availability probe invalid: ${reason}`));
+    if (!assessment.ok) reasons.push(...assessment.reasons.map(reason => `host readiness probe invalid: ${reason}`));
   }
 
   return {

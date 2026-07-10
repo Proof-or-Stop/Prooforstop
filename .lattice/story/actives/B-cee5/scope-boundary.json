@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-cee5",
+  "mode": "maintenance",
+  "allowed": [
+    "Add or update static prompt regression tests that prevent default full decisions-directory scan wording from returning.",
+    "Run prompt registry / adapter verification appropriate to changed prompt assets.",
+    "Update mirrored prompt assets only if this repository still materializes Claude/Codex prompt copies from templates.",
+    "Update Proof-or-Stop reviewer prompt templates for scope-plan and behavior search strategy."
+  ],
+  "excluded": [
+    "Changing lifecycle gate semantics or DONE evidence semantics.",
+    "Directly reading or writing docs/story or tests/fixtures files outside Lattice commands.",
+    "Implementing a full CLI metrics sink or broad candidateSpecSet runtime service in this stopgap story.",
+    "Making memory/playbook output gate evidence.",
+    "Removing full decisions-directory scan capability entirely."
+  ],
+  "confirmedBy": "codex-side-conversation",
+  "confirmationNote": "User explicitly approved opening a separate high-priority story to stop token exhaustion before the larger document rollout is complete.",
+  "createdAt": "2026-07-09T16:25:27.686Z",
+  "updatedAt": "2026-07-09T16:25:27.686Z",
+  "_hash": "2b852582299807cf691d15bcc618b174b15f09503bf6ad0be6160c0d53ce0dc9"
+}

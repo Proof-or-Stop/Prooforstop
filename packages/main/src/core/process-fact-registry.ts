@@ -35,6 +35,7 @@ export type ProcessFactSemantic =
   | 'freshness-policy'
   | 'gate-evidence'
   | 'host-availability'
+  | 'host-readiness'
   | 'host-verdict'
   | 'no-blocker-evidence'
   | 'normalization-policy'
@@ -129,8 +130,8 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   decision_doc_proposal: ['schema-contract', 'gate-evidence'],
   decision_doc_save: ['artifact', 'schema-contract', 'execution-evidence', 'gate-evidence'],
   review_escalation_policy_set: ['schema-contract', 'gate-evidence'],
-  review_host_availability_probe: ['host-availability', 'execution-evidence', 'freshness-policy', 'schema-contract', 'gate-evidence'],
-  review_escalation_fallback_set: ['schema-contract', 'freshness-policy', 'host-availability', 'gate-evidence'],
+  review_host_availability_probe: ['host-availability', 'host-readiness', 'execution-evidence', 'freshness-policy', 'schema-contract', 'gate-evidence'],
+  review_escalation_fallback_set: ['schema-contract', 'freshness-policy', 'host-availability', 'host-readiness', 'gate-evidence'],
   story_create_from_repro: ['artifact', 'schema-contract', 'workspace-binding', 'gate-evidence'],
   original_intent_snapshot_set: ['schema-contract', 'gate-evidence'],
   milestone_ledger_set: ['schema-contract', 'verification-policy', 'gate-evidence'],

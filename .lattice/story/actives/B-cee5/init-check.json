@@ -1,0 +1,26 @@
+{
+  "storyId": "B-cee5",
+  "checkedAt": "2026-07-09T16:40:22.113Z",
+  "reviewRound": "",
+  "agentId": "product-reviewer",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-07-09T16:37:45.062Z",
+      "issues": [
+        {
+          "id": "I-1",
+          "severity": "medium",
+          "desc": "checklist.json CHK-007 context still says the expected result is that the default flow no longer reads all 112 decision docs — this is the pre-fix stale corpus count. background.md and index.json were corrected to 111 files (re-verified 2026-07-09), but CHK-007 context was missed and still states the old 112 figure, which could mislead an implementer verifying the token-savings evidence against the wrong baseline."
+        }
+      ]
+    },
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-07-09T16:40:22.113Z",
+      "issues": []
+    }
+  ],
+  "_hash": "b00f5cfaaa977b46a57f3b810b4c1d376fdc57c8bdf1af02b01476826b1d7d7a"
+}

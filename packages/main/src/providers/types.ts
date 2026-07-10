@@ -46,6 +46,8 @@ export interface ProviderExecRequest {
   provider: BoundedProviderName;
   /** Bounded argv. Shell strings are rejected by the executor before this point. */
   argv: string[];
+  /** Optional bounded stdin payload. Omitted means stdin is closed with an empty payload. */
+  stdin?: string;
   /** Explicit working directory for the provider process. */
   cwd: string;
   /** Hard wall-clock timeout for a single attempt. */
@@ -77,6 +79,10 @@ export interface ProviderExecResult {
   timedOut: boolean;
   /** True when the provider CLI binary could not be spawned (missing / ENOENT). */
   spawnError: boolean;
+  /** Spawn error code when the process failed before producing an exit code. */
+  spawnErrorCode?: string;
+  /** Machine-readable spawn failure class for operator diagnostics. */
+  spawnErrorKind?: 'missing_executable' | 'argv_too_large' | 'spawn_failed';
 }
 
 /**
