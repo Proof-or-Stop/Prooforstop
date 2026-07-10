@@ -100,6 +100,28 @@
         "scanEscalationReason": null
       },
       "_hash": "ffc22f2465500a7a602a2cadbd5998b11d1a8d9d11172cb43dd5614fa68e05fc"
+    },
+    {
+      "id": "B-b264:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Fresh round 3 pass. Diff scope: packages/main/src/core/done-prepare-generated-metadata.ts (gitStatusRowsForDonePrepareGeneratedMetadata switched from trimming git() helper to existing gitRaw()) and packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts (new F-002 regression assertion importing gitStatusRowsForDonePrepareGeneratedMetadata and asserting the leading-space-preserving porcelain row). No concept deletion or mass rename in this diff. Verified git() is still legitimately used in the same file only for single-line outputs (gitMaybe wrapping var/commit, and rev-parse HEAD) where whole-output trim is correct and harmless; gitRaw is now used at both porcelain-parsing call sites (status and ls-files). Grepped repo-wide for gitStatusRowsForDonePrepareGeneratedMetadata and the local git() helper name: all call sites (done-prepare.ts:1750, done-prepare-generated-metadata.ts:447/509, done-prepare-auto-closeout-smoke.ts:460/508, new done-prepare-merge-rerun-smoke.ts:382) consistently route through the fixed gitRaw-based export; no residual references to a removed/renamed symbol; no dangling comments referencing a deleted concept. No blocker.",
+      "createdAt": "2026-07-10T05:52:27.893Z",
+      "reviewRound": "2026-07-10T05:34:01.890Z",
+      "reviewRunId": "B-b264:RR-007",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-b264/findings.json",
+          ".lattice/story/actives/B-b264/review-passes.json",
+          "packages/main/package.json",
+          "packages/main/src/handlers/done-prepare.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c829e03724f3084d812d341cac30b2da98262e28143af512ba57cc89175813f9"
     }
   ]
 }
