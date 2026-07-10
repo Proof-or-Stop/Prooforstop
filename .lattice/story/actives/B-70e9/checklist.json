@@ -371,6 +371,18 @@
           "materialHash": "9a34267cfc576a5198b54b34edebacab9d3db95b7cf9a62511a26960debe9169",
           "storyFilesHash": "9df50ebfa33bf98831fcb1d9b2aea402d8d6750256e08b9ab080558a92e233aa",
           "timestamp": "2026-07-10T07:10:04.749Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "command": "npm --prefix packages/main run test:host-run-usage",
+          "result": "pass",
+          "note": "host-run-usage smoke asserts autopilot-repair rows + envelope excerpt with ON/OFF argv byte-identity, host-readiness-probe per-host rows, cross-host-review unavailable final, and seam-never-throws on corrupt ledger",
+          "headHash": "5851c32e28fde6a59fa22f1b78129109a15bb7ea",
+          "materialHash": "9a34267cfc576a5198b54b34edebacab9d3db95b7cf9a62511a26960debe9169",
+          "storyFilesHash": "9df50ebfa33bf98831fcb1d9b2aea402d8d6750256e08b9ab080558a92e233aa",
+          "timestamp": "2026-07-10T07:10:06.559Z"
         }
       ]
     },
