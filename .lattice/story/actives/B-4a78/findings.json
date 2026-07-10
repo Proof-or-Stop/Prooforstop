@@ -117,7 +117,7 @@
       "desc": "concept-scope: the required reviewer readEvents evidence shape cannot be submitted through the local CLI because readEvents[0].tokenCount:null is rejected during argument validation as expected number, received null. The core ReviewerReadLogEvent/runtime model uses tokenCount:number|null and normalizeReviewerReadLog records unknown token counts as null, but packages/main/src/cli/command-catalog.ts and the built dist schema expose tokenCount only as z.number().optional(). This blocks recording the prescribed review_pass_set evidence and leaves the signed readLog null-token path unreachable from the CLI.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-10T02:32:36.757Z",
@@ -131,7 +131,11 @@
         "packages/main/src/core/reviewer-read-evidence.ts"
       ],
       "signatureTag": "missing|ts|concept-scope-required",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 171b54a0b and verified at d8b4d78/46066c9: CLI readEvents schema now accepts tokenCount:null and tokens:null while preserving invalid value rejection, matching runtime ReviewerReadLogEvent semantics. Focused smoke, direct smoke, git diff --check, evidence refresh, and full lattice validate 44/44 passed.",
+      "resolvedAt": "2026-07-10T02:42:30.867Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
