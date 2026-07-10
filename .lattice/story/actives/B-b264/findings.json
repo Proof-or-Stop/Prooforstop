@@ -28,7 +28,7 @@
       "desc": "done-prepare.ts:1746-1755 now unconditionally computes generatedMetadataManifest (via buildDonePrepareGeneratedMetadataManifest -> gitStatusRowsForDonePrepareGeneratedMetadata) on every blocked cleanTree path, and the new buildGeneratedMetadataDirtyGuidance() surfaces its entry.path values directly to the user in every done_prepare BLOCKED transcript. gitStatusRowsForDonePrepareGeneratedMetadata (done-prepare-generated-metadata.ts:246-248) still uses the whole-output-trim git() helper (done-prepare-generated-metadata.ts:222-228, .trim() on the full multi-line porcelain output) instead of the raw execFileSync fix this same story applied to gitStatusRows() in done-prepare.ts:301-309 (commit fixing the ' M path' -> 'M path' first-row corruption, covered by assertModifiedTrackedPathExactness). Reproduced live: with a leading-dot tracked path as the first porcelain row (e.g. modified .lattice/story/actives/<id>/process-metrics.json), the leading status-code space is stripped by the whole-output trim, shifting the fixed-width path offset so the first reported path loses its leading dot (renders as lattice/story/actives/.../process-metrics.json instead of .lattice/story/actives/.../process-metrics.json). Because this diff widened gitStatusRowsForDonePrepareGeneratedMetadata's call site from auto-closeout-only to every blocked cleanTree case, and now prints its paths in user-facing guidance, the same corruption this story fixed for gitStatusRows() can still surface to users through the new generated-metadata-delta guidance section. Recommend applying the same execFileSync-based fix to gitStatusRowsForDonePrepareGeneratedMetadata (a gitRaw() helper already exists in that file at line 238, currently only used by ls-files) since this diff is what newly exposes it on the default blocked-path UX.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-10T05:48:07.127Z",
@@ -40,7 +40,11 @@
         "packages/main/src/core/done-prepare-generated-metadata.ts"
       ],
       "signatureTag": "missing|ts|prepare-1746-1755",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "gitStatusRowsForDonePrepareGeneratedMetadata now reads porcelain via the existing non-trimming gitRaw() helper (same fix pattern as gitStatusRows in done-prepare.ts). Regression added in done-prepare-merge-rerun smoke: with a first-row ' M .lattice/...' fixture, the core helper's row keeps its leading status space and parseGitPorcelainRow yields the exact dotted path. Build clean, smoke green at current HEAD.",
+      "resolvedAt": "2026-07-10T05:51:38.350Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
