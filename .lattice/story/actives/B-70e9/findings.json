@@ -1,0 +1,25 @@
+{
+  "findings": [
+    {
+      "id": "B-70e9:F-001",
+      "desc": "CHK-004 userSees promises: \"reviewer_batch and escalation guidance print launch lines like \\\"lattice host_run --host codex --storyId B-xxxx --agentType reviewer --reviewRunId ... --lane ...\\\" instead of raw codex exec commands, and docs/host-run-usage.md exists.\" The doc file (docs/host-run-usage.md) was delivered accurately, but the reviewer_batch guidance was NOT changed at all (git diff main -- packages/main/src/handlers/reviewer-batch.ts is empty) and still only ever emits the in-process Agent(...) subagent launch form (verified live via `lattice reviewer_batch` in this session, e.g. `Agent({ subagent_type: \"lattice-review-docs\", prompt: \"Review story B-70e9 (touchpoints .md)\" })`), never `lattice host_run`. review-escalation.ts DID change, but only to add CHK-003 usage-ledger recording (recordHostReadinessProbeUsage) -- it contains no printed guidance-string changes either. The plan.md CHK-004 premise (line 71/79: rewrite raw codex exec / claude --print / agy --print operator-facing instruction strings in these two files) was already false pre-story: `git show main -- reviewer-batch.ts / review-escalation.ts` shows neither file ever printed a raw host-CLI instruction string to rewrite (reviewer_batch only ever used Agent(...); review-escalation.ts had none). CHK-004 evidence notes even acknowledge this (\"OQ-2: no raw-launch instruction strings existed to rewrite\"), but the checklist userSees text was never corrected to match, so it stands as a literal unfulfilled user-facing promise.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-10T07:24:53.394Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-003",
+      "_hash": "8f5c6b1122e66a0620b59b63329c056a0be71cfbd72f8355868749ed20acfd2a",
+      "files": [
+        "packages/main/src/handlers/reviewer-batch.ts",
+        "packages/main/src/handlers/review-escalation.ts",
+        ".lattice/story/actives/B-70e9/checklist.json",
+        ".lattice/story/actives/B-70e9/plan.md"
+      ],
+      "signatureTag": "doc-promise-undelivered|ts|usersees-promises-reviewer",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
