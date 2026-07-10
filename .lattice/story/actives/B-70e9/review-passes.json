@@ -1706,6 +1706,29 @@
         "scanEscalationReason": null
       },
       "_hash": "00dc02d5f47eca27534f4784cdeb95ae2d9fb25f01c517dca97a9685ad17098e"
+    },
+    {
+      "id": "B-70e9:RP-071",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 19, post-F-027 fix 2f42209a92): all 42 must-priority verificationIntent items across CHK-001..CHK-007 have fresh valid verificationEvidence (evidence_plan: missing=0 rerun=0 refresh-only=0 fresh=42). Verified the 2 new smoke checks bind F-027 (corrupt-ledger+cap-saturated and corrupt-ledger+over-budget refusal-honesty; both named F-027 in host-run-usage-smoke.ts, RED-proven per commit 2f42209a92) plus positive-path guards added to the existing CHK-007a/CHK-007b happy-path checks. Independently re-ran npm --prefix packages/main run test:host-run-usage (63/63 pass incl. both F-027 checks by name) and test:usage-sweep (17/17 pass). All findings F-001..F-027 in findings.json are dismissed (F-001) or resolved (F-002..F-027) with strong evidence. No coverage gaps found; no blocker.",
+      "createdAt": "2026-07-10T17:28:30.741Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-078",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-70e9/findings.json",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-70e9/checklist.json",
+          "docs/host-run-usage.md",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "53790cd6cf3505af71b626a55b793fed8193c19aa25639379f94598c551b03a9"
     }
   ]
 }
