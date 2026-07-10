@@ -474,13 +474,13 @@
           "intentRef": "CHK-004:happy:0",
           "kind": "docs_check",
           "file": "docs/host-run-usage.md",
-          "command": "rg -q 'lattice host_run --host codex --storyId' docs/host-run-usage.md",
+          "command": "rg -n \"lattice host_run --host codex\" docs/host-run-usage.md",
           "result": "fail",
           "note": "docs/host-run-usage.md shows host_run reviewer/quorum launch lines with binding args (behavior-based CHK-004 acceptance per OQ-2: no raw-launch instruction strings existed to rewrite)",
-          "headHash": "917723691b61fce0ae91b0ecaba15cb7000b48f0",
+          "headHash": "950afe2de78310f82281179d0ada0e7a6432b227",
           "materialHash": "9a34267cfc576a5198b54b34edebacab9d3db95b7cf9a62511a26960debe9169",
           "storyFilesHash": "9df50ebfa33bf98831fcb1d9b2aea402d8d6750256e08b9ab080558a92e233aa",
-          "timestamp": "2026-07-10T07:10:12.459Z"
+          "timestamp": "2026-07-10T07:11:34.673Z"
         },
         {
           "intentRef": "CHK-004:happy:1",
