@@ -71,6 +71,15 @@
       "reviewRound": "2026-07-10T00:02:24.661Z",
       "reviewRunId": "B-2861:RR-012",
       "_hash": "d6f47c3c2c7caa0a940008641b43d5f3106ae51a12311ac5064c9cd51371f888"
+    },
+    {
+      "id": "B-2861:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "Targeted verification-coverage re-review PASS after c784c2553 / REVIEW metadata 4c71bb3. Evidence: final B-2861 3x2 Review Follow-Up Ledger includes accepted Search / Memory Budget row with applied change and reason/evidence; document scope states this is a planning artifact, not gate evidence or implemented runtime proof; row for immediate runtime code is rejected for this story; Search / Memory Budget Contract defines candidateSpecSet, scanEscalationReason, advisory memory/playbook boundary, and token/search metrics; M6 adds regression/fixture hooks and exit criteria for bounded scans; Completion Definition requires memory/playbook hit count, rg count, full-scan, scanEscalationReason, and cost metrics; row counts confirm 16 agents in both Agent Purpose and Execution Matrix tables. No coverage findings.",
+      "createdAt": "2026-07-10T00:04:33.665Z",
+      "reviewRound": "2026-07-10T00:02:24.661Z",
+      "reviewRunId": "B-2861:RR-011",
+      "_hash": "789cc7505735e05cf86bf524e9e2fff32fd44c2b914ef1ec6b8aa7721d714d58"
     }
   ]
 }
