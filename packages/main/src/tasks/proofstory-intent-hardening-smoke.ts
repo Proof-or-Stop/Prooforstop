@@ -940,6 +940,87 @@ try {
     true,
     'underscore-connected "remaining_work" phrasing is still a shrinkage claim (F-003)',
   );
+  // Host-B (codex) rounds 1+2 / F-011: modifier prose between "remaining" and
+  // the scope noun must fire regardless of modifier count, commas, or unicode
+  // dashes — the trigger uses a bounded same-sentence character window, not a
+  // fixed word count. (These cases were first added pre-fix and observed RED;
+  // a concurrent reviewer cleanup reverted them before commit — F-011.)
+  const remainingWindowClaims = [
+    'The remaining browser-only edge cases are left for a follow-up story.',
+    'The remaining hard multi-tenant migration tasks were handed to the platform team.',
+    'The remaining browser-only Safari mobile edge cases were left to a follow-up story.',
+    'The remaining high-priority, user-visible cases were left to a follow-up story.',
+    'The remaining browser–only edge cases were left to follow-up.',
+  ];
+  for (const claim of remainingWindowClaims) {
+    store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+      changes: 'Added label normalization.',
+      limitations: claim,
+    }));
+    const windowDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+    assert.equal(
+      windowDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+      true,
+      `"remaining <modifiers> <scope-noun>" phrasing still fires (host-B window class): ${claim}`,
+    );
+  }
+  // Negative controls: no scope noun inside the same-sentence window, and a
+  // scope noun that only appears in the NEXT sentence, both stay quiet.
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Added label normalization.',
+    limitations: 'Two remaining suite failures are pre-existing upstream problems unrelated to this change.',
+  }));
+  const windowControlNoNoun = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    windowControlNoNoun.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    false,
+    'bare "remaining" prose without a scope noun in the window still does not fire (CHK-003 decision)',
+  );
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Added label normalization.',
+    limitations: 'Two remaining suite failures are pre-existing. Scope work continues next sprint.',
+  }));
+  const windowControlNextSentence = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    windowControlNextSentence.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    false,
+    'the "remaining" window does not leak across a sentence boundary',
+  );
+  // Host-B (codex) finding 5 (round 1): pathological long hyphen/dot tokens
+  // must not cause superlinear scan time in the DONE gate.
+  {
+    const pathological = `${'a-'.repeat(20000)}partial-done-recovery.ts The remaining cases were left for follow-up.`;
+    store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+      changes: 'Added label normalization.',
+      limitations: pathological,
+    }));
+    const t0 = Date.now();
+    const pathologicalDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+    const elapsedMs = Date.now() - t0;
+    assert.equal(
+      pathologicalDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+      true,
+      'the genuine claim after a pathological token still fires (host-B finding 5)',
+    );
+    // CLI spawn overhead dominates; the regex scan itself must stay linear-ish.
+    // Pre-fix the scan alone took >6s, so a generous end-to-end bound catches it.
+    assert.ok(elapsedMs < 5000, `pathological-token DONE check stayed fast (took ${elapsedMs}ms; host-B finding 5)`);
+  }
+  // Host-B round 2, finding 1: a whitespace-free backticked trigger token
+  // (`deferred`) is a code reference and strips BY REQUIREMENT (the original
+  // user request names backticked spans explicitly). In such sentences the
+  // claim is carried by the verb ("left to a follow-up"), which belongs to the
+  // follow-up vocabulary story. Pinned so any future change is deliberate.
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Added label normalization.',
+    limitations: 'The `deferred` work was left to a follow-up story.',
+  }));
+  const backtickTriggerTokenDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    backtickTriggerTokenDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    false,
+    'a whitespace-free backticked trigger token strips by requirement; verb recall is the vocabulary follow-up',
+  );
   // Same connector class as F-003 for the multi-word triggers: hyphenated
   // "out-of-scope" / "not-covered" are common technical phrasings, survive the
   // sanitizer unstripped (hyphen-only tokens are kept), and must still match.
@@ -1123,6 +1204,36 @@ try {
     urlControlDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
     false,
     'URL-scheme tokens (https://example.com/deferred/setup.md) still strip (F-009 control)',
+  );
+  // Delivery-review record: a trigger-stemmed FILE NAME with an unambiguous
+  // extension (deferred-query.sql) is stripped BY REQUIREMENT — it is
+  // shape-identical to partial-done-recovery.ts, the token class B-d6a0
+  // demands stay silent. The shrinkage meaning in such sentences is carried by
+  // the verb (skipped/removed), which the trigger vocabulary has never
+  // covered; verb-recall expansion is the follow-up vocabulary story. This
+  // case pins the designed direction so any future change is deliberate.
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'The deferred-query.sql export was skipped for this delivery.',
+    actualTranscript: 'The label normalizer output is unchanged.',
+    outcomeDiff: 'No difference from the original request.',
+  }));
+  const triggerStemFileDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    triggerStemFileDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    false,
+    'a trigger-stemmed file name with an unambiguous extension strips by requirement (B-d6a0 class); the verb belongs to the vocabulary follow-up',
+  );
+  // ...while the same sentence with an explicit trigger phrase still fires.
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'The deferred-query.sql export was skipped; the remaining scope was cut.',
+    actualTranscript: 'The label normalizer output is unchanged.',
+    outcomeDiff: 'No difference from the original request.',
+  }));
+  const triggerStemFileWithClaimDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    triggerStemFileWithClaimDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    true,
+    'a genuine trigger phrase next to a trigger-stemmed file name still fires',
   );
   // Control: a dotted token whose tail IS a scope noun but whose head is not a
   // trigger (label.scope) must not fire, and file names stay stripped.

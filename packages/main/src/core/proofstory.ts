@@ -1492,10 +1492,16 @@ export function evaluateDoneIntentEquivalence(
       input.summary?.outcomeDiff ?? '',
       input.summary?.limitations ?? '',
     ].join('\n'));
-    // Host-B (codex) finding 1: "remaining" tolerates up to three modifier
-    // words before the scope noun ("remaining browser-only edge cases") so the
-    // CHK-003 narrowing does not lose sentences the bare trigger used to catch.
-    const claimsShrinkage = /\b(?:partial|narrow(?:er|ed)?|shrink(?:age|s|ing)?|out[\s./_-]+of[\s./_-]+scope|not[\s./_-]+covered|deferred|remaining(?:[\s./_-]+[a-z0-9'()-]+){0,3}?[\s./_-]+(?:work|scope|items?|cases?|tasks?|milestones?|features?|functionality|coverage|requirements?|deliverables?)|excluded)\b/i.test(narrowingText);
+    // Host-B (codex) rounds 1+2: "remaining" pairs with a scope noun through a
+    // bounded SAME-SENTENCE character window (not a fixed modifier-word count)
+    // so any number of modifiers, commas, or unicode dashes between them still
+    // fire ("remaining browser-only Safari mobile edge cases", "remaining
+    // high-priority, user-visible cases"). A dot only ends the window when
+    // followed by whitespace, so dot-glued prose (remaining.scope) survives
+    // while the window never leaks across a sentence boundary. The noun is
+    // guarded by alphanumeric lookarounds instead of \b so underscore glue
+    // (remaining_work) keeps matching.
+    const claimsShrinkage = /\b(?:partial|narrow(?:er|ed)?|shrink(?:age|s|ing)?|out[\s./_-]+of[\s./_-]+scope|not[\s./_-]+covered|deferred|remaining(?:\.(?!\s)|[^.!?;:\n]){1,60}?(?<![A-Za-z0-9])(?:work|scope|items?|cases?|tasks?|milestones?|features?|functionality|coverage|requirements?|deliverables?)(?![A-Za-z0-9])|excluded)\b/i.test(narrowingText);
     if (claimsShrinkage && acceptedShrinkageMilestoneIds.length === 0) {
       gaps.push(gap(
         'unconfirmed_single_outcome_shrinkage',

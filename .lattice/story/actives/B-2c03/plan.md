@@ -57,12 +57,18 @@ Rationale:
 An independent codex host-B review (2026-07-10, read-only, live-CLI probes)
 returned FAIL with six findings after the seven claude-side rounds passed:
 
-- **Finding 1 (fixed here)**: the CHK-003 narrowing lost sentences the bare
-  trigger used to catch when modifiers sit between `remaining` and the scope
-  noun. Fix: the trigger now tolerates up to three intervening words
-  (`remaining(?:[connector][word]){0,3}?[connector]<scope-noun>`), covered by
-  modifierRemainingDone / modifierRemainingDone2 plus a no-noun negative
-  control.
+- **Finding 1 (fixed here; revised after round 2)**: the CHK-003 narrowing
+  lost sentences the bare trigger used to catch when modifiers sit between
+  `remaining` and the scope noun. Round-2 probing showed a fixed
+  modifier-word count also fails (>3 modifiers, comma-separated modifiers,
+  unicode dashes), so the final fix is a bounded SAME-SENTENCE character
+  window: `remaining(?:\.(?!\s)|[^.!?;:\n]){1,60}?<scope-noun>` with
+  alphanumeric lookarounds on the noun. Covered by five must-fire window
+  cases (including codex's round-1 and round-2 sentences) plus two negative
+  controls (no noun in window; noun only in the next sentence). NOTE (F-011):
+  the first version of these smoke cases was observed RED pre-fix but was
+  reverted by a concurrent reviewer cleanup before the commit landed — they
+  are now committed.
 - **Finding 5 (fixed here)**: ambiguous unanchored quantifiers made the strip
   scan superlinear (~6.4s on a 40k-char hyphen run). Fix: whitespace-split
   tokenization with anchored per-token tests — measured 8ms on the same input;
@@ -75,6 +81,15 @@ returned FAIL with six findings after the seven claude-side rounds passed:
   vocabulary-recall story rather than silently expanded here.
 - **Finding 6 (environmental)**: smoke could not run inside codex's read-only
   sandbox (mkdtemp EPERM); it runs green outside it and in validate.
+
+A second codex host-B round (post-fix) re-verified findings 1 and 5 as fixed
+for its round-1 sentences, then found the fixed-word-count window still missed
+longer/comma/unicode-dash modifier prose (folded into the revised Finding-1 fix
+above) and flagged whitespace-free backticked trigger tokens
+(`` `deferred` ``). The backtick class strips BY REQUIREMENT — the original
+user request names backticked spans explicitly — and the claim verb in such
+sentences ("left to a follow-up") is part of the verb-recall follow-up story;
+the direction is pinned by the backtickTriggerTokenDone smoke case.
 
 ## Risk notes
 
