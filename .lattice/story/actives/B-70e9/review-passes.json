@@ -1355,6 +1355,49 @@
         "scanEscalationReason": null
       },
       "_hash": "5695f12b6376ffee75449a15f9b786bb4a0116fb428704e6dd3cb1c3156e8f7d"
+    },
+    {
+      "id": "B-70e9:RP-058",
+      "agent": "lattice-review-quality",
+      "note": "Round 16 re-review of F-023 fix (commit 30d8ffa117) in packages/main/src/handlers/host-run.ts. Verified: (1) emitStderr is settle-aware and never rejects on any branch (stderrBroken pre-check resolves immediately, write-callback error folds into recordStreamError/onStderrError then resolves, sync-throw is caught and folded then resolves); (2) all four final-diagnostic call sites (json-mode usage line L325, text-mode passthroughWarning L350, text-mode failure/refusal usage line L354, text-mode success usage line L364) are awaited and sit inside the try block so they settle before the finally at L366; (3) finally removes exactly the two named error listeners via removeListener (F-020 hygiene preserved, no removeAllListeners); (4) no unhandled-rejection surface introduced; (5) stale safeWriteStderr fully removed, zero references remain repo-wide; (6) docs/host-run-usage.md clause (final diagnostic write is awaited to settle before finally removes the listeners) accurately matches the code; (7) new F-023 regression check in host-run-usage-smoke.ts drives a REAL subprocess (TEXT mode, stdout-only runner, stderr pipe destroyed at spawn before the first stderr write) asserting exit 0 / slot released / ledger final row intact -- a genuinely distinct window from the existing F-020 check. Build clean (tsc). npm run test:host-run-usage 55/55 pass (incl. new F-023 case). npm run test:usage-sweep 17/17 pass. No blocking issues found.",
+      "createdAt": "2026-07-10T14:15:50.115Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-066",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/alias-normalizer.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/host-execution-readiness.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/usage-ledger/adapters/openai.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/core/usage-ledger/writer.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/usage-ledger-budget-smoke.ts",
+          "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8bbc19a4039dca75aa2fb366c7eadbeaff4b8eb263637cb119f01dc3396f5d9b"
     }
   ]
 }
