@@ -1004,6 +1004,25 @@
         "scanEscalationReason": null
       },
       "_hash": "61a105cd4b37ecc77fe7929333686c0f8cf7acaf8b0e9dec7eb8d9f3a202d9fa"
+    },
+    {
+      "id": "B-70e9:RP-042",
+      "agent": "lattice-review-docs",
+      "note": "Round 12 re-review after smoke-only commit 2675c4ed0e (F-019: adds owner-write-failure rollback smoke coverage to host-run-usage-smoke.ts, writer.ts unchanged). Step 1 symbol extraction on this commit diff yields an empty set (only a test file changed, no exported symbol declarations touched) -> Fallback 1 applied: full self-consistency scan of the 2 touchpoint docs (docs/host-run-usage.md, 256 lines; CHANGELOG.md B-70e9 entry). Confirmed via git diff that neither file changed in 2675c4ed0e, and neither has changed since its last respective touch (docs/host-run-usage.md unchanged since F-018 commit 09530172e0; CHANGELOG.md unchanged since c094e2313d) -> zero doc drift introduced by this commit. Cross-checked the lock-reclaim paragraph (host-run-usage.md lines 191-203) against the current writer.ts acquireLedgerLock/maybeReclaimAbandonedLock code: doc claims (ownership-aware reclaim via owner.json, live-pid never reclaimed, ownerless/corrupt lock reclaimed only past the orphan backstop) still hold; the F-019-covered rollback branch (mkdir succeeds, owner.json write fails, immediate rmdirSync self-rollback) is an internal implementation detail with no user-visible/API behavior change, so no doc update was owed. Ran npm run test:host-run-usage locally: 51/51 checks pass, matching the commit message stated 50->51 delta. CHANGELOG.md B-70e9 entry only names smoke files generically (no check counts), so it remains accurate. No inconsistencies found; no findings registered.",
+      "createdAt": "2026-07-10T12:47:19.075Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-051",
+      "readManifest": {
+        "filesReadFully": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/core/usage-ledger/writer.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "89ce3f3e780b1f17d86fbb08910ba83377a2cd1d8d7655aa570919aba28dc611"
     }
   ]
 }
