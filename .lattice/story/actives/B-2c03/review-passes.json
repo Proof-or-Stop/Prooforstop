@@ -40,6 +40,28 @@
         "scanEscalationReason": null
       },
       "_hash": "66cbd4a15987387079e7dfded818b2d504d56bc576f9dfc07587750a8b1625f0"
+    },
+    {
+      "id": "B-2c03:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round: diff (proofstory.ts stripCodeLikeTokens tightened to keep hyphen-only tokens and strip only backticked spans/slash tokens/dotted tokens, plus new smoke cases in proofstory-intent-hardening-smoke.ts) is a targeted regex bug-fix, not a concept rename or deletion. Grepped stripCodeLikeTokens, narrowingText, claimsShrinkage across the repo (excluding node_modules/dist/.git): all consistently defined/used in packages/main/src/core/proofstory.ts with matching smoke coverage; other callers of evaluateDoneIntentEquivalence are unaffected since the exported function signature is unchanged. No blocker.",
+      "createdAt": "2026-07-10T14:54:33.015Z",
+      "reviewRound": "2026-07-10T14:41:10.214Z",
+      "reviewRunId": "B-2c03:RR-005",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2c03/checklist.json",
+          ".lattice/story/actives/B-2c03/findings.json",
+          ".lattice/story/actives/B-2c03/plan.md",
+          ".lattice/story/actives/B-2c03/review-passes.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4419ec8158f87b06a06d027728308587cab4e6e2c6ea19a3398db58a480d33dc"
     }
   ]
 }
