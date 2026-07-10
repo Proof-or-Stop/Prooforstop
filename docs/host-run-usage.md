@@ -303,6 +303,16 @@ particular) at least visible.
     `LATTICE_ACTIVITY_RECORD_READONLY=1` read-only heartbeat override documented
     in docs/CLI.md still applies); a non-empty `--out` is treated as a write and
     runs the hooks + records activity like any other mutating command.
+  - The same boundary also governs the **codex process-event surface** (F-032):
+    under `LATTICE_ACTIVITY_SOURCE=codex` cli-engine appends a `codex_cli` event
+    to the active story's `process-events.jsonl` after a command. That append is
+    STORY metadata, so it obeys the identical read-only contract — a plain
+    (no-`--out`) `usage_sweep` appends **no process event** (even with an
+    inferred active story), while a non-empty `--out` (a write) records the
+    process event like any other mutating command. The owner-lease heartbeat is
+    intentionally exempt: it is keyed on the ownership class (only a
+    `storyScopedMutating`/`dangerousMutating` write touches the lease), never on
+    this read-only classification, so read-only session upkeep is unaffected.
 
 ## Non-goals
 

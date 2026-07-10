@@ -24,6 +24,7 @@
  */
 
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
 import {
   closeSync,
   existsSync,
@@ -38,7 +39,8 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import {
   buildSweepReport,
@@ -74,6 +76,16 @@ async function checkAsync(label: string, fn: () => Promise<void>): Promise<void>
 
 const root = mkdtempSync(join(tmpdir(), 'usage-sweep-smoke-'));
 const FIXED_NOW = Date.parse('2026-07-10T12:00:00.000Z');
+
+// Locate the built CLI entry (same resolution as cli-surface-smoke): dist/tasks
+// → packages/main → dist/cli.js. Used by the F-032 end-to-end check that drives
+// the REAL CLI to prove the codex process-event write obeys the read-only gate.
+const here = dirname(fileURLToPath(import.meta.url));
+const packageRoot = join(here, '..', '..');
+const cliPath = join(packageRoot, 'dist', 'cli.js');
+function cliBin(): string | null {
+  return existsSync(cliPath) ? cliPath : null;
+}
 
 function writeJsonl(file: string, lines: string[]): void {
   mkdirSync(join(file, '..'), { recursive: true });
@@ -498,6 +510,89 @@ async function main(): Promise<void> {
       if (prevOverride === undefined) delete process.env.LATTICE_ACTIVITY_RECORD_READONLY;
       else process.env.LATTICE_ACTIVITY_RECORD_READONLY = prevOverride;
     }
+  });
+
+  // ── 19. F-032: the codex process-event write obeys the read-only contract ──
+  // Third surface of the F-028 read-only contract (after hooks + activity log):
+  // cli-engine's run() appended a codex process event to the STORY's
+  // process-events.jsonl after EVERY successful command. Under
+  // LATTICE_ACTIVITY_SOURCE=codex with an inferred active story, a plain (no
+  // --out) usage_sweep therefore mutated story metadata against the zero-write
+  // contract. This is the honest end-to-end (CLI-level) form the finding asks
+  // for: drive the REAL built CLI against a fixture project on a `story/` branch
+  // (so detectActiveStory infers the active story) and assert the story's
+  // process-events.jsonl is byte-identical after a plain sweep, while a
+  // `usage_sweep --out` (a write) DOES append exactly one codex process event.
+  await checkAsync('F-032: plain usage_sweep leaves process-events byte-identical; --out appends the codex process event (CLI end-to-end)', async () => {
+    const cli = cliBin();
+    assert.ok(cli, 'built dist/cli.js is present (run `npm run build` before this smoke)');
+
+    const fixtureRoot = join(root, 'f032-project');
+    const storyId = 'B-f032';
+    mkdirSync(fixtureRoot, { recursive: true });
+    // A git repo on a `story/<id>` branch is what detectActiveStory keys on. A
+    // single commit is required so `git rev-parse --abbrev-ref HEAD` resolves
+    // (an unborn branch would make rev-parse fail → no inferred active story).
+    const git = (args: string[]): void => {
+      execFileSync('git', args, { cwd: fixtureRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    };
+    git(['init', '-q']);
+    git(['-c', 'user.email=f032@local', '-c', 'user.name=f032', '-c', 'commit.gpgsign=false', 'commit', '--allow-empty', '-q', '-m', 'f032 fixture']);
+    git(['checkout', '-q', '-b', `story/${storyId}`]);
+
+    // Seed a readable story so StoryStore(root).readStory(storyId) succeeds and
+    // detectActiveStory returns { storyId, phase }.
+    const fixtureStore = new StoryStore(fixtureRoot);
+    fixtureStore.writeStory(storyId, {
+      storyId,
+      name: storyId,
+      title: 'F-032 read-only contract fixture',
+      description: 'fixture story for the codex process-event read-only smoke',
+      type: 'chore',
+      phase: 'DEV',
+      priority: 'normal',
+      createdAt: new Date(FIXED_NOW).toISOString(),
+      startedAt: null,
+      endedAt: null,
+    });
+    const eventsFile = join(fixtureStore.storyDirPath(storyId), 'process-events.jsonl');
+    const readEvents = (): string | null => (existsSync(eventsFile) ? readFileSync(eventsFile, 'utf8') : null);
+
+    const childEnv: NodeJS.ProcessEnv = { ...process.env, LATTICE_ACTIVITY_SOURCE: 'codex', LATTICE_ACTIVITY_SESSION: 'f032-smoke' };
+    // Neutralize env that could change the classification under the harness:
+    // a read-only override would force an activity row, a reviewer-readonly flag
+    // would refuse the --out write, and a stray project-root env is superseded
+    // by --root anyway.
+    delete childEnv.LATTICE_ACTIVITY_RECORD_READONLY;
+    delete childEnv.LATTICE_REVIEWER_READONLY;
+    delete childEnv.LATTICE_PROJECT_ROOT;
+    const runSweep = (extra: string[]): void => {
+      execFileSync(process.execPath, [
+        cli, '--root', fixtureRoot, 'usage_sweep', '--since=2026-07-01',
+        `--codexSessionsDir=${codexDir}`, `--claudeProjectsDir=${claudeDir}`, ...extra,
+      ], { cwd: fixtureRoot, env: childEnv, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+    };
+
+    // Plain (no --out) sweep is read-only → NO process event may be written.
+    const before = readEvents();
+    assert.equal(before, null, 'baseline: no process-events file before any sweep');
+    runSweep([]);
+    assert.equal(readEvents(), before, 'plain usage_sweep left process-events.jsonl byte-identical (read-only contract holds)');
+    assert.equal(readEvents(), null, 'read-only sweep created no process-events file at all');
+
+    // usage_sweep --out is a write → it DOES append exactly one codex event.
+    runSweep(['--out=reports/f032-sweep.json']);
+    const after = readEvents();
+    assert.ok(after && after.trim().length > 0, '--out usage_sweep appended a process event');
+    const lines = after.trim().split('\n').filter(Boolean);
+    assert.equal(lines.length, 1, 'exactly one process event appended by the mutating (--out) sweep');
+    const evt = JSON.parse(lines[0]) as { type?: string; command?: string; storyId?: string; result?: string; source?: string };
+    assert.equal(evt.type, 'codex_cli', 'the appended event is the codex_cli process event');
+    assert.equal(evt.source, 'codex', 'event carries the codex source');
+    assert.equal(evt.command, 'usage_sweep', 'event records the usage_sweep command');
+    assert.equal(evt.storyId, storyId, 'event is bound to the inferred active story');
+    assert.equal(evt.result, 'pass', 'the --out sweep succeeded (event result=pass)');
+    assert.ok(existsSync(join(fixtureRoot, 'reports', 'f032-sweep.json')), '--out wrote the report inside the project root');
   });
 }
 

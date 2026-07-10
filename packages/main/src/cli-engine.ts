@@ -1057,6 +1057,17 @@ export async function runCli(opts?: {
     const argsObject = entry.args && typeof entry.args === 'object' && !Array.isArray(entry.args)
       ? entry.args as Record<string, unknown>
       : {};
+    // F-032: appending a codex process event mutates STORY metadata
+    // (<story>/process-events.jsonl), so it is bound by the SAME F-028
+    // read-only contract as the pre/post command hooks and the activity log.
+    // A read-only command — a static READ_ONLY_COMMANDS member OR a plain
+    // (no --out) usage_sweep — must append NOTHING; a mutating command,
+    // including a `usage_sweep --out` that writes a report file, keeps its
+    // process event. This single guard is the class-wide choke point: it fires
+    // for BOTH the success and error call sites in run() (and any future
+    // caller), using the exact `isReadOnlyCommand` predicate the hook gates use,
+    // so no post-command process-event surface can bypass the contract.
+    if (isReadOnlyCommand(entry.command, argsObject)) return;
     const storyId = storyIdFromArgs(argsObject, activeStory, { command: entry.command, projectRoot: root });
     if (!storyId) return;
     try {
@@ -1165,6 +1176,9 @@ export async function runCli(opts?: {
       if (shouldWriteActivityLog(cmd, parsed) || staleWarnings.length > 0) {
         writeLog({ command: cmd, args: parsed, startTime: runStart, endTime: new Date().toISOString(), success: true, staleWarnings });
       }
+      // F-032: writeCodexProcessEvent self-gates on isReadOnlyCommand (same
+      // read-only contract as the activity log above and the pre/post hooks
+      // below), so a plain (no --out) usage_sweep appends NO story process event.
       writeCodexProcessEvent({ command: cmd, args: parsed, success: true });
       // Append next-step guidance. Only commands registered in hints.ts are decorated; other commands are returned unchanged.
       // B-7fc2: `--json` / `--format=json` stdout is a machine-only payload.
@@ -1207,6 +1221,8 @@ export async function runCli(opts?: {
       if (shouldWriteActivityLog(cmd, parsed) || staleWarnings.length > 0) {
         writeLog({ command: cmd, args: parsed, startTime: runStart, endTime: new Date().toISOString(), success: false, error: e.message, staleWarnings });
       }
+      // F-032: same self-gating applies on the error path — a read-only command
+      // (e.g. a plain usage_sweep) that fails still appends NO story process event.
       writeCodexProcessEvent({ command: cmd, args: parsed, success: false, error: e.message });
       // onError hook — best-effort; always runs before exit(1).
       // Print a hint so the user knows why a failed command takes a few extra seconds.
