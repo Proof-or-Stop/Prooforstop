@@ -920,6 +920,31 @@
         "scanEscalationReason": null
       },
       "_hash": "2ef4f86cf13711db1358da4c022dfce98b52cefd5e8d463d89a5f37eca2c0e3e"
+    },
+    {
+      "id": "B-70e9:RP-038",
+      "agent": "lattice-review-quality",
+      "note": "Round 10 re-review of F-017 fix (commit b5df58d44d): verified admission ordering parity (preflight->budget->concurrency-with-registry-error-carveout->spawn) matches host-run.ts/autopilot-executor.ts F-016 byte-for-byte; finally releaseSlot wraps await runner() inside try so both sync throw and async rejection release the slot (releaseSlot(null) is a safe no-op on refusal/OFF paths; no dedicated runner-throw test for this leaf specifically, but that gap is pre-existing and symmetric with the already-accepted autopilot-executor.ts F-016 chain, not a regression); blocked-verdict binds materialHash to the reviewed hash so jointDecision reports blocked via hostBDecision!=pass only, never a spurious material-mismatch reason; confirmed no import cycle; confirmed handlers/cross-host-review.ts diff predates this fix commit (usageLedger wiring landed in d960ddf387/CHK-003); docs addition fully backed by code; no dead code/as any/empty catches, all new imports used. Re-ran build (clean), test:host-run-usage 47/47, cross-host-review-smoke 24/24, usage-ledger-budget-smoke 41/41, usage-ledger-dispatch-smoke 40/40. No blocking issues found.",
+      "createdAt": "2026-07-10T12:12:10.273Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-040",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/core/cross-host-review.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/tasks/usage-ledger-budget-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "52196440b89948935fee4972a7fbf7ca074eefe47652fd3196430370c9797ecb"
     }
   ]
 }
