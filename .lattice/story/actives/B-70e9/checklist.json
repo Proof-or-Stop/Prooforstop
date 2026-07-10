@@ -621,6 +621,18 @@
           "materialHash": "9a34267cfc576a5198b54b34edebacab9d3db95b7cf9a62511a26960debe9169",
           "storyFilesHash": "9df50ebfa33bf98831fcb1d9b2aea402d8d6750256e08b9ab080558a92e233aa",
           "timestamp": "2026-07-10T07:10:19.667Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-sweep-smoke.ts",
+          "command": "npm --prefix packages/main run test:usage-sweep",
+          "result": "pass",
+          "note": "usage-sweep smoke asserts cumulative-last codex totals, claude dedupe by requestId/message.id, story-mention regex, mtime cutoff, unknown-not-zero, empty dirs, zero-writes snapshot, parse-error counting, out-path refusal, NON-AUTHORITATIVE label",
+          "headHash": "60aab5f98f196d290277fcb163e1201330c83945",
+          "materialHash": "9a34267cfc576a5198b54b34edebacab9d3db95b7cf9a62511a26960debe9169",
+          "storyFilesHash": "9df50ebfa33bf98831fcb1d9b2aea402d8d6750256e08b9ab080558a92e233aa",
+          "timestamp": "2026-07-10T07:10:21.118Z"
         }
       ]
     },
