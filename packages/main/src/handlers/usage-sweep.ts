@@ -8,20 +8,23 @@
  * report label 'NON-AUTHORITATIVE ESTIMATE' is present in BOTH modes.
  *
  * Strictly read-only. The ONLY write this command can ever perform is the
- * optional --out report file, and only when --out is explicitly passed and
- * resolves INSIDE the project root (paths escaping root are refused). It never
- * touches the usage ledger, gate evidence, or story metadata.
+ * optional --out report file, and that write is create-only and fenced
+ * (F-010): --out must be a RELATIVE path inside the project root, the target
+ * must NOT already exist (exclusive 'wx' create — never overwrite/truncate),
+ * and symlinked ancestor directories are refused so the write can never be
+ * redirected outside the project. It never touches the usage ledger, gate
+ * evidence, or story metadata.
  */
 
-import { writeFileSync } from 'node:fs';
+import { closeSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import type { HandlerContext } from './context.js';
 import type { FormatArgs } from './verdict.js';
 import {
   buildSweepReport,
+  openReportFileExclusive,
   parseSinceToMs,
-  resolveOutPathWithinRoot,
   rowTotalTokens,
   sweepClaudeProjects,
   sweepCodexSessions,
@@ -166,12 +169,17 @@ export function createUsageSweepHandlers(ctx: HandlerContext, options: CreateUsa
       const base = buildSweepReport([...codexRows, ...claudeRows], { since: label, sinceMs });
       const report: UsageSweepReport = { ...base, generatedAt: new Date(now()).toISOString() };
 
-      // The ONLY write path: an explicit --out inside the project root.
+      // The ONLY write path: an explicit --out, create-only via the hardened
+      // core fence (relative-only, no overwrite, no symlinked ancestors).
       const outArg = normalizeString(args.out);
       if (outArg) {
-        const outPath = resolveOutPathWithinRoot(ctx.root, outArg);
-        writeFileSync(outPath, `${JSON.stringify(report, null, 2)}\n`, 'utf8');
-        process.stderr.write(`usage_sweep: wrote report to ${outPath}\n`);
+        const { absPath, fd } = openReportFileExclusive(ctx.root, outArg);
+        try {
+          writeFileSync(fd, `${JSON.stringify(report, null, 2)}\n`, 'utf8');
+        } finally {
+          closeSync(fd);
+        }
+        process.stderr.write(`usage_sweep: wrote report to ${absPath}\n`);
       }
 
       if (wantsJson(args)) return report;

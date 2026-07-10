@@ -191,8 +191,19 @@ particular) at least visible.
 - It performs **no ledger backfill**: swept sessions are never written into the
   usage ledger.
 - It is strictly **read-only**. The only write it can perform is an explicit
-  `--out <path>` JSON report, and `--out` refuses any path outside the project
-  root.
+  `--out <path>` JSON report, and that write is create-only and fenced:
+  - `--out` must be a **relative** path that resolves inside the project root;
+    absolute paths and any `..` traversal escaping the root are refused
+    outright.
+  - It only ever **creates a new report file** — the file is opened with the
+    exclusive-create `wx` flag, so an already-existing target is refused
+    atomically and `usage_sweep` can never overwrite or truncate anything
+    (not even via a symlink at the target path).
+  - It refuses to write through **symlinked ancestor directories**, and the
+    resolved real path must still fall inside the (realpath'd) project root,
+    so an inside-root symlink cannot redirect the report outside the project.
+  - Missing report directories are created only **after** all of those checks
+    pass.
 
 ## Non-goals
 

@@ -12,7 +12,10 @@
  *     shapes are defined LOCALLY here on purpose.
  *   - Pure core: no ~ expansion, no process.env reads, no Date.now. Dirs, the
  *     since cutoff, and (for the report) a caller-supplied clock are injected.
- *   - Zero writes. The scanners only stat + stream-read files.
+ *   - Zero writes in the scanners: they only stat + stream-read files. The ONE
+ *     write primitive in this module is `openReportFileExclusive` (the --out
+ *     fence), which is create-only ('wx'), relative-path-only, and refuses
+ *     symlinked ancestors — it can never overwrite or escape the project root.
  *   - Files can be hundreds of MB (a 30-hour desktop rollout hit 368.9M
  *     cumulative input tokens), so every file is read line-by-line via readline
  *     over a read stream — never readFileSync of a whole file.
@@ -24,8 +27,18 @@
  * last usage per id (one assistant message can span multiple JSONL events).
  */
 
-import { createReadStream, existsSync, readdirSync, statSync } from 'node:fs';
-import { basename, isAbsolute, join, relative, resolve } from 'node:path';
+import {
+  createReadStream,
+  existsSync,
+  lstatSync,
+  mkdirSync,
+  openSync,
+  readdirSync,
+  realpathSync,
+  statSync,
+  type Stats,
+} from 'node:fs';
+import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { createInterface } from 'node:readline';
 
 // ── Local usage shapes (intentionally NOT imported from core/usage-ledger) ───
@@ -576,7 +589,7 @@ export function buildSweepReport(
   };
 }
 
-// ── since parsing + --out path guard (pure, injectable clock/root) ───────────
+// ── since parsing + hardened --out fence (injectable clock/root) ─────────────
 
 export interface ParsedSince {
   sinceMs: number;
@@ -613,21 +626,137 @@ export function parseSinceToMs(raw: string, nowMs: number): ParsedSince {
   return { sinceMs: ms, label: value };
 }
 
+/** Typed refusal reasons for the hardened --out fence (F-010). */
+export type UsageSweepOutErrorCode =
+  | 'empty'
+  | 'absolute'
+  | 'outside-root'
+  | 'symlink-ancestor'
+  | 'ancestor-not-dir'
+  | 'already-exists';
+
+export class UsageSweepOutError extends Error {
+  readonly code: UsageSweepOutErrorCode;
+  constructor(code: UsageSweepOutErrorCode, message: string) {
+    super(message);
+    this.name = 'UsageSweepOutError';
+    this.code = code;
+  }
+}
+
+/** A validated, exclusively created --out report file. Caller writes fd, then closes it. */
+export interface ReportOutFile {
+  /** Fully validated absolute path of the newly created report file. */
+  absPath: string;
+  /** Descriptor opened with the exclusive-create 'wx' flag (O_CREAT|O_EXCL). */
+  fd: number;
+}
+
+/** True when `rel` (a path.relative result) points at or outside the base. */
+function escapesBase(rel: string): boolean {
+  return rel === '' || rel === '..' || rel.startsWith(`..${sep}`) || isAbsolute(rel);
+}
+
 /**
- * Resolve a --out path and refuse anything that escapes `root`. Relative paths
- * resolve against root; absolute paths must still land inside root. Any '..'
- * that would escape root (after resolution) is refused. Pure + testable.
+ * F-010 hardened --out fence. Validates a report path and CREATES it
+ * exclusively; the usage sweep can never overwrite an existing file or write
+ * outside the project root. Rules, in order:
+ *
+ *   1. --out must be a RELATIVE path (absolute paths are refused outright).
+ *   2. The lexical resolution against `root` must stay inside root (no '..'
+ *      traversal past root; the root itself is not a valid report file).
+ *   3. Every EXISTING ancestor directory below root is lstat'ed: symlinks are
+ *      refused (an inside-root symlink must not redirect the write), and a
+ *      non-directory ancestor is refused. After realpath of the deepest
+ *      existing ancestor, the target must STILL land inside the realpath'd
+ *      root (catches symlink chains above the deepest missing segment).
+ *   4. Missing trailing directories are created only AFTER those checks pass.
+ *   5. The file itself is opened with the exclusive-create 'wx' flag, so the
+ *      never-overwrite guarantee is atomic (open fails with EEXIST even when
+ *      the existing path is a symlink — O_EXCL does not follow it).
+ *
+ * Returns the validated absolute path plus the open fd; throws
+ * UsageSweepOutError with a typed code on any refusal.
  */
-export function resolveOutPathWithinRoot(root: string, out: string): string {
+export function openReportFileExclusive(root: string, out: string): ReportOutFile {
   const trimmed = out.trim();
-  if (trimmed.length === 0) throw new Error('usage_sweep: --out path is empty');
-  const resolved = isAbsolute(trimmed) ? resolve(trimmed) : resolve(root, trimmed);
-  const rel = relative(resolve(root), resolved);
-  if (rel === '' || rel.startsWith('..') || isAbsolute(rel)) {
-    throw new Error(
-      `usage_sweep: --out "${out}" resolves to "${resolved}", which is outside the project root "${root}"; refusing to write. ` +
-        'Pass a path inside the project (the sweep only ever writes when --out is given).',
+  if (trimmed.length === 0) {
+    throw new UsageSweepOutError('empty', 'usage_sweep: --out path is empty');
+  }
+  if (isAbsolute(trimmed)) {
+    throw new UsageSweepOutError(
+      'absolute',
+      `usage_sweep: --out "${out}" is an absolute path; --out must be a RELATIVE path inside the project root ` +
+        '(it only ever CREATES a new report file there; it never overwrites).',
     );
   }
-  return resolved;
+
+  const rootResolved = resolve(root);
+  const target = resolve(rootResolved, trimmed);
+  if (escapesBase(relative(rootResolved, target))) {
+    throw new UsageSweepOutError(
+      'outside-root',
+      `usage_sweep: --out "${out}" resolves to "${target}", which is outside the project root "${root}"; refusing to write. ` +
+        'Pass a relative path inside the project (the sweep only ever writes when --out is given).',
+    );
+  }
+
+  // Walk every EXISTING ancestor directory strictly below root.
+  const parent = dirname(target);
+  const relDir = relative(rootResolved, parent);
+  const segments = relDir === '' ? [] : relDir.split(sep);
+  let current = rootResolved;
+  let deepestExisting = rootResolved;
+  for (const segment of segments) {
+    current = join(current, segment);
+    let st: Stats | null = null;
+    try {
+      st = lstatSync(current);
+    } catch (err) {
+      if ((err as NodeJS.ErrnoException).code !== 'ENOENT') throw err;
+    }
+    if (st === null) break; // first missing segment: the rest cannot exist either
+    if (st.isSymbolicLink()) {
+      throw new UsageSweepOutError(
+        'symlink-ancestor',
+        `usage_sweep: --out "${out}" traverses "${current}", which is a symlink; refusing to write through symlinked ancestors.`,
+      );
+    }
+    if (!st.isDirectory()) {
+      throw new UsageSweepOutError(
+        'ancestor-not-dir',
+        `usage_sweep: --out "${out}" traverses "${current}", which exists but is not a directory.`,
+      );
+    }
+    deepestExisting = current;
+  }
+
+  // Realpath containment: resolve the deepest EXISTING ancestor (and the root
+  // itself) and require the target to still land inside the real root.
+  const realRoot = realpathSync(rootResolved);
+  const realDeepest = realpathSync(deepestExisting);
+  const realTarget = resolve(realDeepest, relative(deepestExisting, target));
+  if (escapesBase(relative(realRoot, realTarget))) {
+    throw new UsageSweepOutError(
+      'outside-root',
+      `usage_sweep: --out "${out}" resolves (after symlinks) to "${realTarget}", which is outside the real project root "${realRoot}"; refusing to write.`,
+    );
+  }
+
+  // Only AFTER validation may missing trailing directories be created.
+  if (deepestExisting !== parent) mkdirSync(parent, { recursive: true });
+
+  let fd: number;
+  try {
+    fd = openSync(target, 'wx');
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code === 'EEXIST') {
+      throw new UsageSweepOutError(
+        'already-exists',
+        `usage_sweep: --out "${out}" already exists at "${target}"; usage_sweep never overwrites — pass a path to a NEW report file.`,
+      );
+    }
+    throw err;
+  }
+  return { absPath: target, fd };
 }

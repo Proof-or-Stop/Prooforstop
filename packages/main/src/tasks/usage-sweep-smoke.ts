@@ -13,7 +13,10 @@
  *   - empty / missing store dirs → empty report, no throw;
  *   - ZERO WRITES: store-dir file list + mtimes identical before/after a sweep;
  *   - malformed JSONL lines counted in parseErrors without aborting the scan;
- *   - --out path traversal refused (pure guard + handler);
+ *   - --out fence (F-010): relative-only (absolute refused outright), '..'
+ *     traversal refused, existing target refused byte-untouched (exclusive
+ *     'wx' create — never overwrite), symlinked ancestors refused with no
+ *     write escaping the root, happy relative new-file create parses;
  *   - NON-AUTHORITATIVE label present in BOTH human and json outputs;
  *   - multi-thousand-line streaming sanity (proves the readline path).
  *
@@ -22,6 +25,7 @@
 
 import assert from 'node:assert/strict';
 import {
+  closeSync,
   existsSync,
   mkdirSync,
   mkdtempSync,
@@ -29,6 +33,7 @@ import {
   readFileSync,
   rmSync,
   statSync,
+  symlinkSync,
   utimesSync,
   writeFileSync,
 } from 'node:fs';
@@ -37,8 +42,8 @@ import { join } from 'node:path';
 
 import {
   buildSweepReport,
+  openReportFileExclusive,
   parseSinceToMs,
-  resolveOutPathWithinRoot,
   sweepClaudeProjects,
   sweepCodexSessions,
   type CodexUsageTotals,
@@ -264,22 +269,32 @@ async function main(): Promise<void> {
     assert.ok(report.unattributed.sessionCount >= 1, 'codex-sess-B is unattributed');
   });
 
-  // ── 9. --out path traversal refused (pure guard) ───────────────────────────
-  await checkAsync('resolveOutPathWithinRoot refuses paths escaping the project root', async () => {
+  // ── 9. --out fence (core): relative-only, traversal refused, exclusive create
+  await checkAsync('openReportFileExclusive: relative-inside-root creates exclusively; traversal/absolute refused', async () => {
     const projectRoot = join(root, 'guard-root');
     mkdirSync(projectRoot, { recursive: true });
-    // Inside root → allowed.
-    const inside = resolveOutPathWithinRoot(projectRoot, 'reports/sweep.json');
-    assert.ok(inside.startsWith(projectRoot), 'relative path resolves inside root');
+    // Relative new file inside root → validated absolute path + exclusive fd.
+    const opened = openReportFileExclusive(projectRoot, 'reports/sweep.json');
+    closeSync(opened.fd);
+    assert.equal(opened.absPath, join(projectRoot, 'reports', 'sweep.json'), 'validated absolute path inside root');
+    assert.ok(existsSync(opened.absPath), 'exclusive create made the file (missing dirs created after validation)');
     // A relative path that resolves back inside root is allowed even with '..'.
-    const backInside = resolveOutPathWithinRoot(projectRoot, 'sub/../report.json');
-    assert.equal(backInside, join(projectRoot, 'report.json'), '.. that stays inside root is allowed');
-    // Escapes → refused.
-    for (const bad of ['../escape.json', '../../etc/passwd', '/etc/passwd', 'sub/../../escape.json']) {
-      assert.throws(() => resolveOutPathWithinRoot(projectRoot, bad), /outside the project root/, `refuses ${bad}`);
+    const backInside = openReportFileExclusive(projectRoot, 'sub/../report.json');
+    closeSync(backInside.fd);
+    assert.equal(backInside.absPath, join(projectRoot, 'report.json'), '.. that stays inside root is allowed');
+    // '..' traversal escaping root → refused.
+    for (const bad of ['../escape.json', '../../etc/passwd', 'sub/../../escape.json']) {
+      assert.throws(() => openReportFileExclusive(projectRoot, bad), /outside the project root/, `refuses ${bad}`);
     }
-    // The root itself (a dir, not a file) is refused.
-    assert.throws(() => resolveOutPathWithinRoot(projectRoot, '.'), /outside the project root|empty/, 'refuses the root dir itself');
+    // Absolute paths are refused OUTRIGHT (even ones that would land inside root).
+    for (const abs of ['/etc/passwd', join(projectRoot, 'abs-inside.json')]) {
+      assert.throws(() => openReportFileExclusive(projectRoot, abs), /RELATIVE path/, `refuses absolute ${abs}`);
+    }
+    // The root itself (a dir, not a file) and the empty path are refused.
+    assert.throws(() => openReportFileExclusive(projectRoot, '.'), /outside the project root/, 'refuses the root dir itself');
+    assert.throws(() => openReportFileExclusive(projectRoot, ''), /empty/, 'refuses the empty path');
+    // Re-opening an existing target is refused (never overwrite).
+    assert.throws(() => openReportFileExclusive(projectRoot, 'reports/sweep.json'), /never overwrites/, 'refuses an existing target');
   });
 
   // ── 10. NON-AUTHORITATIVE label present in BOTH human and json handler output
@@ -324,6 +339,90 @@ async function main(): Promise<void> {
     assert.equal(parseSinceToMs('2026-07-01T06:30:00Z', FIXED_NOW).sinceMs, Date.parse('2026-07-01T06:30:00Z'), 'ISO datetime');
     assert.throws(() => parseSinceToMs('not-a-date', FIXED_NOW), /unparseable/, 'rejects garbage');
     assert.throws(() => parseSinceToMs('', FIXED_NOW), /required/, 'rejects empty');
+  });
+
+  // ── 12. F-010: absolute --out refused outright (handler) ───────────────────
+  await checkAsync('handler: absolute --out is refused outright (relative-only rule), nothing written', async () => {
+    const ctx = makeCtx('abs-out-root');
+    const handlers = createUsageSweepHandlers(ctx, { now: () => FIXED_NOW });
+    // Even an absolute path pointing INSIDE the project root is refused.
+    const absOut = join(ctx.root, 'abs-report.json');
+    await assert.rejects(
+      () => handlers.usage_sweep({ since: '2026-07-01', codexSessionsDir: codexDir, claudeProjectsDir: claudeDir, json: true, out: absOut }),
+      /RELATIVE path/,
+      'absolute --out refused even when it points inside the project root',
+    );
+    assert.ok(!existsSync(absOut), 'no file was created by the refused absolute --out');
+  });
+
+  // ── 13. F-010: existing --out target refused, file byte-identical ──────────
+  await checkAsync('handler: --out targeting an EXISTING file is refused; file untouched byte-identical', async () => {
+    const ctx = makeCtx('overwrite-root');
+    const handlers = createUsageSweepHandlers(ctx, { now: () => FIXED_NOW });
+    // Simulate a tracked project file a readOnly command must never clobber.
+    const victim = join(ctx.root, 'package.json');
+    const original = '{"name":"victim","version":"1.0.0"}\n';
+    writeFileSync(victim, original, 'utf8');
+    await assert.rejects(
+      () => handlers.usage_sweep({ since: '2026-07-01', codexSessionsDir: codexDir, claudeProjectsDir: claudeDir, json: true, out: 'package.json' }),
+      /never overwrites/,
+      '--out aimed at an existing tracked file is refused',
+    );
+    assert.equal(readFileSync(victim, 'utf8'), original, 'existing file is byte-identical (never truncated/replaced)');
+  });
+
+  // ── 14. F-010: symlinked --out ancestor refused; no write escapes root ─────
+  await checkAsync('handler: symlinked --out ancestor is refused; nothing written outside the project root', async () => {
+    const ctx = makeCtx('symlink-root');
+    const handlers = createUsageSweepHandlers(ctx, { now: () => FIXED_NOW });
+    const outsideDir = mkdtempSync(join(tmpdir(), 'usage-sweep-outside-'));
+    try {
+      // Inside-root name 'reports' actually points OUTSIDE the project root.
+      symlinkSync(outsideDir, join(ctx.root, 'reports'));
+      await assert.rejects(
+        () => handlers.usage_sweep({ since: '2026-07-01', codexSessionsDir: codexDir, claudeProjectsDir: claudeDir, json: true, out: 'reports/sweep.json' }),
+        /symlink/,
+        'write through a symlinked ancestor is refused',
+      );
+      assert.deepEqual(readdirSync(outsideDir), [], 'no report file escaped outside the project root');
+    } finally {
+      rmSync(outsideDir, { recursive: true, force: true });
+    }
+  });
+
+  // ── 15. F-010: happy path — relative --out creates a NEW nested report ─────
+  await checkAsync('handler: relative --out creates a new nested report that parses; second run refuses overwrite', async () => {
+    const ctx = makeCtx('happy-out-root');
+    const handlers = createUsageSweepHandlers(ctx, { now: () => FIXED_NOW });
+    const outRel = 'reports/nested/sweep.json';
+    await handlers.usage_sweep({ since: '2026-07-01', codexSessionsDir: codexDir, claudeProjectsDir: claudeDir, json: true, out: outRel });
+    const outPath = join(ctx.root, 'reports', 'nested', 'sweep.json');
+    assert.ok(existsSync(outPath), 'missing report dirs created (after validation) and the report written');
+    const parsed = JSON.parse(readFileSync(outPath, 'utf8'));
+    assert.equal(parsed.label, 'NON-AUTHORITATIVE ESTIMATE', 'written report parses and carries the label');
+    assert.equal(parsed.generatedAt, new Date(FIXED_NOW).toISOString(), 'written report carries generatedAt');
+    // Create-only: the SAME path on a second run is refused, content untouched.
+    const bytesBefore = readFileSync(outPath, 'utf8');
+    await assert.rejects(
+      () => handlers.usage_sweep({ since: '2026-07-01', codexSessionsDir: codexDir, claudeProjectsDir: claudeDir, json: true, out: outRel }),
+      /never overwrites/,
+      'second run against the same --out path is refused',
+    );
+    assert.equal(readFileSync(outPath, 'utf8'), bytesBefore, 'first report untouched by the refused second run');
+  });
+
+  // ── 16. F-010: '..'-traversal --out still refused (handler) ────────────────
+  await checkAsync('handler: ".."-traversal --out is still refused; no file appears in the parent dir', async () => {
+    const ctx = makeCtx('traversal-root');
+    const handlers = createUsageSweepHandlers(ctx, { now: () => FIXED_NOW });
+    for (const bad of ['../escape.json', 'sub/../../escape.json']) {
+      await assert.rejects(
+        () => handlers.usage_sweep({ since: '2026-07-01', codexSessionsDir: codexDir, claudeProjectsDir: claudeDir, json: true, out: bad }),
+        /outside the project root/,
+        `refuses ${bad}`,
+      );
+    }
+    assert.ok(!existsSync(join(root, 'escape.json')), 'no traversal file appeared outside the fixture project root');
   });
 }
 
