@@ -1,0 +1,75 @@
+{
+  "storyId": "B-3928",
+  "checkedAt": "2026-07-10T04:20:40.024Z",
+  "headHash": "93b125682b60ac40f5ac272d1b44c654f430c27d",
+  "materialHash": "b5fd1b15fd07f5e8a0a2062719808ec14147b46de6e2b9bf93ae359bce9b65ce",
+  "storyFilesHash": "74644226b4e7a36b5c2f0ee1fce9c6be8d664f56f6d8eae891dc67b2dd085518",
+  "reviewRound": "2026-07-10T04:15:51.636Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-3928/checklist.json#CHK-001.userSees",
+      "promise": "User sees \"PASS proof-or-stop prompt baseline: roleCount=16 registry hashes verified\" in node scripts/verify-proof-or-stop-prompt-baseline.mjs output.",
+      "status": "verified",
+      "verifiedBy": "fresh live-smoke transcript plus baseline and verifier source inspection",
+      "evidence": "evidence/live-smoke-transcript.json records exitCode 0 and the exact stdout line; the baseline contains 16 unique registry roles, and verifier lines 594-619 plus 773 enforce and report registry parity."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-3928/checklist.json#CHK-002.userSees",
+      "promise": "User sees \"PASS proof-or-stop prompt baseline: agent_prompt output hashes verified for 16 roles\" in node scripts/verify-proof-or-stop-prompt-baseline.mjs output.",
+      "status": "verified",
+      "verifiedBy": "fresh live-smoke transcript plus baseline and verifier source inspection",
+      "evidence": "The captured exit-0 stdout contains the exact line; the baseline has 16 unique agent_prompt outputs, and verifier lines 621-637 plus 774 compare sha256, bytes, and lines for every role."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-3928/checklist.json#CHK-003.userSees",
+      "promise": "User sees \"PASS proof-or-stop prompt baseline: overlap matrix verified for 16 roles\" in node scripts/verify-proof-or-stop-prompt-baseline.mjs output.",
+      "status": "verified",
+      "verifiedBy": "fresh live-smoke transcript plus matrix and verifier source inspection",
+      "evidence": "The captured exit-0 stdout contains the exact line; the committed matrix has 16 role rows, and verifier lines 639-691 plus 775 enforce complete fields, role parity, and rendered markdown parity."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-3928/checklist.json#CHK-004.userSees",
+      "promise": "User sees \"PASS proof-or-stop prompt baseline: legacy vocabulary findings classified\" in node scripts/verify-proof-or-stop-prompt-baseline.mjs output.",
+      "status": "verified",
+      "verifiedBy": "fresh live-smoke transcript plus classified-baseline and verifier source inspection",
+      "evidence": "The captured exit-0 stdout contains the exact line; the baseline classifies all 52 current legacy-vocabulary findings, and verifier lines 693-714 plus 776 reject new, missing, duplicate, or reclassified findings."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-3928/checklist.json#CHK-005.userSees",
+      "promise": "User sees \"PASS proof-or-stop prompt baseline: direct story-file findings classified\" in node scripts/verify-proof-or-stop-prompt-baseline.mjs output.",
+      "status": "verified",
+      "verifiedBy": "fresh live-smoke transcript plus classified-baseline and verifier source inspection",
+      "evidence": "The captured exit-0 stdout contains the exact line; the baseline classifies all 24 current direct-story-file references, and verifier lines 716-734 plus 777 fail on any unregistered or non-grandfathered direct-write instruction."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Fresh live smoke ran node scripts/verify-proof-or-stop-prompt-baseline.mjs on 2026-07-10, exited 0, and printed the exact roleCount=16 registry-hash PASS line. Current validation is PASS and covers CHK-001 happy, edge, and adversarial intents; source assertions recompute registry roles/material hash and reject missing, extra, renamed, or hash-drifted entries."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "The same fresh exit-0 machine transcript printed the exact agent_prompt hashes verified for 16 roles line. Current validation covers CHK-002 happy, edge, and adversarial intents; the verifier executes the built CLI for every registry role and compares stdout sha256, byte count, line count, omissions, and duplicate ownership."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "The same fresh exit-0 machine transcript printed the exact overlap matrix verified for 16 roles line. Current validation covers CHK-003 happy, edge, and adversarial intents; the verifier checks 16 unique rows, all required fields, registry-role parity, and exact generated markdown content."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "The same fresh exit-0 machine transcript printed the exact legacy vocabulary findings classified line. Current validation covers CHK-004 happy, edge, and adversarial intents; the verifier scans case and spelling variants, compares all 52 current findings, and rejects unclassified, missing, duplicate, or reclassified findings."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "The same fresh exit-0 machine transcript printed the exact direct story-file findings classified line. Current validation covers CHK-005 happy, edge, and adversarial intents; the verifier scans docs/story references, compares all 24 classifications, and rejects unregistered or non-grandfathered direct-write instructions."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All five userSees promises appear verbatim in the fresh exit-0 live-smoke transcript. PASS validation covers all 15 required happy, edge, and adversarial intents, source inspection confirms the fail-closed checks, and commits after validation/live smoke changed only lifecycle evidence rather than product material; no TODO, FIXME, or HACK remains in changed delivery files."
+  },
+  "_hash": "7b31649402cbffe2798956d243775e8cd4cefb302f872eb80f0eda1855b18d08"
+}
