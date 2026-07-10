@@ -102,9 +102,11 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md shows 16 roles with purpose, phase, commands, input, output, and overlap classification.",
+      "userSees": "User sees \"PASS proof-or-stop prompt baseline: overlap matrix verified for 16 roles\" in node scripts/verify-proof-or-stop-prompt-baseline.mjs output.",
       "files": {
-        "modify": [],
+        "modify": [
+          "package.json"
+        ],
         "create": [
           "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md"
         ],
