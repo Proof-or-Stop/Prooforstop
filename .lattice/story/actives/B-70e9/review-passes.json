@@ -1932,6 +1932,43 @@
         "scanEscalationReason": null
       },
       "_hash": "aee5cee61e38015f71145ced08921dd4f6eb07f8cb8cbeb855fa1a65c0f21db8"
+    },
+    {
+      "id": "B-70e9:RP-078",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 21 re-review after fix commits 81c5bc42ea (F-028/F-029) and 3f2bed8c4a (F-030). evidence_plan shows fresh=42/missing=0/rerun=0/refreshOnly=0 at head ff15b6adbc, storyFilesHash 2a89c159. Re-ran npm --prefix packages/main run test:host-run-usage -> 65/65 checks incl. F-029 codex append-vs-build separation and F-030 provider void-sibling build-vs-append separation. Re-ran npm --prefix packages/main run test:usage-sweep -> 18/18 checks incl. F-028 plain usage_sweep is read-only for hooks/activity predicate. Source-verified all three new checks bind to genuine fixes: isReadOnlyCommand (arg-aware) wired into all 4 cli-engine.ts hook/activity-log gating sites; recordDispatchFinalCodex and recordDispatchFinalForProvider (caller lattice-dispatch.ts:2384) both separate buildProviderRecord from appendUsageRecord into independent try blocks so a transient append failure can never masquerade as a false source=unavailable row. All 30 findings (F-001..F-030) are dismissed/resolved with verified evidenceState. checkAsync call-site counts match reported totals exactly (65 host-run-usage-smoke.ts, 18 usage-sweep-smoke.ts). Every must-priority intent across CHK-001..CHK-007 has verificationEvidence with result=pass bound to current headHash/materialHash/storyFilesHash. No coverage gaps found. Test coverage review passed.",
+      "createdAt": "2026-07-10T18:34:22.795Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-088",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/host-execution-readiness.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/lattice-dispatch.ts",
+          "packages/main/src/core/usage-ledger/adapters/openai.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/handlers/reviewer-batch.ts",
+          "packages/main/src/handlers/usage-sweep.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9e6678ddf66679f5d2dc17578e09d58613bd3361cc4b878fb9ed768867822552"
     }
   ]
 }
