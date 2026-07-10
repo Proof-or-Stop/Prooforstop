@@ -1,0 +1,50 @@
+{
+  "passes": [
+    {
+      "id": "B-d6a0:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "Docs-lane review CHK-001..CHK-005: verified the diff against plan.md audit table. All 5 fixed sites (evidence-freshness.ts readMaterialDirtyFiles, cross-host-review.ts assertMaterialCleanForReview, story-query.ts gitPorcelainPaths + DONE-residue probe, partial-done-recovery.ts assertMainWorktreeClean via new gitRaw helper, session.ts readGitStatus) match the plan description exactly: raw untrimmed read + per-line trimEnd + rows.length===0 emptiness check, inline comments accurately state the whole-output-trim constraint. Confirmed via git diff main...HEAD --stat that every SAFE-by-read-pattern / SAFE-by-usage / immune-by-format / shift-tolerant site listed in the audit table is genuinely untouched (only evidence-freshness.ts, cross-host-review.ts, story-query.ts, partial-done-recovery.ts, session.ts, package.json, and the new smoke file changed). plan.md line references (~153/~74/226/~1017/179/150/247) correspond to the pre-fix baseline commit 2895bbb5e cited in the audit method, verified by git show at that commit -- not stale. Searched docs/ (CLI.md, guide.md, requirements/decisions/*, evidence/, features/, metadata/, dev/) for references to session brief output, story_sync_main preflight, done_recover clean-guard, and cross_host_review dirty preflight: existing docs describe behavioral contracts (main-worktree-clean requirement, runtime-artifact-registry consumption) that remain true post-fix; none describe the porcelain-parsing implementation detail this diff touches, so no doc is now inaccurate and none require updates. test-evidence.json shows 15/15 coverage PASS including a RED-before-fix repro. No blocker.",
+      "createdAt": "2026-07-10T10:19:05.031Z",
+      "reviewRound": "2026-07-10T10:11:26.540Z",
+      "reviewRunId": "B-d6a0:RR-002",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-d6a0/plan.md",
+          ".lattice/story/actives/B-d6a0/test-evidence.json",
+          "packages/main/package.json",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/partial-done-recovery.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/tasks/porcelain-first-row-audit-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/guide.md",
+          "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/core/baseline-risk.ts",
+          "packages/main/src/core/declared-artifact-commit-check.ts",
+          "packages/main/src/core/dirty-worktree-gate.ts",
+          "packages/main/src/core/lattice-dispatch.ts",
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/worktree-policy.ts",
+          "packages/main/src/dashboard.ts",
+          "packages/main/src/handlers/done-effects.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/handlers/recover-evidence.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "12a37876d57c835b2ca84ccdadb16a505e962fccb9fd199a8004463fb51c5506"
+    }
+  ]
+}
