@@ -299,9 +299,10 @@ particular) at least visible.
     `usage_sweep` stays read-only and runnable by any session.
   - The **same `--out` boundary governs the CLI activity / hook layer** (F-028):
     a plain (no-`--out`) `usage_sweep` is read-only there too, so it runs **no
-    pre/post command hooks** and writes **no activity-log entry**; a non-empty
-    `--out` is treated as a write and runs the hooks + records activity like any
-    other mutating command.
+    pre/post command hooks** and writes **no activity-log entry by default** (the
+    `LATTICE_ACTIVITY_RECORD_READONLY=1` read-only heartbeat override documented
+    in docs/CLI.md still applies); a non-empty `--out` is treated as a write and
+    runs the hooks + records activity like any other mutating command.
 
 ## Non-goals
 
