@@ -54,7 +54,7 @@
       "desc": "[codex host-B, cross_host_review B-70e9-xhr-r1] Concurrency cap is check-then-acquire and can be bypassed by concurrent starts: the cap decision scans live slots BEFORE this process creates its own uniquely-named slot file (host-run.ts ~line 570 scan, ~line 605 unconditional acquire of <pid>-<monotonic>.json). Two or more host_run processes starting simultaneously can all observe live < cap, all acquire distinct slots, and all spawn - the documented fail-closed concurrency cap is not enforced under the exact concurrent workload it exists to control. The smoke atomic-race check only exercised wx collision on the SAME filename, which never happens with unique names. Fix direction (codex): fixed numbered slot files slot-0..slot-(cap-1) with exclusive create so only cap contenders can succeed; stale reclaim per slot by pid/mtime.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host-b",
       "createdAt": "2026-07-10T07:55:52.121Z",
@@ -65,7 +65,11 @@
         "packages/main/src/tasks/host-run-usage-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|codex-host-cross",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 8a8cd2407: replaced check-then-acquire with atomic fixed-numbered slot admission (slot-0..slot-(cap-1), exclusive wx create IS the admission decision; stale reclaim re-probes immediately before unlink and treats lost EEXIST races as moves to the next index, never guaranteed admission). Smoke replaced the fake same-filename race with real contention checks that provably fail against the old primitive: cap=1 second admission without release must return null (old unique-name acquire always succeeded), plus a stale-reclaim race with exactly-one-winner assertion. host-run-usage smoke 27/27; full usage-ledger group green.",
+      "resolvedAt": "2026-07-10T08:09:00.399Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-70e9:F-004",
