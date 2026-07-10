@@ -156,6 +156,25 @@
       ],
       "signatureTag": "missing|json|code-drift-lattice",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3928:F-008",
+      "desc": "delivery-evidence-scope: .lattice/story/actives/B-3928/evidence/delivery-context-pack.json:5 records 25 changed files and sets transcriptDiff=true, but a direct comparison with git diff main...HEAD --name-only found 26 committed files; the omitted file is .lattice/story/actives/B-3928/evidence/transcript-diff.md. The pack also has no top-level captured head or scope hash that would identify this as an older snapshot. A delivery reviewer consuming this pack can therefore miss the newly added transcript evidence while being told the transcript diff is present. Regenerate the pack after adding the transcript diff, or bind the pack to an explicit captured commit and complete file list.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-10T04:21:52.358Z",
+      "reviewRound": "2026-07-10T04:15:51.636Z",
+      "reviewRunId": "B-3928:RR-011",
+      "_hash": "8a48e071d72d39d5c3f79c571236d5d452ae555c9fb982e1acd1f57aa77ef799",
+      "files": [
+        ".lattice/story/actives/B-3928/evidence/delivery-context-pack.json:5",
+        ".lattice/story/actives/B-3928/evidence/transcript-diff.md:1"
+      ],
+      "signatureTag": "missing|json:5|delivery-evidence-scope",
+      "signatureTagSource": "auto"
     }
   ]
 }
