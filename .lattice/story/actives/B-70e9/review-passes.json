@@ -415,6 +415,27 @@
         "scanEscalationReason": null
       },
       "_hash": "0cc9edcd71a696a1df0ab946212fb2c5d010b611aa8ec08c5f0b87dbefbd6014"
+    },
+    {
+      "id": "B-70e9:RP-017",
+      "agent": "lattice-review-docs",
+      "note": "Round 5 convergence re-review of fix commit e3ac9b651 (docs/host-run-usage.md usage_sweep --out section). Fallback 1 applied (docs-only diff scope for this fix). Compared the 4 doc bullets (lines 175-207) against core/usage-sweep.ts openReportFileExclusive (630-762) and handlers/usage-sweep.ts (153-189). Verified: relative-only + outside-root refusal matches isAbsolute/escapesBase checks; create-only never-overwrite matches wx exclusive open + EEXIST -> already-exists; symlinked-ancestor refusal + realpath containment matches the lstat loop + realpathSync check; directories-created-only-after-validation matches mkdirSync placement immediately before the wx open. Cross-checked command-catalog.ts out schema wording (consistent, no contradiction). Re-ran usage-sweep-smoke.ts: 16/16 passed, empirically confirming absolute-refused, traversal-refused, existing-target-refused, symlinked-ancestor-refused, and nested relative create behavior. No doc-code drift; closing self-check found no promised-but-undelivered gaps. 0 findings.",
+      "createdAt": "2026-07-10T09:41:55.006Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-021",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/usage-sweep.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b9b8a556a0fa8f9f74760aa502a0ec2429661d793c60ab92ce7fa3536dc9c426"
     }
   ]
 }
