@@ -315,6 +315,30 @@
         "scanEscalationReason": null
       },
       "_hash": "a618b189f3bca1de97b571933aef1979b94463864dfb390eae6e06c8f86f890f"
+    },
+    {
+      "id": "B-2c03:RP-015",
+      "agent": "lattice-review-test-coverage",
+      "note": "F-011 verified resolved: commit 6a06ea3c13 (ancestor of current HEAD b22e41b362) restores the five must-fire remaining-window cases (incl. codex round-1/round-2 sentences with modifiers/commas/unicode dashes), two window negative controls, the pathological-input timing assertion, backtickTriggerTokenDone, and triggerStemFileDone/triggerStemFileWithClaimDone. grep + git show --stat confirm all named cases are present in tracked packages/main/src/tasks/proofstory-intent-hardening-smoke.ts, matching plan.md coverage claims verbatim (5 window cases + 2 negative controls). Smoke reran green at current HEAD (ProofStory intent hardening smoke passed, exit 0) after the concurrent F-012 fix (commit cb2c00d2dd) landed on top without disturbing the F-011 cases. All 9 verificationEvidence rows across CHK-001/002/003 have headHash values that resolve to real commits and are ancestors of HEAD; CHK-002:edge RED evidence in red-evidence.json is a genuine pre-fix baseline/failure trace. No test-coverage gaps found in this lane.",
+      "createdAt": "2026-07-10T19:33:11.339Z",
+      "reviewRound": "2026-07-10T18:53:39.083Z",
+      "reviewRunId": "B-2c03:RR-029",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2c03/findings.json",
+          ".lattice/story/actives/B-2c03/plan.md",
+          ".lattice/story/actives/B-2c03/red-evidence.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2c03/checklist.json",
+          ".lattice/story/actives/B-2c03/review-passes.json",
+          ".lattice/story/actives/B-2c03/review.json"
+        ],
+        "scanEscalationReason": "Re-verified F-011 (test-coverage lane finding) resolution against commit 6a06ea3c13 per main-agent instruction: grepped smoke file for the five named case identifiers, ran git show --stat, rebuilt and reran the smoke twice (before and after a concurrent hosts F-012 fix landed on top) to confirm the F-011 remediation cases remain intact and green."
+      },
+      "_hash": "5d84d89e57ae641e125ddca86250285f9100ab4886e2d4dede37e7bc29a846b8"
     }
   ]
 }
