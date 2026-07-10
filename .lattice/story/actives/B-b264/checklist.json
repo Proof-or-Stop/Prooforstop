@@ -126,7 +126,21 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+          "command": "npm --prefix packages/main run test:done-prepare-merge-rerun-smoke",
+          "result": "pass",
+          "note": "assertRerunReasonAfterRefreshCommit: when a previous run left refresh-generated metadata, the transcript prints the done_prepare re-run reason section with the generated commit line, current binding (currentHead/currentMaterialHash/currentStoryFilesHash), and an explicit next action to rerun from the new HEAD.",
+          "headHash": "427ffc34fc633ab1f2ba6c6c7a0ce396044b2217",
+          "materialHash": "629ca6c3184088f0e8299b3c454ca0f12ebc20a3b0aa9cdc50925b7717f44d4f",
+          "storyFilesHash": "280e1fa00e2ee162d2eec9e7211bc3b97d595ef75062fc12e0eae88070f8cc98",
+          "timestamp": "2026-07-10T05:33:32.778Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
