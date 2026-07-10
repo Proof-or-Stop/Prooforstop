@@ -1,0 +1,123 @@
+{
+  "storyId": "B-70e9",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/host-execution-readiness.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+    "packages/main/src/core/usage-ledger/adapters/openai.ts",
+    "packages/main/src/core/usage-ledger/writer.ts",
+    "packages/main/src/core/autopilot-executor.ts",
+    "packages/main/src/handlers/review-escalation.ts",
+    "packages/main/src/handlers/cross-host-review.ts",
+    "packages/main/src/core/codex-review-leaf.ts",
+    "packages/main/src/handlers/reviewer-batch.ts",
+    "packages/main/src/tasks/run-all-smokes.ts",
+    "packages/main/package.json",
+    "package.json",
+    "CHANGELOG.md",
+    "packages/main/src/core/registry-command-policy.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/cli/alias-normalizer.ts",
+    "packages/main/src/cli/ownership-gate.ts",
+    "packages/main/src/tasks/usage-ledger-budget-smoke.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    ".lattice/story/actives/B-70e9/**"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/host-run.ts",
+    "packages/main/src/handlers/host-run.ts",
+    "packages/main/src/core/usage-sweep.ts",
+    "packages/main/src/handlers/usage-sweep.ts",
+    "docs/host-run-usage.md",
+    ".lattice/story/actives/B-70e9/**"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/host-run-usage-smoke.ts",
+    "packages/main/src/tasks/usage-sweep-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "packages/main/src/core/usage-ledger/record.ts",
+    "packages/main/src/core/usage-ledger/assemble.ts",
+    "packages/main/src/core/usage-ledger/summary.ts",
+    "packages/main/src/core/usage-ledger/diagnostics.ts",
+    ".lattice/usage/**",
+    "docs/requirements/decisions/**"
+  ],
+  "scopeChangeReason": "Codex host-B findings from the REVIEW quorum required two contract updates that acknowledgements cannot legally cover: (1) F-012 (concurrent appendUsageRecord hash-chain race) is only correctly fixable at the single-writer choke point core/usage-ledger/writer.ts, previously in explicitExcludes because no writer change was anticipated at PLAN - moved to allowedModify; record/assemble/summary/diagnostics stay excluded (no schema/semantics change). (2) F-014 (usage_sweep --out bypassing read-only gates) is fixed in resolveEffectiveOwnershipClass which lives in cli/ownership-gate.ts (same file as the precedent --write boundary rules) - added to allowedModify. Story regressed REVIEW->DEV solely for this contract amendment (scope_contract_set is PLAN/DEV-only) and returns to REVIEW immediately; both fixes are finding-bound, smoke-covered (host-run 42, usage-sweep 17), and already reviewed by four lanes plus codex in subsequent rounds.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Codex host-B verified finding F-012 (cross_host_review B-70e9-xhr-r5): concurrent appendUsageRecord read-last-hash->append races corrupt the ledger hash chain under host_run default concurrency. The only correct fix point is the single-writer choke point in writer.ts (mkdir cross-process lock over the minimal critical section, bounded wait + stale reclaim, skip-not-corrupt on timeout via the existing throw->seam-fail-open path). record/assemble/summary/diagnostics remain untouched; commit bc966e3247 demonstrates the race against the old writer and proves the fix with a 6-process parallel chain-verification smoke.",
+      "timestamp": "2026-07-10T10:23:30.294Z",
+      "paths": [
+        "packages/main/src/core/usage-ledger/writer.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/usage-ledger/writer.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "REVIEW",
+      "headHash": "bc966e3247b6d74ab11e955067d7b3d5951474da",
+      "materialHash": "7f7bd81392f7c2d739a1b0f394eeeea5d4be7ce8acce5ec7a8539cb7d1be782c"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "F-014 (codex host-B, r7) requires the dynamic ownership rule for usage_sweep --out to live in resolveEffectiveOwnershipClass, which is defined in cli/ownership-gate.ts (the exact file where the precedent --write boundary rules for plan_skeleton/evidence_refresh/live_smoke_transcript/delivery_context_pack reside; a 20-line mirror addition). writer.ts re-acknowledged at the current head for the F-012 cross-process append lock (original ack scope-ack:1 bound to head bc966e3247; unchanged since, but the head advanced through review-metadata and F-013/F-014/F-015 commits). Both edits are finding-bound, smoke-covered, and reviewed by all four lanes plus codex host-B in subsequent rounds.",
+      "timestamp": "2026-07-10T11:16:06.217Z",
+      "paths": [
+        "packages/main/src/cli/ownership-gate.ts",
+        "packages/main/src/core/usage-ledger/writer.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/cli/ownership-gate.ts",
+        "packages/main/src/core/usage-ledger/writer.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "REVIEW",
+      "headHash": "2951090b79a1a94a469dcd6e7ecc08b10ee14c77",
+      "materialHash": "ed35292ecfbd8b36b85750393fd5fcedcfd093cc241e5edf07fad5cc70c2359d"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "F-022 (concept lane, round 14): one check label in this pre-existing smoke still asserted the old recordDispatchFinal void-return contract after F-021 changed it to DispatchFinalStatus; commit d638945a8a updates only that label (+ one appended:false status assertion for label/body consistency, +4/-2). Out-of-contract test file; finding-bound minimal edit.",
+      "timestamp": "2026-07-10T13:53:26.604Z",
+      "paths": [
+        "packages/main/src/tasks/usage-ledger-default-on-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/usage-ledger-default-on-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "REVIEW",
+      "headHash": "d638945a8a5fc918895a58bd826baa656cb6cf93",
+      "materialHash": "4cc2beb30ad78bb02a0148508706aa635af1370f138ccced111779fbbe460c59"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "F-028 (codex host-B, r17): usage_sweep needed read-only classification at the CLI activity/hook layer; the classification predicate lives in cli/activity-policy.ts and its four gating consumers live in cli-engine.ts - a static-set-only fix would regress the --out write path (hooks would stop running on a write). Finding-bound minimal wiring (commit 81c5bc42ea); behavior byte-identical for every other command, asserted by cli-surface/command-catalog/ownership-contract smokes.",
+      "timestamp": "2026-07-10T18:16:30.419Z",
+      "paths": [
+        "packages/main/src/cli/activity-policy.ts",
+        "packages/main/src/cli-engine.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/cli/activity-policy.ts",
+        "packages/main/src/cli-engine.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "REVIEW",
+      "headHash": "81c5bc42ea0372b1aaf1d7b27b5c7904ee2ed0ba",
+      "materialHash": "d1555886f9edd00eb51eaf1610362549bcedb6efab6e7a0c1bfa8a807ee27a82"
+    }
+  ],
+  "createdAt": "2026-07-10T05:32:56.378Z",
+  "updatedAt": "2026-07-10T18:16:30.419Z"
+}

@@ -1,0 +1,150 @@
+{
+  "storyId": "B-70e9",
+  "checkedAt": "2026-07-10T20:40:34.744Z",
+  "headHash": "9629bb568ccd6617895500e3a0350b283fe143d5",
+  "materialHash": "0a98cb6fe199c97dcc42dc799246e2ad33dbaae7369f99e5c6550b7e14beb39b",
+  "storyFilesHash": "90b2b88de179781f57ab65b21b531a191227f2dc99c381795f50519518c930f8",
+  "reviewRound": "2026-07-10T11:18:28.723Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/host-run-usage.md#host_run",
+      "promise": "lattice host_run CLI command exists with --host/--agentType/--storyId/--phase/--prompt|--promptFile/--reviewRunId/--lane/--timeoutMs/--agyPrintTimeout/--json flags",
+      "verifiedBy": "diff/grep + live CLI --help",
+      "evidence": "packages/main/src/cli/command-catalog.ts host_run entry with matching Zod schema; handler packages/main/src/handlers/host-run.ts; registered via registry.ts createHostRunHandlers; `node bin/lattice.js host_run --help` printed the exact flag set live"
+    },
+    {
+      "docPath": "docs/host-run-usage.md#host_run",
+      "promise": "host subprocess executes in the resolved project root (ctx.root), independent of caller cwd, matching the ledger's root/projectRootHash",
+      "verifiedBy": "diff/grep",
+      "evidence": "packages/main/src/handlers/host-run.ts lines ~366-378: cwd: ctx.root, root: ctx.root, projectRootHash: projectRootHashFor(ctx.root)"
+    },
+    {
+      "docPath": "docs/host-run-usage.md#passthrough-routing",
+      "promise": "text mode streams host stdout live to process.stdout / stderr to process.stderr with no double-print; --json mode routes all host output to stderr so stdout carries only the JSON result",
+      "verifiedBy": "diff/grep",
+      "evidence": "packages/main/src/handlers/host-run.ts passthrough() function: `const toStderr = json || chunk.stream === 'stderr'`; text-mode success path returns '' (no re-print)"
+    },
+    {
+      "docPath": "docs/host-run-usage.md#passthrough-routing",
+      "promise": "a broken live passthrough (sync throw or async EPIPE 'error' event) surfaces as passthroughError / 'host_run warning:' without crashing the process; writes are settle-aware with a ~2s drain cap",
+      "verifiedBy": "diff/grep + real-machine smoke",
+      "evidence": "packages/main/src/handlers/host-run.ts: onStdoutError/onStderrError listeners, pendingWrites counter, drainPending() with DRAIN_CAP_MS=2000; exercised by host-run-usage-smoke.ts (65/65 checks passed live)"
+    },
+    {
+      "docPath": "docs/host-run-usage.md#per-host-usage-semantics",
+      "promise": "codex maps turn.completed usage to {input: input_tokens - cached_input_tokens, cacheRead: cached_input_tokens, cacheCreation: null, output: output_tokens}",
+      "verifiedBy": "diff/grep",
+      "evidence": "packages/main/src/core/usage-ledger/adapters/openai.ts lines 108-171 implement exactly this remainder mapping (canonical.input = input_tokens - cached_input_tokens); wired via recordDispatchFinalCodex called from core/host-run.ts:1375"
+    },
+    {
+      "docPath": "docs/host-run-usage.md#per-host-usage-semantics",
+      "promise": "claude parses the stream-json result envelope via parseClaudeCliOutput (four-field Anthropic usage + served model)",
+      "verifiedBy": "diff/grep + real-machine ledger row",
+      "evidence": "packages/main/src/core/host-run.ts imports parseClaudeCliOutput and uses parsed.anthropicUsage.{input_tokens,cache_read_input_tokens,...}; the live worktree ledger .lattice/usage/llm-usage.jsonl shows a real provider-reported final row (input 6894 / cacheRead 69421 / cacheCreation 41814 / output 2651) superseding its preflight estimate (sequence 2 supersedesRecordIds)"
+    },
+    {
+      "docPath": "docs/host-run-usage.md#per-host-usage-semantics",
+      "promise": "agy is recorded as source=unavailable, provider antigravity, with an explicit unavailableReason since agy print mode exposes no usage surface",
+      "verifiedBy": "diff/grep + real-machine ledger row",
+      "evidence": "core/host-run.ts records provider antigravity source=unavailable; live ledger shows a real row unavailableReason=agy_print_mode_reports_no_usage recorded 2026-07-10T20:26:45Z"
+    },
+    {
+      "docPath": "docs/host-run-usage.md#caps",
+      "promise": "per-dispatch hard budget cap (LATTICE_HARD_BUDGET_TOKENS) and host-run concurrency cap (LATTICE_HOST_RUN_MAX_CONCURRENT, default 4, LATTICE_HOST_RUN_SLOT_STALE_MS default 6h) both run fail-closed BEFORE spawn and record a blocked ledger row",
+      "verifiedBy": "diff/grep + live suite",
+      "evidence": "core/host-run.ts: HOST_RUN_MAX_CONCURRENT_DEFAULT=4, HOST_RUN_SLOT_STALE_MS_DEFAULT=6h, resolveMaxConcurrent/resolveSlotStaleMs fallback logic matches doc exactly; refusalReason hard_budget_exceeded / concurrency_cap_exceeded; exercised live by host-run-usage-smoke.ts CHK-007b checks (65/65 passed)"
+    },
+    {
+      "docPath": "docs/host-run-usage.md#caps",
+      "promise": "atomic slot admission via fixed-index wx create under .lattice/usage/host-run-slots/, ownership-aware reclaim (dead pid any age, corrupt/missing meta past stale backstop, live pid never reclaimed), token-guarded release",
+      "verifiedBy": "diff/grep + live suite",
+      "evidence": "core/host-run.ts acquireHostRunSlot/releaseSlot; smoke checks F-025 (live-holder protection, meta-less orphan backstop, release-token guard) and CHK-007b adversarial (real concurrent contention, stale-reclaim race) all passed live"
+    },
+    {
+      "docPath": "docs/host-run-usage.md#caps",
+      "promise": "the autopilot claude repair launch and the cross_host_review codex leaf pass through the same pre-spawn admission (budget+concurrency), fail-closed with a synthesized blocked verdict for the codex leaf, byte-identical when the ledger is OFF",
+      "verifiedBy": "diff/grep + live suite",
+      "evidence": "core/autopilot-executor.ts runClaudeRepair (F-016) and core/codex-review-leaf.ts (F-017) both import acquireHostRunSlot/recordBudgetBlock/recordConcurrencyBlock from core/host-run.ts; blockedLeafResult() synthesizes a decision:'blocked' verdict; smoke checks CHK-003/F-016/F-017 (repair + codex-leaf budget/concurrency admission, OFF byte-identical) passed live; real ledger shows 19 cross-host-review:codex rows exercised during actual REVIEW rounds"
+    },
+    {
+      "docPath": "docs/host-run-usage.md#caps",
+      "promise": "concurrent ledger appends are serialized by a cross-process lock (llm-usage.jsonl.lock/) with ownership-aware reclaim (owner.json pid+token, dead-pid reclaim, ownerless/corrupt orphan backstop via LATTICE_USAGE_LEDGER_LOCK_STALE_MS), a writer that cannot acquire the lock skips its append rather than corrupting the chain",
+      "verifiedBy": "diff/grep + live suite",
+      "evidence": "smoke checks F-012 (6 real concurrent processes x 5 appends -> zero skips, hash chain intact; bounded-wait skip-not-corrupt) and F-018/F-019 (live-holder protection, dead-holder reclaim, release-token guard, owner-write-failure rollback) all passed live against the real filesystem"
+    },
+    {
+      "docPath": "docs/host-run-usage.md#usage_sweep",
+      "promise": "usage_sweep streams ~/.codex/sessions and ~/.claude/projects since a cutoff, reports NON-AUTHORITATIVE ESTIMATE header in both text and --json, performs no ledger backfill, and is read-only unless --out is passed",
+      "verifiedBy": "diff/grep + live run",
+      "evidence": "core/usage-sweep.ts / handlers/usage-sweep.ts; live-executed `lattice usage_sweep --since 7d` against real ~/.codex and ~/.claude stores (1722 sessions, 0 parse errors, NON-AUTHORITATIVE ESTIMATE header printed); `git status --short` confirmed zero writes with no --out"
+    },
+    {
+      "docPath": "docs/host-run-usage.md#usage_sweep",
+      "promise": "--out must be a relative path resolving inside the project root; create-only wx (never overwrites), refuses symlinked ancestors and traversal, only creates the report dir after all checks pass",
+      "verifiedBy": "diff/grep + live suite",
+      "evidence": "core/usage-sweep.ts openReportFileExclusive(); smoke checks (absolute refused, existing-file refused, symlinked ancestor refused, traversal refused, relative nested creates + second-run refuses overwrite) all passed live in usage-sweep-smoke.ts"
+    },
+    {
+      "docPath": "docs/host-run-usage.md#usage_sweep",
+      "promise": "a non-empty --out is dynamically classified storyScopedMutating by the ownership gate (F-014); the same boundary governs the CLI activity/hook layer (F-028) and the codex process-event surface (F-032)",
+      "verifiedBy": "diff/grep + live suite",
+      "evidence": "packages/main/src/cli/ownership-gate.ts (F-014 usage_sweep branch), packages/main/src/cli/activity-policy.ts isReadOnlyCommand (F-028), packages/main/src/cli-engine.ts writeCodexProcessEvent self-gating via isReadOnlyCommand (F-032, both success and error call sites); smoke checks F-014/F-028/F-032 all passed live in usage-sweep-smoke.ts"
+    },
+    {
+      "docPath": "docs/host-run-usage.md#binding-conventions",
+      "promise": "reviewRunId must start with <storyId>: when storyId is given, refused pre-spawn on mismatch; storyId/agentType/phase/reviewRunId->threadId/lane->subagentId bindings",
+      "verifiedBy": "diff/grep",
+      "evidence": "packages/main/src/handlers/host-run.ts lines 162-171 defense-in-depth check plus core/host-run.ts core-level enforcement; smoke CHK-002 checks (5/5) cover binding + mismatch refusal"
+    },
+    {
+      "docPath": "docs/host-run-usage.md#set-lattice_usage_ledger0",
+      "promise": "LATTICE_USAGE_LEDGER=0 disables ledger writes entirely; host_run is then byte-identical to a raw launch (no preflight, no final, no slot files)",
+      "verifiedBy": "diff/grep + live suite",
+      "evidence": "isUsageLedgerEnabled(env) gates admission/rows across host-run.ts, autopilot-executor.ts, codex-review-leaf.ts; smoke explicitly asserts byte-identical argv/zero rows/zero dirs for the OFF path in CHK-003 checks"
+    },
+    {
+      "docPath": "CHANGELOG.md",
+      "promise": "B-70e9 entry summarizing host_run + usage_sweep, new docs page docs/host-run-usage.md, and new smokes test:host-run-usage / test:usage-sweep",
+      "verifiedBy": "diff/grep",
+      "evidence": "CHANGELOG.md new bullet under ### Changed matches the delivered feature set; package.json + packages/main/package.json both wire test:host-run-usage and test:usage-sweep to the built smoke files"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "host-run-usage-smoke.ts covers: canonical launcher argv build, live passthrough (text/json routing, EPIPE sync+async, settle-aware drain), bounded 1MiB usage-line retention + truncation-poisoning honesty, codex turn.completed scan, non-zero exit propagation, cap refusal write-through — re-run live: 65/65 checks passed"
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "host-run-usage-smoke.ts CHK-002 checks: reviewRunId->threadId / lane->subagentId binding, storyId-prefix mismatch refusal pre-spawn, phase resolution from configured story store vs explicit --phase — re-run live, all passed"
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "host-run-usage-smoke.ts CHK-003/F-016/F-017 checks: autopilot repair ON (--output-format json argv + rows) / OFF (byte-identical), repair budget+concurrency pre-spawn admission, host-readiness-probe rows filtered to actually-spawned hosts, cross-host-review codex leaf ON (preflight+unavailable final) / absent-binding+OFF byte-identical, codex-leaf budget+concurrency admission with synthesized blocked verdict, corrupt-ledger-never-throws adversarial — re-run live, all passed. Real-machine: 19 real cross_host_review rounds exercised the codex leaf path in the live worktree ledger during actual REVIEW"
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "codex-review-leaf.ts blockedLeafResult() synthesizes decision:'blocked' verdicts on cap refusal so cross_host_review's jointDecision is 'blocked' not a fabricated pass/fail; covered by the CHK-003/F-017 smoke checks above (same suite, same live pass)"
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "usage-sweep-smoke.ts covers: codex LAST-cumulative totals, claude request/message dedupe, --since mtime cutoff, empty/missing store dirs, ZERO writes to store dirs, multi-attribution/sorting/grand-totals, NON-AUTHORITATIVE label in both text+json — re-run live: 19/19 checks passed. Real-machine: I independently ran `lattice usage_sweep --since 7d` against the real ~/.codex and ~/.claude stores (1722 sessions, 0 parse errors) and confirmed git status showed zero writes"
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "both smoke files wired into package.json/packages/main/package.json as test:host-run-usage and test:usage-sweep, executed against dist/ build (confirmed a clean `npm run build` first); docs/host-run-usage.md content cross-checked line-by-line against source in this review"
+    },
+    {
+      "featureId": "CHK-007",
+      "transcript": "usage-sweep-smoke.ts F-014/F-028/F-032 checks: --out resolves usage_sweep to storyScopedMutating (ownership gate), plain usage_sweep stays read-only for hooks/activity/process-events while --out is treated as a write on all three surfaces, CLI end-to-end — re-run live, all passed"
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Independently re-ran both smokes from a clean build (65/65 host-run-usage, 19/19 usage-sweep) and personally executed a live usage_sweep against real ~/.codex + ~/.claude stores, confirming zero writes without --out. Every doc promise in docs/host-run-usage.md traced to concrete source (registry/handler/core/ownership-gate/activity-policy/cli-engine) and the live worktree ledger shows genuine real-machine host_run rows (agy unavailable, claude provider-reported final superseding its estimate, claude timeout/no-JSON-envelope unavailable) plus 19 real cross-host-review:codex rows. No unresolved TODO/FIXME/HACK in the diff; all 7 checklist items are done with 0 failing/0 waivers."
+  },
+  "_hash": "6695bafffc33cfc1d1fe29e9702e40546ac2309a7f5bf0d46cc9eef319396b1e"
+}

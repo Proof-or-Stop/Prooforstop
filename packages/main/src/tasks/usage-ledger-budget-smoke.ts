@@ -622,6 +622,23 @@ async function main(): Promise<void> {
     }
     const allowed = new Set([
       join('core', 'lattice-dispatch.ts'),
+      // B-70e9: the host-run choke point (host_run command) is the SECOND
+      // authorized dispatch site. Its CHK-007 hard-budget cap reuses the same
+      // recordBudgetBlock orchestrator (per the plan's "reuse
+      // shouldBlockDispatch/recordBudgetBlock" instruction) BEFORE spawning a host,
+      // so it is an expected importer of the budget primitives.
+      join('core', 'host-run.ts'),
+      // B-70e9 F-016: the autopilot claude repair is a lattice-initiated host
+      // run, so it passes the SAME pre-spawn budget admission as host_run —
+      // recordBudgetBlock before the claude runner is invoked (ledger-ON only;
+      // OFF stays byte-identical). Third authorized dispatch site.
+      join('core', 'autopilot-executor.ts'),
+      // B-70e9 F-017: the cross-host-review codex leaf is a lattice-initiated
+      // host spawn, so it passes the SAME pre-spawn budget admission as
+      // host_run — recordBudgetBlock (provider openai) before the codex runner
+      // is invoked (ledger-ON only; OFF stays byte-identical). Fourth
+      // authorized dispatch site.
+      join('core', 'codex-review-leaf.ts'),
       join('tasks', 'usage-ledger-budget-smoke.ts'),
       // B-1b28: the default-on smoke exercises the budget guard's inert behavior
       // (no block when the ledger is OFF / no budget configured) as part of its
