@@ -522,7 +522,7 @@
       "desc": "[codex host-B, cross_host_review B-70e9-xhr-r14] Text-mode stdout passthrough can still crash on late EPIPE: live host stdout chunks are written with process.stdout.write(chunk.text) with no callback or pending-write settling (handlers/host-run.ts ~218), while the stdout error listener is removed in the finally after runHostRun returns - a closed downstream stdout pipe can emit EPIPE after removal, crashing the process despite the documented containment. Existing tests cover JSON-mode stderr and quiet text-mode stderr but NOT text-mode host stdout, the default path. Fix direction: settle-aware passthrough writes for stdout AND stderr chunks (track pending write callbacks/promises without serializing throughput, e.g. outstanding-write accounting), and only remove the temporary error listeners after all passthrough + final diagnostic writes settled or were marked broken; regression with a text-mode run whose stdout consumer closes mid/late-stream.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host-b",
       "createdAt": "2026-07-10T14:27:12.586Z",
@@ -533,7 +533,11 @@
         "packages/main/src/tasks/host-run-usage-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|codex-host-cross",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 2216ff5104: outstanding-write accounting on BOTH streams (every passthrough chunk + emitStderr diagnostic uses write(text, cb) with a shared pendingWrites counter; cb error -> recordStreamError + swallow; per-stream broken flags; no per-chunk await so throughput unchanged); drainPending() awaited at the top of finally before removeListener, bounded by DRAIN_CAP_MS=2000 (unref-ed; on cap mark both streams broken and proceed - documented honest residual only for a pathologically wedged stream). New real-subprocess regression mirrors F-023 but destroys STDOUT with a synchronous 40x64KiB burst so surplus queued writes EPIPE after the reader dies: pre-fix handler crashed 10/10 (exit 1 post-finally), fixed handler 12/12 OK. host-run smoke 56/56.",
+      "resolvedAt": "2026-07-10T14:44:10.486Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
