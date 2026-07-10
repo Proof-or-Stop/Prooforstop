@@ -44,7 +44,48 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "command": "npm --prefix packages/main run build && node scripts/verify-proof-or-stop-prompt-baseline.mjs && npm run test:proof-or-stop-prompt-baseline",
+          "result": "pass",
+          "note": "Baseline JSON records 16 registry roles, filenames, bytes, lines, template hashes, and material hash. Happy path covered by committed M0 artifacts and verifier output from commit 961d52f6.",
+          "headHash": "961d52f6bba9d73006a41a2afce782590bbf0331",
+          "materialHash": "7d369b91deccbe12b49755cc11f219521b6fffc52617e8e8e5bf678a4c744985",
+          "storyFilesHash": "d9e4184861cf9b174b809817a27f3c81947f917dc7b6808267f89d423c71ce14",
+          "timestamp": "2026-07-10T03:37:04.411Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "command": "npm --prefix packages/main run build && node scripts/verify-proof-or-stop-prompt-baseline.mjs && npm run test:proof-or-stop-prompt-baseline",
+          "result": "pass",
+          "note": "Baseline JSON records 16 registry roles, filenames, bytes, lines, template hashes, and material hash. Edge guard covered because the verifier recomputes current registry/output/matrix/findings and fails on unregistered drift.",
+          "headHash": "961d52f6bba9d73006a41a2afce782590bbf0331",
+          "materialHash": "7d369b91deccbe12b49755cc11f219521b6fffc52617e8e8e5bf678a4c744985",
+          "storyFilesHash": "d9e4184861cf9b174b809817a27f3c81947f917dc7b6808267f89d423c71ce14",
+          "timestamp": "2026-07-10T03:37:04.411Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "command": "npm --prefix packages/main run build && node scripts/verify-proof-or-stop-prompt-baseline.mjs && npm run test:proof-or-stop-prompt-baseline",
+          "result": "pass",
+          "note": "Baseline JSON records 16 registry roles, filenames, bytes, lines, template hashes, and material hash. Adversarial guard covered by recomputing source facts instead of trusting prose-only baseline claims.",
+          "headHash": "961d52f6bba9d73006a41a2afce782590bbf0331",
+          "materialHash": "7d369b91deccbe12b49755cc11f219521b6fffc52617e8e8e5bf678a4c744985",
+          "storyFilesHash": "d9e4184861cf9b174b809817a27f3c81947f917dc7b6808267f89d423c71ce14",
+          "timestamp": "2026-07-10T03:37:04.411Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -90,7 +131,48 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "command": "npm --prefix packages/main run build && node scripts/verify-proof-or-stop-prompt-baseline.mjs && npm run test:proof-or-stop-prompt-baseline",
+          "result": "pass",
+          "note": "Baseline JSON records and verifies agent_prompt output hashes, byte counts, and line counts for all 16 roles. Happy path covered by committed M0 artifacts and verifier output from commit 961d52f6.",
+          "headHash": "961d52f6bba9d73006a41a2afce782590bbf0331",
+          "materialHash": "7d369b91deccbe12b49755cc11f219521b6fffc52617e8e8e5bf678a4c744985",
+          "storyFilesHash": "d9e4184861cf9b174b809817a27f3c81947f917dc7b6808267f89d423c71ce14",
+          "timestamp": "2026-07-10T03:37:04.411Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "command": "npm --prefix packages/main run build && node scripts/verify-proof-or-stop-prompt-baseline.mjs && npm run test:proof-or-stop-prompt-baseline",
+          "result": "pass",
+          "note": "Baseline JSON records and verifies agent_prompt output hashes, byte counts, and line counts for all 16 roles. Edge guard covered because the verifier recomputes current registry/output/matrix/findings and fails on unregistered drift.",
+          "headHash": "961d52f6bba9d73006a41a2afce782590bbf0331",
+          "materialHash": "7d369b91deccbe12b49755cc11f219521b6fffc52617e8e8e5bf678a4c744985",
+          "storyFilesHash": "d9e4184861cf9b174b809817a27f3c81947f917dc7b6808267f89d423c71ce14",
+          "timestamp": "2026-07-10T03:37:04.411Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "command": "npm --prefix packages/main run build && node scripts/verify-proof-or-stop-prompt-baseline.mjs && npm run test:proof-or-stop-prompt-baseline",
+          "result": "pass",
+          "note": "Baseline JSON records and verifies agent_prompt output hashes, byte counts, and line counts for all 16 roles. Adversarial guard covered by recomputing source facts instead of trusting prose-only baseline claims.",
+          "headHash": "961d52f6bba9d73006a41a2afce782590bbf0331",
+          "materialHash": "7d369b91deccbe12b49755cc11f219521b6fffc52617e8e8e5bf678a4c744985",
+          "storyFilesHash": "d9e4184861cf9b174b809817a27f3c81947f917dc7b6808267f89d423c71ce14",
+          "timestamp": "2026-07-10T03:37:04.411Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -136,7 +218,48 @@
             "type": "docs"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "command": "npm --prefix packages/main run build && node scripts/verify-proof-or-stop-prompt-baseline.mjs && npm run test:proof-or-stop-prompt-baseline",
+          "result": "pass",
+          "note": "Overlap matrix covers all 16 roles with status, phase, purpose, commands, inputs, outputs, capability, overlap, and notes. Happy path covered by committed M0 artifacts and verifier output from commit 961d52f6.",
+          "headHash": "961d52f6bba9d73006a41a2afce782590bbf0331",
+          "materialHash": "7d369b91deccbe12b49755cc11f219521b6fffc52617e8e8e5bf678a4c744985",
+          "storyFilesHash": "d9e4184861cf9b174b809817a27f3c81947f917dc7b6808267f89d423c71ce14",
+          "timestamp": "2026-07-10T03:37:04.411Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "command": "npm --prefix packages/main run build && node scripts/verify-proof-or-stop-prompt-baseline.mjs && npm run test:proof-or-stop-prompt-baseline",
+          "result": "pass",
+          "note": "Overlap matrix covers all 16 roles with status, phase, purpose, commands, inputs, outputs, capability, overlap, and notes. Edge guard covered because the verifier recomputes current registry/output/matrix/findings and fails on unregistered drift.",
+          "headHash": "961d52f6bba9d73006a41a2afce782590bbf0331",
+          "materialHash": "7d369b91deccbe12b49755cc11f219521b6fffc52617e8e8e5bf678a4c744985",
+          "storyFilesHash": "d9e4184861cf9b174b809817a27f3c81947f917dc7b6808267f89d423c71ce14",
+          "timestamp": "2026-07-10T03:37:04.411Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "command": "npm --prefix packages/main run build && node scripts/verify-proof-or-stop-prompt-baseline.mjs && npm run test:proof-or-stop-prompt-baseline",
+          "result": "pass",
+          "note": "Overlap matrix covers all 16 roles with status, phase, purpose, commands, inputs, outputs, capability, overlap, and notes. Adversarial guard covered by recomputing source facts instead of trusting prose-only baseline claims.",
+          "headHash": "961d52f6bba9d73006a41a2afce782590bbf0331",
+          "materialHash": "7d369b91deccbe12b49755cc11f219521b6fffc52617e8e8e5bf678a4c744985",
+          "storyFilesHash": "d9e4184861cf9b174b809817a27f3c81947f917dc7b6808267f89d423c71ce14",
+          "timestamp": "2026-07-10T03:37:04.411Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -182,7 +305,48 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "command": "npm --prefix packages/main run build && node scripts/verify-proof-or-stop-prompt-baseline.mjs && npm run test:proof-or-stop-prompt-baseline",
+          "result": "pass",
+          "note": "Legacy vocabulary scanner records 52 classified baseline findings and fails on new unclassified findings. Happy path covered by committed M0 artifacts and verifier output from commit 961d52f6.",
+          "headHash": "961d52f6bba9d73006a41a2afce782590bbf0331",
+          "materialHash": "7d369b91deccbe12b49755cc11f219521b6fffc52617e8e8e5bf678a4c744985",
+          "storyFilesHash": "d9e4184861cf9b174b809817a27f3c81947f917dc7b6808267f89d423c71ce14",
+          "timestamp": "2026-07-10T03:37:04.411Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "command": "npm --prefix packages/main run build && node scripts/verify-proof-or-stop-prompt-baseline.mjs && npm run test:proof-or-stop-prompt-baseline",
+          "result": "pass",
+          "note": "Legacy vocabulary scanner records 52 classified baseline findings and fails on new unclassified findings. Edge guard covered because the verifier recomputes current registry/output/matrix/findings and fails on unregistered drift.",
+          "headHash": "961d52f6bba9d73006a41a2afce782590bbf0331",
+          "materialHash": "7d369b91deccbe12b49755cc11f219521b6fffc52617e8e8e5bf678a4c744985",
+          "storyFilesHash": "d9e4184861cf9b174b809817a27f3c81947f917dc7b6808267f89d423c71ce14",
+          "timestamp": "2026-07-10T03:37:04.411Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "command": "npm --prefix packages/main run build && node scripts/verify-proof-or-stop-prompt-baseline.mjs && npm run test:proof-or-stop-prompt-baseline",
+          "result": "pass",
+          "note": "Legacy vocabulary scanner records 52 classified baseline findings and fails on new unclassified findings. Adversarial guard covered by recomputing source facts instead of trusting prose-only baseline claims.",
+          "headHash": "961d52f6bba9d73006a41a2afce782590bbf0331",
+          "materialHash": "7d369b91deccbe12b49755cc11f219521b6fffc52617e8e8e5bf678a4c744985",
+          "storyFilesHash": "d9e4184861cf9b174b809817a27f3c81947f917dc7b6808267f89d423c71ce14",
+          "timestamp": "2026-07-10T03:37:04.411Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -228,7 +392,48 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "command": "npm --prefix packages/main run build && node scripts/verify-proof-or-stop-prompt-baseline.mjs && npm run test:proof-or-stop-prompt-baseline",
+          "result": "pass",
+          "note": "Direct story-file scanner records 24 classified baseline findings and fails on new unregistered direct-write instructions. Happy path covered by committed M0 artifacts and verifier output from commit 961d52f6.",
+          "headHash": "961d52f6bba9d73006a41a2afce782590bbf0331",
+          "materialHash": "7d369b91deccbe12b49755cc11f219521b6fffc52617e8e8e5bf678a4c744985",
+          "storyFilesHash": "d9e4184861cf9b174b809817a27f3c81947f917dc7b6808267f89d423c71ce14",
+          "timestamp": "2026-07-10T03:37:04.411Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "command": "npm --prefix packages/main run build && node scripts/verify-proof-or-stop-prompt-baseline.mjs && npm run test:proof-or-stop-prompt-baseline",
+          "result": "pass",
+          "note": "Direct story-file scanner records 24 classified baseline findings and fails on new unregistered direct-write instructions. Edge guard covered because the verifier recomputes current registry/output/matrix/findings and fails on unregistered drift.",
+          "headHash": "961d52f6bba9d73006a41a2afce782590bbf0331",
+          "materialHash": "7d369b91deccbe12b49755cc11f219521b6fffc52617e8e8e5bf678a4c744985",
+          "storyFilesHash": "d9e4184861cf9b174b809817a27f3c81947f917dc7b6808267f89d423c71ce14",
+          "timestamp": "2026-07-10T03:37:04.411Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "command": "npm --prefix packages/main run build && node scripts/verify-proof-or-stop-prompt-baseline.mjs && npm run test:proof-or-stop-prompt-baseline",
+          "result": "pass",
+          "note": "Direct story-file scanner records 24 classified baseline findings and fails on new unregistered direct-write instructions. Adversarial guard covered by recomputing source facts instead of trusting prose-only baseline claims.",
+          "headHash": "961d52f6bba9d73006a41a2afce782590bbf0331",
+          "materialHash": "7d369b91deccbe12b49755cc11f219521b6fffc52617e8e8e5bf678a4c744985",
+          "storyFilesHash": "d9e4184861cf9b174b809817a27f3c81947f917dc7b6808267f89d423c71ce14",
+          "timestamp": "2026-07-10T03:37:04.411Z"
+        }
+      ]
     }
   ]
 }
