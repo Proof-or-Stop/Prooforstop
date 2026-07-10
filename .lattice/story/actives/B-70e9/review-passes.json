@@ -1503,6 +1503,32 @@
         "scanEscalationReason": null
       },
       "_hash": "e6fdee953f9ef50a7e6238a0aad5a9eeaf28f9f0bce93d6202c1ab2ac2baa426"
+    },
+    {
+      "id": "B-70e9:RP-063",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 17, post F-024 fix 2216ff5104): all 7 checklist items (CHK-001..CHK-007) have must-priority happy/edge/adversarial intents covered by passing verificationEvidence; evidence_plan reports fresh=42/missing=0/rerun=0 (materialHash+storyFilesHash match current tree). Re-ran both suites fresh in this session: test:host-run-usage 56/56 pass, test:usage-sweep 17/17 pass. Verified the new F-024 check (host-run-usage-smoke.ts ~line1114) is a distinct EPIPE window from F-020 (general async stream-error containment) and F-023 (stderr final-diagnostic write settling, quiet text-mode, stderr destroyed at spawn): F-024 targets the default text-mode LIVE STDOUT passthrough itself, real-subprocess repro destroys the driver stdout read end after first data during a synchronous 40x64KiB burst so surplus queued writes EPIPE late, proven failing 10/10 pre-fix and passing after (exit 0, ledger final row intact, slot released). All findings F-001..F-024 dismissed/resolved, evidenceState=verified. No coverage gap; no blocker.",
+      "createdAt": "2026-07-10T14:49:16.233Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-073",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-70e9/checklist.json",
+          ".lattice/story/actives/B-70e9/findings.json",
+          ".lattice/story/actives/B-70e9/review-runs.json",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-70e9/background.md",
+          ".lattice/story/actives/B-70e9/index.json",
+          ".lattice/story/actives/B-70e9/plan.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/handlers/host-run.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a5742e989b7eb84786bd12f71b0d8df81b719a9c4e26a1862b90ba6691e170e2"
     }
   ]
 }
