@@ -1,0 +1,24 @@
+{
+  "storyId": "B-d6a0",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/handlers/cross-host-review.ts",
+    "packages/main/src/handlers/story-query.ts",
+    "packages/main/src/core/partial-done-recovery.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/package.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/porcelain-first-row-audit-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/porcelain-first-row-audit-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-10T09:14:23.550Z",
+  "updatedAt": "2026-07-10T09:14:23.550Z"
+}

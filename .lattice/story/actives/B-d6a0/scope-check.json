@@ -1,0 +1,175 @@
+{
+  "storyId": "B-d6a0",
+  "checkedAt": "2026-07-10T09:17:32.227Z",
+  "features": [
+    {
+      "feature": "Audit every git status --porcelain call site in packages/main/src for the whole-output-trim bug class (read pattern + usage classification)",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "plan.md audit verdict table"
+    },
+    {
+      "feature": "Fix readMaterialDirtyFiles (core/evidence-freshness.ts) raw-read so first-row material classification is not corrupted",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json CHK-001"
+    },
+    {
+      "feature": "Fix assertMaterialCleanForReview (handlers/cross-host-review.ts) raw-read so cross-host review dirty preflight is not falsely blocked/loosened by first-row corruption",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json CHK-002"
+    },
+    {
+      "feature": "Fix gitPorcelainPaths (handlers/story-query.ts) raw-read so story_sync_main dirty preflight is not falsely blocked by a corrupted first-row path",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json CHK-003"
+    },
+    {
+      "feature": "Fix DONE-residue status display text (handlers/story-query.ts ~1017) so the stored/displayed status is not corrupted on the first row",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json CHK-003"
+    },
+    {
+      "feature": "Fix assertMainWorktreeClean (core/partial-done-recovery.ts) raw-read so done_recover does not falsely refuse on a first-row volatile artifact",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json CHK-004"
+    },
+    {
+      "feature": "Fix session.ts readGitStatus brief rows so the first displayed row keeps its status column",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json CHK-004"
+    },
+    {
+      "feature": "Add a first-row modified-tracked regression smoke covering all fixed consumers, repro-first (RED before fix, GREEN after), discoverable by run-all-smokes",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json CHK-005"
+    },
+    {
+      "feature": "Record per-site audit verdict table in plan.md so untouched call sites are auditable",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json CHK-005 / plan.md"
+    },
+    {
+      "feature": "Keep fail-closed behavior: adversarial assertions that a genuinely material/dirty row still refuses/throws naming the exact path after the fix (not loosened)",
+      "covered_by": "CHK-001,CHK-002,CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json verificationIntent.adversarial"
+    },
+    {
+      "feature": "Emptiness decisions move from raw-string truthiness to rows.length===0 after per-line trimEnd, avoiding clean/dirty semantic drift",
+      "covered_by": "CHK-001,CHK-002,CHK-003,CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "plan.md Fix pattern section"
+    },
+    {
+      "feature": "No shared git-status module refactor; fixes stay per-site using the already-reviewed B-b264 raw-read pattern",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded list + decision.json chosen option (per-site raw-read fix)",
+      "source": "scope-boundary.json"
+    },
+    {
+      "feature": "No changes to already-safe call sites (dirty-worktree-gate.ts, validation-executor.ts, lattice-dispatch.ts, auto-commit-metadata.ts, recover-evidence.ts, baseline-risk.ts, rollout-check.ts, managed-assets.ts, cli-engine.ts, init-check-metadata-sync.ts, declared-artifact-commit-check.ts, safe-init-commit.ts, verification-context-pack.ts, release.ts, doctor.ts, done-oracle.ts, worktree-policy.ts, auxiliary-worktree-cleanup.ts, dashboard.ts)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded list; verified accurate against source",
+      "source": "scope-boundary.json / plan.md audit table"
+    },
+    {
+      "feature": "No changes to git worktree list --porcelain consumers (rows never start with a space; immune by format)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded list; verified 12 sites all use worktree-list not status",
+      "source": "scope-boundary.json / plan.md audit table"
+    },
+    {
+      "feature": "No fix for trimmed-output cosmetics inside error messages of bounded emptiness-only call sites (release.ts, worktree.ts wtStatus sites, auxiliary-worktree-cleanup.ts)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded list; documented instead in audit table",
+      "source": "scope-boundary.json / plan.md audit table"
+    },
+    {
+      "feature": "Shift-tolerant worktree.ts:617 purgeSafeInitCommit left untouched (correct-by-accident heuristic), documented as load-bearing for a future refactor",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "plan.md Shift-tolerant section; verified against source (line[2]===' ' heuristic + ?? comparison only)",
+      "source": "plan.md audit verdict table"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      ".lattice/story/actives/B-d6a0/background.md",
+      ".lattice/story/actives/B-d6a0/checklist.json",
+      ".lattice/story/actives/B-d6a0/decision.json",
+      ".lattice/story/actives/B-d6a0/original-intent-snapshot.json",
+      ".lattice/story/actives/B-d6a0/plan.md",
+      ".lattice/story/actives/B-d6a0/scope-boundary.json",
+      ".lattice/story/actives/B-d6a0/scope-contract.json",
+      ".lattice/story/actives/B-d6a0/scope-freeze-check.json",
+      "packages/main/src/core/evidence-freshness.ts",
+      "packages/main/src/core/partial-done-recovery.ts",
+      "packages/main/src/core/verification-context-pack.ts",
+      "packages/main/src/dashboard.ts",
+      "packages/main/src/handlers/cross-host-review.ts",
+      "packages/main/src/handlers/session.ts",
+      "packages/main/src/handlers/story-query.ts",
+      "packages/main/src/handlers/worktree.ts"
+    ],
+    "filesTriagedByName": [
+      "packages/main/src/cli-engine.ts",
+      "packages/main/src/cli/init-check-metadata-sync.ts",
+      "packages/main/src/cli/runtime-root.ts",
+      "packages/main/src/core/auto-commit-metadata.ts",
+      "packages/main/src/core/auxiliary-worktree-cleanup.ts",
+      "packages/main/src/core/baseline-risk.ts",
+      "packages/main/src/core/declared-artifact-commit-check.ts",
+      "packages/main/src/core/dirty-worktree-gate.ts",
+      "packages/main/src/core/dirty-worktree.ts",
+      "packages/main/src/core/done-prepare-generated-metadata.ts",
+      "packages/main/src/core/lattice-dispatch.ts",
+      "packages/main/src/core/learning-store.ts",
+      "packages/main/src/core/managed-assets.ts",
+      "packages/main/src/core/rollout-check.ts",
+      "packages/main/src/core/runtime-environment-checks.ts",
+      "packages/main/src/core/safe-init-commit.ts",
+      "packages/main/src/core/validation-executor.ts",
+      "packages/main/src/core/worktree-policy.ts",
+      "packages/main/src/core/worktree-runtime.ts",
+      "packages/main/src/handlers/doctor.ts",
+      "packages/main/src/handlers/done-effects.ts",
+      "packages/main/src/handlers/done-prepare.ts",
+      "packages/main/src/handlers/recover-evidence.ts"
+    ],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 16,
+    "covered": 11,
+    "excluded": 5,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "f70f5e0abb34abc056625d89216f2b12a5f71151839c0836deed6d0c87361a82",
+  "openQuestions": []
+}
