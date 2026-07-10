@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "proofstory.slice_plan.v1",
+  "storyId": "B-4a78",
+  "ledgerHash": "sha256:dd502b856625cec5bde3368889d76e3c525684b79c3567a353bfac94abbd7f69",
+  "slices": [
+    {
+      "id": "slice-1-signed-readManifest",
+      "milestoneIds": [
+        "M0",
+        "M1",
+        "M2",
+        "M3"
+      ],
+      "reason": "These milestones form the signed self-report layer: scope boundary, scope_check_save, review_pass_set, and reviewer prompts must land together so missing readManifest rejects are actionable."
+    },
+    {
+      "id": "slice-2-mechanical-read-log",
+      "milestoneIds": [
+        "M4",
+        "M5"
+      ],
+      "reason": "These milestones form the mechanical proof layer: read-log derivation, mismatch/full-scan diagnostics, and guard smoke coverage must land together to close the fa1777b proof gap."
+    }
+  ],
+  "planHash": "sha256:35c2598cd06e3c1dabe253555289d1b9e8ccea8d1fcd38114f278e297a3acf61",
+  "createdAt": "2026-07-10T01:12:58.509Z",
+  "updatedAt": "2026-07-10T01:13:30.681Z"
+}

@@ -1,0 +1,283 @@
+{
+  "storyId": "B-4a78",
+  "checkedAt": "2026-07-10T01:17:41.593Z",
+  "features": [
+    {
+      "feature": "scope_check_save requires structured readManifest {filesReadFully[], filesTriagedByName[], scanEscalationReason|null}",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description; checklist.json:CHK-001"
+    },
+    {
+      "feature": "scope_check_save rejects missing readManifest with a clear validation error",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json:CHK-001 userSees"
+    },
+    {
+      "feature": "scope_check_save validates missing, malformed, duplicate, unsafe, and post-hoc edited readManifest values fail closed",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json:CHK-001 verificationIntent.adversarial"
+    },
+    {
+      "feature": "scope_check_save normalizes empty arrays, triaged-only reads, null scanEscalationReason, and deterministic sorted duplicate-free paths",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json:CHK-001 verificationIntent.edge"
+    },
+    {
+      "feature": "scope_check_save persists normalized readManifest and includes it in the signed scope-check hash/signature domain",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json:CHK-001; plan.md:CHK-001"
+    },
+    {
+      "feature": "scope_check_save preserves existing anti-self-absolution boundaries by keeping resolutions and open questions outside the signature domain",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json:CHK-001 context; plan.md:CHK-001"
+    },
+    {
+      "feature": "review_pass_set requires the same structured readManifest field as scope_check_save",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description; checklist.json:CHK-002"
+    },
+    {
+      "feature": "review_pass_set rejects missing, malformed, duplicate, unsafe, or tampered readManifest values fail closed",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json:CHK-002 verificationIntent.adversarial"
+    },
+    {
+      "feature": "review_pass_set persists normalized readManifest and includes it in the review-pass integrity/signature domain",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json:CHK-002; plan.md:CHK-002"
+    },
+    {
+      "feature": "review_pass_set exposes inspectable readManifest evidence in the ledger for trend comparison over time",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json:CHK-002 context/userSees"
+    },
+    {
+      "feature": "scope_check_save and review_pass_set share readManifest normalization so records remain comparable",
+      "covered_by": "CHK-001 + CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding.json constraints; plan.md:CHK-002"
+    },
+    {
+      "feature": "Reviewer scope-plan and REVIEW-phase templates/dispatch prompts require submitting readManifest",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json:CHK-003; scope-boundary.json allowed"
+    },
+    {
+      "feature": "Reviewer prompts show the exact readManifest shape and distinguish filesReadFully, filesTriagedByName, and scanEscalationReason",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json:CHK-003 userSees/verificationIntent.happy"
+    },
+    {
+      "feature": "Prompt text preserves B-cee5 bounded candidateSpecSet and recorded scanEscalationReason escalation wording",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json:CHK-003 verificationIntent.edge; B-cee5 scope-check.json"
+    },
+    {
+      "feature": "Prompt text does not tell reviewers to use memory/playbook output as gate evidence",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json:CHK-003 verificationIntent.edge; docs/requirements/decisions/dev-memory.md"
+    },
+    {
+      "feature": "Reviewer evidence submissions without readManifest fail command validation even if prompt prose is present",
+      "covered_by": "CHK-003 + CHK-001 + CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json:CHK-003 verificationIntent.adversarial"
+    },
+    {
+      "feature": "Mechanical per-run read log for docs/requirements/decisions/*.md is derived from retained reviewer stream-json transcript or a PreToolUse Read hook",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description; checklist.json:CHK-004; decision.json chosen option"
+    },
+    {
+      "feature": "Mechanical read-log evidence is digest-bound as reviewer run evidence when read events are available",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json:CHK-004 userSees/context"
+    },
+    {
+      "feature": "Synthetic reviewer read-call events for decisions/*.md normalize into a stable mechanical read log with deterministic digest",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json:CHK-004 verificationIntent.happy"
+    },
+    {
+      "feature": "Mechanical read log handles non-decisions files, duplicate reads, relative path variants, and triage-only events without polluting the decisions-doc log",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json:CHK-004 verificationIntent.edge"
+    },
+    {
+      "feature": "Mechanical read log cannot be forged by changing readManifest alone and its digest changes when the mechanical event list changes",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json:CHK-004 verificationIntent.adversarial"
+    },
+    {
+      "feature": "Self-report versus mechanical read-log mismatch is surfaced as a finding or diagnostic",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description; checklist.json:CHK-005"
+    },
+    {
+      "feature": "Full-content decisions-doc directory reads without scanEscalationReason are flagged as the defined failure signal",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "background.md Key Insights; checklist.json:CHK-005"
+    },
+    {
+      "feature": "Full decisions-doc scans with non-empty scanEscalationReason are recorded as escalated rather than flagged as unrecorded misuse",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json:CHK-005 verificationIntent.edge"
+    },
+    {
+      "feature": "Missing self-report entries and extra self-report entries are flagged against the mechanical log",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json:CHK-005 verificationIntent.adversarial"
+    },
+    {
+      "feature": "Mismatch and full-scan diagnostics identify disagreement without blocking legitimate scan escalation",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json:CHK-005 userSees; plan.md Boundaries"
+    },
+    {
+      "feature": "reviewer-scan-budget-guard-smoke covers valid readManifest, valid mechanical read-log digest, and no-mismatch green cases",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json:CHK-006 verificationIntent.happy"
+    },
+    {
+      "feature": "reviewer-scan-budget-guard-smoke fails if missing readManifest is accepted, mismatch findings are skipped, full scans without scanEscalationReason are ignored, or owner/self-signed reviewer evidence bypasses role separation",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json:CHK-006 verificationIntent.adversarial; docs/requirements/decisions/role-separation.md"
+    },
+    {
+      "feature": "Guard smoke preserves JSON cleanliness and normal validate wiring when read-evidence diagnostics are emitted",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json:CHK-006 verificationIntent.edge; plan.md Boundaries"
+    },
+    {
+      "feature": "B-04bb validate wiring follow-up is aligned so validate catches readManifest and mismatch detector regressions",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json:CHK-006 context; .lattice/story/actives/B-04bb/checklist.json"
+    },
+    {
+      "feature": "Acceptance verification includes build, focused reviewer scan guard smoke, process/runtime fact contract tests if touched, and full lattice validate before review",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "plan.md:CHK-006 Verification"
+    },
+    {
+      "feature": "Every review emits token usage/counts as part of the promised (files-read-fully, triaged-by-name, tokens, escalation-reason) ledger tuple",
+      "covered_by": null,
+      "status": "gap",
+      "excluded_by": null,
+      "source": "index.json description; background.md Conversational Texture"
+    },
+    {
+      "feature": "Hook-based read capture must not break non-reviewer Read usage if the PreToolUse implementation path is selected",
+      "covered_by": null,
+      "status": "gap",
+      "excluded_by": null,
+      "source": "background.md Solution Tradeoffs"
+    },
+    {
+      "feature": "Memory/playbook output becomes Proofbound gate evidence",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded list; plan.md Boundaries; docs/requirements/decisions/dev-memory.md",
+      "source": "scope-boundary.json; plan.md; background.md"
+    },
+    {
+      "feature": "Blocking or altering the scan-escalation path itself",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded list; plan.md Boundaries says record escalation, never block",
+      "source": "scope-boundary.json; plan.md; background.md"
+    },
+    {
+      "feature": "Broad full-dispatch rewrite or broad new runtime subsystem for reviewer read capture",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "decision.json rejects full-dispatch-rewrite as too broad/high risk; chosen path is shared-schema-plus-minimal-read-log",
+      "source": "decision.json"
+    },
+    {
+      "feature": "Remote publishing or git push origin main for this story",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded list and execution-boundary excludedCommands",
+      "source": "scope-boundary.json; execution-boundary.json"
+    },
+    {
+      "feature": "Direct story metadata edits instead of CLI-managed lattice story helpers",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "execution-boundary.json excludes .lattice/story path edits; user role boundary allows only scope_check_save write",
+      "source": "execution-boundary.json; user dispatch prompt"
+    }
+  ],
+  "summary": {
+    "total": 38,
+    "covered": 31,
+    "excluded": 5,
+    "gaps": 2,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "924b8e381dadd5e16785fb641bd85301b1eab3e743884522259725fdc30ed75f",
+  "openQuestions": []
+}
