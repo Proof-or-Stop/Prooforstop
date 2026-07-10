@@ -30,6 +30,21 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/scope-check.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/reviewer-read-evidence.ts"
+        ],
+        "create": [
+          "packages/main/src/core/reviewer-read-evidence.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
       }
     },
     {
@@ -191,6 +206,126 @@
           }
         ]
       }
+    },
+    {
+      "id": "CHK-007",
+      "title": "Record read counts and token usage fields in the reviewer read evidence tuple",
+      "context": "Scope reviewer found a PLAN gap: the story promises every review emits a tuple of files-read-fully, triaged-by-name, tokens, and escalation-reason, but no checklist item covered token/read counts. Add this explicitly to the mechanical read-log evidence surface.",
+      "relatedDocs": [
+        "docs/requirements/decisions/pos-agent-drivability-optimization.md",
+        "docs/requirements/decisions/dev-memory.md"
+      ],
+      "userSees": "Reviewer read evidence shows \"readLog.summary.readCount\" and \"readLog.summary.tokenCount\" (or \"tokenCount: null\" when unavailable) next to filesReadFully/filesTriagedByName.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/reviewer-read-evidence.ts"
+        ],
+        "create": [
+          "packages/main/src/core/reviewer-read-evidence.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Mechanical read-log evidence includes deterministic readCount and tokenCount fields alongside filesReadFully, filesTriagedByName, and scanEscalationReason.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "When provider transcript token usage is unavailable, tokenCount is explicitly null/unknown rather than fabricated, while readCount remains deterministic.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Changing token/read-count inputs changes the read-log digest, and missing count fields fail the focused smoke.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-008",
+      "title": "Guard reviewer read capture so non-reviewer Read usage is unaffected",
+      "context": "Scope reviewer found a PLAN gap: if the mechanical path uses PreToolUse/hook capture, the story must prove it only affects reviewer read-evidence capture and does not break normal/non-reviewer Read usage. This item makes that safety requirement explicit.",
+      "relatedDocs": [
+        "docs/CLI.md",
+        "docs/requirements/decisions/pos-agent-drivability-optimization.md"
+      ],
+      "userSees": "Focused smoke prints \"non-reviewer read capture bypass: PASS\" and reviewer read evidence still records decisions-doc reads.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/reviewer-read-evidence.ts",
+          "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts"
+        ],
+        "create": [
+          "packages/main/src/core/reviewer-read-evidence.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Reviewer-lane read capture records decisions-doc read evidence when reviewer context is present.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Non-reviewer or missing-reviewer context bypasses capture safely and does not throw, mutate reviewer evidence, or block ordinary reads.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A hook/capture event that looks like a non-reviewer Read cannot produce reviewer gate evidence or a mismatch finding.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-10T01:18:37.204Z",
+      "phase": "PLAN",
+      "itemId": "CHK-007",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Scope reviewer identified missing token/read count coverage in the promised read evidence tuple.",
+      "addedTitle": "Record read counts and token usage fields in the reviewer read evidence tuple",
+      "addedContext": "Scope reviewer found a PLAN gap: the story promises every review emits a tuple of files-read-fully, triaged-by-name, tokens, and escalation-reason, but no checklist item covered token/read counts. Add this explicitly to the mechanical read-log evidence surface."
+    },
+    {
+      "timestamp": "2026-07-10T01:18:45.391Z",
+      "phase": "PLAN",
+      "itemId": "CHK-008",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Scope reviewer identified missing safety coverage for hook-based read capture and non-reviewer Read usage.",
+      "addedTitle": "Guard reviewer read capture so non-reviewer Read usage is unaffected",
+      "addedContext": "Scope reviewer found a PLAN gap: if the mechanical path uses PreToolUse/hook capture, the story must prove it only affects reviewer read-evidence capture and does not break normal/non-reviewer Read usage. This item makes that safety requirement explicit."
     }
   ]
 }

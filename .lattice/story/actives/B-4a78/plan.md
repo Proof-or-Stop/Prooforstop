@@ -2,7 +2,7 @@
 
 ## Objective
 
-Make reviewer read coverage auditable evidence. The story upgrades reviewer read claims from unverifiable prose into signed structured readManifest fields, then adds a mechanical read-log path that can flag self-report mismatches and unrecorded full scans of docs/requirements/decisions/*.md.
+Make reviewer read coverage auditable evidence. The story upgrades reviewer read claims from unverifiable prose into signed structured readManifest fields, then adds a mechanical read-log path that can flag self-report mismatches and unrecorded full scans of docs/requirements/decisions/*.md. The read-log evidence also records read counts and token usage when available, without fabricating unavailable token data.
 
 ## Boundaries
 
@@ -10,6 +10,7 @@ Make reviewer read coverage auditable evidence. The story upgrades reviewer read
 - Preserve scan escalation. A reviewer may perform a broad read when justified, but must record scanEscalationReason.
 - Do not weaken role separation or let the story owner self-sign reviewer evidence.
 - Keep JSON stdout clean for CLI commands that support --json.
+- If a hook/capture path is used, it must not break or mutate ordinary non-reviewer Read usage.
 
 ## Milestones
 
@@ -19,8 +20,8 @@ Make reviewer read coverage auditable evidence. The story upgrades reviewer read
 | M1 | CHK-001 | scope_check_save rejects missing or invalid readManifest and signs valid readManifest. |
 | M2 | CHK-002 | review_pass_set rejects missing or invalid readManifest and signs valid readManifest. |
 | M3 | CHK-003 | Reviewer templates and dispatch prompts request the structured readManifest contract. |
-| M4 | CHK-004/CHK-005 | Mechanical read-log evidence is digest-bound and mismatch/full-scan cases are flagged. |
-| M5 | CHK-006 | Smoke and validation fail on readManifest or mismatch regressions. |
+| M4 | CHK-004/CHK-005/CHK-007 | Mechanical read-log evidence is digest-bound, includes counts/token usage semantics, and mismatch/full-scan cases are flagged. |
+| M5 | CHK-006/CHK-008 | Smoke and validation fail on readManifest, mismatch, JSON cleanliness, role separation, or non-reviewer Read safety regressions. |
 
 ## CHK-001
 
@@ -57,3 +58,15 @@ Verification: smoke covers exact match, triaged-only match, missing self-report 
 Extend reviewer-scan-budget-guard-smoke and any validate wiring needed so regressions are caught by normal validation. The smoke must cover both M1 and M2 surfaces and preserve JSON cleanliness.
 
 Verification: run package build, focused reviewer scan guard smoke, process/runtime fact contract tests if touched, and full lattice validate for B-4a78 before review.
+
+## CHK-007
+
+Record read counts and token usage fields in the reviewer read evidence tuple. The mechanical read-log evidence must expose readCount and tokenCount next to filesReadFully, filesTriagedByName, and scanEscalationReason. When provider transcript token usage is unavailable, tokenCount must be explicitly null/unknown instead of guessed.
+
+Verification: focused smoke proves readCount is deterministic, tokenCount is either sourced or null, and the read-log digest changes when count inputs change.
+
+## CHK-008
+
+Guard reviewer read capture so non-reviewer Read usage is unaffected. If the implementation uses a hook-like capture surface, it must only produce reviewer read evidence when reviewer context is present; normal reads must bypass safely and must not write reviewer gate evidence.
+
+Verification: focused smoke covers reviewer capture, non-reviewer bypass, and an adversarial non-reviewer event that must not produce reviewer evidence or mismatch findings.
