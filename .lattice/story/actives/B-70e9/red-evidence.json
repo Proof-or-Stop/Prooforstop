@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-70e9",
+  "records": [
+    {
+      "id": "RED-20260710053241",
+      "trigger": "2026-07-10 forensic audit: host-side LLM runs are invisible to the usage ledger - only 4 probe rows from 2026-06-19 exist while reviewer/quorum/desktop burns (368.9M cumulative input in one thread; ~16M/min from five parallel codex exec reviewers) never produced rows; there is no choke-point command to launch hosts with usage capture",
+      "acceptanceTargetRef": "CHK-001",
+      "baselineHeadHash": "dc93817a19bd916f9bbda216aec2dcece7e6dcb1",
+      "baselineMaterialHash": "d05bb4fe8179a49615a6ba87ee0f8f5af6cb702aa4f5179dd8176737bed8411a",
+      "observedFailure": "node bin/lattice.js host_run <args> fails with Unknown command: host_run (CLI suggests host_install/host_dispatch), and .lattice/usage/llm-usage.jsonl remains at 4 rows regardless of host launches; canonical-launcher host runs (reviewer/quorum/autopilot/probe) append no usage rows",
+      "failingCommand": "node bin/lattice.js host_run {\"host\":\"agy\",\"storyId\":\"B-70e9\",\"agentType\":\"red-probe\",\"prompt\":\"Reply READY\"}",
+      "expectedGreenCommand": "node packages/main/dist/tasks/host-run-usage-smoke.js",
+      "greenRelation": {
+        "targetRef": "CHK-001",
+        "relation": "same_acceptance",
+        "command": "node packages/main/dist/tasks/host-run-usage-smoke.js"
+      },
+      "note": "Red recorded at PLAN->DEV gate; green is the CHK-001/CHK-006 smoke proving estimate+final rows for all three hosts at the same acceptance target.",
+      "createdAt": "2026-07-10T05:32:41.340Z"
+    }
+  ],
+  "createdAt": "2026-07-10T05:32:41.340Z",
+  "updatedAt": "2026-07-10T05:32:41.340Z"
+}

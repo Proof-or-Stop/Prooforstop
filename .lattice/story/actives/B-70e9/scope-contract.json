@@ -1,0 +1,47 @@
+{
+  "storyId": "B-70e9",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/host-execution-readiness.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+    "packages/main/src/core/usage-ledger/adapters/openai.ts",
+    "packages/main/src/core/autopilot-executor.ts",
+    "packages/main/src/handlers/review-escalation.ts",
+    "packages/main/src/handlers/cross-host-review.ts",
+    "packages/main/src/core/codex-review-leaf.ts",
+    "packages/main/src/handlers/reviewer-batch.ts",
+    "packages/main/src/tasks/run-all-smokes.ts",
+    "packages/main/package.json",
+    "package.json",
+    "CHANGELOG.md",
+    "packages/main/src/core/registry-command-policy.ts",
+    "packages/main/src/registry.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/host-run.ts",
+    "packages/main/src/handlers/host-run.ts",
+    "packages/main/src/core/usage-sweep.ts",
+    "packages/main/src/handlers/usage-sweep.ts",
+    "docs/host-run-usage.md"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/host-run-usage-smoke.ts",
+    "packages/main/src/tasks/usage-sweep-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "packages/main/src/core/usage-ledger/record.ts",
+    "packages/main/src/core/usage-ledger/writer.ts",
+    "packages/main/src/core/usage-ledger/assemble.ts",
+    "packages/main/src/core/usage-ledger/summary.ts",
+    "packages/main/src/core/usage-ledger/diagnostics.ts",
+    ".lattice/**",
+    "docs/requirements/decisions/**"
+  ],
+  "scopeChangeReason": "Initial DEV scope contract derived from plan.md files declarations; ledger schema/writer/validator files are explicitly out of scope (single-writer invariant, no schema change needed).",
+  "acknowledgements": [],
+  "createdAt": "2026-07-10T05:32:56.378Z",
+  "updatedAt": "2026-07-10T05:32:56.378Z"
+}

@@ -1,0 +1,115 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-70e9",
+  "state": "confirmed",
+  "ledgerHash": "sha256:ebe4f0d3834dc09e3ea54acfe91c2729566eefa7df0bc84cb733f20323168f47",
+  "milestones": [
+    {
+      "id": "M1-CAPTURE",
+      "sourceRequirementId": "REQ-M1-CAPTURE",
+      "claim": "A host_run choke-point command launches codex/claude/agy via canonical launcher argv and writes correlated preflight+final usage rows bound to storyId/agentType/phase/provider",
+      "doneMeans": "host-run-usage smoke proves estimate+final rows for all three hosts (codex turn.completed mapping, claude stream-json usage, agy unavailable) with binding fields set",
+      "requiredEvidence": [
+        "smoke:host-run-usage",
+        "ledger-row-samples"
+      ],
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001",
+        "CHK-002"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M1-COVERAGE",
+      "sourceRequirementId": "REQ-M1-CAPTURE",
+      "claim": "Remaining lattice-initiated host spawns (autopilot repair, readiness probes, cross_host_review codex leaf) record usage rows through the same seam",
+      "doneMeans": "smoke checks rows with agentType autopilot-repair / host-readiness-probe and a cross_host_review unavailable final; ledger OFF stays byte-identical",
+      "requiredEvidence": [
+        "smoke:host-run-usage"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M1-GUIDANCE",
+      "sourceRequirementId": "REQ-M1-CAPTURE",
+      "claim": "Operator-facing guidance routes lattice-initiated reviewer/quorum host runs through host_run",
+      "doneMeans": "guidance strings and docs/host-run-usage.md name host_run with binding args; rg shows no remaining raw-launch instruction strings for lattice-initiated reviewer runs",
+      "requiredEvidence": [
+        "rg-absence-check",
+        "docs/host-run-usage.md"
+      ],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-004"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M1-CAPS",
+      "sourceRequirementId": "REQ-T2-CAPS",
+      "claim": "Per-dispatch budget cap and host-run concurrency cap refuse over-limit runs fail-closed before spawn with blocked ledger rows",
+      "doneMeans": "smoke proves hard-budget block (hard_budget_exceeded) and concurrency refusal (concurrency_cap_exceeded) rows plus stale-slot reclaim",
+      "requiredEvidence": [
+        "smoke:host-run-usage"
+      ],
+      "checklistRefs": [
+        "CHK-007"
+      ],
+      "verificationIntentRefs": [
+        "CHK-007"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M2-SWEEP",
+      "sourceRequirementId": "REQ-M2-SWEEP",
+      "claim": "A read-only usage_sweep scans codex rollouts and claude project transcripts since a cutoff and emits a non-authoritative attribution report",
+      "doneMeans": "usage-sweep smoke proves cumulative codex totals, claude dedupe-by-message-id sums, story-mention extraction, cwd/originator fields, NON-AUTHORITATIVE labeling, and zero writes",
+      "requiredEvidence": [
+        "smoke:usage-sweep"
+      ],
+      "checklistRefs": [
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [
+        "CHK-005"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "QA-WIRING",
+      "sourceRequirementId": "REQ-M1-CAPTURE",
+      "claim": "Both smokes are wired as npm scripts and the aggregate runner, with docs/CHANGELOG updated",
+      "doneMeans": "test:host-run-usage and test:usage-sweep pass via npm and the aggregate runner includes them",
+      "requiredEvidence": [
+        "npm-script-runs"
+      ],
+      "checklistRefs": [
+        "CHK-006"
+      ],
+      "verificationIntentRefs": [
+        "CHK-006"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-10T05:32:07.266Z",
+  "updatedAt": "2026-07-10T05:34:52.999Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260710053452",
+    "acceptedInterpretationHash": "sha256:3bcbbbbdf35f2c57cb52c8fcbd3e6d12a0c3c9d6d18dd3f2fafd634e187e51a4",
+    "acceptedAt": "2026-07-10T05:34:52.999Z"
+  }
+}
