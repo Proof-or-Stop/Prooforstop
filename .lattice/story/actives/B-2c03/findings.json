@@ -167,6 +167,38 @@
       "resolvedAt": "2026-07-10T15:32:04.718Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-2c03:F-007",
+      "desc": "packages/main/src/core/proofstory.ts stripCodeLikeTokens (F-006 fix, commit d567f260fe) closed the single-slash prose bypass (remaining/scope) but the pathShaped test (slashCount >= 2 OR token contains a dot OR leading ./ ../ ~/ /) still allows a distinct, independently-reachable bypass: a natural-English slash-separated word ENUMERATION such as excluded/deferred/partial or remaining/scope/details has slashCount>=2 and is treated as path-shaped, so the ENTIRE token -- including every trigger word inside it -- is erased before claimsShrinkage runs. This is the same failure class F-006 targeted (a rule meant for path-shaped tokens erasing genuine prose trigger words), just requiring a third slash-joined word to re-open it instead of a single slash. Verified live twice: (1) standalone extraction of the exact current stripCodeLikeTokens/dottedFileTokenRegex source, and (2) importing and calling the actual built packages/main/dist/core/proofstory.js evaluateDoneIntentEquivalence directly (mode=observe) with a lightweight-path summary, both showing zero unconfirmed_single_outcome_shrinkage gaps for: limitations text 'The excluded/deferred/partial items were dropped from this delivery.' strips to 'The   items were dropped from this delivery.' (gaps=[]); limitations text 'The remaining/scope/details were dropped from this delivery.' also gaps=[]. Sanity controls behave correctly: plain prose 'This delivery was partial.' fires; the genuine file path 'core/partial-done-recovery.ts' stays silent; a single slash with a trigger on each side (deferred/excluded items) still fires because slashCount==1 is not pathShaped. This is realistic natural prose -- slash-separated word-list enumerations (included/excluded, partial/complete, in-scope/out-of-scope style constructions) are a common English pattern, not a contrived adversarial payload -- and it directly matches the risk pattern plan.md's CHK-001 adversarial verification intent and the F-006 resolution were meant to close. plan.md Risk notes documents only false-POSITIVE residuals plus one false-negative-by-convention (prose hidden inside a fenced code block); this multi-slash-enumeration bypass is not among the documented residuals. No smoke coverage exists for a >=2-slash enumeration token; proofstory-intent-hardening-smoke.ts slashProseDone only covers a single-slash case (remaining/scope). Recommend narrowing the >=2-slash pathShaped branch so slash COUNT alone is not sufficient -- e.g. also require the token to look directory-shaped (at least one slash-delimited segment contains a dot, or the token has a leading path-like segment) -- since slash count alone cannot distinguish a 3-segment path from a 3-word enumeration. Add smoke coverage for at least one multi-slash enumeration case, verified failing pre-fix against current committed code and passing post-fix.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-10T15:37:15.341Z",
+      "reviewRound": "2026-07-10T14:41:10.214Z",
+      "reviewRunId": "B-2c03:RR-017",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2c03/plan.md",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2c03/checklist.json",
+          ".lattice/story/actives/B-2c03/findings.json",
+          ".lattice/story/actives/B-2c03/review.json"
+        ],
+        "scanEscalationReason": "Fresh adversarial round after F-006 fix (d567f260fe): probed the F-006-fixed slash-strip rule for a distinct residual bypass class (the >=2-slash pathShaped branch applied to slash-separated word ENUMERATIONS rather than real paths); found and reproduced live against dist/core/proofstory.js."
+      },
+      "_hash": "f3997414033f476e2a2b95861774b6605501a3a0ff20adc5540e05948d27665c",
+      "files": [
+        "packages/main/src/core/proofstory.ts",
+        "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
