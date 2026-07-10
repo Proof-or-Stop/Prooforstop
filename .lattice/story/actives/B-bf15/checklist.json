@@ -1,0 +1,280 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Remove the test:autopilot-resume-smoke script entry from packages/main/package.json",
+      "context": "Line 70: \"test:autopilot-resume-smoke\": \"node dist/tasks/autopilot-resume-smoke.js\" — source deleted in 5d3d7bd686; root package.json has no mirror of this script",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-07-10T14:37:12.746Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After removing the script line, run `node -e \"const p=require(./packages/main/package.json); if(p.scripts[\\\"test:autopilot-resume-smoke\\\"]) { process.exit(1) }\"` -> exits 0, confirming the key is absent from the parsed scripts object; WHY: proves the script entry was actually removed, not just commented out",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run `npm --prefix packages/main run` and pipe through grep for autopilot-resume-smoke -> no match (exit 1 from grep); WHY: confirms npm no longer lists the script as runnable",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run `node -e \"require(./packages/main/package.json)\"` -> exits 0 with no parse error; WHY: validates JSON is still well-formed after the line deletion (no dangling comma)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Inspect the line before and after the deleted line 70 in the committed diff to confirm no trailing comma was left on the now-last script entry and no blank line gap was introduced -> diff shows clean removal; WHY: a dangling comma makes package.json invalid JSON in strict parsers and npm versions that reject trailing commas",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run `node -e \"const p=require(./packages/main/package.json); const keys=Object.keys(p.scripts); if(keys.length===0) process.exit(1)\"` -> exits 0; WHY: guard against accidentally deleting the entire scripts block or adjacent entries during the edit",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Verify that running `npm --prefix packages/main run test:autopilot-resume-smoke` after the removal produces an npm error (missing script), NOT a MODULE_NOT_FOUND from node -> npm error output contains missing script or not found; WHY: confirms the failure mode shifted from a confusing node module error to a clear npm missing-script error, proving the entry was removed rather than the dist artifact being cleaned",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Check that no other scripts key in packages/main/package.json contains the substring autopilot-resume-smoke (e.g. as a dependency in a compound script like npm run test:autopilot-resume-smoke &&...) -> grep of the scripts block returns no match; WHY: ensures no transitive reference that would still fail at runtime",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node -e 'const p=require(\"./packages/main/package.json\"); if(p.scripts[\"test:autopilot-resume-smoke\"]) { process.exit(1) }'",
+          "result": "pass",
+          "note": "Exit 0: parsed scripts object has no test:autopilot-resume-smoke key — entry actually removed, not commented out.",
+          "headHash": "7748e79fcf6355b0c226d8bba816852bfff650c9",
+          "materialHash": "bcb9fe9694a65ae61bc77ba04013100fcb365981b5dda6e4f966c1b8d03c383f",
+          "storyFilesHash": "c1c3973b25cb80c0707cdb5ab5d5d3546213dc25b422fe5ce07b545574ef6b09",
+          "timestamp": "2026-07-10T14:49:34.222Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run 2>/dev/null | grep -q \"autopilot-resume-smoke\"",
+          "result": "pass",
+          "note": "grep exits 1 (no match): npm run listing no longer offers the script.",
+          "headHash": "7748e79fcf6355b0c226d8bba816852bfff650c9",
+          "materialHash": "bcb9fe9694a65ae61bc77ba04013100fcb365981b5dda6e4f966c1b8d03c383f",
+          "storyFilesHash": "c1c3973b25cb80c0707cdb5ab5d5d3546213dc25b422fe5ce07b545574ef6b09",
+          "timestamp": "2026-07-10T14:49:34.222Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "command": "node -e 'require(\"./packages/main/package.json\")'",
+          "result": "pass",
+          "note": "Exit 0, no parse error: JSON well-formed after the single-line deletion.",
+          "headHash": "7748e79fcf6355b0c226d8bba816852bfff650c9",
+          "materialHash": "bcb9fe9694a65ae61bc77ba04013100fcb365981b5dda6e4f966c1b8d03c383f",
+          "storyFilesHash": "c1c3973b25cb80c0707cdb5ab5d5d3546213dc25b422fe5ce07b545574ef6b09",
+          "timestamp": "2026-07-10T14:49:34.222Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "git diff -U1 -- packages/main/package.json",
+          "result": "pass",
+          "note": "Diff shows exactly one deleted line between test:unattended-dispatch-smoke and test:autopilot-v2-reliability-smoke; no added lines, no trailing-comma or blank-line residue (deleted entry was mid-block).",
+          "headHash": "7748e79fcf6355b0c226d8bba816852bfff650c9",
+          "materialHash": "bcb9fe9694a65ae61bc77ba04013100fcb365981b5dda6e4f966c1b8d03c383f",
+          "storyFilesHash": "c1c3973b25cb80c0707cdb5ab5d5d3546213dc25b422fe5ce07b545574ef6b09",
+          "timestamp": "2026-07-10T14:49:34.222Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "command": "node -e 'const p=require(\"./packages/main/package.json\"); const keys=Object.keys(p.scripts); if(keys.length===0) process.exit(1)'",
+          "result": "pass",
+          "note": "Exit 0 with 72 scripts remaining: the scripts block and adjacent entries survived the edit.",
+          "headHash": "7748e79fcf6355b0c226d8bba816852bfff650c9",
+          "materialHash": "bcb9fe9694a65ae61bc77ba04013100fcb365981b5dda6e4f966c1b8d03c383f",
+          "storyFilesHash": "c1c3973b25cb80c0707cdb5ab5d5d3546213dc25b422fe5ce07b545574ef6b09",
+          "timestamp": "2026-07-10T14:49:34.222Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:autopilot-resume-smoke",
+          "result": "pass",
+          "note": "Output is npm error Missing script: \"test:autopilot-resume-smoke\" with no MODULE_NOT_FOUND — the failure mode is now the intended npm-level missing-script error.",
+          "headHash": "7748e79fcf6355b0c226d8bba816852bfff650c9",
+          "materialHash": "bcb9fe9694a65ae61bc77ba04013100fcb365981b5dda6e4f966c1b8d03c383f",
+          "storyFilesHash": "c1c3973b25cb80c0707cdb5ab5d5d3546213dc25b422fe5ce07b545574ef6b09",
+          "timestamp": "2026-07-10T14:49:34.222Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node -e 'const p=require(\"./packages/main/package.json\"); const hits=Object.values(p.scripts).filter(v=>v.includes(\"autopilot-resume-smoke\")); process.exit(hits.length?1:0)'",
+          "result": "pass",
+          "note": "Exit 0: no other script value (compound or otherwise) references the removed entry.",
+          "headHash": "7748e79fcf6355b0c226d8bba816852bfff650c9",
+          "materialHash": "bcb9fe9694a65ae61bc77ba04013100fcb365981b5dda6e4f966c1b8d03c383f",
+          "storyFilesHash": "c1c3973b25cb80c0707cdb5ab5d5d3546213dc25b422fe5ce07b545574ef6b09",
+          "timestamp": "2026-07-10T14:49:34.222Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Verify no remaining runnable reference to autopilot-resume-smoke outside historical story artifacts and decision-doc evidence records",
+      "context": "grep the repo excluding .lattice story artifacts, .claude/worktrees and node_modules; docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md:403 is a historical B-320f evidence row and stays untouched",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-07-10T14:37:13.295Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run `grep -rn autopilot-resume-smoke . --include=\"*.json\" --include=\"*.ts\" --include=\"*.js\" --include=\"*.yml\" --include=\"*.yaml\" --include=\"*.sh\" --include=\"*.md\" --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=dist --exclude-dir=.worktrees --exclude-dir=.claude` and filter out .lattice/story lines -> only surviving hit is docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md:403; WHY: confirms no runnable reference (npm script, CI config, shell script, smoke manifest) remains after CHK-001",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Verify the surviving hit at docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md:403 is a historical evidence table row (contains B-320f and is inside a markdown table) and is NOT a runnable invocation -> line content is a pipe-delimited table row mentioning B-320f; WHY: confirms the only remaining mention is a historical record, not an active command",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run the grep without file-type filters (all files) to catch references in unexpected file types like Makefile, Dockerfile, or .env files -> no additional runnable hits beyond the known decision-doc row; WHY: file-type-filtered grep can miss references in non-standard file types that could still be executed",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Search specifically in root package.json for autopilot-resume-smoke -> no match; WHY: the plan notes root package.json has no mirror but this should be independently verified, not trusted from the plan description alone",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Check that .lattice/story/actives/ may contain references in closed-story artifacts and that these are correctly excluded from the runnable-reference scope -> any hits in .lattice/story are story metadata, not runnable scripts; WHY: prevents false positives from story artifacts being flagged as missed cleanup",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Search for partial-match variants that could hide a reference: grep for resume-smoke (without the autopilot- prefix) across runnable file types excluding the known exclusion dirs -> no unexpected hits that reference the deleted smoke under a different prefix or alias; WHY: catches cases where the script was referenced by a shortened name or where a wrapper script uses a substring match",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Verify that no npm lifecycle hook (pretest, posttest, prepare, etc.) in packages/main/package.json invokes test:autopilot-resume-smoke indirectly via npm run -> inspect all lifecycle-hook script values for the substring; WHY: npm lifecycle hooks execute implicitly and a hidden reference would cause silent failures during npm install/test/publish",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Check that the decision-doc line at :403 was NOT modified by this story (git diff of that file shows no changes) -> diff is empty for that file; WHY: scope contract explicitly excludes this file; any edit would violate the scope boundary and corrupt historical evidence",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "grep -rn \"autopilot-resume-smoke\" . --include=\"*.json\" --include=\"*.ts\" --include=\"*.js\" --include=\"*.yml\" --include=\"*.yaml\" --include=\"*.sh\" --include=\"*.md\" --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=dist --exclude-dir=.worktrees | grep -v \".lattice/story/\"",
+          "result": "pass",
+          "note": "Exactly one surviving hit: docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md:403.",
+          "headHash": "7748e79fcf6355b0c226d8bba816852bfff650c9",
+          "materialHash": "bcb9fe9694a65ae61bc77ba04013100fcb365981b5dda6e4f966c1b8d03c383f",
+          "storyFilesHash": "c1c3973b25cb80c0707cdb5ab5d5d3546213dc25b422fe5ce07b545574ef6b09",
+          "timestamp": "2026-07-10T14:49:34.222Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "command": "sed -n '403p' docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "result": "pass",
+          "note": "Line 403 is a markdown table row (starts with |) recording B-320f DEV regression-smoke evidence — historical record, not a runnable invocation.",
+          "headHash": "7748e79fcf6355b0c226d8bba816852bfff650c9",
+          "materialHash": "bcb9fe9694a65ae61bc77ba04013100fcb365981b5dda6e4f966c1b8d03c383f",
+          "storyFilesHash": "c1c3973b25cb80c0707cdb5ab5d5d3546213dc25b422fe5ce07b545574ef6b09",
+          "timestamp": "2026-07-10T14:49:34.222Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "grep -rn \"autopilot-resume-smoke\" . --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=dist --exclude-dir=.worktrees | grep -v \".lattice/story/\" | grep -v \"autopilot-v2-reliability-execution-plan.md:403\"",
+          "result": "pass",
+          "note": "Unfiltered (all file types) sweep returns nothing beyond the known decision-doc row — no Makefile/Dockerfile/.env references.",
+          "headHash": "7748e79fcf6355b0c226d8bba816852bfff650c9",
+          "materialHash": "bcb9fe9694a65ae61bc77ba04013100fcb365981b5dda6e4f966c1b8d03c383f",
+          "storyFilesHash": "c1c3973b25cb80c0707cdb5ab5d5d3546213dc25b422fe5ce07b545574ef6b09",
+          "timestamp": "2026-07-10T14:49:34.222Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "command": "grep -c \"autopilot-resume-smoke\" package.json",
+          "result": "pass",
+          "note": "0 matches: root package.json independently verified to have no mirror of the script.",
+          "headHash": "7748e79fcf6355b0c226d8bba816852bfff650c9",
+          "materialHash": "bcb9fe9694a65ae61bc77ba04013100fcb365981b5dda6e4f966c1b8d03c383f",
+          "storyFilesHash": "c1c3973b25cb80c0707cdb5ab5d5d3546213dc25b422fe5ce07b545574ef6b09",
+          "timestamp": "2026-07-10T14:49:34.222Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "manual_transcript",
+          "command": "grep -rln \"autopilot-resume-smoke\" .lattice/story/ | grep -vE '\\.(json|md|jsonl)$'",
+          "result": "pass",
+          "note": "All .lattice/story hits are json/md/jsonl story metadata (closed-story artifacts) — correctly excluded from runnable-reference scope.",
+          "headHash": "7748e79fcf6355b0c226d8bba816852bfff650c9",
+          "materialHash": "bcb9fe9694a65ae61bc77ba04013100fcb365981b5dda6e4f966c1b8d03c383f",
+          "storyFilesHash": "c1c3973b25cb80c0707cdb5ab5d5d3546213dc25b422fe5ce07b545574ef6b09",
+          "timestamp": "2026-07-10T14:49:34.222Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "grep -rn \"resume-smoke\" . --include=\"*.json\" --include=\"*.ts\" --include=\"*.js\" --include=\"*.yml\" --include=\"*.yaml\" --include=\"*.sh\" --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=dist --exclude-dir=.worktrees | grep -v \".lattice/story/\"",
+          "result": "pass",
+          "note": "Partial-match sweep finds no aliased reference to the deleted smoke; remaining resume-smoke-free.",
+          "headHash": "7748e79fcf6355b0c226d8bba816852bfff650c9",
+          "materialHash": "bcb9fe9694a65ae61bc77ba04013100fcb365981b5dda6e4f966c1b8d03c383f",
+          "storyFilesHash": "c1c3973b25cb80c0707cdb5ab5d5d3546213dc25b422fe5ce07b545574ef6b09",
+          "timestamp": "2026-07-10T14:49:34.222Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node -e 'const p=require(\"./packages/main/package.json\"); const bad=Object.entries(p.scripts).filter(([k,v])=>v.includes(\"test:autopilot-resume-smoke\")); process.exit(bad.length?1:0)'",
+          "result": "pass",
+          "note": "Exit 0: no npm lifecycle hook or any script value invokes test:autopilot-resume-smoke indirectly.",
+          "headHash": "7748e79fcf6355b0c226d8bba816852bfff650c9",
+          "materialHash": "bcb9fe9694a65ae61bc77ba04013100fcb365981b5dda6e4f966c1b8d03c383f",
+          "storyFilesHash": "c1c3973b25cb80c0707cdb5ab5d5d3546213dc25b422fe5ce07b545574ef6b09",
+          "timestamp": "2026-07-10T14:49:34.222Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "git diff -- docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "result": "pass",
+          "note": "Empty diff: the decision-doc evidence row was not modified by this story, honoring the scope-contract explicit exclude.",
+          "headHash": "7748e79fcf6355b0c226d8bba816852bfff650c9",
+          "materialHash": "bcb9fe9694a65ae61bc77ba04013100fcb365981b5dda6e4f966c1b8d03c383f",
+          "storyFilesHash": "c1c3973b25cb80c0707cdb5ab5d5d3546213dc25b422fe5ce07b545574ef6b09",
+          "timestamp": "2026-07-10T14:49:34.222Z"
+        }
+      ]
+    }
+  ]
+}

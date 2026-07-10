@@ -1,0 +1,27 @@
+{
+  "storyId": "B-bf15",
+  "checkedAt": "2026-07-10T14:55:16.339Z",
+  "headHash": "e3830bc4b254bd76554493601f384324cd2d14ce",
+  "materialHash": "bcb9fe9694a65ae61bc77ba04013100fcb365981b5dda6e4f966c1b8d03c383f",
+  "storyFilesHash": "c1c3973b25cb80c0707cdb5ab5d5d3546213dc25b422fe5ce07b545574ef6b09",
+  "reviewRound": "2026-07-10T14:38:11.117Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Independently re-ran: node parse confirms test:autopilot-resume-smoke key absent from scripts object (exit 0); npm --prefix packages/main run listing has no autopilot-resume-smoke match; node require of package.json parses cleanly (no dangling comma, 72 scripts remain); git diff -U1 shows exactly one clean deleted line with no collateral changes; npm --prefix packages/main run test:autopilot-resume-smoke now fails with npm error Missing script (not a node MODULE_NOT_FOUND crash); no other script value in package.json references the removed entry. All 7 recorded verificationEvidence rows for CHK-001 reproduce exactly as noted."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Independently re-ran the repo-wide grep sweeps (file-type-filtered, unfiltered, partial-match resume-smoke, root package.json, .lattice/story triage, npm lifecycle-hook scan): the only surviving non-.lattice reference to autopilot-resume-smoke in the entire repo is docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md:403, a dated B-320f historical evidence-table row. Confirmed via git diff that this file has zero changes in this story (matches scope-contract explicitExcludes). All 8 recorded verificationEvidence rows for CHK-002 reproduce exactly as noted."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Single-line, single-file chore (packages/main/package.json) fully matches its narrow promise: the dead test:autopilot-resume-smoke script (source deleted in 5d3d7bd686) is removed, JSON stays valid, and a repo-wide sweep confirms only the deliberately-excluded historical B-320f decision-doc row survives. All 15 verificationEvidence rows across CHK-001/CHK-002 were independently reproduced live and matched exactly; no documentation files were touched so there are no doc promises to verify; no TODOs/FIXMEs introduced."
+  },
+  "_hash": "2fd33c2f39df7a686e2ed93a1af09cbbae92fe7b9a99f1bd3d3bdc94d3dd05b5"
+}

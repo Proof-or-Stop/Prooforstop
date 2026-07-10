@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-bf15",
+  "allowedCommands": [
+    "git *",
+    "grep *",
+    "lattice *",
+    "node *",
+    "npm run *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "packages/main/package.json"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Single-file chore: delete one stale npm script line. Docs/decision files and historical story artifacts are read-only reference; no source/dist changes.",
+  "createdAt": "2026-07-10T14:24:51.229Z",
+  "updatedAt": "2026-07-10T14:24:51.229Z",
+  "_hash": "22d60bdf14497c27e441de4a9d54980991bfe377c8f39c950470c045b03ea948"
+}

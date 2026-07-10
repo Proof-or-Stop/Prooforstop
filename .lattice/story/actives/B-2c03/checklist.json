@@ -1,0 +1,145 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Sanitize path-like/code-like tokens out of the claimsShrinkage scan text before the trigger-word regex runs",
+      "context": "In evaluateDoneIntentEquivalence (packages/main/src/core/proofstory.ts ~line 1420-1440), build narrowingText as today, then strip backticked spans (`...`), tokens containing '/' (path segments), and hyphenated or dotted file-name-shaped tokens (e.g. partial-done-recovery.ts, not-covered.md) before testing the claimsShrinkage regex. Plain prose trigger words must keep matching.",
+      "userSees": "A DONE summary whose changes text names core/partial-done-recovery.ts no longer produces the unconfirmed_single_outcome_shrinkage gap, while a prose claim like 'the remaining cases were deferred' still blocks DONE without a confirmed shrinkage decision.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/proofstory.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "sanitize-path-tokens:happy",
+            "desc": "done_intent_equivalence_check on a lightweight-path story whose summary.changes names core/partial-done-recovery.ts reports no unconfirmed_single_outcome_shrinkage gap.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "sanitize-path-tokens:edge",
+            "desc": "Trigger words inside backticked spans or slash-segmented paths (e.g. `deferred`, src/excluded/list.ts) do not trigger; the same words as plain prose still trigger.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "sanitize-path-tokens:adversarial",
+            "desc": "A summary that names partial-done-recovery.ts AND separately claims 'remaining scope deferred' in prose still produces the unconfirmed_single_outcome_shrinkage gap - the sanitizer must not swallow surrounding prose or become a bypass for genuine shrinkage claims.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add a repro-first regression test where the summary names partial-done-recovery.ts",
+      "context": "Repro-first (guide-red-spike-story): add the smoke case to proofstory-intent-hardening-smoke.ts BEFORE the fix and record it failing against the current heuristic, then make it pass. The case writes a lightweight-path story whose summary.changes names core/partial-done-recovery.ts and asserts done_intent_equivalence_check emits no unconfirmed_single_outcome_shrinkage gap; keep the existing positive control (prose 'Partial narrower delivery; remaining cases deferred.') asserting the gap still fires.",
+      "userSees": "npm run test:proofstory-intent-hardening-smoke passes and includes a case proving file-name-only summaries do not trip the shrinkage gap.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "regression-test-filename-summary:happy",
+            "desc": "New smoke case passes after the fix; full proofstory-intent-hardening smoke stays green.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "regression-test-filename-summary:edge",
+            "desc": "The pre-fix RED run is captured as evidence showing the new case fails against the unpatched heuristic.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "regression-test-filename-summary:adversarial",
+            "desc": "Existing narrow-delivery positive control still fails the gate (guard not weakened by the sanitizer).",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Decide and document whether the bare trigger word 'remaining' is too broad",
+      "context": "An earlier B-d6a0 summary draft tripped the heuristic on 'remaining' while describing pre-existing unrelated suite failures. Evaluate keeping, narrowing (e.g. only match shrinkage-flavored phrases like 'remaining work/items/scope'), or dropping it; record the decision and rationale in the story plan/summary, and if the vocabulary changes, cover the change with a smoke assertion.",
+      "userSees": "The story artifacts contain an explicit keep/narrow/drop decision for 'remaining' with rationale; if narrowed, a smoke case shows the narrowed behavior.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/proofstory.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "remaining-breadth-decision:happy",
+            "desc": "Decision recorded; heuristic behavior matches the recorded decision.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "remaining-breadth-decision:edge",
+            "desc": "If narrowed: 'the remaining suite failures are pre-existing' no longer triggers while 'remaining scope deferred' still does.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "remaining-breadth-decision:adversarial",
+            "desc": "If kept: rationale explains why the false-positive rate is acceptable rather than silently ignoring the question.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

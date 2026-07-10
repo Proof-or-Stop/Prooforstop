@@ -1,0 +1,103 @@
+{
+  "passes": [
+    {
+      "id": "B-bf15:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept-residue check for autopilot-resume-smoke removal. Diff is a single-line deletion in packages/main/package.json (script entry whose source was already deleted in 5d3d7bd686). Independent repo-wide grep (excluding node_modules/dist/.git and lattice story-lifecycle metadata dirs .lattice/.lattice-codex/.claude/.codex) finds exactly one surviving hit: docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md:403, a historical B-320f evidence-table row. Confirmed via git diff that this file is untouched by this story (empty diff), so it is legitimate historical record, not residue. Also checked: no source/dist artifact remains for autopilot-resume-smoke; no partial-match variant (resume-smoke without prefix) elsewhere; no npm lifecycle hook (pre/post) references it; root package.json clean; no CI/workflow yml/yaml references it. No concept-deletion residue found; no blocker.",
+      "createdAt": "2026-07-10T14:39:49.545Z",
+      "reviewRound": "2026-07-10T14:38:11.117Z",
+      "reviewRunId": "B-bf15:RR-001",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "packages/main/package.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-bf15/background.md",
+          ".lattice/story/actives/B-bf15/checklist.json",
+          ".lattice/story/actives/B-bf15/index.json",
+          ".lattice/story/actives/B-bf15/plan.md",
+          ".lattice/story/actives/B-bf15/scope-boundary.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "be3070ba319f92c7eef1ff575d29fcf8b1588979fd9050b3e9bf4b401101d744"
+    },
+    {
+      "id": "B-bf15:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "Verified package.json diff is the single stale test:autopilot-resume-smoke script line removal; source .ts was confirmed deleted by 5d3d7bd686. Repo-wide grep (excluding node_modules/.git/.claude/.worktrees/dist/.lattice) shows exactly one surviving hit at docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md:403, which is a dated B-320f historical acceptance-evidence table row (\"PASS in B-320f DEV\"), correctly left untouched as documented audit history, not a runnable reference. No other docs, package.json files, or CI config reference the removed script. package.json JSON parses cleanly. CHK-001/CHK-002 both done and match the diff. No documentation-code consistency issues found.",
+      "createdAt": "2026-07-10T14:40:22.606Z",
+      "reviewRound": "2026-07-10T14:38:11.117Z",
+      "reviewRunId": "B-bf15:RR-003",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-bf15/plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md (lines 380-407)"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-bf15/checklist.json",
+          "docs/dev/test-coverage.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "docs/requirements/decisions/milestone-status-done-gate-reconciliation.md",
+          "docs/requirements/decisions/product-capability-release-playbook-lineage-execution-plan.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "packages/main/package.json (diff)"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "28e6f2820a74f5a7081c4138dccb3e9e790ccbb9548a585c23c6d9189931a335"
+    },
+    {
+      "id": "B-bf15:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "reviewed CHK-001 and CHK-002: 1:1 verificationIntent->verificationEvidence coverage (7/7 and 8/8, all pass, no mismatches). Independently re-ran the JSON parse check, npm run listing, full grep sweep (with/without file-type filters), lifecycle-hook scan, partial-match resume-smoke sweep, and git diff of the decision-doc line — all match recorded evidence exactly. Committed diff (ea361c6c38) is a clean single-line removal, no trailing-comma/collateral changes. No blocker.",
+      "createdAt": "2026-07-10T14:41:04.545Z",
+      "reviewRound": "2026-07-10T14:38:11.117Z",
+      "reviewRunId": "B-bf15:RR-004",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-bf15/background.md",
+          ".lattice/story/actives/B-bf15/checklist.json",
+          ".lattice/story/actives/B-bf15/plan.md",
+          ".lattice/story/actives/B-bf15/review-runs.json",
+          ".lattice/story/actives/B-bf15/review.json",
+          "packages/main/package.json",
+          "packages/main/src/tasks/run-all-smokes.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "packages/main/src/tasks/run-all-smokes-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bd912438b7435209a69fed8800b5adaae6af905cebe3f25516deeb85bb04f186"
+    },
+    {
+      "id": "B-bf15:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed CHK-001+CHK-002: committed diff (ea361c6c38) is a clean single-line removal of the stale test:autopilot-resume-smoke script from packages/main/package.json, matching scope-contract allowedModify. Independently confirmed: source src/tasks/autopilot-resume-smoke.ts was deleted in 5d3d7bd686 (391 lines, verified via git show --stat); repo-wide grep excluding node_modules/.git/dist/.worktrees/.lattice-story finds exactly one surviving hit (docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md:403), a historical B-320f evidence-table row untouched by this story (empty git diff on that file, matches explicitExcludes); root package.json has no mirror; run-all-smokes.ts and packages/main/src have zero references; re-ran the recorded verification commands (node require parse, npm run listing grep, npm run missing-script error, partial-match resume-smoke sweep, lifecycle-hook scan) and all reproduce the evidence exactly. lattice validate is fully green (24/24 experience-pack-arm-switch-smoke PASS, no not-ok lines, exit 0), consistent with the verify expectation. Other reviewer lanes (concept RP-001, docs RP-002, test-coverage RP-003) independently converged on no-blocker. No blocker found.",
+      "createdAt": "2026-07-10T14:45:01.694Z",
+      "reviewRound": "2026-07-10T14:38:11.117Z",
+      "reviewRunId": "B-bf15:RR-002",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-bf15/background.md",
+          ".lattice/story/actives/B-bf15/review-passes.json",
+          ".lattice/story/actives/B-bf15/review-runs.json",
+          ".lattice/story/actives/B-bf15/review.json",
+          ".lattice/story/actives/B-bf15/scope-contract.json",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md (lines 395-410)",
+          "packages/main/package.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-bf15/checklist.json (verificationEvidence entries)",
+          ".lattice/story/actives/B-bf15/plan.md",
+          "packages/main/src/tasks/run-all-smokes.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4a47480f8cafef8fd3dc47a320232329da0e27fd2c8f60f69ad270fec821cdcf"
+    }
+  ]
+}

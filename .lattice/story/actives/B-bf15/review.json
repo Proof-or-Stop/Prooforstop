@@ -1,0 +1,39 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-07-10T14:33:33.626Z",
+      "issueCount": 5,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 checklist items; please check for missing combined scenarios (e.g., what happens when Remove the test:autopilot-resume-smoke script entry from packages/main/package.json + Verify no remaining runnable reference to autopilot-resume-smoke outside historical story artifacts and decision-doc evidence records are performed simultaneously?)"
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "acceptance_binding_missing_verification_intent_refs: AB-001 has no verificationIntentRefs. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "missing_understanding",
+          "severity": "advisory",
+          "message": "understanding snapshot not filled. Recommend calling understanding_set before breaking down checklist to record the 6 fields task/outcome/facts/constraints/unknowns/touchpoints, avoiding expensive late fixes for misunderstandings"
+        }
+      ],
+      "_hash": "9d3e2055374549fd6b9fa9b898345fd436558acf9a9f83b915cc7e3f910795ae"
+    }
+  ]
+}
