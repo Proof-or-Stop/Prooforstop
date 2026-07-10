@@ -4,7 +4,7 @@
   "title": "Make the DONE intent-equivalence claimsShrinkage heuristic ignore path-like/code-like tokens so file names like partial-done-recovery.ts no longer false-positive",
   "description": "The lightweight DONE intent-equivalence path in evaluateDoneIntentEquivalence (packages/main/src/core/proofstory.ts, ~line 1427) scans summary.changes + actualTranscript + outcomeDiff + limitations with the trigger-word regex /\\b(?:partial|narrow(?:er|ed)?|shrink(?:age|s|ing)?|out of scope|not covered|deferred|remaining|excluded)\\b/i. Because '-' and '/' are word boundaries, literal file names and code identifiers match: during B-d6a0 the file name core/partial-done-recovery.ts in summary.changes matched \\bpartial\\b and blocked DONE with unconfirmed_single_outcome_shrinkage until the summary was reworded to avoid naming the file it changed. Fix: sanitize path-like/code-like tokens (backticked spans, segments/with/slashes, hyphenated or dotted file-name tokens) out of the text before applying the trigger regex, add a regression test whose summary names partial-done-recovery.ts, and make an explicit decision about whether the bare trigger word 'remaining' is too broad (an earlier B-d6a0 draft tripped on 'remaining' while describing pre-existing unrelated suite failures).",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "medium",
   "keywords": [
     "proofstory",
@@ -17,7 +17,7 @@
   ],
   "createdAt": "2026-07-10T14:23:56.686Z",
   "startedAt": "2026-07-10T14:23:56.686Z",
-  "endedAt": null,
+  "endedAt": "2026-07-10T21:26:40.704Z",
   "events": [
     {
       "phase": "INIT",
@@ -36,11 +36,79 @@
       "user": "Harmonygo",
       "sessionId": "481b35e7-c0f7-479c-8009-81864d68d4e6",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-10T14:26:14.001Z",
+      "branch": "story/B-2c03",
+      "user": "Harmonygo",
+      "sessionId": "481b35e7-c0f7-479c-8009-81864d68d4e6",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-10T14:36:06.549Z",
+      "branch": "story/B-2c03",
+      "user": "Harmonygo",
+      "sessionId": "481b35e7-c0f7-479c-8009-81864d68d4e6",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-10T14:41:10.214Z",
+      "branch": "story/B-2c03",
+      "user": "Harmonygo",
+      "sessionId": "481b35e7-c0f7-479c-8009-81864d68d4e6",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-10T18:07:36.096Z",
+      "branch": "story/B-2c03",
+      "user": "Harmonygo",
+      "sessionId": "481b35e7-c0f7-479c-8009-81864d68d4e6",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-10T18:53:29.482Z",
+      "branch": "story/B-2c03",
+      "user": "Harmonygo",
+      "sessionId": "481b35e7-c0f7-479c-8009-81864d68d4e6",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-10T18:53:39.083Z",
+      "branch": "story/B-2c03",
+      "user": "Harmonygo",
+      "sessionId": "481b35e7-c0f7-479c-8009-81864d68d4e6",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-10T21:12:53.980Z",
+      "branch": "story/B-2c03",
+      "user": "Harmonygo",
+      "sessionId": "481b35e7-c0f7-479c-8009-81864d68d4e6",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-10T21:26:40.704Z",
+      "branch": "story/B-2c03",
+      "user": "Harmonygo",
+      "sessionId": "481b35e7-c0f7-479c-8009-81864d68d4e6",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-2c03",
-    "branch": "story/B-2c03",
-    "createdAt": "2026-07-10T14:26:00.576Z"
-  }
+  "currentReviewRound": "2026-07-10T18:53:39.083Z"
 }

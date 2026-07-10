@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-2c03",
+  "sourceText": "The DONE intent-equivalence lightweight heuristic in packages/main/src/core/proofstory.ts (claimsShrinkage regex over summary changes/actualTranscript/outcomeDiff/limitations) false-positives on file paths and code identifiers: during B-d6a0 the literal file name core/partial-done-recovery.ts in summary.changes matched \\bpartial\\b (hyphen = word boundary) and blocked DONE with unconfirmed_single_outcome_shrinkage until the summary was reworded. Make the heuristic ignore path-like/code-like tokens (skip matches inside segments/with/slashes, hyphen-ated-file.ts names, or backticked spans) and add a regression test using a summary that names partial-done-recovery.ts. Also consider whether remaining (which matched an earlier draft describing pre-existing unrelated suite failures) is too broad a trigger word.",
+  "normalizedOutcome": "The claimsShrinkage heuristic no longer triggers on path-like/code-like tokens (backticked spans, slash-segmented paths, hyphenated/dotted file names) while genuine prose shrinkage claims still trigger; a regression smoke case names partial-done-recovery.ts and passes; an explicit keep/narrow/drop decision for the bare trigger word remaining is recorded and implemented.",
+  "acceptanceClaim": "done_intent_equivalence_check on a lightweight-path story whose summary names core/partial-done-recovery.ts reports no unconfirmed_single_outcome_shrinkage gap; the existing narrow-delivery positive control still reports the gap; the proofstory-intent-hardening smoke passes with the new regression case; the remaining-breadth decision is documented in story artifacts.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:efcd796766f66f06e5206a0ccfd295373a84afba56bb0ddf5d8bc859a9a7f13a",
+  "createdAt": "2026-07-10T14:27:46.856Z",
+  "updatedAt": "2026-07-10T14:27:46.856Z"
+}

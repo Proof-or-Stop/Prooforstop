@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-2c03",
+  "records": [
+    {
+      "id": "RED-20260710143151",
+      "trigger": "Bug fix (red_evidence_required): claimsShrinkage heuristic false-positives on path-like/code-like tokens; repro-first regression case added to proofstory-intent-hardening-smoke before the fix per CHK-002.",
+      "acceptanceTargetRef": "regression-test-filename-summary:happy",
+      "baselineHeadHash": "2db38feff105f057fe100c7adafc34c8b627b0d0",
+      "baselineMaterialHash": "47f3b5a4560f61c2cb528c1c98d478237ec717bde13e8860f90b9ec6f6cc8e0d",
+      "observedFailure": "AssertionError [ERR_ASSERTION]: a summary naming core/partial-done-recovery.ts is not a shrinkage claim (B-d6a0 false positive) - done_intent_equivalence_check emitted unconfirmed_single_outcome_shrinkage for a summary whose changes text merely names core/partial-done-recovery.ts, because \\bpartial\\b matches inside the hyphenated file name.",
+      "failingCommand": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+      "expectedGreenCommand": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+      "greenRelation": {
+        "targetRef": "regression-test-filename-summary:happy",
+        "relation": "same_acceptance",
+        "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js"
+      },
+      "note": "RED run executed in worktree .worktrees/B-2c03 after npm run build; the new smoke case fails against the unpatched heuristic at packages/main/src/core/proofstory.ts:1427.",
+      "createdAt": "2026-07-10T14:31:51.834Z"
+    }
+  ],
+  "createdAt": "2026-07-10T14:31:51.834Z",
+  "updatedAt": "2026-07-10T14:31:51.834Z"
+}

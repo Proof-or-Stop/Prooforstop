@@ -1,0 +1,24 @@
+{
+  "task": "Stop the claimsShrinkage DONE heuristic from false-positive matching trigger words inside path-like/code-like tokens (e.g. partial-done-recovery.ts) and narrow the bare trigger word remaining to shrinkage-flavored phrases.",
+  "outcome": "done_intent_equivalence_check no longer emits unconfirmed_single_outcome_shrinkage for summaries that merely name files/paths/backticked code or describe pre-existing failures with bare remaining, still emits it for genuine prose shrinkage claims (including remaining + scope-noun phrases), and the decision is documented and covered by smoke assertions.",
+  "facts": [
+    "JS regex \\b treats hyphen, slash, and dot as word boundaries, so \\bpartial\\b matches inside partial-done-recovery.ts",
+    "The heuristic scans summary.changes + actualTranscript + outcomeDiff + limitations joined as narrowingText (packages/main/src/core/proofstory.ts ~1420-1435)",
+    "B-d6a0 DONE was blocked until its summary was reworded to avoid naming the file it changed",
+    "An earlier B-d6a0 draft tripped on bare remaining while describing pre-existing unrelated suite failures",
+    "The RED regression case is already added to proofstory-intent-hardening-smoke.ts and observed failing (red-evidence.json binds the literal command)",
+    "CHK-003 decision (PLAN): NARROW remaining to remaining+scope-noun phrases (work/scope/items/cases/tasks/milestones/features/functionality/coverage/requirements/deliverables); rationale: the observed false-positive class describes environment state not scope, while genuine shrinkage sentences name the leftover scope noun or co-occur with other trigger words, so recall loss is minimal"
+  ],
+  "constraints": [
+    "Sanitizer must not weaken genuine shrinkage detection: prose trigger words must keep matching, including next to path tokens",
+    "Only the lightweight single-outcome path changes; strict milestone path and other DONE-gate checks stay untouched",
+    "Vocabulary changes are limited to the explicit remaining decision",
+    "Deterministic string processing only; no NLP/LLM classification in a gate"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/proofstory.ts (evaluateDoneIntentEquivalence, claimsShrinkage)",
+    "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts (lightweight-path cases)"
+  ],
+  "timestamp": "2026-07-10T14:34:38.854Z"
+}

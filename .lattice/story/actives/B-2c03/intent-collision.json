@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-2c03",
+  "id": "IC-20260710142747",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Sanitize path-like/code-like tokens (backticked spans, tokens containing slashes, hyphenated or dotted file-name-shaped tokens) out of the narrowingText BEFORE the existing claimsShrinkage trigger regex runs, inside evaluateDoneIntentEquivalence only; keep the trigger vocabulary otherwise intact except for an explicit, documented decision on the bare word remaining (narrow it to shrinkage-flavored phrases if evidence supports that). Prose trigger words must keep matching; the sanitizer must not weaken genuine shrinkage detection.",
+  "acceptedInterpretationHash": "sha256:c0795cc477e07b167112c4292b6be31a57a68ef306afafbc2003c54342ae100b",
+  "notes": "Considered interpretations: (1) sanitize the scanned text pre-match (chosen: cheap, deterministic, keeps guard vocabulary); (2) rewrite the trigger regex itself with lookarounds to exclude -/. neighbors (rejected: JS \\b semantics make this fragile and hard to review); (3) drop or LLM-ify the heuristic (rejected: loses a real DONE anti-gaming guard / non-deterministic in a gate). Lane check: user request, checklist CHK-001..003, and scope boundary all describe the same sanitize+regression-test+remaining-decision outcome; no conflicting reading found.",
+  "createdAt": "2026-07-10T14:27:47.096Z",
+  "updatedAt": "2026-07-10T14:27:47.096Z"
+}

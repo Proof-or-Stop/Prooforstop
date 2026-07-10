@@ -43,9 +43,47 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-10T14:36:23.108Z",
+      "endTime": "2026-07-10T14:40:27.721Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "sanitize-path-tokens:happy",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "fileNameDone plus the full strip-rule battery (16 strip/keep cases) green at final head 16c97d4009",
+          "headHash": "16c97d4009edc05df5edcb7fe7dc11e7e37f1575",
+          "materialHash": "cd6eed7f3c2821bce29d74c39f6000f3a619e401bc0b58440fad255a16bf9777",
+          "storyFilesHash": "8f7363b1cd635279d8c1298f696d89b62fa094648b38e0060490a1b1784ad210",
+          "timestamp": "2026-07-10T21:02:04.732Z"
+        },
+        {
+          "intentRef": "sanitize-path-tokens:edge",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "codeTokenDone, backtickProseDone, slashProseDone, slashEnumeration cases, urlControlDone, lineQualifiedPathDone, anchorQualifiedPathDone all green at final head",
+          "headHash": "1841075a1a11e195bee92d4c231dc8baaf2b1e37",
+          "materialHash": "cd6eed7f3c2821bce29d74c39f6000f3a619e401bc0b58440fad255a16bf9777",
+          "storyFilesHash": "8f7363b1cd635279d8c1298f696d89b62fa094648b38e0060490a1b1784ad210",
+          "timestamp": "2026-07-10T21:02:05.494Z"
+        },
+        {
+          "intentRef": "sanitize-path-tokens:adversarial",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "proseShrinkDone and seven cross-clause controls confirm the sanitizer and chain never swallow genuine prose claims; verified by 8 codex host-B rounds plus quality-lane probes",
+          "headHash": "0b709281b115d83df7ed5107627d51511180b0ed",
+          "materialHash": "cd6eed7f3c2821bce29d74c39f6000f3a619e401bc0b58440fad255a16bf9777",
+          "storyFilesHash": "8f7363b1cd635279d8c1298f696d89b62fa094648b38e0060490a1b1784ad210",
+          "timestamp": "2026-07-10T21:02:06.117Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -90,9 +128,47 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-10T14:40:28.239Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "regression-test-filename-summary:happy",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "full intent-hardening smoke green at final head: 15 must-fire window claims, 7 cross-clause controls, all strip controls",
+          "headHash": "e73326756e0fee18310b3289e9b94aaa3e5daf82",
+          "materialHash": "cd6eed7f3c2821bce29d74c39f6000f3a619e401bc0b58440fad255a16bf9777",
+          "storyFilesHash": "8f7363b1cd635279d8c1298f696d89b62fa094648b38e0060490a1b1784ad210",
+          "timestamp": "2026-07-10T21:02:06.744Z"
+        },
+        {
+          "intentRef": "regression-test-filename-summary:edge",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "pre-fix RED bound in red-evidence.json (baseline 2db38feff1); same command green at final head (same_acceptance)",
+          "headHash": "aa57170dd7848f92f0e562e2984784914d9adbc8",
+          "materialHash": "cd6eed7f3c2821bce29d74c39f6000f3a619e401bc0b58440fad255a16bf9777",
+          "storyFilesHash": "8f7363b1cd635279d8c1298f696d89b62fa094648b38e0060490a1b1784ad210",
+          "timestamp": "2026-07-10T21:02:07.377Z"
+        },
+        {
+          "intentRef": "regression-test-filename-summary:adversarial",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "narrowLightDone positive control plus dotRemainingDone/dotOutOfScopeDone/dotNotCoveredDone still fire; guard strengthened across 14 resolved findings",
+          "headHash": "faa18331c3664f26aad80e662da9520d4c5983b8",
+          "materialHash": "cd6eed7f3c2821bce29d74c39f6000f3a619e401bc0b58440fad255a16bf9777",
+          "storyFilesHash": "8f7363b1cd635279d8c1298f696d89b62fa094648b38e0060490a1b1784ad210",
+          "timestamp": "2026-07-10T21:02:07.991Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -137,9 +213,46 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-10T14:40:28.778Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "remaining-breadth-decision:happy",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "clause-aware modifier chain implements the NARROW decision; 15 must-fire claims green at final head",
+          "headHash": "313581b8f2e174919afd23408ce725a250ec32d9",
+          "materialHash": "cd6eed7f3c2821bce29d74c39f6000f3a619e401bc0b58440fad255a16bf9777",
+          "storyFilesHash": "8f7363b1cd635279d8c1298f696d89b62fa094648b38e0060490a1b1784ad210",
+          "timestamp": "2026-07-10T21:02:08.606Z"
+        },
+        {
+          "intentRef": "remaining-breadth-decision:edge",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "preexistingDone/windowControlNoNoun/windowControlNextSentence quiet; remainingScopeDone/hyphenRemainingDone/underscoreRemainingDone fire",
+          "headHash": "74a2a8082eeb3114a02d72cd5ae4c0b5efc0825b",
+          "materialHash": "cd6eed7f3c2821bce29d74c39f6000f3a619e401bc0b58440fad255a16bf9777",
+          "storyFilesHash": "8f7363b1cd635279d8c1298f696d89b62fa094648b38e0060490a1b1784ad210",
+          "timestamp": "2026-07-10T21:02:09.218Z"
+        },
+        {
+          "intentRef": "remaining-breadth-decision:adversarial",
+          "kind": "docs_check",
+          "file": ".lattice/story/actives/B-2c03/plan.md",
+          "result": "pass",
+          "note": "plan.md documents the decision, eight codex rounds, F-012/F-013 taxonomy, and the convergence statement",
+          "headHash": "7455b9fe34dd1b8b104fcd67ab78b57f7ad6a31e",
+          "materialHash": "cd6eed7f3c2821bce29d74c39f6000f3a619e401bc0b58440fad255a16bf9777",
+          "storyFilesHash": "8f7363b1cd635279d8c1298f696d89b62fa094648b38e0060490a1b1784ad210",
+          "timestamp": "2026-07-10T21:02:09.838Z"
+        }
+      ]
     }
   ]
 }
