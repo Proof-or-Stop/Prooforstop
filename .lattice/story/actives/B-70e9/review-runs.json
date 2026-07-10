@@ -5268,6 +5268,67 @@
         "bindingHash": "68a29019bd8b07c9db8031d55bf4cd66bb8c455f0d90f9420bfbfe9e8b9f7e9a"
       },
       "_hash": "082e38d1937508aed44c616e5046e1803930194ded35aba20bc3aefc49456859"
+    },
+    {
+      "reviewRunId": "B-70e9:RR-072",
+      "storyId": "B-70e9",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "startedAt": "2026-07-10T14:46:32.474Z",
+      "headHash": "095c11d17f7e0829d63e6c73c3dc1397d969b805",
+      "materialHash": "885c6ad05b7cb8df80e168285b255af5b9bd1caae955632e8323d55ee7135327",
+      "storyFilesHash": "a840276dbef51578417ed4773ad3ed28cbff76b437173219628d0e628815eff5",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "d91de61e05ac16609e39a37fa19e6da467b490225e50ed71268f9172f40985c2",
+        "diffPackHash": "c2c64af1f56f7b2501a52b07b2b067f914a996668e0dbe8f79c274a90d82d84a",
+        "reviewedChangedFiles": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/alias-normalizer.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/host-execution-readiness.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/usage-ledger/adapters/openai.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/core/usage-ledger/writer.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "packages/main/src/tasks/usage-ledger-budget-smoke.ts",
+          "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [],
+        "bindingHash": "dbefc005ce3a576523b18ead1b807bfd6df839f80d3df0cfc3cfe504096dde15"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-70e9",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-70e9",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-70e9",
+        "workspaceMode": "story-worktree",
+        "headHash": "095c11d17f7e0829d63e6c73c3dc1397d969b805",
+        "materialHash": "885c6ad05b7cb8df80e168285b255af5b9bd1caae955632e8323d55ee7135327",
+        "storyFilesHash": "a840276dbef51578417ed4773ad3ed28cbff76b437173219628d0e628815eff5",
+        "bindingHash": "b9f9477fbd9c073a1ca372bb3c30eddcd72fdd316d84a7053aa56226b0b76714"
+      },
+      "_hash": "0b97b873fa8bee0242b25e095bddf25048531b8a70d72234ab852fb5ce07d36c"
     }
   ]
 }

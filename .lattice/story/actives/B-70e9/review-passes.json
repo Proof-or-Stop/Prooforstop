@@ -1460,6 +1460,49 @@
         "scanEscalationReason": null
       },
       "_hash": "73a29186c8db9a4f3d46a03edcab9a75b01c602b081451663541d458b7573823"
+    },
+    {
+      "id": "B-70e9:RP-062",
+      "agent": "lattice-review-quality",
+      "note": "Round 17 re-review of F-024 fix (2216ff5104): traced pendingWrites counter through every path (skip-when-broken, throw-through, sync-catch) -- no leak, no double-decrement (Node write() cannot both throw sync and invoke its callback for the same call, verified empirically). drainPending resolves at zero or via onDrained; DRAIN_CAP_MS=2000 unrefd timer fires once, marks both streams broken, leaves counter safely clamped for late settles. finally unconditionally drains before removeListener on every exit path; no concurrent-increment race since passthrough only fires inside the awaited runHostRun. No unhandled rejection (all promises here only resolve). Doc clause matches code. build clean, test:host-run-usage 56/56 (incl new F-024 real-subprocess EPIPE regression), test:usage-sweep 17/17. No dead code/as any/empty catch. No blocking issues.",
+      "createdAt": "2026-07-10T14:47:30.475Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-072",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/alias-normalizer.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/host-execution-readiness.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/usage-ledger/adapters/openai.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/core/usage-ledger/writer.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/usage-ledger-budget-smoke.ts",
+          "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e6fdee953f9ef50a7e6238a0aad5a9eeaf28f9f0bce93d6202c1ab2ac2baa426"
     }
   ]
 }
