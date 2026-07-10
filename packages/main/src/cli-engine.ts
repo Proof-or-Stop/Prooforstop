@@ -35,9 +35,9 @@ import { withReentrantMainWriteLock } from './core/main-write-lock.js';
 import { MAIN_TOOLS } from './cli/command-catalog.js';
 import type { ToolDef } from './cli/main-tools.js';
 import {
-  READ_ONLY_COMMANDS,
   inferCodexEntrypoint,
   isCodexActivitySource,
+  isReadOnlyCommand,
   resolveActivitySource,
   shouldWriteActivityLog,
 } from './cli/activity-policy.js';
@@ -71,6 +71,7 @@ export {
   READ_ONLY_COMMANDS,
   inferCodexEntrypoint,
   isCodexActivitySource,
+  isReadOnlyCommand,
   resolveActivitySource,
   shouldWriteActivityLog,
 } from './cli/activity-policy.js';
@@ -1127,11 +1128,14 @@ export async function runCli(opts?: {
       process.exitCode = 1;
       return;
     }
-    // preCommand hook — non-blocking failure, awaited so it always runs before the handler
-    if (config0?.hooks?.preCommand && !READ_ONLY_COMMANDS.has(cmd)) {
+    // preCommand hook — non-blocking failure, awaited so it always runs before the handler.
+    // F-028: gate on the arg-aware read-only predicate so a plain (no --out)
+    // usage_sweep runs no hooks (read-only diagnostic), while a --out sweep (a write)
+    // runs them like any other mutating command.
+    if (config0?.hooks?.preCommand && !isReadOnlyCommand(cmd, parsed)) {
       process.stderr.write(`[lattice-hook] running preCommand hooks (timeout ${HOOK_TIMEOUT_MS / 1000}s/cmd)...\n`);
     }
-    if (!READ_ONLY_COMMANDS.has(cmd)) {
+    if (!isReadOnlyCommand(cmd, parsed)) {
       await runHooks('preCommand', cmd, buildHookEnvLocal('preCommand'), config0, root);
     }
     try {
@@ -1183,10 +1187,11 @@ export async function runCli(opts?: {
       }
       // postCommand hook — runs before we exit; failure does not block exit(0)
       const resultText = typeof result === 'string' ? result : JSON.stringify(result);
-      if (config0?.hooks?.postCommand && !READ_ONLY_COMMANDS.has(cmd)) {
+      // F-028: same arg-aware read-only gate as the preCommand hooks above.
+      if (config0?.hooks?.postCommand && !isReadOnlyCommand(cmd, parsed)) {
         process.stderr.write(`[lattice-hook] running postCommand hooks (timeout ${HOOK_TIMEOUT_MS / 1000}s/cmd)...\n`);
       }
-      if (!READ_ONLY_COMMANDS.has(cmd)) {
+      if (!isReadOnlyCommand(cmd, parsed)) {
         await runHooks('postCommand', cmd, buildHookEnvLocal('postCommand', {
           LATTICE_RESULT_JSON: truncateForEnv(resultText),
         }), config0, root);

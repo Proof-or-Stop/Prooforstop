@@ -170,7 +170,11 @@ ledger, or a lock-wait timeout that skips the write), the summary reports a
 skipped state (`recorded: none`, reason `ledger_append_failed(...)`) and the
 stderr line reads `usage: ledger_append_failed(...)` — it never claims
 `usage recorded` for a row that never landed. This applies to all three hosts;
-the provider is still surfaced for attribution, but token counts stay null.
+the provider is still surfaced for attribution, but token counts stay null. A
+provider record that BUILT fine but whose append failed is reported as an
+append failure keyed on the parsed usage — it is **never degraded to
+`source=unavailable`** (which would falsely read as "the provider reported
+nothing"), and no second `unavailable` final is attempted for it.
 
 The same honesty gate covers the **blocked rows**: a cap refusal claims
 `recorded: blocked` (and, for a concurrency refusal, surfaces the blocked row's
@@ -293,6 +297,11 @@ particular) at least visible.
     (F-014), so it is refused in read-only reviewer mode
     (`LATTICE_REVIEWER_READONLY=1`) and on a retired root; without `--out`,
     `usage_sweep` stays read-only and runnable by any session.
+  - The **same `--out` boundary governs the CLI activity / hook layer** (F-028):
+    a plain (no-`--out`) `usage_sweep` is read-only there too, so it runs **no
+    pre/post command hooks** and writes **no activity-log entry**; a non-empty
+    `--out` is treated as a write and runs the hooks + records activity like any
+    other mutating command.
 
 ## Non-goals
 

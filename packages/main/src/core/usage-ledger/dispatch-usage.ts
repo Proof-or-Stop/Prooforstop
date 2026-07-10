@@ -627,14 +627,24 @@ export function recordDispatchFinalCodex(
     const usage = adaptCodexTurnUsage(rawCodexUsage);
     const corr = correlation ?? mintCallCorrelation();
 
-    // A usage the codex adapter accepted (provider-reported) is recorded first; a
+    // A usage the codex adapter accepted (provider-reported) is BUILT first; a
     // validation throw (e.g. a non-integer count that survived the adapter's shape
     // gate) falls through to the unavailable branch so the preflight estimate is
-    // STILL superseded — never left orphaned — and no count is fabricated. Mirrors
-    // recordDispatchFinalForProvider's inner-try fallback.
+    // STILL superseded — never left orphaned — and no count is fabricated.
+    //
+    // B-70e9 F-029: BUILD and APPEND are separated into their own try blocks. A
+    // BUILD failure is a malformed provider count that legitimately degrades to an
+    // 'unavailable' final (existing semantics). An APPEND failure is a transient
+    // ledger fault (corrupt chain / lock-wait timeout) on a record that BUILT fine
+    // — it must NOT fall through to the unavailable branch, because a second append
+    // that then succeeds would land a source=unavailable row for usage that WAS
+    // parsed (corrupting source semantics + undercounting real codex usage).
+    // Instead it returns recorded=false with the append-failure reason, exactly
+    // like the claude / provider-parametric unavailable recorders.
     if (usage.source === 'provider-reported') {
+      let record: ReturnType<typeof buildProviderRecord> | null = null;
       try {
-        const record = buildProviderRecord(
+        record = buildProviderRecord(
           'openai',
           {},
           {
@@ -647,10 +657,28 @@ export function recordDispatchFinalCodex(
           finalContextForProvider(opts, 'openai', model),
           { usage },
         );
-        appendUsageRecord(root, record, { env: opts.env });
-        return { recorded: true, recordId: record.recordId, source: 'provider-reported', mapped: usage.canonical ?? null, unavailableReason: null };
       } catch {
         // Build/validation failed on a malformed usage: fall through to unavailable.
+        record = null;
+      }
+      if (record !== null) {
+        try {
+          appendUsageRecord(root, record, { env: opts.env });
+          return { recorded: true, recordId: record.recordId, source: 'provider-reported', mapped: usage.canonical ?? null, unavailableReason: null };
+        } catch (err) {
+          // F-029: the provider record BUILT fine; only the ledger append failed.
+          // Report the honest skipped state (source stays 'provider-reported' — the
+          // usage WAS parsed) WITHOUT attempting an unavailable final. `mapped` is
+          // preserved so the caller can see the parsed counts even though no row
+          // landed; `recorded:false` forbids any "recorded" claim upstream.
+          return {
+            recorded: false,
+            recordId: null,
+            source: 'provider-reported',
+            mapped: usage.canonical ?? null,
+            unavailableReason: describeLedgerAppendFailure(err),
+          };
+        }
       }
     }
 

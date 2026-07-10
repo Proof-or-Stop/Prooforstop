@@ -54,6 +54,7 @@ import { createUsageSweepHandlers, NON_AUTHORITATIVE_HEADER } from '../handlers/
 import type { HandlerContext } from '../handlers/context.js';
 import { getCommandPolicy } from '../core/command-policy.js';
 import { resolveEffectiveOwnershipClass } from '../cli/ownership-gate.js';
+import { isReadOnlyCommand, shouldWriteActivityLog } from '../cli/activity-policy.js';
 
 let passed = 0;
 const failures: string[] = [];
@@ -458,6 +459,45 @@ async function main(): Promise<void> {
       'storyScopedMutating',
       'a non-empty --out is effectively storyScopedMutating (a read-only reviewer session cannot create the file)',
     );
+  });
+
+  // ── 18. F-028: activity/hook read-only classification for usage_sweep ──────
+  // The CLI activity/hook layer (cli-engine) consults isReadOnlyCommand to decide
+  // whether a command runs pre/post hooks and writes an activity-log row. Before
+  // the fix usage_sweep was missing from that classification, so a plain (no --out)
+  // sweep ran the hooks and wrote an activity row — violating the read-only
+  // diagnostic contract. isReadOnlyCommand now mirrors the F-014 --out boundary:
+  // plain usage_sweep is read-only (no hooks/activity), a non-empty --out is a
+  // write. Asserted as a pure predicate call like the F-014 resolver check above.
+  await checkAsync('F-028: plain usage_sweep is read-only for hooks/activity; --out makes it a write; other commands unchanged', async () => {
+    // Static read-only members stay read-only (arg-independent).
+    assert.equal(isReadOnlyCommand('session_brief', {}), true, 'a static READ_ONLY_COMMANDS member is read-only');
+    assert.equal(isReadOnlyCommand('host_runtime_list', { anything: 1 }), true, 'static members ignore args');
+    // Plain usage_sweep (no --out) → read-only: cli-engine runs no hooks + no activity write.
+    assert.equal(isReadOnlyCommand('usage_sweep', {}), true, 'plain usage_sweep is read-only');
+    assert.equal(isReadOnlyCommand('usage_sweep', { since: '7d' }), true, 'usage_sweep with only --since stays read-only');
+    // A blank / whitespace-only --out is NOT a write → still read-only (matches the handler + ownership gate).
+    assert.equal(isReadOnlyCommand('usage_sweep', { out: '   ' }), true, 'a blank --out is not a write, stays read-only');
+    // A non-empty --out → NOT read-only (a write: runs hooks + writes activity).
+    assert.equal(isReadOnlyCommand('usage_sweep', { out: 'reports/sweep.json' }), false, 'usage_sweep --out is a write, not read-only');
+    // A non-usage_sweep, non-static command is not read-only (behaviour unchanged).
+    assert.equal(isReadOnlyCommand('story_create', { out: '' }), false, 'a mutating command is not read-only regardless of args');
+
+    // shouldWriteActivityLog reflects the same predicate: plain sweep writes no
+    // activity row by default; a --out sweep is a write and IS logged. Save/restore
+    // the readonly-record override so the assertion is deterministic regardless of env.
+    const prevOverride = process.env.LATTICE_ACTIVITY_RECORD_READONLY;
+    delete process.env.LATTICE_ACTIVITY_RECORD_READONLY;
+    try {
+      assert.equal(shouldWriteActivityLog('usage_sweep', {}), false, 'plain usage_sweep writes no activity log by default');
+      assert.equal(shouldWriteActivityLog('usage_sweep', { out: 'reports/sweep.json' }), true, '--out usage_sweep writes an activity log (it is a write)');
+      // The env override still forces a read-only activity row when explicitly requested.
+      process.env.LATTICE_ACTIVITY_RECORD_READONLY = '1';
+      assert.equal(shouldWriteActivityLog('usage_sweep', {}), true, 'LATTICE_ACTIVITY_RECORD_READONLY=1 records read-only rows too');
+    } finally {
+      if (prevOverride === undefined) delete process.env.LATTICE_ACTIVITY_RECORD_READONLY;
+      else process.env.LATTICE_ACTIVITY_RECORD_READONLY = prevOverride;
+    }
   });
 }
 
