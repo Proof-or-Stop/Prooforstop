@@ -426,6 +426,25 @@
       "resolvedAt": "2026-07-10T12:45:05.939Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-70e9:F-020",
+      "desc": "[codex host-B, cross_host_review B-70e9-xhr-r11] Real stdout/stderr EPIPE can still crash host_run: the passthrough sink (handlers/host-run.ts ~211) wraps process.stdout.write/process.stderr.write in try/catch, but Node stream write failures like a downstream pipe closing are delivered as ASYNCHRONOUS error events on the stream, not synchronous throws; with no stdout/stderr error listener in this path a real EPIPE still terminates the process despite the F-008 containment contract (surfaced passthroughError, slot release, final usage row). Existing smoke only covers an injected synchronously-throwing sink. Fix direction: attach error handlers on process stdout/stderr for the duration of host_run passthrough (converting EPIPE into the core passthroughError state), and add a real subprocess smoke piping host_run output to a consumer that exits early, asserting no crash + slot release + final row recording.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host-b",
+      "createdAt": "2026-07-10T12:56:39.008Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "_hash": "4681c2b4e36baa1d7428b99c521af320bc131768e129a1e754159cd53fcde856",
+      "files": [
+        "packages/main/src/handlers/host-run.ts",
+        "packages/main/src/core/host-run.ts",
+        "packages/main/src/tasks/host-run-usage-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|codex-host-cross",
+      "signatureTagSource": "auto"
     }
   ]
 }
