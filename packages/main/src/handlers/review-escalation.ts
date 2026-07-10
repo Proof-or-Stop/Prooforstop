@@ -1,8 +1,17 @@
+import { createHash } from 'node:crypto';
 import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
+import {
+  isUsageLedgerEnabled,
+  recordDispatchPreflight,
+  recordDispatchUnavailableFinal,
+  type DispatchPreflightHandle,
+  type DispatchUsageContext,
+  type DispatchUsageOptions,
+} from '../core/usage-ledger/dispatch-usage.js';
 import {
   REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_EVENT,
   REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_PREDICATE,
@@ -23,6 +32,7 @@ import {
   evaluateReviewAssuranceFloor,
   renderReviewAssuranceGuidance,
 } from '../core/review-assurance-floor.js';
+import type { HostExecutionFailureKind } from '../core/host-execution-readiness.js';
 
 type FormatArgs = { json?: boolean; format?: 'text' | 'json' };
 
@@ -76,6 +86,177 @@ function normalizeStringArray(values: unknown): string[] {
   return Array.isArray(values)
     ? values.map(value => normalizeString(value)).filter(Boolean)
     : [];
+}
+
+// ===========================================================================
+// B-70e9 CHK-003: usage-ledger coverage for the host readiness probe.
+//
+// Each canonical host readiness probe makes a real (tiny) LLM call but the probe
+// RESULT (frozen B-d8ef surface, core/host-execution-readiness.ts) does NOT retain
+// the host stdout, so there is no usage envelope to parse without changing that
+// frozen contract. We therefore record, PER probed host, a preflight estimate over
+// the fixed probe prompt (sequence 1) plus an UNAVAILABLE final (sequence 2,
+// superseding the estimate) with reason 'probe_output_not_retained'. This makes the
+// probe VISIBLE in the ledger (the story goal) without touching core probe internals
+// or fabricating a token count. All wiring is fail-open: a ledger error must never
+// break the probe command.
+// ===========================================================================
+
+/**
+ * The fixed host readiness probe prompt. Mirrors the frozen (unexported) literal
+ * HOST_EXECUTION_READINESS_PROMPT in core/host-execution-readiness.ts — reconstructed
+ * here rather than plumbed through the frozen probe return shape.
+ */
+export const HOST_READINESS_PROBE_PROMPT = 'Reply READY and do not run tools.';
+export const HOST_READINESS_PROBE_AGENT_TYPE = 'host-readiness-probe';
+export const HOST_READINESS_PROBE_UNAVAILABLE_REASON = 'probe_output_not_retained';
+
+/** Best-effort project-root hash for a usage-ledger context (mirrors the host_run handler). */
+function projectRootHashForProbe(root: string): string {
+  return `sha256:${createHash('sha256').update(root, 'utf8').digest('hex')}`;
+}
+
+/** Map a canonical probe host name to its ledger host.kind (as in core/host-run.ts). */
+function probeHostKind(host: string): string {
+  return host === 'codex' ? 'codex' : host === 'claude' ? 'claude-code' : 'antigravity';
+}
+
+/** Map a canonical probe host name to its ledger provider name. */
+function probeProviderName(host: string): string {
+  return host === 'codex' ? 'openai' : host === 'claude' ? 'anthropic' : 'antigravity';
+}
+
+/** The per-host discriminator fields read from the frozen probe row shape (F-015). */
+export interface HostReadinessProbeAttempt {
+  host: string;
+  failureKind: HostExecutionFailureKind;
+  exitCode?: number;
+  outputBytes?: number;
+}
+
+export interface HostReadinessProbeUsageInput {
+  root: string;
+  storyId: string | null;
+  phase: string;
+  /**
+   * The probed hosts. `host` names the provider; `failureKind` (+ exitCode/outputBytes
+   * for the wrong_launcher case) is the F-015 discriminator for whether a readiness
+   * subprocess actually launched — see readinessProbeSubprocessLaunched.
+   */
+  hosts: ReadonlyArray<HostReadinessProbeAttempt>;
+  env: NodeJS.ProcessEnv;
+  recordedAt: string;
+  projectRootHash: string;
+}
+
+export interface HostReadinessProbeUsageRow {
+  host: string;
+  recordId: string | null;
+}
+
+/**
+ * F-015 discriminator: did this host's readiness-prompt subprocess actually launch?
+ *
+ * probeHostExecutionReadiness() only reaches the readiness-prompt spawnSync when a
+ * host has BOTH an executablePath AND versionOk. Two failureKinds are decided
+ * strictly BEFORE that spawn, so they represent NO subprocess and NO LLM call:
+ *   - missing_executable : resolveExecutablePath found nothing (no --version, no readiness spawn)
+ *   - version_failed     : --version ran but failed, so the readiness prompt was never spawned
+ *
+ * wrong_launcher is ambiguous. classifyHostExecutionReadiness() returns it from the
+ * launcher-argv classification path BEFORE spawnSync (a non-spawn that carries NO
+ * spawn-result evidence — no exitCode, no outputBytes), while
+ * classifyHostExecutionFailure() can ALSO return it AFTER a real spawn when the
+ * launched CLI rejected a flag (a classified result → outputBytes present). Only the
+ * pre-spawn variety is a non-call, so wrong_launcher is skipped ONLY when the row
+ * carries no spawn-result evidence.
+ *
+ * Every other failureKind (none / timeout / auth / silent_final_output / unsupported /
+ * unknown) implies a classified spawn result — the subprocess DID launch — so those
+ * keep recording a usage row. This is exactly the honest boundary the finding asks
+ * for: skip phantom rows for hosts that never spawned the readiness prompt.
+ */
+function readinessProbeSubprocessLaunched(probed: HostReadinessProbeAttempt): boolean {
+  if (probed.failureKind === 'missing_executable' || probed.failureKind === 'version_failed') {
+    return false;
+  }
+  if (
+    probed.failureKind === 'wrong_launcher' &&
+    probed.exitCode === undefined &&
+    probed.outputBytes === undefined
+  ) {
+    return false;
+  }
+  return true;
+}
+
+/**
+ * PURE, testable wiring helper (no spawning): record a preflight + unavailable final
+ * per probed host. Strict no-op when the ledger is OFF. Every ledger call is fail-open
+ * so a writer error can never break the probe command. Returns the per-host final
+ * recordIds for the smoke to assert.
+ */
+export function recordHostReadinessProbeUsage(input: HostReadinessProbeUsageInput): HostReadinessProbeUsageRow[] {
+  const rows: HostReadinessProbeUsageRow[] = [];
+  if (!isUsageLedgerEnabled(input.env)) return rows;
+
+  for (const probed of input.hosts) {
+    // F-015: skip hosts whose readiness prompt never spawned (missing_executable /
+    // version_failed / pre-spawn wrong_launcher). Recording preflight+unavailable
+    // rows for them would fabricate phantom LLM calls the host never made.
+    if (!readinessProbeSubprocessLaunched(probed)) continue;
+    const host = probed.host;
+    const ctx: DispatchUsageContext = {
+      storyId: input.storyId,
+      phase: input.phase,
+      agentType: HOST_READINESS_PROBE_AGENT_TYPE,
+    };
+    const opts: DispatchUsageOptions = {
+      recordedAt: input.recordedAt,
+      projectRootHash: input.projectRootHash,
+      command: `host-readiness-probe:${host}`,
+      host: { kind: probeHostKind(host) },
+      env: input.env,
+    };
+
+    let handle: DispatchPreflightHandle | null = null;
+    try {
+      handle = recordDispatchPreflight(input.root, ctx, HOST_READINESS_PROBE_PROMPT, opts);
+    } catch {
+      handle = null;
+    }
+
+    let recordId: string | null = null;
+    try {
+      const res = recordDispatchUnavailableFinal(
+        input.root,
+        ctx,
+        handle?.correlation ?? null,
+        handle?.estimateRecordId ?? null,
+        { name: probeProviderName(host), model: null },
+        HOST_READINESS_PROBE_UNAVAILABLE_REASON,
+        opts,
+      );
+      recordId = res.recordId;
+    } catch {
+      // The seam never breaks the probe.
+    }
+    rows.push({ host, recordId });
+  }
+  return rows;
+}
+
+/**
+ * Resolve the honest story phase for probe usage attribution, falling back to 'probe'
+ * when the story phase cannot be read. Never throws.
+ */
+function resolveProbeStoryPhase(ctx: HandlerContext, storyId: string): string {
+  try {
+    const phase = ctx.store.readStory(storyId)?.phase;
+    return typeof phase === 'string' && phase.length > 0 ? phase : 'probe';
+  } catch {
+    return 'probe';
+  }
 }
 
 export function createReviewEscalationHandlers(ctx: HandlerContext) {
@@ -253,6 +434,30 @@ export function createReviewEscalationHandlers(ctx: HandlerContext) {
         ...event,
         ...(normalizeString(args.actor) ? { actor: normalizeString(args.actor) } : {}),
       });
+
+      // B-70e9 CHK-003: make the per-host readiness probe LLM calls visible in the
+      // usage ledger. Fail-open — a ledger error must never break the probe command.
+      try {
+        recordHostReadinessProbeUsage({
+          root: ctx.root,
+          storyId: args.storyId,
+          phase: resolveProbeStoryPhase(ctx, args.storyId),
+          // Carry the F-015 discriminator (failureKind + spawn-result evidence) so the
+          // helper records ONLY hosts whose readiness prompt actually spawned.
+          hosts: event.hosts.map(row => ({
+            host: row.host,
+            failureKind: row.failureKind,
+            ...(row.exitCode !== undefined ? { exitCode: row.exitCode } : {}),
+            ...(row.outputBytes !== undefined ? { outputBytes: row.outputBytes } : {}),
+          })),
+          env: process.env,
+          recordedAt: new Date().toISOString(),
+          projectRootHash: projectRootHashForProbe(ctx.root),
+        });
+      } catch {
+        // The usage ledger is diagnostics-only; never let it break the probe.
+      }
+
       const commitHint = autoCommitStoryMetadata(ctx.root, args.storyId, REVIEW_HOST_AVAILABILITY_PROBE_COMMAND);
       if (wantsJson(args)) {
         return event;

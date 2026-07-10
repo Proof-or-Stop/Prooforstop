@@ -1,0 +1,129 @@
+{
+  "schemaVersion": "proofbound.milestone_closeout.v1",
+  "storyId": "B-70e9",
+  "phase": "TEST",
+  "generatedAt": "2026-07-10T20:47:12.899Z",
+  "sourceReport": {
+    "schemaVersion": "proofbound.milestone_status.v1",
+    "digest": "6819eb82286d21738074d79d41e1dc12fbe93ed4f3918fbd35b5047ac223f38a",
+    "ledger": {
+      "present": true,
+      "state": "confirmed",
+      "hash": "sha256:ff7c04e742986b689d16b4957bc2e08d085160663f83ddc002a5bee15c4b0ec5"
+    },
+    "groups": {
+      "completed": [
+        "M1-CAPTURE",
+        "M1-COVERAGE",
+        "M1-GUIDANCE",
+        "M1-CAPS",
+        "M2-SWEEP"
+      ],
+      "current": [],
+      "remaining": []
+    },
+    "risks": [],
+    "nextActions": [
+      "No milestone action; all ledger rows are completed or not applicable."
+    ]
+  },
+  "bindings": {
+    "headHash": "8334e4958a64e0a18745f6551febc164fbe065bb",
+    "materialHash": "0a98cb6fe199c97dcc42dc799246e2ad33dbaae7369f99e5c6550b7e14beb39b",
+    "storyFilesHash": "90b2b88de179781f57ab65b21b531a191227f2dc99c381795f50519518c930f8"
+  },
+  "rows": [
+    {
+      "milestone": "M1-CAPTURE",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "A host_run choke-point command launches codex/claude/agy via canonical launcher argv and writes correlated preflight+final usage rows bound to storyId/agentType/phase/provider, with reviewer/quorum binding fields",
+      "acceptance": "host-run-usage smoke proves estimate+final rows for all three hosts (codex turn.completed mapping, claude stream-json usage, agy unavailable) with storyId/phase/agentType plus threadId=reviewRunId and subagentId=lane binding",
+      "evidence": [
+        "CHK-001:happy:0 [pass/logic_test] npm --prefix packages/main run test:host-run-usage file=packages/main/src/tasks/host-run-usage-smoke.ts note=host-run-usage smoke asserts the per-host row pipeline (codex turn.completed mapping incl. uncached remainder + original-payload digest, claude stream-json usage, agy unavailable), OFF byte-identical, exit propagation, pollution guards and bounded parse",
+        "CHK-001:happy:1 [pass/logic_test] npm --prefix packages/main run test:host-run-usage file=packages/main/src/tasks/host-run-usage-smoke.ts note=host-run-usage smoke asserts the per-host row pipeline (codex turn.completed mapping incl. uncached remainder + original-payload digest, claude stream-json usage, agy unavailable), OFF byte-identical, exit propagation, pollution guards and bounded parse",
+        "CHK-001:happy:2 [pass/logic_test] npm --prefix packages/main run test:host-run-usage file=packages/main/src/tasks/host-run-usage-smoke.ts note=host-run-usage smoke asserts the per-host row pipeline (codex turn.completed mapping incl. uncached remainder + original-payload digest, claude stream-json usage, agy unavailable), OFF byte-identical, exit propagation, pollution guards and bounded parse",
+        "CHK-001:edge:0 [pass/logic_test] npm --prefix packages/main run test:host-run-usage file=packages/main/src/tasks/host-run-usage-smoke.ts note=host-run-usage smoke asserts the per-host row pipeline (codex turn.completed mapping incl. uncached remainder + original-payload digest, claude stream-json usage, agy unavailable), OFF byte-identical, exit propagation, pollution guards and bounded parse",
+        "CHK-001:edge:1 [pass/logic_test] npm --prefix packages/main run test:host-run-usage file=packages/main/src/tasks/host-run-usage-smoke.ts note=host-run-usage smoke asserts the per-host row pipeline (codex turn.completed mapping incl. uncached remainder + original-payload digest, claude stream-json usage, agy unavailable), OFF byte-identical, exit propagation, pollution guards and bounded parse",
+        "CHK-001:edge:2 [pass/logic_test] npm --prefix packages/main run test:host-run-usage file=packages/main/src/tasks/host-run-usage-smoke.ts note=host-run-usage smoke asserts the per-host row pipeline (codex turn.completed mapping incl. uncached remainder + original-payload digest, claude stream-json usage, agy unavailable), OFF byte-identical, exit propagation, pollution guards and bounded parse",
+        "CHK-001:adversarial:0 [pass/logic_test] npm --prefix packages/main run test:host-run-usage file=packages/main/src/tasks/host-run-usage-smoke.ts note=host-run-usage smoke asserts the per-host row pipeline (codex turn.completed mapping incl. uncached remainder + original-payload digest, claude stream-json usage, agy unavailable), OFF byte-identical, exit propagation, pollution guards and bounded parse",
+        "CHK-001:adversarial:1 [pass/logic_test] npm --prefix packages/main run test:host-run-usage file=packages/main/src/tasks/host-run-usage-smoke.ts note=host-run-usage smoke asserts the per-host row pipeline (codex turn.completed mapping incl. uncached remainder + original-payload digest, claude stream-json usage, agy unavailable), OFF byte-identical, exit propagation, pollution guards and bounded parse",
+        "CHK-002:happy:0 [pass/logic_test] npm --prefix packages/main run test:host-run-usage file=packages/main/src/tasks/host-run-usage-smoke.ts note=host-run-usage smoke asserts threadId=reviewRunId and subagentId=lane binding, null when omitted, story-phase resolution, and cross-story reviewRunId refusal",
+        "CHK-002:happy:1 [pass/logic_test] npm --prefix packages/main run test:host-run-usage file=packages/main/src/tasks/host-run-usage-smoke.ts note=host-run-usage smoke asserts threadId=reviewRunId and subagentId=lane binding, null when omitted, story-phase resolution, and cross-story reviewRunId refusal",
+        "CHK-002:edge:0 [pass/logic_test] npm --prefix packages/main run test:host-run-usage file=packages/main/src/tasks/host-run-usage-smoke.ts note=host-run-usage smoke asserts threadId=reviewRunId and subagentId=lane binding, null when omitted, story-phase resolution, and cross-story reviewRunId refusal",
+        "CHK-002:edge:1 [pass/logic_test] npm --prefix packages/main run test:host-run-usage file=packages/main/src/tasks/host-run-usage-smoke.ts note=host-run-usage smoke asserts threadId=reviewRunId and subagentId=lane binding, null when omitted, story-phase resolution, and cross-story reviewRunId refusal",
+        "CHK-002:adversarial:0 [pass/logic_test] npm --prefix packages/main run test:host-run-usage file=packages/main/src/tasks/host-run-usage-smoke.ts note=host-run-usage smoke asserts threadId=reviewRunId and subagentId=lane binding, null when omitted, story-phase resolution, and cross-story reviewRunId refusal"
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M1-COVERAGE",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Remaining lattice-initiated host spawns (autopilot repair, readiness probes, cross_host_review codex leaf) record usage rows through the same seam",
+      "acceptance": "smoke checks rows with agentType autopilot-repair / host-readiness-probe and a cross_host_review unavailable final; ledger OFF stays byte-identical",
+      "evidence": [
+        "CHK-003:happy:0 [pass/logic_test] npm --prefix packages/main run test:host-run-usage file=packages/main/src/tasks/host-run-usage-smoke.ts note=host-run-usage smoke asserts autopilot-repair rows + envelope excerpt with ON/OFF argv byte-identity, host-readiness-probe per-host rows, cross-host-review unavailable final, and seam-never-throws on corrupt ledger",
+        "CHK-003:happy:1 [pass/logic_test] npm --prefix packages/main run test:host-run-usage file=packages/main/src/tasks/host-run-usage-smoke.ts note=host-run-usage smoke asserts autopilot-repair rows + envelope excerpt with ON/OFF argv byte-identity, host-readiness-probe per-host rows, cross-host-review unavailable final, and seam-never-throws on corrupt ledger",
+        "CHK-003:happy:2 [pass/logic_test] npm --prefix packages/main run test:host-run-usage file=packages/main/src/tasks/host-run-usage-smoke.ts note=host-run-usage smoke asserts autopilot-repair rows + envelope excerpt with ON/OFF argv byte-identity, host-readiness-probe per-host rows, cross-host-review unavailable final, and seam-never-throws on corrupt ledger",
+        "CHK-003:edge:0 [pass/logic_test] npm --prefix packages/main run test:host-run-usage file=packages/main/src/tasks/host-run-usage-smoke.ts note=host-run-usage smoke asserts autopilot-repair rows + envelope excerpt with ON/OFF argv byte-identity, host-readiness-probe per-host rows, cross-host-review unavailable final, and seam-never-throws on corrupt ledger",
+        "CHK-003:edge:1 [pass/logic_test] npm --prefix packages/main run test:host-run-usage file=packages/main/src/tasks/host-run-usage-smoke.ts note=host-run-usage smoke asserts autopilot-repair rows + envelope excerpt with ON/OFF argv byte-identity, host-readiness-probe per-host rows, cross-host-review unavailable final, and seam-never-throws on corrupt ledger",
+        "CHK-003:adversarial:0 [pass/logic_test] npm --prefix packages/main run test:host-run-usage file=packages/main/src/tasks/host-run-usage-smoke.ts note=host-run-usage smoke asserts autopilot-repair rows + envelope excerpt with ON/OFF argv byte-identity, host-readiness-probe per-host rows, cross-host-review unavailable final, and seam-never-throws on corrupt ledger"
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M1-GUIDANCE",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Operator-facing guidance routes lattice-initiated reviewer/quorum host runs through host_run",
+      "acceptance": "guidance strings and docs/host-run-usage.md name host_run with binding args; rg shows no remaining raw-launch instruction strings for lattice-initiated reviewer runs",
+      "evidence": [
+        "CHK-004:happy:0 [pass/docs_check] grep -n \"lattice host_run --host codex\" docs/host-run-usage.md file=docs/host-run-usage.md note=docs/host-run-usage.md shows host_run reviewer/quorum launch lines with binding args (behavior-based CHK-004 acceptance per OQ-2: no raw-launch instruction strings existed to rewrite)",
+        "CHK-004:happy:1 [pass/docs_check] grep -nE \"threadId|LATTICE_HOST_RUN_MAX_CONCURRENT|gateEvidence=false\" docs/host-run-usage.md file=docs/host-run-usage.md note=doc documents binding conventions (threadId=reviewRunId, subagentId=lane), cap envs, agy unavailable semantics, non-goals incl. gateEvidence=false",
+        "CHK-004:edge:0 [pass/docs_check] sh -c 'test -z \"$(git diff main -- packages/main/src/handlers/reviewer-batch.ts)\"' file=packages/main/src/handlers/reviewer-batch.ts note=reviewer_batch in-session Agent() instructions are unchanged vs main (git diff empty)",
+        "CHK-004:adversarial:0 [pass/docs_check] sh -c 'grep -rnE \"codex exec|claude --print|agy --print|agy -p\" packages/main/src/handlers; test $? -eq 1' file=packages/main/src/handlers note=zero raw host-launch instruction strings in handler guidance: grep over src handlers returns no matches (exit 1 => absence proven, wrapper exits 0)"
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M1-CAPS",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Per-dispatch budget cap and host-run concurrency cap refuse over-limit runs fail-closed before spawn with blocked ledger rows",
+      "acceptance": "smoke proves hard-budget block (hard_budget_exceeded) and concurrency refusal (concurrency_cap_exceeded) rows plus stale-slot reclaim",
+      "evidence": [
+        "CHK-007:happy:0 [pass/logic_test] npm --prefix packages/main run test:host-run-usage file=packages/main/src/tasks/host-run-usage-smoke.ts note=host-run-usage smoke asserts hard-budget block without spawn, concurrency refusal row reasonCode=concurrency_cap_exceeded with live-slot listing, stale-slot reclaim, atomic wx slot race, and default-4 cap resolution",
+        "CHK-007:happy:1 [pass/logic_test] npm --prefix packages/main run test:host-run-usage file=packages/main/src/tasks/host-run-usage-smoke.ts note=host-run-usage smoke asserts hard-budget block without spawn, concurrency refusal row reasonCode=concurrency_cap_exceeded with live-slot listing, stale-slot reclaim, atomic wx slot race, and default-4 cap resolution",
+        "CHK-007:edge:0 [pass/logic_test] npm --prefix packages/main run test:host-run-usage file=packages/main/src/tasks/host-run-usage-smoke.ts note=host-run-usage smoke asserts hard-budget block without spawn, concurrency refusal row reasonCode=concurrency_cap_exceeded with live-slot listing, stale-slot reclaim, atomic wx slot race, and default-4 cap resolution",
+        "CHK-007:edge:1 [pass/logic_test] npm --prefix packages/main run test:host-run-usage file=packages/main/src/tasks/host-run-usage-smoke.ts note=host-run-usage smoke asserts hard-budget block without spawn, concurrency refusal row reasonCode=concurrency_cap_exceeded with live-slot listing, stale-slot reclaim, atomic wx slot race, and default-4 cap resolution",
+        "CHK-007:adversarial:0 [pass/logic_test] npm --prefix packages/main run test:host-run-usage file=packages/main/src/tasks/host-run-usage-smoke.ts note=host-run-usage smoke asserts hard-budget block without spawn, concurrency refusal row reasonCode=concurrency_cap_exceeded with live-slot listing, stale-slot reclaim, atomic wx slot race, and default-4 cap resolution",
+        "CHK-007:adversarial:1 [pass/logic_test] npm --prefix packages/main run test:host-run-usage file=packages/main/src/tasks/host-run-usage-smoke.ts note=host-run-usage smoke asserts hard-budget block without spawn, concurrency refusal row reasonCode=concurrency_cap_exceeded with live-slot listing, stale-slot reclaim, atomic wx slot race, and default-4 cap resolution"
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M2-SWEEP",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "A read-only usage_sweep scans codex rollouts and claude project transcripts since a cutoff and emits a non-authoritative attribution report, with both smokes wired as npm scripts and docs/CHANGELOG updated",
+      "acceptance": "usage-sweep smoke proves cumulative codex totals, claude dedupe-by-message-id sums, story-mention extraction, cwd/originator fields, NON-AUTHORITATIVE labeling, zero writes; test:host-run-usage and test:usage-sweep pass via npm",
+      "evidence": [
+        "CHK-005:happy:0 [pass/logic_test] npm --prefix packages/main run test:usage-sweep file=packages/main/src/tasks/usage-sweep-smoke.ts note=usage-sweep smoke asserts cumulative-last codex totals, claude dedupe by requestId/message.id, story-mention regex, mtime cutoff, unknown-not-zero, empty dirs, zero-writes snapshot, parse-error counting, out-path refusal, NON-AUTHORITATIVE label",
+        "CHK-005:happy:1 [pass/logic_test] npm --prefix packages/main run test:usage-sweep file=packages/main/src/tasks/usage-sweep-smoke.ts note=usage-sweep smoke asserts cumulative-last codex totals, claude dedupe by requestId/message.id, story-mention regex, mtime cutoff, unknown-not-zero, empty dirs, zero-writes snapshot, parse-error counting, out-path refusal, NON-AUTHORITATIVE label",
+        "CHK-005:happy:2 [pass/logic_test] npm --prefix packages/main run test:usage-sweep file=packages/main/src/tasks/usage-sweep-smoke.ts note=usage-sweep smoke asserts cumulative-last codex totals, claude dedupe by requestId/message.id, story-mention regex, mtime cutoff, unknown-not-zero, empty dirs, zero-writes snapshot, parse-error counting, out-path refusal, NON-AUTHORITATIVE label",
+        "CHK-005:edge:0 [pass/logic_test] npm --prefix packages/main run test:usage-sweep file=packages/main/src/tasks/usage-sweep-smoke.ts note=usage-sweep smoke asserts cumulative-last codex totals, claude dedupe by requestId/message.id, story-mention regex, mtime cutoff, unknown-not-zero, empty dirs, zero-writes snapshot, parse-error counting, out-path refusal, NON-AUTHORITATIVE label",
+        "CHK-005:edge:1 [pass/logic_test] npm --prefix packages/main run test:usage-sweep file=packages/main/src/tasks/usage-sweep-smoke.ts note=usage-sweep smoke asserts cumulative-last codex totals, claude dedupe by requestId/message.id, story-mention regex, mtime cutoff, unknown-not-zero, empty dirs, zero-writes snapshot, parse-error counting, out-path refusal, NON-AUTHORITATIVE label",
+        "CHK-005:edge:2 [pass/logic_test] npm --prefix packages/main run test:usage-sweep file=packages/main/src/tasks/usage-sweep-smoke.ts note=usage-sweep smoke asserts cumulative-last codex totals, claude dedupe by requestId/message.id, story-mention regex, mtime cutoff, unknown-not-zero, empty dirs, zero-writes snapshot, parse-error counting, out-path refusal, NON-AUTHORITATIVE label",
+        "CHK-005:adversarial:0 [pass/logic_test] npm --prefix packages/main run test:usage-sweep file=packages/main/src/tasks/usage-sweep-smoke.ts note=usage-sweep smoke asserts cumulative-last codex totals, claude dedupe by requestId/message.id, story-mention regex, mtime cutoff, unknown-not-zero, empty dirs, zero-writes snapshot, parse-error counting, out-path refusal, NON-AUTHORITATIVE label",
+        "CHK-005:adversarial:1 [pass/logic_test] npm --prefix packages/main run test:usage-sweep file=packages/main/src/tasks/usage-sweep-smoke.ts note=usage-sweep smoke asserts cumulative-last codex totals, claude dedupe by requestId/message.id, story-mention regex, mtime cutoff, unknown-not-zero, empty dirs, zero-writes snapshot, parse-error counting, out-path refusal, NON-AUTHORITATIVE label",
+        "CHK-005:adversarial:2 [pass/logic_test] npm --prefix packages/main run test:usage-sweep file=packages/main/src/tasks/usage-sweep-smoke.ts note=usage-sweep smoke asserts cumulative-last codex totals, claude dedupe by requestId/message.id, story-mention regex, mtime cutoff, unknown-not-zero, empty dirs, zero-writes snapshot, parse-error counting, out-path refusal, NON-AUTHORITATIVE label",
+        "CHK-006:happy:0 [pass/logic_test] npm --prefix packages/main run test:usage-sweep file=packages/main/src/tasks/usage-sweep-smoke.ts note=npm --prefix packages/main run test:usage-sweep passes; sibling script test:host-run-usage covered by CHK-006:happy:1 evidence",
+        "CHK-006:happy:1 [pass/logic_test] npm --prefix packages/main run test:host-run-usage file=packages/main/src/tasks/host-run-usage-smoke.ts note=npm scripts test:host-run-usage / test:usage-sweep run the fixture smokes (temp dirs only) which contain the row-shape and caps assertions; run-all-smokes auto-discovers both",
+        "CHK-006:edge:0 [pass/logic_test] npm --prefix packages/main run test:host-run-usage file=packages/main/src/tasks/host-run-usage-smoke.ts note=npm scripts test:host-run-usage / test:usage-sweep run the fixture smokes (temp dirs only) which contain the row-shape and caps assertions; run-all-smokes auto-discovers both",
+        "CHK-006:adversarial:0 [pass/logic_test] npm --prefix packages/main run test:host-run-usage file=packages/main/src/tasks/host-run-usage-smoke.ts note=npm scripts test:host-run-usage / test:usage-sweep run the fixture smokes (temp dirs only) which contain the row-shape and caps assertions; run-all-smokes auto-discovers both"
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    }
+  ]
+}

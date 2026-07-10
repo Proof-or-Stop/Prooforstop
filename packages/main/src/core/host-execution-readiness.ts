@@ -140,6 +140,15 @@ function outputFormatValue(argv: readonly string[]): string {
   return '';
 }
 
+/**
+ * A canonical duration slot (e.g. the agy `--print-timeout` value) is `30s` in
+ * the probe default but must accept any `\d+[smh]` value so a caller (host_run,
+ * B-70e9) can parameterize the bound. Only the literal `30s` slot is relaxed; all
+ * other fixed argv tokens still require an EXACT match.
+ */
+const CANONICAL_DURATION_SLOT = '30s';
+const CANONICAL_DURATION_VALUE = /^\d+[smh]$/;
+
 function launcherArgvPartMatchesCanonical(expected: string, actual: string | undefined): boolean {
   if (actual === undefined) return false;
   if (expected === '<prompt>') {
@@ -149,6 +158,11 @@ function launcherArgvPartMatchesCanonical(expected: string, actual: string | und
   if (expected === '<prompt-file>') {
     if (actual === '<prompt-file>') return true;
     return actual.trim().length > 0 && actual !== '<prompt>' && isAbsolute(actual);
+  }
+  // B-70e9: the print-timeout duration slot accepts any \d+[smh] value (probe
+  // default 30s still matches) so the canonical launcher can carry a caller bound.
+  if (expected === CANONICAL_DURATION_SLOT) {
+    return CANONICAL_DURATION_VALUE.test(actual);
   }
   return expected === actual;
 }
@@ -193,6 +207,54 @@ function launcherExecutionPlan(spec: HostExecutionLauncherSpec): {
       if (promptDir) rmSync(promptDir, { recursive: true, force: true });
     },
   };
+}
+
+/**
+ * B-70e9: materialize a canonical launcher argv for a REAL run (not the bounded
+ * readiness probe). Substitutes the `<prompt>` slot (codex, agy: inline prompt
+ * text) and the `<prompt-file>` slot (claude: an absolute prompt-file path the
+ * caller wrote) 1:1, and — for the agy `--print-timeout` duration slot — replaces
+ * the canonical `30s` value with `agyPrintTimeout` when it is a valid `\d+[smh]`
+ * duration (otherwise the canonical value is kept). The returned argv INCLUDES the
+ * leading command token (argv[0]); callers spawn `argv[0]` with `argv.slice(1)`.
+ *
+ * PURE: builds no temp file and touches no fs. The claude prompt file is the
+ * caller's responsibility (write mode-0600, clean up after the run). Throws when a
+ * required substitution value is missing so a half-substituted argv never spawns.
+ */
+export function materializeLauncherArgv(
+  spec: HostExecutionLauncherSpec,
+  opts: { prompt?: string; promptFile?: string; agyPrintTimeout?: string },
+): string[] {
+  const source = spec.launcherArgv;
+  // The duration-slot index is read from the ORIGINAL spec argv so a prompt token
+  // that happens to equal '--print-timeout' can never shift the replacement target
+  // (placeholder substitution is strictly 1:1, so indices are stable).
+  const durationFlagIndex = source.indexOf('--print-timeout');
+  const out = source.map(arg => {
+    if (arg === '<prompt>') {
+      if (typeof opts.prompt !== 'string') {
+        throw new Error(`materializeLauncherArgv: ${spec.host} launcher needs an inline <prompt> value`);
+      }
+      return opts.prompt;
+    }
+    if (arg === '<prompt-file>') {
+      if (!opts.promptFile || opts.promptFile.trim().length === 0) {
+        throw new Error(`materializeLauncherArgv: ${spec.host} launcher needs a <prompt-file> path`);
+      }
+      return opts.promptFile;
+    }
+    return arg;
+  });
+  if (
+    durationFlagIndex >= 0 &&
+    durationFlagIndex + 1 < out.length &&
+    typeof opts.agyPrintTimeout === 'string' &&
+    CANONICAL_DURATION_VALUE.test(opts.agyPrintTimeout)
+  ) {
+    out[durationFlagIndex + 1] = opts.agyPrintTimeout;
+  }
+  return out;
 }
 
 export function classifyReviewHostLauncher(host: CanonicalReviewHost, argv: readonly string[]): HostLauncherClassification {

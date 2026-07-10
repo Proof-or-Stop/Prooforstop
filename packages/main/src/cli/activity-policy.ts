@@ -81,6 +81,37 @@ export const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'playbook_runtime_consumption_verify',
 ]);
 
+/**
+ * F-028: a non-empty --out makes usage_sweep write a JSON report file inside the
+ * project root, so it is NOT read-only for that invocation. Normalized exactly as
+ * the handler and the ownership gate do (typeof string + trim) so a blank /
+ * whitespace-only --out is NOT a write.
+ */
+function usageSweepWritesReport(args: Record<string, unknown>): boolean {
+  const out = args.out;
+  return typeof out === 'string' && out.trim().length > 0;
+}
+
+/**
+ * F-028: effective read-only classification for the CLI activity / hook layer —
+ * the single predicate cli-engine consults to decide whether a command runs the
+ * pre/post command hooks and writes an activity-log entry. Static
+ * READ_ONLY_COMMANDS members are always read-only. usage_sweep is a read-only
+ * diagnostic UNLESS an explicit non-empty --out makes it write a report file, in
+ * which case it is a mutating command (runs hooks + records activity). This
+ * mirrors resolveEffectiveOwnershipClass's F-014 --out boundary in
+ * ownership-gate.ts: the SAME --out that dynamically escalates the ownership
+ * class also flips the activity/hook classification, so a plain (no --out)
+ * usage_sweep runs no hooks and writes no activity log, while --out is treated as
+ * a write on both surfaces. All other commands are classified exactly as the
+ * static set (arg-independent), so non-usage_sweep behaviour is unchanged.
+ */
+export function isReadOnlyCommand(cmdName: string, args: Record<string, unknown> = {}): boolean {
+  if (READ_ONLY_COMMANDS.has(cmdName)) return true;
+  if (cmdName === 'usage_sweep') return !usageSweepWritesReport(args);
+  return false;
+}
+
 export function resolveActivitySource(): string {
   return process.env.LATTICE_ACTIVITY_SOURCE || 'cli';
 }
@@ -98,7 +129,10 @@ export function inferCodexEntrypoint(): string {
 }
 
 export function shouldWriteActivityLog(cmdName: string, args: Record<string, unknown>): boolean {
-  if (READ_ONLY_COMMANDS.has(cmdName)) {
+  // F-028: key the activity-log decision on the arg-aware read-only predicate, so
+  // a plain usage_sweep writes no activity row (read-only) while a --out sweep
+  // (a write) is recorded like any other mutating command.
+  if (isReadOnlyCommand(cmdName, args)) {
     return process.env.LATTICE_ACTIVITY_RECORD_READONLY === '1';
   }
   if (args.dryRun === true) return false;

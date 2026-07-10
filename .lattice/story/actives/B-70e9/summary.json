@@ -1,0 +1,56 @@
+{
+  "storyId": "B-70e9",
+  "changes": "M1: new lattice host_run command - the single canonical-launcher choke point for lattice-initiated host runs (codex/claude/agy): builds B-d8ef canonical argv, streams host output live (settle-aware passthrough with async-EPIPE containment), and writes correlated preflight+final usage rows to .lattice/usage/llm-usage.jsonl bound to storyId/agentType/phase/provider plus threadId=reviewRunId and subagentId=lane; codex usage parsed from exec --json turn.completed (uncached-remainder mapping, original-payload digest), claude from stream-json result usage, agy recorded as explicit source=unavailable; per-dispatch hard-budget cap (LATTICE_HARD_BUDGET_TOKENS) and host-run concurrency cap (LATTICE_HOST_RUN_MAX_CONCURRENT, fixed-slot atomic wx admission with ownership tokens) refuse fail-closed pre-spawn with honest blocked rows; the same admission chain covers autopilot repair and the cross_host_review codex leaf; readiness probes record real-attempt rows only; the usage ledger writer gained an ownership-token cross-process lock so concurrent appends cannot corrupt the hash chain; every usageSummary claim is gated on the ACTUAL append outcome. M2: new read-only lattice usage_sweep command scanning ~/.codex/sessions rollouts (cumulative-last totals) and ~/.claude/projects transcripts (four-field sums deduped by requestId/message.id) since a cutoff, emitting NON-AUTHORITATIVE human+JSON attribution reports with story mentions/cwd/originator; --out is create-only, symlink-safe, and dynamically mutating for ownership/hooks/codex-process-event gates. Docs: docs/host-run-usage.md; smokes test:host-run-usage (65) + test:usage-sweep (19).",
+  "usage": "lattice host_run --host codex --storyId B-xxxx --agentType reviewer --reviewRunId B-xxxx:RR-001 --lane lattice-review-quality --promptFile p.txt ; lattice usage_sweep --since 2026-07-01 [--json] [--out reports/sweep.json]",
+  "expectedOutcome": "Every lattice-initiated host run appends attributed ledger rows visible in the ledger tail; over-cap runs refuse pre-spawn with blocked rows; usage_sweep prints a NON-AUTHORITATIVE attribution table of host-side sessions with token totals, story mentions and cwd from the real transcript stores.",
+  "actualTranscript": "Live acceptance 2026-07-10T20:26-20:29Z on the story worktree: (1) usage_sweep --since 2026-07-10 over the REAL stores returned 312 sessions with 0 parse errors under the NON-AUTHORITATIVE header, surfacing the burn evidence directly - a 1.69B cumulative-input codex desktop thread, the original 369M Work/Orchestrate thread, and this very session at ~272M; (2) host_run agy streamed READY and recorded estimate + unavailable final (reason agy_print_mode_reports_no_usage) bound to B-70e9/test-acceptance/antigravity; (3) host_run claude streamed live and recorded a provider-reported final input=6894 cacheRead=69421 cacheCreation=41814 output=2651 superseding its estimate; a prior 120s-timeout attempt honestly recorded unavailable and propagated exit 124; (4) 19 genuine codex cross_host_review rounds exercised the codex leaf path with preflight+final rows each run.",
+  "outcomeDiff": "No difference - all expected behaviors observed live, including the honest-timeout edge case which recorded unavailable instead of fabricating usage.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "agy exposes no per-call usage on any stable surface, so agy rows are always source=unavailable (verified twice); codex canonical launcher is --ephemeral so launcher-path capture reads exec --json stdout, and cross_host_review codex leaf (plain stdout, no --json) records unavailable finals - its real usage is only visible via the M2 sweep; ledger lock/slot registries carry documented pid-reuse-class residual windows that degrade to skip-not-corrupt, never corruption; sweep numbers are estimates by design and never enter the ledger.",
+  "pitfalls": "19 codex cross-host rounds were needed because contract-class findings (pre-spawn admission parity, append-outcome honesty, ownership-token reclaim, async-EPIPE containment) were fixed one surface per round instead of sweeping all sibling surfaces at once - when codex establishes a contract, fix EVERY sibling surface in the same commit; excluded-path scope violations cannot be acknowledged (hard-coded) and scope_contract_set is PLAN/DEV-only, so amending the contract required a deliberate REVIEW->DEV->REVIEW round-trip; cross_host_review needs a fully authorized dispatch policy (commandAllowlist + maxBudgetUSD + allowReviewOnlyRealHostSubprocess) plus raised LATTICE_MAX_TIMEOUT_MS/LATTICE_IDLE_TIMEOUT_MS (codex is silent until final output and slows under concurrent codex sessions); evidence needed verification_evidence_refresh_stale after every fix commit and each main merge (hash drift is refresh-only).",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 229413
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 22581
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 1738410
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 5923191
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 47111347
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 431638
+    }
+  },
+  "totalDurationMs": 55456993,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-10T20:32:14.684Z",
+  "updatedAt": "2026-07-10T20:32:14.684Z"
+}

@@ -4,59 +4,957 @@
       "id": "CHK-001",
       "title": "M1: Add a host-run choke-point command that launches codex/claude/agy via the B-d8ef canonical launcher argv and writes preflight plus final usage rows bound to storyId, agentType, phase, and provider",
       "context": "Reuse core/usage-ledger dispatch-usage seam (recordDispatchPreflight, budget guard, recordDispatchFinal/recordDispatchFinalForProvider). Codex: parse stdout turn.completed usage (input_tokens/cached_input_tokens/output_tokens/reasoning_output_tokens). Claude: parse stream-json result usage via parseClaudeCliOutput. agy: record usage.source=unavailable (verified no usage surface).",
-      "userSees": "Running the command launches the host with canonical argv, passes host output through, and appends correlated ledger rows visible via the usage report command.",
+      "userSees": "Running lattice host_run --host codex --storyId B-70e9 --agentType reviewer --promptFile p.txt streams the host output live and ends with a stderr line like: \"usage recorded: provider=openai input=10202 cacheRead=11008 output=85 (recordId llmuse_...)\"",
       "excludes": [
         "No change to gate semantics: usage rows stay gateEvidence=false diagnostics",
         "No interception of interactive desktop sessions"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-10T05:41:59.796Z",
+      "endTime": "2026-07-10T06:12:29.220Z",
+      "files": {
+        "modify": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/host-execution-readiness.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/core/usage-ledger/adapters/openai.ts"
+        ],
+        "create": [
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/handlers/host-run.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Fake codex runner emitting a turn.completed usage event: host_run writes a sequence-1 estimate row and a sequence-2 provider-reported final superseding it, storyId/phase/agentType bound, mapping input=input_tokens-cached_input_tokens, cacheRead=cached_input_tokens, cacheCreation=null, output=output_tokens",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Fake claude runner: stream-json result usage mapped via parseClaudeCliOutput with served model bound",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Fake agy runner: unavailable final with provider name antigravity and explicit unavailableReason",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Fake codex run ending in turn.failed with no usage event records an unavailable final, never a fabricated zero",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "LATTICE_USAGE_LEDGER=0 leaves the run byte-identical: no rows, no dirs created",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Host non-zero exit code propagates to the caller while rows still record",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Prototype-polluted or wrong-typed usage payload must not fabricate counts: own-property projection keeps reads honest and the raw digest covers the ORIGINAL payload",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "A runner flooding stdout cannot exhaust memory: parse buffer is line-streamed and bounded while passthrough continues",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "command": "npm --prefix packages/main run test:host-run-usage",
+          "result": "pass",
+          "note": "host-run-usage smoke asserts the per-host row pipeline (codex turn.completed mapping incl. uncached remainder + original-payload digest, claude stream-json usage, agy unavailable), OFF byte-identical, exit propagation, pollution guards and bounded parse",
+          "headHash": "6d19487858d3d24f90abe2c1e07aff479218bc02",
+          "materialHash": "0a98cb6fe199c97dcc42dc799246e2ad33dbaae7369f99e5c6550b7e14beb39b",
+          "storyFilesHash": "90b2b88de179781f57ab65b21b531a191227f2dc99c381795f50519518c930f8",
+          "timestamp": "2026-07-10T19:49:22.686Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "command": "npm --prefix packages/main run test:host-run-usage",
+          "result": "pass",
+          "note": "host-run-usage smoke asserts the per-host row pipeline (codex turn.completed mapping incl. uncached remainder + original-payload digest, claude stream-json usage, agy unavailable), OFF byte-identical, exit propagation, pollution guards and bounded parse",
+          "headHash": "6d19487858d3d24f90abe2c1e07aff479218bc02",
+          "materialHash": "0a98cb6fe199c97dcc42dc799246e2ad33dbaae7369f99e5c6550b7e14beb39b",
+          "storyFilesHash": "90b2b88de179781f57ab65b21b531a191227f2dc99c381795f50519518c930f8",
+          "timestamp": "2026-07-10T19:49:22.687Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "command": "npm --prefix packages/main run test:host-run-usage",
+          "result": "pass",
+          "note": "host-run-usage smoke asserts the per-host row pipeline (codex turn.completed mapping incl. uncached remainder + original-payload digest, claude stream-json usage, agy unavailable), OFF byte-identical, exit propagation, pollution guards and bounded parse",
+          "headHash": "6d19487858d3d24f90abe2c1e07aff479218bc02",
+          "materialHash": "0a98cb6fe199c97dcc42dc799246e2ad33dbaae7369f99e5c6550b7e14beb39b",
+          "storyFilesHash": "90b2b88de179781f57ab65b21b531a191227f2dc99c381795f50519518c930f8",
+          "timestamp": "2026-07-10T19:49:22.687Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "command": "npm --prefix packages/main run test:host-run-usage",
+          "result": "pass",
+          "note": "host-run-usage smoke asserts the per-host row pipeline (codex turn.completed mapping incl. uncached remainder + original-payload digest, claude stream-json usage, agy unavailable), OFF byte-identical, exit propagation, pollution guards and bounded parse",
+          "headHash": "6d19487858d3d24f90abe2c1e07aff479218bc02",
+          "materialHash": "0a98cb6fe199c97dcc42dc799246e2ad33dbaae7369f99e5c6550b7e14beb39b",
+          "storyFilesHash": "90b2b88de179781f57ab65b21b531a191227f2dc99c381795f50519518c930f8",
+          "timestamp": "2026-07-10T19:49:22.687Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "command": "npm --prefix packages/main run test:host-run-usage",
+          "result": "pass",
+          "note": "host-run-usage smoke asserts the per-host row pipeline (codex turn.completed mapping incl. uncached remainder + original-payload digest, claude stream-json usage, agy unavailable), OFF byte-identical, exit propagation, pollution guards and bounded parse",
+          "headHash": "6d19487858d3d24f90abe2c1e07aff479218bc02",
+          "materialHash": "0a98cb6fe199c97dcc42dc799246e2ad33dbaae7369f99e5c6550b7e14beb39b",
+          "storyFilesHash": "90b2b88de179781f57ab65b21b531a191227f2dc99c381795f50519518c930f8",
+          "timestamp": "2026-07-10T19:49:22.687Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "command": "npm --prefix packages/main run test:host-run-usage",
+          "result": "pass",
+          "note": "host-run-usage smoke asserts the per-host row pipeline (codex turn.completed mapping incl. uncached remainder + original-payload digest, claude stream-json usage, agy unavailable), OFF byte-identical, exit propagation, pollution guards and bounded parse",
+          "headHash": "6d19487858d3d24f90abe2c1e07aff479218bc02",
+          "materialHash": "0a98cb6fe199c97dcc42dc799246e2ad33dbaae7369f99e5c6550b7e14beb39b",
+          "storyFilesHash": "90b2b88de179781f57ab65b21b531a191227f2dc99c381795f50519518c930f8",
+          "timestamp": "2026-07-10T19:49:22.687Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "command": "npm --prefix packages/main run test:host-run-usage",
+          "result": "pass",
+          "note": "host-run-usage smoke asserts the per-host row pipeline (codex turn.completed mapping incl. uncached remainder + original-payload digest, claude stream-json usage, agy unavailable), OFF byte-identical, exit propagation, pollution guards and bounded parse",
+          "headHash": "6d19487858d3d24f90abe2c1e07aff479218bc02",
+          "materialHash": "0a98cb6fe199c97dcc42dc799246e2ad33dbaae7369f99e5c6550b7e14beb39b",
+          "storyFilesHash": "90b2b88de179781f57ab65b21b531a191227f2dc99c381795f50519518c930f8",
+          "timestamp": "2026-07-10T19:49:22.687Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "command": "npm --prefix packages/main run test:host-run-usage",
+          "result": "pass",
+          "note": "host-run-usage smoke asserts the per-host row pipeline (codex turn.completed mapping incl. uncached remainder + original-payload digest, claude stream-json usage, agy unavailable), OFF byte-identical, exit propagation, pollution guards and bounded parse",
+          "headHash": "6d19487858d3d24f90abe2c1e07aff479218bc02",
+          "materialHash": "0a98cb6fe199c97dcc42dc799246e2ad33dbaae7369f99e5c6550b7e14beb39b",
+          "storyFilesHash": "90b2b88de179781f57ab65b21b531a191227f2dc99c381795f50519518c930f8",
+          "timestamp": "2026-07-10T19:49:22.687Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "M1: Bind reviewer/quorum context into host-run usage rows (reviewRunId and reviewer lane) sharing binding fields with review-runs records where sensible",
       "context": "review-runs.json rows carry reviewRunId like B-xxxx:RR-001 plus agent/lane; usage rows launched for a review run should carry the same identifiers so ledger rows and readManifest-bearing review passes can be joined. Coordinate with B-4a78 readManifest fields.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-10T05:42:01.360Z",
+      "endTime": "2026-07-10T06:12:31.077Z",
+      "userSees": "A ledger row for a reviewer host run shows \"threadId\":\"B-70e9:RR-001\" and \"subagentId\":\"lattice-review-quality\" matching the review-runs.json identifiers",
+      "files": {
+        "modify": [
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/handlers/host-run.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "host_run --reviewRunId B-70e9:RR-001 --lane lattice-review-quality writes rows with threadId=reviewRunId and subagentId=lane",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "With --storyId and no --phase, phase resolves from the story index at call time",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Omitting reviewRunId/lane leaves threadId/subagentId null (no empty-string pollution)",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Unknown storyId fails with a clear error before any spawn",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A reviewRunId for a different story than --storyId is refused (cross-story binding mismatch) so rows cannot silently mis-join",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "command": "npm --prefix packages/main run test:host-run-usage",
+          "result": "pass",
+          "note": "host-run-usage smoke asserts threadId=reviewRunId and subagentId=lane binding, null when omitted, story-phase resolution, and cross-story reviewRunId refusal",
+          "headHash": "6d19487858d3d24f90abe2c1e07aff479218bc02",
+          "materialHash": "0a98cb6fe199c97dcc42dc799246e2ad33dbaae7369f99e5c6550b7e14beb39b",
+          "storyFilesHash": "90b2b88de179781f57ab65b21b531a191227f2dc99c381795f50519518c930f8",
+          "timestamp": "2026-07-10T19:49:22.687Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "command": "npm --prefix packages/main run test:host-run-usage",
+          "result": "pass",
+          "note": "host-run-usage smoke asserts threadId=reviewRunId and subagentId=lane binding, null when omitted, story-phase resolution, and cross-story reviewRunId refusal",
+          "headHash": "6d19487858d3d24f90abe2c1e07aff479218bc02",
+          "materialHash": "0a98cb6fe199c97dcc42dc799246e2ad33dbaae7369f99e5c6550b7e14beb39b",
+          "storyFilesHash": "90b2b88de179781f57ab65b21b531a191227f2dc99c381795f50519518c930f8",
+          "timestamp": "2026-07-10T19:49:22.687Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "command": "npm --prefix packages/main run test:host-run-usage",
+          "result": "pass",
+          "note": "host-run-usage smoke asserts threadId=reviewRunId and subagentId=lane binding, null when omitted, story-phase resolution, and cross-story reviewRunId refusal",
+          "headHash": "6d19487858d3d24f90abe2c1e07aff479218bc02",
+          "materialHash": "0a98cb6fe199c97dcc42dc799246e2ad33dbaae7369f99e5c6550b7e14beb39b",
+          "storyFilesHash": "90b2b88de179781f57ab65b21b531a191227f2dc99c381795f50519518c930f8",
+          "timestamp": "2026-07-10T19:49:22.687Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "command": "npm --prefix packages/main run test:host-run-usage",
+          "result": "pass",
+          "note": "host-run-usage smoke asserts threadId=reviewRunId and subagentId=lane binding, null when omitted, story-phase resolution, and cross-story reviewRunId refusal",
+          "headHash": "6d19487858d3d24f90abe2c1e07aff479218bc02",
+          "materialHash": "0a98cb6fe199c97dcc42dc799246e2ad33dbaae7369f99e5c6550b7e14beb39b",
+          "storyFilesHash": "90b2b88de179781f57ab65b21b531a191227f2dc99c381795f50519518c930f8",
+          "timestamp": "2026-07-10T19:49:22.687Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "command": "npm --prefix packages/main run test:host-run-usage",
+          "result": "pass",
+          "note": "host-run-usage smoke asserts threadId=reviewRunId and subagentId=lane binding, null when omitted, story-phase resolution, and cross-story reviewRunId refusal",
+          "headHash": "6d19487858d3d24f90abe2c1e07aff479218bc02",
+          "materialHash": "0a98cb6fe199c97dcc42dc799246e2ad33dbaae7369f99e5c6550b7e14beb39b",
+          "storyFilesHash": "90b2b88de179781f57ab65b21b531a191227f2dc99c381795f50519518c930f8",
+          "timestamp": "2026-07-10T19:49:22.687Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "M1: Cover remaining lattice-initiated host spawns: autopilot repair step and host readiness probes write usage rows through the same seam",
       "context": "autopilot-executor runClaudeRepair spawns claude with no ledger seam; host-execution-readiness probes make real (tiny) LLM calls with no ledger rows. Wire both at their callers, keeping core/usage-ledger free of new cross-module imports.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-10T06:12:51.258Z",
+      "endTime": "2026-07-10T06:28:54.617Z",
+      "userSees": "After an autopilot repair or a host readiness probe, the usage report shows new rows with agentType \"autopilot-repair\" or \"host-readiness-probe\" instead of the runs being invisible",
+      "files": {
+        "modify": [
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/core/codex-review-leaf.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "runClaudeRepair with ledger ON adds --output-format json, records preflight+final (agentType autopilot-repair), and the repair excerpt comes from the parsed envelope result",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Readiness probe call sites record per-host preflight+final rows with agentType host-readiness-probe",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "cross_host_review codex leaf records preflight + unavailable final with argv unchanged",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Ledger OFF keeps runClaudeRepair byte-identical to today (no --output-format json, no rows)",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Probe failure paths (missing executable, auth, timeout) still write their preflight/unavailable rows without breaking the probe result",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A ledger write failure must never fail the autopilot repair, the probe, or the cross-host review (seam never-throws contract exercised in smoke)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "command": "npm --prefix packages/main run test:host-run-usage",
+          "result": "pass",
+          "note": "host-run-usage smoke asserts autopilot-repair rows + envelope excerpt with ON/OFF argv byte-identity, host-readiness-probe per-host rows, cross-host-review unavailable final, and seam-never-throws on corrupt ledger",
+          "headHash": "6d19487858d3d24f90abe2c1e07aff479218bc02",
+          "materialHash": "0a98cb6fe199c97dcc42dc799246e2ad33dbaae7369f99e5c6550b7e14beb39b",
+          "storyFilesHash": "90b2b88de179781f57ab65b21b531a191227f2dc99c381795f50519518c930f8",
+          "timestamp": "2026-07-10T19:49:22.687Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "command": "npm --prefix packages/main run test:host-run-usage",
+          "result": "pass",
+          "note": "host-run-usage smoke asserts autopilot-repair rows + envelope excerpt with ON/OFF argv byte-identity, host-readiness-probe per-host rows, cross-host-review unavailable final, and seam-never-throws on corrupt ledger",
+          "headHash": "6d19487858d3d24f90abe2c1e07aff479218bc02",
+          "materialHash": "0a98cb6fe199c97dcc42dc799246e2ad33dbaae7369f99e5c6550b7e14beb39b",
+          "storyFilesHash": "90b2b88de179781f57ab65b21b531a191227f2dc99c381795f50519518c930f8",
+          "timestamp": "2026-07-10T19:49:22.687Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "command": "npm --prefix packages/main run test:host-run-usage",
+          "result": "pass",
+          "note": "host-run-usage smoke asserts autopilot-repair rows + envelope excerpt with ON/OFF argv byte-identity, host-readiness-probe per-host rows, cross-host-review unavailable final, and seam-never-throws on corrupt ledger",
+          "headHash": "6d19487858d3d24f90abe2c1e07aff479218bc02",
+          "materialHash": "0a98cb6fe199c97dcc42dc799246e2ad33dbaae7369f99e5c6550b7e14beb39b",
+          "storyFilesHash": "90b2b88de179781f57ab65b21b531a191227f2dc99c381795f50519518c930f8",
+          "timestamp": "2026-07-10T19:49:22.687Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "command": "npm --prefix packages/main run test:host-run-usage",
+          "result": "pass",
+          "note": "host-run-usage smoke asserts autopilot-repair rows + envelope excerpt with ON/OFF argv byte-identity, host-readiness-probe per-host rows, cross-host-review unavailable final, and seam-never-throws on corrupt ledger",
+          "headHash": "6d19487858d3d24f90abe2c1e07aff479218bc02",
+          "materialHash": "0a98cb6fe199c97dcc42dc799246e2ad33dbaae7369f99e5c6550b7e14beb39b",
+          "storyFilesHash": "90b2b88de179781f57ab65b21b531a191227f2dc99c381795f50519518c930f8",
+          "timestamp": "2026-07-10T19:49:22.688Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "command": "npm --prefix packages/main run test:host-run-usage",
+          "result": "pass",
+          "note": "host-run-usage smoke asserts autopilot-repair rows + envelope excerpt with ON/OFF argv byte-identity, host-readiness-probe per-host rows, cross-host-review unavailable final, and seam-never-throws on corrupt ledger",
+          "headHash": "6d19487858d3d24f90abe2c1e07aff479218bc02",
+          "materialHash": "0a98cb6fe199c97dcc42dc799246e2ad33dbaae7369f99e5c6550b7e14beb39b",
+          "storyFilesHash": "90b2b88de179781f57ab65b21b531a191227f2dc99c381795f50519518c930f8",
+          "timestamp": "2026-07-10T19:49:22.688Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "command": "npm --prefix packages/main run test:host-run-usage",
+          "result": "pass",
+          "note": "host-run-usage smoke asserts autopilot-repair rows + envelope excerpt with ON/OFF argv byte-identity, host-readiness-probe per-host rows, cross-host-review unavailable final, and seam-never-throws on corrupt ledger",
+          "headHash": "6d19487858d3d24f90abe2c1e07aff479218bc02",
+          "materialHash": "0a98cb6fe199c97dcc42dc799246e2ad33dbaae7369f99e5c6550b7e14beb39b",
+          "storyFilesHash": "90b2b88de179781f57ab65b21b531a191227f2dc99c381795f50519518c930f8",
+          "timestamp": "2026-07-10T19:49:22.688Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
       "title": "M1: Update reviewer/quorum/autopilot launch guidance so lattice-initiated host runs go through the choke-point command",
       "context": "reviewer_batch printed instructions, quorum/escalation guidance, and relevant docs should name the new command with canonical launcher semantics so future runs are captured instead of raw shell codex exec / claude --print invocations.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-10T06:54:33.122Z",
+      "endTime": "2026-07-10T07:08:23.347Z",
+      "userSees": "reviewer_batch and escalation guidance print launch lines like \"lattice host_run --host codex --storyId B-xxxx --agentType reviewer --reviewRunId ... --lane ...\" instead of raw codex exec commands, and docs/host-run-usage.md exists",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/reviewer-batch.ts",
+          "packages/main/src/handlers/review-escalation.ts",
+          "CHANGELOG.md"
+        ],
+        "create": [
+          "docs/host-run-usage.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Operator-facing instruction strings for lattice-initiated reviewer/quorum host runs name lattice host_run with binding args",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "docs/host-run-usage.md documents usage, binding conventions (threadId=reviewRunId, subagentId=lane), cap envs, agy unavailable semantics, and non-goals",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Instructions for in-session Agent() subagent reviewers stay unchanged (those are not host CLI spawns)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "rg over handler guidance strings shows no remaining raw-launch instruction for lattice-initiated host reviewer runs (spawn implementation sites excluded)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "file": "docs/host-run-usage.md",
+          "command": "grep -n \"lattice host_run --host codex\" docs/host-run-usage.md",
+          "result": "pass",
+          "note": "docs/host-run-usage.md shows host_run reviewer/quorum launch lines with binding args (behavior-based CHK-004 acceptance per OQ-2: no raw-launch instruction strings existed to rewrite)",
+          "headHash": "6d19487858d3d24f90abe2c1e07aff479218bc02",
+          "materialHash": "0a98cb6fe199c97dcc42dc799246e2ad33dbaae7369f99e5c6550b7e14beb39b",
+          "storyFilesHash": "90b2b88de179781f57ab65b21b531a191227f2dc99c381795f50519518c930f8",
+          "timestamp": "2026-07-10T19:49:22.688Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "docs_check",
+          "file": "docs/host-run-usage.md",
+          "command": "grep -nE \"threadId|LATTICE_HOST_RUN_MAX_CONCURRENT|gateEvidence=false\" docs/host-run-usage.md",
+          "result": "pass",
+          "note": "doc documents binding conventions (threadId=reviewRunId, subagentId=lane), cap envs, agy unavailable semantics, non-goals incl. gateEvidence=false",
+          "headHash": "6d19487858d3d24f90abe2c1e07aff479218bc02",
+          "materialHash": "0a98cb6fe199c97dcc42dc799246e2ad33dbaae7369f99e5c6550b7e14beb39b",
+          "storyFilesHash": "90b2b88de179781f57ab65b21b531a191227f2dc99c381795f50519518c930f8",
+          "timestamp": "2026-07-10T19:49:22.688Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "file": "packages/main/src/handlers/reviewer-batch.ts",
+          "command": "sh -c 'test -z \"$(git diff main -- packages/main/src/handlers/reviewer-batch.ts)\"'",
+          "result": "pass",
+          "note": "reviewer_batch in-session Agent() instructions are unchanged vs main (git diff empty)",
+          "headHash": "6d19487858d3d24f90abe2c1e07aff479218bc02",
+          "materialHash": "0a98cb6fe199c97dcc42dc799246e2ad33dbaae7369f99e5c6550b7e14beb39b",
+          "storyFilesHash": "90b2b88de179781f57ab65b21b531a191227f2dc99c381795f50519518c930f8",
+          "timestamp": "2026-07-10T19:49:22.688Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "file": "packages/main/src/handlers",
+          "command": "sh -c 'grep -rnE \"codex exec|claude --print|agy --print|agy -p\" packages/main/src/handlers; test $? -eq 1'",
+          "result": "pass",
+          "note": "zero raw host-launch instruction strings in handler guidance: grep over src handlers returns no matches (exit 1 => absence proven, wrapper exits 0)",
+          "headHash": "6d19487858d3d24f90abe2c1e07aff479218bc02",
+          "materialHash": "0a98cb6fe199c97dcc42dc799246e2ad33dbaae7369f99e5c6550b7e14beb39b",
+          "storyFilesHash": "90b2b88de179781f57ab65b21b531a191227f2dc99c381795f50519518c930f8",
+          "timestamp": "2026-07-10T19:49:22.688Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
       "title": "M2: Add a read-only usage sweep command scanning ~/.codex/sessions rollouts and ~/.claude/projects transcripts since a cutoff and emitting a non-authoritative attribution report",
       "context": "Per session extract: token totals (codex: last token_count event_msg info.total_token_usage, cumulative semantics; claude: sum of assistant message.usage four fields), story-id mentions (B-hex4 regex), cwd, originator (desktop vs exec), timestamps. Output human table plus JSON, distinguishing lattice-launched sessions (correlatable to ledger rows) from foreign sessions labeled estimate/non-authoritative.",
-      "userSees": "lattice usage_sweep --since <date> prints an attribution table of host-side sessions with token totals and story mentions, clearly labeled non-authoritative; a JSON output mode supports scripting.",
+      "userSees": "lattice usage_sweep --since 2026-07-01 prints a table headed \"NON-AUTHORITATIVE ESTIMATE\" with one row per host session: host, session, cwd, originator, tokens, story mentions; --json emits the same data machine-readably",
       "excludes": [
         "No ledger backfill from swept sessions",
         "No gate or lifecycle behavior reads sweep output"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-10T06:28:56.210Z",
+      "endTime": "2026-07-10T06:54:31.179Z",
+      "files": {
+        "modify": [
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "create": [
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/usage-sweep.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Fixture codex rollout: totals equal the LAST non-null cumulative info.total_token_usage; session_meta yields cwd/originator; story mentions extracted via B-hex4 regex",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Fixture claude transcript: four-field usage summed with dedupe by requestId/message.id keeping last value; cwd and sessionId reported",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "--since cutoff excludes older files by mtime before reading",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Rollout with only null-info token_count lines reports usage unknown, not zero",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Split assistant events sharing message.id count once (dedupe fixture)",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Empty or missing store dirs produce an empty report, not an error",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Sweep makes zero writes (asserted by store dir mtime/content snapshot before/after in smoke)",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Malformed JSONL lines are skipped without aborting the scan and are counted in a parse-error diagnostic",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "--out refuses paths outside the project root",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-sweep-smoke.ts",
+          "command": "npm --prefix packages/main run test:usage-sweep",
+          "result": "pass",
+          "note": "usage-sweep smoke asserts cumulative-last codex totals, claude dedupe by requestId/message.id, story-mention regex, mtime cutoff, unknown-not-zero, empty dirs, zero-writes snapshot, parse-error counting, out-path refusal, NON-AUTHORITATIVE label",
+          "headHash": "6d19487858d3d24f90abe2c1e07aff479218bc02",
+          "materialHash": "0a98cb6fe199c97dcc42dc799246e2ad33dbaae7369f99e5c6550b7e14beb39b",
+          "storyFilesHash": "90b2b88de179781f57ab65b21b531a191227f2dc99c381795f50519518c930f8",
+          "timestamp": "2026-07-10T19:49:22.688Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-sweep-smoke.ts",
+          "command": "npm --prefix packages/main run test:usage-sweep",
+          "result": "pass",
+          "note": "usage-sweep smoke asserts cumulative-last codex totals, claude dedupe by requestId/message.id, story-mention regex, mtime cutoff, unknown-not-zero, empty dirs, zero-writes snapshot, parse-error counting, out-path refusal, NON-AUTHORITATIVE label",
+          "headHash": "6d19487858d3d24f90abe2c1e07aff479218bc02",
+          "materialHash": "0a98cb6fe199c97dcc42dc799246e2ad33dbaae7369f99e5c6550b7e14beb39b",
+          "storyFilesHash": "90b2b88de179781f57ab65b21b531a191227f2dc99c381795f50519518c930f8",
+          "timestamp": "2026-07-10T19:49:22.689Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-sweep-smoke.ts",
+          "command": "npm --prefix packages/main run test:usage-sweep",
+          "result": "pass",
+          "note": "usage-sweep smoke asserts cumulative-last codex totals, claude dedupe by requestId/message.id, story-mention regex, mtime cutoff, unknown-not-zero, empty dirs, zero-writes snapshot, parse-error counting, out-path refusal, NON-AUTHORITATIVE label",
+          "headHash": "6d19487858d3d24f90abe2c1e07aff479218bc02",
+          "materialHash": "0a98cb6fe199c97dcc42dc799246e2ad33dbaae7369f99e5c6550b7e14beb39b",
+          "storyFilesHash": "90b2b88de179781f57ab65b21b531a191227f2dc99c381795f50519518c930f8",
+          "timestamp": "2026-07-10T19:49:22.689Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-sweep-smoke.ts",
+          "command": "npm --prefix packages/main run test:usage-sweep",
+          "result": "pass",
+          "note": "usage-sweep smoke asserts cumulative-last codex totals, claude dedupe by requestId/message.id, story-mention regex, mtime cutoff, unknown-not-zero, empty dirs, zero-writes snapshot, parse-error counting, out-path refusal, NON-AUTHORITATIVE label",
+          "headHash": "6d19487858d3d24f90abe2c1e07aff479218bc02",
+          "materialHash": "0a98cb6fe199c97dcc42dc799246e2ad33dbaae7369f99e5c6550b7e14beb39b",
+          "storyFilesHash": "90b2b88de179781f57ab65b21b531a191227f2dc99c381795f50519518c930f8",
+          "timestamp": "2026-07-10T19:49:22.689Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-sweep-smoke.ts",
+          "command": "npm --prefix packages/main run test:usage-sweep",
+          "result": "pass",
+          "note": "usage-sweep smoke asserts cumulative-last codex totals, claude dedupe by requestId/message.id, story-mention regex, mtime cutoff, unknown-not-zero, empty dirs, zero-writes snapshot, parse-error counting, out-path refusal, NON-AUTHORITATIVE label",
+          "headHash": "6d19487858d3d24f90abe2c1e07aff479218bc02",
+          "materialHash": "0a98cb6fe199c97dcc42dc799246e2ad33dbaae7369f99e5c6550b7e14beb39b",
+          "storyFilesHash": "90b2b88de179781f57ab65b21b531a191227f2dc99c381795f50519518c930f8",
+          "timestamp": "2026-07-10T19:49:22.689Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-sweep-smoke.ts",
+          "command": "npm --prefix packages/main run test:usage-sweep",
+          "result": "pass",
+          "note": "usage-sweep smoke asserts cumulative-last codex totals, claude dedupe by requestId/message.id, story-mention regex, mtime cutoff, unknown-not-zero, empty dirs, zero-writes snapshot, parse-error counting, out-path refusal, NON-AUTHORITATIVE label",
+          "headHash": "6d19487858d3d24f90abe2c1e07aff479218bc02",
+          "materialHash": "0a98cb6fe199c97dcc42dc799246e2ad33dbaae7369f99e5c6550b7e14beb39b",
+          "storyFilesHash": "90b2b88de179781f57ab65b21b531a191227f2dc99c381795f50519518c930f8",
+          "timestamp": "2026-07-10T19:49:22.689Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-sweep-smoke.ts",
+          "command": "npm --prefix packages/main run test:usage-sweep",
+          "result": "pass",
+          "note": "usage-sweep smoke asserts cumulative-last codex totals, claude dedupe by requestId/message.id, story-mention regex, mtime cutoff, unknown-not-zero, empty dirs, zero-writes snapshot, parse-error counting, out-path refusal, NON-AUTHORITATIVE label",
+          "headHash": "6d19487858d3d24f90abe2c1e07aff479218bc02",
+          "materialHash": "0a98cb6fe199c97dcc42dc799246e2ad33dbaae7369f99e5c6550b7e14beb39b",
+          "storyFilesHash": "90b2b88de179781f57ab65b21b531a191227f2dc99c381795f50519518c930f8",
+          "timestamp": "2026-07-10T19:49:22.689Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-sweep-smoke.ts",
+          "command": "npm --prefix packages/main run test:usage-sweep",
+          "result": "pass",
+          "note": "usage-sweep smoke asserts cumulative-last codex totals, claude dedupe by requestId/message.id, story-mention regex, mtime cutoff, unknown-not-zero, empty dirs, zero-writes snapshot, parse-error counting, out-path refusal, NON-AUTHORITATIVE label",
+          "headHash": "6d19487858d3d24f90abe2c1e07aff479218bc02",
+          "materialHash": "0a98cb6fe199c97dcc42dc799246e2ad33dbaae7369f99e5c6550b7e14beb39b",
+          "storyFilesHash": "90b2b88de179781f57ab65b21b531a191227f2dc99c381795f50519518c930f8",
+          "timestamp": "2026-07-10T19:49:22.689Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-sweep-smoke.ts",
+          "command": "npm --prefix packages/main run test:usage-sweep",
+          "result": "pass",
+          "note": "usage-sweep smoke asserts cumulative-last codex totals, claude dedupe by requestId/message.id, story-mention regex, mtime cutoff, unknown-not-zero, empty dirs, zero-writes snapshot, parse-error counting, out-path refusal, NON-AUTHORITATIVE label",
+          "headHash": "6d19487858d3d24f90abe2c1e07aff479218bc02",
+          "materialHash": "0a98cb6fe199c97dcc42dc799246e2ad33dbaae7369f99e5c6550b7e14beb39b",
+          "storyFilesHash": "90b2b88de179781f57ab65b21b531a191227f2dc99c381795f50519518c930f8",
+          "timestamp": "2026-07-10T19:49:22.689Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
       "title": "Smokes and docs: fixture-based smoke tests for host-run row shape/binding and sweep parsing plus npm scripts and doc updates",
       "context": "Fixtures: codex exec --json stdout with turn.completed usage, claude stream-json result envelope, agy no-usage output, codex rollout jsonl, claude project transcript jsonl. Wire npm test scripts following existing usage-ledger smoke naming.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-10T06:54:35.032Z",
+      "endTime": "2026-07-10T07:08:25.196Z",
+      "userSees": "npm --prefix packages/main run test:host-run-usage and test:usage-sweep both end with a PASS summary line",
+      "files": {
+        "modify": [
+          "packages/main/package.json",
+          "package.json",
+          "packages/main/src/tasks/run-all-smokes.ts",
+          "CHANGELOG.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Both smokes run via their npm scripts and via the aggregate runner",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Fixtures cover codex turn.completed and turn.failed, claude stream-json envelope, agy no-usage, codex rollout cumulative lines, claude transcript dedupe",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smokes create all fixtures under temp dirs and never touch real home stores",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Row-shape assertions include correlation (ledgerCallId/attemptId/sequence/supersedes), attribution binding, provider mapping values, and blocked rows for both caps",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-sweep-smoke.ts",
+          "command": "npm --prefix packages/main run test:usage-sweep",
+          "result": "pass",
+          "note": "npm --prefix packages/main run test:usage-sweep passes; sibling script test:host-run-usage covered by CHK-006:happy:1 evidence",
+          "headHash": "6d19487858d3d24f90abe2c1e07aff479218bc02",
+          "materialHash": "0a98cb6fe199c97dcc42dc799246e2ad33dbaae7369f99e5c6550b7e14beb39b",
+          "storyFilesHash": "90b2b88de179781f57ab65b21b531a191227f2dc99c381795f50519518c930f8",
+          "timestamp": "2026-07-10T19:49:22.689Z"
+        },
+        {
+          "intentRef": "CHK-006:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "command": "npm --prefix packages/main run test:host-run-usage",
+          "result": "pass",
+          "note": "npm scripts test:host-run-usage / test:usage-sweep run the fixture smokes (temp dirs only) which contain the row-shape and caps assertions; run-all-smokes auto-discovers both",
+          "headHash": "6d19487858d3d24f90abe2c1e07aff479218bc02",
+          "materialHash": "0a98cb6fe199c97dcc42dc799246e2ad33dbaae7369f99e5c6550b7e14beb39b",
+          "storyFilesHash": "90b2b88de179781f57ab65b21b531a191227f2dc99c381795f50519518c930f8",
+          "timestamp": "2026-07-10T19:49:22.689Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "command": "npm --prefix packages/main run test:host-run-usage",
+          "result": "pass",
+          "note": "npm scripts test:host-run-usage / test:usage-sweep run the fixture smokes (temp dirs only) which contain the row-shape and caps assertions; run-all-smokes auto-discovers both",
+          "headHash": "6d19487858d3d24f90abe2c1e07aff479218bc02",
+          "materialHash": "0a98cb6fe199c97dcc42dc799246e2ad33dbaae7369f99e5c6550b7e14beb39b",
+          "storyFilesHash": "90b2b88de179781f57ab65b21b531a191227f2dc99c381795f50519518c930f8",
+          "timestamp": "2026-07-10T19:49:22.689Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "command": "npm --prefix packages/main run test:host-run-usage",
+          "result": "pass",
+          "note": "npm scripts test:host-run-usage / test:usage-sweep run the fixture smokes (temp dirs only) which contain the row-shape and caps assertions; run-all-smokes auto-discovers both",
+          "headHash": "6d19487858d3d24f90abe2c1e07aff479218bc02",
+          "materialHash": "0a98cb6fe199c97dcc42dc799246e2ad33dbaae7369f99e5c6550b7e14beb39b",
+          "storyFilesHash": "90b2b88de179781f57ab65b21b531a191227f2dc99c381795f50519518c930f8",
+          "timestamp": "2026-07-10T19:49:22.689Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-007",
+      "title": "M1: Enforce a per-dispatch token budget cap and a host-run concurrency cap at the choke point",
+      "context": "User follow-up T2 (2026-07-10, task_3868995d): burn evidence includes five parallel codex exec reviewers consuming ~16M input tokens in about one minute, so the choke-point command must support (a) a per-dispatch hard budget ceiling (reuse/extend the existing fail-closed LATTICE_HARD_BUDGET_TOKENS preflight guard, decision.kind=blocked row on refusal) and (b) a concurrency cap on simultaneous lattice-initiated host runs (fail-closed refusal or bounded queue with a visible diagnostic), both diagnostics-honest in the ledger.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-70e9/background.md"
+      ],
+      "userSees": "Exceeding the concurrency cap prints \"host_run refused: 4 live host runs (cap 4)\" with the live-run list and a nonzero exit; an over-budget run prints the existing hard-budget refusal and writes a blocked ledger row",
+      "status": "done",
+      "startTime": "2026-07-10T05:42:02.906Z",
+      "endTime": "2026-07-10T06:12:32.809Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "docs/host-run-usage.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Over-budget preflight estimate refuses before spawn via shouldBlockDispatch/recordBudgetBlock with decision.kind=blocked (reasonCode hard_budget_exceeded)",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "A 5th concurrent run under default cap 4 refuses fail-closed with exit != 0, prints the live-run list, and writes a blocked row with reasonCode concurrency_cap_exceeded",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Stale slots (dead pid or old mtime) are reclaimed automatically so a crashed run never wedges the cap",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "LATTICE_HOST_RUN_MAX_CONCURRENT unset or invalid falls back to default 4; explicit higher value honored",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Two runs racing for the last slot cannot both acquire it (atomic slot creation, e.g. exclusive-create semantics asserted in smoke)",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Slot files cannot be used to inject content into ledger rows (slots carry pid/timestamps only)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "command": "npm --prefix packages/main run test:host-run-usage",
+          "result": "pass",
+          "note": "host-run-usage smoke asserts hard-budget block without spawn, concurrency refusal row reasonCode=concurrency_cap_exceeded with live-slot listing, stale-slot reclaim, atomic wx slot race, and default-4 cap resolution",
+          "headHash": "6d19487858d3d24f90abe2c1e07aff479218bc02",
+          "materialHash": "0a98cb6fe199c97dcc42dc799246e2ad33dbaae7369f99e5c6550b7e14beb39b",
+          "storyFilesHash": "90b2b88de179781f57ab65b21b531a191227f2dc99c381795f50519518c930f8",
+          "timestamp": "2026-07-10T19:49:22.689Z"
+        },
+        {
+          "intentRef": "CHK-007:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "command": "npm --prefix packages/main run test:host-run-usage",
+          "result": "pass",
+          "note": "host-run-usage smoke asserts hard-budget block without spawn, concurrency refusal row reasonCode=concurrency_cap_exceeded with live-slot listing, stale-slot reclaim, atomic wx slot race, and default-4 cap resolution",
+          "headHash": "6d19487858d3d24f90abe2c1e07aff479218bc02",
+          "materialHash": "0a98cb6fe199c97dcc42dc799246e2ad33dbaae7369f99e5c6550b7e14beb39b",
+          "storyFilesHash": "90b2b88de179781f57ab65b21b531a191227f2dc99c381795f50519518c930f8",
+          "timestamp": "2026-07-10T19:49:22.689Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "command": "npm --prefix packages/main run test:host-run-usage",
+          "result": "pass",
+          "note": "host-run-usage smoke asserts hard-budget block without spawn, concurrency refusal row reasonCode=concurrency_cap_exceeded with live-slot listing, stale-slot reclaim, atomic wx slot race, and default-4 cap resolution",
+          "headHash": "6d19487858d3d24f90abe2c1e07aff479218bc02",
+          "materialHash": "0a98cb6fe199c97dcc42dc799246e2ad33dbaae7369f99e5c6550b7e14beb39b",
+          "storyFilesHash": "90b2b88de179781f57ab65b21b531a191227f2dc99c381795f50519518c930f8",
+          "timestamp": "2026-07-10T19:49:22.689Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "command": "npm --prefix packages/main run test:host-run-usage",
+          "result": "pass",
+          "note": "host-run-usage smoke asserts hard-budget block without spawn, concurrency refusal row reasonCode=concurrency_cap_exceeded with live-slot listing, stale-slot reclaim, atomic wx slot race, and default-4 cap resolution",
+          "headHash": "6d19487858d3d24f90abe2c1e07aff479218bc02",
+          "materialHash": "0a98cb6fe199c97dcc42dc799246e2ad33dbaae7369f99e5c6550b7e14beb39b",
+          "storyFilesHash": "90b2b88de179781f57ab65b21b531a191227f2dc99c381795f50519518c930f8",
+          "timestamp": "2026-07-10T19:49:22.689Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "command": "npm --prefix packages/main run test:host-run-usage",
+          "result": "pass",
+          "note": "host-run-usage smoke asserts hard-budget block without spawn, concurrency refusal row reasonCode=concurrency_cap_exceeded with live-slot listing, stale-slot reclaim, atomic wx slot race, and default-4 cap resolution",
+          "headHash": "6d19487858d3d24f90abe2c1e07aff479218bc02",
+          "materialHash": "0a98cb6fe199c97dcc42dc799246e2ad33dbaae7369f99e5c6550b7e14beb39b",
+          "storyFilesHash": "90b2b88de179781f57ab65b21b531a191227f2dc99c381795f50519518c930f8",
+          "timestamp": "2026-07-10T19:49:22.689Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "command": "npm --prefix packages/main run test:host-run-usage",
+          "result": "pass",
+          "note": "host-run-usage smoke asserts hard-budget block without spawn, concurrency refusal row reasonCode=concurrency_cap_exceeded with live-slot listing, stale-slot reclaim, atomic wx slot race, and default-4 cap resolution",
+          "headHash": "6d19487858d3d24f90abe2c1e07aff479218bc02",
+          "materialHash": "0a98cb6fe199c97dcc42dc799246e2ad33dbaae7369f99e5c6550b7e14beb39b",
+          "storyFilesHash": "90b2b88de179781f57ab65b21b531a191227f2dc99c381795f50519518c930f8",
+          "timestamp": "2026-07-10T19:49:22.689Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-10T05:13:32.463Z",
+      "phase": "PLAN",
+      "itemId": "CHK-007",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "User follow-up T2 folded into this story per operator instruction on 2026-07-10 instead of opening a separate story.",
+      "addedTitle": "M1: Enforce a per-dispatch token budget cap and a host-run concurrency cap at the choke point",
+      "addedContext": "User follow-up T2 (2026-07-10, task_3868995d): burn evidence includes five parallel codex exec reviewers consuming ~16M input tokens in about one minute, so the choke-point command must support (a) a per-dispatch hard budget ceiling (reuse/extend the existing fail-closed LATTICE_HARD_BUDGET_TOKENS preflight guard, decision.kind=blocked row on refusal) and (b) a concurrency cap on simultaneous lattice-initiated host runs (fail-closed refusal or bounded queue with a visible diagnostic), both diagnostics-honest in the ledger."
     }
   ]
 }

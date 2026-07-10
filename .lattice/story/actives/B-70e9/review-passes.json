@@ -1,0 +1,2175 @@
+{
+  "passes": [
+    {
+      "id": "B-70e9:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Reviewed full git diff main...HEAD (stat + content) of all modified/new src files. Purely additive change (new host-run.ts, usage-sweep.ts, dispatch-usage.ts additions, host-run-usage-smoke.ts, usage-sweep-smoke.ts) plus small opt-in wiring into existing files. No concept word was deleted or replaced en masse: only removed lines are the in-place refactor of runClaudeRepair (unexported -> exported, gained env param), an extension not a deletion, verified via git diff grep of removed (-) lines across packages/main/src. No residual-reference grep needed since no concept was retired. No blocker.",
+      "createdAt": "2026-07-10T07:23:04.253Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-001",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli/alias-normalizer.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/registry.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/usage-ledger/adapters/openai.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "packages/main/src/tasks/usage-ledger-budget-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "fcbfde7cd0758532dde121a8a18b9c70457dbd1bae9cf25ff38711be248c4bba"
+    },
+    {
+      "id": "B-70e9:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "Docs lane (touchpoints .md): CHANGELOG.md and docs/host-run-usage.md verified word-for-word against the implementation (host-run.ts, handlers/host-run.ts, usage-sweep.ts, handlers/usage-sweep.ts, command-catalog.ts, package.json scripts). CLI flag names, default caps (concurrency 4, stale 6h), env var names, codex/claude/agy usage mapping, stderr usage-line format, JSON never-throws contract, and usage_sweep read-only/--out-root-refusal claims all check out exactly. One low finding (F-001, doc-promise-undelivered) filed: CHK-004 userSees claims reviewer_batch/escalation guidance now print host_run launch lines, but reviewer-batch.ts has zero diff and still only emits Agent(...); the checklist text was not corrected even though CHK-004 evidence notes acknowledge no raw-launch strings existed to rewrite. Non-blocking: the two .md files themselves make no false claim.",
+      "createdAt": "2026-07-10T07:25:06.354Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-003",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-70e9/plan.md",
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/handlers/reviewer-batch.ts",
+          "packages/main/src/handlers/usage-sweep.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-70e9/checklist.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/usage-sweep.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "18341c6c20f1912a0854fb6ffbc2f83da370e92d35167ab20765671ecbb041a8"
+    },
+    {
+      "id": "B-70e9:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed full diff main...HEAD (excl. .lattice/story metadata): all core+handler+doc changes for host_run choke point, usage_sweep, and CHK-003 coverage additions. Checked dead code/unused imports/as any/empty catches/I-O isolation/proof-metadata-dual-location; none found introduced by this diff. Cross-checked docs/host-run-usage.md claims against code (all accurate). Verified build clean; test:host-run-usage 25/25, test:usage-sweep 11/11, related smokes (cross-host-review, review-escalation, review-host-execution-readiness, docs-drift, command-catalog, usage-ledger group 12/12) all pass; test:process-fact-contract passes. One minor non-blocking observation (duplicated probe-prompt literal) noted but not filed as a finding since it only affects a diagnostic estimate.",
+      "createdAt": "2026-07-10T07:28:59.051Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-002",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/alias-normalizer.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/host-execution-readiness.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/usage-ledger/adapters/openai.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/usage-ledger-budget-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "43aa929bc51560301387c8609d5eb3ac6a7ea5b184a38efc8023fe0d008f4435"
+    },
+    {
+      "id": "B-70e9:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 42 must-priority verificationIntent rows across CHK-001..CHK-007 have valid non-failing verificationEvidence (0 gaps, 0 waivers). Independently re-verified: evidence_plan reports fresh=42/missing=0/rerun=0/refreshOnly=0 at head 672c8ca4c; re-ran both smokes clean (test:host-run-usage 25/25, test:usage-sweep 11/11); spot-checked all 4 CHK-004 docs_check commands directly, all reproduce pass. Confirmed F-002 resolution is genuine: diff a35e81a36..HEAD touches only checklist.json/findings.json/process-metrics.json as a pure hash re-stamp (materialHash/storyFilesHash/headHash/timestamp only), zero result/command field changes. F-001 remains dismissed (unrelated doc-wording finding).",
+      "createdAt": "2026-07-10T07:39:24.285Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-005",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-70e9/checklist.json",
+          ".lattice/story/actives/B-70e9/findings.json",
+          "docs/host-run-usage.md",
+          "packages/main/src/handlers/reviewer-batch.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-70e9/process-metrics.json",
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "83030696f1958320f91c1a56889918f3e7bf62f6fb7214db219d6469b10eb348"
+    },
+    {
+      "id": "B-70e9:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2 re-review after commit 8a8cd2407. Verified F-003/F-004 fixes genuinely close the gaps: (1) host-run.ts diff confirms acquireHostRunSlot replaces old acquireSlot (which always minted a unique never-colliding filename, so cap enforcement was pure scan-then-acquire TOCTOU) with atomic fixed-index slot-0..slot-(cap-1) wx-create-IS-the-admission; smoke CHK-007b adversarial (F-003) cap=1 double-admission and stale-reclaim-race checks would fail against the old acquireSlot (which never refuses concurrent unique acquires) and pass against the fix. (2) dispatch-usage.ts diff confirms buildBlockedBudgetRecord gained a providerName param (default anthropic, byte-compat for claude); host-run.ts threads hostProviderName(codex=openai/claude=anthropic/agy=antigravity) into both recordBudgetBlock and recordConcurrencyBlock; smoke CHK-007a (F-004) asserts codex blocked row provider.name=openai and CHK-007b asserts codex/agy concurrency-block rows carry openai/antigravity, which would fail against the old hard-coded anthropic-only builder. Both new/changed smoke checks are genuine regression tests, not tautologies. Re-ran both npm smokes myself at current HEAD 92a672654: test:host-run-usage 27/27 pass, test:usage-sweep 11/11 pass. evidence_plan (read-only) confirms fresh=42, missing=0, rerun=0, refresh-only=0 across all 7 checklist items post verification_evidence_refresh_stale. F-001 dismissal reasoning holds. F-002/F-003/F-004 all resolved with strong evidence. No blocking gaps found.",
+      "createdAt": "2026-07-10T08:11:03.669Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-007",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/host-run-usage.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2e3f97d43925eb6f3f4776f8423d1d696b20d967184d98d098f210ddc360f82c"
+    },
+    {
+      "id": "B-70e9:RP-006",
+      "agent": "lattice-review-docs",
+      "note": "Round 2 re-review after fix commit 8a8cd2407. Compared the rewritten Host-run concurrency + provider-honest paragraph in docs/host-run-usage.md against packages/main/src/core/host-run.ts (acquireHostRunSlot atomic per-index wx admission, isSlotFileStale fresh-probe reclaim, scanLiveSlots reporting-only role, resolveMaxConcurrent/resolveSlotStaleMs defaults 4/6h) and dispatch-usage.ts (hostProviderName openai/anthropic/antigravity mapping threaded through buildBlockedBudgetRecord/recordBudgetBlock/recordConcurrencyBlock). Slot naming, wx-is-admission semantics, lost-reclaim-race behavior, cap raise/lower drain semantics, and provider-honest blocked rows all match code exactly. Verified live: test:host-run-usage 27/27 pass, test:usage-sweep 11/11 pass. CHANGELOG.md B-70e9 entry is a stable high-level summary unaffected by the internal admission-algorithm change; no drift. Round-1 F-001 already dismissed with written reason, out of scope here. No doc-code-drift or doc-promise-undelivered findings.",
+      "createdAt": "2026-07-10T08:11:21.319Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-008",
+      "readManifest": {
+        "filesReadFully": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5696e6ce5b079dbb5b429807a54a638faa7657d5621064c6c1a21e81dccaaf36"
+    },
+    {
+      "id": "B-70e9:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 re-review of fix commit 8a8cd2407 (F-003/F-004) plus full main...HEAD diff. Genuine concept replacement identified: acquireSlot (private, unique-name <pid>-<monotonic> TOCTOU-vulnerable slot acquisition, plus module-level slotSequence counter) deleted from host-run.ts, replaced by acquireHostRunSlot (exported, atomic fixed-index slot-0..slot-(cap-1) admission). Repo-wide grep for acquireSlot, slotSequence, and old randomUUID/pid-monotonic/pid-marker slot-naming idioms returns zero hits outside git history. All legacy callers of recordBudgetBlock/recordConcurrencyBlock/buildBlockedBudgetRecord (usage-ledger-default-on-smoke.ts, usage-ledger-budget-smoke.ts, lattice-dispatch.ts) retain original call arity and rely on the new providerName parameter's anthropic default, so the F-004 provider-parametric change is additive not deletion/replacement -- no residue risk. docs/host-run-usage.md was cleanly updated in the fix commit: old 'one file per live run' / scan-then-acquire wording fully replaced by fixed-slot atomic-admission + provider-honest description; no other doc/README references the deleted mechanism. Only remaining textual trace of the old design is the frozen PLAN.md artifact (pre-fix design snapshot, historical by convention per prior F-001 dismissal precedent, not a live user-facing promise) and this commit's own message (expected).",
+      "createdAt": "2026-07-10T08:11:23.241Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-006",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-70e9/plan.md",
+          "CHANGELOG.md",
+          "packages/main/src/core/lattice-dispatch.ts",
+          "packages/main/src/tasks/usage-ledger-budget-smoke.ts",
+          "packages/main/src/tasks/usage-ledger-default-on-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c350b38030802a85152c13327f3837f6e62ab889c9133f6d2d1c3cd62c938383"
+    },
+    {
+      "id": "B-70e9:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Re-review round 2 (post fix commit 8a8cd2407) scoped to code-quality lane. Scrutinized F-003 atomic fixed-slot admission (TOCTOU closed, fresh-probe reclaim, lost-race fallthrough correct, cap raise/lower comments accurate) and F-004 provider-parametric blocked path (byte-compat default preserved for claude seam). No dead code, no as-any, no empty catches, no console.log; tsc clean. Independently rebuilt and ran smokes myself (not trusting commit message): test:host-run-usage 27/27 (both new F-003 real-contention checks + F-004 attribution checks verified), usage-ledger-dispatch-smoke 40/40, usage-ledger-budget-smoke 41/41, usage-ledger-default-on-smoke 30/30, usage-ledger-codex-gemini-smoke 53/53, usage-ledger-adapter-smoke 50/50, usage-ledger-diagnostics-smoke 34/34, usage-ledger-prototype-pollution-smoke 32/32, usage-sweep 11/11, cross-host-review 24/24, review-escalation 19/19, review-escalation-freshness-root pass -- all match commit-message counts exactly. Doc (docs/host-run-usage.md) accurately reflects the new admission/reclaim/provider-attribution semantics, no doc-promise-undelivered gap. No Proof Metadata Review Coverage concern (diff does not touch job.metadata/run.metadata proof-key semantics). No quality-lane blockers; F-003/F-004 genuinely resolved.",
+      "createdAt": "2026-07-10T08:14:55.355Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-009",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-70e9/checklist.json",
+          ".lattice/story/actives/B-70e9/findings.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "15deda7811934be5d20320784b5676825a8f45cf1907dff368bf5fc1e0d72e65"
+    },
+    {
+      "id": "B-70e9:RP-009",
+      "agent": "lattice-review-docs",
+      "note": "Pure-docs diff (docs/host-run-usage.md, 199 lines new; symbol-extraction step 1 yielded 0 exported-symbol diff hits inside the .md itself, so fallback-1 full-doc scan applied against the code diff of core/host-run.ts + handlers/host-run.ts). Verified against commit 4f5e980f1 exactly: (1) passthrough routing table -- text mode routes host stdout->process.stdout / stderr->process.stderr with handler returning empty string (no double-print), json mode routes ALL host output to process.stderr keeping process.stdout clean for the single JSON result whose stdout field is the bounded parse tail not the transcript -- matches handlers/host-run.ts lines 180-246 and smoke F-006 double-print check; (2) 1 MiB bounded line retention with honest unavailable-on-truncation -- HOST_RUN_RETAINED_LINE_CAP=1024*1024 in core/host-run.ts, UsageLineScanner drops (not retains) an over-cap line and sets retentionTruncated, empty retention flows through scanCodexTurnCompletedUsage->null->recordDispatchUnavailableFinal, confirmed end-to-end passing in the oversized-usage-line smoke; (3) store-backed phase resolution -- resolvePhase in core/host-run.ts consults deps.resolveStory ONLY on the storyId+no-explicit-phase path, an explicit --phase short-circuits before any store read (asserted resolverCalls===0 in smoke F-005), handler builds resolveStory from ctx.store.readStory (configured store, not a hardcoded path). CHANGELOG.md B-70e9 entry and command-catalog.ts host_run/usage_sweep schemas match the doc examples exactly. npm run test:host-run-usage rerun clean at HEAD: 33/33 passed. No promised-but-undelivered gaps found. No blocking findings.",
+      "createdAt": "2026-07-10T09:03:24.909Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-012",
+      "readManifest": {
+        "filesReadFully": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ed10f43a7cd5617a78e53639993d620922851ecb4f979e6626b09e4c73d09bf6"
+    },
+    {
+      "id": "B-70e9:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 3 re-review post fix commit 4f5e980f1. F-005/F-006 fixes verified genuine, not smoke-test theater: read source directly. resolvePhase (host-run.ts) now takes an injected resolveStory seam with explicit --phase used AS-IS and NO store read; handler wires ctx.store.readStory (honors configured storyDir, fixes the exact regression F-005 described). defaultHostRunRunner switched from spawnSync to async child_process.spawn with live onChunk passthrough and a bounded UsageLineScanner (1MiB cap, honest truncated flag, never fabricates), matching F-006 contract. The 6 new smoke checks (3x F-005: explicit-phase-no-store-read, unknown-story-not-refused-when-phase-set, null-phase-falls-back-to-adhoc; 3x F-006: live-streaming-order via injectable sink asserting >=80ms gap before exit, exactly-once passthrough with buffered runner, oversized-line bounded-drop then unavailable never fabricated) bind 1:1 to the failure modes named in the F-005/F-006 finding text. Ran both npm smokes myself: test:host-run-usage = 33/33 pass, test:usage-sweep = 11/11 pass, matching expected counts exactly. Ran evidence_plan (not validate, owner-gated): summary missing 0, rerun 0, refreshOnly 0, fresh 42; buckets.fresh has exactly 42 entries; readinessReport.headHash 0138ea012 matches current HEAD. Independently re-derived checklist coverage: 7 items CHK-001 through CHK-007, 42 total must-priority intents, 0 gaps, 0 waivers, matches evidence_plan exactly. F-001 dismissal reviewed (userSees promise mismatch on reviewer_batch and review-escalation raw-CLI rewrite that was never true pre-story); correctly out of scope for test-coverage review since it is a product or doc-promise concern, not an evidence-coverage gap. No blocking coverage gaps found.",
+      "createdAt": "2026-07-10T09:04:02.524Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-013",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-70e9/checklist.json",
+          ".lattice/story/actives/B-70e9/findings.json",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-70e9/index.json",
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e37abdd98301472c5bc88fdbfa5157e5fc99591423e12590abf809580572adee"
+    },
+    {
+      "id": "B-70e9:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "Round 4 convergence re-review post-fix b8908661f. No concept deletion/replacement this round: the commit is purely additive (new passthroughError field on HostRunSpawnResult/HostRunResult/handler JSON, new deliver/safeDeliver guards, new F-008 smoke check, new doc paragraph) plus one corrected JSDoc sentence (F-007/F-009: stale piped-spawnSync claim -> accurate async streaming defaultHostRunRunner description). Verified zero residue: grep spawnSync in handlers/host-run.ts = 0 hits; repo-wide spawnSync grep shows only unrelated files (init-assets.ts, other tasks/providers/smokes, other stories historical findings/evidence, and CLAUDE.md:1061 which describes the unrelated validate-lint.ts defaultRunner, not host-run, and is untouched by this story). No blocker.",
+      "createdAt": "2026-07-10T09:18:52.105Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-015",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/handlers/host-run.ts"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "CLAUDE.md",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2828d604e6ed1d0e5aeab447348dafe5c97a4c4e9fff9c55b9e622b1547eee22"
+    },
+    {
+      "id": "B-70e9:RP-012",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 4, convergence): verified coverage between verificationIntent and verificationEvidence, no blocker. F-008 fix (commit b8908661f) genuinely binds the failure mode read from the smoke diff -- new check exercises (a) defaultHostRunRunner with a real child process + throwing onChunk (delivery stops at first failure, no retry, exit code propagates, usage scanner keeps consuming, passthroughError surfaced) and (b) end-to-end runHostRun via the core onChunk wrapper (ledger final row still records, cap=1 slot releases and is re-admittable, passthroughError on result), both explicitly targeting the pre-fix crash modes (uncaught EventEmitter exception, leaked slot, missing ledger final) named in the finding. F-007/F-009 JSDoc corrected. evidence_plan at current HEAD 6a07cf9ca reports fresh=42, missing=0, rerun=0, refreshOnly=0. Independently re-ran both npm smokes at this HEAD: test:host-run-usage = 34/34 pass (includes the new F-008 check by name); test:usage-sweep = 11/11 pass. All findings F-001..F-009 accounted for: F-001 dismissed, F-002..F-009 resolved with strong evidence. No new coverage gaps found this round.",
+      "createdAt": "2026-07-10T09:19:10.621Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-016",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-70e9/checklist.json",
+          ".lattice/story/actives/B-70e9/findings.json",
+          ".lattice/story/actives/B-70e9/index.json",
+          "docs/host-run-usage.md",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "33a006388ef77b58a7601b71d5770cadcad12974bf9214e1dbeca6674506c32c"
+    },
+    {
+      "id": "B-70e9:RP-013",
+      "agent": "lattice-review-docs",
+      "note": "Round-4 convergence re-review scoped to commit b8908661f: docs/host-run-usage.md:60-63 new sentence verified sentence-by-sentence against packages/main/src/core/host-run.ts + packages/main/src/handlers/host-run.ts. Field name passthroughError matches exactly (HostRunSpawnResult.passthroughError, HostRunResult.passthroughError, JSON payload field at handlers/host-run.ts:263). Warning text host_run warning: matches literal prefix at handlers/host-run.ts:240 (host_run warning: live output passthrough failed (...)). Degradation semantics confirmed against code + smoke test (host-run-usage-smoke.ts F-008 check, 34/34): first sink failure flips passthroughBroken/passthroughFailure (no per-chunk retry), chunks keep reaching the usage scanner, run completes normally, ledger final row still records, concurrency slot still releases. Step 1 symbol extraction on the fix commit diff yielded only local const identifiers (no new exported class/function/interface/type/enum -- passthroughError is a property addition to existing interfaces, not a new top-level declaration), so Fallback 1 full-paragraph comparison was used for the doc paragraph itself; 1 doc paragraph (docs/host-run-usage.md Passthrough routing section, the 4-line addition) compared against 2 source files. CHANGELOG.md was not touched by b8908661f and this is consistent with the story convention: only the initial feature commit (c094e2313) added a CHANGELOG bullet; none of the subsequent finding-fix commits (F-001..F-009) added their own entries, so no drift. Internal helper names (safeWriteStderr, passthroughWarning, safeDeliver) correctly have no doc references since they are not part of the public interface. No blockers.",
+      "createdAt": "2026-07-10T09:19:19.964Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-017",
+      "readManifest": {
+        "filesReadFully": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "14fcba4125916e2cf39e6d69aeb329393f982bcb774092402628b53868eaa2d0"
+    },
+    {
+      "id": "B-70e9:RP-014",
+      "agent": "lattice-review-quality",
+      "note": "Round 4 convergence re-review of F-008 fix (commit b8908661f). Scrutinized both delivery sites: (1) defaultHostRunRunner data listeners (core/host-run.ts:747-770) deliver() wraps plan.onChunk in try/catch, passthroughBroken flips on first throw (no per-chunk retry), scanner.push still runs unconditionally so usage parsing continues, finish() closure captures passthroughError for every exit path (spawn-error, timeout+SIGKILL, normal close). (2) runHostRun invokeRunner (core/host-run.ts:890-929) safeDeliver guards both the streaming onChunk path and the non-streaming buffered-flush fallback; merges spawn.passthroughError from a self-guarding default runner into the same passthroughFailure field. All 4 HostRunResult return sites (967 ledger-OFF, 1010 budget-blocked, 1056 concurrency-blocked, 1083 ledger-ON success) carry passthroughError with correct semantics (null on the two pre-spawn-refusal paths, merged failure on the two spawn paths). Handler (handlers/host-run.ts:207-214) passthrough sink normalizes non-Error throwables and RETHROWS to the core guard - no swallowing that hides passthroughError; handler's own diagnostic writes use a separate best-effort safeWriteStderr. JSON payload and text-mode stderr warning both wire result.passthroughError through. HEAD moved from bound review-run head 6a07cf9ca to current only via another reviewer lane's story-metadata commits; git diff 6a07cf9ca..HEAD --stat shows zero changes to reviewed source files. Ran build myself (tsc clean) and both smokes myself: test:host-run-usage 34/34 (incl. new F-008 check) and test:usage-sweep 11/11. F-007/F-009 stale JSDoc corrected and consistent with the new async runner description; docs/host-run-usage.md addition matches shipped behavior (no doc-promise-undelivered gap). No blocking issues found.",
+      "createdAt": "2026-07-10T09:20:04.771Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-014",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/alias-normalizer.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/host-execution-readiness.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/usage-ledger/adapters/openai.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/usage-ledger-budget-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bee64e21b15bd7d2e2768763c3b8ec8bde5ce8bc583f211592e10806359992e5"
+    },
+    {
+      "id": "B-70e9:RP-015",
+      "agent": "lattice-review-concept",
+      "note": "Round 5 (post F-010 fix, commit e3ac9b651): concept deletion = lexical resolveOutPathWithinRoot replaced by hardened openReportFileExclusive in core/usage-sweep.ts. Repo-wide grep (unrestricted, excluding node_modules/dist/.git) for resolveOutPathWithinRoot returns exactly one hit: .lattice/story/actives/B-70e9/findings.json resolvedReason field, a historical audit-trail record of the fix itself, not a code/doc/comment residue. New name openReportFileExclusive is used consistently across core/usage-sweep.ts (definition), handlers/usage-sweep.ts (import+call), and tasks/usage-sweep-smoke.ts (import+5 new checks). No blocker.",
+      "createdAt": "2026-07-10T09:41:02.137Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-018",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "02c78947995932eaeba7fff4278239cf79bfc63470b6b1b24ca5af37fa6365d2"
+    },
+    {
+      "id": "B-70e9:RP-016",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 5 convergence re-review after fix commit e3ac9b651 (F-010). Verified the 5 new usage-sweep-smoke checks (11->16) directly bind F-010's failure modes: absolute --out refused outright (check 12, nothing written), existing-file --out refused byte-identical (check 13, proves no overwrite of e.g. package.json), symlinked-ancestor --out refused with outside-dir emptiness assertion (check 14, proves no escape), happy nested create + second-run refusal (check 15, proves create-only both directions), and .. traversal still refused (check 16, regression guard). Read the e3ac9b651 diff of core/usage-sweep.ts: openReportFileExclusive replaces the old lexical-only resolveOutPathWithinRoot+writeFileSync with relative-only enforcement, per-ancestor lstat symlink rejection, realpath containment, and O_EXCL wx exclusive-create (EEXIST also fires on symlink targets); each new check fails against the pre-fix code (no absolute rejection, no existing-file rejection, no symlink rejection), so they are genuine regression proofs. Re-ran both npm smokes fresh at current HEAD 38eec47ed: test:usage-sweep 16/16 pass, test:host-run-usage 34/34 pass. evidence_plan at current HEAD reports missing=0 rerun=0 refreshOnly=0 fresh=42, matching expectation exactly. All findings F-001..F-010 are dismissed/resolved with evidenceState=verified. No coverage gaps found; test coverage review passed.",
+      "createdAt": "2026-07-10T09:41:51.196Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-020",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-70e9/checklist.json",
+          ".lattice/story/actives/B-70e9/findings.json",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-70e9/index.json",
+          ".lattice/story/actives/B-70e9/review-runs.json",
+          "docs/host-run-usage.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0cc9edcd71a696a1df0ab946212fb2c5d010b611aa8ec08c5f0b87dbefbd6014"
+    },
+    {
+      "id": "B-70e9:RP-017",
+      "agent": "lattice-review-docs",
+      "note": "Round 5 convergence re-review of fix commit e3ac9b651 (docs/host-run-usage.md usage_sweep --out section). Fallback 1 applied (docs-only diff scope for this fix). Compared the 4 doc bullets (lines 175-207) against core/usage-sweep.ts openReportFileExclusive (630-762) and handlers/usage-sweep.ts (153-189). Verified: relative-only + outside-root refusal matches isAbsolute/escapesBase checks; create-only never-overwrite matches wx exclusive open + EEXIST -> already-exists; symlinked-ancestor refusal + realpath containment matches the lstat loop + realpathSync check; directories-created-only-after-validation matches mkdirSync placement immediately before the wx open. Cross-checked command-catalog.ts out schema wording (consistent, no contradiction). Re-ran usage-sweep-smoke.ts: 16/16 passed, empirically confirming absolute-refused, traversal-refused, existing-target-refused, symlinked-ancestor-refused, and nested relative create behavior. No doc-code drift; closing self-check found no promised-but-undelivered gaps. 0 findings.",
+      "createdAt": "2026-07-10T09:41:55.006Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-021",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/usage-sweep.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b9b8a556a0fa8f9f74760aa502a0ec2429661d793c60ab92ce7fa3536dc9c426"
+    },
+    {
+      "id": "B-70e9:RP-018",
+      "agent": "lattice-review-quality",
+      "note": "Round-5 re-review of F-010 fix (commit e3ac9b651) scoped to the 4 changed files: core/usage-sweep.ts, handlers/usage-sweep.ts, tasks/usage-sweep-smoke.ts, docs/host-run-usage.md. Verified: (1) validation ordering in openReportFileExclusive is correct and matches the documented 5-step contract - empty/absolute checked first, lexical inside-root check, per-existing-ancestor lstat walk rejecting symlinks/non-dirs, realpath containment of deepest-existing-ancestor vs realpath(root), mkdir only after all validation, O_EXCL wx open last. (2) fd lifecycle in the handler is leak-free - open (core) then try writeFileSync(fd,...) then finally closeSync(fd), single close, no leak on write failure, no double-close path. (3) error typing - new UsageSweepOutError with a closed union of typed codes (empty/absolute/outside-root/symlink-ancestor/ancestor-not-dir/already-exists), thrown at every refusal site; no empty catches introduced by this diff (3 pre-existing empty catches at lines 166/177/215 are unchanged, annotated, deliberate skip-on-unreadable-fs). (4) dead code - old resolveOutPathWithinRoot symbol fully removed with zero dangling references anywhere in packages/main/src; every newly imported fs symbol (lstatSync, mkdirSync, openSync, realpathSync, closeSync, symlinkSync, dirname, sep, Stats) is used. Independently re-ran beyond the smoke suite: symlinked-grandparent-with-missing-trailing-segments (caught), pre-existing-file race (caught, content byte-untouched), symlinked project root itself (correctly resolves inside realpath), one-level parent-escape via sub/../.. (caught), existing-directory-as-target (caught); confirmed the residual same-process TOCTOU window between the ancestor-walk and the final mkdir/open bounds worst case to writing a new file into an attacker-redirected dir (open is still create-only/wx), not overwriting an existing victim file, consistent with the finding's never-overwrite requirement. Doc closing self-check: every claim added to docs/host-run-usage.md (relative-only, create-only wx, symlinked-ancestor refusal, realpath containment, create-after-validation ordering) is verified true in code, no doc-promise-undelivered gap. Self-ran build (tsc clean), npm run test:usage-sweep (16/16 pass, matches commit message), npm run test:host-run-usage (34/34 pass, matches commit message). No blocking issues found this round.",
+      "createdAt": "2026-07-10T09:45:59.038Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-019",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/registry.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5d316ab20ef39ffd70cbc14232f7c1c82cd7523d28f4fef4b5b4b7ebd8c656af"
+    },
+    {
+      "id": "B-70e9:RP-019",
+      "agent": "lattice-review-concept",
+      "note": "Round 6 (RR-022) — reviewed fix commit e27341a4ff for F-011 (optional HostRunSpawnPlan.cwd / HostRunArgs.cwd promoted to required, threaded through invokeRunner + spawn call sites; handler binds ctx.root; +2 checks in host-run-usage-smoke.ts; docs/host-run-usage.md note). Type-tightening (optional->required), no concept word deletion or mass rename. Grepped repo for leftover cwd?: optional pattern across the 3 changed files: zero hits. Confirmed only core/host-run.ts, handlers/host-run.ts, tasks/host-run-usage-smoke.ts reference HostRunSpawnPlan/HostRunArgs repo-wide; no other call sites assume an optional cwd. No blocker.",
+      "createdAt": "2026-07-10T10:02:10.310Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-022",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "74b62f7247c44755488de9e99ebc3333fb3f68b9f1542cd179f260577dbb7f5f"
+    },
+    {
+      "id": "B-70e9:RP-020",
+      "agent": "lattice-review-docs",
+      "note": "Round 6 convergence check on fix commit e27341a4ff (one new paragraph in docs/host-run-usage.md host_run section). Narrowed to the single new paragraph per round-6 scope. Compared it against core/host-run.ts (HostRunArgs.cwd required, empty cwd refused pre-spawn before any ledger row; HostRunSpawnPlan.cwd required, threaded into every spawn path) and handlers/host-run.ts (cwd: ctx.root bound identically to ledger root/projectRootHash). Traced ctx.root to HandlerContext.root populated from --root via resolveRootForCommand in cli-engine.ts, confirming the docs claim is accurate. Ran npm run test:host-run-usage fresh: 36/36 pass including the two new F-011 checks proving plan.cwd equals the injected root while the smoke process itself is chdir-ed elsewhere, and a real spawned child prints process.cwd() equal to the injected root. CHANGELOG.md B-70e9 entry is a story-level summary with no contradicting claim - no drift. Cross-checked finding_list: F-011 (codex-host-B, severity high) describes exactly this bug and is resolved by e27341a4ff, so the paragraph documents delivered code, not an undelivered promise. No inconsistency found.",
+      "createdAt": "2026-07-10T10:03:18.276Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-024",
+      "readManifest": {
+        "filesReadFully": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/host-run.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4b1a493dcf2ab0badbf4a53b25f2704a797b05584edef804dd2c88fa7bcd396d"
+    },
+    {
+      "id": "B-70e9:RP-021",
+      "agent": "lattice-review-quality",
+      "note": "F-011 fix re-review (round 6, commit e27341a4ff), scope=core/host-run.ts+handlers/host-run.ts+tasks/host-run-usage-smoke.ts+docs/host-run-usage.md. Verified: (1) cwd refusal (host-run.ts:894-896) fires before resolvePhase/assertReviewRunIdBinding (pure, no I/O) and before the first ledger write recordDispatchPreflight (line 1001) -- honest pre-spawn throw, not a recorded blocked row, matching the header contract; smoke asserts no ledger dir exists after refusal. (2) cwd propagation is single-source: handler binds cwd:ctx.root literally alongside root:ctx.root (same variable, cannot diverge); core threads args.cwd into the one HostRunSpawnPlan built inside invokeRunner (both ledger ON/OFF paths); defaultHostRunRunner passes plan.cwd directly into child_process.spawn; no other production caller of runHostRun/defaultHostRunRunner exists; no process.cwd() calls remain in either runtime file. (3) resolveStoryCommandWorkspace non-use is justified: confirmed in handlers/context.ts it requires storyId (throws for adhoc host_run) and itself calls process.cwd() internally -- exactly what this fix eliminates. (4) new smoke realpath handling is correct on both sides (process.cwd() is already OS-canonicalized after chdir, verified empirically; both comparisons realpath the plan/child side) so macOS /tmp-symlink cannot produce a false pass/fail. (5) no dead code: realpathSync import used, tsc build clean, no as any in any of the 4 changed files. Reran build (clean), test:host-run-usage (36/36 incl. both new F-011 checks), test:usage-sweep (16/16, unaffected). No blockers.",
+      "createdAt": "2026-07-10T10:03:58.831Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-023",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "2496e62c72f57acb276f9650a4ae90db25a3bacd939753ea03ebd4bb49883a19"
+    },
+    {
+      "id": "B-70e9:RP-022",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 6 convergence): 42/42 must-priority intents across 7 checklist items covered by valid non-fail evidence; evidence_plan confirms fresh=42 missing=0 rerun=0 refreshOnly=0. All findings F-001..F-011 dismissed/resolved. F-011 fix (e27341a4ff) verified: 2 new host-run-usage-smoke.ts checks bind the exact failure mode via chdir'd fake-runner plan.cwd assertion plus a real-child process.cwd() failing-before/passing-after check. Re-ran npm smokes independently: test:host-run-usage 36/36 pass, test:usage-sweep 16/16 pass. No blocking coverage gap.",
+      "createdAt": "2026-07-10T10:04:58.985Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-025",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-70e9/checklist.json",
+          ".lattice/story/actives/B-70e9/findings.json",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "09764fc362fb914c6a03ec7051f60bb3b9adcf8d8c2f1738db980b34f1c3e4ea"
+    },
+    {
+      "id": "B-70e9:RP-023",
+      "agent": "lattice-review-concept",
+      "note": "Round 7 (post bc966e3247, F-012 fix): diff is writer.ts cross-process mkdir-lock addition (new exports resolveLedgerLockPath/USAGE_LEDGER_LOCK_SUFFIX), 3 new smoke checks in host-run-usage-smoke.ts, and one new doc sentence in docs/host-run-usage.md. Verified against the full commit diff: no concept word was deleted or mass-replaced -- the only removed lines are the pre-existing read-hash/build-record/validate/append statements re-indented unchanged under a new try/finally, plus two import lines widened to add appendUsageRecord/resolveLedgerLockPath/UsageLedgerRecordInput (no symbol dropped). AppendOptions.env and the utimesSync/rmSync smoke imports were already present before this commit, not newly invented. New exports resolveLedgerLockPath/USAGE_LEDGER_LOCK_SUFFIX have consistent, complete usage (grep: only writer.ts definition + host-run-usage-smoke.ts consumers, no stale/dangling references). No concept-deletion/replacement in this round -> nothing to residue-check. Scope: writer.ts touch matches recorded scope-ack (paths=[writer.ts], headHash=bc966e3247b6, reason=F-012), no other explicitly-excluded usage-ledger file touched.",
+      "createdAt": "2026-07-10T10:25:11.074Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-027",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/usage-ledger/writer.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "78eb71a9645d05f2f7bda8c7581350cff21f7d09b28e0cd97e6f6427bc362811"
+    },
+    {
+      "id": "B-70e9:RP-024",
+      "agent": "lattice-review-docs",
+      "note": "Round 7, narrow scope: verified the single sentence added by bc966e3247 to docs/host-run-usage.md concurrency section (lock at writer choke point / atomic llm-usage.jsonl.lock dir / bounded wait+stale reclaim / skip-not-corrupt under-count) against writer.ts (acquireLedgerLock, USAGE_LEDGER_LOCK_SUFFIX, LATTICE_USAGE_LEDGER_LOCK_WAIT_MS, LATTICE_USAGE_LEDGER_LOCK_STALE_MS, throw-on-exhaustion) and dispatch-usage.ts (every appendUsageRecord call wrapped try/catch, fail-open). 1 doc paragraph vs 1 commit diff. CHANGELOG.md untouched by bc966e3247 and needs no update (its one B-70e9 entry is a story-level summary from an earlier commit). No drift found.",
+      "createdAt": "2026-07-10T10:25:40.468Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-029",
+      "readManifest": {
+        "filesReadFully": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/core/usage-ledger/writer.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "b42328654dac40ee6a7c44ff65f1770b9417980a960ec3ae002f76945093db01"
+    },
+    {
+      "id": "B-70e9:RP-025",
+      "agent": "lattice-review-quality",
+      "note": "Round-7 re-review of F-012 fix (commit bc966e3247, writer.ts + host-run-usage-smoke.ts + docs/host-run-usage.md). Verified: cross-process mkdirSync lock correctly wraps ONLY the predecessor-dependent read-last-hash->finalize->validate->append section; preCheck stays OUTSIDE the lock as documented, finalCheck is correctly INSIDE since it depends on the locked predecessor read. finally{releaseLedgerLock} covers every exit path incl. readLastRecordHash throwing on a corrupt predecessor. EEXIST reclaim only fires past the stale threshold; reclaim races are harmless (lock dir never written into, so a losing rmdirSync just hits ENOENT and retries; no double-acquire in the same loop pass). Atomics.wait sync-sleep has a bounded busy-wait fallback. Disabled fast path returns before any lock code (confirmed lock-free). writer.ts:323 is the sole appendFileSync against the ledger path outside tests; every appendUsageRecord call site in dispatch-usage.ts is try/catch-wrapped (fail-open holds). New exports resolveLedgerLockPath/USAGE_LEDGER_LOCK_SUFFIX are used by the smoke suite; no as-any casts, no dead code, no empty catches swallowing real errors. Docs addition matches implementation. Build (tsc) clean. test:host-run-usage 39/39 (incl. 3 new F-012 checks: 6x5 real concurrent-process parallel writes zero-skip/no-lost-writes/intact chain, stale-lock reclaim, bounded-wait skip-not-corrupt with foreign-lock-not-stolen assertion). All 9 usage-ledger-*-smoke tasks green plus test:usage-sweep 16/16. No blocking findings.",
+      "createdAt": "2026-07-10T10:27:02.001Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-030",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/core/usage-ledger/writer.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/alias-normalizer.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/host-execution-readiness.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/usage-ledger/adapters/openai.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/usage-ledger-budget-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1e9d26f36d5a22127bb1568113bf8bfeb0279fad9d7b30cb22be231456d493d9"
+    },
+    {
+      "id": "B-70e9:RP-026",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 7 re-review after fix commit bc966e3247 (F-012). Read story_get/checklist_get/validate per protocol: validate allPass=true (1 pass, 0 fail). evidence_plan (NOT validate) confirms fresh=42, missing=0, rerun=0, refresh-only=0 across all 7 checklist items. All 12 findings F-001..F-012 dismissed/resolved with strong evidence. Independently verified F-012 fix genuinely binds by reading the bc966e3247 diff: writer.ts adds a cross-process mkdir-based mutex around read-last-hash->append with bounded wait, stale-lock reclaim, and skip-not-corrupt throw on exhaustion. host-run-usage-smoke.ts adds 3 real checks: (1) 6 GENUINE OS child processes via node:child_process spawn (not fakes) each appending 5 real records to a shared ledger, asserting zero non-zero exits, calling the pre-existing independent verifyLedgerChain to recompute every hash link, asserting no lost writes and lock release; (2) stale-lock reclaim with a real aged lock dir; (3) bounded-wait skip proving the append throws skip-not-corrupt, foreign lock not stolen, chain stays valid. verifyLedgerChain predates this fix so is not self-serving. Re-ran both suites myself: test:host-run-usage 39/39 pass (all 3 new F-012 checks present by name) and test:usage-sweep 16/16 pass. Coverage: 7 checklist items, 42 must-priority intents, all 42 fresh non-fail evidence, 0 gaps, 0 waivers. No blocking test-coverage gap found this round; test coverage review passed.",
+      "createdAt": "2026-07-10T10:34:42.544Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-031",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-70e9/checklist.json",
+          ".lattice/story/actives/B-70e9/index.json",
+          "packages/main/src/core/usage-ledger/writer.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b19ee23d769fd16632c44015318de5f2fe531eb6741ab89ff60415a4ece900b5"
+    },
+    {
+      "id": "B-70e9:RP-027",
+      "agent": "lattice-review-concept",
+      "note": "Round 8, commit a967792ab4 (F-013 fix). Reviewed the commit diff (docs/host-run-usage.md, packages/main/src/core/host-run.ts, packages/main/src/tasks/host-run-usage-smoke.ts): purely additive — new exported reason constant HOST_RUN_RETENTION_TRUNCATED_REASON, a new boolean parameter threaded into recordFinalForHost, and 2 new smoke checks. Removed lines are only doc-comment rewording (same concept, clarified prose) and the old recordFinalForHost call-site replaced by the new-arity call to the SAME function (not a deleted/renamed concept). No concept word was deleted or replaced en masse this round, so no repo-wide grep sweep was triggered. Sanity-checked recordFinalForHost (single def, single call site) and HOST_RUN_RETENTION_TRUNCATED_REASON (all usages consistent, no stray references) — no residue. No blocker.",
+      "createdAt": "2026-07-10T10:49:52.974Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-032",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "cee72bbe4c277ecbd314323950731d2c7e45a5025e2190ebfd5237b663f18989"
+    },
+    {
+      "id": "B-70e9:RP-028",
+      "agent": "lattice-review-docs",
+      "note": "Round 8 re-review after fix a967792ab4 (F-013). Symbol set (Step 1) from git diff main...HEAD: HOST_RUN_RETENTION_TRUNCATED_REASON constant plus recordFinalForHost/runHostRun retentionTruncated threading (host-run.ts). Step 2/3: verified the single doc paragraph in docs/host-run-usage.md (bounded retention section) against packages/main/src/core/host-run.ts (export HOST_RUN_RETENTION_TRUNCATED_REASON, recordFinalForHost threading spawn.retentionTruncated, codex/claude branch records provider-specific unavailable final with reason usage_line_retention_truncated, no stdout parse) and usage-ledger/dispatch-usage.ts recordDispatchUnavailableFinal (inputTokens/outputTokens/cacheReadInputTokens hardcoded null, source unavailable), confirming no stale numeric value is ever recorded even though an earlier usage line was retained by the scanner. Doc names the exact reason string, matches code constant verbatim, and the no-stale-value guarantee matches the null-field behavior. No duplicate/stale mention of the old pre-fix wording elsewhere in the doc (single grep occurrence). host-run-usage-smoke F-013 regression checks (codex+claude) pass 41/41. CHANGELOG.md carries one story-level B-70e9 entry (pre-existing, correct granularity - F-013 is an in-round review fix, not a new capability). 1 doc paragraph compared, 0 findings.",
+      "createdAt": "2026-07-10T10:50:32.068Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-035",
+      "readManifest": {
+        "filesReadFully": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "f404288eb1b699c1deb0c5b09b9732f3e8f2b1250e0ad1b90813428c1b364aa3"
+    },
+    {
+      "id": "B-70e9:RP-029",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 8, post F-013 fix a967792ab4): checklist_get shows 7 items (CHK-001..CHK-007), all must-priority happy/edge/adversarial verificationIntent lanes populated per normal/high-risk channel rules. evidence_plan (fresh, not validate) reports missing=0 rerun=0 refreshOnly=0 fresh=42, matching the 42 must-priority intent rows exactly (8+5+6+4+9+4+6=42), all bucket=fresh/result=pass. All 13 findings F-001..F-013 are dismissed/resolved with verified evidenceState. F-013 fix (a967792ab4) verified directly: recordFinalForHost in core/host-run.ts now takes retentionTruncated and, when true for codex/claude, records a provider-honest unavailable final (HOST_RUN_RETENTION_TRUNCATED_REASON) without parsing retained stdout, instead of the old stale provider-reported final. The two new smoke checks drive the REAL default runner + real UsageLineScanner: each asserts the precondition that the EARLIER stale usage line WAS retained, then asserts the recorded final is unavailable with zero provider-reported rows and no stale numbers echoed in the summary. Re-ran both npm smokes fresh in this round: npm --prefix packages/main run test:host-run-usage = 41/41 pass, npm --prefix packages/main run test:usage-sweep = 16/16 pass. No coverage gaps found; no blocker.",
+      "createdAt": "2026-07-10T10:50:44.700Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-034",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/findings/B-70e9.json",
+          ".lattice/story/actives/B-70e9/checklist.json",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-70e9/plan.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/handlers/host-run.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a509fbb73653c5e2031e21f5e8ee04d934f05292f65a2cb195ff83152466b8d7"
+    },
+    {
+      "id": "B-70e9:RP-030",
+      "agent": "lattice-review-quality",
+      "note": "Round 8 re-review of fix commit a967792ab4 (F-013). Truncation branch in recordFinalForHost is first check in try block, strictly before parseClaudeCliOutput/scanCodexTurnCompletedUsage. Provider mapping via existing hostProviderName is correct (codex->openai, claude->anthropic); agy excluded, keeps its own reason via unchanged fallthrough. Byte-diffed recordFinalForHost before/after: pure insertion, downstream branches untouched -- non-truncated paths byte-equivalent. Codex smoke has explicit precondition assert (stale line retained); claude smoke lacks that explicit assert but the exact-match unavailableReason assertion is a unique string produced only by the new branch, so it transitively proves the branch fired -- stylistic asymmetry only, not blocking. Docs update accurate. Build clean; test:host-run-usage 41/41; test:usage-sweep 16/16. No dead code / as any / empty catch introduced. No blocking findings.",
+      "createdAt": "2026-07-10T10:52:23.267Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-033",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "801fcafddcf419147b77e8b5646cc055c653fd4fb441cb7e28c6ad0380beae13"
+    },
+    {
+      "id": "B-70e9:RP-031",
+      "agent": "lattice-review-concept",
+      "note": "Round 9 (final) residue check on F-016 fix (3f3dea9bcd) + merge of main 0.3.182 (B-d6a0). F-016 diff is purely additive: new pre-spawn admission chain in runClaudeRepair mirroring runHostRun, host-run.ts widens resolveSlotStaleMs/releaseSlot from unexported to export function (same names/file, no rename), autopilot-executor.ts added to usage-ledger-budget-smoke allowlist as third authorized recordBudgetBlock site, +2 smoke checks, one doc clause. No concept word deleted/replaced en masse; grep confirms resolveSlotStaleMs/releaseSlot have zero shadow/duplicate defs and all call sites resolve to the new exports (no import cycle). Merge commit 7705f1e8a7 verified as clean pass-through of main (B-d6a0 porcelain-first-row fix: trim()->split/trimEnd/filter pattern in evidence-freshness.ts, partial-done-recovery.ts, session.ts, story-query.ts, cross-host-review.ts) that correctly preserved B-70e9-authored usageLedger/projectRootHashFor/resolveStoryPhaseForUsage wiring in cross-host-review.ts (present both pre-merge and post-merge). B-d6a0 story metadata files out of scope (owned by another story, arrived via merge from main). No blocker.",
+      "createdAt": "2026-07-10T11:44:04.555Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-037",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/partial-done-recovery.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "packages/main/src/tasks/usage-ledger-budget-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/lattice-brand.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "45b47d1098a070b0ffde83751826b18c608a6a25b40110fdbbc0ab16f382d523"
+    },
+    {
+      "id": "B-70e9:RP-032",
+      "agent": "lattice-review-docs",
+      "note": "Round 9 (final) docs re-review after fix commit 3f3dea9bcd (F-016). Pure-docs diff for this round (touchpoints=.md); Step-1 symbol extraction on the single-commit diff yields no exported code symbols added/removed (only the new doc paragraph + internal admission logic in already-existing exported fns runClaudeRepair/resolveSlotStaleMs/releaseSlot), so used Fallback-1 full-text scan: read docs/host-run-usage.md lines 173-194 (the new Caps clause) end-to-end plus the full runClaudeRepair body in core/autopilot-executor.ts and the resolveSlotStaleMs/releaseSlot export diff in core/host-run.ts. Verified each doc clause against code: (1) autopilot claude repair launch identified via CLI flag --allowClaudeRepair (confirmed registered in command-catalog.ts:2686 and wired to runClaudeRepair at autopilot-executor.ts:574) — accurate. (2) ledger ON: over-budget/over-cap repair refused pre-spawn before the claude runner invoked, same blocked row schema, provider anthropic — confirmed via recordBudgetBlock/recordConcurrencyBlock calls at lines 351 and 392, runner call gated after both checks return non-blocking. (3) concurrency slot held for duration of run + released after — confirmed acquireHostRunSlot before runner call, releaseSlot(slotFile) in a finally wrapping the runner call. (4) ledger OFF byte-identical (no admission, no slots, no rows) — confirmed slotFile stays null when ledgerOn is false and releaseSlot(null) is a documented no-op; no recordBudgetBlock/acquireHostRunSlot calls execute. Ran the two touched smokes fresh: test:host-run-usage (44/44 pass, matches commit message count) and usage-ledger-budget-smoke (41/41 pass, confirms the new allowlist entry for autopilot-executor.ts as third recordBudgetBlock site did not break the import-fence check). CHANGELOG.md: confirmed commit 3f3dea9bcd did not touch CHANGELOG.md (git show has no CHANGELOG.md hunk); existing B-70e9 CHANGELOG entry already says the seam covers the autopilot repair step generically, so no drift/contradiction with the new docs paragraph. Confirmed no doc changes reached this story from the main merge (7705f1e8a7): git diff 3f3dea9bcd..7705f1e8a7 -- docs/ CHANGELOG.md is empty. No promised-but-undelivered gaps found (Closing Self-Check): the doc paragraph text matches delivered code and passing tests exactly, no new CLI examples/fields/env vars introduced beyond what already exists in code. 0 findings.",
+      "createdAt": "2026-07-10T11:44:18.236Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-038",
+      "readManifest": {
+        "filesReadFully": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/core/autopilot-executor.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c8171132b7e0c5876a51f58d74e872f269b113735cc55b55989cb53a5f24b305"
+    },
+    {
+      "id": "B-70e9:RP-033",
+      "agent": "lattice-review-quality",
+      "note": "Round 9 re-review of F-016 fix (3f3dea9bcd) + clean main-0.3.182 merge (7705f1e8a7). Admission chain in autopilot-executor.ts matches runHostRun ordering exactly (preflight->recordBudgetBlock->acquireHostRunSlot->spawn->releaseSlot-in-finally). No import cycle: host-run.ts imports only host-execution-readiness.js + usage-ledger/dispatch-usage.js. Static CHK-005 fences pass and correctly allowlist autopilot-executor.ts as third recordBudgetBlock site. Refusal path returns honest failed attempt (exitCode 3, redacted command, no fabricated stdout); slot-registry throw fails closed (reasonable deliberate divergence from runHostRun, not a regression). Ledger-OFF byte-identical, verified with budget/cap env pinned to prove OFF ignores them. No dead code / as-any / empty catches; all 6 imported host-run symbols used. Build clean. test:host-run-usage 44/44, test:usage-sweep 17/17, usage-ledger-budget-smoke 41/41, usage-ledger-dispatch-smoke 40/40 all pass. Diff does not touch proof/receipt job.metadata/run.metadata semantics (usage-ledger diagnostics only). Main-merge brought unrelated files with no overlap; clean, no conflict residue. All 7 checklist items done, zero failing/waivers. No blocking issues.",
+      "createdAt": "2026-07-10T11:45:50.686Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-036",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/tasks/usage-ledger-budget-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/host-execution-readiness.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/usage-ledger/adapters/openai.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/core/usage-ledger/writer.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a9786642f4376a7a569865ce983b331b2c903de5ef24ac5519c0a1525f8d02e3"
+    },
+    {
+      "id": "B-70e9:RP-034",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 9 (final) test-coverage re-review after fix commit 3f3dea9bcd (F-016) + main 0.3.182 merge (7705f1e8a7). Verified the 2 new host-run-usage-smoke checks bind F-016 by name and content: (1) budget refusal pre-spawn (LATTICE_HARD_BUDGET_TOKENS=1) asserts runner NOT invoked, blocked row reasonCode=hard_budget_exceeded provider=anthropic agentType=autopilot-repair, and no slot dir created (proves budget gate runs before any slot acquire, matching runHostRun ordering); (2) saturated-concurrency refusal asserts runner NOT invoked + blocked row reasonCode=concurrency_cap_exceeded, then proves ledger-OFF ignores the same saturated cap (sink.calls=1, byte-identical argv, zero rows added), then frees the slot and proves a normal ON repair HOLDS slot-0 during the runner call (observed from inside the fake runner) and RELEASES it after (re-admission at cap=1 succeeds). Commit message states failing-before was proven against the pre-fix executor (runner invoked despite caps, no blocked rows); code inspection of core/autopilot-executor.ts confirms the admission chain (recordBudgetBlock -> acquireHostRunSlot -> spawn in try -> releaseSlot in finally) did not exist before this commit -- the diff is a pure insertion of that chain plus a fail-closed registry-error branch, so the failing-before reasoning is sound. evidence_plan (not validate) reports missing=0 rerun=0 refreshOnly=0 fresh=42, matching all 42 must-priority verificationEvidence rows across CHK-001..CHK-007 (8+5+6+4+9+4+6=42) -- confirmed via checklist_get that every item still carries full happy/edge/adversarial verificationIntent columns with a matching evidence row count, so re-stamping did not silently drop coverage. Re-ran both npm smokes fresh at current HEAD: npm --prefix packages/main run test:host-run-usage = 44/44 pass (up from 42, the 2 new checks both green and both explicitly F-016-labeled in their check titles); npm --prefix packages/main run test:usage-sweep = 17/17 pass (unaffected by this fix, confirms no regression). Also ran the full configured validate suite (45/45 commands) end-to-end: status=pass allPass=true. All 16 findings F-001..F-016 across every round are dismissed/resolved (F-016 resolutionType=fixed, resolveEvidenceStrength=strong). No coverage gap found between verificationIntent and verificationEvidence for CHK-001..CHK-007. No blocker.",
+      "createdAt": "2026-07-10T11:46:00.893Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-039",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/tasks/usage-ledger-budget-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f40af98fa5ea6c2e6db933d7cc622b87ecbfbc387cd2e4c31a6b5f3de48e14d8"
+    },
+    {
+      "id": "B-70e9:RP-035",
+      "agent": "lattice-review-concept",
+      "note": "Round 10 (commit b5df58d44d, F-017 fix): purely additive change — new reason constants CODEX_REVIEW_BUDGET_BLOCKED/CODEX_REVIEW_CONCURRENCY_CAP_EXCEEDED/CODEX_REVIEW_SLOT_REGISTRY_ERROR, new blockedLeafResult helper, and a lateral import of host-run admission primitives into codex-review-leaf.ts. Diff removed-lines check shows only structural refactor (runner call moved into try/finally; one test split a shared runner var into runner1/runner2 with call counters) — no renamed/removed identifiers, zero concept deletion/replacement. Cross-checked the new constants + blockedLeafResult helper are used consistently everywhere they appear, no orphaned or stale duplicate names. No concept deletion/replacement this round; concept residue check completed, no blocker.",
+      "createdAt": "2026-07-10T12:09:16.202Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-042",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "packages/main/src/tasks/usage-ledger-budget-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "66e59e97716f42e670eebb7929db66e97257e5770e0aed4cb007c884af0bb58a"
+    },
+    {
+      "id": "B-70e9:RP-036",
+      "agent": "lattice-review-docs",
+      "note": "Fallback-1 full-text scan (pure docs diff: fix commit b5df58d44d touches only docs/host-run-usage.md +7 lines besides code/tests, symbol-set extraction from git diff main...HEAD yields no anchor for this docs-only clause). Compared the added clause (docs/host-run-usage.md lines 184-190, one paragraph under Caps) against packages/main/src/core/codex-review-leaf.ts runCodexReviewLeaf: verified the ledger-ON admission chain runs recordBudgetBlock then acquireHostRunSlot (same order/provider openai as claimed), a refusal returns blockedLeafResult with a synthesized decision=blocked verdict (materialHash bound to opts.materialHash, never a fabricated pass/fail) via HOST_RUN_REFUSAL_EXIT_CODE without invoking the runner, and ledger OFF / no usageLedger binding takes the pre-existing runner-call path unchanged (byte-identical). Verified jointDecision in core/cross-host-review.ts: hostBVerdict=blocked (not pass) forces jointDecision=blocked with reason host B decision is blocked (materialHash bound equal so no fabricated mismatch reason), and handlers/cross-host-review.ts plumbs hostBVerdict.reason into hostB.reason with no handler changes needed, matching the fix commit claim. Ran the two relevant smokes for empirical confirmation: test:host-run-usage (47/47 passed, including the 3 new F-017 checks) and usage-ledger-budget-smoke (41/41 passed, including CHK-005 import-fence confirming codex-review-leaf.ts as the 4th allowlisted recordBudgetBlock site). Checked CHANGELOG.md: the single B-70e9 entry already states the same admission seam now covers the cross-host-review codex leaf, consistent with the new docs clause. No inconsistencies found.",
+      "createdAt": "2026-07-10T12:10:07.433Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-044",
+      "readManifest": {
+        "filesReadFully": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/core/cross-host-review.ts",
+          "packages/main/src/handlers/cross-host-review.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "packages/main/src/tasks/usage-ledger-budget-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "263f9110d4ad55a30959e41f27e74aed621fe9d1571c5a2e54c877870f5fed17"
+    },
+    {
+      "id": "B-70e9:RP-037",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 10 re-review after fix commit b5df58d44d (F-017): verified codex-review-leaf.ts now runs the same pre-spawn admission chain as host_run/autopilot-repair (recordBudgetBlock provider openai -> acquireHostRunSlot -> spawn -> releaseSlot in finally), refusal synthesizes a decision=blocked verdict (never a fabricated pass/fail) so cross_host_review surfaces hostB=blocked/joint=blocked; slot-registry errors fail closed without a fake cap row; OFF/no-binding stays byte-identical even with budget/cap env set. host-run-usage-smoke gained exactly 3 new checks (budget refusal pre-spawn, concurrency refusal, slot held-during/released-after) plus an extended OFF invariant check, all confirmed present in the b5df58d44d diff. evidence_plan: missing=0 rerun=0 refresh-only=0 fresh=42 (all 42 must-priority intents across CHK-001..CHK-007 fresh at headHash 8d84928c92, matching current HEAD dc779f8 modulo metadata-only commits with zero source/test diff). Re-ran both suites live: test:host-run-usage = 47/47 pass (including the 3 F-017 checks by name); test:usage-sweep = 17/17 pass. All 17 findings (F-001..F-017) dismissed/resolved with evidenceState=verified and zero attention.suspected entries. Checklist coverage: all 7 items have populated happy/edge/adversarial columns, every must-priority intent has non-fail evidence, no vague/generic notes. No new blocker found.",
+      "createdAt": "2026-07-10T12:11:10.944Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-043",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-70e9/checklist.json",
+          ".lattice/story/actives/B-70e9/findings.json",
+          ".lattice/story/actives/B-70e9/index.json",
+          "docs/host-run-usage.md",
+          "packages/main/src/tasks/usage-ledger-budget-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2ef4f86cf13711db1358da4c022dfce98b52cefd5e8d463d89a5f37eca2c0e3e"
+    },
+    {
+      "id": "B-70e9:RP-038",
+      "agent": "lattice-review-quality",
+      "note": "Round 10 re-review of F-017 fix (commit b5df58d44d): verified admission ordering parity (preflight->budget->concurrency-with-registry-error-carveout->spawn) matches host-run.ts/autopilot-executor.ts F-016 byte-for-byte; finally releaseSlot wraps await runner() inside try so both sync throw and async rejection release the slot (releaseSlot(null) is a safe no-op on refusal/OFF paths; no dedicated runner-throw test for this leaf specifically, but that gap is pre-existing and symmetric with the already-accepted autopilot-executor.ts F-016 chain, not a regression); blocked-verdict binds materialHash to the reviewed hash so jointDecision reports blocked via hostBDecision!=pass only, never a spurious material-mismatch reason; confirmed no import cycle; confirmed handlers/cross-host-review.ts diff predates this fix commit (usageLedger wiring landed in d960ddf387/CHK-003); docs addition fully backed by code; no dead code/as any/empty catches, all new imports used. Re-ran build (clean), test:host-run-usage 47/47, cross-host-review-smoke 24/24, usage-ledger-budget-smoke 41/41, usage-ledger-dispatch-smoke 40/40. No blocking issues found.",
+      "createdAt": "2026-07-10T12:12:10.273Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-040",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/core/cross-host-review.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/tasks/usage-ledger-budget-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "52196440b89948935fee4972a7fbf7ca074eefe47652fd3196430370c9797ecb"
+    },
+    {
+      "id": "B-70e9:RP-039",
+      "agent": "lattice-review-docs",
+      "note": "Fallback 1 (pure docs diff): verified the F-018 ledger-lock paragraph rewrite in commit 09530172e0 (docs/host-run-usage.md, 15 lines) against packages/main/src/core/usage-ledger/writer.ts (538 lines, read in full). All claims match: llm-usage.jsonl.lock/ dir name, owner.json pid+randomUUID token+acquiredAt, dead-pid-any-age reclaim via ESRCH, orphan-only LATTICE_USAGE_LEDGER_LOCK_STALE_MS mtime backstop for missing/corrupt owner, live-holder never reclaimed regardless of age, token-guarded read-verify-then-delete release. CHANGELOG.md B-70e9 entry checked, no lock-reclaim prose to contradict. No stale duplicate phrasing remains elsewhere in the doc. 0 findings.",
+      "createdAt": "2026-07-10T12:34:36.114Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-046",
+      "readManifest": {
+        "filesReadFully": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/core/usage-ledger/writer.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "8b837c1e48fe212763a8341b0edef111069869a90a51f5e70e23de558df169a3"
+    },
+    {
+      "id": "B-70e9:RP-040",
+      "agent": "lattice-review-concept",
+      "note": "Round 11, commit 09530172e0 (F-018 ownership-aware ledger lock reclaim), scoped to core/usage-ledger/writer.ts, tasks/host-run-usage-smoke.ts, docs/host-run-usage.md. Concept change: mtime-only stale-lock reclaim replaced by ownership-aware reclaim (owner.json pid+token; dead-pid reclaim at any age; ownerless/corrupt owner falls back to LATTICE_USAGE_LEDGER_LOCK_STALE_MS as an orphan-only backstop; live holder never reclaimed). acquireLedgerLock signature changed boolean->string|null (release token) and is now exported; releaseLedgerLock signature changed to (lockDir, token) and is now exported. Residue scan: grep -rn stale-lock reclaim|stale lock reclaim|stale reclaim across *.ts/*.md/*.json (excluding node_modules/dist/.git/@deprecated) found only (a) .lattice/story/actives/**/*.json historical review-pass/finding/decision prose describing PRIOR rounds/commits (bc966e3247 F-012, B-ef65, B-f511) -- append-only audit history, not live doc/code, correctly out of scope; (b) live code in packages/main/src/core/main-write-lock.ts + tasks/mkdir-lock-smoke.ts + tasks/main-write-lock-smoke.ts -- confirmed via import grep this is a wholly separate mkdir-lock.ts primitive (DONE/main-write critical section lock) with zero import relationship to usage-ledger/writer.ts; its mtime-only stale-reclaim design is unrelated and correctly untouched by this fix. docs/host-run-usage.md no longer contains the old stale-lock-reclaim phrasing. Verified all acquireLedgerLock/releaseLedgerLock call sites use the new signatures; new export USAGE_LEDGER_LOCK_OWNER_FILENAME used only in writer.ts and its smoke. tsc --noEmit -p packages/main clean, no dangling old-signature references. No concept-residue blocker this round.",
+      "createdAt": "2026-07-10T12:34:41.460Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-045",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/usage-ledger/writer.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/main-write-lock.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "packages/main/src/tasks/main-write-lock-smoke.ts",
+          "packages/main/src/tasks/mkdir-lock-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5c8c19f013c2d524c28cfb0b90e7a094c89ad182bcba1d14d07a780d5de6de3e"
+    },
+    {
+      "id": "B-70e9:RP-041",
+      "agent": "lattice-review-concept",
+      "note": "Round 12 re-review of commit 2675c4ed0e (F-019 fix): single-file, purely additive diff (+40/-0) to packages/main/src/tasks/host-run-usage-smoke.ts adding one new check() covering the owner-write-failure rollback branch via a process umask trick. No concept words were deleted or mass-replaced (git show confirms zero removed lines); writer.ts and all other source files are untouched by this commit. Concept-residue scan is a no-op for this diff — no blocker.",
+      "createdAt": "2026-07-10T12:46:13.526Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-049",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-70e9/index.json",
+          ".lattice/story/actives/B-70e9/review.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "61a105cd4b37ecc77fe7929333686c0f8cf7acaf8b0e9dec7eb8d9f3a202d9fa"
+    },
+    {
+      "id": "B-70e9:RP-042",
+      "agent": "lattice-review-docs",
+      "note": "Round 12 re-review after smoke-only commit 2675c4ed0e (F-019: adds owner-write-failure rollback smoke coverage to host-run-usage-smoke.ts, writer.ts unchanged). Step 1 symbol extraction on this commit diff yields an empty set (only a test file changed, no exported symbol declarations touched) -> Fallback 1 applied: full self-consistency scan of the 2 touchpoint docs (docs/host-run-usage.md, 256 lines; CHANGELOG.md B-70e9 entry). Confirmed via git diff that neither file changed in 2675c4ed0e, and neither has changed since its last respective touch (docs/host-run-usage.md unchanged since F-018 commit 09530172e0; CHANGELOG.md unchanged since c094e2313d) -> zero doc drift introduced by this commit. Cross-checked the lock-reclaim paragraph (host-run-usage.md lines 191-203) against the current writer.ts acquireLedgerLock/maybeReclaimAbandonedLock code: doc claims (ownership-aware reclaim via owner.json, live-pid never reclaimed, ownerless/corrupt lock reclaimed only past the orphan backstop) still hold; the F-019-covered rollback branch (mkdir succeeds, owner.json write fails, immediate rmdirSync self-rollback) is an internal implementation detail with no user-visible/API behavior change, so no doc update was owed. Ran npm run test:host-run-usage locally: 51/51 checks pass, matching the commit message stated 50->51 delta. CHANGELOG.md B-70e9 entry only names smoke files generically (no check counts), so it remains accurate. No inconsistencies found; no findings registered.",
+      "createdAt": "2026-07-10T12:47:19.075Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-051",
+      "readManifest": {
+        "filesReadFully": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/core/usage-ledger/writer.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "89ce3f3e780b1f17d86fbb08910ba83377a2cd1d8d7655aa570919aba28dc611"
+    },
+    {
+      "id": "B-70e9:RP-043",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 12 re-review after smoke-only fix 2675c4ed0e for F-019: host-run-usage-smoke.ts gained the F-018/F-019 owner-write-failure rollback check (umask 0o277 forces mkdir-succeeded/writeFileSync(owner.json)-EACCES branch; asserts null return, lock dir absent post-rollback, no partial owner.json, and a clean subsequent acquire+release) - verified this binds exactly to acquireLedgerLock writer.ts:322-333 (writeLockOwner returns null -> rmdirSync). All 19 findings F-001..F-019 are dismissed/resolved (0 open). evidence_plan: missing=0 rerun=0 refreshOnly=0 fresh=42/42. Rebuilt dist and re-ran both suites green: test:host-run-usage 51/51, test:usage-sweep 17/17. No new coverage gap found; test coverage review passed.",
+      "createdAt": "2026-07-10T12:47:43.077Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-050",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/usage-ledger/writer.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/package.json",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "679ae5e49c47d5a7a38ec9cee27194c2a493bb33123a0b3522230ae8a8742a6c"
+    },
+    {
+      "id": "B-70e9:RP-044",
+      "agent": "lattice-review-quality",
+      "note": "Round 12 re-review of F-019 fix (commit 2675c4ed0e, smoke-only). Verified the new host-run-usage-smoke.ts check genuinely drives writer.ts acquireLedgerLock owner-write-failure rollback branch: independently reproduced umask(0o277)+mkdirSync -> mode 0500 -> writeFileSync(owner.json) EACCES, and that rollback rmdirSync still succeeds (parent-dir writable governs rmdir, not child mode). try/finally umask restore correct. writer.ts confirmed untouched by this commit. No leftover probes (grep-verified). No dead code / as any / empty catches; imports reused. Build clean; test:host-run-usage 51/51; test:usage-sweep 17/17. No doc changes to cross-check. No blocking findings.",
+      "createdAt": "2026-07-10T12:48:33.755Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-052",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/usage-ledger/writer.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-70e9/checklist.json",
+          ".lattice/story/actives/B-70e9/findings.json",
+          "CHANGELOG.md",
+          "docs/host-run-usage.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "43f5a267b42d9aae4dc3ad5908651339216003d65736ab98218128129ed765c2"
+    },
+    {
+      "id": "B-70e9:RP-045",
+      "agent": "lattice-review-concept",
+      "note": "Round 13 residue check on F-020 handler-only fix (commit e78408cb5c): purely additive change in handlers/host-run.ts (new asyncStreamError/stderrBroken state, named stdout/stderr error listeners for run duration removed in finally, emitStderr gating wrapper around unchanged safeWriteStderr), +1 real-subprocess smoke check in host-run-usage-smoke.ts, and one doc sentence extended in docs/host-run-usage.md naming async EPIPE explicitly. Confirmed core/host-run.ts has zero diff lines in this commit. No concept word was deleted or replaced en masse: safeWriteStderr/passthroughWarning/passthroughError/usageLine all retained verbatim, only reflowed inside a try/finally. No concept residue check needed this round; no blocker.",
+      "createdAt": "2026-07-10T13:18:41.936Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-054",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/host-run.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bf1a2fdbc2bf8198b3a64d73b1f9a72294cd6951e77c4533b7905bcd11352c2e"
+    },
+    {
+      "id": "B-70e9:RP-046",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 7 checklist items (CHK-001..CHK-007) have happy/edge/adversarial columns populated per the high-risk channel; every must-priority intent has non-fail verificationEvidence naming the specific covered behavior (evidence_plan fresh=42, missing=0, rerun=0, refresh-only=0). F-020 fix (e78408cb5c) is bound to CHK-006 via a new real-subprocess smoke check in host-run-usage-smoke.ts: a compiled-handler driver in --json mode with a fake streaming runner (~120 chunks/250ms) whose stderr pipe the parent destroys mid-stream, asserting exit 0, non-null passthroughError naming the async stream failure, zero leftover concurrency slots, cap=1 re-acquire success, and a provider-reported final still recorded. Re-ran test:host-run-usage (52/52 pass, includes the new F-020 check) and test:usage-sweep (17/17 pass). All findings F-001..F-020 are resolved/dismissed with evidenceState=verified (20/20). No coverage gap found; no blocker.",
+      "createdAt": "2026-07-10T13:19:11.643Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-055",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "85ae8d174ac141d9873a0ed0e0b876e40dc73330d31b76534e1c566f96a87f02"
+    },
+    {
+      "id": "B-70e9:RP-047",
+      "agent": "lattice-review-docs",
+      "note": "Round 13 re-review of handler-only fix e78408cb5c. Symbol extraction (Step 1) against the full main...HEAD diff yielded ~400 symbols (whole-story scope); narrowed per this re-review task to the single commit under test. Compared the extended docs/host-run-usage.md sentence (lines 67-78, naming async stream errors/EPIPE explicitly) against packages/main/src/handlers/host-run.ts: listener attach at lines 265-266 and removal in the finally block at lines 353-357 matches the doc's attach-and-remove claim; recordStreamError / asyncStreamError (lines 216, 246-254) merged into the surfaced passthroughError at line 301 matches the containment claim; emitStderr gated by stderrBroken (lines 223, 247, 258-261) matches the skipped-diagnostic-writes claim; the sync-vs-async distinction in the doc matches the passthrough sink try/catch (lines 224-237) vs the async listeners. Cross-checked tasks/host-run-usage-smoke.ts (F-020 block, lines 27-31) which independently describes the same real-EPIPE / driver-exit-0 / non-null-passthroughError behavior consistently with the doc. Confirmed docs/host-run-usage.md is the only markdown location mentioning EPIPE or passthroughError (grep across docs/, CLAUDE.md, README files) so no other paragraph went stale. CHANGELOG.md was not touched by this commit; its existing high-level B-70e9 entry does not itemize this micro-fix, consistent with prior granularity. No inconsistencies found.",
+      "createdAt": "2026-07-10T13:19:20.302Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-056",
+      "readManifest": {
+        "filesReadFully": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "0a2cf004f5c7741e3b2b4da0284790e2e49f89fc36070d2c54a4429ad20a3b01"
+    },
+    {
+      "id": "B-70e9:RP-048",
+      "agent": "lattice-review-quality",
+      "note": "Round 13 re-review of handler-only F-020 fix (commit e78408cb5c), scope handlers/host-run.ts. Verified: (1) listener add/remove pairing - named error listeners attached once before the try, removed via removeListener with exact function references in a finally covering every exit path (json return, text success return, blocked throw, non-zero-exit throw, runHostRun exception); no removeAllListeners. (2) stderrBroken gating - post-run diagnostics gated via emitStderr; live passthrough sink write correctly ungated (that IS the delivery whose failure sets the flag); once asyncStreamError is set the sink throws-through on every subsequent chunk without touching either stream. (3) merge precedence result.passthroughError ?? asyncStreamError is correct - covers the async-error-after-final-chunk backstop case. (4) smoke driver realism - new F-020 check spawns a REAL child process, fake streaming runner, PARENT destroys the child's stderr pipe mid-stream causing a genuine async EPIPE; asserts exit 0, slot released, ledger final recorded, passthroughError present. Build (tsc) clean; compiled dist matches source. test:host-run-usage 52/52 passed; test:usage-sweep 17/17 passed. No dead code/unused imports/as any; two catch{} blocks are documented best-effort/fallback patterns. docs/host-run-usage.md F-020 section cross-checked against code, no doc-promise-undelivered. Non-blocking observation: no test proves listener count returns to 0 across REPEATED host_run calls within one live process, but host_run has zero in-process call sites in production (one-CLI-process-per-invocation via registry.ts), so not a practical risk; finally-based exact-reference removeListener is correct by inspection. No blocking findings this round.",
+      "createdAt": "2026-07-10T13:21:09.956Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-053",
+      "readManifest": {
+        "filesReadFully": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/dist/handlers/host-run.js",
+          "packages/main/src/cli/alias-normalizer.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/host-execution-readiness.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/usage-ledger/adapters/openai.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/core/usage-ledger/writer.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/usage-ledger-budget-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b877b4b581ba5f8b6c78361dcc2c226a90166cf7ec9d0b621e86f9800c55caf4"
+    },
+    {
+      "id": "B-70e9:RP-049",
+      "agent": "lattice-review-docs",
+      "note": "Round-14 re-review after fix 0042a4a1f4 (F-021 honest append-status). Fallback-1 full-text scan (docs-only commit, no exported-symbol diff anchor): compared the new docs/host-run-usage.md paragraph (lines 154-160, recorded=none / ledger_append_failed skipped state) against core/host-run.ts appendFailedSummary (line 900) and all 4 call sites (claude/codex/agy/retention-truncated, lines 1179/1197/1249/1283) plus dispatch-usage.ts DispatchFinalStatus/describeLedgerAppendFailure, and handlers/host-run.ts formatUsageLine (line 144, recorded=none falls through to \"usage: <reason>\" distinct from the \"usage recorded:\" prefix used by provider-reported/unavailable/disabled). All doc claims verified literally true: skipped state never claims usage recorded, provider still surfaced, counts null, applies to all three hosts. CHANGELOG.md B-70e9 entry (added earlier in story) makes no claim contradicted by this fix; no other .md touchpoints reference this surface. host-run-usage smoke 54/54 including the two new F-021 corrupt-ledger checks. No doc-code drift found.",
+      "createdAt": "2026-07-10T13:49:37.933Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-060",
+      "readManifest": {
+        "filesReadFully": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/handlers/host-run.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c8f2f4525616d6aa4891cda0b7265aa09e73e9a70ab67d790661da847dffed8d"
+    },
+    {
+      "id": "B-70e9:RP-050",
+      "agent": "lattice-review-quality",
+      "note": "Round 14 re-review of F-021 fix (0042a4a1f4). Traced append-status gating across all host paths incl. codex.recorded double-branch handling, reason boundedness (describeLedgerAppendFailure pure, 200-char cap), never-throw preserved, no caller broken by void->object signature change (all callers statement-position/discard return, tsc clean), docs match code. Re-ran build clean + test:host-run-usage 54/54 + test:usage-sweep 17/17 + usage-ledger group (smoke 61, dispatch 40, default-on 30, codex-gemini 53, adapter 50, budget 41) all green. No blocking findings.",
+      "createdAt": "2026-07-10T13:50:55.116Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-057",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/lattice-dispatch.ts",
+          "packages/main/src/tasks/usage-ledger-codex-gemini-smoke.ts",
+          "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "packages/main/src/tasks/usage-ledger-dispatch-smoke.ts",
+          "packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e584ccc92064efc70eb9f3c073c33febd70fc500b2107a98fcd1cff22e84ed4c"
+    },
+    {
+      "id": "B-70e9:RP-051",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 14): F-021 fix (0042a4a1f4) verified - 2 new host-run-usage-smoke checks (claude+codex corrupt-ledger) prove the choke point now gates usageSummary.recorded on actual ledger APPEND success (not provider-parse success): run completes (spawned=true), host exit code propagates unchanged, recorded=none with reason ledger_append_failed(...), and both false-claim states (provider-reported/unavailable) are explicitly negatively asserted. Proven RED by removing the append-outcome gates per commit message. evidence_plan: missing=0 rerun=0 refresh-only=0 fresh=42/42 must-priority intents across CHK-001..CHK-007. Re-ran npm --prefix packages/main run test:host-run-usage -> 54/54 pass (includes both new F-021 checks) and test:usage-sweep -> 17/17 pass. All 21 findings F-001..F-021 are resolved/dismissed with evidenceState=verified; none open. No coverage gaps found.",
+      "createdAt": "2026-07-10T13:51:07.912Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-059",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7692137f5c5b966f40e12165561bdc49485e475f168f15e600e54a19f343626e"
+    },
+    {
+      "id": "B-70e9:RP-052",
+      "agent": "lattice-review-docs",
+      "note": "Round 15 re-review after commit d638945a8a (F-022 test-label fix). The only change since last review touches packages/main/src/tasks/usage-ledger-default-on-smoke.ts (a check() label string + an added status?.appended assertion), confirmed via git show d638945a8a -- docs/host-run-usage.md CHANGELOG.md returning empty. Fallback-1 full-text scan on touchpoints: docs/host-run-usage.md (271 lines) + CHANGELOG.md B-70e9 entry compared against current source. Spot-verified appended/ledger_append_failed semantics match dispatch-usage.ts and host-run.ts exactly; the F-022 fix only strengthens a test assertion on already-documented behavior. All env vars named in the doc still exist in code. No doc-code drift found.",
+      "createdAt": "2026-07-10T13:54:50.726Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-063",
+      "readManifest": {
+        "filesReadFully": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/core/usage-ledger/writer.ts",
+          "packages/main/src/tasks/usage-ledger-default-on-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "719e8ee9ff677fa742a3b89eafbe0e8042493e998166d1e83c142a9bb30222af"
+    },
+    {
+      "id": "B-70e9:RP-053",
+      "agent": "lattice-review-concept",
+      "note": "Round 15 re-review of fix commit d638945a8a for round-14 F-022. No concept deletion/replacement in this diff (+4/-2, single file): only the CHK-003 check title and a new assertion in usage-ledger-default-on-smoke.ts were updated to match the already-established DispatchFinalStatus contract on recordDispatchFinal (dispatch-usage.ts:435-443, returns {appended,kind,reason?}). Verified the fix: title now reads (returns appended:false status, no throw); body asserts status?.appended === false on the catch path, matching the actual swallow-return at dispatch-usage.ts:488 ({appended:false,kind:intendedKind,reason:...}). Grepped repo-wide for the stale phrase (grep -rn returns-void . --include=*.ts --include=*.md --include=*.json | grep -v node_modules|dist|.git|@deprecated): zero hits in live code/docs; the only two remaining occurrences are historical prose inside findings.json (F-020, F-022 original finding descriptions), which is expected audit-trail residue, not concept residue. F-022 residue confirmed fully resolved.",
+      "createdAt": "2026-07-10T13:54:51.232Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-064",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/tasks/usage-ledger-default-on-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "6969d0ed24d41afb1338937a324d4bace23a311cc39a48297d9184e3bda2f9fd"
+    },
+    {
+      "id": "B-70e9:RP-054",
+      "agent": "lattice-review-quality",
+      "note": "Round 15 re-review after F-022 one-line fix (d638945a8a, +4/-2, packages/main/src/tasks/usage-ledger-default-on-smoke.ts only). CHK-003 corrupt-ledger-swallow smoke now labels correctly as DispatchFinalStatus and asserts status?.appended===false, a genuine check against dispatch-usage.ts:487 catch path, not a tautology; type narrowing via ReturnType<typeof recordDispatchFinal> is correct, no as any, no dead code, no empty catch introduced. No doc/CLAUDE.md changes in this commit. Re-ran both required verifications clean: dist smoke 30/30 pass; test:host-run-usage 54/54 pass. No quality-lane blockers.",
+      "createdAt": "2026-07-10T13:55:22.828Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-062",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/tasks/usage-ledger-default-on-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "8bf905d14d7f9be33c3d2f6e0f31ff623f6c392935f130ea50321c513079975b"
+    },
+    {
+      "id": "B-70e9:RP-055",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: round 15 re-review after commit d638945a8a (F-022 fix). evidence_plan fresh=42/42, missing=0, rerun=0, refreshOnly=0 across all 7 checklist items (CHK-001..CHK-007). Re-ran test:host-run-usage 54/54 pass and test:usage-sweep 17/17 pass. Verified via git show d638945a8a that the CHK-003 final-swallow check label/body drift F-022 flagged is fixed: title now reads (returns appended:false status, no throw) and body captures + asserts status?.appended===false, matching the DispatchFinalStatus contract. All 22 findings (F-001..F-022) are dismissed/resolved with evidenceState=verified. No coverage gap found; no blocker.",
+      "createdAt": "2026-07-10T13:55:24.503Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-061",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-70e9/checklist.json",
+          ".lattice/story/actives/B-70e9/findings.json",
+          "packages/main/src/tasks/usage-ledger-default-on-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-70e9/index.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/tasks/run-all-smokes.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0b4e76f5028405a97634352cccd5403050fe3282dbd80ee50371cd9e232b4320"
+    },
+    {
+      "id": "B-70e9:RP-056",
+      "agent": "lattice-review-concept",
+      "note": "Round-16 concept residue check on F-023 fix (commit 30d8ffa117). No concept was deleted or replaced en masse: safeWriteStderr was removed as a named helper and folded directly into emitStderr (now settle-aware, returns Promise<void>, writes via process.stderr.write(text, callback) and resolves on the callback), but this is a refactor/inlining of a private helper, not a concept rename requiring repo-wide propagation. grep -rn safeWriteStderr across *.ts/*.md/*.json (excluding node_modules/dist/.git) finds zero hits in live source or docs; all 3 remaining hits are inside .lattice/story/actives/B-70e9/{findings.json,review-passes.json} — append-only historical audit records describing prior-round code/findings, not code or doc residue. Confirmed emitStderr(text) is awaited at all 3 call sites in handlers/host-run.ts. stderrBroken gate variable retained verbatim. New F-023 smoke check and the one doc-clause addition both verified to match shipped emitStderr behavior (doc-promise cross-check: pass). Ran build (tsc clean) and host-run-usage smoke myself: 55/55 including the new F-023 check. No blocker.",
+      "createdAt": "2026-07-10T14:15:07.236Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-065",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "3dbb8214c068a1a0ae34f745f51a45746bf864c1eeffe2f3998d74d77142243c"
+    },
+    {
+      "id": "B-70e9:RP-057",
+      "agent": "lattice-review-docs",
+      "note": "Round 16 (fix commit 30d8ffa117): symbol set from git diff main...HEAD on host-run.ts/core/host-run.ts = 88 exported/local symbols; emitStderr is the symbol touched by this rounds doc clause. 1 paragraph compared: the Passthrough routing section of docs/host-run-usage.md (added sentence: final diagnostic writes are awaited to settle before listener removal, so a late EPIPE from a quiet runs first stderr write still fires while a listener is attached). Verified against packages/main/src/handlers/host-run.ts: emitStderr (line 254) resolves its Promise only after the process.stderr.write callback fires (or a sync throw is caught), matching awaited to settle. All 4 call sites (lines 325,350,354,364) are awaited inside the try block, before the finally (366-371) removes the two named error listeners, matching before listener removal. The quiet-run crux (final usage line at line 364 as the first stderr write when stderrBroken is still false) is exactly what the new F-023 regression smoke (host-run-usage-smoke.ts) exercises via a real subprocess with stderr destroyed pre-spawn. No other md file references emitStderr or this passthrough behavior (grep clean), so no cross-doc drift. CHANGELOG.md B-70e9 entry is a high-level summary that predates and abstracts over this handler-internal fix; it does not mention EPIPE or listener details at any level so it is not contradicted by the new clause, no update needed there. No blocking inconsistency found.",
+      "createdAt": "2026-07-10T14:15:31.411Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-067",
+      "readManifest": {
+        "filesReadFully": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "5695f12b6376ffee75449a15f9b786bb4a0116fb428704e6dd3cb1c3156e8f7d"
+    },
+    {
+      "id": "B-70e9:RP-058",
+      "agent": "lattice-review-quality",
+      "note": "Round 16 re-review of F-023 fix (commit 30d8ffa117) in packages/main/src/handlers/host-run.ts. Verified: (1) emitStderr is settle-aware and never rejects on any branch (stderrBroken pre-check resolves immediately, write-callback error folds into recordStreamError/onStderrError then resolves, sync-throw is caught and folded then resolves); (2) all four final-diagnostic call sites (json-mode usage line L325, text-mode passthroughWarning L350, text-mode failure/refusal usage line L354, text-mode success usage line L364) are awaited and sit inside the try block so they settle before the finally at L366; (3) finally removes exactly the two named error listeners via removeListener (F-020 hygiene preserved, no removeAllListeners); (4) no unhandled-rejection surface introduced; (5) stale safeWriteStderr fully removed, zero references remain repo-wide; (6) docs/host-run-usage.md clause (final diagnostic write is awaited to settle before finally removes the listeners) accurately matches the code; (7) new F-023 regression check in host-run-usage-smoke.ts drives a REAL subprocess (TEXT mode, stdout-only runner, stderr pipe destroyed at spawn before the first stderr write) asserting exit 0 / slot released / ledger final row intact -- a genuinely distinct window from the existing F-020 check. Build clean (tsc). npm run test:host-run-usage 55/55 pass (incl. new F-023 case). npm run test:usage-sweep 17/17 pass. No blocking issues found.",
+      "createdAt": "2026-07-10T14:15:50.115Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-066",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/alias-normalizer.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/host-execution-readiness.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/usage-ledger/adapters/openai.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/core/usage-ledger/writer.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/usage-ledger-budget-smoke.ts",
+          "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8bbc19a4039dca75aa2fb366c7eadbeaff4b8eb263637cb119f01dc3396f5d9b"
+    },
+    {
+      "id": "B-70e9:RP-059",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 16, post F-023 fix commit 30d8ffa117): all 7 checklist items carry full happy/edge/adversarial verificationIntent columns as required for this high-priority story; evidence_plan reports fresh=42/42 (missing=0, rerun=0, refreshOnly=0), zero fail results, zero waivers. Re-ran test:host-run-usage (55/55, includes the new F-023 regression: quiet TEXT-mode run with stderr destroyed at spawn before the first stderr write) and test:usage-sweep (17/17) directly, both green. Independently verified the F-023 fix is load-bearing: hand-reverted emitStderr in dist/handlers/host-run.js to the pre-fix fire-and-forget write (no settle-await before finally removes the stderr error listener) and reran the smoke -- F-023 genuinely FAILED (driver exit 1, unhandled async EPIPE) while F-020 still PASSED, confirming the two checks cover distinct crash windows exactly as claimed; rebuilt dist from source to restore the fix and reconfirmed 55/55 and 17/17. All findings F-001..F-023 are dismissed/resolved with verified evidenceState. No coverage gaps found; no blocker.",
+      "createdAt": "2026-07-10T14:20:23.529Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-068",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-70e9/checklist.json",
+          ".lattice/story/actives/B-70e9/findings.json",
+          ".lattice/story/actives/B-70e9/red-evidence.json",
+          ".lattice/story/index.json",
+          "docs/host-run-usage.md",
+          "packages/main/dist/handlers/host-run.js",
+          "packages/main/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1b59d0705cd0f2a64099d770f273e9d97ecddbce7655485b872d8c5c41bc816b"
+    },
+    {
+      "id": "B-70e9:RP-060",
+      "agent": "lattice-review-concept",
+      "note": "Round 17 (post F-024 fix, commit 2216ff5104): diff limited to handlers/host-run.ts, tasks/host-run-usage-smoke.ts, docs/host-run-usage.md. No concept was deleted or replaced en masse - purely additive bug-fix extending the existing F-020/F-023 EPIPE-window pattern: stdoutBroken is a NEW flag added alongside the pre-existing stderrBroken (not a replacement); pendingWrites/drainPending/DRAIN_CAP_MS are new additions; comments reworded in place but asyncStreamError/recordStreamError/emitStderr/passthrough concepts are retained, not renamed. No en-masse deletion/rename pattern to grep for. Verified new identifiers (DRAIN_CAP_MS, pendingWrites, drainPending, stdoutBroken, stderrBroken) are implemented in handlers/host-run.ts and tsc --noEmit passes clean, so the docs/host-run-usage.md clause is not doc-promise-undelivered. No blocker.",
+      "createdAt": "2026-07-10T14:45:55.297Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-071",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/handlers/host-run.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "de95e40c135b7af4e6cc2d1cc665d0a68ba9aae5892d755e1569cad9f2318dfe"
+    },
+    {
+      "id": "B-70e9:RP-061",
+      "agent": "lattice-review-docs",
+      "note": "Round 17, fix commit 2216ff5104 (F-024). Full-story diff symbol extraction yielded 50+ exported identifiers; the fix-commit-local diff added only DRAIN_CAP_MS/drainPending (internal, not doc-referenced by name), so fell back to a scoped narrative comparison of the single touchpoint paragraph. Compared 1 paragraph in docs/host-run-usage.md (the passthrough/EPIPE section) plus the CHANGELOG.md B-70e9 bullet against packages/main/src/handlers/host-run.ts. Verified: pendingWrites is a shared counter incremented by both the live passthrough chunk writer and emitStderr diagnostics, confirming every live chunk write is covered, not just final diagnostics; drainPending() is awaited in the finally strictly before removeListener; DRAIN_CAP_MS=2000 matches the ~2s cap language. CHANGELOG.md B-70e9 bullet is an unchanged high-level summary, still accurate, not contradicted. No doc-code drift found; no blockers.",
+      "createdAt": "2026-07-10T14:46:10.491Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-070",
+      "readManifest": {
+        "filesReadFully": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/handlers/host-run.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "73a29186c8db9a4f3d46a03edcab9a75b01c602b081451663541d458b7573823"
+    },
+    {
+      "id": "B-70e9:RP-062",
+      "agent": "lattice-review-quality",
+      "note": "Round 17 re-review of F-024 fix (2216ff5104): traced pendingWrites counter through every path (skip-when-broken, throw-through, sync-catch) -- no leak, no double-decrement (Node write() cannot both throw sync and invoke its callback for the same call, verified empirically). drainPending resolves at zero or via onDrained; DRAIN_CAP_MS=2000 unrefd timer fires once, marks both streams broken, leaves counter safely clamped for late settles. finally unconditionally drains before removeListener on every exit path; no concurrent-increment race since passthrough only fires inside the awaited runHostRun. No unhandled rejection (all promises here only resolve). Doc clause matches code. build clean, test:host-run-usage 56/56 (incl new F-024 real-subprocess EPIPE regression), test:usage-sweep 17/17. No dead code/as any/empty catch. No blocking issues.",
+      "createdAt": "2026-07-10T14:47:30.475Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-072",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/alias-normalizer.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/host-execution-readiness.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/usage-ledger/adapters/openai.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/core/usage-ledger/writer.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/usage-ledger-budget-smoke.ts",
+          "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e6fdee953f9ef50a7e6238a0aad5a9eeaf28f9f0bce93d6202c1ab2ac2baa426"
+    },
+    {
+      "id": "B-70e9:RP-063",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 17, post F-024 fix 2216ff5104): all 7 checklist items (CHK-001..CHK-007) have must-priority happy/edge/adversarial intents covered by passing verificationEvidence; evidence_plan reports fresh=42/missing=0/rerun=0 (materialHash+storyFilesHash match current tree). Re-ran both suites fresh in this session: test:host-run-usage 56/56 pass, test:usage-sweep 17/17 pass. Verified the new F-024 check (host-run-usage-smoke.ts ~line1114) is a distinct EPIPE window from F-020 (general async stream-error containment) and F-023 (stderr final-diagnostic write settling, quiet text-mode, stderr destroyed at spawn): F-024 targets the default text-mode LIVE STDOUT passthrough itself, real-subprocess repro destroys the driver stdout read end after first data during a synchronous 40x64KiB burst so surplus queued writes EPIPE late, proven failing 10/10 pre-fix and passing after (exit 0, ledger final row intact, slot released). All findings F-001..F-024 dismissed/resolved, evidenceState=verified. No coverage gap; no blocker.",
+      "createdAt": "2026-07-10T14:49:16.233Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-073",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-70e9/checklist.json",
+          ".lattice/story/actives/B-70e9/findings.json",
+          ".lattice/story/actives/B-70e9/review-runs.json",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-70e9/background.md",
+          ".lattice/story/actives/B-70e9/index.json",
+          ".lattice/story/actives/B-70e9/plan.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/handlers/host-run.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a5742e989b7eb84786bd12f71b0d8df81b719a9c4e26a1862b90ba6691e170e2"
+    },
+    {
+      "id": "B-70e9:RP-064",
+      "agent": "lattice-review-concept",
+      "note": "Round-18 re-review after fix commit 387b0ad3a2 (F-025/F-026). Identified concept renames: releaseSlot(file) -> releaseSlot(file,token) [F-025 ownership-token]; private field truncatedFlag -> truncatedSinceLastCandidate [F-026]; isSlotFileStale -> isSlotReclaimable; acquireHostRunSlot return type string|null -> AcquiredHostRunSlot|null. Grepped whole repo (excluding node_modules/dist/.git) for each: releaseSlot( has zero single-arg call residue in any live .ts/.md (all of host-run.ts, autopilot-executor.ts, codex-review-leaf.ts, host-run-usage-smoke.ts use the new 2-arg form; only historical bug-description prose in findings.json/review-passes.json references the old signature, describing the pre-fix bug, not live code). truncatedFlag: zero matches anywhere. isSlotFileStale: zero live-code/docs matches (one mention is stale round-2 review-pass audit prose from an earlier unrelated fix, unaffected by this commit). AcquiredHostRunSlot: correctly exported/imported/typed at all 3 call sites, all consumers destructure .file/.token, no bare-string treatment remains. docs/host-run-usage.md updated consistently with the new token-guarded/ownership-aware reclaim and candidate-relative truncation semantics; no stale staleness-backstop-only phrasing left. Public UsageLineScanner.truncated getter API intentionally unchanged (only its internal backing field was renamed) - correct, not residue. No concept-cleanup blocker.",
+      "createdAt": "2026-07-10T15:17:45.866Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-074",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/core/host-run.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bb403226eaad3414adcbba6173bf10dd023a0435008c29af3c324319f2641826"
+    },
+    {
+      "id": "B-70e9:RP-065",
+      "agent": "lattice-review-docs",
+      "note": "Round 18 re-review after fix commit 387b0ad3a2 (F-025/F-026). Verified both rewritten doc areas in docs/host-run-usage.md (slot ownership-token/reclaim-narrowing paragraph, truncation-poisoning paragraph) line-by-line against core/host-run.ts symbols (acquireHostRunSlot, releaseSlot, AcquiredHostRunSlot, isSlotReclaimable, scanLiveSlots, UsageLineScanner, truncatedSinceLastCandidate, LATTICE_HOST_RUN_SLOT_STALE_MS). Confirmed threading through autopilot-executor.ts and codex-review-leaf.ts. Ran both smoke suites live: test:host-run-usage 61/61, test:usage-sweep 17/17, all pass including the exact F-025/F-026 checks matching the doc prose. CHANGELOG.md B-70e9 entry unchanged by this commit and not contradicted (still-accurate feature-level summary). No inconsistencies found; no blocking findings.",
+      "createdAt": "2026-07-10T15:19:02.333Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-076",
+      "readManifest": {
+        "filesReadFully": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/core/host-run.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b47d47d5ca6393e36675366fb5b937a5afb8b25a87ec8639040262fbbb2da451"
+    },
+    {
+      "id": "B-70e9:RP-066",
+      "agent": "lattice-review-quality",
+      "note": "Round 18 re-review of F-025/F-026 fix (387b0ad3a2). Scrutinized: token verify windows in acquireHostRunSlot/scanLiveSlots/releaseSlot (re-verify-then-unlink always immediately precedes the syscall, sameSlotOccupant correctly compares pid+token for valid occupants and state-only for missing/corrupt); scanLiveSlots reporting semantics after the narrowing (never surfaces token, correctly reports legacy token-less live slots, reclaim-then-report loop correctly skips reclaimed entries); legacy token-less slot handling (readSlotOccupant returns token:null for pre-fix meta, exercised by the seedSlot smoke helper and the live-holder-protection test, reclaim/report logic is token-independent so no special-casing needed and none is missing); all three caller sites (host-run.ts:1238, autopilot-executor.ts:414, codex-review-leaf.ts:649) thread {file,token} consistently via the new AcquiredHostRunSlot type, no leftover single-arg releaseSlot calls anywhere in src; UsageLineScanner truncatedSinceLastCandidate set/clear sites (set on every over-cap drop at both the no-newline and newline branches, cleared only when consider() actually retains a usage-bearing candidate, ordinary non-usage lines and drop-only leave it untouched) matching the documented F-013/F-026 last-usage-wins semantics; docs/host-run-usage.md prose for both fixes matches code exactly (pid-liveness-only reclaim for valid meta, mtime backstop scoped to missing/corrupt meta, token-guarded release, candidate-relative truncation). No dead code, no as-any, no empty catches (all catches carry an explaining comment consistent with the best-effort doctrine) in the touched files. npm run build clean. test:host-run-usage 61/61, test:usage-sweep 17/17, cross-host-review-smoke 24/24, autopilot-v2-reliability-smoke PASS. Zero open findings across all 25 story findings (all resolved with strong evidence). No blocking issues found.",
+      "createdAt": "2026-07-10T15:20:26.435Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-075",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/usage-ledger/adapters/openai.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/core/usage-ledger/writer.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9eeeee5b53effc0e602a5db7ef3f78058345376549ecd6538216759e98ad2238"
+    },
+    {
+      "id": "B-70e9:RP-067",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 18, post 387b0ad3a2): all 7 checklist items (CHK-001..CHK-007) carry full happy/edge/adversarial verificationIntent columns per the high-risk channel; all 42 must-priority intents have bound, non-failing verificationEvidence; evidence_plan reports fresh=42/missing=0/rerun=0/refresh-only=0 against current head. Verified F-025/F-026 fix bound in host-run-usage-smoke.ts: F-025 release-token guard + live-holder-protection (inverted assertion) + meta-less-orphan-backstop; F-026 truncatedSinceLastCandidate scanner unit + codex real-child RED + claude mirror. Re-ran both suites clean: test:host-run-usage 61/61 pass, test:usage-sweep 17/17 pass. All findings F-001..F-026 dismissed/resolved, evidenceState=verified; no open findings; no blocker found in this round.",
+      "createdAt": "2026-07-10T15:21:16.445Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-077",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/handlers/host-run.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9ce42186744f31574f9c8e0045f235a01fbb4392c1f3c31edcef6258ee31c6b4"
+    },
+    {
+      "id": "B-70e9:RP-068",
+      "agent": "lattice-review-concept",
+      "note": "Round 19 (commit 2f42209a92, F-027 fix): diff scoped to core/host-run.ts, core/usage-ledger/dispatch-usage.ts, tasks/host-run-usage-smoke.ts, docs/host-run-usage.md. Reviewed full commit diff line-by-line: no concept word deleted or replaced en masse. recordConcurrencyBlock return type gains an optional reason? field (was {recorded,recordId}); BudgetGuardDecision gains optional appended?/appendFailureReason? fields. Both additive/backward compatible per commit message and code inspection. Reused helper describeLedgerAppendFailure predates this commit (introduced in F-021 fix 0042a4a1f4), not a new/renamed concept. Removed lines are logic changes only (unconditional recorded:blocked -> conditional; bare catch{} -> catch(err)), not concept deletions. No grep sweep warranted; no residue check applicable this round. No blocker.",
+      "createdAt": "2026-07-10T17:25:53.397Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-079",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "1def40b835e2892240a5a76c1ddb5f6600cd42738d8d0ba915f64086c0814ee5"
+    },
+    {
+      "id": "B-70e9:RP-069",
+      "agent": "lattice-review-docs",
+      "note": "Fallback-1 full-text scan (docs-only touchpoint, no Step-1 symbol anchors from this narrowed diff review): verified the new blocked-row honesty paragraph appended to docs/host-run-usage.md (lines 175-183) in commit 2f42209a92 against the 3 code surfaces it describes. 1) core/host-run.ts CHK-007a hard-budget and CHK-007b concurrency refusal paths: recorded is now gated on the real appended flag (rowAppended / blockRow.recorded), recordId is nulled on a swallowed write, and the composed reason strings match the doc's example strings verbatim: hard_budget_exceeded ...; ledger_append_failed... and concurrency_cap_exceeded ...; ledger_append_failed... . 2) usage-ledger/dispatch-usage.ts: recordConcurrencyBlock and recordBudgetBlock/BudgetGuardDecision additively surface appended/appendFailureReason via describeLedgerAppendFailure, which emits the exact ledger_append_failed format the doc quotes; recordId is never set when the row never landed, matching the doc's claim that a recordId is never minted for a blocked row that never persisted. 3) Ran the built host-run-usage-smoke suite (npm build + node dist/tasks/host-run-usage-smoke.js): 63/63 checks pass including the two new F-027 corrupt-ledger refusal checks and the CHK-007a/007b positive-path blocked-row checks, confirming the doc's behavior claims are live-verified not aspirational. CHANGELOG.md follows this repo's established one-entry-per-story convention (confirmed against prior fix commits e.g. F-012/F-008 in git log) so the absence of a separate F-027 CHANGELOG line is not drift. No doc-promise-undelivered gaps found; no inconsistencies. 0 findings.",
+      "createdAt": "2026-07-10T17:26:48.379Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-080",
+      "readManifest": {
+        "filesReadFully": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "9cb0937c0df3e2bd23a18d6217dd34f72bb19dd7e7a69bf800b28d18fddcc6f8"
+    },
+    {
+      "id": "B-70e9:RP-070",
+      "agent": "lattice-review-quality",
+      "note": "Round 19 re-review of F-027 fix (commit 2f42209a92). Verified: (1) composed-reason format matches the finding request - refusalDetail + '; ' + ledger_append_failed(...)/blocked_record_build_failed on a swallowed blocked-row append; refusal unchanged (fail-closed, no spawn, nonzero exit); (2) both host-run.ts refusal paths (hard-budget ~1157-1192, concurrency ~1214-1246) gate recorded/recordId on the actual append outcome (rowAppended / blockRow.recorded) - grepped all recorded: sites, confirmed the only two static blocked literals are now conditional; (3) traced recordConcurrencyBlock's usage_ledger_disabled OFF-reason and recordBudgetBlock's OFF no-op: unreachable from host_run (host-run.ts:1124 returns disabledSummary() before line 1157/1214 run when ledgerOn is false) and unreachable from the other two production callers (autopilot-executor.ts, codex-review-leaf.ts), which both gate the same calls behind their own ledgerOn check - no misleading OFF-path surface; (4) BudgetGuardDecision appended?/appendFailureReason? are additive optional fields; pre-existing legacy call sites (dispatch seam, autopilot repair, codex review leaf) read only blocked/budgetPolicyId/hardBudgetTokens and never reference the new fields - compatible; (5) noted a pre-existing (not introduced by this commit, outside this diff) asymmetry where recordBudgetBlock fails OPEN on blocked_record_build_failed while recordConcurrencyBlock stays fail-closed with a reason - confirmed via git diff this line is unchanged by 2f42209a92, out of scope for this round. Reran build (clean tsc) + test:host-run-usage (63/63, incl. 2 new F-027 corrupt-ledger checks + positive-path guards on CHK-007a/007b) + usage-ledger-budget-smoke (41/41) + usage-ledger-dispatch-smoke (40/40) + usage-ledger-default-on-smoke (30/30) + test:usage-sweep (17/17). No blocking issues found.",
+      "createdAt": "2026-07-10T17:27:59.152Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-081",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/alias-normalizer.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/host-execution-readiness.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/usage-ledger/adapters/openai.ts",
+          "packages/main/src/core/usage-ledger/writer.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/usage-ledger-budget-smoke.ts",
+          "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "00dc02d5f47eca27534f4784cdeb95ae2d9fb25f01c517dca97a9685ad17098e"
+    },
+    {
+      "id": "B-70e9:RP-071",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 19, post-F-027 fix 2f42209a92): all 42 must-priority verificationIntent items across CHK-001..CHK-007 have fresh valid verificationEvidence (evidence_plan: missing=0 rerun=0 refresh-only=0 fresh=42). Verified the 2 new smoke checks bind F-027 (corrupt-ledger+cap-saturated and corrupt-ledger+over-budget refusal-honesty; both named F-027 in host-run-usage-smoke.ts, RED-proven per commit 2f42209a92) plus positive-path guards added to the existing CHK-007a/CHK-007b happy-path checks. Independently re-ran npm --prefix packages/main run test:host-run-usage (63/63 pass incl. both F-027 checks by name) and test:usage-sweep (17/17 pass). All findings F-001..F-027 in findings.json are dismissed (F-001) or resolved (F-002..F-027) with strong evidence. No coverage gaps found; no blocker.",
+      "createdAt": "2026-07-10T17:28:30.741Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-078",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-70e9/findings.json",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-70e9/checklist.json",
+          "docs/host-run-usage.md",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "53790cd6cf3505af71b626a55b793fed8193c19aa25639379f94598c551b03a9"
+    },
+    {
+      "id": "B-70e9:RP-072",
+      "agent": "lattice-review-concept",
+      "note": "Round 20 (final convergence): confirmed no story-code changes since round 19 - only a clean merge of main 0.3.183 (unrelated B-bf15 stale-npm-script removal, B-2c03/B-8de3 other-story metadata, lattice-brand.ts version bump 0.3.182->0.3.183) plus evidence re-stamp metadata. Merge commit eb8499d417 non-.lattice diff touches only package.json/package-lock.json version fields and lattice-brand.ts version const - none overlapping this story own file set beyond the two package.json files, where the story own diff independently adds test:host-run-usage/test:usage-sweep script entries (unrelated to the version bump). git diff main...HEAD --stat is unchanged in file list/shape from round 19 (27 non-.lattice files, same additive shape: new host-run.ts, usage-sweep.ts, dispatch-usage.ts/writer.ts extensions, host-run-usage-smoke.ts, usage-sweep-smoke.ts). Re-scanned all removed (-) lines across the diff: no concept word deleted/replaced en masse. The only non-additive symbol change is runClaudeRepair (autopilot-executor.ts) going from unexported to exported with an added env param - an in-place extension, not a rename/deletion; grep confirms runClaudeRepair is referenced consistently across autopilot-executor.ts, host-run-usage-smoke.ts, and story metadata with zero orphaned old-name residue and zero shadow/duplicate definitions. No concept deletion/replacement this round; concept residue check completed, no blocker.",
+      "createdAt": "2026-07-10T17:31:12.011Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-082",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/cli/alias-normalizer.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/core/host-execution-readiness.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/usage-ledger/adapters/openai.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/core/usage-ledger/writer.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "51049cbdab7c62ac0ae316f214b36cf3c12bc116bd09325f67114cd259ca6156"
+    },
+    {
+      "id": "B-70e9:RP-073",
+      "agent": "lattice-review-docs",
+      "note": "Round 20 FINAL convergence pass. No .md changes since round-19 content commit (verified via git diff 2f42209a92..HEAD -- *.md: only unrelated stories B-2c03/B-8de3/B-bf15 internal metadata, not this story touchpoints). Confirmed main 0.3.183 merge (eb8499d417) touched only package.json/package-lock.json/lattice-brand.ts version-bump files, no intersection with docs/host-run-usage.md or CHANGELOG.md. Symbol set from Step 1: 0 new symbols since round 19. Fallback 1 no-op docs round. No doc-code drift found. No blockers.",
+      "createdAt": "2026-07-10T17:31:36.638Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-085",
+      "readManifest": {
+        "filesReadFully": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "21d54da2c0290000ccff43162b47dff3a302dbf1b4bc8f1a7c099cccc26619ad"
+    },
+    {
+      "id": "B-70e9:RP-074",
+      "agent": "lattice-review-quality",
+      "note": "Round 20 (final convergence): no story-code changes since round 19; only main 0.3.183 merged in (unrelated B-bf15 npm-script removal of test:host-run-usage/test:usage-sweep from package.json + packages/main/package.json). Diffed merge parents directly (5f5485f774..6c4dacb450) and confirmed the removal only touched those two script lines plus version bump/lattice-brand.ts; diffed eb8499d417..HEAD for every story-touched file (27 files) and found zero further changes, confirming the merge fully preserved this stor's npm-script additions with no overlap or regression. Rebuilt (npm run build, clean) and re-ran both smokes at the merged tree: test:host-run-usage 63/63 passed, test:usage-sweep 17/17 passed. Quality checklist (dead code / type safety / I-O isolation / proof-metadata job+run.metadata coverage) all previously clean through round 19 with zero code delta since. No findings.",
+      "createdAt": "2026-07-10T17:31:37.580Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-083",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/lattice-brand.ts"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/cli/alias-normalizer.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/host-execution-readiness.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/usage-ledger/adapters/openai.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/core/usage-ledger/writer.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "packages/main/src/tasks/usage-ledger-budget-smoke.ts",
+          "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a65d71a7dc1c93332ea10282682ecd995c6b131665f1395222c4cb16f22df13f"
+    },
+    {
+      "id": "B-70e9:RP-075",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 20 FINAL convergence re-review: no story-code changes since round-19 pass; only main 0.3.183 merged + evidence re-stamped. evidence_plan (read-only, not validate) confirms fresh=42/missing=0/rerun=0/refresh-only=0 across all 7 checklist items (CHK-001..CHK-007), all must-priority happy/edge/adversarial intents covered by valid non-fail evidence. Re-ran test:host-run-usage (63/63 pass) and test:usage-sweep (17/17 pass) fresh in-worktree. All findings F-001..F-027 confirmed dismissed/resolved, zero open. Test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker.",
+      "createdAt": "2026-07-10T17:31:43.704Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-084",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-70e9/checklist.json",
+          ".lattice/story/actives/B-70e9/findings.json",
+          ".lattice/story/actives/B-70e9/index.json",
+          ".lattice/story/actives/B-70e9/init-check.json",
+          ".lattice/story/actives/B-70e9/review-passes.json",
+          "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-70e9/background.md",
+          ".lattice/story/actives/B-70e9/plan.md",
+          ".lattice/story/actives/B-70e9/review.json",
+          ".lattice/story/actives/B-70e9/scope-contract.json",
+          "docs/host-run-usage.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0a777fd636d11d36c563847677df287e3ebce73b9d346a28a6530f6ba817b71e"
+    },
+    {
+      "id": "B-70e9:RP-076",
+      "agent": "lattice-review-quality",
+      "note": "Round 21 re-review of F-028/F-029/F-030 fixes (81c5bc42ea, 3f2bed8c4a). isReadOnlyCommand: static READ_ONLY_COMMANDS members stay arg-independent; usage_sweep write-detection (usageSweepWritesReport) uses the identical typeof-string+trim blank-out rule as ownership-gate.ts F-014 and the handler normalizeString; all 4 cli-engine hook-gating sites consult the predicate via the single closured parsed object, so non-usage_sweep command behavior is unchanged (cli-surface + command-catalog 323 both pass). recordDispatchFinalCodex and recordDispatchFinalForProvider: build/append correctly separated into independent try blocks scoped under record!==null; a build failure still degrades to the existing unavailable fallback (unchanged); an append failure is swallowed/reported with no second unavailable append ever attempted; the digest-the-original build call is untouched in both diffs. F-030 smoke honesty note accurately discloses what the committed corrupt-ledger check can and cannot distinguish vs the throwaway RED harness, not overclaiming. Re-ran build clean, test:host-run-usage 65/65, test:usage-sweep 18/18, run-all-smokes --select usage 12/12, cli-surface-smoke pass, command-catalog-smoke 323 pass, all matching commit-message claims. No quality-lane blockers. One open finding F-031 (docs lane, medium) is out of scope for this lane.",
+      "createdAt": "2026-07-10T18:33:13.654Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-086",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/host-execution-readiness.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/usage-ledger/adapters/openai.ts",
+          "packages/main/src/core/usage-ledger/writer.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/usage-ledger-budget-smoke.ts",
+          "packages/main/src/tasks/usage-ledger-default-on-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5a4ad6c6312347121711566b0a4b6f688ba47e0560700a993f1bf7eb2734d84d"
+    },
+    {
+      "id": "B-70e9:RP-077",
+      "agent": "lattice-review-concept",
+      "note": "Round 21 (commits 81c5bc42ea F-028/F-029, 3f2bed8c4a F-030) concept residue check: no mass concept deletion/replacement. F-028 adds isReadOnlyCommand(cmd,args) as an arg-aware WRAPPER around the existing static READ_ONLY_COMMANDS set (not a replacement) - READ_ONLY_COMMANDS is still exported from cli-engine.ts and still consumed with unchanged semantics by cli-surface-smoke.ts, playbook-trial-automation-smoke.ts, and playbook-seed-promotion-loop-smoke.ts (none test usage_sweep membership, so all unaffected). All 4 cli-engine.ts hook-gating call sites (pre/post pairs) plus shouldWriteActivityLog consistently switched to isReadOnlyCommand; repo-wide grep for READ_ONLY_COMMANDS found no residual call site still gating usage_sweep on the old static-only semantics. F-029/F-030 restructure build-vs-append into separate try blocks in recordDispatchFinalCodex and recordDispatchFinalForProvider only; independently audited the two sibling functions the commit message claims are conflation-free (recordDispatchFinal has a single try with no second-append fallback path at all, structurally cannot exhibit the bug; recordDispatchUnavailableFinal is a standalone single-purpose unavailable-only builder with no provider-reported branch) and confirmed both audit claims are correct. docs/host-run-usage.md additions accurately describe the new behavior with no promised-but-undelivered gaps. Independently rebuilt dist and ran host-run-usage-smoke (65/65 PASS) and usage-sweep-smoke (18/18 PASS) plus tsc --noEmit (clean). No blocker.",
+      "createdAt": "2026-07-10T18:33:29.472Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-089",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/tasks/cli-surface-smoke.ts",
+          "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts",
+          "packages/main/src/tasks/playbook-trial-automation-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "aee5cee61e38015f71145ced08921dd4f6eb07f8cb8cbeb855fa1a65c0f21db8"
+    },
+    {
+      "id": "B-70e9:RP-078",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 21 re-review after fix commits 81c5bc42ea (F-028/F-029) and 3f2bed8c4a (F-030). evidence_plan shows fresh=42/missing=0/rerun=0/refreshOnly=0 at head ff15b6adbc, storyFilesHash 2a89c159. Re-ran npm --prefix packages/main run test:host-run-usage -> 65/65 checks incl. F-029 codex append-vs-build separation and F-030 provider void-sibling build-vs-append separation. Re-ran npm --prefix packages/main run test:usage-sweep -> 18/18 checks incl. F-028 plain usage_sweep is read-only for hooks/activity predicate. Source-verified all three new checks bind to genuine fixes: isReadOnlyCommand (arg-aware) wired into all 4 cli-engine.ts hook/activity-log gating sites; recordDispatchFinalCodex and recordDispatchFinalForProvider (caller lattice-dispatch.ts:2384) both separate buildProviderRecord from appendUsageRecord into independent try blocks so a transient append failure can never masquerade as a false source=unavailable row. All 30 findings (F-001..F-030) are dismissed/resolved with verified evidenceState. checkAsync call-site counts match reported totals exactly (65 host-run-usage-smoke.ts, 18 usage-sweep-smoke.ts). Every must-priority intent across CHK-001..CHK-007 has verificationEvidence with result=pass bound to current headHash/materialHash/storyFilesHash. No coverage gaps found. Test coverage review passed.",
+      "createdAt": "2026-07-10T18:34:22.795Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-088",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/host-execution-readiness.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/lattice-dispatch.ts",
+          "packages/main/src/core/usage-ledger/adapters/openai.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/handlers/reviewer-batch.ts",
+          "packages/main/src/handlers/usage-sweep.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9e6678ddf66679f5d2dc17578e09d58613bd3361cc4b878fb9ed768867822552"
+    },
+    {
+      "id": "B-70e9:RP-079",
+      "agent": "lattice-review-concept",
+      "note": "Round 22, doc-only fix commit d9a9203424 (F-031): single qualifier clause added to docs/host-run-usage.md re-stating usage_sweep no-activity-log-entry as by-default with LATTICE_ACTIVITY_RECORD_READONLY=1 override caveat, cross-referenced to docs/CLI.md where that env var is documented (verified present). No concept deletion/replacement; no code files touched (docs/host-run-usage.md only, 4 insertions/3 deletions). No residue grep applicable, no blocker.",
+      "createdAt": "2026-07-10T18:38:17.304Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-090",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f2af8798c4c6fa90bc7db85d10383b1e86c0bcc060660d65af1496c7073e7a93"
+    },
+    {
+      "id": "B-70e9:RP-080",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 22 re-review post d9a9203424 (F-031 docs-only fix, no test changes needed): all 7 checklist items done with full happy/edge/adversarial verificationIntent and matching verificationEvidence, evidence_plan fresh=42/missing=0/rerun=0, test:host-run-usage 65/65 pass, test:usage-sweep 18/18 pass. F-031 doc fix verified against activity-policy.ts and usage-sweep-smoke.ts (LATTICE_ACTIVITY_RECORD_READONLY override already covered by existing test). All findings F-001..F-031 dismissed/resolved; no blocker.",
+      "createdAt": "2026-07-10T18:38:54.379Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-092",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "199e81752cff966dfa99bc0954ee6e56fa648e1b3cbeed9900cf6f2119636438"
+    },
+    {
+      "id": "B-70e9:RP-081",
+      "agent": "lattice-review-quality",
+      "note": "Round 22 (trivial, doc-only): verified d9a9203424 against docs/host-run-usage.md only. F-031 fix qualifies the usage_sweep activity-log claim with by-default + reference to LATTICE_ACTIVITY_RECORD_READONLY=1 override, matching shouldWriteActivityLog in activity-policy.ts. Hooks clause correctly left unqualified: cli-engine.ts gates hooks solely on isReadOnlyCommand, no readonly-override involvement. No code changed this round (metadata-only follow-ups). Re-ran npm run test:usage-sweep once: 18/18 checks passed. No findings.",
+      "createdAt": "2026-07-10T18:39:08.963Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-091",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/cli/activity-policy.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli-engine.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1d9801afef835109638505fd869e116300092ca64eeb6abeb241267172774170"
+    },
+    {
+      "id": "B-70e9:RP-082",
+      "agent": "lattice-review-docs",
+      "note": "Round 22 re-review of F-031 fix (commit d9a9203424). Verified the corrected F-028 clause in docs/host-run-usage.md against activity-policy.ts and cli-engine.ts: hooks gate (preCommand/postCommand) uses isReadOnlyCommand(cmd,parsed) only, never reads LATTICE_ACTIVITY_RECORD_READONLY, so the unqualified hooks clause remains correct; shouldWriteActivityLog is the sole call site reading that env var, so the new by-default/override qualifier is correctly scoped to the activity-log sentence only, not the hooks sentence. Cross-checked docs/CLI.md override reference for consistency (matches). F-031 resolution is honest: drift fixed, no new inaccuracy, no scope-creep. Fallback-1 full-text scan (doc-only diff, no new exported symbols). 0 findings this round.",
+      "createdAt": "2026-07-10T18:39:20.643Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-093",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/CLI.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/activity-policy.ts"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2e680dc51abda6c7f387cc77e64e1a4f11c2823b2c0a8051168529c11a1ccff5"
+    },
+    {
+      "id": "B-70e9:RP-083",
+      "agent": "lattice-review-concept",
+      "note": "Round 23 (post-commit 43ea459, F-032 fix): reviewed cli-engine.ts, tasks/usage-sweep-smoke.ts, docs/host-run-usage.md. Purely additive change — new isReadOnlyCommand guard clause at the writeCodexProcessEvent call site (success + error paths), pointer comments, one new CLI end-to-end smoke check, and an extended F-028 doc bullet. isReadOnlyCommand is a pre-existing exported symbol from cli/activity-policy.ts already used elsewhere in cli-engine.ts (preCommand/postCommand hook gates) — reused, not renamed or newly introduced. No concept word was deleted or replaced in this commit; nothing to grep for residue.",
+      "createdAt": "2026-07-10T19:50:47.343Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-094",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "a9f92f9e3e31e450c8e2e7e17b748da82cdd9df645a0fe121bdeb4e991813693"
+    },
+    {
+      "id": "B-70e9:RP-084",
+      "agent": "lattice-review-test-coverage",
+      "note": "F-032 fix verified: writeCodexProcessEvent now gates on isReadOnlyCommand at cli-engine.ts run() success+error call sites; new CLI end-to-end check #19 in usage-sweep-smoke.ts drives real dist/cli.js on a fixture story/branch under LATTICE_ACTIVITY_SOURCE=codex and proves plain usage_sweep leaves process-events.jsonl byte-identical while --out appends exactly one bound codex_cli event. All 32 findings F-001..F-032 dismissed/resolved with evidenceState=verified. evidence_plan re-stamped fresh=42, missing=0, rerun=0, refresh-only=0. test:usage-sweep=19 checks pass, test:host-run-usage=65 checks pass. No test-coverage gap found.",
+      "createdAt": "2026-07-10T19:51:57.246Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-095",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-70e9/checklist.json",
+          ".lattice/story/actives/B-70e9/findings.json",
+          ".lattice/story/actives/B-70e9/index.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-70e9/background.md",
+          ".lattice/story/actives/B-70e9/decision.json",
+          ".lattice/story/actives/B-70e9/execution-boundary.json",
+          ".lattice/story/actives/B-70e9/plan.md",
+          ".lattice/story/actives/B-70e9/review-passes.json",
+          ".lattice/story/actives/B-70e9/review-runs.json",
+          ".lattice/story/actives/B-70e9/scope-contract.json",
+          ".lattice/story/actives/B-70e9/test-evidence.json",
+          "docs/host-run-usage.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "028efdb6ab4a4fc03fd9c6629ec8de09bd7ae5e991bc4f97544eeb44ff017cf1"
+    },
+    {
+      "id": "B-70e9:RP-085",
+      "agent": "lattice-review-docs",
+      "note": "Docs-only diff (round 23, commit 43ea459): git diff main...HEAD symbol-set extraction yields no changed export/class/function/const/interface/type/enum/def declarations attributable to docs/host-run-usage.md itself (a new doc file); the code-side diff (cli-engine.ts) exports isReadOnlyCommand (re-exported, already existed) with no new public signature. Falls to Fallback-1 full-text scan of touchpoint docs/host-run-usage.md plus CHANGELOG.md consistency check: 2 files/paragraphs compared (the extended F-028/F-032 read-only-contract bullet + the CHANGELOG B-70e9 summary entry). Verified the extended bullet against cli-engine.ts writeCodexProcessEvent (lines 1050-1090): self-gates via if (isReadOnlyCommand(entry.command, argsObject)) return placed right after the isCodexActivitySource() guard, firing at both the success (line 1182) and error (line 1226) call sites -- matches the doc claim that a plain (no --out) usage_sweep appends no process event while --out keeps it. Traced isReadOnlyCommand/usageSweepWritesReport in activity-policy.ts confirming usage_sweep classification is arg-aware (empty --out -> read-only, non-empty --out -> write), matching the doc table. Verified the lease-heartbeat-exemption claim: acquireOrRefreshOwnerLease is invoked only from cli/ownership-gate.ts on the storyScopedMutating/dangerousMutating ownership-class path, a separate gating axis from isReadOnlyCommand -- usage_sweep without --out is classified readOnly so it never reaches lease refresh, matching doc wording. Cross-checked usage-sweep-smoke.ts check 19 (F-032), which drives the real built CLI with LATTICE_ACTIVITY_SOURCE=codex against a fixture story and asserts process-events.jsonl stays byte-identical after a plain sweep and gains exactly one codex_cli event after --out. CHANGELOG.md B-70e9 entry already describes usage_sweep as strictly read-only at summary level; no contradiction, no promised-but-undelivered gap, no edit needed for this narrow internal-contract fix. No inconsistencies found; 0 findings registered this round.",
+      "createdAt": "2026-07-10T19:52:48.930Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-096",
+      "readManifest": {
+        "filesReadFully": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/activity-policy.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/core/story-owner-lease.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "453500e34150173595170ce1ecd5be51e6dc4175b998d20a49940fe95cd137a3"
+    },
+    {
+      "id": "B-70e9:RP-086",
+      "agent": "lattice-review-quality",
+      "note": "Round 23 re-review of F-032 fix (43ea459): writeCodexProcessEvent self-gates on isReadOnlyCommand(entry.command, args) at both success and error call sites in cli-engine run(). Verified args threading (parsed is Record<string,unknown>, correctly passed as entry.args at both sites), predicate correctness (mirrors the exact isReadOnlyCommand used by hooks/activity-log), and the two claimed exemptions by reading source: owner-lease heartbeat is confirmed never touched by a readOnly command (enforceStoryOwnerLeaseGate returns early for cls===readOnly before acquireOrRefreshOwnerLease is ever called); onError/preCommand/postCommand hooks are opt-in external user-configured shell commands via runHooks (no-op when cfg.hooks unset), a materially different write-surface class from Lattice-internal story metadata, so exempting them is sound (and onError was already unconditional pre-F-032, not newly introduced). retrieval_violation writes to the top-level activity log via appendActivityLog(root,...), not story process-events, so it is correctly out of scope. Confirmed writeCodexProcessEvent/store.appendProcessEvent in cli-engine.ts run() is the sole call site for this unconditional post-command codex bookkeeping event class (other appendProcessEvent call sites are explicit handler-level command semantics, a different class). Smoke usage-sweep-smoke.ts check 19 drives the real built dist/cli.js against a real git fixture on a story/ branch with LATTICE_ACTIVITY_SOURCE=codex, asserting byte-identical process-events.jsonl for a plain sweep and exactly one appended event for --out; realistic end-to-end coverage. Build clean; test:usage-sweep 19/19; test:host-run-usage 65/65; cli-surface-smoke pass; command-catalog-smoke pass (323 commands). No blocking issues found.",
+      "createdAt": "2026-07-10T19:53:00.510Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-097",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/core/hooks.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/alias-normalizer.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/host-execution-readiness.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/usage-ledger/adapters/openai.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/core/usage-ledger/writer.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "packages/main/src/tasks/usage-ledger-budget-smoke.ts",
+          "packages/main/src/tasks/usage-ledger-default-on-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ae279cda78d605fe96b139a48eb360061f7182d3701ea283680937b1101044f5"
+    }
+  ]
+}
