@@ -184,12 +184,45 @@
       "title": "Add regression checks for direct story-file write instructions",
       "context": "M0.6 requires a mechanical check that prompts requiring direct writes under docs/story are flagged unless a CLI command is missing and the prompt is explicitly grandfathered.",
       "relatedDocs": [
-        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
-        "AGENTS.md"
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md#M0---Baseline-Inventory-And-Lockfile"
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "node scripts/verify-proof-or-stop-prompt-baseline.mjs reports direct docs/story write findings are baseline-classified and no unregistered direct-write instruction exists.",
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json"
+        ],
+        "test": [
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "package.json"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-005:happy:0",
+            "desc": "The verifier scans every prompt for docs/story references and classifies each as policy reminder, read-only reference, direct read, direct write, or process-event evidence reference.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-005:edge:0",
+            "desc": "The verifier fails on any new direct docs/story write instruction that is not explicitly registered in the baseline with a grandfather/remediation classification.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-005:adversarial:0",
+            "desc": "The verifier distinguishes harmless reminders like do not directly read/write docs/story from actionable shell redirection or edit instructions that would bypass Lattice CLI state changes.",
+            "type": "logic"
+          }
+        ]
+      }
     }
   ]
 }
