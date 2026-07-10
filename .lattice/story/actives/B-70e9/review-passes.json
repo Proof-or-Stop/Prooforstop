@@ -1856,6 +1856,50 @@
         "scanEscalationReason": null
       },
       "_hash": "0a777fd636d11d36c563847677df287e3ebce73b9d346a28a6530f6ba817b71e"
+    },
+    {
+      "id": "B-70e9:RP-076",
+      "agent": "lattice-review-quality",
+      "note": "Round 21 re-review of F-028/F-029/F-030 fixes (81c5bc42ea, 3f2bed8c4a). isReadOnlyCommand: static READ_ONLY_COMMANDS members stay arg-independent; usage_sweep write-detection (usageSweepWritesReport) uses the identical typeof-string+trim blank-out rule as ownership-gate.ts F-014 and the handler normalizeString; all 4 cli-engine hook-gating sites consult the predicate via the single closured parsed object, so non-usage_sweep command behavior is unchanged (cli-surface + command-catalog 323 both pass). recordDispatchFinalCodex and recordDispatchFinalForProvider: build/append correctly separated into independent try blocks scoped under record!==null; a build failure still degrades to the existing unavailable fallback (unchanged); an append failure is swallowed/reported with no second unavailable append ever attempted; the digest-the-original build call is untouched in both diffs. F-030 smoke honesty note accurately discloses what the committed corrupt-ledger check can and cannot distinguish vs the throwaway RED harness, not overclaiming. Re-ran build clean, test:host-run-usage 65/65, test:usage-sweep 18/18, run-all-smokes --select usage 12/12, cli-surface-smoke pass, command-catalog-smoke 323 pass, all matching commit-message claims. No quality-lane blockers. One open finding F-031 (docs lane, medium) is out of scope for this lane.",
+      "createdAt": "2026-07-10T18:33:13.654Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-086",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/host-execution-readiness.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/usage-ledger/adapters/openai.ts",
+          "packages/main/src/core/usage-ledger/writer.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/usage-ledger-budget-smoke.ts",
+          "packages/main/src/tasks/usage-ledger-default-on-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5a4ad6c6312347121711566b0a4b6f688ba47e0560700a993f1bf7eb2734d84d"
     }
   ]
 }
