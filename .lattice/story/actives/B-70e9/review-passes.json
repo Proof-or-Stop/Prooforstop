@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-70e9:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Reviewed full git diff main...HEAD (stat + content) of all modified/new src files. Purely additive change (new host-run.ts, usage-sweep.ts, dispatch-usage.ts additions, host-run-usage-smoke.ts, usage-sweep-smoke.ts) plus small opt-in wiring into existing files. No concept word was deleted or replaced en masse: only removed lines are the in-place refactor of runClaudeRepair (unexported -> exported, gained env param), an extension not a deletion, verified via git diff grep of removed (-) lines across packages/main/src. No residual-reference grep needed since no concept was retired. No blocker.",
+      "createdAt": "2026-07-10T07:23:04.253Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-001",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli/alias-normalizer.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/registry.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/usage-ledger/adapters/openai.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "packages/main/src/tasks/usage-ledger-budget-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "fcbfde7cd0758532dde121a8a18b9c70457dbd1bae9cf25ff38711be248c4bba"
+    }
+  ]
+}
