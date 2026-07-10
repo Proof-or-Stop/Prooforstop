@@ -103,10 +103,21 @@ returned FAIL with six findings after the seven claude-side rounds passed:
   `deferred.ts`, `excluded-approach.log`, `partial-done-recovery` extensionless,
   `config.partial.enabled`, and extensionless prefix-free directory paths like
   `a/deferred/queue` — F-007 direction): authors can backtick single tokens or
-  use a dotted/prefix-qualified path, both of which strip. One residual false-negative by
-  convention: prose hidden inside a fenced code block is treated as code — a
-  summary whose ONLY shrinkage claim lives inside a fenced block is adversarial
-  authoring, outside the honest-summary threat model of this heuristic.
+  use a dotted/prefix-qualified path, both of which strip. TWO residual
+  false-negative classes, both by design not accident:
+  1. Prose hidden inside a fenced code block is treated as code — a summary
+     whose ONLY shrinkage claim lives inside a fenced block is adversarial
+     authoring, outside the honest-summary threat model.
+  2. (Recorded by the delivery review) A trigger-stemmed FILE NAME with an
+     unambiguous extension (`deferred-query.sql`, `partial-config.json`) is
+     stripped BY REQUIREMENT — it is shape-identical to
+     `partial-done-recovery.ts`, the exact token class B-d6a0 demands stay
+     silent, so no shape rule can keep one and drop the other. In natural
+     sentences of this class ("The deferred-query.sql export was skipped for
+     this delivery.") the shrinkage meaning is carried by the VERB (skipped /
+     removed / dropped), which the trigger vocabulary has never covered — that
+     verb-recall expansion belongs to the follow-up vocabulary story together
+     with host-B findings 2/3/4. Both directions are pinned by smoke cases.
 - (F-003 class, applied to all multi-word triggers; extended by F-008) `out of
   scope`, `not covered`, and `remaining <scope-noun>` accept `[\s./_-]+`
   connectors so hyphen/underscore/slash/dot compounds (`out-of-scope`,

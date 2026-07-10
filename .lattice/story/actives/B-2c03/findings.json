@@ -251,7 +251,7 @@
       "desc": "placeholder-checking-id",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "dismissed",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-10T18:54:24.661Z",
@@ -259,6 +259,28 @@
       "reviewRunId": "B-2c03:RR-024",
       "_hash": "ff1938053c6f3214f16140ee9e20ff1de7c99d606a69acaec449d60e75385373",
       "signatureTag": "missing|unknown|placeholder-checking",
+      "signatureTagSource": "auto",
+      "dismissReason": "Accidental placeholder created while diagnosing the correct reviewRunId format (abbreviated RR-024 was rejected; full B-2c03:RR-024 id needed). Superseded by the real finding filed immediately after with the actual coverage-gap description.",
+      "dismissedAt": "2026-07-10T18:54:40.515Z"
+    },
+    {
+      "id": "B-2c03:F-011",
+      "desc": "CHK-003:adversarial verificationEvidence and the host-B review-response narrative in plan.md claim test coverage that does not exist in tracked files. Commit e736624c08 widened the remaining-trigger regex to remaining(?:[connector][word]){0,3}?[connector]<scope-noun> and rewrote stripCodeLikeTokens into a whitespace-split/anchored tokenizer for linear-time safety, but that commit touches only packages/main/src/core/proofstory.ts and plan.md (git show e736624c08 --stat) — proofstory-intent-hardening-smoke.ts is byte-identical to before it. plan.md explicitly states: the modifier-window fix is covered by modifierRemainingDone / modifierRemainingDone2 plus a no-noun negative control, and a pathological-input timing assertion now lives in the smoke. Neither claim is true: grep across the smoke file for modifier|Modifier|pathological|timing|elapsed|Date.now|performance.now returns zero matches. The one pre-existing case that superficially resembles this behavior, remainingScopeDone (summary text: The remaining cases were left for a follow-up story.), has zero modifier words between remaining and its scope noun, so it passes under both the pre-fix and post-fix regex (verified locally: the pre-fix regex remaining[\\\\s./_-]+(?:work|scope|items?|...) already matches this exact string) and cannot distinguish the fix from a revert. Net effect: the specific behavior change delivered in this review round (widened modifier window, rewritten tokenizer with a claimed 8ms-vs-6.4s perf characteristic on pathological input) has zero regression coverage in tracked test files, and the CHK-003:adversarial evidence note mischaracterizes coverage that is not present. Needs: a smoke case with 1-3 modifier words between remaining and its scope noun (e.g. remaining browser-only edge cases were deferred) asserting the gap still fires, a no-noun negative control (e.g. remaining work was great as a compliment, no scope noun) asserting it does not fire, and either a timing/iteration-count assertion on a pathological hyphen/dot run or, at minimum, removal of the false claim from plan.md if the timing assertion is intentionally out of scope.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-10T18:55:02.672Z",
+      "reviewRound": "2026-07-10T18:53:39.083Z",
+      "reviewRunId": "B-2c03:RR-024",
+      "_hash": "fdcff2356db5aeb84b70b26b79f3c6b207ac4304dfbf4942f52ca00b5000bdaa",
+      "files": [
+        "packages/main/src/core/proofstory.ts",
+        "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+        ".lattice/story/actives/B-2c03/plan.md"
+      ],
+      "signatureTag": "missing|ts|adversarial-verificationevidence-host",
       "signatureTagSource": "auto"
     }
   ]
