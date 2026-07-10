@@ -584,6 +584,47 @@
         "scanEscalationReason": null
       },
       "_hash": "b42328654dac40ee6a7c44ff65f1770b9417980a960ec3ae002f76945093db01"
+    },
+    {
+      "id": "B-70e9:RP-025",
+      "agent": "lattice-review-quality",
+      "note": "Round-7 re-review of F-012 fix (commit bc966e3247, writer.ts + host-run-usage-smoke.ts + docs/host-run-usage.md). Verified: cross-process mkdirSync lock correctly wraps ONLY the predecessor-dependent read-last-hash->finalize->validate->append section; preCheck stays OUTSIDE the lock as documented, finalCheck is correctly INSIDE since it depends on the locked predecessor read. finally{releaseLedgerLock} covers every exit path incl. readLastRecordHash throwing on a corrupt predecessor. EEXIST reclaim only fires past the stale threshold; reclaim races are harmless (lock dir never written into, so a losing rmdirSync just hits ENOENT and retries; no double-acquire in the same loop pass). Atomics.wait sync-sleep has a bounded busy-wait fallback. Disabled fast path returns before any lock code (confirmed lock-free). writer.ts:323 is the sole appendFileSync against the ledger path outside tests; every appendUsageRecord call site in dispatch-usage.ts is try/catch-wrapped (fail-open holds). New exports resolveLedgerLockPath/USAGE_LEDGER_LOCK_SUFFIX are used by the smoke suite; no as-any casts, no dead code, no empty catches swallowing real errors. Docs addition matches implementation. Build (tsc) clean. test:host-run-usage 39/39 (incl. 3 new F-012 checks: 6x5 real concurrent-process parallel writes zero-skip/no-lost-writes/intact chain, stale-lock reclaim, bounded-wait skip-not-corrupt with foreign-lock-not-stolen assertion). All 9 usage-ledger-*-smoke tasks green plus test:usage-sweep 16/16. No blocking findings.",
+      "createdAt": "2026-07-10T10:27:02.001Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-030",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/core/usage-ledger/writer.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/alias-normalizer.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/host-execution-readiness.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/usage-ledger/adapters/openai.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/usage-ledger-budget-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1e9d26f36d5a22127bb1568113bf8bfeb0279fad9d7b30cb22be231456d493d9"
     }
   ]
 }
