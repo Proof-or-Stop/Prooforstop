@@ -52,6 +52,30 @@ Rationale:
 - Keep / drop were rejected: keep preserves a known false-positive class; drop
   loses a real signal that appears in genuine narrow-delivery summaries.
 
+## Host-B (codex) cross-vendor review — response record
+
+An independent codex host-B review (2026-07-10, read-only, live-CLI probes)
+returned FAIL with six findings after the seven claude-side rounds passed:
+
+- **Finding 1 (fixed here)**: the CHK-003 narrowing lost sentences the bare
+  trigger used to catch when modifiers sit between `remaining` and the scope
+  noun. Fix: the trigger now tolerates up to three intervening words
+  (`remaining(?:[connector][word]){0,3}?[connector]<scope-noun>`), covered by
+  modifierRemainingDone / modifierRemainingDone2 plus a no-noun negative
+  control.
+- **Finding 5 (fixed here)**: ambiguous unanchored quantifiers made the strip
+  scan superlinear (~6.4s on a 40k-char hyphen run). Fix: whitespace-split
+  tokenization with anchored per-token tests — measured 8ms on the same input;
+  a pathological-input timing assertion now lives in the smoke.
+- **Findings 2, 3, 4 (out of scope, follow-up)**: `not yet covered` (adverb
+  insertion), `partially` and `excludes` (inflections) were NEVER matched by
+  the pre-story regex — these are pre-existing recall gaps in the trigger
+  vocabulary, and the user-confirmed scope boundary explicitly excludes
+  vocabulary changes beyond the `remaining` decision. Recorded for a follow-up
+  vocabulary-recall story rather than silently expanded here.
+- **Finding 6 (environmental)**: smoke could not run inside codex's read-only
+  sandbox (mkdtemp EPERM); it runs green outside it and in validate.
+
 ## Risk notes
 
 - (Revised after F-001, F-002, F-005, F-006) The sanitizer only strips tokens

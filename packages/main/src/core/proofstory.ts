@@ -1401,30 +1401,43 @@ const CODE_FILE_EXTENSION_PATTERN = 'ts|tsx|js|jsx|mjs|cjs|json|jsonl|md|mdx|txt
 // leading ./ ../ ~/ or / prefix — "remaining/scope" prose survives. Dotted
 // tokens need a known extension AND a code-shaped stem (a hyphen/underscore or
 // a second dot) — "partial.md" mid-sentence is ambiguous and fails safe.
-const dottedFileTokenRegex = new RegExp(
-  `(?<![A-Za-z0-9_])(?:[A-Za-z0-9]*[-_][A-Za-z0-9_-]*(?:\\.[A-Za-z0-9_-]+)*|[A-Za-z0-9_-]+(?:\\.[A-Za-z0-9_-]+)+)\\.(?:${CODE_FILE_EXTENSION_PATTERN})(?![A-Za-z0-9_])`,
-  'gi',
-);
 const finalSegmentExtensionRegex = new RegExp(`\\.(?:${CODE_FILE_EXTENSION_PATTERN})$`, 'i');
+const dottedTokenShapeRegex = /^[A-Za-z0-9_-]+(?:\.[A-Za-z0-9_-]+)+$/;
+// Host-B (codex) finding 5: unanchored regexes with ambiguous quantifiers went
+// superlinear on pathological hyphen/dot runs, so tokenization is
+// whitespace-split with ANCHORED per-token tests — one linear pass, no
+// position-by-position backtracking.
 function stripCodeLikeTokens(text: string): string {
-  return text
+  const withoutCodeSpans = text
     .replace(/```[\s\S]*?```/g, ' ')
-    .replace(/`[^`\s]*`/g, ' ')
-    .replace(/[^\s`]*\/[^\s`]*/g, (token) => {
-      // F-007/F-009: neither slash count nor an incidental dotted segment
-      // (excluded/deferred/v2.1) is path semantics — English enumerations must
-      // survive. A slash token strips only with an EXPLICIT path marker: a
-      // leading / ~/ ./ ../ prefix, a URL scheme, or a final segment ending in
-      // a known file extension (core/partial-done-recovery.ts). Trailing
-      // sentence punctuation is ignored when testing the final segment.
-      const trimmed = token.replace(/[.,;:!?)\]}"']+$/, '');
-      const finalSegment = trimmed.slice(trimmed.lastIndexOf('/') + 1);
-      const pathShaped = /^(?:\.{1,2}|~)?\//.test(trimmed)
-        || /^[a-z][a-z0-9+.-]*:\/\//i.test(trimmed)
-        || finalSegmentExtensionRegex.test(finalSegment);
-      return pathShaped ? ' ' : token;
+    .replace(/`[^`\s]*`/g, ' ');
+  return withoutCodeSpans
+    .split(/(\s+)/)
+    .map((part) => {
+      if (part === '' || /^\s/.test(part)) return part;
+      const trimmed = part.replace(/^[("'[{]+/, '').replace(/[.,;:!?)\]}"']+$/, '');
+      if (trimmed.includes('/')) {
+        // F-007/F-009: neither slash count nor an incidental dotted segment
+        // (excluded/deferred/v2.1) is path semantics — English enumerations
+        // must survive. A slash token strips only with an EXPLICIT path
+        // marker: a leading / ~/ ./ ../ prefix, a URL scheme, or a final
+        // segment ending in a known file extension.
+        const finalSegment = trimmed.slice(trimmed.lastIndexOf('/') + 1);
+        const pathShaped = /^(?:\.{1,2}|~)?\//.test(trimmed)
+          || /^[a-z][a-z0-9+.-]*:\/\//i.test(trimmed)
+          || finalSegmentExtensionRegex.test(finalSegment);
+        return pathShaped ? ' ' : part;
+      }
+      if (dottedTokenShapeRegex.test(trimmed) && finalSegmentExtensionRegex.test(trimmed)) {
+        // Dotted tokens need a known extension AND a code-shaped stem (a
+        // hyphen/underscore or a second dot) — "partial.md" mid-sentence is
+        // ambiguous and fails safe (F-006).
+        const stem = trimmed.slice(0, trimmed.lastIndexOf('.'));
+        if (/[-_.]/.test(stem)) return ' ';
+      }
+      return part;
     })
-    .replace(dottedFileTokenRegex, ' ');
+    .join('');
 }
 
 export function evaluateDoneIntentEquivalence(
@@ -1479,7 +1492,10 @@ export function evaluateDoneIntentEquivalence(
       input.summary?.outcomeDiff ?? '',
       input.summary?.limitations ?? '',
     ].join('\n'));
-    const claimsShrinkage = /\b(?:partial|narrow(?:er|ed)?|shrink(?:age|s|ing)?|out[\s./_-]+of[\s./_-]+scope|not[\s./_-]+covered|deferred|remaining[\s./_-]+(?:work|scope|items?|cases?|tasks?|milestones?|features?|functionality|coverage|requirements?|deliverables?)|excluded)\b/i.test(narrowingText);
+    // Host-B (codex) finding 1: "remaining" tolerates up to three modifier
+    // words before the scope noun ("remaining browser-only edge cases") so the
+    // CHK-003 narrowing does not lose sentences the bare trigger used to catch.
+    const claimsShrinkage = /\b(?:partial|narrow(?:er|ed)?|shrink(?:age|s|ing)?|out[\s./_-]+of[\s./_-]+scope|not[\s./_-]+covered|deferred|remaining(?:[\s./_-]+[a-z0-9'()-]+){0,3}?[\s./_-]+(?:work|scope|items?|cases?|tasks?|milestones?|features?|functionality|coverage|requirements?|deliverables?)|excluded)\b/i.test(narrowingText);
     if (claimsShrinkage && acceptedShrinkageMilestoneIds.length === 0) {
       gaps.push(gap(
         'unconfirmed_single_outcome_shrinkage',
