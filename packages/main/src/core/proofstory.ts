@@ -1492,16 +1492,33 @@ export function evaluateDoneIntentEquivalence(
       input.summary?.outcomeDiff ?? '',
       input.summary?.limitations ?? '',
     ].join('\n'));
-    // Host-B (codex) rounds 1+2: "remaining" pairs with a scope noun through a
-    // bounded SAME-SENTENCE character window (not a fixed modifier-word count)
-    // so any number of modifiers, commas, or unicode dashes between them still
-    // fire ("remaining browser-only Safari mobile edge cases", "remaining
-    // high-priority, user-visible cases"). A dot only ends the window when
-    // followed by whitespace, so dot-glued prose (remaining.scope) survives
-    // while the window never leaks across a sentence boundary. The noun is
-    // guarded by alphanumeric lookarounds instead of \b so underscore glue
-    // (remaining_work) keeps matching.
-    const claimsShrinkage = /\b(?:partial|narrow(?:er|ed)?|shrink(?:age|s|ing)?|out[\s./_-]+of[\s./_-]+scope|not[\s./_-]+covered|deferred|remaining(?:\.(?!\s)|[^.!?;:\n]){1,60}?(?<![A-Za-z0-9])(?:work|scope|items?|cases?|tasks?|milestones?|features?|functionality|coverage|requirements?|deliverables?)(?![A-Za-z0-9])|excluded)\b/i.test(narrowingText);
+    // Host-B (codex) rounds 1-3 + F-012: "remaining" pairs with a scope noun
+    // through a bounded MODIFIER CHAIN and the noun must TERMINATE the chain.
+    // Raw proximity is not enough (F-012: "remaining flaky tests, unrelated to
+    // this fix, cover edge cases" must stay quiet) while long genuine chains
+    // must fire (codex: "remaining browser-only Safari mobile localization and
+    // reduced-motion edge cases"). Pure word COUNT cannot separate those two —
+    // the distinguishing feature is CLAUSE STRUCTURE, so chain words exclude
+    // clause-marking stop words (verbs of being, pronouns, prepositions;
+    // conjunctions like "and" stay allowed) and the bound is eight words.
+    // Coordinate adjectives may carry a comma; a heading colon directly after
+    // "remaining" is allowed (codex round 3). Chains may cross a line wrap
+    // (fail-safe direction: hard-wrapped genuine claims must not escape) but a
+    // sentence-ending dot/!/? blocks them because chain connectors only accept
+    // a dot when not followed by whitespace (the dot-glue form). Glue
+    // characters (hyphen/underscore/slash/unicode dash, dot-glue) are a
+    // separate zero-modifier path so the connector and word classes stay
+    // disjoint and the scan stays linear; the noun uses alphanumeric
+    // lookarounds instead of \b so underscore glue (remaining_work) matches.
+    const remainingStopWord = String.raw`(?:is|are|was|were|be|been|being|has|have|had|do|does|did|not|no|nor|it|its|this|that|these|those|they|them|to|of|in|on|at|by|for|from|with|as|but|so|than|then|there|here|when|while|which|who|whose|will|would|can|could|should|must|may|might)`;
+    const remainingModifierWord = String.raw`(?!${remainingStopWord}(?![a-z0-9'’()–—_-]))[a-z0-9'’()–—_-]+`;
+    const remainingGlue = String.raw`(?:[/_–—-]|\.(?!\s))+`;
+    const remainingScopeNoun = String.raw`(?<![A-Za-z0-9])(?:work|scope|items?|cases?|tasks?|milestones?|features?|functionality|coverage|requirements?|deliverables?)(?![A-Za-z0-9])`;
+    const claimsShrinkageRegex = new RegExp(
+      String.raw`\b(?:partial|narrow(?:er|ed)?|shrink(?:age|s|ing)?|out[\s./_-]+of[\s./_-]+scope|not[\s./_-]+covered|deferred|remaining(?:[,:]?\s+${remainingModifierWord}){0,8}?(?:[,:]?\s+|${remainingGlue})${remainingScopeNoun}|excluded)\b`,
+      'i',
+    );
+    const claimsShrinkage = claimsShrinkageRegex.test(narrowingText);
     if (claimsShrinkage && acceptedShrinkageMilestoneIds.length === 0) {
       gaps.push(gap(
         'unconfirmed_single_outcome_shrinkage',

@@ -91,6 +91,20 @@ user request names backticked spans explicitly — and the claim verb in such
 sentences ("left to a follow-up") is part of the verb-recall follow-up story;
 the direction is pinned by the backtickTriggerTokenDone smoke case.
 
+The quality lane then filed F-012 (a raw character window fires on scope nouns
+in a DIFFERENT clause — "remaining flaky tests, unrelated to this fix, cover
+edge cases" — reviving the CHK-003 false-positive class), and a third codex
+round showed pure word-count windows fail in the other direction (a genuine
+7-modifier chain with "and"; heading-style "Remaining:"). Word count cannot
+separate those cases — the distinguishing feature is CLAUSE STRUCTURE. Final
+form: the chain allows up to eight modifier words that must not be
+clause-marking stop words (verbs of being, pronouns, prepositions;
+conjunctions stay allowed), coordinate-adjective commas and a heading colon
+are accepted, sentence punctuation blocks the chain, line wraps do not
+(fail-safe: hard-wrapped genuine claims must not escape), and the scope noun
+must terminate the chain. Both directions are pinned: seven must-fire window
+claims and three F-012 cross-clause must-not-fire controls.
+
 ## Risk notes
 
 - (Revised after F-001, F-002, F-005, F-006) The sanitizer only strips tokens

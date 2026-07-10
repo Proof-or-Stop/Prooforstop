@@ -951,6 +951,10 @@ try {
     'The remaining browser-only Safari mobile edge cases were left to a follow-up story.',
     'The remaining high-priority, user-visible cases were left to a follow-up story.',
     'The remaining browser–only edge cases were left to follow-up.',
+    // codex round 3: long conjunction-joined modifier chains and heading-style
+    // colon prose are genuine claims the bare pre-story trigger caught.
+    'The remaining browser-only Safari mobile localization and reduced-motion edge cases were left to a follow-up story.',
+    'Remaining: mobile Safari cases are left for a follow-up story.',
   ];
   for (const claim of remainingWindowClaims) {
     store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
@@ -986,6 +990,26 @@ try {
     false,
     'the "remaining" window does not leak across a sentence boundary',
   );
+  // B-2c03 F-012: the window is a MODIFIER CHAIN, not raw character
+  // proximity — a scope noun sitting in a different clause (past other nouns
+  // or verbs) must NOT fire, or the CHK-003 false-positive class returns.
+  const remainingCrossClauseControls = [
+    'Two remaining flaky tests, unrelated to this fix, cover edge cases in CI.',
+    'The remaining CI flakes are old infra items, not part of this change.',
+    'The two remaining suite failures are pre-existing issues, not new test cases from this change.',
+  ];
+  for (const control of remainingCrossClauseControls) {
+    store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+      changes: 'Added label normalization.',
+      limitations: control,
+    }));
+    const crossClauseDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+    assert.equal(
+      crossClauseDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+      false,
+      `a scope noun in a different clause does not fire (F-012): ${control}`,
+    );
+  }
   // Host-B (codex) finding 5 (round 1): pathological long hyphen/dot tokens
   // must not cause superlinear scan time in the DONE gate.
   {
