@@ -472,6 +472,24 @@
       "resolvedAt": "2026-07-10T13:47:04.033Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-70e9:F-022",
+      "desc": "concept-cleanup: recordDispatchFinal void-return contract replaced by DispatchFinalStatus (commit 0042a4a1f4) but packages/main/src/tasks/usage-ledger-default-on-smoke.ts:412 still carries the stale check title 'CHK-003 UNSET env => recordDispatchFinal swallows a corrupt-ledger error (returns void, no throw)' - the function no longer returns void, it returns {appended, kind, reason?}; this label misleads future developers into believing the old void/no-status contract still holds at this exact call site (which discards the new status without asserting on it).",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-10T13:48:32.145Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-058",
+      "_hash": "7a798623d24ea356c3db2120c6506e11ef87dd25102d534f43d94a92dbb0edd5",
+      "files": [
+        "packages/main/src/tasks/usage-ledger-default-on-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|concept-cleanup-recorddispatchfinal",
+      "signatureTagSource": "auto"
     }
   ]
 }
