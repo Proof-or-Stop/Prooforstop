@@ -133,9 +133,9 @@
       "id": "CHK-003",
       "title": "M1: Cover remaining lattice-initiated host spawns: autopilot repair step and host readiness probes write usage rows through the same seam",
       "context": "autopilot-executor runClaudeRepair spawns claude with no ledger seam; host-execution-readiness probes make real (tiny) LLM calls with no ledger rows. Wire both at their callers, keeping core/usage-ledger free of new cross-module imports.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-10T06:12:51.258Z",
-      "endTime": null,
+      "endTime": "2026-07-10T06:28:54.617Z",
       "userSees": "After an autopilot repair or a host readiness probe, the usage report shows new rows with agentType \"autopilot-repair\" or \"host-readiness-probe\" instead of the runs being invisible",
       "files": {
         "modify": [
