@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-3928:F-001",
+      "desc": "quality-correctness: scripts/verify-proof-or-stop-prompt-baseline.mjs:599 verifies the overlap matrix by role count/presence only; it never compares roleMatrix fields against the baseline or regenerated Markdown, so status/phase/purpose/commands/notes drift in the committed baseline or matrix can pass while the verifier prints overlap matrix verified. Compare each roleMatrix field and the rendered Markdown content to the committed file.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-10T03:41:17.972Z",
+      "reviewRound": "2026-07-10T03:38:27.147Z",
+      "reviewRunId": "B-3928:RR-004",
+      "_hash": "2b754a459ef5000da71c3f174f1f6f7f9d72568af66ed7378e09df819727be40",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:599"
+      ],
+      "signatureTag": "missing|mjs:599|quality-correctness-scripts",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
