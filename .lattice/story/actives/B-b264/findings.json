@@ -1,0 +1,23 @@
+{
+  "findings": [
+    {
+      "id": "B-b264:F-001",
+      "desc": "CHK-001:edge:0 evidence note overclaims: the intent 'A normal no-hazard story proceeds through the existing done_prepare flow unchanged except for clearer status text' is bound to the second run inside assertMetadataCommitNoRebindAndAutoCloseExit (done-prepare-merge-rerun-smoke.ts:490-507), but that scenario is NOT a normal/default no-hazard run — it requires a prior BLOCKED run, a manual commit of generated metadata, and non-default flags autoCloseGeneratedMetadata=true + reuseFreshValidation=true. The resulting PASS transcript is not 'unchanged except for clearer status text': injectAutoCloseoutSummary() (done-prepare.ts:1292-1308, invoked at line 1867) splices in an extra autoCloseGeneratedMetadata: PASS / autoCloseoutCommit: / autoCloseoutFiles: block that a genuinely normal no-hazard done_prepare call never prints. No scenario in this smoke file exercises a plain first-run, no-special-flags, no-hazard done_prepare reaching PASS (the only literal 'DONE prepare: PASS' assertion in the file is this auto-closeout one; assertDryRunNoMutation only asserts PASS|BLOCKED, not PASS specifically). Recommend either adding a dedicated no-hazard-default-flow PASS assertion, or correcting the CHK-001:edge:0 intent/evidence note to describe the auto-closeout scenario actually tested.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-10T05:40:28.267Z",
+      "reviewRound": "2026-07-10T05:34:01.890Z",
+      "reviewRunId": "B-b264:RR-003",
+      "_hash": "1224c429462335405668c5e72a773010bb7fca5823252a892488cb2a36a83b85",
+      "files": [
+        "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+        "packages/main/src/handlers/done-prepare.ts"
+      ],
+      "signatureTag": "missing|ts|edge-evidence-note",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
