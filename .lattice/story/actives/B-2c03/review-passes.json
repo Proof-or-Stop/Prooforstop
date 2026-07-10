@@ -268,6 +268,30 @@
         "scanEscalationReason": "Fresh adversarial round following F-008/F-009 fix (a7437cfe85, dot connectors + explicit path markers for slash tokens). Rebuilt via npm run build (clean tsc), ran the built smoke suite (all 40+ B-2c03 assertions green including dotRemainingDone/dotOutOfScopeDone/dotNotCoveredDone/dotControlDone/slashEnumerationDotDone/urlControlDone). Extracted the exact live stripCodeLikeTokens/dottedFileTokenRegex/claimsShrinkage source from packages/main/dist/core/proofstory.js (byte-verified match) and adversarially probed ~35 additional natural-English phrasings beyond the documented F-001..F-009 cases (leading-dot stems, sentence-terminal periods, colons, mixed connectors out-of.scope/out/of/scope/out_of_scope, capitalization, tabs, double-spaces, emoji-adjacent triggers, 4-way slash enumerations, Windows-style backslash paths, em-dash connectors, trigger-immediately-before-genuine-path). No new false-negative bypass found: every case either correctly fires (prose) or correctly stays silent (genuine path/extension token, matching the accepted design). The one exotic-typography candidate (em-dash as a word-connector, e.g. remaining—scope) is out of scope per task framing (exotic typography excluded unless realistic for agent-authored English; em-dash is a sentence-interrupter punctuation mark, not a compound-word-joining connector like the accepted [\\s./_-]+ class, and plan.md explicitly scopes the connector class to that set after F-003/F-008). No dead code, no as-any, no empty catch, no I/O-isolation concerns in the diff (pure string-transform helper, all four new bindings used at the call site)."
       },
       "_hash": "053e1568acc4c82cc0e5c93481d16ad679bfe748b5c7d34dbd50dfa2383db7ed"
+    },
+    {
+      "id": "B-2c03:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review passed (fresh round after F-008/F-009 fix in a7437cfe85). All 3 checklist items (CHK-001/002/003) have happy+edge+adversarial verificationIntent covered by concrete, well-targeted verificationEvidence (logic_test/docs_check, none failing). F-009 (this lane, prior round) is verifiably fixed: slash tokens now require an explicit path marker (leading prefix, URL scheme, or extension-bearing final segment) instead of stripping on any incidental dot, so excluded/deferred/v2.1-style enumerations keep firing (slashEnumerationDotDone) while genuine file/URL paths still strip (urlControlDone, dotControlDone). Independently re-derived stripCodeLikeTokens + claimsShrinkage regex from the current source and probed ~20 additional adversarial phrasings from the scratchpad (Windows-style backslash paths, trailing-slash directories, markdown links, email-like domains, www-without-scheme URLs, remaining+non-listed nouns, hyphen-connected remaining-milestones, fenced-code-only claims, and a slash enumeration whose one dotted member carries a REAL extension e.g. excluded/deferred/report.md) - every case matched the documented design in plan.md Risk notes (fail-safe: ambiguous cases keep firing; only unambiguous path/URL/extension markers strip) with no unpatched bypass found. Full lattice validate (45 configured commands) and the proofstory-intent-hardening-smoke.js binary both pass GREEN at current HEAD. The one open item is mechanical evidence-freshness staleness (verificationCoverage flags 6 must-intents as headHash-stale because a later commit landed after evidence capture) - this is a re-validate/re-bind freshness-gate mechanic, not a coverage gap: the underlying evidence exists, is not fail, and concretely targets its intent. No blocking finding filed by this lane.",
+      "createdAt": "2026-07-10T17:47:49.016Z",
+      "reviewRound": "2026-07-10T14:41:10.214Z",
+      "reviewRunId": "B-2c03:RR-023",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2c03/checklist.json",
+          ".lattice/story/actives/B-2c03/index.json",
+          ".lattice/story/actives/B-2c03/plan.md",
+          ".lattice/story/actives/B-2c03/red-evidence.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2c03/findings.json",
+          ".lattice/story/actives/B-2c03/review.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4257f4e3f8f82aafef786e5e9478e33b7b4001465e69e9af0d80e42cc7372d6c"
     }
   ]
 }
