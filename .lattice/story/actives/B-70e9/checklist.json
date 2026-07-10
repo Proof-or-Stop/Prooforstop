@@ -317,7 +317,49 @@
       "context": "Fixtures: codex exec --json stdout with turn.completed usage, claude stream-json result envelope, agy no-usage output, codex rollout jsonl, claude project transcript jsonl. Wire npm test scripts following existing usage-ledger smoke naming.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "npm --prefix packages/main run test:host-run-usage and test:usage-sweep both end with a PASS summary line",
+      "files": {
+        "modify": [
+          "packages/main/package.json",
+          "package.json",
+          "packages/main/src/tasks/run-all-smokes.ts",
+          "CHANGELOG.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Both smokes run via their npm scripts and via the aggregate runner",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Fixtures cover codex turn.completed and turn.failed, claude stream-json envelope, agy no-usage, codex rollout cumulative lines, claude transcript dedupe",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smokes create all fixtures under temp dirs and never touch real home stores",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Row-shape assertions include correlation (ledgerCallId/attemptId/sequence/supersedes), attribution binding, provider mapping values, and blocked rows for both caps",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-007",
