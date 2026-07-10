@@ -1188,6 +1188,34 @@
         "scanEscalationReason": null
       },
       "_hash": "c8f2f4525616d6aa4891cda0b7265aa09e73e9a70ab67d790661da847dffed8d"
+    },
+    {
+      "id": "B-70e9:RP-050",
+      "agent": "lattice-review-quality",
+      "note": "Round 14 re-review of F-021 fix (0042a4a1f4). Traced append-status gating across all host paths incl. codex.recorded double-branch handling, reason boundedness (describeLedgerAppendFailure pure, 200-char cap), never-throw preserved, no caller broken by void->object signature change (all callers statement-position/discard return, tsc clean), docs match code. Re-ran build clean + test:host-run-usage 54/54 + test:usage-sweep 17/17 + usage-ledger group (smoke 61, dispatch 40, default-on 30, codex-gemini 53, adapter 50, budget 41) all green. No blocking findings.",
+      "createdAt": "2026-07-10T13:50:55.116Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-057",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/lattice-dispatch.ts",
+          "packages/main/src/tasks/usage-ledger-codex-gemini-smoke.ts",
+          "packages/main/src/tasks/usage-ledger-default-on-smoke.ts",
+          "packages/main/src/tasks/usage-ledger-dispatch-smoke.ts",
+          "packages/main/src/tasks/usage-ledger-prototype-pollution-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e584ccc92064efc70eb9f3c073c33febd70fc500b2107a98fcd1cff22e84ed4c"
     }
   ]
 }
