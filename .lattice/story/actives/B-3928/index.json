@@ -1,0 +1,23 @@
+{
+  "storyId": "B-3928",
+  "name": "proof-or-stop-m0-baseline-inventory-lockfile",
+  "title": "M0 Proof-or-Stop prompt baseline inventory and lockfile",
+  "description": "Implement M0 from docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md: freeze the current 16-prompt baseline before any prompt edits by recording prompt filenames/hashes, agent_prompt outputs, role-overlap matrix, and regression checks for legacy verification vocabulary and direct story-file writes. This story must not edit prompt bodies except tests/docs required to record the baseline.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "high",
+  "createdAt": "2026-07-10T03:03:04.711Z",
+  "startedAt": "2026-07-10T03:03:04.711Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-10T03:03:05.272Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-d8ea249c0401e4e8",
+      "agent": "main"
+    }
+  ]
+}
