@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "proof-or-stop.prompt-baseline.v1",
+  "schemaVersion": "proof-or-stop.prompt-baseline.v2",
   "storyId": "B-3928",
   "sourcePlan": "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
   "expectedRoleCount": 16,
@@ -460,33 +460,69 @@
         {
           "field": "commands",
           "value": "none",
-          "snippets": [
+          "claimMode": "semicolon-delimited",
+          "claims": [
             {
-              "line": 27,
-              "sha256": "58cbfc861a6d464833182a2710b1e1723a05dc901191897de22fee3c746a72e4",
-              "text": "- Not modifying code, not modifying tests, not advancing the phase"
+              "claim": "none",
+              "normalizedClaim": "none",
+              "snippets": [
+                {
+                  "line": 27,
+                  "sha256": "58cbfc861a6d464833182a2710b1e1723a05dc901191897de22fee3c746a72e4",
+                  "text": "- Not modifying code, not modifying tests, not advancing the phase"
+                }
+              ]
             }
           ]
         },
         {
           "field": "directFileAccess",
           "value": "Reads diff and implementation context; no direct story writes.",
-          "snippets": [
+          "claimMode": "whole-field",
+          "claims": [
             {
-              "line": 35,
-              "sha256": "be1070c6cc892f5394a7926886b3bc59bb0c9240b4c4a514a2c90dd4b0d22857",
-              "text": "- Relevant implementation files"
+              "claim": "Reads diff and implementation context; no direct story writes.",
+              "normalizedClaim": "reads diff and implementation context; no direct story writes",
+              "snippets": [
+                {
+                  "line": 34,
+                  "sha256": "a7d2fe3a3a27b0af616d46f9f760d73b0db53731ffeabf195c92e77b6d37e595",
+                  "text": "- The current checklist / target behavior"
+                },
+                {
+                  "line": 35,
+                  "sha256": "be1070c6cc892f5394a7926886b3bc59bb0c9240b4c4a514a2c90dd4b0d22857",
+                  "text": "- Relevant implementation files"
+                },
+                {
+                  "line": 27,
+                  "sha256": "58cbfc861a6d464833182a2710b1e1723a05dc901191897de22fee3c746a72e4",
+                  "text": "- Not modifying code, not modifying tests, not advancing the phase"
+                }
+              ]
             }
           ]
         },
         {
           "field": "outputs",
           "value": "Text review notes.",
-          "snippets": [
+          "claimMode": "whole-field",
+          "claims": [
             {
-              "line": 74,
-              "sha256": "ca114a6043eb07e1e2822f83c4e95737aa7c627f46479ebe3ba9810c260b1683",
-              "text": "Conclusion: pass / fail"
+              "claim": "Text review notes.",
+              "normalizedClaim": "text review notes",
+              "snippets": [
+                {
+                  "line": 71,
+                  "sha256": "315d6784d280604ff8f21c4ee6e4b33aea122d627b81880680609ac2f4063566",
+                  "text": "Return concisely:"
+                },
+                {
+                  "line": 74,
+                  "sha256": "ca114a6043eb07e1e2822f83c4e95737aa7c627f46479ebe3ba9810c260b1683",
+                  "text": "Conclusion: pass / fail"
+                }
+              ]
             }
           ]
         }
@@ -499,38 +535,95 @@
         {
           "field": "commands",
           "value": "bridge state/reset/events/event/replay API via curl; optional CLI shell spawn.",
-          "snippets": [
+          "claimMode": "semicolon-delimited",
+          "claims": [
             {
-              "line": 55,
-              "sha256": "42c1139dbd1c73d93d77deb383ed3748c64ccbfd045328395523adb4a866fd24",
-              "text": "Use the Bash tool with curl to call these APIs."
+              "claim": "bridge state/reset/events/event/replay API via curl",
+              "normalizedClaim": "bridge state/reset/events/event/replay api via curl",
+              "snippets": [
+                {
+                  "line": 38,
+                  "sha256": "cad87a9fd1a31cbdc86e664ff607cbed951529f6e899b5bbeb136ac0c1bad633",
+                  "text": "curl {serveUrl}/bridge/state"
+                },
+                {
+                  "line": 41,
+                  "sha256": "d90123800813002aa5d7325aaa34cc7a42f616988da1b5b0e94525b6a20f633c",
+                  "text": "curl {serveUrl}/bridge/events"
+                },
+                {
+                  "line": 44,
+                  "sha256": "9089f1c3bc9de1ec31ed7a8d7fd8a9f9ae933ef6cc67685acebf7d6945b1d0df",
+                  "text": "curl -X POST {serveUrl}/bridge/event"
+                },
+                {
+                  "line": 48,
+                  "sha256": "a4b5f00e49f195f632f6206d371931194499d7045990d722fbf61947cc6699ea",
+                  "text": "curl -X POST {serveUrl}/bridge/replay"
+                },
+                {
+                  "line": 52,
+                  "sha256": "5ec005a617a6ea3af3a1c6210bb962e9a5787c13ada71bfb382575da86116212",
+                  "text": "curl -X POST {serveUrl}/bridge/reset"
+                },
+                {
+                  "line": 55,
+                  "sha256": "42c1139dbd1c73d93d77deb383ed3748c64ccbfd045328395523adb4a866fd24",
+                  "text": "Use the Bash tool with curl to call these APIs."
+                }
+              ]
             },
             {
-              "line": 59,
-              "sha256": "f776272727c9eb6c4315c6e548a11ba384e8eeea4cae4bdeb93a73cc58558233",
-              "text": "If the project has a CLI shell, also test it by spawning the process:"
+              "claim": "optional CLI shell spawn.",
+              "normalizedClaim": "optional cli shell spawn",
+              "snippets": [
+                {
+                  "line": 59,
+                  "sha256": "f776272727c9eb6c4315c6e548a11ba384e8eeea4cae4bdeb93a73cc58558233",
+                  "text": "If the project has a CLI shell, also test it by spawning the process:"
+                }
+              ]
             }
           ]
         },
         {
           "field": "directFileAccess",
           "value": "Uses CLI shell/bridge output; no direct story writes.",
-          "snippets": [
+          "claimMode": "whole-field",
+          "claims": [
             {
-              "line": 12,
-              "sha256": "172d4eb2dd421e331cd32a819e849a05f6ba767b3a20f13334dcfa12241a9406",
-              "text": "Your job is NOT to read code"
+              "claim": "Uses CLI shell/bridge output; no direct story writes.",
+              "normalizedClaim": "uses cli shell/bridge output; no direct story writes",
+              "snippets": [
+                {
+                  "line": 4,
+                  "sha256": "5086ad74a90c732cdf7298a14592898516e1005be213bb35e85391e1635f641f",
+                  "text": "tools: Read, Bash"
+                },
+                {
+                  "line": 12,
+                  "sha256": "00c226c5437cde9ce4fcf1dba9b93b91b3866c7a95a643bbb51ec3255d99d31d",
+                  "text": "Your job is NOT to read code — it is to **use the application** like a user would, through the bridge API and optionally through the CLI shell."
+                }
+              ]
             }
           ]
         },
         {
           "field": "outputs",
           "value": "Evaluator JSON transcript.",
-          "snippets": [
+          "claimMode": "whole-field",
+          "claims": [
             {
-              "line": 94,
-              "sha256": "338ad57eddfc8b3af3852f49517fc57801f3f5c152d949aba328b17a7b9f64b7",
-              "text": "You MUST output the following JSON (wrapped in ```json):"
+              "claim": "Evaluator JSON transcript.",
+              "normalizedClaim": "evaluator json transcript",
+              "snippets": [
+                {
+                  "line": 94,
+                  "sha256": "338ad57eddfc8b3af3852f49517fc57801f3f5c152d949aba328b17a7b9f64b7",
+                  "text": "You MUST output the following JSON (wrapped in ```json):"
+                }
+              ]
             }
           ]
         }
@@ -543,33 +636,119 @@
         {
           "field": "commands",
           "value": "browser status/eval/click/type/console/refresh API via curl.",
-          "snippets": [
+          "claimMode": "semicolon-delimited",
+          "claims": [
             {
-              "line": 148,
-              "sha256": "48a29eb937117a009345d78b3eea967a424f763f07b68a77aa8a48fd8e77ee32",
-              "text": "Use the Bash tool's curl to call these APIs."
+              "claim": "browser status/eval/click/type/console/refresh API via curl.",
+              "normalizedClaim": "browser status/eval/click/type/console/refresh api via curl",
+              "snippets": [
+                {
+                  "line": 114,
+                  "sha256": "c6cbb89b6c85955845ab4e43d95cee4020fbae8c4418fc81d3465d00c375575c",
+                  "text": "GET `{serveUrl}/browser/status`"
+                },
+                {
+                  "line": 116,
+                  "sha256": "aab9152d09bd0e6d75c6cec0d249f67f9848ea09aa993664b248a7b2c605f895",
+                  "text": "POST `{serveUrl}/browser/eval`"
+                },
+                {
+                  "line": 117,
+                  "sha256": "2f0baf515c55245b037e00dd663f3c1bd44799a90d59d805ccec8a18774ede6f",
+                  "text": "POST `{serveUrl}/browser/click`"
+                },
+                {
+                  "line": 118,
+                  "sha256": "4cf526c462d4d403e9c3f9cb5097e04fcfbe4342d32ed6d67a7e06cffbcf97f9",
+                  "text": "POST `{serveUrl}/browser/type`"
+                },
+                {
+                  "line": 119,
+                  "sha256": "d318bdeba7b82d3f2f1fdfa365cc53032ce32d9610d155ee1ab1bff1d2f75a99",
+                  "text": "GET `{serveUrl}/browser/console`"
+                },
+                {
+                  "line": 145,
+                  "sha256": "5d90061b39aaca1e095a68dd8af0bf24281970e122ccfcf01c64df05b9c567df",
+                  "text": "curl -X POST {serveUrl}/browser/refresh"
+                },
+                {
+                  "line": 148,
+                  "sha256": "48a29eb937117a009345d78b3eea967a424f763f07b68a77aa8a48fd8e77ee32",
+                  "text": "Use the Bash tool's curl to call these APIs."
+                }
+              ]
             }
           ]
         },
         {
           "field": "directFileAccess",
           "value": "Evaluates through browser API only; does not read source code or write story metadata.",
-          "snippets": [
+          "claimMode": "whole-field",
+          "claims": [
             {
-              "line": 193,
-              "sha256": "a228ad78339868c610420de928c145ac89ea446dd77667a1397e58acca6d14d1",
-              "text": "- You only evaluate user experience, not code"
+              "claim": "Evaluates through browser API only; does not read source code or write story metadata.",
+              "normalizedClaim": "evaluates through browser api only; does not read source code or write story metadata",
+              "snippets": [
+                {
+                  "line": 104,
+                  "sha256": "7a5ed287b39a369242047f4c06c0898e580529f7433ae096db65b29ad785bd4b",
+                  "text": "Your job is not to look at code, but to use the application like a user."
+                },
+                {
+                  "line": 148,
+                  "sha256": "48a29eb937117a009345d78b3eea967a424f763f07b68a77aa8a48fd8e77ee32",
+                  "text": "Use the Bash tool's curl to call these APIs."
+                },
+                {
+                  "line": 21,
+                  "sha256": "9cbc6a58c15f19d298d0f28a02379a9b03960bf273736ed121a469cec44239c8",
+                  "text": "- Story operations must use Lattice CLI commands. Do not directly read or write"
+                },
+                {
+                  "line": 22,
+                  "sha256": "f508f7745e2050f3f0c0ec3aeb7ecc9cddde265542eecfecfe37fa73344d4609",
+                  "text": "  story metadata under `docs/story/`, and do not write fixtures directly under"
+                }
+              ]
             }
           ]
         },
         {
           "field": "outputs",
           "value": "Evaluator JSON scores, itemResults, pass flag, and findings text.",
-          "snippets": [
+          "claimMode": "whole-field",
+          "claims": [
             {
-              "line": 173,
-              "sha256": "b887f736061f09527fb65999d1abd2f3375f147d931b349f83076c944566b071",
-              "text": "You must output the following JSON (wrapped in ```json):"
+              "claim": "Evaluator JSON scores, itemResults, pass flag, and findings text.",
+              "normalizedClaim": "evaluator json scores, itemresults, pass flag, and findings text",
+              "snippets": [
+                {
+                  "line": 173,
+                  "sha256": "b887f736061f09527fb65999d1abd2f3375f147d931b349f83076c944566b071",
+                  "text": "You must output the following JSON (wrapped in ```json):"
+                },
+                {
+                  "line": 177,
+                  "sha256": "45f986ef133fa4fdc8367b4c90cd2038202cd968f5005c6dc9f5aef5aa254059",
+                  "text": "\"scores\": { \"functionality\": 4, \"usability\": 4 }"
+                },
+                {
+                  "line": 179,
+                  "sha256": "60055ea7c8e8c85d12272b0dcf9d514bef73b02253219df3733e93fb48e44a1b",
+                  "text": "\"pass\": true"
+                },
+                {
+                  "line": 180,
+                  "sha256": "c0ff684dde1011ab5c1f202e2fc13168958a3c39d13e0e45c7a4b6f38f871469",
+                  "text": "\"itemResults\": ["
+                },
+                {
+                  "line": 184,
+                  "sha256": "b68c315032eb0fa5e3c02c6bb77b2ac4d80111814684932bf5c389589c9aa5ee",
+                  "text": "\"findings\": ["
+                }
+              ]
             }
           ]
         }
@@ -582,38 +761,151 @@
         {
           "field": "commands",
           "value": "checklist_update; validate; status; checklist_get; story_get; aux_doc_list; aux_scan; aux_detail.",
-          "snippets": [
+          "claimMode": "semicolon-delimited",
+          "claims": [
             {
-              "line": 146,
-              "sha256": "aad72f73c931a58b8780ed9b00332908d6484214b015495f608e9685ef9b93b6",
-              "text": "Whitelist of allowed Lattice commands:"
+              "claim": "checklist_update",
+              "normalizedClaim": "checklist_update",
+              "snippets": [
+                {
+                  "line": 147,
+                  "sha256": "2951cc0f2f4a7acfd94d56e89115d5852f73c03d9c887b8783fbc40a2ca5ebf1",
+                  "text": "`lattice checklist_update` (can only modify status / startTime / endTime)"
+                }
+              ]
             },
             {
-              "line": 147,
-              "sha256": "2951cc0f2f4a7acfd94d56e89115d5852f73c03d9c887b8783fbc40a2ca5ebf1",
-              "text": "`lattice checklist_update` (can only modify status / startTime / endTime)"
+              "claim": "validate",
+              "normalizedClaim": "validate",
+              "snippets": [
+                {
+                  "line": 148,
+                  "sha256": "f11396635a47b6bcdb7a833bcae2794b6ae835734ec629cb5fb9257bcb7ddd1d",
+                  "text": "`lattice validate` (local validation)"
+                }
+              ]
+            },
+            {
+              "claim": "status",
+              "normalizedClaim": "status",
+              "snippets": [
+                {
+                  "line": 149,
+                  "sha256": "0da716b69716ba46322dd435e25f6de1ab3b062333f2e3a1a4e30f7aec4cfb7e",
+                  "text": "`lattice status` / `lattice checklist_get` / `lattice story_get` (read-only queries)"
+                }
+              ]
+            },
+            {
+              "claim": "checklist_get",
+              "normalizedClaim": "checklist_get",
+              "snippets": [
+                {
+                  "line": 149,
+                  "sha256": "0da716b69716ba46322dd435e25f6de1ab3b062333f2e3a1a4e30f7aec4cfb7e",
+                  "text": "`lattice status` / `lattice checklist_get` / `lattice story_get` (read-only queries)"
+                }
+              ]
+            },
+            {
+              "claim": "story_get",
+              "normalizedClaim": "story_get",
+              "snippets": [
+                {
+                  "line": 149,
+                  "sha256": "0da716b69716ba46322dd435e25f6de1ab3b062333f2e3a1a4e30f7aec4cfb7e",
+                  "text": "`lattice status` / `lattice checklist_get` / `lattice story_get` (read-only queries)"
+                }
+              ]
+            },
+            {
+              "claim": "aux_doc_list",
+              "normalizedClaim": "aux_doc_list",
+              "snippets": [
+                {
+                  "line": 150,
+                  "sha256": "79b9c5e6e4789f710de176b1e525f2fbad6905a0085c4926321ed98448f96091",
+                  "text": "`lattice aux_doc_list` / `lattice aux_scan` / `lattice aux_detail` (read-only queries)"
+                }
+              ]
+            },
+            {
+              "claim": "aux_scan",
+              "normalizedClaim": "aux_scan",
+              "snippets": [
+                {
+                  "line": 150,
+                  "sha256": "79b9c5e6e4789f710de176b1e525f2fbad6905a0085c4926321ed98448f96091",
+                  "text": "`lattice aux_doc_list` / `lattice aux_scan` / `lattice aux_detail` (read-only queries)"
+                }
+              ]
+            },
+            {
+              "claim": "aux_detail.",
+              "normalizedClaim": "aux_detail",
+              "snippets": [
+                {
+                  "line": 150,
+                  "sha256": "79b9c5e6e4789f710de176b1e525f2fbad6905a0085c4926321ed98448f96091",
+                  "text": "`lattice aux_doc_list` / `lattice aux_scan` / `lattice aux_detail` (read-only queries)"
+                }
+              ]
             }
           ]
         },
         {
           "field": "directFileAccess",
           "value": "Reads and edits source/docs in workspace; story metadata through Lattice CLI only.",
-          "snippets": [
+          "claimMode": "whole-field",
+          "claims": [
             {
-              "line": 142,
-              "sha256": "76ba37e64834a1b6c82a1e0fb62aa7084628f7061e6f900c130727dbb8c31737",
-              "text": "all story changes go through the Lattice CLI"
+              "claim": "Reads and edits source/docs in workspace; story metadata through Lattice CLI only.",
+              "normalizedClaim": "reads and edits source/docs in workspace; story metadata through lattice cli only",
+              "snippets": [
+                {
+                  "line": 126,
+                  "sha256": "6b3309c908f81cb8568f081e1426cd3770aff6dfea2f618e72af231cb9ba21f3",
+                  "text": "- Write code / modify fixtures / run necessary local checks (lint, build, unit tests)"
+                },
+                {
+                  "line": 142,
+                  "sha256": "485f197f2f7e08a89ab94bd1f7af7ae6bb14eaddbc742adf515ce37d67a24b9a",
+                  "text": "- ❌ Directly Read/Edit JSON files under `docs/story/`: all story changes go through the Lattice CLI"
+                }
+              ]
             }
           ]
         },
         {
           "field": "outputs",
           "value": "Code changes, commits, checklist status updates, and brief return summary.",
-          "snippets": [
+          "claimMode": "whole-field",
+          "claims": [
             {
-              "line": 128,
-              "sha256": "6ea4c249d60b6de729921ec14bf289c98b7ab41fff6b19cb8d966cce176ea30a",
-              "text": "Once all pending items are processed, return a brief summary and **stop**"
+              "claim": "Code changes, commits, checklist status updates, and brief return summary.",
+              "normalizedClaim": "code changes, commits, checklist status updates, and brief return summary",
+              "snippets": [
+                {
+                  "line": 126,
+                  "sha256": "6b3309c908f81cb8568f081e1426cd3770aff6dfea2f618e72af231cb9ba21f3",
+                  "text": "- Write code / modify fixtures / run necessary local checks (lint, build, unit tests)"
+                },
+                {
+                  "line": 127,
+                  "sha256": "7e051ea8463613482a5b0108d6ec8fb05c713f8d0fd8f26cc49392381ec59fef",
+                  "text": "- After completion, call `lattice checklist_update"
+                },
+                {
+                  "line": 128,
+                  "sha256": "ddc091fffc8ccd65c075f46ed03977f3e92364524b6aee05744aeb82452aa9a6",
+                  "text": "- Once all pending items are processed, return a brief summary and **stop**"
+                },
+                {
+                  "line": 198,
+                  "sha256": "7fb6d16d12ca6e0ae8bef51cb0dc4fbd618bd22a8a501a132c704e1c46657e8b",
+                  "text": "- **commit as soon as you finish writing**:"
+                }
+              ]
             }
           ]
         }
@@ -626,43 +918,117 @@
         {
           "field": "commands",
           "value": "checklist_get; review_run_start; finding_add; review_pass_set.",
-          "snippets": [
+          "claimMode": "semicolon-delimited",
+          "claims": [
             {
-              "line": 113,
-              "sha256": "ad5f6fdbd0234d17fd75ef23792d28b5db1ac29d02e2daeca5328cd3f6ab1ee6",
-              "text": "lattice checklist_get '{\"storyId\":\"B-xxx\"}'"
+              "claim": "checklist_get",
+              "normalizedClaim": "checklist_get",
+              "snippets": [
+                {
+                  "line": 113,
+                  "sha256": "796d9647fc92c0b6e0a5a7010283ed21c88434b4a5061de1cb5e7a562bc05ead",
+                  "text": "`lattice checklist_get '{\"storyId\":\"B-xxx\"}'` to retrieve all items"
+                }
+              ]
             },
             {
-              "line": 144,
-              "sha256": "d62a39e6329805859b49289667a3d5c083ec48748858df98d33ee06eb59a2b42",
-              "text": "lattice finding_add '{\"storyId\":\"B-xxx\",\"reviewRunId\":\"<reviewRunId from review_run_start>\""
+              "claim": "review_run_start",
+              "normalizedClaim": "review_run_start",
+              "snippets": [
+                {
+                  "line": 179,
+                  "sha256": "355282e082b6f877878f4527173853cf2fe0f0f54502e2f20979d0a001c07ca5",
+                  "text": "first call `lattice review_run_start {\"storyId\":\"B-xxx\",\"agent\":\"<reviewer-name>\"}`"
+                }
+              ]
+            },
+            {
+              "claim": "finding_add",
+              "normalizedClaim": "finding_add",
+              "snippets": [
+                {
+                  "line": 174,
+                  "sha256": "25a24e5fa1c79d810f95438b11d37684b67b30ee535af0addfcee2190e243237",
+                  "text": "**Every finding must be registered via `lattice finding_add`"
+                }
+              ]
+            },
+            {
+              "claim": "review_pass_set.",
+              "normalizedClaim": "review_pass_set",
+              "snippets": [
+                {
+                  "line": 178,
+                  "sha256": "5f6cacfddf9d84e3a549165f526005b673c00477dd6c07ef1dfb8e0d8a0dc9a8",
+                  "text": "you must call `lattice review_pass_set` to record the scope this reviewer has checked"
+                }
+              ]
             }
           ]
         },
         {
           "field": "directFileAccess",
           "value": "Reads git diff, checklist userSees, source files, candidate docs, and scope-plan artifacts; no direct story writes.",
-          "snippets": [
+          "claimMode": "whole-field",
+          "claims": [
             {
-              "line": 116,
-              "sha256": "715835b3055049181d78959842d75a2076c521a1346ad6eed8030dddaee57e77",
-              "text": "Find the corresponding code change in `git diff main...HEAD`"
-            },
-            {
-              "line": 129,
-              "sha256": "64eba8150e5f5f609db3de07ac3e47e8d7830042e3b941fa87f4671c1e9c3450",
-              "text": "Default inputs: the `lattice scope_check_save` result recorded by lattice-review-scope-plan"
+              "claim": "Reads git diff, checklist userSees, source files, candidate docs, and scope-plan artifacts; no direct story writes.",
+              "normalizedClaim": "reads git diff, checklist usersees, source files, candidate docs, and scope-plan artifacts; no direct story writes",
+              "snippets": [
+                {
+                  "line": 116,
+                  "sha256": "715835b3055049181d78959842d75a2076c521a1346ad6eed8030dddaee57e77",
+                  "text": "Find the corresponding code change in `git diff main...HEAD`"
+                },
+                {
+                  "line": 115,
+                  "sha256": "9accbf9c9a01463092245654c425e035ccd3b8d8964096f3fcafa75c32f1f3f4",
+                  "text": "Read the userSees field (what the user should see)"
+                },
+                {
+                  "line": 129,
+                  "sha256": "64eba8150e5f5f609db3de07ac3e47e8d7830042e3b941fa87f4671c1e9c3450",
+                  "text": "Default inputs: the `lattice scope_check_save` result recorded by lattice-review-scope-plan"
+                },
+                {
+                  "line": 163,
+                  "sha256": "4e805a535e2a8f2a0eeafbcb8d44a0cdf64a7a565553bfcf3af9d75293eaa661",
+                  "text": "**candidateSpecSet docs under `<requirementsDir>/decisions/`**"
+                },
+                {
+                  "line": 173,
+                  "sha256": "62c5d0b531ef8b12621aac290d8759c018a7185b5f2e3e3b5c2bbd3e1adc8b7a",
+                  "text": "- Only raise findings; do not modify code"
+                },
+                {
+                  "line": 22,
+                  "sha256": "9cbc6a58c15f19d298d0f28a02379a9b03960bf273736ed121a469cec44239c8",
+                  "text": "- Story operations must use Lattice CLI commands. Do not directly read or write"
+                }
+              ]
             }
           ]
         },
         {
           "field": "outputs",
           "value": "Reviewer findings or pass.",
-          "snippets": [
+          "claimMode": "whole-field",
+          "claims": [
             {
-              "line": 174,
-              "sha256": "19a067824873d3d428fa8ac464d4caf8240bf06ad4d715533f5acd308b7ad013",
-              "text": "Every finding must be registered via `lattice finding_add`"
+              "claim": "Reviewer findings or pass.",
+              "normalizedClaim": "reviewer findings or pass",
+              "snippets": [
+                {
+                  "line": 174,
+                  "sha256": "25a24e5fa1c79d810f95438b11d37684b67b30ee535af0addfcee2190e243237",
+                  "text": "**Every finding must be registered via `lattice finding_add`"
+                },
+                {
+                  "line": 178,
+                  "sha256": "ae4eaca85ff26bc884d84be97e138f4acd4ba077043d67c4aa96927244393c83",
+                  "text": "When there are no findings, it is forbidden to use `finding_add` to fake a pass; you must call `lattice review_pass_set`"
+                }
+              ]
             }
           ]
         }
@@ -675,43 +1041,134 @@
         {
           "field": "commands",
           "value": "checklist_get; story_get; grep process-events; review_run_start; finding_add; review_pass_set.",
-          "snippets": [
+          "claimMode": "semicolon-delimited",
+          "claims": [
             {
-              "line": 125,
-              "sha256": "ad5f6fdbd0234d17fd75ef23792d28b5db1ac29d02e2daeca5328cd3f6ab1ee6",
-              "text": "lattice checklist_get '{\"storyId\":\"B-xxx\"}'"
+              "claim": "checklist_get",
+              "normalizedClaim": "checklist_get",
+              "snippets": [
+                {
+                  "line": 125,
+                  "sha256": "ad5f6fdbd0234d17fd75ef23792d28b5db1ac29d02e2daeca5328cd3f6ab1ee6",
+                  "text": "lattice checklist_get '{\"storyId\":\"B-xxx\"}'"
+                }
+              ]
             },
             {
-              "line": 126,
-              "sha256": "0112d496bc041279392301e29cb5a34fb15cfaaa7ad898b87a4365023a1bcdd5",
-              "text": "lattice story_get '{\"storyId\":\"B-xxx\"}'"
+              "claim": "story_get",
+              "normalizedClaim": "story_get",
+              "snippets": [
+                {
+                  "line": 126,
+                  "sha256": "0112d496bc041279392301e29cb5a34fb15cfaaa7ad898b87a4365023a1bcdd5",
+                  "text": "lattice story_get '{\"storyId\":\"B-xxx\"}'"
+                }
+              ]
             },
             {
-              "line": 155,
-              "sha256": "ae701fecf7373549fff1cfeeeacfc93874cf33b3cee917aa8cedb6b140a48173",
-              "text": "lattice review_pass_set '{\"storyId\":\"B-xxx\",\"reviewRunId\":\"<reviewRunId from review_run_start>\""
+              "claim": "grep process-events",
+              "normalizedClaim": "grep process-events",
+              "snippets": [
+                {
+                  "line": 138,
+                  "sha256": "7d0750187fceae7ec3dacdfa3b31c2b0c272d37afaa477fe675d9444e8310dfd",
+                  "text": "grep '\"type\":\"dispatch\"' docs/story/actives/B-xxx/process-events.jsonl"
+                }
+              ]
+            },
+            {
+              "claim": "review_run_start",
+              "normalizedClaim": "review_run_start",
+              "snippets": [
+                {
+                  "line": 72,
+                  "sha256": "c2014c352753600b69464858c0f759627d1aab68223f52d39546e48acfcc58d3",
+                  "text": "`lattice review_run_start {\"storyId\":\"B-xxx\",\"agent\":\"<reviewer-name>\"}`"
+                }
+              ]
+            },
+            {
+              "claim": "finding_add",
+              "normalizedClaim": "finding_add",
+              "snippets": [
+                {
+                  "line": 158,
+                  "sha256": "d62a39e6329805859b49289667a3d5c083ec48748858df98d33ee06eb59a2b42",
+                  "text": "lattice finding_add '{\"storyId\":\"B-xxx\",\"reviewRunId\":\"<reviewRunId from review_run_start>\""
+                }
+              ]
+            },
+            {
+              "claim": "review_pass_set.",
+              "normalizedClaim": "review_pass_set",
+              "snippets": [
+                {
+                  "line": 155,
+                  "sha256": "ae701fecf7373549fff1cfeeeacfc93874cf33b3cee917aa8cedb6b140a48173",
+                  "text": "lattice review_pass_set '{\"storyId\":\"B-xxx\",\"reviewRunId\":\"<reviewRunId from review_run_start>\""
+                }
+              ]
             }
           ]
         },
         {
           "field": "directFileAccess",
           "value": "Legacy direct read of docs/story process-events evidence.",
-          "snippets": [
+          "claimMode": "whole-field",
+          "claims": [
             {
-              "line": 138,
-              "sha256": "7d0750187fceae7ec3dacdfa3b31c2b0c272d37afaa477fe675d9444e8310dfd",
-              "text": "grep '\"type\":\"dispatch\"' docs/story/actives/B-xxx/process-events.jsonl"
+              "claim": "Legacy direct read of docs/story process-events evidence.",
+              "normalizedClaim": "legacy direct read of docs/story process-events evidence",
+              "snippets": [
+                {
+                  "line": 115,
+                  "sha256": "eef68ee0a68ad2d4a7e80d439f8052b53774e47e5636ef1fc2e7878074ffe897",
+                  "text": "The truly reliable evidence source is the `dispatch` / `subagent_result` events in **`docs/story/actives/<storyId>/process-events.jsonl`**"
+                },
+                {
+                  "line": 138,
+                  "sha256": "7d0750187fceae7ec3dacdfa3b31c2b0c272d37afaa477fe675d9444e8310dfd",
+                  "text": "grep '\"type\":\"dispatch\"' docs/story/actives/B-xxx/process-events.jsonl"
+                },
+                {
+                  "line": 177,
+                  "sha256": "2609b562fa1289c8f3a70e9c9c588bd5f8c6edfacff59d45ad468ac8770b1de8",
+                  "text": "The full text of `docs/story/actives/<storyId>/process-events.jsonl` (dispatch evidence source)"
+                }
+              ]
             }
           ]
         },
         {
           "field": "outputs",
           "value": "Reviewer findings or pass.",
-          "snippets": [
+          "claimMode": "whole-field",
+          "claims": [
             {
-              "line": 154,
-              "sha256": "905101030c79c7a7a3a98be5c0901901f82841ea52b649163a4c7e53427727f2",
-              "text": "Normal channel + all CHKs have dispatch evidence"
+              "claim": "Reviewer findings or pass.",
+              "normalizedClaim": "reviewer findings or pass",
+              "snippets": [
+                {
+                  "line": 154,
+                  "sha256": "98c2658d975e5cc821534b0ceab87c67520b3536f12aacbbcc4060d9cdc44df9",
+                  "text": "# Normal channel + all CHKs have dispatch evidence"
+                },
+                {
+                  "line": 157,
+                  "sha256": "27795b9078253235f851eacd6623c88b60731e14232834fea9bfea613491d0f7",
+                  "text": "# Normal channel + some CHKs missing dispatch"
+                },
+                {
+                  "line": 155,
+                  "sha256": "bcf537281e11dd8f94bb0e79d8cf10cd2d6531849ed0fb4179ab383f3ab548cc",
+                  "text": "lattice review_pass_set '{\"storyId\":\"B-xxx\""
+                },
+                {
+                  "line": 158,
+                  "sha256": "a8540b6066128b343964b1ab9dc48dbea8984b0da40e551d5f90f87a9ae60b94",
+                  "text": "lattice finding_add '{\"storyId\":\"B-xxx\""
+                }
+              ]
             }
           ]
         }
@@ -724,38 +1181,118 @@
         {
           "field": "commands",
           "value": "git diff; grep; review_run_start; finding_add; review_pass_set.",
-          "snippets": [
+          "claimMode": "semicolon-delimited",
+          "claims": [
             {
-              "line": 113,
-              "sha256": "513ec4f66734ec1e3dcc686f2a1dfa3dca7bdc54c8638422453412e991ed6eed",
-              "text": "`git diff main...HEAD --stat`"
+              "claim": "git diff",
+              "normalizedClaim": "git diff",
+              "snippets": [
+                {
+                  "line": 113,
+                  "sha256": "214fae341e682f03d1463e3abc9314b2855ff8487ee9445eaaf6449ba1486a94",
+                  "text": "`git diff main...HEAD --stat` to see which files changed"
+                }
+              ]
             },
             {
-              "line": 121,
-              "sha256": "d62a39e6329805859b49289667a3d5c083ec48748858df98d33ee06eb59a2b42",
-              "text": "lattice finding_add '{\"storyId\":\"B-xxx\",\"reviewRunId\":\"<reviewRunId from review_run_start>\""
+              "claim": "grep",
+              "normalizedClaim": "grep",
+              "snippets": [
+                {
+                  "line": 115,
+                  "sha256": "a5ba502cece7922cbc0f4768dea20dd0ea9fcaeb0b723307ed21e0f91ff4db06",
+                  "text": "For each identified concept word, grep the entire repository"
+                }
+              ]
+            },
+            {
+              "claim": "review_run_start",
+              "normalizedClaim": "review_run_start",
+              "snippets": [
+                {
+                  "line": 147,
+                  "sha256": "355282e082b6f877878f4527173853cf2fe0f0f54502e2f20979d0a001c07ca5",
+                  "text": "first call `lattice review_run_start {\"storyId\":\"B-xxx\",\"agent\":\"<reviewer-name>\"}`"
+                }
+              ]
+            },
+            {
+              "claim": "finding_add",
+              "normalizedClaim": "finding_add",
+              "snippets": [
+                {
+                  "line": 121,
+                  "sha256": "d62a39e6329805859b49289667a3d5c083ec48748858df98d33ee06eb59a2b42",
+                  "text": "lattice finding_add '{\"storyId\":\"B-xxx\",\"reviewRunId\":\"<reviewRunId from review_run_start>\""
+                }
+              ]
+            },
+            {
+              "claim": "review_pass_set.",
+              "normalizedClaim": "review_pass_set",
+              "snippets": [
+                {
+                  "line": 123,
+                  "sha256": "5996edf1dc7d8c2965d30b0728412bf48490e0666e3b6168bba7478fedafb410",
+                  "text": "call `lattice review_pass_set '{\"storyId\":\"B-xxx\""
+                }
+              ]
             }
           ]
         },
         {
           "field": "directFileAccess",
           "value": "Reads diff/source/docs references; reviewer evidence through Lattice CLI.",
-          "snippets": [
+          "claimMode": "whole-field",
+          "claims": [
             {
-              "line": 109,
-              "sha256": "98cd04bb0e97713a714d66bb1c767324bbbc747aa042987be7635f9c6c36cab1",
-              "text": "grep the entire repository"
+              "claim": "Reads diff/source/docs references; reviewer evidence through Lattice CLI.",
+              "normalizedClaim": "reads diff/source/docs references; reviewer evidence through lattice cli",
+              "snippets": [
+                {
+                  "line": 114,
+                  "sha256": "3328bb41000e6263041daeb6986788203634dc088835682b01206aac205363f1",
+                  "text": "`git diff main...HEAD` to see specific changes"
+                },
+                {
+                  "line": 115,
+                  "sha256": "b44aa7118f5d27c6e8df5077135c67c6baa0015afaa980a80a05b325c61703fa",
+                  "text": "grep the entire repository (excluding node_modules / dist / .git)"
+                },
+                {
+                  "line": 141,
+                  "sha256": "37381f04f45affea83299df36ebbbf11c32e7b190352a91a9992f385a5031100",
+                  "text": "- Only grep, do not modify code"
+                },
+                {
+                  "line": 142,
+                  "sha256": "19a067824873d3d428fa8ac464d4caf8240bf06ad4d715533f5acd308b7ad013",
+                  "text": "Every finding must be registered via `lattice finding_add`"
+                }
+              ]
             }
           ]
         },
         {
           "field": "outputs",
           "value": "Reviewer findings or pass.",
-          "snippets": [
+          "claimMode": "whole-field",
+          "claims": [
             {
-              "line": 121,
-              "sha256": "f3d206adc3fd5f15e684bb4622cc03f8bc5279c8f59b630ef17ddef67ee7c7bb",
-              "text": "concept-cleanup: concept X deletion incomplete"
+              "claim": "Reviewer findings or pass.",
+              "normalizedClaim": "reviewer findings or pass",
+              "snippets": [
+                {
+                  "line": 119,
+                  "sha256": "0cbf54848a958fc591772e728d89b242e958d3410fa693eea8b2417c5ada68f8",
+                  "text": "grep result > 0 → file a finding:"
+                },
+                {
+                  "line": 123,
+                  "sha256": "eeea5aedd0263cb4f3a08483519e9594aebf37cf0a7574425e22eda893dd9500",
+                  "text": "No concept deletion/replacement → forbidden to use `finding_add` to record pass-only; call `lattice review_pass_set"
+                }
+              ]
             }
           ]
         }
@@ -768,38 +1305,79 @@
         {
           "field": "commands",
           "value": "delivery_check_set.",
-          "snippets": [
+          "claimMode": "semicolon-delimited",
+          "claims": [
             {
-              "line": 232,
-              "sha256": "f532d96db6b6aeb5c682a675fdc370c5cf06e4f804a1c2f43ede5288ae4bdb68",
-              "text": "lattice delivery_check_set '{\"storyId\":\"B-xxx\""
+              "claim": "delivery_check_set.",
+              "normalizedClaim": "delivery_check_set",
+              "snippets": [
+                {
+                  "line": 232,
+                  "sha256": "f532d96db6b6aeb5c682a675fdc370c5cf06e4f804a1c2f43ede5288ae4bdb68",
+                  "text": "lattice delivery_check_set '{\"storyId\":\"B-xxx\""
+                }
+              ]
             }
           ]
         },
         {
           "field": "directFileAccess",
           "value": "Reads git diff and repository files; explicitly avoids process-events, reviewer outputs, and test-evidence contents.",
-          "snippets": [
+          "claimMode": "whole-field",
+          "claims": [
             {
-              "line": 117,
-              "sha256": "50746ee13770e746c6cf21168128ee7b775eada03c02130abfd2e09c3b7382a5",
-              "text": "`git diff main...HEAD` output (you run this yourself)"
-            },
-            {
-              "line": 118,
-              "sha256": "f080a83446ae06734cb1fe933f6298f6b769cf898f6f57a9ee7365254bb311f4",
-              "text": "Files in the repository reachable via Read/Grep/Glob"
+              "claim": "Reads git diff and repository files; explicitly avoids process-events, reviewer outputs, and test-evidence contents.",
+              "normalizedClaim": "reads git diff and repository files; explicitly avoids process-events, reviewer outputs, and test-evidence contents",
+              "snippets": [
+                {
+                  "line": 117,
+                  "sha256": "50746ee13770e746c6cf21168128ee7b775eada03c02130abfd2e09c3b7382a5",
+                  "text": "`git diff main...HEAD` output (you run this yourself)"
+                },
+                {
+                  "line": 118,
+                  "sha256": "f080a83446ae06734cb1fe933f6298f6b769cf898f6f57a9ee7365254bb311f4",
+                  "text": "Files in the repository reachable via Read/Grep/Glob"
+                },
+                {
+                  "line": 123,
+                  "sha256": "be9c99eb5542e131af5f7a23bbf4c0a046d91c786f8208190058b9e5f447b8df",
+                  "text": "`story.events` / `process-events.jsonl`"
+                },
+                {
+                  "line": 125,
+                  "sha256": "2b5190e6f4268e40e01348efea36af200ee0eec9506a2e9fb5cf335088b86324",
+                  "text": "Other reviewer findings or results"
+                },
+                {
+                  "line": 126,
+                  "sha256": "900a73b2008e1eb19a97764281677baf96eac1c7126085e7153daa537d842b7e",
+                  "text": "`test-evidence.json` contents"
+                }
+              ]
             }
           ]
         },
         {
           "field": "outputs",
           "value": "Signed delivery-check.json via delivery_check_set, or refusal text.",
-          "snippets": [
+          "claimMode": "whole-field",
+          "claims": [
             {
-              "line": 106,
-              "sha256": "13710a7df2f16b73c79a1300c44426754a272c99ecae9a1f1c87ccbe7d1564e9",
-              "text": "Your output is a structured `delivery_check_set` call that writes a signed `delivery-check.json`."
+              "claim": "Signed delivery-check.json via delivery_check_set, or refusal text.",
+              "normalizedClaim": "signed delivery-check.json via delivery_check_set, or refusal text",
+              "snippets": [
+                {
+                  "line": 106,
+                  "sha256": "13710a7df2f16b73c79a1300c44426754a272c99ecae9a1f1c87ccbe7d1564e9",
+                  "text": "Your output is a structured `delivery_check_set` call that writes a signed `delivery-check.json`."
+                },
+                {
+                  "line": 224,
+                  "sha256": "a2d9060313af21507b35d1f71b0d8953a3d1ecd86c7d2afce9369f851b29c986",
+                  "text": "Refusing to call delivery_check_set: <reason>. Main agent must fix delivery gaps and re-spawn this reviewer."
+                }
+              ]
             }
           ]
         }
@@ -812,38 +1390,123 @@
         {
           "field": "commands",
           "value": "git diff; grep; review_run_start; finding_add; review_pass_set.",
-          "snippets": [
+          "claimMode": "semicolon-delimited",
+          "claims": [
             {
-              "line": 159,
-              "sha256": "7d257bb78f0afe3ae1ea986f39b4506a05c4b3b97b181ea3b8a59432dc721702",
-              "text": "register a finding with `lattice finding_add`"
+              "claim": "git diff",
+              "normalizedClaim": "git diff",
+              "snippets": [
+                {
+                  "line": 127,
+                  "sha256": "425eda2e486a0052e6acb359668cfade97a1fbe35ba2ba4d6db6d59cc9c8fde2",
+                  "text": "git diff main...HEAD \\"
+                }
+              ]
             },
             {
-              "line": 199,
-              "sha256": "7c12bd4546dbc5f9ef1e09dd6b3d70f31955ee5b93a6f5603cfdb4783f8265f5",
-              "text": "you must call `lattice review_pass_set"
+              "claim": "grep",
+              "normalizedClaim": "grep",
+              "snippets": [
+                {
+                  "line": 142,
+                  "sha256": "ba6bcc884073862079aae7698a2676273bf208ab3ae63f2016b1fa3330be9105",
+                  "text": "grep -rn --include='README*.md' --include='CLAUDE.md' --include='docs/**/*.md'"
+                }
+              ]
+            },
+            {
+              "claim": "review_run_start",
+              "normalizedClaim": "review_run_start",
+              "snippets": [
+                {
+                  "line": 72,
+                  "sha256": "c2014c352753600b69464858c0f759627d1aab68223f52d39546e48acfcc58d3",
+                  "text": "`lattice review_run_start {\"storyId\":\"B-xxx\",\"agent\":\"<reviewer-name>\"}`"
+                }
+              ]
+            },
+            {
+              "claim": "finding_add",
+              "normalizedClaim": "finding_add",
+              "snippets": [
+                {
+                  "line": 159,
+                  "sha256": "7d257bb78f0afe3ae1ea986f39b4506a05c4b3b97b181ea3b8a59432dc721702",
+                  "text": "register a finding with `lattice finding_add`"
+                }
+              ]
+            },
+            {
+              "claim": "review_pass_set.",
+              "normalizedClaim": "review_pass_set",
+              "snippets": [
+                {
+                  "line": 199,
+                  "sha256": "7c12bd4546dbc5f9ef1e09dd6b3d70f31955ee5b93a6f5603cfdb4783f8265f5",
+                  "text": "you must call `lattice review_pass_set"
+                }
+              ]
             }
           ]
         },
         {
           "field": "directFileAccess",
           "value": "Reads changed docs/source; reviewer evidence through Lattice CLI.",
-          "snippets": [
+          "claimMode": "whole-field",
+          "claims": [
             {
-              "line": 165,
-              "sha256": "e9334b8dde3f5e421949f92b1ada81a1a13892cb485756f81bea35b9b07f9c61",
-              "text": "`git diff main...HEAD`"
+              "claim": "Reads changed docs/source; reviewer evidence through Lattice CLI.",
+              "normalizedClaim": "reads changed docs/source; reviewer evidence through lattice cli",
+              "snippets": [
+                {
+                  "line": 117,
+                  "sha256": "bf7557b155fccdbdb593abfe8137ef1297c4b262717c525f33324768295de494",
+                  "text": "check whether the docs (README*.md / CLAUDE.md / docs/\\*\\*/\\*.md) and the code (exported symbols changed in git diff main...HEAD) are consistent."
+                },
+                {
+                  "line": 153,
+                  "sha256": "c873be34157a2f8fb83fbfc8230e278728212a3e929f59c78a6c8ce346aa572c",
+                  "text": "Read the paragraphs collected in Step 2 + the new definitions of the corresponding symbols in the diff"
+                },
+                {
+                  "line": 192,
+                  "sha256": "db63022046761628199271991c601b2c054cb39c571c69a6f846a36a843d1cb6",
+                  "text": "- Only read files for comparison; do not modify any files"
+                },
+                {
+                  "line": 193,
+                  "sha256": "6423263df113f0d412efe34fc79ce535a37737e5d7376a117b53593c5a72a96e",
+                  "text": "Every finding must be registered with `lattice finding_add`"
+                },
+                {
+                  "line": 199,
+                  "sha256": "7c12bd4546dbc5f9ef1e09dd6b3d70f31955ee5b93a6f5603cfdb4783f8265f5",
+                  "text": "you must call `lattice review_pass_set"
+                }
+              ]
             }
           ]
         },
         {
           "field": "outputs",
           "value": "Reviewer findings or pass.",
-          "snippets": [
+          "claimMode": "whole-field",
+          "claims": [
             {
-              "line": 196,
-              "sha256": "af382dee8d91a594ceb6b6f5f314ef71e5904b3fb9376a1422a41db994f275c9",
-              "text": "After the review ends, if inconsistencies are found, confirm that all issues have been registered via `lattice finding_add`"
+              "claim": "Reviewer findings or pass.",
+              "normalizedClaim": "reviewer findings or pass",
+              "snippets": [
+                {
+                  "line": 196,
+                  "sha256": "af382dee8d91a594ceb6b6f5f314ef71e5904b3fb9376a1422a41db994f275c9",
+                  "text": "After the review ends, if inconsistencies are found, confirm that all issues have been registered via `lattice finding_add`"
+                },
+                {
+                  "line": 199,
+                  "sha256": "84399fba84259b04ff9b16b76610b841beb4dbd3b17655e4b20bf2a168bdfb31",
+                  "text": "When there are no inconsistencies, it is forbidden to use the finding command to record pass-only"
+                }
+              ]
             }
           ]
         }
@@ -856,38 +1519,107 @@
         {
           "field": "commands",
           "value": "git diff; review_run_start; finding_add; review_pass_set.",
-          "snippets": [
+          "claimMode": "semicolon-delimited",
+          "claims": [
             {
-              "line": 70,
-              "sha256": "4aab0142d41dcfa4c0eac166a31f2f3973afd120a175db00eca23e8dd4816eee",
-              "text": "`review_pass_set`. Pass-only `finding_add` is a misuse."
+              "claim": "git diff",
+              "normalizedClaim": "git diff",
+              "snippets": [
+                {
+                  "line": 113,
+                  "sha256": "43f17acbab68aa44df25df2029f9047194f09accd930d52eeb2ac15bfb9014bd",
+                  "text": "`git diff main...HEAD --name-only` to get the list of changed files"
+                }
+              ]
             },
             {
-              "line": 146,
-              "sha256": "d62a39e6329805859b49289667a3d5c083ec48748858df98d33ee06eb59a2b42",
-              "text": "lattice finding_add '{\"storyId\":\"B-xxx\",\"reviewRunId\":\"<reviewRunId from review_run_start>\""
+              "claim": "review_run_start",
+              "normalizedClaim": "review_run_start",
+              "snippets": [
+                {
+                  "line": 171,
+                  "sha256": "355282e082b6f877878f4527173853cf2fe0f0f54502e2f20979d0a001c07ca5",
+                  "text": "first call `lattice review_run_start {\"storyId\":\"B-xxx\",\"agent\":\"<reviewer-name>\"}`"
+                }
+              ]
+            },
+            {
+              "claim": "finding_add",
+              "normalizedClaim": "finding_add",
+              "snippets": [
+                {
+                  "line": 146,
+                  "sha256": "d62a39e6329805859b49289667a3d5c083ec48748858df98d33ee06eb59a2b42",
+                  "text": "lattice finding_add '{\"storyId\":\"B-xxx\",\"reviewRunId\":\"<reviewRunId from review_run_start>\""
+                }
+              ]
+            },
+            {
+              "claim": "review_pass_set.",
+              "normalizedClaim": "review_pass_set",
+              "snippets": [
+                {
+                  "line": 170,
+                  "sha256": "5f6cacfddf9d84e3a549165f526005b673c00477dd6c07ef1dfb8e0d8a0dc9a8",
+                  "text": "you must call `lattice review_pass_set` to record the scope this reviewer has checked"
+                }
+              ]
             }
           ]
         },
         {
           "field": "directFileAccess",
           "value": "Reads source/tests/proof metadata; reviewer evidence through Lattice CLI.",
-          "snippets": [
+          "claimMode": "whole-field",
+          "claims": [
             {
-              "line": 113,
-              "sha256": "34af8c101c812fdee564570d309d1aee1394fab6447c2dc2bc80e7af8ba77bab",
-              "text": "`git diff main...HEAD --name-only`"
+              "claim": "Reads source/tests/proof metadata; reviewer evidence through Lattice CLI.",
+              "normalizedClaim": "reads source/tests/proof metadata; reviewer evidence through lattice cli",
+              "snippets": [
+                {
+                  "line": 114,
+                  "sha256": "145080293960e94e28b0b49d04f9d83ec5728d9310d8d9650cbf6f1922a96884",
+                  "text": "Only review changed files (don't review unchanged ones)"
+                },
+                {
+                  "line": 132,
+                  "sha256": "25a22e6fb43224da611ac3a2f3f913c29444ed38044252c81794131808e0a460",
+                  "text": "### 4. Proof Metadata Review Coverage (narrow correctness rule)"
+                },
+                {
+                  "line": 166,
+                  "sha256": "19a067824873d3d428fa8ac464d4caf8240bf06ad4d715533f5acd308b7ad013",
+                  "text": "Every finding must be registered via `lattice finding_add`"
+                },
+                {
+                  "line": 170,
+                  "sha256": "f5f5d47fa75ee941f773bbfcf6138eae9a75d21c63ac21f58cc10aef0651f789",
+                  "text": "you must call `lattice review_pass_set`"
+                }
+              ]
             }
           ]
         },
         {
           "field": "outputs",
           "value": "Reviewer findings or pass.",
-          "snippets": [
+          "claimMode": "whole-field",
+          "claims": [
             {
-              "line": 169,
-              "sha256": "77443c0f3835484ce6d6096abceb3f7a16aca77ef362e187619bc91bd20c6ccd",
-              "text": "After the review ends, confirm that all discovered issues have been registered via `lattice finding_add`"
+              "claim": "Reviewer findings or pass.",
+              "normalizedClaim": "reviewer findings or pass",
+              "snippets": [
+                {
+                  "line": 169,
+                  "sha256": "77443c0f3835484ce6d6096abceb3f7a16aca77ef362e187619bc91bd20c6ccd",
+                  "text": "After the review ends, confirm that all discovered issues have been registered via `lattice finding_add`"
+                },
+                {
+                  "line": 170,
+                  "sha256": "e31164ff534fbe4583148f1f8aec21c471603660724f6f57efa3f0116302250b",
+                  "text": "When there are no findings, do not use `finding_add` to fake a pass; you must call `lattice review_pass_set`"
+                }
+              ]
             }
           ]
         }
@@ -900,38 +1632,135 @@
         {
           "field": "commands",
           "value": "config; dev_memory_preflight; dev_memory_search; aux_doc_list; story_get; checklist_get; scope_check_save.",
-          "snippets": [
+          "claimMode": "semicolon-delimited",
+          "claims": [
             {
-              "line": 115,
-              "sha256": "922de027e3ed1c64fe790f9ce7751afa6c8eee666db1374aba81d3083adf6494",
-              "text": "lattice config"
+              "claim": "config",
+              "normalizedClaim": "config",
+              "snippets": [
+                {
+                  "line": 145,
+                  "sha256": "68a5514cb2884cb61a07bd6c4a7fbd047ad3b1aeda697f41cf0e986d04f0c2a2",
+                  "text": "lattice config 2>/dev/null"
+                }
+              ]
             },
             {
-              "line": 182,
-              "sha256": "56f249168a9e35cb3ac48a258569669b585d9523d63f0e25731e3f02bb797115",
-              "text": "lattice scope_check_save"
+              "claim": "dev_memory_preflight",
+              "normalizedClaim": "dev_memory_preflight",
+              "snippets": [
+                {
+                  "line": 122,
+                  "sha256": "c8c372dfe433415191a4d43c853ad0714abce9b35c62c892bc8b5642487c19e2",
+                  "text": "`lattice dev_memory_preflight`"
+                }
+              ]
+            },
+            {
+              "claim": "dev_memory_search",
+              "normalizedClaim": "dev_memory_search",
+              "snippets": [
+                {
+                  "line": 122,
+                  "sha256": "df8f249ca1e2144314a6e3db4b646d393858ea4265b9d71d879caabd63486dfc",
+                  "text": "`lattice dev_memory_search --query=\"<story keywords>\"`"
+                }
+              ]
+            },
+            {
+              "claim": "aux_doc_list",
+              "normalizedClaim": "aux_doc_list",
+              "snippets": [
+                {
+                  "line": 124,
+                  "sha256": "9c0343a70d3ce821e3895f2cca981594d3e2cd488d08bb26b90f13c56277ba50",
+                  "text": "`lattice aux_doc_list` output"
+                }
+              ]
+            },
+            {
+              "claim": "story_get",
+              "normalizedClaim": "story_get",
+              "snippets": [
+                {
+                  "line": 157,
+                  "sha256": "0112d496bc041279392301e29cb5a34fb15cfaaa7ad898b87a4365023a1bcdd5",
+                  "text": "lattice story_get '{\"storyId\":\"B-xxx\"}'"
+                }
+              ]
+            },
+            {
+              "claim": "checklist_get",
+              "normalizedClaim": "checklist_get",
+              "snippets": [
+                {
+                  "line": 163,
+                  "sha256": "ad5f6fdbd0234d17fd75ef23792d28b5db1ac29d02e2daeca5328cd3f6ab1ee6",
+                  "text": "lattice checklist_get '{\"storyId\":\"B-xxx\"}'"
+                }
+              ]
+            },
+            {
+              "claim": "scope_check_save.",
+              "normalizedClaim": "scope_check_save",
+              "snippets": [
+                {
+                  "line": 182,
+                  "sha256": "caa4b573e07efb64eaf3ea1e0d941e6f10e18d22ae620e8a3b620fc138c11de1",
+                  "text": "lattice scope_check_save '{\"storyId\":\"B-xxx\""
+                }
+              ]
             }
           ]
         },
         {
           "field": "directFileAccess",
           "value": "Reads candidate docs and CLI-provided story/checklist context; scope evidence through Lattice CLI.",
-          "snippets": [
+          "claimMode": "whole-field",
+          "claims": [
             {
-              "line": 149,
-              "sha256": "578f5d7e415b7b4805b38ac56655c41a0dd7e2bf2fbcc4965acba2dd4f84e016",
-              "text": "Glob pattern: docs/requirements/decisions/*.md"
+              "claim": "Reads candidate docs and CLI-provided story/checklist context; scope evidence through Lattice CLI.",
+              "normalizedClaim": "reads candidate docs and cli-provided story/checklist context; scope evidence through lattice cli",
+              "snippets": [
+                {
+                  "line": 124,
+                  "sha256": "ffff9e9b352d6698059e8c8c542d4287e50a8db334f972391c6e2d0e8e257e7a",
+                  "text": "**Build the candidateSpecSet** from ALL of these sources:"
+                },
+                {
+                  "line": 157,
+                  "sha256": "0112d496bc041279392301e29cb5a34fb15cfaaa7ad898b87a4365023a1bcdd5",
+                  "text": "lattice story_get '{\"storyId\":\"B-xxx\"}'"
+                },
+                {
+                  "line": 163,
+                  "sha256": "ad5f6fdbd0234d17fd75ef23792d28b5db1ac29d02e2daeca5328cd3f6ab1ee6",
+                  "text": "lattice checklist_get '{\"storyId\":\"B-xxx\"}'"
+                },
+                {
+                  "line": 182,
+                  "sha256": "caa4b573e07efb64eaf3ea1e0d941e6f10e18d22ae620e8a3b620fc138c11de1",
+                  "text": "lattice scope_check_save '{\"storyId\":\"B-xxx\""
+                }
+              ]
             }
           ]
         },
         {
           "field": "outputs",
           "value": "scope_check_save artifact.",
-          "snippets": [
+          "claimMode": "whole-field",
+          "claims": [
             {
-              "line": 203,
-              "sha256": "a64bd435123b76603e2433c13aa37e694a238e61856e23787a3df8192455cd4b",
-              "text": "You must call `lattice scope_check_save` to persist the result"
+              "claim": "scope_check_save artifact.",
+              "normalizedClaim": "scope_check_save artifact",
+              "snippets": [
+                {
+                  "line": 203,
+                  "sha256": "a64bd435123b76603e2433c13aa37e694a238e61856e23787a3df8192455cd4b",
+                  "text": "You must call `lattice scope_check_save` to persist the result"
+                }
+              ]
             }
           ]
         }
@@ -944,38 +1773,84 @@
         {
           "field": "commands",
           "value": "init_check_set.",
-          "snippets": [
+          "claimMode": "semicolon-delimited",
+          "claims": [
             {
-              "line": 9,
-              "sha256": "b78ef9481c3754d95c9bad6655ccf90544d7d4d3b0be186f123d4e570b41be72",
-              "text": "lattice init_check_set"
+              "claim": "init_check_set.",
+              "normalizedClaim": "init_check_set",
+              "snippets": [
+                {
+                  "line": 216,
+                  "sha256": "82cba57d93c1ca024593443fe952c433302ece42144e69d2aef6a722d4364ff6",
+                  "text": "lattice init_check_set '{\"storyId\":\"B-xxx\""
+                }
+              ]
             }
           ]
         },
         {
           "field": "directFileAccess",
           "value": "Grandfathered direct docs/story reads and init-self-check file write wording.",
-          "snippets": [
+          "claimMode": "whole-field",
+          "claims": [
             {
-              "line": 127,
-              "sha256": "abbbbb42f95a103b176d21593c1326ebeb2ae4ff074e35cae3a33ca0d86d7ef8",
-              "text": "`docs/story/actives/<storyId>/background.md` (full text)"
-            },
-            {
-              "line": 267,
-              "sha256": "d79cd7e13f133ba7337a033070a7c6f3847b05b29013a6f917fe8e3b8464d84e",
-              "text": "echo '{\"question\":\"Did you read CLAUDE.md?"
+              "claim": "Grandfathered direct docs/story reads and init-self-check file write wording.",
+              "normalizedClaim": "grandfathered direct docs/story reads and init-self-check file write wording",
+              "snippets": [
+                {
+                  "line": 127,
+                  "sha256": "abbbbb42f95a103b176d21593c1326ebeb2ae4ff074e35cae3a33ca0d86d7ef8",
+                  "text": "`docs/story/actives/<storyId>/background.md` (full text)"
+                },
+                {
+                  "line": 128,
+                  "sha256": "4c57cc878371e7a7553e19a77f225cacd85f2e8dcc5f8799a58061f91e739631",
+                  "text": "`docs/story/actives/<storyId>/index.json` — read only"
+                },
+                {
+                  "line": 129,
+                  "sha256": "0f87cae256d8edf2232f6f62c00732ec5b792eb815cb1b3fb58185d10cd75001",
+                  "text": "`docs/story/actives/<storyId>/checklist.json` — read only"
+                },
+                {
+                  "line": 267,
+                  "sha256": "d79cd7e13f133ba7337a033070a7c6f3847b05b29013a6f917fe8e3b8464d84e",
+                  "text": "echo '{\"question\":\"Did you read CLAUDE.md?"
+                },
+                {
+                  "line": 270,
+                  "sha256": "fc87eac172efc62e6f5dfe8e0198bdbfab15f5d4638ac1ec2a19b6a55cb8ec38",
+                  "text": "Then use the Edit tool to fill in the `answer` field completely"
+                }
+              ]
             }
           ]
         },
         {
           "field": "outputs",
           "value": "init_check_set issues/pass plus init-self-check audit file wording.",
-          "snippets": [
+          "claimMode": "whole-field",
+          "claims": [
             {
-              "line": 254,
-              "sha256": "dc9c738ec736c7be546cfe9226b5c196f113243c6d6dbf2bb89090523eab2c29",
-              "text": "The output must call `lattice init_check_set`; text-only output without the save call is incomplete"
+              "claim": "init_check_set issues/pass plus init-self-check audit file wording.",
+              "normalizedClaim": "init_check_set issues/pass plus init-self-check audit file wording",
+              "snippets": [
+                {
+                  "line": 254,
+                  "sha256": "dc9c738ec736c7be546cfe9226b5c196f113243c6d6dbf2bb89090523eab2c29",
+                  "text": "The output must call `lattice init_check_set`; text-only output without the save call is incomplete"
+                },
+                {
+                  "line": 267,
+                  "sha256": "d79cd7e13f133ba7337a033070a7c6f3847b05b29013a6f917fe8e3b8464d84e",
+                  "text": "echo '{\"question\":\"Did you read CLAUDE.md?"
+                },
+                {
+                  "line": 270,
+                  "sha256": "fc87eac172efc62e6f5dfe8e0198bdbfab15f5d4638ac1ec2a19b6a55cb8ec38",
+                  "text": "Then use the Edit tool to fill in the `answer` field completely"
+                }
+              ]
             }
           ]
         }
@@ -988,43 +1863,134 @@
         {
           "field": "commands",
           "value": "story_get; checklist_get; validate; review_run_start; finding_add; review_pass_set.",
-          "snippets": [
+          "claimMode": "semicolon-delimited",
+          "claims": [
             {
-              "line": 28,
-              "sha256": "e886da5b5fcc389b049d8c46850c11ed54d9da51d1e35a821800342d44c11866",
-              "text": "lattice story_get '{\"storyId\":\"<ID>\",\"detail\":true}'"
+              "claim": "story_get",
+              "normalizedClaim": "story_get",
+              "snippets": [
+                {
+                  "line": 28,
+                  "sha256": "e886da5b5fcc389b049d8c46850c11ed54d9da51d1e35a821800342d44c11866",
+                  "text": "lattice story_get '{\"storyId\":\"<ID>\",\"detail\":true}'"
+                }
+              ]
             },
             {
-              "line": 30,
-              "sha256": "2c84074e30ef776cdf0f6dcd828bf81b368d9b43d15ac7cf81a6edb91b85d681",
-              "text": "lattice validate '{\"story\":\"<ID>\",\"json\":true}'"
+              "claim": "checklist_get",
+              "normalizedClaim": "checklist_get",
+              "snippets": [
+                {
+                  "line": 29,
+                  "sha256": "bcded91d5255e4bc0d0765c75b4730810d350cb592e7dc470ea05588e75bc6e9",
+                  "text": "lattice checklist_get '{\"storyId\":\"<ID>\"}'"
+                }
+              ]
             },
             {
-              "line": 45,
-              "sha256": "e31805927c6b7e0bad37171f08e84b6d0a9e743dd2d02f5c0e96b083bb0ef679",
-              "text": "lattice finding_add '{\"storyId\":\"<ID>\",\"reviewRunId\":\"<reviewRunId from review_run_start>\""
+              "claim": "validate",
+              "normalizedClaim": "validate",
+              "snippets": [
+                {
+                  "line": 30,
+                  "sha256": "2c84074e30ef776cdf0f6dcd828bf81b368d9b43d15ac7cf81a6edb91b85d681",
+                  "text": "lattice validate '{\"story\":\"<ID>\",\"json\":true}'"
+                }
+              ]
+            },
+            {
+              "claim": "review_run_start",
+              "normalizedClaim": "review_run_start",
+              "snippets": [
+                {
+                  "line": 16,
+                  "sha256": "c2014c352753600b69464858c0f759627d1aab68223f52d39546e48acfcc58d3",
+                  "text": "`lattice review_run_start {\"storyId\":\"B-xxx\",\"agent\":\"<reviewer-name>\"}`"
+                }
+              ]
+            },
+            {
+              "claim": "finding_add",
+              "normalizedClaim": "finding_add",
+              "snippets": [
+                {
+                  "line": 42,
+                  "sha256": "6d9b8e7de6ecbe08481aaeb1bfd9eefa8bf390a67fb58516b0510f257badf463",
+                  "text": "write a finding with `lattice finding_add`"
+                }
+              ]
+            },
+            {
+              "claim": "review_pass_set.",
+              "normalizedClaim": "review_pass_set",
+              "snippets": [
+                {
+                  "line": 54,
+                  "sha256": "7c12bd4546dbc5f9ef1e09dd6b3d70f31955ee5b93a6f5603cfdb4783f8265f5",
+                  "text": "you must call `lattice review_pass_set"
+                }
+              ]
             }
           ]
         },
         {
           "field": "directFileAccess",
           "value": "Reads checklist/evidence through Lattice CLI; reviewer evidence through Lattice CLI.",
-          "snippets": [
+          "claimMode": "whole-field",
+          "claims": [
             {
-              "line": 29,
-              "sha256": "bcded91d5255e4bc0d0765c75b4730810d350cb592e7dc470ea05588e75bc6e9",
-              "text": "lattice checklist_get '{\"storyId\":\"<ID>\"}'"
+              "claim": "Reads checklist/evidence through Lattice CLI; reviewer evidence through Lattice CLI.",
+              "normalizedClaim": "reads checklist/evidence through lattice cli; reviewer evidence through lattice cli",
+              "snippets": [
+                {
+                  "line": 28,
+                  "sha256": "e886da5b5fcc389b049d8c46850c11ed54d9da51d1e35a821800342d44c11866",
+                  "text": "lattice story_get '{\"storyId\":\"<ID>\",\"detail\":true}'"
+                },
+                {
+                  "line": 29,
+                  "sha256": "bcded91d5255e4bc0d0765c75b4730810d350cb592e7dc470ea05588e75bc6e9",
+                  "text": "lattice checklist_get '{\"storyId\":\"<ID>\"}'"
+                },
+                {
+                  "line": 30,
+                  "sha256": "2c84074e30ef776cdf0f6dcd828bf81b368d9b43d15ac7cf81a6edb91b85d681",
+                  "text": "lattice validate '{\"story\":\"<ID>\",\"json\":true}'"
+                },
+                {
+                  "line": 42,
+                  "sha256": "6d9b8e7de6ecbe08481aaeb1bfd9eefa8bf390a67fb58516b0510f257badf463",
+                  "text": "write a finding with `lattice finding_add`"
+                },
+                {
+                  "line": 54,
+                  "sha256": "7c12bd4546dbc5f9ef1e09dd6b3d70f31955ee5b93a6f5603cfdb4783f8265f5",
+                  "text": "you must call `lattice review_pass_set"
+                }
+              ]
             }
           ]
         },
         {
           "field": "outputs",
           "value": "Reviewer findings or pass.",
-          "snippets": [
+          "claimMode": "whole-field",
+          "claims": [
             {
-              "line": 52,
-              "sha256": "56b4084a25cc746921cbccc3330f2efa3db3fbb377feea0306ddb611c719cc76",
-              "text": "Coverage summary: total intent count, must-gap count, waiver count."
+              "claim": "Reviewer findings or pass.",
+              "normalizedClaim": "reviewer findings or pass",
+              "snippets": [
+                {
+                  "line": 53,
+                  "sha256": "3f1bdbd65bb7b70db7136e5cbe65f88b02f248b28e2540dbbfd3bfa7881d3510",
+                  "text": "List of finding ids that were written."
+                },
+                {
+                  "line": 54,
+                  "sha256": "0abf5cd8fe91c746ed2cb8bbbebcd738feed04d074af637014fb551fcb3ac5d7",
+                  "text": "If there are no findings, you must call `lattice review_pass_set"
+                }
+              ]
             }
           ]
         }
@@ -1037,33 +2003,95 @@
         {
           "field": "commands",
           "value": "init_check_set when asked to perform INIT compatibility review; otherwise none.",
-          "snippets": [
+          "claimMode": "semicolon-delimited",
+          "claims": [
             {
-              "line": 34,
-              "sha256": "16ba240f1100ce5c2c0d80d04fc6ed4226c2c4c156f5f0c1fad6bfff6e0f8102",
-              "text": "lattice init_check_set '{\"storyId\":\"<STORY_ID>\",\"issues\":[...],\"agentId\":\"product-reviewer\"}'"
+              "claim": "init_check_set when asked to perform INIT compatibility review",
+              "normalizedClaim": "init_check_set when asked to perform init compatibility review",
+              "snippets": [
+                {
+                  "line": 31,
+                  "sha256": "e4b2093c4a84c4396c2f914379aa5f5f79cc372c9a214e2587c61be9a50e731b",
+                  "text": "If the main agent asks you to take on INIT review or to judge whether INIT can advance"
+                },
+                {
+                  "line": 34,
+                  "sha256": "16ba240f1100ce5c2c0d80d04fc6ed4226c2c4c156f5f0c1fad6bfff6e0f8102",
+                  "text": "lattice init_check_set '{\"storyId\":\"<STORY_ID>\",\"issues\":[...],\"agentId\":\"product-reviewer\"}'"
+                }
+              ]
+            },
+            {
+              "claim": "otherwise none.",
+              "normalizedClaim": "otherwise none",
+              "snippets": [
+                {
+                  "line": 31,
+                  "sha256": "e4b2093c4a84c4396c2f914379aa5f5f79cc372c9a214e2587c61be9a50e731b",
+                  "text": "If the main agent asks you to take on INIT review or to judge whether INIT can advance"
+                },
+                {
+                  "line": 80,
+                  "sha256": "315d6784d280604ff8f21c4ee6e4b33aea122d627b81880680609ac2f4063566",
+                  "text": "Return concisely:"
+                }
+              ]
             }
           ]
         },
         {
           "field": "directFileAccess",
           "value": "Reads transcript/product context and optional transcript diff; no code, test, or story metadata writes.",
-          "snippets": [
+          "claimMode": "whole-field",
+          "claims": [
             {
-              "line": 48,
-              "sha256": "6eceece8b1ec8975553690dd92611d8b6f01c27dd704ebb3a7fe52c39b003967",
-              "text": "If available, `docs/story/actives/<storyId>/evidence/transcript-diff.md`"
+              "claim": "Reads transcript/product context and optional transcript diff; no code, test, or story metadata writes.",
+              "normalizedClaim": "reads transcript/product context and optional transcript diff; no code, test, or story metadata writes",
+              "snippets": [
+                {
+                  "line": 46,
+                  "sha256": "d9f69524e4caab7b0770f6bfe424dde4af0003e96f9fd14c8605bdbb7d82eb88",
+                  "text": "- `understanding.outcome`"
+                },
+                {
+                  "line": 47,
+                  "sha256": "9518ffa907917f7fd469d4cfe270f9db8aa493a8410d10389346f5178d1701be",
+                  "text": "- `summary` / output from the `story_advance DONE` phase"
+                },
+                {
+                  "line": 48,
+                  "sha256": "47e83b13c0577688768cba00bbada724a6676935d4ce153ce558765f93a35cac",
+                  "text": "- If available, `docs/story/actives/<storyId>/evidence/transcript-diff.md`"
+                },
+                {
+                  "line": 27,
+                  "sha256": "64b3db0ef9358f0c0f5442c363fc2439ead70ab351c847e7bc3f3158439451ec",
+                  "text": "- Not modifying code, tests, or testIntent"
+                }
+              ]
             }
           ]
         },
         {
           "field": "outputs",
           "value": "Text product review or product-reviewer init_check_set record.",
-          "snippets": [
+          "claimMode": "whole-field",
+          "claims": [
             {
-              "line": 83,
-              "sha256": "ca114a6043eb07e1e2822f83c4e95737aa7c627f46479ebe3ba9810c260b1683",
-              "text": "Conclusion: pass / fail"
+              "claim": "Text product review or product-reviewer init_check_set record.",
+              "normalizedClaim": "text product review or product-reviewer init_check_set record",
+              "snippets": [
+                {
+                  "line": 34,
+                  "sha256": "16ba240f1100ce5c2c0d80d04fc6ed4226c2c4c156f5f0c1fad6bfff6e0f8102",
+                  "text": "lattice init_check_set '{\"storyId\":\"<STORY_ID>\",\"issues\":[...],\"agentId\":\"product-reviewer\"}'"
+                },
+                {
+                  "line": 83,
+                  "sha256": "ca114a6043eb07e1e2822f83c4e95737aa7c627f46479ebe3ba9810c260b1683",
+                  "text": "Conclusion: pass / fail"
+                }
+              ]
             }
           ]
         }
@@ -1076,38 +2104,96 @@
         {
           "field": "commands",
           "value": "checklist_get; testintent_check; testintent_record.",
-          "snippets": [
+          "claimMode": "semicolon-delimited",
+          "claims": [
             {
-              "line": 45,
-              "sha256": "eaf9a2cb708a7c4b1b80bfaff03a64d820f6d61fc347e4b127bb2badbb282fce",
-              "text": "lattice testintent_check '{\"storyId\":\"<STORY_ID>\"}'"
+              "claim": "checklist_get",
+              "normalizedClaim": "checklist_get",
+              "snippets": [
+                {
+                  "line": 39,
+                  "sha256": "95c88d9fdbe72aa535871b09c03adc4076ab74beba9d5f52a6d53a4744bb1cfc",
+                  "text": "lattice checklist_get '{\"storyId\":\"<STORY_ID>\"}'"
+                }
+              ]
             },
             {
-              "line": 92,
-              "sha256": "f3968733cb9b2e3ea185abc86d1963488640400965f44a907231691bca596790",
-              "text": "lattice testintent_record '{\"storyId\":\"<STORY_ID>\""
+              "claim": "testintent_check",
+              "normalizedClaim": "testintent_check",
+              "snippets": [
+                {
+                  "line": 45,
+                  "sha256": "eaf9a2cb708a7c4b1b80bfaff03a64d820f6d61fc347e4b127bb2badbb282fce",
+                  "text": "lattice testintent_check '{\"storyId\":\"<STORY_ID>\"}'"
+                }
+              ]
+            },
+            {
+              "claim": "testintent_record.",
+              "normalizedClaim": "testintent_record",
+              "snippets": [
+                {
+                  "line": 92,
+                  "sha256": "f3968733cb9b2e3ea185abc86d1963488640400965f44a907231691bca596790",
+                  "text": "lattice testintent_record '{\"storyId\":\"<STORY_ID>\""
+                }
+              ]
             }
           ]
         },
         {
           "field": "directFileAccess",
           "value": "Legacy direct fixture JSON reads; writes only through testintent_record.",
-          "snippets": [
+          "claimMode": "whole-field",
+          "claims": [
             {
-              "line": 76,
-              "sha256": "507c670069e866e787c96bce87ea21b419225d24ada12887b4ab4ed90a79f4bd",
-              "text": "read fixture JSON files directly"
+              "claim": "Legacy direct fixture JSON reads; writes only through testintent_record.",
+              "normalizedClaim": "legacy direct fixture json reads; writes only through testintent_record",
+              "snippets": [
+                {
+                  "line": 76,
+                  "sha256": "2ccb4524689442414ad294e26e9965acb0c8d22b98dff67ae67565b35724529c",
+                  "text": "**read fixture JSON files directly**"
+                },
+                {
+                  "line": 89,
+                  "sha256": "0349c02b17ca0573fa788b5822690220288040a30f15a4939068f96fb1086c45",
+                  "text": "For each testIntent, call the CLI to record the review result:"
+                },
+                {
+                  "line": 133,
+                  "sha256": "2d142ecad248062d4e2c0aabea1345e31d38a429156e934cc16656860b521f81",
+                  "text": "- **Do not directly edit** JSON files; you must go through the Lattice CLI"
+                }
+              ]
             }
           ]
         },
         {
           "field": "outputs",
           "value": "testintent_record results and testintent_check status.",
-          "snippets": [
+          "claimMode": "whole-field",
+          "claims": [
             {
-              "line": 151,
-              "sha256": "2f481012a8d2ad996dc99f580fcb77e0ee02b77c11e9a61d0728f4440df3c072",
-              "text": "Review summary: X passed / Y failed / Z total"
+              "claim": "testintent_record results and testintent_check status.",
+              "normalizedClaim": "testintent_record results and testintent_check status",
+              "snippets": [
+                {
+                  "line": 89,
+                  "sha256": "0349c02b17ca0573fa788b5822690220288040a30f15a4939068f96fb1086c45",
+                  "text": "For each testIntent, call the CLI to record the review result:"
+                },
+                {
+                  "line": 141,
+                  "sha256": "ee688455e1f400d620ccb41027fcef6bab81760be250d5a4fcdec125da4ef0e0",
+                  "text": "Final step: call testintent_check to get the status and guidance"
+                },
+                {
+                  "line": 151,
+                  "sha256": "2f481012a8d2ad996dc99f580fcb77e0ee02b77c11e9a61d0728f4440df3c072",
+                  "text": "Review summary: X passed / Y failed / Z total"
+                }
+              ]
             }
           ]
         }
@@ -1120,38 +2206,90 @@
         {
           "field": "commands",
           "value": "story_get; checklist_update.",
-          "snippets": [
+          "claimMode": "semicolon-delimited",
+          "claims": [
             {
-              "line": 39,
-              "sha256": "58f7b775b869d0266732220cf509d60d30d196fdf94b145f95cf460326e35315",
-              "text": "lattice story_get '{\"storyId\":\"<ID>\"}'"
+              "claim": "story_get",
+              "normalizedClaim": "story_get",
+              "snippets": [
+                {
+                  "line": 39,
+                  "sha256": "58f7b775b869d0266732220cf509d60d30d196fdf94b145f95cf460326e35315",
+                  "text": "lattice story_get '{\"storyId\":\"<ID>\"}'"
+                }
+              ]
             },
             {
-              "line": 103,
-              "sha256": "d158ac0a5c0718068439da801c353bb0507f5e15604ac495979a16ec03ce5887",
-              "text": "lattice checklist_update '{\"storyId\":\"<ID>\",\"itemId\":\"<ITEM_ID>\",\"testIntent\":null,\"agent\":\"test-intent\"}'"
+              "claim": "checklist_update.",
+              "normalizedClaim": "checklist_update",
+              "snippets": [
+                {
+                  "line": 103,
+                  "sha256": "d158ac0a5c0718068439da801c353bb0507f5e15604ac495979a16ec03ce5887",
+                  "text": "lattice checklist_update '{\"storyId\":\"<ID>\",\"itemId\":\"<ITEM_ID>\",\"testIntent\":null,\"agent\":\"test-intent\"}'"
+                }
+              ]
             }
           ]
         },
         {
           "field": "directFileAccess",
           "value": "Reads story/checklist through Lattice CLI; writes legacy checklist updates through Lattice CLI.",
-          "snippets": [
+          "claimMode": "whole-field",
+          "claims": [
             {
-              "line": 157,
-              "sha256": "40d322d1c0344bf76773f000c84cb10a4c09f2d7f17431d691a20fcf225ca5df",
-              "text": "- **Do not directly edit** JSON files"
+              "claim": "Reads story/checklist through Lattice CLI; writes legacy checklist updates through Lattice CLI.",
+              "normalizedClaim": "reads story/checklist through lattice cli; writes legacy checklist updates through lattice cli",
+              "snippets": [
+                {
+                  "line": 39,
+                  "sha256": "7df8505be6a59ccab8a566ce4b44768de205c7b50fc49a636f0249f79f32bc74",
+                  "text": "Read the story description (`lattice story_get"
+                },
+                {
+                  "line": 33,
+                  "sha256": "adaa3d4663e9c7aff6c2ecc930063f02df23947341dfda60fc76c8d50d5ad666",
+                  "text": "checklist contents (each item's `id`, `title`, `context`)"
+                },
+                {
+                  "line": 103,
+                  "sha256": "860812ee5b15af0ea4d6904841ca24fce9197bc26757feeb49b2bf09b7885696",
+                  "text": "lattice checklist_update '{\"storyId\":\"<ID>\""
+                },
+                {
+                  "line": 157,
+                  "sha256": "c91ada85ed44e5249426703e3c99830cf82cd9cc9f007da4addecb7b7f380262",
+                  "text": "- **Do not directly edit** JSON files — must go through the Lattice CLI"
+                }
+              ]
             }
           ]
         },
         {
           "field": "outputs",
           "value": "Legacy testIntent or null intent updates.",
-          "snippets": [
+          "claimMode": "whole-field",
+          "claims": [
             {
-              "line": 165,
-              "sha256": "06810272470866a5a64de29e07d12f6b4fa0239893c6987f47f9398421ef16dd",
-              "text": "how many testIntent entries you wrote for each item"
+              "claim": "Legacy testIntent or null intent updates.",
+              "normalizedClaim": "legacy testintent or null intent updates",
+              "snippets": [
+                {
+                  "line": 99,
+                  "sha256": "96a08d6428aae453bed9a39964c0f44e957ba93fffef649b664e610e57159f74",
+                  "text": "mark `testIntent: null` with a reason"
+                },
+                {
+                  "line": 108,
+                  "sha256": "524c7f32e301fca31eea997d6d04b5390151f65624fdb110b969904418e3b691",
+                  "text": "For testable items, write a three-column testIntent:"
+                },
+                {
+                  "line": 165,
+                  "sha256": "06810272470866a5a64de29e07d12f6b4fa0239893c6987f47f9398421ef16dd",
+                  "text": "how many testIntent entries you wrote for each item"
+                }
+              ]
             }
           ]
         }
