@@ -381,6 +381,30 @@
         "scanEscalationReason": null
       },
       "_hash": "92c1a1ac7ea515d6ae06707e5afbe0b77513698be092981be886dbdbc561a5ed"
+    },
+    {
+      "id": "B-2c03:RP-018",
+      "agent": "lattice-review-quality",
+      "note": "F-013 fix verified end-to-end against the live built CLI (fresh rebuild, dist newer than src) in both directions: full smoke suite (proofstory-intent-hardening-smoke.js) passes, including all three remainingCrossClauseControls comma/no-comma variants and the codex round-4 must-fire recall cases (of-noun-phrase, UI/UX slash). Independently re-verified with a fresh reviewer-authored probe script (StoryStore + built cli.js subprocess, not smoke-file copy-paste): F-013 original repro sentences (both comma and no-comma forms) stay quiet; codex round-4 recall cases plus a fresh of+slash combination and a fresh long and-chain fire; CHK-003 canonical negative control stays quiet; a fresh clause-boundary probe (bare-verb continue not on the stop list, comma+and, scope noun only reachable across the clause) correctly stays quiet, confirming the comma-triggered clause-coordination gate generalizes beyond the exact stop-word list. No regression vs pre-story behavior and no CHK-003 false-positive-class return found. Diff quality: no dead code, no unnecessary as any, no empty catch, no doc-promise-undelivered gaps in proofstory.ts / proofstory-intent-hardening-smoke.ts changes. Per plan.md convergence statement, marginal precision/recall cases beyond a verified regression are follow-up-story scope; none found.",
+      "createdAt": "2026-07-10T19:50:42.665Z",
+      "reviewRound": "2026-07-10T18:53:39.083Z",
+      "reviewRunId": "B-2c03:RR-033",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2c03/checklist.json",
+          ".lattice/story/actives/B-2c03/findings.json",
+          ".lattice/story/actives/B-2c03/plan.md",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2c03/review-passes.json",
+          ".lattice/story/actives/B-2c03/review.json",
+          ".lattice/story/actives/B-2c03/summary.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c7dbc3a91360f6e05ce03b114b4e3ffc2e014932a40b379080740cd8b622b5ca"
     }
   ]
 }
