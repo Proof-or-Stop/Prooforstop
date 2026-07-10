@@ -191,7 +191,47 @@
       "context": "reviewer_batch printed instructions, quorum/escalation guidance, and relevant docs should name the new command with canonical launcher semantics so future runs are captured instead of raw shell codex exec / claude --print invocations.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "reviewer_batch and escalation guidance print launch lines like \"lattice host_run --host codex --storyId B-xxxx --agentType reviewer --reviewRunId ... --lane ...\" instead of raw codex exec commands, and docs/host-run-usage.md exists",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/reviewer-batch.ts",
+          "packages/main/src/handlers/review-escalation.ts",
+          "CHANGELOG.md"
+        ],
+        "create": [
+          "docs/host-run-usage.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Operator-facing instruction strings for lattice-initiated reviewer/quorum host runs name lattice host_run with binding args",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "docs/host-run-usage.md documents usage, binding conventions (threadId=reviewRunId, subagentId=lane), cap envs, agy unavailable semantics, and non-goals",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Instructions for in-session Agent() subagent reviewers stay unchanged (those are not host CLI spawns)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "rg over handler guidance strings shows no remaining raw-launch instruction for lattice-initiated host reviewer runs (spawn implementation sites excluded)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
