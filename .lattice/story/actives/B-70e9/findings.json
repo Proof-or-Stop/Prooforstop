@@ -391,7 +391,7 @@
       "desc": "[codex host-B, cross_host_review B-70e9-xhr-r10] Ledger append lock can be stolen from a live writer: stale reclamation (writer.ts ~178) rmdirs the lock dir on mtime age alone; appendUsageRecord holds the lock across reading the ledger tail and appending, so a large ledger, slow filesystem, GC pause, or suspended process can exceed the 30s threshold while STILL inside the critical section - a second writer steals the live lock and appends from the same predecessor, reintroducing exactly the F-012 hash-chain corruption. Fix direction: ownership-aware reclaim - write holder pid + unique token into the lock; reclaim only when the holder process is dead (pid liveness like the slot registry) or heartbeat genuinely stale; release only if the token still matches; alternatively never steal and skip on timeout.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host-b",
       "createdAt": "2026-07-10T12:20:34.074Z",
@@ -402,7 +402,11 @@
         "packages/main/src/tasks/host-run-usage-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|codex-host-cross",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 09530172e0: lock acquisition writes owner.json {pid, token(randomUUID), acquiredAt}; reclaim is ownership-aware - valid owner + dead pid (ESRCH; EPERM=alive) reclaims at any age, missing/corrupt owner falls to the mtime backstop documented as covering only the mkdir-then-crash-before-owner-write window, valid owner + LIVE pid is never reclaimed (waiters exhaust bounded budget then skip-not-corrupt); reclaim re-verifies owner state+token immediately before unlink+rmdir and backs off on a racing new holder; release is read-verify-then-delete on OUR token only. Failing-before demonstrated on the old dist (live 60s-old lock stolen, append written); after: throw, lock+token survive, chain intact. host-run smoke 50/50; all 10 usage-ledger smokes green. Residuals (pid reuse, check-then-delete windows) documented as degrade-to-skip, never steal-a-provably-live-holder.",
+      "resolvedAt": "2026-07-10T12:32:44.024Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
