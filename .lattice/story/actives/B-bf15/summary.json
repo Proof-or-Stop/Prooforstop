@@ -1,0 +1,56 @@
+{
+  "storyId": "B-bf15",
+  "changes": "packages/main/package.json: deleted the dead test:autopilot-resume-smoke script line (its compiled target dist/tasks/autopilot-resume-smoke.js is never produced by clean builds because the TypeScript source was removed by the Authority Server retirement commit 5d3d7bd686). No other file changed.",
+  "usage": "Run npm --prefix packages/main run to list scripts: test:autopilot-resume-smoke no longer appears. Invoking npm --prefix packages/main run test:autopilot-resume-smoke now yields the clear npm-level error Missing script instead of a confusing node MODULE_NOT_FOUND crash.",
+  "expectedOutcome": "All npm scripts in packages/main resolve to real, buildable entry points; the phantom smoke that failed with MODULE_NOT_FOUND in fresh worktrees can no longer be invoked; the only surviving repo mention of the smoke is the historical B-320f evidence row in the autopilot-v2 reliability decision doc.",
+  "actualTranscript": "In the B-bf15 worktree after a clean build: JSON parse check passes with 72 scripts left; npm run listing shows no match for the smoke name; invoking the removed script prints npm error Missing script with no MODULE_NOT_FOUND; repo-wide sweeps (file-type-filtered, unfiltered, prefix-shortened variant, npm lifecycle hooks, root package.json) all confirm the single historical decision-doc row at line 403 is the only survivor and that doc has an empty git diff. Full validate suite green; 15 of 15 verification evidence rows pass.",
+  "outcomeDiff": "No difference — delivery matches the expected outcome exactly; one-line deletion with the decision-doc history row intact.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none — fully covered",
+  "pitfalls": "Verification evidence recorded before the code commit went stale once the commit landed; the fix was to re-run all 15 lane commands and re-record via verification_evidence_batch_add after committing. Grep sweeps that filter output lines by a /dist/ pattern silently eat legitimate hits whose CONTENT mentions dist paths — use --exclude-dir for path-based exclusion instead. The ProofStory DEV gate (enforce) needed intent snapshot, collision pass, acceptance binding with verificationIntent refs authored by the test-intent agent, and red evidence targeting the binding id AB-001 rather than a checklist id.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 75376
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 13545
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 516373
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 238110
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 867668
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 47265
+    }
+  },
+  "totalDurationMs": 1758717,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-10T14:53:26.050Z",
+  "updatedAt": "2026-07-10T14:53:26.050Z"
+}
