@@ -166,7 +166,7 @@
       "desc": "core/host-run.ts:770-777 defaultHostRunRunner: onChunk (and therefore the handler's passthrough, which does raw process.stdout.write/process.stderr.write) is invoked synchronously inside the child.stdout/stderr 'data' listeners with no try/catch. If the passthrough sink throws (e.g. EPIPE when a downstream consumer of host_run output closes early, a common real-world case for `lattice host_run | head` or a killed reviewer pipe), the exception is uncaught inside a Node EventEmitter callback and crashes the whole process: the spawned child is orphaned (no SIGKILL, since finish() in the same runner never runs), runHostRun's `finally { releaseSlot(slotFile) }` (host-run.ts:1008-1010) never executes so the concurrency slot leaks until the staleness backstop reclaims it hours later, and no ledger final row is written. No global uncaughtException/EPIPE handler exists anywhere in packages/main/src to catch this. Fix direction: wrap the onChunk call (or the passthrough sink itself, in both defaultHostRunRunner and the handler's passthrough) in try/catch so a downstream write failure degrades gracefully instead of crashing the host run and leaking the slot.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-10T09:04:42.638Z",
@@ -177,7 +177,11 @@
         "packages/main/src/core/host-run.ts"
       ],
       "signatureTag": "edge|ts|core-host-defaulthostrunrunner",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit b8908661f: all passthrough deliveries route through first-failure-guarded safeDeliver/deliver wrappers; first onChunk throw flips passthroughBroken (no per-chunk retry), chunks keep feeding the UsageLineScanner, the run completes with honest passthroughError surfaced in result/JSON and a text-mode stderr warning; ledger final row and slot release proven intact. Verified failing-before (old build crashes with uncaught EventEmitter exception / runHostRun rejects) and passing-after via standalone repro plus new smoke check; host-run-usage smoke 34/34.",
+      "resolvedAt": "2026-07-10T09:17:16.596Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-70e9:F-009",
