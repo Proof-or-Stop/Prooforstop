@@ -288,6 +288,30 @@
         "scanEscalationReason": null
       },
       "_hash": "2828d604e6ed1d0e5aeab447348dafe5c97a4c4e9fff9c55b9e622b1547eee22"
+    },
+    {
+      "id": "B-70e9:RP-012",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 4, convergence): verified coverage between verificationIntent and verificationEvidence, no blocker. F-008 fix (commit b8908661f) genuinely binds the failure mode read from the smoke diff -- new check exercises (a) defaultHostRunRunner with a real child process + throwing onChunk (delivery stops at first failure, no retry, exit code propagates, usage scanner keeps consuming, passthroughError surfaced) and (b) end-to-end runHostRun via the core onChunk wrapper (ledger final row still records, cap=1 slot releases and is re-admittable, passthroughError on result), both explicitly targeting the pre-fix crash modes (uncaught EventEmitter exception, leaked slot, missing ledger final) named in the finding. F-007/F-009 JSDoc corrected. evidence_plan at current HEAD 6a07cf9ca reports fresh=42, missing=0, rerun=0, refreshOnly=0. Independently re-ran both npm smokes at this HEAD: test:host-run-usage = 34/34 pass (includes the new F-008 check by name); test:usage-sweep = 11/11 pass. All findings F-001..F-009 accounted for: F-001 dismissed, F-002..F-009 resolved with strong evidence. No new coverage gaps found this round.",
+      "createdAt": "2026-07-10T09:19:10.621Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-016",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-70e9/checklist.json",
+          ".lattice/story/actives/B-70e9/findings.json",
+          ".lattice/story/actives/B-70e9/index.json",
+          "docs/host-run-usage.md",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "33a006388ef77b58a7601b71d5770cadcad12974bf9214e1dbeca6674506c32c"
     }
   ]
 }
