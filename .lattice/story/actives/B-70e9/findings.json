@@ -138,6 +138,24 @@
       "resolvedAt": "2026-07-10T09:00:33.590Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-70e9:F-007",
+      "desc": "concept-cleanup: F-006 spawnSync-to-async-spawn replacement left a stale forward-looking doc comment: packages/main/src/handlers/host-run.ts:61 CreateHostRunHandlersOptions.runner JSDoc still says 'production uses the piped spawnSync default', but production now uses the async child_process.spawn streaming defaultHostRunRunner (core/host-run.ts). This is not a historical/comparative reference (unlike the two correct comments at core/host-run.ts:715 and tasks/host-run-usage-smoke.ts:566 which explicitly say 'previous'/'old spawnSync') — it is stated as current fact and will mislead future readers of this file changed in this very commit.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-10T09:02:11.400Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-010",
+      "_hash": "e7bc32eb2bb0f4413d9aaa82a15e48ddb86c5e70dcf398d932a80061134fe92a",
+      "files": [
+        "packages/main/src/handlers/host-run.ts"
+      ],
+      "signatureTag": "missing|ts|concept-cleanup-spawnsync",
+      "signatureTagSource": "auto"
     }
   ]
 }
