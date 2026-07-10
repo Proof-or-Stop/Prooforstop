@@ -963,6 +963,28 @@
         "scanEscalationReason": null
       },
       "_hash": "8b837c1e48fe212763a8341b0edef111069869a90a51f5e70e23de558df169a3"
+    },
+    {
+      "id": "B-70e9:RP-040",
+      "agent": "lattice-review-concept",
+      "note": "Round 11, commit 09530172e0 (F-018 ownership-aware ledger lock reclaim), scoped to core/usage-ledger/writer.ts, tasks/host-run-usage-smoke.ts, docs/host-run-usage.md. Concept change: mtime-only stale-lock reclaim replaced by ownership-aware reclaim (owner.json pid+token; dead-pid reclaim at any age; ownerless/corrupt owner falls back to LATTICE_USAGE_LEDGER_LOCK_STALE_MS as an orphan-only backstop; live holder never reclaimed). acquireLedgerLock signature changed boolean->string|null (release token) and is now exported; releaseLedgerLock signature changed to (lockDir, token) and is now exported. Residue scan: grep -rn stale-lock reclaim|stale lock reclaim|stale reclaim across *.ts/*.md/*.json (excluding node_modules/dist/.git/@deprecated) found only (a) .lattice/story/actives/**/*.json historical review-pass/finding/decision prose describing PRIOR rounds/commits (bc966e3247 F-012, B-ef65, B-f511) -- append-only audit history, not live doc/code, correctly out of scope; (b) live code in packages/main/src/core/main-write-lock.ts + tasks/mkdir-lock-smoke.ts + tasks/main-write-lock-smoke.ts -- confirmed via import grep this is a wholly separate mkdir-lock.ts primitive (DONE/main-write critical section lock) with zero import relationship to usage-ledger/writer.ts; its mtime-only stale-reclaim design is unrelated and correctly untouched by this fix. docs/host-run-usage.md no longer contains the old stale-lock-reclaim phrasing. Verified all acquireLedgerLock/releaseLedgerLock call sites use the new signatures; new export USAGE_LEDGER_LOCK_OWNER_FILENAME used only in writer.ts and its smoke. tsc --noEmit -p packages/main clean, no dangling old-signature references. No concept-residue blocker this round.",
+      "createdAt": "2026-07-10T12:34:41.460Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-045",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/usage-ledger/writer.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/main-write-lock.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "packages/main/src/tasks/main-write-lock-smoke.ts",
+          "packages/main/src/tasks/mkdir-lock-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5c8c19f013c2d524c28cfb0b90e7a094c89ad182bcba1d14d07a780d5de6de3e"
     }
   ]
 }
