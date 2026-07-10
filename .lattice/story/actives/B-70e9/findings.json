@@ -544,7 +544,7 @@
       "desc": "[codex host-B, cross_host_review B-70e9-xhr-r15] Stale live slot release can delete a newer holder admission slot: the slot registry reclaims a slot when its mtime exceeds staleMs even if the recorded pid is ALIVE, reusing the same fixed slot-N path; the original long-running holder later calls releaseSlot(file) which blindly unlinks whatever is at that path - deleting a different live run slot and letting subsequent runs bypass the concurrency cap. Same ownership class as F-018 but on the slot registry. Fix direction: ownership token in SlotMeta verified by releaseSlot before unlink (mirror the ledger lock release guard), and stop reclaiming live-pid slots by age alone; regression where a live stale slot is reclaimed/reacquired and the original holder late release must not remove the new holder slot.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host-b",
       "createdAt": "2026-07-10T14:55:28.731Z",
@@ -555,7 +555,11 @@
         "packages/main/src/tasks/host-run-usage-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|codex-host-cross",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 387b0ad3a2: slot registry mirrors the F-018 ownership design - acquireHostRunSlot mints a UUID token into the slot record and returns {file, token}; releaseSlot(file, token) read-verifies before unlink (mismatch/missing backs off); staleness narrowed to pid-liveness-only for valid-meta slots (LIVE never age-reclaimed, dead reclaimed at any age; mtime backstop only for missing/corrupt meta) in BOTH acquire and scanLiveSlots; reclaim re-verifies the occupant immediately before unlink. All three callers (host_run, autopilot repair, codex review leaf) thread the handle. Failing-before proven on pre-fix dist: live 7h slot stolen; late release deleted the new holder slot and cap admitted a third run. host-run smoke 61 checks.",
+      "resolvedAt": "2026-07-10T15:15:59.416Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-70e9:F-026",
