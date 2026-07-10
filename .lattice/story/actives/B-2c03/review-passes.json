@@ -465,6 +465,43 @@
         "scanEscalationReason": null
       },
       "_hash": "b6aa0a2710f3dfdab88fa298b60bb48e2c5724d05afdd79c5d0fc0cb271c1738"
+    },
+    {
+      "id": "B-2c03:RP-022",
+      "agent": "lattice-review-concept",
+      "note": "Reviewed frozen commit 0251d41ab4 (delta since RP-021): local const remainingWordCharClass (explicit allowed-char class) deleted and replaced by remainingTokenEnd (negated-char-class token boundary) inside evaluateDoneIntentEquivalence; both consumers (remainingModifierWord, remainingChainStep) migrated in the same commit. Full-repo case-insensitive grep for remainingWordCharClass (including .lattice/story artifacts, excluding .git) returns zero matches -- fully replaced, no residue. to/be also removed from remainingStopWord per round-7 semantics; no stale references to them as stop-words found elsewhere. Smoke-test additions are purely additive, no stale identifiers. No CharClass residue anywhere. No other concept deletion/replacement this round; concept residue check completed, no blocker.",
+      "createdAt": "2026-07-10T20:46:48.847Z",
+      "reviewRound": "2026-07-10T18:53:39.083Z",
+      "reviewRunId": "B-2c03:RR-039",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2c03/checklist.json",
+          ".lattice/story/actives/B-2c03/delivery-check.json",
+          ".lattice/story/actives/B-2c03/findings.json",
+          ".lattice/story/actives/B-2c03/index.json",
+          ".lattice/story/actives/B-2c03/intent-collision.json",
+          ".lattice/story/actives/B-2c03/original-intent-snapshot.json",
+          ".lattice/story/actives/B-2c03/plan.md",
+          ".lattice/story/actives/B-2c03/process-events.jsonl",
+          ".lattice/story/actives/B-2c03/process-metrics.json",
+          ".lattice/story/actives/B-2c03/proofstory.json",
+          ".lattice/story/actives/B-2c03/red-evidence.json",
+          ".lattice/story/actives/B-2c03/review-passes.json",
+          ".lattice/story/actives/B-2c03/review-runs.json",
+          ".lattice/story/actives/B-2c03/review.json",
+          ".lattice/story/actives/B-2c03/scope-check.json",
+          ".lattice/story/actives/B-2c03/scope-contract.json",
+          ".lattice/story/actives/B-2c03/summary.json",
+          ".lattice/story/actives/B-2c03/test-evidence.json",
+          ".lattice/story/actives/B-2c03/understanding.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9f2b179af9320e99f90d2448bf760d84e82c71b002457af56bd0ae6dfe86c3c4"
     }
   ]
 }
