@@ -605,6 +605,24 @@
       "resolvedAt": "2026-07-10T17:23:39.052Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-70e9:F-028",
+      "desc": "[codex host-B, cross_host_review B-70e9-xhr-r17] usage_sweep is not actually read-only in the CLI wrapper: declared readOnly and documented as writing nothing without --out, but it is missing from READ_ONLY_COMMANDS (cli/activity-policy.ts), so cli-engine still runs preCommand/postCommand hooks and writes the activity log for a plain usage_sweep - violating the read-only reviewer/diagnostic contract. Fix direction: dynamic read-only classification for activity/hooks (read-only when out is blank, mutating when non-empty) + smoke coverage that no-out runs no hooks/activity writes while --out stays gated as a write.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host-b",
+      "createdAt": "2026-07-10T17:45:11.038Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "_hash": "1d0e085903a7514614514690e9b32dbf7808b81882d06703b5965d81b2fbd8e1",
+      "files": [
+        "packages/main/src/cli/activity-policy.ts",
+        "packages/main/src/tasks/usage-sweep-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|codex-host-cross",
+      "signatureTagSource": "auto"
     }
   ]
 }
