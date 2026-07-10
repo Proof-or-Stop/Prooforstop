@@ -128,6 +128,26 @@
         "scanEscalationReason": null
       },
       "_hash": "83030696f1958320f91c1a56889918f3e7bf62f6fb7214db219d6469b10eb348"
+    },
+    {
+      "id": "B-70e9:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2 re-review after commit 8a8cd2407. Verified F-003/F-004 fixes genuinely close the gaps: (1) host-run.ts diff confirms acquireHostRunSlot replaces old acquireSlot (which always minted a unique never-colliding filename, so cap enforcement was pure scan-then-acquire TOCTOU) with atomic fixed-index slot-0..slot-(cap-1) wx-create-IS-the-admission; smoke CHK-007b adversarial (F-003) cap=1 double-admission and stale-reclaim-race checks would fail against the old acquireSlot (which never refuses concurrent unique acquires) and pass against the fix. (2) dispatch-usage.ts diff confirms buildBlockedBudgetRecord gained a providerName param (default anthropic, byte-compat for claude); host-run.ts threads hostProviderName(codex=openai/claude=anthropic/agy=antigravity) into both recordBudgetBlock and recordConcurrencyBlock; smoke CHK-007a (F-004) asserts codex blocked row provider.name=openai and CHK-007b asserts codex/agy concurrency-block rows carry openai/antigravity, which would fail against the old hard-coded anthropic-only builder. Both new/changed smoke checks are genuine regression tests, not tautologies. Re-ran both npm smokes myself at current HEAD 92a672654: test:host-run-usage 27/27 pass, test:usage-sweep 11/11 pass. evidence_plan (read-only) confirms fresh=42, missing=0, rerun=0, refresh-only=0 across all 7 checklist items post verification_evidence_refresh_stale. F-001 dismissal reasoning holds. F-002/F-003/F-004 all resolved with strong evidence. No blocking gaps found.",
+      "createdAt": "2026-07-10T08:11:03.669Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-007",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/host-run-usage.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2e3f97d43925eb6f3f4776f8423d1d696b20d967184d98d098f210ddc360f82c"
     }
   ]
 }
