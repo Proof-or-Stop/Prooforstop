@@ -1828,6 +1828,34 @@
         "scanEscalationReason": null
       },
       "_hash": "a65d71a7dc1c93332ea10282682ecd995c6b131665f1395222c4cb16f22df13f"
+    },
+    {
+      "id": "B-70e9:RP-075",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 20 FINAL convergence re-review: no story-code changes since round-19 pass; only main 0.3.183 merged + evidence re-stamped. evidence_plan (read-only, not validate) confirms fresh=42/missing=0/rerun=0/refresh-only=0 across all 7 checklist items (CHK-001..CHK-007), all must-priority happy/edge/adversarial intents covered by valid non-fail evidence. Re-ran test:host-run-usage (63/63 pass) and test:usage-sweep (17/17 pass) fresh in-worktree. All findings F-001..F-027 confirmed dismissed/resolved, zero open. Test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker.",
+      "createdAt": "2026-07-10T17:31:43.704Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-084",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-70e9/checklist.json",
+          ".lattice/story/actives/B-70e9/findings.json",
+          ".lattice/story/actives/B-70e9/index.json",
+          ".lattice/story/actives/B-70e9/init-check.json",
+          ".lattice/story/actives/B-70e9/review-passes.json",
+          "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-70e9/background.md",
+          ".lattice/story/actives/B-70e9/plan.md",
+          ".lattice/story/actives/B-70e9/review.json",
+          ".lattice/story/actives/B-70e9/scope-contract.json",
+          "docs/host-run-usage.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0a777fd636d11d36c563847677df287e3ebce73b9d346a28a6530f6ba817b71e"
     }
   ]
 }
