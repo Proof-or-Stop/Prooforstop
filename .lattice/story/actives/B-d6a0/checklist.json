@@ -159,7 +159,39 @@
       "context": "New smoke task exercising the fixed consumers against a temp git repo whose FIRST porcelain row is a modified tracked file (' M' row, e.g. a .lattice/ or volatile path) plus a material row: assert exact path classification (pattern: assertModifiedTrackedPathExactness in tasks/done-prepare-merge-rerun-smoke.ts). Record the audit table (every porcelain call site -> fixed / safe-by-read-pattern / safe-by-usage / immune-by-format) in plan.md so untouched sites are auditable.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "porcelain-first-row-audit-smoke: ALL PASS; run-all-smokes suite green",
+      "files": {
+        "modify": [
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/porcelain-first-row-audit-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/porcelain-first-row-audit-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "the new smoke passes against the fixed code, covering all four fixed consumers plus the session brief rows",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the smoke is discovered by run-all-smokes via the dist/tasks/*-smoke.js convention and the full suite stays green",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the smoke run against the pre-fix code FAILS (RED recorded before the fixes as repro evidence), proving the assertions detect the bug class",
+            "type": "logic"
+          }
+        ]
+      }
     }
   ]
 }
