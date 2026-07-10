@@ -63,11 +63,11 @@
           "file": "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
           "command": "npm --prefix packages/main run test:done-prepare-merge-rerun-smoke",
           "result": "pass",
-          "note": "assertMetadataCommitNoRebindAndAutoCloseExit second run: a no-hazard story flows through the existing done_prepare steps to DONE prepare: PASS with no merge-hazard or dirty-classification sections, only clearer status text.",
-          "headHash": "8acb67caeaa392123dad5684590a37abc8c2c3fa",
-          "materialHash": "629ca6c3184088f0e8299b3c454ca0f12ebc20a3b0aa9cdc50925b7717f44d4f",
-          "storyFilesHash": "280e1fa00e2ee162d2eec9e7211bc3b97d595ef75062fc12e0eae88070f8cc98",
-          "timestamp": "2026-07-10T05:33:10.764Z"
+          "note": "assertPlainNoHazardPass: a first-run, default-flags, clean-fixture done_prepare reaches DONE prepare: PASS through the existing flow (doneClosure: PASS, worktreeClean: PASS) with no merge-hazard, dirty-classification, rerun-reason, or auto-closeout sections, and leaves git status and story metadata byte-identical.",
+          "headHash": "b18d0b16ef8ee4a137a386c0f6f81cc89c68abcf",
+          "materialHash": "a2eb5d0b91428dd71a1f0f532198bc31b82d87839d4603e34a2ab8a6270b3260",
+          "storyFilesHash": "e67407763dafc1d73ab9c07d54f28bb6a372358c2c8d939deebcc625feba023a",
+          "timestamp": "2026-07-10T05:43:34.907Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
