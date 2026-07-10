@@ -10,7 +10,7 @@
 
 import assert from 'node:assert/strict';
 import childProcess, { execFileSync, spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { syncBuiltinESMExports } from 'node:module';
@@ -397,6 +397,61 @@ async function assertUnsafePathRefusesBeforeReuseRecord(): Promise<void> {
   }
 }
 
+async function assertCommitHookFailureRollsBackReuseAndIndex(): Promise<void> {
+  const { root, storyId } = setupFixture();
+  const oldCwd = process.cwd();
+  const observed: string[] = [];
+  const restoreSpy = installCommandSpy(observed);
+  try {
+    process.chdir(root);
+    const hookPath = join(root, '.git', 'hooks', 'pre-commit');
+    writeFileSync(hookPath, '#!/bin/sh\necho failing pre-commit >&2\nexit 1\n', 'utf8');
+    chmodSync(hookPath, 0o755);
+
+    const headBefore = git(root, ['rev-parse', 'HEAD']);
+    const safePaths = [
+      `.lattice/story/actives/${storyId}/done-required-evidence.json`,
+      `.lattice/story/actives/${storyId}/test-evidence.json`,
+    ];
+    const transcript = await withEnv(gitIdentityEnv(), async () => String(await createDonePrepareHandlers(mkCtx(root)).done_prepare({
+      storyId,
+      mergeMain: false,
+      refreshStale: false,
+      validate: true,
+      autoCloseGeneratedMetadata: true,
+      reuseFreshValidation: true,
+    })));
+
+    assert.match(transcript, /^DONE prepare: BLOCKED/, transcript);
+    assert.match(transcript, /^blockedAt: cleanTree$/m);
+    assert.match(transcript, /git commit failed/);
+    assert.match(transcript, /failing pre-commit/);
+    assert.equal(git(root, ['rev-parse', 'HEAD']), headBefore, 'failed auto-closeout must not advance HEAD');
+    assert.equal(git(root, ['diff', '--cached', '--name-only', '--', ...safePaths]), '', 'rollback must leave generated metadata unstaged');
+    const unstagedSafePaths = git(root, ['diff', '--name-only', '--', ...safePaths])
+      .split('\n')
+      .map((line) => line.trim())
+      .filter(Boolean);
+    const untrackedSafePaths = git(root, ['ls-files', '--others', '--exclude-standard', '--', ...safePaths])
+      .split('\n')
+      .map((line) => line.trim())
+      .filter(Boolean);
+    assert.deepEqual(
+      [...unstagedSafePaths, ...untrackedSafePaths].sort(),
+      safePaths.sort(),
+      'rollback must leave original generated metadata dirty only in the worktree',
+    );
+    const evidence = new StoryStore(root).readDoneRequiredEvidence(storyId) as any;
+    assert.equal(evidence.donePrepareValidationReuse, undefined, 'failed commit rollback must remove the validation reuse claim');
+    assert.ok(observed.some((line) => line.includes('git update-index --force-remove --')), `rollback must restore index entries explicitly:\n${observed.join('\n')}`);
+    assert.ok(observed.some((line) => line.includes('git update-index --index-info')), `rollback must restore captured index state:\n${observed.join('\n')}`);
+  } finally {
+    restoreSpy();
+    process.chdir(oldCwd);
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 function assertPreexistingLifecycleMetadataIsUnsafe(): void {
   const { root, storyId } = setupFixture();
   try {
@@ -592,6 +647,7 @@ void (async () => {
   try {
     await assertManifestOnlyAutoCloseout();
     await assertUnsafePathRefusesBeforeReuseRecord();
+    await assertCommitHookFailureRollsBackReuseAndIndex();
     assertPreexistingLifecycleMetadataIsUnsafe();
     assertDeletesAndRenamesAreUnsafe();
     assertMissingHashesRefuseReuse();

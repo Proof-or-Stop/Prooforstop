@@ -31,10 +31,13 @@ import {
 import {
   buildDonePrepareGeneratedMetadataManifest,
   captureDonePrepareGeneratedMetadataBaseline,
+  captureDonePrepareGeneratedMetadataTransaction,
   commitDonePrepareGeneratedMetadata,
   gitStatusRowsForDonePrepareGeneratedMetadata,
+  rollbackDonePrepareGeneratedMetadataTransaction,
   type DonePrepareGeneratedMetadataBaseline,
   type DonePrepareGeneratedMetadataCommitResult,
+  type DonePrepareGeneratedMetadataTransaction,
 } from '../core/done-prepare-generated-metadata.js';
 import {
   captureDonePrepareValidationReuseBasis,
@@ -334,6 +337,10 @@ function normalizeRelPath(path: string): string {
     .replace(/^\.\//, '')
     .replace(/^\/+/, '')
     .replace(/\/+$/, '');
+}
+
+function sortedUniqueRelPaths(paths: string[]): string[] {
+  return [...new Set(paths.map(normalizeRelPath).filter(Boolean))].sort((left, right) => left.localeCompare(right));
 }
 
 function isSameStoryLifecycleMetadataPath(ctx: HandlerContext, storyId: string, path: string): boolean {
@@ -1637,6 +1644,26 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
           steps,
         });
       }
+      const reuseRecordPath = normalizeRelPath(`${ctx.store.storyDirRel()}/${storyId}/done-required-evidence.json`);
+      const autoCloseoutTransactionPaths = sortedUniqueRelPaths([...manifestPreflight.safePaths, reuseRecordPath]);
+      let autoCloseoutTransaction: DonePrepareGeneratedMetadataTransaction;
+      try {
+        autoCloseoutTransaction = captureDonePrepareGeneratedMetadataTransaction({
+          root: ctx.root,
+          gitCwd,
+          paths: autoCloseoutTransactionPaths,
+        });
+      } catch (err: any) {
+        const reason = `auto-closeout transaction capture failed: ${String(err?.stderr || err?.stdout || err?.message || err).trim()}`;
+        setStep(steps, 'cleanTree', 'blocked', reason);
+        return block({
+          blockedAt: 'cleanTree',
+          reason: `DONE prepare auto-closeout refused: ${reason}`,
+          files,
+          next: 'inspect git status and commit only generated Proofbound lifecycle metadata manually, then rerun done_prepare',
+          steps,
+        });
+      }
       const reuse = writeDonePrepareValidationReuseRecord({
         root: ctx.root,
         gitCwd,
@@ -1664,10 +1691,16 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
         ignoredPaths: [ownerLeaseRelPath(ctx, storyId)],
       });
       if (!autoCommit.ok) {
-        setStep(steps, 'cleanTree', 'blocked', autoCommit.reason || 'auto-closeout refused');
+        const rollback = rollbackDonePrepareGeneratedMetadataTransaction({
+          root: ctx.root,
+          gitCwd,
+          transaction: autoCloseoutTransaction,
+        });
+        const rollbackSuffix = rollback.ok ? '' : `; rollback failed: ${rollback.errors.join('; ')}`;
+        setStep(steps, 'cleanTree', 'blocked', `${autoCommit.reason || 'auto-closeout refused'}${rollbackSuffix}`);
         return block({
           blockedAt: 'cleanTree',
-          reason: `DONE prepare auto-closeout refused: ${autoCommit.reason || 'unsafe generated metadata manifest'}`,
+          reason: `DONE prepare auto-closeout refused: ${autoCommit.reason || 'unsafe generated metadata manifest'}${rollbackSuffix}`,
           files: autoCommit.files.length > 0 ? autoCommit.files : files,
           next: 'inspect git status and commit only generated Proofbound lifecycle metadata manually, then rerun done_prepare',
           steps,

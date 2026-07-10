@@ -1,7 +1,7 @@
 import childProcess from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
-import { basename, join, relative } from 'node:path';
+import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, unlinkSync, writeFileSync } from 'node:fs';
+import { basename, dirname, join, relative } from 'node:path';
 import { isStoryMetadataPath } from './evidence-freshness.js';
 import { parseGitPorcelainRow, type DirtyWorktreeParsedRow } from './dirty-worktree.js';
 
@@ -54,6 +54,30 @@ export interface DonePrepareGeneratedMetadataCommitResult {
   message: string;
   reason?: string;
   manifest: DonePrepareGeneratedMetadataManifest;
+}
+
+export interface DonePrepareGeneratedMetadataIndexEntry {
+  mode: string;
+  object: string;
+  stage: string;
+  path: string;
+}
+
+export interface DonePrepareGeneratedMetadataPathState {
+  path: string;
+  worktreeContent: Buffer | null;
+  indexEntries: DonePrepareGeneratedMetadataIndexEntry[];
+}
+
+export interface DonePrepareGeneratedMetadataTransaction {
+  paths: string[];
+  states: DonePrepareGeneratedMetadataPathState[];
+}
+
+export interface DonePrepareGeneratedMetadataRollbackResult {
+  ok: boolean;
+  files: string[];
+  errors: string[];
 }
 
 const SAFE_GENERATED_METADATA_FILENAMES = new Set([
@@ -211,6 +235,14 @@ function gitMaybe(gitCwd: string, args: string[]): { ok: true; output: string } 
   }
 }
 
+function gitRaw(gitCwd: string, args: string[]): string {
+  return childProcess.execFileSync('git', args, {
+    cwd: gitCwd,
+    encoding: 'utf-8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
+}
+
 export function gitStatusRowsForDonePrepareGeneratedMetadata(gitCwd: string): string[] {
   const raw = git(gitCwd, ['status', '--porcelain=v1', '--untracked-files=all']);
   return raw.split('\n').map((line) => line.trimEnd()).filter(Boolean);
@@ -231,6 +263,92 @@ export function captureDonePrepareGeneratedMetadataBaseline(args: {
     storyMetadataDir: storyMetadataDirRel,
     initialDirtyPaths,
     initialHashes: readStoryMetadataHashes(args.root, storyMetadataDirRel),
+  };
+}
+
+function parseLsFilesStageRecord(record: string): DonePrepareGeneratedMetadataIndexEntry | null {
+  const tab = record.indexOf('\t');
+  if (tab < 0) return null;
+  const metadata = record.slice(0, tab).split(' ');
+  if (metadata.length !== 3) return null;
+  const [mode, object, stage] = metadata;
+  const path = record.slice(tab + 1);
+  if (!mode || !object || !stage || !path) return null;
+  return { mode, object, stage, path: normalizeRelPath(path) };
+}
+
+function indexEntriesForPaths(gitCwd: string, paths: string[]): DonePrepareGeneratedMetadataIndexEntry[] {
+  if (paths.length === 0) return [];
+  const raw = gitRaw(gitCwd, ['ls-files', '--stage', '-z', '--', ...paths]);
+  return raw
+    .split('\0')
+    .filter(Boolean)
+    .map(parseLsFilesStageRecord)
+    .filter((entry): entry is DonePrepareGeneratedMetadataIndexEntry => Boolean(entry));
+}
+
+function restoreIndexEntries(gitCwd: string, path: string, entries: DonePrepareGeneratedMetadataIndexEntry[]): void {
+  childProcess.execFileSync('git', ['update-index', '--force-remove', '--', path], {
+    cwd: gitCwd,
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
+  if (entries.length === 0) return;
+  const input = entries
+    .map((entry) => `${entry.mode} ${entry.object} ${entry.stage}\t${entry.path}`)
+    .join('\n') + '\n';
+  childProcess.execFileSync('git', ['update-index', '--index-info'], {
+    cwd: gitCwd,
+    input,
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
+}
+
+function restoreWorktreeContent(root: string, path: string, content: Buffer | null): void {
+  const abs = join(root, path);
+  if (content === null) {
+    if (existsSync(abs)) unlinkSync(abs);
+    return;
+  }
+  mkdirSync(dirname(abs), { recursive: true });
+  writeFileSync(abs, content);
+}
+
+export function captureDonePrepareGeneratedMetadataTransaction(args: {
+  root: string;
+  gitCwd: string;
+  paths: string[];
+}): DonePrepareGeneratedMetadataTransaction {
+  const paths = sortedUnique(args.paths);
+  const indexEntries = indexEntriesForPaths(args.gitCwd, paths);
+  const states = paths.map((path) => {
+    const abs = join(args.root, path);
+    return {
+      path,
+      worktreeContent: existsSync(abs) ? readFileSync(abs) : null,
+      indexEntries: indexEntries.filter((entry) => entry.path === path),
+    };
+  });
+  return { paths, states };
+}
+
+export function rollbackDonePrepareGeneratedMetadataTransaction(args: {
+  root: string;
+  gitCwd: string;
+  transaction: DonePrepareGeneratedMetadataTransaction;
+}): DonePrepareGeneratedMetadataRollbackResult {
+  const errors: string[] = [];
+  for (const state of args.transaction.states) {
+    try {
+      restoreIndexEntries(args.gitCwd, state.path, state.indexEntries);
+      restoreWorktreeContent(args.root, state.path, state.worktreeContent);
+    } catch (err: any) {
+      errors.push(`${state.path}: ${String(err?.stderr || err?.stdout || err?.message || err).trim()}`);
+    }
+  }
+  return {
+    ok: errors.length === 0,
+    files: args.transaction.paths,
+    errors,
   };
 }
 
