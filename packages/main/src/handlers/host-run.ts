@@ -107,20 +107,6 @@ function projectRootHashFor(root: string): string {
   return `sha256:${createHash('sha256').update(root, 'utf8').digest('hex')}`;
 }
 
-/**
- * F-008: the handler's own diagnostic writes (usage line, passthrough warning)
- * are best-effort — a broken stderr must not turn a completed run into a crash.
- * Consistent with the core's passthrough guard, which contains sink failures
- * during the run itself.
- */
-function safeWriteStderr(text: string): void {
-  try {
-    process.stderr.write(text);
-  } catch {
-    // best-effort diagnostics
-  }
-}
-
 /** Format the single stderr usage-summary / refusal line. */
 function formatUsageLine(result: HostRunResult): string {
   const u = result.usageSummary;
@@ -253,11 +239,32 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
       const onStdoutError = recordStreamError('stdout');
       const onStderrError = recordStreamError('stderr');
 
-      // F-020: gated stderr diagnostics — never write to a stderr already known
-      // broken (avoids a late async EPIPE 'error' firing with no listener).
-      const emitStderr = (text: string): void => {
-        if (stderrBroken) return;
-        safeWriteStderr(text);
+      // F-020 / F-023: gated, SETTLE-AWARE stderr diagnostics. Never write to a
+      // stderr already known broken (avoids a late async EPIPE 'error' firing with
+      // no listener). When we DO write, resolve only after the write CALLBACK fires
+      // — the handler awaits every emitStderr BEFORE the finally removes the error
+      // listeners. Otherwise a real EPIPE queued by this very write would fire
+      // ASYNCHRONOUSLY after removal with zero 'error' listeners and crash the
+      // process (F-023): the crux case is a quiet text-mode run whose stderr is
+      // already closed, where this final usage line is the FIRST stderr write, so
+      // stderrBroken never opened and nothing skipped it. A callback-reported error
+      // is folded into the SAME broken/async-error state as the 'error' listener
+      // (recordStreamError via onStderrError) and swallowed — best-effort
+      // diagnostics must never turn a completed run into a crash (F-008 contract).
+      const emitStderr = (text: string): Promise<void> => {
+        if (stderrBroken) return Promise.resolve();
+        return new Promise<void>((resolve) => {
+          try {
+            process.stderr.write(text, (err) => {
+              if (err) onStderrError(err);
+              resolve();
+            });
+          } catch (err) {
+            // Rare synchronous throw — flip broken state and settle.
+            onStderrError(err);
+            resolve();
+          }
+        });
       };
 
       // F-020: attach the async stream-error guards for the DURATION of the run,
@@ -313,7 +320,9 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
           // Machine mode: the full host transcript already streamed to stderr; the
           // JSON payload (exitCode, usage, refusal, bounded stdout tail) is the
           // single stdout line. The engine prints it; exitCode is a field.
-          emitStderr(`${usageLine}\n`);
+          // F-023: await the write so it settles (and any EPIPE 'error' fires)
+          // while our stderr listener is still attached (finally removes it).
+          await emitStderr(`${usageLine}\n`);
           return {
             schemaVersion: 'lattice.host_run.v1',
             host: result.host,
@@ -334,12 +343,15 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
         }
 
         // Text mode. Host output already streamed live through the passthrough, so
-        // the handler never re-prints it (no double-print).
-        if (passthroughWarning) emitStderr(passthroughWarning);
+        // the handler never re-prints it (no double-print). F-023: await every
+        // diagnostic write so it settles while our stderr listener is still
+        // attached (finally removes it) — the crux case is this quiet-run usage
+        // line being the FIRST stderr write onto an already-closed stderr.
+        if (passthroughWarning) await emitStderr(passthroughWarning);
         if (result.blocked || result.exitCode !== 0 || result.timedOut) {
           // Failure / refusal: usage/refusal line to stderr, then throw so the
           // process exits nonzero (engine forces exit 0 on a normal return).
-          emitStderr(`${usageLine}\n`);
+          await emitStderr(`${usageLine}\n`);
           if (result.blocked) {
             throw new Error(`host_run refused (${result.refusalReason}); no host was launched`);
           }
@@ -347,8 +359,9 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
           throw new Error(`host_run: ${result.host} exited ${result.exitCode}${timeoutNote}`);
         }
 
-        // Success: output already streamed; nothing left to print.
-        emitStderr(`${usageLine}\n`);
+        // Success: output already streamed; nothing left to print. F-023: await
+        // the final usage-line write so a late EPIPE fires under our listener.
+        await emitStderr(`${usageLine}\n`);
         return '';
       } finally {
         // F-020: listener hygiene — remove exactly our two listeners, leaving any

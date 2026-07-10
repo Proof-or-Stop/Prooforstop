@@ -998,6 +998,93 @@ writeFileSync(RESULT, JSON.stringify({ passthroughError: obj.passthroughError ??
   });
 
   // =========================================================================
+  // F-023: the residual window of F-020. F-020 attaches stderr 'error' listeners
+  // for the run and removes them in the handler's finally. But the FINAL diagnostic
+  // stderr write (the usage line) fired synchronously and returned BEFORE the write
+  // settled, so a real EPIPE queued by THAT write lands asynchronously AFTER the
+  // finally removed the listener — zero 'error' listeners -> process crash. The
+  // crux, uncovered by F-020, is a QUIET TEXT-MODE run: host output goes to stdout,
+  // stderr sees NO writes during the run, so stderrBroken never opens and the usage
+  // line is the FIRST stderr write. When stderr is already closed, the OLD handler
+  // crashes here (nonzero exit) even though the run completed and the ledger row
+  // was written. The fix makes emitStderr settle-aware and AWAITS it before the
+  // finally, so the EPIPE 'error' fires while our listener is still attached.
+  // Real subprocess: the driver runs host_run in TEXT mode against a stdout-only
+  // runner; the parent destroys the driver's stderr pipe at spawn, before the
+  // quiet run's first (usage-line) stderr write.
+  // =========================================================================
+  await checkAsync('F-023: real subprocess — TEXT-mode quiet run whose stderr is closed before the FIRST (usage-line) stderr write is CONTAINED: driver exits 0, slot released, ledger final recorded (no post-finally async EPIPE crash)', async () => {
+    const sub = freshRoot();
+    mkdirSync(sub, { recursive: true });
+    const resultFile = join(sub, 'f023-result.json');
+    const driverFile = join(sub, 'f023-driver.mjs');
+
+    // TEXT mode: host output routes to process.stdout (parent ignores it); the
+    // runner emits ONLY stdout — never stderr — so the handler's final usage line
+    // is the FIRST stderr write of the whole run (stderrBroken never opened).
+    const driverScript = `
+import { writeFileSync, readdirSync } from 'node:fs';
+const ROOT = process.env.F023_ROOT;
+const RESULT = process.env.F023_RESULT;
+const { createHostRunHandlers } = await import(process.env.F023_HANDLER_URL);
+const { hostRunSlotsDir, acquireHostRunSlot } = await import(process.env.F023_CORE_URL);
+const store = { readStory() { throw new Error('no store'); } };
+const ctx = { store, root: ROOT, scanRoot: ROOT };
+const runner = (plan) => new Promise((resolve) => {
+  const chunk = 'y'.repeat(4096);
+  let n = 0;
+  const tick = () => {
+    if (plan.onChunk) plan.onChunk({ stream: 'stdout', text: chunk });
+    n += 1;
+    if (n >= 40) {
+      resolve({ stdout: JSON.stringify({ type: 'turn.completed', usage: { input_tokens: 7, cached_input_tokens: 0, output_tokens: 3 } }), stderr: '', exitCode: 0, timedOut: false });
+      return;
+    }
+    setTimeout(tick, 2);
+  };
+  setTimeout(tick, 2);
+});
+const handlers = createHostRunHandlers(ctx, { runner });
+// TEXT mode (json omitted): success returns '' after the usage line hits stderr.
+const out = await handlers.host_run({ host: 'codex', agentType: 'reviewer', prompt: 'driver prompt', phase: 'adhoc' });
+let leftover = [];
+try { leftover = readdirSync(hostRunSlotsDir(ROOT)).filter((f) => f.startsWith('slot-') && f.endsWith('.json')); } catch { /* no slot dir */ }
+const reAcquired = acquireHostRunSlot(hostRunSlotsDir(ROOT), 1, 6 * 60 * 60 * 1000, Date.now(), { pid: process.pid, startedAt: new Date().toISOString(), host: 'codex', storyId: null, agentType: 'after' }) !== null;
+writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquired }));
+`;
+    writeFileSync(driverFile, driverScript, 'utf8');
+
+    const childEnv = {
+      ...process.env,
+      LATTICE_USAGE_LEDGER: '1',
+      LATTICE_HOST_RUN_MAX_CONCURRENT: '1',
+      F023_ROOT: sub,
+      F023_RESULT: resultFile,
+      F023_HANDLER_URL: new URL('../handlers/host-run.js', import.meta.url).href,
+      F023_CORE_URL: new URL('../core/host-run.js', import.meta.url).href,
+    } as NodeJS.ProcessEnv;
+
+    // Destroy the stderr read end AT SPAWN — before the run's first stderr write.
+    // A quiet stdout-only run issues NO stderr data before the final usage line, so
+    // there is no stderr 'data' event to trigger on; destroying proactively makes
+    // that final usage line the write that hits the already-closed pipe (EPIPE).
+    const exitCode = await new Promise<number | null>((resolve) => {
+      const child = spawn(process.execPath, [driverFile], { env: childEnv, stdio: ['ignore', 'ignore', 'pipe'] });
+      child.once('spawn', () => child.stderr?.destroy());
+      child.on('close', (code) => resolve(code));
+    });
+
+    assert.equal(exitCode, 0, 'the driver exited 0 — the post-finally async EPIPE was CONTAINED (the OLD handler crashes nonzero here)');
+    assert.ok(existsSync(resultFile), 'the driver wrote its result AFTER host_run returned (it never crashed mid/after run)');
+    const res = JSON.parse(readFileSync(resultFile, 'utf8')) as { completed: unknown; leftover: unknown; reAcquired: unknown };
+    assert.equal(res.completed, true, 'host_run returned normally in text mode (empty string) — no crash');
+    assert.deepEqual(res.leftover, [], 'the concurrency slot was released (no leftover slot files after the run)');
+    assert.equal(res.reAcquired, true, 'a fresh cap=1 slot admission succeeds after the run (the slot was truly released)');
+    const records = readLedger(sub);
+    assert.ok(records.some((r) => r.usage.source === 'provider-reported'), 'the ledger final row recorded intact despite the closed-before-first-write stderr');
+  });
+
+  // =========================================================================
   // F-011: the host subprocess executes in the RESOLVED PROJECT ROOT (args.cwd,
   // the same value the ledger attributes as root), never the caller's process
   // cwd. Against the old code the spawn plan carried NO cwd at all, so the host
