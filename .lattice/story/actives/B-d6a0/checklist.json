@@ -80,9 +80,9 @@
       "id": "CHK-003",
       "title": "Fix gitPorcelainPaths and DONE-residue status trim in handlers/story-query.ts",
       "context": "gitPorcelainPaths (line 226) builds on gitOutput() which trims the full output, then slice(3): story_sync_main's dirty preflight (line 945) filters the corrupted first-row path through isVolatileRuntimeArtifactPath and can false-block sync with a corrupted path in the error. Also the DONE-residue probe (~line 1017) stores a full-trimmed status string whose first row is corrupted in display. Fix both reads to not trim leading output.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-10T10:09:35.593Z",
-      "endTime": null,
+      "endTime": "2026-07-10T10:09:36.344Z",
       "userSees": "✓ story-query: gitPorcelainPaths first entry keeps its leading dot; DONE-residue status text shows the untrimmed first row",
       "files": {
         "modify": [
