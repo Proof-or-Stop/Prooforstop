@@ -1,0 +1,62 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "M1: Add a host-run choke-point command that launches codex/claude/agy via the B-d8ef canonical launcher argv and writes preflight plus final usage rows bound to storyId, agentType, phase, and provider",
+      "context": "Reuse core/usage-ledger dispatch-usage seam (recordDispatchPreflight, budget guard, recordDispatchFinal/recordDispatchFinalForProvider). Codex: parse stdout turn.completed usage (input_tokens/cached_input_tokens/output_tokens/reasoning_output_tokens). Claude: parse stream-json result usage via parseClaudeCliOutput. agy: record usage.source=unavailable (verified no usage surface).",
+      "userSees": "Running the command launches the host with canonical argv, passes host output through, and appends correlated ledger rows visible via the usage report command.",
+      "excludes": [
+        "No change to gate semantics: usage rows stay gateEvidence=false diagnostics",
+        "No interception of interactive desktop sessions"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "M1: Bind reviewer/quorum context into host-run usage rows (reviewRunId and reviewer lane) sharing binding fields with review-runs records where sensible",
+      "context": "review-runs.json rows carry reviewRunId like B-xxxx:RR-001 plus agent/lane; usage rows launched for a review run should carry the same identifiers so ledger rows and readManifest-bearing review passes can be joined. Coordinate with B-4a78 readManifest fields.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "M1: Cover remaining lattice-initiated host spawns: autopilot repair step and host readiness probes write usage rows through the same seam",
+      "context": "autopilot-executor runClaudeRepair spawns claude with no ledger seam; host-execution-readiness probes make real (tiny) LLM calls with no ledger rows. Wire both at their callers, keeping core/usage-ledger free of new cross-module imports.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "M1: Update reviewer/quorum/autopilot launch guidance so lattice-initiated host runs go through the choke-point command",
+      "context": "reviewer_batch printed instructions, quorum/escalation guidance, and relevant docs should name the new command with canonical launcher semantics so future runs are captured instead of raw shell codex exec / claude --print invocations.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "M2: Add a read-only usage sweep command scanning ~/.codex/sessions rollouts and ~/.claude/projects transcripts since a cutoff and emitting a non-authoritative attribution report",
+      "context": "Per session extract: token totals (codex: last token_count event_msg info.total_token_usage, cumulative semantics; claude: sum of assistant message.usage four fields), story-id mentions (B-hex4 regex), cwd, originator (desktop vs exec), timestamps. Output human table plus JSON, distinguishing lattice-launched sessions (correlatable to ledger rows) from foreign sessions labeled estimate/non-authoritative.",
+      "userSees": "lattice usage_sweep --since <date> prints an attribution table of host-side sessions with token totals and story mentions, clearly labeled non-authoritative; a JSON output mode supports scripting.",
+      "excludes": [
+        "No ledger backfill from swept sessions",
+        "No gate or lifecycle behavior reads sweep output"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "Smokes and docs: fixture-based smoke tests for host-run row shape/binding and sweep parsing plus npm scripts and doc updates",
+      "context": "Fixtures: codex exec --json stdout with turn.completed usage, claude stream-json result envelope, agy no-usage output, codex rollout jsonl, claude project transcript jsonl. Wire npm test scripts following existing usage-ledger smoke naming.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

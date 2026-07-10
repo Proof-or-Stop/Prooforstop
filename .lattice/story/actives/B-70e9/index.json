@@ -1,0 +1,39 @@
+{
+  "storyId": "B-70e9",
+  "name": "host-usage-capture-unify",
+  "title": "Unify host-side LLM usage capture: launcher choke-point ledger rows (M1) plus a read-only retro-attribution usage sweep (M2)",
+  "description": "A 2026-07-10 forensic token-burn audit found .lattice/usage/llm-usage.jsonl contains only 4 probe records from 2026-06-19 while the real burns were all host-side and invisible to the ledger: a 30-hour Codex Desktop thread in the legacy Work/Orchestrate directory accumulated 368.9M cumulative input tokens (~4,700 turns), five parallel codex exec reviewers for one story burned ~16M input in about one minute, and Claude-side reviewer sessions burned 4-8M new input each. Attribution required manual archaeology over ~/.codex/sessions rollouts and ~/.claude/projects transcripts. M1 extends the canonical launcher path (standardized by B-d8ef) so every lattice-initiated host run (dispatch, reviewer launch, quorum host review, autopilot) writes usage rows with storyId/agentType/phase/provider bound. M2 productizes the manual forensic analysis as a read-only usage sweep command that scans host transcript stores since a cutoff and emits a clearly non-authoritative attribution report. Usage data stays diagnostics-only (gateEvidence=false); interactive desktop sessions are report-only via M2, never intercepted.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "usage-ledger",
+    "host-launcher",
+    "codex",
+    "claude",
+    "agy",
+    "token-usage",
+    "usage-sweep",
+    "attribution"
+  ],
+  "riskSignals": [
+    {
+      "category": "Security/Credentials",
+      "matched": "token"
+    }
+  ],
+  "createdAt": "2026-07-10T05:07:57.689Z",
+  "startedAt": "2026-07-10T05:07:57.689Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-10T05:07:58.102Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "641a27f3-4648-4ee2-8643-fe0d050c8b0b",
+      "agent": "main"
+    }
+  ]
+}
