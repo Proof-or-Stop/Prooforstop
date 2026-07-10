@@ -1,0 +1,58 @@
+{
+  "schemaVersion": "proofbound.milestone_closeout.v1",
+  "storyId": "B-b264",
+  "phase": "TEST",
+  "generatedAt": "2026-07-10T06:37:18.121Z",
+  "sourceReport": {
+    "schemaVersion": "proofbound.milestone_status.v1",
+    "digest": "1a91901472f5c18edacb42b6dfb041d6d759c86bbf180a2d1bfa8ab58831888a",
+    "ledger": {
+      "present": true,
+      "state": "confirmed",
+      "hash": "sha256:5c0d2ea4f2150ab7bc6b7f66d2b21f96d04e932952597d01539829dbe36f5379"
+    },
+    "groups": {
+      "completed": [
+        "M5",
+        "M6"
+      ],
+      "current": [],
+      "remaining": []
+    },
+    "risks": [],
+    "nextActions": [
+      "No milestone action; all ledger rows are completed or not applicable."
+    ]
+  },
+  "bindings": {
+    "headHash": "4e1f6a174d87369c12bd3420715ced2d678fa275",
+    "materialHash": "ba36c671941eeba2377ad1a8a3f9b777887692a2d798549352006b79665e9c88",
+    "storyFilesHash": "53529a07d48a28724402eb184e6594c2ddfb599e887c0631927f5bbd9058c625"
+  },
+  "rows": [
+    {
+      "milestone": "M5",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "done_prepare explains reruns and preflights merge hazards safely.",
+      "acceptance": "Rerun delta and merge hazard fixtures print exact paths and safe next steps without mutating unrelated files.",
+      "evidence": [
+        "CHK-001:happy:0 [pass/logic_test] npm --prefix packages/main run test:done-prepare-merge-rerun-smoke file=packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts note=assertUntrackedOverwriteHazard: BLOCKED with exact path (merge hazard: untracked file would be overwritten: notes/main-only.txt) plus safe next step before any DONE recovery; assertModifiedTrackedPathExactness proves first-row modified paths keep exact form after the porcelain trim fix.",
+        "CHK-002:happy:0 [pass/manual_transcript] npm --prefix packages/main run test:done-prepare-merge-rerun-smoke file=packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts note=assertRerunReasonAfterRefreshCommit: when a previous run left refresh-generated metadata, the transcript prints the done_prepare re-run reason section with the generated commit line, current binding (currentHead/currentMaterialHash/currentStoryFilesHash), and an explicit next action to rerun from the new HEAD."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M6",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Remaining closeout safety regressions are covered.",
+      "acceptance": "dryRun immutability, generated-file ownership, unrelated dirty-file safety, and hash-impact warnings are covered by focused tests.",
+      "evidence": [
+        "CHK-003:happy:0 [pass/logic_test] npm --prefix packages/main run test:done-prepare-merge-rerun-smoke file=packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts note=assertDryRunNoMutation: done_prepare --dryRun leaves git status (porcelain v1, untracked-files=all) and the full story metadata tree byte-identical in the fixture, and prints dryRun: no files will be written.",
+        "CHK-003:adversarial:0 [pass/logic_test] npm --prefix packages/main run test:done-prepare-merge-rerun-smoke file=packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts note=assertDryRunNoMutation byte-compares the entire story metadata tree (evidence files, process events, review artifacts, timestamps consumed by gates) before and after --dryRun; any write would fail the deepEqual snapshot comparison."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    }
+  ]
+}
