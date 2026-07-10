@@ -493,6 +493,18 @@
           "materialHash": "9a34267cfc576a5198b54b34edebacab9d3db95b7cf9a62511a26960debe9169",
           "storyFilesHash": "9df50ebfa33bf98831fcb1d9b2aea402d8d6750256e08b9ab080558a92e233aa",
           "timestamp": "2026-07-10T07:10:13.940Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "file": "packages/main/src/handlers/reviewer-batch.ts",
+          "command": "sh -c 'test -z \"$(git diff main -- packages/main/src/handlers/reviewer-batch.ts)\"'",
+          "result": "pass",
+          "note": "reviewer_batch in-session Agent() instructions are unchanged vs main (git diff empty)",
+          "headHash": "12c8e26183c3d3e425cb5d1448cfc22c621369f7",
+          "materialHash": "9a34267cfc576a5198b54b34edebacab9d3db95b7cf9a62511a26960debe9169",
+          "storyFilesHash": "9df50ebfa33bf98831fcb1d9b2aea402d8d6750256e08b9ab080558a92e233aa",
+          "timestamp": "2026-07-10T07:10:15.388Z"
         }
       ]
     },
