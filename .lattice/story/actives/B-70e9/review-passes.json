@@ -1261,6 +1261,23 @@
         "scanEscalationReason": null
       },
       "_hash": "719e8ee9ff677fa742a3b89eafbe0e8042493e998166d1e83c142a9bb30222af"
+    },
+    {
+      "id": "B-70e9:RP-053",
+      "agent": "lattice-review-concept",
+      "note": "Round 15 re-review of fix commit d638945a8a for round-14 F-022. No concept deletion/replacement in this diff (+4/-2, single file): only the CHK-003 check title and a new assertion in usage-ledger-default-on-smoke.ts were updated to match the already-established DispatchFinalStatus contract on recordDispatchFinal (dispatch-usage.ts:435-443, returns {appended,kind,reason?}). Verified the fix: title now reads (returns appended:false status, no throw); body asserts status?.appended === false on the catch path, matching the actual swallow-return at dispatch-usage.ts:488 ({appended:false,kind:intendedKind,reason:...}). Grepped repo-wide for the stale phrase (grep -rn returns-void . --include=*.ts --include=*.md --include=*.json | grep -v node_modules|dist|.git|@deprecated): zero hits in live code/docs; the only two remaining occurrences are historical prose inside findings.json (F-020, F-022 original finding descriptions), which is expected audit-trail residue, not concept residue. F-022 residue confirmed fully resolved.",
+      "createdAt": "2026-07-10T13:54:51.232Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-064",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/tasks/usage-ledger-default-on-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "6969d0ed24d41afb1338937a324d4bace23a311cc39a48297d9184e3bda2f9fd"
     }
   ]
 }
