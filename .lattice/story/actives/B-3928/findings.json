@@ -136,6 +136,26 @@
       ],
       "signatureTag": "missing|md|promise-undelivered-scripts",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3928:F-007",
+      "desc": "doc-code-drift: .lattice/story/actives/B-3928/evidence/delivery-context-pack.json claims to snapshot the current diff, and marks transcriptDiff=true, but its diff.changedFiles list and summary omit .lattice/story/actives/B-3928/evidence/transcript-diff.md. A direct comparison with git diff --name-only main...HEAD shows that file as the sole mismatch. Refresh the delivery context from the current committed diff so the transcript evidence package is internally consistent.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-10T04:21:45.493Z",
+      "reviewRound": "2026-07-10T04:15:51.636Z",
+      "reviewRunId": "B-3928:RR-012",
+      "_hash": "9864c3483adc4ef64fafb12b4aa75bde2ffffe7328530121327c30148de0e146",
+      "files": [
+        ".lattice/story/actives/B-3928/evidence/delivery-context-pack.json",
+        ".lattice/story/actives/B-3928/evidence/transcript-diff.md",
+        ".lattice/story/actives/B-3928/evidence/live-smoke-transcript.json"
+      ],
+      "signatureTag": "missing|json|code-drift-lattice",
+      "signatureTagSource": "auto"
     }
   ]
 }
