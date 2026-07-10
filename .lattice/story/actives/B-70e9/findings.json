@@ -455,7 +455,7 @@
       "desc": "[codex host-B, cross_host_review B-70e9-xhr-r12] Claude host_run reports usage recorded even when the ledger write failed: the claude final path calls recordDispatchFinal(), which catches appendUsageRecord failures and returns void; the summary branch then reports usageSummary.recorded=provider-reported purely because parsed.anthropicUsage exists. A corrupt or lock-timeout ledger leaves NO final row while host_run prints usage recorded - silently hiding the under-count in the very choke point built for honest capture. Fix direction: give the anthropic final recorder (or a host_run-specific wrapper) an appended/skipped status surface like the codex/unavailable recorders, and report recorded=none/skipped-with-reason when the append fails; audit the codex and agy summary paths for the same parse-success-vs-append-success conflation.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host-b",
       "createdAt": "2026-07-10T13:29:44.139Z",
@@ -467,7 +467,11 @@
         "packages/main/src/tasks/host-run-usage-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|codex-host-cross",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 0042a4a1f4: recordDispatchFinal returns DispatchFinalStatus {appended, kind, reason} (additive; all statement-position callers unaffected), recordDispatchFinalCodex/recordDispatchUnavailableFinal surface ledger_append_failed reasons; host-run gates ALL THREE hosts plus the retention-truncated path on actual append outcome, reporting the distinct honest recorded=none state with ledger_append_failed(...) - never a false provider-reported/unavailable; handler line/JSON already render none honestly (no handler change). Audits: autopilot-repair and codex-review-leaf surfaces make no recorded claims (left unchanged). Two new corrupt-ledger checks (claude + codex) proven RED by removing the gates; host-run smoke 54/54; 15 suites green.",
+      "resolvedAt": "2026-07-10T13:47:04.033Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
