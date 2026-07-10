@@ -166,7 +166,31 @@
       "context": "Extend packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts (from B-cee5) so validate catches regressions: missing readManifest passing a save, and mismatch/unrecorded-full-scan cases going unflagged. Align with the B-04bb validate wiring follow-up.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The focused reviewer scan guard smoke fails on missing readManifest or mismatch regressions and passes on the expected safe cases.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "reviewer-scan-budget-guard-smoke covers valid readManifest, valid mechanical read-log digest, and no-mismatch green cases.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The smoke preserves JSON cleanliness and normal validate wiring when read evidence diagnostics are emitted.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The smoke fails if missing readManifest is accepted, mismatch findings are skipped, full scans without scanEscalationReason are ignored, or owner/self-signed reviewer evidence bypasses role separation.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
