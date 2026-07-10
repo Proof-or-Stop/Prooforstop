@@ -481,6 +481,18 @@
           "materialHash": "9a34267cfc576a5198b54b34edebacab9d3db95b7cf9a62511a26960debe9169",
           "storyFilesHash": "9df50ebfa33bf98831fcb1d9b2aea402d8d6750256e08b9ab080558a92e233aa",
           "timestamp": "2026-07-10T07:10:12.459Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "docs_check",
+          "file": "docs/host-run-usage.md",
+          "command": "sh -c \"rg -q threadId docs/host-run-usage.md && rg -q LATTICE_HOST_RUN_MAX_CONCURRENT docs/host-run-usage.md && rg -q 'gateEvidence=false' docs/host-run-usage.md\"",
+          "result": "fail",
+          "note": "doc documents binding conventions, cap envs, agy unavailable semantics, and non-goals incl. gateEvidence=false",
+          "headHash": "22b31f724b9e6ea12dcd27742b35c43c685d7668",
+          "materialHash": "9a34267cfc576a5198b54b34edebacab9d3db95b7cf9a62511a26960debe9169",
+          "storyFilesHash": "9df50ebfa33bf98831fcb1d9b2aea402d8d6750256e08b9ab080558a92e233aa",
+          "timestamp": "2026-07-10T07:10:13.940Z"
         }
       ]
     },
