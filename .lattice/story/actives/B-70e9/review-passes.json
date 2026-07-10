@@ -266,6 +266,28 @@
         "scanEscalationReason": null
       },
       "_hash": "e37abdd98301472c5bc88fdbfa5157e5fc99591423e12590abf809580572adee"
+    },
+    {
+      "id": "B-70e9:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "Round 4 convergence re-review post-fix b8908661f. No concept deletion/replacement this round: the commit is purely additive (new passthroughError field on HostRunSpawnResult/HostRunResult/handler JSON, new deliver/safeDeliver guards, new F-008 smoke check, new doc paragraph) plus one corrected JSDoc sentence (F-007/F-009: stale piped-spawnSync claim -> accurate async streaming defaultHostRunRunner description). Verified zero residue: grep spawnSync in handlers/host-run.ts = 0 hits; repo-wide spawnSync grep shows only unrelated files (init-assets.ts, other tasks/providers/smokes, other stories historical findings/evidence, and CLAUDE.md:1061 which describes the unrelated validate-lint.ts defaultRunner, not host-run, and is untouched by this story). No blocker.",
+      "createdAt": "2026-07-10T09:18:52.105Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-015",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/handlers/host-run.ts"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "CLAUDE.md",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2828d604e6ed1d0e5aeab447348dafe5c97a4c4e9fff9c55b9e622b1547eee22"
     }
   ]
 }
