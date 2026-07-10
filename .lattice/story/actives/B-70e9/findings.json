@@ -566,7 +566,7 @@
       "desc": "[codex host-B, cross_host_review B-70e9-xhr-r15] Any over-cap stdout line poisons later valid usage capture: UsageLineScanner sets a GLOBAL retentionTruncated flag for any over-cap line even when that line is not usage-bearing; recordFinalForHost (F-013) then treats the whole run as stale and records unavailable, so a large non-usage output line before a later valid codex turn.completed / claude result line loses provider usage that was actually retained and parseable. Fix direction: track truncation relative to usage-bearing candidates - clear the stale condition when a later valid usage-bearing line is retained; only force unavailable when a dropped over-cap line occurred AFTER the retained candidate (or no candidate was retained); tests for over-cap non-usage output followed by a valid final usage event.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host-b",
       "createdAt": "2026-07-10T14:55:29.425Z",
@@ -577,7 +577,11 @@
         "packages/main/src/tasks/host-run-usage-smoke.ts"
       ],
       "signatureTag": "edge|ts|codex-host-cross",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 387b0ad3a2: UsageLineScanner truncation flag redefined as truncatedSinceLastCandidate - set on every over-cap drop, CLEARED when a usage-bearing line is retained; recordFinalForHost gate unchanged but now carries candidate-relative semantics: overcap-nonusage-then-candidate records the provider-reported final (pre-fix poisoned to unavailable - RED proven), candidate-then-overcap still unavailable (F-013 preserved), only-overcap still unavailable (F-006 preserved). Scanner unit + codex real-child + claude mirror checks added.",
+      "resolvedAt": "2026-07-10T15:16:00.071Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
