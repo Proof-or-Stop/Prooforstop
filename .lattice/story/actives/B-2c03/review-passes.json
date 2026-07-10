@@ -180,6 +180,29 @@
         "scanEscalationReason": null
       },
       "_hash": "11f2df916e40541c36c6f10b9c8634633b3238742fa338263cb18b1ce571e5f5"
+    },
+    {
+      "id": "B-2c03:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Fresh round after F-006 fix (d567f260fe). Verified stripCodeLikeTokens/claimsShrinkage in proofstory.ts against all three F-006 repro cases (backtick-quoted prose, single-slash prose pairs, simple-stem dotted tokens) - all now fire correctly. Ran 14 additional adversarial probes beyond the smoke suite (nested backtick+path, backtick-single-token strip, multi-backtick mixed span, 2-slash paths, dot-slash leading paths, underscore+slash remaining connector, out-of-scope/not-covered hyphen prose, remaining-scope hyphen, bare-remaining pre-existing negative control, ambiguous-extension fail-safe, fenced-code-block documented residual, mixed backtick+slash sentence) - no new bypass found, all results match documented plan.md risk notes exactly. Rebuilt packages/main (tsc clean) and ran test:proofstory-intent-hardening-smoke (passed), milestone-done-gate-reconciliation-smoke (OK), test:milestone-status (ok), test:e2e (ALL PASS). Fix commit is tightly scoped to proofstory.ts + its own smoke test + plan.md. No blocker.",
+      "createdAt": "2026-07-10T15:36:04.961Z",
+      "reviewRound": "2026-07-10T14:41:10.214Z",
+      "reviewRunId": "B-2c03:RR-016",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2c03/background.md",
+          ".lattice/story/actives/B-2c03/plan.md",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2c03/checklist.json",
+          ".lattice/story/actives/B-2c03/findings.json",
+          ".lattice/story/actives/B-2c03/review.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6d4195a61941cb0b1fd4a54752791eace0af6dfb4c5ce7ad4c5254be876503e6"
     }
   ]
 }
