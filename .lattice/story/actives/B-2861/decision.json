@@ -1,0 +1,78 @@
+{
+  "principles": [
+    "Current code and CLI facts outrank stale planning prose.",
+    "Review breadth must not weaken hard lifecycle gates or structured evidence requirements.",
+    "The story may optimize the target document but must not implement runtime or CLI behavior changes.",
+    "User-requested 3x2 review is valid for this story, while global host-default guidance must remain accurately described."
+  ],
+  "drivers": [
+    "The target document is large and changes the future Proof-or-Stop flow.",
+    "The user requested 3x2 review and a final optimization table with reasons and evidence.",
+    "INIT product reviewer identified a medium advisory about Antigravity CLI default-host wording.",
+    "A document-only story should remain reviewable and rollback-safe."
+  ],
+  "options": [
+    {
+      "name": "A: Run this review as user-requested 3x2 with Codex CLI, Claude Code CLI, and Antigravity CLI, while documenting that Agy is not the default primary host outside this explicit review.",
+      "pros": [
+        "Matches the user request for 3x2 coverage",
+        "Keeps the host taxonomy memory accurate",
+        "Gives three independent host perspectives for a large document change"
+      ],
+      "cons": [
+        "Requires wording care so future readers do not infer Agy is always primary",
+        "May take longer than two-host review"
+      ]
+    },
+    {
+      "name": "B: Downgrade to Codex plus Claude only and treat Agy as fallback unless a host is unavailable.",
+      "pros": [
+        "Matches default project memory for ordinary review work",
+        "Lower execution cost"
+      ],
+      "cons": [
+        "Does not satisfy the user-requested 3x2 review",
+        "Provides less independent coverage for a large planning document"
+      ]
+    },
+    {
+      "name": "C: Defer host review until after document edits and rely on ordinary REVIEW lanes only.",
+      "pros": [
+        "Fastest short-term path"
+      ],
+      "cons": [
+        "Misses the requested independent 3x2 scrutiny",
+        "Could allow evidence/role/routing mistakes to persist until later milestones"
+      ]
+    }
+  ],
+  "chosen": "A: Run this review as user-requested 3x2 with Codex CLI, Claude Code CLI, and Antigravity CLI, while documenting that Agy is not the default primary host outside this explicit review.",
+  "rationale": "The user explicitly asked for a new story to review this large document and perform 3x2. The project memory warning is real, so the story should not rewrite global host policy; it should frame Agy as the explicit third host for this review campaign and keep default-routing language accurate.",
+  "preMortem": [
+    {
+      "scenario": "The 3x2 review output is treated as gate evidence by itself.",
+      "trigger": "The document says a host verdict or prompt prose passes a lifecycle gate without a structured CLI artifact.",
+      "consequence": "Future implementation could weaken REVIEW or DONE gates.",
+      "mitigation": "Require every accepted optimization to cite the structured writer/reader/gate boundary and preserve prompt-text-is-not-evidence language."
+    },
+    {
+      "scenario": "The document accidentally makes Antigravity CLI a global primary host.",
+      "trigger": "3x2 wording is copied into general routing guidance without the explicit-review qualifier.",
+      "consequence": "Future workflows may conflict with current default host policy and dev-memory guidance.",
+      "mitigation": "Keep Agy wording scoped to this review story or explicit 3x2 campaigns, and record the product-reviewer advisory in the optimization ledger."
+    },
+    {
+      "scenario": "The review expands into CLI code changes.",
+      "trigger": "A finding says current implementation lacks a feature and the story starts patching packages/main.",
+      "consequence": "The document-review story violates scope and bypasses Proofbound code-change story discipline.",
+      "mitigation": "Treat code gaps as documented future implementation stories unless the user explicitly expands scope and a new story is created."
+    },
+    {
+      "scenario": "The final table omits rejected or deferred suggestions.",
+      "trigger": "Only accepted edits are listed at DONE.",
+      "consequence": "Future implementers cannot see why advice was rejected or deferred.",
+      "mitigation": "The reconciliation ledger must include accept/reject/defer status with reason and evidence; the DONE table lists concrete optimizations made and notes linked deferred/rejected findings separately."
+    }
+  ],
+  "timestamp": "2026-07-09T14:47:25.533Z"
+}

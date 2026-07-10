@@ -1,0 +1,143 @@
+{
+  "storyId": "B-2861",
+  "checkedAt": "2026-07-09T15:28:17.446Z",
+  "features": [
+    {
+      "feature": "Build a review evidence pack citing the target document state, current diff/status, and code-backed truth sources (lifecycle gates, reviewer lanes, review_run/finding/pass, init-check gate, evaluator save/eval-evidence, milestone_status UX, prompt registry/agent_prompt, process-fact registry, command policy, CLI docs)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-2861/checklist.json#CHK-001; understanding.json#outcome"
+    },
+    {
+      "feature": "Evidence pack prefers current code facts over stale planning prose and records when a referenced behavior is only planned",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json#CHK-001.verificationIntent.edge"
+    },
+    {
+      "feature": "Evidence pack does not treat prompt text, raw evaluator JSON, or host-review prose as gate evidence",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json#CHK-001.verificationIntent.adversarial; understanding.json#constraints"
+    },
+    {
+      "feature": "Run 3x2 independent review: three host labels (Codex CLI, Claude Code CLI, Antigravity CLI) x two lenses (lifecycle/gate correctness + prompt/routing/UX practicality) = six recorded host/lens findings",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json#CHK-002; decision.json#chosen(A)"
+    },
+    {
+      "feature": "Review findings cite concrete project evidence rather than accepting advice or prompt prose without verification",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json#CHK-002.verificationIntent.adversarial"
+    },
+    {
+      "feature": "Antigravity CLI is scoped to this explicit user-requested 3x2 review and does not rewrite global default host policy (Agy not made global primary)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json#CHK-002.verificationIntent.edge; decision.json#chosen(A); understanding.json#constraints"
+    },
+    {
+      "feature": "Reconcile 3x2 findings into an actionable optimization ledger: deduplicate overlapping findings, classify each accept/reject/defer, attach owner milestone/story impact and evidence references",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json#CHK-003"
+    },
+    {
+      "feature": "Deferred/rejected suggestions include explicit code or policy evidence; ledger does not hide host disagreement or collapse conflicts into vague consensus",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json#CHK-003.verificationIntent.edge+adversarial"
+    },
+    {
+      "feature": "Record the INIT product-reviewer medium advisory about Antigravity CLI default-host wording in the optimization ledger",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decision.json#preMortem[1].mitigation (ledger is the natural home; substance also covered by CHK-002/CHK-004 — implicit, not an explicit checklist line)"
+    },
+    {
+      "feature": "Apply approved documentation optimizations to the target document only, without weakening INIT/REVIEW/TEST/DONE hard lifecycle gates",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json#CHK-004; understanding.json#constraints"
+    },
+    {
+      "feature": "Preserve reviewer-run binding, evaluator raw-vs-saved evidence boundary, legacy read compatibility, canonical proof-or-stop-* writes, and no direct story-file mutation by prompts",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json#CHK-004.context+adversarial"
+    },
+    {
+      "feature": "Preserve milestone_status as the mandatory progress UX source rather than agent-handwritten status",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding.json#constraints; checklist.json#CHK-004"
+    },
+    {
+      "feature": "If a finding implies a future code change, record it as a future implementation story rather than changing code in B-2861",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json#CHK-004.verificationIntent.edge; decision.json#preMortem[2]"
+    },
+    {
+      "feature": "Produce a DONE optimization table listing every concrete optimization with reason, supporting project evidence, motivating 3x2 host/lens finding, and affected contract area (milestone order / agent responsibility / IO contract / UX contract / validation coverage)",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json#CHK-005; understanding.json#outcome"
+    },
+    {
+      "feature": "DONE table distinguishes concrete applied optimizations from deferred/rejected suggestions and cannot claim completion unless the document contains/accompanies the evidence-backed table; does not imply unimplemented code shipped",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json#CHK-005.verificationIntent.edge+adversarial; decision.json#preMortem[3]"
+    },
+    {
+      "feature": "Editing Proofbound CLI/runtime code (packages/main, etc.)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Documentation-only story: code is read as evidence, not modified (understanding.json facts/constraints; decision.json principle 3). Code gaps become future implementation stories.",
+      "source": "understanding.json#constraints; decision.json#principles"
+    },
+    {
+      "feature": "Direct read/write of docs/story or tests/fixtures files",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Out of scope by constraint: CLI-mediated story artifact discipline; prompts/story must not directly mutate these files.",
+      "source": "understanding.json#constraints"
+    },
+    {
+      "feature": "Rewriting global default host policy to make Antigravity CLI a global primary host",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly out of scope: story keeps Agy scoped to this 3x2 review and preserves accurate default-host guidance (decision A rejects options that alter global policy).",
+      "source": "decision.json#chosen(A); understanding.json#constraints"
+    }
+  ],
+  "summary": {
+    "total": 18,
+    "covered": 15,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "e460c0582b909edad22d487d4d58a81c7ea5e64924f9e442797f7871b41ecdb1",
+  "openQuestions": []
+}
