@@ -27,7 +27,7 @@
       "desc": "M0.3 requires the role-overlap matrix to cover phase, commands, direct file access, output artifact, and overlap category, but the generated matrix table has columns for Role/Status/Phase/Purpose/Commands/Inputs/Outputs/Capabilities/Overlap category/Notes and no direct-file-access column or per-role field. The baseline JSON roleMatrix objects likewise contain role/status/phase/purpose/commands/inputs/outputs/capabilities/overlapCategory/notes only, so direct file access is not systematically covered for all 16 roles; it only appears incidentally in the story-init note while the separate directStoryFileReferences section is not part of the overlap matrix.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-10T03:41:18.209Z",
@@ -41,7 +41,11 @@
         "scripts/verify-proof-or-stop-prompt-baseline.mjs"
       ],
       "signatureTag": "missing|md|requires-role-overlap",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added directFileAccess to ROLE_MATRIX_DEFAULTS for all 16 roles, regenerated baseline JSON roleMatrix with directFileAccess for every role, and regenerated docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md with a Direct file access column. Evidence: npm --prefix packages/main run build PASS; node scripts/verify-proof-or-stop-prompt-baseline.mjs PASS; npm run test:proof-or-stop-prompt-baseline PASS.",
+      "resolvedAt": "2026-07-10T03:46:10.676Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
