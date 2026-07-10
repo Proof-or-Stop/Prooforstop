@@ -52,10 +52,10 @@
           "command": "npm --prefix packages/main run test:done-prepare-merge-rerun-smoke",
           "result": "pass",
           "note": "assertUntrackedOverwriteHazard: BLOCKED with exact path (merge hazard: untracked file would be overwritten: notes/main-only.txt) plus safe next step before any DONE recovery; assertModifiedTrackedPathExactness proves first-row modified paths keep exact form after the porcelain trim fix.",
-          "headHash": "3b8661606f36dd17d79465cd889d0ee26db12038",
-          "materialHash": "629ca6c3184088f0e8299b3c454ca0f12ebc20a3b0aa9cdc50925b7717f44d4f",
-          "storyFilesHash": "280e1fa00e2ee162d2eec9e7211bc3b97d595ef75062fc12e0eae88070f8cc98",
-          "timestamp": "2026-07-10T05:33:09.725Z"
+          "headHash": "a7fae348300c9a6dd04b2cc400a03e441a5e0024",
+          "materialHash": "a2eb5d0b91428dd71a1f0f532198bc31b82d87839d4603e34a2ab8a6270b3260",
+          "storyFilesHash": "e67407763dafc1d73ab9c07d54f28bb6a372358c2c8d939deebcc625feba023a",
+          "timestamp": "2026-07-10T05:44:17.665Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -76,10 +76,10 @@
           "command": "npm --prefix packages/main run test:done-prepare-merge-rerun-smoke",
           "result": "pass",
           "note": "assertUntrackedOverwriteHazard: hazard block leaves HEAD, git status (porcelain v1 untracked-files=all), and story metadata byte-identical; guidance text contains no stash/git add/commit/delete suggestions, so nothing unrelated is stashed, deleted, committed, or overwritten.",
-          "headHash": "2759bdc291470fa90db3cb614ae5756e8fdec1df",
-          "materialHash": "629ca6c3184088f0e8299b3c454ca0f12ebc20a3b0aa9cdc50925b7717f44d4f",
-          "storyFilesHash": "280e1fa00e2ee162d2eec9e7211bc3b97d595ef75062fc12e0eae88070f8cc98",
-          "timestamp": "2026-07-10T05:33:11.697Z"
+          "headHash": "a7fae348300c9a6dd04b2cc400a03e441a5e0024",
+          "materialHash": "a2eb5d0b91428dd71a1f0f532198bc31b82d87839d4603e34a2ab8a6270b3260",
+          "storyFilesHash": "e67407763dafc1d73ab9c07d54f28bb6a372358c2c8d939deebcc625feba023a",
+          "timestamp": "2026-07-10T05:44:17.665Z"
         }
       ]
     },
@@ -135,10 +135,10 @@
           "command": "npm --prefix packages/main run test:done-prepare-merge-rerun-smoke",
           "result": "pass",
           "note": "assertRerunReasonAfterRefreshCommit: when a previous run left refresh-generated metadata, the transcript prints the done_prepare re-run reason section with the generated commit line, current binding (currentHead/currentMaterialHash/currentStoryFilesHash), and an explicit next action to rerun from the new HEAD.",
-          "headHash": "427ffc34fc633ab1f2ba6c6c7a0ce396044b2217",
-          "materialHash": "629ca6c3184088f0e8299b3c454ca0f12ebc20a3b0aa9cdc50925b7717f44d4f",
-          "storyFilesHash": "280e1fa00e2ee162d2eec9e7211bc3b97d595ef75062fc12e0eae88070f8cc98",
-          "timestamp": "2026-07-10T05:33:32.778Z"
+          "headHash": "a7fae348300c9a6dd04b2cc400a03e441a5e0024",
+          "materialHash": "a2eb5d0b91428dd71a1f0f532198bc31b82d87839d4603e34a2ab8a6270b3260",
+          "storyFilesHash": "e67407763dafc1d73ab9c07d54f28bb6a372358c2c8d939deebcc625feba023a",
+          "timestamp": "2026-07-10T05:44:17.665Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -147,10 +147,10 @@
           "command": "npm --prefix packages/main run test:done-prepare-merge-rerun-smoke",
           "result": "pass",
           "note": "assertMetadataCommitNoRebindAndAutoCloseExit: committing generated DONE metadata leaves storyFilesHash byte-identical (hash-excluded, so review rebinding is never forced) and the documented autoCloseGeneratedMetadata+reuseFreshValidation rerun reaches DONE prepare: PASS with a clean tree, proving the rerun does not loop.",
-          "headHash": "1629d63d2cbcc4ef597d834ca7a5fa2177308e84",
-          "materialHash": "629ca6c3184088f0e8299b3c454ca0f12ebc20a3b0aa9cdc50925b7717f44d4f",
-          "storyFilesHash": "280e1fa00e2ee162d2eec9e7211bc3b97d595ef75062fc12e0eae88070f8cc98",
-          "timestamp": "2026-07-10T05:33:33.612Z"
+          "headHash": "a7fae348300c9a6dd04b2cc400a03e441a5e0024",
+          "materialHash": "a2eb5d0b91428dd71a1f0f532198bc31b82d87839d4603e34a2ab8a6270b3260",
+          "storyFilesHash": "e67407763dafc1d73ab9c07d54f28bb6a372358c2c8d939deebcc625feba023a",
+          "timestamp": "2026-07-10T05:44:17.665Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -159,10 +159,10 @@
           "command": "npm --prefix packages/main run test:done-prepare-merge-rerun-smoke",
           "result": "pass",
           "note": "assertNoSelfAttestationLanguage runs against every scenario transcript (hazard, generated-metadata, dryRun, rerun-reason, auto-closeout) and the hazard scenario additionally rejects stash/git add/commit/delete suggestions, so guidance never proposes committing unrelated dirty files or self-attesting reviewer/host evidence.",
-          "headHash": "5f3853b5a01725885510e7f968d8050852126fc7",
-          "materialHash": "629ca6c3184088f0e8299b3c454ca0f12ebc20a3b0aa9cdc50925b7717f44d4f",
-          "storyFilesHash": "280e1fa00e2ee162d2eec9e7211bc3b97d595ef75062fc12e0eae88070f8cc98",
-          "timestamp": "2026-07-10T05:33:34.532Z"
+          "headHash": "a7fae348300c9a6dd04b2cc400a03e441a5e0024",
+          "materialHash": "a2eb5d0b91428dd71a1f0f532198bc31b82d87839d4603e34a2ab8a6270b3260",
+          "storyFilesHash": "e67407763dafc1d73ab9c07d54f28bb6a372358c2c8d939deebcc625feba023a",
+          "timestamp": "2026-07-10T05:44:17.665Z"
         }
       ]
     },
@@ -219,10 +219,10 @@
           "command": "npm --prefix packages/main run test:done-prepare-merge-rerun-smoke",
           "result": "pass",
           "note": "assertDryRunNoMutation: done_prepare --dryRun leaves git status (porcelain v1, untracked-files=all) and the full story metadata tree byte-identical in the fixture, and prints dryRun: no files will be written.",
-          "headHash": "c80c434945645d8cb67704503174a6d374acb6fd",
-          "materialHash": "629ca6c3184088f0e8299b3c454ca0f12ebc20a3b0aa9cdc50925b7717f44d4f",
-          "storyFilesHash": "280e1fa00e2ee162d2eec9e7211bc3b97d595ef75062fc12e0eae88070f8cc98",
-          "timestamp": "2026-07-10T05:33:35.435Z"
+          "headHash": "a7fae348300c9a6dd04b2cc400a03e441a5e0024",
+          "materialHash": "a2eb5d0b91428dd71a1f0f532198bc31b82d87839d4603e34a2ab8a6270b3260",
+          "storyFilesHash": "e67407763dafc1d73ab9c07d54f28bb6a372358c2c8d939deebcc625feba023a",
+          "timestamp": "2026-07-10T05:44:17.665Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -231,10 +231,10 @@
           "command": "npm --prefix packages/main run test:done-prepare-merge-rerun-smoke",
           "result": "pass",
           "note": "assertGeneratedMetadataGuidance lists exactly the files generated by the current run (done-required-evidence.json, test-evidence.json) under generated by this done_prepare run; assertModifiedTrackedPathExactness proves pre-existing dirty lifecycle metadata is classified as story lifecycle metadata, never as unrelated and never in the current-run list.",
-          "headHash": "8254f5384f16665ab576f2a69cb887d4f22e2255",
-          "materialHash": "629ca6c3184088f0e8299b3c454ca0f12ebc20a3b0aa9cdc50925b7717f44d4f",
-          "storyFilesHash": "280e1fa00e2ee162d2eec9e7211bc3b97d595ef75062fc12e0eae88070f8cc98",
-          "timestamp": "2026-07-10T05:33:36.263Z"
+          "headHash": "a7fae348300c9a6dd04b2cc400a03e441a5e0024",
+          "materialHash": "a2eb5d0b91428dd71a1f0f532198bc31b82d87839d4603e34a2ab8a6270b3260",
+          "storyFilesHash": "e67407763dafc1d73ab9c07d54f28bb6a372358c2c8d939deebcc625feba023a",
+          "timestamp": "2026-07-10T05:44:17.665Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -243,10 +243,10 @@
           "command": "npm --prefix packages/main run test:done-prepare-merge-rerun-smoke",
           "result": "pass",
           "note": "assertDryRunNoMutation byte-compares the entire story metadata tree (evidence files, process events, review artifacts, timestamps consumed by gates) before and after --dryRun; any write would fail the deepEqual snapshot comparison.",
-          "headHash": "9ff5394b5c0cc18bd7abebed7dfb1b959ab80b34",
-          "materialHash": "629ca6c3184088f0e8299b3c454ca0f12ebc20a3b0aa9cdc50925b7717f44d4f",
-          "storyFilesHash": "280e1fa00e2ee162d2eec9e7211bc3b97d595ef75062fc12e0eae88070f8cc98",
-          "timestamp": "2026-07-10T05:33:37.096Z"
+          "headHash": "a7fae348300c9a6dd04b2cc400a03e441a5e0024",
+          "materialHash": "a2eb5d0b91428dd71a1f0f532198bc31b82d87839d4603e34a2ab8a6270b3260",
+          "storyFilesHash": "e67407763dafc1d73ab9c07d54f28bb6a372358c2c8d939deebcc625feba023a",
+          "timestamp": "2026-07-10T05:44:17.665Z"
         }
       ]
     }
