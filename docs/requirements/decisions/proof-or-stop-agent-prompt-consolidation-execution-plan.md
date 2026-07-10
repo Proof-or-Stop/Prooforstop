@@ -225,10 +225,20 @@ Rules:
 - Token/search metrics belong to routing and sample-flow evidence: number of
   candidate docs, `rg` query count, memory/playbook hit count, whether a full
   scan ran, and the recorded escalation reason if it did.
+- Default budget until a later story deliberately changes it:
+  `candidateSpecSet <= 8` documents, `rg` query count `<= 10`, and full
+  `decisions/*.md` scan `0` unless a recorded `scanEscalationReason` is present.
+- Baseline REVIEW speed/cost excludes evaluator opt-in. Browser/CLI evaluator
+  invocation count, token/time cost, and artifacts are reported separately so
+  optional product exercise does not hide the cost of the default reviewer set.
+- Default metric sink is CLI-owned routing/sample-flow evidence. Prompt prose may
+  mirror the numbers for humans, but M6 exit requires machine-readable metrics in
+  routing output, a sample-flow evidence artifact, or an explicitly named
+  replacement CLI artifact.
 
 This contract is not a runtime implementation by itself. M6 turns it into
-prompt and routing requirements; later stories decide the exact CLI field names
-and metric sink.
+prompt and routing requirements; later stories may rename fields only if the
+same machine-readable facts remain available.
 
 ## Target Role Map
 
@@ -237,7 +247,7 @@ The consolidated system should present the 16 prompts as four classes:
 | Class | Agents | Target state |
 |---|---|---|
 | Core lifecycle workers | `proof-or-stop-review-story-init`, `proof-or-stop-review-scope-plan`, `proof-or-stop-implementer`, `proof-or-stop-review-test-coverage`, `proof-or-stop-review-delivery` | Keep, update to current lifecycle and CLI-mediated evidence. |
-| REVIEW specialist lanes | `proof-or-stop-review-behavior`, `proof-or-stop-review-quality`, `proof-or-stop-review-docs`, `proof-or-stop-review-concept` | Keep, narrow responsibilities and remove duplicated doc-promise checks. |
+| REVIEW specialist lanes | Default: `proof-or-stop-review-behavior`, `proof-or-stop-review-quality`, `proof-or-stop-review-docs`; conditional-active: `proof-or-stop-review-concept` | Keep, narrow responsibilities and remove duplicated doc-promise checks. Do not route concept review by default without a rename/removal trigger. |
 | Product/evaluator/fold lanes | `proof-or-stop-evaluator`, `proof-or-stop-evaluator-cli`, `proof-or-stop-product-reviewer`, `proof-or-stop-implementation-reviewer` | Keep only with explicit advisory versus gate-evidence boundary; migrate or retire overlaps. |
 | Legacy compatibility prompts | `proof-or-stop-test-intent`, `proof-or-stop-test-case-reviewer`, `proof-or-stop-review-channel` | Mark legacy/retired or migrate to current `verificationIntent` / CLI-gate model. |
 
@@ -787,7 +797,7 @@ Important ledger rule:
 | `proof-or-stop-review-behavior` | REVIEW | Functional behavior and edge-case review. | Catches code that does not produce promised behavior. | Current diff, checklist title/userSees, saved scope artifact, relevant source files. | `review_run_start`, then `finding_add` or `review_pass_set`. | Active, needs overlap cleanup. | Ledger derives reviewer lane state from signed review run and finding/pass. | Does not own docs promises, full PLAN scope, UX scoring, or delivery closeout. |
 | `proof-or-stop-review-quality` | REVIEW | Code quality, maintainability, type safety, layering. | Catches dead code, unsafe casts, swallowed errors, and maintainability risks. | Current diff, changed files, source reads, narrow proof metadata context. | `review_run_start`, then `finding_add` or `review_pass_set`. | Active, needs duplicate doc-check removal. | Ledger derives reviewer lane state from signed review run and finding/pass. | Owns quality only; behavior correctness and docs drift belong elsewhere. |
 | `proof-or-stop-review-docs` | REVIEW | Docs/code consistency and docs promise verification. | Prevents docs from promising nonexistent commands/fields/behavior and prevents stale docs. | Current diff, changed symbols, changed docs, command/config/env anchors, related source files. | `review_run_start`, then `finding_add` or `review_pass_set`. | Active, should become sole REVIEW docs owner. | Ledger derives docs-review state from signed review run and finding/pass. | Owns REVIEW doc drift; delivery owns final delivery promise artifact. |
-| `proof-or-stop-review-concept` | REVIEW conditional | Concept deletion/rename residue scan. | Prevents stale concepts and retired terminology from surviving migrations. | Current diff, deleted/replaced concept terms, repository grep results. | `review_run_start`, then `finding_add` or `review_pass_set`. | Active conditional, needs trigger/overlap cleanup. | When no trigger exists, routing metadata records `not_routed` with reason; milestone rows use the real UX states only when a story owns concept work. | Only owns concept residue, not generic docs or quality review. |
+| `proof-or-stop-review-concept` | REVIEW conditional | Concept deletion/rename residue scan. | Prevents stale concepts and retired terminology from surviving migrations. | Current diff, deleted/replaced concept terms, repository grep results. | `review_run_start`, then `finding_add` or `review_pass_set`. | Conditional-active, not default-routed; needs trigger/overlap cleanup. | When no trigger exists, routing metadata records `not_routed` with reason; milestone rows use the real UX states only when a story owns concept work. | Only owns concept residue, not generic docs or quality review. |
 | `proof-or-stop-review-channel` | REVIEW replaced by CLI | Historical dispatch/channel evidence review. | Previously detected normal-channel main-agent self-writing. | Story/checklist/process events in old prompt. | Historically `finding_add`/`review_pass_set`; target is no LLM output. | Retired / CLI-replaced. | Routing metadata marks it retired/CLI-only; channel status comes from `lattice validate --channel`, not a milestone `done` row. | Isolated into CLI gate; no active reviewer overlap. |
 | `proof-or-stop-review-test-coverage` | REVIEW | `verificationIntent` to `verificationEvidence` coverage audit. | Ensures must intents have concrete evidence or waiver. | `storyId`, checklist, validation coverage output, evidence records. | `review_run_start`, then coverage findings or `review_pass_set`. | Active, needs first-command/CLI-shape hardening. | Ledger derives verification coverage state from review run plus validation evidence. | Sole owner of verification coverage; legacy test-case reviewer is not active. |
 | `proof-or-stop-review-delivery` | TEST / DONE closeout | Signed delivery promise and machine-test review. | Prevents false DONE and unsupported final delivery claims. | `storyId`, current diff, docs promises, tests/transcripts, source grep proof. | `delivery_check_set`, or refusal with explicit reason. | Active, needs docs/product boundary clarification. | Ledger derives delivery state from signed `delivery_check_set`; refusal maps to `blocked`. | Owns final delivery artifact; docs reviewer owns REVIEW doc drift. |
@@ -841,7 +851,7 @@ inventing new required fields where the CLI already has a schema.
 | Target status | Count | Agents |
 |---|---:|---|
 | Active lifecycle | 5 | `proof-or-stop-review-story-init`, `proof-or-stop-review-scope-plan`, `proof-or-stop-implementer`, `proof-or-stop-review-test-coverage`, `proof-or-stop-review-delivery` |
-| Active REVIEW specialist | 4 | `proof-or-stop-review-behavior`, `proof-or-stop-review-quality`, `proof-or-stop-review-docs`, `proof-or-stop-review-concept` |
+| Active REVIEW specialist | 3 default + 1 conditional | Default: `proof-or-stop-review-behavior`, `proof-or-stop-review-quality`, `proof-or-stop-review-docs`; conditional-active: `proof-or-stop-review-concept` |
 | Optional/advisory evaluator | 2 | `proof-or-stop-evaluator`, `proof-or-stop-evaluator-cli` |
 | Blocked fold/advisory decision | 1 | `proof-or-stop-product-reviewer` |
 | Fold/retire decided | 1 | `proof-or-stop-implementation-reviewer` |
@@ -972,6 +982,18 @@ Subprojects:
     two CLI patch releases have shipped, legacy writes become hard errors;
   - `agent_prompt --role=<legacy>` moves from warn+resolve to fail with a
     replacement role.
+- M0.5.8 Machine-define the migration scan scope used by M0.5.7:
+  - include all non-terminal story artifact stores: review runs, review passes,
+    findings, init-check, delivery-check, checklist verification evidence,
+    test evidence, evaluator evidence, process events, and any configured story
+    artifact store;
+  - include prompt registry metadata, prompt frontmatter, package prompt
+    registry, host manifests / adapter manifests, reviewer lane registry, INIT
+    required-agent registry, quorum / host-verdict readers, process-fact
+    registry, and static prompt assets under Codex / Claude / package templates;
+  - exclude terminal DONE / DISCARDED story evidence from blocking sunset
+    decisions. Terminal story evidence remains read-only historical evidence and
+    must stay readable through legacy alias normalization.
 
 Exit criteria:
 
@@ -1011,7 +1033,8 @@ Subprojects:
   `proof-or-stop-review-delivery`.
 - M1.3 Classify active REVIEW specialist prompts:
   `proof-or-stop-review-behavior`, `proof-or-stop-review-quality`,
-  `proof-or-stop-review-docs`, `proof-or-stop-review-concept`.
+  `proof-or-stop-review-docs`, and conditional-active
+  `proof-or-stop-review-concept`.
 - M1.4 Decide evaluator `evidenceMode` here, not in M7: raw evaluator JSON is
   advisory, while persisted `eval-evidence.json` from `evaluate_save` is the
   current structured sink. Only add a new sink if this command is intentionally
@@ -1021,6 +1044,10 @@ Subprojects:
 - M1.6 Classify `proof-or-stop-test-intent`,
   `proof-or-stop-test-case-reviewer`, and `proof-or-stop-review-channel` as
   legacy/retired unless migrated in later milestones.
+- M1.7 Decide `scope-check.openQuestions` gate semantics before prompt rewrites:
+  open questions are advisory/review context by default because they are outside
+  the current signature domain; they may block only after a structured
+  resolution command or signature-domain update makes the blocker tamper-evident.
 
 Exit criteria:
 
@@ -1196,9 +1223,15 @@ Subprojects:
   count, candidate docs count, `rg` query count, full-scan yes/no,
   `scanEscalationReason`, and structured skip reason. A skipped scan must state
   whether it was skipped due to candidate spec set, express/fast path, or
-  not-current-story scope.
+  not-current-story scope. Default budgets are `candidateSpecSet <= 8` docs and
+  `rg` query count `<= 10`; exceeding either budget requires the same structured
+  escalation reason discipline as a full decisions scan. Evaluator opt-in cost is
+  recorded separately from baseline REVIEW cost.
 - M6.8 Connect INIT, PLAN, and REVIEW prompts to bounded memory/playbook
   preflight without treating memory/playbook output as gate evidence.
+- M6.9 Require `reviewer_list` or equivalent routing output to expose the default
+  REVIEW lane cap, every conditional lane's routing reason, and every skipped
+  reviewer reason before M9 E2E speed comparisons.
 
 Exit criteria:
 
@@ -1209,6 +1242,9 @@ Exit criteria:
 - Fast-path stories show an explicit scope/evidence reason when review lanes are
   narrowed or skipped.
 - Full-scan trigger/skip metrics are available before M9 E2E rollout.
+- Default search budgets are machine-visible: `candidateSpecSet <= 8`, `rg`
+  query count `<= 10`, full-scan yes/no, `scanEscalationReason`, metric sink,
+  and evaluator opt-in cost are recorded.
 - REVIEW behavior pass/finding records show whether they used only
   `scope_check_save` + current diff + `userSees`, or escalated with a recorded
   full-scan reason.
@@ -1336,6 +1372,8 @@ Exit criteria:
 | Scope reviewer reports unrelated old decisions as current gaps | Fixtures include unrelated decisions docs and expect no REVIEW behavior finding. |
 | Memory/playbook recall is mistaken for proof | Tests or prompt snapshots assert memory/playbook preflight is labeled advisory, non-authoritative, and `gateEvidence=false`; no lifecycle gate consumes it as evidence. |
 | Memory no-hit causes unbounded scan | PLAN/REVIEW fixtures simulate no memory/playbook hit and require a bounded `candidateSpecSet` plus skip/escalation reason before any full decisions scan is allowed. |
+| Search budget silently expands | Fixture or snapshot asserts the default `candidateSpecSet <= 8`, `rg` query count `<= 10`, full-scan yes/no, `scanEscalationReason`, metric sink, and evaluator opt-in cost accounting are emitted. |
+| Alias sunset scan misses legacy evidence | Migration scan fixture includes non-terminal story artifact stores plus prompt registry/frontmatter, host manifests, reviewer/init/process-fact registries, package templates, and confirms terminal story evidence remains read-only historical evidence. |
 
 ## Suggested Final Prompt Set
 
@@ -1347,7 +1385,7 @@ later milestones migrate them:
 | Status | Agents |
 |---|---|
 | Active lifecycle | `proof-or-stop-review-story-init`, `proof-or-stop-review-scope-plan`, `proof-or-stop-implementer`, `proof-or-stop-review-test-coverage`, `proof-or-stop-review-delivery` |
-| Active REVIEW specialist | `proof-or-stop-review-behavior`, `proof-or-stop-review-quality`, `proof-or-stop-review-docs`, `proof-or-stop-review-concept` |
+| Active REVIEW specialist | Default: `proof-or-stop-review-behavior`, `proof-or-stop-review-quality`, `proof-or-stop-review-docs`; conditional-active: `proof-or-stop-review-concept` |
 | Optional/advisory evaluator | `proof-or-stop-evaluator`, `proof-or-stop-evaluator-cli` |
 | Blocked fold/advisory | `proof-or-stop-product-reviewer` |
 | Fold/retire | `proof-or-stop-implementation-reviewer` |
@@ -1383,7 +1421,7 @@ prompt a separate tiny story.
 | M3 duplicate responsibility split | 3 | Docs owner split; behavior/quality/concept cleanup and implementation-reviewer fold; delivery fallback contract. | Parallel with M2/M5/M6 once M1 status metadata exists. |
 | M4 CLI-mediated artifact discipline | 4 | Direct-write ban; direct-read replacement APIs; INIT self-check migration; channel retirement/static scans. | Internal order should stay mostly serial; can run beside M2/M3 if it does not touch the same prompt bodies. |
 | M5 runtime guide consistency | 2 | Guide insertion/sync; prompt registry smoke tests. | Parallel with M2/M3 after M1 metadata exists. |
-| M6 scope/spec scan narrowing | 1 | Candidate spec set, bounded memory/playbook preflight, skip reasons, token/search metrics, and full-scan trigger rules. | Parallel after M1, but before M8 routing help freezes. |
+| M6 scope/spec scan narrowing | 1 | Candidate spec set, bounded memory/playbook preflight, default search budgets, skip reasons, token/search metrics, and full-scan trigger rules. | Parallel after M1, but before M8 routing help freezes. |
 | M7 product/delivery/evaluator boundary | 1 | Product-reviewer fold/advisory decision and evaluator transcript boundary. | Parallel after evaluator `evidenceMode` is decided in M1. |
 | M8 routing/help/spawn guidance | 1 | Human and host routing output, skipped reviewer reasons, legacy alias guidance. | Late serial merge point after M2-M7 semantics stabilize. |
 | M9 E2E regression and rollout | 1 | Prompt registry, process-fact, adapter, sample lifecycle, speed metrics, and release/version checks if runtime changed. | Final serial closure. |
@@ -1456,8 +1494,9 @@ intermediate state.
 4. Should `proof-or-stop-evaluator` / `proof-or-stop-evaluator-cli` continue to
    use current `evaluate_save` / `eval-evidence.json`, or should a later story
    replace that sink with a more explicit evaluator-run artifact?
-5. What exact top-N document cap and metric sink should M6 use for
-   `candidateSpecSet` search accounting?
+5. Should the default M6 search budgets (`candidateSpecSet <= 8`, `rg` query
+   count `<= 10`) become project-configurable after the first implementation
+   story proves the routing/sample-flow metric sink?
 
 ## Completion Definition
 
