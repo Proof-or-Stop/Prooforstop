@@ -241,6 +241,31 @@
         "scanEscalationReason": null
       },
       "_hash": "ed10f43a7cd5617a78e53639993d620922851ecb4f979e6626b09e4c73d09bf6"
+    },
+    {
+      "id": "B-70e9:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 3 re-review post fix commit 4f5e980f1. F-005/F-006 fixes verified genuine, not smoke-test theater: read source directly. resolvePhase (host-run.ts) now takes an injected resolveStory seam with explicit --phase used AS-IS and NO store read; handler wires ctx.store.readStory (honors configured storyDir, fixes the exact regression F-005 described). defaultHostRunRunner switched from spawnSync to async child_process.spawn with live onChunk passthrough and a bounded UsageLineScanner (1MiB cap, honest truncated flag, never fabricates), matching F-006 contract. The 6 new smoke checks (3x F-005: explicit-phase-no-store-read, unknown-story-not-refused-when-phase-set, null-phase-falls-back-to-adhoc; 3x F-006: live-streaming-order via injectable sink asserting >=80ms gap before exit, exactly-once passthrough with buffered runner, oversized-line bounded-drop then unavailable never fabricated) bind 1:1 to the failure modes named in the F-005/F-006 finding text. Ran both npm smokes myself: test:host-run-usage = 33/33 pass, test:usage-sweep = 11/11 pass, matching expected counts exactly. Ran evidence_plan (not validate, owner-gated): summary missing 0, rerun 0, refreshOnly 0, fresh 42; buckets.fresh has exactly 42 entries; readinessReport.headHash 0138ea012 matches current HEAD. Independently re-derived checklist coverage: 7 items CHK-001 through CHK-007, 42 total must-priority intents, 0 gaps, 0 waivers, matches evidence_plan exactly. F-001 dismissal reviewed (userSees promise mismatch on reviewer_batch and review-escalation raw-CLI rewrite that was never true pre-story); correctly out of scope for test-coverage review since it is a product or doc-promise concern, not an evidence-coverage gap. No blocking coverage gaps found.",
+      "createdAt": "2026-07-10T09:04:02.524Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-013",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-70e9/checklist.json",
+          ".lattice/story/actives/B-70e9/findings.json",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-70e9/index.json",
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e37abdd98301472c5bc88fdbfa5157e5fc99591423e12590abf809580572adee"
     }
   ]
 }
