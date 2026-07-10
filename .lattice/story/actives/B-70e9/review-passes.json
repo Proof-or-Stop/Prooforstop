@@ -853,6 +853,25 @@
         "scanEscalationReason": null
       },
       "_hash": "f40af98fa5ea6c2e6db933d7cc622b87ecbfbc387cd2e4c31a6b5f3de48e14d8"
+    },
+    {
+      "id": "B-70e9:RP-035",
+      "agent": "lattice-review-concept",
+      "note": "Round 10 (commit b5df58d44d, F-017 fix): purely additive change — new reason constants CODEX_REVIEW_BUDGET_BLOCKED/CODEX_REVIEW_CONCURRENCY_CAP_EXCEEDED/CODEX_REVIEW_SLOT_REGISTRY_ERROR, new blockedLeafResult helper, and a lateral import of host-run admission primitives into codex-review-leaf.ts. Diff removed-lines check shows only structural refactor (runner call moved into try/finally; one test split a shared runner var into runner1/runner2 with call counters) — no renamed/removed identifiers, zero concept deletion/replacement. Cross-checked the new constants + blockedLeafResult helper are used consistently everywhere they appear, no orphaned or stale duplicate names. No concept deletion/replacement this round; concept residue check completed, no blocker.",
+      "createdAt": "2026-07-10T12:09:16.202Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-042",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "packages/main/src/tasks/usage-ledger-budget-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "66e59e97716f42e670eebb7929db66e97257e5770e0aed4cb007c884af0bb58a"
     }
   ]
 }
