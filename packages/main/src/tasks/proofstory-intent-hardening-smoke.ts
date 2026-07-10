@@ -917,6 +917,47 @@ try {
     false,
     'a multi-dot file name with a real extension (partial-recovery.test.mjs) is still not a shrinkage claim',
   );
+  // B-2c03 F-003: the narrowed "remaining <scope-noun>" trigger must accept
+  // hyphen/underscore connectors, not just whitespace — "remaining-scope items"
+  // is natural shrinkage prose and survives the sanitizer unstripped.
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Added label normalization.',
+    limitations: 'The remaining-scope items were pushed to a follow-up story.',
+  }));
+  const hyphenRemainingDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    hyphenRemainingDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    true,
+    'hyphen-connected "remaining-scope" phrasing is still a shrinkage claim (F-003)',
+  );
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Added label normalization.',
+    limitations: 'The remaining_work backlog was intentionally dropped.',
+  }));
+  const underscoreRemainingDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    underscoreRemainingDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    true,
+    'underscore-connected "remaining_work" phrasing is still a shrinkage claim (F-003)',
+  );
+
+  // PROBE (temporary, not committed): extension-collision bypass class.
+  // The curated CODE_FILE_EXTENSION_PATTERN list includes short common words
+  // that also read as ordinary prose (go, c, h, m, log, map, rb, cs, sh...).
+  // A hyphenated trigger word whose dotted suffix happens to be one of these
+  // common-word extensions is still fully erased before the shrinkage scan.
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Added label normalization.',
+    limitations: 'The excluded-approach.log entry was removed from this delivery.',
+  }));
+  const extCollisionLogDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  console.log('PROBE extCollisionLogDone gaps:', JSON.stringify(extCollisionLogDone.gaps));
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Added label normalization.',
+    limitations: 'The deferred-plan.go decision was made anyway, skipping the rest.',
+  }));
+  const extCollisionGoDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  console.log('PROBE extCollisionGoDone gaps:', JSON.stringify(extCollisionGoDone.gaps));
 
   // B-f7b3 CHK-004: a CONFIRMED milestone ledger that is empty OR whose rows are
   // all not_applicable (without a valid decision) must NOT vacuously satisfy the

@@ -1451,7 +1451,7 @@ export function evaluateDoneIntentEquivalence(
       input.summary?.outcomeDiff ?? '',
       input.summary?.limitations ?? '',
     ].join('\n'));
-    const claimsShrinkage = /\b(?:partial|narrow(?:er|ed)?|shrink(?:age|s|ing)?|out of scope|not covered|deferred|remaining\s+(?:work|scope|items?|cases?|tasks?|milestones?|features?|functionality|coverage|requirements?|deliverables?)|excluded)\b/i.test(narrowingText);
+    const claimsShrinkage = /\b(?:partial|narrow(?:er|ed)?|shrink(?:age|s|ing)?|out of scope|not covered|deferred|remaining[\s_-]+(?:work|scope|items?|cases?|tasks?|milestones?|features?|functionality|coverage|requirements?|deliverables?)|excluded)\b/i.test(narrowingText);
     if (claimsShrinkage && acceptedShrinkageMilestoneIds.length === 0) {
       gaps.push(gap(
         'unconfirmed_single_outcome_shrinkage',

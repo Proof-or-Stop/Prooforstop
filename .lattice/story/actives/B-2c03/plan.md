@@ -38,6 +38,9 @@ as `core/partial-done-recovery.ts` match `\bpartial\b` and block DONE with
 **NARROW** bare `remaining` to shrinkage-flavored phrases:
 `remaining` followed by a scope noun
 (`work|scope|item(s)|case(s)|task(s)|milestone(s)|feature(s)|functionality|coverage|requirement(s)|deliverable(s)`).
+(Revised after F-003) The connector between `remaining` and the scope noun is
+`[\s_-]+`, not just whitespace, so `remaining-scope` / `remaining_work`
+phrasings — which survive the sanitizer unstripped — still match.
 
 Rationale:
 - The observed false-positive class ("Two remaining suite failures are
