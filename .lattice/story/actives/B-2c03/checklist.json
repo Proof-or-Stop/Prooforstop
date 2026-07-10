@@ -143,6 +143,18 @@
           "materialHash": "47f3b5a4560f61c2cb528c1c98d478237ec717bde13e8860f90b9ec6f6cc8e0d",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "timestamp": "2026-07-10T14:40:12.732Z"
+        },
+        {
+          "intentRef": "regression-test-filename-summary:edge",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "Pre-fix RED captured: same command failed with AssertionError 'a summary naming core/partial-done-recovery.ts is not a shrinkage claim (B-d6a0 false positive)' at baseline head 2db38feff1; bound in red-evidence.json (target regression-test-filename-summary:happy, greenRelation same_acceptance).",
+          "headHash": "20b7df226036579e1a32027f01b6b1c9cb1fe807",
+          "materialHash": "47f3b5a4560f61c2cb528c1c98d478237ec717bde13e8860f90b9ec6f6cc8e0d",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-10T14:40:13.364Z"
         }
       ]
     },
