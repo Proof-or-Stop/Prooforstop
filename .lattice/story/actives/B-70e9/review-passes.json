@@ -2031,6 +2031,27 @@
         "scanEscalationReason": null
       },
       "_hash": "1d9801afef835109638505fd869e116300092ca64eeb6abeb241267172774170"
+    },
+    {
+      "id": "B-70e9:RP-082",
+      "agent": "lattice-review-docs",
+      "note": "Round 22 re-review of F-031 fix (commit d9a9203424). Verified the corrected F-028 clause in docs/host-run-usage.md against activity-policy.ts and cli-engine.ts: hooks gate (preCommand/postCommand) uses isReadOnlyCommand(cmd,parsed) only, never reads LATTICE_ACTIVITY_RECORD_READONLY, so the unqualified hooks clause remains correct; shouldWriteActivityLog is the sole call site reading that env var, so the new by-default/override qualifier is correctly scoped to the activity-log sentence only, not the hooks sentence. Cross-checked docs/CLI.md override reference for consistency (matches). F-031 resolution is honest: drift fixed, no new inaccuracy, no scope-creep. Fallback-1 full-text scan (doc-only diff, no new exported symbols). 0 findings this round.",
+      "createdAt": "2026-07-10T18:39:20.643Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-093",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/CLI.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/activity-policy.ts"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2e680dc51abda6c7f387cc77e64e1a4f11c2823b2c0a8051168529c11a1ccff5"
     }
   ]
 }
