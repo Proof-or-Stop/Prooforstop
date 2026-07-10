@@ -1987,6 +1987,31 @@
         "scanEscalationReason": null
       },
       "_hash": "f2af8798c4c6fa90bc7db85d10383b1e86c0bcc060660d65af1496c7073e7a93"
+    },
+    {
+      "id": "B-70e9:RP-080",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 22 re-review post d9a9203424 (F-031 docs-only fix, no test changes needed): all 7 checklist items done with full happy/edge/adversarial verificationIntent and matching verificationEvidence, evidence_plan fresh=42/missing=0/rerun=0, test:host-run-usage 65/65 pass, test:usage-sweep 18/18 pass. F-031 doc fix verified against activity-policy.ts and usage-sweep-smoke.ts (LATTICE_ACTIVITY_RECORD_READONLY override already covered by existing test). All findings F-001..F-031 dismissed/resolved; no blocker.",
+      "createdAt": "2026-07-10T18:38:54.379Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-092",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "199e81752cff966dfa99bc0954ee6e56fa648e1b3cbeed9900cf6f2119636438"
     }
   ]
 }
