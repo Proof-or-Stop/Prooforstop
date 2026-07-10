@@ -55,8 +55,20 @@
  *     only while owner.json still carries OUR token (a reclaimed+reacquired
  *     foreign lock survives a stale release).
  *     F-013: a dropped over-cap line forces an UNAVAILABLE final
- *     (usage_line_retention_truncated) for codex AND claude even when an
- *     EARLIER usage line was retained — never a stale provider-reported final.
+ *     (usage_line_retention_truncated) for codex AND claude when the drop
+ *     happened AFTER the retained usage line — never a stale provider-reported
+ *     final.
+ *     F-026: truncation poisoning is RELATIVE to the retained candidate — an
+ *     over-cap NON-usage line followed by a later valid usage-bearing line
+ *     records the provider-reported final honestly (the old GLOBAL flag forced
+ *     unavailable); candidate-then-drop still records unavailable (F-013), and
+ *     drop-only still records unavailable (F-006).
+ *     F-025: slot registry ownership — acquire mints a release token into the
+ *     slot file and releaseSlot unlinks ONLY on a token match, so a
+ *     reclaimed+reacquired slot survives the original holder's late release
+ *     (cap stays enforced); a LIVE-pid slot is never age-reclaimed (waiters
+ *     refuse at cap), a dead-pid slot reclaims at any age, and the mtime
+ *     backstop applies only to meta-less (crash-window / corrupt) slots.
  *   - CHK-003: the remaining lattice-initiated host spawns route through the same
  *     seam — autopilot claude repair (ledger ON adds --output-format json + records
  *     estimate/final rows with agentType autopilot-repair and an envelope-parsed
@@ -93,6 +105,7 @@ import { dirname, isAbsolute, join } from 'node:path';
 import {
   acquireHostRunSlot,
   defaultHostRunRunner,
+  releaseSlot,
   runHostRun,
   scanCodexTurnCompletedUsage,
   usageLineRetainerFor,
@@ -102,6 +115,7 @@ import {
   HOST_RUN_REFUSAL_EXIT_CODE,
   HOST_RUN_RETAINED_LINE_CAP,
   HOST_RUN_RETENTION_TRUNCATED_REASON,
+  UsageLineScanner,
   type HostRunArgs,
   type HostRunChunk,
   type HostRunPassthrough,
@@ -793,6 +807,91 @@ async function main(): Promise<void> {
   });
 
   // =========================================================================
+  // F-026: truncation poisoning must be RELATIVE to the retained candidate.
+  // Against the OLD code the scanner set a GLOBAL truncated flag on ANY
+  // over-cap line, so a huge NON-usage output line early in the stream forced
+  // an unavailable final even though a perfectly valid usage-bearing line was
+  // retained AFTER it. Only a drop after (or without) the retained candidate
+  // may poison the final (F-013/F-006 preserved).
+  // =========================================================================
+  check('F-026 scanner unit: drop-then-candidate clears the flag; candidate-then-drop sets it (F-013); drop-only stays set (F-006); a retained-nothing line never clears it', () => {
+    const retain = usageLineRetainerFor('codex');
+    const usageLine = JSON.stringify({ type: 'turn.completed', usage: { input_tokens: 1, cached_input_tokens: 0, output_tokens: 1 } });
+    const big = 'x'.repeat(HOST_RUN_RETAINED_LINE_CAP + 16);
+
+    const dropThenCandidate = new UsageLineScanner(retain);
+    dropThenCandidate.push(`${big}\n${usageLine}\n`);
+    dropThenCandidate.flush();
+    assert.equal(dropThenCandidate.truncated, false, 'a candidate retained AFTER the drop clears the poison');
+    assert.equal(dropThenCandidate.retainedText(), usageLine, 'the candidate is the retained parse target');
+
+    const candidateThenDrop = new UsageLineScanner(retain);
+    candidateThenDrop.push(`${usageLine}\n${big}\n`);
+    candidateThenDrop.flush();
+    assert.equal(candidateThenDrop.truncated, true, 'a drop AFTER the candidate stays poisoned (F-013)');
+
+    const dropOnly = new UsageLineScanner(retain);
+    dropOnly.push(`${big}\n`);
+    dropOnly.flush();
+    assert.equal(dropOnly.truncated, true, 'a drop with NO candidate stays poisoned (F-006)');
+    assert.equal(dropOnly.retainedText(), '', 'nothing retained');
+
+    const dropThenNoise = new UsageLineScanner(retain);
+    dropThenNoise.push(`${big}\n${JSON.stringify({ type: 'noise' })}\n`);
+    dropThenNoise.flush();
+    assert.equal(dropThenNoise.truncated, true, 'an under-cap NON-usage line never clears the poison');
+  });
+
+  await checkAsync('F-026 codex (the RED): an over-cap NON-usage line followed by a valid turn.completed -> provider-reported final with the candidate numbers (the OLD global flag forced unavailable here)', async () => {
+    const sub = freshRoot();
+    const padLen = HOST_RUN_RETAINED_LINE_CAP + 4096;
+    // A REAL child through the REAL default runner: a huge non-usage line first
+    // (dropped over-cap), then the valid final usage event, retained normally.
+    const script =
+      `var pad="a".repeat(${padLen});` +
+      'process.stdout.write(pad+"\\n");' +
+      'process.stdout.write(JSON.stringify({type:"turn.completed",usage:{input_tokens:21,cached_input_tokens:1,output_tokens:4}})+"\\n");';
+    const runner: HostRunRunner = (plan) => defaultHostRunRunner({ ...plan, command: process.execPath, argv: ['-e', script] });
+    const result = await runHostRun(baseArgs({ root: sub, host: 'codex' }), { runner });
+    assert.equal(result.spawned, true);
+    const records = readLedger(sub);
+    const final = records.find((r) => r.usage.source === 'provider-reported');
+    assert.ok(final, 'provider-reported final recorded — the retained candidate postdates the drop');
+    assert.equal(final!.usage.canonical?.input, 20, 'the honest candidate numbers land (uncached remainder 21-1)');
+    assert.equal(final!.usage.canonical?.output, 4);
+    assert.equal(records.some((r) => r.usage.source === 'unavailable'), false, 'NO unavailable row for a pre-candidate drop');
+    assert.equal(result.usageSummary.recorded, 'provider-reported', 'result surface reports the recorded usage');
+    assert.equal(result.usageSummary.input, 20);
+    assert.notEqual(result.usageSummary.reason, HOST_RUN_RETENTION_TRUNCATED_REASON, 'no truncation reason for a superseded drop');
+  });
+
+  await checkAsync('F-026 claude: an over-cap NON-usage line followed by a valid result envelope -> provider-reported final with the served model (mirror)', async () => {
+    const sub = freshRoot();
+    const padLen = HOST_RUN_RETAINED_LINE_CAP + 4096;
+    const envelope = JSON.stringify({
+      type: 'result',
+      result: 'the real final',
+      model: CLAUDE_MODEL,
+      usage: { input_tokens: 4200, output_tokens: 320, cache_creation_input_tokens: 0, cache_read_input_tokens: 1500 },
+    });
+    const script =
+      `var pad="a".repeat(${padLen});` +
+      'process.stdout.write(pad+"\\n");' +
+      `process.stdout.write(${JSON.stringify(envelope)}+"\\n");`;
+    const runner: HostRunRunner = (plan) => defaultHostRunRunner({ ...plan, command: process.execPath, argv: ['-e', script] });
+    const result = await runHostRun(baseArgs({ root: sub, host: 'claude' }), { runner });
+    assert.equal(result.spawned, true);
+    const records = readLedger(sub);
+    const final = records.find((r) => r.usage.source === 'provider-reported');
+    assert.ok(final, 'provider-reported final recorded — the retained envelope postdates the drop');
+    assert.equal(final!.usage.inputTokens, 4200);
+    assert.equal(final!.provider?.model, CLAUDE_MODEL, 'served model bound from the honest envelope');
+    assert.equal(records.some((r) => r.usage.source === 'unavailable'), false, 'NO unavailable row for a pre-candidate drop');
+    assert.equal(result.usageSummary.recorded, 'provider-reported');
+    assert.equal(result.usageSummary.input, 4200);
+  });
+
+  // =========================================================================
   // F-021: the usage summary must reflect the ACTUAL ledger append, not merely
   // that the provider envelope parsed. A corrupt ledger makes appendUsageRecord
   // THROW (swallowed by the never-throw seam) while the claude/codex stdout DOES
@@ -912,7 +1011,7 @@ async function main(): Promise<void> {
     // Slot released despite the broken sink: a fresh cap=1 admission succeeds.
     const dir = hostRunSlotsDir(sub);
     const after = acquireHostRunSlot(dir, 1, 6 * 60 * 60 * 1000, Date.now(), slotMeta('after-broken-sink'));
-    assert.equal(after, join(dir, 'slot-0.json'), 'concurrency slot was released (cap=1 re-admission succeeds)');
+    assert.equal(after?.file, join(dir, 'slot-0.json'), 'concurrency slot was released (cap=1 re-admission succeeds)');
   });
 
   // =========================================================================
@@ -1341,17 +1440,88 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
     assert.equal(result.blocked, false);
   });
 
-  await checkAsync('CHK-007b concurrency: stale-mtime slot (live pid) is reclaimed by the staleness backstop', async () => {
+  await checkAsync('F-025 live-holder protection: a LIVE-pid slot is NEVER age-reclaimed — the cap=1 waiter refuses fail-closed and the slot file survives (the OLD mtime rule reclaimed it here)', async () => {
     const sub = freshRoot();
     const dir = hostRunSlotsDir(sub);
-    const stale = seedSlot(dir, 0, process.pid);
-    const old = new Date(Date.now() - 7 * 60 * 60 * 1000); // 7h > 6h window
-    utimesSync(stale, old, old);
+    const held = seedSlot(dir, 0, process.pid); // a LIVE holder...
+    const old = new Date(Date.now() - 7 * 60 * 60 * 1000); // ...whose slot looks ancient (7h > the 6h window)
+    utimesSync(held, old, old);
     const sink: RunnerSink = { calls: 0, lastPlan: null };
-    const result = await runHostRun(baseArgs({ root: sub, host: 'codex' }), { runner: makeRunner({ stdout: CODEX_STDOUT }, sink) });
-    assert.equal(existsSync(stale), false, 'stale slot reclaimed by mtime backstop');
-    assert.equal(sink.calls, 1);
-    assert.equal(result.blocked, false);
+    const env = { LATTICE_USAGE_LEDGER: '1', LATTICE_HOST_RUN_MAX_CONCURRENT: '1' } as NodeJS.ProcessEnv;
+    const result = await runHostRun(baseArgs({ root: sub, host: 'codex', env }), { runner: makeRunner({ stdout: CODEX_STDOUT }, sink) });
+    assert.equal(sink.calls, 0, 'runner NOT invoked — the live slot was not stolen by age');
+    assert.equal(result.blocked, true, 'the waiter refuses at cap instead of reclaiming a live run');
+    assert.equal(result.refusalReason, 'concurrency_cap_exceeded');
+    assert.equal(result.liveRuns?.length, 1, 'the live holder still appears in the refusal live list');
+    assert.equal(existsSync(held), true, 'the live holder keeps its slot file');
+  });
+
+  await checkAsync('F-025 meta-less orphan backstop: a slot whose meta never landed (corrupt/empty file) is waited out while FRESH (cap=1 refusal) and reclaimed only PAST the mtime backstop', async () => {
+    const sub = freshRoot();
+    const dir = hostRunSlotsDir(sub);
+    mkdirSync(dir, { recursive: true });
+    const orphan = join(dir, 'slot-0.json');
+    writeFileSync(orphan, '', 'utf8'); // the crash-between-wx-create-and-meta-write window: no parseable meta
+    const env = { LATTICE_USAGE_LEDGER: '1', LATTICE_HOST_RUN_MAX_CONCURRENT: '1' } as NodeJS.ProcessEnv;
+
+    // FRESH meta-less slot: possibly a holder mid-way through its meta write —
+    // never stolen; the run refuses fail-closed.
+    const sinkFresh: RunnerSink = { calls: 0, lastPlan: null };
+    const fresh = await runHostRun(baseArgs({ root: sub, host: 'codex', env }), { runner: makeRunner({ stdout: CODEX_STDOUT }, sinkFresh) });
+    assert.equal(sinkFresh.calls, 0, 'a young meta-less slot is waited out, not stolen');
+    assert.equal(fresh.blocked, true);
+    assert.equal(existsSync(orphan), true, 'the young orphan survives');
+
+    // PAST the backstop: pid liveness is unknowable, so mtime age is the only
+    // signal left — the orphan is reclaimed and the run proceeds.
+    const old = new Date(Date.now() - 7 * 60 * 60 * 1000);
+    utimesSync(orphan, old, old);
+    const sinkOld: RunnerSink = { calls: 0, lastPlan: null };
+    const reclaimed = await runHostRun(baseArgs({ root: sub, host: 'codex', env }), { runner: makeRunner({ stdout: CODEX_STDOUT }, sinkOld) });
+    assert.equal(sinkOld.calls, 1, 'the aged orphan is reclaimed and the run proceeds');
+    assert.equal(reclaimed.blocked, false);
+    assert.equal(existsSync(orphan), false, 'the aged orphan slot was reclaimed (and released after the run)');
+  });
+
+  check('F-025 release-token guard: a reclaimed+reacquired slot survives the ORIGINAL holder\'s late release (token mismatch), the cap stays enforced, and a matching-token release still works', () => {
+    const sub = freshRoot();
+    const dir = hostRunSlotsDir(sub);
+    const staleMs = 6 * 60 * 60 * 1000;
+
+    // Matching token: acquire records pid + token on disk; release unlinks.
+    const happy = acquireHostRunSlot(dir, 1, staleMs, Date.now(), slotMeta('happy-holder'));
+    assert.ok(happy, 'admission returns the slot handle');
+    assert.equal(happy!.file, join(dir, 'slot-0.json'));
+    const onDiskHappy = JSON.parse(readFileSync(happy!.file, 'utf8')) as { pid?: number; token?: string };
+    assert.equal(onDiskHappy.pid, process.pid, 'the slot file records the holder pid');
+    assert.equal(onDiskHappy.token, happy!.token, 'the slot file records the acquire-minted token');
+    releaseSlot(happy!.file, happy!.token);
+    assert.equal(existsSync(happy!.file), false, 'matching token: release unlinks the slot');
+
+    // The F-025 bug scenario: original holder A is judged reclaimable by a racing
+    // contender (simulated unlink — e.g. a pid-death false positive) and a NEW
+    // holder B re-acquires the SAME fixed slot-0 path. A's LATE release must not
+    // delete B's live admission. Against the OLD blind-unlink releaseSlot, B's
+    // slot vanished here and the cap admitted a third run.
+    const a = acquireHostRunSlot(dir, 1, staleMs, Date.now(), slotMeta('original-holder'));
+    assert.ok(a, 'original holder admitted');
+    rmSync(a!.file, { force: true }); // the reclaimer's unlink
+    const b = acquireHostRunSlot(dir, 1, staleMs, Date.now(), slotMeta('new-holder'));
+    assert.ok(b, 'new holder re-acquires the reclaimed slot');
+    assert.equal(b!.file, a!.file, 'same fixed slot path, different owner');
+    assert.notEqual(b!.token, a!.token, 'each acquire mints a fresh token');
+    releaseSlot(a!.file, a!.token); // the ORIGINAL holder's late release
+    assert.equal(existsSync(b!.file), true, 'the new holder\'s slot survives the stale release');
+    const onDisk = JSON.parse(readFileSync(b!.file, 'utf8')) as { token?: string; agentType?: string };
+    assert.equal(onDisk.token, b!.token, 'the on-disk token is still the NEW holder\'s');
+    assert.equal(onDisk.agentType, 'new-holder', 'the on-disk meta is still the NEW holder\'s');
+    assert.equal(
+      acquireHostRunSlot(dir, 1, staleMs, Date.now(), slotMeta('third-run')),
+      null,
+      'cap=1 stays enforced under the surviving slot (the OLD code admitted this run)',
+    );
+    releaseSlot(b!.file, b!.token);
+    assert.equal(existsSync(b!.file), false, 'the new holder\'s own release still works');
   });
 
   await checkAsync('CHK-007b adversarial (F-003): cap=1 real contention — second admission fails while the first holds (index wx IS the cap decision)', async () => {
@@ -1363,7 +1533,7 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
     // in between) must be refused. Against the old check-then-acquire design both
     // would have been admitted (unique names always wx-succeed after a racy scan).
     const first = acquireHostRunSlot(dir, 1, staleMs, Date.now(), slotMeta('winner'));
-    assert.equal(first, join(dir, 'slot-0.json'), 'first admission wins slot-0');
+    assert.equal(first?.file, join(dir, 'slot-0.json'), 'first admission wins slot-0');
     const second = acquireHostRunSlot(dir, 1, staleMs, Date.now(), slotMeta('loser'));
     assert.equal(second, null, 'second admission refused while the first still holds (atomic, no TOCTOU)');
 
@@ -1393,7 +1563,7 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
 
     // Reclaimer A: observes staleness, unlink + wx re-create — wins slot-0.
     const a = acquireHostRunSlot(dir, 1, staleMs, Date.now(), slotMeta('reclaimer-a'));
-    assert.equal(a, file, 'reclaimer A wins the stale slot');
+    assert.equal(a?.file, file, 'reclaimer A wins the stale slot');
     // Reclaimer B races the SAME slot: its fresh pre-unlink staleness probe now
     // sees A's live fresh slot (NOT stale => it must not unlink A), and cap=1
     // leaves no other index => B loses.
@@ -1403,7 +1573,7 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
     // losing half of the reclaim race) fails EEXIST-atomically.
     const held = JSON.parse(readFileSync(file, 'utf8')) as { agentType?: string };
     assert.equal(held.agentType, 'reclaimer-a', 'winner slot content intact');
-    assert.equal(writeSlotFileExclusive(file, slotMeta('reclaimer-b')), false, 'losing wx re-create fails atomically');
+    assert.equal(writeSlotFileExclusive(file, { ...slotMeta('reclaimer-b'), token: 'reclaimer-b-token' }), false, 'losing wx re-create fails atomically');
   });
 
   check('CHK-007b edge: LATTICE_HOST_RUN_MAX_CONCURRENT unset/invalid falls back to 4; valid honored', () => {
@@ -1588,7 +1758,7 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
     assert.equal(ok.status, 'passed', 'the repair runs normally once a slot is free');
     assert.equal(slotHeldDuringRun, true, 'the repair HELD slot-0 while the runner executed');
     const after = acquireHostRunSlot(dir, 1, 6 * 60 * 60 * 1000, Date.now(), slotMeta('after-repair'));
-    assert.equal(after, join(dir, 'slot-0.json'), 'slot released after the repair (cap=1 re-admission succeeds)');
+    assert.equal(after?.file, join(dir, 'slot-0.json'), 'slot released after the repair (cap=1 re-admission succeeds)');
   });
 
   // =========================================================================
@@ -1877,7 +2047,7 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
     assert.equal(leaf.hostBVerdict.decision, 'pass', 'a normal admitted leaf still returns its real verdict');
     assert.equal(slotHeldDuringRun, true, 'the leaf HELD slot-0 while the runner executed');
     const after = acquireHostRunSlot(dir, 1, 6 * 60 * 60 * 1000, Date.now(), slotMeta('after-codex-leaf'));
-    assert.equal(after, join(dir, 'slot-0.json'), 'slot released after the leaf (cap=1 re-admission succeeds)');
+    assert.equal(after?.file, join(dir, 'slot-0.json'), 'slot released after the leaf (cap=1 re-admission succeeds)');
   });
 
   // =========================================================================

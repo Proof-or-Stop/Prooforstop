@@ -38,6 +38,7 @@
  */
 
 import { spawn } from 'node:child_process';
+import { randomUUID } from 'node:crypto';
 import {
   existsSync,
   mkdirSync,
@@ -138,11 +139,15 @@ export interface HostRunSpawnResult {
   exitCode: number;
   timedOut: boolean;
   /**
-   * True when a retained line exceeded the per-line cap and was dropped rather
-   * than retained. The usage final then records `unavailable` with reason
-   * `usage_line_retention_truncated` (F-013) — EVEN when an earlier usage line
-   * was retained, because the dropped line may have carried the real final
-   * numbers, so any retained text is a stale parse target, never a reliable one.
+   * True when an over-cap line was dropped AFTER (or without) the last retained
+   * usage-bearing line (F-013/F-026: truncation is tracked RELATIVE to the
+   * retained candidate). The usage final then records `unavailable` with reason
+   * `usage_line_retention_truncated`, because the dropped line may have carried
+   * the real final numbers and any retained text is then a stale parse target.
+   * A drop FOLLOWED by a retained usage-bearing line clears the flag: even if
+   * the dropped line carried usage, the LATER retained candidate supersedes it
+   * (last-usage-wins), so the candidate is recorded honestly instead of being
+   * poisoned by an unrelated earlier over-cap line.
    */
   retentionTruncated?: boolean;
   /**
@@ -254,7 +259,14 @@ export const HOST_RUN_REFUSAL_EXIT_CODE = 3;
 const HOST_RUN_SLOTS_RELATIVE = join('.lattice', 'usage', 'host-run-slots');
 
 export const HOST_RUN_MAX_CONCURRENT_DEFAULT = 4;
-/** Staleness backstop: a slot older than this is reclaimed even if its pid probe is ambiguous. */
+/**
+ * Orphan backstop: a slot whose meta is MISSING/CORRUPT (the holder crashed in
+ * the tiny window between the wx create and the meta bytes landing, or the file
+ * was externally damaged) is reclaimed once older than this. F-025: the age
+ * backstop applies ONLY to that meta-less case — a slot with a valid recorded
+ * pid is judged by pid liveness alone (dead => reclaim at any age; ALIVE =>
+ * never age-reclaimed, however long the host run takes).
+ */
 const HOST_RUN_SLOT_STALE_MS_DEFAULT = 6 * 60 * 60 * 1000; // 6h
 
 // ---------------------------------------------------------------------------
@@ -347,6 +359,57 @@ interface SlotMeta {
   agentType: string;
 }
 
+/**
+ * F-025: the on-disk slot record — the caller meta plus an acquire-minted
+ * ownership token (crypto.randomUUID), mirroring the F-018 usage-ledger lock
+ * owner.json. The token is what releaseSlot must present to unlink the file,
+ * so a slot that was reclaimed and re-acquired by a NEW holder survives the
+ * ORIGINAL holder's late release. Metadata-only; never copied into a ledger row.
+ */
+interface SlotFileMeta extends SlotMeta {
+  token: string;
+}
+
+/** What acquireHostRunSlot hands an admitted caller: the slot path + the release token (F-025). */
+export interface AcquiredHostRunSlot {
+  file: string;
+  token: string;
+}
+
+/** Result of reading a slot file's on-disk record for ownership/staleness decisions (F-025). */
+type SlotOccupant =
+  | { state: 'valid'; pid: number; token: string | null; meta: Record<string, unknown> }
+  | { state: 'corrupt' } // present but unreadable, unparseable, or missing a valid pid
+  | { state: 'missing' };
+
+/** Read + classify a slot file's occupant. Never throws. */
+function readSlotOccupant(file: string): SlotOccupant {
+  let raw: string;
+  try {
+    raw = readFileSync(file, 'utf8');
+  } catch (err) {
+    return (err as NodeJS.ErrnoException)?.code === 'ENOENT' ? { state: 'missing' } : { state: 'corrupt' };
+  }
+  let meta: Record<string, unknown>;
+  try {
+    const parsed = JSON.parse(raw) as unknown;
+    if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) return { state: 'corrupt' };
+    meta = parsed as Record<string, unknown>;
+  } catch {
+    return { state: 'corrupt' };
+  }
+  const pid = ownNumber(meta, 'pid');
+  if (pid === null) return { state: 'corrupt' };
+  return { state: 'valid', pid, token: ownString(meta, 'token'), meta };
+}
+
+/** Same occupant as judged earlier? (valid occupants must match pid AND token.) */
+function sameSlotOccupant(a: SlotOccupant, b: SlotOccupant): boolean {
+  if (a.state !== b.state) return false;
+  if (a.state === 'valid' && b.state === 'valid') return a.pid === b.pid && a.token === b.token;
+  return true;
+}
+
 /** Absolute host-run slot registry dir under a project root. */
 export function hostRunSlotsDir(root: string): string {
   return join(root, HOST_RUN_SLOTS_RELATIVE);
@@ -394,11 +457,13 @@ function ownNumber(obj: Record<string, unknown>, key: string): number | null {
 }
 
 /**
- * Scan the slot registry: reclaim (unlink) any slot whose pid is dead or whose
- * mtime is older than the staleness window, and return the live descriptors.
- * A missing dir yields an empty list (no dir is created here).
+ * Scan the slot registry: reclaim (unlink) any RECLAIMABLE slot — dead recorded
+ * pid (any age), or missing/corrupt meta past the mtime orphan backstop (F-025:
+ * a LIVE recorded pid is never reclaimed by age; see isSlotReclaimable) — and
+ * return the live descriptors. A missing dir yields an empty list (no dir is
+ * created here).
  *
- * B-70e9 F-003: this scan is REPORTING + staleness backstop only — the cap
+ * B-70e9 F-003: this scan is REPORTING + reclaim-backstop only — the cap
  * admission decision is acquireHostRunSlot's atomic per-index wx create, never
  * a count taken here (a scan-then-acquire count is exactly the TOCTOU that let
  * concurrent starts all pass). It reads EVERY live slot file, including any at
@@ -415,37 +480,26 @@ export function scanLiveSlots(dir: string, now: number, staleMs: number): HostRu
   for (const name of entries) {
     if (!name.endsWith('.json')) continue;
     const file = join(dir, name);
-    let mtimeMs: number;
-    try {
-      mtimeMs = statSync(file).mtimeMs;
-    } catch {
-      continue;
-    }
-    let meta: Record<string, unknown> = {};
-    try {
-      const parsed = JSON.parse(readFileSync(file, 'utf8')) as unknown;
-      if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) meta = parsed as Record<string, unknown>;
-    } catch {
-      meta = {};
-    }
-    const pid = ownNumber(meta, 'pid');
-    const ageMs = now - mtimeMs;
-    const staleByTime = !Number.isFinite(ageMs) || ageMs > staleMs;
-    const deadPid = pid === null || !isPidAlive(pid);
-    if (deadPid || staleByTime) {
-      try {
-        unlinkSync(file);
-      } catch {
-        // Best-effort reclaim; a racing reclaim by another run is fine.
+    const occupant = readSlotOccupant(file);
+    if (isSlotReclaimable(occupant, file, now, staleMs)) {
+      // F-025: re-verify the occupant immediately before the unlink so a racing
+      // reclaim-then-reacquire (a NEW holder now on this path) is never deleted.
+      if (occupant.state !== 'missing' && sameSlotOccupant(readSlotOccupant(file), occupant)) {
+        try {
+          unlinkSync(file);
+        } catch {
+          // Best-effort reclaim; a racing reclaim by another run is fine.
+        }
       }
       continue;
     }
+    if (occupant.state !== 'valid') continue; // young meta-less orphan: not live, not yet reclaimable
     live.push({
-      pid,
-      startedAt: ownString(meta, 'startedAt') ?? '',
-      host: ownString(meta, 'host') ?? '',
-      storyId: ownString(meta, 'storyId'),
-      agentType: ownString(meta, 'agentType') ?? '',
+      pid: occupant.pid,
+      startedAt: ownString(occupant.meta, 'startedAt') ?? '',
+      host: ownString(occupant.meta, 'host') ?? '',
+      storyId: ownString(occupant.meta, 'storyId'),
+      agentType: ownString(occupant.meta, 'agentType') ?? '',
     });
   }
   return live;
@@ -455,9 +509,10 @@ export function scanLiveSlots(dir: string, now: number, staleMs: number): HostRu
  * Attempt an ATOMIC exclusive create of a slot file (`wx` flag). Returns true when
  * this call created the file, false when the file already existed (the race
  * loser). Other fs errors propagate (an unwritable registry is a real failure).
- * The file content is metadata only and is NEVER copied into a ledger row.
+ * The file content (caller meta + the F-025 ownership token) is metadata only
+ * and is NEVER copied into a ledger row.
  */
-export function writeSlotFileExclusive(file: string, meta: SlotMeta): boolean {
+export function writeSlotFileExclusive(file: string, meta: SlotFileMeta): boolean {
   try {
     writeFileSync(file, JSON.stringify(meta), { encoding: 'utf8', flag: 'wx', mode: 0o600 });
     return true;
@@ -468,14 +523,30 @@ export function writeSlotFileExclusive(file: string, meta: SlotMeta): boolean {
 }
 
 /**
- * FRESH staleness probe for a single slot file, taken immediately before any
- * reclaim attempt (never from a cached earlier scan) so the check-to-unlink
- * window is a single stat/read-to-unlink syscall pair. A slot is stale when its
- * pid is dead (process.kill(pid,0) throws non-EPERM) or its mtime is older than
- * the staleness window. A file that vanished between the wx failure and this
- * probe is treated as reclaimable — the wx re-create below is what decides.
+ * Reclaimability judgment for an occupied slot (F-025, narrowing the old
+ * "dead pid OR old mtime" rule to the F-018 ownership doctrine):
+ *
+ *   - valid meta (a recorded pid): pid liveness ALONE decides. A DEAD pid is
+ *     reclaimable at any age; a LIVE pid is NEVER reclaimed by age — a long
+ *     host run legitimately outlives any window, and the old age rule reclaimed
+ *     exactly such live slots (re-issuing the same fixed slot-N path to a new
+ *     holder whom the original holder's late release then deleted, breaking the
+ *     cap). Accepted residual: a dead holder's pid may have been reused by an
+ *     unrelated live process (standard pid-reuse residual) — such a slot is
+ *     simply never age-reclaimed and waiters refuse at cap.
+ *   - missing/corrupt meta (the holder crashed between the wx create and the
+ *     meta bytes landing, or external damage): pid liveness is unknowable, so
+ *     the LATTICE_HOST_RUN_SLOT_STALE_MS mtime backstop is the only signal
+ *     left — reclaim only past that age (env semantics unchanged; its scope is
+ *     just narrowed to this meta-less window). A YOUNG meta-less slot is
+ *     waited out, never stolen.
+ *   - a file that VANISHED between the wx failure and the probe is treated as
+ *     reclaimable — the wx re-create is what decides.
  */
-function isSlotFileStale(file: string, now: number, staleMs: number): boolean {
+function isSlotReclaimable(occupant: SlotOccupant, file: string, now: number, staleMs: number): boolean {
+  if (occupant.state === 'missing') return true;
+  if (occupant.state === 'valid') return !isPidAlive(occupant.pid);
+  // Corrupt/meta-less: the mtime orphan backstop is the only remaining signal.
   let mtimeMs: number;
   try {
     mtimeMs = statSync(file).mtimeMs;
@@ -483,16 +554,7 @@ function isSlotFileStale(file: string, now: number, staleMs: number): boolean {
     return true;
   }
   const ageMs = now - mtimeMs;
-  if (!Number.isFinite(ageMs) || ageMs > staleMs) return true;
-  let meta: Record<string, unknown> = {};
-  try {
-    const parsed = JSON.parse(readFileSync(file, 'utf8')) as unknown;
-    if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) meta = parsed as Record<string, unknown>;
-  } catch {
-    meta = {};
-  }
-  const pid = ownNumber(meta, 'pid');
-  return pid === null || !isPidAlive(pid);
+  return !Number.isFinite(ageMs) || ageMs > staleMs;
 }
 
 /**
@@ -504,14 +566,18 @@ function isSlotFileStale(file: string, now: number, staleMs: number): boolean {
  * `cap` contenders can ever hold the `cap` fixed names, so N concurrent starts
  * can never all pass the way the old scan-then-unique-acquire TOCTOU allowed).
  *
- * Per-index staleness reclaim: when an index is occupied, a FRESH staleness
- * probe runs immediately before any reclaim. A stale slot (dead pid, or mtime
- * older than LATTICE_HOST_RUN_SLOT_STALE_MS) is reclaimed by unlink followed by
- * a NEW wx create. The wx decides the winner among racing reclaimers — a lost
- * race (EEXIST after our unlink, because another reclaimer re-created first)
- * just moves on to the next index; unlink+create is NEVER treated as guaranteed
- * admission. The mtime backstop re-reclaims anything this best-effort pass
- * misses.
+ * Per-index reclaim: when an index is occupied, a FRESH reclaimability probe
+ * runs immediately before any reclaim (F-025 semantics — see isSlotReclaimable:
+ * dead recorded pid at any age, or meta-less past the mtime orphan backstop; a
+ * LIVE recorded pid is never age-reclaimed). A reclaimable slot is reclaimed by
+ * re-verify -> unlink -> a NEW wx create: the occupant is RE-READ immediately
+ * before the unlink and the unlink is skipped when it no longer matches the
+ * judged occupant (F-018 pattern) — a racing reclaimer may have already won and
+ * a NEW holder re-created this slot, and unlinking then would delete the new
+ * holder's live admission. The wx decides the winner among racing reclaimers —
+ * a lost race (EEXIST after our unlink, because another reclaimer re-created
+ * first) just moves on to the next index; unlink+create is NEVER treated as
+ * guaranteed admission.
  *
  * Cap semantics under a mid-flight change: a cap RAISE simply exposes more
  * indexes to try; a cap LOWER means live slots at index >= cap still count as
@@ -519,9 +585,11 @@ function isSlotFileStale(file: string, now: number, staleMs: number): boolean {
  * only ever try slot-0..slot-(cap-1), so admissions converge onto the lowered
  * cap as the high-index runs drain.
  *
- * Returns the acquired slot path, or null when every index 0..cap-1 is held by
- * a live run (the caller refuses fail-closed). Slot content stays metadata-only
- * (pid/startedAt/host/storyId/agentType) and is never copied into a ledger row.
+ * Returns the acquired slot path PLUS the acquire-minted ownership token that
+ * releaseSlot must present (F-025), or null when every index 0..cap-1 is held
+ * by a live run (the caller refuses fail-closed). Slot content stays
+ * metadata-only (pid/startedAt/host/storyId/agentType + token) and is never
+ * copied into a ledger row.
  */
 export function acquireHostRunSlot(
   dir: string,
@@ -529,39 +597,64 @@ export function acquireHostRunSlot(
   staleMs: number,
   now: number,
   meta: SlotMeta,
-): string | null {
+): AcquiredHostRunSlot | null {
   mkdirSync(dir, { recursive: true });
   const boundedCap = Number.isFinite(cap) && Number.isInteger(cap) && cap > 0 ? cap : HOST_RUN_MAX_CONCURRENT_DEFAULT;
+  const token = randomUUID();
+  const record: SlotFileMeta = { ...meta, token };
   for (let index = 0; index < boundedCap; index++) {
     const file = join(dir, `slot-${index}.json`);
     // Free index: the exclusive create IS the atomic admission.
-    if (writeSlotFileExclusive(file, meta)) return file;
+    if (writeSlotFileExclusive(file, record)) return { file, token };
 
-    // Occupied: fresh staleness probe immediately before any reclaim.
-    if (!isSlotFileStale(file, now, staleMs)) continue;
+    // Occupied: fresh reclaimability probe immediately before any reclaim.
+    const judged = readSlotOccupant(file);
+    if (!isSlotReclaimable(judged, file, now, staleMs)) continue;
 
-    // Stale: reclaim = unlink (best-effort) then a fresh exclusive create.
-    try {
-      unlinkSync(file);
-    } catch {
-      // Another reclaimer unlinked first; the wx below still decides the winner.
+    // Reclaimable: re-verify -> unlink -> a fresh exclusive create. The re-read
+    // backs off when the occupant changed since we judged it (a racing reclaimer
+    // won and a NEW holder re-created the slot: unlinking now would delete that
+    // holder's live admission — the same ownership class F-025 closes on
+    // release). The remaining read -> unlink gap is the pid-reuse-class residual
+    // documented on releaseSlot.
+    if (judged.state !== 'missing') {
+      if (!sameSlotOccupant(readSlotOccupant(file), judged)) continue;
+      try {
+        unlinkSync(file);
+      } catch {
+        // Another reclaimer unlinked first; the wx below still decides the winner.
+      }
     }
-    if (writeSlotFileExclusive(file, meta)) return file;
+    if (writeSlotFileExclusive(file, record)) return { file, token };
     // Lost the reclaim race to another contender — move on to the next index.
   }
   return null;
 }
 
 /**
- * Best-effort slot release (null is a no-op). Exported so the autopilot claude
- * repair path (F-016) releases its admission slot the same way host_run does.
+ * Ownership-verified slot release (F-025, mirroring the F-018 ledger-lock
+ * release guard): read-verify-then-unlink. The slot file is unlinked ONLY while
+ * its on-disk token still matches the token minted at OUR acquire. A mismatch —
+ * or a missing/corrupt slot file — means the slot was legitimately reclaimed
+ * after we were judged dead/orphaned and may already be a NEW holder's live
+ * admission: return WITHOUT touching it (the old blind unlink deleted the new
+ * holder's slot and let subsequent runs bypass the cap). A null file/token is a
+ * no-op (the ledger-OFF paths). The tiny read-verify -> unlink window is the
+ * same pid-reuse-class residual documented on the usage-ledger lock (F-018);
+ * a slot leaked by a skipped release is reclaimed by pid-death (or, for
+ * meta-less files, the mtime orphan backstop).
+ *
+ * Exported so the autopilot claude repair path (F-016) and the codex review
+ * leaf (F-017) release their admission slots the same way host_run does.
  */
-export function releaseSlot(file: string | null): void {
-  if (!file) return;
+export function releaseSlot(file: string | null, token: string | null): void {
+  if (!file || !token) return;
   try {
+    const occupant = readSlotOccupant(file);
+    if (occupant.state !== 'valid' || occupant.token !== token) return;
     unlinkSync(file);
   } catch {
-    // Best-effort release; the staleness backstop reclaims a leaked slot.
+    // Best-effort release; pid-death / the orphan backstop reclaims a leak.
   }
 }
 
@@ -618,8 +711,9 @@ export const HOST_RUN_RETAINED_LINE_CAP = 1024 * 1024; // 1 MiB
 
 /**
  * F-013: the unavailable reason recorded when the scanner dropped an over-cap
- * line. Any retained stdout is then known-stale (the dropped line may have
- * carried the real final usage), so the final must never be provider-reported.
+ * line AFTER (or without) the retained usage-bearing candidate (F-026). The
+ * retained stdout is then known-stale (the dropped line may have carried the
+ * real final usage), so the final must never be provider-reported.
  */
 export const HOST_RUN_RETENTION_TRUNCATED_REASON = 'usage_line_retention_truncated';
 
@@ -627,14 +721,23 @@ export const HOST_RUN_RETENTION_TRUNCATED_REASON = 'usage_line_retention_truncat
  * A memory-BOUNDED line scanner. It reads host stdout chunk-by-chunk and keeps
  * only the LAST complete line for which `retain(line)` is true, capped at
  * HOST_RUN_RETAINED_LINE_CAP. A line that exceeds the cap (with or without a
- * terminating newline) is DROPPED and flagged truncated — never retained as a
- * bogus parse target and never accumulated in full (an over-cap line switches to
- * skip-until-newline mode, so a flooding host cannot exhaust memory).
+ * terminating newline) is DROPPED — never retained as a bogus parse target and
+ * never accumulated in full (an over-cap line switches to skip-until-newline
+ * mode, so a flooding host cannot exhaust memory).
+ *
+ * F-026 truncation semantics: the `truncated` flag tracks whether a drop
+ * happened SINCE the last retained candidate — set on every over-cap drop,
+ * CLEARED when a usage-bearing line is subsequently retained. At end-of-stream
+ * a true flag means the dropped line postdates (or there never was) the
+ * retained candidate, so it may have carried the real final numbers and the
+ * final records unavailable (F-013). A drop followed by a retained candidate
+ * records that candidate honestly — last-usage-wins makes the later retained
+ * line the freshest usage information regardless of what the dropped line held.
  */
 export class UsageLineScanner {
   private partial = '';
   private retained: string | null = null;
-  private truncatedFlag = false;
+  private truncatedSinceLastCandidate = false;
   private skipping = false;
 
   constructor(
@@ -652,7 +755,7 @@ export class UsageLineScanner {
         if (this.partial.length + data.length > this.cap) {
           // This line has already blown the cap without a newline: drop it and
           // skip until its newline (bounded memory).
-          this.truncatedFlag = true;
+          this.truncatedSinceLastCandidate = true;
           this.skipping = true;
           this.partial = '';
           return;
@@ -669,7 +772,7 @@ export class UsageLineScanner {
         continue;
       }
       if (this.partial.length + segment.length > this.cap) {
-        this.truncatedFlag = true;
+        this.truncatedSinceLastCandidate = true;
         this.partial = '';
         continue; // drop this over-cap line
       }
@@ -693,11 +796,18 @@ export class UsageLineScanner {
 
   private consider(line: string): void {
     if (line.length > this.cap) {
-      this.truncatedFlag = true;
+      this.truncatedSinceLastCandidate = true;
       return;
     }
     try {
-      if (this.retain && this.retain(line)) this.retained = line;
+      if (this.retain && this.retain(line)) {
+        this.retained = line;
+        // F-026: a freshly retained usage-bearing candidate supersedes any
+        // earlier over-cap drop (last-usage-wins) — clear the poison so the
+        // candidate is recorded honestly. Only a retained CANDIDATE clears it;
+        // ordinary under-cap non-usage lines leave the flag untouched.
+        this.truncatedSinceLastCandidate = false;
+      }
     } catch {
       // A retain predicate must never throw; ignore a malformed line.
     }
@@ -708,8 +818,9 @@ export class UsageLineScanner {
     return this.retained ?? '';
   }
 
+  /** F-026: true when an over-cap drop happened after (or without) the retained candidate. */
   get truncated(): boolean {
-    return this.truncatedFlag;
+    return this.truncatedSinceLastCandidate;
   }
 }
 
@@ -1089,8 +1200,8 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
     storyId: args.storyId,
     agentType: args.agentType,
   };
-  const slotFile = acquireHostRunSlot(dir, cap, staleMs, Date.now(), slotMeta);
-  if (slotFile === null) {
+  const slot = acquireHostRunSlot(dir, cap, staleMs, Date.now(), slotMeta);
+  if (slot === null) {
     const live = scanLiveSlots(dir, Date.now(), staleMs);
     const blockRow = recordConcurrencyBlock(args.root, ctx, handle, args.promptText, cap, opts, blockedProvider);
     return {
@@ -1123,7 +1234,8 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
   try {
     spawn = await invokeRunner(materializeLaunch(args));
   } finally {
-    releaseSlot(slotFile);
+    // F-025: token-verified release — never deletes a reclaimed+reacquired slot.
+    releaseSlot(slot.file, slot.token);
   }
 
   const summary = recordFinalForHost(args, ctx, handle, opts, spawn.stdout, spawn.retentionTruncated === true);
@@ -1159,10 +1271,13 @@ function recordFinalForHost(
   const estimateRecordId = handle?.estimateRecordId ?? null;
 
   try {
-    // F-013: when the scanner DROPPED an over-cap line, any retained stdout is
-    // known-stale — an EARLIER usage line, while the dropped line may have
-    // carried the real final numbers. Never parse it: record a provider-specific
-    // unavailable final instead of a stale provider-reported one. agy falls
+    // F-013/F-026: retentionTruncated is true only when an over-cap line was
+    // dropped AFTER (or without) the retained usage-bearing candidate — the
+    // dropped line may have carried the real final numbers, so any retained
+    // stdout is known-stale. Never parse it: record a provider-specific
+    // unavailable final instead of a stale provider-reported one. (A drop
+    // FOLLOWED by a retained candidate arrives here with the flag already
+    // cleared by the scanner, so the candidate records honestly.) agy falls
     // through to its existing (more specific) always-unavailable reason below.
     if (retentionTruncated && (args.host === 'codex' || args.host === 'claude')) {
       const providerName = hostProviderName(args.host);

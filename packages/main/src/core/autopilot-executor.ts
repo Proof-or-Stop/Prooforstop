@@ -32,6 +32,7 @@ import {
   resolveMaxConcurrent,
   resolveSlotStaleMs,
   HOST_RUN_REFUSAL_EXIT_CODE,
+  type AcquiredHostRunSlot,
 } from './host-run.js';
 
 export type AutopilotExecuteStepStatus = 'passed' | 'failed' | 'skipped';
@@ -343,7 +344,7 @@ export function runClaudeRepair(
   // F-016: pre-spawn admission — the SAME gates, in the SAME order, as
   // runHostRun (preflight -> budget -> concurrency -> spawn). ON-path only, so
   // the ledger-OFF repair stays byte-identical (no admission, no slot dirs).
-  let slotFile: string | null = null;
+  let slot: AcquiredHostRunSlot | null = null;
   if (ledgerOn) {
     // (1) Hard-budget admission (fail-closed; the blocked row is written inside
     // recordBudgetBlock, which never throws). A repair is always a claude
@@ -368,7 +369,7 @@ export function runClaudeRepair(
     const cap = resolveMaxConcurrent(env);
     let registryError: string | null = null;
     try {
-      slotFile = acquireHostRunSlot(hostRunSlotsDir(root), cap, resolveSlotStaleMs(env), Date.now(), {
+      slot = acquireHostRunSlot(hostRunSlotsDir(root), cap, resolveSlotStaleMs(env), Date.now(), {
         pid: process.pid,
         startedAt: opts.recordedAt,
         host: 'claude',
@@ -377,9 +378,9 @@ export function runClaudeRepair(
       });
     } catch (err) {
       registryError = err instanceof Error ? err.message : String(err);
-      slotFile = null;
+      slot = null;
     }
-    if (slotFile === null) {
+    if (slot === null) {
       if (registryError !== null) {
         // An honest registry-failure refusal: no concurrency_cap_exceeded row is
         // fabricated for a refusal that was not a cap decision.
@@ -407,9 +408,10 @@ export function runClaudeRepair(
       timeoutMS: positiveInteger(args.claudeTimeoutMS, DEFAULT_CLAUDE_TIMEOUT_MS),
     });
   } finally {
-    // F-016: release the admission slot exactly like host_run (best-effort; the
-    // staleness backstop reclaims a leak). null (ledger OFF) is a no-op.
-    releaseSlot(slotFile);
+    // F-016: release the admission slot exactly like host_run — token-verified
+    // (F-025; a reclaimed+reacquired slot is never deleted), best-effort (pid-
+    // death / the orphan backstop reclaims a leak). null (ledger OFF) is a no-op.
+    releaseSlot(slot ? slot.file : null, slot ? slot.token : null);
   }
 
   // Final row + excerpt. When the ledger is ON, parse the JSON envelope so (a) the

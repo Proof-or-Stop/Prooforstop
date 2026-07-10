@@ -46,6 +46,7 @@ import {
   resolveMaxConcurrent,
   resolveSlotStaleMs,
   HOST_RUN_REFUSAL_EXIT_CODE,
+  type AcquiredHostRunSlot,
 } from './host-run.js';
 
 // ── Verdict schema `lattice.codex_review_verdict.v1` ──────────────────────────
@@ -551,7 +552,7 @@ export async function runCodexReviewLeaf(
   // Acquired below in the ledger-ON path and released in the finally around the
   // runner. null (ledger OFF / no binding) means no admission ran — a strict
   // no-op, so an OFF/no-binding review stays byte-identical.
-  let admissionSlot: string | null = null;
+  let admissionSlot: AcquiredHostRunSlot | null = null;
   if (ledgerOn && ledger) {
     ledgerCtx = {
       storyId: opts.storyId,
@@ -642,9 +643,10 @@ export async function runCodexReviewLeaf(
     });
   } finally {
     // F-017: release the admission slot exactly like host_run / the autopilot
-    // repair (best-effort; the staleness backstop reclaims a leak). null (ledger
-    // OFF / no binding) is a no-op.
-    releaseSlot(admissionSlot);
+    // repair — token-verified (F-025; a reclaimed+reacquired slot is never
+    // deleted), best-effort (pid-death / the orphan backstop reclaims a leak).
+    // null (ledger OFF / no binding) is a no-op.
+    releaseSlot(admissionSlot ? admissionSlot.file : null, admissionSlot ? admissionSlot.token : null);
   }
 
   // B-70e9 CHK-003: unavailable final superseding the preflight estimate — the codex

@@ -47,11 +47,17 @@ usage recorded: provider=openai input=10202 cacheRead=11008 output=85 (recordId 
 
 Only a **bounded** amount of state is retained for usage parsing — the last
 usage-bearing line (codex `turn.completed` / the claude `result` envelope),
-capped at 1 MiB per line. A line over the cap is dropped (not retained) and the
+capped at 1 MiB per line. A line over the cap is dropped (not retained), so a
+flooding host can never exhaust memory or manufacture a count. Truncation
+poisoning is tracked **relative to the retained usage candidate**: when a drop
+happens **after** the retained usage line — or no usage line was ever
+retained — the dropped line may have carried the real final numbers, so the
 usage final records `unavailable` (reason `usage_line_retention_truncated`)
-rather than a fabricated **or stale** value — even when an earlier usage line
-was retained, since the dropped line may have carried the real final numbers —
-so a flooding host can never exhaust memory or manufacture a count.
+rather than a fabricated **or stale** value. A drop **followed by** a later
+valid usage-bearing line does not poison the run: last-usage-wins makes the
+later retained line the freshest usage information, so it is recorded honestly
+(e.g. one huge non-usage output line early in the stream no longer discards a
+perfectly good final usage event).
 
 ### Passthrough routing (text vs `--json`)
 
@@ -176,22 +182,32 @@ recorded as a `decision.kind=blocked` ledger row (diagnostics-honest).
   `reasonCode hard_budget_exceeded` before spawning.
 - **Host-run concurrency** — a slot registry under `.lattice/usage/host-run-slots/`
   holds **fixed numbered slots** `slot-0.json` .. `slot-(cap-1).json`, one per
-  live run (pid + `startedAt`). Admission is **atomic**: each index is tried in
-  order with an exclusive (`wx`) create, and winning an index *is* the
-  admission — only `cap` contenders can ever hold the `cap` fixed names, so
-  simultaneous starts cannot all slip past the cap (no check-then-acquire
-  race). When every index under `LATTICE_HOST_RUN_MAX_CONCURRENT` (default
-  **4**; unset / invalid / `<=0` falls back to the default; an explicit larger
-  value is honored) is held, the run refuses fail-closed with a non-zero exit,
-  prints the live-run list, and writes a blocked row with
-  `reasonCode concurrency_cap_exceeded`. Slots with a dead pid or an mtime
-  older than `LATTICE_HOST_RUN_SLOT_STALE_MS` (default **6h**) are reclaimed
-  in place (unlink + fresh exclusive create; a lost reclaim race just moves to
-  the next index), so a crashed run never wedges the cap. Raising the cap
-  mid-flight exposes more indexes; lowering it lets high-index live runs drain
-  (they still count in the reported live list) while new admissions only try
-  the lowered range. Slot release on exit is best-effort, with staleness as
-  the backstop.
+  live run (pid + `startedAt` + an acquire-minted **ownership token**).
+  Admission is **atomic**: each index is tried in order with an exclusive
+  (`wx`) create, and winning an index *is* the admission — only `cap`
+  contenders can ever hold the `cap` fixed names, so simultaneous starts
+  cannot all slip past the cap (no check-then-acquire race). When every index
+  under `LATTICE_HOST_RUN_MAX_CONCURRENT` (default **4**; unset / invalid /
+  `<=0` falls back to the default; an explicit larger value is honored) is
+  held, the run refuses fail-closed with a non-zero exit, prints the live-run
+  list, and writes a blocked row with `reasonCode concurrency_cap_exceeded`.
+  Slot reclaim is **ownership-aware** (mirroring the ledger-lock doctrine
+  below): a slot with a recorded **dead pid** is reclaimed at any age; a slot
+  whose metadata is **missing/corrupt** (the holder crashed between creating
+  the file and its metadata landing) is reclaimed once its mtime exceeds the
+  `LATTICE_HOST_RUN_SLOT_STALE_MS` orphan backstop (default **6h**); a slot
+  with a **live** recorded pid is **never reclaimed by age** — a long host run
+  keeps its admission and waiters refuse at cap. Reclaim re-verifies the
+  occupant immediately before the unlink and then re-creates exclusively (a
+  lost reclaim race just moves to the next index), so a crashed run never
+  wedges the cap and a racing reclaimer can never delete a slot a new holder
+  just re-acquired. Slot release on exit is best-effort and **token-guarded**:
+  the file is unlinked only while it still carries the releasing run's own
+  token, so a reclaimed-and-re-acquired slot survives the original holder's
+  late release (the accepted residual is the same pid-reuse class documented
+  for the ledger lock). Raising the cap mid-flight exposes more indexes;
+  lowering it lets high-index live runs drain (they still count in the
+  reported live list) while new admissions only try the lowered range.
 
 Blocked rows are provider-honest: a refusal records the provider of the host
 that was asked to run (`openai` for codex, `anthropic` for claude,
