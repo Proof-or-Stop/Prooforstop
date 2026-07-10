@@ -391,6 +391,61 @@
       },
       "readDiagnostics": [],
       "_hash": "50817859bc6f14097ed63d08ed32942fdc97b8169f65a784179d5a6fbab72e62"
+    },
+    {
+      "id": "B-4a78:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review RR-014: incremental context shows no changed files since prior test-coverage PASS; checked current M0-M5 validation evidence, readManifest/readLog gate smoke, non-reviewer read safety smoke, resolved findings, and parent-ledger-rollup PASS references. Focused guard and process-fact contract pass; no blocker.",
+      "createdAt": "2026-07-10T04:04:29.122Z",
+      "reviewRound": "2026-07-10T03:55:21.957Z",
+      "reviewRunId": "B-4a78:RR-014",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4a78/checklist.json",
+          ".lattice/story/actives/B-4a78/done-required-evidence.json",
+          ".lattice/story/actives/B-4a78/parent-ledger-rollup.json",
+          ".lattice/story/actives/B-4a78/plan.md",
+          ".lattice/story/actives/B-4a78/review-passes.json"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-review-behavior.md",
+          ".claude/agents/lattice-review-scope-plan.md",
+          ".lattice-codex/agents/lattice-review-behavior.md",
+          ".lattice-codex/agents/lattice-review-scope-plan.md",
+          ".lattice/story/actives/B-4a78/findings.json",
+          ".lattice/story/actives/B-4a78/review-runs.json",
+          ".lattice/story/actives/B-4a78/test-evidence.json",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "lattice.config.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/finding-verify.ts",
+          "packages/main/src/core/reviewer-read-evidence.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/scope-check.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/review-pass-discard-smoke.ts",
+          "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+          "packages/main/templates/agents/lattice-review-behavior.md",
+          "packages/main/templates/agents/lattice-review-scope-plan.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "b3fe63fe6bfc381cdfb4430a7b65ccd17708700f5fbf4d6e0250a2e723026b9a"
     }
   ]
 }
