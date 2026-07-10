@@ -2012,6 +2012,25 @@
         "scanEscalationReason": null
       },
       "_hash": "199e81752cff966dfa99bc0954ee6e56fa648e1b3cbeed9900cf6f2119636438"
+    },
+    {
+      "id": "B-70e9:RP-081",
+      "agent": "lattice-review-quality",
+      "note": "Round 22 (trivial, doc-only): verified d9a9203424 against docs/host-run-usage.md only. F-031 fix qualifies the usage_sweep activity-log claim with by-default + reference to LATTICE_ACTIVITY_RECORD_READONLY=1 override, matching shouldWriteActivityLog in activity-policy.ts. Hooks clause correctly left unqualified: cli-engine.ts gates hooks solely on isReadOnlyCommand, no readonly-override involvement. No code changed this round (metadata-only follow-ups). Re-ran npm run test:usage-sweep once: 18/18 checks passed. No findings.",
+      "createdAt": "2026-07-10T18:39:08.963Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-091",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/cli/activity-policy.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli-engine.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1d9801afef835109638505fd869e116300092ca64eeb6abeb241267172774170"
     }
   ]
 }
