@@ -139,11 +139,45 @@
       "title": "Add regression checks for legacy verification vocabulary in active prompts",
       "context": "M0.4 requires a mechanical check that active non-legacy prompts cannot use testIntent or TEST_CASE_REVIEW unless explicitly legacy-marked.",
       "relatedDocs": [
-        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md#M0---Baseline-Inventory-And-Lockfile"
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "node scripts/verify-proof-or-stop-prompt-baseline.mjs reports legacy verification vocabulary findings are baseline-classified and no unregistered active-prompt legacy vocabulary exists.",
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json"
+        ],
+        "test": [
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "package.json"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-004:happy:0",
+            "desc": "The verifier scans every prompt for testIntent, TEST_CASE, and TEST_CASE_REVIEW vocabulary and records all baseline findings with role, line, term, and classification.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-004:edge:0",
+            "desc": "The verifier permits only explicitly baseline-classified legacy/deprecation/context mentions and fails on any new unclassified legacy verification vocabulary in active non-legacy prompts.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-004:adversarial:0",
+            "desc": "The verifier treats lowercase/camelCase/phase-name legacy variants as in scope so a prompt cannot bypass the guard through spelling differences.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
