@@ -51,14 +51,17 @@ Rationale:
 
 ## Risk notes
 
-- (Revised after F-001) The sanitizer only strips path-shaped tokens:
-  backticked spans, tokens containing `/`, and dotted tokens
-  (`partial-done-recovery.ts`, `name.test.mjs`). Hyphen-only tokens are KEPT so
-  hyphenated trigger prose (`deferred-for-now`, `excluded-here`) still matches
-  its trigger segment. Residual accepted tradeoff: a bare extensionless
-  hyphenated file name (`partial-done-recovery` with no `.ts`/no directory)
-  still false-positives, but real summaries carry the extension or a directory
-  prefix, both of which are stripped.
+- (Revised after F-001 and F-002) The sanitizer only strips unambiguously
+  path-shaped tokens: backticked spans, tokens containing `/`, and dotted
+  tokens ending in a KNOWN FILE EXTENSION (`partial-done-recovery.ts`,
+  `name.test.mjs`). Hyphen-only tokens are KEPT (F-001) so hyphenated trigger
+  prose (`deferred-for-now`, `excluded-here`) still matches. Dotted tokens with
+  a non-extension suffix are KEPT (F-002) so `partial-release.rc1` /
+  `deferred-work.next` still match their trigger segment. Residual accepted
+  tradeoffs: a bare extensionless hyphenated file name
+  (`partial-done-recovery`) and a dotted identifier with a non-extension tail
+  (`config.partial.enabled`) can still false-positive — authors can backtick
+  such tokens or use the full path, both of which are stripped.
 - Guard-weakening risk is covered by adversarial smoke controls (prose claim
   next to a path token; `remaining <scope-noun>`; existing `partial` verdict
   control at the narrow-delivery case).

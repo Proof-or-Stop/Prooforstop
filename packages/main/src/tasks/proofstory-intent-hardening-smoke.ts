@@ -881,6 +881,42 @@ try {
     false,
     'a dotted file name without a directory prefix (partial-done-recovery.ts) is still not a shrinkage claim',
   );
+  // B-2c03 F-002: a hyphenated trigger word with a NON-extension dotted suffix
+  // (partial-release.rc1, deferred-work.next) is not a file name — only tokens
+  // ending in a real file extension may be stripped, so the trigger segment
+  // must survive and keep matching.
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Added label normalization.',
+    limitations: 'Support for partial-release.rc1 was dropped from this delivery.',
+  }));
+  const dottedSuffixDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    dottedSuffixDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    true,
+    'a hyphenated trigger word with a non-extension dotted suffix (partial-release.rc1) is still a shrinkage claim (F-002)',
+  );
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Added label normalization.',
+    limitations: 'The deferred-work.next backlog entries were not delivered.',
+  }));
+  const dottedSuffixDeferredDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    dottedSuffixDeferredDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    true,
+    'a hyphenated trigger word with a dotted non-extension suffix (deferred-work.next) is still a shrinkage claim (F-002)',
+  );
+  // Multi-dot file names with a real extension stay stripped.
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Renamed partial-recovery.test.mjs for clarity.',
+    actualTranscript: 'The helpers behave as before.',
+    outcomeDiff: 'No difference from the original request.',
+  }));
+  const multiDotFileDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    multiDotFileDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    false,
+    'a multi-dot file name with a real extension (partial-recovery.test.mjs) is still not a shrinkage claim',
+  );
 
   // B-f7b3 CHK-004: a CONFIRMED milestone ledger that is empty OR whose rows are
   // all not_applicable (without a valid decision) must NOT vacuously satisfy the

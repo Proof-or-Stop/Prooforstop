@@ -1376,19 +1376,27 @@ function confirmedShrinkageIds(decision: ScopeShrinkageDecisionData | null): Set
 // inside path-like/code-like tokens (core/partial-done-recovery.ts, `deferred`,
 // name.test.mjs) match as if they were prose claims. Strip those tokens before
 // the claimsShrinkage scan; replacement is a single space so surrounding prose
-// is preserved. Only path-shaped tokens are stripped — backticked spans, tokens
-// containing a slash, and dotted tokens (file names / dotted identifiers).
-// Hyphen-only tokens are kept (F-001): prose like "deferred-for-now" must keep
-// matching its trigger segment, and a hyphen-joined token can't be told apart
-// from prose by shape alone. Residual: a bare extensionless hyphenated file
-// name ("partial-done-recovery") still false-positives, but real summaries
-// carry the extension or a directory prefix, which this strips.
+// is preserved. Only unambiguously path-shaped tokens are stripped — backticked
+// spans, tokens containing a slash, and dotted tokens ENDING IN A KNOWN FILE
+// EXTENSION. Hyphen-only tokens are kept (F-001): prose like "deferred-for-now"
+// must keep matching its trigger segment. Dotted tokens with a non-extension
+// suffix are kept (F-002): "partial-release.rc1" / "deferred-work.next" are
+// prose-shaped, and stripping them would erase the trigger word. Residuals
+// (documented tradeoffs): a bare extensionless hyphenated file name
+// ("partial-done-recovery") and a dotted identifier with a non-extension tail
+// ("config.partial.enabled") can still false-positive — backtick such tokens
+// or use the full path, both of which this strips.
+const CODE_FILE_EXTENSION_PATTERN = 'ts|tsx|js|jsx|mjs|cjs|json|jsonl|md|mdx|txt|ya?ml|toml|ini|env|css|scss|less|html?|xml|svg|sh|zsh|bash|ps1|py|rb|rs|go|java|kt|kts|c|h|cc|cpp|hpp|cs|swift|m|mm|sql|csv|tsv|proto|lock|log|map|snap|pdf|png|jpe?g|gif|webp|ico|zip|tar|gz|tgz';
+const dottedFileTokenRegex = new RegExp(
+  `(?<![A-Za-z0-9_])[A-Za-z0-9_-]+(?:\\.[A-Za-z0-9_-]+)*\\.(?:${CODE_FILE_EXTENSION_PATTERN})(?![A-Za-z0-9_])`,
+  'gi',
+);
 function stripCodeLikeTokens(text: string): string {
   return text
     .replace(/```[\s\S]*?```/g, ' ')
     .replace(/`[^`\n]*`/g, ' ')
     .replace(/[^\s`]*\/[^\s`]*/g, ' ')
-    .replace(/\b[A-Za-z0-9_-]+(?:\.[A-Za-z0-9_-]+)+\b/g, ' ');
+    .replace(dottedFileTokenRegex, ' ');
 }
 
 export function evaluateDoneIntentEquivalence(
