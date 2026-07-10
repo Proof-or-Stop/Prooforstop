@@ -368,7 +368,7 @@
       "desc": "[codex host-B, cross_host_review B-70e9-xhr-r9] Cross-host Codex review bypasses the hard-budget guard: the usage-ledger binding in codex-review-leaf (~line 524) records a preflight estimate then immediately invokes the runner without recordBudgetBlock or slot admission, so cross_host_review launches an expensive codex subprocess even when LATTICE_HARD_BUDGET_TOKENS would block the same prompt through host_run/autopilot repair. Fix direction: after recordDispatchPreflight run the same budget admission with provider openai; if blocked, record the blocked row and return a synthesized blocked verdict without calling the runner; apply the host-run concurrency slot as well so the cap covers all lattice-initiated host spawns.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host-b",
       "createdAt": "2026-07-10T11:55:04.759Z",
@@ -380,7 +380,11 @@
         "packages/main/src/tasks/host-run-usage-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|codex-host-cross",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit b5df58d44d: codex-review-leaf ledger-ON path now runs the same admission chain as host_run/autopilot-repair (preflight -> recordBudgetBlock provider openai -> acquireHostRunSlot -> spawn -> releaseSlot in finally); refusal synthesizes a decision=blocked verdict (reason budget_blocked/concurrency_cap_exceeded, exitCode 3, no spawn, no fabricated pass/fail) which cross_host_review surfaces as hostB=blocked / joint=blocked; slot-registry errors fail closed without fake cap rows; budget-smoke fence gained the leaf as the fourth authorized recordBudgetBlock site. Failing-before proven with admission neutralized (all 3 new checks fail); host-run smoke 47/47, cross-host-review 24, budget 41, dispatch 40.",
+      "resolvedAt": "2026-07-10T12:07:49.207Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
