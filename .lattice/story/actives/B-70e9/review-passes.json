@@ -104,6 +104,30 @@
         "scanEscalationReason": null
       },
       "_hash": "43aa929bc51560301387c8609d5eb3ac6a7ea5b184a38efc8023fe0d008f4435"
+    },
+    {
+      "id": "B-70e9:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 42 must-priority verificationIntent rows across CHK-001..CHK-007 have valid non-failing verificationEvidence (0 gaps, 0 waivers). Independently re-verified: evidence_plan reports fresh=42/missing=0/rerun=0/refreshOnly=0 at head 672c8ca4c; re-ran both smokes clean (test:host-run-usage 25/25, test:usage-sweep 11/11); spot-checked all 4 CHK-004 docs_check commands directly, all reproduce pass. Confirmed F-002 resolution is genuine: diff a35e81a36..HEAD touches only checklist.json/findings.json/process-metrics.json as a pure hash re-stamp (materialHash/storyFilesHash/headHash/timestamp only), zero result/command field changes. F-001 remains dismissed (unrelated doc-wording finding).",
+      "createdAt": "2026-07-10T07:39:24.285Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-005",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-70e9/checklist.json",
+          ".lattice/story/actives/B-70e9/findings.json",
+          "docs/host-run-usage.md",
+          "packages/main/src/handlers/reviewer-batch.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-70e9/process-metrics.json",
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "83030696f1958320f91c1a56889918f3e7bf62f6fb7214db219d6469b10eb348"
     }
   ]
 }
