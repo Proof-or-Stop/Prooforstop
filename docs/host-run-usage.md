@@ -190,10 +190,17 @@ OFF the leaf stays byte-identical.
 
 Concurrent runs' ledger appends are serialized by a cross-process lock at the
 writer choke point (an atomic `llm-usage.jsonl.lock/` directory with a bounded
-wait and stale-lock reclaim), so parallel host runs can never interleave
-appends and break the ledger hash chain — a writer that cannot acquire the
-lock in time skips its append (an honest under-count) rather than corrupting
-the chain.
+wait), so parallel host runs can never interleave appends and break the ledger
+hash chain — a writer that cannot acquire the lock in time skips its append
+(an honest under-count) rather than corrupting the chain. Lock reclaim is
+ownership-aware: the acquirer records `owner.json` (holder pid + a unique
+release token) inside the lock dir, and a held lock is reclaimed only when
+that pid is dead, or — for an ownerless/corrupt lock, i.e. the holder crashed
+between creating the dir and recording ownership — when the dir mtime exceeds
+the `LATTICE_USAGE_LEDGER_LOCK_STALE_MS` orphan backstop. A live holder is
+never reclaimed no matter how long it holds the lock (slow filesystem, GC
+pause, suspension); release removes the lock only while `owner.json` still
+carries the releaser's own token.
 
 There is **no queuing** in this story: over the cap means refuse, not wait.
 

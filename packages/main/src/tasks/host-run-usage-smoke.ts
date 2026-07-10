@@ -30,9 +30,15 @@
  *     refusal, and with a real child that prints its process.cwd().
  *     F-012: cross-process append serialization — 6 REAL concurrent child
  *     processes append via the compiled writer with zero skips, no lost
- *     writes, and an intact hash chain; a stale (abandoned) lock dir is
- *     reclaimed; a held lock + bounded wait skips (throws) instead of
- *     appending off a stale predecessor (skip-not-corrupt).
+ *     writes, and an intact hash chain; a held lock + bounded wait skips
+ *     (throws) instead of appending off a stale predecessor (skip-not-corrupt).
+ *     F-018: ownership-aware lock reclaim — a LIVE holder (valid owner.json,
+ *     alive pid) is NEVER reclaimed regardless of lock age; a DEAD holder
+ *     (real exited child pid) is reclaimed immediately regardless of age; an
+ *     ownerless orphan (no owner.json, old mtime — the crash-before-owner-write
+ *     window) is reclaimed by the mtime backstop; release removes the lock
+ *     only while owner.json still carries OUR token (a reclaimed+reacquired
+ *     foreign lock survives a stale release).
  *     F-013: a dropped over-cap line forces an UNAVAILABLE final
  *     (usage_line_retention_truncated) for codex AND claude even when an
  *     EARLIER usage line was retained — never a stale provider-reported final.
@@ -116,10 +122,13 @@ import { adaptCodexTurnUsage } from '../core/usage-ledger/adapters/openai.js';
 import { payloadDigest } from '../core/usage-ledger/adapters/shared.js';
 import { mintAttemptId, mintLedgerCallId, mintRecordId } from '../core/usage-ledger/ids.js';
 import {
+  acquireLedgerLock,
   appendUsageRecord,
+  releaseLedgerLock,
   resolveLedgerLockPath,
   resolveLedgerPath,
   verifyLedgerChain,
+  USAGE_LEDGER_LOCK_OWNER_FILENAME,
 } from '../core/usage-ledger/writer.js';
 import type { UsageLedgerRecord, UsageLedgerRecordInput } from '../core/usage-ledger/record.js';
 
@@ -1610,14 +1619,15 @@ async function main(): Promise<void> {
     assert.equal(existsSync(resolveLedgerLockPath(sub)), false, 'the append lock is released after the run');
   });
 
-  check('F-012 stale lock reclaim: an abandoned lock dir (old mtime) is reclaimed — a single append succeeds and releases it', () => {
+  check('F-012/F-018 ownerless orphan reclaim: a lock dir with NO owner.json and an old mtime (crash-before-owner-write window) is reclaimed by the backstop — a single append succeeds and releases it', () => {
     const sub = freshRoot();
     const lockDir = resolveLedgerLockPath(sub);
+    // No owner.json: pid liveness is unknowable, so the mtime backstop applies.
     mkdirSync(lockDir, { recursive: true });
-    const old = new Date(Date.now() - 60_000); // older than the 30s stale default
+    const old = new Date(Date.now() - 60_000); // older than the 30s orphan backstop default
     utimesSync(lockDir, old, old);
     const res = appendUsageRecord(sub, minimalValidUsageRecord(), { env: ON });
-    assert.equal(res.written, true, 'the append reclaimed the abandoned lock and succeeded');
+    assert.equal(res.written, true, 'the append reclaimed the ownerless orphan lock and succeeded');
     assert.equal(verifyLedgerChain(resolveLedgerPath(sub)).length, 1, 'exactly one valid row');
     assert.equal(existsSync(lockDir), false, 'the reclaimed lock is released after the append');
   });
@@ -1627,7 +1637,10 @@ async function main(): Promise<void> {
     // Seed one real row so a corrupting append would have a predecessor to race.
     assert.equal(appendUsageRecord(sub, minimalValidUsageRecord(), { env: ON }).written, true);
     const lockDir = resolveLedgerLockPath(sub);
-    mkdirSync(lockDir, { recursive: true }); // a live holder (fresh mtime, NOT stale)
+    // An ownerless lock with a FRESH mtime (younger than the orphan backstop):
+    // possibly a holder mid-way between mkdir and its owner.json write — waited
+    // out, never reclaimed within the bounded budget.
+    mkdirSync(lockDir, { recursive: true });
     const env = {
       LATTICE_USAGE_LEDGER: '1',
       LATTICE_USAGE_LEDGER_LOCK_WAIT_MS: '50',
@@ -1638,8 +1651,101 @@ async function main(): Promise<void> {
       /skip-not-corrupt/,
       'the writer surfaces the skip through its existing throw path (seam callers catch -> honest under-count)',
     );
-    assert.equal(existsSync(lockDir), true, 'a live (non-stale) foreign lock is never stolen on a bounded-wait failure');
+    assert.equal(existsSync(lockDir), true, 'a fresh (non-orphaned) foreign lock is never stolen on a bounded-wait failure');
     assert.equal(verifyLedgerChain(resolveLedgerPath(sub)).length, 1, 'no row appended on the skip — the chain is intact');
+    rmSync(lockDir, { recursive: true, force: true });
+  });
+
+  check('F-018 live-holder protection: a LIVE pid with valid owner.json is never reclaimed regardless of lock age — bounded wait then skip-not-corrupt, lock + token intact', () => {
+    const sub = freshRoot();
+    // Seed one real row so a stolen lock would have a predecessor to corrupt.
+    assert.equal(appendUsageRecord(sub, minimalValidUsageRecord(), { env: ON }).written, true);
+    const lockDir = resolveLedgerLockPath(sub);
+    const ownerPath = join(lockDir, USAGE_LEDGER_LOCK_OWNER_FILENAME);
+    // A live holder: THIS process's pid, but the lock dir looks ancient. The
+    // pre-F-018 writer reclaimed on mtime age alone and stole exactly this
+    // lock (the holder was merely slow/suspended inside the critical section).
+    mkdirSync(lockDir, { recursive: true });
+    writeFileSync(
+      ownerPath,
+      JSON.stringify({ pid: process.pid, token: 'live-holder-token', acquiredAt: new Date().toISOString() }),
+      'utf8',
+    );
+    const old = new Date(Date.now() - 60_000);
+    utimesSync(lockDir, old, old);
+    const env = {
+      LATTICE_USAGE_LEDGER: '1',
+      LATTICE_USAGE_LEDGER_LOCK_WAIT_MS: '50',
+      LATTICE_USAGE_LEDGER_LOCK_STALE_MS: '1', // even an absurdly tiny backstop must not matter
+    } as NodeJS.ProcessEnv;
+    assert.throws(
+      () => appendUsageRecord(sub, minimalValidUsageRecord(), { env }),
+      /skip-not-corrupt/,
+      'the waiter waits out its bounded budget and skips — it never steals a live lock',
+    );
+    assert.equal(existsSync(lockDir), true, 'the live holder keeps its lock');
+    const owner = JSON.parse(readFileSync(ownerPath, 'utf8')) as { token?: string };
+    assert.equal(owner.token, 'live-holder-token', 'owner.json untouched (same token)');
+    assert.equal(verifyLedgerChain(resolveLedgerPath(sub)).length, 1, 'no row appended on the skip — the chain is intact');
+    rmSync(lockDir, { recursive: true, force: true });
+  });
+
+  await checkAsync('F-018 dead-holder reclaim: owner.json with a REAL dead pid is reclaimed immediately (age-independent) — the append succeeds', async () => {
+    const sub = freshRoot();
+    // A genuinely dead pid: spawn a child that exits at once and wait for it.
+    const deadPid = await new Promise<number>((resolve, reject) => {
+      const child = spawn(process.execPath, ['-e', 'process.exit(0)'], { stdio: 'ignore' });
+      child.on('error', reject);
+      child.on('exit', () => resolve(child.pid as number));
+    });
+    const lockDir = resolveLedgerLockPath(sub);
+    mkdirSync(lockDir, { recursive: true });
+    writeFileSync(
+      join(lockDir, USAGE_LEDGER_LOCK_OWNER_FILENAME),
+      JSON.stringify({ pid: deadPid, token: 'dead-holder-token', acquiredAt: new Date().toISOString() }),
+      'utf8',
+    );
+    // FRESH mtime + a huge orphan backstop: pid death ALONE authorizes reclaim.
+    const env = {
+      LATTICE_USAGE_LEDGER: '1',
+      LATTICE_USAGE_LEDGER_LOCK_STALE_MS: '3600000',
+    } as NodeJS.ProcessEnv;
+    const res = appendUsageRecord(sub, minimalValidUsageRecord(), { env });
+    assert.equal(res.written, true, 'the append reclaimed the dead holder lock and succeeded');
+    assert.equal(verifyLedgerChain(resolveLedgerPath(sub)).length, 1, 'exactly one valid row');
+    assert.equal(existsSync(lockDir), false, 'the reclaimed lock is released after the append');
+  });
+
+  check('F-018 release-token guard: release removes the lock only while owner.json still carries OUR token — a reclaimed+reacquired foreign lock survives a stale release', () => {
+    const sub = freshRoot();
+    const lockDir = resolveLedgerLockPath(sub);
+    mkdirSync(dirname(lockDir), { recursive: true });
+    const ownerPath = join(lockDir, USAGE_LEDGER_LOCK_OWNER_FILENAME);
+
+    // Happy path: acquire mints a token and records pid+token; a matching
+    // release removes the lock.
+    const ownToken = acquireLedgerLock(lockDir, ON);
+    assert.ok(ownToken, 'acquire returns a token');
+    const recorded = JSON.parse(readFileSync(ownerPath, 'utf8')) as { pid?: number; token?: string };
+    assert.equal(recorded.pid, process.pid, 'owner.json records the holder pid');
+    assert.equal(recorded.token, ownToken, 'owner.json records the minted token');
+    releaseLedgerLock(lockDir, ownToken as string);
+    assert.equal(existsSync(lockDir), false, 'matching token: release removes the lock');
+
+    // Guard: simulate "we were judged dead and reclaimed; a NEW holder
+    // re-acquired" by swapping owner.json to a foreign token. Our late release
+    // must NOT remove the foreign holder's lock.
+    const staleToken = acquireLedgerLock(lockDir, ON);
+    assert.ok(staleToken, 're-acquired for the guard scenario');
+    writeFileSync(
+      ownerPath,
+      JSON.stringify({ pid: process.pid, token: 'foreign-reclaimer-token', acquiredAt: new Date().toISOString() }),
+      'utf8',
+    );
+    releaseLedgerLock(lockDir, staleToken as string);
+    assert.equal(existsSync(lockDir), true, 'foreign lock dir survives our stale release');
+    const foreign = JSON.parse(readFileSync(ownerPath, 'utf8')) as { token?: string };
+    assert.equal(foreign.token, 'foreign-reclaimer-token', 'foreign owner.json survives with its token');
     rmSync(lockDir, { recursive: true, force: true });
   });
 

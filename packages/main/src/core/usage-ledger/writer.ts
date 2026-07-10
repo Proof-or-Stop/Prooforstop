@@ -23,7 +23,7 @@
  * estimate computation, no budget enforcement, no Authority receipt path.
  */
 
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import {
   appendFileSync,
   existsSync,
@@ -31,6 +31,8 @@ import {
   readFileSync,
   rmdirSync,
   statSync,
+  unlinkSync,
+  writeFileSync,
 } from 'node:fs';
 import { dirname, join } from 'node:path';
 
@@ -100,16 +102,38 @@ export function resolveLedgerPath(projectRoot: string): string {
 // creates the dir (lock acquired) or fails EEXIST (held) — there is no
 // in-between, so at most one process is inside the section at a time.
 // Dependency-free and synchronous, matching this module's contract.
+//
+// F-018: ownership-aware reclaim — never steal a live holder. The acquirer
+// records `owner.json` (holder pid + a unique release token) inside the lock
+// dir. A held lock is reclaimable ONLY when:
+//   (a) owner.json is present/valid and its pid is DEAD (process.kill(pid,0)
+//       throws ESRCH), regardless of lock age; or
+//   (b) owner.json is missing or unreadable/corrupt AND the dir mtime exceeds
+//       the orphan backstop (LATTICE_USAGE_LEDGER_LOCK_STALE_MS) — this covers
+//       exactly the mkdir-then-crash-before-owner-write window (plus external
+//       corruption), where pid liveness is unknowable.
+// A LIVE pid with a valid owner.json is NEVER reclaimed, no matter how old the
+// lock is: a holder stuck inside the critical section (large ledger read, slow
+// filesystem, GC pause, process suspension) keeps its lock; waiters wait out
+// their bounded budget and then skip-not-corrupt. Accepted residual: a dead
+// holder's pid may have been reused by an unrelated live process (standard
+// pid-reuse residual) — such a lock is simply never reclaimed and waiters skip;
+// the token guards RELEASE, not reclaim.
 // ---------------------------------------------------------------------------
 
 /** Suffix appended to the ledger path to form the lock directory. */
 export const USAGE_LEDGER_LOCK_SUFFIX = '.lock';
 
+/** Owner file written inside the lock dir by the acquirer (F-018). */
+export const USAGE_LEDGER_LOCK_OWNER_FILENAME = 'owner.json';
+
 /** Bounded total wait for the lock (env LATTICE_USAGE_LEDGER_LOCK_WAIT_MS). */
 const DEFAULT_LOCK_WAIT_MS = 5_000;
-/** Lock-dir age beyond which the holder is presumed crashed and the lock is
- * reclaimed (env LATTICE_USAGE_LEDGER_LOCK_STALE_MS). Appends hold the lock
- * for milliseconds, so 30s of age means a dead holder, not a slow one. */
+/** Orphan backstop (env LATTICE_USAGE_LEDGER_LOCK_STALE_MS). F-018: this age
+ * threshold applies ONLY to ownerless/corrupt locks — the holder crashed
+ * between mkdir and recording owner.json, so pid liveness is unknowable and
+ * mtime age is the only signal left. Locks with a valid owner.json are
+ * reclaimed on pid death alone and NEVER on age. */
 const DEFAULT_LOCK_STALE_MS = 30_000;
 /** Sleep between acquisition retries. */
 const LOCK_RETRY_SLEEP_MS = 25;
@@ -147,21 +171,142 @@ function sleepSync(ms: number): void {
   }
 }
 
+/** Result of reading a lock dir's owner.json (F-018). */
+type LockOwnerRead =
+  | { state: 'valid'; pid: number; token: string }
+  | { state: 'corrupt' } // present but unreadable or malformed
+  | { state: 'missing' };
+
+/** Read + parse `owner.json` from a lock dir. Never throws. */
+function readLockOwner(lockDir: string): LockOwnerRead {
+  const ownerPath = join(lockDir, USAGE_LEDGER_LOCK_OWNER_FILENAME);
+  let raw: string;
+  try {
+    raw = readFileSync(ownerPath, 'utf8');
+  } catch (error) {
+    return (error as NodeJS.ErrnoException)?.code === 'ENOENT'
+      ? { state: 'missing' }
+      : { state: 'corrupt' };
+  }
+  try {
+    const parsed = JSON.parse(raw) as { pid?: unknown; token?: unknown };
+    if (
+      typeof parsed?.pid === 'number' && Number.isInteger(parsed.pid) && parsed.pid > 0
+      && typeof parsed?.token === 'string' && parsed.token.length > 0
+    ) {
+      return { state: 'valid', pid: parsed.pid, token: parsed.token };
+    }
+  } catch {
+    // fall through: unparseable JSON is corrupt
+  }
+  return { state: 'corrupt' };
+}
+
 /**
- * Acquire the cross-process append lock. Returns true when acquired, false
- * when the bounded wait elapsed without acquisition. A lock dir whose mtime is
- * older than the stale threshold is treated as abandoned (holder crashed
- * before its `finally` release) and reclaimed; losing a reclaim race to
- * another writer is harmless (the loser just keeps retrying within budget).
+ * Record ownership inside a just-acquired lock dir. Returns the minted release
+ * token, or null when the write failed (the caller must give the dir back
+ * rather than hold an ownerless lock). Small and synchronous by contract.
  */
-function acquireLedgerLock(lockDir: string, env: NodeJS.ProcessEnv): boolean {
+function writeLockOwner(lockDir: string): string | null {
+  const token = randomUUID();
+  try {
+    writeFileSync(
+      join(lockDir, USAGE_LEDGER_LOCK_OWNER_FILENAME),
+      JSON.stringify({ pid: process.pid, token, acquiredAt: new Date().toISOString() }),
+      'utf8',
+    );
+    return token;
+  } catch {
+    return null;
+  }
+}
+
+/** True when the pid is (or may be) a running process. ESRCH => dead; EPERM => alive. */
+function isLockOwnerPidAlive(pid: number): boolean {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (error) {
+    return (error as NodeJS.ErrnoException)?.code === 'EPERM';
+  }
+}
+
+/**
+ * Remove an abandoned lock (owner.json + rmdir) after re-verifying that the
+ * owner state still matches what we judged reclaimable — if a concurrent
+ * reclaimer already won and a NEW holder re-acquired, its fresh owner.json no
+ * longer matches and we back off. The remaining re-verify -> unlink window is
+ * the same pid-reuse-class residual documented on the module header; losing
+ * any step of the race is harmless (the loser just retries within budget).
+ */
+function reclaimLedgerLock(lockDir: string, judged: LockOwnerRead): void {
+  try {
+    const current = readLockOwner(lockDir);
+    if (current.state !== judged.state) return;
+    if (current.state === 'valid' && judged.state === 'valid' && current.token !== judged.token) return;
+    if (current.state !== 'missing') {
+      try {
+        unlinkSync(join(lockDir, USAGE_LEDGER_LOCK_OWNER_FILENAME));
+      } catch {
+        // already unlinked by a racing reclaimer — rmdir below settles it
+      }
+    }
+    rmdirSync(lockDir);
+  } catch {
+    // lost the reclaim race to another writer (or a new holder's owner.json
+    // landed first: rmdir fails ENOTEMPTY) — harmless, retry within budget
+  }
+}
+
+/**
+ * F-018 stale evaluation for a held lock. Reclaims ONLY a provably-abandoned
+ * lock: valid owner + dead pid (any age), or ownerless/corrupt owner + dir
+ * mtime beyond the orphan backstop. A live holder is never touched.
+ */
+function maybeReclaimAbandonedLock(lockDir: string, staleMs: number): void {
+  const owner = readLockOwner(lockDir);
+  if (owner.state === 'valid') {
+    // A LIVE pid with a valid owner.json is NEVER reclaimed regardless of lock
+    // age — waiters keep waiting until their bounded budget expires, then
+    // skip-not-corrupt. (Pid-reuse can make a dead holder look alive; accepted
+    // residual — see the module header.)
+    if (isLockOwnerPidAlive(owner.pid)) return;
+    reclaimLedgerLock(lockDir, owner);
+    return;
+  }
+  // Ownerless or corrupt owner.json: pid liveness is unknowable (holder
+  // crashed between mkdir and the owner write, or the file was damaged). The
+  // mtime backstop is the only remaining signal; a YOUNG ownerless lock may be
+  // a holder mid-way through writing owner.json, so age must exceed the
+  // generous orphan threshold before it is reclaimed.
+  try {
+    const age = Date.now() - statSync(lockDir).mtimeMs;
+    if (age <= staleMs) return;
+  } catch {
+    return; // holder released between mkdir-fail and stat — retry
+  }
+  reclaimLedgerLock(lockDir, owner);
+}
+
+/**
+ * Acquire the cross-process append lock. Returns the minted owner token when
+ * acquired, or null when the bounded wait elapsed without acquisition.
+ * Reclaim is ownership-aware (F-018): see maybeReclaimAbandonedLock. Losing
+ * a reclaim/re-create race to another writer is harmless (the loser just
+ * keeps retrying within budget).
+ *
+ * Exported for the smoke suite (release-token-guard coverage); production
+ * callers go through appendUsageRecord only.
+ */
+export function acquireLedgerLock(lockDir: string, env: NodeJS.ProcessEnv): string | null {
   const waitMs = nonNegativeIntEnv(env, 'LATTICE_USAGE_LEDGER_LOCK_WAIT_MS', DEFAULT_LOCK_WAIT_MS);
   const staleMs = nonNegativeIntEnv(env, 'LATTICE_USAGE_LEDGER_LOCK_STALE_MS', DEFAULT_LOCK_STALE_MS);
   const deadline = Date.now() + waitMs;
   for (;;) {
+    let acquired = false;
     try {
       mkdirSync(lockDir); // atomic: creates OR fails EEXIST — never both
-      return true;
+      acquired = true;
     } catch (error) {
       if ((error as NodeJS.ErrnoException)?.code !== 'EEXIST') {
         // Unexpected fs failure (e.g. the usage dir vanished mid-flight):
@@ -172,31 +317,50 @@ function acquireLedgerLock(lockDir: string, env: NodeJS.ProcessEnv): boolean {
           // retry below
         }
       } else {
-        // Held by another process. Reclaim only when it looks abandoned.
-        try {
-          const age = Date.now() - statSync(lockDir).mtimeMs;
-          if (age > staleMs) {
-            try {
-              rmdirSync(lockDir);
-            } catch {
-              // lost the reclaim race to another writer — retry below
-            }
-          }
-        } catch {
-          // holder released between mkdir and stat — retry below
-        }
+        // Held by another process. Reclaim only when it is provably abandoned.
+        maybeReclaimAbandonedLock(lockDir, staleMs);
       }
     }
-    if (Date.now() >= deadline) return false;
+    if (acquired) {
+      const token = writeLockOwner(lockDir);
+      if (token !== null) return token;
+      // Could not record ownership (e.g. disk full): give the dir back rather
+      // than hold an ownerless lock that only the mtime backstop could clear.
+      try {
+        rmdirSync(lockDir);
+      } catch {
+        // best-effort — the backstop covers a leak here
+      }
+    }
+    if (Date.now() >= deadline) return null;
     sleepSync(LOCK_RETRY_SLEEP_MS);
   }
 }
 
-function releaseLedgerLock(lockDir: string): void {
+/**
+ * Release the lock ONLY while owner.json still carries OUR token (F-018
+ * read-verify-then-delete). If the token differs — or the owner file is gone —
+ * someone legitimately reclaimed the lock after judging us dead (a pid-death
+ * false positive, e.g. pid probe raced our exit path) and may already hold a
+ * fresh lock: do NOT remove theirs; just return. The tiny check-then-delete
+ * window between the read and the unlink is the same pid-reuse-class residual
+ * documented on the module header.
+ *
+ * Exported for the smoke suite (release-token-guard coverage); production
+ * callers go through appendUsageRecord only.
+ */
+export function releaseLedgerLock(lockDir: string, token: string): void {
   try {
+    const owner = readLockOwner(lockDir);
+    if (owner.state !== 'valid' || owner.token !== token) return;
+    try {
+      unlinkSync(join(lockDir, USAGE_LEDGER_LOCK_OWNER_FILENAME));
+    } catch {
+      // already gone — proceed to the rmdir
+    }
     rmdirSync(lockDir);
   } catch {
-    // Best-effort: a stale-reclaimer may have already removed it. Never let a
+    // Best-effort: a reclaimer may have already removed it. Never let a
     // release failure mask a successful append.
   }
 }
@@ -249,11 +413,14 @@ export interface AppendOptions {
  *   - computes `recordHash`, chains `previousRecordHash` from the prior line
  *     (genesis = null), overwriting any caller-supplied integrity so a caller
  *     cannot forge or inject a hash;
- *   - F-012: serializes the read-last-hash -> append section behind a
+ *   - F-012/F-018: serializes the read-last-hash -> append section behind a
  *     cross-process mkdir lock (sibling `llm-usage.jsonl.lock/` dir; bounded
- *     wait LATTICE_USAGE_LEDGER_LOCK_WAIT_MS, stale reclaim
- *     LATTICE_USAGE_LEDGER_LOCK_STALE_MS); on bounded-wait exhaustion it
- *     THROWS (skip-not-corrupt) instead of appending off a stale predecessor;
+ *     wait LATTICE_USAGE_LEDGER_LOCK_WAIT_MS). Reclaim is OWNERSHIP-AWARE:
+ *     the acquirer records owner.json (pid + release token); a held lock is
+ *     reclaimed only on holder pid death, or — for ownerless/corrupt locks —
+ *     past the LATTICE_USAGE_LEDGER_LOCK_STALE_MS orphan backstop; a live
+ *     holder is never stolen. On bounded-wait exhaustion it THROWS
+ *     (skip-not-corrupt) instead of appending off a stale predecessor;
  *   - appends one newline-terminated JSON line; never edits prior lines.
  */
 export function appendUsageRecord(
@@ -284,7 +451,8 @@ export function appendUsageRecord(
   // section (read last line -> finalize integrity -> append) is held.
   const env = options.env ?? process.env;
   const lockDir = `${ledgerPath}${USAGE_LEDGER_LOCK_SUFFIX}`;
-  if (!acquireLedgerLock(lockDir, env)) {
+  const lockToken = acquireLedgerLock(lockDir, env);
+  if (lockToken === null) {
     // F-012 tradeoff (skip-not-corrupt): after the bounded wait we REFUSE to
     // append rather than write a row chained off a possibly-stale predecessor —
     // a stale-predecessor append is exactly the chain corruption this lock
@@ -324,7 +492,7 @@ export function appendUsageRecord(
 
     return { written: true, record: finalized, path: ledgerPath };
   } finally {
-    releaseLedgerLock(lockDir);
+    releaseLedgerLock(lockDir, lockToken);
   }
 }
 
