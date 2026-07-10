@@ -70,7 +70,31 @@
       "context": "scope-plan and REVIEW-phase reviewer templates must instruct submitting the structured field (B-cee5 bounded-contract language already exists in the templates); a missing submission must surface as a gate rejection, not a silent pass.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Reviewer prompts show the required readManifest object shape and explain scanEscalationReason before the reviewer submits evidence.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Scope-plan and REVIEW reviewer prompts include the exact readManifest shape and instructions for filesReadFully, filesTriagedByName, and scanEscalationReason.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Prompt text preserves bounded-scan escalation wording and does not tell reviewers to use memory or playbook output as gate evidence.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A reviewer evidence path without readManifest still fails at command validation even if prompt prose is present.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
