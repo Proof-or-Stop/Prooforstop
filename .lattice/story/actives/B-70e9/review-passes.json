@@ -1423,6 +1423,25 @@
         "scanEscalationReason": null
       },
       "_hash": "1b59d0705cd0f2a64099d770f273e9d97ecddbce7655485b872d8c5c41bc816b"
+    },
+    {
+      "id": "B-70e9:RP-060",
+      "agent": "lattice-review-concept",
+      "note": "Round 17 (post F-024 fix, commit 2216ff5104): diff limited to handlers/host-run.ts, tasks/host-run-usage-smoke.ts, docs/host-run-usage.md. No concept was deleted or replaced en masse - purely additive bug-fix extending the existing F-020/F-023 EPIPE-window pattern: stdoutBroken is a NEW flag added alongside the pre-existing stderrBroken (not a replacement); pendingWrites/drainPending/DRAIN_CAP_MS are new additions; comments reworded in place but asyncStreamError/recordStreamError/emitStderr/passthrough concepts are retained, not renamed. No en-masse deletion/rename pattern to grep for. Verified new identifiers (DRAIN_CAP_MS, pendingWrites, drainPending, stdoutBroken, stderrBroken) are implemented in handlers/host-run.ts and tsc --noEmit passes clean, so the docs/host-run-usage.md clause is not doc-promise-undelivered. No blocker.",
+      "createdAt": "2026-07-10T14:45:55.297Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-071",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/handlers/host-run.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "de95e40c135b7af4e6cc2d1cc665d0a68ba9aae5892d755e1569cad9f2318dfe"
     }
   ]
 }
