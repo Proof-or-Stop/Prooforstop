@@ -1,0 +1,50 @@
+{
+  "storyId": "B-2861",
+  "mode": "enforce",
+  "allowedModify": [],
+  "allowedCreate": [
+    "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+  ],
+  "allowedTest": [],
+  "protectedFiles": [
+    "packages/main/src/**",
+    "packages/main/tests/**",
+    "docs/CLI.md",
+    "AGENTS.md",
+    "CLAUDE.md"
+  ],
+  "explicitExcludes": [
+    "docs/story/**",
+    "tests/fixtures/**",
+    ".omx/**"
+  ],
+  "scopeChangeReason": "B-2861 is a document-review story. Only the target Proof-or-Stop execution-plan markdown may be created/modified; code and CLI docs are read-only evidence sources.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "These ProofStory metadata artifacts were created by required PLAN-to-DEV contract commands for this document review story; they are lifecycle metadata, not runtime or product code expansion.",
+      "timestamp": "2026-07-09T15:48:51.075Z",
+      "paths": [
+        ".lattice/story/actives/B-2861/intent-collision.json",
+        ".lattice/story/actives/B-2861/original-intent-snapshot.json",
+        ".lattice/story/actives/B-2861/proofstory.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-2861/intent-collision.json",
+        ".lattice/story/actives/B-2861/original-intent-snapshot.json",
+        ".lattice/story/actives/B-2861/proofstory.json"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "28db9ce6af82553865083608d70ac30b95492c21",
+      "materialHash": "2129600913e88693d4e5986538beca1b15432d378b1fb18b9b126d64d6e96cdb",
+      "anchors": [
+        "proofstory_metadata",
+        "plan_dev_contract_artifacts"
+      ]
+    }
+  ],
+  "createdAt": "2026-07-09T15:29:22.360Z",
+  "updatedAt": "2026-07-09T15:48:51.075Z"
+}
