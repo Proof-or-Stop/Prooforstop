@@ -1572,6 +1572,36 @@
         "scanEscalationReason": null
       },
       "_hash": "b47d47d5ca6393e36675366fb5b937a5afb8b25a87ec8639040262fbbb2da451"
+    },
+    {
+      "id": "B-70e9:RP-066",
+      "agent": "lattice-review-quality",
+      "note": "Round 18 re-review of F-025/F-026 fix (387b0ad3a2). Scrutinized: token verify windows in acquireHostRunSlot/scanLiveSlots/releaseSlot (re-verify-then-unlink always immediately precedes the syscall, sameSlotOccupant correctly compares pid+token for valid occupants and state-only for missing/corrupt); scanLiveSlots reporting semantics after the narrowing (never surfaces token, correctly reports legacy token-less live slots, reclaim-then-report loop correctly skips reclaimed entries); legacy token-less slot handling (readSlotOccupant returns token:null for pre-fix meta, exercised by the seedSlot smoke helper and the live-holder-protection test, reclaim/report logic is token-independent so no special-casing needed and none is missing); all three caller sites (host-run.ts:1238, autopilot-executor.ts:414, codex-review-leaf.ts:649) thread {file,token} consistently via the new AcquiredHostRunSlot type, no leftover single-arg releaseSlot calls anywhere in src; UsageLineScanner truncatedSinceLastCandidate set/clear sites (set on every over-cap drop at both the no-newline and newline branches, cleared only when consider() actually retains a usage-bearing candidate, ordinary non-usage lines and drop-only leave it untouched) matching the documented F-013/F-026 last-usage-wins semantics; docs/host-run-usage.md prose for both fixes matches code exactly (pid-liveness-only reclaim for valid meta, mtime backstop scoped to missing/corrupt meta, token-guarded release, candidate-relative truncation). No dead code, no as-any, no empty catches (all catches carry an explaining comment consistent with the best-effort doctrine) in the touched files. npm run build clean. test:host-run-usage 61/61, test:usage-sweep 17/17, cross-host-review-smoke 24/24, autopilot-v2-reliability-smoke PASS. Zero open findings across all 25 story findings (all resolved with strong evidence). No blocking issues found.",
+      "createdAt": "2026-07-10T15:20:26.435Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-075",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/usage-ledger/adapters/openai.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/core/usage-ledger/writer.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9eeeee5b53effc0e602a5db7ef3f78058345376549ecd6538216759e98ad2238"
     }
   ]
 }
