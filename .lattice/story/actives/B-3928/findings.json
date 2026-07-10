@@ -106,7 +106,7 @@
       "desc": "quality-correctness: scripts/verify-proof-or-stop-prompt-baseline.mjs:318 classifies any docs/story line containing directly read/edit as a policy reminder before write detection, while scripts/verify-proof-or-stop-prompt-baseline.mjs:343 only recognizes echo or a narrow shell redirection. Executing the changed classifier against actionable examples classified Directly Read/Edit as policy-reminder, tee as other with grandfathered=true, and If available, echo x > docs/story/... as read-only-reference with grandfathered=true. scripts/verify-proof-or-stop-prompt-baseline.mjs:724 then enforces only findings already classified direct-write, so an intentional baseline refresh can admit actionable direct-story writes without the required explicit grandfathering and CLI-gap justification. This breaks the CHK-005 promised distinction and leaves a direct-write regression bypass.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-10T04:21:31.553Z",
@@ -119,7 +119,11 @@
         "scripts/verify-proof-or-stop-prompt-baseline.mjs:724"
       ],
       "signatureTag": "adversarial|mjs:318|quality-correctness-scripts",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commits 6aef18eb8 and c874f10f3: direct-story classification now rejects the documented bypass forms without allowing a baseline refresh to bless actionable write instructions; the committed 9-case probe covers negative reminders, Directly Read/Edit, Edit, Write, tee, sed -i, conditional redirection, and read-only references. Current materialHash 69f774ee02a1edeac5a6f9b62f987ea59d9ef709bdba5df0dd1da65c717e9a1c was reverified and recorded by 591b314ae. npm --prefix packages/main run build passed with @lattice/core@0.3.179 build and tsc. node scripts/verify-proof-or-stop-prompt-baseline.mjs passed all seven lines: PASS proof-or-stop prompt baseline: roleCount=16 registry hashes verified; PASS proof-or-stop prompt baseline: agent_prompt output hashes verified for 16 roles; PASS proof-or-stop prompt baseline: overlap matrix verified for 16 roles; PASS proof-or-stop prompt baseline: exhaustive role matrix source claims verified for 16 roles; PASS proof-or-stop prompt baseline: role matrix unsupported-claim mutation probe rejected; PASS proof-or-stop prompt baseline: legacy vocabulary findings classified; PASS proof-or-stop prompt baseline: direct story-file findings classified. node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-direct-story-classifier passed: PASS direct story-file classifier adversarial probes: 9 cases. node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-role-matrix-evidence passed: PASS role matrix source-evidence mutation probes: 1 refreshed-baseline injection rejected during collection and verification. npm run test:proof-or-stop-prompt-baseline passed with the same seven PASS lines.",
+      "resolvedAt": "2026-07-10T09:24:13.928Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3928:F-006",
