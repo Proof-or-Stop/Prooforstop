@@ -62,6 +62,30 @@
         "scanEscalationReason": null
       },
       "_hash": "4419ec8158f87b06a06d027728308587cab4e6e2c6ea19a3398db58a480d33dc"
+    },
+    {
+      "id": "B-2c03:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "F-001 fix verified: hyphen-only tokens no longer stripped, only slash/dotted/backticked tokens are. Rebuilt dist and ran proofstory-intent-hardening-smoke.js green, including new hyphenTriggerDone/hyphenExcludedDone (must-trigger) and bareFileNameDone (must-not-trigger) cases matching F-001s exact repro words. No coverage gaps found.",
+      "createdAt": "2026-07-10T14:56:25.659Z",
+      "reviewRound": "2026-07-10T14:41:10.214Z",
+      "reviewRunId": "B-2c03:RR-007",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2c03/background.md",
+          ".lattice/story/actives/B-2c03/plan.md",
+          ".lattice/story/actives/B-2c03/red-evidence.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2c03/checklist.json",
+          ".lattice/story/actives/B-2c03/findings.json",
+          ".lattice/story/actives/B-2c03/review.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "84e6087f03f78ee172b3ee6d7ecf9f178ada6bcd4fc5ca7ad445376fa274c343"
     }
   ]
 }
