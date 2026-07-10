@@ -18,6 +18,13 @@
  *     refused, blocked row reasonCode concurrency_cap_exceeded, live-run list),
  *     stale/dead-pid slot reclaim, atomic wx slot race, cap env parsing, and the
  *     slot-content-never-in-ledger invariant.
+ *   - CHK-003: the remaining lattice-initiated host spawns route through the same
+ *     seam — autopilot claude repair (ledger ON adds --output-format json + records
+ *     estimate/final rows with agentType autopilot-repair and an envelope-parsed
+ *     excerpt; ledger OFF byte-identical), host readiness probes (per-host preflight
+ *     + unavailable final agentType host-readiness-probe), the cross-host-review
+ *     codex leaf (preflight + unavailable final with the documented reason, argv
+ *     unchanged), and the seam-never-throws contract under a corrupt ledger.
  *
  * Prints per-check lines and a final summary; exits non-zero on any failure.
  */
@@ -35,7 +42,7 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { isAbsolute, join } from 'node:path';
+import { dirname, isAbsolute, join } from 'node:path';
 
 import {
   runHostRun,
@@ -48,6 +55,26 @@ import {
   type HostRunSpawnPlan,
   type HostRunSpawnResult,
 } from '../core/host-run.js';
+import {
+  runClaudeRepair,
+  type AutopilotCommandRequest,
+  type AutopilotCommandResult,
+  type AutopilotCommandRunner,
+  type AutopilotExecuteArgs,
+} from '../core/autopilot-executor.js';
+import type { AutopilotRunResult, AutopilotStep } from '../core/autopilot.js';
+import {
+  recordHostReadinessProbeUsage,
+  HOST_READINESS_PROBE_AGENT_TYPE,
+  HOST_READINESS_PROBE_UNAVAILABLE_REASON,
+} from '../handlers/review-escalation.js';
+import {
+  runCodexReviewLeaf,
+  CODEX_REVIEW_VERDICT_SCHEMA,
+  CROSS_HOST_REVIEW_CODEX_AGENT_TYPE,
+  CROSS_HOST_REVIEW_CODEX_NO_USAGE_REASON,
+  type CodexReviewRunner,
+} from '../core/codex-review-leaf.js';
 import { adaptCodexTurnUsage } from '../core/usage-ledger/adapters/openai.js';
 import { payloadDigest } from '../core/usage-ledger/adapters/shared.js';
 import { resolveLedgerPath, verifyLedgerChain } from '../core/usage-ledger/writer.js';
@@ -59,6 +86,19 @@ const failures: string[] = [];
 function check(label: string, fn: () => void): void {
   try {
     fn();
+    passed += 1;
+    console.log(`✓ ${label}`);
+  } catch (err) {
+    console.error(`✗ ${label}`);
+    console.error(err instanceof Error ? err.stack ?? err.message : String(err));
+    failures.push(label);
+    process.exitCode = 1;
+  }
+}
+
+async function checkAsync(label: string, fn: () => Promise<void>): Promise<void> {
+  try {
+    await fn();
     passed += 1;
     console.log(`✓ ${label}`);
   } catch (err) {
@@ -161,7 +201,47 @@ function seedSlot(dir: string, pid: number, marker: string): string {
 
 const DEAD_PID = 2147483646; // a pid that is (all but certainly) not running
 
-function main(): void {
+// ---- CHK-003 fixtures ------------------------------------------------------
+
+interface RepairSink {
+  calls: number;
+  lastArgs: string[] | null;
+}
+
+function makeRepairRunner(result: AutopilotCommandResult, sink: RepairSink): AutopilotCommandRunner {
+  return (request: AutopilotCommandRequest) => {
+    sink.calls += 1;
+    sink.lastArgs = request.args;
+    return result;
+  };
+}
+
+function repairStep(): AutopilotStep {
+  return { id: 'validate', command: 'lattice validate', purpose: 'run gates', mutates: false, authorityRequired: false };
+}
+
+function repairRequest(): AutopilotCommandRequest {
+  return { executable: process.execPath, args: ['/x/cli.js', '--root', '/x', 'validate'], cwd: '/x', timeoutMS: 1000 };
+}
+
+function repairFailResult(): AutopilotCommandResult {
+  return { exitCode: 1, stdout: 'validate failed: 1 gate red', stderr: 'boom' };
+}
+
+function repairPlan(storyId: string | null, targetPhase: string): AutopilotRunResult {
+  return { story: { storyId, phase: null, exists: true }, mode: 'local', targetPhase } as unknown as AutopilotRunResult;
+}
+
+const NO_REPAIR_ARGS: AutopilotExecuteArgs = {};
+
+/** Seed a corrupt ledger line so the next append THROWS at chain time (swallowed by the seam). */
+function seedCorruptLedger(sub: string): void {
+  const path = resolveLedgerPath(sub);
+  mkdirSync(dirname(path), { recursive: true });
+  writeFileSync(path, 'this is not valid json\n', 'utf8');
+}
+
+async function main(): Promise<void> {
   // =========================================================================
   // CHK-001 happy: codex turn.completed -> estimate + provider-reported final
   // =========================================================================
@@ -500,6 +580,224 @@ function main(): void {
   });
 
   // =========================================================================
+  // CHK-003: autopilot claude repair coverage
+  // =========================================================================
+  check('CHK-003 autopilot repair ON: --output-format json argv + estimate/final rows (agentType autopilot-repair) + envelope-parsed excerpt', () => {
+    const sub = freshRoot();
+    const sink: RepairSink = { calls: 0, lastArgs: null };
+    const envelope = JSON.stringify({
+      type: 'result',
+      result: 'Applied the smallest safe fix.',
+      model: 'claude-opus-4-8',
+      usage: { input_tokens: 1200, output_tokens: 88, cache_creation_input_tokens: 0, cache_read_input_tokens: 300 },
+    });
+    const attempt = runClaudeRepair(
+      sub, NO_REPAIR_ARGS, makeRepairRunner({ exitCode: 0, stdout: envelope, stderr: '' }, sink),
+      repairStep(), repairRequest(), repairFailResult(), repairPlan('B-70e9', 'REVIEW'), ON,
+    );
+
+    assert.equal(sink.calls, 1, 'repair runner invoked once');
+    assert.ok(sink.lastArgs);
+    const ofIdx = sink.lastArgs!.indexOf('--output-format');
+    assert.ok(ofIdx >= 0 && sink.lastArgs![ofIdx + 1] === 'json', '--output-format json added when ledger ON');
+    // The excerpt is the parsed envelope .result text, NOT the raw JSON blob.
+    assert.equal(attempt.stdoutExcerpt, 'Applied the smallest safe fix.');
+    assert.equal(attempt.status, 'passed');
+    assert.ok(attempt.command.includes('--output-format json'), 'recorded command label reflects the added flag');
+
+    const records = readLedger(sub);
+    assert.equal(records.length, 2, 'estimate + final');
+    const estimate = records.find((r) => r.usage.source === 'prompt-size-estimate');
+    const final = records.find((r) => r.usage.source === 'provider-reported');
+    assert.ok(estimate && final);
+    assert.equal(estimate!.sequence, 1);
+    assert.equal(final!.sequence, 2);
+    assert.deepEqual(final!.supersedesRecordIds, [estimate!.recordId]);
+    for (const r of records) {
+      assert.equal(r.agentType, 'autopilot-repair');
+      assert.equal(r.storyId, 'B-70e9');
+      assert.equal(r.phase, 'REVIEW', 'phase = plan.targetPhase');
+      assert.equal(r.command, 'autopilot-repair:claude');
+    }
+    assert.equal(final!.provider?.name, 'anthropic');
+    assert.equal(final!.provider?.model, 'claude-opus-4-8', 'served model bound from envelope');
+    assert.equal(final!.usage.inputTokens, 1200);
+    assert.equal(final!.usage.outputTokens, 88);
+    assert.equal(final!.usage.cacheReadInputTokens, 300);
+  });
+
+  check('CHK-003 autopilot repair OFF: byte-identical argv (no --output-format json), zero rows, zero dirs', () => {
+    const OFF = { LATTICE_USAGE_LEDGER: '0' } as NodeJS.ProcessEnv;
+    // Capture an ON run's prompt arg to prove the OFF argv only DROPPED the ledger
+    // flag (same prompt text), i.e. the ON path merely ADDED flags.
+    const sinkOn: RepairSink = { calls: 0, lastArgs: null };
+    runClaudeRepair(
+      freshRoot(), NO_REPAIR_ARGS, makeRepairRunner({ exitCode: 0, stdout: '{}', stderr: '' }, sinkOn),
+      repairStep(), repairRequest(), repairFailResult(), repairPlan('B-70e9', 'REVIEW'), ON,
+    );
+
+    const sub = freshRoot();
+    const sinkOff: RepairSink = { calls: 0, lastArgs: null };
+    const plainStdout = 'Plain repair output text.';
+    const offAttempt = runClaudeRepair(
+      sub, NO_REPAIR_ARGS, makeRepairRunner({ exitCode: 0, stdout: plainStdout, stderr: '' }, sinkOff),
+      repairStep(), repairRequest(), repairFailResult(), repairPlan('B-70e9', 'REVIEW'), OFF,
+    );
+
+    assert.deepEqual(sinkOff.lastArgs, ['-p', sinkOn.lastArgs![1]], 'OFF argv is exactly [-p, <same prompt>]');
+    assert.equal(sinkOff.lastArgs!.includes('--output-format'), false, 'no --output-format json when OFF');
+    assert.equal(offAttempt.command, 'claude -p <repair-prompt>', 'OFF command label byte-identical to today');
+    assert.equal(offAttempt.stdoutExcerpt, plainStdout, 'OFF excerpt is the raw stdout (unchanged)');
+    assert.equal(existsSync(resolveLedgerPath(sub)), false, 'no ledger file when OFF');
+    assert.equal(existsSync(join(sub, '.lattice')), false, 'no .lattice dir when OFF');
+  });
+
+  // =========================================================================
+  // CHK-003: host readiness probe coverage (extracted pure wiring helper)
+  // =========================================================================
+  check('CHK-003 probe wiring: per-host preflight+unavailable rows (agentType host-readiness-probe), provider mapping, documented reason', () => {
+    const sub = freshRoot();
+    const hosts = [{ host: 'codex' }, { host: 'claude' }, { host: 'agy' }];
+    const rows = recordHostReadinessProbeUsage({
+      root: sub, storyId: 'B-70e9', phase: 'REVIEW', hosts,
+      env: ON, recordedAt: '2026-07-10T00:00:00.000Z', projectRootHash: 'sha256:testroot',
+    });
+    assert.equal(rows.length, 3);
+
+    const records = readLedger(sub);
+    assert.equal(records.length, 6, '3 hosts × (estimate + final)');
+    const estimates = records.filter((r) => r.usage.source === 'prompt-size-estimate');
+    const finals = records.filter((r) => r.usage.source === 'unavailable');
+    assert.equal(estimates.length, 3);
+    assert.equal(finals.length, 3);
+    for (const r of records) {
+      assert.equal(r.agentType, HOST_READINESS_PROBE_AGENT_TYPE);
+      assert.equal(r.storyId, 'B-70e9');
+      assert.equal(r.phase, 'REVIEW');
+    }
+    for (const f of finals) {
+      assert.equal(f.sequence, 2);
+      assert.equal(f.usage.unavailableReason, HOST_READINESS_PROBE_UNAVAILABLE_REASON);
+      assert.equal(f.usage.inputTokens, null, 'no fabricated count');
+    }
+    const providerByCommand = new Map(finals.map((f) => [f.command, f.provider?.name]));
+    assert.equal(providerByCommand.get('host-readiness-probe:codex'), 'openai');
+    assert.equal(providerByCommand.get('host-readiness-probe:claude'), 'anthropic');
+    assert.equal(providerByCommand.get('host-readiness-probe:agy'), 'antigravity');
+
+    // A failure-shaped probe result records the SAME way (helper reads only host name).
+    const sub2 = freshRoot();
+    const rows2 = recordHostReadinessProbeUsage({
+      root: sub2, storyId: 'B-70e9', phase: 'probe', hosts,
+      env: ON, recordedAt: '2026-07-10T00:00:00.000Z', projectRootHash: 'sha256:testroot',
+    });
+    assert.equal(rows2.length, 3);
+    assert.equal(readLedger(sub2).length, 6);
+
+    // Ledger OFF -> strict no-op (no rows, no dir).
+    const sub3 = freshRoot();
+    const OFF = { LATTICE_USAGE_LEDGER: '0' } as NodeJS.ProcessEnv;
+    const rows3 = recordHostReadinessProbeUsage({
+      root: sub3, storyId: 'B-70e9', phase: 'probe', hosts,
+      env: OFF, recordedAt: '2026-07-10T00:00:00.000Z', projectRootHash: 'sha256:testroot',
+    });
+    assert.equal(rows3.length, 0, 'OFF -> no rows returned');
+    assert.equal(existsSync(join(sub3, '.lattice')), false, 'OFF -> no .lattice dir');
+  });
+
+  // =========================================================================
+  // CHK-003: cross-host-review codex leaf coverage (fake CodexReviewRunner)
+  // =========================================================================
+  await checkAsync('CHK-003 cross-host-review codex leaf ON: preflight + unavailable final (agentType cross-host-review:codex) with documented reason, argv unchanged', async () => {
+    const sub = freshRoot();
+    const MH = 'sha256:deadbeefcafefeed0000000000000000000000000000000000000000';
+    const verdict = JSON.stringify({ schemaVersion: CODEX_REVIEW_VERDICT_SCHEMA, decision: 'pass', materialHash: MH, findings: [], summary: 'no blocking defects' });
+    const runner: CodexReviewRunner = () => ({ stdout: `${verdict}\n`, exitCode: 0, timedOut: false });
+    const leaf = await runCodexReviewLeaf(
+      {
+        storyId: 'B-70e9', storyWorktree: sub, materialHash: MH, timeoutMs: 1000,
+        usageLedger: { root: sub, recordedAt: '2026-07-10T00:00:00.000Z', projectRootHash: 'sha256:testroot', env: ON, phase: 'REVIEW' },
+      },
+      runner,
+    );
+    assert.equal(leaf.hostBVerdict.decision, 'pass', 'the leaf still returns its real verdict');
+
+    const records = readLedger(sub);
+    assert.equal(records.length, 2, 'estimate + unavailable final');
+    const estimate = records.find((r) => r.usage.source === 'prompt-size-estimate');
+    const final = records.find((r) => r.usage.source === 'unavailable');
+    assert.ok(estimate && final);
+    assert.equal(estimate!.sequence, 1);
+    assert.equal(final!.sequence, 2);
+    assert.deepEqual(final!.supersedesRecordIds, [estimate!.recordId]);
+    for (const r of records) {
+      assert.equal(r.agentType, CROSS_HOST_REVIEW_CODEX_AGENT_TYPE);
+      assert.equal(r.storyId, 'B-70e9');
+      assert.equal(r.phase, 'REVIEW');
+      assert.equal(r.command, 'cross-host-review:codex');
+    }
+    assert.equal(final!.provider?.name, 'openai');
+    assert.equal(final!.provider?.model, 'unknown');
+    assert.equal(final!.usage.unavailableReason, CROSS_HOST_REVIEW_CODEX_NO_USAGE_REASON);
+    assert.equal(final!.usage.inputTokens, null, 'no fabricated count from plain stdout');
+  });
+
+  await checkAsync('CHK-003 cross-host-review codex leaf: absent binding AND ledger OFF both record zero rows (byte-identical to non-opt-in callers)', async () => {
+    const MH = 'sha256:deadbeefcafefeed0000000000000000000000000000000000000000';
+    const verdict = JSON.stringify({ schemaVersion: CODEX_REVIEW_VERDICT_SCHEMA, decision: 'pass', materialHash: MH, findings: [], summary: 'ok' });
+    const runner: CodexReviewRunner = () => ({ stdout: `${verdict}\n`, exitCode: 0, timedOut: false });
+
+    const sub1 = freshRoot();
+    await runCodexReviewLeaf({ storyId: 'B-70e9', storyWorktree: sub1, materialHash: MH, timeoutMs: 1000 }, runner);
+    assert.equal(existsSync(resolveLedgerPath(sub1)), false, 'no rows without a usageLedger binding');
+
+    const sub2 = freshRoot();
+    const OFF = { LATTICE_USAGE_LEDGER: '0' } as NodeJS.ProcessEnv;
+    await runCodexReviewLeaf(
+      { storyId: 'B-70e9', storyWorktree: sub2, materialHash: MH, timeoutMs: 1000, usageLedger: { root: sub2, recordedAt: '2026-07-10T00:00:00.000Z', projectRootHash: 'sha256:testroot', env: OFF, phase: 'REVIEW' } },
+      runner,
+    );
+    assert.equal(existsSync(resolveLedgerPath(sub2)), false, 'no rows when ledger OFF');
+  });
+
+  // =========================================================================
+  // CHK-003 adversarial: a corrupt ledger never breaks repair / probe / review
+  // =========================================================================
+  await checkAsync('CHK-003 adversarial: a corrupt ledger never breaks repair / probe / codex-review (seam never throws)', async () => {
+    // ---- autopilot repair
+    const sub1 = freshRoot();
+    seedCorruptLedger(sub1);
+    const sink: RepairSink = { calls: 0, lastArgs: null };
+    const attempt = runClaudeRepair(
+      sub1, NO_REPAIR_ARGS, makeRepairRunner({ exitCode: 0, stdout: '{"type":"result","result":"fixed"}', stderr: '' }, sink),
+      repairStep(), repairRequest(), repairFailResult(), repairPlan('B-70e9', 'REVIEW'), ON,
+    );
+    assert.equal(sink.calls, 1, 'repair still ran despite a corrupt ledger');
+    assert.equal(attempt.status, 'passed');
+
+    // ---- probe wiring helper
+    const sub2 = freshRoot();
+    seedCorruptLedger(sub2);
+    const rows = recordHostReadinessProbeUsage({
+      root: sub2, storyId: 'B-70e9', phase: 'probe', hosts: [{ host: 'codex' }, { host: 'claude' }, { host: 'agy' }],
+      env: ON, recordedAt: '2026-07-10T00:00:00.000Z', projectRootHash: 'sha256:testroot',
+    });
+    assert.equal(rows.length, 3, 'probe wiring returned without throwing');
+
+    // ---- codex review leaf
+    const sub3 = freshRoot();
+    seedCorruptLedger(sub3);
+    const MH = 'sha256:deadbeefcafefeed0000000000000000000000000000000000000000';
+    const verdict = JSON.stringify({ schemaVersion: CODEX_REVIEW_VERDICT_SCHEMA, decision: 'pass', materialHash: MH, findings: [], summary: 'ok' });
+    const runner: CodexReviewRunner = () => ({ stdout: `${verdict}\n`, exitCode: 0, timedOut: false });
+    const leaf = await runCodexReviewLeaf(
+      { storyId: 'B-70e9', storyWorktree: sub3, materialHash: MH, timeoutMs: 1000, usageLedger: { root: sub3, recordedAt: '2026-07-10T00:00:00.000Z', projectRootHash: 'sha256:testroot', env: ON, phase: 'REVIEW' } },
+      runner,
+    );
+    assert.equal(leaf.hostBVerdict.decision, 'pass', 'codex review still returned its verdict despite a corrupt ledger');
+  });
+
+  // =========================================================================
   // Isolation
   // =========================================================================
   check('isolation: all artifacts live under the temp root (no repo pollution)', () => {
@@ -511,14 +809,16 @@ function main(): void {
   });
 }
 
-try {
-  main();
-} finally {
-  rmSync(root, { recursive: true, force: true });
-}
-
-if (failures.length > 0) {
-  console.error(`\n✗ host-run usage smoke FAILED (${failures.length} failing): ${failures.join(', ')}`);
-  process.exit(1);
-}
-console.log(`\n✓ host-run usage smoke passed (${passed} checks)`);
+main()
+  .catch((err) => {
+    console.error(err instanceof Error ? err.stack ?? err.message : String(err));
+    process.exitCode = 1;
+  })
+  .finally(() => {
+    rmSync(root, { recursive: true, force: true });
+    if (failures.length > 0) {
+      console.error(`\n✗ host-run usage smoke FAILED (${failures.length} failing): ${failures.join(', ')}`);
+      process.exit(1);
+    }
+    console.log(`\n✓ host-run usage smoke passed (${passed} checks)`);
+  });

@@ -25,6 +25,14 @@ import { spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { z } from 'zod';
 import { FINDING_SEVERITIES, type Finding } from './adversarial-review.js';
+import {
+  isUsageLedgerEnabled,
+  recordDispatchPreflight,
+  recordDispatchUnavailableFinal,
+  type DispatchPreflightHandle,
+  type DispatchUsageContext,
+  type DispatchUsageOptions,
+} from './usage-ledger/dispatch-usage.js';
 
 // ── Verdict schema `lattice.codex_review_verdict.v1` ──────────────────────────
 
@@ -409,6 +417,32 @@ function scanBalancedObjects(text: string): BalancedObject[] {
   return objects;
 }
 
+/**
+ * B-70e9 CHK-003: optional usage-ledger binding for the codex review leaf. When
+ * present, the leaf writes a preflight estimate (over the review PROMPT) before the
+ * spawn and an UNAVAILABLE final after it, so the cross-host review's codex spawn is
+ * at least VISIBLE in the usage ledger. The codex argv is NOT changed — `codex exec
+ * -s read-only` has NO `--json` event stream, so stdout carries no usage; the final
+ * reason documents exactly that (`codex_exec_plain_stdout_no_usage_events`).
+ *
+ * `env` here is the UNREDACTED ledger-gating env (the caller's process env), which is
+ * DISTINCT from RunCodexReviewLeafOptions.env — that latter env is the redacted,
+ * closed-allowlist environment the codex subprocess sees and MUST NOT be used for
+ * ledger gating (it deliberately drops LATTICE_USAGE_LEDGER). Absent => no rows
+ * (byte-identical to callers that do not opt in).
+ */
+export interface CodexReviewLeafUsageLedger {
+  root: string;
+  recordedAt: string;
+  projectRootHash: string;
+  env: NodeJS.ProcessEnv;
+  phase: string;
+}
+
+export const CROSS_HOST_REVIEW_CODEX_NO_USAGE_REASON = 'codex_exec_plain_stdout_no_usage_events' as const;
+export const CROSS_HOST_REVIEW_CODEX_AGENT_TYPE = 'cross-host-review:codex' as const;
+export const CROSS_HOST_REVIEW_CODEX_COMMAND = 'cross-host-review:codex' as const;
+
 export interface RunCodexReviewLeafOptions {
   storyId: string;
   storyWorktree: string;
@@ -417,6 +451,8 @@ export interface RunCodexReviewLeafOptions {
   hostAFindings?: Finding[];
   timeoutMs: number;
   env?: NodeJS.ProcessEnv;
+  /** B-70e9 CHK-003: optional usage-ledger binding (see CodexReviewLeafUsageLedger). */
+  usageLedger?: CodexReviewLeafUsageLedger;
 }
 
 export interface CodexReviewLeafResult {
@@ -456,12 +492,60 @@ export async function runCodexReviewLeaf(
     materialHash: opts.materialHash,
     ...(opts.hostAFindings ? { hostAFindings: opts.hostAFindings } : {}),
   });
+
+  // B-70e9 CHK-003: usage-ledger preflight over the review prompt (fail-open; strict
+  // no-op when the ledger is OFF or no binding was supplied). The codex argv below is
+  // untouched — this only makes the spawn visible in the ledger.
+  const ledger = opts.usageLedger;
+  const ledgerOn = ledger !== undefined && isUsageLedgerEnabled(ledger.env);
+  let ledgerCtx: DispatchUsageContext | null = null;
+  let ledgerOpts: DispatchUsageOptions | null = null;
+  let ledgerHandle: DispatchPreflightHandle | null = null;
+  if (ledgerOn && ledger) {
+    ledgerCtx = {
+      storyId: opts.storyId,
+      phase: ledger.phase,
+      agentType: CROSS_HOST_REVIEW_CODEX_AGENT_TYPE,
+    };
+    ledgerOpts = {
+      recordedAt: ledger.recordedAt,
+      projectRootHash: ledger.projectRootHash,
+      command: CROSS_HOST_REVIEW_CODEX_COMMAND,
+      host: { kind: 'codex' },
+      env: ledger.env,
+    };
+    try {
+      ledgerHandle = recordDispatchPreflight(ledger.root, ledgerCtx, prompt, ledgerOpts);
+    } catch {
+      ledgerHandle = null;
+    }
+  }
+
   const outcome = await runner({
     prompt,
     storyWorktree: opts.storyWorktree,
     timeoutMs: opts.timeoutMs,
     ...(opts.env ? { env: opts.env } : {}),
   });
+
+  // B-70e9 CHK-003: unavailable final superseding the preflight estimate — the codex
+  // review leaf's plain stdout carries no usage event stream, so we never fabricate a
+  // count. Fail-open: a ledger error must never break the review.
+  if (ledgerOn && ledger && ledgerCtx && ledgerOpts) {
+    try {
+      recordDispatchUnavailableFinal(
+        ledger.root,
+        ledgerCtx,
+        ledgerHandle?.correlation ?? null,
+        ledgerHandle?.estimateRecordId ?? null,
+        { name: 'openai', model: 'unknown' },
+        CROSS_HOST_REVIEW_CODEX_NO_USAGE_REASON,
+        ledgerOpts,
+      );
+    } catch {
+      // The seam never breaks the review.
+    }
+  }
   // Honest provenance digest: prefer the runner's full-stream hash (every byte,
   // even beyond the retained-memory cap) when present; otherwise hash the provided
   // stdout. This keeps the digest true even when the retained stdout is a truncated

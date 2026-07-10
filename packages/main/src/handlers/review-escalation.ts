@@ -1,8 +1,17 @@
+import { createHash } from 'node:crypto';
 import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
+import {
+  isUsageLedgerEnabled,
+  recordDispatchPreflight,
+  recordDispatchUnavailableFinal,
+  type DispatchPreflightHandle,
+  type DispatchUsageContext,
+  type DispatchUsageOptions,
+} from '../core/usage-ledger/dispatch-usage.js';
 import {
   REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_EVENT,
   REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_PREDICATE,
@@ -76,6 +85,125 @@ function normalizeStringArray(values: unknown): string[] {
   return Array.isArray(values)
     ? values.map(value => normalizeString(value)).filter(Boolean)
     : [];
+}
+
+// ===========================================================================
+// B-70e9 CHK-003: usage-ledger coverage for the host readiness probe.
+//
+// Each canonical host readiness probe makes a real (tiny) LLM call but the probe
+// RESULT (frozen B-d8ef surface, core/host-execution-readiness.ts) does NOT retain
+// the host stdout, so there is no usage envelope to parse without changing that
+// frozen contract. We therefore record, PER probed host, a preflight estimate over
+// the fixed probe prompt (sequence 1) plus an UNAVAILABLE final (sequence 2,
+// superseding the estimate) with reason 'probe_output_not_retained'. This makes the
+// probe VISIBLE in the ledger (the story goal) without touching core probe internals
+// or fabricating a token count. All wiring is fail-open: a ledger error must never
+// break the probe command.
+// ===========================================================================
+
+/**
+ * The fixed host readiness probe prompt. Mirrors the frozen (unexported) literal
+ * HOST_EXECUTION_READINESS_PROMPT in core/host-execution-readiness.ts — reconstructed
+ * here rather than plumbed through the frozen probe return shape.
+ */
+export const HOST_READINESS_PROBE_PROMPT = 'Reply READY and do not run tools.';
+export const HOST_READINESS_PROBE_AGENT_TYPE = 'host-readiness-probe';
+export const HOST_READINESS_PROBE_UNAVAILABLE_REASON = 'probe_output_not_retained';
+
+/** Best-effort project-root hash for a usage-ledger context (mirrors the host_run handler). */
+function projectRootHashForProbe(root: string): string {
+  return `sha256:${createHash('sha256').update(root, 'utf8').digest('hex')}`;
+}
+
+/** Map a canonical probe host name to its ledger host.kind (as in core/host-run.ts). */
+function probeHostKind(host: string): string {
+  return host === 'codex' ? 'codex' : host === 'claude' ? 'claude-code' : 'antigravity';
+}
+
+/** Map a canonical probe host name to its ledger provider name. */
+function probeProviderName(host: string): string {
+  return host === 'codex' ? 'openai' : host === 'claude' ? 'anthropic' : 'antigravity';
+}
+
+export interface HostReadinessProbeUsageInput {
+  root: string;
+  storyId: string | null;
+  phase: string;
+  /** The probed hosts (only the `host` name is read; the probe row shape is otherwise frozen). */
+  hosts: ReadonlyArray<{ host: string }>;
+  env: NodeJS.ProcessEnv;
+  recordedAt: string;
+  projectRootHash: string;
+}
+
+export interface HostReadinessProbeUsageRow {
+  host: string;
+  recordId: string | null;
+}
+
+/**
+ * PURE, testable wiring helper (no spawning): record a preflight + unavailable final
+ * per probed host. Strict no-op when the ledger is OFF. Every ledger call is fail-open
+ * so a writer error can never break the probe command. Returns the per-host final
+ * recordIds for the smoke to assert.
+ */
+export function recordHostReadinessProbeUsage(input: HostReadinessProbeUsageInput): HostReadinessProbeUsageRow[] {
+  const rows: HostReadinessProbeUsageRow[] = [];
+  if (!isUsageLedgerEnabled(input.env)) return rows;
+
+  for (const probed of input.hosts) {
+    const host = probed.host;
+    const ctx: DispatchUsageContext = {
+      storyId: input.storyId,
+      phase: input.phase,
+      agentType: HOST_READINESS_PROBE_AGENT_TYPE,
+    };
+    const opts: DispatchUsageOptions = {
+      recordedAt: input.recordedAt,
+      projectRootHash: input.projectRootHash,
+      command: `host-readiness-probe:${host}`,
+      host: { kind: probeHostKind(host) },
+      env: input.env,
+    };
+
+    let handle: DispatchPreflightHandle | null = null;
+    try {
+      handle = recordDispatchPreflight(input.root, ctx, HOST_READINESS_PROBE_PROMPT, opts);
+    } catch {
+      handle = null;
+    }
+
+    let recordId: string | null = null;
+    try {
+      const res = recordDispatchUnavailableFinal(
+        input.root,
+        ctx,
+        handle?.correlation ?? null,
+        handle?.estimateRecordId ?? null,
+        { name: probeProviderName(host), model: null },
+        HOST_READINESS_PROBE_UNAVAILABLE_REASON,
+        opts,
+      );
+      recordId = res.recordId;
+    } catch {
+      // The seam never breaks the probe.
+    }
+    rows.push({ host, recordId });
+  }
+  return rows;
+}
+
+/**
+ * Resolve the honest story phase for probe usage attribution, falling back to 'probe'
+ * when the story phase cannot be read. Never throws.
+ */
+function resolveProbeStoryPhase(ctx: HandlerContext, storyId: string): string {
+  try {
+    const phase = ctx.store.readStory(storyId)?.phase;
+    return typeof phase === 'string' && phase.length > 0 ? phase : 'probe';
+  } catch {
+    return 'probe';
+  }
 }
 
 export function createReviewEscalationHandlers(ctx: HandlerContext) {
@@ -253,6 +381,23 @@ export function createReviewEscalationHandlers(ctx: HandlerContext) {
         ...event,
         ...(normalizeString(args.actor) ? { actor: normalizeString(args.actor) } : {}),
       });
+
+      // B-70e9 CHK-003: make the per-host readiness probe LLM calls visible in the
+      // usage ledger. Fail-open — a ledger error must never break the probe command.
+      try {
+        recordHostReadinessProbeUsage({
+          root: ctx.root,
+          storyId: args.storyId,
+          phase: resolveProbeStoryPhase(ctx, args.storyId),
+          hosts: event.hosts.map(row => ({ host: row.host })),
+          env: process.env,
+          recordedAt: new Date().toISOString(),
+          projectRootHash: projectRootHashForProbe(ctx.root),
+        });
+      } catch {
+        // The usage ledger is diagnostics-only; never let it break the probe.
+      }
+
       const commitHint = autoCommitStoryMetadata(ctx.root, args.storyId, REVIEW_HOST_AVAILABILITY_PROBE_COMMAND);
       if (wantsJson(args)) {
         return event;

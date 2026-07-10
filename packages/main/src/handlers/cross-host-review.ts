@@ -1,5 +1,6 @@
 import { appendFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { z } from 'zod';
@@ -286,6 +287,25 @@ function wantsJson(args: FormatArgs | undefined): boolean {
 
 function normalizeString(value: unknown): string {
   return typeof value === 'string' ? value.trim() : '';
+}
+
+/** Best-effort project-root hash for a usage-ledger context (mirrors the host_run handler). */
+function projectRootHashFor(root: string): string {
+  return `sha256:${createHash('sha256').update(root, 'utf8').digest('hex')}`;
+}
+
+/**
+ * B-70e9 CHK-003: resolve the honest story phase for usage attribution. Falls back to
+ * 'adhoc' when the story cannot be read (never throws — attribution must not break the
+ * review).
+ */
+function resolveStoryPhaseForUsage(ctx: HandlerContext, storyId: string): string {
+  try {
+    const phase = ctx.store.readStory(storyId)?.phase;
+    return typeof phase === 'string' && phase.length > 0 ? phase : 'adhoc';
+  } catch {
+    return 'adhoc';
+  }
 }
 
 function normalizeIdentity(value: string): string {
@@ -755,6 +775,17 @@ export function createCrossHostReviewHandlers(
             hostAFindings,
             timeoutMs: timeoutMinutes * 60 * 1000,
             env: redactedEnv,
+            // B-70e9 CHK-003: make the codex review spawn visible in the usage ledger.
+            // NOTE: `env` here is the UNREDACTED process env for LEDGER GATING — it is
+            // deliberately NOT the redacted subprocess env above (which drops
+            // LATTICE_USAGE_LEDGER), so a ledger enabled in the parent is honored.
+            usageLedger: {
+              root: ctx.root,
+              recordedAt: new Date().toISOString(),
+              projectRootHash: projectRootHashFor(ctx.root),
+              env: process.env,
+              phase: resolveStoryPhaseForUsage(ctx, storyId),
+            },
           },
           options.codexRunner,
         );
