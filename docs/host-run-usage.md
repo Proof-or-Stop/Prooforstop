@@ -172,6 +172,16 @@ stderr line reads `usage: ledger_append_failed(...)` — it never claims
 `usage recorded` for a row that never landed. This applies to all three hosts;
 the provider is still surfaced for attribution, but token counts stay null.
 
+The same honesty gate covers the **blocked rows**: a cap refusal claims
+`recorded: blocked` (and, for a concurrency refusal, surfaces the blocked row's
+`recordId`) only when the blocked row **actually appended**. When that append is
+swallowed too, the refusal itself is unchanged — still fail-closed, no spawn,
+non-zero exit — but the summary reports `recorded: none` with `recordId: null`
+and a composed reason that keeps the refusal visible, e.g.
+`hard_budget_exceeded (...); ledger_append_failed(...)` or
+`concurrency_cap_exceeded (...); ledger_append_failed(...)`. A recordId is never
+minted for a blocked row that never persisted.
+
 ## Caps (fail-closed, before spawn)
 
 Both caps run at the choke point BEFORE a host is spawned, and every refusal is

@@ -773,6 +773,15 @@ export const CONCURRENCY_CAP_REASON_CODE = 'concurrency_cap_exceeded';
  * ('anthropic' + the ctx model fallback) byte-identical. host_run passes the
  * real per-host provider so an agy/codex concurrency refusal is attributed to
  * antigravity/openai.
+ *
+ * B-70e9 F-027: `recorded` already reflects the ACTUAL append (true only after a
+ * successful appendUsageRecord). The optional `reason` is populated only on a
+ * failure return (`recorded:false`) — `ledger_append_failed(...)` when the
+ * blocked-row write was swallowed (corrupt / lock-timed-out ledger), or
+ * `blocked_record_build_failed` when the validated builder returned null — so a
+ * consumer that surfaces a blocked summary can gate its "recorded" claim on
+ * `recorded` and quote WHY the row never landed. Additive: existing callers
+ * (autopilot repair / codex-review leaf name the refusal, not the row) ignore it.
  */
 export function recordConcurrencyBlock(
   root: string,
@@ -782,8 +791,8 @@ export function recordConcurrencyBlock(
   cap: number,
   opts: DispatchUsageOptions,
   provider?: { name: string; model: string | null },
-): { recorded: boolean; recordId: string | null } {
-  if (!isUsageLedgerEnabled(opts.env)) return { recorded: false, recordId: null };
+): { recorded: boolean; recordId: string | null; reason?: string } {
+  if (!isUsageLedgerEnabled(opts.env)) return { recorded: false, recordId: null, reason: 'usage_ledger_disabled' };
 
   try {
     let estimatedInputTokens: number;
@@ -816,16 +825,21 @@ export function recordConcurrencyBlock(
       CONCURRENCY_CAP_REASON_CODE,
       provider?.name ?? 'anthropic',
     );
-    if (record === null) return { recorded: false, recordId: null };
+    // F-027: the validated builder rejected the assembled record — no row can
+    // land. Surface the reason so the caller reports the skipped state honestly.
+    if (record === null) return { recorded: false, recordId: null, reason: 'blocked_record_build_failed' };
     try {
       appendUsageRecord(root, record, { env: opts.env });
-    } catch {
+    } catch (err) {
       // Fail-closed: the caller refuses regardless; a write failure never spawns.
-      return { recorded: false, recordId: record.recordId };
+      // F-027: the blocked ROW never landed, so report recorded:false with the
+      // ledger_append_failed(...) reason (no recordId for a row that never
+      // persisted) — the consumer must not claim a recorded blocked row.
+      return { recorded: false, recordId: null, reason: describeLedgerAppendFailure(err) };
     }
     return { recorded: true, recordId: record.recordId };
-  } catch {
-    return { recorded: false, recordId: null };
+  } catch (err) {
+    return { recorded: false, recordId: null, reason: describeLedgerAppendFailure(err) };
   }
 }
 
@@ -1176,6 +1190,21 @@ export interface BudgetGuardDecision {
   budgetPolicyId: string | null;
   /** The hard ceiling that was exceeded (for the blocked dispatch result message). */
   hardBudgetTokens: number | null;
+  /**
+   * B-70e9 F-027: populated ONLY when blocked=true — did the blocked ledger row
+   * ACTUALLY append? Fail-closed semantics are unchanged (a write failure never
+   * reverts the block), but a consumer that surfaces a "blocked row recorded"
+   * summary must key that claim on this field, mirroring DispatchFinalStatus.
+   * Additive: legacy callers (dispatch seam / autopilot repair / codex review
+   * leaf name the refusal, not the row) ignore it.
+   */
+  appended?: boolean;
+  /**
+   * B-70e9 F-027: populated when blocked=true and appended=false — WHY the
+   * blocked row never landed (`ledger_append_failed(...)` for a swallowed
+   * write on a corrupt / lock-timed-out ledger).
+   */
+  appendFailureReason?: string;
 }
 
 /**
@@ -1199,6 +1228,12 @@ export interface BudgetGuardDecision {
  * dispatch seam passes nothing and is unchanged. host_run passes the real
  * per-host provider so a codex/agy hard-budget refusal is attributed to
  * openai/antigravity.
+ *
+ * B-70e9 F-027: when blocked=true the decision additionally carries
+ * `appended` (did the blocked row actually land) and, on a swallowed write,
+ * `appendFailureReason` (`ledger_append_failed(...)`) — so the host_run summary
+ * can gate its "blocked row recorded" claim on the ACTUAL append outcome. The
+ * pre-decision fail-open paths (build/check error, null record) are unchanged.
  */
 export function recordBudgetBlock(
   root: string,
@@ -1266,14 +1301,24 @@ export function recordBudgetBlock(
     }
     try {
       appendUsageRecord(root, record, { env: opts.env });
-    } catch {
+    } catch (err) {
       // Fail-closed: once the over-budget decision is made, a write failure must
       // NOT revert it and call the provider. Still return blocked.
+      // F-027: but the blocked ROW never landed — surface the append outcome so
+      // the caller reports the refusal without claiming a recorded row.
+      return {
+        blocked: true,
+        budgetPolicyId: budget.budgetPolicyId,
+        hardBudgetTokens: budget.hardBudgetTokens,
+        appended: false,
+        appendFailureReason: describeLedgerAppendFailure(err),
+      };
     }
     return {
       blocked: true,
       budgetPolicyId: budget.budgetPolicyId,
       hardBudgetTokens: budget.hardBudgetTokens,
+      appended: true,
     };
   } catch {
     // An unexpected assembly error before the record was committed -> fail-open.

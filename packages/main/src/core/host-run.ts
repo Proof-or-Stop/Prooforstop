@@ -1156,6 +1156,14 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
   // CHK-007a: hard-budget cap (fail-closed BEFORE spawn).
   const budget = recordBudgetBlock(args.root, ctx, handle, args.promptText, opts, blockedProvider);
   if (budget.blocked) {
+    const refusalDetail = `hard_budget_exceeded (${budget.budgetPolicyId ?? 'hard-budget'}${
+      budget.hardBudgetTokens !== null ? `, cap ${budget.hardBudgetTokens}` : ''
+    })`;
+    // F-027: claim a recorded blocked row ONLY when the append actually landed.
+    // The refusal itself (no spawn, nonzero exit) is unchanged either way; when
+    // the write was swallowed (corrupt / lock-timed-out ledger) the summary is
+    // the honest skipped state with the refusal kept visible in the reason.
+    const rowAppended = budget.appended === true;
     return {
       host: args.host,
       storyId: args.storyId,
@@ -1170,15 +1178,15 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
       stdout: '',
       stderr: '',
       usageSummary: {
-        recorded: 'blocked',
+        recorded: rowAppended ? 'blocked' : 'none',
         provider: null,
         input: null,
         cacheRead: null,
         output: null,
         recordId: null,
-        reason: `hard_budget_exceeded (${budget.budgetPolicyId ?? 'hard-budget'}${
-          budget.hardBudgetTokens !== null ? `, cap ${budget.hardBudgetTokens}` : ''
-        })`,
+        reason: rowAppended
+          ? refusalDetail
+          : `${refusalDetail}; ${budget.appendFailureReason ?? 'ledger_append_failed(unknown)'}`,
       },
       passthroughError: null,
     };
@@ -1204,6 +1212,12 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
   if (slot === null) {
     const live = scanLiveSlots(dir, Date.now(), staleMs);
     const blockRow = recordConcurrencyBlock(args.root, ctx, handle, args.promptText, cap, opts, blockedProvider);
+    const refusalDetail = `concurrency_cap_exceeded (${live.length} live host runs, cap ${cap})`;
+    // F-027: `recorded: 'blocked'` + the recordId are claimed ONLY when the
+    // blocked row actually appended (blockRow.recorded keys on the real
+    // appendUsageRecord outcome). On a swallowed write the summary reports the
+    // honest skipped state — no minted recordId for a row that never landed —
+    // while the refusal (no spawn, nonzero exit) stays fail-closed and visible.
     return {
       host: args.host,
       storyId: args.storyId,
@@ -1218,13 +1232,15 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
       stdout: '',
       stderr: '',
       usageSummary: {
-        recorded: 'blocked',
+        recorded: blockRow.recorded ? 'blocked' : 'none',
         provider: null,
         input: null,
         cacheRead: null,
         output: null,
-        recordId: blockRow.recordId,
-        reason: `concurrency_cap_exceeded (${live.length} live host runs, cap ${cap})`,
+        recordId: blockRow.recorded ? blockRow.recordId : null,
+        reason: blockRow.recorded
+          ? refusalDetail
+          : `${refusalDetail}; ${blockRow.reason ?? 'ledger_append_failed(unknown)'}`,
       },
       passthroughError: null,
     };

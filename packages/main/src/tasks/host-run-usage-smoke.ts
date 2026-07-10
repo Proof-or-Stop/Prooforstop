@@ -951,6 +951,60 @@ async function main(): Promise<void> {
   });
 
   // =========================================================================
+  // F-027: the F-021 honesty gate extended to the BLOCKED summaries. A cap
+  // refusal writes its blocked row through the same swallowing seam — under a
+  // corrupt ledger the row never lands, yet the OLD code unconditionally
+  // reported `recorded: 'blocked'` and (concurrency) exposed a minted recordId
+  // for a row that never persisted. The fix keys the blocked claim on the
+  // ACTUAL append outcome: refusal stays fail-closed (no spawn, nonzero exit),
+  // summary reports the honest skipped state (`recorded: 'none'`, no recordId)
+  // with the refusal kept visible in a composed reason
+  // (`<refusal>; ledger_append_failed(...)`).
+  // =========================================================================
+  await checkAsync('F-027 concurrency: saturated cap + failing (corrupt) ledger -> refusal fail-closed BUT summary reports none + composed reason, NEVER a blocked row / minted recordId', async () => {
+    const sub = freshRoot();
+    seedCorruptLedger(sub); // every append (preflight AND blocked row) throws, swallowed by the seam
+    const dir = hostRunSlotsDir(sub);
+    for (let i = 0; i < 4; i++) seedSlot(dir, i, process.pid); // slot-0..slot-3 held live
+    const sink: RunnerSink = { calls: 0, lastPlan: null };
+    const result = await runHostRun(baseArgs({ root: sub, host: 'codex' }), { runner: makeRunner({ stdout: CODEX_STDOUT }, sink) });
+    // The refusal itself is unchanged: fail-closed, no spawn, nonzero exit.
+    assert.equal(sink.calls, 0, 'runner NOT invoked at the cap even with a failing ledger');
+    assert.equal(result.spawned, false);
+    assert.equal(result.blocked, true);
+    assert.equal(result.refusalReason, 'concurrency_cap_exceeded');
+    assert.notEqual(result.exitCode, 0);
+    // The honesty gate: no blocked-row claim for a row that never landed.
+    assert.notEqual(result.usageSummary.recorded, 'blocked', 'no blocked-row claim when the append failed');
+    assert.equal(result.usageSummary.recorded, 'none', 'honest skipped state');
+    assert.equal(result.usageSummary.recordId, null, 'no minted recordId for a row that never persisted');
+    const reason = result.usageSummary.reason ?? '';
+    assert.ok(reason.startsWith('concurrency_cap_exceeded ('), `refusal stays visible in the composed reason (got ${reason})`);
+    assert.ok(reason.includes('; ledger_append_failed('), `composed reason names the append failure (got ${reason})`);
+  });
+
+  await checkAsync('F-027 budget: over-budget + failing (corrupt) ledger -> refusal fail-closed BUT summary reports none + composed reason, NEVER a blocked row', async () => {
+    const sub = freshRoot();
+    seedCorruptLedger(sub);
+    const sink: RunnerSink = { calls: 0, lastPlan: null };
+    const env = { LATTICE_USAGE_LEDGER: '1', LATTICE_HARD_BUDGET_TOKENS: '1' } as NodeJS.ProcessEnv;
+    const result = await runHostRun(baseArgs({ root: sub, host: 'claude', env }), { runner: makeRunner({ stdout: CLAUDE_STDOUT }, sink) });
+    // The refusal itself is unchanged: fail-closed, no spawn, nonzero exit.
+    assert.equal(sink.calls, 0, 'runner NOT invoked over budget even with a failing ledger');
+    assert.equal(result.spawned, false);
+    assert.equal(result.blocked, true);
+    assert.equal(result.refusalReason, 'hard_budget_exceeded');
+    assert.notEqual(result.exitCode, 0);
+    // The honesty gate: no blocked-row claim for a row that never landed.
+    assert.notEqual(result.usageSummary.recorded, 'blocked', 'no blocked-row claim when the append failed');
+    assert.equal(result.usageSummary.recorded, 'none', 'honest skipped state');
+    assert.equal(result.usageSummary.recordId, null);
+    const reason = result.usageSummary.reason ?? '';
+    assert.ok(reason.startsWith('hard_budget_exceeded ('), `refusal stays visible in the composed reason (got ${reason})`);
+    assert.ok(reason.includes('; ledger_append_failed('), `composed reason names the append failure (got ${reason})`);
+  });
+
+  // =========================================================================
   // F-008: a throwing passthrough sink must degrade honestly, never crash the
   // run. Against the OLD code this check dies twice: (a) the default runner
   // let the onChunk throw escape a stdout 'data' listener as an uncaught
@@ -1375,6 +1429,10 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
     assert.ok(blocked, 'a blocked ledger row is written');
     assert.equal(blocked!.decision.reasonCode, 'hard_budget_exceeded');
     assert.ok(records.some((r) => r.usage.source === 'prompt-size-estimate'), 'preflight estimate present');
+    // F-027 positive path: with a healthy ledger the summary still claims the row.
+    assert.equal(result.usageSummary.recorded, 'blocked', 'healthy ledger keeps the blocked claim');
+    assert.ok((result.usageSummary.reason ?? '').startsWith('hard_budget_exceeded ('), 'reason stays the plain refusal (no append-failure suffix)');
+    assert.equal((result.usageSummary.reason ?? '').includes('ledger_append_failed'), false);
   });
 
   await checkAsync('CHK-007a budget (F-004): blocked rows are provider-honest — codex=openai, claude=anthropic (legacy shape byte-compat)', async () => {
@@ -1422,6 +1480,12 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
     const blocked = records.find((r) => r.decision.kind === 'blocked');
     assert.ok(blocked);
     assert.equal(blocked!.decision.reasonCode, 'concurrency_cap_exceeded');
+    // F-027 positive path: with a healthy ledger the summary claims the row and
+    // the surfaced recordId is the APPENDED blocked row's id (never minted).
+    assert.equal(result.usageSummary.recorded, 'blocked', 'healthy ledger keeps the blocked claim');
+    assert.equal(result.usageSummary.recordId, blocked!.recordId, 'summary recordId matches the appended blocked row');
+    assert.ok((result.usageSummary.reason ?? '').startsWith('concurrency_cap_exceeded ('), 'reason stays the plain refusal');
+    assert.equal((result.usageSummary.reason ?? '').includes('ledger_append_failed'), false);
     // F-004: a codex refusal is attributed to openai, never anthropic.
     assert.equal(blocked!.provider?.name, 'openai', 'codex concurrency block attributed to openai');
     // Slot metadata never leaks into a ledger row (slots carry pid/timestamps only).
