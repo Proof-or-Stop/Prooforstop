@@ -28,6 +28,25 @@
         }
       ],
       "_hash": "205c9f4587b28b4feca2340c838fa01633258d4f1f869ee54ed0f3aef42a8fec"
+    },
+    {
+      "timestamp": "2026-07-10T14:36:05.702Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Sanitize path-like/code-like tokens out of the claimsShrinkage scan text before the trigger-word regex runs + Add a repro-first regression test where the summary names partial-done-recovery.ts are performed simultaneously?)"
+        }
+      ],
+      "_hash": "1eaac37aa69e7a725d652b49b854769a70ce41a13d64f243930c54439c1a7bd3"
     }
   ]
 }

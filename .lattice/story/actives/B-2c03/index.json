@@ -4,7 +4,7 @@
   "title": "Make the DONE intent-equivalence claimsShrinkage heuristic ignore path-like/code-like tokens so file names like partial-done-recovery.ts no longer false-positive",
   "description": "The lightweight DONE intent-equivalence path in evaluateDoneIntentEquivalence (packages/main/src/core/proofstory.ts, ~line 1427) scans summary.changes + actualTranscript + outcomeDiff + limitations with the trigger-word regex /\\b(?:partial|narrow(?:er|ed)?|shrink(?:age|s|ing)?|out of scope|not covered|deferred|remaining|excluded)\\b/i. Because '-' and '/' are word boundaries, literal file names and code identifiers match: during B-d6a0 the file name core/partial-done-recovery.ts in summary.changes matched \\bpartial\\b and blocked DONE with unconfirmed_single_outcome_shrinkage until the summary was reworded to avoid naming the file it changed. Fix: sanitize path-like/code-like tokens (backticked spans, segments/with/slashes, hyphenated or dotted file-name tokens) out of the text before applying the trigger regex, add a regression test whose summary names partial-done-recovery.ts, and make an explicit decision about whether the bare trigger word 'remaining' is too broad (an earlier B-d6a0 draft tripped on 'remaining' while describing pre-existing unrelated suite failures).",
   "type": "bug",
-  "phase": "PLAN",
+  "phase": "DEV",
   "priority": "medium",
   "keywords": [
     "proofstory",
@@ -41,6 +41,15 @@
       "phase": "PLAN",
       "action": "advance",
       "timestamp": "2026-07-10T14:26:14.001Z",
+      "branch": "story/B-2c03",
+      "user": "Harmonygo",
+      "sessionId": "481b35e7-c0f7-479c-8009-81864d68d4e6",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-10T14:36:06.549Z",
       "branch": "story/B-2c03",
       "user": "Harmonygo",
       "sessionId": "481b35e7-c0f7-479c-8009-81864d68d4e6",
