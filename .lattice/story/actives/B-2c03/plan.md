@@ -51,9 +51,14 @@ Rationale:
 
 ## Risk notes
 
-- The sanitizer removes hyphenated prose like `scope-was-narrowed` before
-  matching; this is an accepted heuristic tradeoff (the guard targets honest
-  summaries, not adversarial wording) and is documented in code.
+- (Revised after F-001) The sanitizer only strips path-shaped tokens:
+  backticked spans, tokens containing `/`, and dotted tokens
+  (`partial-done-recovery.ts`, `name.test.mjs`). Hyphen-only tokens are KEPT so
+  hyphenated trigger prose (`deferred-for-now`, `excluded-here`) still matches
+  its trigger segment. Residual accepted tradeoff: a bare extensionless
+  hyphenated file name (`partial-done-recovery` with no `.ts`/no directory)
+  still false-positives, but real summaries carry the extension or a directory
+  prefix, both of which are stripped.
 - Guard-weakening risk is covered by adversarial smoke controls (prose claim
   next to a path token; `remaining <scope-noun>`; existing `partial` verdict
   control at the narrow-delivery case).

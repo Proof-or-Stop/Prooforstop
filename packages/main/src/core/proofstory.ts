@@ -1376,15 +1376,19 @@ function confirmedShrinkageIds(decision: ScopeShrinkageDecisionData | null): Set
 // inside path-like/code-like tokens (core/partial-done-recovery.ts, `deferred`,
 // name.test.mjs) match as if they were prose claims. Strip those tokens before
 // the claimsShrinkage scan; replacement is a single space so surrounding prose
-// is preserved. Hyphenated prose (e.g. "scope-was-narrowed") is also stripped —
-// an accepted tradeoff: the heuristic targets honest summaries, not wording
-// crafted to evade it.
+// is preserved. Only path-shaped tokens are stripped — backticked spans, tokens
+// containing a slash, and dotted tokens (file names / dotted identifiers).
+// Hyphen-only tokens are kept (F-001): prose like "deferred-for-now" must keep
+// matching its trigger segment, and a hyphen-joined token can't be told apart
+// from prose by shape alone. Residual: a bare extensionless hyphenated file
+// name ("partial-done-recovery") still false-positives, but real summaries
+// carry the extension or a directory prefix, which this strips.
 function stripCodeLikeTokens(text: string): string {
   return text
     .replace(/```[\s\S]*?```/g, ' ')
     .replace(/`[^`\n]*`/g, ' ')
     .replace(/[^\s`]*\/[^\s`]*/g, ' ')
-    .replace(/\b[A-Za-z0-9_]+(?:[-.][A-Za-z0-9_]+)+\b/g, ' ');
+    .replace(/\b[A-Za-z0-9_-]+(?:\.[A-Za-z0-9_-]+)+\b/g, ' ');
 }
 
 export function evaluateDoneIntentEquivalence(

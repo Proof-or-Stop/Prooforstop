@@ -845,6 +845,42 @@ try {
     true,
     '"remaining <scope-noun>" phrasing is still a shrinkage claim',
   );
+  // B-2c03 F-001: hyphenated trigger words are prose, not code tokens — the
+  // sanitizer must only strip path-shaped tokens (slash or dotted), so phrasing
+  // like "deferred-for-now" keeps matching \bdeferred\b (hyphen is a boundary).
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Added label normalization.',
+    limitations: 'The tooltip work was deferred-for-now.',
+  }));
+  const hyphenTriggerDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    hyphenTriggerDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    true,
+    'hyphenated trigger words like deferred-for-now are still shrinkage claims (F-001)',
+  );
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Added label normalization.',
+    limitations: 'Some inputs were excluded-here on purpose.',
+  }));
+  const hyphenExcludedDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    hyphenExcludedDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    true,
+    'hyphenated trigger words like excluded-here are still shrinkage claims (F-001)',
+  );
+  // Dotted file names without a directory prefix are still code-like and must
+  // not trigger even though a segment is a trigger word.
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Renamed partial-done-recovery.ts helpers for clarity.',
+    actualTranscript: 'The helpers behave as before.',
+    outcomeDiff: 'No difference from the original request.',
+  }));
+  const bareFileNameDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    bareFileNameDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    false,
+    'a dotted file name without a directory prefix (partial-done-recovery.ts) is still not a shrinkage claim',
+  );
 
   // B-f7b3 CHK-004: a CONFIRMED milestone ledger that is empty OR whose rows are
   // all not_applicable (without a valid decision) must NOT vacuously satisfy the
