@@ -784,6 +784,68 @@ try {
     'narrow single-outcome DONE claims require confirmed shrinkage instead of passing silently',
   );
 
+  // B-2c03 CHK-001/CHK-002: path-like/code-like tokens in DONE summaries must not
+  // trip the claimsShrinkage heuristic. Regression for the B-d6a0 incident where
+  // the literal file name core/partial-done-recovery.ts matched \bpartial\b
+  // (hyphens are word boundaries) and blocked DONE with
+  // unconfirmed_single_outcome_shrinkage until the summary avoided the file name.
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Fixed the first-row corruption in core/partial-done-recovery.ts and updated its callers.',
+    actualTranscript: 'The porcelain audit output is correct for the first row.',
+    outcomeDiff: 'No difference from the original request.',
+  }));
+  const fileNameDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    fileNameDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    false,
+    'a summary naming core/partial-done-recovery.ts is not a shrinkage claim (B-d6a0 false positive)',
+  );
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Documented the `deferred` flag and cleaned up src/excluded/list.ts.',
+    actualTranscript: 'The label normalizer output is unchanged.',
+    outcomeDiff: 'No difference from the original request.',
+  }));
+  const codeTokenDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    codeTokenDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    false,
+    'backticked spans and slash-segmented paths are code-like tokens, not shrinkage claims',
+  );
+  // Adversarial control: a genuine prose shrinkage claim sitting next to a path
+  // token must still trigger — the sanitizer must not swallow surrounding prose.
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Fixed core/partial-done-recovery.ts; the remaining cases were deferred to a follow-up.',
+  }));
+  const proseShrinkDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    proseShrinkDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    true,
+    'genuine prose shrinkage claims still require a confirmed shrinkage decision',
+  );
+  // B-2c03 CHK-003: bare "remaining" was too broad — prose about pre-existing
+  // unrelated failures is not a scope-shrinkage claim for this story, while
+  // shrinkage-flavored "remaining <scope-noun>" phrasing still is.
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Added label normalization.',
+    limitations: 'Two remaining suite failures are pre-existing upstream issues unrelated to this story.',
+  }));
+  const preexistingDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    preexistingDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    false,
+    'bare "remaining" describing pre-existing unrelated failures is not a shrinkage claim',
+  );
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Added label normalization.',
+    limitations: 'The remaining cases were left for a follow-up story.',
+  }));
+  const remainingScopeDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    remainingScopeDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    true,
+    '"remaining <scope-noun>" phrasing is still a shrinkage claim',
+  );
+
   // B-f7b3 CHK-004: a CONFIRMED milestone ledger that is empty OR whose rows are
   // all not_applicable (without a valid decision) must NOT vacuously satisfy the
   // milestone DONE requirement. These are negative controls over the CHK-007

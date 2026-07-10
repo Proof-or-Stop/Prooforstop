@@ -1372,6 +1372,21 @@ function confirmedShrinkageIds(decision: ScopeShrinkageDecisionData | null): Set
   return new Set(decision?.decision === 'confirmed' && decision.userConfirmed === true ? decision.removedMilestoneIds : []);
 }
 
+// B-2c03: `-`, `/`, and `.` are \b word boundaries, so shrinkage trigger words
+// inside path-like/code-like tokens (core/partial-done-recovery.ts, `deferred`,
+// name.test.mjs) match as if they were prose claims. Strip those tokens before
+// the claimsShrinkage scan; replacement is a single space so surrounding prose
+// is preserved. Hyphenated prose (e.g. "scope-was-narrowed") is also stripped —
+// an accepted tradeoff: the heuristic targets honest summaries, not wording
+// crafted to evade it.
+function stripCodeLikeTokens(text: string): string {
+  return text
+    .replace(/```[\s\S]*?```/g, ' ')
+    .replace(/`[^`\n]*`/g, ' ')
+    .replace(/[^\s`]*\/[^\s`]*/g, ' ')
+    .replace(/\b[A-Za-z0-9_]+(?:[-.][A-Za-z0-9_]+)+\b/g, ' ');
+}
+
 export function evaluateDoneIntentEquivalence(
   input: ProofStoryDiagnosticInput,
   modeValue?: ProofStoryGateMode,
@@ -1418,13 +1433,13 @@ export function evaluateDoneIntentEquivalence(
         'fail',
       ));
     }
-    const narrowingText = [
+    const narrowingText = stripCodeLikeTokens([
       input.summary?.changes ?? '',
       input.summary?.actualTranscript ?? '',
       input.summary?.outcomeDiff ?? '',
       input.summary?.limitations ?? '',
-    ].join('\n');
-    const claimsShrinkage = /\b(?:partial|narrow(?:er|ed)?|shrink(?:age|s|ing)?|out of scope|not covered|deferred|remaining|excluded)\b/i.test(narrowingText);
+    ].join('\n'));
+    const claimsShrinkage = /\b(?:partial|narrow(?:er|ed)?|shrink(?:age|s|ing)?|out of scope|not covered|deferred|remaining\s+(?:work|scope|items?|cases?|tasks?|milestones?|features?|functionality|coverage|requirements?|deliverables?)|excluded)\b/i.test(narrowingText);
     if (claimsShrinkage && acceptedShrinkageMilestoneIds.length === 0) {
       gaps.push(gap(
         'unconfirmed_single_outcome_shrinkage',
