@@ -29,7 +29,7 @@
       "desc": "F-001 is not fully fixed for the reviewer read evidence shape this lane must record. The command schema and reviewer instructions allow readManifest.filesTriagedByName to include source implementation files, and this review must report source files as triaged by name. But captureReviewerReadEvent keeps only docs/requirements/decisions/*.md events, so source-file triage readEvents are dropped before diagnoseReviewerReadEvidence compares readLog to readManifest. A no-blocker review_pass_set with the required manifest plus mechanical events for source files would fail with read_manifest_extra_triage diagnostics instead of accepting and persisting the requested real read evidence. Fix by either mechanically capturing non-decision triage events or narrowing the readManifest schema/instructions to decisions-doc paths only.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-10T02:17:29.862Z",
@@ -106,7 +106,11 @@
         "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts"
       ],
       "signatureTag": "missing|ts|fully-fixed-reviewer",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 517a27ad and verified at 88792835/b99d7fc: readManifest remains signed for all declared paths, but mismatch diagnostics now compare only decisions-doc paths against the decisions-doc mechanical readLog; source-file manifest entries no longer create false read_manifest_extra_triage diagnostics. Focused smoke, direct smoke, git diff --check, evidence refresh, and full lattice validate 44/44 passed.",
+      "resolvedAt": "2026-07-10T02:29:11.535Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
