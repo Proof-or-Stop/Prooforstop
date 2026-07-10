@@ -508,6 +508,13 @@ export function recordDispatchFinal(
  * NEVER throws: any failure (adapter/assemble throw on a rogue payload, writer
  * throw) is swallowed so dispatch proceeds.
  *
+ * B-70e9 F-030 (mirror of the F-029 recordDispatchFinalCodex restructure): a
+ * provider-reported record that BUILT fine but whose ledger APPEND threw is an
+ * honest under-count — the throw is swallowed and the function returns WITHOUT
+ * attempting an 'unavailable' final, so a transient append failure can never
+ * land a false source=unavailable row for usage that WAS parsed. Only a BUILD
+ * (validation) failure degrades to the unavailable fallback.
+ *
  * `provider` is 'openai' for the codex host and 'gemini' for the gemini host —
  * the record's provider.name is set accordingly (NOT hardcoded anthropic).
  * `model` is the served model the provider reported; null falls back to the
@@ -536,15 +543,27 @@ export function recordDispatchFinalForProvider(
       typeof reportedUsage === 'object' && reportedUsage !== null && !Array.isArray(reportedUsage);
 
     if (usable) {
-      // INNER try: a malformed-but-object usage (e.g. a negative / non-integer
-      // token count) makes buildProviderRecord throw at validation. On a throw we
-      // must NOT return — we fall through to the unavailable-final branch below so
-      // the preflight estimate is STILL superseded (never left orphaned). At most
-      // ONE final is appended: the record is built first and appended only AFTER a
-      // successful build, so a build throw appends nothing here and only the single
-      // unavailable append runs.
+      // INNER try (BUILD only): a malformed-but-object usage (e.g. a negative /
+      // non-integer token count) makes buildProviderRecord throw at validation. On
+      // a build throw we must NOT return — we fall through to the unavailable-final
+      // branch below so the preflight estimate is STILL superseded (never left
+      // orphaned).
+      //
+      // B-70e9 F-030: BUILD and APPEND are separated into their own try blocks
+      // (mirror of the F-029 recordDispatchFinalCodex restructure). A BUILD failure
+      // is a malformed provider count that legitimately degrades to an
+      // 'unavailable' final (existing semantics, unchanged). An APPEND failure is a
+      // transient ledger fault (corrupt chain / lock-wait skip) on a record that
+      // BUILT fine — it must NOT fall through to the unavailable branch, because a
+      // second append that then succeeds would land a source=unavailable row
+      // although provider usage WAS parsed (corrupting source semantics and
+      // undercounting real codex/gemini usage). This function is void, so the
+      // append throw is swallowed and we return (honest under-count, consistent
+      // with the never-throw seam contract). At most ONE final append is ever
+      // attempted on this path.
+      let record: ReturnType<typeof buildProviderRecord> | null = null;
       try {
-        const record = buildProviderRecord(
+        record = buildProviderRecord(
           provider,
           reportedUsage,
           {
@@ -556,11 +575,20 @@ export function recordDispatchFinalForProvider(
           attributionFor(ctx),
           finalContextForProvider(opts, provider, model),
         );
-        appendUsageRecord(root, record, { env: opts.env });
-        return;
       } catch {
         // Build/validation failed on a malformed usage: fall through to the
         // unavailable-final branch (do NOT return) so the estimate is superseded.
+        record = null;
+      }
+      if (record !== null) {
+        try {
+          appendUsageRecord(root, record, { env: opts.env });
+        } catch {
+          // F-030: the provider record BUILT fine; only the ledger append failed.
+          // Swallow WITHOUT attempting an unavailable final — the usage WAS
+          // parsed, so an unavailable row would be a false claim.
+        }
+        return;
       }
     }
 

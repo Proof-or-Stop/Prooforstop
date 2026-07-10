@@ -148,7 +148,7 @@ import {
   type CodexReviewRunner,
 } from '../core/codex-review-leaf.js';
 import { adaptCodexTurnUsage } from '../core/usage-ledger/adapters/openai.js';
-import { recordDispatchFinalCodex } from '../core/usage-ledger/dispatch-usage.js';
+import { recordDispatchFinalCodex, recordDispatchFinalForProvider } from '../core/usage-ledger/dispatch-usage.js';
 import { payloadDigest } from '../core/usage-ledger/adapters/shared.js';
 import { mintAttemptId, mintLedgerCallId, mintRecordId } from '../core/usage-ledger/ids.js';
 import {
@@ -1011,6 +1011,70 @@ async function main(): Promise<void> {
     const rawLines = readFileSync(resolveLedgerPath(badRoot), 'utf8').split('\n').filter((l) => l.trim().length > 0);
     assert.equal(rawLines.length, 1, 'no final row appended (the fallback unavailable append was NOT attempted)');
     assert.equal(rawLines[0], 'this is not valid json', 'only the corrupt seed line remains — no unavailable row was written');
+  });
+
+  // =========================================================================
+  // F-030: the SAME build-vs-append conflation, in the VOID codex/gemini
+  // sibling recordDispatchFinalForProvider (used by lattice-dispatch
+  // runBoundedRealLeafDispatch). The OLD code wrapped buildProviderRecord AND
+  // appendUsageRecord in ONE try; a provider-reported record that BUILT fine
+  // but whose ledger APPEND threw fell through to the unavailable-final branch,
+  // and if that SECOND append succeeded a FALSE source=unavailable row landed
+  // although provider usage WAS parsed. The fix mirrors F-029: build in its own
+  // try (a build failure still degrades to the unavailable fallback,
+  // unchanged), append in its own try (a throw is swallowed and the function
+  // RETURNS — void never-throw seam, honest under-count, NO unavailable
+  // attempt).
+  //
+  // Honesty note on what this committed check can and cannot flip: the function
+  // is VOID (no CodexFinalResult to key on like F-029), and per the F-029
+  // determinism note the fallback unavailable append fails IDENTICALLY under
+  // any ledger-state fault (corrupt last line / ledger-as-directory: record A
+  // and fallback B chain off the SAME predecessor through the same writer), so
+  // under this corrupt-ledger harness OLD and NEW both land zero rows. The
+  // row-landing manifestation (the false unavailable row) was proven RED with a
+  // throwaway dist harness that reverts the restructure AND injects a
+  // first-append-throws fault (transient-fault shape: first append fails,
+  // second succeeds — OLD lands 1 source=unavailable row, NEW lands 0); see the
+  // F-030 fix commit message. What THIS check pins deterministically: (healthy)
+  // the happy path survives the restructure — exactly one provider-reported row
+  // lands, keyed on the parse; (corrupt) the seam still never throws and NO row
+  // of ANY source lands (ledger byte-untouched — regression guard for the
+  // no-second-append contract half that IS observable here).
+  // =========================================================================
+  await checkAsync('F-030 provider (void sibling): build-vs-append separated — healthy ledger lands exactly one provider-reported row; corrupt ledger lands NO row of any source and never throws', async () => {
+    const ctx = { storyId: 'B-70e9', phase: 'DEV', agentType: 'reviewer' };
+    const opts = { recordedAt: '2026-07-10T00:00:00.000Z', projectRootHash: 'sha256:testroot', env: ON };
+    // A valid bare openai usage object (the openai adapter's extractRawUsage
+    // accepts it directly) — buildProviderRecord succeeds.
+    const OPENAI_USAGE = { prompt_tokens: 500, completion_tokens: 200, prompt_tokens_details: { cached_tokens: 50 } };
+
+    // Healthy ledger (genesis): the provider record BUILDS and APPENDS — the
+    // happy path is preserved by the restructure and source is keyed on the
+    // parse (provider-reported, never unavailable).
+    const okRoot = freshRoot();
+    recordDispatchFinalForProvider(okRoot, ctx, null, null, 'openai', OPENAI_USAGE, 'gpt-5-codex', opts);
+    const okRows = readLedger(okRoot);
+    assert.equal(okRows.length, 1, 'happy path: exactly one final row landed');
+    assert.equal(okRows[0].usage.source, 'provider-reported', 'happy path: the landed row is provider-reported (parsed usage is never degraded)');
+    assert.equal(okRows[0].provider?.name, 'openai', 'happy path: provider attribution preserved');
+
+    // Corrupt ledger: buildProviderRecord still succeeds (valid usage), but the
+    // append THROWS at chain time. The void seam must swallow (never throw) and
+    // must NOT land ANY row — in particular no source=unavailable row for usage
+    // that WAS parsed.
+    const badRoot = freshRoot();
+    seedCorruptLedger(badRoot); // the next append throws in readLastRecordHash
+    let threw = false;
+    try {
+      recordDispatchFinalForProvider(badRoot, ctx, null, null, 'openai', OPENAI_USAGE, 'gpt-5-codex', opts);
+    } catch {
+      threw = true;
+    }
+    assert.equal(threw, false, 'void seam contract: an append failure never propagates to the dispatch caller');
+    const rawLines = readFileSync(resolveLedgerPath(badRoot), 'utf8').split('\n').filter((l) => l.trim().length > 0);
+    assert.equal(rawLines.length, 1, 'no final row appended (no unavailable fallback row for parsed usage)');
+    assert.equal(rawLines[0], 'this is not valid json', 'only the corrupt seed line remains — the ledger is byte-untouched');
   });
 
   // =========================================================================
