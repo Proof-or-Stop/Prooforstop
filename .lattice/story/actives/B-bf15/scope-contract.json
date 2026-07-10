@@ -1,0 +1,17 @@
+{
+  "storyId": "B-bf15",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/package.json"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md"
+  ],
+  "scopeChangeReason": "init_from_plan produced an empty allowedModify set; the plan touches exactly one file (packages/main/package.json). Decision-doc historical evidence row explicitly out of scope.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-10T14:28:06.078Z",
+  "updatedAt": "2026-07-10T14:29:24.984Z"
+}

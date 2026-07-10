@@ -6,7 +6,50 @@
       "context": "Line 70: \"test:autopilot-resume-smoke\": \"node dist/tasks/autopilot-resume-smoke.js\" — source deleted in 5d3d7bd686; root package.json has no mirror of this script",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After removing the script line, run `node -e \"const p=require(./packages/main/package.json); if(p.scripts[\\\"test:autopilot-resume-smoke\\\"]) { process.exit(1) }\"` -> exits 0, confirming the key is absent from the parsed scripts object; WHY: proves the script entry was actually removed, not just commented out",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run `npm --prefix packages/main run` and pipe through grep for autopilot-resume-smoke -> no match (exit 1 from grep); WHY: confirms npm no longer lists the script as runnable",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run `node -e \"require(./packages/main/package.json)\"` -> exits 0 with no parse error; WHY: validates JSON is still well-formed after the line deletion (no dangling comma)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Inspect the line before and after the deleted line 70 in the committed diff to confirm no trailing comma was left on the now-last script entry and no blank line gap was introduced -> diff shows clean removal; WHY: a dangling comma makes package.json invalid JSON in strict parsers and npm versions that reject trailing commas",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run `node -e \"const p=require(./packages/main/package.json); const keys=Object.keys(p.scripts); if(keys.length===0) process.exit(1)\"` -> exits 0; WHY: guard against accidentally deleting the entire scripts block or adjacent entries during the edit",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Verify that running `npm --prefix packages/main run test:autopilot-resume-smoke` after the removal produces an npm error (missing script), NOT a MODULE_NOT_FOUND from node -> npm error output contains missing script or not found; WHY: confirms the failure mode shifted from a confusing node module error to a clear npm missing-script error, proving the entry was removed rather than the dist artifact being cleaned",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Check that no other scripts key in packages/main/package.json contains the substring autopilot-resume-smoke (e.g. as a dependency in a compound script like npm run test:autopilot-resume-smoke &&...) -> grep of the scripts block returns no match; WHY: ensures no transitive reference that would still fail at runtime",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

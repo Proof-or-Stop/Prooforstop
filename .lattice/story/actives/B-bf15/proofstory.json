@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-bf15",
+  "diagnosticOnly": false,
+  "hardeningLevel": "standard",
+  "triggerReasons": [
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "red_evidence_required",
+      "message": "Bug, regression, security/auth/session, benchmark, or explicit behavior-change work should have red evidence.",
+      "requires": "red-evidence"
+    },
+    {
+      "code": "scope_ambiguity",
+      "message": "Broad or absolute scope wording should have scope clarification before future enforcement.",
+      "requires": "scope-clarification"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:cd6147d637f134cdaa4cf51319d82ccecab5c2cc6b684eb315ac557981a7be74",
+  "acceptanceBindings": [
+    {
+      "id": "AB-001",
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [],
+      "milestoneIds": [],
+      "note": "Removing the stale script (CHK-001) plus the reference sweep (CHK-002) together prove the acceptance claim: npm run listing has no test:autopilot-resume-smoke and no runnable reference survives outside historical records."
+    }
+  ],
+  "diagnosticGaps": [
+    {
+      "code": "acceptance_binding_missing_verification_intent_refs",
+      "severity": "warn",
+      "artifact": "proofstory.json",
+      "message": "AB-001 has no verificationIntentRefs."
+    },
+    {
+      "code": "missing_red_evidence",
+      "severity": "warn",
+      "artifact": "red-evidence.json",
+      "message": "Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation.",
+      "triggeredBy": [
+        "red_evidence_required"
+      ]
+    }
+  ],
+  "note": "Single-deliverable chore; binding covers the snapshot acceptance claim by convention.",
+  "createdAt": "2026-07-10T14:29:03.945Z",
+  "updatedAt": "2026-07-10T14:29:03.945Z"
+}
