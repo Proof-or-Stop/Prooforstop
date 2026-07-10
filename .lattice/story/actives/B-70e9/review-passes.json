@@ -1643,6 +1643,26 @@
         "scanEscalationReason": null
       },
       "_hash": "1def40b835e2892240a5a76c1ddb5f6600cd42738d8d0ba915f64086c0814ee5"
+    },
+    {
+      "id": "B-70e9:RP-069",
+      "agent": "lattice-review-docs",
+      "note": "Fallback-1 full-text scan (docs-only touchpoint, no Step-1 symbol anchors from this narrowed diff review): verified the new blocked-row honesty paragraph appended to docs/host-run-usage.md (lines 175-183) in commit 2f42209a92 against the 3 code surfaces it describes. 1) core/host-run.ts CHK-007a hard-budget and CHK-007b concurrency refusal paths: recorded is now gated on the real appended flag (rowAppended / blockRow.recorded), recordId is nulled on a swallowed write, and the composed reason strings match the doc's example strings verbatim: hard_budget_exceeded ...; ledger_append_failed... and concurrency_cap_exceeded ...; ledger_append_failed... . 2) usage-ledger/dispatch-usage.ts: recordConcurrencyBlock and recordBudgetBlock/BudgetGuardDecision additively surface appended/appendFailureReason via describeLedgerAppendFailure, which emits the exact ledger_append_failed format the doc quotes; recordId is never set when the row never landed, matching the doc's claim that a recordId is never minted for a blocked row that never persisted. 3) Ran the built host-run-usage-smoke suite (npm build + node dist/tasks/host-run-usage-smoke.js): 63/63 checks pass including the two new F-027 corrupt-ledger refusal checks and the CHK-007a/007b positive-path blocked-row checks, confirming the doc's behavior claims are live-verified not aspirational. CHANGELOG.md follows this repo's established one-entry-per-story convention (confirmed against prior fix commits e.g. F-012/F-008 in git log) so the absence of a separate F-027 CHANGELOG line is not drift. No doc-promise-undelivered gaps found; no inconsistencies. 0 findings.",
+      "createdAt": "2026-07-10T17:26:48.379Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-080",
+      "readManifest": {
+        "filesReadFully": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "9cb0937c0df3e2bd23a18d6217dd34f72bb19dd7e7a69bf800b28d18fddcc6f8"
     }
   ]
 }
