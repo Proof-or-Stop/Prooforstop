@@ -21,6 +21,28 @@
         "scanEscalationReason": null
       },
       "_hash": "4407cdcacc91540edd7553c4eedd55a62e2cf5aba1437bd4ab5b95deb6a83bb7"
+    },
+    {
+      "id": "B-b264:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed done-prepare.ts (new guidance builders buildMergeConflictGuidance/buildRerunReasonGuidance/buildGeneratedMetadataDirtyGuidance/buildInitialDirtyGuidance, hazard classification wiring, gitStatusRows porcelain fix) and done-prepare-merge-rerun-smoke.ts (6 scenarios). No dead code (all 4 new guidance builders are called; dirtyCategoryLabel switch is exhaustive per clean tsc build); no as-any; no empty/silent catches introduced; all new smoke-test imports used. blocked() wrapper correctly threads dryRun through all ~26 call sites (only the standalone phaseTimeoutBlock uses raw block() with an explicit dryRun param, which is correct since it sits outside runDonePrepare's closure). gitStatusRows fix is well-commented and reproduced correct (verified the leading-space-strip bug with a standalone repro). Investigated whether the sibling gitStatusRowsForDonePrepareGeneratedMetadata (called at done-prepare.ts:1750, used by the new buildGeneratedMetadataDirtyGuidance path) has the identical trim() bug -- confirmed it does, but that helper lives entirely in done-prepare-generated-metadata.ts which has 0 diff lines in this story (pre-existing from B-fbcf), and its practical effect on the new guidance output is neutralized by that file's existing canonicalStatusPath self-healing fallback (path field only; the new guidance never displays the corrupted statusCode). Out of scope for this diff per changed-files-only review rule; flagged verbally as a follow-up candidate, not filed as a blocker. npm --prefix packages/main run build is clean (tsc, no errors). npm --prefix packages/main run test:done-prepare-merge-rerun-smoke passes (all 6 scenarios). No I/O isolation concerns (no bridge.ts in this project). No proof/receipt/job.metadata semantics touched. No README/CLAUDE.md changes in this diff, so no doc-promise-undelivered risk.",
+      "createdAt": "2026-07-10T05:40:07.549Z",
+      "reviewRound": "2026-07-10T05:34:01.890Z",
+      "reviewRunId": "B-b264:RR-002",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/package.json",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/dirty-worktree.ts",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/evidence-freshness.js"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "45418e3ba58a3e56562de2da0aae577c62fc6a256cb06c98ecf43484c931bb5a"
     }
   ]
 }
