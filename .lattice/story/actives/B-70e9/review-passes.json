@@ -1624,6 +1624,25 @@
         "scanEscalationReason": null
       },
       "_hash": "9ce42186744f31574f9c8e0045f235a01fbb4392c1f3c31edcef6258ee31c6b4"
+    },
+    {
+      "id": "B-70e9:RP-068",
+      "agent": "lattice-review-concept",
+      "note": "Round 19 (commit 2f42209a92, F-027 fix): diff scoped to core/host-run.ts, core/usage-ledger/dispatch-usage.ts, tasks/host-run-usage-smoke.ts, docs/host-run-usage.md. Reviewed full commit diff line-by-line: no concept word deleted or replaced en masse. recordConcurrencyBlock return type gains an optional reason? field (was {recorded,recordId}); BudgetGuardDecision gains optional appended?/appendFailureReason? fields. Both additive/backward compatible per commit message and code inspection. Reused helper describeLedgerAppendFailure predates this commit (introduced in F-021 fix 0042a4a1f4), not a new/renamed concept. Removed lines are logic changes only (unconditional recorded:blocked -> conditional; bare catch{} -> catch(err)), not concept deletions. No grep sweep warranted; no residue check applicable this round. No blocker.",
+      "createdAt": "2026-07-10T17:25:53.397Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-079",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "1def40b835e2892240a5a76c1ddb5f6600cd42738d8d0ba915f64086c0814ee5"
     }
   ]
 }
