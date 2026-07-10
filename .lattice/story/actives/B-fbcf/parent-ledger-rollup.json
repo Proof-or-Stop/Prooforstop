@@ -14,16 +14,19 @@
         "M4",
         "M5"
       ],
-      "status": "planned",
+      "status": "covered",
       "evidenceRefs": [
-        "slice-plan:slice-1",
-        "slice-plan:slice-2",
-        "scope-check:gaps=0",
-        "proofstory-contract:AB-B-fbcf-auto-closeout"
+        "test-evidence:PASS:15/15:materialHash=358d73400a6c481515e960a92baa4e400789d0cb121ac94be883fce44642c2d2",
+        "done-required-evidence:PASS:2-required-commands:materialHash=358d73400a6c481515e960a92baa4e400789d0cb121ac94be883fce44642c2d2",
+        "delivery-check:lattice-review-delivery:5-docs-promises:2-real-machine-tests",
+        "review-assurance:full-3x2:B-fbcf-q-r1..B-fbcf-q-r3",
+        "review-passes:concept+quality+test-coverage+docs",
+        "summary:accepted",
+        "evidence/transcript-diff.md:accepted"
       ]
     }
   ],
-  "rollupHash": "sha256:0187492eeabb756d6a5d4781799a7f15c5ac40bbce7b5f7cbae5f806dec19d83",
+  "rollupHash": "sha256:9e9904614c469ad12f5ffd974e7e7fdab9c7abd1bf3324192d3b28fbc1fd730c",
   "createdAt": "2026-07-09T23:25:29.622Z",
-  "updatedAt": "2026-07-09T23:25:49.349Z"
+  "updatedAt": "2026-07-10T01:05:58.780Z"
 }
