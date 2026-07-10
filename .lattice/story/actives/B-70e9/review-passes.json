@@ -436,6 +436,29 @@
         "scanEscalationReason": null
       },
       "_hash": "b9b8a556a0fa8f9f74760aa502a0ec2429661d793c60ab92ce7fa3536dc9c426"
+    },
+    {
+      "id": "B-70e9:RP-018",
+      "agent": "lattice-review-quality",
+      "note": "Round-5 re-review of F-010 fix (commit e3ac9b651) scoped to the 4 changed files: core/usage-sweep.ts, handlers/usage-sweep.ts, tasks/usage-sweep-smoke.ts, docs/host-run-usage.md. Verified: (1) validation ordering in openReportFileExclusive is correct and matches the documented 5-step contract - empty/absolute checked first, lexical inside-root check, per-existing-ancestor lstat walk rejecting symlinks/non-dirs, realpath containment of deepest-existing-ancestor vs realpath(root), mkdir only after all validation, O_EXCL wx open last. (2) fd lifecycle in the handler is leak-free - open (core) then try writeFileSync(fd,...) then finally closeSync(fd), single close, no leak on write failure, no double-close path. (3) error typing - new UsageSweepOutError with a closed union of typed codes (empty/absolute/outside-root/symlink-ancestor/ancestor-not-dir/already-exists), thrown at every refusal site; no empty catches introduced by this diff (3 pre-existing empty catches at lines 166/177/215 are unchanged, annotated, deliberate skip-on-unreadable-fs). (4) dead code - old resolveOutPathWithinRoot symbol fully removed with zero dangling references anywhere in packages/main/src; every newly imported fs symbol (lstatSync, mkdirSync, openSync, realpathSync, closeSync, symlinkSync, dirname, sep, Stats) is used. Independently re-ran beyond the smoke suite: symlinked-grandparent-with-missing-trailing-segments (caught), pre-existing-file race (caught, content byte-untouched), symlinked project root itself (correctly resolves inside realpath), one-level parent-escape via sub/../.. (caught), existing-directory-as-target (caught); confirmed the residual same-process TOCTOU window between the ancestor-walk and the final mkdir/open bounds worst case to writing a new file into an attacker-redirected dir (open is still create-only/wx), not overwriting an existing victim file, consistent with the finding's never-overwrite requirement. Doc closing self-check: every claim added to docs/host-run-usage.md (relative-only, create-only wx, symlinked-ancestor refusal, realpath containment, create-after-validation ordering) is verified true in code, no doc-promise-undelivered gap. Self-ran build (tsc clean), npm run test:usage-sweep (16/16 pass, matches commit message), npm run test:host-run-usage (34/34 pass, matches commit message). No blocking issues found this round.",
+      "createdAt": "2026-07-10T09:45:59.038Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-019",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/registry.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5d316ab20ef39ffd70cbc14232f7c1c82cd7523d28f4fef4b5b4b7ebd8c656af"
     }
   ]
 }
