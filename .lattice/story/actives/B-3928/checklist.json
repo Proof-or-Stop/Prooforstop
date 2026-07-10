@@ -181,9 +181,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md#M0---Baseline-Inventory-And-Lockfile"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-10T03:37:21.404Z",
       "userSees": "User sees \"PASS proof-or-stop prompt baseline: overlap matrix verified for 16 roles\" in node scripts/verify-proof-or-stop-prompt-baseline.mjs output.",
       "files": {
         "modify": [
@@ -454,6 +454,15 @@
       "from": "pending",
       "to": "done",
       "reason": "M0 baseline JSON records agent_prompt output metadata for all 16 roles; verificationEvidence covers all CHK-002 intents."
+    },
+    {
+      "timestamp": "2026-07-10T03:37:21.404Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Overlap matrix markdown covers all 16 roles and verifier evidence covers all CHK-003 intents."
     }
   ]
 }
