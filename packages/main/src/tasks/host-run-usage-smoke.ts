@@ -24,6 +24,11 @@
  *     claude=anthropic byte-compat). F-008: a throwing passthrough sink degrades
  *     honestly (run completes, no per-chunk retry, usage final records, slot
  *     releases, passthroughError reported) instead of crashing the run.
+ *     F-020: a REAL async stream EPIPE is contained too — a REAL subprocess pipes
+ *     host_run's live output to a consumer that closes mid-stream, and the driver
+ *     exits 0 (no crash), releases its slot, records the ledger final, and
+ *     surfaces a non-null passthroughError instead of dying on an unhandled
+ *     stdout/stderr 'error' event.
  *     F-011: the spawn plan binds cwd to the resolved project root (args.cwd,
  *     the same value the ledger attributes) — proven with a fake runner while
  *     the smoke process is chdir'd elsewhere, with a fail-closed empty-cwd
@@ -839,6 +844,98 @@ async function main(): Promise<void> {
     const dir = hostRunSlotsDir(sub);
     const after = acquireHostRunSlot(dir, 1, 6 * 60 * 60 * 1000, Date.now(), slotMeta('after-broken-sink'));
     assert.equal(after, join(dir, 'slot-0.json'), 'concurrency slot was released (cap=1 re-admission succeeds)');
+  });
+
+  // =========================================================================
+  // F-020: a REAL async stream EPIPE must be contained too. F-008 only proved a
+  // SYNCHRONOUSLY-throwing sink degrades honestly; a closed downstream pipe
+  // instead surfaces as an ASYNCHRONOUS 'error' event on process.stdout/stderr,
+  // which the sink try/catch cannot see. Against the OLD handler (no stream
+  // 'error' listener) this crashes the driver mid-run: the process dies with a
+  // nonzero exit, NO ledger final row, the slot leaks, and no passthroughError is
+  // ever surfaced. A REAL subprocess proves the fix: the driver drives the
+  // compiled handler in --json mode (host output routes to stderr) with a fake
+  // streaming runner emitting many chunks over ~250ms; the parent reads the first
+  // line then DESTROYS the pipe, so the driver's later writes hit a real EPIPE.
+  // =========================================================================
+  await checkAsync('F-020: real subprocess — a live-output consumer that closes mid-stream (async EPIPE) is CONTAINED: driver exits 0, slot released, ledger final recorded, passthroughError surfaced', async () => {
+    const sub = freshRoot();
+    mkdirSync(sub, { recursive: true });
+    const resultFile = join(sub, 'f020-result.json');
+    const driverFile = join(sub, 'f020-driver.mjs');
+
+    // The driver imports the COMPILED handler + core and runs host_run against a
+    // fake streaming runner. Chunks carry no newline: the parent triggers on the
+    // first stderr 'data' event (not a line), and the codex usage line parses
+    // without a trailing newline — so no escaping is needed in this template.
+    const driverScript = `
+import { writeFileSync, readdirSync } from 'node:fs';
+const ROOT = process.env.F020_ROOT;
+const RESULT = process.env.F020_RESULT;
+const { createHostRunHandlers } = await import(process.env.F020_HANDLER_URL);
+const { hostRunSlotsDir, acquireHostRunSlot } = await import(process.env.F020_CORE_URL);
+const store = { readStory() { throw new Error('no store'); } };
+const ctx = { store, root: ROOT, scanRoot: ROOT };
+const runner = (plan) => new Promise((resolve) => {
+  const chunk = 'x'.repeat(8192);
+  let n = 0;
+  const tick = () => {
+    if (plan.onChunk) plan.onChunk({ stream: 'stdout', text: chunk });
+    n += 1;
+    if (n >= 120) {
+      resolve({ stdout: JSON.stringify({ type: 'turn.completed', usage: { input_tokens: 5, cached_input_tokens: 0, output_tokens: 2 } }), stderr: '', exitCode: 0, timedOut: false });
+      return;
+    }
+    setTimeout(tick, 2);
+  };
+  setTimeout(tick, 2);
+});
+const handlers = createHostRunHandlers(ctx, { runner });
+const out = await handlers.host_run({ host: 'codex', agentType: 'reviewer', prompt: 'driver prompt', phase: 'adhoc', json: true });
+let leftover = [];
+try { leftover = readdirSync(hostRunSlotsDir(ROOT)).filter((f) => f.startsWith('slot-') && f.endsWith('.json')); } catch { /* no slot dir */ }
+const reAcquired = acquireHostRunSlot(hostRunSlotsDir(ROOT), 1, 6 * 60 * 60 * 1000, Date.now(), { pid: process.pid, startedAt: new Date().toISOString(), host: 'codex', storyId: null, agentType: 'after' }) !== null;
+const obj = out && typeof out === 'object' ? out : {};
+writeFileSync(RESULT, JSON.stringify({ passthroughError: obj.passthroughError ?? null, spawned: obj.spawned ?? null, exitCode: obj.exitCode ?? null, leftover, reAcquired }));
+`;
+    writeFileSync(driverFile, driverScript, 'utf8');
+
+    const childEnv = {
+      ...process.env,
+      LATTICE_USAGE_LEDGER: '1',
+      LATTICE_HOST_RUN_MAX_CONCURRENT: '1',
+      F020_ROOT: sub,
+      F020_RESULT: resultFile,
+      F020_HANDLER_URL: new URL('../handlers/host-run.js', import.meta.url).href,
+      F020_CORE_URL: new URL('../core/host-run.js', import.meta.url).href,
+    } as NodeJS.ProcessEnv;
+
+    // --json mode routes host output to process.stderr; close THAT pipe mid-stream.
+    const exitCode = await new Promise<number | null>((resolve) => {
+      const child = spawn(process.execPath, [driverFile], { env: childEnv, stdio: ['ignore', 'ignore', 'pipe'] });
+      let closed = false;
+      child.stderr?.on('data', () => {
+        if (!closed) {
+          closed = true;
+          // Read one line's worth, then destroy the read end so the driver's next
+          // writes hit a real EPIPE.
+          setTimeout(() => child.stderr?.destroy(), 5);
+        }
+      });
+      child.on('close', (code) => resolve(code));
+    });
+
+    assert.equal(exitCode, 0, 'the driver exited 0 — the async EPIPE was CONTAINED (the OLD handler crashes nonzero here)');
+    assert.ok(existsSync(resultFile), 'the driver wrote its result AFTER host_run returned (it never crashed mid-run)');
+    const res = JSON.parse(readFileSync(resultFile, 'utf8')) as { passthroughError: unknown; spawned: unknown; exitCode: unknown; leftover: unknown; reAcquired: unknown };
+    assert.equal(res.spawned, true, 'the run completed');
+    assert.equal(res.exitCode, 0, 'the host exit code propagates on the result surface');
+    assert.ok(typeof res.passthroughError === 'string' && res.passthroughError.length > 0, 'the JSON result surface carries a non-null passthroughError (the real EPIPE surfaced honestly)');
+    assert.ok(/EPIPE|stream error/i.test(res.passthroughError as string), 'passthroughError names the async stream failure');
+    assert.deepEqual(res.leftover, [], 'the concurrency slot was released (no leftover slot files after the run)');
+    assert.equal(res.reAcquired, true, 'a fresh cap=1 slot admission succeeds after the run (the slot was truly released)');
+    const records = readLedger(sub);
+    assert.ok(records.some((r) => r.usage.source === 'provider-reported'), 'the ledger final row recorded despite the broken live pipe');
   });
 
   // =========================================================================

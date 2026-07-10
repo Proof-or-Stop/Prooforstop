@@ -199,14 +199,35 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
         }
       };
 
-      // F-006: live passthrough. text mode routes host stdout->stdout / stderr->stderr;
-      // json mode routes EVERYTHING to stderr so stdout stays clean for the JSON result.
-      // F-008: a synchronous write failure (e.g. EPIPE after the consumer closed the
-      // pipe) is normalized and thrown to the CORE guard, which flips its
-      // passthrough-broken flag: delivery stops, the run still completes, and
-      // result.passthroughError surfaces the failure honestly. Swallowing here would
-      // hide the failure from that flag.
+      // F-006 / F-008 / F-020: live passthrough. text mode routes host
+      // stdout->stdout / stderr->stderr; json mode routes EVERYTHING to stderr so
+      // stdout stays clean for the JSON result.
+      // F-008: a SYNCHRONOUS write failure is normalized and thrown to the CORE
+      // guard, which flips its passthrough-broken flag: delivery stops, the run
+      // still completes, and result.passthroughError surfaces the failure honestly.
+      // F-020: a real EPIPE (the downstream pipe closed) usually surfaces NOT as a
+      // synchronous throw but as an ASYNCHRONOUS 'error' event on process.stdout /
+      // process.stderr, which the try/catch below cannot see. The 'error' listeners
+      // attached for the duration of the run (below) record the first such failure
+      // into `asyncStreamError`; the sink checks it and throws-through so the SAME
+      // core passthrough-broken flag flips (delivery stops instead of hammering a
+      // dead pipe), and the handler also merges it into the surfaced
+      // passthroughError as a backstop for an error that lands after the last chunk.
+      let asyncStreamError: string | null = null;
+      // F-020: track a broken STDERR specifically. The post-run diagnostic writes
+      // (usage line, warning) go to process.stderr; issuing one to a stderr we
+      // already know is broken would queue an async EPIPE 'error' that can fire
+      // AFTER the per-call listener is removed (zero listeners -> process crash).
+      // We skip those writes instead — honest degradation, since passthroughError
+      // already records the failure.
+      let stderrBroken = false;
       const passthrough: HostRunPassthrough = (chunk: HostRunChunk) => {
+        if (asyncStreamError !== null) {
+          // The stream already emitted an async 'error' — the pipe is gone. Throw
+          // through (the same contract as a sync write failure) so the core flips
+          // its passthrough-broken flag instead of writing to a broken stream.
+          throw new Error(asyncStreamError);
+        }
         try {
           if (json || chunk.stream === 'stderr') process.stderr.write(chunk.text);
           else process.stdout.write(chunk.text);
@@ -215,84 +236,126 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
         }
       };
 
-      const result = await runHostRun(
-        {
-          host,
-          storyId,
-          agentType,
-          phase: normalizeString(args.phase) || undefined,
-          promptText,
-          reviewRunId,
-          lane,
-          timeoutMs: typeof args.timeoutMs === 'number' && args.timeoutMs > 0 ? args.timeoutMs : undefined,
-          agyPrintTimeout,
-          env: process.env,
-          // F-011: the host subprocess executes in the resolved project root
-          // (ctx.root — the --root target the CLI engine resolved). This is
-          // deliberately the SAME value bound as the ledger `root` +
-          // projectRootHash below, so where the host actually runs and where
-          // the ledger attributes the run can never diverge; the caller's
-          // process.cwd() plays no part. Operators launching story-bound host
-          // runs point --root at the story's authoritative worktree (the
-          // documented reviewer/quorum recipe), which makes that worktree the
-          // execution directory too.
-          cwd: ctx.root,
-          root: ctx.root,
-          recordedAt: new Date().toISOString(),
-          projectRootHash: projectRootHashFor(ctx.root),
-        },
-        { runner: options.runner, resolveStory, passthrough },
-      );
-
-      const usageLine = formatUsageLine(result);
-
-      // F-008: honest degradation notice — the run completed, but live output
-      // delivery broke partway (text mode prints it; json mode carries the field).
-      const passthroughWarning = result.passthroughError
-        ? `host_run warning: live output passthrough failed (${result.passthroughError}); output delivery degraded but the run and usage recording completed\n`
-        : null;
-
-      if (json) {
-        // Machine mode: the full host transcript already streamed to stderr; the
-        // JSON payload (exitCode, usage, refusal, bounded stdout tail) is the
-        // single stdout line. The engine prints it; exitCode is a field.
-        safeWriteStderr(`${usageLine}\n`);
-        return {
-          schemaVersion: 'lattice.host_run.v1',
-          host: result.host,
-          storyId: result.storyId,
-          phase: result.phase,
-          agentType: result.agentType,
-          spawned: result.spawned,
-          blocked: result.blocked,
-          refusalReason: result.refusalReason,
-          liveRuns: result.liveRuns,
-          exitCode: result.exitCode,
-          timedOut: result.timedOut,
-          stdout: result.stdout,
-          stderr: result.stderr,
-          usage: result.usageSummary,
-          passthroughError: result.passthroughError,
-        };
-      }
-
-      // Text mode. Host output already streamed live through the passthrough, so
-      // the handler never re-prints it (no double-print).
-      if (passthroughWarning) safeWriteStderr(passthroughWarning);
-      if (result.blocked || result.exitCode !== 0 || result.timedOut) {
-        // Failure / refusal: usage/refusal line to stderr, then throw so the
-        // process exits nonzero (engine forces exit 0 on a normal return).
-        safeWriteStderr(`${usageLine}\n`);
-        if (result.blocked) {
-          throw new Error(`host_run refused (${result.refusalReason}); no host was launched`);
+      // F-020: contain ASYNC stream 'error' events (real EPIPE) for the DURATION of
+      // the run. Node terminates the process only when a stream has ZERO 'error'
+      // listeners, so simply attaching ours is sufficient containment: we swallow
+      // the error and record the first message. Hygiene: exactly our two named
+      // listeners are added here and removed with removeListener in the finally
+      // below — never removeAllListeners, since other code may hold its own
+      // listeners on these shared streams.
+      const recordStreamError = (streamName: 'stdout' | 'stderr') => (err: unknown): void => {
+        if (streamName === 'stderr') stderrBroken = true;
+        if (asyncStreamError === null) {
+          const message = err instanceof Error ? err.message : String(err);
+          asyncStreamError = `host_run passthrough ${streamName} stream error: ${message}`;
         }
-        const timeoutNote = result.timedOut ? ' (timed out)' : '';
-        throw new Error(`host_run: ${result.host} exited ${result.exitCode}${timeoutNote}`);
-      }
+      };
+      const onStdoutError = recordStreamError('stdout');
+      const onStderrError = recordStreamError('stderr');
 
-      // Success: output already streamed; nothing left to print.
-      safeWriteStderr(`${usageLine}\n`);
-      return '';
+      // F-020: gated stderr diagnostics — never write to a stderr already known
+      // broken (avoids a late async EPIPE 'error' firing with no listener).
+      const emitStderr = (text: string): void => {
+        if (stderrBroken) return;
+        safeWriteStderr(text);
+      };
+
+      // F-020: attach the async stream-error guards for the DURATION of the run,
+      // then remove exactly them in the finally below (never removeAllListeners).
+      process.stdout.on('error', onStdoutError);
+      process.stderr.on('error', onStderrError);
+      let result: HostRunResult;
+      try {
+        result = await runHostRun(
+          {
+            host,
+            storyId,
+            agentType,
+            phase: normalizeString(args.phase) || undefined,
+            promptText,
+            reviewRunId,
+            lane,
+            timeoutMs: typeof args.timeoutMs === 'number' && args.timeoutMs > 0 ? args.timeoutMs : undefined,
+            agyPrintTimeout,
+            env: process.env,
+            // F-011: the host subprocess executes in the resolved project root
+            // (ctx.root — the --root target the CLI engine resolved). This is
+            // deliberately the SAME value bound as the ledger `root` +
+            // projectRootHash below, so where the host actually runs and where
+            // the ledger attributes the run can never diverge; the caller's
+            // process.cwd() plays no part. Operators launching story-bound host
+            // runs point --root at the story's authoritative worktree (the
+            // documented reviewer/quorum recipe), which makes that worktree the
+            // execution directory too.
+            cwd: ctx.root,
+            root: ctx.root,
+            recordedAt: new Date().toISOString(),
+            projectRootHash: projectRootHashFor(ctx.root),
+          },
+          { runner: options.runner, resolveStory, passthrough },
+        );
+
+        // F-020: an async stream 'error' that landed AFTER the final chunk (so the
+        // sink's throw-through never ran) is still surfaced honestly here — merge
+        // the handler-observed async failure with the core-reported sink failure.
+        const passthroughError = result.passthroughError ?? asyncStreamError;
+
+        const usageLine = formatUsageLine(result);
+
+        // F-008 / F-020: honest degradation notice — the run completed, but live
+        // output delivery broke partway (text mode prints it; json mode carries the
+        // field).
+        const passthroughWarning = passthroughError
+          ? `host_run warning: live output passthrough failed (${passthroughError}); output delivery degraded but the run and usage recording completed\n`
+          : null;
+
+        if (json) {
+          // Machine mode: the full host transcript already streamed to stderr; the
+          // JSON payload (exitCode, usage, refusal, bounded stdout tail) is the
+          // single stdout line. The engine prints it; exitCode is a field.
+          emitStderr(`${usageLine}\n`);
+          return {
+            schemaVersion: 'lattice.host_run.v1',
+            host: result.host,
+            storyId: result.storyId,
+            phase: result.phase,
+            agentType: result.agentType,
+            spawned: result.spawned,
+            blocked: result.blocked,
+            refusalReason: result.refusalReason,
+            liveRuns: result.liveRuns,
+            exitCode: result.exitCode,
+            timedOut: result.timedOut,
+            stdout: result.stdout,
+            stderr: result.stderr,
+            usage: result.usageSummary,
+            passthroughError,
+          };
+        }
+
+        // Text mode. Host output already streamed live through the passthrough, so
+        // the handler never re-prints it (no double-print).
+        if (passthroughWarning) emitStderr(passthroughWarning);
+        if (result.blocked || result.exitCode !== 0 || result.timedOut) {
+          // Failure / refusal: usage/refusal line to stderr, then throw so the
+          // process exits nonzero (engine forces exit 0 on a normal return).
+          emitStderr(`${usageLine}\n`);
+          if (result.blocked) {
+            throw new Error(`host_run refused (${result.refusalReason}); no host was launched`);
+          }
+          const timeoutNote = result.timedOut ? ' (timed out)' : '';
+          throw new Error(`host_run: ${result.host} exited ${result.exitCode}${timeoutNote}`);
+        }
+
+        // Success: output already streamed; nothing left to print.
+        emitStderr(`${usageLine}\n`);
+        return '';
+      } finally {
+        // F-020: listener hygiene — remove exactly our two listeners, leaving any
+        // other listeners on these shared streams untouched.
+        process.stdout.removeListener('error', onStdoutError);
+        process.stderr.removeListener('error', onStderrError);
+      }
     },
   };
 }

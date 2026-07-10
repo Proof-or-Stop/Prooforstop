@@ -64,10 +64,18 @@ In `--json` mode the full host transcript is delivered live on **stderr** so tha
 **stdout stays clean** for the one JSON result; the JSON `stdout` field therefore
 carries only the bounded usage-parse tail, not the full transcript.
 
-If the live passthrough sink fails mid-run (e.g. `EPIPE` after the consuming
-pipe closes), delivery stops at the first failure but the run, usage recording,
-and slot release still complete: text mode prints a `host_run warning:` line to
-stderr and the `--json` result carries a non-null `passthroughError` field.
+If the live passthrough sink fails mid-run, delivery stops at the first failure
+but the run, usage recording, and slot release still complete: text mode prints a
+`host_run warning:` line to stderr and the `--json` result carries a non-null
+`passthroughError` field. This holds for **both** failure shapes a closed
+downstream pipe can take: a **synchronous** write throw, and — because Node
+delivers pipe write failures like a real `EPIPE` as an **asynchronous `'error'`
+event** on `process.stdout` / `process.stderr` rather than a throw — that async
+stream error too. `host_run` attaches (and, in a `finally`, removes) its own
+stdout/stderr `'error'` listeners for the duration of the run, so a real EPIPE is
+contained into the same `passthroughError` state instead of crashing the process;
+once a stream is known broken, the best-effort diagnostic writes to it are
+skipped rather than risk a late unhandled `'error'`.
 
 Exactly one of `--prompt` / `--promptFile` is required. A host non-zero exit (or
 a cap refusal) propagates as a non-zero process exit; in `--json` mode the
