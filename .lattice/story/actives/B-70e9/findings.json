@@ -611,7 +611,7 @@
       "desc": "[codex host-B, cross_host_review B-70e9-xhr-r17] usage_sweep is not actually read-only in the CLI wrapper: declared readOnly and documented as writing nothing without --out, but it is missing from READ_ONLY_COMMANDS (cli/activity-policy.ts), so cli-engine still runs preCommand/postCommand hooks and writes the activity log for a plain usage_sweep - violating the read-only reviewer/diagnostic contract. Fix direction: dynamic read-only classification for activity/hooks (read-only when out is blank, mutating when non-empty) + smoke coverage that no-out runs no hooks/activity writes while --out stays gated as a write.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host-b",
       "createdAt": "2026-07-10T17:45:11.038Z",
@@ -622,7 +622,11 @@
         "packages/main/src/tasks/usage-sweep-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|codex-host-cross",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 81c5bc42ea: activity-policy gains arg-aware isReadOnlyCommand(cmd,args) - static members unchanged, usage_sweep read-only unless non-empty --out (mirroring the F-014 ownership boundary); shouldWriteActivityLog keys off it; the four cli-engine hook-gating sites consume the predicate so plain usage_sweep runs no hooks and writes no activity while --out stays gated as a write. Byte-identical for every other command (cli-surface + command-catalog 323 + ownership-contract green). Scope ack recorded for activity-policy.ts + cli-engine.ts (finding-bound wiring). usage-sweep smoke 18/18 incl. the pure predicate check.",
+      "resolvedAt": "2026-07-10T18:28:11.358Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-70e9:F-029",
