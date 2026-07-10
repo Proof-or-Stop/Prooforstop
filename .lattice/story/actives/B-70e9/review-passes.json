@@ -2071,6 +2071,36 @@
         "scanEscalationReason": null
       },
       "_hash": "a9f92f9e3e31e450c8e2e7e17b748da82cdd9df645a0fe121bdeb4e991813693"
+    },
+    {
+      "id": "B-70e9:RP-084",
+      "agent": "lattice-review-test-coverage",
+      "note": "F-032 fix verified: writeCodexProcessEvent now gates on isReadOnlyCommand at cli-engine.ts run() success+error call sites; new CLI end-to-end check #19 in usage-sweep-smoke.ts drives real dist/cli.js on a fixture story/branch under LATTICE_ACTIVITY_SOURCE=codex and proves plain usage_sweep leaves process-events.jsonl byte-identical while --out appends exactly one bound codex_cli event. All 32 findings F-001..F-032 dismissed/resolved with evidenceState=verified. evidence_plan re-stamped fresh=42, missing=0, rerun=0, refresh-only=0. test:usage-sweep=19 checks pass, test:host-run-usage=65 checks pass. No test-coverage gap found.",
+      "createdAt": "2026-07-10T19:51:57.246Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-095",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-70e9/checklist.json",
+          ".lattice/story/actives/B-70e9/findings.json",
+          ".lattice/story/actives/B-70e9/index.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-70e9/background.md",
+          ".lattice/story/actives/B-70e9/decision.json",
+          ".lattice/story/actives/B-70e9/execution-boundary.json",
+          ".lattice/story/actives/B-70e9/plan.md",
+          ".lattice/story/actives/B-70e9/review-passes.json",
+          ".lattice/story/actives/B-70e9/review-runs.json",
+          ".lattice/story/actives/B-70e9/scope-contract.json",
+          ".lattice/story/actives/B-70e9/test-evidence.json",
+          "docs/host-run-usage.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "028efdb6ab4a4fc03fd9c6629ec8de09bd7ae5e991bc4f97544eeb44ff017cf1"
     }
   ]
 }
