@@ -4,7 +4,7 @@
   "title": "Add safe done_prepare generated-metadata auto-closeout",
   "description": "Add a conservative opt-in done_prepare mode that closes only the mechanical generated-metadata loop exposed by B-6914.\nThe story must not duplicate B-eb08 heartbeat/progress, B-eb92 review-assurance surfacing, or B-b264 rerun-delta explanation.\nIt should commit only current-run Proofbound lifecycle metadata, reuse validation only when material/storyFiles/command/policy hashes are unchanged, and re-evaluate DONE prepare without auto-signing or publishing.",
   "type": "feature",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "high",
   "source": "user-request-2026-07-09-side-conversation",
   "depends": [
@@ -87,6 +87,15 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-07-10T00:08:02.138Z",
+      "branch": "story/B-fbcf",
+      "user": "Harmonygo",
+      "sessionId": "sess-1f1b4b8031c18b0c",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-10T00:52:02.126Z",
       "branch": "story/B-fbcf",
       "user": "Harmonygo",
       "sessionId": "sess-1f1b4b8031c18b0c",
