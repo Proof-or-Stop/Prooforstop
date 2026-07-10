@@ -82,8 +82,24 @@
       "phase": "REVIEW",
       "headHash": "2951090b79a1a94a469dcd6e7ecc08b10ee14c77",
       "materialHash": "ed35292ecfbd8b36b85750393fd5fcedcfd093cc241e5edf07fad5cc70c2359d"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "F-022 (concept lane, round 14): one check label in this pre-existing smoke still asserted the old recordDispatchFinal void-return contract after F-021 changed it to DispatchFinalStatus; commit d638945a8a updates only that label (+ one appended:false status assertion for label/body consistency, +4/-2). Out-of-contract test file; finding-bound minimal edit.",
+      "timestamp": "2026-07-10T13:53:26.604Z",
+      "paths": [
+        "packages/main/src/tasks/usage-ledger-default-on-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/usage-ledger-default-on-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "REVIEW",
+      "headHash": "d638945a8a5fc918895a58bd826baa656cb6cf93",
+      "materialHash": "4cc2beb30ad78bb02a0148508706aa635af1370f138ccced111779fbbe460c59"
     }
   ],
   "createdAt": "2026-07-10T05:32:56.378Z",
-  "updatedAt": "2026-07-10T11:18:27.203Z"
+  "updatedAt": "2026-07-10T13:53:26.604Z"
 }
