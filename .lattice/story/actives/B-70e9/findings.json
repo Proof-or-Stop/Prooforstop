@@ -556,6 +556,24 @@
       ],
       "signatureTag": "adversarial|ts|codex-host-cross",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-70e9:F-026",
+      "desc": "[codex host-B, cross_host_review B-70e9-xhr-r15] Any over-cap stdout line poisons later valid usage capture: UsageLineScanner sets a GLOBAL retentionTruncated flag for any over-cap line even when that line is not usage-bearing; recordFinalForHost (F-013) then treats the whole run as stale and records unavailable, so a large non-usage output line before a later valid codex turn.completed / claude result line loses provider usage that was actually retained and parseable. Fix direction: track truncation relative to usage-bearing candidates - clear the stale condition when a later valid usage-bearing line is retained; only force unavailable when a dropped over-cap line occurred AFTER the retained candidate (or no candidate was retained); tests for over-cap non-usage output followed by a valid final usage event.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host-b",
+      "createdAt": "2026-07-10T14:55:29.425Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "_hash": "2d272005436e817b398524ea860a70b625ed992cb283ac568f2b9b1b3187c173",
+      "files": [
+        "packages/main/src/core/host-run.ts",
+        "packages/main/src/tasks/host-run-usage-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|codex-host-cross",
+      "signatureTagSource": "auto"
     }
   ]
 }
