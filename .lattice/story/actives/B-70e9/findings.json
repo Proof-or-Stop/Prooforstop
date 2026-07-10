@@ -346,7 +346,7 @@
       "desc": "[codex host-B, cross_host_review B-70e9-xhr-r8] Autopilot repair launches bypass the new pre-spawn caps: runClaudeRepair (core/autopilot-executor.ts ~314) records a usage preflight when the ledger is enabled but then invokes the Claude runner directly - it never applies recordBudgetBlock or the host-run concurrency slot guard, so LATTICE_HARD_BUDGET_TOKENS or a saturated LATTICE_HOST_RUN_MAX_CONCURRENT will not stop an autopilot repair even though the story adds those caps for every lattice-initiated host run. Fix direction: factor the same budget and concurrency admission (blocked ledger rows included) into the repair path before calling the runner, reusing the exported host-run primitives; ledger OFF stays byte-identical.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host-b",
       "createdAt": "2026-07-10T11:29:15.780Z",
@@ -357,7 +357,11 @@
         "packages/main/src/tasks/host-run-usage-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|codex-host-cross",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 3f3dea9bcd: runClaudeRepair ledger-ON path now runs the same admission chain as runHostRun in the same order (preflight -> recordBudgetBlock -> acquireHostRunSlot -> spawn -> releaseSlot in finally), returning an honest failed attempt (exitCode 3, reason in stderrExcerpt) without spawning on refusal; slot-registry errors fail closed without faking cap rows. Ledger OFF byte-identical (env-pinned in smoke). host-run smoke 44/44 with failing-before proven by reverting the file; budget-smoke import fence gained autopilot-executor as the third authorized recordBudgetBlock site.",
+      "resolvedAt": "2026-07-10T11:41:13.957Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
