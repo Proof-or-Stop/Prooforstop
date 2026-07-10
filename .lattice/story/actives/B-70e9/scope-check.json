@@ -491,9 +491,11 @@
       "q": "CHK-004 assumes reviewer_batch guidance currently prints raw codex exec/claude --print/agy --print launch instructions that need rewriting to name lattice host_run. Does this guidance text exist today, and if so where?",
       "evidence": "grep for 'codex exec', 'claude --print', 'agy --print' in packages/main/src/handlers/reviewer-batch.ts returned no matches. The rewrite scope described in CHK-004 could not be located in that file; it may live in a different file, be templated, or be smaller than described. Not treated as a scope gap because CHK-004's own verification step (rg check for remaining raw-launch strings) will catch this at DEV/REVIEW time regardless.",
       "sourcePointers": [
-        "packages/main/src/handlers/reviewer-batch.ts",
-        ".lattice/story/actives/B-70e9/checklist.json#CHK-004"
-      ]
+        "CHK-004",
+        ".lattice/story/actives/B-70e9/plan.md"
+      ],
+      "resolution": "Accepted: the acceptance criterion for CHK-004 is behavior-based, not file-based - after DEV, a repo-wide search of operator-facing instruction strings must show lattice-initiated reviewer/quorum host runs directed through host_run, plus docs/host-run-usage.md created. The files.modify entries (reviewer-batch.ts, review-escalation.ts) are candidate surfaces located by grep at DEV time; if a candidate contains no raw-launch instruction the change narrows there without shrinking the story promise. plan.md CHK-004 Verify already encodes the rg-based absence check.",
+      "resolvedAt": "2026-07-10T05:29:56.750Z"
     },
     {
       "id": "OQ-3",
