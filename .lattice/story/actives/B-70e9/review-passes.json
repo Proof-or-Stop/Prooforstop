@@ -459,6 +459,25 @@
         "scanEscalationReason": null
       },
       "_hash": "5d316ab20ef39ffd70cbc14232f7c1c82cd7523d28f4fef4b5b4b7ebd8c656af"
+    },
+    {
+      "id": "B-70e9:RP-019",
+      "agent": "lattice-review-concept",
+      "note": "Round 6 (RR-022) — reviewed fix commit e27341a4ff for F-011 (optional HostRunSpawnPlan.cwd / HostRunArgs.cwd promoted to required, threaded through invokeRunner + spawn call sites; handler binds ctx.root; +2 checks in host-run-usage-smoke.ts; docs/host-run-usage.md note). Type-tightening (optional->required), no concept word deletion or mass rename. Grepped repo for leftover cwd?: optional pattern across the 3 changed files: zero hits. Confirmed only core/host-run.ts, handlers/host-run.ts, tasks/host-run-usage-smoke.ts reference HostRunSpawnPlan/HostRunArgs repo-wide; no other call sites assume an optional cwd. No blocker.",
+      "createdAt": "2026-07-10T10:02:10.310Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-022",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "74b62f7247c44755488de9e99ebc3333fb3f68b9f1542cd179f260577dbb7f5f"
     }
   ]
 }
