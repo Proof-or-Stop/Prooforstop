@@ -1085,6 +1085,27 @@
         "scanEscalationReason": null
       },
       "_hash": "bf1a2fdbc2bf8198b3a64d73b1f9a72294cd6951e77c4533b7905bcd11352c2e"
+    },
+    {
+      "id": "B-70e9:RP-046",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 7 checklist items (CHK-001..CHK-007) have happy/edge/adversarial columns populated per the high-risk channel; every must-priority intent has non-fail verificationEvidence naming the specific covered behavior (evidence_plan fresh=42, missing=0, rerun=0, refresh-only=0). F-020 fix (e78408cb5c) is bound to CHK-006 via a new real-subprocess smoke check in host-run-usage-smoke.ts: a compiled-handler driver in --json mode with a fake streaming runner (~120 chunks/250ms) whose stderr pipe the parent destroys mid-stream, asserting exit 0, non-null passthroughError naming the async stream failure, zero leftover concurrency slots, cap=1 re-acquire success, and a provider-reported final still recorded. Re-ran test:host-run-usage (52/52 pass, includes the new F-020 check) and test:usage-sweep (17/17 pass). All findings F-001..F-020 are resolved/dismissed with evidenceState=verified (20/20). No coverage gap found; no blocker.",
+      "createdAt": "2026-07-10T13:19:11.643Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-055",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "85ae8d174ac141d9873a0ed0e0b876e40dc73330d31b76534e1c566f96a87f02"
     }
   ]
 }
