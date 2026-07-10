@@ -1278,6 +1278,23 @@
         "scanEscalationReason": null
       },
       "_hash": "6969d0ed24d41afb1338937a324d4bace23a311cc39a48297d9184e3bda2f9fd"
+    },
+    {
+      "id": "B-70e9:RP-054",
+      "agent": "lattice-review-quality",
+      "note": "Round 15 re-review after F-022 one-line fix (d638945a8a, +4/-2, packages/main/src/tasks/usage-ledger-default-on-smoke.ts only). CHK-003 corrupt-ledger-swallow smoke now labels correctly as DispatchFinalStatus and asserts status?.appended===false, a genuine check against dispatch-usage.ts:487 catch path, not a tautology; type narrowing via ReturnType<typeof recordDispatchFinal> is correct, no as any, no dead code, no empty catch introduced. No doc/CLAUDE.md changes in this commit. Re-ran both required verifications clean: dist smoke 30/30 pass; test:host-run-usage 54/54 pass. No quality-lane blockers.",
+      "createdAt": "2026-07-10T13:55:22.828Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-062",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/tasks/usage-ledger-default-on-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "8bf905d14d7f9be33c3d2f6e0f31ff623f6c392935f130ea50321c513079975b"
     }
   ]
 }
