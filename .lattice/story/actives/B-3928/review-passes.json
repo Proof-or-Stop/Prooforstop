@@ -35,6 +35,15 @@
       "reviewRound": "2026-07-10T03:45:55.285Z",
       "reviewRunId": "B-3928:RR-005",
       "_hash": "35bb4aacfe5edb51e02bdc6c13bbaaddbce7ae6635291a62f3b70d7c537a648e"
+    },
+    {
+      "id": "B-3928:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS test-coverage: checklist_get shows CHK-001..CHK-005 each have 3 verificationIntent refs and 3 passing verificationEvidence entries, covering all 15 refs with no failing/waived evidence. Re-ran node scripts/verify-proof-or-stop-prompt-baseline.mjs and npm run test:proof-or-stop-prompt-baseline; both passed and emitted the five expected PASS lines for 16-role registry hashes, agent_prompt output hashes, overlap matrix, legacy vocabulary findings, and direct story-file findings. Evidence timestamps are refreshed at 2026-07-10T03:47:45.104Z with storyFilesHash 74644226b4e7a36b5c2f0ee1fce9c6be8d664f56f6d8eae891dc67b2dd085518; d3a39cb is the evidence head and b49c458 is the subsequent verification_evidence_refresh_stale metadata commit.",
+      "createdAt": "2026-07-10T03:50:20.833Z",
+      "reviewRound": "2026-07-10T03:45:55.285Z",
+      "reviewRunId": "B-3928:RR-006",
+      "_hash": "8750c5430f27531d6ac8b1a499753d9b40ab6b4b5d93780bf31bc31914f063e2"
     }
   ]
 }
