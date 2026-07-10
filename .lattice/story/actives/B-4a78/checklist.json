@@ -355,9 +355,9 @@
       "id": "CHK-005",
       "title": "M2: flag self-report vs mechanical-log mismatch and unrecorded full scans",
       "context": "A full-content directory read of docs/requirements/decisions/ without a recorded scanEscalationReason is the defined failure signal; a mismatch between readManifest and the mechanical read log files a finding. Recording only — do not block or alter the escalation path itself, and do not make memory/playbook output gate evidence.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-10T01:43:00.310Z",
-      "endTime": null,
+      "endTime": "2026-07-10T01:43:00.921Z",
       "userSees": "Mismatch diagnostics identify readManifest/read-log disagreement or an unrecorded full decisions-doc scan without blocking legitimate escalation.",
       "verificationIntent": {
         "happy": [
