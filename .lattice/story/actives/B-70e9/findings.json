@@ -210,7 +210,7 @@
       "desc": "[codex host-B, cross_host_review B-70e9-xhr-r3] usage_sweep --out can clobber arbitrary project files despite the read-only classification: handlers/usage-sweep.ts ~line 173 writes the report with writeFileSync directly to the caller-selected --out path after only a lexical inside-root check. A non-owner session can pass --out package.json (or any tracked file) and truncate/replace it, and the guard does not reject symlink ancestors so an inside-root symlink can redirect the write outside the project. Violates the command read-only/no-mutation contract. Fix direction (codex): hardened output helper - require a relative report path, reject existing files, lstat/realpath every existing ancestor rejecting symlink traversal or outside-root resolution, write with exclusive create flag.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host-b",
       "createdAt": "2026-07-10T09:30:21.736Z",
@@ -222,7 +222,11 @@
         "packages/main/src/tasks/usage-sweep-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|codex-host-cross",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit e3ac9b651: replaced the lexical resolveOutPathWithinRoot with hardened openReportFileExclusive in core/usage-sweep.ts - relative-only paths, per-ancestor lstat rejecting symlinks, realpath containment against realpathed root, mkdir only after validation, and O_EXCL exclusive create so overwrite is impossible atomically (already-exists is a typed refusal). Handler writes via the returned fd only; docs updated to create-only semantics. 5 new handler-level smoke checks each provably fail against the old code (absolute-in-root allowed, w-flag truncation of package.json, symlink escape write, silent second-run overwrite); usage-sweep smoke 16/16, host-run 34/34.",
+      "resolvedAt": "2026-07-10T09:39:49.563Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
