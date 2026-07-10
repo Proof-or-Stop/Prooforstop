@@ -188,7 +188,7 @@
       "desc": "handlers/host-run.ts:61 CreateHostRunHandlersOptions.runner JSDoc comment is stale spawnSync residue: \"Test seam: inject a fake host runner (production uses the piped spawnSync default).\" This describes the PRE-F-006 implementation. Since commit 4f5e980f1, the production default is defaultHostRunRunner (core/host-run.ts:718), an ASYNC child_process.spawn with live streaming passthrough -- not a piped spawnSync. The comment misleads a future reader about the actual production runner and directly contradicts the file header comment at handlers/host-run.ts:1-31 (which correctly documents the live-streaming behavior) and core/host-run.ts:710-716. Fix: update the comment to reference the async streaming defaultHostRunRunner.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-10T09:04:51.031Z",
@@ -199,7 +199,11 @@
         "packages/main/src/handlers/host-run.ts"
       ],
       "signatureTag": "missing|ts|handlers-host-createhostrunhandlersoptions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Duplicate of F-007 (same stale JSDoc line at handlers/host-run.ts:61), fixed by the same commit b8908661f.",
+      "resolvedAt": "2026-07-10T09:17:17.860Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
