@@ -359,6 +359,28 @@
         "scanEscalationReason": null
       },
       "_hash": "621e959641b0e3c5845fca05e81f974252c4f27dad7fd2b532a20651d5f43e06"
+    },
+    {
+      "id": "B-2c03:RP-017",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement this round: old inline narrowingText/claimsShrinkage construction replaced by equivalent stripCodeLikeTokens() + constructed claimsShrinkageRegex, but concept, gap key unconfirmed_single_outcome_shrinkage, function signature evaluateDoneIntentEquivalence, and all 7 original trigger words preserved verbatim. New local constants each defined exactly once, no orphan residue repo-wide. Smoke test file is 498 pure insertions, zero deletions. Concept residue check completed, no blocker.",
+      "createdAt": "2026-07-10T19:44:34.597Z",
+      "reviewRound": "2026-07-10T18:53:39.083Z",
+      "reviewRunId": "B-2c03:RR-031",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2c03/checklist.json",
+          ".lattice/story/actives/B-2c03/delivery-check.json",
+          ".lattice/story/actives/B-2c03/findings.json",
+          ".lattice/story/actives/B-2c03/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "92c1a1ac7ea515d6ae06707e5afbe0b77513698be092981be886dbdbc561a5ed"
     }
   ]
 }
