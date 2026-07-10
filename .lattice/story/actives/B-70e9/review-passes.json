@@ -1602,6 +1602,28 @@
         "scanEscalationReason": null
       },
       "_hash": "9eeeee5b53effc0e602a5db7ef3f78058345376549ecd6538216759e98ad2238"
+    },
+    {
+      "id": "B-70e9:RP-067",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 18, post 387b0ad3a2): all 7 checklist items (CHK-001..CHK-007) carry full happy/edge/adversarial verificationIntent columns per the high-risk channel; all 42 must-priority intents have bound, non-failing verificationEvidence; evidence_plan reports fresh=42/missing=0/rerun=0/refresh-only=0 against current head. Verified F-025/F-026 fix bound in host-run-usage-smoke.ts: F-025 release-token guard + live-holder-protection (inverted assertion) + meta-less-orphan-backstop; F-026 truncatedSinceLastCandidate scanner unit + codex real-child RED + claude mirror. Re-ran both suites clean: test:host-run-usage 61/61 pass, test:usage-sweep 17/17 pass. All findings F-001..F-026 dismissed/resolved, evidenceState=verified; no open findings; no blocker found in this round.",
+      "createdAt": "2026-07-10T15:21:16.445Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-077",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/handlers/host-run.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9ce42186744f31574f9c8e0045f235a01fbb4392c1f3c31edcef6258ee31c6b4"
     }
   ]
 }
