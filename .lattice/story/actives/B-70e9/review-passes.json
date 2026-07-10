@@ -1550,6 +1550,28 @@
         "scanEscalationReason": null
       },
       "_hash": "bb403226eaad3414adcbba6173bf10dd023a0435008c29af3c324319f2641826"
+    },
+    {
+      "id": "B-70e9:RP-065",
+      "agent": "lattice-review-docs",
+      "note": "Round 18 re-review after fix commit 387b0ad3a2 (F-025/F-026). Verified both rewritten doc areas in docs/host-run-usage.md (slot ownership-token/reclaim-narrowing paragraph, truncation-poisoning paragraph) line-by-line against core/host-run.ts symbols (acquireHostRunSlot, releaseSlot, AcquiredHostRunSlot, isSlotReclaimable, scanLiveSlots, UsageLineScanner, truncatedSinceLastCandidate, LATTICE_HOST_RUN_SLOT_STALE_MS). Confirmed threading through autopilot-executor.ts and codex-review-leaf.ts. Ran both smoke suites live: test:host-run-usage 61/61, test:usage-sweep 17/17, all pass including the exact F-025/F-026 checks matching the doc prose. CHANGELOG.md B-70e9 entry unchanged by this commit and not contradicted (still-accurate feature-level summary). No inconsistencies found; no blocking findings.",
+      "createdAt": "2026-07-10T15:19:02.333Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-076",
+      "readManifest": {
+        "filesReadFully": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/core/host-run.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b47d47d5ca6393e36675366fb5b937a5afb8b25a87ec8639040262fbbb2da451"
     }
   ]
 }
