@@ -671,6 +671,26 @@
         "scanEscalationReason": null
       },
       "_hash": "cee72bbe4c277ecbd314323950731d2c7e45a5025e2190ebfd5237b663f18989"
+    },
+    {
+      "id": "B-70e9:RP-028",
+      "agent": "lattice-review-docs",
+      "note": "Round 8 re-review after fix a967792ab4 (F-013). Symbol set (Step 1) from git diff main...HEAD: HOST_RUN_RETENTION_TRUNCATED_REASON constant plus recordFinalForHost/runHostRun retentionTruncated threading (host-run.ts). Step 2/3: verified the single doc paragraph in docs/host-run-usage.md (bounded retention section) against packages/main/src/core/host-run.ts (export HOST_RUN_RETENTION_TRUNCATED_REASON, recordFinalForHost threading spawn.retentionTruncated, codex/claude branch records provider-specific unavailable final with reason usage_line_retention_truncated, no stdout parse) and usage-ledger/dispatch-usage.ts recordDispatchUnavailableFinal (inputTokens/outputTokens/cacheReadInputTokens hardcoded null, source unavailable), confirming no stale numeric value is ever recorded even though an earlier usage line was retained by the scanner. Doc names the exact reason string, matches code constant verbatim, and the no-stale-value guarantee matches the null-field behavior. No duplicate/stale mention of the old pre-fix wording elsewhere in the doc (single grep occurrence). host-run-usage-smoke F-013 regression checks (codex+claude) pass 41/41. CHANGELOG.md carries one story-level B-70e9 entry (pre-existing, correct granularity - F-013 is an in-round review fix, not a new capability). 1 doc paragraph compared, 0 findings.",
+      "createdAt": "2026-07-10T10:50:32.068Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-035",
+      "readManifest": {
+        "filesReadFully": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "f404288eb1b699c1deb0c5b09b9732f3e8f2b1250e0ad1b90813428c1b364aa3"
     }
   ]
 }
