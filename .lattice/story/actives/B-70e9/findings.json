@@ -227,6 +227,25 @@
       "resolvedAt": "2026-07-10T09:39:49.563Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-70e9:F-011",
+      "desc": "[codex host-B, cross_host_review B-70e9-xhr-r4] host_run launches hosts from the caller cwd instead of the resolved project root: runHostRun builds HostRunSpawnPlan without cwd (core/host-run.ts ~line 907) although defaultHostRunRunner honors plan.cwd; the CLI engine resolves --root into ctx.root but does not chdir, so lattice --root <worktree> host_run invoked from elsewhere spawns codex/claude/agy in the wrong working directory while ledger attribution still points at the requested story/root - an independent reviewer can inspect the wrong repository. Fix direction: thread explicit cwd through HostRunArgs/HostRunSpawnPlan, set to the resolved project/worktree root in the handler, pass into the runner plan, smoke test with process.cwd != ctx.root.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host-b",
+      "createdAt": "2026-07-10T09:53:07.069Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "_hash": "60e27984f0b56abee1e0cda8ba27b679b5c1dfea2d8aa8350204b3d5512bb6d5",
+      "files": [
+        "packages/main/src/core/host-run.ts",
+        "packages/main/src/handlers/host-run.ts",
+        "packages/main/src/tasks/host-run-usage-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|codex-host-cross",
+      "signatureTagSource": "auto"
     }
   ]
 }
