@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-3928",
+  "checkedAt": "2026-07-10T03:03:59.949Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "94f5d50ef941066a01a2201d1257e524f9c7d37a6e18b1506d411e539cf8e953",
+  "executionBoundaryHash": "98f23e72a731e1d9861ce77f9f110aa2110a07b6c0174ff517d2290dd18a1bc2",
+  "freshnessHash": "ff687388511a8a3ca463a5e972986d358c5d5c3498ddd32b570d8951ebdd0530",
+  "effectiveExcludedKeywords": [
+    "Do not change reviewer lane semantics, INIT required-agent semantics, gate behavior, delivery gate behavior, or lifecycle phase transitions",
+    "Do not edit prompt bodies or prompt template prose except documentation/tests that record the baseline",
+    "Do not implement M1 taxonomy metadata, M2 legacy migration, M3 reviewer responsibility split, M4 artifact discipline, M5 guide sync, M6 scan narrowing, M7 evaluator boundary, M8 routing, or M9 rollout",
+    "Do not rename roles or switch new writes to proof-or-stop-* in runtime yet; that is M0.5"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Do not change reviewer lane semantics, INIT required-agent semantics, gate behavior, delivery gate behavior, or lifecycle phase transitions",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not change reviewer lane semantics, INIT required-agent semantics, gate behavior, delivery gate behavior, or lifecycle phase transitions",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not edit prompt bodies or prompt template prose except documentation/tests that record the baseline",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not edit prompt bodies or prompt template prose except documentation/tests that record the baseline",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not implement M1 taxonomy metadata, M2 legacy migration, M3 reviewer responsibility split, M4 artifact discipline, M5 guide sync, M6 scan narrowing, M7 evaluator boundary, M8 routing, or M9 rollout",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not implement M1 taxonomy metadata, M2 legacy migration, M3 reviewer responsibility split, M4 artifact discipline, M5 guide sync, M6 scan narrowing, M7 evaluator boundary, M8 routing, or M9 rollout",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not rename roles or switch new writes to proof-or-stop-* in runtime yet; that is M0.5",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not rename roles or switch new writes to proof-or-stop-* in runtime yet; that is M0.5",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "c8a9cfd2c550d9acb8372beab96d15a288ca3cac1a99ad79ee219bcf2a7e710a"
+}

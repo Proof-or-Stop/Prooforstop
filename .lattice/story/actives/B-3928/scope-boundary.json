@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-3928",
+  "mode": "feature",
+  "allowed": [
+    "Add docs/tests/scripts required to store and verify the baseline lockfile",
+    "Add mechanical regression checks that make legacy verification vocabulary and direct docs/story write instructions visible in active non-legacy prompts",
+    "Capture current lattice agent_prompt output for all 16 roles as reproducible comparison artifacts",
+    "M0 only: record the current 16 Proof-or-Stop prompt filenames, registry roles, and template hashes before prompt edits",
+    "Produce a role-overlap matrix covering phase, commands, direct file access, output artifact, current status, and overlap category"
+  ],
+  "excluded": [
+    "Do not change reviewer lane semantics, INIT required-agent semantics, gate behavior, delivery gate behavior, or lifecycle phase transitions",
+    "Do not edit prompt bodies or prompt template prose except documentation/tests that record the baseline",
+    "Do not implement M1 taxonomy metadata, M2 legacy migration, M3 reviewer responsibility split, M4 artifact discipline, M5 guide sync, M6 scan narrowing, M7 evaluator boundary, M8 routing, or M9 rollout",
+    "Do not rename roles or switch new writes to proof-or-stop-* in runtime yet; that is M0.5"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User explicitly requested serial development across the 11 milestones after B-2861; B-3928 starts with M0 only to avoid parallel coordination problems.",
+  "createdAt": "2026-07-10T03:03:48.533Z",
+  "updatedAt": "2026-07-10T03:03:48.533Z",
+  "_hash": "94f5d50ef941066a01a2201d1257e524f9c7d37a6e18b1506d411e539cf8e953"
+}
