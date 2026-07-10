@@ -108,8 +108,15 @@ supported functionality" — while ", and"/", not" coordinate clauses);
 modifier words accept '/' (UI/UX); coordinate-adjective commas and a heading
 colon are accepted; sentence punctuation blocks the chain; line wraps do not
 (fail-safe); the scope noun must terminate the chain. Both directions are
-pinned: ten must-fire window claims and six cross-clause must-not-fire
+pinned: twelve must-fire window claims and seven cross-clause must-not-fire
 controls.
+
+A sixth codex round added two more within-floor recall regressions, fixed the
+same way: Oxford-comma lists ("remaining web, mobile, and Safari cases") get an
+explicit branch — ", and|or" bridges the chain ONLY when at least one comma
+list item precedes it, so a lone ", and" stays clause coordination (F-013,
+pinned by a new crash-CI control) — and bare "as" joined the bare-connective
+class for "as yet" adverbials (", as" still blocks).
 
 **Convergence statement**: the chain-word taxonomy is a documented lexical
 heuristic, not a parser. The review floor for this story is: a change is

@@ -1518,18 +1518,25 @@ export function evaluateDoneIntentEquivalence(
     // cases") while ", and" coordinates clauses ("issues exist, and scope
     // work continues") and must not bridge the chain. Modifier words accept
     // '/' (UI/UX).
-    // codex round 5: bare "not" belongs with the conjunctions — inside an
-    // adjectival phrase ("remaining not yet supported functionality") it is a
-    // modifier, while ", not" is clause punctuation and still blocks.
-    const remainingStopWord = String.raw`(?:is|are|was|were|be|been|being|has|have|had|do|does|did|no|nor|it|its|this|that|these|those|they|them|to|in|on|at|by|for|from|with|as|but|so|than|then|there|here|when|while|which|who|whose|will|would|can|could|should|must|may|might|exists?|existed|lingers?|lingered|persists?|persisted|continues?|continued|remains?|remained)`;
-    const remainingConjunction = String.raw`(?:and|or|yet|plus|not)`;
+    // codex rounds 5+6: bare "not" and bare "as" belong with the conjunctions
+    // — inside an adjectival phrase ("remaining not yet supported
+    // functionality", "remaining as yet unsupported features") they are
+    // modifiers, while ", not"/", as" are clause punctuation and still block.
+    const remainingStopWord = String.raw`(?:is|are|was|were|be|been|being|has|have|had|do|does|did|no|nor|it|its|this|that|these|those|they|them|to|in|on|at|by|for|from|with|but|so|than|then|there|here|when|while|which|who|whose|will|would|can|could|should|must|may|might|exists?|existed|lingers?|lingered|persists?|persisted|continues?|continued|remains?|remained)`;
+    const remainingConjunction = String.raw`(?:and|or|yet|plus|not|as)`;
     const remainingWordCharClass = String.raw`[a-z0-9'’()/–—_-]`;
     const remainingModifierWord = String.raw`(?!(?:${remainingStopWord}|${remainingConjunction})(?!${remainingWordCharClass}))${remainingWordCharClass}+`;
     const remainingChainStep = String.raw`(?:[,:]?\s+${remainingModifierWord}|\s+${remainingConjunction}(?!${remainingWordCharClass}))`;
     const remainingGlue = String.raw`(?:[/_–—-]|\.(?!\s))+`;
     const remainingScopeNoun = String.raw`(?<![A-Za-z0-9])(?:work|scope|items?|cases?|tasks?|milestones?|features?|functionality|coverage|requirements?|deliverables?)(?![A-Za-z0-9])`;
+    // codex round 6: an Oxford-comma list ("remaining web, mobile, and Safari
+    // cases") is noun-phrase internal, so ", and|or" is allowed as a chain
+    // bridge ONLY when at least one comma list item precedes it — a lone
+    // ", and" with no prior comma item stays clause coordination and blocks
+    // (F-013), even when the first clause's verb is not on the stop list.
+    const remainingOxfordTail = String.raw`(?:,\s+${remainingModifierWord})+,\s+(?:and|or)\s+(?:${remainingModifierWord}\s+){0,2}${remainingScopeNoun}`;
     const claimsShrinkageRegex = new RegExp(
-      String.raw`\b(?:partial|narrow(?:er|ed)?|shrink(?:age|s|ing)?|out[\s./_-]+of[\s./_-]+scope|not[\s./_-]+covered|deferred|remaining${remainingChainStep}{0,8}?(?:[,:]?\s+|${remainingGlue})${remainingScopeNoun}|excluded)\b`,
+      String.raw`\b(?:partial|narrow(?:er|ed)?|shrink(?:age|s|ing)?|out[\s./_-]+of[\s./_-]+scope|not[\s./_-]+covered|deferred|remaining(?:${remainingChainStep}{0,8}?(?:[,:]?\s+|${remainingGlue})${remainingScopeNoun}|${remainingChainStep}{0,6}?${remainingOxfordTail})|excluded)\b`,
       'i',
     );
     const claimsShrinkage = claimsShrinkageRegex.test(narrowingText);

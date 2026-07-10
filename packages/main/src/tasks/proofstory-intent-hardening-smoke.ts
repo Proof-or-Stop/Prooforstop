@@ -962,6 +962,10 @@ try {
     // codex round 5: bare "not" inside an adjectival phrase is a modifier,
     // not a clause break (", not" still blocks like ", and").
     'The remaining not yet supported functionality was left for a follow-up story.',
+    // codex round 6: Oxford-comma lists and bare "as yet" adverbials are
+    // noun-phrase internal.
+    'The remaining web, mobile, and Safari cases were left for a follow-up story.',
+    'The remaining as yet unsupported features were left for a follow-up story.',
   ];
   for (const claim of remainingWindowClaims) {
     store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
@@ -1009,6 +1013,9 @@ try {
     'Two remaining issues exist, and scope work continues in a follow-up story.',
     'Two remaining test failures linger, and coverage improvements are tracked in a follow-up.',
     'Two remaining issues exist and scope work continues in a follow-up story.',
+    // Oxford-branch precision control: a single ", and" with no preceding
+    // comma list item is clause coordination even without a stop verb.
+    'The remaining tests crash CI, and coverage work continues in a follow-up.',
   ];
   for (const control of remainingCrossClauseControls) {
     store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
