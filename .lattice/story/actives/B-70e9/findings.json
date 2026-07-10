@@ -538,6 +538,24 @@
       "resolvedAt": "2026-07-10T14:44:10.486Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-70e9:F-025",
+      "desc": "[codex host-B, cross_host_review B-70e9-xhr-r15] Stale live slot release can delete a newer holder admission slot: the slot registry reclaims a slot when its mtime exceeds staleMs even if the recorded pid is ALIVE, reusing the same fixed slot-N path; the original long-running holder later calls releaseSlot(file) which blindly unlinks whatever is at that path - deleting a different live run slot and letting subsequent runs bypass the concurrency cap. Same ownership class as F-018 but on the slot registry. Fix direction: ownership token in SlotMeta verified by releaseSlot before unlink (mirror the ledger lock release guard), and stop reclaiming live-pid slots by age alone; regression where a live stale slot is reclaimed/reacquired and the original holder late release must not remove the new holder slot.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host-b",
+      "createdAt": "2026-07-10T14:55:28.731Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "_hash": "21623678e234d36ded98ad40029dee76cbeccb1b0806de0fb200af87600c5460",
+      "files": [
+        "packages/main/src/core/host-run.ts",
+        "packages/main/src/tasks/host-run-usage-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|codex-host-cross",
+      "signatureTagSource": "auto"
     }
   ]
 }
