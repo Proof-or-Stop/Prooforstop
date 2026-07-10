@@ -501,6 +501,26 @@
         "scanEscalationReason": null
       },
       "_hash": "4b1a493dcf2ab0badbf4a53b25f2704a797b05584edef804dd2c88fa7bcd396d"
+    },
+    {
+      "id": "B-70e9:RP-021",
+      "agent": "lattice-review-quality",
+      "note": "F-011 fix re-review (round 6, commit e27341a4ff), scope=core/host-run.ts+handlers/host-run.ts+tasks/host-run-usage-smoke.ts+docs/host-run-usage.md. Verified: (1) cwd refusal (host-run.ts:894-896) fires before resolvePhase/assertReviewRunIdBinding (pure, no I/O) and before the first ledger write recordDispatchPreflight (line 1001) -- honest pre-spawn throw, not a recorded blocked row, matching the header contract; smoke asserts no ledger dir exists after refusal. (2) cwd propagation is single-source: handler binds cwd:ctx.root literally alongside root:ctx.root (same variable, cannot diverge); core threads args.cwd into the one HostRunSpawnPlan built inside invokeRunner (both ledger ON/OFF paths); defaultHostRunRunner passes plan.cwd directly into child_process.spawn; no other production caller of runHostRun/defaultHostRunRunner exists; no process.cwd() calls remain in either runtime file. (3) resolveStoryCommandWorkspace non-use is justified: confirmed in handlers/context.ts it requires storyId (throws for adhoc host_run) and itself calls process.cwd() internally -- exactly what this fix eliminates. (4) new smoke realpath handling is correct on both sides (process.cwd() is already OS-canonicalized after chdir, verified empirically; both comparisons realpath the plan/child side) so macOS /tmp-symlink cannot produce a false pass/fail. (5) no dead code: realpathSync import used, tsc build clean, no as any in any of the 4 changed files. Reran build (clean), test:host-run-usage (36/36 incl. both new F-011 checks), test:usage-sweep (16/16, unaffected). No blockers.",
+      "createdAt": "2026-07-10T10:03:58.831Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-023",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "2496e62c72f57acb276f9650a4ae90db25a3bacd939753ea03ebd4bb49883a19"
     }
   ]
 }
