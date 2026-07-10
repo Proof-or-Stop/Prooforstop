@@ -448,6 +448,23 @@
         "scanEscalationReason": null
       },
       "_hash": "a462b852420ed5cbfc46cbc638722808c09257d88388c3851af73eff927889a2"
+    },
+    {
+      "id": "B-2c03:RP-021",
+      "agent": "lattice-review-concept",
+      "note": "Reviewed frozen commit 436a133fe6 (delta since RP-020): new local const remainingOxfordTail added, as moved from remainingStopWord list to remainingConjunction list (both pre-existing sibling classes within evaluateDoneIntentEquivalence), and additive smoke-case string literals appended. No concept word/identifier was deleted or replaced en masse this round -- as was moved (still present, reclassified), no other identifiers renamed/deleted. No concept deletion/replacement this round; concept residue check completed, no blocker.",
+      "createdAt": "2026-07-10T20:15:33.827Z",
+      "reviewRound": "2026-07-10T18:53:39.083Z",
+      "reviewRunId": "B-2c03:RR-038",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "b6aa0a2710f3dfdab88fa298b60bb48e2c5724d05afdd79c5d0fc0cb271c1738"
     }
   ]
 }
