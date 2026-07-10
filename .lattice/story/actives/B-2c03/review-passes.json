@@ -502,6 +502,29 @@
         "scanEscalationReason": null
       },
       "_hash": "9f2b179af9320e99f90d2448bf760d84e82c71b002457af56bd0ae6dfe86c3c4"
+    },
+    {
+      "id": "B-2c03:RP-023",
+      "agent": "lattice-review-quality",
+      "note": "Round-7 delta (0251d41ab4) re-verified clean, quality lane. Diff scope: packages/main/src/core/proofstory.ts stripCodeLikeTokens (:line[:col] path-qualifier strip) + claimsShrinkage remainingModifierWord widened to arbitrary non-space/non-comma tokens ending on non-sentence punctuation; to/be removed from remainingStopWord. Verified live against built dist/cli.js (fresh npm run build, no drift) via a standalone StoryStore/CLI harness mirroring proofstory-intent-hardening-smoke.ts: all 15 remainingWindowClaims fire (incl. Node.js, C++, to-be-implemented from round 7) plus 2 adversarial extras (F#, .NET-style token) also correctly fire; all 7 remainingCrossClauseControls stay quiet; line-qualified path token (core/partial-done-recovery.ts:42) correctly stays quiet. Confirmed the new modifier-word pattern introduces no ReDoS regression (linear timing up to 60k-char pathological inputs, matches the smoke suites own pathological-token timing assertion which passed). Confirmed the new :line[:col] strip only fires when the token is otherwise already path-shaped - a bare colon-suffixed non-path token is correctly NOT stripped. Dead-code/type-safety/IO-isolation: round-7 diff (436a133fe6..0251d41ab4) touches only proofstory.ts (regex/comment changes, no new as any, no empty catches, no new imports) and the smoke test (3 additive assertions); no dead code, no I/O shell-isolation concerns. plan.md coverage claim (fifteen must-fire window claims and seven cross-clause controls) verified to match tracked smoke file counts exactly (15 and 7). Full proofstory-intent-hardening-smoke.js green at current frozen head; F-001..F-013 all resolved/dismissed-with-reason, no quality-lane blocker remains. F-014 (test-coverage lane, evidence-freshness binding only, explicitly not-a-regression) is out of my lane scope. Convergence floor: no verified regression vs pre-story behavior and no CHK-003 false-positive-class return found.",
+      "createdAt": "2026-07-10T20:58:15.993Z",
+      "reviewRound": "2026-07-10T18:53:39.083Z",
+      "reviewRunId": "B-2c03:RR-042",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2c03/findings.json",
+          ".lattice/story/actives/B-2c03/plan.md",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2c03/checklist.json",
+          ".lattice/story/actives/B-2c03/review.json",
+          ".lattice/story/actives/B-2c03/summary.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "20663486ed4134f2b109e7a2737853872bb48d15543fe468147071f7507a8cc9"
     }
   ]
 }
