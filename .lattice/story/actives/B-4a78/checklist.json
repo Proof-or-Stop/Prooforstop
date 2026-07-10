@@ -102,7 +102,31 @@
       "context": "Either retain the reviewer's stream-json transcript at dispatch and extract the Read-call list (productize the fa1777b analyze_arm.py approach), or add a PreToolUse Read hook following the .claude/hooks/lattice-scope-pretool.cjs pattern; bind the read-log digest as run evidence.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Reviewer run evidence includes a digest-bound mechanical decisions-doc read log when read events are available.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Synthetic reviewer read-call events for docs/requirements/decisions/*.md normalize into a stable mechanical read log with a deterministic digest.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Non-decisions files, duplicate reads, relative path variants, and triage-only events are handled without polluting the decisions-doc read log.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The mechanical read log cannot be forged by changing readManifest alone and digest changes when the mechanical event list changes.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
