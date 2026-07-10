@@ -67,6 +67,39 @@
       },
       "readDiagnostics": [],
       "_hash": "53f373a4ae59353f975f8ef2c06aeb24240dfa61c73233f04b3d3f7223baa380"
+    },
+    {
+      "id": "B-4a78:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review after F-001/F-002/F-003: smoke and validate wiring cover required readManifest/readLog guard paths with no blocker.",
+      "createdAt": "2026-07-10T02:49:54.883Z",
+      "reviewRound": "2026-07-10T02:42:21.948Z",
+      "reviewRunId": "B-4a78:RR-006",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/pos-agent-drivability-optimization.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/reviewer-read-evidence.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/pos-agent-drivability-optimization.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "bc92772fa503ecdd9dcd6718e70b569734781cb580d1565958a9db4491dc5e5f"
+      },
+      "readDiagnostics": [],
+      "_hash": "cf8ba515b88b4bd125f325cf90a2acb9c42519a3fa120d1c505c2697277bc483"
     }
   ]
 }
