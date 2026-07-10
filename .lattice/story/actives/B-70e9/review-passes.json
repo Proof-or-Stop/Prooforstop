@@ -1529,6 +1529,27 @@
         "scanEscalationReason": null
       },
       "_hash": "a5742e989b7eb84786bd12f71b0d8df81b719a9c4e26a1862b90ba6691e170e2"
+    },
+    {
+      "id": "B-70e9:RP-064",
+      "agent": "lattice-review-concept",
+      "note": "Round-18 re-review after fix commit 387b0ad3a2 (F-025/F-026). Identified concept renames: releaseSlot(file) -> releaseSlot(file,token) [F-025 ownership-token]; private field truncatedFlag -> truncatedSinceLastCandidate [F-026]; isSlotFileStale -> isSlotReclaimable; acquireHostRunSlot return type string|null -> AcquiredHostRunSlot|null. Grepped whole repo (excluding node_modules/dist/.git) for each: releaseSlot( has zero single-arg call residue in any live .ts/.md (all of host-run.ts, autopilot-executor.ts, codex-review-leaf.ts, host-run-usage-smoke.ts use the new 2-arg form; only historical bug-description prose in findings.json/review-passes.json references the old signature, describing the pre-fix bug, not live code). truncatedFlag: zero matches anywhere. isSlotFileStale: zero live-code/docs matches (one mention is stale round-2 review-pass audit prose from an earlier unrelated fix, unaffected by this commit). AcquiredHostRunSlot: correctly exported/imported/typed at all 3 call sites, all consumers destructure .file/.token, no bare-string treatment remains. docs/host-run-usage.md updated consistently with the new token-guarded/ownership-aware reclaim and candidate-relative truncation semantics; no stale staleness-backstop-only phrasing left. Public UsageLineScanner.truncated getter API intentionally unchanged (only its internal backing field was renamed) - correct, not residue. No concept-cleanup blocker.",
+      "createdAt": "2026-07-10T15:17:45.866Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-074",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/core/host-run.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bb403226eaad3414adcbba6173bf10dd023a0435008c29af3c324319f2641826"
     }
   ]
 }
