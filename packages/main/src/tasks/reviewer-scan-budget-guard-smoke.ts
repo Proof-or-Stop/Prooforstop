@@ -471,7 +471,7 @@ function assertRealHandlerReadLogEvidencePath(): void {
   const handlers = createFindingHandlers({ store, root, scanRoot: join(root, 'packages/main') });
   const manifest: ReviewerReadManifest = {
     filesReadFully: ['docs/requirements/decisions/a.md'],
-    filesTriagedByName: ['docs/requirements/decisions/b.md'],
+    filesTriagedByName: ['docs/requirements/decisions/b.md', 'packages/main/src/core/types.ts'],
     scanEscalationReason: null,
   };
   const readEvents = [
@@ -492,6 +492,10 @@ function assertRealHandlerReadLogEvidencePath(): void {
   assert.ok(pass.readLog?.digest, 'real review_pass_set persists mechanical readLog digest');
   assert.deepEqual(pass.readLog.filesReadFully, ['docs/requirements/decisions/a.md']);
   assert.deepEqual(pass.readLog.filesTriagedByName, ['docs/requirements/decisions/b.md']);
+  assert.deepEqual(pass.readManifest?.filesTriagedByName, [
+    'docs/requirements/decisions/b.md',
+    'packages/main/src/core/types.ts',
+  ], 'real review_pass_set keeps source-file manifest triage signed');
   assert.deepEqual(pass.readDiagnostics, [], 'matching real review_pass_set stores no diagnostics');
   assert.equal(verifyReviewPass(storyId, pass), true, 'review pass with readLog verifies');
   assert.equal(

@@ -335,6 +335,12 @@ function addSetDiagnostics(
   }
 }
 
+function decisionMarkdownPaths(paths: readonly string[], requirementsDir: string | undefined): string[] {
+  return paths
+    .filter(path => isDecisionMarkdownPath(path, { requirementsDir }))
+    .sort((a, b) => a.localeCompare(b));
+}
+
 export function diagnoseReviewerReadEvidence(args: {
   readManifest: ReviewerReadManifest;
   readLog: ReviewerReadLogEvidence;
@@ -343,30 +349,34 @@ export function diagnoseReviewerReadEvidence(args: {
 }): ReviewerReadDiagnostic[] {
   const readManifest = normalizeReviewerReadManifest(args.readManifest);
   const diagnostics: ReviewerReadDiagnostic[] = [];
+  const readLogFilesReadFully = decisionMarkdownPaths(args.readLog.filesReadFully, args.requirementsDir);
+  const readLogFilesTriagedByName = decisionMarkdownPaths(args.readLog.filesTriagedByName, args.requirementsDir);
+  const manifestFilesReadFully = decisionMarkdownPaths(readManifest.filesReadFully, args.requirementsDir);
+  const manifestFilesTriagedByName = decisionMarkdownPaths(readManifest.filesTriagedByName, args.requirementsDir);
   addSetDiagnostics(
     diagnostics,
-    args.readLog.filesReadFully,
-    readManifest.filesReadFully,
+    readLogFilesReadFully,
+    manifestFilesReadFully,
     'read_manifest_missing_full_read',
     'read_manifest_extra_full_read',
-    'mechanical read log has a full read missing from readManifest.filesReadFully',
-    'readManifest.filesReadFully self-reports a file absent from the mechanical read log',
+    'mechanical decisions-doc read log has a full read missing from readManifest.filesReadFully',
+    'readManifest.filesReadFully self-reports a decisions-doc file absent from the mechanical read log',
   );
   addSetDiagnostics(
     diagnostics,
-    args.readLog.filesTriagedByName,
-    readManifest.filesTriagedByName,
+    readLogFilesTriagedByName,
+    manifestFilesTriagedByName,
     'read_manifest_missing_triage',
     'read_manifest_extra_triage',
-    'mechanical read log has a triaged file missing from readManifest.filesTriagedByName',
-    'readManifest.filesTriagedByName self-reports a file absent from the mechanical read log',
+    'mechanical decisions-doc read log has a triaged file missing from readManifest.filesTriagedByName',
+    'readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log',
   );
 
   const knownDecisionFiles = (args.knownDecisionFiles ?? [])
     .map((path, idx) => normalizeRelativePath(path, `knownDecisionFiles[${idx}]`))
     .filter(path => isDecisionMarkdownPath(path, { requirementsDir: args.requirementsDir }))
     .sort((a, b) => a.localeCompare(b));
-  const fullyRead = new Set(args.readLog.filesReadFully);
+  const fullyRead = new Set(readLogFilesReadFully);
   const fullScanWithoutReason = knownDecisionFiles.length > 0
     && knownDecisionFiles.every(path => fullyRead.has(path))
     && readManifest.scanEscalationReason === null;

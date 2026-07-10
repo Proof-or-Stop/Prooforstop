@@ -424,7 +424,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         lines.push('Conclusion record (must choose one of two):');
         lines.push(`- First start this round's reviewer run: lattice review_run_start '{"storyId":"${args.storyId}","agent":"${displayAgent}"}', copy the reviewRunId from the output`);
         lines.push(`- Has issues: lattice finding_add '{"storyId":"${args.storyId}","reviewRunId":"<reviewRunId from review_run_start>","desc":"<file:line WHY + severity>","severity":"high|medium|low","category":"missing|edge|adversarial|happy","agent":"${displayAgent}"}'`);
-        lines.push('- Track readManifest as {filesReadFully:string[], filesTriagedByName:string[], scanEscalationReason:string|null}; include it on no-blocker review_pass_set.');
+        lines.push('- Track readManifest as {filesReadFully:string[], filesTriagedByName:string[], scanEscalationReason:string|null}; include it on no-blocker review_pass_set. Non-decision source entries remain signed manifest evidence; mechanical readLog mismatch diagnostics are decisions-doc scoped.');
         lines.push(`- No blocker: lattice review_pass_set '{"storyId":"${args.storyId}","agent":"${displayAgent}","reviewRunId":"<reviewRunId from review_run_start>","note":"reviewed ${args.itemId}: checked implementation against the item context and found no blocker.","readManifest":{"filesReadFully":["<file reviewed in full>"],"filesTriagedByName":["<file triaged by name>"],"scanEscalationReason":null}}'`);
 
         void story;

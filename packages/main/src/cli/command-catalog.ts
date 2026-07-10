@@ -120,8 +120,8 @@ const proofStoryContractEnvelopeSchema = z.object({
 const proofStoryGateModeSchema = z.enum(['observe', 'warn', 'enforce']);
 
 const reviewerReadManifestSchema = z.object({
-  filesReadFully: z.array(z.string()).describe('Relative files the reviewer read in full.'),
-  filesTriagedByName: z.array(z.string()).describe('Relative files the reviewer only triaged by filename/title.'),
+  filesReadFully: z.array(z.string()).describe('Relative files the reviewer read in full. Decisions-doc entries are mechanically compared to readLog; non-decision entries remain signed manifest evidence.'),
+  filesTriagedByName: z.array(z.string()).describe('Relative files the reviewer only triaged by filename/title. Decisions-doc entries are mechanically compared to readLog; non-decision entries remain signed manifest evidence.'),
   scanEscalationReason: z.string().nullable().describe('Reason for full decisions-directory escalation, or null when no escalation occurred.'),
 }).describe('Required reviewer read evidence: {filesReadFully:string[], filesTriagedByName:string[], scanEscalationReason:string|null}. Runtime rejects duplicates, unsafe paths, and malformed values.');
 const reviewerReadEventSchema = z.object({
@@ -139,7 +139,7 @@ const reviewerReadEventSchema = z.object({
   tokens: z.number().optional().describe('Alias for tokenCount.'),
 }).passthrough().describe('Mechanical reviewer read event captured from tool usage.');
 const reviewerReadEventsSchema = z.array(reviewerReadEventSchema)
-  .describe('Mechanical reviewer read events. Runtime keeps only lattice-review-* decisions-doc reads and derives the signed readLog digest/summary.');
+  .describe('Mechanical reviewer read events. Runtime keeps only lattice-review-* decisions-doc reads, derives the signed readLog digest/summary, and scopes mismatch diagnostics to decisions docs.');
 const reviewerReadLogInputSchema = z.union([
   reviewerReadEventsSchema,
   z.object({ events: reviewerReadEventsSchema }).passthrough(),
@@ -572,8 +572,8 @@ Behavior:
     reviewRunId: z.string().describe('Current reviewer run ID; call review_run_start first.'),
     note: z.string().describe('Review scope and reason there is no blocker (at least 10 characters).'),
     readManifest: reviewerReadManifestSchema.describe('Required signed reviewer read coverage for this pass.'),
-    readEvents: reviewerReadEventsSchema.optional().describe('Optional mechanical read events for this reviewer pass. When supplied, runtime persists signed readLog digest/summary and rejects readManifest mismatches.'),
-    readLog: reviewerReadLogInputSchema.optional().describe('Optional mechanical read-log input for this reviewer pass: event array or {events:[...]}. Runtime derives the signed readLog digest/summary.'),
+    readEvents: reviewerReadEventsSchema.optional().describe('Optional mechanical read events for this reviewer pass. When supplied, runtime persists signed decisions-doc readLog digest/summary and rejects decisions-doc readManifest mismatches.'),
+    readLog: reviewerReadLogInputSchema.optional().describe('Optional mechanical read-log input for this reviewer pass: event array or {events:[...]}. Runtime derives the signed decisions-doc readLog digest/summary.'),
   }},
   { name: 'review_loop_start', description: 'Record REVIEW reflection loop start (recording only; no host or rollback)', schema: {
     storyId: z.string().min(1).describe('Story ID'),
@@ -1986,8 +1986,8 @@ Behavior:
     signatureTag: z.string().optional()
       .describe('Audit-only signature tag grouping this finding into a recurring pattern family (auto-proposed to the signature-registry if new). Never read by any gate.'),
     readManifest: reviewerReadManifestSchema.optional().describe('Required when pass-only finding_add text is converted into review_pass_set evidence; also required for reviewer finding_add when readEvents/readLog is supplied.'),
-    readEvents: reviewerReadEventsSchema.optional().describe('Optional mechanical read events for reviewer finding_add. Requires readManifest for lattice-review-* agents; non-reviewer usage is ignored by the read-evidence capture path.'),
-    readLog: reviewerReadLogInputSchema.optional().describe('Optional mechanical read-log input for reviewer finding_add: event array or {events:[...]}. Requires readManifest for lattice-review-* agents.'),
+    readEvents: reviewerReadEventsSchema.optional().describe('Optional mechanical read events for reviewer finding_add. Requires readManifest for lattice-review-* agents; non-reviewer usage is ignored by the read-evidence capture path, and mismatch diagnostics are decisions-doc scoped.'),
+    readLog: reviewerReadLogInputSchema.optional().describe('Optional mechanical read-log input for reviewer finding_add: event array or {events:[...]}. Requires readManifest for lattice-review-* agents; mismatch diagnostics are decisions-doc scoped.'),
   }},
   { name: 'finding_list', description: 'View story findings', schema: {
     storyId: z.string().describe('Story ID'),
