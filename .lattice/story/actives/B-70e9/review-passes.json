@@ -1729,6 +1729,44 @@
         "scanEscalationReason": null
       },
       "_hash": "53790cd6cf3505af71b626a55b793fed8193c19aa25639379f94598c551b03a9"
+    },
+    {
+      "id": "B-70e9:RP-072",
+      "agent": "lattice-review-concept",
+      "note": "Round 20 (final convergence): confirmed no story-code changes since round 19 - only a clean merge of main 0.3.183 (unrelated B-bf15 stale-npm-script removal, B-2c03/B-8de3 other-story metadata, lattice-brand.ts version bump 0.3.182->0.3.183) plus evidence re-stamp metadata. Merge commit eb8499d417 non-.lattice diff touches only package.json/package-lock.json version fields and lattice-brand.ts version const - none overlapping this story own file set beyond the two package.json files, where the story own diff independently adds test:host-run-usage/test:usage-sweep script entries (unrelated to the version bump). git diff main...HEAD --stat is unchanged in file list/shape from round 19 (27 non-.lattice files, same additive shape: new host-run.ts, usage-sweep.ts, dispatch-usage.ts/writer.ts extensions, host-run-usage-smoke.ts, usage-sweep-smoke.ts). Re-scanned all removed (-) lines across the diff: no concept word deleted/replaced en masse. The only non-additive symbol change is runClaudeRepair (autopilot-executor.ts) going from unexported to exported with an added env param - an in-place extension, not a rename/deletion; grep confirms runClaudeRepair is referenced consistently across autopilot-executor.ts, host-run-usage-smoke.ts, and story metadata with zero orphaned old-name residue and zero shadow/duplicate definitions. No concept deletion/replacement this round; concept residue check completed, no blocker.",
+      "createdAt": "2026-07-10T17:31:12.011Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-082",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/cli/alias-normalizer.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/core/host-execution-readiness.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/usage-ledger/adapters/openai.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/core/usage-ledger/writer.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "51049cbdab7c62ac0ae316f214b36cf3c12bc116bd09325f67114cd259ca6156"
     }
   ]
 }
