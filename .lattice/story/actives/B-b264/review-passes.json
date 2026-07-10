@@ -81,6 +81,25 @@
         "scanEscalationReason": null
       },
       "_hash": "eca66dfdecb5d25ac31316f6d281eebe71f5b3510898d31ed4d6989b45e08722"
+    },
+    {
+      "id": "B-b264:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2: verified F-001 fix is real. assertPlainNoHazardPass (done-prepare-merge-rerun-smoke.ts:513-548) exercises a genuine first-run/default-flags/clean-fixture done_prepare reaching DONE prepare: PASS with doneClosure: PASS and worktreeClean: PASS, explicitly asserting absence of merge hazard, dirty file classification, generated-metadata, re-run reason, and autoClose sections, plus byte-identical git status and story metadata snapshots. This matches the rebound CHK-001:edge:0 evidence note verbatim. Ran npm --prefix packages/main run test:done-prepare-merge-rerun-smoke: done-prepare-merge-rerun smoke passed. Since RR-003, only 38 lines were added to the smoke file (git diff b18d0b16e~1..HEAD --stat) and done-prepare.ts was untouched, so the other 8 must-intent evidence notes (CHK-001:happy/adversarial, CHK-002:happy/edge/adversarial, CHK-003:happy/edge/adversarial) still correspond to unchanged assertion functions (assertUntrackedOverwriteHazard, assertRerunReasonAfterRefreshCommit, assertMetadataCommitNoRebindAndAutoCloseExit, assertDryRunNoMutation, assertGeneratedMetadataGuidance, assertModifiedTrackedPathExactness) and were re-checked line-by-line against their notes with no drift. No coverage gap found; no blocker.",
+      "createdAt": "2026-07-10T05:48:21.575Z",
+      "reviewRound": "2026-07-10T05:34:01.890Z",
+      "reviewRunId": "B-b264:RR-006",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "packages/main/src/handlers/done-prepare.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ffc22f2465500a7a602a2cadbd5998b11d1a8d9d11172cb43dd5614fa68e05fc"
     }
   ]
 }
