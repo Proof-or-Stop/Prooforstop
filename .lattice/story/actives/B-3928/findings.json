@@ -5,7 +5,7 @@
       "desc": "quality-correctness: scripts/verify-proof-or-stop-prompt-baseline.mjs:599 verifies the overlap matrix by role count/presence only; it never compares roleMatrix fields against the baseline or regenerated Markdown, so status/phase/purpose/commands/notes drift in the committed baseline or matrix can pass while the verifier prints overlap matrix verified. Compare each roleMatrix field and the rendered Markdown content to the committed file.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-10T03:41:17.972Z",
@@ -16,7 +16,11 @@
         "scripts/verify-proof-or-stop-prompt-baseline.mjs:599"
       ],
       "signatureTag": "missing|mjs:599|quality-correctness-scripts",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Verifier now compares every roleMatrix field in current generated defaults against baseline JSON, requires all roleMatrix fields for all 16 roles, and compares normalized regenerated Markdown against docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md with line/hash mismatch output. Evidence: npm --prefix packages/main run build PASS; node scripts/verify-proof-or-stop-prompt-baseline.mjs PASS; npm run test:proof-or-stop-prompt-baseline PASS.",
+      "resolvedAt": "2026-07-10T03:46:03.595Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3928:F-002",
