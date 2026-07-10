@@ -66,6 +66,25 @@
       ],
       "signatureTag": "adversarial|ts|codex-host-cross",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-70e9:F-004",
+      "desc": "[codex host-B, cross_host_review B-70e9-xhr-r1] Blocked codex/agy host runs are recorded as Anthropic usage rows: host_run calls the budget and concurrency block recorders for all three hosts, but those paths use finalContext(), which hard-codes provider.name=anthropic (dispatch-usage.ts ~line 776). A codex or agy hard-budget/concurrency refusal writes its blocked ledger row under the wrong provider, breaking the provider-bound attribution this story claims and corrupting usage diagnostics. Stage A implementer had flagged this as deviation 3 (kept byte-compatible with buildBlockedBudgetRecord); codex confirms it is a real defect. Fix direction: thread the actual host provider into the blocked-record path (provider-parametric contexts for openai/anthropic/antigravity) and add smoke assertions that codex and agy refusals persist provider.name as openai and antigravity respectively.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host-b",
+      "createdAt": "2026-07-10T07:55:53.434Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "_hash": "2d62a05a5435c2c6aa6de68a298bd2bd37a03e62690c98f6a8af44cf45c22b78",
+      "files": [
+        "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+        "packages/main/src/core/host-run.ts",
+        "packages/main/src/tasks/host-run-usage-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|codex-host-cross",
+      "signatureTagSource": "auto"
     }
   ]
 }
