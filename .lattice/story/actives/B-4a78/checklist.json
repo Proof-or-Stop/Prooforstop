@@ -134,7 +134,31 @@
       "context": "A full-content directory read of docs/requirements/decisions/ without a recorded scanEscalationReason is the defined failure signal; a mismatch between readManifest and the mechanical read log files a finding. Recording only — do not block or alter the escalation path itself, and do not make memory/playbook output gate evidence.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Mismatch diagnostics identify readManifest/read-log disagreement or an unrecorded full decisions-doc scan without blocking legitimate escalation.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A matching readManifest and mechanical read log produces no mismatch finding and records the read-log digest as evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A full decisions-doc scan with a non-empty scanEscalationReason is recorded as escalated rather than flagged as unrecorded misuse.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Missing self-report entries, extra self-report entries, and full decisions-doc scans without scanEscalationReason are flagged as findings or diagnostics.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-006",
