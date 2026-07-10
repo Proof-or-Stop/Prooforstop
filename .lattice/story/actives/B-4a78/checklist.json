@@ -125,6 +125,22 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/templates/agents/lattice-review-scope-plan.md",
+          "packages/main/templates/agents/lattice-review-behavior.md",
+          ".claude/agents/lattice-review-scope-plan.md",
+          ".claude/agents/lattice-review-behavior.md",
+          ".lattice-codex/agents/lattice-review-scope-plan.md",
+          ".lattice-codex/agents/lattice-review-behavior.md",
+          "packages/main/src/handlers/story-dispatch.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
       }
     },
     {
