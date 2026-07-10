@@ -45,6 +45,54 @@
         "scanEscalationReason": null
       },
       "_hash": "12a37876d57c835b2ca84ccdadb16a505e962fccb9fd199a8004463fb51c5506"
+    },
+    {
+      "id": "B-d6a0:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion residue check for the whole-output-porcelain-trim bug class (per CHK-001..005). Ran grep -rn porcelain packages/main/src and cross-checked every production call site against the plan.md audit table: (1) all 4 fixed sites (evidence-freshness.ts readMaterialDirtyFiles, cross-host-review.ts assertMaterialCleanForReview, story-query.ts gitPorcelainPaths + DONE-residue probe, partial-done-recovery.ts assertMainWorktreeClean, session.ts readGitStatus) now read raw/untrimmed then per-line trimEnd before slice(3), verified no whole-output .trim() remains before split at any of these sites; (2) safe-by-read-pattern sites (dirty-worktree-gate.ts, validation-executor.ts, lattice-dispatch.ts gitStatusPaths, auto-commit-metadata.ts snapshotDirtyClassification, recover-evidence.ts, managed-assets.ts/rollout-check.ts gitLines, worktree-policy.ts parsePorcelain/captureGitStatus) all split-then-per-line-trim (never whole-string trim before split), confirmed by direct read and by reproducing the bug mechanism in a scratch script (whole-trim-before-split strips row0 leading space; split-then-per-line-trim does not); (3) safe-by-usage sites (cli-engine.ts:631, init-check-metadata-sync.ts:147, safe-init-commit.ts:121, verification-context-pack.ts:455, release.ts:50, worktree.ts:656/662/1024/1093/1229, auxiliary-worktree-cleanup.ts:299, declared-artifact-commit-check.ts) are bounded-path/emptiness/count-only or cosmetic-echo, never positional-parse unbounded first-row output; (4) worktree.ts:617 purgeSafeInitCommit conditional slice (line[2]===space?slice(3):slice(2)) correctly compensates for its own git() helper full-trim, confirmed git() at line 236 does .trim(), so the shift-tolerance is genuinely load-bearing and matches the plan classification; (5) git worktree list --porcelain sites (12 call sites) immune by format, rows never start with a space. No residual full-output-trim-then-positional-slice pattern found outside the audited table; no misclassification found; audit table is complete and accurate.",
+      "createdAt": "2026-07-10T10:19:17.905Z",
+      "reviewRound": "2026-07-10T10:11:26.540Z",
+      "reviewRunId": "B-d6a0:RR-001",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-d6a0/plan.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/init-check-metadata-sync.ts",
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/core/auxiliary-worktree-cleanup.ts",
+          "packages/main/src/core/declared-artifact-commit-check.ts",
+          "packages/main/src/core/dirty-worktree-gate.ts",
+          "packages/main/src/core/done-oracle.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/lattice-dispatch.ts",
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/src/core/partial-done-recovery.ts",
+          "packages/main/src/core/rollout-check.ts",
+          "packages/main/src/core/safe-init-commit.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/verification-context-pack.ts",
+          "packages/main/src/core/worktree-policy.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/recover-evidence.ts",
+          "packages/main/src/handlers/release.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/handlers/worktree.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/runtime-root.ts",
+          "packages/main/src/core/dirty-worktree.ts",
+          "packages/main/src/core/learning-store.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/worktree-runtime.ts",
+          "packages/main/src/dashboard.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/handlers/done-effects.ts",
+          "packages/main/src/handlers/done-prepare.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6c34e51937fca0859bd0e26be300d8926d56e88785bdd506ce036e69e7c54726"
     }
   ]
 }
