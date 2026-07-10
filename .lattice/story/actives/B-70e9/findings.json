@@ -385,6 +385,24 @@
       "resolvedAt": "2026-07-10T12:07:49.207Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-70e9:F-018",
+      "desc": "[codex host-B, cross_host_review B-70e9-xhr-r10] Ledger append lock can be stolen from a live writer: stale reclamation (writer.ts ~178) rmdirs the lock dir on mtime age alone; appendUsageRecord holds the lock across reading the ledger tail and appending, so a large ledger, slow filesystem, GC pause, or suspended process can exceed the 30s threshold while STILL inside the critical section - a second writer steals the live lock and appends from the same predecessor, reintroducing exactly the F-012 hash-chain corruption. Fix direction: ownership-aware reclaim - write holder pid + unique token into the lock; reclaim only when the holder process is dead (pid liveness like the slot registry) or heartbeat genuinely stale; release only if the token still matches; alternatively never steal and skip on timeout.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host-b",
+      "createdAt": "2026-07-10T12:20:34.074Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "_hash": "5dbaa8d039e5430c28cb302860e829b710c4f328356b201edfbde9e244901ac8",
+      "files": [
+        "packages/main/src/core/usage-ledger/writer.ts",
+        "packages/main/src/tasks/host-run-usage-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|codex-host-cross",
+      "signatureTagSource": "auto"
     }
   ]
 }
