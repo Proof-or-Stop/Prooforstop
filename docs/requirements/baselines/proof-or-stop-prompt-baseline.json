@@ -1,0 +1,1217 @@
+{
+  "schemaVersion": "proof-or-stop.prompt-baseline.v1",
+  "storyId": "B-3928",
+  "sourcePlan": "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+  "expectedRoleCount": 16,
+  "registry": {
+    "module": "packages/main/dist/core/prompt-registry.js",
+    "schemaVersion": "lattice.prompt-registry.v1",
+    "source": "@lattice/core/templates/agents",
+    "agentCount": 16,
+    "materialHash": "9ca4fceaec23a5986c593f4d25d59f53218a70de5dd340883b489330036493cf",
+    "roles": [
+      {
+        "role": "implementation-reviewer",
+        "file": "implementation-reviewer.md",
+        "relPath": "templates/agents/implementation-reviewer.md",
+        "templateHash": "fed9fddce46760a0110ef14ae976480a219d391902b8718df0ad767859cfeafd",
+        "bytes": 2157,
+        "lines": 82
+      },
+      {
+        "role": "lattice-evaluator-cli",
+        "file": "lattice-evaluator-cli.md",
+        "relPath": "templates/agents/lattice-evaluator-cli.md",
+        "templateHash": "4c57b63c4aa43c852517cd964bbddb7ecced6e9e8f7446764389c1bc3ac2b08f",
+        "bytes": 4374,
+        "lines": 119
+      },
+      {
+        "role": "lattice-evaluator",
+        "file": "lattice-evaluator.md",
+        "relPath": "templates/agents/lattice-evaluator.md",
+        "templateHash": "c072e8cc5c84adac5f15c4d60b95a495896da1c0bf7a3c1482506862eed1b026",
+        "bytes": 8906,
+        "lines": 201
+      },
+      {
+        "role": "lattice-implementer",
+        "file": "lattice-implementer.md",
+        "relPath": "templates/agents/lattice-implementer.md",
+        "templateHash": "3be8e9b5cce7f6f2558f929f400e0975fed624f011ab1dda573bdb30273588fd",
+        "bytes": 14641,
+        "lines": 237
+      },
+      {
+        "role": "lattice-review-behavior",
+        "file": "lattice-review-behavior.md",
+        "relPath": "templates/agents/lattice-review-behavior.md",
+        "templateHash": "b0cfd549bee3dda0710b057b31596e327348c3fc2eba0da937afdf46bf5d86b2",
+        "bytes": 13698,
+        "lines": 184
+      },
+      {
+        "role": "lattice-review-channel",
+        "file": "lattice-review-channel.md",
+        "relPath": "templates/agents/lattice-review-channel.md",
+        "templateHash": "19db37079e222e6d68bc52535e814d544932a365f7df79df8995399bf41b1829",
+        "bytes": 12112,
+        "lines": 193
+      },
+      {
+        "role": "lattice-review-concept",
+        "file": "lattice-review-concept.md",
+        "relPath": "templates/agents/lattice-review-concept.md",
+        "templateHash": "cbb397fa7ad831fdfa3f305e19ce8c0c99f52909d26eb44634f685ba9eafdd8a",
+        "bytes": 9594,
+        "lines": 152
+      },
+      {
+        "role": "lattice-review-delivery",
+        "file": "lattice-review-delivery.md",
+        "relPath": "templates/agents/lattice-review-delivery.md",
+        "templateHash": "5357c140ba9b47f51f362cca7b4aa9289a1d15367427f3ee302a53439dd44b57",
+        "bytes": 13263,
+        "lines": 288
+      },
+      {
+        "role": "lattice-review-docs",
+        "file": "lattice-review-docs.md",
+        "relPath": "templates/agents/lattice-review-docs.md",
+        "templateHash": "9f86f7a379b27783887c17ee579201f6abfc9812d0e7c5689f98b26a02290f59",
+        "bytes": 12100,
+        "lines": 200
+      },
+      {
+        "role": "lattice-review-quality",
+        "file": "lattice-review-quality.md",
+        "relPath": "templates/agents/lattice-review-quality.md",
+        "templateHash": "f7ec0664bb245e2608145959821f8b45d8f0dd67da07035d034e68dcc2b73280",
+        "bytes": 10104,
+        "lines": 176
+      },
+      {
+        "role": "lattice-review-scope-plan",
+        "file": "lattice-review-scope-plan.md",
+        "relPath": "templates/agents/lattice-review-scope-plan.md",
+        "templateHash": "90f969c3569dbd57f2f31f3a597e42eca156d8a06ae0c2d75dcb4c2316db08fe",
+        "bytes": 14227,
+        "lines": 204
+      },
+      {
+        "role": "lattice-review-story-init",
+        "file": "lattice-review-story-init.md",
+        "relPath": "templates/agents/lattice-review-story-init.md",
+        "templateHash": "8fd4d65d1c0e4d956bcb527899ddcb4182dddb1cbc847b74ba19d0695642bf81",
+        "bytes": 18299,
+        "lines": 271
+      },
+      {
+        "role": "lattice-review-test-coverage",
+        "file": "lattice-review-test-coverage.md",
+        "relPath": "templates/agents/lattice-review-test-coverage.md",
+        "templateHash": "145ce07871027bd935e5f928423406d8a31b58a5aabd3e72e89cafe5fa3002a0",
+        "bytes": 4403,
+        "lines": 55
+      },
+      {
+        "role": "product-reviewer",
+        "file": "product-reviewer.md",
+        "relPath": "templates/agents/product-reviewer.md",
+        "templateHash": "1251d330e719dfae4d25708f9e06eee76a97aee2f084acf0abb3fe8b2d4446a2",
+        "bytes": 3253,
+        "lines": 91
+      },
+      {
+        "role": "test-case-reviewer",
+        "file": "test-case-reviewer.md",
+        "relPath": "templates/agents/test-case-reviewer.md",
+        "templateHash": "470e5e5baa99e19b0c7d06546f4e20d931b1315fd77bf06383ce8842a2e8574a",
+        "bytes": 8766,
+        "lines": 154
+      },
+      {
+        "role": "test-intent",
+        "file": "test-intent.md",
+        "relPath": "templates/agents/test-intent.md",
+        "templateHash": "170e49b7abf5a4ff4b949315c5ff41f32d11696c1f84e0909a5935d03ab7816d",
+        "bytes": 7571,
+        "lines": 167
+      }
+    ]
+  },
+  "agentPrompt": {
+    "command": "node packages/main/dist/cli.js agent_prompt --role=<role>",
+    "metadata": "sha256, bytes, and lines are computed from raw stdout; registry parity strips the CLI print newline only.",
+    "outputs": [
+      {
+        "role": "implementation-reviewer",
+        "sha256": "4ff8b0b0bf551dee0371f692870f69228d3ab42f935203935345c4fb4e7e1ae6",
+        "bytes": 2158,
+        "lines": 83
+      },
+      {
+        "role": "lattice-evaluator-cli",
+        "sha256": "60356160fc818a8c9a9912b65c7e1f3d3db37b948fc3b920b910b4e12d96c143",
+        "bytes": 4375,
+        "lines": 120
+      },
+      {
+        "role": "lattice-evaluator",
+        "sha256": "8ff48660e9f4a17e76c6a9a9f37970a9fcd3e3204d1a91c10b532501e4aa1194",
+        "bytes": 8907,
+        "lines": 202
+      },
+      {
+        "role": "lattice-implementer",
+        "sha256": "8828fcb3a9bea80f6bfd0636d2aef252477af6381efd1752073a3209c5f1e706",
+        "bytes": 14642,
+        "lines": 238
+      },
+      {
+        "role": "lattice-review-behavior",
+        "sha256": "13a402df15d5a51dfcd6d09a17997327c849c975d3b62d8603ff935dd4554fe9",
+        "bytes": 13699,
+        "lines": 185
+      },
+      {
+        "role": "lattice-review-channel",
+        "sha256": "f8c2daa5bf70cc4a72f4063938e4ece1d1c4742c1b29904beec7dc7b8b840080",
+        "bytes": 12113,
+        "lines": 194
+      },
+      {
+        "role": "lattice-review-concept",
+        "sha256": "4c989344024017b2dead3d769dd828db96d576a7309222495ce64058b677d446",
+        "bytes": 9595,
+        "lines": 153
+      },
+      {
+        "role": "lattice-review-delivery",
+        "sha256": "6879661bb848c72245ff6c10604161611b1804e8e47e3a46deda7d4d08b85674",
+        "bytes": 13264,
+        "lines": 289
+      },
+      {
+        "role": "lattice-review-docs",
+        "sha256": "1bf21c0584622466d1695cafacc8aec18f592bd656894f53358e5b5280a15720",
+        "bytes": 12101,
+        "lines": 201
+      },
+      {
+        "role": "lattice-review-quality",
+        "sha256": "beb7ca4b55013f00d2b9ba84849b25d2bddc71431fe66932e7eac9c71f90fd07",
+        "bytes": 10105,
+        "lines": 177
+      },
+      {
+        "role": "lattice-review-scope-plan",
+        "sha256": "a5c4564f1c8d2b5cb25cc79f0385d8e6b5ac13d483a76526f8868db721d40416",
+        "bytes": 14228,
+        "lines": 205
+      },
+      {
+        "role": "lattice-review-story-init",
+        "sha256": "aa6a2927df69a3231e055c4fa6be532960bf242da1573159e6e0a1a42bea4544",
+        "bytes": 18300,
+        "lines": 272
+      },
+      {
+        "role": "lattice-review-test-coverage",
+        "sha256": "9d4c09428afb0b01f7b5d96ff6ebe356ad0863cc2baa64eb21caa930d1d87860",
+        "bytes": 4404,
+        "lines": 56
+      },
+      {
+        "role": "product-reviewer",
+        "sha256": "fc570fa80439fe4507c09351d3a8c300503b2037ce5998f39240fcb7f20ba1cb",
+        "bytes": 3254,
+        "lines": 92
+      },
+      {
+        "role": "test-case-reviewer",
+        "sha256": "b04aa0c4cb819b303024cd2a849f918960a79cd13df4f12ce0202d471bd5f408",
+        "bytes": 8767,
+        "lines": 155
+      },
+      {
+        "role": "test-intent",
+        "sha256": "6e2adec6ceffe8ad96d35a61ba7190816709246d58f7b383a04ca68391e21138",
+        "bytes": 7572,
+        "lines": 168
+      }
+    ]
+  },
+  "roleMatrix": [
+    {
+      "role": "implementation-reviewer",
+      "status": "fold-candidate",
+      "phase": "REVIEW advisory",
+      "purpose": "Legacy implementation risk reviewer for code risks and maintainability.",
+      "commands": "none",
+      "inputs": "Diff and implementation context.",
+      "outputs": "Text review notes.",
+      "capabilities": "Code risk review; edge condition review; maintainability review.",
+      "overlapCategory": "duplicates behavior and quality",
+      "notes": "Not in current review-run lanes; planned to fold into behavior and quality."
+    },
+    {
+      "role": "lattice-evaluator-cli",
+      "status": "optional",
+      "phase": "TEST optional",
+      "purpose": "CLI/core evaluator for user-facing command behavior.",
+      "commands": "CLI shell via evaluator bridge.",
+      "inputs": "Task, expected CLI behavior, command output.",
+      "outputs": "Evaluator JSON transcript.",
+      "capabilities": "CLI exercise; usability scoring; observed-output assessment.",
+      "overlapCategory": "overlaps behavior and delivery",
+      "notes": "Advisory unless persisted through a structured evaluator evidence path."
+    },
+    {
+      "role": "lattice-evaluator",
+      "status": "optional",
+      "phase": "TEST optional",
+      "purpose": "Browser/product evaluator for UI-facing behavior.",
+      "commands": "browser API; review_run_start; finding_add; review_pass_set.",
+      "inputs": "Task, expected user flow, browser state.",
+      "outputs": "Evaluator JSON transcript or reviewer finding/pass if routed.",
+      "capabilities": "User-flow exercise; UI behavior scoring; usability notes.",
+      "overlapCategory": "overlaps behavior and product",
+      "notes": "Advisory unless a policy consumes saved evaluator evidence."
+    },
+    {
+      "role": "lattice-implementer",
+      "status": "active",
+      "phase": "DEV",
+      "purpose": "Implementation worker that edits code, verifies locally, and updates checklist evidence.",
+      "commands": "session_brief; aux_doc_list; checklist_update; validate; story_get; checklist_get.",
+      "inputs": "Story, checklist, source files, focused docs.",
+      "outputs": "Code changes, commits, checklist status, verificationEvidence.",
+      "capabilities": "Code editing; focused tests; evidence recording; commit preparation.",
+      "overlapCategory": "DEV owner",
+      "notes": "Does not own review, test phase advancement, or DONE closure."
+    },
+    {
+      "role": "lattice-review-behavior",
+      "status": "active",
+      "phase": "REVIEW",
+      "purpose": "Reviews promised user-visible behavior, edge cases, and userSees mismatch.",
+      "commands": "review_run_start; finding_add; review_pass_set; scope_check_save.",
+      "inputs": "Diff, story scope, user-visible behavior, verification evidence.",
+      "outputs": "Reviewer findings or pass.",
+      "capabilities": "Behavior correctness; edge-case review; user-visible mismatch detection.",
+      "overlapCategory": "shares spec checks with scope and docs",
+      "notes": "Should consume scope artifacts instead of repeating broad PLAN scans."
+    },
+    {
+      "role": "lattice-review-channel",
+      "status": "retired-cli-only",
+      "phase": "REVIEW legacy",
+      "purpose": "Legacy reviewer for normal-channel dispatch evidence.",
+      "commands": "dispatch; checklist_get; story_get.",
+      "inputs": "process-events dispatch and subagent_result evidence.",
+      "outputs": "Reviewer findings or pass.",
+      "capabilities": "Dispatch evidence inspection.",
+      "overlapCategory": "duplicates channel CLI gate",
+      "notes": "Plan marks this as retired in favor of validate channel checks."
+    },
+    {
+      "role": "lattice-review-concept",
+      "status": "conditional",
+      "phase": "REVIEW",
+      "purpose": "Reviews concept deletion, rename, and terminology residue.",
+      "commands": "review_run_start; finding_add; review_pass_set.",
+      "inputs": "Diff, renamed terms, deleted concepts, docs/code references.",
+      "outputs": "Reviewer findings or pass.",
+      "capabilities": "Residue scan; concept consistency; rename completeness.",
+      "overlapCategory": "overlaps docs and quality cleanup",
+      "notes": "Route only when rename, removal, or concept-retirement triggers exist."
+    },
+    {
+      "role": "lattice-review-delivery",
+      "status": "active",
+      "phase": "TEST/DONE",
+      "purpose": "Reviews final delivery claims, docs promises, real machine tests, and closeout.",
+      "commands": "review_run_start; finding_add; review_pass_set; delivery_check_set.",
+      "inputs": "Diff, validation evidence, docs promises, user-facing closeout claims.",
+      "outputs": "delivery_check_set evidence and reviewer findings/pass.",
+      "capabilities": "Delivery completeness; closeout self-check; final docs-promise fallback.",
+      "overlapCategory": "overlaps docs and product",
+      "notes": "Consumes docs review when available instead of redoing all doc-code drift review."
+    },
+    {
+      "role": "lattice-review-docs",
+      "status": "active",
+      "phase": "REVIEW",
+      "purpose": "Reviews code/documentation drift around changed public behavior.",
+      "commands": "review_run_start; finding_add; review_pass_set.",
+      "inputs": "Diff, docs, command examples, config/schema changes.",
+      "outputs": "Reviewer findings or pass.",
+      "capabilities": "Doc-code drift review; command example review; schema documentation review.",
+      "overlapCategory": "single REVIEW docs owner",
+      "notes": "Owns REVIEW doc drift and docs-promised-code-missing checks."
+    },
+    {
+      "role": "lattice-review-quality",
+      "status": "active",
+      "phase": "REVIEW",
+      "purpose": "Reviews maintainability, type safety, I/O shell isolation, and proof metadata consistency.",
+      "commands": "review_run_start; finding_add; review_pass_set.",
+      "inputs": "Diff, source code, tests, proof metadata.",
+      "outputs": "Reviewer findings or pass.",
+      "capabilities": "Code quality; dead-code scan; type-safety review; maintainability review.",
+      "overlapCategory": "overlaps implementation-reviewer",
+      "notes": "Target owner for implementation-reviewer maintainability checks."
+    },
+    {
+      "role": "lattice-review-scope-plan",
+      "status": "active",
+      "phase": "PLAN",
+      "purpose": "Reviews story/checklist scope against source-of-truth requirements.",
+      "commands": "config; dev_memory_preflight; dev_memory_search; scope_question_resolve; scope_check_save.",
+      "inputs": "Story, checklist, candidate requirement docs, risk signals.",
+      "outputs": "scope_check_save artifact.",
+      "capabilities": "Scope coverage; orphan requirement detection; candidate spec review.",
+      "overlapCategory": "PLAN scope owner",
+      "notes": "Should avoid default full decisions-directory scans without escalation."
+    },
+    {
+      "role": "lattice-review-story-init",
+      "status": "active",
+      "phase": "INIT",
+      "purpose": "Reviews new story readability, facts, risk wording, and initial checklist sanity.",
+      "commands": "init_check_set; session_brief; aux_doc_list.",
+      "inputs": "Story background, index fields, checklist title/context.",
+      "outputs": "init_check_set issues/pass.",
+      "capabilities": "Fresh-context intake review; story clarity; risk sanity check.",
+      "overlapCategory": "overlaps scope-plan on checklist sanity",
+      "notes": "Baseline includes grandfathered direct story-file reads and init-self-check write wording."
+    },
+    {
+      "role": "lattice-review-test-coverage",
+      "status": "active",
+      "phase": "REVIEW",
+      "purpose": "Reviews verificationIntent to verificationEvidence coverage.",
+      "commands": "review_run_start; finding_add; review_pass_set.",
+      "inputs": "Checklist verificationIntent and verificationEvidence.",
+      "outputs": "Reviewer findings or pass.",
+      "capabilities": "Coverage completeness; missing/stale evidence detection.",
+      "overlapCategory": "verification coverage owner",
+      "notes": "Current replacement for the value of legacy TEST_CASE_REVIEW."
+    },
+    {
+      "role": "product-reviewer",
+      "status": "compatibility",
+      "phase": "INIT/DONE advisory",
+      "purpose": "Reviews user-facing transcript and product closure.",
+      "commands": "none",
+      "inputs": "Final transcript, product outcome, optional transcript diff.",
+      "outputs": "Text product review or INIT compatibility output.",
+      "capabilities": "User-value closure; product wording review.",
+      "overlapCategory": "overlaps delivery and evaluator",
+      "notes": "INIT compatibility remains until product reviewer routing is migrated."
+    },
+    {
+      "role": "test-case-reviewer",
+      "status": "legacy",
+      "phase": "TEST_CASE_REVIEW legacy",
+      "purpose": "Legacy reviewer for fixture coverage of testIntent.",
+      "commands": "testintent_record.",
+      "inputs": "Legacy testIntent and fixture JSON.",
+      "outputs": "testintent_record results.",
+      "capabilities": "Legacy fixture coverage review.",
+      "overlapCategory": "replaced by review-test-coverage",
+      "notes": "Legacy-only prompt tied to old TEST_CASE_REVIEW phase."
+    },
+    {
+      "role": "test-intent",
+      "status": "legacy",
+      "phase": "PLAN legacy",
+      "purpose": "Legacy checklist split reviewer and testIntent writer.",
+      "commands": "story_get; checklist_update.",
+      "inputs": "Story and checklist.",
+      "outputs": "Legacy testIntent or null intent updates.",
+      "capabilities": "Checklist split review; legacy acceptance-intent writing.",
+      "overlapCategory": "replaced by verificationIntent flow",
+      "notes": "Conflicts with the current verificationIntent model for new stories."
+    }
+  ],
+  "legacyVocabulary": {
+    "patterns": [
+      "TEST_CASE_REVIEW",
+      "TEST_CASE",
+      "testIntent"
+    ],
+    "findings": [
+      {
+        "id": "91fe3f28dd9d31b9",
+        "role": "implementation-reviewer",
+        "line": 14,
+        "term": "testIntent",
+        "excerpt": "You are the `implementation-reviewer`. Your job is not to review fixtures / testIntent, nor to review user value, but to review **whether the implementation code itself has obvious risks**.",
+        "classification": "legacy-overlap-wording",
+        "note": "Legacy wording called out for later prompt consolidation."
+      },
+      {
+        "id": "d2025c407bc964ed",
+        "role": "implementation-reviewer",
+        "line": 25,
+        "term": "testIntent",
+        "excerpt": "- Not reviewing the engineering coverage of testIntent",
+        "classification": "legacy-overlap-wording",
+        "note": "Legacy wording called out for later prompt consolidation."
+      },
+      {
+        "id": "26a59b218eb5ee9c",
+        "role": "implementation-reviewer",
+        "line": 59,
+        "term": "testIntent",
+        "excerpt": "- testIntent completeness",
+        "classification": "legacy-overlap-wording",
+        "note": "Legacy wording called out for later prompt consolidation."
+      },
+      {
+        "id": "8f946e5711436549",
+        "role": "lattice-review-concept",
+        "line": 114,
+        "term": "testIntent",
+        "excerpt": "2. `git diff main...HEAD` to see specific changes, and identify **concept words that have been deleted/replaced en masse** (e.g., testIntent was deleted, alpha was replaced with beta)",
+        "classification": "legacy-example",
+        "note": "Example of concept deletion terminology, not an active testIntent instruction."
+      },
+      {
+        "id": "cf7850c05ba40b1e",
+        "role": "lattice-review-test-coverage",
+        "line": 21,
+        "term": "TEST_CASE_REVIEW",
+        "excerpt": "You are `lattice-review-test-coverage`. Your duty is to inherit the value of the old `TEST_CASE_REVIEW`, but without resurrecting the old phase: you only review during the REVIEW phase whether the `verificationIntent` on the checklist is covered by valid `verificationEvidence`.",
+        "classification": "legacy-value-reference",
+        "note": "Current reviewer explicitly references the old TEST_CASE_REVIEW value without reviving the phase."
+      },
+      {
+        "id": "1d5a28f3c52719d2",
+        "role": "product-reviewer",
+        "line": 26,
+        "term": "testIntent",
+        "excerpt": "- Not reviewing the engineering coverage of testIntent",
+        "classification": "legacy-overlap-wording",
+        "note": "Legacy wording called out for later prompt consolidation."
+      },
+      {
+        "id": "de6d04ef4e599648",
+        "role": "product-reviewer",
+        "line": 27,
+        "term": "testIntent",
+        "excerpt": "- Not modifying code, tests, or testIntent",
+        "classification": "legacy-overlap-wording",
+        "note": "Legacy wording called out for later prompt consolidation."
+      },
+      {
+        "id": "e4d699649ecd3540",
+        "role": "test-case-reviewer",
+        "line": 2,
+        "term": "TEST_CASE",
+        "excerpt": "name: test-case-reviewer",
+        "classification": "legacy-prompt-body",
+        "note": "Legacy compatibility prompt; visible until migration or retirement."
+      },
+      {
+        "id": "caab33f59e852676",
+        "role": "test-case-reviewer",
+        "line": 2,
+        "term": "TEST_CASE_REVIEW",
+        "excerpt": "name: test-case-reviewer",
+        "classification": "legacy-prompt-body",
+        "note": "Legacy compatibility prompt; visible until migration or retirement."
+      },
+      {
+        "id": "b198461af53773b2",
+        "role": "test-case-reviewer",
+        "line": 3,
+        "term": "testIntent",
+        "excerpt": "description: Review testIntent coverage item by item, record results, and report back to the main agent",
+        "classification": "legacy-prompt-body",
+        "note": "Legacy compatibility prompt; visible until migration or retirement."
+      },
+      {
+        "id": "0b7cf0b739304f02",
+        "role": "test-case-reviewer",
+        "line": 12,
+        "term": "TEST_CASE",
+        "excerpt": "# test-case-reviewer agent",
+        "classification": "legacy-prompt-body",
+        "note": "Legacy compatibility prompt; visible until migration or retirement."
+      },
+      {
+        "id": "a4f7ed3ebf521a5e",
+        "role": "test-case-reviewer",
+        "line": 12,
+        "term": "TEST_CASE_REVIEW",
+        "excerpt": "# test-case-reviewer agent",
+        "classification": "legacy-prompt-body",
+        "note": "Legacy compatibility prompt; visible until migration or retirement."
+      },
+      {
+        "id": "a1fc1b6e48092e2e",
+        "role": "test-case-reviewer",
+        "line": 14,
+        "term": "testIntent",
+        "excerpt": "You are an independent reviewer (role=reviewer). The main agent (role=author) writes the code and tests, the test-intent agent (role=intent) writes the acceptance criteria, and you review whether the main agent's tests satisfy the acceptance criteria.",
+        "classification": "legacy-prompt-body",
+        "note": "Legacy compatibility prompt; visible until migration or retirement."
+      },
+      {
+        "id": "0feced49ff67fbfc",
+        "role": "test-case-reviewer",
+        "line": 26,
+        "term": "TEST_CASE_REVIEW",
+        "excerpt": "You review, item by item, whether each testIntent has a corresponding test that covers it and passes, during the TEST_CASE_REVIEW phase.",
+        "classification": "legacy-prompt-body",
+        "note": "Legacy compatibility prompt; visible until migration or retirement."
+      },
+      {
+        "id": "602e6faf8710e307",
+        "role": "test-case-reviewer",
+        "line": 26,
+        "term": "testIntent",
+        "excerpt": "You review, item by item, whether each testIntent has a corresponding test that covers it and passes, during the TEST_CASE_REVIEW phase.",
+        "classification": "legacy-prompt-body",
+        "note": "Legacy compatibility prompt; visible until migration or retirement."
+      },
+      {
+        "id": "707e77683743a5bc",
+        "role": "test-case-reviewer",
+        "line": 32,
+        "term": "TEST_CASE_REVIEW",
+        "excerpt": "- The current phase is already TEST_CASE_REVIEW",
+        "classification": "legacy-prompt-body",
+        "note": "Legacy compatibility prompt; visible until migration or retirement."
+      },
+      {
+        "id": "23cfdf5d0d68b962",
+        "role": "test-case-reviewer",
+        "line": 36,
+        "term": "testIntent",
+        "excerpt": "### Step 1: Get the checklist and testIntent",
+        "classification": "legacy-prompt-body",
+        "note": "Legacy compatibility prompt; visible until migration or retirement."
+      },
+      {
+        "id": "b56a34d60c8c3620",
+        "role": "test-case-reviewer",
+        "line": 54,
+        "term": "testIntent",
+        "excerpt": "⚠ The X-th testIntent has reached the 5-round cap. The current segment cannot continue review.",
+        "classification": "legacy-prompt-body",
+        "note": "Legacy compatibility prompt; visible until migration or retirement."
+      },
+      {
+        "id": "3a499f93ae3aab18",
+        "role": "test-case-reviewer",
+        "line": 57,
+        "term": "testIntent",
+        "excerpt": "1. First, reflect: 5 rounds without consensus suggests the testIntent description itself or the checklist breakdown may have problems",
+        "classification": "legacy-prompt-body",
+        "note": "Legacy compatibility prompt; visible until migration or retirement."
+      },
+      {
+        "id": "67fe7c0d161d12ac",
+        "role": "test-case-reviewer",
+        "line": 76,
+        "term": "testIntent",
+        "excerpt": "How to review: **read fixture JSON files directly** and check whether the case's language-agnostic test protocol covers the scenario described by the testIntent. Valid evidence may come from `executor`, `command`, or legacy `execute`; do not pass a case just because \"the JS runner cannot import a non-JS language\" — that only proves the lack of corresponding executor evidence.",
+        "classification": "legacy-prompt-body",
+        "note": "Legacy compatibility prompt; visible until migration or retirement."
+      },
+      {
+        "id": "3484b3ad62c7481c",
+        "role": "test-case-reviewer",
+        "line": 79,
+        "term": "TEST_CASE",
+        "excerpt": "1. Find the corresponding test case in the fixture file (matched via `intentRef`)",
+        "classification": "legacy-prompt-body",
+        "note": "Legacy compatibility prompt; visible until migration or retirement."
+      },
+      {
+        "id": "50c4a881fb44afe4",
+        "role": "test-case-reviewer",
+        "line": 81,
+        "term": "testIntent",
+        "excerpt": "3. Verify that `input` / `expect` / `throws` assertions cover the scenario described by the testIntent",
+        "classification": "legacy-prompt-body",
+        "note": "Legacy compatibility prompt; visible until migration or retirement."
+      },
+      {
+        "id": "6b506a5a27f7a1c6",
+        "role": "test-case-reviewer",
+        "line": 89,
+        "term": "testIntent",
+        "excerpt": "For each testIntent, call the CLI to record the review result:",
+        "classification": "legacy-prompt-body",
+        "note": "Legacy compatibility prompt; visible until migration or retirement."
+      },
+      {
+        "id": "932515aef4f42d2a",
+        "role": "test-case-reviewer",
+        "line": 92,
+        "term": "TEST_CASE",
+        "excerpt": "lattice testintent_record '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"index\":0,\"pass\":true,\"note\":\"fixture/xxx.json:5 — case covers normal path | severity:info\",\"agent\":\"test-case-reviewer\"}'",
+        "classification": "legacy-prompt-body",
+        "note": "Legacy compatibility prompt; visible until migration or retirement."
+      },
+      {
+        "id": "d111d3891ac9ba31",
+        "role": "test-case-reviewer",
+        "line": 92,
+        "term": "TEST_CASE_REVIEW",
+        "excerpt": "lattice testintent_record '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"index\":0,\"pass\":true,\"note\":\"fixture/xxx.json:5 — case covers normal path | severity:info\",\"agent\":\"test-case-reviewer\"}'",
+        "classification": "legacy-prompt-body",
+        "note": "Legacy compatibility prompt; visible until migration or retirement."
+      },
+      {
+        "id": "a8c3348a908d31fd",
+        "role": "test-case-reviewer",
+        "line": 96,
+        "term": "TEST_CASE",
+        "excerpt": "lattice testintent_record '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"index\":0,\"pass\":false,\"note\":\"no matching case found — missing edge case for empty input | severity:high\",\"agent\":\"test-case-reviewer\"}'",
+        "classification": "legacy-prompt-body",
+        "note": "Legacy compatibility prompt; visible until migration or retirement."
+      },
+      {
+        "id": "1a80251de8a0b1c0",
+        "role": "test-case-reviewer",
+        "line": 96,
+        "term": "TEST_CASE_REVIEW",
+        "excerpt": "lattice testintent_record '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"index\":0,\"pass\":false,\"note\":\"no matching case found — missing edge case for empty input | severity:high\",\"agent\":\"test-case-reviewer\"}'",
+        "classification": "legacy-prompt-body",
+        "note": "Legacy compatibility prompt; visible until migration or retirement."
+      },
+      {
+        "id": "ed51888be021e120",
+        "role": "test-case-reviewer",
+        "line": 110,
+        "term": "testIntent",
+        "excerpt": "- **pass=true**: A corresponding case is found, and the case's executor/command/execute + input/expect covers the scenario described by the testIntent. **The note must state the reason for passing**: cite the fixture file:line, explain which executor or command verified the behavior described by the intent, and why the assertions are sufficient. Writing only \"ok\" or \"case exists\" is not allowed.",
+        "classification": "legacy-prompt-body",
+        "note": "Legacy compatibility prompt; visible until migration or retirement."
+      },
+      {
+        "id": "431c32c95caf4fe3",
+        "role": "test-case-reviewer",
+        "line": 113,
+        "term": "testIntent",
+        "excerpt": "- The case exists but input/expect does not cover the key scenario described by the testIntent",
+        "classification": "legacy-prompt-body",
+        "note": "Legacy compatibility prompt; visible until migration or retirement."
+      },
+      {
+        "id": "9f41532adac21ce0",
+        "role": "test-case-reviewer",
+        "line": 132,
+        "term": "testIntent",
+        "excerpt": "- **Do not modify testIntent** (review only, do not change)",
+        "classification": "legacy-prompt-body",
+        "note": "Legacy compatibility prompt; visible until migration or retirement."
+      },
+      {
+        "id": "c4cb28534bbb5dbe",
+        "role": "test-case-reviewer",
+        "line": 135,
+        "term": "testIntent",
+        "excerpt": "- **Do not decide on your own to skip** any testIntent item",
+        "classification": "legacy-prompt-body",
+        "note": "Legacy compatibility prompt; visible until migration or retirement."
+      },
+      {
+        "id": "3f49a4d8e4a6fe97",
+        "role": "test-intent",
+        "line": 2,
+        "term": "testIntent",
+        "excerpt": "name: test-intent",
+        "classification": "legacy-prompt-body",
+        "note": "Legacy compatibility prompt; visible until migration or retirement."
+      },
+      {
+        "id": "ff236c6b87e7d7ee",
+        "role": "test-intent",
+        "line": 3,
+        "term": "testIntent",
+        "excerpt": "description: Adversarially review checklist split quality and write testIntent",
+        "classification": "legacy-prompt-body",
+        "note": "Legacy compatibility prompt; visible until migration or retirement."
+      },
+      {
+        "id": "4b195ea3ced19337",
+        "role": "test-intent",
+        "line": 12,
+        "term": "testIntent",
+        "excerpt": "# test-intent agent",
+        "classification": "legacy-prompt-body",
+        "note": "Legacy compatibility prompt; visible until migration or retirement."
+      },
+      {
+        "id": "59e1f270790547a9",
+        "role": "test-intent",
+        "line": 14,
+        "term": "testIntent",
+        "excerpt": "You are the test-intent agent. You have two responsibilities, **which must be executed in order**:",
+        "classification": "legacy-prompt-body",
+        "note": "Legacy compatibility prompt; visible until migration or retirement."
+      },
+      {
+        "id": "af03d1e2c02d2469",
+        "role": "test-intent",
+        "line": 17,
+        "term": "testIntent",
+        "excerpt": "2. **Write testIntent for each item** (only after the split passes review)",
+        "classification": "legacy-prompt-body",
+        "note": "Legacy compatibility prompt; visible until migration or retirement."
+      },
+      {
+        "id": "1cb554c0fe6a6459",
+        "role": "test-intent",
+        "line": 85,
+        "term": "testIntent",
+        "excerpt": "→ Please have the main agent adjust the checklist, then re-invoke the test-intent agent",
+        "classification": "legacy-prompt-body",
+        "note": "Legacy compatibility prompt; visible until migration or retirement."
+      },
+      {
+        "id": "d063cae979d42ca7",
+        "role": "test-intent",
+        "line": 88,
+        "term": "testIntent",
+        "excerpt": "**Stop when review fails** — do not proceed to Step 2 to write testIntent. Continue only after the main agent has corrected the checklist.",
+        "classification": "legacy-prompt-body",
+        "note": "Legacy compatibility prompt; visible until migration or retirement."
+      },
+      {
+        "id": "3a95258e31ba1edc",
+        "role": "test-intent",
+        "line": 94,
+        "term": "testIntent",
+        "excerpt": "## Step 2: Identify Item Type and Write testIntent",
+        "classification": "legacy-prompt-body",
+        "note": "Legacy compatibility prompt; visible until migration or retirement."
+      },
+      {
+        "id": "738cd49f8c548d65",
+        "role": "test-intent",
+        "line": 98,
+        "term": "testIntent",
+        "excerpt": "- **Testable**: involves code behavior changes (functions, CLI commands, UI interactions) → write testIntent",
+        "classification": "legacy-prompt-body",
+        "note": "Legacy compatibility prompt; visible until migration or retirement."
+      },
+      {
+        "id": "a58ec6d7366a51a6",
+        "role": "test-intent",
+        "line": 99,
+        "term": "testIntent",
+        "excerpt": "- **Not testable**: pure documentation updates, configuration changes, process conventions → mark `testIntent: null` with a reason",
+        "classification": "legacy-prompt-body",
+        "note": "Legacy compatibility prompt; visible until migration or retirement."
+      },
+      {
+        "id": "569278d412fee55e",
+        "role": "test-intent",
+        "line": 103,
+        "term": "testIntent",
+        "excerpt": "lattice checklist_update '{\"storyId\":\"<ID>\",\"itemId\":\"<ITEM_ID>\",\"testIntent\":null,\"agent\":\"test-intent\"}'",
+        "classification": "legacy-prompt-body",
+        "note": "Legacy compatibility prompt; visible until migration or retirement."
+      },
+      {
+        "id": "118d8b0bf684a4ea",
+        "role": "test-intent",
+        "line": 106,
+        "term": "testIntent",
+        "excerpt": "### Writing testIntent",
+        "classification": "legacy-prompt-body",
+        "note": "Legacy compatibility prompt; visible until migration or retirement."
+      },
+      {
+        "id": "c09f2721c6ed5f1f",
+        "role": "test-intent",
+        "line": 108,
+        "term": "testIntent",
+        "excerpt": "For testable items, write a three-column testIntent:",
+        "classification": "legacy-prompt-body",
+        "note": "Legacy compatibility prompt; visible until migration or retirement."
+      },
+      {
+        "id": "9e27c81403c83bb0",
+        "role": "test-intent",
+        "line": 114,
+        "term": "testIntent",
+        "excerpt": "Each testIntent entry is annotated with `type`:",
+        "classification": "legacy-prompt-body",
+        "note": "Legacy compatibility prompt; visible until migration or retirement."
+      },
+      {
+        "id": "8c9281e866669102",
+        "role": "test-intent",
+        "line": 122,
+        "term": "testIntent",
+        "excerpt": "When an item involves CLI / pure functions / file I/O and will clearly need fixtures written later, prefer writing testIntent in a reviewer-friendly structure:",
+        "classification": "legacy-prompt-body",
+        "note": "Legacy compatibility prompt; visible until migration or retirement."
+      },
+      {
+        "id": "ae3cc4746bdcfd01",
+        "role": "test-intent",
+        "line": 128,
+        "term": "TEST_CASE",
+        "excerpt": "\"input\": {\"target\": \"test-case-reviewer\", \"profile\": \"reviewer-quality-v1\"},",
+        "classification": "legacy-prompt-body",
+        "note": "Legacy compatibility prompt; visible until migration or retirement."
+      },
+      {
+        "id": "c30d6aea8cf77278",
+        "role": "test-intent",
+        "line": 128,
+        "term": "TEST_CASE_REVIEW",
+        "excerpt": "\"input\": {\"target\": \"test-case-reviewer\", \"profile\": \"reviewer-quality-v1\"},",
+        "classification": "legacy-prompt-body",
+        "note": "Legacy compatibility prompt; visible until migration or retirement."
+      },
+      {
+        "id": "68cc1c4da8f3312e",
+        "role": "test-intent",
+        "line": 142,
+        "term": "testIntent",
+        "excerpt": "lattice checklist_update '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"<ITEM_ID>\",\"testIntent\":{\"happy\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}],\"edge\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}],\"adversarial\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}]},\"agent\":\"test-intent\"}'",
+        "classification": "legacy-prompt-body",
+        "note": "Legacy compatibility prompt; visible until migration or retirement."
+      },
+      {
+        "id": "685665d949e36838",
+        "role": "test-intent",
+        "line": 158,
+        "term": "testIntent",
+        "excerpt": "- **Do not write code** — only review + write testIntent",
+        "classification": "legacy-prompt-body",
+        "note": "Legacy compatibility prompt; visible until migration or retirement."
+      },
+      {
+        "id": "6e7960afd45943f6",
+        "role": "test-intent",
+        "line": 159,
+        "term": "testIntent",
+        "excerpt": "- **Do not write testIntent if the review did not pass**",
+        "classification": "legacy-prompt-body",
+        "note": "Legacy compatibility prompt; visible until migration or retirement."
+      },
+      {
+        "id": "9d200c36cc063033",
+        "role": "test-intent",
+        "line": 165,
+        "term": "testIntent",
+        "excerpt": "2. how many testIntent entries you wrote for each item (e.g., CHK-001: 2h/2e/2a)",
+        "classification": "legacy-prompt-body",
+        "note": "Legacy compatibility prompt; visible until migration or retirement."
+      }
+    ]
+  },
+  "directStoryFileReferences": {
+    "classifications": [
+      "policy-reminder",
+      "read-only-reference",
+      "process-event-evidence-reference",
+      "direct-read",
+      "direct-write",
+      "other"
+    ],
+    "findings": [
+      {
+        "id": "9cb51789f893352e",
+        "role": "lattice-evaluator",
+        "line": 22,
+        "references": [
+          "docs/story/"
+        ],
+        "excerpt": "story metadata under `docs/story/`, and do not write fixtures directly under",
+        "classification": "policy-reminder",
+        "grandfathered": false,
+        "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
+      },
+      {
+        "id": "df10849bf29c4ed8",
+        "role": "lattice-implementer",
+        "line": 28,
+        "references": [
+          "docs/story/"
+        ],
+        "excerpt": "story metadata under `docs/story/`, and do not write fixtures directly under",
+        "classification": "policy-reminder",
+        "grandfathered": false,
+        "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
+      },
+      {
+        "id": "0654156285a32d22",
+        "role": "lattice-implementer",
+        "line": 142,
+        "references": [
+          "docs/story/"
+        ],
+        "excerpt": "- ❌ Directly Read/Edit JSON files under `docs/story/`: all story changes go through the Lattice CLI",
+        "classification": "policy-reminder",
+        "grandfathered": false,
+        "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
+      },
+      {
+        "id": "425fa092cb10fbb9",
+        "role": "lattice-review-behavior",
+        "line": 23,
+        "references": [
+          "docs/story/"
+        ],
+        "excerpt": "story metadata under `docs/story/`, and do not write fixtures directly under",
+        "classification": "policy-reminder",
+        "grandfathered": false,
+        "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
+      },
+      {
+        "id": "8d377f7597953b8a",
+        "role": "lattice-review-channel",
+        "line": 23,
+        "references": [
+          "docs/story/"
+        ],
+        "excerpt": "story metadata under `docs/story/`, and do not write fixtures directly under",
+        "classification": "policy-reminder",
+        "grandfathered": false,
+        "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
+      },
+      {
+        "id": "15545113bf8543fa",
+        "role": "lattice-review-channel",
+        "line": 115,
+        "references": [
+          "docs/story/actives/"
+        ],
+        "excerpt": "The truly reliable evidence source is the `dispatch` / `subagent_result` events in **`docs/story/actives/<storyId>/process-events.jsonl`**: every time the main agent uses `lattice dispatch` to assign work, it appends `{\"type\":\"dispatch\",\"checklistId\":\"CHK-xxx\",...}`; once the worker finishes, it may append `{\"type\":\"subagent_result\",\"checklistId\":\"CHK-xxx\",\"success\":true,...}`.",
+        "classification": "process-event-evidence-reference",
+        "grandfathered": true,
+        "note": "Legacy channel reviewer references process-event evidence directly."
+      },
+      {
+        "id": "2368893ce540b31b",
+        "role": "lattice-review-channel",
+        "line": 138,
+        "references": [
+          "docs/story/actives/B-xxx/process-events.jsonl"
+        ],
+        "excerpt": "grep '\"type\":\"dispatch\"' docs/story/actives/B-xxx/process-events.jsonl | grep -oE '\"checklistId\":\"CHK-[0-9]+\"' | sort -u",
+        "classification": "process-event-evidence-reference",
+        "grandfathered": true,
+        "note": "Legacy channel reviewer references process-event evidence directly."
+      },
+      {
+        "id": "9de92c2fef6237ee",
+        "role": "lattice-review-channel",
+        "line": 177,
+        "references": [
+          "docs/story/actives/"
+        ],
+        "excerpt": "- The full text of `docs/story/actives/<storyId>/process-events.jsonl` (dispatch evidence source)",
+        "classification": "process-event-evidence-reference",
+        "grandfathered": true,
+        "note": "Legacy channel reviewer references process-event evidence directly."
+      },
+      {
+        "id": "7be5943e8cee4b55",
+        "role": "lattice-review-concept",
+        "line": 23,
+        "references": [
+          "docs/story/"
+        ],
+        "excerpt": "story metadata under `docs/story/`, and do not write fixtures directly under",
+        "classification": "policy-reminder",
+        "grandfathered": false,
+        "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
+      },
+      {
+        "id": "e10a512d1fa36619",
+        "role": "lattice-review-delivery",
+        "line": 23,
+        "references": [
+          "docs/story/"
+        ],
+        "excerpt": "story metadata under `docs/story/`, and do not write fixtures directly under",
+        "classification": "policy-reminder",
+        "grandfathered": false,
+        "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
+      },
+      {
+        "id": "009cbb9048bb18c2",
+        "role": "lattice-review-docs",
+        "line": 23,
+        "references": [
+          "docs/story/"
+        ],
+        "excerpt": "story metadata under `docs/story/`, and do not write fixtures directly under",
+        "classification": "policy-reminder",
+        "grandfathered": false,
+        "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
+      },
+      {
+        "id": "1f3a913e71835dcd",
+        "role": "lattice-review-quality",
+        "line": 23,
+        "references": [
+          "docs/story/"
+        ],
+        "excerpt": "story metadata under `docs/story/`, and do not write fixtures directly under",
+        "classification": "policy-reminder",
+        "grandfathered": false,
+        "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
+      },
+      {
+        "id": "309393763c334ac0",
+        "role": "lattice-review-scope-plan",
+        "line": 23,
+        "references": [
+          "docs/story/"
+        ],
+        "excerpt": "story metadata under `docs/story/`, and do not write fixtures directly under",
+        "classification": "policy-reminder",
+        "grandfathered": false,
+        "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
+      },
+      {
+        "id": "93eaf38bff7ddaaa",
+        "role": "lattice-review-story-init",
+        "line": 29,
+        "references": [
+          "docs/story/"
+        ],
+        "excerpt": "story metadata under `docs/story/`, and do not write fixtures directly under",
+        "classification": "policy-reminder",
+        "grandfathered": false,
+        "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
+      },
+      {
+        "id": "71a8517c07154ace",
+        "role": "lattice-review-story-init",
+        "line": 127,
+        "references": [
+          "docs/story/actives/"
+        ],
+        "excerpt": "3. `docs/story/actives/<storyId>/background.md` (full text)",
+        "classification": "read-only-reference",
+        "grandfathered": true,
+        "note": "Registered read-only reference to story artifact content."
+      },
+      {
+        "id": "eaba4010eca37a8f",
+        "role": "lattice-review-story-init",
+        "line": 128,
+        "references": [
+          "docs/story/actives/"
+        ],
+        "excerpt": "4. `docs/story/actives/<storyId>/index.json` — read only the `title` / `description` / `type` / `priority` / `riskSignals` fields",
+        "classification": "read-only-reference",
+        "grandfathered": true,
+        "note": "Registered read-only reference to story artifact content."
+      },
+      {
+        "id": "75df88d9f98f75e2",
+        "role": "lattice-review-story-init",
+        "line": 129,
+        "references": [
+          "docs/story/actives/"
+        ],
+        "excerpt": "5. `docs/story/actives/<storyId>/checklist.json` — read only `items[].title` / `items[].context`",
+        "classification": "read-only-reference",
+        "grandfathered": true,
+        "note": "Registered read-only reference to story artifact content."
+      },
+      {
+        "id": "40f8a1ddd3201cb2",
+        "role": "lattice-review-story-init",
+        "line": 137,
+        "references": [
+          "docs/story/actives/",
+          "docs/story/archived/"
+        ],
+        "excerpt": "- Other story directories (`docs/story/actives/<other-id>/` or `docs/story/archived/`)",
+        "classification": "other",
+        "grandfathered": true,
+        "note": "Registered story path reference without a direct write instruction."
+      },
+      {
+        "id": "93df51f6a30c6396",
+        "role": "lattice-review-story-init",
+        "line": 206,
+        "references": [
+          "docs/story/actives/"
+        ],
+        "excerpt": "2. **Read background.md**: `Read docs/story/actives/<storyId>/background.md` in full. Note all letter codes, abbreviations, jargon, and where they are first defined, **and mark all factual claims about the existing system** (e.g., \"X only supports Y\", \"all projects have Z\").",
+        "classification": "direct-read",
+        "grandfathered": true,
+        "note": "Registered direct story-file read instruction to replace with CLI reads in later milestones."
+      },
+      {
+        "id": "fd458c5629fe9d43",
+        "role": "lattice-review-story-init",
+        "line": 207,
+        "references": [
+          "docs/story/actives/"
+        ],
+        "excerpt": "3. **Read index.json**: `Read docs/story/actives/<storyId>/index.json` and extract `title` / `description` / `type` / `priority` / `riskSignals`.",
+        "classification": "direct-read",
+        "grandfathered": true,
+        "note": "Registered direct story-file read instruction to replace with CLI reads in later milestones."
+      },
+      {
+        "id": "2762ed5bc25c7e30",
+        "role": "lattice-review-story-init",
+        "line": 208,
+        "references": [
+          "docs/story/actives/"
+        ],
+        "excerpt": "4. **Read checklist.json**: `Read docs/story/actives/<storyId>/checklist.json`, iterate over `items[]`, look only at `title` and `context`.",
+        "classification": "direct-read",
+        "grandfathered": true,
+        "note": "Registered direct story-file read instruction to replace with CLI reads in later milestones."
+      },
+      {
+        "id": "36b3b67b40a251e2",
+        "role": "lattice-review-story-init",
+        "line": 261,
+        "references": [
+          "docs/story/actives/"
+        ],
+        "excerpt": "cat docs/story/actives/<storyId>/init-self-check.json",
+        "classification": "direct-read",
+        "grandfathered": true,
+        "note": "Registered direct story-file read instruction to replace with CLI reads in later milestones."
+      },
+      {
+        "id": "8317bf943dec5e67",
+        "role": "lattice-review-story-init",
+        "line": 267,
+        "references": [
+          "docs/story/actives/"
+        ],
+        "excerpt": "echo '{\"question\":\"Did you read CLAUDE.md? If not, explain the reason in detail in the answer field. If yes, also state that you read it in the answer field.\",\"answer\":\"\"}' > docs/story/actives/<storyId>/init-self-check.json",
+        "classification": "direct-write",
+        "grandfathered": true,
+        "note": "Grandfathered direct story-file write instruction from the current INIT prompt."
+      },
+      {
+        "id": "5282e6199b392b03",
+        "role": "product-reviewer",
+        "line": 48,
+        "references": [
+          "docs/story/actives/"
+        ],
+        "excerpt": "- If available, `docs/story/actives/<storyId>/evidence/transcript-diff.md`",
+        "classification": "read-only-reference",
+        "grandfathered": true,
+        "note": "Registered read-only reference to story artifact content."
+      }
+    ]
+  }
+}
