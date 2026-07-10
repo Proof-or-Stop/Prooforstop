@@ -93,6 +93,43 @@
         "scanEscalationReason": null
       },
       "_hash": "6c34e51937fca0859bd0e26be300d8926d56e88785bdd506ce036e69e7c54726"
+    },
+    {
+      "id": "B-d6a0:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed CHK-001..005 quality lane: verified all 5 whole-output-trim fixes (evidence-freshness.ts readMaterialDirtyFiles, cross-host-review.ts assertMaterialCleanForReview, story-query.ts gitPorcelainPaths + DONE-residue probe, partial-done-recovery.ts assertMainWorktreeClean via new gitRaw, session.ts readGitStatus) follow the uniform raw-read+per-line-trimEnd pattern consistently with the existing B-b264 precedent (gitStatusRows/gitRaw). Confirmed gitOutput()/git() shared helpers correctly left untouched for their many non-porcelain callers, with porcelain call sites routed around them instead. Confirmed emptiness decisions correctly moved from raw-string truthiness to rows.length===0 (verified empty-string split-map-filter yields [] in Node). Manually rebuilt (npm run build, clean tsc), ran the new porcelain-first-row-audit-smoke standalone (11/11 assertions pass) and via run-all-smokes --select (1/1 pass) and the full suite (236/290 passed; all failures are pre-existing/environmental: stale smoke-manifest.json entries for ~30 authority-* smokes whose source files were removed by an unrelated prior commit 5d3d7bd686 Authority Server retirement cleanup, confirmed absent from main too - not touched or worsened by this story). Manually reproduced assertMainWorktreeClean throw-path byte-for-byte matching the smoke assertion pattern. The gitPorcelainPaths rename-row split(\" -> \").pop() addition is a genuine behavior change beyond a literal one-line trim fix, but it brings the function in line with the pre-existing identical pattern already used by statusLinePath in partial-done-recovery.ts (not part of this diff), is exercised by a dedicated smoke case (rename rows resolve to the new path), and is scoped/declared in plan.md CHK-003 - not undeclared drift. No dead code, no any-typing, no I/O isolation concerns (smoke uses its own tmpdir fixtures via mkdtempSync, cleaned up in finally blocks). Exports added (assertMaterialCleanForReview, gitPorcelainPaths, readGitStatus) are comment-flagged as smoke-only, not new CLI surface, and command-catalog/cli-surface smokes passed. No blocking issues found.",
+      "createdAt": "2026-07-10T10:33:40.860Z",
+      "reviewRound": "2026-07-10T10:11:26.540Z",
+      "reviewRunId": "B-d6a0:RR-003",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-d6a0/plan.md",
+          "packages/main/package.json",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/partial-done-recovery.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/tasks/porcelain-first-row-audit-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/smoke-manifest.json",
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/core/baseline-risk.ts",
+          "packages/main/src/core/declared-artifact-commit-check.ts",
+          "packages/main/src/core/dirty-worktree-gate.ts",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/lattice-dispatch.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/worktree-policy.ts",
+          "packages/main/src/handlers/done-effects.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/handlers/recover-evidence.ts",
+          "packages/main/src/handlers/worktree.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "078aa199b6e09473a661c1f73addff77872b6ff2963ec6ca72f3c5c3e7498604"
     }
   ]
 }
