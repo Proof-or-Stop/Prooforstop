@@ -555,6 +555,12 @@ export interface Finding {
   reviewRound?: string;
   /** Signed reviewer-run binding for current REVIEW evidence. */
   reviewRunId?: string;
+  /** Signed self-reported reviewer read coverage when supplied by reviewer evidence. */
+  readManifest?: ReviewerReadManifest;
+  /** Signed mechanical reviewer read-log summary when read events/log input was supplied. */
+  readLog?: ReviewerReadLogEvidence;
+  /** Signed diagnostics comparing readManifest to the mechanical read log. */
+  readDiagnostics?: ReviewerReadDiagnostic[];
   dismissReason?: string;
   dismissedAt?: string;
   /** B-e8c8 / B-9d95 CHK-005: associated file paths (used for cluster files-overlap determination + fallback extraction from desc) */
@@ -673,6 +679,10 @@ export interface ReviewPass {
   reviewRunId?: string;
   /** Signed self-reported reviewer read coverage. Missing only on legacy passes. */
   readManifest?: ReviewerReadManifest;
+  /** Signed mechanical reviewer read-log summary when read events/log input was supplied. */
+  readLog?: ReviewerReadLogEvidence;
+  /** Signed diagnostics comparing readManifest to the mechanical read log. */
+  readDiagnostics?: ReviewerReadDiagnostic[];
   _hash?: string;
 }
 

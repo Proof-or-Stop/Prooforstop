@@ -3,9 +3,13 @@
  */
 
 import { createHash } from 'crypto';
-import type { ReviewerReadManifest } from './types.js';
+import type { ReviewerReadDiagnostic, ReviewerReadLogEvidence, ReviewerReadManifest } from './types.js';
 import { digestCanonicalJson } from './digest.js';
-import { normalizeReviewerReadManifest } from './reviewer-read-evidence.js';
+import {
+  normalizeReviewerReadDiagnostics,
+  normalizeReviewerReadLogEvidence,
+  normalizeReviewerReadManifest,
+} from './reviewer-read-evidence.js';
 
 const FINDING_SALT = 'lattice-finding-integrity-v1';
 const REVIEW_PASS_SALT = 'lattice-review-pass-integrity-v1';
@@ -19,17 +23,65 @@ export function signFinding(
   timestamp: string,
   reviewRound: string,
   reviewRunId = '',
+  readManifest?: ReviewerReadManifest,
+  readLog?: ReviewerReadLogEvidence,
+  readDiagnostics?: ReviewerReadDiagnostic[],
 ): string {
+  if (readManifest !== undefined || readLog !== undefined || readDiagnostics !== undefined) {
+    return digestCanonicalJson({
+      version: 2,
+      salt: FINDING_SALT,
+      storyId,
+      id,
+      desc,
+      severity,
+      timestamp,
+      reviewRound,
+      reviewRunId,
+      ...(readManifest !== undefined ? { readManifest: normalizeReviewerReadManifest(readManifest) } : {}),
+      ...(readLog !== undefined ? { readLog: normalizeReviewerReadLogEvidence(readLog) } : {}),
+      ...(readDiagnostics !== undefined ? { readDiagnostics: normalizeReviewerReadDiagnostics(readDiagnostics) } : {}),
+    });
+  }
   return createHash('sha256').update(`${storyId}:${id}:${desc}:${severity}:${timestamp}:${reviewRound}:${reviewRunId}:${FINDING_SALT}`).digest('hex');
 }
 
 /** Verify finding signature (compatible with old and new formats) */
 export function verifyFinding(
   storyId: string,
-  f: { id: string; desc: string; severity: string; createdAt?: string; _hash?: string; reviewRound?: string; reviewRunId?: string },
+  f: {
+    id: string;
+    desc: string;
+    severity: string;
+    createdAt?: string;
+    _hash?: string;
+    reviewRound?: string;
+    reviewRunId?: string;
+    readManifest?: ReviewerReadManifest;
+    readLog?: ReviewerReadLogEvidence;
+    readDiagnostics?: ReviewerReadDiagnostic[];
+  },
 ): boolean {
   if (!f._hash || !f.createdAt) return false;
   const reviewRunId = f.reviewRunId?.trim() || '';
+  if (f.readManifest !== undefined || f.readLog !== undefined || f.readDiagnostics !== undefined) {
+    try {
+      return f._hash === signFinding(
+        storyId,
+        f.id,
+        f.desc,
+        f.severity,
+        f.createdAt,
+        f.reviewRound || '',
+        reviewRunId,
+        f.readManifest,
+        f.readLog,
+        f.readDiagnostics,
+      );
+    } catch {
+      return false;
+    }
+  }
   if (reviewRunId) {
     return f._hash === signFinding(storyId, f.id, f.desc, f.severity, f.createdAt, f.reviewRound || '', reviewRunId);
   }
@@ -50,8 +102,10 @@ export function signReviewPass(
   reviewRound: string,
   reviewRunId = '',
   readManifest?: ReviewerReadManifest,
+  readLog?: ReviewerReadLogEvidence,
+  readDiagnostics?: ReviewerReadDiagnostic[],
 ): string {
-  if (readManifest !== undefined) {
+  if (readManifest !== undefined || readLog !== undefined || readDiagnostics !== undefined) {
     return digestCanonicalJson({
       version: 2,
       salt: REVIEW_PASS_SALT,
@@ -62,7 +116,9 @@ export function signReviewPass(
       timestamp,
       reviewRound,
       reviewRunId,
-      readManifest: normalizeReviewerReadManifest(readManifest),
+      ...(readManifest !== undefined ? { readManifest: normalizeReviewerReadManifest(readManifest) } : {}),
+      ...(readLog !== undefined ? { readLog: normalizeReviewerReadLogEvidence(readLog) } : {}),
+      ...(readDiagnostics !== undefined ? { readDiagnostics: normalizeReviewerReadDiagnostics(readDiagnostics) } : {}),
     });
   }
   return createHash('sha256').update(`${storyId}:${id}:${agent}:${note}:${timestamp}:${reviewRound}:${reviewRunId}:${REVIEW_PASS_SALT}`).digest('hex');
@@ -70,18 +126,38 @@ export function signReviewPass(
 
 export function verifyReviewPass(
   storyId: string,
-  p: { id: string; agent?: string; note?: string; createdAt?: string; _hash?: string; reviewRound?: string; reviewRunId?: string; readManifest?: ReviewerReadManifest },
+  p: {
+    id: string;
+    agent?: string;
+    note?: string;
+    createdAt?: string;
+    _hash?: string;
+    reviewRound?: string;
+    reviewRunId?: string;
+    readManifest?: ReviewerReadManifest;
+    readLog?: ReviewerReadLogEvidence;
+    readDiagnostics?: ReviewerReadDiagnostic[];
+  },
 ): boolean {
   if (!p._hash || !p.createdAt || !p.agent || !p.note) return false;
   const reviewRunId = p.reviewRunId?.trim() || '';
-  if (p.readManifest !== undefined) {
-    let readManifest: ReviewerReadManifest;
+  if (p.readManifest !== undefined || p.readLog !== undefined || p.readDiagnostics !== undefined) {
     try {
-      readManifest = normalizeReviewerReadManifest(p.readManifest);
+      return p._hash === signReviewPass(
+        storyId,
+        p.id,
+        p.agent,
+        p.note,
+        p.createdAt,
+        p.reviewRound || '',
+        reviewRunId,
+        p.readManifest,
+        p.readLog,
+        p.readDiagnostics,
+      );
     } catch {
       return false;
     }
-    return p._hash === signReviewPass(storyId, p.id, p.agent, p.note, p.createdAt, p.reviewRound || '', reviewRunId, readManifest);
   }
   if (reviewRunId) {
     return p._hash === signReviewPass(storyId, p.id, p.agent, p.note, p.createdAt, p.reviewRound || '', reviewRunId);

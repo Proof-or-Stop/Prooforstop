@@ -21,6 +21,14 @@ type ReadMode = ReviewerReadLogEvent['mode'];
 
 const DEFAULT_REQUIREMENTS_DIR = 'docs/requirements';
 const CONTROL_CHARS = /[\u0000-\u001f\u007f]/;
+const SHA256_HEX = /^[a-f0-9]{64}$/;
+const REVIEWER_READ_DIAGNOSTIC_CODES: readonly ReviewerReadDiagnostic['code'][] = [
+  'read_manifest_missing_full_read',
+  'read_manifest_extra_full_read',
+  'read_manifest_missing_triage',
+  'read_manifest_extra_triage',
+  'full_scan_without_scanEscalationReason',
+] as const;
 
 function isReviewerAgent(agent: unknown): agent is string {
   return typeof agent === 'string' && agent.startsWith('lattice-review-');
@@ -46,7 +54,7 @@ function normalizeRelativePath(value: unknown, label: string): string {
   return normalized.replace(/^\.\//, '');
 }
 
-function normalizeManifestPathArray(input: unknown, field: keyof ReviewerReadManifest, label: string): string[] {
+function normalizePathArray(input: unknown, field: string, label: string): string[] {
   if (!Array.isArray(input)) {
     throw new Error(`${label}.${field}: must be an array of relative file paths`);
   }
@@ -60,6 +68,10 @@ function normalizeManifestPathArray(input: unknown, field: keyof ReviewerReadMan
     return rel;
   });
   return normalized.sort((a, b) => a.localeCompare(b));
+}
+
+function normalizeManifestPathArray(input: unknown, field: keyof ReviewerReadManifest, label: string): string[] {
+  return normalizePathArray(input, field, label);
 }
 
 export function normalizeReviewerReadManifest(input: unknown, label = 'readManifest'): ReviewerReadManifest {
@@ -222,6 +234,82 @@ export function normalizeReviewerReadLog(events: readonly ReviewerReadLogEvent[]
     events: normalizedDigestEvents,
   });
   return { filesReadFully, filesTriagedByName, summary, digest };
+}
+
+export function normalizeReviewerReadLogEvidence(input: unknown, label = 'readLog'): ReviewerReadLogEvidence {
+  if (!input || typeof input !== 'object' || Array.isArray(input)) {
+    throw new Error(`${label}: must be an object with filesReadFully, filesTriagedByName, summary, and digest`);
+  }
+  const record = input as Record<string, unknown>;
+  const filesReadFully = normalizePathArray(record.filesReadFully, 'filesReadFully', label);
+  const filesTriagedByName = normalizePathArray(record.filesTriagedByName, 'filesTriagedByName', label);
+  const full = new Set(filesReadFully);
+  for (const path of filesTriagedByName) {
+    if (full.has(path)) {
+      throw new Error(`${label}: duplicate path ${path} appears in both filesReadFully and filesTriagedByName`);
+    }
+  }
+  if (!record.summary || typeof record.summary !== 'object' || Array.isArray(record.summary)) {
+    throw new Error(`${label}.summary: must be an object with readCount and tokenCount`);
+  }
+  const summaryRecord = record.summary as Record<string, unknown>;
+  const readCount = summaryRecord.readCount;
+  if (typeof readCount !== 'number' || !Number.isInteger(readCount) || readCount < 0) {
+    throw new Error(`${label}.summary.readCount: must be a non-negative integer`);
+  }
+  const rawTokenCount = summaryRecord.tokenCount;
+  if (
+    rawTokenCount !== null
+    && (typeof rawTokenCount !== 'number' || !Number.isInteger(rawTokenCount) || rawTokenCount < 0)
+  ) {
+    throw new Error(`${label}.summary.tokenCount: must be a non-negative integer or null`);
+  }
+  if (typeof record.digest !== 'string' || !SHA256_HEX.test(record.digest)) {
+    throw new Error(`${label}.digest: must be a sha256 hex digest`);
+  }
+  const tokenCount = rawTokenCount === null ? null : rawTokenCount;
+  return {
+    filesReadFully,
+    filesTriagedByName,
+    summary: {
+      readCount,
+      tokenCount,
+    },
+    digest: record.digest,
+  };
+}
+
+export function normalizeReviewerReadDiagnostics(input: unknown, label = 'readDiagnostics'): ReviewerReadDiagnostic[] {
+  if (!Array.isArray(input)) {
+    throw new Error(`${label}: must be an array`);
+  }
+  const normalized = input.map((item, idx): ReviewerReadDiagnostic => {
+    if (!item || typeof item !== 'object' || Array.isArray(item)) {
+      throw new Error(`${label}[${idx}]: must be an object`);
+    }
+    const record = item as Record<string, unknown>;
+    if (typeof record.code !== 'string' || !(REVIEWER_READ_DIAGNOSTIC_CODES as readonly string[]).includes(record.code)) {
+      throw new Error(`${label}[${idx}].code: unsupported reviewer read diagnostic code`);
+    }
+    if (record.severity !== 'finding') {
+      throw new Error(`${label}[${idx}].severity: must be "finding"`);
+    }
+    if (typeof record.message !== 'string' || record.message.trim().length === 0) {
+      throw new Error(`${label}[${idx}].message: must be a non-empty string`);
+    }
+    const path = record.path === undefined
+      ? undefined
+      : normalizeRelativePath(record.path, `${label}[${idx}].path`);
+    return {
+      code: record.code as ReviewerReadDiagnostic['code'],
+      severity: 'finding',
+      message: record.message.trim(),
+      ...(path ? { path } : {}),
+    };
+  });
+  return normalized.sort((a, b) =>
+    `${a.code}:${a.path ?? ''}:${a.message}`.localeCompare(`${b.code}:${b.path ?? ''}:${b.message}`),
+  );
 }
 
 function addSetDiagnostics(

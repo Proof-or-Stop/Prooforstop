@@ -2,9 +2,19 @@
  * Finding handlers — reviewer finding management (signed to prevent forgery)
  */
 
+import { existsSync, readdirSync } from 'fs';
+import { join } from 'path';
 import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
-import type { DisprovenEvidence, Finding, FindingEvidenceState } from '../core/types.js';
+import type {
+  DisprovenEvidence,
+  Finding,
+  FindingEvidenceState,
+  ReviewerReadDiagnostic,
+  ReviewerReadLogEvent,
+  ReviewerReadLogEvidence,
+  ReviewerReadManifest,
+} from '../core/types.js';
 import { isFindingEvidenceState, FINDING_EVIDENCE_STATES } from '../core/advisory.js';
 import { signFinding, signReviewPass } from '../core/finding-verify.js';
 import { computeProcessMetrics } from '../core/process-metrics.js';
@@ -23,7 +33,13 @@ import {
 import { deriveSignatureCandidate } from '../core/signature-candidate.js';
 import type { SignatureTagSource } from '../core/experience-layer-types.js';
 import { withMkdirLock } from '../core/mkdir-lock.js';
-import { normalizeReviewerReadManifest } from '../core/reviewer-read-evidence.js';
+import { loadConfig } from '../core/config.js';
+import {
+  captureReviewerReadEvent,
+  diagnoseReviewerReadEvidence,
+  normalizeReviewerReadLog,
+  normalizeReviewerReadManifest,
+} from '../core/reviewer-read-evidence.js';
 
 const CANONICAL_FINDING_CATEGORIES = ['happy', 'edge', 'adversarial', 'missing'] as const;
 const LEGACY_FINDING_CATEGORIES = ['cleanup', 'doc-promise-undelivered', 'doc-code-drift', 'spec-boundary'] as const;
@@ -160,6 +176,101 @@ type ResolutionType = typeof RESOLUTION_TYPES[number];
 type DismissReasonType = typeof DISMISS_REASON_TYPES[number];
 type EvidenceStrength = typeof EVIDENCE_STRENGTHS[number];
 
+interface ReadEvidenceInput {
+  readManifest?: unknown;
+  readEvents?: unknown;
+  readLog?: unknown;
+}
+
+interface PreparedReviewerReadEvidence {
+  readManifest: ReviewerReadManifest;
+  readLog?: ReviewerReadLogEvidence;
+  readDiagnostics?: ReviewerReadDiagnostic[];
+}
+
+function hasMechanicalReadInput(args: ReadEvidenceInput): boolean {
+  return args.readEvents !== undefined || args.readLog !== undefined;
+}
+
+function readEventInputsFromField(command: string, field: string, value: unknown): unknown[] {
+  if (Array.isArray(value)) return value;
+  if (value && typeof value === 'object' && !Array.isArray(value)) {
+    const events = (value as Record<string, unknown>).events;
+    if (Array.isArray(events)) return events;
+  }
+  throw new Error(`${command}.${field}: must be an array of read events or an object with events[]`);
+}
+
+function collectReadEventInputs(command: string, args: ReadEvidenceInput): unknown[] | undefined {
+  const events: unknown[] = [];
+  if (args.readEvents !== undefined) {
+    events.push(...readEventInputsFromField(command, 'readEvents', args.readEvents));
+  }
+  if (args.readLog !== undefined) {
+    events.push(...readEventInputsFromField(command, 'readLog', args.readLog));
+  }
+  return args.readEvents === undefined && args.readLog === undefined ? undefined : events;
+}
+
+function requirementsDirForReadEvidence(ctx: HandlerContext): string {
+  try {
+    return loadConfig(ctx.root).requirementsDir || 'docs/requirements';
+  } catch {
+    return 'docs/requirements';
+  }
+}
+
+function normalizeRequirementsDirForListing(requirementsDir: string): string {
+  return requirementsDir.trim().replace(/\\/g, '/').replace(/^\.?\//, '').replace(/\/+$/, '') || 'docs/requirements';
+}
+
+function knownDecisionFilesForReadDiagnostics(ctx: HandlerContext, requirementsDir: string): string[] {
+  const relRequirementsDir = normalizeRequirementsDirForListing(requirementsDir);
+  const decisionsDir = join(ctx.root, relRequirementsDir, 'decisions');
+  if (!existsSync(decisionsDir)) return [];
+  return readdirSync(decisionsDir, { withFileTypes: true })
+    .filter(entry => entry.isFile() && entry.name.endsWith('.md'))
+    .map(entry => `${relRequirementsDir}/decisions/${entry.name}`)
+    .sort((a, b) => a.localeCompare(b));
+}
+
+function prepareReviewerReadEvidence(
+  ctx: HandlerContext,
+  command: string,
+  agent: string,
+  readManifestInput: unknown,
+  args: ReadEvidenceInput,
+): PreparedReviewerReadEvidence {
+  const readManifest = normalizeReviewerReadManifest(readManifestInput, `${command}.readManifest`);
+  const rawEvents = collectReadEventInputs(command, args);
+  if (rawEvents === undefined) return { readManifest };
+
+  const requirementsDir = requirementsDirForReadEvidence(ctx);
+  const events: ReviewerReadLogEvent[] = [];
+  for (const rawEvent of rawEvents) {
+    const event = captureReviewerReadEvent(rawEvent, {
+      agent,
+      projectRoot: ctx.root,
+      requirementsDir,
+    });
+    if (event) events.push(event);
+  }
+  const readLog = normalizeReviewerReadLog(events);
+  const readDiagnostics = diagnoseReviewerReadEvidence({
+    readManifest,
+    readLog,
+    knownDecisionFiles: knownDecisionFilesForReadDiagnostics(ctx, requirementsDir),
+    requirementsDir,
+  });
+  return { readManifest, readLog, readDiagnostics };
+}
+
+function formatReadDiagnostics(diagnostics: readonly ReviewerReadDiagnostic[]): string {
+  return diagnostics.map((diagnostic) =>
+    `${diagnostic.code}${diagnostic.path ? ` ${diagnostic.path}` : ''}: ${diagnostic.message}`,
+  ).join('; ');
+}
+
 /**
  * Validate an optional enum-valued audit field.
  *
@@ -183,7 +294,16 @@ function validateOptionalEnum<T extends string>(
   return value as T;
 }
 
-function recordReviewPass(ctx: HandlerContext, storyId: string, agent: string, note: string, reviewRunId: string, readManifestInput: unknown): string {
+function recordReviewPass(
+  ctx: HandlerContext,
+  storyId: string,
+  agent: string,
+  note: string,
+  reviewRunId: string,
+  readManifestInput: unknown,
+  readEvidenceInput: ReadEvidenceInput = {},
+  command = 'review_pass_set',
+): string {
   return withReviewPassLock(ctx, storyId, () => {
     const story = ctx.store.readStory(storyId);
     assertCurrentReviewRunForEvidence(ctx.store, story, ctx.root, agent, reviewRunId);
@@ -199,7 +319,10 @@ function recordReviewPass(ctx: HandlerContext, storyId: string, agent: string, n
     const createdAt = new Date().toISOString();
     const reviewRound = story.currentReviewRound || '';
     const trimmedNote = note.trim();
-    const readManifest = normalizeReviewerReadManifest(readManifestInput, 'review_pass_set.readManifest');
+    const readEvidence = prepareReviewerReadEvidence(ctx, command, agent, readManifestInput, readEvidenceInput);
+    if (readEvidence.readDiagnostics && readEvidence.readDiagnostics.length > 0) {
+      throw new Error(`${command}: mechanical reviewer read evidence does not match readManifest: ${formatReadDiagnostics(readEvidence.readDiagnostics)}`);
+    }
     const pass = {
       id,
       agent,
@@ -207,25 +330,48 @@ function recordReviewPass(ctx: HandlerContext, storyId: string, agent: string, n
       createdAt,
       reviewRound,
       reviewRunId,
-      readManifest,
-      _hash: signReviewPass(storyId, id, agent, trimmedNote, createdAt, reviewRound, reviewRunId, readManifest),
+      readManifest: readEvidence.readManifest,
+      ...(readEvidence.readLog ? { readLog: readEvidence.readLog } : {}),
+      ...(readEvidence.readDiagnostics ? { readDiagnostics: readEvidence.readDiagnostics } : {}),
+      _hash: signReviewPass(
+        storyId,
+        id,
+        agent,
+        trimmedNote,
+        createdAt,
+        reviewRound,
+        reviewRunId,
+        readEvidence.readManifest,
+        readEvidence.readLog,
+        readEvidence.readDiagnostics,
+      ),
     };
     data.passes.push(pass);
     ctx.store.writeReviewPasses(storyId, data);
     const persisted = ctx.store.readReviewPasses(storyId);
     const persistedPass = persisted.passes.find(p => p.id === id);
-    if (!persistedPass || persistedPass._hash !== pass._hash || persistedPass.agent !== agent || persistedPass.reviewRunId !== reviewRunId || !persistedPass.readManifest) {
+    if (
+      !persistedPass
+      || persistedPass._hash !== pass._hash
+      || persistedPass.agent !== agent
+      || persistedPass.reviewRunId !== reviewRunId
+      || !persistedPass.readManifest
+      || (readEvidence.readLog && persistedPass.readLog?.digest !== readEvidence.readLog.digest)
+    ) {
       throw new Error(`review_pass_set: ${id} was not durably persisted; refusing to report success`);
     }
     try {
       ctx.store.appendProcessEvent(storyId, {
         type: 'review_pass',
         storyId,
-        command: 'review_pass_set',
+        command,
         role: 'reviewer',
         agent,
         result: 'pass',
         reviewPassId: id,
+        readManifest: readEvidence.readManifest,
+        ...(readEvidence.readLog ? { readLog: readEvidence.readLog } : {}),
+        ...(readEvidence.readDiagnostics ? { readDiagnostics: readEvidence.readDiagnostics } : {}),
       });
     } catch (e) {
       console.warn(`[process-events] append failed for ${storyId}:`, (e as Error).message);
@@ -251,6 +397,8 @@ export function createFindingHandlers(ctx: HandlerContext) {
       disprovenEvidence?: DisprovenEvidence;
       signatureTag?: string;
       readManifest?: unknown;
+      readEvents?: unknown;
+      readLog?: unknown;
     }): string {
       assertCwdInWorktree(store, args.storyId);
 
@@ -281,8 +429,24 @@ export function createFindingHandlers(ctx: HandlerContext) {
       }
 
       if (isPassOnlyReviewFindingRecord({ desc: args.desc, severity: args.severity, agent })) {
-        return recordReviewPass(ctx, args.storyId, reviewerLane || agent, `Converted pass-only finding_add record: ${args.desc}`, args.reviewRunId || '', args.readManifest);
+        return recordReviewPass(
+          ctx,
+          args.storyId,
+          reviewerLane || agent,
+          `Converted pass-only finding_add record: ${args.desc}`,
+          args.reviewRunId || '',
+          args.readManifest,
+          { readEvents: args.readEvents, readLog: args.readLog },
+          'finding_add',
+        );
       }
+
+      if (reviewerLane && args.readManifest === undefined && hasMechanicalReadInput(args)) {
+        throw new Error('finding_add.readManifest: required when reviewer readEvents/readLog is provided');
+      }
+      const readEvidence = reviewerLane && (args.readManifest !== undefined || hasMechanicalReadInput(args))
+        ? prepareReviewerReadEvidence(ctx, 'finding_add', agent, args.readManifest, args)
+        : undefined;
 
       // Auto-inject the current review round (reviewer does not need to pass it)
       const reviewRound = story.currentReviewRound || '';
@@ -295,6 +459,9 @@ export function createFindingHandlers(ctx: HandlerContext) {
         const nextNum = data.findings.length + 1;
         const fid = `${args.storyId}:F-${String(nextNum).padStart(3, '0')}`;
         const timestamp = new Date().toISOString();
+        const readManifest = readEvidence?.readManifest;
+        const readLog = readEvidence?.readLog;
+        const readDiagnostics = readEvidence?.readDiagnostics;
         const finding: Finding = {
           id: fid,
           desc: args.desc,
@@ -308,7 +475,21 @@ export function createFindingHandlers(ctx: HandlerContext) {
           createdAt: timestamp,
           reviewRound,
           ...(args.reviewRunId ? { reviewRunId: args.reviewRunId } : {}),
-          _hash: signFinding(args.storyId, fid, args.desc, args.severity, timestamp, reviewRound, args.reviewRunId || ''),
+          ...(readManifest ? { readManifest } : {}),
+          ...(readLog ? { readLog } : {}),
+          ...(readDiagnostics ? { readDiagnostics } : {}),
+          _hash: signFinding(
+            args.storyId,
+            fid,
+            args.desc,
+            args.severity,
+            timestamp,
+            reviewRound,
+            args.reviewRunId || '',
+            readManifest,
+            readLog,
+            readDiagnostics,
+          ),
           ...(args.files && args.files.length > 0 ? { files: args.files } : {}),
           // B-4f46 CHK-002 / B-5d48 CHK-002: audit-only signatureTag + provenance — persisted
           // but NEITHER is part of _hash (signFinding above is unchanged; both fields are
@@ -353,6 +534,9 @@ export function createFindingHandlers(ctx: HandlerContext) {
           findingId: id,
           severity: args.severity,
           missingAttribution,
+          ...(readEvidence?.readManifest ? { readManifest: readEvidence.readManifest } : {}),
+          ...(readEvidence?.readLog ? { readLog: readEvidence.readLog } : {}),
+          ...(readEvidence?.readDiagnostics ? { readDiagnostics: readEvidence.readDiagnostics } : {}),
           hardWarning: missingAttribution
             ? 'finding_add called without agent/LATTICE_AGENT; recorded as main and REVIEW/TEST gates may reject it'
             : undefined,
@@ -378,17 +562,37 @@ export function createFindingHandlers(ctx: HandlerContext) {
         : evidence.evidenceState === 'disproven'
           ? '\n→ evidenceState=disproven: has been refuted by counter-evidence, does not block REVIEW→TEST.'
           : '';
-      return `Finding ${id} created by ${agent}: [${args.severity}/${category}] (evidenceState=${evidence.evidenceState}) ${args.desc}${warning}${advisoryHint}${signatureTagHint}${commitHint}`;
+      const readDiagnosticsHint = readEvidence?.readDiagnostics && readEvidence.readDiagnostics.length > 0
+        ? `\n→ reviewer read diagnostics recorded: ${formatReadDiagnostics(readEvidence.readDiagnostics)}`
+        : '';
+      return `Finding ${id} created by ${agent}: [${args.severity}/${category}] (evidenceState=${evidence.evidenceState}) ${args.desc}${warning}${advisoryHint}${readDiagnosticsHint}${signatureTagHint}${commitHint}`;
     },
 
-    review_pass_set(args: { storyId: string; agent?: string; note: string; reviewRunId?: string; readManifest: unknown }): string {
+    review_pass_set(args: {
+      storyId: string;
+      agent?: string;
+      note: string;
+      reviewRunId?: string;
+      readManifest: unknown;
+      readEvents?: unknown;
+      readLog?: unknown;
+    }): string {
       if (!args.note || args.note.trim().length < 10) {
         throw new Error('review_pass_set: note must be ≥ 10 characters, explaining what the reviewer checked and why there is no blocker');
       }
       const readManifest = normalizeReviewerReadManifest(args.readManifest, 'review_pass_set.readManifest');
       const agent = resolveReviewRunLane(args.agent || process.env.LATTICE_AGENT || 'main');
       assertCwdInWorktree(store, args.storyId);
-      return recordReviewPass(ctx, args.storyId, agent, args.note, args.reviewRunId || '', readManifest);
+      return recordReviewPass(
+        ctx,
+        args.storyId,
+        agent,
+        args.note,
+        args.reviewRunId || '',
+        readManifest,
+        { readEvents: args.readEvents, readLog: args.readLog },
+        'review_pass_set',
+      );
     },
 
     finding_list(args: { storyId: string; cluster?: boolean }) {
