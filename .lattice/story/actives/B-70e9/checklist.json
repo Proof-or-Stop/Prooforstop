@@ -81,9 +81,9 @@
       "id": "CHK-002",
       "title": "M1: Bind reviewer/quorum context into host-run usage rows (reviewRunId and reviewer lane) sharing binding fields with review-runs records where sensible",
       "context": "review-runs.json rows carry reviewRunId like B-xxxx:RR-001 plus agent/lane; usage rows launched for a review run should carry the same identifiers so ledger rows and readManifest-bearing review passes can be joined. Coordinate with B-4a78 readManifest fields.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-10T05:42:01.360Z",
-      "endTime": null,
+      "endTime": "2026-07-10T06:12:31.077Z",
       "userSees": "A ledger row for a reviewer host run shows \"threadId\":\"B-70e9:RR-001\" and \"subagentId\":\"lattice-review-quality\" matching the review-runs.json identifiers",
       "files": {
         "modify": [
