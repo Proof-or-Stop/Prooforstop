@@ -1,0 +1,157 @@
+{
+  "storyId": "B-3928",
+  "checkedAt": "2026-07-10T03:24:41.128Z",
+  "features": [
+    {
+      "feature": "Freeze the current 16-prompt baseline before any prompt edits",
+      "covered_by": "CHK-001,CHK-002,CHK-003,CHK-004,CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-3928/plan.md"
+    },
+    {
+      "feature": "Record exact 16 prompt filenames and current template hashes from promptRegistryManifest/readPromptRegistry",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-3928/checklist.json"
+    },
+    {
+      "feature": "Commit a baseline JSON with schema version, registry materialHash, role count, role IDs, filenames, relative paths, bytes, and templateHash values, and fail if roles or hashes drift",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-3928/plan.md"
+    },
+    {
+      "feature": "Capture lattice agent_prompt output for every registry role as comparison metadata including output hash, byte count, and line count, failing closed on missing, unknown, duplicate, or divergent output",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-3928/checklist.json"
+    },
+    {
+      "feature": "Produce a role-overlap matrix for all 16 prompts covering current status, purpose, phase, input, output artifact, command surface, capability summary, direct file access, and overlap category",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-3928/checklist.json"
+    },
+    {
+      "feature": "Add regression checks for legacy verification vocabulary in prompts, including testIntent, TEST_CASE, TEST_CASE_REVIEW, and spelling variants, with baseline classifications and failures for new unclassified active-prompt uses",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-3928/checklist.json"
+    },
+    {
+      "feature": "Add regression checks for docs/story references and direct story-file write instructions, distinguishing policy reminders, reads, writes, process-event evidence references, and grandfather/remediation classifications",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-3928/checklist.json"
+    },
+    {
+      "feature": "Provide a focused verifier command that reports PASS with roleCount=16, registry baseline verified, agent_prompt output hashes verified, overlap matrix verified, legacy vocabulary classified, and direct docs/story write findings classified",
+      "covered_by": "CHK-001,CHK-002,CHK-003,CHK-004,CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-3928/plan.md"
+    },
+    {
+      "feature": "Expose the focused verifier through package.json test/script coverage so later prompt edits cannot silently bypass the baseline",
+      "covered_by": "CHK-001,CHK-002,CHK-004,CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-3928/decision.json"
+    },
+    {
+      "feature": "Keep baseline verification deterministic and runnable after npm build without broad full-corpus scans, deriving facts from the built prompt registry instead of a hand-maintained role list",
+      "covered_by": "CHK-001,CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-3928/understanding.json"
+    },
+    {
+      "feature": "Make existing legacy vocabulary and direct-story references mechanically visible and baseline-classified instead of silently cleaning them in M0",
+      "covered_by": "CHK-004,CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-3928/background.md"
+    },
+    {
+      "feature": "Satisfy M0 exit criteria that every current prompt has a baseline hash and classification while no prompt content is edited for remediation",
+      "covered_by": "CHK-001,CHK-003,CHK-004,CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md#M0---Baseline-Inventory-And-Lockfile"
+    },
+    {
+      "feature": "Do not edit package prompt bodies under packages/main/templates/agents during M0 except tests/docs needed to record the baseline",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Out of scope for M0; baseline freeze would be invalidated by prompt body edits",
+      "source": ".lattice/story/actives/B-3928/plan.md"
+    },
+    {
+      "feature": "Do not edit mirrored prompt bodies under .claude/agents or .lattice-codex/agents during M0",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicit Out Of Scope item; M0 records package-owned baseline only",
+      "source": ".lattice/story/actives/B-3928/plan.md"
+    },
+    {
+      "feature": "Do not rename roles to proof-or-stop-* or implement M0.5 dual-prefix alias/read/write compatibility in this story",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicit Out Of Scope item and separate M0.5 milestone",
+      "source": "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md#M0.5---Role-Rename-Compatibility-And-Dual-Prefix-Window"
+    },
+    {
+      "feature": "Do not change lifecycle gates, reviewer routing, prompt registry semantics, or agent_prompt role normalization in this story",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicit Out Of Scope boundary keeps M0 to inventory and regression guardrails",
+      "source": ".lattice/story/actives/B-3928/plan.md"
+    },
+    {
+      "feature": "Do not treat memory or playbook advisory material as gate evidence",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Story constraint states advisory memory/playbook data must not become gate evidence",
+      "source": ".lattice/story/actives/B-3928/understanding.json"
+    },
+    {
+      "feature": "Do not migrate or retire legacy test-intent, test-case-reviewer, product-reviewer, or implementation-reviewer prompts in M0",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Later M2/M3 milestones own legacy flow migration and reviewer overlap retirement; M0 only records baseline facts",
+      "source": "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md#M2---Legacy-Verification-Flow-Retirement-Or-Migration"
+    },
+    {
+      "feature": "Do not replace direct story-file reads/writes with CLI APIs, migrate init-self-check, or retire channel reviewer in M0",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Later M4 owns CLI-mediated story artifact discipline; M0 only flags and classifies direct docs/story write risks",
+      "source": "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md#M4---CLI-Mediated-Story-Artifact-Discipline"
+    },
+    {
+      "feature": "Do not add runtime registry enforcement, reviewer status output, or broader prompt metadata beyond the baseline/lockfile guardrails in M0",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Decision chose committed baseline JSON/Markdown plus focused verifier script over runtime registry enforcement now",
+      "source": ".lattice/story/actives/B-3928/decision.json"
+    }
+  ],
+  "summary": {
+    "total": 20,
+    "covered": 12,
+    "excluded": 8,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "b0df77c2a78d3eb65b47e8d504e6f6781b04df1e9b7ba6e1e5f1fe99e66bb0b0",
+  "openQuestions": []
+}
