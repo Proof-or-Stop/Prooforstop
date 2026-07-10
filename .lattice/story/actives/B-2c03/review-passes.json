@@ -1,0 +1,26 @@
+{
+  "passes": [
+    {
+      "id": "B-2c03:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept sound: stripCodeLikeTokens correctly targets the B-d6a0 false-positive (path/backtick/hyphenated-file-name tokens matching \\b word boundaries) while preserving prose trigger words via space-replacement; CHK-003 remaining-narrowing decision (keep/narrow/drop) is explicitly documented with rationale in plan.md. Verified the hyphen-strip risk noted in plan.md (evasion via e.g. out-of-scope) does not lower the pre-existing floor since the fixed keyword regex was already trivially evadable by synonym choice before this change. Ran proofstory-intent-hardening-smoke.js and milestone-done-gate-reconciliation-smoke.js (only other caller of evaluateDoneIntentEquivalence) both green; diff scoped to the two checklist files plus story metadata, no scope drift.",
+      "createdAt": "2026-07-10T14:45:27.228Z",
+      "reviewRound": "2026-07-10T14:41:10.214Z",
+      "reviewRunId": "B-2c03:RR-002",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2c03/plan.md",
+          ".lattice/story/actives/B-2c03/red-evidence.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/tasks/milestone-done-gate-reconciliation-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a32d2eacae18a408a124ae94e095a11764058216fbb3b48aff4edb7c92be253f"
+    }
+  ]
+}
