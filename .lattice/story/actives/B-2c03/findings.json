@@ -32,6 +32,21 @@
       "resolvedAt": "2026-07-10T14:53:17.511Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-2c03:F-002",
+      "desc": "packages/main/src/core/proofstory.ts:1391 stripCodeLikeTokens (F-001 fix) still allows a residual bypass class: the dotted-token strip regex /\\b[A-Za-z0-9_-]+(?:\\.[A-Za-z0-9_-]+)+\\b/g permits hyphens INSIDE each dot-separated segment, so a hyphenated trigger word followed by a dotted suffix (version tag, abbreviation, etc.) still gets fully erased before the claimsShrinkage scan runs. Verified live against the exact post-fix code: stripCodeLikeTokens(\"The remaining-scope.v2 items were dropped.\") -> \"The   items were dropped.\" (no match); same for \"excluded-set.beta\", \"partial-release.rc1\", \"deferred-work.next\" -- all natural-sounding prose phrasings, not just contrived file paths. This is the same class of failure F-001 identified (a sanitizer intended for path-like tokens erasing genuine prose trigger words), just requiring one extra dot to re-open it. The CHK-001 adversarial verification intent (sanitize-path-tokens:adversarial) and the F-001 resolution both require the sanitizer not become a bypass for genuine shrinkage claims; this residual violates that. The smoke suite has no coverage for hyphen+dot combined tokens. Recommend either: (a) require the dot-containing segment to look extension-like (e.g. final segment is a short alnum-only suffix with no further trigger-word semantics, or bound segment length), or (b) split the token strip so hyphen segments are tested individually for trigger words before the whole token is discarded, or (c) at minimum only strip the dotted suffix segment (e.g. \".v2\") rather than the entire hyphen-joined token, so \"remaining-scope\" survives.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-10T14:59:08.812Z",
+      "reviewRound": "2026-07-10T14:41:10.214Z",
+      "reviewRunId": "B-2c03:RR-006",
+      "_hash": "b099e22162682bc905a079996c0115de94e3f108669b6fa95fade40eae020f14",
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
