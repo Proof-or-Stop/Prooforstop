@@ -68,15 +68,20 @@ export const CROSS_HOST_REVIEW_HEAD_DRIFT = 'cross_host_review_head_drift' as co
  * the correct fix: keep the honest committed-tree hash and refuse to bind it to a
  * review of a dirty tree.
  */
-function assertMaterialCleanForReview(gitCwd: string): void {
+// Exported for the porcelain first-row regression smoke (B-d6a0); not a CLI command.
+export function assertMaterialCleanForReview(gitCwd: string): void {
   let raw: string;
   try {
+    // No full-output trim(): it would strip the first porcelain row's leading
+    // status space (" M path" -> "M path"), shifting the fixed-width path
+    // offset so the first row's `.lattice/...` path reads as "lattice/..." and
+    // false-blocks the preflight on metadata-only dirt.
     raw = execFileSync('git', ['status', '--porcelain', '--untracked-files=all'], {
       cwd: gitCwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
       maxBuffer: GIT_TREE_OUTPUT_MAX_BUFFER,
-    }).trim();
+    });
   } catch (err) {
     // Fail closed: if we cannot even determine the worktree state, we cannot
     // assert HEAD honestly binds the reviewed tree.
@@ -85,10 +90,11 @@ function assertMaterialCleanForReview(gitCwd: string): void {
       + `(${err instanceof Error ? err.message : String(err)}); refusing to spawn the codex review subprocess.`,
     );
   }
-  if (!raw) return;
+  const rows = raw.split('\n').map(line => line.trimEnd()).filter(Boolean);
+  if (rows.length === 0) return;
   const latticePrefix = `${LATTICE_DIR}/`; // e.g. ".lattice/"
   const material: string[] = [];
-  for (const line of raw.split('\n')) {
+  for (const line of rows) {
     if (line.length < 4) continue;
     // Porcelain v1: "XY <path>" or "XY <old> -> <new>" for renames.
     const pathText = line.slice(3).trim();

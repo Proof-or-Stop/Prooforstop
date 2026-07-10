@@ -1,0 +1,78 @@
+{
+  "principles": [
+    "Preserve porcelain rows byte-exactly from git to parser; only per-line trailing-whitespace normalization is allowed",
+    "Fix at the read site with the already-reviewed B-b264 raw-read pattern, never via a cross-cutting refactor in gate-adjacent code",
+    "Every affected consumer gets a first-row modified-tracked regression assertion that fails on the pre-fix code",
+    "Untouched call sites carry a recorded audit verdict so the no-change decision is itself reviewable"
+  ],
+  "drivers": [
+    "First-row corruption reaches material/volatile classification in DONE-gate evidence snapshots, review preflights and recovery guards",
+    "Untracked-only fixtures systematically miss the class, so regression tests must stage tracked-modified first rows and assert row shape",
+    "Minimize diff and review risk: the affected files feed high-assurance gates"
+  ],
+  "options": [
+    {
+      "name": "per-site raw-read fix (B-b264 pattern)",
+      "pros": [
+        "bounded diff over exactly the six affected sites",
+        "matches the pattern reviewers already accepted in B-b264",
+        "shared helpers serving non-porcelain callers stay untouched"
+      ],
+      "cons": [
+        "pattern repetition across sites",
+        "future consumers can still copy a full-trim helper (mitigated by the audit table + regression smoke)"
+      ]
+    },
+    {
+      "name": "shared git-status module refactor",
+      "pros": [
+        "single choke point structurally prevents recurrence"
+      ],
+      "cons": [
+        "touches ~15 audited-safe call sites",
+        "large review surface in gate-adjacent code",
+        "higher merge risk against concurrent stories"
+      ]
+    },
+    {
+      "name": "parser-side shift tolerance (worktree.ts line[2] heuristic everywhere)",
+      "pros": [
+        "no read-site changes"
+      ],
+      "cons": [
+        "keeps corrupted status codes (only paths recovered)",
+        "heuristic parsing hides the defect instead of fixing it",
+        "every parser needs the tolerance forever"
+      ]
+    }
+  ],
+  "chosen": "per-site raw-read fix (B-b264 pattern)",
+  "rationale": "The user explicitly requested the B-b264 gitRaw/gitStatusRows pattern; it keeps the diff bounded to the six affected consumers in gate-adjacent code, and the recorded audit table plus the first-row regression smoke mitigate the recurrence risk that a shared-module refactor would otherwise address.",
+  "preMortem": [
+    {
+      "scenario": "regression smoke fixture first row is not the intended modified-tracked row",
+      "trigger": "porcelain row ordering differs across git versions or fixture path names sort differently",
+      "consequence": "regression assertions pass vacuously and the bug class can silently return",
+      "mitigation": "every scenario asserts row 0 matches /^ M / before asserting classification, and fixture paths are chosen to sort deterministically first"
+    },
+    {
+      "scenario": "new test-only exports break surface contracts",
+      "trigger": "exporting assertMaterialCleanForReview / gitPorcelainPaths / readGitStatus trips cli-surface-smoke or command-catalog-smoke",
+      "consequence": "suite goes red at REVIEW/TEST",
+      "mitigation": "exports are plain functions (no CLI commands); run full run-all-smokes before REVIEW"
+    },
+    {
+      "scenario": "emptiness semantics drift after removing full trim",
+      "trigger": "clean-tree raw output truthiness differs from trimmed output (e.g. trailing newline)",
+      "consequence": "a clean tree is treated as dirty (or vice versa) in evidence snapshots or preflights",
+      "mitigation": "all emptiness decisions move to rows.length===0 after per-line trimEnd + filter(Boolean), never raw-string truthiness"
+    },
+    {
+      "scenario": "cross-host review preflight accidentally loosened",
+      "trigger": "fix mis-scopes the .lattice/ exclusion while converting the read",
+      "consequence": "a materially dirty tree passes the review preflight and binds a dishonest hash (unsound)",
+      "mitigation": "adversarial smoke asserts a material modified-tracked row still throws naming the exact path"
+    }
+  ],
+  "timestamp": "2026-07-10T09:08:26.986Z"
+}

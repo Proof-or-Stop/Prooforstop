@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-d6a0",
+  "records": [
+    {
+      "id": "RED-20260710091355",
+      "trigger": "red_evidence_required: bug story — B-b264 whole-output-trim porcelain first-row corruption class present in remaining consumers",
+      "acceptanceTargetRef": "CHK-005:happy:0",
+      "baselineHeadHash": "2d08e7908154602bb0bdadad23d29259d05c793d",
+      "baselineMaterialHash": "56258d78230035f178b143c99b8d96549185352e2236f778ece70bdf4b524b09",
+      "observedFailure": "node .lattice/story/actives/B-d6a0/evidence/repro-porcelain-first-row.mjs exits 1 at baseline: (1) captureEvidenceHashSnapshot materialDirtyFiles contains the corrupted first-row path \"lattice/activity.jsonl\" (leading dot eaten by full-output trim) instead of excluding the volatile artifact; (2) assertMainWorktreeClean refuses a tree whose only dirty row is the first-row modified-tracked volatile artifact .lattice/activity.jsonl (\"done_recover refused: main worktree is not clean\"). Fixture guard asserts porcelain row 0 is \" M .lattice/activity.jsonl\" so the failure is non-vacuous.",
+      "failingCommand": "node .lattice/story/actives/B-d6a0/evidence/repro-porcelain-first-row.mjs",
+      "expectedGreenCommand": "node packages/main/dist/tasks/porcelain-first-row-audit-smoke.js",
+      "greenRelation": {
+        "targetRef": "CHK-005:happy:0",
+        "relation": "same_acceptance",
+        "command": "node packages/main/dist/tasks/porcelain-first-row-audit-smoke.js"
+      },
+      "note": "Repro uses only exported baseline entry points (captureEvidenceHashSnapshot, assertMainWorktreeClean) so it runs unmodified against the pre-fix dist; the CHK-005 smoke extends the same scenarios to the private helpers once exported.",
+      "createdAt": "2026-07-10T09:13:55.523Z"
+    }
+  ],
+  "createdAt": "2026-07-10T09:13:55.523Z",
+  "updatedAt": "2026-07-10T09:13:55.523Z"
+}

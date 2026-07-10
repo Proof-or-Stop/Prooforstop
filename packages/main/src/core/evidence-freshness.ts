@@ -150,13 +150,16 @@ function parseGitStatusPath(rawPath: string): string {
 
 function readMaterialDirtyFiles(gitCwd: string, metadataRoot: string): { files: string[]; error?: string } {
   try {
+    // No full-output trim(): it would strip the first porcelain row's leading
+    // status space (" M path" -> "M path"), shifting the fixed-width path
+    // offset and corrupting the first reported path (".lattice/x" -> "lattice/x").
     const raw = execFileSync('git', ['status', '--porcelain', '--untracked-files=all'], {
       cwd: gitCwd,
       ...GIT_EXEC_OPTS,
-    }).trim();
-    if (!raw) return { files: [] };
+    });
+    const rows = raw.split('\n').map((line) => line.trimEnd()).filter(Boolean);
     const dirty = new Set<string>();
-    for (const line of raw.split('\n')) {
+    for (const line of rows) {
       if (line.length < 4) continue;
       const pathText = line.slice(3);
       const paths = pathText.includes(' -> ')
