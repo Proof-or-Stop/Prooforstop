@@ -45,7 +45,21 @@
       },
       "status": "in_progress",
       "startTime": "2026-07-10T14:36:23.108Z",
-      "endTime": null
+      "endTime": null,
+      "verificationEvidence": [
+        {
+          "intentRef": "sanitize-path-tokens:happy",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "GREEN smoke assertion: a summary whose changes text names core/partial-done-recovery.ts produces no unconfirmed_single_outcome_shrinkage gap (fileNameDone case added for B-2c03).",
+          "headHash": "86de19dfc84e10a28a1b4d4c6f734aae2b120e47",
+          "materialHash": "47f3b5a4560f61c2cb528c1c98d478237ec717bde13e8860f90b9ec6f6cc8e0d",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-10T14:39:51.390Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
