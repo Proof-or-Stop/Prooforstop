@@ -55,10 +55,10 @@
           "command": "npm --prefix packages/main run test:reviewer-scan-budget-guard",
           "result": "pass",
           "note": "Valid scope_check_save payload persists normalized readManifest and the current-head smoke verifies it is bound into the scope-check signature.",
-          "headHash": "7388270e7821467cee0fd2086e5043c4ba4bad04",
-          "materialHash": "af6d967c9341d8e600e9fe0f4b2647004ef734380df93b2327737f07c6fbe27e",
-          "storyFilesHash": "4735053bc27e2153b8d14d9dca932add25b7524631954ef7d761eeb2ff12d158",
-          "timestamp": "2026-07-10T01:50:32.970Z"
+          "headHash": "c129db7b32da57553b8aec2da9e25b7307c2843d",
+          "materialHash": "287a670baf3b69347b09d16aadbfe874ca0dc08e2338b7d989debe774c6bbc04",
+          "storyFilesHash": "b993a53636586d3aa825f08b2aee817eb05948053fe1e6ca9daac42c91a1ef36",
+          "timestamp": "2026-07-10T02:07:29.232Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -68,10 +68,10 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Process fact contract verification passed with scope_check_save still classified as signed PLAN scope-review gate evidence.",
-          "headHash": "7388270e7821467cee0fd2086e5043c4ba4bad04",
-          "materialHash": "af6d967c9341d8e600e9fe0f4b2647004ef734380df93b2327737f07c6fbe27e",
-          "storyFilesHash": "4735053bc27e2153b8d14d9dca932add25b7524631954ef7d761eeb2ff12d158",
-          "timestamp": "2026-07-10T01:50:32.970Z"
+          "headHash": "c129db7b32da57553b8aec2da9e25b7307c2843d",
+          "materialHash": "287a670baf3b69347b09d16aadbfe874ca0dc08e2338b7d989debe774c6bbc04",
+          "storyFilesHash": "b993a53636586d3aa825f08b2aee817eb05948053fe1e6ca9daac42c91a1ef36",
+          "timestamp": "2026-07-10T02:07:29.232Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -81,10 +81,10 @@
           "command": "npm --prefix packages/main run test:reviewer-scan-budget-guard",
           "result": "pass",
           "note": "Current-head smoke rejects missing/malformed/unsafe/duplicate readManifest cases and verifies changing only readManifest invalidates the scope-check signature.",
-          "headHash": "7388270e7821467cee0fd2086e5043c4ba4bad04",
-          "materialHash": "af6d967c9341d8e600e9fe0f4b2647004ef734380df93b2327737f07c6fbe27e",
-          "storyFilesHash": "4735053bc27e2153b8d14d9dca932add25b7524631954ef7d761eeb2ff12d158",
-          "timestamp": "2026-07-10T01:50:32.970Z"
+          "headHash": "c129db7b32da57553b8aec2da9e25b7307c2843d",
+          "materialHash": "287a670baf3b69347b09d16aadbfe874ca0dc08e2338b7d989debe774c6bbc04",
+          "storyFilesHash": "b993a53636586d3aa825f08b2aee817eb05948053fe1e6ca9daac42c91a1ef36",
+          "timestamp": "2026-07-10T02:07:29.232Z"
         }
       ]
     },
@@ -144,10 +144,10 @@
           "command": "npm --prefix packages/main run test:reviewer-scan-budget-guard",
           "result": "pass",
           "note": "Valid review_pass_set payload persists normalized readManifest and signs it into review pass integrity material.",
-          "headHash": "7388270e7821467cee0fd2086e5043c4ba4bad04",
-          "materialHash": "af6d967c9341d8e600e9fe0f4b2647004ef734380df93b2327737f07c6fbe27e",
-          "storyFilesHash": "4735053bc27e2153b8d14d9dca932add25b7524631954ef7d761eeb2ff12d158",
-          "timestamp": "2026-07-10T01:50:32.970Z"
+          "headHash": "c129db7b32da57553b8aec2da9e25b7307c2843d",
+          "materialHash": "287a670baf3b69347b09d16aadbfe874ca0dc08e2338b7d989debe774c6bbc04",
+          "storyFilesHash": "b993a53636586d3aa825f08b2aee817eb05948053fe1e6ca9daac42c91a1ef36",
+          "timestamp": "2026-07-10T02:07:29.232Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -157,10 +157,10 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Runtime/process fact contract verification passed with review_pass_set preserved as signed reviewer pass evidence.",
-          "headHash": "7388270e7821467cee0fd2086e5043c4ba4bad04",
-          "materialHash": "af6d967c9341d8e600e9fe0f4b2647004ef734380df93b2327737f07c6fbe27e",
-          "storyFilesHash": "4735053bc27e2153b8d14d9dca932add25b7524631954ef7d761eeb2ff12d158",
-          "timestamp": "2026-07-10T01:50:32.970Z"
+          "headHash": "c129db7b32da57553b8aec2da9e25b7307c2843d",
+          "materialHash": "287a670baf3b69347b09d16aadbfe874ca0dc08e2338b7d989debe774c6bbc04",
+          "storyFilesHash": "b993a53636586d3aa825f08b2aee817eb05948053fe1e6ca9daac42c91a1ef36",
+          "timestamp": "2026-07-10T02:07:29.232Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -170,10 +170,10 @@
           "command": "npm --prefix packages/main run test:reviewer-scan-budget-guard",
           "result": "pass",
           "note": "Current-head smoke rejects missing and malformed duplicate readManifest on review_pass_set and verifies readManifest tampering invalidates the review pass signature.",
-          "headHash": "7388270e7821467cee0fd2086e5043c4ba4bad04",
-          "materialHash": "af6d967c9341d8e600e9fe0f4b2647004ef734380df93b2327737f07c6fbe27e",
-          "storyFilesHash": "4735053bc27e2153b8d14d9dca932add25b7524631954ef7d761eeb2ff12d158",
-          "timestamp": "2026-07-10T01:50:32.970Z"
+          "headHash": "c129db7b32da57553b8aec2da9e25b7307c2843d",
+          "materialHash": "287a670baf3b69347b09d16aadbfe874ca0dc08e2338b7d989debe774c6bbc04",
+          "storyFilesHash": "b993a53636586d3aa825f08b2aee817eb05948053fe1e6ca9daac42c91a1ef36",
+          "timestamp": "2026-07-10T02:07:29.232Z"
         }
       ]
     },
@@ -233,10 +233,10 @@
           "command": "npm --prefix packages/main run test:reviewer-scan-budget-guard",
           "result": "pass",
           "note": "Prompt/template guard verifies reviewer instructions include the structured readManifest shape and required phrases.",
-          "headHash": "7388270e7821467cee0fd2086e5043c4ba4bad04",
-          "materialHash": "af6d967c9341d8e600e9fe0f4b2647004ef734380df93b2327737f07c6fbe27e",
-          "storyFilesHash": "4735053bc27e2153b8d14d9dca932add25b7524631954ef7d761eeb2ff12d158",
-          "timestamp": "2026-07-10T01:50:32.970Z"
+          "headHash": "c129db7b32da57553b8aec2da9e25b7307c2843d",
+          "materialHash": "287a670baf3b69347b09d16aadbfe874ca0dc08e2338b7d989debe774c6bbc04",
+          "storyFilesHash": "b993a53636586d3aa825f08b2aee817eb05948053fe1e6ca9daac42c91a1ef36",
+          "timestamp": "2026-07-10T02:07:29.232Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -246,10 +246,10 @@
           "command": "npm --prefix packages/main run test:reviewer-scan-budget-guard",
           "result": "pass",
           "note": "Prompt guard verifies bounded-scan wording remains conditional on scanEscalationReason and memory/playbook output is not promoted to gate evidence.",
-          "headHash": "7388270e7821467cee0fd2086e5043c4ba4bad04",
-          "materialHash": "af6d967c9341d8e600e9fe0f4b2647004ef734380df93b2327737f07c6fbe27e",
-          "storyFilesHash": "4735053bc27e2153b8d14d9dca932add25b7524631954ef7d761eeb2ff12d158",
-          "timestamp": "2026-07-10T01:50:32.970Z"
+          "headHash": "c129db7b32da57553b8aec2da9e25b7307c2843d",
+          "materialHash": "287a670baf3b69347b09d16aadbfe874ca0dc08e2338b7d989debe774c6bbc04",
+          "storyFilesHash": "b993a53636586d3aa825f08b2aee817eb05948053fe1e6ca9daac42c91a1ef36",
+          "timestamp": "2026-07-10T02:07:29.232Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -259,10 +259,10 @@
           "command": "npm --prefix packages/main run test:reviewer-scan-budget-guard",
           "result": "pass",
           "note": "Command schema/runtime tests fail closed when reviewer evidence omits readManifest even if prompt prose exists.",
-          "headHash": "7388270e7821467cee0fd2086e5043c4ba4bad04",
-          "materialHash": "af6d967c9341d8e600e9fe0f4b2647004ef734380df93b2327737f07c6fbe27e",
-          "storyFilesHash": "4735053bc27e2153b8d14d9dca932add25b7524631954ef7d761eeb2ff12d158",
-          "timestamp": "2026-07-10T01:50:32.970Z"
+          "headHash": "c129db7b32da57553b8aec2da9e25b7307c2843d",
+          "materialHash": "287a670baf3b69347b09d16aadbfe874ca0dc08e2338b7d989debe774c6bbc04",
+          "storyFilesHash": "b993a53636586d3aa825f08b2aee817eb05948053fe1e6ca9daac42c91a1ef36",
+          "timestamp": "2026-07-10T02:07:29.232Z"
         }
       ]
     },
@@ -318,10 +318,10 @@
           "command": "npm --prefix packages/main run test:reviewer-scan-budget-guard",
           "result": "pass",
           "note": "Smoke transcript reports reviewer read capture PASS and deterministic read-log digest checks for decisions-doc read events.",
-          "headHash": "7388270e7821467cee0fd2086e5043c4ba4bad04",
-          "materialHash": "af6d967c9341d8e600e9fe0f4b2647004ef734380df93b2327737f07c6fbe27e",
-          "storyFilesHash": "4735053bc27e2153b8d14d9dca932add25b7524631954ef7d761eeb2ff12d158",
-          "timestamp": "2026-07-10T01:50:32.970Z"
+          "headHash": "c129db7b32da57553b8aec2da9e25b7307c2843d",
+          "materialHash": "287a670baf3b69347b09d16aadbfe874ca0dc08e2338b7d989debe774c6bbc04",
+          "storyFilesHash": "b993a53636586d3aa825f08b2aee817eb05948053fe1e6ca9daac42c91a1ef36",
+          "timestamp": "2026-07-10T02:07:29.232Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -331,10 +331,10 @@
           "command": "npm --prefix packages/main run test:reviewer-scan-budget-guard",
           "result": "pass",
           "note": "Smoke covers non-decisions files, duplicate/relative variants, and triage-only events without polluting decisions-doc full-read evidence.",
-          "headHash": "7388270e7821467cee0fd2086e5043c4ba4bad04",
-          "materialHash": "af6d967c9341d8e600e9fe0f4b2647004ef734380df93b2327737f07c6fbe27e",
-          "storyFilesHash": "4735053bc27e2153b8d14d9dca932add25b7524631954ef7d761eeb2ff12d158",
-          "timestamp": "2026-07-10T01:50:32.970Z"
+          "headHash": "c129db7b32da57553b8aec2da9e25b7307c2843d",
+          "materialHash": "287a670baf3b69347b09d16aadbfe874ca0dc08e2338b7d989debe774c6bbc04",
+          "storyFilesHash": "b993a53636586d3aa825f08b2aee817eb05948053fe1e6ca9daac42c91a1ef36",
+          "timestamp": "2026-07-10T02:07:29.232Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -344,10 +344,10 @@
           "command": "npm --prefix packages/main run test:reviewer-scan-budget-guard",
           "result": "pass",
           "note": "Smoke verifies the mechanical read-log digest changes with mechanical event input and cannot be forged by changing readManifest alone.",
-          "headHash": "7388270e7821467cee0fd2086e5043c4ba4bad04",
-          "materialHash": "af6d967c9341d8e600e9fe0f4b2647004ef734380df93b2327737f07c6fbe27e",
-          "storyFilesHash": "4735053bc27e2153b8d14d9dca932add25b7524631954ef7d761eeb2ff12d158",
-          "timestamp": "2026-07-10T01:50:32.970Z"
+          "headHash": "c129db7b32da57553b8aec2da9e25b7307c2843d",
+          "materialHash": "287a670baf3b69347b09d16aadbfe874ca0dc08e2338b7d989debe774c6bbc04",
+          "storyFilesHash": "b993a53636586d3aa825f08b2aee817eb05948053fe1e6ca9daac42c91a1ef36",
+          "timestamp": "2026-07-10T02:07:29.232Z"
         }
       ]
     },
@@ -403,10 +403,10 @@
           "command": "npm --prefix packages/main run test:reviewer-scan-budget-guard",
           "result": "pass",
           "note": "Matching readManifest and mechanical read log produces no mismatch diagnostics while preserving the read-log digest.",
-          "headHash": "7388270e7821467cee0fd2086e5043c4ba4bad04",
-          "materialHash": "af6d967c9341d8e600e9fe0f4b2647004ef734380df93b2327737f07c6fbe27e",
-          "storyFilesHash": "4735053bc27e2153b8d14d9dca932add25b7524631954ef7d761eeb2ff12d158",
-          "timestamp": "2026-07-10T01:50:32.970Z"
+          "headHash": "c129db7b32da57553b8aec2da9e25b7307c2843d",
+          "materialHash": "287a670baf3b69347b09d16aadbfe874ca0dc08e2338b7d989debe774c6bbc04",
+          "storyFilesHash": "b993a53636586d3aa825f08b2aee817eb05948053fe1e6ca9daac42c91a1ef36",
+          "timestamp": "2026-07-10T02:07:29.232Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -416,10 +416,10 @@
           "command": "npm --prefix packages/main run test:reviewer-scan-budget-guard",
           "result": "pass",
           "note": "Full decisions-doc scan with a non-empty scanEscalationReason is treated as legitimate escalation rather than unrecorded misuse.",
-          "headHash": "7388270e7821467cee0fd2086e5043c4ba4bad04",
-          "materialHash": "af6d967c9341d8e600e9fe0f4b2647004ef734380df93b2327737f07c6fbe27e",
-          "storyFilesHash": "4735053bc27e2153b8d14d9dca932add25b7524631954ef7d761eeb2ff12d158",
-          "timestamp": "2026-07-10T01:50:32.970Z"
+          "headHash": "c129db7b32da57553b8aec2da9e25b7307c2843d",
+          "materialHash": "287a670baf3b69347b09d16aadbfe874ca0dc08e2338b7d989debe774c6bbc04",
+          "storyFilesHash": "b993a53636586d3aa825f08b2aee817eb05948053fe1e6ca9daac42c91a1ef36",
+          "timestamp": "2026-07-10T02:07:29.232Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -429,10 +429,10 @@
           "command": "npm --prefix packages/main run test:reviewer-scan-budget-guard",
           "result": "pass",
           "note": "Missing/extra self-report entries and full decisions-doc scans without scanEscalationReason are diagnosed.",
-          "headHash": "7388270e7821467cee0fd2086e5043c4ba4bad04",
-          "materialHash": "af6d967c9341d8e600e9fe0f4b2647004ef734380df93b2327737f07c6fbe27e",
-          "storyFilesHash": "4735053bc27e2153b8d14d9dca932add25b7524631954ef7d761eeb2ff12d158",
-          "timestamp": "2026-07-10T01:50:32.970Z"
+          "headHash": "c129db7b32da57553b8aec2da9e25b7307c2843d",
+          "materialHash": "287a670baf3b69347b09d16aadbfe874ca0dc08e2338b7d989debe774c6bbc04",
+          "storyFilesHash": "b993a53636586d3aa825f08b2aee817eb05948053fe1e6ca9daac42c91a1ef36",
+          "timestamp": "2026-07-10T02:07:29.232Z"
         }
       ]
     },
@@ -488,10 +488,10 @@
           "command": "npm --prefix packages/main run test:reviewer-scan-budget-guard",
           "result": "pass",
           "note": "Focused smoke covers valid readManifest, valid mechanical read-log digest, and no-mismatch green path.",
-          "headHash": "7388270e7821467cee0fd2086e5043c4ba4bad04",
-          "materialHash": "af6d967c9341d8e600e9fe0f4b2647004ef734380df93b2327737f07c6fbe27e",
-          "storyFilesHash": "4735053bc27e2153b8d14d9dca932add25b7524631954ef7d761eeb2ff12d158",
-          "timestamp": "2026-07-10T01:50:32.970Z"
+          "headHash": "c129db7b32da57553b8aec2da9e25b7307c2843d",
+          "materialHash": "287a670baf3b69347b09d16aadbfe874ca0dc08e2338b7d989debe774c6bbc04",
+          "storyFilesHash": "b993a53636586d3aa825f08b2aee817eb05948053fe1e6ca9daac42c91a1ef36",
+          "timestamp": "2026-07-10T02:07:29.232Z"
         },
         {
           "intentRef": "CHK-006:edge:0",
@@ -501,10 +501,10 @@
           "command": "npm test -- --runInBand",
           "result": "pass",
           "note": "Full root test run passed after the focused smoke, preserving JSON cleanliness and validate-adjacent wiring.",
-          "headHash": "7388270e7821467cee0fd2086e5043c4ba4bad04",
-          "materialHash": "af6d967c9341d8e600e9fe0f4b2647004ef734380df93b2327737f07c6fbe27e",
-          "storyFilesHash": "4735053bc27e2153b8d14d9dca932add25b7524631954ef7d761eeb2ff12d158",
-          "timestamp": "2026-07-10T01:50:32.970Z"
+          "headHash": "c129db7b32da57553b8aec2da9e25b7307c2843d",
+          "materialHash": "287a670baf3b69347b09d16aadbfe874ca0dc08e2338b7d989debe774c6bbc04",
+          "storyFilesHash": "b993a53636586d3aa825f08b2aee817eb05948053fe1e6ca9daac42c91a1ef36",
+          "timestamp": "2026-07-10T02:07:29.232Z"
         },
         {
           "intentRef": "CHK-006:adversarial:0",
@@ -514,10 +514,10 @@
           "command": "npm --prefix packages/main run test:reviewer-scan-budget-guard",
           "result": "pass",
           "note": "Smoke fails if missing readManifest is accepted, mismatch findings are skipped, full scans without scanEscalationReason are ignored, or role separation is bypassed.",
-          "headHash": "7388270e7821467cee0fd2086e5043c4ba4bad04",
-          "materialHash": "af6d967c9341d8e600e9fe0f4b2647004ef734380df93b2327737f07c6fbe27e",
-          "storyFilesHash": "4735053bc27e2153b8d14d9dca932add25b7524631954ef7d761eeb2ff12d158",
-          "timestamp": "2026-07-10T01:50:32.970Z"
+          "headHash": "c129db7b32da57553b8aec2da9e25b7307c2843d",
+          "materialHash": "287a670baf3b69347b09d16aadbfe874ca0dc08e2338b7d989debe774c6bbc04",
+          "storyFilesHash": "b993a53636586d3aa825f08b2aee817eb05948053fe1e6ca9daac42c91a1ef36",
+          "timestamp": "2026-07-10T02:07:29.232Z"
         }
       ]
     },
@@ -577,10 +577,10 @@
           "command": "npm --prefix packages/main run test:reviewer-scan-budget-guard",
           "result": "pass",
           "note": "Mechanical read-log summary includes deterministic readCount and tokenCount fields with filesReadFully/filesTriagedByName/scanEscalationReason.",
-          "headHash": "7388270e7821467cee0fd2086e5043c4ba4bad04",
-          "materialHash": "af6d967c9341d8e600e9fe0f4b2647004ef734380df93b2327737f07c6fbe27e",
-          "storyFilesHash": "4735053bc27e2153b8d14d9dca932add25b7524631954ef7d761eeb2ff12d158",
-          "timestamp": "2026-07-10T01:50:32.970Z"
+          "headHash": "c129db7b32da57553b8aec2da9e25b7307c2843d",
+          "materialHash": "287a670baf3b69347b09d16aadbfe874ca0dc08e2338b7d989debe774c6bbc04",
+          "storyFilesHash": "b993a53636586d3aa825f08b2aee817eb05948053fe1e6ca9daac42c91a1ef36",
+          "timestamp": "2026-07-10T02:07:29.232Z"
         },
         {
           "intentRef": "CHK-007:edge:0",
@@ -590,10 +590,10 @@
           "command": "npm --prefix packages/main run test:reviewer-scan-budget-guard",
           "result": "pass",
           "note": "When transcript token usage is unavailable, smoke verifies tokenCount is null while readCount remains deterministic.",
-          "headHash": "7388270e7821467cee0fd2086e5043c4ba4bad04",
-          "materialHash": "af6d967c9341d8e600e9fe0f4b2647004ef734380df93b2327737f07c6fbe27e",
-          "storyFilesHash": "4735053bc27e2153b8d14d9dca932add25b7524631954ef7d761eeb2ff12d158",
-          "timestamp": "2026-07-10T01:50:32.970Z"
+          "headHash": "c129db7b32da57553b8aec2da9e25b7307c2843d",
+          "materialHash": "287a670baf3b69347b09d16aadbfe874ca0dc08e2338b7d989debe774c6bbc04",
+          "storyFilesHash": "b993a53636586d3aa825f08b2aee817eb05948053fe1e6ca9daac42c91a1ef36",
+          "timestamp": "2026-07-10T02:07:29.232Z"
         },
         {
           "intentRef": "CHK-007:adversarial:0",
@@ -603,10 +603,10 @@
           "command": "npm --prefix packages/main run test:reviewer-scan-budget-guard",
           "result": "pass",
           "note": "Changing token/read-count inputs affects the digest and missing count semantics are guarded by the focused smoke.",
-          "headHash": "7388270e7821467cee0fd2086e5043c4ba4bad04",
-          "materialHash": "af6d967c9341d8e600e9fe0f4b2647004ef734380df93b2327737f07c6fbe27e",
-          "storyFilesHash": "4735053bc27e2153b8d14d9dca932add25b7524631954ef7d761eeb2ff12d158",
-          "timestamp": "2026-07-10T01:50:32.970Z"
+          "headHash": "c129db7b32da57553b8aec2da9e25b7307c2843d",
+          "materialHash": "287a670baf3b69347b09d16aadbfe874ca0dc08e2338b7d989debe774c6bbc04",
+          "storyFilesHash": "b993a53636586d3aa825f08b2aee817eb05948053fe1e6ca9daac42c91a1ef36",
+          "timestamp": "2026-07-10T02:07:29.232Z"
         }
       ]
     },
@@ -666,10 +666,10 @@
           "command": "npm --prefix packages/main run test:reviewer-scan-budget-guard",
           "result": "pass",
           "note": "Reviewer-lane read capture records decisions-doc evidence when reviewer context is present.",
-          "headHash": "7388270e7821467cee0fd2086e5043c4ba4bad04",
-          "materialHash": "af6d967c9341d8e600e9fe0f4b2647004ef734380df93b2327737f07c6fbe27e",
-          "storyFilesHash": "4735053bc27e2153b8d14d9dca932add25b7524631954ef7d761eeb2ff12d158",
-          "timestamp": "2026-07-10T01:50:32.970Z"
+          "headHash": "c129db7b32da57553b8aec2da9e25b7307c2843d",
+          "materialHash": "287a670baf3b69347b09d16aadbfe874ca0dc08e2338b7d989debe774c6bbc04",
+          "storyFilesHash": "b993a53636586d3aa825f08b2aee817eb05948053fe1e6ca9daac42c91a1ef36",
+          "timestamp": "2026-07-10T02:07:29.232Z"
         },
         {
           "intentRef": "CHK-008:edge:0",
@@ -679,10 +679,10 @@
           "command": "npm --prefix packages/main run test:reviewer-scan-budget-guard",
           "result": "pass",
           "note": "Non-reviewer or missing reviewer context bypasses capture safely without throwing or mutating reviewer evidence.",
-          "headHash": "7388270e7821467cee0fd2086e5043c4ba4bad04",
-          "materialHash": "af6d967c9341d8e600e9fe0f4b2647004ef734380df93b2327737f07c6fbe27e",
-          "storyFilesHash": "4735053bc27e2153b8d14d9dca932add25b7524631954ef7d761eeb2ff12d158",
-          "timestamp": "2026-07-10T01:50:32.970Z"
+          "headHash": "c129db7b32da57553b8aec2da9e25b7307c2843d",
+          "materialHash": "287a670baf3b69347b09d16aadbfe874ca0dc08e2338b7d989debe774c6bbc04",
+          "storyFilesHash": "b993a53636586d3aa825f08b2aee817eb05948053fe1e6ca9daac42c91a1ef36",
+          "timestamp": "2026-07-10T02:07:29.232Z"
         },
         {
           "intentRef": "CHK-008:adversarial:0",
@@ -692,10 +692,10 @@
           "command": "lattice scope_contract_check --storyId=B-4a78 --json",
           "result": "pass",
           "note": "Scope contract check has no blocking findings after the explicit metadata acknowledgement, so non-reviewer read evidence is not being used to expand product scope.",
-          "headHash": "7388270e7821467cee0fd2086e5043c4ba4bad04",
-          "materialHash": "af6d967c9341d8e600e9fe0f4b2647004ef734380df93b2327737f07c6fbe27e",
-          "storyFilesHash": "4735053bc27e2153b8d14d9dca932add25b7524631954ef7d761eeb2ff12d158",
-          "timestamp": "2026-07-10T01:50:32.970Z"
+          "headHash": "c129db7b32da57553b8aec2da9e25b7307c2843d",
+          "materialHash": "287a670baf3b69347b09d16aadbfe874ca0dc08e2338b7d989debe774c6bbc04",
+          "storyFilesHash": "b993a53636586d3aa825f08b2aee817eb05948053fe1e6ca9daac42c91a1ef36",
+          "timestamp": "2026-07-10T02:07:29.232Z"
         }
       ]
     }
