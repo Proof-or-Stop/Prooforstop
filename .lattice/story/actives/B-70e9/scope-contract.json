@@ -21,14 +21,16 @@
     "packages/main/src/cli/alias-normalizer.ts",
     "packages/main/src/tasks/usage-ledger-budget-smoke.ts",
     "packages/main/src/core/config.ts",
-    "packages/main/src/core/process-fact-levels.ts"
+    "packages/main/src/core/process-fact-levels.ts",
+    ".lattice/story/actives/B-70e9/**"
   ],
   "allowedCreate": [
     "packages/main/src/core/host-run.ts",
     "packages/main/src/handlers/host-run.ts",
     "packages/main/src/core/usage-sweep.ts",
     "packages/main/src/handlers/usage-sweep.ts",
-    "docs/host-run-usage.md"
+    "docs/host-run-usage.md",
+    ".lattice/story/actives/B-70e9/**"
   ],
   "allowedTest": [
     "packages/main/src/tasks/host-run-usage-smoke.ts",
@@ -41,11 +43,11 @@
     "packages/main/src/core/usage-ledger/assemble.ts",
     "packages/main/src/core/usage-ledger/summary.ts",
     "packages/main/src/core/usage-ledger/diagnostics.ts",
-    ".lattice/**",
+    ".lattice/usage/**",
     "docs/requirements/decisions/**"
   ],
-  "scopeChangeReason": "Stage C required two additive registration entries so usage_sweep works as a read-only diagnostic in active-story worktrees: core/config.ts (DEFAULT_PHASE_TOOLS[*] entry; no usage_* wildcard exists) and core/process-fact-levels.ts (L0 lattice-usage-read level required by lifecycle-registry-contract for allowedPhases:all commands), both mirroring milestone_status. Ledger schema/writer files remain untouched.",
+  "scopeChangeReason": "Allow the story own workflow metadata dir (.lattice/story/actives/B-70e9/**, written by the lattice CLI as part of the lifecycle) so the fail-closed unknown-path rule applies only to real code paths; usage-ledger runtime and schema/writer files remain excluded.",
   "acknowledgements": [],
   "createdAt": "2026-07-10T05:32:56.378Z",
-  "updatedAt": "2026-07-10T06:54:29.237Z"
+  "updatedAt": "2026-07-10T07:13:58.498Z"
 }
