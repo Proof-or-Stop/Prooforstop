@@ -653,6 +653,24 @@
         "scanEscalationReason": null
       },
       "_hash": "b19ee23d769fd16632c44015318de5f2fe531eb6741ab89ff60415a4ece900b5"
+    },
+    {
+      "id": "B-70e9:RP-027",
+      "agent": "lattice-review-concept",
+      "note": "Round 8, commit a967792ab4 (F-013 fix). Reviewed the commit diff (docs/host-run-usage.md, packages/main/src/core/host-run.ts, packages/main/src/tasks/host-run-usage-smoke.ts): purely additive — new exported reason constant HOST_RUN_RETENTION_TRUNCATED_REASON, a new boolean parameter threaded into recordFinalForHost, and 2 new smoke checks. Removed lines are only doc-comment rewording (same concept, clarified prose) and the old recordFinalForHost call-site replaced by the new-arity call to the SAME function (not a deleted/renamed concept). No concept word was deleted or replaced en masse this round, so no repo-wide grep sweep was triggered. Sanity-checked recordFinalForHost (single def, single call site) and HOST_RUN_RETENTION_TRUNCATED_REASON (all usages consistent, no stray references) — no residue. No blocker.",
+      "createdAt": "2026-07-10T10:49:52.974Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-032",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "cee72bbe4c277ecbd314323950731d2c7e45a5025e2190ebfd5237b663f18989"
     }
   ]
 }
