@@ -155,6 +155,18 @@
           "materialHash": "47f3b5a4560f61c2cb528c1c98d478237ec717bde13e8860f90b9ec6f6cc8e0d",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "timestamp": "2026-07-10T14:40:13.364Z"
+        },
+        {
+          "intentRef": "regression-test-filename-summary:adversarial",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "Guard not weakened: existing narrow-delivery positive control (acceptanceVerdict partial + 'Partial narrower delivery; remaining cases deferred.') still yields done_summary_not_accepted/unconfirmed_single_outcome_shrinkage (narrowLightDone), and proseShrinkDone still fires next to a path token.",
+          "headHash": "c784369a9bf4d474be3d647e0de0e226431ca370",
+          "materialHash": "47f3b5a4560f61c2cb528c1c98d478237ec717bde13e8860f90b9ec6f6cc8e0d",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-10T14:40:13.967Z"
         }
       ]
     },
