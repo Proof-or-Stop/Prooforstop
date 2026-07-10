@@ -5,7 +5,7 @@
       "desc": "concept-scope: CHK-004/CHK-005 promise a mechanical per-run decisions-doc read log plus self-report mismatch diagnostics, but the implementation only adds pure helper functions and a synthetic smoke. rg shows captureReviewerReadEvent/normalizeReviewerReadLog/diagnoseReviewerReadEvidence are referenced only from packages/main/src/core/reviewer-read-evidence.ts and packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts, not from review_run_start, review_pass_set, finding_add, dispatch, or any persisted reviewer-run evidence path. As a result no real reviewer run records a read-log digest and no mismatch/full-scan diagnostic can be emitted from runtime review evidence. Fix by wiring capture/persistence to the reviewer-run/evidence path and invoking diagnostics against the submitted readManifest.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-10T01:56:44.683Z",
@@ -18,7 +18,11 @@
         "packages/main/src/handlers/story-dispatch.ts"
       ],
       "signatureTag": "missing|ts|concept-scope-promise",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by c129db7b3 and verified at 73e5eadcc/cffcfad: review_pass_set and reviewer finding_add now accept real mechanical readEvents/readLog, persist readLog digest/summary plus readDiagnostics, include read evidence in signatures where present, and focused/full validation passed after the fix.",
+      "resolvedAt": "2026-07-10T02:13:22.869Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
