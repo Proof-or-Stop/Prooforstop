@@ -767,6 +767,28 @@
         "scanEscalationReason": null
       },
       "_hash": "45b47d1098a070b0ffde83751826b18c608a6a25b40110fdbbc0ab16f382d523"
+    },
+    {
+      "id": "B-70e9:RP-032",
+      "agent": "lattice-review-docs",
+      "note": "Round 9 (final) docs re-review after fix commit 3f3dea9bcd (F-016). Pure-docs diff for this round (touchpoints=.md); Step-1 symbol extraction on the single-commit diff yields no exported code symbols added/removed (only the new doc paragraph + internal admission logic in already-existing exported fns runClaudeRepair/resolveSlotStaleMs/releaseSlot), so used Fallback-1 full-text scan: read docs/host-run-usage.md lines 173-194 (the new Caps clause) end-to-end plus the full runClaudeRepair body in core/autopilot-executor.ts and the resolveSlotStaleMs/releaseSlot export diff in core/host-run.ts. Verified each doc clause against code: (1) autopilot claude repair launch identified via CLI flag --allowClaudeRepair (confirmed registered in command-catalog.ts:2686 and wired to runClaudeRepair at autopilot-executor.ts:574) — accurate. (2) ledger ON: over-budget/over-cap repair refused pre-spawn before the claude runner invoked, same blocked row schema, provider anthropic — confirmed via recordBudgetBlock/recordConcurrencyBlock calls at lines 351 and 392, runner call gated after both checks return non-blocking. (3) concurrency slot held for duration of run + released after — confirmed acquireHostRunSlot before runner call, releaseSlot(slotFile) in a finally wrapping the runner call. (4) ledger OFF byte-identical (no admission, no slots, no rows) — confirmed slotFile stays null when ledgerOn is false and releaseSlot(null) is a documented no-op; no recordBudgetBlock/acquireHostRunSlot calls execute. Ran the two touched smokes fresh: test:host-run-usage (44/44 pass, matches commit message count) and usage-ledger-budget-smoke (41/41 pass, confirms the new allowlist entry for autopilot-executor.ts as third recordBudgetBlock site did not break the import-fence check). CHANGELOG.md: confirmed commit 3f3dea9bcd did not touch CHANGELOG.md (git show has no CHANGELOG.md hunk); existing B-70e9 CHANGELOG entry already says the seam covers the autopilot repair step generically, so no drift/contradiction with the new docs paragraph. Confirmed no doc changes reached this story from the main merge (7705f1e8a7): git diff 3f3dea9bcd..7705f1e8a7 -- docs/ CHANGELOG.md is empty. No promised-but-undelivered gaps found (Closing Self-Check): the doc paragraph text matches delivered code and passing tests exactly, no new CLI examples/fields/env vars introduced beyond what already exists in code. 0 findings.",
+      "createdAt": "2026-07-10T11:44:18.236Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-038",
+      "readManifest": {
+        "filesReadFully": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/core/autopilot-executor.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c8171132b7e0c5876a51f58d74e872f269b113735cc55b55989cb53a5f24b305"
     }
   ]
 }
