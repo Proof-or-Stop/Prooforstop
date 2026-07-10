@@ -82,7 +82,37 @@
       "context": "gitPorcelainPaths (line 226) builds on gitOutput() which trims the full output, then slice(3): story_sync_main's dirty preflight (line 945) filters the corrupted first-row path through isVolatileRuntimeArtifactPath and can false-block sync with a corrupted path in the error. Also the DONE-residue probe (~line 1017) stores a full-trimmed status string whose first row is corrupted in display. Fix both reads to not trim leading output.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "✓ story-query: gitPorcelainPaths first entry keeps its leading dot; DONE-residue status text shows the untrimmed first row",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/story-query.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/porcelain-first-row-audit-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "gitPorcelainPaths returns the exact .lattice/... first-row path with its leading dot",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "rename rows (old -> new) still resolve to the new path after the raw-read conversion",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "a first-row volatile runtime-artifact path is correctly dropped by the story_sync_main isVolatileRuntimeArtifactPath filter (pre-fix code kept the corrupted path and false-blocked)",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
