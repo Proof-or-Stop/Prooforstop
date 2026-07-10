@@ -130,7 +130,21 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationEvidence": [
+        {
+          "intentRef": "regression-test-filename-summary:happy",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "Full proofstory-intent-hardening smoke passes post-fix including the new B-2c03 regression cases; exit 0, final line: ProofStory intent hardening smoke passed.",
+          "headHash": "b68abe3800d89512cac66d752ee49f32f7206733",
+          "materialHash": "47f3b5a4560f61c2cb528c1c98d478237ec717bde13e8860f90b9ec6f6cc8e0d",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-10T14:40:12.732Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
