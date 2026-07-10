@@ -17,6 +17,27 @@
       ],
       "signatureTag": "missing|mjs:599|quality-correctness-scripts",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3928:F-002",
+      "desc": "M0.3 requires the role-overlap matrix to cover phase, commands, direct file access, output artifact, and overlap category, but the generated matrix table has columns for Role/Status/Phase/Purpose/Commands/Inputs/Outputs/Capabilities/Overlap category/Notes and no direct-file-access column or per-role field. The baseline JSON roleMatrix objects likewise contain role/status/phase/purpose/commands/inputs/outputs/capabilities/overlapCategory/notes only, so direct file access is not systematically covered for all 16 roles; it only appears incidentally in the story-init note while the separate directStoryFileReferences section is not part of the overlap matrix.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-10T03:41:18.209Z",
+      "reviewRound": "2026-07-10T03:38:27.147Z",
+      "reviewRunId": "B-3928:RR-003",
+      "_hash": "b23641e2b94e3d6ce05906c72c7fbbee0c12f17972c332765a1a25d70ccab533",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+        "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+      ],
+      "signatureTag": "missing|md|requires-role-overlap",
+      "signatureTagSource": "auto"
     }
   ]
 }
