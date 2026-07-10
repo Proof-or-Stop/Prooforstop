@@ -246,6 +246,28 @@
         "scanEscalationReason": null
       },
       "_hash": "54a49f92a03c15014e85a5a3726e31ac18852fd2e203e93f501372f3af6752d8"
+    },
+    {
+      "id": "B-2c03:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "Verified F-008/F-009 fix (a7437cfe85) live against the built CLI/dist and via direct extraction of the committed stripCodeLikeTokens/dottedFileTokenRegex/claimsShrinkage source. All 6 named RED-first smoke cases (dotRemainingDone, dotOutOfScopeDone, dotNotCoveredDone, dotControlDone, slashEnumerationDotDone, urlControlDone) pass GREEN in the built smoke suite. Adversarially probed ~35 additional natural-prose phrasings (mixed connectors, capitalization, whitespace variants, sentence punctuation, multi-slash enumerations, backslash paths, em-dash) for a residual false-negative bypass; found none beyond the already-accepted design residuals (genuine file/path/URL tokens correctly stripped, exotic em-dash punctuation out of realistic-English scope per plan.md connector class [\\s./_-]+). Code quality: no dead code, no unnecessary as-any, no empty catch, pure function with no I/O-isolation concerns. No blocking issues found.",
+      "createdAt": "2026-07-10T17:45:18.295Z",
+      "reviewRound": "2026-07-10T14:41:10.214Z",
+      "reviewRunId": "B-2c03:RR-022",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2c03/findings.json",
+          ".lattice/story/actives/B-2c03/plan.md",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2c03/checklist.json",
+          ".lattice/story/actives/B-2c03/review.json"
+        ],
+        "scanEscalationReason": "Fresh adversarial round following F-008/F-009 fix (a7437cfe85, dot connectors + explicit path markers for slash tokens). Rebuilt via npm run build (clean tsc), ran the built smoke suite (all 40+ B-2c03 assertions green including dotRemainingDone/dotOutOfScopeDone/dotNotCoveredDone/dotControlDone/slashEnumerationDotDone/urlControlDone). Extracted the exact live stripCodeLikeTokens/dottedFileTokenRegex/claimsShrinkage source from packages/main/dist/core/proofstory.js (byte-verified match) and adversarially probed ~35 additional natural-English phrasings beyond the documented F-001..F-009 cases (leading-dot stems, sentence-terminal periods, colons, mixed connectors out-of.scope/out/of/scope/out_of_scope, capitalization, tabs, double-spaces, emoji-adjacent triggers, 4-way slash enumerations, Windows-style backslash paths, em-dash connectors, trigger-immediately-before-genuine-path). No new false-negative bypass found: every case either correctly fires (prose) or correctly stays silent (genuine path/extension token, matching the accepted design). The one exotic-typography candidate (em-dash as a word-connector, e.g. remaining—scope) is out of scope per task framing (exotic typography excluded unless realistic for agent-authored English; em-dash is a sentence-interrupter punctuation mark, not a compound-word-joining connector like the accepted [\\s./_-]+ class, and plan.md explicitly scopes the connector class to that set after F-003/F-008). No dead code, no as-any, no empty catch, no I/O-isolation concerns in the diff (pure string-transform helper, all four new bindings used at the call site)."
+      },
+      "_hash": "053e1568acc4c82cc0e5c93481d16ad679bfe748b5c7d34dbd50dfa2383db7ed"
     }
   ]
 }
