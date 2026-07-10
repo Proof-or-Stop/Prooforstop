@@ -1336,6 +1336,25 @@
         "scanEscalationReason": null
       },
       "_hash": "3dbb8214c068a1a0ae34f745f51a45746bf864c1eeffe2f3998d74d77142243c"
+    },
+    {
+      "id": "B-70e9:RP-057",
+      "agent": "lattice-review-docs",
+      "note": "Round 16 (fix commit 30d8ffa117): symbol set from git diff main...HEAD on host-run.ts/core/host-run.ts = 88 exported/local symbols; emitStderr is the symbol touched by this rounds doc clause. 1 paragraph compared: the Passthrough routing section of docs/host-run-usage.md (added sentence: final diagnostic writes are awaited to settle before listener removal, so a late EPIPE from a quiet runs first stderr write still fires while a listener is attached). Verified against packages/main/src/handlers/host-run.ts: emitStderr (line 254) resolves its Promise only after the process.stderr.write callback fires (or a sync throw is caught), matching awaited to settle. All 4 call sites (lines 325,350,354,364) are awaited inside the try block, before the finally (366-371) removes the two named error listeners, matching before listener removal. The quiet-run crux (final usage line at line 364 as the first stderr write when stderrBroken is still false) is exactly what the new F-023 regression smoke (host-run-usage-smoke.ts) exercises via a real subprocess with stderr destroyed pre-spawn. No other md file references emitStderr or this passthrough behavior (grep clean), so no cross-doc drift. CHANGELOG.md B-70e9 entry is a high-level summary that predates and abstracts over this handler-internal fix; it does not mention EPIPE or listener details at any level so it is not contradicted by the new clause, no update needed there. No blocking inconsistency found.",
+      "createdAt": "2026-07-10T14:15:31.411Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-067",
+      "readManifest": {
+        "filesReadFully": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "5695f12b6376ffee75449a15f9b786bb4a0116fb428704e6dd3cb1c3156e8f7d"
     }
   ]
 }
