@@ -340,6 +340,24 @@
       "resolvedAt": "2026-07-10T11:16:07.739Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-70e9:F-016",
+      "desc": "[codex host-B, cross_host_review B-70e9-xhr-r8] Autopilot repair launches bypass the new pre-spawn caps: runClaudeRepair (core/autopilot-executor.ts ~314) records a usage preflight when the ledger is enabled but then invokes the Claude runner directly - it never applies recordBudgetBlock or the host-run concurrency slot guard, so LATTICE_HARD_BUDGET_TOKENS or a saturated LATTICE_HOST_RUN_MAX_CONCURRENT will not stop an autopilot repair even though the story adds those caps for every lattice-initiated host run. Fix direction: factor the same budget and concurrency admission (blocked ledger rows included) into the repair path before calling the runner, reusing the exported host-run primitives; ledger OFF stays byte-identical.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host-b",
+      "createdAt": "2026-07-10T11:29:15.780Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "_hash": "8854c2704e42378b4f784db621bca75b5f7e2761556d02b90e003698909aa8af",
+      "files": [
+        "packages/main/src/core/autopilot-executor.ts",
+        "packages/main/src/tasks/host-run-usage-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|codex-host-cross",
+      "signatureTagSource": "auto"
     }
   ]
 }
