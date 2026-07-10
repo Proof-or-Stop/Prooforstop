@@ -26,6 +26,18 @@ const EXPECTED_ROLE_COUNT = 16;
 const SCHEMA_VERSION = 'proof-or-stop.prompt-baseline.v1';
 const PLAN_PATH = 'docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md';
 const WRITE_MODE = process.argv.includes('--write');
+const ROLE_MATRIX_FIELDS = [
+  'status',
+  'phase',
+  'purpose',
+  'commands',
+  'directFileAccess',
+  'inputs',
+  'outputs',
+  'capabilities',
+  'overlapCategory',
+  'notes',
+];
 
 const LEGACY_PATTERNS = [
   {
@@ -48,6 +60,7 @@ const ROLE_MATRIX_DEFAULTS = {
     phase: 'REVIEW advisory',
     purpose: 'Legacy implementation risk reviewer for code risks and maintainability.',
     commands: 'none',
+    directFileAccess: 'Reads diff and implementation context; no direct story writes.',
     inputs: 'Diff and implementation context.',
     outputs: 'Text review notes.',
     capabilities: 'Code risk review; edge condition review; maintainability review.',
@@ -59,6 +72,7 @@ const ROLE_MATRIX_DEFAULTS = {
     phase: 'TEST optional',
     purpose: 'CLI/core evaluator for user-facing command behavior.',
     commands: 'CLI shell via evaluator bridge.',
+    directFileAccess: 'Uses CLI shell/bridge output; no direct story writes.',
     inputs: 'Task, expected CLI behavior, command output.',
     outputs: 'Evaluator JSON transcript.',
     capabilities: 'CLI exercise; usability scoring; observed-output assessment.',
@@ -70,6 +84,7 @@ const ROLE_MATRIX_DEFAULTS = {
     phase: 'TEST optional',
     purpose: 'Browser/product evaluator for UI-facing behavior.',
     commands: 'browser API; review_run_start; finding_add; review_pass_set.',
+    directFileAccess: 'Uses browser state and reviewer commands; no direct story writes.',
     inputs: 'Task, expected user flow, browser state.',
     outputs: 'Evaluator JSON transcript or reviewer finding/pass if routed.',
     capabilities: 'User-flow exercise; UI behavior scoring; usability notes.',
@@ -81,6 +96,7 @@ const ROLE_MATRIX_DEFAULTS = {
     phase: 'DEV',
     purpose: 'Implementation worker that edits code, verifies locally, and updates checklist evidence.',
     commands: 'session_brief; aux_doc_list; checklist_update; validate; story_get; checklist_get.',
+    directFileAccess: 'Reads and edits source/docs in workspace; story metadata through Lattice CLI only.',
     inputs: 'Story, checklist, source files, focused docs.',
     outputs: 'Code changes, commits, checklist status, verificationEvidence.',
     capabilities: 'Code editing; focused tests; evidence recording; commit preparation.',
@@ -92,6 +108,7 @@ const ROLE_MATRIX_DEFAULTS = {
     phase: 'REVIEW',
     purpose: 'Reviews promised user-visible behavior, edge cases, and userSees mismatch.',
     commands: 'review_run_start; finding_add; review_pass_set; scope_check_save.',
+    directFileAccess: 'Reads diff/source and scope artifacts; reviewer evidence through Lattice CLI.',
     inputs: 'Diff, story scope, user-visible behavior, verification evidence.',
     outputs: 'Reviewer findings or pass.',
     capabilities: 'Behavior correctness; edge-case review; user-visible mismatch detection.',
@@ -103,6 +120,7 @@ const ROLE_MATRIX_DEFAULTS = {
     phase: 'REVIEW legacy',
     purpose: 'Legacy reviewer for normal-channel dispatch evidence.',
     commands: 'dispatch; checklist_get; story_get.',
+    directFileAccess: 'Legacy direct read of docs/story process-events evidence.',
     inputs: 'process-events dispatch and subagent_result evidence.',
     outputs: 'Reviewer findings or pass.',
     capabilities: 'Dispatch evidence inspection.',
@@ -114,6 +132,7 @@ const ROLE_MATRIX_DEFAULTS = {
     phase: 'REVIEW',
     purpose: 'Reviews concept deletion, rename, and terminology residue.',
     commands: 'review_run_start; finding_add; review_pass_set.',
+    directFileAccess: 'Reads diff/source/docs references; reviewer evidence through Lattice CLI.',
     inputs: 'Diff, renamed terms, deleted concepts, docs/code references.',
     outputs: 'Reviewer findings or pass.',
     capabilities: 'Residue scan; concept consistency; rename completeness.',
@@ -125,6 +144,7 @@ const ROLE_MATRIX_DEFAULTS = {
     phase: 'TEST/DONE',
     purpose: 'Reviews final delivery claims, docs promises, real machine tests, and closeout.',
     commands: 'review_run_start; finding_add; review_pass_set; delivery_check_set.',
+    directFileAccess: 'Reads diff/docs/validation evidence; delivery evidence through Lattice CLI.',
     inputs: 'Diff, validation evidence, docs promises, user-facing closeout claims.',
     outputs: 'delivery_check_set evidence and reviewer findings/pass.',
     capabilities: 'Delivery completeness; closeout self-check; final docs-promise fallback.',
@@ -136,6 +156,7 @@ const ROLE_MATRIX_DEFAULTS = {
     phase: 'REVIEW',
     purpose: 'Reviews code/documentation drift around changed public behavior.',
     commands: 'review_run_start; finding_add; review_pass_set.',
+    directFileAccess: 'Reads changed docs/source; reviewer evidence through Lattice CLI.',
     inputs: 'Diff, docs, command examples, config/schema changes.',
     outputs: 'Reviewer findings or pass.',
     capabilities: 'Doc-code drift review; command example review; schema documentation review.',
@@ -147,6 +168,7 @@ const ROLE_MATRIX_DEFAULTS = {
     phase: 'REVIEW',
     purpose: 'Reviews maintainability, type safety, I/O shell isolation, and proof metadata consistency.',
     commands: 'review_run_start; finding_add; review_pass_set.',
+    directFileAccess: 'Reads source/tests/proof metadata; reviewer evidence through Lattice CLI.',
     inputs: 'Diff, source code, tests, proof metadata.',
     outputs: 'Reviewer findings or pass.',
     capabilities: 'Code quality; dead-code scan; type-safety review; maintainability review.',
@@ -158,6 +180,7 @@ const ROLE_MATRIX_DEFAULTS = {
     phase: 'PLAN',
     purpose: 'Reviews story/checklist scope against source-of-truth requirements.',
     commands: 'config; dev_memory_preflight; dev_memory_search; scope_question_resolve; scope_check_save.',
+    directFileAccess: 'Reads candidate docs and CLI-provided story/checklist context; scope evidence through Lattice CLI.',
     inputs: 'Story, checklist, candidate requirement docs, risk signals.',
     outputs: 'scope_check_save artifact.',
     capabilities: 'Scope coverage; orphan requirement detection; candidate spec review.',
@@ -169,6 +192,7 @@ const ROLE_MATRIX_DEFAULTS = {
     phase: 'INIT',
     purpose: 'Reviews new story readability, facts, risk wording, and initial checklist sanity.',
     commands: 'init_check_set; session_brief; aux_doc_list.',
+    directFileAccess: 'Grandfathered direct docs/story reads and init-self-check file write wording.',
     inputs: 'Story background, index fields, checklist title/context.',
     outputs: 'init_check_set issues/pass.',
     capabilities: 'Fresh-context intake review; story clarity; risk sanity check.',
@@ -180,6 +204,7 @@ const ROLE_MATRIX_DEFAULTS = {
     phase: 'REVIEW',
     purpose: 'Reviews verificationIntent to verificationEvidence coverage.',
     commands: 'review_run_start; finding_add; review_pass_set.',
+    directFileAccess: 'Reads checklist/evidence through Lattice CLI; reviewer evidence through Lattice CLI.',
     inputs: 'Checklist verificationIntent and verificationEvidence.',
     outputs: 'Reviewer findings or pass.',
     capabilities: 'Coverage completeness; missing/stale evidence detection.',
@@ -191,6 +216,7 @@ const ROLE_MATRIX_DEFAULTS = {
     phase: 'INIT/DONE advisory',
     purpose: 'Reviews user-facing transcript and product closure.',
     commands: 'none',
+    directFileAccess: 'Reads transcript/product context; no direct story writes.',
     inputs: 'Final transcript, product outcome, optional transcript diff.',
     outputs: 'Text product review or INIT compatibility output.',
     capabilities: 'User-value closure; product wording review.',
@@ -202,6 +228,7 @@ const ROLE_MATRIX_DEFAULTS = {
     phase: 'TEST_CASE_REVIEW legacy',
     purpose: 'Legacy reviewer for fixture coverage of testIntent.',
     commands: 'testintent_record.',
+    directFileAccess: 'Legacy direct fixture JSON reads; writes legacy testintent_record evidence.',
     inputs: 'Legacy testIntent and fixture JSON.',
     outputs: 'testintent_record results.',
     capabilities: 'Legacy fixture coverage review.',
@@ -213,6 +240,7 @@ const ROLE_MATRIX_DEFAULTS = {
     phase: 'PLAN legacy',
     purpose: 'Legacy checklist split reviewer and testIntent writer.',
     commands: 'story_get; checklist_update.',
+    directFileAccess: 'Reads story/checklist through Lattice CLI; writes legacy checklist updates through Lattice CLI.',
     inputs: 'Story and checklist.',
     outputs: 'Legacy testIntent or null intent updates.',
     capabilities: 'Checklist split review; legacy acceptance-intent writing.',
@@ -488,6 +516,7 @@ function renderMatrixMarkdown(baseline) {
     row.phase,
     row.purpose,
     row.commands,
+    row.directFileAccess,
     row.inputs,
     row.outputs,
     row.capabilities,
@@ -502,8 +531,8 @@ function renderMatrixMarkdown(baseline) {
     `Registry material hash: \`${baseline.registry.materialHash}\``,
     `Role count: ${baseline.registry.agentCount}`,
     '',
-    '| Role | Status | Phase | Purpose | Commands | Inputs | Outputs | Capabilities | Overlap category | Notes |',
-    '|---|---|---|---|---|---|---|---|---|---|',
+    '| Role | Status | Phase | Purpose | Commands | Direct file access | Inputs | Outputs | Capabilities | Overlap category | Notes |',
+    '|---|---|---|---|---|---|---|---|---|---|---|',
     ...rows.map(row => `| ${row.map(escapeMarkdownCell).join(' | ')} |`),
     '',
   ].join('\n');
@@ -524,6 +553,32 @@ function requireEqual(actual, expected, label, failures) {
   if (actual !== expected) {
     failures.push(`${label}: expected ${JSON.stringify(expected)}, got ${JSON.stringify(actual)}`);
   }
+}
+
+function normalizeContent(text) {
+  return text.replace(/\r\n/g, '\n');
+}
+
+function requireSameContent(actual, expected, label, failures) {
+  if (actual === expected) return;
+
+  const actualLines = actual.split('\n');
+  const expectedLines = expected.split('\n');
+  const maxLines = Math.max(actualLines.length, expectedLines.length);
+  let mismatchLine = 1;
+  for (let index = 0; index < maxLines; index += 1) {
+    if (actualLines[index] !== expectedLines[index]) {
+      mismatchLine = index + 1;
+      break;
+    }
+  }
+
+  failures.push(
+    `${label}: content mismatch at line ${mismatchLine}; expected ${JSON.stringify(expectedLines[mismatchLine - 1] ?? '<EOF>')}, got ${JSON.stringify(actualLines[mismatchLine - 1] ?? '<EOF>')}`,
+  );
+  failures.push(
+    `${label}: expected sha256 ${sha256(expected)}, got ${sha256(actual)}`,
+  );
 }
 
 function mapBy(items, keyFn, label, failures) {
@@ -581,40 +636,58 @@ function verifyAgentPromptOutputs(current, baseline, failures) {
   }
 }
 
-function parseMatrixRoles(markdown) {
-  const lines = markdown.split(/\r?\n/);
-  const headerIndex = lines.findIndex(line => line.startsWith('| Role | Status | Phase |'));
-  if (headerIndex === -1) return [];
-  const rows = [];
-  for (const line of lines.slice(headerIndex + 2)) {
-    if (!line.trim()) break;
-    if (!line.startsWith('|')) continue;
-    const cells = line.split('|').slice(1, -1).map(cell => cell.trim());
-    if (cells.length < 10) continue;
-    rows.push(cells[0].replace(/^`|`$/g, ''));
+function verifyRoleMatrixFields(rows, label, failures) {
+  for (const [role, row] of rows) {
+    if (typeof row.role !== 'string' || row.role.length === 0) {
+      failures.push(`${label} ${role}.role: missing or empty role`);
+    }
+    for (const field of ROLE_MATRIX_FIELDS) {
+      if (typeof row[field] !== 'string' || row[field].length === 0) {
+        failures.push(`${label} ${role}.${field}: missing or empty string`);
+      }
+    }
+    for (const field of Object.keys(row)) {
+      if (field !== 'role' && !ROLE_MATRIX_FIELDS.includes(field)) {
+        failures.push(`${label} ${role}.${field}: unknown roleMatrix field`);
+      }
+    }
   }
-  return rows;
 }
 
 function verifyMatrix(current, baseline, failures) {
-  const currentRows = mapBy(current.roleMatrix, row => row.role, 'current matrix role', failures);
-  const baselineRows = mapBy(baseline.roleMatrix, row => row.role, 'baseline matrix role', failures);
+  const currentRoleMatrix = Array.isArray(current.roleMatrix) ? current.roleMatrix : [];
+  const baselineRoleMatrix = Array.isArray(baseline.roleMatrix) ? baseline.roleMatrix : [];
+  if (!Array.isArray(current.roleMatrix)) failures.push('current roleMatrix: missing or not an array');
+  if (!Array.isArray(baseline.roleMatrix)) failures.push('baseline roleMatrix: missing or not an array');
+
+  const currentRows = mapBy(currentRoleMatrix, row => row.role, 'current matrix role', failures);
+  const baselineRows = mapBy(baselineRoleMatrix, row => row.role, 'baseline matrix role', failures);
   requireEqual(currentRows.size, EXPECTED_ROLE_COUNT, 'current matrix role count', failures);
   requireEqual(baselineRows.size, EXPECTED_ROLE_COUNT, 'baseline matrix role count', failures);
+  verifyRoleMatrixFields(currentRows, 'current roleMatrix', failures);
+  verifyRoleMatrixFields(baselineRows, 'baseline roleMatrix', failures);
   for (const role of baselineRows.keys()) {
-    if (!currentRows.has(role)) failures.push(`current matrix missing role ${role}`);
+    const actual = currentRows.get(role);
+    const expected = baselineRows.get(role);
+    if (!actual) {
+      failures.push(`current matrix missing role ${role}`);
+      continue;
+    }
+    for (const field of ROLE_MATRIX_FIELDS) {
+      requireEqual(actual[field], expected[field], `roleMatrix ${role}.${field}`, failures);
+    }
+  }
+  for (const role of currentRows.keys()) {
+    if (!baselineRows.has(role)) failures.push(`baseline matrix missing role ${role}`);
   }
 
   if (!existsSync(MATRIX_PATH)) {
     failures.push(`missing overlap matrix: ${toRepoPath(MATRIX_PATH)}`);
     return;
   }
-  const markdownRoles = parseMatrixRoles(readFileSync(MATRIX_PATH, 'utf8'));
-  const markdownRoleSet = new Set(markdownRoles);
-  requireEqual(markdownRoles.length, EXPECTED_ROLE_COUNT, 'overlap matrix markdown row count', failures);
-  for (const role of baselineRows.keys()) {
-    if (!markdownRoleSet.has(role)) failures.push(`overlap matrix markdown missing role ${role}`);
-  }
+  const actualMarkdown = normalizeContent(readFileSync(MATRIX_PATH, 'utf8'));
+  const expectedMarkdown = normalizeContent(renderMatrixMarkdown(baseline));
+  requireSameContent(actualMarkdown, expectedMarkdown, `overlap matrix markdown ${toRepoPath(MATRIX_PATH)}`, failures);
 }
 
 function verifyFindings(currentFindings, baselineFindings, label, failures) {
