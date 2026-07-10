@@ -151,6 +151,18 @@
           "materialHash": "629ca6c3184088f0e8299b3c454ca0f12ebc20a3b0aa9cdc50925b7717f44d4f",
           "storyFilesHash": "280e1fa00e2ee162d2eec9e7211bc3b97d595ef75062fc12e0eae88070f8cc98",
           "timestamp": "2026-07-10T05:33:33.612Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+          "command": "npm --prefix packages/main run test:done-prepare-merge-rerun-smoke",
+          "result": "pass",
+          "note": "assertNoSelfAttestationLanguage runs against every scenario transcript (hazard, generated-metadata, dryRun, rerun-reason, auto-closeout) and the hazard scenario additionally rejects stash/git add/commit/delete suggestions, so guidance never proposes committing unrelated dirty files or self-attesting reviewer/host evidence.",
+          "headHash": "5f3853b5a01725885510e7f968d8050852126fc7",
+          "materialHash": "629ca6c3184088f0e8299b3c454ca0f12ebc20a3b0aa9cdc50925b7717f44d4f",
+          "storyFilesHash": "280e1fa00e2ee162d2eec9e7211bc3b97d595ef75062fc12e0eae88070f8cc98",
+          "timestamp": "2026-07-10T05:33:34.532Z"
         }
       ]
     },
