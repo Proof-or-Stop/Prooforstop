@@ -432,7 +432,7 @@
       "desc": "[codex host-B, cross_host_review B-70e9-xhr-r11] Real stdout/stderr EPIPE can still crash host_run: the passthrough sink (handlers/host-run.ts ~211) wraps process.stdout.write/process.stderr.write in try/catch, but Node stream write failures like a downstream pipe closing are delivered as ASYNCHRONOUS error events on the stream, not synchronous throws; with no stdout/stderr error listener in this path a real EPIPE still terminates the process despite the F-008 containment contract (surfaced passthroughError, slot release, final usage row). Existing smoke only covers an injected synchronously-throwing sink. Fix direction: attach error handlers on process stdout/stderr for the duration of host_run passthrough (converting EPIPE into the core passthroughError state), and add a real subprocess smoke piping host_run output to a consumer that exits early, asserting no crash + slot release + final row recording.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host-b",
       "createdAt": "2026-07-10T12:56:39.008Z",
@@ -444,7 +444,11 @@
         "packages/main/src/tasks/host-run-usage-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|codex-host-cross",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit e78408cb5c (handler-only): named error listeners attached to process.stdout/stderr for the exact duration of runHostRun (removed via removeListener in finally on every exit path; never removeAllListeners; Node crashes only at zero listeners so ours is the containment); first async failure recorded and merged into the surfaced passthroughError (backstop for post-last-chunk errors); post-run diagnostic stderr writes gated on stderrBroken to close the late-async-error-after-finally window. Real-subprocess repro: old code exit 1 with preflight-only ledger row and leaked slot (3/3), new code exit 0 with provider-reported final, no leftover slots, passthroughError naming the EPIPE (8+ stable runs); new smoke drives a compiled-handler driver whose stderr pipe the parent destroys mid-stream. host-run smoke 52/52.",
+      "resolvedAt": "2026-07-10T13:17:14.122Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
