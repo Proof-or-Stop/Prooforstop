@@ -162,11 +162,11 @@
           "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
           "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
           "result": "pass",
-          "note": "Guard not weakened: existing narrow-delivery positive control (acceptanceVerdict partial + 'Partial narrower delivery; remaining cases deferred.') still yields done_summary_not_accepted/unconfirmed_single_outcome_shrinkage (narrowLightDone), and proseShrinkDone still fires next to a path token.",
-          "headHash": "2cbf29dac8ae720710778e7371df82d35528b7e4",
+          "note": "Re-bound at post-review head: narrowLightDone positive control still fails the gate; guard strengthened not weakened (dotRemainingDone/dotOutOfScopeDone/dotNotCoveredDone additionally cover F-008).",
+          "headHash": "ae7bea14640ca52cd8b0ef91a4c22ad31376fe28",
           "materialHash": "7806164814b9e7f47c83fdc67a22b912be27a9a17d3b7d5dd5ef957fabcc5c11",
           "storyFilesHash": "d3cadf890d2c2b0a74e1d2429b37587035eea4c5b32155d35e009d816878e6c8",
-          "timestamp": "2026-07-10T17:56:39.261Z"
+          "timestamp": "2026-07-10T17:57:32.294Z"
         }
       ]
     },
