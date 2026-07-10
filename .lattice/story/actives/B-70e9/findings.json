@@ -582,6 +582,25 @@
       "resolvedAt": "2026-07-10T15:16:00.071Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-70e9:F-027",
+      "desc": "[codex host-B, cross_host_review B-70e9-xhr-r16] Cap-refusal summaries claim ledger rows that may not exist: the concurrency refusal path sets usageSummary.recorded=blocked and exposes blockRow.recordId even when recordConcurrencyBlock returned recorded:false (append failed); the hard-budget path has the same unconditional blocked summary (host-run.ts ~1221). Under a corrupt ledger or lock-wait skip, JSON consumers are told a blocked row was recorded and in the concurrency case receive a minted recordId for a row that never landed - the same parse-vs-append conflation F-021 fixed on the final paths. Fix direction: plumb the blocked-row append outcome + failure reason out of recordBudgetBlock and recordConcurrencyBlock; keep the fail-closed refusal but set recorded=none, clear recordId, report ledger_append_failed(...) when the append failed.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host-b",
+      "createdAt": "2026-07-10T15:32:54.694Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "_hash": "96466ab1dbd25cfd4d72119c0d4af78915769f46ba6b219d22793a2e08cf5644",
+      "files": [
+        "packages/main/src/core/host-run.ts",
+        "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+        "packages/main/src/tasks/host-run-usage-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|codex-host-cross",
+      "signatureTagSource": "auto"
     }
   ]
 }
