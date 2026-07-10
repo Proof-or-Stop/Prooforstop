@@ -494,6 +494,24 @@
       "resolvedAt": "2026-07-10T13:53:27.015Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-70e9:F-023",
+      "desc": "[codex host-B, cross_host_review B-70e9-xhr-r13] Final stderr diagnostics can still crash on EPIPE: host-run handler attaches stream error listeners only for the try/finally scope, writes the final usage line via safeWriteStderr, then immediately removes the listener (handlers/host-run.ts ~351-357). If stderr is already closed and that final diagnostic is the FIRST stderr write (no prior error, stderrBroken gate open), Node emits the EPIPE asynchronously after removal - unhandled stream error, crash. Leaves the documented F-020 guarantee incomplete for text-mode stdout-only hosts and quiet JSON runs. Fix direction: keep the stderr listener installed until all final diagnostic writes have settled (await the write callback or defer removal to a post-write tick while swallowing stream errors); add a regression with stderr closed before the final usage-line write.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host-b",
+      "createdAt": "2026-07-10T14:04:59.687Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "_hash": "ff9cb93c9b7704ccd058fb8e7c8cc541097a2bc46c34ebbf6afce766fd40e7a6",
+      "files": [
+        "packages/main/src/handlers/host-run.ts",
+        "packages/main/src/tasks/host-run-usage-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|codex-host-cross",
+      "signatureTagSource": "auto"
     }
   ]
 }
