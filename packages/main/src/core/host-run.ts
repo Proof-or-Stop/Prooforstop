@@ -889,6 +889,27 @@ function disabledSummary(): HostRunUsageSummary {
 }
 
 /**
+ * B-70e9 F-021: the honest summary when the ledger append FAILED (corrupt or
+ * lock-timed-out ledger). The provider parsed usage, but no row landed, so the
+ * summary must NOT claim 'provider-reported'/'unavailable' (which would read as
+ * "usage recorded"). We reuse the existing 'none' state — already rendered by the
+ * handler as "usage: <reason>" with no "recorded" verb — carrying the specific
+ * ledger_append_failed(...) reason. The provider is still surfaced for
+ * attribution; token counts are null because nothing was persisted.
+ */
+function appendFailedSummary(provider: string | null, reason: string | null): HostRunUsageSummary {
+  return {
+    recorded: 'none',
+    provider,
+    input: null,
+    cacheRead: null,
+    output: null,
+    recordId: null,
+    reason: reason && reason.length > 0 ? reason : 'ledger_append_failed(unknown)',
+  };
+}
+
+/**
  * Launch a canonical host and write the usage-ledger rows. See file header for
  * the full seam ordering. Input-validation failures (unknown story, cross-story
  * reviewRunId) THROW pre-spawn; cap refusals return a blocked result (a ledger
@@ -1154,6 +1175,8 @@ function recordFinalForHost(
         HOST_RUN_RETENTION_TRUNCATED_REASON,
         opts,
       );
+      // F-021: only claim the unavailable row when it actually appended.
+      if (!res.recorded) return appendFailedSummary(providerName, res.reason ?? null);
       return {
         recorded: 'unavailable',
         provider: providerName,
@@ -1167,7 +1190,11 @@ function recordFinalForHost(
 
     if (args.host === 'claude') {
       const parsed = parseClaudeCliOutput(stdout);
-      recordDispatchFinal(args.root, ctx, correlation, estimateRecordId, parsed.anthropicUsage, parsed.model, opts);
+      // F-021: gate the "recorded" claim on the ACTUAL append outcome, not on
+      // whether the envelope parsed. A corrupt / lock-timed-out ledger swallows
+      // the write; reporting provider-reported then would hide a zero-row ledger.
+      const status = recordDispatchFinal(args.root, ctx, correlation, estimateRecordId, parsed.anthropicUsage, parsed.model, opts);
+      if (!status.appended) return appendFailedSummary('anthropic', status.reason ?? null);
       if (parsed.anthropicUsage) {
         return {
           recorded: 'provider-reported',
@@ -1202,6 +1229,8 @@ function recordFinalForHost(
           'no_turn_completed_usage_event',
           opts,
         );
+        // F-021: only claim the unavailable row when it actually appended.
+        if (!res.recorded) return appendFailedSummary('openai', res.reason ?? null);
         return {
           recorded: 'unavailable',
           provider: 'openai',
@@ -1213,6 +1242,11 @@ function recordFinalForHost(
         };
       }
       const codex = recordDispatchFinalCodex(args.root, ctx, correlation, estimateRecordId, usage, null, opts);
+      // F-021: codex.recorded reflects the ACTUAL append (true only after a
+      // successful appendUsageRecord). When it is false the provider parsed a
+      // usage but no row landed — report the skipped state, never provider-
+      // reported / unavailable (which read as "recorded").
+      if (!codex.recorded) return appendFailedSummary('openai', codex.unavailableReason ?? null);
       if (codex.source === 'provider-reported') {
         return {
           recorded: 'provider-reported',
@@ -1245,6 +1279,8 @@ function recordFinalForHost(
       'agy_print_mode_reports_no_usage',
       opts,
     );
+    // F-021: only claim the unavailable row when it actually appended.
+    if (!res.recorded) return appendFailedSummary('antigravity', res.reason ?? null);
     return {
       recorded: 'unavailable',
       provider: 'antigravity',

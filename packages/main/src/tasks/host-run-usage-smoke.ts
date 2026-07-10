@@ -783,6 +783,65 @@ async function main(): Promise<void> {
   });
 
   // =========================================================================
+  // F-021: the usage summary must reflect the ACTUAL ledger append, not merely
+  // that the provider envelope parsed. A corrupt ledger makes appendUsageRecord
+  // THROW (swallowed by the never-throw seam) while the claude/codex stdout DOES
+  // carry a valid usage envelope. Against the OLD code the summary reported
+  // `recorded: 'provider-reported'` (keyed on parsed usage) even though ZERO
+  // rows landed — silently hiding an under-count in the honesty choke point.
+  // The fix reports the skipped state (`recorded: 'none'`, reason
+  // `ledger_append_failed(...)`) and never a false provider-reported claim; the
+  // run still completes and the host exit code propagates.
+  // =========================================================================
+  await checkAsync('F-021 claude: valid stream-json usage BUT a failing (corrupt) ledger -> summary reports skipped (none, ledger_append_failed), NEVER provider-reported; run completes + exit code propagates', async () => {
+    const sub = freshRoot();
+    seedCorruptLedger(sub); // the next append throws at chain time (swallowed by the seam)
+    const sink: RunnerSink = { calls: 0, lastPlan: null };
+    const result = await runHostRun(
+      baseArgs({ root: sub, host: 'claude' }),
+      { runner: makeRunner({ stdout: CLAUDE_STDOUT, exitCode: 2 }, sink) },
+    );
+    assert.equal(sink.calls, 1, 'the host still ran despite the failing ledger');
+    assert.equal(result.spawned, true, 'the run completed');
+    assert.equal(result.exitCode, 2, 'the host exit code propagates unchanged');
+    // The valid usage WAS parsed (proving the false-claim trap is live), yet no
+    // row landed, so the summary must NOT claim provider-reported.
+    assert.notEqual(result.usageSummary.recorded, 'provider-reported', 'no false provider-reported claim when the append failed');
+    assert.notEqual(result.usageSummary.recorded, 'unavailable', 'not conflated with "provider reported nothing"');
+    assert.equal(result.usageSummary.recorded, 'none', 'honest skipped state');
+    assert.equal(result.usageSummary.provider, 'anthropic', 'provider still surfaced for attribution');
+    assert.equal(result.usageSummary.input, null, 'no token counts for a row that never landed');
+    assert.equal(result.usageSummary.cacheRead, null);
+    assert.equal(result.usageSummary.output, null);
+    assert.ok((result.usageSummary.reason ?? '').startsWith('ledger_append_failed('), `reason names the append failure (got ${result.usageSummary.reason})`);
+    // The stderr surface: recorded='none' renders as "usage: ledger_append_failed(...)"
+    // (the handler's non-"recorded" fallback line), never "usage recorded: ...".
+    assert.equal(result.usageSummary.recordId, null, 'no recordId for a row that never landed');
+  });
+
+  await checkAsync('F-021 codex: valid turn.completed usage BUT a failing (corrupt) ledger -> summary reports skipped (none, ledger_append_failed), NEVER provider-reported', async () => {
+    const sub = freshRoot();
+    seedCorruptLedger(sub);
+    const sink: RunnerSink = { calls: 0, lastPlan: null };
+    const result = await runHostRun(
+      baseArgs({ root: sub, host: 'codex' }),
+      { runner: makeRunner({ stdout: CODEX_STDOUT, exitCode: 5 }, sink) },
+    );
+    assert.equal(sink.calls, 1, 'the host still ran despite the failing ledger');
+    assert.equal(result.spawned, true);
+    assert.equal(result.exitCode, 5, 'the host exit code propagates unchanged');
+    // scanCodexTurnCompletedUsage(CODEX_STDOUT) is a valid provider usage — the
+    // false-claim trap is live — but the append fails, so no provider-reported.
+    assert.notEqual(result.usageSummary.recorded, 'provider-reported', 'no false provider-reported claim when the append failed');
+    assert.notEqual(result.usageSummary.recorded, 'unavailable', 'not conflated with "provider reported nothing"');
+    assert.equal(result.usageSummary.recorded, 'none', 'honest skipped state');
+    assert.equal(result.usageSummary.provider, 'openai', 'provider still surfaced for attribution');
+    assert.equal(result.usageSummary.input, null, 'no token counts for a row that never landed');
+    assert.ok((result.usageSummary.reason ?? '').startsWith('ledger_append_failed('), `reason names the append failure (got ${result.usageSummary.reason})`);
+    assert.equal(result.usageSummary.recordId, null);
+  });
+
+  // =========================================================================
   // F-008: a throwing passthrough sink must degrade honestly, never crash the
   // run. Against the OLD code this check dies twice: (a) the default runner
   // let the onChunk throw escape a stdout 'data' listener as an uncaught

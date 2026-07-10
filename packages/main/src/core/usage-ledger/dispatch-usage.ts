@@ -302,6 +302,38 @@ export interface DispatchPreflightHandle {
 const DEFAULT_ESTIMATE_MODEL = 'unknown';
 
 /**
+ * B-70e9 F-021: the append-outcome surface for a dispatch final. Callers that
+ * report "usage recorded" must key that claim on `appended` (did a row actually
+ * land in the ledger), NOT on whether the provider parsed a usage envelope. A
+ * corrupt / lock-timed-out ledger swallows the write and yields
+ * `{ appended: false, kind: 'provider-reported', reason: 'ledger_append_failed(...)' }`
+ * — `kind` still describes what the final WOULD have been so the summary can
+ * attribute it honestly, while `appended:false` forbids any "recorded" claim.
+ */
+export interface DispatchFinalStatus {
+  /** True only when appendUsageRecord actually persisted the final row. */
+  appended: boolean;
+  /** What the final row was (or would have been): a provider count vs. an unavailable marker. */
+  kind: 'provider-reported' | 'unavailable' | 'disabled';
+  /** Populated when appended=false: the swallowed reason (ledger_append_failed(...) / disabled). */
+  reason?: string;
+}
+
+/**
+ * B-70e9 F-021: describe a swallowed ledger-append failure for the honest
+ * append-status surface. The choke-point recorders NEVER rethrow — this turns
+ * the swallowed error into a bounded, greppable reason string
+ * (`ledger_append_failed(<detail>)`) that the host_run summary / stderr line and
+ * JSON payload surface instead of falsely claiming the usage was recorded.
+ */
+export function describeLedgerAppendFailure(err: unknown): string {
+  const raw = err instanceof Error && err.message ? err.message : String(err);
+  const oneLine = raw.replace(/\s+/g, ' ').trim();
+  const bounded = oneLine.length > 200 ? `${oneLine.slice(0, 197)}...` : oneLine;
+  return `ledger_append_failed(${bounded.length > 0 ? bounded : 'unknown'})`;
+}
+
+/**
  * Record the preflight prompt-size estimate BEFORE dispatch.
  *
  * - flag OFF -> returns null, writes nothing, creates no file/dir (strict no-op);
@@ -383,6 +415,14 @@ export function recordDispatchPreflight(
  * NEVER throws: any failure (adapter/assemble throw on a rogue payload, writer
  * throw) is swallowed so dispatch proceeds and returns its result text.
  *
+ * B-70e9 F-021: returns a DispatchFinalStatus reporting whether the row actually
+ * APPENDED. Callers that print "usage recorded" must gate that claim on
+ * `appended` — a corrupt / lock-timed-out ledger now surfaces
+ * `{ appended: false, reason: 'ledger_append_failed(...)' }` instead of being
+ * silently swallowed while the summary still claimed a provider-reported row.
+ * The return value is additive: existing statement-position callers (dispatch,
+ * autopilot, smokes) ignore it and remain byte-behaviour-identical.
+ *
  * `model` is the served model parsed from the envelope. When it is null (envelope
  * carried no model), the provider record falls back to the best-effort default —
  * token counts are model-version-specific and diagnostics group by model, so the
@@ -400,8 +440,12 @@ export function recordDispatchFinal(
   anthropicUsage: AnthropicUsage | null,
   model: string | null,
   opts: DispatchUsageOptions,
-): void {
-  if (!isUsageLedgerEnabled(opts.env)) return;
+): DispatchFinalStatus {
+  const intendedKind: DispatchFinalStatus['kind'] =
+    anthropicUsage !== null ? 'provider-reported' : 'unavailable';
+  if (!isUsageLedgerEnabled(opts.env)) {
+    return { appended: false, kind: 'disabled', reason: 'usage_ledger_disabled' };
+  }
 
   try {
     // In the normal seam flow a correlation handle is always passed in. If it is
@@ -425,7 +469,7 @@ export function recordDispatchFinal(
         finalContext(opts, model),
       );
       appendUsageRecord(root, record, { env: opts.env });
-      return;
+      return { appended: true, kind: 'provider-reported' };
     }
 
     // No usage -> an 'unavailable' final that still supersedes the estimate.
@@ -436,8 +480,11 @@ export function recordDispatchFinal(
       finalContext(opts, model),
     );
     appendUsageRecord(root, unavailable, { env: opts.env });
-  } catch {
-    // Never propagate a ledger error to the dispatch caller.
+    return { appended: true, kind: 'unavailable' };
+  } catch (err) {
+    // Never propagate a ledger error to the dispatch caller. Surface the swallow
+    // as an append-failure status so the caller does NOT claim a recorded row.
+    return { appended: false, kind: intendedKind, reason: describeLedgerAppendFailure(err) };
   }
 }
 
@@ -611,7 +658,17 @@ export function recordDispatchFinalCodex(
       ? usage.unavailableReason
       : 'codex: turn.completed usage failed record validation';
     const res = recordDispatchUnavailableFinal(root, ctx, corr, estimateRecordId, { name: 'openai', model }, reason, opts);
-    return { recorded: res.recorded, recordId: res.recordId, source: 'unavailable', mapped: null, unavailableReason: reason };
+    // B-70e9 F-021: `recorded` reflects the actual append. When the unavailable
+    // fallback ALSO failed to append (corrupt / lock-timed-out ledger), surface
+    // the ledger_append_failed reason so host_run reports a skipped state rather
+    // than falsely attributing an unavailable row that never landed.
+    return {
+      recorded: res.recorded,
+      recordId: res.recordId,
+      source: 'unavailable',
+      mapped: null,
+      unavailableReason: res.recorded ? reason : (res.reason ?? reason),
+    };
   } catch {
     return off;
   }
@@ -628,6 +685,12 @@ export function recordDispatchFinalCodex(
  * null/empty model falls back to the best-effort default ('unknown').
  *
  * NEVER throws: gated OFF => no-op; any assembly/write error is swallowed.
+ *
+ * B-70e9 F-021: `recorded` already reflects the actual append (true only after a
+ * successful appendUsageRecord). The optional `reason` is populated only on the
+ * swallowed-failure path (`recorded:false`) with the ledger_append_failed(...)
+ * detail so host_run can report a skipped state honestly instead of claiming an
+ * 'unavailable' row that never landed. Additive: existing callers ignore it.
  */
 export function recordDispatchUnavailableFinal(
   root: string,
@@ -637,8 +700,8 @@ export function recordDispatchUnavailableFinal(
   provider: { name: string; model: string | null },
   unavailableReason: string,
   opts: DispatchUsageOptions,
-): { recorded: boolean; recordId: string | null } {
-  if (!isUsageLedgerEnabled(opts.env)) return { recorded: false, recordId: null };
+): { recorded: boolean; recordId: string | null; reason?: string } {
+  if (!isUsageLedgerEnabled(opts.env)) return { recorded: false, recordId: null, reason: 'usage_ledger_disabled' };
 
   try {
     const corr = correlation ?? mintCallCorrelation();
@@ -676,8 +739,10 @@ export function recordDispatchUnavailableFinal(
     );
     appendUsageRecord(root, record, { env: opts.env });
     return { recorded: true, recordId: record.recordId };
-  } catch {
-    return { recorded: false, recordId: null };
+  } catch (err) {
+    // F-021: surface the swallowed append failure so the caller reports a skipped
+    // state rather than an 'unavailable' row that never landed.
+    return { recorded: false, recordId: null, reason: describeLedgerAppendFailure(err) };
   }
 }
 

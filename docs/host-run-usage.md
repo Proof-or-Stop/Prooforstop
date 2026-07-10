@@ -151,6 +151,14 @@ Provider truth is preferred over estimates; an absence is recorded as an explici
 A parse miss (no `turn.completed` event, no `result` usage) records an
 `unavailable` final with a reason rather than inventing counts.
 
+The one-line usage summary reflects the **actual append outcome**, not merely
+that the provider envelope parsed. When the ledger append itself fails (a corrupt
+ledger, or a lock-wait timeout that skips the write), the summary reports a
+skipped state (`recorded: none`, reason `ledger_append_failed(...)`) and the
+stderr line reads `usage: ledger_append_failed(...)` — it never claims
+`usage recorded` for a row that never landed. This applies to all three hosts;
+the provider is still surfaced for attribution, but token counts stay null.
+
 ## Caps (fail-closed, before spawn)
 
 Both caps run at the choke point BEFORE a host is spawned, and every refusal is
