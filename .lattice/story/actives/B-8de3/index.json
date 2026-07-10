@@ -1,0 +1,38 @@
+{
+  "storyId": "B-8de3",
+  "name": "evidence-artifact-store-atomic-writes",
+  "title": "Evidence artifact store: non-atomic immutable-object write plus exists-then-read dedupe can permanently poison a digest (F-012 TOCTOU-class audit follow-up)",
+  "description": "B-70e9's F-012 fixed a read-last-hash-then-append race in the usage ledger with an mkdir lock. A repo-wide follow-up audit of every appendFileSync / last-line-dependent JSONL writer under packages/main/src found no second hash-chained tail-dependent appender, but found one same-family integrity defect: packages/main/src/core/evidence/artifact-store.ts writeArtifact() writes the 'immutable' content-addressed object objects/sha256/<digest>.json with a plain non-atomic writeFileSync, and its dedupe path is existsSync -> readFileSync -> JSON.parse -> return. A crash or kill mid-write leaves a truncated object file, after which every writeArtifact call for the same content takes the exists branch and throws on JSON.parse forever: the write branch is skipped because the file exists, so the store never self-heals. Concurrent same-digest writers (repro-intake CLI commands invoked by the main agent and subagents run outside the validate execution lock) can hit the same window transiently. Repro-intake artifacts feed the repro-evidence-binding DEV gate, so a poisoned digest blocks a story until someone hand-deletes files under .lattice/evidence/objects/.",
+  "type": "bug",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "evidence",
+    "artifact-store",
+    "atomic-write",
+    "toctou",
+    "repro-intake",
+    "crash-safety"
+  ],
+  "riskSignals": [
+    {
+      "category": "Data Migration/Destructive",
+      "matched": "truncate"
+    }
+  ],
+  "priorityElevatedFrom": "medium",
+  "createdAt": "2026-07-10T14:29:26.093Z",
+  "startedAt": "2026-07-10T14:29:26.093Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-10T14:29:26.393Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "d608c711-a4c0-49a7-aea1-bfbf33d87fb2",
+      "agent": "main"
+    }
+  ]
+}
