@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-b264",
+  "records": [
+    {
+      "id": "RED-20260710042356",
+      "trigger": "Pre-DEV ProofStory red evidence for missing M5/M6 done_prepare UX proof before implementation.",
+      "acceptanceTargetRef": "DOC-M5+DOC-M6-remaining",
+      "baselineHeadHash": "d43ddbef56adf9a9e75f4573f5074fad5fe91a8d",
+      "baselineMaterialHash": "d05bb4fe8179a49615a6ba87ee0f8f5af6cb702aa4f5179dd8176737bed8411a",
+      "observedFailure": "Before implementation, no focused smoke exists for done_prepare merge hazards, rerun reasons, dryRun immutability, or generated-file ownership, and milestone_status reports missing evidence for CHK-001:happy:0, CHK-002:happy:0, CHK-003:happy:0, and CHK-003:adversarial:0.",
+      "failingCommand": "node packages/main/dist/cli.js milestone_status --storyId=B-b264 --json",
+      "expectedGreenCommand": "npm --prefix packages/main run test:done-prepare-merge-rerun-smoke",
+      "greenRelation": {
+        "targetRef": "DOC-M5+DOC-M6-remaining",
+        "relation": "same_acceptance",
+        "command": "npm --prefix packages/main run test:done-prepare-merge-rerun-smoke"
+      },
+      "note": "This is process red evidence for a missing focused regression proof; the green relation will be satisfied by the new smoke and checklist verification evidence.",
+      "createdAt": "2026-07-10T04:23:56.212Z"
+    }
+  ],
+  "createdAt": "2026-07-10T04:23:56.212Z",
+  "updatedAt": "2026-07-10T04:23:56.212Z"
+}

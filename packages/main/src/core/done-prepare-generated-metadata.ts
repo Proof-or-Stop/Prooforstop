@@ -244,7 +244,10 @@ function gitRaw(gitCwd: string, args: string[]): string {
 }
 
 export function gitStatusRowsForDonePrepareGeneratedMetadata(gitCwd: string): string[] {
-  const raw = git(gitCwd, ['status', '--porcelain=v1', '--untracked-files=all']);
+  // gitRaw, not git(): a full-output trim() strips the first porcelain row's
+  // leading status space (" M path" -> "M path"), shifting the fixed-width
+  // path offset and corrupting the first reported path (".lattice/x" -> "lattice/x").
+  const raw = gitRaw(gitCwd, ['status', '--porcelain=v1', '--untracked-files=all']);
   return raw.split('\n').map((line) => line.trimEnd()).filter(Boolean);
 }
 

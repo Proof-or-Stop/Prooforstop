@@ -7,7 +7,7 @@
     "type": "git",
     "directory": "packages/main"
   },
-  "version": "0.3.180",
+  "version": "0.3.181",
   "description": "通用项目开发框架 — AI-driven Story 工作流 CLI",
   "type": "module",
   "main": "dist/index.js",
@@ -52,6 +52,7 @@
     "test:done-required-head-drift-proof": "node dist/tasks/done-required-head-drift-proof.js",
     "test:done-prepare-closure-heartbeat-smoke": "node dist/tasks/done-prepare-closure-heartbeat-smoke.js",
     "test:done-prepare-auto-closeout-smoke": "node dist/tasks/done-prepare-auto-closeout-smoke.js",
+    "test:done-prepare-merge-rerun-smoke": "node dist/tasks/done-prepare-merge-rerun-smoke.js",
     "test:review-assurance-surfacing-smoke": "node dist/tasks/review-assurance-surfacing-smoke.js",
     "test:done-readiness-flow-benchmark": "node dist/tasks/done-readiness-flow-benchmark.js",
     "test:storydir-inside-gitroot-smoke": "node dist/tasks/storydir-inside-gitroot-smoke.js",
