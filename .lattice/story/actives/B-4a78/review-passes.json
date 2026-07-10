@@ -1,0 +1,37 @@
+{
+  "passes": [
+    {
+      "id": "B-4a78:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept re-review after F-001/F-002/F-003 fixes: signed reviewer read evidence, decisions-doc scoped diagnostics, tokenCount:null CLI acceptance, and advisory memory/playbook boundary checked; no blocker.",
+      "createdAt": "2026-07-10T02:44:05.420Z",
+      "reviewRound": "2026-07-10T02:42:21.948Z",
+      "reviewRunId": "B-4a78:RR-004",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/pos-agent-drivability-optimization.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/reviewer-read-evidence.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/pos-agent-drivability-optimization.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "bc92772fa503ecdd9dcd6718e70b569734781cb580d1565958a9db4491dc5e5f"
+      },
+      "readDiagnostics": [],
+      "_hash": "a1a02158c17bd0d86eb6baedca13eb148ae09cf0b8b7ab205c65391f5d906976"
+    }
+  ]
+}
