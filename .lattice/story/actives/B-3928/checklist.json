@@ -50,12 +50,45 @@
       "title": "Capture agent_prompt output for every role as comparison artifacts",
       "context": "M0.2 requires current lattice agent_prompt --role output for all 16 roles so prompt body and routing changes in later milestones have a stable before snapshot.",
       "relatedDocs": [
-        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
-        "docs/CLI.md"
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md#M0---Baseline-Inventory-And-Lockfile"
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "node scripts/verify-proof-or-stop-prompt-baseline.mjs reports agent_prompt output hashes verified for all 16 roles.",
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json"
+        ],
+        "test": [
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "package.json"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-002:happy:0",
+            "desc": "For every registry role, the verifier obtains lattice agent_prompt output and records/verifies output sha256, byte count, and line count against the baseline.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-002:edge:0",
+            "desc": "The verifier fails when agent_prompt output diverges from the registry-derived baseline for any role.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-002:adversarial:0",
+            "desc": "The verifier fails closed if agent_prompt omits a role, returns an unknown-role error for a registry role, or returns duplicate output ownership.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
