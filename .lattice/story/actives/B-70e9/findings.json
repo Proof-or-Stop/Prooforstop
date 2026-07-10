@@ -623,6 +623,24 @@
       ],
       "signatureTag": "adversarial|ts|codex-host-cross",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-70e9:F-029",
+      "desc": "[codex host-B, cross_host_review B-70e9-xhr-r17] Codex append failures can be re-recorded as false unavailable usage: recordDispatchFinalCodex (dispatch-usage.ts ~650) catches build/validation failures and appendUsageRecord failures in the SAME catch; a valid provider-reported codex record whose append fails transiently (writer lock skip) falls through to recordDispatchUnavailableFinal, and if that second append succeeds the ledger records source=unavailable although provider usage WAS parsed - corrupting source semantics and undercounting real codex usage. Fix direction: separate construction/validation from append; only fall back to unavailable when BUILDING the provider-reported record fails; on append-throw return recorded=false with describeLedgerAppendFailure(err) and do NOT attempt an unavailable final.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host-b",
+      "createdAt": "2026-07-10T17:45:16.738Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "_hash": "65e1d5f4b913881ebfd78d8759e9507a5a352b1e3df428a2a5646ff8050b68e7",
+      "files": [
+        "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+        "packages/main/src/tasks/host-run-usage-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|codex-host-cross",
+      "signatureTagSource": "auto"
     }
   ]
 }
