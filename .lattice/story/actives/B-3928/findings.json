@@ -46,6 +46,25 @@
       "resolvedAt": "2026-07-10T03:46:10.676Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3928:F-003",
+      "desc": "CHK-005:adversarial:0 lacks valid verification coverage for actionable edit instructions. The committed classifier recognizes only shell redirection or echo as direct-write; exact in-memory execution of classifyStoryFinding classifies explicit Edit, Write, tee, and sed -i instructions targeting docs/story as other with grandfathered:true, and verifyNoUnregisteredDirectStoryWrite skips non-direct-write findings. The current passing verifier evidence therefore does not prove the required distinction between harmless policy reminders and actionable edit instructions. Add committed adversarial cases for non-redirection write forms and make them fail closed as direct-write.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-10T04:19:59.179Z",
+      "reviewRound": "2026-07-10T04:15:51.636Z",
+      "reviewRunId": "B-3928:RR-009",
+      "_hash": "1e4bd88a0f3ebdf94b3e804532aa083e761846d5dd107657c96d8297603c6200",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:315",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:716"
+      ],
+      "signatureTag": "missing|mjs:315|adversarial-lacks-valid",
+      "signatureTagSource": "auto"
     }
   ]
 }
