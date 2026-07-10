@@ -1216,6 +1216,29 @@
         "scanEscalationReason": null
       },
       "_hash": "e584ccc92064efc70eb9f3c073c33febd70fc500b2107a98fcd1cff22e84ed4c"
+    },
+    {
+      "id": "B-70e9:RP-051",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 14): F-021 fix (0042a4a1f4) verified - 2 new host-run-usage-smoke checks (claude+codex corrupt-ledger) prove the choke point now gates usageSummary.recorded on actual ledger APPEND success (not provider-parse success): run completes (spawned=true), host exit code propagates unchanged, recorded=none with reason ledger_append_failed(...), and both false-claim states (provider-reported/unavailable) are explicitly negatively asserted. Proven RED by removing the append-outcome gates per commit message. evidence_plan: missing=0 rerun=0 refresh-only=0 fresh=42/42 must-priority intents across CHK-001..CHK-007. Re-ran npm --prefix packages/main run test:host-run-usage -> 54/54 pass (includes both new F-021 checks) and test:usage-sweep -> 17/17 pass. All 21 findings F-001..F-021 are resolved/dismissed with evidenceState=verified; none open. No coverage gaps found.",
+      "createdAt": "2026-07-10T13:51:07.912Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-059",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7692137f5c5b966f40e12165561bdc49485e475f168f15e600e54a19f343626e"
     }
   ]
 }
