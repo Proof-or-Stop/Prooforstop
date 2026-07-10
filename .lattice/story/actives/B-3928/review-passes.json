@@ -26,6 +26,15 @@
       "reviewRound": "2026-07-10T03:45:55.285Z",
       "reviewRunId": "B-3928:RR-007",
       "_hash": "04571dbae2835113ebb0a682bb336bca6bd772538376e889d7222b8295f9ab50"
+    },
+    {
+      "id": "B-3928:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "PASS concept: M0 baseline lockfile matches the execution plan scope. Evidence: proof-or-stop-prompt-baseline.json records expectedRoleCount=16, registry.agentCount=16, 16 registry roles, 16 agent_prompt outputs, and 16 roleMatrix rows; overlap matrix covers status, phase, purpose, commands, directFileAccess, outputs, capabilities, overlap category, and notes for all 16 roles; F-001 is fixed by verifier field-by-field roleMatrix comparison plus regenerated Markdown comparison; F-002 is fixed by directFileAccess in ROLE_MATRIX_FIELDS, JSON roleMatrix rows, and Markdown column; node scripts/verify-proof-or-stop-prompt-baseline.mjs and npm run test:proof-or-stop-prompt-baseline both PASS; git diff shows no prompt template/source changes, only baseline docs, verifier script, and package test wiring.",
+      "createdAt": "2026-07-10T03:50:19.559Z",
+      "reviewRound": "2026-07-10T03:45:55.285Z",
+      "reviewRunId": "B-3928:RR-005",
+      "_hash": "35bb4aacfe5edb51e02bdc6c13bbaaddbce7ae6635291a62f3b70d7c537a648e"
     }
   ]
 }
