@@ -547,6 +547,30 @@
         "scanEscalationReason": null
       },
       "_hash": "758518de0beca00488f5d52254d7baa535a7ba90869925598a338b8db8bb595a"
+    },
+    {
+      "id": "B-2c03:RP-025",
+      "agent": "lattice-review-quality",
+      "note": "Round-8 delta (0251d41ab4..16c97d4009) re-verified clean, quality lane. Diff scope: proofstory.ts stripCodeLikeTokens per-token qualifier-trim regex widened from (?::\\d+){1,2} to (?:(?::\\d+){1,2}|#L?\\d+(?:-L?\\d+)?) with i flag, so a GitHub #L anchor (path.ts#L42, path.ts#L42-L50) is trimmed like a :line[:col] suffix before the slash-shape/dotted-shape path tests run; one new comment line; one additive must-not-fire smoke assertion (anchorQualifiedPathDone, core/partial-done-recovery.ts#L42 stays quiet). Verified both directions independently: (1) anchor-qualified slash+extension paths (core/partial-done-recovery.ts#L42, path.ts#L42, path.ts#L42-L50) strip via a standalone re-implementation mirroring the exact source, matching the smoke fixture; (2) confirmed the trim is computed unconditionally per-token but only CONSUMED inside the existing slash-shape branch (trimmed.includes('/')) and the existing dotted-shape branch -- a bare non-slash non-dotted token with an incidental #L-style suffix (deferred#L42, remaining#L42) falls through both branches unchanged and the trigger regex (\\bdeferred\\b etc.) still matches it because '#' is a non-word boundary; also confirmed non-numeric hashtag/heading suffixes (#Remaining, deferred#followup) are untouched since #L?\\d+ requires digits. Ran the anchorQualifiedPathDone smoke control plus the full proofstory-intent-hardening-smoke.js suite (fresh npm run build, no drift) at HEAD 5e7be37a59 (code frozen at 16c97d4009): full suite green, all 15 remainingWindowClaims + 7 cross-clause controls + all prior strip/keep controls (F-001..F-013 regression battery) still pass -- the one-line change introduces no regression anywhere in the battery. Quality checks: no dead code (no new unused imports/functions), no new as any, no empty catch, no I/O shell-isolation surface touched (no bridge.ts/shells/ui.ts/main.ts in scope), proof-metadata job/run.metadata rule not applicable (this is DONE-intent-equivalence text sanitization, not proof-key authoring). F-014 (evidence re-binding, test-coverage lane, no code) reviewed as metadata-only, consistent with evidence_plan fresh=9/missing=0/rerun=0. No blocker found.",
+      "createdAt": "2026-07-10T21:07:06.459Z",
+      "reviewRound": "2026-07-10T18:53:39.083Z",
+      "reviewRunId": "B-2c03:RR-044",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2c03/findings.json",
+          ".lattice/story/actives/B-2c03/plan.md",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2c03/checklist.json",
+          ".lattice/story/actives/B-2c03/review-passes.json",
+          ".lattice/story/actives/B-2c03/review.json",
+          ".lattice/story/actives/B-2c03/summary.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bce75e98177b53f3110e874f0e51c3e78589d4d4b2fc868ba90f44b34087b580"
     }
   ]
 }
