@@ -941,24 +941,6 @@ try {
     'underscore-connected "remaining_work" phrasing is still a shrinkage claim (F-003)',
   );
 
-  // PROBE (temporary, not committed): extension-collision bypass class.
-  // The curated CODE_FILE_EXTENSION_PATTERN list includes short common words
-  // that also read as ordinary prose (go, c, h, m, log, map, rb, cs, sh...).
-  // A hyphenated trigger word whose dotted suffix happens to be one of these
-  // common-word extensions is still fully erased before the shrinkage scan.
-  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
-    changes: 'Added label normalization.',
-    limitations: 'The excluded-approach.log entry was removed from this delivery.',
-  }));
-  const extCollisionLogDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
-  console.log('PROBE extCollisionLogDone gaps:', JSON.stringify(extCollisionLogDone.gaps));
-  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
-    changes: 'Added label normalization.',
-    limitations: 'The deferred-plan.go decision was made anyway, skipping the rest.',
-  }));
-  const extCollisionGoDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
-  console.log('PROBE extCollisionGoDone gaps:', JSON.stringify(extCollisionGoDone.gaps));
-
   // B-f7b3 CHK-004: a CONFIRMED milestone ledger that is empty OR whose rows are
   // all not_applicable (without a valid decision) must NOT vacuously satisfy the
   // milestone DONE requirement. These are negative controls over the CHK-007
