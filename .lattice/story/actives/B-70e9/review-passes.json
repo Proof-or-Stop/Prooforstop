@@ -985,6 +985,25 @@
         "scanEscalationReason": null
       },
       "_hash": "5c8c19f013c2d524c28cfb0b90e7a094c89ad182bcba1d14d07a780d5de6de3e"
+    },
+    {
+      "id": "B-70e9:RP-041",
+      "agent": "lattice-review-concept",
+      "note": "Round 12 re-review of commit 2675c4ed0e (F-019 fix): single-file, purely additive diff (+40/-0) to packages/main/src/tasks/host-run-usage-smoke.ts adding one new check() covering the owner-write-failure rollback branch via a process umask trick. No concept words were deleted or mass-replaced (git show confirms zero removed lines); writer.ts and all other source files are untouched by this commit. Concept-residue scan is a no-op for this diff — no blocker.",
+      "createdAt": "2026-07-10T12:46:13.526Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-049",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-70e9/index.json",
+          ".lattice/story/actives/B-70e9/review.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "61a105cd4b37ecc77fe7929333686c0f8cf7acaf8b0e9dec7eb8d9f3a202d9fa"
     }
   ]
 }
