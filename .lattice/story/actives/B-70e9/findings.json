@@ -641,6 +641,24 @@
       ],
       "signatureTag": "adversarial|ts|codex-host-cross",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-70e9:F-030",
+      "desc": "[self-audit during F-029 fix, same class] recordDispatchFinalForProvider (dispatch-usage.ts ~538-565, the void codex/gemini sibling used by lattice-dispatch runBoundedRealLeafDispatch) has the SAME build+append conflation F-029 fixed in recordDispatchFinalCodex: its inner try wraps buildProviderRecord AND appendUsageRecord, so a transient append throw falls through to the unavailable fallback and can land a FALSE source=unavailable row although provider usage was parsed. Callers: lattice-dispatch.ts ~2384. Fix direction: mirror F-029 - separate build (fallback allowed) from append (no second append on throw); function stays void/never-throw, honest under-count.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-07-10T18:16:31.527Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "_hash": "e8c19832d871a1d0f41d26c75b118b6dd471a3a9efd8aec53ccf6d1be1fd2369",
+      "files": [
+        "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+        "packages/main/src/tasks/host-run-usage-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|self-audit-during",
+      "signatureTagSource": "auto"
     }
   ]
 }

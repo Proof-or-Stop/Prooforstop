@@ -98,8 +98,26 @@
       "phase": "REVIEW",
       "headHash": "d638945a8a5fc918895a58bd826baa656cb6cf93",
       "materialHash": "4cc2beb30ad78bb02a0148508706aa635af1370f138ccced111779fbbe460c59"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "F-028 (codex host-B, r17): usage_sweep needed read-only classification at the CLI activity/hook layer; the classification predicate lives in cli/activity-policy.ts and its four gating consumers live in cli-engine.ts - a static-set-only fix would regress the --out write path (hooks would stop running on a write). Finding-bound minimal wiring (commit 81c5bc42ea); behavior byte-identical for every other command, asserted by cli-surface/command-catalog/ownership-contract smokes.",
+      "timestamp": "2026-07-10T18:16:30.419Z",
+      "paths": [
+        "packages/main/src/cli/activity-policy.ts",
+        "packages/main/src/cli-engine.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/cli/activity-policy.ts",
+        "packages/main/src/cli-engine.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "REVIEW",
+      "headHash": "81c5bc42ea0372b1aaf1d7b27b5c7904ee2ed0ba",
+      "materialHash": "d1555886f9edd00eb51eaf1610362549bcedb6efab6e7a0c1bfa8a807ee27a82"
     }
   ],
   "createdAt": "2026-07-10T05:32:56.378Z",
-  "updatedAt": "2026-07-10T13:53:26.604Z"
+  "updatedAt": "2026-07-10T18:16:30.419Z"
 }
