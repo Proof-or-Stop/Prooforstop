@@ -5,6 +5,8 @@
     "changedFiles": [
       ".lattice/story/actives/B-3928/checklist.json",
       ".lattice/story/actives/B-3928/decision.json",
+      ".lattice/story/actives/B-3928/evidence/delivery-context-pack.json",
+      ".lattice/story/actives/B-3928/evidence/live-smoke-transcript.json",
       ".lattice/story/actives/B-3928/findings.json",
       ".lattice/story/actives/B-3928/index.json",
       ".lattice/story/actives/B-3928/intent-collision.json",
@@ -27,7 +29,7 @@
       "package.json",
       "scripts/verify-proof-or-stop-prompt-baseline.mjs"
     ],
-    "summary": " .lattice/story/actives/B-3928/checklist.json       |  459 +++++++-\n .lattice/story/actives/B-3928/decision.json        |   68 ++\n .lattice/story/actives/B-3928/findings.json        |   51 +\n .lattice/story/actives/B-3928/index.json           |   59 +-\n .../story/actives/B-3928/intent-collision.json     |   14 +\n .../story/actives/B-3928/milestone-ledger.json     |   47 +-\n .../actives/B-3928/original-intent-snapshot.json   |   17 +\n .lattice/story/actives/B-3928/plan.md              |   37 +\n .lattice/story/actives/B-3928/process-events.jsonl |   17 +\n .lattice/story/actives/B-3928/process-metrics.json |  359 ++++++\n .lattice/story/actives/B-3928/proofstory.json      |   92 ++\n .lattice/story/actives/B-3928/red-evidence.json    |   44 +\n .lattice/story/actives/B-3928/review-passes.json   |   58 +\n .lattice/story/actives/B-3928/review-runs.json     |  348 ++++++\n .lattice/story/actives/B-3928/review.json          |  318 +++++\n .lattice/story/actives/B-3928/scope-check.json     |  157 +++\n .lattice/story/actives/B-3928/scope-contract.json  |   45 +\n .lattice/story/actives/B-3928/test-evidence.json   |  347 ++++++\n .lattice/story/actives/B-3928/understanding.json   |   27 +\n .../baselines/proof-or-stop-prompt-baseline.json   | 1233 ++++++++++++++++++++\n .../proof-or-stop-prompt-overlap-matrix.md         |   24 +\n package.json                                       |    3 +-\n scripts/verify-proof-or-stop-prompt-baseline.mjs   |  784 +++++++++++++\n 23 files changed, 4577 insertions(+), 31 deletions(-)"
+    "summary": " .lattice/story/actives/B-3928/checklist.json       |  459 +++++++-\n .lattice/story/actives/B-3928/decision.json        |   68 ++\n .../B-3928/evidence/delivery-context-pack.json     |   87 ++\n .../B-3928/evidence/live-smoke-transcript.json     |   20 +\n .lattice/story/actives/B-3928/findings.json        |   51 +\n .lattice/story/actives/B-3928/index.json           |   68 +-\n .../story/actives/B-3928/intent-collision.json     |   14 +\n .../story/actives/B-3928/milestone-ledger.json     |   47 +-\n .../actives/B-3928/original-intent-snapshot.json   |   17 +\n .lattice/story/actives/B-3928/plan.md              |   37 +\n .lattice/story/actives/B-3928/process-events.jsonl |   19 +\n .lattice/story/actives/B-3928/process-metrics.json |  359 ++++++\n .lattice/story/actives/B-3928/proofstory.json      |   92 ++\n .lattice/story/actives/B-3928/red-evidence.json    |   44 +\n .lattice/story/actives/B-3928/review-passes.json   |   58 +\n .lattice/story/actives/B-3928/review-runs.json     |  348 ++++++\n .lattice/story/actives/B-3928/review.json          |  318 +++++\n .lattice/story/actives/B-3928/scope-check.json     |  157 +++\n .lattice/story/actives/B-3928/scope-contract.json  |   61 +\n .lattice/story/actives/B-3928/test-evidence.json   |  347 ++++++\n .lattice/story/actives/B-3928/understanding.json   |   27 +\n .../baselines/proof-or-stop-prompt-baseline.json   | 1233 ++++++++++++++++++++\n .../proof-or-stop-prompt-overlap-matrix.md         |   24 +\n package.json                                       |    3 +-\n scripts/verify-proof-or-stop-prompt-baseline.mjs   |  784 +++++++++++++\n 25 files changed, 4711 insertions(+), 31 deletions(-)"
   },
   "docsPromises": [
     {
@@ -52,7 +54,7 @@
     }
   ],
   "realMachineTests": {
-    "transcriptDiff": false,
+    "transcriptDiff": true,
     "testFiles": [
       "scripts/verify-proof-or-stop-prompt-baseline.mjs"
     ],
