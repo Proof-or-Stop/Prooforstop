@@ -108,7 +108,7 @@ supported functionality" — while ", and"/", not" coordinate clauses);
 modifier words accept '/' (UI/UX); coordinate-adjective commas and a heading
 colon are accepted; sentence punctuation blocks the chain; line wraps do not
 (fail-safe); the scope noun must terminate the chain. Both directions are
-pinned: twelve must-fire window claims and seven cross-clause must-not-fire
+pinned: fifteen must-fire window claims and seven cross-clause must-not-fire
 controls.
 
 A sixth codex round added two more within-floor recall regressions, fixed the
@@ -117,6 +117,16 @@ explicit branch — ", and|or" bridges the chain ONLY when at least one comma
 list item precedes it, so a lone ", and" stays clause coordination (F-013,
 pinned by a new crash-CI control) — and bare "as" joined the bare-connective
 class for "as yet" adverbials (", as" still blocks).
+
+A seventh codex round showed the modifier WORD-SHAPE class itself was the
+remaining attack surface ("Node.js", "C++" rejected by spelling; "to be
+implemented" blocked by over-broad stops). Final form: a modifier is ANY
+whitespace/comma-delimited token ending on non-sentence punctuation — token
+spelling can never break the chain again — and "to"/"be" left the stop list
+(infinitive adjectivals are noun-phrase internal). Clause protection now rests
+solely on finite verbs/pronouns/prepositions in the stop list, sentence
+punctuation, and the comma-conjunction rule. Line-qualified path tokens
+(path.ts:42) also strip (low fail-safe note from the same round).
 
 **Convergence statement**: the chain-word taxonomy is a documented lexical
 heuristic, not a parser. The review floor for this story is: a change is

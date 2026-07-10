@@ -1415,7 +1415,8 @@ function stripCodeLikeTokens(text: string): string {
     .split(/(\s+)/)
     .map((part) => {
       if (part === '' || /^\s/.test(part)) return part;
-      const trimmed = part.replace(/^[("'[{]+/, '').replace(/[.,;:!?)\]}"']+$/, '');
+      // codex round 7: a :line[:col] qualifier (path.ts:42) is still a path.
+      const trimmed = part.replace(/^[("'[{]+/, '').replace(/[.,;:!?)\]}"']+$/, '').replace(/(?::\d+){1,2}$/, '');
       if (trimmed.includes('/')) {
         // F-007/F-009: neither slash count nor an incidental dotted segment
         // (excluded/deferred/v2.1) is path semantics — English enumerations
@@ -1522,11 +1523,19 @@ export function evaluateDoneIntentEquivalence(
     // — inside an adjectival phrase ("remaining not yet supported
     // functionality", "remaining as yet unsupported features") they are
     // modifiers, while ", not"/", as" are clause punctuation and still block.
-    const remainingStopWord = String.raw`(?:is|are|was|were|be|been|being|has|have|had|do|does|did|no|nor|it|its|this|that|these|those|they|them|to|in|on|at|by|for|from|with|but|so|than|then|there|here|when|while|which|who|whose|will|would|can|could|should|must|may|might|exists?|existed|lingers?|lingered|persists?|persisted|continues?|continued|remains?|remained)`;
+    // codex round 7: modifiers are arbitrary TOKENS, not spellable word shapes
+    // — "Node.js", "C++", "F#" all qualify. A token is any run of
+    // non-space/non-comma characters that ends on a non-sentence-punctuation
+    // character (so a trailing sentence dot stays outside the token and still
+    // blocks the chain). Infinitive adjectivals ("to be implemented") are
+    // noun-phrase internal, so "to" and "be" are not stop words; clause
+    // protection comes from finite verbs, pronouns, and remaining
+    // prepositions.
+    const remainingStopWord = String.raw`(?:is|are|was|were|been|being|has|have|had|do|does|did|no|nor|it|its|this|that|these|those|they|them|in|on|at|by|for|from|with|but|so|than|then|there|here|when|while|which|who|whose|will|would|can|could|should|must|may|might|exists?|existed|lingers?|lingered|persists?|persisted|continues?|continued|remains?|remained)`;
     const remainingConjunction = String.raw`(?:and|or|yet|plus|not|as)`;
-    const remainingWordCharClass = String.raw`[a-z0-9'’()/–—_-]`;
-    const remainingModifierWord = String.raw`(?!(?:${remainingStopWord}|${remainingConjunction})(?!${remainingWordCharClass}))${remainingWordCharClass}+`;
-    const remainingChainStep = String.raw`(?:[,:]?\s+${remainingModifierWord}|\s+${remainingConjunction}(?!${remainingWordCharClass}))`;
+    const remainingTokenEnd = String.raw`[^\s,.!?;:]`;
+    const remainingModifierWord = String.raw`(?!(?:${remainingStopWord}|${remainingConjunction})(?!${remainingTokenEnd}))(?:[^\s,]*${remainingTokenEnd})`;
+    const remainingChainStep = String.raw`(?:[,:]?\s+${remainingModifierWord}|\s+${remainingConjunction}(?!${remainingTokenEnd}))`;
     const remainingGlue = String.raw`(?:[/_–—-]|\.(?!\s))+`;
     const remainingScopeNoun = String.raw`(?<![A-Za-z0-9])(?:work|scope|items?|cases?|tasks?|milestones?|features?|functionality|coverage|requirements?|deliverables?)(?![A-Za-z0-9])`;
     // codex round 6: an Oxford-comma list ("remaining web, mobile, and Safari

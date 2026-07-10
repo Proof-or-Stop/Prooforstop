@@ -966,6 +966,12 @@ try {
     // noun-phrase internal.
     'The remaining web, mobile, and Safari cases were left for a follow-up story.',
     'The remaining as yet unsupported features were left for a follow-up story.',
+    // codex round 7: modifiers are arbitrary TOKENS (Node.js, C++), and
+    // infinitive adjectivals (to be implemented) are noun-phrase internal —
+    // only clause structure blocks the chain, never token spelling.
+    'The remaining Node.js cases were left for a follow-up story.',
+    'The remaining C++ cases were left for a follow-up story.',
+    'The remaining to be implemented features were left for a follow-up story.',
   ];
   for (const claim of remainingWindowClaims) {
     store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
@@ -1247,6 +1253,19 @@ try {
     urlControlDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
     false,
     'URL-scheme tokens (https://example.com/deferred/setup.md) still strip (F-009 control)',
+  );
+  // codex round 7 (low, fail-safe direction): a line-qualified path token
+  // (core/partial-done-recovery.ts:42) is still a path and must strip.
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Fixed the first-row corruption in core/partial-done-recovery.ts:42 and updated its callers.',
+    actualTranscript: 'The porcelain audit output is correct for the first row.',
+    outcomeDiff: 'No difference from the original request.',
+  }));
+  const lineQualifiedPathDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    lineQualifiedPathDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    false,
+    'a line-qualified path token (partial-done-recovery.ts:42) still strips (codex round 7)',
   );
   // Delivery-review record: a trigger-stemmed FILE NAME with an unambiguous
   // extension (deferred-query.sql) is stripped BY REQUIREMENT — it is
