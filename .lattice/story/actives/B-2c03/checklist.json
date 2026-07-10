@@ -65,11 +65,11 @@
           "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
           "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
           "result": "pass",
-          "note": "GREEN smoke assertion: backticked `deferred` span and slash path src/excluded/list.ts do not trigger the gap (codeTokenDone case), while the same words as prose still trigger (proseShrinkDone/narrowLightDone controls).",
-          "headHash": "2cbf29dac8ae720710778e7371df82d35528b7e4",
+          "note": "Re-bound at post-review head: codeTokenDone (backticked `deferred`, src/excluded/list.ts) plus F-006/F-007/F-009 controls (backtickProseDone, slashProseDone, slashEnumerationDone, slashEnumerationDotDone, urlControlDone) all green.",
+          "headHash": "270de5e691ed78baa93eac437fcaee30d7a372d0",
           "materialHash": "7806164814b9e7f47c83fdc67a22b912be27a9a17d3b7d5dd5ef957fabcc5c11",
           "storyFilesHash": "d3cadf890d2c2b0a74e1d2429b37587035eea4c5b32155d35e009d816878e6c8",
-          "timestamp": "2026-07-10T17:56:39.261Z"
+          "timestamp": "2026-07-10T17:57:27.260Z"
         },
         {
           "intentRef": "sanitize-path-tokens:adversarial",
