@@ -28,6 +28,11 @@
  *     the same value the ledger attributes) — proven with a fake runner while
  *     the smoke process is chdir'd elsewhere, with a fail-closed empty-cwd
  *     refusal, and with a real child that prints its process.cwd().
+ *     F-012: cross-process append serialization — 6 REAL concurrent child
+ *     processes append via the compiled writer with zero skips, no lost
+ *     writes, and an intact hash chain; a stale (abandoned) lock dir is
+ *     reclaimed; a held lock + bounded wait skips (throws) instead of
+ *     appending off a stale predecessor (skip-not-corrupt).
  *   - CHK-003: the remaining lattice-initiated host spawns route through the same
  *     seam — autopilot claude repair (ledger ON adds --output-format json + records
  *     estimate/final rows with agentType autopilot-repair and an envelope-parsed
@@ -40,6 +45,7 @@
  */
 
 import assert from 'node:assert/strict';
+import { spawn } from 'node:child_process';
 import {
   existsSync,
   mkdirSync,
@@ -95,8 +101,14 @@ import {
 } from '../core/codex-review-leaf.js';
 import { adaptCodexTurnUsage } from '../core/usage-ledger/adapters/openai.js';
 import { payloadDigest } from '../core/usage-ledger/adapters/shared.js';
-import { resolveLedgerPath, verifyLedgerChain } from '../core/usage-ledger/writer.js';
-import type { UsageLedgerRecord } from '../core/usage-ledger/record.js';
+import { mintAttemptId, mintLedgerCallId, mintRecordId } from '../core/usage-ledger/ids.js';
+import {
+  appendUsageRecord,
+  resolveLedgerLockPath,
+  resolveLedgerPath,
+  verifyLedgerChain,
+} from '../core/usage-ledger/writer.js';
+import type { UsageLedgerRecord, UsageLedgerRecordInput } from '../core/usage-ledger/record.js';
 
 let passed = 0;
 const failures: string[] = [];
@@ -268,6 +280,41 @@ function seedCorruptLedger(sub: string): void {
   const path = resolveLedgerPath(sub);
   mkdirSync(dirname(path), { recursive: true });
   writeFileSync(path, 'this is not valid json\n', 'utf8');
+}
+
+// ---- F-012 fixtures ----------------------------------------------------------
+
+/** A minimal valid provider-reported record body (the writer owns integrity). */
+function minimalValidUsageRecord(): UsageLedgerRecordInput {
+  return {
+    schemaVersion: 1,
+    recordId: mintRecordId(),
+    ledgerCallId: mintLedgerCallId(),
+    attemptId: mintAttemptId(),
+    sequence: 1,
+    supersedesRecordIds: [],
+    recordedAt: '2026-07-10T00:00:00.000Z',
+    projectRootHash: 'sha256:testroot',
+    storyId: 'B-70e9',
+    phase: 'DEV',
+    agentType: 'implementer',
+    subagentId: null,
+    threadId: null,
+    decision: { kind: 'allowed', budgetPolicyId: 'local-default', reasonCode: 'within_budget' },
+    usage: {
+      source: 'provider-reported',
+      inputTokens: 1200,
+      outputTokens: 340,
+      cacheCreationInputTokens: 0,
+      cacheReadInputTokens: 0,
+      canonical: { input: 1200, output: 340, cacheCreation: 0, cacheRead: 0 },
+      raw: { providerUnits: 'anthropic-usage-v1', payloadDigest: 'sha256:def' },
+      estimator: null,
+      unavailableReason: null,
+    },
+    privacy: { promptStored: false, transcriptStored: false, redactionProfile: 'no-raw-content-v1' },
+    authority: { mode: 'local', receiptId: null, receiptVerified: false },
+  };
 }
 
 async function main(): Promise<void> {
@@ -1148,6 +1195,88 @@ async function main(): Promise<void> {
       runner,
     );
     assert.equal(leaf.hostBVerdict.decision, 'pass', 'codex review still returned its verdict despite a corrupt ledger');
+  });
+
+  // =========================================================================
+  // F-012: cross-process append serialization at the writer choke point.
+  // Against the OLD writer the parallel check below breaks near-deterministically:
+  // all rows land (appendFileSync) but verifyLedgerChain throws, because
+  // concurrent processes read the same predecessor before appending.
+  // =========================================================================
+  await checkAsync('F-012 parallel writes: 6 REAL concurrent processes x 5 appends each -> zero skips, no lost writes, hash chain intact', async () => {
+    const sub = freshRoot();
+    mkdirSync(sub, { recursive: true });
+    const CHILDREN = 6;
+    const APPENDS = 5;
+    // Each child dynamically imports the COMPILED writer + ids modules and
+    // appends APPENDS minimal valid records against the SAME root — the exact
+    // shape of concurrent host_run processes (ledger default-ON, cap 4).
+    const childScript = [
+      '(async () => {',
+      '  const writer = await import(process.env.F012_WRITER_URL);',
+      '  const ids = await import(process.env.F012_IDS_URL);',
+      '  const template = JSON.parse(process.env.F012_TEMPLATE);',
+      '  for (let i = 0; i < Number(process.env.F012_APPENDS); i++) {',
+      '    const record = { ...template, recordId: ids.mintRecordId(), ledgerCallId: ids.mintLedgerCallId(), attemptId: ids.mintAttemptId() };',
+      '    const res = writer.appendUsageRecord(process.env.F012_ROOT, record, { env: { LATTICE_USAGE_LEDGER: "1" } });',
+      '    if (!res.written) throw new Error("append reported not-written");',
+      '  }',
+      '})().catch((err) => { console.error(String((err && err.message) || err)); process.exit(1); });',
+    ].join('\n');
+    const childEnv = {
+      ...process.env,
+      F012_WRITER_URL: new URL('../core/usage-ledger/writer.js', import.meta.url).href,
+      F012_IDS_URL: new URL('../core/usage-ledger/ids.js', import.meta.url).href,
+      F012_TEMPLATE: JSON.stringify(minimalValidUsageRecord()),
+      F012_ROOT: sub,
+      F012_APPENDS: String(APPENDS),
+    };
+    const codes = await Promise.all(
+      Array.from({ length: CHILDREN }, () => new Promise<number | null>((resolve) => {
+        const child = spawn(process.execPath, ['-e', childScript], { env: childEnv, stdio: ['ignore', 'ignore', 'inherit'] });
+        child.on('close', (code) => resolve(code));
+      })),
+    );
+    // Zero skips at N=6: a bounded-wait skip throws in the child (non-zero
+    // exit). Skips are acceptable only under pathological contention, which
+    // 6 processes x 5 quick appends is not.
+    assert.deepEqual(codes, Array.from({ length: CHILDREN }, () => 0), 'every child appended all its rows (zero skips)');
+    const records = verifyLedgerChain(resolveLedgerPath(sub)); // throws if any previousRecordHash breaks the chain
+    assert.equal(records.length, CHILDREN * APPENDS, 'no lost writes: row count == sum of the children appends');
+    assert.equal(existsSync(resolveLedgerLockPath(sub)), false, 'the append lock is released after the run');
+  });
+
+  check('F-012 stale lock reclaim: an abandoned lock dir (old mtime) is reclaimed — a single append succeeds and releases it', () => {
+    const sub = freshRoot();
+    const lockDir = resolveLedgerLockPath(sub);
+    mkdirSync(lockDir, { recursive: true });
+    const old = new Date(Date.now() - 60_000); // older than the 30s stale default
+    utimesSync(lockDir, old, old);
+    const res = appendUsageRecord(sub, minimalValidUsageRecord(), { env: ON });
+    assert.equal(res.written, true, 'the append reclaimed the abandoned lock and succeeded');
+    assert.equal(verifyLedgerChain(resolveLedgerPath(sub)).length, 1, 'exactly one valid row');
+    assert.equal(existsSync(lockDir), false, 'the reclaimed lock is released after the append');
+  });
+
+  check('F-012 bounded-wait skip-not-corrupt: a HELD fresh lock + tiny wait -> the append throws (skips), chain stays valid, foreign lock not stolen', () => {
+    const sub = freshRoot();
+    // Seed one real row so a corrupting append would have a predecessor to race.
+    assert.equal(appendUsageRecord(sub, minimalValidUsageRecord(), { env: ON }).written, true);
+    const lockDir = resolveLedgerLockPath(sub);
+    mkdirSync(lockDir, { recursive: true }); // a live holder (fresh mtime, NOT stale)
+    const env = {
+      LATTICE_USAGE_LEDGER: '1',
+      LATTICE_USAGE_LEDGER_LOCK_WAIT_MS: '50',
+      LATTICE_USAGE_LEDGER_LOCK_STALE_MS: '60000',
+    } as NodeJS.ProcessEnv;
+    assert.throws(
+      () => appendUsageRecord(sub, minimalValidUsageRecord(), { env }),
+      /skip-not-corrupt/,
+      'the writer surfaces the skip through its existing throw path (seam callers catch -> honest under-count)',
+    );
+    assert.equal(existsSync(lockDir), true, 'a live (non-stale) foreign lock is never stolen on a bounded-wait failure');
+    assert.equal(verifyLedgerChain(resolveLedgerPath(sub)).length, 1, 'no row appended on the skip — the chain is intact');
+    rmSync(lockDir, { recursive: true, force: true });
   });
 
   // =========================================================================

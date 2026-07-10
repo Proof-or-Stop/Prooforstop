@@ -172,6 +172,13 @@ Blocked rows are provider-honest: a refusal records the provider of the host
 that was asked to run (`openai` for codex, `anthropic` for claude,
 `antigravity` for agy), never a hard-coded default.
 
+Concurrent runs' ledger appends are serialized by a cross-process lock at the
+writer choke point (an atomic `llm-usage.jsonl.lock/` directory with a bounded
+wait and stale-lock reclaim), so parallel host runs can never interleave
+appends and break the ledger hash chain — a writer that cannot acquire the
+lock in time skips its append (an honest under-count) rather than corrupting
+the chain.
+
 There is **no queuing** in this story: over the cap means refuse, not wait.
 
 Set `LATTICE_USAGE_LEDGER=0` to disable ledger writes entirely; the host run is

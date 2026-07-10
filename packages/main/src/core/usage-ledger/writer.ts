@@ -29,6 +29,8 @@ import {
   existsSync,
   mkdirSync,
   readFileSync,
+  rmdirSync,
+  statSync,
 } from 'node:fs';
 import { dirname, join } from 'node:path';
 
@@ -86,6 +88,119 @@ export function resolveLedgerPath(projectRoot: string): string {
   return join(projectRoot, USAGE_LEDGER_RELATIVE_PATH);
 }
 
+// ---------------------------------------------------------------------------
+// F-012: cross-process append serialization.
+//
+// appendUsageRecord's read-last-hash -> append section is a classic TOCTOU:
+// concurrent host_run processes (the ledger is default-ON and host_run's cap-4
+// concurrency is the feature's EXPECTED mode) could read the same predecessor
+// and append rows whose previousRecordHash breaks verifyLedgerChain. The
+// critical section is therefore guarded by a cross-process mutex: an atomic
+// mkdir of a sibling lock DIRECTORY (`llm-usage.jsonl.lock/`). mkdirSync either
+// creates the dir (lock acquired) or fails EEXIST (held) — there is no
+// in-between, so at most one process is inside the section at a time.
+// Dependency-free and synchronous, matching this module's contract.
+// ---------------------------------------------------------------------------
+
+/** Suffix appended to the ledger path to form the lock directory. */
+export const USAGE_LEDGER_LOCK_SUFFIX = '.lock';
+
+/** Bounded total wait for the lock (env LATTICE_USAGE_LEDGER_LOCK_WAIT_MS). */
+const DEFAULT_LOCK_WAIT_MS = 5_000;
+/** Lock-dir age beyond which the holder is presumed crashed and the lock is
+ * reclaimed (env LATTICE_USAGE_LEDGER_LOCK_STALE_MS). Appends hold the lock
+ * for milliseconds, so 30s of age means a dead holder, not a slow one. */
+const DEFAULT_LOCK_STALE_MS = 30_000;
+/** Sleep between acquisition retries. */
+const LOCK_RETRY_SLEEP_MS = 25;
+
+/** Resolve the lock directory used to serialize appends for a project root. */
+export function resolveLedgerLockPath(projectRoot: string): string {
+  return `${resolveLedgerPath(projectRoot)}${USAGE_LEDGER_LOCK_SUFFIX}`;
+}
+
+function nonNegativeIntEnv(env: NodeJS.ProcessEnv, key: string, fallback: number): number {
+  const raw = env[key];
+  if (raw === undefined) return fallback;
+  const parsed = Number(raw.trim());
+  return Number.isInteger(parsed) && parsed >= 0 ? parsed : fallback;
+}
+
+let sleepView: Int32Array<SharedArrayBuffer> | null = null;
+
+/**
+ * Synchronous, dependency-free sleep: Atomics.wait on a throwaway
+ * SharedArrayBuffer (never notified, so it simply times out after `ms`).
+ * Falls back to a bounded busy-wait if SharedArrayBuffer is unavailable.
+ */
+function sleepSync(ms: number): void {
+  try {
+    if (sleepView === null) sleepView = new Int32Array(new SharedArrayBuffer(4));
+    Atomics.wait(sleepView, 0, 0, ms);
+    return;
+  } catch {
+    // fall through to the busy-wait below
+  }
+  const end = Date.now() + ms;
+  while (Date.now() < end) {
+    // bounded busy-wait fallback
+  }
+}
+
+/**
+ * Acquire the cross-process append lock. Returns true when acquired, false
+ * when the bounded wait elapsed without acquisition. A lock dir whose mtime is
+ * older than the stale threshold is treated as abandoned (holder crashed
+ * before its `finally` release) and reclaimed; losing a reclaim race to
+ * another writer is harmless (the loser just keeps retrying within budget).
+ */
+function acquireLedgerLock(lockDir: string, env: NodeJS.ProcessEnv): boolean {
+  const waitMs = nonNegativeIntEnv(env, 'LATTICE_USAGE_LEDGER_LOCK_WAIT_MS', DEFAULT_LOCK_WAIT_MS);
+  const staleMs = nonNegativeIntEnv(env, 'LATTICE_USAGE_LEDGER_LOCK_STALE_MS', DEFAULT_LOCK_STALE_MS);
+  const deadline = Date.now() + waitMs;
+  for (;;) {
+    try {
+      mkdirSync(lockDir); // atomic: creates OR fails EEXIST — never both
+      return true;
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException)?.code !== 'EEXIST') {
+        // Unexpected fs failure (e.g. the usage dir vanished mid-flight):
+        // best-effort re-create the parent, then keep retrying within budget.
+        try {
+          mkdirSync(dirname(lockDir), { recursive: true });
+        } catch {
+          // retry below
+        }
+      } else {
+        // Held by another process. Reclaim only when it looks abandoned.
+        try {
+          const age = Date.now() - statSync(lockDir).mtimeMs;
+          if (age > staleMs) {
+            try {
+              rmdirSync(lockDir);
+            } catch {
+              // lost the reclaim race to another writer — retry below
+            }
+          }
+        } catch {
+          // holder released between mkdir and stat — retry below
+        }
+      }
+    }
+    if (Date.now() >= deadline) return false;
+    sleepSync(LOCK_RETRY_SLEEP_MS);
+  }
+}
+
+function releaseLedgerLock(lockDir: string): void {
+  try {
+    rmdirSync(lockDir);
+  } catch {
+    // Best-effort: a stale-reclaimer may have already removed it. Never let a
+    // release failure mask a successful append.
+  }
+}
+
 /**
  * Read the last line's `recordHash` to chain from. Returns `null` when the file
  * is absent or empty (genesis). Throws when the last line is unparseable or is
@@ -134,6 +249,11 @@ export interface AppendOptions {
  *   - computes `recordHash`, chains `previousRecordHash` from the prior line
  *     (genesis = null), overwriting any caller-supplied integrity so a caller
  *     cannot forge or inject a hash;
+ *   - F-012: serializes the read-last-hash -> append section behind a
+ *     cross-process mkdir lock (sibling `llm-usage.jsonl.lock/` dir; bounded
+ *     wait LATTICE_USAGE_LEDGER_LOCK_WAIT_MS, stale reclaim
+ *     LATTICE_USAGE_LEDGER_LOCK_STALE_MS); on bounded-wait exhaustion it
+ *     THROWS (skip-not-corrupt) instead of appending off a stale predecessor;
  *   - appends one newline-terminated JSON line; never edits prior lines.
  */
 export function appendUsageRecord(
@@ -157,31 +277,55 @@ export function appendUsageRecord(
   const ledgerPath = resolveLedgerPath(projectRoot);
   mkdirSync(dirname(ledgerPath), { recursive: true });
 
-  // Chain from the prior line. A corrupt predecessor throws here, before write.
-  const previousRecordHash = readLastRecordHash(ledgerPath);
-
-  // Build the finalized record. The writer OWNS integrity: any caller-supplied
-  // recordHash/previousRecordHash is discarded so a caller cannot forge it.
-  const finalized: UsageLedgerRecord = {
-    ...(input as Omit<UsageLedgerRecord, 'integrity'>),
-    integrity: {
-      previousRecordHash,
-      recordHash: '', // filled below
-    },
-  };
-  finalized.integrity.recordHash = computeRecordHash(finalized);
-
-  // Defense in depth: validate the finalized record WITH integrity. This also
-  // re-runs the privacy/stored-total scan on the exact bytes about to be written.
-  const finalCheck = validateUsageLedgerRecord(finalized, { expectIntegrity: true });
-  if (!finalCheck.ok) {
-    throw new Error(`usage-ledger: finalized record failed validation:\n - ${finalCheck.errors.join('\n - ')}`);
+  // F-012: the read-last-hash -> append section below MUST be atomic across
+  // processes, or two concurrent writers chain off the same predecessor and
+  // corrupt the ledger for every future verifyLedgerChain. Record assembly and
+  // the pre-check above stay OUTSIDE the lock; only the predecessor-dependent
+  // section (read last line -> finalize integrity -> append) is held.
+  const env = options.env ?? process.env;
+  const lockDir = `${ledgerPath}${USAGE_LEDGER_LOCK_SUFFIX}`;
+  if (!acquireLedgerLock(lockDir, env)) {
+    // F-012 tradeoff (skip-not-corrupt): after the bounded wait we REFUSE to
+    // append rather than write a row chained off a possibly-stale predecessor —
+    // a stale-predecessor append is exactly the chain corruption this lock
+    // exists to prevent. The throw rides the writer's EXISTING error path: the
+    // dispatch seams (dispatch-usage.ts) already catch and fail open, so the
+    // outcome is an honest under-count that reconciliation doctrine can see,
+    // never a corrupt chain.
+    throw new Error(
+      'usage-ledger: could not acquire the cross-process append lock within the bounded wait; '
+      + 'skipping this append (skip-not-corrupt: appending with a possibly-stale predecessor would break the hash chain)',
+    );
   }
+  try {
+    // Chain from the prior line. A corrupt predecessor throws here, before write.
+    const previousRecordHash = readLastRecordHash(ledgerPath);
 
-  // Append EXACTLY one line. Never rewrite or edit prior lines.
-  appendFileSync(ledgerPath, `${JSON.stringify(finalized)}\n`, 'utf8');
+    // Build the finalized record. The writer OWNS integrity: any caller-supplied
+    // recordHash/previousRecordHash is discarded so a caller cannot forge it.
+    const finalized: UsageLedgerRecord = {
+      ...(input as Omit<UsageLedgerRecord, 'integrity'>),
+      integrity: {
+        previousRecordHash,
+        recordHash: '', // filled below
+      },
+    };
+    finalized.integrity.recordHash = computeRecordHash(finalized);
 
-  return { written: true, record: finalized, path: ledgerPath };
+    // Defense in depth: validate the finalized record WITH integrity. This also
+    // re-runs the privacy/stored-total scan on the exact bytes about to be written.
+    const finalCheck = validateUsageLedgerRecord(finalized, { expectIntegrity: true });
+    if (!finalCheck.ok) {
+      throw new Error(`usage-ledger: finalized record failed validation:\n - ${finalCheck.errors.join('\n - ')}`);
+    }
+
+    // Append EXACTLY one line. Never rewrite or edit prior lines.
+    appendFileSync(ledgerPath, `${JSON.stringify(finalized)}\n`, 'utf8');
+
+    return { written: true, record: finalized, path: ledgerPath };
+  } finally {
+    releaseLedgerLock(lockDir);
+  }
 }
 
 function stripIntegrity(input: UsageLedgerRecordInput): Omit<UsageLedgerRecordInput, 'integrity'> {
