@@ -940,6 +940,54 @@ try {
     true,
     'underscore-connected "remaining_work" phrasing is still a shrinkage claim (F-003)',
   );
+  // Same connector class as F-003 for the multi-word triggers: hyphenated
+  // "out-of-scope" / "not-covered" are common technical phrasings, survive the
+  // sanitizer unstripped (hyphen-only tokens are kept), and must still match.
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Added label normalization.',
+    limitations: 'The extra endpoints are out-of-scope for this delivery.',
+  }));
+  const hyphenOutOfScopeDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    hyphenOutOfScopeDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    true,
+    'hyphenated "out-of-scope" phrasing is still a shrinkage claim (F-003 class)',
+  );
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Added label normalization.',
+    limitations: 'Two branches were left not-covered by the new tests.',
+  }));
+  const hyphenNotCoveredDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    hyphenNotCoveredDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    true,
+    'hyphenated "not-covered" phrasing is still a shrinkage claim (F-003 class)',
+  );
+  // B-2c03 F-005: extensions that read as ordinary short English words (log,
+  // go, map, sh, ...) are ambiguous — a hyphenated trigger word with such a
+  // suffix must fail SAFE (keep the token, fire the gap) instead of being
+  // silently erased. Unambiguous technical extensions (.ts, .test.mjs) still
+  // strip (see bareFileNameDone / multiDotFileDone above).
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Added label normalization.',
+    limitations: 'The excluded-approach.log entry was removed from this delivery.',
+  }));
+  const ambiguousExtLogDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    ambiguousExtLogDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    true,
+    'a trigger word with an ambiguous common-word suffix (excluded-approach.log) fails safe and still fires (F-005)',
+  );
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Added label normalization.',
+    limitations: 'The deferred-plan.go decision was made anyway, skipping the rest.',
+  }));
+  const ambiguousExtGoDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    ambiguousExtGoDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    true,
+    'a trigger word with an ambiguous common-word suffix (deferred-plan.go) fails safe and still fires (F-005)',
+  );
 
   // B-f7b3 CHK-004: a CONFIRMED milestone ledger that is empty OR whose rows are
   // all not_applicable (without a valid decision) must NOT vacuously satisfy the

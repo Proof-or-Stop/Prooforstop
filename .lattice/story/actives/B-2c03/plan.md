@@ -54,17 +54,26 @@ Rationale:
 
 ## Risk notes
 
-- (Revised after F-001 and F-002) The sanitizer only strips unambiguously
+- (Revised after F-001, F-002, F-005) The sanitizer only strips unambiguously
   path-shaped tokens: backticked spans, tokens containing `/`, and dotted
-  tokens ending in a KNOWN FILE EXTENSION (`partial-done-recovery.ts`,
-  `name.test.mjs`). Hyphen-only tokens are KEPT (F-001) so hyphenated trigger
-  prose (`deferred-for-now`, `excluded-here`) still matches. Dotted tokens with
-  a non-extension suffix are KEPT (F-002) so `partial-release.rc1` /
-  `deferred-work.next` still match their trigger segment. Residual accepted
-  tradeoffs: a bare extensionless hyphenated file name
-  (`partial-done-recovery`) and a dotted identifier with a non-extension tail
-  (`config.partial.enabled`) can still false-positive — authors can backtick
-  such tokens or use the full path, both of which are stripped.
+  tokens ending in a KNOWN, UNAMBIGUOUS file extension
+  (`partial-done-recovery.ts`, `name.test.mjs`). Hyphen-only tokens are KEPT
+  (F-001) so hyphenated trigger prose (`deferred-for-now`, `excluded-here`)
+  still matches. Dotted tokens with a non-extension suffix are KEPT (F-002) so
+  `partial-release.rc1` / `deferred-work.next` still match. Extensions that
+  double as short English words (go, c, h, m, log, map, sh, zip, less, snap,
+  lock, ...) are excluded from the whitelist (F-005) so
+  `excluded-approach.log` fails SAFE (fires the gate) instead of silently
+  bypassing. Residual accepted tradeoffs are all false-POSITIVE direction: a
+  bare extensionless hyphenated file name (`partial-done-recovery`), a dotted
+  identifier with a non-extension tail (`config.partial.enabled`), and a
+  trigger-stemmed file with an ambiguous extension (`deferred-cleanup.sh`) can
+  false-positive — authors can backtick such tokens or use the
+  directory-qualified path, both of which are stripped.
+- (F-003 class, applied to all multi-word triggers) `out of scope`,
+  `not covered`, and `remaining <scope-noun>` accept `[\s_-]+` connectors so
+  hyphen/underscore compounds (`out-of-scope`, `not-covered`,
+  `remaining-scope`) cannot slip past the vocabulary.
 - Guard-weakening risk is covered by adversarial smoke controls (prose claim
   next to a path token; `remaining <scope-noun>`; existing `partial` verdict
   control at the narrow-delivery case).

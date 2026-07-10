@@ -1386,7 +1386,14 @@ function confirmedShrinkageIds(decision: ScopeShrinkageDecisionData | null): Set
 // ("partial-done-recovery") and a dotted identifier with a non-extension tail
 // ("config.partial.enabled") can still false-positive — backtick such tokens
 // or use the full path, both of which this strips.
-const CODE_FILE_EXTENSION_PATTERN = 'ts|tsx|js|jsx|mjs|cjs|json|jsonl|md|mdx|txt|ya?ml|toml|ini|env|css|scss|less|html?|xml|svg|sh|zsh|bash|ps1|py|rb|rs|go|java|kt|kts|c|h|cc|cpp|hpp|cs|swift|m|mm|sql|csv|tsv|proto|lock|log|map|snap|pdf|png|jpe?g|gif|webp|ico|zip|tar|gz|tgz';
+// F-005: extensions that double as short ordinary English words (go, c, h, m,
+// log, map, sh, zip, less, snap, lock, ...) are EXCLUDED from this list on
+// purpose. A hyphenated trigger word with such an ambiguous suffix
+// (excluded-approach.log) fails SAFE — the token is kept and the gate fires —
+// because a silent bypass is worse than a false positive for a DONE guard.
+// Authors naming such files can backtick them or use the directory-qualified
+// path, both of which strip.
+const CODE_FILE_EXTENSION_PATTERN = 'ts|tsx|js|jsx|mjs|cjs|json|jsonl|md|mdx|txt|ya?ml|toml|ini|css|scss|html?|xml|svg|zsh|ps1|py|java|kt|kts|cc|cpp|hpp|sql|csv|tsv|proto|pdf|png|jpe?g|gif|webp|ico|gz|tgz';
 const dottedFileTokenRegex = new RegExp(
   `(?<![A-Za-z0-9_])[A-Za-z0-9_-]+(?:\\.[A-Za-z0-9_-]+)*\\.(?:${CODE_FILE_EXTENSION_PATTERN})(?![A-Za-z0-9_])`,
   'gi',
@@ -1451,7 +1458,7 @@ export function evaluateDoneIntentEquivalence(
       input.summary?.outcomeDiff ?? '',
       input.summary?.limitations ?? '',
     ].join('\n'));
-    const claimsShrinkage = /\b(?:partial|narrow(?:er|ed)?|shrink(?:age|s|ing)?|out of scope|not covered|deferred|remaining[\s_-]+(?:work|scope|items?|cases?|tasks?|milestones?|features?|functionality|coverage|requirements?|deliverables?)|excluded)\b/i.test(narrowingText);
+    const claimsShrinkage = /\b(?:partial|narrow(?:er|ed)?|shrink(?:age|s|ing)?|out[\s_-]+of[\s_-]+scope|not[\s_-]+covered|deferred|remaining[\s_-]+(?:work|scope|items?|cases?|tasks?|milestones?|features?|functionality|coverage|requirements?|deliverables?)|excluded)\b/i.test(narrowingText);
     if (claimsShrinkage && acceptedShrinkageMilestoneIds.length === 0) {
       gaps.push(gap(
         'unconfirmed_single_outcome_shrinkage',
