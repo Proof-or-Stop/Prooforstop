@@ -38,7 +38,31 @@
       "context": "Same shape and signing treatment as scope-check so REVIEW-phase passes carry read evidence; the ledger must expose the field so runs can be compared over time (trend queries).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Missing readManifest in review_pass_set is rejected; valid review pass evidence displays an inspectable signed readManifest field.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A valid review_pass_set payload persists normalized readManifest and includes it in the review pass integrity/signature domain.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Review passes with triaged-only files, null scanEscalationReason, and deterministic path ordering remain comparable with scope_check_save readManifest records.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Missing, malformed, duplicate, unsafe, or tampered readManifest on review_pass_set fails closed and cannot be silently accepted as reviewer prose.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
