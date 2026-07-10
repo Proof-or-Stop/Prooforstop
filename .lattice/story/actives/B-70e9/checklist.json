@@ -505,6 +505,18 @@
           "materialHash": "9a34267cfc576a5198b54b34edebacab9d3db95b7cf9a62511a26960debe9169",
           "storyFilesHash": "9df50ebfa33bf98831fcb1d9b2aea402d8d6750256e08b9ab080558a92e233aa",
           "timestamp": "2026-07-10T07:10:15.388Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "file": "packages/main/src/handlers",
+          "command": "sh -c 'rg -n \"codex exec|claude --print|agy --print|agy -p\" packages/main/src/handlers --glob \"!**/dist/**\"; test $? -eq 1'",
+          "result": "fail",
+          "note": "rg over handlers shows zero raw host-launch instruction strings (exit 1 from rg = no matches)",
+          "headHash": "8d875cb0e0982b27801bd0cf59c7aef91b41b4a9",
+          "materialHash": "9a34267cfc576a5198b54b34edebacab9d3db95b7cf9a62511a26960debe9169",
+          "storyFilesHash": "9df50ebfa33bf98831fcb1d9b2aea402d8d6750256e08b9ab080558a92e233aa",
+          "timestamp": "2026-07-10T07:10:16.827Z"
         }
       ]
     },
