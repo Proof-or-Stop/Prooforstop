@@ -250,6 +250,18 @@
           "materialHash": "9a34267cfc576a5198b54b34edebacab9d3db95b7cf9a62511a26960debe9169",
           "storyFilesHash": "9df50ebfa33bf98831fcb1d9b2aea402d8d6750256e08b9ab080558a92e233aa",
           "timestamp": "2026-07-10T07:09:57.440Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "command": "npm --prefix packages/main run test:host-run-usage",
+          "result": "pass",
+          "note": "host-run-usage smoke asserts threadId=reviewRunId and subagentId=lane binding, null when omitted, story-phase resolution, and cross-story reviewRunId refusal",
+          "headHash": "2c9f6281d67be9c9b3b08ee9ba2b547c56295743",
+          "materialHash": "9a34267cfc576a5198b54b34edebacab9d3db95b7cf9a62511a26960debe9169",
+          "storyFilesHash": "9df50ebfa33bf98831fcb1d9b2aea402d8d6750256e08b9ab080558a92e233aa",
+          "timestamp": "2026-07-10T07:09:58.945Z"
         }
       ]
     },
