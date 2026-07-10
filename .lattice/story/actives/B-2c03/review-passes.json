@@ -110,6 +110,29 @@
         "scanEscalationReason": "Ran direct behavioral reproduction of stripCodeLikeTokens (pre-fix and post-fix) plus adversarial fuzzing of hyphen+dot combined tokens against the built dist artifact to independently verify F-001 closure and probe for residual bypasses; found and filed F-002."
       },
       "_hash": "1753e689ef332f53212060cc340b5cb399dcea81cadcbb67e15fcbb2dfb6aff4"
+    },
+    {
+      "id": "B-2c03:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Fresh round after F-002 fix (commit ce72ae4242). git diff main...HEAD touches packages/main/src/core/proofstory.ts (new stripCodeLikeTokens/dottedFileTokenRegex/CODE_FILE_EXTENSION_PATTERN sanitizer + narrowed remaining-<scope-noun> regex) and packages/main/src/tasks/proofstory-intent-hardening-smoke.ts (new regression cases only), plus new .lattice story artifacts (plan.md, checklist.json, findings.json, etc.). No concept word was deleted or replaced en masse: the sanitizer and regex narrowing are net-new additions, not renames of a prior concept, and no prior identifier/vocabulary was removed. No concept deletion/replacement this round; concept residue check completed, no blocker.",
+      "createdAt": "2026-07-10T15:05:47.683Z",
+      "reviewRound": "2026-07-10T14:41:10.214Z",
+      "reviewRunId": "B-2c03:RR-008",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2c03/findings.json",
+          ".lattice/story/actives/B-2c03/plan.md",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2c03/checklist.json",
+          ".lattice/story/actives/B-2c03/review.json",
+          ".lattice/story/actives/B-2c03/understanding.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "42b9e13a8d375c760614c0d1d67475f5c04e727a73eeeaf71e3b4fc2457d6ed9"
     }
   ]
 }
