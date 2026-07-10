@@ -1239,6 +1239,28 @@
         "scanEscalationReason": null
       },
       "_hash": "7692137f5c5b966f40e12165561bdc49485e475f168f15e600e54a19f343626e"
+    },
+    {
+      "id": "B-70e9:RP-052",
+      "agent": "lattice-review-docs",
+      "note": "Round 15 re-review after commit d638945a8a (F-022 test-label fix). The only change since last review touches packages/main/src/tasks/usage-ledger-default-on-smoke.ts (a check() label string + an added status?.appended assertion), confirmed via git show d638945a8a -- docs/host-run-usage.md CHANGELOG.md returning empty. Fallback-1 full-text scan on touchpoints: docs/host-run-usage.md (271 lines) + CHANGELOG.md B-70e9 entry compared against current source. Spot-verified appended/ledger_append_failed semantics match dispatch-usage.ts and host-run.ts exactly; the F-022 fix only strengthens a test assertion on already-documented behavior. All env vars named in the doc still exist in code. No doc-code drift found.",
+      "createdAt": "2026-07-10T13:54:50.726Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-063",
+      "readManifest": {
+        "filesReadFully": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/core/usage-ledger/writer.ts",
+          "packages/main/src/tasks/usage-ledger-default-on-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "719e8ee9ff677fa742a3b89eafbe0e8042493e998166d1e83c142a9bb30222af"
     }
   ]
 }
