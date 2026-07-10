@@ -588,7 +588,7 @@
       "desc": "[codex host-B, cross_host_review B-70e9-xhr-r16] Cap-refusal summaries claim ledger rows that may not exist: the concurrency refusal path sets usageSummary.recorded=blocked and exposes blockRow.recordId even when recordConcurrencyBlock returned recorded:false (append failed); the hard-budget path has the same unconditional blocked summary (host-run.ts ~1221). Under a corrupt ledger or lock-wait skip, JSON consumers are told a blocked row was recorded and in the concurrency case receive a minted recordId for a row that never landed - the same parse-vs-append conflation F-021 fixed on the final paths. Fix direction: plumb the blocked-row append outcome + failure reason out of recordBudgetBlock and recordConcurrencyBlock; keep the fail-closed refusal but set recorded=none, clear recordId, report ledger_append_failed(...) when the append failed.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host-b",
       "createdAt": "2026-07-10T15:32:54.694Z",
@@ -600,7 +600,11 @@
         "packages/main/src/tasks/host-run-usage-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|codex-host-cross",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 2f42209a92: recordConcurrencyBlock returns {recorded, recordId(null when never landed), reason}; BudgetGuardDecision additively gains appended/appendFailureReason; BOTH host-run refusal summaries gate on the actual append outcome - success keeps recorded=blocked with the real recordId, failure reports recorded=none, recordId=null, composed reason (refusal; ledger_append_failed(...)) so the cap refusal stays visible; refusal behavior itself unchanged. Complete sweep table of all 9 usageSummary construction sites with gating recorded in the fix report; autopilot/leaf refusal surfaces verified row-claim-free. RED proven by collapsing the dist gate (exactly the 2 new checks fail); host-run smoke 63/63.",
+      "resolvedAt": "2026-07-10T17:23:39.052Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
