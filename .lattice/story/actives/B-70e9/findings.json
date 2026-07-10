@@ -413,7 +413,7 @@
       "desc": "F-018 owner-write rollback path is untested: writer.ts acquireLedgerLock (lines 324-334) calls writeLockOwner(lockDir) after a successful mkdirSync, and when writeLockOwner returns null (owner.json write failed, e.g. ENOSPC/EACCES) it rmdirSync the just-created lock dir to avoid holding an ownerless lock (writer.ts:325-333, and the module header at writer.ts:106-108 / the commit message both call this out as a load-bearing safety property: no ownerless holds). host-run-usage-smoke.ts has zero coverage of this branch — grepping the smoke file for writeLockOwner/ENOSPC/disk-full/EACCES finds nothing, and no chmod/mock mechanism exists anywhere in the suite to force writeFileSync to fail. This is a genuinely new branch added by this exact fix (09530172e0), not pre-existing, and is easily reproducible without root: chmod the lock dir to 0o500 immediately after mkdirSync so the subsequent writeFileSync(owner.json) fails EACCES, then assert acquireLedgerLock returns null AND the lock dir itself was removed (rmdirSync succeeded) rather than left behind as an ownerless lock that only the mtime backstop could later clear. Without this test, a regression that silently drops the rmdirSync-on-owner-write-failure cleanup (leaving an ownerless, non-orphan-aged lock immediately after a disk-full acquire) would not be caught by the suite.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-10T12:35:31.220Z",
@@ -421,7 +421,11 @@
       "reviewRunId": "B-70e9:RR-047",
       "_hash": "6c494cf157e99bf9f8f2fd887156cc3f40dc89c816c023441ee09948a96aa8c9",
       "signatureTag": "missing|unknown|owner-write-rollback",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 2675c4ed0e (smoke-only): new check drives the owner-write-failure rollback branch deterministically via process.umask(0o277) so acquireLedgerLock own mkdirSync yields a dr-x------ lock dir and the following owner.json write fails EACCES - exactly the mkdir-succeeded/owner-write-failed branch; asserts null return, lock dir absent (rollback ran, no ownerless lock), no partial owner.json, and a subsequent clean acquire+release. Branch exercise proven during development with temporary probes in the compiled writer (both rollback lines fired once; probes removed, grep-verified). host-run smoke 51/51; writer.ts untouched.",
+      "resolvedAt": "2026-07-10T12:45:05.939Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
