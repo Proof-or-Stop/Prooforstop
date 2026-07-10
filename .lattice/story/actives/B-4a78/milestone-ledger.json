@@ -1,0 +1,107 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-4a78",
+  "state": "candidate",
+  "ledgerHash": "sha256:1070b6f91bc23f0188227a7cf6a9307ee561914cc78a92eaeab75f851c6d47fd",
+  "milestones": [
+    {
+      "id": "M0",
+      "sourceRequirementId": "B-4a78-boundary",
+      "claim": "Scope stays limited to reviewer read evidence and does not make memory/playbook output gate evidence or alter scan escalation semantics.",
+      "doneMeans": "Scope boundary, plan, and tests show only readManifest, read-log, mismatch reporting, template, and smoke changes.",
+      "requiredEvidence": [
+        "scope-freeze",
+        "diff-audit",
+        "plan"
+      ],
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002",
+        "CHK-003",
+        "CHK-004",
+        "CHK-005",
+        "CHK-006"
+      ],
+      "verificationIntentRefs": [],
+      "status": "planned"
+    },
+    {
+      "id": "M1",
+      "sourceRequirementId": "CHK-001",
+      "claim": "scope_check_save requires a signed structured readManifest field.",
+      "doneMeans": "Missing or malformed readManifest is rejected, valid readManifest is normalized and bound into the scope-check signature domain without weakening existing exclusions.",
+      "requiredEvidence": [
+        "logic-test",
+        "process-fact-contract"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "CHK-002",
+      "claim": "review_pass_set requires the same signed structured readManifest field and exposes it for ledger comparison.",
+      "doneMeans": "Missing or malformed readManifest is rejected for review passes, valid readManifest is signed with the review pass and can be inspected in stored evidence.",
+      "requiredEvidence": [
+        "logic-test",
+        "runtime-fact-contract"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [],
+      "status": "planned"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "CHK-003",
+      "claim": "Reviewer prompts and templates require submitters to provide readManifest.",
+      "doneMeans": "Scope-plan and REVIEW-phase reviewer instructions contain the structured readManifest contract and missing submissions surface as gate rejections.",
+      "requiredEvidence": [
+        "prompt-diff",
+        "smoke-test"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [],
+      "status": "planned"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "CHK-004-CHK-005",
+      "claim": "Mechanical read-log evidence detects self-report mismatch and unrecorded full decisions-doc scans.",
+      "doneMeans": "Reviewer run evidence can include a digest-bound mechanical read log for decisions/*.md reads, and mismatch/unrecorded-full-scan cases are flagged without blocking legitimate escalation.",
+      "requiredEvidence": [
+        "logic-test",
+        "manual-transcript"
+      ],
+      "checklistRefs": [
+        "CHK-004",
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [],
+      "status": "planned"
+    },
+    {
+      "id": "M5",
+      "sourceRequirementId": "CHK-006",
+      "claim": "Regression smoke coverage protects the readManifest gate and mismatch detector.",
+      "doneMeans": "reviewer-scan-budget-guard-smoke and validate wiring fail if missing readManifest passes, mismatches are not flagged, JSON output is polluted, or reviewer evidence bypasses role separation.",
+      "requiredEvidence": [
+        "smoke-test",
+        "validate"
+      ],
+      "checklistRefs": [
+        "CHK-006"
+      ],
+      "verificationIntentRefs": [],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-10T01:10:11.349Z",
+  "updatedAt": "2026-07-10T01:10:53.514Z"
+}

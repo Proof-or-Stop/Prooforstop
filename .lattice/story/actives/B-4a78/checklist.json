@@ -6,7 +6,31 @@
       "context": "Shape: {filesReadFully[], filesTriagedByName[], scanEscalationReason|null}. Validate the shape, include readManifest in the scope-check signature domain (_hash), and reject saves that omit it. Keep the existing anti-self-absolution boundaries (resolutions/OQ stay outside the signature domain) unchanged.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Missing readManifest in scope_check_save is rejected with a clear validation error; valid scope-check evidence shows a signed readManifest field.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A valid scope_check_save payload with filesReadFully, filesTriagedByName, and scanEscalationReason persists normalized readManifest and includes it in the signed scope-check hash.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Empty arrays, triaged-only reads, null scanEscalationReason, and sorted duplicate-free paths normalize deterministically without changing existing OQ/resolution exclusions.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Missing, malformed, duplicate, unsafe, or post-hoc edited readManifest fails closed and hash verification changes when only readManifest changes.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
