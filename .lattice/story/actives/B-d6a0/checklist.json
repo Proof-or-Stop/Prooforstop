@@ -6,7 +6,37 @@
       "context": "readMaterialDirtyFiles (~line 153) does execFileSync('git',['status','--porcelain','--untracked-files=all']).trim() then line.slice(3): the first modified-tracked row's path loses its first character and isMaterialExcludedPath misfires, polluting materialDirty inside captureEvidenceHashSnapshot. Rework to the untrimmed raw-read pattern (see gitRaw in core/done-prepare-generated-metadata.ts:247) with per-line trimEnd.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "✓ evidence-freshness: first-row \" M .lattice/…\" row stays excluded from materialDirty; material path reported exactly",
+      "files": {
+        "modify": [
+          "packages/main/src/core/evidence-freshness.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/porcelain-first-row-audit-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "captureEvidenceHashSnapshot on a fixture whose first porcelain row is a modified-tracked .lattice metadata file reports dirty.files containing exactly the material path, with no corrupted lattice/... entry",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "clean tree yields empty dirty.files (emptiness decided on rows.length after per-line trimEnd, not raw-string truthiness)",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "scenario asserts porcelain row 0 matches /^ M / before any classification assertion, so the regression cannot pass vacuously if fixture ordering drifts",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
