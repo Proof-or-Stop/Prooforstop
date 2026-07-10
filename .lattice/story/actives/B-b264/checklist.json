@@ -139,6 +139,18 @@
           "materialHash": "629ca6c3184088f0e8299b3c454ca0f12ebc20a3b0aa9cdc50925b7717f44d4f",
           "storyFilesHash": "280e1fa00e2ee162d2eec9e7211bc3b97d595ef75062fc12e0eae88070f8cc98",
           "timestamp": "2026-07-10T05:33:32.778Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+          "command": "npm --prefix packages/main run test:done-prepare-merge-rerun-smoke",
+          "result": "pass",
+          "note": "assertMetadataCommitNoRebindAndAutoCloseExit: committing generated DONE metadata leaves storyFilesHash byte-identical (hash-excluded, so review rebinding is never forced) and the documented autoCloseGeneratedMetadata+reuseFreshValidation rerun reaches DONE prepare: PASS with a clean tree, proving the rerun does not loop.",
+          "headHash": "1629d63d2cbcc4ef597d834ca7a5fa2177308e84",
+          "materialHash": "629ca6c3184088f0e8299b3c454ca0f12ebc20a3b0aa9cdc50925b7717f44d4f",
+          "storyFilesHash": "280e1fa00e2ee162d2eec9e7211bc3b97d595ef75062fc12e0eae88070f8cc98",
+          "timestamp": "2026-07-10T05:33:33.612Z"
         }
       ]
     },
