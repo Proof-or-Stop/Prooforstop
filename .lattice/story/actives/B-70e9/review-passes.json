@@ -2124,6 +2124,52 @@
         "scanEscalationReason": null
       },
       "_hash": "453500e34150173595170ce1ecd5be51e6dc4175b998d20a49940fe95cd137a3"
+    },
+    {
+      "id": "B-70e9:RP-086",
+      "agent": "lattice-review-quality",
+      "note": "Round 23 re-review of F-032 fix (43ea459): writeCodexProcessEvent self-gates on isReadOnlyCommand(entry.command, args) at both success and error call sites in cli-engine run(). Verified args threading (parsed is Record<string,unknown>, correctly passed as entry.args at both sites), predicate correctness (mirrors the exact isReadOnlyCommand used by hooks/activity-log), and the two claimed exemptions by reading source: owner-lease heartbeat is confirmed never touched by a readOnly command (enforceStoryOwnerLeaseGate returns early for cls===readOnly before acquireOrRefreshOwnerLease is ever called); onError/preCommand/postCommand hooks are opt-in external user-configured shell commands via runHooks (no-op when cfg.hooks unset), a materially different write-surface class from Lattice-internal story metadata, so exempting them is sound (and onError was already unconditional pre-F-032, not newly introduced). retrieval_violation writes to the top-level activity log via appendActivityLog(root,...), not story process-events, so it is correctly out of scope. Confirmed writeCodexProcessEvent/store.appendProcessEvent in cli-engine.ts run() is the sole call site for this unconditional post-command codex bookkeeping event class (other appendProcessEvent call sites are explicit handler-level command semantics, a different class). Smoke usage-sweep-smoke.ts check 19 drives the real built dist/cli.js against a real git fixture on a story/ branch with LATTICE_ACTIVITY_SOURCE=codex, asserting byte-identical process-events.jsonl for a plain sweep and exactly one appended event for --out; realistic end-to-end coverage. Build clean; test:usage-sweep 19/19; test:host-run-usage 65/65; cli-surface-smoke pass; command-catalog-smoke pass (323 commands). No blocking issues found.",
+      "createdAt": "2026-07-10T19:53:00.510Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-097",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/core/hooks.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/alias-normalizer.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/host-execution-readiness.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/usage-ledger/adapters/openai.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/core/usage-ledger/writer.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "packages/main/src/tasks/usage-ledger-budget-smoke.ts",
+          "packages/main/src/tasks/usage-ledger-default-on-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ae279cda78d605fe96b139a48eb360061f7182d3701ea283680937b1101044f5"
     }
   ]
 }
