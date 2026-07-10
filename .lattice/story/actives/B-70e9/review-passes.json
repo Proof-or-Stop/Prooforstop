@@ -1065,6 +1065,26 @@
         "scanEscalationReason": null
       },
       "_hash": "43f5a267b42d9aae4dc3ad5908651339216003d65736ab98218128129ed765c2"
+    },
+    {
+      "id": "B-70e9:RP-045",
+      "agent": "lattice-review-concept",
+      "note": "Round 13 residue check on F-020 handler-only fix (commit e78408cb5c): purely additive change in handlers/host-run.ts (new asyncStreamError/stderrBroken state, named stdout/stderr error listeners for run duration removed in finally, emitStderr gating wrapper around unchanged safeWriteStderr), +1 real-subprocess smoke check in host-run-usage-smoke.ts, and one doc sentence extended in docs/host-run-usage.md naming async EPIPE explicitly. Confirmed core/host-run.ts has zero diff lines in this commit. No concept word was deleted or replaced en masse: safeWriteStderr/passthroughWarning/passthroughError/usageLine all retained verbatim, only reflowed inside a try/finally. No concept residue check needed this round; no blocker.",
+      "createdAt": "2026-07-10T13:18:41.936Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-054",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/host-run.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bf1a2fdbc2bf8198b3a64d73b1f9a72294cd6951e77c4533b7905bcd11352c2e"
     }
   ]
 }
