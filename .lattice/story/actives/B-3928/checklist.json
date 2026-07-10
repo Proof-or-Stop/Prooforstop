@@ -5,11 +5,45 @@
       "title": "Record the 16 prompt filenames and template hashes",
       "context": "M0.1 requires an exact current prompt baseline from promptRegistryManifest or the current prompt registry source so later proof-or-stop-* migrations can compare hashes without relying on memory.",
       "relatedDocs": [
-        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md#M0---Baseline-Inventory-And-Lockfile"
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "node scripts/verify-proof-or-stop-prompt-baseline.mjs reports roleCount=16 and templateHash baselines verified.",
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json"
+        ],
+        "test": [
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "package.json"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-001:happy:0",
+            "desc": "The baseline JSON records exactly 16 prompt roles from promptRegistryManifest/readPromptRegistry with filename, relPath, bytes, templateHash, and registry materialHash.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-001:edge:0",
+            "desc": "The verifier fails when a prompt template is added, removed, renamed, or hash-changed without updating the baseline.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-001:adversarial:0",
+            "desc": "The verifier does not trust a hand-maintained role list alone; it recomputes the role list and material hash from the built prompt registry.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

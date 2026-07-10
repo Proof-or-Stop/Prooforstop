@@ -1,0 +1,68 @@
+{
+  "principles": [
+    "M0 records current prompt facts before editing prompt bodies.",
+    "Mechanical verification must be stronger than prose review for hashes, role count, output hashes, and forbidden-pattern regressions.",
+    "Existing legacy/direct-story references should be visible and classified in the baseline rather than silently cleaned up in the wrong milestone.",
+    "The check must consume package prompt registry facts and agent_prompt output, not a hand-maintained role list alone."
+  ],
+  "drivers": [
+    "The execution plan requires exact 16 prompt filenames and template hashes from promptRegistryManifest().",
+    "The execution plan requires agent_prompt output capture for every role.",
+    "The execution plan requires role-overlap classification and regression checks for legacy verification vocabulary plus direct docs/story write instructions.",
+    "M0 must not implement the later proof-or-stop-* rename or prompt-body consolidation work."
+  ],
+  "options": [
+    {
+      "name": "A: committed baseline JSON/Markdown plus focused verifier script",
+      "pros": [
+        "Keeps M0 scoped to inventory and regression evidence",
+        "Produces reviewable artifacts for every prompt",
+        "Can be wired into npm test without changing prompt runtime behavior"
+      ],
+      "cons": [
+        "Later prompt-edit milestones must update the baseline intentionally"
+      ]
+    },
+    {
+      "name": "B: add runtime registry enforcement now",
+      "pros": [
+        "Could prevent some bad prompt states earlier"
+      ],
+      "cons": [
+        "Bleeds into M0.5/M1 responsibilities and changes runtime behavior before baseline freeze"
+      ]
+    },
+    {
+      "name": "C: prose-only report in the decision doc",
+      "pros": [
+        "Fastest edit"
+      ],
+      "cons": [
+        "Does not mechanically prove hashes, agent_prompt output, or regression coverage"
+      ]
+    }
+  ],
+  "chosen": "A: committed baseline JSON/Markdown plus focused verifier script",
+  "rationale": "A satisfies M0 exit criteria while preserving the no-prompt-body-edit boundary. It gives later milestones an explicit lockfile to update when they intentionally rename or consolidate prompts, and it makes existing legacy/direct-story issues visible without changing prompt semantics in M0.",
+  "preMortem": [
+    {
+      "scenario": "The baseline script duplicates the registry logic and drifts from the real prompt source.",
+      "trigger": "A prompt template changes but the script reads a separate hand-maintained list.",
+      "consequence": "M0 reports stale or incomplete role facts.",
+      "mitigation": "Import the built prompt-registry module and compare against promptRegistryManifest/readPromptRegistry output."
+    },
+    {
+      "scenario": "Existing direct docs/story references make the regression check impossible to pass in M0.",
+      "trigger": "The script treats all historical references as new unclassified violations.",
+      "consequence": "M0 would require prompt-body fixes that belong to later milestones.",
+      "mitigation": "Record explicit baseline classifications and fail only when unregistered legacy/direct-write findings appear or when classification no longer matches source facts."
+    },
+    {
+      "scenario": "The check is not run by reviewers or future milestones.",
+      "trigger": "Only a document artifact is committed with no command entrypoint.",
+      "consequence": "Prompt changes can bypass the baseline lock.",
+      "mitigation": "Expose node scripts/verify-proof-or-stop-prompt-baseline.mjs and an npm script; run it in this story verification evidence."
+    }
+  ],
+  "timestamp": "2026-07-10T03:20:06.241Z"
+}

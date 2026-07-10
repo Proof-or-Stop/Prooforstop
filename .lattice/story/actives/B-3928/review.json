@@ -1,0 +1,197 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-07-10T03:20:15.835Z",
+      "issueCount": 33,
+      "blockerCount": 17,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-005",
+          "message": "CHK-005 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Record the 16 prompt filenames and template hashes + Capture agent_prompt output for every role as comparison artifacts are performed simultaneously?)"
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_original_intent_snapshot: Intent MVP requires original_intent_snapshot_set with sourceText, normalizedOutcome, and acceptanceClaim. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "milestone_missing_verification_intent_refs: M0.1 has no verificationIntentRefs. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "milestone_missing_verification_intent_refs: M0.2 has no verificationIntentRefs. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "milestone_missing_verification_intent_refs: M0.3 has no verificationIntentRefs. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "milestone_missing_verification_intent_refs: M0.4 has no verificationIntentRefs. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "milestone_missing_verification_intent_refs: M0.6 has no verificationIntentRefs. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_intent_collision: Intent collision is triggered but no pass decision with acceptedInterpretation is present. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_red_evidence: Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-001",
+          "message": "CHK-001 missing verificationIntent.happy. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-001",
+          "message": "CHK-001 missing verificationIntent.edge. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-001",
+          "message": "CHK-001 missing verificationIntent.adversarial. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-002",
+          "message": "CHK-002 missing verificationIntent.happy. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-002",
+          "message": "CHK-002 missing verificationIntent.edge. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-002",
+          "message": "CHK-002 missing verificationIntent.adversarial. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-003",
+          "message": "CHK-003 missing verificationIntent.happy. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-003",
+          "message": "CHK-003 missing verificationIntent.edge. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-003",
+          "message": "CHK-003 missing verificationIntent.adversarial. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-004",
+          "message": "CHK-004 missing verificationIntent.happy. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-004",
+          "message": "CHK-004 missing verificationIntent.edge. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-004",
+          "message": "CHK-004 missing verificationIntent.adversarial. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-005",
+          "message": "CHK-005 missing verificationIntent.happy. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-005",
+          "message": "CHK-005 missing verificationIntent.edge. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-005",
+          "message": "CHK-005 missing verificationIntent.adversarial. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "blocker",
+          "message": "High-risk stories must have plan.md (execution plan). Write it following the plan.md template in CLAUDE.md, one section per CHK-xxx"
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "missing_scope_check: scope-check.json is missing PLAN gate evidence. Start a story-level PLAN scope reviewer with `lattice dispatch --storyId=B-3928 --agentType=lattice-review-scope-plan`; dispatch output is not gate evidence, and the lattice-review-scope-plan / scope-plan reviewer must finish by calling `lattice scope_check_save`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not remote completion and must not be presented as receipt verification or production/full completion."
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-3928 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "3aad3a37842d82fb14771964edb082fb4f5b10717bafad04786ba8061a65afcd"
+    }
+  ]
+}
