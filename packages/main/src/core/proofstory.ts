@@ -1518,8 +1518,11 @@ export function evaluateDoneIntentEquivalence(
     // cases") while ", and" coordinates clauses ("issues exist, and scope
     // work continues") and must not bridge the chain. Modifier words accept
     // '/' (UI/UX).
-    const remainingStopWord = String.raw`(?:is|are|was|were|be|been|being|has|have|had|do|does|did|not|no|nor|it|its|this|that|these|those|they|them|to|in|on|at|by|for|from|with|as|but|so|than|then|there|here|when|while|which|who|whose|will|would|can|could|should|must|may|might|exists?|existed|lingers?|lingered|persists?|persisted|continues?|continued|remains?|remained)`;
-    const remainingConjunction = String.raw`(?:and|or|yet|plus)`;
+    // codex round 5: bare "not" belongs with the conjunctions — inside an
+    // adjectival phrase ("remaining not yet supported functionality") it is a
+    // modifier, while ", not" is clause punctuation and still blocks.
+    const remainingStopWord = String.raw`(?:is|are|was|were|be|been|being|has|have|had|do|does|did|no|nor|it|its|this|that|these|those|they|them|to|in|on|at|by|for|from|with|as|but|so|than|then|there|here|when|while|which|who|whose|will|would|can|could|should|must|may|might|exists?|existed|lingers?|lingered|persists?|persisted|continues?|continued|remains?|remained)`;
+    const remainingConjunction = String.raw`(?:and|or|yet|plus|not)`;
     const remainingWordCharClass = String.raw`[a-z0-9'’()/–—_-]`;
     const remainingModifierWord = String.raw`(?!(?:${remainingStopWord}|${remainingConjunction})(?!${remainingWordCharClass}))${remainingWordCharClass}+`;
     const remainingChainStep = String.raw`(?:[,:]?\s+${remainingModifierWord}|\s+${remainingConjunction}(?!${remainingWordCharClass}))`;

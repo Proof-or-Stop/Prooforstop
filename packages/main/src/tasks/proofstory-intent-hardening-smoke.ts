@@ -959,6 +959,9 @@ try {
     // modifiers are noun-phrase internal, not clause breaks.
     'The remaining set of cases was left for a follow-up story.',
     'The remaining UI/UX cases were left for a follow-up story.',
+    // codex round 5: bare "not" inside an adjectival phrase is a modifier,
+    // not a clause break (", not" still blocks like ", and").
+    'The remaining not yet supported functionality was left for a follow-up story.',
   ];
   for (const claim of remainingWindowClaims) {
     store.writeSummary(lightStoryId, makeSummary(lightStoryId, {

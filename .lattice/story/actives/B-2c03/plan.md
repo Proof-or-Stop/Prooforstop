@@ -102,12 +102,13 @@ quality finding F-013 (", and" bridging independent clauses) refined the
 chain-word taxonomy once more. Final form: the chain allows up to eight
 modifier words; stop words mark a clause (verbs of being, state verbs like
 exist/linger/persist/continue/remain, pronouns, prepositions — but NOT "of",
-which is noun-phrase internal); conjunctions pass only WITHOUT a preceding
-comma (bare "and" coordinates modifiers, ", and" coordinates clauses);
+which is noun-phrase internal); conjunctions AND bare "not" pass only WITHOUT a preceding
+comma (bare "and"/"not" sit inside noun phrases — "remaining not yet
+supported functionality" — while ", and"/", not" coordinate clauses);
 modifier words accept '/' (UI/UX); coordinate-adjective commas and a heading
 colon are accepted; sentence punctuation blocks the chain; line wraps do not
 (fail-safe); the scope noun must terminate the chain. Both directions are
-pinned: nine must-fire window claims and six cross-clause must-not-fire
+pinned: ten must-fire window claims and six cross-clause must-not-fire
 controls.
 
 **Convergence statement**: the chain-word taxonomy is a documented lexical
