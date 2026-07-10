@@ -896,6 +896,30 @@
         "scanEscalationReason": null
       },
       "_hash": "263f9110d4ad55a30959e41f27e74aed621fe9d1571c5a2e54c877870f5fed17"
+    },
+    {
+      "id": "B-70e9:RP-037",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 10 re-review after fix commit b5df58d44d (F-017): verified codex-review-leaf.ts now runs the same pre-spawn admission chain as host_run/autopilot-repair (recordBudgetBlock provider openai -> acquireHostRunSlot -> spawn -> releaseSlot in finally), refusal synthesizes a decision=blocked verdict (never a fabricated pass/fail) so cross_host_review surfaces hostB=blocked/joint=blocked; slot-registry errors fail closed without a fake cap row; OFF/no-binding stays byte-identical even with budget/cap env set. host-run-usage-smoke gained exactly 3 new checks (budget refusal pre-spawn, concurrency refusal, slot held-during/released-after) plus an extended OFF invariant check, all confirmed present in the b5df58d44d diff. evidence_plan: missing=0 rerun=0 refresh-only=0 fresh=42 (all 42 must-priority intents across CHK-001..CHK-007 fresh at headHash 8d84928c92, matching current HEAD dc779f8 modulo metadata-only commits with zero source/test diff). Re-ran both suites live: test:host-run-usage = 47/47 pass (including the 3 F-017 checks by name); test:usage-sweep = 17/17 pass. All 17 findings (F-001..F-017) dismissed/resolved with evidenceState=verified and zero attention.suspected entries. Checklist coverage: all 7 items have populated happy/edge/adversarial columns, every must-priority intent has non-fail evidence, no vague/generic notes. No new blocker found.",
+      "createdAt": "2026-07-10T12:11:10.944Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-043",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-70e9/checklist.json",
+          ".lattice/story/actives/B-70e9/findings.json",
+          ".lattice/story/actives/B-70e9/index.json",
+          "docs/host-run-usage.md",
+          "packages/main/src/tasks/usage-ledger-budget-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2ef4f86cf13711db1358da4c022dfce98b52cefd5e8d463d89a5f37eca2c0e3e"
     }
   ]
 }
