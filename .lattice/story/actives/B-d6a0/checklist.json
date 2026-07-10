@@ -44,7 +44,37 @@
       "context": "assertMaterialCleanForReview (~line 74) trims the full porcelain output then slice(3): a first-row ' M .lattice/...' metadata change parses as 'lattice/...' which fails the .lattice/ material-exclusion prefix and false-blocks the cross-host review dirty preflight. Same untrimmed raw-read fix.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "✓ cross-host-review: .lattice-only dirty tree passes the review preflight; a material row still refuses with the exact path",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/cross-host-review.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/porcelain-first-row-audit-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "assertMaterialCleanForReview does NOT throw when the only dirty rows are .lattice metadata and the FIRST row is a modified-tracked .lattice file",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "clean tree does not throw",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "a modified-tracked material row still throws and the error names the exact path (fail-closed behavior preserved, not loosened)",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
