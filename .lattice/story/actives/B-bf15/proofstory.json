@@ -28,29 +28,18 @@
         "CHK-001",
         "CHK-002"
       ],
-      "verificationIntentRefs": [],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:happy:1",
+        "CHK-002:happy:0",
+        "CHK-002:happy:1"
+      ],
       "milestoneIds": [],
       "note": "Removing the stale script (CHK-001) plus the reference sweep (CHK-002) together prove the acceptance claim: npm run listing has no test:autopilot-resume-smoke and no runnable reference survives outside historical records."
     }
   ],
-  "diagnosticGaps": [
-    {
-      "code": "acceptance_binding_missing_verification_intent_refs",
-      "severity": "warn",
-      "artifact": "proofstory.json",
-      "message": "AB-001 has no verificationIntentRefs."
-    },
-    {
-      "code": "missing_red_evidence",
-      "severity": "warn",
-      "artifact": "red-evidence.json",
-      "message": "Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation.",
-      "triggeredBy": [
-        "red_evidence_required"
-      ]
-    }
-  ],
+  "diagnosticGaps": [],
   "note": "Single-deliverable chore; binding covers the snapshot acceptance claim by convention.",
   "createdAt": "2026-07-10T14:29:03.945Z",
-  "updatedAt": "2026-07-10T14:29:03.945Z"
+  "updatedAt": "2026-07-10T14:34:12.342Z"
 }
