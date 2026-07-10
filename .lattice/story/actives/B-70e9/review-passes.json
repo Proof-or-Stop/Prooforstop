@@ -521,6 +521,32 @@
         "scanEscalationReason": null
       },
       "_hash": "2496e62c72f57acb276f9650a4ae90db25a3bacd939753ea03ebd4bb49883a19"
+    },
+    {
+      "id": "B-70e9:RP-022",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 6 convergence): 42/42 must-priority intents across 7 checklist items covered by valid non-fail evidence; evidence_plan confirms fresh=42 missing=0 rerun=0 refreshOnly=0. All findings F-001..F-011 dismissed/resolved. F-011 fix (e27341a4ff) verified: 2 new host-run-usage-smoke.ts checks bind the exact failure mode via chdir'd fake-runner plan.cwd assertion plus a real-child process.cwd() failing-before/passing-after check. Re-ran npm smokes independently: test:host-run-usage 36/36 pass, test:usage-sweep 16/16 pass. No blocking coverage gap.",
+      "createdAt": "2026-07-10T10:04:58.985Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-025",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-70e9/checklist.json",
+          ".lattice/story/actives/B-70e9/findings.json",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "09764fc362fb914c6a03ec7051f60bb3b9adcf8d8c2f1738db980b34f1c3e4ea"
     }
   ]
 }
