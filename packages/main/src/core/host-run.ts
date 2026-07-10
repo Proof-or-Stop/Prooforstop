@@ -14,11 +14,11 @@
  *     (F-006): stdout/stderr chunks reach the injected `passthrough` sink as they
  *     arrive, and only BOUNDED state is retained for usage parsing (the last
  *     usage-bearing line — codex turn.completed / the claude result envelope —
- *     capped per line, with an honest truncation flag so a parse miss records
- *     `unavailable` and never a fabricated value). The core delivers host output
- *     to the passthrough EXACTLY ONCE (live for the streaming runner; a single
- *     buffered flush for a non-streaming fake runner), so the HANDLER never
- *     re-prints it.
+ *     capped per line, with an honest truncation flag so a truncated retention
+ *     records `unavailable` and never a fabricated or stale value). The core
+ *     delivers host output to the passthrough EXACTLY ONCE (live for the
+ *     streaming runner; a single buffered flush for a non-streaming fake
+ *     runner), so the HANDLER never re-prints it.
  *   - F-005: this core keeps ZERO story-path/config knowledge. Phase + story
  *     existence are resolved through the injected `resolveStory` seam (the HANDLER
  *     builds it from the configured StoryStore); an explicit --phase is honored
@@ -139,8 +139,10 @@ export interface HostRunSpawnResult {
   timedOut: boolean;
   /**
    * True when a retained line exceeded the per-line cap and was dropped rather
-   * than retained. The usage final then records `unavailable` (never a fabricated
-   * value) because there is no reliable parse target.
+   * than retained. The usage final then records `unavailable` with reason
+   * `usage_line_retention_truncated` (F-013) — EVEN when an earlier usage line
+   * was retained, because the dropped line may have carried the real final
+   * numbers, so any retained text is a stale parse target, never a reliable one.
    */
   retentionTruncated?: boolean;
   /**
@@ -608,6 +610,13 @@ export function scanCodexTurnCompletedUsage(stdout: string): unknown | null {
 
 /** Per-retained-line cap. A single line over this is dropped (not retained). */
 export const HOST_RUN_RETAINED_LINE_CAP = 1024 * 1024; // 1 MiB
+
+/**
+ * F-013: the unavailable reason recorded when the scanner dropped an over-cap
+ * line. Any retained stdout is then known-stale (the dropped line may have
+ * carried the real final usage), so the final must never be provider-reported.
+ */
+export const HOST_RUN_RETENTION_TRUNCATED_REASON = 'usage_line_retention_truncated';
 
 /**
  * A memory-BOUNDED line scanner. It reads host stdout chunk-by-chunk and keeps
@@ -1091,7 +1100,7 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
     releaseSlot(slotFile);
   }
 
-  const summary = recordFinalForHost(args, ctx, handle, opts, spawn.stdout);
+  const summary = recordFinalForHost(args, ctx, handle, opts, spawn.stdout, spawn.retentionTruncated === true);
 
   return {
     host: args.host,
@@ -1118,11 +1127,39 @@ function recordFinalForHost(
   handle: DispatchPreflightHandle | null,
   opts: DispatchUsageOptions,
   stdout: string,
+  retentionTruncated: boolean,
 ): HostRunUsageSummary {
   const correlation = handle?.correlation ?? null;
   const estimateRecordId = handle?.estimateRecordId ?? null;
 
   try {
+    // F-013: when the scanner DROPPED an over-cap line, any retained stdout is
+    // known-stale — an EARLIER usage line, while the dropped line may have
+    // carried the real final numbers. Never parse it: record a provider-specific
+    // unavailable final instead of a stale provider-reported one. agy falls
+    // through to its existing (more specific) always-unavailable reason below.
+    if (retentionTruncated && (args.host === 'codex' || args.host === 'claude')) {
+      const providerName = hostProviderName(args.host);
+      const res = recordDispatchUnavailableFinal(
+        args.root,
+        ctx,
+        correlation,
+        estimateRecordId,
+        { name: providerName, model: null },
+        HOST_RUN_RETENTION_TRUNCATED_REASON,
+        opts,
+      );
+      return {
+        recorded: 'unavailable',
+        provider: providerName,
+        input: null,
+        cacheRead: null,
+        output: null,
+        recordId: res.recordId,
+        reason: HOST_RUN_RETENTION_TRUNCATED_REASON,
+      };
+    }
+
     if (args.host === 'claude') {
       const parsed = parseClaudeCliOutput(stdout);
       recordDispatchFinal(args.root, ctx, correlation, estimateRecordId, parsed.anthropicUsage, parsed.model, opts);

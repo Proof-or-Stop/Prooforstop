@@ -48,8 +48,10 @@ usage recorded: provider=openai input=10202 cacheRead=11008 output=85 (recordId 
 Only a **bounded** amount of state is retained for usage parsing — the last
 usage-bearing line (codex `turn.completed` / the claude `result` envelope),
 capped at 1 MiB per line. A line over the cap is dropped (not retained) and the
-usage final records `unavailable` rather than a fabricated value, so a flooding
-host can never exhaust memory or manufacture a count.
+usage final records `unavailable` (reason `usage_line_retention_truncated`)
+rather than a fabricated **or stale** value — even when an earlier usage line
+was retained, since the dropped line may have carried the real final numbers —
+so a flooding host can never exhaust memory or manufacture a count.
 
 ### Passthrough routing (text vs `--json`)
 

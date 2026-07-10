@@ -33,6 +33,9 @@
  *     writes, and an intact hash chain; a stale (abandoned) lock dir is
  *     reclaimed; a held lock + bounded wait skips (throws) instead of
  *     appending off a stale predecessor (skip-not-corrupt).
+ *     F-013: a dropped over-cap line forces an UNAVAILABLE final
+ *     (usage_line_retention_truncated) for codex AND claude even when an
+ *     EARLIER usage line was retained — never a stale provider-reported final.
  *   - CHK-003: the remaining lattice-initiated host spawns route through the same
  *     seam — autopilot claude repair (ledger ON adds --output-format json + records
  *     estimate/final rows with agentType autopilot-repair and an envelope-parsed
@@ -71,6 +74,7 @@ import {
   resolveMaxConcurrent,
   writeSlotFileExclusive,
   HOST_RUN_RETAINED_LINE_CAP,
+  HOST_RUN_RETENTION_TRUNCATED_REASON,
   type HostRunArgs,
   type HostRunChunk,
   type HostRunPassthrough,
@@ -691,6 +695,68 @@ async function main(): Promise<void> {
     );
     assert.equal(summ.usageSummary.recorded, 'unavailable', 'empty retention -> unavailable, not a fabricated zero');
     assert.equal(summ.usageSummary.input, null);
+  });
+
+  // =========================================================================
+  // F-013: retention truncation must force an UNAVAILABLE final. When the
+  // scanner drops a LATER over-cap line, the EARLIER retained usage line is
+  // known-stale (the dropped line may have carried the real final numbers).
+  // Against the old code both checks below recorded a provider-reported final
+  // with the stale earlier counts (runHostRun ignored spawn.retentionTruncated).
+  // =========================================================================
+  await checkAsync('F-013 codex: valid turn.completed then an over-cap final usage line -> unavailable (usage_line_retention_truncated), never the stale earlier numbers', async () => {
+    const sub = freshRoot();
+    const padLen = HOST_RUN_RETAINED_LINE_CAP + 4096;
+    // A REAL child through the REAL default runner: the first (valid, retained)
+    // usage line is the stale decoy; the second line carries the "real" final
+    // usage but blows the 1 MiB cap and is dropped by the scanner.
+    const script =
+      'process.stdout.write(JSON.stringify({type:"turn.completed",usage:{input_tokens:11,cached_input_tokens:1,output_tokens:2}})+"\\n");' +
+      `var pad="a".repeat(${padLen});` +
+      'process.stdout.write(JSON.stringify({type:"turn.completed",usage:{input_tokens:999,cached_input_tokens:0,output_tokens:99},pad:pad})+"\\n");';
+    const runner: HostRunRunner = (plan) => defaultHostRunRunner({ ...plan, command: process.execPath, argv: ['-e', script] });
+    const result = await runHostRun(baseArgs({ root: sub, host: 'codex' }), { runner });
+    assert.equal(result.spawned, true);
+    // The scanner DID retain the stale earlier line — exactly the trap.
+    const retained = scanCodexTurnCompletedUsage(result.stdout) as Record<string, unknown> | null;
+    assert.ok(retained && retained.input_tokens === 11, 'precondition: the stale EARLIER usage line is what the scanner retained');
+    const records = readLedger(sub);
+    const final = records.find((r) => r.usage.source === 'unavailable');
+    assert.ok(final, 'unavailable final recorded');
+    assert.equal(final!.usage.unavailableReason, HOST_RUN_RETENTION_TRUNCATED_REASON);
+    assert.equal(final!.provider?.name, 'openai', 'unavailable final stays provider-honest');
+    assert.equal(final!.usage.inputTokens, null, 'no stale count on the row');
+    assert.equal(records.some((r) => r.usage.source === 'provider-reported'), false, 'NO provider-reported row from the stale retained line');
+    assert.equal(result.usageSummary.recorded, 'unavailable', 'result surface says unavailable');
+    assert.equal(result.usageSummary.reason, HOST_RUN_RETENTION_TRUNCATED_REASON, 'result surface carries the truncation reason');
+    assert.equal(result.usageSummary.input, null, 'summary never echoes the stale numbers');
+  });
+
+  await checkAsync('F-013 claude: valid result envelope then an over-cap line -> unavailable (usage_line_retention_truncated), not the stale envelope', async () => {
+    const sub = freshRoot();
+    const padLen = HOST_RUN_RETAINED_LINE_CAP + 4096;
+    const staleEnvelope = JSON.stringify({
+      type: 'result',
+      result: 'stale earlier envelope',
+      model: CLAUDE_MODEL,
+      usage: { input_tokens: 4200, output_tokens: 320, cache_creation_input_tokens: 0, cache_read_input_tokens: 1500 },
+    });
+    const script =
+      `process.stdout.write(${JSON.stringify(staleEnvelope)}+"\\n");` +
+      `var pad="a".repeat(${padLen});` +
+      'process.stdout.write(JSON.stringify({type:"result",result:"the real final",usage:{input_tokens:9,output_tokens:9},pad:pad})+"\\n");';
+    const runner: HostRunRunner = (plan) => defaultHostRunRunner({ ...plan, command: process.execPath, argv: ['-e', script] });
+    const result = await runHostRun(baseArgs({ root: sub, host: 'claude' }), { runner });
+    assert.equal(result.spawned, true);
+    const records = readLedger(sub);
+    const final = records.find((r) => r.usage.source === 'unavailable');
+    assert.ok(final, 'unavailable final recorded');
+    assert.equal(final!.usage.unavailableReason, HOST_RUN_RETENTION_TRUNCATED_REASON);
+    assert.equal(final!.provider?.name, 'anthropic', 'unavailable final stays provider-honest');
+    assert.equal(records.some((r) => r.usage.source === 'provider-reported'), false, 'NO provider-reported row from the stale envelope');
+    assert.equal(result.usageSummary.recorded, 'unavailable');
+    assert.equal(result.usageSummary.reason, HOST_RUN_RETENTION_TRUNCATED_REASON);
+    assert.equal(result.usageSummary.input, null, 'summary never echoes the stale 4200');
   });
 
   // =========================================================================
