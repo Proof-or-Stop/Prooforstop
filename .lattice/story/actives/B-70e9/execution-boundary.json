@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-70e9",
+  "allowedCommands": [
+    "agy --print with explicit --print-timeout (bounded, canonical launcher, for live verification only)",
+    "claude --print --verbose --output-format=stream-json (bounded, canonical launcher, for live verification only)",
+    "codex exec --json (bounded, canonical launcher, for live verification only)",
+    "git status/diff/add/commit within the story worktree",
+    "node bin/lattice.js *",
+    "node packages/main/dist/tasks/*.js",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main run test:*"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".claude/agents/",
+    ".lattice-codex/agents/",
+    "CHANGELOG.md",
+    "docs/",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/"
+  ],
+  "excludedCommands": [
+    "git push to any remote",
+    "git reset --hard on main",
+    "interactive desktop app automation",
+    "rm -rf outside the story worktree"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Host CLI invocations are bounded canonical-launcher runs for live verification of usage capture; fixtures are preferred in smokes. Home-directory transcript stores (~/.codex/sessions, ~/.claude/projects) are READ-ONLY inputs for the M2 sweep and are never written; smoke tests use fixture dirs instead of real home paths.",
+  "createdAt": "2026-07-10T05:11:37.382Z",
+  "updatedAt": "2026-07-10T05:11:37.382Z",
+  "_hash": "1cb3e8022c5bf585986d0529effa1304997dea450e8ad230e6360115afd343eb"
+}

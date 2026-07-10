@@ -1,0 +1,35 @@
+{
+  "storyId": "B-70e9",
+  "checkedAt": "2026-07-10T05:09:28.675Z",
+  "reviewRound": "",
+  "agentId": "product-reviewer",
+  "issues": [
+    {
+      "severity": "low",
+      "desc": "CHK-002, CHK-003, and CHK-004 lack explicit userSees fields; the user-observable outcomes are implicit (ledger rows carry review-run identity; previously-invisible spawns appear in the ledger; guidance names the new command). Consider adding userSees for traceability, though this does not block INIT."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-07-10T05:09:24.008Z",
+      "issues": [
+        {
+          "severity": "low",
+          "desc": "Background cites \"B-fbb6 verified\" for the claim that agy print mode surfaces no per-call usage, but B-fbb6's index.json phase is DISCARDED (not DONE) — the underlying verification in B-fbb6/background.md is specific and credible (agy --print stdout/--log-file probe), but a reader spot-checking the citation will see a discarded story and may question the claim's authority. Consider rephrasing to cite the verification finding directly (e.g. \"verified via agy --print probe, see B-fbb6/background.md\") rather than implying B-fbb6 itself completed."
+        }
+      ]
+    },
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-07-10T05:09:28.675Z",
+      "issues": [
+        {
+          "severity": "low",
+          "desc": "CHK-002, CHK-003, and CHK-004 lack explicit userSees fields; the user-observable outcomes are implicit (ledger rows carry review-run identity; previously-invisible spawns appear in the ledger; guidance names the new command). Consider adding userSees for traceability, though this does not block INIT."
+        }
+      ]
+    }
+  ],
+  "_hash": "278cff598842587472c6bc0ffb9ffbad0137fd58288c1960f3f35469d230cd8c"
+}
