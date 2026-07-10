@@ -714,6 +714,30 @@
         "scanEscalationReason": null
       },
       "_hash": "a509fbb73653c5e2031e21f5e8ee04d934f05292f65a2cb195ff83152466b8d7"
+    },
+    {
+      "id": "B-70e9:RP-030",
+      "agent": "lattice-review-quality",
+      "note": "Round 8 re-review of fix commit a967792ab4 (F-013). Truncation branch in recordFinalForHost is first check in try block, strictly before parseClaudeCliOutput/scanCodexTurnCompletedUsage. Provider mapping via existing hostProviderName is correct (codex->openai, claude->anthropic); agy excluded, keeps its own reason via unchanged fallthrough. Byte-diffed recordFinalForHost before/after: pure insertion, downstream branches untouched -- non-truncated paths byte-equivalent. Codex smoke has explicit precondition assert (stale line retained); claude smoke lacks that explicit assert but the exact-match unavailableReason assertion is a unique string produced only by the new branch, so it transitively proves the branch fired -- stylistic asymmetry only, not blocking. Docs update accurate. Build clean; test:host-run-usage 41/41; test:usage-sweep 16/16. No dead code / as any / empty catch introduced. No blocking findings.",
+      "createdAt": "2026-07-10T10:52:23.267Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-033",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "801fcafddcf419147b77e8b5646cc055c653fd4fb441cb7e28c6ad0380beae13"
     }
   ]
 }
