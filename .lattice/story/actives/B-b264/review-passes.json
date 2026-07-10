@@ -1,0 +1,26 @@
+{
+  "passes": [
+    {
+      "id": "B-b264:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round; this is additive UX guidance (merge-hazard section, rerun-reason section, generated-metadata classification) plus one bug fix in gitStatusRows (direct execFileSync replacing the trimming git() helper, which remains defined/used elsewhere). Grepped for old next=git status --short string, old merge-conflict guidance text, and confirmed the new smoke script/npm alias/type export are fully wired with no orphaned references. tsc --noEmit clean. No blocker.",
+      "createdAt": "2026-07-10T05:37:01.373Z",
+      "reviewRound": "2026-07-10T05:34:01.890Z",
+      "reviewRunId": "B-b264:RR-001",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/package.json",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-b264/checklist.json",
+          ".lattice/story/actives/B-b264/plan.md",
+          "packages/main/src/core/done-prepare-generated-metadata.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4407cdcacc91540edd7553c4eedd55a62e2cf5aba1437bd4ab5b95deb6a83bb7"
+    }
+  ]
+}
