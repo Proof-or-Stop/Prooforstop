@@ -312,6 +312,26 @@
         "scanEscalationReason": null
       },
       "_hash": "33a006388ef77b58a7601b71d5770cadcad12974bf9214e1dbeca6674506c32c"
+    },
+    {
+      "id": "B-70e9:RP-013",
+      "agent": "lattice-review-docs",
+      "note": "Round-4 convergence re-review scoped to commit b8908661f: docs/host-run-usage.md:60-63 new sentence verified sentence-by-sentence against packages/main/src/core/host-run.ts + packages/main/src/handlers/host-run.ts. Field name passthroughError matches exactly (HostRunSpawnResult.passthroughError, HostRunResult.passthroughError, JSON payload field at handlers/host-run.ts:263). Warning text host_run warning: matches literal prefix at handlers/host-run.ts:240 (host_run warning: live output passthrough failed (...)). Degradation semantics confirmed against code + smoke test (host-run-usage-smoke.ts F-008 check, 34/34): first sink failure flips passthroughBroken/passthroughFailure (no per-chunk retry), chunks keep reaching the usage scanner, run completes normally, ledger final row still records, concurrency slot still releases. Step 1 symbol extraction on the fix commit diff yielded only local const identifiers (no new exported class/function/interface/type/enum -- passthroughError is a property addition to existing interfaces, not a new top-level declaration), so Fallback 1 full-paragraph comparison was used for the doc paragraph itself; 1 doc paragraph (docs/host-run-usage.md Passthrough routing section, the 4-line addition) compared against 2 source files. CHANGELOG.md was not touched by b8908661f and this is consistent with the story convention: only the initial feature commit (c094e2313) added a CHANGELOG bullet; none of the subsequent finding-fix commits (F-001..F-009) added their own entries, so no drift. Internal helper names (safeWriteStderr, passthroughWarning, safeDeliver) correctly have no doc references since they are not part of the public interface. No blockers.",
+      "createdAt": "2026-07-10T09:19:19.964Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-017",
+      "readManifest": {
+        "filesReadFully": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/handlers/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "14fcba4125916e2cf39e6d69aeb329393f982bcb774092402628b53868eaa2d0"
     }
   ]
 }
