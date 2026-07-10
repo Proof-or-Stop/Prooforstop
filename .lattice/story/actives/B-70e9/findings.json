@@ -516,6 +516,24 @@
       "resolvedAt": "2026-07-10T14:13:32.483Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-70e9:F-024",
+      "desc": "[codex host-B, cross_host_review B-70e9-xhr-r14] Text-mode stdout passthrough can still crash on late EPIPE: live host stdout chunks are written with process.stdout.write(chunk.text) with no callback or pending-write settling (handlers/host-run.ts ~218), while the stdout error listener is removed in the finally after runHostRun returns - a closed downstream stdout pipe can emit EPIPE after removal, crashing the process despite the documented containment. Existing tests cover JSON-mode stderr and quiet text-mode stderr but NOT text-mode host stdout, the default path. Fix direction: settle-aware passthrough writes for stdout AND stderr chunks (track pending write callbacks/promises without serializing throughput, e.g. outstanding-write accounting), and only remove the temporary error listeners after all passthrough + final diagnostic writes settled or were marked broken; regression with a text-mode run whose stdout consumer closes mid/late-stream.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host-b",
+      "createdAt": "2026-07-10T14:27:12.586Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "_hash": "f04501aeaacfea3235851e929b41379dea723803a12b3d38e6fdea9f9dfe821e",
+      "files": [
+        "packages/main/src/handlers/host-run.ts",
+        "packages/main/src/tasks/host-run-usage-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|codex-host-cross",
+      "signatureTagSource": "auto"
     }
   ]
 }
