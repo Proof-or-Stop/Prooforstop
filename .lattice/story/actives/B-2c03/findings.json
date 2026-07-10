@@ -1,0 +1,33 @@
+{
+  "findings": [
+    {
+      "id": "B-2c03:F-001",
+      "desc": "packages/main/src/core/proofstory.ts:1382-1388 stripCodeLikeTokens over-strips: its hyphen/dot token-stripping regex (/\\b[A-Za-z0-9_]+(?:[-.][A-Za-z0-9_]+)+\\b/g) removes the SHRINKAGE TRIGGER WORD ITSELF whenever it is hyphenated or dotted to an adjacent word, e.g. deferred-for-now, excluded-here, partial-ly, narrow-ed, remaining-work, remaining-scope. Verified live: stripCodeLikeTokens(\"The remaining-work was left for later.\") -> \"The   was left for later.\" no longer matches claimsShrinkage, and \"deferred-for-now\"/\"excluded-here\" strip to empty. This defeats the DONE-gate unconfirmed_single_outcome_shrinkage guard for ordinary, non-adversarial phrasing an author or LLM may naturally write (not just genuine file paths like core/partial-done-recovery.ts, which was the intended target). The adversarial verification intents for CHK-001 (sanitize-path-tokens:adversarial) and CHK-003 (remaining-breadth-decision:adversarial) required proving the sanitizer/narrowing does not become a bypass for genuine shrinkage claims, but the smoke suite (proofstory-intent-hardening-smoke.ts) has no case where the trigger word itself is hyphenated/dotted -- only cases where a file path/identifier sits NEXT TO an intact trigger word. Recommend scoping the token-stripping regex so it does not consume a segment that is itself one of the trigger words (or requires a path-shaped segment such as a slash or recognizable extension) and add smoke coverage for hyphenated-trigger-word phrasing.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-10T14:48:45.098Z",
+      "reviewRound": "2026-07-10T14:41:10.214Z",
+      "reviewRunId": "B-2c03:RR-004",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2c03/background.md",
+          ".lattice/story/actives/B-2c03/plan.md",
+          ".lattice/story/actives/B-2c03/red-evidence.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2c03/checklist.json",
+          ".lattice/story/actives/B-2c03/review.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "357bf250a2054ccde11a9f060d5fb1ec5082be0991c7063e89c3a4f445fc7cdb",
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "auto"
+    }
+  ]
+}

@@ -119,6 +119,46 @@
         "bindingHash": "d9c5f1340d0c867043a5ae85eb5acb61501bd310e2185dfd19266b3a0dd0fac7"
       },
       "_hash": "ea67ecdd62f4dcf46d0d9065f99b6225cf9a53ea044f5cc579c6c0b98d37dfb8"
+    },
+    {
+      "reviewRunId": "B-2c03:RR-004",
+      "storyId": "B-2c03",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-07-10T14:41:10.214Z",
+      "startedAt": "2026-07-10T14:48:10.175Z",
+      "headHash": "75e452358b0e61609f5e730b79eafef38cd0f7a2",
+      "materialHash": "d94945bd41b182390e26f41ae059a105e5a295f4fef1362efe740d64409c6a68",
+      "storyFilesHash": "8e5539b7dbb83aeddef81bc9c19e56ae2ee54d9dc273479da26d6ecf616b5f3a",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "02a392bdacfd0aaeb70f45ce54eefd639f3906afbbe1fce28691fcc4143dd965",
+        "diffPackHash": "eac94110fb6f98970ddae434c900eaa827d4f6d2aec40c9728ea532cb1d2faf0",
+        "reviewedChangedFiles": [
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "5a9f5b66558548912c5e93e997c32c787241aa0ee062cd7cd57cf1ff0588c775",
+          "b532c314f53e1845d9f8c35de187224983347af6bc0eb64501b59ab726a14c70",
+          "ca599370a0dab73cec5ffd6ad031936736de850cdfe852b89c4f87f3cbddf30e"
+        ],
+        "bindingHash": "ea733db9f989bb931a8bb920900f5ac40557f5ca5d439b4a35c8a04cb514eb87"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-2c03",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-2c03",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-2c03",
+        "workspaceMode": "story-worktree",
+        "headHash": "75e452358b0e61609f5e730b79eafef38cd0f7a2",
+        "materialHash": "d94945bd41b182390e26f41ae059a105e5a295f4fef1362efe740d64409c6a68",
+        "storyFilesHash": "8e5539b7dbb83aeddef81bc9c19e56ae2ee54d9dc273479da26d6ecf616b5f3a",
+        "bindingHash": "c397458955015d2f7a5a410794440cf09bfea82f1fa147f570f403d6b77d1876"
+      },
+      "_hash": "d495a2a217c4613d4cfdf128c37295e628710cbfd0c391a768bb15599c742b8f"
     }
   ]
 }
