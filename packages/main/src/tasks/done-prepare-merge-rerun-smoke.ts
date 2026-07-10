@@ -17,6 +17,8 @@ import { dirname, join, relative } from 'node:path';
 
 import { resetConfigCache } from '../core/config.js';
 import { signDeliveryCheck } from '../core/delivery-check-hash.js';
+import { parseGitPorcelainRow } from '../core/dirty-worktree.js';
+import { gitStatusRowsForDonePrepareGeneratedMetadata } from '../core/done-prepare-generated-metadata.js';
 import {
   currentGitHead,
   currentMaterialHash,
@@ -374,6 +376,17 @@ async function assertModifiedTrackedPathExactness(): Promise<void> {
     // trim() used to eat the first row's leading char (".lattice" -> "lattice").
     write(root, `.lattice/story/actives/${storyId}/process-metrics.json`, '{"seed":false}\n');
     write(root, 'notes/keep.txt', 'edited\n');
+
+    // F-002 regression: the generated-metadata core helper must also keep the
+    // first porcelain row intact (its first row here is " M .lattice/...").
+    const coreRows = gitStatusRowsForDonePrepareGeneratedMetadata(root);
+    assert.ok(coreRows.length >= 2, `expected two dirty rows, got: ${JSON.stringify(coreRows)}`);
+    assert.match(coreRows[0]!, /^ M \./, `first core status row must keep its leading status space: ${JSON.stringify(coreRows[0])}`);
+    assert.equal(
+      parseGitPorcelainRow(coreRows[0]!)?.path,
+      `.lattice/story/actives/${storyId}/process-metrics.json`,
+      'core helper first-row path must keep its leading dot',
+    );
     const transcript = await runDonePrepare(root, storyId, {
       mergeMain: false,
       refreshStale: false,
