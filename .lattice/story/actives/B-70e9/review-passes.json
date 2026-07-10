@@ -1900,6 +1900,38 @@
         "scanEscalationReason": null
       },
       "_hash": "5a4ad6c6312347121711566b0a4b6f688ba47e0560700a993f1bf7eb2734d84d"
+    },
+    {
+      "id": "B-70e9:RP-077",
+      "agent": "lattice-review-concept",
+      "note": "Round 21 (commits 81c5bc42ea F-028/F-029, 3f2bed8c4a F-030) concept residue check: no mass concept deletion/replacement. F-028 adds isReadOnlyCommand(cmd,args) as an arg-aware WRAPPER around the existing static READ_ONLY_COMMANDS set (not a replacement) - READ_ONLY_COMMANDS is still exported from cli-engine.ts and still consumed with unchanged semantics by cli-surface-smoke.ts, playbook-trial-automation-smoke.ts, and playbook-seed-promotion-loop-smoke.ts (none test usage_sweep membership, so all unaffected). All 4 cli-engine.ts hook-gating call sites (pre/post pairs) plus shouldWriteActivityLog consistently switched to isReadOnlyCommand; repo-wide grep for READ_ONLY_COMMANDS found no residual call site still gating usage_sweep on the old static-only semantics. F-029/F-030 restructure build-vs-append into separate try blocks in recordDispatchFinalCodex and recordDispatchFinalForProvider only; independently audited the two sibling functions the commit message claims are conflation-free (recordDispatchFinal has a single try with no second-append fallback path at all, structurally cannot exhibit the bug; recordDispatchUnavailableFinal is a standalone single-purpose unavailable-only builder with no provider-reported branch) and confirmed both audit claims are correct. docs/host-run-usage.md additions accurately describe the new behavior with no promised-but-undelivered gaps. Independently rebuilt dist and ran host-run-usage-smoke (65/65 PASS) and usage-sweep-smoke (18/18 PASS) plus tsc --noEmit (clean). No blocker.",
+      "createdAt": "2026-07-10T18:33:29.472Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-089",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/host-run-usage.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/tasks/cli-surface-smoke.ts",
+          "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts",
+          "packages/main/src/tasks/playbook-trial-automation-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "aee5cee61e38015f71145ced08921dd4f6eb07f8cb8cbeb855fa1a65c0f21db8"
     }
   ]
 }
