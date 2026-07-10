@@ -4,7 +4,9 @@
  * A thin wrapper over the core choke point (core/host-run.ts): it validates the
  * args (exactly one of --prompt / --promptFile, canonical host, story/reviewRunId
  * binding), reads the prompt, builds the store-backed story resolver (F-005) and
- * the live passthrough sink (F-006), and delegates to runHostRun. Host output is
+ * the live passthrough sink (F-006), binds the host execution cwd to the
+ * resolved project root (F-011 — the same ctx.root the ledger rows attribute,
+ * never the caller's process.cwd()), and delegates to runHostRun. Host output is
  * STREAMED LIVE through the passthrough as it arrives; a usage-summary line is
  * written to stderr; the process exit reflects success vs a host failure / cap
  * refusal.
@@ -225,6 +227,16 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
           timeoutMs: typeof args.timeoutMs === 'number' && args.timeoutMs > 0 ? args.timeoutMs : undefined,
           agyPrintTimeout,
           env: process.env,
+          // F-011: the host subprocess executes in the resolved project root
+          // (ctx.root — the --root target the CLI engine resolved). This is
+          // deliberately the SAME value bound as the ledger `root` +
+          // projectRootHash below, so where the host actually runs and where
+          // the ledger attributes the run can never diverge; the caller's
+          // process.cwd() plays no part. Operators launching story-bound host
+          // runs point --root at the story's authoritative worktree (the
+          // documented reviewer/quorum recipe), which makes that worktree the
+          // execution directory too.
+          cwd: ctx.root,
           root: ctx.root,
           recordedAt: new Date().toISOString(),
           projectRootHash: projectRootHashFor(ctx.root),

@@ -23,6 +23,10 @@
  *     existence are resolved through the injected `resolveStory` seam (the HANDLER
  *     builds it from the configured StoryStore); an explicit --phase is honored
  *     as-is WITHOUT consulting the store at all.
+ *   - F-011: the host subprocess ALWAYS executes in the resolved project root
+ *     (HostRunArgs.cwd — bound by the handler to the SAME root the ledger rows
+ *     attribute), never the caller's process.cwd(); a missing cwd is refused
+ *     pre-spawn, so execution and ledger attribution cannot diverge.
  *   - The ledger seam mirrors runClaudeCodeRealLeafDispatch (lattice-dispatch.ts):
  *     preflight estimate (sequence 1) -> budget guard -> concurrency guard ->
  *     spawn -> provider/unavailable final (sequence 2, supersedes the estimate).
@@ -100,7 +104,13 @@ export interface HostRunSpawnPlan {
   /** Args passed to the executable (argv WITHOUT the leading command token). */
   argv: string[];
   env: NodeJS.ProcessEnv;
-  cwd?: string;
+  /**
+   * F-011: the working directory the host subprocess MUST execute in — always
+   * the resolved project root threaded from HostRunArgs.cwd, never the caller's
+   * process.cwd(), so where the host actually runs cannot diverge from the root
+   * the ledger rows attribute.
+   */
+  cwd: string;
   timeoutMs?: number;
   /** The absolute prompt-file path for claude (informational; runner reads argv). */
   promptFile?: string;
@@ -172,6 +182,14 @@ export interface HostRunArgs {
   /** agy --print-timeout override (e.g. '30m'); must match /^\d+[smh]$/. */
   agyPrintTimeout?: string;
   env: NodeJS.ProcessEnv;
+  /**
+   * F-011: the working directory for the host subprocess. The handler binds
+   * this to the SAME resolved project root it passes as `root` (the ledger
+   * attribution root), so execution and attribution cannot diverge; the
+   * caller's process.cwd() is never used. Required — an empty value is refused
+   * pre-spawn.
+   */
+  cwd: string;
   root: string;
   recordedAt: string;
   projectRootHash: string;
@@ -869,6 +887,13 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
   if (typeof args.promptText !== 'string' || args.promptText.length === 0) {
     throw new Error('host_run: promptText is required (empty prompt refused pre-spawn)');
   }
+  // F-011: the host must execute in the resolved project root, never the
+  // caller's process cwd. A missing/empty cwd is refused BEFORE any spawn so a
+  // host can never silently run in whatever directory the CLI was invoked from
+  // while the ledger attributes the run to `root`.
+  if (typeof args.cwd !== 'string' || args.cwd.length === 0) {
+    throw new Error('host_run: cwd is required (the resolved project root); refuse pre-spawn rather than spawn in the caller cwd');
+  }
 
   const runner = deps.runner ?? defaultHostRunRunner;
   const passthrough = deps.passthrough ?? (() => {});
@@ -908,6 +933,8 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
         command: launch.command,
         argv: launch.argv,
         env: args.env,
+        // F-011: every spawn path executes in the resolved project root.
+        cwd: args.cwd,
         timeoutMs: args.timeoutMs,
         promptFile: launch.promptFile,
         host: args.host,

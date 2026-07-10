@@ -31,6 +31,11 @@ lattice host_run --host <codex|claude|agy> --agentType <type> \
   [--timeoutMs <ms>] [--agyPrintTimeout 30m] [--json]
 ```
 
+The host subprocess executes in the **resolved project root** (the `--root`
+target — the same root the usage-ledger rows are attributed to), independent of
+the caller's current working directory, so where the host actually runs can
+never diverge from where the ledger says it ran.
+
 The host stdout streams through **live**: the default production runner is an
 async `child_process.spawn`, and host output passes through to the parent as it
 arrives (no buffering-until-exit, no `maxBuffer` truncation). A one-line usage

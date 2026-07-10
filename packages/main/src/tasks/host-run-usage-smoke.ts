@@ -24,6 +24,10 @@
  *     claude=anthropic byte-compat). F-008: a throwing passthrough sink degrades
  *     honestly (run completes, no per-chunk retry, usage final records, slot
  *     releases, passthroughError reported) instead of crashing the run.
+ *     F-011: the spawn plan binds cwd to the resolved project root (args.cwd,
+ *     the same value the ledger attributes) — proven with a fake runner while
+ *     the smoke process is chdir'd elsewhere, with a fail-closed empty-cwd
+ *     refusal, and with a real child that prints its process.cwd().
  *   - CHK-003: the remaining lattice-initiated host spawns route through the same
  *     seam — autopilot claude repair (ledger ON adds --output-format json + records
  *     estimate/final rows with agentType autopilot-repair and an envelope-parsed
@@ -42,6 +46,7 @@ import {
   mkdtempSync,
   readdirSync,
   readFileSync,
+  realpathSync,
   rmSync,
   statSync,
   utimesSync,
@@ -189,6 +194,9 @@ function baseArgs(over: Partial<HostRunArgs> & { root: string }): HostRunArgs {
     env: ON,
     recordedAt: '2026-07-10T00:00:00.000Z',
     projectRootHash: 'sha256:testroot',
+    // F-011: like the production handler, bind the execution cwd to the SAME
+    // root the ledger rows attribute (overridable per check).
+    cwd: over.root,
     ...over,
   };
 }
@@ -573,6 +581,7 @@ async function main(): Promise<void> {
       command: process.execPath,
       argv: ['-e', script],
       env: process.env,
+      cwd: process.cwd(),
       host: 'codex',
       retainUsageLine: usageLineRetainerFor('codex'),
       onChunk: (c: HostRunChunk) => chunks.push({ stream: c.stream, text: c.text, at: Date.now() }),
@@ -617,6 +626,7 @@ async function main(): Promise<void> {
       command: process.execPath,
       argv: ['-e', script],
       env: process.env,
+      cwd: process.cwd(),
       host: 'codex',
       retainUsageLine: usageLineRetainerFor('codex'),
       onChunk: () => { /* discard live (bounded memory) */ },
@@ -659,6 +669,7 @@ async function main(): Promise<void> {
       command: process.execPath,
       argv: ['-e', script],
       env: process.env,
+      cwd: process.cwd(),
       host: 'codex',
       retainUsageLine: usageLineRetainerFor('codex'),
       onChunk: () => {
@@ -697,6 +708,71 @@ async function main(): Promise<void> {
     const dir = hostRunSlotsDir(sub);
     const after = acquireHostRunSlot(dir, 1, 6 * 60 * 60 * 1000, Date.now(), slotMeta('after-broken-sink'));
     assert.equal(after, join(dir, 'slot-0.json'), 'concurrency slot was released (cap=1 re-admission succeeds)');
+  });
+
+  // =========================================================================
+  // F-011: the host subprocess executes in the RESOLVED PROJECT ROOT (args.cwd,
+  // the same value the ledger attributes as root), never the caller's process
+  // cwd. Against the old code the spawn plan carried NO cwd at all, so the host
+  // inherited whatever directory the CLI happened to be invoked from while the
+  // ledger still pointed at --root.
+  // =========================================================================
+  await checkAsync('F-011: plan.cwd is the injected resolved root while process.cwd() is intentionally elsewhere; empty cwd refused pre-spawn', async () => {
+    const sub = freshRoot();
+    mkdirSync(sub, { recursive: true });
+    const elsewhere = mkdtempSync(join(tmpdir(), 'host-run-caller-cwd-'));
+    const originalCwd = process.cwd();
+    try {
+      process.chdir(elsewhere);
+      // The smoke process now sits in a directory that is NOT the injected root
+      // — exactly the reported bug setup (`lattice --root <worktree> host_run`
+      // invoked from somewhere else).
+      assert.notEqual(realpathSync(sub), process.cwd(), 'precondition: caller cwd differs from the injected root');
+      const sink: RunnerSink = { calls: 0, lastPlan: null };
+      const result = await runHostRun(baseArgs({ root: sub }), { runner: makeRunner({ stdout: CODEX_STDOUT }, sink) });
+      assert.equal(result.spawned, true);
+      assert.equal(sink.calls, 1);
+      assert.ok(sink.lastPlan);
+      assert.equal(sink.lastPlan!.cwd, sub, 'plan.cwd === the injected root (the ledger-attribution root), NOT the caller cwd');
+      assert.notEqual(realpathSync(sink.lastPlan!.cwd), process.cwd(), 'the caller cwd never leaks into the spawn plan');
+
+      // Fail-closed: a missing/empty cwd is refused BEFORE any spawn (and before
+      // any ledger row) rather than silently falling back to the caller cwd.
+      const sub2 = freshRoot();
+      const sink2: RunnerSink = { calls: 0, lastPlan: null };
+      await assert.rejects(
+        () => runHostRun({ ...baseArgs({ root: sub2 }), cwd: '' }, { runner: makeRunner({ stdout: CODEX_STDOUT }, sink2) }),
+        /cwd is required/i,
+      );
+      assert.equal(sink2.calls, 0, 'no spawn without a resolved cwd');
+      assert.equal(existsSync(resolveLedgerPath(sub2)), false, 'no rows written for a missing-cwd refusal');
+    } finally {
+      process.chdir(originalCwd);
+      rmSync(elsewhere, { recursive: true, force: true });
+    }
+  });
+
+  await checkAsync('F-011: the DEFAULT runner spawns the real child IN plan.cwd — child process.cwd() equals the injected root, not the smoke cwd', async () => {
+    const target = mkdtempSync(join(tmpdir(), 'host-run-cwd-target-'));
+    try {
+      const chunks: string[] = [];
+      const result = await defaultHostRunRunner({
+        command: process.execPath,
+        argv: ['-e', 'console.log(process.cwd());'],
+        env: process.env,
+        cwd: target,
+        host: 'codex',
+        retainUsageLine: usageLineRetainerFor('codex'),
+        onChunk: (c: HostRunChunk) => { if (c.stream === 'stdout') chunks.push(c.text); },
+      });
+      assert.equal(result.exitCode, 0);
+      const printed = chunks.join('').trim();
+      assert.ok(printed.length > 0, 'child printed its cwd');
+      assert.equal(realpathSync(printed), realpathSync(target), 'the child executed in the injected root (spawn received plan.cwd)');
+      assert.notEqual(realpathSync(printed), process.cwd(), 'and NOT in the smoke process cwd (the old no-cwd inheritance)');
+    } finally {
+      rmSync(target, { recursive: true, force: true });
+    }
   });
 
   // =========================================================================
