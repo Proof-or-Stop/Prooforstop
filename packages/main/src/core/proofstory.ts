@@ -1410,8 +1410,10 @@ function stripCodeLikeTokens(text: string): string {
     .replace(/```[\s\S]*?```/g, ' ')
     .replace(/`[^`\s]*`/g, ' ')
     .replace(/[^\s`]*\/[^\s`]*/g, (token) => {
-      const slashCount = (token.match(/\//g) ?? []).length;
-      const pathShaped = slashCount >= 2 || token.includes('.') || /^(?:\.{1,2}|~)?\//.test(token);
+      // F-007: slash count alone is not path semantics — English enumerations
+      // (excluded/deferred/partial) must survive. Only a dot somewhere in the
+      // token or an explicit leading path prefix marks it as a real path.
+      const pathShaped = token.includes('.') || /^~?\//.test(token);
       return pathShaped ? ' ' : token;
     })
     .replace(dottedFileTokenRegex, ' ');

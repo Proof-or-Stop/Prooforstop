@@ -60,9 +60,11 @@ Rationale:
   - inline backtick spans ONLY when whitespace-free (`` `deferred` `` strips;
     `` `the remaining scope items were deferred` `` is quoted prose and KEPT —
     F-006.1);
-  - slash tokens ONLY when path-shaped: ≥2 slashes, or a dot, or a leading
-    `./`, `../`, `~/`, `/` (`core/partial-done-recovery.ts` strips;
-    `remaining/scope` prose is KEPT — F-006.2);
+  - slash tokens ONLY when path-shaped: a dot anywhere in the token, or a
+    leading `./`, `../`, `~/`, `/` prefix (`core/partial-done-recovery.ts`
+    strips; `remaining/scope` prose is KEPT — F-006.2; slash COUNT alone is
+    never sufficient, so English enumerations like `excluded/deferred/partial`
+    are KEPT — F-007);
   - dotted tokens ONLY with a known UNAMBIGUOUS extension (F-005: `go`, `c`,
     `h`, `m`, `log`, `map`, `sh`, `zip`, ... are excluded from the whitelist)
     AND a code-shaped stem — a hyphen/underscore or a second dot
@@ -73,8 +75,9 @@ Rationale:
   `partial-release.rc1` matches).
   Residual accepted tradeoffs are all false-POSITIVE direction (`partial.md`,
   `deferred.ts`, `excluded-approach.log`, `partial-done-recovery` extensionless,
-  `config.partial.enabled`): authors can backtick single tokens or use a
-  directory-qualified path, both of which strip. One residual false-negative by
+  `config.partial.enabled`, and extensionless prefix-free directory paths like
+  `a/deferred/queue` — F-007 direction): authors can backtick single tokens or
+  use a dotted/prefix-qualified path, both of which strip. One residual false-negative by
   convention: prose hidden inside a fenced code block is treated as code — a
   summary whose ONLY shrinkage claim lives inside a fenced block is adversarial
   authoring, outside the honest-summary threat model of this heuristic.

@@ -1026,6 +1026,43 @@ try {
     true,
     'a trigger word with a simple stem and dot extension (partial.md) fails safe and still fires (F-006)',
   );
+  // B-2c03 F-007: slash count alone is not path semantics — English
+  // slash-separated enumerations (excluded/deferred/partial) must keep firing;
+  // only tokens with a dot or a leading path prefix (./ ../ ~/ /) strip.
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'The excluded/deferred/partial items were dropped from this delivery.',
+    actualTranscript: 'The label normalizer output is unchanged.',
+    outcomeDiff: 'No difference from the original request.',
+  }));
+  const slashEnumerationDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    slashEnumerationDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    true,
+    'a multi-slash English enumeration (excluded/deferred/partial) is not a path and still fires (F-007)',
+  );
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'The remaining/scope/details were dropped from this delivery.',
+    actualTranscript: 'The label normalizer output is unchanged.',
+    outcomeDiff: 'No difference from the original request.',
+  }));
+  const slashEnumerationRemainingDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    slashEnumerationRemainingDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    true,
+    'a multi-slash enumeration starting with remaining (remaining/scope/details) still fires (F-007)',
+  );
+  // Control: dotted and prefix-led paths still strip regardless of slash count.
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Cleaned up ./excluded/queue and src/deferred/list.ts in passing.',
+    actualTranscript: 'The label normalizer output is unchanged.',
+    outcomeDiff: 'No difference from the original request.',
+  }));
+  const pathPrefixDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    pathPrefixDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    false,
+    'prefix-led (./excluded/queue) and dotted (src/deferred/list.ts) paths still strip (F-007 control)',
+  );
 
   // B-f7b3 CHK-004: a CONFIRMED milestone ledger that is empty OR whose rows are
   // all not_applicable (without a valid decision) must NOT vacuously satisfy the
