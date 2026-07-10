@@ -83,6 +83,7 @@ and the resulting judgment.
 | Split M0.5/M1/M2/M3/M4 into smaller rollback points. | M0.5 touches registry, host adapters, review-run lanes, process-fact registry, and in-flight evidence readers. M4 touches direct file access, CLI read APIs, writers, INIT self-check, channel retirement, and static scans. | Accepted. The plan now requires read-path aliasing before canonical writes, and direct-write bans before read replacement / INIT self-check changes. |
 | Add alias sunset policy. | `packages/main/src/handlers/agent-prompt.ts` currently exact-matches template basenames; `packages/main/src/core/prompt-registry.ts` uses filename-derived `agentId`; process-fact registry still lists legacy lanes. | Accepted. Compatibility is read-only/legacy-write-forbidden and must have a removal condition. |
 | Move speed metrics earlier than M9. | `packages/main/src/handlers/reviewer-list.ts` computes baseline reviewers and routing reasons today; M3/M6/M8 can measure reviewer count and full-scan decisions before E2E rollout. | Accepted. M1/M3/M6/M8 now include measurable speed/routing exit criteria, with M9 retaining final comparison. |
+| Add a bounded search / memory budget before broad spec scans. | Current `session_brief` renders Memory Runtime Preflight as `authority=non_authoritative` and `gateEvidence=false`; this story's 3x2 review also recorded that an initial in-repo Codex run was interrupted for over-broad scanning. M6 already narrows full decisions-directory scans. | Accepted with boundary. Memory/playbook preflight is advisory only; agents must build a `candidateSpecSet` before broad scan; full `decisions/*.md` scan remains available only as a recorded escalation path. |
 
 ## B-2861 3x2 Review Follow-Up Ledger
 
@@ -108,6 +109,7 @@ they are supported by current project code or CLI documentation.
 | Add DONE-required evidence to final-gate contracts. | Agy A. | Accepted. | Artifact schema and delivery contract now mention `done_required_validate` / `done-required-evidence.json` when project policy configures DONE-required commands. | AGENTS and CLI docs require fresh DONE-required evidence only when `doneRequiredCommands` / policy are configured; prompts must not invent it otherwise. |
 | Treat `scope-check.openQuestions` as non-tamper-evident until hardened. | Codex B, Agy A. | Accepted as warning; code change deferred. | The scope artifact row now says prompts must not rely on unsigned `openQuestions` as tamper-evident blockers unless resolved through a structured command or signature-domain update. | `scope-check.ts` passes `openQuestions` through outside the signature domain; process-fact registry records that choice. |
 | Split M0.5 into smaller, rollback-safe implementation stories. | Claude A, Agy B. | Accepted. | Added a story breakdown and parallel execution plan with 26 recommended stories and explicit serial/parallel boundaries. | M0.5 touches registry, host shims, review-run lanes, init gate, process-fact registry, and legacy evidence readers; one giant story would be hard to review or revert. |
+| Add bounded search / memory budget for broad scans. | User follow-up, owner analysis. | Accepted. | Added a Search / Memory Budget Contract and expanded M6 around `candidateSpecSet`, full-scan escalation reasons, and token/search metrics. | Memory Runtime Preflight is explicitly non-authoritative and not gate evidence; over-broad scanning was already observed as a review execution risk. The plan now keeps full scan as an escalation path instead of a default. |
 | Immediately update runtime code in this story. | Agy A/B. | Rejected for this story. | No runtime code changes are included here. | B-2861 scope is a document review and optimization story; code changes belong in the later implementation stories described by the plan. |
 
 ## Design Principles
@@ -180,6 +182,53 @@ Future prompt/routing work must preserve this boundary. If a new mutating
 command changes a state that matters to progress, the implementation must either
 add it to the CLI auto-append set or require an explicit host follow-up call to
 `milestone_status`.
+
+## Search / Memory Budget Contract
+
+Prompt consolidation must reduce repeated broad scans without weakening scope
+review. This contract applies to every agent prompt that may broad scan docs,
+perform a full `docs/requirements/decisions/*.md` scan, or reverse-map a story
+against historical decisions.
+
+Rules:
+
+- Agents that may broad scan must first consume bounded memory/playbook
+  preflight when that surface is available. This is a recall and routing aid
+  only.
+- Memory and playbook results are advisory. They cannot satisfy hard gates,
+  reviewer gates, DONE gates, delivery checks, verification evidence, or review
+  escalation requirements.
+- A memory/playbook no-hit is not permission to scan every decision file. The
+  agent must first generate or consume a `candidateSpecSet`.
+- `candidateSpecSet` sources include, in priority order:
+  - explicit `relatedDocs` from checklist/story context;
+  - story title, description, acceptance wording, and risk signals;
+  - current diff, changed files, exported symbols, command names, config keys,
+    and public docs anchors;
+  - `lattice aux_doc_list` or its available replacement;
+  - bounded `rg` results over docs, capped to the top N relevant documents with
+    the cap recorded by the agent or routing surface.
+- A full `decisions/*.md` scan is allowed only when at least one escalation
+  trigger is present: high-risk story, lifecycle change, gate change,
+  process-fact change, global rename, candidate ambiguity, or explicit reviewer
+  escalation.
+- Every full scan must record `scanEscalationReason` with the trigger, the
+  failed or ambiguous candidate set, and the reviewer/host that escalated.
+- REVIEW behavior must not default to full decisions-directory scanning. It
+  consumes `scope_check_save` output, current diff, changed user-facing behavior,
+  and `userSees` / transcript context. It escalates to full scan only through
+  the rule above.
+- REVIEW docs and delivery prompts may consume the same `candidateSpecSet`, but
+  they must keep their owner boundaries: docs owns REVIEW doc-code drift;
+  delivery owns final signed closeout and only runs docs-promise fallback when
+  docs review was not routed or the candidate set is ambiguous.
+- Token/search metrics belong to routing and sample-flow evidence: number of
+  candidate docs, `rg` query count, memory/playbook hit count, whether a full
+  scan ran, and the recorded escalation reason if it did.
+
+This contract is not a runtime implementation by itself. M6 turns it into
+prompt and routing requirements; later stories decide the exact CLI field names
+and metric sink.
 
 ## Target Role Map
 
@@ -271,8 +320,12 @@ Required prompt changes:
 
 - Keep it as the only owner of PLAN scope coverage.
 - Replace unconditional full `decisions/*.md` scanning with a staged model:
-  CLI-provided candidate docs by default, full scan for high-risk/gate/process
-  changes or explicit escalation.
+  CLI-provided `candidateSpecSet` by default, full scan only for the
+  Search / Memory Budget Contract escalation triggers: high-risk story,
+  lifecycle change, gate change, process-fact change, global rename, candidate
+  ambiguity, or explicit reviewer escalation.
+- When memory/playbook preflight has no hit, generate or consume the bounded
+  candidate set first rather than falling through to full directory scan.
 - Continue forbidding reliance on checklist `context` as requirement truth.
 - Make `openQuestions` the only output for contradictions that cannot be
   categorized safely.
@@ -335,6 +388,9 @@ Required prompt changes:
 - Remove the duplicated `doc-promise-undelivered` self-check.
 - Stop doing an unconditional full decisions-directory scan.
 - Consume `scope_check_save` output and current checklist/userSees instead.
+- If behavior review escalates to a full decisions scan, require the same
+  `scanEscalationReason` triggers and metrics defined in the Search / Memory
+  Budget Contract.
 - Keep structured reviewer flow: `review_run_start`, then `finding_add` or
   `review_pass_set`.
 - Do not own UX scoring; evaluator/product/delivery lanes handle that.
@@ -873,7 +929,8 @@ Subprojects:
   reviewer evidence readers, quorum readers, delivery/floor consumers, and
   process-fact registry checks must keep reading existing `lattice-*` /
   unprefixed evidence.
-- M0.5.2a must explicitly cover the current hardcoded role choke points:
+- This read-path subproject must explicitly cover the current hardcoded role
+  choke points:
   `REVIEW_RUN_LANES`, `isReviewerAgent`, `resolveReviewRunLane`,
   `finding_add` / pass-only finding reviewer classification,
   `REQUIRED_INIT_CHECK_AGENTS`, reviewer quorum/floor consumers, delivery
@@ -1116,22 +1173,32 @@ the entire historical decisions directory.
 
 Subprojects:
 
-- M6.1 Keep `proof-or-stop-review-scope-plan` as PLAN scope owner, but feed it a
-  CLI-produced candidate spec set instead of an unconditional full decisions
-  scan where possible.
-- M6.2 Change `proof-or-stop-review-behavior` to consume the saved scope check and
-  current story commitments instead of re-reading all decisions.
-- M6.3 Define when full decisions scan is still required: high-risk lifecycle
-  changes, process-fact changes, gate changes, or explicit reviewer escalation.
-- M6.4 Add examples for "covered", "excluded", "orphan-suspect", and "not
+- M6.1 Generate or consume a bounded `candidateSpecSet` before any broad spec
+  scan. The set is derived from related docs, story title/description, changed
+  files/symbols, command/config names, `aux_doc_list`, and top-N `rg` matches.
+- M6.2 Keep `proof-or-stop-review-scope-plan` as PLAN scope owner, but feed it
+  the candidate set instead of an unconditional full decisions scan whenever
+  the candidate set is unambiguous.
+- M6.3 Change `proof-or-stop-review-behavior` to consume `scope_check_save`,
+  current diff, current story commitments, and `userSees` context. Behavior
+  review is forbidden from default full `decisions/*.md` scanning.
+- M6.4 Define when full decisions scan is still required: high-risk story,
+  lifecycle change, gate change, process-fact change, global rename, candidate
+  ambiguity, or explicit reviewer escalation. Every full scan must record a
+  `scanEscalationReason`.
+- M6.5 Add examples for "covered", "excluded", "orphan-suspect", and "not
   current-story scope" so reviewers do not turn all old plans into blockers.
-- M6.5 Add regression fixtures showing unrelated decisions docs do not create
-  behavior-review findings.
-- M6.6 Keep `express-exempt` and fast-path verification scope visible in
-  routing output so scan narrowing does not hide why a prompt did not run.
-- M6.7 Record full decisions scan frequency and structured skip reasons in the
-  sample flow. A skipped scan must state whether it was skipped due to candidate
-  spec set, express/fast path, or not-current-story scope.
+- M6.6 Add regression fixtures showing unrelated decisions docs do not create
+  behavior-review findings, and keep `express-exempt` / fast-path verification
+  scope visible in routing output so scan narrowing does not hide why a prompt
+  did not run.
+- M6.7 Record token/search metrics in the sample flow: memory/playbook hit
+  count, candidate docs count, `rg` query count, full-scan yes/no,
+  `scanEscalationReason`, and structured skip reason. A skipped scan must state
+  whether it was skipped due to candidate spec set, express/fast path, or
+  not-current-story scope.
+- M6.8 Connect INIT, PLAN, and REVIEW prompts to bounded memory/playbook
+  preflight without treating memory/playbook output as gate evidence.
 
 Exit criteria:
 
@@ -1142,6 +1209,9 @@ Exit criteria:
 - Fast-path stories show an explicit scope/evidence reason when review lanes are
   narrowed or skipped.
 - Full-scan trigger/skip metrics are available before M9 E2E rollout.
+- REVIEW behavior pass/finding records show whether they used only
+  `scope_check_save` + current diff + `userSees`, or escalated with a recorded
+  full-scan reason.
 
 ### M7 - Product, Delivery, And Evaluator Boundary
 
@@ -1264,6 +1334,8 @@ Exit criteria:
 | Status-changing command hides progress from the user | Mutation-output tests assert either a real `Milestone Status - <storyId>` table or the distinct checklist-derived block appears for human text output; prompt tests forbid agents from hand-writing milestone status. |
 | Runtime guide drift | Prompt registry smoke compares every active guide-bearing prompt to the canonical guide. |
 | Scope reviewer reports unrelated old decisions as current gaps | Fixtures include unrelated decisions docs and expect no REVIEW behavior finding. |
+| Memory/playbook recall is mistaken for proof | Tests or prompt snapshots assert memory/playbook preflight is labeled advisory, non-authoritative, and `gateEvidence=false`; no lifecycle gate consumes it as evidence. |
+| Memory no-hit causes unbounded scan | PLAN/REVIEW fixtures simulate no memory/playbook hit and require a bounded `candidateSpecSet` plus skip/escalation reason before any full decisions scan is allowed. |
 
 ## Suggested Final Prompt Set
 
@@ -1311,7 +1383,7 @@ prompt a separate tiny story.
 | M3 duplicate responsibility split | 3 | Docs owner split; behavior/quality/concept cleanup and implementation-reviewer fold; delivery fallback contract. | Parallel with M2/M5/M6 once M1 status metadata exists. |
 | M4 CLI-mediated artifact discipline | 4 | Direct-write ban; direct-read replacement APIs; INIT self-check migration; channel retirement/static scans. | Internal order should stay mostly serial; can run beside M2/M3 if it does not touch the same prompt bodies. |
 | M5 runtime guide consistency | 2 | Guide insertion/sync; prompt registry smoke tests. | Parallel with M2/M3 after M1 metadata exists. |
-| M6 scope/spec scan narrowing | 1 | Candidate spec set, skip reasons, and full-scan trigger rules. | Parallel after M1, but before M8 routing help freezes. |
+| M6 scope/spec scan narrowing | 1 | Candidate spec set, bounded memory/playbook preflight, skip reasons, token/search metrics, and full-scan trigger rules. | Parallel after M1, but before M8 routing help freezes. |
 | M7 product/delivery/evaluator boundary | 1 | Product-reviewer fold/advisory decision and evaluator transcript boundary. | Parallel after evaluator `evidenceMode` is decided in M1. |
 | M8 routing/help/spawn guidance | 1 | Human and host routing output, skipped reviewer reasons, legacy alias guidance. | Late serial merge point after M2-M7 semantics stabilize. |
 | M9 E2E regression and rollout | 1 | Prompt registry, process-fact, adapter, sample lifecycle, speed metrics, and release/version checks if runtime changed. | Final serial closure. |
@@ -1384,8 +1456,8 @@ intermediate state.
 4. Should `proof-or-stop-evaluator` / `proof-or-stop-evaluator-cli` continue to
    use current `evaluate_save` / `eval-evidence.json`, or should a later story
    replace that sink with a more explicit evaluator-run artifact?
-5. Should full decisions-directory scanning be reserved for high-risk stories
-   only, or remain mandatory in PLAN with stronger relevance classification?
+5. What exact top-N document cap and metric sink should M6 use for
+   `candidateSpecSet` search accounting?
 
 ## Completion Definition
 
@@ -1414,7 +1486,9 @@ This execution plan is complete only when:
 - Evaluator output mode is fixed: raw JSON is advisory; only `evaluate_save`
   output can become policy-gated evidence.
 - Prompt registry and adapter verification pass.
-- Speed metrics for default REVIEW lanes, full decisions scans, sample-story
-  token/time cost, and evaluator opt-in cost are captured.
+- Speed metrics for default REVIEW lanes, candidate docs count,
+  memory/playbook hit count, `rg` query count, full decisions scans,
+  `scanEscalationReason`, sample-story token/time cost, and evaluator opt-in
+  cost are captured.
 - A representative story can run through the lifecycle using the consolidated
   prompts without weakening gates or producing duplicate reviewer findings.
