@@ -22,6 +22,31 @@
         "scanEscalationReason": null
       },
       "_hash": "be3070ba319f92c7eef1ff575d29fcf8b1588979fd9050b3e9bf4b401101d744"
+    },
+    {
+      "id": "B-bf15:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "Verified package.json diff is the single stale test:autopilot-resume-smoke script line removal; source .ts was confirmed deleted by 5d3d7bd686. Repo-wide grep (excluding node_modules/.git/.claude/.worktrees/dist/.lattice) shows exactly one surviving hit at docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md:403, which is a dated B-320f historical acceptance-evidence table row (\"PASS in B-320f DEV\"), correctly left untouched as documented audit history, not a runnable reference. No other docs, package.json files, or CI config reference the removed script. package.json JSON parses cleanly. CHK-001/CHK-002 both done and match the diff. No documentation-code consistency issues found.",
+      "createdAt": "2026-07-10T14:40:22.606Z",
+      "reviewRound": "2026-07-10T14:38:11.117Z",
+      "reviewRunId": "B-bf15:RR-003",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-bf15/plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md (lines 380-407)"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-bf15/checklist.json",
+          "docs/dev/test-coverage.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "docs/requirements/decisions/milestone-status-done-gate-reconciliation.md",
+          "docs/requirements/decisions/product-capability-release-playbook-lineage-execution-plan.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "packages/main/package.json (diff)"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "28e6f2820a74f5a7081c4138dccb3e9e790ccbb9548a585c23c6d9189931a335"
     }
   ]
 }
