@@ -449,6 +449,25 @@
       "resolvedAt": "2026-07-10T13:17:14.122Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-70e9:F-021",
+      "desc": "[codex host-B, cross_host_review B-70e9-xhr-r12] Claude host_run reports usage recorded even when the ledger write failed: the claude final path calls recordDispatchFinal(), which catches appendUsageRecord failures and returns void; the summary branch then reports usageSummary.recorded=provider-reported purely because parsed.anthropicUsage exists. A corrupt or lock-timeout ledger leaves NO final row while host_run prints usage recorded - silently hiding the under-count in the very choke point built for honest capture. Fix direction: give the anthropic final recorder (or a host_run-specific wrapper) an appended/skipped status surface like the codex/unavailable recorders, and report recorded=none/skipped-with-reason when the append fails; audit the codex and agy summary paths for the same parse-success-vs-append-success conflation.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host-b",
+      "createdAt": "2026-07-10T13:29:44.139Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "_hash": "b56c30fa61ec576755bd28624ce1264dd4b6971892ebf7c3abe57aa0943ade87",
+      "files": [
+        "packages/main/src/core/host-run.ts",
+        "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+        "packages/main/src/tasks/host-run-usage-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|codex-host-cross",
+      "signatureTagSource": "auto"
     }
   ]
 }
