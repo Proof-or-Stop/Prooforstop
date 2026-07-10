@@ -84,8 +84,28 @@
         "validate_smoke_compatibility",
         "review_pass_readmanifest_contract"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Acknowledge ProofStory parent-ledger roll-up metadata recording B-4a78 self-coverage of M0-M5; required for strict DONE intent-equivalence and not source or test scope expansion.",
+      "timestamp": "2026-07-10T03:55:04.979Z",
+      "paths": [
+        ".lattice/story/actives/B-4a78/parent-ledger-rollup.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-4a78/parent-ledger-rollup.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "7c0235d76137dfa5e224527296dce645d28032af",
+      "materialHash": "4d229b18c8e624211030a9792789d6bc8aa4283adddf190a96a1c2440ff6a9a4",
+      "anchors": [
+        "proofstory_parent_ledger_rollup",
+        "done_intent_equivalence"
+      ]
     }
   ],
   "createdAt": "2026-07-10T01:13:02.275Z",
-  "updatedAt": "2026-07-10T01:53:54.071Z"
+  "updatedAt": "2026-07-10T03:55:04.979Z"
 }
