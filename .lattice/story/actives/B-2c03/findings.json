@@ -209,7 +209,7 @@
       "desc": "packages/main/src/core/proofstory.ts:1474 — the multi-word trigger connector class [\\s/_-]+ (added by F-006/F-007 to also match slash-separated prose) does not include a dot, so a dot-glued genuine narrowing/shrinkage claim silently bypasses the DONE-intent-equivalence guard. Confirmed live end-to-end: a lightweight-path story with acceptanceVerdict accepted and summary.changes = the remaining.scope work was intentionally cut from this delivery; out.of.scope items were skipped too. -> done_intent_equivalence_check returns status pass with ZERO gaps (no unconfirmed_single_outcome_shrinkage). The same text with spaces instead of dots (remaining scope / out of scope) correctly fires. This is plain natural prose with no path/code context (no slash, no file extension) — not a documented residual (those cover extensionless path-shaped tokens) and not accepted-design (this is a false NEGATIVE bypass, not the accepted false-positive class). Same bug pattern applies to not.covered and any other dot-glued multi-word trigger.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-10T17:24:17.099Z",
@@ -217,7 +217,11 @@
       "reviewRunId": "B-2c03:RR-019",
       "_hash": "b9cbebae6e2925887ce64fccda9bb6e28a58afb4d5a03242824c18a2c1cf4a6f",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "claimsShrinkage connectors widened to [\\s./_-]+; remaining.scope / out.of.scope / not.covered now fire (dotRemainingDone / dotOutOfScopeDone / dotNotCoveredDone RED-first cases verified failing pre-fix, passing post-fix); non-trigger dotted identifiers and file names stay silent (dotControlDone). Full suite green.",
+      "resolvedAt": "2026-07-10T17:39:07.301Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-2c03:F-009",
