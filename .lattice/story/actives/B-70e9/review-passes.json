@@ -148,6 +148,27 @@
         "scanEscalationReason": null
       },
       "_hash": "2e3f97d43925eb6f3f4776f8423d1d696b20d967184d98d098f210ddc360f82c"
+    },
+    {
+      "id": "B-70e9:RP-006",
+      "agent": "lattice-review-docs",
+      "note": "Round 2 re-review after fix commit 8a8cd2407. Compared the rewritten Host-run concurrency + provider-honest paragraph in docs/host-run-usage.md against packages/main/src/core/host-run.ts (acquireHostRunSlot atomic per-index wx admission, isSlotFileStale fresh-probe reclaim, scanLiveSlots reporting-only role, resolveMaxConcurrent/resolveSlotStaleMs defaults 4/6h) and dispatch-usage.ts (hostProviderName openai/anthropic/antigravity mapping threaded through buildBlockedBudgetRecord/recordBudgetBlock/recordConcurrencyBlock). Slot naming, wx-is-admission semantics, lost-reclaim-race behavior, cap raise/lower drain semantics, and provider-honest blocked rows all match code exactly. Verified live: test:host-run-usage 27/27 pass, test:usage-sweep 11/11 pass. CHANGELOG.md B-70e9 entry is a stable high-level summary unaffected by the internal admission-algorithm change; no drift. Round-1 F-001 already dismissed with written reason, out of scope here. No doc-code-drift or doc-promise-undelivered findings.",
+      "createdAt": "2026-07-10T08:11:21.319Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-008",
+      "readManifest": {
+        "filesReadFully": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/usage-ledger/dispatch-usage.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5696e6ce5b079dbb5b429807a54a638faa7657d5621064c6c1a21e81dccaaf36"
     }
   ]
 }
