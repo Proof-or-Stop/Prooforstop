@@ -47,7 +47,24 @@
     "docs/requirements/decisions/**"
   ],
   "scopeChangeReason": "Allow the story own workflow metadata dir (.lattice/story/actives/B-70e9/**, written by the lattice CLI as part of the lifecycle) so the fail-closed unknown-path rule applies only to real code paths; usage-ledger runtime and schema/writer files remain excluded.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Codex host-B verified finding F-012 (cross_host_review B-70e9-xhr-r5): concurrent appendUsageRecord read-last-hash->append races corrupt the ledger hash chain under host_run default concurrency. The only correct fix point is the single-writer choke point in writer.ts (mkdir cross-process lock over the minimal critical section, bounded wait + stale reclaim, skip-not-corrupt on timeout via the existing throw->seam-fail-open path). record/assemble/summary/diagnostics remain untouched; commit bc966e3247 demonstrates the race against the old writer and proves the fix with a 6-process parallel chain-verification smoke.",
+      "timestamp": "2026-07-10T10:23:30.294Z",
+      "paths": [
+        "packages/main/src/core/usage-ledger/writer.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/usage-ledger/writer.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "REVIEW",
+      "headHash": "bc966e3247b6d74ab11e955067d7b3d5951474da",
+      "materialHash": "7f7bd81392f7c2d739a1b0f394eeeea5d4be7ce8acce5ec7a8539cb7d1be782c"
+    }
+  ],
   "createdAt": "2026-07-10T05:32:56.378Z",
-  "updatedAt": "2026-07-10T07:13:58.498Z"
+  "updatedAt": "2026-07-10T10:23:30.294Z"
 }

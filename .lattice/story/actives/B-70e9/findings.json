@@ -256,7 +256,7 @@
       "desc": "[codex host-B, cross_host_review B-70e9-xhr-r5] Concurrent host_run ledger writes can corrupt the hash chain: host_run writes the preflight row BEFORE slot admission so simultaneous starts all reach appendUsageRecord, and appendUsageRecord computes previousRecordHash by reading the current last line then appending with no cross-process lock - two processes can read the same predecessor and append rows whose previousRecordHash makes verifyLedgerChain fail. Ledger is default-ON and host_run explicitly supports concurrency (cap 4), so the race is in the feature expected path. Fix direction: serialize appends with a cross-process lock around read-last-hash..append at the single-writer choke point (writer), plus a parallel-writes smoke asserting verifyLedgerChain passes after concurrent preflight/final/block writes.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host-b",
       "createdAt": "2026-07-10T10:10:58.159Z",
@@ -268,7 +268,11 @@
         "packages/main/src/tasks/host-run-usage-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|codex-host-cross",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit bc966e3247: appendUsageRecord wraps the read-last-hash->append critical section in an atomic mkdir cross-process lock (sibling llm-usage.jsonl.lock/), bounded wait 5s (LATTICE_USAGE_LEDGER_LOCK_WAIT_MS) with 25ms retries via Atomics.wait, stale reclaim at 30s mtime (LATTICE_USAGE_LEDGER_LOCK_STALE_MS); on timeout the writer throws through its existing failure contract so the seam fail-open yields an honest under-count instead of a corrupt chain (skip-not-corrupt comment in code). Failing-before demonstrated: same 6x5 parallel harness against the old writer produced CHAIN BROKEN at line 3; fixed writer passes verifyLedgerChain 30/30 across 3 consecutive runs. Three new smoke checks (parallel chain, stale reclaim, bounded-wait skip); host-run smoke 39/39; all 9 usage-ledger smokes green.",
+      "resolvedAt": "2026-07-10T10:23:30.903Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
