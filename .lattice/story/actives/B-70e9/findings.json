@@ -295,6 +295,25 @@
       "resolvedAt": "2026-07-10T10:48:50.976Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-70e9:F-014",
+      "desc": "[codex host-B, cross_host_review B-70e9-xhr-r7] usage_sweep --out bypasses read-only gates: the command is ownershipClass=readOnly / destructiveRisk=none (command-policy.ts ~471) but the handler creates a report file when --out is supplied; reviewer-readonly and retired-root gates allow effective readOnly commands, so a read-only reviewer session can still create arbitrary new files inside the project root and change the material tree. Fix direction: make usage_sweep dynamically mutating when args.out is non-empty (mirror the existing --write boundary rules in resolveEffectiveOwnershipClass) and update policy/process-fact/destructive-risk text, or reject --out under reviewer read-only/retired-root modes.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host-b",
+      "createdAt": "2026-07-10T11:01:24.335Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "_hash": "a258ef626ed4d2b20d945dbda4c1a8cffcb4fc4392e4f10c777eb34495fe55e7",
+      "files": [
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/handlers/usage-sweep.ts",
+        "packages/main/src/tasks/usage-sweep-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|codex-host-cross",
+      "signatureTagSource": "auto"
     }
   ]
 }
