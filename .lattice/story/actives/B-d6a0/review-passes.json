@@ -130,6 +130,34 @@
         "scanEscalationReason": null
       },
       "_hash": "078aa199b6e09473a661c1f73addff77872b6ff2963ec6ca72f3c5c3e7498604"
+    },
+    {
+      "id": "B-d6a0:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 5 checklist items (CHK-001..CHK-005) have happy/edge/adversarial verificationIntent entries fully covered by valid logic_test verificationEvidence (15/15 entries, all result=pass). Independently ran node packages/main/dist/tasks/porcelain-first-row-audit-smoke.js: all 11 scenarios pass. Independently reproduced the RED baseline: built packages/main at pre-fix HEAD 2d08e79 (with a copy of repro-porcelain-first-row.mjs, which was committed one commit later at 34e55a554d) and confirmed it exits 1 with the exact documented corruption (materialDirtyFiles containing corrupted lattice/activity.jsonl path; done_recover falsely refusing a volatile-only-dirty tree); on the fixed tree the same script exits 0. lattice validate for B-d6a0 reports allPass=true across all 45 configured commands. Confirmed porcelain-first-row-audit smoke is discovered and PASS in run-all-smokes (satisfies CHK-005:edge:0). Read evidence-freshness.ts, cross-host-review.ts, story-query.ts, partial-done-recovery.ts, session.ts fixes and confirmed each matches the plan.md raw-read+per-line-trimEnd pattern with fail-closed behavior preserved for material rows. No gaps found.",
+      "createdAt": "2026-07-10T10:33:46.149Z",
+      "reviewRound": "2026-07-10T10:11:26.540Z",
+      "reviewRunId": "B-d6a0:RR-004",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-d6a0/background.md",
+          ".lattice/story/actives/B-d6a0/checklist.json",
+          ".lattice/story/actives/B-d6a0/evidence/repro-porcelain-first-row.mjs",
+          ".lattice/story/actives/B-d6a0/plan.md",
+          ".lattice/story/actives/B-d6a0/red-evidence.json",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/partial-done-recovery.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/tasks/porcelain-first-row-audit-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/field-regression-cli-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "addd11ddf6ad53dcdc623bc23fda1cd30f735933a106db717aeaf1f5c8d94a99"
     }
   ]
 }
