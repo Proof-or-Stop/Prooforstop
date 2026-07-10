@@ -261,7 +261,7 @@
       "status": "optional",
       "phase": "TEST optional",
       "purpose": "CLI/core evaluator for user-facing command behavior.",
-      "commands": "CLI shell via evaluator bridge.",
+      "commands": "bridge state/reset/events/event/replay API via curl; optional CLI shell spawn.",
       "directFileAccess": "Uses CLI shell/bridge output; no direct story writes.",
       "inputs": "Task, expected CLI behavior, command output.",
       "outputs": "Evaluator JSON transcript.",
@@ -274,10 +274,10 @@
       "status": "optional",
       "phase": "TEST optional",
       "purpose": "Browser/product evaluator for UI-facing behavior.",
-      "commands": "browser API; review_run_start; finding_add; review_pass_set.",
-      "directFileAccess": "Uses browser state and reviewer commands; no direct story writes.",
+      "commands": "browser status/eval/click/type/console/refresh API via curl.",
+      "directFileAccess": "Evaluates through browser API only; does not read source code or write story metadata.",
       "inputs": "Task, expected user flow, browser state.",
-      "outputs": "Evaluator JSON transcript or reviewer finding/pass if routed.",
+      "outputs": "Evaluator JSON scores, itemResults, pass flag, and findings text.",
       "capabilities": "User-flow exercise; UI behavior scoring; usability notes.",
       "overlapCategory": "overlaps behavior and product",
       "notes": "Advisory unless a policy consumes saved evaluator evidence."
@@ -287,11 +287,11 @@
       "status": "active",
       "phase": "DEV",
       "purpose": "Implementation worker that edits code, verifies locally, and updates checklist evidence.",
-      "commands": "session_brief; aux_doc_list; checklist_update; validate; story_get; checklist_get.",
+      "commands": "checklist_update; validate; status; checklist_get; story_get; aux_doc_list; aux_scan; aux_detail.",
       "directFileAccess": "Reads and edits source/docs in workspace; story metadata through Lattice CLI only.",
       "inputs": "Story, checklist, source files, focused docs.",
-      "outputs": "Code changes, commits, checklist status, verificationEvidence.",
-      "capabilities": "Code editing; focused tests; evidence recording; commit preparation.",
+      "outputs": "Code changes, commits, checklist status updates, and brief return summary.",
+      "capabilities": "Code editing; focused tests; checklist status recording; commit preparation.",
       "overlapCategory": "DEV owner",
       "notes": "Does not own review, test phase advancement, or DONE closure."
     },
@@ -300,8 +300,8 @@
       "status": "active",
       "phase": "REVIEW",
       "purpose": "Reviews promised user-visible behavior, edge cases, and userSees mismatch.",
-      "commands": "review_run_start; finding_add; review_pass_set; scope_check_save.",
-      "directFileAccess": "Reads diff/source and scope artifacts; reviewer evidence through Lattice CLI.",
+      "commands": "checklist_get; review_run_start; finding_add; review_pass_set.",
+      "directFileAccess": "Reads git diff, checklist userSees, source files, candidate docs, and scope-plan artifacts; no direct story writes.",
       "inputs": "Diff, story scope, user-visible behavior, verification evidence.",
       "outputs": "Reviewer findings or pass.",
       "capabilities": "Behavior correctness; edge-case review; user-visible mismatch detection.",
@@ -313,7 +313,7 @@
       "status": "retired-cli-only",
       "phase": "REVIEW legacy",
       "purpose": "Legacy reviewer for normal-channel dispatch evidence.",
-      "commands": "dispatch; checklist_get; story_get.",
+      "commands": "checklist_get; story_get; grep process-events; review_run_start; finding_add; review_pass_set.",
       "directFileAccess": "Legacy direct read of docs/story process-events evidence.",
       "inputs": "process-events dispatch and subagent_result evidence.",
       "outputs": "Reviewer findings or pass.",
@@ -326,7 +326,7 @@
       "status": "conditional",
       "phase": "REVIEW",
       "purpose": "Reviews concept deletion, rename, and terminology residue.",
-      "commands": "review_run_start; finding_add; review_pass_set.",
+      "commands": "git diff; grep; review_run_start; finding_add; review_pass_set.",
       "directFileAccess": "Reads diff/source/docs references; reviewer evidence through Lattice CLI.",
       "inputs": "Diff, renamed terms, deleted concepts, docs/code references.",
       "outputs": "Reviewer findings or pass.",
@@ -339,10 +339,10 @@
       "status": "active",
       "phase": "TEST/DONE",
       "purpose": "Reviews final delivery claims, docs promises, real machine tests, and closeout.",
-      "commands": "review_run_start; finding_add; review_pass_set; delivery_check_set.",
-      "directFileAccess": "Reads diff/docs/validation evidence; delivery evidence through Lattice CLI.",
+      "commands": "delivery_check_set.",
+      "directFileAccess": "Reads git diff and repository files; explicitly avoids process-events, reviewer outputs, and test-evidence contents.",
       "inputs": "Diff, validation evidence, docs promises, user-facing closeout claims.",
-      "outputs": "delivery_check_set evidence and reviewer findings/pass.",
+      "outputs": "Signed delivery-check.json via delivery_check_set, or refusal text.",
       "capabilities": "Delivery completeness; closeout self-check; final docs-promise fallback.",
       "overlapCategory": "overlaps docs and product",
       "notes": "Consumes docs review when available instead of redoing all doc-code drift review."
@@ -352,7 +352,7 @@
       "status": "active",
       "phase": "REVIEW",
       "purpose": "Reviews code/documentation drift around changed public behavior.",
-      "commands": "review_run_start; finding_add; review_pass_set.",
+      "commands": "git diff; grep; review_run_start; finding_add; review_pass_set.",
       "directFileAccess": "Reads changed docs/source; reviewer evidence through Lattice CLI.",
       "inputs": "Diff, docs, command examples, config/schema changes.",
       "outputs": "Reviewer findings or pass.",
@@ -365,7 +365,7 @@
       "status": "active",
       "phase": "REVIEW",
       "purpose": "Reviews maintainability, type safety, I/O shell isolation, and proof metadata consistency.",
-      "commands": "review_run_start; finding_add; review_pass_set.",
+      "commands": "git diff; review_run_start; finding_add; review_pass_set.",
       "directFileAccess": "Reads source/tests/proof metadata; reviewer evidence through Lattice CLI.",
       "inputs": "Diff, source code, tests, proof metadata.",
       "outputs": "Reviewer findings or pass.",
@@ -378,7 +378,7 @@
       "status": "active",
       "phase": "PLAN",
       "purpose": "Reviews story/checklist scope against source-of-truth requirements.",
-      "commands": "config; dev_memory_preflight; dev_memory_search; scope_question_resolve; scope_check_save.",
+      "commands": "config; dev_memory_preflight; dev_memory_search; aux_doc_list; story_get; checklist_get; scope_check_save.",
       "directFileAccess": "Reads candidate docs and CLI-provided story/checklist context; scope evidence through Lattice CLI.",
       "inputs": "Story, checklist, candidate requirement docs, risk signals.",
       "outputs": "scope_check_save artifact.",
@@ -391,10 +391,10 @@
       "status": "active",
       "phase": "INIT",
       "purpose": "Reviews new story readability, facts, risk wording, and initial checklist sanity.",
-      "commands": "init_check_set; session_brief; aux_doc_list.",
+      "commands": "init_check_set.",
       "directFileAccess": "Grandfathered direct docs/story reads and init-self-check file write wording.",
       "inputs": "Story background, index fields, checklist title/context.",
-      "outputs": "init_check_set issues/pass.",
+      "outputs": "init_check_set issues/pass plus init-self-check audit file wording.",
       "capabilities": "Fresh-context intake review; story clarity; risk sanity check.",
       "overlapCategory": "overlaps scope-plan on checklist sanity",
       "notes": "Baseline includes grandfathered direct story-file reads and init-self-check write wording."
@@ -404,7 +404,7 @@
       "status": "active",
       "phase": "REVIEW",
       "purpose": "Reviews verificationIntent to verificationEvidence coverage.",
-      "commands": "review_run_start; finding_add; review_pass_set.",
+      "commands": "story_get; checklist_get; validate; review_run_start; finding_add; review_pass_set.",
       "directFileAccess": "Reads checklist/evidence through Lattice CLI; reviewer evidence through Lattice CLI.",
       "inputs": "Checklist verificationIntent and verificationEvidence.",
       "outputs": "Reviewer findings or pass.",
@@ -417,10 +417,10 @@
       "status": "compatibility",
       "phase": "INIT/DONE advisory",
       "purpose": "Reviews user-facing transcript and product closure.",
-      "commands": "none",
-      "directFileAccess": "Reads transcript/product context; no direct story writes.",
+      "commands": "init_check_set when asked to perform INIT compatibility review; otherwise none.",
+      "directFileAccess": "Reads transcript/product context and optional transcript diff; no code, test, or story metadata writes.",
       "inputs": "Final transcript, product outcome, optional transcript diff.",
-      "outputs": "Text product review or INIT compatibility output.",
+      "outputs": "Text product review or product-reviewer init_check_set record.",
       "capabilities": "User-value closure; product wording review.",
       "overlapCategory": "overlaps delivery and evaluator",
       "notes": "INIT compatibility remains until product reviewer routing is migrated."
@@ -430,10 +430,10 @@
       "status": "legacy",
       "phase": "TEST_CASE_REVIEW legacy",
       "purpose": "Legacy reviewer for fixture coverage of testIntent.",
-      "commands": "testintent_record.",
-      "directFileAccess": "Legacy direct fixture JSON reads; writes legacy testintent_record evidence.",
+      "commands": "checklist_get; testintent_check; testintent_record.",
+      "directFileAccess": "Legacy direct fixture JSON reads; writes only through testintent_record.",
       "inputs": "Legacy testIntent and fixture JSON.",
-      "outputs": "testintent_record results.",
+      "outputs": "testintent_record results and testintent_check status.",
       "capabilities": "Legacy fixture coverage review.",
       "overlapCategory": "replaced by review-test-coverage",
       "notes": "Legacy-only prompt tied to old TEST_CASE_REVIEW phase."
@@ -450,6 +450,712 @@
       "capabilities": "Checklist split review; legacy acceptance-intent writing.",
       "overlapCategory": "replaced by verificationIntent flow",
       "notes": "Conflicts with the current verificationIntent model for new stories."
+    }
+  ],
+  "roleMatrixEvidence": [
+    {
+      "role": "implementation-reviewer",
+      "relPath": "templates/agents/implementation-reviewer.md",
+      "fields": [
+        {
+          "field": "commands",
+          "value": "none",
+          "snippets": [
+            {
+              "line": 27,
+              "sha256": "58cbfc861a6d464833182a2710b1e1723a05dc901191897de22fee3c746a72e4",
+              "text": "- Not modifying code, not modifying tests, not advancing the phase"
+            }
+          ]
+        },
+        {
+          "field": "directFileAccess",
+          "value": "Reads diff and implementation context; no direct story writes.",
+          "snippets": [
+            {
+              "line": 35,
+              "sha256": "be1070c6cc892f5394a7926886b3bc59bb0c9240b4c4a514a2c90dd4b0d22857",
+              "text": "- Relevant implementation files"
+            }
+          ]
+        },
+        {
+          "field": "outputs",
+          "value": "Text review notes.",
+          "snippets": [
+            {
+              "line": 74,
+              "sha256": "ca114a6043eb07e1e2822f83c4e95737aa7c627f46479ebe3ba9810c260b1683",
+              "text": "Conclusion: pass / fail"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "lattice-evaluator-cli",
+      "relPath": "templates/agents/lattice-evaluator-cli.md",
+      "fields": [
+        {
+          "field": "commands",
+          "value": "bridge state/reset/events/event/replay API via curl; optional CLI shell spawn.",
+          "snippets": [
+            {
+              "line": 55,
+              "sha256": "42c1139dbd1c73d93d77deb383ed3748c64ccbfd045328395523adb4a866fd24",
+              "text": "Use the Bash tool with curl to call these APIs."
+            },
+            {
+              "line": 59,
+              "sha256": "f776272727c9eb6c4315c6e548a11ba384e8eeea4cae4bdeb93a73cc58558233",
+              "text": "If the project has a CLI shell, also test it by spawning the process:"
+            }
+          ]
+        },
+        {
+          "field": "directFileAccess",
+          "value": "Uses CLI shell/bridge output; no direct story writes.",
+          "snippets": [
+            {
+              "line": 12,
+              "sha256": "172d4eb2dd421e331cd32a819e849a05f6ba767b3a20f13334dcfa12241a9406",
+              "text": "Your job is NOT to read code"
+            }
+          ]
+        },
+        {
+          "field": "outputs",
+          "value": "Evaluator JSON transcript.",
+          "snippets": [
+            {
+              "line": 94,
+              "sha256": "338ad57eddfc8b3af3852f49517fc57801f3f5c152d949aba328b17a7b9f64b7",
+              "text": "You MUST output the following JSON (wrapped in ```json):"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "lattice-evaluator",
+      "relPath": "templates/agents/lattice-evaluator.md",
+      "fields": [
+        {
+          "field": "commands",
+          "value": "browser status/eval/click/type/console/refresh API via curl.",
+          "snippets": [
+            {
+              "line": 148,
+              "sha256": "48a29eb937117a009345d78b3eea967a424f763f07b68a77aa8a48fd8e77ee32",
+              "text": "Use the Bash tool's curl to call these APIs."
+            }
+          ]
+        },
+        {
+          "field": "directFileAccess",
+          "value": "Evaluates through browser API only; does not read source code or write story metadata.",
+          "snippets": [
+            {
+              "line": 193,
+              "sha256": "a228ad78339868c610420de928c145ac89ea446dd77667a1397e58acca6d14d1",
+              "text": "- You only evaluate user experience, not code"
+            }
+          ]
+        },
+        {
+          "field": "outputs",
+          "value": "Evaluator JSON scores, itemResults, pass flag, and findings text.",
+          "snippets": [
+            {
+              "line": 173,
+              "sha256": "b887f736061f09527fb65999d1abd2f3375f147d931b349f83076c944566b071",
+              "text": "You must output the following JSON (wrapped in ```json):"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "lattice-implementer",
+      "relPath": "templates/agents/lattice-implementer.md",
+      "fields": [
+        {
+          "field": "commands",
+          "value": "checklist_update; validate; status; checklist_get; story_get; aux_doc_list; aux_scan; aux_detail.",
+          "snippets": [
+            {
+              "line": 146,
+              "sha256": "aad72f73c931a58b8780ed9b00332908d6484214b015495f608e9685ef9b93b6",
+              "text": "Whitelist of allowed Lattice commands:"
+            },
+            {
+              "line": 147,
+              "sha256": "2951cc0f2f4a7acfd94d56e89115d5852f73c03d9c887b8783fbc40a2ca5ebf1",
+              "text": "`lattice checklist_update` (can only modify status / startTime / endTime)"
+            }
+          ]
+        },
+        {
+          "field": "directFileAccess",
+          "value": "Reads and edits source/docs in workspace; story metadata through Lattice CLI only.",
+          "snippets": [
+            {
+              "line": 142,
+              "sha256": "76ba37e64834a1b6c82a1e0fb62aa7084628f7061e6f900c130727dbb8c31737",
+              "text": "all story changes go through the Lattice CLI"
+            }
+          ]
+        },
+        {
+          "field": "outputs",
+          "value": "Code changes, commits, checklist status updates, and brief return summary.",
+          "snippets": [
+            {
+              "line": 128,
+              "sha256": "6ea4c249d60b6de729921ec14bf289c98b7ab41fff6b19cb8d966cce176ea30a",
+              "text": "Once all pending items are processed, return a brief summary and **stop**"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "lattice-review-behavior",
+      "relPath": "templates/agents/lattice-review-behavior.md",
+      "fields": [
+        {
+          "field": "commands",
+          "value": "checklist_get; review_run_start; finding_add; review_pass_set.",
+          "snippets": [
+            {
+              "line": 113,
+              "sha256": "ad5f6fdbd0234d17fd75ef23792d28b5db1ac29d02e2daeca5328cd3f6ab1ee6",
+              "text": "lattice checklist_get '{\"storyId\":\"B-xxx\"}'"
+            },
+            {
+              "line": 144,
+              "sha256": "d62a39e6329805859b49289667a3d5c083ec48748858df98d33ee06eb59a2b42",
+              "text": "lattice finding_add '{\"storyId\":\"B-xxx\",\"reviewRunId\":\"<reviewRunId from review_run_start>\""
+            }
+          ]
+        },
+        {
+          "field": "directFileAccess",
+          "value": "Reads git diff, checklist userSees, source files, candidate docs, and scope-plan artifacts; no direct story writes.",
+          "snippets": [
+            {
+              "line": 116,
+              "sha256": "715835b3055049181d78959842d75a2076c521a1346ad6eed8030dddaee57e77",
+              "text": "Find the corresponding code change in `git diff main...HEAD`"
+            },
+            {
+              "line": 129,
+              "sha256": "64eba8150e5f5f609db3de07ac3e47e8d7830042e3b941fa87f4671c1e9c3450",
+              "text": "Default inputs: the `lattice scope_check_save` result recorded by lattice-review-scope-plan"
+            }
+          ]
+        },
+        {
+          "field": "outputs",
+          "value": "Reviewer findings or pass.",
+          "snippets": [
+            {
+              "line": 174,
+              "sha256": "19a067824873d3d428fa8ac464d4caf8240bf06ad4d715533f5acd308b7ad013",
+              "text": "Every finding must be registered via `lattice finding_add`"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "lattice-review-channel",
+      "relPath": "templates/agents/lattice-review-channel.md",
+      "fields": [
+        {
+          "field": "commands",
+          "value": "checklist_get; story_get; grep process-events; review_run_start; finding_add; review_pass_set.",
+          "snippets": [
+            {
+              "line": 125,
+              "sha256": "ad5f6fdbd0234d17fd75ef23792d28b5db1ac29d02e2daeca5328cd3f6ab1ee6",
+              "text": "lattice checklist_get '{\"storyId\":\"B-xxx\"}'"
+            },
+            {
+              "line": 126,
+              "sha256": "0112d496bc041279392301e29cb5a34fb15cfaaa7ad898b87a4365023a1bcdd5",
+              "text": "lattice story_get '{\"storyId\":\"B-xxx\"}'"
+            },
+            {
+              "line": 155,
+              "sha256": "ae701fecf7373549fff1cfeeeacfc93874cf33b3cee917aa8cedb6b140a48173",
+              "text": "lattice review_pass_set '{\"storyId\":\"B-xxx\",\"reviewRunId\":\"<reviewRunId from review_run_start>\""
+            }
+          ]
+        },
+        {
+          "field": "directFileAccess",
+          "value": "Legacy direct read of docs/story process-events evidence.",
+          "snippets": [
+            {
+              "line": 138,
+              "sha256": "7d0750187fceae7ec3dacdfa3b31c2b0c272d37afaa477fe675d9444e8310dfd",
+              "text": "grep '\"type\":\"dispatch\"' docs/story/actives/B-xxx/process-events.jsonl"
+            }
+          ]
+        },
+        {
+          "field": "outputs",
+          "value": "Reviewer findings or pass.",
+          "snippets": [
+            {
+              "line": 154,
+              "sha256": "905101030c79c7a7a3a98be5c0901901f82841ea52b649163a4c7e53427727f2",
+              "text": "Normal channel + all CHKs have dispatch evidence"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "lattice-review-concept",
+      "relPath": "templates/agents/lattice-review-concept.md",
+      "fields": [
+        {
+          "field": "commands",
+          "value": "git diff; grep; review_run_start; finding_add; review_pass_set.",
+          "snippets": [
+            {
+              "line": 113,
+              "sha256": "513ec4f66734ec1e3dcc686f2a1dfa3dca7bdc54c8638422453412e991ed6eed",
+              "text": "`git diff main...HEAD --stat`"
+            },
+            {
+              "line": 121,
+              "sha256": "d62a39e6329805859b49289667a3d5c083ec48748858df98d33ee06eb59a2b42",
+              "text": "lattice finding_add '{\"storyId\":\"B-xxx\",\"reviewRunId\":\"<reviewRunId from review_run_start>\""
+            }
+          ]
+        },
+        {
+          "field": "directFileAccess",
+          "value": "Reads diff/source/docs references; reviewer evidence through Lattice CLI.",
+          "snippets": [
+            {
+              "line": 109,
+              "sha256": "98cd04bb0e97713a714d66bb1c767324bbbc747aa042987be7635f9c6c36cab1",
+              "text": "grep the entire repository"
+            }
+          ]
+        },
+        {
+          "field": "outputs",
+          "value": "Reviewer findings or pass.",
+          "snippets": [
+            {
+              "line": 121,
+              "sha256": "f3d206adc3fd5f15e684bb4622cc03f8bc5279c8f59b630ef17ddef67ee7c7bb",
+              "text": "concept-cleanup: concept X deletion incomplete"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "lattice-review-delivery",
+      "relPath": "templates/agents/lattice-review-delivery.md",
+      "fields": [
+        {
+          "field": "commands",
+          "value": "delivery_check_set.",
+          "snippets": [
+            {
+              "line": 232,
+              "sha256": "f532d96db6b6aeb5c682a675fdc370c5cf06e4f804a1c2f43ede5288ae4bdb68",
+              "text": "lattice delivery_check_set '{\"storyId\":\"B-xxx\""
+            }
+          ]
+        },
+        {
+          "field": "directFileAccess",
+          "value": "Reads git diff and repository files; explicitly avoids process-events, reviewer outputs, and test-evidence contents.",
+          "snippets": [
+            {
+              "line": 117,
+              "sha256": "50746ee13770e746c6cf21168128ee7b775eada03c02130abfd2e09c3b7382a5",
+              "text": "`git diff main...HEAD` output (you run this yourself)"
+            },
+            {
+              "line": 118,
+              "sha256": "f080a83446ae06734cb1fe933f6298f6b769cf898f6f57a9ee7365254bb311f4",
+              "text": "Files in the repository reachable via Read/Grep/Glob"
+            }
+          ]
+        },
+        {
+          "field": "outputs",
+          "value": "Signed delivery-check.json via delivery_check_set, or refusal text.",
+          "snippets": [
+            {
+              "line": 106,
+              "sha256": "13710a7df2f16b73c79a1300c44426754a272c99ecae9a1f1c87ccbe7d1564e9",
+              "text": "Your output is a structured `delivery_check_set` call that writes a signed `delivery-check.json`."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "lattice-review-docs",
+      "relPath": "templates/agents/lattice-review-docs.md",
+      "fields": [
+        {
+          "field": "commands",
+          "value": "git diff; grep; review_run_start; finding_add; review_pass_set.",
+          "snippets": [
+            {
+              "line": 159,
+              "sha256": "7d257bb78f0afe3ae1ea986f39b4506a05c4b3b97b181ea3b8a59432dc721702",
+              "text": "register a finding with `lattice finding_add`"
+            },
+            {
+              "line": 199,
+              "sha256": "7c12bd4546dbc5f9ef1e09dd6b3d70f31955ee5b93a6f5603cfdb4783f8265f5",
+              "text": "you must call `lattice review_pass_set"
+            }
+          ]
+        },
+        {
+          "field": "directFileAccess",
+          "value": "Reads changed docs/source; reviewer evidence through Lattice CLI.",
+          "snippets": [
+            {
+              "line": 165,
+              "sha256": "e9334b8dde3f5e421949f92b1ada81a1a13892cb485756f81bea35b9b07f9c61",
+              "text": "`git diff main...HEAD`"
+            }
+          ]
+        },
+        {
+          "field": "outputs",
+          "value": "Reviewer findings or pass.",
+          "snippets": [
+            {
+              "line": 196,
+              "sha256": "af382dee8d91a594ceb6b6f5f314ef71e5904b3fb9376a1422a41db994f275c9",
+              "text": "After the review ends, if inconsistencies are found, confirm that all issues have been registered via `lattice finding_add`"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "lattice-review-quality",
+      "relPath": "templates/agents/lattice-review-quality.md",
+      "fields": [
+        {
+          "field": "commands",
+          "value": "git diff; review_run_start; finding_add; review_pass_set.",
+          "snippets": [
+            {
+              "line": 70,
+              "sha256": "4aab0142d41dcfa4c0eac166a31f2f3973afd120a175db00eca23e8dd4816eee",
+              "text": "`review_pass_set`. Pass-only `finding_add` is a misuse."
+            },
+            {
+              "line": 146,
+              "sha256": "d62a39e6329805859b49289667a3d5c083ec48748858df98d33ee06eb59a2b42",
+              "text": "lattice finding_add '{\"storyId\":\"B-xxx\",\"reviewRunId\":\"<reviewRunId from review_run_start>\""
+            }
+          ]
+        },
+        {
+          "field": "directFileAccess",
+          "value": "Reads source/tests/proof metadata; reviewer evidence through Lattice CLI.",
+          "snippets": [
+            {
+              "line": 113,
+              "sha256": "34af8c101c812fdee564570d309d1aee1394fab6447c2dc2bc80e7af8ba77bab",
+              "text": "`git diff main...HEAD --name-only`"
+            }
+          ]
+        },
+        {
+          "field": "outputs",
+          "value": "Reviewer findings or pass.",
+          "snippets": [
+            {
+              "line": 169,
+              "sha256": "77443c0f3835484ce6d6096abceb3f7a16aca77ef362e187619bc91bd20c6ccd",
+              "text": "After the review ends, confirm that all discovered issues have been registered via `lattice finding_add`"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "lattice-review-scope-plan",
+      "relPath": "templates/agents/lattice-review-scope-plan.md",
+      "fields": [
+        {
+          "field": "commands",
+          "value": "config; dev_memory_preflight; dev_memory_search; aux_doc_list; story_get; checklist_get; scope_check_save.",
+          "snippets": [
+            {
+              "line": 115,
+              "sha256": "922de027e3ed1c64fe790f9ce7751afa6c8eee666db1374aba81d3083adf6494",
+              "text": "lattice config"
+            },
+            {
+              "line": 182,
+              "sha256": "56f249168a9e35cb3ac48a258569669b585d9523d63f0e25731e3f02bb797115",
+              "text": "lattice scope_check_save"
+            }
+          ]
+        },
+        {
+          "field": "directFileAccess",
+          "value": "Reads candidate docs and CLI-provided story/checklist context; scope evidence through Lattice CLI.",
+          "snippets": [
+            {
+              "line": 149,
+              "sha256": "578f5d7e415b7b4805b38ac56655c41a0dd7e2bf2fbcc4965acba2dd4f84e016",
+              "text": "Glob pattern: docs/requirements/decisions/*.md"
+            }
+          ]
+        },
+        {
+          "field": "outputs",
+          "value": "scope_check_save artifact.",
+          "snippets": [
+            {
+              "line": 203,
+              "sha256": "a64bd435123b76603e2433c13aa37e694a238e61856e23787a3df8192455cd4b",
+              "text": "You must call `lattice scope_check_save` to persist the result"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "lattice-review-story-init",
+      "relPath": "templates/agents/lattice-review-story-init.md",
+      "fields": [
+        {
+          "field": "commands",
+          "value": "init_check_set.",
+          "snippets": [
+            {
+              "line": 9,
+              "sha256": "b78ef9481c3754d95c9bad6655ccf90544d7d4d3b0be186f123d4e570b41be72",
+              "text": "lattice init_check_set"
+            }
+          ]
+        },
+        {
+          "field": "directFileAccess",
+          "value": "Grandfathered direct docs/story reads and init-self-check file write wording.",
+          "snippets": [
+            {
+              "line": 127,
+              "sha256": "abbbbb42f95a103b176d21593c1326ebeb2ae4ff074e35cae3a33ca0d86d7ef8",
+              "text": "`docs/story/actives/<storyId>/background.md` (full text)"
+            },
+            {
+              "line": 267,
+              "sha256": "d79cd7e13f133ba7337a033070a7c6f3847b05b29013a6f917fe8e3b8464d84e",
+              "text": "echo '{\"question\":\"Did you read CLAUDE.md?"
+            }
+          ]
+        },
+        {
+          "field": "outputs",
+          "value": "init_check_set issues/pass plus init-self-check audit file wording.",
+          "snippets": [
+            {
+              "line": 254,
+              "sha256": "dc9c738ec736c7be546cfe9226b5c196f113243c6d6dbf2bb89090523eab2c29",
+              "text": "The output must call `lattice init_check_set`; text-only output without the save call is incomplete"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "lattice-review-test-coverage",
+      "relPath": "templates/agents/lattice-review-test-coverage.md",
+      "fields": [
+        {
+          "field": "commands",
+          "value": "story_get; checklist_get; validate; review_run_start; finding_add; review_pass_set.",
+          "snippets": [
+            {
+              "line": 28,
+              "sha256": "e886da5b5fcc389b049d8c46850c11ed54d9da51d1e35a821800342d44c11866",
+              "text": "lattice story_get '{\"storyId\":\"<ID>\",\"detail\":true}'"
+            },
+            {
+              "line": 30,
+              "sha256": "2c84074e30ef776cdf0f6dcd828bf81b368d9b43d15ac7cf81a6edb91b85d681",
+              "text": "lattice validate '{\"story\":\"<ID>\",\"json\":true}'"
+            },
+            {
+              "line": 45,
+              "sha256": "e31805927c6b7e0bad37171f08e84b6d0a9e743dd2d02f5c0e96b083bb0ef679",
+              "text": "lattice finding_add '{\"storyId\":\"<ID>\",\"reviewRunId\":\"<reviewRunId from review_run_start>\""
+            }
+          ]
+        },
+        {
+          "field": "directFileAccess",
+          "value": "Reads checklist/evidence through Lattice CLI; reviewer evidence through Lattice CLI.",
+          "snippets": [
+            {
+              "line": 29,
+              "sha256": "bcded91d5255e4bc0d0765c75b4730810d350cb592e7dc470ea05588e75bc6e9",
+              "text": "lattice checklist_get '{\"storyId\":\"<ID>\"}'"
+            }
+          ]
+        },
+        {
+          "field": "outputs",
+          "value": "Reviewer findings or pass.",
+          "snippets": [
+            {
+              "line": 52,
+              "sha256": "56b4084a25cc746921cbccc3330f2efa3db3fbb377feea0306ddb611c719cc76",
+              "text": "Coverage summary: total intent count, must-gap count, waiver count."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "product-reviewer",
+      "relPath": "templates/agents/product-reviewer.md",
+      "fields": [
+        {
+          "field": "commands",
+          "value": "init_check_set when asked to perform INIT compatibility review; otherwise none.",
+          "snippets": [
+            {
+              "line": 34,
+              "sha256": "16ba240f1100ce5c2c0d80d04fc6ed4226c2c4c156f5f0c1fad6bfff6e0f8102",
+              "text": "lattice init_check_set '{\"storyId\":\"<STORY_ID>\",\"issues\":[...],\"agentId\":\"product-reviewer\"}'"
+            }
+          ]
+        },
+        {
+          "field": "directFileAccess",
+          "value": "Reads transcript/product context and optional transcript diff; no code, test, or story metadata writes.",
+          "snippets": [
+            {
+              "line": 48,
+              "sha256": "6eceece8b1ec8975553690dd92611d8b6f01c27dd704ebb3a7fe52c39b003967",
+              "text": "If available, `docs/story/actives/<storyId>/evidence/transcript-diff.md`"
+            }
+          ]
+        },
+        {
+          "field": "outputs",
+          "value": "Text product review or product-reviewer init_check_set record.",
+          "snippets": [
+            {
+              "line": 83,
+              "sha256": "ca114a6043eb07e1e2822f83c4e95737aa7c627f46479ebe3ba9810c260b1683",
+              "text": "Conclusion: pass / fail"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "test-case-reviewer",
+      "relPath": "templates/agents/test-case-reviewer.md",
+      "fields": [
+        {
+          "field": "commands",
+          "value": "checklist_get; testintent_check; testintent_record.",
+          "snippets": [
+            {
+              "line": 45,
+              "sha256": "eaf9a2cb708a7c4b1b80bfaff03a64d820f6d61fc347e4b127bb2badbb282fce",
+              "text": "lattice testintent_check '{\"storyId\":\"<STORY_ID>\"}'"
+            },
+            {
+              "line": 92,
+              "sha256": "f3968733cb9b2e3ea185abc86d1963488640400965f44a907231691bca596790",
+              "text": "lattice testintent_record '{\"storyId\":\"<STORY_ID>\""
+            }
+          ]
+        },
+        {
+          "field": "directFileAccess",
+          "value": "Legacy direct fixture JSON reads; writes only through testintent_record.",
+          "snippets": [
+            {
+              "line": 76,
+              "sha256": "507c670069e866e787c96bce87ea21b419225d24ada12887b4ab4ed90a79f4bd",
+              "text": "read fixture JSON files directly"
+            }
+          ]
+        },
+        {
+          "field": "outputs",
+          "value": "testintent_record results and testintent_check status.",
+          "snippets": [
+            {
+              "line": 151,
+              "sha256": "2f481012a8d2ad996dc99f580fcb77e0ee02b77c11e9a61d0728f4440df3c072",
+              "text": "Review summary: X passed / Y failed / Z total"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "test-intent",
+      "relPath": "templates/agents/test-intent.md",
+      "fields": [
+        {
+          "field": "commands",
+          "value": "story_get; checklist_update.",
+          "snippets": [
+            {
+              "line": 39,
+              "sha256": "58f7b775b869d0266732220cf509d60d30d196fdf94b145f95cf460326e35315",
+              "text": "lattice story_get '{\"storyId\":\"<ID>\"}'"
+            },
+            {
+              "line": 103,
+              "sha256": "d158ac0a5c0718068439da801c353bb0507f5e15604ac495979a16ec03ce5887",
+              "text": "lattice checklist_update '{\"storyId\":\"<ID>\",\"itemId\":\"<ITEM_ID>\",\"testIntent\":null,\"agent\":\"test-intent\"}'"
+            }
+          ]
+        },
+        {
+          "field": "directFileAccess",
+          "value": "Reads story/checklist through Lattice CLI; writes legacy checklist updates through Lattice CLI.",
+          "snippets": [
+            {
+              "line": 157,
+              "sha256": "40d322d1c0344bf76773f000c84cb10a4c09f2d7f17431d691a20fcf225ca5df",
+              "text": "- **Do not directly edit** JSON files"
+            }
+          ]
+        },
+        {
+          "field": "outputs",
+          "value": "Legacy testIntent or null intent updates.",
+          "snippets": [
+            {
+              "line": 165,
+              "sha256": "06810272470866a5a64de29e07d12f6b4fa0239893c6987f47f9398421ef16dd",
+              "text": "how many testIntent entries you wrote for each item"
+            }
+          ]
+        }
+      ]
     }
   ],
   "legacyVocabulary": {
@@ -1214,7 +1920,7 @@
         "excerpt": "echo '{\"question\":\"Did you read CLAUDE.md? If not, explain the reason in detail in the answer field. If yes, also state that you read it in the answer field.\",\"answer\":\"\"}' > docs/story/actives/<storyId>/init-self-check.json",
         "classification": "direct-write",
         "grandfathered": true,
-        "note": "Grandfathered direct story-file write instruction from the current INIT prompt."
+        "note": "Registered direct story-file write instruction to replace with CLI-mediated writes in later milestones."
       },
       {
         "id": "5282e6199b392b03",
