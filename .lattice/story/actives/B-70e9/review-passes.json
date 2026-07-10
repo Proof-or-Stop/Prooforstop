@@ -691,6 +691,29 @@
         "scanEscalationReason": null
       },
       "_hash": "f404288eb1b699c1deb0c5b09b9732f3e8f2b1250e0ad1b90813428c1b364aa3"
+    },
+    {
+      "id": "B-70e9:RP-029",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 8, post F-013 fix a967792ab4): checklist_get shows 7 items (CHK-001..CHK-007), all must-priority happy/edge/adversarial verificationIntent lanes populated per normal/high-risk channel rules. evidence_plan (fresh, not validate) reports missing=0 rerun=0 refreshOnly=0 fresh=42, matching the 42 must-priority intent rows exactly (8+5+6+4+9+4+6=42), all bucket=fresh/result=pass. All 13 findings F-001..F-013 are dismissed/resolved with verified evidenceState. F-013 fix (a967792ab4) verified directly: recordFinalForHost in core/host-run.ts now takes retentionTruncated and, when true for codex/claude, records a provider-honest unavailable final (HOST_RUN_RETENTION_TRUNCATED_REASON) without parsing retained stdout, instead of the old stale provider-reported final. The two new smoke checks drive the REAL default runner + real UsageLineScanner: each asserts the precondition that the EARLIER stale usage line WAS retained, then asserts the recorded final is unavailable with zero provider-reported rows and no stale numbers echoed in the summary. Re-ran both npm smokes fresh in this round: npm --prefix packages/main run test:host-run-usage = 41/41 pass, npm --prefix packages/main run test:usage-sweep = 16/16 pass. No coverage gaps found; no blocker.",
+      "createdAt": "2026-07-10T10:50:44.700Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-034",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/findings/B-70e9.json",
+          ".lattice/story/actives/B-70e9/checklist.json",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-70e9/plan.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/handlers/host-run.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a509fbb73653c5e2031e21f5e8ee04d934f05292f65a2cb195ff83152466b8d7"
     }
   ]
 }
