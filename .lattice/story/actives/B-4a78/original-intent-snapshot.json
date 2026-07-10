@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-4a78",
+  "sourceText": "User requested a follow-up story from the document audit to make reviewer reads first-class evidence: signed readManifest plus a mechanical read log so reviewer scan compliance can be proven instead of self-reported.",
+  "normalizedOutcome": "Reviewer evidence writers require signed readManifest, reviewer prompts request it, and mechanical read-log/mismatch diagnostics expose unrecorded decisions-doc full scans without making advisory memory/playbook output gate evidence.",
+  "acceptanceClaim": "B-4a78 is accepted when focused smoke and validate show missing readManifest is rejected, valid readManifest is signed for scope_check_save and review_pass_set, prompts request it, and mechanical read-log mismatch/full-scan diagnostics work.",
+  "keyRequirementIds": [
+    "REQ-mechanical-read-log",
+    "REQ-mismatch-diagnostics",
+    "REQ-no-memory-gate-evidence",
+    "REQ-readManifest-signed"
+  ],
+  "requestHash": "sha256:cdfadf2db4bab106a73fd22a83c1db118fc43a4a523eaff7e89f686c9b374e3e",
+  "createdAt": "2026-07-10T01:12:53.175Z",
+  "updatedAt": "2026-07-10T01:12:53.175Z"
+}

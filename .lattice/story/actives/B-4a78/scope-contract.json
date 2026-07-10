@@ -1,0 +1,111 @@
+{
+  "storyId": "B-4a78",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/scope-check.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/reviewer-read-evidence.ts",
+    "packages/main/src/handlers/finding.ts",
+    "packages/main/src/core/finding-verify.ts",
+    "packages/main/templates/agents/lattice-review-scope-plan.md",
+    "packages/main/templates/agents/lattice-review-behavior.md",
+    ".claude/agents/lattice-review-scope-plan.md",
+    ".claude/agents/lattice-review-behavior.md",
+    ".lattice-codex/agents/lattice-review-scope-plan.md",
+    ".lattice-codex/agents/lattice-review-behavior.md",
+    "packages/main/src/handlers/story-dispatch.ts",
+    "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+    "packages/main/package.json",
+    "lattice.config.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/reviewer-read-evidence.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    ".omx/**",
+    "docs/requirements/decisions/pos-agent-drivability-optimization.md"
+  ],
+  "scopeChangeReason": "Refresh scope contract after CHK-007/CHK-008 and files mappings were added to close scope reviewer gaps.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Acknowledge Lattice-generated ProofStory planning metadata produced by lifecycle commands for B-4a78; implementation scope remains limited to reviewer read evidence code, config, templates, and tests.",
+      "timestamp": "2026-07-10T01:41:25.382Z",
+      "paths": [
+        ".lattice/story/actives/B-4a78/intent-collision.json",
+        ".lattice/story/actives/B-4a78/milestone-ledger.json",
+        ".lattice/story/actives/B-4a78/original-intent-snapshot.json",
+        ".lattice/story/actives/B-4a78/proofstory.json",
+        ".lattice/story/actives/B-4a78/red-evidence.json",
+        ".lattice/story/actives/B-4a78/slice-plan.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-4a78/intent-collision.json",
+        ".lattice/story/actives/B-4a78/milestone-ledger.json",
+        ".lattice/story/actives/B-4a78/original-intent-snapshot.json",
+        ".lattice/story/actives/B-4a78/proofstory.json",
+        ".lattice/story/actives/B-4a78/red-evidence.json",
+        ".lattice/story/actives/B-4a78/slice-plan.json"
+      ],
+      "affectedPathCount": 6,
+      "phase": "DEV",
+      "headHash": "d88dec6c924d9ba8e8c466977dc982c93dcb4917",
+      "materialHash": "a3e78bc3e65beb3a492ef5df8b3e9b47ffa9b4c3b01eef19bc59ba11267a4ba7",
+      "anchors": [
+        "lifecycle_metadata",
+        "proofstory_planning_artifacts"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Acknowledge regression-smoke fixture updates required after review_pass_set made readManifest mandatory; these changes keep existing validate commands compatible with the new reviewer read evidence contract.",
+      "timestamp": "2026-07-10T01:53:54.071Z",
+      "paths": [
+        "packages/main/src/tasks/review-pass-discard-smoke.ts",
+        "packages/main/src/tasks/quorum-submit-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/review-pass-discard-smoke.ts",
+        "packages/main/src/tasks/quorum-submit-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "4cb069fb7cb0436fb79ede15735c09903bf1bcb2",
+      "materialHash": "af6d967c9341d8e600e9fe0f4b2647004ef734380df93b2327737f07c6fbe27e",
+      "anchors": [
+        "validate_smoke_compatibility",
+        "review_pass_readmanifest_contract"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Acknowledge ProofStory parent-ledger roll-up metadata recording B-4a78 self-coverage of M0-M5; required for strict DONE intent-equivalence and not source or test scope expansion.",
+      "timestamp": "2026-07-10T03:55:04.979Z",
+      "paths": [
+        ".lattice/story/actives/B-4a78/parent-ledger-rollup.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-4a78/parent-ledger-rollup.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "7c0235d76137dfa5e224527296dce645d28032af",
+      "materialHash": "4d229b18c8e624211030a9792789d6bc8aa4283adddf190a96a1c2440ff6a9a4",
+      "anchors": [
+        "proofstory_parent_ledger_rollup",
+        "done_intent_equivalence"
+      ]
+    }
+  ],
+  "createdAt": "2026-07-10T01:13:02.275Z",
+  "updatedAt": "2026-07-10T03:55:04.979Z"
+}

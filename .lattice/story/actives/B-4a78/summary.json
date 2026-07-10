@@ -1,0 +1,56 @@
+{
+  "storyId": "B-4a78",
+  "changes": "Reviewer read evidence is now first-class: scope_check_save and review_pass_set require signed readManifest payloads, reviewer prompts document the shape, mechanical decisions-doc read logs are persisted with deterministic digests and count semantics, mismatch diagnostics are enforced, and focused smoke coverage guards happy, edge, and adversarial paths.",
+  "usage": "Use the worktree-local Lattice CLI to submit reviewer evidence with --readManifest and readEvents; reviewers provide filesReadFully, filesTriagedByName, and scanEscalationReason, while the CLI records mechanical read-log evidence for comparison.",
+  "expectedOutcome": "Reviewer evidence cannot pass with missing or forged readManifest data, mechanical read-log mismatch is visible, non-reviewer Read usage remains unaffected, and all milestone/checklist evidence is covered.",
+  "actualTranscript": "TEST validate passed 44/44, done_required_validate passed build plus root npm test, delivery_check_set verified 3 docs promises and 8 real-machine tests, and quorum_submit recorded full 3x2 host assurance for claude-cli and codex-cli.",
+  "outcomeDiff": "No product behavior gap versus expected; only lifecycle UX gaps were observed around stale global CLI schema and done_required_validate progress silence.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none - fully covered",
+  "pitfalls": "Use node packages/main/dist/cli.js from this worktree until canonical main dist is rebuilt; global lattice rejected fresh readManifest signatures as stale schema. done_required_validate also ran for about 161 seconds with a long no-output interval before completing successfully.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 6600032
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 201564
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 15032640
+    },
+    "DEV": {
+      "count": 4,
+      "durationMs": 3862790
+    },
+    "REVIEW": {
+      "count": 4,
+      "durationMs": 1629636
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 964050
+    }
+  },
+  "totalDurationMs": 28291383,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-10T03:12:07.092Z",
+  "updatedAt": "2026-07-10T03:12:07.092Z"
+}

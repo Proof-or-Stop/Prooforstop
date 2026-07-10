@@ -4,49 +4,724 @@
       "id": "CHK-001",
       "title": "Extend scope_check_save schema with a required signed readManifest field",
       "context": "Shape: {filesReadFully[], filesTriagedByName[], scanEscalationReason|null}. Validate the shape, include readManifest in the scope-check signature domain (_hash), and reject saves that omit it. Keep the existing anti-self-absolution boundaries (resolutions/OQ stay outside the signature domain) unchanged.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-10T01:42:55.402Z",
+      "endTime": "2026-07-10T01:42:56.009Z",
+      "userSees": "Missing readManifest in scope_check_save is rejected with a clear validation error; valid scope-check evidence shows a signed readManifest field.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A valid scope_check_save payload with filesReadFully, filesTriagedByName, and scanEscalationReason persists normalized readManifest and includes it in the signed scope-check hash.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Empty arrays, triaged-only reads, null scanEscalationReason, and sorted duplicate-free paths normalize deterministically without changing existing OQ/resolution exclusions.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Missing, malformed, duplicate, unsafe, or post-hoc edited readManifest fails closed and hash verification changes when only readManifest changes.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/scope-check.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/reviewer-read-evidence.ts"
+        ],
+        "create": [
+          "packages/main/src/core/reviewer-read-evidence.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+          "command": "npm --prefix packages/main run test:reviewer-scan-budget-guard",
+          "result": "pass",
+          "note": "Valid scope_check_save payload persists normalized readManifest and the current-head smoke verifies it is bound into the scope-check signature.",
+          "headHash": "28dc44d95b17f2a66664cdc0acf2b72acbd9273d",
+          "materialHash": "4d229b18c8e624211030a9792789d6bc8aa4283adddf190a96a1c2440ff6a9a4",
+          "storyFilesHash": "cecdb95f96e113792696335e5025147b048db3ff93e5767c5095d4e3362c34c9",
+          "timestamp": "2026-07-10T03:15:16.925Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process fact contract verification passed with scope_check_save still classified as signed PLAN scope-review gate evidence.",
+          "headHash": "28dc44d95b17f2a66664cdc0acf2b72acbd9273d",
+          "materialHash": "4d229b18c8e624211030a9792789d6bc8aa4283adddf190a96a1c2440ff6a9a4",
+          "storyFilesHash": "cecdb95f96e113792696335e5025147b048db3ff93e5767c5095d4e3362c34c9",
+          "timestamp": "2026-07-10T03:15:16.925Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+          "command": "npm --prefix packages/main run test:reviewer-scan-budget-guard",
+          "result": "pass",
+          "note": "Current-head smoke rejects missing/malformed/unsafe/duplicate readManifest cases and verifies changing only readManifest invalidates the scope-check signature.",
+          "headHash": "28dc44d95b17f2a66664cdc0acf2b72acbd9273d",
+          "materialHash": "4d229b18c8e624211030a9792789d6bc8aa4283adddf190a96a1c2440ff6a9a4",
+          "storyFilesHash": "cecdb95f96e113792696335e5025147b048db3ff93e5767c5095d4e3362c34c9",
+          "timestamp": "2026-07-10T03:15:16.925Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Extend review_pass_set schema with the same required readManifest field",
       "context": "Same shape and signing treatment as scope-check so REVIEW-phase passes carry read evidence; the ledger must expose the field so runs can be compared over time (trend queries).",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-10T01:42:56.594Z",
+      "endTime": "2026-07-10T01:42:57.255Z",
+      "userSees": "Missing readManifest in review_pass_set is rejected; valid review pass evidence displays an inspectable signed readManifest field.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A valid review_pass_set payload persists normalized readManifest and includes it in the review pass integrity/signature domain.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Review passes with triaged-only files, null scanEscalationReason, and deterministic path ordering remain comparable with scope_check_save readManifest records.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Missing, malformed, duplicate, unsafe, or tampered readManifest on review_pass_set fails closed and cannot be silently accepted as reviewer prose.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/core/finding-verify.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/reviewer-read-evidence.ts"
+        ],
+        "create": [
+          "packages/main/src/core/reviewer-read-evidence.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+          "command": "npm --prefix packages/main run test:reviewer-scan-budget-guard",
+          "result": "pass",
+          "note": "Valid review_pass_set payload persists normalized readManifest and signs it into review pass integrity material.",
+          "headHash": "28dc44d95b17f2a66664cdc0acf2b72acbd9273d",
+          "materialHash": "4d229b18c8e624211030a9792789d6bc8aa4283adddf190a96a1c2440ff6a9a4",
+          "storyFilesHash": "cecdb95f96e113792696335e5025147b048db3ff93e5767c5095d4e3362c34c9",
+          "timestamp": "2026-07-10T03:15:16.925Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Runtime/process fact contract verification passed with review_pass_set preserved as signed reviewer pass evidence.",
+          "headHash": "28dc44d95b17f2a66664cdc0acf2b72acbd9273d",
+          "materialHash": "4d229b18c8e624211030a9792789d6bc8aa4283adddf190a96a1c2440ff6a9a4",
+          "storyFilesHash": "cecdb95f96e113792696335e5025147b048db3ff93e5767c5095d4e3362c34c9",
+          "timestamp": "2026-07-10T03:15:16.925Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+          "command": "npm --prefix packages/main run test:reviewer-scan-budget-guard",
+          "result": "pass",
+          "note": "Current-head smoke rejects missing and malformed duplicate readManifest on review_pass_set and verifies readManifest tampering invalidates the review pass signature.",
+          "headHash": "28dc44d95b17f2a66664cdc0acf2b72acbd9273d",
+          "materialHash": "4d229b18c8e624211030a9792789d6bc8aa4283adddf190a96a1c2440ff6a9a4",
+          "storyFilesHash": "cecdb95f96e113792696335e5025147b048db3ff93e5767c5095d4e3362c34c9",
+          "timestamp": "2026-07-10T03:15:16.925Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Update reviewer templates and dispatch prompts to submit readManifest",
       "context": "scope-plan and REVIEW-phase reviewer templates must instruct submitting the structured field (B-cee5 bounded-contract language already exists in the templates); a missing submission must surface as a gate rejection, not a silent pass.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-10T01:42:57.844Z",
+      "endTime": "2026-07-10T01:42:58.445Z",
+      "userSees": "Reviewer prompts show the required readManifest object shape and explain scanEscalationReason before the reviewer submits evidence.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Scope-plan and REVIEW reviewer prompts include the exact readManifest shape and instructions for filesReadFully, filesTriagedByName, and scanEscalationReason.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Prompt text preserves bounded-scan escalation wording and does not tell reviewers to use memory or playbook output as gate evidence.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A reviewer evidence path without readManifest still fails at command validation even if prompt prose is present.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/templates/agents/lattice-review-scope-plan.md",
+          "packages/main/templates/agents/lattice-review-behavior.md",
+          ".claude/agents/lattice-review-scope-plan.md",
+          ".claude/agents/lattice-review-behavior.md",
+          ".lattice-codex/agents/lattice-review-scope-plan.md",
+          ".lattice-codex/agents/lattice-review-behavior.md",
+          "packages/main/src/handlers/story-dispatch.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "packages/main/templates/agents/lattice-review-scope-plan.md",
+          "command": "npm --prefix packages/main run test:reviewer-scan-budget-guard",
+          "result": "pass",
+          "note": "Prompt/template guard verifies reviewer instructions include the structured readManifest shape and required phrases.",
+          "headHash": "28dc44d95b17f2a66664cdc0acf2b72acbd9273d",
+          "materialHash": "4d229b18c8e624211030a9792789d6bc8aa4283adddf190a96a1c2440ff6a9a4",
+          "storyFilesHash": "cecdb95f96e113792696335e5025147b048db3ff93e5767c5095d4e3362c34c9",
+          "timestamp": "2026-07-10T03:15:16.925Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+          "command": "npm --prefix packages/main run test:reviewer-scan-budget-guard",
+          "result": "pass",
+          "note": "Prompt guard verifies bounded-scan wording remains conditional on scanEscalationReason and memory/playbook output is not promoted to gate evidence.",
+          "headHash": "28dc44d95b17f2a66664cdc0acf2b72acbd9273d",
+          "materialHash": "4d229b18c8e624211030a9792789d6bc8aa4283adddf190a96a1c2440ff6a9a4",
+          "storyFilesHash": "cecdb95f96e113792696335e5025147b048db3ff93e5767c5095d4e3362c34c9",
+          "timestamp": "2026-07-10T03:15:16.925Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+          "command": "npm --prefix packages/main run test:reviewer-scan-budget-guard",
+          "result": "pass",
+          "note": "Command schema/runtime tests fail closed when reviewer evidence omits readManifest even if prompt prose exists.",
+          "headHash": "28dc44d95b17f2a66664cdc0acf2b72acbd9273d",
+          "materialHash": "4d229b18c8e624211030a9792789d6bc8aa4283adddf190a96a1c2440ff6a9a4",
+          "storyFilesHash": "cecdb95f96e113792696335e5025147b048db3ff93e5767c5095d4e3362c34c9",
+          "timestamp": "2026-07-10T03:15:16.925Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
       "title": "M2: derive a mechanical per-run read log for decisions/*.md",
       "context": "Either retain the reviewer's stream-json transcript at dispatch and extract the Read-call list (productize the fa1777b analyze_arm.py approach), or add a PreToolUse Read hook following the .claude/hooks/lattice-scope-pretool.cjs pattern; bind the read-log digest as run evidence.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-10T01:42:59.041Z",
+      "endTime": "2026-07-10T01:42:59.635Z",
+      "userSees": "Reviewer run evidence includes a digest-bound mechanical decisions-doc read log when read events are available.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Synthetic reviewer read-call events for docs/requirements/decisions/*.md normalize into a stable mechanical read log with a deterministic digest.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Non-decisions files, duplicate reads, relative path variants, and triage-only events are handled without polluting the decisions-doc read log.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The mechanical read log cannot be forged by changing readManifest alone and digest changes when the mechanical event list changes.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/reviewer-read-evidence.ts",
+          "packages/main/src/core/types.ts"
+        ],
+        "create": [
+          "packages/main/src/core/reviewer-read-evidence.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+          "command": "npm --prefix packages/main run test:reviewer-scan-budget-guard",
+          "result": "pass",
+          "note": "Smoke transcript reports reviewer read capture PASS and deterministic read-log digest checks for decisions-doc read events.",
+          "headHash": "28dc44d95b17f2a66664cdc0acf2b72acbd9273d",
+          "materialHash": "4d229b18c8e624211030a9792789d6bc8aa4283adddf190a96a1c2440ff6a9a4",
+          "storyFilesHash": "cecdb95f96e113792696335e5025147b048db3ff93e5767c5095d4e3362c34c9",
+          "timestamp": "2026-07-10T03:15:16.925Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+          "command": "npm --prefix packages/main run test:reviewer-scan-budget-guard",
+          "result": "pass",
+          "note": "Smoke covers non-decisions files, duplicate/relative variants, and triage-only events without polluting decisions-doc full-read evidence.",
+          "headHash": "28dc44d95b17f2a66664cdc0acf2b72acbd9273d",
+          "materialHash": "4d229b18c8e624211030a9792789d6bc8aa4283adddf190a96a1c2440ff6a9a4",
+          "storyFilesHash": "cecdb95f96e113792696335e5025147b048db3ff93e5767c5095d4e3362c34c9",
+          "timestamp": "2026-07-10T03:15:16.925Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+          "command": "npm --prefix packages/main run test:reviewer-scan-budget-guard",
+          "result": "pass",
+          "note": "Smoke verifies the mechanical read-log digest changes with mechanical event input and cannot be forged by changing readManifest alone.",
+          "headHash": "28dc44d95b17f2a66664cdc0acf2b72acbd9273d",
+          "materialHash": "4d229b18c8e624211030a9792789d6bc8aa4283adddf190a96a1c2440ff6a9a4",
+          "storyFilesHash": "cecdb95f96e113792696335e5025147b048db3ff93e5767c5095d4e3362c34c9",
+          "timestamp": "2026-07-10T03:15:16.925Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
       "title": "M2: flag self-report vs mechanical-log mismatch and unrecorded full scans",
       "context": "A full-content directory read of docs/requirements/decisions/ without a recorded scanEscalationReason is the defined failure signal; a mismatch between readManifest and the mechanical read log files a finding. Recording only — do not block or alter the escalation path itself, and do not make memory/playbook output gate evidence.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-10T01:43:00.310Z",
+      "endTime": "2026-07-10T01:43:00.921Z",
+      "userSees": "Mismatch diagnostics identify readManifest/read-log disagreement or an unrecorded full decisions-doc scan without blocking legitimate escalation.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A matching readManifest and mechanical read log produces no mismatch finding and records the read-log digest as evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A full decisions-doc scan with a non-empty scanEscalationReason is recorded as escalated rather than flagged as unrecorded misuse.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Missing self-report entries, extra self-report entries, and full decisions-doc scans without scanEscalationReason are flagged as findings or diagnostics.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/reviewer-read-evidence.ts",
+          "packages/main/src/core/types.ts"
+        ],
+        "create": [
+          "packages/main/src/core/reviewer-read-evidence.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+          "command": "npm --prefix packages/main run test:reviewer-scan-budget-guard",
+          "result": "pass",
+          "note": "Matching readManifest and mechanical read log produces no mismatch diagnostics while preserving the read-log digest.",
+          "headHash": "28dc44d95b17f2a66664cdc0acf2b72acbd9273d",
+          "materialHash": "4d229b18c8e624211030a9792789d6bc8aa4283adddf190a96a1c2440ff6a9a4",
+          "storyFilesHash": "cecdb95f96e113792696335e5025147b048db3ff93e5767c5095d4e3362c34c9",
+          "timestamp": "2026-07-10T03:15:16.925Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+          "command": "npm --prefix packages/main run test:reviewer-scan-budget-guard",
+          "result": "pass",
+          "note": "Full decisions-doc scan with a non-empty scanEscalationReason is treated as legitimate escalation rather than unrecorded misuse.",
+          "headHash": "28dc44d95b17f2a66664cdc0acf2b72acbd9273d",
+          "materialHash": "4d229b18c8e624211030a9792789d6bc8aa4283adddf190a96a1c2440ff6a9a4",
+          "storyFilesHash": "cecdb95f96e113792696335e5025147b048db3ff93e5767c5095d4e3362c34c9",
+          "timestamp": "2026-07-10T03:15:16.925Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+          "command": "npm --prefix packages/main run test:reviewer-scan-budget-guard",
+          "result": "pass",
+          "note": "Missing/extra self-report entries and full decisions-doc scans without scanEscalationReason are diagnosed.",
+          "headHash": "28dc44d95b17f2a66664cdc0acf2b72acbd9273d",
+          "materialHash": "4d229b18c8e624211030a9792789d6bc8aa4283adddf190a96a1c2440ff6a9a4",
+          "storyFilesHash": "cecdb95f96e113792696335e5025147b048db3ff93e5767c5095d4e3362c34c9",
+          "timestamp": "2026-07-10T03:15:16.925Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
       "title": "Guard smoke coverage for the readManifest gate and mismatch detector",
       "context": "Extend packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts (from B-cee5) so validate catches regressions: missing readManifest passing a save, and mismatch/unrecorded-full-scan cases going unflagged. Align with the B-04bb validate wiring follow-up.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-10T01:43:01.521Z",
+      "endTime": "2026-07-10T01:43:02.115Z",
+      "userSees": "The focused reviewer scan guard smoke fails on missing readManifest or mismatch regressions and passes on the expected safe cases.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "reviewer-scan-budget-guard-smoke covers valid readManifest, valid mechanical read-log digest, and no-mismatch green cases.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The smoke preserves JSON cleanliness and normal validate wiring when read evidence diagnostics are emitted.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The smoke fails if missing readManifest is accepted, mismatch findings are skipped, full scans without scanEscalationReason are ignored, or owner/self-signed reviewer evidence bypasses role separation.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+          "packages/main/package.json",
+          "lattice.config.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+          "command": "npm --prefix packages/main run test:reviewer-scan-budget-guard",
+          "result": "pass",
+          "note": "Focused smoke covers valid readManifest, valid mechanical read-log digest, and no-mismatch green path.",
+          "headHash": "28dc44d95b17f2a66664cdc0acf2b72acbd9273d",
+          "materialHash": "4d229b18c8e624211030a9792789d6bc8aa4283adddf190a96a1c2440ff6a9a4",
+          "storyFilesHash": "cecdb95f96e113792696335e5025147b048db3ff93e5767c5095d4e3362c34c9",
+          "timestamp": "2026-07-10T03:15:16.925Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+          "command": "npm test -- --runInBand",
+          "result": "pass",
+          "note": "Full root test run passed after the focused smoke, preserving JSON cleanliness and validate-adjacent wiring.",
+          "headHash": "28dc44d95b17f2a66664cdc0acf2b72acbd9273d",
+          "materialHash": "4d229b18c8e624211030a9792789d6bc8aa4283adddf190a96a1c2440ff6a9a4",
+          "storyFilesHash": "cecdb95f96e113792696335e5025147b048db3ff93e5767c5095d4e3362c34c9",
+          "timestamp": "2026-07-10T03:15:16.925Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+          "command": "npm --prefix packages/main run test:reviewer-scan-budget-guard",
+          "result": "pass",
+          "note": "Smoke fails if missing readManifest is accepted, mismatch findings are skipped, full scans without scanEscalationReason are ignored, or role separation is bypassed.",
+          "headHash": "28dc44d95b17f2a66664cdc0acf2b72acbd9273d",
+          "materialHash": "4d229b18c8e624211030a9792789d6bc8aa4283adddf190a96a1c2440ff6a9a4",
+          "storyFilesHash": "cecdb95f96e113792696335e5025147b048db3ff93e5767c5095d4e3362c34c9",
+          "timestamp": "2026-07-10T03:15:16.925Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-007",
+      "title": "Record read counts and token usage fields in the reviewer read evidence tuple",
+      "context": "Scope reviewer found a PLAN gap: the story promises every review emits a tuple of files-read-fully, triaged-by-name, tokens, and escalation-reason, but no checklist item covered token/read counts. Add this explicitly to the mechanical read-log evidence surface.",
+      "relatedDocs": [
+        "docs/requirements/decisions/pos-agent-drivability-optimization.md",
+        "docs/requirements/decisions/dev-memory.md"
+      ],
+      "userSees": "Reviewer read evidence shows \"readLog.summary.readCount\" and \"readLog.summary.tokenCount\" (or \"tokenCount: null\" when unavailable) next to filesReadFully/filesTriagedByName.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/reviewer-read-evidence.ts"
+        ],
+        "create": [
+          "packages/main/src/core/reviewer-read-evidence.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Mechanical read-log evidence includes deterministic readCount and tokenCount fields alongside filesReadFully, filesTriagedByName, and scanEscalationReason.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "When provider transcript token usage is unavailable, tokenCount is explicitly null/unknown rather than fabricated, while readCount remains deterministic.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Changing token/read-count inputs changes the read-log digest, and missing count fields fail the focused smoke.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-07-10T01:43:02.718Z",
+      "endTime": "2026-07-10T01:43:03.307Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+          "command": "npm --prefix packages/main run test:reviewer-scan-budget-guard",
+          "result": "pass",
+          "note": "Mechanical read-log summary includes deterministic readCount and tokenCount fields with filesReadFully/filesTriagedByName/scanEscalationReason.",
+          "headHash": "28dc44d95b17f2a66664cdc0acf2b72acbd9273d",
+          "materialHash": "4d229b18c8e624211030a9792789d6bc8aa4283adddf190a96a1c2440ff6a9a4",
+          "storyFilesHash": "cecdb95f96e113792696335e5025147b048db3ff93e5767c5095d4e3362c34c9",
+          "timestamp": "2026-07-10T03:15:16.926Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+          "command": "npm --prefix packages/main run test:reviewer-scan-budget-guard",
+          "result": "pass",
+          "note": "When transcript token usage is unavailable, smoke verifies tokenCount is null while readCount remains deterministic.",
+          "headHash": "28dc44d95b17f2a66664cdc0acf2b72acbd9273d",
+          "materialHash": "4d229b18c8e624211030a9792789d6bc8aa4283adddf190a96a1c2440ff6a9a4",
+          "storyFilesHash": "cecdb95f96e113792696335e5025147b048db3ff93e5767c5095d4e3362c34c9",
+          "timestamp": "2026-07-10T03:15:16.926Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+          "command": "npm --prefix packages/main run test:reviewer-scan-budget-guard",
+          "result": "pass",
+          "note": "Changing token/read-count inputs affects the digest and missing count semantics are guarded by the focused smoke.",
+          "headHash": "28dc44d95b17f2a66664cdc0acf2b72acbd9273d",
+          "materialHash": "4d229b18c8e624211030a9792789d6bc8aa4283adddf190a96a1c2440ff6a9a4",
+          "storyFilesHash": "cecdb95f96e113792696335e5025147b048db3ff93e5767c5095d4e3362c34c9",
+          "timestamp": "2026-07-10T03:15:16.926Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-008",
+      "title": "Guard reviewer read capture so non-reviewer Read usage is unaffected",
+      "context": "Scope reviewer found a PLAN gap: if the mechanical path uses PreToolUse/hook capture, the story must prove it only affects reviewer read-evidence capture and does not break normal/non-reviewer Read usage. This item makes that safety requirement explicit.",
+      "relatedDocs": [
+        "docs/CLI.md",
+        "docs/requirements/decisions/pos-agent-drivability-optimization.md"
+      ],
+      "userSees": "Focused smoke prints \"non-reviewer read capture bypass: PASS\" and reviewer read evidence still records decisions-doc reads.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/reviewer-read-evidence.ts",
+          "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts"
+        ],
+        "create": [
+          "packages/main/src/core/reviewer-read-evidence.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Reviewer-lane read capture records decisions-doc read evidence when reviewer context is present.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Non-reviewer or missing-reviewer context bypasses capture safely and does not throw, mutate reviewer evidence, or block ordinary reads.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A hook/capture event that looks like a non-reviewer Read cannot produce reviewer gate evidence or a mismatch finding.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-07-10T01:43:03.988Z",
+      "endTime": "2026-07-10T01:43:04.633Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-008:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+          "command": "npm --prefix packages/main run test:reviewer-scan-budget-guard",
+          "result": "pass",
+          "note": "Reviewer-lane read capture records decisions-doc evidence when reviewer context is present.",
+          "headHash": "28dc44d95b17f2a66664cdc0acf2b72acbd9273d",
+          "materialHash": "4d229b18c8e624211030a9792789d6bc8aa4283adddf190a96a1c2440ff6a9a4",
+          "storyFilesHash": "cecdb95f96e113792696335e5025147b048db3ff93e5767c5095d4e3362c34c9",
+          "timestamp": "2026-07-10T03:15:16.926Z"
+        },
+        {
+          "intentRef": "CHK-008:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+          "command": "npm --prefix packages/main run test:reviewer-scan-budget-guard",
+          "result": "pass",
+          "note": "Non-reviewer or missing reviewer context bypasses capture safely without throwing or mutating reviewer evidence.",
+          "headHash": "28dc44d95b17f2a66664cdc0acf2b72acbd9273d",
+          "materialHash": "4d229b18c8e624211030a9792789d6bc8aa4283adddf190a96a1c2440ff6a9a4",
+          "storyFilesHash": "cecdb95f96e113792696335e5025147b048db3ff93e5767c5095d4e3362c34c9",
+          "timestamp": "2026-07-10T03:15:16.926Z"
+        },
+        {
+          "intentRef": "CHK-008:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+          "command": "lattice scope_contract_check --storyId=B-4a78 --json",
+          "result": "pass",
+          "note": "Scope contract check has no blocking findings after the explicit metadata acknowledgement, so non-reviewer read evidence is not being used to expand product scope.",
+          "headHash": "28dc44d95b17f2a66664cdc0acf2b72acbd9273d",
+          "materialHash": "4d229b18c8e624211030a9792789d6bc8aa4283adddf190a96a1c2440ff6a9a4",
+          "storyFilesHash": "cecdb95f96e113792696335e5025147b048db3ff93e5767c5095d4e3362c34c9",
+          "timestamp": "2026-07-10T03:15:16.926Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-10T01:18:37.204Z",
+      "phase": "PLAN",
+      "itemId": "CHK-007",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Scope reviewer identified missing token/read count coverage in the promised read evidence tuple.",
+      "addedTitle": "Record read counts and token usage fields in the reviewer read evidence tuple",
+      "addedContext": "Scope reviewer found a PLAN gap: the story promises every review emits a tuple of files-read-fully, triaged-by-name, tokens, and escalation-reason, but no checklist item covered token/read counts. Add this explicitly to the mechanical read-log evidence surface."
+    },
+    {
+      "timestamp": "2026-07-10T01:18:45.391Z",
+      "phase": "PLAN",
+      "itemId": "CHK-008",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Scope reviewer identified missing safety coverage for hook-based read capture and non-reviewer Read usage.",
+      "addedTitle": "Guard reviewer read capture so non-reviewer Read usage is unaffected",
+      "addedContext": "Scope reviewer found a PLAN gap: if the mechanical path uses PreToolUse/hook capture, the story must prove it only affects reviewer read-evidence capture and does not break normal/non-reviewer Read usage. This item makes that safety requirement explicit."
     }
   ]
 }
