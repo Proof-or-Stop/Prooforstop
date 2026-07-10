@@ -1442,6 +1442,24 @@
         "scanEscalationReason": null
       },
       "_hash": "de95e40c135b7af4e6cc2d1cc665d0a68ba9aae5892d755e1569cad9f2318dfe"
+    },
+    {
+      "id": "B-70e9:RP-061",
+      "agent": "lattice-review-docs",
+      "note": "Round 17, fix commit 2216ff5104 (F-024). Full-story diff symbol extraction yielded 50+ exported identifiers; the fix-commit-local diff added only DRAIN_CAP_MS/drainPending (internal, not doc-referenced by name), so fell back to a scoped narrative comparison of the single touchpoint paragraph. Compared 1 paragraph in docs/host-run-usage.md (the passthrough/EPIPE section) plus the CHANGELOG.md B-70e9 bullet against packages/main/src/handlers/host-run.ts. Verified: pendingWrites is a shared counter incremented by both the live passthrough chunk writer and emitStderr diagnostics, confirming every live chunk write is covered, not just final diagnostics; drainPending() is awaited in the finally strictly before removeListener; DRAIN_CAP_MS=2000 matches the ~2s cap language. CHANGELOG.md B-70e9 bullet is an unchanged high-level summary, still accurate, not contradicted. No doc-code drift found; no blockers.",
+      "createdAt": "2026-07-10T14:46:10.491Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-070",
+      "readManifest": {
+        "filesReadFully": [
+          "CHANGELOG.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/handlers/host-run.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "73a29186c8db9a4f3d46a03edcab9a75b01c602b081451663541d458b7573823"
     }
   ]
 }
