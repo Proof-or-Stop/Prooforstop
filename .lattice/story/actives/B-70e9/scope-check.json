@@ -479,8 +479,12 @@
       "q": "B-d8ef and B-4a78 are cited by story ID in understanding.json but no docs/requirements/decisions/ file matches those story IDs by title. Is there a specific decisions/ doc backing them, or is this a completed-story cross-reference with no standing spec doc?",
       "evidence": "understanding.json facts cite B-d8ef (canonicalReviewHostLauncherSpec freeze) and B-4a78 (signed readManifest coordination); grep for both story IDs across docs/requirements/decisions/*.md returned zero matches. The concrete touchpoints they describe (canonicalReviewHostLauncherSpec, launcherArgvMatchesCanonical) were verified present today in packages/main/src/core/host-execution-readiness.ts, so the underlying work appears real and already landed; it just is not backed by a discoverable decisions/ doc under those names.",
       "sourcePointers": [
-        ".lattice/story/actives/B-70e9/understanding.json"
-      ]
+        "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+        "packages/main/src/core/host-execution-readiness.ts",
+        "packages/main/src/core/reviewer-read-evidence.ts"
+      ],
+      "resolution": "B-d8ef and B-4a78 are deliberately cited as story-ID provenance, not as decisions/ specs: their mechanical contracts live in merged source (canonicalReviewHostLauncherSpec / launcherArgvMatchesCanonical in packages/main/src/core/host-execution-readiness.ts, and the readManifest normalization in packages/main/src/core/reviewer-read-evidence.ts), which the scope reviewer verified present. The governing decisions/ spec for this story is lattice-llm-usage-ledger-execution-plan.md; no additional decisions/ doc is required for story-to-story build-on references.",
+      "resolvedAt": "2026-07-10T05:29:56.014Z"
     },
     {
       "id": "OQ-2",
