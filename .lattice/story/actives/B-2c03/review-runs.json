@@ -479,6 +479,86 @@
         "bindingHash": "28269d8e46e558f204c0361d05b68b8a9e19f1bb12c6a1bda02daaada2fc95ee"
       },
       "_hash": "b26971e0782da16bdfab54555d587adc2d69b304e981bd266fccc03d297c7c8e"
+    },
+    {
+      "reviewRunId": "B-2c03:RR-013",
+      "storyId": "B-2c03",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-07-10T14:41:10.214Z",
+      "startedAt": "2026-07-10T15:25:47.574Z",
+      "headHash": "9470e1738db6ea8e436c0822ec5fdcf263de695f",
+      "materialHash": "5fb9a7658e9c99b6a46fe47dc4db957a4fe8f4ad51eb572401ce14759972bf3f",
+      "storyFilesHash": "b557c6bd0bf009725c13848554b6317835e7f3c1b1f6a45555664160af3d13b7",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "02a392bdacfd0aaeb70f45ce54eefd639f3906afbbe1fce28691fcc4143dd965",
+        "diffPackHash": "4e5461911ab4f018854ea4256478a7cddf3f69e0e47c416535a634fca65dc7de",
+        "reviewedChangedFiles": [
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "85ea9de6848af9dd9bbf0f8be84dc51ecaa99d4d57ee918a7a3959066ac63fbf",
+          "99b4b003c3456bcae8472dab2ec071fa2f80da103bcfbef3934e879e03b04bcb",
+          "e8773146106515a94274c2c24e0cd5987e62b5411b5abd0caed6d0402751b41c"
+        ],
+        "bindingHash": "f318aab08dc020d24354e36d6c96cc36bcf6bcebfddc6979f28a5159fa9a923c"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-2c03",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-2c03",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-2c03",
+        "workspaceMode": "story-worktree",
+        "headHash": "9470e1738db6ea8e436c0822ec5fdcf263de695f",
+        "materialHash": "5fb9a7658e9c99b6a46fe47dc4db957a4fe8f4ad51eb572401ce14759972bf3f",
+        "storyFilesHash": "b557c6bd0bf009725c13848554b6317835e7f3c1b1f6a45555664160af3d13b7",
+        "bindingHash": "4db4dad8817035650231da18990d556f67d894693017809170d136b9bc6153f0"
+      },
+      "_hash": "f693f06f2323ea230a1a180f9e20ab58cc9ff5d8e11d91684daf0b12bc6056c6"
+    },
+    {
+      "reviewRunId": "B-2c03:RR-014",
+      "storyId": "B-2c03",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-07-10T14:41:10.214Z",
+      "startedAt": "2026-07-10T15:26:10.056Z",
+      "headHash": "9470e1738db6ea8e436c0822ec5fdcf263de695f",
+      "materialHash": "5fb9a7658e9c99b6a46fe47dc4db957a4fe8f4ad51eb572401ce14759972bf3f",
+      "storyFilesHash": "b557c6bd0bf009725c13848554b6317835e7f3c1b1f6a45555664160af3d13b7",
+      "promptHash": "08741f5a0b91b68dbcd7b691fe81dd427218665c319d9fc7babb93d019e5674b",
+      "scopeBinding": {
+        "scopeContractHash": "02a392bdacfd0aaeb70f45ce54eefd639f3906afbbe1fce28691fcc4143dd965",
+        "diffPackHash": "4e5461911ab4f018854ea4256478a7cddf3f69e0e47c416535a634fca65dc7de",
+        "reviewedChangedFiles": [
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "85ea9de6848af9dd9bbf0f8be84dc51ecaa99d4d57ee918a7a3959066ac63fbf",
+          "99b4b003c3456bcae8472dab2ec071fa2f80da103bcfbef3934e879e03b04bcb",
+          "e8773146106515a94274c2c24e0cd5987e62b5411b5abd0caed6d0402751b41c"
+        ],
+        "bindingHash": "f318aab08dc020d24354e36d6c96cc36bcf6bcebfddc6979f28a5159fa9a923c"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-2c03",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-2c03",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-2c03",
+        "workspaceMode": "story-worktree",
+        "headHash": "9470e1738db6ea8e436c0822ec5fdcf263de695f",
+        "materialHash": "5fb9a7658e9c99b6a46fe47dc4db957a4fe8f4ad51eb572401ce14759972bf3f",
+        "storyFilesHash": "b557c6bd0bf009725c13848554b6317835e7f3c1b1f6a45555664160af3d13b7",
+        "bindingHash": "4db4dad8817035650231da18990d556f67d894693017809170d136b9bc6153f0"
+      },
+      "_hash": "901204e4a1622ff5c898c295426fbfe5ae931a60e6422b8ea11f2226a2d0eaf7"
     }
   ]
 }

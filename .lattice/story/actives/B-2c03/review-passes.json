@@ -155,6 +155,31 @@
         "scanEscalationReason": null
       },
       "_hash": "fe1ee5efbc98052ec80aeb2a89fb65d0133f964557f14fee6a2698fdf5e43395"
+    },
+    {
+      "id": "B-2c03:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 3 checklist items (CHK-001/002/003) x happy/edge/adversarial remain covered by concrete, intent-specific evidence in proofstory-intent-hardening-smoke.ts after F-005 fix (3802629cac). Verified live: npm --prefix packages/main run build succeeds and node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js passes GREEN. Confirmed the F-001..F-005 RED-first regression cases (hyphenTriggerDone, hyphenExcludedDone, dottedSuffixDone, dottedSuffixDeferredDone, hyphenRemainingDone, underscoreRemainingDone, hyphenOutOfScopeDone, hyphenNotCoveredDone, ambiguousExtLogDone, ambiguousExtGoDone) and the original happy/edge/adversarial controls (fileNameDone, codeTokenDone, proseShrinkDone, narrowLightDone, bareFileNameDone, multiDotFileDone, preexistingDone, remainingScopeDone) all present and asserting correctly against current proofstory.ts. red-evidence.json contains genuine pre-fix RED capture for CHK-002:edge. plan.md documents the CHK-003 keep/narrow/drop decision with rationale and an updated Risk notes section listing only false-positive-direction residuals with a stated backtick/path mitigation. validate reports checklist evidence status=stale (mechanical headHash-freshness gate against fix commit 3802629cac, a DONE-gate/delivery-check re-validate concern, not a content coverage gap). No blocking coverage gaps found by this lane.",
+      "createdAt": "2026-07-10T15:26:13.232Z",
+      "reviewRound": "2026-07-10T14:41:10.214Z",
+      "reviewRunId": "B-2c03:RR-013",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2c03/checklist.json",
+          ".lattice/story/actives/B-2c03/findings.json",
+          ".lattice/story/actives/B-2c03/plan.md",
+          ".lattice/story/actives/B-2c03/red-evidence.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2c03/background.md",
+          ".lattice/story/actives/B-2c03/review-passes.json",
+          ".lattice/story/actives/B-2c03/review.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "11f2df916e40541c36c6f10b9c8634633b3238742fa338263cb18b1ce571e5f5"
     }
   ]
 }
