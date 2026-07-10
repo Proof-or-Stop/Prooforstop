@@ -92,6 +92,26 @@
       ],
       "signatureTag": "missing|md:11|responsibility-boundary-truthful",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3928:F-005",
+      "desc": "quality-correctness: scripts/verify-proof-or-stop-prompt-baseline.mjs:318 classifies any docs/story line containing directly read/edit as a policy reminder before write detection, while scripts/verify-proof-or-stop-prompt-baseline.mjs:343 only recognizes echo or a narrow shell redirection. Executing the changed classifier against actionable examples classified Directly Read/Edit as policy-reminder, tee as other with grandfathered=true, and If available, echo x > docs/story/... as read-only-reference with grandfathered=true. scripts/verify-proof-or-stop-prompt-baseline.mjs:724 then enforces only findings already classified direct-write, so an intentional baseline refresh can admit actionable direct-story writes without the required explicit grandfathering and CLI-gap justification. This breaks the CHK-005 promised distinction and leaves a direct-write regression bypass.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-10T04:21:31.553Z",
+      "reviewRound": "2026-07-10T04:15:51.636Z",
+      "reviewRunId": "B-3928:RR-011",
+      "_hash": "c1783ec2d301a7657637a2ee20448842ff9931124ebd2597cbd6d69d9f5da7bd",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:318",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:343",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:724"
+      ],
+      "signatureTag": "adversarial|mjs:318|quality-correctness-scripts",
+      "signatureTagSource": "auto"
     }
   ]
 }
