@@ -20,6 +20,26 @@
       ],
       "signatureTag": "doc-promise-undelivered|ts|usersees-promises-reviewer",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-70e9:F-002",
+      "desc": "All 42 must-priority verificationEvidence rows across CHK-001..CHK-007 are currently STALE per lattice validate / evidence_plan (verificationCoverage covered=0/42, missingRequired=42), so the DONE gate would see ZERO valid coverage right now despite the underlying tests genuinely passing. Root cause: evidence was recorded at DEV commit b8d52bbdb (materialHash=9a34267cfc.../storyFilesHash=9df50ebfa3...), then main was merged into story/B-70e9 at 7031fa81c (bringing in an unrelated story B-b264 DONE + a version bump touching package.json/packages/main/package.json), which shifted both materialHash (now 1f57a4081...) and storyFilesHash (now 31513ec6c...) even though none of B-70e9's own story files changed content. Independently confirmed: npm --prefix packages/main run test:host-run-usage (25/25 pass) and test:usage-sweep (11/11 pass) both pass cleanly against current HEAD 867de85e6, and evidence_plan classifies all 42 as refresh-only (hash drift, not rerun_required/hard_stale/missing) -- so this is a re-stamp issue, not a real coverage gap. Needs verification_evidence_refresh_stale / evidence_refresh --apply (or fresh verification_evidence_add) before TEST/DONE so the gate sees the coverage that genuinely exists.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-10T07:31:21.401Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "reviewRunId": "B-70e9:RR-004",
+      "_hash": "6084c7141ea577feb504abcd69f026902f80bcb0ef765e6ccbd0768ccc66ee7f",
+      "files": [
+        ".lattice/story/actives/B-70e9/checklist.json",
+        "packages/main/src/tasks/host-run-usage-smoke.ts",
+        "packages/main/src/tasks/usage-sweep-smoke.ts"
+      ],
+      "signatureTag": "missing|json|priority-verificationevidence-rows",
+      "signatureTagSource": "auto"
     }
   ]
 }
