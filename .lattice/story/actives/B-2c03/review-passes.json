@@ -86,6 +86,30 @@
         "scanEscalationReason": null
       },
       "_hash": "84e6087f03f78ee172b3ee6d7ecf9f178ada6bcd4fc5ca7ad445376fa274c343"
+    },
+    {
+      "id": "B-2c03:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "F-001 verified genuinely fixed: stripCodeLikeTokens no longer strips hyphen-only tokens; deferred-for-now/excluded-here still trigger claimsShrinkage, bare dotted file names still do not. Reproduced pre-fix bypass and post-fix correction directly against packages/main/dist build. Full lattice validate green. However found a NEW residual bypass in the same fix (filed as B-2c03:F-002, blocking): the dotted-token strip regex allows hyphens inside each dot-segment, so hyphenated trigger prose followed by a dotted suffix (e.g. remaining-scope.v2, excluded-set.beta, deferred-work.next) is still fully erased before the scan, defeating the guard the same way F-001 did.",
+      "createdAt": "2026-07-10T14:59:38.297Z",
+      "reviewRound": "2026-07-10T14:41:10.214Z",
+      "reviewRunId": "B-2c03:RR-006",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2c03/background.md",
+          ".lattice/story/actives/B-2c03/plan.md",
+          ".lattice/story/actives/B-2c03/red-evidence.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2c03/checklist.json",
+          ".lattice/story/actives/B-2c03/findings.json",
+          ".lattice/story/actives/B-2c03/review.json"
+        ],
+        "scanEscalationReason": "Ran direct behavioral reproduction of stripCodeLikeTokens (pre-fix and post-fix) plus adversarial fuzzing of hyphen+dot combined tokens against the built dist artifact to independently verify F-001 closure and probe for residual bypasses; found and filed F-002."
+      },
+      "_hash": "1753e689ef332f53212060cc340b5cb399dcea81cadcbb67e15fcbb2dfb6aff4"
     }
   ]
 }
