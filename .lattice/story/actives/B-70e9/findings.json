@@ -671,6 +671,27 @@
       "resolvedAt": "2026-07-10T18:28:14.708Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-70e9:F-031",
+      "desc": "doc-code-drift: docs/host-run-usage.md lines 300-304 (F-028 clause) states unconditionally that a plain (no --out) usage_sweep \"writes no activity-log entry\" via the CLI activity/hook layer. This is only true by default. shouldWriteActivityLog (cli/activity-policy.ts:131-140) returns process.env.LATTICE_ACTIVITY_RECORD_READONLY === \"1\" for any isReadOnlyCommand match, so LATTICE_ACTIVITY_RECORD_READONLY=1 (the same env var documented in docs/CLI.md:727-730 for the codex global-fallback wrapper, used precisely to make read-only entry points like session_brief still leave a heartbeat) makes a plain usage_sweep WRITE an activity-log row too. usage-sweep-smoke.ts itself proves this: it asserts shouldWriteActivityLog(\"usage_sweep\", {}) === false only after explicitly deleting the override, with the comment \"by default\", then asserts it flips to true under the override. The doc omits the \"by default\" / override-exists qualifier that both the code comment (activity-policy.ts:100-101, \"Static READ_ONLY_COMMANDS members are always read-only\" vs usage_sweep, and the shouldWriteActivityLog body itself) and the test make explicit, so a reader of host-run-usage.md would wrongly conclude a plain usage_sweep NEVER leaves an activity trail under any operator configuration. Fix direction: add the same by-default / LATTICE_ACTIVITY_RECORD_READONLY=1 override caveat used elsewhere (docs/CLI.md) to this clause.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-10T18:31:12.287Z",
+      "reviewRound": "2026-07-10T11:18:28.723Z",
+      "reviewRunId": "B-70e9:RR-087",
+      "_hash": "31864c02a4139bd9de7008b80f627483f341ae6fbaa039c8075cbf43e7bbdb1c",
+      "files": [
+        "docs/host-run-usage.md",
+        "packages/main/src/cli/activity-policy.ts",
+        "packages/main/src/tasks/usage-sweep-smoke.ts",
+        "docs/CLI.md"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
