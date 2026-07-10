@@ -623,6 +623,45 @@ export interface FindingData {
   findings: Finding[];
 }
 
+export interface ReviewerReadManifest {
+  filesReadFully: string[];
+  filesTriagedByName: string[];
+  scanEscalationReason: string | null;
+}
+
+export interface ReviewerReadLogEvent {
+  path: string;
+  mode: 'full' | 'triage';
+  tokenCount: number | null;
+  agent?: string;
+}
+
+export interface ReviewerReadLogSummary {
+  readCount: number;
+  tokenCount: number | null;
+}
+
+export interface ReviewerReadLogEvidence {
+  filesReadFully: string[];
+  filesTriagedByName: string[];
+  summary: ReviewerReadLogSummary;
+  digest: string;
+}
+
+export type ReviewerReadDiagnosticCode =
+  | 'read_manifest_missing_full_read'
+  | 'read_manifest_extra_full_read'
+  | 'read_manifest_missing_triage'
+  | 'read_manifest_extra_triage'
+  | 'full_scan_without_scanEscalationReason';
+
+export interface ReviewerReadDiagnostic {
+  code: ReviewerReadDiagnosticCode;
+  severity: 'finding';
+  message: string;
+  path?: string;
+}
+
 /** Reviewer pass receipt: reviewer explicitly checked a round and found no blocker. */
 export interface ReviewPass {
   id: string;
@@ -632,6 +671,8 @@ export interface ReviewPass {
   reviewRound?: string;
   /** Signed reviewer-run binding for current REVIEW evidence. */
   reviewRunId?: string;
+  /** Signed self-reported reviewer read coverage. Missing only on legacy passes. */
+  readManifest?: ReviewerReadManifest;
   _hash?: string;
 }
 
@@ -1043,6 +1084,8 @@ export interface ScopeCheckData {
   storyId: string;
   checkedAt: string;
   features: ScopeCheckFeature[];
+  /** Signed self-reported reviewer read coverage. Missing only on legacy scope checks. */
+  readManifest?: ReviewerReadManifest;
   /**
    * B-ed3e: summary extended with orphanSuspect / drift counts.
    * Old data uses ?? 0 fallback when readScopeCheck is called, ensuring PLAN gate does not crash.

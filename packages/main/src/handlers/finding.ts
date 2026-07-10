@@ -23,6 +23,7 @@ import {
 import { deriveSignatureCandidate } from '../core/signature-candidate.js';
 import type { SignatureTagSource } from '../core/experience-layer-types.js';
 import { withMkdirLock } from '../core/mkdir-lock.js';
+import { normalizeReviewerReadManifest } from '../core/reviewer-read-evidence.js';
 
 const CANONICAL_FINDING_CATEGORIES = ['happy', 'edge', 'adversarial', 'missing'] as const;
 const LEGACY_FINDING_CATEGORIES = ['cleanup', 'doc-promise-undelivered', 'doc-code-drift', 'spec-boundary'] as const;
@@ -182,7 +183,7 @@ function validateOptionalEnum<T extends string>(
   return value as T;
 }
 
-function recordReviewPass(ctx: HandlerContext, storyId: string, agent: string, note: string, reviewRunId: string): string {
+function recordReviewPass(ctx: HandlerContext, storyId: string, agent: string, note: string, reviewRunId: string, readManifestInput: unknown): string {
   return withReviewPassLock(ctx, storyId, () => {
     const story = ctx.store.readStory(storyId);
     assertCurrentReviewRunForEvidence(ctx.store, story, ctx.root, agent, reviewRunId);
@@ -198,6 +199,7 @@ function recordReviewPass(ctx: HandlerContext, storyId: string, agent: string, n
     const createdAt = new Date().toISOString();
     const reviewRound = story.currentReviewRound || '';
     const trimmedNote = note.trim();
+    const readManifest = normalizeReviewerReadManifest(readManifestInput, 'review_pass_set.readManifest');
     const pass = {
       id,
       agent,
@@ -205,13 +207,14 @@ function recordReviewPass(ctx: HandlerContext, storyId: string, agent: string, n
       createdAt,
       reviewRound,
       reviewRunId,
-      _hash: signReviewPass(storyId, id, agent, trimmedNote, createdAt, reviewRound, reviewRunId),
+      readManifest,
+      _hash: signReviewPass(storyId, id, agent, trimmedNote, createdAt, reviewRound, reviewRunId, readManifest),
     };
     data.passes.push(pass);
     ctx.store.writeReviewPasses(storyId, data);
     const persisted = ctx.store.readReviewPasses(storyId);
     const persistedPass = persisted.passes.find(p => p.id === id);
-    if (!persistedPass || persistedPass._hash !== pass._hash || persistedPass.agent !== agent || persistedPass.reviewRunId !== reviewRunId) {
+    if (!persistedPass || persistedPass._hash !== pass._hash || persistedPass.agent !== agent || persistedPass.reviewRunId !== reviewRunId || !persistedPass.readManifest) {
       throw new Error(`review_pass_set: ${id} was not durably persisted; refusing to report success`);
     }
     try {
@@ -247,6 +250,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
       uncertaintyReason?: string;
       disprovenEvidence?: DisprovenEvidence;
       signatureTag?: string;
+      readManifest?: unknown;
     }): string {
       assertCwdInWorktree(store, args.storyId);
 
@@ -277,7 +281,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
       }
 
       if (isPassOnlyReviewFindingRecord({ desc: args.desc, severity: args.severity, agent })) {
-        return recordReviewPass(ctx, args.storyId, reviewerLane || agent, `Converted pass-only finding_add record: ${args.desc}`, args.reviewRunId || '');
+        return recordReviewPass(ctx, args.storyId, reviewerLane || agent, `Converted pass-only finding_add record: ${args.desc}`, args.reviewRunId || '', args.readManifest);
       }
 
       // Auto-inject the current review round (reviewer does not need to pass it)
@@ -377,13 +381,14 @@ export function createFindingHandlers(ctx: HandlerContext) {
       return `Finding ${id} created by ${agent}: [${args.severity}/${category}] (evidenceState=${evidence.evidenceState}) ${args.desc}${warning}${advisoryHint}${signatureTagHint}${commitHint}`;
     },
 
-    review_pass_set(args: { storyId: string; agent?: string; note: string; reviewRunId?: string }): string {
+    review_pass_set(args: { storyId: string; agent?: string; note: string; reviewRunId?: string; readManifest: unknown }): string {
       if (!args.note || args.note.trim().length < 10) {
         throw new Error('review_pass_set: note must be ≥ 10 characters, explaining what the reviewer checked and why there is no blocker');
       }
+      const readManifest = normalizeReviewerReadManifest(args.readManifest, 'review_pass_set.readManifest');
       const agent = resolveReviewRunLane(args.agent || process.env.LATTICE_AGENT || 'main');
       assertCwdInWorktree(store, args.storyId);
-      return recordReviewPass(ctx, args.storyId, agent, args.note, args.reviewRunId || '');
+      return recordReviewPass(ctx, args.storyId, agent, args.note, args.reviewRunId || '', readManifest);
     },
 
     finding_list(args: { storyId: string; cluster?: boolean }) {

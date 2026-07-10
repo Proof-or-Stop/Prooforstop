@@ -6,16 +6,158 @@
  */
 
 import { createHash } from 'crypto';
+import { existsSync, readFileSync } from 'fs';
+import { dirname, join } from 'path';
 import type { HandlerContext } from './context.js';
-import type { ScopeCheckData, OpenQuestion } from '../core/types.js';
+import type { ScopeCheckData, ScopeCheckFeature, OpenQuestion, ReviewerReadManifest } from '../core/types.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
+import { digestCanonicalJson } from '../core/digest.js';
+import { normalizeReviewerReadManifest } from '../core/reviewer-read-evidence.js';
 
 export const SCOPE_CHECK_SALT = 'lattice-scope-check-integrity-v1';
 
-export function signScopeCheck(storyId: string, timestamp: string, gaps: number, covered: number, reviewRound: string = ''): string {
+export interface ScopeCheckSignatureMaterial {
+  features: ScopeCheckFeature[];
+  summary: ScopeCheckData['summary'];
+  readManifest: ReviewerReadManifest;
+}
+
+function legacyScopeCheckHash(storyId: string, timestamp: string, gaps: number, covered: number, reviewRound: string): string {
   return createHash('sha256')
     .update(`${storyId}:${timestamp}:${gaps}:${covered}:${reviewRound}:${SCOPE_CHECK_SALT}`)
     .digest('hex');
+}
+
+function v2ScopeCheckHash(
+  storyId: string,
+  timestamp: string,
+  reviewRound: string,
+  material: ScopeCheckSignatureMaterial,
+): string {
+  return digestCanonicalJson({
+    version: 2,
+    salt: SCOPE_CHECK_SALT,
+    storyId,
+    timestamp,
+    reviewRound,
+    features: material.features,
+    summary: material.summary,
+    readManifest: normalizeReviewerReadManifest(material.readManifest),
+  });
+}
+
+function configuredStoryDirs(root: string): string[] {
+  const dirs = ['.lattice/story/actives', 'docs/story/actives'];
+  try {
+    const parsed = JSON.parse(readFileSync(join(root, 'lattice.config.json'), 'utf8')) as { storyDir?: unknown };
+    if (typeof parsed.storyDir === 'string' && parsed.storyDir.trim()) {
+      dirs.unshift(parsed.storyDir.trim());
+    }
+  } catch {
+    // Best-effort compatibility shim for legacy signScopeCheck callers.
+  }
+  return [...new Set(dirs)];
+}
+
+function findProjectRoot(start: string): string {
+  let dir = start;
+  while (true) {
+    if (existsSync(join(dir, 'lattice.config.json'))) return dir;
+    const parent = dirname(dir);
+    if (parent === dir) return start;
+    dir = parent;
+  }
+}
+
+function persistedScopeCheckMaterial(
+  storyId: string,
+  timestamp: string,
+  gaps: number,
+  covered: number,
+  reviewRound: string,
+): ScopeCheckSignatureMaterial | 'invalid-readManifest' | null {
+  const projectRoot = findProjectRoot(process.cwd());
+  for (const storyDir of configuredStoryDirs(projectRoot)) {
+    const file = join(projectRoot, storyDir, storyId, 'scope-check.json');
+    if (!existsSync(file)) continue;
+    try {
+      const raw = JSON.parse(readFileSync(file, 'utf8')) as ScopeCheckData;
+      if (
+        raw.storyId !== storyId
+        || raw.checkedAt !== timestamp
+        || raw.summary?.gaps !== gaps
+        || raw.summary?.covered !== covered
+        || (raw.reviewRound || '') !== reviewRound
+      ) {
+        continue;
+      }
+      if (raw.readManifest === undefined) return null;
+      try {
+        const readManifest = normalizeReviewerReadManifest(raw.readManifest);
+        return {
+          features: raw.features || [],
+          summary: {
+            total: raw.summary?.total ?? 0,
+            covered: raw.summary?.covered ?? 0,
+            excluded: raw.summary?.excluded ?? 0,
+            gaps: raw.summary?.gaps ?? 0,
+            orphanSuspect: raw.summary?.orphanSuspect ?? 0,
+            drift: raw.summary?.drift ?? 0,
+          },
+          readManifest,
+        };
+      } catch {
+        return 'invalid-readManifest';
+      }
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
+export function signScopeCheck(
+  storyId: string,
+  timestamp: string,
+  gaps: number,
+  covered: number,
+  reviewRound: string = '',
+  material?: ScopeCheckSignatureMaterial,
+): string {
+  if (material) return v2ScopeCheckHash(storyId, timestamp, reviewRound, material);
+
+  const persisted = persistedScopeCheckMaterial(storyId, timestamp, gaps, covered, reviewRound);
+  if (persisted === 'invalid-readManifest') {
+    return digestCanonicalJson({ version: 2, salt: SCOPE_CHECK_SALT, storyId, timestamp, reviewRound, invalid: 'readManifest' });
+  }
+  if (persisted) return v2ScopeCheckHash(storyId, timestamp, reviewRound, persisted);
+  return legacyScopeCheckHash(storyId, timestamp, gaps, covered, reviewRound);
+}
+
+export function verifyScopeCheckSignature(storyId: string, data: ScopeCheckData): boolean {
+  if (!data._hash || !data.checkedAt || !data.summary) return false;
+  if (data.readManifest !== undefined) {
+    let readManifest: ReviewerReadManifest;
+    try {
+      readManifest = normalizeReviewerReadManifest(data.readManifest);
+    } catch {
+      return false;
+    }
+    const summary = {
+      total: data.summary.total ?? 0,
+      covered: data.summary.covered ?? 0,
+      excluded: data.summary.excluded ?? 0,
+      gaps: data.summary.gaps ?? 0,
+      orphanSuspect: data.summary.orphanSuspect ?? 0,
+      drift: data.summary.drift ?? 0,
+    };
+    return data._hash === signScopeCheck(storyId, data.checkedAt, summary.gaps, summary.covered, data.reviewRound || '', {
+      features: data.features || [],
+      summary,
+      readManifest,
+    });
+  }
+  return data._hash === legacyScopeCheckHash(storyId, data.checkedAt, data.summary.gaps, data.summary.covered, data.reviewRound || '');
 }
 
 export function createScopeCheckHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
@@ -40,6 +182,7 @@ export function createScopeCheckHandlers(ctx: HandlerContext): Record<string, (.
         orphanSuspect?: number;
         drift?: number;
       };
+      readManifest: unknown;
       // B-ed3e CHK-003: 6th channel Open Questions (optional). Not validated when reviewer writes
       // business integrity (only type check); main agent later resolves via scope_question_resolve.
       openQuestions?: OpenQuestion[];
@@ -53,22 +196,28 @@ export function createScopeCheckHandlers(ctx: HandlerContext): Record<string, (.
         throw new Error(`Story ${args.storyId} not found`);
       }
       const timestamp = new Date().toISOString();
-      // Signature domain unchanged: only storyId / timestamp / gaps / covered / reviewRound
-      const _hash = signScopeCheck(args.storyId, timestamp, args.summary.gaps, args.summary.covered, reviewRound);
+      const readManifest = normalizeReviewerReadManifest(args.readManifest, 'scope_check_save.readManifest');
       const orphanSuspect = args.summary.orphanSuspect ?? 0;
       const drift = args.summary.drift ?? 0;
+      const summary = {
+        total: args.summary.total,
+        covered: args.summary.covered,
+        excluded: args.summary.excluded,
+        gaps: args.summary.gaps,
+        orphanSuspect,
+        drift,
+      };
+      const _hash = signScopeCheck(args.storyId, timestamp, args.summary.gaps, args.summary.covered, reviewRound, {
+        features: args.features,
+        summary,
+        readManifest,
+      });
       const data: ScopeCheckData = {
         storyId: args.storyId,
         checkedAt: timestamp,
         features: args.features,
-        summary: {
-          total: args.summary.total,
-          covered: args.summary.covered,
-          excluded: args.summary.excluded,
-          gaps: args.summary.gaps,
-          orphanSuspect,
-          drift,
-        },
+        readManifest,
+        summary,
         reviewRound,
         _hash,
       };

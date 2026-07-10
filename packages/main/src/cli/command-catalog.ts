@@ -118,6 +118,12 @@ const proofStoryContractEnvelopeSchema = z.object({
 }).passthrough();
 
 const proofStoryGateModeSchema = z.enum(['observe', 'warn', 'enforce']);
+
+const reviewerReadManifestSchema = z.object({
+  filesReadFully: z.array(z.string()).describe('Relative files the reviewer read in full.'),
+  filesTriagedByName: z.array(z.string()).describe('Relative files the reviewer only triaged by filename/title.'),
+  scanEscalationReason: z.string().nullable().describe('Reason for full decisions-directory escalation, or null when no escalation occurred.'),
+}).describe('Required reviewer read evidence: {filesReadFully:string[], filesTriagedByName:string[], scanEscalationReason:string|null}. Runtime rejects duplicates, unsafe paths, and malformed values.');
 const proofStoryIntentCollisionDecisionSchema = z.enum(['pass', 'revise_intent', 'human_gate', 'stop']);
 const proofStorySpikePromotionSchema = z.enum(['red_evidence', 'verification_evidence', 'scope_decision', 'implementation_note']);
 const proofStoryGreenRelationSchema = z.enum(['same_acceptance', 'regression_to_green', 'replacement']);
@@ -545,6 +551,7 @@ Behavior:
     agent: z.string().optional().describe('Reviewer agent ID, for example lattice-review-quality; defaults to LATTICE_AGENT.'),
     reviewRunId: z.string().describe('Current reviewer run ID; call review_run_start first.'),
     note: z.string().describe('Review scope and reason there is no blocker (at least 10 characters).'),
+    readManifest: reviewerReadManifestSchema.describe('Required signed reviewer read coverage for this pass.'),
   }},
   { name: 'review_loop_start', description: 'Record REVIEW reflection loop start (recording only; no host or rollback)', schema: {
     storyId: z.string().min(1).describe('Story ID'),
@@ -1956,6 +1963,7 @@ Behavior:
     // B-4f46 CHK-002 (Experience Layer Phase 1b): audit-only signature tag. Additive/optional; never read by any gate, excluded from the finding signature.
     signatureTag: z.string().optional()
       .describe('Audit-only signature tag grouping this finding into a recurring pattern family (auto-proposed to the signature-registry if new). Never read by any gate.'),
+    readManifest: reviewerReadManifestSchema.optional().describe('Required only when pass-only finding_add text is converted into review_pass_set evidence.'),
   }},
   { name: 'finding_list', description: 'View story findings', schema: {
     storyId: z.string().describe('Story ID'),
@@ -2295,6 +2303,7 @@ Behavior:
       orphanSuspect: z.number().optional(),
       drift: z.number().optional(),
     }).describe('Summary.'),
+    readManifest: reviewerReadManifestSchema.describe('Required signed scope reviewer read coverage.'),
     // B-ed3e CHK-003: sixth channel Open Questions (optional). Reviewer writes only receive type validation,
     // business completeness is not validated; main agent later resolves it in writing with scope_question_resolve.
     openQuestions: z.array(z.object({
