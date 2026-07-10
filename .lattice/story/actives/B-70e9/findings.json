@@ -48,6 +48,24 @@
       "resolvedAt": "2026-07-10T07:34:29.720Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-70e9:F-003",
+      "desc": "[codex host-B, cross_host_review B-70e9-xhr-r1] Concurrency cap is check-then-acquire and can be bypassed by concurrent starts: the cap decision scans live slots BEFORE this process creates its own uniquely-named slot file (host-run.ts ~line 570 scan, ~line 605 unconditional acquire of <pid>-<monotonic>.json). Two or more host_run processes starting simultaneously can all observe live < cap, all acquire distinct slots, and all spawn - the documented fail-closed concurrency cap is not enforced under the exact concurrent workload it exists to control. The smoke atomic-race check only exercised wx collision on the SAME filename, which never happens with unique names. Fix direction (codex): fixed numbered slot files slot-0..slot-(cap-1) with exclusive create so only cap contenders can succeed; stale reclaim per slot by pid/mtime.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host-b",
+      "createdAt": "2026-07-10T07:55:52.121Z",
+      "reviewRound": "2026-07-10T07:19:29.341Z",
+      "_hash": "adb4280c0ad97b02e809a313a95ce2bc9b2094bf78c0bba0b622ec4355c02e01",
+      "files": [
+        "packages/main/src/core/host-run.ts",
+        "packages/main/src/tasks/host-run-usage-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|codex-host-cross",
+      "signatureTagSource": "auto"
     }
   ]
 }
