@@ -292,6 +292,29 @@
         "scanEscalationReason": null
       },
       "_hash": "4257f4e3f8f82aafef786e5e9478e33b7b4001465e69e9af0d80e42cc7372d6c"
+    },
+    {
+      "id": "B-2c03:RP-014",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round. Diff at 6a06ea3c13 only touches packages/main/src/core/proofstory.ts (adds stripCodeLikeTokens sanitizer + refines the existing claimsShrinkage regex in place, same name/purpose) and packages/main/src/tasks/proofstory-intent-hardening-smoke.ts (adds regression cases, restoring smoke cases F-011 flagged as reverted by a concurrent cleanup). No identifier, field, or vocabulary term was mass-deleted or renamed; claimsShrinkage and stripCodeLikeTokens are consistently named across proofstory.ts, the smoke test, and story metadata (plan.md, findings.json, summary.json) with zero stray references to any prior/removed name. Checked via grep for claimsShrinkage and stripCodeLikeTokens across *.ts/*.md/*.json (excluding node_modules/dist/.git): all hits are consistent current usage. Concept residue check completed, no blocker.",
+      "createdAt": "2026-07-10T19:13:41.708Z",
+      "reviewRound": "2026-07-10T18:53:39.083Z",
+      "reviewRunId": "B-2c03:RR-027",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2c03/findings.json",
+          ".lattice/story/actives/B-2c03/plan.md",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2c03/background.md",
+          ".lattice/story/actives/B-2c03/checklist.json",
+          ".lattice/story/actives/B-2c03/summary.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a618b189f3bca1de97b571933aef1979b94463864dfb390eae6e06c8f86f890f"
     }
   ]
 }
