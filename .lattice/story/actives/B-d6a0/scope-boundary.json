@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-d6a0",
+  "mode": "correctness_fix",
+  "allowed": [
+    "minimal test-only exports of currently-private fixed helpers where needed for the regression smoke",
+    "new first-row modified-tracked regression smoke task under packages/main/src/tasks/ plus its package.json test script and smoke-manifest entry if needed",
+    "packages/main/src/core/evidence-freshness.ts readMaterialDirtyFiles raw-read fix",
+    "packages/main/src/core/partial-done-recovery.ts status read feeding assertMainWorktreeClean/materialStatusLines",
+    "packages/main/src/handlers/cross-host-review.ts assertMaterialCleanForReview raw-read fix",
+    "packages/main/src/handlers/session.ts readGitStatus brief rows raw-read fix",
+    "packages/main/src/handlers/story-query.ts gitPorcelainPaths + DONE-residue status raw-read fix",
+    "per-site audit verdict table recorded in the story plan.md"
+  ],
+  "excluded": [
+    "no behavior changes beyond first-row status-column preservation",
+    "no changes to audited-safe call sites (dirty-worktree-gate.ts, validation-executor.ts, lattice-dispatch.ts, auto-commit-metadata.ts, recover-evidence.ts, baseline-risk.ts, rollout-check.ts, managed-assets.ts, cli-engine.ts, init-check-metadata-sync.ts, declared-artifact-commit-check.ts, safe-init-commit.ts, verification-context-pack.ts, release.ts, doctor.ts, done-oracle.ts, worktree-policy.ts, auxiliary-worktree-cleanup.ts, dashboard.ts)",
+    "no changes to git worktree list --porcelain consumers (rows never start with a space; immune by format)",
+    "no fix for trimmed-output cosmetics inside error messages of emptiness-only call sites (release.ts, worktree.ts wtStatus, auxiliary-worktree-cleanup.ts) — documented in the audit table instead",
+    "no shared git-status module refactor; fixes stay per-site following the B-b264 gitRaw/gitStatusRows pattern"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User request 2026-07-10: \"Open a story to audit every remaining porcelain call site for the same whole-output-trim pattern, fix any that are affected (pattern: read raw via execFileSync without trimming, see gitStatusRows in packages/main/src/handlers/done-prepare.ts and gitRaw in packages/main/src/core/done-prepare-generated-metadata.ts), and add first-row modified-tracked regression assertions (see assertModifiedTrackedPathExactness in packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts).\"",
+  "createdAt": "2026-07-10T09:04:05.518Z",
+  "updatedAt": "2026-07-10T09:04:05.518Z",
+  "_hash": "5f33a343482a1b78d7b53db301f2c84a51f52ced6170549914748f709472f768"
+}

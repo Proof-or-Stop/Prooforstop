@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-d6a0",
+  "allowedCommands": [
+    "git status/init/add/commit/config inside throwaway fixture repos created by the regression smoke",
+    "grep/rg read-only source scans",
+    "lattice lifecycle commands for B-d6a0",
+    "node packages/main/dist/tasks/*.js (smoke tasks)",
+    "node packages/main/dist/tasks/run-all-smokes.js",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".lattice/story/actives/B-d6a0",
+    "packages/main/package.json",
+    "packages/main/smoke-manifest.json",
+    "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/core/partial-done-recovery.ts",
+    "packages/main/src/handlers/cross-host-review.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/handlers/story-query.ts",
+    "packages/main/src/tasks/porcelain-first-row-audit-smoke.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    "packages/main/src/core/dirty-worktree-gate.ts",
+    "packages/main/src/core/done-prepare-generated-metadata.ts",
+    "packages/main/src/core/validation-executor.ts",
+    "packages/main/src/handlers/done-effects.ts",
+    "packages/main/src/handlers/done-prepare.ts"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Fixes are per-site raw-read conversions only (B-b264 gitRaw/gitStatusRows pattern). Audited-safe consumers stay untouched; the blocked paths are the already-fixed/already-safe porcelain consumers this story must not modify. Fixture git repos are created in temp dirs by the smoke task, never in the real repo.",
+  "createdAt": "2026-07-10T09:04:18.491Z",
+  "updatedAt": "2026-07-10T09:04:18.491Z",
+  "_hash": "76bf7468caff3ae6a1a168ffd80399b4e45dd0731c35e5e2bf0715ddc6e8a634"
+}

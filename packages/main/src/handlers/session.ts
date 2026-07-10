@@ -142,13 +142,16 @@ function renderActivityLine(a: { timestamp: string; tool: string; status: string
   return `${a.timestamp} ${a.tool} [${a.source}/${a.role}/${a.status}]${story}`;
 }
 
-function readGitStatus(root: string): { porcelain: string[]; recentLog: string[] } {
+// Exported for the porcelain first-row regression smoke (B-d6a0); not a CLI command.
+export function readGitStatus(root: string): { porcelain: string[]; recentLog: string[] } {
   const porcelain: string[] = [];
   const recentLog: string[] = [];
   const gitCwd = root;
   try {
-    const status = execSync('git status --porcelain', { cwd: gitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
-    if (status) porcelain.push(...status.split('\n').slice(0, 20));
+    // No full-output trim(): it would strip the first porcelain row's leading
+    // status space and corrupt the first displayed brief row.
+    const status = execSync('git status --porcelain', { cwd: gitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] });
+    porcelain.push(...status.split('\n').map(line => line.trimEnd()).filter(Boolean).slice(0, 20));
   } catch { /* not a git repo */ }
   try {
     const log = execSync('git log -3 --oneline', { cwd: gitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
