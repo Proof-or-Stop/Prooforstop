@@ -192,9 +192,9 @@
       "id": "CHK-004",
       "title": "M1: Update reviewer/quorum/autopilot launch guidance so lattice-initiated host runs go through the choke-point command",
       "context": "reviewer_batch printed instructions, quorum/escalation guidance, and relevant docs should name the new command with canonical launcher semantics so future runs are captured instead of raw shell codex exec / claude --print invocations.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-10T06:54:33.122Z",
-      "endTime": null,
+      "endTime": "2026-07-10T07:08:23.347Z",
       "userSees": "reviewer_batch and escalation guidance print launch lines like \"lattice host_run --host codex --storyId B-xxxx --agentType reviewer --reviewRunId ... --lane ...\" instead of raw codex exec commands, and docs/host-run-usage.md exists",
       "files": {
         "modify": [
