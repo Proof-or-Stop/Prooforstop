@@ -1,0 +1,27 @@
+{
+  "passes": [
+    {
+      "id": "B-bf15:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept-residue check for autopilot-resume-smoke removal. Diff is a single-line deletion in packages/main/package.json (script entry whose source was already deleted in 5d3d7bd686). Independent repo-wide grep (excluding node_modules/dist/.git and lattice story-lifecycle metadata dirs .lattice/.lattice-codex/.claude/.codex) finds exactly one surviving hit: docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md:403, a historical B-320f evidence-table row. Confirmed via git diff that this file is untouched by this story (empty diff), so it is legitimate historical record, not residue. Also checked: no source/dist artifact remains for autopilot-resume-smoke; no partial-match variant (resume-smoke without prefix) elsewhere; no npm lifecycle hook (pre/post) references it; root package.json clean; no CI/workflow yml/yaml references it. No concept-deletion residue found; no blocker.",
+      "createdAt": "2026-07-10T14:39:49.545Z",
+      "reviewRound": "2026-07-10T14:38:11.117Z",
+      "reviewRunId": "B-bf15:RR-001",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "packages/main/package.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-bf15/background.md",
+          ".lattice/story/actives/B-bf15/checklist.json",
+          ".lattice/story/actives/B-bf15/index.json",
+          ".lattice/story/actives/B-bf15/plan.md",
+          ".lattice/story/actives/B-bf15/scope-boundary.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "be3070ba319f92c7eef1ff575d29fcf8b1588979fd9050b3e9bf4b401101d744"
+    }
+  ]
+}
