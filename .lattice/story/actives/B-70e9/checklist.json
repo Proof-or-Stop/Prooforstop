@@ -510,13 +510,13 @@
           "intentRef": "CHK-004:adversarial:0",
           "kind": "docs_check",
           "file": "packages/main/src/handlers",
-          "command": "rg --files-without-match \"codex exec\" packages/main/src/handlers/reviewer-batch.ts packages/main/src/handlers/review-escalation.ts",
-          "result": "fail",
-          "note": "zero raw host-launch instruction strings in handler guidance: rg pattern (codex exec|claude --print|agy --print|agy -p) over src handlers returns no matches (exit 1), verified 2026-07-10; command binds the files-without-match form which exits 0 on absence",
-          "headHash": "52df0178aa44c666167590207902b9d61f5adeed",
+          "command": "sh -c 'grep -rnE \"codex exec|claude --print|agy --print|agy -p\" packages/main/src/handlers; test $? -eq 1'",
+          "result": "pass",
+          "note": "zero raw host-launch instruction strings in handler guidance: grep over src handlers returns no matches (exit 1 => absence proven, wrapper exits 0)",
+          "headHash": "f20f2e9d5e398f2c9a1edc77f966b9ae74fec064",
           "materialHash": "9a34267cfc576a5198b54b34edebacab9d3db95b7cf9a62511a26960debe9169",
           "storyFilesHash": "9df50ebfa33bf98831fcb1d9b2aea402d8d6750256e08b9ab080558a92e233aa",
-          "timestamp": "2026-07-10T07:11:37.979Z"
+          "timestamp": "2026-07-10T07:12:19.475Z"
         }
       ]
     },
