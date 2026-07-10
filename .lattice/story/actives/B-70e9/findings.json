@@ -677,7 +677,7 @@
       "desc": "doc-code-drift: docs/host-run-usage.md lines 300-304 (F-028 clause) states unconditionally that a plain (no --out) usage_sweep \"writes no activity-log entry\" via the CLI activity/hook layer. This is only true by default. shouldWriteActivityLog (cli/activity-policy.ts:131-140) returns process.env.LATTICE_ACTIVITY_RECORD_READONLY === \"1\" for any isReadOnlyCommand match, so LATTICE_ACTIVITY_RECORD_READONLY=1 (the same env var documented in docs/CLI.md:727-730 for the codex global-fallback wrapper, used precisely to make read-only entry points like session_brief still leave a heartbeat) makes a plain usage_sweep WRITE an activity-log row too. usage-sweep-smoke.ts itself proves this: it asserts shouldWriteActivityLog(\"usage_sweep\", {}) === false only after explicitly deleting the override, with the comment \"by default\", then asserts it flips to true under the override. The doc omits the \"by default\" / override-exists qualifier that both the code comment (activity-policy.ts:100-101, \"Static READ_ONLY_COMMANDS members are always read-only\" vs usage_sweep, and the shouldWriteActivityLog body itself) and the test make explicit, so a reader of host-run-usage.md would wrongly conclude a plain usage_sweep NEVER leaves an activity trail under any operator configuration. Fix direction: add the same by-default / LATTICE_ACTIVITY_RECORD_READONLY=1 override caveat used elsewhere (docs/CLI.md) to this clause.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-10T18:31:12.287Z",
@@ -691,7 +691,11 @@
         "docs/CLI.md"
       ],
       "signatureTag": "missing|md|code-drift-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit d9a9203424 (doc-only): the F-028 clause now says writes no activity-log entry BY DEFAULT with the LATTICE_ACTIVITY_RECORD_READONLY=1 read-only heartbeat override (docs/CLI.md) explicitly scoped to the activity-log claim only (hooks decision does not honor the override) - verified against shouldWriteActivityLog lines 131-140 and usage-sweep smoke checks 487-499.",
+      "resolvedAt": "2026-07-10T18:36:32.709Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
