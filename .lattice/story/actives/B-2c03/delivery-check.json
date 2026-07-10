@@ -1,60 +1,62 @@
 {
   "storyId": "B-2c03",
-  "checkedAt": "2026-07-10T18:53:00.055Z",
-  "headHash": "e736624c0806f2cc993d09c93246888acae2939f",
-  "materialHash": "4502837df3cba3a8b881f80c53e40b8881dcaa71c4a38d2b726186280f8cd99c",
-  "storyFilesHash": "adcd45c6e19d201668bf7f7f746f9594eb07f127b5410665ba8456915b1fc74a",
-  "reviewRound": "2026-07-10T14:41:10.214Z",
-  "agentId": "lattice-review-delivery",
+  "checkedAt": "2026-07-10T21:20:09.351Z",
+  "headHash": "2aea84e0d4f9f5e744e9fc18b85d37907fb64393",
+  "materialHash": "cd6eed7f3c2821bce29d74c39f6000f3a619e401bc0b58440fad255a16bf9777",
+  "storyFilesHash": "8f7363b1cd635279d8c1298f696d89b62fa094648b38e0060490a1b1784ad210",
+  "reviewRound": "2026-07-10T18:53:39.083Z",
+  "agentId": "",
   "docsPromises": [
     {
       "docPath": "packages/main/src/core/proofstory.ts#evaluateDoneIntentEquivalence",
-      "promise": "narrowingText is sanitized via stripCodeLikeTokens() before the claimsShrinkage regex runs, so path-like/code-like tokens (core/partial-done-recovery.ts) no longer false-positive the unconfirmed_single_outcome_shrinkage DONE gap (B-d6a0 incident fix).",
-      "status": "verified",
-      "verifiedBy": "diff/grep + direct execution of compiled dist/core/proofstory.js via done_intent_equivalence_check",
-      "evidence": "packages/main/src/core/proofstory.ts lines ~1375-1430: stripCodeLikeTokens() strips fenced/backtick spans, path-shaped slash tokens, and dotted file-extension tokens before narrowingText is scanned. Confirmed live: a summary naming core/partial-done-recovery.ts produces zero unconfirmed_single_outcome_shrinkage gaps."
+      "promise": "narrowingText is sanitized via stripCodeLikeTokens() before the claimsShrinkage regex runs, so path-like/code-like tokens (core/partial-done-recovery.ts) no longer false-positive the unconfirmed_single_outcome_shrinkage DONE gap.",
+      "verifiedBy": "diff/grep + direct execution",
+      "evidence": "packages/main/src/core/proofstory.ts stripCodeLikeTokens() (added in diff, ~line 1372-1444) strips fenced/backtick spans, explicit-marker or extension-terminated slash paths, and extension-terminated dotted tokens with a code-shaped stem before narrowingText is scanned. Rebuilt from source (npm --prefix packages/main run build) and ran node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js directly: passed (ProofStory intent hardening smoke passed). fileNameDone-class cases confirmed quiet."
     },
     {
       "docPath": "packages/main/src/core/proofstory.ts#evaluateDoneIntentEquivalence",
-      "promise": "Plain prose shrinkage trigger words (partial, deferred, excluded, remaining scope-noun, out of scope, not covered) must keep matching and are not swallowed by the sanitizer, even when adjacent to a path token.",
-      "status": "verified",
+      "promise": "Plain prose shrinkage trigger words (partial, deferred, excluded, remaining <scope-noun>, out of scope, not covered) must keep matching and are not swallowed by the sanitizer, even when adjacent to a path token or connected by hyphen/underscore/slash/dot.",
       "verifiedBy": "diff/grep + direct execution",
-      "evidence": "Confirmed live for the documented cases: hyphenated trigger words (deferred-for-now, remaining-work), dot-glued multi-word triggers (remaining.scope, out.of.scope), slash-enumeration prose (excluded/deferred/partial), and prose next to a path token all still fire the gap, matching plan.md Risk notes and the smoke assertions."
+      "evidence": "claimsShrinkageRegex in the diff explicitly widens the remaining/out-of-scope/not-covered alternatives to [\\s./_-]+ connectors, and stripCodeLikeTokens keeps hyphen-only tokens and non-extension dotted tokens (F-001/F-002 fix comments in source). Smoke suite (proofstory-intent-hardening-smoke.ts) has dedicated hyphenTriggerDone, hyphenExcludedDone, hyphenRemainingDone, underscoreRemainingDone, dotRemainingDone cases plus 15 remainingWindowClaims + 7 remainingCrossClauseControls; full suite green at current HEAD after fresh rebuild."
     },
     {
       "docPath": ".lattice/story/actives/B-2c03/plan.md#risk-notes",
-      "promise": "Residual accepted tradeoffs are all false-POSITIVE direction; the sanitizer has exactly one known/accepted false-negative bypass class (fenced-code-block prose) and no other undocumented way for a genuine shrinkage claim to silently bypass the gate.",
-      "status": "unverified",
-      "verifiedBy": "direct execution of compiled dist/core/proofstory.js via done_intent_equivalence_check (probe reverted after testing, worktree left clean)",
-      "evidence": "FALSIFIED. A second, broader, undocumented false-negative bypass class exists and was reproduced live end-to-end: any hyphenated or underscored trigger word immediately followed by a dot and any of the roughly 40 extensions in CODE_FILE_EXTENSION_PATTERN that are NOT on the F-005 ambiguous-common-word exclusion list (for example .sql .py .java .csv .txt .json .tsv .md .ts) is fully erased by dottedFileTokenRegex before the claimsShrinkage scan runs, same as the F-001/F-002/F-004/F-005 bypass classes that were fixed only for the ambiguous-word extensions. Reproduced live: summary.limitations = The deferred-query.sql export was skipped for this delivery. gives done_intent_equivalence_check gaps=[] (should fire); summary.limitations = The partial-config.json section was removed from this delivery. gives gaps=[] (should fire). Same reproduces for .py/.java/.csv/.txt extensions. This is natural plausible DONE-summary prose, not adversarial phrasing. No smoke case in proofstory-intent-hardening-smoke.ts covers this class (F-005 smoke cases only test .log and .go, both on the excluded list). plan.md residual-risk enumeration is incomplete for this head."
+      "promise": "Residual accepted tradeoffs are enumerated; the trigger-stemmed file-name false-negative class (deferred-query.sql, partial-config.json) is explicitly documented as an accepted BY-REQUIREMENT residual (shape-identical to the B-d6a0 class this story exists to fix), with the verb-recall gap assigned to a follow-up vocabulary story, and is pinned in both directions by smoke cases.",
+      "verifiedBy": "diff/grep + direct execution",
+      "evidence": "plan.md lines ~162-180 (Risk notes) explicitly names two by-design false-negative classes, the second being 'A trigger-stemmed FILE NAME with an unambiguous extension ... stripped BY REQUIREMENT ... shape-identical to partial-done-recovery.ts ... Both directions are pinned by smoke cases.' Confirmed proofstory-intent-hardening-smoke.ts contains triggerStemFileDone (deferred-query.sql alone -> no gap, asserted false) and triggerStemFileWithClaimDone (deferred-query.sql + explicit 'remaining scope was cut' -> gap fires, asserted true) at lines ~1289-1311. Ran the smoke binary directly: both assertions pass at current HEAD. This closes the prior delivery-check's FALSIFIED/unverified finding on this exact promise -- the residual is now named, scoped to a follow-up story, and pinned bidirectionally rather than silently present."
     },
     {
       "docPath": ".lattice/story/actives/B-2c03/plan.md#chk-003-decision",
-      "promise": "CHK-003: bare remaining is narrowed to remaining plus connector plus scope-noun; a sentence about pre-existing unrelated suite failures no longer triggers while remaining scope deferred style phrasing still does.",
-      "status": "verified",
-      "verifiedBy": "diff/grep + node dist/tasks/proofstory-intent-hardening-smoke.js",
-      "evidence": "Confirmed: preexistingDone, remainingScopeDone, hyphenRemainingDone, underscoreRemainingDone, dotRemainingDone smoke cases all pass at HEAD (106406c7d3), matching the documented decision and rationale in plan.md."
+      "promise": "CHK-003: bare 'remaining' is narrowed to a bounded, clause-aware modifier chain between 'remaining' and a scope noun; pre-existing unrelated-clause sentences (e.g. 'remaining flaky tests, unrelated to this fix, cover edge cases') stay quiet while genuine multi-modifier/Oxford-comma/hyphen/underscore/dot-connected 'remaining scope' phrasing still fires.",
+      "verifiedBy": "diff/grep + direct execution",
+      "evidence": "claimsShrinkageRegex in the diff implements remainingChainStep/remainingStopWord/remainingConjunction/remainingOxfordTail exactly as narrated in plan.md's Host-B response record (7-round codex convergence). Ran node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js at current HEAD: all 15 remainingWindowClaims fire and all 7 remainingCrossClauseControls stay quiet (suite reports overall pass, and grep of the source confirms these named case counts match plan.md's claimed counts)."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-2c03/plan.md#host-b-response-record",
+      "promise": "plan.md documents a complete host-B (codex) cross-vendor review response record across multiple rounds (word-shape, Oxford-comma, clause-coordination, :line/#L anchor findings) ending in an explicit convergence statement bounding further scope to verified regressions only.",
+      "verifiedBy": "diff/grep",
+      "evidence": "plan.md 'Host-B (codex) cross-vendor review -- response record' section (lines ~55-137) narrates findings 1-6 plus multiple follow-up rounds (F-011/F-012/F-013 quality-lane findings interleaved) and ends with an explicit 'Convergence statement' (line ~131) defining the review floor as verified-regression-only. This is a story-metadata narrative claim, not independently machine-checkable beyond confirming the corresponding code changes exist in the diff (stripCodeLikeTokens :line/#L anchor trim, remainingChainStep taxonomy) -- both are present in packages/main/src/core/proofstory.ts. Note: no structured cross-host quorum record (autopilot_review_submit / quorum_submit / review_escalation_fallback_set) exists for this story as of this check -- review_escalation_status reports 0/3 rounds x 2 hosts and 8 open countable first-round problems bound to the current materialHash, despite this narrative. The codex consultations described here were informal/prose-recorded, not gate-structured host verdicts. This is a DONE-gate concern (review-escalation), outside delivery-check's own gate scope, but is flagged here because plan.md's narrative could otherwise be read as satisfying that separate gate."
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js passes at HEAD after a clean npm --prefix packages/main run build. Covers: file-name summary (core/partial-done-recovery.ts) no longer trips the gap; backticked/slash-path tokens do not trip; prose shrinkage claim next to a path token still trips; 8 distinct review findings (F-001, F-002, F-003, F-005, F-006, F-007, F-008, F-009) each closed with dedicated bypass-class regression cases (hyphenated triggers, dotted non-extension suffixes, ambiguous-word extensions, backtick-with-whitespace prose, single-slash prose, multi-slash English enumerations, dot-glued connectors, incidental dotted segments in slash enumerations). Independently re-verified by this reviewer: rebuilt from source and re-ran the smoke binary directly, exit clean, ProofStory intent hardening smoke passed."
+      "transcript": "Rebuilt from source (npm --prefix packages/main run build, clean tsc) and ran node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js directly at current HEAD (0184c4ee1f, code frozen at 16c97d4009): 'ProofStory intent hardening smoke passed'. Covers happy (file-name summary no longer trips gap), edge (backtick/slash/dotted/line-qualified/#L-anchor path tokens do not trip; hyphen/dot-glued prose still trips), and adversarial (prose claim next to a path token still trips; triggerStemFileDone/triggerStemFileWithClaimDone bidirectional pin) lanes."
     },
     {
       "featureId": "CHK-002",
-      "transcript": "Repro-first regression case present: red-evidence.json records a pre-fix RED run (baseline head 2db38feff1, AssertionError on the file-name case) and the same command is green post-fix at HEAD. Existing narrow-delivery positive control (narrowLightDone) still fails the gate, confirming the guard was not weakened for that case."
+      "transcript": "red-evidence.json records a pre-fix RED run (baseline head 2db38feff1, AssertionError on the file-name case); the corresponding smoke case is green post-fix at current HEAD. narrowLightDone (genuine narrow-delivery positive control) still fails the gate as expected, confirming the guard was not weakened."
     },
     {
       "featureId": "CHK-003",
-      "transcript": "Smoke cases preexistingDone, remainingScopeDone, hyphenRemainingDone, underscoreRemainingDone, dotRemainingDone verify the NARROW decision is implemented as documented and pass at HEAD."
+      "transcript": "Smoke cases preexistingDone, remainingScopeDone, hyphenRemainingDone, underscoreRemainingDone, dotRemainingDone, plus 15 remainingWindowClaims and 7 remainingCrossClauseControls (clause-aware modifier chain, Oxford-comma, conjunction/state-verb stop-word taxonomy) verified passing in the current smoke run at HEAD."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "CHK-001/002/003 core promises are delivered and independently re-verified (rebuilt from source, smoke binary green, 8 distinct review findings each have dedicated regression coverage). However, plan.md Risk notes overstates completeness: it claims exactly one accepted false-negative residual (fenced-code-block prose) with all other residuals false-positive-direction, but this reviewer reproduced a second, broader, undocumented false-negative bypass class live against the compiled HEAD code (hyphenated trigger word plus dot plus any non-excluded real file extension, e.g. deferred-query.sql, partial-config.json, silently erased, zero gaps) with zero smoke coverage. This is natural DONE-summary prose, not contrived adversarial input, and defeats the exact guard (unconfirmed_single_outcome_shrinkage) this story exists to protect -- the same class of problem as F-004/F-005 but for unambiguous rather than ambiguous extensions. Recommend a follow-up finding/fix before treating the sanitizer's adversarial-safety claim as fully closed."
+    "summary": "All four code/plan.md docsPromises for CHK-001/002/003 are verified delivered: the sanitizer, the clause-aware remaining-chain regex, and the :line/#L anchor trim all exist in the diff and pass a freshly rebuilt real-machine smoke run at current HEAD. The prior delivery-check's FALSIFIED finding (trigger-stemmed file-name false-negative, e.g. deferred-query.sql) is now resolved as an explicitly documented by-requirement residual with bidirectional smoke pins (triggerStemFileDone / triggerStemFileWithClaimDone), not a silent gap. One process-scope caveat: plan.md's host-B cross-vendor narrative (9 codex rounds, final PASS) has no corresponding structured review_escalation quorum record (autopilot_review_submit/quorum_submit) -- review_escalation_status shows 0/3 rounds x 2 hosts with 8 unresolved countable first-round problems at current materialHash. That gate sits outside delivery-check's own scope but will still block DONE and should not be assumed satisfied by this delivery check."
   },
-  "_hash": "82cd6893ba92e5e8776ffa6a5203d947584bfe2b40a89f749f9325659e880c4f"
+  "_hash": "1f74c61f78839ee0d2da40ae968cb98a6cdffff80b8781a5e0ec0f021fff964e"
 }
