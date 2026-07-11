@@ -43,6 +43,33 @@
         "scanEscalationReason": null
       },
       "_hash": "814bf3340971ae006ed665f6d89e2cdb4c24487edcd4e9c5e7e7cfd216691c00"
+    },
+    {
+      "id": "B-3ddc:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage pass: CHK-001/002/003 happy/edge/adversarial verificationIntent all present with matching verificationEvidence (26 refs). Independently rebuilt packages/main (tsc clean) and re-ran node dist/tasks/host-run-usage-smoke.js fresh: 71/71 checks pass including all B-3ddc-specific checks (pinned B-3928 fixture, fallback, precedence, streaming lane, terminal error, digest hygiene) plus unchanged F-013/F-026/F-006 regression guards. Confirmed git diff main..HEAD touches exactly host-run.ts + host-run-usage-smoke.ts, matching scope-contract.json allowedModify/allowedTest (usage-ledger/** and handlers/host-run.ts untouched, as excluded). Confirmed zero code drift between recorded evidence headHash (95e771bed0) and current HEAD (only lattice metadata commits followed). Verified in source that retentionTruncated branch returns before the codex turn_failed branch (F-013/F-026 priority intact) and that failureLineRetainerFor returns undefined for non-codex hosts (claude/agy out of scope per plan). No blocking findings.",
+      "createdAt": "2026-07-11T23:54:10.207Z",
+      "reviewRound": "2026-07-11T23:37:09.696Z",
+      "reviewRunId": "B-3ddc:RR-005",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3ddc/plan.md",
+          ".lattice/story/actives/B-3ddc/red-evidence.json",
+          ".lattice/story/actives/B-3ddc/scope-contract.json",
+          ".lattice/story/actives/B-3ddc/understanding.json",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3ddc/checklist.json",
+          ".lattice/story/actives/B-3ddc/decision.json",
+          ".lattice/story/actives/B-3ddc/index.json",
+          ".lattice/story/actives/B-3ddc/proofstory.json",
+          ".lattice/story/actives/B-3ddc/review.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6393a41e872728a7f1ea11e437e0857a1925d85dd8213ffeab72d6fd045c955d"
     }
   ]
 }
