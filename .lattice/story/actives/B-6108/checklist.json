@@ -240,6 +240,18 @@
           "materialHash": "4e6b8ec53b5e42e0e25e32c84fc04d65bed50cdd96145d5c07ee9fea1345e937",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "timestamp": "2026-07-11T22:53:48.070Z"
+        },
+        {
+          "intentRef": "chain-punctuation:adversarial",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "All seven B-2c03 cross-clause controls and sanitizer strip controls pass unchanged in the same run",
+          "headHash": "a62ce7b950b0c428fca7c306cde35c4de160c178",
+          "materialHash": "4e6b8ec53b5e42e0e25e32c84fc04d65bed50cdd96145d5c07ee9fea1345e937",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-11T22:53:49.748Z"
         }
       ]
     },
