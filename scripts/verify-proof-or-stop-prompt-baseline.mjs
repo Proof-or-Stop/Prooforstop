@@ -51,6 +51,14 @@ const ROLE_MATRIX_SEMANTIC_BOUNDARY =
   'Commands, outputs, and direct-file-access semantics are reviewer-audited snapshots. The verifier does not infer or prove command ownership or behavioral semantics from prompt prose.';
 const ROLE_MATRIX_SOURCE_ANCHOR_PURPOSE =
   'Navigation and drift anchors for manual review only; relPath and templateHash do not prove role semantics.';
+const STORY_INIT_SELF_CHECK_WRITE = `echo '{"question":"Did you read CLAUDE.md? If not, explain the reason in detail in the answer field. If yes, also state that you read it in the answer field.","answer":""}' > docs/story/actives/<storyId>/init-self-check.json`;
+const DIRECT_STORY_WRITE_ALLOWLIST = [
+  {
+    role: 'lattice-review-story-init',
+    excerpt: STORY_INIT_SELF_CHECK_WRITE,
+    reason: 'Current INIT anti-self-exemption sidecar pending CLI migration.',
+  },
+];
 
 const LEGACY_PATTERNS = [
   {
@@ -278,6 +286,13 @@ const DIRECT_STORY_CLASSIFIER_PROBES = [
     grandfathered: false,
   },
   {
+    name: 'negative copy policy reminder',
+    role: 'lattice-review-quality',
+    excerpt: 'Do not copy or move files into docs/story; use Lattice CLI commands instead.',
+    classification: 'policy-reminder',
+    grandfathered: false,
+  },
+  {
     name: 'mixed negative reminder and positive write instruction',
     role: 'lattice-review-docs',
     excerpt: 'Do not directly edit docs/story metadata; however, use Edit to update docs/story/actives/B-1234/index.json.',
@@ -355,12 +370,65 @@ const DIRECT_STORY_CLASSIFIER_PROBES = [
     grandfathered: false,
   },
   {
+    name: 'cp command targeting story metadata',
+    role: 'lattice-review-docs',
+    excerpt: 'cp source.json docs/story/actives/B-1234/index.json',
+    classification: 'direct-write',
+    grandfathered: false,
+    baselineRefresh: 'reject',
+    expectedRejection: 'direct write is not explicitly grandfathered',
+  },
+  {
+    name: 'copy instruction targeting story metadata',
+    role: 'lattice-review-docs',
+    excerpt: 'Copy source.json to docs/story/actives/B-1234/index.json.',
+    classification: 'direct-write',
+    grandfathered: false,
+  },
+  {
+    name: 'mv command targeting story metadata',
+    role: 'lattice-review-docs',
+    excerpt: 'mv source.json docs/story/actives/B-1234/index.json',
+    classification: 'direct-write',
+    grandfathered: false,
+  },
+  {
+    name: 'move instruction targeting story metadata',
+    role: 'lattice-review-docs',
+    excerpt: 'Move source.json to docs/story/actives/B-1234/index.json.',
+    classification: 'direct-write',
+    grandfathered: false,
+  },
+  {
+    name: 'install command targeting story metadata',
+    role: 'lattice-review-docs',
+    excerpt: 'install -m 0644 source.json docs/story/actives/B-1234/index.json',
+    classification: 'direct-write',
+    grandfathered: false,
+  },
+  {
+    name: 'rsync command targeting story metadata',
+    role: 'lattice-review-docs',
+    excerpt: 'rsync -a source.json docs/story/actives/B-1234/index.json',
+    classification: 'direct-write',
+    grandfathered: false,
+  },
+  {
     name: 'unknown mutation mechanism fails closed',
     role: 'lattice-review-docs',
     excerpt: 'Mutate docs/story/actives/B-1234/index.json with the project-specific metadata transformer.',
     classification: 'unclassified-actionable',
     grandfathered: false,
-    rejectsBaselineRefresh: true,
+    baselineRefresh: 'reject',
+    expectedRejection: 'unclassified actionable reference',
+  },
+  {
+    name: 'exact current story-init write is grandfathered',
+    role: 'lattice-review-story-init',
+    excerpt: STORY_INIT_SELF_CHECK_WRITE,
+    classification: 'direct-write',
+    grandfathered: true,
+    baselineRefresh: 'allow',
   },
   {
     name: 'read-only story reference',
@@ -368,6 +436,19 @@ const DIRECT_STORY_CLASSIFIER_PROBES = [
     excerpt: '`docs/story/actives/<storyId>/index.json` — read only the `title` field.',
     classification: 'read-only-reference',
     grandfathered: true,
+  },
+];
+
+const DIRECT_STORY_SCANNER_PROBES = [
+  {
+    name: 'continued cp destination is scanned as one instruction',
+    role: 'lattice-review-docs',
+    content: 'cp source.json \\\n  docs/story/actives/B-1234/index.json',
+    line: 1,
+    classification: 'direct-write',
+    grandfathered: false,
+    baselineRefresh: 'reject',
+    expectedRejection: 'direct write is not explicitly grandfathered',
   },
 ];
 
@@ -434,12 +515,18 @@ function classifyLegacyFinding(role, term) {
   };
 }
 
+function isExplicitlyGrandfatheredDirectStoryWrite(role, excerpt) {
+  return DIRECT_STORY_WRITE_ALLOWLIST.some(
+    entry => entry.role === role && entry.excerpt === excerpt,
+  );
+}
+
 function classifyStoryFinding(role, excerpt) {
   const lower = excerpt.toLowerCase();
   if (isDirectStoryWriteInstruction(excerpt)) {
     return {
       classification: 'direct-write',
-      grandfathered: role === 'lattice-review-story-init',
+      grandfathered: isExplicitlyGrandfatheredDirectStoryWrite(role, excerpt),
       note: 'Registered direct story-file write instruction to replace with CLI-mediated writes in later milestones.',
     };
   }
@@ -490,6 +577,7 @@ function classifyStoryFinding(role, excerpt) {
 
 function splitStoryActionClauses(excerpt) {
   return excerpt
+    .replace(/\\\s*\r?\n\s*/g, ' ')
     .split(/\r?\n|;|(?<=[.!?])\s+|,\s*(?:but|however|then)\s+|\s+(?:but|however)\s+/i)
     .map(clause => clause.trim())
     .filter(Boolean);
@@ -499,7 +587,7 @@ function isNegativeStoryPolicyClause(clause) {
   const lower = clause.toLowerCase();
   if (lower.includes('all story changes go through')) return true;
   if (lower.includes('story metadata under') && lower.includes('do not write fixtures')) return true;
-  return /\b(?:do not|don't|must not|never|forbidden|prohibited|avoid)\b[\s\S]*\b(?:read|write|edit|modify|mutate|patch|create|update|delete|remove|replace|append|overwrite|apply_patch)\b/i.test(clause);
+  return /\b(?:do not|don't|must not|never|forbidden|prohibited|avoid)\b[\s\S]*\b(?:read|write|edit|modify|mutate|patch|create|update|delete|remove|replace|append|overwrite|copy|move|install|rsync|cp|mv|apply_patch)\b/i.test(clause);
 }
 
 function isNegativeStoryPolicyReminder(excerpt) {
@@ -512,6 +600,7 @@ function hasRecognizedStoryWriteAction(clause) {
     /\bapply_patch\b/i.test(clause) ||
     /\bdirectly\s+read\s*\/\s*edit\b/i.test(clause) ||
     /\b(?:use|using|run|invoke|call)\s+(?:the\s+)?(?:edit|write)\b/i.test(clause) ||
+    /\b(?:cp|copy|mv|move|install|rsync)\b[\s\S]*docs\/story/i.test(clause) ||
     /\b(?:edit|write|create|update|delete|remove|append|overwrite|replace)\b[\s\S]*docs\/story/i.test(clause) ||
     /docs\/story[\s\S]*\b(?:edit|write|create|update|delete|remove|append|overwrite|replace)\b/i.test(clause) ||
     /\b(?:tee|sed\s+-i|perl\s+-i)\b[\s\S]*docs\/story/i.test(clause) ||
@@ -533,8 +622,8 @@ function hasActionableStoryMutationSignal(excerpt) {
   return splitStoryActionClauses(excerpt).some(
     clause => {
       if (isNegativeStoryPolicyClause(clause)) return false;
-      const mutationVerb = /\b(?:add|append|create|delete|edit|modify|mutate|overwrite|patch|remove|replace|save|update|write)\b/i;
-      const directive = /^\s*(?:[-*]\s*)?(?:(?:please|then)\s+|you\s+(?:must|should|can|may)\s+|(?:must|should)\s+)?(?:add|append|create|delete|edit|modify|mutate|overwrite|patch|remove|replace|save|update|write)\b/i;
+      const mutationVerb = /\b(?:add|append|create|delete|edit|modify|mutate|overwrite|patch|remove|replace|save|update|write|copy|move|install|rsync|cp|mv)\b/i;
+      const directive = /^\s*(?:[-*]\s*)?(?:(?:please|then)\s+|you\s+(?:must|should|can|may)\s+|(?:must|should)\s+)?(?:add|append|create|delete|edit|modify|mutate|overwrite|patch|remove|replace|save|update|write|copy|move|install|rsync|cp|mv)\b/i;
       return (
         (/docs\/story/i.test(clause) && mutationVerb.test(clause)) ||
         directive.test(clause) ||
@@ -572,21 +661,34 @@ function scanLegacyVocabulary(roleEntries) {
   return findings.sort(compareFinding);
 }
 
+function buildStoryScanExcerpts(content) {
+  const lines = content.split(/\r?\n/);
+  const excerpts = [];
+  for (let index = 0; index < lines.length; index += 1) {
+    const start = index;
+    const parts = [lines[index].trim()];
+    while (/\\\s*$/.test(lines[index]) && index + 1 < lines.length) {
+      index += 1;
+      parts.push(lines[index].trim());
+    }
+    excerpts.push({ line: start + 1, excerpt: parts.join('\n').trim() });
+  }
+  return excerpts;
+}
+
 function scanStoryFileReferences(roleEntries) {
   const findings = [];
   const storyPattern = /docs\/story(?:\/[^\s`'"<>)\]}]*)?/g;
   for (const entry of roleEntries) {
-    const lines = entry.content.split(/\r?\n/);
-    for (let index = 0; index < lines.length; index += 1) {
-      const excerpt = lines[index].trim();
+    for (const { line, excerpt } of buildStoryScanExcerpts(entry.content)) {
       if (!excerpt) continue;
       const references = [...excerpt.matchAll(storyPattern)].map(match => match[0]);
       if (references.length === 0) continue;
       const classification = classifyStoryFinding(entry.role, excerpt);
       findings.push({
-        id: sha256(`${entry.role}\0${index + 1}\0${references.join(',')}\0${excerpt}`).slice(0, 16),
+        id: sha256(`${entry.role}\0${line}\0${references.join(',')}\0${excerpt}`).slice(0, 16),
         role: entry.role,
-        line: index + 1,
+        line,
         references: [...new Set(references)].sort(),
         excerpt,
         ...classification,
@@ -594,6 +696,12 @@ function scanStoryFileReferences(roleEntries) {
     }
   }
   return findings.sort(compareFinding);
+}
+
+function collectDirectStoryFindings(roleEntries) {
+  const findings = scanStoryFileReferences(roleEntries);
+  assertDirectStoryWritePolicy(findings);
+  return findings;
 }
 
 function compareFinding(a, b) {
@@ -652,8 +760,7 @@ async function collectCurrentBaseline() {
     if (!matrix) throw new Error(`missing matrix defaults for role ${entry.role}`);
     return { role: entry.role, ...matrix };
   });
-  const directStoryFindings = scanStoryFileReferences(roleEntries);
-  assertNoUnclassifiedActionableStoryReferences(directStoryFindings);
+  const directStoryFindings = collectDirectStoryFindings(roleEntries);
 
   return {
     schemaVersion: SCHEMA_VERSION,
@@ -1005,35 +1112,112 @@ function verifyNoUnregisteredDirectStoryWrite(current, baseline, failures) {
   }
 }
 
-function assertNoUnclassifiedActionableStoryReferences(findings) {
-  const unclassified = findings.filter(finding => finding.classification === 'unclassified-actionable');
-  if (unclassified.length === 0) return;
-  const details = unclassified
-    .map(finding => `${finding.role}:${finding.line ?? 'probe'} ${finding.excerpt}`)
-    .join('\n- ');
+function directStoryWritePolicyErrors(findings) {
+  const errors = [];
+  for (const finding of findings) {
+    const location = `${finding.role}:${finding.line ?? 'probe'}`;
+    if (finding.classification === 'unclassified-actionable') {
+      errors.push(`unclassified actionable reference at ${location}: ${finding.excerpt}`);
+      continue;
+    }
+    if (finding.classification !== 'direct-write') continue;
+    const explicitlyGrandfathered = isExplicitlyGrandfatheredDirectStoryWrite(
+      finding.role,
+      finding.excerpt,
+    );
+    if (finding.grandfathered !== explicitlyGrandfathered) {
+      errors.push(`direct write grandfathering mismatch at ${location}: ${finding.excerpt}`);
+    }
+    if (!explicitlyGrandfathered) {
+      errors.push(`direct write is not explicitly grandfathered at ${location}: ${finding.excerpt}`);
+    }
+  }
+
+  for (const allow of DIRECT_STORY_WRITE_ALLOWLIST) {
+    const matches = findings.filter(
+      finding =>
+        finding.classification === 'direct-write' &&
+        finding.role === allow.role &&
+        finding.excerpt === allow.excerpt &&
+        finding.grandfathered === true,
+    );
+    if (matches.length !== 1) {
+      errors.push(
+        `explicit direct-write allow entry must match exactly once for ${allow.role}: matched ${matches.length}`,
+      );
+    }
+  }
+  return errors;
+}
+
+function assertDirectStoryWritePolicy(findings) {
+  const errors = directStoryWritePolicyErrors(findings);
+  if (errors.length === 0) return;
   throw new Error(
-    `Refusing to collect or refresh the baseline with unclassified actionable docs/story references:\n- ${details}`,
+    `Refusing to collect or refresh the baseline because direct story-write policy failed:\n- ${errors.join('\n- ')}`,
   );
 }
 
+function verifyDirectStoryWritePolicy(findings, label, failures) {
+  for (const error of directStoryWritePolicyErrors(findings)) {
+    failures.push(`${label} direct story-write policy: ${error}`);
+  }
+}
+
 function verifyDirectStoryClassifierProbes(failures) {
+  requireEqual(
+    DIRECT_STORY_WRITE_ALLOWLIST.length,
+    1,
+    'direct story-write explicit allow entry count',
+    failures,
+  );
   for (const probe of DIRECT_STORY_CLASSIFIER_PROBES) {
     const actual = classifyStoryFinding(probe.role, probe.excerpt);
     requireEqual(actual.classification, probe.classification, `direct story classifier probe ${probe.name}.classification`, failures);
     requireEqual(actual.grandfathered, probe.grandfathered, `direct story classifier probe ${probe.name}.grandfathered`, failures);
-    if (probe.rejectsBaselineRefresh) {
-      let rejection = '';
-      try {
-        assertNoUnclassifiedActionableStoryReferences([{ ...actual, role: probe.role, excerpt: probe.excerpt }]);
-      } catch (error) {
-        rejection = String(error instanceof Error ? error.message : error);
-      }
-      if (!rejection.includes('Refusing to collect or refresh the baseline')) {
-        failures.push(
-          `direct story classifier probe ${probe.name}: expected baseline-refresh rejection, got ${JSON.stringify(rejection)}`,
-        );
-      }
+    verifyBaselineRefreshProbe(
+      probe,
+      [{ role: probe.role, content: probe.excerpt }],
+      failures,
+    );
+  }
+
+  for (const probe of DIRECT_STORY_SCANNER_PROBES) {
+    const findings = scanStoryFileReferences([{ role: probe.role, content: probe.content }]);
+    requireEqual(findings.length, 1, `direct story scanner probe ${probe.name}.finding count`, failures);
+    const actual = findings[0];
+    if (!actual) continue;
+    requireEqual(actual.line, probe.line, `direct story scanner probe ${probe.name}.line`, failures);
+    requireEqual(actual.classification, probe.classification, `direct story scanner probe ${probe.name}.classification`, failures);
+    requireEqual(actual.grandfathered, probe.grandfathered, `direct story scanner probe ${probe.name}.grandfathered`, failures);
+    verifyBaselineRefreshProbe(
+      probe,
+      [{ role: probe.role, content: probe.content }],
+      failures,
+    );
+  }
+}
+
+function verifyBaselineRefreshProbe(probe, roleEntries, failures) {
+  if (!probe.baselineRefresh) return;
+  let rejection = '';
+  try {
+    collectDirectStoryFindings(roleEntries);
+  } catch (error) {
+    rejection = String(error instanceof Error ? error.message : error);
+  }
+  if (probe.baselineRefresh === 'allow') {
+    if (rejection) {
+      failures.push(
+        `direct story probe ${probe.name}: expected baseline refresh to be allowed, got ${JSON.stringify(rejection)}`,
+      );
     }
+    return;
+  }
+  if (!rejection.includes(probe.expectedRejection)) {
+    failures.push(
+      `direct story probe ${probe.name}: expected baseline-refresh rejection containing ${JSON.stringify(probe.expectedRejection)}, got ${JSON.stringify(rejection)}`,
+    );
   }
 }
 
@@ -1068,7 +1252,9 @@ function runDirectStoryClassifierProbeCommand() {
     for (const failure of failures) console.error(`- ${failure}`);
     process.exit(1);
   }
-  console.log(`PASS direct story-file classifier adversarial probes: ${DIRECT_STORY_CLASSIFIER_PROBES.length} cases`);
+  console.log(
+    `PASS direct story-file classifier adversarial probes: ${DIRECT_STORY_CLASSIFIER_PROBES.length} classifier cases, ${DIRECT_STORY_SCANNER_PROBES.length} scanner case`,
+  );
 }
 
 async function runRoleMatrixSnapshotDriftProbeCommand() {
@@ -1115,6 +1301,16 @@ async function verifyBaseline() {
     'direct story-file finding',
     failures,
   );
+  verifyDirectStoryWritePolicy(
+    current.directStoryFileReferences.findings,
+    'current',
+    failures,
+  );
+  verifyDirectStoryWritePolicy(
+    baseline.directStoryFileReferences.findings,
+    'baseline',
+    failures,
+  );
   verifyNoUnregisteredDirectStoryWrite(current, baseline, failures);
   verifyDirectStoryClassifierProbes(failures);
 
@@ -1131,6 +1327,7 @@ async function verifyBaseline() {
   console.log('INFO proof-or-stop prompt baseline: commands, outputs, and direct-file-access semantics remain reviewer-audited');
   console.log('PASS proof-or-stop prompt baseline: legacy vocabulary findings classified');
   console.log('PASS proof-or-stop prompt baseline: direct story-file findings classified');
+  console.log('PASS proof-or-stop prompt baseline: direct story-write policy has 1 exact grandfathered write');
 }
 
 if (PROBE_DIRECT_STORY_CLASSIFIER) {
