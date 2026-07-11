@@ -240,6 +240,27 @@
       ],
       "signatureTag": "missing|mjs:113|quality-correctness-scripts",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3928:F-011",
+      "desc": "doc-code-drift: The artifact table labels ledgerHash, planHash, and rollupHash as current code-backed freshness/anti-forgery bindings, and the closeout contract says existing gates validate artifact hashes, but the ProofStory readers never recompute any of those hashes. computeMilestoneLedgerHash, computeSlicePlanHash, and computeParentLedgerRollupHash are writer-only; parentRollupCoversSlicePlan checks only stored cross-field equality, coverage, and evidenceRefs. A read-only HEAD probe passed evaluateDoneIntentEquivalence(..., enforce) with arbitrary mutually matching ledgerHash/planHash/rollupHash values and with a forged rollupHash alone (status=pass, blocking=false, gaps=[]). Amend M4.C1 and the current-contract wording to require reader/gate recomputation or content-bound canonical-writer provenance before these fields are described as integrity bindings.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-11T15:20:37.455Z",
+      "reviewRound": "2026-07-10T09:21:14.756Z",
+      "reviewRunId": "B-3928:RR-017",
+      "_hash": "93c8fedba1ba4a3802ea88d37c56de51d5ffb731d5b9840297a9b95fa02c8f63",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+        "packages/main/src/core/proofstory.ts",
+        "packages/main/src/core/store.ts",
+        "packages/main/src/core/evidence-freshness.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-artifact",
+      "signatureTagSource": "auto"
     }
   ]
 }
