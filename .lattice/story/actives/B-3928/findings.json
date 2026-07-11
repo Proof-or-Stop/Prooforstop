@@ -627,7 +627,7 @@
       "desc": "Round-7 F-015/F-019 recurrence: scripts/verify-proof-or-stop-prompt-baseline.mjs:668-731 and :785-807 fix only enumerated clause, verb, connector, and continuation shapes. Exact in-memory execution with the sole exact INIT allow present still classified `Avoid editing docs/story/... and instead use apply_patch...` and `Do not edit docs/story/... then use apply_patch...` as policy-reminder; `Copy source.json\\ninto docs/story/...`, `Use the metadata transformer on\\ndocs/story/...`, `Process docs/story/... with the metadata transformer`, and `Use the metadata transformer for docs/story/...` became other/grandfathered. collectDirectStoryFindings allowed every case. A simulated --write path with writeFileSync replaced by a sentinel reached WRITE_REACHED for the and-instead and process-with variants, while the exact F-015/F-019 strings rejected before writes. The closed grammar therefore leaves the same fail-open class. Add these variants and make actionable/path-adjacent instructions fail closed without relying on a finite connector list.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-11T16:23:05.128Z",
@@ -653,7 +653,11 @@
         "scripts/verify-proof-or-stop-prompt-baseline.mjs:1633"
       ],
       "signatureTag": "adversarial|mjs:668|round-recurrence-scripts",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by ca3bde3a and 50cf8130. Direct-story policy now accepts a negative reminder only through strict whole-instruction safe grammar; unmatched exceptions or second actions fail closed, and mutation continuations join based on imperative plus story target rather than a connector allowlist. Exact and-instead, bare-then, unless, unknown frobnicate, into/on/against/across multiline, process-with, and use-for cases are committed. Independent direct probe passed 34 classifier and 6 scanner cases.",
+      "resolvedAt": "2026-07-11T20:10:25.344Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3928:F-026",
