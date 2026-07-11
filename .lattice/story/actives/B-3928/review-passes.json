@@ -90,6 +90,45 @@
       },
       "readDiagnostics": [],
       "_hash": "464095c3e9ff4489f7faf5ca8c0de3af3edf62dff3e3f0bcadbef5e3c8314026"
+    },
+    {
+      "id": "B-3928:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "PASS at committed HEAD: reviewed main...HEAD for conceptual correctness, role ownership, lifecycle boundaries, and Closeout Evidence Ordering. Verified command-policy phases, REVIEW round renewal, lifecycle-registry omissions plus existing scope-contract classification, process-fact writers for ledger/slice/roll-up, digestScopeContract acknowledgement exclusion, and story-metadata hash exclusion. Roll-up remains owner-gated, the delivery prompt does not call its setter, and M7.6 is future enforcement. The document explicitly says the current bug is unresolved and the composite scope-defining digest/re-attestation is planned M4.C1 behavior, not shipped behavior. Repo scans found no live stale 26-story, TEST-only sample-flow, or old scope-contract classification claim; all cited CLI commands exist. Concurrent HEAD movement after RR-014 changed only canonical review metadata; reviewed document and source tree remained unchanged. No conceptual blocker.",
+      "createdAt": "2026-07-11T15:21:32.595Z",
+      "reviewRound": "2026-07-10T09:21:14.756Z",
+      "reviewRunId": "B-3928:RR-014",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/guard-session.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/review-scope-binding.ts",
+          "packages/main/src/handlers/delivery-context-pack.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/templates/agents/lattice-review-delivery.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "e8f8ee1faebe69ded01cae22ff2a3e424cfbf38c422ac607a08521fda030d3cd"
+      },
+      "readDiagnostics": [],
+      "_hash": "df02fc16bf195bf5cb7237dc9f79abe2afce882830465fc9f4bb58bc4a49ee89"
     }
   ]
 }
