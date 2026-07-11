@@ -468,6 +468,25 @@
       ],
       "signatureTag": "adversarial|mjs:578|quality-correctness-scripts",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3928:F-020",
+      "desc": "Resolved F-010 left CHK-003.userSees stale. `lattice checklist_get` still promises the exact line `PASS proof-or-stop prompt baseline: overlap matrix verified for 16 roles`, but the committed verifier now emits `PASS proof-or-stop prompt baseline: role matrix snapshot integrity verified for 16 roles` plus a separate mechanical snapshot-drift line and never emits the promised text. Update the checklist promise to the honest snapshot wording so delivery/user-visible acceptance matches the current command.",
+      "severity": "medium",
+      "category": "happy",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-11T15:58:25.951Z",
+      "reviewRound": "2026-07-11T15:51:16.046Z",
+      "reviewRunId": "B-3928:RR-018",
+      "_hash": "d8df5bcf8043f24d3c5590782f4e0a3a5eca107f807db309254a55fa5b7d4291",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1325",
+        ".lattice/story/actives/B-3928/checklist.json"
+      ],
+      "signatureTag": "happy|mjs:1325|resolved-left-usersees",
+      "signatureTagSource": "auto"
     }
   ]
 }
