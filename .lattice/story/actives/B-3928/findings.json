@@ -927,7 +927,7 @@
       "desc": "F-024/F-026 semantic recurrence: the occurrence-aware legacy policy still launders positive active use in two clause shapes. isNegativeLegacyOccurrence at scripts/verify-proof-or-stop-prompt-baseline.mjs:773-780 treats any clause beginning `Do not <non-marker>` as negating the first later legacy occurrence, even when an unsplit plain `and set` introduces a positive instruction. isDemonstrablyContextualLegacyOccurrence at :783-810 accepts a marker immediately before the occurrence without checking for an imperative verb before that marker. Exact in-memory execution allowed both `Do not remove verificationIntent and set testIntent on every checklist item.` as allowed-negative-reference and `Set legacy testIntent.` as allowed-explicit-local-context; collection returned no policy error. This contradicts M0.4 and the verifier rule that positive instructions always fail, while the normal verifier still prints that active-role policy is enforced. Bind negation/context to the actual occurrence, reject positive directives even with local markers, and add both refresh probes.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-11T20:17:12.865Z",
@@ -955,7 +955,11 @@
         "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:1025"
       ],
       "signatureTag": "adversarial|mjs:773|legacy-occurrence-positive-laundering",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 467dc4bb. Negation and historical context are no longer inferred from arbitrary neighboring prose: safe negatives use a closed whole-clause grammar and live historical contexts require exact role/term/excerpt registration. Exact `Do not remove verificationIntent and set testIntent...` and `Set legacy testIntent` collection probes reject. Independent legacy probe passed 24 rejected and 4 allowed cases.",
+      "resolvedAt": "2026-07-11T20:38:50.536Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3928:F-034",
