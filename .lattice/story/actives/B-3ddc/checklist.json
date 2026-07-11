@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Retain codex turn.failed / terminal error lines in the default streaming runner as a second bounded lane",
       "context": "packages/main/src/core/host-run.ts: add a failure-line retainer for host codex matching JSON lines with type turn.failed or terminal error; retention is bounded, last-one-wins, same HOST_RUN_RETAINED_LINE_CAP (1 MiB) discipline as the existing usage lane (reuse UsageLineScanner); the retained failure line is surfaced on HostRunSpawnResult without changing the live passthrough or the existing usage retention/truncation semantics (F-013/F-026).",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-11T23:19:37.122Z",
-      "endTime": null,
+      "endTime": "2026-07-11T23:32:29.890Z",
       "verificationIntent": {
         "happy": [
           {
