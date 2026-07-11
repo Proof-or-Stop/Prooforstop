@@ -159,7 +159,55 @@
       "context": "Sweep other renderers/handlers whose default output exceeds ~5k tokens (~20KB) and apply the same brief-by-default pattern. Known from audit on 0.3.185: story_list default JSON dump 365KB, global bug_list 263KB, host_list 16KB borderline. Sweep method: rg for large markdown table builders and full-collection JSON returns in packages/main/src/handlers plus core renderers.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run lattice story_list (no flags) -> output is a brief summary: one line per story with storyId, phase, status, and _bugSummary field preserved in output; total output under ~5k tokens for a project with 50+ stories; WHY: confirms brief default for story_list (known 365KB offender)",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run lattice bug_list (no flags) -> output is a brief summary: one line per bug with id, severity, status; total output under ~5k tokens for a project with 100+ bugs; WHY: confirms brief default for bug_list (known 263KB offender)",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run lattice story_list --full and lattice bug_list --full -> outputs are the current full JSON dumps; WHY: full output accessible on demand",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run lattice story_list --json -> output preserves _bugSummary field on each story object (internal consumers JSON.parse this); WHY: load-bearing contract: callers read _bugSummary from bare story_list output",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Sweep confirms no other handler/renderer produces default output exceeding ~5k tokens (~20KB) that was missed; WHY: completeness of the audit (story says sweep method = rg for large table builders and full-collection JSON returns)",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "host_list (16KB borderline per audit) is either brought under brief-by-default or explicitly documented as acceptable; WHY: borderline case from the audit needs explicit resolution",
+            "type": "logic",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Brief story_list output still includes enough skeleton that JSON.parse(output)._bugSummary is accessible (the brief JSON shape preserves the _bugSummary key even if other fields are omitted); WHY: internal consumer contract — callers read _bugSummary from bare story_list",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Brief bug_list does not accidentally omit bugs whose severity is below a threshold (brief means shorter per-item output, not filtered items); WHY: brief must not silently filter data, only compress per-item verbosity",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
