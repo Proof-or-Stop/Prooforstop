@@ -1119,7 +1119,7 @@
       "desc": "direct-story case-normalization bypass: scripts/verify-proof-or-stop-prompt-baseline.mjs:1527-1534 preselects docs/story lines case-insensitively but extracts references with a case-sensitive storyPattern. With the sole exact INIT allow present, exact in-memory collection returned zero findings and no error for `Transmogrify DOCS/STORY/actives/B-1234/index.json now.`, while the lowercase control was unclassified-actionable and rejected. `stat -f %N DOCS` also succeeds in this workspace, so mixed-case spelling can address the same tree on the host while collection/--write blesses it. Normalize or extract case-insensitively and add mixed-case collection/refresh probes.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-11T20:45:26.453Z",
@@ -1143,7 +1143,11 @@
         "scripts/verify-proof-or-stop-prompt-baseline.mjs:1529"
       ],
       "signatureTag": "adversarial|mjs:1527|direct-story-case",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by d6bc395a. Diagnostic candidate normalization and extraction are case-insensitive, and the whole-prompt approval manifest independently rejects any mixed-case body mutation. DOCS/STORY is covered by direct diagnostics and manifest body-mutation collection probes.",
+      "resolvedAt": "2026-07-11T21:10:39.506Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3928:F-039",
