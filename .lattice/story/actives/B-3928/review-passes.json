@@ -197,6 +197,26 @@
         "scanEscalationReason": null
       },
       "_hash": "0d1946275298b4f527154b9b9dd3f7d37940738d2e631463b155246bafc81bb0"
+    },
+    {
+      "id": "B-3928:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: audited all 15 intent-to-evidence bindings and commit 467dc4bb; F-029 through F-035 are command-exercised with classification plus collection/refresh outcomes (37 classifier/10 scanner, 24 rejected/4 allowed), including unknown statuses, exact registrations, appended actions, colon/bullet/path-first context, Output, inverted negatives, imperative local markers, and positive controls; 0 gaps, 0 waivers, no blocker.",
+      "createdAt": "2026-07-11T20:43:03.682Z",
+      "reviewRound": "2026-07-11T20:38:32.745Z",
+      "reviewRunId": "B-3928:RR-033",
+      "readManifest": {
+        "filesReadFully": [
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e2af8631c7ec6e5b25e9b47fce9aa60770e207575de6b992b85864104cb09efc"
     }
   ]
 }
