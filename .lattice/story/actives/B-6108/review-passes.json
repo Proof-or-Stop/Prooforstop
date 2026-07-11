@@ -1,0 +1,21 @@
+{
+  "passes": [
+    {
+      "id": "B-6108:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round. git diff main...HEAD is purely additive to the claimsShrinkage alternation inside evaluateDoneIntentEquivalence: new local constants (windowConnector/windowToken/adverbWindow/shrinkageVerbs/nounQuote) widen the existing regex, and all pre-existing identifiers they build on (remainingModifierWord, remainingScopeNoun, remainingChainStep, remainingGlue, remainingTokenEnd) remain defined and referenced unchanged. The only removed lines are the two prior regex-line versions immediately superseded by their widened equivalents (same construction, expanded alternation, no renamed/dropped identifiers) and two smoke-test comment blocks whose own text explicitly deferred verb-recall to a follow-up story (this one) with assertions flipped false->true accordingly. Canonical gap code unconfirmed_single_outcome_shrinkage is unchanged and used consistently across all call sites in the smoke file plus proofstory.ts. Grepped for concept residue of the touched identifiers; none deleted or replaced en masse. No blocker.",
+      "createdAt": "2026-07-11T22:56:52.942Z",
+      "reviewRound": "2026-07-11T22:54:45.995Z",
+      "reviewRunId": "B-6108:RR-001",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "7c79adeb6b66e82cfc68ca61af490e5f9a6e751ec0295c8ff57cab10a695b1c4"
+    }
+  ]
+}
