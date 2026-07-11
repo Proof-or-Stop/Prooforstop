@@ -16,6 +16,27 @@
         "scanEscalationReason": null
       },
       "_hash": "7c79adeb6b66e82cfc68ca61af490e5f9a6e751ec0295c8ff57cab10a695b1c4"
+    },
+    {
+      "id": "B-6108:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review passed: all 4 checklist items (CHK-001..004) carry complete happy/edge/adversarial verificationIntent columns matching the normal/high-risk channel. All 12 must/should intents have exactly one non-fail verificationEvidence row each (11 logic_test + 1 docs_check for the plan-rationale adversarial intent), each note names the concrete sentences/behavior exercised, not a generic pass. Verified the smoke file directly: vocabularyRecallClaims holds the 14 must-fire sentences across the five classes (3 adverb-insertion, 3 inflection, 6 shrinkage-verb, 1 quoted-noun, 1 comma-plus) and vocabularyPrecisionControls holds the 8 must-not-fire routine/clause-coordination/inflection-boundary controls, both asserted in a loop against done_intent_equivalence_check; the two CHK-004 interaction pins (strippedTokenVerbDone, adverbWindowBoundaryDone) are present and asserted. Confirmed via git show 6a06ea3c13 that the two B-2c03 pins now flipped to must-fire (backtickTriggerTokenDone, triggerStemFileDone) carry original comments that explicitly deferred verb-recall coverage to this follow-up story (the claim is carried by the verb which belongs to the follow-up vocabulary story), so the flip is a justified, deliberate closure of a documented deferred gap, not an unreviewed regression. Ran node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js directly: ProofStory intent hardening smoke passed. red-evidence.json binds a genuine repro-first RED (baseline 92474ac118, first recall claim failing with all eight controls quiet). evidence_plan initially reported missing=0 refresh-only=12 (whole-tree materialHash drift from REVIEW-phase .lattice metadata commits only, confirmed via git diff that no packages/main/src, packages/main/tests, or plan.md file changed since the frozen commit); ran verification_evidence_refresh_stale to rebind against current HEAD, now missing=0 fresh=12. No coverage gap found; no finding filed.",
+      "createdAt": "2026-07-11T23:09:16.371Z",
+      "reviewRound": "2026-07-11T22:54:45.995Z",
+      "reviewRunId": "B-6108:RR-002",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-6108/checklist.json",
+          ".lattice/story/actives/B-6108/plan.md",
+          ".lattice/story/actives/B-6108/red-evidence.json",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/proofstory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e501522ef5f18f42071ecfa85e938fd3c13fd217c94ca49a07aa036082faad57"
     }
   ]
 }
