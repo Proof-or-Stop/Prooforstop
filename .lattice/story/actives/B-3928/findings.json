@@ -889,7 +889,7 @@
       "desc": "F-023 semantic recurrence: the direct-story policy still fails open for an imperative output verb. scripts/verify-proof-or-stop-prompt-baseline.mjs:1046-1059 recognizes the literal --output option but not Output as a write action; looksLikeImperativeDirective at :1113-1131 explicitly excludes clauses beginning with output, and classifyStoryFinding at :903-907 then blesses the reference as other/grandfathered. Exact in-memory execution of the committed functions, with the sole exact INIT allow entry present, classified `Output generated metadata to docs/story/actives/B-1234/index.json.` as other/grandfathered and collectDirectStoryFindings returned without error. Collection/--write can therefore bless a clear direct output instruction despite M0.6. Treat output directed to docs/story as a mutation, or fail closed for non-read-only path-directed imperatives, and add this baseline-refresh probe.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-11T20:17:00.940Z",
@@ -916,7 +916,11 @@
         "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:1032"
       ],
       "signatureTag": "adversarial|mjs:1113|output-verb-story-write-fail-open",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 467dc4bb. Unregistered docs/story references fail closed by default; Output is no longer a trusted subject exclusion. Exact `Output generated metadata to docs/story/...` classification and collection probe rejects. Independent direct probe passed 37 classifier and 10 scanner cases.",
+      "resolvedAt": "2026-07-11T20:38:49.712Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3928:F-033",
