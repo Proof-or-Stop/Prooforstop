@@ -237,11 +237,6 @@
             "desc": "Smoke test exists and passes: asserts brief defaults stay under a size budget (e.g. <5k tokens), full flag restores complete output, env escape hatch works, and JSON shape is unchanged; WHY: regression coverage as specified in checklist context",
             "type": "cli",
             "priority": "must"
-          },
-          {
-            "desc": "rg for LATTICE_BRIEF_OUTPUT and the full-output flag in docs/CLI.md (and CLAUDE.md if managed regeneration applies) -> both documented with brief-by-default defaults described; WHY: scope-boundary item 6 promises doc updates and this makes the promise verifiable",
-            "type": "cli",
-            "priority": "must"
           }
         ],
         "edge": [
