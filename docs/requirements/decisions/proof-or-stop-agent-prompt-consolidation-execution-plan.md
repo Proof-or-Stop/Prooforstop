@@ -838,9 +838,9 @@ inventing new required fields where the CLI already has a schema.
 |---|---|---|---|---|---|
 | `init-check.json` | `init_check_set`; controlled fallback `init_check_repair`. | `storyId`, `checkedAt`, `reviewRound`, `agentId`, `issues`, `agentResults`, `_hash`; required agent set currently includes `lattice-review-story-init` and `product-reviewer`. | INIT->INIT_CHECK in `core/machine.ts`; process-fact registry reviewer lanes. | `_hash` covers story background/title/description/checklist hash/reviewRound; high/critical issues block; fallback is marked with `@fallback`. | Preserve this fence while renaming to `proof-or-stop-*`; do not remove `product-reviewer` until required-agent migration passes tests. |
 | `scope-check.json` | `scope_check_save`. | `features[]`, five-tier `status`, `summary`, optional `openQuestions`, `_hash`. | PLAN scope review / story review consumers. | `_hash` covers storyId/timestamp/gaps/covered/reviewRound; `openQuestions` are currently outside signature domain. | M1/M4 must decide whether `openQuestions` need stronger gate binding before prompts rely on them as blockers. Until then, prompts must treat open questions as review context or require `scope_question_resolve` / a signature-domain update before claiming tamper-evident blocker status. |
-| `milestone-ledger.json` | Owner/CLI via PLAN-only `milestone_ledger_set` / `milestone_ledger_add`. | `proofstory.milestone_ledger.v1`, `storyId`, candidate/confirmed `state`, `ledgerHash`, optional accepted-intent binding, milestone rows, timestamps. | ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates. | `ledgerHash` is derived from normalized rows; mutations return the ledger to candidate until an accepted intent-collision binding confirms the current hash. | Scope-defining trusted metadata. Current gap: the process-fact registry covers both writers, but `LIFECYCLE_ARTIFACTS` omits the path. Register it in the closed lifecycle set and include its digest in closeout review-retention checks. |
-| `slice-plan.json` | Owner/CLI via PLAN-only `slice_plan_set`. | `proofstory.slice_plan.v1`, `storyId`, current `ledgerHash`, complete `slices[]`, `planHash`, timestamps. | ProofStory DEV admission and DONE intent-equivalence gates. | The plan must cover every ledger milestone; `ledgerHash` must match the current ledger and `planHash` binds the ledger plus sorted slices. | Scope-defining trusted metadata. Current gap: the process-fact registry covers the writer, but `LIFECYCLE_ARTIFACTS` omits the path. Register it and include its digest in closeout review-retention checks. |
-| `parent-ledger-rollup.json` | Owner/CLI via `parent_ledger_rollup_set`, currently allowed in PLAN/DEV/REVIEW/TEST. | `proofstory.parent_ledger_rollup.v1`, `storyId`, `ledgerHash`, optional `slicePlanHash`, child coverage/evidence refs, `rollupHash`, timestamps. | ProofStory DONE intent-equivalence gate. | `rollupHash` binds the current ledger/slice-plan hashes and sorted children; DONE treats mismatched ledger/plan hashes, missing coverage, or empty evidence refs as stale/incomplete. | Closeout-evidence trusted metadata. Current gap: the process-fact registry covers the writer, but `LIFECYCLE_ARTIFACTS` omits the path, so a canonical TEST closeout write can be mistaken for unclassified scope drift. Fix classification/order in the independent M4 CLI story; do not hand-write or scope-acknowledge this artifact. |
+| `milestone-ledger.json` | Owner/CLI via PLAN-only `milestone_ledger_set` / `milestone_ledger_add`. | `proofstory.milestone_ledger.v1`, `storyId`, candidate/confirmed `state`, `ledgerHash`, optional accepted-intent binding, milestone rows, timestamps. | ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates. | Writers compute `ledgerHash` from normalized rows, but current store reads and DONE/read consumers do not recompute it as anti-forgery validation. An arbitrary embedded hash is not tamper-proof today. | Scope-defining metadata with two current gaps: `LIFECYCLE_ARTIFACTS` omits the path, and readers trust the embedded hash. M4.C1 (or its independent CLI lifecycle story) must register the path and schema-validate/recompute `ledgerHash` before using it as a trust boundary or review-retention digest input. |
+| `slice-plan.json` | Owner/CLI via PLAN-only `slice_plan_set`. | `proofstory.slice_plan.v1`, `storyId`, current `ledgerHash`, complete `slices[]`, `planHash`, timestamps. | ProofStory DEV admission and DONE intent-equivalence gates. | The writer checks milestone coverage and computes `planHash`, but current store reads and DONE/read consumers do not recompute `planHash` from the embedded ledger hash and slices. | Scope-defining metadata with two current gaps: `LIFECYCLE_ARTIFACTS` omits the path, and readers trust the embedded hash. M4.C1 (or its independent CLI lifecycle story) must register the path and schema-validate/recompute the plan and ledger binding before treating it as trusted scope. |
+| `parent-ledger-rollup.json` | Owner/CLI via `parent_ledger_rollup_set`, currently allowed in PLAN/DEV/REVIEW/TEST. | `proofstory.parent_ledger_rollup.v1`, `storyId`, `ledgerHash`, optional `slicePlanHash`, child coverage/evidence refs, `rollupHash`, timestamps. | ProofStory DONE intent-equivalence gate. | The writer computes `rollupHash`. Current `parentRollupCoversSlicePlan` does not consume or recompute it; it compares the embedded ledger/slice hashes and checks child coverage plus non-empty evidence refs. Those comparisons are consistency checks, not anti-forgery proof. | Closeout metadata with two current gaps: lifecycle classification omits the path, and DONE does not validate `rollupHash`. M4.C1 (or its independent CLI lifecycle story) must fix classification/order and schema-validate/recompute the roll-up before it can be a trust boundary. Do not hand-write or scope-acknowledge this artifact. |
 | `scope-contract.json` acknowledgements | Owner/CLI via `scope_contract_acknowledge`, deliberately allowed only in DEV/REVIEW. | Existing contract plus append-only acknowledgement facts: actor, reason, timestamp, paths, optional anchors/hunk digest(s), and current structured phase/head/material provenance. | Acknowledgement paths are consumed by the path scope gate today. Review scope binding separately uses `digestScopeContract`. | `digestScopeContract` hashes mode, allow/create/test paths, protected files, explicit excludes, file rules, and protected anchors; it explicitly excludes runtime acknowledgements. Acknowledgements therefore do not change the current review-binding digest. | `scope-contract.json` is already recognized by the scope classifier through `LATTICE_LIFECYCLE_ARTIFACT_FILENAMES`, despite not being in the base `LIFECYCLE_ARTIFACTS` array; there is no current path-classification gap for it. The semantic gap is that acknowledgement content/provenance is absent from review binding. M4.C1 must add a planned composite scope-defining digest/re-attestation contract covering semantically relevant acknowledgements plus milestone ledger and slice plan. Do not broaden acknowledgement to TEST. |
 | Review run | `review_run_start`. | lane from `REVIEW_RUN_LANES`, `reviewRunId`, review round, `headHash`, `materialHash`, optional `storyFilesHash`, prompt hash, workspace binding. | `finding_add`, `review_pass_set`, REVIEW->TEST gate, quorum. | Evidence must bind to the current run/round and fresh workspace binding. Current code only accepts `lattice-review-*` lanes. | M0.5 must normalize canonical `proof-or-stop-*` roles before new reviewer evidence writes. |
 | Finding / review pass | `finding_add`, `review_pass_set`. | Signed finding/pass with `agent`, `reviewRunId`, severity/category or note; `evidenceState` defaults to verified. | REVIEW->TEST in `core/machine.ts`; review escalation/floor downstream. | Reviewer evidence must pass signature/run binding; suspected/disproven findings are advisory. | Keep pass-only `finding_add` normalization, but ensure canonical role IDs are written after M0.5. |
@@ -848,7 +848,7 @@ inventing new required fields where the CLI already has a schema.
 | `test-evidence.json` | `lattice validate`. | PASS/FAIL plus head/material binding. | DONE gate and DONE pre-check. | DONE verifies PASS and recorded snapshot/material binding. | No prompt writes. Keep as CLI-owned validation evidence. |
 | `done-required-evidence.json` | `done_required_validate`. | Command-set/policy result bound to current HEAD/material/storyFiles/policy when `doneRequiredCommands` or DONE-required policy is configured. | DONE-required gate only for projects that opt in. | Fresh PASS evidence is blocking only under configured policy; without policy the command is advisory/no full-suite assurance. | Delivery and final prompts may cite this evidence when present, but must not imply it exists or is required for projects without a DONE-required policy. |
 | `delivery-check.json` | `delivery_check_set`. | `docsPromises`, `realMachineTests`, `closingSelfCheck`, `agentId`, `headHash`, `materialHash`, optional `storyFilesHash`, review round, `_hash`. | TEST/DONE closeout and DONE gate. | `_hash` covers promises/tests/self-check/reviewRound/materialHash/storyFilesHash; material drift is stale unless signed storyFilesHash still matches. | Delivery prompt can cite evaluator transcript only when it exists; docs fallback only when docs reviewer was not routed. |
-| `evidence/delivery-context-pack.json` | Owner/CLI via explicit `delivery_context_pack --write`; default command is read-only. | Persisted delivery-review context: delivery diff, docs promises, real-machine test refs, validation ref, review round, delivery-check/waiver status, `isSigner:false`, and false Authority/production claims. | Delivery reviewer context only; it is not a signer and no gate consumes it as a delivery pass. | Atomic write validates the shape, but the artifact has no signature or independent freshness hash; regenerate it from current facts before delivery review. | Closeout-evidence trusted metadata only after closed-set registration and canonical writer provenance. Current gap: lifecycle artifacts omit the path and the process-fact artifact registry has no gate-artifact entry for it; path trust must not promote its contents to gate evidence. |
+| `evidence/delivery-context-pack.json` | Owner/CLI via explicit `delivery_context_pack --write`; default command is read-only. | Persisted delivery-review context: delivery diff, docs promises, real-machine test refs, validation ref, review round, delivery-check/waiver status, `isSigner:false`, and false Authority/production claims. | Delivery reviewer context only; it is not a signer and no gate consumes it as a delivery pass. | The atomic write re-reads the temporary file and `JSON.parse` checks syntax only. It does not runtime-validate schema/shape, sign the artifact, or add an independent freshness hash; regenerate it from current facts before delivery review. | Non-gate closeout context only. If M4.C1 grants writer-provenance/path trust, it must first add runtime schema validation; closed-set registration alone must not promote the payload to gate evidence. Current lifecycle and process-fact artifact registries still omit this path. |
 | `eval-evidence.json` | `evaluate_save`. | Parsed evaluator JSON with `scores`, `total`, `pass`, `itemResults`, `findings`, `timestamp`. | DONE evaluator row when browser project policy requires it. | Raw evaluator JSON is not gate evidence; only persisted `eval-evidence.json` is consumed. | M1 should classify evaluator prompts as raw advisory producers plus optional `evaluate_save` evidence source, not invent a parallel sink unless replacing this one. |
 
 ### Closeout Evidence Ordering Contract
@@ -894,8 +894,13 @@ Path trust requires both membership in a closed-set lifecycle registry and a
 canonical CLI writer/provenance record. An unknown path, a hand-written copy,
 or an artifact with no recognized writer is not trusted metadata. Conversely,
 trusted path provenance does not automatically make the contents gate evidence:
-each existing gate still validates its own schema, hash/signature, freshness,
-policy, reviewer lane, and semantic coverage.
+each consuming gate must independently validate schema, hash/signature,
+freshness, policy, reviewer lane, and semantic coverage. Current code does not
+yet meet that standard for the milestone ledger, slice plan, parent roll-up, or
+persisted delivery context: the three ProofStory hashes are not recomputed on
+read/DONE, and the context pack receives syntax-only JSON parsing. M4.C1 must
+close those validation gaps before path/writer provenance becomes a trust
+boundary for their payloads.
 
 The required closeout order is:
 
@@ -1008,7 +1013,10 @@ Subprojects:
 - M0.2 Capture current `lattice agent_prompt --role=<name>` output for every
   role as comparison artifacts.
 - M0.3 Produce a role-overlap matrix covering phase, commands, direct file
-  access, output artifact, and overlap category.
+  access, output artifact, and overlap category. Review those semantic columns
+  manually for all 16 rows; the verifier locks the resulting snapshots,
+  required fields, hashes, and JSON/Markdown parity, but does not derive command
+  ownership from prompt prose.
 - M0.4 Add a regression check that fails if an active non-legacy prompt uses
   `testIntent` or `TEST_CASE_REVIEW` without an explicit legacy marker.
 - M0.6 Add a regression check that flags prompts requiring direct writes under
@@ -1018,6 +1026,9 @@ Subprojects:
 Exit criteria:
 
 - Every current prompt has a baseline hash and classification.
+- Commands, direct-file access, and outputs have a recorded 16-row manual audit
+  boundary; automated checks assert snapshot integrity rather than semantic
+  ownership.
 - Legacy terms are mechanically visible in the baseline report.
 - No prompt content is edited in M0 except tests/docs required to record the
   baseline.
@@ -1246,10 +1257,14 @@ Subprojects:
   `scope-contract.json` classifier membership and canonical writer provenance,
   add the planned composite scope-defining digest/re-attestation boundary, and
   prevent canonical TEST roll-up writes from being misclassified as scope
-  expansion. Although logically owned by M4, this story is an early serial
-  prerequisite immediately after M0; it must land before prompt consolidation
-  depends on closeout ordering. It does not rewrite prompts, and it must not
-  broaden `scope_contract_acknowledge` to TEST.
+  expansion. Before these artifacts are used as trust boundaries, the story
+  must runtime-schema-validate and recompute `ledgerHash`, `planHash`, and
+  `rollupHash`, and must schema-validate persisted
+  `evidence/delivery-context-pack.json` if its path/writer provenance is trusted.
+  Although logically owned by M4, this story is an early serial prerequisite
+  immediately after M0; it must land before prompt consolidation depends on
+  closeout ordering. It does not rewrite prompts, and it must not broaden
+  `scope_contract_acknowledge` to TEST.
 - M4.0 Split M4 into rollback-safe implementation stories: direct-write ban
   first, direct-read replacement second, INIT self-check migration third, and
   channel retirement/static scans last.

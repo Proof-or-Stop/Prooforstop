@@ -23,11 +23,11 @@ const MATRIX_PATH = join(
   'docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md',
 );
 const EXPECTED_ROLE_COUNT = 16;
-const SCHEMA_VERSION = 'proof-or-stop.prompt-baseline.v2';
+const SCHEMA_VERSION = 'proof-or-stop.prompt-baseline.v3';
 const PLAN_PATH = 'docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md';
 const WRITE_MODE = process.argv.includes('--write');
 const PROBE_DIRECT_STORY_CLASSIFIER = process.argv.includes('--probe-direct-story-classifier');
-const PROBE_ROLE_MATRIX_EVIDENCE = process.argv.includes('--probe-role-matrix-evidence');
+const PROBE_ROLE_MATRIX_SNAPSHOT_DRIFT = process.argv.includes('--probe-role-matrix-snapshot-drift');
 const ROLE_MATRIX_FIELDS = [
   'status',
   'phase',
@@ -40,7 +40,17 @@ const ROLE_MATRIX_FIELDS = [
   'overlapCategory',
   'notes',
 ];
-const SOURCE_BACKED_ROLE_MATRIX_FIELDS = ['commands', 'directFileAccess', 'outputs'];
+const REVIEWER_AUDITED_ROLE_MATRIX_FIELDS = ['commands', 'directFileAccess', 'outputs'];
+const ROLE_MATRIX_MACHINE_CHECKS = [
+  'Lock the exact 16 role snapshots and role IDs.',
+  'Lock registry template hashes and agent_prompt output hashes.',
+  'Require every role-matrix field to be a non-empty string.',
+  'Require JSON/Markdown parity and reject snapshot drift.',
+];
+const ROLE_MATRIX_SEMANTIC_BOUNDARY =
+  'Commands, outputs, and direct-file-access semantics are reviewer-audited snapshots. The verifier does not infer or prove command ownership or behavioral semantics from prompt prose.';
+const ROLE_MATRIX_SOURCE_ANCHOR_PURPOSE =
+  'Navigation and drift anchors for manual review only; relPath and templateHash do not prove role semantics.';
 
 const LEGACY_PATTERNS = [
   {
@@ -110,7 +120,7 @@ const ROLE_MATRIX_DEFAULTS = {
     status: 'active',
     phase: 'REVIEW',
     purpose: 'Reviews promised user-visible behavior, edge cases, and userSees mismatch.',
-    commands: 'checklist_get; review_run_start; finding_add; review_pass_set.',
+    commands: 'git diff; checklist_get; review_run_start; finding_add; review_pass_set.',
     directFileAccess: 'Reads git diff, checklist userSees, source files, candidate docs, and scope-plan artifacts; no direct story writes.',
     inputs: 'Diff, story scope, user-visible behavior, verification evidence.',
     outputs: 'Reviewer findings or pass.',
@@ -146,7 +156,7 @@ const ROLE_MATRIX_DEFAULTS = {
     status: 'active',
     phase: 'TEST/DONE',
     purpose: 'Reviews final delivery claims, docs promises, real machine tests, and closeout.',
-    commands: 'delivery_check_set.',
+    commands: 'git diff; delivery_check_set.',
     directFileAccess: 'Reads git diff and repository files; explicitly avoids process-events, reviewer outputs, and test-evidence contents.',
     inputs: 'Diff, validation evidence, docs promises, user-facing closeout claims.',
     outputs: 'Signed delivery-check.json via delivery_check_set, or refusal text.',
@@ -252,658 +262,6 @@ const ROLE_MATRIX_DEFAULTS = {
   },
 };
 
-// This is a grounded claim ledger, not an independent role-ownership table.
-// Every claim must exactly cover text in ROLE_MATRIX_DEFAULTS and every support
-// snippet must exist verbatim in that role's canonical prompt body.
-const ROLE_MATRIX_SOURCE_EVIDENCE = {
-  'implementation-reviewer': {
-    commands: [
-      {
-        claim: 'none',
-        snippets: ['- Not modifying code, not modifying tests, not advancing the phase'],
-      },
-    ],
-    directFileAccess: [
-      {
-        claim: 'Reads diff and implementation context; no direct story writes.',
-        snippets: [
-          '- The current checklist / target behavior',
-          '- Relevant implementation files',
-          '- Not modifying code, not modifying tests, not advancing the phase',
-        ],
-      },
-    ],
-    outputs: [
-      {
-        claim: 'Text review notes.',
-        snippets: ['Return concisely:', 'Conclusion: pass / fail'],
-      },
-    ],
-  },
-  'lattice-evaluator-cli': {
-    commands: [
-      {
-        claim: 'bridge state/reset/events/event/replay API via curl',
-        snippets: [
-          'curl {serveUrl}/bridge/state',
-          'curl {serveUrl}/bridge/events',
-          'curl -X POST {serveUrl}/bridge/event',
-          'curl -X POST {serveUrl}/bridge/replay',
-          'curl -X POST {serveUrl}/bridge/reset',
-          'Use the Bash tool with curl to call these APIs.',
-        ],
-      },
-      {
-        claim: 'optional CLI shell spawn.',
-        snippets: ['If the project has a CLI shell, also test it by spawning the process:'],
-      },
-    ],
-    directFileAccess: [
-      {
-        claim: 'Uses CLI shell/bridge output; no direct story writes.',
-        snippets: [
-          'tools: Read, Bash',
-          'Your job is NOT to read code — it is to **use the application** like a user would, through the bridge API and optionally through the CLI shell.',
-        ],
-      },
-    ],
-    outputs: [
-      {
-        claim: 'Evaluator JSON transcript.',
-        snippets: ['You MUST output the following JSON (wrapped in ```json):'],
-      },
-    ],
-  },
-  'lattice-evaluator': {
-    commands: [
-      {
-        claim: 'browser status/eval/click/type/console/refresh API via curl.',
-        snippets: [
-          'GET `{serveUrl}/browser/status`',
-          'POST `{serveUrl}/browser/eval`',
-          'POST `{serveUrl}/browser/click`',
-          'POST `{serveUrl}/browser/type`',
-          'GET `{serveUrl}/browser/console`',
-          'curl -X POST {serveUrl}/browser/refresh',
-          "Use the Bash tool's curl to call these APIs.",
-        ],
-      },
-    ],
-    directFileAccess: [
-      {
-        claim: 'Evaluates through browser API only; does not read source code or write story metadata.',
-        snippets: [
-          'Your job is not to look at code, but to use the application like a user.',
-          "Use the Bash tool's curl to call these APIs.",
-          '- Story operations must use Lattice CLI commands. Do not directly read or write',
-          '  story metadata under `docs/story/`, and do not write fixtures directly under',
-        ],
-      },
-    ],
-    outputs: [
-      {
-        claim: 'Evaluator JSON scores, itemResults, pass flag, and findings text.',
-        snippets: [
-          'You must output the following JSON (wrapped in ```json):',
-          '"scores": { "functionality": 4, "usability": 4 }',
-          '"pass": true',
-          '"itemResults": [',
-          '"findings": [',
-        ],
-      },
-    ],
-  },
-  'lattice-implementer': {
-    commands: [
-      {
-        claim: 'checklist_update',
-        snippets: ['`lattice checklist_update` (can only modify status / startTime / endTime)'],
-      },
-      {
-        claim: 'validate',
-        snippets: ['`lattice validate` (local validation)'],
-      },
-      {
-        claim: 'status',
-        snippets: ['`lattice status` / `lattice checklist_get` / `lattice story_get` (read-only queries)'],
-      },
-      {
-        claim: 'checklist_get',
-        snippets: ['`lattice status` / `lattice checklist_get` / `lattice story_get` (read-only queries)'],
-      },
-      {
-        claim: 'story_get',
-        snippets: ['`lattice status` / `lattice checklist_get` / `lattice story_get` (read-only queries)'],
-      },
-      {
-        claim: 'aux_doc_list',
-        snippets: ['`lattice aux_doc_list` / `lattice aux_scan` / `lattice aux_detail` (read-only queries)'],
-      },
-      {
-        claim: 'aux_scan',
-        snippets: ['`lattice aux_doc_list` / `lattice aux_scan` / `lattice aux_detail` (read-only queries)'],
-      },
-      {
-        claim: 'aux_detail.',
-        snippets: ['`lattice aux_doc_list` / `lattice aux_scan` / `lattice aux_detail` (read-only queries)'],
-      },
-    ],
-    directFileAccess: [
-      {
-        claim: 'Reads and edits source/docs in workspace; story metadata through Lattice CLI only.',
-        snippets: [
-          '- Write code / modify fixtures / run necessary local checks (lint, build, unit tests)',
-          '- ❌ Directly Read/Edit JSON files under `docs/story/`: all story changes go through the Lattice CLI',
-        ],
-      },
-    ],
-    outputs: [
-      {
-        claim: 'Code changes, commits, checklist status updates, and brief return summary.',
-        snippets: [
-          '- Write code / modify fixtures / run necessary local checks (lint, build, unit tests)',
-          '- After completion, call `lattice checklist_update',
-          '- Once all pending items are processed, return a brief summary and **stop**',
-          '- **commit as soon as you finish writing**:',
-        ],
-      },
-    ],
-  },
-  'lattice-review-behavior': {
-    commands: [
-      {
-        claim: 'checklist_get',
-        snippets: ['`lattice checklist_get \'{"storyId":"B-xxx"}\'` to retrieve all items'],
-      },
-      {
-        claim: 'review_run_start',
-        snippets: ['first call `lattice review_run_start {"storyId":"B-xxx","agent":"<reviewer-name>"}`'],
-      },
-      {
-        claim: 'finding_add',
-        snippets: ['**Every finding must be registered via `lattice finding_add`'],
-      },
-      {
-        claim: 'review_pass_set.',
-        snippets: ['you must call `lattice review_pass_set` to record the scope this reviewer has checked'],
-      },
-    ],
-    directFileAccess: [
-      {
-        claim: 'Reads git diff, checklist userSees, source files, candidate docs, and scope-plan artifacts; no direct story writes.',
-        snippets: [
-          'Find the corresponding code change in `git diff main...HEAD`',
-          'Read the userSees field (what the user should see)',
-          'Default inputs: the `lattice scope_check_save` result recorded by lattice-review-scope-plan',
-          '**candidateSpecSet docs under `<requirementsDir>/decisions/`**',
-          '- Only raise findings; do not modify code',
-          '- Story operations must use Lattice CLI commands. Do not directly read or write',
-        ],
-      },
-    ],
-    outputs: [
-      {
-        claim: 'Reviewer findings or pass.',
-        snippets: [
-          '**Every finding must be registered via `lattice finding_add`',
-          'When there are no findings, it is forbidden to use `finding_add` to fake a pass; you must call `lattice review_pass_set`',
-        ],
-      },
-    ],
-  },
-  'lattice-review-channel': {
-    commands: [
-      {
-        claim: 'checklist_get',
-        snippets: ['lattice checklist_get \'{"storyId":"B-xxx"}\''],
-      },
-      {
-        claim: 'story_get',
-        snippets: ['lattice story_get \'{"storyId":"B-xxx"}\''],
-      },
-      {
-        claim: 'grep process-events',
-        snippets: ['grep \'"type":"dispatch"\' docs/story/actives/B-xxx/process-events.jsonl'],
-      },
-      {
-        claim: 'review_run_start',
-        snippets: ['`lattice review_run_start {"storyId":"B-xxx","agent":"<reviewer-name>"}`'],
-      },
-      {
-        claim: 'finding_add',
-        snippets: ['lattice finding_add \'{"storyId":"B-xxx","reviewRunId":"<reviewRunId from review_run_start>"'],
-      },
-      {
-        claim: 'review_pass_set.',
-        snippets: ['lattice review_pass_set \'{"storyId":"B-xxx","reviewRunId":"<reviewRunId from review_run_start>"'],
-      },
-    ],
-    directFileAccess: [
-      {
-        claim: 'Legacy direct read of docs/story process-events evidence.',
-        snippets: [
-          'The truly reliable evidence source is the `dispatch` / `subagent_result` events in **`docs/story/actives/<storyId>/process-events.jsonl`**',
-          'grep \'"type":"dispatch"\' docs/story/actives/B-xxx/process-events.jsonl',
-          'The full text of `docs/story/actives/<storyId>/process-events.jsonl` (dispatch evidence source)',
-        ],
-      },
-    ],
-    outputs: [
-      {
-        claim: 'Reviewer findings or pass.',
-        snippets: [
-          '# Normal channel + all CHKs have dispatch evidence',
-          '# Normal channel + some CHKs missing dispatch',
-          'lattice review_pass_set \'{"storyId":"B-xxx"',
-          'lattice finding_add \'{"storyId":"B-xxx"',
-        ],
-      },
-    ],
-  },
-  'lattice-review-concept': {
-    commands: [
-      {
-        claim: 'git diff',
-        snippets: ['`git diff main...HEAD --stat` to see which files changed'],
-      },
-      {
-        claim: 'grep',
-        snippets: ['For each identified concept word, grep the entire repository'],
-      },
-      {
-        claim: 'review_run_start',
-        snippets: ['first call `lattice review_run_start {"storyId":"B-xxx","agent":"<reviewer-name>"}`'],
-      },
-      {
-        claim: 'finding_add',
-        snippets: ['lattice finding_add \'{"storyId":"B-xxx","reviewRunId":"<reviewRunId from review_run_start>"'],
-      },
-      {
-        claim: 'review_pass_set.',
-        snippets: ['call `lattice review_pass_set \'{"storyId":"B-xxx"'],
-      },
-    ],
-    directFileAccess: [
-      {
-        claim: 'Reads diff/source/docs references; reviewer evidence through Lattice CLI.',
-        snippets: [
-          '`git diff main...HEAD` to see specific changes',
-          'grep the entire repository (excluding node_modules / dist / .git)',
-          '- Only grep, do not modify code',
-          'Every finding must be registered via `lattice finding_add`',
-        ],
-      },
-    ],
-    outputs: [
-      {
-        claim: 'Reviewer findings or pass.',
-        snippets: [
-          'grep result > 0 → file a finding:',
-          'No concept deletion/replacement → forbidden to use `finding_add` to record pass-only; call `lattice review_pass_set',
-        ],
-      },
-    ],
-  },
-  'lattice-review-delivery': {
-    commands: [
-      {
-        claim: 'delivery_check_set.',
-        snippets: ['lattice delivery_check_set \'{"storyId":"B-xxx"'],
-      },
-    ],
-    directFileAccess: [
-      {
-        claim: 'Reads git diff and repository files; explicitly avoids process-events, reviewer outputs, and test-evidence contents.',
-        snippets: [
-          '`git diff main...HEAD` output (you run this yourself)',
-          'Files in the repository reachable via Read/Grep/Glob',
-          '`story.events` / `process-events.jsonl`',
-          'Other reviewer findings or results',
-          '`test-evidence.json` contents',
-        ],
-      },
-    ],
-    outputs: [
-      {
-        claim: 'Signed delivery-check.json via delivery_check_set, or refusal text.',
-        snippets: [
-          'Your output is a structured `delivery_check_set` call that writes a signed `delivery-check.json`.',
-          'Refusing to call delivery_check_set: <reason>. Main agent must fix delivery gaps and re-spawn this reviewer.',
-        ],
-      },
-    ],
-  },
-  'lattice-review-docs': {
-    commands: [
-      {
-        claim: 'git diff',
-        snippets: ['git diff main...HEAD \\'],
-      },
-      {
-        claim: 'grep',
-        snippets: ['grep -rn --include=\'README*.md\' --include=\'CLAUDE.md\' --include=\'docs/**/*.md\''],
-      },
-      {
-        claim: 'review_run_start',
-        snippets: ['`lattice review_run_start {"storyId":"B-xxx","agent":"<reviewer-name>"}`'],
-      },
-      {
-        claim: 'finding_add',
-        snippets: ['register a finding with `lattice finding_add`'],
-      },
-      {
-        claim: 'review_pass_set.',
-        snippets: ['you must call `lattice review_pass_set'],
-      },
-    ],
-    directFileAccess: [
-      {
-        claim: 'Reads changed docs/source; reviewer evidence through Lattice CLI.',
-        snippets: [
-          'check whether the docs (README*.md / CLAUDE.md / docs/\\*\\*/\\*.md) and the code (exported symbols changed in git diff main...HEAD) are consistent.',
-          'Read the paragraphs collected in Step 2 + the new definitions of the corresponding symbols in the diff',
-          '- Only read files for comparison; do not modify any files',
-          'Every finding must be registered with `lattice finding_add`',
-          'you must call `lattice review_pass_set',
-        ],
-      },
-    ],
-    outputs: [
-      {
-        claim: 'Reviewer findings or pass.',
-        snippets: [
-          'After the review ends, if inconsistencies are found, confirm that all issues have been registered via `lattice finding_add`',
-          'When there are no inconsistencies, it is forbidden to use the finding command to record pass-only',
-        ],
-      },
-    ],
-  },
-  'lattice-review-quality': {
-    commands: [
-      {
-        claim: 'git diff',
-        snippets: ['`git diff main...HEAD --name-only` to get the list of changed files'],
-      },
-      {
-        claim: 'review_run_start',
-        snippets: ['first call `lattice review_run_start {"storyId":"B-xxx","agent":"<reviewer-name>"}`'],
-      },
-      {
-        claim: 'finding_add',
-        snippets: ['lattice finding_add \'{"storyId":"B-xxx","reviewRunId":"<reviewRunId from review_run_start>"'],
-      },
-      {
-        claim: 'review_pass_set.',
-        snippets: ['you must call `lattice review_pass_set` to record the scope this reviewer has checked'],
-      },
-    ],
-    directFileAccess: [
-      {
-        claim: 'Reads source/tests/proof metadata; reviewer evidence through Lattice CLI.',
-        snippets: [
-          'Only review changed files (don\'t review unchanged ones)',
-          '### 4. Proof Metadata Review Coverage (narrow correctness rule)',
-          'Every finding must be registered via `lattice finding_add`',
-          'you must call `lattice review_pass_set`',
-        ],
-      },
-    ],
-    outputs: [
-      {
-        claim: 'Reviewer findings or pass.',
-        snippets: [
-          'After the review ends, confirm that all discovered issues have been registered via `lattice finding_add`',
-          'When there are no findings, do not use `finding_add` to fake a pass; you must call `lattice review_pass_set`',
-        ],
-      },
-    ],
-  },
-  'lattice-review-scope-plan': {
-    commands: [
-      {
-        claim: 'config',
-        snippets: ['lattice config 2>/dev/null'],
-      },
-      {
-        claim: 'dev_memory_preflight',
-        snippets: ['`lattice dev_memory_preflight`'],
-      },
-      {
-        claim: 'dev_memory_search',
-        snippets: ['`lattice dev_memory_search --query="<story keywords>"`'],
-      },
-      {
-        claim: 'aux_doc_list',
-        snippets: ['`lattice aux_doc_list` output'],
-      },
-      {
-        claim: 'story_get',
-        snippets: ['lattice story_get \'{"storyId":"B-xxx"}\''],
-      },
-      {
-        claim: 'checklist_get',
-        snippets: ['lattice checklist_get \'{"storyId":"B-xxx"}\''],
-      },
-      {
-        claim: 'scope_check_save.',
-        snippets: ['lattice scope_check_save \'{"storyId":"B-xxx"'],
-      },
-    ],
-    directFileAccess: [
-      {
-        claim: 'Reads candidate docs and CLI-provided story/checklist context; scope evidence through Lattice CLI.',
-        snippets: [
-          '**Build the candidateSpecSet** from ALL of these sources:',
-          'lattice story_get \'{"storyId":"B-xxx"}\'',
-          'lattice checklist_get \'{"storyId":"B-xxx"}\'',
-          'lattice scope_check_save \'{"storyId":"B-xxx"',
-        ],
-      },
-    ],
-    outputs: [
-      {
-        claim: 'scope_check_save artifact.',
-        snippets: ['You must call `lattice scope_check_save` to persist the result'],
-      },
-    ],
-  },
-  'lattice-review-story-init': {
-    commands: [
-      {
-        claim: 'init_check_set.',
-        snippets: ['lattice init_check_set \'{"storyId":"B-xxx"'],
-      },
-    ],
-    directFileAccess: [
-      {
-        claim: 'Grandfathered direct docs/story reads and init-self-check file write wording.',
-        snippets: [
-          '`docs/story/actives/<storyId>/background.md` (full text)',
-          '`docs/story/actives/<storyId>/index.json` — read only',
-          '`docs/story/actives/<storyId>/checklist.json` — read only',
-          'echo \'{"question":"Did you read CLAUDE.md?',
-          'Then use the Edit tool to fill in the `answer` field completely',
-        ],
-      },
-    ],
-    outputs: [
-      {
-        claim: 'init_check_set issues/pass plus init-self-check audit file wording.',
-        snippets: [
-          'The output must call `lattice init_check_set`; text-only output without the save call is incomplete',
-          'echo \'{"question":"Did you read CLAUDE.md?',
-          'Then use the Edit tool to fill in the `answer` field completely',
-        ],
-      },
-    ],
-  },
-  'lattice-review-test-coverage': {
-    commands: [
-      {
-        claim: 'story_get',
-        snippets: ['lattice story_get \'{"storyId":"<ID>","detail":true}\''],
-      },
-      {
-        claim: 'checklist_get',
-        snippets: ['lattice checklist_get \'{"storyId":"<ID>"}\''],
-      },
-      {
-        claim: 'validate',
-        snippets: ['lattice validate \'{"story":"<ID>","json":true}\''],
-      },
-      {
-        claim: 'review_run_start',
-        snippets: ['`lattice review_run_start {"storyId":"B-xxx","agent":"<reviewer-name>"}`'],
-      },
-      {
-        claim: 'finding_add',
-        snippets: ['write a finding with `lattice finding_add`'],
-      },
-      {
-        claim: 'review_pass_set.',
-        snippets: ['you must call `lattice review_pass_set'],
-      },
-    ],
-    directFileAccess: [
-      {
-        claim: 'Reads checklist/evidence through Lattice CLI; reviewer evidence through Lattice CLI.',
-        snippets: [
-          'lattice story_get \'{"storyId":"<ID>","detail":true}\'',
-          'lattice checklist_get \'{"storyId":"<ID>"}\'',
-          'lattice validate \'{"story":"<ID>","json":true}\'',
-          'write a finding with `lattice finding_add`',
-          'you must call `lattice review_pass_set',
-        ],
-      },
-    ],
-    outputs: [
-      {
-        claim: 'Reviewer findings or pass.',
-        snippets: [
-          'List of finding ids that were written.',
-          'If there are no findings, you must call `lattice review_pass_set',
-        ],
-      },
-    ],
-  },
-  'product-reviewer': {
-    commands: [
-      {
-        claim: 'init_check_set when asked to perform INIT compatibility review',
-        snippets: [
-          'If the main agent asks you to take on INIT review or to judge whether INIT can advance',
-          'lattice init_check_set \'{"storyId":"<STORY_ID>","issues":[...],"agentId":"product-reviewer"}\'',
-        ],
-      },
-      {
-        claim: 'otherwise none.',
-        snippets: [
-          'If the main agent asks you to take on INIT review or to judge whether INIT can advance',
-          'Return concisely:',
-        ],
-      },
-    ],
-    directFileAccess: [
-      {
-        claim: 'Reads transcript/product context and optional transcript diff; no code, test, or story metadata writes.',
-        snippets: [
-          '- `understanding.outcome`',
-          '- `summary` / output from the `story_advance DONE` phase',
-          '- If available, `docs/story/actives/<storyId>/evidence/transcript-diff.md`',
-          '- Not modifying code, tests, or testIntent',
-        ],
-      },
-    ],
-    outputs: [
-      {
-        claim: 'Text product review or product-reviewer init_check_set record.',
-        snippets: [
-          'lattice init_check_set \'{"storyId":"<STORY_ID>","issues":[...],"agentId":"product-reviewer"}\'',
-          'Conclusion: pass / fail',
-        ],
-      },
-    ],
-  },
-  'test-case-reviewer': {
-    commands: [
-      {
-        claim: 'checklist_get',
-        snippets: ['lattice checklist_get \'{"storyId":"<STORY_ID>"}\''],
-      },
-      {
-        claim: 'testintent_check',
-        snippets: ['lattice testintent_check \'{"storyId":"<STORY_ID>"}\''],
-      },
-      {
-        claim: 'testintent_record.',
-        snippets: ['lattice testintent_record \'{"storyId":"<STORY_ID>"'],
-      },
-    ],
-    directFileAccess: [
-      {
-        claim: 'Legacy direct fixture JSON reads; writes only through testintent_record.',
-        snippets: [
-          '**read fixture JSON files directly**',
-          'For each testIntent, call the CLI to record the review result:',
-          '- **Do not directly edit** JSON files; you must go through the Lattice CLI',
-        ],
-      },
-    ],
-    outputs: [
-      {
-        claim: 'testintent_record results and testintent_check status.',
-        snippets: [
-          'For each testIntent, call the CLI to record the review result:',
-          'Final step: call testintent_check to get the status and guidance',
-          'Review summary: X passed / Y failed / Z total',
-        ],
-      },
-    ],
-  },
-  'test-intent': {
-    commands: [
-      {
-        claim: 'story_get',
-        snippets: ['lattice story_get \'{"storyId":"<ID>"}\''],
-      },
-      {
-        claim: 'checklist_update.',
-        snippets: ['lattice checklist_update \'{"storyId":"<ID>","itemId":"<ITEM_ID>","testIntent":null,"agent":"test-intent"}\''],
-      },
-    ],
-    directFileAccess: [
-      {
-        claim: 'Reads story/checklist through Lattice CLI; writes legacy checklist updates through Lattice CLI.',
-        snippets: [
-          'Read the story description (`lattice story_get',
-          'checklist contents (each item\'s `id`, `title`, `context`)',
-          'lattice checklist_update \'{"storyId":"<ID>"',
-          '- **Do not directly edit** JSON files — must go through the Lattice CLI',
-        ],
-      },
-    ],
-    outputs: [
-      {
-        claim: 'Legacy testIntent or null intent updates.',
-        snippets: [
-          'mark `testIntent: null` with a reason',
-          'For testable items, write a three-column testIntent:',
-          'how many testIntent entries you wrote for each item',
-        ],
-      },
-    ],
-  },
-};
-
-const ROLE_MATRIX_EVIDENCE_MUTATION_PROBES = [
-  {
-    name: 'refreshed baseline rejects unsupported behavior command',
-    role: 'lattice-review-behavior',
-    field: 'commands',
-    injectedClaim: 'scope_check_save',
-  },
-];
-
 const DIRECT_STORY_CLASSIFIER_PROBES = [
   {
     name: 'negative direct read/write policy reminder',
@@ -917,6 +275,41 @@ const DIRECT_STORY_CLASSIFIER_PROBES = [
     role: 'lattice-implementer',
     excerpt: '- Directly Read/Edit JSON files under `docs/story/`: all story changes go through the Lattice CLI',
     classification: 'policy-reminder',
+    grandfathered: false,
+  },
+  {
+    name: 'mixed negative reminder and positive write instruction',
+    role: 'lattice-review-docs',
+    excerpt: 'Do not directly edit docs/story metadata; however, use Edit to update docs/story/actives/B-1234/index.json.',
+    classification: 'direct-write',
+    grandfathered: false,
+  },
+  {
+    name: 'apply_patch command targeting story metadata',
+    role: 'lattice-review-docs',
+    excerpt: "apply_patch <<'PATCH' # target docs/story/actives/B-1234/index.json",
+    classification: 'direct-write',
+    grandfathered: false,
+  },
+  {
+    name: 'apply_patch add file header',
+    role: 'lattice-review-docs',
+    excerpt: '*** Add File: docs/story/actives/B-1234/new.json',
+    classification: 'direct-write',
+    grandfathered: false,
+  },
+  {
+    name: 'apply_patch update file header',
+    role: 'lattice-review-docs',
+    excerpt: '*** Update File: docs/story/actives/B-1234/index.json',
+    classification: 'direct-write',
+    grandfathered: false,
+  },
+  {
+    name: 'apply_patch delete file header',
+    role: 'lattice-review-docs',
+    excerpt: '*** Delete File: docs/story/actives/B-1234/obsolete.json',
+    classification: 'direct-write',
     grandfathered: false,
   },
   {
@@ -962,6 +355,14 @@ const DIRECT_STORY_CLASSIFIER_PROBES = [
     grandfathered: false,
   },
   {
+    name: 'unknown mutation mechanism fails closed',
+    role: 'lattice-review-docs',
+    excerpt: 'Mutate docs/story/actives/B-1234/index.json with the project-specific metadata transformer.',
+    classification: 'unclassified-actionable',
+    grandfathered: false,
+    rejectsBaselineRefresh: true,
+  },
+  {
     name: 'read-only story reference',
     role: 'lattice-review-story-init',
     excerpt: '`docs/story/actives/<storyId>/index.json` — read only the `title` field.',
@@ -981,10 +382,6 @@ function toRepoPath(path) {
 function countLines(text) {
   if (text.length === 0) return 0;
   return text.split(/\r?\n/).length;
-}
-
-function lineNumberAt(text, index) {
-  return text.slice(0, index).split(/\r?\n/).length;
 }
 
 function normalizeCliPrint(stdout) {
@@ -1039,18 +436,25 @@ function classifyLegacyFinding(role, term) {
 
 function classifyStoryFinding(role, excerpt) {
   const lower = excerpt.toLowerCase();
-  if (isNegativeStoryPolicyReminder(lower)) {
+  if (isDirectStoryWriteInstruction(excerpt)) {
+    return {
+      classification: 'direct-write',
+      grandfathered: role === 'lattice-review-story-init',
+      note: 'Registered direct story-file write instruction to replace with CLI-mediated writes in later milestones.',
+    };
+  }
+  if (isNegativeStoryPolicyReminder(excerpt)) {
     return {
       classification: 'policy-reminder',
       grandfathered: false,
       note: 'Prompt reminds agents not to bypass CLI-mediated story operations.',
     };
   }
-  if (isDirectStoryWriteInstruction(excerpt)) {
+  if (hasActionableStoryMutationSignal(excerpt)) {
     return {
-      classification: 'direct-write',
-      grandfathered: role === 'lattice-review-story-init',
-      note: 'Registered direct story-file write instruction to replace with CLI-mediated writes in later milestones.',
+      classification: 'unclassified-actionable',
+      grandfathered: false,
+      note: 'Actionable story-file mutation was not recognized by the direct-write classifier; baseline refresh must stop.',
     };
   }
   if (lower.includes('process-events.jsonl') || lower.includes('dispatch evidence source')) {
@@ -1084,27 +488,60 @@ function classifyStoryFinding(role, excerpt) {
   };
 }
 
-function isNegativeStoryPolicyReminder(lower) {
+function splitStoryActionClauses(excerpt) {
+  return excerpt
+    .split(/\r?\n|;|(?<=[.!?])\s+|,\s*(?:but|however|then)\s+|\s+(?:but|however)\s+/i)
+    .map(clause => clause.trim())
+    .filter(Boolean);
+}
+
+function isNegativeStoryPolicyClause(clause) {
+  const lower = clause.toLowerCase();
+  if (lower.includes('all story changes go through')) return true;
+  if (lower.includes('story metadata under') && lower.includes('do not write fixtures')) return true;
+  return /\b(?:do not|don't|must not|never|forbidden|prohibited|avoid)\b[\s\S]*\b(?:read|write|edit|modify|mutate|patch|create|update|delete|remove|replace|append|overwrite|apply_patch)\b/i.test(clause);
+}
+
+function isNegativeStoryPolicyReminder(excerpt) {
+  return splitStoryActionClauses(excerpt).some(isNegativeStoryPolicyClause);
+}
+
+function hasRecognizedStoryWriteAction(clause) {
   return (
-    lower.includes('do not directly read or write') ||
-    lower.includes('do not directly read/edit') ||
-    lower.includes('must not directly read or write') ||
-    lower.includes('must not directly read/edit') ||
-    lower.includes('all story changes go through') ||
-    (lower.includes('story metadata under') && lower.includes('do not write fixtures'))
+    /^\s*\*{3}\s+(?:add|update|delete)\s+file\s*:/i.test(clause) ||
+    /\bapply_patch\b/i.test(clause) ||
+    /\bdirectly\s+read\s*\/\s*edit\b/i.test(clause) ||
+    /\b(?:use|using|run|invoke|call)\s+(?:the\s+)?(?:edit|write)\b/i.test(clause) ||
+    /\b(?:edit|write|create|update|delete|remove|append|overwrite|replace)\b[\s\S]*docs\/story/i.test(clause) ||
+    /docs\/story[\s\S]*\b(?:edit|write|create|update|delete|remove|append|overwrite|replace)\b/i.test(clause) ||
+    /\b(?:tee|sed\s+-i|perl\s+-i)\b[\s\S]*docs\/story/i.test(clause) ||
+    /\b(?:echo|printf|cat)\b[\s\S]*(?:>|>>)\s*docs\/story/i.test(clause) ||
+    /\b(?:echo|printf)\b[\s\S]*\|\s*tee\b[\s\S]*docs\/story/i.test(clause) ||
+    /(?:^|\s)(?:>|>>)\s*docs\/story/i.test(clause)
   );
 }
 
 function isDirectStoryWriteInstruction(excerpt) {
   if (!/docs\/story/i.test(excerpt)) return false;
-  return (
-    /\bdirectly\s+read\/edit\b[\s\S]*docs\/story/i.test(excerpt) ||
-    /\b(?:edit|write)\b[\s\S]*docs\/story/i.test(excerpt) ||
-    /docs\/story[\s\S]*\b(?:edit|write)\b/i.test(excerpt) ||
-    /\b(?:tee|sed\s+-i|perl\s+-i)\b[\s\S]*docs\/story/i.test(excerpt) ||
-    /\b(?:echo|printf|cat)\b[\s\S]*(?:>|>>)\s*docs\/story/i.test(excerpt) ||
-    /\b(?:echo|printf)\b[\s\S]*\|\s*tee\b[\s\S]*docs\/story/i.test(excerpt) ||
-    /(?:^|\s)(?:>|>>)\s*docs\/story/i.test(excerpt)
+  return splitStoryActionClauses(excerpt).some(
+    clause => !isNegativeStoryPolicyClause(clause) && hasRecognizedStoryWriteAction(clause),
+  );
+}
+
+function hasActionableStoryMutationSignal(excerpt) {
+  if (!/docs\/story/i.test(excerpt)) return false;
+  return splitStoryActionClauses(excerpt).some(
+    clause => {
+      if (isNegativeStoryPolicyClause(clause)) return false;
+      const mutationVerb = /\b(?:add|append|create|delete|edit|modify|mutate|overwrite|patch|remove|replace|save|update|write)\b/i;
+      const directive = /^\s*(?:[-*]\s*)?(?:(?:please|then)\s+|you\s+(?:must|should|can|may)\s+|(?:must|should)\s+)?(?:add|append|create|delete|edit|modify|mutate|overwrite|patch|remove|replace|save|update|write)\b/i;
+      return (
+        (/docs\/story/i.test(clause) && mutationVerb.test(clause)) ||
+        directive.test(clause) ||
+        /\b(?:apply_patch|tee|sed\s+-i|perl\s+-i)\b/i.test(clause) ||
+        /(?:^|\s)(?:>|>>)(?:\s|$)/.test(clause)
+      );
+    },
   );
 }
 
@@ -1215,7 +652,8 @@ async function collectCurrentBaseline() {
     if (!matrix) throw new Error(`missing matrix defaults for role ${entry.role}`);
     return { role: entry.role, ...matrix };
   });
-  const roleMatrixEvidence = roleEntries.map(entry => buildRoleMatrixEvidence(entry, roleMatrix));
+  const directStoryFindings = scanStoryFileReferences(roleEntries);
+  assertNoUnclassifiedActionableStoryReferences(directStoryFindings);
 
   return {
     schemaVersion: SCHEMA_VERSION,
@@ -1236,7 +674,7 @@ async function collectCurrentBaseline() {
       outputs: agentPromptOutputs,
     },
     roleMatrix,
-    roleMatrixEvidence,
+    roleMatrixAudit: buildRoleMatrixAudit(roleEntries),
     legacyVocabulary: {
       patterns: LEGACY_PATTERNS.map(pattern => pattern.term),
       findings: scanLegacyVocabulary(roleEntries),
@@ -1248,160 +686,32 @@ async function collectCurrentBaseline() {
         'process-event-evidence-reference',
         'direct-read',
         'direct-write',
+        'unclassified-actionable',
         'other',
       ],
-      findings: scanStoryFileReferences(roleEntries),
+      findings: directStoryFindings,
     },
   };
 }
 
-function buildRoleMatrixEvidence(entry, roleMatrix) {
-  const evidence = ROLE_MATRIX_SOURCE_EVIDENCE[entry.role];
-  if (!evidence) throw new Error(`missing role matrix source evidence for role ${entry.role}`);
-  const row = roleMatrix.find(candidate => candidate.role === entry.role);
-  if (!row) throw new Error(`missing role matrix row for source evidence ${entry.role}`);
-
-  const fields = SOURCE_BACKED_ROLE_MATRIX_FIELDS.map(field => {
-    const sourceClaims = evidence[field];
-    const claimFailures = [];
-    verifyRoleMatrixClaimCoverage(
-      entry.role,
-      field,
-      row[field],
-      sourceClaims,
-      `source claim ledger ${entry.role}.${field}`,
-      claimFailures,
-    );
-    if (claimFailures.length > 0) {
-      throw new Error(`invalid role matrix source evidence:\n- ${claimFailures.join('\n- ')}`);
-    }
-
-    const sourceClaimsByNormalized = new Map(
-      sourceClaims.map(sourceClaim => [normalizeRoleMatrixClaim(sourceClaim.claim), sourceClaim]),
-    );
-    const orderedClaims = extractRoleMatrixClaimTexts(field, row[field]).map(rowClaim => {
-      const sourceClaim = sourceClaimsByNormalized.get(normalizeRoleMatrixClaim(rowClaim));
-      return {
-        claim: sourceClaim.claim,
-        normalizedClaim: normalizeRoleMatrixClaim(sourceClaim.claim),
-        snippets: sourceClaim.snippets.map(snippet => locatePromptSnippet(entry, field, snippet)),
-      };
-    });
-
-    return {
-      field,
-      value: row[field],
-      claimMode: field === 'commands' ? 'semicolon-delimited' : 'whole-field',
-      claims: orderedClaims,
-    };
-  });
-
+function buildRoleMatrixAudit(roleEntries) {
   return {
-    role: entry.role,
-    relPath: entry.relPath,
-    fields,
-  };
-}
-
-function extractRoleMatrixClaimTexts(field, value) {
-  if (typeof value !== 'string') return [];
-  return (field === 'commands' ? value.split(';') : [value]).map(claim => claim.trim());
-}
-
-function normalizeRoleMatrixClaim(claim) {
-  return String(claim)
-    .trim()
-    .replace(/\s+/g, ' ')
-    .replace(/[.!?]+$/, '')
-    .toLowerCase();
-}
-
-function verifyRoleMatrixClaimCoverage(role, field, value, claimRecords, label, failures) {
-  const rowClaims = extractRoleMatrixClaimTexts(field, value);
-  if (rowClaims.length === 0 || rowClaims.some(claim => claim.length === 0)) {
-    failures.push(`${label}: matrix field has an empty claim`);
-    return;
-  }
-  if (!Array.isArray(claimRecords)) {
-    failures.push(`${label}: claims must be an array`);
-    return;
-  }
-
-  const rowClaimsByNormalized = new Map();
-  for (const claim of rowClaims) {
-    const normalized = normalizeRoleMatrixClaim(claim);
-    if (!normalized) {
-      failures.push(`${label}: matrix field has an empty normalized claim`);
-      continue;
-    }
-    if (rowClaimsByNormalized.has(normalized)) {
-      failures.push(`${label}: duplicate matrix claim ${JSON.stringify(normalized)}`);
-      continue;
-    }
-    rowClaimsByNormalized.set(normalized, claim);
-  }
-
-  const evidenceClaimsByNormalized = new Map();
-  for (let index = 0; index < claimRecords.length; index += 1) {
-    const record = claimRecords[index];
-    if (!record || typeof record.claim !== 'string' || record.claim.trim().length === 0) {
-      failures.push(`${label}.claims[${index}]: missing or empty claim`);
-      continue;
-    }
-    const normalized = normalizeRoleMatrixClaim(record.claim);
-    if (evidenceClaimsByNormalized.has(normalized)) {
-      failures.push(`${label}: duplicate evidence claim ${JSON.stringify(normalized)}`);
-      continue;
-    }
-    evidenceClaimsByNormalized.set(normalized, record);
-
-    if (!Array.isArray(record.snippets) || record.snippets.length === 0) {
-      failures.push(`${label} claim ${JSON.stringify(record.claim)}: missing supporting snippets`);
-      continue;
-    }
-    for (let snippetIndex = 0; snippetIndex < record.snippets.length; snippetIndex += 1) {
-      const snippet = record.snippets[snippetIndex];
-      const snippetText = typeof snippet === 'string' ? snippet : snippet?.text;
-      if (typeof snippetText !== 'string' || snippetText.length === 0) {
-        failures.push(
-          `${label} claim ${JSON.stringify(record.claim)}.snippets[${snippetIndex}]: missing text`,
-        );
-      }
-    }
-  }
-
-  for (const [normalized, claim] of rowClaimsByNormalized) {
-    if (!evidenceClaimsByNormalized.has(normalized)) {
-      failures.push(`${label}: missing source evidence mapping for claim ${JSON.stringify(claim)}`);
-    }
-  }
-  for (const [normalized, record] of evidenceClaimsByNormalized) {
-    if (!rowClaimsByNormalized.has(normalized)) {
-      failures.push(`${label}: extra source evidence mapping for claim ${JSON.stringify(record.claim)}`);
-    }
-  }
-
-  if (field !== 'commands') {
-    requireEqual(claimRecords.length, 1, `${label}.whole-field claim count`, failures);
-    if (claimRecords.length === 1) {
-      requireEqual(claimRecords[0].claim, value, `${label}.whole-field exact claim`, failures);
-    }
-  }
-}
-
-function locatePromptSnippet(entry, field, snippet) {
-  const index = entry.content.indexOf(snippet);
-  if (index === -1) {
-    throw new Error(`source evidence snippet not found for ${entry.role}.${field}: ${JSON.stringify(snippet)}`);
-  }
-  return {
-    line: lineNumberAt(entry.content, index),
-    sha256: sha256(snippet),
-    text: snippet,
+    machineChecks: [...ROLE_MATRIX_MACHINE_CHECKS],
+    reviewerAuditedFields: [...REVIEWER_AUDITED_ROLE_MATRIX_FIELDS],
+    semanticBoundary: ROLE_MATRIX_SEMANTIC_BOUNDARY,
+    sourceAuditAnchors: {
+      purpose: ROLE_MATRIX_SOURCE_ANCHOR_PURPOSE,
+      roles: roleEntries.map(entry => ({
+        role: entry.role,
+        relPath: entry.relPath,
+        templateHash: entry.templateHash,
+      })),
+    },
   };
 }
 
 function renderMatrixMarkdown(baseline) {
+  const audit = baseline.roleMatrixAudit;
   const rows = baseline.roleMatrix.map(row => [
     row.role,
     row.status,
@@ -1422,6 +732,13 @@ function renderMatrixMarkdown(baseline) {
     `Source plan: \`${baseline.sourcePlan}\``,
     `Registry material hash: \`${baseline.registry.materialHash}\``,
     `Role count: ${baseline.registry.agentCount}`,
+    '',
+    '## Audit Boundary',
+    '',
+    `- Machine-checked: ${audit.machineChecks.join(' ')}`,
+    `- Reviewer-audited fields: ${audit.reviewerAuditedFields.map(field => `\`${field}\``).join(', ')}.`,
+    `- Semantic limit: ${audit.semanticBoundary}`,
+    `- Source audit anchors: ${audit.sourceAuditAnchors.purpose}`,
     '',
     '| Role | Status | Phase | Purpose | Commands | Direct file access | Inputs | Outputs | Capabilities | Overlap category | Notes |',
     '|---|---|---|---|---|---|---|---|---|---|---|',
@@ -1582,173 +899,66 @@ function verifyMatrix(current, baseline, failures) {
   requireSameContent(actualMarkdown, expectedMarkdown, `overlap matrix markdown ${toRepoPath(MATRIX_PATH)}`, failures);
 }
 
-function verifyRoleMatrixSourceEvidence(current, baseline, failures) {
-  const currentRows = mapBy(
-    Array.isArray(current.roleMatrix) ? current.roleMatrix : [],
-    row => row.role,
-    'current matrix role for source evidence',
+function verifyRoleMatrixAudit(current, baseline, failures) {
+  verifyRoleMatrixAuditSnapshot(current.roleMatrixAudit, current.registry.roles, 'current roleMatrixAudit', failures);
+  verifyRoleMatrixAuditSnapshot(baseline.roleMatrixAudit, baseline.registry.roles, 'baseline roleMatrixAudit', failures);
+  requireSameContent(
+    JSON.stringify(current.roleMatrixAudit, null, 2),
+    JSON.stringify(baseline.roleMatrixAudit, null, 2),
+    'roleMatrixAudit snapshot',
     failures,
   );
-  const baselineRows = mapBy(
-    Array.isArray(baseline.roleMatrix) ? baseline.roleMatrix : [],
-    row => row.role,
-    'baseline matrix role for source evidence',
+}
+
+function verifyRoleMatrixAuditSnapshot(audit, registryRoles, label, failures) {
+  if (!audit || typeof audit !== 'object' || Array.isArray(audit)) {
+    failures.push(`${label}: missing or not an object`);
+    return;
+  }
+  requireSameContent(
+    JSON.stringify(audit.machineChecks),
+    JSON.stringify(ROLE_MATRIX_MACHINE_CHECKS),
+    `${label}.machineChecks`,
     failures,
   );
-  const currentEvidence = mapBy(
-    Array.isArray(current.roleMatrixEvidence) ? current.roleMatrixEvidence : [],
-    entry => entry.role,
-    'current matrix source evidence',
+  requireSameContent(
+    JSON.stringify(audit.reviewerAuditedFields),
+    JSON.stringify(REVIEWER_AUDITED_ROLE_MATRIX_FIELDS),
+    `${label}.reviewerAuditedFields`,
     failures,
   );
-  const baselineEvidence = mapBy(
-    Array.isArray(baseline.roleMatrixEvidence) ? baseline.roleMatrixEvidence : [],
-    entry => entry.role,
-    'baseline matrix source evidence',
+  requireEqual(audit.semanticBoundary, ROLE_MATRIX_SEMANTIC_BOUNDARY, `${label}.semanticBoundary`, failures);
+  requireEqual(
+    audit.sourceAuditAnchors?.purpose,
+    ROLE_MATRIX_SOURCE_ANCHOR_PURPOSE,
+    `${label}.sourceAuditAnchors.purpose`,
     failures,
   );
 
-  requireEqual(currentEvidence.size, EXPECTED_ROLE_COUNT, 'current matrix source evidence role count', failures);
-  requireEqual(baselineEvidence.size, EXPECTED_ROLE_COUNT, 'baseline matrix source evidence role count', failures);
-
-  for (const [role, currentEntry] of currentEvidence) {
-    const baselineEntry = baselineEvidence.get(role);
-    const currentRow = currentRows.get(role);
-    const baselineRow = baselineRows.get(role);
-    if (!baselineEntry) {
-      failures.push(`baseline matrix source evidence missing role ${role}`);
+  const anchors = mapBy(
+    Array.isArray(audit.sourceAuditAnchors?.roles) ? audit.sourceAuditAnchors.roles : [],
+    anchor => anchor.role,
+    `${label} source audit anchor`,
+    failures,
+  );
+  const roles = mapBy(registryRoles ?? [], role => role.role, `${label} registry role`, failures);
+  requireEqual(anchors.size, EXPECTED_ROLE_COUNT, `${label} source audit anchor count`, failures);
+  for (const [role, registryRole] of roles) {
+    const anchor = anchors.get(role);
+    if (!anchor) {
+      failures.push(`${label}: missing source audit anchor for ${role}`);
       continue;
     }
-    if (!currentRow || !baselineRow) continue;
-    requireEqual(currentEntry.relPath, baselineEntry.relPath, `roleMatrixEvidence ${role}.relPath`, failures);
-
-    const currentFields = mapBy(currentEntry.fields ?? [], field => field.field, `current matrix source evidence field ${role}`, failures);
-    const baselineFields = mapBy(baselineEntry.fields ?? [], field => field.field, `baseline matrix source evidence field ${role}`, failures);
-    requireEqual(
-      currentFields.size,
-      SOURCE_BACKED_ROLE_MATRIX_FIELDS.length,
-      `current roleMatrixEvidence ${role}.field count`,
-      failures,
-    );
-    requireEqual(
-      baselineFields.size,
-      SOURCE_BACKED_ROLE_MATRIX_FIELDS.length,
-      `baseline roleMatrixEvidence ${role}.field count`,
-      failures,
-    );
-    for (const field of currentFields.keys()) {
-      if (!SOURCE_BACKED_ROLE_MATRIX_FIELDS.includes(field)) {
-        failures.push(`current roleMatrixEvidence ${role}: unknown field ${field}`);
+    requireEqual(anchor.relPath, registryRole.relPath, `${label} ${role}.relPath`, failures);
+    requireEqual(anchor.templateHash, registryRole.templateHash, `${label} ${role}.templateHash`, failures);
+    for (const field of Object.keys(anchor)) {
+      if (!['role', 'relPath', 'templateHash'].includes(field)) {
+        failures.push(`${label} ${role}.${field}: unknown source audit anchor field`);
       }
     }
-    for (const field of baselineFields.keys()) {
-      if (!SOURCE_BACKED_ROLE_MATRIX_FIELDS.includes(field)) {
-        failures.push(`baseline roleMatrixEvidence ${role}: unknown field ${field}`);
-      }
-    }
-
-    for (const field of SOURCE_BACKED_ROLE_MATRIX_FIELDS) {
-      const actual = currentFields.get(field);
-      const expected = baselineFields.get(field);
-      if (!actual) {
-        failures.push(`current matrix source evidence missing ${role}.${field}`);
-        continue;
-      }
-      if (!expected) {
-        failures.push(`baseline matrix source evidence missing ${role}.${field}`);
-        continue;
-      }
-      requireEqual(actual.value, currentRow[field], `current roleMatrixEvidence ${role}.${field}.value`, failures);
-      requireEqual(expected.value, baselineRow[field], `baseline roleMatrixEvidence ${role}.${field}.value`, failures);
-      requireEqual(actual.value, expected.value, `roleMatrixEvidence ${role}.${field}.value`, failures);
-      verifyPersistedRoleMatrixEvidenceField(
-        role,
-        field,
-        currentRow[field],
-        actual,
-        `current roleMatrixEvidence ${role}.${field}`,
-        failures,
-      );
-      verifyPersistedRoleMatrixEvidenceField(
-        role,
-        field,
-        baselineRow[field],
-        expected,
-        `baseline roleMatrixEvidence ${role}.${field}`,
-        failures,
-      );
-      compareEvidenceClaims(
-        actual.claims ?? [],
-        expected.claims ?? [],
-        `roleMatrixEvidence ${role}.${field}`,
-        failures,
-      );
-    }
   }
-
-  for (const role of baselineEvidence.keys()) {
-    if (!currentEvidence.has(role)) failures.push(`current matrix source evidence missing role ${role}`);
-  }
-}
-
-function verifyPersistedRoleMatrixEvidenceField(role, field, value, evidenceField, label, failures) {
-  const expectedClaimMode = field === 'commands' ? 'semicolon-delimited' : 'whole-field';
-  requireEqual(evidenceField.claimMode, expectedClaimMode, `${label}.claimMode`, failures);
-  verifyRoleMatrixClaimCoverage(
-    role,
-    field,
-    value,
-    evidenceField.claims,
-    label,
-    failures,
-  );
-
-  for (let index = 0; index < (evidenceField.claims ?? []).length; index += 1) {
-    const claim = evidenceField.claims[index];
-    if (!claim || typeof claim.claim !== 'string') continue;
-    requireEqual(
-      claim.normalizedClaim,
-      normalizeRoleMatrixClaim(claim.claim),
-      `${label}.claims[${index}].normalizedClaim`,
-      failures,
-    );
-  }
-}
-
-function compareEvidenceClaims(actualClaims, expectedClaims, label, failures) {
-  requireEqual(actualClaims.length, expectedClaims.length, `${label}.claim count`, failures);
-  const max = Math.max(actualClaims.length, expectedClaims.length);
-  for (let index = 0; index < max; index += 1) {
-    const actual = actualClaims[index];
-    const expected = expectedClaims[index];
-    if (!actual || !expected) continue;
-    requireEqual(actual.claim, expected.claim, `${label}.claims[${index}].claim`, failures);
-    requireEqual(
-      actual.normalizedClaim,
-      expected.normalizedClaim,
-      `${label}.claims[${index}].normalizedClaim`,
-      failures,
-    );
-    compareEvidenceSnippets(
-      actual.snippets ?? [],
-      expected.snippets ?? [],
-      `${label}.claims[${index}]`,
-      failures,
-    );
-  }
-}
-
-function compareEvidenceSnippets(actualSnippets, expectedSnippets, label, failures) {
-  requireEqual(actualSnippets.length, expectedSnippets.length, `${label}.snippet count`, failures);
-  const max = Math.max(actualSnippets.length, expectedSnippets.length);
-  for (let index = 0; index < max; index += 1) {
-    const actual = actualSnippets[index];
-    const expected = expectedSnippets[index];
-    if (!actual || !expected) continue;
-    requireEqual(actual.text, expected.text, `${label}.snippets[${index}].text`, failures);
-    requireEqual(actual.sha256, expected.sha256, `${label}.snippets[${index}].sha256`, failures);
-    requireEqual(actual.line, expected.line, `${label}.snippets[${index}].line`, failures);
-    requireEqual(actual.sha256, sha256(actual.text), `${label}.snippets[${index}].computedSha256`, failures);
+  for (const role of anchors.keys()) {
+    if (!roles.has(role)) failures.push(`${label}: source audit anchor has unknown role ${role}`);
   }
 }
 
@@ -1795,59 +1005,58 @@ function verifyNoUnregisteredDirectStoryWrite(current, baseline, failures) {
   }
 }
 
+function assertNoUnclassifiedActionableStoryReferences(findings) {
+  const unclassified = findings.filter(finding => finding.classification === 'unclassified-actionable');
+  if (unclassified.length === 0) return;
+  const details = unclassified
+    .map(finding => `${finding.role}:${finding.line ?? 'probe'} ${finding.excerpt}`)
+    .join('\n- ');
+  throw new Error(
+    `Refusing to collect or refresh the baseline with unclassified actionable docs/story references:\n- ${details}`,
+  );
+}
+
 function verifyDirectStoryClassifierProbes(failures) {
   for (const probe of DIRECT_STORY_CLASSIFIER_PROBES) {
     const actual = classifyStoryFinding(probe.role, probe.excerpt);
     requireEqual(actual.classification, probe.classification, `direct story classifier probe ${probe.name}.classification`, failures);
     requireEqual(actual.grandfathered, probe.grandfathered, `direct story classifier probe ${probe.name}.grandfathered`, failures);
-  }
-}
-
-function injectRoleMatrixCommandClaim(value, injectedClaim) {
-  return `${value.replace(/[.!?]+$/, '')}; ${injectedClaim}.`;
-}
-
-function buildRefreshedRoleMatrixMutation(snapshot, probe) {
-  const mutated = structuredClone(snapshot);
-  const row = mutated.roleMatrix.find(candidate => candidate.role === probe.role);
-  const evidenceEntry = mutated.roleMatrixEvidence.find(candidate => candidate.role === probe.role);
-  const evidenceField = evidenceEntry?.fields?.find(candidate => candidate.field === probe.field);
-  if (!row || !evidenceField) {
-    throw new Error(`mutation probe ${probe.name}: missing ${probe.role}.${probe.field}`);
-  }
-  if (probe.field !== 'commands') {
-    throw new Error(`mutation probe ${probe.name}: only command injection is supported`);
-  }
-
-  const mutatedValue = injectRoleMatrixCommandClaim(row[probe.field], probe.injectedClaim);
-  row[probe.field] = mutatedValue;
-  // Model a baseline refresh that updates generated value fields while leaving
-  // the independently authored claim-to-snippet ledger unchanged.
-  evidenceField.value = mutatedValue;
-  return mutated;
-}
-
-function verifyRoleMatrixEvidenceMutationProbes(current, failures) {
-  for (const probe of ROLE_MATRIX_EVIDENCE_MUTATION_PROBES) {
-    let refreshed;
-    try {
-      refreshed = buildRefreshedRoleMatrixMutation(current, probe);
-    } catch (error) {
-      failures.push(String(error instanceof Error ? error.message : error));
-      continue;
+    if (probe.rejectsBaselineRefresh) {
+      let rejection = '';
+      try {
+        assertNoUnclassifiedActionableStoryReferences([{ ...actual, role: probe.role, excerpt: probe.excerpt }]);
+      } catch (error) {
+        rejection = String(error instanceof Error ? error.message : error);
+      }
+      if (!rejection.includes('Refusing to collect or refresh the baseline')) {
+        failures.push(
+          `direct story classifier probe ${probe.name}: expected baseline-refresh rejection, got ${JSON.stringify(rejection)}`,
+        );
+      }
     }
+  }
+}
 
-    const mutationFailures = [];
-    verifyRoleMatrixSourceEvidence(refreshed, structuredClone(refreshed), mutationFailures);
-    const expectedFragment = `missing source evidence mapping for claim ${JSON.stringify(`${probe.injectedClaim}.`)}`;
-    if (
-      mutationFailures.length !== 2 ||
-      mutationFailures.some(failure => !failure.includes(expectedFragment))
-    ) {
-      failures.push(
-        `role matrix evidence mutation probe ${probe.name}: expected current/baseline claim-coverage rejection containing ${JSON.stringify(expectedFragment)}, got ${JSON.stringify(mutationFailures)}`,
-      );
-    }
+function verifyRoleMatrixSnapshotDriftProbe(current, failures) {
+  const mutatedBaseline = structuredClone(current);
+  const row = mutatedBaseline.roleMatrix.find(candidate => candidate.role === 'lattice-review-behavior');
+  if (!row) {
+    failures.push('role matrix snapshot drift probe: lattice-review-behavior row missing');
+    return;
+  }
+  row.commands = `${row.commands} snapshot-drift-sentinel`;
+
+  const driftFailures = [];
+  verifyMatrix(current, mutatedBaseline, driftFailures);
+  if (!driftFailures.some(failure => failure.includes('roleMatrix lattice-review-behavior.commands'))) {
+    failures.push(
+      `role matrix snapshot drift probe: JSON field drift was not rejected; got ${JSON.stringify(driftFailures)}`,
+    );
+  }
+  if (!driftFailures.some(failure => failure.includes('overlap matrix markdown'))) {
+    failures.push(
+      `role matrix snapshot drift probe: Markdown parity drift was not rejected; got ${JSON.stringify(driftFailures)}`,
+    );
   }
 }
 
@@ -1862,52 +1071,17 @@ function runDirectStoryClassifierProbeCommand() {
   console.log(`PASS direct story-file classifier adversarial probes: ${DIRECT_STORY_CLASSIFIER_PROBES.length} cases`);
 }
 
-async function runRoleMatrixEvidenceMutationProbeCommand() {
+async function runRoleMatrixSnapshotDriftProbeCommand() {
   const current = await collectCurrentBaseline();
   const failures = [];
-  verifyRoleMatrixEvidenceMutationProbes(current, failures);
-
-  const { readPromptRegistry, readPromptTemplate } = await loadBuiltRegistry();
-  const snapshot = readPromptRegistry();
-  for (const probe of ROLE_MATRIX_EVIDENCE_MUTATION_PROBES) {
-    const registryEntry = snapshot.agents.find(entry => entry.agentId === probe.role);
-    if (!registryEntry) {
-      failures.push(`role matrix evidence mutation probe ${probe.name}: registry role missing`);
-      continue;
-    }
-    const mutatedMatrix = structuredClone(current.roleMatrix);
-    const row = mutatedMatrix.find(candidate => candidate.role === probe.role);
-    row[probe.field] = injectRoleMatrixCommandClaim(row[probe.field], probe.injectedClaim);
-
-    let collectionFailure = '';
-    try {
-      buildRoleMatrixEvidence(
-        {
-          role: registryEntry.agentId,
-          relPath: registryEntry.relPath,
-          content: readPromptTemplate(registryEntry),
-        },
-        mutatedMatrix,
-      );
-    } catch (error) {
-      collectionFailure = String(error instanceof Error ? error.message : error);
-    }
-    const expectedFragment = `missing source evidence mapping for claim ${JSON.stringify(`${probe.injectedClaim}.`)}`;
-    if (!collectionFailure.includes(expectedFragment)) {
-      failures.push(
-        `role matrix evidence mutation probe ${probe.name}: --write collection did not reject unsupported claim with ${JSON.stringify(expectedFragment)}; got ${JSON.stringify(collectionFailure)}`,
-      );
-    }
-  }
+  verifyRoleMatrixSnapshotDriftProbe(current, failures);
 
   if (failures.length > 0) {
-    console.error('FAIL role matrix source-evidence mutation probes');
+    console.error('FAIL role matrix mechanical snapshot-drift probe');
     for (const failure of failures) console.error(`- ${failure}`);
     process.exit(1);
   }
-  console.log(
-    `PASS role matrix source-evidence mutation probes: ${ROLE_MATRIX_EVIDENCE_MUTATION_PROBES.length} refreshed-baseline injection rejected during collection and verification`,
-  );
+  console.log('PASS role matrix mechanical snapshot-drift probe: JSON field and Markdown parity drift rejected');
 }
 
 async function writeBaselineFiles() {
@@ -1927,8 +1101,8 @@ async function verifyBaseline() {
   verifyRegistry(current, baseline, failures);
   verifyAgentPromptOutputs(current, baseline, failures);
   verifyMatrix(current, baseline, failures);
-  verifyRoleMatrixSourceEvidence(current, baseline, failures);
-  verifyRoleMatrixEvidenceMutationProbes(current, failures);
+  verifyRoleMatrixAudit(current, baseline, failures);
+  verifyRoleMatrixSnapshotDriftProbe(current, failures);
   verifyFindings(
     current.legacyVocabulary.findings,
     baseline.legacyVocabulary.findings,
@@ -1952,17 +1126,17 @@ async function verifyBaseline() {
 
   console.log('PASS proof-or-stop prompt baseline: roleCount=16 registry hashes verified');
   console.log('PASS proof-or-stop prompt baseline: agent_prompt output hashes verified for 16 roles');
-  console.log('PASS proof-or-stop prompt baseline: overlap matrix verified for 16 roles');
-  console.log('PASS proof-or-stop prompt baseline: exhaustive role matrix source claims verified for 16 roles');
-  console.log('PASS proof-or-stop prompt baseline: role matrix unsupported-claim mutation probe rejected');
+  console.log('PASS proof-or-stop prompt baseline: role matrix snapshot integrity verified for 16 roles');
+  console.log('PASS proof-or-stop prompt baseline: role matrix mechanical snapshot-drift probe rejected');
+  console.log('INFO proof-or-stop prompt baseline: commands, outputs, and direct-file-access semantics remain reviewer-audited');
   console.log('PASS proof-or-stop prompt baseline: legacy vocabulary findings classified');
   console.log('PASS proof-or-stop prompt baseline: direct story-file findings classified');
 }
 
 if (PROBE_DIRECT_STORY_CLASSIFIER) {
   runDirectStoryClassifierProbeCommand();
-} else if (PROBE_ROLE_MATRIX_EVIDENCE) {
-  await runRoleMatrixEvidenceMutationProbeCommand();
+} else if (PROBE_ROLE_MATRIX_SNAPSHOT_DRIFT) {
+  await runRoleMatrixSnapshotDriftProbeCommand();
 } else if (WRITE_MODE) {
   await writeBaselineFiles();
 } else {
