@@ -579,7 +579,7 @@
       "desc": "F-015 is still fail-open for directive-shaped unknown writes whose target is expressed as an option rather than `on|against|to|into`. At scripts/verify-proof-or-stop-prompt-baseline.mjs:728-732, hasUnknownStoryMutationDirective only recognizes those four connectors; the fallback at :661-665 remains other/grandfathered. Exact in-memory execution of the committed functions classified `Run metadata-transformer --output docs/story/actives/B-1234/index.json.` as other/grandfathered and directStoryWritePolicyErrors returned no errors alongside the one allowed INIT write. Thus collection/--write can still bless a clear unknown output-file mutation while the resolution claims directive-shaped unknown operations fail closed. Recognize output/destination option forms or make unknown imperative docs/story references fail closed, and add this refresh probe.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-11T16:21:53.661Z",
@@ -592,7 +592,11 @@
         "scripts/verify-proof-or-stop-prompt-baseline.mjs:1429"
       ],
       "signatureTag": "adversarial|mjs:728|still-fail-open",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by ca3bde3a. Generic --output docs/story destinations are classified as direct-write and baseline refresh rejects them. The exact metadata-transformer --output case is committed in the direct classifier suite; independent direct probe passed with 34 classifier and 6 scanner cases after follow-up hardening.",
+      "resolvedAt": "2026-07-11T20:10:23.126Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3928:F-024",
