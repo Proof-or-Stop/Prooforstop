@@ -205,7 +205,7 @@
       "desc": "quality-correctness: scripts/verify-proof-or-stop-prompt-baseline.mjs:1042 classifies negative policy wording before checking for a write, :1098 recognizes only a narrow verb/shell set, and :1778 rejects only findings already labeled direct-write. Exact in-memory execution of the committed functions classified a mixed `do not directly read or write ...; echo > docs/story/...` instruction as policy-reminder and `Use apply_patch to update docs/story/...` as other/grandfathered; simulating a refreshed baseline left verifyFindings plus verifyNoUnregisteredDirectStoryWrite with zero failures for both. Thus --write can bless actionable story-file writes despite CHK-005. Check direct-write signals before negative reminders, fail closed on unrecognized mutation forms, and add mixed-policy/apply_patch/copy/multiline probes.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-11T15:18:46.050Z",
@@ -218,7 +218,11 @@
         "scripts/verify-proof-or-stop-prompt-baseline.mjs:1778"
       ],
       "signatureTag": "adversarial|mjs:1042|quality-correctness-scripts",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in ce499e68b0 and fc4a9fc647. Direct-write detection now precedes harmless-policy classification at the clause level, covers apply_patch plus Edit/Write/tee/sed/redirection/cp/copy/mv/move/install/rsync and backslash continuations, fails closed on unknown actionable forms, and `--write` rejects every recognized unapproved write. Role-wide grandfathering was replaced by one exact current INIT echo allow entry. Evidence: build PASS; 23 classifier + 1 scanner probes PASS; normal verifier and npm baseline test PASS with exactly one grandfathered write.",
+      "resolvedAt": "2026-07-11T15:51:34.936Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3928:F-010",
