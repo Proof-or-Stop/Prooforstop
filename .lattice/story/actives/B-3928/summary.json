@@ -1,0 +1,55 @@
+{
+  "storyId": "B-3928",
+  "changes": "Recorded the exact 16-role Proof-or-Stop prompt baseline, agent_prompt output hashes, reviewer-audited overlap matrix, and schema-v7 prompt-policy approval manifest. Added mechanical drift, legacy-vocabulary, direct-story-reference, and manifest self-authorization regression probes without editing prompt bodies.",
+  "usage": "Run `node scripts/verify-proof-or-stop-prompt-baseline.mjs` for the complete check. Focused diagnostics are available through `--probe-prompt-policy-manifest`, `--probe-baseline-drift`, `--probe-role-matrix-snapshot-drift`, `--probe-legacy-vocabulary-policy`, and `--probe-direct-story-classifier`.",
+  "expectedOutcome": "All 16 current role IDs and complete prompt bodies are hash-locked; agent_prompt and generated baseline artifacts match; a changed role/body cannot refresh the baseline until its independent code-reviewed manifest hash is updated; diagnostics expose current legacy and direct-story references.",
+  "actualTranscript": "The full verifier passed all 16 manifest-bound roles, registry and agent_prompt hashes, matrix parity, and diagnostics. Manifest probes passed 8 structural mutations, 4 audit mutations, 2 synthetic collector failures, 12 direct and 8 legacy body mutations, plus refresh self-authorization rejection. TEST validate passed 45 configured commands. DONE-required build and full npm test both passed.",
+  "outcomeDiff": "Expected and observed behavior match. No canonical prompt body was modified in M0; only the baseline artifacts, execution-plan wording, verifier, and ProofStory evidence changed.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "This closes M0 baseline inventory only. Canonical proof-or-stop-* role migration, prompt consolidation, routing changes, and lifecycle closeout fixes remain in later milestones. Occurrence scanners are diagnostic; authorization comes from the independent full-prompt hash manifest.",
+  "pitfalls": "Do not use baseline write mode to approve a prompt change. Update the independent manifest only with an explicitly reviewed full-body template hash, then regenerate the baseline. Human-authored role-matrix semantics remain reviewer-audited and are not inferred by the verifier.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 838388
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 8493
+    },
+    "PLAN": {
+      "count": 2,
+      "durationMs": 667985
+    },
+    "DEV": {
+      "count": 11,
+      "durationMs": 25714006
+    },
+    "REVIEW": {
+      "count": 10,
+      "durationMs": 123940133
+    },
+    "TEST": {
+      "count": 2,
+      "durationMs": 1509199
+    }
+  },
+  "totalDurationMs": 152678765,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-11T21:27:43.476Z",
+  "updatedAt": "2026-07-11T21:27:43.476Z"
+}
