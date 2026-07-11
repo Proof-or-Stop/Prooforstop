@@ -905,6 +905,41 @@
       ],
       "signatureTag": "adversarial|mjs:1113|output-verb-story-write-fail-open",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-3928:F-033",
+      "desc": "F-024/F-026 semantic recurrence: the occurrence-aware legacy policy still launders positive active use in two clause shapes. isNegativeLegacyOccurrence at scripts/verify-proof-or-stop-prompt-baseline.mjs:773-780 treats any clause beginning `Do not <non-marker>` as negating the first later legacy occurrence, even when an unsplit plain `and set` introduces a positive instruction. isDemonstrablyContextualLegacyOccurrence at :783-810 accepts a marker immediately before the occurrence without checking for an imperative verb before that marker. Exact in-memory execution allowed both `Do not remove verificationIntent and set testIntent on every checklist item.` as allowed-negative-reference and `Set legacy testIntent.` as allowed-explicit-local-context; collection returned no policy error. This contradicts M0.4 and the verifier rule that positive instructions always fail, while the normal verifier still prints that active-role policy is enforced. Bind negation/context to the actual occurrence, reject positive directives even with local markers, and add both refresh probes.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-11T20:17:12.865Z",
+      "reviewRound": "2026-07-11T20:10:05.981Z",
+      "reviewRunId": "B-3928:RR-027",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "packages/main/templates/agents/lattice-review-concept.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "792b968af8b2cbf42073617dac00a920743a9fc655dcf19d3a647a317edc35e4",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:744",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:773",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:783",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:910",
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:1025"
+      ],
+      "signatureTag": "adversarial|mjs:773|legacy-occurrence-positive-laundering",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
