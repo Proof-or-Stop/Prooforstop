@@ -1,0 +1,20 @@
+{
+  "storyId": "B-3ddc",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/host-run.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/host-run-usage-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "packages/main/src/core/usage-ledger/**",
+    "packages/main/src/handlers/host-run.ts"
+  ],
+  "scopeChangeReason": "Initialized empty from legacy checklist (no files fields); set explicitly to the user-confirmed scope boundary: core host-run.ts (failure lane + reason) and the host-run usage smoke (pinned fixture); ledger modules and the handler are read-only context.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-11T23:09:28.887Z",
+  "updatedAt": "2026-07-11T23:09:48.491Z"
+}
