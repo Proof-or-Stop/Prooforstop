@@ -6,7 +6,60 @@
       "context": "packages/main/src/core/host-run.ts: add a failure-line retainer for host codex matching JSON lines with type turn.failed or terminal error; retention is bounded, last-one-wins, same HOST_RUN_RETAINED_LINE_CAP (1 MiB) discipline as the existing usage lane (reuse UsageLineScanner); the retained failure line is surfaced on HostRunSpawnResult without changing the live passthrough or the existing usage retention/truncation semantics (F-013/F-026).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Feed a codex stdout containing a turn.failed JSON line through the default streaming runner -> HostRunSpawnResult exposes the retained failure line text (non-empty) alongside the existing usage retention; usage retainedText() is still the turn.completed line when both are present; WHY: proves the second lane captures failure events without regressing the usage lane",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Feed a codex stdout containing a terminal error JSON line ({\"type\":\"error\",...}) through the default streaming runner -> the error line is retained on HostRunSpawnResult; WHY: the spec says both turn.failed AND terminal error events must be retained",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Feed a codex stdout with ONLY a turn.completed usage event (no failure) -> the failure-lane retention is empty/null and the usage lane retains the usage line as before; WHY: proves the new lane does not interfere when no failure is present (existing behavior regression guard)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Feed multiple turn.failed lines interspersed with other events -> only the LAST turn.failed line is retained (last-one-wins discipline matching the usage lane); WHY: bounded retention must not grow with repeated failures",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Feed a turn.failed line that exceeds HOST_RUN_RETAINED_LINE_CAP (1 MiB) -> the line is dropped (not retained), no OOM; WHY: the second lane must obey the same 1MiB cap discipline as the usage lane",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "A non-streaming fake runner returns stdout containing a turn.failed line -> the failure line is visible on HostRunSpawnResult (the buffered flush path surfaces it); WHY: both streaming and buffered paths must surface failure events",
+            "type": "logic",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Feed both a turn.completed usage line AND a turn.failed line in the same stream -> usage lane retains usage, failure lane retains failure, each lane is independent and neither overwrites the other; WHY: two lanes must never cross-pollute (a failure must not erase a genuine usage and vice versa)",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "F-013/F-026 truncation semantics are unchanged: an over-cap line AFTER a retained turn.completed still forces unavailable (usage_line_retention_truncated), NOT turn_failed; WHY: the existing truncation contract must not be broken by the new failure lane",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Live passthrough (onChunk) still delivers ALL lines including turn.failed lines unchanged; the failure retainer only keeps a copy, never suppresses or alters the passthrough delivery; WHY: the spec says live passthrough must not change",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
