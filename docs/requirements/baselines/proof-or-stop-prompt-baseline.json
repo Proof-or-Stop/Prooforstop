@@ -413,11 +413,11 @@
       "purpose": "Reviews final delivery claims, docs promises, real machine tests, and closeout.",
       "commands": "git diff; source grep; delivery_check_set.",
       "directFileAccess": "Reads git diff and repository files; explicitly avoids process-events, reviewer outputs, and test-evidence contents.",
-      "inputs": "Diff, validation evidence, docs promises, user-facing closeout claims.",
+      "inputs": "storyId, git diff main...HEAD, and repository files.",
       "outputs": "Signed delivery-check.json via delivery_check_set, or refusal text.",
       "capabilities": "Delivery completeness; closeout self-check; final docs-promise fallback.",
       "overlapCategory": "overlaps docs and product",
-      "notes": "Consumes docs review when available instead of redoing all doc-code drift review."
+      "notes": "Fresh-context review independently derives docs promises and real-machine test coverage; it does not consume prior docs review, other reviewer results, or test-evidence.json."
     },
     {
       "role": "lattice-review-docs",
