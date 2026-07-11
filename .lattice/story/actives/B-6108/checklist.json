@@ -300,7 +300,21 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationEvidence": [
+        {
+          "intentRef": "interaction-audit:happy",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "Full suite green: intent-hardening smoke (now ~60 cases), milestone-done-gate-reconciliation smoke, milestone-status tests, packages/main e2e ALL PASS",
+          "headHash": "3fe4e3bedf0e52bb083db872b475e667a9817ccd",
+          "materialHash": "4e6b8ec53b5e42e0e25e32c84fc04d65bed50cdd96145d5c07ee9fea1345e937",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-11T22:53:51.533Z"
+        }
+      ]
     }
   ]
 }
