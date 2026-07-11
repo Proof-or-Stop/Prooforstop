@@ -254,7 +254,71 @@
       "context": "usage_sweep gains an --alert boolean: the report is computed and printed as today, alert evaluation runs over the swept rows, flagged sessions are listed, and the CLI exits non-zero when any alert fired (recover_evidence dispatch pattern: print result first, then throw) so a cron job can drive notifications. --alert performs zero writes and stays effectively readOnly for ownership/activity/hook classification.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "usage_sweep --alert with sessions exceeding thresholds prints the structured alert report (flagged sessions with reasons) to stdout, then exits non-zero (exitCode=1)",
+            "type": "cli"
+          },
+          {
+            "desc": "usage_sweep --alert with no sessions exceeding any threshold prints the report and exits zero (no alerts fired)",
+            "type": "cli"
+          },
+          {
+            "desc": "usage_sweep --alert prints the normal sweep report FIRST (human or JSON mode), then appends the alert evaluation section, matching the recover_evidence dispatch pattern (print result first, then throw so exitCode=1)",
+            "type": "cli"
+          },
+          {
+            "desc": "usage_sweep --alert --json returns a JSON object including both the sweep report fields and an alerts array with the flagged findings",
+            "type": "cli"
+          },
+          {
+            "desc": "Plain usage_sweep (without --alert) behavior is unchanged: no alert evaluation, exit code 0 regardless of session token counts",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "usage_sweep --alert with --since covering zero sessions (empty stores or all files older than cutoff) prints clean report and exits zero",
+            "type": "cli"
+          },
+          {
+            "desc": "usage_sweep --alert with custom threshold env vars (e.g. LATTICE_BURN_ALERT_INPUT_TOKENS=1) fires on sessions that would not trip defaults",
+            "type": "cli"
+          },
+          {
+            "desc": "usage_sweep --alert combined with --out still writes the report file (exclusive-create fence) AND prints+throws on alert; the --out write happens before the alert throw",
+            "type": "logic"
+          },
+          {
+            "desc": "usage_sweep --alert with --json outputs valid JSON even when alerts fire (the throw happens after the structured result is printed, not mid-JSON)",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "usage_sweep --alert performs zero writes to the codex/claude store directories: before/after mtime+size snapshot of fixture stores is identical",
+            "type": "logic"
+          },
+          {
+            "desc": "usage_sweep --alert does NOT modify ownership-gate.ts or activity-policy.ts classification; the command stays effectively readOnly for ownership/activity/hook classification -- verified by confirming isReadOnlyCommand returns true for usage_sweep",
+            "type": "logic"
+          },
+          {
+            "desc": "usage_sweep --alert does NOT change the shouldWriteActivityLog result for the usage_sweep command (inherits existing activity-policy classification)",
+            "type": "logic"
+          },
+          {
+            "desc": "usage_sweep (plain, no --alert) does NOT evaluate alerts or exit non-zero even when sessions have astronomical token counts; the --alert flag is the sole trigger",
+            "type": "cli"
+          },
+          {
+            "desc": "The --alert flag is registered in the command catalog schema so the CLI parser accepts it; an unregistered flag would cause a parse error before the handler runs",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
