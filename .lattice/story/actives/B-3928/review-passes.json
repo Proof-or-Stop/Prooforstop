@@ -217,6 +217,25 @@
         "scanEscalationReason": null
       },
       "_hash": "e2af8631c7ec6e5b25e9b47fce9aa60770e207575de6b992b85864104cb09efc"
+    },
+    {
+      "id": "B-3928:RP-012",
+      "agent": "lattice-review-docs",
+      "note": "Round 9 docs re-review: extracted 192 changed declaration names and compared 8 bounded load-bearing documentation sections against the v6 baseline and verifier. F-035 exact examples now reject; M0.4, generated claims/output, 7-status taxonomy, 3 exemptions, 2 exact live contexts, 12 exact story references, 1 INIT write, 16 roles, 11 milestones, and 27 stories agree. Machine claims remain limited to structural snapshots, hashes, parity, and closed policy checks; role semantics remain reviewer-audited. No blocker found.",
+      "createdAt": "2026-07-11T20:43:56.318Z",
+      "reviewRound": "2026-07-11T20:38:32.745Z",
+      "reviewRunId": "B-3928:RR-030",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "ee795e8acde6845ab86c003be5788400334383c97efbc07cc9791f85ab6d2dcc"
     }
   ]
 }
