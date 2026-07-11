@@ -701,7 +701,7 @@
       "desc": "F-016 also excludes a currently required non-legacy role wholesale. LEGACY_VOCABULARY_ENFORCED_STATUSES at scripts/verify-proof-or-stop-prompt-baseline.mjs:85 contains only active/conditional/optional, so product-reviewer status compatibility bypasses context checks even though the source plan describes its INIT dependency as unresolved and the current INIT contract still requires it. Exact execution allows `Set testIntent on every checklist item.` for status compatibility with policyStatus=allowed-role-status. This contradicts the M0.4 active non-legacy prompt boundary and lets --write bless active legacy instructions in a live compatibility lane. Enforce every non-legacy/non-retired status, or define a narrow negative-reference exemption instead of a status-wide bypass.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-11T16:23:28.367Z",
@@ -715,7 +715,11 @@
         "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:1025"
       ],
       "signatureTag": "missing|mjs:85|excludes-currently-required",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by ca3bde3a. Compatibility is now an enforced live-role status, while only legacy, retired, and fold-candidate roles remain status-exempt. A mixed-case positive testIntent instruction under compatibility status is a committed rejection probe. Independent legacy and full baseline verification passed.",
+      "resolvedAt": "2026-07-11T20:10:27.304Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3928:F-028",
