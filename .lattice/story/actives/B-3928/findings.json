@@ -254,7 +254,7 @@
       "desc": "doc-code-drift: The artifact table labels ledgerHash, planHash, and rollupHash as current code-backed freshness/anti-forgery bindings, and the closeout contract says existing gates validate artifact hashes, but the ProofStory readers never recompute any of those hashes. computeMilestoneLedgerHash, computeSlicePlanHash, and computeParentLedgerRollupHash are writer-only; parentRollupCoversSlicePlan checks only stored cross-field equality, coverage, and evidenceRefs. A read-only HEAD probe passed evaluateDoneIntentEquivalence(..., enforce) with arbitrary mutually matching ledgerHash/planHash/rollupHash values and with a forged rollupHash alone (status=pass, blocking=false, gaps=[]). Amend M4.C1 and the current-contract wording to require reader/gate recomputation or content-bound canonical-writer provenance before these fields are described as integrity bindings.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-11T15:20:37.455Z",
@@ -268,7 +268,11 @@
         "packages/main/src/core/evidence-freshness.ts"
       ],
       "signatureTag": "missing|md|code-drift-artifact",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in ce499e68b0. The execution plan now states that writers compute ledgerHash/planHash/rollupHash but current readers and DONE do not recompute them; `parentRollupCoversSlicePlan` does not consume rollupHash. It labels matching stored fields as consistency checks, not anti-forgery proof, and requires M4.C1 runtime schema validation and hash recomputation before these artifacts become trust/review-retention boundaries.",
+      "resolvedAt": "2026-07-11T15:51:36.982Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3928:F-012",
