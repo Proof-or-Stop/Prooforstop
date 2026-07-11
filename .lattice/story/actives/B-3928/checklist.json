@@ -314,11 +314,11 @@
           "file": "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
           "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
           "result": "pass",
-          "note": "Legacy vocabulary scan records the current classified testIntent, TEST_CASE, and TEST_CASE_REVIEW occurrences for all prompt templates.",
-          "headHash": "903dad30b5f020817a27eac9170639a6f375f5cb",
-          "materialHash": "604ec73862a3dfbc27dd09503b8e63666b1fe283237638652be8cb5696e58c4d",
-          "storyFilesHash": "dd547cbf2bbf9945f26b15fb734dc408a565d7b38b07893e53a2e0d7e8f0cc82",
-          "timestamp": "2026-07-11T15:51:04.766Z"
+          "note": "Legacy scanner records current testIntent, TEST_CASE, and TEST_CASE_REVIEW occurrences with role status, classification, and explicit-context policy result.",
+          "headHash": "91d7bafec2f4e8424568d1cdbee1e6067fd818b3",
+          "materialHash": "75a3d39927cbbec7898e05bc7d4d40c5c5d0fef052a2ae1e2662bd3d059cf499",
+          "storyFilesHash": "86ce50875b8e9fe4d64163a4daf740e9e09402d1c2c0d887de160f50b19997c5",
+          "timestamp": "2026-07-11T16:16:44.918Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
