@@ -5,7 +5,7 @@
       "desc": "packages/main/src/core/proofstory.ts:1572 the shrinkageVerbs passive branch `(?:was|were)${windowConnector}(?:skipped|omitted|descoped|punted)` is unqualified by any delivery-context object, unlike the sibling removed/dropped/cut branch which the plan explicitly qualifier-binds to `from this|the delivery|story|scope|release|milestone|version`. Live-verified false positives on the built CLI via done_intent_equivalence_check (unconfirmed_single_outcome_shrinkage fires): \"The retry was skipped for this iteration of the loop.\", \"This test was skipped due to a flaky CI runner.\", \"The migration step was skipped in dry-run mode.\", \"The cache warmup was omitted to reduce startup time.\", \"The optional migration was skipped for backward compatibility.\", \"The decision was punted to next week.\", \"The night shift was handed off to a follow-up crew.\" — none of these are delivery-scope narrowing, all are routine CI/process/non-delivery narrative, and any of them landing verbatim in a DONE summary.limitations or .changes field will trip the gate. This is a verified false-positive on routine change/process descriptions introduced by this story's additions, which is the plan.md convergence-floor blocking condition (b). Fix: bind the was/were passive branch to a delivery-context object or qualifier the same way removed/dropped/cut is bound (or otherwise scope it), then add must-not-fire regression cases for these routine-narrative passive-voice sentences to proofstory-intent-hardening-smoke.ts.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-11T23:11:52.483Z",
@@ -13,7 +13,11 @@
       "reviewRunId": "B-6108:RR-003",
       "_hash": "8b2cfec82d1f2b6c7344a39e466bdff841984d7b865e41488257c5fff5b260b2",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Passive branch qualifier-bound via shared deliveryQualifier fragment; all four F-001 routine sentences verified firing pre-fix and quiet post-fix (vocabularyPrecisionControls); the qualifier-carrying must-fire cases (was skipped for this delivery, was omitted from this release) still fire. Full smoke, reconciliation smoke, milestone-status, e2e ALL PASS. plan.md verb-set design updated.",
+      "resolvedAt": "2026-07-11T23:19:03.124Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
