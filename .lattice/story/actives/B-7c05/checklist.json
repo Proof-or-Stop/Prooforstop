@@ -57,7 +57,50 @@
       "context": "finding_list (packages/main/src/handlers/finding.ts finding_list) defaults to one-liners: id, severity/category, status, evidenceState, truncated title. Full descriptions available behind the full-output flag. Explicit --json/--format=json machine mode keeps the current full shape.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run lattice finding_list for a story with 3+ findings (no flags) -> output shows one-liner per finding: id, severity/category, status, evidenceState, truncated title; total output under ~2k tokens; WHY: confirms brief default for finding_list",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run lattice finding_list --full -> output shows full descriptions and all metadata fields for each finding; WHY: confirms full output accessible via explicit flag",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run lattice finding_list --json (or --format=json) -> output is the current full JSON shape unchanged: findings[] array with evidenceState field on each finding, plus attention.suspected array at top level; WHY: machine contract preservation per load-bearing context",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run lattice finding_list on a story with zero findings -> output is empty/minimal summary (e.g. No findings) without error; WHY: empty-set boundary",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Internal consumer can JSON.parse bare finding_list output and read findings[].evidenceState and attention.suspected — verify the brief TEXT mode does NOT accidentally alter the JSON mode skeleton; WHY: load-bearing contract: internal callers depend on those fields",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Run lattice finding_list with LATTICE_BRIEF_OUTPUT=0 env var set (no --full flag) -> output is full (env var overrides brief default); then add explicit --brief flag -> brief wins over env var; WHY: per-call flag beats env which beats default",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Brief finding_list output still preserves finding id and evidenceState so an agent can decide whether to triage suspected vs verified findings; WHY: brief must not destroy decision-critical fields for agent-loop consumers",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
