@@ -1,0 +1,65 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-6108",
+  "diagnosticOnly": false,
+  "hardeningLevel": "high_assurance",
+  "triggerReasons": [
+    {
+      "code": "high_assurance_risk",
+      "message": "High-risk or gate/security wording selects high-assurance intent hardening.",
+      "requires": "high-assurance"
+    },
+    {
+      "code": "collision_required_high_assurance",
+      "message": "High-assurance work requires an independent intent-collision result.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "red_evidence_required",
+      "message": "Bug, regression, security/auth/session, benchmark, or explicit behavior-change work should have red evidence.",
+      "requires": "red-evidence"
+    },
+    {
+      "code": "scope_ambiguity",
+      "message": "Broad or absolute scope wording should have scope clarification before future enforcement.",
+      "requires": "scope-clarification"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:343b255ce3368f46362b45a33a69b8cc5e80c1941180c6548c654e0fad9db57d",
+  "acceptanceBindings": [
+    {
+      "id": "AB-001",
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002",
+        "CHK-003",
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "adverb-inflection:happy",
+        "adverb-inflection:edge",
+        "adverb-inflection:adversarial",
+        "shrinkage-verbs:happy",
+        "shrinkage-verbs:edge",
+        "shrinkage-verbs:adversarial",
+        "chain-punctuation:happy",
+        "chain-punctuation:edge",
+        "chain-punctuation:adversarial",
+        "interaction-audit:happy",
+        "interaction-audit:edge",
+        "interaction-audit:adversarial"
+      ],
+      "milestoneIds": [],
+      "note": "Single-outcome acceptance: five recall classes fire on verified sentences, precision controls stay quiet, B-2c03 pins unchanged, vocabulary documented."
+    }
+  ],
+  "diagnosticGaps": [],
+  "note": "B-6108 acceptance binding maps the snapshot acceptanceClaim to all four checklist items and their verification intents.",
+  "createdAt": "2026-07-11T22:41:02.661Z",
+  "updatedAt": "2026-07-11T22:41:02.661Z"
+}
