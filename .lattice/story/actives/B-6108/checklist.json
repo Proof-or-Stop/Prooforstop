@@ -130,7 +130,21 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationEvidence": [
+        {
+          "intentRef": "shrinkage-verbs:happy",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "was-skipped with stripped deferred-query.sql, backticked deferred with left-to-a-follow-up, was-removed-from-this-delivery, was-descoped, was-omitted-from-this-release, and pushed-to-a-follow-up all fire (classes 3); the two B-2c03 deferred-to-follow-up pins flipped to must-fire with updated comments",
+          "headHash": "e366a58861f8bdfd16579fe000c1cd829108ced8",
+          "materialHash": "4e6b8ec53b5e42e0e25e32c84fc04d65bed50cdd96145d5c07ee9fea1345e937",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-11T22:53:41.932Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
