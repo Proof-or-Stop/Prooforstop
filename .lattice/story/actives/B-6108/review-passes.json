@@ -79,6 +79,29 @@
         "scanEscalationReason": null
       },
       "_hash": "ac513510f14e389fc7e512565901c7882a8ee61fde80d44beffc15ae52d9eebb"
+    },
+    {
+      "id": "B-6108:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review passed (round 2, post F-001 fix at 3ff07615e0). All 4 checklist items (CHK-001..004) carry complete happy/edge/adversarial verificationIntent columns for the normal/high-risk channel. All 12 must/should intents have exactly one non-fail verificationEvidence row (11 logic_test + 1 docs_check for the plan rationale), each note naming concrete sentences/behavior, not a generic pass. Delta since RP-002: commit 3ff07615e0 adds the qualifier-bound passive branch (deliveryQualifier shared fragment) touching shrinkage-verbs:adversarial coverage (CHK-002) and the CHK-004 full-suite regression. Grep-verified against tracked source at HEAD: vocabularyRecallClaims unchanged at 14 must-fire sentences (5 classes); vocabularyPrecisionControls now holds 11 must-not-fire controls (7 pre-existing + 4 new F-001 routine-passive cases: skipped-for-this-iteration-of-the-loop, skipped-due-to-flaky-CI, omitted-to-reduce-startup-time, punted-to-next-week). Note: the dispatch briefing and RP-004 both said 12; actual array count at HEAD is 11 (7+4) by direct line count of both b15792bbc4 pre-F-001 and 3ff07615e0 post-F-001 array literals — a narrative miscount in prior notes, not a coverage gap: every must intent still has valid passing evidence naming concrete behavior. Ran npm --prefix packages/main run build then node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js directly on the rebuilt dist: ProofStory intent hardening smoke passed (exit 0), covering all 14 recall claims, all 11 precision controls, the CHK-003 chain-punctuation cases, and the CHK-004 interaction pins (strippedTokenVerbDone, adverbWindowBoundaryDone). Also ran the full lattice validate --story=B-6108 --json (45 configured commands: build, milestone-status, reconciliation/guard/gate smokes, e2e) — allPass:true, all 45/45 commands code=0. 12/12 verificationEvidence rows were stale from intervening .lattice metadata commits (concurrent lattice-review-concept RP-003 and lattice-review-quality RP-004 rounds); refreshed via verification_evidence_refresh_stale, now bound to HEAD 0457a15c55/d23e323 lineage, refreshed=12/12. No coverage gap found; no finding filed.",
+      "createdAt": "2026-07-11T23:35:19.467Z",
+      "reviewRound": "2026-07-11T22:54:45.995Z",
+      "reviewRunId": "B-6108:RR-006",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-6108/checklist.json",
+          ".lattice/story/actives/B-6108/findings.json",
+          ".lattice/story/actives/B-6108/review-passes.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-6108/plan.md",
+          ".lattice/story/actives/B-6108/test-evidence.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b53072f8b88b1277f192d55d48ea3399a282d8df462559b6ed946ca0384f4055"
     }
   ]
 }
