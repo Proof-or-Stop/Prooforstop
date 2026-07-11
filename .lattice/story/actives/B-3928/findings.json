@@ -726,7 +726,7 @@
       "desc": "doc-code-drift: The new uniform Commands contract says the column includes role-owned writes plus role-defining inspection/execution calls from each role-specific procedure, and the verifier now prints that all human-authored role-matrix semantics remain reviewer-audited. Two such calls are still omitted: lattice-evaluator-cli explicitly runs `cat .lattice-serve.json`, but its row lists only bridge curl calls and optional CLI spawn and its directFileAccess text omits that file read; lattice-review-story-init explicitly requires the Edit tool to write the answer field, but its row lists only Read/Grep, init_check_set, and cat/echo. Neither call is a universal Runtime Guide navigation read, prohibited command, or another role's artifact/input, so the Commands/all-fields audit claim is incomplete despite JSON/Markdown parity. Add these role-specific calls (and the evaluator file read) to ROLE_MATRIX_DEFAULTS and regenerate the baseline/matrix, or narrow the Commands contract and F-020 INFO wording so they do not claim coverage.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-11T16:24:16.128Z",
@@ -772,7 +772,11 @@
         "packages/main/templates/agents/lattice-review-story-init.md:270"
       ],
       "signatureTag": "missing|md:12|code-drift-uniform",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by ca3bde3a. ROLE_MATRIX_DEFAULTS, baseline JSON, and generated Markdown now include lattice-evaluator-cli cat .lattice-serve.json plus its file read, and lattice-review-story-init required Edit usage. Independent matrix drift, full verifier, and package test passed; all human-authored semantics remain reviewer-audited rather than self-proven.",
+      "resolvedAt": "2026-07-11T20:10:28.272Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
