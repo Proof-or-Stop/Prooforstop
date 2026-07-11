@@ -290,6 +290,27 @@
       },
       "readDiagnostics": [],
       "_hash": "1622a5c7fdd49b27e29e4a4647aa6f9a14b72a879cb7d199f442db61904b0bb9"
+    },
+    {
+      "id": "B-3928:RP-015",
+      "agent": "lattice-review-docs",
+      "note": "Round 10 docs review clean: extracted 229 changed symbols and compared 52 symbol-referenced Markdown sections plus the full schema-v7 baseline and verifier. M0.4/M0.6, the matrix Audit Boundary, generated terminal/probe output, and evidence policy notes consistently make the 16-role complete-prompt SHA-256 manifest the primary boundary and occurrence scanners diagnostic-only. Exact checks confirmed 16 role/hash parity, 12 registered story references, one exact INIT write, reviewer-audited semantic fields, 11 milestones, 27 stories (26+1), and corrected F-042/F-043 wording; no universal semantic machine-proof claim found.",
+      "createdAt": "2026-07-11T21:17:23.476Z",
+      "reviewRound": "2026-07-11T21:10:21.282Z",
+      "reviewRunId": "B-3928:RR-036",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4446d048b87d74a73315ec79b2ec3c8ba146bae9cf0ffa0b6bd235807a170233"
     }
   ]
 }
