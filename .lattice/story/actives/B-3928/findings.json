@@ -412,7 +412,7 @@
       "desc": "The snapshot-vs-semantic audit boundary omits required semantic columns. M0.3 at docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:1015-1019 says phase, commands, direct-file access, output artifact, and overlap category are all manually reviewed for all 16 rows, but REVIEWER_AUDITED_ROLE_MATRIX_FIELDS at scripts/verify-proof-or-stop-prompt-baseline.mjs:43 and the generated matrix line 10 list only commands/directFileAccess/outputs. Machine checks only enforce non-empty strings and parity. Thus either phase/overlapCategory were not audited and M0.3 is incomplete, or the audit manifest falsely omits work it claims was done; status/purpose/inputs/capabilities/notes also remain semantic prose without an explicit authored-snapshot classification. Make the boundary cover every human-authored semantic field, at minimum all five M0.3 columns.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-11T15:57:40.888Z",
@@ -425,7 +425,11 @@
         "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:1015"
       ],
       "signatureTag": "missing|mjs:43|snapshot-semantic-audit",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in a31f2f08a2. roleMatrixAudit now marks every human-authored ROLE_MATRIX_FIELDS field reviewer-audited: status, phase, purpose, commands, directFileAccess, inputs, outputs, capabilities, overlapCategory, notes. Machine claims remain limited to required fields, exact snapshots/hashes, JSON/Markdown parity, and drift rejection; the plan and rendered matrix state the same boundary.",
+      "resolvedAt": "2026-07-11T16:18:05.704Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3928:F-018",
