@@ -1022,9 +1022,13 @@ Subprojects:
   preflight/navigation reads (`session_brief`, `aux_doc_list`, and generic
   `story_get` / `checklist_get`) and commands mentioned only as prohibited or as
   another role's produced artifact/input.
-- M0.4 Add a regression check that fails if an active non-legacy prompt uses
-  `testIntent`, `TEST_CASE`, or `TEST_CASE_REVIEW` without explicit
-  old/legacy/deprecated/retired/removed/deleted/replaced/compatibility context.
+- M0.4 Add an occurrence- and clause-aware regression check for active,
+  conditional, optional, and compatibility prompts. Every `testIntent`,
+  `TEST_CASE`, or `TEST_CASE_REVIEW` occurrence must be a true negative
+  reference or have explicit local
+  old/legacy/deprecated/retired/removed/deleted/replaced/compatibility context;
+  positive instructions still fail when context appears elsewhere or is
+  negated. Legacy, retired, and fold-candidate prompts remain readable.
 - M0.6 Add a regression check that flags prompts requiring direct writes under
   `docs/story/` unless a corresponding CLI command does not exist and the
   prompt is explicitly grandfathered.

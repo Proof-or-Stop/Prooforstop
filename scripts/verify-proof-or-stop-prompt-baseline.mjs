@@ -23,7 +23,7 @@ const MATRIX_PATH = join(
   'docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md',
 );
 const EXPECTED_ROLE_COUNT = 16;
-const SCHEMA_VERSION = 'proof-or-stop.prompt-baseline.v4';
+const SCHEMA_VERSION = 'proof-or-stop.prompt-baseline.v5';
 const PLAN_PATH = 'docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md';
 const WRITE_MODE = process.argv.includes('--write');
 const PROBE_DIRECT_STORY_CLASSIFIER = process.argv.includes('--probe-direct-story-classifier');
@@ -82,7 +82,7 @@ const LEGACY_PATTERNS = [
     regex: /\btest[\s_-]*intent\b|\btestIntent\b/i,
   },
 ];
-const LEGACY_VOCABULARY_ENFORCED_STATUSES = ['active', 'conditional', 'optional'];
+const LEGACY_VOCABULARY_ENFORCED_STATUSES = ['active', 'conditional', 'optional', 'compatibility'];
 const LEGACY_VOCABULARY_CONTEXT_MARKERS = [
   'old',
   'legacy',
@@ -94,7 +94,7 @@ const LEGACY_VOCABULARY_CONTEXT_MARKERS = [
   'compatibility',
 ];
 const LEGACY_VOCABULARY_POLICY_RULE =
-  'Active, conditional, and optional roles may mention testIntent, TEST_CASE, or TEST_CASE_REVIEW only when the same excerpt explicitly marks old/legacy/deprecated/retired/removed/deleted/replaced/compatibility context. Other role statuses remain readable.';
+  'Each testIntent, TEST_CASE, or TEST_CASE_REVIEW occurrence in an active, conditional, optional, or compatibility role must be a true negative reference or carry explicit local old/legacy/deprecated/retired/removed/deleted/replaced/compatibility context. Positive instructions always fail, and context in another clause or negated context such as "not legacy" never blesses them. Legacy, retired, and fold-candidate roles remain readable.';
 
 const ROLE_MATRIX_DEFAULTS = {
   'implementation-reviewer': {
@@ -113,8 +113,8 @@ const ROLE_MATRIX_DEFAULTS = {
     status: 'optional',
     phase: 'TEST optional',
     purpose: 'CLI/core evaluator for user-facing command behavior.',
-    commands: 'bridge state/reset/events/event/replay API via curl; optional CLI shell spawn.',
-    directFileAccess: 'Uses CLI shell/bridge output; no direct story writes.',
+    commands: 'bridge state/reset/events/event/replay API via curl; cat .lattice-serve.json; optional CLI shell spawn.',
+    directFileAccess: 'Reads .lattice-serve.json for CLI shell connection info; otherwise uses CLI shell/bridge output and performs no direct story writes.',
     inputs: 'Task, expected CLI behavior, command output.',
     outputs: 'Evaluator JSON transcript.',
     capabilities: 'CLI exercise; usability scoring; observed-output assessment.',
@@ -233,8 +233,8 @@ const ROLE_MATRIX_DEFAULTS = {
     status: 'active',
     phase: 'INIT',
     purpose: 'Reviews new story readability, facts, risk wording, and initial checklist sanity.',
-    commands: 'Read/Grep story inputs; init_check_set; cat/echo init-self-check.json.',
-    directFileAccess: 'Grandfathered direct docs/story reads and init-self-check file write wording.',
+    commands: 'Read/Grep story inputs; init_check_set; cat/echo/Edit init-self-check.json.',
+    directFileAccess: 'Grandfathered direct docs/story reads plus init-self-check cat/echo/Edit write wording.',
     inputs: 'Story background, index fields, checklist title/context.',
     outputs: 'init_check_set issues/pass plus init-self-check audit file wording.',
     capabilities: 'Fresh-context intake review; story clarity; risk sanity check.',
@@ -462,6 +462,60 @@ const DIRECT_STORY_CLASSIFIER_PROBES = [
     expectedRejection: 'unclassified actionable reference',
   },
   {
+    name: 'generic output flag targeting story metadata is a direct write',
+    role: 'lattice-review-docs',
+    excerpt: 'Run metadata-transformer --output docs/story/actives/B-1234/index.json',
+    classification: 'direct-write',
+    grandfathered: false,
+    baselineRefresh: 'reject',
+    expectedRejection: 'direct write is not explicitly grandfathered',
+  },
+  {
+    name: 'avoid clause cannot bless apply_patch after and instead',
+    role: 'lattice-review-docs',
+    excerpt: 'Avoid editing docs/story/actives/B-1234/index.json and instead use apply_patch to update docs/story/actives/B-1234/index.json.',
+    classification: 'direct-write',
+    grandfathered: false,
+    baselineRefresh: 'reject',
+    expectedRejection: 'direct write is not explicitly grandfathered',
+  },
+  {
+    name: 'prohibition cannot bless apply_patch after then',
+    role: 'lattice-review-docs',
+    excerpt: 'Do not edit docs/story/actives/B-1234/index.json then use apply_patch to update docs/story/actives/B-1234/index.json.',
+    classification: 'direct-write',
+    grandfathered: false,
+    baselineRefresh: 'reject',
+    expectedRejection: 'direct write is not explicitly grandfathered',
+  },
+  {
+    name: 'process directive with unknown transformer fails closed',
+    role: 'lattice-review-docs',
+    excerpt: 'Process docs/story/actives/B-1234/index.json with the metadata transformer.',
+    classification: 'unclassified-actionable',
+    grandfathered: false,
+    baselineRefresh: 'reject',
+    expectedRejection: 'unclassified actionable reference',
+  },
+  {
+    name: 'unknown metadata tool using for target fails closed',
+    role: 'lattice-review-docs',
+    excerpt: 'Use the metadata transformer for docs/story/actives/B-1234/index.json.',
+    classification: 'unclassified-actionable',
+    grandfathered: false,
+    baselineRefresh: 'reject',
+    expectedRejection: 'unclassified actionable reference',
+  },
+  {
+    name: 'conditional unknown metadata tool fails closed',
+    role: 'lattice-review-docs',
+    excerpt: 'If needed, use the metadata transformer on docs/story/actives/B-1234/index.json.',
+    classification: 'unclassified-actionable',
+    grandfathered: false,
+    baselineRefresh: 'reject',
+    expectedRejection: 'unclassified actionable reference',
+  },
+  {
     name: 'exact current story-init write is grandfathered',
     role: 'lattice-review-story-init',
     excerpt: STORY_INIT_SELF_CHECK_WRITE,
@@ -499,6 +553,26 @@ const DIRECT_STORY_SCANNER_PROBES = [
     baselineRefresh: 'reject',
     expectedRejection: 'direct write is not explicitly grandfathered',
   },
+  {
+    name: 'copy into destination continuation is scanned as one instruction',
+    role: 'lattice-review-docs',
+    content: 'Copy source.json\ninto docs/story/actives/B-1234/index.json',
+    line: 1,
+    classification: 'direct-write',
+    grandfathered: false,
+    baselineRefresh: 'reject',
+    expectedRejection: 'direct write is not explicitly grandfathered',
+  },
+  {
+    name: 'unknown metadata tool target continuation fails closed',
+    role: 'lattice-review-docs',
+    content: 'Use the metadata transformer on\ndocs/story/actives/B-1234/index.json',
+    line: 1,
+    classification: 'unclassified-actionable',
+    grandfathered: false,
+    baselineRefresh: 'reject',
+    expectedRejection: 'unclassified actionable reference',
+  },
 ];
 
 const LEGACY_VOCABULARY_POLICY_PROBES = [
@@ -507,6 +581,62 @@ const LEGACY_VOCABULARY_POLICY_PROBES = [
     role: 'probe-active-role',
     status: 'active',
     content: 'Set testIntent on every checklist item.',
+    expectedRejection: 'active legacy-vocabulary use is not explicitly contextualized',
+  },
+  {
+    name: 'spaced test intent variant is enforced',
+    role: 'probe-active-role',
+    status: 'active',
+    content: 'Set test intent on every checklist item.',
+    expectedRejection: 'active legacy-vocabulary use is not explicitly contextualized',
+  },
+  {
+    name: 'hyphenated test case review variant is enforced',
+    role: 'probe-active-role',
+    status: 'active',
+    content: 'Enter TEST-CASE-REVIEW for every new story.',
+    expectedRejection: 'active legacy-vocabulary use is not explicitly contextualized',
+  },
+  {
+    name: 'underscored test intent variant is enforced',
+    role: 'probe-active-role',
+    status: 'active',
+    content: 'Set test_intent on every checklist item.',
+    expectedRejection: 'active legacy-vocabulary use is not explicitly contextualized',
+  },
+  {
+    name: 'mixed-case testIntent variant is enforced for compatibility roles',
+    role: 'probe-compatibility-role',
+    status: 'compatibility',
+    content: 'Set TeStInTeNt on every checklist item.',
+    expectedRejection: 'active legacy-vocabulary use is not explicitly contextualized',
+  },
+  {
+    name: 'context in an earlier clause cannot bless positive instruction',
+    role: 'probe-active-role',
+    status: 'active',
+    content: 'Old behavior is removed; for new stories, set testIntent on every checklist item.',
+    expectedRejection: 'active legacy-vocabulary use is not explicitly contextualized',
+  },
+  {
+    name: 'negative legacy clause cannot bless later positive instruction',
+    role: 'probe-active-role',
+    status: 'active',
+    content: 'Do not use legacy testIntent; set testIntent on every checklist item.',
+    expectedRejection: 'active legacy-vocabulary use is not explicitly contextualized',
+  },
+  {
+    name: 'negated context after positive instruction cannot bless it',
+    role: 'probe-active-role',
+    status: 'active',
+    content: 'Set testIntent on every checklist item; this behavior is not legacy.',
+    expectedRejection: 'active legacy-vocabulary use is not explicitly contextualized',
+  },
+  {
+    name: 'positive inflection is rejected despite local compatibility marker',
+    role: 'probe-active-role',
+    status: 'active',
+    content: 'For legacy compatibility, writing testIntent for new stories is required.',
     expectedRejection: 'active legacy-vocabulary use is not explicitly contextualized',
   },
 ];
@@ -543,22 +673,33 @@ function runAgentPrompt(role) {
   });
 }
 
-function classifyLegacyVocabularyPolicy(roleStatus, excerpt) {
+function classifyLegacyVocabularyPolicy(roleStatus, clause, occurrence) {
   if (!LEGACY_VOCABULARY_ENFORCED_STATUSES.includes(roleStatus)) {
     return {
       roleStatus,
       policyStatus: 'allowed-role-status',
-      policyReason: `Role status ${roleStatus} is outside active/conditional/optional enforcement.`,
+      policyReason: `Role status ${roleStatus} is outside active/conditional/optional/compatibility enforcement.`,
     };
   }
-  const hasExplicitContext = LEGACY_VOCABULARY_CONTEXT_MARKERS.some(marker =>
-    new RegExp(`\\b${marker}\\b`, 'i').test(excerpt),
-  );
-  if (hasExplicitContext) {
+  if (hasPositiveLegacyInstruction(clause, occurrence)) {
     return {
       roleStatus,
-      policyStatus: 'allowed-explicit-context',
-      policyReason: 'Excerpt explicitly marks old/legacy/deprecated/retired/removed/deleted/replaced/compatibility context.',
+      policyStatus: 'blocked-active-use',
+      policyReason: 'Positive legacy-vocabulary instructions are forbidden even when context markers appear elsewhere.',
+    };
+  }
+  if (isNegativeLegacyOccurrence(clause, occurrence)) {
+    return {
+      roleStatus,
+      policyStatus: 'allowed-negative-reference',
+      policyReason: 'Occurrence is scoped by a true negative instruction or exclusion.',
+    };
+  }
+  if (hasExplicitLegacyContext(clause)) {
+    return {
+      roleStatus,
+      policyStatus: 'allowed-explicit-local-context',
+      policyReason: 'The occurrence clause explicitly marks non-negated old/legacy/deprecated/retired/removed/deleted/replaced/compatibility context.',
     };
   }
   return {
@@ -568,8 +709,44 @@ function classifyLegacyVocabularyPolicy(roleStatus, excerpt) {
   };
 }
 
-function classifyLegacyFinding(role, term, excerpt, roleStatus) {
-  const policy = classifyLegacyVocabularyPolicy(roleStatus, excerpt);
+function hasPositiveLegacyInstruction(clause, occurrence) {
+  const actionPattern = /\b(?:set|sets|setting|write|writes|writing|use|uses|using|add|adds|adding|create|creates|creating|populate|populates|populating|record|records|recording|assign|assigns|assigning|update|updates|updating|enable|enables|enabling|require|requires|requiring|generate|generates|generating|enter|enters|entering|transition|transitions|transitioning|move|moves|moving|modify|modifies|modifying)\b/gi;
+  const beforeOccurrence = clause.slice(0, occurrence.index);
+  for (const match of beforeOccurrence.matchAll(actionPattern)) {
+    const prefix = beforeOccurrence.slice(0, match.index).replace(/[*_`]+/g, '').trimEnd();
+    if (/\b(?:do\s+not|don't|must\s+not|should\s+not|never|avoid|without|not)\s*$/i.test(prefix)) {
+      continue;
+    }
+    return true;
+  }
+
+  const afterOccurrence = clause.slice(occurrence.index + occurrence.text.length);
+  return /^\s*[*_`]*(?:must|should|shall|needs?\s+to|is\s+to|is\s+required\s+to)\s+(?:be\s+)?(?:set|written|used|added|created|populated|recorded|assigned|updated|enabled|required|generated)\b/i.test(
+    afterOccurrence,
+  );
+}
+
+function isNegativeLegacyOccurrence(clause, occurrence) {
+  const beforeOccurrence = stripDirectiveFormatting(clause.slice(0, occurrence.index));
+  return /\b(?:do\s+not|don't|must\s+not|should\s+not|never|avoid|without|not)\s+(?:directly\s+)?(?:set|write|use|add|create|populate|record|assign|update|enable|require|generate|enter|transition|move|modify|review|resurrect)\w*\b/i.test(
+    beforeOccurrence,
+  );
+}
+
+function hasExplicitLegacyContext(clause) {
+  for (const marker of LEGACY_VOCABULARY_CONTEXT_MARKERS) {
+    const pattern = new RegExp(`\\b${marker}\\b`, 'gi');
+    for (const match of clause.matchAll(pattern)) {
+      const prefix = clause.slice(0, match.index).replace(/[*_`]+/g, '').trimEnd();
+      if (/\b(?:not|isn't|isnt|wasn't|wasnt|never|no\s+longer)(?:\s+(?:a|an))?\s*$/i.test(prefix)) continue;
+      return true;
+    }
+  }
+  return false;
+}
+
+function classifyLegacyFinding(role, term, excerpt, roleStatus, clause, occurrence) {
+  const policy = classifyLegacyVocabularyPolicy(roleStatus, clause, occurrence);
   if (role === 'test-intent' || role === 'test-case-reviewer') {
     return {
       classification: 'legacy-prompt-body',
@@ -620,18 +797,18 @@ function classifyStoryFinding(role, excerpt) {
       note: 'Registered direct story-file write instruction to replace with CLI-mediated writes in later milestones.',
     };
   }
-  if (isNegativeStoryPolicyReminder(excerpt)) {
-    return {
-      classification: 'policy-reminder',
-      grandfathered: false,
-      note: 'Prompt reminds agents not to bypass CLI-mediated story operations.',
-    };
-  }
   if (hasActionableStoryMutationSignal(excerpt)) {
     return {
       classification: 'unclassified-actionable',
       grandfathered: false,
       note: 'Actionable story-file mutation was not recognized by the direct-write classifier; baseline refresh must stop.',
+    };
+  }
+  if (isNegativeStoryPolicyReminder(excerpt)) {
+    return {
+      classification: 'policy-reminder',
+      grandfathered: false,
+      note: 'Prompt reminds agents not to bypass CLI-mediated story operations.',
     };
   }
   if (lower.includes('process-events.jsonl') || lower.includes('dispatch evidence source')) {
@@ -668,9 +845,18 @@ function classifyStoryFinding(role, excerpt) {
 function splitStoryActionClauses(excerpt) {
   return excerpt
     .replace(/\\\s*\r?\n\s*/g, ' ')
-    .split(/\r?\n|;|(?<=[.!?])\s+|,\s*(?:but|however|then)\s+|\s+(?:and\s+then|but|however)\s+/i)
+    .split(/\r?\n|;|(?<=[.!?])\s+|,\s*(?:but|however|then|instead)\s+|\s+(?:and\s+(?:then|instead)|but|however|then|instead)\s+/i)
     .map(clause => clause.trim())
     .filter(Boolean);
+}
+
+function stripDirectiveFormatting(clause) {
+  return clause
+    .trim()
+    .replace(/^(?:[-*+]\s+|\d+[.)]\s+)/, '')
+    .replace(/^(?:[#>`]+\s*)+/, '')
+    .replace(/^[*_`]+/, '')
+    .trim();
 }
 
 function isNegativeStoryPolicyClause(clause) {
@@ -694,6 +880,7 @@ function hasRecognizedStoryWriteAction(clause) {
     /\b(?:edit|write|create|update|delete|remove|append|overwrite|replace)\b[\s\S]*docs\/story/i.test(clause) ||
     /docs\/story[\s\S]*\b(?:edit|write|create|update|delete|remove|append|overwrite|replace)\b/i.test(clause) ||
     /\b(?:tee|sed\s+-i|perl\s+-i)\b[\s\S]*docs\/story/i.test(clause) ||
+    /(?:^|\s)(?:--output(?:=|\s+)|-o\s+)["'`]?docs\/story/i.test(clause) ||
     /\b(?:echo|printf|cat)\b[\s\S]*(?:>|>>)\s*docs\/story/i.test(clause) ||
     /\b(?:echo|printf)\b[\s\S]*\|\s*tee\b[\s\S]*docs\/story/i.test(clause) ||
     /(?:^|\s)(?:>|>>)\s*docs\/story/i.test(clause)
@@ -709,26 +896,56 @@ function isDirectStoryWriteInstruction(excerpt) {
 
 function hasActionableStoryMutationSignal(excerpt) {
   if (!/docs\/story/i.test(excerpt)) return false;
-  return splitStoryActionClauses(excerpt).some(
-    clause => {
-      if (isNegativeStoryPolicyClause(clause)) return false;
-      const mutationVerb = /\b(?:add|append|create|delete|edit|modify|mutate|overwrite|patch|remove|replace|save|update|write|copy|move|install|rsync|cp|mv)\b/i;
-      const directive = /^\s*(?:[-*]\s*)?(?:(?:please|then)\s+|you\s+(?:must|should|can|may)\s+|(?:must|should)\s+)?(?:add|append|create|delete|edit|modify|mutate|overwrite|patch|remove|replace|save|update|write|copy|move|install|rsync|cp|mv)\b/i;
-      return (
-        (/docs\/story/i.test(clause) && mutationVerb.test(clause)) ||
-        directive.test(clause) ||
-        hasUnknownStoryMutationDirective(clause) ||
-        /\b(?:apply_patch|tee|sed\s+-i|perl\s+-i)\b/i.test(clause) ||
-        /(?:^|\s)(?:>|>>)(?:\s|$)/.test(clause)
-      );
-    },
-  );
+  return splitStoryActionClauses(excerpt).some(clause => {
+    if (isNegativeStoryPolicyClause(clause)) return false;
+    if (isReadOnlyStoryClause(clause) || isCliMediatedStoryRedirect(clause)) return false;
+    if (hasRecognizedStoryWriteAction(clause)) return true;
+    if (!/docs\/story/i.test(clause)) return false;
+    return hasUnknownStoryMutationDirective(clause) || looksLikeImperativeDirective(clause);
+  });
 }
 
 function hasUnknownStoryMutationDirective(clause) {
-  const directive = /^\s*(?:[-*]\s*)?(?:please\s+)?(?:use|run|invoke|execute|apply)\b[\s\S]*\b(?:on|against|to|into)\s+docs\/story/i;
-  if (!directive.test(clause)) return false;
-  return !/\b(?:read|cat|grep|find|list|inspect|view|show|print|search|scan)\b/i.test(clause);
+  if (!/docs\/story/i.test(clause)) return false;
+  return looksLikeImperativeDirective(clause);
+}
+
+function isReadOnlyStoryClause(clause) {
+  const directive = stripDirectiveFormatting(clause);
+  return (
+    /\bread\s+only\b|\bfull\s+text\b/i.test(directive) ||
+    /^(?:read|cat|grep|find|list|inspect|view|show|print|search|scan)\b/i.test(directive) ||
+    /^(?:use|run|invoke)\s+(?:the\s+)?(?:read|cat|grep|find|list|inspect|view|show|print|search|scan)\b/i.test(directive) ||
+    /^(?:use|run|invoke)\b[\s\S]*\b(?:to\s+)?(?:read|inspect|view|show|list|search|scan)\b[\s\S]*docs\/story/i.test(directive)
+  );
+}
+
+function isCliMediatedStoryRedirect(clause) {
+  const directive = stripDirectiveFormatting(clause);
+  return /^(?:use\s+(?:the\s+)?lattice\s+cli|route\b[\s\S]*\b(?:through|via)\s+(?:the\s+)?lattice\s+cli)\b/i.test(
+    directive,
+  );
+}
+
+function looksLikeImperativeDirective(clause) {
+  const directive = stripDirectiveFormatting(clause);
+  if (!directive || isNegativeStoryPolicyClause(directive)) return false;
+  if (isReadOnlyStoryClause(directive) || isCliMediatedStoryRedirect(directive)) return false;
+  if (/^["'`*]*docs\/story\b/i.test(directive)) return false;
+
+  const withoutCondition = directive.replace(
+    /^(?:if|when)\b[^,:\n]*(?:,|:)\s*/i,
+    '',
+  );
+  const withoutLead = withoutCondition.replace(
+    /^(?:(?:please|then|instead)\s+|for\s+new\s+stories\s*,\s*|you\s+(?:must|should|can|may)\s+|(?:must|should)\s+)/i,
+    '',
+  );
+  if (/^["'`*]*docs\/story\b/i.test(withoutLead)) return false;
+  if (/^(?:the|a|an|all|this|that|these|those|other|story|current|legacy|source|input|output|full|expected|registered|role|prompt|evidence|example|note|notes|if|when|where|while|because|whether|which|who|why|how)\b/i.test(withoutLead)) {
+    return false;
+  }
+  return /^[A-Za-z][A-Za-z0-9_.:/-]*(?:\s|$)/.test(withoutLead);
 }
 
 function scanLegacyVocabulary(roleEntries) {
@@ -739,20 +956,49 @@ function scanLegacyVocabulary(roleEntries) {
     for (let index = 0; index < lines.length; index += 1) {
       const excerpt = lines[index].trim();
       if (!excerpt) continue;
-      const terms = [];
-      for (const pattern of LEGACY_PATTERNS) {
-        if (pattern.regex.test(excerpt)) terms.push(pattern.term);
-      }
-      for (const term of terms) {
-        const classification = classifyLegacyFinding(entry.role, term, excerpt, roleStatus);
-        findings.push({
-          id: sha256(`${entry.role}\0${index + 1}\0${term}\0${excerpt}`).slice(0, 16),
-          role: entry.role,
-          line: index + 1,
-          term,
-          excerpt,
-          ...classification,
-        });
+      const clauses = splitStoryActionClauses(excerpt);
+      let occurrence = 0;
+      for (let clauseIndex = 0; clauseIndex < clauses.length; clauseIndex += 1) {
+        const clause = clauses[clauseIndex];
+        const clauseOccurrences = [];
+        for (const pattern of LEGACY_PATTERNS) {
+          const flags = pattern.regex.flags.includes('g')
+            ? pattern.regex.flags
+            : `${pattern.regex.flags}g`;
+          for (const match of clause.matchAll(new RegExp(pattern.regex.source, flags))) {
+            clauseOccurrences.push({
+              term: pattern.term,
+              index: match.index,
+              text: match[0],
+            });
+          }
+        }
+        clauseOccurrences.sort(
+          (a, b) => a.index - b.index || a.term.localeCompare(b.term),
+        );
+        for (const matched of clauseOccurrences) {
+          occurrence += 1;
+          const classification = classifyLegacyFinding(
+            entry.role,
+            matched.term,
+            excerpt,
+            roleStatus,
+            clause,
+            matched,
+          );
+          findings.push({
+            id: sha256(`${entry.role}\0${index + 1}\0${occurrence}\0${matched.term}\0${excerpt}`).slice(0, 16),
+            role: entry.role,
+            line: index + 1,
+            clauseIndex: clauseIndex + 1,
+            occurrence,
+            term: matched.term,
+            matchedText: matched.text,
+            clause,
+            excerpt,
+            ...classification,
+          });
+        }
       }
     }
   }
@@ -790,7 +1036,7 @@ function buildStoryScanExcerpts(content) {
     const parts = [lines[index].trim()];
     while (
       index + 1 < lines.length &&
-      (/\\\s*$/.test(lines[index]) || shouldJoinMutationContinuation(lines[index], lines[index + 1]))
+      shouldJoinMutationContinuation(lines[index], lines[index + 1])
     ) {
       index += 1;
       parts.push(lines[index].trim());
@@ -802,9 +1048,13 @@ function buildStoryScanExcerpts(content) {
 
 function shouldJoinMutationContinuation(line, nextLine) {
   if (!/docs\/story/i.test(nextLine)) return false;
-  const mutationShape = /\b(?:add|append|copy|cp|create|delete|edit|install|modify|move|mv|mutate|overwrite|patch|remove|replace|rsync|save|update|write)\b/i;
-  const targetConnector = /\b(?:at|into|on|onto|to|under)\s*$/i;
-  return mutationShape.test(line) && targetConnector.test(line.trim());
+  if (!looksLikeImperativeDirective(line)) return false;
+  const target = stripDirectiveFormatting(nextLine);
+  if (/^(?:at|for|into|on|onto|to|under)\s+["'`]*docs\/story/i.test(target)) {
+    return true;
+  }
+  if (!/^["'`]*docs\/story/i.test(target)) return false;
+  return /\\\s*$|\b(?:at|for|into|on|onto|to|under)\s*$/i.test(line.trim());
 }
 
 function scanStoryFileReferences(roleEntries) {
@@ -839,6 +1089,7 @@ function compareFinding(a, b) {
   return (
     a.role.localeCompare(b.role) ||
     a.line - b.line ||
+    (a.occurrence ?? 0) - (b.occurrence ?? 0) ||
     String(a.term ?? a.references?.[0] ?? '').localeCompare(String(b.term ?? b.references?.[0] ?? '')) ||
     a.excerpt.localeCompare(b.excerpt)
   );
@@ -846,7 +1097,7 @@ function compareFinding(a, b) {
 
 function buildFindingKey(finding) {
   const discriminator = finding.term ?? (finding.references ?? []).join(',');
-  return `${finding.role}:${finding.line}:${discriminator}:${sha256(finding.excerpt).slice(0, 16)}`;
+  return `${finding.role}:${finding.line}:${finding.clauseIndex ?? 0}:${finding.occurrence ?? 0}:${discriminator}:${sha256(finding.excerpt).slice(0, 16)}`;
 }
 
 async function loadBuiltRegistry() {
@@ -1188,6 +1439,17 @@ function verifyBaselineDriftProbes(current, failures) {
         `unregistered current agent_prompt output ${outputRole.role}`,
       ],
     },
+    {
+      name: 'duplicate agent_prompt output ownership',
+      verifier: verifyAgentPromptOutputs,
+      mutate(baseline) {
+        baseline.agentPrompt.outputs[1].role = baseline.agentPrompt.outputs[0].role;
+      },
+      expected: [
+        `duplicate baseline agent_prompt output: ${outputRole.role}`,
+        'baseline agent_prompt role count',
+      ],
+    },
   ];
 
   for (const probe of cases) {
@@ -1205,6 +1467,29 @@ function verifyBaselineDriftProbes(current, failures) {
           `baseline drift probe ${probe.name}: expected rejection containing ${JSON.stringify(fragment)}, got ${JSON.stringify(mutationFailures)}`,
         );
       }
+    }
+  }
+}
+
+function verifyAgentPromptCommandProbes(failures) {
+  const unknownRole = 'probe-unknown-role';
+  try {
+    runAgentPrompt(unknownRole);
+    failures.push('agent_prompt unknown-role command probe: command unexpectedly succeeded');
+  } catch (error) {
+    const output = [
+      error instanceof Error ? error.message : String(error),
+      error && typeof error === 'object' && 'stdout' in error
+        ? Buffer.from(error.stdout ?? '').toString('utf8')
+        : '',
+      error && typeof error === 'object' && 'stderr' in error
+        ? Buffer.from(error.stderr ?? '').toString('utf8')
+        : '',
+    ].join('\n');
+    if (!output.includes(`agent_prompt: unknown role "${unknownRole}"`)) {
+      failures.push(
+        `agent_prompt unknown-role command probe: expected explicit unknown-role rejection, got ${JSON.stringify(output)}`,
+      );
     }
   }
 }
@@ -1352,7 +1637,15 @@ function verifyFindings(currentFindings, baselineFindings, label, failures) {
     if ('grandfathered' in expected) {
       requireEqual(actual.grandfathered, expected.grandfathered, `${label} ${key}.grandfathered`, failures);
     }
-    for (const field of ['roleStatus', 'policyStatus', 'policyReason']) {
+    for (const field of [
+      'clauseIndex',
+      'occurrence',
+      'matchedText',
+      'clause',
+      'roleStatus',
+      'policyStatus',
+      'policyReason',
+    ]) {
       if (field in actual || field in expected) {
         requireEqual(actual[field], expected[field], `${label} ${key}.${field}`, failures);
       }
@@ -1607,13 +1900,14 @@ async function runBaselineDriftProbeCommand() {
   const current = await collectCurrentBaseline();
   const failures = [];
   verifyBaselineDriftProbes(current, failures);
+  verifyAgentPromptCommandProbes(failures);
   if (failures.length > 0) {
     console.error('FAIL baseline mechanical drift probes');
     for (const failure of failures) console.error(`- ${failure}`);
     process.exit(1);
   }
   console.log(
-    'PASS baseline mechanical drift probes: 9 registry/template/role-count/role-identity/agent_prompt snapshot mutations rejected',
+    'PASS baseline mechanical drift probes: 10 registry/template/role-count/role-identity/agent_prompt snapshot mutations plus unknown-role command rejected',
   );
 }
 
@@ -1647,6 +1941,7 @@ async function verifyBaseline() {
   verifyRegistry(current, baseline, failures);
   verifyAgentPromptOutputs(current, baseline, failures);
   verifyBaselineDriftProbes(current, failures);
+  verifyAgentPromptCommandProbes(failures);
   verifyMatrix(current, baseline, failures);
   verifyRoleMatrixAudit(current, baseline, failures);
   verifyRoleMatrixSnapshotDriftProbe(current, failures);
@@ -1685,7 +1980,7 @@ async function verifyBaseline() {
 
   console.log('PASS proof-or-stop prompt baseline: roleCount=16 registry hashes verified');
   console.log('PASS proof-or-stop prompt baseline: agent_prompt output hashes verified for 16 roles');
-  console.log('PASS proof-or-stop prompt baseline: 9 baseline mechanical drift mutations rejected');
+  console.log('PASS proof-or-stop prompt baseline: 10 baseline mechanical drift mutations and unknown-role agent_prompt command rejected');
   console.log('PASS proof-or-stop prompt baseline: role matrix snapshot integrity verified for 16 roles');
   console.log('PASS proof-or-stop prompt baseline: role matrix field/Markdown/role-count/missing-row drift rejected');
   console.log('INFO proof-or-stop prompt baseline: all human-authored role-matrix semantics remain reviewer-audited');
