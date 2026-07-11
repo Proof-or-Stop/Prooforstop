@@ -323,15 +323,14 @@
         {
           "intentRef": "CHK-004:edge:0",
           "kind": "logic_test",
-          "verdict": "success",
           "file": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
-          "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-legacy-vocabulary-policy",
+          "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
           "result": "pass",
-          "note": "An active role instruction `Set testIntent...` without old/legacy/deprecation context is rejected during collection/baseline refresh.",
-          "headHash": "e835bd88bd51d42fb69b9bdd4f3b509d78328194",
+          "note": "Full verifier proves any prompt-body change must match the independent 16-role approval manifest before baseline refresh, then audits live legacy occurrences against the closed status/negative/context diagnostics; unsafe additions cannot self-authorize.",
+          "headHash": "c334e7f9308df635b6793a295730ff56453f1d54",
           "materialHash": "f22d2aefc41abe1face47bf5c7a62a3afad422e8875a95bb4ae557bbe0a09798",
           "storyFilesHash": "4802864701c1ca5bd297d2492785b649e9b1b2fb062be775374453326a1e67c9",
-          "timestamp": "2026-07-11T21:09:34.778Z"
+          "timestamp": "2026-07-11T21:10:05.548Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
