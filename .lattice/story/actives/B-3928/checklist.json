@@ -408,15 +408,14 @@
         {
           "intentRef": "CHK-005:edge:0",
           "kind": "logic_test",
-          "verdict": "success",
           "file": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
-          "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-direct-story-classifier",
+          "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
           "result": "pass",
-          "note": "Twenty-five classifier and two real scanner probes cover mixed clauses, apply_patch, Edit/Write, shell/copy tools, exact allow entry, transformer directives, backslash continuation, and natural prose continuation.",
-          "headHash": "e835bd88bd51d42fb69b9bdd4f3b509d78328194",
+          "note": "Full verifier executes the independent approval-manifest suite, proving direct-story body mutations and baseline-refresh self-authorization are rejected before diagnostic collection; unregistered writes cannot be blessed by rewriting the baseline.",
+          "headHash": "b9de53a654e1a090b0ac1c121aea6404a3efb945",
           "materialHash": "f22d2aefc41abe1face47bf5c7a62a3afad422e8875a95bb4ae557bbe0a09798",
           "storyFilesHash": "4802864701c1ca5bd297d2492785b649e9b1b2fb062be775374453326a1e67c9",
-          "timestamp": "2026-07-11T21:09:34.778Z"
+          "timestamp": "2026-07-11T21:10:07.758Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
