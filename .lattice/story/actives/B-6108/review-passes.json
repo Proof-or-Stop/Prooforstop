@@ -58,6 +58,27 @@
         "scanEscalationReason": null
       },
       "_hash": "6489367032e938501f26da39e07aaac2f2621a4a1a4e7ca34b20cd1697bd9d19"
+    },
+    {
+      "id": "B-6108:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "F-001 verified resolved both directions on the live built CLI: full intent-hardening smoke (12 vocabularyPrecisionControls incl. 4 F-001 routine-passive must-not-fire cases, plus qualifier-carrying must-fire cases) passes; my own independently-authored 11-sentence probe against dist/cli.js done_intent_equivalence_check also passes both directions. tsc --noEmit clean, no dead code/as-any/empty-catch in the diff, all new regex fragments referenced. Reconciliation smoke, milestone-status, e2e all pass.",
+      "createdAt": "2026-07-11T23:28:48.936Z",
+      "reviewRound": "2026-07-11T22:54:45.995Z",
+      "reviewRunId": "B-6108:RR-004",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-6108/plan.md",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-6108/checklist.json",
+          ".lattice/story/actives/B-6108/findings.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ac513510f14e389fc7e512565901c7882a8ee61fde80d44beffc15ae52d9eebb"
     }
   ]
 }
