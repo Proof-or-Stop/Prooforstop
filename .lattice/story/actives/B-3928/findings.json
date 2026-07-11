@@ -589,6 +589,26 @@
       ],
       "signatureTag": "adversarial|mjs:728|still-fail-open",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3928:F-024",
+      "desc": "F-016 remains vulnerable to legacy-context laundering. classifyLegacyVocabularyPolicy at scripts/verify-proof-or-stop-prompt-baseline.mjs:546-568 allows an active-role line when any marker occurs anywhere in the whole excerpt, without tying the marker to the legacy term or rejecting a positive current/new-story instruction. Exact execution classified `Old behavior is removed; for new stories, set testIntent on every checklist item.` as allowed-explicit-context, so collection/--write accepts the very active use M0.4 is meant to reject. Evaluate clauses/occurrences rather than the whole line and add a probe where unrelated old/removed wording precedes an explicit new-story testIntent instruction.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-11T16:22:13.091Z",
+      "reviewRound": "2026-07-11T16:17:38.139Z",
+      "reviewRunId": "B-3928:RR-023",
+      "_hash": "fe61ef9053828b6bb004b8c5a912086ce3777d0e6b567b5c1bfd99c53340daa5",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:546",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:762",
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:1025"
+      ],
+      "signatureTag": "adversarial|mjs:546|remains-vulnerable-legacy",
+      "signatureTagSource": "auto"
     }
   ]
 }
