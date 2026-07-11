@@ -414,11 +414,11 @@
           "file": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
           "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-direct-story-classifier",
           "result": "pass",
-          "note": "Twenty-three classifier probes cover mixed policy/write text, apply_patch headers, Edit/Write, tee, sed, redirection, cp/copy/mv/move/install/rsync, exact grandfathering, pure prohibitions, and unknown mutations; one scanner probe proves a backslash-continued cp destination is caught.",
-          "headHash": "e37539a79848a8c7ad95617cc571b61cb5856cac",
-          "materialHash": "604ec73862a3dfbc27dd09503b8e63666b1fe283237638652be8cb5696e58c4d",
-          "storyFilesHash": "dd547cbf2bbf9945f26b15fb734dc408a565d7b38b07893e53a2e0d7e8f0cc82",
-          "timestamp": "2026-07-11T15:50:49.676Z"
+          "note": "Twenty-five classifier and two real scanner probes cover mixed clauses, apply_patch, Edit/Write, shell/copy tools, exact allow entry, transformer directives, backslash continuation, and natural prose continuation.",
+          "headHash": "408ac2aee6ec46030af5466b3c2d59894325247d",
+          "materialHash": "75a3d39927cbbec7898e05bc7d4d40c5c5d0fef052a2ae1e2662bd3d059cf499",
+          "storyFilesHash": "86ce50875b8e9fe4d64163a4daf740e9e09402d1c2c0d887de160f50b19997c5",
+          "timestamp": "2026-07-11T16:16:49.150Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
