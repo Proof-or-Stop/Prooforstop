@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Retain codex turn.failed / terminal error lines in the default streaming runner as a second bounded lane",
+      "context": "packages/main/src/core/host-run.ts: add a failure-line retainer for host codex matching JSON lines with type turn.failed or terminal error; retention is bounded, last-one-wins, same HOST_RUN_RETAINED_LINE_CAP (1 MiB) discipline as the existing usage lane (reuse UsageLineScanner); the retained failure line is surfaced on HostRunSpawnResult without changing the live passthrough or the existing usage retention/truncation semantics (F-013/F-026).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Record turn_failed(<short digest of error.message>) as the codex unavailableReason with honest fallback",
+      "context": "packages/main/src/core/host-run.ts recordFinalForHost codex path: when no turn.completed usage exists but a turn.failed/terminal-error event was retained (streaming lane) or present in a buffered fake-runner stdout, record unavailableReason turn_failed(<short sanitized digest of error.message, innermost message when nested JSON>); fall back to no_turn_completed_usage_event when neither event is present; a genuine turn.completed usage still records provider-reported exactly as today; usage numbers are never fabricated.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Pin the observed B-3928 turn.failed fixture in the host-run usage smoke",
+      "context": "packages/main/src/tasks/host-run-usage-smoke.ts: add a pinned fixture with the exact observed line {\"type\":\"turn.failed\",\"error\":{\"message\":\"{\\\"type\\\":\\\"error\\\",\\\"status\\\":400,\\\"error\\\":{\\\"type\\\":\\\"invalid_request_error\\\",\\\"message\\\":\\\"The 'gpt-5.6-sol' model requires a newer version of Codex. Please upgrade to the latest app or CLI and try again.\\\"}}\"}} asserting the recorded unavailableReason is turn_failed(...) carrying the upgrade message digest; update the existing turn.failed check accordingly; keep a no-failure-event case asserting the no_turn_completed_usage_event fallback.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
