@@ -23,10 +23,12 @@ const MATRIX_PATH = join(
   'docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md',
 );
 const EXPECTED_ROLE_COUNT = 16;
-const SCHEMA_VERSION = 'proof-or-stop.prompt-baseline.v3';
+const SCHEMA_VERSION = 'proof-or-stop.prompt-baseline.v4';
 const PLAN_PATH = 'docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md';
 const WRITE_MODE = process.argv.includes('--write');
 const PROBE_DIRECT_STORY_CLASSIFIER = process.argv.includes('--probe-direct-story-classifier');
+const PROBE_LEGACY_VOCABULARY_POLICY = process.argv.includes('--probe-legacy-vocabulary-policy');
+const PROBE_BASELINE_DRIFT = process.argv.includes('--probe-baseline-drift');
 const PROBE_ROLE_MATRIX_SNAPSHOT_DRIFT = process.argv.includes('--probe-role-matrix-snapshot-drift');
 const ROLE_MATRIX_FIELDS = [
   'status',
@@ -40,7 +42,7 @@ const ROLE_MATRIX_FIELDS = [
   'overlapCategory',
   'notes',
 ];
-const REVIEWER_AUDITED_ROLE_MATRIX_FIELDS = ['commands', 'directFileAccess', 'outputs'];
+const REVIEWER_AUDITED_ROLE_MATRIX_FIELDS = [...ROLE_MATRIX_FIELDS];
 const ROLE_MATRIX_MACHINE_CHECKS = [
   'Lock the exact 16 role snapshots and role IDs.',
   'Lock registry template hashes and agent_prompt output hashes.',
@@ -48,7 +50,13 @@ const ROLE_MATRIX_MACHINE_CHECKS = [
   'Require JSON/Markdown parity and reject snapshot drift.',
 ];
 const ROLE_MATRIX_SEMANTIC_BOUNDARY =
-  'Commands, outputs, and direct-file-access semantics are reviewer-audited snapshots. The verifier does not infer or prove command ownership or behavioral semantics from prompt prose.';
+  'Every human-authored role-matrix field is a reviewer-audited semantic snapshot. The verifier proves required fields, exact snapshots and hashes, JSON/Markdown parity, and drift rejection; it does not infer or prove role semantics from prompt prose.';
+const ROLE_MATRIX_COMMANDS_CONTRACT = {
+  includes:
+    'Role-owned writes plus role-defining inspection or execution calls named in the role-specific procedure.',
+  excludes:
+    'Universal Runtime Guide preflight/navigation reads (session_brief, aux_doc_list, and generic story_get/checklist_get) plus commands mentioned only as prohibited or as another role\'s produced artifact or input.',
+};
 const ROLE_MATRIX_SOURCE_ANCHOR_PURPOSE =
   'Navigation and drift anchors for manual review only; relPath and templateHash do not prove role semantics.';
 const STORY_INIT_SELF_CHECK_WRITE = `echo '{"question":"Did you read CLAUDE.md? If not, explain the reason in detail in the answer field. If yes, also state that you read it in the answer field.","answer":""}' > docs/story/actives/<storyId>/init-self-check.json`;
@@ -74,6 +82,19 @@ const LEGACY_PATTERNS = [
     regex: /\btest[\s_-]*intent\b|\btestIntent\b/i,
   },
 ];
+const LEGACY_VOCABULARY_ENFORCED_STATUSES = ['active', 'conditional', 'optional'];
+const LEGACY_VOCABULARY_CONTEXT_MARKERS = [
+  'old',
+  'legacy',
+  'deprecated',
+  'retired',
+  'removed',
+  'deleted',
+  'replaced',
+  'compatibility',
+];
+const LEGACY_VOCABULARY_POLICY_RULE =
+  'Active, conditional, and optional roles may mention testIntent, TEST_CASE, or TEST_CASE_REVIEW only when the same excerpt explicitly marks old/legacy/deprecated/retired/removed/deleted/replaced/compatibility context. Other role statuses remain readable.';
 
 const ROLE_MATRIX_DEFAULTS = {
   'implementation-reviewer': {
@@ -116,7 +137,7 @@ const ROLE_MATRIX_DEFAULTS = {
     status: 'active',
     phase: 'DEV',
     purpose: 'Implementation worker that edits code, verifies locally, and updates checklist evidence.',
-    commands: 'checklist_update; validate; status; checklist_get; story_get; aux_doc_list; aux_scan; aux_detail.',
+    commands: 'checklist_update; validate; optional serve; aux_scan; aux_detail; local lint/build/unit tests; git add; git commit.',
     directFileAccess: 'Reads and edits source/docs in workspace; story metadata through Lattice CLI only.',
     inputs: 'Story, checklist, source files, focused docs.',
     outputs: 'Code changes, commits, checklist status updates, and brief return summary.',
@@ -128,7 +149,7 @@ const ROLE_MATRIX_DEFAULTS = {
     status: 'active',
     phase: 'REVIEW',
     purpose: 'Reviews promised user-visible behavior, edge cases, and userSees mismatch.',
-    commands: 'git diff; checklist_get; review_run_start; finding_add; review_pass_set.',
+    commands: 'git diff; dev_memory_preflight; dev_memory_search; Glob/rg candidate search; review_run_start; finding_add; review_pass_set.',
     directFileAccess: 'Reads git diff, checklist userSees, source files, candidate docs, and scope-plan artifacts; no direct story writes.',
     inputs: 'Diff, story scope, user-visible behavior, verification evidence.',
     outputs: 'Reviewer findings or pass.',
@@ -140,7 +161,7 @@ const ROLE_MATRIX_DEFAULTS = {
     status: 'retired-cli-only',
     phase: 'REVIEW legacy',
     purpose: 'Legacy reviewer for normal-channel dispatch evidence.',
-    commands: 'checklist_get; story_get; grep process-events; review_run_start; finding_add; review_pass_set.',
+    commands: 'grep process-events; review_run_start; finding_add; review_pass_set.',
     directFileAccess: 'Legacy direct read of docs/story process-events evidence.',
     inputs: 'process-events dispatch and subagent_result evidence.',
     outputs: 'Reviewer findings or pass.',
@@ -164,7 +185,7 @@ const ROLE_MATRIX_DEFAULTS = {
     status: 'active',
     phase: 'TEST/DONE',
     purpose: 'Reviews final delivery claims, docs promises, real machine tests, and closeout.',
-    commands: 'git diff; delivery_check_set.',
+    commands: 'git diff; source grep; delivery_check_set.',
     directFileAccess: 'Reads git diff and repository files; explicitly avoids process-events, reviewer outputs, and test-evidence contents.',
     inputs: 'Diff, validation evidence, docs promises, user-facing closeout claims.',
     outputs: 'Signed delivery-check.json via delivery_check_set, or refusal text.',
@@ -200,7 +221,7 @@ const ROLE_MATRIX_DEFAULTS = {
     status: 'active',
     phase: 'PLAN',
     purpose: 'Reviews story/checklist scope against source-of-truth requirements.',
-    commands: 'config; dev_memory_preflight; dev_memory_search; aux_doc_list; story_get; checklist_get; scope_check_save.',
+    commands: 'config; dev_memory_preflight; dev_memory_search; Glob/rg candidate search; scope_check_save.',
     directFileAccess: 'Reads candidate docs and CLI-provided story/checklist context; scope evidence through Lattice CLI.',
     inputs: 'Story, checklist, candidate requirement docs, risk signals.',
     outputs: 'scope_check_save artifact.',
@@ -212,7 +233,7 @@ const ROLE_MATRIX_DEFAULTS = {
     status: 'active',
     phase: 'INIT',
     purpose: 'Reviews new story readability, facts, risk wording, and initial checklist sanity.',
-    commands: 'init_check_set.',
+    commands: 'Read/Grep story inputs; init_check_set; cat/echo init-self-check.json.',
     directFileAccess: 'Grandfathered direct docs/story reads and init-self-check file write wording.',
     inputs: 'Story background, index fields, checklist title/context.',
     outputs: 'init_check_set issues/pass plus init-self-check audit file wording.',
@@ -224,7 +245,7 @@ const ROLE_MATRIX_DEFAULTS = {
     status: 'active',
     phase: 'REVIEW',
     purpose: 'Reviews verificationIntent to verificationEvidence coverage.',
-    commands: 'story_get; checklist_get; validate; review_run_start; finding_add; review_pass_set.',
+    commands: 'validate; review_run_start; finding_add; review_pass_set.',
     directFileAccess: 'Reads checklist/evidence through Lattice CLI; reviewer evidence through Lattice CLI.',
     inputs: 'Checklist verificationIntent and verificationEvidence.',
     outputs: 'Reviewer findings or pass.',
@@ -248,19 +269,19 @@ const ROLE_MATRIX_DEFAULTS = {
     status: 'legacy',
     phase: 'TEST_CASE_REVIEW legacy',
     purpose: 'Legacy reviewer for fixture coverage of testIntent.',
-    commands: 'checklist_get; testintent_check; testintent_record.',
+    commands: 'Read fixture JSON; testintent_check; testintent_record.',
     directFileAccess: 'Legacy direct fixture JSON reads; writes only through testintent_record.',
     inputs: 'Legacy testIntent and fixture JSON.',
     outputs: 'testintent_record results and testintent_check status.',
     capabilities: 'Legacy fixture coverage review.',
-    overlapCategory: 'replaced by review-test-coverage',
+    overlapCategory: 'replaced by current lattice-review-test-coverage; target proof-or-stop-review-test-coverage',
     notes: 'Legacy-only prompt tied to old TEST_CASE_REVIEW phase.',
   },
   'test-intent': {
     status: 'legacy',
     phase: 'PLAN legacy',
     purpose: 'Legacy checklist split reviewer and testIntent writer.',
-    commands: 'story_get; checklist_update.',
+    commands: 'checklist_update.',
     directFileAccess: 'Reads story/checklist through Lattice CLI; writes legacy checklist updates through Lattice CLI.',
     inputs: 'Story and checklist.',
     outputs: 'Legacy testIntent or null intent updates.',
@@ -298,6 +319,15 @@ const DIRECT_STORY_CLASSIFIER_PROBES = [
     excerpt: 'Do not directly edit docs/story metadata; however, use Edit to update docs/story/actives/B-1234/index.json.',
     classification: 'direct-write',
     grandfathered: false,
+  },
+  {
+    name: 'same-clause prohibition followed by apply_patch instruction',
+    role: 'lattice-review-docs',
+    excerpt: 'Do not edit docs/story/actives/B-1234/index.json and then use apply_patch to update docs/story/actives/B-1234/index.json.',
+    classification: 'direct-write',
+    grandfathered: false,
+    baselineRefresh: 'reject',
+    expectedRejection: 'direct write is not explicitly grandfathered',
   },
   {
     name: 'apply_patch command targeting story metadata',
@@ -423,6 +453,15 @@ const DIRECT_STORY_CLASSIFIER_PROBES = [
     expectedRejection: 'unclassified actionable reference',
   },
   {
+    name: 'unknown directive-shaped metadata tool fails closed',
+    role: 'lattice-review-docs',
+    excerpt: 'Use the project-specific metadata transformer on docs/story/actives/B-1234/index.json.',
+    classification: 'unclassified-actionable',
+    grandfathered: false,
+    baselineRefresh: 'reject',
+    expectedRejection: 'unclassified actionable reference',
+  },
+  {
     name: 'exact current story-init write is grandfathered',
     role: 'lattice-review-story-init',
     excerpt: STORY_INIT_SELF_CHECK_WRITE,
@@ -449,6 +488,26 @@ const DIRECT_STORY_SCANNER_PROBES = [
     grandfathered: false,
     baselineRefresh: 'reject',
     expectedRejection: 'direct write is not explicitly grandfathered',
+  },
+  {
+    name: 'natural copy destination continuation is scanned as one instruction',
+    role: 'lattice-review-docs',
+    content: 'Copy source.json to\ndocs/story/actives/B-1234/index.json',
+    line: 1,
+    classification: 'direct-write',
+    grandfathered: false,
+    baselineRefresh: 'reject',
+    expectedRejection: 'direct write is not explicitly grandfathered',
+  },
+];
+
+const LEGACY_VOCABULARY_POLICY_PROBES = [
+  {
+    name: 'active role cannot instruct new testIntent use',
+    role: 'probe-active-role',
+    status: 'active',
+    content: 'Set testIntent on every checklist item.',
+    expectedRejection: 'active legacy-vocabulary use is not explicitly contextualized',
   },
 ];
 
@@ -484,34 +543,65 @@ function runAgentPrompt(role) {
   });
 }
 
-function classifyLegacyFinding(role, term) {
+function classifyLegacyVocabularyPolicy(roleStatus, excerpt) {
+  if (!LEGACY_VOCABULARY_ENFORCED_STATUSES.includes(roleStatus)) {
+    return {
+      roleStatus,
+      policyStatus: 'allowed-role-status',
+      policyReason: `Role status ${roleStatus} is outside active/conditional/optional enforcement.`,
+    };
+  }
+  const hasExplicitContext = LEGACY_VOCABULARY_CONTEXT_MARKERS.some(marker =>
+    new RegExp(`\\b${marker}\\b`, 'i').test(excerpt),
+  );
+  if (hasExplicitContext) {
+    return {
+      roleStatus,
+      policyStatus: 'allowed-explicit-context',
+      policyReason: 'Excerpt explicitly marks old/legacy/deprecated/retired/removed/deleted/replaced/compatibility context.',
+    };
+  }
+  return {
+    roleStatus,
+    policyStatus: 'blocked-active-use',
+    policyReason: 'Active legacy-vocabulary use is not explicitly contextualized.',
+  };
+}
+
+function classifyLegacyFinding(role, term, excerpt, roleStatus) {
+  const policy = classifyLegacyVocabularyPolicy(roleStatus, excerpt);
   if (role === 'test-intent' || role === 'test-case-reviewer') {
     return {
       classification: 'legacy-prompt-body',
       note: 'Legacy compatibility prompt; visible until migration or retirement.',
+      ...policy,
     };
   }
   if (role === 'lattice-review-test-coverage') {
     return {
       classification: 'legacy-value-reference',
       note: 'Current reviewer explicitly references the old TEST_CASE_REVIEW value without reviving the phase.',
+      ...policy,
     };
   }
   if (role === 'lattice-review-concept') {
     return {
       classification: 'legacy-example',
       note: 'Example of concept deletion terminology, not an active testIntent instruction.',
+      ...policy,
     };
   }
   if (role === 'implementation-reviewer' || role === 'product-reviewer') {
     return {
       classification: 'legacy-overlap-wording',
       note: 'Legacy wording called out for later prompt consolidation.',
+      ...policy,
     };
   }
   return {
     classification: term === 'testIntent' ? 'legacy-vocabulary-reference' : 'legacy-phase-reference',
     note: 'Registered legacy vocabulary occurrence.',
+    ...policy,
   };
 }
 
@@ -578,7 +668,7 @@ function classifyStoryFinding(role, excerpt) {
 function splitStoryActionClauses(excerpt) {
   return excerpt
     .replace(/\\\s*\r?\n\s*/g, ' ')
-    .split(/\r?\n|;|(?<=[.!?])\s+|,\s*(?:but|however|then)\s+|\s+(?:but|however)\s+/i)
+    .split(/\r?\n|;|(?<=[.!?])\s+|,\s*(?:but|however|then)\s+|\s+(?:and\s+then|but|however)\s+/i)
     .map(clause => clause.trim())
     .filter(Boolean);
 }
@@ -627,6 +717,7 @@ function hasActionableStoryMutationSignal(excerpt) {
       return (
         (/docs\/story/i.test(clause) && mutationVerb.test(clause)) ||
         directive.test(clause) ||
+        hasUnknownStoryMutationDirective(clause) ||
         /\b(?:apply_patch|tee|sed\s+-i|perl\s+-i)\b/i.test(clause) ||
         /(?:^|\s)(?:>|>>)(?:\s|$)/.test(clause)
       );
@@ -634,9 +725,16 @@ function hasActionableStoryMutationSignal(excerpt) {
   );
 }
 
+function hasUnknownStoryMutationDirective(clause) {
+  const directive = /^\s*(?:[-*]\s*)?(?:please\s+)?(?:use|run|invoke|execute|apply)\b[\s\S]*\b(?:on|against|to|into)\s+docs\/story/i;
+  if (!directive.test(clause)) return false;
+  return !/\b(?:read|cat|grep|find|list|inspect|view|show|print|search|scan)\b/i.test(clause);
+}
+
 function scanLegacyVocabulary(roleEntries) {
   const findings = [];
   for (const entry of roleEntries) {
+    const roleStatus = entry.status ?? ROLE_MATRIX_DEFAULTS[entry.role]?.status ?? 'unknown';
     const lines = entry.content.split(/\r?\n/);
     for (let index = 0; index < lines.length; index += 1) {
       const excerpt = lines[index].trim();
@@ -646,7 +744,7 @@ function scanLegacyVocabulary(roleEntries) {
         if (pattern.regex.test(excerpt)) terms.push(pattern.term);
       }
       for (const term of terms) {
-        const classification = classifyLegacyFinding(entry.role, term);
+        const classification = classifyLegacyFinding(entry.role, term, excerpt, roleStatus);
         findings.push({
           id: sha256(`${entry.role}\0${index + 1}\0${term}\0${excerpt}`).slice(0, 16),
           role: entry.role,
@@ -661,19 +759,52 @@ function scanLegacyVocabulary(roleEntries) {
   return findings.sort(compareFinding);
 }
 
+function legacyVocabularyPolicyErrors(findings) {
+  return findings
+    .filter(finding => finding.policyStatus === 'blocked-active-use')
+    .map(
+      finding =>
+        `active legacy-vocabulary use is not explicitly contextualized at ${finding.role}:${finding.line ?? 'probe'} (${finding.term}): ${finding.excerpt}`,
+    );
+}
+
+function assertLegacyVocabularyPolicy(findings) {
+  const errors = legacyVocabularyPolicyErrors(findings);
+  if (errors.length === 0) return;
+  throw new Error(
+    `Refusing to collect or refresh the baseline because legacy-vocabulary policy failed:\n- ${errors.join('\n- ')}`,
+  );
+}
+
+function collectLegacyVocabularyFindings(roleEntries) {
+  const findings = scanLegacyVocabulary(roleEntries);
+  assertLegacyVocabularyPolicy(findings);
+  return findings;
+}
+
 function buildStoryScanExcerpts(content) {
   const lines = content.split(/\r?\n/);
   const excerpts = [];
   for (let index = 0; index < lines.length; index += 1) {
     const start = index;
     const parts = [lines[index].trim()];
-    while (/\\\s*$/.test(lines[index]) && index + 1 < lines.length) {
+    while (
+      index + 1 < lines.length &&
+      (/\\\s*$/.test(lines[index]) || shouldJoinMutationContinuation(lines[index], lines[index + 1]))
+    ) {
       index += 1;
       parts.push(lines[index].trim());
     }
-    excerpts.push({ line: start + 1, excerpt: parts.join('\n').trim() });
+    excerpts.push({ line: start + 1, excerpt: parts.join(' ').trim() });
   }
   return excerpts;
+}
+
+function shouldJoinMutationContinuation(line, nextLine) {
+  if (!/docs\/story/i.test(nextLine)) return false;
+  const mutationShape = /\b(?:add|append|copy|cp|create|delete|edit|install|modify|move|mv|mutate|overwrite|patch|remove|replace|rsync|save|update|write)\b/i;
+  const targetConnector = /\b(?:at|into|on|onto|to|under)\s*$/i;
+  return mutationShape.test(line) && targetConnector.test(line.trim());
 }
 
 function scanStoryFileReferences(roleEntries) {
@@ -761,6 +892,7 @@ async function collectCurrentBaseline() {
     return { role: entry.role, ...matrix };
   });
   const directStoryFindings = collectDirectStoryFindings(roleEntries);
+  const legacyVocabularyFindings = collectLegacyVocabularyFindings(roleEntries);
 
   return {
     schemaVersion: SCHEMA_VERSION,
@@ -783,8 +915,9 @@ async function collectCurrentBaseline() {
     roleMatrix,
     roleMatrixAudit: buildRoleMatrixAudit(roleEntries),
     legacyVocabulary: {
+      policy: buildLegacyVocabularyPolicyAudit(),
       patterns: LEGACY_PATTERNS.map(pattern => pattern.term),
-      findings: scanLegacyVocabulary(roleEntries),
+      findings: legacyVocabularyFindings,
     },
     directStoryFileReferences: {
       classifications: [
@@ -801,11 +934,20 @@ async function collectCurrentBaseline() {
   };
 }
 
+function buildLegacyVocabularyPolicyAudit() {
+  return {
+    enforcedStatuses: [...LEGACY_VOCABULARY_ENFORCED_STATUSES],
+    explicitContextMarkers: [...LEGACY_VOCABULARY_CONTEXT_MARKERS],
+    rule: LEGACY_VOCABULARY_POLICY_RULE,
+  };
+}
+
 function buildRoleMatrixAudit(roleEntries) {
   return {
     machineChecks: [...ROLE_MATRIX_MACHINE_CHECKS],
     reviewerAuditedFields: [...REVIEWER_AUDITED_ROLE_MATRIX_FIELDS],
     semanticBoundary: ROLE_MATRIX_SEMANTIC_BOUNDARY,
+    commandsContract: { ...ROLE_MATRIX_COMMANDS_CONTRACT },
     sourceAuditAnchors: {
       purpose: ROLE_MATRIX_SOURCE_ANCHOR_PURPOSE,
       roles: roleEntries.map(entry => ({
@@ -845,6 +987,8 @@ function renderMatrixMarkdown(baseline) {
     `- Machine-checked: ${audit.machineChecks.join(' ')}`,
     `- Reviewer-audited fields: ${audit.reviewerAuditedFields.map(field => `\`${field}\``).join(', ')}.`,
     `- Semantic limit: ${audit.semanticBoundary}`,
+    `- Commands includes: ${audit.commandsContract.includes}`,
+    `- Commands excludes: ${audit.commandsContract.excludes}`,
     `- Source audit anchors: ${audit.sourceAuditAnchors.purpose}`,
     '',
     '| Role | Status | Phase | Purpose | Commands | Direct file access | Inputs | Outputs | Capabilities | Overlap category | Notes |',
@@ -950,6 +1094,119 @@ function verifyAgentPromptOutputs(current, baseline, failures) {
       requireEqual(actual[field], expected[field], `agent_prompt ${role}.${field}`, failures);
     }
   }
+  for (const role of currentOutputs.keys()) {
+    if (!baselineOutputs.has(role)) failures.push(`unregistered current agent_prompt output ${role}`);
+  }
+}
+
+function verifyBaselineDriftProbes(current, failures) {
+  const registryRole = current.registry.roles[0];
+  const outputRole = current.agentPrompt.outputs[0];
+  if (!registryRole || !outputRole) {
+    failures.push('baseline drift probes require at least one registry role and agent_prompt output');
+    return;
+  }
+
+  const cases = [
+    {
+      name: 'registry material hash drift',
+      verifier: verifyRegistry,
+      mutate(baseline) {
+        baseline.registry.materialHash = 'sha256:baseline-drift-probe';
+      },
+      expected: ['registry materialHash'],
+    },
+    {
+      name: 'template hash drift',
+      verifier: verifyRegistry,
+      mutate(baseline) {
+        baseline.registry.roles[0].templateHash = 'sha256:template-drift-probe';
+      },
+      expected: [`registry ${registryRole.role}.templateHash`],
+    },
+    {
+      name: 'missing registry role and count mismatch',
+      verifier: verifyRegistry,
+      mutate(baseline) {
+        baseline.registry.roles = baseline.registry.roles.slice(1);
+        baseline.registry.agentCount -= 1;
+      },
+      expected: ['baseline registry role count', `unregistered current role ${registryRole.role}`],
+    },
+    {
+      name: 'extra registry role and count mismatch',
+      verifier: verifyRegistry,
+      mutate(baseline) {
+        baseline.registry.roles.push({ ...baseline.registry.roles[0], role: 'probe-extra-role' });
+        baseline.registry.agentCount += 1;
+      },
+      expected: ['baseline registry role count', 'missing current role probe-extra-role'],
+    },
+    {
+      name: 'renamed registry role',
+      verifier: verifyRegistry,
+      mutate(baseline) {
+        baseline.registry.roles[0].role = 'probe-renamed-role';
+      },
+      expected: [
+        'missing current role probe-renamed-role',
+        `unregistered current role ${registryRole.role}`,
+      ],
+    },
+    {
+      name: 'registry declared role-count mismatch',
+      verifier: verifyRegistry,
+      mutate(baseline) {
+        baseline.registry.agentCount -= 1;
+      },
+      expected: ['baseline registry role count'],
+    },
+    {
+      name: 'agent_prompt stdout hash drift',
+      verifier: verifyAgentPromptOutputs,
+      mutate(baseline) {
+        baseline.agentPrompt.outputs[0].sha256 = 'sha256:stdout-drift-probe';
+      },
+      expected: [`agent_prompt ${outputRole.role}.sha256`],
+    },
+    {
+      name: 'agent_prompt stdout byte drift',
+      verifier: verifyAgentPromptOutputs,
+      mutate(baseline) {
+        baseline.agentPrompt.outputs[0].bytes += 1;
+      },
+      expected: [`agent_prompt ${outputRole.role}.bytes`],
+    },
+    {
+      name: 'agent_prompt role-output drift',
+      verifier: verifyAgentPromptOutputs,
+      mutate(baseline) {
+        baseline.agentPrompt.outputs[0].role = 'probe-renamed-output-role';
+      },
+      expected: [
+        'missing agent_prompt output for probe-renamed-output-role',
+        `unregistered current agent_prompt output ${outputRole.role}`,
+      ],
+    },
+  ];
+
+  for (const probe of cases) {
+    const mutatedBaseline = structuredClone(current);
+    probe.mutate(mutatedBaseline);
+    const mutationFailures = [];
+    probe.verifier(current, mutatedBaseline, mutationFailures);
+    if (mutationFailures.length === 0) {
+      failures.push(`baseline drift probe ${probe.name}: mutation was accepted`);
+      continue;
+    }
+    for (const fragment of probe.expected) {
+      if (!mutationFailures.some(failure => failure.includes(fragment))) {
+        failures.push(
+          `baseline drift probe ${probe.name}: expected rejection containing ${JSON.stringify(fragment)}, got ${JSON.stringify(mutationFailures)}`,
+        );
+      }
+    }
+  }
 }
 
 function verifyRoleMatrixFields(rows, label, failures) {
@@ -1036,6 +1293,18 @@ function verifyRoleMatrixAuditSnapshot(audit, registryRoles, label, failures) {
   );
   requireEqual(audit.semanticBoundary, ROLE_MATRIX_SEMANTIC_BOUNDARY, `${label}.semanticBoundary`, failures);
   requireEqual(
+    audit.commandsContract?.includes,
+    ROLE_MATRIX_COMMANDS_CONTRACT.includes,
+    `${label}.commandsContract.includes`,
+    failures,
+  );
+  requireEqual(
+    audit.commandsContract?.excludes,
+    ROLE_MATRIX_COMMANDS_CONTRACT.excludes,
+    `${label}.commandsContract.excludes`,
+    failures,
+  );
+  requireEqual(
     audit.sourceAuditAnchors?.purpose,
     ROLE_MATRIX_SOURCE_ANCHOR_PURPOSE,
     `${label}.sourceAuditAnchors.purpose`,
@@ -1083,11 +1352,56 @@ function verifyFindings(currentFindings, baselineFindings, label, failures) {
     if ('grandfathered' in expected) {
       requireEqual(actual.grandfathered, expected.grandfathered, `${label} ${key}.grandfathered`, failures);
     }
+    for (const field of ['roleStatus', 'policyStatus', 'policyReason']) {
+      if (field in actual || field in expected) {
+        requireEqual(actual[field], expected[field], `${label} ${key}.${field}`, failures);
+      }
+    }
   }
 
   for (const [key, expected] of baselineMap) {
     if (!currentMap.has(key)) {
       failures.push(`baseline ${label} no longer present: ${expected.role}:${expected.line} ${expected.excerpt}`);
+    }
+  }
+}
+
+function verifyLegacyVocabularyPolicy(current, baseline, failures) {
+  const expectedPolicy = buildLegacyVocabularyPolicyAudit();
+  requireSameContent(
+    JSON.stringify(current.legacyVocabulary.policy, null, 2),
+    JSON.stringify(expectedPolicy, null, 2),
+    'current legacyVocabulary.policy',
+    failures,
+  );
+  requireSameContent(
+    JSON.stringify(baseline.legacyVocabulary.policy, null, 2),
+    JSON.stringify(expectedPolicy, null, 2),
+    'baseline legacyVocabulary.policy',
+    failures,
+  );
+  for (const error of legacyVocabularyPolicyErrors(current.legacyVocabulary.findings)) {
+    failures.push(`current legacy-vocabulary policy: ${error}`);
+  }
+  for (const error of legacyVocabularyPolicyErrors(baseline.legacyVocabulary.findings)) {
+    failures.push(`baseline legacy-vocabulary policy: ${error}`);
+  }
+}
+
+function verifyLegacyVocabularyPolicyProbes(failures) {
+  for (const probe of LEGACY_VOCABULARY_POLICY_PROBES) {
+    let rejection = '';
+    try {
+      collectLegacyVocabularyFindings([
+        { role: probe.role, status: probe.status, content: probe.content },
+      ]);
+    } catch (error) {
+      rejection = String(error instanceof Error ? error.message : error);
+    }
+    if (!rejection.includes(probe.expectedRejection)) {
+      failures.push(
+        `legacy vocabulary policy probe ${probe.name}: expected rejection containing ${JSON.stringify(probe.expectedRejection)}, got ${JSON.stringify(rejection)}`,
+      );
     }
   }
 }
@@ -1242,6 +1556,25 @@ function verifyRoleMatrixSnapshotDriftProbe(current, failures) {
       `role matrix snapshot drift probe: Markdown parity drift was not rejected; got ${JSON.stringify(driftFailures)}`,
     );
   }
+
+  const missingRoleBaseline = structuredClone(current);
+  const removedRole = missingRoleBaseline.roleMatrix.shift()?.role;
+  if (!removedRole) {
+    failures.push('role matrix snapshot drift probe: no role available for removal');
+    return;
+  }
+  const missingRoleFailures = [];
+  verifyMatrix(current, missingRoleBaseline, missingRoleFailures);
+  if (!missingRoleFailures.some(failure => failure.includes('baseline matrix role count'))) {
+    failures.push(
+      `role matrix snapshot drift probe: role-count drift was not rejected; got ${JSON.stringify(missingRoleFailures)}`,
+    );
+  }
+  if (!missingRoleFailures.some(failure => failure.includes(`baseline matrix missing role ${removedRole}`))) {
+    failures.push(
+      `role matrix snapshot drift probe: missing-row drift was not rejected; got ${JSON.stringify(missingRoleFailures)}`,
+    );
+  }
 }
 
 function runDirectStoryClassifierProbeCommand() {
@@ -1253,7 +1586,34 @@ function runDirectStoryClassifierProbeCommand() {
     process.exit(1);
   }
   console.log(
-    `PASS direct story-file classifier adversarial probes: ${DIRECT_STORY_CLASSIFIER_PROBES.length} classifier cases, ${DIRECT_STORY_SCANNER_PROBES.length} scanner case`,
+    `PASS direct story-file classifier adversarial probes: ${DIRECT_STORY_CLASSIFIER_PROBES.length} classifier cases, ${DIRECT_STORY_SCANNER_PROBES.length} scanner cases`,
+  );
+}
+
+function runLegacyVocabularyPolicyProbeCommand() {
+  const failures = [];
+  verifyLegacyVocabularyPolicyProbes(failures);
+  if (failures.length > 0) {
+    console.error('FAIL active-role legacy-vocabulary policy probes');
+    for (const failure of failures) console.error(`- ${failure}`);
+    process.exit(1);
+  }
+  console.log(
+    `PASS active-role legacy-vocabulary policy probes: ${LEGACY_VOCABULARY_POLICY_PROBES.length} uncontextualized instruction rejected`,
+  );
+}
+
+async function runBaselineDriftProbeCommand() {
+  const current = await collectCurrentBaseline();
+  const failures = [];
+  verifyBaselineDriftProbes(current, failures);
+  if (failures.length > 0) {
+    console.error('FAIL baseline mechanical drift probes');
+    for (const failure of failures) console.error(`- ${failure}`);
+    process.exit(1);
+  }
+  console.log(
+    'PASS baseline mechanical drift probes: 9 registry/template/role-count/role-identity/agent_prompt snapshot mutations rejected',
   );
 }
 
@@ -1267,7 +1627,7 @@ async function runRoleMatrixSnapshotDriftProbeCommand() {
     for (const failure of failures) console.error(`- ${failure}`);
     process.exit(1);
   }
-  console.log('PASS role matrix mechanical snapshot-drift probe: JSON field and Markdown parity drift rejected');
+  console.log('PASS role matrix mechanical snapshot-drift probe: field, Markdown parity, role-count, and missing-row drift rejected');
 }
 
 async function writeBaselineFiles() {
@@ -1286,6 +1646,7 @@ async function verifyBaseline() {
 
   verifyRegistry(current, baseline, failures);
   verifyAgentPromptOutputs(current, baseline, failures);
+  verifyBaselineDriftProbes(current, failures);
   verifyMatrix(current, baseline, failures);
   verifyRoleMatrixAudit(current, baseline, failures);
   verifyRoleMatrixSnapshotDriftProbe(current, failures);
@@ -1295,6 +1656,8 @@ async function verifyBaseline() {
     'legacy vocabulary finding',
     failures,
   );
+  verifyLegacyVocabularyPolicy(current, baseline, failures);
+  verifyLegacyVocabularyPolicyProbes(failures);
   verifyFindings(
     current.directStoryFileReferences.findings,
     baseline.directStoryFileReferences.findings,
@@ -1322,16 +1685,21 @@ async function verifyBaseline() {
 
   console.log('PASS proof-or-stop prompt baseline: roleCount=16 registry hashes verified');
   console.log('PASS proof-or-stop prompt baseline: agent_prompt output hashes verified for 16 roles');
+  console.log('PASS proof-or-stop prompt baseline: 9 baseline mechanical drift mutations rejected');
   console.log('PASS proof-or-stop prompt baseline: role matrix snapshot integrity verified for 16 roles');
-  console.log('PASS proof-or-stop prompt baseline: role matrix mechanical snapshot-drift probe rejected');
-  console.log('INFO proof-or-stop prompt baseline: commands, outputs, and direct-file-access semantics remain reviewer-audited');
-  console.log('PASS proof-or-stop prompt baseline: legacy vocabulary findings classified');
+  console.log('PASS proof-or-stop prompt baseline: role matrix field/Markdown/role-count/missing-row drift rejected');
+  console.log('INFO proof-or-stop prompt baseline: all human-authored role-matrix semantics remain reviewer-audited');
+  console.log('PASS proof-or-stop prompt baseline: legacy vocabulary findings classified and active-role policy enforced');
   console.log('PASS proof-or-stop prompt baseline: direct story-file findings classified');
   console.log('PASS proof-or-stop prompt baseline: direct story-write policy has 1 exact grandfathered write');
 }
 
 if (PROBE_DIRECT_STORY_CLASSIFIER) {
   runDirectStoryClassifierProbeCommand();
+} else if (PROBE_LEGACY_VOCABULARY_POLICY) {
+  runLegacyVocabularyPolicyProbeCommand();
+} else if (PROBE_BASELINE_DRIFT) {
+  await runBaselineDriftProbeCommand();
 } else if (PROBE_ROLE_MATRIX_SNAPSHOT_DRIFT) {
   await runRoleMatrixSnapshotDriftProbeCommand();
 } else if (WRITE_MODE) {

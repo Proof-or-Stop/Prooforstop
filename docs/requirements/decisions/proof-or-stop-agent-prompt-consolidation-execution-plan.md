@@ -1013,12 +1013,18 @@ Subprojects:
 - M0.2 Capture current `lattice agent_prompt --role=<name>` output for every
   role as comparison artifacts.
 - M0.3 Produce a role-overlap matrix covering phase, commands, direct file
-  access, output artifact, and overlap category. Review those semantic columns
-  manually for all 16 rows; the verifier locks the resulting snapshots,
-  required fields, hashes, and JSON/Markdown parity, but does not derive command
-  ownership from prompt prose.
+  access, output artifact, and overlap category. Review every human-authored
+  semantic field in all 16 rows manually; the verifier locks required fields,
+  exact snapshots and hashes, JSON/Markdown parity, and drift rejection, but
+  does not derive role semantics from prompt prose. The uniform Commands rule
+  includes role-owned writes plus role-defining inspection/execution calls in
+  the role-specific procedure. It excludes universal Runtime Guide
+  preflight/navigation reads (`session_brief`, `aux_doc_list`, and generic
+  `story_get` / `checklist_get`) and commands mentioned only as prohibited or as
+  another role's produced artifact/input.
 - M0.4 Add a regression check that fails if an active non-legacy prompt uses
-  `testIntent` or `TEST_CASE_REVIEW` without an explicit legacy marker.
+  `testIntent`, `TEST_CASE`, or `TEST_CASE_REVIEW` without explicit
+  old/legacy/deprecated/retired/removed/deleted/replaced/compatibility context.
 - M0.6 Add a regression check that flags prompts requiring direct writes under
   `docs/story/` unless a corresponding CLI command does not exist and the
   prompt is explicitly grandfathered.
@@ -1026,9 +1032,9 @@ Subprojects:
 Exit criteria:
 
 - Every current prompt has a baseline hash and classification.
-- Commands, direct-file access, and outputs have a recorded 16-row manual audit
-  boundary; automated checks assert snapshot integrity rather than semantic
-  ownership.
+- Every human-authored role-matrix field has a recorded 16-row manual audit
+  boundary under the uniform Commands rule; automated checks assert mechanical
+  snapshot integrity rather than semantic ownership.
 - Legacy terms are mechanically visible in the baseline report.
 - No prompt content is edited in M0 except tests/docs required to record the
   baseline.
