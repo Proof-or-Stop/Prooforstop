@@ -435,6 +435,39 @@
       ],
       "signatureTag": "missing|md:14|remains-semantically-unresolved",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3928:F-019",
+      "desc": "quality-correctness: scripts/verify-proof-or-stop-prompt-baseline.mjs:578-617 suppresses an entire clause whenever it contains a negative mutation verb, so `Do not edit docs/story/... and then use apply_patch to update docs/story/...` is classified as policy-reminder. Lines 664-699 join only backslash continuations, so prose `Copy source.json to\\ndocs/story/...` records the path-only line as other/grandfathered. Exact in-memory execution with the sole allowed INIT echo present showed collectDirectStoryFindings accepts both cases, and the same collection is the pre-write guard at lines 1273-1277; therefore a refreshed baseline/--write can still bless actionable writes and F-009 remains fail-open. Parse positive actions inside mixed clauses and either join actionable prose continuations or reject adjacent path-only references, then add probes that prove baseline refresh and --write reject both forms.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-11T15:58:02.557Z",
+      "reviewRound": "2026-07-11T15:51:16.046Z",
+      "reviewRunId": "B-3928:RR-019",
+      "readManifest": {
+        "filesReadFully": [
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5371adf79da58df935a1e1fccf790818ea441fa6c5e67eb1eb7170b4f3378ff9",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:578",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:664",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:701",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1273"
+      ],
+      "signatureTag": "adversarial|mjs:578|quality-correctness-scripts",
+      "signatureTagSource": "auto"
     }
   ]
 }
