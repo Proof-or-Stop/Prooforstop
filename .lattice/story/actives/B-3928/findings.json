@@ -1230,6 +1230,44 @@
       ],
       "signatureTag": "adversarial|mjs:1053|whole-instruction-recurrence",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3928:F-042",
+      "desc": "doc-promise-undelivered: The generated direct-story policy and verifier PASS claim a closed story-reference boundary that the implementation does not deliver. DIRECT_STORY_POLICY_RULE says every non-registered docs/story reference fails closed and verifyBaseline prints `closed story-reference policy has 12 exact references`, while F-036 proves normalized docs/story write aliases are not scanned at all and F-037 proves an unregistered direct read is accepted outside those 12 registrations. M0.6 also promises direct writes under docs/story are flagged. Reconcile the declared policy, terminal claim, canonicalized path detection, and allowed read grammar so the machine output describes only what collection/--write mechanically enforces.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-11T20:45:52.533Z",
+      "reviewRound": "2026-07-11T20:38:32.745Z",
+      "reviewRunId": "B-3928:RR-031",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/templates/agents/lattice-review-concept.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "package.json",
+          "packages/main/templates/agents/lattice-review-channel.md",
+          "packages/main/templates/agents/lattice-review-story-init.md",
+          "packages/main/templates/agents/lattice-review-test-coverage.md",
+          "packages/main/templates/agents/product-reviewer.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f7cdc07deb44ae7bf827900fc4aa5887f3b0a7d52a0f5945e2e588661b90a10c",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:132",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1188",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1478",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:2550",
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:1031"
+      ],
+      "signatureTag": "missing|mjs:132|doc-promise-undelivered-closed-story-policy",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
