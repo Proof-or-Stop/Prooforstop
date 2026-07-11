@@ -819,7 +819,7 @@
       "desc": "F-025 connector-free continuation recurrence: scripts/verify-proof-or-stop-prompt-baseline.mjs:1232-1237 joins a mutation lead to a docs/story target only when the lead has no terminal punctuation and the target is not a list item. With the sole exact INIT allow present, exact in-memory collection accepted `Use the metadata transformer:\\ndocs/story/actives/B-1234/index.json` and `Use the metadata transformer\\n- docs/story/actives/B-1234/index.json`; each target line became other/grandfathered. It also accepted a path-first `docs/story/...\\nFrobnicate it.` continuation. Collection/--write can therefore bless clear multiline mutation instructions outside the committed connector probes. Join bounded instruction blocks based on mutation lead plus story target rather than punctuation/list direction, and add refresh rejection probes.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-11T20:16:16.875Z",
@@ -843,7 +843,11 @@
         "scripts/verify-proof-or-stop-prompt-baseline.mjs:1240"
       ],
       "signatureTag": "adversarial|mjs:1232|connector-free-continuation",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 467dc4bb. The scanner builds bounded bidirectional context around each docs/story line and no longer excludes colon, bullet-target, or path-first continuation shapes. Exact colon target, bullet target, path-first action, and sentence-ended path-first action collection probes reject. Independent direct probe passed 37 classifier and 10 scanner cases.",
+      "resolvedAt": "2026-07-11T20:38:48.022Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3928:F-031",
