@@ -388,7 +388,7 @@
       "desc": "M0.4 legacy-semantic gate is not implemented: the plan at docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:1020-1021 promises failure when an active non-legacy prompt uses testIntent/TEST_CASE_REVIEW without an explicit legacy marker, but classifyLegacyFinding at scripts/verify-proof-or-stop-prompt-baseline.mjs:487-515 receives only role and term and returns `legacy-vocabulary-reference` for any occurrence in an active role. writeBaselineFiles at :1273-1279 has no legacy-policy assertion, so adding an active instruction such as `Set testIntent...` and running --write blesses it; normal verification only detects unrefreshed snapshot drift. Add an excerpt/status-aware explicit-marker policy and a baseline-refresh rejection probe for an active role.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-11T15:57:30.532Z",
@@ -401,7 +401,11 @@
         "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:1020"
       ],
       "signatureTag": "missing|mjs:487|legacy-semantic-gate",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in a31f2f08a2. Legacy findings now carry roleStatus and explicit-context policy. Active/conditional/optional roles require old/legacy/deprecated/retired/removed/deleted/replaced/compatibility context; collection, --write, and normal verify reject uncontextualized active use. The committed active `Set testIntent...` refresh probe is rejected while current old/deletion references and legacy/compatibility roles remain readable.",
+      "resolvedAt": "2026-07-11T16:18:04.449Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3928:F-017",
