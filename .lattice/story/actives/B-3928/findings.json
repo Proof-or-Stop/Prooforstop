@@ -603,7 +603,7 @@
       "desc": "F-016 remains vulnerable to legacy-context laundering. classifyLegacyVocabularyPolicy at scripts/verify-proof-or-stop-prompt-baseline.mjs:546-568 allows an active-role line when any marker occurs anywhere in the whole excerpt, without tying the marker to the legacy term or rejecting a positive current/new-story instruction. Exact execution classified `Old behavior is removed; for new stories, set testIntent on every checklist item.` as allowed-explicit-context, so collection/--write accepts the very active use M0.4 is meant to reject. Evaluate clauses/occurrences rather than the whole line and add a probe where unrelated old/removed wording precedes an explicit new-story testIntent instruction.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-11T16:22:13.091Z",
@@ -616,7 +616,11 @@
         "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:1025"
       ],
       "signatureTag": "adversarial|mjs:546|remains-vulnerable-legacy",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by ca3bde3a and 50cf8130. Legacy vocabulary is evaluated per occurrence and clause; explicit context must be local and non-negated, while positive or unknown instructions fail closed. Exact old-behavior/new-story laundering, mixed negative/positive, negated-context, attach, and persist probes reject. Independent legacy probe passed 12 cases.",
+      "resolvedAt": "2026-07-11T20:10:24.366Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3928:F-025",
