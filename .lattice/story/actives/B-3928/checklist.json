@@ -427,11 +427,11 @@
           "file": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
           "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-direct-story-classifier",
           "result": "pass",
-          "note": "Baseline refresh now rejects both unknown actionable forms and recognized direct writes unless they exactly match the single explicit allow entry; role-wide grandfathering was removed and multiline scanner behavior is exercised.",
-          "headHash": "42e502fe73db0f6d9477fa7b77d91e6e708374df",
-          "materialHash": "604ec73862a3dfbc27dd09503b8e63666b1fe283237638652be8cb5696e58c4d",
-          "storyFilesHash": "dd547cbf2bbf9945f26b15fb734dc408a565d7b38b07893e53a2e0d7e8f0cc82",
-          "timestamp": "2026-07-11T15:50:50.661Z"
+          "note": "Refresh probes prove pure negative reminders remain harmless while mixed positive writes, unknown transformer directives, recognized unapproved writes, and multiline story destinations fail closed.",
+          "headHash": "76be38fc9e46aac9a4d5f59fdb084d1c29b7acae",
+          "materialHash": "75a3d39927cbbec7898e05bc7d4d40c5c5d0fef052a2ae1e2662bd3d059cf499",
+          "storyFilesHash": "86ce50875b8e9fe4d64163a4daf740e9e09402d1c2c0d887de160f50b19997c5",
+          "timestamp": "2026-07-11T16:16:50.140Z"
         }
       ]
     }
