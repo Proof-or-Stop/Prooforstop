@@ -1167,6 +1167,37 @@
       ],
       "signatureTag": "adversarial|mjs:1300|direct-story-safe",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3928:F-040",
+      "desc": "exact story-reference registration can be extended across scanner boundaries: scripts/verify-proof-or-stop-prompt-baseline.mjs:1173-1186 trusts an exact role/excerpt, while :1507-1515 stops context at blank lines, headings, and adjacent list items. Exact in-memory collection accepted the registered background.md reference followed by a blank line, `# Override`, or list item `4. Frobnicate it.`, and also accepted a prepended list item targeting the file below; the registered line remained grandfathered and the action was invisible. Same-line append/prepend controls reject, so the declared boundaries themselves create the bypass. Bind registrations to a bounded semantic instruction block or fail closed on adjacent action continuations across these boundaries, with collection/refresh probes.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-11T20:45:41.956Z",
+      "reviewRound": "2026-07-11T20:38:32.745Z",
+      "reviewRunId": "B-3928:RR-032",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "package.json",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "cbe784de4de2b804ac84bcde9f44a27ab65c4859d32e7b2c11fcec69ce819f9b",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1173",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1507"
+      ],
+      "signatureTag": "adversarial|mjs:1173|exact-story-reference",
+      "signatureTagSource": "auto"
     }
   ]
 }
