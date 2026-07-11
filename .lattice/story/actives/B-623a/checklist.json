@@ -90,6 +90,16 @@
             "type": "logic"
           }
         ]
+      },
+      "userSees": "usage-burn-alert-smoke prints: \"✓ evaluateBurnAlerts: at-threshold not flagged; strictly-over flags file-size/input-tokens/session-age; deterministic order\"",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/usage-burn-alert.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts"
+        ]
       }
     },
     {
