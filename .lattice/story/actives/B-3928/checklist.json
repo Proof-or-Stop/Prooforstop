@@ -54,10 +54,10 @@
           "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
           "result": "pass",
           "note": "Current latest-main baseline records exactly 16 registry roles with source file, relPath, bytes, lines, templateHash, agent_prompt output hash, and registry material hash; normal verification passed.",
-          "headHash": "660f4d570d04a488e4bc485431582b6dcf3bc096",
-          "materialHash": "603cd48793c11ac66abdda4816cf4db72abda68a0979a6e5e63cfdcb33df219e",
-          "storyFilesHash": "0a12914389ffd9a5c3c46c1ddb31fccec63b826b375ac95c287f3947c744fc1a",
-          "timestamp": "2026-07-11T20:38:19.155Z"
+          "headHash": "e835bd88bd51d42fb69b9bdd4f3b509d78328194",
+          "materialHash": "f22d2aefc41abe1face47bf5c7a62a3afad422e8875a95bb4ae557bbe0a09798",
+          "storyFilesHash": "4802864701c1ca5bd297d2492785b649e9b1b2fb062be775374453326a1e67c9",
+          "timestamp": "2026-07-11T21:09:34.778Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -67,10 +67,10 @@
           "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-baseline-drift",
           "result": "pass",
           "note": "Nine negative mutations prove registry material/template hash drift plus missing, extra, renamed, and declared-count role drift are rejected.",
-          "headHash": "660f4d570d04a488e4bc485431582b6dcf3bc096",
-          "materialHash": "603cd48793c11ac66abdda4816cf4db72abda68a0979a6e5e63cfdcb33df219e",
-          "storyFilesHash": "0a12914389ffd9a5c3c46c1ddb31fccec63b826b375ac95c287f3947c744fc1a",
-          "timestamp": "2026-07-11T20:38:19.155Z"
+          "headHash": "e835bd88bd51d42fb69b9bdd4f3b509d78328194",
+          "materialHash": "f22d2aefc41abe1face47bf5c7a62a3afad422e8875a95bb4ae557bbe0a09798",
+          "storyFilesHash": "4802864701c1ca5bd297d2492785b649e9b1b2fb062be775374453326a1e67c9",
+          "timestamp": "2026-07-11T21:09:34.778Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -80,10 +80,10 @@
           "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-baseline-drift",
           "result": "pass",
           "note": "The drift harness mutates recomputed registry snapshots rather than trusting the authored matrix, and rejects role identity/count and template/hash tampering.",
-          "headHash": "660f4d570d04a488e4bc485431582b6dcf3bc096",
-          "materialHash": "603cd48793c11ac66abdda4816cf4db72abda68a0979a6e5e63cfdcb33df219e",
-          "storyFilesHash": "0a12914389ffd9a5c3c46c1ddb31fccec63b826b375ac95c287f3947c744fc1a",
-          "timestamp": "2026-07-11T20:38:19.155Z"
+          "headHash": "e835bd88bd51d42fb69b9bdd4f3b509d78328194",
+          "materialHash": "f22d2aefc41abe1face47bf5c7a62a3afad422e8875a95bb4ae557bbe0a09798",
+          "storyFilesHash": "4802864701c1ca5bd297d2492785b649e9b1b2fb062be775374453326a1e67c9",
+          "timestamp": "2026-07-11T21:09:34.778Z"
         }
       ]
     },
@@ -141,10 +141,10 @@
           "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
           "result": "pass",
           "note": "All 16 registry roles produced agent_prompt stdout matching the built template, with sha256, byte count, and line count locked in the baseline.",
-          "headHash": "660f4d570d04a488e4bc485431582b6dcf3bc096",
-          "materialHash": "603cd48793c11ac66abdda4816cf4db72abda68a0979a6e5e63cfdcb33df219e",
-          "storyFilesHash": "0a12914389ffd9a5c3c46c1ddb31fccec63b826b375ac95c287f3947c744fc1a",
-          "timestamp": "2026-07-11T20:38:19.155Z"
+          "headHash": "e835bd88bd51d42fb69b9bdd4f3b509d78328194",
+          "materialHash": "f22d2aefc41abe1face47bf5c7a62a3afad422e8875a95bb4ae557bbe0a09798",
+          "storyFilesHash": "4802864701c1ca5bd297d2492785b649e9b1b2fb062be775374453326a1e67c9",
+          "timestamp": "2026-07-11T21:09:34.778Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -154,10 +154,10 @@
           "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-baseline-drift",
           "result": "pass",
           "note": "Focused negative mutations prove agent_prompt stdout sha256 and byte drift are rejected.",
-          "headHash": "660f4d570d04a488e4bc485431582b6dcf3bc096",
-          "materialHash": "603cd48793c11ac66abdda4816cf4db72abda68a0979a6e5e63cfdcb33df219e",
-          "storyFilesHash": "0a12914389ffd9a5c3c46c1ddb31fccec63b826b375ac95c287f3947c744fc1a",
-          "timestamp": "2026-07-11T20:38:19.155Z"
+          "headHash": "e835bd88bd51d42fb69b9bdd4f3b509d78328194",
+          "materialHash": "f22d2aefc41abe1face47bf5c7a62a3afad422e8875a95bb4ae557bbe0a09798",
+          "storyFilesHash": "4802864701c1ca5bd297d2492785b649e9b1b2fb062be775374453326a1e67c9",
+          "timestamp": "2026-07-11T21:09:34.778Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -167,10 +167,10 @@
           "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-baseline-drift",
           "result": "pass",
           "note": "Focused negative mutations prove renamed/missing/extra role-output ownership and role-count/identity drift fail closed.",
-          "headHash": "660f4d570d04a488e4bc485431582b6dcf3bc096",
-          "materialHash": "603cd48793c11ac66abdda4816cf4db72abda68a0979a6e5e63cfdcb33df219e",
-          "storyFilesHash": "0a12914389ffd9a5c3c46c1ddb31fccec63b826b375ac95c287f3947c744fc1a",
-          "timestamp": "2026-07-11T20:38:19.155Z"
+          "headHash": "e835bd88bd51d42fb69b9bdd4f3b509d78328194",
+          "materialHash": "f22d2aefc41abe1face47bf5c7a62a3afad422e8875a95bb4ae557bbe0a09798",
+          "storyFilesHash": "4802864701c1ca5bd297d2492785b649e9b1b2fb062be775374453326a1e67c9",
+          "timestamp": "2026-07-11T21:09:34.778Z"
         }
       ]
     },
@@ -228,10 +228,10 @@
           "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
           "result": "pass",
           "note": "All 16 matrix rows contain every required field; all human-authored semantics are explicitly reviewer-audited under the uniform Commands inclusion/exclusion contract.",
-          "headHash": "660f4d570d04a488e4bc485431582b6dcf3bc096",
-          "materialHash": "603cd48793c11ac66abdda4816cf4db72abda68a0979a6e5e63cfdcb33df219e",
-          "storyFilesHash": "0a12914389ffd9a5c3c46c1ddb31fccec63b826b375ac95c287f3947c744fc1a",
-          "timestamp": "2026-07-11T20:38:19.155Z"
+          "headHash": "e835bd88bd51d42fb69b9bdd4f3b509d78328194",
+          "materialHash": "f22d2aefc41abe1face47bf5c7a62a3afad422e8875a95bb4ae557bbe0a09798",
+          "storyFilesHash": "4802864701c1ca5bd297d2492785b649e9b1b2fb062be775374453326a1e67c9",
+          "timestamp": "2026-07-11T21:09:34.778Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -241,10 +241,10 @@
           "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-role-matrix-snapshot-drift",
           "result": "pass",
           "note": "Negative matrix mutations prove changed field, generated Markdown parity, removed role, role-count mismatch, and missing-row drift are rejected.",
-          "headHash": "660f4d570d04a488e4bc485431582b6dcf3bc096",
-          "materialHash": "603cd48793c11ac66abdda4816cf4db72abda68a0979a6e5e63cfdcb33df219e",
-          "storyFilesHash": "0a12914389ffd9a5c3c46c1ddb31fccec63b826b375ac95c287f3947c744fc1a",
-          "timestamp": "2026-07-11T20:38:19.155Z"
+          "headHash": "e835bd88bd51d42fb69b9bdd4f3b509d78328194",
+          "materialHash": "f22d2aefc41abe1face47bf5c7a62a3afad422e8875a95bb4ae557bbe0a09798",
+          "storyFilesHash": "4802864701c1ca5bd297d2492785b649e9b1b2fb062be775374453326a1e67c9",
+          "timestamp": "2026-07-11T21:09:34.778Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -254,10 +254,10 @@
           "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
           "result": "pass",
           "note": "Matrix explicitly identifies active, conditional, optional, compatibility, legacy, fold-candidate, and retired-cli-only roles, with exact current/target replacement naming and overlap boundaries.",
-          "headHash": "660f4d570d04a488e4bc485431582b6dcf3bc096",
-          "materialHash": "603cd48793c11ac66abdda4816cf4db72abda68a0979a6e5e63cfdcb33df219e",
-          "storyFilesHash": "0a12914389ffd9a5c3c46c1ddb31fccec63b826b375ac95c287f3947c744fc1a",
-          "timestamp": "2026-07-11T20:38:19.155Z"
+          "headHash": "e835bd88bd51d42fb69b9bdd4f3b509d78328194",
+          "materialHash": "f22d2aefc41abe1face47bf5c7a62a3afad422e8875a95bb4ae557bbe0a09798",
+          "storyFilesHash": "4802864701c1ca5bd297d2492785b649e9b1b2fb062be775374453326a1e67c9",
+          "timestamp": "2026-07-11T21:09:34.778Z"
         }
       ]
     },
@@ -315,10 +315,10 @@
           "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
           "result": "pass",
           "note": "Legacy scanner records current testIntent, TEST_CASE, and TEST_CASE_REVIEW occurrences with role status, classification, and explicit-context policy result.",
-          "headHash": "660f4d570d04a488e4bc485431582b6dcf3bc096",
-          "materialHash": "603cd48793c11ac66abdda4816cf4db72abda68a0979a6e5e63cfdcb33df219e",
-          "storyFilesHash": "0a12914389ffd9a5c3c46c1ddb31fccec63b826b375ac95c287f3947c744fc1a",
-          "timestamp": "2026-07-11T20:38:19.155Z"
+          "headHash": "e835bd88bd51d42fb69b9bdd4f3b509d78328194",
+          "materialHash": "f22d2aefc41abe1face47bf5c7a62a3afad422e8875a95bb4ae557bbe0a09798",
+          "storyFilesHash": "4802864701c1ca5bd297d2492785b649e9b1b2fb062be775374453326a1e67c9",
+          "timestamp": "2026-07-11T21:09:34.778Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -328,10 +328,10 @@
           "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-legacy-vocabulary-policy",
           "result": "pass",
           "note": "An active role instruction `Set testIntent...` without old/legacy/deprecation context is rejected during collection/baseline refresh.",
-          "headHash": "660f4d570d04a488e4bc485431582b6dcf3bc096",
-          "materialHash": "603cd48793c11ac66abdda4816cf4db72abda68a0979a6e5e63cfdcb33df219e",
-          "storyFilesHash": "0a12914389ffd9a5c3c46c1ddb31fccec63b826b375ac95c287f3947c744fc1a",
-          "timestamp": "2026-07-11T20:38:19.155Z"
+          "headHash": "e835bd88bd51d42fb69b9bdd4f3b509d78328194",
+          "materialHash": "f22d2aefc41abe1face47bf5c7a62a3afad422e8875a95bb4ae557bbe0a09798",
+          "storyFilesHash": "4802864701c1ca5bd297d2492785b649e9b1b2fb062be775374453326a1e67c9",
+          "timestamp": "2026-07-11T21:09:34.778Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -341,10 +341,10 @@
           "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-legacy-vocabulary-policy",
           "result": "pass",
           "note": "Active-role policy is applied after case-insensitive legacy regex matching that covers camelCase plus spaced, hyphenated, and underscored test-intent/test-case-review forms.",
-          "headHash": "660f4d570d04a488e4bc485431582b6dcf3bc096",
-          "materialHash": "603cd48793c11ac66abdda4816cf4db72abda68a0979a6e5e63cfdcb33df219e",
-          "storyFilesHash": "0a12914389ffd9a5c3c46c1ddb31fccec63b826b375ac95c287f3947c744fc1a",
-          "timestamp": "2026-07-11T20:38:19.155Z"
+          "headHash": "e835bd88bd51d42fb69b9bdd4f3b509d78328194",
+          "materialHash": "f22d2aefc41abe1face47bf5c7a62a3afad422e8875a95bb4ae557bbe0a09798",
+          "storyFilesHash": "4802864701c1ca5bd297d2492785b649e9b1b2fb062be775374453326a1e67c9",
+          "timestamp": "2026-07-11T21:09:34.778Z"
         }
       ]
     },
@@ -402,10 +402,10 @@
           "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
           "result": "pass",
           "note": "Current docs/story references are classified and the normal verifier confirms exactly one explicit grandfathered current INIT write; unapproved and unclassified actionable writes block collection and refresh.",
-          "headHash": "660f4d570d04a488e4bc485431582b6dcf3bc096",
-          "materialHash": "603cd48793c11ac66abdda4816cf4db72abda68a0979a6e5e63cfdcb33df219e",
-          "storyFilesHash": "0a12914389ffd9a5c3c46c1ddb31fccec63b826b375ac95c287f3947c744fc1a",
-          "timestamp": "2026-07-11T20:38:19.155Z"
+          "headHash": "e835bd88bd51d42fb69b9bdd4f3b509d78328194",
+          "materialHash": "f22d2aefc41abe1face47bf5c7a62a3afad422e8875a95bb4ae557bbe0a09798",
+          "storyFilesHash": "4802864701c1ca5bd297d2492785b649e9b1b2fb062be775374453326a1e67c9",
+          "timestamp": "2026-07-11T21:09:34.778Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -415,10 +415,10 @@
           "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-direct-story-classifier",
           "result": "pass",
           "note": "Twenty-five classifier and two real scanner probes cover mixed clauses, apply_patch, Edit/Write, shell/copy tools, exact allow entry, transformer directives, backslash continuation, and natural prose continuation.",
-          "headHash": "660f4d570d04a488e4bc485431582b6dcf3bc096",
-          "materialHash": "603cd48793c11ac66abdda4816cf4db72abda68a0979a6e5e63cfdcb33df219e",
-          "storyFilesHash": "0a12914389ffd9a5c3c46c1ddb31fccec63b826b375ac95c287f3947c744fc1a",
-          "timestamp": "2026-07-11T20:38:19.155Z"
+          "headHash": "e835bd88bd51d42fb69b9bdd4f3b509d78328194",
+          "materialHash": "f22d2aefc41abe1face47bf5c7a62a3afad422e8875a95bb4ae557bbe0a09798",
+          "storyFilesHash": "4802864701c1ca5bd297d2492785b649e9b1b2fb062be775374453326a1e67c9",
+          "timestamp": "2026-07-11T21:09:34.778Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -428,10 +428,10 @@
           "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-direct-story-classifier",
           "result": "pass",
           "note": "Refresh probes prove pure negative reminders remain harmless while mixed positive writes, unknown transformer directives, recognized unapproved writes, and multiline story destinations fail closed.",
-          "headHash": "660f4d570d04a488e4bc485431582b6dcf3bc096",
-          "materialHash": "603cd48793c11ac66abdda4816cf4db72abda68a0979a6e5e63cfdcb33df219e",
-          "storyFilesHash": "0a12914389ffd9a5c3c46c1ddb31fccec63b826b375ac95c287f3947c744fc1a",
-          "timestamp": "2026-07-11T20:38:19.155Z"
+          "headHash": "e835bd88bd51d42fb69b9bdd4f3b509d78328194",
+          "materialHash": "f22d2aefc41abe1face47bf5c7a62a3afad422e8875a95bb4ae557bbe0a09798",
+          "storyFilesHash": "4802864701c1ca5bd297d2492785b649e9b1b2fb062be775374453326a1e67c9",
+          "timestamp": "2026-07-11T21:09:34.778Z"
         }
       ]
     }
