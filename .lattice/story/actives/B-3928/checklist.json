@@ -401,11 +401,11 @@
           "file": "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
           "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
           "result": "pass",
-          "note": "Current docs/story references are classified across policy reminder, read-only, process-event reference, direct read, direct write, and other categories; no actionable reference remains unclassified.",
-          "headHash": "816b23f1246683a8c2b4dab909684b7c770004a4",
-          "materialHash": "eb495d068c464d771f56709a232d8c928073da6c444020a8722da8140dd0c5a0",
-          "storyFilesHash": "08260c01ee83243e2f9ab6cd514ac08c79a1ef1c47ecc7ddffb2f581e2ff367c",
-          "timestamp": "2026-07-11T15:40:51.614Z"
+          "note": "Current docs/story references are classified and the verifier confirms the direct story-write policy has exactly one explicit grandfathered current INIT write; every unapproved recognized or unclassified actionable write blocks collection and baseline refresh.",
+          "headHash": "fc4a9fc647dc78f7f73b6faa323ab77c83291a21",
+          "materialHash": "604ec73862a3dfbc27dd09503b8e63666b1fe283237638652be8cb5696e58c4d",
+          "storyFilesHash": "dd547cbf2bbf9945f26b15fb734dc408a565d7b38b07893e53a2e0d7e8f0cc82",
+          "timestamp": "2026-07-11T15:50:48.709Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
