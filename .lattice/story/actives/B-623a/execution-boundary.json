@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-623a",
+  "allowedCommands": [
+    "git add",
+    "git commit",
+    "git diff",
+    "git status",
+    "grep",
+    "lattice validate",
+    "ls",
+    "node packages/main/dist/cli.js doctor",
+    "node packages/main/dist/cli.js usage_sweep",
+    "node packages/main/dist/tasks/doctor-gitroot-probe-smoke.js",
+    "node packages/main/dist/tasks/story-metadata-protection-smoke.js",
+    "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+    "node packages/main/dist/tasks/usage-sweep-smoke.js",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "docs/",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/usage-burn-alert.ts",
+    "packages/main/src/handlers/doctor.ts",
+    "packages/main/src/handlers/usage-sweep.ts",
+    "packages/main/src/tasks/doctor-gitroot-probe-smoke.ts",
+    "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+    "packages/main/src/tasks/storydir-inside-gitroot-suite.ts",
+    "packages/main/src/tasks/usage-burn-alert-smoke.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "createdAt": "2026-07-11T22:21:47.923Z",
+  "updatedAt": "2026-07-11T22:21:47.923Z",
+  "_hash": "718550a961299bb9f8288c0083fe0330f4e52fd258620191bb8aa52493fc366f"
+}

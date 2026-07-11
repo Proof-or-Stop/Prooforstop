@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-623a",
+  "checkedAt": "2026-07-11T22:21:54.972Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "687ddc576cf3a08e8e619ab36805b75a3a50bf7f5bc0ef7cc7e2e29bcd63f732",
+  "executionBoundaryHash": "718550a961299bb9f8288c0083fe0330f4e52fd258620191bb8aa52493fc366f",
+  "freshnessHash": "cf37add29b30c552a7e2c901b59f390b5e502c3f0e267309ee0adb552dadced1",
+  "effectiveExcludedKeywords": [
+    "No daemon/watcher process; detection runs only inside doctor/usage_sweep invocations",
+    "No gate wiring: burn alerts never produce gate evidence (gateEvidence=false surfaces only) and never block a lifecycle phase",
+    "No mutation of host sessions or transcript stores (desktop sessions stay report-only per B-70e9 non-goals)",
+    "No new config-file schema; thresholds are env-only",
+    "No notification delivery (mail/slack/etc.) - cron owns notifications; lattice only exits non-zero",
+    "No usage-ledger reads or writes (usage-sweep independence contract stays intact)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "No daemon/watcher process; detection runs only inside doctor/usage_sweep invocations",
+      "source": "scopeBoundary.excluded",
+      "text": "No daemon/watcher process; detection runs only inside doctor/usage_sweep invocations",
+      "excluded": true
+    },
+    {
+      "keyword": "No gate wiring: burn alerts never produce gate evidence (gateEvidence=false surfaces only) and never block a lifecycle phase",
+      "source": "scopeBoundary.excluded",
+      "text": "No gate wiring: burn alerts never produce gate evidence (gateEvidence=false surfaces only) and never block a lifecycle phase",
+      "excluded": true
+    },
+    {
+      "keyword": "No mutation of host sessions or transcript stores (desktop sessions stay report-only per B-70e9 non-goals)",
+      "source": "scopeBoundary.excluded",
+      "text": "No mutation of host sessions or transcript stores (desktop sessions stay report-only per B-70e9 non-goals)",
+      "excluded": true
+    },
+    {
+      "keyword": "No new config-file schema; thresholds are env-only",
+      "source": "scopeBoundary.excluded",
+      "text": "No new config-file schema; thresholds are env-only",
+      "excluded": true
+    },
+    {
+      "keyword": "No notification delivery (mail/slack/etc.) - cron owns notifications; lattice only exits non-zero",
+      "source": "scopeBoundary.excluded",
+      "text": "No notification delivery (mail/slack/etc.) - cron owns notifications; lattice only exits non-zero",
+      "excluded": true
+    },
+    {
+      "keyword": "No usage-ledger reads or writes (usage-sweep independence contract stays intact)",
+      "source": "scopeBoundary.excluded",
+      "text": "No usage-ledger reads or writes (usage-sweep independence contract stays intact)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "b8c446668e5869d95ecbe0eb3ef5dc06b97a95a4bf4d95773ff4375780a4ca3b"
+}
