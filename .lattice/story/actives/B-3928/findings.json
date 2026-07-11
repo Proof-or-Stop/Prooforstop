@@ -871,6 +871,40 @@
       ],
       "signatureTag": "adversarial|mjs:773|recurrence-scripts-verify",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3928:F-032",
+      "desc": "F-023 semantic recurrence: the direct-story policy still fails open for an imperative output verb. scripts/verify-proof-or-stop-prompt-baseline.mjs:1046-1059 recognizes the literal --output option but not Output as a write action; looksLikeImperativeDirective at :1113-1131 explicitly excludes clauses beginning with output, and classifyStoryFinding at :903-907 then blesses the reference as other/grandfathered. Exact in-memory execution of the committed functions, with the sole exact INIT allow entry present, classified `Output generated metadata to docs/story/actives/B-1234/index.json.` as other/grandfathered and collectDirectStoryFindings returned without error. Collection/--write can therefore bless a clear direct output instruction despite M0.6. Treat output directed to docs/story as a mutation, or fail closed for non-read-only path-directed imperatives, and add this baseline-refresh probe.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-11T20:17:00.940Z",
+      "reviewRound": "2026-07-11T20:10:05.981Z",
+      "reviewRunId": "B-3928:RR-027",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "packages/main/templates/agents/lattice-review-concept.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7daa9c2bfbb35222ad196f595bb4970661669246dc5c09b02c91058d11aee66b",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:903",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1046",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1113",
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:1032"
+      ],
+      "signatureTag": "adversarial|mjs:1113|output-verb-story-write-fail-open",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
