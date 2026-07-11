@@ -498,7 +498,7 @@
       "desc": "Resolved F-010 left CHK-003.userSees stale. `lattice checklist_get` still promises the exact line `PASS proof-or-stop prompt baseline: overlap matrix verified for 16 roles`, but the committed verifier now emits `PASS proof-or-stop prompt baseline: role matrix snapshot integrity verified for 16 roles` plus a separate mechanical snapshot-drift line and never emits the promised text. Update the checklist promise to the honest snapshot wording so delivery/user-visible acceptance matches the current command.",
       "severity": "medium",
       "category": "happy",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-11T15:58:25.951Z",
@@ -510,7 +510,11 @@
         ".lattice/story/actives/B-3928/checklist.json"
       ],
       "signatureTag": "happy|mjs:1325|resolved-left-usersees",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed through the supported replan path, not a direct file write: story moved DEV->PLAN and checklist_update changed CHK-003.userSees to the exact current `role matrix snapshot integrity verified for 16 roles` plus `all human-authored role-matrix semantics remain reviewer-audited` output, committed by Lattice as 62d23a3. Story then returned to DEV and evidence was refreshed.",
+      "resolvedAt": "2026-07-11T16:18:08.377Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3928:F-021",
