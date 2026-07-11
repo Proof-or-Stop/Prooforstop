@@ -1,0 +1,26 @@
+{
+  "passes": [
+    {
+      "id": "B-3ddc:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept review: verified second bounded failure lane (reused UsageLineScanner, same 1MiB last-wins cap) is independent of the usage lane, honest turn_failed(<digest>) fallback preserves no_turn_completed_usage_event when no failure event present, innermost-message drilling is depth-capped and sanitized/length-capped (tested adversarial huge+nested inputs), single call site correctly threaded with safe default, no other callers of changed types found; full smoke suite (71 checks) passes after clean build.",
+      "createdAt": "2026-07-11T23:41:01.569Z",
+      "reviewRound": "2026-07-11T23:37:09.696Z",
+      "reviewRunId": "B-3ddc:RR-002",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3ddc/plan.md",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3ddc/checklist.json",
+          ".lattice/story/actives/B-3ddc/decision.json",
+          ".lattice/story/actives/B-3ddc/scope-contract.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d001b0615cc2dcf58784641862132d1c301540503b64d9b1ce19841f6153e648"
+    }
+  ]
+}
