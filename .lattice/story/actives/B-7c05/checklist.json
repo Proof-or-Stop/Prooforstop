@@ -108,7 +108,50 @@
       "context": "lattice help (packages/main/src/cli/help-renderer.ts printHelp) defaults to a compact catalog: grouped command names with short truncated descriptions, pointing at lattice <command> --help for details. Current verbose catalog available behind the full-output flag. Per-command --help output unchanged.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run lattice help (no flags) -> output is a compact grouped catalog: command names with short one-line descriptions, ending with a pointer to lattice <command> --help; total output under ~3k tokens; WHY: confirms brief default for help",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run lattice help --full -> output is the current verbose help catalog with full parameter schemas and descriptions; WHY: confirms full output accessible on demand",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run lattice story_advance --help (any per-command help) -> output is unchanged from current behavior (not affected by brief mode); WHY: per story constraint, per-command --help output unchanged",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run lattice help when command list is empty or filtered to zero commands (e.g. in a phase with no allowed commands) -> output is graceful empty message; WHY: boundary: no commands should not crash",
+            "type": "cli",
+            "priority": "should"
+          },
+          {
+            "desc": "Run lattice help with a very long command registry (>100 commands) -> brief output still grouped and readable without truncation of command names; WHY: scaling boundary",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Brief help output still contains every registered command name (no commands silently dropped) so an agent can discover available commands; WHY: brief must not hide capabilities from agent-loop discovery",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "The full-output flag for help does not collide with any existing help subcommand or flag semantics; WHY: no flag-name collision with existing help infrastructure",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
