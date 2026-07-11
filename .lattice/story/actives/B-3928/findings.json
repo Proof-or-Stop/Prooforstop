@@ -609,6 +609,39 @@
       ],
       "signatureTag": "adversarial|mjs:546|remains-vulnerable-legacy",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3928:F-025",
+      "desc": "Round-7 F-015/F-019 recurrence: scripts/verify-proof-or-stop-prompt-baseline.mjs:668-731 and :785-807 fix only enumerated clause, verb, connector, and continuation shapes. Exact in-memory execution with the sole exact INIT allow present still classified `Avoid editing docs/story/... and instead use apply_patch...` and `Do not edit docs/story/... then use apply_patch...` as policy-reminder; `Copy source.json\\ninto docs/story/...`, `Use the metadata transformer on\\ndocs/story/...`, `Process docs/story/... with the metadata transformer`, and `Use the metadata transformer for docs/story/...` became other/grandfathered. collectDirectStoryFindings allowed every case. A simulated --write path with writeFileSync replaced by a sentinel reached WRITE_REACHED for the and-instead and process-with variants, while the exact F-015/F-019 strings rejected before writes. The closed grammar therefore leaves the same fail-open class. Add these variants and make actionable/path-adjacent instructions fail closed without relying on a finite connector list.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-11T16:23:05.128Z",
+      "reviewRound": "2026-07-11T16:17:38.139Z",
+      "reviewRunId": "B-3928:RR-022",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0c29834a1a93fdf561068e5f0d19c61fa026d4ebc96f0501078ee61a20c36fc5",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:668",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:728",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:785",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:803",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1633"
+      ],
+      "signatureTag": "adversarial|mjs:668|round-recurrence-scripts",
+      "signatureTagSource": "auto"
     }
   ]
 }
