@@ -261,6 +261,28 @@
       ],
       "signatureTag": "missing|md|code-drift-artifact",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3928:F-012",
+      "desc": "doc-code-drift: The new overlap matrix is not a complete command inventory even though M0.3 says it covers commands. The lattice-review-delivery row lists only delivery_check_set, while its canonical prompt requires two explicit git diff main...HEAD commands; lattice-review-behavior likewise relies on git diff but omits it, whereas the docs/concept/quality rows do classify git diff/grep as commands. The verifier only proves that each listed claim has a supporting snippet and its mutation probe only rejects unsupported additions, so it passes while source commands are omitted. Add the missing commands or define a consistent narrower Commands contract and mechanically check prompt-to-matrix completeness.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-11T15:21:01.592Z",
+      "reviewRound": "2026-07-10T09:21:14.756Z",
+      "reviewRunId": "B-3928:RR-017",
+      "_hash": "e2cafc3819d742d8aa1db75d9b681717a55636a7e525abda3effaaacd30ae30d",
+      "files": [
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+        "packages/main/templates/agents/lattice-review-delivery.md",
+        "packages/main/templates/agents/lattice-review-behavior.md"
+      ],
+      "signatureTag": "missing|md|code-drift-overlap",
+      "signatureTagSource": "auto"
     }
   ]
 }
