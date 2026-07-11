@@ -809,6 +809,37 @@
       ],
       "signatureTag": "adversarial|mjs:1076|recurrence-scripts-verify",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3928:F-030",
+      "desc": "F-025 connector-free continuation recurrence: scripts/verify-proof-or-stop-prompt-baseline.mjs:1232-1237 joins a mutation lead to a docs/story target only when the lead has no terminal punctuation and the target is not a list item. With the sole exact INIT allow present, exact in-memory collection accepted `Use the metadata transformer:\\ndocs/story/actives/B-1234/index.json` and `Use the metadata transformer\\n- docs/story/actives/B-1234/index.json`; each target line became other/grandfathered. It also accepted a path-first `docs/story/...\\nFrobnicate it.` continuation. Collection/--write can therefore bless clear multiline mutation instructions outside the committed connector probes. Join bounded instruction blocks based on mutation lead plus story target rather than punctuation/list direction, and add refresh rejection probes.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-11T20:16:16.875Z",
+      "reviewRound": "2026-07-11T20:10:05.981Z",
+      "reviewRunId": "B-3928:RR-028",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3d2a4ca6a2cda1656516a93c80da980f7d93c134f03279cea681648ae17bedaf",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1232",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1240"
+      ],
+      "signatureTag": "adversarial|mjs:1232|connector-free-continuation",
+      "signatureTagSource": "auto"
     }
   ]
 }
