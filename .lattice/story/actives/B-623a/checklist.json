@@ -452,6 +452,19 @@
             "type": "logic"
           }
         ]
+      },
+      "userSees": "npm run test:usage-burn-alert prints \"✓ usage-burn-alert smoke passed (N checks)\" and run-all-smokes auto-discovers the new smoke",
+      "files": {
+        "modify": [
+          "packages/main/package.json",
+          "package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts"
+        ]
       }
     }
   ]
