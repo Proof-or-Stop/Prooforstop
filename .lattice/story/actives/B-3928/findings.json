@@ -538,6 +538,37 @@
       "resolvedAt": "2026-07-11T16:18:09.269Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3928:F-022",
+      "desc": "Two adversarial intents still lack command-aligned evidence. For CHK-002:adversarial:0, `--probe-baseline-drift` runs nine mutations but none creates duplicate agent_prompt output ownership, and none exercises an agent_prompt unknown-role command failure; the role rename case only proves missing/extra identity drift. For CHK-004:adversarial:0, `--probe-legacy-vocabulary-policy` runs exactly one synthetic `Set testIntent...` case, so it does not exercise the spaced, hyphenated, or underscored test-intent/test-case-review variants claimed by the evidence note. Add focused negative cases for those stated branches or narrow/rebind the evidence so each command proves the attached intent.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-11T16:21:41.477Z",
+      "reviewRound": "2026-07-11T16:17:38.139Z",
+      "reviewRunId": "B-3928:RR-024",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "package.json",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e7374e31860d87200633a8a362c2381ad4b41e218ceeed81301d7e21c31b80cf",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+        "docs/requirements/baselines/proof-or-stop-prompt-baseline.json"
+      ],
+      "signatureTag": "missing|mjs|adversarial-intents-still",
+      "signatureTagSource": "auto"
     }
   ]
 }
