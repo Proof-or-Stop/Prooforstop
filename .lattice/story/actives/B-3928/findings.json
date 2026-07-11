@@ -544,7 +544,7 @@
       "desc": "Two adversarial intents still lack command-aligned evidence. For CHK-002:adversarial:0, `--probe-baseline-drift` runs nine mutations but none creates duplicate agent_prompt output ownership, and none exercises an agent_prompt unknown-role command failure; the role rename case only proves missing/extra identity drift. For CHK-004:adversarial:0, `--probe-legacy-vocabulary-policy` runs exactly one synthetic `Set testIntent...` case, so it does not exercise the spaced, hyphenated, or underscored test-intent/test-case-review variants claimed by the evidence note. Add focused negative cases for those stated branches or narrow/rebind the evidence so each command proves the attached intent.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-11T16:21:41.477Z",
@@ -568,7 +568,11 @@
         "docs/requirements/baselines/proof-or-stop-prompt-baseline.json"
       ],
       "signatureTag": "missing|mjs|adversarial-intents-still",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by ca3bde3a and 50cf8130. Baseline drift probes now reject duplicate agent_prompt output ownership and an actual unknown-role agent_prompt command; legacy policy probes cover spaced, hyphenated, underscored, mixed-case, clause-laundering, and arbitrary attach/persist positive instructions. Independent verification passed: baseline drift 10 mutations plus unknown-role, legacy policy 12 rejected cases, full verifier, package baseline test, and build.",
+      "resolvedAt": "2026-07-11T20:10:21.820Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3928:F-023",
