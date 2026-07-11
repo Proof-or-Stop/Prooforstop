@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-7c05",
+  "id": "IC-20260711233645",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Make the bare default output of the high-volume lattice commands (the post-mutation milestone-status suffix + milestone_status, finding_list, help, and the audited >5k-token whales story_list/bug_list) brief-but-actionable, with per-command --full and LATTICE_BRIEF_OUTPUT=0 restoring the complete legacy output, while explicit --json/--format=json shapes and all gate/gateEvidence/state semantics stay unchanged, verified by a committed smoke test.",
+  "acceptedInterpretationHash": "sha256:1a9d1a6218ff1e4507957f56f694575618c71d7edac582a7be098837aaf87d25",
+  "notes": "Independent collision lane (fresh-context subagent, adversarial read of background/original-intent-snapshot/checklist/plan/decision/scope-boundary) returned PASS with four compatible refinements (bare-JSON trimming vs frozen explicit --json modes, host_list under-threshold disposition, --brief completing the precedence semantics, choke-point broadening beyond literal story_advance) and ONE real artifact-level contradiction: plan.md whale filtering vs CHK-004 no-filter wording. Reconciled before recording this pass: non-silent filtering rule written into plan.md (filtering allowed only with total counts of omitted items + explicit _hint, always --full-recoverable), CHK-004/CHK-005 verificationIntent wording amended by the test-intent agent, and the LATTICE_BRIEF_OUTPUT disable-set fixed to the literal string 0 only.",
+  "createdAt": "2026-07-11T23:36:45.503Z",
+  "updatedAt": "2026-07-11T23:36:45.503Z"
+}

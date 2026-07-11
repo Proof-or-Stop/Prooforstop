@@ -163,7 +163,7 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "Run lattice story_list (no flags) -> output is a brief summary: one line per story with storyId, phase, status, and _bugSummary field preserved in output; total output under ~5k tokens for a project with 50+ stories; WHY: confirms brief default for story_list (known 365KB offender)",
+            "desc": "Run lattice story_list (no flags) -> output shows one line per non-terminal (actionable) story, with per-phase counts covering ALL stories including omitted terminal ones, under ~5k tokens on a 50+ story fixture; WHY: confirms brief default for story_list (known 365KB offender) with non-silent filtering",
             "type": "cli",
             "priority": "must"
           },
@@ -202,7 +202,7 @@
             "priority": "must"
           },
           {
-            "desc": "Brief bug_list does not accidentally omit bugs whose severity is below a threshold (brief means shorter per-item output, not filtered items); WHY: brief must not silently filter data, only compress per-item verbosity",
+            "desc": "Brief bug_list must not SILENTLY filter data: any omitted items must be represented by exact total/status counts and an explicit _hint naming the full flag, and --full must recover all omitted items; WHY: brief may filter to actionable subset only if non-silent and --full-recoverable",
             "type": "logic",
             "priority": "must"
           }

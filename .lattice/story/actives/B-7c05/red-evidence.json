@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-7c05",
+  "records": [
+    {
+      "id": "RED-20260711233114",
+      "trigger": "Explicit behavior-change work: default CLI outputs are context-fattening whales (help alone 46,700 bytes on the story-worktree build; forensics show the milestone table re-printed 3x in one turn) and must become brief by default",
+      "acceptanceTargetRef": "sha256:7e924ab3b4a827d355b7eb28dc73fe7db2426795fd169c24794cde3a7609fb53",
+      "baselineHeadHash": "0137b455507472a8d14c25d01954be087e02476b",
+      "baselineMaterialHash": "4e6b8ec53b5e42e0e25e32c84fc04d65bed50cdd96145d5c07ee9fea1345e937",
+      "observedFailure": "On baseline HEAD, bare `node bin/lattice.js help` emits 46,700 bytes (~11.7k tokens); the byte-budget probe `test $(node bin/lattice.js help | wc -c) -lt 16000` exits 1. Same class of failure measured for story_list (364,823 bytes), global bug_list (262,917 bytes), finding_list with populated findings (~10.2k tokens), and the milestone-ledger table appended after every mutating command (~8.4k tokens).",
+      "failingCommand": "bash -c 'test \"$(node bin/lattice.js help 2>/dev/null | wc -c)\" -lt 16000'",
+      "expectedGreenCommand": "bash -c 'test \"$(node bin/lattice.js help 2>/dev/null | wc -c)\" -lt 16000'",
+      "greenRelation": {
+        "targetRef": "sha256:7e924ab3b4a827d355b7eb28dc73fe7db2426795fd169c24794cde3a7609fb53",
+        "relation": "same_acceptance",
+        "command": "bash -c 'test \"$(node bin/lattice.js help 2>/dev/null | wc -c)\" -lt 16000'"
+      },
+      "note": "Red probe run 2026-07-12 in the B-7c05 worktree: help bytes: 46700, exit=1. Budget 16000 bytes is the red/green boundary for the help offender; the CHK-005 smoke test enforces per-command budgets for the full offender set.",
+      "createdAt": "2026-07-11T23:31:14.561Z"
+    }
+  ],
+  "createdAt": "2026-07-11T23:31:14.561Z",
+  "updatedAt": "2026-07-11T23:31:14.561Z"
+}

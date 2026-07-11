@@ -1,0 +1,39 @@
+{
+  "storyId": "B-7c05",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/milestone-status.ts",
+    "packages/main/src/handlers/milestone-status.ts",
+    "packages/main/src/handlers/finding.ts",
+    "packages/main/src/cli/help-renderer.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/handlers/story-query.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/handlers/bug.ts",
+    "packages/main/src/handlers/lattice-cli.ts",
+    "packages/main/src/tasks/cli-surface-smoke.ts",
+    "packages/main/src/tasks/run-all-smokes.ts",
+    "package.json",
+    "docs/CLI.md",
+    "CLAUDE.md",
+    ".lattice/story/actives/B-7c05/**"
+  ],
+  "allowedCreate": [
+    "packages/main/src/cli/output-verbosity.ts",
+    "packages/main/src/tasks/brief-output-smoke.ts",
+    ".lattice/story/actives/B-7c05/**"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/brief-output-smoke.ts",
+    "packages/main/src/tasks/cli-surface-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "packages/main/src/handlers/verifier.ts"
+  ],
+  "scopeChangeReason": "Add story-own metadata glob .lattice/story/actives/B-7c05/** to allowed sets: lattice lifecycle commands (red_evidence_create etc.) write there and the fail-closed unknown-path rule was blocking the story metadata itself.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-11T23:31:25.831Z",
+  "updatedAt": "2026-07-11T23:32:37.623Z"
+}
