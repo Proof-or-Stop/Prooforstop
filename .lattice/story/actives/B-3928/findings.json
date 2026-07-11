@@ -777,6 +777,38 @@
       "resolvedAt": "2026-07-11T20:10:28.272Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3928:F-029",
+      "desc": "F-025 recurrence: scripts/verify-proof-or-stop-prompt-baseline.mjs:1070-1110 treats an entire docs/story instruction as safe whenever it begins with a read-only verb or Lattice-CLI redirect, without requiring the rest of the instruction to remain non-mutating. With the sole exact INIT allow present, exact in-memory execution classified `Inspect docs/story/actives/B-1234/index.json, then frobnicate it.` and `Use the Lattice CLI for docs/story/actives/B-1234/index.json; then frobnicate it.` as other/grandfathered, and collectDirectStoryFindings returned successfully. The same collection path gates --write, so arbitrary second actions can still be blessed. Apply strict whole-instruction negative/safe grammar to every exemption and commit collection/refresh rejection probes.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-11T20:16:07.026Z",
+      "reviewRound": "2026-07-11T20:10:05.981Z",
+      "reviewRunId": "B-3928:RR-028",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "db2c24f2005ce16f2025b13a00c3e6144c536bc6435c46861efb885ca917f0d8",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1076",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1096",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1106"
+      ],
+      "signatureTag": "adversarial|mjs:1076|recurrence-scripts-verify",
+      "signatureTagSource": "auto"
     }
   ]
 }
