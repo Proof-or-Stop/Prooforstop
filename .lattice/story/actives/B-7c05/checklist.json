@@ -6,7 +6,50 @@
       "context": "milestone_status and the appendMilestoneStatusAfterMutation() suffix (cli-engine.ts) that rides on story_advance and other mutating commands print a compact summary by default: per-milestone one-line status, counts, and next action. The full 7-column markdown table (renderMilestoneStatusReport in packages/main/src/core/milestone-status.ts) is available behind an explicit full-output flag.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run lattice milestone_status for a story with populated milestones (no flags) -> output is a compact one-line-per-milestone summary (status, counts, next action) fitting under ~1k tokens; WHY: confirms brief default activates for milestone_status",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run lattice story_advance (or other mutating command that triggers appendMilestoneStatusAfterMutation) -> appended milestone suffix is the compact summary, not the full markdown table; WHY: confirms the mutation-suffix path also uses brief mode",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run lattice milestone_status --full (or equivalent full-output flag) -> output is the complete 7-column markdown table (renderMilestoneStatusReport); WHY: confirms full output is still accessible on demand",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run lattice milestone_status on a story with zero milestones -> output is empty/minimal and does not error; WHY: boundary: empty milestone set must not crash the brief renderer",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run lattice milestone_status on a story with >20 milestones -> brief output remains one-line-per-milestone without truncation loss of milestone identifiers; WHY: confirms scaling does not hide data",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The brief milestone output still contains enough information for an agent to determine next action (i.e. identifies which milestone is current and what phase/checklist items remain); WHY: brief must not degrade agent decision-making",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "validate --full semantics remain untouched (validate is not in the affected command set) — confirm milestone_status full-output flag name does not collide with validate --full; WHY: per story constraint, validate --full must keep its run-real-machine-tests meaning",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
