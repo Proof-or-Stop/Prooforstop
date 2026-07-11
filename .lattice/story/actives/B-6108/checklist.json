@@ -313,6 +313,18 @@
           "materialHash": "4e6b8ec53b5e42e0e25e32c84fc04d65bed50cdd96145d5c07ee9fea1345e937",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "timestamp": "2026-07-11T22:53:51.533Z"
+        },
+        {
+          "intentRef": "interaction-audit:edge",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "strippedTokenVerbDone: descoped fires when its subject token is stripped as a URL; pure-strip sentences without claim verbs stay quiet (fileNameDone/bareFileNameDone/lineQualifiedPathDone/anchorQualifiedPathDone)",
+          "headHash": "05ef152ac48b3566b60a38c681f4fc21fc3b058b",
+          "materialHash": "4e6b8ec53b5e42e0e25e32c84fc04d65bed50cdd96145d5c07ee9fea1345e937",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-11T22:53:53.563Z"
         }
       ]
     }
