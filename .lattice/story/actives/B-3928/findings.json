@@ -1268,6 +1268,38 @@
       ],
       "signatureTag": "missing|mjs:132|doc-promise-undelivered-closed-story-policy",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-3928:F-043",
+      "desc": "doc-promise-undelivered: docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:1026-1030 promises that a live legacy occurrence is allowed only by closed safe-negative grammar or exact registered context, but scripts/verify-proof-or-stop-prompt-baseline.mjs still lets `Do not use testIntent; attach it to each new story.` and an exact registered historical line followed by `Attach it...` pass collectLegacyVocabularyFindings. The normal verifier then prints that the closed policy is enforced. Deliver whole-instruction/context enforcement and adversarial refresh probes before retaining this current-state promise.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-11T20:46:17.457Z",
+      "reviewRound": "2026-07-11T20:38:32.745Z",
+      "reviewRunId": "B-3928:RR-032",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "package.json",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "90238a0e87bc2d0ab23ffbf12cc9006df282ce04e966cbae81b5d38ba32d9aec",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:1029",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1053",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1393"
+      ],
+      "signatureTag": "missing|md:1029|promise-undelivered-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
