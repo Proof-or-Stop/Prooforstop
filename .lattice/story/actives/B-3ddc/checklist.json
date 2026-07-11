@@ -133,7 +133,50 @@
       "context": "packages/main/src/tasks/host-run-usage-smoke.ts: add a pinned fixture with the exact observed line {\"type\":\"turn.failed\",\"error\":{\"message\":\"{\\\"type\\\":\\\"error\\\",\\\"status\\\":400,\\\"error\\\":{\\\"type\\\":\\\"invalid_request_error\\\",\\\"message\\\":\\\"The 'gpt-5.6-sol' model requires a newer version of Codex. Please upgrade to the latest app or CLI and try again.\\\"}}\"}} asserting the recorded unavailableReason is turn_failed(...) carrying the upgrade message digest; update the existing turn.failed check accordingly; keep a no-failure-event case asserting the no_turn_completed_usage_event fallback.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run host-run-usage-smoke with the pinned B-3928 fixture ({\"type\":\"turn.failed\",\"error\":{\"message\":\"{...invalid_request_error...gpt-5.6-sol...}\"}}) -> the recorded unavailableReason matches turn_failed(...) carrying the upgrade message digest (not no_turn_completed_usage_event); WHY: the exact observed production payload must be covered by a pinned fixture, not just a synthetic one",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run host-run-usage-smoke with the no-failure-event case (codex stdout with no turn.completed and no turn.failed) -> the recorded unavailableReason is no_turn_completed_usage_event; WHY: the fallback path must remain covered after the new fixture is added",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run host-run-usage-smoke with the existing turn.completed happy-path fixture -> provider-reported final with real token counts, unchanged; WHY: adding the new fixture must not break or skip the existing positive-path coverage",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The pinned B-3928 fixture line is byte-exact (including the nested JSON-in-string escaping) against the documented observed payload from the B-3928 investigation -> fixture string matches the spec context character-for-character; WHY: a drift between the pinned fixture and the real payload silently weakens the test",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "The existing CODEX_FAILED_STDOUT test (which uses a simple {\"type\":\"turn.failed\",\"error\":{\"message\":\"boom\"}}) is updated to assert turn_failed(boom) rather than no_turn_completed_usage_event -> proves the simple non-nested case; WHY: the old check must be updated to match the new behavior, not left asserting the old generic reason",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The pinned fixture passes through the full runHostRun path (not just scanCodexTurnCompletedUsage) with the ledger ON -> a complete unavailable ledger row is written with provider openai and the turn_failed reason, input/output/cacheRead all null; WHY: end-to-end through the ledger proves the fixture is not just a parser unit test but exercises the real recording path",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "The pinned fixture with a fake runner that returns exitCode 1 -> the exit code propagates to the result AND the unavailableReason is still turn_failed (not masked by the non-zero exit); WHY: in the real B-3928 scenario codex exited 1 and the reason must still surface",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
