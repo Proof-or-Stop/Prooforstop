@@ -364,7 +364,7 @@
       "desc": "F-009 recurrence: scripts/verify-proof-or-stop-prompt-baseline.mjs:620-635 only treats a fixed mutation-verb set as actionable and :571-575 defaults every other docs/story reference to other with grandfathered=true; :1115-1150 then ignores that class. Exact in-memory execution of the committed functions classified `Use the project-specific metadata transformer on docs/story/actives/B-1234/index.json.` as other/grandfathered and returned no policy error when combined with the one allowed INIT write. Therefore --write can still bless an unrecognized actionable story-file mutation despite the resolved claim that unknown forms fail closed. Make the fallback non-grandfathered/fail-closed for directive-shaped docs/story references and add a transformer-style refresh probe.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-11T15:57:14.549Z",
@@ -377,7 +377,11 @@
         "scripts/verify-proof-or-stop-prompt-baseline.mjs:1115"
       ],
       "signatureTag": "adversarial|mjs:620|recurrence-scripts-verify",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in a31f2f08a2. Directive-shaped unknown operations such as `Use the project-specific metadata transformer on docs/story/...` classify as unclassified-actionable unless they are clearly read-only, and collection/--write rejects them. A committed transformer refresh probe passes; current baseline still has exactly one exact grandfathered INIT write.",
+      "resolvedAt": "2026-07-11T16:18:03.406Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3928:F-016",
