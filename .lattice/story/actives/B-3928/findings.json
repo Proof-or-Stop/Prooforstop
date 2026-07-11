@@ -461,7 +461,7 @@
       "desc": "quality-correctness: scripts/verify-proof-or-stop-prompt-baseline.mjs:578-617 suppresses an entire clause whenever it contains a negative mutation verb, so `Do not edit docs/story/... and then use apply_patch to update docs/story/...` is classified as policy-reminder. Lines 664-699 join only backslash continuations, so prose `Copy source.json to\\ndocs/story/...` records the path-only line as other/grandfathered. Exact in-memory execution with the sole allowed INIT echo present showed collectDirectStoryFindings accepts both cases, and the same collection is the pre-write guard at lines 1273-1277; therefore a refreshed baseline/--write can still bless actionable writes and F-009 remains fail-open. Parse positive actions inside mixed clauses and either join actionable prose continuations or reject adjacent path-only references, then add probes that prove baseline refresh and --write reject both forms.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-11T15:58:02.557Z",
@@ -487,7 +487,11 @@
         "scripts/verify-proof-or-stop-prompt-baseline.mjs:1273"
       ],
       "signatureTag": "adversarial|mjs:578|quality-correctness-scripts",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in a31f2f08a2. Clause splitting recognizes `and then` positive actions after a prohibition, and mutation-shaped natural continuations are joined for scanner evaluation. Exact probes now reject both `Do not edit ... and then use apply_patch...` and `Copy source.json to\\ndocs/story/...` during collection/refresh. Direct suite passes 25 classifier and 2 scanner cases.",
+      "resolvedAt": "2026-07-11T16:18:07.519Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3928:F-020",
