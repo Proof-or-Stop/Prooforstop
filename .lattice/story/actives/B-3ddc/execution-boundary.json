@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-3ddc",
+  "allowedCommands": [
+    "git add/commit/status/diff on the story worktree",
+    "lattice story workflow commands (validate, dispatch, review, evidence, advance)",
+    "node packages/main/dist/tasks/host-run-usage-smoke.js",
+    "node packages/main/dist/tasks/run-all-smokes.js",
+    "npm run build (packages/main)"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "packages/main/src/core/host-run.ts",
+    "packages/main/src/tasks/host-run-usage-smoke.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Codex-only failure-line retention + reason enrichment; verification is the compiled host-run usage smoke plus the standard suite; no real codex host invocation required for DEV (fixtures pin the observed B-3928 line).",
+  "createdAt": "2026-07-11T23:02:33.653Z",
+  "updatedAt": "2026-07-11T23:02:33.653Z",
+  "_hash": "8ba3cebf732c32e1d0d777a89489ef6c09b4ea00d5e5328f68de41f2d852660a"
+}
