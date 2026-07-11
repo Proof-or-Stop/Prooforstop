@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "proof-or-stop.prompt-baseline.v5",
+  "schemaVersion": "proof-or-stop.prompt-baseline.v6",
   "storyId": "B-3928",
   "sourcePlan": "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
   "expectedRoleCount": 16,
@@ -564,23 +564,41 @@
   },
   "legacyVocabulary": {
     "policy": {
+      "knownStatuses": [
+        "active",
+        "conditional",
+        "optional",
+        "compatibility",
+        "legacy",
+        "retired-cli-only",
+        "fold-candidate"
+      ],
+      "exemptStatuses": [
+        "legacy",
+        "retired-cli-only",
+        "fold-candidate"
+      ],
       "enforcedStatuses": [
         "active",
         "conditional",
         "optional",
         "compatibility"
       ],
-      "explicitContextMarkers": [
-        "old",
-        "legacy",
-        "deprecated",
-        "retired",
-        "removed",
-        "deleted",
-        "replaced",
-        "compatibility"
+      "registeredContexts": [
+        {
+          "role": "lattice-review-concept",
+          "term": "testIntent",
+          "excerpt": "2. `git diff main...HEAD` to see specific changes, and identify **concept words that have been deleted/replaced en masse** (e.g., testIntent was deleted, alpha was replaced with beta)",
+          "reason": "Current concept-deletion example explicitly demonstrates that testIntent was deleted."
+        },
+        {
+          "role": "lattice-review-test-coverage",
+          "term": "TEST_CASE_REVIEW",
+          "excerpt": "You are `lattice-review-test-coverage`. Your duty is to inherit the value of the old `TEST_CASE_REVIEW`, but without resurrecting the old phase: you only review during the REVIEW phase whether the `verificationIntent` on the checklist is covered by valid `verificationEvidence`.",
+          "reason": "Current coverage reviewer explicitly identifies TEST_CASE_REVIEW as the old replaced phase."
+        }
       ],
-      "rule": "Each testIntent, TEST_CASE, or TEST_CASE_REVIEW occurrence in an active, conditional, optional, or compatibility role must be a true negative reference or carry explicit local old/legacy/deprecated/retired/removed/deleted/replaced/compatibility context. Positive instructions always fail, and context in another clause or negated context such as \"not legacy\" never blesses them. Legacy, retired, and fold-candidate roles remain readable."
+      "rule": "Only legacy, retired-cli-only, and fold-candidate roles are exempt. Every other known role status is enforced, and unknown or empty statuses fail closed. A live testIntent, TEST_CASE, or TEST_CASE_REVIEW occurrence is allowed only by the closed safe-negative grammar or an exact role/term/excerpt contextual registration."
     },
     "patterns": [
       "TEST_CASE_REVIEW",
@@ -601,8 +619,9 @@
         "classification": "legacy-overlap-wording",
         "note": "Legacy wording called out for later prompt consolidation.",
         "roleStatus": "fold-candidate",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status fold-candidate is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status fold-candidate is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
         "id": "ab2e7b5a0c970ada",
@@ -617,8 +636,9 @@
         "classification": "legacy-overlap-wording",
         "note": "Legacy wording called out for later prompt consolidation.",
         "roleStatus": "fold-candidate",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status fold-candidate is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status fold-candidate is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
         "id": "1979de4a42eb5199",
@@ -633,8 +653,9 @@
         "classification": "legacy-overlap-wording",
         "note": "Legacy wording called out for later prompt consolidation.",
         "roleStatus": "fold-candidate",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status fold-candidate is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status fold-candidate is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
         "id": "6c32bcd169f15e80",
@@ -649,8 +670,9 @@
         "classification": "legacy-example",
         "note": "Example of concept deletion terminology, not an active testIntent instruction.",
         "roleStatus": "conditional",
-        "policyStatus": "allowed-explicit-local-context",
-        "policyReason": "The occurrence clause explicitly marks non-negated old/legacy/deprecated/retired/removed/deleted/replaced/compatibility context."
+        "statusClassification": "enforced",
+        "policyStatus": "allowed-registered-context",
+        "policyReason": "Exact role/term/excerpt occurrence is registered as current historical context."
       },
       {
         "id": "1b95a69e573de10a",
@@ -665,8 +687,9 @@
         "classification": "legacy-value-reference",
         "note": "Current reviewer explicitly references the old TEST_CASE_REVIEW value without reviving the phase.",
         "roleStatus": "active",
-        "policyStatus": "allowed-explicit-local-context",
-        "policyReason": "The occurrence clause explicitly marks non-negated old/legacy/deprecated/retired/removed/deleted/replaced/compatibility context."
+        "statusClassification": "enforced",
+        "policyStatus": "allowed-registered-context",
+        "policyReason": "Exact role/term/excerpt occurrence is registered as current historical context."
       },
       {
         "id": "58fb869a0dcdf601",
@@ -681,8 +704,9 @@
         "classification": "legacy-overlap-wording",
         "note": "Legacy wording called out for later prompt consolidation.",
         "roleStatus": "compatibility",
+        "statusClassification": "enforced",
         "policyStatus": "allowed-negative-reference",
-        "policyReason": "Occurrence is scoped by a true negative instruction or exclusion."
+        "policyReason": "The whole occurrence clause matches the closed safe-negative grammar."
       },
       {
         "id": "b7539ae1f98af668",
@@ -697,8 +721,9 @@
         "classification": "legacy-overlap-wording",
         "note": "Legacy wording called out for later prompt consolidation.",
         "roleStatus": "compatibility",
+        "statusClassification": "enforced",
         "policyStatus": "allowed-negative-reference",
-        "policyReason": "Occurrence is scoped by a true negative instruction or exclusion."
+        "policyReason": "The whole occurrence clause matches the closed safe-negative grammar."
       },
       {
         "id": "6b1b84edfe4bbcc7",
@@ -713,8 +738,9 @@
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
         "id": "ff4c2cceb90105f1",
@@ -729,8 +755,9 @@
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
         "id": "a432af3991230f70",
@@ -745,8 +772,9 @@
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
         "id": "d995b20af40b5d70",
@@ -761,8 +789,9 @@
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
         "id": "f71504fa6ea0cb38",
@@ -777,8 +806,9 @@
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
         "id": "24d2bdc93e612763",
@@ -793,8 +823,9 @@
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
         "id": "fc393f02cb4f20d2",
@@ -809,8 +840,9 @@
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
         "id": "c7f0792235e36128",
@@ -825,8 +857,9 @@
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
         "id": "224554a886af16d6",
@@ -841,8 +874,9 @@
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
         "id": "0685ddd37fbe2121",
@@ -857,8 +891,9 @@
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
         "id": "b81c6a7dea0bb78a",
@@ -873,8 +908,9 @@
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
         "id": "d4da366d7952b3b4",
@@ -889,8 +925,9 @@
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
         "id": "4ab4b33e1b160906",
@@ -905,8 +942,9 @@
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
         "id": "9441500ad4bd56d2",
@@ -921,8 +959,9 @@
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
         "id": "1aea355508c06dac",
@@ -937,8 +976,9 @@
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
         "id": "ea3969e4ea67df37",
@@ -953,8 +993,9 @@
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
         "id": "f51d87a59fc95053",
@@ -969,8 +1010,9 @@
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
         "id": "c98adf962c7ebfd7",
@@ -985,8 +1027,9 @@
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
         "id": "9aa413869f9a3b0e",
@@ -1001,8 +1044,9 @@
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
         "id": "c8472dfb8fb5ebd2",
@@ -1017,8 +1061,9 @@
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
         "id": "0abf8786d025f306",
@@ -1033,8 +1078,9 @@
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
         "id": "94b45f906b1828fe",
@@ -1049,8 +1095,9 @@
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
         "id": "21a356d09083be70",
@@ -1065,8 +1112,9 @@
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
         "id": "19eee2883be0d5b3",
@@ -1081,8 +1129,9 @@
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
         "id": "09f2d6a94efef7c5",
@@ -1097,8 +1146,9 @@
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
         "id": "29c7cacb4a8518d1",
@@ -1113,8 +1163,9 @@
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
         "id": "e995df1982f88702",
@@ -1129,8 +1180,9 @@
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
         "id": "5ad74a7b829e9b96",
@@ -1145,8 +1197,9 @@
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
         "id": "8cb1968f574575eb",
@@ -1161,8 +1214,9 @@
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
         "id": "e362eafd72aa3e43",
@@ -1177,8 +1231,9 @@
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
         "id": "ed749e90910bf7d5",
@@ -1193,8 +1248,9 @@
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
         "id": "c8cf4ee0a31f9684",
@@ -1209,8 +1265,9 @@
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
         "id": "7d1ce167021eee80",
@@ -1225,8 +1282,9 @@
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
         "id": "b724934adbd255aa",
@@ -1241,8 +1299,9 @@
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
         "id": "b4ad03f7aec14a1e",
@@ -1257,8 +1316,9 @@
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
         "id": "1aa4f4bb7cc8ca8d",
@@ -1273,8 +1333,9 @@
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
         "id": "620a70162b8a9fd0",
@@ -1289,8 +1350,9 @@
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
         "id": "d93372834c27a475",
@@ -1305,8 +1367,9 @@
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
         "id": "11f54fba0388db2b",
@@ -1321,8 +1384,9 @@
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
         "id": "f4adf1b53adff7f2",
@@ -1337,8 +1401,9 @@
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
         "id": "596d6a5956c8c5b1",
@@ -1353,8 +1418,9 @@
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
         "id": "b449a5de741f3a19",
@@ -1369,8 +1435,9 @@
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
         "id": "1fa295fec849e9a5",
@@ -1385,8 +1452,9 @@
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
         "id": "f4c9e7372849c9da",
@@ -1401,8 +1469,9 @@
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
         "id": "50f7297545354c8c",
@@ -1417,8 +1486,9 @@
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
         "id": "5a781e5845d2e884",
@@ -1433,8 +1503,9 @@
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
         "id": "b14377d717e1cef2",
@@ -1449,12 +1520,87 @@
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
+        "statusClassification": "exempt",
         "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is outside active/conditional/optional/compatibility enforcement."
+        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       }
     ]
   },
   "directStoryFileReferences": {
+    "policy": {
+      "model": "closed-safe-reference",
+      "contextRadius": 2,
+      "exactReferences": [
+        {
+          "role": "lattice-review-channel",
+          "classification": "process-event-evidence-reference",
+          "excerpt": "The truly reliable evidence source is the `dispatch` / `subagent_result` events in **`docs/story/actives/<storyId>/process-events.jsonl`**: every time the main agent uses `lattice dispatch` to assign work, it appends `{\"type\":\"dispatch\",\"checklistId\":\"CHK-xxx\",...}`; once the worker finishes, it may append `{\"type\":\"subagent_result\",\"checklistId\":\"CHK-xxx\",\"success\":true,...}`."
+        },
+        {
+          "role": "lattice-review-channel",
+          "classification": "process-event-evidence-reference",
+          "excerpt": "grep '\"type\":\"dispatch\"' docs/story/actives/B-xxx/process-events.jsonl | grep -oE '\"checklistId\":\"CHK-[0-9]+\"' | sort -u"
+        },
+        {
+          "role": "lattice-review-channel",
+          "classification": "process-event-evidence-reference",
+          "excerpt": "- The full text of `docs/story/actives/<storyId>/process-events.jsonl` (dispatch evidence source)"
+        },
+        {
+          "role": "lattice-review-story-init",
+          "classification": "read-only-reference",
+          "excerpt": "3. `docs/story/actives/<storyId>/background.md` (full text)"
+        },
+        {
+          "role": "lattice-review-story-init",
+          "classification": "read-only-reference",
+          "excerpt": "4. `docs/story/actives/<storyId>/index.json` — read only the `title` / `description` / `type` / `priority` / `riskSignals` fields"
+        },
+        {
+          "role": "lattice-review-story-init",
+          "classification": "read-only-reference",
+          "excerpt": "5. `docs/story/actives/<storyId>/checklist.json` — read only `items[].title` / `items[].context`"
+        },
+        {
+          "role": "lattice-review-story-init",
+          "classification": "other",
+          "excerpt": "- Other story directories (`docs/story/actives/<other-id>/` or `docs/story/archived/`)"
+        },
+        {
+          "role": "lattice-review-story-init",
+          "classification": "direct-read",
+          "excerpt": "2. **Read background.md**: `Read docs/story/actives/<storyId>/background.md` in full. Note all letter codes, abbreviations, jargon, and where they are first defined, **and mark all factual claims about the existing system** (e.g., \"X only supports Y\", \"all projects have Z\")."
+        },
+        {
+          "role": "lattice-review-story-init",
+          "classification": "direct-read",
+          "excerpt": "3. **Read index.json**: `Read docs/story/actives/<storyId>/index.json` and extract `title` / `description` / `type` / `priority` / `riskSignals`."
+        },
+        {
+          "role": "lattice-review-story-init",
+          "classification": "direct-read",
+          "excerpt": "4. **Read checklist.json**: `Read docs/story/actives/<storyId>/checklist.json`, iterate over `items[]`, look only at `title` and `context`."
+        },
+        {
+          "role": "lattice-review-story-init",
+          "classification": "direct-read",
+          "excerpt": "cat docs/story/actives/<storyId>/init-self-check.json"
+        },
+        {
+          "role": "product-reviewer",
+          "classification": "read-only-reference",
+          "excerpt": "- If available, `docs/story/actives/<storyId>/evidence/transcript-diff.md`"
+        }
+      ],
+      "exactWrites": [
+        {
+          "role": "lattice-review-story-init",
+          "excerpt": "echo '{\"question\":\"Did you read CLAUDE.md? If not, explain the reason in detail in the answer field. If yes, also state that you read it in the answer field.\",\"answer\":\"\"}' > docs/story/actives/<storyId>/init-self-check.json",
+          "reason": "Current INIT anti-self-exemption sidecar pending CLI migration."
+        }
+      ],
+      "rule": "Only the exact registered current references, the one exact INIT write, and strict whole-instruction negative/CLI policy forms are accepted. Every other docs/story reference fails closed during collection and baseline refresh."
+    },
     "classifications": [
       "policy-reminder",
       "read-only-reference",
@@ -1466,25 +1612,25 @@
     ],
     "findings": [
       {
-        "id": "9cb51789f893352e",
+        "id": "da5db3debb026996",
         "role": "lattice-evaluator",
-        "line": 22,
+        "line": 21,
         "references": [
           "docs/story/"
         ],
-        "excerpt": "story metadata under `docs/story/`, and do not write fixtures directly under",
+        "excerpt": "- Story operations must use Lattice CLI commands. Do not directly read or write story metadata under `docs/story/`, and do not write fixtures directly under `tests/fixtures/`.",
         "classification": "policy-reminder",
         "grandfathered": false,
         "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
       },
       {
-        "id": "df10849bf29c4ed8",
+        "id": "17de721d0674fa52",
         "role": "lattice-implementer",
-        "line": 28,
+        "line": 27,
         "references": [
           "docs/story/"
         ],
-        "excerpt": "story metadata under `docs/story/`, and do not write fixtures directly under",
+        "excerpt": "- Story operations must use Lattice CLI commands. Do not directly read or write story metadata under `docs/story/`, and do not write fixtures directly under `tests/fixtures/`.",
         "classification": "policy-reminder",
         "grandfathered": false,
         "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
@@ -1502,25 +1648,25 @@
         "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
       },
       {
-        "id": "425fa092cb10fbb9",
+        "id": "b9067f7ef148bfc7",
         "role": "lattice-review-behavior",
-        "line": 23,
+        "line": 22,
         "references": [
           "docs/story/"
         ],
-        "excerpt": "story metadata under `docs/story/`, and do not write fixtures directly under",
+        "excerpt": "- Story operations must use Lattice CLI commands. Do not directly read or write story metadata under `docs/story/`, and do not write fixtures directly under `tests/fixtures/`.",
         "classification": "policy-reminder",
         "grandfathered": false,
         "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
       },
       {
-        "id": "8d377f7597953b8a",
+        "id": "9443bd6e8ff439bd",
         "role": "lattice-review-channel",
-        "line": 23,
+        "line": 22,
         "references": [
           "docs/story/"
         ],
-        "excerpt": "story metadata under `docs/story/`, and do not write fixtures directly under",
+        "excerpt": "- Story operations must use Lattice CLI commands. Do not directly read or write story metadata under `docs/story/`, and do not write fixtures directly under `tests/fixtures/`.",
         "classification": "policy-reminder",
         "grandfathered": false,
         "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
@@ -1535,7 +1681,7 @@
         "excerpt": "The truly reliable evidence source is the `dispatch` / `subagent_result` events in **`docs/story/actives/<storyId>/process-events.jsonl`**: every time the main agent uses `lattice dispatch` to assign work, it appends `{\"type\":\"dispatch\",\"checklistId\":\"CHK-xxx\",...}`; once the worker finishes, it may append `{\"type\":\"subagent_result\",\"checklistId\":\"CHK-xxx\",\"success\":true,...}`.",
         "classification": "process-event-evidence-reference",
         "grandfathered": true,
-        "note": "Legacy channel reviewer references process-event evidence directly."
+        "note": "Exact code-reviewed current story-file reference."
       },
       {
         "id": "2368893ce540b31b",
@@ -1547,7 +1693,7 @@
         "excerpt": "grep '\"type\":\"dispatch\"' docs/story/actives/B-xxx/process-events.jsonl | grep -oE '\"checklistId\":\"CHK-[0-9]+\"' | sort -u",
         "classification": "process-event-evidence-reference",
         "grandfathered": true,
-        "note": "Legacy channel reviewer references process-event evidence directly."
+        "note": "Exact code-reviewed current story-file reference."
       },
       {
         "id": "9de92c2fef6237ee",
@@ -1559,76 +1705,76 @@
         "excerpt": "- The full text of `docs/story/actives/<storyId>/process-events.jsonl` (dispatch evidence source)",
         "classification": "process-event-evidence-reference",
         "grandfathered": true,
-        "note": "Legacy channel reviewer references process-event evidence directly."
+        "note": "Exact code-reviewed current story-file reference."
       },
       {
-        "id": "7be5943e8cee4b55",
+        "id": "1d20c2c6cd563994",
         "role": "lattice-review-concept",
-        "line": 23,
+        "line": 22,
         "references": [
           "docs/story/"
         ],
-        "excerpt": "story metadata under `docs/story/`, and do not write fixtures directly under",
+        "excerpt": "- Story operations must use Lattice CLI commands. Do not directly read or write story metadata under `docs/story/`, and do not write fixtures directly under `tests/fixtures/`.",
         "classification": "policy-reminder",
         "grandfathered": false,
         "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
       },
       {
-        "id": "e10a512d1fa36619",
+        "id": "54e2faadec1a8ede",
         "role": "lattice-review-delivery",
-        "line": 23,
+        "line": 22,
         "references": [
           "docs/story/"
         ],
-        "excerpt": "story metadata under `docs/story/`, and do not write fixtures directly under",
+        "excerpt": "- Story operations must use Lattice CLI commands. Do not directly read or write story metadata under `docs/story/`, and do not write fixtures directly under `tests/fixtures/`.",
         "classification": "policy-reminder",
         "grandfathered": false,
         "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
       },
       {
-        "id": "009cbb9048bb18c2",
+        "id": "4cc181b0ed884817",
         "role": "lattice-review-docs",
-        "line": 23,
+        "line": 22,
         "references": [
           "docs/story/"
         ],
-        "excerpt": "story metadata under `docs/story/`, and do not write fixtures directly under",
+        "excerpt": "- Story operations must use Lattice CLI commands. Do not directly read or write story metadata under `docs/story/`, and do not write fixtures directly under `tests/fixtures/`.",
         "classification": "policy-reminder",
         "grandfathered": false,
         "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
       },
       {
-        "id": "1f3a913e71835dcd",
+        "id": "dd8abe32010180d4",
         "role": "lattice-review-quality",
-        "line": 23,
+        "line": 22,
         "references": [
           "docs/story/"
         ],
-        "excerpt": "story metadata under `docs/story/`, and do not write fixtures directly under",
+        "excerpt": "- Story operations must use Lattice CLI commands. Do not directly read or write story metadata under `docs/story/`, and do not write fixtures directly under `tests/fixtures/`.",
         "classification": "policy-reminder",
         "grandfathered": false,
         "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
       },
       {
-        "id": "309393763c334ac0",
+        "id": "78a38f5ab5623d13",
         "role": "lattice-review-scope-plan",
-        "line": 23,
+        "line": 22,
         "references": [
           "docs/story/"
         ],
-        "excerpt": "story metadata under `docs/story/`, and do not write fixtures directly under",
+        "excerpt": "- Story operations must use Lattice CLI commands. Do not directly read or write story metadata under `docs/story/`, and do not write fixtures directly under `tests/fixtures/`.",
         "classification": "policy-reminder",
         "grandfathered": false,
         "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
       },
       {
-        "id": "93eaf38bff7ddaaa",
+        "id": "80c69bb904c981bf",
         "role": "lattice-review-story-init",
-        "line": 29,
+        "line": 28,
         "references": [
           "docs/story/"
         ],
-        "excerpt": "story metadata under `docs/story/`, and do not write fixtures directly under",
+        "excerpt": "- Story operations must use Lattice CLI commands. Do not directly read or write story metadata under `docs/story/`, and do not write fixtures directly under `tests/fixtures/`.",
         "classification": "policy-reminder",
         "grandfathered": false,
         "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
@@ -1643,7 +1789,7 @@
         "excerpt": "3. `docs/story/actives/<storyId>/background.md` (full text)",
         "classification": "read-only-reference",
         "grandfathered": true,
-        "note": "Registered read-only reference to story artifact content."
+        "note": "Exact code-reviewed current story-file reference."
       },
       {
         "id": "eaba4010eca37a8f",
@@ -1655,7 +1801,7 @@
         "excerpt": "4. `docs/story/actives/<storyId>/index.json` — read only the `title` / `description` / `type` / `priority` / `riskSignals` fields",
         "classification": "read-only-reference",
         "grandfathered": true,
-        "note": "Registered read-only reference to story artifact content."
+        "note": "Exact code-reviewed current story-file reference."
       },
       {
         "id": "75df88d9f98f75e2",
@@ -1667,7 +1813,7 @@
         "excerpt": "5. `docs/story/actives/<storyId>/checklist.json` — read only `items[].title` / `items[].context`",
         "classification": "read-only-reference",
         "grandfathered": true,
-        "note": "Registered read-only reference to story artifact content."
+        "note": "Exact code-reviewed current story-file reference."
       },
       {
         "id": "40f8a1ddd3201cb2",
@@ -1680,7 +1826,7 @@
         "excerpt": "- Other story directories (`docs/story/actives/<other-id>/` or `docs/story/archived/`)",
         "classification": "other",
         "grandfathered": true,
-        "note": "Registered story path reference without a direct write instruction."
+        "note": "Exact code-reviewed current story-file reference."
       },
       {
         "id": "93df51f6a30c6396",
@@ -1692,7 +1838,7 @@
         "excerpt": "2. **Read background.md**: `Read docs/story/actives/<storyId>/background.md` in full. Note all letter codes, abbreviations, jargon, and where they are first defined, **and mark all factual claims about the existing system** (e.g., \"X only supports Y\", \"all projects have Z\").",
         "classification": "direct-read",
         "grandfathered": true,
-        "note": "Registered direct story-file read instruction to replace with CLI reads in later milestones."
+        "note": "Exact code-reviewed current story-file reference."
       },
       {
         "id": "fd458c5629fe9d43",
@@ -1704,7 +1850,7 @@
         "excerpt": "3. **Read index.json**: `Read docs/story/actives/<storyId>/index.json` and extract `title` / `description` / `type` / `priority` / `riskSignals`.",
         "classification": "direct-read",
         "grandfathered": true,
-        "note": "Registered direct story-file read instruction to replace with CLI reads in later milestones."
+        "note": "Exact code-reviewed current story-file reference."
       },
       {
         "id": "2762ed5bc25c7e30",
@@ -1716,7 +1862,7 @@
         "excerpt": "4. **Read checklist.json**: `Read docs/story/actives/<storyId>/checklist.json`, iterate over `items[]`, look only at `title` and `context`.",
         "classification": "direct-read",
         "grandfathered": true,
-        "note": "Registered direct story-file read instruction to replace with CLI reads in later milestones."
+        "note": "Exact code-reviewed current story-file reference."
       },
       {
         "id": "36b3b67b40a251e2",
@@ -1728,7 +1874,7 @@
         "excerpt": "cat docs/story/actives/<storyId>/init-self-check.json",
         "classification": "direct-read",
         "grandfathered": true,
-        "note": "Registered direct story-file read instruction to replace with CLI reads in later milestones."
+        "note": "Exact code-reviewed current story-file reference."
       },
       {
         "id": "8317bf943dec5e67",
@@ -1752,7 +1898,7 @@
         "excerpt": "- If available, `docs/story/actives/<storyId>/evidence/transcript-diff.md`",
         "classification": "read-only-reference",
         "grandfathered": true,
-        "note": "Registered read-only reference to story artifact content."
+        "note": "Exact code-reviewed current story-file reference."
       }
     ]
   }
