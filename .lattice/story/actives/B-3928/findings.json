@@ -642,6 +642,39 @@
       ],
       "signatureTag": "adversarial|mjs:668|round-recurrence-scripts",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3928:F-026",
+      "desc": "Legacy-policy fail-open: scripts/verify-proof-or-stop-prompt-baseline.mjs:546-568 treats the presence of any context marker anywhere in a line as sufficient, without checking whether it scopes or negates the legacy term. Exact in-memory execution classified both `Do not use legacy testIntent; set testIntent on every new checklist item.` and `Set testIntent on every new checklist item; this behavior is not legacy.` as allowed-explicit-context, and collectLegacyVocabularyFindings allowed baseline refresh. A simulated --write path reached the guarded WRITE_REACHED sentinel for the mixed instruction. The committed probe at :504-511 only proves one uncontextualized instruction is rejected, while the full verifier prints that active-role policy is enforced. Split mixed clauses and handle negation/positive directives so each active use must itself be legacy-contextualized; add both bypass strings as refresh/--write rejection probes.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-11T16:23:22.979Z",
+      "reviewRound": "2026-07-11T16:17:38.139Z",
+      "reviewRunId": "B-3928:RR-022",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c87e60d21953a42fbede7427033c2b2443c93deaf28242b64c9ab1786317e587",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:504",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:546",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:734",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:779",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1692"
+      ],
+      "signatureTag": "adversarial|mjs:504|legacy-policy-fail",
+      "signatureTagSource": "auto"
     }
   ]
 }
