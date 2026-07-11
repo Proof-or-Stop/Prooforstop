@@ -176,6 +176,27 @@
       },
       "readDiagnostics": [],
       "_hash": "dcf4f2ec55a5aeebabc0464511054b7d11685d7546f31de00a374c8f7d2d289a"
+    },
+    {
+      "id": "B-3928:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: audited all 15 verificationIntent-to-evidence bindings with 0 gaps and 0 waivers; focused commands exercised duplicate agent_prompt ownership, a real unknown-role CLI failure, legacy spelling/case plus mixed/negated and attach/persist cases, unless/unknown second actions, and multiline against/across story targets; no blocker.",
+      "createdAt": "2026-07-11T20:14:57.610Z",
+      "reviewRound": "2026-07-11T20:10:05.981Z",
+      "reviewRunId": "B-3928:RR-029",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "package.json",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0d1946275298b4f527154b9b9dd3f7d37940738d2e631463b155246bafc81bb0"
     }
   ]
 }
