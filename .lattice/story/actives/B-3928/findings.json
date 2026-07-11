@@ -940,6 +940,40 @@
       ],
       "signatureTag": "adversarial|mjs:773|legacy-occurrence-positive-laundering",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-3928:F-034",
+      "desc": "F-027 recurrence at the status boundary: compatibility itself is now enforced, but the policy remains an enforced-status allowlist with a fail-open default. LEGACY_VOCABULARY_ENFORCED_STATUSES at scripts/verify-proof-or-stop-prompt-baseline.mjs:85 lists four live statuses; classifyLegacyVocabularyPolicy at :744-750 grants allowed-role-status to every other value, while verifyRoleMatrixFields at :1677-1691 accepts any non-empty status string. Exact in-memory execution with status `required` and `Set testIntent on every checklist item.` was accepted. A new live status or a status typo can therefore recreate the compatibility bypass, despite the declared boundary that legacy, retired, and fold-candidate roles are the readable exemptions. Define an explicit closed status taxonomy or explicit exempt statuses and fail closed for unknown live values; add an unknown-status rejection probe.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-11T20:17:21.907Z",
+      "reviewRound": "2026-07-11T20:10:05.981Z",
+      "reviewRunId": "B-3928:RR-027",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "packages/main/templates/agents/lattice-review-concept.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "607d6d67506ff6a1885c31178ff7b7daf0799ffc834e83e58ec93fab2c4e76c2",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:85",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:744",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1677",
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:1025"
+      ],
+      "signatureTag": "missing|mjs:744|legacy-status-unknown-fail-open",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
