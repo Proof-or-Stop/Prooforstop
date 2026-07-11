@@ -215,7 +215,60 @@
       "context": "LATTICE_BRIEF_OUTPUT=0 environment variable restores full output as the default globally (per-call flag still wins). Explicit --json/--format=json outputs keep their current shape for machine consumers. Add a smoke test asserting brief defaults stay under a size budget, the full flag restores complete output, the env escape hatch works, and JSON opt-in shape is unchanged.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Set LATTICE_BRIEF_OUTPUT=0 env var and run any affected command (e.g. finding_list) without flags -> output is full (env hatch restores verbose default); WHY: confirms env escape hatch works",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Set LATTICE_BRIEF_OUTPUT=0 but also pass --brief flag -> output is brief (per-call flag wins over env); WHY: confirms precedence: flag > env > default",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run affected command with --json/--format=json -> JSON output shape is byte-for-byte identical to current production shape (same keys, same nesting); specifically: finding_list JSON has findings[].evidenceState and attention.suspected; story_list JSON has _bugSummary; WHY: machine contract regression test",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke test exists and passes: asserts brief defaults stay under a size budget (e.g. <5k tokens), full flag restores complete output, env escape hatch works, and JSON shape is unchanged; WHY: regression coverage as specified in checklist context",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "LATTICE_BRIEF_OUTPUT set to empty string or non-0 value (e.g. 1, true, yes) -> brief default remains active (only literal 0 disables); WHY: env var parsing boundary",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Existing internal callers (smoke tests, tasks) that shell out to affected commands or parse their stdout are audited and confirmed not broken by brief-mode default; WHY: initCheck issue flagged this — DEV must explicitly confirm no internal consumer parses brief text",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "validate --full is NOT affected by this change — running validate --full still means run-real-machine-tests, not show-full-output; WHY: story constraint: validate --full semantics must remain untouched",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "A command that does NOT have brief mode implemented (e.g. validate, checklist_get) ignores the LATTICE_BRIEF_OUTPUT env and --brief flag gracefully (no crash, no behavior change); WHY: robustness — unaffected commands must not break if env var is globally set",
+            "type": "cli",
+            "priority": "should"
+          },
+          {
+            "desc": "The precedence chain (per-call flag > LATTICE_BRIEF_OUTPUT env > brief default) is tested in a single test case with all three layers active simultaneously; WHY: confirms the layered override logic is correctly implemented",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
