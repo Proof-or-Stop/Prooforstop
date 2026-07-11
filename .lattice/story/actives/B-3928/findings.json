@@ -1224,7 +1224,7 @@
       "desc": "F-031 whole-instruction recurrence: scripts/verify-proof-or-stop-prompt-baseline.mjs:1053-1067 accepts a safe negative or exact context based only on the literal-term clause/excerpt, while :1223-1228 and :1393-1450 ignore a following clause or line that revives the term by pronoun. Exact collection allowed `Do not use testIntent; attach it to each new story.`, the period and newline variants, and the exact registered concept-deletion excerpt followed by a newline or blank line plus `Attach it to each new story.`; same-line registration tampering correctly rejected. Because collectCurrentBaseline calls this collector before --write, these live legacy instructions can still be blessed. Require the entire bounded instruction/context block to remain negative or historical, and add pronoun-continuation refresh probes.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-11T20:45:51.407Z",
@@ -1249,7 +1249,11 @@
         "scripts/verify-proof-or-stop-prompt-baseline.mjs:1393"
       ],
       "signatureTag": "adversarial|mjs:1053|whole-instruction-recurrence",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by d6bc395a. Safe-negative and exact legacy contexts are diagnostic classifications inside complete manifest-approved bodies. Period, newline, blank-line, and registered-context pronoun continuations change the body hash and are rejected before collection/refresh. Eight legacy body-mutation probes cover these variants.",
+      "resolvedAt": "2026-07-11T21:10:41.999Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3928:F-042",
