@@ -53,6 +53,43 @@
       "reviewRound": "2026-07-10T03:45:55.285Z",
       "reviewRunId": "B-3928:RR-008",
       "_hash": "fdd0853f9a242afe670eda614749e0d84e5fd12d0d77c1260504ee115577578f"
+    },
+    {
+      "id": "B-3928:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed at committed HEAD 4526cd0c5b: 15 verificationIntent entries have 15 intent-mapped passing evidence records, must-gap count 0, waiver count 0. Rebuilt packages/main and reran the baseline verifier plus explicit probes: direct story-file classifier PASS (9 cases); unsupported lattice-review-behavior scope_check_save matrix claim PASS (rejected during refreshed-baseline collection and verification); npm test:proof-or-stop-prompt-baseline PASS. M9.4/M9.10 are testable without weakening gates: the positive fixture is limited to canonical parent_ledger_rollup_set closeout metadata with unchanged product/material scope binding and composite scope digest, while source/test/docs/semantic-scope mutations remain negative controls requiring DEV/REVIEW and fresh evidence.",
+      "createdAt": "2026-07-11T15:16:01.985Z",
+      "reviewRound": "2026-07-10T09:21:14.756Z",
+      "reviewRunId": "B-3928:RR-015",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/templates/agents/lattice-review-behavior.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "0154ef8650fcb6ec232fa823b9b4be7d91c4b1accd58e389c777533864ec868c"
+      },
+      "readDiagnostics": [],
+      "_hash": "464095c3e9ff4489f7faf5ca8c0de3af3edf62dff3e3f0bcadbef5e3c8314026"
     }
   ]
 }
