@@ -33,8 +33,11 @@ live-verified as non-firing, and re-verified by this story's INIT reviewer:
    `defer(?:red|s|ring)`. Longer unrelated words stay unmatched because the
    alternations have no shorter fallback inside a word (verified in smoke).
 3. **Shrinkage verbs** (CHK-002), curated and constrained:
-   - passive scope-cut verbs: `(?:was|were) (?:skipped|omitted|descoped|punted)`
-     (active voice — "We skipped the redundant rebuild" — must NOT fire);
+   - passive scope-cut verbs, qualifier-bound after F-001: `(?:was|were)
+     (?:skipped|omitted|punted) (?:for|from|in) (?:this|the)
+     (?:delivery|story|scope|release|milestone|version)` — active voice and
+     routine passives ("was skipped due to a flaky CI runner", "was punted to
+     next week") must NOT fire;
    - bare `descoped` (inherently scope-cutting, no routine reading);
    - follow-up handoffs: `(?:left|moved|pushed|punted|handed(?: off)?)
      (?:to|for|into) (?:a )?follow-up` with flexible connectors;

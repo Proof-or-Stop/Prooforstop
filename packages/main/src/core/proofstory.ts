@@ -1569,7 +1569,13 @@ export function evaluateDoneIntentEquivalence(
     const windowConnector = String.raw`(?:[\s/_-]|\.(?!\s))+`;
     const windowToken = String.raw`(?:[^\s,]*${remainingTokenEnd})`;
     const adverbWindow = String.raw`(?:${windowConnector}${windowToken}){0,2}?`;
-    const shrinkageVerbs = String.raw`(?:was|were)${windowConnector}(?:skipped|omitted|descoped|punted)|descoped|(?:left|moved|pushed|punted|handed(?:${windowConnector}off)?)${windowConnector}(?:to|for|into)${windowConnector}(?:a${windowConnector})?follow[\s_-]?up|(?:removed|dropped|cut)${windowConnector}from${windowConnector}(?:this|the)${windowConnector}(?:delivery|story|scope|release|milestone|version)`;
+    // F-001: the passive branch is qualifier-bound like its removed/dropped/
+    // cut sibling — "was skipped for this delivery" fires while routine
+    // passives ("was skipped due to a flaky CI runner", "was punted to next
+    // week") stay quiet. Bare "descoped" keeps firing: it has no routine
+    // reading.
+    const deliveryQualifier = String.raw`(?:this|the)${windowConnector}(?:delivery|story|scope|release|milestone|version)`;
+    const shrinkageVerbs = String.raw`(?:was|were)${windowConnector}(?:skipped|omitted|punted)${windowConnector}(?:for|from|in)${windowConnector}${deliveryQualifier}|descoped|(?:left|moved|pushed|punted|handed(?:${windowConnector}off)?)${windowConnector}(?:to|for|into)${windowConnector}(?:a${windowConnector})?follow[\s_-]?up|(?:removed|dropped|cut)${windowConnector}from${windowConnector}${deliveryQualifier}`;
     const nounQuote = String.raw`["'“”‘’]*`;
     const remainingOxfordTail = String.raw`(?:,\s+${remainingModifierWord})+,\s+(?:and|or|plus)\s+(?:${remainingModifierWord}\s+){0,2}${nounQuote}${remainingScopeNoun}`;
     const claimsShrinkageRegex = new RegExp(

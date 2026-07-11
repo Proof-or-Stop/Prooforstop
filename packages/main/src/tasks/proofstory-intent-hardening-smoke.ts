@@ -1374,6 +1374,13 @@ try {
     'The exclusive preview mode and partiality metric shipped as planned.',
     // "follow-up" alone (no handoff verb) is not a claim.
     'The follow-up review confirmed the fix works as designed.',
+    // F-001: passive scope-cut verbs need a delivery-context qualifier —
+    // routine passive sentences about loops, CI, startup, and scheduling must
+    // stay quiet.
+    'The retry was skipped for this iteration of the loop.',
+    'This test was skipped due to a flaky CI runner.',
+    'The cache warmup was omitted to reduce startup time.',
+    'The decision was punted to next week.',
   ];
   for (const control of vocabularyPrecisionControls) {
     store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
