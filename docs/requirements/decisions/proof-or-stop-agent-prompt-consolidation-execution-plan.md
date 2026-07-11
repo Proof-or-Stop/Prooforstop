@@ -1022,15 +1022,18 @@ Subprojects:
   preflight/navigation reads (`session_brief`, `aux_doc_list`, and generic
   `story_get` / `checklist_get`) and commands mentioned only as prohibited or as
   another role's produced artifact/input.
-- M0.4 Add an occurrence- and clause-aware regression check with a closed role
-  status taxonomy. Only `legacy`, `retired-cli-only`, and `fold-candidate`
-  prompts are exempt; every other known status is enforced and unknown/empty
-  statuses fail collection. A live `testIntent`, `TEST_CASE`, or
-  `TEST_CASE_REVIEW` occurrence is allowed only by the closed safe-negative
-  grammar or an exact code-reviewed role/term/excerpt contextual registration.
-- M0.6 Add a regression check that flags prompts requiring direct writes under
-  `docs/story/` unless a corresponding CLI command does not exist and the
-  prompt is explicitly grandfathered.
+- M0.4 Bind all 16 exact role IDs and complete prompt bodies to an independent,
+  code-reviewed SHA-256 approval manifest before legacy-vocabulary findings can
+  be collected or a baseline can be refreshed. Within those approved bodies,
+  occurrence diagnostics use a closed role-status taxonomy and report only
+  strict safe-negative or exact registered role/term/excerpt contexts as safe;
+  the occurrence scanner is not an authorization boundary.
+- M0.6 Apply the same whole-prompt approval manifest before direct-story
+  findings can be collected or a baseline can be refreshed. Within approved
+  bodies, diagnostics recognize exact registered story references, strict
+  whole-instruction negative/CLI forms, and the one exact INIT write. Prompt
+  changes require a reviewed manifest-hash update; multiline context radius and
+  natural-language classification never authorize a changed prompt.
 
 Exit criteria:
 
@@ -1038,7 +1041,8 @@ Exit criteria:
 - Every human-authored role-matrix field has a recorded 16-row manual audit
   boundary under the uniform Commands rule; automated checks assert mechanical
   snapshot integrity rather than semantic ownership.
-- Legacy terms are mechanically visible in the baseline report.
+- Legacy terms and direct story references are mechanically visible as
+  diagnostics inside manifest-approved prompt bodies.
 - No prompt content is edited in M0 except tests/docs required to record the
   baseline.
 

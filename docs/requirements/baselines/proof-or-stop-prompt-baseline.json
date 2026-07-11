@@ -1,8 +1,80 @@
 {
-  "schemaVersion": "proof-or-stop.prompt-baseline.v6",
+  "schemaVersion": "proof-or-stop.prompt-baseline.v7",
   "storyId": "B-3928",
   "sourcePlan": "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
   "expectedRoleCount": 16,
+  "promptPolicyApproval": {
+    "model": "independent-hardcoded-role-and-whole-prompt-sha256-manifest",
+    "algorithm": "sha256",
+    "roleCount": 16,
+    "primaryBoundary": "The independent code-reviewed approval manifest binds every exact role ID and complete prompt body by SHA-256 before policy findings can be collected. Diagnostic occurrence scanners describe registered content inside those approved bodies; they do not authorize prompt changes.",
+    "roles": [
+      {
+        "role": "implementation-reviewer",
+        "templateHash": "fed9fddce46760a0110ef14ae976480a219d391902b8718df0ad767859cfeafd"
+      },
+      {
+        "role": "lattice-evaluator-cli",
+        "templateHash": "4c57b63c4aa43c852517cd964bbddb7ecced6e9e8f7446764389c1bc3ac2b08f"
+      },
+      {
+        "role": "lattice-evaluator",
+        "templateHash": "c072e8cc5c84adac5f15c4d60b95a495896da1c0bf7a3c1482506862eed1b026"
+      },
+      {
+        "role": "lattice-implementer",
+        "templateHash": "3be8e9b5cce7f6f2558f929f400e0975fed624f011ab1dda573bdb30273588fd"
+      },
+      {
+        "role": "lattice-review-behavior",
+        "templateHash": "a080d3aa9d47ec6062ee4181e3b57b2b4ead3f427cb0659a2f54d459cfe52ef2"
+      },
+      {
+        "role": "lattice-review-channel",
+        "templateHash": "19db37079e222e6d68bc52535e814d544932a365f7df79df8995399bf41b1829"
+      },
+      {
+        "role": "lattice-review-concept",
+        "templateHash": "cbb397fa7ad831fdfa3f305e19ce8c0c99f52909d26eb44634f685ba9eafdd8a"
+      },
+      {
+        "role": "lattice-review-delivery",
+        "templateHash": "5357c140ba9b47f51f362cca7b4aa9289a1d15367427f3ee302a53439dd44b57"
+      },
+      {
+        "role": "lattice-review-docs",
+        "templateHash": "9f86f7a379b27783887c17ee579201f6abfc9812d0e7c5689f98b26a02290f59"
+      },
+      {
+        "role": "lattice-review-quality",
+        "templateHash": "f7ec0664bb245e2608145959821f8b45d8f0dd67da07035d034e68dcc2b73280"
+      },
+      {
+        "role": "lattice-review-scope-plan",
+        "templateHash": "13506f659f3f83f5aba146e1c46aafb253af346820f49acd41d711ae1eb58a86"
+      },
+      {
+        "role": "lattice-review-story-init",
+        "templateHash": "8fd4d65d1c0e4d956bcb527899ddcb4182dddb1cbc847b74ba19d0695642bf81"
+      },
+      {
+        "role": "lattice-review-test-coverage",
+        "templateHash": "145ce07871027bd935e5f928423406d8a31b58a5aabd3e72e89cafe5fa3002a0"
+      },
+      {
+        "role": "product-reviewer",
+        "templateHash": "1251d330e719dfae4d25708f9e06eee76a97aee2f084acf0abb3fe8b2d4446a2"
+      },
+      {
+        "role": "test-case-reviewer",
+        "templateHash": "470e5e5baa99e19b0c7d06546f4e20d931b1315fd77bf06383ce8842a2e8574a"
+      },
+      {
+        "role": "test-intent",
+        "templateHash": "170e49b7abf5a4ff4b949315c5ff41f32d11696c1f84e0909a5935d03ab7816d"
+      }
+    ]
+  },
   "registry": {
     "module": "packages/main/dist/core/prompt-registry.js",
     "schemaVersion": "lattice.prompt-registry.v1",
@@ -455,7 +527,8 @@
   "roleMatrixAudit": {
     "machineChecks": [
       "Lock the exact 16 role snapshots and role IDs.",
-      "Lock registry template hashes and agent_prompt output hashes.",
+      "Require each complete prompt body and registry template hash to match the independent code-reviewed approval manifest.",
+      "Lock agent_prompt output hashes.",
       "Require every role-matrix field to be a non-empty string.",
       "Require JSON/Markdown parity and reject snapshot drift."
     ],
@@ -564,6 +637,8 @@
   },
   "legacyVocabulary": {
     "policy": {
+      "primaryBoundary": "promptPolicyApproval",
+      "scannerAuthority": "diagnostic-only",
       "knownStatuses": [
         "active",
         "conditional",
@@ -598,7 +673,7 @@
           "reason": "Current coverage reviewer explicitly identifies TEST_CASE_REVIEW as the old replaced phase."
         }
       ],
-      "rule": "Only legacy, retired-cli-only, and fold-candidate roles are exempt. Every other known role status is enforced, and unknown or empty statuses fail closed. A live testIntent, TEST_CASE, or TEST_CASE_REVIEW occurrence is allowed only by the closed safe-negative grammar or an exact role/term/excerpt contextual registration."
+      "rule": "The approval manifest is the primary fail-closed boundary. Inside an approved prompt body, only legacy, retired-cli-only, and fold-candidate roles are exempt from diagnostics; every other known status is enforced and unknown or empty statuses fail closed. A live testIntent, TEST_CASE, or TEST_CASE_REVIEW occurrence is accepted diagnostically only by the closed safe-negative grammar or an exact role/term/excerpt contextual registration."
     },
     "patterns": [
       "TEST_CASE_REVIEW",
@@ -1528,7 +1603,9 @@
   },
   "directStoryFileReferences": {
     "policy": {
-      "model": "closed-safe-reference",
+      "model": "registered-diagnostics-inside-manifest-approved-prompts",
+      "primaryBoundary": "promptPolicyApproval",
+      "scannerAuthority": "diagnostic-only",
       "contextRadius": 2,
       "exactReferences": [
         {
@@ -1599,7 +1676,7 @@
           "reason": "Current INIT anti-self-exemption sidecar pending CLI migration."
         }
       ],
-      "rule": "Only the exact registered current references, the one exact INIT write, and strict whole-instruction negative/CLI policy forms are accepted. Every other docs/story reference fails closed during collection and baseline refresh."
+      "rule": "The approval manifest is the primary fail-closed boundary. Inside an approved prompt body, only exact registered current references, the one exact INIT write, and strict whole-instruction negative/CLI policy forms are accepted diagnostically; every other docs/story reference is reported as unsafe."
     },
     "classifications": [
       "policy-reminder",

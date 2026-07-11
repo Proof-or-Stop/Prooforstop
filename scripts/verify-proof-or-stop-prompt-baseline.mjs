@@ -23,13 +23,82 @@ const MATRIX_PATH = join(
   'docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md',
 );
 const EXPECTED_ROLE_COUNT = 16;
-const SCHEMA_VERSION = 'proof-or-stop.prompt-baseline.v6';
+const SCHEMA_VERSION = 'proof-or-stop.prompt-baseline.v7';
 const PLAN_PATH = 'docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md';
 const WRITE_MODE = process.argv.includes('--write');
 const PROBE_DIRECT_STORY_CLASSIFIER = process.argv.includes('--probe-direct-story-classifier');
 const PROBE_LEGACY_VOCABULARY_POLICY = process.argv.includes('--probe-legacy-vocabulary-policy');
+const PROBE_PROMPT_POLICY_MANIFEST = process.argv.includes('--probe-prompt-policy-manifest');
 const PROBE_BASELINE_DRIFT = process.argv.includes('--probe-baseline-drift');
 const PROBE_ROLE_MATRIX_SNAPSHOT_DRIFT = process.argv.includes('--probe-role-matrix-snapshot-drift');
+const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
+  {
+    role: 'implementation-reviewer',
+    templateHash: 'fed9fddce46760a0110ef14ae976480a219d391902b8718df0ad767859cfeafd',
+  },
+  {
+    role: 'lattice-evaluator-cli',
+    templateHash: '4c57b63c4aa43c852517cd964bbddb7ecced6e9e8f7446764389c1bc3ac2b08f',
+  },
+  {
+    role: 'lattice-evaluator',
+    templateHash: 'c072e8cc5c84adac5f15c4d60b95a495896da1c0bf7a3c1482506862eed1b026',
+  },
+  {
+    role: 'lattice-implementer',
+    templateHash: '3be8e9b5cce7f6f2558f929f400e0975fed624f011ab1dda573bdb30273588fd',
+  },
+  {
+    role: 'lattice-review-behavior',
+    templateHash: 'a080d3aa9d47ec6062ee4181e3b57b2b4ead3f427cb0659a2f54d459cfe52ef2',
+  },
+  {
+    role: 'lattice-review-channel',
+    templateHash: '19db37079e222e6d68bc52535e814d544932a365f7df79df8995399bf41b1829',
+  },
+  {
+    role: 'lattice-review-concept',
+    templateHash: 'cbb397fa7ad831fdfa3f305e19ce8c0c99f52909d26eb44634f685ba9eafdd8a',
+  },
+  {
+    role: 'lattice-review-delivery',
+    templateHash: '5357c140ba9b47f51f362cca7b4aa9289a1d15367427f3ee302a53439dd44b57',
+  },
+  {
+    role: 'lattice-review-docs',
+    templateHash: '9f86f7a379b27783887c17ee579201f6abfc9812d0e7c5689f98b26a02290f59',
+  },
+  {
+    role: 'lattice-review-quality',
+    templateHash: 'f7ec0664bb245e2608145959821f8b45d8f0dd67da07035d034e68dcc2b73280',
+  },
+  {
+    role: 'lattice-review-scope-plan',
+    templateHash: '13506f659f3f83f5aba146e1c46aafb253af346820f49acd41d711ae1eb58a86',
+  },
+  {
+    role: 'lattice-review-story-init',
+    templateHash: '8fd4d65d1c0e4d956bcb527899ddcb4182dddb1cbc847b74ba19d0695642bf81',
+  },
+  {
+    role: 'lattice-review-test-coverage',
+    templateHash: '145ce07871027bd935e5f928423406d8a31b58a5aabd3e72e89cafe5fa3002a0',
+  },
+  {
+    role: 'product-reviewer',
+    templateHash: '1251d330e719dfae4d25708f9e06eee76a97aee2f084acf0abb3fe8b2d4446a2',
+  },
+  {
+    role: 'test-case-reviewer',
+    templateHash: '470e5e5baa99e19b0c7d06546f4e20d931b1315fd77bf06383ce8842a2e8574a',
+  },
+  {
+    role: 'test-intent',
+    templateHash: '170e49b7abf5a4ff4b949315c5ff41f32d11696c1f84e0909a5935d03ab7816d',
+  },
+].map(entry => Object.freeze(entry)));
+const PROMPT_POLICY_PRIMARY_BOUNDARY =
+  'The independent code-reviewed approval manifest binds every exact role ID and complete prompt body by SHA-256 before policy findings can be collected. Diagnostic occurrence scanners describe registered content inside those approved bodies; they do not authorize prompt changes.';
 const ROLE_MATRIX_FIELDS = [
   'status',
   'phase',
@@ -45,7 +114,8 @@ const ROLE_MATRIX_FIELDS = [
 const REVIEWER_AUDITED_ROLE_MATRIX_FIELDS = [...ROLE_MATRIX_FIELDS];
 const ROLE_MATRIX_MACHINE_CHECKS = [
   'Lock the exact 16 role snapshots and role IDs.',
-  'Lock registry template hashes and agent_prompt output hashes.',
+  'Require each complete prompt body and registry template hash to match the independent code-reviewed approval manifest.',
+  'Lock agent_prompt output hashes.',
   'Require every role-matrix field to be a non-empty string.',
   'Require JSON/Markdown parity and reject snapshot drift.',
 ];
@@ -130,8 +200,26 @@ const DIRECT_STORY_REFERENCE_ALLOWLIST = [
   },
 ];
 const DIRECT_STORY_POLICY_RULE =
-  'Only the exact registered current references, the one exact INIT write, and strict whole-instruction negative/CLI policy forms are accepted. Every other docs/story reference fails closed during collection and baseline refresh.';
+  'The approval manifest is the primary fail-closed boundary. Inside an approved prompt body, only exact registered current references, the one exact INIT write, and strict whole-instruction negative/CLI policy forms are accepted diagnostically; every other docs/story reference is reported as unsafe.';
 const STORY_INSTRUCTION_CONTEXT_RADIUS = 2;
+const DIRECT_STORY_SAFE_NEGATIVE_ACTIONS = Object.freeze([
+  'read',
+  'reading',
+  'write',
+  'writing',
+  'edit',
+  'editing',
+  'copy',
+  'copying',
+  'move',
+  'moving',
+  'create',
+  'creating',
+  'update',
+  'updating',
+  'modify',
+  'modifying',
+]);
 
 const LEGACY_PATTERNS = [
   {
@@ -179,7 +267,7 @@ const LEGACY_VOCABULARY_CONTEXT_ALLOWLIST = [
   },
 ];
 const LEGACY_VOCABULARY_POLICY_RULE =
-  'Only legacy, retired-cli-only, and fold-candidate roles are exempt. Every other known role status is enforced, and unknown or empty statuses fail closed. A live testIntent, TEST_CASE, or TEST_CASE_REVIEW occurrence is allowed only by the closed safe-negative grammar or an exact role/term/excerpt contextual registration.';
+  'The approval manifest is the primary fail-closed boundary. Inside an approved prompt body, only legacy, retired-cli-only, and fold-candidate roles are exempt from diagnostics; every other known status is enforced and unknown or empty statuses fail closed. A live testIntent, TEST_CASE, or TEST_CASE_REVIEW occurrence is accepted diagnostically only by the closed safe-negative grammar or an exact role/term/excerpt contextual registration.';
 const LEGACY_VOCABULARY_BLOCK_REJECTION =
   'enforced legacy-vocabulary occurrence is neither a safe negative nor a registered context';
 
@@ -413,8 +501,6 @@ const DIRECT_STORY_CLASSIFIER_PROBES = [
     excerpt: 'Do not edit docs/story/actives/B-1234/index.json and then use apply_patch to update docs/story/actives/B-1234/index.json.',
     classification: 'direct-write',
     grandfathered: false,
-    baselineRefresh: 'reject',
-    expectedRejection: 'direct write is not explicitly grandfathered',
   },
   {
     name: 'apply_patch command targeting story metadata',
@@ -492,8 +578,6 @@ const DIRECT_STORY_CLASSIFIER_PROBES = [
     excerpt: 'cp source.json docs/story/actives/B-1234/index.json',
     classification: 'direct-write',
     grandfathered: false,
-    baselineRefresh: 'reject',
-    expectedRejection: 'direct write is not explicitly grandfathered',
   },
   {
     name: 'copy instruction targeting story metadata',
@@ -536,8 +620,6 @@ const DIRECT_STORY_CLASSIFIER_PROBES = [
     excerpt: 'Mutate docs/story/actives/B-1234/index.json with the project-specific metadata transformer.',
     classification: 'unclassified-actionable',
     grandfathered: false,
-    baselineRefresh: 'reject',
-    expectedRejection: 'unclassified actionable reference',
   },
   {
     name: 'unknown directive-shaped metadata tool fails closed',
@@ -545,8 +627,6 @@ const DIRECT_STORY_CLASSIFIER_PROBES = [
     excerpt: 'Use the project-specific metadata transformer on docs/story/actives/B-1234/index.json.',
     classification: 'unclassified-actionable',
     grandfathered: false,
-    baselineRefresh: 'reject',
-    expectedRejection: 'unclassified actionable reference',
   },
   {
     name: 'generic output flag targeting story metadata is a direct write',
@@ -554,8 +634,6 @@ const DIRECT_STORY_CLASSIFIER_PROBES = [
     excerpt: 'Run metadata-transformer --output docs/story/actives/B-1234/index.json',
     classification: 'direct-write',
     grandfathered: false,
-    baselineRefresh: 'reject',
-    expectedRejection: 'direct write is not explicitly grandfathered',
   },
   {
     name: 'avoid clause cannot bless apply_patch after and instead',
@@ -563,8 +641,6 @@ const DIRECT_STORY_CLASSIFIER_PROBES = [
     excerpt: 'Avoid editing docs/story/actives/B-1234/index.json and instead use apply_patch to update docs/story/actives/B-1234/index.json.',
     classification: 'direct-write',
     grandfathered: false,
-    baselineRefresh: 'reject',
-    expectedRejection: 'direct write is not explicitly grandfathered',
   },
   {
     name: 'prohibition cannot bless apply_patch after then',
@@ -572,8 +648,6 @@ const DIRECT_STORY_CLASSIFIER_PROBES = [
     excerpt: 'Do not edit docs/story/actives/B-1234/index.json then use apply_patch to update docs/story/actives/B-1234/index.json.',
     classification: 'direct-write',
     grandfathered: false,
-    baselineRefresh: 'reject',
-    expectedRejection: 'direct write is not explicitly grandfathered',
   },
   {
     name: 'negative reminder cannot bless apply_patch exception after story target',
@@ -581,8 +655,6 @@ const DIRECT_STORY_CLASSIFIER_PROBES = [
     excerpt: 'Do not edit docs/story/actives/B-1234/index.json unless use apply_patch to update docs/story/actives/B-1234/index.json.',
     classification: 'direct-write',
     grandfathered: false,
-    baselineRefresh: 'reject',
-    expectedRejection: 'direct write is not explicitly grandfathered',
   },
   {
     name: 'negative reminder cannot bless apply_patch exception before story target',
@@ -590,8 +662,6 @@ const DIRECT_STORY_CLASSIFIER_PROBES = [
     excerpt: 'Do not edit files unless use apply_patch on docs/story/actives/B-1234/index.json.',
     classification: 'direct-write',
     grandfathered: false,
-    baselineRefresh: 'reject',
-    expectedRejection: 'direct write is not explicitly grandfathered',
   },
   {
     name: 'unknown negative action cannot bless unknown second action',
@@ -599,8 +669,6 @@ const DIRECT_STORY_CLASSIFIER_PROBES = [
     excerpt: 'Do not touch docs/story/actives/B-1234/index.json unless frobnicate docs/story/actives/B-1234/index.json.',
     classification: 'unclassified-actionable',
     grandfathered: false,
-    baselineRefresh: 'reject',
-    expectedRejection: 'unclassified actionable reference',
   },
   {
     name: 'process directive with unknown transformer fails closed',
@@ -608,8 +676,6 @@ const DIRECT_STORY_CLASSIFIER_PROBES = [
     excerpt: 'Process docs/story/actives/B-1234/index.json with the metadata transformer.',
     classification: 'unclassified-actionable',
     grandfathered: false,
-    baselineRefresh: 'reject',
-    expectedRejection: 'unclassified actionable reference',
   },
   {
     name: 'unknown metadata tool using for target fails closed',
@@ -617,8 +683,6 @@ const DIRECT_STORY_CLASSIFIER_PROBES = [
     excerpt: 'Use the metadata transformer for docs/story/actives/B-1234/index.json.',
     classification: 'unclassified-actionable',
     grandfathered: false,
-    baselineRefresh: 'reject',
-    expectedRejection: 'unclassified actionable reference',
   },
   {
     name: 'conditional unknown metadata tool fails closed',
@@ -626,8 +690,6 @@ const DIRECT_STORY_CLASSIFIER_PROBES = [
     excerpt: 'If needed, use the metadata transformer on docs/story/actives/B-1234/index.json.',
     classification: 'unclassified-actionable',
     grandfathered: false,
-    baselineRefresh: 'reject',
-    expectedRejection: 'unclassified actionable reference',
   },
   {
     name: 'read-only prefix cannot bless unknown second action',
@@ -635,8 +697,6 @@ const DIRECT_STORY_CLASSIFIER_PROBES = [
     excerpt: 'Inspect docs/story/actives/B-1234/index.json, then frobnicate it.',
     classification: 'unclassified-actionable',
     grandfathered: false,
-    baselineRefresh: 'reject',
-    expectedRejection: 'unclassified actionable reference',
   },
   {
     name: 'Lattice CLI prefix cannot bless unknown second action',
@@ -644,8 +704,6 @@ const DIRECT_STORY_CLASSIFIER_PROBES = [
     excerpt: 'Use the Lattice CLI for docs/story/actives/B-1234/index.json; then frobnicate it.',
     classification: 'unclassified-actionable',
     grandfathered: false,
-    baselineRefresh: 'reject',
-    expectedRejection: 'unclassified actionable reference',
   },
   {
     name: 'output directive fails closed',
@@ -653,8 +711,55 @@ const DIRECT_STORY_CLASSIFIER_PROBES = [
     excerpt: 'Output generated metadata to docs/story/actives/B-1234/index.json.',
     classification: 'unclassified-actionable',
     grandfathered: false,
-    baselineRefresh: 'reject',
-    expectedRejection: 'unclassified actionable reference',
+  },
+  {
+    name: 'repeated story path separator is canonicalized diagnostically',
+    role: 'lattice-review-docs',
+    excerpt: 'Output generated metadata to docs//story/actives/B-1234/index.json.',
+    classification: 'unclassified-actionable',
+    grandfathered: false,
+  },
+  {
+    name: 'story path dot segment is canonicalized diagnostically',
+    role: 'lattice-review-docs',
+    excerpt: 'Output generated metadata to docs/./story/actives/B-1234/index.json.',
+    classification: 'unclassified-actionable',
+    grandfathered: false,
+  },
+  {
+    name: 'mixed-case story path is extracted case-insensitively',
+    role: 'lattice-review-docs',
+    excerpt: 'Output generated metadata to DOCS/STORY/actives/B-1234/index.json.',
+    classification: 'unclassified-actionable',
+    grandfathered: false,
+  },
+  {
+    name: 'never preserve is not a safe negative',
+    role: 'lattice-review-docs',
+    excerpt: 'Never preserve docs/story/actives/B-1234/index.json.',
+    classification: 'unclassified-actionable',
+    grandfathered: false,
+  },
+  {
+    name: 'do not retain is not a safe negative',
+    role: 'lattice-review-docs',
+    excerpt: 'Do not retain docs/story/actives/B-1234/index.json.',
+    classification: 'unclassified-actionable',
+    grandfathered: false,
+  },
+  {
+    name: 'do not omit is not a safe negative',
+    role: 'lattice-review-docs',
+    excerpt: 'Do not omit docs/story/actives/B-1234/index.json.',
+    classification: 'unclassified-actionable',
+    grandfathered: false,
+  },
+  {
+    name: 'never remove is an actionable inversion',
+    role: 'lattice-review-docs',
+    excerpt: 'Never remove docs/story/actives/B-1234/index.json.',
+    classification: 'direct-write',
+    grandfathered: false,
   },
   {
     name: 'exact current story-init write is grandfathered',
@@ -662,18 +767,53 @@ const DIRECT_STORY_CLASSIFIER_PROBES = [
     excerpt: STORY_INIT_SELF_CHECK_WRITE,
     classification: 'direct-write',
     grandfathered: true,
-    baselineRefresh: 'allow',
   },
   {
-    name: 'read-only story reference',
+    name: 'unregistered read-only story reference fails closed',
     role: 'lattice-review-story-init',
     excerpt: '`docs/story/actives/<storyId>/index.json` — read only the `title` field.',
-    classification: 'read-only-reference',
-    grandfathered: true,
+    classification: 'unclassified-actionable',
+    grandfathered: false,
   },
 ];
 
 const DIRECT_STORY_SCANNER_PROBES = [
+  {
+    name: 'repeated separator path is found by the real scanner',
+    role: 'lattice-review-docs',
+    content: 'Output generated metadata to docs//story/actives/B-1234/index.json',
+    line: 1,
+    references: ['docs/story/actives/B-1234/index.json'],
+    classification: 'unclassified-actionable',
+    grandfathered: false,
+  },
+  {
+    name: 'dot-segment path is found by the real scanner',
+    role: 'lattice-review-docs',
+    content: 'Output generated metadata to docs/./story/actives/B-1234/index.json',
+    line: 1,
+    references: ['docs/story/actives/B-1234/index.json'],
+    classification: 'unclassified-actionable',
+    grandfathered: false,
+  },
+  {
+    name: 'mixed-case path is found by the real scanner',
+    role: 'lattice-review-docs',
+    content: 'Output generated metadata to DOCS/STORY/actives/B-1234/index.json',
+    line: 1,
+    references: ['docs/story/actives/B-1234/index.json'],
+    classification: 'unclassified-actionable',
+    grandfathered: false,
+  },
+  {
+    name: 'shell continuation inside story path is canonicalized by the real scanner',
+    role: 'lattice-review-docs',
+    content: 'Output generated metadata to docs/\\\nstory/actives/B-1234/index.json',
+    line: 1,
+    references: ['docs/story/actives/B-1234/index.json'],
+    classification: 'unclassified-actionable',
+    grandfathered: false,
+  },
   {
     name: 'continued cp destination is scanned as one instruction',
     role: 'lattice-review-docs',
@@ -681,8 +821,6 @@ const DIRECT_STORY_SCANNER_PROBES = [
     line: 1,
     classification: 'direct-write',
     grandfathered: false,
-    baselineRefresh: 'reject',
-    expectedRejection: 'direct write is not explicitly grandfathered',
   },
   {
     name: 'natural copy destination continuation is scanned as one instruction',
@@ -691,8 +829,6 @@ const DIRECT_STORY_SCANNER_PROBES = [
     line: 1,
     classification: 'direct-write',
     grandfathered: false,
-    baselineRefresh: 'reject',
-    expectedRejection: 'direct write is not explicitly grandfathered',
   },
   {
     name: 'copy into destination continuation is scanned as one instruction',
@@ -701,8 +837,6 @@ const DIRECT_STORY_SCANNER_PROBES = [
     line: 1,
     classification: 'direct-write',
     grandfathered: false,
-    baselineRefresh: 'reject',
-    expectedRejection: 'direct write is not explicitly grandfathered',
   },
   {
     name: 'unknown metadata tool target continuation fails closed',
@@ -711,8 +845,6 @@ const DIRECT_STORY_SCANNER_PROBES = [
     line: 1,
     classification: 'unclassified-actionable',
     grandfathered: false,
-    baselineRefresh: 'reject',
-    expectedRejection: 'unclassified actionable reference',
   },
   {
     name: 'against target continuation fails closed without connector allowlist',
@@ -721,8 +853,6 @@ const DIRECT_STORY_SCANNER_PROBES = [
     line: 1,
     classification: 'unclassified-actionable',
     grandfathered: false,
-    baselineRefresh: 'reject',
-    expectedRejection: 'unclassified actionable reference',
   },
   {
     name: 'across target continuation fails closed without connector allowlist',
@@ -731,8 +861,6 @@ const DIRECT_STORY_SCANNER_PROBES = [
     line: 1,
     classification: 'unclassified-actionable',
     grandfathered: false,
-    baselineRefresh: 'reject',
-    expectedRejection: 'unclassified actionable reference',
   },
   {
     name: 'colon target context is scanned bidirectionally',
@@ -742,8 +870,6 @@ const DIRECT_STORY_SCANNER_PROBES = [
     excerpt: 'Use the metadata transformer: docs/story/actives/B-1234/index.json',
     classification: 'unclassified-actionable',
     grandfathered: false,
-    baselineRefresh: 'reject',
-    expectedRejection: 'unclassified actionable reference',
   },
   {
     name: 'bullet target context is scanned bidirectionally',
@@ -753,8 +879,6 @@ const DIRECT_STORY_SCANNER_PROBES = [
     excerpt: 'Use the metadata transformer - docs/story/actives/B-1234/index.json',
     classification: 'unclassified-actionable',
     grandfathered: false,
-    baselineRefresh: 'reject',
-    expectedRejection: 'unclassified actionable reference',
   },
   {
     name: 'path-first following action is scanned bidirectionally',
@@ -764,8 +888,6 @@ const DIRECT_STORY_SCANNER_PROBES = [
     excerpt: 'docs/story/actives/B-1234/index.json Frobnicate it.',
     classification: 'unclassified-actionable',
     grandfathered: false,
-    baselineRefresh: 'reject',
-    expectedRejection: 'unclassified actionable reference',
   },
   {
     name: 'sentence-ended path-first action is scanned bidirectionally',
@@ -775,8 +897,6 @@ const DIRECT_STORY_SCANNER_PROBES = [
     excerpt: '`docs/story/actives/B-1234/index.json`. Frobnicate it.',
     classification: 'unclassified-actionable',
     grandfathered: false,
-    baselineRefresh: 'reject',
-    expectedRejection: 'unclassified actionable reference',
   },
 ];
 
@@ -936,6 +1056,20 @@ const LEGACY_VOCABULARY_POLICY_PROBES = [
     expectedRejection: LEGACY_VOCABULARY_BLOCK_REJECTION,
   },
   {
+    name: 'never preserve testIntent is an actionable inversion',
+    role: 'probe-active-role',
+    status: 'active',
+    content: 'Never preserve testIntent for new stories.',
+    expectedRejection: LEGACY_VOCABULARY_BLOCK_REJECTION,
+  },
+  {
+    name: 'do not retain testIntent is an actionable inversion',
+    role: 'probe-active-role',
+    status: 'active',
+    content: 'Do not retain testIntent for new stories.',
+    expectedRejection: LEGACY_VOCABULARY_BLOCK_REJECTION,
+  },
+  {
     name: 'required status typo fails closed',
     role: 'probe-required-role',
     status: 'required',
@@ -984,8 +1118,206 @@ const LEGACY_VOCABULARY_ALLOWED_PROBES = [
   },
 ];
 
+const PROMPT_POLICY_DIRECT_COLLECTION_PROBES = [
+  {
+    name: 'repeated story path separator',
+    role: 'lattice-review-docs',
+    addition: 'Output generated metadata to docs//story/actives/B-1234/index.json.',
+  },
+  {
+    name: 'story path dot segment',
+    role: 'lattice-review-docs',
+    addition: 'Output generated metadata to docs/./story/actives/B-1234/index.json.',
+  },
+  {
+    name: 'shell continuation inside story path',
+    role: 'lattice-review-docs',
+    addition: 'Output generated metadata to docs/\\\nstory/actives/B-1234/index.json.',
+  },
+  {
+    name: 'mixed-case story path',
+    role: 'lattice-review-docs',
+    addition: 'Output generated metadata to DOCS/STORY/actives/B-1234/index.json.',
+  },
+  {
+    name: 'unregistered read-only story reference',
+    role: 'lattice-review-docs',
+    addition: '`docs/story/actives/<storyId>/index.json` - read only the `title` field.',
+  },
+  {
+    name: 'never preserve story metadata',
+    role: 'lattice-review-docs',
+    addition: 'Never preserve docs/story/actives/B-1234/index.json.',
+  },
+  {
+    name: 'do not retain story metadata',
+    role: 'lattice-review-docs',
+    addition: 'Do not retain docs/story/actives/B-1234/index.json.',
+  },
+  {
+    name: 'do not omit story metadata',
+    role: 'lattice-review-docs',
+    addition: 'Do not omit docs/story/actives/B-1234/index.json.',
+  },
+  {
+    name: 'never remove story metadata',
+    role: 'lattice-review-docs',
+    addition: 'Never remove docs/story/actives/B-1234/index.json.',
+  },
+  {
+    name: 'registered reference followed across a blank line',
+    role: 'lattice-review-story-init',
+    addition: `${DIRECT_STORY_REFERENCE_ALLOWLIST[3].excerpt}\n\nFrobnicate it.`,
+  },
+  {
+    name: 'registered reference followed across heading and list boundaries',
+    role: 'lattice-review-story-init',
+    addition: `${DIRECT_STORY_REFERENCE_ALLOWLIST[3].excerpt}\n\n## Next\n\n- Frobnicate it.`,
+  },
+  {
+    name: 'action prepended across a blank line to a registered reference',
+    role: 'lattice-review-story-init',
+    addition: `Frobnicate it.\n\n${DIRECT_STORY_REFERENCE_ALLOWLIST[3].excerpt}`,
+  },
+];
+
+const PROMPT_POLICY_LEGACY_COLLECTION_PROBES = [
+  {
+    name: 'safe negative followed by pronoun action via semicolon',
+    role: 'lattice-review-docs',
+    addition: 'Do not use testIntent; attach it to each new story.',
+  },
+  {
+    name: 'safe negative followed by pronoun action via period',
+    role: 'lattice-review-docs',
+    addition: 'Do not use testIntent. Attach it to each new story.',
+  },
+  {
+    name: 'safe negative followed by pronoun action via newline',
+    role: 'lattice-review-docs',
+    addition: 'Do not use testIntent.\nAttach it to each new story.',
+  },
+  {
+    name: 'safe negative followed by pronoun action across a blank line',
+    role: 'lattice-review-docs',
+    addition: 'Do not use testIntent.\n\nAttach it to each new story.',
+  },
+  {
+    name: 'registered context followed by pronoun action via newline',
+    role: 'lattice-review-concept',
+    addition: `${LEGACY_VOCABULARY_CONTEXT_ALLOWLIST[0].excerpt}\nAttach it to each new story.`,
+  },
+  {
+    name: 'registered context followed by pronoun action across a blank line',
+    role: 'lattice-review-concept',
+    addition: `${LEGACY_VOCABULARY_CONTEXT_ALLOWLIST[0].excerpt}\n\nAttach it to each new story.`,
+  },
+  {
+    name: 'never preserve legacy vocabulary',
+    role: 'lattice-review-docs',
+    addition: 'Never preserve testIntent for new stories.',
+  },
+  {
+    name: 'do not retain legacy vocabulary',
+    role: 'lattice-review-docs',
+    addition: 'Do not retain testIntent for new stories.',
+  },
+];
+
 function sha256(value) {
   return createHash('sha256').update(value).digest('hex');
+}
+
+function approvedPromptPolicyManifestErrors(roleEntries) {
+  const errors = [];
+  const manifestByRole = new Map();
+  if (APPROVED_PROMPT_POLICY_MANIFEST.length !== EXPECTED_ROLE_COUNT) {
+    errors.push(
+      `approved prompt policy manifest role count: expected ${EXPECTED_ROLE_COUNT}, got ${APPROVED_PROMPT_POLICY_MANIFEST.length}`,
+    );
+  }
+  for (const entry of APPROVED_PROMPT_POLICY_MANIFEST) {
+    if (manifestByRole.has(entry.role)) {
+      errors.push(`duplicate approved prompt policy manifest role ${entry.role}`);
+      continue;
+    }
+    manifestByRole.set(entry.role, entry);
+    if (!/^[a-f0-9]{64}$/.test(entry.templateHash)) {
+      errors.push(`invalid approved prompt policy manifest hash for ${entry.role}`);
+    }
+  }
+
+  if (!Array.isArray(roleEntries)) {
+    return [...errors, 'prompt policy collector role entries are not an array'];
+  }
+  if (roleEntries.length !== EXPECTED_ROLE_COUNT) {
+    errors.push(
+      `prompt policy collector role count: expected ${EXPECTED_ROLE_COUNT}, got ${roleEntries.length}`,
+    );
+  }
+
+  const entriesByRole = new Map();
+  for (const entry of roleEntries) {
+    const role = typeof entry?.role === 'string' ? entry.role : '';
+    if (!role) {
+      errors.push('prompt policy collector entry has a missing role');
+      continue;
+    }
+    if (entriesByRole.has(role)) {
+      errors.push(`duplicate prompt policy collector role ${role}`);
+      continue;
+    }
+    entriesByRole.set(role, entry);
+    const approved = manifestByRole.get(role);
+    if (!approved) {
+      errors.push(`unapproved prompt policy collector role ${role}`);
+      continue;
+    }
+    if (typeof entry.templateHash !== 'string' || entry.templateHash.length === 0) {
+      errors.push(`missing prompt policy collector templateHash for ${role}`);
+      continue;
+    }
+    if (typeof entry.content !== 'string') {
+      errors.push(`missing prompt policy collector content for ${role}`);
+      continue;
+    }
+    const contentHash = sha256(entry.content);
+    if (contentHash !== entry.templateHash) {
+      errors.push(
+        `prompt policy collector content hash mismatch for ${role}: content=${contentHash} entry=${entry.templateHash}`,
+      );
+    }
+    if (entry.templateHash !== approved.templateHash) {
+      errors.push(
+        `approved prompt policy manifest hash mismatch for ${role}: approved=${approved.templateHash} entry=${entry.templateHash}`,
+      );
+    }
+  }
+
+  for (const role of manifestByRole.keys()) {
+    if (!entriesByRole.has(role)) {
+      errors.push(`approved prompt policy manifest role missing from collector ${role}`);
+    }
+  }
+  return errors;
+}
+
+function assertApprovedPromptPolicyManifest(roleEntries) {
+  const errors = approvedPromptPolicyManifestErrors(roleEntries);
+  if (errors.length === 0) return;
+  throw new Error(
+    `Refusing to collect or refresh the baseline because the approved prompt policy manifest failed:\n- ${errors.join('\n- ')}`,
+  );
+}
+
+function buildPromptPolicyManifestAudit() {
+  return {
+    model: 'independent-hardcoded-role-and-whole-prompt-sha256-manifest',
+    algorithm: 'sha256',
+    roleCount: EXPECTED_ROLE_COUNT,
+    primaryBoundary: PROMPT_POLICY_PRIMARY_BOUNDARY,
+    roles: APPROVED_PROMPT_POLICY_MANIFEST.map(entry => ({ ...entry })),
+  };
 }
 
 function toRepoPath(path) {
@@ -1176,7 +1508,7 @@ function getRegisteredDirectStoryReference(role, excerpt) {
   );
 }
 
-function classifyStoryFinding(role, excerpt) {
+function classifyStoryFinding(role, excerpt, canonicalExcerpt = canonicalizeStoryDiagnosticText(excerpt)) {
   const registeredReference = getRegisteredDirectStoryReference(role, excerpt);
   if (registeredReference) {
     return {
@@ -1185,14 +1517,7 @@ function classifyStoryFinding(role, excerpt) {
       note: 'Exact code-reviewed current story-file reference.',
     };
   }
-  if (isStrictReadOnlyStoryInstruction(excerpt)) {
-    return {
-      classification: 'read-only-reference',
-      grandfathered: true,
-      note: 'Whole instruction matches the closed read-only story-reference grammar.',
-    };
-  }
-  if (isNegativeStoryPolicyReminder(excerpt)) {
+  if (isNegativeStoryPolicyReminder(canonicalExcerpt)) {
     return {
       classification: 'policy-reminder',
       grandfathered: false,
@@ -1206,7 +1531,7 @@ function classifyStoryFinding(role, excerpt) {
       note: 'Registered direct story-file write instruction to replace with CLI-mediated writes in later milestones.',
     };
   }
-  if (hasRecognizedStoryWriteAction(excerpt)) {
+  if (hasRecognizedStoryWriteAction(canonicalExcerpt)) {
     return {
       classification: 'direct-write',
       grandfathered: false,
@@ -1264,31 +1589,6 @@ function isNegativeStoryPolicyReminder(excerpt) {
   return hasStoryPolicy;
 }
 
-function isStrictReadOnlyStoryInstruction(excerpt) {
-  const directive = normalizeStoryPolicySegment(excerpt);
-  const match = directive.match(
-    /^docs\/story(?:\/\S+)?\s+(?:—|-)\s+read\s+only\s+([\s\S]+)$/i,
-  );
-  if (!match) return false;
-  const safeReadTargetWords = new Set([
-    'the',
-    'title',
-    'description',
-    'type',
-    'priority',
-    'risksignals',
-    'field',
-    'fields',
-    'items',
-    'context',
-  ]);
-  const targetWords = match[1].match(/[A-Za-z]+/g) ?? [];
-  return (
-    targetWords.length > 0 &&
-    targetWords.every(word => safeReadTargetWords.has(word.toLowerCase()))
-  );
-}
-
 function normalizeStoryPolicySegment(segment) {
   return stripDirectiveFormatting(segment)
     .replace(/[*_`'"“”]+/g, '')
@@ -1297,9 +1597,27 @@ function normalizeStoryPolicySegment(segment) {
     .trim();
 }
 
+const STORY_PATH_DIAGNOSTIC_SOURCE = String.raw`\bdocs(?:(?:\/+)(?:\s*\.\s*\/+)*)\s*story\b`;
+
+function canonicalizeStoryDiagnosticText(value) {
+  return String(value)
+    .replace(/\\[ \t]*\r?\n[ \t]*/g, '')
+    .replace(new RegExp(STORY_PATH_DIAGNOSTIC_SOURCE, 'gi'), 'docs/story');
+}
+
+function findStoryCandidateLineIndexes(content) {
+  const candidateSource = content.replace(/\\(?=[ \t]*\r?\n)/g, ' ');
+  const indexes = new Set();
+  for (const match of candidateSource.matchAll(new RegExp(STORY_PATH_DIAGNOSTIC_SOURCE, 'gi'))) {
+    const offset = match.index ?? 0;
+    indexes.add((candidateSource.slice(0, offset).match(/\n/g) ?? []).length);
+  }
+  return [...indexes].sort((a, b) => a - b);
+}
+
 function isStrictNegativeStorySegment(segment) {
   const directive = normalizeStoryPolicySegment(segment);
-  const action = String.raw`[A-Za-z][\w-]*(?:\s+apply_patch)?`;
+  const action = `(?:${DIRECT_STORY_SAFE_NEGATIVE_ACTIONS.join('|')})`;
   const match = directive.match(
     new RegExp(
       String.raw`^(?:do\s+not|don't|must\s+not|never|avoid)\s+(?:directly\s+)?${action}(?:(?:\s*\/\s*|\s+(?:or|and)\s+)${action})*\s+([\s\S]+)$`,
@@ -1470,6 +1788,7 @@ function assertLegacyVocabularyPolicy(findings) {
 }
 
 function collectLegacyVocabularyFindings(roleEntries) {
+  assertApprovedPromptPolicyManifest(roleEntries);
   const findings = scanLegacyVocabulary(roleEntries);
   assertLegacyVocabularyPolicy(findings);
   return findings;
@@ -1478,8 +1797,7 @@ function collectLegacyVocabularyFindings(roleEntries) {
 function buildStoryScanExcerpts(content) {
   const lines = content.split(/\r?\n/);
   const contexts = new Map();
-  for (let index = 0; index < lines.length; index += 1) {
-    if (!/docs\/story/i.test(lines[index])) continue;
+  for (const index of findStoryCandidateLineIndexes(content)) {
     let start = index;
     let end = index;
     for (let distance = 0; distance < STORY_INSTRUCTION_CONTEXT_RADIUS; distance += 1) {
@@ -1492,10 +1810,12 @@ function buildStoryScanExcerpts(content) {
     }
     const key = `${start}:${end}`;
     if (contexts.has(key)) continue;
+    const rawExcerpt = lines.slice(start, end + 1).join('\n').trim();
     contexts.set(key, {
       line: start + 1,
-      excerpt: lines
-        .slice(start, end + 1)
+      excerpt: rawExcerpt.split(/\r?\n/).map(line => line.trim()).join(' ').trim(),
+      diagnosticExcerpt: canonicalizeStoryDiagnosticText(rawExcerpt)
+        .split(/\r?\n/)
         .map(line => line.trim())
         .join(' ')
         .trim(),
@@ -1526,13 +1846,13 @@ function isInstructionBoundary(previousLine, nextLine) {
 
 function scanStoryFileReferences(roleEntries) {
   const findings = [];
-  const storyPattern = /docs\/story(?:\/[^\s`'"<>)\]}]*)?/g;
+  const storyPattern = /docs\/story(?:\/[^\s`'"<>)\]}]*)?/gi;
   for (const entry of roleEntries) {
-    for (const { line, excerpt } of buildStoryScanExcerpts(entry.content)) {
+    for (const { line, excerpt, diagnosticExcerpt } of buildStoryScanExcerpts(entry.content)) {
       if (!excerpt) continue;
-      const references = [...excerpt.matchAll(storyPattern)].map(match => match[0]);
+      const references = [...diagnosticExcerpt.matchAll(storyPattern)].map(match => match[0]);
       if (references.length === 0) continue;
-      const classification = classifyStoryFinding(entry.role, excerpt);
+      const classification = classifyStoryFinding(entry.role, excerpt, diagnosticExcerpt);
       findings.push({
         id: sha256(`${entry.role}\0${line}\0${references.join(',')}\0${excerpt}`).slice(0, 16),
         role: entry.role,
@@ -1547,6 +1867,7 @@ function scanStoryFileReferences(roleEntries) {
 }
 
 function collectDirectStoryFindings(roleEntries) {
+  assertApprovedPromptPolicyManifest(roleEntries);
   const findings = scanStoryFileReferences(roleEntries);
   assertDirectStoryWritePolicy(findings);
   return findings;
@@ -1573,7 +1894,7 @@ async function loadBuiltRegistry() {
   return registryModule;
 }
 
-async function collectCurrentBaseline() {
+async function collectCurrentPromptState() {
   const { readPromptRegistry, readPromptTemplate } = await loadBuiltRegistry();
   const snapshot = readPromptRegistry();
   const roleEntries = [];
@@ -1604,6 +1925,12 @@ async function collectCurrentBaseline() {
     });
   }
 
+  return { snapshot, roleEntries, agentPromptOutputs };
+}
+
+function buildCurrentBaseline({ snapshot, roleEntries, agentPromptOutputs }) {
+  assertApprovedPromptPolicyManifest(roleEntries);
+
   const roleMatrix = roleEntries.map(entry => {
     const matrix = ROLE_MATRIX_DEFAULTS[entry.role];
     if (!matrix) throw new Error(`missing matrix defaults for role ${entry.role}`);
@@ -1617,6 +1944,7 @@ async function collectCurrentBaseline() {
     storyId: 'B-3928',
     sourcePlan: PLAN_PATH,
     expectedRoleCount: EXPECTED_ROLE_COUNT,
+    promptPolicyApproval: buildPromptPolicyManifestAudit(),
     registry: {
       module: toRepoPath(BUILT_REGISTRY_PATH),
       schemaVersion: snapshot.schemaVersion,
@@ -1653,8 +1981,14 @@ async function collectCurrentBaseline() {
   };
 }
 
+async function collectCurrentBaseline() {
+  return buildCurrentBaseline(await collectCurrentPromptState());
+}
+
 function buildLegacyVocabularyPolicyAudit() {
   return {
+    primaryBoundary: 'promptPolicyApproval',
+    scannerAuthority: 'diagnostic-only',
     knownStatuses: [...LEGACY_VOCABULARY_KNOWN_STATUSES],
     exemptStatuses: [...LEGACY_VOCABULARY_EXEMPT_STATUSES],
     enforcedStatuses: [...LEGACY_VOCABULARY_ENFORCED_STATUSES],
@@ -1670,7 +2004,9 @@ function buildLegacyVocabularyPolicyAudit() {
 
 function buildDirectStoryPolicyAudit() {
   return {
-    model: 'closed-safe-reference',
+    model: 'registered-diagnostics-inside-manifest-approved-prompts',
+    primaryBoundary: 'promptPolicyApproval',
+    scannerAuthority: 'diagnostic-only',
     contextRadius: STORY_INSTRUCTION_CONTEXT_RADIUS,
     exactReferences: DIRECT_STORY_REFERENCE_ALLOWLIST.map(entry => ({ ...entry })),
     exactWrites: DIRECT_STORY_WRITE_ALLOWLIST.map(entry => ({ ...entry })),
@@ -1720,6 +2056,7 @@ function renderMatrixMarkdown(baseline) {
     '',
     '## Audit Boundary',
     '',
+    `- Prompt policy boundary: ${baseline.promptPolicyApproval.primaryBoundary}`,
     `- Machine-checked: ${audit.machineChecks.join(' ')}`,
     `- Reviewer-audited fields: ${audit.reviewerAuditedFields.map(field => `\`${field}\``).join(', ')}.`,
     `- Semantic limit: ${audit.semanticBoundary}`,
@@ -1785,6 +2122,68 @@ function mapBy(items, keyFn, label, failures) {
     map.set(key, item);
   }
   return map;
+}
+
+function verifyPromptPolicyManifestAuditSnapshot(audit, label, failures) {
+  const expected = buildPromptPolicyManifestAudit();
+  if (!audit || typeof audit !== 'object' || Array.isArray(audit)) {
+    failures.push(`${label}: missing or not an object`);
+    return;
+  }
+  requireEqual(audit.model, expected.model, `${label}.model`, failures);
+  requireEqual(audit.algorithm, expected.algorithm, `${label}.algorithm`, failures);
+  requireEqual(audit.roleCount, EXPECTED_ROLE_COUNT, `${label}.roleCount`, failures);
+  requireEqual(
+    audit.primaryBoundary,
+    PROMPT_POLICY_PRIMARY_BOUNDARY,
+    `${label}.primaryBoundary`,
+    failures,
+  );
+  const actualRoles = mapBy(
+    Array.isArray(audit.roles) ? audit.roles : [],
+    entry => entry.role,
+    `${label} role`,
+    failures,
+  );
+  const expectedRoles = new Map(
+    APPROVED_PROMPT_POLICY_MANIFEST.map(entry => [entry.role, entry]),
+  );
+  requireEqual(actualRoles.size, EXPECTED_ROLE_COUNT, `${label} role count`, failures);
+  for (const [role, approved] of expectedRoles) {
+    const actual = actualRoles.get(role);
+    if (!actual) {
+      failures.push(`${label}: missing approved role ${role}`);
+      continue;
+    }
+    requireEqual(
+      actual.templateHash,
+      approved.templateHash,
+      `${label} ${role}.templateHash`,
+      failures,
+    );
+  }
+  for (const role of actualRoles.keys()) {
+    if (!expectedRoles.has(role)) failures.push(`${label}: unapproved role ${role}`);
+  }
+}
+
+function verifyPromptPolicyManifestAudit(current, baseline, failures) {
+  verifyPromptPolicyManifestAuditSnapshot(
+    current.promptPolicyApproval,
+    'current promptPolicyApproval',
+    failures,
+  );
+  verifyPromptPolicyManifestAuditSnapshot(
+    baseline.promptPolicyApproval,
+    'baseline promptPolicyApproval',
+    failures,
+  );
+  requireSameContent(
+    JSON.stringify(current.promptPolicyApproval ?? null, null, 2),
+    JSON.stringify(baseline.promptPolicyApproval ?? null, null, 2),
+    'promptPolicyApproval snapshot',
+    failures,
+  );
 }
 
 function verifyRegistry(current, baseline, failures) {
@@ -2192,30 +2591,35 @@ function verifyLegacyVocabularyPolicyProbes(failures) {
       `legacy vocabulary policy probe ${probe.name}.statusClassification`,
       failures,
     );
-    if (expectedStatusClassification === 'enforced') {
-      const findings = scanLegacyVocabulary([
-        { role: probe.role, status: probe.status, content: probe.content },
-      ]);
-      if (findings.length === 0) {
-        failures.push(`legacy vocabulary policy probe ${probe.name}: no occurrence classified`);
-      }
-      if (!findings.some(finding => finding.policyStatus === 'blocked-active-use')) {
-        failures.push(
-          `legacy vocabulary policy probe ${probe.name}: no occurrence classified as blocked-active-use`,
-        );
-      }
-    }
+    let findings = [];
     let rejection = '';
     try {
-      collectLegacyVocabularyFindings([
+      findings = scanLegacyVocabulary([
         { role: probe.role, status: probe.status, content: probe.content },
       ]);
     } catch (error) {
       rejection = String(error instanceof Error ? error.message : error);
     }
-    if (!rejection.includes(probe.expectedRejection)) {
+    if (expectedStatusClassification === 'unknown-status') {
+      if (!rejection.includes(probe.expectedRejection)) {
+        failures.push(
+          `legacy vocabulary policy probe ${probe.name}: expected scanner rejection containing ${JSON.stringify(probe.expectedRejection)}, got ${JSON.stringify(rejection)}`,
+        );
+      }
+      continue;
+    }
+    if (rejection) {
       failures.push(
-        `legacy vocabulary policy probe ${probe.name}: expected rejection containing ${JSON.stringify(probe.expectedRejection)}, got ${JSON.stringify(rejection)}`,
+        `legacy vocabulary policy probe ${probe.name}: unexpected scanner rejection ${JSON.stringify(rejection)}`,
+      );
+      continue;
+    }
+    if (findings.length === 0) {
+      failures.push(`legacy vocabulary policy probe ${probe.name}: no occurrence classified`);
+    }
+    if (!findings.some(finding => finding.policyStatus === 'blocked-active-use')) {
+      failures.push(
+        `legacy vocabulary policy probe ${probe.name}: no occurrence classified as blocked-active-use`,
       );
     }
   }
@@ -2227,21 +2631,9 @@ function verifyLegacyVocabularyPolicyProbes(failures) {
       `legacy vocabulary allowed probe ${probe.name}.statusClassification`,
       failures,
     );
-    let findings = [];
-    let rejection = '';
-    try {
-      findings = collectLegacyVocabularyFindings([
-        { role: probe.role, status: probe.status, content: probe.content },
-      ]);
-    } catch (error) {
-      rejection = String(error instanceof Error ? error.message : error);
-    }
-    if (rejection) {
-      failures.push(
-        `legacy vocabulary allowed probe ${probe.name}: unexpected collection rejection ${JSON.stringify(rejection)}`,
-      );
-      continue;
-    }
+    const findings = scanLegacyVocabulary([
+      { role: probe.role, status: probe.status, content: probe.content },
+    ]);
     if (findings.length === 0) {
       failures.push(`legacy vocabulary allowed probe ${probe.name}: no occurrence classified`);
       continue;
@@ -2340,11 +2732,6 @@ function verifyDirectStoryClassifierProbes(failures) {
     const actual = classifyStoryFinding(probe.role, probe.excerpt);
     requireEqual(actual.classification, probe.classification, `direct story classifier probe ${probe.name}.classification`, failures);
     requireEqual(actual.grandfathered, probe.grandfathered, `direct story classifier probe ${probe.name}.grandfathered`, failures);
-    verifyBaselineRefreshProbe(
-      probe,
-      [{ role: probe.role, content: probe.excerpt }],
-      failures,
-    );
   }
 
   for (const probe of DIRECT_STORY_SCANNER_PROBES) {
@@ -2356,36 +2743,228 @@ function verifyDirectStoryClassifierProbes(failures) {
     if (probe.excerpt) {
       requireEqual(actual.excerpt, probe.excerpt, `direct story scanner probe ${probe.name}.excerpt`, failures);
     }
+    if (probe.references) {
+      requireSameContent(
+        JSON.stringify(actual.references),
+        JSON.stringify(probe.references),
+        `direct story scanner probe ${probe.name}.references`,
+        failures,
+      );
+    }
     requireEqual(actual.classification, probe.classification, `direct story scanner probe ${probe.name}.classification`, failures);
     requireEqual(actual.grandfathered, probe.grandfathered, `direct story scanner probe ${probe.name}.grandfathered`, failures);
-    verifyBaselineRefreshProbe(
-      probe,
-      [{ role: probe.role, content: probe.content }],
-      failures,
+  }
+}
+
+function promptEntriesWithAddition(roleEntries, probe) {
+  const mutated = structuredClone(roleEntries);
+  const entry = mutated.find(candidate => candidate.role === probe.role);
+  if (!entry) throw new Error(`prompt policy probe role not found: ${probe.role}`);
+  entry.content = `${entry.content}\n${probe.addition}`;
+  entry.templateHash = sha256(entry.content);
+  return mutated;
+}
+
+function capturePromptPolicyRejection(callback) {
+  try {
+    callback();
+    return '';
+  } catch (error) {
+    return String(error instanceof Error ? error.message : error);
+  }
+}
+
+function requirePromptPolicyRejection(name, callback, expected, failures) {
+  const rejection = capturePromptPolicyRejection(callback);
+  if (!rejection.includes(expected)) {
+    failures.push(
+      `prompt policy manifest probe ${name}: expected rejection containing ${JSON.stringify(expected)}, got ${JSON.stringify(rejection)}`,
     );
   }
 }
 
-function verifyBaselineRefreshProbe(probe, roleEntries, failures) {
-  if (!probe.baselineRefresh) return;
-  let rejection = '';
-  try {
-    collectDirectStoryFindings(roleEntries);
-  } catch (error) {
-    rejection = String(error instanceof Error ? error.message : error);
-  }
-  if (probe.baselineRefresh === 'allow') {
-    if (rejection) {
-      failures.push(
-        `direct story probe ${probe.name}: expected baseline refresh to be allowed, got ${JSON.stringify(rejection)}`,
-      );
-    }
+async function verifyPromptPolicyManifestProbes(promptState, failures) {
+  const roleEntries = promptState.roleEntries;
+  const approvedErrors = approvedPromptPolicyManifestErrors(roleEntries);
+  if (approvedErrors.length > 0) {
+    failures.push(
+      `prompt policy manifest approved control failed: ${JSON.stringify(approvedErrors)}`,
+    );
     return;
   }
-  if (!rejection.includes(probe.expectedRejection)) {
-    failures.push(
-      `direct story probe ${probe.name}: expected baseline-refresh rejection containing ${JSON.stringify(probe.expectedRejection)}, got ${JSON.stringify(rejection)}`,
+
+  const firstRole = roleEntries[0]?.role;
+  if (!firstRole) {
+    failures.push('prompt policy manifest probes require at least one approved role');
+    return;
+  }
+  const structuralCases = [
+    {
+      name: 'missing entry hash',
+      expected: `missing prompt policy collector templateHash for ${firstRole}`,
+      mutate(entries) {
+        delete entries[0].templateHash;
+      },
+    },
+    {
+      name: 'altered content with stale entry hash',
+      expected: `prompt policy collector content hash mismatch for ${firstRole}`,
+      mutate(entries) {
+        entries[0].content += '\nprompt-policy-content-drift';
+      },
+    },
+    {
+      name: 'altered entry hash',
+      expected: `approved prompt policy manifest hash mismatch for ${firstRole}`,
+      mutate(entries) {
+        entries[0].templateHash = '0'.repeat(64);
+      },
+    },
+    {
+      name: 'changed body with internally matching hash',
+      expected: `approved prompt policy manifest hash mismatch for ${firstRole}`,
+      mutate(entries) {
+        entries[0].content += '\nprompt-policy-self-authorize-attempt';
+        entries[0].templateHash = sha256(entries[0].content);
+      },
+    },
+    {
+      name: 'added role',
+      expected: 'unapproved prompt policy collector role probe-added-role',
+      mutate(entries) {
+        entries.push({ ...entries[0], role: 'probe-added-role' });
+      },
+    },
+    {
+      name: 'removed role',
+      expected: `approved prompt policy manifest role missing from collector ${firstRole}`,
+      mutate(entries) {
+        entries.shift();
+      },
+    },
+    {
+      name: 'renamed role',
+      expected: 'unapproved prompt policy collector role probe-renamed-role',
+      mutate(entries) {
+        entries[0].role = 'probe-renamed-role';
+      },
+    },
+    {
+      name: 'duplicate role ownership',
+      expected: `duplicate prompt policy collector role ${firstRole}`,
+      mutate(entries) {
+        entries.push({ ...entries[0] });
+      },
+    },
+  ];
+
+  for (const probe of structuralCases) {
+    const mutated = structuredClone(roleEntries);
+    probe.mutate(mutated);
+    requirePromptPolicyRejection(
+      probe.name,
+      () => assertApprovedPromptPolicyManifest(mutated),
+      probe.expected,
+      failures,
     );
+  }
+
+  requirePromptPolicyRejection(
+    'synthetic direct collector lacks approved role and hash',
+    () => collectDirectStoryFindings([
+      { role: 'probe-synthetic-direct', content: 'Write docs/story/probe.json.' },
+    ]),
+    'prompt policy collector role count',
+    failures,
+  );
+  requirePromptPolicyRejection(
+    'synthetic legacy collector lacks approved role and hash',
+    () => collectLegacyVocabularyFindings([
+      { role: 'probe-synthetic-legacy', status: 'active', content: 'Set testIntent.' },
+    ]),
+    'prompt policy collector role count',
+    failures,
+  );
+
+  for (const probe of PROMPT_POLICY_DIRECT_COLLECTION_PROBES) {
+    const mutated = promptEntriesWithAddition(roleEntries, probe);
+    requirePromptPolicyRejection(
+      `direct collection ${probe.name}`,
+      () => collectDirectStoryFindings(mutated),
+      `approved prompt policy manifest hash mismatch for ${probe.role}`,
+      failures,
+    );
+  }
+  for (const probe of PROMPT_POLICY_LEGACY_COLLECTION_PROBES) {
+    const mutated = promptEntriesWithAddition(roleEntries, probe);
+    requirePromptPolicyRejection(
+      `legacy collection ${probe.name}`,
+      () => collectLegacyVocabularyFindings(mutated),
+      `approved prompt policy manifest hash mismatch for ${probe.role}`,
+      failures,
+    );
+  }
+
+  const refreshMutation = promptEntriesWithAddition(
+    roleEntries,
+    PROMPT_POLICY_DIRECT_COLLECTION_PROBES[0],
+  );
+  let refreshRejection = '';
+  try {
+    buildCurrentBaseline({ ...promptState, roleEntries: refreshMutation });
+  } catch (error) {
+    refreshRejection = String(error instanceof Error ? error.message : error);
+  }
+  if (!refreshRejection.includes('approved prompt policy manifest hash mismatch')) {
+    failures.push(
+      `prompt policy manifest probe baseline refresh self-authorization: expected manifest rejection, got ${JSON.stringify(refreshRejection)}`,
+    );
+  }
+
+  const auditCases = [
+    {
+      name: 'audit role hash mutation',
+      expected: `${firstRole}.templateHash`,
+      mutate(audit) {
+        audit.roles[0].templateHash = '0'.repeat(64);
+      },
+    },
+    {
+      name: 'audit role rename',
+      expected: 'unapproved role probe-renamed-role',
+      mutate(audit) {
+        audit.roles[0].role = 'probe-renamed-role';
+      },
+    },
+    {
+      name: 'audit role addition',
+      expected: 'unapproved role probe-added-role',
+      mutate(audit) {
+        audit.roles.push({ ...audit.roles[0], role: 'probe-added-role' });
+      },
+    },
+    {
+      name: 'audit role removal',
+      expected: `missing approved role ${firstRole}`,
+      mutate(audit) {
+        audit.roles.shift();
+      },
+    },
+  ];
+  for (const probe of auditCases) {
+    const mutatedAudit = buildPromptPolicyManifestAudit();
+    probe.mutate(mutatedAudit);
+    const auditFailures = [];
+    verifyPromptPolicyManifestAuditSnapshot(
+      mutatedAudit,
+      `prompt policy manifest probe ${probe.name}`,
+      auditFailures,
+    );
+    if (!auditFailures.some(failure => failure.includes(probe.expected))) {
+      failures.push(
+        `prompt policy manifest probe ${probe.name}: expected audit rejection containing ${JSON.stringify(probe.expected)}, got ${JSON.stringify(auditFailures)}`,
+      );
+    }
   }
 }
 
@@ -2440,7 +3019,7 @@ function runDirectStoryClassifierProbeCommand() {
     process.exit(1);
   }
   console.log(
-    `PASS direct story-file classifier adversarial probes: ${DIRECT_STORY_CLASSIFIER_PROBES.length} classifier cases, ${DIRECT_STORY_SCANNER_PROBES.length} scanner cases`,
+    `PASS diagnostic direct story-file probes: ${DIRECT_STORY_CLASSIFIER_PROBES.length} classifier cases, ${DIRECT_STORY_SCANNER_PROBES.length} scanner cases; authorization remains manifest-bound`,
   );
 }
 
@@ -2453,7 +3032,21 @@ function runLegacyVocabularyPolicyProbeCommand() {
     process.exit(1);
   }
   console.log(
-    `PASS closed legacy-vocabulary policy probes: ${LEGACY_VOCABULARY_POLICY_PROBES.length} rejected, ${LEGACY_VOCABULARY_ALLOWED_PROBES.length} allowed`,
+    `PASS diagnostic legacy-vocabulary probes: ${LEGACY_VOCABULARY_POLICY_PROBES.length} unsafe, ${LEGACY_VOCABULARY_ALLOWED_PROBES.length} registered-safe; authorization remains manifest-bound`,
+  );
+}
+
+async function runPromptPolicyManifestProbeCommand() {
+  const promptState = await collectCurrentPromptState();
+  const failures = [];
+  await verifyPromptPolicyManifestProbes(promptState, failures);
+  if (failures.length > 0) {
+    console.error('FAIL approved prompt policy manifest probes');
+    for (const failure of failures) console.error(`- ${failure}`);
+    process.exit(1);
+  }
+  console.log(
+    `PASS approved prompt policy manifest probes: 8 role/hash/content/add/remove entry mutations, 4 generated-audit mutations, 2 synthetic collector rejections, ${PROMPT_POLICY_DIRECT_COLLECTION_PROBES.length} direct and ${PROMPT_POLICY_LEGACY_COLLECTION_PROBES.length} legacy body-mutation collection rejections, baseline-refresh self-authorization rejected`,
   );
 }
 
@@ -2496,9 +3089,12 @@ async function writeBaselineFiles() {
 
 async function verifyBaseline() {
   const baseline = readBaseline();
-  const current = await collectCurrentBaseline();
+  const promptState = await collectCurrentPromptState();
+  const current = buildCurrentBaseline(promptState);
   const failures = [];
 
+  verifyPromptPolicyManifestAudit(current, baseline, failures);
+  await verifyPromptPolicyManifestProbes(promptState, failures);
   verifyRegistry(current, baseline, failures);
   verifyAgentPromptOutputs(current, baseline, failures);
   verifyBaselineDriftProbes(current, failures);
@@ -2540,21 +3136,24 @@ async function verifyBaseline() {
     process.exit(1);
   }
 
-  console.log('PASS proof-or-stop prompt baseline: roleCount=16 registry hashes verified');
+  console.log('PASS proof-or-stop prompt baseline: independent approval manifest binds all 16 exact role IDs and complete prompt bodies');
+  console.log('PASS proof-or-stop prompt baseline: roleCount=16 registry snapshot integrity verified');
   console.log('PASS proof-or-stop prompt baseline: agent_prompt output hashes verified for 16 roles');
   console.log('PASS proof-or-stop prompt baseline: 10 baseline mechanical drift mutations and unknown-role agent_prompt command rejected');
   console.log('PASS proof-or-stop prompt baseline: role matrix snapshot integrity verified for 16 roles');
   console.log('PASS proof-or-stop prompt baseline: role matrix field/Markdown/role-count/missing-row drift rejected');
   console.log('INFO proof-or-stop prompt baseline: all human-authored role-matrix semantics remain reviewer-audited');
-  console.log('PASS proof-or-stop prompt baseline: closed legacy status/negative/context policy enforced');
-  console.log(`PASS proof-or-stop prompt baseline: closed story-reference policy has ${DIRECT_STORY_REFERENCE_ALLOWLIST.length} exact references`);
-  console.log('PASS proof-or-stop prompt baseline: direct story-write policy has 1 exact grandfathered write');
+  console.log('INFO proof-or-stop prompt baseline: legacy occurrence scanner diagnostics audited inside manifest-approved prompt bodies');
+  console.log(`INFO proof-or-stop prompt baseline: story-reference scanner diagnostics audit ${DIRECT_STORY_REFERENCE_ALLOWLIST.length} exact references inside manifest-approved prompt bodies`);
+  console.log('PASS proof-or-stop prompt baseline: direct story-write diagnostics have 1 exact registered INIT write');
 }
 
 if (PROBE_DIRECT_STORY_CLASSIFIER) {
   runDirectStoryClassifierProbeCommand();
 } else if (PROBE_LEGACY_VOCABULARY_POLICY) {
   runLegacyVocabularyPolicyProbeCommand();
+} else if (PROBE_PROMPT_POLICY_MANIFEST) {
+  await runPromptPolicyManifestProbeCommand();
 } else if (PROBE_BASELINE_DRIFT) {
   await runBaselineDriftProbeCommand();
 } else if (PROBE_ROLE_MATRIX_SNAPSHOT_DRIFT) {

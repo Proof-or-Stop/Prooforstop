@@ -6,7 +6,8 @@ Role count: 16
 
 ## Audit Boundary
 
-- Machine-checked: Lock the exact 16 role snapshots and role IDs. Lock registry template hashes and agent_prompt output hashes. Require every role-matrix field to be a non-empty string. Require JSON/Markdown parity and reject snapshot drift.
+- Prompt policy boundary: The independent code-reviewed approval manifest binds every exact role ID and complete prompt body by SHA-256 before policy findings can be collected. Diagnostic occurrence scanners describe registered content inside those approved bodies; they do not authorize prompt changes.
+- Machine-checked: Lock the exact 16 role snapshots and role IDs. Require each complete prompt body and registry template hash to match the independent code-reviewed approval manifest. Lock agent_prompt output hashes. Require every role-matrix field to be a non-empty string. Require JSON/Markdown parity and reject snapshot drift.
 - Reviewer-audited fields: `status`, `phase`, `purpose`, `commands`, `directFileAccess`, `inputs`, `outputs`, `capabilities`, `overlapCategory`, `notes`.
 - Semantic limit: Every human-authored role-matrix field is a reviewer-audited semantic snapshot. The verifier proves required fields, exact snapshots and hashes, JSON/Markdown parity, and drift rejection; it does not infer or prove role semantics from prompt prose.
 - Commands includes: Role-owned writes plus role-defining inspection or execution calls named in the role-specific procedure.
