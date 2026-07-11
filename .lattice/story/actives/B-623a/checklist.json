@@ -174,7 +174,79 @@
       "context": "doctor reuses sweepCodexSessions/sweepClaudeProjects (read-only) over the recent-activity window and prints a prominent advisory warning per flagged session naming the session file, cwd, and cumulative tokens, plus which thresholds tripped. Advisory-only: no gate, no gateEvidence, plain doctor exit code unchanged. JSON mode gets a hostBurnScan object. doctor() becomes async; existing smoke call sites updated.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "doctor text output includes a Host burn scan (advisory) section with a prominent warning per flagged session naming: the session file path, cwd, cumulative tokens, and which thresholds tripped",
+            "type": "logic"
+          },
+          {
+            "desc": "doctor text output Host burn scan section shows a clean pass line (no warnings) when no sessions exceed any threshold",
+            "type": "logic"
+          },
+          {
+            "desc": "doctor JSON output includes a hostBurnScan object with the flagged sessions array, thresholds used, and a scanWindow field",
+            "type": "logic"
+          },
+          {
+            "desc": "doctor() becomes async; all existing sync call sites (doctor-gitroot-probe-smoke.ts, story-metadata-protection-smoke.ts, storydir-inside-gitroot-suite.ts) are updated to await the result and still pass",
+            "type": "logic"
+          },
+          {
+            "desc": "doctor text output advisory: no gate, gateEvidence=false in the JSON object, plain doctor exit code is unchanged (still 0) even when sessions are flagged",
+            "type": "cli"
+          },
+          {
+            "desc": "doctor scans both codex and claude stores over the recent-activity window (recentHours from resolved thresholds) using sweepCodexSessions/sweepClaudeProjects",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "When recentHours=0 (disabled via env), the Host burn scan section reports disabled and performs no scan (no sweepCodexSessions/sweepClaudeProjects calls)",
+            "type": "logic"
+          },
+          {
+            "desc": "When both store directories are missing/empty, the Host burn scan section reports clean (no warnings, zero sessions scanned) without throwing",
+            "type": "logic"
+          },
+          {
+            "desc": "doctor --format=json hostBurnScan.gateEvidence is always false (advisory-only contract); verify it is never true regardless of flagged session count",
+            "type": "logic"
+          },
+          {
+            "desc": "Multiple flagged sessions from different hosts (one codex, one claude) each get their own distinct warning line with host-specific token breakdown",
+            "type": "logic"
+          },
+          {
+            "desc": "A session that trips all three reasons (file-size + input-tokens + session-age) lists all three in its warning line",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "doctor plain exit code is 0 even with 10 flagged sessions (advisory-only means no exit-code change for doctor); verified by running the real CLI and checking process.exitCode",
+            "type": "cli"
+          },
+          {
+            "desc": "The doctor burn scan does NOT write any files: a before/after snapshot of the codex/claude store dirs shows zero modifications (inherits the usage-sweep read-only contract)",
+            "type": "logic"
+          },
+          {
+            "desc": "The doctor burn scan does NOT touch ownership-gate.ts or activity-policy.ts (no ownership/classification changes); verified by source grep of imports",
+            "type": "logic"
+          },
+          {
+            "desc": "doctor --repair with flagged burn sessions does NOT attempt to repair/delete/modify the flagged sessions (advisory-only; repair only applies to worktree/metadata issues)",
+            "type": "logic"
+          },
+          {
+            "desc": "The async migration does not break any existing doctor test: running the full validate suite (including doctor-gitroot-probe-smoke, story-metadata-protection-smoke, storydir-inside-gitroot-suite) passes with zero regressions",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
