@@ -322,6 +322,38 @@
       "resolvedAt": "2026-07-11T15:51:38.650Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3928:F-014",
+      "desc": "CHK-001:edge:0, CHK-002:edge:0, and CHK-003:edge:0 lack concretely corresponding negative-path evidence. Their recorded command is `node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-role-matrix-snapshot-drift`, but that probe only clones the current baseline, appends a sentinel to `lattice-review-behavior.commands`, and asserts roleMatrix field plus generated-Markdown drift. It never changes a prompt role/template/hash, never changes agent_prompt stdout metadata, and never removes a matrix role or creates a registry-count mismatch. CHK-002's evidence note therefore overclaims output-metadata coverage. Add focused drift probes for the three stated failure modes, or bind each intent to evidence that actually exercises its branch.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-11T15:57:12.927Z",
+      "reviewRound": "2026-07-11T15:51:16.046Z",
+      "reviewRunId": "B-3928:RR-020",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "package.json",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "139f01cccc80cab6e89ed4b38bd7975cd0d871cc1c32327420b6982c68a733b6",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+        "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md"
+      ],
+      "signatureTag": "missing|mjs|edge-edge-edge",
+      "signatureTagSource": "auto"
     }
   ]
 }
