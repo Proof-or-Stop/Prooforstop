@@ -1078,7 +1078,7 @@
       "desc": "The claimed 12-entry closed story-reference set is not actually closed. DIRECT_STORY_POLICY_RULE at scripts/verify-proof-or-stop-prompt-baseline.mjs:132-133 says only exact registered current references, the exact INIT write, and strict negative/CLI forms are accepted and every other docs/story reference fails closed. But classifyStoryFinding at :1188-1193 accepts any role/path matching isStrictReadOnlyStoryInstruction, marks it grandfathered, and directStoryWritePolicyErrors ignores that classification. Exact collection with the current INIT write accepted the unregistered `docs/story/actives/B-1234/index.json — read only the title field` for a probe role; it is not one of DIRECT_STORY_REFERENCE_ALLOWLISTs 12 entries. A new direct story-file read can therefore baseline-refresh without an exact code-reviewed registration while the verifier prints that the closed policy has 12 exact references. Remove the generic exception, add it explicitly to the declared policy if it is intentional, or require exact registration; add a collection/refresh probe that proves the chosen contract.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-11T20:45:22.048Z",
@@ -1108,7 +1108,11 @@
         "scripts/verify-proof-or-stop-prompt-baseline.mjs:2280"
       ],
       "signatureTag": "adversarial|mjs:1188|unregistered-readonly-story-reference",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by d6bc395a. The generic unregistered read-only acceptance path was removed. Story-reference diagnostics accept only exact registered current references, strict negative/CLI policy forms, and the exact INIT write inside manifest-approved bodies. An unregistered read-only mutation is rejected by the collector manifest and diagnostic probe. Full verifier reports scanner diagnostics, not an authorization count claim.",
+      "resolvedAt": "2026-07-11T21:10:38.635Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3928:F-038",
