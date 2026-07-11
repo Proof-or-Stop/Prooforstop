@@ -966,7 +966,7 @@
       "desc": "F-027 recurrence at the status boundary: compatibility itself is now enforced, but the policy remains an enforced-status allowlist with a fail-open default. LEGACY_VOCABULARY_ENFORCED_STATUSES at scripts/verify-proof-or-stop-prompt-baseline.mjs:85 lists four live statuses; classifyLegacyVocabularyPolicy at :744-750 grants allowed-role-status to every other value, while verifyRoleMatrixFields at :1677-1691 accepts any non-empty status string. Exact in-memory execution with status `required` and `Set testIntent on every checklist item.` was accepted. A new live status or a status typo can therefore recreate the compatibility bypass, despite the declared boundary that legacy, retired, and fold-candidate roles are the readable exemptions. Define an explicit closed status taxonomy or explicit exempt statuses and fail closed for unknown live values; add an unknown-status rejection probe.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-11T20:17:21.907Z",
@@ -993,7 +993,11 @@
         "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:1025"
       ],
       "signatureTag": "missing|mjs:744|legacy-status-unknown-fail-open",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 467dc4bb. The verifier defines a seven-status closed taxonomy; only legacy, retired-cli-only, and fold-candidate are exempt. All other known statuses are enforced and unknown or empty statuses throw before baseline collection. Required/unknown status probes reject. Independent legacy and full baseline verification passed.",
+      "resolvedAt": "2026-07-11T20:38:51.312Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3928:F-035",
