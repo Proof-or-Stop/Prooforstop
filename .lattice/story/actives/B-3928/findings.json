@@ -521,7 +521,7 @@
       "desc": "Role naming residue in the overlap matrix: the test-case-reviewer row says `replaced by review-test-coverage`, but no role with that ID exists. The current role is `lattice-review-test-coverage` and the planned canonical role is `proof-or-stop-review-test-coverage`, both used consistently elsewhere in the source plan. Use one exact name and label whether the row refers to current or target taxonomy.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-11T15:58:33.983Z",
@@ -533,7 +533,11 @@
         "scripts/verify-proof-or-stop-prompt-baseline.mjs:256"
       ],
       "signatureTag": "missing|md:30|role-naming-residue",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in a31f2f08a2. The legacy test-case-reviewer overlap row now names the exact current role `lattice-review-test-coverage` and exact target role `proof-or-stop-review-test-coverage`, eliminating the nonexistent `review-test-coverage` residue.",
+      "resolvedAt": "2026-07-11T16:18:09.269Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
