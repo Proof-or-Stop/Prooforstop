@@ -67,7 +67,65 @@
       "context": "packages/main/src/core/host-run.ts recordFinalForHost codex path: when no turn.completed usage exists but a turn.failed/terminal-error event was retained (streaming lane) or present in a buffered fake-runner stdout, record unavailableReason turn_failed(<short sanitized digest of error.message, innermost message when nested JSON>); fall back to no_turn_completed_usage_event when neither event is present; a genuine turn.completed usage still records provider-reported exactly as today; usage numbers are never fabricated.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Codex run emits turn.failed with a JSON error.message containing a nested 400 invalid_request_error -> recorded unavailableReason is turn_failed(<sanitized innermost message digest>) and never no_turn_completed_usage_event; usage.source is unavailable and usage numbers are all null; WHY: the core feature -- surfacing the actual failure reason instead of the generic fallback",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Codex run emits a genuine turn.completed with real usage AND no turn.failed -> unavailableReason is null, usage.source is provider-reported with real token counts; WHY: a genuine success must record provider-reported exactly as before, proving the new path does not regress the happy path",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Codex run emits neither turn.completed nor turn.failed -> recorded unavailableReason is no_turn_completed_usage_event (the existing fallback); WHY: proves the honest fallback is preserved when no diagnostic event is present",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Codex turn.failed with error.message that is a nested-JSON string containing a further nested error.message -> digest extracts the INNERMOST message, not the outer JSON envelope; WHY: the B-3928 real payload has a string-encoded JSON as error.message and the innermost human message is what matters",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Codex turn.failed with an empty error.message or missing error object -> recorded unavailableReason is turn_failed with a fixed token (e.g. no_error_message or empty digest) rather than crashing or falling through to no_turn_completed_usage_event; WHY: the failure event exists so the reason should reflect that, even without extractable content",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Codex turn.failed with a very long error.message (multi-kilobyte) -> the digest is truncated to a readable length (not unbounded), ledger row stays compact; WHY: the unavailableReason field must stay readable and bounded, not dump an entire error body",
+            "type": "logic",
+            "priority": "should"
+          },
+          {
+            "desc": "Codex stdout has both a turn.completed usage AND a subsequent turn.failed -> the turn.completed usage wins (provider-reported), the turn.failed is NOT used for unavailableReason because genuine usage exists; WHY: turn.completed is the authoritative success signal and must take precedence",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Codex turn.failed with error.message containing control characters, null bytes, or newlines -> the digest sanitizes them (collapse/strip) and never injects raw control chars into the ledger row; WHY: a hostile or corrupted error.message must not poison the ledger format",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Codex turn.failed is present in the retained failure lane but retentionTruncated is true on the usage lane -> the truncation semantics (F-013) take priority: unavailableReason is usage_line_retention_truncated, NOT turn_failed; WHY: truncation means the real usage might have been in the dropped line, so the failure reason cannot override that honest uncertainty",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Usage numbers are never fabricated from the turn.failed event: when recording turn_failed, inputTokens/outputTokens/cacheRead are all null; WHY: a turn.failed carries no usage data and the system must never synthesize zeros or guesses",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
