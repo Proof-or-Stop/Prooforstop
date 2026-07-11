@@ -326,7 +326,87 @@
       "context": "New packages/main/src/tasks/usage-burn-alert-smoke.ts driven by OS temp fixtures (never real ~/.codex or ~/.claude): threshold boundary cases (at vs over), env resolver defaults and overrides, doctor section rendering (flagged and clean), --alert exit-code behavior via the real CLI, zero-writes assertion. Wired into the same validate/test entry points as usage-sweep-smoke.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The smoke test file packages/main/src/tasks/usage-burn-alert-smoke.ts exists and is wired into the validate suite entry point (same as usage-sweep-smoke)",
+            "type": "logic"
+          },
+          {
+            "desc": "All fixture data uses OS-temp directories (mkdtempSync); never reads from or writes to real ~/.codex or ~/.claude",
+            "type": "logic"
+          },
+          {
+            "desc": "Smoke covers threshold boundary cases: a session at exactly the threshold is NOT flagged, a session at threshold+1 IS flagged (strictly-greater for file-size, input-tokens, session-age)",
+            "type": "logic"
+          },
+          {
+            "desc": "Smoke covers env resolver: defaults returned when no env vars set, each override accepted individually, garbage/negative/empty values fall back to defaults",
+            "type": "logic"
+          },
+          {
+            "desc": "Smoke covers doctor rendering: flagged sessions produce a Host burn scan advisory section with session file + cwd + tokens + tripped thresholds; clean sessions produce a pass line",
+            "type": "logic"
+          },
+          {
+            "desc": "Smoke covers doctor disabled rendering: recentHours=0 produces a disabled notice, no scan performed",
+            "type": "logic"
+          },
+          {
+            "desc": "Smoke covers --alert exit codes: the real built CLI (execFileSync of dist/cli.js usage_sweep --alert) exits non-zero when alerts fire and exits zero when clean",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke covers zero-writes assertion: a before/after snapshot of the fixture store directories confirms no files were created, modified, or deleted by the sweep or alert evaluation",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke tests the read-only classification: isReadOnlyCommand for usage_sweep returns true, shouldWriteActivityLog returns the expected value, resolveEffectiveOwnershipClass stays unchanged (no ownership-gate or activity-policy regression)",
+            "type": "logic"
+          },
+          {
+            "desc": "Smoke tests a session with null usage (no token_count events in rollout) is never flagged for input-tokens",
+            "type": "logic"
+          },
+          {
+            "desc": "Smoke tests a session with an unparseable firstTimestamp is never flagged for session-age",
+            "type": "logic"
+          },
+          {
+            "desc": "Smoke tests the deterministic ordering: two sessions flagged in different input orders produce the same findings array",
+            "type": "logic"
+          },
+          {
+            "desc": "Smoke tests doctor JSON mode: hostBurnScan object has gateEvidence=false, flaggedSessions array, and thresholds",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke verifies the built CLI exists (dist/cli.js) before running end-to-end --alert tests; skips gracefully with a warning if not built rather than failing opaquely",
+            "type": "logic"
+          },
+          {
+            "desc": "Smoke explicitly asserts that the smoke file itself never imports from core/usage-ledger (independence contract)",
+            "type": "logic"
+          },
+          {
+            "desc": "Smoke verifies that running usage_sweep --alert on fixture stores with flagged sessions does NOT create any files in the OS-temp root (the sweep and alert paths are write-free)",
+            "type": "logic"
+          },
+          {
+            "desc": "Smoke verifies doctor exit code is 0 even when flagged sessions exist (advisory-only; no gate)",
+            "type": "cli"
+          },
+          {
+            "desc": "The smoke test cleans up all OS-temp fixture directories in a finally block, leaving no test residue",
+            "type": "logic"
+          }
+        ]
+      }
     }
   ]
 }
