@@ -1004,7 +1004,7 @@
       "desc": "doc-promise-undelivered: M0.4/baseline policy says positive legacy-vocabulary instructions always fail, but the verifier accepts imperative positives with an immediate local marker. Exact-source probe results: `Use legacy testIntent.`, `Keep compatibility TEST_CASE.`, and `Retain old TEST_CASE_REVIEW.` all return accepted=true with policyStatus=allowed-explicit-local-context. The built-in policy probes omit this prefix-imperative shape, so the default verifier still passes. Reconcile the M0.4 wording, generated policy rule, classifier behavior, and adversarial probes; do not claim universal positive-instruction rejection unless the classifier enforces it.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-11T20:19:01.590Z",
@@ -1027,7 +1027,11 @@
         "scripts/verify-proof-or-stop-prompt-baseline.mjs"
       ],
       "signatureTag": "missing|json|promise-undelivered-baseline",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 467dc4bb. M0.4 plan wording, baseline schema v6 policy, and classifier now agree on closed status/negative/context semantics. Exact `Use legacy testIntent`, `Keep compatibility TEST_CASE`, and `Retain old TEST_CASE_REVIEW` probes reject; only two exact live contextual occurrences are registered. Independent legacy probe passed 24 rejected and 4 allowed cases, plus full verifier and package test.",
+      "resolvedAt": "2026-07-11T20:38:52.132Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
