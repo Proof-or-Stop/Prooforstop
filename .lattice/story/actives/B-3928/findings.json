@@ -487,6 +487,25 @@
       ],
       "signatureTag": "happy|mjs:1325|resolved-left-usersees",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3928:F-021",
+      "desc": "Role naming residue in the overlap matrix: the test-case-reviewer row says `replaced by review-test-coverage`, but no role with that ID exists. The current role is `lattice-review-test-coverage` and the planned canonical role is `proof-or-stop-review-test-coverage`, both used consistently elsewhere in the source plan. Use one exact name and label whether the row refers to current or target taxonomy.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-11T15:58:33.983Z",
+      "reviewRound": "2026-07-11T15:51:16.046Z",
+      "reviewRunId": "B-3928:RR-018",
+      "_hash": "014c184d6e867c4ca569e55c5b9611310318da0800d5d9e9f0cbe005a235c1dd",
+      "files": [
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md:30",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:256"
+      ],
+      "signatureTag": "missing|md:30|role-naming-residue",
+      "signatureTagSource": "auto"
     }
   ]
 }
