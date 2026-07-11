@@ -58,6 +58,18 @@
           "materialHash": "4e6b8ec53b5e42e0e25e32c84fc04d65bed50cdd96145d5c07ee9fea1345e937",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "timestamp": "2026-07-11T22:53:37.045Z"
+        },
+        {
+          "intentRef": "adverb-inflection:edge",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "adverbWindowBoundaryDone: the not...covered window does not leak across a sentence boundary (dot-not-before-whitespace connector); exclusive/partiality control shows inflection stems do not match inside longer words",
+          "headHash": "8e19d96d6a5055ace0681ef06c5a2d91b0f3cf9f",
+          "materialHash": "4e6b8ec53b5e42e0e25e32c84fc04d65bed50cdd96145d5c07ee9fea1345e937",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-11T22:53:38.491Z"
         }
       ]
     },
