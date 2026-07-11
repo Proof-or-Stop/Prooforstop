@@ -219,6 +219,27 @@
       ],
       "signatureTag": "adversarial|mjs:1042|quality-correctness-scripts",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3928:F-010",
+      "desc": "quality-correctness: scripts/verify-proof-or-stop-prompt-baseline.mjs:1392 treats any verbatim prompt substring as support for any matrix claim, while the :1830 mutation probe deliberately leaves the claim ledger unchanged, so it proves only that an unmapped claim fails. Exact in-memory execution of the committed buildRoleMatrixEvidence accepted adding `scope_check_save` to lattice-review-behavior commands when the ledger paired it with the mention-only snippet `Default inputs: the lattice scope_check_save result recorded by lattice-review-scope-plan`; that text describes an input, not permission to call the writer. The committed matrix at docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md:13 is also non-exhaustive: the canonical behavior prompt requires git diff, session_brief/aux_doc_list/story_get, and dev_memory preflight/search, but lists only checklist_get plus review writes, even though other rows count git diff and common reads. Therefore the emitted `exhaustive role matrix source claims verified` result is unsupported and false ownership can survive a refreshed baseline. Ground command claims in a structured allowed-command source, check prompt-to-matrix completeness, and add a mutation that updates the ledger with a misleading mention but must still fail.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-11T15:18:59.034Z",
+      "reviewRound": "2026-07-10T09:21:14.756Z",
+      "reviewRunId": "B-3928:RR-013",
+      "_hash": "62c97878b80dc9e3a5e123239f90f87f2a93d7b0556bb8041ceec3460ece769f",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:113",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1392",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1830",
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md:13"
+      ],
+      "signatureTag": "missing|mjs:113|quality-correctness-scripts",
+      "signatureTagSource": "auto"
     }
   ]
 }
