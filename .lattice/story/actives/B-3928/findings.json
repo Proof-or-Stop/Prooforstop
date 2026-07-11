@@ -1038,7 +1038,7 @@
       "desc": "M0.6 default-fail-closed bypass: story-path detection still requires the literal contiguous substring `docs/story`, so normalized aliases of the same filesystem destination are never classified. buildStoryScanExcerpts at scripts/verify-proof-or-stop-prompt-baseline.mjs:1478-1504 seeds context only from `/docs\\/story/i`, and scanStoryFileReferences at :1527-1546 uses the same literal form. Exact in-memory execution of the committed collection path, with the sole exact INIT write present, accepted `printf \"{}\" > docs//story/actives/B-1234/index.json`, `printf \"{}\" > docs/./story/actives/B-1234/index.json`, and a shell-continuation `docs/\\\\\\n story` form (without the display space); all produced zero candidate findings. POSIX path normalization and shell backslash-newline resolution target `docs/story`, so baseline collection/--write can still bless direct story writes. Canonicalize obvious repeated-separator, dot-segment, and shell-continuation forms before candidate detection and add refresh-rejection probes.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-11T20:45:11.532Z",
@@ -1067,7 +1067,11 @@
         "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:1031"
       ],
       "signatureTag": "adversarial|mjs:1482|normalized-story-path-scan-bypass",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by d6bc395a. The independent 16-role whole-prompt SHA-256 approval manifest now blocks every prompt-body mutation before collection or baseline refresh, including normalized path aliases. Diagnostics additionally canonicalize case-insensitive DOCS/STORY, repeated separators, dot segments, and shell continuation. Manifest probe covers 12 direct body mutations and refresh self-authorization; direct diagnostics pass 44 classifier and 14 scanner cases.",
+      "resolvedAt": "2026-07-11T21:10:37.778Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3928:F-037",
