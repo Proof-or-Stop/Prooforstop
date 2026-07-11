@@ -21,6 +21,28 @@
         "scanEscalationReason": null
       },
       "_hash": "d001b0615cc2dcf58784641862132d1c301540503b64d9b1ce19841f6153e648"
+    },
+    {
+      "id": "B-3ddc:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed CHK-001/CHK-002/CHK-003 (single shared implementation in host-run.ts + host-run-usage-smoke.ts). Verified: (1) failureLineRetainerFor/failureScanner is a second, independent UsageLineScanner instance reusing the identical 1 MiB last-wins cap; codex-only, no-op for claude/agy. (2) recordFinalForHost only consults scanCodexTurnFailed when scanCodexTurnCompletedUsage returns null, AND only after the retentionTruncated early-return (line ~1466) already handled F-013/F-026 priority -- so a truncated usage lane can never be overridden by turn_failed. (3) codexTurnFailedDigest correctly drills to the innermost error.message for the pinned B-3928 nested-JSON payload, sanitizes control chars/whitespace, and hard-truncates at the exported CODEX_TURN_FAILED_DIGEST_MAX_CHARS=160 with an ellipsis. (4) Live passthrough (onChunk) is untouched -- failureScanner.push is an additional read of the same chunk, not a replacement. (5) Ran npm run build (clean) and node dist/tasks/host-run-usage-smoke.js: all 71 checks pass including the new B-3ddc cases (pinned B-3928 fixture, fallback, precedence, streaming lane, terminal error, digest hygiene) plus the untouched F-013/F-026/F-006 regression checks. Minor gap (non-blocking): no dedicated test drives an over-cap turn.failed line through the failure lane specifically (CHK-001 edge:1, should-priority) -- lower risk since it reuses the exact same UsageLineScanner class/cap already covered by F-006/F-013 unit tests on the usage lane. No blockers found.",
+      "createdAt": "2026-07-11T23:41:15.490Z",
+      "reviewRound": "2026-07-11T23:37:09.696Z",
+      "reviewRunId": "B-3ddc:RR-003",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3ddc/background.md",
+          ".lattice/story/actives/B-3ddc/plan.md",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3ddc/checklist.json",
+          ".lattice/story/actives/B-3ddc/index.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "814bf3340971ae006ed665f6d89e2cdb4c24487edcd4e9c5e7e7cfd216691c00"
     }
   ]
 }
