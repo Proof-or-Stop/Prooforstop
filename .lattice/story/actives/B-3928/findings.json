@@ -840,6 +840,37 @@
       ],
       "signatureTag": "adversarial|mjs:1232|connector-free-continuation",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3928:F-031",
+      "desc": "F-026 recurrence: scripts/verify-proof-or-stop-prompt-baseline.mjs:773-810 does not enforce the promised true-negative/non-negated legacy context semantics. isNegativeLegacyOccurrence blesses any negated leading verb other than a context marker, so `Do not omit testIntent from new stories.` and `Never remove TEST_CASE_REVIEW from the workflow.` are labeled allowed-negative-reference even though they mandate retaining active legacy behavior. The local-context check recognizes only not/never/no-longer before a marker, so `Non-legacy testIntent.` and `This isn’t legacy testIntent.` are labeled allowed-explicit-local-context. Exact collectLegacyVocabularyFindings execution returned successfully for all four, meaning collection/--write can bless them while the committed mixed-occurrence control rejects. Constrain true-negative verbs/whole clauses, recognize common marker negations, and add refresh rejection probes.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-11T20:16:24.617Z",
+      "reviewRound": "2026-07-11T20:10:05.981Z",
+      "reviewRunId": "B-3928:RR-028",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ef2e364afee5e040eb54091515c7b19925eb1dc2462ac15d2a1d897f4d3f895b",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:773",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:783"
+      ],
+      "signatureTag": "adversarial|mjs:773|recurrence-scripts-verify",
+      "signatureTagSource": "auto"
     }
   ]
 }
