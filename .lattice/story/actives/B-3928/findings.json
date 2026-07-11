@@ -783,7 +783,7 @@
       "desc": "F-025 recurrence: scripts/verify-proof-or-stop-prompt-baseline.mjs:1070-1110 treats an entire docs/story instruction as safe whenever it begins with a read-only verb or Lattice-CLI redirect, without requiring the rest of the instruction to remain non-mutating. With the sole exact INIT allow present, exact in-memory execution classified `Inspect docs/story/actives/B-1234/index.json, then frobnicate it.` and `Use the Lattice CLI for docs/story/actives/B-1234/index.json; then frobnicate it.` as other/grandfathered, and collectDirectStoryFindings returned successfully. The same collection path gates --write, so arbitrary second actions can still be blessed. Apply strict whole-instruction negative/safe grammar to every exemption and commit collection/refresh rejection probes.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-11T20:16:07.026Z",
@@ -808,7 +808,11 @@
         "scripts/verify-proof-or-stop-prompt-baseline.mjs:1106"
       ],
       "signatureTag": "adversarial|mjs:1076|recurrence-scripts-verify",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 467dc4bb. Story references now use a closed safe-reference model: only exact registered current references, strict whole-instruction safe policy forms, and one exact INIT write are accepted. Read-only or CLI prefixes with any appended second action no longer match an exact safe entry and fail closed. Exact Inspect-then-frobnicate and Lattice-CLI-then-frobnicate collection probes reject. Independent direct probe passed 37 classifier and 10 scanner cases.",
+      "resolvedAt": "2026-07-11T20:38:47.076Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3928:F-030",
