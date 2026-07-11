@@ -236,6 +236,27 @@
         "scanEscalationReason": null
       },
       "_hash": "ee795e8acde6845ab86c003be5788400334383c97efbc07cc9791f85ab6d2dcc"
+    },
+    {
+      "id": "B-3928:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: audited all 15 intent-to-evidence bindings and the full-verifier authority path; --probe-prompt-policy-manifest exercises 8 structural, 4 audit, 2 synthetic collector, 12 direct-body, 8 legacy-body, and baseline-refresh self-authorization rejections; CHK-004/CHK-005 edge/adversarial evidence invokes the full verifier, which also runs 44/14 direct diagnostics and 26 unsafe/4 registered-safe legacy controls; 0 gaps, 0 waivers, no blocker.",
+      "createdAt": "2026-07-11T21:14:26.600Z",
+      "reviewRound": "2026-07-11T21:10:21.282Z",
+      "reviewRunId": "B-3928:RR-035",
+      "readManifest": {
+        "filesReadFully": [
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d5cb41d640dc06e6543fac8e1f57ea1c492b7ac82aa25f6a27721802954176eb"
     }
   ]
 }
