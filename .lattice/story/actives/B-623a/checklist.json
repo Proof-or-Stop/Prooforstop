@@ -98,7 +98,75 @@
       "context": "Resolver maps an env record to thresholds: LATTICE_BURN_ALERT_FILE_MB (default 100), LATTICE_BURN_ALERT_INPUT_TOKENS (default 100000000), LATTICE_BURN_ALERT_AGE_DAYS (default 7), LATTICE_BURN_ALERT_RECENT_HOURS (default 48, scan window; 0 disables the doctor burn scan). Pure function of the env record so it is testable; handlers pass process.env.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "resolveBurnAlertThresholds({}) returns the four defaults: fileSizeBytes=104857600 (100MB), inputTokens=100000000, ageDays=7, recentHours=48",
+            "type": "logic"
+          },
+          {
+            "desc": "resolveBurnAlertThresholds with LATTICE_BURN_ALERT_FILE_MB=50 returns fileSizeBytes=52428800 (50*1024*1024) while other defaults are unchanged",
+            "type": "logic"
+          },
+          {
+            "desc": "resolveBurnAlertThresholds with LATTICE_BURN_ALERT_INPUT_TOKENS=500000 returns inputTokens=500000 while other defaults are unchanged",
+            "type": "logic"
+          },
+          {
+            "desc": "resolveBurnAlertThresholds with LATTICE_BURN_ALERT_AGE_DAYS=14 returns ageDays=14 while other defaults are unchanged",
+            "type": "logic"
+          },
+          {
+            "desc": "resolveBurnAlertThresholds with LATTICE_BURN_ALERT_RECENT_HOURS=0 returns recentHours=0 (disables the doctor scan); verified the doctor scan is skipped downstream when recentHours=0",
+            "type": "logic"
+          },
+          {
+            "desc": "resolveBurnAlertThresholds with all four env vars set returns all four overridden values",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Garbage string env value (e.g. LATTICE_BURN_ALERT_FILE_MB=abc) falls back to the default for that field without throwing",
+            "type": "logic"
+          },
+          {
+            "desc": "Negative env value (e.g. LATTICE_BURN_ALERT_AGE_DAYS=-5) falls back to the default for that field without throwing",
+            "type": "logic"
+          },
+          {
+            "desc": "Zero value for FILE_MB/INPUT_TOKENS/AGE_DAYS falls back to default (zero is not a meaningful threshold); RECENT_HOURS=0 is the intentional disable sentinel and is kept",
+            "type": "logic"
+          },
+          {
+            "desc": "Floating-point env value (e.g. LATTICE_BURN_ALERT_FILE_MB=1.5) is handled: either truncated to integer or falls back to default, but never throws",
+            "type": "logic"
+          },
+          {
+            "desc": "Empty string env value falls back to default without throwing",
+            "type": "logic"
+          },
+          {
+            "desc": "Very large env value (e.g. LATTICE_BURN_ALERT_INPUT_TOKENS=999999999999999) is accepted without overflow or NaN",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "resolveBurnAlertThresholds is a pure function of the env record argument; it does NOT read process.env directly -- verified by source grep showing zero process.env references in core/usage-burn-alert.ts",
+            "type": "logic"
+          },
+          {
+            "desc": "Env record with prototype-pollution keys (__proto__, constructor) does not pollute the return value or throw",
+            "type": "logic"
+          },
+          {
+            "desc": "Calling resolveBurnAlertThresholds with an env record containing only unrelated keys (e.g. HOME, PATH) returns all four defaults unchanged",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
