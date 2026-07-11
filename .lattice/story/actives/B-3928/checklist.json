@@ -164,13 +164,13 @@
           "kind": "logic_test",
           "verdict": "success",
           "file": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
-          "command": "npm --prefix packages/main run build && node scripts/verify-proof-or-stop-prompt-baseline.mjs && npm run test:proof-or-stop-prompt-baseline",
+          "command": "npm run test:proof-or-stop-prompt-baseline",
           "result": "pass",
-          "note": "Baseline JSON records and verifies agent_prompt output hashes, byte counts, and line counts for all 16 roles. Adversarial guard covered by recomputing source facts instead of trusting prose-only baseline claims.",
-          "headHash": "5e1b042d1ca94a2d0e4c036b0f204d2b12ce4c2f",
-          "materialHash": "69f774ee02a1edeac5a6f9b62f987ea59d9ef709bdba5df0dd1da65c717e9a1c",
-          "storyFilesHash": "dacb0f6c016baffc0cad1ad3799177aaffc515b10b4d64c39796e877ef7dbdaa",
-          "timestamp": "2026-07-10T09:21:00.567Z"
+          "note": "Registry and agent_prompt maps require 16 unique known roles; missing, extra, duplicate, or failing role output makes the verifier fail closed.",
+          "headHash": "5c628b5c874a8d66938a8111326e07b9d2306f96",
+          "materialHash": "eb495d068c464d771f56709a232d8c928073da6c444020a8722da8140dd0c5a0",
+          "storyFilesHash": "08260c01ee83243e2f9ab6cd514ac08c79a1ef1c47ecc7ddffb2f581e2ff367c",
+          "timestamp": "2026-07-11T15:40:43.689Z"
         }
       ]
     },
