@@ -69,6 +69,13 @@
  *     (cap stays enforced); a LIVE-pid slot is never age-reclaimed (waiters
  *     refuse at cap), a dead-pid slot reclaims at any age, and the mtime
  *     backstop applies only to meta-less (crash-window / corrupt) slots.
+ *     B-3ddc: a SECOND bounded lane retains the last codex turn.failed /
+ *     terminal error line (same 1 MiB last-wins cap; usage lane untouched); a
+ *     codex final with NO turn.completed usage records the honest
+ *     turn_failed(<digest>) reason (innermost nested error.message, sanitized
+ *     + hard-capped), no_turn_completed_usage_event stays the pure fallback,
+ *     and a genuine usage never consults the failure lane — pinned against the
+ *     exact observed B-3928 version-skew line.
  *   - CHK-003: the remaining lattice-initiated host spawns route through the same
  *     seam — autopilot claude repair (ledger ON adds --output-format json + records
  *     estimate/final rows with agentType autopilot-repair and an envelope-parsed
@@ -104,14 +111,18 @@ import { dirname, isAbsolute, join } from 'node:path';
 
 import {
   acquireHostRunSlot,
+  codexTurnFailedReason,
   defaultHostRunRunner,
+  failureLineRetainerFor,
   releaseSlot,
   runHostRun,
   scanCodexTurnCompletedUsage,
+  scanCodexTurnFailed,
   usageLineRetainerFor,
   hostRunSlotsDir,
   resolveMaxConcurrent,
   writeSlotFileExclusive,
+  CODEX_TURN_FAILED_DIGEST_MAX_CHARS,
   HOST_RUN_REFUSAL_EXIT_CODE,
   HOST_RUN_RETAINED_LINE_CAP,
   HOST_RUN_RETENTION_TRUNCATED_REASON,
@@ -213,6 +224,17 @@ const CODEX_FAILED_STDOUT = [
   JSON.stringify({ type: 'turn.started' }),
   JSON.stringify({ type: 'turn.failed', error: { message: 'boom' } }),
 ].join('\n') + '\n';
+
+/**
+ * B-3ddc: the EXACT failure line observed during the B-3928 forensics (codex
+ * version skew — a Desktop-written config model ahead of the PATH CLI ->
+ * status 400). Note error.message is ITSELF a JSON-encoded string; the
+ * turn_failed(<digest>) must drill to the innermost error.message.
+ */
+const CODEX_TURN_FAILED_B3928_LINE = '{"type":"turn.failed","error":{"message":"{\\"type\\":\\"error\\",\\"status\\":400,\\"error\\":{\\"type\\":\\"invalid_request_error\\",\\"message\\":\\"The \'gpt-5.6-sol\' model requires a newer version of Codex. Please upgrade to the latest app or CLI and try again.\\"}}"}}';
+
+/** B-3ddc: the innermost human-readable message inside the pinned line. */
+const B3928_UPGRADE_MESSAGE = 'The \'gpt-5.6-sol\' model requires a newer version of Codex. Please upgrade to the latest app or CLI and try again.';
 
 const CLAUDE_MODEL = 'claude-opus-4-8';
 const CLAUDE_STDOUT = [
@@ -475,17 +497,123 @@ async function main(): Promise<void> {
 
   // =========================================================================
   // CHK-001 edge: codex turn.failed (no usage) -> unavailable-with-reason
+  // (B-3ddc: the reason is now the honest turn_failed(<digest>), not the
+  // generic fallback, because a failure event IS present in the stream.)
   // =========================================================================
-  await checkAsync('CHK-001 codex edge: turn.failed / no usage -> unavailable (no_turn_completed_usage_event), never a fabricated zero', async () => {
+  await checkAsync('CHK-001 codex edge (B-3ddc): turn.failed / no usage -> unavailable (turn_failed(boom)), never a fabricated zero', async () => {
     const sub = freshRoot();
     const result = await runHostRun(baseArgs({ root: sub, host: 'codex' }), { runner: makeRunner({ stdout: CODEX_FAILED_STDOUT, exitCode: 1 }) });
     const records = readLedger(sub);
     const final = records.find((r) => r.usage.source === 'unavailable');
     assert.ok(final);
     assert.equal(final!.provider?.name, 'openai');
-    assert.equal(final!.usage.unavailableReason, 'no_turn_completed_usage_event');
+    assert.equal(final!.usage.unavailableReason, 'turn_failed(boom)');
     assert.equal(final!.usage.inputTokens, null, 'no fabricated zero');
     assert.equal(result.exitCode, 1, 'host exit propagates on the result');
+  });
+
+  // =========================================================================
+  // B-3ddc: pinned B-3928 fixture + turn_failed(<digest>) honest reasons
+  // =========================================================================
+  await checkAsync('B-3ddc pinned B-3928: version-skew turn.failed -> unavailable final names the INNERMOST upgrade message (turn_failed(<digest>)), exit 1 propagates', async () => {
+    // Precondition: the pinned fixture parses and the nested message round-trips.
+    const parsed = JSON.parse(CODEX_TURN_FAILED_B3928_LINE) as Record<string, unknown>;
+    assert.equal(parsed?.type, 'turn.failed', 'fixture parses as a turn.failed event');
+    const outerMessage = (parsed.error as Record<string, unknown>).message;
+    assert.equal(typeof outerMessage, 'string', 'error.message is ITSELF a JSON-encoded string (the observed shape)');
+    const nested = JSON.parse(outerMessage as string) as Record<string, unknown>;
+    assert.equal((nested.error as Record<string, unknown>).message, B3928_UPGRADE_MESSAGE, 'the nested innermost message round-trips');
+
+    const sub = freshRoot();
+    const stdout = JSON.stringify({ type: 'turn.started' }) + '\n' + CODEX_TURN_FAILED_B3928_LINE + '\n';
+    const result = await runHostRun(baseArgs({ root: sub, host: 'codex' }), { runner: makeRunner({ stdout, exitCode: 1 }) });
+    const expected = `turn_failed(${B3928_UPGRADE_MESSAGE})`;
+    const records = readLedger(sub);
+    const final = records.find((r) => r.usage.source === 'unavailable');
+    assert.ok(final, 'unavailable final recorded');
+    assert.equal(final!.provider?.name, 'openai');
+    assert.equal(final!.usage.unavailableReason, expected, 'the row itself names the innermost upgrade message');
+    assert.equal(final!.usage.inputTokens, null, 'no fabricated numbers from a failure event');
+    assert.equal(result.usageSummary.reason, expected, 'the summary carries the same reason');
+    assert.equal(result.exitCode, 1, 'the codex exit code still propagates');
+  });
+
+  await checkAsync('B-3ddc fallback: noise-only stdout (no turn.completed, no failure event) still records no_turn_completed_usage_event', async () => {
+    const sub = freshRoot();
+    const stdout = [JSON.stringify({ type: 'turn.started' }), JSON.stringify({ type: 'item.completed', item: { id: 'x' } }), 'plain noise'].join('\n') + '\n';
+    const result = await runHostRun(baseArgs({ root: sub, host: 'codex' }), { runner: makeRunner({ stdout, exitCode: 1 }) });
+    const records = readLedger(sub);
+    const final = records.find((r) => r.usage.source === 'unavailable');
+    assert.ok(final);
+    assert.equal(final!.usage.unavailableReason, 'no_turn_completed_usage_event', 'the documented fallback is preserved');
+    assert.equal(result.usageSummary.reason, 'no_turn_completed_usage_event');
+  });
+
+  await checkAsync('B-3ddc precedence: a genuine turn.completed usage FOLLOWED by a turn.failed stays provider-reported (usage never discarded; failure lane not consulted)', async () => {
+    const sub = freshRoot();
+    const stdout = CODEX_STDOUT + JSON.stringify({ type: 'turn.failed', error: { message: 'late failure after usage' } }) + '\n';
+    const result = await runHostRun(baseArgs({ root: sub, host: 'codex' }), { runner: makeRunner({ stdout }) });
+    const records = readLedger(sub);
+    const final = records.find((r) => r.usage.source === 'provider-reported');
+    assert.ok(final, 'provider-reported final recorded despite the trailing turn.failed');
+    assert.equal(final!.usage.canonical?.input, 10202, 'same mapped numbers as the happy path');
+    assert.equal(final!.usage.canonical?.cacheRead, 11008);
+    assert.equal(final!.usage.canonical?.output, 85);
+    assert.equal(records.some((r) => r.usage.source === 'unavailable'), false, 'no unavailable row minted from the failure lane');
+    assert.equal(result.usageSummary.recorded, 'provider-reported');
+    assert.equal(result.usageSummary.input, 10202);
+  });
+
+  await checkAsync('B-3ddc streaming lane: the default runner retains the pinned turn.failed line in the SECOND bounded lane (usage lane stays empty)', async () => {
+    // Mirror the F-006/F-013 pattern: a REAL child writes the pinned line.
+    const script =
+      `console.log(${JSON.stringify(JSON.stringify({ type: 'turn.started' }))});` +
+      `console.log(${JSON.stringify(CODEX_TURN_FAILED_B3928_LINE)});`;
+    const result = await defaultHostRunRunner({
+      command: process.execPath,
+      argv: ['-e', script],
+      env: process.env,
+      cwd: process.cwd(),
+      host: 'codex',
+      retainUsageLine: usageLineRetainerFor('codex'),
+      retainFailureLine: failureLineRetainerFor('codex'),
+      onChunk: () => { /* discard live (bounded memory) */ },
+    });
+    assert.equal(result.exitCode, 0);
+    assert.ok((result.failureText ?? '').includes('turn.failed'), 'the failure line is retained end-to-end');
+    const failure = scanCodexTurnFailed(result.failureText ?? '');
+    assert.ok(failure, 'the retained line scans as a failure event');
+    assert.ok((failure!.message ?? '').includes('requires a newer version of Codex'), 'the scanned message carries the upgrade text');
+    assert.equal(codexTurnFailedReason(failure!), `turn_failed(${B3928_UPGRADE_MESSAGE})`, 'the digest extracts the innermost upgrade message');
+    assert.equal(result.stdout, '', 'the usage lane retained NOTHING (no turn.completed present)');
+  });
+
+  await checkAsync('B-3ddc terminal error: a single {"type":"error"} line records turn_failed(stream disconnected)', async () => {
+    const sub = freshRoot();
+    const stdout = JSON.stringify({ type: 'error', message: 'stream disconnected' }) + '\n';
+    const result = await runHostRun(baseArgs({ root: sub, host: 'codex' }), { runner: makeRunner({ stdout, exitCode: 1 }) });
+    const records = readLedger(sub);
+    const final = records.find((r) => r.usage.source === 'unavailable');
+    assert.ok(final);
+    assert.equal(final!.usage.unavailableReason, 'turn_failed(stream disconnected)');
+    assert.equal(result.usageSummary.reason, 'turn_failed(stream disconnected)');
+  });
+
+  check('B-3ddc digest hygiene: control chars/newlines collapse, whitespace runs collapse, over-cap truncates with a trailing ellipsis at the exported cap; no message -> no_error_message', () => {
+    const noisy = 'line one\n\tline\ttwo\r\n' + String.fromCharCode(0) + 'x  y ' + 'a'.repeat(300);
+    const failure = scanCodexTurnFailed(JSON.stringify({ type: 'turn.failed', error: { message: noisy } }) + '\n');
+    assert.ok(failure);
+    const reason = codexTurnFailedReason(failure!);
+    assert.ok(reason.startsWith('turn_failed(') && reason.endsWith(')'));
+    const digest = reason.slice('turn_failed('.length, -1);
+    for (let i = 0; i < digest.length; i++) {
+      const code = digest.charCodeAt(i);
+      assert.ok(code >= 0x20 && code !== 0x7f, `no control chars in the digest (found ${code} at ${i})`);
+    }
+    assert.equal(digest.includes('  '), false, 'whitespace runs collapsed to a single space');
+    assert.ok(digest.endsWith('…'), 'hard truncation appends the ellipsis');
+    assert.equal(digest.length, CODEX_TURN_FAILED_DIGEST_MAX_CHARS, 'total digest length capped at the exported constant');
+    assert.equal(codexTurnFailedReason({ eventType: 'turn.failed', message: null }), 'turn_failed(no_error_message)', 'a failure event with no extractable message still names turn_failed');
   });
 
   // =========================================================================
