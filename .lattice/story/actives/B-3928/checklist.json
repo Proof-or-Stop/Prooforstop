@@ -412,13 +412,13 @@
           "kind": "logic_test",
           "verdict": "success",
           "file": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
-          "command": "npm --prefix packages/main run build && node scripts/verify-proof-or-stop-prompt-baseline.mjs && npm run test:proof-or-stop-prompt-baseline",
+          "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-direct-story-classifier",
           "result": "pass",
-          "note": "Direct story-file scanner records 24 classified baseline findings and fails on new unregistered direct-write instructions. Edge guard covered because the verifier recomputes current registry/output/matrix/findings and fails on unregistered drift.",
-          "headHash": "5e1b042d1ca94a2d0e4c036b0f204d2b12ce4c2f",
-          "materialHash": "69f774ee02a1edeac5a6f9b62f987ea59d9ef709bdba5df0dd1da65c717e9a1c",
-          "storyFilesHash": "dacb0f6c016baffc0cad1ad3799177aaffc515b10b4d64c39796e877ef7dbdaa",
-          "timestamp": "2026-07-10T09:21:00.567Z"
+          "note": "Fifteen adversarial probes cover mixed policy/write text, apply_patch add/update/delete headers, Edit/Write, tee, sed -i, redirection, pure prohibitions, and fail-closed unknown mutation mechanisms.",
+          "headHash": "39124638f00ce42da3aec77babf279848106bfc8",
+          "materialHash": "eb495d068c464d771f56709a232d8c928073da6c444020a8722da8140dd0c5a0",
+          "storyFilesHash": "08260c01ee83243e2f9ab6cd514ac08c79a1ef1c47ecc7ddffb2f581e2ff367c",
+          "timestamp": "2026-07-11T15:40:52.729Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
