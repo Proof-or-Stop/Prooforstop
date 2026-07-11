@@ -1068,6 +1068,43 @@
       ],
       "signatureTag": "adversarial|mjs:1482|normalized-story-path-scan-bypass",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-3928:F-037",
+      "desc": "The claimed 12-entry closed story-reference set is not actually closed. DIRECT_STORY_POLICY_RULE at scripts/verify-proof-or-stop-prompt-baseline.mjs:132-133 says only exact registered current references, the exact INIT write, and strict negative/CLI forms are accepted and every other docs/story reference fails closed. But classifyStoryFinding at :1188-1193 accepts any role/path matching isStrictReadOnlyStoryInstruction, marks it grandfathered, and directStoryWritePolicyErrors ignores that classification. Exact collection with the current INIT write accepted the unregistered `docs/story/actives/B-1234/index.json — read only the title field` for a probe role; it is not one of DIRECT_STORY_REFERENCE_ALLOWLISTs 12 entries. A new direct story-file read can therefore baseline-refresh without an exact code-reviewed registration while the verifier prints that the closed policy has 12 exact references. Remove the generic exception, add it explicitly to the declared policy if it is intentional, or require exact registration; add a collection/refresh probe that proves the chosen contract.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-11T20:45:22.048Z",
+      "reviewRound": "2026-07-11T20:38:32.745Z",
+      "reviewRunId": "B-3928:RR-031",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/templates/agents/lattice-review-concept.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "package.json",
+          "packages/main/templates/agents/lattice-review-channel.md",
+          "packages/main/templates/agents/lattice-review-story-init.md",
+          "packages/main/templates/agents/lattice-review-test-coverage.md",
+          "packages/main/templates/agents/product-reviewer.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1f5427d88443dd8622ebe1a968e4884a6f89eee63b695634582ca564e76923d2",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:132",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1188",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1267",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:2280"
+      ],
+      "signatureTag": "adversarial|mjs:1188|unregistered-readonly-story-reference",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
