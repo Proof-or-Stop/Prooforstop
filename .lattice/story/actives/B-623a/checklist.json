@@ -6,7 +6,91 @@
       "context": "New packages/main/src/core/usage-burn-alert.ts: evaluate SweepSessionRow[] against injected thresholds (nowMs and thresholds passed in; no process.env or Date.now inside, matching the usage-sweep pure-core contract). Flags a session when transcript file size exceeds the byte threshold, cumulative input tokens exceed the token threshold (codex: last cumulative total_token_usage input; claude: summed input + cacheRead + cacheCreation), or the session is older than the age threshold while still recently active. Read-only: stat only, never writes.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "evaluateBurnAlerts flags a codex session whose file size exceeds the byte threshold (strictly greater), returning a finding with reason=file-size naming the session file and exceeded threshold",
+            "type": "logic"
+          },
+          {
+            "desc": "evaluateBurnAlerts flags a codex session whose last cumulative total_token_usage inputTokens exceeds the token threshold (strictly greater), returning reason=input-tokens",
+            "type": "logic"
+          },
+          {
+            "desc": "evaluateBurnAlerts flags a claude session whose summed (inputTokens + cacheReadInputTokens + cacheCreationInputTokens) exceeds the token threshold, returning reason=input-tokens",
+            "type": "logic"
+          },
+          {
+            "desc": "evaluateBurnAlerts flags a session whose firstTimestamp is older than ageDays while the session mtime falls inside the recent-activity scan window, returning reason=session-age",
+            "type": "logic"
+          },
+          {
+            "desc": "evaluateBurnAlerts returns an empty array for rows that are all below every threshold",
+            "type": "logic"
+          },
+          {
+            "desc": "A single session can trip multiple reasons simultaneously (e.g. file-size AND input-tokens); all triggered reasons appear in the finding",
+            "type": "logic"
+          },
+          {
+            "desc": "Findings are returned in a deterministic order (stable sort by session file or sessionId) regardless of input row order",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A session with usage exactly AT the threshold (not strictly greater) is NOT flagged; only strictly-greater trips the alert",
+            "type": "logic"
+          },
+          {
+            "desc": "A session with null usage (unknown) is never flagged for input-tokens, even when other thresholds are set",
+            "type": "logic"
+          },
+          {
+            "desc": "A session with null or unparseable firstTimestamp is never flagged for session-age",
+            "type": "logic"
+          },
+          {
+            "desc": "A codex session with inputTokens=0 and a claude session with all-zero usage fields are not flagged for input-tokens",
+            "type": "logic"
+          },
+          {
+            "desc": "fileSizeOf injection: when fileSizeOf is not provided the evaluator stats the file; when fileSizeOf IS provided it uses the injected function (test seam for OS-temp fixtures)",
+            "type": "logic"
+          },
+          {
+            "desc": "An empty rows array returns an empty findings array without error",
+            "type": "logic"
+          },
+          {
+            "desc": "A session whose firstTimestamp is within ageDays (recent session, not old) is never flagged for session-age even if the file is very large",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The module does NOT import Date.now or process.env anywhere; nowMs and thresholds are injected arguments -- verified by source grep showing zero Date.now/process.env references in the file",
+            "type": "logic"
+          },
+          {
+            "desc": "The module does NOT import from core/usage-ledger (independence contract inherited from usage-sweep); verified by source grep",
+            "type": "logic"
+          },
+          {
+            "desc": "evaluateBurnAlerts never writes to the filesystem: calling it with real session paths leaves those files byte-identical (zero-writes assertion on mtime+size snapshot before/after)",
+            "type": "logic"
+          },
+          {
+            "desc": "A session row whose file path does not exist on disk (stale/deleted transcript) does not throw; the file-size check gracefully skips or reports 0",
+            "type": "logic"
+          },
+          {
+            "desc": "Rows with NaN, Infinity, or negative token counts do not cause the evaluator to throw or produce corrupt findings",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
