@@ -311,6 +311,34 @@
         "scanEscalationReason": null
       },
       "_hash": "4446d048b87d74a73315ec79b2ec3c8ba146bae9cf0ffa0b6bd235807a170233"
+    },
+    {
+      "id": "B-3928:RP-016",
+      "agent": "lattice-review-concept",
+      "note": "Round 10 targeted concept re-review of d6bc395a found no blocker. Independently extracted the frozen 16-role manifest from verifier source and matched every literal SHA-256 to the complete package template bytes and exact agent_prompt body without consulting the baseline. Manifest probes rejected stale hash, changed body with self-updated hash, hash-only change, role add/remove/rename/duplicate, both direct and legacy collector mutations, and baseline-refresh self-authorization. Exact F-036 repeated-separator, dot-segment, mixed-case, and shell-continuation recurrences remain diagnostically unsafe and manifest-rejected; F-037 unregistered read-only reference remains unclassified-actionable and manifest-rejected. buildCurrentBaseline asserts the manifest, both collectors assert independently, and writeBaselineFiles reaches writes only through collectCurrentBaseline/buildCurrentBaseline. Empty, unknown, and typo role statuses were independently rejected before baseline construction. M0.4/M0.6 and terminal output now distinguish manifest-enforced mechanical facts from diagnostic scanners and reviewer-audited matrix semantics, resolving the F-042 overclaim shape.",
+      "createdAt": "2026-07-11T21:18:09.284Z",
+      "reviewRound": "2026-07-11T21:10:21.282Z",
+      "reviewRunId": "B-3928:RR-034",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/templates/agents/lattice-review-concept.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "package.json",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/templates/agents/lattice-review-channel.md",
+          "packages/main/templates/agents/lattice-review-docs.md",
+          "packages/main/templates/agents/lattice-review-story-init.md",
+          "packages/main/templates/agents/lattice-review-test-coverage.md",
+          "packages/main/templates/agents/product-reviewer.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "71f5c3d767cdd9dbe3106a40d7c4c49590da610d00191689be9eaef471ad326d"
     }
   ]
 }
