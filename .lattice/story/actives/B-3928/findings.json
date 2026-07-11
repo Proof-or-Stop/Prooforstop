@@ -569,6 +569,26 @@
       ],
       "signatureTag": "missing|mjs|adversarial-intents-still",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3928:F-023",
+      "desc": "F-015 is still fail-open for directive-shaped unknown writes whose target is expressed as an option rather than `on|against|to|into`. At scripts/verify-proof-or-stop-prompt-baseline.mjs:728-732, hasUnknownStoryMutationDirective only recognizes those four connectors; the fallback at :661-665 remains other/grandfathered. Exact in-memory execution of the committed functions classified `Run metadata-transformer --output docs/story/actives/B-1234/index.json.` as other/grandfathered and directStoryWritePolicyErrors returned no errors alongside the one allowed INIT write. Thus collection/--write can still bless a clear unknown output-file mutation while the resolution claims directive-shaped unknown operations fail closed. Recognize output/destination option forms or make unknown imperative docs/story references fail closed, and add this refresh probe.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-11T16:21:53.661Z",
+      "reviewRound": "2026-07-11T16:17:38.139Z",
+      "reviewRunId": "B-3928:RR-023",
+      "_hash": "f6cb70745b81aac34c5e2280a97dc618582784e72611a69ac9b5df7aebf3f232",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:728",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:661",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1429"
+      ],
+      "signatureTag": "adversarial|mjs:728|still-fail-open",
+      "signatureTagSource": "auto"
     }
   ]
 }
