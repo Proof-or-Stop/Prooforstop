@@ -147,10 +147,10 @@
       "q": "Documentation updates (docs/CLI.md + CLAUDE.md) are listed as an explicit allowed-scope promise in scope-boundary.json and as files-to-touch in plan.md CHK-005, but no checklist item (CHK-001..CHK-005) has a verificationIntent that checks docs were actually updated. Should CHK-005 (or CHK-003) gain an explicit doc-update verification bullet, or is this intentionally left as an implementation-time housekeeping task not requiring dedicated verification?",
       "evidence": "scope-boundary.json allowed[5]: Documentation updates describing the new defaults, flag, and escape hatch; plan.md line 53 lists docs/CLI.md and CLAUDE.md as CHK-005 files; checklist.json CHK-005 verificationIntent has no doc-related bullet",
       "sourcePointers": [
-        ".lattice/story/actives/B-7c05/scope-boundary.json",
-        ".lattice/story/actives/B-7c05/plan.md",
-        ".lattice/story/actives/B-7c05/checklist.json"
-      ]
+        "CHK-005"
+      ],
+      "resolution": "Resolved by adding a verification bullet rather than treating docs as unverified housekeeping: CHK-005 verificationIntent now contains a happy-path must bullet (type cli) that greps docs/CLI.md (and CLAUDE.md if managed regeneration applies) for LATTICE_BRIEF_OUTPUT and the full-output flag, making scope-boundary allowed-item 6 (documentation updates describing the new defaults, flag, and escape hatch) mechanically verifiable at DEV/TEST. Added by the test-intent agent on round 4.",
+      "resolvedAt": "2026-07-11T23:24:48.909Z"
     }
   ]
 }
