@@ -279,7 +279,7 @@
       "desc": "doc-code-drift: The new overlap matrix is not a complete command inventory even though M0.3 says it covers commands. The lattice-review-delivery row lists only delivery_check_set, while its canonical prompt requires two explicit git diff main...HEAD commands; lattice-review-behavior likewise relies on git diff but omits it, whereas the docs/concept/quality rows do classify git diff/grep as commands. The verifier only proves that each listed claim has a supporting snippet and its mutation probe only rejects unsupported additions, so it passes while source commands are omitted. Add the missing commands or define a consistent narrower Commands contract and mechanically check prompt-to-matrix completeness.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-11T15:21:01.592Z",
@@ -294,7 +294,11 @@
         "packages/main/templates/agents/lattice-review-behavior.md"
       ],
       "signatureTag": "missing|md|code-drift-overlap",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in ce499e68b0. Added `git diff` to both lattice-review-behavior and lattice-review-delivery command snapshots. The plan/matrix now define Commands as a manually audited semantic snapshot, while automation only locks the chosen snapshot and parity; it no longer claims prompt-to-matrix completeness. Evidence: all 16 rows have required fields and the verifier's JSON/Markdown snapshot-drift probe passes.",
+      "resolvedAt": "2026-07-11T15:51:37.772Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3928:F-013",
