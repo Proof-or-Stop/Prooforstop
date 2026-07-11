@@ -489,6 +489,33 @@ const DIRECT_STORY_CLASSIFIER_PROBES = [
     expectedRejection: 'direct write is not explicitly grandfathered',
   },
   {
+    name: 'negative reminder cannot bless apply_patch exception after story target',
+    role: 'lattice-review-docs',
+    excerpt: 'Do not edit docs/story/actives/B-1234/index.json unless use apply_patch to update docs/story/actives/B-1234/index.json.',
+    classification: 'direct-write',
+    grandfathered: false,
+    baselineRefresh: 'reject',
+    expectedRejection: 'direct write is not explicitly grandfathered',
+  },
+  {
+    name: 'negative reminder cannot bless apply_patch exception before story target',
+    role: 'lattice-review-docs',
+    excerpt: 'Do not edit files unless use apply_patch on docs/story/actives/B-1234/index.json.',
+    classification: 'direct-write',
+    grandfathered: false,
+    baselineRefresh: 'reject',
+    expectedRejection: 'direct write is not explicitly grandfathered',
+  },
+  {
+    name: 'unknown negative action cannot bless unknown second action',
+    role: 'lattice-review-docs',
+    excerpt: 'Do not touch docs/story/actives/B-1234/index.json unless frobnicate docs/story/actives/B-1234/index.json.',
+    classification: 'unclassified-actionable',
+    grandfathered: false,
+    baselineRefresh: 'reject',
+    expectedRejection: 'unclassified actionable reference',
+  },
+  {
     name: 'process directive with unknown transformer fails closed',
     role: 'lattice-review-docs',
     excerpt: 'Process docs/story/actives/B-1234/index.json with the metadata transformer.',
@@ -573,6 +600,26 @@ const DIRECT_STORY_SCANNER_PROBES = [
     baselineRefresh: 'reject',
     expectedRejection: 'unclassified actionable reference',
   },
+  {
+    name: 'against target continuation fails closed without connector allowlist',
+    role: 'lattice-review-docs',
+    content: 'Use the metadata transformer\nagainst docs/story/actives/B-1234/index.json',
+    line: 1,
+    classification: 'unclassified-actionable',
+    grandfathered: false,
+    baselineRefresh: 'reject',
+    expectedRejection: 'unclassified actionable reference',
+  },
+  {
+    name: 'across target continuation fails closed without connector allowlist',
+    role: 'lattice-review-docs',
+    content: 'Run the metadata transformer\nacross docs/story/actives/B-1234/index.json',
+    line: 1,
+    classification: 'unclassified-actionable',
+    grandfathered: false,
+    baselineRefresh: 'reject',
+    expectedRejection: 'unclassified actionable reference',
+  },
 ];
 
 const LEGACY_VOCABULARY_POLICY_PROBES = [
@@ -639,6 +686,27 @@ const LEGACY_VOCABULARY_POLICY_PROBES = [
     content: 'For legacy compatibility, writing testIntent for new stories is required.',
     expectedRejection: 'active legacy-vocabulary use is not explicitly contextualized',
   },
+  {
+    name: 'unknown attach instruction is rejected despite compatibility context',
+    role: 'probe-active-role',
+    status: 'active',
+    content: 'For legacy compatibility, attach testIntent to each new story.',
+    expectedRejection: 'active legacy-vocabulary use is not explicitly contextualized',
+  },
+  {
+    name: 'unknown persist instruction is rejected despite legacy context',
+    role: 'probe-active-role',
+    status: 'active',
+    content: 'Legacy mode: persist testIntent for new stories.',
+    expectedRejection: 'active legacy-vocabulary use is not explicitly contextualized',
+  },
+  {
+    name: 'unknown instruction after contextualized occurrence is rejected',
+    role: 'probe-active-role',
+    status: 'active',
+    content: 'Legacy testIntent: attach it to each new story.',
+    expectedRejection: 'active legacy-vocabulary use is not explicitly contextualized',
+  },
 ];
 
 function sha256(value) {
@@ -681,13 +749,6 @@ function classifyLegacyVocabularyPolicy(roleStatus, clause, occurrence) {
       policyReason: `Role status ${roleStatus} is outside active/conditional/optional/compatibility enforcement.`,
     };
   }
-  if (hasPositiveLegacyInstruction(clause, occurrence)) {
-    return {
-      roleStatus,
-      policyStatus: 'blocked-active-use',
-      policyReason: 'Positive legacy-vocabulary instructions are forbidden even when context markers appear elsewhere.',
-    };
-  }
   if (isNegativeLegacyOccurrence(clause, occurrence)) {
     return {
       roleStatus,
@@ -695,7 +756,7 @@ function classifyLegacyVocabularyPolicy(roleStatus, clause, occurrence) {
       policyReason: 'Occurrence is scoped by a true negative instruction or exclusion.',
     };
   }
-  if (hasExplicitLegacyContext(clause)) {
+  if (isDemonstrablyContextualLegacyOccurrence(clause, occurrence)) {
     return {
       roleStatus,
       policyStatus: 'allowed-explicit-local-context',
@@ -709,40 +770,44 @@ function classifyLegacyVocabularyPolicy(roleStatus, clause, occurrence) {
   };
 }
 
-function hasPositiveLegacyInstruction(clause, occurrence) {
-  const actionPattern = /\b(?:set|sets|setting|write|writes|writing|use|uses|using|add|adds|adding|create|creates|creating|populate|populates|populating|record|records|recording|assign|assigns|assigning|update|updates|updating|enable|enables|enabling|require|requires|requiring|generate|generates|generating|enter|enters|entering|transition|transitions|transitioning|move|moves|moving|modify|modifies|modifying)\b/gi;
-  const beforeOccurrence = clause.slice(0, occurrence.index);
-  for (const match of beforeOccurrence.matchAll(actionPattern)) {
-    const prefix = beforeOccurrence.slice(0, match.index).replace(/[*_`]+/g, '').trimEnd();
-    if (/\b(?:do\s+not|don't|must\s+not|should\s+not|never|avoid|without|not)\s*$/i.test(prefix)) {
-      continue;
-    }
-    return true;
-  }
-
-  const afterOccurrence = clause.slice(occurrence.index + occurrence.text.length);
-  return /^\s*[*_`]*(?:must|should|shall|needs?\s+to|is\s+to|is\s+required\s+to)\s+(?:be\s+)?(?:set|written|used|added|created|populated|recorded|assigned|updated|enabled|required|generated)\b/i.test(
-    afterOccurrence,
-  );
-}
-
 function isNegativeLegacyOccurrence(clause, occurrence) {
   const beforeOccurrence = stripDirectiveFormatting(clause.slice(0, occurrence.index));
-  return /\b(?:do\s+not|don't|must\s+not|should\s+not|never|avoid|without|not)\s+(?:directly\s+)?(?:set|write|use|add|create|populate|record|assign|update|enable|require|generate|enter|transition|move|modify|review|resurrect)\w*\b/i.test(
-    beforeOccurrence,
+  if (LEGACY_PATTERNS.some(pattern => pattern.regex.test(beforeOccurrence))) return false;
+  const match = beforeOccurrence.match(
+    /^(?:do\s+not|don't|must\s+not|should\s+not|never|avoid|without|not)\s+(?:directly\s+)?([A-Za-z][\w-]*)\b/i,
   );
+  if (!match) return false;
+  return !LEGACY_VOCABULARY_CONTEXT_MARKERS.includes(match[1].toLowerCase());
 }
 
-function hasExplicitLegacyContext(clause) {
-  for (const marker of LEGACY_VOCABULARY_CONTEXT_MARKERS) {
-    const pattern = new RegExp(`\\b${marker}\\b`, 'gi');
-    for (const match of clause.matchAll(pattern)) {
-      const prefix = clause.slice(0, match.index).replace(/[*_`]+/g, '').trimEnd();
-      if (/\b(?:not|isn't|isnt|wasn't|wasnt|never|no\s+longer)(?:\s+(?:a|an))?\s*$/i.test(prefix)) continue;
+function isDemonstrablyContextualLegacyOccurrence(clause, occurrence) {
+  const beforeOccurrence = clause
+    .slice(0, occurrence.index)
+    .replace(/[*_`]+/g, '')
+    .trimEnd();
+  const afterOccurrence = clause
+    .slice(occurrence.index + occurrence.text.length)
+    .replace(/[*_`]+/g, '')
+    .trimStart();
+  const markerSource = LEGACY_VOCABULARY_CONTEXT_MARKERS.join('|');
+  const precedingMarker = beforeOccurrence.match(
+    new RegExp(`\\b(${markerSource})\\s*$`, 'i'),
+  );
+  if (precedingMarker) {
+    const markerPrefix = beforeOccurrence.slice(0, precedingMarker.index).trimEnd();
+    if (
+      !/\b(?:not|never|no\s+longer)(?:\s+(?:a|an))?\s*$/i.test(markerPrefix) &&
+      /^[\s,.;:()/-]*$/.test(afterOccurrence)
+    ) {
       return true;
     }
   }
-  return false;
+  const copulaSource = String.raw`(?:was|is|has\s+been|had\s+been)`;
+  const passiveStateSource = String.raw`${copulaSource}\s+(?:explicitly\s+)?(?:${markerSource})\b(?:\s+with\s+[A-Za-z][\w-]*)?`;
+  return new RegExp(
+    `^${passiveStateSource}(?:,\\s+[A-Za-z][\\w-]*\\s+${passiveStateSource})*[\\s).]*$`,
+    'i',
+  ).test(afterOccurrence);
 }
 
 function classifyLegacyFinding(role, term, excerpt, roleStatus, clause, occurrence) {
@@ -790,6 +855,13 @@ function isExplicitlyGrandfatheredDirectStoryWrite(role, excerpt) {
 
 function classifyStoryFinding(role, excerpt) {
   const lower = excerpt.toLowerCase();
+  if (isNegativeStoryPolicyReminder(excerpt)) {
+    return {
+      classification: 'policy-reminder',
+      grandfathered: false,
+      note: 'Prompt reminds agents not to bypass CLI-mediated story operations.',
+    };
+  }
   if (isDirectStoryWriteInstruction(excerpt)) {
     return {
       classification: 'direct-write',
@@ -802,13 +874,6 @@ function classifyStoryFinding(role, excerpt) {
       classification: 'unclassified-actionable',
       grandfathered: false,
       note: 'Actionable story-file mutation was not recognized by the direct-write classifier; baseline refresh must stop.',
-    };
-  }
-  if (isNegativeStoryPolicyReminder(excerpt)) {
-    return {
-      classification: 'policy-reminder',
-      grandfathered: false,
-      note: 'Prompt reminds agents not to bypass CLI-mediated story operations.',
     };
   }
   if (lower.includes('process-events.jsonl') || lower.includes('dispatch evidence source')) {
@@ -842,7 +907,7 @@ function classifyStoryFinding(role, excerpt) {
   };
 }
 
-function splitStoryActionClauses(excerpt) {
+function splitLegacyVocabularyClauses(excerpt) {
   return excerpt
     .replace(/\\\s*\r?\n\s*/g, ' ')
     .split(/\r?\n|;|(?<=[.!?])\s+|,\s*(?:but|however|then|instead)\s+|\s+(?:and\s+(?:then|instead)|but|however|then|instead)\s+/i)
@@ -850,24 +915,132 @@ function splitStoryActionClauses(excerpt) {
     .filter(Boolean);
 }
 
+function splitInstructionSegments(excerpt) {
+  return excerpt
+    .replace(/\\\s*\r?\n\s*/g, ' ')
+    .split(/\r?\n|;|(?<=[.!?])\s+/)
+    .map(segment => segment.trim())
+    .filter(Boolean);
+}
+
 function stripDirectiveFormatting(clause) {
   return clause
     .trim()
     .replace(/^(?:[-*+]\s+|\d+[.)]\s+)/, '')
+    .replace(/^[^A-Za-z0-9`'"]+\s*/, '')
     .replace(/^(?:[#>`]+\s*)+/, '')
     .replace(/^[*_`]+/, '')
     .trim();
 }
 
-function isNegativeStoryPolicyClause(clause) {
-  const lower = clause.toLowerCase();
-  if (lower.includes('all story changes go through')) return true;
-  if (lower.includes('story metadata under') && lower.includes('do not write fixtures')) return true;
-  return /\b(?:do not|don't|must not|never|forbidden|prohibited|avoid)\b[\s\S]*\b(?:read|write|edit|modify|mutate|patch|create|update|delete|remove|replace|append|overwrite|copy|move|install|rsync|cp|mv|apply_patch)\b/i.test(clause);
+function isNegativeStoryPolicyReminder(excerpt) {
+  if (!/docs\/story/i.test(excerpt)) return false;
+  let hasStoryPolicy = false;
+  for (const segment of splitInstructionSegments(excerpt)) {
+    if (
+      isStrictNegativeStorySegment(segment) ||
+      isStrictDirectEditCliReminder(segment) ||
+      isKnownWrappedStoryPolicyFragment(segment)
+    ) {
+      hasStoryPolicy = true;
+      continue;
+    }
+    if (isStrictCliMediatedStorySegment(segment)) continue;
+    return false;
+  }
+  return hasStoryPolicy;
 }
 
-function isNegativeStoryPolicyReminder(excerpt) {
-  return splitStoryActionClauses(excerpt).some(isNegativeStoryPolicyClause);
+function normalizeStoryPolicySegment(segment) {
+  return stripDirectiveFormatting(segment)
+    .replace(/[*_`'"“”]+/g, '')
+    .replace(/\s+/g, ' ')
+    .replace(/[.!?]+$/, '')
+    .trim();
+}
+
+function isStrictNegativeStorySegment(segment) {
+  const directive = normalizeStoryPolicySegment(segment);
+  const action = String.raw`[A-Za-z][\w-]*(?:\s+apply_patch)?`;
+  const match = directive.match(
+    new RegExp(
+      String.raw`^(?:do\s+not|don't|must\s+not|never|avoid)\s+(?:directly\s+)?${action}(?:(?:\s*\/\s*|\s+(?:or|and)\s+)${action})*\s+([\s\S]+)$`,
+      'i',
+    ),
+  );
+  if (!match) return false;
+
+  const target = match[1];
+  const storyPath = target.match(/docs\/story(?:\/[^\s`'")\]},;!?]*)?/i);
+  if (!storyPath || storyPath.index === undefined) return false;
+  const beforePath = target.slice(0, storyPath.index);
+  const afterPath = target.slice(storyPath.index + storyPath[0].length);
+  const safeTargetWords = new Set([
+    'the',
+    'story',
+    'metadata',
+    'json',
+    'file',
+    'files',
+    'artifact',
+    'artifacts',
+    'directory',
+    'directories',
+    'content',
+    'anything',
+    'directly',
+    'under',
+    'in',
+    'into',
+    'inside',
+    'within',
+    'at',
+    'from',
+    'to',
+    'on',
+    'onto',
+    'beneath',
+  ]);
+  const beforeWords = beforePath.match(/[A-Za-z]+/g) ?? [];
+  if (beforeWords.some(word => !safeTargetWords.has(word.toLowerCase()))) return false;
+  if (afterPath.replace(/[\s`'"*_,.:;!?()[\]{}<>/\\-]+/g, '') === '') return true;
+  return /^\s*,?\s+and\s+do\s+not\s+write\s+fixtures\s+directly\s+under\s*$/i.test(
+    afterPath,
+  );
+}
+
+function isStrictCliMediatedStorySegment(segment) {
+  const directive = normalizeStoryPolicySegment(segment);
+  return (
+    /^(?:story\s+operations\s+must\s+use|use)\s+(?:the\s+)?lattice\s+cli(?:\s+commands?)?(?:\s+instead)?$/i.test(
+      directive,
+    ) ||
+    /^all\s+story\s+changes\s+go\s+through\s+(?:the\s+)?lattice\s+cli$/i.test(
+      directive,
+    )
+  );
+}
+
+function isStrictDirectEditCliReminder(segment) {
+  const directive = normalizeStoryPolicySegment(segment);
+  return /^directly\s+read\s*\/\s*edit\s+json\s+files?\s+under\s+docs\/story\/?\s*:\s*all\s+story\s+changes\s+go\s+through\s+(?:the\s+)?lattice\s+cli$/i.test(
+    directive,
+  );
+}
+
+function isKnownWrappedStoryPolicyFragment(segment) {
+  const directive = normalizeStoryPolicySegment(segment);
+  return /^story\s+metadata\s+under\s+docs\/story\/?\s*,?\s+and\s+do\s+not\s+write\s+fixtures\s+directly\s+under$/i.test(
+    directive,
+  );
+}
+
+function hasNegativeStoryPolicyLead(excerpt) {
+  return splitInstructionSegments(excerpt).some(segment =>
+    /^(?:do\s+not|don't|must\s+not|never|avoid)\b/i.test(
+      stripDirectiveFormatting(segment),
+    ),
+  );
 }
 
 function hasRecognizedStoryWriteAction(clause) {
@@ -889,20 +1062,30 @@ function hasRecognizedStoryWriteAction(clause) {
 
 function isDirectStoryWriteInstruction(excerpt) {
   if (!/docs\/story/i.test(excerpt)) return false;
-  return splitStoryActionClauses(excerpt).some(
-    clause => !isNegativeStoryPolicyClause(clause) && hasRecognizedStoryWriteAction(clause),
-  );
+  if (isNegativeStoryPolicyReminder(excerpt)) return false;
+  if (isStrictProcessEventEvidenceReference(excerpt)) return false;
+  return hasRecognizedStoryWriteAction(excerpt);
 }
 
 function hasActionableStoryMutationSignal(excerpt) {
   if (!/docs\/story/i.test(excerpt)) return false;
-  return splitStoryActionClauses(excerpt).some(clause => {
-    if (isNegativeStoryPolicyClause(clause)) return false;
-    if (isReadOnlyStoryClause(clause) || isCliMediatedStoryRedirect(clause)) return false;
-    if (hasRecognizedStoryWriteAction(clause)) return true;
-    if (!/docs\/story/i.test(clause)) return false;
-    return hasUnknownStoryMutationDirective(clause) || looksLikeImperativeDirective(clause);
-  });
+  if (isNegativeStoryPolicyReminder(excerpt)) return false;
+  if (isStrictProcessEventEvidenceReference(excerpt)) return false;
+  if (hasRecognizedStoryWriteAction(excerpt)) return true;
+  if (hasNegativeStoryPolicyLead(excerpt)) return true;
+  if (isReadOnlyStoryClause(excerpt) || isCliMediatedStoryRedirect(excerpt)) return false;
+  return hasUnknownStoryMutationDirective(excerpt) || looksLikeImperativeDirective(excerpt);
+}
+
+function isStrictProcessEventEvidenceReference(excerpt) {
+  const lower = excerpt.toLowerCase();
+  if (!lower.includes('process-events.jsonl')) return false;
+  return (
+    lower.startsWith('the truly reliable evidence source is') ||
+    lower.includes('dispatch evidence source') ||
+    lower.includes('full text') ||
+    isReadOnlyStoryClause(excerpt)
+  );
 }
 
 function hasUnknownStoryMutationDirective(clause) {
@@ -929,7 +1112,7 @@ function isCliMediatedStoryRedirect(clause) {
 
 function looksLikeImperativeDirective(clause) {
   const directive = stripDirectiveFormatting(clause);
-  if (!directive || isNegativeStoryPolicyClause(directive)) return false;
+  if (!directive) return false;
   if (isReadOnlyStoryClause(directive) || isCliMediatedStoryRedirect(directive)) return false;
   if (/^["'`*]*docs\/story\b/i.test(directive)) return false;
 
@@ -956,7 +1139,7 @@ function scanLegacyVocabulary(roleEntries) {
     for (let index = 0; index < lines.length; index += 1) {
       const excerpt = lines[index].trim();
       if (!excerpt) continue;
-      const clauses = splitStoryActionClauses(excerpt);
+      const clauses = splitLegacyVocabularyClauses(excerpt);
       let occurrence = 0;
       for (let clauseIndex = 0; clauseIndex < clauses.length; clauseIndex += 1) {
         const clause = clauses[clauseIndex];
@@ -1048,13 +1231,10 @@ function buildStoryScanExcerpts(content) {
 
 function shouldJoinMutationContinuation(line, nextLine) {
   if (!/docs\/story/i.test(nextLine)) return false;
-  if (!looksLikeImperativeDirective(line)) return false;
-  const target = stripDirectiveFormatting(nextLine);
-  if (/^(?:at|for|into|on|onto|to|under)\s+["'`]*docs\/story/i.test(target)) {
-    return true;
-  }
-  if (!/^["'`]*docs\/story/i.test(target)) return false;
-  return /\\\s*$|\b(?:at|for|into|on|onto|to|under)\s*$/i.test(line.trim());
+  if (/^\s*```/.test(line)) return false;
+  if (/^\s*(?:[-*+]|\d+[.)])\s+/.test(nextLine)) return false;
+  if (!/\\\s*$/.test(line) && /[.!?;:]\s*$/.test(line.trim())) return false;
+  return looksLikeImperativeDirective(line);
 }
 
 function scanStoryFileReferences(roleEntries) {
