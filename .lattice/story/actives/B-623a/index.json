@@ -1,0 +1,38 @@
+{
+  "storyId": "B-623a",
+  "name": "push-based-host-burn-alert",
+  "title": "Push-based host long-thread burn detection: doctor burn scan plus usage_sweep --alert",
+  "description": "B-70e9 (DONE, v0.3.184) shipped the read-only `lattice usage_sweep` retro-attribution report, which successfully attributed a 1.76B-cumulative-input month-old Codex Desktop thread (rollout 019e40d0, ~/.codex/sessions/2026/05/19/, 13,648 turns, per-turn prompt grown 47k->247k) plus 9 concurrently-open proofbound desktop threads. But the sweep is PULL-based: it only detects runaway host threads when someone remembers to run it. Interactive desktop threads re-send their entire accumulated context every turn (a doc read once gets re-paid every subsequent turn - the 019e40d0 thread re-paid one execution-plan doc 1251 times), so early LOUD detection is the only lever lattice has for sessions it did not launch. This story makes detection PUSH-based: (1) a `lattice doctor` advisory check that reuses the core/usage-sweep.ts scanners (read-only) and flags host sessions exceeding env-tunable thresholds (transcript file size, cumulative input tokens, session age with recent activity), printing a prominent warning naming the session file, cwd, and cumulative tokens; (2) a `usage_sweep --alert` mode that exits non-zero when any session exceeds thresholds, so a cron job can drive notifications. Both surfaces stay advisory-only: no gate, gateEvidence=false, consistent with B-70e9 non-goals (desktop sessions are report-only).",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "usage-sweep",
+    "doctor",
+    "burn-alert",
+    "token-usage",
+    "diagnostics",
+    "advisory"
+  ],
+  "riskSignals": [
+    {
+      "category": "Security/Credentials",
+      "matched": "token"
+    }
+  ],
+  "priorityElevatedFrom": "medium",
+  "createdAt": "2026-07-11T22:19:34.981Z",
+  "startedAt": "2026-07-11T22:19:34.981Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-11T22:19:35.855Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "904e207a-87af-4820-9237-36cfb7f8f4da",
+      "agent": "main"
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Pure-core burn-alert evaluator over usage-sweep session rows",
+      "context": "New packages/main/src/core/usage-burn-alert.ts: evaluate SweepSessionRow[] against injected thresholds (nowMs and thresholds passed in; no process.env or Date.now inside, matching the usage-sweep pure-core contract). Flags a session when transcript file size exceeds the byte threshold, cumulative input tokens exceed the token threshold (codex: last cumulative total_token_usage input; claude: summed input + cacheRead + cacheCreation), or the session is older than the age threshold while still recently active. Read-only: stat only, never writes.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Env-tunable threshold resolver with conservative defaults",
+      "context": "Resolver maps an env record to thresholds: LATTICE_BURN_ALERT_FILE_MB (default 100), LATTICE_BURN_ALERT_INPUT_TOKENS (default 100000000), LATTICE_BURN_ALERT_AGE_DAYS (default 7), LATTICE_BURN_ALERT_RECENT_HOURS (default 48, scan window; 0 disables the doctor burn scan). Pure function of the env record so it is testable; handlers pass process.env.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "lattice doctor host-burn advisory section",
+      "context": "doctor reuses sweepCodexSessions/sweepClaudeProjects (read-only) over the recent-activity window and prints a prominent advisory warning per flagged session naming the session file, cwd, and cumulative tokens, plus which thresholds tripped. Advisory-only: no gate, no gateEvidence, plain doctor exit code unchanged. JSON mode gets a hostBurnScan object. doctor() becomes async; existing smoke call sites updated.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "usage_sweep --alert exit-nonzero mode",
+      "context": "usage_sweep gains an --alert boolean: the report is computed and printed as today, alert evaluation runs over the swept rows, flagged sessions are listed, and the CLI exits non-zero when any alert fired (recover_evidence dispatch pattern: print result first, then throw) so a cron job can drive notifications. --alert performs zero writes and stays effectively readOnly for ownership/activity/hook classification.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Fixture-driven burn-alert smoke wired into the validate suite",
+      "context": "New packages/main/src/tasks/usage-burn-alert-smoke.ts driven by OS temp fixtures (never real ~/.codex or ~/.claude): threshold boundary cases (at vs over), env resolver defaults and overrides, doctor section rendering (flagged and clean), --alert exit-code behavior via the real CLI, zero-writes assertion. Wired into the same validate/test entry points as usage-sweep-smoke.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

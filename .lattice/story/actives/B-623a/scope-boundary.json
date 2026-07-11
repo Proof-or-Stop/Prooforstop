@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-623a",
+  "mode": "feature",
+  "allowed": [
+    "docs touch-ups describing the burn alert surfaces",
+    "existing doctor/usage-sweep smoke call-site updates for async doctor",
+    "package.json/validate wiring for the new smoke",
+    "packages/main/src/cli-engine.ts (usage_sweep --alert print-then-throw exit dispatch)",
+    "packages/main/src/cli/command-catalog.ts (usage_sweep alert flag; doctor description touch-up)",
+    "packages/main/src/core/usage-burn-alert.ts (new pure core evaluator + env threshold resolver)",
+    "packages/main/src/handlers/doctor.ts (advisory host-burn section; doctor async)",
+    "packages/main/src/handlers/usage-sweep.ts (--alert evaluation and rendering)",
+    "packages/main/src/tasks/usage-burn-alert-smoke.ts (new fixture smoke)"
+  ],
+  "excluded": [
+    "No daemon/watcher process; detection runs only inside doctor/usage_sweep invocations",
+    "No gate wiring: burn alerts never produce gate evidence (gateEvidence=false surfaces only) and never block a lifecycle phase",
+    "No mutation of host sessions or transcript stores (desktop sessions stay report-only per B-70e9 non-goals)",
+    "No new config-file schema; thresholds are env-only",
+    "No notification delivery (mail/slack/etc.) - cron owns notifications; lattice only exits non-zero",
+    "No usage-ledger reads or writes (usage-sweep independence contract stays intact)"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "User instruction 2026-07-12: make host-side long-thread burn detection PUSH-based instead of pull-based; add a lattice doctor check (reusing core/usage-sweep.ts scanners, read-only) that flags host sessions exceeding thresholds with env-tunable thresholds and a prominent warning naming the session file, cwd, and cumulative tokens; optionally a usage_sweep --alert exit-nonzero mode so a cron can drive notifications; keep it advisory-only (no gate, gateEvidence=false, consistent with B-70e9 non-goals).",
+  "createdAt": "2026-07-11T22:19:34.981Z",
+  "updatedAt": "2026-07-11T22:19:34.981Z",
+  "_hash": "687ddc576cf3a08e8e619ab36805b75a3a50bf7f5bc0ef7cc7e2e29bcd63f732"
+}
