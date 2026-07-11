@@ -1154,7 +1154,7 @@
       "desc": "direct-story safe-negative inversion: scripts/verify-proof-or-stop-prompt-baseline.mjs:1300-1308 accepts an arbitrary leading action verb as a negative policy reminder, so syntactic negation can reverse the intended safety meaning. With the sole exact INIT allow present, exact collection classified `Never preserve docs/story/actives/B-1234/index.json.` and `Do not retain docs/story/actives/B-1234/index.json.` as policy-reminder and returned without error, even though both instruct non-preservation rather than prohibit direct mutation. Use a closed set of genuinely safe prohibited actions, as the legacy grammar now does, and add inversion probes to the collection/refresh suite.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-11T20:45:34.500Z",
@@ -1178,7 +1178,11 @@
         "scripts/verify-proof-or-stop-prompt-baseline.mjs:1302"
       ],
       "signatureTag": "adversarial|mjs:1300|direct-story-safe",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by d6bc395a. Direct safe-negative diagnostics use a closed safe verb set; preserve and retain are not accepted. More importantly, changed prompt bodies fail the independent manifest before collector authorization. Never-preserve and do-not-retain probes reject in both diagnostics and manifest-bound collection.",
+      "resolvedAt": "2026-07-11T21:10:40.414Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3928:F-040",
