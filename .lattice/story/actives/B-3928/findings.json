@@ -305,7 +305,7 @@
       "desc": "doc-code-drift: The delivery-context-pack freshness row says its atomic write validates the artifact shape, but persistArtifact only serializes the object and runs JSON.parse on the temporary file before rename. That checks JSON syntax, not the PersistedDeliveryContextPackArtifact structure; there is no Zod schema, type guard, or field-level readback validation. Change the claim to JSON parse/atomic persistence or add real runtime shape validation.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-11T15:21:10.937Z",
@@ -317,7 +317,11 @@
         "packages/main/src/handlers/delivery-context-pack.ts"
       ],
       "signatureTag": "missing|md|code-drift-delivery",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in ce499e68b0. The delivery-context-pack row now says the current atomic writer re-reads and JSON.parse checks syntax only, with no runtime shape/schema/signature/freshness validation. M4.C1 is explicitly required to add runtime schema validation before granting writer/path trust; closed-set registration alone cannot promote it to gate evidence.",
+      "resolvedAt": "2026-07-11T15:51:38.650Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
