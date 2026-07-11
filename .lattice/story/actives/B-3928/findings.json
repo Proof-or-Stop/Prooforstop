@@ -696,6 +696,59 @@
       ],
       "signatureTag": "missing|mjs:85|excludes-currently-required",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3928:F-028",
+      "desc": "doc-code-drift: The new uniform Commands contract says the column includes role-owned writes plus role-defining inspection/execution calls from each role-specific procedure, and the verifier now prints that all human-authored role-matrix semantics remain reviewer-audited. Two such calls are still omitted: lattice-evaluator-cli explicitly runs `cat .lattice-serve.json`, but its row lists only bridge curl calls and optional CLI spawn and its directFileAccess text omits that file read; lattice-review-story-init explicitly requires the Edit tool to write the answer field, but its row lists only Read/Grep, init_check_set, and cat/echo. Neither call is a universal Runtime Guide navigation read, prohibited command, or another role's artifact/input, so the Commands/all-fields audit claim is incomplete despite JSON/Markdown parity. Add these role-specific calls (and the evaluator file read) to ROLE_MATRIX_DEFAULTS and regenerate the baseline/matrix, or narrow the Commands contract and F-020 INFO wording so they do not claim coverage.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-11T16:24:16.128Z",
+      "reviewRound": "2026-07-11T16:17:38.139Z",
+      "reviewRunId": "B-3928:RR-025",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "packages/main/templates/agents/implementation-reviewer.md",
+          "packages/main/templates/agents/lattice-evaluator-cli.md",
+          "packages/main/templates/agents/lattice-review-test-coverage.md",
+          "packages/main/templates/agents/product-reviewer.md",
+          "packages/main/templates/agents/test-case-reviewer.md",
+          "packages/main/templates/agents/test-intent.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "packages/main/templates/agents/lattice-evaluator.md",
+          "packages/main/templates/agents/lattice-implementer.md",
+          "packages/main/templates/agents/lattice-review-behavior.md",
+          "packages/main/templates/agents/lattice-review-channel.md",
+          "packages/main/templates/agents/lattice-review-concept.md",
+          "packages/main/templates/agents/lattice-review-delivery.md",
+          "packages/main/templates/agents/lattice-review-docs.md",
+          "packages/main/templates/agents/lattice-review-quality.md",
+          "packages/main/templates/agents/lattice-review-scope-plan.md",
+          "packages/main/templates/agents/lattice-review-story-init.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8bc3faba8a0754e983cecd4cd96e0e3ade76ce3772b54329c48205f60e3a5c31",
+      "files": [
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md:12",
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md:19",
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md:29",
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:1019",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:116",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:236",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1691",
+        "packages/main/templates/agents/lattice-evaluator-cli.md:63",
+        "packages/main/templates/agents/lattice-review-story-init.md:270"
+      ],
+      "signatureTag": "missing|md:12|code-drift-uniform",
+      "signatureTagSource": "auto"
     }
   ]
 }
