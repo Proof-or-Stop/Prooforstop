@@ -176,6 +176,16 @@
             "type": "logic"
           }
         ]
+      },
+      "userSees": "usage-burn-alert-smoke prints: \"✓ resolveBurnAlertThresholds: defaults; per-variable env overrides; garbage/negative values fall back\"",
+      "files": {
+        "modify": [
+          "packages/main/src/core/usage-burn-alert.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts"
+        ]
       }
     },
     {
