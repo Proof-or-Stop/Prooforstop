@@ -1198,6 +1198,38 @@
       ],
       "signatureTag": "adversarial|mjs:1173|exact-story-reference",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3928:F-041",
+      "desc": "F-031 whole-instruction recurrence: scripts/verify-proof-or-stop-prompt-baseline.mjs:1053-1067 accepts a safe negative or exact context based only on the literal-term clause/excerpt, while :1223-1228 and :1393-1450 ignore a following clause or line that revives the term by pronoun. Exact collection allowed `Do not use testIntent; attach it to each new story.`, the period and newline variants, and the exact registered concept-deletion excerpt followed by a newline or blank line plus `Attach it to each new story.`; same-line registration tampering correctly rejected. Because collectCurrentBaseline calls this collector before --write, these live legacy instructions can still be blessed. Require the entire bounded instruction/context block to remain negative or historical, and add pronoun-continuation refresh probes.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-11T20:45:51.407Z",
+      "reviewRound": "2026-07-11T20:38:32.745Z",
+      "reviewRunId": "B-3928:RR-032",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "package.json",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0963dc230ae21f1df1adaf476cd4143dde4d209d928b7f2e2d61517e897e83a0",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1053",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1223",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1393"
+      ],
+      "signatureTag": "adversarial|mjs:1053|whole-instruction-recurrence",
+      "signatureTagSource": "auto"
     }
   ]
 }
