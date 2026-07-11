@@ -675,6 +675,27 @@
       ],
       "signatureTag": "adversarial|mjs:504|legacy-policy-fail",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3928:F-027",
+      "desc": "F-016 also excludes a currently required non-legacy role wholesale. LEGACY_VOCABULARY_ENFORCED_STATUSES at scripts/verify-proof-or-stop-prompt-baseline.mjs:85 contains only active/conditional/optional, so product-reviewer status compatibility bypasses context checks even though the source plan describes its INIT dependency as unresolved and the current INIT contract still requires it. Exact execution allows `Set testIntent on every checklist item.` for status compatibility with policyStatus=allowed-role-status. This contradicts the M0.4 active non-legacy prompt boundary and lets --write bless active legacy instructions in a live compatibility lane. Enforce every non-legacy/non-retired status, or define a narrow negative-reference exemption instead of a status-wide bypass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-11T16:23:28.367Z",
+      "reviewRound": "2026-07-11T16:17:38.139Z",
+      "reviewRunId": "B-3928:RR-023",
+      "_hash": "21f599ddc094af5b2c00a959590372fbe3abf6ae30cdae653b2cff259fc3d528",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:85",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:546",
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:806",
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:1025"
+      ],
+      "signatureTag": "missing|mjs:85|excludes-currently-required",
+      "signatureTagSource": "auto"
     }
   ]
 }
