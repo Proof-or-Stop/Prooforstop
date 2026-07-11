@@ -354,6 +354,26 @@
       ],
       "signatureTag": "missing|mjs|edge-edge-edge",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3928:F-015",
+      "desc": "F-009 recurrence: scripts/verify-proof-or-stop-prompt-baseline.mjs:620-635 only treats a fixed mutation-verb set as actionable and :571-575 defaults every other docs/story reference to other with grandfathered=true; :1115-1150 then ignores that class. Exact in-memory execution of the committed functions classified `Use the project-specific metadata transformer on docs/story/actives/B-1234/index.json.` as other/grandfathered and returned no policy error when combined with the one allowed INIT write. Therefore --write can still bless an unrecognized actionable story-file mutation despite the resolved claim that unknown forms fail closed. Make the fallback non-grandfathered/fail-closed for directive-shaped docs/story references and add a transformer-style refresh probe.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-11T15:57:14.549Z",
+      "reviewRound": "2026-07-11T15:51:16.046Z",
+      "reviewRunId": "B-3928:RR-018",
+      "_hash": "84770957af430bf677090dc52b388e3d5f747d5bac0521892f35c4ccc1241b31",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:620",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:571",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1115"
+      ],
+      "signatureTag": "adversarial|mjs:620|recurrence-scripts-verify",
+      "signatureTagSource": "auto"
     }
   ]
 }
