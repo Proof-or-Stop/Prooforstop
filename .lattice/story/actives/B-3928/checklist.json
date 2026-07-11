@@ -248,16 +248,16 @@
         },
         {
           "intentRef": "CHK-003:adversarial:0",
-          "kind": "logic_test",
+          "kind": "docs_check",
           "verdict": "success",
-          "file": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
-          "command": "npm --prefix packages/main run build && node scripts/verify-proof-or-stop-prompt-baseline.mjs && npm run test:proof-or-stop-prompt-baseline",
+          "file": "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
           "result": "pass",
-          "note": "Overlap matrix covers all 16 roles with status, phase, purpose, commands, inputs, outputs, capability, overlap, and notes. Adversarial guard covered by recomputing source facts instead of trusting prose-only baseline claims.",
-          "headHash": "5e1b042d1ca94a2d0e4c036b0f204d2b12ce4c2f",
-          "materialHash": "69f774ee02a1edeac5a6f9b62f987ea59d9ef709bdba5df0dd1da65c717e9a1c",
-          "storyFilesHash": "dacb0f6c016baffc0cad1ad3799177aaffc515b10b4d64c39796e877ef7dbdaa",
-          "timestamp": "2026-07-10T09:21:00.567Z"
+          "note": "Matrix explicitly identifies active, conditional, optional, compatibility, legacy, fold-candidate, and retired-cli-only roles and names overlap boundaries without claiming parser-proven semantics.",
+          "headHash": "9bc5ad4f07857e71dc3e188d3728d4dfef9a6234",
+          "materialHash": "eb495d068c464d771f56709a232d8c928073da6c444020a8722da8140dd0c5a0",
+          "storyFilesHash": "08260c01ee83243e2f9ab6cd514ac08c79a1ef1c47ecc7ddffb2f581e2ff367c",
+          "timestamp": "2026-07-11T15:40:47.176Z"
         }
       ]
     },
