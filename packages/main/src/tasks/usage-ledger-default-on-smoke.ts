@@ -409,19 +409,21 @@ try {
     });
   });
 
-  check('CHK-003 UNSET env => recordDispatchFinal swallows a corrupt-ledger error (returns void, no throw)', () => {
+  check('CHK-003 UNSET env => recordDispatchFinal swallows a corrupt-ledger error (returns appended:false status, no throw)', () => {
     withProcessEnv({ LATTICE_USAGE_LEDGER: undefined }, () => {
       const sub = freshRoot();
       const baseOpts = { recordedAt: '2026-06-16T00:00:00.000Z', projectRootHash: 'sha256:deadbeef' };
       recordDispatchPreflight(sub, ctx(), 'p', baseOpts);
       appendFileSync(resolveLedgerPath(sub), 'not json\n', 'utf8');
       let threw = false;
+      let status: ReturnType<typeof recordDispatchFinal> | null = null;
       try {
-        recordDispatchFinal(sub, ctx(), null, null, { input_tokens: 1, output_tokens: 1 }, 'claude-code', baseOpts);
+        status = recordDispatchFinal(sub, ctx(), null, null, { input_tokens: 1, output_tokens: 1 }, 'claude-code', baseOpts);
       } catch {
         threw = true;
       }
       assert.equal(threw, false, 'a post-dispatch ledger error must not crash the caller');
+      assert.equal(status?.appended, false, 'a swallowed corrupt-ledger append reports appended:false, never a false "recorded" claim');
     });
   });
 

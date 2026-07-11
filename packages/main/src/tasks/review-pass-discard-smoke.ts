@@ -16,6 +16,14 @@ import { runDocsDriftGate } from '../handlers/validate-docs-drift.js';
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
 
+function reviewerReadManifest(agent: string): Record<string, unknown> {
+  return {
+    filesReadFully: [`docs/requirements/decisions/${agent}.md`],
+    filesTriagedByName: [],
+    scanEscalationReason: null,
+  };
+}
+
 function git(cwd: string, args: string[]): string {
   return execFileSync('git', args, {
     cwd,
@@ -177,6 +185,7 @@ async function assertReviewPassConcurrentWrites(): Promise<void> {
       agent,
       reviewRunId: runIds.get(agent),
       note: `${agent} checked its assigned review surface and found no blocker.`,
+      readManifest: reviewerReadManifest(agent),
     })));
 
     const data = new StoryStore(root).readReviewPasses(storyId);

@@ -124,6 +124,7 @@ The decisions/ corpus is large; unconditional full-content reads exhaust host to
 3. **Build the candidateSpecSet** from ALL of these sources: checklist relatedDocs; story title/description/keywords/riskSignals; changed files and symbols; command/config names; `lattice aux_doc_list` output; and top-N `rg` keyword matches over decisions/. Budget: full-read at most 15 candidate docs.
 4. **Read full content only for candidateSpecSet members**; every remaining file gets filename/title-level triage only.
 5. **Full-content directory scan is allowed only with a recorded scanEscalationReason**, restricted to these triggers: high-risk lifecycle/gate change, process-fact change, global rename, candidate ambiguity, explicit reviewer escalation. Write the scanEscalationReason into your summary output when you escalate — an unrecorded escalation is a process violation, and candidate ambiguity must escalate rather than guess.
+6. **Record readManifest** for `scope_check_save`: `{filesReadFully:string[], filesTriagedByName:string[], scanEscalationReason:string|null}`. Put every full-read candidate decisions/*.md file in `filesReadFully`, every filename/title-only triaged decisions/*.md file in `filesTriagedByName`, and keep `scanEscalationReason:null` unless step 5's escalation trigger was used.
 
 **Forbidden**:
 - Do not assume you know the main agent's intent or context -- only infer from the above inputs
@@ -179,9 +180,10 @@ The main agent passes the storyId in your prompt when launching you. Look for a 
 
 6. Save the result:
    ```bash
-   lattice scope_check_save '{"storyId":"B-xxx","features":[{"feature":"feature description","status":"covered|excluded|gap|orphan-suspect","source":"description|decisions:<path>","covered_by":"CHK-xxx or null","excluded_by":"checklist item excludes text or null"}],"summary":{"total":N,"covered":N,"excluded":N,"gaps":N,"orphanSuspect":N,"drift":0},"openQuestions":[]}'
+   lattice scope_check_save '{"storyId":"B-xxx","features":[{"feature":"feature description","status":"covered|excluded|gap|orphan-suspect","source":"description|decisions:<path>","covered_by":"CHK-xxx or null","excluded_by":"checklist item excludes text or null"}],"summary":{"total":N,"covered":N,"excluded":N,"gaps":N,"orphanSuspect":N,"drift":0},"readManifest":{"filesReadFully":["docs/requirements/decisions/<candidate>.md"],"filesTriagedByName":["docs/requirements/decisions/<triaged>.md"],"scanEscalationReason":null},"openQuestions":[]}'
    ```
    - `drift` is always 0 in the PLAN phase
+   - `readManifest` is required gate evidence; missing, duplicate, unsafe, or malformed paths are rejected by the CLI
    - If you encounter a contradiction that you can see but cannot clearly categorize (e.g., a conflict between the description of an event in the spec and the actual committed wording), **do not force it into one bucket**; instead, put it into `openQuestions` (see Rules)
    - **`openQuestions:[]` means "reviewer has finished scanning and confirmed 0 OQs"** (equivalent to omitting the openQuestions field after the F-007/F-015 fix, but explicitly writing an empty array is better for audit traceability)
 

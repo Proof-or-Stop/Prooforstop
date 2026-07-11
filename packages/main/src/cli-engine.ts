@@ -35,9 +35,9 @@ import { withReentrantMainWriteLock } from './core/main-write-lock.js';
 import { MAIN_TOOLS } from './cli/command-catalog.js';
 import type { ToolDef } from './cli/main-tools.js';
 import {
-  READ_ONLY_COMMANDS,
   inferCodexEntrypoint,
   isCodexActivitySource,
+  isReadOnlyCommand,
   resolveActivitySource,
   shouldWriteActivityLog,
 } from './cli/activity-policy.js';
@@ -71,6 +71,7 @@ export {
   READ_ONLY_COMMANDS,
   inferCodexEntrypoint,
   isCodexActivitySource,
+  isReadOnlyCommand,
   resolveActivitySource,
   shouldWriteActivityLog,
 } from './cli/activity-policy.js';
@@ -1056,6 +1057,17 @@ export async function runCli(opts?: {
     const argsObject = entry.args && typeof entry.args === 'object' && !Array.isArray(entry.args)
       ? entry.args as Record<string, unknown>
       : {};
+    // F-032: appending a codex process event mutates STORY metadata
+    // (<story>/process-events.jsonl), so it is bound by the SAME F-028
+    // read-only contract as the pre/post command hooks and the activity log.
+    // A read-only command — a static READ_ONLY_COMMANDS member OR a plain
+    // (no --out) usage_sweep — must append NOTHING; a mutating command,
+    // including a `usage_sweep --out` that writes a report file, keeps its
+    // process event. This single guard is the class-wide choke point: it fires
+    // for BOTH the success and error call sites in run() (and any future
+    // caller), using the exact `isReadOnlyCommand` predicate the hook gates use,
+    // so no post-command process-event surface can bypass the contract.
+    if (isReadOnlyCommand(entry.command, argsObject)) return;
     const storyId = storyIdFromArgs(argsObject, activeStory, { command: entry.command, projectRoot: root });
     if (!storyId) return;
     try {
@@ -1127,11 +1139,14 @@ export async function runCli(opts?: {
       process.exitCode = 1;
       return;
     }
-    // preCommand hook — non-blocking failure, awaited so it always runs before the handler
-    if (config0?.hooks?.preCommand && !READ_ONLY_COMMANDS.has(cmd)) {
+    // preCommand hook — non-blocking failure, awaited so it always runs before the handler.
+    // F-028: gate on the arg-aware read-only predicate so a plain (no --out)
+    // usage_sweep runs no hooks (read-only diagnostic), while a --out sweep (a write)
+    // runs them like any other mutating command.
+    if (config0?.hooks?.preCommand && !isReadOnlyCommand(cmd, parsed)) {
       process.stderr.write(`[lattice-hook] running preCommand hooks (timeout ${HOOK_TIMEOUT_MS / 1000}s/cmd)...\n`);
     }
-    if (!READ_ONLY_COMMANDS.has(cmd)) {
+    if (!isReadOnlyCommand(cmd, parsed)) {
       await runHooks('preCommand', cmd, buildHookEnvLocal('preCommand'), config0, root);
     }
     try {
@@ -1161,6 +1176,9 @@ export async function runCli(opts?: {
       if (shouldWriteActivityLog(cmd, parsed) || staleWarnings.length > 0) {
         writeLog({ command: cmd, args: parsed, startTime: runStart, endTime: new Date().toISOString(), success: true, staleWarnings });
       }
+      // F-032: writeCodexProcessEvent self-gates on isReadOnlyCommand (same
+      // read-only contract as the activity log above and the pre/post hooks
+      // below), so a plain (no --out) usage_sweep appends NO story process event.
       writeCodexProcessEvent({ command: cmd, args: parsed, success: true });
       // Append next-step guidance. Only commands registered in hints.ts are decorated; other commands are returned unchanged.
       // B-7fc2: `--json` / `--format=json` stdout is a machine-only payload.
@@ -1183,10 +1201,11 @@ export async function runCli(opts?: {
       }
       // postCommand hook — runs before we exit; failure does not block exit(0)
       const resultText = typeof result === 'string' ? result : JSON.stringify(result);
-      if (config0?.hooks?.postCommand && !READ_ONLY_COMMANDS.has(cmd)) {
+      // F-028: same arg-aware read-only gate as the preCommand hooks above.
+      if (config0?.hooks?.postCommand && !isReadOnlyCommand(cmd, parsed)) {
         process.stderr.write(`[lattice-hook] running postCommand hooks (timeout ${HOOK_TIMEOUT_MS / 1000}s/cmd)...\n`);
       }
-      if (!READ_ONLY_COMMANDS.has(cmd)) {
+      if (!isReadOnlyCommand(cmd, parsed)) {
         await runHooks('postCommand', cmd, buildHookEnvLocal('postCommand', {
           LATTICE_RESULT_JSON: truncateForEnv(resultText),
         }), config0, root);
@@ -1202,6 +1221,8 @@ export async function runCli(opts?: {
       if (shouldWriteActivityLog(cmd, parsed) || staleWarnings.length > 0) {
         writeLog({ command: cmd, args: parsed, startTime: runStart, endTime: new Date().toISOString(), success: false, error: e.message, staleWarnings });
       }
+      // F-032: same self-gating applies on the error path — a read-only command
+      // (e.g. a plain usage_sweep) that fails still appends NO story process event.
       writeCodexProcessEvent({ command: cmd, args: parsed, success: false, error: e.message });
       // onError hook — best-effort; always runs before exit(1).
       // Print a hint so the user knows why a failed command takes a few extra seconds.

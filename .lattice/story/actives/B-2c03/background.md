@@ -1,0 +1,11 @@
+## Trigger Event
+On 2026-07-09, while driving B-d6a0 to DONE, the summary_set changes text named the file core/partial-done-recovery.ts. The claimsShrinkage regex in evaluateDoneIntentEquivalence matched \bpartial\b inside that hyphenated file name (hyphens are regex word boundaries) and the DONE gate blocked with unconfirmed_single_outcome_shrinkage. The summary had to be reworded to avoid naming the file that the story actually changed before DONE would pass.
+
+## Key Insights
+The heuristic treats summary.changes, actualTranscript, outcomeDiff, and limitations as prose, but honest summaries routinely name files, directories, and code identifiers. Hyphens, slashes, and dots are all \b word boundaries, so tokens like partial-done-recovery.ts, not-covered-cases.md, or a/deferred/queue.ts satisfy the trigger regex without any real shrinkage claim. A separate earlier draft of the same B-d6a0 summary also tripped on the bare word 'remaining' while describing pre-existing unrelated suite failures, suggesting one trigger word may be too broad independent of the tokenization problem.
+
+## Solution Tradeoffs
+Prefer a small pre-match sanitizer that removes path-like/code-like tokens (backticked spans, segments/with/slashes, hyphenated or dotted file-name-shaped tokens) from the scanned text before the existing trigger regex runs, keeping the heuristic cheap and its vocabulary intact. Rejected alternatives: dropping the heuristic (loses a real DONE-shrinkage guard), switching to NLP/LLM classification (heavyweight and non-deterministic for a gate), or asking users to reword summaries (punishes truthful file-level reporting). The 'remaining' breadth question is decided explicitly in this story rather than silently changed.
+
+## Conversational Texture
+The user wants DONE summaries to be able to name exactly the files they touched without fighting the gate; a guard that forces people to reword truthful summaries erodes trust in the gate and trains agents to write vaguer delivery text, which is the opposite of the gate's purpose. Acceptance should be phrased in visible gate behavior: a summary naming partial-done-recovery.ts passes, while a genuine prose shrinkage claim still blocks.

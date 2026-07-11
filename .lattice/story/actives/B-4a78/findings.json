@@ -1,0 +1,141 @@
+{
+  "findings": [
+    {
+      "id": "B-4a78:F-001",
+      "desc": "concept-scope: CHK-004/CHK-005 promise a mechanical per-run decisions-doc read log plus self-report mismatch diagnostics, but the implementation only adds pure helper functions and a synthetic smoke. rg shows captureReviewerReadEvent/normalizeReviewerReadLog/diagnoseReviewerReadEvidence are referenced only from packages/main/src/core/reviewer-read-evidence.ts and packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts, not from review_run_start, review_pass_set, finding_add, dispatch, or any persisted reviewer-run evidence path. As a result no real reviewer run records a read-log digest and no mismatch/full-scan diagnostic can be emitted from runtime review evidence. Fix by wiring capture/persistence to the reviewer-run/evidence path and invoking diagnostics against the submitted readManifest.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-10T01:56:44.683Z",
+      "reviewRound": "2026-07-10T01:54:09.300Z",
+      "reviewRunId": "B-4a78:RR-001",
+      "_hash": "378e516f18d9325a965f96d525a3085414793ac5352e6ba3d3546485dc9ee04e",
+      "files": [
+        "packages/main/src/core/reviewer-read-evidence.ts",
+        "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+        "packages/main/src/handlers/story-dispatch.ts"
+      ],
+      "signatureTag": "missing|ts|concept-scope-promise",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by c129db7b3 and verified at 73e5eadcc/cffcfad: review_pass_set and reviewer finding_add now accept real mechanical readEvents/readLog, persist readLog digest/summary plus readDiagnostics, include read evidence in signatures where present, and focused/full validation passed after the fix.",
+      "resolvedAt": "2026-07-10T02:13:22.869Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-4a78:F-002",
+      "desc": "F-001 is not fully fixed for the reviewer read evidence shape this lane must record. The command schema and reviewer instructions allow readManifest.filesTriagedByName to include source implementation files, and this review must report source files as triaged by name. But captureReviewerReadEvent keeps only docs/requirements/decisions/*.md events, so source-file triage readEvents are dropped before diagnoseReviewerReadEvidence compares readLog to readManifest. A no-blocker review_pass_set with the required manifest plus mechanical events for source files would fail with read_manifest_extra_triage diagnostics instead of accepting and persisting the requested real read evidence. Fix by either mechanically capturing non-decision triage events or narrowing the readManifest schema/instructions to decisions-doc paths only.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-10T02:17:29.862Z",
+      "reviewRound": "2026-07-10T02:13:15.840Z",
+      "reviewRunId": "B-4a78:RR-002",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/pos-agent-drivability-optimization.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/finding-verify.ts",
+          "packages/main/src/core/reviewer-read-evidence.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/pos-agent-drivability-optimization.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "bc92772fa503ecdd9dcd6718e70b569734781cb580d1565958a9db4491dc5e5f"
+      },
+      "readDiagnostics": [
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "packages/main/src/cli/command-catalog.ts",
+          "message": "readManifest.filesTriagedByName self-reports a file absent from the mechanical read log: packages/main/src/cli/command-catalog.ts"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "packages/main/src/core/finding-verify.ts",
+          "message": "readManifest.filesTriagedByName self-reports a file absent from the mechanical read log: packages/main/src/core/finding-verify.ts"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "packages/main/src/core/reviewer-read-evidence.ts",
+          "message": "readManifest.filesTriagedByName self-reports a file absent from the mechanical read log: packages/main/src/core/reviewer-read-evidence.ts"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "packages/main/src/core/types.ts",
+          "message": "readManifest.filesTriagedByName self-reports a file absent from the mechanical read log: packages/main/src/core/types.ts"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "packages/main/src/handlers/finding.ts",
+          "message": "readManifest.filesTriagedByName self-reports a file absent from the mechanical read log: packages/main/src/handlers/finding.ts"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+          "message": "readManifest.filesTriagedByName self-reports a file absent from the mechanical read log: packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts"
+        }
+      ],
+      "_hash": "5f2d479ae6fc083d6be487ddb2f76503a83eb7b3411fd9aead118985c669dfba",
+      "files": [
+        "packages/main/src/core/reviewer-read-evidence.ts",
+        "packages/main/src/handlers/finding.ts",
+        "packages/main/src/cli/command-catalog.ts",
+        "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|fully-fixed-reviewer",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 517a27ad and verified at 88792835/b99d7fc: readManifest remains signed for all declared paths, but mismatch diagnostics now compare only decisions-doc paths against the decisions-doc mechanical readLog; source-file manifest entries no longer create false read_manifest_extra_triage diagnostics. Focused smoke, direct smoke, git diff --check, evidence refresh, and full lattice validate 44/44 passed.",
+      "resolvedAt": "2026-07-10T02:29:11.535Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-4a78:F-003",
+      "desc": "concept-scope: the required reviewer readEvents evidence shape cannot be submitted through the local CLI because readEvents[0].tokenCount:null is rejected during argument validation as expected number, received null. The core ReviewerReadLogEvent/runtime model uses tokenCount:number|null and normalizeReviewerReadLog records unknown token counts as null, but packages/main/src/cli/command-catalog.ts and the built dist schema expose tokenCount only as z.number().optional(). This blocks recording the prescribed review_pass_set evidence and leaves the signed readLog null-token path unreachable from the CLI.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-10T02:32:36.757Z",
+      "reviewRound": "2026-07-10T02:29:01.368Z",
+      "reviewRunId": "B-4a78:RR-003",
+      "_hash": "90e1c11804f365293235236fea86ddf10fabffab4386f9a8f8fe14ce515537b9",
+      "files": [
+        "packages/main/src/cli/command-catalog.ts",
+        "packages/main/dist/cli/command-catalog.js",
+        "packages/main/src/core/types.ts",
+        "packages/main/src/core/reviewer-read-evidence.ts"
+      ],
+      "signatureTag": "missing|ts|concept-scope-required",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 171b54a0b and verified at d8b4d78/46066c9: CLI readEvents schema now accepts tokenCount:null and tokens:null while preserving invalid value rejection, matching runtime ReviewerReadLogEvent semantics. Focused smoke, direct smoke, git diff --check, evidence refresh, and full lattice validate 44/44 passed.",
+      "resolvedAt": "2026-07-10T02:42:30.867Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "proofstory.parent_ledger_rollup.v1",
+  "storyId": "B-4a78",
+  "ledgerHash": "sha256:5774b9a92474ce323c1eaf9a4f503f7b01665daadd9272426a68393cd213c985",
+  "slicePlanHash": "sha256:cec5ca56df82e44807e98ded63b2066c32af5a642e3ba8daa7eb9d3e36d83cc7",
+  "children": [
+    {
+      "storyId": "B-4a78",
+      "milestoneIds": [
+        "M0",
+        "M1",
+        "M2",
+        "M3",
+        "M4",
+        "M5"
+      ],
+      "status": "covered",
+      "evidenceRefs": [
+        "test-evidence:PASS:45/45:materialHash=4d229b18c8e624211030a9792789d6bc8aa4283adddf190a96a1c2440ff6a9a4",
+        "done-required-evidence:PASS:2-required-commands:materialHash=4d229b18c8e624211030a9792789d6bc8aa4283adddf190a96a1c2440ff6a9a4",
+        "delivery-check:lattice-review-delivery:3-docs-promises",
+        "review-assurance:full-3x2:B-4a78-q-r1..B-4a78-q-r3",
+        "review-passes:RP-005+RP-006+RP-007+RP-008",
+        "summary:accepted"
+      ]
+    }
+  ],
+  "rollupHash": "sha256:962b013ab3f515af719d4a1b77243e285aec8a66b0b1675bf5aff22dd429eb50",
+  "createdAt": "2026-07-10T03:54:15.849Z",
+  "updatedAt": "2026-07-10T03:54:15.849Z"
+}

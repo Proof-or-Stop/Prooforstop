@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-bf15",
+  "id": "IC-20260710142756",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "The user offered remove-or-repoint; removal is chosen because the smoke tested checkpoint-ledger resume against the retired Authority boundary (deleted wholesale in 5d3d7bd686) and autopilot-v2-reliability-smoke.ts covers current behavior. Root package.json was checked and has no mirror, so the single deliverable is deleting the one script line in packages/main/package.json plus a verification grep; historical decision-doc and story-artifact mentions stay untouched.",
+  "acceptedInterpretationHash": "sha256:0c101dc543b17adead8877552da918db186a9bfd83f0d091f8c444ad02b8203d",
+  "notes": "Single-deliverable maintenance chore; scope boundary and execution boundary already confine changes to packages/main/package.json.",
+  "createdAt": "2026-07-10T14:27:56.429Z",
+  "updatedAt": "2026-07-10T14:27:56.429Z"
+}

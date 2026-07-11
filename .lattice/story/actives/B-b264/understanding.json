@@ -1,0 +1,25 @@
+{
+  "task": "Implement the M5 and remaining M6 UX safeguards for done_prepare: pre-DONE merge hazard guidance, repeated-run delta explanation, and dryRun/generated-file ownership proof.",
+  "outcome": "When a developer runs done_prepare, the terminal shows exact merge hazard paths, compact rerun reasons, generated-file ownership guidance, and a focused smoke proves dryRun is inspect-only.",
+  "facts": [
+    "This story is Story C from done-prepare-heartbeat-review-assurance-ux-execution-plan.md and covers M5 plus the remaining M6 safeguards.",
+    "The target implementation surface is packages/main/src/handlers/done-prepare.ts with a focused smoke at packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts.",
+    "Existing done_prepare automation must not weaken DONE, review, delivery, scope, Authority, or verification gates.",
+    "Repeated done_prepare calls can be valid when prior runs generated metadata, merged main, changed material, or refreshed evidence.",
+    "done_prepare --dryRun must not change git state, evidence files, lifecycle metadata, process events, review artifacts, or gate-participating timestamps."
+  ],
+  "constraints": [
+    "Do not auto-resolve merge conflicts, stash user work, delete files, or commit unrelated dirty files.",
+    "Do not auto-sign reviewer evidence, host verdicts, degraded fallback evidence, or delivery/review assurance records.",
+    "Keep JSON stdout parseable when adding human guidance or progress output.",
+    "Use CLI writers for story metadata; do not manually edit lifecycle JSON.",
+    "Keep the fix scoped to done_prepare UX and its focused regression smoke."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+    "packages/main/package.json"
+  ],
+  "timestamp": "2026-07-10T04:21:07.858Z"
+}

@@ -784,6 +784,545 @@ try {
     'narrow single-outcome DONE claims require confirmed shrinkage instead of passing silently',
   );
 
+  // B-2c03 CHK-001/CHK-002: path-like/code-like tokens in DONE summaries must not
+  // trip the claimsShrinkage heuristic. Regression for the B-d6a0 incident where
+  // the literal file name core/partial-done-recovery.ts matched \bpartial\b
+  // (hyphens are word boundaries) and blocked DONE with
+  // unconfirmed_single_outcome_shrinkage until the summary avoided the file name.
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Fixed the first-row corruption in core/partial-done-recovery.ts and updated its callers.',
+    actualTranscript: 'The porcelain audit output is correct for the first row.',
+    outcomeDiff: 'No difference from the original request.',
+  }));
+  const fileNameDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    fileNameDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    false,
+    'a summary naming core/partial-done-recovery.ts is not a shrinkage claim (B-d6a0 false positive)',
+  );
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Documented the `deferred` flag and cleaned up src/excluded/list.ts.',
+    actualTranscript: 'The label normalizer output is unchanged.',
+    outcomeDiff: 'No difference from the original request.',
+  }));
+  const codeTokenDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    codeTokenDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    false,
+    'backticked spans and slash-segmented paths are code-like tokens, not shrinkage claims',
+  );
+  // Adversarial control: a genuine prose shrinkage claim sitting next to a path
+  // token must still trigger — the sanitizer must not swallow surrounding prose.
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Fixed core/partial-done-recovery.ts; the remaining cases were deferred to a follow-up.',
+  }));
+  const proseShrinkDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    proseShrinkDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    true,
+    'genuine prose shrinkage claims still require a confirmed shrinkage decision',
+  );
+  // B-2c03 CHK-003: bare "remaining" was too broad — prose about pre-existing
+  // unrelated failures is not a scope-shrinkage claim for this story, while
+  // shrinkage-flavored "remaining <scope-noun>" phrasing still is.
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Added label normalization.',
+    limitations: 'Two remaining suite failures are pre-existing upstream issues unrelated to this story.',
+  }));
+  const preexistingDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    preexistingDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    false,
+    'bare "remaining" describing pre-existing unrelated failures is not a shrinkage claim',
+  );
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Added label normalization.',
+    limitations: 'The remaining cases were left for a follow-up story.',
+  }));
+  const remainingScopeDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    remainingScopeDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    true,
+    '"remaining <scope-noun>" phrasing is still a shrinkage claim',
+  );
+  // B-2c03 F-001: hyphenated trigger words are prose, not code tokens — the
+  // sanitizer must only strip path-shaped tokens (slash or dotted), so phrasing
+  // like "deferred-for-now" keeps matching \bdeferred\b (hyphen is a boundary).
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Added label normalization.',
+    limitations: 'The tooltip work was deferred-for-now.',
+  }));
+  const hyphenTriggerDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    hyphenTriggerDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    true,
+    'hyphenated trigger words like deferred-for-now are still shrinkage claims (F-001)',
+  );
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Added label normalization.',
+    limitations: 'Some inputs were excluded-here on purpose.',
+  }));
+  const hyphenExcludedDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    hyphenExcludedDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    true,
+    'hyphenated trigger words like excluded-here are still shrinkage claims (F-001)',
+  );
+  // Dotted file names without a directory prefix are still code-like and must
+  // not trigger even though a segment is a trigger word.
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Renamed partial-done-recovery.ts helpers for clarity.',
+    actualTranscript: 'The helpers behave as before.',
+    outcomeDiff: 'No difference from the original request.',
+  }));
+  const bareFileNameDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    bareFileNameDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    false,
+    'a dotted file name without a directory prefix (partial-done-recovery.ts) is still not a shrinkage claim',
+  );
+  // B-2c03 F-002: a hyphenated trigger word with a NON-extension dotted suffix
+  // (partial-release.rc1, deferred-work.next) is not a file name — only tokens
+  // ending in a real file extension may be stripped, so the trigger segment
+  // must survive and keep matching.
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Added label normalization.',
+    limitations: 'Support for partial-release.rc1 was dropped from this delivery.',
+  }));
+  const dottedSuffixDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    dottedSuffixDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    true,
+    'a hyphenated trigger word with a non-extension dotted suffix (partial-release.rc1) is still a shrinkage claim (F-002)',
+  );
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Added label normalization.',
+    limitations: 'The deferred-work.next backlog entries were not delivered.',
+  }));
+  const dottedSuffixDeferredDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    dottedSuffixDeferredDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    true,
+    'a hyphenated trigger word with a dotted non-extension suffix (deferred-work.next) is still a shrinkage claim (F-002)',
+  );
+  // Multi-dot file names with a real extension stay stripped.
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Renamed partial-recovery.test.mjs for clarity.',
+    actualTranscript: 'The helpers behave as before.',
+    outcomeDiff: 'No difference from the original request.',
+  }));
+  const multiDotFileDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    multiDotFileDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    false,
+    'a multi-dot file name with a real extension (partial-recovery.test.mjs) is still not a shrinkage claim',
+  );
+  // B-2c03 F-003: the narrowed "remaining <scope-noun>" trigger must accept
+  // hyphen/underscore connectors, not just whitespace — "remaining-scope items"
+  // is natural shrinkage prose and survives the sanitizer unstripped.
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Added label normalization.',
+    limitations: 'The remaining-scope items were pushed to a follow-up story.',
+  }));
+  const hyphenRemainingDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    hyphenRemainingDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    true,
+    'hyphen-connected "remaining-scope" phrasing is still a shrinkage claim (F-003)',
+  );
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Added label normalization.',
+    limitations: 'The remaining_work backlog was intentionally dropped.',
+  }));
+  const underscoreRemainingDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    underscoreRemainingDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    true,
+    'underscore-connected "remaining_work" phrasing is still a shrinkage claim (F-003)',
+  );
+  // Host-B (codex) rounds 1+2 / F-011: modifier prose between "remaining" and
+  // the scope noun must fire regardless of modifier count, commas, or unicode
+  // dashes — the trigger uses a bounded same-sentence character window, not a
+  // fixed word count. (These cases were first added pre-fix and observed RED;
+  // a concurrent reviewer cleanup reverted them before commit — F-011.)
+  const remainingWindowClaims = [
+    'The remaining browser-only edge cases are left for a follow-up story.',
+    'The remaining hard multi-tenant migration tasks were handed to the platform team.',
+    'The remaining browser-only Safari mobile edge cases were left to a follow-up story.',
+    'The remaining high-priority, user-visible cases were left to a follow-up story.',
+    'The remaining browser–only edge cases were left to follow-up.',
+    // codex round 3: long conjunction-joined modifier chains and heading-style
+    // colon prose are genuine claims the bare pre-story trigger caught.
+    'The remaining browser-only Safari mobile localization and reduced-motion edge cases were left to a follow-up story.',
+    'Remaining: mobile Safari cases are left for a follow-up story.',
+    // codex round 4: collective "of" constructions and slash-delimited
+    // modifiers are noun-phrase internal, not clause breaks.
+    'The remaining set of cases was left for a follow-up story.',
+    'The remaining UI/UX cases were left for a follow-up story.',
+    // codex round 5: bare "not" inside an adjectival phrase is a modifier,
+    // not a clause break (", not" still blocks like ", and").
+    'The remaining not yet supported functionality was left for a follow-up story.',
+    // codex round 6: Oxford-comma lists and bare "as yet" adverbials are
+    // noun-phrase internal.
+    'The remaining web, mobile, and Safari cases were left for a follow-up story.',
+    'The remaining as yet unsupported features were left for a follow-up story.',
+    // codex round 7: modifiers are arbitrary TOKENS (Node.js, C++), and
+    // infinitive adjectivals (to be implemented) are noun-phrase internal —
+    // only clause structure blocks the chain, never token spelling.
+    'The remaining Node.js cases were left for a follow-up story.',
+    'The remaining C++ cases were left for a follow-up story.',
+    'The remaining to be implemented features were left for a follow-up story.',
+  ];
+  for (const claim of remainingWindowClaims) {
+    store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+      changes: 'Added label normalization.',
+      limitations: claim,
+    }));
+    const windowDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+    assert.equal(
+      windowDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+      true,
+      `"remaining <modifiers> <scope-noun>" phrasing still fires (host-B window class): ${claim}`,
+    );
+  }
+  // Negative controls: no scope noun inside the same-sentence window, and a
+  // scope noun that only appears in the NEXT sentence, both stay quiet.
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Added label normalization.',
+    limitations: 'Two remaining suite failures are pre-existing upstream problems unrelated to this change.',
+  }));
+  const windowControlNoNoun = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    windowControlNoNoun.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    false,
+    'bare "remaining" prose without a scope noun in the window still does not fire (CHK-003 decision)',
+  );
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Added label normalization.',
+    limitations: 'Two remaining suite failures are pre-existing. Scope work continues next sprint.',
+  }));
+  const windowControlNextSentence = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    windowControlNextSentence.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    false,
+    'the "remaining" window does not leak across a sentence boundary',
+  );
+  // B-2c03 F-012: the window is a MODIFIER CHAIN, not raw character
+  // proximity — a scope noun sitting in a different clause (past other nouns
+  // or verbs) must NOT fire, or the CHK-003 false-positive class returns.
+  const remainingCrossClauseControls = [
+    'Two remaining flaky tests, unrelated to this fix, cover edge cases in CI.',
+    'The remaining CI flakes are old infra items, not part of this change.',
+    'The two remaining suite failures are pre-existing issues, not new test cases from this change.',
+    // F-013: clause-coordinating conjunctions (comma+conjunction, or a state
+    // verb before a bare conjunction) must not bridge into the next clause.
+    'Two remaining issues exist, and scope work continues in a follow-up story.',
+    'Two remaining test failures linger, and coverage improvements are tracked in a follow-up.',
+    'Two remaining issues exist and scope work continues in a follow-up story.',
+    // Oxford-branch precision control: a single ", and" with no preceding
+    // comma list item is clause coordination even without a stop verb.
+    'The remaining tests crash CI, and coverage work continues in a follow-up.',
+  ];
+  for (const control of remainingCrossClauseControls) {
+    store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+      changes: 'Added label normalization.',
+      limitations: control,
+    }));
+    const crossClauseDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+    assert.equal(
+      crossClauseDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+      false,
+      `a scope noun in a different clause does not fire (F-012): ${control}`,
+    );
+  }
+  // Host-B (codex) finding 5 (round 1): pathological long hyphen/dot tokens
+  // must not cause superlinear scan time in the DONE gate.
+  {
+    const pathological = `${'a-'.repeat(20000)}partial-done-recovery.ts The remaining cases were left for follow-up.`;
+    store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+      changes: 'Added label normalization.',
+      limitations: pathological,
+    }));
+    const t0 = Date.now();
+    const pathologicalDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+    const elapsedMs = Date.now() - t0;
+    assert.equal(
+      pathologicalDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+      true,
+      'the genuine claim after a pathological token still fires (host-B finding 5)',
+    );
+    // CLI spawn overhead dominates; the regex scan itself must stay linear-ish.
+    // Pre-fix the scan alone took >6s, so a generous end-to-end bound catches it.
+    assert.ok(elapsedMs < 5000, `pathological-token DONE check stayed fast (took ${elapsedMs}ms; host-B finding 5)`);
+  }
+  // Host-B round 2, finding 1: a whitespace-free backticked trigger token
+  // (`deferred`) is a code reference and strips BY REQUIREMENT (the original
+  // user request names backticked spans explicitly). In such sentences the
+  // claim is carried by the verb ("left to a follow-up"), which belongs to the
+  // follow-up vocabulary story. Pinned so any future change is deliberate.
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Added label normalization.',
+    limitations: 'The `deferred` work was left to a follow-up story.',
+  }));
+  const backtickTriggerTokenDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    backtickTriggerTokenDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    false,
+    'a whitespace-free backticked trigger token strips by requirement; verb recall is the vocabulary follow-up',
+  );
+  // Same connector class as F-003 for the multi-word triggers: hyphenated
+  // "out-of-scope" / "not-covered" are common technical phrasings, survive the
+  // sanitizer unstripped (hyphen-only tokens are kept), and must still match.
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Added label normalization.',
+    limitations: 'The extra endpoints are out-of-scope for this delivery.',
+  }));
+  const hyphenOutOfScopeDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    hyphenOutOfScopeDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    true,
+    'hyphenated "out-of-scope" phrasing is still a shrinkage claim (F-003 class)',
+  );
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Added label normalization.',
+    limitations: 'Two branches were left not-covered by the new tests.',
+  }));
+  const hyphenNotCoveredDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    hyphenNotCoveredDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    true,
+    'hyphenated "not-covered" phrasing is still a shrinkage claim (F-003 class)',
+  );
+  // B-2c03 F-005: extensions that read as ordinary short English words (log,
+  // go, map, sh, ...) are ambiguous — a hyphenated trigger word with such a
+  // suffix must fail SAFE (keep the token, fire the gap) instead of being
+  // silently erased. Unambiguous technical extensions (.ts, .test.mjs) still
+  // strip (see bareFileNameDone / multiDotFileDone above).
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Added label normalization.',
+    limitations: 'The excluded-approach.log entry was removed from this delivery.',
+  }));
+  const ambiguousExtLogDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    ambiguousExtLogDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    true,
+    'a trigger word with an ambiguous common-word suffix (excluded-approach.log) fails safe and still fires (F-005)',
+  );
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Added label normalization.',
+    limitations: 'The deferred-plan.go decision was made anyway, skipping the rest.',
+  }));
+  const ambiguousExtGoDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    ambiguousExtGoDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    true,
+    'a trigger word with an ambiguous common-word suffix (deferred-plan.go) fails safe and still fires (F-005)',
+  );
+  // B-2c03 F-006: the stripping rules must not erase genuine prose claims.
+  // (1) Backticked spans containing whitespace are quoted prose, not code
+  // tokens, and must keep firing.
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Added label normalization.',
+    limitations: 'Note: `the remaining scope items were deferred` due to time constraints.',
+  }));
+  const backtickProseDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    backtickProseDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    true,
+    'a backticked span containing whitespace is quoted prose and still fires (F-006)',
+  );
+  // (2) A single slash between two prose words is not a path.
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'The remaining/scope work was intentionally cut from this delivery.',
+    actualTranscript: 'The label normalizer output is unchanged.',
+    outcomeDiff: 'No difference from the original request.',
+  }));
+  const slashProseDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    slashProseDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    true,
+    'a single slash between prose words (remaining/scope) is not a path and still fires (F-006)',
+  );
+  // (3) A bare trigger word with a dot-extension but a simple stem (partial.md)
+  // is ambiguous between a file name and mid-sentence prose — fail safe.
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'We decided the partial.md approach was best for now.',
+    actualTranscript: 'The label normalizer output is unchanged.',
+    outcomeDiff: 'No difference from the original request.',
+  }));
+  const simpleStemDotDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    simpleStemDotDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    true,
+    'a trigger word with a simple stem and dot extension (partial.md) fails safe and still fires (F-006)',
+  );
+  // B-2c03 F-007: slash count alone is not path semantics — English
+  // slash-separated enumerations (excluded/deferred/partial) must keep firing;
+  // only tokens with a dot or a leading path prefix (./ ../ ~/ /) strip.
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'The excluded/deferred/partial items were dropped from this delivery.',
+    actualTranscript: 'The label normalizer output is unchanged.',
+    outcomeDiff: 'No difference from the original request.',
+  }));
+  const slashEnumerationDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    slashEnumerationDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    true,
+    'a multi-slash English enumeration (excluded/deferred/partial) is not a path and still fires (F-007)',
+  );
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'The remaining/scope/details were dropped from this delivery.',
+    actualTranscript: 'The label normalizer output is unchanged.',
+    outcomeDiff: 'No difference from the original request.',
+  }));
+  const slashEnumerationRemainingDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    slashEnumerationRemainingDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    true,
+    'a multi-slash enumeration starting with remaining (remaining/scope/details) still fires (F-007)',
+  );
+  // Control: dotted and prefix-led paths still strip regardless of slash count.
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Cleaned up ./excluded/queue and src/deferred/list.ts in passing.',
+    actualTranscript: 'The label normalizer output is unchanged.',
+    outcomeDiff: 'No difference from the original request.',
+  }));
+  const pathPrefixDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    pathPrefixDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    false,
+    'prefix-led (./excluded/queue) and dotted (src/deferred/list.ts) paths still strip (F-007 control)',
+  );
+  // B-2c03 F-008: dot-glued multi-word triggers are prose too. Such tokens
+  // survive the sanitizer (their suffix is not a file extension), so the
+  // trigger connectors must accept a dot alongside whitespace/slash/dash.
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'The remaining.scope work was intentionally cut from this delivery.',
+    actualTranscript: 'The label normalizer output is unchanged.',
+    outcomeDiff: 'No difference from the original request.',
+  }));
+  const dotRemainingDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    dotRemainingDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    true,
+    'dot-glued "remaining.scope" phrasing is still a shrinkage claim (F-008)',
+  );
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Added label normalization.',
+    limitations: 'The out.of.scope items were skipped too.',
+  }));
+  const dotOutOfScopeDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    dotOutOfScopeDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    true,
+    'dot-glued "out.of.scope" phrasing is still a shrinkage claim (F-008)',
+  );
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Added label normalization.',
+    limitations: 'Two edge branches were left not.covered by the new tests.',
+  }));
+  const dotNotCoveredDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    dotNotCoveredDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    true,
+    'dot-glued "not.covered" phrasing is still a shrinkage claim (F-008)',
+  );
+  // B-2c03 F-009: an incidental dotted segment inside a slash enumeration
+  // (excluded/deferred/v2.1) must not turn the whole token into a "path" —
+  // only explicit path markers (leading prefix, URL scheme, or a final segment
+  // ending in a known extension) strip.
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'The excluded/deferred/v2.1 items were dropped from this delivery.',
+    actualTranscript: 'The label normalizer output is unchanged.',
+    outcomeDiff: 'No difference from the original request.',
+  }));
+  const slashEnumerationDotDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    slashEnumerationDotDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    true,
+    'a slash enumeration with an incidental dotted segment (excluded/deferred/v2.1) still fires (F-009)',
+  );
+  // Control: URL-scheme tokens naming trigger words are paths, not prose.
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Documented the flow at https://example.com/deferred/setup.md for operators.',
+    actualTranscript: 'The label normalizer output is unchanged.',
+    outcomeDiff: 'No difference from the original request.',
+  }));
+  const urlControlDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    urlControlDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    false,
+    'URL-scheme tokens (https://example.com/deferred/setup.md) still strip (F-009 control)',
+  );
+  // codex round 7 (low, fail-safe direction): a line-qualified path token
+  // (core/partial-done-recovery.ts:42) is still a path and must strip.
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Fixed the first-row corruption in core/partial-done-recovery.ts:42 and updated its callers.',
+    actualTranscript: 'The porcelain audit output is correct for the first row.',
+    outcomeDiff: 'No difference from the original request.',
+  }));
+  const lineQualifiedPathDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    lineQualifiedPathDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    false,
+    'a line-qualified path token (partial-done-recovery.ts:42) still strips (codex round 7)',
+  );
+  // codex round 8: GitHub #L anchors are the same qualifier class.
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Fixed the first-row corruption in core/partial-done-recovery.ts#L42 and updated its callers.',
+    actualTranscript: 'The porcelain audit output is correct for the first row.',
+    outcomeDiff: 'No difference from the original request.',
+  }));
+  const anchorQualifiedPathDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    anchorQualifiedPathDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    false,
+    'an anchor-qualified path token (partial-done-recovery.ts#L42) still strips (codex round 8)',
+  );
+  // Delivery-review record: a trigger-stemmed FILE NAME with an unambiguous
+  // extension (deferred-query.sql) is stripped BY REQUIREMENT — it is
+  // shape-identical to partial-done-recovery.ts, the token class B-d6a0
+  // demands stay silent. The shrinkage meaning in such sentences is carried by
+  // the verb (skipped/removed), which the trigger vocabulary has never
+  // covered; verb-recall expansion is the follow-up vocabulary story. This
+  // case pins the designed direction so any future change is deliberate.
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'The deferred-query.sql export was skipped for this delivery.',
+    actualTranscript: 'The label normalizer output is unchanged.',
+    outcomeDiff: 'No difference from the original request.',
+  }));
+  const triggerStemFileDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    triggerStemFileDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    false,
+    'a trigger-stemmed file name with an unambiguous extension strips by requirement (B-d6a0 class); the verb belongs to the vocabulary follow-up',
+  );
+  // ...while the same sentence with an explicit trigger phrase still fires.
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'The deferred-query.sql export was skipped; the remaining scope was cut.',
+    actualTranscript: 'The label normalizer output is unchanged.',
+    outcomeDiff: 'No difference from the original request.',
+  }));
+  const triggerStemFileWithClaimDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    triggerStemFileWithClaimDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    true,
+    'a genuine trigger phrase next to a trigger-stemmed file name still fires',
+  );
+  // Control: a dotted token whose tail IS a scope noun but whose head is not a
+  // trigger (label.scope) must not fire, and file names stay stripped.
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Refactored the label.scope helper and renamed partial-done-recovery.ts.',
+    actualTranscript: 'The helpers behave as before.',
+    outcomeDiff: 'No difference from the original request.',
+  }));
+  const dotControlDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    dotControlDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    false,
+    'non-trigger dotted identifiers (label.scope) and real file names still do not fire (F-008 control)',
+  );
+
   // B-f7b3 CHK-004: a CONFIRMED milestone ledger that is empty OR whose rows are
   // all not_applicable (without a valid decision) must NOT vacuously satisfy the
   // milestone DONE requirement. These are negative controls over the CHK-007

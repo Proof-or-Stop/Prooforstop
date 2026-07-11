@@ -1,0 +1,358 @@
+{
+  "findings": [
+    {
+      "id": "B-2c03:F-001",
+      "desc": "packages/main/src/core/proofstory.ts:1382-1388 stripCodeLikeTokens over-strips: its hyphen/dot token-stripping regex (/\\b[A-Za-z0-9_]+(?:[-.][A-Za-z0-9_]+)+\\b/g) removes the SHRINKAGE TRIGGER WORD ITSELF whenever it is hyphenated or dotted to an adjacent word, e.g. deferred-for-now, excluded-here, partial-ly, narrow-ed, remaining-work, remaining-scope. Verified live: stripCodeLikeTokens(\"The remaining-work was left for later.\") -> \"The   was left for later.\" no longer matches claimsShrinkage, and \"deferred-for-now\"/\"excluded-here\" strip to empty. This defeats the DONE-gate unconfirmed_single_outcome_shrinkage guard for ordinary, non-adversarial phrasing an author or LLM may naturally write (not just genuine file paths like core/partial-done-recovery.ts, which was the intended target). The adversarial verification intents for CHK-001 (sanitize-path-tokens:adversarial) and CHK-003 (remaining-breadth-decision:adversarial) required proving the sanitizer/narrowing does not become a bypass for genuine shrinkage claims, but the smoke suite (proofstory-intent-hardening-smoke.ts) has no case where the trigger word itself is hyphenated/dotted -- only cases where a file path/identifier sits NEXT TO an intact trigger word. Recommend scoping the token-stripping regex so it does not consume a segment that is itself one of the trigger words (or requires a path-shaped segment such as a slash or recognizable extension) and add smoke coverage for hyphenated-trigger-word phrasing.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-10T14:48:45.098Z",
+      "reviewRound": "2026-07-10T14:41:10.214Z",
+      "reviewRunId": "B-2c03:RR-004",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2c03/background.md",
+          ".lattice/story/actives/B-2c03/plan.md",
+          ".lattice/story/actives/B-2c03/red-evidence.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2c03/checklist.json",
+          ".lattice/story/actives/B-2c03/review.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "357bf250a2054ccde11a9f060d5fb1ec5082be0991c7063e89c3a4f445fc7cdb",
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "auto",
+      "resolvedReason": "stripCodeLikeTokens no longer strips hyphen-only tokens; only backticked spans, slash tokens, and dotted tokens are removed. RED-first smoke cases (hyphenTriggerDone deferred-for-now, hyphenExcludedDone excluded-here => gap fires; bareFileNameDone partial-done-recovery.ts => no gap) verified failing pre-fix and passing post-fix; milestone-done-gate-reconciliation smoke and milestone-status tests green. Residual (bare extensionless hyphenated file name) documented in plan.md and code comment.",
+      "resolvedAt": "2026-07-10T14:53:17.511Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-2c03:F-002",
+      "desc": "packages/main/src/core/proofstory.ts:1391 stripCodeLikeTokens (F-001 fix) still allows a residual bypass class: the dotted-token strip regex /\\b[A-Za-z0-9_-]+(?:\\.[A-Za-z0-9_-]+)+\\b/g permits hyphens INSIDE each dot-separated segment, so a hyphenated trigger word followed by a dotted suffix (version tag, abbreviation, etc.) still gets fully erased before the claimsShrinkage scan runs. Verified live against the exact post-fix code: stripCodeLikeTokens(\"The remaining-scope.v2 items were dropped.\") -> \"The   items were dropped.\" (no match); same for \"excluded-set.beta\", \"partial-release.rc1\", \"deferred-work.next\" -- all natural-sounding prose phrasings, not just contrived file paths. This is the same class of failure F-001 identified (a sanitizer intended for path-like tokens erasing genuine prose trigger words), just requiring one extra dot to re-open it. The CHK-001 adversarial verification intent (sanitize-path-tokens:adversarial) and the F-001 resolution both require the sanitizer not become a bypass for genuine shrinkage claims; this residual violates that. The smoke suite has no coverage for hyphen+dot combined tokens. Recommend either: (a) require the dot-containing segment to look extension-like (e.g. final segment is a short alnum-only suffix with no further trigger-word semantics, or bound segment length), or (b) split the token strip so hyphen segments are tested individually for trigger words before the whole token is discarded, or (c) at minimum only strip the dotted suffix segment (e.g. \".v2\") rather than the entire hyphen-joined token, so \"remaining-scope\" survives.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-10T14:59:08.812Z",
+      "reviewRound": "2026-07-10T14:41:10.214Z",
+      "reviewRunId": "B-2c03:RR-006",
+      "_hash": "b099e22162682bc905a079996c0115de94e3f108669b6fa95fade40eae020f14",
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "auto",
+      "resolvedReason": "dottedFileTokenRegex now requires a known file-extension suffix (curated list) before stripping; partial-release.rc1 / deferred-work.next keep their trigger segments and fire the gap (dottedSuffixDone / dottedSuffixDeferredDone RED-first cases verified failing pre-fix, passing post-fix); partial-done-recovery.ts and partial-recovery.test.mjs still strip (bareFileNameDone / multiDotFileDone). milestone-done-gate-reconciliation smoke + milestone-status tests green. Residuals (extensionless hyphenated file name, dotted identifier with non-extension tail) documented in plan.md and code comment.",
+      "resolvedAt": "2026-07-10T15:04:37.431Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-2c03:F-003",
+      "desc": "packages/main/src/core/proofstory.ts:1454 the CHK-003 narrowed remaining-trigger regex (remaining\\s+(?:work|scope|items?|cases?|...)) requires WHITESPACE between \"remaining\" and the scope noun, so a hyphen-joined natural phrasing like \"remaining-scope\", \"remaining-work\", or \"remaining-cases\" never matches at all -- the text is not even touched by stripCodeLikeTokens (verified live: stripCodeLikeTokens(\"The remaining-scope items were pushed to a follow-up story.\") returns the string UNCHANGED, yet claimsShrinkage regex still returns false because \\s+ cannot span the hyphen). This is a distinct, independently-fixable bug from the F-001/F-002 sanitizer-stripping class (no stripping happens here at all) and is reachable through entirely natural prose -- hyphenated compounds are the dominant style already used elsewhere in this very story (partial-done-recovery, deferred-for-now, excluded-here). It defeats the CHK-003 checklist item this diff explicitly introduces: a genuine DONE-summary shrinkage claim phrased as \"remaining-scope items were pushed to a follow-up story\" silently produces NO unconfirmed_single_outcome_shrinkage gap, i.e. narrow/partial delivery could be marked DONE without a confirmed shrinkage decision. No smoke coverage exists for the hyphenated form (proofstory-intent-hardening-smoke.ts only covers whitespace-separated \"remaining scope\"/\"remaining cases\"). Recommend widening the connector from \\s+ to [\\s-]+ (or [\\s_-]+) in the remaining alternative so remaining-scope/remaining_scope/remaining scope all match consistently.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-10T15:07:39.532Z",
+      "reviewRound": "2026-07-10T14:41:10.214Z",
+      "reviewRunId": "B-2c03:RR-009",
+      "_hash": "be50684377c0364c6738b94578eeec5a98b60548902286cc53f4576089d8a2cd",
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "auto",
+      "resolvedReason": "claimsShrinkage remaining alternative now uses remaining[\\s_-]+<scope-noun>; hyphenRemainingDone (remaining-scope items) and underscoreRemainingDone (remaining_work backlog) RED-first cases verified failing pre-fix and passing post-fix; full intent-hardening smoke, milestone-done-gate-reconciliation smoke, and milestone-status tests green. plan.md CHK-003 decision section updated with the connector revision.",
+      "resolvedAt": "2026-07-10T15:11:22.450Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-2c03:F-004",
+      "desc": "packages/main/src/core/proofstory.ts:1389-1393 dottedFileTokenRegex (F-002 fix) still allows a fourth, independently-reachable bypass class: CODE_FILE_EXTENSION_PATTERN is a curated list of file extensions, several of which are also ordinary short English words (go, c, h, m, log, map, rb, cs, rs, sh). A hyphenated trigger word followed by a dot and one of these common-word extensions is fully erased before the claimsShrinkage scan runs, exactly like the F-001/F-002/F-003 bypass classes, and this exact vulnerability class is NOT covered by the story's documented residuals (plan.md 'Risk notes' only accepts false-POSITIVE residuals -- config.partial.enabled, bare partial-done-recovery -- never a false-NEGATIVE/bypass residual). Verified live twice: (1) standalone copy of the exact current stripCodeLikeTokens/dottedFileTokenRegex/CODE_FILE_EXTENSION_PATTERN source run directly, and (2) executing the actual CLI/dist build via a temporary smoke assertion (done_intent_equivalence_check on a lightweight story), both showing zero gaps for both of the following natural-prose DONE-summary limitations texts: 'The excluded-approach.log entry was removed from this delivery.' -> stripCodeLikeTokens produces 'The   entry was removed.' (excluded silently erased, done_intent_equivalence_check gaps=[]); 'The deferred-plan.go decision was made anyway, skipping the rest.' -> 'The   decision was made anyway, skipping the rest.' (deferred silently erased, gaps=[]). Same reproduces for partial-credit.c, narrow-margin.m, deferred-query.sql, narrow-focus.go -- any hyphenated trigger word whose dotted suffix happens to be a curated extension. This means a genuine narrow/partial-delivery DONE summary phrased with an ordinary hyphen-dot-word construction can silently bypass unconfirmed_single_outcome_shrinkage and reach DONE without a confirmed shrinkage decision -- the same guard-weakening risk the CHK-001 adversarial verification intent (sanitize-path-tokens:adversarial) and F-001/F-002/F-003 resolutions were meant to close. No smoke coverage exists for extension-collision tokens (proofstory-intent-hardening-smoke.ts covers only .rc1/.next/.v2/.beta/.ts/.mjs style suffixes, none of which collide with a trigger-adjacent common word). Recommend one of: (a) require the extension segment to be preceded by a genuine multi-char identifier-like prefix AND require the whole token to also satisfy a minimum-token-count or slash-adjacency heuristic before stripping (reduces prose collision surface), (b) narrow CODE_FILE_EXTENSION_PATTERN to drop 1-2 letter/common-word entries (c, h, m, go, rs, cs, rb, sh, log, map) or require a longer curated set with a length floor, or (c) split the dotted-suffix strip so only the suffix segment (e.g. '.go') is removed rather than the entire hyphen-joined token, so 'deferred-plan' survives even when '.go' is stripped (mirrors the F-002 recommendation (c) that was not adopted). Add smoke coverage for at least one extension-collision case in both directions (bypass reproduced pre-fix, blocked post-fix).",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "dismissed",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-07-10T15:15:12.580Z",
+      "reviewRound": "2026-07-10T14:41:10.214Z",
+      "reviewRunId": "B-2c03:RR-010",
+      "_hash": "9ecc654e1ed4ffb5db09f67e8a019f98b26f6bfb01e84e1f724df4995a87386c",
+      "files": [
+        "packages/main/src/core/proofstory.ts",
+        "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+      ],
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "confirmed",
+      "dismissReason": "Re-filing with correct agent attribution (lattice-review-test-coverage) — original finding_add call omitted agent and was recorded as agent=main, which does not count as reviewer evidence per the tool warning.",
+      "dismissedAt": "2026-07-10T15:15:34.023Z",
+      "dismissReasonType": "duplicate",
+      "dismissEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-2c03:F-005",
+      "desc": "packages/main/src/core/proofstory.ts:1389-1393 dottedFileTokenRegex (F-002 fix) still allows a fourth, independently-reachable bypass class: CODE_FILE_EXTENSION_PATTERN is a curated list of file extensions, several of which are also ordinary short English words (go, c, h, m, log, map, rb, cs, rs, sh). A hyphenated trigger word followed by a dot and one of these common-word extensions is fully erased before the claimsShrinkage scan runs, exactly like the F-001/F-002/F-003 bypass classes, and this exact vulnerability class is NOT covered by the story's documented residuals (plan.md 'Risk notes' only accepts false-POSITIVE residuals -- config.partial.enabled, bare partial-done-recovery -- never a false-NEGATIVE/bypass residual). Verified live twice: (1) standalone copy of the exact current stripCodeLikeTokens/dottedFileTokenRegex/CODE_FILE_EXTENSION_PATTERN source run directly, and (2) executing the actual CLI/dist build via a temporary smoke assertion (done_intent_equivalence_check on a lightweight story), both showing zero gaps for both of the following natural-prose DONE-summary limitations texts: 'The excluded-approach.log entry was removed from this delivery.' -> stripCodeLikeTokens produces 'The   entry was removed.' (excluded silently erased, done_intent_equivalence_check gaps=[]); 'The deferred-plan.go decision was made anyway, skipping the rest.' -> 'The   decision was made anyway, skipping the rest.' (deferred silently erased, gaps=[]). Same reproduces for partial-credit.c, narrow-margin.m, deferred-query.sql, narrow-focus.go -- any hyphenated trigger word whose dotted suffix happens to be a curated extension. This means a genuine narrow/partial-delivery DONE summary phrased with an ordinary hyphen-dot-word construction can silently bypass unconfirmed_single_outcome_shrinkage and reach DONE without a confirmed shrinkage decision -- the same guard-weakening risk the CHK-001 adversarial verification intent (sanitize-path-tokens:adversarial) and F-001/F-002/F-003 resolutions were meant to close. No smoke coverage exists for extension-collision tokens (proofstory-intent-hardening-smoke.ts covers only .rc1/.next/.v2/.beta/.ts/.mjs style suffixes, none of which collide with a trigger-adjacent common word). Recommend one of: (a) require the extension segment to be preceded by a genuine multi-char identifier-like prefix AND require the whole token to also satisfy a minimum-token-count or slash-adjacency heuristic before stripping (reduces prose collision surface), (b) narrow CODE_FILE_EXTENSION_PATTERN to drop 1-2 letter/common-word entries (c, h, m, go, rs, cs, rb, sh, log, map) or require a longer curated set with a length floor, or (c) split the dotted-suffix strip so only the suffix segment (e.g. '.go') is removed rather than the entire hyphen-joined token, so 'deferred-plan' survives even when '.go' is stripped (mirrors the F-002 recommendation (c) that was not adopted). Add smoke coverage for at least one extension-collision case in both directions (bypass reproduced pre-fix, blocked post-fix).",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-10T15:15:55.360Z",
+      "reviewRound": "2026-07-10T14:41:10.214Z",
+      "reviewRunId": "B-2c03:RR-011",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2c03/background.md",
+          ".lattice/story/actives/B-2c03/checklist.json",
+          ".lattice/story/actives/B-2c03/findings.json",
+          ".lattice/story/actives/B-2c03/plan.md",
+          ".lattice/story/actives/B-2c03/review-passes.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2c03/red-evidence.json",
+          ".lattice/story/actives/B-2c03/review.json"
+        ],
+        "scanEscalationReason": "Reproduced the F-001/F-002/F-003 bypass pattern directly against the current stripCodeLikeTokens/dottedFileTokenRegex source and against the live CLI/dist build (temporary smoke assertion) to independently fuzz for residual bypass classes in the curated CODE_FILE_EXTENSION_PATTERN list; found and filed F-004 (extension-word collision)."
+      },
+      "_hash": "eb2924386ea37709d4ffdb69a5ff15188915dfc4b5ff1180556743d65ef6e7c3",
+      "files": [
+        "packages/main/src/core/proofstory.ts",
+        "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+      ],
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "CODE_FILE_EXTENSION_PATTERN now contains only unambiguous technical extensions; excluded-approach.log and deferred-plan.go keep their tokens and fire the gap (ambiguousExtLogDone / ambiguousExtGoDone RED-first cases verified failing pre-fix, passing post-fix); unambiguous extensions still strip (bareFileNameDone / multiDotFileDone controls). Same commit extends the F-003 connector class to out-of-scope / not-covered (hyphenOutOfScopeDone / hyphenNotCoveredDone). Full intent-hardening smoke, reconciliation smoke, milestone-status tests, and e2e ALL PASS. plan.md risk notes updated: all residuals are false-positive direction.",
+      "resolvedAt": "2026-07-10T15:21:42.384Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-2c03:F-006",
+      "desc": "F-006 (verified false-negative bypass; contradicts the documented design invariant \"every residual is false-POSITIVE direction\"): stripCodeLikeTokens() over-strips beyond path-shaped tokens, silently erasing genuine prose shrinkage claims and defeating the DONE-summary guard (evaluateDoneIntentEquivalence, packages/main/src/core/proofstory.ts:1401-1407).\n\nRoot cause (three separate over-broad rules, each confirmed live against the built dist/cli.js):\n1. `` `[^`\\n]*` `` erases the ENTIRE contents of any backtick span, not just code/path tokens. A markdown DONE summary that uses backticks for emphasis around a genuine shrinkage sentence is fully swallowed. Live repro: summary.limitations = \"Note: `the remaining scope items were deferred` due to time constraints.\" -> done_intent_equivalence_check (mode observe) reports NO unconfirmed_single_outcome_shrinkage gap. This is natural authoring prose (markdown emphasis), not an adversarial payload.\n2. `/[^\\s`]*\\/[^\\s`]*/g` strips ANY whitespace-delimited token containing a slash, not only real path-shaped tokens. \"remaining/scope\" and \"partial/ny\" are not file paths but match and erase the trigger word. Live repro: changes = \"The remaining/scope work was intentionally cut from this delivery.\" -> no gap. Also: changes = \"partial/ny is what we shipped for this feature.\" -> no gap.\n3. dottedFileTokenRegex strips a trigger word immediately followed by a known extension anywhere mid-sentence, even outside a path/filename context. Live repro: changes = \"We decided the partial.md approach was best for now.\" -> no gap. Also: limitations = \"Everything about this was deferred.ts basically nothing shipped.\" -> no gap.\n\nAll four repros were run against the actual built packages/main/dist/cli.js (done_intent_equivalence_check, mode=observe) on a lightweight-path story, not a standalone regex extraction, confirming this is live gate behavior, not a hypothetical.\n\nWhy this is blocking: the story's own plan.md (CHK-003 \"Risk notes\" section) and code comment at proofstory.ts:1384-1388 explicitly state the sanitizer's only residual tradeoffs are false-POSITIVE direction (\"Residual accepted tradeoffs are all false-POSITIVE direction... a bare extensionless hyphenated file name... a dotted identifier with a non-extension tail... can still false-positive\"). The backtick-emphasis case in particular is realistic natural prose (not a contrived path/injection attack) and produces a silent false-negative on a guard whose entire purpose is to fail safe against narrower-than-claimed DONE summaries. F-005's stated safety principle (\"a silent bypass is worse than a false positive for a DONE guard\") is violated by the current backtick/slash/dotted stripping rules, which are broader than \"path-like/code-like tokens\" as titled in CHK-001.\n\nSuggested fix direction (not prescriptive): scope the slash-strip and dotted-extension-strip rules to require path-shaped context (e.g. a preceding directory segment or no interior whitespace already enforced, but also require the match not consume an already-known trigger word as one of >=2 alnum-only segments), and/or scope backtick-stripping to short single-token spans (no internal whitespace) rather than arbitrary-length spans, since multi-word backticked spans are markdown emphasis on prose, not code/path literals.\n",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-10T15:26:59.468Z",
+      "reviewRound": "2026-07-10T14:41:10.214Z",
+      "reviewRunId": "B-2c03:RR-014",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2c03/plan.md",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2c03/checklist.json",
+          ".lattice/story/actives/B-2c03/review.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e553a8c5281d5d3e934dd9ed7188bc3eb8a968b27233acdda7356744b6b3d636",
+      "files": [
+        "packages/main/src/core/proofstory.ts",
+        "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|verified-false-negative",
+      "signatureTagSource": "auto",
+      "resolvedReason": "stripCodeLikeTokens revised: inline backticks strip only whitespace-free spans; slash tokens strip only when path-shaped (>=2 slashes, contains dot, or leading ./ ../ ~/ /); dotted tokens require code-shaped stem (hyphen/underscore or >=2 dots) plus unambiguous extension; claimsShrinkage connectors widened to [\\s/_-]+. All three verified repros (backtick-quoted prose, remaining/scope, partial.md) now fire the gap via RED-first cases backtickProseDone / slashProseDone / simpleStemDotDone (verified failing pre-fix, passing post-fix). All strip-controls still pass (codeTokenDone, fileNameDone, bareFileNameDone, multiDotFileDone). Intent-hardening smoke, reconciliation smoke, milestone-status tests, e2e ALL PASS. plan.md invariant section rewritten: residuals fail-safe; single documented false-negative-by-convention is prose hidden inside fenced code blocks (adversarial authoring, outside threat model).",
+      "resolvedAt": "2026-07-10T15:32:04.718Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-2c03:F-007",
+      "desc": "packages/main/src/core/proofstory.ts stripCodeLikeTokens (F-006 fix, commit d567f260fe) closed the single-slash prose bypass (remaining/scope) but the pathShaped test (slashCount >= 2 OR token contains a dot OR leading ./ ../ ~/ /) still allows a distinct, independently-reachable bypass: a natural-English slash-separated word ENUMERATION such as excluded/deferred/partial or remaining/scope/details has slashCount>=2 and is treated as path-shaped, so the ENTIRE token -- including every trigger word inside it -- is erased before claimsShrinkage runs. This is the same failure class F-006 targeted (a rule meant for path-shaped tokens erasing genuine prose trigger words), just requiring a third slash-joined word to re-open it instead of a single slash. Verified live twice: (1) standalone extraction of the exact current stripCodeLikeTokens/dottedFileTokenRegex source, and (2) importing and calling the actual built packages/main/dist/core/proofstory.js evaluateDoneIntentEquivalence directly (mode=observe) with a lightweight-path summary, both showing zero unconfirmed_single_outcome_shrinkage gaps for: limitations text 'The excluded/deferred/partial items were dropped from this delivery.' strips to 'The   items were dropped from this delivery.' (gaps=[]); limitations text 'The remaining/scope/details were dropped from this delivery.' also gaps=[]. Sanity controls behave correctly: plain prose 'This delivery was partial.' fires; the genuine file path 'core/partial-done-recovery.ts' stays silent; a single slash with a trigger on each side (deferred/excluded items) still fires because slashCount==1 is not pathShaped. This is realistic natural prose -- slash-separated word-list enumerations (included/excluded, partial/complete, in-scope/out-of-scope style constructions) are a common English pattern, not a contrived adversarial payload -- and it directly matches the risk pattern plan.md's CHK-001 adversarial verification intent and the F-006 resolution were meant to close. plan.md Risk notes documents only false-POSITIVE residuals plus one false-negative-by-convention (prose hidden inside a fenced code block); this multi-slash-enumeration bypass is not among the documented residuals. No smoke coverage exists for a >=2-slash enumeration token; proofstory-intent-hardening-smoke.ts slashProseDone only covers a single-slash case (remaining/scope). Recommend narrowing the >=2-slash pathShaped branch so slash COUNT alone is not sufficient -- e.g. also require the token to look directory-shaped (at least one slash-delimited segment contains a dot, or the token has a leading path-like segment) -- since slash count alone cannot distinguish a 3-segment path from a 3-word enumeration. Add smoke coverage for at least one multi-slash enumeration case, verified failing pre-fix against current committed code and passing post-fix.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-10T15:37:15.341Z",
+      "reviewRound": "2026-07-10T14:41:10.214Z",
+      "reviewRunId": "B-2c03:RR-017",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2c03/plan.md",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2c03/checklist.json",
+          ".lattice/story/actives/B-2c03/findings.json",
+          ".lattice/story/actives/B-2c03/review.json"
+        ],
+        "scanEscalationReason": "Fresh adversarial round after F-006 fix (d567f260fe): probed the F-006-fixed slash-strip rule for a distinct residual bypass class (the >=2-slash pathShaped branch applied to slash-separated word ENUMERATIONS rather than real paths); found and reproduced live against dist/core/proofstory.js."
+      },
+      "_hash": "f3997414033f476e2a2b95861774b6605501a3a0ff20adc5540e05948d27665c",
+      "files": [
+        "packages/main/src/core/proofstory.ts",
+        "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto",
+      "resolvedReason": "pathShaped no longer counts slashes: only a dot in the token or a leading / or ~/ prefix strips (./ ../ covered by the dot rule). excluded/deferred/partial and remaining/scope/details enumerations now fire the gap (slashEnumerationDone / slashEnumerationRemainingDone RED-first cases verified failing pre-fix, passing post-fix); ./excluded/queue and src/deferred/list.ts still strip (pathPrefixDone control). Full intent-hardening smoke, reconciliation smoke, milestone-status tests, e2e ALL PASS. plan.md risk notes updated: extensionless prefix-free directory paths are a documented fail-safe false-positive residual.",
+      "resolvedAt": "2026-07-10T17:19:09.590Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-2c03:F-008",
+      "desc": "packages/main/src/core/proofstory.ts:1474 — the multi-word trigger connector class [\\s/_-]+ (added by F-006/F-007 to also match slash-separated prose) does not include a dot, so a dot-glued genuine narrowing/shrinkage claim silently bypasses the DONE-intent-equivalence guard. Confirmed live end-to-end: a lightweight-path story with acceptanceVerdict accepted and summary.changes = the remaining.scope work was intentionally cut from this delivery; out.of.scope items were skipped too. -> done_intent_equivalence_check returns status pass with ZERO gaps (no unconfirmed_single_outcome_shrinkage). The same text with spaces instead of dots (remaining scope / out of scope) correctly fires. This is plain natural prose with no path/code context (no slash, no file extension) — not a documented residual (those cover extensionless path-shaped tokens) and not accepted-design (this is a false NEGATIVE bypass, not the accepted false-positive class). Same bug pattern applies to not.covered and any other dot-glued multi-word trigger.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-10T17:24:17.099Z",
+      "reviewRound": "2026-07-10T14:41:10.214Z",
+      "reviewRunId": "B-2c03:RR-019",
+      "_hash": "b9cbebae6e2925887ce64fccda9bb6e28a58afb4d5a03242824c18a2c1cf4a6f",
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "auto",
+      "resolvedReason": "claimsShrinkage connectors widened to [\\s./_-]+; remaining.scope / out.of.scope / not.covered now fire (dotRemainingDone / dotOutOfScopeDone / dotNotCoveredDone RED-first cases verified failing pre-fix, passing post-fix); non-trigger dotted identifiers and file names stay silent (dotControlDone). Full suite green.",
+      "resolvedAt": "2026-07-10T17:39:07.301Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-2c03:F-009",
+      "desc": "packages/main/src/core/proofstory.ts stripCodeLikeTokens slash-strip step (F-006/F-007 fix) has a fifth, independently-reachable bypass class: pathShaped is computed as token.includes(\".\") || /^~?\\//.test(token) over the ENTIRE whitespace-delimited slash token, so a multi-slash English enumeration (excluded/deferred/partial style, the exact F-007 pattern) is erased WHOLESALE the instant ANY single dot appears ANYWHERE in the token -- even when that dot belongs to an unrelated trailing segment such as a version tag or a lone extension on only the last word, and even when zero of the segments form a real directory path. Verified live twice: (1) standalone extraction of the exact current stripCodeLikeTokens source, and (2) the actual built CLI/store (done_intent_equivalence_check, mode=observe) via StoryStore + dist/cli.js on a lightweight-path story, both showing zero unconfirmed_single_outcome_shrinkage gaps for: changes=\"The excluded/deferred/v2.1 items were dropped from this delivery.\" -> stripped to \"The   items were dropped from this delivery.\" (excluded AND deferred both silently erased by a same-token trailing version number); changes=\"The excluded/deferred/report.md items were dropped from this delivery.\" -> same erasure, caused by only the THIRD word carrying a .md extension. The zero-dot control (excluded/deferred/partial) correctly still fires (F-007 fix verified working for that case), isolating this as a distinct residual, not a regression of F-007. This is realistic natural prose -- appending a version tag or naming one file among a slash-separated list of excluded/deferred/partial items is an ordinary way to write a DONE summary -- not a contrived adversarial payload, and it defeats the same unconfirmed_single_outcome_shrinkage guard the CHK-001 adversarial verification intent (sanitize-path-tokens:adversarial) and the F-006/F-007 resolutions were meant to close. plan.md risk notes document residuals as exclusively false-POSITIVE direction (plus one documented false-negative-by-convention: prose inside fenced code blocks); this multi-slash-enumeration-with-one-dot bypass is a new, undocumented false-NEGATIVE and is not among the accepted residuals. No smoke coverage exists for a dot appearing inside an otherwise-non-path multi-slash enumeration (proofstory-intent-hardening-smoke.ts slashEnumerationDone/slashEnumerationRemainingDone only cover the zero-dot case; pathPrefixDone only covers genuine two-segment file paths, not enumerations with an incidental trailing dot). Recommend requiring path-shapedness to be evaluated per-segment or requiring the dot to appear in a segment that also looks like a real path component (e.g. only the LAST segment may carry the extension AND at least one earlier segment must look directory-shaped, or split the token into slash-delimited words and only strip a leading run of segments up to and including the first dotted/extension segment rather than the whole token) so pure English enumerations survive even when one member happens to carry a dot. Add smoke coverage for at least one dot-inside-enumeration case (e.g. excluded/deferred/report.md or excluded/deferred/v2.1), verified failing pre-fix against current committed code and passing post-fix.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-10T17:26:21.937Z",
+      "reviewRound": "2026-07-10T14:41:10.214Z",
+      "reviewRunId": "B-2c03:RR-020",
+      "_hash": "a63155c39df639afe73d95a2288bde02bdeba595f7e3286c78cdf9af731f32a5",
+      "files": [
+        "packages/main/src/core/proofstory.ts",
+        "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Slash tokens now require an explicit path marker (leading / ~/ ./ ../ prefix, URL scheme, or final segment with known extension; trailing punctuation ignored) — a dotted middle segment no longer strips the token. excluded/deferred/v2.1 fires (slashEnumerationDotDone RED-first case verified failing pre-fix, passing post-fix); https://example.com/deferred/setup.md still strips (urlControlDone); core/partial-done-recovery.ts and ./excluded/queue still strip (fileNameDone / pathPrefixDone). Full intent-hardening smoke, reconciliation smoke, milestone-status tests, e2e ALL PASS. plan.md invariant updated.",
+      "resolvedAt": "2026-07-10T17:39:08.395Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-2c03:F-010",
+      "desc": "placeholder-checking-id",
+      "severity": "high",
+      "category": "missing",
+      "status": "dismissed",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-10T18:54:24.661Z",
+      "reviewRound": "2026-07-10T18:53:39.083Z",
+      "reviewRunId": "B-2c03:RR-024",
+      "_hash": "ff1938053c6f3214f16140ee9e20ff1de7c99d606a69acaec449d60e75385373",
+      "signatureTag": "missing|unknown|placeholder-checking",
+      "signatureTagSource": "auto",
+      "dismissReason": "Accidental placeholder created while diagnosing the correct reviewRunId format (abbreviated RR-024 was rejected; full B-2c03:RR-024 id needed). Superseded by the real finding filed immediately after with the actual coverage-gap description.",
+      "dismissedAt": "2026-07-10T18:54:40.515Z"
+    },
+    {
+      "id": "B-2c03:F-011",
+      "desc": "CHK-003:adversarial verificationEvidence and the host-B review-response narrative in plan.md claim test coverage that does not exist in tracked files. Commit e736624c08 widened the remaining-trigger regex to remaining(?:[connector][word]){0,3}?[connector]<scope-noun> and rewrote stripCodeLikeTokens into a whitespace-split/anchored tokenizer for linear-time safety, but that commit touches only packages/main/src/core/proofstory.ts and plan.md (git show e736624c08 --stat) — proofstory-intent-hardening-smoke.ts is byte-identical to before it. plan.md explicitly states: the modifier-window fix is covered by modifierRemainingDone / modifierRemainingDone2 plus a no-noun negative control, and a pathological-input timing assertion now lives in the smoke. Neither claim is true: grep across the smoke file for modifier|Modifier|pathological|timing|elapsed|Date.now|performance.now returns zero matches. The one pre-existing case that superficially resembles this behavior, remainingScopeDone (summary text: The remaining cases were left for a follow-up story.), has zero modifier words between remaining and its scope noun, so it passes under both the pre-fix and post-fix regex (verified locally: the pre-fix regex remaining[\\\\s./_-]+(?:work|scope|items?|...) already matches this exact string) and cannot distinguish the fix from a revert. Net effect: the specific behavior change delivered in this review round (widened modifier window, rewritten tokenizer with a claimed 8ms-vs-6.4s perf characteristic on pathological input) has zero regression coverage in tracked test files, and the CHK-003:adversarial evidence note mischaracterizes coverage that is not present. Needs: a smoke case with 1-3 modifier words between remaining and its scope noun (e.g. remaining browser-only edge cases were deferred) asserting the gap still fires, a no-noun negative control (e.g. remaining work was great as a compliment, no scope noun) asserting it does not fire, and either a timing/iteration-count assertion on a pathological hyphen/dot run or, at minimum, removal of the false claim from plan.md if the timing assertion is intentionally out of scope.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-10T18:55:02.672Z",
+      "reviewRound": "2026-07-10T18:53:39.083Z",
+      "reviewRunId": "B-2c03:RR-024",
+      "_hash": "fdcff2356db5aeb84b70b26b79f3c6b207ac4304dfbf4942f52ca00b5000bdaa",
+      "files": [
+        "packages/main/src/core/proofstory.ts",
+        "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+        ".lattice/story/actives/B-2c03/plan.md"
+      ],
+      "signatureTag": "missing|ts|adversarial-verificationevidence-host",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Root cause: a concurrent reviewer cleanup reverted uncommitted smoke edits between the RED observation and commit e736624c08 (its 2-files-changed stat was the missed signal). Fixed in 6a06ea3c13: five must-fire remaining-window cases (incl. codex round-1/round-2 sentences), two negative controls, the pathological-input timing assertion, the by-requirement backtick pin, and the trigger-stemmed-file-name pins are now committed; grep confirms presence and the full smoke passes at current head. plan.md coverage claims now match tracked files.",
+      "resolvedAt": "2026-07-10T19:11:57.524Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-2c03:F-012",
+      "desc": "Verified natural-prose false-positive regression in the same-sentence character-window fix for host-B finding 1 (packages/main/src/core/proofstory.ts:1497-1506, commit 6a06ea3c13). The new claimsShrinkage regex replaced the fixed 0-3-modifier-word bound with an open same-sentence window: remaining(?:\\\\.(?!\\\\s)|[^.!?;:\\\\n]){1,60}?(?<![A-Za-z0-9])<scope-noun>(?![A-Za-z0-9]). This only requires \"remaining\" and a scope-noun WORD to co-occur within 60 characters of the same sentence, not that the noun be the grammatical object of \"remaining\" — so a comma-joined UNRELATED clause containing an incidental scope-noun word now false-positives, reproducing exactly the false-positive class CHK-003 was written to eliminate (bare \"remaining\" describing pre-existing/unrelated state, not story scope shrinkage). Verified live end-to-end via the real dist/cli.js done_intent_equivalence_check (not a standalone regex extraction; script used mkdtemp git init + original_intent_snapshot_set + summary.json write, matching the smoke harness pattern): (1) limitations=\"Two remaining flaky tests, unrelated to this fix, cover edge cases in CI.\" -> gaps includes unconfirmed_single_outcome_shrinkage (should NOT fire: this sentence is describing pre-existing flaky tests, same class as the CHK-003 canonical negative control, and \"cases\" only appears in the unrelated CI-coverage clause). (2) limitations=\"The remaining CI flakes are old infra items, not part of this change.\" -> also fires (item is an unrelated noun in a different clause). (3) limitations=\"The two remaining suite failures are pre-existing issues, not new test cases from this change.\" -> also fires. Boundary-mapped the exact window: remaining<N filler chars>scope fires for N<=58 and stays silent for N>=59 (60-char cap), confirming the window is purely a character-count proximity test with no clause/dependency boundary. This is a distinct, independently-reachable regression from the CHK-003 canonical negative control (\"Two remaining suite failures are pre-existing upstream issues unrelated to this story.\" still correctly stays silent because that exact sentence has no scope-noun word within 60 chars) -- it only reproduces when a scope-noun word happens to appear later in the SAME sentence via an unrelated clause, which is common natural DONE-summary phrasing (e.g. any sentence mentioning both \"remaining X\" and \"test/existing/current cases/coverage/work\" for unrelated reasons). The new smoke coverage added in the same commit (remainingWindowClaims positive cases; windowControlNoNoun and windowControlNextSentence negative controls) does not cover this comma-clause/unrelated-noun-in-window class -- both negative controls test \"no noun anywhere in the window\" and \"noun only in the next sentence,\" neither of which is this bug. Recommend requiring the window match to stop at a comma/semicolon (or other clause boundary) in addition to sentence terminators, or scoping the noun match to not cross a subordinate/relative clause, and adding a smoke case for a comma-separated unrelated clause containing a scope-noun word.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-10T19:13:08.421Z",
+      "reviewRound": "2026-07-10T18:53:39.083Z",
+      "reviewRunId": "B-2c03:RR-026",
+      "_hash": "7eb52d248a03e39d0f4585b6a9d4c22cb58fafe8558b984ce2d3c12595905d96",
+      "files": [
+        "packages/main/src/core/proofstory.ts",
+        "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+        ".lattice/story/actives/B-2c03/plan.md"
+      ],
+      "signatureTag": "adversarial|ts|verified-natural-prose",
+      "signatureTagSource": "auto",
+      "resolvedReason": "The remaining trigger no longer uses raw character proximity: chain words exclude clause-marking stop words so all three F-012 cross-clause sentences stay quiet (remainingCrossClauseControls smoke cases, verified firing pre-fix and quiet post-fix), while codex round-3 long-chain and heading-colon claims fire (added to remainingWindowClaims). Full smoke, reconciliation smoke, milestone-status tests, and e2e ALL PASS at current head.",
+      "resolvedAt": "2026-07-10T19:29:36.027Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-2c03:F-013",
+      "desc": "quality-cleanup(F-012 class revival): packages/main/src/core/proofstory.ts:1513 remainingStopWord list does not distinguish an intra-noun-phrase coordinating conjunction (\"and\" joining two coordinate modifiers, e.g. \"Safari mobile localization AND reduced-motion edge cases\") from a clause-coordinating conjunction joining two INDEPENDENT clauses. Because the chain treats any of and/or/yet as a pass-through connector (only but/while/so/nor happen to be blocked, and only because they already appear in the stop-word list for other reasons), a compound sentence of the shape \"<remaining-clause-with-unrelated-noun>, and <unrelated-clause-with-scope-noun>\" lets the chain walk straight through the clause boundary into a scope noun that belongs to a semantically unrelated second clause. Live-CLI-verified natural-prose false positives via done_intent_equivalence_check (mode=observe) on a lightweight-path story: \"Two remaining issues exist, and scope work continues in a follow-up story.\" -> fires (match: remaining issues exist, and scope); \"Two remaining test failures linger, and coverage improvements are tracked in a follow-up.\" -> fires (match: remaining test failures linger, and coverage); also reproduces with or/yet in place of and (e.g. \"Two remaining issues linger or scope work continues elsewhere.\" -> fires). This is the exact CHK-003/F-012 false-positive class the story exists to fix (environment-state prose about unrelated leftover issues, no scope-shrinkage claim), reviving through the and/or/yet clause-coordinator vector rather than the three already-covered F-012 comma-only controls in proofstory-intent-hardening-smoke.ts (which lack a following independent-clause verb+conjunction structure). Not covered by any documented accepted-design tradeoff (fenced-code-block, line-wrap fail-safe, by-requirement strip classes, out-of-scope vocabulary/verb recall, exotic typography) — this is a structural clause-boundary gap in the modifier-chain design itself.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-10T19:36:32.670Z",
+      "reviewRound": "2026-07-10T18:53:39.083Z",
+      "reviewRunId": "B-2c03:RR-028",
+      "_hash": "fcf4a2042a392bf3905459556f3bb7611d628aa4cadab069a4c7dd684d2816c9",
+      "signatureTag": "adversarial|unknown|quality-cleanup-class",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Conjunctions no longer bridge clauses: ', and'/', or'/', yet' block the chain (comma+conjunction = clause coordination) and state verbs exist/linger/persist/continue/remain are stop words, so all three F-013 sentences (comma and no-comma variants) stay quiet (remainingCrossClauseControls, verified firing pre-fix and quiet post-fix). Bare intra-phrase conjunctions still pass (codex round-3 long-chain case fires). codex round-4 recall cases (remaining set of cases, remaining UI/UX cases) added as must-fire. Full smoke, reconciliation smoke, milestone-status tests, e2e ALL PASS at current head.",
+      "resolvedAt": "2026-07-10T19:42:42.109Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-2c03:F-014",
+      "desc": "All 9 verificationEvidence rows across CHK-001/CHK-002/CHK-003 are bound to materialHash 7806164814b9e7f47c83fdc67a22b912be27a9a17d3b7d5dd5ef957fabcc5c11 / headHash 204061622e57d2c4cbc3a664db5429d3041551e9, which predates codex rounds 3-7 (F-003,F-005..F-009,F-011..F-013) that materially changed packages/main/src/core/proofstory.ts and the smoke file. Current frozen head 0251d41ab4 computes materialHash 16c3456a6c8c032dcd40df44fa4864b507d52c5d224f9aeec8ce3721008dab6f (confirmed via evidence_inspect: freshness=stale, staleRefs=9, and evidence_refresh dry-run: 9/9 candidates flagged storyFilesHash drift). Re-running the exact bound command (node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js) at current HEAD still passes, and grep-verified counts (15 remainingWindowClaims, 7 remainingCrossClauseControls, lineQualifiedPathDone present) match plan.md, so this is not a behavioral regression - but the recorded evidence rows do not attest to the current code state and should be re-bound (verification_evidence_refresh_stale / re-run + verification_evidence_add) before DONE so the checklist evidence truthfully maps to current HEAD.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-10T20:53:52.648Z",
+      "reviewRound": "2026-07-10T18:53:39.083Z",
+      "reviewRunId": "B-2c03:RR-041",
+      "_hash": "a1112faa5320ab6f2982420c84652419d8d2e94761748aea23fe0d8c27853732",
+      "files": [
+        "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+        "packages/main/src/core/proofstory.ts",
+        ".lattice/story/actives/B-2c03/checklist.json"
+      ],
+      "signatureTag": "missing|ts|verificationevidence-rows-across",
+      "signatureTagSource": "auto",
+      "resolvedReason": "All 9 verification evidence rows re-added at final head (post 16c97d4009) after re-running the literal smoke command green; evidence_plan reports missing=0 fresh=9. The stale bindings were review-treadmill churn (51 commits of finding-fix rounds), not a coverage gap - the coverage itself was verified sound by the filing reviewer.",
+      "resolvedAt": "2026-07-10T21:02:24.062Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

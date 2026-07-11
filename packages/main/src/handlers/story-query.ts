@@ -223,12 +223,21 @@ function gitUnmergedPaths(cwd: string): string[] {
   return raw.split('\n').map(line => line.trim().replace(/\\/g, '/')).filter(Boolean);
 }
 
-function gitPorcelainPaths(cwd: string): string[] {
-  const raw = gitOutput(cwd, 'status --porcelain -uall');
+// Exported for the porcelain first-row regression smoke (B-d6a0); not a CLI command.
+export function gitPorcelainPaths(cwd: string): string[] {
+  // Not gitOutput(): its full-output trim() strips the first porcelain row's
+  // leading status space (" M path" -> "M path"), shifting the fixed-width
+  // path offset and corrupting the first reported path (".lattice/x" -> "lattice/x").
+  const raw = execSync('git status --porcelain -uall', { cwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] });
   return raw.split('\n')
     .map(line => line.trimEnd())
     .filter(Boolean)
-    .map(line => line.slice(3).trim().replace(/^"|"$/g, '').replace(/\\/g, '/'));
+    .map(line => {
+      const pathText = line.slice(3).trim();
+      // Rename rows are "old -> new"; the new path is what now exists.
+      const target = pathText.includes(' -> ') ? pathText.split(' -> ').pop()! : pathText;
+      return target.trim().replace(/^"|"$/g, '').replace(/\\/g, '/');
+    });
 }
 
 /**
@@ -1012,16 +1021,19 @@ function scanTerminalStoryResidues(store: StoryStore, root: string): StoryResidu
     try { story = store.readStory(id); } catch { continue; }
     if (story.phase !== 'DONE' && story.phase !== 'DISCARDED') continue;
     const rel = `${cfg.storyDir.replace(/\\/g, '/')}/${id}`;
-    let status = '';
+    let raw = '';
     try {
-      status = execSync(`git status --porcelain -uall -- ${JSON.stringify(rel)}`, {
+      // No full-output trim(): it would strip the first porcelain row's leading
+      // status space and corrupt the stored/displayed status text.
+      raw = execSync(`git status --porcelain -uall -- ${JSON.stringify(rel)}`, {
         cwd: gitCwd,
         encoding: 'utf-8',
         stdio: ['pipe', 'pipe', 'pipe'],
-      }).trim();
+      });
     } catch { continue; }
-    if (!status) continue;
-    const lines = status.split('\n').filter(Boolean);
+    const lines = raw.split('\n').map(line => line.trimEnd()).filter(Boolean);
+    if (lines.length === 0) continue;
+    const status = lines.join('\n');
     residues.push({
       storyId: id,
       phase: story.phase,

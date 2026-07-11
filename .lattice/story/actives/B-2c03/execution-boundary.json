@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-2c03",
+  "allowedCommands": [
+    "git add",
+    "git commit",
+    "git diff",
+    "git status",
+    "lattice *",
+    "node --test",
+    "node dist/tasks/proofstory-intent-hardening-smoke.js",
+    "npm run build",
+    "npm run test:proofstory-intent-hardening-smoke"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".lattice/story/actives/B-2c03",
+    "packages/main/src/core/proofstory.ts",
+    "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Bug fix confined to the claimsShrinkage heuristic and its smoke coverage; build and smoke commands run inside the story worktree.",
+  "createdAt": "2026-07-10T14:25:51.927Z",
+  "updatedAt": "2026-07-10T14:25:51.927Z",
+  "_hash": "aaac2a2c6f78feb8daed207968330a90483c445d395635021a682e1e52223d89"
+}

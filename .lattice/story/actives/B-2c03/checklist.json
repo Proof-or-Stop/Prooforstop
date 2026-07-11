@@ -1,0 +1,258 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Sanitize path-like/code-like tokens out of the claimsShrinkage scan text before the trigger-word regex runs",
+      "context": "In evaluateDoneIntentEquivalence (packages/main/src/core/proofstory.ts ~line 1420-1440), build narrowingText as today, then strip backticked spans (`...`), tokens containing '/' (path segments), and hyphenated or dotted file-name-shaped tokens (e.g. partial-done-recovery.ts, not-covered.md) before testing the claimsShrinkage regex. Plain prose trigger words must keep matching.",
+      "userSees": "A DONE summary whose changes text names core/partial-done-recovery.ts no longer produces the unconfirmed_single_outcome_shrinkage gap, while a prose claim like 'the remaining cases were deferred' still blocks DONE without a confirmed shrinkage decision.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/proofstory.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "sanitize-path-tokens:happy",
+            "desc": "done_intent_equivalence_check on a lightweight-path story whose summary.changes names core/partial-done-recovery.ts reports no unconfirmed_single_outcome_shrinkage gap.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "sanitize-path-tokens:edge",
+            "desc": "Trigger words inside backticked spans or slash-segmented paths (e.g. `deferred`, src/excluded/list.ts) do not trigger; the same words as plain prose still trigger.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "sanitize-path-tokens:adversarial",
+            "desc": "A summary that names partial-done-recovery.ts AND separately claims 'remaining scope deferred' in prose still produces the unconfirmed_single_outcome_shrinkage gap - the sanitizer must not swallow surrounding prose or become a bypass for genuine shrinkage claims.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-07-10T14:36:23.108Z",
+      "endTime": "2026-07-10T14:40:27.721Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "sanitize-path-tokens:happy",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "fileNameDone plus the full strip-rule battery (16 strip/keep cases) green at final head 16c97d4009",
+          "headHash": "16c97d4009edc05df5edcb7fe7dc11e7e37f1575",
+          "materialHash": "cd6eed7f3c2821bce29d74c39f6000f3a619e401bc0b58440fad255a16bf9777",
+          "storyFilesHash": "8f7363b1cd635279d8c1298f696d89b62fa094648b38e0060490a1b1784ad210",
+          "timestamp": "2026-07-10T21:02:04.732Z"
+        },
+        {
+          "intentRef": "sanitize-path-tokens:edge",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "codeTokenDone, backtickProseDone, slashProseDone, slashEnumeration cases, urlControlDone, lineQualifiedPathDone, anchorQualifiedPathDone all green at final head",
+          "headHash": "1841075a1a11e195bee92d4c231dc8baaf2b1e37",
+          "materialHash": "cd6eed7f3c2821bce29d74c39f6000f3a619e401bc0b58440fad255a16bf9777",
+          "storyFilesHash": "8f7363b1cd635279d8c1298f696d89b62fa094648b38e0060490a1b1784ad210",
+          "timestamp": "2026-07-10T21:02:05.494Z"
+        },
+        {
+          "intentRef": "sanitize-path-tokens:adversarial",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "proseShrinkDone and seven cross-clause controls confirm the sanitizer and chain never swallow genuine prose claims; verified by 8 codex host-B rounds plus quality-lane probes",
+          "headHash": "0b709281b115d83df7ed5107627d51511180b0ed",
+          "materialHash": "cd6eed7f3c2821bce29d74c39f6000f3a619e401bc0b58440fad255a16bf9777",
+          "storyFilesHash": "8f7363b1cd635279d8c1298f696d89b62fa094648b38e0060490a1b1784ad210",
+          "timestamp": "2026-07-10T21:02:06.117Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add a repro-first regression test where the summary names partial-done-recovery.ts",
+      "context": "Repro-first (guide-red-spike-story): add the smoke case to proofstory-intent-hardening-smoke.ts BEFORE the fix and record it failing against the current heuristic, then make it pass. The case writes a lightweight-path story whose summary.changes names core/partial-done-recovery.ts and asserts done_intent_equivalence_check emits no unconfirmed_single_outcome_shrinkage gap; keep the existing positive control (prose 'Partial narrower delivery; remaining cases deferred.') asserting the gap still fires.",
+      "userSees": "npm run test:proofstory-intent-hardening-smoke passes and includes a case proving file-name-only summaries do not trip the shrinkage gap.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "regression-test-filename-summary:happy",
+            "desc": "New smoke case passes after the fix; full proofstory-intent-hardening smoke stays green.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "regression-test-filename-summary:edge",
+            "desc": "The pre-fix RED run is captured as evidence showing the new case fails against the unpatched heuristic.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "regression-test-filename-summary:adversarial",
+            "desc": "Existing narrow-delivery positive control still fails the gate (guard not weakened by the sanitizer).",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-07-10T14:40:28.239Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "regression-test-filename-summary:happy",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "full intent-hardening smoke green at final head: 15 must-fire window claims, 7 cross-clause controls, all strip controls",
+          "headHash": "e73326756e0fee18310b3289e9b94aaa3e5daf82",
+          "materialHash": "cd6eed7f3c2821bce29d74c39f6000f3a619e401bc0b58440fad255a16bf9777",
+          "storyFilesHash": "8f7363b1cd635279d8c1298f696d89b62fa094648b38e0060490a1b1784ad210",
+          "timestamp": "2026-07-10T21:02:06.744Z"
+        },
+        {
+          "intentRef": "regression-test-filename-summary:edge",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "pre-fix RED bound in red-evidence.json (baseline 2db38feff1); same command green at final head (same_acceptance)",
+          "headHash": "aa57170dd7848f92f0e562e2984784914d9adbc8",
+          "materialHash": "cd6eed7f3c2821bce29d74c39f6000f3a619e401bc0b58440fad255a16bf9777",
+          "storyFilesHash": "8f7363b1cd635279d8c1298f696d89b62fa094648b38e0060490a1b1784ad210",
+          "timestamp": "2026-07-10T21:02:07.377Z"
+        },
+        {
+          "intentRef": "regression-test-filename-summary:adversarial",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "narrowLightDone positive control plus dotRemainingDone/dotOutOfScopeDone/dotNotCoveredDone still fire; guard strengthened across 14 resolved findings",
+          "headHash": "faa18331c3664f26aad80e662da9520d4c5983b8",
+          "materialHash": "cd6eed7f3c2821bce29d74c39f6000f3a619e401bc0b58440fad255a16bf9777",
+          "storyFilesHash": "8f7363b1cd635279d8c1298f696d89b62fa094648b38e0060490a1b1784ad210",
+          "timestamp": "2026-07-10T21:02:07.991Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Decide and document whether the bare trigger word 'remaining' is too broad",
+      "context": "An earlier B-d6a0 summary draft tripped the heuristic on 'remaining' while describing pre-existing unrelated suite failures. Evaluate keeping, narrowing (e.g. only match shrinkage-flavored phrases like 'remaining work/items/scope'), or dropping it; record the decision and rationale in the story plan/summary, and if the vocabulary changes, cover the change with a smoke assertion.",
+      "userSees": "The story artifacts contain an explicit keep/narrow/drop decision for 'remaining' with rationale; if narrowed, a smoke case shows the narrowed behavior.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/proofstory.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "remaining-breadth-decision:happy",
+            "desc": "Decision recorded; heuristic behavior matches the recorded decision.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "remaining-breadth-decision:edge",
+            "desc": "If narrowed: 'the remaining suite failures are pre-existing' no longer triggers while 'remaining scope deferred' still does.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "remaining-breadth-decision:adversarial",
+            "desc": "If kept: rationale explains why the false-positive rate is acceptable rather than silently ignoring the question.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-07-10T14:40:28.778Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "remaining-breadth-decision:happy",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "clause-aware modifier chain implements the NARROW decision; 15 must-fire claims green at final head",
+          "headHash": "313581b8f2e174919afd23408ce725a250ec32d9",
+          "materialHash": "cd6eed7f3c2821bce29d74c39f6000f3a619e401bc0b58440fad255a16bf9777",
+          "storyFilesHash": "8f7363b1cd635279d8c1298f696d89b62fa094648b38e0060490a1b1784ad210",
+          "timestamp": "2026-07-10T21:02:08.606Z"
+        },
+        {
+          "intentRef": "remaining-breadth-decision:edge",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "preexistingDone/windowControlNoNoun/windowControlNextSentence quiet; remainingScopeDone/hyphenRemainingDone/underscoreRemainingDone fire",
+          "headHash": "74a2a8082eeb3114a02d72cd5ae4c0b5efc0825b",
+          "materialHash": "cd6eed7f3c2821bce29d74c39f6000f3a619e401bc0b58440fad255a16bf9777",
+          "storyFilesHash": "8f7363b1cd635279d8c1298f696d89b62fa094648b38e0060490a1b1784ad210",
+          "timestamp": "2026-07-10T21:02:09.218Z"
+        },
+        {
+          "intentRef": "remaining-breadth-decision:adversarial",
+          "kind": "docs_check",
+          "file": ".lattice/story/actives/B-2c03/plan.md",
+          "result": "pass",
+          "note": "plan.md documents the decision, eight codex rounds, F-012/F-013 taxonomy, and the convergence statement",
+          "headHash": "7455b9fe34dd1b8b104fcd67ab78b57f7ad6a31e",
+          "materialHash": "cd6eed7f3c2821bce29d74c39f6000f3a619e401bc0b58440fad255a16bf9777",
+          "storyFilesHash": "8f7363b1cd635279d8c1298f696d89b62fa094648b38e0060490a1b1784ad210",
+          "timestamp": "2026-07-10T21:02:09.838Z"
+        }
+      ]
+    }
+  ]
+}

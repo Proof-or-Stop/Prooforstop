@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-2c03",
+  "mode": "correctness_fix",
+  "allowed": [
+    "An explicit keep/narrow/drop decision (with rationale, and implementation if narrowed) for the bare trigger word remaining in the same regex",
+    "Pre-match sanitization of path-like/code-like tokens (backticked spans, slash-segmented paths, hyphenated/dotted file-name tokens) in the claimsShrinkage narrowingText scan inside evaluateDoneIntentEquivalence (packages/main/src/core/proofstory.ts)",
+    "Regression smoke coverage in packages/main/src/tasks/proofstory-intent-hardening-smoke.ts: file-name-only summary must not trip unconfirmed_single_outcome_shrinkage; genuine prose shrinkage claim must still trip it"
+  ],
+  "excluded": [
+    "Changing the strict milestone-path DONE equivalence logic or any other DONE-gate check",
+    "Changing the trigger vocabulary beyond the remaining decision",
+    "Redesigning the shrinkage heuristic into NLP/LLM classification or removing it"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User request 2026-07-10: open a story to make the heuristic ignore path-like/code-like tokens, add a regression test naming partial-done-recovery.ts, and consider whether remaining is too broad a trigger word.",
+  "createdAt": "2026-07-10T14:25:51.694Z",
+  "updatedAt": "2026-07-10T14:25:51.694Z",
+  "_hash": "eb997c874be0bad45ecea0affb63b9404c41d9c2026b9104fc1ac42cff1b8218"
+}

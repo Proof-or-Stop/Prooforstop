@@ -28,6 +28,18 @@ function git(gitCwd: string, args: string[]): string {
   }).trim();
 }
 
+// Porcelain status reads must NOT use git(): its full-output trim() strips the
+// first porcelain row's leading status space (" M path" -> "M path"), shifting
+// the fixed-width path offset so statusLinePath() corrupts the first path
+// (".lattice/x" -> "lattice/x") and volatile-artifact filtering misfires.
+function gitRaw(gitCwd: string, args: string[]): string {
+  return execFileSync('git', args, {
+    cwd: gitCwd,
+    encoding: 'utf-8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
+}
+
 function gitSucceeds(root: string, args: string[]): boolean {
   try {
     git(root, args);
@@ -176,7 +188,7 @@ function materialStatusLines(status: string): string[] {
 }
 
 export function assertMainWorktreeClean(root: string): void {
-  const status = materialStatusLines(git(root, ['status', '--porcelain']));
+  const status = materialStatusLines(gitRaw(root, ['status', '--porcelain']));
   if (status.length > 0) {
     throw new Error(
       `done_recover refused: main worktree is not clean at "${resolve(root)}".\n${status.join('\n')}\n` +

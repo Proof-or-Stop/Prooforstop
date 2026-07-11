@@ -1,0 +1,84 @@
+{
+  "principles": [
+    "Single writer choke-point: all host-run capture reuses the existing dispatch-usage seam; no second ledger writer path",
+    "Diagnostics-only: usage rows never gate workflow (gateEvidence=false semantics preserved)",
+    "Provider truth over estimates: provider-reported counts come only from real host output; absence is recorded as source=unavailable, never fabricated or zeroed",
+    "Fail-closed caps before spawn: budget and concurrency refusals happen pre-spawn and are recorded as blocked rows",
+    "Read-only retro attribution: the sweep never mutates transcript stores and never backfills the ledger"
+  ],
+  "drivers": [
+    "Burn evidence 2026-07-10: host-side runs are invisible to the ledger - 368.9M cumulative input in one 30-hour desktop thread, ~16M input per minute from five parallel codex exec reviewers",
+    "B-d8ef canonical launcher specs are the mechanical contract every lattice-initiated host run must already follow - the natural single choke point",
+    "Verified host surfaces: agy exposes no per-call usage; canonical codex launcher is --ephemeral (no rollout) but exec --json emits a terminal turn.completed usage event; claude stream-json result usage is parseable today via parseClaudeCliOutput"
+  ],
+  "options": [
+    {
+      "name": "host_run choke-point command reusing the dispatch-usage seam",
+      "pros": [
+        "Preserves the single-writer completeness guarantee from the usage-ledger execution plan",
+        "Canonical launcher argv enforced mechanically at one place",
+        "storyId/agentType/phase/reviewRunId bound at call time, not reconstructed later",
+        "Budget and concurrency caps (T2) enforceable pre-spawn with blocked ledger rows"
+      ],
+      "cons": [
+        "Adoption requires guidance updates so operators stop launching raw codex exec / claude --print",
+        "New CLI surface to maintain"
+      ]
+    },
+    {
+      "name": "Extend dispatch_run and dispatch records to cover reviewer and quorum runs",
+      "pros": [
+        "No new command"
+      ],
+      "cons": [
+        "Dispatch records and policy semantics are dispatch-scoped; overloading them for reviewer/quorum runs muddies process facts and forces synthetic dispatch records",
+        "Reviewer/quorum context (reviewRunId, lane) does not fit the dispatch record shape"
+      ]
+    },
+    {
+      "name": "Sweep-only: skip launcher capture and attribute everything post-hoc from transcript stores",
+      "pros": [
+        "Zero workflow change"
+      ],
+      "cons": [
+        "Attribution stays an estimate forever; no call-time binding of storyId/phase",
+        "Violates the completeness-by-construction principle; caps unenforceable"
+      ]
+    }
+  ],
+  "chosen": "host_run choke-point command reusing the dispatch-usage seam",
+  "rationale": "Only the choke-point command preserves the single-writer completeness guarantee while making attribution call-time-bound and making the T2 budget/concurrency caps enforceable before spawn; the sweep remains a clearly-labeled estimate layer for sessions lattice did not launch.",
+  "preMortem": [
+    {
+      "scenario": "Operators keep launching raw codex exec so the choke point is bypassed and the ledger stays sparse",
+      "trigger": "Guidance, reviewer templates, or muscle memory still show raw host commands",
+      "consequence": "M1 ships but coverage does not improve; burns stay invisible",
+      "mitigation": "CHK-004 rewrites every reviewer/quorum/autopilot guidance surface to name the choke-point command; the M2 sweep doubles as a bypass detector because foreign exec sessions in lattice cwds show up in the report"
+    },
+    {
+      "scenario": "A host CLI upgrade changes the turn.completed or stream-json result shape and the parser silently stops finding usage",
+      "trigger": "codex/claude CLI version bump",
+      "consequence": "Usage rows degrade to unavailable without anyone noticing, silently under-counting",
+      "mitigation": "Absence is recorded as explicit source=unavailable rows with a reason; smoke fixtures pin the parsed shapes; the usage report surfaces unavailable counts so drift is visible"
+    },
+    {
+      "scenario": "The concurrency cap deadlocks or blocks legitimate quorum work",
+      "trigger": "Stale slot entries left by a crashed or killed host run",
+      "consequence": "Reviews stall behind a fail-closed cap",
+      "mitigation": "Slot registry uses pid liveness plus mtime staleness detection with automatic reclaim; refusal messages print the exact live-run list and the env override"
+    },
+    {
+      "scenario": "The sweep double-counts split claude assistant events or misreads cumulative codex totals as per-turn values",
+      "trigger": "Transcript quirks: one assistant message emitted as multiple JSONL events sharing message.id; codex total_token_usage is cumulative",
+      "consequence": "Attribution report overstates burns and misleads cost decisions",
+      "mitigation": "Dedupe claude usage by message.id/requestId keeping the last value; treat codex totals as cumulative last-value per session; fixtures encode both quirks; report is labeled non-authoritative"
+    },
+    {
+      "scenario": "Ledger writes slow down or break long reviewer runs",
+      "trigger": "Corrupt ledger file or fs error during a 30-minute reviewer run",
+      "consequence": "Reviewer output lost or truncated",
+      "mitigation": "The seam never throws (existing contract); host output passthrough is independent of ledger writes; the host exit code propagates unchanged"
+    }
+  ],
+  "timestamp": "2026-07-10T05:16:24.169Z"
+}

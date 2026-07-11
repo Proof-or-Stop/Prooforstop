@@ -8,7 +8,7 @@
         "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md#M5---Re-run-And-Merge-Preflight-UX",
         "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
       ],
-      "userSees": "done_prepare reports merge hazards with exact paths and says what to preserve or commit before retrying.",
+      "userSees": "done_prepare prints \"merge hazard: untracked file would be overwritten\" with the exact path and \"preserve or move the file, then rerun done_prepare\".",
       "files": {
         "modify": [
           "packages/main/src/handlers/done-prepare.ts"
@@ -41,9 +41,47 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-10T05:33:47.453Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+          "command": "npm --prefix packages/main run test:done-prepare-merge-rerun-smoke",
+          "result": "pass",
+          "note": "assertUntrackedOverwriteHazard: BLOCKED with exact path (merge hazard: untracked file would be overwritten: notes/main-only.txt) plus safe next step before any DONE recovery; assertModifiedTrackedPathExactness proves first-row modified paths keep exact form after the porcelain trim fix.",
+          "headHash": "4dfe2a737569495c1b0cf034a1088fcf919aaf28",
+          "materialHash": "ba36c671941eeba2377ad1a8a3f9b777887692a2d798549352006b79665e9c88",
+          "storyFilesHash": "53529a07d48a28724402eb184e6594c2ddfb599e887c0631927f5bbd9058c625",
+          "timestamp": "2026-07-10T05:51:36.893Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+          "command": "npm --prefix packages/main run test:done-prepare-merge-rerun-smoke",
+          "result": "pass",
+          "note": "assertPlainNoHazardPass: a first-run, default-flags, clean-fixture done_prepare reaches DONE prepare: PASS through the existing flow (doneClosure: PASS, worktreeClean: PASS) with no merge-hazard, dirty-classification, rerun-reason, or auto-closeout sections, and leaves git status and story metadata byte-identical.",
+          "headHash": "4dfe2a737569495c1b0cf034a1088fcf919aaf28",
+          "materialHash": "ba36c671941eeba2377ad1a8a3f9b777887692a2d798549352006b79665e9c88",
+          "storyFilesHash": "53529a07d48a28724402eb184e6594c2ddfb599e887c0631927f5bbd9058c625",
+          "timestamp": "2026-07-10T05:51:36.893Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+          "command": "npm --prefix packages/main run test:done-prepare-merge-rerun-smoke",
+          "result": "pass",
+          "note": "assertUntrackedOverwriteHazard: hazard block leaves HEAD, git status (porcelain v1 untracked-files=all), and story metadata byte-identical; guidance text contains no stash/git add/commit/delete suggestions, so nothing unrelated is stashed, deleted, committed, or overwritten.",
+          "headHash": "4dfe2a737569495c1b0cf034a1088fcf919aaf28",
+          "materialHash": "ba36c671941eeba2377ad1a8a3f9b777887692a2d798549352006b79665e9c88",
+          "storyFilesHash": "53529a07d48a28724402eb184e6594c2ddfb599e887c0631927f5bbd9058c625",
+          "timestamp": "2026-07-10T05:51:36.893Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -53,7 +91,7 @@
         "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md#M5---Re-run-And-Merge-Preflight-UX",
         "docs/requirements/decisions/story-files-hash-material-drift.md"
       ],
-      "userSees": "A rerun prints a compact reason such as generated done-required evidence, material/storyFiles hash change, or review assurance needs current binding.",
+      "userSees": "A repeated run prints \"done_prepare re-run reason:\" followed by entries such as \"previous run wrote done-required-evidence.json\" and \"review assurance must bind to the current material\".",
       "files": {
         "modify": [
           "packages/main/src/handlers/done-prepare.ts"
@@ -86,9 +124,47 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-10T05:33:48.236Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+          "command": "npm --prefix packages/main run test:done-prepare-merge-rerun-smoke",
+          "result": "pass",
+          "note": "assertRerunReasonAfterRefreshCommit: when a previous run left refresh-generated metadata, the transcript prints the done_prepare re-run reason section with the generated commit line, current binding (currentHead/currentMaterialHash/currentStoryFilesHash), and an explicit next action to rerun from the new HEAD.",
+          "headHash": "4dfe2a737569495c1b0cf034a1088fcf919aaf28",
+          "materialHash": "ba36c671941eeba2377ad1a8a3f9b777887692a2d798549352006b79665e9c88",
+          "storyFilesHash": "53529a07d48a28724402eb184e6594c2ddfb599e887c0631927f5bbd9058c625",
+          "timestamp": "2026-07-10T05:51:36.893Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+          "command": "npm --prefix packages/main run test:done-prepare-merge-rerun-smoke",
+          "result": "pass",
+          "note": "assertMetadataCommitNoRebindAndAutoCloseExit: committing generated DONE metadata leaves storyFilesHash byte-identical (hash-excluded, so review rebinding is never forced) and the documented autoCloseGeneratedMetadata+reuseFreshValidation rerun reaches DONE prepare: PASS with a clean tree, proving the rerun does not loop.",
+          "headHash": "4dfe2a737569495c1b0cf034a1088fcf919aaf28",
+          "materialHash": "ba36c671941eeba2377ad1a8a3f9b777887692a2d798549352006b79665e9c88",
+          "storyFilesHash": "53529a07d48a28724402eb184e6594c2ddfb599e887c0631927f5bbd9058c625",
+          "timestamp": "2026-07-10T05:51:36.893Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+          "command": "npm --prefix packages/main run test:done-prepare-merge-rerun-smoke",
+          "result": "pass",
+          "note": "assertNoSelfAttestationLanguage runs against every scenario transcript (hazard, generated-metadata, dryRun, rerun-reason, auto-closeout) and the hazard scenario additionally rejects stash/git add/commit/delete suggestions, so guidance never proposes committing unrelated dirty files or self-attesting reviewer/host evidence.",
+          "headHash": "4dfe2a737569495c1b0cf034a1088fcf919aaf28",
+          "materialHash": "ba36c671941eeba2377ad1a8a3f9b777887692a2d798549352006b79665e9c88",
+          "storyFilesHash": "53529a07d48a28724402eb184e6594c2ddfb599e887c0631927f5bbd9058c625",
+          "timestamp": "2026-07-10T05:51:36.893Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -98,7 +174,7 @@
         "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md#M6---Regression-Verification",
         "docs/dev/test-coverage.md"
       ],
-      "userSees": "The focused smoke passes and proves dryRun is inspect-only while real runs list only generated files they produced.",
+      "userSees": "The smoke prints \"done_prepare merge/rerun smoke PASS\" and dryRun output says \"dryRun: no files will be written\" while git/story metadata remains unchanged.",
       "files": {
         "modify": [
           "packages/main/src/handlers/done-prepare.ts"
@@ -132,9 +208,47 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-10T05:33:48.972Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+          "command": "npm --prefix packages/main run test:done-prepare-merge-rerun-smoke",
+          "result": "pass",
+          "note": "assertDryRunNoMutation: done_prepare --dryRun leaves git status (porcelain v1, untracked-files=all) and the full story metadata tree byte-identical in the fixture, and prints dryRun: no files will be written.",
+          "headHash": "4dfe2a737569495c1b0cf034a1088fcf919aaf28",
+          "materialHash": "ba36c671941eeba2377ad1a8a3f9b777887692a2d798549352006b79665e9c88",
+          "storyFilesHash": "53529a07d48a28724402eb184e6594c2ddfb599e887c0631927f5bbd9058c625",
+          "timestamp": "2026-07-10T05:51:36.893Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+          "command": "npm --prefix packages/main run test:done-prepare-merge-rerun-smoke",
+          "result": "pass",
+          "note": "assertGeneratedMetadataGuidance lists exactly the files generated by the current run (done-required-evidence.json, test-evidence.json) under generated by this done_prepare run; assertModifiedTrackedPathExactness proves pre-existing dirty lifecycle metadata is classified as story lifecycle metadata, never as unrelated and never in the current-run list.",
+          "headHash": "4dfe2a737569495c1b0cf034a1088fcf919aaf28",
+          "materialHash": "ba36c671941eeba2377ad1a8a3f9b777887692a2d798549352006b79665e9c88",
+          "storyFilesHash": "53529a07d48a28724402eb184e6594c2ddfb599e887c0631927f5bbd9058c625",
+          "timestamp": "2026-07-10T05:51:36.893Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+          "command": "npm --prefix packages/main run test:done-prepare-merge-rerun-smoke",
+          "result": "pass",
+          "note": "assertDryRunNoMutation byte-compares the entire story metadata tree (evidence files, process events, review artifacts, timestamps consumed by gates) before and after --dryRun; any write would fail the deepEqual snapshot comparison.",
+          "headHash": "4dfe2a737569495c1b0cf034a1088fcf919aaf28",
+          "materialHash": "ba36c671941eeba2377ad1a8a3f9b777887692a2d798549352006b79665e9c88",
+          "storyFilesHash": "53529a07d48a28724402eb184e6594c2ddfb599e887c0631927f5bbd9058c625",
+          "timestamp": "2026-07-10T05:51:36.893Z"
+        }
+      ]
     }
   ]
 }

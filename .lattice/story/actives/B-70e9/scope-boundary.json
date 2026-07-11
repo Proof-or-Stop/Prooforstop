@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-70e9",
+  "mode": "feature",
+  "allowed": [
+    "Fixture-based smoke tests, npm scripts, CHANGELOG/doc updates for both milestones",
+    "M1: codex usage parsed from exec --json stdout terminal usage event; claude from stream-json result usage; agy recorded as explicit unavailable",
+    "M1: guidance/doc updates routing reviewer/quorum/autopilot host launches through the choke-point command",
+    "M1: launcher choke-point usage capture for lattice-initiated host runs (dispatch, reviewer launch, quorum host review, autopilot) writing storyId/agentType/phase/provider-bound rows to .lattice/usage/llm-usage.jsonl",
+    "M1: per-dispatch budget cap and host-run concurrency cap enforced at the choke point (user follow-up T2, 2026-07-10)",
+    "M1: reviewer/quorum binding fields (reviewRunId, reviewer lane) shared with review-runs/readManifest identifiers",
+    "M2: read-only usage sweep over ~/.codex/sessions rollouts and ~/.claude/projects transcripts since a cutoff emitting a non-authoritative attribution report (human + JSON)"
+  ],
+  "excluded": [
+    "Changes to signed Authority receipt semantics or receipt-backed accounting",
+    "Interception of interactive desktop sessions (report-only via M2 sweep)",
+    "Ledger backfill from swept foreign sessions",
+    "Usage data as gate evidence (gateEvidence stays false; no gate or lifecycle behavior reads usage)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User dispatch 2026-07-10: unify host-side LLM usage capture into the existing ledger .lattice/usage/llm-usage.jsonl; M1 capture at the canonical launcher choke point with storyId/agentType/phase/provider bound; M2 read-only usage_sweep retro-attribution productizing the manual forensic analysis; non-goals: usage never gates evidence, no desktop-session interception. Same-day follow-up: fold per-dispatch budget cap plus concurrency cap into this story acceptance criteria (T2 of task_3868995d) instead of opening a new story.",
+  "createdAt": "2026-07-10T05:11:22.560Z",
+  "updatedAt": "2026-07-10T05:11:22.560Z",
+  "_hash": "b62f97be56441d206838a6d7eb8a7199c49048fb7827ce66ad483409cb3fb2e1"
+}

@@ -1,0 +1,598 @@
+{
+  "passes": [
+    {
+      "id": "B-2c03:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept sound: stripCodeLikeTokens correctly targets the B-d6a0 false-positive (path/backtick/hyphenated-file-name tokens matching \\b word boundaries) while preserving prose trigger words via space-replacement; CHK-003 remaining-narrowing decision (keep/narrow/drop) is explicitly documented with rationale in plan.md. Verified the hyphen-strip risk noted in plan.md (evasion via e.g. out-of-scope) does not lower the pre-existing floor since the fixed keyword regex was already trivially evadable by synonym choice before this change. Ran proofstory-intent-hardening-smoke.js and milestone-done-gate-reconciliation-smoke.js (only other caller of evaluateDoneIntentEquivalence) both green; diff scoped to the two checklist files plus story metadata, no scope drift.",
+      "createdAt": "2026-07-10T14:45:27.228Z",
+      "reviewRound": "2026-07-10T14:41:10.214Z",
+      "reviewRunId": "B-2c03:RR-002",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2c03/plan.md",
+          ".lattice/story/actives/B-2c03/red-evidence.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/tasks/milestone-done-gate-reconciliation-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a32d2eacae18a408a124ae94e095a11764058216fbb3b48aff4edb7c92be253f"
+    },
+    {
+      "id": "B-2c03:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker.",
+      "createdAt": "2026-07-10T14:45:42.599Z",
+      "reviewRound": "2026-07-10T14:41:10.214Z",
+      "reviewRunId": "B-2c03:RR-003",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2c03/plan.md",
+          ".lattice/story/actives/B-2c03/red-evidence.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "66cbd4a15987387079e7dfded818b2d504d56bc576f9dfc07587750a8b1625f0"
+    },
+    {
+      "id": "B-2c03:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round: diff (proofstory.ts stripCodeLikeTokens tightened to keep hyphen-only tokens and strip only backticked spans/slash tokens/dotted tokens, plus new smoke cases in proofstory-intent-hardening-smoke.ts) is a targeted regex bug-fix, not a concept rename or deletion. Grepped stripCodeLikeTokens, narrowingText, claimsShrinkage across the repo (excluding node_modules/dist/.git): all consistently defined/used in packages/main/src/core/proofstory.ts with matching smoke coverage; other callers of evaluateDoneIntentEquivalence are unaffected since the exported function signature is unchanged. No blocker.",
+      "createdAt": "2026-07-10T14:54:33.015Z",
+      "reviewRound": "2026-07-10T14:41:10.214Z",
+      "reviewRunId": "B-2c03:RR-005",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2c03/checklist.json",
+          ".lattice/story/actives/B-2c03/findings.json",
+          ".lattice/story/actives/B-2c03/plan.md",
+          ".lattice/story/actives/B-2c03/review-passes.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4419ec8158f87b06a06d027728308587cab4e6e2c6ea19a3398db58a480d33dc"
+    },
+    {
+      "id": "B-2c03:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "F-001 fix verified: hyphen-only tokens no longer stripped, only slash/dotted/backticked tokens are. Rebuilt dist and ran proofstory-intent-hardening-smoke.js green, including new hyphenTriggerDone/hyphenExcludedDone (must-trigger) and bareFileNameDone (must-not-trigger) cases matching F-001s exact repro words. No coverage gaps found.",
+      "createdAt": "2026-07-10T14:56:25.659Z",
+      "reviewRound": "2026-07-10T14:41:10.214Z",
+      "reviewRunId": "B-2c03:RR-007",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2c03/background.md",
+          ".lattice/story/actives/B-2c03/plan.md",
+          ".lattice/story/actives/B-2c03/red-evidence.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2c03/checklist.json",
+          ".lattice/story/actives/B-2c03/findings.json",
+          ".lattice/story/actives/B-2c03/review.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "84e6087f03f78ee172b3ee6d7ecf9f178ada6bcd4fc5ca7ad445376fa274c343"
+    },
+    {
+      "id": "B-2c03:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "F-001 verified genuinely fixed: stripCodeLikeTokens no longer strips hyphen-only tokens; deferred-for-now/excluded-here still trigger claimsShrinkage, bare dotted file names still do not. Reproduced pre-fix bypass and post-fix correction directly against packages/main/dist build. Full lattice validate green. However found a NEW residual bypass in the same fix (filed as B-2c03:F-002, blocking): the dotted-token strip regex allows hyphens inside each dot-segment, so hyphenated trigger prose followed by a dotted suffix (e.g. remaining-scope.v2, excluded-set.beta, deferred-work.next) is still fully erased before the scan, defeating the guard the same way F-001 did.",
+      "createdAt": "2026-07-10T14:59:38.297Z",
+      "reviewRound": "2026-07-10T14:41:10.214Z",
+      "reviewRunId": "B-2c03:RR-006",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2c03/background.md",
+          ".lattice/story/actives/B-2c03/plan.md",
+          ".lattice/story/actives/B-2c03/red-evidence.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2c03/checklist.json",
+          ".lattice/story/actives/B-2c03/findings.json",
+          ".lattice/story/actives/B-2c03/review.json"
+        ],
+        "scanEscalationReason": "Ran direct behavioral reproduction of stripCodeLikeTokens (pre-fix and post-fix) plus adversarial fuzzing of hyphen+dot combined tokens against the built dist artifact to independently verify F-001 closure and probe for residual bypasses; found and filed F-002."
+      },
+      "_hash": "1753e689ef332f53212060cc340b5cb399dcea81cadcbb67e15fcbb2dfb6aff4"
+    },
+    {
+      "id": "B-2c03:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Fresh round after F-002 fix (commit ce72ae4242). git diff main...HEAD touches packages/main/src/core/proofstory.ts (new stripCodeLikeTokens/dottedFileTokenRegex/CODE_FILE_EXTENSION_PATTERN sanitizer + narrowed remaining-<scope-noun> regex) and packages/main/src/tasks/proofstory-intent-hardening-smoke.ts (new regression cases only), plus new .lattice story artifacts (plan.md, checklist.json, findings.json, etc.). No concept word was deleted or replaced en masse: the sanitizer and regex narrowing are net-new additions, not renames of a prior concept, and no prior identifier/vocabulary was removed. No concept deletion/replacement this round; concept residue check completed, no blocker.",
+      "createdAt": "2026-07-10T15:05:47.683Z",
+      "reviewRound": "2026-07-10T14:41:10.214Z",
+      "reviewRunId": "B-2c03:RR-008",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2c03/findings.json",
+          ".lattice/story/actives/B-2c03/plan.md",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2c03/checklist.json",
+          ".lattice/story/actives/B-2c03/review.json",
+          ".lattice/story/actives/B-2c03/understanding.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "42b9e13a8d375c760614c0d1d67475f5c04e727a73eeeaf71e3b4fc2457d6ed9"
+    },
+    {
+      "id": "B-2c03:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round. Diff (vs main) only ADDS a new sanitizer helper stripCodeLikeTokens + constant CODE_FILE_EXTENSION_PATTERN and narrows the existing claimsShrinkage regex connectors (whitespace-only -> [\\s_-]+ for out-of-scope/not-covered/remaining-<noun>); no prior identifier, regex pattern, or vocabulary was deleted or renamed elsewhere in the repo. Grepped for claimsShrinkage|CODE_FILE_EXTENSION_PATTERN|dottedFileTokenRegex|stripCodeLikeTokens across *.ts/*.md/*.json (excluding node_modules/dist/.git): only hits are this story metadata plus proofstory.ts and proofstory-intent-hardening-smoke.ts, both touched by this diff — zero residue elsewhere. Confirmed the fresh F-005 fix (extension whitelist narrowed to unambiguous technical suffixes; multi-word trigger connectors widened) reads as intended in the current file.",
+      "createdAt": "2026-07-10T15:22:45.095Z",
+      "reviewRound": "2026-07-10T14:41:10.214Z",
+      "reviewRunId": "B-2c03:RR-012",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2c03/plan.md",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2c03/background.md",
+          ".lattice/story/actives/B-2c03/checklist.json",
+          ".lattice/story/actives/B-2c03/findings.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "fe1ee5efbc98052ec80aeb2a89fb65d0133f964557f14fee6a2698fdf5e43395"
+    },
+    {
+      "id": "B-2c03:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 3 checklist items (CHK-001/002/003) x happy/edge/adversarial remain covered by concrete, intent-specific evidence in proofstory-intent-hardening-smoke.ts after F-005 fix (3802629cac). Verified live: npm --prefix packages/main run build succeeds and node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js passes GREEN. Confirmed the F-001..F-005 RED-first regression cases (hyphenTriggerDone, hyphenExcludedDone, dottedSuffixDone, dottedSuffixDeferredDone, hyphenRemainingDone, underscoreRemainingDone, hyphenOutOfScopeDone, hyphenNotCoveredDone, ambiguousExtLogDone, ambiguousExtGoDone) and the original happy/edge/adversarial controls (fileNameDone, codeTokenDone, proseShrinkDone, narrowLightDone, bareFileNameDone, multiDotFileDone, preexistingDone, remainingScopeDone) all present and asserting correctly against current proofstory.ts. red-evidence.json contains genuine pre-fix RED capture for CHK-002:edge. plan.md documents the CHK-003 keep/narrow/drop decision with rationale and an updated Risk notes section listing only false-positive-direction residuals with a stated backtick/path mitigation. validate reports checklist evidence status=stale (mechanical headHash-freshness gate against fix commit 3802629cac, a DONE-gate/delivery-check re-validate concern, not a content coverage gap). No blocking coverage gaps found by this lane.",
+      "createdAt": "2026-07-10T15:26:13.232Z",
+      "reviewRound": "2026-07-10T14:41:10.214Z",
+      "reviewRunId": "B-2c03:RR-013",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2c03/checklist.json",
+          ".lattice/story/actives/B-2c03/findings.json",
+          ".lattice/story/actives/B-2c03/plan.md",
+          ".lattice/story/actives/B-2c03/red-evidence.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2c03/background.md",
+          ".lattice/story/actives/B-2c03/review-passes.json",
+          ".lattice/story/actives/B-2c03/review.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "11f2df916e40541c36c6f10b9c8634633b3238742fa338263cb18b1ce571e5f5"
+    },
+    {
+      "id": "B-2c03:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Fresh round after F-006 fix (d567f260fe). Verified stripCodeLikeTokens/claimsShrinkage in proofstory.ts against all three F-006 repro cases (backtick-quoted prose, single-slash prose pairs, simple-stem dotted tokens) - all now fire correctly. Ran 14 additional adversarial probes beyond the smoke suite (nested backtick+path, backtick-single-token strip, multi-backtick mixed span, 2-slash paths, dot-slash leading paths, underscore+slash remaining connector, out-of-scope/not-covered hyphen prose, remaining-scope hyphen, bare-remaining pre-existing negative control, ambiguous-extension fail-safe, fenced-code-block documented residual, mixed backtick+slash sentence) - no new bypass found, all results match documented plan.md risk notes exactly. Rebuilt packages/main (tsc clean) and ran test:proofstory-intent-hardening-smoke (passed), milestone-done-gate-reconciliation-smoke (OK), test:milestone-status (ok), test:e2e (ALL PASS). Fix commit is tightly scoped to proofstory.ts + its own smoke test + plan.md. No blocker.",
+      "createdAt": "2026-07-10T15:36:04.961Z",
+      "reviewRound": "2026-07-10T14:41:10.214Z",
+      "reviewRunId": "B-2c03:RR-016",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2c03/background.md",
+          ".lattice/story/actives/B-2c03/plan.md",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2c03/checklist.json",
+          ".lattice/story/actives/B-2c03/findings.json",
+          ".lattice/story/actives/B-2c03/review.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6d4195a61941cb0b1fd4a54752791eace0af6dfb4c5ce7ad4c5254be876503e6"
+    },
+    {
+      "id": "B-2c03:RP-010",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round. Diff (git diff main...HEAD) is confined to: (1) proofstory.ts adding stripCodeLikeTokens/dottedFileTokenRegex/CODE_FILE_EXTENSION_PATTERN as new helpers plus widening the claimsShrinkage connector regex (F-007 fix: pathShaped no longer counts raw slash count, only a dot or leading /~/ prefix strips) - no existing exported symbol, type, or vocabulary was renamed or removed; (2) proofstory-intent-hardening-smoke.ts adding new regression cases (slashEnumerationDone, slashEnumerationRemainingDone, pathPrefixDone) plus the full F-001..F-006 case history, purely additive; (3) .lattice/story/actives/B-2c03/* story metadata (checklist/findings/review/plan/process-events/etc.), not source concepts. Grepped the touched identifiers (stripCodeLikeTokens, dottedFileTokenRegex, CODE_FILE_EXTENSION_PATTERN, claimsShrinkage, pathShaped) across *.ts/*.md/*.json outside node_modules/dist/.git: all hits are within proofstory.ts + its smoke test + story metadata, consistent with net-new additions, zero stale/orphaned references to a deleted concept. No blocker.",
+      "createdAt": "2026-07-10T17:22:23.854Z",
+      "reviewRound": "2026-07-10T14:41:10.214Z",
+      "reviewRunId": "B-2c03:RR-018",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2c03/checklist.json",
+          ".lattice/story/actives/B-2c03/findings.json",
+          ".lattice/story/actives/B-2c03/plan.md",
+          ".lattice/story/actives/B-2c03/review.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "33b548e0e9516ec0adb690d731f7f1cbfadc8f50cf11eebdbcfe519204b0bd61"
+    },
+    {
+      "id": "B-2c03:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "Fresh round after F-008+F-009 fix (a7437cfe85: claimsShrinkage connectors widened to [\\s./_-]+; slash tokens now strip only with an explicit path marker — leading prefix, URL scheme, or final segment with known extension). git diff main...HEAD touches packages/main/src/core/proofstory.ts (stripCodeLikeTokens/dottedFileTokenRegex/CODE_FILE_EXTENSION_PATTERN/finalSegmentExtensionRegex sanitizer, evolving net-new across this story F-001..F-009) and packages/main/src/tasks/proofstory-intent-hardening-smoke.ts (354 insertions, 0 deletions — new regression cases only), plus .lattice story metadata. No concept word deleted or replaced en masse this round: only two inline const lines (narrowingText/claimsShrinkage construction) were refactored to call the existing stripCodeLikeTokens wrapper with the same variable names; the regex connector class was widened and the slash-strip predicate was tightened to require an explicit path marker, not renamed. Grepped stripCodeLikeTokens/CODE_FILE_EXTENSION_PATTERN/dottedFileTokenRegex/finalSegmentExtensionRegex repo-wide (excluding node_modules/dist/.git): all matches are within proofstory.ts itself plus expected historical prose in story findings/review-passes metadata — zero residual references to a removed/renamed identifier. No concept deletion/replacement this round; concept residue check completed, no blocker.",
+      "createdAt": "2026-07-10T17:40:58.013Z",
+      "reviewRound": "2026-07-10T14:41:10.214Z",
+      "reviewRunId": "B-2c03:RR-021",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/proofstory.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2c03/checklist.json",
+          ".lattice/story/actives/B-2c03/findings.json",
+          ".lattice/story/actives/B-2c03/plan.md",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "54a49f92a03c15014e85a5a3726e31ac18852fd2e203e93f501372f3af6752d8"
+    },
+    {
+      "id": "B-2c03:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "Verified F-008/F-009 fix (a7437cfe85) live against the built CLI/dist and via direct extraction of the committed stripCodeLikeTokens/dottedFileTokenRegex/claimsShrinkage source. All 6 named RED-first smoke cases (dotRemainingDone, dotOutOfScopeDone, dotNotCoveredDone, dotControlDone, slashEnumerationDotDone, urlControlDone) pass GREEN in the built smoke suite. Adversarially probed ~35 additional natural-prose phrasings (mixed connectors, capitalization, whitespace variants, sentence punctuation, multi-slash enumerations, backslash paths, em-dash) for a residual false-negative bypass; found none beyond the already-accepted design residuals (genuine file/path/URL tokens correctly stripped, exotic em-dash punctuation out of realistic-English scope per plan.md connector class [\\s./_-]+). Code quality: no dead code, no unnecessary as-any, no empty catch, pure function with no I/O-isolation concerns. No blocking issues found.",
+      "createdAt": "2026-07-10T17:45:18.295Z",
+      "reviewRound": "2026-07-10T14:41:10.214Z",
+      "reviewRunId": "B-2c03:RR-022",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2c03/findings.json",
+          ".lattice/story/actives/B-2c03/plan.md",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2c03/checklist.json",
+          ".lattice/story/actives/B-2c03/review.json"
+        ],
+        "scanEscalationReason": "Fresh adversarial round following F-008/F-009 fix (a7437cfe85, dot connectors + explicit path markers for slash tokens). Rebuilt via npm run build (clean tsc), ran the built smoke suite (all 40+ B-2c03 assertions green including dotRemainingDone/dotOutOfScopeDone/dotNotCoveredDone/dotControlDone/slashEnumerationDotDone/urlControlDone). Extracted the exact live stripCodeLikeTokens/dottedFileTokenRegex/claimsShrinkage source from packages/main/dist/core/proofstory.js (byte-verified match) and adversarially probed ~35 additional natural-English phrasings beyond the documented F-001..F-009 cases (leading-dot stems, sentence-terminal periods, colons, mixed connectors out-of.scope/out/of/scope/out_of_scope, capitalization, tabs, double-spaces, emoji-adjacent triggers, 4-way slash enumerations, Windows-style backslash paths, em-dash connectors, trigger-immediately-before-genuine-path). No new false-negative bypass found: every case either correctly fires (prose) or correctly stays silent (genuine path/extension token, matching the accepted design). The one exotic-typography candidate (em-dash as a word-connector, e.g. remaining—scope) is out of scope per task framing (exotic typography excluded unless realistic for agent-authored English; em-dash is a sentence-interrupter punctuation mark, not a compound-word-joining connector like the accepted [\\s./_-]+ class, and plan.md explicitly scopes the connector class to that set after F-003/F-008). No dead code, no as-any, no empty catch, no I/O-isolation concerns in the diff (pure string-transform helper, all four new bindings used at the call site)."
+      },
+      "_hash": "053e1568acc4c82cc0e5c93481d16ad679bfe748b5c7d34dbd50dfa2383db7ed"
+    },
+    {
+      "id": "B-2c03:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review passed (fresh round after F-008/F-009 fix in a7437cfe85). All 3 checklist items (CHK-001/002/003) have happy+edge+adversarial verificationIntent covered by concrete, well-targeted verificationEvidence (logic_test/docs_check, none failing). F-009 (this lane, prior round) is verifiably fixed: slash tokens now require an explicit path marker (leading prefix, URL scheme, or extension-bearing final segment) instead of stripping on any incidental dot, so excluded/deferred/v2.1-style enumerations keep firing (slashEnumerationDotDone) while genuine file/URL paths still strip (urlControlDone, dotControlDone). Independently re-derived stripCodeLikeTokens + claimsShrinkage regex from the current source and probed ~20 additional adversarial phrasings from the scratchpad (Windows-style backslash paths, trailing-slash directories, markdown links, email-like domains, www-without-scheme URLs, remaining+non-listed nouns, hyphen-connected remaining-milestones, fenced-code-only claims, and a slash enumeration whose one dotted member carries a REAL extension e.g. excluded/deferred/report.md) - every case matched the documented design in plan.md Risk notes (fail-safe: ambiguous cases keep firing; only unambiguous path/URL/extension markers strip) with no unpatched bypass found. Full lattice validate (45 configured commands) and the proofstory-intent-hardening-smoke.js binary both pass GREEN at current HEAD. The one open item is mechanical evidence-freshness staleness (verificationCoverage flags 6 must-intents as headHash-stale because a later commit landed after evidence capture) - this is a re-validate/re-bind freshness-gate mechanic, not a coverage gap: the underlying evidence exists, is not fail, and concretely targets its intent. No blocking finding filed by this lane.",
+      "createdAt": "2026-07-10T17:47:49.016Z",
+      "reviewRound": "2026-07-10T14:41:10.214Z",
+      "reviewRunId": "B-2c03:RR-023",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2c03/checklist.json",
+          ".lattice/story/actives/B-2c03/index.json",
+          ".lattice/story/actives/B-2c03/plan.md",
+          ".lattice/story/actives/B-2c03/red-evidence.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2c03/findings.json",
+          ".lattice/story/actives/B-2c03/review.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4257f4e3f8f82aafef786e5e9478e33b7b4001465e69e9af0d80e42cc7372d6c"
+    },
+    {
+      "id": "B-2c03:RP-014",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round. Diff at 6a06ea3c13 only touches packages/main/src/core/proofstory.ts (adds stripCodeLikeTokens sanitizer + refines the existing claimsShrinkage regex in place, same name/purpose) and packages/main/src/tasks/proofstory-intent-hardening-smoke.ts (adds regression cases, restoring smoke cases F-011 flagged as reverted by a concurrent cleanup). No identifier, field, or vocabulary term was mass-deleted or renamed; claimsShrinkage and stripCodeLikeTokens are consistently named across proofstory.ts, the smoke test, and story metadata (plan.md, findings.json, summary.json) with zero stray references to any prior/removed name. Checked via grep for claimsShrinkage and stripCodeLikeTokens across *.ts/*.md/*.json (excluding node_modules/dist/.git): all hits are consistent current usage. Concept residue check completed, no blocker.",
+      "createdAt": "2026-07-10T19:13:41.708Z",
+      "reviewRound": "2026-07-10T18:53:39.083Z",
+      "reviewRunId": "B-2c03:RR-027",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2c03/findings.json",
+          ".lattice/story/actives/B-2c03/plan.md",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2c03/background.md",
+          ".lattice/story/actives/B-2c03/checklist.json",
+          ".lattice/story/actives/B-2c03/summary.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a618b189f3bca1de97b571933aef1979b94463864dfb390eae6e06c8f86f890f"
+    },
+    {
+      "id": "B-2c03:RP-015",
+      "agent": "lattice-review-test-coverage",
+      "note": "F-011 verified resolved: commit 6a06ea3c13 (ancestor of current HEAD b22e41b362) restores the five must-fire remaining-window cases (incl. codex round-1/round-2 sentences with modifiers/commas/unicode dashes), two window negative controls, the pathological-input timing assertion, backtickTriggerTokenDone, and triggerStemFileDone/triggerStemFileWithClaimDone. grep + git show --stat confirm all named cases are present in tracked packages/main/src/tasks/proofstory-intent-hardening-smoke.ts, matching plan.md coverage claims verbatim (5 window cases + 2 negative controls). Smoke reran green at current HEAD (ProofStory intent hardening smoke passed, exit 0) after the concurrent F-012 fix (commit cb2c00d2dd) landed on top without disturbing the F-011 cases. All 9 verificationEvidence rows across CHK-001/002/003 have headHash values that resolve to real commits and are ancestors of HEAD; CHK-002:edge RED evidence in red-evidence.json is a genuine pre-fix baseline/failure trace. No test-coverage gaps found in this lane.",
+      "createdAt": "2026-07-10T19:33:11.339Z",
+      "reviewRound": "2026-07-10T18:53:39.083Z",
+      "reviewRunId": "B-2c03:RR-029",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2c03/findings.json",
+          ".lattice/story/actives/B-2c03/plan.md",
+          ".lattice/story/actives/B-2c03/red-evidence.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2c03/checklist.json",
+          ".lattice/story/actives/B-2c03/review-passes.json",
+          ".lattice/story/actives/B-2c03/review.json"
+        ],
+        "scanEscalationReason": "Re-verified F-011 (test-coverage lane finding) resolution against commit 6a06ea3c13 per main-agent instruction: grepped smoke file for the five named case identifiers, ran git show --stat, rebuilt and reran the smoke twice (before and after a concurrent hosts F-012 fix landed on top) to confirm the F-011 remediation cases remain intact and green."
+      },
+      "_hash": "5d84d89e57ae641e125ddca86250285f9100ab4886e2d4dede37e7bc29a846b8"
+    },
+    {
+      "id": "B-2c03:RP-016",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round (F-012 fix at cb2c00d2dd + metadata commits through 97f23b4d6a): diff adds a stripCodeLikeTokens sanitizer and refines the inline claimsShrinkage regex into claimsShrinkageRegex with clause-aware remaining-modifier-chain constants. Only removed lines in proofstory.ts are the two inline narrowingText/claimsShrinkage statements, replaced by same-named variables producing the same unconfirmed_single_outcome_shrinkage gap; smoke test file has zero deletions. Repo-wide grep for claimsShrinkage/narrowingText/unconfirmed_single_outcome_shrinkage shows consistent references only in the two implementation/test files plus story metadata, no orphaned old-concept residue. Concept residue check completed, no blocker.",
+      "createdAt": "2026-07-10T19:34:59.622Z",
+      "reviewRound": "2026-07-10T18:53:39.083Z",
+      "reviewRunId": "B-2c03:RR-030",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2c03/checklist.json",
+          ".lattice/story/actives/B-2c03/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "621e959641b0e3c5845fca05e81f974252c4f27dad7fd2b532a20651d5f43e06"
+    },
+    {
+      "id": "B-2c03:RP-017",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement this round: old inline narrowingText/claimsShrinkage construction replaced by equivalent stripCodeLikeTokens() + constructed claimsShrinkageRegex, but concept, gap key unconfirmed_single_outcome_shrinkage, function signature evaluateDoneIntentEquivalence, and all 7 original trigger words preserved verbatim. New local constants each defined exactly once, no orphan residue repo-wide. Smoke test file is 498 pure insertions, zero deletions. Concept residue check completed, no blocker.",
+      "createdAt": "2026-07-10T19:44:34.597Z",
+      "reviewRound": "2026-07-10T18:53:39.083Z",
+      "reviewRunId": "B-2c03:RR-031",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2c03/checklist.json",
+          ".lattice/story/actives/B-2c03/delivery-check.json",
+          ".lattice/story/actives/B-2c03/findings.json",
+          ".lattice/story/actives/B-2c03/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "92c1a1ac7ea515d6ae06707e5afbe0b77513698be092981be886dbdbc561a5ed"
+    },
+    {
+      "id": "B-2c03:RP-018",
+      "agent": "lattice-review-quality",
+      "note": "F-013 fix verified end-to-end against the live built CLI (fresh rebuild, dist newer than src) in both directions: full smoke suite (proofstory-intent-hardening-smoke.js) passes, including all three remainingCrossClauseControls comma/no-comma variants and the codex round-4 must-fire recall cases (of-noun-phrase, UI/UX slash). Independently re-verified with a fresh reviewer-authored probe script (StoryStore + built cli.js subprocess, not smoke-file copy-paste): F-013 original repro sentences (both comma and no-comma forms) stay quiet; codex round-4 recall cases plus a fresh of+slash combination and a fresh long and-chain fire; CHK-003 canonical negative control stays quiet; a fresh clause-boundary probe (bare-verb continue not on the stop list, comma+and, scope noun only reachable across the clause) correctly stays quiet, confirming the comma-triggered clause-coordination gate generalizes beyond the exact stop-word list. No regression vs pre-story behavior and no CHK-003 false-positive-class return found. Diff quality: no dead code, no unnecessary as any, no empty catch, no doc-promise-undelivered gaps in proofstory.ts / proofstory-intent-hardening-smoke.ts changes. Per plan.md convergence statement, marginal precision/recall cases beyond a verified regression are follow-up-story scope; none found.",
+      "createdAt": "2026-07-10T19:50:42.665Z",
+      "reviewRound": "2026-07-10T18:53:39.083Z",
+      "reviewRunId": "B-2c03:RR-033",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2c03/checklist.json",
+          ".lattice/story/actives/B-2c03/findings.json",
+          ".lattice/story/actives/B-2c03/plan.md",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2c03/review-passes.json",
+          ".lattice/story/actives/B-2c03/review.json",
+          ".lattice/story/actives/B-2c03/summary.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c7dbc3a91360f6e05ce03b114b4e3ffc2e014932a40b379080740cd8b622b5ca"
+    },
+    {
+      "id": "B-2c03:RP-019",
+      "agent": "lattice-review-test-coverage",
+      "note": "Fresh round at commit f45f77ecfa (HEAD; 9eb4a9423b plus metadata-only commits on top, zero source diff since). Verified tracked-file coverage matches plan.md convergence claims: remainingWindowClaims has exactly 9 must-fire entries (incl. codex round-4 of/UI-UX cases) and remainingCrossClauseControls has exactly 6 must-not-fire cross-clause entries (F-012 x3 + F-013 x3), byte-identical between working tree and git-show-HEAD for both packages/main/src/core/proofstory.ts and packages/main/src/tasks/proofstory-intent-hardening-smoke.ts (no untracked drift). Rebuilt (tsc clean) and reran proofstory-intent-hardening-smoke.js green plus milestone-done-gate-reconciliation-smoke.js OK. Independently re-derived the claimsShrinkageRegex from committed source and probed all 9 must-fire plus 6 must-not-fire committed cases plus 4 adversarial variants of my own (comma-modifier-of chains, persist+comma-and, bare of-noun, of-clause insertion): all matched the documented design, no verified regression vs pre-story behavior found. All 13 findings (F-001..F-013; F-004/F-010 dismissed as duplicate/placeholder) are resolved with strong evidence. Ran full lattice validate: all 45 configured commands exit 0; verificationCoverage reports the 9 CHK-001/002/003 evidence rows as headHash-stale (evidence bound at an earlier commit than the current metadata-only HEAD) but every evidence.result is pass, none failing -- mechanical freshness bookkeeping, not a content coverage gap, consistent with this lanes prior RP-008/RP-013/RP-015 classification and the storys convergence-floor (blocking only on verified regressions vs pre-story behavior). No coverage gaps found; test coverage review passed.",
+      "createdAt": "2026-07-10T19:53:11.752Z",
+      "reviewRound": "2026-07-10T18:53:39.083Z",
+      "reviewRunId": "B-2c03:RR-032",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2c03/checklist.json",
+          ".lattice/story/actives/B-2c03/findings.json",
+          ".lattice/story/actives/B-2c03/plan.md",
+          ".lattice/story/actives/B-2c03/review-passes.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2c03/index.json",
+          ".lattice/story/actives/B-2c03/red-evidence.json",
+          ".lattice/story/actives/B-2c03/review.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b11c0936e32ed1ed30a6c732aaa39a50255238b0751255f0f133c9c1d560f59e"
+    },
+    {
+      "id": "B-2c03:RP-020",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round. Delta vs prior pass (HEAD~1..HEAD) is a single-token reclassification: bare not moved from the remainingStopWord alternation to the remainingConjunction alternation in packages/main/src/core/proofstory.ts (evaluateDoneIntentEquivalence claimsShrinkage regex), plus one new smoke case and matching plan.md prose update. Both remainingStopWord and remainingConjunction constants are unchanged in name/structure/usage and both still exist; grep confirms exactly 4 references, all in proofstory.ts, all consistent. No concept was deleted or mass-replaced, so no residue scan applies. Concept residue check completed, no blocker.",
+      "createdAt": "2026-07-10T20:01:31.723Z",
+      "reviewRound": "2026-07-10T18:53:39.083Z",
+      "reviewRunId": "B-2c03:RR-034",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2c03/plan.md",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "a462b852420ed5cbfc46cbc638722808c09257d88388c3851af73eff927889a2"
+    },
+    {
+      "id": "B-2c03:RP-021",
+      "agent": "lattice-review-concept",
+      "note": "Reviewed frozen commit 436a133fe6 (delta since RP-020): new local const remainingOxfordTail added, as moved from remainingStopWord list to remainingConjunction list (both pre-existing sibling classes within evaluateDoneIntentEquivalence), and additive smoke-case string literals appended. No concept word/identifier was deleted or replaced en masse this round -- as was moved (still present, reclassified), no other identifiers renamed/deleted. No concept deletion/replacement this round; concept residue check completed, no blocker.",
+      "createdAt": "2026-07-10T20:15:33.827Z",
+      "reviewRound": "2026-07-10T18:53:39.083Z",
+      "reviewRunId": "B-2c03:RR-038",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "b6aa0a2710f3dfdab88fa298b60bb48e2c5724d05afdd79c5d0fc0cb271c1738"
+    },
+    {
+      "id": "B-2c03:RP-022",
+      "agent": "lattice-review-concept",
+      "note": "Reviewed frozen commit 0251d41ab4 (delta since RP-021): local const remainingWordCharClass (explicit allowed-char class) deleted and replaced by remainingTokenEnd (negated-char-class token boundary) inside evaluateDoneIntentEquivalence; both consumers (remainingModifierWord, remainingChainStep) migrated in the same commit. Full-repo case-insensitive grep for remainingWordCharClass (including .lattice/story artifacts, excluding .git) returns zero matches -- fully replaced, no residue. to/be also removed from remainingStopWord per round-7 semantics; no stale references to them as stop-words found elsewhere. Smoke-test additions are purely additive, no stale identifiers. No CharClass residue anywhere. No other concept deletion/replacement this round; concept residue check completed, no blocker.",
+      "createdAt": "2026-07-10T20:46:48.847Z",
+      "reviewRound": "2026-07-10T18:53:39.083Z",
+      "reviewRunId": "B-2c03:RR-039",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2c03/checklist.json",
+          ".lattice/story/actives/B-2c03/delivery-check.json",
+          ".lattice/story/actives/B-2c03/findings.json",
+          ".lattice/story/actives/B-2c03/index.json",
+          ".lattice/story/actives/B-2c03/intent-collision.json",
+          ".lattice/story/actives/B-2c03/original-intent-snapshot.json",
+          ".lattice/story/actives/B-2c03/plan.md",
+          ".lattice/story/actives/B-2c03/process-events.jsonl",
+          ".lattice/story/actives/B-2c03/process-metrics.json",
+          ".lattice/story/actives/B-2c03/proofstory.json",
+          ".lattice/story/actives/B-2c03/red-evidence.json",
+          ".lattice/story/actives/B-2c03/review-passes.json",
+          ".lattice/story/actives/B-2c03/review-runs.json",
+          ".lattice/story/actives/B-2c03/review.json",
+          ".lattice/story/actives/B-2c03/scope-check.json",
+          ".lattice/story/actives/B-2c03/scope-contract.json",
+          ".lattice/story/actives/B-2c03/summary.json",
+          ".lattice/story/actives/B-2c03/test-evidence.json",
+          ".lattice/story/actives/B-2c03/understanding.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9f2b179af9320e99f90d2448bf760d84e82c71b002457af56bd0ae6dfe86c3c4"
+    },
+    {
+      "id": "B-2c03:RP-023",
+      "agent": "lattice-review-quality",
+      "note": "Round-7 delta (0251d41ab4) re-verified clean, quality lane. Diff scope: packages/main/src/core/proofstory.ts stripCodeLikeTokens (:line[:col] path-qualifier strip) + claimsShrinkage remainingModifierWord widened to arbitrary non-space/non-comma tokens ending on non-sentence punctuation; to/be removed from remainingStopWord. Verified live against built dist/cli.js (fresh npm run build, no drift) via a standalone StoryStore/CLI harness mirroring proofstory-intent-hardening-smoke.ts: all 15 remainingWindowClaims fire (incl. Node.js, C++, to-be-implemented from round 7) plus 2 adversarial extras (F#, .NET-style token) also correctly fire; all 7 remainingCrossClauseControls stay quiet; line-qualified path token (core/partial-done-recovery.ts:42) correctly stays quiet. Confirmed the new modifier-word pattern introduces no ReDoS regression (linear timing up to 60k-char pathological inputs, matches the smoke suites own pathological-token timing assertion which passed). Confirmed the new :line[:col] strip only fires when the token is otherwise already path-shaped - a bare colon-suffixed non-path token is correctly NOT stripped. Dead-code/type-safety/IO-isolation: round-7 diff (436a133fe6..0251d41ab4) touches only proofstory.ts (regex/comment changes, no new as any, no empty catches, no new imports) and the smoke test (3 additive assertions); no dead code, no I/O shell-isolation concerns. plan.md coverage claim (fifteen must-fire window claims and seven cross-clause controls) verified to match tracked smoke file counts exactly (15 and 7). Full proofstory-intent-hardening-smoke.js green at current frozen head; F-001..F-013 all resolved/dismissed-with-reason, no quality-lane blocker remains. F-014 (test-coverage lane, evidence-freshness binding only, explicitly not-a-regression) is out of my lane scope. Convergence floor: no verified regression vs pre-story behavior and no CHK-003 false-positive-class return found.",
+      "createdAt": "2026-07-10T20:58:15.993Z",
+      "reviewRound": "2026-07-10T18:53:39.083Z",
+      "reviewRunId": "B-2c03:RR-042",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2c03/findings.json",
+          ".lattice/story/actives/B-2c03/plan.md",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2c03/checklist.json",
+          ".lattice/story/actives/B-2c03/review.json",
+          ".lattice/story/actives/B-2c03/summary.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "20663486ed4134f2b109e7a2737853872bb48d15543fe468147071f7507a8cc9"
+    },
+    {
+      "id": "B-2c03:RP-024",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round. Delta vs prior reviewed commit 0251d41ab4 (RR-039) is commit 16c97d4009 (codex round 8): in stripCodeLikeTokens the :line[:col] path-qualifier trim regex gains a GitHub #L-anchor alternative — (?:(?::\\d+){1,2}|#L?\\d+(?:-L?\\d+)?) with i flag, replacing the prior (?::\\d+){1,2} — plus one additive smoke assertion (anchorQualifiedPathDone) exercising partial-done-recovery.ts#L42. Verified via git diff 0251d41ab4..HEAD --stat: only proofstory.ts (5 lines) and the smoke file (12 insertions, 0 deletions) changed at the code level; no renames, no deletions, no new named constants (trimmed stays the same identifier, no new regex constant introduced). Repo-wide grep for stripCodeLikeTokens, claimsShrinkage/claimsShrinkageRegex, narrowingText, and unconfirmed_single_outcome_shrinkage (excluding node_modules/dist/.git/@deprecated) shows each symbol defined once and referenced consistently between packages/main/src/core/proofstory.ts and its call sites/tests plus story metadata prose only — no orphaned old-concept residue. Concept residue check completed, no blocker.",
+      "createdAt": "2026-07-10T21:04:37.141Z",
+      "reviewRound": "2026-07-10T18:53:39.083Z",
+      "reviewRunId": "B-2c03:RR-043",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2c03/checklist.json",
+          ".lattice/story/actives/B-2c03/findings.json",
+          ".lattice/story/actives/B-2c03/plan.md",
+          ".lattice/story/actives/B-2c03/review-passes.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "758518de0beca00488f5d52254d7baa535a7ba90869925598a338b8db8bb595a"
+    },
+    {
+      "id": "B-2c03:RP-025",
+      "agent": "lattice-review-quality",
+      "note": "Round-8 delta (0251d41ab4..16c97d4009) re-verified clean, quality lane. Diff scope: proofstory.ts stripCodeLikeTokens per-token qualifier-trim regex widened from (?::\\d+){1,2} to (?:(?::\\d+){1,2}|#L?\\d+(?:-L?\\d+)?) with i flag, so a GitHub #L anchor (path.ts#L42, path.ts#L42-L50) is trimmed like a :line[:col] suffix before the slash-shape/dotted-shape path tests run; one new comment line; one additive must-not-fire smoke assertion (anchorQualifiedPathDone, core/partial-done-recovery.ts#L42 stays quiet). Verified both directions independently: (1) anchor-qualified slash+extension paths (core/partial-done-recovery.ts#L42, path.ts#L42, path.ts#L42-L50) strip via a standalone re-implementation mirroring the exact source, matching the smoke fixture; (2) confirmed the trim is computed unconditionally per-token but only CONSUMED inside the existing slash-shape branch (trimmed.includes('/')) and the existing dotted-shape branch -- a bare non-slash non-dotted token with an incidental #L-style suffix (deferred#L42, remaining#L42) falls through both branches unchanged and the trigger regex (\\bdeferred\\b etc.) still matches it because '#' is a non-word boundary; also confirmed non-numeric hashtag/heading suffixes (#Remaining, deferred#followup) are untouched since #L?\\d+ requires digits. Ran the anchorQualifiedPathDone smoke control plus the full proofstory-intent-hardening-smoke.js suite (fresh npm run build, no drift) at HEAD 5e7be37a59 (code frozen at 16c97d4009): full suite green, all 15 remainingWindowClaims + 7 cross-clause controls + all prior strip/keep controls (F-001..F-013 regression battery) still pass -- the one-line change introduces no regression anywhere in the battery. Quality checks: no dead code (no new unused imports/functions), no new as any, no empty catch, no I/O shell-isolation surface touched (no bridge.ts/shells/ui.ts/main.ts in scope), proof-metadata job/run.metadata rule not applicable (this is DONE-intent-equivalence text sanitization, not proof-key authoring). F-014 (evidence re-binding, test-coverage lane, no code) reviewed as metadata-only, consistent with evidence_plan fresh=9/missing=0/rerun=0. No blocker found.",
+      "createdAt": "2026-07-10T21:07:06.459Z",
+      "reviewRound": "2026-07-10T18:53:39.083Z",
+      "reviewRunId": "B-2c03:RR-044",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2c03/findings.json",
+          ".lattice/story/actives/B-2c03/plan.md",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2c03/checklist.json",
+          ".lattice/story/actives/B-2c03/review-passes.json",
+          ".lattice/story/actives/B-2c03/review.json",
+          ".lattice/story/actives/B-2c03/summary.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bce75e98177b53f3110e874f0e51c3e78589d4d4b2fc868ba90f44b34087b580"
+    },
+    {
+      "id": "B-2c03:RP-026",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: 9/9 verificationEvidence rows fresh (evidence_plan missing=0 fresh=9) at frozen head 16c97d4009; F-014 stale-binding finding confirmed resolved (all rows re-added post final smoke rerun). Coverage mapping verified concrete for all 3 checklist items (happy/edge/adversarial each): CHK-001 sanitizer strip rules, CHK-002 repro-first RED-then-GREEN regression case + narrow-delivery positive control intact, CHK-003 NARROW decision for bare remaining documented in plan.md with rationale + smoke assertions (remainingWindowClaims=15 entries, remainingCrossClauseControls=7 entries, both counts verified by direct array inspection). Verified the #L-anchor qualifier one-line trim (proofstory.ts stripCodeLikeTokens regex extended to (?:(?::\\d+){1,2}|#L?\\d+(?:-L?\\d+)?)$) plus its anchorQualifiedPathDone must-not-fire control (asserts gap does NOT fire for core/partial-done-recovery.ts#L42, consistent with existing lineQualifiedPathDone :line control) - no coverage gap. Ran literal smoke command node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js directly: green (ProofStory intent hardening smoke passed). All 14 findings resolved/dismissed with clear reasoning (F-004/F-010 dismissed as duplicates, not live gaps). No blocker.",
+      "createdAt": "2026-07-10T21:09:10.157Z",
+      "reviewRound": "2026-07-10T18:53:39.083Z",
+      "reviewRunId": "B-2c03:RR-045",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2c03/plan.md",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2c03/checklist.json",
+          ".lattice/story/actives/B-2c03/findings.json",
+          ".lattice/story/actives/B-2c03/review.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bfe7f8250f492085e18ccc186c74bf91c5752e6f3c52a73fc91ed8832a5b2c54"
+    }
+  ]
+}

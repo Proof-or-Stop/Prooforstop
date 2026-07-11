@@ -1,0 +1,136 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-70e9",
+  "state": "confirmed",
+  "ledgerHash": "sha256:ff7c04e742986b689d16b4957bc2e08d085160663f83ddc002a5bee15c4b0ec5",
+  "milestones": [
+    {
+      "id": "M1-CAPTURE",
+      "sourceRequirementId": "REQ-M1-CAPTURE",
+      "claim": "A host_run choke-point command launches codex/claude/agy via canonical launcher argv and writes correlated preflight+final usage rows bound to storyId/agentType/phase/provider, with reviewer/quorum binding fields",
+      "doneMeans": "host-run-usage smoke proves estimate+final rows for all three hosts (codex turn.completed mapping, claude stream-json usage, agy unavailable) with storyId/phase/agentType plus threadId=reviewRunId and subagentId=lane binding",
+      "requiredEvidence": [
+        "smoke:host-run-usage"
+      ],
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:happy:1",
+        "CHK-001:happy:2",
+        "CHK-001:edge:0",
+        "CHK-001:edge:1",
+        "CHK-001:edge:2",
+        "CHK-001:adversarial:0",
+        "CHK-001:adversarial:1",
+        "CHK-002:happy:0",
+        "CHK-002:happy:1",
+        "CHK-002:edge:0",
+        "CHK-002:edge:1",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M1-COVERAGE",
+      "sourceRequirementId": "REQ-M1-CAPTURE",
+      "claim": "Remaining lattice-initiated host spawns (autopilot repair, readiness probes, cross_host_review codex leaf) record usage rows through the same seam",
+      "doneMeans": "smoke checks rows with agentType autopilot-repair / host-readiness-probe and a cross_host_review unavailable final; ledger OFF stays byte-identical",
+      "requiredEvidence": [
+        "smoke:host-run-usage"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:happy:1",
+        "CHK-003:happy:2",
+        "CHK-003:edge:0",
+        "CHK-003:edge:1",
+        "CHK-003:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M1-GUIDANCE",
+      "sourceRequirementId": "REQ-M1-CAPTURE",
+      "claim": "Operator-facing guidance routes lattice-initiated reviewer/quorum host runs through host_run",
+      "doneMeans": "guidance strings and docs/host-run-usage.md name host_run with binding args; rg shows no remaining raw-launch instruction strings for lattice-initiated reviewer runs",
+      "requiredEvidence": [
+        "rg-absence-check",
+        "docs/host-run-usage.md"
+      ],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-004:happy:0",
+        "CHK-004:happy:1",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M1-CAPS",
+      "sourceRequirementId": "REQ-T2-CAPS",
+      "claim": "Per-dispatch budget cap and host-run concurrency cap refuse over-limit runs fail-closed before spawn with blocked ledger rows",
+      "doneMeans": "smoke proves hard-budget block (hard_budget_exceeded) and concurrency refusal (concurrency_cap_exceeded) rows plus stale-slot reclaim",
+      "requiredEvidence": [
+        "smoke:host-run-usage"
+      ],
+      "checklistRefs": [
+        "CHK-007"
+      ],
+      "verificationIntentRefs": [
+        "CHK-007:happy:0",
+        "CHK-007:happy:1",
+        "CHK-007:edge:0",
+        "CHK-007:edge:1",
+        "CHK-007:adversarial:0",
+        "CHK-007:adversarial:1"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M2-SWEEP",
+      "sourceRequirementId": "REQ-M2-SWEEP",
+      "claim": "A read-only usage_sweep scans codex rollouts and claude project transcripts since a cutoff and emits a non-authoritative attribution report, with both smokes wired as npm scripts and docs/CHANGELOG updated",
+      "doneMeans": "usage-sweep smoke proves cumulative codex totals, claude dedupe-by-message-id sums, story-mention extraction, cwd/originator fields, NON-AUTHORITATIVE labeling, zero writes; test:host-run-usage and test:usage-sweep pass via npm",
+      "requiredEvidence": [
+        "smoke:usage-sweep",
+        "npm-script-runs"
+      ],
+      "checklistRefs": [
+        "CHK-005",
+        "CHK-006"
+      ],
+      "verificationIntentRefs": [
+        "CHK-005:happy:0",
+        "CHK-005:happy:1",
+        "CHK-005:happy:2",
+        "CHK-005:edge:0",
+        "CHK-005:edge:1",
+        "CHK-005:edge:2",
+        "CHK-005:adversarial:0",
+        "CHK-005:adversarial:1",
+        "CHK-005:adversarial:2",
+        "CHK-006:happy:0",
+        "CHK-006:happy:1",
+        "CHK-006:edge:0",
+        "CHK-006:adversarial:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-10T05:32:07.266Z",
+  "updatedAt": "2026-07-10T05:39:50.702Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260710053452",
+    "acceptedInterpretationHash": "sha256:f81972f83b1325aa9455d65cc6ad560348776c9fbabbff516cd74eb3d0ef4fd1",
+    "acceptedAt": "2026-07-10T05:39:50.702Z"
+  }
+}

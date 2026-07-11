@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-bf15",
+  "sourceText": "In /Users/jek/Documents/Work/proofbound: the npm script test:autopilot-resume-smoke (packages/main/package.json, possibly mirrored at root package.json) references dist/tasks/autopilot-resume-smoke.js whose SOURCE was deleted in an earlier Authority-retirement cleanup commit — the script fails with a missing-file error. Pre-existing issue found in passing during story B-70e9 (2026-07-10, implementer report). Remove or repoint the stale script via the Lattice story workflow (small chore story).",
+  "normalizedOutcome": "packages/main/package.json no longer defines a test:autopilot-resume-smoke script pointing at the deleted dist/tasks/autopilot-resume-smoke.js, so npm scripts in packages/main all resolve to real buildable entry points and the missing-file failure can no longer occur.",
+  "acceptanceClaim": "In a clean story worktree, npm --prefix packages/main run lists no test:autopilot-resume-smoke entry and a repo-wide grep finds no runnable reference to autopilot-resume-smoke outside historical story artifacts and the decision-doc evidence row.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:cd6147d637f134cdaa4cf51319d82ccecab5c2cc6b684eb315ac557981a7be74",
+  "createdAt": "2026-07-10T14:27:56.182Z",
+  "updatedAt": "2026-07-10T14:27:56.182Z"
+}

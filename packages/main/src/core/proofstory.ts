@@ -1372,6 +1372,76 @@ function confirmedShrinkageIds(decision: ScopeShrinkageDecisionData | null): Set
   return new Set(decision?.decision === 'confirmed' && decision.userConfirmed === true ? decision.removedMilestoneIds : []);
 }
 
+// B-2c03: `-`, `/`, and `.` are \b word boundaries, so shrinkage trigger words
+// inside path-like/code-like tokens (core/partial-done-recovery.ts, `deferred`,
+// name.test.mjs) match as if they were prose claims. Strip those tokens before
+// the claimsShrinkage scan; replacement is a single space so surrounding prose
+// is preserved. Only unambiguously path-shaped tokens are stripped — backticked
+// spans, tokens containing a slash, and dotted tokens ENDING IN A KNOWN FILE
+// EXTENSION. Hyphen-only tokens are kept (F-001): prose like "deferred-for-now"
+// must keep matching its trigger segment. Dotted tokens with a non-extension
+// suffix are kept (F-002): "partial-release.rc1" / "deferred-work.next" are
+// prose-shaped, and stripping them would erase the trigger word. Residuals
+// (documented tradeoffs): a bare extensionless hyphenated file name
+// ("partial-done-recovery") and a dotted identifier with a non-extension tail
+// ("config.partial.enabled") can still false-positive — backtick such tokens
+// or use the full path, both of which this strips.
+// F-005: extensions that double as short ordinary English words (go, c, h, m,
+// log, map, sh, zip, less, snap, lock, ...) are EXCLUDED from this list on
+// purpose. A hyphenated trigger word with such an ambiguous suffix
+// (excluded-approach.log) fails SAFE — the token is kept and the gate fires —
+// because a silent bypass is worse than a false positive for a DONE guard.
+// Authors naming such files can backtick them or use the directory-qualified
+// path, both of which strip.
+const CODE_FILE_EXTENSION_PATTERN = 'ts|tsx|js|jsx|mjs|cjs|json|jsonl|md|mdx|txt|ya?ml|toml|ini|css|scss|html?|xml|svg|zsh|ps1|py|java|kt|kts|cc|cpp|hpp|sql|csv|tsv|proto|pdf|png|jpe?g|gif|webp|ico|gz|tgz';
+// F-006: every stripping rule must target TOKENS, never prose, so that a
+// genuine shrinkage claim cannot be erased. Inline backtick spans are stripped
+// only when whitespace-free (a span with spaces is quoted prose). Slash tokens
+// are stripped only when path-shaped: at least two slashes, or a dot, or a
+// leading ./ ../ ~/ or / prefix — "remaining/scope" prose survives. Dotted
+// tokens need a known extension AND a code-shaped stem (a hyphen/underscore or
+// a second dot) — "partial.md" mid-sentence is ambiguous and fails safe.
+const finalSegmentExtensionRegex = new RegExp(`\\.(?:${CODE_FILE_EXTENSION_PATTERN})$`, 'i');
+const dottedTokenShapeRegex = /^[A-Za-z0-9_-]+(?:\.[A-Za-z0-9_-]+)+$/;
+// Host-B (codex) finding 5: unanchored regexes with ambiguous quantifiers went
+// superlinear on pathological hyphen/dot runs, so tokenization is
+// whitespace-split with ANCHORED per-token tests — one linear pass, no
+// position-by-position backtracking.
+function stripCodeLikeTokens(text: string): string {
+  const withoutCodeSpans = text
+    .replace(/```[\s\S]*?```/g, ' ')
+    .replace(/`[^`\s]*`/g, ' ');
+  return withoutCodeSpans
+    .split(/(\s+)/)
+    .map((part) => {
+      if (part === '' || /^\s/.test(part)) return part;
+      // codex rounds 7+8: :line[:col] and GitHub #L anchor qualifiers
+      // (path.ts:42, path.ts#L42, path.ts#L42-L50) are still paths.
+      const trimmed = part.replace(/^[("'[{]+/, '').replace(/[.,;:!?)\]}"']+$/, '').replace(/(?:(?::\d+){1,2}|#L?\d+(?:-L?\d+)?)$/i, '');
+      if (trimmed.includes('/')) {
+        // F-007/F-009: neither slash count nor an incidental dotted segment
+        // (excluded/deferred/v2.1) is path semantics — English enumerations
+        // must survive. A slash token strips only with an EXPLICIT path
+        // marker: a leading / ~/ ./ ../ prefix, a URL scheme, or a final
+        // segment ending in a known file extension.
+        const finalSegment = trimmed.slice(trimmed.lastIndexOf('/') + 1);
+        const pathShaped = /^(?:\.{1,2}|~)?\//.test(trimmed)
+          || /^[a-z][a-z0-9+.-]*:\/\//i.test(trimmed)
+          || finalSegmentExtensionRegex.test(finalSegment);
+        return pathShaped ? ' ' : part;
+      }
+      if (dottedTokenShapeRegex.test(trimmed) && finalSegmentExtensionRegex.test(trimmed)) {
+        // Dotted tokens need a known extension AND a code-shaped stem (a
+        // hyphen/underscore or a second dot) — "partial.md" mid-sentence is
+        // ambiguous and fails safe (F-006).
+        const stem = trimmed.slice(0, trimmed.lastIndexOf('.'));
+        if (/[-_.]/.test(stem)) return ' ';
+      }
+      return part;
+    })
+    .join('');
+}
+
 export function evaluateDoneIntentEquivalence(
   input: ProofStoryDiagnosticInput,
   modeValue?: ProofStoryGateMode,
@@ -1418,13 +1488,68 @@ export function evaluateDoneIntentEquivalence(
         'fail',
       ));
     }
-    const narrowingText = [
+    const narrowingText = stripCodeLikeTokens([
       input.summary?.changes ?? '',
       input.summary?.actualTranscript ?? '',
       input.summary?.outcomeDiff ?? '',
       input.summary?.limitations ?? '',
-    ].join('\n');
-    const claimsShrinkage = /\b(?:partial|narrow(?:er|ed)?|shrink(?:age|s|ing)?|out of scope|not covered|deferred|remaining|excluded)\b/i.test(narrowingText);
+    ].join('\n'));
+    // Host-B (codex) rounds 1-3 + F-012: "remaining" pairs with a scope noun
+    // through a bounded MODIFIER CHAIN and the noun must TERMINATE the chain.
+    // Raw proximity is not enough (F-012: "remaining flaky tests, unrelated to
+    // this fix, cover edge cases" must stay quiet) while long genuine chains
+    // must fire (codex: "remaining browser-only Safari mobile localization and
+    // reduced-motion edge cases"). Pure word COUNT cannot separate those two —
+    // the distinguishing feature is CLAUSE STRUCTURE, so chain words exclude
+    // clause-marking stop words (verbs of being, pronouns, prepositions;
+    // conjunctions like "and" stay allowed) and the bound is eight words.
+    // Coordinate adjectives may carry a comma; a heading colon directly after
+    // "remaining" is allowed (codex round 3). Chains may cross a line wrap
+    // (fail-safe direction: hard-wrapped genuine claims must not escape) but a
+    // sentence-ending dot/!/? blocks them because chain connectors only accept
+    // a dot when not followed by whitespace (the dot-glue form). Glue
+    // characters (hyphen/underscore/slash/unicode dash, dot-glue) are a
+    // separate zero-modifier path so the connector and word classes stay
+    // disjoint and the scan stays linear; the noun uses alphanumeric
+    // lookarounds instead of \b so underscore glue (remaining_work) matches.
+    // Chain-word taxonomy (codex round 4 + F-013): "of" is noun-phrase
+    // internal ("the remaining set of cases") so it is NOT a stop word, while
+    // state verbs (exist/linger/persist/continue/remain) mark a clause and
+    // are. Conjunctions are allowed only WITHOUT a preceding comma — bare
+    // "and" coordinates modifiers ("localization and reduced-motion edge
+    // cases") while ", and" coordinates clauses ("issues exist, and scope
+    // work continues") and must not bridge the chain. Modifier words accept
+    // '/' (UI/UX).
+    // codex rounds 5+6: bare "not" and bare "as" belong with the conjunctions
+    // — inside an adjectival phrase ("remaining not yet supported
+    // functionality", "remaining as yet unsupported features") they are
+    // modifiers, while ", not"/", as" are clause punctuation and still block.
+    // codex round 7: modifiers are arbitrary TOKENS, not spellable word shapes
+    // — "Node.js", "C++", "F#" all qualify. A token is any run of
+    // non-space/non-comma characters that ends on a non-sentence-punctuation
+    // character (so a trailing sentence dot stays outside the token and still
+    // blocks the chain). Infinitive adjectivals ("to be implemented") are
+    // noun-phrase internal, so "to" and "be" are not stop words; clause
+    // protection comes from finite verbs, pronouns, and remaining
+    // prepositions.
+    const remainingStopWord = String.raw`(?:is|are|was|were|been|being|has|have|had|do|does|did|no|nor|it|its|this|that|these|those|they|them|in|on|at|by|for|from|with|but|so|than|then|there|here|when|while|which|who|whose|will|would|can|could|should|must|may|might|exists?|existed|lingers?|lingered|persists?|persisted|continues?|continued|remains?|remained)`;
+    const remainingConjunction = String.raw`(?:and|or|yet|plus|not|as)`;
+    const remainingTokenEnd = String.raw`[^\s,.!?;:]`;
+    const remainingModifierWord = String.raw`(?!(?:${remainingStopWord}|${remainingConjunction})(?!${remainingTokenEnd}))(?:[^\s,]*${remainingTokenEnd})`;
+    const remainingChainStep = String.raw`(?:[,:]?\s+${remainingModifierWord}|\s+${remainingConjunction}(?!${remainingTokenEnd}))`;
+    const remainingGlue = String.raw`(?:[/_–—-]|\.(?!\s))+`;
+    const remainingScopeNoun = String.raw`(?<![A-Za-z0-9])(?:work|scope|items?|cases?|tasks?|milestones?|features?|functionality|coverage|requirements?|deliverables?)(?![A-Za-z0-9])`;
+    // codex round 6: an Oxford-comma list ("remaining web, mobile, and Safari
+    // cases") is noun-phrase internal, so ", and|or" is allowed as a chain
+    // bridge ONLY when at least one comma list item precedes it — a lone
+    // ", and" with no prior comma item stays clause coordination and blocks
+    // (F-013), even when the first clause's verb is not on the stop list.
+    const remainingOxfordTail = String.raw`(?:,\s+${remainingModifierWord})+,\s+(?:and|or)\s+(?:${remainingModifierWord}\s+){0,2}${remainingScopeNoun}`;
+    const claimsShrinkageRegex = new RegExp(
+      String.raw`\b(?:partial|narrow(?:er|ed)?|shrink(?:age|s|ing)?|out[\s./_-]+of[\s./_-]+scope|not[\s./_-]+covered|deferred|remaining(?:${remainingChainStep}{0,8}?(?:[,:]?\s+|${remainingGlue})${remainingScopeNoun}|${remainingChainStep}{0,6}?${remainingOxfordTail})|excluded)\b`,
+      'i',
+    );
+    const claimsShrinkage = claimsShrinkageRegex.test(narrowingText);
     if (claimsShrinkage && acceptedShrinkageMilestoneIds.length === 0) {
       gaps.push(gap(
         'unconfirmed_single_outcome_shrinkage',

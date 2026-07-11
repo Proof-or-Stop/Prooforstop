@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-d6a0",
+  "sourceText": "B-b264 (merge 2895bbb5e, v0.3.181) fixed a porcelain-parsing bug class in two places: a git() helper that .trim()s the FULL git status --porcelain=v1 output strips the first row leading status space, so the first modified-tracked row path loses its first character (.lattice/x -> lattice/x) and downstream prefix-based classification misfires. Untracked ?? rows are immune, so tests with untracked-only fixtures never catch it. The B-b264 quality reviewer (run B-b264:RR-008) noted other porcelain consumers exist outside that story scope. Open a story to audit every remaining porcelain call site for the same whole-output-trim pattern, fix any that are affected (pattern: read raw via execFileSync without trimming, see gitStatusRows in packages/main/src/handlers/done-prepare.ts and gitRaw in packages/main/src/core/done-prepare-generated-metadata.ts), and add first-row modified-tracked regression assertions (see assertModifiedTrackedPathExactness in packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts).",
+  "normalizedOutcome": "Every git status --porcelain consumer in packages/main/src either preserves the first porcelain row byte-exactly through to its parser or is recorded in an audit table as safe (by read pattern, by usage, or immune by format); the four consumers where the corrupted first row reached material/volatile classification (evidence-freshness readMaterialDirtyFiles, cross-host-review assertMaterialCleanForReview, story-query gitPorcelainPaths, partial-done-recovery assertMainWorktreeClean) plus two display-only sites (session brief, story-query DONE-residue text) are fixed with the B-b264 raw-read pattern, and a regression smoke stages a modified-tracked FIRST porcelain row to lock the class out.",
+  "acceptanceClaim": "node packages/main/dist/tasks/porcelain-first-row-audit-smoke.js passes against the fixed tree (and failed against the pre-fix baseline), asserting for each fixed consumer that a fixture whose first porcelain row is a modified-tracked file classifies with the exact untruncated path.",
+  "keyRequirementIds": [
+    "REQ-001-audit-all-porcelain-call-sites",
+    "REQ-002-fix-affected-consumers-raw-read",
+    "REQ-003-first-row-regression-assertions"
+  ],
+  "requestHash": "sha256:6bab4240467b563c8e78b900095721d02eb5fd02498338778eda38ad2c8d268d",
+  "createdAt": "2026-07-10T09:10:53.593Z",
+  "updatedAt": "2026-07-10T09:10:53.593Z"
+}

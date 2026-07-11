@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-70e9",
+  "sourceText": "In proofbound (Lattice story workflow required): unify host-side LLM usage capture into the existing ledger .lattice/usage/llm-usage.jsonl. Problem evidence (2026-07-10 forensic audit): the ledger contains only 4 probe records from 2026-06-19 while the real burns were all host-side and invisible to it - e.g. a 30-hour Codex Desktop thread in the legacy Work/Orchestrate dir accumulated 368.9M cumulative input tokens (~4,700 turns), five parallel codex exec reviewers for one story burned ~16M in one minute, and Claude-side reviewer sessions burned 4-8M new input each. Attribution required manual archaeology over ~/.codex/sessions rollouts and ~/.claude/projects transcripts. M1 (capture at the choke point): extend the canonical launcher path (B-d8ef) so every lattice-initiated host run (dispatch, reviewer launch, quorum host review, autopilot) writes usage rows to the ledger with storyId/agentType/phase/provider bound - for codex exec parse the usage totals (input/cached_input/output/reasoning), for Claude parse stream-json result usage, for agy the print-mode usage surface if any. M2 (retro-attribution sweep): a read-only lattice usage_sweep that scans ~/.codex/sessions/*.jsonl and ~/.claude/projects/*/*.jsonl since a cutoff, extracts per-session token totals + story-id mentions + cwd, and emits an attribution report clearly labeled non-authoritative/estimate for sessions lattice did not launch. Non-goals: do not make usage data gate evidence; do not intercept interactive desktop sessions; keep gateEvidence=false semantics. Follow-up T2 same day: fold a per-dispatch budget cap plus a host-run concurrency cap into this story acceptance criteria.",
+  "normalizedOutcome": "Every lattice-initiated host LLM run appends attributed usage rows (storyId/agentType/phase/provider, plus reviewRunId/lane where relevant) to .lattice/usage/llm-usage.jsonl at the canonical launcher choke point with fail-closed per-dispatch budget and concurrency caps, and a read-only usage_sweep command reports non-authoritative token attribution for host-side sessions lattice did not launch.",
+  "acceptanceClaim": "Running a lattice host_run for each host (codex/claude/agy) appends correlated preflight+final ledger rows with correct binding and provider mapping (agy explicitly unavailable), over-cap runs are refused pre-spawn with blocked rows, and usage_sweep --since prints per-session totals + story mentions + cwd from fixture stores labeled NON-AUTHORITATIVE - all verified by the two smokes and a live TEST transcript.",
+  "keyRequirementIds": [
+    "REQ-M1-CAPTURE",
+    "REQ-M2-SWEEP",
+    "REQ-T2-CAPS"
+  ],
+  "requestHash": "sha256:9b3e68e7da76c1156bc6f47ef4a244b56b79770aea075e2330e62880c5b4f096",
+  "createdAt": "2026-07-10T05:31:47.340Z",
+  "updatedAt": "2026-07-10T05:31:47.340Z"
+}

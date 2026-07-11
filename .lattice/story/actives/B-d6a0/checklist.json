@@ -1,0 +1,387 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Fix readMaterialDirtyFiles full-output trim in core/evidence-freshness.ts",
+      "context": "readMaterialDirtyFiles (~line 153) does execFileSync('git',['status','--porcelain','--untracked-files=all']).trim() then line.slice(3): the first modified-tracked row's path loses its first character and isMaterialExcludedPath misfires, polluting materialDirty inside captureEvidenceHashSnapshot. Rework to the untrimmed raw-read pattern (see gitRaw in core/done-prepare-generated-metadata.ts:247) with per-line trimEnd.",
+      "status": "done",
+      "startTime": "2026-07-10T09:19:10.282Z",
+      "endTime": "2026-07-10T10:08:56.047Z",
+      "userSees": "✓ evidence-freshness: first-row \" M .lattice/…\" row stays excluded from materialDirty; material path reported exactly",
+      "files": {
+        "modify": [
+          "packages/main/src/core/evidence-freshness.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/porcelain-first-row-audit-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "captureEvidenceHashSnapshot on a fixture whose first porcelain row is a modified-tracked .lattice metadata file reports dirty.files containing exactly the material path, with no corrupted lattice/... entry",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "clean tree yields empty dirty.files (emptiness decided on rows.length after per-line trimEnd, not raw-string truthiness)",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "scenario asserts porcelain row 0 matches /^ M / before any classification assertion, so the regression cannot pass vacuously if fixture ordering drifts",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/porcelain-first-row-audit-smoke.ts",
+          "command": "node packages/main/dist/tasks/porcelain-first-row-audit-smoke.js",
+          "result": "pass",
+          "note": "evidence-freshness first-row volatile row excluded, material path exact",
+          "headHash": "cd78b4c5b81721c996418e509a0f46f3a17a21e9",
+          "materialHash": "21a825b93245e7064d15d29c692b7688b51f7d731d7851d5d467ef8efd027e02",
+          "storyFilesHash": "379ab3027ba1ff10ccc7fd20e1bb0538e3e770181d3da86db8e50626c378ab9d",
+          "timestamp": "2026-07-10T10:10:36.343Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/porcelain-first-row-audit-smoke.ts",
+          "command": "node packages/main/dist/tasks/porcelain-first-row-audit-smoke.js",
+          "result": "pass",
+          "note": "evidence-freshness clean tree yields empty materialDirtyFiles",
+          "headHash": "3a8971a5f3d59232da88a06685d06cd1df661827",
+          "materialHash": "21a825b93245e7064d15d29c692b7688b51f7d731d7851d5d467ef8efd027e02",
+          "storyFilesHash": "379ab3027ba1ff10ccc7fd20e1bb0538e3e770181d3da86db8e50626c378ab9d",
+          "timestamp": "2026-07-10T10:10:37.109Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/porcelain-first-row-audit-smoke.ts",
+          "command": "node packages/main/dist/tasks/porcelain-first-row-audit-smoke.js",
+          "result": "pass",
+          "note": "every scenario asserts porcelain row 0 is ' M .lattice/activity.jsonl' via assertFirstRowModifiedTracked before classification",
+          "headHash": "caaa6134386856dea1d6a64d7de3c1345b225c15",
+          "materialHash": "21a825b93245e7064d15d29c692b7688b51f7d731d7851d5d467ef8efd027e02",
+          "storyFilesHash": "379ab3027ba1ff10ccc7fd20e1bb0538e3e770181d3da86db8e50626c378ab9d",
+          "timestamp": "2026-07-10T10:10:37.798Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Fix assertMaterialCleanForReview full-output trim in handlers/cross-host-review.ts",
+      "context": "assertMaterialCleanForReview (~line 74) trims the full porcelain output then slice(3): a first-row ' M .lattice/...' metadata change parses as 'lattice/...' which fails the .lattice/ material-exclusion prefix and false-blocks the cross-host review dirty preflight. Same untrimmed raw-read fix.",
+      "status": "done",
+      "startTime": "2026-07-10T10:09:18.102Z",
+      "endTime": "2026-07-10T10:09:18.822Z",
+      "userSees": "✓ cross-host-review: .lattice-only dirty tree passes the review preflight; a material row still refuses with the exact path",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/cross-host-review.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/porcelain-first-row-audit-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "assertMaterialCleanForReview does NOT throw when the only dirty rows are .lattice metadata and the FIRST row is a modified-tracked .lattice file",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "clean tree does not throw",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "a modified-tracked material row still throws and the error names the exact path (fail-closed behavior preserved, not loosened)",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/porcelain-first-row-audit-smoke.ts",
+          "command": "node packages/main/dist/tasks/porcelain-first-row-audit-smoke.js",
+          "result": "pass",
+          "note": "cross-host-review .lattice-only first-row dirt passes the preflight",
+          "headHash": "15a58c26d1f1064610a2eea56107bf99f991ec2d",
+          "materialHash": "21a825b93245e7064d15d29c692b7688b51f7d731d7851d5d467ef8efd027e02",
+          "storyFilesHash": "379ab3027ba1ff10ccc7fd20e1bb0538e3e770181d3da86db8e50626c378ab9d",
+          "timestamp": "2026-07-10T10:10:38.471Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/porcelain-first-row-audit-smoke.ts",
+          "command": "node packages/main/dist/tasks/porcelain-first-row-audit-smoke.js",
+          "result": "pass",
+          "note": "cross-host-review clean tree passes the preflight",
+          "headHash": "e5c3ce13c56121ad60d01cc87289b45b01b063b8",
+          "materialHash": "21a825b93245e7064d15d29c692b7688b51f7d731d7851d5d467ef8efd027e02",
+          "storyFilesHash": "379ab3027ba1ff10ccc7fd20e1bb0538e3e770181d3da86db8e50626c378ab9d",
+          "timestamp": "2026-07-10T10:10:39.186Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/porcelain-first-row-audit-smoke.ts",
+          "command": "node packages/main/dist/tasks/porcelain-first-row-audit-smoke.js",
+          "result": "pass",
+          "note": "cross-host-review material row still refuses naming notes/keep.txt and no corrupted dot-less path",
+          "headHash": "8f5a32e0a4056551b461daf3d3b072f6ca4d7c72",
+          "materialHash": "21a825b93245e7064d15d29c692b7688b51f7d731d7851d5d467ef8efd027e02",
+          "storyFilesHash": "379ab3027ba1ff10ccc7fd20e1bb0538e3e770181d3da86db8e50626c378ab9d",
+          "timestamp": "2026-07-10T10:10:39.864Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Fix gitPorcelainPaths and DONE-residue status trim in handlers/story-query.ts",
+      "context": "gitPorcelainPaths (line 226) builds on gitOutput() which trims the full output, then slice(3): story_sync_main's dirty preflight (line 945) filters the corrupted first-row path through isVolatileRuntimeArtifactPath and can false-block sync with a corrupted path in the error. Also the DONE-residue probe (~line 1017) stores a full-trimmed status string whose first row is corrupted in display. Fix both reads to not trim leading output.",
+      "status": "done",
+      "startTime": "2026-07-10T10:09:35.593Z",
+      "endTime": "2026-07-10T10:09:36.344Z",
+      "userSees": "✓ story-query: gitPorcelainPaths first entry keeps its leading dot; DONE-residue status text shows the untrimmed first row",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/story-query.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/porcelain-first-row-audit-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "gitPorcelainPaths returns the exact .lattice/... first-row path with its leading dot",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "rename rows (old -> new) still resolve to the new path after the raw-read conversion",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "a first-row volatile runtime-artifact path is correctly dropped by the story_sync_main isVolatileRuntimeArtifactPath filter (pre-fix code kept the corrupted path and false-blocked)",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/porcelain-first-row-audit-smoke.ts",
+          "command": "node packages/main/dist/tasks/porcelain-first-row-audit-smoke.js",
+          "result": "pass",
+          "note": "story-query first porcelain path keeps its leading dot",
+          "headHash": "0e80139be837a03c77b8e512ec95f838513206be",
+          "materialHash": "21a825b93245e7064d15d29c692b7688b51f7d731d7851d5d467ef8efd027e02",
+          "storyFilesHash": "379ab3027ba1ff10ccc7fd20e1bb0538e3e770181d3da86db8e50626c378ab9d",
+          "timestamp": "2026-07-10T10:10:40.514Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/porcelain-first-row-audit-smoke.ts",
+          "command": "node packages/main/dist/tasks/porcelain-first-row-audit-smoke.js",
+          "result": "pass",
+          "note": "story-query rename rows resolve to the new path, no arrow strings leak",
+          "headHash": "6d87bb92f04983de81c086aa704d1d093ae18d03",
+          "materialHash": "21a825b93245e7064d15d29c692b7688b51f7d731d7851d5d467ef8efd027e02",
+          "storyFilesHash": "379ab3027ba1ff10ccc7fd20e1bb0538e3e770181d3da86db8e50626c378ab9d",
+          "timestamp": "2026-07-10T10:10:41.151Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/porcelain-first-row-audit-smoke.ts",
+          "command": "node packages/main/dist/tasks/porcelain-first-row-audit-smoke.js",
+          "result": "pass",
+          "note": "sync-main volatile filter drops the first-row volatile path leaving exactly the material path",
+          "headHash": "43774aedc83427b46e19991bca4d1fde362756ba",
+          "materialHash": "21a825b93245e7064d15d29c692b7688b51f7d731d7851d5d467ef8efd027e02",
+          "storyFilesHash": "379ab3027ba1ff10ccc7fd20e1bb0538e3e770181d3da86db8e50626c378ab9d",
+          "timestamp": "2026-07-10T10:10:41.799Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-004",
+      "title": "Fix assertMainWorktreeClean input trim in core/partial-done-recovery.ts and brief rows in handlers/session.ts",
+      "context": "partial-done-recovery.ts git() (line 23) trims full output; assertMainWorktreeClean (line 179) feeds it to materialStatusLines/statusLinePath (slice(3)) so a first-row volatile runtime artifact counts as material and done_recover falsely refuses. session.ts readGitStatus (line 150) trims full output before splitting rows for the session brief, so the first displayed row loses its status column. Fix both reads; keep bounded emptiness-only call sites unchanged.",
+      "status": "done",
+      "startTime": "2026-07-10T10:09:36.895Z",
+      "endTime": "2026-07-10T10:09:37.490Z",
+      "userSees": "✓ partial-done-recovery: volatile-only first row no longer refuses done_recover; session brief rows keep their status columns",
+      "files": {
+        "modify": [
+          "packages/main/src/core/partial-done-recovery.ts",
+          "packages/main/src/handlers/session.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/porcelain-first-row-audit-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "assertMainWorktreeClean does NOT throw when the only dirty row is a modified-tracked volatile runtime artifact on the FIRST porcelain row",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "session readGitStatus porcelain[0] matches /^ M / (status column preserved in brief rows)",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "a material modified-tracked row still makes assertMainWorktreeClean throw naming the exact path (refusal not loosened)",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/porcelain-first-row-audit-smoke.ts",
+          "command": "node packages/main/dist/tasks/porcelain-first-row-audit-smoke.js",
+          "result": "pass",
+          "note": "partial-done-recovery volatile-only first-row dirt does not refuse",
+          "headHash": "40253cb3cf9e42aef545b1eeb891993af6f7e039",
+          "materialHash": "21a825b93245e7064d15d29c692b7688b51f7d731d7851d5d467ef8efd027e02",
+          "storyFilesHash": "379ab3027ba1ff10ccc7fd20e1bb0538e3e770181d3da86db8e50626c378ab9d",
+          "timestamp": "2026-07-10T10:10:42.459Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/porcelain-first-row-audit-smoke.ts",
+          "command": "node packages/main/dist/tasks/porcelain-first-row-audit-smoke.js",
+          "result": "pass",
+          "note": "session brief row 0 keeps its status column (' M .lattice/activity.jsonl')",
+          "headHash": "0c22f8cb641a89d77e6bc83c71356ca25f1cf723",
+          "materialHash": "21a825b93245e7064d15d29c692b7688b51f7d731d7851d5d467ef8efd027e02",
+          "storyFilesHash": "379ab3027ba1ff10ccc7fd20e1bb0538e3e770181d3da86db8e50626c378ab9d",
+          "timestamp": "2026-07-10T10:10:43.138Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/porcelain-first-row-audit-smoke.ts",
+          "command": "node packages/main/dist/tasks/porcelain-first-row-audit-smoke.js",
+          "result": "pass",
+          "note": "partial-done-recovery material row still refuses listing ' M notes/keep.txt'",
+          "headHash": "0059207e1068c11d196eadecd41d2b85bcb5085c",
+          "materialHash": "21a825b93245e7064d15d29c692b7688b51f7d731d7851d5d467ef8efd027e02",
+          "storyFilesHash": "379ab3027ba1ff10ccc7fd20e1bb0538e3e770181d3da86db8e50626c378ab9d",
+          "timestamp": "2026-07-10T10:10:43.802Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-005",
+      "title": "Add first-row modified-tracked regression smoke and record the per-site audit verdict",
+      "context": "New smoke task exercising the fixed consumers against a temp git repo whose FIRST porcelain row is a modified tracked file (' M' row, e.g. a .lattice/ or volatile path) plus a material row: assert exact path classification (pattern: assertModifiedTrackedPathExactness in tasks/done-prepare-merge-rerun-smoke.ts). Record the audit table (every porcelain call site -> fixed / safe-by-read-pattern / safe-by-usage / immune-by-format) in plan.md so untouched sites are auditable.",
+      "status": "done",
+      "startTime": "2026-07-10T10:09:51.693Z",
+      "endTime": "2026-07-10T10:09:52.892Z",
+      "userSees": "porcelain-first-row-audit-smoke: ALL PASS; run-all-smokes suite green",
+      "files": {
+        "modify": [
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/porcelain-first-row-audit-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/porcelain-first-row-audit-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "the new smoke passes against the fixed code, covering all four fixed consumers plus the session brief rows",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the smoke is discovered by run-all-smokes via the dist/tasks/*-smoke.js convention and the full suite stays green",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the smoke run against the pre-fix code FAILS (RED recorded before the fixes as repro evidence), proving the assertions detect the bug class",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/porcelain-first-row-audit-smoke.ts",
+          "command": "node packages/main/dist/tasks/porcelain-first-row-audit-smoke.js",
+          "result": "pass",
+          "note": "smoke passes against the fixed tree covering all four fixed consumers plus session brief rows",
+          "headHash": "9a4a2838f3966d3f8a68101e683986b20c371386",
+          "materialHash": "21a825b93245e7064d15d29c692b7688b51f7d731d7851d5d467ef8efd027e02",
+          "storyFilesHash": "379ab3027ba1ff10ccc7fd20e1bb0538e3e770181d3da86db8e50626c378ab9d",
+          "timestamp": "2026-07-10T10:10:44.514Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/porcelain-first-row-audit-smoke.ts",
+          "command": "node packages/main/dist/tasks/porcelain-first-row-audit-smoke.js",
+          "result": "pass",
+          "note": "suite run discovers the smoke via dist/tasks/*-smoke.js convention: PASS porcelain-first-row-audit (3.2s) in run-all-smokes",
+          "headHash": "8d11695425d53c1bb614845f123715603a1afdec",
+          "materialHash": "21a825b93245e7064d15d29c692b7688b51f7d731d7851d5d467ef8efd027e02",
+          "storyFilesHash": "379ab3027ba1ff10ccc7fd20e1bb0538e3e770181d3da86db8e50626c378ab9d",
+          "timestamp": "2026-07-10T10:10:45.158Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "file": ".lattice/story/actives/B-d6a0/evidence/repro-porcelain-first-row.mjs",
+          "command": "node .lattice/story/actives/B-d6a0/evidence/repro-porcelain-first-row.mjs",
+          "result": "pass",
+          "note": "RED recorded BEFORE the fixes: this same command exited 1 at pre-fix baseline HEAD 2d08e79 (red-evidence.json binds baselineHeadHash + observed corrupted path lattice/activity.jsonl and the false done_recover refusal). It exits 0 on the fixed tree — proving the assertions detect the bug class and the fixes remove it (same_acceptance relation).",
+          "headHash": "29923736f26837d885ec7b4d9ae392089f081ada",
+          "materialHash": "21a825b93245e7064d15d29c692b7688b51f7d731d7851d5d467ef8efd027e02",
+          "storyFilesHash": "379ab3027ba1ff10ccc7fd20e1bb0538e3e770181d3da86db8e50626c378ab9d",
+          "timestamp": "2026-07-10T10:10:58.925Z"
+        }
+      ]
+    }
+  ]
+}

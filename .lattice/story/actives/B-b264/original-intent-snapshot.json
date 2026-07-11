@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-b264",
+  "sourceText": "Implement M5 and remaining M6 safeguards from docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md: explain repeated done_prepare runs, preflight merge hazards, protect unrelated dirty files, and prove dryRun remains side-effect free.",
+  "normalizedOutcome": "done_prepare reports exact merge hazard paths, rerun reasons, generated metadata ownership guidance, and dryRun immutability is proven by focused smoke coverage.",
+  "acceptanceClaim": "M5 and M6 are accepted when CHK-001/CHK-002/CHK-003 have passing verification evidence and milestone_status shows their referenced verification intents covered without changing DONE gate semantics.",
+  "keyRequirementIds": [
+    "CHK-001",
+    "CHK-002",
+    "CHK-003",
+    "DOC-M5",
+    "DOC-M6-remaining"
+  ],
+  "requestHash": "sha256:40f71b7c8bdc3388a36ee402cb6b7df6e8c99cdc47d0b2cf6411a22afe09803c",
+  "createdAt": "2026-07-10T04:23:46.765Z",
+  "updatedAt": "2026-07-10T04:23:46.765Z"
+}

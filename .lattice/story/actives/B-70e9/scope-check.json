@@ -1,0 +1,512 @@
+{
+  "storyId": "B-70e9",
+  "checkedAt": "2026-07-10T05:29:02.166Z",
+  "features": [
+    {
+      "feature": "M1 host_run choke-point command builds argv from canonicalReviewHostLauncherSpec for codex/claude/agy and writes preflight+final ledger rows bound to storyId/agentType/phase/provider",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding.json / plan.md CHK-001"
+    },
+    {
+      "feature": "Codex usage parsed from exec --json terminal turn.completed event (input_tokens, cached_input_tokens, output_tokens, reasoning_output_tokens), mapped to canonical fields with cache_creation=null",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json CHK-001 verificationIntent"
+    },
+    {
+      "feature": "Claude usage parsed via existing parseClaudeCliOutput stream-json result envelope",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json CHK-001"
+    },
+    {
+      "feature": "agy has no usage surface: record usage.source=unavailable with explicit unavailableReason rather than fabricating counts",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "background.md; checklist.json CHK-001"
+    },
+    {
+      "feature": "No fabricated zero on parse miss (e.g. codex turn.failed with no usage event) - unavailable final with reason instead",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json CHK-001 edge; execution-plan Usage Source Semantics"
+    },
+    {
+      "feature": "LATTICE_USAGE_LEDGER=0 leaves host_run byte-identical (no rows, no dirs)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json CHK-001 edge"
+    },
+    {
+      "feature": "Host exit code propagates to caller regardless of ledger write outcome; ledger write failures never break the host run (seam never-throws contract)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json CHK-001 edge/adversarial; decision.json preMortem"
+    },
+    {
+      "feature": "Prototype-polluted or wrong-typed usage payload must not fabricate counts (own-property projection); raw digest covers ORIGINAL payload",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json CHK-001 adversarial; cross-referenced docs/requirements/decisions/usage-ledger-prototype-pollution-hardening.md chokepoint pattern"
+    },
+    {
+      "feature": "Runner flooding stdout cannot exhaust memory: line-streamed bounded parse buffer while passthrough continues",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json CHK-001 adversarial"
+    },
+    {
+      "feature": "reviewRunId and lane bind into threadId/subagentId ledger fields so rows join review-runs.json records",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json CHK-002"
+    },
+    {
+      "feature": "--storyId with no --phase resolves phase from story index at call time (attribution captured at preflight)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json CHK-002; execution-plan Story and Role Attribution"
+    },
+    {
+      "feature": "Omitting reviewRunId/lane leaves threadId/subagentId null, not empty-string",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json CHK-002 edge"
+    },
+    {
+      "feature": "Unknown storyId fails clearly before any spawn",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json CHK-002 edge"
+    },
+    {
+      "feature": "A reviewRunId for a different story than --storyId is refused (cross-story binding mismatch)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json CHK-002 adversarial"
+    },
+    {
+      "feature": "autopilot runClaudeRepair spawns claude with no ledger seam today - wire preflight+final rows (agentType autopilot-repair)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding.json facts; checklist.json CHK-003; verified in source: no recordDispatch* calls in autopilot-executor.ts today"
+    },
+    {
+      "feature": "host readiness probes (review_host_availability_probe/host_runtime_probe) record preflight+final rows per host with agentType host-readiness-probe",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json CHK-003"
+    },
+    {
+      "feature": "cross_host_review codex leaf records preflight + unavailable final with argv unchanged (codex exec -s read-only has no JSON event stream)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding.json facts; checklist.json CHK-003; verified in source: no ledger calls in cross-host-review.ts/codex-review-leaf.ts today"
+    },
+    {
+      "feature": "Ledger OFF keeps runClaudeRepair byte-identical to today (no --output-format json, no rows)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json CHK-003 edge"
+    },
+    {
+      "feature": "Probe failure paths still write preflight/unavailable rows without breaking the probe result",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json CHK-003 edge"
+    },
+    {
+      "feature": "No new imports into core/usage-ledger; all wiring happens at callers (module isolation constraint)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding.json constraints; plan.md CHK-003 DoneWhen; execution-plan Completeness Guarantee"
+    },
+    {
+      "feature": "Ledger write failure must never fail the autopilot repair, probe, or cross-host review (never-throws contract exercised in smoke)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json CHK-003 adversarial"
+    },
+    {
+      "feature": "reviewer_batch/quorum/escalation guidance strings updated to name lattice host_run instead of raw codex exec/claude --print/agy --print for lattice-initiated host runs",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json CHK-004"
+    },
+    {
+      "feature": "docs/host-run-usage.md documents usage, binding conventions, cap envs, agy unavailable semantics, and non-goals",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json CHK-004"
+    },
+    {
+      "feature": "In-session Agent() subagent reviewer instructions stay unchanged (not host CLI spawns) - explicit non-goal",
+      "covered_by": "CHK-004",
+      "status": "excluded",
+      "excluded_by": "checklist.json CHK-004 edge: explicitly scoped out since these are not host CLI spawns",
+      "source": "checklist.json CHK-004 edge"
+    },
+    {
+      "feature": "rg-verifiable: no remaining raw-launch instruction strings for lattice-initiated host reviewer runs (spawn implementation sites excluded)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json CHK-004 adversarial"
+    },
+    {
+      "feature": "M2 read-only usage_sweep command scans ~/.codex/sessions rollouts and ~/.claude/projects transcripts since a cutoff, emits non-authoritative attribution report (human table + JSON)",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "background.md; understanding.json; checklist.json CHK-005"
+    },
+    {
+      "feature": "Codex rollout totals = LAST non-null cumulative info.total_token_usage (not summed); session_meta yields cwd/originator/source",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding.json facts; checklist.json CHK-005"
+    },
+    {
+      "feature": "Claude transcript: split assistant events sharing message.id deduped, keeping last value, to avoid double counting",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding.json facts; checklist.json CHK-005/CHK-006"
+    },
+    {
+      "feature": "--since cutoff excludes older files by mtime before reading",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json CHK-005"
+    },
+    {
+      "feature": "Rollout with only null-info token_count lines reports usage unknown, not zero",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json CHK-005 edge; execution-plan unavailable-not-zero principle"
+    },
+    {
+      "feature": "Sweep is strictly read-only: no ledger backfill, no writes anywhere unless --out explicitly passed, and --out refuses paths outside the project root",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding.json constraints; checklist.json CHK-005 excludes/adversarial"
+    },
+    {
+      "feature": "Sweep streams line-by-line (no whole-file buffering) since desktop rollouts can be hundreds of MB",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "plan.md CHK-005 DoneWhen; understanding.json facts"
+    },
+    {
+      "feature": "Malformed JSONL lines skipped without aborting scan, counted in a parse-error diagnostic",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json CHK-005 adversarial"
+    },
+    {
+      "feature": "No gate or lifecycle behavior reads sweep output; no interception of interactive desktop sessions",
+      "covered_by": "CHK-005",
+      "status": "excluded",
+      "excluded_by": "checklist.json CHK-005 excludes: explicit non-goal restated from background.md",
+      "source": "checklist.json CHK-005 excludes"
+    },
+    {
+      "feature": "Fixture-based smokes for host-run row shape/binding and sweep parsing with npm scripts wired (test:host-run-usage, test:usage-sweep) plus run-all-smokes and CHANGELOG updates",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json CHK-006"
+    },
+    {
+      "feature": "Smokes create all fixtures under temp dirs and never touch real home stores",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json CHK-006 edge"
+    },
+    {
+      "feature": "Row-shape assertions include correlation fields (ledgerCallId/attemptId/sequence/supersedes) per the existing ledger schema",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json CHK-006 adversarial; cross-ref docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md Call and Attempt Correlation Semantics"
+    },
+    {
+      "feature": "Per-dispatch hard token budget cap at host_run choke point, reusing shouldBlockDispatch/recordBudgetBlock (LATTICE_HARD_BUDGET_TOKENS), refusing pre-spawn with decision.kind=blocked reasonCode hard_budget_exceeded",
+      "covered_by": "CHK-007",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json CHK-007; execution-plan Fail-Closed Budget Behavior"
+    },
+    {
+      "feature": "Host-run concurrency cap (default 4, env LATTICE_HOST_RUN_MAX_CONCURRENT) refuses the 5th concurrent run fail-closed, prints live-run list, writes blocked row with reasonCode concurrency_cap_exceeded",
+      "covered_by": "CHK-007",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json CHK-007; auditLog T2 follow-up"
+    },
+    {
+      "feature": "Stale slots (dead pid or old mtime) reclaimed automatically so a crashed run never wedges the cap",
+      "covered_by": "CHK-007",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json CHK-007 edge; decision.json preMortem (concurrency cap deadlock scenario)"
+    },
+    {
+      "feature": "LATTICE_HOST_RUN_MAX_CONCURRENT unset/invalid falls back to default 4; explicit higher value honored",
+      "covered_by": "CHK-007",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json CHK-007 edge"
+    },
+    {
+      "feature": "Two runs racing for the last concurrency slot cannot both acquire it (atomic exclusive-create semantics)",
+      "covered_by": "CHK-007",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json CHK-007 adversarial"
+    },
+    {
+      "feature": "Slot files cannot be used to inject content into ledger rows (slots carry pid/timestamps only)",
+      "covered_by": "CHK-007",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json CHK-007 adversarial"
+    },
+    {
+      "feature": "No new second ledger writer path introduced anywhere in the story (single-writer completeness guarantee preserved)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding.json constraints; decision.json principles; execution-plan Completeness Guarantee"
+    },
+    {
+      "feature": "gateEvidence=false preserved: usage rows never gate workflow or lifecycle behavior anywhere in the story",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding.json constraints; decision.json principles; execution-plan Local Non-authority Boundary"
+    },
+    {
+      "feature": "core/usage-ledger keeps zero cross-module imports; all wiring happens at callers",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding.json constraints"
+    },
+    {
+      "feature": "Canonical launcher argv compatibility maintained: agy print-timeout slot gets a deliberate, matcher-aware parameterization so host_run does not silently drift from the B-d8ef frozen argv contract",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding.json constraints; plan.md CHK-001 DoneWhen; verified in source packages/main/src/core/host-execution-readiness.ts launcherArgvMatchesCanonical exists today"
+    },
+    {
+      "feature": "English-only story artifacts constraint",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "project-wide standing constraint (english-artifacts gate), not a story-specific deliverable requiring its own checklist item",
+      "source": "understanding.json constraints"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      ".lattice/story/actives/B-70e9/background.md",
+      ".lattice/story/actives/B-70e9/checklist.json",
+      ".lattice/story/actives/B-70e9/decision.json",
+      ".lattice/story/actives/B-70e9/plan.md",
+      ".lattice/story/actives/B-70e9/understanding.json",
+      "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+      "docs/requirements/decisions/usage-ledger-prototype-pollution-hardening.md"
+    ],
+    "filesTriagedByName": [
+      "docs/requirements/decisions/annotation-system.md",
+      "docs/requirements/decisions/authority-client-role.md",
+      "docs/requirements/decisions/authority-done-material-overlap-audit-cli-fix.md",
+      "docs/requirements/decisions/authority-receipt-cross-repo-live-smoke.md",
+      "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+      "docs/requirements/decisions/authority-runner-session-evidence-envelope.md",
+      "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+      "docs/requirements/decisions/authority-session-receipt-gate-execution.md",
+      "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+      "docs/requirements/decisions/cc-learnings.md",
+      "docs/requirements/decisions/cell06-docker-server-execution-checklist.md",
+      "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+      "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+      "docs/requirements/decisions/cli-engine-english-translation-manifest.md",
+      "docs/requirements/decisions/cli-engine-modularization-execution-plan.md",
+      "docs/requirements/decisions/control-plane-proof-capability-closure-audit.md",
+      "docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
+      "docs/requirements/decisions/dev-memory.md",
+      "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+      "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+      "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+      "docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md",
+      "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+      "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+      "docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md",
+      "docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md",
+      "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+      "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md",
+      "docs/requirements/decisions/framework.md",
+      "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+      "docs/requirements/decisions/host-neutral-observability-console.md",
+      "docs/requirements/decisions/host-overflow.md",
+      "docs/requirements/decisions/lattice-authority-customer-api-key-access.md",
+      "docs/requirements/decisions/lattice-authority-live-integration.md",
+      "docs/requirements/decisions/lattice-authority-m1-m16-generated-proof-and-live-e2e.md",
+      "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+      "docs/requirements/decisions/lattice-authority-remote-evidence-bundle.md",
+      "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md",
+      "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
+      "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+      "docs/requirements/decisions/lattice-console-demo-mvp-requirements.md",
+      "docs/requirements/decisions/lattice-experience-layer-effectiveness-record.md",
+      "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+      "docs/requirements/decisions/lattice-experiment-protocol.md",
+      "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+      "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md",
+      "docs/requirements/decisions/lattice-parallel-wave.md",
+      "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md",
+      "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+      "docs/requirements/decisions/lattice-unattended-completion-plan.md",
+      "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+      "docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md",
+      "docs/requirements/decisions/lifecycle-artifact-scope.md",
+      "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+      "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+      "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+      "docs/requirements/decisions/milestone-not-applicable-justification.md",
+      "docs/requirements/decisions/milestone-status-done-gate-reconciliation.md",
+      "docs/requirements/decisions/milestone-triggered-gate-mode-default-decision.md",
+      "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+      "docs/requirements/decisions/multi-model-ablation-replication.md",
+      "docs/requirements/decisions/orchestrate-retirement.md",
+      "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+      "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+      "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+      "docs/requirements/decisions/playbook-memory-performance-index-optimization-plan.md",
+      "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+      "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+      "docs/requirements/decisions/pos-agent-drivability-optimization.md",
+      "docs/requirements/decisions/product-capability-release-playbook-lineage-execution-plan.md",
+      "docs/requirements/decisions/project-vision.md",
+      "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+      "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "docs/requirements/decisions/repro-first-story-intake-experiment.md",
+      "docs/requirements/decisions/resolve-gap-analyze-three-high-gaps-execution-plan.md",
+      "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+      "docs/requirements/decisions/review-run-binding-race.md",
+      "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
+      "docs/requirements/decisions/review-run-start-workspace-diagnostics-execution-plan.md",
+      "docs/requirements/decisions/role-separation.md",
+      "docs/requirements/decisions/root-document-migration-guide.md",
+      "docs/requirements/decisions/root-markdown-migration-execution-solution.md",
+      "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+      "docs/requirements/decisions/session-ownership-and-write-leases.md",
+      "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+      "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+      "docs/requirements/decisions/stack-layering.md",
+      "docs/requirements/decisions/stash-split-execution-plan.md",
+      "docs/requirements/decisions/story-files-hash-material-drift.md",
+      "docs/requirements/decisions/story-lifecycle.md",
+      "docs/requirements/decisions/test-fixture-spec.md",
+      "docs/requirements/decisions/test-intent-review.md",
+      "docs/requirements/decisions/test-runner-consolidation-plan.md",
+      "docs/requirements/decisions/testing-completeness.md",
+      "docs/requirements/decisions/testing-infra.md",
+      "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+      "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+      "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md",
+      "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+      "docs/requirements/decisions/truth-source.md",
+      "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+      "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
+      "docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md",
+      "docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md",
+      "docs/requirements/decisions/unlock-layer4-production-safety-suite.md",
+      "docs/requirements/decisions/verification-context-pack.md"
+    ],
+    "scanEscalationReason": "Full enumeration of all filenames in docs/requirements/decisions/ via ls (117 entries) to identify candidate specs by title; the story background/understanding explicitly named lattice-llm-usage-ledger-execution-plan.md as the foundational spec, which was read in full along with the directly-relevant usage-ledger-prototype-pollution-hardening.md (cross-referenced by CHK-001's adversarial item on prototype-pollution-safe reads). Remaining decisions filenames were triaged by name/title only as none matched story touchpoints (host-run, usage ledger, usage sweep, canonical launcher, budget cap, concurrency cap)."
+  },
+  "summary": {
+    "total": 48,
+    "covered": 45,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "43ce652f6ed0a35c6002e16ed22fab0db5c9d8c8704debefba56c8f171bb2b15",
+  "openQuestions": [
+    {
+      "id": "OQ-1",
+      "q": "B-d8ef and B-4a78 are cited by story ID in understanding.json but no docs/requirements/decisions/ file matches those story IDs by title. Is there a specific decisions/ doc backing them, or is this a completed-story cross-reference with no standing spec doc?",
+      "evidence": "understanding.json facts cite B-d8ef (canonicalReviewHostLauncherSpec freeze) and B-4a78 (signed readManifest coordination); grep for both story IDs across docs/requirements/decisions/*.md returned zero matches. The concrete touchpoints they describe (canonicalReviewHostLauncherSpec, launcherArgvMatchesCanonical) were verified present today in packages/main/src/core/host-execution-readiness.ts, so the underlying work appears real and already landed; it just is not backed by a discoverable decisions/ doc under those names.",
+      "sourcePointers": [
+        "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+        "packages/main/src/core/host-execution-readiness.ts",
+        "packages/main/src/core/reviewer-read-evidence.ts"
+      ],
+      "resolution": "B-d8ef and B-4a78 are deliberately cited as story-ID provenance, not as decisions/ specs: their mechanical contracts live in merged source (canonicalReviewHostLauncherSpec / launcherArgvMatchesCanonical in packages/main/src/core/host-execution-readiness.ts, and the readManifest normalization in packages/main/src/core/reviewer-read-evidence.ts), which the scope reviewer verified present. The governing decisions/ spec for this story is lattice-llm-usage-ledger-execution-plan.md; no additional decisions/ doc is required for story-to-story build-on references.",
+      "resolvedAt": "2026-07-10T05:29:56.014Z"
+    },
+    {
+      "id": "OQ-2",
+      "q": "CHK-004 assumes reviewer_batch guidance currently prints raw codex exec/claude --print/agy --print launch instructions that need rewriting to name lattice host_run. Does this guidance text exist today, and if so where?",
+      "evidence": "grep for 'codex exec', 'claude --print', 'agy --print' in packages/main/src/handlers/reviewer-batch.ts returned no matches. The rewrite scope described in CHK-004 could not be located in that file; it may live in a different file, be templated, or be smaller than described. Not treated as a scope gap because CHK-004's own verification step (rg check for remaining raw-launch strings) will catch this at DEV/REVIEW time regardless.",
+      "sourcePointers": [
+        "CHK-004",
+        ".lattice/story/actives/B-70e9/plan.md"
+      ],
+      "resolution": "Accepted: the acceptance criterion for CHK-004 is behavior-based, not file-based - after DEV, a repo-wide search of operator-facing instruction strings must show lattice-initiated reviewer/quorum host runs directed through host_run, plus docs/host-run-usage.md created. The files.modify entries (reviewer-batch.ts, review-escalation.ts) are candidate surfaces located by grep at DEV time; if a candidate contains no raw-launch instruction the change narrows there without shrinking the story promise. plan.md CHK-004 Verify already encodes the rg-based absence check.",
+      "resolvedAt": "2026-07-10T05:29:56.750Z"
+    },
+    {
+      "id": "OQ-3",
+      "q": "Does CHK-007's per-dispatch budget cap (LATTICE_HARD_BUDGET_TOKENS reused via shouldBlockDispatch) apply per-provider or globally across concurrently in-flight host runs, and is it a single-call ceiling or a rolling window?",
+      "evidence": "checklist.json CHK-007 and plan.md describe reusing the existing shouldBlockDispatch/recordBudgetBlock guard without redefining its semantics; the plan does not state whether the cap is evaluated per-call (as today) or needs new cross-run aggregation now that host_run introduces a new call site alongside dispatch_run. Not a gap since the plan explicitly scopes this as reuse, not redefinition, but flagging since it is the first time this guard fires from a second call site.",
+      "sourcePointers": [
+        "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+        "CHK-007"
+      ],
+      "resolution": "CHK-007 reuses the existing semantics exactly: LATTICE_HARD_BUDGET_TOKENS is a global (not per-provider) per-call ceiling compared against the single preflight prompt-size estimate of one host_run invocation via shouldBlockDispatch; there is no rolling window and no per-provider split in this story. Anything beyond that (rolling windows, per-provider budgets) is out of scope and will be documented as such in docs/host-run-usage.md.",
+      "resolvedAt": "2026-07-10T05:29:57.571Z"
+    }
+  ]
+}

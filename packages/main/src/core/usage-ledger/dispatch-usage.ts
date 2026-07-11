@@ -22,6 +22,7 @@
  */
 
 import { type AnthropicUsage, ANTHROPIC_USAGE_WHITELIST } from './adapters/anthropic.js';
+import { adaptCodexTurnUsage } from './adapters/openai.js';
 import {
   buildProviderRecord,
   type RecordAttribution,
@@ -42,6 +43,7 @@ import {
   SCHEMA_VERSION,
   validateUsageLedgerRecord,
   type LedgerUsage,
+  type UsageCanonical,
   type UsageLedgerRecordInput,
 } from './record.js';
 import { appendUsageRecord, isUsageLedgerEnabled } from './writer.js';
@@ -300,6 +302,38 @@ export interface DispatchPreflightHandle {
 const DEFAULT_ESTIMATE_MODEL = 'unknown';
 
 /**
+ * B-70e9 F-021: the append-outcome surface for a dispatch final. Callers that
+ * report "usage recorded" must key that claim on `appended` (did a row actually
+ * land in the ledger), NOT on whether the provider parsed a usage envelope. A
+ * corrupt / lock-timed-out ledger swallows the write and yields
+ * `{ appended: false, kind: 'provider-reported', reason: 'ledger_append_failed(...)' }`
+ * — `kind` still describes what the final WOULD have been so the summary can
+ * attribute it honestly, while `appended:false` forbids any "recorded" claim.
+ */
+export interface DispatchFinalStatus {
+  /** True only when appendUsageRecord actually persisted the final row. */
+  appended: boolean;
+  /** What the final row was (or would have been): a provider count vs. an unavailable marker. */
+  kind: 'provider-reported' | 'unavailable' | 'disabled';
+  /** Populated when appended=false: the swallowed reason (ledger_append_failed(...) / disabled). */
+  reason?: string;
+}
+
+/**
+ * B-70e9 F-021: describe a swallowed ledger-append failure for the honest
+ * append-status surface. The choke-point recorders NEVER rethrow — this turns
+ * the swallowed error into a bounded, greppable reason string
+ * (`ledger_append_failed(<detail>)`) that the host_run summary / stderr line and
+ * JSON payload surface instead of falsely claiming the usage was recorded.
+ */
+export function describeLedgerAppendFailure(err: unknown): string {
+  const raw = err instanceof Error && err.message ? err.message : String(err);
+  const oneLine = raw.replace(/\s+/g, ' ').trim();
+  const bounded = oneLine.length > 200 ? `${oneLine.slice(0, 197)}...` : oneLine;
+  return `ledger_append_failed(${bounded.length > 0 ? bounded : 'unknown'})`;
+}
+
+/**
  * Record the preflight prompt-size estimate BEFORE dispatch.
  *
  * - flag OFF -> returns null, writes nothing, creates no file/dir (strict no-op);
@@ -381,6 +415,14 @@ export function recordDispatchPreflight(
  * NEVER throws: any failure (adapter/assemble throw on a rogue payload, writer
  * throw) is swallowed so dispatch proceeds and returns its result text.
  *
+ * B-70e9 F-021: returns a DispatchFinalStatus reporting whether the row actually
+ * APPENDED. Callers that print "usage recorded" must gate that claim on
+ * `appended` — a corrupt / lock-timed-out ledger now surfaces
+ * `{ appended: false, reason: 'ledger_append_failed(...)' }` instead of being
+ * silently swallowed while the summary still claimed a provider-reported row.
+ * The return value is additive: existing statement-position callers (dispatch,
+ * autopilot, smokes) ignore it and remain byte-behaviour-identical.
+ *
  * `model` is the served model parsed from the envelope. When it is null (envelope
  * carried no model), the provider record falls back to the best-effort default —
  * token counts are model-version-specific and diagnostics group by model, so the
@@ -398,8 +440,12 @@ export function recordDispatchFinal(
   anthropicUsage: AnthropicUsage | null,
   model: string | null,
   opts: DispatchUsageOptions,
-): void {
-  if (!isUsageLedgerEnabled(opts.env)) return;
+): DispatchFinalStatus {
+  const intendedKind: DispatchFinalStatus['kind'] =
+    anthropicUsage !== null ? 'provider-reported' : 'unavailable';
+  if (!isUsageLedgerEnabled(opts.env)) {
+    return { appended: false, kind: 'disabled', reason: 'usage_ledger_disabled' };
+  }
 
   try {
     // In the normal seam flow a correlation handle is always passed in. If it is
@@ -423,7 +469,7 @@ export function recordDispatchFinal(
         finalContext(opts, model),
       );
       appendUsageRecord(root, record, { env: opts.env });
-      return;
+      return { appended: true, kind: 'provider-reported' };
     }
 
     // No usage -> an 'unavailable' final that still supersedes the estimate.
@@ -434,8 +480,11 @@ export function recordDispatchFinal(
       finalContext(opts, model),
     );
     appendUsageRecord(root, unavailable, { env: opts.env });
-  } catch {
-    // Never propagate a ledger error to the dispatch caller.
+    return { appended: true, kind: 'unavailable' };
+  } catch (err) {
+    // Never propagate a ledger error to the dispatch caller. Surface the swallow
+    // as an append-failure status so the caller does NOT claim a recorded row.
+    return { appended: false, kind: intendedKind, reason: describeLedgerAppendFailure(err) };
   }
 }
 
@@ -458,6 +507,13 @@ export function recordDispatchFinal(
  *
  * NEVER throws: any failure (adapter/assemble throw on a rogue payload, writer
  * throw) is swallowed so dispatch proceeds.
+ *
+ * B-70e9 F-030 (mirror of the F-029 recordDispatchFinalCodex restructure): a
+ * provider-reported record that BUILT fine but whose ledger APPEND threw is an
+ * honest under-count — the throw is swallowed and the function returns WITHOUT
+ * attempting an 'unavailable' final, so a transient append failure can never
+ * land a false source=unavailable row for usage that WAS parsed. Only a BUILD
+ * (validation) failure degrades to the unavailable fallback.
  *
  * `provider` is 'openai' for the codex host and 'gemini' for the gemini host —
  * the record's provider.name is set accordingly (NOT hardcoded anthropic).
@@ -487,15 +543,27 @@ export function recordDispatchFinalForProvider(
       typeof reportedUsage === 'object' && reportedUsage !== null && !Array.isArray(reportedUsage);
 
     if (usable) {
-      // INNER try: a malformed-but-object usage (e.g. a negative / non-integer
-      // token count) makes buildProviderRecord throw at validation. On a throw we
-      // must NOT return — we fall through to the unavailable-final branch below so
-      // the preflight estimate is STILL superseded (never left orphaned). At most
-      // ONE final is appended: the record is built first and appended only AFTER a
-      // successful build, so a build throw appends nothing here and only the single
-      // unavailable append runs.
+      // INNER try (BUILD only): a malformed-but-object usage (e.g. a negative /
+      // non-integer token count) makes buildProviderRecord throw at validation. On
+      // a build throw we must NOT return — we fall through to the unavailable-final
+      // branch below so the preflight estimate is STILL superseded (never left
+      // orphaned).
+      //
+      // B-70e9 F-030: BUILD and APPEND are separated into their own try blocks
+      // (mirror of the F-029 recordDispatchFinalCodex restructure). A BUILD failure
+      // is a malformed provider count that legitimately degrades to an
+      // 'unavailable' final (existing semantics, unchanged). An APPEND failure is a
+      // transient ledger fault (corrupt chain / lock-wait skip) on a record that
+      // BUILT fine — it must NOT fall through to the unavailable branch, because a
+      // second append that then succeeds would land a source=unavailable row
+      // although provider usage WAS parsed (corrupting source semantics and
+      // undercounting real codex/gemini usage). This function is void, so the
+      // append throw is swallowed and we return (honest under-count, consistent
+      // with the never-throw seam contract). At most ONE final append is ever
+      // attempted on this path.
+      let record: ReturnType<typeof buildProviderRecord> | null = null;
       try {
-        const record = buildProviderRecord(
+        record = buildProviderRecord(
           provider,
           reportedUsage,
           {
@@ -507,11 +575,20 @@ export function recordDispatchFinalForProvider(
           attributionFor(ctx),
           finalContextForProvider(opts, provider, model),
         );
-        appendUsageRecord(root, record, { env: opts.env });
-        return;
       } catch {
         // Build/validation failed on a malformed usage: fall through to the
         // unavailable-final branch (do NOT return) so the estimate is superseded.
+        record = null;
+      }
+      if (record !== null) {
+        try {
+          appendUsageRecord(root, record, { env: opts.env });
+        } catch {
+          // F-030: the provider record BUILT fine; only the ledger append failed.
+          // Swallow WITHOUT attempting an unavailable final — the usage WAS
+          // parsed, so an unavailable row would be a false claim.
+        }
+        return;
       }
     }
 
@@ -526,6 +603,299 @@ export function recordDispatchFinalForProvider(
     appendUsageRecord(root, unavailable, { env: opts.env });
   } catch {
     // Never propagate a ledger error to the dispatch caller.
+  }
+}
+
+// =============================================================================
+// B-70e9 CHK-001: host-run choke-point final recorders (codex mapping, provider-
+// parametric unavailable) — gated OFF => strict no-op, NEVER throw. These extend
+// the seam WITHIN this module only (record.ts / writer.ts / assemble.ts stay
+// untouched); they route through the same buildProviderRecord + appendUsageRecord
+// choke point as the existing dispatch finals.
+// =============================================================================
+
+/** Result of recording a codex final: the mapped canonical dims + provenance. */
+export interface CodexFinalResult {
+  recorded: boolean;
+  recordId: string | null;
+  source: 'provider-reported' | 'unavailable';
+  /** The mapped canonical dims (uncached-remainder input + cacheRead) when provider-reported. */
+  mapped: UsageCanonical | null;
+  unavailableReason: string | null;
+}
+
+/**
+ * Record a codex `turn.completed` usage as the provider-reported final (openai
+ * provider), superseding the preflight estimate. The codex adapter
+ * (adaptCodexTurnUsage) computes canonical.input as the UNCACHED remainder
+ * (input_tokens - cached_input_tokens) with cacheRead carried separately, and the
+ * raw digest covers the ORIGINAL codex usage payload (reasoning_output_tokens
+ * preserved). A malformed / missing usage maps to an 'unavailable' final with the
+ * adapter's reason — never a fabricated zero.
+ *
+ * Uses the buildProviderRecord `usage` override so OUR codex canonical mapping and
+ * original-payload digest are recorded verbatim (the openai adapter never carves
+ * cached out of input, so the mapping is computed in the adapter, not here).
+ *
+ * NEVER throws: gated OFF => no-op; any assembly/write error is swallowed.
+ */
+export function recordDispatchFinalCodex(
+  root: string,
+  ctx: DispatchUsageContext,
+  correlation: CallCorrelation | null,
+  estimateRecordId: string | null,
+  rawCodexUsage: unknown,
+  model: string | null,
+  opts: DispatchUsageOptions,
+): CodexFinalResult {
+  const off: CodexFinalResult = { recorded: false, recordId: null, source: 'unavailable', mapped: null, unavailableReason: null };
+  if (!isUsageLedgerEnabled(opts.env)) return off;
+
+  try {
+    const usage = adaptCodexTurnUsage(rawCodexUsage);
+    const corr = correlation ?? mintCallCorrelation();
+
+    // A usage the codex adapter accepted (provider-reported) is BUILT first; a
+    // validation throw (e.g. a non-integer count that survived the adapter's shape
+    // gate) falls through to the unavailable branch so the preflight estimate is
+    // STILL superseded — never left orphaned — and no count is fabricated.
+    //
+    // B-70e9 F-029: BUILD and APPEND are separated into their own try blocks. A
+    // BUILD failure is a malformed provider count that legitimately degrades to an
+    // 'unavailable' final (existing semantics). An APPEND failure is a transient
+    // ledger fault (corrupt chain / lock-wait timeout) on a record that BUILT fine
+    // — it must NOT fall through to the unavailable branch, because a second append
+    // that then succeeds would land a source=unavailable row for usage that WAS
+    // parsed (corrupting source semantics + undercounting real codex usage).
+    // Instead it returns recorded=false with the append-failure reason, exactly
+    // like the claude / provider-parametric unavailable recorders.
+    if (usage.source === 'provider-reported') {
+      let record: ReturnType<typeof buildProviderRecord> | null = null;
+      try {
+        record = buildProviderRecord(
+          'openai',
+          {},
+          {
+            ledgerCallId: corr.ledgerCallId,
+            attemptId: corr.attemptId,
+            sequence: 2,
+            supersedesRecordIds: buildSupersedes(estimateRecordId),
+          },
+          attributionFor(ctx),
+          finalContextForProvider(opts, 'openai', model),
+          { usage },
+        );
+      } catch {
+        // Build/validation failed on a malformed usage: fall through to unavailable.
+        record = null;
+      }
+      if (record !== null) {
+        try {
+          appendUsageRecord(root, record, { env: opts.env });
+          return { recorded: true, recordId: record.recordId, source: 'provider-reported', mapped: usage.canonical ?? null, unavailableReason: null };
+        } catch (err) {
+          // F-029: the provider record BUILT fine; only the ledger append failed.
+          // Report the honest skipped state (source stays 'provider-reported' — the
+          // usage WAS parsed) WITHOUT attempting an unavailable final. `mapped` is
+          // preserved so the caller can see the parsed counts even though no row
+          // landed; `recorded:false` forbids any "recorded" claim upstream.
+          return {
+            recorded: false,
+            recordId: null,
+            source: 'provider-reported',
+            mapped: usage.canonical ?? null,
+            unavailableReason: describeLedgerAppendFailure(err),
+          };
+        }
+      }
+    }
+
+    const reason = usage.source === 'unavailable' && usage.unavailableReason
+      ? usage.unavailableReason
+      : 'codex: turn.completed usage failed record validation';
+    const res = recordDispatchUnavailableFinal(root, ctx, corr, estimateRecordId, { name: 'openai', model }, reason, opts);
+    // B-70e9 F-021: `recorded` reflects the actual append. When the unavailable
+    // fallback ALSO failed to append (corrupt / lock-timed-out ledger), surface
+    // the ledger_append_failed reason so host_run reports a skipped state rather
+    // than falsely attributing an unavailable row that never landed.
+    return {
+      recorded: res.recorded,
+      recordId: res.recordId,
+      source: 'unavailable',
+      mapped: null,
+      unavailableReason: res.recorded ? reason : (res.reason ?? reason),
+    };
+  } catch {
+    return off;
+  }
+}
+
+/**
+ * Record a provider-parametric 'unavailable' final, superseding the preflight
+ * estimate. Used by host_run for hosts / paths with no usable usage surface:
+ *   - agy print mode (provider name 'antigravity', reason 'agy_print_mode_reports_no_usage');
+ *   - codex with no turn.completed usage event (provider 'openai', reason 'no_turn_completed_usage_event').
+ *
+ * Unlike buildUnavailableFinalRecord (hardcoded provider 'anthropic' + reason via
+ * finalContext), this binds an arbitrary provider NAME and an explicit reason. A
+ * null/empty model falls back to the best-effort default ('unknown').
+ *
+ * NEVER throws: gated OFF => no-op; any assembly/write error is swallowed.
+ *
+ * B-70e9 F-021: `recorded` already reflects the actual append (true only after a
+ * successful appendUsageRecord). The optional `reason` is populated only on the
+ * swallowed-failure path (`recorded:false`) with the ledger_append_failed(...)
+ * detail so host_run can report a skipped state honestly instead of claiming an
+ * 'unavailable' row that never landed. Additive: existing callers ignore it.
+ */
+export function recordDispatchUnavailableFinal(
+  root: string,
+  ctx: DispatchUsageContext,
+  correlation: CallCorrelation | null,
+  estimateRecordId: string | null,
+  provider: { name: string; model: string | null },
+  unavailableReason: string,
+  opts: DispatchUsageOptions,
+): { recorded: boolean; recordId: string | null; reason?: string } {
+  if (!isUsageLedgerEnabled(opts.env)) return { recorded: false, recordId: null, reason: 'usage_ledger_disabled' };
+
+  try {
+    const corr = correlation ?? mintCallCorrelation();
+    const supersedes = buildSupersedes(estimateRecordId);
+    const boundModel = provider.model && provider.model.length > 0 ? provider.model : DEFAULT_ESTIMATE_MODEL;
+    const usage: LedgerUsage = {
+      source: 'unavailable',
+      inputTokens: null,
+      outputTokens: null,
+      cacheCreationInputTokens: null,
+      cacheReadInputTokens: null,
+      estimator: null,
+      unavailableReason: unavailableReason && unavailableReason.length > 0 ? unavailableReason : 'host run reported no usage',
+    };
+    const context: RecordContext = {
+      recordedAt: opts.recordedAt,
+      projectRootHash: opts.projectRootHash,
+      redactionProfile: opts.redactionProfile,
+      command: opts.command,
+      host: opts.host,
+      provider: { name: provider.name, model: boundModel },
+    };
+    const record = buildProviderRecord(
+      'openai',
+      {},
+      {
+        ledgerCallId: corr.ledgerCallId,
+        attemptId: corr.attemptId,
+        sequence: 2,
+        supersedesRecordIds: supersedes,
+      },
+      attributionFor(ctx),
+      context,
+      { usage },
+    );
+    appendUsageRecord(root, record, { env: opts.env });
+    return { recorded: true, recordId: record.recordId };
+  } catch (err) {
+    // F-021: surface the swallowed append failure so the caller reports a skipped
+    // state rather than an 'unavailable' row that never landed.
+    return { recorded: false, recordId: null, reason: describeLedgerAppendFailure(err) };
+  }
+}
+
+// =============================================================================
+// B-70e9 CHK-007: host-run concurrency-cap blocked record (diagnostics-honest).
+// Reuses the parametric buildBlockedBudgetRecord (reasonCode is already a param)
+// so a concurrency refusal is a decision.kind='blocked' ledger row that supersedes
+// the preflight estimate, exactly like a hard-budget block. record.ts is NOT
+// touched — only this dispatch-usage entry point is added.
+// =============================================================================
+
+/** Reason code recorded on a host-run concurrency-cap refusal. */
+export const CONCURRENCY_CAP_REASON_CODE = 'concurrency_cap_exceeded';
+
+/**
+ * Append a decision.kind='blocked' record for a host-run concurrency-cap refusal,
+ * superseding the preflight estimate. The recorded usage is the prompt-size
+ * estimate that would have been spawned (input only), NOT a provider usage — the
+ * host was never launched. `cap` is folded into a stable budgetPolicyId
+ * (`concurrency-cap:<cap>`); the reasonCode is CONCURRENCY_CAP_REASON_CODE.
+ *
+ * NEVER throws: gated OFF => no-op; any assembly/write error is swallowed (the
+ * caller still refuses fail-closed — a write failure never converts a refusal into
+ * a spawn).
+ *
+ * B-70e9 F-004: the optional `provider` binds the blocked row's provider
+ * ({name, model}); when omitted the record keeps the legacy default
+ * ('anthropic' + the ctx model fallback) byte-identical. host_run passes the
+ * real per-host provider so an agy/codex concurrency refusal is attributed to
+ * antigravity/openai.
+ *
+ * B-70e9 F-027: `recorded` already reflects the ACTUAL append (true only after a
+ * successful appendUsageRecord). The optional `reason` is populated only on a
+ * failure return (`recorded:false`) — `ledger_append_failed(...)` when the
+ * blocked-row write was swallowed (corrupt / lock-timed-out ledger), or
+ * `blocked_record_build_failed` when the validated builder returned null — so a
+ * consumer that surfaces a blocked summary can gate its "recorded" claim on
+ * `recorded` and quote WHY the row never landed. Additive: existing callers
+ * (autopilot repair / codex-review leaf name the refusal, not the row) ignore it.
+ */
+export function recordConcurrencyBlock(
+  root: string,
+  ctx: DispatchUsageContext,
+  handle: DispatchPreflightHandle | null,
+  promptText: string,
+  cap: number,
+  opts: DispatchUsageOptions,
+  provider?: { name: string; model: string | null },
+): { recorded: boolean; recordId: string | null; reason?: string } {
+  if (!isUsageLedgerEnabled(opts.env)) return { recorded: false, recordId: null, reason: 'usage_ledger_disabled' };
+
+  try {
+    let estimatedInputTokens: number;
+    if (handle && Number.isFinite(handle.estimatedInputTokens)) {
+      estimatedInputTokens = handle.estimatedInputTokens;
+    } else {
+      try {
+        const model = ctx.model && ctx.model.length > 0 ? ctx.model : DEFAULT_ESTIMATE_MODEL;
+        estimatedInputTokens = bytesCharsEstimator(model, promptText).estimatedInputTokens;
+      } catch {
+        estimatedInputTokens = 0;
+      }
+    }
+
+    const correlation = handle?.correlation ?? mintCallCorrelation();
+    const budgetPolicyId = `concurrency-cap:${Number.isFinite(cap) ? cap : 0}`;
+    // F-004: the blocked record's model prefers the caller-supplied provider
+    // model, then the ctx model, then the builder's 'unknown' default. NOTE:
+    // finalContext's provider field is IGNORED by buildBlockedBudgetRecord (the
+    // builder binds provider itself) — the parametric providerName below is the
+    // single provider chokepoint for blocked rows.
+    const modelForRecord = provider?.model ?? ctx.model ?? null;
+    const record = buildBlockedBudgetRecord(
+      modelForRecord,
+      { estimatedInputTokens, estimateRecordId: handle?.estimateRecordId ?? null },
+      correlation,
+      attributionFor(ctx),
+      finalContext(opts, modelForRecord),
+      budgetPolicyId,
+      CONCURRENCY_CAP_REASON_CODE,
+      provider?.name ?? 'anthropic',
+    );
+    // F-027: the validated builder rejected the assembled record — no row can
+    // land. Surface the reason so the caller reports the skipped state honestly.
+    if (record === null) return { recorded: false, recordId: null, reason: 'blocked_record_build_failed' };
+    try {
+      appendUsageRecord(root, record, { env: opts.env });
+    } catch (err) {
+      // Fail-closed: the caller refuses regardless; a write failure never spawns.
+      // F-027: the blocked ROW never landed, so report recorded:false with the
+      // ledger_append_failed(...) reason (no recordId for a row that never
+      // persisted) — the consumer must not claim a recorded blocked row.
+      return { recorded: false, recordId: null, reason: describeLedgerAppendFailure(err) };
+    }
+    return { recorded: true, recordId: record.recordId };
+  } catch (err) {
+    return { recorded: false, recordId: null, reason: describeLedgerAppendFailure(err) };
   }
 }
 
@@ -744,6 +1114,11 @@ export function isOverHardBudget(estimatedInputTokens: number, hardBudgetTokens:
  * Returns a record that PASSES validateUsageLedgerRecord. NEVER throws: any
  * assembly/validation failure is swallowed and `null` is returned so the guard
  * can decide how to proceed (fail-open) rather than crashing dispatch.
+ *
+ * B-70e9 F-004: `providerName` binds the record's provider.name. It DEFAULTS to
+ * 'anthropic' so every legacy caller (the claude dispatch seam) stays
+ * byte-identical; host_run threads the real per-host provider (openai /
+ * anthropic / antigravity) so a codex/agy refusal is never mis-attributed.
  */
 export function buildBlockedBudgetRecord(
   model: string | null,
@@ -753,6 +1128,7 @@ export function buildBlockedBudgetRecord(
   context: RecordContext,
   budgetPolicyId: string,
   reasonCode: string = HARD_BUDGET_REASON_CODE,
+  providerName: string = 'anthropic',
 ): UsageLedgerRecordInput | null {
   try {
     const boundModel = model && model.length > 0 ? model : DEFAULT_ESTIMATE_MODEL;
@@ -805,7 +1181,9 @@ export function buildBlockedBudgetRecord(
         reasonCode: reasonCode && reasonCode.length > 0 ? reasonCode : HARD_BUDGET_REASON_CODE,
       },
       usage,
-      provider: { name: 'anthropic', model: boundModel },
+      // F-004: parametric provider (default 'anthropic' keeps legacy callers
+      // byte-identical); an empty/blank name defensively falls back too.
+      provider: { name: providerName && providerName.length > 0 ? providerName : 'anthropic', model: boundModel },
       ...(context.command !== undefined ? { command: context.command } : {}),
       ...(context.host !== undefined ? { host: context.host } : {}),
       privacy: {
@@ -868,6 +1246,21 @@ export interface BudgetGuardDecision {
   budgetPolicyId: string | null;
   /** The hard ceiling that was exceeded (for the blocked dispatch result message). */
   hardBudgetTokens: number | null;
+  /**
+   * B-70e9 F-027: populated ONLY when blocked=true — did the blocked ledger row
+   * ACTUALLY append? Fail-closed semantics are unchanged (a write failure never
+   * reverts the block), but a consumer that surfaces a "blocked row recorded"
+   * summary must key that claim on this field, mirroring DispatchFinalStatus.
+   * Additive: legacy callers (dispatch seam / autopilot repair / codex review
+   * leaf name the refusal, not the row) ignore it.
+   */
+  appended?: boolean;
+  /**
+   * B-70e9 F-027: populated when blocked=true and appended=false — WHY the
+   * blocked row never landed (`ledger_append_failed(...)` for a swallowed
+   * write on a corrupt / lock-timed-out ledger).
+   */
+  appendFailureReason?: string;
 }
 
 /**
@@ -884,6 +1277,19 @@ export interface BudgetGuardDecision {
  * build/check error BEFORE the block decision is fail-open (proceeds).
  *
  * NEVER throws: every step is wrapped so a budget error cannot break dispatch.
+ *
+ * B-70e9 F-004: the optional `provider` binds the blocked row's provider
+ * ({name, model}); when omitted the record keeps the legacy default
+ * ('anthropic' + the ctx model fallback) byte-identical — the existing claude
+ * dispatch seam passes nothing and is unchanged. host_run passes the real
+ * per-host provider so a codex/agy hard-budget refusal is attributed to
+ * openai/antigravity.
+ *
+ * B-70e9 F-027: when blocked=true the decision additionally carries
+ * `appended` (did the blocked row actually land) and, on a swallowed write,
+ * `appendFailureReason` (`ledger_append_failed(...)`) — so the host_run summary
+ * can gate its "blocked row recorded" claim on the ACTUAL append outcome. The
+ * pre-decision fail-open paths (build/check error, null record) are unchanged.
  */
 export function recordBudgetBlock(
   root: string,
@@ -891,6 +1297,7 @@ export function recordBudgetBlock(
   handle: DispatchPreflightHandle | null,
   promptText: string,
   opts: DispatchUsageOptions,
+  provider?: { name: string; model: string | null },
 ): BudgetGuardDecision {
   const notBlocked: BudgetGuardDecision = {
     blocked: false,
@@ -927,16 +1334,21 @@ export function recordBudgetBlock(
   // blocked record still has stable ids (it then supersedes nothing).
   try {
     const correlation = handle?.correlation ?? mintCallCorrelation();
+    // F-004: provider-parametric blocked row (see recordConcurrencyBlock). The
+    // no-provider call is byte-identical to the legacy anthropic default.
+    const modelForRecord = provider?.model ?? ctx.model ?? null;
     const record = buildBlockedBudgetRecord(
-      ctx.model ?? null,
+      modelForRecord,
       {
         estimatedInputTokens,
         estimateRecordId: handle?.estimateRecordId ?? null,
       },
       correlation,
       attributionFor(ctx),
-      finalContext(opts, ctx.model ?? null),
+      finalContext(opts, modelForRecord),
       budget.budgetPolicyId,
+      HARD_BUDGET_REASON_CODE,
+      provider?.name ?? 'anthropic',
     );
     if (record === null) {
       // The blocked-record builder failed (validator rejected the assembled
@@ -945,14 +1357,24 @@ export function recordBudgetBlock(
     }
     try {
       appendUsageRecord(root, record, { env: opts.env });
-    } catch {
+    } catch (err) {
       // Fail-closed: once the over-budget decision is made, a write failure must
       // NOT revert it and call the provider. Still return blocked.
+      // F-027: but the blocked ROW never landed — surface the append outcome so
+      // the caller reports the refusal without claiming a recorded row.
+      return {
+        blocked: true,
+        budgetPolicyId: budget.budgetPolicyId,
+        hardBudgetTokens: budget.hardBudgetTokens,
+        appended: false,
+        appendFailureReason: describeLedgerAppendFailure(err),
+      };
     }
     return {
       blocked: true,
       budgetPolicyId: budget.budgetPolicyId,
       hardBudgetTokens: budget.hardBudgetTokens,
+      appended: true,
     };
   } catch {
     // An unexpected assembly error before the record was committed -> fail-open.

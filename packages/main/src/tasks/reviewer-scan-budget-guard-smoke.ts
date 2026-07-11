@@ -10,9 +10,30 @@
  * a line that names scanEscalationReason may describe a full scan.
  */
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
+import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
+import { MAIN_TOOLS } from '../cli/command-catalog.js';
+import { resetConfigCache } from '../core/config.js';
+import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
+import { StoryStore } from '../core/store.js';
+import type { ChecklistData, ReviewerReadLogEvent, ReviewerReadManifest, StoryInfo } from '../core/types.js';
+import {
+  captureReviewerReadEvent,
+  diagnoseReviewerReadEvidence,
+  digestReviewerReadManifest,
+  normalizeReviewerReadLog,
+  normalizeReviewerReadManifest,
+} from '../core/reviewer-read-evidence.js';
+import { signReviewPass, verifyFinding, verifyReviewPass } from '../core/finding-verify.js';
+import { signReviewRun } from '../core/review-run.js';
+import {
+  createScopeCheckHandlers,
+  verifyScopeCheckSignature,
+} from '../handlers/scope-check.js';
+import { createFindingHandlers } from '../handlers/finding.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(here, '..', '..', '..', '..');
@@ -61,6 +82,9 @@ const requiredPhrases = [
   'scanEscalationReason',
   'advisory only',
   'gateEvidence=false',
+  'readManifest',
+  'filesReadFully',
+  'filesTriagedByName',
 ] as const;
 
 // A line may legitimately describe the full-scan escalation path only when it
@@ -99,6 +123,494 @@ function scanFile(file: string, content: string): Violation[] {
   return violations;
 }
 
+function toolSchema(name: string) {
+  const tool = MAIN_TOOLS.find(t => t.name === name);
+  assert.ok(tool, `command catalog contains ${name}`);
+  return tool.schema;
+}
+
+function assertSchemaRejectsMissingReadManifest(command: string): void {
+  const schema = toolSchema(command);
+  assert.ok(schema.readManifest, `${command} schema exposes readManifest`);
+  assert.equal(schema.readManifest.safeParse(undefined).success, false, `${command} schema rejects missing readManifest`);
+  assert.equal(
+    schema.readManifest.safeParse({ filesReadFully: 'docs/requirements/decisions/a.md', filesTriagedByName: [], scanEscalationReason: null }).success,
+    false,
+    `${command} schema rejects malformed readManifest arrays`,
+  );
+}
+
+function assertSchemaExposesMechanicalReadInputs(command: string): void {
+  const schema = toolSchema(command);
+  assert.ok(schema.readEvents, `${command} schema exposes readEvents`);
+  assert.ok(schema.readLog, `${command} schema exposes readLog`);
+  assert.equal(schema.readEvents.safeParse([{ path: 'docs/requirements/decisions/a.md', action: 'Read', tokenCount: 1 }]).success, true);
+  assert.equal(schema.readEvents.safeParse([{ path: 'docs/requirements/decisions/a.md', action: 'Read', tokenCount: null }]).success, true);
+  assert.equal(schema.readEvents.safeParse([{ path: 'docs/requirements/decisions/a.md', action: 'Read', tokens: null }]).success, true);
+  assert.equal(schema.readEvents.safeParse([{ path: 'docs/requirements/decisions/a.md', action: 'Read', tokenCount: -1 }]).success, false);
+  assert.equal(schema.readEvents.safeParse([{ path: 'docs/requirements/decisions/a.md', action: 'Read', tokens: -1 }]).success, false);
+  assert.equal(schema.readEvents.safeParse([{ path: 'docs/requirements/decisions/a.md', action: 'Read', tokenCount: 'unknown' }]).success, false);
+  assert.equal(schema.readEvents.safeParse([{ path: 'docs/requirements/decisions/a.md', action: 'Read', tokens: 'unknown' }]).success, false);
+  assert.equal(schema.readLog.safeParse({ events: [{ path: 'docs/requirements/decisions/a.md', mode: 'full' }] }).success, true);
+}
+
+function initScopeCheckStore() {
+  const root = mkdtempSync(join(tmpdir(), 'lattice-read-manifest-'));
+  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+    scanRoot: 'packages/main',
+    rootDir: 'src',
+    storyDir: '.lattice/story/actives',
+    requirementsDir: 'docs/requirements',
+  }, null, 2));
+  resetConfigCache();
+  const store = new StoryStore(root);
+  const storyId = 'B-readmanifest';
+  const now = '2026-07-10T10:00:00.000Z';
+  const story: StoryInfo = {
+    storyId,
+    name: 'read-manifest-smoke',
+    title: 'Read manifest smoke',
+    description: 'Synthetic story for read manifest smoke.',
+    type: 'chore',
+    phase: 'PLAN',
+    priority: 'medium',
+    createdAt: now,
+    startedAt: now,
+    endedAt: null,
+    currentReviewRound: '2026-07-10T10:01:00.000Z',
+    events: [{ phase: 'PLAN', action: 'advance', timestamp: now }],
+  };
+  const checklist: ChecklistData = {
+    items: [{
+      id: 'CHK-001',
+      title: 'Synthetic read manifest item',
+      context: 'Synthetic context',
+      userSees: '`scope_check_save` writes a readManifest.',
+      status: 'pending',
+      startTime: null,
+      endTime: null,
+    }],
+  };
+  store.writeStory(storyId, story);
+  store.writeChecklist(storyId, checklist);
+  return { root, store, storyId };
+}
+
+function git(root: string, args: string[]): string {
+  return execFileSync('git', args, {
+    cwd: root,
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  }).trim();
+}
+
+function initReviewEvidenceStore() {
+  const root = mkdtempSync(join(tmpdir(), 'lattice-review-read-evidence-'));
+  mkdirSync(join(root, 'docs/requirements/decisions'), { recursive: true });
+  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+    scanRoot: 'packages/main',
+    rootDir: 'src',
+    storyDir: '.lattice/story/actives',
+    requirementsDir: 'docs/requirements',
+  }, null, 2));
+  writeFileSync(join(root, 'package.json'), JSON.stringify({ name: 'review-read-evidence-smoke', private: true }, null, 2));
+  writeFileSync(join(root, 'docs/requirements/decisions/a.md'), '# Decision A\n');
+  writeFileSync(join(root, 'docs/requirements/decisions/b.md'), '# Decision B\n');
+  git(root, ['init']);
+  try {
+    git(root, ['checkout', '-b', 'main']);
+  } catch {
+    git(root, ['checkout', 'main']);
+  }
+  git(root, ['config', 'user.email', 'review-read-evidence@example.invalid']);
+  git(root, ['config', 'user.name', 'Review Read Evidence Smoke']);
+  git(root, ['add', 'lattice.config.json', 'package.json', 'docs/requirements/decisions/a.md', 'docs/requirements/decisions/b.md']);
+  git(root, ['commit', '-m', 'initial']);
+
+  resetConfigCache();
+  const store = new StoryStore(root);
+  const storyId = 'B-readhandler';
+  const agent = 'lattice-review-behavior';
+  const reviewRound = '2026-07-10T11:01:00.000Z';
+  const reviewRunId = `${storyId}:RR-001`;
+  const now = '2026-07-10T11:00:00.000Z';
+  const story: StoryInfo = {
+    storyId,
+    name: 'review-read-evidence-handler-smoke',
+    title: 'Review read evidence handler smoke',
+    description: 'Synthetic REVIEW story for real handler read-log persistence.',
+    type: 'chore',
+    phase: 'REVIEW',
+    priority: 'medium',
+    createdAt: now,
+    startedAt: now,
+    endedAt: null,
+    currentReviewRound: reviewRound,
+    events: [{ phase: 'REVIEW', action: 'advance', timestamp: reviewRound }],
+  };
+  const headHash = currentGitHead(root);
+  const materialHash = currentMaterialHash(root, 'HEAD', root);
+  assert.ok(headHash, 'review handler fixture has git HEAD');
+  assert.ok(materialHash, 'review handler fixture has materialHash');
+  const startedAt = '2026-07-10T11:02:00.000Z';
+  store.writeStory(storyId, story);
+  store.writeReviewRuns(storyId, {
+    runs: [{
+      reviewRunId,
+      storyId,
+      agent,
+      lane: agent,
+      reviewRound,
+      startedAt,
+      headHash,
+      materialHash,
+      promptHash: '',
+      _hash: signReviewRun(storyId, reviewRunId, agent, agent, reviewRound, startedAt, headHash, materialHash, ''),
+    }],
+  });
+  return { root, store, storyId, agent, reviewRunId };
+}
+
+function validManifest(): ReviewerReadManifest {
+  return {
+    filesReadFully: ['docs/requirements/decisions/a.md'],
+    filesTriagedByName: ['docs/requirements/decisions/b.md'],
+    scanEscalationReason: null,
+  };
+}
+
+function assertReadManifestNormalizationAndDigest(): void {
+  const normalized = normalizeReviewerReadManifest({
+    filesReadFully: ['./docs/requirements/decisions/b.md', 'docs/requirements/decisions/a.md'],
+    filesTriagedByName: ['docs/requirements/decisions/c.md'],
+    scanEscalationReason: '  candidate ambiguity  ',
+  });
+  assert.deepEqual(normalized.filesReadFully, [
+    'docs/requirements/decisions/a.md',
+    'docs/requirements/decisions/b.md',
+  ]);
+  assert.equal(normalized.scanEscalationReason, 'candidate ambiguity');
+  assert.equal(
+    digestReviewerReadManifest(normalized),
+    digestReviewerReadManifest({
+      filesReadFully: ['docs/requirements/decisions/b.md', 'docs/requirements/decisions/a.md'],
+      filesTriagedByName: ['docs/requirements/decisions/c.md'],
+      scanEscalationReason: 'candidate ambiguity',
+    }),
+    'readManifest digest is stable after deterministic sorting',
+  );
+  assert.throws(
+    () => normalizeReviewerReadManifest({ filesReadFully: ['a.md', './a.md'], filesTriagedByName: [], scanEscalationReason: null }),
+    /duplicate path/,
+  );
+  assert.throws(
+    () => normalizeReviewerReadManifest({ filesReadFully: ['../a.md'], filesTriagedByName: [], scanEscalationReason: null }),
+    /path traversal|unsafe|not allowed/,
+  );
+  assert.throws(
+    () => normalizeReviewerReadManifest({ filesReadFully: [], filesTriagedByName: [], scanEscalationReason: '   ' }),
+    /blank strings are malformed/,
+  );
+}
+
+function assertScopeCheckReadManifestSigning(): void {
+  const { root, store, storyId } = initScopeCheckStore();
+  const handlers = createScopeCheckHandlers({ store, root, scanRoot: join(root, 'packages/main') });
+  assert.throws(
+    () => handlers.scope_check_save({
+      storyId,
+      features: [],
+      summary: { total: 0, covered: 0, excluded: 0, gaps: 0 },
+      openQuestions: [],
+    }),
+    /scope_check_save\.readManifest/,
+    'scope_check_save rejects missing readManifest at runtime',
+  );
+  handlers.scope_check_save({
+    storyId,
+    features: [{
+      feature: 'read evidence',
+      covered_by: 'CHK-001',
+      status: 'covered',
+      excluded_by: null,
+      source: 'description',
+    }],
+    summary: { total: 1, covered: 1, excluded: 0, gaps: 0 },
+    readManifest: validManifest(),
+    openQuestions: [],
+  });
+  const data = store.readScopeCheck(storyId);
+  assert.ok(data, 'scope_check_save persisted scope-check.json');
+  assert.deepEqual(data!.readManifest, validManifest(), 'scope_check_save persists normalized readManifest');
+  assert.equal(verifyScopeCheckSignature(storyId, data!), true, 'scope-check v2 signature verifies');
+  const tampered = {
+    ...data!,
+    readManifest: {
+      ...validManifest(),
+      filesReadFully: ['docs/requirements/decisions/changed.md'],
+    },
+  };
+  assert.equal(verifyScopeCheckSignature(storyId, tampered), false, 'changing only readManifest invalidates scope-check signature');
+}
+
+function assertReviewPassReadManifestSigning(): void {
+  const manifest = validManifest();
+  const base = {
+    id: 'B-readmanifest:RP-001',
+    agent: 'lattice-review-behavior',
+    note: 'checked behavior and found no blocker',
+    createdAt: '2026-07-10T10:05:00.000Z',
+    reviewRound: '2026-07-10T10:01:00.000Z',
+    reviewRunId: 'RR-001',
+  };
+  const pass = {
+    ...base,
+    readManifest: manifest,
+    _hash: signReviewPass('B-readmanifest', base.id, base.agent, base.note, base.createdAt, base.reviewRound, base.reviewRunId, manifest),
+  };
+  assert.equal(verifyReviewPass('B-readmanifest', pass), true, 'review pass v2 signature verifies');
+  assert.equal(
+    verifyReviewPass('B-readmanifest', {
+      ...pass,
+      readManifest: { ...manifest, filesTriagedByName: ['docs/requirements/decisions/changed.md'] },
+    }),
+    false,
+    'changing only readManifest invalidates review pass signature',
+  );
+  const legacyPass = {
+    ...base,
+    _hash: signReviewPass('B-readmanifest', base.id, base.agent, base.note, base.createdAt, base.reviewRound, base.reviewRunId),
+  };
+  assert.equal(verifyReviewPass('B-readmanifest', legacyPass), true, 'legacy review pass without readManifest remains verifiable');
+}
+
+function assertHandlerAndSchemaRejection(): void {
+  assertSchemaRejectsMissingReadManifest('scope_check_save');
+  assertSchemaRejectsMissingReadManifest('review_pass_set');
+  assertSchemaExposesMechanicalReadInputs('review_pass_set');
+  assertSchemaExposesMechanicalReadInputs('finding_add');
+  const { root, store, storyId } = initScopeCheckStore();
+  const findingHandlers = createFindingHandlers({ store, root, scanRoot: join(root, 'packages/main') });
+  assert.throws(
+    () => findingHandlers.review_pass_set({
+      storyId,
+      agent: 'lattice-review-behavior',
+      reviewRunId: 'RR-001',
+      note: 'checked enough to reject missing manifest',
+    } as any),
+    /review_pass_set\.readManifest/,
+    'review_pass_set rejects missing readManifest at runtime',
+  );
+  assert.throws(
+    () => findingHandlers.review_pass_set({
+      storyId,
+      agent: 'lattice-review-behavior',
+      reviewRunId: 'RR-001',
+      note: 'checked enough to reject malformed manifest',
+      readManifest: { filesReadFully: ['docs/requirements/decisions/a.md'], filesTriagedByName: ['docs/requirements/decisions/a.md'], scanEscalationReason: null },
+    } as any),
+    /duplicate path/,
+    'review_pass_set rejects malformed duplicate readManifest at runtime',
+  );
+}
+
+function assertMechanicalReadLogAndDiagnostics(): void {
+  const reviewerContext = { agent: 'lattice-review-behavior' };
+  const events = [
+    captureReviewerReadEvent({ path: './docs/requirements/decisions/b.md', action: 'Read', tokenCount: 11 }, reviewerContext),
+    captureReviewerReadEvent({ path: 'docs/requirements/decisions/a.md', readFully: true, tokenCount: 3 }, reviewerContext),
+    captureReviewerReadEvent({ path: 'docs/requirements/decisions/c.md', mode: 'triage' }, reviewerContext),
+    captureReviewerReadEvent({ path: 'packages/main/src/core/types.ts', action: 'Read', tokenCount: 99 }, reviewerContext),
+  ].filter((event): event is ReviewerReadLogEvent => event !== null);
+  const log = normalizeReviewerReadLog(events);
+  assert.deepEqual(log.filesReadFully, [
+    'docs/requirements/decisions/a.md',
+    'docs/requirements/decisions/b.md',
+  ]);
+  assert.deepEqual(log.filesTriagedByName, ['docs/requirements/decisions/c.md']);
+  assert.equal(log.summary.readCount, 2, 'readCount counts full decision-doc read events deterministically');
+  assert.equal(log.summary.tokenCount, 14, 'tokenCount sums available full-read token counts');
+
+  const reversed = normalizeReviewerReadLog([...events].reverse());
+  assert.equal(reversed.digest, log.digest, 'read-log digest is stable under event reordering');
+  const changedToken = normalizeReviewerReadLog([
+    ...events.slice(0, 1),
+    { path: 'docs/requirements/decisions/a.md', mode: 'full', tokenCount: 4 },
+    events[2],
+  ]);
+  assert.notEqual(changedToken.digest, log.digest, 'read-log digest changes when token/read-count inputs change');
+  const unavailable = normalizeReviewerReadLog([
+    { path: 'docs/requirements/decisions/a.md', mode: 'full', tokenCount: null },
+  ]);
+  assert.equal(unavailable.summary.tokenCount, null, 'tokenCount is null when unavailable');
+
+  const matchingManifest: ReviewerReadManifest = {
+    filesReadFully: log.filesReadFully,
+    filesTriagedByName: log.filesTriagedByName,
+    scanEscalationReason: 'explicit reviewer escalation',
+  };
+  assert.deepEqual(
+    diagnoseReviewerReadEvidence({
+      readManifest: matchingManifest,
+      readLog: log,
+      knownDecisionFiles: ['docs/requirements/decisions/a.md', 'docs/requirements/decisions/b.md'],
+    }),
+    [],
+    'matching manifest/log with escalation reason has no diagnostics',
+  );
+  const diagnostics = diagnoseReviewerReadEvidence({
+    readManifest: {
+      filesReadFully: ['docs/requirements/decisions/a.md', 'docs/requirements/decisions/extra.md'],
+      filesTriagedByName: ['docs/requirements/decisions/c.md'],
+      scanEscalationReason: null,
+    },
+    readLog: log,
+    knownDecisionFiles: ['docs/requirements/decisions/a.md', 'docs/requirements/decisions/b.md'],
+  });
+  assert.ok(diagnostics.some(d => d.code === 'read_manifest_missing_full_read' && d.path === 'docs/requirements/decisions/b.md'));
+  assert.ok(diagnostics.some(d => d.code === 'read_manifest_extra_full_read' && d.path === 'docs/requirements/decisions/extra.md'));
+  assert.ok(diagnostics.some(d => d.code === 'full_scan_without_scanEscalationReason'), 'full scan without scanEscalationReason is diagnosed');
+}
+
+function assertRealHandlerReadLogEvidencePath(): void {
+  const { root, store, storyId, agent, reviewRunId } = initReviewEvidenceStore();
+  const handlers = createFindingHandlers({ store, root, scanRoot: join(root, 'packages/main') });
+  const manifest: ReviewerReadManifest = {
+    filesReadFully: ['docs/requirements/decisions/a.md'],
+    filesTriagedByName: ['docs/requirements/decisions/b.md', 'packages/main/src/core/types.ts'],
+    scanEscalationReason: null,
+  };
+  const readEvents = [
+    { path: 'docs/requirements/decisions/a.md', action: 'Read', tokenCount: null },
+    { path: 'docs/requirements/decisions/b.md', mode: 'triage' },
+    { path: 'packages/main/src/core/types.ts', action: 'Read', tokenCount: 99 },
+  ];
+
+  handlers.review_pass_set({
+    storyId,
+    agent,
+    reviewRunId,
+    note: 'checked behavior evidence and found no blocker',
+    readManifest: manifest,
+    readEvents,
+  });
+  const pass = store.readReviewPasses(storyId).passes[0];
+  assert.ok(pass.readLog?.digest, 'real review_pass_set persists mechanical readLog digest');
+  assert.deepEqual(pass.readLog.filesReadFully, ['docs/requirements/decisions/a.md']);
+  assert.deepEqual(pass.readLog.filesTriagedByName, ['docs/requirements/decisions/b.md']);
+  assert.equal(pass.readLog.summary.tokenCount, null, 'real review_pass_set persists unknown readLog tokenCount from null readEvents');
+  assert.deepEqual(pass.readManifest?.filesTriagedByName, [
+    'docs/requirements/decisions/b.md',
+    'packages/main/src/core/types.ts',
+  ], 'real review_pass_set keeps source-file manifest triage signed');
+  assert.deepEqual(pass.readDiagnostics, [], 'matching real review_pass_set stores no diagnostics');
+  assert.equal(verifyReviewPass(storyId, pass), true, 'review pass with readLog verifies');
+  assert.equal(
+    verifyReviewPass(storyId, {
+      ...pass,
+      readLog: { ...pass.readLog!, summary: { ...pass.readLog!.summary, readCount: pass.readLog!.summary.readCount + 1 } },
+    }),
+    false,
+    'tampering with persisted readLog invalidates review pass signature',
+  );
+  const passEvent = store.readProcessEvents(storyId).find(event => event.type === 'review_pass' && event.reviewPassId === pass.id);
+  assert.equal(passEvent?.command, 'review_pass_set');
+  assert.ok((passEvent?.readLog as any)?.digest, 'review_pass_set process event carries readLog digest');
+
+  handlers.finding_add({
+    storyId,
+    agent,
+    reviewRunId,
+    desc: 'no blockers after checking behavior path',
+    severity: 'low',
+    category: 'happy',
+    readManifest: manifest,
+    readLog: { events: [{ path: 'docs/requirements/decisions/a.md', action: 'Read', tokenCount: 8 }, { path: 'docs/requirements/decisions/b.md', mode: 'triage' }] },
+  });
+  const convertedPass = store.readReviewPasses(storyId).passes[1];
+  assert.equal(convertedPass.agent, agent, 'pass-only finding_add converts into reviewer pass evidence');
+  assert.ok(convertedPass.readLog?.digest, 'pass-only finding_add persists readLog digest');
+  assert.notEqual(convertedPass.readLog.digest, pass.readLog!.digest, 'real handler readLog digest changes when read events change');
+  assert.equal(verifyReviewPass(storyId, convertedPass), true, 'pass-only converted pass with readLog verifies');
+  const convertedEvent = store.readProcessEvents(storyId).find(event => event.type === 'review_pass' && event.reviewPassId === convertedPass.id);
+  assert.equal(convertedEvent?.command, 'finding_add', 'pass-only review_pass process event preserves originating command');
+
+  assert.throws(
+    () => handlers.review_pass_set({
+      storyId,
+      agent,
+      reviewRunId,
+      note: 'checked behavior evidence but supplied mismatched read manifest',
+      readManifest: {
+        filesReadFully: ['docs/requirements/decisions/a.md'],
+        filesTriagedByName: [],
+        scanEscalationReason: null,
+      },
+      readEvents: [
+        { path: 'docs/requirements/decisions/a.md', action: 'Read', tokenCount: 5 },
+        { path: 'docs/requirements/decisions/b.md', action: 'Read', tokenCount: 7 },
+      ],
+    }),
+    /read_manifest_missing_full_read|full_scan_without_scanEscalationReason/,
+    'review_pass_set fails closed instead of silently dropping mismatch/full-scan diagnostics',
+  );
+  assert.equal(store.readReviewPasses(storyId).passes.length, 2, 'mismatched review_pass_set does not create a pass');
+
+  handlers.finding_add({
+    storyId,
+    agent,
+    reviewRunId,
+    desc: 'implementation misses the documented read evidence persistence path',
+    severity: 'high',
+    category: 'missing',
+    readManifest: {
+      filesReadFully: ['docs/requirements/decisions/a.md'],
+      filesTriagedByName: [],
+      scanEscalationReason: null,
+    },
+    readEvents: [
+      { path: 'docs/requirements/decisions/a.md', action: 'Read', tokenCount: 5 },
+      { path: 'docs/requirements/decisions/b.md', action: 'Read', tokenCount: 7 },
+    ],
+  });
+  const finding = store.readFindings(storyId).findings[0];
+  assert.ok(finding.readLog?.digest, 'reviewer finding_add persists readLog digest');
+  assert.ok(
+    finding.readDiagnostics?.some(d => d.code === 'read_manifest_missing_full_read' && d.path === 'docs/requirements/decisions/b.md'),
+    'reviewer finding_add records readManifest/readLog mismatch diagnostics',
+  );
+  assert.ok(
+    finding.readDiagnostics?.some(d => d.code === 'full_scan_without_scanEscalationReason'),
+    'reviewer finding_add records full-scan-without-reason diagnostics',
+  );
+  assert.equal(verifyFinding(storyId, finding), true, 'reviewer finding with read diagnostics verifies');
+  assert.equal(
+    verifyFinding(storyId, {
+      ...finding,
+      readDiagnostics: finding.readDiagnostics!.slice(1),
+    }),
+    false,
+    'tampering with finding read diagnostics invalidates finding signature',
+  );
+  const findingEvent = store.readProcessEvents(storyId).find(event => event.type === 'reviewer_finding' && event.findingId === finding.id);
+  assert.ok((findingEvent?.readLog as any)?.digest, 'finding_add process event carries readLog digest');
+  assert.ok(Array.isArray(findingEvent?.readDiagnostics), 'finding_add process event carries read diagnostics');
+}
+
+function assertNonReviewerBypass(): void {
+  const bypassed = captureReviewerReadEvent(
+    { path: 'docs/requirements/decisions/a.md', action: 'Read', tokenCount: 7 },
+    { agent: 'main' },
+  );
+  assert.equal(bypassed, null, 'non-reviewer read capture bypasses without reviewer evidence');
+  const missingAgent = captureReviewerReadEvent(
+    { path: 'docs/requirements/decisions/a.md', action: 'Read', tokenCount: 7 },
+    {},
+  );
+  assert.equal(missingAgent, null, 'missing reviewer context bypasses without reviewer evidence');
+  console.log('non-reviewer read capture bypass: PASS');
+}
+
 function assertPositiveControls(): void {
   const control = 'Always scan the **full decisions/ directory**.';
   const hits = scanFile('<positive-control>', control);
@@ -134,6 +646,13 @@ function assertPositiveControls(): void {
 
 function main(): void {
   assertPositiveControls();
+  assertReadManifestNormalizationAndDigest();
+  assertScopeCheckReadManifestSigning();
+  assertReviewPassReadManifestSigning();
+  assertHandlerAndSchemaRejection();
+  assertMechanicalReadLogAndDiagnostics();
+  assertRealHandlerReadLogEvidencePath();
+  assertNonReviewerBypass();
 
   const violations: Violation[] = [];
   const missing: string[] = [];
@@ -146,6 +665,7 @@ function main(): void {
         missing.push(`${file}: missing required phrase "${phrase}"`);
       }
     }
+    assert.doesNotMatch(content, /“|”/, `${file}: JSON examples must use ASCII double quotes`);
   }
 
   if (violations.length > 0) {

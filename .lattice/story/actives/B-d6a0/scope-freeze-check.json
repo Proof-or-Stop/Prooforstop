@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-d6a0",
+  "checkedAt": "2026-07-10T09:04:24.490Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "5f33a343482a1b78d7b53db301f2c84a51f52ced6170549914748f709472f768",
+  "executionBoundaryHash": "76bf7468caff3ae6a1a168ffd80399b4e45dd0731c35e5e2bf0715ddc6e8a634",
+  "freshnessHash": "4646f7123568be75b60a2f6ba3494300a92e0e7d2aec148a47920314817b43c9",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "customerKeyRef",
+    "Layer4",
+    "no behavior changes beyond first-row status-column preservation",
+    "no changes to audited-safe call sites (dirty-worktree-gate.ts, validation-executor.ts, lattice-dispatch.ts, auto-commit-metadata.ts, recover-evidence.ts, baseline-risk.ts, rollout-check.ts, managed-assets.ts, cli-engine.ts, init-check-metadata-sync.ts, declared-artifact-commit-check.ts, safe-init-commit.ts, verification-context-pack.ts, release.ts, doctor.ts, done-oracle.ts, worktree-policy.ts, auxiliary-worktree-cleanup.ts, dashboard.ts)",
+    "no changes to git worktree list --porcelain consumers (rows never start with a space; immune by format)",
+    "no fix for trimmed-output cosmetics inside error messages of emptiness-only call sites (release.ts, worktree.ts wtStatus, auxiliary-worktree-cleanup.ts) — documented in the audit table instead",
+    "no shared git-status module refactor; fixes stay per-site following the B-b264 gitRaw/gitStatusRows pattern",
+    "repair UX"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "no behavior changes beyond first-row status-column preservation",
+      "source": "scopeBoundary.excluded",
+      "text": "no behavior changes beyond first-row status-column preservation",
+      "excluded": true
+    },
+    {
+      "keyword": "no changes to audited-safe call sites (dirty-worktree-gate.ts, validation-executor.ts, lattice-dispatch.ts, auto-commit-metadata.ts, recover-evidence.ts, baseline-risk.ts, rollout-check.ts, managed-assets.ts, cli-engine.ts, init-check-metadata-sync.ts, declared-artifact-commit-check.ts, safe-init-commit.ts, verification-context-pack.ts, release.ts, doctor.ts, done-oracle.ts, worktree-policy.ts, auxiliary-worktree-cleanup.ts, dashboard.ts)",
+      "source": "scopeBoundary.excluded",
+      "text": "no changes to audited-safe call sites (dirty-worktree-gate.ts, validation-executor.ts, lattice-dispatch.ts, auto-commit-metadata.ts, recover-evidence.ts, baseline-risk.ts, rollout-check.ts, managed-assets.ts, cli-engine.ts, init-check-metadata-sync.ts, declared-artifact-commit-check.ts, safe-init-commit.ts, verification-context-pack.ts, release.ts, doctor.ts, done-oracle.ts, worktree-policy.ts, auxiliary-worktree-cleanup.ts, dashboard.ts)",
+      "excluded": true
+    },
+    {
+      "keyword": "no changes to git worktree list --porcelain consumers (rows never start with a space; immune by format)",
+      "source": "scopeBoundary.excluded",
+      "text": "no changes to git worktree list --porcelain consumers (rows never start with a space; immune by format)",
+      "excluded": true
+    },
+    {
+      "keyword": "no fix for trimmed-output cosmetics inside error messages of emptiness-only call sites (release.ts, worktree.ts wtStatus, auxiliary-worktree-cleanup.ts) — documented in the audit table instead",
+      "source": "scopeBoundary.excluded",
+      "text": "no fix for trimmed-output cosmetics inside error messages of emptiness-only call sites (release.ts, worktree.ts wtStatus, auxiliary-worktree-cleanup.ts) — documented in the audit table instead",
+      "excluded": true
+    },
+    {
+      "keyword": "no shared git-status module refactor; fixes stay per-site following the B-b264 gitRaw/gitStatusRows pattern",
+      "source": "scopeBoundary.excluded",
+      "text": "no shared git-status module refactor; fixes stay per-site following the B-b264 gitRaw/gitStatusRows pattern",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "249f380f4fd23a38c4b165776180cb902cedd8c33b64cd11968e7a83ebce64f0"
+}

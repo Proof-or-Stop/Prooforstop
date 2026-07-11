@@ -1,0 +1,86 @@
+{
+  "storyId": "B-2c03",
+  "checkedAt": "2026-07-10T14:35:46.018Z",
+  "features": [
+    {
+      "feature": "Sanitize path-like/code-like tokens (backticked spans, slash-segmented paths, hyphenated/dotted file-name tokens) out of the claimsShrinkage narrowingText scan before the trigger-word regex runs, so a DONE summary naming a file like core/partial-done-recovery.ts no longer triggers unconfirmed_single_outcome_shrinkage",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-2c03/checklist.json"
+    },
+    {
+      "feature": "Sanitizer must not weaken genuine shrinkage detection: prose trigger words (including next to path tokens, or co-occurring with a path-name summary) must still trigger the gap",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-2c03/checklist.json"
+    },
+    {
+      "feature": "Repro-first regression test: add smoke case to proofstory-intent-hardening-smoke.ts BEFORE the fix, record it RED against the unpatched heuristic, then GREEN after the fix; existing narrow-delivery positive control must keep failing the gate",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-2c03/checklist.json"
+    },
+    {
+      "feature": "Decide and document (keep/narrow/drop) whether bare trigger word remaining is too broad, with rationale, and implement + cover with a smoke assertion if narrowed",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-2c03/checklist.json"
+    },
+    {
+      "feature": "CHK-003 decision: NARROW remaining to require a co-occurring scope noun (work/scope/item(s)/case(s)/task(s)/milestone(s)/feature(s)/functionality/coverage/requirement(s)/deliverable(s)); bare remaining describing pre-existing/environment state (e.g. suite failures) no longer triggers, remaining <scope-noun> still triggers",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-2c03/plan.md"
+    },
+    {
+      "feature": "Strict milestone-path DONE intent-equivalence logic and other DONE-gate checks are out of scope",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded[0] / plan.md Out of scope: only the lightweight single-outcome path changes",
+      "source": ".lattice/story/actives/B-2c03/scope-boundary.json"
+    },
+    {
+      "feature": "No trigger-vocabulary changes beyond the explicit remaining decision",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded[1] / understanding.json constraints[2]",
+      "source": ".lattice/story/actives/B-2c03/scope-boundary.json"
+    },
+    {
+      "feature": "No NLP/LLM-based classification or redesign/removal of the shrinkage heuristic",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded[2] / understanding.json constraints[3]",
+      "source": ".lattice/story/actives/B-2c03/scope-boundary.json"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      ".lattice/story/actives/B-2c03/background.md",
+      ".lattice/story/actives/B-2c03/checklist.json",
+      ".lattice/story/actives/B-2c03/plan.md",
+      ".lattice/story/actives/B-2c03/red-evidence.json",
+      ".lattice/story/actives/B-2c03/scope-boundary.json",
+      ".lattice/story/actives/B-2c03/scope-contract.json",
+      ".lattice/story/actives/B-2c03/understanding.json"
+    ],
+    "filesTriagedByName": [],
+    "scanEscalationReason": "No decision.json present for this story; no relatedDocs cited by checklist items or plan.md (the CHK-003 decision is recorded inline in plan.md itself), so no decisions-directory scan was needed."
+  },
+  "summary": {
+    "total": 8,
+    "covered": 5,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "79f412b0e898040dc309d921cf25d29b62a486e67df33f62d2eec8e31287c7fe",
+  "openQuestions": []
+}

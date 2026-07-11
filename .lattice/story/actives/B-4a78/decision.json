@@ -1,0 +1,78 @@
+{
+  "principles": [
+    "Reviewer read claims must be machine-checkable and signed.",
+    "Mechanical evidence should be additive and should not make advisory memory/playbook output authoritative.",
+    "Missing required reviewer evidence must fail closed with actionable guidance.",
+    "The implementation must preserve scan escalation and role separation."
+  ],
+  "drivers": [
+    "scope_check_save and review_pass_set are existing gate evidence writers and must stay deterministic.",
+    "The defined failure signal is an unrecorded full read of docs/requirements/decisions/*.md without scanEscalationReason.",
+    "The safest path is to reuse existing smoke and dispatch surfaces rather than introduce a broad new runtime subsystem."
+  ],
+  "options": [
+    {
+      "name": "shared-schema-plus-minimal-read-log",
+      "pros": [
+        "One readManifest normalizer keeps scope and review evidence comparable.",
+        "Signed fields make missing or changed read claims detectable immediately.",
+        "A small mechanical read-log helper can be tested with fixtures before deeper dispatch retention work."
+      ],
+      "cons": [
+        "Mechanical capture may start as fixture-backed evidence unless dispatch transcript retention is already available.",
+        "Some reviewer host implementations may need follow-up wiring for live transcript capture."
+      ]
+    },
+    {
+      "name": "prompt-only-readManifest",
+      "pros": [
+        "Fastest implementation and low risk to runtime dispatch.",
+        "Improves reviewer instructions."
+      ],
+      "cons": [
+        "Still relies on self-report and does not solve the fa1777b proof gap.",
+        "Cannot flag self-report versus mechanical-log mismatch."
+      ]
+    },
+    {
+      "name": "full-dispatch-rewrite",
+      "pros": [
+        "Could capture every host read uniformly.",
+        "Strongest long-term proof if completed."
+      ],
+      "cons": [
+        "Too broad for this story and high risk to active review gates.",
+        "Likely duplicates or destabilizes existing dispatch and host readiness work."
+      ]
+    }
+  ],
+  "chosen": "shared-schema-plus-minimal-read-log",
+  "rationale": "Use a shared signed schema for immediate gateable evidence, then add the smallest mechanical read-log/mismatch detector that can be validated independently. This solves the documented proof gap without expanding into a full dispatch rewrite.",
+  "preMortem": [
+    {
+      "scenario": "Existing reviewers can no longer submit evidence because templates are updated but commands reject old inputs abruptly.",
+      "trigger": "scope_check_save or review_pass_set requires readManifest without clear prompt guidance.",
+      "consequence": "Gate failures become confusing and slow reviewer workflows.",
+      "mitigation": "Update prompts/templates in the same story and add explicit rejection messages plus smoke coverage."
+    },
+    {
+      "scenario": "readManifest is persisted but not signed, so it can be edited after the fact.",
+      "trigger": "The new field is saved outside the hash/signature domain.",
+      "consequence": "Read evidence appears first-class but is not integrity-bound.",
+      "mitigation": "Add signature/hash drift tests that change only readManifest and expect verification failure."
+    },
+    {
+      "scenario": "Mechanical log blocks legitimate broad scans.",
+      "trigger": "Mismatch detector treats scanEscalationReason as invalid or blocks the escalation path.",
+      "consequence": "Reviewers avoid necessary reads or the gate becomes brittle.",
+      "mitigation": "Make mismatch/full-scan reporting a finding/surfacing path and preserve scan escalation semantics."
+    },
+    {
+      "scenario": "JSON output becomes polluted with progress or diagnostics.",
+      "trigger": "New rejection or mismatch diagnostics write to stdout for --json commands.",
+      "consequence": "Automation consuming JSON breaks.",
+      "mitigation": "Add JSON cleanliness assertions to the smoke."
+    }
+  ],
+  "timestamp": "2026-07-10T01:11:06.982Z"
+}

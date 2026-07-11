@@ -1,0 +1,82 @@
+{
+  "storyId": "B-d6a0",
+  "checkedAt": "2026-07-10T10:41:06.480Z",
+  "headHash": "3fd370f929b0e99ea0263d902eddb0dc21ac6aa5",
+  "materialHash": "21a825b93245e7064d15d29c692b7688b51f7d731d7851d5d467ef8efd027e02",
+  "storyFilesHash": "379ab3027ba1ff10ccc7fd20e1bb0538e3e770181d3da86db8e50626c378ab9d",
+  "reviewRound": "2026-07-10T10:11:26.540Z",
+  "agentId": "claude-code-cli-test-delivery-reviewer",
+  "docsPromises": [
+    {
+      "docPath": "packages/main/src/core/evidence-freshness.ts",
+      "promise": "readMaterialDirtyFiles no longer corrupts the first porcelain row via whole-output trim; first-row material path reported exactly and volatile rows correctly excluded",
+      "status": "verified",
+      "verifiedBy": "test",
+      "evidence": "node packages/main/dist/tasks/porcelain-first-row-audit-smoke.js -> ALL PASS (11 scenarios); node .lattice/story/actives/B-d6a0/evidence/repro-porcelain-first-row.mjs -> GREEN exit 0 on fixed tree (RED exit 1 recorded at baseline 2d08e79 in red-evidence.json)"
+    },
+    {
+      "docPath": "packages/main/src/handlers/cross-host-review.ts",
+      "promise": "assertMaterialCleanForReview: .lattice-only dirty tree passes preflight; a genuine material row still refuses with the exact path",
+      "status": "verified",
+      "verifiedBy": "test",
+      "evidence": "porcelain-first-row-audit-smoke.js scenarios cross-host-review:*: all PASS"
+    },
+    {
+      "docPath": "packages/main/src/handlers/story-query.ts",
+      "promise": "gitPorcelainPaths keeps the first entry's leading dot; DONE-residue status text shows the untrimmed first row",
+      "status": "verified",
+      "verifiedBy": "test",
+      "evidence": "porcelain-first-row-audit-smoke.js scenarios story-query:*: all PASS"
+    },
+    {
+      "docPath": "packages/main/src/core/partial-done-recovery.ts",
+      "promise": "assertMainWorktreeClean: a volatile-only first row no longer refuses done_recover",
+      "status": "verified",
+      "verifiedBy": "test",
+      "evidence": "porcelain-first-row-audit-smoke.js scenario partial-done-recovery: volatile-only first-row dirt does not refuse -> PASS"
+    },
+    {
+      "docPath": "packages/main/src/handlers/session.ts",
+      "promise": "session brief rows keep their status columns on the first row",
+      "status": "verified",
+      "verifiedBy": "test",
+      "evidence": "porcelain-first-row-audit-smoke.js scenario session: brief rows keep the first row status column -> PASS"
+    },
+    {
+      "docPath": "packages/main/src/tasks/porcelain-first-row-audit-smoke.ts",
+      "promise": "new smoke covers all 4 fixed consumers + session brief rows; ALL PASS; discovered by run-all-smokes",
+      "status": "verified",
+      "verifiedBy": "test",
+      "evidence": "node packages/main/dist/tasks/porcelain-first-row-audit-smoke.js -> 11/11 scenarios PASS, 'porcelain-first-row-audit-smoke: ALL PASS'; fresh lattice validate --story=B-d6a0 --json -> status=pass allPass=true (45 configured commands incl. this smoke)"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Ran: node packages/main/dist/tasks/porcelain-first-row-audit-smoke.js on real machine after npm --prefix packages/main run build. Output: 11/11 scenarios PASS including 'evidence-freshness: first-row volatile row excluded, material path exact' and 'evidence-freshness: clean tree yields empty materialDirtyFiles'; final line 'porcelain-first-row-audit-smoke: ALL PASS'."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Same real-machine smoke run: 'cross-host-review: .lattice-only first-row dirt passes the preflight' and 'cross-host-review: material row still refuses with the exact path' both PASS."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Same real-machine smoke run: 'story-query: first porcelain path keeps its leading dot', 'story-query: rename rows resolve to the new path', 'story-query: sync-main volatile filter drops the first-row volatile path' all PASS."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Same real-machine smoke run: 'partial-done-recovery: volatile-only first-row dirt does not refuse' and 'partial-done-recovery: material row still refuses with the exact path' PASS; session.ts row 'session: brief rows keep the first row status column' PASS."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "Ran node .lattice/story/actives/B-d6a0/evidence/repro-porcelain-first-row.mjs on the fixed tree: 'GREEN: first-row modified-tracked rows classify correctly in both consumers', EXIT=0. red-evidence.json documents the same command exiting 1 (RED) at pre-fix baseline commit 2d08e79. Also ran fresh `lattice validate --story=B-d6a0 --json`: status=pass, allPass=true, 45/45 configured commands passed (including a rebuild of dist and this smoke as validate.commands[5] equivalent, review-pass-discard-smoke.js, and 43 other project smokes). Note: an earlier persisted test-evidence.json snapshot recorded a transient FAIL from a stale compiled dist/ (missing export in dist/handlers/delivery-context-pack.js unrelated to this story's source, which already exports createDeliveryContextPackHandlers correctly); rebuilding dist cleared it and a fresh validate now records PASS at headHash 3fd370f9."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Reverse-scanned B-d6a0 delivery. git diff main...HEAD --stat matches plan.md/checklist exactly: 5 production files fixed (evidence-freshness.ts, cross-host-review.ts, story-query.ts, partial-done-recovery.ts, session.ts) + 1 new smoke (porcelain-first-row-audit-smoke.ts) + package.json script + story metadata/evidence, 24 files total, no out-of-scope changes. Ran node packages/main/dist/tasks/porcelain-first-row-audit-smoke.js on real machine: 11/11 scenarios ALL PASS. Ran node .lattice/story/actives/B-d6a0/evidence/repro-porcelain-first-row.mjs on the fixed tree: GREEN exit 0; red-evidence.json documents the same command exiting 1 (RED) at pre-fix baseline 2d08e79, non-vacuous (fixture asserts porcelain row 0 matches / M /). Checklist shows 15/15 verificationIntent lanes covered with pass evidence across 5 items (3 lanes each). One gap found and resolved during review: the persisted test-evidence.json snapshot recorded validate result=FAIL due to a stale compiled dist/ (packages/main/dist/handlers/lifecycle-orchestrate.js importing a symbol not present in the then-stale dist/handlers/delivery-context-pack.js) -- the TypeScript source already exports createDeliveryContextPackHandlers correctly, so this was a build-hygiene artifact, not a source defect in this story scope. I rebuilt dist (npm --prefix packages/main run build) and re-ran lattice validate --story=B-d6a0 --json fresh: result is now status=pass allPass=true across all 45 configured commands, and test-evidence.json was updated accordingly (result=PASS, headHash=3fd370f9). Working tree is clean (git status --porcelain empty) at HEAD after the fresh validate run. review.json shows one prior review pass with 0 blockers (3 advisory-only issues: abstract userSees wording on CHK-005, missing cross-scenario combined-fix check, missing understanding_set -- none material). scope-check.json maps every plan.md audit-table feature to a checklist item, all status=covered. Verdict: PASS, no blockers found; the only gap was a stale-build artifact that was root-caused and resolved during this review, not a defect in the delivered story code."
+  },
+  "_hash": "3994c0d187c702c737fdbaf6a733822372035c75764c860ab29fa6b7cc3e7052"
+}
