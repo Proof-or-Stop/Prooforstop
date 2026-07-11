@@ -266,6 +266,19 @@
             "type": "cli"
           }
         ]
+      },
+      "userSees": "lattice doctor prints a \"Host burn scan (advisory):\" section; flagged sessions render a prominent block naming the session file, cwd, and cumulative tokens plus tripped thresholds; clean runs print \"✓ no host sessions over burn thresholds\"",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/tasks/doctor-gitroot-probe-smoke.ts",
+          "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "packages/main/src/tasks/storydir-inside-gitroot-suite.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts"
+        ]
       }
     },
     {
