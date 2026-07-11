@@ -140,11 +140,11 @@
           "file": "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
           "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
           "result": "pass",
-          "note": "All 16 current registry roles produced agent_prompt output matching their registry templates, with raw stdout sha256, byte count, and line count locked.",
-          "headHash": "903dad30b5f020817a27eac9170639a6f375f5cb",
-          "materialHash": "604ec73862a3dfbc27dd09503b8e63666b1fe283237638652be8cb5696e58c4d",
-          "storyFilesHash": "dd547cbf2bbf9945f26b15fb734dc408a565d7b38b07893e53a2e0d7e8f0cc82",
-          "timestamp": "2026-07-11T15:51:04.766Z"
+          "note": "All 16 registry roles produced agent_prompt stdout matching the built template, with sha256, byte count, and line count locked in the baseline.",
+          "headHash": "0d248527969a4e17756580d819f191e0a7ebd433",
+          "materialHash": "75a3d39927cbbec7898e05bc7d4d40c5c5d0fef052a2ae1e2662bd3d059cf499",
+          "storyFilesHash": "86ce50875b8e9fe4d64163a4daf740e9e09402d1c2c0d887de160f50b19997c5",
+          "timestamp": "2026-07-11T16:16:38.911Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
