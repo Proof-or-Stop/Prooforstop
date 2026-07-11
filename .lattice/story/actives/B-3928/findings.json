@@ -414,6 +414,27 @@
       ],
       "signatureTag": "missing|mjs:43|snapshot-semantic-audit",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3928:F-018",
+      "desc": "F-012 remains semantically unresolved: renaming the Commands column a reviewer-audited snapshot does not define what the snapshot includes. The behavior prompt requires dev_memory_preflight/dev_memory_search, aux_doc_list, and rg at packages/main/templates/agents/lattice-review-behavior.md:128-130, but its matrix row lists only git diff, checklist_get, and review writes; meanwhile implementer and scope-plan rows do include auxiliary/common reads. Because M0.3 still says the matrix covers commands and no rule distinguishes gate writes, role-specific commands, common guide commands, or selected examples, an omission cannot be interpreted consistently as not-owned versus merely unlisted. Define a narrower Commands contract with a uniform inclusion rule, or make the inventory complete; the snapshot caveat limits machine proof but does not make the field conceptually well-defined.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-11T15:58:01.773Z",
+      "reviewRound": "2026-07-11T15:51:16.046Z",
+      "reviewRunId": "B-3928:RR-018",
+      "_hash": "639c2eeead365d2d1ba338208e016713b1c04c0b74a3b31916821a7c4f260520",
+      "files": [
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md:14",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:127",
+        "packages/main/templates/agents/lattice-review-behavior.md:128",
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:1015"
+      ],
+      "signatureTag": "missing|md:14|remains-semantically-unresolved",
+      "signatureTagSource": "auto"
     }
   ]
 }
