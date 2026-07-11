@@ -854,7 +854,7 @@
       "desc": "F-026 recurrence: scripts/verify-proof-or-stop-prompt-baseline.mjs:773-810 does not enforce the promised true-negative/non-negated legacy context semantics. isNegativeLegacyOccurrence blesses any negated leading verb other than a context marker, so `Do not omit testIntent from new stories.` and `Never remove TEST_CASE_REVIEW from the workflow.` are labeled allowed-negative-reference even though they mandate retaining active legacy behavior. The local-context check recognizes only not/never/no-longer before a marker, so `Non-legacy testIntent.` and `This isn’t legacy testIntent.` are labeled allowed-explicit-local-context. Exact collectLegacyVocabularyFindings execution returned successfully for all four, meaning collection/--write can bless them while the committed mixed-occurrence control rejects. Constrain true-negative verbs/whole clauses, recognize common marker negations, and add refresh rejection probes.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-11T20:16:24.617Z",
@@ -878,7 +878,11 @@
         "scripts/verify-proof-or-stop-prompt-baseline.mjs:783"
       ],
       "signatureTag": "adversarial|mjs:773|recurrence-scripts-verify",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 467dc4bb. Live legacy occurrences are accepted only by a closed safe-negative grammar or exact registered context. Omit/remove are not safe-negative verbs, and non-legacy/is-not-legacy forms are unregistered. Exact four recurrence probes plus related controls reject. Independent legacy probe passed 24 rejected and 4 allowed cases.",
+      "resolvedAt": "2026-07-11T20:38:48.809Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3928:F-032",
