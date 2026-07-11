@@ -351,6 +351,19 @@
             "type": "logic"
           }
         ]
+      },
+      "userSees": "lattice usage_sweep --since 7d --alert prints the normal report plus a BURN ALERT section and exits non-zero with \"usage_sweep --alert: N session(s) over burn thresholds\" when any session trips; without --alert exit stays 0",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/process-fact-levels.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts"
+        ]
       }
     },
     {
