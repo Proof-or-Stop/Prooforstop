@@ -1544,9 +1544,36 @@ export function evaluateDoneIntentEquivalence(
     // bridge ONLY when at least one comma list item precedes it — a lone
     // ", and" with no prior comma item stays clause coordination and blocks
     // (F-013), even when the first clause's verb is not on the stop list.
-    const remainingOxfordTail = String.raw`(?:,\s+${remainingModifierWord})+,\s+(?:and|or)\s+(?:${remainingModifierWord}\s+){0,2}${remainingScopeNoun}`;
+    // B-6108 vocabulary recall expansion (five classes verified out-of-scope
+    // during B-2c03's nine codex host-B rounds):
+    // - Multi-word triggers accept a bounded adverb window of up to two
+    //   arbitrary tokens ("not yet covered", "out of the current scope") using
+    //   the same non-sentence-punctuation token shape as the remaining chain;
+    //   the window connector only accepts a dot when not followed by
+    //   whitespace, so windows never bridge a sentence boundary.
+    // - Inflections extend existing stems: partial(ly), exclude(s/d/ing),
+    //   defer(s/red/ring) — bare "defer" stays out ("defer to the reviewer's
+    //   judgment" is yielding, not shrinkage).
+    // - Shrinkage verbs carry the claim when the trigger word sits inside a
+    //   token the sanitizer strips BY REQUIREMENT (file names, backticked
+    //   spans, URLs). Every verb is precision-bound: passive voice
+    //   (was/were skipped|omitted|descoped|punted), a follow-up handoff
+    //   object (left/moved/pushed/punted/handed to|for|into a follow-up), or
+    //   a delivery-context qualifier (removed/dropped/cut from this|the
+    //   delivery|story|scope|release|milestone|version). Bare
+    //   removed/dropped/cut/skipped never fire — routine change descriptions
+    //   must stay quiet. Bare "descoped" is inherently scope-cutting.
+    // - The remaining-chain scope-noun position tolerates optional quote
+    //   characters ('the remaining "cases"').
+    // - "plus" joins and/or in the Oxford-list alternation.
+    const windowConnector = String.raw`(?:[\s/_-]|\.(?!\s))+`;
+    const windowToken = String.raw`(?:[^\s,]*${remainingTokenEnd})`;
+    const adverbWindow = String.raw`(?:${windowConnector}${windowToken}){0,2}?`;
+    const shrinkageVerbs = String.raw`(?:was|were)${windowConnector}(?:skipped|omitted|descoped|punted)|descoped|(?:left|moved|pushed|punted|handed(?:${windowConnector}off)?)${windowConnector}(?:to|for|into)${windowConnector}(?:a${windowConnector})?follow[\s_-]?up|(?:removed|dropped|cut)${windowConnector}from${windowConnector}(?:this|the)${windowConnector}(?:delivery|story|scope|release|milestone|version)`;
+    const nounQuote = String.raw`["'“”‘’]*`;
+    const remainingOxfordTail = String.raw`(?:,\s+${remainingModifierWord})+,\s+(?:and|or|plus)\s+(?:${remainingModifierWord}\s+){0,2}${nounQuote}${remainingScopeNoun}`;
     const claimsShrinkageRegex = new RegExp(
-      String.raw`\b(?:partial|narrow(?:er|ed)?|shrink(?:age|s|ing)?|out[\s./_-]+of[\s./_-]+scope|not[\s./_-]+covered|deferred|remaining(?:${remainingChainStep}{0,8}?(?:[,:]?\s+|${remainingGlue})${remainingScopeNoun}|${remainingChainStep}{0,6}?${remainingOxfordTail})|excluded)\b`,
+      String.raw`\b(?:partial(?:ly)?|narrow(?:er|ed)?|shrink(?:age|s|ing)?|out${windowConnector}of${adverbWindow}${windowConnector}scope|not${adverbWindow}${windowConnector}covered|defer(?:red|s|ring)|${shrinkageVerbs}|remaining(?:${remainingChainStep}{0,8}?(?:[,:]?\s+|${remainingGlue})${nounQuote}${remainingScopeNoun}|${remainingChainStep}{0,6}?${remainingOxfordTail})|exclud(?:ed|es|e|ing))\b`,
       'i',
     );
     const claimsShrinkage = claimsShrinkageRegex.test(narrowingText);
