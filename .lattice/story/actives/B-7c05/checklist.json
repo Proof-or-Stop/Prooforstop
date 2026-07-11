@@ -274,6 +274,68 @@
           }
         ]
       }
+    },
+    {
+      "id": "CHK-006",
+      "title": "Document brief defaults, full-output flag, and escape hatch",
+      "context": "Documentation updates describing the new brief-by-default outputs, the per-command full-output flag, and the LATTICE_BRIEF_OUTPUT escape hatch land in docs/CLI.md (and CLAUDE.md if the managed snippet regeneration applies). Satisfies scope-boundary allowed-item 6; verified by grepping the docs for LATTICE_BRIEF_OUTPUT and the full-output flag.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-7c05/background.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "rg for LATTICE_BRIEF_OUTPUT and the full-output flag name in docs/CLI.md -> both terms present and documented with brief-by-default behavior described, precedence rule stated (per-call flag > env > brief default), and affected command set listed; WHY: scope-boundary item 6 promises doc updates and this makes the promise verifiable",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "docs/CLI.md documents the frozen --json/--format=json contract (machine consumers get unchanged full shape regardless of brief mode); WHY: machine contract must be discoverable by integrators reading docs",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "docs list the exact set of affected commands (milestone_status, finding_list, help, story_list, bug_list, and any added by CHK-004 sweep) matching the actual implementation — no command listed that is not implemented, no implemented command missing from docs; WHY: docs-implementation consistency boundary",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "If CLAUDE.md managed snippet regeneration applies, the brief-mode behavior is also reflected there; otherwise docs/CLI.md alone suffices; WHY: CLAUDE.md is the agent-facing contract surface",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Documentation does NOT promise any gate-behavior or gateEvidence semantics changes and does NOT claim validate --full changed meaning; WHY: story explicitly states no gate behavior change and validate --full semantics untouched — docs must not introduce false promises",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Documentation does not claim brief mode affects --json/--format=json output shape — explicitly states JSON opt-in is unaffected; WHY: prevents future misinterpretation that could break machine consumers",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-11T23:25:18.378Z",
+      "phase": "PLAN",
+      "itemId": "CHK-006",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "story_review round-5 blocker scope_gap: description promises documentation updates (docs/CLI.md, CLAUDE.md) but no checklist item covers them; adding a dedicated item per scope-plan reviewer OQ-1 follow-through",
+      "addedTitle": "Document brief defaults, full-output flag, and escape hatch",
+      "addedContext": "Documentation updates describing the new brief-by-default outputs, the per-command full-output flag, and the LATTICE_BRIEF_OUTPUT escape hatch land in docs/CLI.md (and CLAUDE.md if the managed snippet regeneration applies). Satisfies scope-boundary allowed-item 6; verified by grepping the docs for LATTICE_BRIEF_OUTPUT and the full-output flag."
     }
   ]
 }

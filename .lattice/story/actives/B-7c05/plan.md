@@ -56,6 +56,13 @@ Files: `packages/main/src/cli/output-verbosity.ts` (new), new smoke `packages/ma
 - Smoke test asserts, on a synthetic fixture story with a populated milestone ledger and findings: (a) brief defaults for milestone_status / finding_list / help / story_list / bug_list each stay under their byte budgets; (b) `--full` restores the complete output (spot markers: table header row for milestone, description field for finding_list, verbose description text for help); (c) `LATTICE_BRIEF_OUTPUT=0` makes bare invocation render full, and per-call `--brief` still wins over it; (d) explicit `--json` shape: field sets identical before/after (golden field-list comparison, not byte comparison); (e) skeleton contracts hold in brief mode: `findings[].evidenceState`, `attention.suspected`, story_list `_bugSummary` all present.
 - Full `lattice validate` green before REVIEW; INIT reviewer note honored (stdout-parsing consumers confirmed via the sweep above).
 
+## CHK-006 Document brief defaults, full-output flag, and escape hatch
+
+Files: `docs/CLI.md`, `CLAUDE.md` (only if the managed lattice snippet regeneration applies — managed assets are regenerated, never hand-edited), optionally `CHANGELOG.md` via the DONE-merge auto-bump.
+
+- Document, in the CLI docs: which commands are brief by default (milestone_status + post-mutation suffix, finding_list, help, story_list, bug_list, plus any CHK-004 sweep additions), the per-command `--full`/`--brief` flags, the `LATTICE_BRIEF_OUTPUT` precedence rule (per-call flag > env > brief default), and the frozen `--json`/`--format=json` contract.
+- Verification: `rg` for `LATTICE_BRIEF_OUTPUT` and the full-output flag in `docs/CLI.md` (and `CLAUDE.md` if regenerated) returns the documented sections (CHK-005 intent bullet makes this a must-pass check).
+
 ## Risks / preMortem pointers
 
 See decision preMortem: stdout-grep consumers (mitigated by sweep + full validate), lost next-action guidance (brief format keeps it), operator surprise (env hatch + trailing hint + docs), future whale regressions (byte-budget smoke + recorded audit method).
