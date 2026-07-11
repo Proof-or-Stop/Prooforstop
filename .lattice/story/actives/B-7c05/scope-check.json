@@ -1,6 +1,6 @@
 {
   "storyId": "B-7c05",
-  "checkedAt": "2026-07-11T23:22:37.293Z",
+  "checkedAt": "2026-07-11T23:28:53.935Z",
   "features": [
     {
       "feature": "Milestone ledger (milestone_status + appendMilestoneStatusAfterMutation suffix on mutating commands like story_advance) is brief by default with a full-output flag restoring the 7-column table",
@@ -80,11 +80,18 @@
       "source": ".lattice/story/actives/B-7c05/checklist.json"
     },
     {
-      "feature": "Documentation updates describing the new brief defaults, full-output flag, and LATTICE_BRIEF_OUTPUT escape hatch (docs/CLI.md, CLAUDE.md)",
-      "covered_by": null,
-      "status": "gap",
+      "feature": "Documentation updates describing the new brief-by-default outputs, the per-command full-output flag, and the LATTICE_BRIEF_OUTPUT escape hatch land in docs/CLI.md (and CLAUDE.md if managed snippet regeneration applies)",
+      "covered_by": "CHK-006",
+      "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-7c05/scope-boundary.json (allowed list item 6) and plan.md CHK-005 file list"
+      "source": ".lattice/story/actives/B-7c05/checklist.json"
+    },
+    {
+      "feature": "Docs list the exact set of affected commands matching the actual implementation (no drift between docs and implementation), and docs do not claim gate/state-machine or validate --full semantics changed, and do not claim brief mode affects --json/--format=json shape",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-7c05/checklist.json"
     },
     {
       "feature": "Gate/state-machine behavior and gateEvidence semantics are untouched (rendering-only change)",
@@ -120,9 +127,9 @@
       ".lattice/story/actives/B-7c05/background.md",
       ".lattice/story/actives/B-7c05/checklist.json",
       ".lattice/story/actives/B-7c05/decision.json",
-      ".lattice/story/actives/B-7c05/init-check.json",
       ".lattice/story/actives/B-7c05/plan.md",
       ".lattice/story/actives/B-7c05/scope-boundary.json",
+      ".lattice/story/actives/B-7c05/scope-check.json",
       ".lattice/story/actives/B-7c05/understanding.json"
     ],
     "filesTriagedByName": [
@@ -132,25 +139,14 @@
     "scanEscalationReason": null
   },
   "summary": {
-    "total": 16,
-    "covered": 13,
+    "total": 17,
+    "covered": 15,
     "excluded": 2,
-    "gaps": 1,
+    "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "756b387ec6630b69021f17011bf04395441ab03b89889ea78f9471582de28749",
-  "openQuestions": [
-    {
-      "id": "OQ-1",
-      "q": "Documentation updates (docs/CLI.md + CLAUDE.md) are listed as an explicit allowed-scope promise in scope-boundary.json and as files-to-touch in plan.md CHK-005, but no checklist item (CHK-001..CHK-005) has a verificationIntent that checks docs were actually updated. Should CHK-005 (or CHK-003) gain an explicit doc-update verification bullet, or is this intentionally left as an implementation-time housekeeping task not requiring dedicated verification?",
-      "evidence": "scope-boundary.json allowed[5]: Documentation updates describing the new defaults, flag, and escape hatch; plan.md line 53 lists docs/CLI.md and CLAUDE.md as CHK-005 files; checklist.json CHK-005 verificationIntent has no doc-related bullet",
-      "sourcePointers": [
-        "CHK-005"
-      ],
-      "resolution": "Resolved by adding a verification bullet rather than treating docs as unverified housekeeping: CHK-005 verificationIntent now contains a happy-path must bullet (type cli) that greps docs/CLI.md (and CLAUDE.md if managed regeneration applies) for LATTICE_BRIEF_OUTPUT and the full-output flag, making scope-boundary allowed-item 6 (documentation updates describing the new defaults, flag, and escape hatch) mechanically verifiable at DEV/TEST. Added by the test-intent agent on round 4.",
-      "resolvedAt": "2026-07-11T23:24:48.909Z"
-    }
-  ]
+  "_hash": "08c59873812023e16038c6b1af3fae30a578eb97bbacdab512f71fc8b5b48cfd",
+  "openQuestions": []
 }
