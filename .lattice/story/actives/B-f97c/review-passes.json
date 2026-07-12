@@ -102,6 +102,25 @@
         "scanEscalationReason": null
       },
       "_hash": "4c7d178acf7b8c7a0760037b355f266b19aadc4719f6f5742a91068ae64e2bbc"
+    },
+    {
+      "id": "B-f97c:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Fresh concept review passed after main merge/validation. The current story diff still contains the same narrow producer-boundary correction: recursive requirements Markdown reads and Truth Source concatenation are removed, structured PLAN/scope-check behavior remains, sparse accepted PLAN coverage remains non-blocking, and usage reporting remains honestly separated into deterministic prompt estimates versus non-authoritative overlapping usage_sweep attribution. The upstream merge contributes version/package/runtime history only and does not alter B-f97c conceptual behavior or expand frozen scope. Current binding storyFilesHash=16054b97; no blocker found.",
+      "createdAt": "2026-07-12T01:55:24.841Z",
+      "reviewRound": "2026-07-12T01:54:57.206Z",
+      "reviewRunId": "B-f97c:RR-007",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/story-review-corpus-budget-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/package.json",
+          "packages/main/src/handlers/story-review.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e8c61f711ed8d4470feb865b37308b1f8f841d54f89cf48ae153861e6443b69c"
     }
   ]
 }

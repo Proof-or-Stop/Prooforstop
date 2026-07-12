@@ -263,6 +263,138 @@
         "bindingHash": "73fb15e49a92f7ee9b4b7ab60e7bb97d0d41b75fe2cdee2742c8545d8e597c38"
       },
       "_hash": "3ebf02add75abff02820c57d18aa3ddacdc900341a264ff37d5b0a30e2b8129d"
+    },
+    {
+      "reviewRunId": "B-f97c:RR-007",
+      "storyId": "B-f97c",
+      "agent": "lattice-review-concept",
+      "lane": "lattice-review-concept",
+      "reviewRound": "2026-07-12T01:54:57.206Z",
+      "startedAt": "2026-07-12T01:55:10.464Z",
+      "headHash": "5badd5842dd571565953cbab89c8bed79e23e2cf",
+      "materialHash": "83248d6c26000dfd5037cec7021e03a7b53db7bd62234f233f26054388778d69",
+      "storyFilesHash": "16054b9781ed92e63824978a59bb25358dce482756c281373856023ef5572c21",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "a8d49f23ad29bee1ab31062ad1cb935bf2956ad6cfad2892dcf4b57d1138f290",
+        "diffPackHash": "f116ce6f7dd439cf753baf6f5deb5dcbddbe3ed4eb6cecd706205bc9da1c5669",
+        "reviewedChangedFiles": [
+          "packages/main/package.json",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/tasks/story-review-corpus-budget-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "3ab629de4509a7375ab952869076566de6a32b3d346db8da374c33eb515a9c07",
+          "513afac0459018a8175430cc21ab7d92e439fff93613c7eea465e5d2b154ace9",
+          "c09a3140fa7bd3b7697ced138234912a79ae49ab069b5927c13314d0254aed6c",
+          "d6b2681fb6ceb62a5447f6e88e88db7ebad4513cbca6e57baea3e33c81e78fa4",
+          "d7c8d44edd1d70965a31a5481ada9b84ae0be8ac89bd702f47f7e02d8e95faa1",
+          "e5762e9f77c59998de251fdc44a0d745877a440eaa65ae64c4e3dbe5cd967d13"
+        ],
+        "bindingHash": "c95a1faf74e6f4353430527023ca8cecbdd66b662694c4f824faddd17784b8c3"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-f97c",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-f97c",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-f97c",
+        "workspaceMode": "story-worktree",
+        "headHash": "5badd5842dd571565953cbab89c8bed79e23e2cf",
+        "materialHash": "83248d6c26000dfd5037cec7021e03a7b53db7bd62234f233f26054388778d69",
+        "storyFilesHash": "16054b9781ed92e63824978a59bb25358dce482756c281373856023ef5572c21",
+        "bindingHash": "1c8a663595d1f413013e85595f9137d7c44004f2d5f638f274a0a39f0dd2ac7e"
+      },
+      "_hash": "82e7438b2356fc01bc69483e21216ca74c46773f36c2c5989ec965cdc7dd7f34"
+    },
+    {
+      "reviewRunId": "B-f97c:RR-008",
+      "storyId": "B-f97c",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-07-12T01:54:57.206Z",
+      "startedAt": "2026-07-12T01:55:13.701Z",
+      "headHash": "5badd5842dd571565953cbab89c8bed79e23e2cf",
+      "materialHash": "83248d6c26000dfd5037cec7021e03a7b53db7bd62234f233f26054388778d69",
+      "storyFilesHash": "16054b9781ed92e63824978a59bb25358dce482756c281373856023ef5572c21",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "a8d49f23ad29bee1ab31062ad1cb935bf2956ad6cfad2892dcf4b57d1138f290",
+        "diffPackHash": "f116ce6f7dd439cf753baf6f5deb5dcbddbe3ed4eb6cecd706205bc9da1c5669",
+        "reviewedChangedFiles": [
+          "packages/main/package.json",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/tasks/story-review-corpus-budget-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "3ab629de4509a7375ab952869076566de6a32b3d346db8da374c33eb515a9c07",
+          "513afac0459018a8175430cc21ab7d92e439fff93613c7eea465e5d2b154ace9",
+          "c09a3140fa7bd3b7697ced138234912a79ae49ab069b5927c13314d0254aed6c",
+          "d6b2681fb6ceb62a5447f6e88e88db7ebad4513cbca6e57baea3e33c81e78fa4",
+          "d7c8d44edd1d70965a31a5481ada9b84ae0be8ac89bd702f47f7e02d8e95faa1",
+          "e5762e9f77c59998de251fdc44a0d745877a440eaa65ae64c4e3dbe5cd967d13"
+        ],
+        "bindingHash": "c95a1faf74e6f4353430527023ca8cecbdd66b662694c4f824faddd17784b8c3"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-f97c",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-f97c",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-f97c",
+        "workspaceMode": "story-worktree",
+        "headHash": "5badd5842dd571565953cbab89c8bed79e23e2cf",
+        "materialHash": "83248d6c26000dfd5037cec7021e03a7b53db7bd62234f233f26054388778d69",
+        "storyFilesHash": "16054b9781ed92e63824978a59bb25358dce482756c281373856023ef5572c21",
+        "bindingHash": "1c8a663595d1f413013e85595f9137d7c44004f2d5f638f274a0a39f0dd2ac7e"
+      },
+      "_hash": "7c707871e1830bdcf92e9a9915cfebb03af1cdda2f7aee7bf3c7b1accf53189c"
+    },
+    {
+      "reviewRunId": "B-f97c:RR-009",
+      "storyId": "B-f97c",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-07-12T01:54:57.206Z",
+      "startedAt": "2026-07-12T01:55:23.854Z",
+      "headHash": "5badd5842dd571565953cbab89c8bed79e23e2cf",
+      "materialHash": "83248d6c26000dfd5037cec7021e03a7b53db7bd62234f233f26054388778d69",
+      "storyFilesHash": "16054b9781ed92e63824978a59bb25358dce482756c281373856023ef5572c21",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "a8d49f23ad29bee1ab31062ad1cb935bf2956ad6cfad2892dcf4b57d1138f290",
+        "diffPackHash": "f116ce6f7dd439cf753baf6f5deb5dcbddbe3ed4eb6cecd706205bc9da1c5669",
+        "reviewedChangedFiles": [
+          "packages/main/package.json",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/tasks/story-review-corpus-budget-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "3ab629de4509a7375ab952869076566de6a32b3d346db8da374c33eb515a9c07",
+          "513afac0459018a8175430cc21ab7d92e439fff93613c7eea465e5d2b154ace9",
+          "c09a3140fa7bd3b7697ced138234912a79ae49ab069b5927c13314d0254aed6c",
+          "d6b2681fb6ceb62a5447f6e88e88db7ebad4513cbca6e57baea3e33c81e78fa4",
+          "d7c8d44edd1d70965a31a5481ada9b84ae0be8ac89bd702f47f7e02d8e95faa1",
+          "e5762e9f77c59998de251fdc44a0d745877a440eaa65ae64c4e3dbe5cd967d13"
+        ],
+        "bindingHash": "c95a1faf74e6f4353430527023ca8cecbdd66b662694c4f824faddd17784b8c3"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-f97c",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-f97c",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-f97c",
+        "workspaceMode": "story-worktree",
+        "headHash": "5badd5842dd571565953cbab89c8bed79e23e2cf",
+        "materialHash": "83248d6c26000dfd5037cec7021e03a7b53db7bd62234f233f26054388778d69",
+        "storyFilesHash": "16054b9781ed92e63824978a59bb25358dce482756c281373856023ef5572c21",
+        "bindingHash": "1c8a663595d1f413013e85595f9137d7c44004f2d5f638f274a0a39f0dd2ac7e"
+      },
+      "_hash": "b367c0d459d9e3ee4a684e9fc76afe6db4c1d2589ef4d72fd4b7b062ef4430c7"
     }
   ]
 }
