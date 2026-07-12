@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-8038",
+  "id": "IC-20260712101406",
+  "decision": "revise_intent",
+  "status": "open",
+  "notes": "Independent collision review found one acceptance-coverage mismatch. M6A-M6G are faithfully mapped 1:1 across checklist verification intents, the candidate ledger, and the three-slice plan; OQ-001 correctly resolves the 10 query-group versus 50 hits-per-group budget; exclusions preserve B-3928 and prohibit corpus reinjection/unrelated refactors. However, immutable original intent explicitly requires final reporting of total token consumption and the largest cost source (REQ-TOKEN-COST, with uncertainty labels), while the corrected understanding, scope-check feature map, checklist verification intents, milestone ledger, slice plan, and plan.md contain no owned step or verification evidence for producing that final token-cost breakdown. M6G cost thresholds/metrics are product rollout measurements and are not equivalent to reporting this Story total token usage and dominant cost source. Add explicit owned acceptance coverage for final usage_sweep/token attribution reporting with uncertainty/multi-attribution labels, then rerun intent collision; do not change the immutable snapshot.",
+  "ledgerHashBeforeDecision": "sha256:4f01827e5d6f02ac9cd19384de7964655e63c9bfa7753d6bd6d2119c2ad27449",
+  "createdAt": "2026-07-12T10:14:06.471Z",
+  "updatedAt": "2026-07-12T10:14:06.471Z"
+}

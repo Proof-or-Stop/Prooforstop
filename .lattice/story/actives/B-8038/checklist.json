@@ -230,11 +230,21 @@
             "desc": "Run two consecutive evaluation windows whose golden recall, finding equivalence, candidate/full-read bytes, latency, mismatch and escalation metrics meet the accepted thresholds -> canonical configuration permits shadow to warn to enforce promotion, process-fact/command-policy/registry/verifier contracts agree, and operators see the promotion evidence and active mode; WHY: maps rollout-tests, process-fact-contract and two-window-evaluation",
             "type": "cli",
             "priority": "must"
+          },
+          {
+            "desc": "At final delivery, collect provider-reported usage from every available Codex CLI, Claude Code CLI, and Antigravity CLI invocation and aggregate total input, output, and cache-read tokens without mixing categories -> the user receives provider totals by host plus the largest attributable milestone, host, and command cost with its evidence source; WHY: fulfills the explicit final token-consumption report using authoritative provider counters where available",
+            "type": "cli",
+            "priority": "must"
           }
         ],
         "edge": [
           {
             "desc": "Make either evaluation window miss critical/high recall, 98 percent overall recall, finding equivalence, prompt-byte, latency, budget, or zero-mismatch thresholds, and simulate host outage during each mode -> promotion is blocked with diagnostic metrics, shadow/warn preserve existing authority, enforce fails closed only where configured, and host failure still uses deterministic local routing; WHY: proves thresholds and staged failure semantics govern rollout",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Generate a final usage report when one or more providers omit token counters, sessions overlap multiple milestones, or usage_sweep attributes shared cached input to more than one unit -> missing provider fields are shown as unavailable, usage_sweep numbers are presented separately as non-authoritative estimates, multi-attribution and shared-cache uncertainty are explicit, and no estimate is presented as exclusive task consumption; WHY: prevents false precision while still identifying the best-supported largest cost center",
             "type": "cli",
             "priority": "must"
           }
