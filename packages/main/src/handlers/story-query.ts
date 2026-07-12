@@ -46,6 +46,7 @@ type StoryListRow = {
   tests?: string;
   mainPhase?: string;
   labels?: string;
+  bg?: string;
   [key: string]: unknown;
 };
 
@@ -62,6 +63,7 @@ function toBriefStoryRow(row: StoryListRow): Record<string, unknown> {
     ...(row.bugs ? { bugs: row.bugs } : {}),
     ...(row.tests ? { tests: row.tests } : {}),
     ...(row.labels ? { labels: row.labels } : {}),
+    ...(row.bg ? { bg: row.bg } : {}),
   };
 }
 

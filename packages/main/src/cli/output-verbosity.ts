@@ -19,10 +19,9 @@
  * Rendering-only: this changes no gate/state-machine logic and no storage.
  */
 
-export const BRIEF_OUTPUT_ENV_VAR = 'LATTICE_BRIEF_OUTPUT';
+import { oneLineCell } from '../core/milestone-status.js';
 
-/** The full-output flag name surfaced in hints/docs so callers stay consistent. */
-export const FULL_OUTPUT_FLAG = '--full';
+export const BRIEF_OUTPUT_ENV_VAR = 'LATTICE_BRIEF_OUTPUT';
 
 export interface OutputVerbosityArgs {
   full?: unknown;
@@ -65,21 +64,11 @@ export function wantsFullOutput(
   return false;
 }
 
-/** Convenience negation of {@link wantsFullOutput}. */
-export function wantsBriefOutput(
-  args?: OutputVerbosityArgs | null,
-  env: NodeJS.ProcessEnv = process.env,
-): boolean {
-  return !wantsFullOutput(args, env);
-}
-
 /**
  * Collapse a possibly-multiline free-text field to a single truncated line for
  * brief renderings. Never throws; returns '' for nullish input.
  */
 export function truncateOneLine(value: unknown, max = 100): string {
   if (typeof value !== 'string') return '';
-  const oneLine = value.replace(/\s+/g, ' ').trim();
-  if (oneLine.length <= max) return oneLine;
-  return `${oneLine.slice(0, Math.max(0, max - 1)).trimEnd()}…`;
+  return oneLineCell(value, max);
 }

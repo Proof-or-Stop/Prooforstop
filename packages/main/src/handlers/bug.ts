@@ -6,13 +6,12 @@ import { computeProcessMetrics } from '../core/process-metrics.js';
 import { wantsFullOutput, truncateOneLine } from '../cli/output-verbosity.js';
 
 // B-7c05 CHK-004: brief bug one-liner. Keeps the decision fields (storyId, id,
-// status, severity when present) + a truncated title; drops timestamps/evidence.
+// status) + a truncated title; drops timestamps/evidence.
 function toBriefBug(bug: BugRecord & { storyId?: string }): Record<string, unknown> {
   return {
     ...(bug.storyId ? { storyId: bug.storyId } : {}),
     id: bug.id,
     status: bug.status,
-    ...((bug as { severity?: string }).severity ? { severity: (bug as { severity?: string }).severity } : {}),
     title: truncateOneLine(bug.title, 80),
   };
 }

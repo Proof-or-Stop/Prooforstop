@@ -1270,7 +1270,10 @@ export function renderMilestoneStatusBrief(report: MilestoneStatusReport): strin
   return lines.join('\n');
 }
 
-function oneLineCell(value: string, max: number): string {
+// Exported as the single one-line-truncation implementation; the cli-layer
+// truncateOneLine (cli/output-verbosity.ts) delegates here so the two stay in
+// lockstep (B-7c05 F-010). core/ must not import cli/, so the helper lives here.
+export function oneLineCell(value: string, max: number): string {
   const oneLine = value.replace(/\s+/g, ' ').trim();
   if (oneLine.length <= max) return oneLine;
   return `${oneLine.slice(0, Math.max(0, max - 1)).trimEnd()}…`;

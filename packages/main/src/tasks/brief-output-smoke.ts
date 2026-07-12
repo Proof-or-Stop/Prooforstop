@@ -141,6 +141,7 @@ try {
   const storyDir = join(activesDir, storyId);
   mkdirSync(storyDir, { recursive: true });
   writeJson(join(storyDir, 'index.json'), makeStory(storyId, 'DEV'));
+  writeFileSync(join(storyDir, 'background.md'), '# Background\n\nBrief smoke fixture story.\n');
   writeJson(join(storyDir, 'checklist.json'), {
     items: [
       { id: 'CHK-001', title: 'First done item', status: 'done', startTime: null, endTime: null },
@@ -346,6 +347,9 @@ try {
   const slBriefIds = slBrief.stories.map((s) => s.storyId);
   assert.ok(slBriefIds.includes('B-brief') && slBriefIds.includes('B-plan'), 'brief lists non-terminal stories');
   assert.ok(!slBriefIds.includes('B-terminal'), 'brief omits terminal stories from the list');
+  // F-008: brief rows keep the bg (background.md) marker — no silent field drop
+  const briefBriefRow = slBrief.stories.find((s) => s.storyId === 'B-brief') as Record<string, unknown>;
+  assert.equal(briefBriefRow.bg, 'bg:✓', 'brief story_list keeps the bg marker');
   // full recovers the terminal story
   assert.ok(slFull.stories.map((s) => s.storyId).includes('B-terminal'), 'story_list --full recovers terminal stories');
   assert.equal(slFull._brief, undefined, 'story_list --full is not the brief shape');
