@@ -4,7 +4,7 @@
   "title": "Scope classifier misses ProofStory intent artifacts, forcing manual scope acknowledgements",
   "description": "The scope gate's lifecycle-artifact classifier (classifyLifecycleArtifact in packages/main/src/core/lifecycle-registry.ts) recognizes checklist.json, decision.json, review.json, scope-check.json, scope-contract.json, understanding.json and other command-generated story metadata via LATTICE_LIFECYCLE_ARTIFACT_FILENAMES, but NOT the ProofStory high-assurance intent artifacts written by store.ts into the story directory: original-intent-snapshot.json (original_intent_snapshot_set), intent-collision.json (intent_collision_set), red-evidence.json (red_evidence_create), proofstory.json (proofstory_contract_set), plus the sibling command-generated files milestone-ledger.json (milestone ledger set) and spike.json (spike evidence). Under mode=enforce these classify rule=out_of_scope and block the DEV->REVIEW scope gate, forcing owners to hand-add story-metadata paths into their own scope contract. This recurs for every high-assurance story.",
   "type": "bug",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "medium",
   "keywords": [
     "scope-contract",
@@ -15,7 +15,7 @@
   ],
   "createdAt": "2026-07-12T21:19:32.418Z",
   "startedAt": "2026-07-12T21:19:32.418Z",
-  "endedAt": null,
+  "endedAt": "2026-07-12T22:41:43.365Z",
   "events": [
     {
       "phase": "INIT",
@@ -88,12 +88,16 @@
       "user": "Harmonygo",
       "sessionId": "e28f7c2a-3e4e-4c7c-97b0-f79cc4a609d8",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-12T22:41:43.365Z",
+      "branch": "story/B-12a1",
+      "user": "Harmonygo",
+      "sessionId": "e28f7c2a-3e4e-4c7c-97b0-f79cc4a609d8",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-12a1",
-    "branch": "story/B-12a1",
-    "createdAt": "2026-07-12T21:26:32.553Z"
-  },
   "currentReviewRound": "2026-07-12T22:06:14.602Z"
 }
