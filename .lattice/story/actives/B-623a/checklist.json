@@ -376,9 +376,9 @@
       "id": "CHK-005",
       "title": "Fixture-driven burn-alert smoke wired into the validate suite",
       "context": "New packages/main/src/tasks/usage-burn-alert-smoke.ts driven by OS temp fixtures (never real ~/.codex or ~/.claude): threshold boundary cases (at vs over), env resolver defaults and overrides, doctor section rendering (flagged and clean), --alert exit-code behavior via the real CLI, zero-writes assertion. Wired into the same validate/test entry points as usage-sweep-smoke.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-12T20:26:55.851Z",
-      "endTime": null,
+      "endTime": "2026-07-12T20:34:03.039Z",
       "verificationIntent": {
         "happy": [
           {
