@@ -30,6 +30,43 @@
         "scanEscalationReason": null
       },
       "_hash": "6ebb9a702cef276cfa7b9d520a309cf2caee6e80cfe91ed843ae1d2a5e4d482f"
+    },
+    {
+      "id": "B-623a:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed full diff main...HEAD for B-623a (push-based host burn detection): core/usage-burn-alert.ts pure-core evaluator+resolver, doctor.ts async migration+advisory section, usage-sweep.ts --alert print-then-throw, cli-engine.ts dispatch wiring, command-catalog.ts/process-fact-levels.ts docs, 5 touched smokes for the async doctor() migration, and the new 20-check usage-burn-alert-smoke.ts. Verified: no Date.now/process.env inside core (grep+read), zero writes (read sweep scanners + ran zero-writes smoke), advisory-only with gateEvidence=false and hostBurnScan/usage-burn-alert referenced nowhere outside doctor.ts/usage-sweep.ts/the smoke (grep), --alert leaves ownership-gate/activity-policy readOnly classification unchanged (read source, both keyed on --out not --alert), doctor() async call sites all await (grep), rebuilt package and ran usage-burn-alert-smoke (20/20 pass, 7.4s) plus the 4 touched smokes (doctor-gitroot-probe, story-metadata-protection, storydir-inside-gitroot, validation-protocol) standalone (all pass), and confirmed run-all-smokes.js auto-discovers the new smoke by filename pattern so it lands in npm run test:all without extra wiring. One non-blocking observation: the try/catch around the doctor.ts Promise.all burn-scan call is defensive-only and never actually exercised (sweepCodexSessions/sweepClaudeProjects already handle missing/unreadable dirs internally via collectFiles try/catch), consistent with this file's existing pervasive silent-catch convention -- not a blocker.",
+      "createdAt": "2026-07-12T20:56:28.232Z",
+      "reviewRound": "2026-07-12T20:46:22.327Z",
+      "reviewRunId": "B-623a:RR-001",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-623a/plan.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/cli/recover-evidence-dispatch.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/tasks/doctor-gitroot-probe-smoke.ts",
+          "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "packages/main/src/tasks/storydir-inside-gitroot-suite.ts",
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/smoke-manifest.json",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/tasks/run-all-smokes.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "473bc0fe54a76e43018aad7f0e39decaf0b621d6195aede50aefac4d0481465c"
     }
   ]
 }
