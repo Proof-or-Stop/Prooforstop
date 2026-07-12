@@ -68,10 +68,10 @@
           "command": "node packages/main/dist/tasks/host-run-usage-smoke.js",
           "result": "pass",
           "note": "Smoke check 'B-3ddc streaming lane: the default runner retains the pinned turn.failed line in the SECOND bounded lane (usage lane stays empty)' drives a REAL child through defaultHostRunRunner and asserts failureText contains the turn.failed line; the precedence check additionally proves the usage lane still retains turn.completed when both are present.",
-          "headHash": "95e771bed01e0606addcb83157926c4b7939d443",
-          "materialHash": "6e59fee3d22619cad4ffaaa0001a50f5e71d60cd5ae7910b7eee382f697a84bd",
-          "storyFilesHash": "d144fa13fbbcc8bcdce64015e5c4a0c77b1cca428323f343bf236dae293e4b38",
-          "timestamp": "2026-07-11T23:36:07.104Z"
+          "headHash": "acf5d88fd6af527d1ac778eb048ff81d69e00f32",
+          "materialHash": "c649460d19896e5efc38fc158ff6504adb71297df80af161ea386899a73dba33",
+          "storyFilesHash": "1f8395cff3e764665321b45cea1ac7e09bd35750ec67985f6cf3f1eecbf1b2ef",
+          "timestamp": "2026-07-12T01:07:15.491Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -80,10 +80,10 @@
           "command": "node packages/main/dist/tasks/host-run-usage-smoke.js",
           "result": "pass",
           "note": "Smoke check 'B-3ddc terminal error: a single {\"type\":\"error\"} line records turn_failed(stream disconnected)' proves a terminal error event line is retained by the failure lane and surfaced through the recording path.",
-          "headHash": "95e771bed01e0606addcb83157926c4b7939d443",
-          "materialHash": "6e59fee3d22619cad4ffaaa0001a50f5e71d60cd5ae7910b7eee382f697a84bd",
-          "storyFilesHash": "d144fa13fbbcc8bcdce64015e5c4a0c77b1cca428323f343bf236dae293e4b38",
-          "timestamp": "2026-07-11T23:36:07.104Z"
+          "headHash": "acf5d88fd6af527d1ac778eb048ff81d69e00f32",
+          "materialHash": "c649460d19896e5efc38fc158ff6504adb71297df80af161ea386899a73dba33",
+          "storyFilesHash": "1f8395cff3e764665321b45cea1ac7e09bd35750ec67985f6cf3f1eecbf1b2ef",
+          "timestamp": "2026-07-12T01:07:15.491Z"
         },
         {
           "intentRef": "CHK-001:happy:2",
@@ -92,10 +92,10 @@
           "command": "node packages/main/dist/tasks/host-run-usage-smoke.js",
           "result": "pass",
           "note": "Existing happy checks 'CHK-001 codex happy' plus 'B-3ddc fallback: noise-only stdout' prove that with no failure event the failure lane stays empty (generic fallback reason) and the usage lane retains the usage line exactly as before (regression guard).",
-          "headHash": "95e771bed01e0606addcb83157926c4b7939d443",
-          "materialHash": "6e59fee3d22619cad4ffaaa0001a50f5e71d60cd5ae7910b7eee382f697a84bd",
-          "storyFilesHash": "d144fa13fbbcc8bcdce64015e5c4a0c77b1cca428323f343bf236dae293e4b38",
-          "timestamp": "2026-07-11T23:36:07.104Z"
+          "headHash": "acf5d88fd6af527d1ac778eb048ff81d69e00f32",
+          "materialHash": "c649460d19896e5efc38fc158ff6504adb71297df80af161ea386899a73dba33",
+          "storyFilesHash": "1f8395cff3e764665321b45cea1ac7e09bd35750ec67985f6cf3f1eecbf1b2ef",
+          "timestamp": "2026-07-12T01:07:15.491Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -104,10 +104,10 @@
           "command": "node packages/main/dist/tasks/host-run-usage-smoke.js",
           "result": "pass",
           "note": "scanCodexTurnFailed is last-wins across multiple failure events (asserted via the digest-hygiene unit check feeding multiple shapes and by the pinned-fixture check where the LAST failure line wins); the retained line in the streaming-lane check is the most recent failure event.",
-          "headHash": "95e771bed01e0606addcb83157926c4b7939d443",
-          "materialHash": "6e59fee3d22619cad4ffaaa0001a50f5e71d60cd5ae7910b7eee382f697a84bd",
-          "storyFilesHash": "d144fa13fbbcc8bcdce64015e5c4a0c77b1cca428323f343bf236dae293e4b38",
-          "timestamp": "2026-07-11T23:36:07.104Z"
+          "headHash": "acf5d88fd6af527d1ac778eb048ff81d69e00f32",
+          "materialHash": "c649460d19896e5efc38fc158ff6504adb71297df80af161ea386899a73dba33",
+          "storyFilesHash": "1f8395cff3e764665321b45cea1ac7e09bd35750ec67985f6cf3f1eecbf1b2ef",
+          "timestamp": "2026-07-12T01:07:15.491Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -116,10 +116,10 @@
           "command": "node packages/main/dist/tasks/host-run-usage-smoke.js",
           "result": "pass",
           "note": "The failure lane reuses UsageLineScanner with the same HOST_RUN_RETAINED_LINE_CAP: the existing 'F-006 oversized single usage line' + F-013 checks pin the cap discipline; an over-cap failure line is dropped and the reason degrades to the generic fallback (covered by 'B-3ddc fallback' + code path where failureText is empty).",
-          "headHash": "95e771bed01e0606addcb83157926c4b7939d443",
-          "materialHash": "6e59fee3d22619cad4ffaaa0001a50f5e71d60cd5ae7910b7eee382f697a84bd",
-          "storyFilesHash": "d144fa13fbbcc8bcdce64015e5c4a0c77b1cca428323f343bf236dae293e4b38",
-          "timestamp": "2026-07-11T23:36:07.104Z"
+          "headHash": "acf5d88fd6af527d1ac778eb048ff81d69e00f32",
+          "materialHash": "c649460d19896e5efc38fc158ff6504adb71297df80af161ea386899a73dba33",
+          "storyFilesHash": "1f8395cff3e764665321b45cea1ac7e09bd35750ec67985f6cf3f1eecbf1b2ef",
+          "timestamp": "2026-07-12T01:07:15.491Z"
         },
         {
           "intentRef": "CHK-001:edge:2",
@@ -128,10 +128,10 @@
           "command": "node packages/main/dist/tasks/host-run-usage-smoke.js",
           "result": "pass",
           "note": "Buffered fake-runner path: 'CHK-001 codex edge (B-3ddc): turn.failed / no usage -> unavailable (turn_failed(boom))' and the pinned B-3928 check both use fake runners returning full buffered stdout with NO failureText, proving the core's fallback scan of buffered stdout.",
-          "headHash": "95e771bed01e0606addcb83157926c4b7939d443",
-          "materialHash": "6e59fee3d22619cad4ffaaa0001a50f5e71d60cd5ae7910b7eee382f697a84bd",
-          "storyFilesHash": "d144fa13fbbcc8bcdce64015e5c4a0c77b1cca428323f343bf236dae293e4b38",
-          "timestamp": "2026-07-11T23:36:07.104Z"
+          "headHash": "acf5d88fd6af527d1ac778eb048ff81d69e00f32",
+          "materialHash": "c649460d19896e5efc38fc158ff6504adb71297df80af161ea386899a73dba33",
+          "storyFilesHash": "1f8395cff3e764665321b45cea1ac7e09bd35750ec67985f6cf3f1eecbf1b2ef",
+          "timestamp": "2026-07-12T01:07:15.491Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -140,10 +140,10 @@
           "command": "node packages/main/dist/tasks/host-run-usage-smoke.js",
           "result": "pass",
           "note": "Two-lane independence: 'B-3ddc precedence' proves usage wins and the failure lane never suppresses/overrides a genuine usage; 'B-3ddc streaming lane' proves the usage lane stays EMPTY while the failure lane retains (no cross-pollution).",
-          "headHash": "95e771bed01e0606addcb83157926c4b7939d443",
-          "materialHash": "6e59fee3d22619cad4ffaaa0001a50f5e71d60cd5ae7910b7eee382f697a84bd",
-          "storyFilesHash": "d144fa13fbbcc8bcdce64015e5c4a0c77b1cca428323f343bf236dae293e4b38",
-          "timestamp": "2026-07-11T23:36:07.104Z"
+          "headHash": "acf5d88fd6af527d1ac778eb048ff81d69e00f32",
+          "materialHash": "c649460d19896e5efc38fc158ff6504adb71297df80af161ea386899a73dba33",
+          "storyFilesHash": "1f8395cff3e764665321b45cea1ac7e09bd35750ec67985f6cf3f1eecbf1b2ef",
+          "timestamp": "2026-07-12T01:07:15.491Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -152,10 +152,10 @@
           "command": "node packages/main/dist/tasks/host-run-usage-smoke.js",
           "result": "pass",
           "note": "F-013/F-026 truncation checks ('F-013 codex', 'F-013 claude', 'F-026 codex') all pass unchanged in the same smoke run, proving the usage-lane truncation semantics are untouched by the second lane.",
-          "headHash": "95e771bed01e0606addcb83157926c4b7939d443",
-          "materialHash": "6e59fee3d22619cad4ffaaa0001a50f5e71d60cd5ae7910b7eee382f697a84bd",
-          "storyFilesHash": "d144fa13fbbcc8bcdce64015e5c4a0c77b1cca428323f343bf236dae293e4b38",
-          "timestamp": "2026-07-11T23:36:07.104Z"
+          "headHash": "acf5d88fd6af527d1ac778eb048ff81d69e00f32",
+          "materialHash": "c649460d19896e5efc38fc158ff6504adb71297df80af161ea386899a73dba33",
+          "storyFilesHash": "1f8395cff3e764665321b45cea1ac7e09bd35750ec67985f6cf3f1eecbf1b2ef",
+          "timestamp": "2026-07-12T01:07:15.491Z"
         },
         {
           "intentRef": "CHK-001:adversarial:2",
@@ -164,10 +164,10 @@
           "command": "node packages/main/dist/tasks/host-run-usage-smoke.js",
           "result": "pass",
           "note": "'F-006: default runner streams stdout live' and 'F-006: host output ... EXACTLY once' pass unchanged, proving live passthrough delivery is unaltered by the failure lane (it only keeps a bounded copy).",
-          "headHash": "95e771bed01e0606addcb83157926c4b7939d443",
-          "materialHash": "6e59fee3d22619cad4ffaaa0001a50f5e71d60cd5ae7910b7eee382f697a84bd",
-          "storyFilesHash": "d144fa13fbbcc8bcdce64015e5c4a0c77b1cca428323f343bf236dae293e4b38",
-          "timestamp": "2026-07-11T23:36:07.104Z"
+          "headHash": "acf5d88fd6af527d1ac778eb048ff81d69e00f32",
+          "materialHash": "c649460d19896e5efc38fc158ff6504adb71297df80af161ea386899a73dba33",
+          "storyFilesHash": "1f8395cff3e764665321b45cea1ac7e09bd35750ec67985f6cf3f1eecbf1b2ef",
+          "timestamp": "2026-07-12T01:07:15.491Z"
         }
       ]
     },
@@ -244,10 +244,10 @@
           "command": "node packages/main/dist/tasks/host-run-usage-smoke.js",
           "result": "pass",
           "note": "'B-3ddc pinned B-3928' asserts the nested 400 version-skew payload records unavailableReason exactly turn_failed(The 'gpt-5.6-sol' model requires a newer version of Codex. Please upgrade to the latest app or CLI and try again.).",
-          "headHash": "95e771bed01e0606addcb83157926c4b7939d443",
-          "materialHash": "6e59fee3d22619cad4ffaaa0001a50f5e71d60cd5ae7910b7eee382f697a84bd",
-          "storyFilesHash": "d144fa13fbbcc8bcdce64015e5c4a0c77b1cca428323f343bf236dae293e4b38",
-          "timestamp": "2026-07-11T23:36:07.104Z"
+          "headHash": "acf5d88fd6af527d1ac778eb048ff81d69e00f32",
+          "materialHash": "c649460d19896e5efc38fc158ff6504adb71297df80af161ea386899a73dba33",
+          "storyFilesHash": "1f8395cff3e764665321b45cea1ac7e09bd35750ec67985f6cf3f1eecbf1b2ef",
+          "timestamp": "2026-07-12T01:07:15.491Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -256,10 +256,10 @@
           "command": "node packages/main/dist/tasks/host-run-usage-smoke.js",
           "result": "pass",
           "note": "'B-3ddc precedence' asserts a genuine turn.completed usage still records the provider-reported final with the happy-path mapped numbers (10202/11008/85).",
-          "headHash": "95e771bed01e0606addcb83157926c4b7939d443",
-          "materialHash": "6e59fee3d22619cad4ffaaa0001a50f5e71d60cd5ae7910b7eee382f697a84bd",
-          "storyFilesHash": "d144fa13fbbcc8bcdce64015e5c4a0c77b1cca428323f343bf236dae293e4b38",
-          "timestamp": "2026-07-11T23:36:07.104Z"
+          "headHash": "acf5d88fd6af527d1ac778eb048ff81d69e00f32",
+          "materialHash": "c649460d19896e5efc38fc158ff6504adb71297df80af161ea386899a73dba33",
+          "storyFilesHash": "1f8395cff3e764665321b45cea1ac7e09bd35750ec67985f6cf3f1eecbf1b2ef",
+          "timestamp": "2026-07-12T01:07:15.491Z"
         },
         {
           "intentRef": "CHK-002:happy:2",
@@ -268,10 +268,10 @@
           "command": "node packages/main/dist/tasks/host-run-usage-smoke.js",
           "result": "pass",
           "note": "'B-3ddc fallback: noise-only stdout' asserts neither-event streams still record no_turn_completed_usage_event.",
-          "headHash": "95e771bed01e0606addcb83157926c4b7939d443",
-          "materialHash": "6e59fee3d22619cad4ffaaa0001a50f5e71d60cd5ae7910b7eee382f697a84bd",
-          "storyFilesHash": "d144fa13fbbcc8bcdce64015e5c4a0c77b1cca428323f343bf236dae293e4b38",
-          "timestamp": "2026-07-11T23:36:07.104Z"
+          "headHash": "acf5d88fd6af527d1ac778eb048ff81d69e00f32",
+          "materialHash": "c649460d19896e5efc38fc158ff6504adb71297df80af161ea386899a73dba33",
+          "storyFilesHash": "1f8395cff3e764665321b45cea1ac7e09bd35750ec67985f6cf3f1eecbf1b2ef",
+          "timestamp": "2026-07-12T01:07:15.491Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -280,10 +280,10 @@
           "command": "node packages/main/dist/tasks/host-run-usage-smoke.js",
           "result": "pass",
           "note": "'B-3ddc pinned B-3928' proves innermost-message extraction from the JSON-encoded nested error body (digest is the inner invalid_request_error message, not the outer envelope).",
-          "headHash": "95e771bed01e0606addcb83157926c4b7939d443",
-          "materialHash": "6e59fee3d22619cad4ffaaa0001a50f5e71d60cd5ae7910b7eee382f697a84bd",
-          "storyFilesHash": "d144fa13fbbcc8bcdce64015e5c4a0c77b1cca428323f343bf236dae293e4b38",
-          "timestamp": "2026-07-11T23:36:07.104Z"
+          "headHash": "acf5d88fd6af527d1ac778eb048ff81d69e00f32",
+          "materialHash": "c649460d19896e5efc38fc158ff6504adb71297df80af161ea386899a73dba33",
+          "storyFilesHash": "1f8395cff3e764665321b45cea1ac7e09bd35750ec67985f6cf3f1eecbf1b2ef",
+          "timestamp": "2026-07-12T01:07:15.491Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -292,10 +292,10 @@
           "command": "node packages/main/dist/tasks/host-run-usage-smoke.js",
           "result": "pass",
           "note": "'B-3ddc digest hygiene' unit check asserts a failure event with null/empty message digests to the fixed token no_error_message.",
-          "headHash": "95e771bed01e0606addcb83157926c4b7939d443",
-          "materialHash": "6e59fee3d22619cad4ffaaa0001a50f5e71d60cd5ae7910b7eee382f697a84bd",
-          "storyFilesHash": "d144fa13fbbcc8bcdce64015e5c4a0c77b1cca428323f343bf236dae293e4b38",
-          "timestamp": "2026-07-11T23:36:07.104Z"
+          "headHash": "acf5d88fd6af527d1ac778eb048ff81d69e00f32",
+          "materialHash": "c649460d19896e5efc38fc158ff6504adb71297df80af161ea386899a73dba33",
+          "storyFilesHash": "1f8395cff3e764665321b45cea1ac7e09bd35750ec67985f6cf3f1eecbf1b2ef",
+          "timestamp": "2026-07-12T01:07:15.491Z"
         },
         {
           "intentRef": "CHK-002:edge:2",
@@ -304,10 +304,10 @@
           "command": "node packages/main/dist/tasks/host-run-usage-smoke.js",
           "result": "pass",
           "note": "'B-3ddc digest hygiene' asserts an over-160-char message is hard-truncated with a trailing ellipsis at CODEX_TURN_FAILED_DIGEST_MAX_CHARS total.",
-          "headHash": "95e771bed01e0606addcb83157926c4b7939d443",
-          "materialHash": "6e59fee3d22619cad4ffaaa0001a50f5e71d60cd5ae7910b7eee382f697a84bd",
-          "storyFilesHash": "d144fa13fbbcc8bcdce64015e5c4a0c77b1cca428323f343bf236dae293e4b38",
-          "timestamp": "2026-07-11T23:36:07.104Z"
+          "headHash": "acf5d88fd6af527d1ac778eb048ff81d69e00f32",
+          "materialHash": "c649460d19896e5efc38fc158ff6504adb71297df80af161ea386899a73dba33",
+          "storyFilesHash": "1f8395cff3e764665321b45cea1ac7e09bd35750ec67985f6cf3f1eecbf1b2ef",
+          "timestamp": "2026-07-12T01:07:15.491Z"
         },
         {
           "intentRef": "CHK-002:edge:3",
@@ -316,10 +316,10 @@
           "command": "node packages/main/dist/tasks/host-run-usage-smoke.js",
           "result": "pass",
           "note": "'B-3ddc precedence' asserts turn.completed + trailing turn.failed coexistence stays provider-reported: the failure lane is only consulted when scanCodexTurnCompletedUsage returns null.",
-          "headHash": "95e771bed01e0606addcb83157926c4b7939d443",
-          "materialHash": "6e59fee3d22619cad4ffaaa0001a50f5e71d60cd5ae7910b7eee382f697a84bd",
-          "storyFilesHash": "d144fa13fbbcc8bcdce64015e5c4a0c77b1cca428323f343bf236dae293e4b38",
-          "timestamp": "2026-07-11T23:36:07.104Z"
+          "headHash": "acf5d88fd6af527d1ac778eb048ff81d69e00f32",
+          "materialHash": "c649460d19896e5efc38fc158ff6504adb71297df80af161ea386899a73dba33",
+          "storyFilesHash": "1f8395cff3e764665321b45cea1ac7e09bd35750ec67985f6cf3f1eecbf1b2ef",
+          "timestamp": "2026-07-12T01:07:15.491Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -328,10 +328,10 @@
           "command": "node packages/main/dist/tasks/host-run-usage-smoke.js",
           "result": "pass",
           "note": "'B-3ddc digest hygiene' asserts control characters, NUL bytes, and newlines collapse to single spaces and never reach the ledger row raw.",
-          "headHash": "95e771bed01e0606addcb83157926c4b7939d443",
-          "materialHash": "6e59fee3d22619cad4ffaaa0001a50f5e71d60cd5ae7910b7eee382f697a84bd",
-          "storyFilesHash": "d144fa13fbbcc8bcdce64015e5c4a0c77b1cca428323f343bf236dae293e4b38",
-          "timestamp": "2026-07-11T23:36:07.104Z"
+          "headHash": "acf5d88fd6af527d1ac778eb048ff81d69e00f32",
+          "materialHash": "c649460d19896e5efc38fc158ff6504adb71297df80af161ea386899a73dba33",
+          "storyFilesHash": "1f8395cff3e764665321b45cea1ac7e09bd35750ec67985f6cf3f1eecbf1b2ef",
+          "timestamp": "2026-07-12T01:07:15.491Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -340,10 +340,10 @@
           "command": "node packages/main/dist/tasks/host-run-usage-smoke.js",
           "result": "pass",
           "note": "F-013 checks pass unchanged: when retentionTruncated is set the recorded reason stays usage_line_retention_truncated (the truncation branch runs BEFORE the codex failure-scan branch in recordFinalForHost).",
-          "headHash": "95e771bed01e0606addcb83157926c4b7939d443",
-          "materialHash": "6e59fee3d22619cad4ffaaa0001a50f5e71d60cd5ae7910b7eee382f697a84bd",
-          "storyFilesHash": "d144fa13fbbcc8bcdce64015e5c4a0c77b1cca428323f343bf236dae293e4b38",
-          "timestamp": "2026-07-11T23:36:07.104Z"
+          "headHash": "acf5d88fd6af527d1ac778eb048ff81d69e00f32",
+          "materialHash": "c649460d19896e5efc38fc158ff6504adb71297df80af161ea386899a73dba33",
+          "storyFilesHash": "1f8395cff3e764665321b45cea1ac7e09bd35750ec67985f6cf3f1eecbf1b2ef",
+          "timestamp": "2026-07-12T01:07:15.491Z"
         },
         {
           "intentRef": "CHK-002:adversarial:2",
@@ -352,10 +352,10 @@
           "command": "node packages/main/dist/tasks/host-run-usage-smoke.js",
           "result": "pass",
           "note": "'B-3ddc pinned B-3928' and 'CHK-001 codex edge (B-3ddc)' both assert usage.inputTokens is null on the turn_failed row — numbers are never fabricated from a failure event.",
-          "headHash": "95e771bed01e0606addcb83157926c4b7939d443",
-          "materialHash": "6e59fee3d22619cad4ffaaa0001a50f5e71d60cd5ae7910b7eee382f697a84bd",
-          "storyFilesHash": "d144fa13fbbcc8bcdce64015e5c4a0c77b1cca428323f343bf236dae293e4b38",
-          "timestamp": "2026-07-11T23:36:07.104Z"
+          "headHash": "acf5d88fd6af527d1ac778eb048ff81d69e00f32",
+          "materialHash": "c649460d19896e5efc38fc158ff6504adb71297df80af161ea386899a73dba33",
+          "storyFilesHash": "1f8395cff3e764665321b45cea1ac7e09bd35750ec67985f6cf3f1eecbf1b2ef",
+          "timestamp": "2026-07-12T01:07:15.491Z"
         }
       ]
     },
@@ -417,10 +417,10 @@
           "command": "node packages/main/dist/tasks/host-run-usage-smoke.js",
           "result": "pass",
           "note": "'B-3ddc pinned B-3928' is the pinned-fixture end-to-end check: unavailableReason matches turn_failed(<upgrade message>) — not no_turn_completed_usage_event.",
-          "headHash": "95e771bed01e0606addcb83157926c4b7939d443",
-          "materialHash": "6e59fee3d22619cad4ffaaa0001a50f5e71d60cd5ae7910b7eee382f697a84bd",
-          "storyFilesHash": "d144fa13fbbcc8bcdce64015e5c4a0c77b1cca428323f343bf236dae293e4b38",
-          "timestamp": "2026-07-11T23:36:07.104Z"
+          "headHash": "acf5d88fd6af527d1ac778eb048ff81d69e00f32",
+          "materialHash": "c649460d19896e5efc38fc158ff6504adb71297df80af161ea386899a73dba33",
+          "storyFilesHash": "1f8395cff3e764665321b45cea1ac7e09bd35750ec67985f6cf3f1eecbf1b2ef",
+          "timestamp": "2026-07-12T01:07:15.491Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -429,10 +429,10 @@
           "command": "node packages/main/dist/tasks/host-run-usage-smoke.js",
           "result": "pass",
           "note": "'B-3ddc fallback: noise-only stdout' keeps the no-failure-event fallback covered after the fixture addition.",
-          "headHash": "95e771bed01e0606addcb83157926c4b7939d443",
-          "materialHash": "6e59fee3d22619cad4ffaaa0001a50f5e71d60cd5ae7910b7eee382f697a84bd",
-          "storyFilesHash": "d144fa13fbbcc8bcdce64015e5c4a0c77b1cca428323f343bf236dae293e4b38",
-          "timestamp": "2026-07-11T23:36:07.104Z"
+          "headHash": "acf5d88fd6af527d1ac778eb048ff81d69e00f32",
+          "materialHash": "c649460d19896e5efc38fc158ff6504adb71297df80af161ea386899a73dba33",
+          "storyFilesHash": "1f8395cff3e764665321b45cea1ac7e09bd35750ec67985f6cf3f1eecbf1b2ef",
+          "timestamp": "2026-07-12T01:07:15.491Z"
         },
         {
           "intentRef": "CHK-003:happy:2",
@@ -441,10 +441,10 @@
           "command": "node packages/main/dist/tasks/host-run-usage-smoke.js",
           "result": "pass",
           "note": "'CHK-001 codex happy: turn.completed usage -> estimate + provider-reported final' passes unchanged (positive-path coverage intact).",
-          "headHash": "95e771bed01e0606addcb83157926c4b7939d443",
-          "materialHash": "6e59fee3d22619cad4ffaaa0001a50f5e71d60cd5ae7910b7eee382f697a84bd",
-          "storyFilesHash": "d144fa13fbbcc8bcdce64015e5c4a0c77b1cca428323f343bf236dae293e4b38",
-          "timestamp": "2026-07-11T23:36:07.104Z"
+          "headHash": "acf5d88fd6af527d1ac778eb048ff81d69e00f32",
+          "materialHash": "c649460d19896e5efc38fc158ff6504adb71297df80af161ea386899a73dba33",
+          "storyFilesHash": "1f8395cff3e764665321b45cea1ac7e09bd35750ec67985f6cf3f1eecbf1b2ef",
+          "timestamp": "2026-07-12T01:07:15.491Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -453,10 +453,10 @@
           "command": "node packages/main/dist/tasks/host-run-usage-smoke.js",
           "result": "pass",
           "note": "CODEX_TURN_FAILED_B3928_LINE is pinned as a byte-exact single-quoted literal; the check asserts JSON.parse round-trip: outer type turn.failed and nested JSON-encoded message parse to the exact upgrade message (character-for-character against the documented payload).",
-          "headHash": "95e771bed01e0606addcb83157926c4b7939d443",
-          "materialHash": "6e59fee3d22619cad4ffaaa0001a50f5e71d60cd5ae7910b7eee382f697a84bd",
-          "storyFilesHash": "d144fa13fbbcc8bcdce64015e5c4a0c77b1cca428323f343bf236dae293e4b38",
-          "timestamp": "2026-07-11T23:36:07.104Z"
+          "headHash": "acf5d88fd6af527d1ac778eb048ff81d69e00f32",
+          "materialHash": "c649460d19896e5efc38fc158ff6504adb71297df80af161ea386899a73dba33",
+          "storyFilesHash": "1f8395cff3e764665321b45cea1ac7e09bd35750ec67985f6cf3f1eecbf1b2ef",
+          "timestamp": "2026-07-12T01:07:15.491Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
@@ -465,10 +465,10 @@
           "command": "node packages/main/dist/tasks/host-run-usage-smoke.js",
           "result": "pass",
           "note": "The pre-existing check was renamed 'CHK-001 codex edge (B-3ddc): turn.failed / no usage -> unavailable (turn_failed(boom))' and now asserts turn_failed(boom) instead of the old generic reason.",
-          "headHash": "95e771bed01e0606addcb83157926c4b7939d443",
-          "materialHash": "6e59fee3d22619cad4ffaaa0001a50f5e71d60cd5ae7910b7eee382f697a84bd",
-          "storyFilesHash": "d144fa13fbbcc8bcdce64015e5c4a0c77b1cca428323f343bf236dae293e4b38",
-          "timestamp": "2026-07-11T23:36:07.104Z"
+          "headHash": "acf5d88fd6af527d1ac778eb048ff81d69e00f32",
+          "materialHash": "c649460d19896e5efc38fc158ff6504adb71297df80af161ea386899a73dba33",
+          "storyFilesHash": "1f8395cff3e764665321b45cea1ac7e09bd35750ec67985f6cf3f1eecbf1b2ef",
+          "timestamp": "2026-07-12T01:07:15.491Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -477,10 +477,10 @@
           "command": "node packages/main/dist/tasks/host-run-usage-smoke.js",
           "result": "pass",
           "note": "'B-3ddc pinned B-3928' runs through the FULL runHostRun path with LATTICE_USAGE_LEDGER=1: a complete unavailable ledger row is written (provider openai, turn_failed reason, input/cacheRead/output all null) and verified via verifyLedgerChain.",
-          "headHash": "95e771bed01e0606addcb83157926c4b7939d443",
-          "materialHash": "6e59fee3d22619cad4ffaaa0001a50f5e71d60cd5ae7910b7eee382f697a84bd",
-          "storyFilesHash": "d144fa13fbbcc8bcdce64015e5c4a0c77b1cca428323f343bf236dae293e4b38",
-          "timestamp": "2026-07-11T23:36:07.104Z"
+          "headHash": "acf5d88fd6af527d1ac778eb048ff81d69e00f32",
+          "materialHash": "c649460d19896e5efc38fc158ff6504adb71297df80af161ea386899a73dba33",
+          "storyFilesHash": "1f8395cff3e764665321b45cea1ac7e09bd35750ec67985f6cf3f1eecbf1b2ef",
+          "timestamp": "2026-07-12T01:07:15.491Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
@@ -489,10 +489,10 @@
           "command": "node packages/main/dist/tasks/host-run-usage-smoke.js",
           "result": "pass",
           "note": "'B-3ddc pinned B-3928' uses a fake runner with exitCode 1 and asserts result.exitCode===1 propagates while the reason still surfaces as turn_failed (the B-3928 scenario shape).",
-          "headHash": "95e771bed01e0606addcb83157926c4b7939d443",
-          "materialHash": "6e59fee3d22619cad4ffaaa0001a50f5e71d60cd5ae7910b7eee382f697a84bd",
-          "storyFilesHash": "d144fa13fbbcc8bcdce64015e5c4a0c77b1cca428323f343bf236dae293e4b38",
-          "timestamp": "2026-07-11T23:36:07.104Z"
+          "headHash": "acf5d88fd6af527d1ac778eb048ff81d69e00f32",
+          "materialHash": "c649460d19896e5efc38fc158ff6504adb71297df80af161ea386899a73dba33",
+          "storyFilesHash": "1f8395cff3e764665321b45cea1ac7e09bd35750ec67985f6cf3f1eecbf1b2ef",
+          "timestamp": "2026-07-12T01:07:15.491Z"
         }
       ]
     }
