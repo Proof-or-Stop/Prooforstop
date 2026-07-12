@@ -1,0 +1,35 @@
+{
+  "storyId": "B-f97c",
+  "checkedAt": "2026-07-12T02:01:06.814Z",
+  "headHash": "bb26aac5171e057cfede5f3db3a1161cf2862131",
+  "materialHash": "83248d6c26000dfd5037cec7021e03a7b53db7bd62234f233f26054388778d69",
+  "storyFilesHash": "16054b9781ed92e63824978a59bb25358dce482756c281373856023ef5572c21",
+  "reviewRound": "2026-07-12T01:54:57.206Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "PASS: npm --prefix packages/main run test:story-review-corpus-budget exited 0; requirements corpus sentinels absent and adding 3 MiB Markdown changed prompt bytes by 0."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "PASS: structured PLAN prompt retains story, understanding, decision/preMortem, grill, ProofStory diagnostics, checklist, and verificationIntent; sparse accepted PLAN fixture remains well formed."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "PASS: registered corpus-budget smoke reports baseline and large-corpus prompts both 2936 bytes, exact corpus sentinel absent."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "PASS: actual smoke reports reconstructed pre-fix 3148782 bytes (~787196 byte/4 estimated tokens), post-fix 2936 bytes (~734 estimated tokens), 99.91% reduction; dominant source is requirements corpus framing. Story-scoped usage_sweep remains a non-authoritative overlapping attribution, not exact exclusive cost."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivered: corpus read/join removed, structured PLAN review behavior preserved, 3 MiB adversarial corpus causes zero prompt growth, 45 configured validation commands PASS, verification coverage 12/12, current review assurance is full 3x2, and both high findings are resolved. Keyword/candidateSpecSet routing is explicitly deferred to M6 and is not a promise of B-f97c. Scope acknowledgement for the generated delivery-context-pack remains an owner lifecycle closeout action and does not invalidate this delivery verdict."
+  },
+  "_hash": "63b895bebd7b68c5a016364443ecd183d232cd0b861bbd0f276b041fdd0c5139"
+}
