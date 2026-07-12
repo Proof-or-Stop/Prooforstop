@@ -6,7 +6,55 @@
       "context": "packages/main/src/core/lifecycle-registry.ts — add all ten filenames written by the ProofStory intent-hardening block in store.ts (lines ~668-798): original-intent-snapshot.json, milestone-ledger.json, milestone-closeout.json, slice-plan.json, parent-ledger-rollup.json, proofstory.json, intent-collision.json, scope-shrinkage-decision.json, red-evidence.json, spike.json — to the closed filename set consumed by classifyLifecycleArtifact.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After adding the 10 filenames to LATTICE_LIFECYCLE_ARTIFACT_FILENAMES, build succeeds and classifyLifecycleArtifact returns non-null kind=lifecycle for each of the 10 paths .lattice/story/actives/B-test/{original-intent-snapshot,milestone-ledger,milestone-closeout,slice-plan,parent-ledger-rollup,proofstory,intent-collision,scope-shrinkage-decision,red-evidence,spike}.json; WHY: confirms the registry addition resolves the trigger bug for all 10 names",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "The existing registered filenames (checklist.json, decision.json, understanding.json, etc.) still classify as lifecycle artifacts after the addition; WHY: confirms the data-only change does not regress existing registrations",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Verify the 10 added filenames are an exact character-for-character match with the filenames written by store.ts writeJson calls (lines 672-797) — no typos, no casing differences, no stale renames; WHY: a single-char mismatch silently leaves a name unregistered in the closed Set",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "No duplicate entries exist in LATTICE_LIFECYCLE_ARTIFACT_FILENAMES after the addition (the Set deduplicates, but the source list should not contain redundant literals); WHY: duplicates signal a copy-paste error and risk masking a missing distinct name",
+            "type": "cli",
+            "priority": "should"
+          },
+          {
+            "desc": "The deliberately-excluded filenames (grill.json, clusters.json, scope-extension-decisions.json) are NOT added and still classify as null/out_of_scope under an enforce contract; WHY: background.md explicitly carves these out as a separate follow-up — adding them here would silently close a different bug",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A nested path like .lattice/story/actives/B-test/subdir/original-intent-snapshot.json still returns null (non-top-level artifact), proving the closed-set trust policy (B-b9d0) is preserved for sub-directory paths; WHY: widening the set must not accidentally allow files at arbitrary depth",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "A path with traversal segments (e.g. .lattice/story/actives/B-test/../B-other/proofstory.json) still returns null, confirming the traversal guard is not bypassed by the new entries; WHY: the registry addition must not weaken the existing ../ rejection",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "An unknown filename (e.g. evil-intent.json) at the same story-dir top level still returns null after the addition, proving the set is still closed; WHY: the fix must add exactly 10 names and no wildcard or pattern-based relaxation",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

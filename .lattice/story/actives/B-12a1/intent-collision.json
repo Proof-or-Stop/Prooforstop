@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-12a1",
+  "id": "IC-001",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Command-generated ProofStory story metadata must never block a story's own scope gate. The user's literal request names four files observed during B-623a, but the stated goal is eliminating recurring friction for every high-assurance story; registering all ten filenames written by the store.ts ProofStory intent-hardening block is a faithful, intent-consistent superset (reviewer-initiated via INIT I-1, transparently recorded), using exactly the mechanism the user prescribed: a data-level addition to the existing closed registry plus a smoke pinning lifecycle_artifact pass, with no classifier logic change.",
+  "acceptedInterpretationHash": "sha256:d69a94f42de68272d45fc97818d8293e64d541f6d24f1fb5bbde40e05adc25bb",
+  "notes": "Independent interpretation produced by a separate reviewer agent from background/checklist/snapshot/plan only. Verdict: no collision. Recorded risks: (1) grill.json, clusters.json (stale singular cluster.json entry), scope-extension-decisions.json are deliberately excluded — follow-up task already filed; (2) acceptance proven at scope-contract-smoke/checkScopeContract level (same code path as live gates), no end-to-end live-story gate replay; (3) forward-only fix, B-623a's hand-added acknowledgements are not retroactively cleaned; (4) red evidence must bind the literal emitted rule string (out_of_scope row at gate layer / unknown at classifier layer).",
+  "createdAt": "2026-07-12T21:32:17.481Z",
+  "updatedAt": "2026-07-12T21:32:17.481Z"
+}
