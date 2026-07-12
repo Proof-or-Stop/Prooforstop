@@ -1,0 +1,25 @@
+{
+  "task": "Stop story_review from loading and embedding the complete requirements Markdown corpus into every PLAN review prompt.",
+  "outcome": "After running lattice story_review for an ordinary story, the returned _reviewPrompt contains the Story and structured PLAN sections but no Truth Source corpus; regression output reports corpusEmbedded=false, a small prompt byte count, and a token-cost comparison naming the removed requirements corpus as the former dominant input.",
+  "facts": [
+    "Current handler recursively reads every Markdown file below requirementsDir.",
+    "Current requirements Markdown corpus is 2,536,001 bytes across 114 files.",
+    "The handler concatenates truthDocs into _reviewPrompt after all structured PLAN sections.",
+    "Existing scope_check gate logic is separate from the truthDocs prompt concatenation.",
+    "B-3928 owns baseline inventory only and does not modify story-review.ts."
+  ],
+  "constraints": [
+    "Delete the producer-side recursive full-content read and truthDocs concatenation.",
+    "Do not replace deletion with truncation.",
+    "Preserve structured PLAN prompt sections and existing gate semantics.",
+    "Do not implement the broader M6 candidate router in this Story.",
+    "Add focused regression coverage and token/byte measurements."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/story-review.ts",
+    "packages/main/src/tasks/story-review-corpus-budget-smoke.ts",
+    "packages/main/package.json"
+  ],
+  "timestamp": "2026-07-12T01:26:21.297Z"
+}

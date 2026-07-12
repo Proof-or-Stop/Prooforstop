@@ -18,7 +18,30 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run the focused story-review corpus-budget smoke after the handler change -> the generated _reviewPrompt contains no requirements corpus body, no per-document Truth Source concatenation, and the ordinary PLAN review result still returns successfully; WHY: proves the producer-side full-corpus injection is actually removed without disabling story_review.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Create requirementsDir with nested Markdown files plus non-Markdown files and invoke story_review -> none of their unique sentinel contents appear in _reviewPrompt and no recursive corpus read is required for success; WHY: covers the exact former traversal boundary rather than only a single top-level document.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Add an unrelated multi-megabyte Markdown sentinel under requirementsDir before invoking story_review -> prompt bytes remain within a small fixed tolerance of the baseline and the sentinel is absent; WHY: prevents reintroduction through an alternate read/join path or size-only truncation workaround.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
