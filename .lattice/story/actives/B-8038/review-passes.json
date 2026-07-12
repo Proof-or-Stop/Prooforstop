@@ -124,6 +124,27 @@
         "scanEscalationReason": null
       },
       "_hash": "6cc11e8200edd78ac507da5e61d62c6837efcddbae621597e553610bfef27b30"
+    },
+    {
+      "id": "B-8038:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Round-7 doc-only review passed: canonical plan now limits B-8038 to M6A-M6F plus partial M6G mechanics, explicitly states runtime metric/window production and two observed qualifying windows remain future, accurately describes optional digest-bound fail-closed behavior in shadow, preserves historical target semantics, and makes no release or warn/enforce promotion claim.",
+      "createdAt": "2026-07-12T11:39:31.712Z",
+      "reviewRound": "2026-07-12T11:38:48.142Z",
+      "reviewRunId": "B-8038:RR-015",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/core/candidate-spec-routing.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/scope-check.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a38397028ee35e19d0d649d083bc267b97ea5f527df8272786290f7851b6749d"
     }
   ]
 }
