@@ -1,0 +1,19 @@
+{
+  "findings": [
+    {
+      "id": "B-8038:F-001",
+      "desc": "packages/main/src/core/candidate-spec-routing.ts:474-477,509-514 — bounded search truncation is recorded only as query_results_truncated, but routing still slices and returns candidates with fullScan=false and scanEscalationReason=null. The canonical M6 plan requires escalation instead of guessing when truncation can affect ranking. Current B-8038 candidate artifact demonstrates the defect: query_results_truncated with no escalation, while generic cli/core alphabetical hits occupy the tail of the 8-document budget. Fail closed or produce a structured bounded escalation before this artifact can guide reviewers; add a fixture proving truncated-hit and cutoff-tie paths cannot silently proceed.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-12T10:49:03.414Z",
+      "reviewRound": "2026-07-12T10:47:52.082Z",
+      "reviewRunId": "B-8038:RR-001",
+      "_hash": "1cf6a3148e3fb63d756012a96b3fec7f539c30833a529c99b682769f6cd41813",
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
