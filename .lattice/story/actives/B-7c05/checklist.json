@@ -306,7 +306,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "bash -c 'test \"$(node bin/lattice.js help 2>/dev/null | wc -c)\" -lt 16000'",
+          "result": "pass",
+          "note": "Bare help is 11,619 bytes (~2.9k tokens), grouped command names with short one-line descriptions and a footer pointing at lattice <command> --help and lattice help --full; budget probe (the story red-evidence command) now exits 0 (was 46,700 bytes red at baseline HEAD 0137b455).",
+          "headHash": "00fe4c18ca472b8d78df25c356d934d16895ca86",
+          "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
+          "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
+          "timestamp": "2026-07-12T01:33:47.427Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
