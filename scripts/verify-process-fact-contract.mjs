@@ -4545,7 +4545,7 @@ const inventory = [
       },
       {
         relPath: 'packages/main/src/handlers/story-review.ts',
-        patterns: ['signScopeCheck', 'scope-check.json', 'scope_check_save'],
+        patterns: ['verifyScopeCheckSignature', 'scope-check.json', 'scope_check_save'],
       },
     ],
   },

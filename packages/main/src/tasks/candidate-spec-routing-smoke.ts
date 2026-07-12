@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import {
@@ -7,6 +7,7 @@ import {
   buildKeywordSeeds,
   candidateReadBindingErrors,
   collectHostKeywordProposals,
+  digestCandidateRoutingValue,
   evaluateCandidateRoutingPromotion,
   normalizeHostProposal,
   routeCandidateSpecs,
@@ -55,6 +56,19 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
     assert.deepEqual(second, first, 'corpus index must be byte-deterministic for identical inputs');
     assert.equal(first.schemaVersion, 'proofbound.corpus-index.v1');
     assert.deepEqual(first.entries.map(entry => entry.path), [...first.entries.map(entry => entry.path)].sort());
+
+    const reorderedRoot = join(tmpdir(), `candidate-routing-order-${process.pid}-${Date.now()}`);
+    mkdirSync(join(reorderedRoot, 'docs/requirements/decisions'), { recursive: true });
+    for (const entry of [...first.entries].reverse()) writeFileSync(join(reorderedRoot, entry.path), readFileSync(join(root, entry.path)));
+    assert.deepEqual(buildCorpusIndex(reorderedRoot).entries, first.entries, 'filesystem creation order must not affect corpus enumeration');
+    rmSync(reorderedRoot, { recursive: true, force: true });
+
+    const outside = join(tmpdir(), `candidate-routing-outside-${process.pid}.md`);
+    writeFileSync(outside, '# Outside\n');
+    symlinkSync(outside, join(root, 'docs/requirements/decisions/escape.md'));
+    assert.throws(() => buildCorpusIndex(root), /symlink escapes project root/);
+    rmSync(join(root, 'docs/requirements/decisions/escape.md'), { force: true });
+    rmSync(outside, { force: true });
 
     const story = {
       storyId: 'B-test',
@@ -151,6 +165,16 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
     assert.match(candidateReadBindingErrors({ manifest: { ...manifest, candidateSpecSetDigest: '0'.repeat(64) }, artifact, mode: 'enforce' }).join(' '), /does not match/);
     assert.match(candidateReadBindingErrors({ manifest, artifact: null, mode: 'enforce' }).join(' '), /missing/);
     assert.match(candidateReadBindingErrors({ manifest, artifact, mode: 'enforce', currentMaterialHash: 'different' }).join(' '), /materialHash is stale/);
+    const fullyBound = routeCandidateSpecs({
+      projectRoot: root, storyId: story.storyId, corpus: first, seeds: seedsA,
+      storyInputDigest: digestCandidateRoutingValue(story), storyFilesHash: 'story-files-a',
+    });
+    const fullyBoundManifest = { ...manifest, candidateSpecSetDigest: fullyBound.artifactDigest };
+    assert.match(candidateReadBindingErrors({ manifest: fullyBoundManifest, artifact: fullyBound, mode: 'enforce', currentStoryFilesHash: 'story-files-b' }).join(' '), /storyFilesHash is stale/);
+    assert.match(candidateReadBindingErrors({ manifest: fullyBoundManifest, artifact: fullyBound, mode: 'enforce', currentStoryInputDigest: digestCandidateRoutingValue({ ...story, checklist: [{ title: 'changed promise' }] }) }).join(' '), /storyInputDigest is stale/);
+    assert.deepEqual(candidateReadBindingErrors({ manifest: fullyBoundManifest, artifact: fullyBound, mode: 'enforce', currentStoryInputDigest: digestCandidateRoutingValue(story) }), []);
+    assert.equal(verifyCandidateSpecSet({ ...artifact, promptDigests: ['forged'] }), false, 'prompt digest tampering must invalidate artifact');
+    assert.equal(verifyCandidateSpecSet({ ...artifact, candidates: artifact.candidates.map((candidate, index) => index === 0 ? { ...candidate, contentHash: 'forged' } : candidate) }), false, 'candidate content hash tampering must invalidate artifact');
     assert.deepEqual(candidateReadBindingErrors({
       manifest: { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null },
       artifact: null,
@@ -171,6 +195,49 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
     assert.ok(zero.ambiguitySignals.includes('zero_candidates'));
     assert.equal(zero.fullScan, false);
     assert.equal(zero.scanEscalationReason, null);
+    const forcedZero = routeCandidateSpecs({
+      projectRoot: root, storyId: 'B-zero', corpus: first,
+      seeds: buildKeywordSeeds({ storyId: 'B-zero', title: 'zzzz-no-match-value' }),
+      forceFullScanReason: 'zero_candidate_manual_escalation',
+    });
+    assert.equal(forcedZero.fullScan, true);
+    assert.deepEqual([...forcedZero.candidateSpecSet].sort(), first.entries.map(entry => entry.path).sort(), 'full scan must enumerate the complete corpus even with zero matches');
+    const forcedManifest = {
+      filesReadFully: forcedZero.candidateSpecSet,
+      filesTriagedByName: [],
+      scanEscalationReason: forcedZero.scanEscalationReason,
+      candidateSpecSetDigest: forcedZero.artifactDigest,
+      corpusDigest: forcedZero.corpusDigest,
+    };
+    assert.deepEqual(candidateReadBindingErrors({ manifest: forcedManifest, artifact: forcedZero, mode: 'enforce' }), []);
+    assert.match(candidateReadBindingErrors({ manifest: { ...forcedManifest, filesReadFully: [] }, artifact: forcedZero, mode: 'enforce' }).join(' '), /missing candidate full reads/);
+    assert.match(candidateReadBindingErrors({ manifest: { ...forcedManifest, scanEscalationReason: 'different' }, artifact: forcedZero, mode: 'enforce' }).join(' '), /scanEscalationReason does not match/);
+
+    const truncatedRoute = routeCandidateSpecs({
+      projectRoot: root, storyId: story.storyId, corpus: first,
+      seeds: buildKeywordSeeds({ storyId: story.storyId, title: 'decision' }), rawHitsPerGroup: 1,
+    });
+    assert.equal(truncatedRoute.fullScan, true, 'ranking-affecting truncation must automatically escalate');
+    assert.match(truncatedRoute.scanEscalationReason ?? '', /ranking_affecting_query_truncation/);
+    assert.deepEqual([...truncatedRoute.candidateSpecSet].sort(), first.entries.map(entry => entry.path).sort());
+
+    writeFileSync(join(root, 'docs/requirements/decisions/tie-a.md'), '# Shared Signal\n');
+    writeFileSync(join(root, 'docs/requirements/decisions/tie-b.md'), '# Shared Signal\n');
+    const tiedCorpus = buildCorpusIndex(root);
+    const tiedRoute = routeCandidateSpecs({
+      projectRoot: root, storyId: story.storyId, corpus: tiedCorpus,
+      seeds: buildKeywordSeeds({ storyId: story.storyId, title: 'shared signal' }), candidateBudget: 1,
+    });
+    assert.equal(tiedRoute.fullScan, true, 'a tied cutoff must automatically escalate');
+    assert.match(tiedRoute.scanEscalationReason ?? '', /candidate_cutoff_tie/);
+    rmSync(join(root, 'docs/requirements/decisions/tie-a.md'));
+    rmSync(join(root, 'docs/requirements/decisions/tie-b.md'));
+
+    writeFileSync(join(root, 'docs/requirements/decisions/huge-irrelevant.md'), `# Irrelevant Giant\n${'x'.repeat(5 * 1024 * 1024)}`);
+    const largeCorpus = buildCorpusIndex(root);
+    const withLargeIrrelevant = routeCandidateSpecs({ projectRoot: root, storyId: story.storyId, corpus: largeCorpus, seeds: seedsA, proposals: [validProposal] });
+    assert.deepEqual(withLargeIrrelevant.candidateSpecSet, artifact.candidateSpecSet, 'an irrelevant 5 MB document must not flood or reorder bounded candidates');
+    rmSync(join(root, 'docs/requirements/decisions/huge-irrelevant.md'));
 
     assert.throws(() => buildCorpusIndex(root, '../outside'), /traversal|unsafe/);
     assert.throws(() => normalizeHostProposal({ ...rawProposal, terms: Array.from({ length: 21 }, () => rawProposal.terms[0]) }, {
@@ -193,6 +260,23 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
     assert.deepEqual(calls.sort(), ['agy-cli', 'claude-cli', 'codex-cli']);
     assert.equal(collected.accepted.length, 2);
     assert.equal(collected.attempts.find(attempt => attempt.host === 'claude-cli')?.status, 'quota-limited');
+
+    const collectWithDelays = async (delays: Record<string, number>) => collectHostKeywordProposals({
+      storyId: story.storyId, payload: { title: story.title }, seeds: seedsA,
+      execute: async ({ host, promptDigest, seedDigest }) => {
+        await new Promise(resolve => setTimeout(resolve, delays[host] ?? 0));
+        return { ...proposal(story.storyId, seedDigest), host, promptDigest, proposalId: `proposal-${host}` };
+      },
+    });
+    const codexSlow = await collectWithDelays({ 'codex-cli': 20, 'claude-cli': 0 });
+    const claudeSlow = await collectWithDelays({ 'codex-cli': 0, 'claude-cli': 20 });
+    assert.deepEqual(codexSlow.attempts.map(attempt => attempt.host), ['codex-cli', 'claude-cli']);
+    assert.deepEqual(claudeSlow.attempts, codexSlow.attempts, 'host completion latency must not affect proposal ordering');
+    assert.deepEqual(
+      routeCandidateSpecs({ projectRoot: root, storyId: story.storyId, corpus: first, seeds: seedsA, proposals: codexSlow.accepted }),
+      routeCandidateSpecs({ projectRoot: root, storyId: story.storyId, corpus: first, seeds: seedsA, proposals: claudeSlow.accepted }),
+      'latency inversion must produce the same signed artifact',
+    );
 
     let unsafeCalls = 0;
     const unsafe = await collectHostKeywordProposals({

@@ -394,14 +394,13 @@ export async function collectHostKeywordProposals(args: {
       sanitizedDigest: sanitized.digest,
     };
   }
-  const attempts: HostProposalAttempt[] = [];
-  const run = async (host: HostKeywordProposal['host']): Promise<void> => {
+  const run = async (host: HostKeywordProposal['host']): Promise<HostProposalAttempt> => {
     const promptDigest = digestCandidateRoutingValue({ host, payload: sanitized.value, seedDigest: args.seeds.seedDigest });
     try {
       const raw = await args.execute({ host, storyId: args.storyId, sanitizedPayload: sanitized.value, promptDigest, seedDigest: args.seeds.seedDigest });
       const proposal = normalizeHostProposal(raw, { storyId: args.storyId, host, seedDigest: args.seeds.seedDigest });
       if (proposal.promptDigest !== promptDigest) throw new Error('host proposal prompt digest mismatch');
-      attempts.push({ host, status: 'accepted', proposal, reason: null });
+      return { host, status: 'accepted', proposal, reason: null };
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       const lower = message.toLowerCase();
@@ -412,15 +411,17 @@ export async function collectHostKeywordProposals(args: {
           : lower.includes('unavailable') || lower.includes('enoent')
             ? 'unavailable'
             : 'rejected';
-      attempts.push({ host, status, proposal: null, reason: message.slice(0, 240) });
+      return { host, status, proposal: null, reason: message.slice(0, 240) };
     }
   };
-  await Promise.all([run('codex-cli'), run('claude-cli')]);
+  // Promise.all preserves input order. Never let host latency determine proposal,
+  // query-group, candidate, or artifact ordering.
+  const attempts = await Promise.all([run('codex-cli'), run('claude-cli')]);
   const primary = attempts.flatMap(attempt => attempt.proposal ? [attempt.proposal] : []);
   const minimumOverlap = args.minimumPrimaryOverlap ?? 0.2;
   const disagree = primary.length === 2 && proposalOverlap(primary[0], primary[1]) < minimumOverlap;
   const primaryFailure = primary.length < 2;
-  if (args.requestAgy || disagree || primaryFailure) await run('agy-cli');
+  if (args.requestAgy || disagree || primaryFailure) attempts.push(await run('agy-cli'));
   const accepted = attempts.flatMap(attempt => attempt.proposal ? [attempt.proposal] : []);
   return { attempts, accepted, sanitizedDigest: sanitized.digest };
 }
@@ -509,9 +510,25 @@ export function routeCandidateSpecs(args: {
   if (ranked.length === 0) ambiguitySignals.push('zero_candidates');
   if (ranked.length > 0 && new Set(ranked.flatMap(candidate => candidate.reasons.map(reason => reason.kind))).size < 2) ambiguitySignals.push('weak_source_class_coverage');
   if (truncated) ambiguitySignals.push('query_results_truncated');
-  if (ranked.length > candidateBudget && ranked[candidateBudget - 1]?.score === ranked[candidateBudget]?.score) ambiguitySignals.push('candidate_cutoff_tie');
-  const fullScan = Boolean(args.forceFullScanReason);
-  const candidates = fullScan ? ranked : ranked.slice(0, candidateBudget);
+  const cutoffTie = ranked.length > candidateBudget && ranked[candidateBudget - 1]?.score === ranked[candidateBudget]?.score;
+  if (cutoffTie) ambiguitySignals.push('candidate_cutoff_tie');
+  const automaticEscalations = [
+    ...(truncated ? ['ranking_affecting_query_truncation'] : []),
+    ...(cutoffTie ? ['candidate_cutoff_tie'] : []),
+  ];
+  const scanEscalationReason = args.forceFullScanReason?.trim()
+    || (automaticEscalations.length > 0
+      ? `bounded_routing_ambiguity:${automaticEscalations.join(',')};action=enumerate_full_corpus`
+      : null);
+  const fullScan = Boolean(scanEscalationReason);
+  // Full scan means every indexed document, including zero-score entries. It is
+  // still path/hash metadata only; reviewers read bodies with tools.
+  const candidates = fullScan
+    ? args.corpus.entries.map(entry => {
+        const rankedCandidate = ranked.find(candidate => candidate.path === entry.path);
+        return rankedCandidate ?? { path: entry.path, contentHash: entry.contentHash, score: 0, reasons: [] };
+      }).sort((a, b) => b.score - a.score || a.path.localeCompare(b.path, 'en'))
+    : ranked.slice(0, candidateBudget);
   const base = {
     schemaVersion: CANDIDATE_SET_SCHEMA,
     storyId: args.storyId,
@@ -525,7 +542,7 @@ export function routeCandidateSpecs(args: {
     budgets: { candidates: candidateBudget, queryGroups: queryGroupBudget, rawHitsPerGroup },
     ambiguitySignals,
     fullScan,
-    scanEscalationReason: args.forceFullScanReason?.trim() || null,
+    scanEscalationReason,
     storyInputDigest: args.storyInputDigest ?? digestCandidateRoutingValue({ storyId: args.storyId, seedDigest: args.seeds.seedDigest }),
     headHash: args.headHash ?? 'unbound',
     materialHash: args.materialHash ?? 'unbound',
@@ -549,6 +566,7 @@ export function candidateReadBindingErrors(args: {
   mode: 'shadow' | 'warn' | 'enforce';
   currentMaterialHash?: string;
   currentStoryFilesHash?: string;
+  currentStoryInputDigest?: string;
 }): string[] {
   const errors: string[] = [];
   const digest = args.manifest.candidateSpecSetDigest;
@@ -560,8 +578,13 @@ export function candidateReadBindingErrors(args: {
   if (!verifyCandidateSpecSet(args.artifact)) errors.push('candidate artifact signature/digest is invalid');
   if (digest !== args.artifact.artifactDigest) errors.push('candidateSpecSetDigest does not match current artifact');
   if (args.manifest.corpusDigest !== args.artifact.corpusDigest) errors.push('read manifest corpusDigest does not match current artifact');
+  const fullyRead = new Set(args.manifest.filesReadFully);
+  const missingCandidateReads = args.artifact.candidateSpecSet.filter(path => !fullyRead.has(path));
+  if (missingCandidateReads.length > 0) errors.push(`read manifest is missing candidate full reads: ${missingCandidateReads.join(', ')}`);
+  if (args.artifact.fullScan && args.manifest.scanEscalationReason !== args.artifact.scanEscalationReason) errors.push('read manifest scanEscalationReason does not match full-scan artifact');
   if (args.currentMaterialHash && args.artifact.materialHash !== args.currentMaterialHash) errors.push('candidate artifact materialHash is stale');
   if (args.currentStoryFilesHash && args.artifact.storyFilesHash && args.artifact.storyFilesHash !== args.currentStoryFilesHash) errors.push('candidate artifact storyFilesHash is stale');
+  if (args.currentStoryInputDigest && args.artifact.storyInputDigest !== args.currentStoryInputDigest) errors.push('candidate artifact storyInputDigest is stale');
   return errors;
 }
 

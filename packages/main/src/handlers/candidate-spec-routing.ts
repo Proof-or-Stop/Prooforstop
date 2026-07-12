@@ -113,7 +113,7 @@ function productionExecutor(ctx: HandlerContext, phase: string): CandidateHostEx
   };
 }
 
-function storyInput(ctx: HandlerContext, storyId: string): StoryRoutingInput {
+export function currentStoryRoutingInput(ctx: HandlerContext, storyId: string): StoryRoutingInput {
   const story = ctx.store.readStory(storyId);
   const checklist = ctx.store.readChecklist(storyId);
   const understanding = ctx.store.readUnderstanding(storyId);
@@ -145,7 +145,7 @@ export function createCandidateSpecRoutingHandlers(
     async candidate_spec_route(args: CandidateSpecRouteArgs): Promise<CandidateSpecSetArtifact | string> {
       const story = ctx.store.readStory(args.storyId);
       const config = loadConfig(ctx.root);
-      const input = storyInput(ctx, args.storyId);
+      const input = currentStoryRoutingInput(ctx, args.storyId);
       const corpus = buildCorpusIndex(ctx.root, config.requirementsDir);
       const seeds = buildKeywordSeeds(input);
       const hostResult = args.hosts === false

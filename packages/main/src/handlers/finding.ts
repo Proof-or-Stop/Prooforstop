@@ -21,7 +21,8 @@ import { computeProcessMetrics } from '../core/process-metrics.js';
 import { syncClusterResolves } from '../core/cluster-sync.js';
 import { isPassOnlyReviewFindingRecord } from '../core/flow-fact-policy.js';
 import { assertCurrentReviewRunForEvidence, captureReviewRunSnapshot, resolveReviewRunLane } from '../core/review-run.js';
-import { assertCandidateReadBinding } from '../core/candidate-spec-routing.js';
+import { assertCandidateReadBinding, digestCandidateRoutingValue } from '../core/candidate-spec-routing.js';
+import { currentStoryRoutingInput } from './candidate-spec-routing.js';
 import { loadConfig } from '../core/config.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { withReentrantMainWriteLock } from '../core/main-write-lock.js';
@@ -254,6 +255,7 @@ function prepareReviewerReadEvidence(
       mode: routingMode,
       currentMaterialHash: snapshot.materialHash,
       currentStoryFilesHash: snapshot.storyFilesHash,
+      currentStoryInputDigest: digestCandidateRoutingValue(currentStoryRoutingInput(ctx, storyId)),
     });
   }
   const rawEvents = collectReadEventInputs(command, args);
