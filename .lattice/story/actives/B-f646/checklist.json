@@ -55,10 +55,10 @@
           "command": "test -s \"docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md\" && rg -qi 'Codex CLI|Claude Code CLI|Antigravity CLI|candidateSpecSet|readManifest|scanEscalationReason' \"docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md\"",
           "result": "pass",
           "note": "The canonical plan defines the complete producer flow, auditable artifacts, bounded reads, milestones, rollout, validation matrix, and explicitly states implementation has not started.",
-          "headHash": "53a83e833657afea6c5ea2b45c98072efc38d8b2",
-          "materialHash": "2f1198f6bd2cd76c2a05ec89a87e98418df4fbc361493260692464fe88499349",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-07-12T09:06:04.507Z"
+          "headHash": "4357b37fa70deafd488fe56def3b0373190c190a",
+          "materialHash": "79d4f9af5acae51b71d0e15479e29598bbac6fe9132061a712d5e68044c15efc",
+          "storyFilesHash": "430e1a5f2c609fe5c6228418c4cf30ac70938173346d7b3b362b639dea952298",
+          "timestamp": "2026-07-12T09:08:39.026Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -68,10 +68,10 @@
           "command": "rg -qi 'Sparse matches|Noisy/excessive matches|Zero-candidate result|quota|unavailable|deduplicate|full scan' \"docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md\"",
           "result": "pass",
           "note": "The validation matrix and escalation contract explicitly cover sparse, noisy, empty, disagreement, quota/unavailable-host, deduplication, cutoff, and bounded escalation cases.",
-          "headHash": "517b6f33eece65dcaedb5cf3fdc9e966bc2251a1",
-          "materialHash": "2f1198f6bd2cd76c2a05ec89a87e98418df4fbc361493260692464fe88499349",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-07-12T09:06:05.688Z"
+          "headHash": "4357b37fa70deafd488fe56def3b0373190c190a",
+          "materialHash": "79d4f9af5acae51b71d0e15479e29598bbac6fe9132061a712d5e68044c15efc",
+          "storyFilesHash": "430e1a5f2c609fe5c6228418c4cf30ac70938173346d7b3b362b639dea952298",
+          "timestamp": "2026-07-12T09:08:39.026Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -81,10 +81,10 @@
           "command": "rg -qi 'deterministic seeds|readManifest|scanEscalationReason|prompt-injection|100%' \"docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md\"",
           "result": "pass",
           "note": "The plan rejects host-only authority and self-reported reads through CLI-owned seeds, mechanical read reconciliation, explicit scan reasons, trust controls, and recall/equivalence gates.",
-          "headHash": "5e3ef9e5d0ada0b5b130df0abc160e1cc1c65f44",
-          "materialHash": "2f1198f6bd2cd76c2a05ec89a87e98418df4fbc361493260692464fe88499349",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-07-12T09:06:06.784Z"
+          "headHash": "4357b37fa70deafd488fe56def3b0373190c190a",
+          "materialHash": "79d4f9af5acae51b71d0e15479e29598bbac6fe9132061a712d5e68044c15efc",
+          "storyFilesHash": "430e1a5f2c609fe5c6228418c4cf30ac70938173346d7b3b362b639dea952298",
+          "timestamp": "2026-07-12T09:08:39.026Z"
         }
       ]
     }
