@@ -465,12 +465,20 @@ async function main(): Promise<void> {
       },
       async () => {
         const text = String(await handlers.doctor({ format: 'text' }));
-        const hotLine = text.split('\n').find((line) => line.includes('tripped:') && text.includes('codex-burn-A'));
+        // F-004: bind the tripped-line assertion to codex-burn-A's OWN warning
+        // block (the session id is on the block header, not the tripped line),
+        // instead of grabbing the first 'tripped:' line in the whole output.
+        const lines = text.split('\n');
+        const headerIdx = lines.findIndex((line) => line.includes('✗ BURN ALERT codex codex-burn-A'));
+        assert.ok(headerIdx >= 0, 'codex-burn-A warning block present');
+        const nextHeader = lines.findIndex((line, i) => i > headerIdx && line.includes('✗ BURN ALERT'));
+        const hotBlock = lines.slice(headerIdx, nextHeader === -1 ? lines.length : nextHeader);
+        const hotTripped = hotBlock.find((line) => line.includes('tripped:'));
         const json = (await handlers.doctor({ format: 'json' })) as Record<string, any>;
         const hot = json.hostBurnScan.findings.find((f: any) => f.sessionId === 'codex-burn-A');
         assert.ok(hot, 'HOT fixture flagged');
         assert.deepEqual([...hot.reasons].sort(), ['file-size', 'input-tokens', 'session-age'], 'doctor JSON lists all three reasons');
-        assert.ok(hotLine && hotLine.includes('file-size') && hotLine.includes('input-tokens') && hotLine.includes('session-age'), 'doctor warning line lists all three reasons');
+        assert.ok(hotTripped && hotTripped.includes('file-size') && hotTripped.includes('input-tokens') && hotTripped.includes('session-age'), 'codex-burn-A block tripped line lists all three reasons');
       },
     );
   });
