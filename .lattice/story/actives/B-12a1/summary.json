@@ -1,0 +1,56 @@
+{
+  "storyId": "B-12a1",
+  "changes": "packages/main/src/core/lifecycle-registry.ts: added the ten ProofStory intent-hardening artifact filenames (original-intent-snapshot, milestone-ledger, milestone-closeout, slice-plan, parent-ledger-rollup, proofstory, intent-collision, scope-shrinkage-decision, red-evidence, spike .json) to LATTICE_LIFECYCLE_ARTIFACT_FILENAMES, the closed set consulted by classifyLifecycleArtifact — so the scope gate now classifies these command-generated story metadata files as lifecycle_artifact pass instead of out_of_scope fail. packages/main/src/tasks/scope-contract-smoke.ts: new proofStoryPositive block pins all ten as scope.lifecycle_artifact:B-scope:<name> pass rows under an enforce contract that lists no story-metadata paths; per-row assertions run before the aggregate status check (F-001) so a regression names the exact artifact.",
+  "usage": "No new command surface. Owners of high-assurance stories simply run the existing flow — lattice scope_contract_check / story_advance — and the ProofStory artifacts their commands generate (original_intent_snapshot_set, intent_collision_set, red_evidence_create, proofstory_contract_set, milestone_ledger_set, spike_start, ...) no longer block the DEV->REVIEW scope gate or need scope_contract_acknowledge. Regression check: node packages/main/dist/tasks/scope-contract-smoke.js",
+  "expectedOutcome": "Under a mode=enforce scope contract that does not list story-metadata paths, all ten ProofStory artifact paths under .lattice/story/actives/<id>/ produce scope.lifecycle_artifact pass rows (blocking=false) in scope_contract_check, exactly like checklist.json; unknown filenames still fail closed.",
+  "actualTranscript": "Pre-fix baseline (RED-001): classifier probe printed 'RED: not lifecycle_artifact -> <all ten names>' exit 1. Post-fix: same probe prints 'GREEN: all ten lifecycle_artifact' exit 0; scope-contract smoke prints 'scope contract smoke passed'; this story's own scope_contract_check ran status=pass with its ProofStory artifacts classified as lifecycle rows (self-demonstrating). Bite test: removing proofstory.json from the compiled registry fails the smoke with 'B-12a1 ProofStory lifecycle row proofstory.json: expected scope row not found'.",
+  "outcomeDiff": "No difference — expected and actual match on all ten names, the negative fail-closed cases, and the self-demonstrating story run.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Deliberate carve-outs: grill.json, clusters.json (registry still lists stale singular cluster.json) and scope-extension-decisions.json are different command families, tracked as a follow-up story already started by the user; process-fact registry misses milestone-closeout.json (separate follow-up chip). Forward-only fix: B-623a's hand-added acknowledgements are not retroactively cleaned. Acceptance proven at checkScopeContract/smoke level (same code path as the live gate), no end-to-end replay of a full high-assurance story.",
+  "pitfalls": "1) The story about ProofStory artifacts itself triggered the ProofStory high-assurance gate (gate wording) — it had to produce the very artifacts it registers; the fixed classifier then let its own metadata pass, self-validating. 2) Candidate milestone ledger must be re-confirmed via intent_collision_set pass AFTER milestone_ledger_set, else missing_confirmed_milestone_ledger blocks DEV. 3) An honest codex FAIL (F-001, aggregate-only smoke diagnostic) mid-REVIEW forces the full DEV->REVIEW round restart + evidence refresh + all-lane re-review — commit finding fixes knowing the cascade cost. 4) Concurrent dist bite-tests by parallel reviewers on the shared worktree can race; serialize destructive dist experiments or use an isolated worktree copy. 5) scope_contract_init_from_plan produced empty allowed sets; declare paths explicitly with scope_contract_set.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 424990
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 94866
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 509481
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 523976
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 2465755
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 428981
+    }
+  },
+  "totalDurationMs": 4448497,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-12T22:33:40.915Z",
+  "updatedAt": "2026-07-12T22:33:40.915Z"
+}
