@@ -62,7 +62,30 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Generate _reviewPrompt for a fully populated PLAN story -> story metadata, understanding, decision with preMortem, grill context, experience hints, ProofStory diagnostics, checklist entries, and verificationIntent remain present with their representative values; WHY: protects every structured review input explicitly promised by the story.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Generate _reviewPrompt when optional structured artifacts or arrays are empty/missing in combinations already accepted by story_review -> output remains well-formed and preserves existing gate/blocker behavior instead of throwing because corpus text was removed; WHY: checks sparse PLAN-state compatibility.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Supply requirement-like sentinel prose only inside an unrelated requirements document while supplying distinct sentinel values in signed/structured PLAN artifacts -> only structured artifact sentinels appear in _reviewPrompt and review decisions still derive from those artifacts; WHY: proves gate semantics were not silently replaced by corpus prose or weakened during cleanup.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
