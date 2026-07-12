@@ -1,6 +1,6 @@
 {
   "storyId": "B-f97c",
-  "checkedAt": "2026-07-12T01:28:36.888Z",
+  "checkedAt": "2026-07-12T01:29:51.552Z",
   "features": [
     {
       "feature": "Remove recursive requirements-directory traversal and all full Markdown content reads from story_review",
@@ -36,6 +36,13 @@
       "status": "covered",
       "excluded_by": null,
       "source": "plan.md; decision.json"
+    },
+    {
+      "feature": "Config-relative implementation touchpoints handlers/story-review.ts, tasks/story-review-corpus-budget-smoke.ts, and package.json are covered by checklist files fields",
+      "covered_by": "CHK-001, CHK-002, CHK-003, CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding.json; checklist.json"
     },
     {
       "feature": "Add a regression with a large unrelated requirements sentinel proving corpusEmbedded=false, sentinel absence, structured-section retention, and prompt size independence",
@@ -74,14 +81,14 @@
     "scanEscalationReason": null
   },
   "summary": {
-    "total": 8,
-    "covered": 7,
+    "total": 9,
+    "covered": 8,
     "excluded": 1,
     "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "b399124fb3b6d30585186bbcb385880d2a9f235d2e87d62bd45764a2275c723c",
+  "_hash": "e7a6fe757ddee8cd311a8578f32075639bcf3a11fd8a06cb11903099f2b3085c",
   "openQuestions": []
 }
