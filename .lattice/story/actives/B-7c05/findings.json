@@ -24,7 +24,7 @@
       "desc": "packages/main/src/handlers/story-query.ts:654 (openBugStories filter) changes story_list dashboard-summary CONTENT, not just rendering verbosity: it adds a DISCARDED exclusion to the not-closed bug-story flag, present in BOTH brief and --full output. This is a genuine logic/behavior fix (re-applying a regression of commit 288d359377 fix: ignore discarded bug stories in story_list from Apr 2026, which had been lost from the codebase before this story started per git show ac83c67618^). The story background/plan.md frames this story as rendering-only output hygiene with gate/state-machine behavior changes explicitly out of scope, and this specific fix is not named in plan.md CHK-004 or the scope-contract scopeChangeReason. It is well-evidenced (CHK-005:edge:1 runs scripts/verify-story-list-bug-summary.mjs green) and appears correct/desirable, but it is an undeclared drive-by content change riding on a story whose stated boundary is rendering-only; the code comment mischaracterizes it as accommodating a pre-existing test rather than restoring lost behavior. Severity low/advisory: functionally correct and tested, but a precedent worth flagging for scope discipline.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-12T01:39:49.505Z",
@@ -32,7 +32,11 @@
       "reviewRunId": "B-7c05:RR-001",
       "_hash": "1da218f78e1e232a7652cc01f3cbc2a6f19117f9853e19cbc964a5fdcfc724b2",
       "signatureTag": "missing|unknown|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Kept deliberately and now DECLARED: plan.md CHK-004 documents the bundled restoration of commit 288d359377 behavior (story_list _bugSummary 'Bug Story not closed' excludes terminal DISCARDED alongside DONE). It is a summary-content fix, not a rendering trim, required because scripts/verify-story-list-bug-summary.mjs — a must-pass consumer verifier bound to CHK-004/CHK-005 evidence — was already red on baseline HEAD due to that regression. Frozen --json field set unaffected.",
+      "resolvedAt": "2026-07-12T17:09:20.944Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7c05:F-003",
