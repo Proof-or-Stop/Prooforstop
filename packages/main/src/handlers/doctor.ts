@@ -12,6 +12,7 @@
 
 import { execFileSync, execSync } from 'child_process';
 import { existsSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, writeFileSync } from 'fs';
+import { homedir } from 'os';
 import { basename, dirname, isAbsolute, join, relative, resolve } from 'path';
 import type { HandlerContext } from './context.js';
 import { readHealthIssues, summarizeHealthIssues, getHealthPath } from '../core/health.js';
@@ -46,12 +47,20 @@ import {
   evaluateStoryDirConfigInsideGitRoot,
   type StoryDirInsideGitRootResult,
 } from '../core/story-signed-workspace-resolution.js';
+import {
+  BURN_ALERT_ENV,
+  evaluateBurnAlerts,
+  renderHostBurnScan,
+  resolveBurnAlertThresholds,
+  type BurnAlertEvaluation,
+} from '../core/usage-burn-alert.js';
+import { sweepClaudeProjects, sweepCodexSessions } from '../core/usage-sweep.js';
 
 export function createDoctorHandlers(ctx: HandlerContext) {
   const { root, store } = ctx;
 
   return {
-    doctor(args?: { format?: 'text' | 'json'; limit?: number; repair?: boolean }): string | object {
+    async doctor(args?: { format?: 'text' | 'json'; limit?: number; repair?: boolean }): Promise<string | object> {
       const limit = args?.limit ?? 1000;
       const issues = readHealthIssues(limit);
       const summary = summarizeHealthIssues(issues);
@@ -110,6 +119,38 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       // resolved gitRoot, never throws, and a no-gitRoot condition is reported
       // separately (not as the violation).
       const storyDirGitRoot = evaluateStoryDirConfigInsideGitRoot({ metadataRoot: root });
+      // B-623a: advisory host burn scan — push-based long-thread burn detection.
+      // Reuses the read-only usage-sweep scanners over a bounded recent-activity
+      // window (LATTICE_BURN_ALERT_RECENT_HOURS; 0 disables, the hermeticity
+      // switch for fixture-driven smokes). Advisory-only: never gates, produces
+      // no gate evidence, and never changes doctor's exit code. Dir overrides
+      // (LATTICE_BURN_ALERT_CODEX_DIR/CLAUDE_DIR) exist for hermetic tests.
+      const burnThresholds = resolveBurnAlertThresholds(process.env);
+      const burnDisabled = burnThresholds.recentHours <= 0;
+      let hostBurnScan: BurnAlertEvaluation = {
+        advisory: true,
+        gateEvidence: false,
+        thresholds: burnThresholds,
+        scanned: 0,
+        findings: [],
+      };
+      if (!burnDisabled) {
+        const nowMs = Date.now();
+        const sinceMs = nowMs - burnThresholds.recentHours * 3_600_000;
+        const burnCodexDir = process.env[BURN_ALERT_ENV.codexDir] || join(homedir(), '.codex', 'sessions');
+        const burnClaudeDir = process.env[BURN_ALERT_ENV.claudeDir] || join(homedir(), '.claude', 'projects');
+        try {
+          const [codexRows, claudeRows] = await Promise.all([
+            sweepCodexSessions({ dir: burnCodexDir, sinceMs }),
+            sweepClaudeProjects({ dir: burnClaudeDir, sinceMs }),
+          ]);
+          hostBurnScan = evaluateBurnAlerts([...codexRows, ...claudeRows], { nowMs, thresholds: burnThresholds });
+        } catch {
+          // PROBE: the advisory scan must never break doctor; an unreadable
+          // store simply reports as zero scanned sessions.
+        }
+      }
+
       // B-854c CHK-003: scan active stories' metadata leaves for the
       // neither-tracked-nor-protected data-loss state (ClawCreek incident).
       let storyMetadataProtection = scanStoryMetadataProtection(root, store, gitProbeCwd);
@@ -186,6 +227,7 @@ export function createDoctorHandlers(ctx: HandlerContext) {
         return {
           runtimeMode: runtime.runtimeMode,
           healthPath: getHealthPath(),
+          hostBurnScan: { ...hostBurnScan, disabled: burnDisabled },
           ...summary,
           worktrees: {
             registered: orphanScan.registered,
@@ -280,6 +322,10 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       } else {
         lines.push('  ✓ agent prompts resolve from the global ~/.claude/agents single source');
       }
+      lines.push('');
+      // B-623a: the burn scan renders near the top on purpose — a runaway host
+      // session should be the loudest thing on an otherwise healthy report.
+      for (const line of renderHostBurnScan(hostBurnScan, { disabled: burnDisabled })) lines.push(line);
       lines.push('');
       lines.push(`lattice doctor — health issues`);
       lines.push(`  source: ${getHealthPath()}`);

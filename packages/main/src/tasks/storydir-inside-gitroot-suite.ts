@@ -59,14 +59,18 @@ import { createDoctorHandlers } from '../handlers/doctor.js';
 import { storyDirOutsideGitRootAdvisory } from '../handlers/story-create.js';
 import { createSessionHandlers } from '../handlers/session.js';
 
+// B-623a: keep this smoke hermetic and fast — doctor now runs an advisory host
+// burn scan over the real ~/.codex / ~/.claude stores by default; 0 disables it.
+process.env.LATTICE_BURN_ALERT_RECENT_HOURS = '0';
+
 const STORY_DIR_REL = '.lattice/story/actives';
 const STORY_ID = 'B-test';
 const ADVISORY_PREFIX = '⚠ storyDir resolves outside the resolved gitRoot';
 const ADVISORY_REMEDIATION = '→ configure storyDir so story metadata lives inside the gitRoot.';
 
 let passed = 0;
-function check(name: string, fn: () => void): void {
-  fn();
+async function check(name: string, fn: () => void | Promise<void>): Promise<void> {
+  await fn();
   passed++;
   console.log(`  ✓ ${name}`);
 }
@@ -107,7 +111,7 @@ function writeStoryIndex(metadataRoot: string): void {
 }
 
 /** Drive the REAL doctor handler; return its JSON storyDirGitRoot block + text. */
-function runDoctor(root: string): {
+async function runDoctor(root: string): Promise<{
   json: {
     ok: boolean;
     storyDirAbs: string;
@@ -118,11 +122,11 @@ function runDoctor(root: string): {
     gitRootUnresolved: boolean;
   };
   text: string;
-} {
+}> {
   const store = new StoryStore(root);
   const handlers = createDoctorHandlers({ store, root, scanRoot: root });
-  const json = handlers.doctor({ format: 'json' }) as Record<string, unknown>;
-  const text = String(handlers.doctor({ format: 'text' }));
+  const json = (await handlers.doctor({ format: 'json' })) as Record<string, unknown>;
+  const text = String(await handlers.doctor({ format: 'text' }));
   return {
     json: json.storyDirGitRoot as StoryDirInsideGitRootResult & {
       violation: boolean;
@@ -153,7 +157,7 @@ try {
     writeStoryIndex(root);
     const store = new StoryStore(root);
 
-    check('scenario1.inside: id-dependent helper → ok, no reason', () => {
+    await check('scenario1.inside: id-dependent helper → ok, no reason', async () => {
       const r = evaluateStoryDirInsideGitRoot({ store, storyId: STORY_ID, metadataRoot: root });
       assert.equal(r.ok, true);
       assert.equal(r.reason, undefined);
@@ -162,7 +166,7 @@ try {
       assert.match(r.storyDirAbs, /B-test$/);
     });
 
-    check('scenario1.inside: id-independent helper → ok, no reason', () => {
+    await check('scenario1.inside: id-independent helper → ok, no reason', async () => {
       const r = evaluateStoryDirConfigInsideGitRoot({ metadataRoot: root });
       assert.equal(r.ok, true);
       assert.equal(r.reason, undefined);
@@ -170,8 +174,8 @@ try {
       assert.ok(r.rel && !r.rel.split('/').includes('..'));
     });
 
-    check('scenario1.inside: doctor → healthy pass line, no violation', () => {
-      const { json, text } = runDoctor(root);
+    await check('scenario1.inside: doctor → healthy pass line, no violation', async () => {
+      const { json, text } = await runDoctor(root);
       assert.equal(json.ok, true);
       assert.equal(json.violation, false);
       assert.equal(json.gitRootUnresolved, false);
@@ -180,11 +184,11 @@ try {
       assert.ok(!text.includes('✗ storyDir resolves OUTSIDE the resolved gitRoot'));
     });
 
-    check('scenario1.inside: story_create advisory → empty', () => {
+    await check('scenario1.inside: story_create advisory → empty', async () => {
       assert.equal(storyDirOutsideGitRootAdvisory(root), '');
     });
 
-    check('scenario1.inside: session_brief → no advisory line', () => {
+    await check('scenario1.inside: session_brief → no advisory line', async () => {
       assert.ok(!runSessionBrief(root).includes(ADVISORY_PREFIX));
     });
   }
@@ -203,7 +207,7 @@ try {
     const expectedStoryDir = join(realpathSync(wrapper), STORY_DIR_REL);
     const expectedGitRoot = realpathSync(innerGit);
 
-    check('scenario2.sibling: id-dependent helper → violation outside-gitroot', () => {
+    await check('scenario2.sibling: id-dependent helper → violation outside-gitroot', async () => {
       const r = evaluateStoryDirInsideGitRoot({ store, storyId: STORY_ID, metadataRoot: wrapper });
       assert.equal(r.ok, false);
       assert.equal(r.reason, 'outside-gitroot');
@@ -211,7 +215,7 @@ try {
       assert.ok(r.rel && r.rel.split('/').includes('..'), 'rel must contain a .. segment');
     });
 
-    check('scenario2.sibling: id-independent helper → violation outside-gitroot', () => {
+    await check('scenario2.sibling: id-independent helper → violation outside-gitroot', async () => {
       const r = evaluateStoryDirConfigInsideGitRoot({ metadataRoot: wrapper });
       assert.equal(r.ok, false);
       assert.equal(r.reason, 'outside-gitroot');
@@ -219,8 +223,8 @@ try {
       assert.ok(r.rel && r.rel.split('/').includes('..'));
     });
 
-    check('scenario2.sibling: doctor → flagged ✗ block + both abs paths + remediation', () => {
-      const { json, text } = runDoctor(wrapper);
+    await check('scenario2.sibling: doctor → flagged ✗ block + both abs paths + remediation', async () => {
+      const { json, text } = await runDoctor(wrapper);
       assert.equal(json.ok, false);
       assert.equal(json.violation, true);
       assert.equal(json.gitRootUnresolved, false);
@@ -233,7 +237,7 @@ try {
       assert.ok(text.includes(ADVISORY_REMEDIATION));
     });
 
-    check('scenario2.sibling: story_create advisory → one-line ⚠ with both paths', () => {
+    await check('scenario2.sibling: story_create advisory → one-line ⚠ with both paths', async () => {
       const note = storyDirOutsideGitRootAdvisory(wrapper);
       assert.ok(note.startsWith(ADVISORY_PREFIX));
       assert.ok(note.includes(expectedStoryDir));
@@ -242,7 +246,7 @@ try {
       assert.ok(!note.includes('\n'), 'advisory is a single line');
     });
 
-    check('scenario2.sibling: session_brief → emits the ⚠ advisory line', () => {
+    await check('scenario2.sibling: session_brief → emits the ⚠ advisory line', async () => {
       const text = runSessionBrief(wrapper);
       const line = text.split('\n').find((l) => l.startsWith(ADVISORY_PREFIX));
       assert.ok(line, 'session_brief must surface the advisory line');
@@ -263,29 +267,29 @@ try {
     writeConfig(linkRoot); // config read through the symlinked path
     const store = new StoryStore(linkRoot);
 
-    check('scenario3.symlink: id-dependent helper → no false violation', () => {
+    await check('scenario3.symlink: id-dependent helper → no false violation', async () => {
       const r = evaluateStoryDirInsideGitRoot({ store, storyId: STORY_ID, metadataRoot: linkRoot });
       assert.equal(r.ok, true);
       assert.equal(r.reason, undefined);
       assert.ok(r.rel !== null && !r.rel.split('/').includes('..'));
     });
 
-    check('scenario3.symlink: id-independent helper → no false violation', () => {
+    await check('scenario3.symlink: id-independent helper → no false violation', async () => {
       const r = evaluateStoryDirConfigInsideGitRoot({ metadataRoot: linkRoot });
       assert.equal(r.ok, true);
       assert.equal(r.reason, undefined);
       assert.ok(r.rel !== null && !r.rel.split('/').includes('..'));
     });
 
-    check('scenario3.symlink: doctor → healthy pass line (realpath both sides)', () => {
-      const { json, text } = runDoctor(linkRoot);
+    await check('scenario3.symlink: doctor → healthy pass line (realpath both sides)', async () => {
+      const { json, text } = await runDoctor(linkRoot);
       assert.equal(json.ok, true);
       assert.equal(json.violation, false);
       assert.equal(json.reason, null);
       assert.ok(text.includes('✓ storyDir resolves inside the resolved gitRoot'));
     });
 
-    check('scenario3.symlink: advisories silent', () => {
+    await check('scenario3.symlink: advisories silent', async () => {
       assert.equal(storyDirOutsideGitRootAdvisory(linkRoot), '');
       assert.ok(!runSessionBrief(linkRoot).includes(ADVISORY_PREFIX));
     });
@@ -300,7 +304,7 @@ try {
     writeStoryIndex(root);
     const store = new StoryStore(root);
 
-    check('scenario4.no-gitRoot: id-dependent helper → gitroot-unresolved, no throw', () => {
+    await check('scenario4.no-gitRoot: id-dependent helper → gitroot-unresolved, no throw', async () => {
       const r = evaluateStoryDirInsideGitRoot({ store, storyId: STORY_ID, metadataRoot: root });
       assert.equal(r.ok, true);
       assert.equal(r.reason, 'gitroot-unresolved');
@@ -308,7 +312,7 @@ try {
       assert.equal(r.rel, null);
     });
 
-    check('scenario4.no-gitRoot: id-independent helper → gitroot-unresolved, no throw', () => {
+    await check('scenario4.no-gitRoot: id-independent helper → gitroot-unresolved, no throw', async () => {
       const r = evaluateStoryDirConfigInsideGitRoot({ metadataRoot: root });
       assert.equal(r.ok, true);
       assert.equal(r.reason, 'gitroot-unresolved');
@@ -316,8 +320,8 @@ try {
       assert.equal(r.rel, null);
     });
 
-    check('scenario4.no-gitRoot: doctor → SEPARATE unresolved line, NOT a violation', () => {
-      const { json, text } = runDoctor(root);
+    await check('scenario4.no-gitRoot: doctor → SEPARATE unresolved line, NOT a violation', async () => {
+      const { json, text } = await runDoctor(root);
       assert.equal(json.ok, true);
       assert.equal(json.violation, false);
       assert.equal(json.gitRootUnresolved, true);
@@ -327,12 +331,12 @@ try {
       assert.ok(!text.includes('✗ storyDir resolves OUTSIDE the resolved gitRoot'));
     });
 
-    check('scenario4.no-gitRoot: advisories silent (never nag not-yet-git setups)', () => {
+    await check('scenario4.no-gitRoot: advisories silent (never nag not-yet-git setups)', async () => {
       assert.equal(storyDirOutsideGitRootAdvisory(root), '');
       assert.ok(!runSessionBrief(root).includes(ADVISORY_PREFIX));
     });
 
-    check('scenario4.no-gitRoot: project-level entry points never throw with absent story metadata', () => {
+    await check('scenario4.no-gitRoot: project-level entry points never throw with absent story metadata', async () => {
       // The id-independent helper + the story_create advisory are the surfaces
       // the doctor / story_create / session_brief call (they have no story id).
       // They must be TOTAL even when no story metadata exists on disk — they do
@@ -353,7 +357,7 @@ try {
       assert.equal(threw, false);
     });
 
-    check('scenario4.no-gitRoot: helper stays TOTAL for a legacy non-canonical storyDir (guard removed; loadConfig no longer throws)', () => {
+    await check('scenario4.no-gitRoot: helper stays TOTAL for a legacy non-canonical storyDir (guard removed; loadConfig no longer throws)', async () => {
       // B-b837: the legacy write-path guard was removed, so loadConfig()
       // no longer throws for a non-canonical storyDir. The helper must still
       // produce a safe result and the story_create advisory must stay silent (no gitRoot).

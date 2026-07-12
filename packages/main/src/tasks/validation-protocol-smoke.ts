@@ -23,6 +23,10 @@ import { getGuardFailureReason } from '../core/machine.js';
 import { assertStoryTransitionReachedTarget, canSendStoryEvent } from '../handlers/transition-orchestrator.js';
 import { renderLatticeBootstrapScript, renderLatticeCodexWrapperScript } from '../init-assets.js';
 
+// B-623a: keep this smoke hermetic and fast — doctor now runs an advisory host
+// burn scan over the real ~/.codex / ~/.claude stores by default; 0 disables it.
+process.env.LATTICE_BURN_ALERT_RECENT_HOURS = '0';
+
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
 
@@ -1291,7 +1295,7 @@ try {
     log: () => {},
     getAllToolNames: () => new Set<string>(),
   }).doctor;
-  const doctorJson = doctor({ format: 'json' }) as any;
+  const doctorJson = (await doctor({ format: 'json' })) as any;
   assertRuntimeModeShape(doctorJson.runtimeMode);
   assert.ok(doctorJson.runtime, 'doctor JSON should expose runtime section');
   assert.deepEqual(doctorJson.runtime.runtimeMode, doctorJson.runtimeMode, 'doctor should expose runtimeMode top-level and inside runtime scan');
@@ -1328,7 +1332,7 @@ try {
     "git rm --cached -- '.lattice/runtime/$USER $(echo hi) `uname` '\"'\"'artifact'\"'\"'.json'",
   );
 
-  const doctorText = doctor() as string;
+  const doctorText = (await doctor()) as string;
   assert.ok(doctorText.startsWith('Runtime footprint:\nRuntime mode:'), 'plain doctor should start with runtime footprint');
   assert.match(doctorText, /Project-local JavaScript runtime required: (yes|no)/);
   assert.match(doctorText, /Next action: /);
@@ -1347,7 +1351,7 @@ try {
   assert.match(doctorText, /fallback command discovery is advisory/);
   assert.doesNotMatch(doctorText, /PVSC|B-2065|\b\d+\s+passed\b/);
 
-  const repairedDoctorJson = doctor({ format: 'json', repair: true }) as any;
+  const repairedDoctorJson = (await doctor({ format: 'json', repair: true })) as any;
   assert.equal(repairedDoctorJson.runtimeArtifacts.tracked.length, 0, 'doctor --repair should untrack repairable runtime artifacts');
   assert.deepEqual(
     [...repairedDoctorJson.runtimeArtifacts.repaired].sort(),
