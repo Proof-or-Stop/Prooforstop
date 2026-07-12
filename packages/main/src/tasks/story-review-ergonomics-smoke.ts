@@ -80,6 +80,7 @@ function initStore(options: { saveScopeCheck?: boolean } = {}): { root: string; 
         source: 'scope-smoke',
       }],
       summary: { total: 1, covered: 0, excluded: 1, gaps: 0 },
+      readManifest: { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null },
       openQuestions: [],
     });
   }
