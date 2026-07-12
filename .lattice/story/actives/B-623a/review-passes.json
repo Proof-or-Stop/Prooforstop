@@ -249,6 +249,36 @@
         "scanEscalationReason": null
       },
       "_hash": "5741f5936a23e74cfc75c96be32bc611216c32173940ebcefd9394d4fb372813"
+    },
+    {
+      "id": "B-623a:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "POST-MERGE round. Reviewed git diff main...HEAD code files. Merge-conflict resolution in doctor.ts correctly composes async B-623a burn scan with B-7c05 brief mode: brief trims only Recent-issues/Validation-scan sections; Host burn scan (advisory) section renders unconditionally regardless of brief (verified statically and via live CLI run from worktree dist). Both import groups intact, no unused imports. package.json + packages/main/package.json both retain test:brief-output and gained test:usage-burn-alert. verify-runtime-fact-contract.mjs: both doctor() calls awaited, RECENT_HOURS=0 set (hermetic), confirmed only 5th call-site outside src not already covered. All doctor() call-sites awaited; generic CLI dispatch already awaits thenables. No dead code, no unnecessary as any, no empty catches (documented advisory swallow). No I/O shell isolation issues (no bridge.ts). No proof/receipt/job/run metadata semantics touched. Ran regression suite from worktree dist (no rebuild): usage-burn-alert-smoke 21/21, brief-output-smoke pass, doctor-gitroot-probe-smoke pass, story-metadata-protection-smoke 14/14, storydir-inside-gitroot-suite 20/20, validation-protocol-smoke pass, verify-runtime-fact-contract.mjs pass. tsc --noEmit clean. No findings; prior F-001..F-004 remain resolved.",
+      "createdAt": "2026-07-12T23:05:18.567Z",
+      "reviewRound": "2026-07-12T22:57:34.340Z",
+      "reviewRunId": "B-623a:RR-011",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/tasks/doctor-gitroot-probe-smoke.ts",
+          "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "packages/main/src/tasks/storydir-inside-gitroot-suite.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c5f937568736840f09067f9694887bbd9001fc5ce2f65c9ec32e12b12a86b2b1"
     }
   ]
 }
