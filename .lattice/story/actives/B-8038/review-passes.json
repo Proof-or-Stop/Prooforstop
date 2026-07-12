@@ -67,6 +67,20 @@
         "scanEscalationReason": null
       },
       "_hash": "a2419c1c00d83216e5557c596f64ccf5c0516bfc10c060bb3ec81c550a1ba4b1"
+    },
+    {
+      "id": "B-8038:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Round-4 quality re-review passed: verified unresolved requiresEscalation artifacts fail candidate read binding and are surfaced as STOP in PLAN/REVIEW dispatch; explicit justified full-scan rerouting enumerates the complete corpus, binds scanEscalationReason and full-read manifest, and is accepted. Reverified deterministic host ordering, story-input freshness, complete full-scan enumeration, build, candidate-spec-routing smoke, and process-fact contract with no remaining blocker.",
+      "createdAt": "2026-07-12T11:08:03.145Z",
+      "reviewRound": "2026-07-12T11:06:29.973Z",
+      "reviewRunId": "B-8038:RR-011",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "9809dbe2bccb74d3668634608e332c2a8216cfc68037edc877e0342f6fc6b3ba"
     }
   ]
 }
