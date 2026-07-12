@@ -1,0 +1,32 @@
+{
+  "task": "Make host-side long-thread burn detection push-based: a lattice doctor advisory burn-scan section plus a usage_sweep --alert exit-nonzero mode, both reusing the read-only core/usage-sweep.ts scanners with env-tunable thresholds.",
+  "outcome": "An operator running lattice doctor (or a cron running usage_sweep --alert) is loudly told, without remembering any special command, which host session file is burning (file, cwd, cumulative tokens, tripped thresholds); plain doctor/usage_sweep behavior and exit codes stay unchanged and nothing is written.",
+  "facts": [
+    "B-70e9 (v0.3.184) shipped the pull-based usage_sweep with pure-core scanners (stat + stream-read, zero writes) and the F-010/F-014/F-028/F-032 read-only contract",
+    "Interactive desktop threads re-send their entire accumulated context every model call, so burn = calls x pinned context (019e40d0: 1.76B over a month; B-8038 incident 2026-07-12: ~0.92B real in one day, 98.4% cache reads, rollout files only 1-1.6MB)",
+    "doctor() is currently sync with exactly three in-repo call-site files (doctor-gitroot-probe-smoke.ts, story-metadata-protection-smoke.ts, storydir-inside-gitroot-suite.ts); the CLI dispatch layer already awaits async handlers",
+    "cli-engine has an established print-then-throw dispatch pattern (recover_evidence) for exit-nonzero-after-printing"
+  ],
+  "constraints": [
+    "Advisory-only: no gate wiring, gateEvidence=false, desktop sessions stay report-only (B-70e9 non-goal); plain doctor exit code unchanged",
+    "Zero writes to the transcript stores; no usage-ledger reads/writes (independence contract)",
+    "Pure-core rules: no process.env/Date.now in core; thresholds and clock injected; env parsing is a pure function of an env record",
+    "No daemon, no notification delivery (cron owns it), no config-file schema (env-only thresholds); defaults frozen at 100MB/100M/7d/48h",
+    "Existing doctor smokes must stay hermetic (LATTICE_BURN_ALERT_RECENT_HOURS=0) because real home stores are multi-GB"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/usage-burn-alert.ts (new)",
+    "packages/main/src/handlers/doctor.ts",
+    "packages/main/src/handlers/usage-sweep.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/tasks/usage-burn-alert-smoke.ts (new)",
+    "packages/main/src/tasks/doctor-gitroot-probe-smoke.ts",
+    "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+    "packages/main/src/tasks/storydir-inside-gitroot-suite.ts",
+    "package.json + packages/main/package.json (test scripts)"
+  ],
+  "timestamp": "2026-07-12T20:09:50.755Z"
+}
