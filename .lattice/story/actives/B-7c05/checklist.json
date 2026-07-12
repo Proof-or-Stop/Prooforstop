@@ -434,6 +434,17 @@
           "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
           "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
           "timestamp": "2026-07-12T01:33:50.206Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js bug_list",
+          "result": "pass",
+          "note": "Bare global bug_list is 280 bytes on this repo: status counts cover all bugs, open bugs listed one-line each, _brief/_hint set; brief-output-smoke asserts one-liners + counts on its open/fixed fixture.",
+          "headHash": "541ee442fd392ebda4e229a203e07caa13265a6e",
+          "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
+          "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
+          "timestamp": "2026-07-12T01:33:50.912Z"
         }
       ]
     },
