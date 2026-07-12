@@ -1,12 +1,14 @@
 {
   "schemaVersion": "proofstory.intent_collision.v1",
   "storyId": "B-12a1",
-  "id": "IC-001",
+  "id": "IC-002",
   "decision": "pass",
   "status": "accepted",
-  "acceptedInterpretation": "Command-generated ProofStory story metadata must never block a story's own scope gate. The user's literal request names four files observed during B-623a, but the stated goal is eliminating recurring friction for every high-assurance story; registering all ten filenames written by the store.ts ProofStory intent-hardening block is a faithful, intent-consistent superset (reviewer-initiated via INIT I-1, transparently recorded), using exactly the mechanism the user prescribed: a data-level addition to the existing closed registry plus a smoke pinning lifecycle_artifact pass, with no classifier logic change.",
-  "acceptedInterpretationHash": "sha256:d69a94f42de68272d45fc97818d8293e64d541f6d24f1fb5bbde40e05adc25bb",
-  "notes": "Independent interpretation produced by a separate reviewer agent from background/checklist/snapshot/plan only. Verdict: no collision. Recorded risks: (1) grill.json, clusters.json (stale singular cluster.json entry), scope-extension-decisions.json are deliberately excluded — follow-up task already filed; (2) acceptance proven at scope-contract-smoke/checkScopeContract level (same code path as live gates), no end-to-end live-story gate replay; (3) forward-only fix, B-623a's hand-added acknowledgements are not retroactively cleaned; (4) red evidence must bind the literal emitted rule string (out_of_scope row at gate layer / unknown at classifier layer).",
+  "acceptedInterpretation": "Command-generated ProofStory story metadata must never block a story's own scope gate. The user's literal request names four files observed during B-623a, but the stated goal is eliminating recurring friction for every high-assurance story; registering all ten filenames written by the store.ts ProofStory intent-hardening block is a faithful, intent-consistent superset (reviewer-initiated via INIT I-1, transparently recorded), using exactly the mechanism the user prescribed: a data-level addition to the existing closed registry plus a smoke pinning lifecycle_artifact pass, with no classifier logic change. Confirms candidate milestone ledger M1/M2 (registry addition + smoke red->green), which maps one-to-one onto this interpretation.",
+  "acceptedInterpretationHash": "sha256:005314d037feccee9b5291102fd0272c28697cf7301dd856bfca4cd560be9575",
+  "notes": "Re-recorded after milestone_ledger_set to confirm the candidate ledger for gate consumption; independent interpretation and risk notes unchanged from IC-001.",
+  "ledgerHashBeforeDecision": "sha256:49ffd5fc77d2e5e00cd45df0c0438fece1bfa3fcf8e97b04c91d5c32603c3aca",
+  "confirmedLedgerHash": "sha256:49ffd5fc77d2e5e00cd45df0c0438fece1bfa3fcf8e97b04c91d5c32603c3aca",
   "createdAt": "2026-07-12T21:32:17.481Z",
-  "updatedAt": "2026-07-12T21:32:17.481Z"
+  "updatedAt": "2026-07-12T21:36:40.115Z"
 }
