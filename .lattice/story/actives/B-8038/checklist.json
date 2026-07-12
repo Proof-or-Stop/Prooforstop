@@ -416,7 +416,48 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/review-pass-discard-smoke.js",
+          "result": "pass",
+          "note": "REVIEW dispatch and delivery-context projection reuse the same current candidate/corpus digests while existing signed reviewer-run/pass paths preserve per-lane authority.",
+          "headHash": "909569fef455d1aaaaec27a54d3b69c85e44f949",
+          "materialHash": "5c5d6449ce522644831a0e262487c9dd0d6d64ef9b663382c75a66a423af7c8c",
+          "storyFilesHash": "1971cb64c0834fa4bfbc672bd7b7d6f7a6dd2a490c30af0c1fbd86ae28e1caee",
+          "timestamp": "2026-07-12T10:43:53.763Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "command": "node packages/main/dist/tasks/candidate-spec-routing-smoke.js",
+          "result": "pass",
+          "note": "Candidate freshness binding detects digest/material drift; rollout equivalence fixtures block quality loss and require rerouting rather than silently reusing stale evidence.",
+          "headHash": "909569fef455d1aaaaec27a54d3b69c85e44f949",
+          "materialHash": "5c5d6449ce522644831a0e262487c9dd0d6d64ef9b663382c75a66a423af7c8c",
+          "storyFilesHash": "1971cb64c0834fa4bfbc672bd7b7d6f7a6dd2a490c30af0c1fbd86ae28e1caee",
+          "timestamp": "2026-07-12T10:43:54.216Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-pass-discard-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-pass-discard-smoke.js && node packages/main/dist/tasks/candidate-spec-routing-smoke.js",
+          "result": "pass",
+          "note": "Canonical review-run guards still reject cross-lane/implementer evidence; shared routing contributes context only and does not grant signing authority or suppress distinct findings.",
+          "headHash": "909569fef455d1aaaaec27a54d3b69c85e44f949",
+          "materialHash": "5c5d6449ce522644831a0e262487c9dd0d6d64ef9b663382c75a66a423af7c8c",
+          "storyFilesHash": "1971cb64c0834fa4bfbc672bd7b7d6f7a6dd2a490c30af0c1fbd86ae28e1caee",
+          "timestamp": "2026-07-12T10:43:54.736Z"
+        }
+      ]
     },
     {
       "id": "CHK-007",
