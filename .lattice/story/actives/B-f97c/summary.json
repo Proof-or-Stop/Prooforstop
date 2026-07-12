@@ -1,17 +1,17 @@
 {
   "storyId": "B-f97c",
-  "changes": "Removed recursive requirements Markdown loading and all truthDocs/Truth Source concatenation from story_review; added a focused corpus-budget and sparse-PLAN regression smoke plus explicit prompt/usage cost reporting.",
-  "usage": "Run lattice story_review normally; _reviewPrompt now contains only structured Story, understanding, decision, grill, ProofStory, checklist, and verificationIntent context while signed scope-check evidence remains the requirements coverage gate.",
-  "expectedOutcome": "story_review returns a small structured PLAN prompt whose size does not grow when unrelated requirements Markdown content is added, and the user sees auditable before/after cost figures.",
-  "actualTranscript": "test:story-review-corpus-budget PASS: baselinePostFixPromptBytes=2936, largeCorpusPostFixPromptBytes=2936, promptByteDeltaAfterAddingCorpus=0, estimatedPreFixTokens=787196, estimatedPostFixTokens=734, reductionPercent=99.91; build and scan-budget guard PASS; sparse PLAN fixture PASS.",
-  "outcomeDiff": "No functional gap: requirements corpus contribution dropped from 3,145,846 measured bytes in the reconstructed old path to zero bytes in the new prompt. Exact task billing remains unavailable; usage_sweep is separately disclosed as non-authoritative multi-attributed usage.",
+  "changes": "Fully delivered all four original requirements: removed recursive readFileSync/readdirSync loading of every requirements Markdown file; removed truthDocs, truthDocsCount, truthSection, and truthDocs.join/Truth Source prompt concatenation; preserved Story, understanding, decision/preMortem, grill, experience hints, ProofStory, checklist, verificationIntent, and signed scope-check gate semantics; added regression and token-cost measurement.",
+  "usage": "Run lattice story_review normally. It no longer reads or embeds the requirements corpus. The returned _reviewPrompt contains bounded structured PLAN context, while independent scope_check_save evidence remains responsible for requirements coverage.",
+  "expectedOutcome": "A simple story_review no longer burns the context quota on the historical requirements corpus; unrelated multi-megabyte Markdown causes zero prompt growth, structured review inputs remain present, and the user receives explicit total-token attribution limits plus the measured largest cost source.",
+  "actualTranscript": "Current live smoke PASS: post-fix prompt=2,936 bytes/about 734 byte-div-4 estimated tokens; adding a 3 MiB nested requirements Markdown leaves prompt=2,936 bytes and delta=0. Reconstructed old path=3,148,782 bytes/about 787,196 estimated tokens; requirements corpus framing=3,145,846 bytes and is the largest measured prompt component; reduction=99.91%. Latest usage_sweep is a changing NON-AUTHORITATIVE multiAttribution total, not exact exclusive billing.",
+  "outcomeDiff": "All original requested behavior is delivered with no scope shrinkage: recursive corpus reads and full concatenation are deleted, structured PLAN/gate behavior is preserved, regression coverage passes, and token cost plus dominant source are reported. The suggested keyword/candidate document router is an additional future M6 optimization, not a substitute for or reduction of this completed stopgap.",
   "acceptanceVerdict": "accepted",
   "realMachineCoverage": {
     "ran": [],
     "skipped": []
   },
-  "limitations": "Keyword/candidateSpecSet routing is intentionally deferred to M6; usage_sweep totals are overlapping attribution rather than exact exclusive billing truth.",
-  "pitfalls": "Do not reintroduce requirements reads through another prompt section, do not substitute truncation, and do not treat usage_sweep multi-attribution totals as an exact task invoice.",
+  "limitations": "Exact exclusive task billing is not available because usage_sweep attributes shared long sessions and cached inputs to every mentioned Story; reported sweep totals are explicitly non-authoritative and multi-attributed. Future keyword/candidateSpecSet routing remains M6.",
+  "pitfalls": "Never reintroduce requirements corpus reads through another prompt section, never replace deletion with order-dependent truncation, and never present a multiAttribution usage_sweep total as an exact invoice.",
   "phaseStats": {
     "INIT": {
       "count": 1,
@@ -26,19 +26,19 @@
       "durationMs": 386782
     },
     "DEV": {
-      "count": 2,
-      "durationMs": 520067
+      "count": 4,
+      "durationMs": 522816
     },
     "REVIEW": {
-      "count": 2,
-      "durationMs": 453017
+      "count": 4,
+      "durationMs": 592990
     },
     "TEST": {
-      "count": 1,
-      "durationMs": 96966
+      "count": 3,
+      "durationMs": 1273854
     }
   },
-  "totalDurationMs": 1624890,
+  "totalDurationMs": 2944500,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -51,5 +51,5 @@
     "open": 0
   },
   "createdAt": "2026-07-12T01:49:36.754Z",
-  "updatedAt": "2026-07-12T01:49:36.754Z"
+  "updatedAt": "2026-07-12T02:11:36.364Z"
 }
