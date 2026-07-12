@@ -116,7 +116,30 @@
       "userSees": "Review coverage claims are backed by current signed candidate and actual-read evidence rather than self-reported prose.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Generate candidateSpecSet and ReviewerReadEvidence for a reviewer that fully reads candidates and title-triages the remainder, then submit the declared manifest with matching mechanical events -> versioned artifacts are signed/hash-bound to Story inputs, corpus, prompts, candidates, current material/story-files hashes and content hashes, and the gate accepts the current evidence while showing actual-read coverage; WHY: maps artifact-contract-tests to auditable user-visible review proof",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Mutate Story input, corpus content, candidate content, prompt digest, HEAD/material hash or storyFilesHash after routing -> the appropriate freshness consumer classifies the evidence stale, requires rerouting/re-attestation according to the canonical drift rules, and never silently reuses an obsolete digest; WHY: maps freshness-tests to correct evidence renewal",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Submit missing, unsigned, wrong-writer, forged-signature, altered-digest, replayed, manifest-log mismatched, missing-declared-read, undeclared-full-read, or full-scan-without-reason evidence -> every gate-consumed path fails closed and reports the precise mismatch; WHY: maps forgery-tests and ensures prose or proposal output cannot counterfeit actual review coverage",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
