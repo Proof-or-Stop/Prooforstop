@@ -107,7 +107,7 @@
       "desc": "packages/main/src/core/candidate-spec-routing.ts:508-528 — forceFullScanReason only switches from ranked.slice(0,budget) to ranked. Files with no query match are absent from ranked, so a justified full scan can still yield an empty or partial candidateSpecSet instead of the full indexed corpus. The dispatch prompt only lists candidateSpecSet, making the documented tool-driven broad-review fallback incomplete and especially unsafe for zero-candidate ambiguity. In fullScan mode enumerate every corpus entry deterministically (without embedding bodies), and verify the manifest covers that enumeration; add zero-match plus fullScanReason coverage.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-12T10:49:36.741Z",
@@ -119,7 +119,11 @@
         "packages/main/src/handlers/story-dispatch.ts"
       ],
       "signatureTag": "edge|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in ec8d248d: explicit full scan enumerates the complete corpus including zero-score files and manifest coverage is required.",
+      "resolvedAt": "2026-07-12T10:56:06.941Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
