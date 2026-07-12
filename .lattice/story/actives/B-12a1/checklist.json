@@ -66,6 +66,17 @@
           "materialHash": "ed4c1d93f811aed2d72830acbf40c2a701cfca845097ce5841469daa6ea7d995",
           "storyFilesHash": "e17aa5517d9272be012e26a3089f3f40ca6ac697da4db9d6fb77f2d4a340cd50",
           "timestamp": "2026-07-12T21:44:05.105Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "command": "node -e \"const{classifyLifecycleArtifact}=require('./packages/main/dist/core/lifecycle-registry.js');const f=['checklist.json','decision.json','understanding.json','summary.json','scope-contract.json'];const bad=f.filter(n=>classifyLifecycleArtifact('.lattice/story/actives/B-test/'+n)?.kind!=='lifecycle');if(bad.length){console.error('FAIL '+bad);process.exit(1)}console.log('B ok: existing names unregressed')\"",
+          "result": "pass",
+          "note": "Probe B: previously-registered names (checklist.json, decision.json, understanding.json, summary.json, scope-contract.json) still classify kind=lifecycle after the addition — no regression.",
+          "headHash": "4ae05bfd03c541cb0a5e55abd73352f06e4b6771",
+          "materialHash": "ed4c1d93f811aed2d72830acbf40c2a701cfca845097ce5841469daa6ea7d995",
+          "storyFilesHash": "e17aa5517d9272be012e26a3089f3f40ca6ac697da4db9d6fb77f2d4a340cd50",
+          "timestamp": "2026-07-12T21:44:09.795Z"
         }
       ]
     },
