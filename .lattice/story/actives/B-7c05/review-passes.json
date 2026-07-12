@@ -184,6 +184,25 @@
         "scanEscalationReason": null
       },
       "_hash": "3a762d236cd4665e83c725c1b534720c59d1c368cca2913bf9424ea0a413ddd3"
+    },
+    {
+      "id": "B-7c05:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Post-merge re-binding: reviewed 97a294cf75 story-review.ts merge resolution (hoisted reviewPrompt/brief projection over main B-f97c no-truth-docs assembly, truthDocsCount removed) and brief-output-smoke.ts witness swap (truth-doc marker -> PLAN prompt header). No dead refs (rg truthDocs|truthSection clean except an intentional negative assertion), no as-any/empty-catch introduced, tsc -p packages/main --noEmit clean, node dist/tasks/brief-output-smoke.js passed. No blockers.",
+      "createdAt": "2026-07-12T18:34:12.463Z",
+      "reviewRound": "2026-07-12T18:30:44.632Z",
+      "reviewRunId": "B-7c05:RR-013",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/tasks/brief-output-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/story-review-corpus-budget-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ad0292daeca2e670925721190298f839899faefa8c0244b64e44fc10fec83011"
     }
   ]
 }
