@@ -70,6 +70,26 @@
         "scanEscalationReason": null
       },
       "_hash": "6393a41e872728a7f1ea11e437e0857a1925d85dd8213ffeab72d6fd045c955d"
+    },
+    {
+      "id": "B-3ddc:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round. Fix commit b0e9ea0bb882 adds HostRunSpawnResult.failureRetentionTruncated (F1) + paren-neutralization in the turn_failed digest (F2), both purely additive alongside untouched existing retentionTruncated / no_turn_completed_usage_event concepts. Grepped both identifiers across packages/ (src+dist): fully referenced, no orphaned residue, covered by new/updated tests.",
+      "createdAt": "2026-07-12T00:45:52.434Z",
+      "reviewRound": "2026-07-12T00:43:26.118Z",
+      "reviewRunId": "B-3ddc:RR-006",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3ddc/checklist.json",
+          ".lattice/story/actives/B-3ddc/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a3e7aa31047dcc3f80801004f014aa02ec72e1d0d70cd37fb46fe49627d9e9bf"
     }
   ]
 }
