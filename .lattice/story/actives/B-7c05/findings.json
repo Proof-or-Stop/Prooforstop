@@ -66,7 +66,7 @@
       "desc": "CHK-001:edge:1 and CHK-003:edge:1 (both should-priority scaling boundaries) lack any verificationEvidence: milestone_status with >20 milestones, and help with >100 registered commands. brief-output-smoke.ts fixtures only build 3 milestones (msBrief asserts \"3 total\" at line 209) and the live help catalog already has ~320 commands (well over 100) but no test asserts the brief renderer stays one-line-per-milestone / grouped-and-readable at that scale without truncation loss of identifiers. No evidence record exists for either intentRef.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-12T01:41:05.371Z",
@@ -77,7 +77,11 @@
         "packages/main/src/tasks/brief-output-smoke.ts"
       ],
       "signatureTag": "missing|ts|edge-edge-both",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "docs/CLI.md now records the host_list disposition: ~16KB measured, under the ~20KB brief-by-default threshold, deliberately left as-is with a follow-up trigger if it grows. Evidence recorded on CHK-004:edge:1 (docs_check).",
+      "resolvedAt": "2026-07-12T17:09:23.444Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7c05:F-005",
