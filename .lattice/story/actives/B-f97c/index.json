@@ -4,7 +4,7 @@
   "title": "Stop story_review from embedding the requirements corpus",
   "description": "Remove unconditional recursive requirements Markdown reads and full truthDocs concatenation from story_review _reviewPrompt so ordinary PLAN review cannot consume the entire multi-megabyte corpus. Preserve PLAN gate semantics and structured story, understanding, decision, checklist, verificationIntent, grill, experience-hint, and ProofStory sections. Add regression coverage proving unrelated large requirements documents are not embedded and prompt size does not scale with corpus content.",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "story_review",
@@ -14,7 +14,7 @@
   ],
   "createdAt": "2026-07-12T01:22:31.864Z",
   "startedAt": "2026-07-12T01:22:31.864Z",
-  "endedAt": null,
+  "endedAt": "2026-07-12T02:12:10.904Z",
   "events": [
     {
       "phase": "INIT",
@@ -33,11 +33,124 @@
       "user": "Harmonygo",
       "sessionId": "sess-07bc482a401d5422",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-12T01:25:19.922Z",
+      "branch": "story/B-f97c",
+      "user": "Harmonygo",
+      "sessionId": "sess-46c4f7a7414d164c",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-12T01:31:46.704Z",
+      "branch": "story/B-f97c",
+      "user": "Harmonygo",
+      "sessionId": "sess-46c4f7a7414d164c",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-12T01:35:57.174Z",
+      "branch": "story/B-f97c",
+      "user": "Harmonygo",
+      "sessionId": "sess-46c4f7a7414d164c",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-12T01:38:42.656Z",
+      "branch": "story/B-f97c",
+      "user": "Harmonygo",
+      "sessionId": "sess-46c4f7a7414d164c",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-12T01:43:12.253Z",
+      "branch": "story/B-f97c",
+      "user": "Harmonygo",
+      "sessionId": "sess-46c4f7a7414d164c",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-12T01:47:59.788Z",
+      "branch": "story/B-f97c",
+      "user": "Harmonygo",
+      "sessionId": "sess-46c4f7a7414d164c",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-12T01:54:55.917Z",
+      "branch": "story/B-f97c",
+      "user": "Harmonygo",
+      "sessionId": "sess-baa4e2f8deacbf6e",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-12T01:54:57.206Z",
+      "branch": "story/B-f97c",
+      "user": "Harmonygo",
+      "sessionId": "sess-46c4f7a7414d164c",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-12T01:56:39.621Z",
+      "branch": "story/B-f97c",
+      "user": "Harmonygo",
+      "sessionId": "sess-46c4f7a7414d164c",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-12T02:10:33.328Z",
+      "branch": "story/B-f97c",
+      "user": "Harmonygo",
+      "sessionId": "sess-fbb31207db1fa642",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-12T02:10:34.788Z",
+      "branch": "story/B-f97c",
+      "user": "Harmonygo",
+      "sessionId": "sess-46c4f7a7414d164c",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-12T02:11:12.346Z",
+      "branch": "story/B-f97c",
+      "user": "Harmonygo",
+      "sessionId": "sess-7f48d0ddf96e44bc",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-12T02:12:10.904Z",
+      "branch": "story/B-f97c",
+      "user": "Harmonygo",
+      "sessionId": "sess-46c4f7a7414d164c",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-f97c",
-    "branch": "story/B-f97c",
-    "createdAt": "2026-07-12T01:25:01.033Z"
-  }
+  "currentReviewRound": "2026-07-12T02:10:34.788Z"
 }

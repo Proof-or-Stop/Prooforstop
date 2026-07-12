@@ -26,7 +26,7 @@ import { resolveAuditConfig } from '../core/audit-config.js';
 import { safeReadScopeContract } from '../core/lattice-parallel-wave.js';
 import { computeProcessMetrics } from '../core/process-metrics.js';
 import { SCOPE_CHECK_SALT, signScopeCheck } from './scope-check.js';
-import { existsSync, readFileSync, readdirSync } from 'fs';
+import { existsSync } from 'fs';
 import { join } from 'path';
 import { createHash } from 'crypto';
 import { VERIFICATION_LANES, collectVerificationIntents, detectLegacyEvidenceWithoutIntent, VERIFICATION_INTENT_REPAIR_COMMAND } from '../core/verification.js';
@@ -74,21 +74,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
       assertCwdInWorktree(store, args.storyId);
       const cl = store.readChecklist(args.storyId);
 
-      // Read truth source
       const config = loadConfig(ctx.root);
-      const reqDir = join(ctx.root, config.requirementsDir);
-      const truthDocs: string[] = [];
-      if (existsSync(reqDir)) {
-        const scanDir = (dir: string) => {
-          for (const entry of readdirSync(dir, { withFileTypes: true })) {
-            if (entry.isDirectory()) { scanDir(join(dir, entry.name)); continue; }
-            if (entry.name.endsWith('.md')) {
-              truthDocs.push(readFileSync(join(dir, entry.name), 'utf-8'));
-            }
-          }
-        };
-        scanDir(reqDir);
-      }
 
       const issues: Array<{ type: string; severity: 'blocker' | 'advisory'; itemId?: string; message: string; legacyEvidenceWithoutIntent?: boolean; repairCommand?: string }> = [];
       const info: Array<{ type: string; message: string }> = [];
@@ -574,7 +560,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
         issues.push({
           type: 'review_advisory',
           severity: 'advisory',
-          message: 'The review found no blockers, but it is recommended to manually verify checklist completeness against the source-of-truth documents in _reviewPrompt',
+          message: 'The review found no blockers, but it is recommended to manually verify checklist completeness against the signed scope-check evidence and its referenced source documents',
         });
       }
 
@@ -674,12 +660,13 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
         },
         issues,
         ...(info.length > 0 ? { info } : {}),
-        truthDocsCount: truthDocs.length,
         _hint: blockerCount > 0
           ? `Round ${reviewData.reviews.length} review found ${blockerCount} blockers, please fix and run story_review again`
           : `✅ Round ${reviewData.reviews.length} review passed (${blockerCount} blocker, ${issues.length} advisory), can proceed to development`,
         _reviewPrompt: (() => {
-          // Assemble the full review prompt: truth docs + checklist/intent + understanding + decision
+          // Assemble the structured PLAN review prompt. Requirements documents are
+          // deliberately not read or embedded here: scope reviewers discover and
+          // record relevant sources through signed scope-check evidence.
           // So the reviewer can not only review requirement coverage, but also review "whether the main agent truly understands the task" and "why this design was chosen"
           const understandingSection = understanding
             ? `\n---\nUnderstanding Snapshot:\n` +
@@ -718,9 +705,6 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
               : '';
             return `- ${i.id}: ${i.title}${i.context ? ` (${i.context})` : ''}${intentLines}`;
           }).join('\n')}`;
-          const truthSection = truthDocs.length > 0
-            ? `\n---\nTruth Source (${truthDocs.length} docs):\n${truthDocs.join('\n---\n')}`
-            : '';
           const proofStorySection = (() => {
             try {
               const report = evaluateProofStoryDiagnostics({
@@ -743,18 +727,18 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
               return `\n---\nProofStory Diagnostics (advisory only): unavailable (${(e as Error).message})`;
             }
           })();
-          // When there are no truth docs + no understanding + no decision + no
-          // grill + no rendered experience hints, ProofStory diagnostics still keep
+          // When there is no understanding, decision, grill, or rendered experience
+          // hint, ProofStory diagnostics still keep
           // the advisory prompt present because they are part of PLAN review.
           // renderedHintsSection alone keeps the advisory prompt present so the
           // hints are surfaced even in a bare PLAN. It is '' when no hints exist OR
           // when the A/B arm is OFF (B-06b3), so in both of those cases the prompt is
           // byte-unchanged from the prior no-hints behavior.
-          if (truthDocs.length === 0 && !understanding && !decision && !grill && renderedHintsSection === '' && proofStorySection === '') return undefined;
+          if (!understanding && !decision && !grill && renderedHintsSection === '' && proofStorySection === '') return undefined;
           return `Please review the PLAN-phase artifacts of the following story. Focus on:\n` +
             `  1. Whether understanding is genuine (whether unknowns contradict facts, whether touchpoints are real)\n` +
             `  2. Whether the decision choice is reasonable (why other options were not chosen, whether rationale echoes drivers)\n` +
-            `  3. Whether the checklist covers all scenarios in description + truth docs\n` +
+            `  3. Whether the checklist covers the story description and signed scope-check findings\n` +
             `  4. Whether preMortem lists real failure modes (not filler)\n` +
             `  5. Whether ProofStory diagnostics identify missing machine artifacts; do not treat prompt-only statements as gate evidence\n\n` +
             `---\nStory: ${story.title}\nDescription: ${story.description}\nPriority: ${story.priority}` +
@@ -765,7 +749,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
             // placed right after it. It is the A/B render-gated value (B-06b3): the
             // full section on the ON arm, '' on the OFF arm. ADVISORY-ONLY: never fed
             // to resolveReviewPromptHash.
-            understandingSection + decisionSection + grillSection + renderedHintsSection + proofStorySection + checklistSection + truthSection;
+            understandingSection + decisionSection + grillSection + renderedHintsSection + proofStorySection + checklistSection;
         })(),
       };
     },

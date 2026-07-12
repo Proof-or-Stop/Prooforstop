@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-f97c",
+  "sourceText": "按照上面的建议，马上开一个story，马上修复，一定要删除 story-review.ts 中递归 readFileSync() 所有 requirements Markdown 的逻辑，以及 truthDocs.join(...)；不然一个简单的story就把额度烧穿。并记录这个任务总共消耗多少token，最大开销在什么地方。",
+  "normalizedOutcome": "story_review no longer reads or embeds the requirements Markdown corpus; an ordinary story produces a bounded structured PLAN prompt, with pre/post token-cost measurement and dominant-source attribution.",
+  "acceptanceClaim": "A focused regression proves unrelated multi-megabyte requirements content is absent and does not change _reviewPrompt bytes while structured PLAN sections remain, and reports the measured pre/post cost.",
+  "keyRequirementIds": [
+    "REQ-MEASURE-TOKENS",
+    "REQ-PRESERVE-STRUCTURE",
+    "REQ-REMOVE-JOIN",
+    "REQ-REMOVE-READ"
+  ],
+  "requestHash": "sha256:084bdf9ec89821d3e46065b13dfba15b02f01a07f7de1573dfe2da10111ce07c",
+  "createdAt": "2026-07-12T01:30:35.799Z",
+  "updatedAt": "2026-07-12T01:30:35.799Z"
+}

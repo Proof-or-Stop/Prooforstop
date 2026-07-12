@@ -1,0 +1,65 @@
+{
+  "storyId": "B-f97c",
+  "generatedFor": "delivery-review",
+  "diff": {
+    "changedFiles": [
+      ".lattice/story/actives/B-f97c/checklist.json",
+      ".lattice/story/actives/B-f97c/decision.json",
+      ".lattice/story/actives/B-f97c/done-required-evidence.json",
+      ".lattice/story/actives/B-f97c/findings.json",
+      ".lattice/story/actives/B-f97c/index.json",
+      ".lattice/story/actives/B-f97c/intent-collision.json",
+      ".lattice/story/actives/B-f97c/original-intent-snapshot.json",
+      ".lattice/story/actives/B-f97c/plan.md",
+      ".lattice/story/actives/B-f97c/process-events.jsonl",
+      ".lattice/story/actives/B-f97c/process-metrics.json",
+      ".lattice/story/actives/B-f97c/proofstory.json",
+      ".lattice/story/actives/B-f97c/red-evidence.json",
+      ".lattice/story/actives/B-f97c/review-passes.json",
+      ".lattice/story/actives/B-f97c/review-runs.json",
+      ".lattice/story/actives/B-f97c/review.json",
+      ".lattice/story/actives/B-f97c/scope-check.json",
+      ".lattice/story/actives/B-f97c/scope-contract.json",
+      ".lattice/story/actives/B-f97c/summary.json",
+      ".lattice/story/actives/B-f97c/test-evidence.json",
+      ".lattice/story/actives/B-f97c/understanding.json",
+      "packages/main/package.json",
+      "packages/main/src/handlers/story-review.ts",
+      "packages/main/src/tasks/story-review-corpus-budget-smoke.ts"
+    ],
+    "summary": " .lattice/story/actives/B-f97c/checklist.json       | 248 ++++++++++++-\n .lattice/story/actives/B-f97c/decision.json        |  75 ++++\n .../actives/B-f97c/done-required-evidence.json     |  83 +++++\n .lattice/story/actives/B-f97c/findings.json        |  38 ++\n .lattice/story/actives/B-f97c/index.json           |  86 ++++-\n .../story/actives/B-f97c/intent-collision.json     |  12 +\n .../actives/B-f97c/original-intent-snapshot.json   |  16 +\n .lattice/story/actives/B-f97c/plan.md              |  11 +\n .lattice/story/actives/B-f97c/process-events.jsonl |  45 +++\n .lattice/story/actives/B-f97c/process-metrics.json | 359 ++++++++++++++++++\n .lattice/story/actives/B-f97c/proofstory.json      |  66 ++++\n .lattice/story/actives/B-f97c/red-evidence.json    |  42 +++\n .lattice/story/actives/B-f97c/review-passes.json   | 169 +++++++++\n .lattice/story/actives/B-f97c/review-runs.json     | 400 +++++++++++++++++++++\n .lattice/story/actives/B-f97c/review.json          | 143 ++++++++\n .lattice/story/actives/B-f97c/scope-check.json     |  94 +++++\n .lattice/story/actives/B-f97c/scope-contract.json  |  53 +++\n .lattice/story/actives/B-f97c/summary.json         |  55 +++\n .lattice/story/actives/B-f97c/test-evidence.json   | 257 +++++++++++++\n .lattice/story/actives/B-f97c/understanding.json   |  25 ++\n packages/main/package.json                         |   1 +\n packages/main/src/handlers/story-review.ts         |  36 +-\n .../src/tasks/story-review-corpus-budget-smoke.ts  | 234 ++++++++++++\n 23 files changed, 2512 insertions(+), 36 deletions(-)"
+  },
+  "docsPromises": [],
+  "realMachineTests": {
+    "transcriptDiff": false,
+    "testFiles": [
+      "tasks/story-review-corpus-budget-smoke.ts"
+    ],
+    "evidenceCommands": [
+      "lattice usage_sweep --since=2026-07-12T01:12+02:00 --format=json",
+      "npm --prefix packages/main run test:story-review-corpus-budget"
+    ]
+  },
+  "validation": {
+    "source": "test-evidence.json",
+    "result": "PASS",
+    "timestamp": "2026-07-12T01:59:26.688Z",
+    "headHash": "bb26aac5171e057cfede5f3db3a1161cf2862131",
+    "materialHash": "83248d6c26000dfd5037cec7021e03a7b53db7bd62234f233f26054388778d69",
+    "storyFilesHash": "16054b9781ed92e63824978a59bb25358dce482756c281373856023ef5572c21"
+  },
+  "reviewRound": "2026-07-12T01:54:57.206Z",
+  "deliveryCheck": {
+    "status": "missing",
+    "ref": null
+  },
+  "waiver": {
+    "status": "none"
+  },
+  "isSigner": false,
+  "claims": {
+    "authorityDone": false,
+    "fullAuthorityDone": false,
+    "productionDone": false
+  }
+}

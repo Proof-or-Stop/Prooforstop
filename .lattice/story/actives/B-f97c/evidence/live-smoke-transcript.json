@@ -1,0 +1,20 @@
+{
+  "storyId": "B-f97c",
+  "expected": null,
+  "actual": {
+    "command": "npm --prefix packages/main run test:story-review-corpus-budget",
+    "exitCode": 0,
+    "stdout": "\n> @lattice/core@0.3.187 test:story-review-corpus-budget\n> node dist/tasks/story-review-corpus-budget-smoke.js\n\n{\n  \"measurementKind\": \"byte-exact prompt components; token counts are byte/4 estimates\",\n  \"storyScopedHostUsage\": \"reported separately from this deterministic smoke via read-only lattice usage_sweep; it is a non-authoritative, overlapping attribution when multiAttribution=true\",\n  \"baselinePostFixPromptBytes\": 2936,\n  \"largeCorpusPostFixPromptBytes\": 2936,\n  \"promptByteDeltaAfterAddingCorpus\": 0,\n  \"estimatedPreFixPromptBytes\": 3148782,\n  \"postFixPromptBytes\": 2936,\n  \"estimatedPreFixTokens\": 787196,\n  \"estimatedPostFixTokens\": 734,\n  \"reductionBytes\": 3145846,\n  \"reductionPercent\": 99.91,\n  \"components\": {\n    \"requirementsCorpusWithHistoricalFramingBytes\": 3145846,\n    \"structuredPromptBytes\": 2936,\n    \"reconciledTotalBytes\": 3148782\n  },\n  \"dominantSource\": \"requirements corpus with historical Truth Source framing\"\n}\n✓ story review corpus budget smoke passed\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-07-12T01:59:41.641Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "bb26aac5171e057cfede5f3db3a1161cf2862131",
+  "materialHash": "83248d6c26000dfd5037cec7021e03a7b53db7bd62234f233f26054388778d69"
+}
