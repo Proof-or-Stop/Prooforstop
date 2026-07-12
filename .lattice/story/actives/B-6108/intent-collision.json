@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-6108",
+  "id": "IC-20260711223456",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Deterministic lexical recall additions to the claimsShrinkage construction only: bounded adverb-insertion token windows inside the existing multi-word triggers (never raw character proximity), inflection forms on existing stems (partial-ly, exclud-e/es/ing, defer-s/ring), a curated constrained shrinkage-verb set (passive scope-cut verbs, follow-up handoffs, delivery-qualifier-bound removed/dropped/cut), optional quote characters at the remaining-chain scope-noun position, and plus added to the Oxford-list conjunction alternation. stripCodeLikeTokens and the clause taxonomy stay untouched except those two chain tweaks.",
+  "acceptedInterpretationHash": "sha256:7ff8c584ad0e73f9173b445467591959e12f4789f6bd746405387978d2e0c5a2",
+  "notes": "Considered interpretations: (1) targeted lexical additions per verified class (chosen - matches the follow-up request and B-2c03 convergence design); (2) broad verb vocabulary (rejected - bare removed/dropped/cut flood routine change descriptions with false positives; the request itself demands must-not-fire controls); (3) restructuring the chain or sanitizer to catch verbs generically (rejected - B-2c03 settled that design across F-012/F-013 and eight codex rounds; out of scope boundary). Lane check: user follow-up request, checklist CHK-001..004, and scope boundary all describe the same five-class lexical expansion; no conflicting reading found.",
+  "createdAt": "2026-07-11T22:34:56.108Z",
+  "updatedAt": "2026-07-11T22:34:56.108Z"
+}

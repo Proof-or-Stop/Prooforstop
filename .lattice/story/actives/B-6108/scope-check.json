@@ -1,0 +1,128 @@
+{
+  "storyId": "B-6108",
+  "checkedAt": "2026-07-11T22:42:44.371Z",
+  "features": [
+    {
+      "feature": "Class 1: adverb-insertion windows in multi-word triggers (not yet covered, not fully covered, out of the current scope) fire the gap using bounded token-step windows, not raw character proximity",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-6108/checklist.json"
+    },
+    {
+      "feature": "Class 2: inflection forms on existing trigger stems (partial/partially, exclude/excludes/excluding, defer/defers/deferring) fire the gap without matching unrelated longer words",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-6108/checklist.json"
+    },
+    {
+      "feature": "Class 3: curated constrained shrinkage-verb vocabulary (passive scope-cut verbs, follow-up handoffs, delivery-qualifier-bound removed/dropped/cut) carries the claim when the trigger word sits inside a stripCodeLikeTokens-stripped token, while bare removed/dropped/cut stay quiet",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-6108/checklist.json"
+    },
+    {
+      "feature": "Class 4: quoted scope nouns (straight/curly quote characters between the remaining-chain connector and the scope noun) fire the gap",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-6108/checklist.json"
+    },
+    {
+      "feature": "Class 5: comma-list-then-plus Oxford lists (web, mobile, plus Safari cases) fire the gap via plus added to the Oxford tail and-or alternation",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-6108/checklist.json"
+    },
+    {
+      "feature": "RED-first smoke coverage in both directions (must-fire recall + must-not-fire precision controls) for every addition",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-6108/plan.md"
+    },
+    {
+      "feature": "Interaction audit of every addition against stripCodeLikeTokens strip classes and the remaining-chain clause taxonomy, plus full regression (intent-hardening smoke, milestone-done-gate-reconciliation smoke, milestone-status tests, packages/main e2e) and plan documentation of final vocabulary/rationale",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-6108/checklist.json"
+    },
+    {
+      "feature": "All B-2c03 pinned must-fire/must-not-fire cases (15+ window claims, 7 cross-clause controls, strip controls) continue to pass unchanged",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-6108/checklist.json"
+    },
+    {
+      "feature": "Bare removed/dropped/cut in routine (non-delivery-qualified, active-voice) change descriptions must not fire, preserving B-2c03s false-positive-direction fix",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-6108/checklist.json"
+    },
+    {
+      "feature": "Changing stripCodeLikeTokens strip rules or its by-requirement strip classes settled in B-2c03",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded list: settled in B-2c03, explicitly out of scope for this follow-up",
+      "source": ".lattice/story/actives/B-6108/scope-boundary.json"
+    },
+    {
+      "feature": "NLP or non-deterministic classification; any change to strict milestone-path DONE logic or other DONE-gate checks",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded list + understanding.json constraint: deterministic lexical processing only",
+      "source": ".lattice/story/actives/B-6108/scope-boundary.json"
+    },
+    {
+      "feature": "Restructuring the remaining-chain clause taxonomy (stop words, comma-conjunction rule, Oxford branch shape) beyond the quote-tolerance and plus additions",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded list: clause taxonomy settled by B-2c03 F-012/F-013 and eight codex rounds",
+      "source": ".lattice/story/actives/B-6108/scope-boundary.json"
+    },
+    {
+      "feature": "Marginal recall on classes outside the five verified classes (new verbs beyond the curated set, new typography beyond quotes, novel constructions)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "plan.md Convergence statement: belongs to a future follow-up, not this story",
+      "source": ".lattice/story/actives/B-6108/plan.md"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      ".lattice/story/actives/B-2c03/plan.md",
+      ".lattice/story/actives/B-6108/background.md",
+      ".lattice/story/actives/B-6108/checklist.json",
+      ".lattice/story/actives/B-6108/intent-collision.json",
+      ".lattice/story/actives/B-6108/plan.md",
+      ".lattice/story/actives/B-6108/red-evidence.json",
+      ".lattice/story/actives/B-6108/scope-boundary.json",
+      ".lattice/story/actives/B-6108/scope-contract.json",
+      ".lattice/story/actives/B-6108/understanding.json",
+      "packages/main/src/core/proofstory.ts",
+      "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+    ],
+    "filesTriagedByName": [
+      ".lattice/story/actives/B-6108/index.json",
+      ".lattice/story/actives/B-6108/proofstory.json"
+    ],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 12,
+    "covered": 8,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "a0a89398f50e47cbfd29434703a77c6052ce2e2d2cea22ceb01707835e44caf9",
+  "openQuestions": []
+}

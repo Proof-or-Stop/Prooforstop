@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-6108",
+  "sourceText": "Expand the recall of the claimsShrinkage trigger vocabulary in evaluateDoneIntentEquivalence (packages/main/src/core/proofstory.ts) for the five classes verified out-of-scope during B-2c03: (1) adverb insertion in multi-word triggers (not yet covered); (2) inflections (partially, excludes); (3) shrinkage verbs carrying the claim when the trigger word sits inside a stripped-by-requirement token (was skipped, was removed, was dropped, left to a follow-up story); (4) quoted scope nouns; (5) comma+plus list constructions. Follow B-2c03 patterns: RED-first smoke cases in both directions, check sanitizer and remaining-chain interactions, respect the clause-structure design and convergence statement.",
+  "normalizedOutcome": "All five verified recall-gap classes fire unconfirmed_single_outcome_shrinkage on their B-2c03-verified sentences; routine change descriptions (bare removed/dropped/cut, active-voice skipped) stay quiet; every B-2c03 pinned must-fire and must-not-fire case is unchanged; the final vocabulary and per-class precision rationale are documented in the story plan.",
+  "acceptanceClaim": "done_intent_equivalence_check fires for the nine verified recall sentences (not-yet-covered, partially-delivered, excludes-workflow, was-skipped with stripped file name, backticked-trigger with follow-up handoff, was-removed-from-this-delivery, quoted scope noun, comma-plus list) and stays quiet for the precision controls (routine change verbs, lone comma-plus clause coordination, all seven B-2c03 cross-clause controls); the full intent-hardening smoke, reconciliation smoke, milestone-status tests, and e2e pass at final head.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:343b255ce3368f46362b45a33a69b8cc5e80c1941180c6548c654e0fad9db57d",
+  "createdAt": "2026-07-11T22:34:55.483Z",
+  "updatedAt": "2026-07-11T22:34:55.483Z"
+}
