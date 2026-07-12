@@ -1,56 +1,62 @@
 {
   "storyId": "B-3ddc",
-  "checkedAt": "2026-07-12T00:14:04.132Z",
-  "headHash": "832c7a6bda6979689f2ee249e827a4d603391a8e",
-  "materialHash": "6e59fee3d22619cad4ffaaa0001a50f5e71d60cd5ae7910b7eee382f697a84bd",
-  "storyFilesHash": "d144fa13fbbcc8bcdce64015e5c4a0c77b1cca428323f343bf236dae293e4b38",
-  "reviewRound": "2026-07-11T23:37:09.696Z",
+  "checkedAt": "2026-07-12T01:21:15.163Z",
+  "headHash": "7da2d901cab6d4cf5fea0ef9c97ff8ff083bda17",
+  "materialHash": "c649460d19896e5efc38fc158ff6504adb71297df80af161ea386899a73dba33",
+  "storyFilesHash": "1f8395cff3e764665321b45cea1ac7e09bd35750ec67985f6cf3f1eecbf1b2ef",
+  "reviewRound": "2026-07-12T00:43:26.118Z",
   "agentId": "lattice-review-delivery",
   "docsPromises": [
     {
-      "docPath": ".lattice/story/actives/B-3ddc/summary.json#usage",
-      "promise": "When a codex host_run has no turn.completed usage event, the CLI usage summary and the usage-ledger unavailable final now carry reason turn_failed(<short digest of the codex error message>) instead of only no_turn_completed_usage_event; the generic reason remains for streams with neither event; no new CLI flags required.",
-      "verifiedBy": "diff/grep + real-machine reproduction",
-      "evidence": "packages/main/src/core/host-run.ts: recordFinalForHost (codex branch, lines ~1519-1546) only falls back to no_turn_completed_usage_event when scanCodexTurnFailed(failureText || stdout) returns null; codexTurnFailedReason/codexTurnFailedDigest implement the digest (innermost error.message drilled depth<=4, control-char/whitespace collapse, 160-char hard cap). Independently reproduced end-to-end: built the worktree CLI, ran node packages/main/dist/cli.js host_run --host codex with a PATH codex shim replaying the exact pinned B-3928 turn.failed line, and got spawned true, exitCode 1, usage.recorded unavailable, provider openai, reason byte-exact turn_failed(<upgrade message>), all token counts null -- matching evidence/transcript-diff.md exactly."
-    },
-    {
-      "docPath": ".lattice/story/actives/B-3ddc/plan.md#CHK-001",
-      "promise": "A second bounded failure lane (same 1MiB last-one-wins UsageLineScanner cap) retains the last codex turn.failed / terminal error line via failureLineRetainerFor / HostRunSpawnPlan.retainFailureLine / HostRunSpawnResult.failureText, without changing the live passthrough or the existing usage lane retention/truncation semantics (F-013/F-026).",
-      "verifiedBy": "diff/grep",
-      "evidence": "packages/main/src/core/host-run.ts: failureLineRetainerFor is codex-only; defaultHostRunRunner instantiates a second UsageLineScanner(plan.retainFailureLine), pushes the same stdout chunks after the existing scanner.push, flushes independently, returns failureText separately from stdout/retentionTruncated. onChunk delivery path unchanged (failureScanner.push added as an extra read, not a replacement)."
-    },
-    {
-      "docPath": ".lattice/story/actives/B-3ddc/plan.md#CHK-002",
-      "promise": "recordFinalForHost consults the failure lane ONLY when no turn.completed usage exists; the F-013/F-026 usage_line_retention_truncated priority path is unchanged and takes precedence over turn_failed; a genuine turn.completed usage still records provider-reported; usage numbers are never fabricated from a failure event.",
-      "verifiedBy": "diff/grep",
-      "evidence": "packages/main/src/core/host-run.ts line 1466 (retentionTruncated early branch) executes before line 1529 (scanCodexTurnFailed branch), confirming truncation priority is structurally guaranteed, not just tested. Verified in code read, consistent with review-passes.json RP-002 reviewer note."
-    },
-    {
-      "docPath": ".lattice/story/actives/B-3ddc/plan.md#CHK-003",
-      "promise": "The host-run-usage-smoke pins the exact observed B-3928 turn.failed fixture, updates the existing turn.failed check to expect turn_failed(boom), and keeps the no-failure-event fallback covered.",
+      "docPath": ".lattice/story/actives/B-3ddc/summary.json#changes",
+      "promise": "The codex host_run streaming runner retains a SECOND bounded lane (last turn.failed / terminal error line; same 1MiB last-one-wins UsageLineScanner cap) via failureLineRetainerFor / HostRunSpawnPlan.retainFailureLine / HostRunSpawnResult.failureText, with failureRetentionTruncated honoring the lane's own truncation flag (a candidate-then-over-cap-drop degrades honestly to the generic fallback, mirroring F-013/F-026).",
       "verifiedBy": "diff/grep + real-machine run",
-      "evidence": "packages/main/src/tasks/host-run-usage-smoke.ts: CODEX_TURN_FAILED_B3928_LINE pinned literal plus 6 new checks (pinned end-to-end, fallback, precedence, streaming lane via real child, terminal error, digest hygiene); the pre-existing CHK-001 codex edge check is renamed and now asserts turn_failed(boom). Ran node packages/main/dist/tasks/host-run-usage-smoke.js directly in this worktree after a clean npm run build: all 71 checks pass, including all 7 B-3ddc-tagged checks."
+      "evidence": "packages/main/src/core/host-run.ts: failureLineRetainerFor is codex-only (returns undefined for claude/agy); defaultHostRunRunner instantiates a second UsageLineScanner(plan.retainFailureLine), pushes the same live stdout chunks after the existing usage scanner.push (onChunk delivery order unchanged), flushes independently at finish, and returns failureText + failureRetentionTruncated = failureScanner.truncated on HostRunSpawnResult. Confirmed via `git diff main...HEAD -- packages/main/src/core/host-run.ts`."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-3ddc/summary.json#changes",
+      "promise": "new scanCodexTurnFailed + codexTurnFailedReason render turn_failed(<digest>) — innermost error.message drilled from a JSON-encoded body (depth cap 4), control chars/whitespace collapsed, parens neutralized to brackets (delimiter-injection proof), 160-char cap with trailing ellipsis, no_error_message token when unextractable.",
+      "verifiedBy": "diff/grep + real-machine run",
+      "evidence": "packages/main/src/core/host-run.ts: scanCodexTurnFailed walks JSON lines for the LAST turn.failed/error event (own-property guarded, last-wins across both types); codexTurnFailedDigest drills up to CODEX_TURN_FAILED_NESTED_DEPTH_CAP=4 own error.message levels, collapses control-chars/whitespace via /[\\u0000-\\u001f\\u007f\\s]+/g, then neutralizes '(' -> '[' and ')' -> ']' BEFORE the CODEX_TURN_FAILED_DIGEST_MAX_CHARS=160 hard cap with trailing '…'; null/empty message -> 'no_error_message'. Verified with the 'B-3ddc digest hygiene' and 'B-3ddc F2 paren injection' smoke checks, both passing in a fresh local run."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-3ddc/summary.json#changes",
+      "promise": "recordFinalForHost consults the failure lane ONLY when no turn.completed usage exists and falls back to no_turn_completed_usage_event when neither event is present or the failure lane is truncation-poisoned; provider-reported path, F-013/F-026 priority, claude/agy paths and the ledger schema unchanged.",
+      "verifiedBy": "diff/grep + real-machine run",
+      "evidence": "packages/main/src/core/host-run.ts recordFinalForHost codex branch: the pre-existing retentionTruncated (usage lane) early-return executes BEFORE the usage===null branch that consults scanCodexTurnFailed, preserving F-013/F-026 absolute priority structurally. failureSource is forced to '' when failureRetentionTruncated is true (a stale retained failure line is never scanned), else falls back to failureText when non-empty else stdout (buffered fake-runner path). Confirmed by the 'B-3ddc precedence', 'B-3ddc F1 candidate-then-drop', and 'B-3ddc F1 drop-then-candidate' smoke checks, all passing."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-3ddc/summary.json#changes",
+      "promise": "74/74 checks pass.",
+      "verifiedBy": "real-machine run (independent re-execution)",
+      "evidence": "Independently rebuilt packages/main (`npm run build`, clean tsc) and re-ran `node packages/main/dist/tasks/host-run-usage-smoke.js` in this fresh review session: output ends '✓ host-run usage smoke passed (74 checks)' with zero failures, matching the claimed count exactly."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-3ddc/summary.json#usage",
+      "promise": "No new CLI flags: `lattice host_run --host codex ...` works as before; when codex fails without a turn.completed usage event, the CLI usage summary and the usage-ledger unavailable final now carry reason turn_failed(<short digest of the codex error message>) instead of only no_turn_completed_usage_event; the generic reason remains for streams with neither event or a truncation-poisoned failure lane.",
+      "verifiedBy": "diff/grep + real-machine transcript",
+      "evidence": "No CLI arg-parsing/handler files are in the diff (only packages/main/src/core/host-run.ts + the smoke test), so no new flags were introduced. evidence/transcript-diff.md documents BOTH a pre-fix real-machine run (recordId llmuse_9e779e65...) and a post-fix real-machine re-run on commit b0e9ea0bb882 (recordId llmuse_1b020bc0...), both showing byte-exact reason 'turn_failed(The 'gpt-5.6-sol' model requires a newer version of Codex. Please upgrade to the latest app or CLI and try again.)' via the same shim/prompt, plus a documented baseline contrast (pre-story installed CLI: generic no_turn_completed_usage_event only)."
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "node packages/main/dist/tasks/host-run-usage-smoke.js (71/71 pass) covers streaming-lane retention via a real child process echoing the pinned turn.failed line (failureText populated, usage lane stays empty), terminal error retention, last-wins across multiple failure events, buffered fake-runner surfacing, two-lane independence, F-013/F-026 truncation-priority regression checks unchanged, live passthrough unchanged. Independently re-ran this exact smoke in this review session with a clean build; output matched."
+      "transcript": "node packages/main/dist/tasks/host-run-usage-smoke.js (74/74 pass, independently re-run in this session after a clean tsc build) covers: streaming-lane retention via a real child process ('B-3ddc streaming lane'), terminal-error retention ('B-3ddc terminal error'), last-wins across multiple failure events (F-026 scanner unit + F1 candidate-then-drop/drop-then-candidate using REAL child processes), buffered fake-runner surfacing (CHK-001 codex edge), two-lane independence ('B-3ddc precedence'), F-013/F-026 usage-lane truncation priority unchanged, live passthrough unchanged (F-006 checks still pass)."
     },
     {
       "featureId": "CHK-002",
-      "transcript": "node packages/main/dist/tasks/host-run-usage-smoke.js covers pinned B-3928 nested-JSON innermost-message extraction, genuine turn.completed precedence over a trailing turn.failed, pure no-event fallback, null/empty message to no_error_message, over-160-char truncation with ellipsis, control-char/whitespace sanitization, truncated-usage-lane priority unchanged, null token counts on turn_failed rows. Additionally independently reproduced via a real end-to-end CLI invocation (node packages/main/dist/cli.js host_run --host codex with a codex shim on PATH replaying the exact B-3928 line): output byte-matched evidence/transcript-diff.md (reason, exitCode, null usage fields, ledger row)."
+      "transcript": "Same smoke run covers: pinned B-3928 nested-JSON innermost-message extraction with exit-code propagation ('B-3ddc pinned B-3928'), genuine turn.completed precedence over a trailing turn.failed ('B-3ddc precedence'), pure no-event fallback ('B-3ddc fallback'), null/empty message -> no_error_message + over-160-char truncation with ellipsis + control-char/whitespace + paren-neutralization sanitization ('B-3ddc digest hygiene', 'B-3ddc F2 paren injection'), and the two new F1 findings-fix checks (failureRetentionTruncated honored both directions). Additionally independently reproduced via a real end-to-end CLI invocation with a codex shim on PATH replaying the exact B-3928 line, both pre-fix and post-fix (evidence/transcript-diff.md), byte-matching every expected field in both runs."
     },
     {
       "featureId": "CHK-003",
-      "transcript": "The pinned CODEX_TURN_FAILED_B3928_LINE fixture and its 6 dependent checks (pinned end-to-end row via runHostRun and ledger, exitCode propagation, updated boom-case, no-event fallback, precedence, streaming-lane real-child case) are present in host-run-usage-smoke.ts and pass, verified by direct re-run in this review session."
+      "transcript": "The pinned CODEX_TURN_FAILED_B3928_LINE fixture and its dependent checks (pinned end-to-end row via runHostRun+ledger, exitCode propagation, updated turn_failed(boom) case, no-event fallback, precedence, streaming-lane real-child case, terminal error, digest hygiene, F1/F2 fix-round checks) are present in host-run-usage-smoke.ts and verified passing by a fresh independent run in this review session (74/74)."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "All 4 docs/plan promises verified directly in code and confirmed by independently re-running the smoke suite (71/71 pass, including all 7 new B-3ddc checks) and by an independent end-to-end CLI reproduction with a codex shim that byte-matched the story's own transcript-diff.md. No TODO/FIXME/HACK introduced. One pre-disclosed non-blocking gap (no dedicated over-cap turn.failed unit test) is honestly reported in summary.json limitations and the RP-002 review note, not hidden."
+    "summary": "This is a re-sign after fix commit b0e9ea0bb882 (failure-lane truncation honesty via failureRetentionTruncated + digest paren-neutralization, 3 new smoke checks). Independently re-verified: all 5 docs/summary promises match the code in the diff exactly, the 74/74 smoke suite genuinely passes on a fresh clean build, and evidence/transcript-diff.md contains both a PRE-fix and a POST-fix (commit b0e9ea0bb882) real-machine acceptance run that are byte-identical in outcome, proving the fix changed no observable behavior for the pinned acceptance scenario while closing the two round-1 findings (stale-retention leak, delimiter-injection). No TODO/FIXME/HACK in the diff. One honestly pre-disclosed non-blocking limitation remains documented in summary.json (failure-lane best-effort diagnostics degrade to the generic fallback on truncation/over-cap, by design)."
   },
-  "_hash": "250979e8cef3c8c1851df85af7e9f9a48fb65d1d5a8876e26064a7277da3eaf6"
+  "_hash": "00baec65dd76647a094e6f739aeaa85acf51b5353ad31e8c91a865ecb0642a40"
 }
