@@ -84,6 +84,21 @@ unavailable | openai | no_turn_completed_usage_event | in: None
 i.e. exactly the B-3928 forensics pain this story removes: the version-skew
 cause was invisible in the ledger before, and is now named by the row itself.
 
+## Post-fix re-run (codex round-1 findings fixed, commit b0e9ea0bb882)
+
+After the fix round (failure-lane truncation honesty via failureRetentionTruncated +
+digest paren neutralization; 74/74 smoke checks), the same real-machine command was
+re-run against the rebuilt worktree CLI (agentType acceptance-check-postfix):
+
+```
+exitCode: 1
+reason: turn_failed(The 'gpt-5.6-sol' model requires a newer version of Codex. Please upgrade to the latest app or CLI and try again.)
+recordId: llmuse_1b020bc0-4e75-418d-b3f5-000edd374551
+```
+
+Identical acceptance outcome — the fixes changed no behavior for the pinned scenario
+(they close the stale-retention and delimiter-injection edges only).
+
 ## Five-question self-check
 
 1. Did I run the real deliverable, not just unit tests? — Yes: the compiled

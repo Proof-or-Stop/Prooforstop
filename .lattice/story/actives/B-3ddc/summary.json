@@ -1,18 +1,18 @@
 {
   "storyId": "B-3ddc",
-  "changes": "packages/main/src/core/host-run.ts: the codex host_run streaming runner retains a SECOND bounded lane (last turn.failed / terminal error line; same 1MiB last-one-wins UsageLineScanner cap) via failureLineRetainerFor / HostRunSpawnPlan.retainFailureLine / HostRunSpawnResult.failureText; new scanCodexTurnFailed + codexTurnFailedReason render turn_failed(<digest>) — innermost error.message drilled from a JSON-encoded body (depth cap 4), control chars/whitespace collapsed, 160-char cap with trailing ellipsis, no_error_message token when unextractable; recordFinalForHost consults the failure lane ONLY when no turn.completed usage exists and falls back to no_turn_completed_usage_event when neither event is present; provider-reported path, F-013/F-026 truncation priority, claude/agy paths and the ledger schema unchanged. packages/main/src/tasks/host-run-usage-smoke.ts: pinned byte-exact B-3928 fixture (CODEX_TURN_FAILED_B3928_LINE) + 6 new checks (pinned end-to-end row, noise-only fallback, usage precedence, streaming lane via real child, terminal error, digest hygiene); existing turn.failed check now expects turn_failed(boom); 71/71 checks pass.",
-  "usage": "No new flags: run lattice host_run --host codex --agentType <type> [--storyId ...] --prompt ... as before (works with --format json too). When codex fails without a turn.completed usage event, the CLI usage summary and the usage-ledger unavailable final now carry reason turn_failed(<short digest of the codex error message>) — e.g. turn_failed(The 'gpt-5.6-sol' model requires a newer version of Codex. Please upgrade to the latest app or CLI and try again.) — instead of only no_turn_completed_usage_event; the generic reason remains for streams with neither event.",
+  "changes": "packages/main/src/core/host-run.ts: the codex host_run streaming runner retains a SECOND bounded lane (last turn.failed / terminal error line; same 1MiB last-one-wins UsageLineScanner cap) via failureLineRetainerFor / HostRunSpawnPlan.retainFailureLine / HostRunSpawnResult.failureText, with failureRetentionTruncated honoring the lane's own truncation flag (a candidate-then-over-cap-drop degrades honestly to the generic fallback, mirroring F-013/F-026); new scanCodexTurnFailed + codexTurnFailedReason render turn_failed(<digest>) — innermost error.message drilled from a JSON-encoded body (depth cap 4), control chars/whitespace collapsed, parens neutralized to brackets (delimiter-injection proof), 160-char cap with trailing ellipsis, no_error_message token when unextractable; recordFinalForHost consults the failure lane ONLY when no turn.completed usage exists and falls back to no_turn_completed_usage_event when neither event is present or the failure lane is truncation-poisoned; provider-reported path, F-013/F-026 priority, claude/agy paths and the ledger schema unchanged. packages/main/src/tasks/host-run-usage-smoke.ts: pinned byte-exact B-3928 fixture + 9 new checks (pinned end-to-end row, noise-only fallback, usage precedence, streaming lane via real child, terminal error, digest hygiene incl. paren injection, candidate-then-drop degrade, drop-then-candidate F-026 mirror); existing turn.failed check now expects turn_failed(boom); 74/74 checks pass.",
+  "usage": "No new flags: run lattice host_run --host codex --agentType <type> [--storyId ...] --prompt ... as before (works with --format json too). When codex fails without a turn.completed usage event, the CLI usage summary and the usage-ledger unavailable final now carry reason turn_failed(<short digest of the codex error message>) — e.g. turn_failed(The 'gpt-5.6-sol' model requires a newer version of Codex. Please upgrade to the latest app or CLI and try again.) — instead of only no_turn_completed_usage_event; the generic reason remains for streams with neither event or a truncation-poisoned failure lane.",
   "expectedOutcome": "A host_run whose codex stream replays the exact observed B-3928 turn.failed (nested 400 invalid_request_error) records: spawned true, exitCode 1 propagated, usage recorded unavailable, provider openai, reason turn_failed(The 'gpt-5.6-sol' model requires a newer version of Codex. Please upgrade to the latest app or CLI and try again.), token counts all null, and a matching unavailable ledger row.",
-  "actualTranscript": "Real-machine run of the worktree-built CLI (node packages/main/dist/cli.js host_run --host codex --agentType acceptance-check --phase adhoc --format json) with a PATH codex shim replaying the exact B-3928 failure transcript: output JSON matched every expected field including reason turn_failed(The 'gpt-5.6-sol' model requires a newer version of Codex. Please upgrade to the latest app or CLI and try again.), exitCode 1, null token counts, recordId llmuse_9e779e65-f0dd-43e3-a4ba-596d99dded75; ledger row verified. Full verbatim transcript + diff in .lattice/story/actives/B-3ddc/evidence/transcript-diff.md. Baseline contrast: the installed pre-change CLI with the same shim records only no_turn_completed_usage_event.",
-  "outcomeDiff": "No difference: actual matched expected on every field (reason text byte-exact, exit propagation, null counts, ledger row). Baseline contrast documented the removed failure mode.",
+  "actualTranscript": "Real-machine runs of the worktree-built CLI (node packages/main/dist/cli.js host_run --host codex --format json) with a PATH codex shim replaying the exact B-3928 failure transcript — BOTH pre-fix (recordId llmuse_9e779e65-f0dd-43e3-a4ba-596d99dded75) and post-fix on commit b0e9ea0bb882 (recordId llmuse_1b020bc0-4e75-418d-b3f5-000edd374551) — matched every expected field byte-exact. Full verbatim transcripts + diff in .lattice/story/actives/B-3ddc/evidence/transcript-diff.md, including the baseline contrast: the installed pre-change CLI with the same shim records only no_turn_completed_usage_event.",
+  "outcomeDiff": "No difference: actual matched expected on every field in both runs (reason text byte-exact, exit propagation, null counts, ledger rows). Baseline contrast documented the removed failure mode.",
   "acceptanceVerdict": "accepted",
   "outcomeKind": "success",
   "realMachineCoverage": {
     "ran": [],
     "skipped": []
   },
-  "limitations": "Codex-only enrichment by design (claude/agy failure surfaces out of scope per the user request); the failure lane is best-effort diagnostics — an over-cap (>1MiB) failure line is dropped and the reason degrades to the generic no_turn_completed_usage_event fallback (no dedicated over-cap lane test; the lane reuses the F-006/F-013-covered UsageLineScanner cap mechanism — noted non-blocking by the quality reviewer); usage-lane truncation (usage_line_retention_truncated) deliberately outranks turn_failed.",
-  "pitfalls": "(1) ProofStory DEV intent gate (enforce) blocked story_advance until original_intent_snapshot_set + intent_collision_set + proofstory_contract_set (acceptanceBindings verificationIntentRefs MUST use the CHK-xxx:lane:index format — plain CHK-xxx:lane is rejected as unknown) + red_evidence_create (target the AB-id, not a CHK-id) were all recorded. (2) Scope gate fails closed on ProofStory metadata files (proofstory.json, red-evidence.json, intent-collision.json, original-intent-snapshot.json) not yet in the lifecycle registry — acknowledge via scope_contract_acknowledge, two rounds were needed because the artifacts appear incrementally. (3) scope_contract_init_from_plan yields an EMPTY enforce contract for legacy checklists without files fields — set scope_contract_set explicitly right after. (4) Worktree build order matters: packages/main before packages/utils, and symlink the main repo node_modules first. (5) The story-level dispatch of the concept reviewer requires reviewer_batch (dispatch rejects story-level agentType) and review_pass_set needs the fully-qualified reviewRunId (B-3ddc:RR-xxx).",
+  "limitations": "Codex-only enrichment by design (claude/agy failure surfaces out of scope per the user request); the failure lane is best-effort diagnostics — an over-cap (>1MiB) failure line, or a candidate poisoned by a LATER over-cap drop (failureRetentionTruncated), degrades to the generic no_turn_completed_usage_event fallback; usage-lane truncation (usage_line_retention_truncated) deliberately outranks turn_failed; in a single REAL stream the usage-lane flag masks most failure-lane truncation cases (the failure-lane flag is defense-in-depth for injected runners and future refactors).",
+  "pitfalls": "(1) ProofStory DEV intent gate (enforce) blocked story_advance until original_intent_snapshot_set + intent_collision_set + proofstory_contract_set (verificationIntentRefs MUST use CHK-xxx:lane:index format) + red_evidence_create (target the AB-id, not a CHK-id) were recorded. (2) Scope gate fails closed on ProofStory metadata files not in the lifecycle registry — scope_contract_acknowledge, two rounds as artifacts appear incrementally. (3) scope_contract_init_from_plan yields an EMPTY enforce contract for legacy checklists without files fields — scope_contract_set explicitly right after. (4) Worktree build order: packages/main before packages/utils; symlink main-repo node_modules first. (5) Story-level concept-reviewer dispatch requires reviewer_batch; review_pass_set needs the fully-qualified reviewRunId. (6) A REAL codex exec review round (bounded perl-alarm watchdog, --skip-git-repo-check, stdin </dev/null) caught 2 genuine findings claude-side review missed (stale failure-lane retention after over-cap drop; paren delimiter injection) — recorded as an honest FAIL verdict B-3ddc-local-r1, which escalates the review assurance floor to 3 local rounds. (7) A reviewer running pre-fix load-bearing experiments in the SHARED worktree caused a transient dirty tree during a sibling review — restored before recording; prefer isolated clones for such experiments. (8) TEST re-entry after fix commits needs verification_evidence_refresh_stale (re-run the evidence command first).",
   "phaseStats": {
     "INIT": {
       "count": 1,
@@ -27,19 +27,19 @@
       "durationMs": 973007
     },
     "DEV": {
-      "count": 1,
-      "durationMs": 1068201
+      "count": 2,
+      "durationMs": 2062397
     },
     "REVIEW": {
-      "count": 1,
-      "durationMs": 1518387
+      "count": 2,
+      "durationMs": 3489231
     },
     "TEST": {
-      "count": 1,
-      "durationMs": 493857
+      "count": 2,
+      "durationMs": 1550441
     }
   },
-  "totalDurationMs": 4225699,
+  "totalDurationMs": 8247323,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -52,5 +52,5 @@
     "open": 0
   },
   "createdAt": "2026-07-12T00:10:41.940Z",
-  "updatedAt": "2026-07-12T00:10:41.940Z"
+  "updatedAt": "2026-07-12T01:17:43.566Z"
 }
