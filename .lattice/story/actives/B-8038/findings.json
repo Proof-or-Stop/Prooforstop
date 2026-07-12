@@ -65,6 +65,26 @@
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8038:F-004",
+      "desc": "packages/main/src/core/candidate-spec-routing.ts:529 and :546-565 — the artifact records storyInputDigest, but candidateReadBindingErrors never accepts or recomputes the current StoryRoutingInput digest and never compares it. Because routing inputs include title, description, checklist promises/relatedDocs, understanding, and risk signals, those PLAN facts can change after candidate_spec_route while materialHash/storyFilesHash remain code-oriented; scope_check_save and reviewer pass can then accept a correctly signed but semantically stale candidate set. Rebuild the current story input in each gate consumer (or persist a separately freshness-bound input artifact) and fail/warn by rollout mode when storyInputDigest differs; add a regression mutating checklist or relatedDocs after routing.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-12T10:49:26.621Z",
+      "reviewRound": "2026-07-12T10:47:52.082Z",
+      "reviewRunId": "B-8038:RR-002",
+      "_hash": "3b76e0c8f732d9652543d47144220ab545aa4ec2d857340ad7f4bd3cc5313aef",
+      "files": [
+        "packages/main/src/core/candidate-spec-routing.ts",
+        "packages/main/src/handlers/scope-check.ts",
+        "packages/main/src/handlers/finding.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
