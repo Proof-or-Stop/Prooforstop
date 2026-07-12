@@ -62,6 +62,18 @@
           "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
           "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
           "timestamp": "2026-07-12T01:33:39.903Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "milestone-status.test.mjs post-mutation blocks now assert the appended suffix: full 7-column table appears ONLY with LATTICE_BRIEF_OUTPUT=0 in env, proving the bare mutation suffix defaults to the compact summary (appendMilestoneStatusAfterMutation seam); brief-output-smoke also enforces the suffix budget.",
+          "headHash": "21444897d34eba3165b395a36c85713abb66136a",
+          "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
+          "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
+          "timestamp": "2026-07-12T01:33:40.567Z"
         }
       ]
     },
