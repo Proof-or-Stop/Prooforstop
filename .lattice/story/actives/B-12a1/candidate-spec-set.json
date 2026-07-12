@@ -2902,10 +2902,10 @@
     "high_risk_lifecycle_gate_process_fact_or_global_rename"
   ],
   "fullScan": true,
-  "scanEscalationReason": "story adds 10 filenames to the closed lifecycle-artifact classifier set consumed by classifyLifecycleArtifact/scope-contract enforcement (high_risk_lifecycle_gate_process_fact); ranking_affecting_query_truncation and candidate_cutoff_tie also flagged, so doing a full corpus scan rather than trusting the truncated/tied ranked candidate list",
+  "scanEscalationReason": "Story modifies the closed-set lifecycle-artifact classifier (LATTICE_LIFECYCLE_ARTIFACT_FILENAMES) that gates scope_check_save globally across all stories; routing flagged high_risk_lifecycle_gate_process_fact_or_global_rename plus a ranking-affecting truncation/cutoff tie, so a full requirements-corpus scan is needed to rule out an existing decision doc on the scope-contract trust-model policy (e.g. the B-b9d0 closed-set rationale) before concluding review.",
   "storyInputDigest": "9ee859ab9f257f73e6645aa865b6592e133ef94bbc64d0c6565fa9c2f9ca8426",
-  "headHash": "3c46f640069e488d2b203ec664771c9971cec419",
+  "headHash": "c8d514ef5300725e77c731ac02af3776f3c49a2a",
   "materialHash": "1511ddb57f11c1763cd2fcbbe91134ffcca172d675fb0e230c2640f0d0833a51",
   "storyFilesHash": "2d25e16521c214a860624ddc8abb44091ff79c55407993254922e753ad2741ea",
-  "artifactDigest": "00c32eac51bc1a247cdc65678ec4018dc2ad4947a3ef2535eca646099415d1c6"
+  "artifactDigest": "30e5eaa2e6bbcd6c2e73c5bb1c439f5b069d1ca6cc0cc62fcae4dd0e4ac3abbb"
 }
