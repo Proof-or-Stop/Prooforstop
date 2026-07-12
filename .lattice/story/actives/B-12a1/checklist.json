@@ -62,7 +62,55 @@
       "context": "packages/main/src/tasks/scope-contract-smoke.ts — under an enforce contract that does not list story-metadata paths, assert all ten ProofStory artifact paths .lattice/story/actives/<id>/{original-intent-snapshot,milestone-ledger,milestone-closeout,slice-plan,parent-ledger-rollup,proofstory,intent-collision,scope-shrinkage-decision,red-evidence,spike}.json produce scope.lifecycle_artifact pass rows (fails before the registry fix).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After build, running node packages/main/dist/tasks/scope-contract-smoke.js passes with all 10 new assertions: each of the 10 ProofStory artifact paths .lattice/story/actives/B-scope/{original-intent-snapshot,milestone-ledger,milestone-closeout,slice-plan,parent-ledger-rollup,proofstory,intent-collision,scope-shrinkage-decision,red-evidence,spike}.json produces a scope.lifecycle_artifact:<storyId>:<name> row with status=pass and blocking=false; WHY: confirms the smoke pins all 10 names as lifecycle_artifact pass",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "The existing lifecycleRuntimePositive assertions (summary.json, live-smoke-transcript.json, activity.jsonl) still pass alongside the new 10 assertions; WHY: the new test block must not regress the pre-existing lifecycle/runtime smoke coverage",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The test uses an enforce contract (waveContract) whose allowedModify/allowedCreate/allowedTest sets do NOT list story-metadata paths, proving the lifecycle classifier (not an allow-list) is what causes the pass; WHY: if the test accidentally added the paths to allowedModify, the assertion would pass for the wrong reason and would not detect a classifier regression",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "The existing fail-closed negative assertions (unknown-metadata.json, unowned-source.ts, direct-edit.json at .lattice/story/actives/B-scope/) are preserved and still produce out_of_scope fail rows; WHY: widening the positive set must not silently remove the negative-coverage block that guards the closed-set trust policy",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Each new assertion row id follows the pattern scope.lifecycle_artifact:B-scope:<filename> — using the fixture storyId B-scope, not a real story id; WHY: a test using a real storyId could flake when that story is discarded or renamed",
+            "type": "logic",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Before the CHK-001 registry fix (i.e. on current main dist), the 10 new assertions would FAIL with out_of_scope rows — this is the red side of the red-green pair; implementer must record this red state via red_evidence_create before applying the fix; WHY: without the red evidence, the smoke test could be vacuously passing due to a test bug rather than the registry fix",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Adding an 11th path to the assertion block with a name NOT in the registry (e.g. .lattice/story/actives/B-scope/not-registered.json) would fail the smoke, proving the test is not accidentally using a wildcard or catch-all; WHY: if the assertion loop were miscoded to pass any story-dir file, it would not detect a missing registry entry",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "The overall scope check status for the positive block remains pass (not warn or fail) after adding the 10 paths, confirming none of the new entries triggers a violation or unexpected side-effect in checkScopeContract; WHY: a subtle interaction between lifecycle_artifact classification and the enforce mode could produce a warn row that masks a real failure",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
