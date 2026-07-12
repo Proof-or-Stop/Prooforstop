@@ -1,0 +1,23 @@
+{
+  "findings": [
+    {
+      "id": "B-623a:F-001",
+      "desc": "packages/main/src/tasks/usage-burn-alert-smoke.ts CHK-002:happy:2 evidence note cites the check 'handler: --alert fires with LATTICE_BURN_ALERT_INPUT_TOKENS=1000 override' (L450-468) as covering 'resolveBurnAlertThresholds with LATTICE_BURN_ALERT_INPUT_TOKENS=500000 returns inputTokens=500000 while other defaults are unchanged', but that check never calls resolveBurnAlertThresholds and never uses 500000 -- it only asserts alert-firing behavior with value 1000. The literal value 500000 does not occur anywhere in usage-burn-alert-smoke.ts or usage-burn-alert.ts (grep confirms zero matches). The only resolver test that overrides LATTICE_BURN_ALERT_INPUT_TOKENS to a specific value uses 50000000 (L272-285, 'resolver: each env variable overrides its threshold'), a different untested value. Sibling intents CHK-002:happy:1 (FILE_MB=50->52428800) and CHK-002:happy:3 (AGE_DAYS=14->14) ARE asserted with their exact literal values, so this is a real evidence-note misattribution / coverage gap rather than a stylistic choice.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-12T20:54:06.613Z",
+      "reviewRound": "2026-07-12T20:46:22.327Z",
+      "reviewRunId": "B-623a:RR-003",
+      "_hash": "c45e0b04f0ff2574ba1c7fcfa361eba29a74aabc0fb22ddf935dee3fa79bb58e",
+      "files": [
+        "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+        "packages/main/src/core/usage-burn-alert.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
