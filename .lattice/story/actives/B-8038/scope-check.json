@@ -119,10 +119,11 @@
       "q": "Should CHK-003 and understanding.json use the canonical budget of at most 10 rg query groups plus at most 50 raw hits per query group, rather than saying query results are capped at 10?",
       "evidence": "The B-f646 execution plan section 9.2 defines <=10 rg query groups and <=50 raw hits per group. B-8038 understanding says query result budget <=10 and plan CHK-003 says query results at ten, which could cause an implementer to enforce the wrong dimension.",
       "sourcePointers": [
-        "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md:217",
-        ".lattice/story/actives/B-8038/understanding.json",
-        ".lattice/story/actives/B-8038/plan.md#CHK-003"
-      ]
+        "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md#9.2-query-stages",
+        "CHK-003"
+      ],
+      "resolution": "Use the canonical B-f646 section 9.2 dimensions: at most 10 rg query groups and at most 50 retained raw hits per group. The ordinary candidate full-read budget remains at most 8. Understanding and CHK-003 plan text have been corrected accordingly.",
+      "resolvedAt": "2026-07-12T10:13:09.826Z"
     }
   ]
 }

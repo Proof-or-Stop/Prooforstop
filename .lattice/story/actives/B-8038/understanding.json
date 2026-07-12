@@ -11,7 +11,7 @@
   ],
   "constraints": [
     "Implement M6A through M6G and keep milestone ledger current.",
-    "Default candidate full-read budget is at most 8 and query result budget at most 10 unless structured escalation applies.",
+    "Default candidate full-read budget is at most 8, the query planner emits at most 10 rg query groups, and each group retains at most 50 raw hits unless structured escalation applies.",
     "Never restore requirements bodies to prompts.",
     "All host-bound data uses one sanitizer and uncertain values stay local.",
     "Gate artifacts are versioned signed hash-bound freshness checked and registered in process-fact contracts.",
@@ -36,5 +36,5 @@
     "lattice.config.json",
     "packages/main/src/tasks"
   ],
-  "timestamp": "2026-07-12T10:10:10.850Z"
+  "timestamp": "2026-07-12T10:13:08.861Z"
 }

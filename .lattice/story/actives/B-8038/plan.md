@@ -5,7 +5,7 @@ Implement proofbound.corpus-index.v1 and proofbound.keyword-seeds.v1 in a pure c
 Add host proposal schemas and adapters that reuse core/host-run.ts. Build a single pre-egress sanitizer over every host-bound field, keep raw provenance local, launch Codex and Claude as independent primary proposers, use agy only under the documented fallback policy, and test outages budgets malformed output and secret leakage.
 
 ## CHK-003
-Implement a bounded local query planner and deterministic scorer over filename heading and body matches. Deduplicate aliases, preserve reason provenance, cap ordinary candidates at eight and query results at ten, and produce ambiguity signals for sparse noisy zero-hit and cutoff-tie cases.
+Implement a bounded local query planner and deterministic scorer over filename heading and body matches. Deduplicate aliases, preserve reason provenance, cap ordinary candidates at eight, emit at most ten rg query groups, retain at most fifty raw hits per group, and produce ambiguity signals for sparse noisy zero-hit and cutoff-tie cases.
 
 ## CHK-004
 Define proofbound.candidate-spec-set.v1 and proofbound.reviewer-read-evidence.v1 artifacts. Sign or hash-bind Story inputs corpus digest prompt digest candidates and actual reads, reconcile manifests against mechanical events, and reject missing stale forged or mismatched evidence.
