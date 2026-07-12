@@ -62,10 +62,10 @@
           "command": "node -e \"const{classifyLifecycleArtifact}=require('./packages/main/dist/core/lifecycle-registry.js');const f=['original-intent-snapshot','milestone-ledger','milestone-closeout','slice-plan','parent-ledger-rollup','proofstory','intent-collision','scope-shrinkage-decision','red-evidence','spike'];const bad=f.filter(n=>classifyLifecycleArtifact('.lattice/story/actives/B-test/'+n+'.json')?.kind!=='lifecycle');if(bad.length){console.error('FAIL '+bad);process.exit(1)}console.log('A ok: ten kind=lifecycle')\"",
           "result": "pass",
           "note": "Probe A run post-build in the story worktree: classifyLifecycleArtifact returns kind=lifecycle for each of the ten .lattice/story/actives/B-test/<name>.json paths.",
-          "headHash": "865b8ab5dcaa9d64bcc2542bfb98cce551966a34",
-          "materialHash": "ed4c1d93f811aed2d72830acbf40c2a701cfca845097ce5841469daa6ea7d995",
-          "storyFilesHash": "e17aa5517d9272be012e26a3089f3f40ca6ac697da4db9d6fb77f2d4a340cd50",
-          "timestamp": "2026-07-12T21:44:05.105Z"
+          "headHash": "5bc1e51144d32057e3fc530278e9dd4d92cf2a6c",
+          "materialHash": "1511ddb57f11c1763cd2fcbbe91134ffcca172d675fb0e230c2640f0d0833a51",
+          "storyFilesHash": "2d25e16521c214a860624ddc8abb44091ff79c55407993254922e753ad2741ea",
+          "timestamp": "2026-07-12T22:05:32.739Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -73,10 +73,10 @@
           "command": "node -e \"const{classifyLifecycleArtifact}=require('./packages/main/dist/core/lifecycle-registry.js');const f=['checklist.json','decision.json','understanding.json','summary.json','scope-contract.json'];const bad=f.filter(n=>classifyLifecycleArtifact('.lattice/story/actives/B-test/'+n)?.kind!=='lifecycle');if(bad.length){console.error('FAIL '+bad);process.exit(1)}console.log('B ok: existing names unregressed')\"",
           "result": "pass",
           "note": "Probe B: previously-registered names (checklist.json, decision.json, understanding.json, summary.json, scope-contract.json) still classify kind=lifecycle after the addition — no regression.",
-          "headHash": "4ae05bfd03c541cb0a5e55abd73352f06e4b6771",
-          "materialHash": "ed4c1d93f811aed2d72830acbf40c2a701cfca845097ce5841469daa6ea7d995",
-          "storyFilesHash": "e17aa5517d9272be012e26a3089f3f40ca6ac697da4db9d6fb77f2d4a340cd50",
-          "timestamp": "2026-07-12T21:44:09.795Z"
+          "headHash": "5bc1e51144d32057e3fc530278e9dd4d92cf2a6c",
+          "materialHash": "1511ddb57f11c1763cd2fcbbe91134ffcca172d675fb0e230c2640f0d0833a51",
+          "storyFilesHash": "2d25e16521c214a860624ddc8abb44091ff79c55407993254922e753ad2741ea",
+          "timestamp": "2026-07-12T22:05:32.739Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -84,10 +84,10 @@
           "command": "node -e \"const fs=require('fs');const src=fs.readFileSync('packages/main/src/core/store.ts','utf8');const written=[...src.matchAll(/writeJson\\(storyId, '([^']+)'/g)].map(m=>m[1]);const ten=['original-intent-snapshot.json','milestone-ledger.json','milestone-closeout.json','slice-plan.json','parent-ledger-rollup.json','proofstory.json','intent-collision.json','scope-shrinkage-decision.json','red-evidence.json','spike.json'];const missing=ten.filter(n=>!written.includes(n));const reg=fs.readFileSync('packages/main/src/core/lifecycle-registry.ts','utf8');const notInReg=ten.filter(n=>!reg.includes(\\\"'\\\"+n+\\\"'\\\"));if(missing.length||notInReg.length){console.error('FAIL missingInStore='+missing+' notInRegistry='+notInReg);process.exit(1)}console.log('C ok')\"",
           "result": "pass",
           "note": "Probe C: every one of the ten names appears character-for-character both as a store.ts writeJson(storyId, ...) filename and as a literal registry entry in lifecycle-registry.ts.",
-          "headHash": "97303b95c9eefb8e9792634249c4ecf45df29286",
-          "materialHash": "ed4c1d93f811aed2d72830acbf40c2a701cfca845097ce5841469daa6ea7d995",
-          "storyFilesHash": "e17aa5517d9272be012e26a3089f3f40ca6ac697da4db9d6fb77f2d4a340cd50",
-          "timestamp": "2026-07-12T21:44:12.931Z"
+          "headHash": "5bc1e51144d32057e3fc530278e9dd4d92cf2a6c",
+          "materialHash": "1511ddb57f11c1763cd2fcbbe91134ffcca172d675fb0e230c2640f0d0833a51",
+          "storyFilesHash": "2d25e16521c214a860624ddc8abb44091ff79c55407993254922e753ad2741ea",
+          "timestamp": "2026-07-12T22:05:32.739Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -95,10 +95,10 @@
           "command": "node -e \"const fs=require('fs');const src=fs.readFileSync('packages/main/src/core/lifecycle-registry.ts','utf8');const m=src.match(/LATTICE_LIFECYCLE_ARTIFACT_FILENAMES[\\s\\S]*?\\]\\);/);const lits=[...m[0].matchAll(/'([^']+)'/g)].map(x=>x[1]);const dupes=lits.filter((v,i)=>lits.indexOf(v)!==i);if(dupes.length){console.error('FAIL dupes='+dupes);process.exit(1)}console.log('D ok: no duplicate literals ('+lits.length+' entries)')\"",
           "result": "pass",
           "note": "Probe D: the LATTICE_LIFECYCLE_ARTIFACT_FILENAMES source block contains 34 string literals with zero duplicates.",
-          "headHash": "6b5eb0dc66e8a508d6e3e652f026e40d967eb457",
-          "materialHash": "ed4c1d93f811aed2d72830acbf40c2a701cfca845097ce5841469daa6ea7d995",
-          "storyFilesHash": "e17aa5517d9272be012e26a3089f3f40ca6ac697da4db9d6fb77f2d4a340cd50",
-          "timestamp": "2026-07-12T21:44:15.846Z"
+          "headHash": "5bc1e51144d32057e3fc530278e9dd4d92cf2a6c",
+          "materialHash": "1511ddb57f11c1763cd2fcbbe91134ffcca172d675fb0e230c2640f0d0833a51",
+          "storyFilesHash": "2d25e16521c214a860624ddc8abb44091ff79c55407993254922e753ad2741ea",
+          "timestamp": "2026-07-12T22:05:32.739Z"
         },
         {
           "intentRef": "CHK-001:edge:2",
@@ -106,10 +106,10 @@
           "command": "node -e \"const{classifyLifecycleArtifact}=require('./packages/main/dist/core/lifecycle-registry.js');const f=['grill.json','clusters.json','scope-extension-decisions.json'];const bad=f.filter(n=>classifyLifecycleArtifact('.lattice/story/actives/B-test/'+n)!==null);if(bad.length){console.error('FAIL '+bad);process.exit(1)}console.log('E ok: carved-out names still null')\"",
           "result": "pass",
           "note": "Probe E: carved-out names grill.json, clusters.json, scope-extension-decisions.json still return null (not lifecycle) per the background.md follow-up carve-out.",
-          "headHash": "7bf475f4393b267a4def3f44c1bf1665c2b0b486",
-          "materialHash": "ed4c1d93f811aed2d72830acbf40c2a701cfca845097ce5841469daa6ea7d995",
-          "storyFilesHash": "e17aa5517d9272be012e26a3089f3f40ca6ac697da4db9d6fb77f2d4a340cd50",
-          "timestamp": "2026-07-12T21:44:19.054Z"
+          "headHash": "5bc1e51144d32057e3fc530278e9dd4d92cf2a6c",
+          "materialHash": "1511ddb57f11c1763cd2fcbbe91134ffcca172d675fb0e230c2640f0d0833a51",
+          "storyFilesHash": "2d25e16521c214a860624ddc8abb44091ff79c55407993254922e753ad2741ea",
+          "timestamp": "2026-07-12T22:05:32.739Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -117,10 +117,10 @@
           "command": "node -e \"const{classifyLifecycleArtifact}=require('./packages/main/dist/core/lifecycle-registry.js');if(classifyLifecycleArtifact('.lattice/story/actives/B-test/subdir/original-intent-snapshot.json')!==null){console.error('FAIL nested allowed');process.exit(1)}console.log('F ok: nested path null')\"",
           "result": "pass",
           "note": "Probe F: nested path .../B-test/subdir/original-intent-snapshot.json returns null — top-level-only policy (B-b9d0) preserved.",
-          "headHash": "9c054e564ea098b28670f35f41af80776253f0ff",
-          "materialHash": "ed4c1d93f811aed2d72830acbf40c2a701cfca845097ce5841469daa6ea7d995",
-          "storyFilesHash": "e17aa5517d9272be012e26a3089f3f40ca6ac697da4db9d6fb77f2d4a340cd50",
-          "timestamp": "2026-07-12T21:44:23.143Z"
+          "headHash": "5bc1e51144d32057e3fc530278e9dd4d92cf2a6c",
+          "materialHash": "1511ddb57f11c1763cd2fcbbe91134ffcca172d675fb0e230c2640f0d0833a51",
+          "storyFilesHash": "2d25e16521c214a860624ddc8abb44091ff79c55407993254922e753ad2741ea",
+          "timestamp": "2026-07-12T22:05:32.739Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -128,10 +128,10 @@
           "command": "node -e \"const{classifyLifecycleArtifact}=require('./packages/main/dist/core/lifecycle-registry.js');if(classifyLifecycleArtifact('.lattice/story/actives/B-test/../B-other/proofstory.json')!==null){console.error('FAIL traversal allowed');process.exit(1)}console.log('G ok: traversal null')\"",
           "result": "pass",
           "note": "Probe G: traversal path .../B-test/../B-other/proofstory.json returns null — the .. guard is not bypassed by the new entries.",
-          "headHash": "8ed285162d3370439e44572bbee1b4dfcacb1d33",
-          "materialHash": "ed4c1d93f811aed2d72830acbf40c2a701cfca845097ce5841469daa6ea7d995",
-          "storyFilesHash": "e17aa5517d9272be012e26a3089f3f40ca6ac697da4db9d6fb77f2d4a340cd50",
-          "timestamp": "2026-07-12T21:44:26.416Z"
+          "headHash": "5bc1e51144d32057e3fc530278e9dd4d92cf2a6c",
+          "materialHash": "1511ddb57f11c1763cd2fcbbe91134ffcca172d675fb0e230c2640f0d0833a51",
+          "storyFilesHash": "2d25e16521c214a860624ddc8abb44091ff79c55407993254922e753ad2741ea",
+          "timestamp": "2026-07-12T22:05:32.739Z"
         },
         {
           "intentRef": "CHK-001:adversarial:2",
@@ -139,10 +139,10 @@
           "command": "node -e \"const{classifyLifecycleArtifact}=require('./packages/main/dist/core/lifecycle-registry.js');if(classifyLifecycleArtifact('.lattice/story/actives/B-test/evil-intent.json')!==null){console.error('FAIL unknown allowed');process.exit(1)}console.log('H ok: unknown name null')\"",
           "result": "pass",
           "note": "Probe H: unknown filename evil-intent.json at story-dir top level still returns null — the set remains closed, exactly ten names added.",
-          "headHash": "edb20be49e52b89a1d49a1f19951cec5d586f526",
-          "materialHash": "ed4c1d93f811aed2d72830acbf40c2a701cfca845097ce5841469daa6ea7d995",
-          "storyFilesHash": "e17aa5517d9272be012e26a3089f3f40ca6ac697da4db9d6fb77f2d4a340cd50",
-          "timestamp": "2026-07-12T21:44:29.383Z"
+          "headHash": "5bc1e51144d32057e3fc530278e9dd4d92cf2a6c",
+          "materialHash": "1511ddb57f11c1763cd2fcbbe91134ffcca172d675fb0e230c2640f0d0833a51",
+          "storyFilesHash": "2d25e16521c214a860624ddc8abb44091ff79c55407993254922e753ad2741ea",
+          "timestamp": "2026-07-12T22:05:32.739Z"
         }
       ]
     },
@@ -209,10 +209,10 @@
           "command": "node packages/main/dist/tasks/scope-contract-smoke.js",
           "result": "pass",
           "note": "Full scope-contract smoke passes post-build with the new B-12a1 block asserting a scope.lifecycle_artifact:B-scope:<name> pass row for each of the ten artifacts (\"scope contract smoke passed\").",
-          "headHash": "417d5457cabcf5d3bfcd10be54ff5d136da7a658",
-          "materialHash": "ed4c1d93f811aed2d72830acbf40c2a701cfca845097ce5841469daa6ea7d995",
-          "storyFilesHash": "e17aa5517d9272be012e26a3089f3f40ca6ac697da4db9d6fb77f2d4a340cd50",
-          "timestamp": "2026-07-12T21:44:32.586Z"
+          "headHash": "5bc1e51144d32057e3fc530278e9dd4d92cf2a6c",
+          "materialHash": "1511ddb57f11c1763cd2fcbbe91134ffcca172d675fb0e230c2640f0d0833a51",
+          "storyFilesHash": "2d25e16521c214a860624ddc8abb44091ff79c55407993254922e753ad2741ea",
+          "timestamp": "2026-07-12T22:05:32.739Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -221,10 +221,10 @@
           "command": "node packages/main/dist/tasks/scope-contract-smoke.js",
           "result": "pass",
           "note": "Same passing smoke run covers the pre-existing lifecycleRuntimePositive assertions (summary.json, live-smoke-transcript.json, activity.jsonl), which run before the new block — no regression.",
-          "headHash": "d2ddd7d3021a61e04c9148bcfe44c31c6d394845",
-          "materialHash": "ed4c1d93f811aed2d72830acbf40c2a701cfca845097ce5841469daa6ea7d995",
-          "storyFilesHash": "e17aa5517d9272be012e26a3089f3f40ca6ac697da4db9d6fb77f2d4a340cd50",
-          "timestamp": "2026-07-12T21:44:35.659Z"
+          "headHash": "5bc1e51144d32057e3fc530278e9dd4d92cf2a6c",
+          "materialHash": "1511ddb57f11c1763cd2fcbbe91134ffcca172d675fb0e230c2640f0d0833a51",
+          "storyFilesHash": "2d25e16521c214a860624ddc8abb44091ff79c55407993254922e753ad2741ea",
+          "timestamp": "2026-07-12T22:05:32.739Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -233,10 +233,10 @@
           "command": "git checkout HEAD~1 -- packages/main/src/core/lifecycle-registry.ts && npm --prefix packages/main run build && node packages/main/dist/tasks/scope-contract-smoke.js; git checkout HEAD -- packages/main/src/core/lifecycle-registry.ts && npm --prefix packages/main run build",
           "result": "pass",
           "note": "The new block reuses waveContract (allowedModify only src/allowed.ts; story-metadata paths absent from all allow sets). Proven not-allow-listed by the red replay: with the registry entries reverted (HEAD~1) and dist rebuilt, the same smoke fails with an AssertionError [strictEqual] on the B-12a1 rows; restoring HEAD and rebuilding returns it to pass.",
-          "headHash": "def6db3a2b6e7cfb765e54743b6f46e7f8e12809",
-          "materialHash": "ed4c1d93f811aed2d72830acbf40c2a701cfca845097ce5841469daa6ea7d995",
-          "storyFilesHash": "e17aa5517d9272be012e26a3089f3f40ca6ac697da4db9d6fb77f2d4a340cd50",
-          "timestamp": "2026-07-12T21:44:38.350Z"
+          "headHash": "5bc1e51144d32057e3fc530278e9dd4d92cf2a6c",
+          "materialHash": "1511ddb57f11c1763cd2fcbbe91134ffcca172d675fb0e230c2640f0d0833a51",
+          "storyFilesHash": "2d25e16521c214a860624ddc8abb44091ff79c55407993254922e753ad2741ea",
+          "timestamp": "2026-07-12T22:05:32.739Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -245,10 +245,10 @@
           "command": "node packages/main/dist/tasks/scope-contract-smoke.js",
           "result": "pass",
           "note": "The failClosedNegative block (unknown-metadata.json, unowned-source.ts, direct-edit.json => out_of_scope fail rows) is untouched by the diff and still executes inside the passing smoke run.",
-          "headHash": "a16ed5a9a05019760afd295c6a659bf6158e8eca",
-          "materialHash": "ed4c1d93f811aed2d72830acbf40c2a701cfca845097ce5841469daa6ea7d995",
-          "storyFilesHash": "e17aa5517d9272be012e26a3089f3f40ca6ac697da4db9d6fb77f2d4a340cd50",
-          "timestamp": "2026-07-12T21:44:41.236Z"
+          "headHash": "5bc1e51144d32057e3fc530278e9dd4d92cf2a6c",
+          "materialHash": "1511ddb57f11c1763cd2fcbbe91134ffcca172d675fb0e230c2640f0d0833a51",
+          "storyFilesHash": "2d25e16521c214a860624ddc8abb44091ff79c55407993254922e753ad2741ea",
+          "timestamp": "2026-07-12T22:05:32.739Z"
         },
         {
           "intentRef": "CHK-002:edge:2",
@@ -257,10 +257,10 @@
           "command": "grep -n 'scope.lifecycle_artifact:B-scope:' packages/main/src/tasks/scope-contract-smoke.ts",
           "result": "pass",
           "note": "New assertion ids interpolate the fixture id via `scope.lifecycle_artifact:B-scope:${name}` (line ~281) — fixture storyId B-scope, no real story id.",
-          "headHash": "1ab25bf2d44f1b1f8e8d635deb5102f8553496d3",
-          "materialHash": "ed4c1d93f811aed2d72830acbf40c2a701cfca845097ce5841469daa6ea7d995",
-          "storyFilesHash": "e17aa5517d9272be012e26a3089f3f40ca6ac697da4db9d6fb77f2d4a340cd50",
-          "timestamp": "2026-07-12T21:44:43.537Z"
+          "headHash": "5bc1e51144d32057e3fc530278e9dd4d92cf2a6c",
+          "materialHash": "1511ddb57f11c1763cd2fcbbe91134ffcca172d675fb0e230c2640f0d0833a51",
+          "storyFilesHash": "2d25e16521c214a860624ddc8abb44091ff79c55407993254922e753ad2741ea",
+          "timestamp": "2026-07-12T22:05:32.739Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -268,10 +268,10 @@
           "command": "git checkout HEAD~1 -- packages/main/src/core/lifecycle-registry.ts && npm --prefix packages/main run build && node packages/main/dist/tasks/scope-contract-smoke.js; git checkout HEAD -- packages/main/src/core/lifecycle-registry.ts && npm --prefix packages/main run build",
           "result": "pass",
           "note": "Red state observed before the fix and bound as red evidence RED-001 (acceptanceTargetRef AB-001, baseline HEAD pre-commit): classifier probe printed \"RED: not lifecycle_artifact -> <all ten names>\" exit 1, and the extended smoke on the reverted registry failed with AssertionError [strictEqual]. Green side: same probe prints GREEN exit 0 and smoke passes after the registry commit.",
-          "headHash": "406199c57ff4045e77702077f003d116e113f3a4",
-          "materialHash": "ed4c1d93f811aed2d72830acbf40c2a701cfca845097ce5841469daa6ea7d995",
-          "storyFilesHash": "e17aa5517d9272be012e26a3089f3f40ca6ac697da4db9d6fb77f2d4a340cd50",
-          "timestamp": "2026-07-12T21:44:46.472Z"
+          "headHash": "5bc1e51144d32057e3fc530278e9dd4d92cf2a6c",
+          "materialHash": "1511ddb57f11c1763cd2fcbbe91134ffcca172d675fb0e230c2640f0d0833a51",
+          "storyFilesHash": "2d25e16521c214a860624ddc8abb44091ff79c55407993254922e753ad2741ea",
+          "timestamp": "2026-07-12T22:05:32.739Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -279,10 +279,10 @@
           "command": "node -e \"const{checkScopeContract}=require('./packages/main/dist/core/scope-contract.js');const c={storyId:'B-scope',mode:'enforce',allowedModify:['src/allowed.ts'],allowedCreate:[],allowedTest:[],protectedFiles:[],explicitExcludes:[],acknowledgements:[],createdAt:'x',updatedAt:'x'};const r=checkScopeContract(c,['.lattice/story/actives/B-scope/not-registered.json']);if(r.status!=='fail'||!r.violations.some(v=>v.rule==='out_of_scope')){console.error('FAIL 11th name not rejected: '+r.status);process.exit(1)}console.log('I ok: unregistered 11th name fails closed')\"",
           "result": "pass",
           "note": "Probe I: an 11th unregistered name (.lattice/story/actives/B-scope/not-registered.json) yields status=fail with an out_of_scope violation through checkScopeContract — the assertion loop cannot vacuously pass a catch-all.",
-          "headHash": "414b4a20685fc0bec4505d207e677a7ef0cea746",
-          "materialHash": "ed4c1d93f811aed2d72830acbf40c2a701cfca845097ce5841469daa6ea7d995",
-          "storyFilesHash": "e17aa5517d9272be012e26a3089f3f40ca6ac697da4db9d6fb77f2d4a340cd50",
-          "timestamp": "2026-07-12T21:44:49.525Z"
+          "headHash": "5bc1e51144d32057e3fc530278e9dd4d92cf2a6c",
+          "materialHash": "1511ddb57f11c1763cd2fcbbe91134ffcca172d675fb0e230c2640f0d0833a51",
+          "storyFilesHash": "2d25e16521c214a860624ddc8abb44091ff79c55407993254922e753ad2741ea",
+          "timestamp": "2026-07-12T22:05:32.739Z"
         },
         {
           "intentRef": "CHK-002:adversarial:2",
@@ -291,10 +291,10 @@
           "command": "node packages/main/dist/tasks/scope-contract-smoke.js",
           "result": "pass",
           "note": "The new block asserts proofStoryPositive.status === \"pass\" (overall status, not just per-row), so a warn/fail interaction between lifecycle classification and enforce mode would fail the smoke.",
-          "headHash": "54912035b44ebf213c48f184dc3219f96b0f2839",
-          "materialHash": "ed4c1d93f811aed2d72830acbf40c2a701cfca845097ce5841469daa6ea7d995",
-          "storyFilesHash": "e17aa5517d9272be012e26a3089f3f40ca6ac697da4db9d6fb77f2d4a340cd50",
-          "timestamp": "2026-07-12T21:44:51.945Z"
+          "headHash": "5bc1e51144d32057e3fc530278e9dd4d92cf2a6c",
+          "materialHash": "1511ddb57f11c1763cd2fcbbe91134ffcca172d675fb0e230c2640f0d0833a51",
+          "storyFilesHash": "2d25e16521c214a860624ddc8abb44091ff79c55407993254922e753ad2741ea",
+          "timestamp": "2026-07-12T22:05:32.739Z"
         }
       ]
     }
