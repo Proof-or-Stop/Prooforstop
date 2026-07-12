@@ -24,7 +24,7 @@
       "desc": "Coverage is not release-ready: the recorded CHK-007:happy:0 evidence claims `node scripts/verify-process-fact-contract.mjs` passes, but rerunning the exact focused suite at current HEAD fails with `scope check: packages/main/src/handlers/story-review.ts missing signScopeCheck`. In addition, candidate-spec-routing-smoke.ts reuses one broad smoke across M6A-F while lacking direct fixtures/assertions for several must intents it claims to prove (filesystem enumeration perturbation and symlink escape, irrelevant 5 MB corpus/cutoff flooding, headHash/storyFilesHash/prompt/candidate-content freshness, and forged/wrong-writer/replay evidence). Fix the current contract failure and add focused negative fixtures or narrow the verification claims before TEST.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-12T10:49:17.882Z",
@@ -50,7 +50,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "missing|ts|coverage-release-ready",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in ec8d248d: process-fact verifier now passes and direct determinism, symlink, 5 MB noise, truncation, freshness/tamper and full-scan mismatch fixtures were added.",
+      "resolvedAt": "2026-07-12T10:56:02.010Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8038:F-003",
