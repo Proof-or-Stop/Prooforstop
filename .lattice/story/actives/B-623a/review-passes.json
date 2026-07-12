@@ -191,6 +191,34 @@
         "scanEscalationReason": null
       },
       "_hash": "52a340ce4402ccae18f7918401bee4b06ffe82ae4f1c415d767cabbbcbcd51d7"
+    },
+    {
+      "id": "B-623a:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "FINAL convergence round after RP-003 went stale on commit 15f0263beb. Reviewed the delta against CHK-001..CHK-005 test-coverage intent: (a) envNumber ceiling clamp (BURN_ALERT_ENV_MAX) is covered by new assertions in usage-burn-alert-smoke.ts resolver-extremes block (line ~632-655) that sit directly alongside and extend the pre-existing CHK-002:edge:5/adversarial:1-2 large-value/proto-pollution checks -- a reasonable extension of the garbage-fallback intent family; boundary is verified both ways (ceiling value 8760h accepted, astronomically-absurd 1e308 falls back to defaults for all 4 fields via one deepEqual), and none of CHK-002 existing verificationIntent literals (e.g. edge:5 999999999999999 INPUT_TOKENS) were invalidated since INPUT_TOKENS ceiling=MAX_SAFE_INTEGER is far above that literal. Traced doctor.ts:139 sinceMs = nowMs - recentHours*3600000 and confirmed the fix actually closes the reported hole (unclamped RECENT_HOURS=1e308 drove sinceMs to -Infinity, an unbounded full-store scan; now clamped to <=8760h). (b) codex-mega-M fixture (250M, young, sorts first by burn-desc) makes the F-004 header-based block-slicing selector load-bearing: verified the new assertions (json.hostBurnScan.findings[0].sessionId==='codex-mega-M', first tripped-line precedes the codex-burn-A header, first tripped line lacks session-age) would fail under a reverted first-tripped-line selector, closing the quality lane sort-order-coincidence heads-up. Checked all downstream count assertions touched by the new fixture (JSON >=2 flagged, flaggedCount >=1, alert.findings.length >=1) use >= not ===, so the extra fixture does not silently break CHK-003/CHK-004/CHK-005 assertions. Noted (non-blocking): prior resolvedReason line citations in findings.json (F-001/F-002/F-004) are now offset by the delta inserted lines (about +8, +21 after the second insertion point) -- expected prose drift from cryptographic (headHash/materialHash) evidence pinning, not a coverage gap, and does not misdescribe current behavior. Verified via direct run (owner-built dist, no npm run build invoked per instructions): node packages/main/dist/tasks/usage-burn-alert-smoke.js -> 21/21 pass. No blocker.",
+      "createdAt": "2026-07-12T21:38:13.682Z",
+      "reviewRound": "2026-07-12T21:28:55.311Z",
+      "reviewRunId": "B-623a:RR-010",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-623a/background.md",
+          ".lattice/story/actives/B-623a/plan.md",
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/tasks/doctor-gitroot-probe-smoke.ts",
+          "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "packages/main/src/tasks/storydir-inside-gitroot-suite.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1b45d0af335a1e874e51d38ae346d9c484307e2403e961bd01db28bd8f2b32b7"
     }
   ]
 }
