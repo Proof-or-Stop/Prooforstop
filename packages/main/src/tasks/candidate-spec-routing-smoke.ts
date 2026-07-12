@@ -18,7 +18,7 @@ import {
 import { StoryStore } from '../core/store.js';
 import { createStoryDispatchHandlers } from '../handlers/story-dispatch.js';
 import { renderCandidateSpecRouteText } from '../handlers/candidate-spec-routing.js';
-import { renderDeliveryContextPackReport } from '../handlers/delivery-context-pack.js';
+import { renderDeliveryContextPackReport, type DeliveryContextPackReport } from '../handlers/delivery-context-pack.js';
 
 function fixtureRoot(): string {
   const root = join(tmpdir(), `candidate-routing-${process.pid}-${Date.now()}`);
@@ -139,8 +139,7 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
       deliveryCheck: { status: 'missing', ref: null }, waiver: { status: 'none', ref: null },
       deliveryReadinessRow: null, isSigner: false,
       write: { requested: false, persisted: false, artifactPath: null },
-      claims: { authorityDone: false, fullAuthorityDone: false, productionDone: false },
-    });
+    } as unknown as DeliveryContextPackReport);
     assert.match(deliveryText, new RegExp(artifact.artifactDigest));
 
     const sanitized = sanitizeHostPayload({ description: 'api_key=super-secret', sourceRef: 'token: abc123' });
