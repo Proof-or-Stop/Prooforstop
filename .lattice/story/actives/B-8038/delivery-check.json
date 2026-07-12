@@ -1,0 +1,53 @@
+{
+  "storyId": "B-8038",
+  "checkedAt": "2026-07-12T11:32:54.168Z",
+  "headHash": "7741b5dd46a589d825692a1312e2a1e4a0cbf078",
+  "materialHash": "5dbcdf8929639dd3d7923d990b68be9fc67ee9bc99c720859c792aced055eaf4",
+  "storyFilesHash": "3d75a7ce5d096197ad2c6e113a6be00670ff8de754b6c412e9c551b018fe7623",
+  "reviewRound": "2026-07-12T11:19:16.431Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+      "promise": "Document status and shipped-versus-future boundary accurately describe whether M6A-M6G implementation exists.",
+      "status": "unverified",
+      "verifiedBy": "direct document-to-code and live-smoke comparison",
+      "evidence": "Document still says implementation not started and labels CLI routing components as future work, while main...HEAD contains candidate-spec-routing implementation and the live candidate_spec_route smoke exits 0."
+    },
+    {
+      "docPath": "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+      "promise": "Default routing is bounded to 8 candidates, 10 query groups, and 50 raw hits per group with explicit escalation.",
+      "status": "verified",
+      "verifiedBy": "live candidate_spec_route plus focused candidate-spec-routing smoke",
+      "evidence": "Live output reported budgets candidates=8, queryGroups=10, rawHitsPerGroup=50, exactly 8 candidates, requiresEscalation=true for ranking-affecting truncation, and fullScan=false."
+    },
+    {
+      "docPath": "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+      "promise": "Rollback and broad review never restore requirements-corpus prompt injection.",
+      "status": "verified",
+      "verifiedBy": "story-review corpus budget smoke, source inspection, and process-fact contract",
+      "evidence": "Corpus budget smoke measured 2936 bytes both before and after adding a large corpus, 0-byte delta, and 99.91 percent reduction from reconstructed pre-fix prompt; story-review has no corpus concatenation."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-003",
+      "transcript": "candidate_spec_route local-only live command exited 0; emitted proofbound.candidate-spec-set.v1, 8 candidates, budgets 8/10/50, explicit query_results_truncated escalation, fullScan=false."
+    },
+    {
+      "featureId": "CHK-007",
+      "transcript": "story-review-corpus-budget-smoke passed; baseline and large-corpus prompt bytes were both 2936, delta 0, reduction 99.91 percent."
+    },
+    {
+      "featureId": "CHK-001-CHK-007",
+      "transcript": "candidate-spec-routing-smoke passed and verify-process-fact-contract reported Process fact contract verified."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": true,
+    "summary": "Delivery behavior and edge safeguards pass, but the accepted execution plan is stale: it still states implementation not started and classifies implemented M6A-M6G components as future work. Update that boundary and rerun delivery review."
+  },
+  "_hash": "bc4e83b4ee3774d874aaa7f3cc5d3f8ea6d4766b57eb08d60a0ccf0a188ddff8"
+}
