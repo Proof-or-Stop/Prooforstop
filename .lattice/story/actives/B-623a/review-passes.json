@@ -392,6 +392,29 @@
         "scanEscalationReason": null
       },
       "_hash": "dc137df1f6c44bd6df4b28e3116d1cb475c472ceffa73212dc4d8d1662cac7ee"
+    },
+    {
+      "id": "B-623a:RP-015",
+      "agent": "lattice-review-concept",
+      "note": "F-005 resolution round: reviewed commit 7869a82200 (NaN burn value normalized to null at finding construction in evaluateBurnAlerts). Independently re-derived the finding's exact repro (rows z=100/m=NaN/a=1, all 6 permutations) against the built dist and confirmed the sort is now a valid total order (identical output every permutation; m-nan reports burnInputTokens=null). Confirmed burnInputTokensOf has a single call site so no path bypasses the normalization, confirmed ownNumber() in usage-sweep.ts truly zeroes non-finite values (mitigating-claim verified), confirmed dist matches source (mtimes + grep) and ran the full smoke: 21/21 pass. No blocker for CHK-001.",
+      "createdAt": "2026-07-12T23:46:31.949Z",
+      "reviewRound": "2026-07-12T23:40:24.996Z",
+      "reviewRunId": "B-623a:RR-019",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-623a/background.md",
+          ".lattice/story/actives/B-623a/plan.md",
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/dist/core/usage-burn-alert.js",
+          "packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "packages/main/src/core/usage-sweep.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b53bdcdf75d38cfce3981195afc0e80d122534b3e0840cd1f1331162b8b4bf91"
     }
   ]
 }
