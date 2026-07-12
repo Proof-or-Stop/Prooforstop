@@ -1,0 +1,91 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "M6A Implement corpus index and deterministic seeds",
+      "context": "Build versioned path heading hash indexing, structured Story identifier extraction, exact plus normalized variants, and byte-deterministic golden tests.",
+      "relatedDocs": [
+        "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md"
+      ],
+      "userSees": "Identical Story and corpus inputs produce the same versioned seed and corpus-index artifacts.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "M6B Implement sanitized host proposal adapters",
+      "context": "Add Codex CLI and Claude Code CLI primary proposers, conditional agy fallback, universal pre-egress sanitizer, bounded schema validation, and deterministic local fallback.",
+      "relatedDocs": [
+        "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md"
+      ],
+      "userSees": "Host proposals add bounded semantic keywords without exposing secret values or blocking local routing during outages.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "M6C Implement bounded local search and deterministic ranker",
+      "context": "Plan bounded queries, search filenames headings and bodies locally, score deterministically, deduplicate aliases, and surface cutoff ambiguity and negative controls.",
+      "relatedDocs": [
+        "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md"
+      ],
+      "userSees": "Relevant specifications are ranked into a bounded candidate set with explicit reasons and escalation on ambiguity.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "M6D Implement signed candidate artifact and mechanical read evidence",
+      "context": "Persist versioned candidateSpecSet and reviewer read artifacts, reconcile declared manifests with mechanical logs, bind digests and freshness, and fail closed on missing stale forged or mismatched evidence.",
+      "relatedDocs": [
+        "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "userSees": "Review coverage claims are backed by current signed candidate and actual-read evidence rather than self-reported prose.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "M6E Integrate bounded routing into PLAN scope review",
+      "context": "Route scope-plan review through CLI candidates while preserving corpus filename enumeration, open questions, full-scan escalation, and scope-check gate semantics.",
+      "relatedDocs": [
+        "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+      ],
+      "userSees": "PLAN review reads bounded relevant documents by default and records why any broad scan was required.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "M6F Reuse routing evidence across REVIEW and delivery lanes",
+      "context": "Share current candidate digest across eligible lanes, preserve reviewer ownership, reroute on diff or corpus drift, and suppress duplicate findings without weakening lane independence.",
+      "relatedDocs": [
+        "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "userSees": "Behavior docs coverage and delivery reviewers reuse current routing evidence without overlapping authority or losing findings.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-007",
+      "title": "M6G Implement shadow warn enforce rollout and rollback",
+      "context": "Add canonical configuration, metrics, equivalence and recall gates, staged modes, process-fact contracts, and rollback to tool-driven broad review that never restores corpus prompt embedding.",
+      "relatedDocs": [
+        "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md"
+      ],
+      "userSees": "Operators can progress from shadow to warn to enforce only after quality and cost thresholds pass, with a safe non-injection rollback.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
