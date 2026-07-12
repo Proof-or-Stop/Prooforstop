@@ -105,7 +105,30 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run the new package-registered corpus-budget smoke from the project-native script -> it exits zero and asserts both corpus exclusion and stable prompt-size behavior; WHY: ensures the regression test is discoverable and repeatable outside a one-off command.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Compare otherwise identical review prompts with no unrelated requirements file versus a large nested unrelated Markdown file -> the byte delta stays at zero or an explicitly tiny metadata-only tolerance and never scales with file size; WHY: turns the token-budget requirement into a quantitative invariant.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Seed the large document with unique text matching headings formerly emitted by the Truth Source section and execute the smoke -> exact sentinel search remains negative and the test fails if any substring/body is injected; WHY: catches false confidence from checking only a removed section label or document count.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
