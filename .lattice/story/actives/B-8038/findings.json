@@ -210,6 +210,21 @@
       "resolvedAt": "2026-07-12T11:06:42.461Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-8038:F-010",
+      "desc": "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md:5,63-71,526-533 — the status update correctly preserves historical thresholds and disclaims release/promotion, but still overclaims M6G/metrics as implemented. Current code has no producer for routing precision/candidate-byte/full-read-byte/latency windows; candidate_spec_rollout_check only evaluates caller-supplied window values. Also current shadow handlers consume candidate evidence whenever readManifest.candidateSpecSetDigest is supplied (and dispatch examples supply it), whereas the preserved Shadow section says no gate consumes the artifact. Narrow the implementation record to implemented routing/evaluator/fail-closed mechanics, explicitly mark runtime metric collection and qualifying windows as future, and either describe the optional digest-bound shadow behavior accurately or defer changing the historical rollout definition until code aligns.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-12T11:36:51.392Z",
+      "reviewRound": "2026-07-12T11:35:50.092Z",
+      "reviewRunId": "B-8038:RR-014",
+      "_hash": "11ab00956c95f09f71c9fe784c0355dd001409cee5ee426805d67247611dfeb1",
+      "signatureTag": "missing|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
