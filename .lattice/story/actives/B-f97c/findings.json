@@ -5,7 +5,7 @@
       "desc": "packages/main/src/tasks/story-review-corpus-budget-smoke.ts:80 CHK-002:edge:0 is recorded as passed, but the smoke constructs only a fully populated story and never removes/omits understanding, decision, grill, or optional arrays; the cited reviewer-scan-budget test also does not exercise sparse PLAN artifacts. This leaves a must verification intent without matching evidence and risks a regression where corpus removal breaks accepted sparse states. Severity: high.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-12T01:38:13.698Z",
@@ -13,7 +13,9 @@
       "reviewRunId": "B-f97c:RR-003",
       "_hash": "3e516a2a1a4ca327e0fcb8b24abe03ad9f1b480c43fcd5439434c241a3bb1034",
       "signatureTag": "missing|unknown|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added a real sparse PLAN fixture that omits understanding, decision, grill, and verificationIntent arrays; it asserts a well-formed prompt, retained checklist and ProofStory diagnostics, expected advisories, and unchanged zero-blocker gate behavior. Focused smoke and regression tests pass.",
+      "resolvedAt": "2026-07-12T01:43:18.894Z"
     },
     {
       "id": "B-f97c:F-002",
