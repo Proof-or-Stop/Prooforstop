@@ -1,0 +1,85 @@
+{
+  "principles": [
+    "Advisory-only: burn detection may never gate a lifecycle phase or produce gate evidence; desktop sessions are report-only (B-70e9 non-goal)",
+    "Reuse the existing pure-core scanners; zero writes to the transcript stores; no new daemon or config schema",
+    "Loud and actionable: a warning must name the concrete session file, cwd, and cumulative tokens so the operator can close that specific thread",
+    "Opt-in breakage only: plain doctor and plain usage_sweep keep their exit codes; only the explicit --alert mode exits non-zero"
+  ],
+  "drivers": [
+    "Advisory-only boundary is frozen at INIT: no gate wiring, gateEvidence=false, desktop sessions stay report-only",
+    "Reuse of the pure-core usage-sweep scanners with zero writes and bounded scan windows (doctor must stay fast)",
+    "Detection must not depend on operator memory: doctor habit covers interactive use, --alert non-zero exit covers cron"
+  ],
+  "options": [
+    {
+      "name": "doctor advisory section + usage_sweep --alert (chosen)",
+      "pros": [
+        "doctor is the habitual operator surface, so detection becomes push-based with zero new commands to remember",
+        "--alert non-zero exit composes with cron for unattended notification without lattice owning delivery",
+        "reuses core/usage-sweep.ts scanners verbatim; bounded recent-activity window keeps doctor fast"
+      ],
+      "cons": [
+        "detection still requires SOME lattice invocation (doctor habit or cron), not a true daemon",
+        "doctor gains a dependency on host transcript stores (mitigated by env kill-switch LATTICE_BURN_ALERT_RECENT_HOURS=0)"
+      ]
+    },
+    {
+      "name": "standalone watcher daemon (launchd/systemd) tailing transcript stores",
+      "pros": [
+        "true real-time push; catches a runaway thread within minutes",
+        "no dependence on operator habits"
+      ],
+      "cons": [
+        "violates the CLI-first shape; needs install/lifecycle/permission management per host OS",
+        "a lattice-owned background process watching ~/.codex and ~/.claude is a much larger trust and review surface",
+        "overkill: burn accumulates over days, so a 48h-window doctor check catches it early enough"
+      ]
+    },
+    {
+      "name": "hook burn checks into every lattice command (preCommand hook)",
+      "pros": [
+        "maximum coverage; any lattice usage surfaces the warning"
+      ],
+      "cons": [
+        "adds host-store scanning latency to EVERY command, including read-only ones",
+        "violates the read-only command contract (F-028 surfaces) and noise-floods normal workflows",
+        "alert fatigue: the same warning would print dozens of times a day"
+      ]
+    }
+  ],
+  "chosen": "doctor advisory section + usage_sweep --alert (chosen)",
+  "rationale": "doctor is the habitual health surface so a burn section makes detection push-based with zero new commands; --alert composes with cron for unattended coverage; a daemon violates the CLI-first shape and a per-command hook would tax every read-only command. Empirical addendum: the 2026-07-12 B-8038 incident (0.92B real input in one day across 11 Codex Desktop threads, 98.4% cache reads, rollout files only 1-1.6MB) confirmed input-tokens is the load-bearing threshold and file-size is only a backstop.",
+  "preMortem": [
+    {
+      "scenario": "doctor becomes noticeably slow on machines with many huge recently-active transcripts",
+      "trigger": "several multi-hundred-MB rollouts with mtime inside the scan window force full stream-reads on every doctor run",
+      "consequence": "operators stop running doctor (alert fatigue defeats the push mechanism)",
+      "mitigation": "bounded default window (48h), stat-first cheap checks, documented LATTICE_BURN_ALERT_RECENT_HOURS=0 kill-switch; window and thresholds env-tunable without code changes"
+    },
+    {
+      "scenario": "existing doctor smokes become slow or nondeterministic",
+      "trigger": "doctor now scans the real ~/.codex and ~/.claude stores inside test processes",
+      "consequence": "unrelated smoke failures and flaky CI-like runs erode trust in the suite",
+      "mitigation": "existing doctor-invoking smokes set LATTICE_BURN_ALERT_RECENT_HOURS=0 around handler calls; the new burn-alert smoke covers the scan hermetically via injected fixture dirs"
+    },
+    {
+      "scenario": "--alert gets classified as a write and breaks read-only reviewer sessions or starts appending activity/process events",
+      "trigger": "ownership/activity classification keyed on the new flag by accident",
+      "consequence": "read-only contract regression (the exact F-014/F-028/F-032 class of bug B-70e9 fixed)",
+      "mitigation": "no changes to ownership-gate.ts/activity-policy.ts at all; smoke asserts {alert:true} resolves readOnly on both classification surfaces and plain-sweep dispatch stays byte-identical"
+    },
+    {
+      "scenario": "threshold env typos silently disable detection",
+      "trigger": "operator sets LATTICE_BURN_ALERT_INPUT_TOKENS=100M or an empty string",
+      "consequence": "burn scan silently runs with wrong/never-firing thresholds",
+      "mitigation": "resolver falls back to conservative defaults on any non-finite/negative value (never throws, never zeroes); smoke pins the fallback behavior per variable"
+    },
+    {
+      "scenario": "doctor async migration breaks a sync caller",
+      "trigger": "an unnoticed call site treats doctor() return as a string instead of a promise",
+      "consequence": "runtime type errors or [object Promise] output in a diagnostic surface",
+      "mitigation": "grep-enumerated call sites (registry dispatch already awaits; three smoke files updated to await); build is type-checked (tsc) so a missed site fails the build"
+    }
+  ],
+  "timestamp": "2026-07-12T19:51:42.585Z"
+}

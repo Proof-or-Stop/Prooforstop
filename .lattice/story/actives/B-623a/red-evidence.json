@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-623a",
+  "records": [
+    {
+      "id": "RED-20260712195359",
+      "trigger": "Push-based burn detection does not exist yet: lattice doctor output has no host burn scan section, so a runaway host session (B-8038 incident: 11 Codex Desktop threads, ~0.92B real input in one day) is never flagged unless someone manually runs usage_sweep",
+      "acceptanceTargetRef": "sha256:cba8b8fc939d921291413e0457f137ceba2fa725aff545a49f060c2be44d54b4",
+      "baselineHeadHash": "4f5ef9b7b7546358e1dca24836a1374533677f8e",
+      "baselineMaterialHash": "4e6b8ec53b5e42e0e25e32c84fc04d65bed50cdd96145d5c07ee9fea1345e937",
+      "observedFailure": "Running the probe from the story worktree against the unmodified build: `node packages/main/dist/cli.js --root . doctor --format=json | grep -q hostBurnScan` exits 1 - the doctor JSON contains no hostBurnScan key and the text output has no Host burn scan section, so no advisory warning names any runaway session file/cwd/tokens",
+      "failingCommand": "sh -c 'node packages/main/dist/cli.js --root . doctor --format=json | grep -q hostBurnScan'",
+      "expectedGreenCommand": "sh -c 'node packages/main/dist/cli.js --root . doctor --format=json | grep -q hostBurnScan'",
+      "greenRelation": {
+        "targetRef": "sha256:cba8b8fc939d921291413e0457f137ceba2fa725aff545a49f060c2be44d54b4",
+        "relation": "same_acceptance",
+        "command": "sh -c 'node packages/main/dist/cli.js --root . doctor --format=json | grep -q hostBurnScan'"
+      },
+      "note": "Red run executed live 2026-07-12 in the B-623a worktree on the pre-change build (dist rebuilt from unmodified source at INIT_CHECK): probe exit=1. The same literal command must exit 0 after CHK-003 lands and the worktree dist is rebuilt. usage_sweep --alert has no deterministic pre-fix exit-code probe (the current CLI leniently ignores the unknown flag and exits 0), so the --alert exit-nonzero acceptance is covered by the deterministic fixture smoke (CHK-005) instead.",
+      "createdAt": "2026-07-12T19:53:59.236Z"
+    }
+  ],
+  "createdAt": "2026-07-12T19:53:59.236Z",
+  "updatedAt": "2026-07-12T19:53:59.236Z"
+}

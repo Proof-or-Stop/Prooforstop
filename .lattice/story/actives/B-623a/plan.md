@@ -61,6 +61,13 @@ Make detection PUSH-based on two existing surfaces, advisory-only (no gate, gate
   6. classification: `isReadOnlyCommand('usage_sweep', {alert:true}) === true`; `resolveEffectiveOwnershipClass('usage_sweep', {alert:true}, null) === 'readOnly'`.
 - Wiring: `test:usage-burn-alert` npm scripts (root + packages/main) mirroring `test:usage-sweep`; run-all-smokes auto-discovers `dist/tasks/*-smoke.js` so `npm run test:all` picks it up without further wiring.
 
+## Empirical addendum (2026-07-12, B-8038 incident)
+
+A second incident sharpened the threshold design while this story was in PLAN. The B-8038 lifecycle (created 10:07Z, DONE 12:30Z the same day) was driven on Codex Desktop: one 12-hour driver thread (019f53e2, 209M cumulative input, 1,138 model calls) plus ten worker threads — five fresh agent-team coordinators (~48-56M each) and five forks inheriting 46-65M counters — for ~0.92B real input in one day, 98.4% cache reads. Two design consequences recorded here:
+
+- The `file-size` threshold is a WEAK signal for this pattern: the burning rollouts were only 1-1.6MB on disk (cache re-payment adds no file bytes). `input-tokens` is the load-bearing threshold; `file-size` remains as a backstop for the month-old giant-file case (019e40d0).
+- Defaults stay at the story-frozen spec (100M input tokens), but operators on burn-prone machines should set `LATTICE_BURN_ALERT_INPUT_TOKENS=50000000` (and a cron `usage_sweep --since=2d --alert`): at 100M the alarm fires only after ~2/3 of a typical desktop-thread day-burn has already happened; 50M roughly halves detection latency on the observed growth curves. Fork inheritance also means cumulative counters can double-count parent history across sessions; the alert reports per-session cumulative as-is (attribution hint, not billing truth — same NON-AUTHORITATIVE stance as the sweep).
+
 ## Non-goals (frozen scope)
 
 - No gate wiring; burn alerts never produce gate evidence and never block a phase.

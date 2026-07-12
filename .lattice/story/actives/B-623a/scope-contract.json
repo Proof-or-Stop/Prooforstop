@@ -1,0 +1,30 @@
+{
+  "storyId": "B-623a",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/usage-burn-alert.ts",
+    "packages/main/src/handlers/doctor.ts",
+    "packages/main/src/tasks/doctor-gitroot-probe-smoke.ts",
+    "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+    "packages/main/src/tasks/storydir-inside-gitroot-suite.ts",
+    "packages/main/src/handlers/usage-sweep.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "package.json",
+    "packages/main/package.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/usage-burn-alert.ts",
+    "packages/main/src/tasks/usage-burn-alert-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/usage-burn-alert-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-12T19:51:53.136Z",
+  "updatedAt": "2026-07-12T19:51:53.136Z"
+}
