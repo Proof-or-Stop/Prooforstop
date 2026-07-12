@@ -11,7 +11,7 @@
     "ran": [],
     "skipped": []
   },
-  "limitations": "DECLARED DEVIATIONS (durable record; plan.md is PLAN-frozen per command-policy plan_set allowedPhases=[PLAN] so it cannot carry post-PLAN declarations and its CHK-003 wording is superseded here): (1) F-001: CHK-003:happy:0 frozen intent says brief help = names + short one-line descriptions; shipped behavior is grouped command names ONLY, because across ~320 commands any description fitting the byte budget degrades into a misleading ~10-char mid-word fragment — worse than none; discovery completeness is enforced by the brief-output-smoke full-vs-brief name-set assertion; per-command detail routes to lattice <command> --help. (2) F-002: bundled non-rendering content fix in story-query.ts restoring commit 288d359377 behavior (story_list _bugSummary excludes terminal DISCARDED bug stories, not just DONE) — required because the must-pass consumer verifier verify-story-list-bug-summary.mjs was already red on baseline HEAD from that regression; frozen --json field set unaffected. (3) CHK-003:edge:0 (should) reasoned-uncovered: the command registry is never empty in any reachable configuration (DEFAULT_PHASE_TOOLS wildcard is non-empty). (4) story_get (74KB) deliberately kept full-by-default (slim/fields is the sanctioned opt-in); host_list (~16KB) under threshold — both documented in docs/CLI.md.",
+  "limitations": "DECLARED DEVIATIONS (durable record; plan.md is PLAN-frozen per command-policy plan_set allowedPhases=[PLAN] so it cannot carry post-PLAN declarations and its CHK-003 wording is superseded here): (1) F-001: CHK-003:happy:0 frozen intent says brief help = names + short one-line descriptions; shipped behavior is grouped command names ONLY, because across ~320 commands any description fitting the byte budget degrades into a misleading ~10-char mid-word fragment — worse than none; discovery completeness is enforced by the brief-output-smoke full-vs-brief name-set assertion; per-command detail routes to lattice <command> --help. (2) F-002: bundled non-rendering content fix in story-query.ts restoring commit 288d359377 behavior (story_list _bugSummary treats terminal DISCARDED bug stories the same as DONE ones in the not-closed suggestion, so they no longer appear there) — required because the must-pass consumer verifier verify-story-list-bug-summary.mjs was already red on baseline HEAD from that regression; frozen --json field set unaffected. (3) CHK-003:edge:0 (should) reasoned-uncovered: the command registry is never empty in any reachable configuration (DEFAULT_PHASE_TOOLS wildcard is non-empty). (4) story_get (74KB) deliberately kept full-by-default (slim/fields is the sanctioned opt-in); host_list (~16KB) under threshold — both documented in docs/CLI.md.",
   "pitfalls": "(1) plan_set silently rejected outside PLAN — a mid-DEV plan.md update attempt failed on phase policy and went unnoticed until the concept reviewer filed F-006 (evidence-integrity); lesson: check every lattice exit, and durable post-PLAN declarations belong in summary_set/finding resolutions, not plan.md. (2) 10-char description truncation (F-001) shipped through round 1 because the smoke only asserted byte budgets, not content usefulness. (3) Brief projections can silently drop fields — F-008 (bg marker) was caught by the quality reviewer live-diffing brief vs --full on the real repo; the smoke now asserts the field. (4) Three concurrent reviewer lanes + DEV commits repeatedly invalidated review_run_start bindings; sequence fix batches to land between reviewer rounds. (5) The scope gate fails closed on foreign untracked files (B-META-framework-audit) — acknowledge, do not delete.",
   "phaseStats": {
     "INIT": {
@@ -27,15 +27,19 @@
       "durationMs": 1614696
     },
     "DEV": {
-      "count": 2,
-      "durationMs": 7534508
+      "count": 4,
+      "durationMs": 7539040
     },
     "REVIEW": {
+      "count": 4,
+      "durationMs": 59050239
+    },
+    "TEST": {
       "count": 2,
-      "durationMs": 56946653
+      "durationMs": 5187411
     }
   },
-  "totalDurationMs": 66314062,
+  "totalDurationMs": 73609591,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -48,5 +52,5 @@
     "open": 0
   },
   "createdAt": "2026-07-12T17:34:30.313Z",
-  "updatedAt": "2026-07-12T17:34:30.313Z"
+  "updatedAt": "2026-07-12T19:36:05.842Z"
 }
