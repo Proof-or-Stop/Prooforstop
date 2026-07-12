@@ -169,7 +169,7 @@
       "desc": "quality-dead-code: packages/main/src/handlers/bug.ts:10-18 toBriefBug() reads (bug as {severity?:string}).severity via a type-widening cast, but BugRecord (packages/main/src/core/types.ts:383-397) has no severity field and bug_report never sets one on BugRecord (bug.ts ~:33-42 constructs it with only id/title/status/foundAt/fixedAt/checklistId/fixtureId). The severity branch is therefore always-false dead code masked by an unnecessary cast to a field that does not exist on the type.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-12T17:21:10.762Z",
@@ -177,7 +177,11 @@
       "reviewRunId": "B-7c05:RR-003",
       "_hash": "952ddab5d9aa37d8498db15dd605a032fb8b1740ec58a2a0b7be479d29f8ee86",
       "signatureTag": "missing|unknown|quality-dead-code",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "toBriefBug's always-false severity branch removed (BugRecord has no severity field); comment corrected. tsc green, brief-output-smoke green.",
+      "resolvedAt": "2026-07-12T17:26:48.994Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7c05:F-010",
