@@ -113,6 +113,23 @@
         "scanEscalationReason": null
       },
       "_hash": "e64207f405be7c07a17010344422ed25e6d2af18a43564c091c3a376eb76b941"
+    },
+    {
+      "id": "B-3ddc:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 2): verified CHK-001/002/003 verificationIntent (happy/edge/adversarial) all covered by must-priority pass evidence; directly verified the 3 new/updated smoke checks (F1 candidate-then-drop, F2 paren-injection, extended digest-hygiene) are load-bearing by rebuilding against the pre-fix (b0e9ea0bb882~1) host-run.ts shape and observing genuine compile/runtime failures matching the exact round-1 findings, then restored the fixed tree and confirmed all 74 checks pass; no blocker.",
+      "createdAt": "2026-07-12T00:57:30.637Z",
+      "reviewRound": "2026-07-12T00:43:26.118Z",
+      "reviewRunId": "B-3ddc:RR-008",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "db5b76ea3348f7b74864a559fa3ee853473df9b1652d446f96807ff0e12f4b26"
     }
   ]
 }
