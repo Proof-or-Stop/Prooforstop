@@ -4,7 +4,7 @@
   "title": "Implement bounded multi-host keyword candidate-spec routing end to end",
   "description": "Implement all seven milestones M6A through M6G from the accepted multi-host keyword candidate-spec routing execution plan. Replace broad specification discovery with deterministic CLI seeds, sanitized independent host proposals, bounded local search and ranking, signed candidate and mechanical read evidence, PLAN and REVIEW integration, and staged shadow warn enforce rollout without ever restoring requirements corpus prompt injection.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "source": "B-f646 and docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
   "keywords": [
@@ -17,7 +17,7 @@
   ],
   "createdAt": "2026-07-12T10:07:46.889Z",
   "startedAt": "2026-07-12T10:07:46.889Z",
-  "endedAt": null,
+  "endedAt": "2026-07-12T12:30:40.826Z",
   "events": [
     {
       "phase": "INIT",
@@ -243,12 +243,16 @@
       "user": "Harmonygo",
       "sessionId": "sess-b949c4cae983bf69",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-12T12:30:40.826Z",
+      "branch": "story/B-8038",
+      "user": "Harmonygo",
+      "sessionId": "sess-b949c4cae983bf69",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-8038",
-    "branch": "story/B-8038",
-    "createdAt": "2026-07-12T10:08:55.392Z"
-  },
   "currentReviewRound": "2026-07-12T12:16:12.045Z"
 }
