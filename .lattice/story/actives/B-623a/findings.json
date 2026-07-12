@@ -92,7 +92,7 @@
       "desc": "packages/main/src/core/usage-burn-alert.ts:234-249 findings.sort comparator: the F-C fix (67f0ccc2b1) correctly fixed the Infinity-subtraction NaN-comparator-result bug, but the comparator still is NOT a valid total order when a finding's burnInputTokens is NaN and other findings have finite numeric values: `at < bt` / `at > bt` are both false for NaN, so the branch silently falls through to the sessionId tie-break AS IF the NaN value were equal to every finite value. Per-pair this looks antisymmetric and never yields a NaN comparator result (matching the literal 'antisymmetric / no NaN paths' framing), but across 3+ findings it breaks TRANSITIVITY: verified live against the built dist (packages/main/dist/core/usage-burn-alert.js) with 3 rows (z=100, m=NaN, a=1, all tripping file-size so all land in findings[]) -- pairwise cmp(z,m)=1, cmp(m,a)=1, cmp(z,a)=-1 (transitivity would require cmp(z,a)<=0), and running evaluateBurnAlerts over the SAME 3 logical rows in 6 different input-array orders produced 3 DIFFERENT final sorted orders (a,m,z / z,a,m / m,z,a depending on presentation order). This directly violates CHK-001:happy:6 (\"Findings are returned in a deterministic order... regardless of input row order\") and is the same class of symptom (order depends on input order) the F-C commit was fixing, just via a different mechanism (NaN VALUE vs NaN comparator RESULT). Mitigating: unreachable through the real usage-sweep production pipeline today because core/usage-sweep.ts ownNumber() filters non-finite values to 0 before they ever reach burnInputTokensOf, so NaN can only reach the comparator via a hand-crafted SweepSessionRow (e.g. direct callers/tests of the exported evaluateBurnAlerts) -- but CHK-001:adversarial:4 explicitly promises evaluateBurnAlerts robustness against NaN rows as part of its own pure-function contract, independent of the sweep layer, and the new 67f0ccc2b1 smoke coverage (edgeRows: inf-a/inf-b/neg/unknown) does not exercise NaN mixed with finite values, so this residual non-determinism ships untested. Suggest either treating NaN burnInputTokens as null-equivalent (sorts last, alongside unknown) before the numeric branch, or normalizing it at construction time (burnInputTokensOf could Number.isFinite-guard, mirroring ownNumber upstream).",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-12T23:32:43.595Z",
@@ -114,7 +114,9 @@
         "packages/main/src/tasks/usage-burn-alert-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-07-12T23:43:14.375Z",
+      "resolutionType": "fixed"
     }
   ]
 }
