@@ -369,6 +369,29 @@
         "scanEscalationReason": null
       },
       "_hash": "a10b08cc6a79e6f36488fef86b2ee737f0560474c5ceea94edba5e43c98ee2f3"
+    },
+    {
+      "id": "B-623a:RP-014",
+      "agent": "lattice-review-test-coverage",
+      "note": "F-005 resolution round (RP-013 went stale on commit 7869a82200). Delta is exactly the F-005 fix: burnInputTokens is now normalized (NaN->null) at finding CONSTRUCTION in evaluateBurnAlerts (core/usage-burn-alert.ts L205-206), before it ever reaches the sort comparator, plus a new permutation-exhaustive assertion block appended to the existing checkAsync(evaluator: codex vs claude burn-token formula + deterministic ordering) in usage-burn-alert-smoke.ts. Audited genuineness of the permutation assertion by hand-tracing the unchanged sort comparator (lines 234-249, untouched by this commit) against 3 rows (z-big=100, m-nan=NaN, a-small=1, all tripping file-size so all enter findings[]): under the OLD construction (burnInputTokens = raw burnInputTokensOf() result, so m-nan carries a literal NaN into the comparator), pairwise cmp(z-big,m-nan) and cmp(m-nan,a-small) both fall through the inconclusive at<bt/at>bt numeric branch to the sessionId tie-break (since NaN<bt and NaN>bt are always false), while cmp(z-big,a-small) resolves numerically -- producing a non-transitive relation (a-small < m-nan < z-big < a-small, a 3-cycle). I reproduced this standalone in Node (isolating just the comparator, both old and new construction) across the same 6 permutations the smoke uses: OLD construction yields exactly 3 distinct final orders (a-small,m-nan,z-big then z-big,a-small,m-nan then m-nan,z-big,a-small), matching F-005's repro claim verbatim, and the pinned expected order z-big,a-small,m-nan only coincidentally matches 2 of the 6 old permutations (index-orders 0,2,1 and 1,2,0) -- so the new assertion would genuinely fail on 4 of 6 permutations (0,1,2 / 1,0,2 / 2,0,1 / 2,1,0) under the old code. NEW construction (NaN normalized to null before the sort) collapses all 6 permutations to the single order z-big,a-small,m-nan, and the nan burnInputTokens===null assertion also only holds post-fix (old code left it as NaN, not null). Conclusion: the permutation assertion genuinely pins the fixed contract against CHK-001:happy:6 (deterministic order regardless of input row order) and CHK-001:adversarial:4 (NaN rows never corrupt findings) -- not a coincidental/weak pin. Also confirmed no overlap/conflict with the pre-existing 'evaluator: NaN / Infinity / negative token counts never throw or corrupt findings' check: that check's NaN row never trips a reason (fileSizeOf returns 0, no session-age), so it never reaches the sort and does not already cover the mixed-NaN-with-finite-values ordering case F-005 targets. Ran node packages/main/dist/tasks/usage-burn-alert-smoke.js directly (dist pre-built per instructions, not rebuilt): 21/21 pass, including the new 6-permutation x 2-assertion block. Verified dist/core/usage-burn-alert.js and dist/tasks/usage-burn-alert-smoke.js both contain the F-005 fix/assertions (grep), so dist is not stale. Owner note (non-blocking, carried forward from predecessor RP-013 precedent): CHK-001:happy:6 verificationEvidence in checklist.json is still bound to a pre-fix headHash (be112bff73723b7503b587556e9822b86993f73d); this is evidence-freshness drift for the owner to clear via evidence refresh before DONE, not a coverage gap -- the cited command/file still concretely covers the intent post-fix. No blocker. F-005 verified resolved.",
+      "createdAt": "2026-07-12T23:45:36.145Z",
+      "reviewRound": "2026-07-12T23:40:24.996Z",
+      "reviewRunId": "B-623a:RR-018",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-623a/background.md",
+          ".lattice/story/actives/B-623a/checklist.json",
+          ".lattice/story/actives/B-623a/findings.json",
+          ".lattice/story/actives/B-623a/review-passes.json",
+          "packages/main/src/core/usage-sweep.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "dc137df1f6c44bd6df4b28e3116d1cb475c472ceffa73212dc4d8d1662cac7ee"
     }
   ]
 }
