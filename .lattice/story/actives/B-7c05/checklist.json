@@ -346,14 +346,14 @@
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "logic_test",
-          "file": "packages/main/src/cli/help-renderer.ts",
-          "command": "node packages/main/dist/tasks/cli-surface-smoke.js",
+          "file": "packages/main/src/tasks/brief-output-smoke.ts",
+          "command": "node packages/main/dist/tasks/brief-output-smoke.js",
           "result": "pass",
-          "note": "Brief help never drops command names: renderer truncates descriptions only (BRIEF_DESC_MAX) while every registered command name renders; cli-surface-smoke asserts host_runtime_list present on the BRIEF default and brief-output-smoke enforces the size budget with names intact.",
-          "headHash": "00394eddda9ee20cd3d41f927eb9e6e8788a0a27",
-          "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
-          "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
-          "timestamp": "2026-07-12T01:33:48.997Z"
+          "note": "Post-F-001 fix: brief-output-smoke extracts every command name from help --full catalog rows and asserts each appears in brief help (name-set superset check, >100 commands live), so no command is silently dropped from discovery.",
+          "headHash": "b1c4a01d2241d2a33ed2863101941be799279dfd",
+          "materialHash": "1720ab22f541bfa8e7a3de8f445c117c017c440282adbf2782674e252bf85b7b",
+          "storyFilesHash": "163447320419343e8d97bf9d695b26ff9b2bc36b56eea7dce0c3d88c4ff940cf",
+          "timestamp": "2026-07-12T17:07:44.099Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
