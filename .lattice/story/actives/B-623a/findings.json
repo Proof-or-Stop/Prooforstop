@@ -51,7 +51,7 @@
       "desc": "packages/main/src/tasks/usage-burn-alert-smoke.ts CHK-001:edge:3 requires \"A codex session with inputTokens=0 and a claude session with all-zero usage fields are not flagged for input-tokens\", but no fixture in the smoke uses a zero-valued codex usage() or an all-zero claude usage object. The nearest row (L352, sessionId 'bbb') has cacheReadInputTokens:2000 (nonzero) and IS flagged, not an example of the intended not-flagged-at-zero case. Existing tests only cover near-threshold (1000) and clearly nonzero (2000/4300/5000/150000000) values. grep across the file confirms no codexUsage(0) call and no all-zero claude usage object anywhere. The evidence note title (\"evaluator: zero-usage rows below strictly-greater thresholds are not flagged\") does not correspond to any check in the file.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-12T20:54:23.654Z",
@@ -62,7 +62,11 @@
         "packages/main/src/tasks/usage-burn-alert-smoke.ts"
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Verified fix at commit d3f491966e (usage-burn-alert-smoke.ts L345-353): explicit zero-usage fixtures added -- codex codexUsage(0) and claude all-zero four-field usage -- both asserted to produce zero findings, with fileSizeOf and firstTimestamp controlled so only the input-tokens invariant is exercised. Ran usage-burn-alert-smoke.js directly (21 checks, all pass) to confirm.",
+      "resolvedAt": "2026-07-12T21:03:42.072Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-623a:F-004",
