@@ -150,7 +150,7 @@
       "desc": "quality-correctness: packages/main/src/handlers/story-query.ts:53-66 toBriefStoryRow() is an allow-list projection that silently drops the row bg field (set at :595, the B-45ed CHK-008 background.md marker) with no count/hint of the omission, contradicting this same story own Non-silent filtering guarantee in docs/CLI.md (\"it always emits the exact total counts of the omitted items... so nothing is hidden\") and its own comment which claims it only drops metrics/name. Verified live on this repo: `lattice story_list` (brief default) shows 0/36 stories with a bg field while `--full` shows dozens of stories carrying bg:✓. Root cause: the StoryListRow type (~:39-50) does not declare bg/metrics/name and the results.map() row is force-cast via `as StoryListRow` at :708 without validation, so nothing caught the missing field.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-12T17:21:03.725Z",
@@ -158,7 +158,11 @@
       "reviewRunId": "B-7c05:RR-003",
       "_hash": "49ee8abd999222565a23256eef223d3ac81eac75f470745a49d1ef4f46bc0e8d",
       "signatureTag": "missing|unknown|quality-correctness-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "toBriefStoryRow now carries the bg marker (bg?: string added to StoryListRow, spread into the brief row). Live verification on this repo: 35/36 brief rows show bg:✓ matching --full; brief-output-smoke now writes background.md into its fixture story and asserts briefRow.bg === 'bg:✓' so the field can't silently drop again.",
+      "resolvedAt": "2026-07-12T17:26:48.246Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7c05:F-009",
