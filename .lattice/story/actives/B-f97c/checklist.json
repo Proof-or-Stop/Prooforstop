@@ -60,6 +60,24 @@
       "status": "pending",
       "startTime": null,
       "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Measure task token cost and identify the dominant source",
+      "context": "Record the pre-fix and post-fix _reviewPrompt byte/token estimates plus available host usage for this repair, and report which input surface dominates cost.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+      ],
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "tasks/story-review-corpus-budget-smoke.ts"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
     }
   ]
 }

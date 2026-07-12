@@ -4,7 +4,7 @@
   "title": "Stop story_review from embedding the requirements corpus",
   "description": "Remove unconditional recursive requirements Markdown reads and full truthDocs concatenation from story_review _reviewPrompt so ordinary PLAN review cannot consume the entire multi-megabyte corpus. Preserve PLAN gate semantics and structured story, understanding, decision, checklist, verificationIntent, grill, experience-hint, and ProofStory sections. Add regression coverage proving unrelated large requirements documents are not embedded and prompt size does not scale with corpus content.",
   "type": "bug",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "keywords": [
     "story_review",
@@ -24,6 +24,20 @@
       "user": "Harmonygo",
       "sessionId": "sess-07bc482a401d5422",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-12T01:25:07.202Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-07bc482a401d5422",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-f97c",
+    "branch": "story/B-f97c",
+    "createdAt": "2026-07-12T01:25:01.033Z"
+  }
 }
