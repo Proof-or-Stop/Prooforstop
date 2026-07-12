@@ -2902,10 +2902,10 @@
     "high_risk_lifecycle_gate_process_fact_or_global_rename"
   ],
   "fullScan": true,
-  "scanEscalationReason": "story touches lifecycle-registry.ts (closed filename set) and scope-contract-smoke.ts (enforce-mode scope gate) — high-risk lifecycle/gate surface per policy; broad scan needed to confirm no other decisions doc defines the ProofStory artifact filename set or scope-contract enforce semantics that this change must respect.",
+  "scanEscalationReason": "story adds 10 filenames to the closed lifecycle-artifact classifier set consumed by classifyLifecycleArtifact/scope-contract enforcement (high_risk_lifecycle_gate_process_fact); ranking_affecting_query_truncation and candidate_cutoff_tie also flagged, so doing a full corpus scan rather than trusting the truncated/tied ranked candidate list",
   "storyInputDigest": "9ee859ab9f257f73e6645aa865b6592e133ef94bbc64d0c6565fa9c2f9ca8426",
-  "headHash": "b5ab0ed5725b83b0c72d63840c7b31daf588c340",
+  "headHash": "3c46f640069e488d2b203ec664771c9971cec419",
   "materialHash": "1511ddb57f11c1763cd2fcbbe91134ffcca172d675fb0e230c2640f0d0833a51",
   "storyFilesHash": "2d25e16521c214a860624ddc8abb44091ff79c55407993254922e753ad2741ea",
-  "artifactDigest": "707036cda2f071fc72257fe65bd6583f58e5cc8fd64d57100f7c7c03bc1e6e21"
+  "artifactDigest": "00c32eac51bc1a247cdc65678ec4018dc2ad4947a3ef2535eca646099415d1c6"
 }
