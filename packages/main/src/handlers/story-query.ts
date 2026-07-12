@@ -27,6 +27,43 @@ import {
   scanAuxiliaryWorktreeResidues,
 } from '../core/auxiliary-worktree-cleanup.js';
 import { summarizeChecklist } from './checklist.js';
+import { wantsFullOutput, truncateOneLine } from '../cli/output-verbosity.js';
+
+// B-7c05 CHK-004: phases treated as terminal for the brief story_list default.
+// Brief lists only NON-terminal (actionable) stories one-line each; the omitted
+// terminal stories are still fully accounted for by the per-phase `_phases`
+// counts + an explicit omitted count (non-silent filtering).
+const STORY_LIST_TERMINAL_PHASES = new Set<string>(['DONE', 'DISCARDED', 'IDEA']);
+
+type StoryListRow = {
+  storyId: string;
+  phase: string;
+  priority?: string;
+  type?: string;
+  title?: string;
+  checklist?: string;
+  bugs?: string;
+  tests?: string;
+  mainPhase?: string;
+  labels?: string;
+  [key: string]: unknown;
+};
+
+/** One-line-per-story brief projection: drops the verbose `metrics`/`name` and truncates the title. */
+function toBriefStoryRow(row: StoryListRow): Record<string, unknown> {
+  return {
+    storyId: row.storyId,
+    phase: row.phase,
+    ...(row.mainPhase ? { mainPhase: row.mainPhase } : {}),
+    ...(row.priority ? { priority: row.priority } : {}),
+    ...(row.type ? { type: row.type } : {}),
+    title: truncateOneLine(row.title, 80),
+    ...(row.checklist ? { checklist: row.checklist } : {}),
+    ...(row.bugs ? { bugs: row.bugs } : {}),
+    ...(row.tests ? { tests: row.tests } : {}),
+    ...(row.labels ? { labels: row.labels } : {}),
+  };
+}
 
 /** B-45ed CHK-008: Returns true if the story's background.md file exists. */
 function hasBackground(store: StoryStore, storyId: string): boolean {
@@ -494,7 +531,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
       return pickTopLevelFields(slimResult as Record<string, unknown>, args.fields);
     },
 
-    story_list(args?: { phase?: StoryPhase; active?: boolean }) {
+    story_list(args?: { phase?: StoryPhase; active?: boolean; full?: boolean; brief?: boolean; json?: boolean; format?: 'text' | 'json' }) {
       // B-89c7 CHK-016: active=true is a preset for "non-terminal phases"
       // (exclude DONE / DISCARDED / IDEA). Mutually exclusive with phase.
       if (args?.active && args?.phase) {
@@ -611,8 +648,12 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
         if (totalBugsOpen > 0) {
           bugSuggestions.push(`⚠ ${totalBugsOpen} open bugs awaiting fix, recommend prioritizing`);
         }
-        if (bugStories.filter(r => r.phase !== 'DONE').length > 0) {
-          const openBugStories = bugStories.filter(r => r.phase !== 'DONE');
+        // B-7c05: a terminal (DONE or DISCARDED) bug story is closed and must not
+        // be flagged "not closed" — a DISCARDED bug story was previously listed
+        // here because the filter only excluded DONE (pre-existing bug that
+        // verify-story-list-bug-summary.mjs asserts against). Summary-display only.
+        const openBugStories = bugStories.filter(r => r.phase !== 'DONE' && r.phase !== 'DISCARDED');
+        if (openBugStories.length > 0) {
           bugSuggestions.push(`⚠ Bug Story not closed: ${openBugStories.map(r => r.storyId).join(', ')}`);
         }
         if (totalBugs > 0 && total > 0) {
@@ -632,15 +673,39 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
           );
         }
 
+        // B-7c05 CHK-004: story_list default is BRIEF. The full 785-entry story
+        // array (365KB on the real repo) is the payload; brief keeps every meta
+        // field (_dashboard/_hint/_phases/_bugSummary) and lists only non-terminal
+        // stories as one-liners, with per-phase counts covering ALL stories.
+        // --full / --json / LATTICE_BRIEF_OUTPUT=0 restore the current full shape.
+        const full = wantsFullOutput(args);
+        const testMissingFull = withoutTests.length > 0
+          ? `Stories missing tests: ${withoutTests.map(r => r.storyId).join(', ')}`
+          : 'All Stories have test evidence';
+        const bugSummary = bugSuggestions.length > 0 ? bugSuggestions.join('\n') : 'No bug issues';
+        if (full) {
+          return {
+            _dashboard: dashboard,
+            _hint: 'Please display the dashboard at the front',
+            _phases: phases,
+            _bugSummary: bugSummary,
+            _testMissing: testMissingFull,
+            stories: filtered,
+          };
+        }
+        const nonTerminal = filtered.filter(r => !STORY_LIST_TERMINAL_PHASES.has(r.phase));
+        const omittedTerminal = filtered.length - nonTerminal.length;
         return {
           _dashboard: dashboard,
-          _hint: 'Please display the dashboard at the front',
+          _brief: true,
+          _hint: `Brief view: ${nonTerminal.length} non-terminal stories listed; ${omittedTerminal} terminal (DONE/DISCARDED/IDEA) omitted (see _phases for the full per-phase distribution). Use --full (or LATTICE_BRIEF_OUTPUT=0) for every story with full fields.`,
           _phases: phases,
-          _bugSummary: bugSuggestions.length > 0 ? bugSuggestions.join('\n') : 'No bug issues',
+          _bugSummary: bugSummary,
           _testMissing: withoutTests.length > 0
-            ? `Stories missing tests: ${withoutTests.map(r => r.storyId).join(', ')}`
+            ? `${withoutTests.length} stories missing test evidence`
             : 'All Stories have test evidence',
-          stories: filtered,
+          _omittedTerminal: omittedTerminal,
+          stories: nonTerminal.map(r => toBriefStoryRow(r as StoryListRow)),
         };
       }
       return filtered;

@@ -37,7 +37,29 @@ export type GlobalHelpOptions = {
   activeStory?: ActiveStoryForHelp | null;
   phaseTools?: Record<string, string[]>;
   ownerLeaseHelpBlock: OwnerLeaseHelpBlockCallback;
+  /**
+   * B-7c05 CHK-003: when false/undefined the catalog is BRIEF (grouped command
+   * names + short truncated descriptions, sized to stay well under the help
+   * byte budget). full=true restores the current verbose catalog byte-for-byte.
+   */
+  full?: boolean;
 };
+
+// B-7c05 CHK-003: brief per-command description budget. Kept short so the whole
+// brief catalog stays comfortably under the help byte budget even when no active
+// story filters the command set (worst case: every registered command listed —
+// ~320 commands must fit under 16KB).
+const BRIEF_DESC_MAX = 10;
+
+function briefCommandDescription(description: string | undefined): string {
+  const oneLine = normalizeHelpText(description);
+  if (!oneLine) return '';
+  // Prefer the first sentence/clause, then hard-truncate.
+  const firstClause = oneLine.split(/(?<=[.;])\s|\s[–—-]\s/)[0] ?? oneLine;
+  const candidate = firstClause.length > 0 ? firstClause : oneLine;
+  if (candidate.length <= BRIEF_DESC_MAX) return candidate;
+  return `${candidate.slice(0, BRIEF_DESC_MAX - 1).trimEnd()}…`;
+}
 
 function describeType(t: ZodType): string {
   if (t instanceof ZodOptional) return describeType((t as any)._def.innerType);
@@ -281,6 +303,27 @@ export function printHelp(options: GlobalHelpOptions) {
     ...KNOWN_ORDER.filter(g => groups[g]),
     ...presentGroups.filter(g => !KNOWN_ORDER.includes(g)).sort(),
   ];
+
+  // B-7c05 CHK-003: brief default — grouped command NAMES (never dropped, so
+  // discovery stays complete) with a short truncated description, plus a footer
+  // pointing at per-command --help and the full catalog. Not padded to the
+  // global max width so the brief catalog stays compact.
+  if (options.full !== true) {
+    for (const g of orderedGroups) {
+      console.log(`  ${g}:`);
+      for (const t of groups[g]) {
+        const desc = briefCommandDescription(t.description);
+        console.log(desc ? `    ${t.name}  ${desc}` : `    ${t.name}`);
+      }
+    }
+    console.log(`
+  Brief catalog (command names + short descriptions).
+  Arguments for one command: ${brand.primaryBin} <command> --help
+  Full catalog (parameter schemas + development flow): ${brand.primaryBin} help --full   (or set ${'LATTICE_BRIEF_OUTPUT'}=0)
+`);
+    return;
+  }
+
   for (const g of orderedGroups) {
     console.log(`  ${g}:`);
     for (const t of groups[g]) console.log(`    ${t.name.padEnd(maxN + 2)} ${t.description}`);

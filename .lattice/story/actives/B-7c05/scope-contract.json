@@ -17,7 +17,10 @@
     "package.json",
     "docs/CLI.md",
     "CLAUDE.md",
-    ".lattice/story/actives/B-7c05/**"
+    ".lattice/story/actives/B-7c05/**",
+    "packages/main/src/handlers/story-review.ts",
+    "packages/main/src/handlers/doctor.ts",
+    "packages/main/tests/milestone-status.test.mjs"
   ],
   "allowedCreate": [
     "packages/main/src/cli/output-verbosity.ts",
@@ -26,14 +29,15 @@
   ],
   "allowedTest": [
     "packages/main/src/tasks/brief-output-smoke.ts",
-    "packages/main/src/tasks/cli-surface-smoke.ts"
+    "packages/main/src/tasks/cli-surface-smoke.ts",
+    "packages/main/tests/milestone-status.test.mjs"
   ],
   "protectedFiles": [],
   "explicitExcludes": [
     "packages/main/src/handlers/verifier.ts"
   ],
-  "scopeChangeReason": "Add story-own metadata glob .lattice/story/actives/B-7c05/** to allowed sets: lattice lifecycle commands (red_evidence_create etc.) write there and the fail-closed unknown-path rule was blocking the story metadata itself.",
+  "scopeChangeReason": "DEV sweep results (CHK-004): story_review default output measured 2.6MB and doctor 22.6KB, both above the ~20KB/5k-token fix threshold the plan commits to fixing in-story (render path only, gate logic untouched); milestone-status.test.mjs is a direct consumer of the CHK-001 rendering change and needs --full / LATTICE_BRIEF_OUTPUT=0 updates to keep asserting the full table. story_get (74KB) deliberately NOT added: sanctioned brief mode already exists via slim/fields opt-in and CLAUDE.md documents full reads before evidence/mutations.",
   "acknowledgements": [],
   "createdAt": "2026-07-11T23:31:25.831Z",
-  "updatedAt": "2026-07-11T23:32:37.623Z"
+  "updatedAt": "2026-07-12T00:35:41.845Z"
 }

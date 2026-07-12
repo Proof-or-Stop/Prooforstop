@@ -30,6 +30,7 @@ import {
 } from './core/lattice-brand.js';
 import { LATTICE_DIR } from './core/lattice-paths.js';
 import { renderChecklistDerivedLedger, CHECKLIST_DERIVED_HEADER } from './core/milestone-status.js';
+import { wantsFullOutput } from './cli/output-verbosity.js';
 import type { ChecklistData } from './core/types.js';
 import { withReentrantMainWriteLock } from './core/main-write-lock.js';
 import { MAIN_TOOLS } from './cli/command-catalog.js';
@@ -467,6 +468,16 @@ const STRICT_COMMAND_ARG_COMMANDS = new Set([
   'milestone_closeout',
 ]);
 
+// B-7c05 CHK-004: commands whose CLI stdout defaults to brief via an explicit
+// verbosity injection at the dispatch seam (flag > LATTICE_BRIEF_OUTPUT env >
+// brief default). The seam passes `brief:true`/`full:true` to the handler, so
+// IN-PROCESS handler callers (smokes, other handlers) keep today's full return
+// shape, and explicit machine JSON keeps the frozen full shape.
+const BRIEF_DEFAULT_CLI_COMMANDS = new Set([
+  'story_review',
+  'doctor',
+]);
+
 const MILESTONE_STATUS_APPEND_COMMANDS = new Set([
   'milestone_ledger_set',
   'milestone_ledger_add',
@@ -721,11 +732,18 @@ export async function runCli(opts?: {
   const gitReady = isGitRepository(root0);
 
   if (!cmd || cmd === 'help' || cmd === '--help') {
+    // B-7c05 CHK-003: help is BRIEF by default; --full (or LATTICE_BRIEF_OUTPUT=0)
+    // restores the current verbose catalog. --brief forces brief over the env hatch.
+    const helpFull = wantsFullOutput({
+      full: argv.includes('--full'),
+      brief: argv.includes('--brief'),
+    });
     printHelp({
       tools: TOOLS,
       activeStory,
       phaseTools: loadConfig(root0).phaseTools,
       ownerLeaseHelpBlock,
+      full: helpFull,
     });
     return;
   }
@@ -817,6 +835,16 @@ export async function runCli(opts?: {
   }
   parsed = v.data as Record<string, unknown>;
 
+  // B-7c05 CHK-004: resolve output verbosity ONCE at the CLI seam for the
+  // brief-by-default commands and pass it explicitly to the handler. Machine
+  // JSON (--json/--format=json) bypasses brief entirely (frozen full shape).
+  // Mutate in place: `parsed` and `v.data` are the SAME object here, and the
+  // final dispatch below hands `v.data` to the handler.
+  if (BRIEF_DEFAULT_CLI_COMMANDS.has(cmd) && !wantsMachineJson(parsed)) {
+    if (wantsFullOutput(parsed)) parsed.full = true;
+    else parsed.brief = true;
+  }
+
   // Execute
   const root = resolveRootForCommand(cmd, rootOverride);
   // Durable main-root fallback for post-command activity logging.
@@ -848,10 +876,19 @@ export async function runCli(opts?: {
     const storyId = storyIdFromArgs(parsed, activeStory, { command: cmd, projectRoot: root });
     if (!storyId) return output;
 
+    // B-7c05 CHK-001: the post-mutation ledger suffix is BRIEF by default. Per-call
+    // flags on a mutating command are stripped by that command's own schema, so the
+    // primary override here is LATTICE_BRIEF_OUTPUT=0 (env hatch); a mutating command
+    // that DOES expose --full/--brief in its schema is still honored via `parsed`.
+    const wantFull = wantsFullOutput(parsed);
+    // Force the resolved verbosity explicitly so the milestone handler renders the
+    // same shape we decided here (its own resolver would otherwise re-read env only).
+    const statusArgs = wantFull ? { storyId, full: true } : { storyId, brief: true };
+
     const renderFromHandlers = (sourceHandlers: Record<string, Function>): string | null => {
       const milestoneStatus = sourceHandlers.milestone_status;
       if (typeof milestoneStatus !== 'function') return null;
-      const rendered = milestoneStatus({ storyId });
+      const rendered = milestoneStatus(statusArgs);
       const milestoneOutput = typeof rendered === 'string' ? rendered : JSON.stringify(rendered, null, 2);
       return milestoneOutput.trim() ? milestoneOutput : null;
     };
@@ -891,7 +928,7 @@ export async function runCli(opts?: {
       try {
         phase = srcStore.readStory(storyId).phase;
       } catch (e) { ignoreMissingArtifact(e); }
-      return renderChecklistDerivedLedger(storyId, checklist, phase);
+      return renderChecklistDerivedLedger(storyId, checklist, phase, { brief: !wantFull });
     };
 
     // The DONE worktree-cleanup path may have already removed the story worktree,

@@ -9,17 +9,21 @@ import {
   MILESTONE_CLOSEOUT_SCHEMA_VERSION,
   renderMilestoneCloseoutMissingReport,
   renderMilestoneCloseoutSnapshot,
+  renderMilestoneStatusBrief,
   renderMilestoneStatusReport,
   type MilestoneStatusCurrentEvidenceBinding,
   type MilestoneCloseoutSnapshot,
   type MilestoneStatusReport,
 } from '../core/milestone-status.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
+import { wantsFullOutput } from '../cli/output-verbosity.js';
 
 interface MilestoneStatusArgs {
   storyId: string;
   format?: 'text' | 'json';
   json?: boolean;
+  full?: boolean;
+  brief?: boolean;
   [key: string]: unknown;
 }
 
@@ -35,11 +39,23 @@ export type MilestoneCloseoutCaptureResult =
   | { status: 'skipped'; reason: 'closeout_snapshot_unbuildable'; message: string }
   | { status: 'written'; snapshot: MilestoneCloseoutSnapshot };
 
-const ALLOWED_MILESTONE_STATUS_ARG_KEYS = new Set(['storyId', 'format', 'json']);
+// B-7c05 CHK-001: --full / --brief select the render verbosity of the text
+// output; they are read-only display flags (never write, run, or advance).
+const ALLOWED_MILESTONE_STATUS_ARG_KEYS = new Set(['storyId', 'format', 'json', 'full', 'brief']);
 const ALLOWED_MILESTONE_CLOSEOUT_ARG_KEYS = new Set(['storyId', 'format', 'json']);
 
 function wantsJson(args: MilestoneStatusArgs | MilestoneCloseoutArgs): boolean {
   return args.json === true || args.format === 'json';
+}
+
+/**
+ * B-7c05 CHK-001: JSON opt-in returns the frozen report object; otherwise the
+ * text output is BRIEF by default and the full 7-column table is restored by
+ * --full / LATTICE_BRIEF_OUTPUT=0.
+ */
+function renderMilestoneStatus(report: MilestoneStatusReport, args: MilestoneStatusArgs): MilestoneStatusReport | string {
+  if (wantsJson(args)) return report;
+  return wantsFullOutput(args) ? renderMilestoneStatusReport(report) : renderMilestoneStatusBrief(report);
 }
 
 function currentEvidenceBinding(ctx: HandlerContext, storyId: string): MilestoneStatusCurrentEvidenceBinding | undefined {
@@ -138,7 +154,7 @@ export function createMilestoneStatusHandlers(ctx: HandlerContext): Record<strin
       const snapshot = ctx.store.readMilestoneCloseout(args.storyId);
       if (snapshot?.schemaVersion === MILESTONE_CLOSEOUT_SCHEMA_VERSION) {
         const report = buildMilestoneStatusReportFromCloseoutSnapshot(snapshot, { phase: story.phase });
-        return wantsJson(args) ? report : renderMilestoneStatusReport(report);
+        return renderMilestoneStatus(report, args);
       }
     }
 
@@ -151,7 +167,7 @@ export function createMilestoneStatusHandlers(ctx: HandlerContext): Record<strin
         milestoneLedger,
         summary,
       });
-      return wantsJson(args) ? report : renderMilestoneStatusReport(report);
+      return renderMilestoneStatus(report, args);
     }
 
     const checklist = ctx.store.readChecklist(args.storyId);
@@ -162,7 +178,7 @@ export function createMilestoneStatusHandlers(ctx: HandlerContext): Record<strin
       summary,
       currentEvidenceBinding: currentEvidenceBinding(ctx, args.storyId),
     });
-    return wantsJson(args) ? report : renderMilestoneStatusReport(report);
+    return renderMilestoneStatus(report, args);
   }
 
   function milestoneCloseout(args: MilestoneCloseoutArgs): MilestoneCloseoutSnapshot | ReturnType<typeof buildMilestoneCloseoutMissingReport> | string {

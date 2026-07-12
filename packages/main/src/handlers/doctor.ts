@@ -46,13 +46,21 @@ import {
   evaluateStoryDirConfigInsideGitRoot,
   type StoryDirInsideGitRootResult,
 } from '../core/story-signed-workspace-resolution.js';
+import { truncateOneLine } from '../cli/output-verbosity.js';
 
 export function createDoctorHandlers(ctx: HandlerContext) {
   const { root, store } = ctx;
 
   return {
-    doctor(args?: { format?: 'text' | 'json'; limit?: number; repair?: boolean }): string | object {
+    doctor(args?: { format?: 'text' | 'json'; limit?: number; repair?: boolean; full?: boolean; brief?: boolean }): string | object {
       const limit = args?.limit ?? 1000;
+      // B-7c05 CHK-004: RENDER-ONLY brief text mode, active ONLY on explicit
+      // brief:true (injected by the CLI seam for bare invocations after
+      // resolving flag > env > brief default). In-process callers and
+      // --format=json keep today's full shape. Brief trims exactly the two
+      // heavy sections (Recent issues detail, Validation scan detail) to
+      // one-liners/counts; every failing/warning section stays visible.
+      const brief = args?.brief === true && args?.format !== 'json';
       const issues = readHealthIssues(limit);
       const summary = summarizeHealthIssues(issues);
       const codex = runCodexAdapterChecks(root, {
@@ -304,16 +312,27 @@ export function createDoctorHandlers(ctx: HandlerContext) {
         lines.push('');
 
         lines.push('Recent issues:');
-        for (const issue of summary.recent.slice(0, 20)) {
-          const ctxStr = Object.entries(issue.context)
-            .map(([k, v]) => `${k}=${typeof v === 'string' ? v : JSON.stringify(v)}`)
-            .join(' ');
-          lines.push(`  [${issue.timestamp}] ${issue.category}`);
-          lines.push(`    error: ${issue.error}`);
-          if (ctxStr) lines.push(`    context: ${ctxStr}`);
-        }
-        if (summary.recent.length > 20) {
-          lines.push(`  ... and ${summary.recent.length - 20} more (use --format=json for full list)`);
+        if (brief) {
+          // Brief: one truncated line per issue, capped at 10; the omitted count
+          // is always printed (non-silent filtering).
+          for (const issue of summary.recent.slice(0, 10)) {
+            lines.push(`  [${issue.timestamp}] ${issue.category}: ${truncateOneLine(issue.error, 120)}`);
+          }
+          if (summary.recent.length > 10) {
+            lines.push(`  ... and ${summary.recent.length - 10} more (use --full or --format=json for the full list)`);
+          }
+        } else {
+          for (const issue of summary.recent.slice(0, 20)) {
+            const ctxStr = Object.entries(issue.context)
+              .map(([k, v]) => `${k}=${typeof v === 'string' ? v : JSON.stringify(v)}`)
+              .join(' ');
+            lines.push(`  [${issue.timestamp}] ${issue.category}`);
+            lines.push(`    error: ${issue.error}`);
+            if (ctxStr) lines.push(`    context: ${ctxStr}`);
+          }
+          if (summary.recent.length > 20) {
+            lines.push(`  ... and ${summary.recent.length - 20} more (use --format=json for full list)`);
+          }
         }
         lines.push('');
         lines.push(`→ These issues are all non-fatal errors (caught by reportHealthIssue), but may indicate incomplete data/audit.`);
@@ -427,10 +446,29 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       lines.push('');
       lines.push(renderRuntimeEnvironmentReport(runtime));
       lines.push('');
-      lines.push(renderValidationScan(validation));
+      if (brief) {
+        // Brief: counts + warnings only (warnings are the actionable part);
+        // the per-command detail lives behind --full / --format=json.
+        lines.push('Validation scan:');
+        lines.push(`  active validate file: ${validation.validateFile ?? 'none'}`);
+        lines.push(`  configured commands: ${validation.configuredCommands.length}; discovered fallback labels: ${validation.discoveredFallbackLabels.length > 0 ? validation.discoveredFallbackLabels.join(', ') : 'none'}`);
+        lines.push(`  no-validator warning: ${validation.noValidatorWarning ? 'yes' : 'no'}`);
+        if (validation.warnings.length > 0) {
+          lines.push('  warnings:');
+          for (const warning of validation.warnings) lines.push(`  - ${truncateOneLine(warning, 160)}`);
+        } else {
+          lines.push('  warnings: none');
+        }
+      } else {
+        lines.push(renderValidationScan(validation));
+      }
       lines.push('');
       lines.push('Codex adapter scan:');
       lines.push(renderCodexAdapterChecks(codex).split('\n').map((line, index) => index === 0 ? `  ${line}` : `  ${line}`).join('\n'));
+      if (brief) {
+        lines.push('');
+        lines.push('→ Brief view. Full diagnostics: lattice doctor --full (or LATTICE_BRIEF_OUTPUT=0); --format=json keeps the full machine shape.');
+      }
 
       return lines.join('\n');
     },
