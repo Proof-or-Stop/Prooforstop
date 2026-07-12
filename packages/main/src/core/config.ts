@@ -82,6 +82,12 @@ export interface LatticeConfig {
   fixturesDir: string;
   storyDir: string;
   requirementsDir: string;
+  candidateSpecRouting?: {
+    mode?: 'shadow' | 'warn' | 'enforce';
+    candidateBudget?: number;
+    queryGroupBudget?: number;
+    rawHitsPerGroup?: number;
+  };
   storyPrefix: string;
   flows: LatticeFlowConfig;
   wrappersDir?: string;
@@ -257,6 +263,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'quantum_claim_*', // B-d1bf/B-3779: Quantum local read-only claim-admissibility diagnostics (M3 check, M4 benchmark, M5 report); no lifecycle evidence writes
     'host_*', // Proofbound CLI 0.3.6: host list/probe/install guidance; dry-run/read-only diagnostics only
     'host_runtime_*', // B-106b/B-d674: dispatch runtime readiness probes for fake/codex/claude-code/antigravity
+    'candidate_spec_rollout_check', // B-8038: read-only quality/cost promotion projection
     'usage_sweep', // B-70e9 M2: read-only NON-AUTHORITATIVE retro-attribution usage sweep over host transcript stores; streams ~/.codex + ~/.claude, no ledger backfill, no gate evidence, writes nothing unless --out is passed (inside project root)
     'lattice_config_doctor', // Proofbound CLI 0.3.6: CLI-first migration/config status; no Mac App dependency
     'lattice_config_repair', // B-526c: explicit confirmed gitRoot repair; command policy enforces mutating ownership semantics
@@ -437,6 +444,12 @@ const DEFAULT_CONFIG: LatticeConfig = {
   fixturesDir: 'tests/fixtures',
   storyDir: LATTICE_STORY_DIR,
   requirementsDir: 'docs/requirements',
+  candidateSpecRouting: {
+    mode: 'shadow',
+    candidateBudget: 8,
+    queryGroupBudget: 10,
+    rawHitsPerGroup: 50,
+  },
   storyPrefix: 'B',
   flows: {
     defaults: {},

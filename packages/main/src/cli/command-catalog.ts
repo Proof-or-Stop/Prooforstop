@@ -123,6 +123,8 @@ const reviewerReadManifestSchema = z.object({
   filesReadFully: z.array(z.string()).describe('Relative files the reviewer read in full. Decisions-doc entries are mechanically compared to readLog; non-decision entries remain signed manifest evidence.'),
   filesTriagedByName: z.array(z.string()).describe('Relative files the reviewer only triaged by filename/title. Decisions-doc entries are mechanically compared to readLog; non-decision entries remain signed manifest evidence.'),
   scanEscalationReason: z.string().nullable().describe('Reason for full decisions-directory escalation, or null when no escalation occurred.'),
+  candidateSpecSetDigest: z.string().optional().describe('Current candidate-spec-set artifact digest consumed by this reviewer.'),
+  corpusDigest: z.string().optional().describe('Requirements corpus digest bound to the candidate set.'),
 }).describe('Required reviewer read evidence: {filesReadFully:string[], filesTriagedByName:string[], scanEscalationReason:string|null}. Runtime rejects duplicates, unsafe paths, and malformed values.');
 const reviewerReadTokenCountSchema = z.number().nonnegative().nullable();
 const reviewerReadEventSchema = z.object({
@@ -2874,6 +2876,23 @@ Behavior:
     fullScanReason: z.string().optional().describe('Structured reason for a tool-driven broad scan; never serializes corpus bodies.'),
     json: z.boolean().optional().describe('Output the versioned candidate artifact as JSON.'),
     format: z.enum(['text', 'json']).optional().describe('Output format'),
+  }},
+  { name: 'candidate_spec_rollout_check', description: 'Evaluate a shadow/warn/enforce candidate-routing promotion against two consecutive quality and cost windows. Read-only; rollback always means explicit tool-driven review with recorded escalation and never corpus prompt injection.', schema: {
+    from: z.enum(['shadow', 'warn', 'enforce']),
+    to: z.enum(['shadow', 'warn', 'enforce']),
+    windows: z.array(z.object({
+      id: z.string(),
+      criticalHighRecall: z.number(),
+      overallRecall: z.number(),
+      findingEquivalent: z.boolean(),
+      promptByteReduction: z.number(),
+      p95LatencyMs: z.number(),
+      readMismatchCount: z.number().int(),
+      unjustifiedFullScanCount: z.number().int(),
+    })),
+    maxP95LatencyMs: z.number().positive().optional(),
+    json: z.boolean().optional(),
+    format: z.enum(['text', 'json']).optional(),
   }},
   { name: 'usage_sweep', description: 'Read-only NON-AUTHORITATIVE usage sweep: streams ~/.codex/sessions rollouts and ~/.claude/projects transcripts since a cutoff and reports per-session token totals, originator (desktop vs exec vs claude-code), cwd, first/last timestamps, and B-xxxx story mentions plus a per-story rollup and grand totals. Estimates only (attribution from host transcript stores, not billing truth); performs no ledger backfill and no gate/lifecycle changes, and writes nothing unless --out is explicitly passed. Alias: lattice usage sweep', schema: {
     since: z.string().describe('Cutoff: YYYY-MM-DD, ISO datetime, or <N>d shorthand (e.g. 7d). Files with mtime before the cutoff are skipped before reading'),

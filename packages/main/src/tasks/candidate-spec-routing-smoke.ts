@@ -5,7 +5,9 @@ import { tmpdir } from 'node:os';
 import {
   buildCorpusIndex,
   buildKeywordSeeds,
+  candidateReadBindingErrors,
   collectHostKeywordProposals,
+  evaluateCandidateRoutingPromotion,
   normalizeHostProposal,
   routeCandidateSpecs,
   sanitizeHostPayload,
@@ -91,6 +93,27 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
 
     const tampered = { ...artifact, candidateSpecSet: ['docs/requirements/decisions/noise.md'] };
     assert.equal(verifyCandidateSpecSet(tampered), false, 'tampered candidate artifact must fail verification');
+    const manifest = {
+      filesReadFully: artifact.candidateSpecSet,
+      filesTriagedByName: [],
+      scanEscalationReason: null,
+      candidateSpecSetDigest: artifact.artifactDigest,
+      corpusDigest: artifact.corpusDigest,
+    };
+    assert.deepEqual(candidateReadBindingErrors({ manifest, artifact, mode: 'enforce' }), []);
+    assert.match(candidateReadBindingErrors({ manifest: { ...manifest, candidateSpecSetDigest: '0'.repeat(64) }, artifact, mode: 'enforce' }).join(' '), /does not match/);
+    assert.match(candidateReadBindingErrors({ manifest, artifact: null, mode: 'enforce' }).join(' '), /missing/);
+    assert.match(candidateReadBindingErrors({ manifest, artifact, mode: 'enforce', currentMaterialHash: 'different' }).join(' '), /materialHash is stale/);
+    assert.deepEqual(candidateReadBindingErrors({
+      manifest: { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null },
+      artifact: null,
+      mode: 'shadow',
+    }), [], 'shadow mode must not require candidate binding');
+    assert.match(candidateReadBindingErrors({
+      manifest: { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null },
+      artifact: null,
+      mode: 'enforce',
+    }).join(' '), /required in enforce/);
 
     const zero = routeCandidateSpecs({
       projectRoot: root,
@@ -133,6 +156,30 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
     });
     assert.equal(unsafeCalls, 0);
     assert.ok(unsafe.attempts.every(attempt => attempt.status === 'skipped-unsafe'));
+
+    const passingWindow = (id: string) => ({
+      id,
+      criticalHighRecall: 1,
+      overallRecall: 0.99,
+      findingEquivalent: true,
+      promptByteReduction: 0.95,
+      p95LatencyMs: 1000,
+      readMismatchCount: 0,
+      unjustifiedFullScanCount: 0,
+    });
+    const promotion = evaluateCandidateRoutingPromotion({ from: 'shadow', to: 'warn', windows: [passingWindow('w1'), passingWindow('w2')] });
+    assert.equal(promotion.allowed, true);
+    assert.equal(promotion.corpusPromptInjectionAllowed, false);
+    const failedPromotion = evaluateCandidateRoutingPromotion({
+      from: 'warn',
+      to: 'enforce',
+      windows: [passingWindow('w1'), { ...passingWindow('w2'), criticalHighRecall: 0.99 }],
+    });
+    assert.equal(failedPromotion.allowed, false);
+    assert.match(failedPromotion.blockers.join(' '), /critical\/high recall/);
+    const rollback = evaluateCandidateRoutingPromotion({ from: 'enforce', to: 'shadow', windows: [] });
+    assert.equal(rollback.allowed, true);
+    assert.equal(rollback.rollback, 'tool-driven-broad-review-with-recorded-escalation');
 
     console.log('candidate-spec-routing smoke: PASS');
   } finally {

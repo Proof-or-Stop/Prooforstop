@@ -7,14 +7,18 @@ import {
   buildCorpusIndex,
   buildKeywordSeeds,
   collectHostKeywordProposals,
+  digestCandidateRoutingValue,
+  evaluateCandidateRoutingPromotion,
   routeCandidateSpecs,
   type CandidateHostExecutor,
   type CandidateSpecSetArtifact,
   type HostKeywordProposal,
   type StoryRoutingInput,
+  type CandidateRoutingEvaluationWindow,
 } from '../core/candidate-spec-routing.js';
 import { runHostRun } from '../core/host-run.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
+import { captureReviewRunSnapshot } from '../core/review-run.js';
 
 const MAX_PROPOSAL_OUTPUT_BYTES = 64 * 1024;
 
@@ -24,6 +28,13 @@ export interface CandidateSpecRouteArgs extends FormatArgs {
   requestAgy?: boolean;
   persist?: boolean;
   fullScanReason?: string;
+}
+
+export interface CandidateSpecRolloutCheckArgs extends FormatArgs {
+  from: 'shadow' | 'warn' | 'enforce';
+  to: 'shadow' | 'warn' | 'enforce';
+  windows: CandidateRoutingEvaluationWindow[];
+  maxP95LatencyMs?: number;
 }
 
 function changedPaths(root: string): string[] {
@@ -146,13 +157,22 @@ export function createCandidateSpecRoutingHandlers(
             execute: options.executeHost ?? productionExecutor(ctx, story.phase),
             requestAgy: args.requestAgy,
           });
+      const snapshot = captureReviewRunSnapshot(ctx.root, {
+        storyId: args.storyId,
+        storyPhase: story.phase,
+      });
       const artifact = routeCandidateSpecs({
         projectRoot: ctx.root,
         storyId: args.storyId,
         corpus,
         seeds,
         proposals: hostResult.accepted,
+        candidateBudget: config.candidateSpecRouting?.candidateBudget,
+        queryGroupBudget: config.candidateSpecRouting?.queryGroupBudget,
+        rawHitsPerGroup: config.candidateSpecRouting?.rawHitsPerGroup,
         forceFullScanReason: args.fullScanReason,
+        storyInputDigest: digestCandidateRoutingValue(input),
+        ...snapshot,
       });
       if (args.persist !== false) {
         ctx.store.writeCandidateSpecSet(args.storyId, artifact);
@@ -166,6 +186,19 @@ export function createCandidateSpecRoutingHandlers(
         `ambiguity=${artifact.ambiguitySignals.join(',') || 'none'}`,
         `scanEscalationReason=${artifact.scanEscalationReason ?? 'null'}`,
         ...artifact.candidates.map((candidate, index) => `${index + 1}. ${candidate.path} score=${candidate.score}`),
+      ].join('\n');
+    },
+    candidate_spec_rollout_check(args: CandidateSpecRolloutCheckArgs) {
+      if (!Array.isArray(args.windows)) throw new Error('candidate_spec_rollout_check.windows must be an array');
+      const verdict = evaluateCandidateRoutingPromotion(args);
+      if (args.json || args.format === 'json') return verdict;
+      return [
+        `Candidate routing rollout: ${args.from} -> ${args.to}`,
+        `allowed=${verdict.allowed}`,
+        `windows=${verdict.evaluatedWindowIds.join(',') || 'none'}`,
+        `blockers=${verdict.blockers.join('; ') || 'none'}`,
+        `rollback=${verdict.rollback}`,
+        'corpusPromptInjectionAllowed=false',
       ].join('\n');
     },
   };

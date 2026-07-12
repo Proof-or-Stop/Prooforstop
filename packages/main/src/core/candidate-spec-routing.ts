@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import { lstatSync, readFileSync, readdirSync, realpathSync, statSync } from 'node:fs';
 import { isAbsolute, join, posix, relative, resolve } from 'node:path';
+import type { ReviewerReadManifest } from './types.js';
 
 export const CORPUS_INDEX_SCHEMA = 'proofbound.corpus-index.v1' as const;
 export const KEYWORD_SEEDS_SCHEMA = 'proofbound.keyword-seeds.v1' as const;
@@ -136,7 +137,32 @@ export interface CandidateSpecSetArtifact {
   ambiguitySignals: string[];
   fullScan: boolean;
   scanEscalationReason: string | null;
+  storyInputDigest: string;
+  headHash: string;
+  materialHash: string;
+  storyFilesHash?: string;
   artifactDigest: string;
+}
+
+export interface CandidateRoutingEvaluationWindow {
+  id: string;
+  criticalHighRecall: number;
+  overallRecall: number;
+  findingEquivalent: boolean;
+  promptByteReduction: number;
+  p95LatencyMs: number;
+  readMismatchCount: number;
+  unjustifiedFullScanCount: number;
+}
+
+export interface CandidateRoutingPromotionVerdict {
+  allowed: boolean;
+  from: 'shadow' | 'warn' | 'enforce';
+  to: 'shadow' | 'warn' | 'enforce';
+  evaluatedWindowIds: string[];
+  blockers: string[];
+  rollback: 'tool-driven-broad-review-with-recorded-escalation';
+  corpusPromptInjectionAllowed: false;
 }
 
 function canonicalJson(value: unknown): string {
@@ -422,6 +448,10 @@ export function routeCandidateSpecs(args: {
   queryGroupBudget?: number;
   rawHitsPerGroup?: number;
   forceFullScanReason?: string | null;
+  storyInputDigest?: string;
+  headHash?: string;
+  materialHash?: string;
+  storyFilesHash?: string;
 }): CandidateSpecSetArtifact {
   const candidateBudget = args.candidateBudget ?? DEFAULT_CANDIDATE_BUDGET;
   const queryGroupBudget = args.queryGroupBudget ?? DEFAULT_QUERY_GROUP_BUDGET;
@@ -496,6 +526,10 @@ export function routeCandidateSpecs(args: {
     ambiguitySignals,
     fullScan,
     scanEscalationReason: args.forceFullScanReason?.trim() || null,
+    storyInputDigest: args.storyInputDigest ?? digestCandidateRoutingValue({ storyId: args.storyId, seedDigest: args.seeds.seedDigest }),
+    headHash: args.headHash ?? 'unbound',
+    materialHash: args.materialHash ?? 'unbound',
+    ...(args.storyFilesHash ? { storyFilesHash: args.storyFilesHash } : {}),
   };
   return { ...base, artifactDigest: digestCandidateRoutingValue(base) };
 }
@@ -507,4 +541,74 @@ export function verifyCandidateSpecSet(artifact: CandidateSpecSetArtifact): bool
   if (artifact.queryGroups.length > artifact.budgets.queryGroups) return false;
   if (artifact.fullScan !== Boolean(artifact.scanEscalationReason)) return false;
   return artifactDigest === digestCandidateRoutingValue(base);
+}
+
+export function candidateReadBindingErrors(args: {
+  manifest: ReviewerReadManifest;
+  artifact: CandidateSpecSetArtifact | null;
+  mode: 'shadow' | 'warn' | 'enforce';
+  currentMaterialHash?: string;
+  currentStoryFilesHash?: string;
+}): string[] {
+  const errors: string[] = [];
+  const digest = args.manifest.candidateSpecSetDigest;
+  if (!digest) {
+    if (args.mode === 'enforce') errors.push('candidateSpecSetDigest is required in enforce mode');
+    return errors;
+  }
+  if (!args.artifact) return ['candidate-spec-set.json is missing'];
+  if (!verifyCandidateSpecSet(args.artifact)) errors.push('candidate artifact signature/digest is invalid');
+  if (digest !== args.artifact.artifactDigest) errors.push('candidateSpecSetDigest does not match current artifact');
+  if (args.manifest.corpusDigest !== args.artifact.corpusDigest) errors.push('read manifest corpusDigest does not match current artifact');
+  if (args.currentMaterialHash && args.artifact.materialHash !== args.currentMaterialHash) errors.push('candidate artifact materialHash is stale');
+  if (args.currentStoryFilesHash && args.artifact.storyFilesHash && args.artifact.storyFilesHash !== args.currentStoryFilesHash) errors.push('candidate artifact storyFilesHash is stale');
+  return errors;
+}
+
+export function assertCandidateReadBinding(args: Parameters<typeof candidateReadBindingErrors>[0]): void {
+  const errors = candidateReadBindingErrors(args);
+  if (errors.length > 0) throw new Error(`candidate routing evidence rejected: ${errors.join('; ')}`);
+}
+
+export function evaluateCandidateRoutingPromotion(args: {
+  from: CandidateRoutingPromotionVerdict['from'];
+  to: CandidateRoutingPromotionVerdict['to'];
+  windows: CandidateRoutingEvaluationWindow[];
+  maxP95LatencyMs?: number;
+}): CandidateRoutingPromotionVerdict {
+  const order = { shadow: 0, warn: 1, enforce: 2 } as const;
+  const blockers: string[] = [];
+  if (order[args.to] > order[args.from] + 1) blockers.push('rollout modes cannot be skipped');
+  if (order[args.to] < order[args.from]) {
+    return {
+      allowed: true,
+      from: args.from,
+      to: args.to,
+      evaluatedWindowIds: [],
+      blockers: [],
+      rollback: 'tool-driven-broad-review-with-recorded-escalation',
+      corpusPromptInjectionAllowed: false,
+    };
+  }
+  const windows = args.windows.slice(-2);
+  if (windows.length < 2) blockers.push('two consecutive evaluation windows are required');
+  const maxLatency = args.maxP95LatencyMs ?? 30_000;
+  for (const window of windows) {
+    if (window.criticalHighRecall < 1) blockers.push(`${window.id}: critical/high recall below 100%`);
+    if (window.overallRecall < 0.98) blockers.push(`${window.id}: overall recall below 98%`);
+    if (!window.findingEquivalent) blockers.push(`${window.id}: finding equivalence failed`);
+    if (window.promptByteReduction < 0.9) blockers.push(`${window.id}: prompt-byte reduction below 90%`);
+    if (window.p95LatencyMs > maxLatency) blockers.push(`${window.id}: p95 latency above threshold`);
+    if (window.readMismatchCount !== 0) blockers.push(`${window.id}: read evidence mismatch detected`);
+    if (window.unjustifiedFullScanCount !== 0) blockers.push(`${window.id}: unjustified full scan detected`);
+  }
+  return {
+    allowed: blockers.length === 0,
+    from: args.from,
+    to: args.to,
+    evaluatedWindowIds: windows.map(window => window.id),
+    blockers,
+    rollback: 'tool-driven-broad-review-with-recorded-escalation',
+    corpusPromptInjectionAllowed: false,
+  };
 }
