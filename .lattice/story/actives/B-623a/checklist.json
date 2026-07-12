@@ -352,7 +352,7 @@
           }
         ]
       },
-      "userSees": "lattice usage_sweep --since 7d --alert prints the normal report plus a BURN ALERT section and exits non-zero with \"usage_sweep --alert: N session(s) over burn thresholds\" when any session trips; without --alert exit stays 0",
+      "userSees": "lattice usage_sweep --since=2d --alert prints the normal report plus a \"BURN ALERT\" section listing flagged sessions and exits non-zero; the same sweep without --alert (or with no session over thresholds) exits 0",
       "files": {
         "modify": [
           "packages/main/src/handlers/usage-sweep.ts",
