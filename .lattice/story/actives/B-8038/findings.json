@@ -130,7 +130,7 @@
       "desc": "packages/main/src/core/candidate-spec-routing.ts:516-535,581-583 — ec8d248d fixes the partial full-scan enumeration, but conflates every ranking truncation/cutoff tie with an immediate full-corpus scan. scanEscalationReason becomes non-null automatically, candidateSpecSet becomes every corpus entry, and candidateReadBindingErrors then requires every entry in filesReadFully. A common high-frequency term therefore restores the exact all-document full-read/token-exhaustion behavior this Story is meant to remove. The M6 contract allows bounded expansion/reviewer-requested tool-driven broad review; ambiguity must fail closed or request a structured escalation first, not silently authorize full scan. Separate requiresEscalation from fullScan, keep the bounded attempted candidates, and only enumerate all corpus paths after an explicit justified broad-scan decision; add a regression proving truncated common terms do not automatically require all corpus documents to be read.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-12T10:57:08.925Z",
@@ -138,7 +138,11 @@
       "reviewRunId": "B-8038:RR-004",
       "_hash": "11d7e922adf9357ae744a7cb710a7ad87c68186dd3bd530a6cec4aafdbd2de9b",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 802d8088: escalation-required state is separate from explicit fullScan; ambiguity remains <=8 candidates and never auto scans corpus.",
+      "resolvedAt": "2026-07-12T11:00:48.902Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8038:F-007",
