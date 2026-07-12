@@ -140,6 +140,21 @@
       "_hash": "043c6b1ba77d7f92be88e237bd4cc1bc1bfb0df7c6914af341f032ca115701ac",
       "signatureTag": "missing|unknown|quality-dead-code",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7c05:F-008",
+      "desc": "quality-correctness: packages/main/src/handlers/story-query.ts:53-66 toBriefStoryRow() is an allow-list projection that silently drops the row bg field (set at :595, the B-45ed CHK-008 background.md marker) with no count/hint of the omission, contradicting this same story own Non-silent filtering guarantee in docs/CLI.md (\"it always emits the exact total counts of the omitted items... so nothing is hidden\") and its own comment which claims it only drops metrics/name. Verified live on this repo: `lattice story_list` (brief default) shows 0/36 stories with a bg field while `--full` shows dozens of stories carrying bg:✓. Root cause: the StoryListRow type (~:39-50) does not declare bg/metrics/name and the results.map() row is force-cast via `as StoryListRow` at :708 without validation, so nothing caught the missing field.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-12T17:21:03.725Z",
+      "reviewRound": "2026-07-12T17:08:48.514Z",
+      "reviewRunId": "B-7c05:RR-003",
+      "_hash": "49ee8abd999222565a23256eef223d3ac81eac75f470745a49d1ef4f46bc0e8d",
+      "signatureTag": "missing|unknown|quality-correctness-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
