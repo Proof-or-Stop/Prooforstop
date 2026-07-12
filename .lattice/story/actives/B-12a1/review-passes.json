@@ -129,6 +129,30 @@
         "scanEscalationReason": null
       },
       "_hash": "10e33680708899b29a50bdf39eddef5b26c97f4419b06579270b85c7832a9b9b"
+    },
+    {
+      "id": "B-12a1:RP-007",
+      "agent": "lattice-review-behavior",
+      "note": "Reviewed CHK-001 and CHK-002 together (single commit 865b8ab5dc implements both). CHK-001: verified all ten ProofStory filenames from store.ts (lines 668-798) are added verbatim to LATTICE_LIFECYCLE_ARTIFACT_FILENAMES in lifecycle-registry.ts, no logic change to classifyLifecycleArtifact/classifyScopePath, no duplicate collisions with the pre-existing set, and the deliberate non-goals (grill.json/clusters.json/scope-extension-decisions.json) correctly untouched. CHK-002: verified scope-contract-smoke.ts asserts all ten paths under an enforce waveContract (no story-metadata paths listed) produce scope.lifecycle_artifact pass/non-blocking rows. Ran npm --prefix packages/main run build + node packages/main/dist/tasks/scope-contract-smoke.js: passes. Confirmed red->green by temporarily stripping the ten names from the compiled dist registry and re-running the smoke: it fails closed exactly as the plan describes (AssertionError expected pass got fail on B-12a1 ProofStory lifecycle row), then restored dist (gitignored, no tracked diff) and re-ran green. Traced classifyScopePath -> classifyLifecycleArtifact to confirm this is the sole registry consulted (no other duplicate closed-set to update). Confirmed scope-contract-smoke is wired into packages/main/smoke-manifest.json (already part of standard suite, no new wiring needed per plan). Ran full lattice validate: exit 0, all green, no FAIL rows. No blocker found. No decisions-directory candidate-spec routing applies to this story (pure registry/data change), so candidateSpecSetDigest/corpusDigest are omitted per their optional/when-supplied contract.",
+      "createdAt": "2026-07-12T21:58:03.261Z",
+      "reviewRound": "2026-07-12T21:45:24.921Z",
+      "reviewRunId": "B-12a1:RR-001",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-12a1/background.md",
+          ".lattice/story/actives/B-12a1/plan.md",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/scope-path-classifier.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/tasks/scope-contract-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/package.json",
+          "packages/main/smoke-manifest.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0fc2a04841e6240970c74f43ef96f499ef6a040b6553b5d000ea190e2ead0c77"
     }
   ]
 }
