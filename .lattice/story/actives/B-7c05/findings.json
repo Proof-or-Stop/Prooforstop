@@ -88,7 +88,7 @@
       "desc": "Two remaining should-priority intents have zero verificationEvidence records: CHK-003:edge:0 (help with empty/filtered command list should emit graceful empty message) and CHK-005:adversarial:1 (validate/checklist_get ignore LATTICE_BRIEF_OUTPUT and --brief gracefully with no crash). Manual spot-check during this review confirms both behaviors currently work correctly live (checklist_get with brief:true and LATTICE_BRIEF_OUTPUT=0 both return unaffected full output, exit 0, no crash) but no committed test or transcript record exists for either, so a future regression would go undetected. CHK-006:edge:1 (CLAUDE.md reflection) is not counted as a gap since its own intent text states docs/CLI.md alone suffices when CLAUDE.md snippet regeneration does not apply, which is the case here.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-12T01:41:15.693Z",
@@ -100,7 +100,11 @@
         "packages/main/src/handlers/checklist.ts"
       ],
       "signatureTag": "missing|ts|remaining-priority-intents",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 8a1c4f033b: graceful-ignore now tested — brief-output-smoke asserts checklist_get output is byte-identical bare vs --brief vs LATTICE_BRIEF_OUTPUT=1. Evidence on CHK-005:adversarial:1. The remaining empty-command-list boundary (CHK-003:edge:0, should) stays reasoned-uncovered: printHelp reads the live registry which is never empty in any reachable configuration; the zero-group loop degenerates to header+footer by construction.",
+      "resolvedAt": "2026-07-12T17:09:24.552Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "medium"
     }
   ]
 }
