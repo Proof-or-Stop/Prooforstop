@@ -83,6 +83,25 @@
         "scanEscalationReason": null
       },
       "_hash": "acdbfaae1ccdeb81a40a7b6a3bbf1107c1574def06af6ddc6e80bfda6a5d9989"
+    },
+    {
+      "id": "B-f97c:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Targeted fresh concept re-review passed at current HEAD: commit 8c70feff65 only strengthens the regression proof. Sparse accepted PLAN input now demonstrates that removing the corpus producer does not make optional understanding/decision/grill/verificationIntent data mandatory or introduce blockers, while still retaining checklist and ProofStory prompt structure. Usage disclosure now correctly separates deterministic prompt byte and byte/4 estimates from story-scoped usage_sweep attribution and explicitly labels multi-attribution as non-authoritative/overlapping. These changes remain within the frozen emergency scope and preserve the user outcome: story_review no longer burns quota on unrelated requirements content; candidate keyword routing remains a separate bounded M6 optimization.",
+      "createdAt": "2026-07-12T01:46:16.277Z",
+      "reviewRound": "2026-07-12T01:43:12.253Z",
+      "reviewRunId": "B-f97c:RR-006",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/story-review-corpus-budget-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/package.json",
+          "packages/main/src/handlers/story-review.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4c7d178acf7b8c7a0760037b355f266b19aadc4719f6f5742a91068ae64e2bbc"
     }
   ]
 }
