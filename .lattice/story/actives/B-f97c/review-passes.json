@@ -1,0 +1,26 @@
+{
+  "passes": [
+    {
+      "id": "B-f97c:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept review passed: the implementation matches the frozen emergency intent by deleting recursive requirements reads and Truth Source concatenation, preserving structured PLAN artifacts and mechanical scope-check gates, and proving prompt bytes no longer scale with unrelated corpus size. The broader keyword/candidateSpecSet router is correctly not improvised here: agent-supplied keywords should be bounded routing signals combined with relatedDocs, story text, touchpoints/symbols, command/config names and top-N local rg results, with signed scope evidence and explicit escalation for ambiguity/high-risk work; that belongs to the planned M6 follow-up, while this narrow producer fix immediately stops quota exhaustion.",
+      "createdAt": "2026-07-12T01:37:35.617Z",
+      "reviewRound": "2026-07-12T01:35:57.174Z",
+      "reviewRunId": "B-f97c:RR-002",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f97c/background.md",
+          ".lattice/story/actives/B-f97c/plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "packages/main/src/tasks/story-review-corpus-budget-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/package.json",
+          "packages/main/src/handlers/story-review.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b98dc7bd293430a182caddb33c8ddc450c8b80dd724f59c71e9a3d32f33cb16c"
+    }
+  ]
+}
