@@ -219,6 +219,36 @@
         "scanEscalationReason": null
       },
       "_hash": "1b45d0af335a1e874e51d38ae346d9c484307e2403e961bd01db28bd8f2b32b7"
+    },
+    {
+      "id": "B-623a:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Post-merge convergence round after RP-006 went stale on merge commit 3734296235 (main 0.3.185->0.3.191 into story branch) + follow-up 33376b1653 (5th doctor call site). git diff main...HEAD --diff-filter=DR is EMPTY (zero deletions/renames story-wide) -- confirms no concept deletion/replacement. Delta since RP-006 (verified via git diff 15f0263beb HEAD, the commit RP-006/RP-007/RP-008 fully reviewed): core/usage-burn-alert.ts and usage-burn-alert-smoke.ts are BYTE-IDENTICAL (already fully reviewed, untouched by the merge). Only 3 files changed: (1) doctor.ts -- merge conflict resolution kept BOTH sides: async signature (B-623a host burn scan awaits sweepCodexSessions/sweepClaudeProjects) AND the B-7c05 brief/full flags plus both import groups; read the full file (1143 lines) end to end -- the brief-mode trimming (validation/codex-adapter sections) and the burn-scan block are structurally independent code paths that both render unconditionally in their own lane, no deletion of either concept, hostBurnScan present in both JSON and text output; (2) package.json + packages/main/package.json -- merge kept BOTH new test scripts (test:usage-burn-alert alongside main's test:brief-output), no script removed; (3) scripts/verify-runtime-fact-contract.mjs -- new commit awaits the now-async doctor() at its 2 call sites (the 5th pre-existing call site, a root .mjs script outside tsc coverage) and adds the same LATTICE_BURN_ALERT_RECENT_HOURS=0 hermeticity guard as the other 4 touched smokes; ran it directly (node scripts/verify-runtime-fact-contract.mjs) -- passes. Also re-verified all doctor() call sites repo-wide (grep) correctly await the async signature; re-ran the 4 other touched smokes (doctor-gitroot-probe, story-metadata-protection, storydir-inside-gitroot-suite, validation-protocol) plus usage-sweep-smoke -- all pass. Ran usage-burn-alert-smoke.js directly: 21/21 pass. No concept blocker.",
+      "createdAt": "2026-07-12T23:03:21.055Z",
+      "reviewRound": "2026-07-12T22:57:34.340Z",
+      "reviewRunId": "B-623a:RR-012",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/doctor.ts",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/tasks/doctor-gitroot-probe-smoke.ts",
+          "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "packages/main/src/tasks/storydir-inside-gitroot-suite.ts",
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5741f5936a23e74cfc75c96be32bc611216c32173940ebcefd9394d4fb372813"
     }
   ]
 }
