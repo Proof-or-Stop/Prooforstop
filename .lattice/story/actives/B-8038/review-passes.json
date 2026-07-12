@@ -45,6 +45,28 @@
         "scanEscalationReason": null
       },
       "_hash": "fe7c0711af13839dc9ca7b6c0c39d8d5dfb1600834c9c8d82295e8db27a72f0e"
+    },
+    {
+      "id": "B-8038:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round-4 targeted re-review passed: unresolved routing is visible in CLI and PLAN/REVIEW dispatch, scope/reviewer evidence binding rejects it mechanically, and only an explicit nonblank fullScanReason authorizes full-corpus enumeration; bounded truncation does not auto-scan. candidate-spec-routing smoke and process-fact contract both pass.",
+      "createdAt": "2026-07-12T11:07:48.119Z",
+      "reviewRound": "2026-07-12T11:06:29.973Z",
+      "reviewRunId": "B-8038:RR-010",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/candidate-spec-routing.ts",
+          "packages/main/src/handlers/candidate-spec-routing.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/candidate-spec-routing-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/process-fact-registry.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a2419c1c00d83216e5557c596f64ccf5c0516bfc10c060bb3ec81c550a1ba4b1"
     }
   ]
 }
