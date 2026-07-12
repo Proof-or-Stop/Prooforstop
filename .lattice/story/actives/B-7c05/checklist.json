@@ -468,6 +468,18 @@
           "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
           "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
           "timestamp": "2026-07-12T01:33:52.283Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/brief-output-smoke.ts",
+          "command": "node packages/main/dist/tasks/brief-output-smoke.js",
+          "result": "pass",
+          "note": "Sweep completed with recorded method (wc -c over every read-only command on this repo + rg for table builders and full-collection JSON returns). Fixed in-story: story_list 119,866->11,454; bug_list 263KB-baseline->280; help 45,481->11,619; story_review 2,600,206->2,156; doctor 22,632->7,722; post-mutation milestone suffix. Audited under ~20KB threshold: checklist_get 19,502 (has slim), host_list 15,899, session_brief 6,479, status 1,421, recall 261, audit 496. Documented disposition: story_get 74,351 kept full-by-default because slim/fields is the sanctioned opt-in and CLAUDE.md requires full reads before evidence/mutations. brief-output-smoke enforces budgets on all fixed commands.",
+          "headHash": "243e6a6e06f4b89874e126a5abecf27dd14764fa",
+          "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
+          "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
+          "timestamp": "2026-07-12T01:33:52.943Z"
         }
       ]
     },
