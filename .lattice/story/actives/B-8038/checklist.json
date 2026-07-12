@@ -80,7 +80,30 @@
       "userSees": "Relevant specifications are ranked into a bounded candidate set with explicit reasons and escalation on ambiguity.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Route golden Story/spec pairs through filename, heading, exact-body, normalized, host-semantic, pair, and negative-control query stages -> the deterministic scorer ranks known relevant documents with versioned reasons/provenance, deduplicates aliases, and emits at most 8 ordinary full-read candidates from at most 10 query groups; WHY: maps ranker-tests and search-budget-tests to the bounded ranked-candidate user result",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run sparse, noisy/excessive, zero-hit, truncated-result, legacy-synonym, negative-control, host-disagreement, and rank-8/rank-9 tie fixtures -> low source-class coverage, cutoff ties, material truncation, missing high-confidence legacy hits, and disagreement produce explicit ambiguity signals and structured escalation rather than silent omission; WHY: maps ambiguity-fixtures across the documented retrieval boundaries",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Add an irrelevant 5 MB Markdown file and adversarial high-frequency terms intended to flood results or manipulate scores -> per-query hit caps, deduplication, negative-control penalties and deterministic tie-breaking hold, prompt/full-read bytes remain bounded, and any ranking-affecting truncation escalates without serializing the corpus; WHY: proves hostile corpus noise cannot recreate token exhaustion or bypass ranking limits",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
