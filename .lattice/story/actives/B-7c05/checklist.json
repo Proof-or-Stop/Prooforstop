@@ -636,6 +636,17 @@
           "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
           "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
           "timestamp": "2026-07-12T01:33:57.918Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "bash -c 'test \"$(git diff HEAD~1 -- packages/main/src/handlers/verifier.ts | wc -l)\" -eq 0'",
+          "result": "pass",
+          "note": "validate untouched: git diff HEAD~1 over packages/main/src/handlers/verifier.ts is 0 lines, verifier.ts is in scope-contract explicitExcludes, validate has no brief flags in the catalog, so validate --full still means run-real-machine-tests.",
+          "headHash": "15d88b04583ad789d0327aa6bb7773251fabb118",
+          "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
+          "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
+          "timestamp": "2026-07-12T01:33:58.500Z"
         }
       ]
     },
