@@ -480,6 +480,18 @@
           "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
           "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
           "timestamp": "2026-07-12T01:33:52.943Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-story-list-bug-summary.mjs",
+          "command": "node scripts/verify-story-list-bug-summary.mjs",
+          "result": "pass",
+          "note": "Brief story_list JSON keeps the _bugSummary key accessible to JSON.parse consumers: verify-story-list-bug-summary.mjs green on bare brief output; live check confirmed _bugSummary is a string in the 11,454-byte brief object.",
+          "headHash": "a7b92770bf7fb39536e655477517ef732aa3a8dc",
+          "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
+          "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
+          "timestamp": "2026-07-12T01:33:53.577Z"
         }
       ]
     },
