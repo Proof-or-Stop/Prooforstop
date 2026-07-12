@@ -267,7 +267,7 @@
           }
         ]
       },
-      "userSees": "lattice doctor prints a \"Host burn scan (advisory):\" section; flagged sessions render a prominent block naming the session file, cwd, and cumulative tokens plus tripped thresholds; clean runs print \"✓ no host sessions over burn thresholds\"",
+      "userSees": "lattice doctor prints a \"Host burn scan (advisory):\" section; a flagged session renders \"✗ BURN ALERT codex <session-id> ~<N> input tokens\" plus file/cwd/first-last-activity lines and the tripped thresholds; a clean scan renders \"✓ no host sessions over burn thresholds\"",
       "files": {
         "modify": [
           "packages/main/src/handlers/doctor.ts",
