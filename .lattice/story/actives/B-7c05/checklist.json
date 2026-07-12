@@ -647,6 +647,18 @@
           "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
           "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
           "timestamp": "2026-07-12T01:33:58.500Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/brief-output-smoke.ts",
+          "command": "node packages/main/dist/tasks/brief-output-smoke.js",
+          "result": "pass",
+          "note": "Single test case with all three layers active: brief-output-smoke sets LATTICE_BRIEF_OUTPUT=0 (env layer) on a brief-by-default command (default layer) and passes --brief (flag layer), asserting the flag wins; the equivalent live probe on help also exits 0.",
+          "headHash": "ed8f5d6dad2861fe04b72324bfc56660d873c247",
+          "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
+          "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
+          "timestamp": "2026-07-12T01:33:59.171Z"
         }
       ]
     },
