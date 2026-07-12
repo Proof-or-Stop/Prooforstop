@@ -16,9 +16,9 @@
           "tasks/story-review-corpus-budget-smoke.ts"
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-12T01:35:05.207Z",
       "verificationIntent": {
         "happy": [
           {
@@ -41,7 +41,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:story-review-corpus-budget",
+          "result": "pass",
+          "note": "Corpus-budget smoke passed; story_review returned structured prompt without Truth Source or requirements bodies.",
+          "headHash": "37a47d73889b83f0321b42d2f482f099c3a421d5",
+          "materialHash": "1060e1478f06a0bc5ff019f87af7bb2bc8a3343b2cbc2e614a2a66f02047bdfc",
+          "storyFilesHash": "4bee5a84914ea337667b65982e22bea201d41a4304f91ec3a67aa70d0beb38b0",
+          "timestamp": "2026-07-12T01:35:05.532Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:story-review-corpus-budget",
+          "result": "pass",
+          "note": "Nested Markdown and non-Markdown sentinels were absent; review succeeded without corpus traversal.",
+          "headHash": "37a47d73889b83f0321b42d2f482f099c3a421d5",
+          "materialHash": "1060e1478f06a0bc5ff019f87af7bb2bc8a3343b2cbc2e614a2a66f02047bdfc",
+          "storyFilesHash": "4bee5a84914ea337667b65982e22bea201d41a4304f91ec3a67aa70d0beb38b0",
+          "timestamp": "2026-07-12T01:35:05.752Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:story-review-corpus-budget",
+          "result": "pass",
+          "note": "Adding 3 MiB unrelated Markdown produced zero prompt-byte delta and exact sentinel remained absent.",
+          "headHash": "37a47d73889b83f0321b42d2f482f099c3a421d5",
+          "materialHash": "1060e1478f06a0bc5ff019f87af7bb2bc8a3343b2cbc2e614a2a66f02047bdfc",
+          "storyFilesHash": "4bee5a84914ea337667b65982e22bea201d41a4304f91ec3a67aa70d0beb38b0",
+          "timestamp": "2026-07-12T01:35:05.974Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",

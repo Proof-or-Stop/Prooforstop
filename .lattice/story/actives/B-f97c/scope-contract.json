@@ -1,0 +1,30 @@
+{
+  "storyId": "B-f97c",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/story-review.ts",
+    "packages/main/package.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/story-review-corpus-budget-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/story-review-corpus-budget-smoke.ts",
+    "scripts/verify-story-review-structured-output.mjs"
+  ],
+  "protectedFiles": [
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/guard-utils.ts",
+    "packages/main/src/handlers/scope-check.ts"
+  ],
+  "explicitExcludes": [
+    "docs/requirements/**",
+    "packages/main/templates/agents/**",
+    ".lattice-codex/**",
+    ".claude/**"
+  ],
+  "scopeChangeReason": "Emergency narrow producer-side deletion; broader M6 routing and all gate semantics are excluded.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-12T01:30:36.208Z",
+  "updatedAt": "2026-07-12T01:30:36.208Z"
+}
