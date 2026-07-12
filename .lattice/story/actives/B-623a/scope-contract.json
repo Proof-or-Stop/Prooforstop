@@ -17,7 +17,8 @@
     ".lattice/story/actives/B-623a/proofstory.json",
     ".lattice/story/actives/B-623a/red-evidence.json",
     ".lattice/story/actives/B-623a/intent-collision.json",
-    ".lattice/story/actives/B-623a/original-intent-snapshot.json"
+    ".lattice/story/actives/B-623a/original-intent-snapshot.json",
+    "scripts/verify-runtime-fact-contract.mjs"
   ],
   "allowedCreate": [
     "packages/main/src/core/usage-burn-alert.ts",
@@ -32,7 +33,7 @@
   ],
   "protectedFiles": [],
   "explicitExcludes": [],
-  "scopeChangeReason": "Promote the four PLAN high-assurance ProofStory intent artifacts (original-intent-snapshot.json, intent-collision.json, red-evidence.json, proofstory.json — written by original_intent_snapshot_set / intent_collision_set / red_evidence_create / proofstory_contract_set, all not yet in the lifecycle artifact registry) plus the tsc-surfaced 4th doctor call-site smoke into the contract; acknowledgements scope-ack:1/2 recorded the same rationale.",
+  "scopeChangeReason": "Fifth pre-existing doctor() call site (root-level .mjs contract script outside tsc coverage), surfaced by the DONE-required root npm test: mechanical await of the now-async doctor + the same RECENT_HOURS=0 hermeticity guard; contract verifies green. Same class as the four TypeScript smoke call sites already in the contract.",
   "acknowledgements": [
     {
       "actor": "main-agent",
@@ -76,5 +77,5 @@
     }
   ],
   "createdAt": "2026-07-12T19:51:53.136Z",
-  "updatedAt": "2026-07-12T20:46:21.350Z"
+  "updatedAt": "2026-07-12T22:57:33.452Z"
 }
