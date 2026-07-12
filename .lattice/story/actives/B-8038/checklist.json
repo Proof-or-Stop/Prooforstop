@@ -502,7 +502,72 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Two-window promotion passes only at 100% critical/high recall, >=98% overall recall, finding equivalence, >=90% byte reduction, latency and zero mismatch/full-scan violations; process-fact registry contract passes.",
+          "headHash": "4c96a3a2d26e6e0574ee5a4f41df126d957a16dd",
+          "materialHash": "5c5d6449ce522644831a0e262487c9dd0d6d64ef9b663382c75a66a423af7c8c",
+          "storyFilesHash": "1971cb64c0834fa4bfbc672bd7b7d6f7a6dd2a490c30af0c1fbd86ae28e1caee",
+          "timestamp": "2026-07-12T10:46:45.077Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "command": "node packages/main/dist/tasks/candidate-spec-routing-smoke.js",
+          "result": "pass",
+          "note": "A failing second window reports every missed threshold and blocks enforce; deterministic host-outage fallback remains local and bounded.",
+          "headHash": "4c96a3a2d26e6e0574ee5a4f41df126d957a16dd",
+          "materialHash": "5c5d6449ce522644831a0e262487c9dd0d6d64ef9b663382c75a66a423af7c8c",
+          "storyFilesHash": "1971cb64c0834fa4bfbc672bd7b7d6f7a6dd2a490c30af0c1fbd86ae28e1caee",
+          "timestamp": "2026-07-12T10:46:45.346Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/story-review-corpus-budget-smoke.ts",
+          "command": "node packages/main/dist/tasks/story-review-corpus-budget-smoke.js && node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Rollback is tool-driven broad review with recorded escalation and corpusPromptInjectionAllowed=false; regression measured 2,936 bytes unchanged after adding a large corpus and 99.91% reduction from the reconstructed pre-fix prompt.",
+          "headHash": "4c96a3a2d26e6e0574ee5a4f41df126d957a16dd",
+          "materialHash": "5c5d6449ce522644831a0e262487c9dd0d6d64ef9b663382c75a66a423af7c8c",
+          "storyFilesHash": "1971cb64c0834fa4bfbc672bd7b7d6f7a6dd2a490c30af0c1fbd86ae28e1caee",
+          "timestamp": "2026-07-12T10:46:45.603Z"
+        },
+        {
+          "intentRef": "CHK-007:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "test -z \"$(rg B-8038 /Users/jek/Documents/Work/proofbound/.lattice/usage/llm-usage.jsonl)\"",
+          "result": "pass",
+          "note": "Authoritative provider ledger contains zero B-8038 host_run rows: no Codex CLI, Claude Code CLI or agy invocation exposed provider token counters for this Story, so provider totals are correctly reported unavailable rather than inferred.",
+          "headHash": "4c96a3a2d26e6e0574ee5a4f41df126d957a16dd",
+          "materialHash": "5c5d6449ce522644831a0e262487c9dd0d6d64ef9b663382c75a66a423af7c8c",
+          "storyFilesHash": "1971cb64c0834fa4bfbc672bd7b7d6f7a6dd2a490c30af0c1fbd86ae28e1caee",
+          "timestamp": "2026-07-12T10:46:45.868Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "lattice usage_sweep --since=2026-07-12 --json",
+          "result": "pass",
+          "note": "NON-AUTHORITATIVE multi-attribution estimate: 4 Codex Desktop sessions, 165,865,106 input (162,974,208 cached; 2,890,898 uncached), 182,122 output and 28,763 reasoning-output tokens; Claude 0. Sessions mention many Stories, so these are upper-bound overlapping estimates, not exclusive B-8038 consumption. Largest observed session was 56,438,454 input tokens and cache-read dominates overall cost.",
+          "headHash": "4c96a3a2d26e6e0574ee5a4f41df126d957a16dd",
+          "materialHash": "5c5d6449ce522644831a0e262487c9dd0d6d64ef9b663382c75a66a423af7c8c",
+          "storyFilesHash": "1971cb64c0834fa4bfbc672bd7b7d6f7a6dd2a490c30af0c1fbd86ae28e1caee",
+          "timestamp": "2026-07-12T10:46:46.145Z"
+        }
+      ]
     }
   ]
 }
