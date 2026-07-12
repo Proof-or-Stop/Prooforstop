@@ -145,6 +145,20 @@
         "scanEscalationReason": null
       },
       "_hash": "a38397028ee35e19d0d649d083bc267b97ea5f527df8272786290f7851b6749d"
+    },
+    {
+      "id": "B-8038:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Narrow round-8 quality review passed: candidate routing changedPaths now resolves git child cwd through canonical resolveGitCwd using StoryStore/storyId/metadataRoot/projectRoot, preserving signed worktree and configured gitRoot behavior plus the established plain-repo fallback. No routing semantic change beyond cwd selection. Build, gitroot cwd contract repo scan, candidate-spec-routing smoke, and process-fact contract all passed.",
+      "createdAt": "2026-07-12T11:56:26.310Z",
+      "reviewRound": "2026-07-12T11:54:59.771Z",
+      "reviewRunId": "B-8038:RR-016",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "7a87b275ab9c867bbb08397066a76b49b2dfec15734e919b7a4eb2e2ca8636f7"
     }
   ]
 }
