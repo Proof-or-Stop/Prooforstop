@@ -83,7 +83,7 @@
       "desc": "packages/main/src/core/candidate-spec-routing.ts:529 and :546-565 — the artifact records storyInputDigest, but candidateReadBindingErrors never accepts or recomputes the current StoryRoutingInput digest and never compares it. Because routing inputs include title, description, checklist promises/relatedDocs, understanding, and risk signals, those PLAN facts can change after candidate_spec_route while materialHash/storyFilesHash remain code-oriented; scope_check_save and reviewer pass can then accept a correctly signed but semantically stale candidate set. Rebuild the current story input in each gate consumer (or persist a separately freshness-bound input artifact) and fail/warn by rollout mode when storyInputDigest differs; add a regression mutating checklist or relatedDocs after routing.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-12T10:49:26.621Z",
@@ -96,7 +96,11 @@
         "packages/main/src/handlers/finding.ts"
       ],
       "signatureTag": "missing|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in ec8d248d: gate consumers rebuild current Story routing input and reject storyInputDigest drift; mutation fixtures pass.",
+      "resolvedAt": "2026-07-12T10:56:05.127Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8038:F-005",
