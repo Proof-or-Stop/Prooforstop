@@ -211,7 +211,7 @@
       "desc": "concept-cleanup: the round-2 F-001 fix (commit 8a1c4f033b) deletes the BRIEF_DESC_MAX/briefCommandDescription truncated-description concept from brief help's implementation (help-renderer.ts printHelp body now emits names only), but two residual references to the deleted concept remain uncleaned: (1) packages/main/src/cli/help-renderer.ts:41-43 -- the JSDoc comment on GlobalHelpOptions.full still reads 'when false/undefined the catalog is BRIEF (grouped command names + short truncated descriptions, sized to stay well under the help byte budget)', directly contradicting the current names-only implementation two lines below in the same file (this comment was not touched by 8a1c4f033b, which only edited the printHelp function body's inline comment further down); per this reviewer's own rule 'References in comments also count as residue (comments mislead future developers)'. (2) .lattice/story/actives/B-7c05/test-evidence.json:385 (a committed, tracked story evidence snapshot, part of git diff main...HEAD) still carries the stale round-1 note on CHK-003:adversarial:0 -- 'Brief help never drops command names: renderer truncates descriptions only (BRIEF_DESC_MAX) while every registered command name renders' -- describing the deleted truncation behavior as current; this file's mtime (03:41) predates the round-2 DEV window (16:58-17:08) and was never regenerated, unlike checklist.json's live CHK-003:adversarial:0 entry which correctly carries the fresh post-fix note. Neither residue is gate-blocking (gates consume structured hashes, not free text per this project's Process Fact Contract), so severity is low, but both should be corrected so future readers of the source comment or the evidence snapshot are not misled about what brief help actually renders.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-12T17:27:17.722Z",
@@ -223,7 +223,11 @@
         ".lattice/story/actives/B-7c05/test-evidence.json"
       ],
       "signatureTag": "missing|ts|concept-cleanup-round",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit bde95c7473: GlobalHelpOptions.full JSDoc rewritten to describe the shipped names-only brief catalog (no 'short truncated descriptions' residue); rg over the diffed files finds no remaining brief-help description wording outside docs history. tsc + brief-output-smoke + cli-surface-smoke green.",
+      "resolvedAt": "2026-07-12T17:34:56.554Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
