@@ -106,9 +106,9 @@
       "id": "CHK-002",
       "title": "Env-tunable threshold resolver with conservative defaults",
       "context": "Resolver maps an env record to thresholds: LATTICE_BURN_ALERT_FILE_MB (default 100), LATTICE_BURN_ALERT_INPUT_TOKENS (default 100000000), LATTICE_BURN_ALERT_AGE_DAYS (default 7), LATTICE_BURN_ALERT_RECENT_HOURS (default 48, scan window; 0 disables the doctor burn scan). Pure function of the env record so it is testable; handlers pass process.env.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-12T20:16:50.082Z",
-      "endTime": null,
+      "endTime": "2026-07-12T20:33:59.272Z",
       "verificationIntent": {
         "happy": [
           {
