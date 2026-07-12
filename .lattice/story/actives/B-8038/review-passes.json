@@ -179,6 +179,28 @@
         "scanEscalationReason": null
       },
       "_hash": "9567121d43cf54309c8341f2fbf7886d5ad454b92553e5974e5f8f383b76646d"
+    },
+    {
+      "id": "B-8038:RP-010",
+      "agent": "lattice-review-concept",
+      "note": "Final current-binding concept refresh passed: fda87423 reuses the canonical signed-workspace resolver for changedPaths git diff, preserves plain-repo fallback and does not alter candidate budgets, explicit escalation/fullScan semantics, evidence binding, or the documented M6A-F/partial-M6G shadow boundary. Focused candidate routing smoke passes at current HEAD.",
+      "createdAt": "2026-07-12T12:17:23.469Z",
+      "reviewRound": "2026-07-12T12:16:12.045Z",
+      "reviewRunId": "B-8038:RR-018",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+          "packages/main/src/core/story-signed-workspace-resolution.ts",
+          "packages/main/src/handlers/candidate-spec-routing.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/core/candidate-spec-routing.ts",
+          "packages/main/src/tasks/candidate-spec-routing-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "16eea14a7cb4091025696ceca4c4207b249143a6c9cc7edbb6db5fd6d33f00d3"
     }
   ]
 }
