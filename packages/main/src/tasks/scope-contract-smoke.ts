@@ -275,7 +275,8 @@ try {
     waveContract,
     proofStoryArtifacts.map(name => `.lattice/story/actives/B-scope/${name}`),
   );
-  assert.equal(proofStoryPositive.status, 'pass', 'ProofStory intent artifacts should pass scope as lifecycle artifacts');
+  // Per-row assertions run first so a regression names the exact artifact
+  // (B-12a1:F-001); the overall-status check still guards warn-masking.
   for (const name of proofStoryArtifacts) {
     assertScopeRow(proofStoryPositive, `B-12a1 ProofStory lifecycle row ${name}`, {
       id: `scope.lifecycle_artifact:B-scope:${name}`,
@@ -285,6 +286,7 @@ try {
       action: /provenance|artifact|not.*gate/i,
     });
   }
+  assert.equal(proofStoryPositive.status, 'pass', 'ProofStory intent artifacts should pass scope as lifecycle artifacts');
 
   const failClosedNegative = checkScopeContract(waveContract, [
     '.lattice/story/actives/B-scope/evidence/notes.md',
