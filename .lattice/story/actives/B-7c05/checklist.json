@@ -195,6 +195,18 @@
           "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
           "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
           "timestamp": "2026-07-12T01:33:44.137Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/brief-output-smoke.ts",
+          "command": "node packages/main/dist/tasks/brief-output-smoke.js",
+          "result": "pass",
+          "note": "brief-output-smoke asserts explicit --json finding_list key-set parity with brief env on/off: findings[].evidenceState per finding and top-level attention.suspected preserved in the unchanged full shape.",
+          "headHash": "4ae1c64f8bfc470dcccf2fddcd73023af6d025d7",
+          "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
+          "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
+          "timestamp": "2026-07-12T01:33:44.681Z"
         }
       ]
     },
