@@ -107,6 +107,17 @@
           "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
           "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
           "timestamp": "2026-07-12T01:33:42.162Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "command": "bash -c 'test \"$(git diff HEAD~1 -- packages/main/src/handlers/verifier.ts | wc -l)\" -eq 0'",
+          "result": "pass",
+          "note": "validate is not in the brief-affected set: git diff HEAD~1 over packages/main/src/handlers/verifier.ts is empty (0 lines; file is in scope-contract explicitExcludes) and the validate schema in command-catalog is untouched, so milestone_status --full (declared per-command) cannot collide with validate --full run-real-machine-tests semantics.",
+          "headHash": "1d3ae4f03cfa4084fcfdbd00e57f8a7685a29009",
+          "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
+          "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
+          "timestamp": "2026-07-12T01:33:43.030Z"
         }
       ]
     },
