@@ -140,6 +140,30 @@
         "scanEscalationReason": null
       },
       "_hash": "e5059958b2e77f3f3a3dfcce2641b1bf5ea6f6d237e0e4f6d0be2cb516671418"
+    },
+    {
+      "id": "B-f97c:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "Fresh current-binding coverage review after main merge: validation evidence is PASS on materialHash 83248d6c26000dfd5037cec7021e03a7b53db7bd62234f233f26054388778d69 and storyFilesHash 16054b9781ed92e63824978a59bb25358dce482756c281373856023ef5572c21, with configured validate command indices 0 through 44 all passing and 12/12 required intents covered. DONE-required evidence is PASS with two successful command receipts. Focused corpus-budget smoke independently passes: sparse fixture, structured prompt, 3 MiB sentinel exclusion, 2936-to-2936 zero-byte delta, and labelled byte/4 estimates. usage_sweep remains explicitly NON-AUTHORITATIVE multiAttribution=true overlapping attribution, not exclusive task billing. No coverage blocker remains.",
+      "createdAt": "2026-07-12T01:55:51.189Z",
+      "reviewRound": "2026-07-12T01:54:57.206Z",
+      "reviewRunId": "B-f97c:RR-009",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f97c/background.md",
+          ".lattice/story/actives/B-f97c/plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "packages/main/src/tasks/story-review-corpus-budget-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-f97c/done-required-evidence.json",
+          ".lattice/story/actives/B-f97c/test-evidence.json",
+          "packages/main/package.json",
+          "packages/main/src/handlers/story-review.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b2b0342abef83c9cf83a7fab8100663d94e2521d7e8f06e5c8166af3038ef01e"
     }
   ]
 }
