@@ -251,7 +251,7 @@
       },
       "status": "done",
       "startTime": null,
-      "endTime": "2026-07-12T01:35:10.248Z",
+      "endTime": "2026-07-12T01:43:01.603Z",
       "verificationIntent": {
         "happy": [
           {
@@ -281,33 +281,33 @@
           "kind": "manual_transcript",
           "command": "npm --prefix packages/main run test:story-review-corpus-budget",
           "result": "pass",
-          "note": "Measured 3,148,782 estimated pre-fix bytes versus 2,936 post-fix bytes, 99.91% reduction; byte/4 estimates labeled.",
-          "headHash": "27e44308191c8e21ec17e510da2296eecfd6d17a",
-          "materialHash": "1060e1478f06a0bc5ff019f87af7bb2bc8a3343b2cbc2e614a2a66f02047bdfc",
-          "storyFilesHash": "4bee5a84914ea337667b65982e22bea201d41a4304f91ec3a67aa70d0beb38b0",
-          "timestamp": "2026-07-12T01:35:10.517Z"
+          "note": "Prompt measurement reports 3,148,782 reconstructed pre-fix bytes versus 2,936 post-fix bytes, with byte/4 token estimates clearly labeled and corpus dominant.",
+          "headHash": "be8f129f138605f2beca67d0c46014a035083ac7",
+          "materialHash": "2a43a65fa08f2ec3aad94da1b4bca1354379a8d213ba26ca909ca2b744b5eeee",
+          "storyFilesHash": "2a4dab4d78853aaa74fd77d2f5eed8d81bb56bf3829f4870c4802c95dd337158",
+          "timestamp": "2026-07-12T01:43:01.781Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
           "kind": "logic_test",
-          "command": "npm --prefix packages/main run test:story-review-corpus-budget",
+          "command": "lattice usage_sweep --since=2026-07-12T01:12+02:00 --format=json",
           "result": "pass",
-          "note": "Smoke explicitly reports exact host usage unavailable and separates byte-derived token estimates.",
-          "headHash": "27e44308191c8e21ec17e510da2296eecfd6d17a",
-          "materialHash": "1060e1478f06a0bc5ff019f87af7bb2bc8a3343b2cbc2e614a2a66f02047bdfc",
-          "storyFilesHash": "4bee5a84914ea337667b65982e22bea201d41a4304f91ec3a67aa70d0beb38b0",
-          "timestamp": "2026-07-12T01:35:10.716Z"
+          "note": "Read-only NON-AUTHORITATIVE ESTIMATE snapshot: B-f97c 11 sessions, totalTokens=58,342,389, multiAttribution=true. This is an upper/overlapping story attribution, not exact exclusive task cost; Codex uncachedInput=1,696,850 output=161,747 reasoning=26,074; Claude input=3,520 output=19,646. Reported separately from byte/4 prompt estimate.",
+          "headHash": "be8f129f138605f2beca67d0c46014a035083ac7",
+          "materialHash": "2a43a65fa08f2ec3aad94da1b4bca1354379a8d213ba26ca909ca2b744b5eeee",
+          "storyFilesHash": "2a4dab4d78853aaa74fd77d2f5eed8d81bb56bf3829f4870c4802c95dd337158",
+          "timestamp": "2026-07-12T01:43:01.955Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:story-review-corpus-budget",
           "result": "pass",
-          "note": "Components reconcile exactly; corpus 3,145,846 bytes exceeds structured prompt 2,936 bytes and is measured dominant source.",
-          "headHash": "27e44308191c8e21ec17e510da2296eecfd6d17a",
-          "materialHash": "1060e1478f06a0bc5ff019f87af7bb2bc8a3343b2cbc2e614a2a66f02047bdfc",
-          "storyFilesHash": "4bee5a84914ea337667b65982e22bea201d41a4304f91ec3a67aa70d0beb38b0",
-          "timestamp": "2026-07-12T01:35:10.918Z"
+          "note": "Measured components reconcile exactly; historical corpus framing is 3,145,846 bytes versus 2,936 structured prompt bytes and is therefore the measured dominant prompt source.",
+          "headHash": "be8f129f138605f2beca67d0c46014a035083ac7",
+          "materialHash": "2a43a65fa08f2ec3aad94da1b4bca1354379a8d213ba26ca909ca2b744b5eeee",
+          "storyFilesHash": "2a4dab4d78853aaa74fd77d2f5eed8d81bb56bf3829f4870c4802c95dd337158",
+          "timestamp": "2026-07-12T01:43:02.135Z"
         }
       ]
     }
