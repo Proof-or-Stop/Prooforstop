@@ -249,9 +249,9 @@
           "tasks/story-review-corpus-budget-smoke.ts"
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-12T01:35:10.248Z",
       "verificationIntent": {
         "happy": [
           {
@@ -274,7 +274,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:story-review-corpus-budget",
+          "result": "pass",
+          "note": "Measured 3,148,782 estimated pre-fix bytes versus 2,936 post-fix bytes, 99.91% reduction; byte/4 estimates labeled.",
+          "headHash": "27e44308191c8e21ec17e510da2296eecfd6d17a",
+          "materialHash": "1060e1478f06a0bc5ff019f87af7bb2bc8a3343b2cbc2e614a2a66f02047bdfc",
+          "storyFilesHash": "4bee5a84914ea337667b65982e22bea201d41a4304f91ec3a67aa70d0beb38b0",
+          "timestamp": "2026-07-12T01:35:10.517Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:story-review-corpus-budget",
+          "result": "pass",
+          "note": "Smoke explicitly reports exact host usage unavailable and separates byte-derived token estimates.",
+          "headHash": "27e44308191c8e21ec17e510da2296eecfd6d17a",
+          "materialHash": "1060e1478f06a0bc5ff019f87af7bb2bc8a3343b2cbc2e614a2a66f02047bdfc",
+          "storyFilesHash": "4bee5a84914ea337667b65982e22bea201d41a4304f91ec3a67aa70d0beb38b0",
+          "timestamp": "2026-07-12T01:35:10.716Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:story-review-corpus-budget",
+          "result": "pass",
+          "note": "Components reconcile exactly; corpus 3,145,846 bytes exceeds structured prompt 2,936 bytes and is measured dominant source.",
+          "headHash": "27e44308191c8e21ec17e510da2296eecfd6d17a",
+          "materialHash": "1060e1478f06a0bc5ff019f87af7bb2bc8a3343b2cbc2e614a2a66f02047bdfc",
+          "storyFilesHash": "4bee5a84914ea337667b65982e22bea201d41a4304f91ec3a67aa70d0beb38b0",
+          "timestamp": "2026-07-12T01:35:10.918Z"
+        }
+      ]
     }
   ]
 }
