@@ -67,6 +67,26 @@
         "scanEscalationReason": null
       },
       "_hash": "473bc0fe54a76e43018aad7f0e39decaf0b621d6195aede50aefac4d0481465c"
+    },
+    {
+      "id": "B-623a:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "F-004 verified fixed: header-based block slicing replaces vacuous whole-text includes predicate; rebuilt + ran smoke 21/21 pass. F-001/F-002/F-003 already resolved prior rounds; no blocking gap remains.",
+      "createdAt": "2026-07-12T21:07:27.495Z",
+      "reviewRound": "2026-07-12T20:46:22.327Z",
+      "reviewRunId": "B-623a:RR-005",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-623a/background.md",
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/usage-sweep.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "393a456063cd17b4b25ce31b10bb5394ae23197bc7b017a24f051284fc3f4970"
     }
   ]
 }
