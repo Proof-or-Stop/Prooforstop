@@ -625,6 +625,17 @@
           "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
           "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
           "timestamp": "2026-07-12T01:33:57.349Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:1",
+          "kind": "manual_transcript",
+          "command": "bash -c 'node packages/main/dist/tasks/cli-surface-smoke.js && node packages/main/dist/tasks/evidence-state-gate-smoke.js && node packages/main/tests/milestone-status.test.mjs && node scripts/verify-story-list-bug-summary.mjs'",
+          "result": "pass",
+          "note": "Internal stdout consumers audited and run green in one chain against the brief defaults: cli-surface-smoke, evidence-state-gate-smoke, milestone-status.test.mjs, verify-story-list-bug-summary.mjs (chain exit 0); additionally worktree-repair-smoke, validation-protocol-smoke and the experience-layer GOLDEN smokes were run green during DEV (in-process callers keep the full shape by design of the CLI-seam brief injection).",
+          "headHash": "bf89dafb9eac6c59eb5c7072941cec83e7688983",
+          "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
+          "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
+          "timestamp": "2026-07-12T01:33:57.918Z"
         }
       ]
     },
