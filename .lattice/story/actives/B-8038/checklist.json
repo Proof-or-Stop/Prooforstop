@@ -188,7 +188,30 @@
       "userSees": "Behavior docs coverage and delivery reviewers reuse current routing evidence without overlapping authority or losing findings.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run behavior, docs, coverage and delivery review fixtures against the same current Story/corpus/diff -> eligible lanes reuse the same candidate digest and read evidence, each lane records its own signed decision under its legal writer identity, delivery sees current transcripts/evidence, and load-bearing findings match the full-scan baseline without duplicates; WHY: maps review-lane-tests, delivery-tests and finding-equivalence",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Change the Story diff, requirements corpus, doc promises, or candidate content between PLAN, REVIEW and delivery -> affected lanes detect freshness drift and reroute, unchanged lanes may reuse only contractually current evidence, and duplicate clustering suppresses repeated findings without suppressing distinct owner/category evidence; WHY: verifies freshness and deduplication at cross-phase boundaries",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Have main or implementer evidence impersonate a reviewer, reuse a pass from another lane, replay a stale digest, or cluster two semantically distinct load-bearing findings -> reviewer-lane authority checks reject the overlap or replay, lane independence remains intact, and finding-equivalence reports any lost finding as a blocker; WHY: prevents shared routing from becoming shared authority or hiding review defects",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-007",
