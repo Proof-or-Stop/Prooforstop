@@ -105,6 +105,26 @@
       "resolvedAt": "2026-07-12T17:09:24.552Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "medium"
+    },
+    {
+      "id": "B-7c05:F-006",
+      "desc": "Round-2 resolutions for F-001 and F-002 both claim a durable declaration in plan.md that does not exist. (1) CHK-003:happy:0 evidence note states the names-only help deviation from the frozen intent wording (\"short one-line descriptions\") \"is recorded here and in plan.md CHK-003\" -- but git log -- .lattice/story/actives/B-7c05/plan.md shows only 3 commits, all from round 1 (01:18-01:36), none in the round-2 DEV window (16:58-17:08); git diff HEAD -- plan.md is empty and plan.md CHK-003 text is byte-identical to round 1 (still says \"short truncated description per command\", contradicting the shipped names-only behavior with no acknowledgement of the deviation). (2) F-002 resolvedReason states \"now DECLARED: plan.md CHK-004 documents the bundled restoration of commit 288d359377 behavior\" and the fix commit message (8a1c4f033b) says \"F-002 declared in plan.md\" -- same falsification: plan.md CHK-004 text is unchanged since round 1 and contains no mention of 288d359377, DISCARDED, or a bug-filter restoration; grep for those terms across the whole story dir plus docs/CLI.md and background.md finds zero hits outside findings.json itself (i.e. the finding's own record is the only place this is written down -- a circular, non-durable declaration). Additionally the underlying code comment my original F-002 flagged as mischaracterizing the change (packages/main/src/handlers/story-query.ts around the openBugStories filter, comment reads 'pre-existing bug ... verify-story-list-bug-summary.mjs asserts against') was not touched at all in round 2 (story-query.ts last modified in the pre-review DEV commit ac83c67618; absent from 8a1c4f033b's file list) -- it still frames the restoration as accommodating a test rather than restoring lost production behavior from commit 288d359377. Functionally the F-001 fix (names-only brief help) is sound and verified live (7,854 bytes, zero ellipsis fragments, all >100 command names present); this finding is about evidence integrity, not the runtime behavior: two resolvedReason fields and one commit message assert a plan.md declaration that provably was never written, so a reader trusting the evidence trail would be misled about where (and whether) the scope deviation and drive-by behavior-restoration are actually documented.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-12T17:20:40.871Z",
+      "reviewRound": "2026-07-12T17:08:48.514Z",
+      "reviewRunId": "B-7c05:RR-004",
+      "_hash": "edf0aa22a1021ac3a4dfacfc94fd103effe6c592550bc33f5bba37b32d4f788e",
+      "files": [
+        ".lattice/story/actives/B-7c05/plan.md",
+        ".lattice/story/actives/B-7c05/findings.json",
+        "packages/main/src/handlers/story-query.ts"
+      ],
+      "signatureTag": "missing|md|round-resolutions-both",
+      "signatureTagSource": "auto"
     }
   ]
 }
