@@ -372,9 +372,9 @@
       "id": "CHK-004",
       "title": "Audit remaining >5k-token default outputs",
       "context": "Sweep other renderers/handlers whose default output exceeds ~5k tokens (~20KB) and apply the same brief-by-default pattern. Known from audit on 0.3.185: story_list default JSON dump 365KB, global bug_list 263KB, host_list 16KB borderline. Sweep method: rg for large markdown table builders and full-collection JSON returns in packages/main/src/handlers plus core renderers.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-12T01:34:13.980Z",
       "verificationIntent": {
         "happy": [
           {
