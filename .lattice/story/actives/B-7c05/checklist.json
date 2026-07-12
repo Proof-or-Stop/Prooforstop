@@ -445,6 +445,17 @@
           "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
           "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
           "timestamp": "2026-07-12T01:33:50.912Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:2",
+          "kind": "manual_transcript",
+          "command": "bash -c 'node bin/lattice.js story_list --full | wc -c && node bin/lattice.js bug_list --full | wc -c'",
+          "result": "pass",
+          "note": "story_list --full emits the current full dump (119,866 bytes) and bug_list --full the full list (1,787 bytes); both restore the pre-change shape.",
+          "headHash": "2dcf9990d362b47e4fabcae6c25d3db5cfe746aa",
+          "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
+          "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
+          "timestamp": "2026-07-12T01:33:51.598Z"
         }
       ]
     },
