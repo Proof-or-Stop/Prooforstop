@@ -684,6 +684,18 @@
           "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
           "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
           "timestamp": "2026-07-12T01:33:59.171Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/brief-output-smoke.ts",
+          "command": "node packages/main/dist/tasks/brief-output-smoke.js",
+          "result": "pass",
+          "note": "brief-output-smoke asserts checklist_get output is byte-identical bare vs --brief vs LATTICE_BRIEF_OUTPUT=1 (no crash, no behavior change) — commands without brief mode ignore the flag and env gracefully. Live spot-check on this repo matched (2,500 bytes all three).",
+          "headHash": "0525c450ed61ac55c3fe8e3482ef61a9db7b9d40",
+          "materialHash": "1720ab22f541bfa8e7a3de8f445c117c017c440282adbf2782674e252bf85b7b",
+          "storyFilesHash": "163447320419343e8d97bf9d695b26ff9b2bc36b56eea7dce0c3d88c4ff940cf",
+          "timestamp": "2026-07-12T17:07:49.273Z"
         }
       ]
     },
