@@ -59,6 +59,33 @@
         "scanEscalationReason": null
       },
       "_hash": "655607a1c62a0d063d6a7ff65ea2b3d9c6a6350013a29835e09337efcbf09308"
+    },
+    {
+      "id": "B-7c05:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round-3 concept residue re-check on frozen HEAD 48048da8 / code commit bde95c7473. Verified F-006 and F-011 resolutions: (1) BRIEF_DESC_MAX/briefCommandDescription truncated-description concept has zero live residue repo-wide outside historical finding-record text and the frozen plan.md/checklist.json (both explicitly superseded via summary_set limitations, matching F-006 durable-declaration fix); GlobalHelpOptions.full JSDoc now reads names-only and matches docs/CLI.md and shipped behavior. (2) test-evidence.json CHK-003:adversarial:0 note was regenerated in the quality-round fix commit and no longer references BRIEF_DESC_MAX. (3) F-007/F-009/F-010 dead-code/duplication cleanups verified with zero residue (wantsBriefOutput, FULL_OUTPUT_FLAG, toBriefBug severity cast all gone; oneLineCell single implementation in core/milestone-status.ts, cli/output-verbosity.ts delegates). tsc --noEmit clean. No concept deletion/replacement in this round left any residue; no blocking findings.",
+      "createdAt": "2026-07-12T17:37:08.714Z",
+      "reviewRound": "2026-07-12T17:08:48.514Z",
+      "reviewRunId": "B-7c05:RR-007",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7c05/findings.json",
+          ".lattice/story/actives/B-7c05/summary.json",
+          "docs/CLI.md",
+          "packages/main/src/cli/help-renderer.ts",
+          "packages/main/src/cli/output-verbosity.ts",
+          "packages/main/src/core/milestone-status.ts",
+          "packages/main/src/handlers/bug.ts",
+          "packages/main/src/handlers/story-query.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-7c05/checklist.json",
+          ".lattice/story/actives/B-7c05/plan.md",
+          ".lattice/story/actives/B-7c05/test-evidence.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8ba88f866ac5f414898f181c9e6ffdc80854e6c2d697b3fcc9972f1eb4c0d431"
     }
   ]
 }
