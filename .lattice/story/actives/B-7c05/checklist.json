@@ -734,6 +734,18 @@
           "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
           "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
           "timestamp": "2026-07-12T01:34:00.401Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "manual_transcript",
+          "file": "docs/CLI.md",
+          "command": "bash -c 'rg -c \"story_review|doctor\" docs/CLI.md'",
+          "result": "pass",
+          "note": "docs/CLI.md brief-outputs table lists exactly the implemented set: milestone_status (+post-mutation suffix), finding_list, help, story_list, bug_list, plus sweep additions story_review and doctor, with the story_get audited-disposition paragraph; no command listed that is not implemented.",
+          "headHash": "d01a30742fe8fc93c41a751051041b73791445a8",
+          "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
+          "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
+          "timestamp": "2026-07-12T01:34:01.039Z"
         }
       ]
     }
