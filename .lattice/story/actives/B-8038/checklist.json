@@ -152,7 +152,30 @@
       "userSees": "PLAN review reads bounded relevant documents by default and records why any broad scan was required.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Dispatch a PLAN scope reviewer for a normal Story and save scope_check evidence -> candidate_spec_route supplies a current bounded candidate digest, the reviewer fully reads selected specs, title-triages the complete filename index, maps covered/excluded/gap/orphan/open-question outcomes, and the user sees why the bounded documents were chosen; WHY: maps plan-integration-tests and the quality-baseline to preserved scope semantics",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Exercise zero candidates, weak source-class coverage, high-risk gate/process changes, host disagreement, tied cutoff, truncated search, unresolved filename/title relevance and corpus drift -> PLAN records open questions or a structured scanEscalationReason with attempted set, consumed budget, expanded scope and stop condition, then reroutes or tool-scans as required; WHY: maps scan-escalation-tests without weakening recall",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Attempt scope_check_save in enforce mode with no/stale candidate artifact, proposal-only evidence, fabricated read prose, manifest mismatch, or an unexplained full scan -> PLAN fails closed and cannot pass the signed scope gate, while shadow/warn remain explicitly non-authoritative and no fallback embeds requirements bodies into _reviewPrompt; WHY: prevents routing and prompt-budget guard bypass",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-006",
