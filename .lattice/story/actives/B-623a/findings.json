@@ -55,6 +55,21 @@
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-623a:F-004",
+      "desc": "packages/main/src/tasks/usage-burn-alert-smoke.ts L468 (the new F-002-fix check 'doctor: a session tripping file-size + input-tokens + session-age lists all three reasons', covering CHK-003:edge:4): the hotLine selector `text.split(\"\\n\").find((line) => line.includes(\"tripped:\") && text.includes(\"codex-burn-A\"))` references the OUTER `text` variable in its second predicate instead of `line`. Since `text` (the whole doctor output) always contains the substring 'codex-burn-A' somewhere, this second condition is vacuously true and the selector actually just grabs the FIRST line anywhere in the doctor output containing 'tripped:', not specifically codex-burn-A's warning line. Empirically confirmed (ran the same fixture setup standalone): with FILE_MB=0.0001 the doctor output contains THREE 'tripped:' lines -- one for codex-burn-A (file-size, input-tokens, session-age) and two file-size-only lines for codex-at-C and codex-ok-B (also swept up by the tiny threshold). The assertion currently passes only because evaluateBurnAlerts sorts findings by burnInputTokens descending (core/usage-burn-alert.ts L216-221), so codex-burn-A (150M tokens) happens to render first among the three -- i.e. it works by coincidence of fixture/sort ordering, not because the code actually identifies codex-burn-A's line. CHK-003:edge:4 requires proving that the specific tripped session's warning line lists all three reasons; a selector that cannot actually bind to a named session does not reliably verify that claim and would silently start checking the wrong line if the fixture set or sort order ever changes (e.g. a future fixture with higher burnInputTokens added before HOT, or HOT's own burn value lowered). Fix: change `text.includes(\"codex-burn-A\")` to `line.includes(\"codex-burn-A\")`.",
+      "severity": "low",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-12T21:03:30.588Z",
+      "reviewRound": "2026-07-12T20:46:22.327Z",
+      "reviewRunId": "B-623a:RR-004",
+      "_hash": "a2ca6eb4e9e364c5ec70ae83460ec3f69422af90ad806e3abc7741e9a6817300",
+      "signatureTag": "edge|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
