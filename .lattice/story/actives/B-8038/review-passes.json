@@ -201,6 +201,29 @@
         "scanEscalationReason": null
       },
       "_hash": "16eea14a7cb4091025696ceca4c4207b249143a6c9cc7edbb6db5fd6d33f00d3"
+    },
+    {
+      "id": "B-8038:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "Current-round coverage PASS for the RR-018 review round. All 7 checklist items are done with 23/23 must verification intents carrying passing evidence; current worktree diff is reviewer-run metadata only. Fresh build, candidate routing smoke, gitroot-cwd contract, corpus prompt-budget smoke, reviewer scan-budget guard, signed review authority smoke, and process-fact contract all pass.",
+      "createdAt": "2026-07-12T12:19:18.430Z",
+      "reviewRound": "2026-07-12T12:16:12.045Z",
+      "reviewRunId": "B-8038:RR-019",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/candidate-spec-routing.ts",
+          "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/review-pass-discard-smoke.ts",
+          "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+          "packages/main/src/tasks/story-review-corpus-budget-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "205c8f3d49dd6107cc1f0728626e66623fe48404705f5c6e014aa65fd680fe5b"
     }
   ]
 }
