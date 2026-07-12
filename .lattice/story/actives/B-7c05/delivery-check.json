@@ -1,0 +1,135 @@
+{
+  "storyId": "B-7c05",
+  "checkedAt": "2026-07-12T18:30:00.538Z",
+  "headHash": "7264926a953bb147fab0c02f201d7ad3c9688a44",
+  "materialHash": "43f3b2e5dfa44e2978387574aafba30c51d9c148084de95f445e687acd248a32",
+  "storyFilesHash": "28091b854cf2492c1b89055f95225881d990b9d697e8ff7e76324c87883b581f",
+  "reviewRound": "2026-07-12T17:41:11.882Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": "docs/CLI.md#brief-by-default-outputs-agent-loop-context-hygiene",
+      "promise": "milestone_status text output is brief by default (phase, progress counts, one line per milestone with status+claim, next action); --full restores the 7-column markdown table.",
+      "verifiedBy": "diff/grep + real CLI run",
+      "evidence": "core/milestone-status.ts renderMilestoneStatusBrief; handlers/milestone-status.ts renderMilestoneStatus() branches on wantsFullOutput; verified live: `lattice milestone_status --storyId=B-7c05` (669B) vs `--full` (1122B), both real runs on this story."
+    },
+    {
+      "docPath": "docs/CLI.md#brief-by-default-outputs-agent-loop-context-hygiene",
+      "promise": "The post-mutation milestone suffix appended after story_advance and other mutating commands is brief by default; LATTICE_BRIEF_OUTPUT=0 (or the command's own --full) restores the full table.",
+      "verifiedBy": "diff/grep",
+      "evidence": "cli-engine.ts MILESTONE_STATUS_APPEND_COMMANDS block computes wantFull=wantsFullOutput(parsed) and passes {storyId, brief:true}/{full:true} to milestone_status / renderChecklistDerivedLedger(..., {brief: !wantFull}); milestone-status.test.mjs post-mutation blocks assert the full table appears only with LATTICE_BRIEF_OUTPUT=0."
+    },
+    {
+      "docPath": "docs/CLI.md#brief-by-default-outputs-agent-loop-context-hygiene",
+      "promise": "finding_list defaults to a JSON skeleton (id, severity, category, status, evidenceState, truncated title; attention.suspected/disproven preserved; heavy free text dropped, _brief+_hint added); --full returns every field.",
+      "verifiedBy": "diff/grep + real CLI run",
+      "evidence": "handlers/finding.ts toBriefFinding()/wantsFullOutput branch; verified live on B-7c05: `finding_list --json` returns no _brief marker and full findings/attention keys (frozen shape), confirming bare vs --json divergence per docs."
+    },
+    {
+      "docPath": "docs/CLI.md#brief-by-default-outputs-agent-loop-context-hygiene",
+      "promise": "help defaults to grouped command names only (no per-command descriptions), footer names --full / help --full; --full restores the verbose catalog.",
+      "verifiedBy": "diff/grep + real CLI run",
+      "evidence": "cli/help-renderer.ts printHelp() options.full branch (names-only loop + footer); cli-engine.ts computes helpFull via wantsFullOutput. Verified live: `lattice help` = 7,735 bytes vs `lattice help --full` = 45,338 bytes on this repo (doc's own worked example: 45,481->7,854, same order of magnitude)."
+    },
+    {
+      "docPath": "docs/CLI.md#brief-by-default-outputs-agent-loop-context-hygiene",
+      "promise": "story_list defaults to non-terminal one-liners with full per-phase counts (_phases covers ALL stories) plus _brief/_omittedTerminal/_hint; --full returns every story with full fields.",
+      "verifiedBy": "diff/grep + real CLI run",
+      "evidence": "handlers/story-query.ts toBriefStoryRow()/STORY_LIST_TERMINAL_PHASES/wantsFullOutput branch. Verified live: `lattice story_list` = 11,368 bytes on this repo (doc's worked example: 119,866->~12,000, consistent order of magnitude)."
+    },
+    {
+      "docPath": "docs/CLI.md#brief-by-default-outputs-agent-loop-context-hygiene",
+      "promise": "Global bug_list (no storyId) defaults to full status-count summary + open-bug one-liners only, with _brief+_hint; --full returns every bug.",
+      "verifiedBy": "diff/grep + real CLI run",
+      "evidence": "handlers/bug.ts toBriefBug()/wantsFullOutput branch. Verified live: `lattice bug_list` (global) = 280 bytes on this repo, exact match to summary.json's measured value."
+    },
+    {
+      "docPath": "docs/CLI.md#brief-by-default-outputs-agent-loop-context-hygiene",
+      "promise": "story_review CLI stdout defaults to the same JSON skeleton (round numbers, summary, one-line issues[]), with the multi-megabyte _reviewPrompt replaced by a --full-naming stub; the signed review.json artifact and gate computation are unchanged; --full restores every field.",
+      "verifiedBy": "diff/grep",
+      "evidence": "handlers/story-review.ts projectStoryReviewBrief() applied only when args.brief===true (CLI-seam injected for bare invocations); fullResult (unchanged shape) still written/returned for in-process callers and --json. brief-output-smoke.ts exercises this against a genuine PLAN-phase run and asserts _reviewPrompt stub + issues[].type preserved + byte-shrink."
+    },
+    {
+      "docPath": "docs/CLI.md#brief-by-default-outputs-agent-loop-context-hygiene",
+      "promise": "doctor keeps every scan section visible in brief mode, trimming only the Recent-issues and Validation-scan detail; --full restores the complete diagnostics text; --format=json keeps the full machine shape.",
+      "verifiedBy": "diff/grep + real CLI run",
+      "evidence": "handlers/doctor.ts brief branch (recent issues capped at 10 one-liners, validation scan reduced to counts+warnings), '→ Brief view' hint line. Verified live: `lattice doctor` = 5,492 bytes vs `lattice doctor --full` = 10,757 bytes on this repo, brief < full as promised."
+    },
+    {
+      "docPath": "docs/CLI.md#brief-by-default-outputs-agent-loop-context-hygiene",
+      "promise": "validate is deliberately excluded from brief-by-default; validate --full keeps its existing 'run the real machine tests' meaning.",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff HEAD~1 over packages/main/src/handlers/verifier.ts is empty (0 lines; verifier.ts is not in the story's changed-file list); validate's schema in command-catalog.ts is untouched — no BRIEF_OUTPUT_FLAGS spread on validate."
+    },
+    {
+      "docPath": "docs/CLI.md#brief-by-default-outputs-agent-loop-context-hygiene",
+      "promise": "story_get is deliberately kept full-by-default (measured ~74KB on this repo); slim/fields remains the sanctioned compact opt-in.",
+      "verifiedBy": "diff/grep + real CLI run",
+      "evidence": "story_get schema/handler carries no BRIEF_OUTPUT_FLAGS spread (grep confirms absence in command-catalog.ts). Live measurement on this story's own worktree: `lattice story_get` = 110,839 bytes (larger than the doc's stated 74KB snapshot, but same order of magnitude and same conclusion: far above threshold, kept full by design) -- minor numeric drift in the doc's illustrative figure, not a functional gap."
+    },
+    {
+      "docPath": "docs/CLI.md#brief-by-default-outputs-agent-loop-context-hygiene",
+      "promise": "host_list is audited and deliberately left as-is (~16KB measured, under the ~20KB brief threshold).",
+      "verifiedBy": "diff/grep + real CLI run",
+      "evidence": "No BRIEF_OUTPUT_FLAGS on host_list schema (grep confirms). Live measurement: `lattice host_list` = 15,899 bytes on this repo, matching the doc's ~16KB claim and confirming it stays under the ~20KB threshold."
+    },
+    {
+      "docPath": "docs/CLI.md#precedence-per-call-flag--env--brief-default",
+      "promise": "Precedence is --full (full) > --brief (brief, wins over env) > LATTICE_BRIEF_OUTPUT=0 (full) > brief default; only the literal string '0' disables brief.",
+      "verifiedBy": "diff/grep",
+      "evidence": "cli/output-verbosity.ts wantsFullOutput(): explicit-json first (separate frozen-shape concern), then args.full===true, then args.brief===true, then envDisablesBrief() checks env[...]==='0' exactly. brief-output-smoke.ts asserts non-'0' values (e.g. 'false') keep brief, and per-call --brief wins over LATTICE_BRIEF_OUTPUT=0 for milestone_status/story_review/doctor."
+    },
+    {
+      "docPath": "docs/CLI.md#frozen-machine-json-contract",
+      "promise": "Explicit --json/--format=json always returns the current full shape regardless of brief settings; brief mode never alters the machine-JSON field set.",
+      "verifiedBy": "diff/grep + real CLI run",
+      "evidence": "wantsExplicitJson() checked first in wantsFullOutput(); handlers branch on the resolved `full` boolean, not on brief. Verified live on B-7c05: `finding_list --json` returns keys ['findings','attention'] with no _brief marker (frozen shape), matching brief-output-smoke's flJsonEnvUnset/flJsonEnvZero key-parity assertions."
+    },
+    {
+      "docPath": "docs/CLI.md#non-silent-filtering",
+      "promise": "When brief mode filters a listing, it always emits the exact total counts of omitted items plus a _hint naming --full, so nothing is hidden.",
+      "verifiedBy": "diff/grep",
+      "evidence": "story-query.ts _phases covers ALL stories + _omittedTerminal count + _hint; bug.ts summary covers ALL bugs + _hint with omitted count; both asserted in brief-output-smoke.ts (slBrief._phases, blBrief.summary.total)."
+    },
+    {
+      "docPath": "docs/CLI.md#milestone-status-command-contract",
+      "promise": "milestone_status accepts only storyId, format, json, full, and brief; every other key is rejected.",
+      "verifiedBy": "diff/grep",
+      "evidence": "command-catalog.ts milestone_status schema: storyId, format, json, ...BRIEF_OUTPUT_FLAGS (full, brief), plus the pre-existing HIDDEN_LOCAL_ASSURANCE_REFUSAL never-optional refusal keys (unchanged, still reject other keys)."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Real run: `npm run test:brief-output` (node packages/main/dist/tasks/brief-output-smoke.js) -> 'brief output smoke passed'. Covers milestone_status brief header/counts/per-milestone lines, --full table restoration, LATTICE_BRIEF_OUTPUT=0 env hatch, per-call --brief winning over env, non-'0' env values keeping brief, and a 22-milestone scaling story with every id visible. Also `node packages/main/tests/milestone-status.test.mjs` real run -> 'ok milestone-status', asserting the post-mutation suffix is brief by default and full only under LATTICE_BRIEF_OUTPUT=0."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Real run: `npm run test:brief-output` covers finding_list: brief JSON skeleton (_brief marker, evidenceState/attention.suspected preserved, resolvedBy kept, heavy description dropped under 8000B budget), --full restoring full description, and --json key-parity with LATTICE_BRIEF_OUTPUT on/off. Independently spot-checked live on B-7c05: `finding_list --json` returns the full {findings, attention} shape with no _brief marker."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Real run: `npm run test:brief-output` covers help: brief keeps branding + --full pointer, drops the Development-flow block, stays under 16000B, contains no truncation ellipsis, and every one of >100 full-catalog command names is present in the brief name set (no silent drop). Independently spot-checked live on this repo: `lattice help` = 7,735B vs `lattice help --full` = 45,338B."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Real run: `npm run test:brief-output` covers story_list (non-terminal one-liners, _phases full counts, bg marker preserved, --full recovers terminal stories, --json key parity) and bug_list (summary covers all bugs, brief lists only open, --full recovers fixed bugs). Also `npm run test:story-list-bug-summary` (scripts/verify-story-list-bug-summary.mjs) real run -> 'story list bug summary verified', covering the declared F-002 deviation (DISCARDED bug stories excluded from _bugSummary same as DONE). Spot-checked live: `story_list` = 11,368B, `bug_list` (global) = 280B, `story_get` = 110,839B (kept full, no brief flags in schema), `host_list` = 15,899B (kept as-is, under threshold)."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "Real run: `npm run test:brief-output` covers the escape hatch and JSON contract end-to-end across all 7 commands (flag/env precedence, --json/--format=json frozen-shape parity), plus story_review (genuine PLAN-phase run: brief skeleton with issues[].type preserved, _reviewPrompt stub naming --full, --full/env/per-call-brief precedence, --json parity keeping the full _reviewPrompt) and doctor (brief keeps every scan section, trims only Recent-issues/Validation detail, --format=json keeps the full machine shape including runtimeMode/partialDone). Also `node packages/main/dist/tasks/cli-surface-smoke.js` real run -> 'cli surface smoke passed' (no regression in unrelated command surface)."
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "Documentation-only checklist item (docs/CLI.md brief-by-default section, precedence table, frozen-JSON contract, non-silent-filtering section, milestone_status contract update). Verified by direct diff/grep against the shipped code (see docsPromises above) rather than an executable test; every documented claim was independently confirmed against real handler code and, where numeric, against live CLI byte measurements on this repo.",
+      "waiverReason": "Pure documentation content (docs/CLI.md prose describing already-tested behavior); the underlying behavior is exercised by CHK-001..CHK-005's real-machine tests, so a separate executable test for the prose itself is impractical and would only re-assert doc text equality."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 15 docsPromises independently verified against source code and, where numeric, against live CLI runs on this repo (help/story_list/bug_list/doctor/story_get/host_list byte counts, finding_list --json frozen shape); no unverified promises. brief-output-smoke, milestone-status.test.mjs, cli-surface-smoke, and verify-story-list-bug-summary.mjs all pass on real execution and cover edge cases (zero-milestone story, 22-milestone scaling, >100-command help completeness, graceful-ignore for non-brief commands, env/flag precedence, JSON key parity). No TODO/FIXME/HACK found in the diff. One declared deviation (F-001, help ships names-only vs. the frozen CHK-003 happy:0 intent of names+short descriptions) is honestly recorded in summary.json limitations and is consistent with what the code and docs actually deliver."
+  },
+  "_hash": "94afd179c175e468b9cd8725174d8237580f417c08740639845c0363cd5b1bd8"
+}

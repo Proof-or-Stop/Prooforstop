@@ -633,6 +633,8 @@ export interface ReviewerReadManifest {
   filesReadFully: string[];
   filesTriagedByName: string[];
   scanEscalationReason: string | null;
+  candidateSpecSetDigest?: string;
+  corpusDigest?: string;
 }
 
 export interface ReviewerReadLogEvent {

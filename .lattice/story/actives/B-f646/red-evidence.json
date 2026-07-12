@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-f646",
+  "records": [
+    {
+      "id": "RED-20260712090146",
+      "trigger": "No standalone implementation-ready M6 hybrid keyword candidate-routing execution document exists.",
+      "acceptanceTargetRef": "CHK-001:happy:0",
+      "baselineHeadHash": "eb1628e9126b228dd1301c7e6bfc6817154a9fac",
+      "baselineMaterialHash": "2f1198f6bd2cd76c2a05ec89a87e98418df4fbc361493260692464fe88499349",
+      "observedFailure": "The target decision Markdown file is absent, so implementers must reconstruct schemas, ownership, budgets, escalation rules, and quality gates from scattered M6 prose.",
+      "failingCommand": "test -f docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+      "expectedGreenCommand": "test -f docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+      "greenRelation": {
+        "targetRef": "CHK-001:happy:0",
+        "relation": "regression_to_green",
+        "command": "test -f docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md"
+      },
+      "note": "Docs-only red baseline: target execution plan file does not exist at PLAN HEAD.",
+      "createdAt": "2026-07-12T09:01:46.913Z"
+    }
+  ],
+  "createdAt": "2026-07-12T09:01:46.913Z",
+  "updatedAt": "2026-07-12T09:01:46.913Z"
+}

@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-3ddc",
+  "diagnosticOnly": false,
+  "hardeningLevel": "standard",
+  "triggerReasons": [
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "red_evidence_required",
+      "message": "Bug, regression, security/auth/session, benchmark, or explicit behavior-change work should have red evidence.",
+      "requires": "red-evidence"
+    },
+    {
+      "code": "scope_ambiguity",
+      "message": "Broad or absolute scope wording should have scope clarification before future enforcement.",
+      "requires": "scope-clarification"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:af05aa798076f6250ce01c745e7f232e99a069bb4f496469a9e030fcc2631476",
+  "acceptanceBindings": [
+    {
+      "id": "AB-001",
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002",
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:happy:1",
+        "CHK-001:happy:2",
+        "CHK-001:edge:0",
+        "CHK-001:edge:1",
+        "CHK-001:edge:2",
+        "CHK-001:adversarial:0",
+        "CHK-001:adversarial:1",
+        "CHK-001:adversarial:2",
+        "CHK-002:happy:0",
+        "CHK-002:happy:1",
+        "CHK-002:happy:2",
+        "CHK-002:edge:0",
+        "CHK-002:edge:1",
+        "CHK-002:edge:2",
+        "CHK-002:edge:3",
+        "CHK-002:adversarial:0",
+        "CHK-002:adversarial:1",
+        "CHK-002:adversarial:2",
+        "CHK-003:happy:0",
+        "CHK-003:happy:1",
+        "CHK-003:happy:2",
+        "CHK-003:edge:0",
+        "CHK-003:edge:1",
+        "CHK-003:adversarial:0",
+        "CHK-003:adversarial:1"
+      ],
+      "milestoneIds": [],
+      "acceptanceClaim": "Running the compiled host-run-usage smoke shows: (1) the pinned exact B-3928 turn.failed fixture produces an unavailable final with unavailableReason turn_failed(...) carrying the Codex-upgrade message digest, (2) a stream with neither turn.completed nor failure events still records no_turn_completed_usage_event, and (3) a stream with genuine turn.completed usage still records the provider-reported final unchanged.",
+      "note": "Single acceptance claim from the original intent snapshot (requestHash sha256:af05aa798076f6250ce01c745e7f232e99a069bb4f496469a9e030fcc2631476); refs enumerate every happy/edge/adversarial intent entry of the three bound items."
+    }
+  ],
+  "diagnosticGaps": [],
+  "note": "One-claim contract: the compiled host-run usage smoke is the acceptance oracle; red state = the turn_failed(...) reason is absent on baseline for the pinned B-3928 fixture.",
+  "createdAt": "2026-07-11T23:16:38.435Z",
+  "updatedAt": "2026-07-11T23:19:19.147Z"
+}

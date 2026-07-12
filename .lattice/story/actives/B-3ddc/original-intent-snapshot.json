@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-3ddc",
+  "sourceText": "When a `lattice host_run --host codex` run fails, the ledger final only says unavailableReason: \"no_turn_completed_usage_event\". On 2026-07-11 (story B-3928) the real cause — codex exec emitted {\"type\":\"turn.failed\",\"error\":{\"message\":\"...status 400... The gpt-5.6-sol model requires a newer version of Codex...\"}} — had to be dug out of a Codex Desktop rollout because host_run retains only turn.completed lines and --ephemeral leaves no codex session file. Improvement: in packages/main/src/core/host-run.ts, extend the codex usage-line retainer/scanner path so that turn.failed (and terminal error) events are also retained (bounded, last-one-wins, same 1MiB cap discipline) and recorded as a more specific honest unavailableReason, e.g. turn_failed(<short digest of error.message>), falling back to no_turn_completed_usage_event when neither event is present. Keep the honest-unavailable semantics (never fabricate usage). Add a pinned fixture for the turn.failed shape to packages/main/src/tasks/host-run-usage-smoke.ts (exact observed line pinned).",
+  "normalizedOutcome": "A failed codex host_run whose stream carried a turn.failed (or terminal error) event records an unavailable ledger final whose unavailableReason is turn_failed(<short digest of error.message>) instead of the generic no_turn_completed_usage_event; the generic reason remains only when neither event is present; usage is never fabricated and genuine turn.completed usage still records provider-reported; the exact observed B-3928 turn.failed line is pinned as a smoke fixture.",
+  "acceptanceClaim": "Running the compiled host-run-usage smoke shows: (1) the pinned exact B-3928 turn.failed fixture produces an unavailable final with unavailableReason turn_failed(...) carrying the Codex-upgrade message digest, (2) a stream with neither turn.completed nor failure events still records no_turn_completed_usage_event, and (3) a stream with genuine turn.completed usage still records the provider-reported final unchanged.",
+  "keyRequirementIds": [
+    "REQ-001-retain-turn-failed-bounded",
+    "REQ-002-turn-failed-reason-with-fallback",
+    "REQ-003-pinned-b3928-fixture"
+  ],
+  "requestHash": "sha256:af05aa798076f6250ce01c745e7f232e99a069bb4f496469a9e030fcc2631476",
+  "createdAt": "2026-07-11T23:09:18.273Z",
+  "updatedAt": "2026-07-11T23:09:18.273Z"
+}

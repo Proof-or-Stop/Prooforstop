@@ -37,6 +37,13 @@ export type GlobalHelpOptions = {
   activeStory?: ActiveStoryForHelp | null;
   phaseTools?: Record<string, string[]>;
   ownerLeaseHelpBlock: OwnerLeaseHelpBlockCallback;
+  /**
+   * B-7c05 CHK-003 (F-001): when false/undefined the catalog is BRIEF — grouped
+   * command names only, no per-command descriptions (any description fitting the
+   * byte budget across ~320 commands degrades into a misleading fragment).
+   * full=true restores the current verbose catalog byte-for-byte.
+   */
+  full?: boolean;
 };
 
 function describeType(t: ZodType): string {
@@ -281,6 +288,25 @@ export function printHelp(options: GlobalHelpOptions) {
     ...KNOWN_ORDER.filter(g => groups[g]),
     ...presentGroups.filter(g => !KNOWN_ORDER.includes(g)).sort(),
   ];
+
+  // B-7c05 CHK-003 (F-001): brief default — grouped command NAMES only, never
+  // dropped, so discovery stays complete. No per-command description: with ~320
+  // registered commands, any description that fits the byte budget degrades into
+  // a meaningless mid-word fragment, which is worse than none. Details are one
+  // explicit step away via per-command --help; the full catalog via help --full.
+  if (options.full !== true) {
+    for (const g of orderedGroups) {
+      console.log(`  ${g}:`);
+      for (const t of groups[g]) console.log(`    ${t.name}`);
+    }
+    console.log(`
+  Brief catalog (grouped command names).
+  What a command does + arguments: ${brand.primaryBin} <command> --help
+  Full catalog (descriptions, parameter schemas, development flow): ${brand.primaryBin} help --full   (or set ${'LATTICE_BRIEF_OUTPUT'}=0)
+`);
+    return;
+  }
+
   for (const g of orderedGroups) {
     console.log(`  ${g}:`);
     for (const t of groups[g]) console.log(`    ${t.name.padEnd(maxN + 2)} ${t.description}`);

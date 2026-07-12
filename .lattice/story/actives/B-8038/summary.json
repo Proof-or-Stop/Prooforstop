@@ -1,0 +1,56 @@
+{
+  "storyId": "B-8038",
+  "changes": "Implemented bounded candidate-spec routing: deterministic corpus and seed artifacts, sanitized Codex/Claude proposals with agy fallback, local 8/10/50 ranking, signed candidate/read evidence, escalation gates, PLAN/REVIEW/delivery reuse, rollout evaluator, and no corpus prompt embedding.",
+  "usage": "Run node packages/main/dist/cli.js candidate_spec_route --storyId=B-8038 --hosts=false --persist=false --json; reviewers consume the bounded digest and must resolve escalation before signed scope/review evidence.",
+  "expectedOutcome": "A normal Story routes to at most 8 relevant requirement documents without embedding the requirements corpus; ambiguous routing stops for explicit escalation.",
+  "actualTranscript": "Fresh TEST live smoke exited 0, returned bounded 8 candidates with 10 query groups and 50 hits per group, and surfaced explicit pending escalation rather than full-scanning automatically.",
+  "outcomeDiff": "No product-visible difference from the expected bounded-routing behavior; active rollout remains shadow and runtime metrics/promotion are intentionally not claimed.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "M6A-M6F and M6G evaluator/contracts are implemented; runtime rollout metric collection, two observed qualifying windows, warn/enforce promotion, and production release remain future work. Active mode is shadow.",
+  "pitfalls": "Independent review required four substantive fix rounds: deterministic host ordering, freshness, explicit full-scan approval, consumed escalation gates, docs truth, and signed git-root routing. Full validation was rerun after every story-owned change; do not reuse stale evidence.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 70353
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 10273
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 613756
+    },
+    "DEV": {
+      "count": 8,
+      "durationMs": 2889836
+    },
+    "REVIEW": {
+      "count": 8,
+      "durationMs": 2319100
+    },
+    "TEST": {
+      "count": 3,
+      "durationMs": 1742878
+    }
+  },
+  "totalDurationMs": 7646852,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-12T12:15:13.741Z",
+  "updatedAt": "2026-07-12T12:15:13.741Z"
+}

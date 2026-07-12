@@ -1,0 +1,94 @@
+{
+  "storyId": "B-f97c",
+  "checkedAt": "2026-07-12T01:29:51.552Z",
+  "features": [
+    {
+      "feature": "Remove recursive requirements-directory traversal and all full Markdown content reads from story_review",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "background.md; understanding.json; plan.md"
+    },
+    {
+      "feature": "Remove truthDocs/Truth Source prompt concatenation outright, without truncation or an alternate corpus producer path",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "background.md; decision.json; plan.md"
+    },
+    {
+      "feature": "Preserve Story metadata, understanding, decision/preMortem, grill, experience hints, ProofStory diagnostics, checklist, and verificationIntent sections",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding.json; checklist.json; plan.md"
+    },
+    {
+      "feature": "Preserve existing signed scope-check and PLAN gate semantics while removing the advisory corpus channel",
+      "covered_by": "CHK-001, CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "background.md; decision.json; docs/requirements/decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "Resolve truthDocsCount compatibility honestly without claiming embedded requirements documents",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "plan.md; decision.json"
+    },
+    {
+      "feature": "Config-relative implementation touchpoints handlers/story-review.ts, tasks/story-review-corpus-budget-smoke.ts, and package.json are covered by checklist files fields",
+      "covered_by": "CHK-001, CHK-002, CHK-003, CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding.json; checklist.json"
+    },
+    {
+      "feature": "Add a regression with a large unrelated requirements sentinel proving corpusEmbedded=false, sentinel absence, structured-section retention, and prompt size independence",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding.json; checklist.json; plan.md"
+    },
+    {
+      "feature": "Record deterministic pre/post prompt bytes, labelled token estimates, delta/ratio, available host usage for this repair, and identify the dominant input surface",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding.json; checklist.json; plan.md"
+    },
+    {
+      "feature": "Implement the broader M6 candidateSpecSet router in this urgent deletion story",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly deferred to the established M6 scope/spec scan narrowing program to keep this repair minimal and avoid changing routing/process-fact semantics.",
+      "source": "understanding.json; decision.json; docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+      "docs/requirements/decisions/story-lifecycle.md"
+    ],
+    "filesTriagedByName": [
+      "docs/host-run-usage.md",
+      "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+      "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+      "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+      "docs/requirements/NAV.md"
+    ],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 9,
+    "covered": 8,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "e7a6fe757ddee8cd311a8578f32075639bcf3a11fd8a06cb11903099f2b3085c",
+  "openQuestions": []
+}

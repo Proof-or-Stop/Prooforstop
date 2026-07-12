@@ -1,0 +1,113 @@
+{
+  "storyId": "B-3ddc",
+  "name": "host-run-codex-turn-failed-reason",
+  "title": "host_run codex final records turn.failed as a specific honest unavailableReason",
+  "description": "When a `lattice host_run --host codex` run fails, the usage-ledger final currently records only the generic unavailableReason `no_turn_completed_usage_event`, because the streaming usage-line retainer keeps only `turn.completed` lines. The terminal failure event codex actually emitted (e.g. `{\"type\":\"turn.failed\",\"error\":{\"message\":\"...status 400... The 'gpt-5.6-sol' model requires a newer version of Codex...\"}}`) is discarded, so the real cause must be recovered from external Codex Desktop rollouts — and `--ephemeral` runs leave no codex session file at all. Extend the codex usage-line retainer/scanner path so `turn.failed` (and terminal `error`) events are also retained (bounded, last-one-wins, same 1MiB cap discipline) and recorded as a more specific honest unavailableReason `turn_failed(<short digest of error.message>)`, falling back to `no_turn_completed_usage_event` when neither event is present. Honest-unavailable semantics are preserved: usage is never fabricated, and a genuine `turn.completed` usage still records provider-reported exactly as today.",
+  "type": "feature",
+  "phase": "DONE",
+  "priority": "medium",
+  "keywords": [
+    "host_run",
+    "usage-ledger",
+    "codex",
+    "turn.failed",
+    "unavailableReason",
+    "bounded-retention"
+  ],
+  "createdAt": "2026-07-11T23:00:16.241Z",
+  "startedAt": "2026-07-11T23:00:16.241Z",
+  "endedAt": "2026-07-12T01:40:32.499Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-11T23:00:17.963Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "199b0bb9-9425-4b9a-9b1d-cd4812afb9b2",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-11T23:02:49.235Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "199b0bb9-9425-4b9a-9b1d-cd4812afb9b2",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-11T23:03:08.488Z",
+      "branch": "story/B-3ddc",
+      "user": "Harmonygo",
+      "sessionId": "199b0bb9-9425-4b9a-9b1d-cd4812afb9b2",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-11T23:19:21.495Z",
+      "branch": "story/B-3ddc",
+      "user": "Harmonygo",
+      "sessionId": "199b0bb9-9425-4b9a-9b1d-cd4812afb9b2",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-11T23:37:09.696Z",
+      "branch": "story/B-3ddc",
+      "user": "Harmonygo",
+      "sessionId": "199b0bb9-9425-4b9a-9b1d-cd4812afb9b2",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-12T00:02:28.083Z",
+      "branch": "story/B-3ddc",
+      "user": "Harmonygo",
+      "sessionId": "199b0bb9-9425-4b9a-9b1d-cd4812afb9b2",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-12T00:26:51.922Z",
+      "branch": "story/B-3ddc",
+      "user": "Harmonygo",
+      "sessionId": "199b0bb9-9425-4b9a-9b1d-cd4812afb9b2",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-12T00:43:26.118Z",
+      "branch": "story/B-3ddc",
+      "user": "Harmonygo",
+      "sessionId": "199b0bb9-9425-4b9a-9b1d-cd4812afb9b2",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-12T01:16:16.962Z",
+      "branch": "story/B-3ddc",
+      "user": "Harmonygo",
+      "sessionId": "199b0bb9-9425-4b9a-9b1d-cd4812afb9b2",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-12T01:40:32.499Z",
+      "branch": "story/B-3ddc",
+      "user": "Harmonygo",
+      "sessionId": "199b0bb9-9425-4b9a-9b1d-cd4812afb9b2",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-07-12T00:43:26.118Z"
+}

@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-6108",
+  "mode": "feature",
+  "allowed": [
+    "Interaction checks of each addition against the stripCodeLikeTokens strip classes and the remaining-chain clause taxonomy, with documentation updates to the story plan",
+    "RED-first regression smoke cases in packages/main/src/tasks/proofstory-intent-hardening-smoke.ts in both directions (must-fire recall cases and must-not-fire precision controls) for every addition",
+    "Vocabulary recall additions to the claimsShrinkage trigger regex in evaluateDoneIntentEquivalence (packages/main/src/core/proofstory.ts): adverb-insertion windows for multi-word triggers, inflection forms, a curated constrained shrinkage-verb set, optional quote characters before the remaining-chain scope noun, and plus in the Oxford-list conjunction set"
+  ],
+  "excluded": [
+    "Changing the stripCodeLikeTokens strip rules or its by-requirement strip classes settled in B-2c03",
+    "NLP or non-deterministic classification, and any change to the strict milestone-path DONE logic or other DONE-gate checks",
+    "Restructuring the remaining-chain clause taxonomy (stop words, comma-conjunction rule, Oxford branch shape) beyond the quote-tolerance and plus additions"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "User follow-up request 2026-07-11 (task_c50a4567 chip started): expand the recall of the claimsShrinkage trigger vocabulary for the five classes verified during B-2c03, RED-first in both directions, respecting the B-2c03 clause-structure design and convergence statement.",
+  "createdAt": "2026-07-11T22:30:37.785Z",
+  "updatedAt": "2026-07-11T22:30:37.785Z",
+  "_hash": "2ef731805a3c90ed94580da67016d9e0b61b4b0ccf9d34e0b006082e77f76324"
+}

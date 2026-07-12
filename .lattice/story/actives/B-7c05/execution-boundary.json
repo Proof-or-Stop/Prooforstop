@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-7c05",
+  "allowedCommands": [
+    "git *",
+    "grep *",
+    "lattice *",
+    "node packages/main/dist/*",
+    "npm --prefix packages/main run build",
+    "npm run build",
+    "npm run test*",
+    "rg *",
+    "wc *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".lattice",
+    "CHANGELOG.md",
+    "CLAUDE.md",
+    "docs",
+    "package.json",
+    "packages/main/dist",
+    "packages/main/src"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Rendering-only story: edits live in packages/main/src (cli engine, cli/help-renderer, handlers, core/milestone-status, tasks smoke tests) plus docs. No gate/state-machine logic changes; explicit --json/--format=json shapes frozen.",
+  "createdAt": "2026-07-11T23:11:46.274Z",
+  "updatedAt": "2026-07-11T23:11:46.274Z",
+  "_hash": "6ed34f57d5f18923d83d3b025bce57d23ab41ad0e849ee6bd21c365fcfb44de9"
+}

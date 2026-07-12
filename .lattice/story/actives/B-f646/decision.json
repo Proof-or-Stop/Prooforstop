@@ -1,0 +1,76 @@
+{
+  "principles": [
+    "Deterministic recall sources must anchor model-proposed semantic expansion.",
+    "Every candidate and full read must have an auditable reason and evidence binding.",
+    "Efficiency improvements may narrow default reads but must not lower the review quality floor."
+  ],
+  "drivers": [
+    "Prevent corpus-scale token burn",
+    "Preserve semantic recall across legacy terminology",
+    "Provide machine-checkable routing and escalation evidence"
+  ],
+  "options": [
+    {
+      "name": "A: Hybrid deterministic plus multi-host keyword routing",
+      "pros": [
+        "Balances recall and cost",
+        "Supports auditable ranking",
+        "Allows independent host diversity"
+      ],
+      "cons": [
+        "Requires shared schemas and routing metrics"
+      ]
+    },
+    {
+      "name": "B: Model-only keyword proposals",
+      "pros": [
+        "Simple semantic expansion"
+      ],
+      "cons": [
+        "Non-deterministic omissions",
+        "Weak reproducibility",
+        "No guaranteed legacy-term recall"
+      ]
+    },
+    {
+      "name": "C: Always read the entire corpus",
+      "pros": [
+        "Maximum naive recall"
+      ],
+      "cons": [
+        "Recreates context exhaustion",
+        "Does not prove what was actually read",
+        "Scales poorly"
+      ]
+    }
+  ],
+  "chosen": "A: Hybrid deterministic plus multi-host keyword routing",
+  "rationale": "A preserves deterministic anchors while using host diversity for semantic recall and keeps every selection, omission, and escalation mechanically auditable.",
+  "preMortem": [
+    {
+      "scenario": "All hosts repeat the same modern terminology and miss a legacy synonym",
+      "trigger": "Candidate set is built only from host proposals",
+      "consequence": "Relevant decision document is omitted",
+      "mitigation": "Require deterministic story/touchpoint/config seeds, filename enumeration, and lexical expansion before host union"
+    },
+    {
+      "scenario": "Candidate cap hides a relevant lower-ranked document",
+      "trigger": "Ranking scores cluster near the cutoff or hosts disagree",
+      "consequence": "Scope reviewer misses a commitment",
+      "mitigation": "Treat ambiguity/cutoff ties/disagreement as escalation triggers and record scanEscalationReason"
+    },
+    {
+      "scenario": "The plan claims quality preservation without a baseline",
+      "trigger": "Only token reduction is measured",
+      "consequence": "Faster review silently loses findings",
+      "mitigation": "Require golden corpus recall fixtures and before/after defect-equivalence comparisons"
+    },
+    {
+      "scenario": "Host proposals are mistaken for gate evidence",
+      "trigger": "Proposal provenance is not separated from reviewer reads",
+      "consequence": "Unverified model output satisfies scope claims",
+      "mitigation": "Mark proposals advisory and require signed scope_check_save plus mechanical readManifest/read-log reconciliation"
+    }
+  ],
+  "timestamp": "2026-07-12T08:59:22.978Z"
+}

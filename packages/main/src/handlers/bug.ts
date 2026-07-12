@@ -3,6 +3,18 @@ import type { HandlerContext } from './context.js';
 import type { BugRecord, BugEvidence } from '../core/types.js';
 import { extractBugs } from '../tasks/bug-report.js';
 import { computeProcessMetrics } from '../core/process-metrics.js';
+import { wantsFullOutput, truncateOneLine } from '../cli/output-verbosity.js';
+
+// B-7c05 CHK-004: brief bug one-liner. Keeps the decision fields (storyId, id,
+// status) + a truncated title; drops timestamps/evidence.
+function toBriefBug(bug: BugRecord & { storyId?: string }): Record<string, unknown> {
+  return {
+    ...(bug.storyId ? { storyId: bug.storyId } : {}),
+    id: bug.id,
+    status: bug.status,
+    title: truncateOneLine(bug.title, 80),
+  };
+}
 
 export function createBugHandlers(ctx: HandlerContext) {
   const { store } = ctx;
@@ -85,21 +97,31 @@ export function createBugHandlers(ctx: HandlerContext) {
       return resultMsg;
     },
 
-    bug_list(args: { storyId?: string } = {}) {
+    bug_list(args: { storyId?: string; full?: boolean; brief?: boolean; json?: boolean; format?: 'text' | 'json' } = {}) {
+      // Per-story bug list is already scoped/small; only the global cross-story
+      // dump (the 263KB whale) gets the brief default.
       if (args.storyId) return store.readBugs(args.storyId);
 
       const stories = store.listStoryIds();
       const bugs = stories.flatMap(storyId =>
         store.readBugs(storyId).bugs.map(bug => ({ storyId, ...bug })),
       );
+      const summary = {
+        stories: stories.length,
+        total: bugs.length,
+        open: bugs.filter(b => b.status === 'open').length,
+        fixed: bugs.filter(b => b.status === 'fixed').length,
+      };
+      // B-7c05 CHK-004: brief by default. `summary` covers ALL bugs by status
+      // (non-silent), the list is trimmed to actionable OPEN bugs, and --full /
+      // --json / LATTICE_BRIEF_OUTPUT=0 restore every bug.
+      if (wantsFullOutput(args)) return { bugs, summary };
+      const openBugs = bugs.filter(b => b.status === 'open');
       return {
-        bugs,
-        summary: {
-          stories: stories.length,
-          total: bugs.length,
-          open: bugs.filter(b => b.status === 'open').length,
-          fixed: bugs.filter(b => b.status === 'fixed').length,
-        },
+        _brief: true,
+        _hint: `Brief view: ${openBugs.length} open bug(s) listed; ${bugs.length - openBugs.length} non-open omitted (see summary for full status counts). Use --full (or LATTICE_BRIEF_OUTPUT=0) for every bug.`,
+        summary,
+        bugs: openBugs.map(toBriefBug),
       };
     },
 

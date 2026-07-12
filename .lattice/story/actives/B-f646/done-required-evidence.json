@@ -1,0 +1,152 @@
+{
+  "schema": "lattice.done-required-evidence",
+  "version": 1,
+  "storyId": "B-f646",
+  "status": "PASS",
+  "startedAt": "2026-07-12T09:24:32.759Z",
+  "endedAt": "2026-07-12T09:27:11.921Z",
+  "durationMs": 159162,
+  "headHash": "9c3600efa82c4dd3207d78400d3cf0beefc04c9c",
+  "materialHash": "79d4f9af5acae51b71d0e15479e29598bbac6fe9132061a712d5e68044c15efc",
+  "storyFilesHash": "430e1a5f2c609fe5c6228418c4cf30ac70938173346d7b3b362b639dea952298",
+  "policyHash": "1f72cd38f6c94ed8e6fb8946919ac028e73770eb129ea0db75474982a61542dc",
+  "commandSetHash": "a69129533543ffdeb071da3c66fd0b8a884d1ce93d136c87df6120b3cac9dd35",
+  "receipts": [
+    {
+      "label": "packages/main build",
+      "command": "npm",
+      "args": [
+        "--prefix",
+        "packages/main",
+        "run",
+        "build"
+      ],
+      "commandSpec": {
+        "schema": "lattice.command-spec.v1",
+        "digest": "74f2c202161df01b038e78835c5a1070c456c1fe1c0b3be8605f2127e5fe9df7",
+        "command": "npm",
+        "args": [
+          "--prefix",
+          "packages/main",
+          "run",
+          "build"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-f646",
+        "shell": false,
+        "env": {},
+        "timeoutMs": 290000
+      },
+      "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-f646",
+      "status": "PASS",
+      "exitCode": 0,
+      "durationMs": 12307,
+      "outputDigest": "c918520f260eef8efc30214f64b9430ee8c6563a89617cc5ff6a571193e42148",
+      "outputTail": "\n> @lattice/core@0.3.188 build\n> tsc\n\n",
+      "startedAt": "2026-07-12T09:24:32.759Z",
+      "endedAt": "2026-07-12T09:24:45.066Z",
+      "headHash": "9c3600efa82c4dd3207d78400d3cf0beefc04c9c",
+      "materialHash": "79d4f9af5acae51b71d0e15479e29598bbac6fe9132061a712d5e68044c15efc",
+      "storyFilesHash": "430e1a5f2c609fe5c6228418c4cf30ac70938173346d7b3b362b639dea952298"
+    },
+    {
+      "label": "root full test suite",
+      "command": "npm",
+      "args": [
+        "test"
+      ],
+      "commandSpec": {
+        "schema": "lattice.command-spec.v1",
+        "digest": "abcb0435cac4ad5f2ece23c2be5a98b87ed43e4280021f5a67e0a00e15b6a3c6",
+        "command": "npm",
+        "args": [
+          "test"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-f646",
+        "shell": false,
+        "env": {},
+        "timeoutMs": 1200000
+      },
+      "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-f646",
+      "status": "PASS",
+      "exitCode": 0,
+      "durationMs": 146375,
+      "outputDigest": "ea13144c4769233c1f2d65c6e0821e29a28ac2e6f24804b0a38aab0d721def6f",
+      "outputTail": "oritative gateEvidence=false\n  packDigest: 1a36d7566d7d2598d01532b0128317c789aec16586f6c4063118ee3a8ff7da71\n  topHitIds: 9890b83, a4d08a8\n  freshness: fresh\n  sourceDigests: project=none global=889ac11e70324e9d28e316839b209a85edc8e1492050106cb1a8c24c6a59d9a6 playbooks=none signatures=none\n  Dev-memory (2):\n    - 9890b83 failure-mode/global: Old plan documents can mislead hosts after implementation is already DONE.\n      lesson: When a document describes future or plan-only work, do not conclude the task is undone from that document alone. First check current Lattice facts: session_brief, story phase/summary, convergence_check or gap_analyze, and concrete code/data evidence. Treat accepted outcome records, DONE summaries, current code, and fresh validation as stronger than stale planning prose.\n      reuse: Before telling the user a task is missing, search dev-memory for stale-doc or truth-first lessons and verify with live Lattice facts.\n    - a4d08a8 workflow/global: Canonical Lattice execution hosts are Codex CLI, Claude Code CLI, and Antigravity CLI.\n      lesson: Use exactly three current host labels for Lattice multi-host work: Codex CLI, Claude Code CLI, and Antigravity CLI. Antigravity CLI is launched with `agy`; the old Gemini CLI naming/semantics are deprecated and should not be used for new docs, host policies, verdict labels, or developer-facing instructions.\n      reuse: When host taxonomy, multi-host review, host verdicts, or CLI delegation names are needed, retrieve the canonical hosts memory: Codex CLI, Claude Code CLI, Antigravity CLI (`agy`), not Gemini CLI.\n  render: maxLines=60 omittedCount=0\n⚠ 1 other stories were also created within the last 30 minutes:\n  - B-0b66 [INIT] Auto ledger story create\n[0.7s] story_create done\n[0.1s] running planner_draft...\n[0.1s] planner_draft done\n[0.1s] running planner_create_story...\n⚠ Runtime memory STORY_INTAKE advisory only; it is not gate evidence and cannot satisfy DONE.\n## Memory Runtime Preflight\n  authority=non_authoritative gateEvidence=false\n  packDigest: 3d7e04ef6a99a6f782718cdbd20ac4fbcd075ee8b222c18c50e7784550f31ebf\n  topHitIds: 9890b83, a4d08a8\n  freshness: fresh\n  sourceDigests: project=none global=889ac11e70324e9d28e316839b209a85edc8e1492050106cb1a8c24c6a59d9a6 playbooks=none signatures=none\n  Dev-memory (2):\n    - 9890b83 failure-mode/global: Old plan documents can mislead hosts after implementation is already DONE.\n      lesson: When a document describes future or plan-only work, do not conclude the task is undone from that document alone. First check current Lattice facts: session_brief, story phase/summary, convergence_check or gap_analyze, and concrete code/data evidence. Treat accepted outcome records, DONE summaries, current code, and fresh validation as stronger than stale planning prose.\n      reuse: Before telling the user a task is missing, search dev-memory for stale-doc or truth-first lessons and verify with live Lattice facts.\n    - a4d08a8 workflow/global: Canonical Lattice execution hosts are Codex CLI, Claude Code CLI, and Antigravity CLI.\n      lesson: Use exactly three current host labels for Lattice multi-host work: Codex CLI, Claude Code CLI, and Antigravity CLI. Antigravity CLI is launched with `agy`; the old Gemini CLI naming/semantics are deprecated and should not be used for new docs, host policies, verdict labels, or developer-facing instructions.\n      reuse: When host taxonomy, multi-host review, host verdicts, or CLI delegation names are needed, retrieve the canonical hosts memory: Codex CLI, Claude Code CLI, Antigravity CLI (`agy`), not Gemini CLI.\n  render: maxLines=60 omittedCount=0\n⚠ 2 other stories were also created within the last 30 minutes:\n  - B-0350 [INIT] Auto ledger story create no rows\n  - B-0b66 [INIT] Auto ledger story create\n[0.7s] planner_create_story done\n[0.1s] running planner_draft...\n[0.1s] planner_draft done\n[0.1s] running planner_create_story...\n⚠ Runtime memory STORY_INTAKE adviso\n...[truncated 65443 chars]",
+      "startedAt": "2026-07-12T09:24:45.279Z",
+      "endedAt": "2026-07-12T09:27:11.655Z",
+      "headHash": "9c3600efa82c4dd3207d78400d3cf0beefc04c9c",
+      "materialHash": "79d4f9af5acae51b71d0e15479e29598bbac6fe9132061a712d5e68044c15efc",
+      "storyFilesHash": "430e1a5f2c609fe5c6228418c4cf30ac70938173346d7b3b362b639dea952298"
+    }
+  ],
+  "reasons": [],
+  "donePrepareValidationReuse": {
+    "schema": "lattice.done-prepare-validation-reuse.v1",
+    "status": "reused",
+    "statement": "Validation was reused for metadata-only done_prepare auto-closeout; validation commands were not rerun after the generated metadata commit.",
+    "createdAt": "2026-07-12T09:27:14.357Z",
+    "storyId": "B-f646",
+    "commandsRerunAfterAutoCloseout": false,
+    "reuseReason": "metadata-only-head-drift",
+    "generatedMetadataPaths": [
+      ".lattice/story/actives/B-f646/done-required-evidence.json",
+      ".lattice/story/actives/B-f646/test-evidence.json"
+    ],
+    "unchanged": {
+      "headHash": "9c3600efa82c4dd3207d78400d3cf0beefc04c9c",
+      "materialHash": "79d4f9af5acae51b71d0e15479e29598bbac6fe9132061a712d5e68044c15efc",
+      "storyFilesHash": "430e1a5f2c609fe5c6228418c4cf30ac70938173346d7b3b362b639dea952298",
+      "validateCommandSetHash": "96a405846b7599691b371b0bd46bdb7e7afbe1ee418f1e58df97e3a4121c5d54",
+      "doneRequiredCommandSetHash": "a69129533543ffdeb071da3c66fd0b8a884d1ce93d136c87df6120b3cac9dd35",
+      "doneRequiredPolicyHash": "1f72cd38f6c94ed8e6fb8946919ac028e73770eb129ea0db75474982a61542dc",
+      "configHash": "2d5f763d1d55317d108d4645bf27499f3e98fca64c4f239b229ca8444a9cd39e",
+      "scopeContractHash": "d0d19829cac8f1ddf7c1bfd6f1ebb900082ee5ecfe7469e8d8f7cd3b378927c3",
+      "lifecycleRegistryHash": "430e7f58c4da3a65e5482a981b5b488164ce964ed3a76a5ddea9a633e524413c",
+      "lifecycleClassifierVersion": "done-prepare-generated-metadata-safe-set.v1"
+    },
+    "priorEvidenceRefs": {
+      "testEvidence": {
+        "command": "lattice validate --story=B-f646 --json",
+        "timestamp": "2026-07-12T09:24:32.560Z",
+        "headHash": "9c3600efa82c4dd3207d78400d3cf0beefc04c9c",
+        "materialHash": "79d4f9af5acae51b71d0e15479e29598bbac6fe9132061a712d5e68044c15efc",
+        "storyFilesHash": "430e1a5f2c609fe5c6228418c4cf30ac70938173346d7b3b362b639dea952298",
+        "outputDigest": "fe9d32f79c98440286a7e0a429a9082d6519852b01e82886247da415064c2155"
+      },
+      "doneRequiredEvidence": {
+        "startedAt": "2026-07-12T09:24:32.759Z",
+        "endedAt": "2026-07-12T09:27:11.921Z",
+        "headHash": "9c3600efa82c4dd3207d78400d3cf0beefc04c9c",
+        "materialHash": "79d4f9af5acae51b71d0e15479e29598bbac6fe9132061a712d5e68044c15efc",
+        "storyFilesHash": "430e1a5f2c609fe5c6228418c4cf30ac70938173346d7b3b362b639dea952298",
+        "policyHash": "1f72cd38f6c94ed8e6fb8946919ac028e73770eb129ea0db75474982a61542dc",
+        "commandSetHash": "a69129533543ffdeb071da3c66fd0b8a884d1ce93d136c87df6120b3cac9dd35",
+        "receipts": [
+          {
+            "label": "packages/main build",
+            "command": "npm",
+            "args": [
+              "--prefix",
+              "packages/main",
+              "run",
+              "build"
+            ],
+            "startedAt": "2026-07-12T09:24:32.759Z",
+            "endedAt": "2026-07-12T09:24:45.066Z",
+            "outputDigest": "c918520f260eef8efc30214f64b9430ee8c6563a89617cc5ff6a571193e42148"
+          },
+          {
+            "label": "root full test suite",
+            "command": "npm",
+            "args": [
+              "test"
+            ],
+            "startedAt": "2026-07-12T09:24:45.279Z",
+            "endedAt": "2026-07-12T09:27:11.655Z",
+            "outputDigest": "ea13144c4769233c1f2d65c6e0821e29a28ac2e6f24804b0a38aab0d721def6f"
+          }
+        ]
+      }
+    }
+  }
+}

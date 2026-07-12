@@ -1,0 +1,343 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Adverb-insertion windows and inflection forms for the existing trigger words",
+      "context": "Multi-word triggers accept a bounded adverb window (not yet covered, not fully covered, out of the current scope) using bounded token steps like the remaining chain - never raw character proximity (B-2c03 F-012 lesson). Inflections extend existing stems: partial(ly), exclude/excludes/excluding alongside excluded, defer/defers/deferring alongside deferred. RED-first: the two B-2c03-verified sentences must fire; adjacency forms must keep firing; unrelated words sharing the stems (partiality? excludable?) get must-not-fire consideration.",
+      "userSees": "done_intent_equivalence_check emits unconfirmed_single_outcome_shrinkage for 'The Windows install path is not yet covered by this delivery.' and 'The requested import flow is only partially delivered in this story.' and 'This delivery excludes the admin workflow for a follow-up story.'",
+      "files": {
+        "modify": [
+          "packages/main/src/core/proofstory.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "adverb-inflection:happy",
+            "desc": "All three B-2c03-verified class-1/class-2 sentences fire the gap; existing adjacency forms still fire.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "adverb-inflection:edge",
+            "desc": "Adverb window is bounded (a sentence-crossing or clause-crossing insertion does not fire); inflection stems do not match unrelated longer words.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "adverb-inflection:adversarial",
+            "desc": "Additions do not revive any B-2c03 must-not-fire control (file names, cross-clause sentences, code tokens all stay quiet).",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-07-11T22:53:55.981Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "adverb-inflection:happy",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "not-yet-covered, not-fully-covered, out-of-the-current-scope, partially-delivered, excludes-workflow, and defers-tooling recall claims all fire (vocabularyRecallClaims classes 1-2); adjacency forms keep firing via existing B-2c03 pins",
+          "headHash": "0457a15c55db4905fba4aac9b8613e0018cc7837",
+          "materialHash": "dd5cf220ce52f5eb779a5316fb55ac35ed7878dd41139a8290242d8293d38113",
+          "storyFilesHash": "97fe02565f226a5f198b3575092313aa66f26ad0a86405dbfe3c98b6c52fb31f",
+          "timestamp": "2026-07-11T23:30:30.554Z"
+        },
+        {
+          "intentRef": "adverb-inflection:edge",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "adverbWindowBoundaryDone: the not...covered window does not leak across a sentence boundary (dot-not-before-whitespace connector); exclusive/partiality control shows inflection stems do not match inside longer words",
+          "headHash": "0457a15c55db4905fba4aac9b8613e0018cc7837",
+          "materialHash": "dd5cf220ce52f5eb779a5316fb55ac35ed7878dd41139a8290242d8293d38113",
+          "storyFilesHash": "97fe02565f226a5f198b3575092313aa66f26ad0a86405dbfe3c98b6c52fb31f",
+          "timestamp": "2026-07-11T23:30:30.554Z"
+        },
+        {
+          "intentRef": "adverb-inflection:adversarial",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "All B-2c03 pinned must-not-fire controls (file names, cross-clause sentences, code tokens, strip classes) pass unchanged in the same smoke run",
+          "headHash": "0457a15c55db4905fba4aac9b8613e0018cc7837",
+          "materialHash": "dd5cf220ce52f5eb779a5316fb55ac35ed7878dd41139a8290242d8293d38113",
+          "storyFilesHash": "97fe02565f226a5f198b3575092313aa66f26ad0a86405dbfe3c98b6c52fb31f",
+          "timestamp": "2026-07-11T23:30:30.554Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Curated constrained shrinkage-verb vocabulary",
+      "context": "Add verbs that carry the claim when the trigger word sits inside a stripped-by-requirement token: passive scope-cut verbs (was/were skipped, omitted, descoped), follow-up handoffs (left/moved/pushed/punted to|for a follow-up), and delivery-qualifier-bound forms (removed/dropped/cut from this delivery|story|scope|release). Bare removed/dropped/cut must NOT fire (routine change descriptions). RED-first both directions with the exact B-2c03 sentences (deferred-query.sql export was skipped; backticked deferred work left to a follow-up story) as must-fire and routine-change sentences (removed dead code; dropped the cache layer) as must-not-fire controls.",
+      "userSees": "done_intent_equivalence_check fires for 'The deferred-query.sql export was skipped for this delivery.' and 'The `deferred` work was left to a follow-up story.' while 'Removed dead code and dropped the unused cache layer.' stays quiet.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/proofstory.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "shrinkage-verbs:happy",
+            "desc": "The stripped-token B-2c03 sentences now fire via their verbs; follow-up handoff phrasings fire.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "shrinkage-verbs:edge",
+            "desc": "Qualifier-bound forms fire only with the delivery-context qualifier; passive-only verbs do not fire in active routine voice.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "shrinkage-verbs:adversarial",
+            "desc": "Routine change-description sentences (removed dead code, dropped the cache layer, cut the release branch, skipped the redundant rebuild step as active voice) stay quiet - the verb set must not flood honest summaries with false positives.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-07-11T22:53:57.083Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "shrinkage-verbs:happy",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "was-skipped with stripped deferred-query.sql, backticked deferred with left-to-a-follow-up, was-removed-from-this-delivery, was-descoped, was-omitted-from-this-release, and pushed-to-a-follow-up all fire (classes 3); the two B-2c03 deferred-to-follow-up pins flipped to must-fire with updated comments",
+          "headHash": "0457a15c55db4905fba4aac9b8613e0018cc7837",
+          "materialHash": "dd5cf220ce52f5eb779a5316fb55ac35ed7878dd41139a8290242d8293d38113",
+          "storyFilesHash": "97fe02565f226a5f198b3575092313aa66f26ad0a86405dbfe3c98b6c52fb31f",
+          "timestamp": "2026-07-11T23:30:30.554Z"
+        },
+        {
+          "intentRef": "shrinkage-verbs:edge",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "Qualifier binding verified: was-removed-from-the-util-module stays quiet (non-delivery object); active-voice we-skipped stays quiet (passive-only)",
+          "headHash": "0457a15c55db4905fba4aac9b8613e0018cc7837",
+          "materialHash": "dd5cf220ce52f5eb779a5316fb55ac35ed7878dd41139a8290242d8293d38113",
+          "storyFilesHash": "97fe02565f226a5f198b3575092313aa66f26ad0a86405dbfe3c98b6c52fb31f",
+          "timestamp": "2026-07-11T23:30:30.554Z"
+        },
+        {
+          "intentRef": "shrinkage-verbs:adversarial",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "Routine change descriptions stay quiet: removed-dead-code/dropped-cache, cut-the-release-branch, follow-up-review-confirmed (vocabularyPrecisionControls)",
+          "headHash": "0457a15c55db4905fba4aac9b8613e0018cc7837",
+          "materialHash": "dd5cf220ce52f5eb779a5316fb55ac35ed7878dd41139a8290242d8293d38113",
+          "storyFilesHash": "97fe02565f226a5f198b3575092313aa66f26ad0a86405dbfe3c98b6c52fb31f",
+          "timestamp": "2026-07-11T23:30:30.554Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Chain punctuation recall: quoted scope nouns and plus-lists",
+      "context": "Optional quote/bracket characters are tolerated between the remaining-chain connector and the scope noun so 'The remaining \"cases\" were left...' fires; plus joins and/or in the Oxford-list branch so 'web, mobile, plus Safari cases' fires. Both are minimal chain tweaks; the clause taxonomy itself is untouched. RED-first with the two B-2c03-verified sentences; cross-clause controls re-run as must-not-fire.",
+      "userSees": "done_intent_equivalence_check fires for 'The remaining \"cases\" were left for a follow-up story.' and 'The remaining web, mobile, plus Safari cases were left for a follow-up story.' while all seven B-2c03 cross-clause controls stay quiet.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/proofstory.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "chain-punctuation:happy",
+            "desc": "Quoted-noun and plus-list sentences fire the gap.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "chain-punctuation:edge",
+            "desc": "Quote tolerance covers straight and curly double/single quotes; a lone ', plus' with no preceding list item stays clause coordination and quiet.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "chain-punctuation:adversarial",
+            "desc": "All seven B-2c03 cross-clause must-not-fire controls and the sanitizer strip controls still pass unchanged.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-07-11T22:53:58.144Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "chain-punctuation:happy",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "Quoted-noun (the remaining quoted cases still need another pass) and comma-plus Oxford list sentences fire, both phrased without class-3 verbs so the chain fixes are pinned independently",
+          "headHash": "0457a15c55db4905fba4aac9b8613e0018cc7837",
+          "materialHash": "dd5cf220ce52f5eb779a5316fb55ac35ed7878dd41139a8290242d8293d38113",
+          "storyFilesHash": "97fe02565f226a5f198b3575092313aa66f26ad0a86405dbfe3c98b6c52fb31f",
+          "timestamp": "2026-07-11T23:30:30.554Z"
+        },
+        {
+          "intentRef": "chain-punctuation:edge",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "nounQuote class covers straight and curly double/single quotes; lone comma-plus without a preceding list item stays clause coordination (crash-CI plus control quiet)",
+          "headHash": "0457a15c55db4905fba4aac9b8613e0018cc7837",
+          "materialHash": "dd5cf220ce52f5eb779a5316fb55ac35ed7878dd41139a8290242d8293d38113",
+          "storyFilesHash": "97fe02565f226a5f198b3575092313aa66f26ad0a86405dbfe3c98b6c52fb31f",
+          "timestamp": "2026-07-11T23:30:30.554Z"
+        },
+        {
+          "intentRef": "chain-punctuation:adversarial",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "All seven B-2c03 cross-clause controls and sanitizer strip controls pass unchanged in the same run",
+          "headHash": "0457a15c55db4905fba4aac9b8613e0018cc7837",
+          "materialHash": "dd5cf220ce52f5eb779a5316fb55ac35ed7878dd41139a8290242d8293d38113",
+          "storyFilesHash": "97fe02565f226a5f198b3575092313aa66f26ad0a86405dbfe3c98b6c52fb31f",
+          "timestamp": "2026-07-11T23:30:30.554Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-004",
+      "title": "Interaction audit across sanitizer and chain plus full-suite regression",
+      "context": "Probe every addition against the stripCodeLikeTokens strip classes (file names, backticked spans, URLs, paths with :line/#L anchors) and the remaining-chain taxonomy (stop words, comma-conjunction rule) for interaction bugs; run the full intent-hardening smoke (50+ cases after additions), milestone-done-gate-reconciliation smoke, milestone-status tests, and packages/main e2e; document the final vocabulary and its precision rationale in the story plan following B-2c03's response-record style.",
+      "userSees": "The full proofstory-intent-hardening smoke passes with all new must-fire and must-not-fire cases; reconciliation smoke, milestone-status tests, and e2e ALL PASS; the story plan documents the final vocabulary with per-class rationale.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "interaction-audit:happy",
+            "desc": "Full suite green at final head including all B-2c03 pinned cases.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "interaction-audit:edge",
+            "desc": "Stripped-token interplay verified: a new verb next to a stripped file name fires exactly once via the verb, and a summary that is ONLY a stripped token plus routine prose stays quiet.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "interaction-audit:adversarial",
+            "desc": "The plan documents per-addition precision rationale; no addition weakens a documented B-2c03 invariant (fail-safe residual directions unchanged).",
+            "type": "docs",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-07-11T22:53:59.182Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "interaction-audit:happy",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "Full suite green: intent-hardening smoke (now ~60 cases), milestone-done-gate-reconciliation smoke, milestone-status tests, packages/main e2e ALL PASS",
+          "headHash": "0457a15c55db4905fba4aac9b8613e0018cc7837",
+          "materialHash": "dd5cf220ce52f5eb779a5316fb55ac35ed7878dd41139a8290242d8293d38113",
+          "storyFilesHash": "97fe02565f226a5f198b3575092313aa66f26ad0a86405dbfe3c98b6c52fb31f",
+          "timestamp": "2026-07-11T23:30:30.554Z"
+        },
+        {
+          "intentRef": "interaction-audit:edge",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "strippedTokenVerbDone: descoped fires when its subject token is stripped as a URL; pure-strip sentences without claim verbs stay quiet (fileNameDone/bareFileNameDone/lineQualifiedPathDone/anchorQualifiedPathDone)",
+          "headHash": "0457a15c55db4905fba4aac9b8613e0018cc7837",
+          "materialHash": "dd5cf220ce52f5eb779a5316fb55ac35ed7878dd41139a8290242d8293d38113",
+          "storyFilesHash": "97fe02565f226a5f198b3575092313aa66f26ad0a86405dbfe3c98b6c52fb31f",
+          "timestamp": "2026-07-11T23:30:30.554Z"
+        },
+        {
+          "intentRef": "interaction-audit:adversarial",
+          "kind": "docs_check",
+          "file": ".lattice/story/actives/B-6108/plan.md",
+          "result": "pass",
+          "note": "plan.md documents per-class design with precision rationale (Design per class + Risk notes + inherited convergence statement); no B-2c03 invariant weakened",
+          "headHash": "0457a15c55db4905fba4aac9b8613e0018cc7837",
+          "materialHash": "dd5cf220ce52f5eb779a5316fb55ac35ed7878dd41139a8290242d8293d38113",
+          "storyFilesHash": "97fe02565f226a5f198b3575092313aa66f26ad0a86405dbfe3c98b6c52fb31f",
+          "timestamp": "2026-07-11T23:30:30.554Z"
+        }
+      ]
+    }
+  ]
+}

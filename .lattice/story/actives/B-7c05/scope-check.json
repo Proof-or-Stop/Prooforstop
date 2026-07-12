@@ -1,0 +1,152 @@
+{
+  "storyId": "B-7c05",
+  "checkedAt": "2026-07-11T23:28:53.935Z",
+  "features": [
+    {
+      "feature": "Milestone ledger (milestone_status + appendMilestoneStatusAfterMutation suffix on mutating commands like story_advance) is brief by default with a full-output flag restoring the 7-column table",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-7c05/checklist.json"
+    },
+    {
+      "feature": "Brief milestone output remains actionable (phase/current milestone/next action) so agent decision-making is not degraded, and full-output flag name does not collide with validate --full",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-7c05/checklist.json"
+    },
+    {
+      "feature": "finding_list is brief by default (one-liner: id/severity/category/status/evidenceState/truncated title) with --full and --json/--format=json preserving current full shape including attention.suspected",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-7c05/checklist.json"
+    },
+    {
+      "feature": "lattice help is brief by default (grouped command names + short descriptions + pointer to per-command --help), --full restores verbose catalog, per-command --help unchanged",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-7c05/checklist.json"
+    },
+    {
+      "feature": "Sweep for other >5k-token default outputs (story_list 365KB, global bug_list 263KB, host_list 16KB borderline) and apply brief-by-default; story_list JSON preserves _bugSummary skeleton field, bug_list brief does not filter items by severity",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-7c05/checklist.json"
+    },
+    {
+      "feature": "host_list (16KB borderline) is either brought under brief-by-default or explicitly documented as an accepted exception",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-7c05/checklist.json"
+    },
+    {
+      "feature": "LATTICE_BRIEF_OUTPUT=0 environment escape hatch restores full output globally; per-call flag (--full/--brief) wins over env; only literal 0/false disables brief",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-7c05/checklist.json"
+    },
+    {
+      "feature": "Explicit --json/--format=json machine-consumer shapes stay byte-shape/field-compatible for finding_list, story_list, and other affected commands",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-7c05/checklist.json"
+    },
+    {
+      "feature": "Smoke test enforces brief-mode size budgets, full-flag restoration, env-hatch behavior, and JSON-shape stability as regression coverage",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-7c05/checklist.json"
+    },
+    {
+      "feature": "Internal stdout-parsing consumers (smoke tests, .mjs scripts) are audited and confirmed unaffected by brief-mode defaults (INIT reviewer follow-up)",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-7c05/checklist.json"
+    },
+    {
+      "feature": "Precedence chain (per-call flag > LATTICE_BRIEF_OUTPUT env > brief default) tested with all three layers active simultaneously",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-7c05/checklist.json"
+    },
+    {
+      "feature": "Documentation updates describing the new brief-by-default outputs, the per-command full-output flag, and the LATTICE_BRIEF_OUTPUT escape hatch land in docs/CLI.md (and CLAUDE.md if managed snippet regeneration applies)",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-7c05/checklist.json"
+    },
+    {
+      "feature": "Docs list the exact set of affected commands matching the actual implementation (no drift between docs and implementation), and docs do not claim gate/state-machine or validate --full semantics changed, and do not claim brief mode affects --json/--format=json shape",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-7c05/checklist.json"
+    },
+    {
+      "feature": "Gate/state-machine behavior and gateEvidence semantics are untouched (rendering-only change)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded list: any gate or state-machine behavior change is out of scope; negative constraint, not a positive deliverable, so no checklist verification item is expected",
+      "source": ".lattice/story/actives/B-7c05/scope-boundary.json"
+    },
+    {
+      "feature": "Per-command --help output is unchanged",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-7c05/checklist.json"
+    },
+    {
+      "feature": "validate --full semantics (run-real-machine-tests) are not overloaded or changed by this story",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-7c05/checklist.json"
+    },
+    {
+      "feature": "What data is stored on disk is unchanged (rendering-only, no persistence/state changes)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded list: changing what data is stored on disk is explicitly out of scope; negative constraint verified implicitly by rendering-only design in decision.json, not a positive checklist deliverable",
+      "source": ".lattice/story/actives/B-7c05/scope-boundary.json"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      ".lattice/story/actives/B-7c05/background.md",
+      ".lattice/story/actives/B-7c05/checklist.json",
+      ".lattice/story/actives/B-7c05/decision.json",
+      ".lattice/story/actives/B-7c05/plan.md",
+      ".lattice/story/actives/B-7c05/scope-boundary.json",
+      ".lattice/story/actives/B-7c05/scope-check.json",
+      ".lattice/story/actives/B-7c05/understanding.json"
+    ],
+    "filesTriagedByName": [
+      "CLAUDE.md",
+      "docs/CLI.md"
+    ],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 17,
+    "covered": 15,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "08c59873812023e16038c6b1af3fae30a578eb97bbacdab512f71fc8b5b48cfd",
+  "openQuestions": []
+}

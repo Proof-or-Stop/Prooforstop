@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-3ddc",
+  "checkedAt": "2026-07-11T23:02:34.451Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "46662cb48d9783073066094b737c92750ffcadebe3c399e20568df0ba5529211",
+  "executionBoundaryHash": "8ba3cebf732c32e1d0d777a89489ef6c09b4ea00d5e5328f68de41f2d852660a",
+  "freshnessHash": "801c4bfa155219331252f82009338c5e83807422642f82b250b2a08284960c69",
+  "effectiveExcludedKeywords": [
+    "No change to provider-reported semantics when turn.completed usage exists (usage never fabricated, never discarded)",
+    "No failure-reason enrichment for claude/agy hosts (codex-only per the request)",
+    "No persisting of full transcripts or codex session files (bounded retention only)",
+    "No usage-ledger schema/record changes (unavailableReason stays a free non-empty string)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "No change to provider-reported semantics when turn.completed usage exists (usage never fabricated, never discarded)",
+      "source": "scopeBoundary.excluded",
+      "text": "No change to provider-reported semantics when turn.completed usage exists (usage never fabricated, never discarded)",
+      "excluded": true
+    },
+    {
+      "keyword": "No failure-reason enrichment for claude/agy hosts (codex-only per the request)",
+      "source": "scopeBoundary.excluded",
+      "text": "No failure-reason enrichment for claude/agy hosts (codex-only per the request)",
+      "excluded": true
+    },
+    {
+      "keyword": "No persisting of full transcripts or codex session files (bounded retention only)",
+      "source": "scopeBoundary.excluded",
+      "text": "No persisting of full transcripts or codex session files (bounded retention only)",
+      "excluded": true
+    },
+    {
+      "keyword": "No usage-ledger schema/record changes (unavailableReason stays a free non-empty string)",
+      "source": "scopeBoundary.excluded",
+      "text": "No usage-ledger schema/record changes (unavailableReason stays a free non-empty string)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "8da73c99c0f5e8613ff09bfbf3f70a2616756f9f22941aa98029c1af23714394"
+}

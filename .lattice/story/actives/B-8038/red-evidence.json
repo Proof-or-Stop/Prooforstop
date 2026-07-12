@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-8038",
+  "records": [
+    {
+      "id": "RED-20260712101900",
+      "trigger": "The accepted candidate_spec_route runtime and integrated evidence flow do not exist before implementation.",
+      "acceptanceTargetRef": "ACCEPT-M6-END-TO-END",
+      "baselineHeadHash": "49727af80555581238be156584bf344a8f68ed5b",
+      "baselineMaterialHash": "6e2f729d7fc86419cc2349404f32a8427ecaddc1ea2b96c487e1d8f980ef19e9",
+      "observedFailure": "lattice candidate_spec_route is currently an unknown command, so no versioned candidate artifact, bounded ranked candidates, integrated read evidence, rollout verdict, or token-attributed end-to-end output can be produced.",
+      "failingCommand": "lattice candidate_spec_route --storyId=B-8038 --json",
+      "expectedGreenCommand": "lattice candidate_spec_route --storyId=B-8038 --json",
+      "greenRelation": {
+        "targetRef": "ACCEPT-M6-END-TO-END",
+        "relation": "regression_to_green",
+        "command": "lattice candidate_spec_route --storyId=B-8038 --json"
+      },
+      "note": "Baseline red is command absence before M6A-M6G implementation; focused milestone tests will provide narrower green evidence.",
+      "createdAt": "2026-07-12T10:19:00.756Z"
+    }
+  ],
+  "createdAt": "2026-07-12T10:19:00.756Z",
+  "updatedAt": "2026-07-12T10:19:00.756Z"
+}
