@@ -398,6 +398,29 @@ async function main(): Promise<void> {
       ['inf-a', 'inf-b', 'neg', 'unknown'],
       'Infinity ties break by sessionId; negative usage sorts above unknown; unknown is unconditionally last',
     );
+    // F-005: a NaN burn value normalizes to null (unknown) at construction, so
+    // the sort stays a TOTAL order — identical output for every input
+    // permutation (NaN previously compared "equal" to every number, making the
+    // order depend on the input order).
+    const nanRows = [
+      row({ host: 'codex', sessionId: 'z-big', firstTimestamp: young, usage: codexUsage(100) }),
+      row({ host: 'codex', sessionId: 'm-nan', firstTimestamp: young, usage: codexUsage(Number.NaN) }),
+      row({ host: 'codex', sessionId: 'a-small', firstTimestamp: young, usage: codexUsage(1) }),
+    ];
+    const perms = [
+      [0, 1, 2], [0, 2, 1], [1, 0, 2], [1, 2, 0], [2, 0, 1], [2, 1, 0],
+    ];
+    for (const perm of perms) {
+      const shuffled = perm.map((i) => nanRows[i]);
+      const out = evaluateBurnAlerts(shuffled, { nowMs, thresholds: T, fileSizeOf: () => 5000 });
+      assert.deepEqual(
+        out.findings.map((f) => f.sessionId),
+        ['z-big', 'a-small', 'm-nan'],
+        `NaN-usage ordering is permutation-independent (perm ${perm.join(',')})`,
+      );
+      const nan = out.findings.find((f) => f.sessionId === 'm-nan');
+      assert.equal(nan?.burnInputTokens, null, 'NaN burn value reports as unknown (null)');
+    }
   });
 
   // ── 5. scanners + evaluator integration over the fixture store ─────────────

@@ -201,7 +201,15 @@ export function evaluateBurnAlerts(
     const fileBytes = fileSizeOf(row.file);
     if (fileBytes !== null && fileBytes > thresholds.fileBytes) reasons.push('file-size');
 
-    const burnInputTokens = burnInputTokensOf(row);
+    // F-005: normalize a NaN burn value (malformed synthetic usage) to null at
+    // CONSTRUCTION so every downstream consumer — the input-tokens check, the
+    // sort (NaN would make the comparator non-transitive: it falls through to
+    // the tie-break as if equal to every number), the renderers, and JSON —
+    // uniformly treats it as unknown. Unreachable via the real scanners
+    // (ownNumber filters non-finite to 0); this is the exported pure API's own
+    // robustness contract.
+    const burnRaw = burnInputTokensOf(row);
+    const burnInputTokens = burnRaw !== null && Number.isNaN(burnRaw) ? null : burnRaw;
     if (burnInputTokens !== null && burnInputTokens > thresholds.inputTokens) {
       reasons.push('input-tokens');
     }
