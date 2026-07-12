@@ -1,8 +1,10 @@
 # Multi-Host Keyword Candidate-Spec Routing Execution Plan
 
-Status: accepted execution plan; implementation not started  
+Status: M6A-M6F implemented by B-8038; M6G rollout mechanics partially implemented; lifecycle delivery pending; configured mode remains `shadow`
 Parent program: M6 Scope And Spec Scan Narrowing  
 Origin: B-f97c removed unconditional requirements-corpus embedding from `story_review`
+
+Implementation record (2026-07-12): B-8038 implemented M6A-M6F and the M6G configuration schema, caller-supplied-window promotion evaluator, process contracts, fail-closed evidence checks, and safe rollback boundary on its Story branch. The implementation is evidenced by commits `8d318a6791`, `504564cbc1`, `58a9e9b199`, `2a34d5aa1e`, `ec8d248d66`, `802d8088a3`, and `0fa154b2d4`, plus `packages/main/src/tasks/candidate-spec-routing-smoke.ts` and `scripts/verify-process-fact-contract.mjs`. Runtime collection of precision, candidate/full-read bytes, latency, and qualifying evaluation windows is not implemented by B-8038; `candidate_spec_rollout_check` evaluates values supplied by its caller and is not window-production evidence. This records implementation mechanics, not production release or rollout promotion: `lattice.config.json` still selects `candidateSpecRouting.mode = "shadow"`, no two-window promotion evidence is claimed, and the historical thresholds below remain authoritative.
 
 ## 1. Decision
 
@@ -58,16 +60,18 @@ Already shipped:
 - The PLAN scope reviewer has a bounded candidate-first prompt contract and records a `readManifest`.
 - Full scan requires `scanEscalationReason` in the prompt-layer stopgap.
 
-Future work defined here:
+Implemented by B-8038, with lifecycle delivery still pending:
 
 - CLI-owned deterministic keyword generation;
 - structured host keyword proposals;
-- local search, scoring, candidate materialization, and metrics;
+- local search, scoring, and candidate materialization;
 - mechanical read-log reconciliation;
 - shared candidate routing across eligible review lanes;
-- quality and cost rollout gates.
+- M6G configuration, caller-supplied-window evaluator, process contracts, and rollback mechanics.
 
-This document must not be cited as proof that those future components already exist.
+Still future after B-8038: runtime routing-metric/window production, two qualifying observed windows, and any promotion from `shadow` to `warn` or `enforce`.
+
+The code, focused fixtures, and process-fact verifier cited in the implementation record are the implementation evidence. This document alone must not be cited as proof of production release, successful promotion to `warn`/`enforce`, or satisfaction of the two-window rollout thresholds.
 
 ## 6. Architecture
 
@@ -456,6 +460,8 @@ Metrics are diagnostic and non-authoritative unless a specific gate validates th
 
 ### M6A - Corpus index and deterministic seeds
 
+Implementation: B-8038, commit `8d318a6791`; direct evidence in `core/candidate-spec-routing.ts` and `candidate-spec-routing-smoke.ts`.
+
 - implement path/heading/content-hash index;
 - extract structured Story identifiers;
 - normalize variants without losing originals;
@@ -464,6 +470,8 @@ Metrics are diagnostic and non-authoritative unless a specific gate validates th
 Exit: identical inputs produce byte-identical seed and corpus-index artifacts.
 
 ### M6B - Host proposal adapters
+
+Implementation: B-8038, commit `504564cbc1`; deterministic host ordering and sanitizer regressions were hardened by `ec8d248d66`.
 
 - define fresh-context prompts for Codex and Claude;
 - add conditional `agy` path;
@@ -475,6 +483,8 @@ Exit: host failures cannot cause unbounded scanning or silent evidence claims, a
 
 ### M6C - Local search and ranker
 
+Implementation: B-8038, commits `8d318a6791` and `802d8088a3`; bounded ranking and explicit escalation fixtures live in `candidate-spec-routing-smoke.ts`.
+
 - implement bounded query planner;
 - execute local filename/heading/body search;
 - score candidates deterministically;
@@ -483,6 +493,8 @@ Exit: host failures cannot cause unbounded scanning or silent evidence claims, a
 Exit: golden candidates and tie/escalation fixtures pass.
 
 ### M6D - Candidate artifact and read evidence
+
+Implementation: B-8038, commits `58a9e9b199`, `ec8d248d66`, and `0fa154b2d4`; freshness and unresolved-escalation checks are consumed by scope/review evidence handlers.
 
 - persist candidate artifact;
 - capture mechanical reviewer read log;
@@ -493,6 +505,8 @@ Exit: missing, stale, forged, or mismatched evidence fails closed.
 
 ### M6E - PLAN integration
 
+Implementation: B-8038, commits `2a34d5aa1e` and `0fa154b2d4`; PLAN dispatch renders candidate/elevation state and `scope_check_save` fails closed on unresolved signed routing evidence.
+
 - route scope-plan reviewer through CLI candidates;
 - retain filename enumeration and open-question behavior;
 - preserve full-scan escalation.
@@ -500,6 +514,8 @@ Exit: missing, stale, forged, or mismatched evidence fails closed.
 Exit: PLAN quality baseline passes with bounded default reads.
 
 ### M6F - REVIEW and delivery reuse
+
+Implementation: B-8038, commits `58a9e9b199` and `2a34d5aa1e`; routing context is shared while existing reviewer-run writer/lane authority remains independent.
 
 - share candidate digest across eligible lanes;
 - preserve lane ownership;
@@ -509,6 +525,8 @@ Exit: PLAN quality baseline passes with bounded default reads.
 Exit: behavior/docs/delivery fixtures show no owner overlap or quality loss.
 
 ### M6G - Rollout and enforcement
+
+Implementation boundary: B-8038 implemented configuration, diagnostics over caller-supplied values, the promotion evaluator, fail-closed evidence contracts, process-fact verification, and the safe rollback boundary. It did not implement runtime metric/window collection and did not produce two qualifying observed windows. Active configuration remains `shadow`; `warn`/`enforce` promotion and production release are not claimed.
 
 - shadow mode with metrics only;
 - warn mode on budget/evidence mismatches;
@@ -548,7 +566,9 @@ Exit: two consecutive evaluation windows meet all quality and cost thresholds.
 
 ### Shadow
 
-Run the router beside current bounded reviewer behavior. Record candidates, misses, bytes, latency, and what the reviewer actually read. No gate consumes the candidate artifact.
+Target/historical rollout design: run the router beside current bounded reviewer behavior, record candidates, misses, bytes, latency, and what the reviewer actually read, without making candidate evidence mandatory merely because mode is `shadow`.
+
+Current implemented semantics: when no candidate artifact digest/read binding is supplied, `shadow` remains non-authoritative and the gate does not require one. When a caller does supply `candidateSpecSetDigest`/read binding—as current dispatch examples do—the scope/review handlers validate its signature, freshness, manifest coverage, and escalation resolution fail closed even in `shadow`. Runtime metric/window collection described by the target design is still future work.
 
 ### Warn
 
@@ -578,4 +598,4 @@ Configuration disables candidate enforcement and returns reviewers to explicit t
 
 ## 23. Recommended first implementation Story
 
-Start with M6A only: corpus index plus deterministic keyword seeds and golden fixtures. Do not launch model hosts in the first Story. This creates a stable, reproducible contract against which Codex, Claude, and `agy` proposals can be evaluated in M6B without entangling retrieval correctness with provider behavior.
+Historical sequencing guidance: the program originally recommended starting with M6A only—corpus index plus deterministic keyword seeds and golden fixtures—before launching model hosts. B-8038 subsequently implemented M6A-M6F plus the bounded M6G mechanics described above while preserving that separation between deterministic retrieval correctness and provider behavior; runtime M6G measurement and promotion evidence remain future work.

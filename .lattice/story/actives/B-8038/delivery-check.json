@@ -1,0 +1,85 @@
+{
+  "storyId": "B-8038",
+  "checkedAt": "2026-07-12T12:03:09.345Z",
+  "headHash": "f02a6523b41e1a47e353a52da33b7cb5ac47946c",
+  "materialHash": "601fa33cd8f4634f4a555d39b24994aae50b82dfbc4207da9735f3cff90761ab",
+  "storyFilesHash": "10085819f05613352833c723b54afd688fb038b5259fedc8213eabc980c5bbbb",
+  "reviewRound": "2026-07-12T11:54:59.771Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+      "promise": "M6A-M6F implementation and partial M6G mechanics remain accurately separated from runtime windows, promotion, and production release.",
+      "status": "verified",
+      "verifiedBy": "current document, config, and fresh TEST evidence at f02a6523",
+      "evidence": "Document still limits completion to M6A-M6F plus partial M6G mechanics; config remains shadow; runtime window collection, qualifying windows, warn/enforce promotion, and production release remain unclaimed."
+    },
+    {
+      "docPath": "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+      "promise": "Candidate routing resolves Story-owned git workspace paths and remains deterministic and bounded.",
+      "status": "verified",
+      "verifiedBy": "fda87423 source diff, fresh live transcript, and focused routing smoke",
+      "evidence": "changedPaths now uses resolveGitCwd with store, storyId, metadataRoot and projectRoot. Fresh worktree live route exits 0 and focused routing smoke passes with configured budgets 8/10/50."
+    },
+    {
+      "docPath": "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+      "promise": "Host proposals remain bounded, sanitized, advisory, and locally recoverable.",
+      "status": "verified",
+      "verifiedBy": "focused candidate routing smoke",
+      "evidence": "Host failure, malformed output, sanitizer, conditional agy, and deterministic local fallback fixtures pass unchanged after the git cwd fix."
+    },
+    {
+      "docPath": "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+      "promise": "Ambiguity is explicit and cannot silently widen reads or force corpus injection.",
+      "status": "verified",
+      "verifiedBy": "fresh live route and corpus budget smoke",
+      "evidence": "Live route emits bounded candidate artifact and explicit escalation state; corpus budget smoke remains 2936 bytes with zero delta after a large corpus."
+    },
+    {
+      "docPath": "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+      "promise": "Candidate/read evidence stays digest-bound and reviewer authority remains lane-specific.",
+      "status": "verified",
+      "verifiedBy": "fresh TEST validation and unchanged process contracts",
+      "evidence": "TEST validation is fresh PASS at current material; fda87423 changes only git cwd resolution and does not alter signed evidence or reviewer writer boundaries."
+    },
+    {
+      "docPath": "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+      "promise": "PLAN, REVIEW, and delivery routing reuse remains compatible with Story worktrees.",
+      "status": "verified",
+      "verifiedBy": "fresh worktree live transcript and delivery context pack",
+      "evidence": "candidate_spec_route ran successfully in B-8038 worktree after resolveGitCwd fix; delivery context resolves current diff and validation."
+    },
+    {
+      "docPath": "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+      "promise": "Rollback and broader review never restore requirements-corpus prompt injection.",
+      "status": "verified",
+      "verifiedBy": "story-review corpus budget regression",
+      "evidence": "Prompt is 2936 bytes before and after adding a large corpus, zero-byte delta and 99.91 percent reduction from reconstructed pre-fix prompt."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "git-cwd-regression",
+      "transcript": "At HEAD f02a6523, fda87423 routes changedPaths through resolveGitCwd; fresh live candidate_spec_route from the B-8038 worktree exits 0 and emits proofbound.candidate-spec-set.v1."
+    },
+    {
+      "featureId": "CHK-001-CHK-007",
+      "transcript": "Fresh TEST validation PASS at 2026-07-12T12:01:49.687Z, materialHash 601fa33cd8f4634f4a555d39b24994aae50b82dfbc4207da9735f3cff90761ab, with 23/23 intent coverage."
+    },
+    {
+      "featureId": "candidate-routing",
+      "transcript": "candidate-spec-routing-smoke PASS after git cwd change; config remains shadow with budgets candidates=8, queryGroups=10, rawHitsPerGroup=50."
+    },
+    {
+      "featureId": "prompt-budget",
+      "transcript": "story-review-corpus-budget-smoke PASS; baseline and large-corpus prompts both 2936 bytes, delta 0, reduction 99.91 percent."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Final delivery refresh found no regression from fda87423. Git changed-path discovery now resolves the Story signed workspace, fresh TEST and live route evidence pass at current material, bounded routing and non-injection regressions pass, and shadow/no-promotion/no-release claim boundaries remain accurate."
+  },
+  "_hash": "a3261a8e6c4d953ce072f60ced0d14e3b781a345418de09f37bd1f9ad52fa7eb"
+}

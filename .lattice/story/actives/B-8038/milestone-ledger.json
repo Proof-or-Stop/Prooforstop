@@ -1,12 +1,12 @@
 {
   "schemaVersion": "proofstory.milestone_ledger.v1",
   "storyId": "B-8038",
-  "state": "candidate",
-  "ledgerHash": "sha256:05f7788f3df54155d193a4f7aa19279d8060de4eebaf5570cdcfd2460b1d124a",
+  "state": "confirmed",
+  "ledgerHash": "sha256:afd091a64217d871a87dae4cbbf85651d19b058b5bb294d930d5402d3eea7389",
   "milestones": [
     {
       "id": "M6A",
-      "sourceRequirementId": "B-f646:M6A",
+      "sourceRequirementId": "REQ-M6A",
       "claim": "Corpus index and deterministic seed artifacts are versioned and byte deterministic.",
       "doneMeans": "Identical Story and corpus inputs produce byte-identical seed and corpus-index artifacts and golden tests pass.",
       "requiredEvidence": [
@@ -17,12 +17,16 @@
       "checklistRefs": [
         "CHK-001"
       ],
-      "verificationIntentRefs": [],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
       "status": "planned"
     },
     {
       "id": "M6B",
-      "sourceRequirementId": "B-f646:M6B",
+      "sourceRequirementId": "REQ-M6B",
       "claim": "Sanitized bounded host proposal adapters enrich local seeds without becoming authoritative.",
       "doneMeans": "Codex and Claude primary paths plus conditional agy fallback pass outage schema budget provenance and secret-leak fixtures.",
       "requiredEvidence": [
@@ -33,12 +37,16 @@
       "checklistRefs": [
         "CHK-002"
       ],
-      "verificationIntentRefs": [],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
       "status": "planned"
     },
     {
       "id": "M6C",
-      "sourceRequirementId": "B-f646:M6C",
+      "sourceRequirementId": "REQ-M6C",
       "claim": "Local specification search and ranking are bounded deterministic and ambiguity aware.",
       "doneMeans": "Golden candidates rank correctly and sparse noisy zero-hit tie cutoff and negative-control fixtures pass.",
       "requiredEvidence": [
@@ -49,12 +57,16 @@
       "checklistRefs": [
         "CHK-003"
       ],
-      "verificationIntentRefs": [],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ],
       "status": "planned"
     },
     {
       "id": "M6D",
-      "sourceRequirementId": "B-f646:M6D",
+      "sourceRequirementId": "REQ-M6D",
       "claim": "Candidate and mechanical read evidence are signed hash-bound and freshness checked.",
       "doneMeans": "Missing stale forged or manifest-log mismatched evidence fails closed in focused contract tests.",
       "requiredEvidence": [
@@ -65,12 +77,16 @@
       "checklistRefs": [
         "CHK-004"
       ],
-      "verificationIntentRefs": [],
+      "verificationIntentRefs": [
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0"
+      ],
       "status": "planned"
     },
     {
       "id": "M6E",
-      "sourceRequirementId": "B-f646:M6E",
+      "sourceRequirementId": "REQ-M6E",
       "claim": "PLAN scope review consumes bounded routed candidates while preserving escalation and open-question semantics.",
       "doneMeans": "PLAN quality baseline and full-scan escalation fixtures pass within default read budgets.",
       "requiredEvidence": [
@@ -81,12 +97,16 @@
       "checklistRefs": [
         "CHK-005"
       ],
-      "verificationIntentRefs": [],
+      "verificationIntentRefs": [
+        "CHK-005:happy:0",
+        "CHK-005:edge:0",
+        "CHK-005:adversarial:0"
+      ],
       "status": "planned"
     },
     {
       "id": "M6F",
-      "sourceRequirementId": "B-f646:M6F",
+      "sourceRequirementId": "REQ-M6F",
       "claim": "Eligible REVIEW and delivery lanes reuse current routing evidence without authority overlap or quality loss.",
       "doneMeans": "Behavior docs coverage and delivery fixtures show rerouting on drift no duplicate findings and no lost load-bearing finding.",
       "requiredEvidence": [
@@ -97,26 +117,42 @@
       "checklistRefs": [
         "CHK-006"
       ],
-      "verificationIntentRefs": [],
+      "verificationIntentRefs": [
+        "CHK-006:happy:0",
+        "CHK-006:edge:0",
+        "CHK-006:adversarial:0"
+      ],
       "status": "planned"
     },
     {
       "id": "M6G",
-      "sourceRequirementId": "B-f646:M6G",
-      "claim": "Shadow warn enforce rollout and safe non-injection rollback are mechanically governed.",
-      "doneMeans": "Two consecutive evaluation windows meet recall equivalence cost and latency thresholds and rollback never restores corpus embedding.",
+      "sourceRequirementId": "REQ-M6G",
+      "claim": "Shadow warn enforce rollout and safe non-injection rollback are mechanically governed, and Story token usage is transparently attributed at closeout.",
+      "doneMeans": "Two consecutive evaluation windows meet recall equivalence cost and latency thresholds, rollback never restores corpus embedding, and the DONE report provides provider usage totals, largest attributable cost source, and labeled estimation uncertainty.",
       "requiredEvidence": [
         "rollout-tests",
         "process-fact-contract",
-        "two-window-evaluation"
+        "two-window-evaluation",
+        "story-token-cost-report"
       ],
       "checklistRefs": [
         "CHK-007"
       ],
-      "verificationIntentRefs": [],
+      "verificationIntentRefs": [
+        "CHK-007:happy:0",
+        "CHK-007:edge:0",
+        "CHK-007:adversarial:0",
+        "CHK-007:happy:1",
+        "CHK-007:edge:1"
+      ],
       "status": "planned"
     }
   ],
   "createdAt": "2026-07-12T10:07:46.889Z",
-  "updatedAt": "2026-07-12T10:07:46.889Z"
+  "updatedAt": "2026-07-12T10:18:49.133Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260712101406",
+    "acceptedInterpretationHash": "sha256:2ecc0c5801a841e7373968e588cef34fb465368fc5daa49ee0379733268b7d6f",
+    "acceptedAt": "2026-07-12T10:18:49.133Z"
+  }
 }

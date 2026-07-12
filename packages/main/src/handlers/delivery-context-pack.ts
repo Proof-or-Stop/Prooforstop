@@ -101,6 +101,12 @@ export interface DeliveryContextPackReport {
   docsPromises: DeliveryDocsPromise[];
   /** Real-machine test refs (transcript-diff presence, test files, evidence commands). */
   realMachineTests: DeliveryRealMachineTests;
+  candidateRouting: {
+    artifactDigest: string;
+    corpusDigest: string;
+    candidateSpecSet: string[];
+    ambiguitySignals: string[];
+  } | null;
   /** Validation state, CONSUMED from the V1 readiness reader. */
   validation: StoryReadinessReport['artifacts']['validationRef'];
   /** Current review round, CONSUMED from the V1 readiness reader. */
@@ -133,6 +139,7 @@ interface PersistedDeliveryContextPackArtifact {
   diff: DeliveryDiff;
   docsPromises: DeliveryDocsPromise[];
   realMachineTests: DeliveryRealMachineTests;
+  candidateRouting: DeliveryContextPackReport['candidateRouting'];
   validation: StoryReadinessReport['artifacts']['validationRef'];
   reviewRound: string | null;
   deliveryCheck: { status: DeliveryCheckStatus['status']; ref: Record<string, unknown> | null };
@@ -363,6 +370,7 @@ function toPersistable(report: DeliveryContextPackReport): PersistedDeliveryCont
     diff: report.diff,
     docsPromises: report.docsPromises,
     realMachineTests: report.realMachineTests,
+    candidateRouting: report.candidateRouting,
     validation: report.validation,
     reviewRound: report.reviewRound,
     deliveryCheck: { status: report.deliveryCheck.status, ref: report.deliveryCheck.ref },
@@ -401,6 +409,10 @@ export function renderDeliveryContextPackReport(report: DeliveryContextPackRepor
   lines.push(`  transcript-diff.md present: ${report.realMachineTests.transcriptDiff}`);
   lines.push(`  test files: ${report.realMachineTests.testFiles.length === 0 ? '(none declared)' : report.realMachineTests.testFiles.join(', ')}`);
   lines.push(`  evidence commands: ${report.realMachineTests.evidenceCommands.length === 0 ? '(none recorded)' : report.realMachineTests.evidenceCommands.join(' | ')}`);
+  lines.push('', 'Candidate routing:');
+  lines.push(report.candidateRouting === null
+    ? '  (no candidate-spec-set artifact)'
+    : `  digest=${report.candidateRouting.artifactDigest} corpus=${report.candidateRouting.corpusDigest} candidates=${report.candidateRouting.candidateSpecSet.join(', ') || '(none)'} ambiguity=${report.candidateRouting.ambiguitySignals.join(', ') || 'none'}`);
 
   lines.push('', 'Validation + review:');
   lines.push(`  validation: ${report.validation === null ? '(none recorded)' : JSON.stringify(report.validation)}`);
@@ -465,6 +477,7 @@ export function createDeliveryContextPackHandlers(ctx: HandlerContext): Record<s
     const diff = deliveryScopedDiff(gitCwd);
     const docsPromises = [...planDocsPromises(ctx, args.storyId), ...userSeesDocsPromises(checklist)];
     const rmTests = realMachineTests(ctx, args.storyId, checklist);
+    const routed = ctx.store.readCandidateSpecSet(args.storyId);
     const deliveryRow = deliveryReadinessRow(readinessReport);
     const deliveryCheck = deliveryCheckStatus(readinessReport, deliveryRow);
     const waiverRef = readinessReport.artifacts.metadataOnlyWaiverRef;
@@ -479,6 +492,12 @@ export function createDeliveryContextPackHandlers(ctx: HandlerContext): Record<s
       diff,
       docsPromises,
       realMachineTests: rmTests,
+      candidateRouting: routed ? {
+        artifactDigest: routed.artifactDigest,
+        corpusDigest: routed.corpusDigest,
+        candidateSpecSet: routed.candidateSpecSet,
+        ambiguitySignals: routed.ambiguitySignals,
+      } : null,
       validation: readinessReport.artifacts.validationRef,
       reviewRound: readinessReport.artifacts.reviewRound,
       deliveryCheck,

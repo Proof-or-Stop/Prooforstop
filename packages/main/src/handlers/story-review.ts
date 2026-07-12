@@ -25,7 +25,7 @@ import { evaluateDecompositionGate } from '../core/parallel-decomposition-gate.j
 import { resolveAuditConfig } from '../core/audit-config.js';
 import { safeReadScopeContract } from '../core/lattice-parallel-wave.js';
 import { computeProcessMetrics } from '../core/process-metrics.js';
-import { SCOPE_CHECK_SALT, signScopeCheck } from './scope-check.js';
+import { verifyScopeCheckSignature } from './scope-check.js';
 import { existsSync } from 'fs';
 import { join } from 'path';
 import { createHash } from 'crypto';
@@ -452,9 +452,8 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
           message: `missing_scope_check: scope-check.json is missing PLAN gate evidence. Start a story-level PLAN scope reviewer with \`lattice dispatch --storyId=${args.storyId} --agentType=lattice-review-scope-plan\`; dispatch output is not gate evidence, and the lattice-review-scope-plan / scope-plan reviewer must finish by calling \`lattice scope_check_save\`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not remote completion and must not be presented as receipt verification or production/full completion.`,
         });
       } else if (scopeData) {
-        // Verify signature using shared signScopeCheck function
-        const expectedHash = signScopeCheck(args.storyId, scopeData.checkedAt, scopeData.summary.gaps, scopeData.summary.covered, scopeData.reviewRound || '');
-        if (!scopeData._hash || scopeData._hash !== expectedHash) {
+        // Verify both legacy and read-manifest-bound signatures without relying on cwd.
+        if (!verifyScopeCheckSignature(args.storyId, scopeData)) {
           issues.push({
             type: 'scope_check_tampered',
             severity: 'blocker',

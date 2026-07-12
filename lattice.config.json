@@ -6,6 +6,12 @@
   "fixturesDir": "packages/main/tests/fixtures",
   "storyDir": ".lattice/story/actives",
   "requirementsDir": "docs/requirements",
+  "candidateSpecRouting": {
+    "mode": "shadow",
+    "candidateBudget": 8,
+    "queryGroupBudget": 10,
+    "rawHitsPerGroup": 50
+  },
   "proofStory": {
     "devGateMode": "enforce",
     "reviewGateMode": "enforce",

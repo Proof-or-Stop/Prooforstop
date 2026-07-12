@@ -1,0 +1,86 @@
+{
+  "principles": [
+    "Deterministic local authority before probabilistic enrichment",
+    "Bounded context with explicit escalation",
+    "Signed evidence rather than reviewer prose",
+    "Fail closed for gate facts and fail local for host availability",
+    "Quality equivalence before enforcement"
+  ],
+  "drivers": [
+    "Stop prompt exhaustion permanently",
+    "Preserve critical and high specification recall",
+    "Make actual reviewer reads auditable",
+    "Reuse existing host and evidence infrastructure",
+    "Support safe staged rollout and rollback"
+  ],
+  "options": [
+    {
+      "name": "A: Integrated versioned routing pipeline",
+      "pros": [
+        "Implements all seven milestones on shared schemas",
+        "One canonical sanitizer and artifact model",
+        "Supports staged enforcement"
+      ],
+      "cons": [
+        "Large change surface",
+        "Requires careful phased commits and regression tests"
+      ]
+    },
+    {
+      "name": "B: Prompt-only keyword instructions",
+      "pros": [
+        "Small implementation"
+      ],
+      "cons": [
+        "No deterministic candidates",
+        "No mechanical evidence",
+        "Cannot enforce budgets or freshness"
+      ]
+    },
+    {
+      "name": "C: Deterministic local search without host proposals",
+      "pros": [
+        "Reproducible and simple"
+      ],
+      "cons": [
+        "Lower legacy-synonym recall",
+        "Does not satisfy accepted multi-host design"
+      ]
+    }
+  ],
+  "chosen": "A: Integrated versioned routing pipeline",
+  "rationale": "Only option A satisfies B-f646 end to end: deterministic seeds remain authoritative, host proposals are sanitized advisory input, local search is bounded, evidence is signed, and rollout can be quality-gated.",
+  "preMortem": [
+    {
+      "scenario": "Relevant legacy specification falls below the candidate cutoff",
+      "trigger": "Low host overlap or tied scores near rank eight",
+      "consequence": "Reviewer misses a load-bearing promise",
+      "mitigation": "Record ambiguity, escalate with scanEscalationReason, and require 100 percent critical/high golden recall before enforce."
+    },
+    {
+      "scenario": "A Story secret leaks into a host proposal request",
+      "trigger": "Secret-like value appears in prose, backticks, sourceRef, path, title, config, or error text",
+      "consequence": "Credential or sensitive metadata exposure",
+      "mitigation": "Use one non-bypassable pre-egress sanitizer, names-not-values policy, local-only provenance map, and skip host on uncertain classification."
+    },
+    {
+      "scenario": "Reviewer claims reads that did not occur",
+      "trigger": "Declared readManifest differs from mechanical read events",
+      "consequence": "False audit confidence and unsafe gate pass",
+      "mitigation": "Bind candidate and read digests and fail closed on missing stale forged or mismatched evidence."
+    },
+    {
+      "scenario": "Rollout reduces review quality while improving token cost",
+      "trigger": "Finding-equivalence or golden recall regresses in shadow windows",
+      "consequence": "Missed defects despite lower prompt bytes",
+      "mitigation": "Block warn/enforce promotion until two consecutive windows meet recall equivalence cost and latency thresholds."
+    },
+    {
+      "scenario": "Implementation overlaps B-3928 baseline work",
+      "trigger": "Changes touch B-3928 lockfile or baseline inventory artifacts",
+      "consequence": "Parallel-story conflict and invalid baseline",
+      "mitigation": "Keep those paths excluded and use runtime-focused tests and schemas in B-8038 only."
+    }
+  ],
+  "timestamp": "2026-07-12T10:09:45.945Z"
+}

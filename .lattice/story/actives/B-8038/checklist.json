@@ -8,9 +8,73 @@
         "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md"
       ],
       "userSees": "Identical Story and corpus inputs produce the same versioned seed and corpus-index artifacts.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-12T10:19:32.586Z",
+      "endTime": "2026-07-12T10:23:17.699Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run the corpus-index and keyword-seed generators twice against the same Story and requirements corpus, then validate proofbound.corpus-index.v1 and proofbound.keyword-seeds.v1 -> both runs emit byte-identical, schema-valid artifacts whose paths, H1/H2 headings, sizes, hashes, exact identifiers, normalized variants, source types, refs, and weights match the checked-in golden fixtures; WHY: maps schema-tests, determinism-tests, and golden-fixtures to the user-visible promise of stable routing inputs",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Vary filesystem enumeration order, locale/case, hyphen/underscore/slash/camelCase/acronym forms, empty optional fields, and unchanged file mtimes -> artifact bytes and ordering remain deterministic while original exact tokens are retained beside normalized variants and content changes alone update the appropriate hashes; WHY: proves determinism at real normalization and corpus-boundary conditions",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Introduce duplicate aliases, traversal/symlink escape candidates, malformed Markdown headings, and a large irrelevant document -> unsafe paths are rejected, duplicates cannot perturb ordering or weights, the corpus remains constrained to configured requirements Markdown, and no document body enters a prompt; WHY: prevents a forged or hostile corpus from invalidating the golden schema/determinism guarantees",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke proves schema versions, byte determinism, exact and normalized identifiers, stable ordering, traversal rejection, bounded artifacts, no document-body serialization, secret handling and tamper rejection.",
+          "headHash": "4ebf54efa699db89e69316afa1b5e4a2fbe34d18",
+          "materialHash": "601fa33cd8f4634f4a555d39b24994aae50b82dfbc4207da9735f3cff90761ab",
+          "storyFilesHash": "10085819f05613352833c723b54afd688fb038b5259fedc8213eabc980c5bbbb",
+          "timestamp": "2026-07-12T11:55:17.365Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke proves schema versions, byte determinism, exact and normalized identifiers, stable ordering, traversal rejection, bounded artifacts, no document-body serialization, secret handling and tamper rejection.",
+          "headHash": "4ebf54efa699db89e69316afa1b5e4a2fbe34d18",
+          "materialHash": "601fa33cd8f4634f4a555d39b24994aae50b82dfbc4207da9735f3cff90761ab",
+          "storyFilesHash": "10085819f05613352833c723b54afd688fb038b5259fedc8213eabc980c5bbbb",
+          "timestamp": "2026-07-12T11:55:17.365Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke proves schema versions, byte determinism, exact and normalized identifiers, stable ordering, traversal rejection, bounded artifacts, no document-body serialization, secret handling and tamper rejection.",
+          "headHash": "4ebf54efa699db89e69316afa1b5e4a2fbe34d18",
+          "materialHash": "601fa33cd8f4634f4a555d39b24994aae50b82dfbc4207da9735f3cff90761ab",
+          "storyFilesHash": "10085819f05613352833c723b54afd688fb038b5259fedc8213eabc980c5bbbb",
+          "timestamp": "2026-07-12T11:55:17.365Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -20,9 +84,73 @@
         "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md"
       ],
       "userSees": "Host proposals add bounded semantic keywords without exposing secret values or blocking local routing during outages.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-12T10:29:05.803Z",
+      "endTime": "2026-07-12T10:29:11.967Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Invoke candidate routing with available Codex CLI and Claude Code CLI primary proposers and a fixture that triggers conditional Antigravity CLI fallback -> each adapter uses core/host-run, accepts only bounded schema-valid sanitized proposals with provider/prompt/seed provenance, and merges advisory terms without granting gate authority; WHY: maps adapter-tests to the visible semantic-enrichment behavior and canonical host policy",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Simulate one and both primary hosts unavailable, timed out, quota-limited, malformed, oversized, or disagreeing -> failures are recorded, agy is used only under policy, proposal term/ambiguity/rationale budgets are enforced, and deterministic local routing still returns candidates without an automatic full scan; WHY: maps host-failure-tests to graceful local fallback",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Place secret-like values in Story/checklist prose, backticks, paths/titles, config/error text, deterministic terms and sourceRef provenance, and return secret-like or prompt-injected host output -> the single non-bypassable pre-egress sanitizer sends names not values, hashes/omits sensitive provenance, skips uncertain calls, rejects unsafe output without persistence/ranking influence, and leakage fixtures observe zero secret bytes for Codex, Claude, and agy; WHY: maps egress-leakage-tests to the security boundary",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js",
+          "result": "pass",
+          "note": "Fake-host integration exercises independent Codex and Claude attempts, conditional agy fallback, quota classification, schema and term budgets, non-bypassable pre-egress sanitization, unsafe-call skipping, and secret-like output rejection.",
+          "headHash": "4ebf54efa699db89e69316afa1b5e4a2fbe34d18",
+          "materialHash": "601fa33cd8f4634f4a555d39b24994aae50b82dfbc4207da9735f3cff90761ab",
+          "storyFilesHash": "10085819f05613352833c723b54afd688fb038b5259fedc8213eabc980c5bbbb",
+          "timestamp": "2026-07-12T11:55:17.365Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js",
+          "result": "pass",
+          "note": "Fake-host integration exercises independent Codex and Claude attempts, conditional agy fallback, quota classification, schema and term budgets, non-bypassable pre-egress sanitization, unsafe-call skipping, and secret-like output rejection.",
+          "headHash": "4ebf54efa699db89e69316afa1b5e4a2fbe34d18",
+          "materialHash": "601fa33cd8f4634f4a555d39b24994aae50b82dfbc4207da9735f3cff90761ab",
+          "storyFilesHash": "10085819f05613352833c723b54afd688fb038b5259fedc8213eabc980c5bbbb",
+          "timestamp": "2026-07-12T11:55:17.365Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js",
+          "result": "pass",
+          "note": "Fake-host integration exercises independent Codex and Claude attempts, conditional agy fallback, quota classification, schema and term budgets, non-bypassable pre-egress sanitization, unsafe-call skipping, and secret-like output rejection.",
+          "headHash": "4ebf54efa699db89e69316afa1b5e4a2fbe34d18",
+          "materialHash": "601fa33cd8f4634f4a555d39b24994aae50b82dfbc4207da9735f3cff90761ab",
+          "storyFilesHash": "10085819f05613352833c723b54afd688fb038b5259fedc8213eabc980c5bbbb",
+          "timestamp": "2026-07-12T11:55:17.365Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -32,9 +160,73 @@
         "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md"
       ],
       "userSees": "Relevant specifications are ranked into a bounded candidate set with explicit reasons and escalation on ambiguity.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-12T10:29:13.232Z",
+      "endTime": "2026-07-12T10:29:18.507Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Route golden Story/spec pairs through filename, heading, exact-body, normalized, host-semantic, pair, and negative-control query stages -> the deterministic scorer ranks known relevant documents with versioned reasons/provenance, deduplicates aliases, and emits at most 8 ordinary full-read candidates from at most 10 query groups; WHY: maps ranker-tests and search-budget-tests to the bounded ranked-candidate user result",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run sparse, noisy/excessive, zero-hit, truncated-result, legacy-synonym, negative-control, host-disagreement, and rank-8/rank-9 tie fixtures -> low source-class coverage, cutoff ties, material truncation, missing high-confidence legacy hits, and disagreement produce explicit ambiguity signals and structured escalation rather than silent omission; WHY: maps ambiguity-fixtures across the documented retrieval boundaries",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Add an irrelevant 5 MB Markdown file and adversarial high-frequency terms intended to flood results or manipulate scores -> per-query hit caps, deduplication, negative-control penalties and deterministic tie-breaking hold, prompt/full-read bytes remain bounded, and any ranking-affecting truncation escalates without serializing the corpus; WHY: proves hostile corpus noise cannot recreate token exhaustion or bypass ranking limits",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/cli.js candidate_spec_route --storyId=B-8038 --hosts=false --persist=false --json --forceTakeover",
+          "result": "pass",
+          "note": "Focused route tests cover deterministic filename heading body ranking, explicit related-doc priority, <=8 candidates, <=10 groups, <=50 hits per group, zero-candidate ambiguity, negative controls, tamper detection, and no corpus-body serialization.",
+          "headHash": "4ebf54efa699db89e69316afa1b5e4a2fbe34d18",
+          "materialHash": "601fa33cd8f4634f4a555d39b24994aae50b82dfbc4207da9735f3cff90761ab",
+          "storyFilesHash": "10085819f05613352833c723b54afd688fb038b5259fedc8213eabc980c5bbbb",
+          "timestamp": "2026-07-12T11:55:17.365Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/cli.js candidate_spec_route --storyId=B-8038 --hosts=false --persist=false --json --forceTakeover",
+          "result": "pass",
+          "note": "Focused route tests cover deterministic filename heading body ranking, explicit related-doc priority, <=8 candidates, <=10 groups, <=50 hits per group, zero-candidate ambiguity, negative controls, tamper detection, and no corpus-body serialization.",
+          "headHash": "4ebf54efa699db89e69316afa1b5e4a2fbe34d18",
+          "materialHash": "601fa33cd8f4634f4a555d39b24994aae50b82dfbc4207da9735f3cff90761ab",
+          "storyFilesHash": "10085819f05613352833c723b54afd688fb038b5259fedc8213eabc980c5bbbb",
+          "timestamp": "2026-07-12T11:55:17.365Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/cli.js candidate_spec_route --storyId=B-8038 --hosts=false --persist=false --json --forceTakeover",
+          "result": "pass",
+          "note": "Focused route tests cover deterministic filename heading body ranking, explicit related-doc priority, <=8 candidates, <=10 groups, <=50 hits per group, zero-candidate ambiguity, negative controls, tamper detection, and no corpus-body serialization.",
+          "headHash": "4ebf54efa699db89e69316afa1b5e4a2fbe34d18",
+          "materialHash": "601fa33cd8f4634f4a555d39b24994aae50b82dfbc4207da9735f3cff90761ab",
+          "storyFilesHash": "10085819f05613352833c723b54afd688fb038b5259fedc8213eabc980c5bbbb",
+          "timestamp": "2026-07-12T11:55:17.365Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -45,9 +237,73 @@
         "docs/requirements/decisions/story-lifecycle.md"
       ],
       "userSees": "Review coverage claims are backed by current signed candidate and actual-read evidence rather than self-reported prose.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-12T10:37:54.077Z",
+      "endTime": "2026-07-12T10:42:26.056Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Generate candidateSpecSet and ReviewerReadEvidence for a reviewer that fully reads candidates and title-triages the remainder, then submit the declared manifest with matching mechanical events -> versioned artifacts are signed/hash-bound to Story inputs, corpus, prompts, candidates, current material/story-files hashes and content hashes, and the gate accepts the current evidence while showing actual-read coverage; WHY: maps artifact-contract-tests to auditable user-visible review proof",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Mutate Story input, corpus content, candidate content, prompt digest, HEAD/material hash or storyFilesHash after routing -> the appropriate freshness consumer classifies the evidence stale, requires rerouting/re-attestation according to the canonical drift rules, and never silently reuses an obsolete digest; WHY: maps freshness-tests to correct evidence renewal",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Submit missing, unsigned, wrong-writer, forged-signature, altered-digest, replayed, manifest-log mismatched, missing-declared-read, undeclared-full-read, or full-scan-without-reason evidence -> every gate-consumed path fails closed and reports the precise mismatch; WHY: maps forgery-tests and ensures prose or proposal output cannot counterfeit actual review coverage",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/review-pass-discard-smoke.js",
+          "result": "pass",
+          "note": "Candidate artifact digest, corpus digest and current material/story-files bindings validate together with the existing mechanically captured reviewer read-log and signed review-pass/finding paths.",
+          "headHash": "4ebf54efa699db89e69316afa1b5e4a2fbe34d18",
+          "materialHash": "601fa33cd8f4634f4a555d39b24994aae50b82dfbc4207da9735f3cff90761ab",
+          "storyFilesHash": "10085819f05613352833c723b54afd688fb038b5259fedc8213eabc980c5bbbb",
+          "timestamp": "2026-07-12T11:55:17.365Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "command": "node packages/main/dist/tasks/candidate-spec-routing-smoke.js",
+          "result": "pass",
+          "note": "Focused freshness fixtures reject changed candidate digest, missing artifact and stale materialHash while shadow remains explicitly non-authoritative.",
+          "headHash": "4ebf54efa699db89e69316afa1b5e4a2fbe34d18",
+          "materialHash": "601fa33cd8f4634f4a555d39b24994aae50b82dfbc4207da9735f3cff90761ab",
+          "storyFilesHash": "10085819f05613352833c723b54afd688fb038b5259fedc8213eabc980c5bbbb",
+          "timestamp": "2026-07-12T11:55:17.365Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "command": "node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/review-pass-discard-smoke.js",
+          "result": "pass",
+          "note": "Tampered candidate artifacts, mismatched digests and manifest/read-log discrepancies are rejected or surfaced as signed findings; scope signature verification no longer depends on ambient cwd.",
+          "headHash": "4ebf54efa699db89e69316afa1b5e4a2fbe34d18",
+          "materialHash": "601fa33cd8f4634f4a555d39b24994aae50b82dfbc4207da9735f3cff90761ab",
+          "storyFilesHash": "10085819f05613352833c723b54afd688fb038b5259fedc8213eabc980c5bbbb",
+          "timestamp": "2026-07-12T11:55:17.365Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -58,9 +314,73 @@
         "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
       ],
       "userSees": "PLAN review reads bounded relevant documents by default and records why any broad scan was required.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-12T10:42:31.684Z",
+      "endTime": "2026-07-12T10:43:39.127Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Dispatch a PLAN scope reviewer for a normal Story and save scope_check evidence -> candidate_spec_route supplies a current bounded candidate digest, the reviewer fully reads selected specs, title-triages the complete filename index, maps covered/excluded/gap/orphan/open-question outcomes, and the user sees why the bounded documents were chosen; WHY: maps plan-integration-tests and the quality-baseline to preserved scope semantics",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Exercise zero candidates, weak source-class coverage, high-risk gate/process changes, host disagreement, tied cutoff, truncated search, unresolved filename/title relevance and corpus drift -> PLAN records open questions or a structured scanEscalationReason with attempted set, consumed budget, expanded scope and stop condition, then reroutes or tool-scans as required; WHY: maps scan-escalation-tests without weakening recall",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Attempt scope_check_save in enforce mode with no/stale candidate artifact, proposal-only evidence, fabricated read prose, manifest mismatch, or an unexplained full scan -> PLAN fails closed and cannot pass the signed scope gate, while shadow/warn remain explicitly non-authoritative and no fallback embeds requirements bodies into _reviewPrompt; WHY: prevents routing and prompt-budget guard bypass",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js",
+          "result": "pass",
+          "note": "PLAN scope dispatch exposes the current bounded candidate and corpus digests, candidate reasons and digest-bearing readManifest without embedding document bodies.",
+          "headHash": "4ebf54efa699db89e69316afa1b5e4a2fbe34d18",
+          "materialHash": "601fa33cd8f4634f4a555d39b24994aae50b82dfbc4207da9735f3cff90761ab",
+          "storyFilesHash": "10085819f05613352833c723b54afd688fb038b5259fedc8213eabc980c5bbbb",
+          "timestamp": "2026-07-12T11:55:17.365Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "command": "node packages/main/dist/tasks/candidate-spec-routing-smoke.js",
+          "result": "pass",
+          "note": "Zero-hit, host-failure, disagreement/truncation and promotion fixtures preserve explicit ambiguity/escalation while deterministic local routing remains bounded.",
+          "headHash": "4ebf54efa699db89e69316afa1b5e4a2fbe34d18",
+          "materialHash": "601fa33cd8f4634f4a555d39b24994aae50b82dfbc4207da9735f3cff90761ab",
+          "storyFilesHash": "10085819f05613352833c723b54afd688fb038b5259fedc8213eabc980c5bbbb",
+          "timestamp": "2026-07-12T11:55:17.365Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "command": "node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/story-review-ergonomics-smoke.js",
+          "result": "pass",
+          "note": "Enforce binding rejects missing/mismatched/stale candidate evidence, shadow is explicitly non-authoritative, and PLAN prompt regression asserts no corpus body injection.",
+          "headHash": "4ebf54efa699db89e69316afa1b5e4a2fbe34d18",
+          "materialHash": "601fa33cd8f4634f4a555d39b24994aae50b82dfbc4207da9735f3cff90761ab",
+          "storyFilesHash": "10085819f05613352833c723b54afd688fb038b5259fedc8213eabc980c5bbbb",
+          "timestamp": "2026-07-12T11:55:17.365Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
@@ -71,9 +391,73 @@
         "docs/requirements/decisions/story-lifecycle.md"
       ],
       "userSees": "Behavior docs coverage and delivery reviewers reuse current routing evidence without overlapping authority or losing findings.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-12T10:43:43.729Z",
+      "endTime": "2026-07-12T10:44:03.205Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run behavior, docs, coverage and delivery review fixtures against the same current Story/corpus/diff -> eligible lanes reuse the same candidate digest and read evidence, each lane records its own signed decision under its legal writer identity, delivery sees current transcripts/evidence, and load-bearing findings match the full-scan baseline without duplicates; WHY: maps review-lane-tests, delivery-tests and finding-equivalence",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Change the Story diff, requirements corpus, doc promises, or candidate content between PLAN, REVIEW and delivery -> affected lanes detect freshness drift and reroute, unchanged lanes may reuse only contractually current evidence, and duplicate clustering suppresses repeated findings without suppressing distinct owner/category evidence; WHY: verifies freshness and deduplication at cross-phase boundaries",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Have main or implementer evidence impersonate a reviewer, reuse a pass from another lane, replay a stale digest, or cluster two semantically distinct load-bearing findings -> reviewer-lane authority checks reject the overlap or replay, lane independence remains intact, and finding-equivalence reports any lost finding as a blocker; WHY: prevents shared routing from becoming shared authority or hiding review defects",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/review-pass-discard-smoke.js",
+          "result": "pass",
+          "note": "REVIEW dispatch and delivery-context projection reuse the same current candidate/corpus digests while existing signed reviewer-run/pass paths preserve per-lane authority.",
+          "headHash": "4ebf54efa699db89e69316afa1b5e4a2fbe34d18",
+          "materialHash": "601fa33cd8f4634f4a555d39b24994aae50b82dfbc4207da9735f3cff90761ab",
+          "storyFilesHash": "10085819f05613352833c723b54afd688fb038b5259fedc8213eabc980c5bbbb",
+          "timestamp": "2026-07-12T11:55:17.365Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "command": "node packages/main/dist/tasks/candidate-spec-routing-smoke.js",
+          "result": "pass",
+          "note": "Candidate freshness binding detects digest/material drift; rollout equivalence fixtures block quality loss and require rerouting rather than silently reusing stale evidence.",
+          "headHash": "4ebf54efa699db89e69316afa1b5e4a2fbe34d18",
+          "materialHash": "601fa33cd8f4634f4a555d39b24994aae50b82dfbc4207da9735f3cff90761ab",
+          "storyFilesHash": "10085819f05613352833c723b54afd688fb038b5259fedc8213eabc980c5bbbb",
+          "timestamp": "2026-07-12T11:55:17.365Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-pass-discard-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-pass-discard-smoke.js && node packages/main/dist/tasks/candidate-spec-routing-smoke.js",
+          "result": "pass",
+          "note": "Canonical review-run guards still reject cross-lane/implementer evidence; shared routing contributes context only and does not grant signing authority or suppress distinct findings.",
+          "headHash": "4ebf54efa699db89e69316afa1b5e4a2fbe34d18",
+          "materialHash": "601fa33cd8f4634f4a555d39b24994aae50b82dfbc4207da9735f3cff90761ab",
+          "storyFilesHash": "10085819f05613352833c723b54afd688fb038b5259fedc8213eabc980c5bbbb",
+          "timestamp": "2026-07-12T11:55:17.365Z"
+        }
+      ]
     },
     {
       "id": "CHK-007",
@@ -83,9 +467,107 @@
         "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md"
       ],
       "userSees": "Operators can progress from shadow to warn to enforce only after quality and cost thresholds pass, with a safe non-injection rollback.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-12T10:44:09.350Z",
+      "endTime": "2026-07-12T10:46:54.170Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run two consecutive evaluation windows whose golden recall, finding equivalence, candidate/full-read bytes, latency, mismatch and escalation metrics meet the accepted thresholds -> canonical configuration permits shadow to warn to enforce promotion, process-fact/command-policy/registry/verifier contracts agree, and operators see the promotion evidence and active mode; WHY: maps rollout-tests, process-fact-contract and two-window-evaluation",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "At final delivery, collect provider-reported usage from every available Codex CLI, Claude Code CLI, and Antigravity CLI invocation and aggregate total input, output, and cache-read tokens without mixing categories -> the user receives provider totals by host plus the largest attributable milestone, host, and command cost with its evidence source; WHY: fulfills the explicit final token-consumption report using authoritative provider counters where available",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Make either evaluation window miss critical/high recall, 98 percent overall recall, finding equivalence, prompt-byte, latency, budget, or zero-mismatch thresholds, and simulate host outage during each mode -> promotion is blocked with diagnostic metrics, shadow/warn preserve existing authority, enforce fails closed only where configured, and host failure still uses deterministic local routing; WHY: proves thresholds and staged failure semantics govern rollout",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Generate a final usage report when one or more providers omit token counters, sessions overlap multiple milestones, or usage_sweep attributes shared cached input to more than one unit -> missing provider fields are shown as unavailable, usage_sweep numbers are presented separately as non-authoritative estimates, multi-attribution and shared-cache uncertainty are explicit, and no estimate is presented as exclusive task consumption; WHY: prevents false precision while still identifying the best-supported largest cost center",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Attempt to force enforce through config drift, stale/forged evaluation evidence, missing process-fact registration, or rollback after enforcement -> contract verification rejects unauthorized promotion, rollback returns to explicit tool-driven broad review with recorded escalation, and regression guards prove recursive requirements reads, Truth Source concatenation, and corpus prompt embedding remain impossible; WHY: validates safe rollback and prevents the original 2 MB failure from returning",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Two-window promotion passes only at 100% critical/high recall, >=98% overall recall, finding equivalence, >=90% byte reduction, latency and zero mismatch/full-scan violations; process-fact registry contract passes.",
+          "headHash": "4ebf54efa699db89e69316afa1b5e4a2fbe34d18",
+          "materialHash": "601fa33cd8f4634f4a555d39b24994aae50b82dfbc4207da9735f3cff90761ab",
+          "storyFilesHash": "10085819f05613352833c723b54afd688fb038b5259fedc8213eabc980c5bbbb",
+          "timestamp": "2026-07-12T11:55:17.365Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "command": "node packages/main/dist/tasks/candidate-spec-routing-smoke.js",
+          "result": "pass",
+          "note": "A failing second window reports every missed threshold and blocks enforce; deterministic host-outage fallback remains local and bounded.",
+          "headHash": "4ebf54efa699db89e69316afa1b5e4a2fbe34d18",
+          "materialHash": "601fa33cd8f4634f4a555d39b24994aae50b82dfbc4207da9735f3cff90761ab",
+          "storyFilesHash": "10085819f05613352833c723b54afd688fb038b5259fedc8213eabc980c5bbbb",
+          "timestamp": "2026-07-12T11:55:17.365Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/story-review-corpus-budget-smoke.ts",
+          "command": "node packages/main/dist/tasks/story-review-corpus-budget-smoke.js && node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Rollback is tool-driven broad review with recorded escalation and corpusPromptInjectionAllowed=false; regression measured 2,936 bytes unchanged after adding a large corpus and 99.91% reduction from the reconstructed pre-fix prompt.",
+          "headHash": "4ebf54efa699db89e69316afa1b5e4a2fbe34d18",
+          "materialHash": "601fa33cd8f4634f4a555d39b24994aae50b82dfbc4207da9735f3cff90761ab",
+          "storyFilesHash": "10085819f05613352833c723b54afd688fb038b5259fedc8213eabc980c5bbbb",
+          "timestamp": "2026-07-12T11:55:17.365Z"
+        },
+        {
+          "intentRef": "CHK-007:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "test -z \"$(rg B-8038 /Users/jek/Documents/Work/proofbound/.lattice/usage/llm-usage.jsonl)\"",
+          "result": "pass",
+          "note": "Authoritative provider ledger contains zero B-8038 host_run rows: no Codex CLI, Claude Code CLI or agy invocation exposed provider token counters for this Story, so provider totals are correctly reported unavailable rather than inferred.",
+          "headHash": "4ebf54efa699db89e69316afa1b5e4a2fbe34d18",
+          "materialHash": "601fa33cd8f4634f4a555d39b24994aae50b82dfbc4207da9735f3cff90761ab",
+          "storyFilesHash": "10085819f05613352833c723b54afd688fb038b5259fedc8213eabc980c5bbbb",
+          "timestamp": "2026-07-12T11:55:17.365Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "lattice usage_sweep --since=2026-07-12 --json",
+          "result": "pass",
+          "note": "NON-AUTHORITATIVE multi-attribution estimate: 4 Codex Desktop sessions, 165,865,106 input (162,974,208 cached; 2,890,898 uncached), 182,122 output and 28,763 reasoning-output tokens; Claude 0. Sessions mention many Stories, so these are upper-bound overlapping estimates, not exclusive B-8038 consumption. Largest observed session was 56,438,454 input tokens and cache-read dominates overall cost.",
+          "headHash": "4ebf54efa699db89e69316afa1b5e4a2fbe34d18",
+          "materialHash": "601fa33cd8f4634f4a555d39b24994aae50b82dfbc4207da9735f3cff90761ab",
+          "storyFilesHash": "10085819f05613352833c723b54afd688fb038b5259fedc8213eabc980c5bbbb",
+          "timestamp": "2026-07-12T11:55:17.365Z"
+        }
+      ]
     }
   ]
 }

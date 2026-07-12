@@ -112,7 +112,23 @@ export function normalizeReviewerReadManifest(input: unknown, label = 'readManif
     throw new Error(`${label}.scanEscalationReason: must be a string or null`);
   }
 
-  return { filesReadFully, filesTriagedByName, scanEscalationReason };
+  const optionalDigest = (field: 'candidateSpecSetDigest' | 'corpusDigest'): string | undefined => {
+    const value = record[field];
+    if (value === undefined) return undefined;
+    if (typeof value !== 'string' || !/^(?:sha256:)?[a-f0-9]{64}$/.test(value.trim())) {
+      throw new Error(`${label}.${field}: must be a sha256 digest when supplied`);
+    }
+    return value.trim().replace(/^sha256:/, '');
+  };
+  const candidateSpecSetDigest = optionalDigest('candidateSpecSetDigest');
+  const corpusDigest = optionalDigest('corpusDigest');
+  return {
+    filesReadFully,
+    filesTriagedByName,
+    scanEscalationReason,
+    ...(candidateSpecSetDigest ? { candidateSpecSetDigest } : {}),
+    ...(corpusDigest ? { corpusDigest } : {}),
+  };
 }
 
 export function digestReviewerReadManifest(manifest: ReviewerReadManifest): string {
