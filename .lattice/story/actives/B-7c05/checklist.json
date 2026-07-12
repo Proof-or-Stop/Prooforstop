@@ -566,7 +566,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "bash -c 'test \"$(LATTICE_BRIEF_OUTPUT=0 node bin/lattice.js help 2>/dev/null | wc -c)\" -eq \"$(node bin/lattice.js help --full 2>/dev/null | wc -c)\"'",
+          "result": "pass",
+          "note": "Env hatch restores full on bare invocations: LATTICE_BRIEF_OUTPUT=0 help equals --full byte count (45,481) via the equality probe; brief-output-smoke asserts the same for finding_list bare invocation.",
+          "headHash": "a06a4886c69879630b44da249526515d56369cc2",
+          "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
+          "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
+          "timestamp": "2026-07-12T01:33:54.786Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
