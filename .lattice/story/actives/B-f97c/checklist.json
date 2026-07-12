@@ -49,10 +49,10 @@
           "command": "npm --prefix packages/main run test:story-review-corpus-budget",
           "result": "pass",
           "note": "Corpus-budget smoke passed; story_review returned structured prompt without Truth Source or requirements bodies.",
-          "headHash": "a7c8e3ed7dbbde60e02c2035cd546ac9ee419d33",
-          "materialHash": "2a43a65fa08f2ec3aad94da1b4bca1354379a8d213ba26ca909ca2b744b5eeee",
-          "storyFilesHash": "2a4dab4d78853aaa74fd77d2f5eed8d81bb56bf3829f4870c4802c95dd337158",
-          "timestamp": "2026-07-12T01:45:08.646Z"
+          "headHash": "27cd3263a4510c8ab4826cdf4bd82ec4a9754a7c",
+          "materialHash": "83248d6c26000dfd5037cec7021e03a7b53db7bd62234f233f26054388778d69",
+          "storyFilesHash": "16054b9781ed92e63824978a59bb25358dce482756c281373856023ef5572c21",
+          "timestamp": "2026-07-12T01:49:57.434Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -60,10 +60,10 @@
           "command": "npm --prefix packages/main run test:story-review-corpus-budget",
           "result": "pass",
           "note": "Nested Markdown and non-Markdown sentinels were absent; review succeeded without corpus traversal.",
-          "headHash": "a7c8e3ed7dbbde60e02c2035cd546ac9ee419d33",
-          "materialHash": "2a43a65fa08f2ec3aad94da1b4bca1354379a8d213ba26ca909ca2b744b5eeee",
-          "storyFilesHash": "2a4dab4d78853aaa74fd77d2f5eed8d81bb56bf3829f4870c4802c95dd337158",
-          "timestamp": "2026-07-12T01:45:08.646Z"
+          "headHash": "27cd3263a4510c8ab4826cdf4bd82ec4a9754a7c",
+          "materialHash": "83248d6c26000dfd5037cec7021e03a7b53db7bd62234f233f26054388778d69",
+          "storyFilesHash": "16054b9781ed92e63824978a59bb25358dce482756c281373856023ef5572c21",
+          "timestamp": "2026-07-12T01:49:57.434Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -71,10 +71,10 @@
           "command": "npm --prefix packages/main run test:story-review-corpus-budget",
           "result": "pass",
           "note": "Adding 3 MiB unrelated Markdown produced zero prompt-byte delta and exact sentinel remained absent.",
-          "headHash": "a7c8e3ed7dbbde60e02c2035cd546ac9ee419d33",
-          "materialHash": "2a43a65fa08f2ec3aad94da1b4bca1354379a8d213ba26ca909ca2b744b5eeee",
-          "storyFilesHash": "2a4dab4d78853aaa74fd77d2f5eed8d81bb56bf3829f4870c4802c95dd337158",
-          "timestamp": "2026-07-12T01:45:08.646Z"
+          "headHash": "27cd3263a4510c8ab4826cdf4bd82ec4a9754a7c",
+          "materialHash": "83248d6c26000dfd5037cec7021e03a7b53db7bd62234f233f26054388778d69",
+          "storyFilesHash": "16054b9781ed92e63824978a59bb25358dce482756c281373856023ef5572c21",
+          "timestamp": "2026-07-12T01:49:57.434Z"
         }
       ]
     },
@@ -128,10 +128,10 @@
           "command": "npm --prefix packages/main run test:story-review-corpus-budget",
           "result": "pass",
           "note": "Fully populated fixture preserves story metadata, understanding, decision/preMortem, grill, ProofStory, checklist, and verificationIntent.",
-          "headHash": "8c70feff6549cb48b3995bf7e2cb31034b924ec1",
-          "materialHash": "2a43a65fa08f2ec3aad94da1b4bca1354379a8d213ba26ca909ca2b744b5eeee",
-          "storyFilesHash": "2a4dab4d78853aaa74fd77d2f5eed8d81bb56bf3829f4870c4802c95dd337158",
-          "timestamp": "2026-07-12T01:42:59.877Z"
+          "headHash": "27cd3263a4510c8ab4826cdf4bd82ec4a9754a7c",
+          "materialHash": "83248d6c26000dfd5037cec7021e03a7b53db7bd62234f233f26054388778d69",
+          "storyFilesHash": "16054b9781ed92e63824978a59bb25358dce482756c281373856023ef5572c21",
+          "timestamp": "2026-07-12T01:49:57.434Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -139,10 +139,10 @@
           "command": "npm --prefix packages/main run test:story-review-corpus-budget",
           "result": "pass",
           "note": "Sparse fixture omits understanding, decision, grill, and verificationIntent arrays; prompt stays well formed, expected advisories remain, and blockerCount stays zero.",
-          "headHash": "8c70feff6549cb48b3995bf7e2cb31034b924ec1",
-          "materialHash": "2a43a65fa08f2ec3aad94da1b4bca1354379a8d213ba26ca909ca2b744b5eeee",
-          "storyFilesHash": "2a4dab4d78853aaa74fd77d2f5eed8d81bb56bf3829f4870c4802c95dd337158",
-          "timestamp": "2026-07-12T01:43:00.082Z"
+          "headHash": "27cd3263a4510c8ab4826cdf4bd82ec4a9754a7c",
+          "materialHash": "83248d6c26000dfd5037cec7021e03a7b53db7bd62234f233f26054388778d69",
+          "storyFilesHash": "16054b9781ed92e63824978a59bb25358dce482756c281373856023ef5572c21",
+          "timestamp": "2026-07-12T01:49:57.434Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -150,10 +150,10 @@
           "command": "npm --prefix packages/main run test:story-review-corpus-budget",
           "result": "pass",
           "note": "Structured sentinels remain present while requirement-only sentinels remain absent; signed scope evidence and gate/advisory evaluation still run.",
-          "headHash": "8c70feff6549cb48b3995bf7e2cb31034b924ec1",
-          "materialHash": "2a43a65fa08f2ec3aad94da1b4bca1354379a8d213ba26ca909ca2b744b5eeee",
-          "storyFilesHash": "2a4dab4d78853aaa74fd77d2f5eed8d81bb56bf3829f4870c4802c95dd337158",
-          "timestamp": "2026-07-12T01:43:00.335Z"
+          "headHash": "27cd3263a4510c8ab4826cdf4bd82ec4a9754a7c",
+          "materialHash": "83248d6c26000dfd5037cec7021e03a7b53db7bd62234f233f26054388778d69",
+          "storyFilesHash": "16054b9781ed92e63824978a59bb25358dce482756c281373856023ef5572c21",
+          "timestamp": "2026-07-12T01:49:57.434Z"
         }
       ]
     },
@@ -206,10 +206,10 @@
           "command": "npm --prefix packages/main run test:story-review-corpus-budget",
           "result": "pass",
           "note": "Registered package script exited zero.",
-          "headHash": "a7c8e3ed7dbbde60e02c2035cd546ac9ee419d33",
-          "materialHash": "2a43a65fa08f2ec3aad94da1b4bca1354379a8d213ba26ca909ca2b744b5eeee",
-          "storyFilesHash": "2a4dab4d78853aaa74fd77d2f5eed8d81bb56bf3829f4870c4802c95dd337158",
-          "timestamp": "2026-07-12T01:45:08.646Z"
+          "headHash": "27cd3263a4510c8ab4826cdf4bd82ec4a9754a7c",
+          "materialHash": "83248d6c26000dfd5037cec7021e03a7b53db7bd62234f233f26054388778d69",
+          "storyFilesHash": "16054b9781ed92e63824978a59bb25358dce482756c281373856023ef5572c21",
+          "timestamp": "2026-07-12T01:49:57.434Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -217,10 +217,10 @@
           "command": "npm --prefix packages/main run test:story-review-corpus-budget",
           "result": "pass",
           "note": "Baseline and large-corpus prompt were byte-identical at 2936 bytes; delta zero.",
-          "headHash": "a7c8e3ed7dbbde60e02c2035cd546ac9ee419d33",
-          "materialHash": "2a43a65fa08f2ec3aad94da1b4bca1354379a8d213ba26ca909ca2b744b5eeee",
-          "storyFilesHash": "2a4dab4d78853aaa74fd77d2f5eed8d81bb56bf3829f4870c4802c95dd337158",
-          "timestamp": "2026-07-12T01:45:08.646Z"
+          "headHash": "27cd3263a4510c8ab4826cdf4bd82ec4a9754a7c",
+          "materialHash": "83248d6c26000dfd5037cec7021e03a7b53db7bd62234f233f26054388778d69",
+          "storyFilesHash": "16054b9781ed92e63824978a59bb25358dce482756c281373856023ef5572c21",
+          "timestamp": "2026-07-12T01:49:57.434Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -228,10 +228,10 @@
           "command": "npm --prefix packages/main run test:story-review-corpus-budget",
           "result": "pass",
           "note": "Forged Truth Source heading and exact corpus sentinel were absent.",
-          "headHash": "a7c8e3ed7dbbde60e02c2035cd546ac9ee419d33",
-          "materialHash": "2a43a65fa08f2ec3aad94da1b4bca1354379a8d213ba26ca909ca2b744b5eeee",
-          "storyFilesHash": "2a4dab4d78853aaa74fd77d2f5eed8d81bb56bf3829f4870c4802c95dd337158",
-          "timestamp": "2026-07-12T01:45:08.646Z"
+          "headHash": "27cd3263a4510c8ab4826cdf4bd82ec4a9754a7c",
+          "materialHash": "83248d6c26000dfd5037cec7021e03a7b53db7bd62234f233f26054388778d69",
+          "storyFilesHash": "16054b9781ed92e63824978a59bb25358dce482756c281373856023ef5572c21",
+          "timestamp": "2026-07-12T01:49:57.434Z"
         }
       ]
     },
@@ -282,10 +282,10 @@
           "command": "npm --prefix packages/main run test:story-review-corpus-budget",
           "result": "pass",
           "note": "Prompt measurement reports 3,148,782 reconstructed pre-fix bytes versus 2,936 post-fix bytes, with byte/4 token estimates clearly labeled and corpus dominant.",
-          "headHash": "be8f129f138605f2beca67d0c46014a035083ac7",
-          "materialHash": "2a43a65fa08f2ec3aad94da1b4bca1354379a8d213ba26ca909ca2b744b5eeee",
-          "storyFilesHash": "2a4dab4d78853aaa74fd77d2f5eed8d81bb56bf3829f4870c4802c95dd337158",
-          "timestamp": "2026-07-12T01:43:01.781Z"
+          "headHash": "27cd3263a4510c8ab4826cdf4bd82ec4a9754a7c",
+          "materialHash": "83248d6c26000dfd5037cec7021e03a7b53db7bd62234f233f26054388778d69",
+          "storyFilesHash": "16054b9781ed92e63824978a59bb25358dce482756c281373856023ef5572c21",
+          "timestamp": "2026-07-12T01:49:57.434Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -293,10 +293,10 @@
           "command": "lattice usage_sweep --since=2026-07-12T01:12+02:00 --format=json",
           "result": "pass",
           "note": "Read-only NON-AUTHORITATIVE ESTIMATE snapshot: B-f97c 11 sessions, totalTokens=58,342,389, multiAttribution=true. This is an upper/overlapping story attribution, not exact exclusive task cost; Codex uncachedInput=1,696,850 output=161,747 reasoning=26,074; Claude input=3,520 output=19,646. Reported separately from byte/4 prompt estimate.",
-          "headHash": "be8f129f138605f2beca67d0c46014a035083ac7",
-          "materialHash": "2a43a65fa08f2ec3aad94da1b4bca1354379a8d213ba26ca909ca2b744b5eeee",
-          "storyFilesHash": "2a4dab4d78853aaa74fd77d2f5eed8d81bb56bf3829f4870c4802c95dd337158",
-          "timestamp": "2026-07-12T01:43:01.955Z"
+          "headHash": "27cd3263a4510c8ab4826cdf4bd82ec4a9754a7c",
+          "materialHash": "83248d6c26000dfd5037cec7021e03a7b53db7bd62234f233f26054388778d69",
+          "storyFilesHash": "16054b9781ed92e63824978a59bb25358dce482756c281373856023ef5572c21",
+          "timestamp": "2026-07-12T01:49:57.434Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -304,10 +304,10 @@
           "command": "npm --prefix packages/main run test:story-review-corpus-budget",
           "result": "pass",
           "note": "Measured components reconcile exactly; historical corpus framing is 3,145,846 bytes versus 2,936 structured prompt bytes and is therefore the measured dominant prompt source.",
-          "headHash": "be8f129f138605f2beca67d0c46014a035083ac7",
-          "materialHash": "2a43a65fa08f2ec3aad94da1b4bca1354379a8d213ba26ca909ca2b744b5eeee",
-          "storyFilesHash": "2a4dab4d78853aaa74fd77d2f5eed8d81bb56bf3829f4870c4802c95dd337158",
-          "timestamp": "2026-07-12T01:43:02.135Z"
+          "headHash": "27cd3263a4510c8ab4826cdf4bd82ec4a9754a7c",
+          "materialHash": "83248d6c26000dfd5037cec7021e03a7b53db7bd62234f233f26054388778d69",
+          "storyFilesHash": "16054b9781ed92e63824978a59bb25358dce482756c281373856023ef5572c21",
+          "timestamp": "2026-07-12T01:49:57.434Z"
         }
       ]
     }
