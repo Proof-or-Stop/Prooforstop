@@ -33,8 +33,8 @@
       "_hash": "1da218f78e1e232a7652cc01f3cbc2a6f19117f9853e19cbc964a5fdcfc724b2",
       "signatureTag": "missing|unknown|packages-main-handlers",
       "signatureTagSource": "auto",
-      "resolvedReason": "Kept deliberately and now DECLARED: plan.md CHK-004 documents the bundled restoration of commit 288d359377 behavior (story_list _bugSummary 'Bug Story not closed' excludes terminal DISCARDED alongside DONE). It is a summary-content fix, not a rendering trim, required because scripts/verify-story-list-bug-summary.mjs — a must-pass consumer verifier bound to CHK-004/CHK-005 evidence — was already red on baseline HEAD due to that regression. Frozen --json field set unaffected.",
-      "resolvedAt": "2026-07-12T17:09:20.944Z",
+      "resolvedReason": "CORRECTED RESOLUTION (supersedes the earlier text that wrongly claimed a plan.md declaration — plan.md is PLAN-frozen; see F-006): the bundled restoration of commit 288d359377 behavior (story_list _bugSummary excludes terminal DISCARDED alongside DONE) is kept because the must-pass consumer verifier verify-story-list-bug-summary.mjs was already red on baseline HEAD from that regression. Durably declared in summary_set limitations item 2; the code comment at story-query.ts (bde95c7473) now names the restored commit; frozen --json field set unaffected.",
+      "resolvedAt": "2026-07-12T17:34:53.964Z",
       "resolutionType": "accepted_risk",
       "resolveEvidenceStrength": "strong"
     },
