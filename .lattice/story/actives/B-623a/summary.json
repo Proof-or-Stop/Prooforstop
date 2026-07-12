@@ -1,0 +1,56 @@
+{
+  "storyId": "B-623a",
+  "changes": "Push-based host long-thread burn detection. New pure-core packages/main/src/core/usage-burn-alert.ts: evaluateBurnAlerts over usage-sweep session rows (three strictly-greater reasons: file-size / input-tokens / session-age; codex burn = last cumulative input incl. cache, claude = input+cacheRead+cacheCreation; deterministic ordering; unknown usage never flags) plus resolveBurnAlertThresholds env resolver (LATTICE_BURN_ALERT_FILE_MB/INPUT_TOKENS/AGE_DAYS/RECENT_HOURS, defaults 100MB/100M/7d/48h, garbage AND absurdly-large values fall back per-variable via BURN_ALERT_ENV_MAX ceilings) and shared advisory renderers. lattice doctor is now async and prints a prominent Host burn scan (advisory) section near the top (JSON: hostBurnScan{advisory:true,gateEvidence:false,scanWindowHours}; RECENT_HOURS=0 disables; dir overrides for hermetic tests); four pre-existing doctor call-site smokes migrated to await + made hermetic. usage_sweep gained an opt-in --alert mode: full report prints FIRST, then exit non-zero when any session exceeds thresholds (recover_evidence print-then-throw dispatch in cli-engine); zero writes, readOnly classification unchanged. New 21-check fixture smoke usage-burn-alert-smoke.ts wired as test:usage-burn-alert and auto-discovered by run-all-smokes.",
+  "usage": "lattice doctor  (burn section renders automatically; tune via LATTICE_BURN_ALERT_* env; LATTICE_BURN_ALERT_RECENT_HOURS=0 disables). Cron: lattice usage_sweep --since=2d --alert  (exits non-zero when a runaway session exists; wrap with a notifier). Recommended on burn-prone machines: LATTICE_BURN_ALERT_INPUT_TOKENS=50000000.",
+  "expectedOutcome": "An operator running lattice doctor on a machine with a runaway host session is loudly shown the session file, cwd, cumulative tokens and tripped thresholds without remembering any special command; usage_sweep --alert exits non-zero for cron; plain doctor/usage_sweep exit codes and the zero-write contract unchanged.",
+  "actualTranscript": "Live real-machine run (worktree dist, real ~/.codex + ~/.claude): lattice doctor exited 0 and printed Host burn scan (advisory) flagging the real 019e40d0 rollout (~1_761_423_160 input tokens, 887.1 MB file, 54 days old, tripped: file-size, input-tokens, session-age, naming file+cwd) plus a real claude session (~353_671_838). usage_sweep --since=2d --alert printed the full NON-AUTHORITATIVE report then BURN ALERT: 14 session(s) over burn thresholds (191 scanned) and exited 1. Deterministic: usage-burn-alert-smoke 21/21; full validate suite green; delivery reviewer independently reproduced both live runs.",
+  "outcomeDiff": "No difference — both push surfaces behave exactly as specified on the real machine; the only note is that a clean-exit-0 --alert live demo is impossible on THIS machine because real runaway sessions currently exist (fixture smoke covers the clean path deterministically).",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Detection still requires SOME lattice invocation (doctor habit or a cron running usage_sweep --alert); no daemon and no notification delivery by design (B-70e9 non-goals: desktop sessions are report-only; cron owns notifications). Cumulative counters of forked desktop threads include parent history (NON-AUTHORITATIVE attribution hint). Doctor burn scan adds seconds on machines with many recently-active multi-GB transcripts (bounded by the 48h window; env-tunable/disable-able).",
+  "pitfalls": "(1) ProofStory high-assurance intent artifacts (original-intent-snapshot/intent-collision/red-evidence/proofstory.json) are not in the lifecycle registry, so the enforce scope gate classified them out_of_scope at DEV->REVIEW — had to promote them into the story scope contract (follow-up chip filed). (2) A quality-lane reviewer reverted the F-004 fix in the SHARED worktree as a pre-fix experiment (B-3ddc hazard recurrence) and a concurrent npm build corrupted a codex host smoke run — final round instructed all lanes/hosts: no rebuilds, no in-tree experiments; quorum hosts ran serially. (3) claude-as-host_run-reviewer needs TMPDIR pointed inside the worktree (the canonical launcher passes a prompt-FILE PATH as the prompt and claude cannot read outside cwd) and a static-only instruction (sandboxed node stalls -> 300s watchdog kill). (4) quorum_submit binds the CURRENT diff pack — leftover untracked host-run temp dirs changed the hash and got refused; clean the tree first. (5) usage_sweep --alert exit-code red probe is impossible pre-fix (lenient parser ignores unknown flags, exits 0) — the red evidence used the doctor JSON grep probe instead.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 170197
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 35583
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 78805235
+    },
+    "DEV": {
+      "count": 3,
+      "durationMs": 1798071
+    },
+    "REVIEW": {
+      "count": 3,
+      "durationMs": 5323869
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 663960
+    }
+  },
+  "totalDurationMs": 86797789,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-12T22:26:12.770Z",
+  "updatedAt": "2026-07-12T22:26:12.770Z"
+}
