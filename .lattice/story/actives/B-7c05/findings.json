@@ -1,0 +1,19 @@
+{
+  "findings": [
+    {
+      "id": "B-7c05:F-001",
+      "desc": "packages/main/src/cli/help-renderer.ts:52 BRIEF_DESC_MAX=10 truncates every per-command description in brief help to 10 CHARACTERS (not words), producing useless fragments like \"List Proo…\", \"Report ov…\", \"Advance a…\", \"Probe one…\" for essentially all ~320 commands. Live repro: node bin/lattice.js help shows host_probe  Probe one… and host_status  Report ov… — indistinguishable, no actual information about what each command does. This directly violates the CHK-003 adversarial acceptance intent brief must not degrade agent decision-making for the help catalog: an agent cannot pick the right command from these fragments and must always fall back to --full, defeating the token-savings goal of the story. brief-output-smoke.ts:256-265 only asserts byte-budget and branding presence, never asserts description content is meaningful, so this shipped undetected. Likely a units bug (10 chars vs intended ~40-60 chars or 10 words) given the surrounding budget reasoning in the code comment. Severity high because it materially breaks CHK-003s stated purpose while still passing all recorded evidence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-12T01:39:39.113Z",
+      "reviewRound": "2026-07-12T01:35:24.882Z",
+      "reviewRunId": "B-7c05:RR-001",
+      "_hash": "b7c1b6798a3bb26bc587cac6bda693f8856bfa5cca56e3c038eb1c21ba112caa",
+      "signatureTag": "missing|unknown|packages-main-help",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
