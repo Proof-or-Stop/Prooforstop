@@ -203,6 +203,30 @@
         "scanEscalationReason": null
       },
       "_hash": "ad0292daeca2e670925721190298f839899faefa8c0244b64e44fc10fec83011"
+    },
+    {
+      "id": "B-7c05:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Post-merge re-verification (merge 97a294cf75). Diffed merge result vs both parents for handlers/story-review.ts and tasks/brief-output-smoke.ts: merge correctly took main's B-f97c truthDocs/truthSection deletion while preserving B-7c05's hoisted reviewPrompt + brief projection. grep for truthDocs|truthSection repo-wide: zero live-code residue (only an intentional negative regression assertion + pre-existing untouched B-f97c/legacy-experiment artifacts outside this diff). tsc build clean; brief-output-smoke, cli-surface-smoke, story-review-corpus-budget-smoke, story-review-ergonomics-smoke all pass. No blocker.",
+      "createdAt": "2026-07-12T18:35:14.994Z",
+      "reviewRound": "2026-07-12T18:30:44.632Z",
+      "reviewRunId": "B-7c05:RR-012",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/tasks/brief-output-smoke.ts",
+          "packages/main/src/tasks/story-review-corpus-budget-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-f97c/index.json",
+          ".lattice/story/actives/B-f97c/summary.json",
+          "experiments/reports/story-review-output-after-production-v1.json",
+          "packages/main/src/tasks/cli-surface-smoke.ts",
+          "packages/main/src/tasks/story-review-ergonomics-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ec73e820ab0814571de4e8d4476cbad66074790acbb4c9a34005beb46c33b1d1"
     }
   ]
 }
