@@ -610,6 +610,17 @@ export const LATTICE_LIFECYCLE_ARTIFACT_FILENAMES: ReadonlySet<string> = new Set
   'draft-check-fallback.json',
   'risk-dismiss.json',
   'exp.json',
+  // ProofStory intent-hardening artifacts (store.ts B-7287 block); B-12a1
+  'original-intent-snapshot.json',
+  'milestone-ledger.json',
+  'milestone-closeout.json',
+  'slice-plan.json',
+  'parent-ledger-rollup.json',
+  'proofstory.json',
+  'intent-collision.json',
+  'scope-shrinkage-decision.json',
+  'red-evidence.json',
+  'spike.json',
 ]);
 
 export const LATTICE_LIFECYCLE_ARTIFACT_RELATIVE_PATHS: ReadonlySet<string> = new Set([
