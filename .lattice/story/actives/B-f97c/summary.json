@@ -1,17 +1,17 @@
 {
   "storyId": "B-f97c",
-  "changes": "Fully delivered all four original requirements: removed recursive readFileSync/readdirSync loading of every requirements Markdown file; removed truthDocs, truthDocsCount, truthSection, and truthDocs.join/Truth Source prompt concatenation; preserved Story, understanding, decision/preMortem, grill, experience hints, ProofStory, checklist, verificationIntent, and signed scope-check gate semantics; added regression and token-cost measurement.",
-  "usage": "Run lattice story_review normally. It no longer reads or embeds the requirements corpus. The returned _reviewPrompt contains bounded structured PLAN context, while independent scope_check_save evidence remains responsible for requirements coverage.",
-  "expectedOutcome": "A simple story_review no longer burns the context quota on the historical requirements corpus; unrelated multi-megabyte Markdown causes zero prompt growth, structured review inputs remain present, and the user receives explicit total-token attribution limits plus the measured largest cost source.",
-  "actualTranscript": "Current live smoke PASS: post-fix prompt=2,936 bytes/about 734 byte-div-4 estimated tokens; adding a 3 MiB nested requirements Markdown leaves prompt=2,936 bytes and delta=0. Reconstructed old path=3,148,782 bytes/about 787,196 estimated tokens; requirements corpus framing=3,145,846 bytes and is the largest measured prompt component; reduction=99.91%. Latest usage_sweep is a changing NON-AUTHORITATIVE multiAttribution total, not exact exclusive billing.",
-  "outcomeDiff": "All original requested behavior is delivered with no scope shrinkage: recursive corpus reads and full concatenation are deleted, structured PLAN/gate behavior is preserved, regression coverage passes, and token cost plus dominant source are reported. The suggested keyword/candidate document router is an additional future M6 optimization, not a substitute for or reduction of this completed stopgap.",
+  "changes": "Delivered all four original requirements: deleted recursive readFileSync and readdirSync loading of every requirements Markdown file; deleted truthDocs, truthDocsCount, truthSection, and truthDocs.join plus the Truth Source prompt block; preserved Story, understanding, decision and preMortem, grill, experience hints, ProofStory, checklist, verificationIntent, and signed scope-check gate semantics; added regression and token-cost measurement.",
+  "usage": "Run lattice story_review normally. It reads and embeds zero requirements corpus bodies. The returned _reviewPrompt contains bounded structured PLAN context, while independent scope_check_save evidence handles requirements coverage.",
+  "expectedOutcome": "A simple story_review avoids spending context quota on the historical requirements corpus; unrelated multi-megabyte Markdown causes zero prompt growth, structured review inputs stay present, and the user receives explicit token attribution limits plus the measured largest cost source.",
+  "actualTranscript": "Live smoke PASS: post-fix prompt=2,936 bytes and about 734 byte-div-4 estimated tokens; adding a 3 MiB nested requirements Markdown leaves prompt=2,936 bytes and delta=0. Reconstructed old path=3,148,782 bytes and about 787,196 estimated tokens; requirements corpus framing=3,145,846 bytes and is the largest measured prompt component; reduction=99.91%. usage_sweep is a changing NON-AUTHORITATIVE multiAttribution total rather than exact exclusive billing.",
+  "outcomeDiff": "The delivered result matches the complete original request: recursive corpus reads and full concatenation are deleted, structured PLAN and gate behavior is preserved, regression coverage passes, and token cost plus dominant source are reported. The keyword candidate document router suggested later is scheduled as an extra M6 optimization.",
   "acceptanceVerdict": "accepted",
   "realMachineCoverage": {
     "ran": [],
     "skipped": []
   },
-  "limitations": "Exact exclusive task billing is not available because usage_sweep attributes shared long sessions and cached inputs to every mentioned Story; reported sweep totals are explicitly non-authoritative and multi-attributed. Future keyword/candidateSpecSet routing remains M6.",
-  "pitfalls": "Never reintroduce requirements corpus reads through another prompt section, never replace deletion with order-dependent truncation, and never present a multiAttribution usage_sweep total as an exact invoice.",
+  "limitations": "Exact exclusive task billing cannot be isolated because usage_sweep attributes shared long sessions and cached inputs to every mentioned Story; sweep totals are explicitly non-authoritative and multi-attributed. Keyword candidate routing is scheduled for M6.",
+  "pitfalls": "Never add requirements corpus reads through another prompt section, never replace deletion with order-dependent truncation, and never present a multiAttribution usage_sweep total as an exact invoice.",
   "phaseStats": {
     "INIT": {
       "count": 1,
@@ -35,10 +35,10 @@
     },
     "TEST": {
       "count": 3,
-      "durationMs": 1273854
+      "durationMs": 1297637
     }
   },
-  "totalDurationMs": 2944500,
+  "totalDurationMs": 2968283,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -51,5 +51,5 @@
     "open": 0
   },
   "createdAt": "2026-07-12T01:49:36.754Z",
-  "updatedAt": "2026-07-12T02:11:36.364Z"
+  "updatedAt": "2026-07-12T02:12:00.147Z"
 }
