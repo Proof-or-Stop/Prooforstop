@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-3ddc",
+  "records": [
+    {
+      "id": "RED-20260711231732",
+      "trigger": "B-3928 (2026-07-11): failed codex host_run recorded only the generic no_turn_completed_usage_event; the turn.failed event naming the real 400 version-skew cause was discarded by the turn.completed-only retainer.",
+      "acceptanceTargetRef": "AB-001",
+      "baselineHeadHash": "de51adf594a897f36c8613a8fc79ccb4b24ec404",
+      "baselineMaterialHash": "4e6b8ec53b5e42e0e25e32c84fc04d65bed50cdd96145d5c07ee9fea1345e937",
+      "observedFailure": "On baseline (compiled dist of the unmodified worktree), driving runHostRun with a fake codex runner whose stdout is a single turn.failed event line yields usageSummary.reason=no_turn_completed_usage_event and the check exits 1: the turn_failed(<digest>) reason contract of AB-001 is absent. Observed output: \"RED: unavailableReason=no_turn_completed_usage_event\", exit=1.",
+      "failingCommand": "node --input-type=module -e 'import(\"./packages/main/dist/core/host-run.js\").then(async m=>{const os=await import(\"node:os\");const fs=await import(\"node:fs\");const path=await import(\"node:path\");const root=fs.mkdtempSync(path.join(os.tmpdir(),\"red-b3ddc-\"));const line=JSON.stringify({type:\"turn.failed\",error:{message:\"boom\"}});const res=await m.runHostRun({host:\"codex\",storyId:null,agentType:\"red-check\",promptText:\"red-check\",env:{LATTICE_USAGE_LEDGER:\"1\"},cwd:root,root,recordedAt:\"2026-07-12T00:00:00.000Z\",projectRootHash:\"sha256:red\"},{runner:()=>({stdout:line+\"\\n\",stderr:\"\",exitCode:1,timedOut:false})});const r=String(res.usageSummary.reason||\"\");if(r.indexOf(\"turn_failed(\")!==0){console.error(\"RED: unavailableReason=\"+r);process.exit(1)}console.log(\"GREEN: unavailableReason=\"+r)})'",
+      "expectedGreenCommand": "node packages/main/dist/tasks/host-run-usage-smoke.js",
+      "greenRelation": {
+        "targetRef": "AB-001",
+        "relation": "same_acceptance",
+        "command": "node packages/main/dist/tasks/host-run-usage-smoke.js"
+      },
+      "note": "Red command is self-contained (temp root, fake runner, no real codex spawn) and becomes green with the same acceptance once recordFinalForHost consults the retained failure lane; the full smoke (with the pinned exact B-3928 fixture) is the green oracle.",
+      "createdAt": "2026-07-11T23:17:32.403Z"
+    }
+  ],
+  "createdAt": "2026-07-11T23:17:32.403Z",
+  "updatedAt": "2026-07-11T23:17:32.403Z"
+}
