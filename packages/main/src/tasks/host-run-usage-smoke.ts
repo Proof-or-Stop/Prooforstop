@@ -76,6 +76,14 @@
  *     + hard-capped), no_turn_completed_usage_event stays the pure fallback,
  *     and a genuine usage never consults the failure lane — pinned against the
  *     exact observed B-3928 version-skew line.
+ *     B-3ddc (codex round-1 F1): the failure lane's OWN retention-truncation is
+ *     honored (failureRetentionTruncated) — a candidate-then-over-cap-drop marks
+ *     the retained failure line stale so the reason degrades to
+ *     no_turn_completed_usage_event, while a drop-then-candidate clears the flag
+ *     and keeps the honest turn_failed(...) (F-026 mirror).
+ *     B-3ddc (codex round-1 F2): parentheses in an error.message are neutralized
+ *     ('(' -> '[', ')' -> ']') so the digest can never inject the enclosing
+ *     turn_failed(...) delimiters (no-parens digest invariant).
  *   - CHK-003: the remaining lattice-initiated host spawns route through the same
  *     seam — autopilot claude repair (ledger ON adds --output-format json + records
  *     estimate/final rows with agentType autopilot-repair and an envelope-parsed
@@ -599,8 +607,10 @@ async function main(): Promise<void> {
     assert.equal(result.usageSummary.reason, 'turn_failed(stream disconnected)');
   });
 
-  check('B-3ddc digest hygiene: control chars/newlines collapse, whitespace runs collapse, over-cap truncates with a trailing ellipsis at the exported cap; no message -> no_error_message', () => {
-    const noisy = 'line one\n\tline\ttwo\r\n' + String.fromCharCode(0) + 'x  y ' + 'a'.repeat(300);
+  check('B-3ddc digest hygiene: control chars/newlines collapse, whitespace runs collapse, parens neutralized (F2 no-parens invariant), over-cap truncates with a trailing ellipsis at the exported cap; no message -> no_error_message', () => {
+    // The noisy message now also embeds parentheses so the extended assertions
+    // exercise the B-3ddc F2 delimiter-injection guard in the SAME check.
+    const noisy = 'line one\n\tline\ttwo\r\n' + String.fromCharCode(0) + 'x  (y) ' + 'a'.repeat(300);
     const failure = scanCodexTurnFailed(JSON.stringify({ type: 'turn.failed', error: { message: noisy } }) + '\n');
     assert.ok(failure);
     const reason = codexTurnFailedReason(failure!);
@@ -611,9 +621,123 @@ async function main(): Promise<void> {
       assert.ok(code >= 0x20 && code !== 0x7f, `no control chars in the digest (found ${code} at ${i})`);
     }
     assert.equal(digest.includes('  '), false, 'whitespace runs collapsed to a single space');
+    // B-3ddc F2: the digest interior can NEVER contain a '(' or ')', so the
+    // enclosing turn_failed(...) delimiters can never be closed or reopened.
+    assert.equal(digest.includes('('), false, 'no "(" survives inside the digest (delimiter-injection guard)');
+    assert.equal(digest.includes(')'), false, 'no ")" survives inside the digest (delimiter-injection guard)');
     assert.ok(digest.endsWith('…'), 'hard truncation appends the ellipsis');
     assert.equal(digest.length, CODEX_TURN_FAILED_DIGEST_MAX_CHARS, 'total digest length capped at the exported constant');
     assert.equal(codexTurnFailedReason({ eventType: 'turn.failed', message: null }), 'turn_failed(no_error_message)', 'a failure event with no extractable message still names turn_failed');
+  });
+
+  // =========================================================================
+  // B-3ddc (codex round-1 F2): a NEW unit that pins the exact paren-injection
+  // repro from the review — an error.message that tries to inject its own
+  // turn_failed(...) structure is neutralized to brackets, leaving exactly one
+  // opening + one closing delimiter around a paren-free digest.
+  // =========================================================================
+  check('B-3ddc F2 paren injection: message "boom) turn_failed(fake" -> turn_failed(boom] turn_failed[fake) (interior parens neutralized)', () => {
+    const reason = codexTurnFailedReason({ eventType: 'turn.failed', message: 'boom) turn_failed(fake' });
+    assert.equal(reason, 'turn_failed(boom] turn_failed[fake)', 'interior "(" -> "[" and ")" -> "]" so no delimiter is injected');
+    const digest = reason.slice('turn_failed('.length, -1);
+    assert.equal(digest.includes('('), false, 'no "(" in the digest interior');
+    assert.equal(digest.includes(')'), false, 'no ")" in the digest interior');
+  });
+
+  // =========================================================================
+  // B-3ddc (codex round-1 F1): honor the FAILURE lane's own truncation flag.
+  // A real child through the default runner proves the flag is genuinely set by
+  // an over-cap drop; the end-to-end degrade is isolated with an injected runner
+  // (a real single stream would ALSO truncate the USAGE lane, whose flag has
+  // absolute priority, masking the failure-lane behavior — so the fake runner
+  // sets retentionTruncated=false to exercise the failure branch directly).
+  // =========================================================================
+  await checkAsync('B-3ddc F1 candidate-then-drop: the default runner sets failureRetentionTruncated when an over-cap line is dropped AFTER a retained turn.failed; the stale failure line then degrades to no_turn_completed_usage_event', async () => {
+    // Real child: a small valid turn.failed line (retained in the 2nd lane) then
+    // a >1 MiB junk line dropped over-cap AFTER it (mirror the F-013 pattern).
+    const padLen = HOST_RUN_RETAINED_LINE_CAP + 4096;
+    const script =
+      `process.stdout.write(${JSON.stringify(JSON.stringify({ type: 'turn.failed', error: { message: 'boom' } }))}+"\\n");` +
+      `var pad="a".repeat(${padLen});` +
+      'process.stdout.write(pad+"\\n");';
+    const direct = await defaultHostRunRunner({
+      command: process.execPath,
+      argv: ['-e', script],
+      env: process.env,
+      cwd: process.cwd(),
+      host: 'codex',
+      retainUsageLine: usageLineRetainerFor('codex'),
+      retainFailureLine: failureLineRetainerFor('codex'),
+      onChunk: () => { /* discard live (bounded memory) */ },
+    });
+    assert.equal(direct.failureRetentionTruncated, true, 'the over-cap drop AFTER the retained turn.failed flags the failure lane truncated');
+    assert.ok((direct.failureText ?? '').includes('turn.failed'), 'precondition: the (now stale) turn.failed line WAS retained — exactly the trap');
+
+    // End-to-end: an untrusted failure lane (flag true) must NOT scan failureText
+    // even though it carries a perfectly valid turn.failed(boom) — the reason
+    // honestly degrades to the generic fallback. retentionTruncated stays false
+    // so we reach the codex usage===null failure branch (not the usage-lane one).
+    const sub = freshRoot();
+    const failLine = JSON.stringify({ type: 'turn.failed', error: { message: 'boom' } }) + '\n';
+    const runner: HostRunRunner = () => ({
+      stdout: '',
+      stderr: '',
+      exitCode: 1,
+      timedOut: false,
+      retentionTruncated: false,
+      failureText: failLine,
+      failureRetentionTruncated: true,
+    });
+    const result = await runHostRun(baseArgs({ root: sub, host: 'codex' }), { runner });
+    const records = readLedger(sub);
+    const final = records.find((r) => r.usage.source === 'unavailable');
+    assert.ok(final, 'unavailable final recorded');
+    assert.equal(final!.usage.unavailableReason, 'no_turn_completed_usage_event', 'a truncated failure lane degrades to the generic fallback, NEVER a stale turn_failed(...)');
+    assert.equal(result.usageSummary.reason, 'no_turn_completed_usage_event', 'the summary carries the honest degraded reason');
+    assert.equal(final!.usage.inputTokens, null, 'no fabricated numbers');
+  });
+
+  await checkAsync('B-3ddc F1 drop-then-candidate (F-026 mirror): an over-cap line dropped BEFORE the retained turn.failed clears failureRetentionTruncated; the later candidate supersedes and turn_failed(boom) is kept', async () => {
+    // Real child: a >1 MiB junk line FIRST (dropped over-cap) then the small
+    // turn.failed line — the later candidate clears the failure lane's flag.
+    const padLen = HOST_RUN_RETAINED_LINE_CAP + 4096;
+    const script =
+      `var pad="a".repeat(${padLen});` +
+      'process.stdout.write(pad+"\\n");' +
+      `process.stdout.write(${JSON.stringify(JSON.stringify({ type: 'turn.failed', error: { message: 'boom' } }))}+"\\n");`;
+    const direct = await defaultHostRunRunner({
+      command: process.execPath,
+      argv: ['-e', script],
+      env: process.env,
+      cwd: process.cwd(),
+      host: 'codex',
+      retainUsageLine: usageLineRetainerFor('codex'),
+      retainFailureLine: failureLineRetainerFor('codex'),
+      onChunk: () => { /* discard live (bounded memory) */ },
+    });
+    assert.equal(direct.failureRetentionTruncated, false, 'the retained turn.failed AFTER the drop clears the failure lane flag (last-wins, F-026)');
+    assert.ok((direct.failureText ?? '').includes('turn.failed'), 'the later turn.failed line is the retained candidate');
+
+    // End-to-end: flag false + a present failureText -> the honest turn_failed(boom)
+    // is kept (the later candidate is trusted). retentionTruncated false so the
+    // codex usage===null branch consults the trusted failure line.
+    const sub = freshRoot();
+    const failLine = JSON.stringify({ type: 'turn.failed', error: { message: 'boom' } }) + '\n';
+    const runner: HostRunRunner = () => ({
+      stdout: '',
+      stderr: '',
+      exitCode: 1,
+      timedOut: false,
+      retentionTruncated: false,
+      failureText: failLine,
+      failureRetentionTruncated: false,
+    });
+    const result = await runHostRun(baseArgs({ root: sub, host: 'codex' }), { runner });
+    const records = readLedger(sub);
+    const final = records.find((r) => r.usage.source === 'unavailable');
+    assert.ok(final, 'unavailable final recorded');
+    assert.equal(final!.usage.unavailableReason, 'turn_failed(boom)', 'a trusted (non-truncated) failure lane keeps the honest turn_failed(boom)');
+    assert.equal(result.usageSummary.reason, 'turn_failed(boom)', 'the summary carries the honest specific reason');
   });
 
   // =========================================================================

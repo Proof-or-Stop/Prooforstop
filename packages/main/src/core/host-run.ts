@@ -164,11 +164,26 @@ export interface HostRunSpawnResult {
   /**
    * B-3ddc: the retained failure line from the second bounded lane ('' when
    * none was retained). Fake runners may omit it — the core then falls back to
-   * scanning their buffered stdout for failure events. The failure lane's own
-   * truncated flag is deliberately unused: an over-cap-dropped failure line
-   * simply degrades the unavailable reason to the generic fallback.
+   * scanning their buffered stdout for failure events. When the failure lane
+   * dropped an over-cap line AFTER (or without) this retained candidate the
+   * companion `failureRetentionTruncated` flag is set and this text is
+   * known-stale: recordFinalForHost then refuses to scan it (see below).
    */
   failureText?: string;
+  /**
+   * B-3ddc (codex round-1 F1): true when the SECOND (failure) bounded lane
+   * dropped an over-cap line AFTER (or without) its retained failure candidate,
+   * mirroring the usage lane's `retentionTruncated` (F-013/F-026) EXACTLY. When
+   * true the streaming `failureText` is UNTRUSTED — the dropped line may have
+   * superseded the retained failure line — so recordFinalForHost must NOT scan
+   * it and the codex no-usage reason honestly degrades to the generic
+   * no_turn_completed_usage_event fallback rather than a possibly stale
+   * turn_failed(<digest>). A drop FOLLOWED by a retained failure line clears it
+   * (last-wins supersedes, F-026). DISTINCT from `retentionTruncated` (the usage
+   * lane), which still has ABSOLUTE priority: it forces the whole final to
+   * unavailable before the failure lane is ever consulted.
+   */
+  failureRetentionTruncated?: boolean;
   /**
    * F-008: non-null when the live passthrough sink threw (e.g. EPIPE after the
    * consumer closed the pipe). Delivery stopped at the FIRST failure (no
@@ -830,8 +845,13 @@ function codexTurnFailedDigest(message: string | null): string {
     }
     if (deepest !== null && deepest.trim().length > 0) text = deepest;
   }
-  // Sanitize: every control-character/whitespace run becomes a single space.
-  const sanitized = text.replace(/[\u0000-\u001f\u007f\s]+/g, ' ').trim();
+  // Sanitize: every control-character/whitespace run becomes a single space,
+  // then B-3ddc (codex round-1 F2) neutralize parentheses — '(' -> '[' and
+  // ')' -> ']' — so an error.message containing ')' or '(' can never close or
+  // reopen the enclosing turn_failed(...) reason delimiters (a delimiter-
+  // injection guard). The pinned B-3928 upgrade message contains no parens, so
+  // its expected reason string is unchanged.
+  const sanitized = text.replace(/[\u0000-\u001f\u007f\s]+/g, ' ').replace(/\(/g, '[').replace(/\)/g, ']').trim();
   if (sanitized.length === 0) return 'no_error_message';
   if (sanitized.length > CODEX_TURN_FAILED_DIGEST_MAX_CHARS) {
     return `${sanitized.slice(0, CODEX_TURN_FAILED_DIGEST_MAX_CHARS - 1)}…`;
@@ -1030,10 +1050,13 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan): Promise<HostRunSpa
   return new Promise<HostRunSpawnResult>((resolve) => {
     const scanner = new UsageLineScanner(plan.retainUsageLine);
     // B-3ddc: the SECOND bounded lane — same scanner class, same cap, same
-    // last-wins discipline — retains the last failure event line. Its own
-    // truncated flag is deliberately unused (an over-cap-dropped failure line
-    // degrades the unavailable reason to the generic fallback); only the usage
-    // lane's flag feeds retentionTruncated (F-013/F-026 unchanged).
+    // last-wins discipline — retains the last failure event line. Its truncated
+    // flag now feeds `failureRetentionTruncated` (codex round-1 F1): an over-cap
+    // drop AFTER (or without) the retained candidate marks the retained failure
+    // text stale, so the codex no-usage reason degrades to the generic
+    // no_turn_completed_usage_event fallback instead of a possibly stale
+    // turn_failed(<digest>). The usage lane's own flag still feeds
+    // retentionTruncated with ABSOLUTE priority (F-013/F-026 unchanged).
     const failureScanner = new UsageLineScanner(plan.retainFailureLine);
     let settled = false;
     let timedOut = false;
@@ -1070,6 +1093,8 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan): Promise<HostRunSpa
         timedOut,
         retentionTruncated: scanner.truncated,
         failureText: failureScanner.retainedText(),
+        // B-3ddc (codex round-1 F1): honor the failure lane's own truncation.
+        failureRetentionTruncated: failureScanner.truncated,
         passthroughError,
       });
     };
@@ -1421,7 +1446,18 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
     releaseSlot(slot.file, slot.token);
   }
 
-  const summary = recordFinalForHost(args, ctx, handle, opts, spawn.stdout, spawn.retentionTruncated === true, spawn.failureText ?? '');
+  const summary = recordFinalForHost(
+    args,
+    ctx,
+    handle,
+    opts,
+    spawn.stdout,
+    spawn.retentionTruncated === true,
+    spawn.failureText ?? '',
+    // B-3ddc (codex round-1 F1): thread the failure lane's truncation flag so an
+    // untrusted (stale) failure line degrades the codex reason honestly.
+    spawn.failureRetentionTruncated === true,
+  );
 
   return {
     host: args.host,
@@ -1450,6 +1486,7 @@ function recordFinalForHost(
   stdout: string,
   retentionTruncated: boolean,
   failureText: string,
+  failureRetentionTruncated: boolean,
 ): HostRunUsageSummary {
   const correlation = handle?.correlation ?? null;
   const estimateRecordId = handle?.estimateRecordId ?? null;
@@ -1526,7 +1563,17 @@ function recordFinalForHost(
         // Only the reason string changes: usage numbers stay null (never
         // fabricated from a failure event) and no failure event preserves the
         // documented no_turn_completed_usage_event fallback exactly as today.
-        const failure = scanCodexTurnFailed(failureText.length > 0 ? failureText : stdout);
+        //
+        // B-3ddc (codex round-1 F1): when the failure lane dropped an over-cap
+        // line AFTER (or without) its retained candidate, that streaming failure
+        // text is UNTRUSTED (the dropped line may have superseded it) — force the
+        // source to '' so scanCodexTurnFailed finds nothing and the reason
+        // honestly degrades to no_turn_completed_usage_event. The fake-runner
+        // stdout fallback applies ONLY when failureText is absent AND the flag is
+        // clear. (The usage lane's retentionTruncated was already honored above
+        // with absolute priority, so a truncated USAGE lane never reaches here.)
+        const failureSource = failureRetentionTruncated ? '' : (failureText.length > 0 ? failureText : stdout);
+        const failure = scanCodexTurnFailed(failureSource);
         const reason = failure !== null ? codexTurnFailedReason(failure) : 'no_turn_completed_usage_event';
         const res = recordDispatchUnavailableFinal(
           args.root,
