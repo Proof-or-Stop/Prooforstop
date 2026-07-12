@@ -211,6 +211,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     const checklistPath = `${storyDir}/checklist.json`;
     const planPath = `${storyDir}/plan.md`;
     const decisionPath = `${storyDir}/decision.json`;
+    const routed = store.readCandidateSpecSet(args.storyId);
 
     const lines: string[] = [];
     lines.push(`Review PLAN scope coverage for story ${args.storyId}.`);
@@ -230,15 +231,28 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     lines.push(`4. ${planPath}`);
     lines.push(`5. ${decisionPath} (if present)`);
     lines.push('- Also read relatedDocs referenced by checklist items and any decisions/docs cited by the story artifacts.');
+    if (routed) {
+      lines.push(`- Current bounded candidate artifact: digest=${routed.artifactDigest} corpusDigest=${routed.corpusDigest}`);
+      lines.push(`- Fully inspect routed candidates as relevant: ${routed.candidateSpecSet.join(', ') || '(none)'}`);
+      lines.push(`- Ambiguity signals: ${routed.ambiguitySignals.join(', ') || 'none'}; scanEscalationReason=${routed.scanEscalationReason ?? 'null'}`);
+      lines.push(`- Routing escalation: requiresEscalation=${routed.requiresEscalation}; reasons=${routed.escalationReasons.join(', ') || 'none'}`);
+      if (routed.requiresEscalation && !routed.fullScan) {
+        lines.push('- STOP — candidate routing escalation is unresolved. Do not call scope_check_save with this artifact.');
+        lines.push(`- Exact owner resolution action: lattice candidate_spec_route '{"storyId":"${args.storyId}","fullScanReason":"<specific justified tool-driven broad-scan reason>"}'`);
+        lines.push('- Resume only after the newly signed candidate artifact reports fullScan=true and a nonblank scanEscalationReason.');
+      }
+    } else {
+      lines.push('- No candidate-spec-set artifact is present. In enforce mode stop and ask the Story owner to run candidate_spec_route; reviewer lanes must not seize owner authority.');
+    }
     lines.push('');
     lines.push('Review focus:');
     lines.push('- Identify every user-visible promise, scope constraint, exclusion, and acceptance expectation in the story artifacts.');
     lines.push('- Classify each feature as covered, excluded, gap, orphan-suspect, or drift using the scope_check_save schema.');
     lines.push('- Record open questions when the artifacts conflict or a promise is visible but cannot be safely classified.');
-    lines.push('- Track readManifest as {filesReadFully:string[], filesTriagedByName:string[], scanEscalationReason:string|null}; put full-read files in filesReadFully, filename/title-only triage in filesTriagedByName, and use scanEscalationReason only for a justified full decisions-directory scan.');
+    lines.push('- Track readManifest with filesReadFully, filesTriagedByName, scanEscalationReason, candidateSpecSetDigest, and corpusDigest. Put full-read files in filesReadFully, filename/title-only triage in filesTriagedByName, and use scanEscalationReason only for a justified tool-driven full decisions-directory scan.');
     lines.push('');
     lines.push('Finish by calling scope_check_save:');
-    lines.push(`- lattice scope_check_save '{"storyId":"${args.storyId}","features":[{"feature":"<promise or constraint>","covered_by":"<CHK-xxx or null>","status":"covered|excluded|gap|orphan-suspect|drift","excluded_by":"<reason or null>","source":"<artifact path>"}],"summary":{"total":1,"covered":0,"excluded":0,"gaps":1},"readManifest":{"filesReadFully":["docs/requirements/decisions/<candidate>.md"],"filesTriagedByName":["docs/requirements/decisions/<triaged>.md"],"scanEscalationReason":null},"openQuestions":[]}'`);
+    lines.push(`- lattice scope_check_save '{"storyId":"${args.storyId}","features":[{"feature":"<promise or constraint>","covered_by":"<CHK-xxx or null>","status":"covered|excluded|gap|orphan-suspect|drift","excluded_by":"<reason or null>","source":"<artifact path>"}],"summary":{"total":1,"covered":0,"excluded":0,"gaps":1},"readManifest":{"filesReadFully":["docs/requirements/decisions/<candidate>.md"],"filesTriagedByName":["docs/requirements/decisions/<triaged>.md"],"scanEscalationReason":null,"candidateSpecSetDigest":"${routed?.artifactDigest ?? '<current candidate artifact digest>'}","corpusDigest":"${routed?.corpusDigest ?? '<current corpus digest>'}"},"openQuestions":[]}'`);
     lines.push('- If there are no gaps, still call scope_check_save with the complete feature list and accurate summary counts.');
 
     return { prompt: lines.join('\n') };
@@ -420,12 +434,21 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         lines.push(`- Test:   ${filesBlock.test}`);
         lines.push('');
         lines.push(`Verify expectation: ${verifyText}`);
+        const routed = store.readCandidateSpecSet(args.storyId);
+        if (routed) {
+          lines.push(`Candidate routing: digest=${routed.artifactDigest} corpusDigest=${routed.corpusDigest} candidates=${routed.candidateSpecSet.join(', ') || '(none)'}`);
+          lines.push(`Candidate escalation: requiresEscalation=${routed.requiresEscalation} reasons=${routed.escalationReasons.join(', ') || 'none'}`);
+          if (routed.requiresEscalation && !routed.fullScan) {
+            lines.push('STOP — candidate routing escalation is unresolved. Do not submit review_pass_set or finding evidence using this artifact.');
+            lines.push(`Exact owner resolution action: lattice candidate_spec_route '{"storyId":"${args.storyId}","fullScanReason":"<specific justified tool-driven broad-scan reason>"}'`);
+          }
+        }
         lines.push('');
         lines.push('Conclusion record (must choose one of two):');
         lines.push(`- First start this round's reviewer run: lattice review_run_start '{"storyId":"${args.storyId}","agent":"${displayAgent}"}', copy the reviewRunId from the output`);
         lines.push(`- Has issues: lattice finding_add '{"storyId":"${args.storyId}","reviewRunId":"<reviewRunId from review_run_start>","desc":"<file:line WHY + severity>","severity":"high|medium|low","category":"missing|edge|adversarial|happy","agent":"${displayAgent}"}'`);
-        lines.push('- Track readManifest as {filesReadFully:string[], filesTriagedByName:string[], scanEscalationReason:string|null}; include it on no-blocker review_pass_set. Non-decision source entries remain signed manifest evidence; mechanical readLog mismatch diagnostics are decisions-doc scoped.');
-        lines.push(`- No blocker: lattice review_pass_set '{"storyId":"${args.storyId}","agent":"${displayAgent}","reviewRunId":"<reviewRunId from review_run_start>","note":"reviewed ${args.itemId}: checked implementation against the item context and found no blocker.","readManifest":{"filesReadFully":["<file reviewed in full>"],"filesTriagedByName":["<file triaged by name>"],"scanEscalationReason":null}}'`);
+        lines.push('- Track readManifest with filesReadFully, filesTriagedByName, scanEscalationReason, candidateSpecSetDigest, and corpusDigest; include it on no-blocker review_pass_set. Non-decision entries remain signed manifest evidence; mechanical decisions-doc read mismatch fails closed.');
+        lines.push(`- No blocker: lattice review_pass_set '{"storyId":"${args.storyId}","agent":"${displayAgent}","reviewRunId":"<reviewRunId from review_run_start>","note":"reviewed ${args.itemId}: checked implementation against the item context and found no blocker.","readManifest":{"filesReadFully":["<file reviewed in full>"],"filesTriagedByName":["<file triaged by name>"],"scanEscalationReason":null,"candidateSpecSetDigest":"${routed?.artifactDigest ?? '<current candidate artifact digest>'}","corpusDigest":"${routed?.corpusDigest ?? '<current corpus digest>'}"}}'`);
 
         void story;
 

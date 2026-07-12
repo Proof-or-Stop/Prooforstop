@@ -188,6 +188,14 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     producerCommand: 'story_review',
     consumerGate: 'storyMachine.canStartDev PLAN to DEV gate',
   },
+  candidate_spec_route: {
+    name: 'candidate-spec-set.json',
+    path: 'candidate-spec-set.json',
+    signed: true,
+    signature: 'artifactDigest over proofbound.candidate-spec-set.v1 canonical fields and freshness bindings',
+    producerCommand: 'candidate_spec_route',
+    consumerGate: 'scope_check_save and reviewer read-evidence candidate routing gate',
+  },
   checklist_update: {
     name: 'checklist.json',
     path: 'checklist.json',
@@ -923,6 +931,16 @@ export const PROCESS_FACT_ARTIFACTS = [
     consumerGate: 'story_review scope-check gate',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.scope_check_save,
     rationale: 'Scope-check signature is consumed by PLAN review.',
+  },
+  {
+    name: 'artifact:candidate-spec-set.json',
+    kind: 'signed-artifact',
+    semantics: ['artifact', 'signed-artifact', 'gate-evidence', 'freshness-policy', 'workspace-binding', 'verification-policy'],
+    level: 'L4',
+    producer: 'handlers/candidate-spec-routing',
+    consumerGate: 'scope_check_save and reviewer read-evidence candidate routing gate',
+    artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.candidate_spec_route,
+    rationale: 'Candidate routing artifact binds deterministic seeds, corpus digest, bounded ranking, optional sanitized host proposals, current freshness, and a fail-closed requiresEscalation/fullScan resolution fact for PLAN and REVIEW consumers.',
   },
   {
     name: 'artifact:original-intent-snapshot.json',

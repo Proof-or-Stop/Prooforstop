@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-f97c",
+  "records": [
+    {
+      "id": "RED-20260712013036",
+      "trigger": "Routine story_review embeds the complete requirements corpus and exhausts context budget.",
+      "acceptanceTargetRef": "CHK-001:adversarial:0",
+      "baselineHeadHash": "d99938b8e2a2fdcc9e2681665f9b0dfdfab244ba",
+      "baselineMaterialHash": "329c50e6eb4c40929281e8df2fabba152c3494dfed1f1964634d9125f2ce14d4",
+      "observedFailure": "Before the fix, B-f97c story_review produced a 2,549,028-byte _reviewPrompt with truthDocsCount=114, estimated at 637,257 tokens; 2,536,001 bytes came from requirements Markdown content.",
+      "failingCommand": "! rg -n 'truthDocs|Truth Source' packages/main/src/handlers/story-review.ts",
+      "expectedGreenCommand": "! rg -n 'truthDocs|Truth Source' packages/main/src/handlers/story-review.ts",
+      "greenRelation": {
+        "targetRef": "CHK-001:adversarial:0",
+        "relation": "regression_to_green",
+        "command": "! rg -n 'truthDocs|Truth Source' packages/main/src/handlers/story-review.ts"
+      },
+      "note": "The baseline story_review JSON is captured outside the worktree at /tmp/B-f97c-story-review-plan-pass.json; deterministic byte totals are also encoded by the focused smoke.",
+      "createdAt": "2026-07-12T01:30:36.729Z"
+    },
+    {
+      "id": "RED-20260712013140",
+      "trigger": "Routine story_review embeds the complete requirements corpus and exhausts context budget.",
+      "acceptanceTargetRef": "CHK-001:adversarial:0",
+      "baselineHeadHash": "d99938b8e2a2fdcc9e2681665f9b0dfdfab244ba",
+      "baselineMaterialHash": "329c50e6eb4c40929281e8df2fabba152c3494dfed1f1964634d9125f2ce14d4",
+      "observedFailure": "Before the fix, B-f97c story_review produced a 2,549,028-byte _reviewPrompt with truthDocsCount=114, estimated at 637,257 tokens; 2,536,001 bytes came from requirements Markdown content.",
+      "failingCommand": "! rg -n 'truthDocs|Truth Source' packages/main/src/handlers/story-review.ts",
+      "expectedGreenCommand": "! rg -n 'truthDocs|Truth Source' packages/main/src/handlers/story-review.ts",
+      "greenRelation": {
+        "targetRef": "CHK-001:adversarial:0",
+        "relation": "regression_to_green",
+        "command": "! rg -n 'truthDocs|Truth Source' packages/main/src/handlers/story-review.ts"
+      },
+      "note": "Fresh baseline after all PLAN intent artifacts; current source still contains the failing producer channel.",
+      "createdAt": "2026-07-12T01:31:40.729Z"
+    }
+  ],
+  "createdAt": "2026-07-12T01:30:36.729Z",
+  "updatedAt": "2026-07-12T01:31:40.729Z"
+}

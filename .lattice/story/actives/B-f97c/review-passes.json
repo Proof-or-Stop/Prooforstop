@@ -1,0 +1,188 @@
+{
+  "passes": [
+    {
+      "id": "B-f97c:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept review passed: the implementation matches the frozen emergency intent by deleting recursive requirements reads and Truth Source concatenation, preserving structured PLAN artifacts and mechanical scope-check gates, and proving prompt bytes no longer scale with unrelated corpus size. The broader keyword/candidateSpecSet router is correctly not improvised here: agent-supplied keywords should be bounded routing signals combined with relatedDocs, story text, touchpoints/symbols, command/config names and top-N local rg results, with signed scope evidence and explicit escalation for ambiguity/high-risk work; that belongs to the planned M6 follow-up, while this narrow producer fix immediately stops quota exhaustion.",
+      "createdAt": "2026-07-12T01:37:35.617Z",
+      "reviewRound": "2026-07-12T01:35:57.174Z",
+      "reviewRunId": "B-f97c:RR-002",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f97c/background.md",
+          ".lattice/story/actives/B-f97c/plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "packages/main/src/tasks/story-review-corpus-budget-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/package.json",
+          "packages/main/src/handlers/story-review.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b98dc7bd293430a182caddb33c8ddc450c8b80dd724f59c71e9a3d32f33cb16c"
+    },
+    {
+      "id": "B-f97c:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed B-f97c quality and regressions: recursive requirements readFileSync/readdirSync traversal, truthDocs, truthDocsCount, truthSection, and truthDocs.join are absent; structured PLAN sections and the unchanged signed scope-check blocker/tamper/stale/gap/orphan handling remain active. Build, corpus-budget smoke, and reviewer-scan-budget guard pass. A synthetic 3 MiB requirements document changes prompt bytes by 0 (2936 to 2936), with estimated historical corpus framing 3,145,846 bytes versus 2,936 structured bytes. No blocker found. The older story-review-ergonomics smoke currently fails because its fixture omits the now-required scope_check_save.readManifest; this failure is outside this diff and does not indicate a regression from B-f97c.",
+      "createdAt": "2026-07-12T01:38:00.795Z",
+      "reviewRound": "2026-07-12T01:35:57.174Z",
+      "reviewRunId": "B-f97c:RR-001",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/package.json",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/tasks/story-review-corpus-budget-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ea7a06c77a6797cd2b3b7231b72927067ea285e12aaf2bf2075943f999aad94d"
+    },
+    {
+      "id": "B-f97c:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Targeted re-review at HEAD 91f77ad9f6: F-001 is fixed by a real sparse PLAN fixture omitting understanding, decision, grill, and verificationIntent while asserting a well-formed prompt, retained checklist/ProofStory, expected advisories, and zero blockers. Build and focused corpus-budget smoke pass; 3 MiB nested corpus still yields 0-byte prompt delta. F-002 is fixed by separate CHK-004 usage_sweep evidence disclosing the captured 58,342,389 totalTokens as NON-AUTHORITATIVE, multiAttribution=true, overlapping/non-exclusive attribution; deterministic byte/4 prompt estimates remain separately labelled. No coverage blocker remains.",
+      "createdAt": "2026-07-12T01:44:46.055Z",
+      "reviewRound": "2026-07-12T01:43:12.253Z",
+      "reviewRunId": "B-f97c:RR-005",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f97c/background.md",
+          ".lattice/story/actives/B-f97c/plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "packages/main/src/tasks/story-review-corpus-budget-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/package.json",
+          "packages/main/src/handlers/story-review.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b3a4eafd3e36529333c68295700bcb81356db91f8283d7aa0747474777967e17"
+    },
+    {
+      "id": "B-f97c:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Targeted re-review at HEAD 91f77ad9f6 after fix 8c70feff65: sparse PLAN fixture now exercises missing understanding/decision/grill/verificationIntent while preserving a well-formed structured prompt, expected advisories, zero blockers, checklist content, and ProofStory diagnostics. The fixture uses a correctly signed legacy-compatible scope artifact so it does not weaken production scope-check code or alter gates. Build and test:story-review-corpus-budget pass; the 3 MiB corpus still causes zero prompt-byte delta. Usage attribution wording is now honest: deterministic byte/token estimates remain separate from read-only usage_sweep, which reports B-f97c as multi-attributed and therefore cannot be treated as exact task billing. No quality or gate regression found.",
+      "createdAt": "2026-07-12T01:44:55.840Z",
+      "reviewRound": "2026-07-12T01:43:12.253Z",
+      "reviewRunId": "B-f97c:RR-004",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/story-review-corpus-budget-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/handlers/story-review.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "acdbfaae1ccdeb81a40a7b6a3bbf1107c1574def06af6ddc6e80bfda6a5d9989"
+    },
+    {
+      "id": "B-f97c:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Targeted fresh concept re-review passed at current HEAD: commit 8c70feff65 only strengthens the regression proof. Sparse accepted PLAN input now demonstrates that removing the corpus producer does not make optional understanding/decision/grill/verificationIntent data mandatory or introduce blockers, while still retaining checklist and ProofStory prompt structure. Usage disclosure now correctly separates deterministic prompt byte and byte/4 estimates from story-scoped usage_sweep attribution and explicitly labels multi-attribution as non-authoritative/overlapping. These changes remain within the frozen emergency scope and preserve the user outcome: story_review no longer burns quota on unrelated requirements content; candidate keyword routing remains a separate bounded M6 optimization.",
+      "createdAt": "2026-07-12T01:46:16.277Z",
+      "reviewRound": "2026-07-12T01:43:12.253Z",
+      "reviewRunId": "B-f97c:RR-006",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/story-review-corpus-budget-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/package.json",
+          "packages/main/src/handlers/story-review.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4c7d178acf7b8c7a0760037b355f266b19aadc4719f6f5742a91068ae64e2bbc"
+    },
+    {
+      "id": "B-f97c:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Fresh concept review passed after main merge/validation. The current story diff still contains the same narrow producer-boundary correction: recursive requirements Markdown reads and Truth Source concatenation are removed, structured PLAN/scope-check behavior remains, sparse accepted PLAN coverage remains non-blocking, and usage reporting remains honestly separated into deterministic prompt estimates versus non-authoritative overlapping usage_sweep attribution. The upstream merge contributes version/package/runtime history only and does not alter B-f97c conceptual behavior or expand frozen scope. Current binding storyFilesHash=16054b97; no blocker found.",
+      "createdAt": "2026-07-12T01:55:24.841Z",
+      "reviewRound": "2026-07-12T01:54:57.206Z",
+      "reviewRunId": "B-f97c:RR-007",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/story-review-corpus-budget-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/package.json",
+          "packages/main/src/handlers/story-review.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e8c61f711ed8d4470feb865b37308b1f8f841d54f89cf48ae153861e6443b69c"
+    },
+    {
+      "id": "B-f97c:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Fresh quality review on merged-main binding at HEAD 5badd5842d (storyFilesHash 16054b97). Compared against prior reviewed HEAD 91f77ad9f6: merge left story-review.ts and story-review-corpus-budget-smoke.ts byte-unchanged; only the story-owned package.json version moved from 0.3.186 to 0.3.187. Current static scan still finds no recursive corpus read/join symbols. On the current binding, package build, corpus-budget smoke, and reviewer-scan-budget guard all pass; 3 MiB corpus delta remains zero and structured/sparse prompt coverage remains intact. No merge-induced quality or gate regression found.",
+      "createdAt": "2026-07-12T01:55:44.995Z",
+      "reviewRound": "2026-07-12T01:54:57.206Z",
+      "reviewRunId": "B-f97c:RR-008",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "packages/main/package.json",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/tasks/story-review-corpus-budget-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e5059958b2e77f3f3a3dfcce2641b1bf5ea6f6d237e0e4f6d0be2cb516671418"
+    },
+    {
+      "id": "B-f97c:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "Fresh current-binding coverage review after main merge: validation evidence is PASS on materialHash 83248d6c26000dfd5037cec7021e03a7b53db7bd62234f233f26054388778d69 and storyFilesHash 16054b9781ed92e63824978a59bb25358dce482756c281373856023ef5572c21, with configured validate command indices 0 through 44 all passing and 12/12 required intents covered. DONE-required evidence is PASS with two successful command receipts. Focused corpus-budget smoke independently passes: sparse fixture, structured prompt, 3 MiB sentinel exclusion, 2936-to-2936 zero-byte delta, and labelled byte/4 estimates. usage_sweep remains explicitly NON-AUTHORITATIVE multiAttribution=true overlapping attribution, not exclusive task billing. No coverage blocker remains.",
+      "createdAt": "2026-07-12T01:55:51.189Z",
+      "reviewRound": "2026-07-12T01:54:57.206Z",
+      "reviewRunId": "B-f97c:RR-009",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f97c/background.md",
+          ".lattice/story/actives/B-f97c/plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "packages/main/src/tasks/story-review-corpus-budget-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-f97c/done-required-evidence.json",
+          ".lattice/story/actives/B-f97c/test-evidence.json",
+          "packages/main/package.json",
+          "packages/main/src/handlers/story-review.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b2b0342abef83c9cf83a7fab8100663d94e2521d7e8f06e5c8166af3038ef01e"
+    },
+    {
+      "id": "B-f97c:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Round 4 targeted concept review passed. Commit 0092e19b54 adds only a scope-contract acknowledgement for the CLI-generated .lattice/story/actives/B-f97c/evidence/delivery-context-pack.json, explicitly identifying it as structured input for the required independent delivery reviewer. The DEV phase event is lifecycle metadata needed to record that acknowledgement and was followed by the current REVIEW round; no implementation or story-owned product material changed (storyFilesHash remains 16054b97). The acknowledgement is necessary evidence/path accounting, not a new product commitment, feature, requirement, or expansion of B-f97c user scope.",
+      "createdAt": "2026-07-12T02:11:02.887Z",
+      "reviewRound": "2026-07-12T02:10:34.788Z",
+      "reviewRunId": "B-f97c:RR-010",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-f97c/evidence/delivery-context-pack.json",
+          ".lattice/story/actives/B-f97c/index.json",
+          ".lattice/story/actives/B-f97c/process-metrics.json",
+          ".lattice/story/actives/B-f97c/scope-contract.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "94071e7b08c074246254edd944716058b25403527f9502b4468f7930a7b89e1b"
+    }
+  ]
+}

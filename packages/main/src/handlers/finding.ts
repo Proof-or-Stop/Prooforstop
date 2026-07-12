@@ -20,7 +20,10 @@ import { signFinding, signReviewPass } from '../core/finding-verify.js';
 import { computeProcessMetrics } from '../core/process-metrics.js';
 import { syncClusterResolves } from '../core/cluster-sync.js';
 import { isPassOnlyReviewFindingRecord } from '../core/flow-fact-policy.js';
-import { assertCurrentReviewRunForEvidence, resolveReviewRunLane } from '../core/review-run.js';
+import { assertCurrentReviewRunForEvidence, captureReviewRunSnapshot, resolveReviewRunLane } from '../core/review-run.js';
+import { assertCandidateReadBinding, digestCandidateRoutingValue } from '../core/candidate-spec-routing.js';
+import { currentStoryRoutingInput } from './candidate-spec-routing.js';
+import { loadConfig } from '../core/config.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { withReentrantMainWriteLock } from '../core/main-write-lock.js';
 import { resolveMainRepoRoot } from '../core/partial-done-recovery.js';
@@ -33,7 +36,6 @@ import {
 import { deriveSignatureCandidate } from '../core/signature-candidate.js';
 import type { SignatureTagSource } from '../core/experience-layer-types.js';
 import { withMkdirLock } from '../core/mkdir-lock.js';
-import { loadConfig } from '../core/config.js';
 import {
   captureReviewerReadEvent,
   diagnoseReviewerReadEvidence,
@@ -258,12 +260,26 @@ function knownDecisionFilesForReadDiagnostics(ctx: HandlerContext, requirementsD
 
 function prepareReviewerReadEvidence(
   ctx: HandlerContext,
+  storyId: string,
   command: string,
   agent: string,
   readManifestInput: unknown,
   args: ReadEvidenceInput,
 ): PreparedReviewerReadEvidence {
   const readManifest = normalizeReviewerReadManifest(readManifestInput, `${command}.readManifest`);
+  const routingMode = loadConfig(ctx.root).candidateSpecRouting?.mode ?? 'shadow';
+  if (routingMode === 'enforce' || readManifest.candidateSpecSetDigest) {
+    const story = ctx.store.readStory(storyId);
+    const snapshot = captureReviewRunSnapshot(ctx.root, { storyId, storyPhase: story.phase });
+    assertCandidateReadBinding({
+      manifest: readManifest,
+      artifact: ctx.store.readCandidateSpecSet(storyId),
+      mode: routingMode,
+      currentMaterialHash: snapshot.materialHash,
+      currentStoryFilesHash: snapshot.storyFilesHash,
+      currentStoryInputDigest: digestCandidateRoutingValue(currentStoryRoutingInput(ctx, storyId)),
+    });
+  }
   const rawEvents = collectReadEventInputs(command, args);
   if (rawEvents === undefined) return { readManifest };
 
@@ -341,7 +357,7 @@ function recordReviewPass(
     const createdAt = new Date().toISOString();
     const reviewRound = story.currentReviewRound || '';
     const trimmedNote = note.trim();
-    const readEvidence = prepareReviewerReadEvidence(ctx, command, agent, readManifestInput, readEvidenceInput);
+    const readEvidence = prepareReviewerReadEvidence(ctx, storyId, command, agent, readManifestInput, readEvidenceInput);
     if (readEvidence.readDiagnostics && readEvidence.readDiagnostics.length > 0) {
       throw new Error(`${command}: mechanical reviewer read evidence does not match readManifest: ${formatReadDiagnostics(readEvidence.readDiagnostics)}`);
     }
@@ -467,7 +483,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
         throw new Error('finding_add.readManifest: required when reviewer readEvents/readLog is provided');
       }
       const readEvidence = reviewerLane && (args.readManifest !== undefined || hasMechanicalReadInput(args))
-        ? prepareReviewerReadEvidence(ctx, 'finding_add', agent, args.readManifest, args)
+        ? prepareReviewerReadEvidence(ctx, args.storyId, 'finding_add', agent, args.readManifest, args)
         : undefined;
 
       // Auto-inject the current review round (reviewer does not need to pass it)

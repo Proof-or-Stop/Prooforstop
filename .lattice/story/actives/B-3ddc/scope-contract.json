@@ -1,0 +1,57 @@
+{
+  "storyId": "B-3ddc",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/host-run.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/host-run-usage-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "packages/main/src/core/usage-ledger/**",
+    "packages/main/src/handlers/host-run.ts"
+  ],
+  "scopeChangeReason": "Initialized empty from legacy checklist (no files fields); set explicitly to the user-confirmed scope boundary: core host-run.ts (failure lane + reason) and the host-run usage smoke (pinned fixture); ledger modules and the handler are read-only context.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Story lifecycle metadata written by the ProofStory intent-gate commands themselves (proofstory_contract_set acceptance binding AB-001 and red_evidence_create bound to it) during PLAN, required by the enforce DEV intent gate; not product code and not registered lifecycle artifacts in this CLI version.",
+      "timestamp": "2026-07-11T23:36:38.325Z",
+      "paths": [
+        ".lattice/story/actives/B-3ddc/proofstory.json",
+        ".lattice/story/actives/B-3ddc/red-evidence.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-3ddc/proofstory.json",
+        ".lattice/story/actives/B-3ddc/red-evidence.json"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "1cbaed6b8078ec88289d6a10fd48126f1a3deaaa",
+      "materialHash": "6e59fee3d22619cad4ffaaa0001a50f5e71d60cd5ae7910b7eee382f697a84bd"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Same class as the prior acknowledgement: ProofStory intent-gate metadata written by original_intent_snapshot_set and intent_collision_set during PLAN (required by the enforce DEV intent gate); command-generated story metadata, not product code, not yet in the lifecycle registry of this CLI version.",
+      "timestamp": "2026-07-11T23:37:06.765Z",
+      "paths": [
+        ".lattice/story/actives/B-3ddc/intent-collision.json",
+        ".lattice/story/actives/B-3ddc/original-intent-snapshot.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-3ddc/intent-collision.json",
+        ".lattice/story/actives/B-3ddc/original-intent-snapshot.json"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "1cbaed6b8078ec88289d6a10fd48126f1a3deaaa",
+      "materialHash": "6e59fee3d22619cad4ffaaa0001a50f5e71d60cd5ae7910b7eee382f697a84bd"
+    }
+  ],
+  "createdAt": "2026-07-11T23:09:28.887Z",
+  "updatedAt": "2026-07-11T23:37:06.765Z"
+}

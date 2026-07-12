@@ -1,0 +1,135 @@
+{
+  "passes": [
+    {
+      "id": "B-3ddc:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept review: verified second bounded failure lane (reused UsageLineScanner, same 1MiB last-wins cap) is independent of the usage lane, honest turn_failed(<digest>) fallback preserves no_turn_completed_usage_event when no failure event present, innermost-message drilling is depth-capped and sanitized/length-capped (tested adversarial huge+nested inputs), single call site correctly threaded with safe default, no other callers of changed types found; full smoke suite (71 checks) passes after clean build.",
+      "createdAt": "2026-07-11T23:41:01.569Z",
+      "reviewRound": "2026-07-11T23:37:09.696Z",
+      "reviewRunId": "B-3ddc:RR-002",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3ddc/plan.md",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3ddc/checklist.json",
+          ".lattice/story/actives/B-3ddc/decision.json",
+          ".lattice/story/actives/B-3ddc/scope-contract.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d001b0615cc2dcf58784641862132d1c301540503b64d9b1ce19841f6153e648"
+    },
+    {
+      "id": "B-3ddc:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed CHK-001/CHK-002/CHK-003 (single shared implementation in host-run.ts + host-run-usage-smoke.ts). Verified: (1) failureLineRetainerFor/failureScanner is a second, independent UsageLineScanner instance reusing the identical 1 MiB last-wins cap; codex-only, no-op for claude/agy. (2) recordFinalForHost only consults scanCodexTurnFailed when scanCodexTurnCompletedUsage returns null, AND only after the retentionTruncated early-return (line ~1466) already handled F-013/F-026 priority -- so a truncated usage lane can never be overridden by turn_failed. (3) codexTurnFailedDigest correctly drills to the innermost error.message for the pinned B-3928 nested-JSON payload, sanitizes control chars/whitespace, and hard-truncates at the exported CODEX_TURN_FAILED_DIGEST_MAX_CHARS=160 with an ellipsis. (4) Live passthrough (onChunk) is untouched -- failureScanner.push is an additional read of the same chunk, not a replacement. (5) Ran npm run build (clean) and node dist/tasks/host-run-usage-smoke.js: all 71 checks pass including the new B-3ddc cases (pinned B-3928 fixture, fallback, precedence, streaming lane, terminal error, digest hygiene) plus the untouched F-013/F-026/F-006 regression checks. Minor gap (non-blocking): no dedicated test drives an over-cap turn.failed line through the failure lane specifically (CHK-001 edge:1, should-priority) -- lower risk since it reuses the exact same UsageLineScanner class/cap already covered by F-006/F-013 unit tests on the usage lane. No blockers found.",
+      "createdAt": "2026-07-11T23:41:15.490Z",
+      "reviewRound": "2026-07-11T23:37:09.696Z",
+      "reviewRunId": "B-3ddc:RR-003",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3ddc/background.md",
+          ".lattice/story/actives/B-3ddc/plan.md",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3ddc/checklist.json",
+          ".lattice/story/actives/B-3ddc/index.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "814bf3340971ae006ed665f6d89e2cdb4c24487edcd4e9c5e7e7cfd216691c00"
+    },
+    {
+      "id": "B-3ddc:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage pass: CHK-001/002/003 happy/edge/adversarial verificationIntent all present with matching verificationEvidence (26 refs). Independently rebuilt packages/main (tsc clean) and re-ran node dist/tasks/host-run-usage-smoke.js fresh: 71/71 checks pass including all B-3ddc-specific checks (pinned B-3928 fixture, fallback, precedence, streaming lane, terminal error, digest hygiene) plus unchanged F-013/F-026/F-006 regression guards. Confirmed git diff main..HEAD touches exactly host-run.ts + host-run-usage-smoke.ts, matching scope-contract.json allowedModify/allowedTest (usage-ledger/** and handlers/host-run.ts untouched, as excluded). Confirmed zero code drift between recorded evidence headHash (95e771bed0) and current HEAD (only lattice metadata commits followed). Verified in source that retentionTruncated branch returns before the codex turn_failed branch (F-013/F-026 priority intact) and that failureLineRetainerFor returns undefined for non-codex hosts (claude/agy out of scope per plan). No blocking findings.",
+      "createdAt": "2026-07-11T23:54:10.207Z",
+      "reviewRound": "2026-07-11T23:37:09.696Z",
+      "reviewRunId": "B-3ddc:RR-005",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3ddc/plan.md",
+          ".lattice/story/actives/B-3ddc/red-evidence.json",
+          ".lattice/story/actives/B-3ddc/scope-contract.json",
+          ".lattice/story/actives/B-3ddc/understanding.json",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3ddc/checklist.json",
+          ".lattice/story/actives/B-3ddc/decision.json",
+          ".lattice/story/actives/B-3ddc/index.json",
+          ".lattice/story/actives/B-3ddc/proofstory.json",
+          ".lattice/story/actives/B-3ddc/review.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6393a41e872728a7f1ea11e437e0857a1925d85dd8213ffeab72d6fd045c955d"
+    },
+    {
+      "id": "B-3ddc:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round. Fix commit b0e9ea0bb882 adds HostRunSpawnResult.failureRetentionTruncated (F1) + paren-neutralization in the turn_failed digest (F2), both purely additive alongside untouched existing retentionTruncated / no_turn_completed_usage_event concepts. Grepped both identifiers across packages/ (src+dist): fully referenced, no orphaned residue, covered by new/updated tests.",
+      "createdAt": "2026-07-12T00:45:52.434Z",
+      "reviewRound": "2026-07-12T00:43:26.118Z",
+      "reviewRunId": "B-3ddc:RR-006",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3ddc/checklist.json",
+          ".lattice/story/actives/B-3ddc/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a3e7aa31047dcc3f80801004f014aa02ec72e1d0d70cd37fb46fe49627d9e9bf"
+    },
+    {
+      "id": "B-3ddc:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 quality re-review of fix commit b0e9ea0bb8 (failure-lane truncation honesty + paren neutralization). Verified: (1) failureRetentionTruncated is correctly threaded end-to-end (HostRunSpawnResult -> runHostRun -> recordFinalForHost) and only gates the codex usage===null branch AFTER the pre-existing retentionTruncated (usage lane) early-return, preserving F-013/F-026 absolute priority exactly as documented. (2) failureSource is forced to \"\" only when failureRetentionTruncated is true, so a stale/superseded failure line can never leak into turn_failed(<digest>); a drop-then-candidate (last-wins) correctly clears the flag per new F1 tests. (3) Paren neutralization ((-> [, )-> ]) is applied after control-char/whitespace collapse and before the length cap, so the digest interior can never contain ( or ), verified by the new F2 paren-injection unit test with an adversarial payload literally containing turn_failed(fake. (4) No dead code / unused exports: scanCodexTurnFailed, codexTurnFailedReason, failureLineRetainerFor, CODEX_TURN_FAILED_DIGEST_MAX_CHARS, CodexTurnFailedEvent are only referenced from host-run.ts + the smoke test (grepped packages/main/src, no orphans). No as any, no empty catches; JSON.parse try/catch blocks follow the existing own-property-guarded pattern used elsewhere in this file for untrusted external stdout. (5) No bridge.ts/fn.ts I/O-isolation concern (module not present in this package). (6) Proof-metadata dual-location rule (job.metadata/run.metadata) not applicable -- this diff only changes the LLM usage-ledger unavailableReason string, no proof/receipt/job/run metadata semantics touched. (7) Ran a forced clean rebuild (rm dist artifacts + npx tsc) and a fresh node dist/tasks/host-run-usage-smoke.js: tsc compiles clean, 74/74 checks pass, including the 3 new F1/F2-specific checks plus the extended digest-hygiene check (71->74 matches the round description). Transient note: mid-review the working tree briefly showed an uncommitted revert of this exact fix in host-run.ts (review_run_start correctly refused on the dirty tree); it resolved before this run started and the committed HEAD content was confirmed correct and building cleanly -- not filed as a finding since it was not reproducible against the current committed diff and is not attributable to this changeset. No blocking findings.",
+      "createdAt": "2026-07-12T00:52:38.659Z",
+      "reviewRound": "2026-07-12T00:43:26.118Z",
+      "reviewRunId": "B-3ddc:RR-007",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3ddc/checklist.json",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3ddc/plan.md",
+          ".lattice/story/actives/B-3ddc/review-passes.json",
+          ".lattice/story/actives/B-3ddc/review-runs.json",
+          ".lattice/story/actives/B-3ddc/review.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e64207f405be7c07a17010344422ed25e6d2af18a43564c091c3a376eb76b941"
+    },
+    {
+      "id": "B-3ddc:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 2): verified CHK-001/002/003 verificationIntent (happy/edge/adversarial) all covered by must-priority pass evidence; directly verified the 3 new/updated smoke checks (F1 candidate-then-drop, F2 paren-injection, extended digest-hygiene) are load-bearing by rebuilding against the pre-fix (b0e9ea0bb882~1) host-run.ts shape and observing genuine compile/runtime failures matching the exact round-1 findings, then restored the fixed tree and confirmed all 74 checks pass; no blocker.",
+      "createdAt": "2026-07-12T00:57:30.637Z",
+      "reviewRound": "2026-07-12T00:43:26.118Z",
+      "reviewRunId": "B-3ddc:RR-008",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "db5b76ea3348f7b74864a559fa3ee853473df9b1652d446f96807ff0e12f4b26"
+    }
+  ]
+}

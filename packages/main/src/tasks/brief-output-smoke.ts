@@ -217,7 +217,10 @@ try {
 
   // PLAN-phase story + a heavy truth doc for the story_review brief checks. The
   // marker sits inside the truth doc, which story_review embeds ONLY in the
-  // full `_reviewPrompt` (the measured 2.6MB whale on real projects).
+  // full `_reviewPrompt`. Since main's B-f97c, requirements docs are no longer
+  // embedded in the prompt (that was the measured 2.6MB whale), so the
+  // full-output witness is the PLAN prompt header text, which the brief stub
+  // replaces.
   const reviewStoryId = 'B-reviewbrief';
   {
     const dir = join(activesDir, reviewStoryId);
@@ -397,24 +400,24 @@ try {
   assert.ok(srBrief.issues.every((i) => i.message.length <= 301), 'story_review brief truncates issue messages');
   assert.ok(typeof srBrief._reviewPrompt === 'string' && srBrief._reviewPrompt.length > 0, 'story_review brief keeps a non-empty _reviewPrompt stub');
   assert.match(srBrief._reviewPrompt!, /--full/, 'story_review brief _reviewPrompt stub names --full');
-  assert.doesNotMatch(srBriefText, new RegExp(FULL_ONLY_MARKER), 'story_review brief drops the truth-doc payload');
+  assert.doesNotMatch(srBriefText, /Please review the PLAN-phase artifacts/, 'story_review brief replaces the full _reviewPrompt body');
   assert.match(srBrief._hint, /--full/, 'story_review brief _hint names --full');
   assert.ok(bytes(srBriefText) < 20000, `story_review brief under budget, got ${bytes(srBriefText)}`);
 
   const srFullText = runCli(temp, ['story_review', `--storyId=${reviewStoryId}`, '--full']);
-  assert.match(srFullText, new RegExp(FULL_ONLY_MARKER), 'story_review --full restores the full _reviewPrompt (truth docs)');
+  assert.match(srFullText, /Please review the PLAN-phase artifacts/, 'story_review --full restores the full _reviewPrompt body');
   assert.ok(bytes(srBriefText) < bytes(srFullText), 'story_review brief is smaller than full');
 
   const srEnvFullText = runCli(temp, ['story_review', `--storyId=${reviewStoryId}`], { LATTICE_BRIEF_OUTPUT: '0' });
-  assert.match(srEnvFullText, new RegExp(FULL_ONLY_MARKER), 'LATTICE_BRIEF_OUTPUT=0 restores full story_review on bare invocation');
+  assert.match(srEnvFullText, /Please review the PLAN-phase artifacts/, 'LATTICE_BRIEF_OUTPUT=0 restores full story_review on bare invocation');
   const srEnvBriefText = runCli(temp, ['story_review', `--storyId=${reviewStoryId}`, '--brief'], { LATTICE_BRIEF_OUTPUT: '0' });
-  assert.doesNotMatch(srEnvBriefText, new RegExp(FULL_ONLY_MARKER), 'per-call --brief wins over LATTICE_BRIEF_OUTPUT=0 for story_review');
+  assert.doesNotMatch(srEnvBriefText, /Please review the PLAN-phase artifacts/, 'per-call --brief wins over LATTICE_BRIEF_OUTPUT=0 for story_review');
 
   const srJsonUnset = runJson<Record<string, unknown>>(temp, ['story_review', `--storyId=${reviewStoryId}`, '--json']);
   const srJsonZero = runJson<Record<string, unknown>>(temp, ['story_review', `--storyId=${reviewStoryId}`, '--json'], { LATTICE_BRIEF_OUTPUT: '0' });
   assert.deepEqual(Object.keys(srJsonUnset).sort(), Object.keys(srJsonZero).sort(), 'story_review --json keys identical regardless of brief env');
   assert.equal(srJsonUnset._brief, undefined, 'story_review --json is not the brief shape');
-  assert.match(String(srJsonUnset._reviewPrompt), new RegExp(FULL_ONLY_MARKER), 'story_review --json keeps the full _reviewPrompt (frozen shape)');
+  assert.match(String(srJsonUnset._reviewPrompt), /Please review the PLAN-phase artifacts/, 'story_review --json keeps the full _reviewPrompt (frozen shape)');
 
   // ─────────────────────────────────────────────────────────────────────────
   // doctor (round 2)

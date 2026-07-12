@@ -1,0 +1,115 @@
+{
+  "storyId": "B-f646",
+  "name": "m6-multi-host-keyword-candidate-routing-plan",
+  "title": "Write the M6 multi-host keyword candidate-spec routing execution plan",
+  "description": "Create a canonical execution Markdown document for the post-B-f97c optimization: deterministic CLI keywords plus semantic keyword proposals from Codex CLI, Claude Code CLI, and Antigravity CLI; local bounded rg search; auditable candidateSpecSet ranking; top-N full reads; explicit full-scan escalation; quality, token, and read-evidence acceptance gates.",
+  "type": "chore",
+  "phase": "DONE",
+  "priority": "high",
+  "keywords": [
+    "M6",
+    "candidateSpecSet",
+    "keyword routing",
+    "spec search"
+  ],
+  "riskSignals": [
+    {
+      "category": "Security/Credentials",
+      "matched": "token"
+    }
+  ],
+  "createdAt": "2026-07-12T08:57:49.832Z",
+  "startedAt": "2026-07-12T08:57:49.832Z",
+  "endedAt": "2026-07-12T09:27:27.845Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-12T08:57:51.118Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-07bc482a401d5422",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-12T08:58:48.852Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-07bc482a401d5422",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-12T08:59:19.469Z",
+      "branch": "story/B-f646",
+      "user": "Harmonygo",
+      "sessionId": "sess-7dfa92e9fc4819d3",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-12T09:02:36.314Z",
+      "branch": "story/B-f646",
+      "user": "Harmonygo",
+      "sessionId": "sess-bcca18fa2f1559a8",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-12T09:06:23.727Z",
+      "branch": "story/B-f646",
+      "user": "Harmonygo",
+      "sessionId": "sess-bcca18fa2f1559a8",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-12T09:08:16.805Z",
+      "branch": "story/B-f646",
+      "user": "Harmonygo",
+      "sessionId": "sess-bcca18fa2f1559a8",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-12T09:08:40.723Z",
+      "branch": "story/B-f646",
+      "user": "Harmonygo",
+      "sessionId": "sess-bcca18fa2f1559a8",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-12T09:15:09.132Z",
+      "branch": "story/B-f646",
+      "user": "Harmonygo",
+      "sessionId": "sess-bcca18fa2f1559a8",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-12T09:27:27.845Z",
+      "branch": "story/B-f646",
+      "user": "Harmonygo",
+      "sessionId": "sess-bcca18fa2f1559a8",
+      "agent": "main"
+    }
+  ],
+  "riskSignalsDismissed": [
+    {
+      "category": "Security/Credentials",
+      "reason": "The word token refers only to LLM context-cost measurement in a docs-only execution plan; no credentials, authentication, secrets, or security behavior are changed.",
+      "at": "2026-07-12T08:57:59.628Z"
+    }
+  ],
+  "currentReviewRound": "2026-07-12T09:08:40.723Z"
+}

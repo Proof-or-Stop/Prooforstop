@@ -1,0 +1,80 @@
+{
+  "principles": [
+    "Every recall addition ships with must-fire AND must-not-fire smoke cases in the same commit (RED-first both directions)",
+    "Clause structure, not raw proximity or word counts, decides chain reachability (B-2c03 F-012 lesson)",
+    "Verb vocabulary is precision-bound: passive voice, follow-up objects, or delivery qualifiers - never bare change verbs",
+    "The sanitizer and clause taxonomy settled in B-2c03 stay untouched beyond the two declared chain tweaks",
+    "Deterministic lexical processing only - a DONE gate must be reproducible"
+  ],
+  "drivers": [
+    "Five recall classes were live-verified as silent bypasses during nine codex host-B rounds - each is a narrowed delivery that can reach DONE unconfirmed",
+    "B-2c03 just closed the false-positive direction; additions must not force honest summaries to paraphrase again",
+    "All 22+ B-2c03 pinned smoke cases must pass unchanged (convergence statement)"
+  ],
+  "options": [
+    {
+      "name": "targeted-lexical-additions",
+      "pros": [
+        "Matches the five verified classes exactly",
+        "Each addition independently pinnable both directions",
+        "Stays inside the B-2c03 convergence design and scope boundary"
+      ],
+      "cons": [
+        "Vocabulary remains a curated list that future classes will extend",
+        "Bounded adverb windows can miss exotic insertions beyond two tokens"
+      ]
+    },
+    {
+      "name": "broad-verb-and-window-expansion",
+      "pros": [
+        "Higher raw recall",
+        "Fewer future follow-up stories"
+      ],
+      "cons": [
+        "Bare removed/dropped/cut flood routine change descriptions with false positives",
+        "Open windows revive the F-012 proximity failure class",
+        "Directly contradicts the user-confirmed precision design"
+      ]
+    },
+    {
+      "name": "semantic-classification",
+      "pros": [
+        "Could catch arbitrary phrasings"
+      ],
+      "cons": [
+        "Non-deterministic in a DONE gate",
+        "Explicitly excluded by the scope boundary",
+        "Unreviewable failure modes"
+      ]
+    }
+  ],
+  "chosen": "targeted-lexical-additions",
+  "rationale": "The five classes are precisely characterized with verified sentences; targeted additions close them while the both-directions pinning discipline and the inherited convergence statement keep the precision/recall treadmill closed. The broad and semantic options both reopen failure classes B-2c03 spent nine cross-vendor rounds closing.",
+  "preMortem": [
+    {
+      "scenario": "A new verb form fires on routine change descriptions across many stories",
+      "trigger": "A bare or under-constrained verb (removed, dropped, cut) slips into the vocabulary without its qualifier binding",
+      "consequence": "Honest DONE summaries get blocked repo-wide; authors paraphrase and trust in the gate erodes (the exact B-d6a0 pain, reversed)",
+      "mitigation": "Every verb is passive-bound, follow-up-bound, or qualifier-bound; bare forms are pinned must-not-fire in the smoke; reviewer lanes probe with routine-change sentences"
+    },
+    {
+      "scenario": "An adverb window bridges a sentence or clause boundary",
+      "trigger": "The window connector accepts sentence punctuation (the not-documented-period-Yet-covered shape)",
+      "consequence": "Unrelated sentences combine into phantom triggers - the F-012 class returns through the new windows",
+      "mitigation": "Window connectors use the dot-not-before-whitespace rule; a sentence-boundary must-not-fire control is pinned; windows are bounded to two tokens"
+    },
+    {
+      "scenario": "A vocabulary addition interacts with the sanitizer to double-fire or silently swallow",
+      "trigger": "A new verb phrase overlaps a stripped token boundary (URL or file name stripped mid-phrase)",
+      "consequence": "Either false positives from residue or false negatives when the verb sits inside the stripped span",
+      "mitigation": "CHK-004 interaction audit probes each addition against every strip class; the URL-descoped interaction pin covers the stripped-subject shape"
+    },
+    {
+      "scenario": "B-2c03 pinned behavior regresses unnoticed",
+      "trigger": "An alternation change reorders or shadows an existing branch of the trigger regex",
+      "consequence": "A closed false-positive or false-negative class silently reopens",
+      "mitigation": "The full 22+ pinned B-2c03 cases run in the same smoke; cross-vendor codex host-B review re-probes the closed classes before quorum"
+    }
+  ],
+  "timestamp": "2026-07-11T22:43:58.663Z"
+}

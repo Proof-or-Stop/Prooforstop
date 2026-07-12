@@ -1,0 +1,120 @@
+{
+  "passes": [
+    {
+      "id": "B-f646:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: CHK-001 has happy, edge, and adversarial intents, and the plan validation matrix plus quality floor cover the requested regression risks. Missed specs are guarded by 100% critical/high-risk recall, >=98% overall recall, cutoff-tie/truncation escalation, corpus-mutation rerouting, and no lost load-bearing findings versus the full-scan baseline. Host failures cover agy outage, both primary hosts unavailable, schema/size rejection, deterministic fallback, and prohibition on automatic full scan. Fabricated reads fail closed via manifest/read-log mismatch and undeclared mechanical full-read cases, with zero accepted mismatches. Corpus reinjection is prohibited in zero-candidate fallback, rollback, default prompts, and the irrelevant-5MB fixture; prompt/document bytes must remain >=90% below baseline. No test-coverage blocker found.",
+      "createdAt": "2026-07-12T09:07:24.330Z",
+      "reviewRound": "2026-07-12T09:06:23.727Z",
+      "reviewRunId": "B-f646:RR-002",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "9338bd28c849d0cd439029b952966b1ddd854656d71e2d6df8f37e3569bf29d1"
+      },
+      "readDiagnostics": [],
+      "_hash": "3e7cfa25b9a4d863911a1311dbb1fca60421bcd81f6e5245cbeba2ce5c566dcc"
+    },
+    {
+      "id": "B-f646:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept review PASS. The document correctly separates shipped B-f97c corpus-removal and current prompt-layer scope controls from future M6 CLI routing/read-log enforcement; uses canonical Codex CLI, Claude Code CLI, and Antigravity CLI (agy) taxonomy with Codex/Claude primary and agy conditional; keeps host proposals advisory; defines deterministic CLI ownership, bounded search/candidate budgets, ambiguity/high-risk escalation, tool-driven broad scan, freshness and read-evidence failure behavior; and preserves signed lifecycle evidence and reviewer-lane ownership. No conceptual blocker found.",
+      "createdAt": "2026-07-12T09:07:33.701Z",
+      "reviewRound": "2026-07-12T09:06:23.727Z",
+      "reviewRunId": "B-f646:RR-003",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "75a093403552871694c481888fbbf9bd6a9cb94905d56a2224db12b80ada08b8"
+      },
+      "readDiagnostics": [],
+      "_hash": "869210626a76381f75c470862d15281a5012a731040ffb1b74cebb4ebf8ccb81"
+    },
+    {
+      "id": "B-f646:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "PASS for documentation quality, without clearing the existing F-001 security blocker. The document is structured as a canonical execution plan with an explicit accepted-plan/implementation-not-started header, a precise shipped-versus-future boundary, consistent Codex CLI/Claude Code CLI/Antigravity CLI (agy) terminology, versioned schemas, deterministic budgets, phase ownership, process/runtime boundaries, milestones M6A-M6G, validation/rollout/rollback criteria, and a narrow first implementation Story. Implementers can derive ordered stories and exit criteria without treating advisory host output as gate evidence. Existing B-f646:F-001 independently identifies the missing pre-egress secret-sanitization boundary and fixtures; duplicating it in the docs lane would add no distinct issue. No additional clarity, consistency, completeness, stale-state, or implementer-usability blocker found.",
+      "createdAt": "2026-07-12T09:08:06.332Z",
+      "reviewRound": "2026-07-12T09:06:23.727Z",
+      "reviewRunId": "B-f646:RR-004",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "9338bd28c849d0cd439029b952966b1ddd854656d71e2d6df8f37e3569bf29d1"
+      },
+      "readDiagnostics": [],
+      "_hash": "646269bc84e5e93d85e494954a9ced434c125cf0cf4130df73f7dfa0689c51ca"
+    },
+    {
+      "id": "B-f646:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Quality re-review passed after commit 4357b37fa7. F-001 is materially closed: one non-bypassable pre-egress sanitizer covers every host-bound field/artifact; names are separated from detected values; sensitive provenance/sourceRef is hashed or omitted with a local-only map; uncertain classification skips the host and retains deterministic local routing; unsafe host input/output is rejected rather than repaired or persisted; and the validation matrix covers Story/checklist/backtick, seed/sourceRef/path-title/config/error, uncertainty, and hostile-output leakage cases. The fix is consistent with exact-identifier preservation because raw identifiers may remain local for deterministic routing while only sanitized data crosses the host boundary, and it does not weaken candidate budgets, quality floors, escalation, signed evidence, or rollback.",
+      "createdAt": "2026-07-12T09:09:34.397Z",
+      "reviewRound": "2026-07-12T09:08:40.723Z",
+      "reviewRunId": "B-f646:RR-005",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "9338bd28c849d0cd439029b952966b1ddd854656d71e2d6df8f37e3569bf29d1"
+      },
+      "readDiagnostics": [],
+      "_hash": "9999de6e67855b5455496b01d9b254fb2721681ef77c457160a0ed340b005493"
+    }
+  ]
+}

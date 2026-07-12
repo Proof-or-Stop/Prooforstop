@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-3ddc",
+  "id": "IC-20260711230919",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Codex-only enrichment: retain the last turn.failed/terminal-error line as a SECOND bounded lane (usage lane untouched), and use it only to refine the REASON of an unavailable final (turn_failed(<short sanitized digest, innermost nested error.message, 160-char cap>)); provider-reported behavior with genuine usage, F-013/F-026 truncation semantics, claude/agy paths, and the ledger schema all stay unchanged; an over-cap-dropped failure line degrades to the generic no_turn_completed_usage_event fallback.",
+  "acceptedInterpretationHash": "sha256:0f8db5c3650684c7ab7ea2b5e027ae38ae34cf46f61e272d608089a3b0f0c159",
+  "notes": "Interpretation checked against the user request wording (bounded, last-one-wins, same 1MiB cap discipline; honest-unavailable; fallback when neither event present) and the PLAN decision second-bounded-lane; no competing interpretation survives: widening the single retainer could evict genuine usage (dishonest), persisting transcripts violates bounded/--ephemeral expectations.",
+  "createdAt": "2026-07-11T23:09:19.194Z",
+  "updatedAt": "2026-07-11T23:09:19.194Z"
+}

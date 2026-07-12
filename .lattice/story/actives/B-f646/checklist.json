@@ -1,0 +1,92 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Write the multi-host candidate routing execution plan",
+      "context": "Define deterministic and host-proposed keyword inputs, local search/ranking, candidateSpecSet schema, full-read budget, escalation, evidence, quality gates, milestones, rollout, and validation matrix with an honest delivery-state boundary.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "excludes": [
+        "Changing runtime code",
+        "Changing reviewer prompt templates",
+        "Editing B-3928 artifacts"
+      ],
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md"
+        ],
+        "test": []
+      },
+      "status": "done",
+      "startTime": "2026-07-12T09:05:15.223Z",
+      "endTime": "2026-07-12T09:06:21.648Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Inspect the execution document and verify it defines the end-to-end producer flow from deterministic CLI keywords plus semantic proposals from Codex CLI, Claude Code CLI, and Antigravity CLI through local rg search, auditable ranking, bounded candidateSpecSet, top-N full reads, structured read evidence, milestones, rollout, validation matrix, and an explicit plan-only delivery-state boundary -> every required decision is concrete enough to implement and no runtime completion is claimed; WHY: proves the document is an executable canonical plan rather than a vague recommendation",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Review the plan against sparse matches, excessive/noisy matches, duplicate aliases, keyword disagreement across hosts, unavailable or quota-limited hosts, and zero-candidate results -> deterministic fallback, deduplication/ranking, configured bounds, host-substitution policy, and explicit escalation behavior remain defined without silently widening to the whole corpus; WHY: covers boundary conditions most likely to reintroduce omissions or unbounded token use",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Attempt to satisfy the proposed contract with host-supplied keywords alone, fabricated/self-reported read claims, or an unexplained full-corpus scan -> the plan requires CLI-owned deterministic seeds and bounds, local auditable search/ranking artifacts, evidence tied to actual candidate reads, explicit full-scan reasons, and quality/token/read-evidence acceptance gates that reject those bypasses; WHY: prevents prompt-only compliance and a disguised return of the 2 MB corpus injection failure",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+          "command": "test -s \"docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md\" && rg -qi 'Codex CLI|Claude Code CLI|Antigravity CLI|candidateSpecSet|readManifest|scanEscalationReason' \"docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md\"",
+          "result": "pass",
+          "note": "The canonical plan defines the complete producer flow, auditable artifacts, bounded reads, milestones, rollout, validation matrix, and explicitly states implementation has not started.",
+          "headHash": "4357b37fa70deafd488fe56def3b0373190c190a",
+          "materialHash": "79d4f9af5acae51b71d0e15479e29598bbac6fe9132061a712d5e68044c15efc",
+          "storyFilesHash": "430e1a5f2c609fe5c6228418c4cf30ac70938173346d7b3b362b639dea952298",
+          "timestamp": "2026-07-12T09:08:39.026Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+          "command": "rg -qi 'Sparse matches|Noisy/excessive matches|Zero-candidate result|quota|unavailable|deduplicate|full scan' \"docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md\"",
+          "result": "pass",
+          "note": "The validation matrix and escalation contract explicitly cover sparse, noisy, empty, disagreement, quota/unavailable-host, deduplication, cutoff, and bounded escalation cases.",
+          "headHash": "4357b37fa70deafd488fe56def3b0373190c190a",
+          "materialHash": "79d4f9af5acae51b71d0e15479e29598bbac6fe9132061a712d5e68044c15efc",
+          "storyFilesHash": "430e1a5f2c609fe5c6228418c4cf30ac70938173346d7b3b362b639dea952298",
+          "timestamp": "2026-07-12T09:08:39.026Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+          "command": "rg -qi 'deterministic seeds|readManifest|scanEscalationReason|prompt-injection|100%' \"docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md\"",
+          "result": "pass",
+          "note": "The plan rejects host-only authority and self-reported reads through CLI-owned seeds, mechanical read reconciliation, explicit scan reasons, trust controls, and recall/equivalence gates.",
+          "headHash": "4357b37fa70deafd488fe56def3b0373190c190a",
+          "materialHash": "79d4f9af5acae51b71d0e15479e29598bbac6fe9132061a712d5e68044c15efc",
+          "storyFilesHash": "430e1a5f2c609fe5c6228418c4cf30ac70938173346d7b3b362b639dea952298",
+          "timestamp": "2026-07-12T09:08:39.026Z"
+        }
+      ]
+    }
+  ]
+}

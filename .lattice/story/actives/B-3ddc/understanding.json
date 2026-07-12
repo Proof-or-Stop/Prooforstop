@@ -1,0 +1,30 @@
+{
+  "task": "A failed lattice host_run --host codex records only the generic unavailableReason no_turn_completed_usage_event because the streaming retainer keeps only turn.completed lines, discarding the terminal turn.failed/error event that names the real cause.",
+  "outcome": "After a codex host_run whose stream carries a turn.failed (or terminal error) event and no turn.completed usage, the usage-ledger unavailable final and the CLI usage summary carry unavailableReason turn_failed(<short digest of error.message>); with neither event present the reason stays no_turn_completed_usage_event; a genuine turn.completed usage still records provider-reported unchanged; the compiled host-run-usage smoke pins the exact observed B-3928 turn.failed line.",
+  "facts": [
+    "core/host-run.ts defaultHostRunRunner retains ONE bounded usage-bearing line via UsageLineScanner (last-wins, HOST_RUN_RETAINED_LINE_CAP=1MiB, F-013/F-026 truncation discipline); full transcripts pass through live and are never buffered",
+    "usageLineRetainerFor(codex) matches only type=turn.completed with a usage object; recordFinalForHost codex path records no_turn_completed_usage_event whenever scanCodexTurnCompletedUsage returns null",
+    "The observed B-3928 failure line is {\"type\":\"turn.failed\",\"error\":{\"message\":\"...status 400...The gpt-5.6-sol model requires a newer version of Codex...\"}} with error.message itself nested JSON",
+    "usage-ledger record.ts requires unavailableReason to be any non-empty string for source=unavailable, so turn_failed(...) needs no schema change",
+    "Fake smoke runners return full buffered stdout while the streaming runner returns only retained line(s), and the core treats result.stdout uniformly as the usage parse target",
+    "Only core/host-run.ts, handlers/host-run.ts (comment only) and tasks/host-run-usage-smoke.ts reference the runner retention surfaces"
+  ],
+  "constraints": [
+    "Honest-unavailable semantics: never fabricate usage numbers; a failure line only ever refines the REASON of an unavailable final",
+    "Bounded memory: failure-line retention must reuse the same 1MiB last-one-wins cap discipline; no transcript or session-file persistence",
+    "provider-reported behavior with a genuine turn.completed usage must stay byte-identical (a failure line must never evict or outrank a usage candidate)",
+    "codex-only scope: no failure enrichment for claude/agy in this story",
+    "Existing F-013/F-026 usage-lane truncation semantics (usage_line_retention_truncated priority) unchanged",
+    "English story artifacts; all changes inside the two allowed files"
+  ],
+  "unknowns": [
+    "Exact digest format: truncation cap length and sanitization rules for error.message (nested-JSON innermost message extraction, control-char collapse) to keep the ledger row readable",
+    "Whether the fallback digest when a failure event carries no extractable message should be a fixed token (e.g. no_error_message)",
+    "Whether an over-cap-dropped failure line needs its own truncation marker or honestly falls back to no_turn_completed_usage_event (current lean: fallback)"
+  ],
+  "touchpoints": [
+    "packages/main/src/core/host-run.ts: HostRunSpawnPlan/HostRunSpawnResult types, defaultHostRunRunner second UsageLineScanner lane, new failureLineRetainerFor + scanCodexTurnFailed + digest helper, recordFinalForHost codex branch",
+    "packages/main/src/tasks/host-run-usage-smoke.ts: CODEX_FAILED_STDOUT expectations, new pinned B-3928 fixture check, no-failure-event fallback case, usage+failure precedence case"
+  ],
+  "timestamp": "2026-07-11T23:04:10.128Z"
+}

@@ -1,0 +1,45 @@
+{
+  "findings": [
+    {
+      "id": "B-f646:F-001",
+      "desc": "The plan can exfiltrate credentials or other secret values to external proposal hosts. Section 7 requires preserving exact identifiers (line 137), and section 8 sends Story fields plus the full deterministic seed list/provenance to Codex/Claude/agy (lines 149-156), while the only secret control applies to search snippets (line 391), after proposal input is already constructed. A Story description, backticked token, config value, error payload, related-doc title, or deterministic sourceRef containing a secret can therefore enter host prompts and proposal artifacts. Before implementation, define one pre-egress sanitization boundary over every host-bound field and artifact: transmit names/keys but never detected values, hash or omit sensitive provenance, reject/record unsafe proposals, and fall back to deterministic local routing when classification is uncertain. Add fixtures proving secrets in Story/checklist/seeds/path-title metadata never reach any host prompt or persisted proposal. Source: docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md:137,149-156,391.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-12T09:07:23.712Z",
+      "reviewRound": "2026-07-12T09:06:23.727Z",
+      "reviewRunId": "B-f646:RR-001",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "9338bd28c849d0cd439029b952966b1ddd854656d71e2d6df8f37e3569bf29d1"
+      },
+      "readDiagnostics": [],
+      "_hash": "12598344053fc2ee50226852f459d9cf14625397bccebccfbe501a053ea49eef",
+      "files": [
+        "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md"
+      ],
+      "signatureTag": "adversarial|md|plan-exfiltrate-credentials",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added one mandatory pre-egress sanitizer over all host-bound fields and artifacts; names-not-values, sensitive provenance hash/omit, fail-local fallback on uncertain classification, rejected unsafe outputs, and four leakage validation scenarios. Verified with rg contract check and commit 4357b37fa7.",
+      "resolvedAt": "2026-07-12T09:08:46.696Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

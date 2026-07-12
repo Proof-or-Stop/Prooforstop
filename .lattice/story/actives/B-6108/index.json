@@ -4,7 +4,7 @@
   "title": "Expand claimsShrinkage trigger vocabulary recall: adverb insertion, inflections, shrinkage verbs, quoted nouns, and plus-lists verified out-of-scope during B-2c03",
   "description": "During B-2c03 (DONE 0.3.185), nine codex host-B cross-vendor review rounds plus claude-lane reviews verified five recall-gap classes in the claimsShrinkage trigger vocabulary of evaluateDoneIntentEquivalence (packages/main/src/core/proofstory.ts), all live-verified against the built code with zero unconfirmed_single_outcome_shrinkage gaps emitted, and all excluded from B-2c03 by its user-confirmed scope boundary (vocabulary changes beyond the remaining decision were out of scope): (1) adverb insertion in multi-word triggers - The Windows install path is not yet covered by this delivery; (2) inflections - only partially delivered, This delivery excludes the admin workflow; (3) shrinkage VERBS carrying the claim when the trigger word sits inside a stripped-by-requirement token (file names like deferred-query.sql, backticked code spans) - was skipped, was removed, was dropped, left to a follow-up story; (4) quoted scope nouns - The remaining quoted-cases were left for a follow-up story (quote characters sit between the chain connector and the noun position); (5) rare list constructions - web, mobile, plus Safari cases (comma+plus is not in the Oxford branch). This story expands the vocabulary following B-2c03's established pattern: RED-first smoke cases in packages/main/src/tasks/proofstory-intent-hardening-smoke.ts in BOTH directions, each addition checked against the stripCodeLikeTokens sanitizer and the remaining-chain clause taxonomy for interaction bugs, respecting the clause-structure design and convergence statement documented in B-2c03's plan.md.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "proofstory",
@@ -24,7 +24,7 @@
   "priorityElevatedFrom": "medium",
   "createdAt": "2026-07-11T22:30:37.785Z",
   "startedAt": "2026-07-11T22:30:37.785Z",
-  "endedAt": null,
+  "endedAt": "2026-07-12T00:15:49.614Z",
   "events": [
     {
       "phase": "INIT",
@@ -43,11 +43,52 @@
       "user": "Harmonygo",
       "sessionId": "481b35e7-c0f7-479c-8009-81864d68d4e6",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-11T22:33:45.562Z",
+      "branch": "story/B-6108",
+      "user": "Harmonygo",
+      "sessionId": "481b35e7-c0f7-479c-8009-81864d68d4e6",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-11T22:44:00.821Z",
+      "branch": "story/B-6108",
+      "user": "Harmonygo",
+      "sessionId": "481b35e7-c0f7-479c-8009-81864d68d4e6",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-11T22:54:45.995Z",
+      "branch": "story/B-6108",
+      "user": "Harmonygo",
+      "sessionId": "481b35e7-c0f7-479c-8009-81864d68d4e6",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-11T23:50:53.448Z",
+      "branch": "story/B-6108",
+      "user": "Harmonygo",
+      "sessionId": "481b35e7-c0f7-479c-8009-81864d68d4e6",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-12T00:15:49.614Z",
+      "branch": "story/B-6108",
+      "user": "Harmonygo",
+      "sessionId": "481b35e7-c0f7-479c-8009-81864d68d4e6",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-6108",
-    "branch": "story/B-6108",
-    "createdAt": "2026-07-11T22:33:39.822Z"
-  }
+  "currentReviewRound": "2026-07-11T22:54:45.995Z"
 }

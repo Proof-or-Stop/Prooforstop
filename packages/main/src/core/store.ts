@@ -17,6 +17,7 @@ import { REVIEW_LOOP_FILENAME } from './review-loop.js';
 import { CAPSULE_DIR_NAME, type StoryCapsuleData, type StoryCapsuleRunData } from './story-capsule.js';
 import type { ClusterData } from './cluster-types.js';
 import type { MilestoneCloseoutSnapshot } from './milestone-status.js';
+import type { CandidateSpecSetArtifact } from './candidate-spec-routing.js';
 import { appendProcessEvent as appendProcessEventFn, readProcessEvents as readProcessEventsFn } from './process-events.js';
 import { loadConfig } from './config.js';
 import { LEGACY_DOCS_STORY_DIR, uniqueRelPaths } from './lattice-paths.js';
@@ -299,6 +300,19 @@ export class StoryStore {
 
   writeUnderstanding(storyId: string, data: UnderstandingData): void {
     this.writeJson(storyId, 'understanding.json', data);
+  }
+
+  readCandidateSpecSet(storyId: string): CandidateSpecSetArtifact | null {
+    try {
+      return this.readJson<CandidateSpecSetArtifact>(storyId, 'candidate-spec-set.json');
+    } catch (e) {
+      if (e instanceof StoryArtifactMissingError) return null;
+      throw e;
+    }
+  }
+
+  writeCandidateSpecSet(storyId: string, data: CandidateSpecSetArtifact): void {
+    this.writeJson(storyId, 'candidate-spec-set.json', data);
   }
 
   // ── Grill planning artifact ──

@@ -1,0 +1,43 @@
+{
+  "task": "Implement the complete seven-milestone bounded multi-host candidate-spec routing program defined by B-f646.",
+  "outcome": "Running lattice candidate_spec_route prints a bounded candidate set with current evidence; PLAN and REVIEW reuse the digest, outages fall back locally, enforce refuses stale evidence without corpus embedding, and the DONE report shows total input output cache-read tokens plus the largest cost source with uncertainty labels.",
+  "facts": [
+    "B-f646 is the accepted execution-plan truth source.",
+    "B-f97c removed requirements corpus embedding from story_review.",
+    "core/host-run.ts is the canonical Codex Claude agy launch and usage-accounting choke point and will be reused.",
+    "candidate_spec_route follows registry and command-catalog conventions.",
+    "ReviewerReadManifest and mechanical read events already exist and will be extended.",
+    "B-3928 artifacts remain excluded.",
+    "Final Story token accounting is distinct from M6 routing cost thresholds and must use provider usage when available with usage_sweep estimates labeled non-authoritative."
+  ],
+  "constraints": [
+    "Implement M6A through M6G and keep milestone ledger current.",
+    "Default full-read budget is at most 8, at most 10 rg query groups, and at most 50 retained raw hits per group unless escalated.",
+    "Never restore requirements bodies to prompts.",
+    "All host-bound data uses one sanitizer and uncertain values stay local.",
+    "Gate artifacts are versioned signed hash-bound freshness checked and registered.",
+    "Rollout advances only after quality thresholds pass.",
+    "DONE reporting must identify total token usage and largest attributable cost while labeling missing provider usage, estimates, and multi-attribution uncertainty."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/candidate-spec-routing.ts",
+    "packages/main/src/handlers/candidate-spec-routing.ts",
+    "packages/main/src/core/host-run.ts",
+    "packages/main/src/core/reviewer-read-evidence.ts",
+    "packages/main/src/handlers/scope-check.ts",
+    "packages/main/src/handlers/finding.ts",
+    "packages/main/src/handlers/story-dispatch.ts",
+    "packages/main/src/handlers/story-review.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "lattice.config.json",
+    "packages/main/src/tasks",
+    "packages/main/src/handlers/usage-sweep.ts"
+  ],
+  "timestamp": "2026-07-12T10:14:46.397Z"
+}

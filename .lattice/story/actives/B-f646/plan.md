@@ -1,0 +1,2 @@
+## CHK-001
+Create the canonical M6 sub-plan with: problem and non-goals; shipped-vs-future boundary; deterministic and Codex/Claude/agy keyword proposal contracts; local search and ranking algorithm; candidateSpecSet/readManifest schemas; top-N and rg budgets; ambiguity and full-scan escalation; PLAN/REVIEW/delivery ownership; process-fact and evidence implications; security and prompt-injection controls; milestones and Story decomposition; regression/quality/token/latency validation matrix; rollout, observability, rollback, and DONE criteria.

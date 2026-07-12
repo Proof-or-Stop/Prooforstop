@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-f97c",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff*",
+    "git status*",
+    "lattice *",
+    "node packages/main/dist/cli.js *",
+    "node packages/main/dist/tasks/story-review-corpus-budget-smoke.js",
+    "npm --prefix packages/main *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "Bash",
+    "Glob",
+    "Grep",
+    "Read"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+    "package-lock.json",
+    "packages/main/package-lock.json",
+    "packages/main/package.json",
+    "packages/main/src/handlers/story-review.ts",
+    "packages/main/src/tasks/story-review-corpus-budget-smoke.ts"
+  ],
+  "excludedCommands": [
+    "git clean*",
+    "git push*",
+    "git reset*",
+    "git restore*"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    "docs/story",
+    "packages/main/tests/fixtures"
+  ],
+  "confirmedBy": "codex-main",
+  "confirmationNote": "Narrow emergency producer-side fix: remove requirements corpus embedding and add focused regression coverage; no M6 router or gate weakening.",
+  "createdAt": "2026-07-12T01:23:14.992Z",
+  "updatedAt": "2026-07-12T01:23:14.992Z",
+  "_hash": "5696f17fdccec5c184042fa06f8192645e1410daf61fd3beac52eb8d2d85d5e6"
+}

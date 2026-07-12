@@ -1,0 +1,129 @@
+{
+  "storyId": "B-8038",
+  "checkedAt": "2026-07-12T10:12:24.739Z",
+  "features": [
+    {
+      "feature": "M6A corpus index and deterministic keyword seeds with versioned byte-stable golden evidence",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md M6A; checklist.json CHK-001"
+    },
+    {
+      "feature": "M6B sanitized Codex/Claude proposal adapters with conditional agy fallback, bounded schemas, outages, and secret-leak protection",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "execution plan M6B; checklist.json CHK-002"
+    },
+    {
+      "feature": "M6C bounded local filename/heading/body search, deterministic ranking, deduplication, negative controls, and ambiguity escalation",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "execution plan M6C; checklist.json CHK-003"
+    },
+    {
+      "feature": "M6D versioned signed/hash-bound candidate and mechanical read evidence with freshness and fail-closed reconciliation",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "execution plan M6D; story-lifecycle process-fact contract; checklist.json CHK-004"
+    },
+    {
+      "feature": "M6E PLAN scope-review integration preserving filename enumeration, open questions, structured escalation, and shadow/warn compatibility",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "execution plan M6E; prompt consolidation M6; checklist.json CHK-005"
+    },
+    {
+      "feature": "M6F routing-evidence reuse across eligible REVIEW and delivery lanes without authority overlap, stale digest reuse, duplicate findings, or quality loss",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "execution plan M6F; story-lifecycle reviewer ownership; checklist.json CHK-006"
+    },
+    {
+      "feature": "M6G shadow-warn-enforce configuration, quality promotion gates, metrics, process-fact contracts, two-window evidence, and rollback that never restores corpus injection",
+      "covered_by": "CHK-007",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "execution plan M6G; checklist.json CHK-007; milestone-ledger.json M6G"
+    },
+    {
+      "feature": "Milestone-ledger-visible progress for every M6A-M6G outcome and required evidence",
+      "covered_by": "CHK-001..CHK-007",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "background.md Conversational Texture; milestone-ledger.json"
+    },
+    {
+      "feature": "Do not edit B-3928 prompt baseline inventory or lockfile artifacts",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json explicitly excludes B-3928 artifacts and decision preMortem preserves isolation",
+      "source": "understanding.json facts; scope-boundary.json"
+    },
+    {
+      "feature": "Never restore requirements bodies to story_review or any reviewer prompt",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json and M6G rollback explicitly prohibit corpus prompt reinjection",
+      "source": "understanding.json constraints; plan.md CHK-007; scope-boundary.json"
+    },
+    {
+      "feature": "Do not expand into unrelated lifecycle refactors or host taxonomy changes",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json explicitly excludes unrelated lifecycle and host-taxonomy work",
+      "source": "scope-boundary.json"
+    },
+    {
+      "feature": "Search-budget semantics consistently distinguish max 10 rg query groups from max 50 raw hits per query group",
+      "covered_by": "CHK-003",
+      "status": "drift",
+      "excluded_by": "",
+      "source": "canonical execution plan section 9.2 vs understanding.json constraints and plan.md CHK-003"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+      "docs/requirements/decisions/story-lifecycle.md"
+    ],
+    "filesTriagedByName": [
+      "docs/requirements/decisions/host-overflow.md",
+      "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+      "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+      "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+      "docs/requirements/decisions/story-files-hash-material-drift.md"
+    ],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 12,
+    "covered": 8,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 1
+  },
+  "reviewRound": "",
+  "_hash": "d7a1255bc766380f8750bf0e8d951a26a7d6c98104b9fa08184e2a847b153c26",
+  "openQuestions": [
+    {
+      "id": "OQ-001",
+      "q": "Should CHK-003 and understanding.json use the canonical budget of at most 10 rg query groups plus at most 50 raw hits per query group, rather than saying query results are capped at 10?",
+      "evidence": "The B-f646 execution plan section 9.2 defines <=10 rg query groups and <=50 raw hits per group. B-8038 understanding says query result budget <=10 and plan CHK-003 says query results at ten, which could cause an implementer to enforce the wrong dimension.",
+      "sourcePointers": [
+        "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md#9.2-query-stages",
+        "CHK-003"
+      ],
+      "resolution": "Use the canonical B-f646 section 9.2 dimensions: at most 10 rg query groups and at most 50 retained raw hits per group. The ordinary candidate full-read budget remains at most 8. Understanding and CHK-003 plan text have been corrected accordingly.",
+      "resolvedAt": "2026-07-12T10:13:09.826Z"
+    }
+  ]
+}

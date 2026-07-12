@@ -1,0 +1,69 @@
+{
+  "principles": [
+    "Honest-unavailable: a failure event only ever refines the REASON of an unavailable final; usage numbers are never fabricated and a genuine turn.completed usage always records provider-reported unchanged",
+    "Bounded memory: every retained byte obeys the existing 1MiB last-one-wins UsageLineScanner cap discipline; no transcript or session-file persistence",
+    "Diagnosability over compactness: the digest is a short sanitized human-readable excerpt of error.message (innermost message when nested JSON), not a hash",
+    "Fail honest on degradation: when the failure line is over-cap dropped or carries no extractable message, degrade to an explicit generic token instead of guessing"
+  ],
+  "drivers": [
+    "The usage lane's F-013/F-026 truncation semantics and provider-reported path must stay byte-identical",
+    "A single retained line is the parse target for fake (full-buffer) and streaming (retained-line) runners alike, so the failure scan must accept both shapes",
+    "codex-only scope with no ledger schema change (unavailableReason is already a free non-empty string)"
+  ],
+  "options": [
+    {
+      "name": "second-bounded-lane",
+      "pros": [
+        "Reuses UsageLineScanner unchanged (two instances), preserving cap + last-wins discipline per lane",
+        "Usage candidate can never be evicted by a later failure line, so provider-reported behavior is untouched",
+        "Failure line surfaces as a separate HostRunSpawnResult.failureText field; fake runners stay valid without changes (core falls back to scanning their full stdout)"
+      ],
+      "cons": [
+        "Adds a second scanner instance (up to ~2MiB extra bounded state) and one new result field"
+      ]
+    },
+    {
+      "name": "widen-single-retainer",
+      "pros": [
+        "No new plan/result fields; one scanner instance"
+      ],
+      "cons": [
+        "last-one-wins across mixed event types lets a trailing turn.failed evict a genuine turn.completed usage candidate, silently converting a provider-reported final into unavailable (dishonest usage loss)",
+        "Entangles the F-013/F-026 truncation flag with failure lines, changing existing semantics"
+      ]
+    },
+    {
+      "name": "persist-full-transcript",
+      "pros": [
+        "Complete forensics for any future failure shape"
+      ],
+      "cons": [
+        "Breaks the bounded-memory design (flooding host exhausts memory or disk)",
+        "Violates the --ephemeral no-session-file expectation and stores prompt/output content the ledger deliberately avoids"
+      ]
+    }
+  ],
+  "chosen": "second-bounded-lane",
+  "rationale": "Only the second bounded lane keeps both invariants at once: the usage lane (and its truncation semantics) stays byte-identical so provider-reported finals can never regress, while the failure lane gets the identical 1MiB last-one-wins discipline for bounded honest reason enrichment. Unknowns resolved with it: (1) digest = innermost error.message when the message parses as nested JSON, control chars/whitespace collapsed, truncated to 160 chars with a trailing ellipsis marker; (2) a failure event with no extractable message records turn_failed(no_error_message); (3) an over-cap-dropped failure line honestly falls back to no_turn_completed_usage_event (no new truncation marker — the reason enrichment is best-effort diagnostics, never load-bearing state).",
+  "preMortem": [
+    {
+      "scenario": "A trailing turn.failed after a genuine turn.completed downgrades a provider-reported final to unavailable",
+      "trigger": "Multi-turn codex stream where an earlier turn completed with usage and a later turn failed",
+      "consequence": "Real consumed usage disappears from the ledger aggregate (dishonest under-count)",
+      "mitigation": "recordFinalForHost consults the failure lane ONLY when scanCodexTurnCompletedUsage returned null; smoke pins a usage+failure precedence case asserting provider-reported wins"
+    },
+    {
+      "scenario": "error.message content injects unreadable or oversized text into the ledger row",
+      "trigger": "A failure message carrying newlines, control chars, or multi-KB nested JSON",
+      "consequence": "Ledger rows and CLI summaries become unreadable or bloated",
+      "mitigation": "Digest sanitization: innermost-message extraction, control-char/whitespace collapse, hard 160-char truncation — pinned by a smoke assertion on the digest shape"
+    },
+    {
+      "scenario": "The second scanner lane breaks the existing usage-lane truncation semantics",
+      "trigger": "Over-cap lines interleaved with usage and failure lines",
+      "consequence": "F-013/F-026 regressions: stale provider-reported finals or spurious usage_line_retention_truncated",
+      "mitigation": "Failure lane uses its own scanner instance with its own flag ignored (fallback-only); existing F-013/F-026 smoke checks must keep passing unchanged"
+    }
+  ],
+  "timestamp": "2026-07-11T23:05:17.606Z"
+}

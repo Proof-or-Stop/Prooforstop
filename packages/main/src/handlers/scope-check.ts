@@ -13,6 +13,10 @@ import type { ScopeCheckData, ScopeCheckFeature, OpenQuestion, ReviewerReadManif
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { digestCanonicalJson } from '../core/digest.js';
 import { normalizeReviewerReadManifest } from '../core/reviewer-read-evidence.js';
+import { assertCandidateReadBinding, digestCandidateRoutingValue } from '../core/candidate-spec-routing.js';
+import { currentStoryRoutingInput } from './candidate-spec-routing.js';
+import { captureReviewRunSnapshot } from '../core/review-run.js';
+import { loadConfig } from '../core/config.js';
 
 export const SCOPE_CHECK_SALT = 'lattice-scope-check-integrity-v1';
 
@@ -197,6 +201,18 @@ export function createScopeCheckHandlers(ctx: HandlerContext): Record<string, (.
       }
       const timestamp = new Date().toISOString();
       const readManifest = normalizeReviewerReadManifest(args.readManifest, 'scope_check_save.readManifest');
+      const routingMode = loadConfig(root).candidateSpecRouting?.mode ?? 'shadow';
+      if (routingMode === 'enforce' || readManifest.candidateSpecSetDigest) {
+        const snapshot = captureReviewRunSnapshot(root, { storyId: args.storyId, storyPhase: 'PLAN' });
+        assertCandidateReadBinding({
+          manifest: readManifest,
+          artifact: store.readCandidateSpecSet(args.storyId),
+          mode: routingMode,
+          currentMaterialHash: snapshot.materialHash,
+          currentStoryFilesHash: snapshot.storyFilesHash,
+          currentStoryInputDigest: digestCandidateRoutingValue(currentStoryRoutingInput(ctx, args.storyId)),
+        });
+      }
       const orphanSuspect = args.summary.orphanSuspect ?? 0;
       const drift = args.summary.drift ?? 0;
       const summary = {
