@@ -153,6 +153,33 @@
         "scanEscalationReason": null
       },
       "_hash": "0fc2a04841e6240970c74f43ef96f499ef6a040b6553b5d000ea190e2ead0c77"
+    },
+    {
+      "id": "B-12a1:RP-008",
+      "agent": "lattice-review-docs",
+      "note": "Round 2 (fresh round after B-12a1:F-001 fix in ff86e56426). Reviewed CHK-001 (lifecycle-registry.ts registers the ten ProofStory intent-hardening filenames from the store.ts B-7287 block; exact-match verified against store.ts read/write methods, no duplicates, comment accurate) and CHK-002 (scope-contract-smoke.ts per-row assertScopeRow loop now runs before the aggregate proofStoryPositive.status assert, matching plan.md CHK-002 wording and the resolved F-001 finding; independently re-verified via bite test: removing proofstory.json from the compiled dist registry fails the smoke naming the exact artifact row rather than the aggregate). Ran full build + node dist/tasks/scope-contract-smoke.js: pass, then restored. candidate_spec_route full-scan run to resolve the high-risk-lifecycle-gate escalation; candidateSpecSetDigest omitted here (shadow mode) because the shared candidate-spec-set.json is being concurrently overwritten by other in-flight reviewer roles on this story, so binding to a point-in-time digest would be stale by submission time; full-scan ranked candidates were triaged by name and none besides lifecycle-artifact-scope.md were topically relevant to the registry/filename change. No documentation-code drift found for the changed symbols; a pre-existing unrelated gap (milestone-closeout.json absent from verify-process-fact-contract.mjs / process-fact-registry.ts fixture list) predates this diff and is out of scope for B-12a1. No blocker.",
+      "createdAt": "2026-07-12T22:16:07.407Z",
+      "reviewRound": "2026-07-12T22:06:14.602Z",
+      "reviewRunId": "B-12a1:RR-005",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-12a1/background.md",
+          ".lattice/story/actives/B-12a1/findings.json",
+          ".lattice/story/actives/B-12a1/plan.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/tasks/scope-contract-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/process-fact-registry.ts (grep-checked; unrelated process-fact gate registry, not touched by this diff)",
+          "packages/main/src/core/store.ts (targeted read of ProofStory intent-hardening block, lines 660-799, plus grep for duplicate/typo checks)",
+          "remaining docs/requirements/decisions/*.md corpus (full-scan candidate set, ranked by candidate_spec_route; none topically on point for the lifecycle-registry filename addition beyond lifecycle-artifact-scope.md which was read in full)",
+          "scripts/verify-process-fact-contract.mjs (grep-checked; pre-existing artifact-fact fixture list, not touched by this diff)"
+        ],
+        "scanEscalationReason": null,
+        "corpusDigest": "02142a669b4df92c6dc3154e6b7522d8d8136664985f86a5970a7fd304d09131"
+      },
+      "_hash": "16e6a887aabfd74629a952d7b6c115a345fd79fd726d0f91570dd541c335431b"
     }
   ]
 }
