@@ -279,6 +279,38 @@
         "scanEscalationReason": null
       },
       "_hash": "c5f937568736840f09067f9694887bbd9001fc5ce2f65c9ec32e12b12a86b2b1"
+    },
+    {
+      "id": "B-623a:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "POST-MERGE test-coverage round after RP-008 went stale (commit bdac55ebb2 to HEAD e43c7f4f74 via merge be112bff73 plus 5th call-site fix 33376b1653). Confirmed via git diff bdac55ebb2..HEAD that core/usage-burn-alert.ts and tasks/usage-burn-alert-smoke.ts are BYTE-IDENTICAL to RP-008 fully-reviewed state (0 lines changed) -- CHK-001/002/005 verificationIntent coverage is untouched. usage-sweep.ts and the 3 other doctor-invoking smokes (doctor-gitroot-probe-smoke.ts, story-metadata-protection-smoke.ts, storydir-inside-gitroot-suite.ts) are also 0-line-diff unchanged; re-ran all 4 live from worktree dist and confirmed still green (5, 14, 20, and pass respectively). Delta is exactly 3 real files: doctor.ts (merge conflict resolution keeps BOTH B-623a async signature -- doctor() awaits sweepCodexSessions/sweepClaudeProjects -- AND B-7c05 brief/full flags in the same signature and body; verified structurally that renderHostBurnScan is emitted unconditionally before any brief/else branching, so brief mode never hides the burn-scan section), scripts/verify-runtime-fact-contract.mjs (both doctor() call sites now awaited plus LATTICE_BURN_ALERT_RECENT_HOURS=0 hermeticity guard, closing the 5th and last un-awaited doctor caller), and package.json plus packages/main/package.json (script-list merge keeps both test:usage-burn-alert and test:brief-output, nothing dropped). Ran the prescribed grep contract grep -rn dot-doctor-open-paren packages/main/src scripts, excluding await lines and createDoctorHandlers lines; zero matches, so no un-awaited doctor callers remain anywhere in src or scripts. Live-verified the brief times burn-scan interaction from the worktree own dist/cli.js (not the main-trunk global CLI, which is pre-merge and would falsely appear to be missing the feature; caught and avoided that render trap): doctor --brief and doctor --full both print an identical Host-burn-scan-advisory block, including real flagged sessions (e.g. the story motivating 019e40d0 rollout) when thresholds are lowered, and a disabled line when RECENT_HOURS=0; confirms the CHK-003 doctor section coverage still holds under the newly merged brief/full rendering paths, even though no new smoke assertion targets that specific interaction (out of B-623a scope; B-7c05 owns brief-mode testing, and the interaction is provably safe by construction since the burn-scan render call sits above the brief conditional). Re-ran node packages/main/dist/tasks/usage-burn-alert-smoke.js (21/21 pass), node scripts/verify-runtime-fact-contract.mjs (pass), npm run test:usage-burn-alert (pass), npm run test:brief-output (pass, confirms the merged sibling feature is not broken), and the full lattice validate suite (all green; done-required-evidence.json status=PASS; materialHash 44275d51a7... consistent across all 83 checklist evidence rows plus the 4 migrated-smoke rows). findings.json: F-001 through F-004 all resolved, zero open findings; no new coverage gap introduced by the merge. No blocker.",
+      "createdAt": "2026-07-12T23:11:18.073Z",
+      "reviewRound": "2026-07-12T22:57:34.340Z",
+      "reviewRunId": "B-623a:RR-013",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-623a/background.md",
+          ".lattice/story/actives/B-623a/plan.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/tasks/doctor-gitroot-probe-smoke.ts",
+          "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "packages/main/src/tasks/storydir-inside-gitroot-suite.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e35a33c45bcdc3c04288b5f9305e16256fbfa7b60650ffbef7a370f272a312e3"
     }
   ]
 }
