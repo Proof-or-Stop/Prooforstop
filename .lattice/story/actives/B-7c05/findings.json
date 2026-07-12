@@ -170,6 +170,21 @@
       "_hash": "952ddab5d9aa37d8498db15dd605a032fb8b1740ec58a2a0b7be479d29f8ee86",
       "signatureTag": "missing|unknown|quality-dead-code",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7c05:F-010",
+      "desc": "quality-cleanup: packages/main/src/core/milestone-status.ts:1273-1277 oneLineCell() duplicates truncateOneLine() in the new packages/main/src/cli/output-verbosity.ts:80-85 almost byte-for-byte (same whitespace-collapse + ellipsis-truncate logic). Not importable directly (core/*.ts never imports from cli/*.ts elsewhere in this codebase, confirmed by repo grep, so core cannot depend on the new cli/output-verbosity.ts module), but the shared truncation helper should live in core/ and be re-exported by cli/output-verbosity.ts rather than being duplicated, to avoid two maintenance sites for the same logic.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-12T17:21:21.371Z",
+      "reviewRound": "2026-07-12T17:08:48.514Z",
+      "reviewRunId": "B-7c05:RR-003",
+      "_hash": "9124064462c682b86f61ab6a576dc02f759ee004c7b4e59ff5f95c086a8eddb4",
+      "signatureTag": "missing|unknown|quality-cleanup-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
