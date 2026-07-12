@@ -170,7 +170,21 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/brief-output-smoke.ts",
+          "command": "node packages/main/dist/tasks/brief-output-smoke.js",
+          "result": "pass",
+          "note": "brief-output-smoke fixture has 3 findings; asserts bare finding_list keeps one entry per finding with id/severity/category/status/evidenceState + truncated title, drops heavy free-text, stays under budget, and sets _brief/_hint.",
+          "headHash": "67619791f942b7b8a3f520d5e9270e733a71dc2f",
+          "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
+          "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
+          "timestamp": "2026-07-12T01:33:43.580Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
