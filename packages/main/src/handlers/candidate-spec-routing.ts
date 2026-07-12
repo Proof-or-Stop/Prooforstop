@@ -149,7 +149,7 @@ export function createCandidateSpecRoutingHandlers(
       const corpus = buildCorpusIndex(ctx.root, config.requirementsDir);
       const seeds = buildKeywordSeeds(input);
       const hostResult = args.hosts === false
-        ? { attempts: [], accepted: [], sanitizedDigest: '' }
+        ? { attempts: [], accepted: [], sanitizedDigest: '', hostDisagreement: false }
         : await collectHostKeywordProposals({
             storyId: args.storyId,
             payload: input,
@@ -167,6 +167,13 @@ export function createCandidateSpecRoutingHandlers(
         corpus,
         seeds,
         proposals: hostResult.accepted,
+        hostDisagreement: hostResult.hostDisagreement,
+        riskSignals: [
+          ...(input.riskSignals ?? []),
+          input.title ?? '',
+          input.description ?? '',
+          ...(input.checklist ?? []).map(item => item.title ?? ''),
+        ],
         candidateBudget: config.candidateSpecRouting?.candidateBudget,
         queryGroupBudget: config.candidateSpecRouting?.queryGroupBudget,
         rawHitsPerGroup: config.candidateSpecRouting?.rawHitsPerGroup,

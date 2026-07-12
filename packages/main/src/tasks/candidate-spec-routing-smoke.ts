@@ -217,9 +217,11 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
       projectRoot: root, storyId: story.storyId, corpus: first,
       seeds: buildKeywordSeeds({ storyId: story.storyId, title: 'decision' }), rawHitsPerGroup: 1,
     });
-    assert.equal(truncatedRoute.fullScan, true, 'ranking-affecting truncation must automatically escalate');
-    assert.match(truncatedRoute.scanEscalationReason ?? '', /ranking_affecting_query_truncation/);
-    assert.deepEqual([...truncatedRoute.candidateSpecSet].sort(), first.entries.map(entry => entry.path).sort());
+    assert.equal(truncatedRoute.requiresEscalation, true, 'ranking-affecting truncation must require an explicit escalation decision');
+    assert.ok(truncatedRoute.escalationReasons.includes('ranking_affecting_query_truncation'));
+    assert.equal(truncatedRoute.fullScan, false, 'common-term truncation must never authorize full-corpus reads');
+    assert.equal(truncatedRoute.scanEscalationReason, null);
+    assert.ok(truncatedRoute.candidateSpecSet.length <= truncatedRoute.budgets.candidates);
 
     writeFileSync(join(root, 'docs/requirements/decisions/tie-a.md'), '# Shared Signal\n');
     writeFileSync(join(root, 'docs/requirements/decisions/tie-b.md'), '# Shared Signal\n');
@@ -228,10 +230,42 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
       projectRoot: root, storyId: story.storyId, corpus: tiedCorpus,
       seeds: buildKeywordSeeds({ storyId: story.storyId, title: 'shared signal' }), candidateBudget: 1,
     });
-    assert.equal(tiedRoute.fullScan, true, 'a tied cutoff must automatically escalate');
-    assert.match(tiedRoute.scanEscalationReason ?? '', /candidate_cutoff_tie/);
+    assert.equal(tiedRoute.requiresEscalation, true, 'a tied cutoff must require an explicit escalation decision');
+    assert.ok(tiedRoute.escalationReasons.includes('candidate_cutoff_tie'));
+    assert.equal(tiedRoute.fullScan, false);
+    assert.ok(tiedRoute.candidateSpecSet.length <= 1);
     rmSync(join(root, 'docs/requirements/decisions/tie-a.md'));
     rmSync(join(root, 'docs/requirements/decisions/tie-b.md'));
+
+    const weakCoverage = routeCandidateSpecs({
+      projectRoot: root, storyId: story.storyId, corpus: first,
+      seeds: buildKeywordSeeds({ storyId: story.storyId, relatedDocs: ['docs/requirements/decisions/noise.md'] }),
+    });
+    assert.ok(weakCoverage.escalationReasons.includes('weak_source_class_coverage'));
+    assert.equal(weakCoverage.fullScan, false);
+
+    const hostDisagreement = routeCandidateSpecs({
+      projectRoot: root, storyId: story.storyId, corpus: first, seeds: seedsA, hostDisagreement: true,
+    });
+    assert.ok(hostDisagreement.escalationReasons.includes('primary_host_disagreement'));
+    assert.equal(hostDisagreement.fullScan, false);
+
+    const highRisk = routeCandidateSpecs({
+      projectRoot: root, storyId: story.storyId, corpus: first, seeds: seedsA,
+      riskSignals: ['State Machine/Gate:process-fact global rename'],
+    });
+    assert.ok(highRisk.escalationReasons.includes('high_risk_lifecycle_gate_process_fact_or_global_rename'));
+    assert.equal(highRisk.fullScan, false);
+
+    const unmatchedLegacyProposal: HostKeywordProposal = {
+      ...validProposal,
+      terms: [{ ...validProposal.terms[0], term: 'obsolete-unmatched-protocol-name', kind: 'legacy-term', confidence: 'high' }],
+    };
+    const unmatchedLegacy = routeCandidateSpecs({
+      projectRoot: root, storyId: story.storyId, corpus: first, seeds: seedsA, proposals: [unmatchedLegacyProposal],
+    });
+    assert.ok(unmatchedLegacy.escalationReasons.some(reason => reason.startsWith('unmatched_high_confidence_legacy_term:')));
+    assert.equal(unmatchedLegacy.fullScan, false);
 
     writeFileSync(join(root, 'docs/requirements/decisions/huge-irrelevant.md'), `# Irrelevant Giant\n${'x'.repeat(5 * 1024 * 1024)}`);
     const largeCorpus = buildCorpusIndex(root);

@@ -135,6 +135,8 @@ export interface CandidateSpecSetArtifact {
   queryGroups: string[][];
   budgets: { candidates: number; queryGroups: number; rawHitsPerGroup: number };
   ambiguitySignals: string[];
+  requiresEscalation: boolean;
+  escalationReasons: string[];
   fullScan: boolean;
   scanEscalationReason: string | null;
   storyInputDigest: string;
@@ -382,7 +384,7 @@ export async function collectHostKeywordProposals(args: {
   execute: CandidateHostExecutor;
   minimumPrimaryOverlap?: number;
   requestAgy?: boolean;
-}): Promise<{ attempts: HostProposalAttempt[]; accepted: HostKeywordProposal[]; sanitizedDigest: string }> {
+}): Promise<{ attempts: HostProposalAttempt[]; accepted: HostKeywordProposal[]; sanitizedDigest: string; hostDisagreement: boolean }> {
   const sanitized = sanitizeHostPayload(args.payload);
   if (!sanitized.safe) {
     return {
@@ -392,6 +394,7 @@ export async function collectHostKeywordProposals(args: {
       ],
       accepted: [],
       sanitizedDigest: sanitized.digest,
+      hostDisagreement: false,
     };
   }
   const run = async (host: HostKeywordProposal['host']): Promise<HostProposalAttempt> => {
@@ -423,7 +426,7 @@ export async function collectHostKeywordProposals(args: {
   const primaryFailure = primary.length < 2;
   if (args.requestAgy || disagree || primaryFailure) attempts.push(await run('agy-cli'));
   const accepted = attempts.flatMap(attempt => attempt.proposal ? [attempt.proposal] : []);
-  return { attempts, accepted, sanitizedDigest: sanitized.digest };
+  return { attempts, accepted, sanitizedDigest: sanitized.digest, hostDisagreement: disagree };
 }
 
 function searchable(entry: CorpusIndexEntry, body: string): string {
@@ -449,6 +452,8 @@ export function routeCandidateSpecs(args: {
   queryGroupBudget?: number;
   rawHitsPerGroup?: number;
   forceFullScanReason?: string | null;
+  hostDisagreement?: boolean;
+  riskSignals?: string[];
   storyInputDigest?: string;
   headHash?: string;
   materialHash?: string;
@@ -512,15 +517,22 @@ export function routeCandidateSpecs(args: {
   if (truncated) ambiguitySignals.push('query_results_truncated');
   const cutoffTie = ranked.length > candidateBudget && ranked[candidateBudget - 1]?.score === ranked[candidateBudget]?.score;
   if (cutoffTie) ambiguitySignals.push('candidate_cutoff_tie');
-  const automaticEscalations = [
+  const unmatchedHighConfidenceLegacyTerms = proposals.flatMap(proposal => proposal.terms)
+    .filter(term => term.kind === 'legacy-term' && term.confidence === 'high')
+    .map(term => normalizeKeyword(term.term))
+    .filter(term => !args.corpus.entries.some(entry => searchable(entry, readFileSync(join(args.projectRoot, entry.path), 'utf8')).includes(term)));
+  const highRiskRouting = (args.riskSignals ?? []).some(signal => /lifecycle|state.?machine|guard|gate|process.?fact|global.?rename|breaking.?rename/i.test(signal));
+  const escalationReasons = [
     ...(truncated ? ['ranking_affecting_query_truncation'] : []),
     ...(cutoffTie ? ['candidate_cutoff_tie'] : []),
+    ...(ambiguitySignals.includes('weak_source_class_coverage') ? ['weak_source_class_coverage'] : []),
+    ...(args.hostDisagreement ? ['primary_host_disagreement'] : []),
+    ...(highRiskRouting ? ['high_risk_lifecycle_gate_process_fact_or_global_rename'] : []),
+    ...unmatchedHighConfidenceLegacyTerms.map(term => `unmatched_high_confidence_legacy_term:${term}`),
   ];
-  const scanEscalationReason = args.forceFullScanReason?.trim()
-    || (automaticEscalations.length > 0
-      ? `bounded_routing_ambiguity:${automaticEscalations.join(',')};action=enumerate_full_corpus`
-      : null);
-  const fullScan = Boolean(scanEscalationReason);
+  const requiresEscalation = escalationReasons.length > 0;
+  const scanEscalationReason = args.forceFullScanReason?.trim() || null;
+  const fullScan = Boolean(args.forceFullScanReason?.trim());
   // Full scan means every indexed document, including zero-score entries. It is
   // still path/hash metadata only; reviewers read bodies with tools.
   const candidates = fullScan
@@ -541,6 +553,8 @@ export function routeCandidateSpecs(args: {
     queryGroups,
     budgets: { candidates: candidateBudget, queryGroups: queryGroupBudget, rawHitsPerGroup },
     ambiguitySignals,
+    requiresEscalation,
+    escalationReasons,
     fullScan,
     scanEscalationReason,
     storyInputDigest: args.storyInputDigest ?? digestCandidateRoutingValue({ storyId: args.storyId, seedDigest: args.seeds.seedDigest }),
@@ -557,6 +571,7 @@ export function verifyCandidateSpecSet(artifact: CandidateSpecSetArtifact): bool
   if (!artifact.fullScan && artifact.candidateSpecSet.length > artifact.budgets.candidates) return false;
   if (artifact.queryGroups.length > artifact.budgets.queryGroups) return false;
   if (artifact.fullScan !== Boolean(artifact.scanEscalationReason)) return false;
+  if (artifact.requiresEscalation !== (artifact.escalationReasons.length > 0)) return false;
   return artifactDigest === digestCandidateRoutingValue(base);
 }
 
