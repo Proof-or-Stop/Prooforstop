@@ -45,22 +45,6 @@ export type GlobalHelpOptions = {
   full?: boolean;
 };
 
-// B-7c05 CHK-003: brief per-command description budget. Kept short so the whole
-// brief catalog stays comfortably under the help byte budget even when no active
-// story filters the command set (worst case: every registered command listed —
-// ~320 commands must fit under 16KB).
-const BRIEF_DESC_MAX = 10;
-
-function briefCommandDescription(description: string | undefined): string {
-  const oneLine = normalizeHelpText(description);
-  if (!oneLine) return '';
-  // Prefer the first sentence/clause, then hard-truncate.
-  const firstClause = oneLine.split(/(?<=[.;])\s|\s[–—-]\s/)[0] ?? oneLine;
-  const candidate = firstClause.length > 0 ? firstClause : oneLine;
-  if (candidate.length <= BRIEF_DESC_MAX) return candidate;
-  return `${candidate.slice(0, BRIEF_DESC_MAX - 1).trimEnd()}…`;
-}
-
 function describeType(t: ZodType): string {
   if (t instanceof ZodOptional) return describeType((t as any)._def.innerType);
   if (t instanceof ZodString) return 'string';
@@ -304,22 +288,20 @@ export function printHelp(options: GlobalHelpOptions) {
     ...presentGroups.filter(g => !KNOWN_ORDER.includes(g)).sort(),
   ];
 
-  // B-7c05 CHK-003: brief default — grouped command NAMES (never dropped, so
-  // discovery stays complete) with a short truncated description, plus a footer
-  // pointing at per-command --help and the full catalog. Not padded to the
-  // global max width so the brief catalog stays compact.
+  // B-7c05 CHK-003 (F-001): brief default — grouped command NAMES only, never
+  // dropped, so discovery stays complete. No per-command description: with ~320
+  // registered commands, any description that fits the byte budget degrades into
+  // a meaningless mid-word fragment, which is worse than none. Details are one
+  // explicit step away via per-command --help; the full catalog via help --full.
   if (options.full !== true) {
     for (const g of orderedGroups) {
       console.log(`  ${g}:`);
-      for (const t of groups[g]) {
-        const desc = briefCommandDescription(t.description);
-        console.log(desc ? `    ${t.name}  ${desc}` : `    ${t.name}`);
-      }
+      for (const t of groups[g]) console.log(`    ${t.name}`);
     }
     console.log(`
-  Brief catalog (command names + short descriptions).
-  Arguments for one command: ${brand.primaryBin} <command> --help
-  Full catalog (parameter schemas + development flow): ${brand.primaryBin} help --full   (or set ${'LATTICE_BRIEF_OUTPUT'}=0)
+  Brief catalog (grouped command names).
+  What a command does + arguments: ${brand.primaryBin} <command> --help
+  Full catalog (descriptions, parameter schemas, development flow): ${brand.primaryBin} help --full   (or set ${'LATTICE_BRIEF_OUTPUT'}=0)
 `);
     return;
   }

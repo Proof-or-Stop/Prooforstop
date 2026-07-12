@@ -25,7 +25,7 @@ Brief-by-default commands:
 | `milestone_status` | phase, progress counts, one line per milestone (status + claim), next action | `--full` = the 7-column markdown table |
 | post-mutation milestone suffix (appended after `story_advance` and every mutating command) | the compact milestone/checklist-derived summary | `LATTICE_BRIEF_OUTPUT=0` (or the command's own `--full`, when its schema exposes it) |
 | `finding_list` | JSON skeleton: `findings[]` with `id`, `severity`, `category`, `status`, `evidenceState`, truncated `title`; `attention.suspected`/`disproven` preserved; heavy free-text (`description`, reviewer read evidence) dropped; `_brief`+`_hint` added | `--full` = every field |
-| `help` | grouped command names + short truncated descriptions, footer pointing at `lattice <command> --help` and `lattice help --full` | `--full` = the verbose catalog + development flow |
+| `help` | grouped command names only — every registered command listed, no per-command descriptions (with ~320 commands any in-budget description degrades into a meaningless fragment); footer pointing at `lattice <command> --help` and `lattice help --full` | `--full` = the verbose catalog (descriptions, parameter schemas, development flow) |
 | `story_list` | meta fields (`_dashboard`/`_phases`/`_bugSummary`/`_testMissing`) preserved; the story array trimmed to non-terminal (actionable) stories as one-liners; per-phase counts cover ALL stories; `_brief`+`_omittedTerminal`+`_hint` added | `--full` = every story with full fields |
 | `bug_list` (global, no `storyId`) | `summary` counts cover ALL bugs; the list is trimmed to open bugs; `_brief`+`_hint` added | `--full` = every bug |
 | `story_review` | same JSON skeleton (round numbers, `summary`, every `issues[]` row with its `type`/`severity`); issue messages truncated one-line; the multi-megabyte `_reviewPrompt` replaced by a stub naming `--full`; `_brief`+`_hint` added. CLI stdout only — the signed review.json artifact and the gate/issue computation are unchanged | `--full` = every field including the complete `_reviewPrompt` |
@@ -38,6 +38,10 @@ Brief-by-default commands:
 this repo): `slim`/`fields` is its sanctioned compact opt-in, and pre-mutation
 reads require the full output per the CLAUDE.md compact-status recipes
 ("Before evidence-sensitive conclusions or mutations, reload the full output").
+
+`host_list` is audited and deliberately left as-is: ~16KB measured on this repo,
+under the ~20KB (~5k-token) brief-by-default threshold. If host profiles grow it
+past the threshold, apply the same brief pattern in a follow-up.
 
 ### Precedence: per-call flag > env > brief default
 

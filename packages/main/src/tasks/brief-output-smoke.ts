@@ -184,6 +184,36 @@ try {
     writeJson(join(dir, 'checklist.json'), { items: [] });
   }
 
+  // Scaling story (CHK-001 edge:1 / F-003): >20 milestones must all stay
+  // visible as one-liners in the brief rendering — no identifier hidden.
+  const scaleStoryId = 'B-briefscale';
+  const SCALE_MILESTONE_COUNT = 22;
+  {
+    const dir = join(activesDir, scaleStoryId);
+    mkdirSync(dir, { recursive: true });
+    writeJson(join(dir, 'index.json'), makeStory(scaleStoryId, 'DEV'));
+    writeJson(join(dir, 'checklist.json'), {
+      items: [{ id: 'CHK-001', title: 'Scale item', status: 'in_progress', startTime: null, endTime: null }],
+    });
+    writeJson(join(dir, 'milestone-ledger.json'), {
+      schemaVersion: 'proofstory.milestone_ledger.v1',
+      storyId: scaleStoryId,
+      state: 'confirmed',
+      ledgerHash: 'brief-smoke-scale-hash',
+      createdAt: REVIEW_ROUND,
+      updatedAt: REVIEW_ROUND,
+      milestones: Array.from({ length: SCALE_MILESTONE_COUNT }, (_, i) => ({
+        id: `MS-${String(i + 1).padStart(2, '0')}`,
+        sourceRequirementId: 'REQ-1',
+        claim: `Scale milestone ${i + 1} claim`,
+        doneMeans: `Scale milestone ${i + 1} done means`,
+        status: i < 5 ? 'done' : 'planned',
+        checklistRefs: ['CHK-001'],
+        verificationIntentRefs: [],
+      })),
+    });
+  }
+
   // PLAN-phase story + a heavy truth doc for the story_review brief checks. The
   // marker sits inside the truth doc, which story_review embeds ONLY in the
   // full `_reviewPrompt` (the measured 2.6MB whale on real projects).
@@ -222,6 +252,14 @@ try {
   // only the literal "0" disables brief
   const msEnvNonZero = runCli(temp, ['milestone_status', `--storyId=${storyId}`], { LATTICE_BRIEF_OUTPUT: 'false' });
   assert.match(msEnvNonZero, /Milestone Status - B-brief \(brief\)/, 'non-"0" LATTICE_BRIEF_OUTPUT keeps brief');
+  // scaling boundary (CHK-001 edge:1 / F-003): >20 milestones, every id visible in brief
+  const msScaleBrief = runCli(temp, ['milestone_status', `--storyId=${scaleStoryId}`]);
+  assert.match(msScaleBrief, new RegExp(`\\(${SCALE_MILESTONE_COUNT} total\\)`), 'scaling brief counts all milestones');
+  for (let i = 1; i <= SCALE_MILESTONE_COUNT; i++) {
+    const id = `MS-${String(i).padStart(2, '0')}`;
+    assert.ok(msScaleBrief.includes(id), `scaling brief keeps milestone id ${id}`);
+  }
+  assert.doesNotMatch(msScaleBrief, /\| Milestone \| Purpose \|/, 'scaling brief still drops the table');
 
   // ─────────────────────────────────────────────────────────────────────────
   // finding_list
@@ -263,6 +301,39 @@ try {
   assert.ok(bytes(helpBrief) < 16000, `brief help under 16000 bytes, got ${bytes(helpBrief)}`);
   assert.match(helpFull, /Development flow/, 'help --full restores the verbose catalog');
   assert.ok(bytes(helpBrief) < bytes(helpFull), 'brief help is smaller than full');
+  // F-001: brief help is names-only — no truncated description fragments.
+  assert.ok(!helpBrief.includes('…'), 'brief help contains no truncation-ellipsis fragments');
+  // Every command name in the full catalog appears in brief too (no silent drop),
+  // and the live registry is >100 commands, covering the scaling boundary.
+  // Full-catalog rows are `    name<2+ spaces>description`; brief rows are
+  // `    name` alone. Anchoring both patterns keeps footer prose (e.g.
+  // "lattice <command> --help") out of the name sets.
+  const fullNames = new Set(
+    helpFull
+      .split('\n')
+      .map((line) => /^ {4}([a-z][a-z0-9_]*) {2,}\S/.exec(line)?.[1])
+      .filter((name): name is string => Boolean(name)),
+  );
+  const briefNames = new Set(
+    helpBrief
+      .split('\n')
+      .map((line) => /^ {4}([a-z][a-z0-9_]*)\s*$/.exec(line)?.[1])
+      .filter((name): name is string => Boolean(name)),
+  );
+  assert.ok(fullNames.size > 100, `full catalog lists >100 commands, got ${fullNames.size}`);
+  for (const name of fullNames) {
+    assert.ok(briefNames.has(name), `brief help keeps command name ${name}`);
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // graceful ignore (CHK-005 adversarial:1 / F-005): a command without brief
+  // mode treats --brief and the env hatch as no-ops — no crash, no change.
+  // ─────────────────────────────────────────────────────────────────────────
+  const cgBare = runCli(temp, ['checklist_get', `--storyId=${storyId}`, '--slim=true']);
+  const cgBriefFlag = runCli(temp, ['checklist_get', `--storyId=${storyId}`, '--slim=true', '--brief']);
+  const cgEnvOn = runCli(temp, ['checklist_get', `--storyId=${storyId}`, '--slim=true'], { LATTICE_BRIEF_OUTPUT: '1' });
+  assert.equal(cgBriefFlag, cgBare, 'checklist_get ignores --brief (no behavior change)');
+  assert.equal(cgEnvOn, cgBare, 'checklist_get ignores LATTICE_BRIEF_OUTPUT (no behavior change)');
 
   // ─────────────────────────────────────────────────────────────────────────
   // story_list
