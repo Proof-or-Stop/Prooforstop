@@ -125,6 +125,21 @@
       ],
       "signatureTag": "missing|md|round-resolutions-both",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7c05:F-007",
+      "desc": "quality-dead-code: packages/main/src/cli/output-verbosity.ts:69-74 exports wantsBriefOutput and :25 exports FULL_OUTPUT_FLAG; neither is referenced anywhere else in packages/main/src (verified via repo-wide grep) or in any test/task file. Dead exported code introduced by this diff.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-12T17:20:55.038Z",
+      "reviewRound": "2026-07-12T17:08:48.514Z",
+      "reviewRunId": "B-7c05:RR-003",
+      "_hash": "043c6b1ba77d7f92be88e237bd4cc1bc1bfb0df7c6914af341f032ca115701ac",
+      "signatureTag": "missing|unknown|quality-dead-code",
+      "signatureTagSource": "auto"
     }
   ]
 }
