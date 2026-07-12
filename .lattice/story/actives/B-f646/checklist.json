@@ -72,6 +72,19 @@
           "materialHash": "2f1198f6bd2cd76c2a05ec89a87e98418df4fbc361493260692464fe88499349",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "timestamp": "2026-07-12T09:06:05.688Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+          "command": "rg -qi 'deterministic seeds|readManifest|scanEscalationReason|prompt-injection|100%' \"docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md\"",
+          "result": "pass",
+          "note": "The plan rejects host-only authority and self-reported reads through CLI-owned seeds, mechanical read reconciliation, explicit scan reasons, trust controls, and recall/equivalence gates.",
+          "headHash": "5e3ef9e5d0ada0b5b130df0abc160e1cc1c65f44",
+          "materialHash": "2f1198f6bd2cd76c2a05ec89a87e98418df4fbc361493260692464fe88499349",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-12T09:06:06.784Z"
         }
       ]
     }
