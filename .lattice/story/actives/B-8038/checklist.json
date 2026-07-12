@@ -200,7 +200,30 @@
       "userSees": "Operators can progress from shadow to warn to enforce only after quality and cost thresholds pass, with a safe non-injection rollback.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run two consecutive evaluation windows whose golden recall, finding equivalence, candidate/full-read bytes, latency, mismatch and escalation metrics meet the accepted thresholds -> canonical configuration permits shadow to warn to enforce promotion, process-fact/command-policy/registry/verifier contracts agree, and operators see the promotion evidence and active mode; WHY: maps rollout-tests, process-fact-contract and two-window-evaluation",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Make either evaluation window miss critical/high recall, 98 percent overall recall, finding equivalence, prompt-byte, latency, budget, or zero-mismatch thresholds, and simulate host outage during each mode -> promotion is blocked with diagnostic metrics, shadow/warn preserve existing authority, enforce fails closed only where configured, and host failure still uses deterministic local routing; WHY: proves thresholds and staged failure semantics govern rollout",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Attempt to force enforce through config drift, stale/forged evaluation evidence, missing process-fact registration, or rollback after enforcement -> contract verification rejects unauthorized promotion, rollback returns to explicit tool-driven broad review with recorded escalation, and regression guards prove recursive requirements reads, Truth Source concatenation, and corpus prompt embedding remain impossible; WHY: validates safe rollback and prevents the original 2 MB failure from returning",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
