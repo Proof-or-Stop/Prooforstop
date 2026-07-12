@@ -32,6 +32,7 @@ import {
   mkdirSync,
   mkdtempSync,
   readdirSync,
+  readFileSync,
   rmSync,
   statSync,
   utimesSync,
@@ -61,7 +62,7 @@ import {
 } from '../handlers/usage-sweep.js';
 import type { HandlerContext } from '../handlers/context.js';
 import { resolveEffectiveOwnershipClass } from '../cli/ownership-gate.js';
-import { isReadOnlyCommand } from '../cli/activity-policy.js';
+import { isReadOnlyCommand, shouldWriteActivityLog } from '../cli/activity-policy.js';
 
 let passed = 0;
 const failures: string[] = [];
@@ -396,6 +397,7 @@ async function main(): Promise<void> {
         assert.equal(json.hostBurnScan.advisory, true, 'JSON advisory=true');
         assert.equal(json.hostBurnScan.gateEvidence, false, 'JSON gateEvidence=false');
         assert.equal(json.hostBurnScan.disabled, false, 'scan ran');
+        assert.equal(json.hostBurnScan.scanWindowHours, 48, 'scanWindowHours field carries the recent-activity window');
         assert.ok(json.hostBurnScan.findings.length >= 2, 'both flagged sessions in JSON');
       },
     );
@@ -486,7 +488,12 @@ async function main(): Promise<void> {
 
   // ── 9. real-CLI exit codes ──────────────────────────────────────────────────
   await checkAsync('CLI: --alert exits non-zero on flagged stores AND still prints the report; clean/opt-out exit 0; plain doctor exits 0', async () => {
-    assert.ok(existsSync(cliPath), 'built dist/cli.js present (run npm run build first)');
+    // CHK-005:adversarial:0 — skip gracefully (with a loud warning) when the
+    // CLI is not built, rather than failing the whole smoke.
+    if (!existsSync(cliPath)) {
+      console.warn('⚠ dist/cli.js not built — skipping the CLI end-to-end checks (run npm run build first)');
+      return;
+    }
     const fixtureRoot = join(root, 'cli-project');
     mkdirSync(fixtureRoot, { recursive: true });
     const baseEnv: NodeJS.ProcessEnv = { ...process.env };
@@ -527,10 +534,117 @@ async function main(): Promise<void> {
     const sweepHandlers = createUsageSweepHandlers(ctx, { now: () => NOW });
     await withEnv({ [BURN_ALERT_ENV.codexDir]: codexDir, [BURN_ALERT_ENV.claudeDir]: claudeDir }, async () => {
       await doctorHandlers.doctor({ format: 'text' });
+      // CHK-003:adversarial:3 — --repair repairs worktree/metadata residue only;
+      // it must never touch (let alone delete) flagged burn sessions.
+      const repaired = (await doctorHandlers.doctor({ format: 'json', repair: true })) as Record<string, any>;
+      assert.equal(repaired.hostBurnScan.advisory, true, '--repair run still reports the scan as advisory');
+      assert.ok(repaired.hostBurnScan.findings.length >= 1, '--repair run still sees the flagged sessions');
     });
     await sweepHandlers.usage_sweep({ since: '2d', codexSessionsDir: codexDir, claudeProjectsDir: claudeDir, alert: true });
     assert.deepEqual([...snapshotDir(codexDir).entries()].sort(), [...beforeCodex.entries()].sort(), 'codex store untouched');
     assert.deepEqual([...snapshotDir(claudeDir).entries()].sort(), [...beforeClaude.entries()].sort(), 'claude store untouched');
+  });
+
+  // ── 11a. evaluator robustness: NaN / Infinity / negative usage ─────────────
+  await checkAsync('evaluator: NaN / Infinity / negative token counts never throw or corrupt findings', () => {
+    const nowMs = NOW;
+    const young = iso(nowMs - 1000);
+    const rows = [
+      row({ host: 'codex', sessionId: 'nan', firstTimestamp: young, usage: { inputTokens: Number.NaN, cachedInputTokens: 0, uncachedInputTokens: 0, outputTokens: 0, reasoningOutputTokens: 0 } }),
+      row({ host: 'codex', sessionId: 'inf', firstTimestamp: young, usage: { inputTokens: Number.POSITIVE_INFINITY, cachedInputTokens: 0, uncachedInputTokens: 0, outputTokens: 0, reasoningOutputTokens: 0 } }),
+      row({ host: 'codex', sessionId: 'neg', firstTimestamp: young, usage: codexUsage(-5) }),
+    ];
+    const ev = evaluateBurnAlerts(rows, { nowMs, thresholds: T, fileSizeOf: () => 0 });
+    assert.equal(ev.scanned, 3, 'all rows scanned without throwing');
+    assert.equal(ev.findings.find((f) => f.sessionId === 'nan'), undefined, 'NaN usage never flags (NaN > t is false)');
+    assert.equal(ev.findings.find((f) => f.sessionId === 'neg'), undefined, 'negative usage never flags');
+    const inf = ev.findings.find((f) => f.sessionId === 'inf');
+    assert.ok(inf && inf.reasons.length === 1 && inf.reasons[0] === 'input-tokens', 'Infinity flags input-tokens only, finding stays well-formed');
+  });
+
+  // ── 11b. resolver extremes: FILE_MB=50, huge values, proto pollution ────────
+  await checkAsync('resolver: FILE_MB=50, very large values, prototype-pollution keys, unrelated-only env', () => {
+    assert.equal(resolveBurnAlertThresholds({ [BURN_ALERT_ENV.fileMb]: '50' }).fileBytes, 50 * 1024 * 1024, 'FILE_MB=50 → 50MiB in bytes');
+    const huge = resolveBurnAlertThresholds({ [BURN_ALERT_ENV.inputTokens]: '999999999999999' });
+    assert.equal(huge.inputTokens, 999_999_999_999_999, 'very large token threshold accepted without overflow/NaN');
+    const polluted = resolveBurnAlertThresholds(JSON.parse('{"__proto__": {"fileBytes": 1}, "constructor": "x"}'));
+    assert.deepEqual(polluted, DEFAULT_BURN_ALERT_THRESHOLDS, 'prototype-pollution keys do not affect the result');
+    assert.equal(({} as Record<string, unknown>).fileBytes, undefined, 'Object.prototype not polluted');
+    const unrelated = resolveBurnAlertThresholds({ HOME: '/tmp/x', PATH: '/usr/bin' });
+    assert.deepEqual(unrelated, DEFAULT_BURN_ALERT_THRESHOLDS, 'unrelated env keys leave all four defaults');
+  });
+
+  // ── 11c. source-contract greps (pure-core + independence) ───────────────────
+  await checkAsync('source contracts: core module has no Date.now/process.env in CODE; no usage-ledger imports anywhere here', () => {
+    // Comments legitimately DESCRIBE the forbidden tokens (the pure-core rules
+    // themselves), so strip comments first and check only executable code.
+    const stripComments = (src: string): string =>
+      src
+        .replace(/\/\*[\s\S]*?\*\//g, '')
+        .split('\n')
+        .filter((line) => !line.trim().startsWith('//'))
+        .join('\n');
+    const importsOf = (src: string): string[] => src.split('\n').filter((line) => /^import\b/.test(line.trim()));
+    const ledgerNeedle = ['usage-', 'ledger'].join(''); // split so this file's own source never matches
+
+    const coreSrc = readFileSync(join(packageRoot, 'src', 'core', 'usage-burn-alert.ts'), 'utf8');
+    const coreCode = stripComments(coreSrc);
+    assert.ok(!coreCode.includes('Date.now'), 'core module code never calls Date.now (clock injected)');
+    assert.ok(!coreCode.includes('process.env'), 'core module code never reads process.env (resolver takes an env record)');
+    assert.ok(!importsOf(coreSrc).some((line) => line.includes(ledgerNeedle)), 'core module never imports the usage ledger (independence contract)');
+
+    const smokeSrc = readFileSync(join(packageRoot, 'src', 'tasks', 'usage-burn-alert-smoke.ts'), 'utf8');
+    assert.ok(!importsOf(smokeSrc).some((line) => line.includes(ledgerNeedle)), 'this smoke never imports the usage ledger either');
+
+    const doctorSrc = readFileSync(join(packageRoot, 'src', 'handlers', 'doctor.ts'), 'utf8');
+    assert.ok(!importsOf(doctorSrc).some((line) => line.includes('ownership-gate')), 'doctor does not import ownership-gate (no classification changes)');
+    assert.ok(!importsOf(doctorSrc).some((line) => line.includes('activity-policy')), 'doctor does not import activity-policy (no classification changes)');
+  });
+
+  // ── 11d. --alert with --out and CLI JSON validity when fired ───────────────
+  await checkAsync('CLI: --alert --json prints parseable JSON (report+alert) before the non-zero exit; --alert --out still writes the report file', async () => {
+    if (!existsSync(cliPath)) {
+      console.warn('⚠ dist/cli.js not built — skipping the CLI --alert JSON/--out checks');
+      return;
+    }
+    const fixtureRoot = join(root, 'cli-json-project');
+    mkdirSync(fixtureRoot, { recursive: true });
+    const env: NodeJS.ProcessEnv = { ...process.env, [BURN_ALERT_ENV.inputTokens]: '1000' };
+    for (const key of [BURN_ALERT_ENV.fileMb, BURN_ALERT_ENV.ageDays, BURN_ALERT_ENV.recentHours, BURN_ALERT_ENV.codexDir, BURN_ALERT_ENV.claudeDir]) delete env[key];
+    const runCli = (args: string[]): { code: number; stdout: string } => {
+      try {
+        const stdout = execFileSync(process.execPath, [cliPath, '--root', fixtureRoot, ...args], { cwd: fixtureRoot, env, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+        return { code: 0, stdout };
+      } catch (err: any) {
+        return { code: err.status ?? 1, stdout: String(err.stdout ?? '') };
+      }
+    };
+    const jsonRun = runCli(['usage_sweep', '--since=2d', `--codexSessionsDir=${codexDir}`, `--claudeProjectsDir=${claudeDir}`, '--alert', '--json']);
+    assert.notEqual(jsonRun.code, 0, '--alert --json exits non-zero when fired');
+    const parsed = JSON.parse(jsonRun.stdout) as Record<string, any>;
+    assert.equal(parsed.label, 'NON-AUTHORITATIVE ESTIMATE', 'printed JSON is the full report');
+    assert.ok(parsed.alert.findings.length >= 1, 'printed JSON carries the alert findings');
+    assert.equal(parsed.alert.gateEvidence, false, 'alert evaluation is never gate evidence');
+
+    const outRun = runCli(['usage_sweep', '--since=2d', `--codexSessionsDir=${codexDir}`, `--claudeProjectsDir=${claudeDir}`, '--alert', '--json', '--out=reports/alert-sweep.json']);
+    assert.notEqual(outRun.code, 0, '--alert --out exits non-zero when fired');
+    const outPath = join(fixtureRoot, 'reports', 'alert-sweep.json');
+    assert.ok(existsSync(outPath), '--out report file written before the alert exit');
+    const outParsed = JSON.parse(readFileSync(outPath, 'utf8'));
+    assert.equal(outParsed.label, 'NON-AUTHORITATIVE ESTIMATE', 'written report parses');
+  });
+
+  // ── 11e. activity-log classification with --alert ───────────────────────────
+  await checkAsync('classification: shouldWriteActivityLog(usage_sweep,{alert:true}) stays false by default', () => {
+    const prev = process.env.LATTICE_ACTIVITY_RECORD_READONLY;
+    delete process.env.LATTICE_ACTIVITY_RECORD_READONLY;
+    try {
+      assert.equal(shouldWriteActivityLog('usage_sweep', { alert: true }), false, '--alert writes no activity row by default');
+      assert.equal(shouldWriteActivityLog('usage_sweep', { alert: true, out: 'r.json' }), true, '--out remains the only activity-write trigger');
+    } finally {
+      if (prev === undefined) delete process.env.LATTICE_ACTIVITY_RECORD_READONLY;
+      else process.env.LATTICE_ACTIVITY_RECORD_READONLY = prev;
+    }
   });
 
   // ── 11. read-only classification unchanged by --alert ──────────────────────

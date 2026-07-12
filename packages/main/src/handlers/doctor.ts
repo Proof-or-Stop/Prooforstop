@@ -227,7 +227,7 @@ export function createDoctorHandlers(ctx: HandlerContext) {
         return {
           runtimeMode: runtime.runtimeMode,
           healthPath: getHealthPath(),
-          hostBurnScan: { ...hostBurnScan, disabled: burnDisabled },
+          hostBurnScan: { ...hostBurnScan, scanWindowHours: burnThresholds.recentHours, disabled: burnDisabled },
           ...summary,
           worktrees: {
             registered: orphanScan.registered,
