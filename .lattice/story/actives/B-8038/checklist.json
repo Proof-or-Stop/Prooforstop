@@ -45,7 +45,30 @@
       "userSees": "Host proposals add bounded semantic keywords without exposing secret values or blocking local routing during outages.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Invoke candidate routing with available Codex CLI and Claude Code CLI primary proposers and a fixture that triggers conditional Antigravity CLI fallback -> each adapter uses core/host-run, accepts only bounded schema-valid sanitized proposals with provider/prompt/seed provenance, and merges advisory terms without granting gate authority; WHY: maps adapter-tests to the visible semantic-enrichment behavior and canonical host policy",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Simulate one and both primary hosts unavailable, timed out, quota-limited, malformed, oversized, or disagreeing -> failures are recorded, agy is used only under policy, proposal term/ambiguity/rationale budgets are enforced, and deterministic local routing still returns candidates without an automatic full scan; WHY: maps host-failure-tests to graceful local fallback",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Place secret-like values in Story/checklist prose, backticks, paths/titles, config/error text, deterministic terms and sourceRef provenance, and return secret-like or prompt-injected host output -> the single non-bypassable pre-egress sanitizer sends names not values, hashes/omits sensitive provenance, skips uncertain calls, rejects unsafe output without persistence/ranking influence, and leakage fixtures observe zero secret bytes for Codex, Claude, and agy; WHY: maps egress-leakage-tests to the security boundary",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
