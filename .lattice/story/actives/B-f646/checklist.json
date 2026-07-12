@@ -59,6 +59,19 @@
           "materialHash": "2f1198f6bd2cd76c2a05ec89a87e98418df4fbc361493260692464fe88499349",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "timestamp": "2026-07-12T09:06:04.507Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+          "command": "rg -qi 'Sparse matches|Noisy/excessive matches|Zero-candidate result|quota|unavailable|deduplicate|full scan' \"docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md\"",
+          "result": "pass",
+          "note": "The validation matrix and escalation contract explicitly cover sparse, noisy, empty, disagreement, quota/unavailable-host, deduplication, cutoff, and bounded escalation cases.",
+          "headHash": "517b6f33eece65dcaedb5cf3fdc9e966bc2251a1",
+          "materialHash": "2f1198f6bd2cd76c2a05ec89a87e98418df4fbc361493260692464fe88499349",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-12T09:06:05.688Z"
         }
       ]
     }
