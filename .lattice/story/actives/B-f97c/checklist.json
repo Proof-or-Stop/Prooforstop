@@ -173,9 +173,9 @@
         ],
         "test": []
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-12T01:35:08.636Z",
       "verificationIntent": {
         "happy": [
           {
@@ -198,7 +198,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:story-review-corpus-budget",
+          "result": "pass",
+          "note": "Registered package script exited zero.",
+          "headHash": "ea192201da5dc2038dfb8690e28c1ead93254041",
+          "materialHash": "1060e1478f06a0bc5ff019f87af7bb2bc8a3343b2cbc2e614a2a66f02047bdfc",
+          "storyFilesHash": "4bee5a84914ea337667b65982e22bea201d41a4304f91ec3a67aa70d0beb38b0",
+          "timestamp": "2026-07-12T01:35:08.852Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:story-review-corpus-budget",
+          "result": "pass",
+          "note": "Baseline and large-corpus prompt were byte-identical at 2936 bytes; delta zero.",
+          "headHash": "ea192201da5dc2038dfb8690e28c1ead93254041",
+          "materialHash": "1060e1478f06a0bc5ff019f87af7bb2bc8a3343b2cbc2e614a2a66f02047bdfc",
+          "storyFilesHash": "4bee5a84914ea337667b65982e22bea201d41a4304f91ec3a67aa70d0beb38b0",
+          "timestamp": "2026-07-12T01:35:09.060Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:story-review-corpus-budget",
+          "result": "pass",
+          "note": "Forged Truth Source heading and exact corpus sentinel were absent.",
+          "headHash": "ea192201da5dc2038dfb8690e28c1ead93254041",
+          "materialHash": "1060e1478f06a0bc5ff019f87af7bb2bc8a3343b2cbc2e614a2a66f02047bdfc",
+          "storyFilesHash": "4bee5a84914ea337667b65982e22bea201d41a4304f91ec3a67aa70d0beb38b0",
+          "timestamp": "2026-07-12T01:35:09.223Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
