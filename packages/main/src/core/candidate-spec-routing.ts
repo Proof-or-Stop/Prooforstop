@@ -17,6 +17,7 @@ const SHA256 = (value: string | Buffer): string => createHash('sha256').update(v
 const CONTROL = /[\u0000-\u001f\u007f]/;
 const SECRET_VALUE = /(?:bearer\s+|api[_-]?key\s*[:=]\s*|password\s*[:=]\s*|secret\s*[:=]\s*|token\s*[:=]\s*)[^\s,;]+/gi;
 const SECRET_ASSIGNMENT = /\b([A-Za-z][A-Za-z0-9_.-]*(?:token|secret|password|credential|api[_-]?key)[A-Za-z0-9_.-]*)\s*[:=]\s*([^\s,;]+)/gi;
+const SEED_STOPWORDS = new Set(['docs', 'requirements', 'decisions', 'actives', 'story', 'checklist', 'implement', 'implementation', 'current', 'complete', 'through', 'without', 'runtime']);
 
 export type SeedSource = 'relatedDoc' | 'story' | 'checklist' | 'understanding' | 'changedPath' | 'identifier' | 'memory';
 
@@ -91,6 +92,21 @@ export interface HostKeywordProposal {
   rejectedSeeds: Array<{ term: string; reason: string }>;
   ambiguitySignals: string[];
 }
+
+export interface HostProposalAttempt {
+  host: HostKeywordProposal['host'];
+  status: 'accepted' | 'unavailable' | 'timeout' | 'quota-limited' | 'rejected' | 'skipped-unsafe';
+  proposal: HostKeywordProposal | null;
+  reason: string | null;
+}
+
+export type CandidateHostExecutor = (args: {
+  host: HostKeywordProposal['host'];
+  storyId: string;
+  sanitizedPayload: unknown;
+  promptDigest: string;
+  seedDigest: string;
+}) => Promise<unknown>;
 
 export interface CandidateReason {
   kind: 'related-doc' | 'path' | 'heading' | 'body' | 'host' | 'negative-control';
@@ -215,7 +231,7 @@ export function normalizeKeyword(term: string): string {
 function extractedTerms(value: string): string[] {
   const exact = [...value.matchAll(/`([^`\n]{1,120})`|(--?[A-Za-z0-9][\w-]*)|\b([A-Z][A-Z0-9_]{2,}|[A-Za-z][\w.-]{2,})\b/g)]
     .map(match => (match[1] || match[2] || match[3] || '').trim())
-    .filter(term => term.length >= 3 && term.length <= 120);
+    .filter(term => term.length >= 3 && term.length <= 120 && !SEED_STOPWORDS.has(normalizeKeyword(term)));
   return [...new Set(exact)];
 }
 
@@ -229,14 +245,19 @@ export function buildKeywordSeeds(input: StoryRoutingInput): KeywordSeedsArtifac
       rows.push({ term, normalized, source, sourceRef, weight });
     }
   };
-  for (const [index, doc] of (input.relatedDocs ?? []).entries()) add(doc, 'relatedDoc', `relatedDocs[${index}]`, 100);
+  const addRelated = (doc: string, sourceRef: string): void => {
+    const term = doc.split('#')[0].trim();
+    if (!term) return;
+    rows.push({ term, normalized: normalizeKeyword(term), source: 'relatedDoc', sourceRef, weight: 100 });
+  };
+  for (const [index, doc] of (input.relatedDocs ?? []).entries()) addRelated(doc, `relatedDocs[${index}]`);
   add(input.title, 'story', 'story.title', 40);
   add(input.description, 'story', 'story.description', 25);
   for (const [index, term] of [...(input.keywords ?? []), ...(input.riskSignals ?? [])].entries()) add(term, 'story', `story.keyword[${index}]`, 35);
   for (const [index, item] of (input.checklist ?? []).entries()) {
     add(item.title, 'checklist', `checklist[${index}].title`, 30);
     add(item.userSees, 'checklist', `checklist[${index}].userSees`, 20);
-    for (const doc of item.relatedDocs ?? []) add(doc, 'relatedDoc', `checklist[${index}].relatedDocs`, 100);
+    for (const doc of item.relatedDocs ?? []) addRelated(doc, `checklist[${index}].relatedDocs`);
     for (const excluded of item.excludes ?? []) add(excluded, 'checklist', `checklist[${index}].excludes`, 10);
   }
   for (const [index, touchpoint] of (input.understanding?.touchpoints ?? []).entries()) add(touchpoint, 'understanding', `understanding.touchpoints[${index}]`, 45);
@@ -316,12 +337,74 @@ export function normalizeHostProposal(input: unknown, expected: { storyId: strin
   return { ...(proposal as HostKeywordProposal), terms };
 }
 
+function proposalTermSet(proposal: HostKeywordProposal): Set<string> {
+  return new Set(proposal.terms.map(term => normalizeKeyword(term.term)));
+}
+
+function proposalOverlap(a: HostKeywordProposal, b: HostKeywordProposal): number {
+  const left = proposalTermSet(a);
+  const right = proposalTermSet(b);
+  if (left.size === 0 && right.size === 0) return 1;
+  const intersection = [...left].filter(term => right.has(term)).length;
+  return intersection / Math.max(left.size, right.size, 1);
+}
+
+export async function collectHostKeywordProposals(args: {
+  storyId: string;
+  payload: unknown;
+  seeds: KeywordSeedsArtifact;
+  execute: CandidateHostExecutor;
+  minimumPrimaryOverlap?: number;
+  requestAgy?: boolean;
+}): Promise<{ attempts: HostProposalAttempt[]; accepted: HostKeywordProposal[]; sanitizedDigest: string }> {
+  const sanitized = sanitizeHostPayload(args.payload);
+  if (!sanitized.safe) {
+    return {
+      attempts: [
+        { host: 'codex-cli', status: 'skipped-unsafe', proposal: null, reason: sanitized.reason },
+        { host: 'claude-cli', status: 'skipped-unsafe', proposal: null, reason: sanitized.reason },
+      ],
+      accepted: [],
+      sanitizedDigest: sanitized.digest,
+    };
+  }
+  const attempts: HostProposalAttempt[] = [];
+  const run = async (host: HostKeywordProposal['host']): Promise<void> => {
+    const promptDigest = digestCandidateRoutingValue({ host, payload: sanitized.value, seedDigest: args.seeds.seedDigest });
+    try {
+      const raw = await args.execute({ host, storyId: args.storyId, sanitizedPayload: sanitized.value, promptDigest, seedDigest: args.seeds.seedDigest });
+      const proposal = normalizeHostProposal(raw, { storyId: args.storyId, host, seedDigest: args.seeds.seedDigest });
+      if (proposal.promptDigest !== promptDigest) throw new Error('host proposal prompt digest mismatch');
+      attempts.push({ host, status: 'accepted', proposal, reason: null });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      const lower = message.toLowerCase();
+      const status: HostProposalAttempt['status'] = lower.includes('timeout')
+        ? 'timeout'
+        : lower.includes('quota') || lower.includes('rate limit')
+          ? 'quota-limited'
+          : lower.includes('unavailable') || lower.includes('enoent')
+            ? 'unavailable'
+            : 'rejected';
+      attempts.push({ host, status, proposal: null, reason: message.slice(0, 240) });
+    }
+  };
+  await Promise.all([run('codex-cli'), run('claude-cli')]);
+  const primary = attempts.flatMap(attempt => attempt.proposal ? [attempt.proposal] : []);
+  const minimumOverlap = args.minimumPrimaryOverlap ?? 0.2;
+  const disagree = primary.length === 2 && proposalOverlap(primary[0], primary[1]) < minimumOverlap;
+  const primaryFailure = primary.length < 2;
+  if (args.requestAgy || disagree || primaryFailure) await run('agy-cli');
+  const accepted = attempts.flatMap(attempt => attempt.proposal ? [attempt.proposal] : []);
+  return { attempts, accepted, sanitizedDigest: sanitized.digest };
+}
+
 function searchable(entry: CorpusIndexEntry, body: string): string {
   return `${entry.path}\n${entry.headings.join('\n')}\n${body}`.toLowerCase();
 }
 
 export function buildQueryGroups(seeds: KeywordSeed[], proposals: HostKeywordProposal[] = [], budget = DEFAULT_QUERY_GROUP_BUDGET): string[][] {
-  const terms = [...seeds.map(seed => seed.normalized), ...proposals.flatMap(proposal => proposal.terms.map(term => normalizeKeyword(term.term)))]
+  const terms = [...seeds.filter(seed => seed.source !== 'relatedDoc').map(seed => seed.normalized), ...proposals.flatMap(proposal => proposal.terms.map(term => normalizeKeyword(term.term)))]
     .filter(term => term.length >= 3);
   const unique = [...new Set(terms)];
   const groups = unique.slice(0, budget).map(term => [term]);

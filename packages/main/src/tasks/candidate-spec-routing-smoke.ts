@@ -5,6 +5,7 @@ import { tmpdir } from 'node:os';
 import {
   buildCorpusIndex,
   buildKeywordSeeds,
+  collectHostKeywordProposals,
   normalizeHostProposal,
   routeCandidateSpecs,
   sanitizeHostPayload,
@@ -41,7 +42,7 @@ function proposal(storyId: string, digest: string): HostKeywordProposal {
   };
 }
 
-export function runCandidateSpecRoutingSmoke(): void {
+export async function runCandidateSpecRoutingSmoke(): Promise<void> {
   const root = fixtureRoot();
   try {
     const first = buildCorpusIndex(root);
@@ -108,10 +109,35 @@ export function runCandidateSpecRoutingSmoke(): void {
       seedDigest: seedsA.seedDigest,
     }), /budget exceeded/);
 
+    const calls: string[] = [];
+    const collected = await collectHostKeywordProposals({
+      storyId: story.storyId,
+      payload: { title: story.title, description: story.description, seeds: seedsA.seeds },
+      seeds: seedsA,
+      execute: async ({ host, promptDigest, seedDigest }) => {
+        calls.push(host);
+        if (host === 'claude-cli') throw new Error('quota limited');
+        return { ...proposal(story.storyId, seedDigest), host, promptDigest, proposalId: `proposal-${host}` };
+      },
+    });
+    assert.deepEqual(calls.sort(), ['agy-cli', 'claude-cli', 'codex-cli']);
+    assert.equal(collected.accepted.length, 2);
+    assert.equal(collected.attempts.find(attempt => attempt.host === 'claude-cli')?.status, 'quota-limited');
+
+    let unsafeCalls = 0;
+    const unsafe = await collectHostKeywordProposals({
+      storyId: story.storyId,
+      payload: { privateKey: '-----BEGIN PRIVATE KEY-----' },
+      seeds: seedsA,
+      execute: async () => { unsafeCalls += 1; return rawProposal; },
+    });
+    assert.equal(unsafeCalls, 0);
+    assert.ok(unsafe.attempts.every(attempt => attempt.status === 'skipped-unsafe'));
+
     console.log('candidate-spec-routing smoke: PASS');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) runCandidateSpecRoutingSmoke();
+if (import.meta.url === `file://${process.argv[1]}`) await runCandidateSpecRoutingSmoke();

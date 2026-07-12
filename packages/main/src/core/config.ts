@@ -306,6 +306,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'dev_start', // B-804c CHK-002: 显式 recovery 入口——卡在 INIT_CHECK 无 worktree 的 story 可手动重建
   ],
   PLAN: [
+    'candidate_spec_route', // B-8038: bounded PLAN candidate producer
     'dev_start', // B-804c CHK-002: 显式 recovery 入口——PLAN 阶段缺 worktree 也可重建
     'story_update', 'story_review', 'story_review_dismiss',
     'checklist_add', 'checklist_update', 'checklist_remove',
@@ -330,6 +331,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'spike_start', 'spike_result_set', 'spike_result', 'spike_discard', 'spike_promote',
   ],
   DEV: [
+    'candidate_spec_route', // B-8038: owner development and focused verification
     'dev_start', // B-804c CHK-002 / B-da89: explicit worktree recovery entry; reconcile config with command-policy + worktree handler 4-phase set (DEV still in the pre-REVIEW bootstrap window)
     'checklist_add', 'checklist_update', 'checklist_remove',
     'verification_intent_repair', // B-4e06: audited legacy intent backfill
@@ -349,6 +351,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'guard_session_start', // B-6bfd CHK-004: start scope-guard session during implementation
   ],
   REVIEW: [
+    'candidate_spec_route', // B-8038: current-diff rerouting for reviewer lanes
     'review_run_start',
     'finding_add', 'finding_list', 'finding_resolve', 'finding_dismiss',
     'review_pass_set',
@@ -369,6 +372,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'guard_session_start', // B-6bfd CHK-004: start scope-guard session during review
   ],
   TEST: [
+    'candidate_spec_route', // B-8038: end-to-end routing verification
     'finding_list', 'finding_cluster', // B-9d95 CHK-005: 聚簇视图在 TEST 也允许查询
     'validate', 'evaluate', 'evaluate_save',
     'verification_intent_repair', // B-4e06: audited legacy intent backfill
