@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-12a1",
+  "mode": "correctness_fix",
+  "allowed": [
+    "packages/main/src/core/lifecycle-registry.ts LATTICE_LIFECYCLE_ARTIFACT_FILENAMES registry addition",
+    "packages/main/src/tasks/scope-contract-smoke.ts smoke assertions for ProofStory artifact classification"
+  ],
+  "excluded": [
+    "allowing arbitrary unregistered JSON under story dirs",
+    "classifier logic changes in classifyLifecycleArtifact/classifyScopePath",
+    "gate severity changes in scope-contract.ts",
+    "new command surfaces or CLI flags"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User task 2026-07-12: add the four ProofStory intent artifact names (plus same-family milestone-ledger.json/spike.json) to the lifecycle artifact registry consulted by the scope classifier, with a smoke asserting lifecycle_artifact pass; run as a normal small Lattice story.",
+  "createdAt": "2026-07-12T21:22:15.659Z",
+  "updatedAt": "2026-07-12T21:22:15.659Z",
+  "_hash": "6a24ff9cddccc01ba32e536eb2d925594f068670fc0df351d59a82274ab9058c"
+}

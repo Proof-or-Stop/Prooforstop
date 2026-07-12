@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-12a1",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff*",
+    "git status",
+    "node -e *",
+    "node bin/lattice.js *",
+    "node packages/main/dist/tasks/run-all-smokes.js*",
+    "node packages/main/dist/tasks/scope-contract-smoke.js",
+    "npm --prefix packages/main run build",
+    "npm run build"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".lattice/story/actives/B-12a1",
+    "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/tasks/scope-contract-smoke.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Data-level registry addition + smoke assertions; verification via worktree build and scope-contract smoke run.",
+  "createdAt": "2026-07-12T21:22:25.464Z",
+  "updatedAt": "2026-07-12T21:22:25.464Z",
+  "_hash": "79557cb9b494bd4c2aa2824af758262900493e0f916cb6d2608f5e6181a23697"
+}

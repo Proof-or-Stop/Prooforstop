@@ -2,16 +2,16 @@
   "items": [
     {
       "id": "CHK-001",
-      "title": "Register the six ProofStory command-generated artifact filenames in LATTICE_LIFECYCLE_ARTIFACT_FILENAMES",
-      "context": "packages/main/src/core/lifecycle-registry.ts — add original-intent-snapshot.json, intent-collision.json, red-evidence.json, proofstory.json, milestone-ledger.json, spike.json to the closed filename set consumed by classifyLifecycleArtifact.",
+      "title": "Register the ten ProofStory command-generated artifact filenames in LATTICE_LIFECYCLE_ARTIFACT_FILENAMES",
+      "context": "packages/main/src/core/lifecycle-registry.ts — add all ten filenames written by the ProofStory intent-hardening block in store.ts (lines ~668-798): original-intent-snapshot.json, milestone-ledger.json, milestone-closeout.json, slice-plan.json, parent-ledger-rollup.json, proofstory.json, intent-collision.json, scope-shrinkage-decision.json, red-evidence.json, spike.json — to the closed filename set consumed by classifyLifecycleArtifact.",
       "status": "pending",
       "startTime": null,
       "endTime": null
     },
     {
       "id": "CHK-002",
-      "title": "Smoke: fixture story's ProofStory intent artifacts classify as lifecycle_artifact pass instead of out_of_scope",
-      "context": "packages/main/src/tasks/scope-contract-smoke.ts — under an enforce contract that does not list story-metadata paths, assert .lattice/story/actives/<id>/{original-intent-snapshot,intent-collision,red-evidence,proofstory,milestone-ledger,spike}.json produce scope.lifecycle_artifact pass rows (fails before the registry fix).",
+      "title": "Smoke: fixture story ProofStory artifacts classify as lifecycle_artifact pass instead of out_of_scope",
+      "context": "packages/main/src/tasks/scope-contract-smoke.ts — under an enforce contract that does not list story-metadata paths, assert all ten ProofStory artifact paths .lattice/story/actives/<id>/{original-intent-snapshot,milestone-ledger,milestone-closeout,slice-plan,parent-ledger-rollup,proofstory,intent-collision,scope-shrinkage-decision,red-evidence,spike}.json produce scope.lifecycle_artifact pass rows (fails before the registry fix).",
       "status": "pending",
       "startTime": null,
       "endTime": null

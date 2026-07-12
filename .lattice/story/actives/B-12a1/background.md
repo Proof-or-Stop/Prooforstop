@@ -6,6 +6,7 @@ The classifier consults a single closed registry, LATTICE_LIFECYCLE_ARTIFACT_FIL
 
 ## Solution Tradeoffs
 Registering the six exact filenames in the existing closed set keeps the narrow trust policy intact (only known story-dir top-level filenames pass); the alternative of allowing any *.json under a story dir would reopen the implicit-pass hole B-b9d0 deliberately closed. A smoke assertion in scope-contract-smoke.ts pins the behavior so a future rename of the artifacts fails loudly.
+INIT review I-1 widened the registry addition from 6 to all 10 filenames written by the ProofStory intent-hardening block in store.ts (adding milestone-closeout.json, slice-plan.json, parent-ledger-rollup.json, scope-shrinkage-decision.json), so the trigger bug cannot recur for any file of that command family. Explicit carve-out: grill.json, clusters.json (registry currently lists singular cluster.json), and scope-extension-decisions.json are also unregistered but belong to different command families outside the ProofStory trigger; they are deliberately excluded here and tracked as a separate follow-up.
 
 ## Conversational Texture
 The owner running a high-assurance story cares that command-generated metadata never blocks their own phase gates: after this fix, scope_contract_check and story_advance should show these files as lifecycle_artifact pass rows with no manual acknowledgement, exactly like checklist.json does today.

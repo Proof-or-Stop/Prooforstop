@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-12a1",
+  "checkedAt": "2026-07-12T21:26:29.301Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "6a24ff9cddccc01ba32e536eb2d925594f068670fc0df351d59a82274ab9058c",
+  "executionBoundaryHash": "79557cb9b494bd4c2aa2824af758262900493e0f916cb6d2608f5e6181a23697",
+  "freshnessHash": "aeea1999d4ba433a17fffc596ec249f4fed7a55e999d4f043931481766380e0e",
+  "effectiveExcludedKeywords": [
+    "allowing arbitrary unregistered JSON under story dirs",
+    "Authority",
+    "classifier logic changes in classifyLifecycleArtifact/classifyScopePath",
+    "customerKeyRef",
+    "gate severity changes in scope-contract.ts",
+    "Layer4",
+    "new command surfaces or CLI flags",
+    "repair UX"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "allowing arbitrary unregistered JSON under story dirs",
+      "source": "scopeBoundary.excluded",
+      "text": "allowing arbitrary unregistered JSON under story dirs",
+      "excluded": true
+    },
+    {
+      "keyword": "classifier logic changes in classifyLifecycleArtifact/classifyScopePath",
+      "source": "scopeBoundary.excluded",
+      "text": "classifier logic changes in classifyLifecycleArtifact/classifyScopePath",
+      "excluded": true
+    },
+    {
+      "keyword": "gate severity changes in scope-contract.ts",
+      "source": "scopeBoundary.excluded",
+      "text": "gate severity changes in scope-contract.ts",
+      "excluded": true
+    },
+    {
+      "keyword": "new command surfaces or CLI flags",
+      "source": "scopeBoundary.excluded",
+      "text": "new command surfaces or CLI flags",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "0ab271424c9a6bd99b0782ea0f499124e75a8970392ecee7125621bba9fc5696"
+}
