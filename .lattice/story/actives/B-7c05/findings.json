@@ -66,6 +66,25 @@
       ],
       "signatureTag": "missing|ts|edge-edge-both",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7c05:F-005",
+      "desc": "Two remaining should-priority intents have zero verificationEvidence records: CHK-003:edge:0 (help with empty/filtered command list should emit graceful empty message) and CHK-005:adversarial:1 (validate/checklist_get ignore LATTICE_BRIEF_OUTPUT and --brief gracefully with no crash). Manual spot-check during this review confirms both behaviors currently work correctly live (checklist_get with brief:true and LATTICE_BRIEF_OUTPUT=0 both return unaffected full output, exit 0, no crash) but no committed test or transcript record exists for either, so a future regression would go undetected. CHK-006:edge:1 (CLAUDE.md reflection) is not counted as a gap since its own intent text states docs/CLI.md alone suffices when CLAUDE.md snippet regeneration does not apply, which is the case here.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-12T01:41:15.693Z",
+      "reviewRound": "2026-07-12T01:35:24.882Z",
+      "reviewRunId": "B-7c05:RR-002",
+      "_hash": "541d375525a0fb1094130f40659bf57a245e93de344208983f3a97957019d4ae",
+      "files": [
+        "packages/main/src/tasks/brief-output-smoke.ts",
+        "packages/main/src/handlers/checklist.ts"
+      ],
+      "signatureTag": "missing|ts|remaining-priority-intents",
+      "signatureTagSource": "auto"
     }
   ]
 }
