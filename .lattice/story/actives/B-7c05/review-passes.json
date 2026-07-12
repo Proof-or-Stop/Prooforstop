@@ -227,6 +227,28 @@
         "scanEscalationReason": null
       },
       "_hash": "ec73e820ab0814571de4e8d4476cbad66074790acbb4c9a34005beb46c33b1d1"
+    },
+    {
+      "id": "B-7c05:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "Post-merge re-bind (merge 97a294cf75 / mains B-f97c removed requirements-doc embedding from story_review prompts) confirmed sound: brief-output-smoke.ts full-output witness for story_review is now the PLAN prompt header regex /Please review the PLAN-phase artifacts/ (assert at line 408) instead of FULL_ONLY_MARKER-in-truth-doc; FULL_ONLY_MARKER remains valid and unchanged for the unrelated finding_list heavy-description check (lines 285-295). Re-ran node packages/main/dist/tasks/brief-output-smoke.js: pass. Spot-checked CHK-003:happy:0 probe (help byte budget <16000): pass. finding_list shows all 11 findings (F-001..F-011) resolved, attention.suspected empty. Full validate run (post RR-014 start) shows status=pass, allPass=true, verificationCoverage total=44 covered=42 missingRequired=0; the 2 uncovered entries (CHK-003:edge:0, CHK-006:edge:1) are should-priority advisory gaps, pre-existing and unrelated to the merge. No coverage regression; no finding filed.",
+      "createdAt": "2026-07-12T18:39:10.457Z",
+      "reviewRound": "2026-07-12T18:30:44.632Z",
+      "reviewRunId": "B-7c05:RR-014",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7c05/checklist.json",
+          ".lattice/story/actives/B-7c05/findings.json",
+          "packages/main/src/tasks/brief-output-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-7c05/delivery-check.json",
+          ".lattice/story/actives/B-7c05/index.json",
+          ".lattice/story/actives/B-7c05/review-passes.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f8df0163f98406928ad972fe71859bf844bb1d5faa813ca4480ed2531fa35884"
     }
   ]
 }
