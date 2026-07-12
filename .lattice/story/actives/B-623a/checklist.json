@@ -453,11 +453,11 @@
           }
         ]
       },
-      "userSees": "npm run test:usage-burn-alert prints \"✓ usage-burn-alert smoke passed (N checks)\" and run-all-smokes auto-discovers the new smoke",
+      "userSees": "npm run test:usage-burn-alert prints per-check ✓ lines and a final \"✓ usage-burn-alert smoke passed (<N> checks)\" and exits 0; npm run test:all discovers the smoke automatically",
       "files": {
         "modify": [
-          "packages/main/package.json",
-          "package.json"
+          "package.json",
+          "packages/main/package.json"
         ],
         "create": [
           "packages/main/src/tasks/usage-burn-alert-smoke.ts"
