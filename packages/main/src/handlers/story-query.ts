@@ -651,9 +651,10 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
           bugSuggestions.push(`⚠ ${totalBugsOpen} open bugs awaiting fix, recommend prioritizing`);
         }
         // B-7c05: a terminal (DONE or DISCARDED) bug story is closed and must not
-        // be flagged "not closed" — a DISCARDED bug story was previously listed
-        // here because the filter only excluded DONE (pre-existing bug that
-        // verify-story-list-bug-summary.mjs asserts against). Summary-display only.
+        // be flagged "not closed" — restores the commit 288d359377 behavior that
+        // had regressed before B-7c05 (the filter only excluded DONE, so DISCARDED
+        // bug stories were re-listed; verify-story-list-bug-summary.mjs asserts
+        // against it). Summary-display only; declared in B-7c05 F-002/summary.
         const openBugStories = bugStories.filter(r => r.phase !== 'DONE' && r.phase !== 'DISCARDED');
         if (openBugStories.length > 0) {
           bugSuggestions.push(`⚠ Bug Story not closed: ${openBugStories.map(r => r.storyId).join(', ')}`);

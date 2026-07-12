@@ -38,9 +38,10 @@ export type GlobalHelpOptions = {
   phaseTools?: Record<string, string[]>;
   ownerLeaseHelpBlock: OwnerLeaseHelpBlockCallback;
   /**
-   * B-7c05 CHK-003: when false/undefined the catalog is BRIEF (grouped command
-   * names + short truncated descriptions, sized to stay well under the help
-   * byte budget). full=true restores the current verbose catalog byte-for-byte.
+   * B-7c05 CHK-003 (F-001): when false/undefined the catalog is BRIEF — grouped
+   * command names only, no per-command descriptions (any description fitting the
+   * byte budget across ~320 commands degrades into a misleading fragment).
+   * full=true restores the current verbose catalog byte-for-byte.
    */
   full?: boolean;
 };
