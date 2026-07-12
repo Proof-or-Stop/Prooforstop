@@ -422,7 +422,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js story_list",
+          "result": "pass",
+          "note": "Live repo (234 stories incl. 187 DONE + 16 DISCARDED): bare story_list is 11,454 bytes (~2.9k tokens) with one-liners for non-terminal stories only, _phases counts covering ALL stories (non-silent), _brief/_omittedTerminal/_hint set; brief-output-smoke asserts the same on its fixture.",
+          "headHash": "4e63e3965b16a5869fa225a85dc2a1cb18e37825",
+          "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
+          "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
+          "timestamp": "2026-07-12T01:33:50.206Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
