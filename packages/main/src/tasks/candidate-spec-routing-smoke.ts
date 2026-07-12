@@ -14,6 +14,9 @@ import {
   verifyCandidateSpecSet,
   type HostKeywordProposal,
 } from '../core/candidate-spec-routing.js';
+import { StoryStore } from '../core/store.js';
+import { createStoryDispatchHandlers } from '../handlers/story-dispatch.js';
+import { renderDeliveryContextPackReport } from '../handlers/delivery-context-pack.js';
 
 function fixtureRoot(): string {
   const root = join(tmpdir(), `candidate-routing-${process.pid}-${Date.now()}`);
@@ -80,6 +83,50 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
     assert.ok(artifact.candidateSpecSet.length <= 8);
     assert.ok(artifact.queryGroups.length <= 10);
     assert.equal(JSON.stringify(artifact).includes('Rotating credentials safely'), false, 'artifact must not contain document bodies');
+
+    const store = new StoryStore(root);
+    store.writeStory(story.storyId, {
+      storyId: story.storyId,
+      name: 'candidate-routing-smoke',
+      title: story.title,
+      description: story.description,
+      type: 'feature',
+      phase: 'PLAN',
+      priority: 'medium',
+      createdAt: '2026-07-12T00:00:00.000Z',
+      startedAt: '2026-07-12T00:00:00.000Z',
+      endedAt: null,
+      events: [],
+    });
+    store.writeChecklist(story.storyId, { items: [{
+      id: 'CHK-001', title: 'Preserve AuthSession behavior', context: 'Review routed auth specifications.',
+      status: 'pending', startTime: null, endTime: null,
+      files: { modify: ['packages/main/src/auth/session.ts'], create: [], test: [] },
+    }] });
+    store.writeCandidateSpecSet(story.storyId, artifact);
+    const dispatch = createStoryDispatchHandlers({ store, root, scanRoot: join(root, 'packages/main') });
+    const planPrompt = dispatch.dispatch({ storyId: story.storyId, agentType: 'lattice-review-scope-plan' }).prompt;
+    assert.match(planPrompt, new RegExp(artifact.artifactDigest));
+    assert.match(planPrompt, new RegExp(artifact.corpusDigest));
+    assert.match(planPrompt, /candidateSpecSetDigest/);
+    assert.equal(planPrompt.includes('Rotating credentials safely'), false, 'PLAN dispatch must not embed corpus bodies');
+    const reviewPrompt = dispatch.dispatch({ storyId: story.storyId, itemId: 'CHK-001', agentType: 'lattice-review-quality' }).prompt;
+    assert.match(reviewPrompt, new RegExp(artifact.artifactDigest));
+    assert.match(reviewPrompt, /review_run_start/);
+    assert.match(reviewPrompt, /candidateSpecSetDigest/);
+    const deliveryText = renderDeliveryContextPackReport({
+      storyId: story.storyId, generatedFor: 'delivery-review', phase: 'REVIEW',
+      mode: { runCommands: false, writeEvidence: false },
+      diff: { changedFiles: [], summary: '' }, docsPromises: [],
+      realMachineTests: { transcriptDiff: false, testFiles: [], evidenceCommands: [] },
+      candidateRouting: { artifactDigest: artifact.artifactDigest, corpusDigest: artifact.corpusDigest, candidateSpecSet: artifact.candidateSpecSet, ambiguitySignals: artifact.ambiguitySignals },
+      validation: null, reviewRound: null,
+      deliveryCheck: { status: 'missing', ref: null }, waiver: { status: 'none', ref: null },
+      deliveryReadinessRow: null, isSigner: false,
+      write: { requested: false, persisted: false, artifactPath: null },
+      claims: { authorityDone: false, fullAuthorityDone: false, productionDone: false },
+    });
+    assert.match(deliveryText, new RegExp(artifact.artifactDigest));
 
     const sanitized = sanitizeHostPayload({ description: 'api_key=super-secret', sourceRef: 'token: abc123' });
     assert.equal(sanitized.safe, true);
