@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-f646",
+  "checkedAt": "2026-07-12T08:58:41.925Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "74dc49ca09c986f4d1ceaf90405c303f192c037649611f767292aedb3e6d03cd",
+  "executionBoundaryHash": "2837c737fca43db1e137a53ede29ba523e85f29c382f27513835051000b2290c",
+  "freshnessHash": "935403f0ffca806cc7c9970d2e8b627896c3383ff5bda6db7f32b3edb319df59",
+  "effectiveExcludedKeywords": [
+    ".claude/**",
+    ".lattice-codex/**",
+    "B-3928 artifacts",
+    "packages/main/src/**",
+    "packages/main/templates/**"
+  ],
+  "keywordHits": [
+    {
+      "keyword": ".claude/**",
+      "source": "scopeBoundary.excluded",
+      "text": ".claude/**",
+      "excluded": true
+    },
+    {
+      "keyword": ".lattice-codex/**",
+      "source": "scopeBoundary.excluded",
+      "text": ".lattice-codex/**",
+      "excluded": true
+    },
+    {
+      "keyword": "B-3928 artifacts",
+      "source": "checklist.excludes",
+      "text": "Editing B-3928 artifacts",
+      "itemId": "CHK-001",
+      "excluded": true
+    },
+    {
+      "keyword": "B-3928 artifacts",
+      "source": "scopeBoundary.excluded",
+      "text": "B-3928 artifacts",
+      "excluded": true
+    },
+    {
+      "keyword": "packages/main/src/**",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/main/src/**",
+      "excluded": true
+    },
+    {
+      "keyword": "packages/main/templates/**",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/main/templates/**",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "c06399d96c308e31fed3a44a32e6264c6d9afd0f932892454b8821c008180f5f"
+}

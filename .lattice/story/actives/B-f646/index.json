@@ -4,7 +4,7 @@
   "title": "Write the M6 multi-host keyword candidate-spec routing execution plan",
   "description": "Create a canonical execution Markdown document for the post-B-f97c optimization: deterministic CLI keywords plus semantic keyword proposals from Codex CLI, Claude Code CLI, and Antigravity CLI; local bounded rg search; auditable candidateSpecSet ranking; top-N full reads; explicit full-scan escalation; quality, token, and read-evidence acceptance gates.",
   "type": "chore",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "keywords": [
     "M6",
@@ -30,6 +30,27 @@
       "user": "Harmonygo",
       "sessionId": "sess-07bc482a401d5422",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-12T08:58:48.852Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-07bc482a401d5422",
+      "agent": "main"
     }
-  ]
+  ],
+  "riskSignalsDismissed": [
+    {
+      "category": "Security/Credentials",
+      "reason": "The word token refers only to LLM context-cost measurement in a docs-only execution plan; no credentials, authentication, secrets, or security behavior are changed.",
+      "at": "2026-07-12T08:57:59.628Z"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-f646",
+    "branch": "story/B-f646",
+    "createdAt": "2026-07-12T08:58:44.456Z"
+  }
 }
