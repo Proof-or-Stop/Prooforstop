@@ -456,6 +456,18 @@
           "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
           "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
           "timestamp": "2026-07-12T01:33:51.598Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:3",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-story-list-bug-summary.mjs",
+          "command": "node scripts/verify-story-list-bug-summary.mjs",
+          "result": "pass",
+          "note": "verify-story-list-bug-summary.mjs JSON.parses BARE story_list stdout and reads _bugSummary; green on the brief default (also fixed a pre-existing red: DISCARDED bug-stories no longer reported as unresolved).",
+          "headHash": "55e79800daa32cf51efff6ab3981a598162a5a39",
+          "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
+          "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
+          "timestamp": "2026-07-12T01:33:52.283Z"
         }
       ]
     },
