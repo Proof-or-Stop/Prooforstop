@@ -1,0 +1,30 @@
+{
+  "storyId": "B-7c05",
+  "checkedAt": "2026-07-11T23:10:39.799Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "severity": "low",
+      "desc": "CHK-005 regression coverage focuses on size-budget/full-flag/env-hatch/JSON-shape but does not explicitly require auditing existing internal callers of these CLI commands (e.g. packages/main/src/tasks/*-smoke.ts files that shell out to or assert on milestone_status/story_advance/finding_list/help stdout) for brief-mode breakage. Most spot-checked smoke tests use underlying report objects rather than parsing rendered stdout, so blast radius looks limited, but DEV should explicitly confirm no internal task/smoke consumer parses brief-mode human text output before relying on existing test suite as the only safety net."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-07-11T23:10:14.585Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-07-11T23:10:39.799Z",
+      "issues": [
+        {
+          "severity": "low",
+          "desc": "CHK-005 regression coverage focuses on size-budget/full-flag/env-hatch/JSON-shape but does not explicitly require auditing existing internal callers of these CLI commands (e.g. packages/main/src/tasks/*-smoke.ts files that shell out to or assert on milestone_status/story_advance/finding_list/help stdout) for brief-mode breakage. Most spot-checked smoke tests use underlying report objects rather than parsing rendered stdout, so blast radius looks limited, but DEV should explicitly confirm no internal task/smoke consumer parses brief-mode human text output before relying on existing test suite as the only safety net."
+        }
+      ]
+    }
+  ],
+  "_hash": "58d2710b0c533d11e5f470eeafe4c293828c8aa8e49f2ce3c557d8c7c18f037f"
+}
