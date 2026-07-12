@@ -1,0 +1,93 @@
+{
+  "storyId": "B-f646",
+  "checkedAt": "2026-07-12T09:00:58.996Z",
+  "features": [
+    {
+      "feature": "Deterministic CLI keyword seed contract",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "background.md Key Insights; plan.md CHK-001"
+    },
+    {
+      "feature": "Codex CLI, Claude Code CLI, and Antigravity CLI (agy) semantic keyword proposal contract",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan.md CHK-001"
+    },
+    {
+      "feature": "Local bounded search, ranking reasons, and candidateSpecSet schema",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan.md CHK-001; consolidation plan Search / Memory Budget Contract"
+    },
+    {
+      "feature": "Top-N/full-read budgets plus ambiguity and full-scan escalation",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan.md CHK-001; consolidation plan Search / Memory Budget Contract"
+    },
+    {
+      "feature": "Signed readManifest, freshness/process-fact implications, and auditability",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan.md CHK-001; story-lifecycle process-fact discipline"
+    },
+    {
+      "feature": "PLAN, REVIEW, and delivery ownership boundaries",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan.md CHK-001; consolidation plan lifecycle ownership"
+    },
+    {
+      "feature": "Prompt-injection and untrusted-document security controls",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan.md CHK-001"
+    },
+    {
+      "feature": "Milestones, story decomposition, validation matrix, rollout, observability, rollback, and DONE criteria",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan.md CHK-001"
+    },
+    {
+      "feature": "Honest shipped-versus-future delivery boundary",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "background.md Solution Tradeoffs; plan.md CHK-001"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+      "docs/requirements/decisions/story-lifecycle.md"
+    ],
+    "filesTriagedByName": [
+      "docs/requirements/decisions/host-overflow.md",
+      "docs/requirements/decisions/pos-agent-drivability-optimization.md",
+      "docs/requirements/decisions/role-separation.md",
+      "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md"
+    ],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 9,
+    "covered": 9,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "0d82c91bda4294b6b22b67df5198934c7772764af6d3b013905b0c7ddb3dd657",
+  "openQuestions": []
+}
