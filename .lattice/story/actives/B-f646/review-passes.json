@@ -1,0 +1,32 @@
+{
+  "passes": [
+    {
+      "id": "B-f646:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: CHK-001 has happy, edge, and adversarial intents, and the plan validation matrix plus quality floor cover the requested regression risks. Missed specs are guarded by 100% critical/high-risk recall, >=98% overall recall, cutoff-tie/truncation escalation, corpus-mutation rerouting, and no lost load-bearing findings versus the full-scan baseline. Host failures cover agy outage, both primary hosts unavailable, schema/size rejection, deterministic fallback, and prohibition on automatic full scan. Fabricated reads fail closed via manifest/read-log mismatch and undeclared mechanical full-read cases, with zero accepted mismatches. Corpus reinjection is prohibited in zero-candidate fallback, rollback, default prompts, and the irrelevant-5MB fixture; prompt/document bytes must remain >=90% below baseline. No test-coverage blocker found.",
+      "createdAt": "2026-07-12T09:07:24.330Z",
+      "reviewRound": "2026-07-12T09:06:23.727Z",
+      "reviewRunId": "B-f646:RR-002",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "9338bd28c849d0cd439029b952966b1ddd854656d71e2d6df8f37e3569bf29d1"
+      },
+      "readDiagnostics": [],
+      "_hash": "3e7cfa25b9a4d863911a1311dbb1fca60421bcd81f6e5245cbeba2ce5c566dcc"
+    }
+  ]
+}
