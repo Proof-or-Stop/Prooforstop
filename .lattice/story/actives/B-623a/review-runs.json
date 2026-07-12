@@ -1089,6 +1089,80 @@
         "bindingHash": "c066450a229c19f5b06438c9c2d2cadebea0d4dff2aeb7de70ddbf388e01c135"
       },
       "_hash": "8409faba6fd6a9628b8f80f8f35498d177281b886468f30c0f05db0b35cc1555"
+    },
+    {
+      "reviewRunId": "B-623a:RR-016",
+      "storyId": "B-623a",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-07-12T23:27:39.065Z",
+      "startedAt": "2026-07-12T23:36:32.563Z",
+      "headHash": "a0e1058319eb80b5e00e7ef07db86e31c2463c04",
+      "materialHash": "75df9bb2052c26a037bbacf4eda7fb844bef9c958abb5934c0d37d346189400d",
+      "storyFilesHash": "82270e182e4184a066e5f0c33bf64824b8bd4953449727d52034ea81585ded7b",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "c6036f2c7d54a2451024ff68537e72217ec57dec99171b8bc9b50ea58224b88a",
+        "diffPackHash": "6ec19b9b9a7989a4aea5005ac1d20f9624f608b96688a5d8210a40bb0af442dc",
+        "reviewedChangedFiles": [
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/tasks/doctor-gitroot-probe-smoke.ts",
+          "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "packages/main/src/tasks/storydir-inside-gitroot-suite.ts",
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "20da1e89ad16e86d793c4a13a931b1c16d5cc4dbc15cd391d9a5395bb76c948b",
+          "31d9237a79bdd771375661a6c42d14bbb719d16d2e057713581f42925cf9b160",
+          "3b18d546274d9412625b8b10d0be0c65188f688c145af15e4f7fbe76aa649c84",
+          "410fc193857f2eadba8561f2a23b184dabe933f7c7ddce00791fd26e39c75636",
+          "43eb2fc23c7ef0eb94557a2243e576a2aa2f832f8d03d176b9b06be1a9058689",
+          "4406d514b20be901c45d855eb64a547103392738cdecee067018d4fd1179d9e9",
+          "4e62e46ffeb40b2404732fd49eb021e92bf7031f69ec2eac90cc75b5fba4558c",
+          "53b19e52764b102f343b63b51c185def31a63b3f82eb86091002a85836b55635",
+          "5a8911f03a6ef5850cecfd9403ae636ac156326ea4447444ab63f5aabe9c87cb",
+          "708801836172a241ab14c3265c04604a1523863986d763b2490268aa34219db2",
+          "7bd4e47c3c4a8d8dd54fd7049152e1ae8ab0db9855b96a88b7c107123054d9d5",
+          "81b708b94c26ba03787fab0023dd352427b3b4db14849a483f26d76a8158c2e4",
+          "858a8a10186ed9eede7dfe7d22ed1ea398fc9d214c73c5fb5ba6bc1afd7af36c",
+          "8a33f106620fec99c3b41ff85748e277b1172fc19424889cbf3af7d5d6e65a2a",
+          "8fbb1d7f1120a6df38ddd04bc89b720ce4743fc23b131aa2abc9ca3b8cc6f9fb",
+          "90e899baf9a8a00f675273af46d0729d0a87227113b477c9922a9a1499506373",
+          "9b1fcabd0c49f329fda5ed0ad37cd60ef5c1ec2606beff170d159bd997375770",
+          "a214c72d6c873f3426c817d934719a6546df8ae4aa9c65e6c5e8d00cd7d29811",
+          "a3022e94b0582acf3e57c3b20cb7cd2a7bf5ded6b3f2c0abc338503cfd16a243",
+          "a797e4dd9639c1cfa725425d9b51b5af592d41720e97f2e873e88368a1113d1a",
+          "ae3552e271a4b7f17e948db021ef982a334828d8fa6feb5b97046b661420a3c3",
+          "b16776dab26b523522f6b33e8be2e7bd3bf5c0a6a52d7e20646514da5b826094",
+          "c55cd2efa582fb4fba1e1a5f6044646cb9ebe9e54d4d905d80fd82d7bb3f95ae",
+          "e03ce7905e940f84b1c60ea8205aa166895bc9b204f5497fde0156dd26219e7a",
+          "e0d84df85c5911fd3d8f8281dd783597c1fc676e23958264afa8df286e9dc008"
+        ],
+        "bindingHash": "8c71dc69dcee894d2d3302828fc6e3c4f6cfa3074f2b8f6dfbc6f6bdf29c6f19"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-623a",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-623a",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-623a",
+        "workspaceMode": "story-worktree",
+        "headHash": "a0e1058319eb80b5e00e7ef07db86e31c2463c04",
+        "materialHash": "75df9bb2052c26a037bbacf4eda7fb844bef9c958abb5934c0d37d346189400d",
+        "storyFilesHash": "82270e182e4184a066e5f0c33bf64824b8bd4953449727d52034ea81585ded7b",
+        "bindingHash": "7b9bc75bb5b3938f7e7d60956767d729939cac94336a23c006f8bc94e0f42f4e"
+      },
+      "_hash": "ca3f06e5fa26979bc040531644c027f0261649a0d3ca5f94c09515c0e2c50793"
     }
   ]
 }

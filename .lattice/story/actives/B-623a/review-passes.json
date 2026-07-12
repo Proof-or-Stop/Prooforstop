@@ -344,6 +344,31 @@
         "scanEscalationReason": null
       },
       "_hash": "1ecf459fef502afd9b277e37e262bd579a2eacc686273e28766f4c6f8a639f72"
+    },
+    {
+      "id": "B-623a:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "F-C convergence (test-coverage lane) after RP-011 went stale on 67f0ccc2b1. Delta is exactly the F-C fix: findings.sort comparator in core/usage-burn-alert.ts (null-last handling plus explicit at-less-than-bt / at-greater-than-bt comparisons replacing bt minus at subtraction) plus one new assertion block (edgeRows: [neg,unknown,inf-b,inf-a] expected to sort to [inf-a,inf-b,neg,unknown]) appended inside the existing checkAsync 'evaluator: codex vs claude burn-token formula plus deterministic ordering' block in usage-burn-alert-smoke.ts, which is the exact block CHK-001:happy:6 verificationEvidence targets (same file and command, unchanged). Verified genuineness by hand-tracing both comparator versions against the edgeRows fixture (fileSizeOf returns 5000, greater than T.fileBytes=1000, so all 4 rows enter findings via file-size regardless of usage value, isolating pure sort order): OLD comparator (at = a.burnInputTokens defaulted to -1 when null) treats null as -1, so comparing neg(-5) vs unknown(null defaulted to -1) ranks unknown above neg, giving old full order [inf-a,inf-b,unknown,neg], which fails assert.deepEqual against the pinned [inf-a,inf-b,neg,unknown]. The assertion is therefore a genuine regression pin for the null-vs-negative half of the fix. Also checked the Infinity-tie half: for the two equal codexUsage(Infinity) rows, the OLD code's equality guard (compares defaulted at and bt before subtracting) already short-circuits when both are Infinity, skipping the subtraction entirely and falling straight to the sessionId tiebreak, so OLD code already places inf-a before inf-b too. Algebraically, subtracting two IEEE-754 doubles can only produce NaN when the two operands are equal same-sign infinities, exactly the case the OLD equality guard filters out before the subtraction line runs, so the OLD comparator as written could never actually emit NaN for any input pair. The commit message's stated 'subtraction produced NaN for two Infinity values' mechanism does not hold for this fixture (a non-blocking rationale and code-comment nuance, not a coverage gap; the NEW explicit-comparison code is still correct and a reasonable hardening against a hypothetical future revert to bare subtraction). Net: the combined 4-element assertion is genuine (fails under old code) because of the neg-vs-unknown component; the Infinity component is inert as a discriminator for this specific fixture but harmless. Ran node packages/main/dist/tasks/usage-burn-alert-smoke.js directly (owner-built dist, no rebuild): 21 of 21 checks pass, including this one. Non-blocking observation: CHK-001:happy:6 verificationEvidence in checklist.json is still bound to headHash be112bff73723b7503b587556e9822b86993f73d and an older materialHash (timestamp 2026-07-12T22:51:18Z), which predates 67f0ccc2b1 (current HEAD 10696e59ce, this round's materialHash 75df9bb2...); its note text is verbatim unchanged from before the fix and does not literally mention the new null/negative/Infinity coverage, even though the command and file it cites still concretely and correctly cover the broader deterministic-ordering CHK-001:happy:6 intent. Per this story's own RP-008 precedent (line-citation and prose drift ruled non-blocking when the underlying command and file remain valid), this is evidence-freshness and prose drift for the story owner to clear via verification_evidence_refresh_stale before DONE, not a test-coverage gap. No other CHK-001 through CHK-005 verificationIntent touched by this delta. No blocker.",
+      "createdAt": "2026-07-12T23:38:58.022Z",
+      "reviewRound": "2026-07-12T23:27:39.065Z",
+      "reviewRunId": "B-623a:RR-016",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-623a/background.md",
+          ".lattice/story/actives/B-623a/findings.json",
+          ".lattice/story/actives/B-623a/plan.md",
+          ".lattice/story/actives/B-623a/review-passes.json",
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/autopilot-verdicts/B-623a",
+          ".lattice/story/actives/B-623a/checklist.json",
+          ".lattice/story/actives/B-623a/review-runs.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a10b08cc6a79e6f36488fef86b2ee737f0560474c5ceea94edba5e43c98ee2f3"
     }
   ]
 }
