@@ -1,0 +1,40 @@
+{
+  "task": "Implement the complete seven-milestone bounded multi-host candidate-spec routing program defined by B-f646.",
+  "outcome": "Running lattice candidate_spec_route for a Story prints a bounded candidate set with reasons and current evidence; PLAN and REVIEW consume the same fresh digest, host outages fall back locally, ambiguity shows scanEscalationReason, and enforce mode refuses stale or forged evidence without embedding requirements bodies.",
+  "facts": [
+    "B-f646 is the accepted execution-plan truth source.",
+    "B-f97c removed requirements corpus embedding from story_review.",
+    "core/host-run.ts is the single existing canonical Codex Claude agy launch and usage-accounting choke point and will be reused.",
+    "A new candidate_spec_route handler and core module match registry and command-catalog conventions without creating a second host runtime.",
+    "ReviewerReadManifest and mechanical read events already exist and will be extended rather than replaced.",
+    "B-3928 owns prompt baseline inventory and lockfile artifacts and remains excluded."
+  ],
+  "constraints": [
+    "Implement M6A through M6G and keep milestone ledger current.",
+    "Default candidate full-read budget is at most 8 and query result budget at most 10 unless structured escalation applies.",
+    "Never restore requirements bodies to prompts.",
+    "All host-bound data uses one sanitizer and uncertain values stay local.",
+    "Gate artifacts are versioned signed hash-bound freshness checked and registered in process-fact contracts.",
+    "Rollout advances shadow warn enforce only after quality thresholds pass."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/candidate-spec-routing.ts",
+    "packages/main/src/handlers/candidate-spec-routing.ts",
+    "packages/main/src/core/host-run.ts",
+    "packages/main/src/core/reviewer-read-evidence.ts",
+    "packages/main/src/handlers/scope-check.ts",
+    "packages/main/src/handlers/finding.ts",
+    "packages/main/src/handlers/story-dispatch.ts",
+    "packages/main/src/handlers/story-review.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "lattice.config.json",
+    "packages/main/src/tasks"
+  ],
+  "timestamp": "2026-07-12T10:10:10.850Z"
+}

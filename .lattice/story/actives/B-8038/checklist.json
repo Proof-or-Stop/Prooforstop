@@ -10,7 +10,30 @@
       "userSees": "Identical Story and corpus inputs produce the same versioned seed and corpus-index artifacts.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run the corpus-index and keyword-seed generators twice against the same Story and requirements corpus, then validate proofbound.corpus-index.v1 and proofbound.keyword-seeds.v1 -> both runs emit byte-identical, schema-valid artifacts whose paths, H1/H2 headings, sizes, hashes, exact identifiers, normalized variants, source types, refs, and weights match the checked-in golden fixtures; WHY: maps schema-tests, determinism-tests, and golden-fixtures to the user-visible promise of stable routing inputs",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Vary filesystem enumeration order, locale/case, hyphen/underscore/slash/camelCase/acronym forms, empty optional fields, and unchanged file mtimes -> artifact bytes and ordering remain deterministic while original exact tokens are retained beside normalized variants and content changes alone update the appropriate hashes; WHY: proves determinism at real normalization and corpus-boundary conditions",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Introduce duplicate aliases, traversal/symlink escape candidates, malformed Markdown headings, and a large irrelevant document -> unsafe paths are rejected, duplicates cannot perturb ordering or weights, the corpus remains constrained to configured requirements Markdown, and no document body enters a prompt; WHY: prevents a forged or hostile corpus from invalidating the golden schema/determinism guarantees",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
