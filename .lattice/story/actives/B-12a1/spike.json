@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "proofstory.spike.v1",
+  "storyId": "B-12a1",
+  "spikes": [
+    {
+      "id": "SPIKE-001",
+      "question": "Which registry does the scope gate's lifecycle-artifact classifier consult, and do the ProofStory intent artifacts really fall through to out_of_scope there?",
+      "status": "resolved",
+      "disposableCodePaths": [],
+      "note": "Read-only investigation; no disposable code paths (repro via node -e against built dist).",
+      "createdAt": "2026-07-12T21:31:21.694Z",
+      "updatedAt": "2026-07-12T21:31:22.452Z",
+      "result": "Confirmed: classifyScopePath (packages/main/src/core/scope-path-classifier.ts) delegates to classifyLifecycleArtifact (packages/main/src/core/lifecycle-registry.ts), whose closed set LATTICE_LIFECYCLE_ARTIFACT_FILENAMES is the single registry and single consumer site (grep shows no other consumers). Repro against built main dist: all ten ProofStory filenames written by the store.ts intent-hardening block (original-intent-snapshot, milestone-ledger, milestone-closeout, slice-plan, parent-ledger-rollup, proofstory, intent-collision, scope-shrinkage-decision, red-evidence, spike) classify rule=unknown/BLOCKED under an enforce contract, while checklist.json classifies lifecycle_artifact PASS. Code path is fully understood; fix is a data-level registry addition."
+    }
+  ],
+  "createdAt": "2026-07-12T21:31:21.694Z",
+  "updatedAt": "2026-07-12T21:31:22.452Z"
+}

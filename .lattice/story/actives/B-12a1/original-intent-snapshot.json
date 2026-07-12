@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-12a1",
+  "sourceText": "In /Users/jek/Documents/Work/proofbound (Lattice story workflow required): the scope gate's lifecycle-artifact classifier recognizes checklist.json, decision.json, review.json, scope-check.json, scope-contract.json, understanding.json etc., but NOT the four ProofStory high-assurance intent artifacts: original-intent-snapshot.json, intent-collision.json, red-evidence.json, proofstory.json. During B-623a (2026-07-12) these four command-generated metadata files were classified rule=out_of_scope (fail, blocking under mode=enforce) at the DEV->REVIEW scope gate, forcing the owner to hand-add story-metadata paths into the story's own scope contract — pure friction, recurs for every high-assurance story. Fix: add these four artifact names to the same lifecycle/runtime artifact registry that classifies the other command-generated story metadata, with a smoke asserting a fixture story's four intent artifacts classify as lifecycle_artifact pass instead of out_of_scope. Run it as a normal Lattice story (small chore/fix).",
+  "normalizedOutcome": "Command-generated ProofStory story metadata (the full ten-file intent-hardening family, widened from the four named files by INIT review I-1) never blocks a story's own scope gate: scope_contract_check / story_advance classify these files as lifecycle_artifact pass rows without any manual scope acknowledgement, exactly like checklist.json today.",
+  "acceptanceClaim": "Under a mode=enforce scope contract that does not list story-metadata paths, all ten ProofStory command-generated artifact filenames under .lattice/story/actives/<storyId>/ classify as scope.lifecycle_artifact pass (not out_of_scope fail), asserted by scope-contract-smoke and failing before the registry fix.",
+  "keyRequirementIds": [
+    "REQ-001-register-ten-filenames",
+    "REQ-002-smoke-lifecycle-pass"
+  ],
+  "requestHash": "sha256:4454d461ebe6efa70f4c1cf0bfd536d2057ff7d4651593aae1a7eb2cb3a45188",
+  "createdAt": "2026-07-12T21:30:36.190Z",
+  "updatedAt": "2026-07-12T21:30:36.190Z"
+}

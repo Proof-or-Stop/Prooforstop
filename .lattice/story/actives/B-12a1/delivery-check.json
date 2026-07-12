@@ -1,0 +1,63 @@
+{
+  "storyId": "B-12a1",
+  "checkedAt": "2026-07-12T22:36:27.183Z",
+  "headHash": "b39e1a9e1240b83aca77b2cdb5cb038409352cd3",
+  "materialHash": "1511ddb57f11c1763cd2fcbbe91134ffcca172d675fb0e230c2640f0d0833a51",
+  "storyFilesHash": "2d25e16521c214a860624ddc8abb44091ff79c55407993254922e753ad2741ea",
+  "reviewRound": "2026-07-12T22:06:14.602Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-12a1/plan.md#CHK-001",
+      "promise": "Add the ten ProofStory intent-hardening filenames (original-intent-snapshot.json, milestone-ledger.json, milestone-closeout.json, slice-plan.json, parent-ledger-rollup.json, proofstory.json, intent-collision.json, scope-shrinkage-decision.json, red-evidence.json, spike.json) to LATTICE_LIFECYCLE_ARTIFACT_FILENAMES with no logic change to classifyLifecycleArtifact/classifyScopePath.",
+      "status": "verified",
+      "verifiedBy": "diff/grep + node -e classifier probe",
+      "evidence": "git diff main...HEAD -- packages/main/src/core/lifecycle-registry.ts shows exactly these 10 literals added (commit 865b8ab5dc) with a comment naming the store.ts source block; independently re-ran node -e classifyScopePath probe against the built dist -> 'GREEN: all ten lifecycle_artifact'. Cross-checked against packages/main/src/core/store.ts writeJson(storyId, ...) call sites (lines 680-797) -- character-for-character match, no typos."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-12a1/plan.md#carve-outs",
+      "promise": "Deliberate non-goals grill.json, clusters.json (plural; registry's existing cluster.json singular entry is stale/unrelated), and scope-extension-decisions.json are NOT added -- different command families, tracked as a separate follow-up.",
+      "status": "verified",
+      "verifiedBy": "grep + node -e classifier probe",
+      "evidence": "grep of lifecycle-registry.ts shows only the pre-existing singular 'cluster.json' literal, no 'clusters.json', 'grill.json', or 'scope-extension-decisions.json' were added; re-ran node -e classifyLifecycleArtifact probe for all three carve-out names -> all null (not lifecycle)."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-12a1/plan.md#CHK-002",
+      "promise": "Extend scope-contract-smoke.ts to call checkScopeContract with the ten .lattice/story/actives/B-scope/<name>.json paths under an enforce contract that does not list story-metadata paths, and assert each produces a scope.lifecycle_artifact:B-scope:<name> row with status=pass, blocking=false, with overall status staying pass; this is the red->green pair for the story's red evidence.",
+      "status": "verified",
+      "verifiedBy": "diff/grep + real machine test run",
+      "evidence": "git diff shows the new proofStoryArtifacts block (commit 865b8ab5dc) added to scope-contract-smoke.ts, reusing waveContract (whose allowedModify/allowedCreate/allowedTest sets do not include story-metadata paths) -- confirmed by reading the contract literal in the diff. Independently ran `node packages/main/dist/tasks/scope-contract-smoke.js` -> 'scope contract smoke passed' (exit 0)."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-12a1/findings.json#F-001",
+      "promise": "F-001 fix: run the per-row assertScopeRow loop (names the failing artifact) before the aggregate assert.equal(status,'pass') check in scope-contract-smoke.ts, keeping both checks, so a regression names the exact artifact instead of only failing an aggregate assertion.",
+      "status": "verified",
+      "verifiedBy": "diff/grep + bite-test replay",
+      "evidence": "git diff for commit ff86e56426 shows the per-row for-loop now precedes the aggregate assert.equal call, with a comment citing B-12a1:F-001. Independently reproduced the bite test: patched the built dist to drop the 'proofstory.json' registry literal and reran the smoke -> failed with 'B-12a1 ProofStory lifecycle row proofstory.json: expected scope row not found' (names the exact artifact, per-row assertion fired before aggregate); restored the dist and reran -> 'scope contract smoke passed' again."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-12a1/scope-contract.json",
+      "promise": "Scope contract for this story declares allowedModify=[packages/main/src/core/lifecycle-registry.ts] and allowedTest=[packages/main/src/tasks/scope-contract-smoke.ts] only; no other source files should be touched (scope creep check).",
+      "status": "verified",
+      "verifiedBy": "diff --stat",
+      "evidence": "git diff main...HEAD --stat shows only lifecycle-registry.ts (+11) and scope-contract-smoke.ts (+32) changed under packages/main/, plus story-metadata files under .lattice/story/actives/B-12a1/ (plan.md, checklist.json, findings.json, red-evidence.json, etc.) written by Lattice CLI commands -- no other source files touched, matching the declared scope contract exactly."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Independently re-ran (post `npm --prefix packages/main run build`): (1) node -e classifyScopePath probe against all ten new paths -> 'GREEN: all ten lifecycle_artifact'; (2) node -e classifyLifecycleArtifact probe for pre-existing names (checklist.json, decision.json, understanding.json, summary.json, scope-contract.json) -> still kind=lifecycle, no regression; (3) node -e classifyLifecycleArtifact probe for carve-outs (grill.json, clusters.json, scope-extension-decisions.json) -> all still null. All match checklist.json's recorded verificationEvidence for CHK-001 happy/edge/adversarial probes."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Independently ran `node packages/main/dist/tasks/scope-contract-smoke.js` -> 'scope contract smoke passed' (exit 0), exercising the full smoke suite including the new 10-row ProofStory positive block, the pre-existing lifecycleRuntimePositive block, and the failClosedNegative block. Independently reproduced the F-001 bite test by removing 'proofstory.json' from the compiled registry and rerunning the smoke -> AssertionError naming the exact artifact row (proves per-row-before-aggregate ordering is real, not just documented); restored dist and reran -> pass again."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All promised deliverables are present in the diff exactly as scoped: the ten ProofStory filenames are registered character-for-character (verified against store.ts writeJson sites), the three carve-outs are confirmed absent, the smoke asserts all ten as lifecycle_artifact pass rows under a non-allow-listing enforce contract, and F-001's per-row-before-aggregate fix is real (independently reproduced by a bite test that names the removed artifact). Diff touches only the two files named in the story plus Lattice-generated story metadata -- no scope creep. No TODO/FIXME/HACK found in the changed source. Edge and adversarial checklist coverage (nested path, traversal, unknown 11th name, duplicate-literal check, carve-out negatives) all independently re-verified against the built dist."
+  },
+  "_hash": "53b24b2952c7b8f337015415f865222e1d6b7648a8fa1b7dc5dfeaec31507f40"
+}

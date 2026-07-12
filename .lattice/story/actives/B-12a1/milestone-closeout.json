@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "proofbound.milestone_closeout.v1",
+  "storyId": "B-12a1",
+  "phase": "TEST",
+  "generatedAt": "2026-07-12T22:41:43.364Z",
+  "sourceReport": {
+    "schemaVersion": "proofbound.milestone_status.v1",
+    "digest": "191c46da0c93b9340e39707e64dab9d6edaed0c071932d5d68c1705970a40afa",
+    "ledger": {
+      "present": true,
+      "state": "confirmed",
+      "hash": "sha256:49ffd5fc77d2e5e00cd45df0c0438fece1bfa3fcf8e97b04c91d5c32603c3aca"
+    },
+    "groups": {
+      "completed": [
+        "M1",
+        "M2"
+      ],
+      "current": [],
+      "remaining": []
+    },
+    "risks": [],
+    "nextActions": [
+      "No milestone action; all ledger rows are completed or not applicable."
+    ]
+  },
+  "bindings": {
+    "headHash": "f65c3ddf244023bfac2043517d4894bf85a4f575",
+    "materialHash": "1511ddb57f11c1763cd2fcbbe91134ffcca172d675fb0e230c2640f0d0833a51",
+    "storyFilesHash": "2d25e16521c214a860624ddc8abb44091ff79c55407993254922e753ad2741ea"
+  },
+  "rows": [
+    {
+      "milestone": "M1",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "All ten ProofStory command-generated artifact filenames are registered in LATTICE_LIFECYCLE_ARTIFACT_FILENAMES",
+      "acceptance": "classifyLifecycleArtifact returns kind=lifecycle for each of the ten story-dir paths; verified by the red->green node repro against the rebuilt worktree dist",
+      "evidence": [
+        "CHK-001:happy:0 [pass/logic_test] node -e \"const{classifyLifecycleArtifact}=require('./packages/main/dist/core/lifecycle-registry.js');const f=['original-intent-snapshot','milestone-ledger','milestone-closeout','slice-plan','parent-ledger-rollup','proofstory','intent-collision','scope-shrinkage-decision','red-evidence','spike'];const bad=f.filter(n=>classifyLifecycleArtifact('.lattice/story/actives/B-test/'+n+'.json')?.kind!=='lifecycle');if(bad.length){console.error('FAIL '+bad);process.exit(1)}console.log('A ok: ten kind=lifecycle')\" note=Probe A run post-build in the story worktree: classifyLifecycleArtifact returns kind=lifecycle for each of the ten .lattice/story/actives/B-test/<name>.json paths.",
+        "CHK-001:happy:1 [pass/logic_test] node -e \"const{classifyLifecycleArtifact}=require('./packages/main/dist/core/lifecycle-registry.js');const f=['checklist.json','decision.json','understanding.json','summary.json','scope-contract.json'];const bad=f.filter(n=>classifyLifecycleArtifact('.lattice/story/actives/B-test/'+n)?.kind!=='lifecycle');if(bad.length){console.error('FAIL '+bad);process.exit(1)}console.log('B ok: existing names unregressed')\" note=Probe B: previously-registered names (checklist.json, decision.json, understanding.json, summary.json, scope-contract.json) still classify kind=lifecycle after the addition — no regression."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M2",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "scope-contract-smoke pins the ten artifacts as scope.lifecycle_artifact pass rows under an enforce contract",
+      "acceptance": "node packages/main/dist/tasks/scope-contract-smoke.js exits 0 with the ten new assertions present in source; assertions fail on pre-fix baseline",
+      "evidence": [
+        "CHK-002:happy:0 [pass/logic_test] node packages/main/dist/tasks/scope-contract-smoke.js file=packages/main/src/tasks/scope-contract-smoke.ts note=Full scope-contract smoke passes post-build with the new B-12a1 block asserting a scope.lifecycle_artifact:B-scope:<name> pass row for each of the ten artifacts (\"scope contract smoke passed\").",
+        "CHK-002:happy:1 [pass/logic_test] node packages/main/dist/tasks/scope-contract-smoke.js file=packages/main/src/tasks/scope-contract-smoke.ts note=Same passing smoke run covers the pre-existing lifecycleRuntimePositive assertions (summary.json, live-smoke-transcript.json, activity.jsonl), which run before the new block — no regression.",
+        "CHK-002:adversarial:0 [pass/manual_transcript] git checkout HEAD~1 -- packages/main/src/core/lifecycle-registry.ts && npm --prefix packages/main run build && node packages/main/dist/tasks/scope-contract-smoke.js; git checkout HEAD -- packages/main/src/core/lifecycle-registry.ts && npm --prefix packages/main run build note=Red state observed before the fix and bound as red evidence RED-001 (acceptanceTargetRef AB-001, baseline HEAD pre-commit): classifier probe printed \"RED: not lifecycle_artifact -> <all ten names>\" exit 1, and the extended smoke on the reverted registry failed with AssertionError [strictEqual]. Green side: same probe prints GREEN exit 0 and smoke passes after the registry commit."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    }
+  ]
+}
