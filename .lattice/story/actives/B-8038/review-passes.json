@@ -1,0 +1,27 @@
+{
+  "passes": [
+    {
+      "id": "B-8038:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-2 coverage PASS after ec8d248d. Fresh build and candidate-spec-routing smoke pass; direct fixtures now exercise deterministic enumeration, symlink escape rejection, 5 MB irrelevant corpus stability, truncation/cutoff-tie full-scan escalation, storyInput/storyFiles/prompt/content tamper freshness, complete full-scan read binding, and host latency inversion. Process-fact contract, review-pass/discard authority smoke, and reviewer scan-budget guard all pass. Together these close F-002 without weakening must-intent claims.",
+      "createdAt": "2026-07-12T10:57:58.188Z",
+      "reviewRound": "2026-07-12T10:55:46.922Z",
+      "reviewRunId": "B-8038:RR-006",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/candidate-spec-routing.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/scope-check.ts",
+          "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/review-pass-discard-smoke.ts",
+          "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8b20660f06693603228280395e83b9132ae4a015220338611aef4a2d698d4da8"
+    }
+  ]
+}
