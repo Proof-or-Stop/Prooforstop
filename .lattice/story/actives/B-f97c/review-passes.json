@@ -63,6 +63,26 @@
         "scanEscalationReason": null
       },
       "_hash": "b3a4eafd3e36529333c68295700bcb81356db91f8283d7aa0747474777967e17"
+    },
+    {
+      "id": "B-f97c:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Targeted re-review at HEAD 91f77ad9f6 after fix 8c70feff65: sparse PLAN fixture now exercises missing understanding/decision/grill/verificationIntent while preserving a well-formed structured prompt, expected advisories, zero blockers, checklist content, and ProofStory diagnostics. The fixture uses a correctly signed legacy-compatible scope artifact so it does not weaken production scope-check code or alter gates. Build and test:story-review-corpus-budget pass; the 3 MiB corpus still causes zero prompt-byte delta. Usage attribution wording is now honest: deterministic byte/token estimates remain separate from read-only usage_sweep, which reports B-f97c as multi-attributed and therefore cannot be treated as exact task billing. No quality or gate regression found.",
+      "createdAt": "2026-07-12T01:44:55.840Z",
+      "reviewRound": "2026-07-12T01:43:12.253Z",
+      "reviewRunId": "B-f97c:RR-004",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/story-review-corpus-budget-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/handlers/story-review.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "acdbfaae1ccdeb81a40a7b6a3bbf1107c1574def06af6ddc6e80bfda6a5d9989"
     }
   ]
 }
