@@ -523,6 +523,7 @@ export function routeCandidateSpecs(args: {
     .filter(term => !args.corpus.entries.some(entry => searchable(entry, readFileSync(join(args.projectRoot, entry.path), 'utf8')).includes(term)));
   const highRiskRouting = (args.riskSignals ?? []).some(signal => /lifecycle|state.?machine|guard|gate|process.?fact|global.?rename|breaking.?rename/i.test(signal));
   const escalationReasons = [
+    ...(ambiguitySignals.includes('zero_candidates') ? ['zero_candidates'] : []),
     ...(truncated ? ['ranking_affecting_query_truncation'] : []),
     ...(cutoffTie ? ['candidate_cutoff_tie'] : []),
     ...(ambiguitySignals.includes('weak_source_class_coverage') ? ['weak_source_class_coverage'] : []),
@@ -591,6 +592,9 @@ export function candidateReadBindingErrors(args: {
   }
   if (!args.artifact) return ['candidate-spec-set.json is missing'];
   if (!verifyCandidateSpecSet(args.artifact)) errors.push('candidate artifact signature/digest is invalid');
+  if (args.artifact.requiresEscalation && !args.artifact.fullScan) {
+    errors.push(`candidate routing escalation is unresolved: ${args.artifact.escalationReasons.join(', ')}; Story owner must rerun candidate_spec_route with a nonblank forceFullScanReason before scope/review evidence can be accepted`);
+  }
   if (digest !== args.artifact.artifactDigest) errors.push('candidateSpecSetDigest does not match current artifact');
   if (args.manifest.corpusDigest !== args.artifact.corpusDigest) errors.push('read manifest corpusDigest does not match current artifact');
   const fullyRead = new Set(args.manifest.filesReadFully);

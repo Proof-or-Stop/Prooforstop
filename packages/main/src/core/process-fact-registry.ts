@@ -935,12 +935,12 @@ export const PROCESS_FACT_ARTIFACTS = [
   {
     name: 'artifact:candidate-spec-set.json',
     kind: 'signed-artifact',
-    semantics: ['artifact', 'signed-artifact', 'gate-evidence', 'freshness-policy', 'workspace-binding'],
+    semantics: ['artifact', 'signed-artifact', 'gate-evidence', 'freshness-policy', 'workspace-binding', 'verification-policy'],
     level: 'L4',
     producer: 'handlers/candidate-spec-routing',
     consumerGate: 'scope_check_save and reviewer read-evidence candidate routing gate',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.candidate_spec_route,
-    rationale: 'Candidate routing artifact binds deterministic seeds, corpus digest, bounded ranking, optional sanitized host proposals, and current material/story-files freshness for PLAN and REVIEW consumers.',
+    rationale: 'Candidate routing artifact binds deterministic seeds, corpus digest, bounded ranking, optional sanitized host proposals, current freshness, and a fail-closed requiresEscalation/fullScan resolution fact for PLAN and REVIEW consumers.',
   },
   {
     name: 'artifact:original-intent-snapshot.json',

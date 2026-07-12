@@ -37,6 +37,29 @@ export interface CandidateSpecRolloutCheckArgs extends FormatArgs {
   maxP95LatencyMs?: number;
 }
 
+export function renderCandidateSpecRouteText(
+  artifact: CandidateSpecSetArtifact,
+  corpusCount: number,
+  attempts: Array<{ host: string; status: string }>,
+): string {
+  const lines = [
+    `Candidate spec route: ${artifact.storyId}`,
+    `corpus=${artifact.candidateSpecSet.length}/${corpusCount} candidates digest=${artifact.artifactDigest}`,
+    `hosts=${attempts.map(attempt => `${attempt.host}:${attempt.status}`).join(',') || 'disabled'}`,
+    `requiresEscalation=${artifact.requiresEscalation}`,
+    `escalationReasons=${artifact.escalationReasons.join(',') || 'none'}`,
+  ];
+  if (artifact.requiresEscalation && !artifact.fullScan) {
+    lines.push('status=BLOCKED_PENDING_ESCALATION');
+    lines.push(`resolutionAction=lattice candidate_spec_route '{"storyId":"${artifact.storyId}","fullScanReason":"<specific justified tool-driven broad-scan reason>"}'`);
+    lines.push('Do not submit scope_check_save, review_pass_set, or finding evidence with this unresolved candidate artifact.');
+  }
+  lines.push(`ambiguity=${artifact.ambiguitySignals.join(',') || 'none'}`);
+  lines.push(`scanEscalationReason=${artifact.scanEscalationReason ?? 'null'}`);
+  lines.push(...artifact.candidates.map((candidate, index) => `${index + 1}. ${candidate.path} score=${candidate.score}`));
+  return lines.join('\n');
+}
+
 function changedPaths(root: string): string[] {
   try {
     return execFileSync('git', ['diff', '--name-only', 'main...HEAD'], { cwd: root, encoding: 'utf8' })
@@ -186,14 +209,7 @@ export function createCandidateSpecRoutingHandlers(
         autoCommitStoryMetadata(ctx.root, args.storyId, 'candidate_spec_route');
       }
       if (args.json || args.format === 'json') return artifact;
-      return [
-        `Candidate spec route: ${args.storyId}`,
-        `corpus=${artifact.candidateSpecSet.length}/${corpus.entries.length} candidates digest=${artifact.artifactDigest}`,
-        `hosts=${hostResult.attempts.map(attempt => `${attempt.host}:${attempt.status}`).join(',') || 'disabled'}`,
-        `ambiguity=${artifact.ambiguitySignals.join(',') || 'none'}`,
-        `scanEscalationReason=${artifact.scanEscalationReason ?? 'null'}`,
-        ...artifact.candidates.map((candidate, index) => `${index + 1}. ${candidate.path} score=${candidate.score}`),
-      ].join('\n');
+      return renderCandidateSpecRouteText(artifact, corpus.entries.length, hostResult.attempts);
     },
     candidate_spec_rollout_check(args: CandidateSpecRolloutCheckArgs) {
       if (!Array.isArray(args.windows)) throw new Error('candidate_spec_rollout_check.windows must be an array');

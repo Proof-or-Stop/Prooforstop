@@ -235,6 +235,12 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       lines.push(`- Current bounded candidate artifact: digest=${routed.artifactDigest} corpusDigest=${routed.corpusDigest}`);
       lines.push(`- Fully inspect routed candidates as relevant: ${routed.candidateSpecSet.join(', ') || '(none)'}`);
       lines.push(`- Ambiguity signals: ${routed.ambiguitySignals.join(', ') || 'none'}; scanEscalationReason=${routed.scanEscalationReason ?? 'null'}`);
+      lines.push(`- Routing escalation: requiresEscalation=${routed.requiresEscalation}; reasons=${routed.escalationReasons.join(', ') || 'none'}`);
+      if (routed.requiresEscalation && !routed.fullScan) {
+        lines.push('- STOP — candidate routing escalation is unresolved. Do not call scope_check_save with this artifact.');
+        lines.push(`- Exact owner resolution action: lattice candidate_spec_route '{"storyId":"${args.storyId}","fullScanReason":"<specific justified tool-driven broad-scan reason>"}'`);
+        lines.push('- Resume only after the newly signed candidate artifact reports fullScan=true and a nonblank scanEscalationReason.');
+      }
     } else {
       lines.push('- No candidate-spec-set artifact is present. In enforce mode stop and ask the Story owner to run candidate_spec_route; reviewer lanes must not seize owner authority.');
     }
@@ -431,6 +437,11 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         const routed = store.readCandidateSpecSet(args.storyId);
         if (routed) {
           lines.push(`Candidate routing: digest=${routed.artifactDigest} corpusDigest=${routed.corpusDigest} candidates=${routed.candidateSpecSet.join(', ') || '(none)'}`);
+          lines.push(`Candidate escalation: requiresEscalation=${routed.requiresEscalation} reasons=${routed.escalationReasons.join(', ') || 'none'}`);
+          if (routed.requiresEscalation && !routed.fullScan) {
+            lines.push('STOP — candidate routing escalation is unresolved. Do not submit review_pass_set or finding evidence using this artifact.');
+            lines.push(`Exact owner resolution action: lattice candidate_spec_route '{"storyId":"${args.storyId}","fullScanReason":"<specific justified tool-driven broad-scan reason>"}'`);
+          }
         }
         lines.push('');
         lines.push('Conclusion record (must choose one of two):');

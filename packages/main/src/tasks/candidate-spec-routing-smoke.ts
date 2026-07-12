@@ -17,6 +17,7 @@ import {
 } from '../core/candidate-spec-routing.js';
 import { StoryStore } from '../core/store.js';
 import { createStoryDispatchHandlers } from '../handlers/story-dispatch.js';
+import { renderCandidateSpecRouteText } from '../handlers/candidate-spec-routing.js';
 import { renderDeliveryContextPackReport } from '../handlers/delivery-context-pack.js';
 
 function fixtureRoot(): string {
@@ -222,6 +223,34 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
     assert.equal(truncatedRoute.fullScan, false, 'common-term truncation must never authorize full-corpus reads');
     assert.equal(truncatedRoute.scanEscalationReason, null);
     assert.ok(truncatedRoute.candidateSpecSet.length <= truncatedRoute.budgets.candidates);
+    const truncatedManifest = {
+      filesReadFully: truncatedRoute.candidateSpecSet,
+      filesTriagedByName: [],
+      scanEscalationReason: null,
+      candidateSpecSetDigest: truncatedRoute.artifactDigest,
+      corpusDigest: truncatedRoute.corpusDigest,
+    };
+    assert.match(candidateReadBindingErrors({ manifest: truncatedManifest, artifact: truncatedRoute, mode: 'enforce' }).join(' '), /escalation is unresolved/);
+    assert.match(candidateReadBindingErrors({ manifest: truncatedManifest, artifact: truncatedRoute, mode: 'shadow' }).join(' '), /escalation is unresolved/, 'supplying a digest makes shadow evidence subject to the same fail-closed binding');
+    const pendingCliText = renderCandidateSpecRouteText(truncatedRoute, first.entries.length, []);
+    assert.match(pendingCliText, /BLOCKED_PENDING_ESCALATION/);
+    assert.match(pendingCliText, /fullScanReason/);
+
+    const resolvedTruncation = routeCandidateSpecs({
+      projectRoot: root, storyId: story.storyId, corpus: first,
+      seeds: buildKeywordSeeds({ storyId: story.storyId, title: 'decision' }), rawHitsPerGroup: 1,
+      forceFullScanReason: 'common decision term truncated bounded ranking; reviewer approved tool-driven corpus scan',
+    });
+    const resolvedManifest = {
+      filesReadFully: resolvedTruncation.candidateSpecSet,
+      filesTriagedByName: [],
+      scanEscalationReason: resolvedTruncation.scanEscalationReason,
+      candidateSpecSetDigest: resolvedTruncation.artifactDigest,
+      corpusDigest: resolvedTruncation.corpusDigest,
+    };
+    assert.equal(resolvedTruncation.requiresEscalation, true);
+    assert.equal(resolvedTruncation.fullScan, true);
+    assert.deepEqual(candidateReadBindingErrors({ manifest: resolvedManifest, artifact: resolvedTruncation, mode: 'enforce' }), [], 'explicit justified full scan resolves pending escalation for gate consumption');
 
     writeFileSync(join(root, 'docs/requirements/decisions/tie-a.md'), '# Shared Signal\n');
     writeFileSync(join(root, 'docs/requirements/decisions/tie-b.md'), '# Shared Signal\n');
@@ -256,6 +285,14 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
     });
     assert.ok(highRisk.escalationReasons.includes('high_risk_lifecycle_gate_process_fact_or_global_rename'));
     assert.equal(highRisk.fullScan, false);
+    store.writeCandidateSpecSet(story.storyId, highRisk);
+    const pendingPlanPrompt = dispatch.dispatch({ storyId: story.storyId, agentType: 'lattice-review-scope-plan' }).prompt;
+    assert.match(pendingPlanPrompt, /STOP — candidate routing escalation is unresolved/);
+    assert.match(pendingPlanPrompt, /high_risk_lifecycle_gate_process_fact_or_global_rename/);
+    assert.match(pendingPlanPrompt, /fullScanReason/);
+    const pendingReviewPrompt = dispatch.dispatch({ storyId: story.storyId, itemId: 'CHK-001', agentType: 'lattice-review-quality' }).prompt;
+    assert.match(pendingReviewPrompt, /Do not submit review_pass_set or finding evidence/);
+    assert.match(pendingReviewPrompt, /high_risk_lifecycle_gate_process_fact_or_global_rename/);
 
     const unmatchedLegacyProposal: HostKeywordProposal = {
       ...validProposal,
