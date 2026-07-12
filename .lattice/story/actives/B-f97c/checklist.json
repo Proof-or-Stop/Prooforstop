@@ -95,9 +95,9 @@
           "tasks/story-review-corpus-budget-smoke.ts"
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-12T01:35:07.056Z",
       "verificationIntent": {
         "happy": [
           {
@@ -120,7 +120,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:story-review-corpus-budget",
+          "result": "pass",
+          "note": "Story, understanding, decision/preMortem, grill, ProofStory, checklist, and verificationIntent sentinels remained present.",
+          "headHash": "843a74ea17e71220f42e89b9f2c2efc9c3a5568f",
+          "materialHash": "1060e1478f06a0bc5ff019f87af7bb2bc8a3343b2cbc2e614a2a66f02047bdfc",
+          "storyFilesHash": "4bee5a84914ea337667b65982e22bea201d41a4304f91ec3a67aa70d0beb38b0",
+          "timestamp": "2026-07-12T01:35:07.263Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:reviewer-scan-budget-guard",
+          "result": "pass",
+          "note": "Build and scan-budget regression passed; existing gate/advisory evaluation remained active.",
+          "headHash": "843a74ea17e71220f42e89b9f2c2efc9c3a5568f",
+          "materialHash": "1060e1478f06a0bc5ff019f87af7bb2bc8a3343b2cbc2e614a2a66f02047bdfc",
+          "storyFilesHash": "4bee5a84914ea337667b65982e22bea201d41a4304f91ec3a67aa70d0beb38b0",
+          "timestamp": "2026-07-12T01:35:07.438Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:story-review-corpus-budget",
+          "result": "pass",
+          "note": "Structured sentinels remained while requirement-only sentinels stayed absent.",
+          "headHash": "843a74ea17e71220f42e89b9f2c2efc9c3a5568f",
+          "materialHash": "1060e1478f06a0bc5ff019f87af7bb2bc8a3343b2cbc2e614a2a66f02047bdfc",
+          "storyFilesHash": "4bee5a84914ea337667b65982e22bea201d41a4304f91ec3a67aa70d0beb38b0",
+          "timestamp": "2026-07-12T01:35:07.637Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
