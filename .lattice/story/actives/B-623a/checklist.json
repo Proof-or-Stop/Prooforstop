@@ -168,11 +168,11 @@
           "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
           "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
           "result": "pass",
-          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: evaluator per-reason isolation + edge: all-three-reasons session (doctor fixture).",
-          "headHash": "036142fc3959bab61adce152c0e047d3cad46866",
-          "materialHash": "aae550581e935467a6ee67164f4da7b33f74857dd7e1e82b4a755214fe95fa57",
-          "storyFilesHash": "fd9ba3c97ef291863a8a1483d61bd603dc8902d405736fd69015be7b8861cdb6",
-          "timestamp": "2026-07-12T20:44:24.936Z"
+          "note": "F-002 fix: evaluator-level triple-reason assertion (old firstTimestamp + over-threshold usage + injected big file size) proves all tripped reasons appear in one finding; doctor-level counterpart asserts the same through the real handler.",
+          "headHash": "d3f491966e7df3356a3d6ff7eb9535302aad733a",
+          "materialHash": "e7da86566fda28a72f8f5eef3a89d0d739a94498eb70d4df0c544f124c548f95",
+          "storyFilesHash": "32309fc983920781c001e089573923a841962775a4a09edf956871051dea6c81",
+          "timestamp": "2026-07-12T20:58:00.540Z"
         },
         {
           "intentRef": "CHK-001:happy:6",
@@ -228,11 +228,11 @@
           "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
           "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
           "result": "pass",
-          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: evaluator: zero-usage rows below strictly-greater thresholds are not flagged.",
-          "headHash": "036142fc3959bab61adce152c0e047d3cad46866",
-          "materialHash": "aae550581e935467a6ee67164f4da7b33f74857dd7e1e82b4a755214fe95fa57",
-          "storyFilesHash": "fd9ba3c97ef291863a8a1483d61bd603dc8902d405736fd69015be7b8861cdb6",
-          "timestamp": "2026-07-12T20:44:24.936Z"
+          "note": "F-003 fix: explicit zero-usage fixtures — codex codexUsage(0) and claude all-zero four-field usage — asserted to produce zero findings (input-tokens never flags at zero).",
+          "headHash": "d3f491966e7df3356a3d6ff7eb9535302aad733a",
+          "materialHash": "e7da86566fda28a72f8f5eef3a89d0d739a94498eb70d4df0c544f124c548f95",
+          "storyFilesHash": "32309fc983920781c001e089573923a841962775a4a09edf956871051dea6c81",
+          "timestamp": "2026-07-12T20:58:00.540Z"
         },
         {
           "intentRef": "CHK-001:edge:4",
@@ -448,11 +448,11 @@
           "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
           "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
           "result": "pass",
-          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: handler: --alert fires with LATTICE_BURN_ALERT_INPUT_TOKENS=1000 override (others default).",
-          "headHash": "036142fc3959bab61adce152c0e047d3cad46866",
-          "materialHash": "aae550581e935467a6ee67164f4da7b33f74857dd7e1e82b4a755214fe95fa57",
-          "storyFilesHash": "fd9ba3c97ef291863a8a1483d61bd603dc8902d405736fd69015be7b8861cdb6",
-          "timestamp": "2026-07-12T20:44:24.936Z"
+          "note": "F-001 fix: resolver check now asserts resolveBurnAlertThresholds({INPUT_TOKENS:500000}).inputTokens === 500000 applying alone (exact literal), alongside the pre-existing 50000000 override assertion.",
+          "headHash": "d3f491966e7df3356a3d6ff7eb9535302aad733a",
+          "materialHash": "e7da86566fda28a72f8f5eef3a89d0d739a94498eb70d4df0c544f124c548f95",
+          "storyFilesHash": "32309fc983920781c001e089573923a841962775a4a09edf956871051dea6c81",
+          "timestamp": "2026-07-12T20:58:00.540Z"
         },
         {
           "intentRef": "CHK-002:happy:3",
@@ -825,11 +825,11 @@
           "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
           "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
           "result": "pass",
-          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: integration: HOT trips multiple reasons listed together; renderers list reasons joined.",
-          "headHash": "036142fc3959bab61adce152c0e047d3cad46866",
-          "materialHash": "aae550581e935467a6ee67164f4da7b33f74857dd7e1e82b4a755214fe95fa57",
-          "storyFilesHash": "fd9ba3c97ef291863a8a1483d61bd603dc8902d405736fd69015be7b8861cdb6",
-          "timestamp": "2026-07-12T20:44:24.936Z"
+          "note": "F-002 fix: new check runs the REAL doctor handler with FILE_MB=0.0001 so the HOT fixture trips file-size + input-tokens + session-age together; asserts the warning line AND hostBurnScan JSON list all three reasons.",
+          "headHash": "d3f491966e7df3356a3d6ff7eb9535302aad733a",
+          "materialHash": "e7da86566fda28a72f8f5eef3a89d0d739a94498eb70d4df0c544f124c548f95",
+          "storyFilesHash": "32309fc983920781c001e089573923a841962775a4a09edf956871051dea6c81",
+          "timestamp": "2026-07-12T20:58:00.540Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
