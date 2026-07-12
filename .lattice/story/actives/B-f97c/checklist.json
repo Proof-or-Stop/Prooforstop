@@ -146,7 +146,30 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run the measurement path against captured pre-fix and post-fix prompt construction -> report prompt bytes, a consistently defined token estimate, absolute/percentage reduction, and identify requirements corpus input as the pre-fix dominant source when measurements support it; WHY: gives the user an auditable cost answer rather than an impression.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "When exact host usage is unavailable, produce byte-derived token estimates clearly labeled as estimates and separately report any available usage-ledger totals -> no estimated value is presented as exact host consumption; WHY: preserves measurement honesty across runtime availability boundaries.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Compare component byte contributions for corpus text versus structured story sections and reconcile them to total prompt bytes within encoding/newline tolerance -> the declared dominant source must be the largest measured component, otherwise verification fails; WHY: prevents a predetermined blame statement unsupported by the actual prompt composition.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
