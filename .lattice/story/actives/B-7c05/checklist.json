@@ -758,6 +758,18 @@
           "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
           "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
           "timestamp": "2026-07-12T01:34:01.663Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:1",
+          "kind": "logic_test",
+          "file": "docs/CLI.md",
+          "command": "bash -c 'rg -n \"unaffected\" docs/CLI.md | head -3'",
+          "result": "pass",
+          "note": "Docs explicitly state brief mode does not affect --json/--format=json shape (machine consumers unaffected), preventing misinterpretation; asserted by the frozen-contract wording in the brief-outputs section.",
+          "headHash": "f6de2c2a3d15c553ea4ba0db30ee8302960b8734",
+          "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
+          "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
+          "timestamp": "2026-07-12T01:34:02.331Z"
         }
       ]
     }
