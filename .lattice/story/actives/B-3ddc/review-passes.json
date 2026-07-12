@@ -90,6 +90,29 @@
         "scanEscalationReason": null
       },
       "_hash": "a3e7aa31047dcc3f80801004f014aa02ec72e1d0d70cd37fb46fe49627d9e9bf"
+    },
+    {
+      "id": "B-3ddc:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 quality re-review of fix commit b0e9ea0bb8 (failure-lane truncation honesty + paren neutralization). Verified: (1) failureRetentionTruncated is correctly threaded end-to-end (HostRunSpawnResult -> runHostRun -> recordFinalForHost) and only gates the codex usage===null branch AFTER the pre-existing retentionTruncated (usage lane) early-return, preserving F-013/F-026 absolute priority exactly as documented. (2) failureSource is forced to \"\" only when failureRetentionTruncated is true, so a stale/superseded failure line can never leak into turn_failed(<digest>); a drop-then-candidate (last-wins) correctly clears the flag per new F1 tests. (3) Paren neutralization ((-> [, )-> ]) is applied after control-char/whitespace collapse and before the length cap, so the digest interior can never contain ( or ), verified by the new F2 paren-injection unit test with an adversarial payload literally containing turn_failed(fake. (4) No dead code / unused exports: scanCodexTurnFailed, codexTurnFailedReason, failureLineRetainerFor, CODEX_TURN_FAILED_DIGEST_MAX_CHARS, CodexTurnFailedEvent are only referenced from host-run.ts + the smoke test (grepped packages/main/src, no orphans). No as any, no empty catches; JSON.parse try/catch blocks follow the existing own-property-guarded pattern used elsewhere in this file for untrusted external stdout. (5) No bridge.ts/fn.ts I/O-isolation concern (module not present in this package). (6) Proof-metadata dual-location rule (job.metadata/run.metadata) not applicable -- this diff only changes the LLM usage-ledger unavailableReason string, no proof/receipt/job/run metadata semantics touched. (7) Ran a forced clean rebuild (rm dist artifacts + npx tsc) and a fresh node dist/tasks/host-run-usage-smoke.js: tsc compiles clean, 74/74 checks pass, including the 3 new F1/F2-specific checks plus the extended digest-hygiene check (71->74 matches the round description). Transient note: mid-review the working tree briefly showed an uncommitted revert of this exact fix in host-run.ts (review_run_start correctly refused on the dirty tree); it resolved before this run started and the committed HEAD content was confirmed correct and building cleanly -- not filed as a finding since it was not reproducible against the current committed diff and is not attributable to this changeset. No blocking findings.",
+      "createdAt": "2026-07-12T00:52:38.659Z",
+      "reviewRound": "2026-07-12T00:43:26.118Z",
+      "reviewRunId": "B-3ddc:RR-007",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3ddc/checklist.json",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3ddc/plan.md",
+          ".lattice/story/actives/B-3ddc/review-passes.json",
+          ".lattice/story/actives/B-3ddc/review-runs.json",
+          ".lattice/story/actives/B-3ddc/review.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e64207f405be7c07a17010344422ed25e6d2af18a43564c091c3a376eb76b941"
     }
   ]
 }
