@@ -69,7 +69,7 @@ function envNumber(
   env: Record<string, string | undefined>,
   key: string,
   fallback: number,
-  opts: { allowZero?: boolean } = {},
+  opts: { allowZero?: boolean; max: number },
 ): number {
   const raw = env[key];
   if (raw === undefined) return fallback;
@@ -79,8 +79,24 @@ function envNumber(
   if (!Number.isFinite(value)) return fallback;
   if (value < 0) return fallback;
   if (value === 0 && !opts.allowZero) return fallback;
+  // Absurdly large values are treated as typos and fall back, same as garbage:
+  // a finite-but-huge RECENT_HOURS would overflow the sinceMs arithmetic to a
+  // -Infinity cutoff (an unbounded full-store scan) and a huge FILE_MB would
+  // overflow fileBytes to Infinity (which serializes as null in JSON).
+  if (value > opts.max) return fallback;
   return value;
 }
+
+/** Per-variable sanity ceilings (values above these are typos, not thresholds). */
+export const BURN_ALERT_ENV_MAX = {
+  /** 1 TB expressed in MB. */
+  fileMb: 1_000_000,
+  inputTokens: Number.MAX_SAFE_INTEGER,
+  /** 100 years. */
+  ageDays: 36_500,
+  /** 1 year — also caps the doctor scan window arithmetic. */
+  recentHours: 8_760,
+} as const;
 
 /**
  * Resolve burn-alert thresholds from an env record (pure; handlers pass
@@ -92,12 +108,12 @@ export function resolveBurnAlertThresholds(
   env: Record<string, string | undefined>,
 ): BurnAlertThresholds {
   const d = DEFAULT_BURN_ALERT_THRESHOLDS;
-  const fileMb = envNumber(env, BURN_ALERT_ENV.fileMb, d.fileBytes / (1024 * 1024));
+  const fileMb = envNumber(env, BURN_ALERT_ENV.fileMb, d.fileBytes / (1024 * 1024), { max: BURN_ALERT_ENV_MAX.fileMb });
   return {
     fileBytes: Math.round(fileMb * 1024 * 1024),
-    inputTokens: envNumber(env, BURN_ALERT_ENV.inputTokens, d.inputTokens),
-    ageDays: envNumber(env, BURN_ALERT_ENV.ageDays, d.ageDays),
-    recentHours: envNumber(env, BURN_ALERT_ENV.recentHours, d.recentHours, { allowZero: true }),
+    inputTokens: envNumber(env, BURN_ALERT_ENV.inputTokens, d.inputTokens, { max: BURN_ALERT_ENV_MAX.inputTokens }),
+    ageDays: envNumber(env, BURN_ALERT_ENV.ageDays, d.ageDays, { max: BURN_ALERT_ENV_MAX.ageDays }),
+    recentHours: envNumber(env, BURN_ALERT_ENV.recentHours, d.recentHours, { allowZero: true, max: BURN_ALERT_ENV_MAX.recentHours }),
   };
 }
 

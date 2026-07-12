@@ -241,6 +241,14 @@ async function main(): Promise<void> {
     join(codexDir, '2026', '07', '12', 'rollout-ok.jsonl'),
     codexRollout({ id: 'codex-ok-B', cwd: '/tmp/fine', firstTs: iso(NOW - 60_000), inputTokens: 5_000 }),
   );
+  // MEGA: young session with a BIGGER burn than HOT (250M) — flagged on
+  // input-tokens only. It sorts FIRST (burn desc), so any check that must find
+  // codex-burn-A's warning block is forced to actually locate it instead of
+  // grabbing the first flagged block (kills the F-004 sort-order coincidence).
+  writeJsonl(
+    join(codexDir, '2026', '07', '12', 'rollout-mega.jsonl'),
+    codexRollout({ id: 'codex-mega-M', cwd: '/tmp/mega-young-burner', firstTs: iso(NOW - 60_000), inputTokens: 250_000_000 }),
+  );
   // AT: exactly at the default 100M threshold → NOT flagged (strictly greater).
   writeJsonl(
     join(codexDir, '2026', '07', '12', 'rollout-at.jsonl'),
@@ -475,6 +483,13 @@ async function main(): Promise<void> {
         const hotBlock = lines.slice(headerIdx, nextHeader === -1 ? lines.length : nextHeader);
         const hotTripped = hotBlock.find((line) => line.includes('tripped:'));
         const json = (await handlers.doctor({ format: 'json' })) as Record<string, any>;
+        // Selector rigor: codex-mega-M (250M, young) sorts FIRST, so the first
+        // 'tripped:' line in the output is NOT codex-burn-A's — a regression to
+        // the pre-F-004 first-line selector would fail these assertions.
+        assert.equal(json.hostBurnScan.findings[0]?.sessionId, 'codex-mega-M', 'bigger-burn young session sorts first');
+        const firstTrippedIdx = lines.findIndex((line) => line.includes('tripped:'));
+        assert.ok(firstTrippedIdx >= 0 && firstTrippedIdx < headerIdx, 'first tripped line precedes the codex-burn-A block (mega renders first)');
+        assert.ok(!(lines[firstTrippedIdx] ?? '').includes('session-age'), 'first tripped line belongs to codex-mega-M (no session-age) — block slicing is load-bearing');
         const hot = json.hostBurnScan.findings.find((f: any) => f.sessionId === 'codex-burn-A');
         assert.ok(hot, 'HOT fixture flagged');
         assert.deepEqual([...hot.reasons].sort(), ['file-size', 'input-tokens', 'session-age'], 'doctor JSON lists all three reasons');
@@ -624,6 +639,19 @@ async function main(): Promise<void> {
     assert.equal(({} as Record<string, unknown>).fileBytes, undefined, 'Object.prototype not polluted');
     const unrelated = resolveBurnAlertThresholds({ HOME: '/tmp/x', PATH: '/usr/bin' });
     assert.deepEqual(unrelated, DEFAULT_BURN_ALERT_THRESHOLDS, 'unrelated env keys leave all four defaults');
+    // F-B (codex quorum r3): finite-but-absurd values are typos, not thresholds.
+    // Unclamped they would overflow: RECENT_HOURS=1e308 → sinceMs=-Infinity (an
+    // unbounded full-store doctor scan); FILE_MB=1e308 → fileBytes=Infinity
+    // (serializes as null in JSON).
+    const absurd = resolveBurnAlertThresholds({
+      [BURN_ALERT_ENV.recentHours]: '1e308',
+      [BURN_ALERT_ENV.fileMb]: '1e308',
+      [BURN_ALERT_ENV.ageDays]: '999999',
+      [BURN_ALERT_ENV.inputTokens]: '99999999999999999999',
+    });
+    assert.deepEqual(absurd, DEFAULT_BURN_ALERT_THRESHOLDS, 'absurdly large values fall back per-variable (no overflow weaponization)');
+    assert.equal(resolveBurnAlertThresholds({ [BURN_ALERT_ENV.recentHours]: '8760' }).recentHours, 8760, 'the ceiling itself is still accepted (one year window)');
+    assert.ok(Number.isFinite(resolveBurnAlertThresholds({ [BURN_ALERT_ENV.fileMb]: '1000000' }).fileBytes), '1TB FILE_MB stays finite');
   });
 
   // ── 11c. source-contract greps (pure-core + independence) ───────────────────
