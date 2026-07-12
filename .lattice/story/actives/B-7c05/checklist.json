@@ -722,6 +722,18 @@
           "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
           "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
           "timestamp": "2026-07-12T01:33:59.714Z"
+        },
+        {
+          "intentRef": "CHK-006:happy:1",
+          "kind": "manual_transcript",
+          "file": "docs/CLI.md",
+          "command": "bash -c 'rg -n \"unaffected\" docs/CLI.md | head -3'",
+          "result": "pass",
+          "note": "docs/CLI.md documents the frozen machine contract: explicit --json/--format=json outputs are unaffected by brief mode (line 56 area states JSON opt-ins are unaffected and stdout JSON.parse consumers keep skeleton fields).",
+          "headHash": "be69e3a20d4be1ce37ee6cbd56bb2d85f7f264a5",
+          "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
+          "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
+          "timestamp": "2026-07-12T01:34:00.401Z"
         }
       ]
     }
