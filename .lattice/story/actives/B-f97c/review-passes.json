@@ -41,6 +41,28 @@
         "scanEscalationReason": null
       },
       "_hash": "ea7a06c77a6797cd2b3b7231b72927067ea285e12aaf2bf2075943f999aad94d"
+    },
+    {
+      "id": "B-f97c:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Targeted re-review at HEAD 91f77ad9f6: F-001 is fixed by a real sparse PLAN fixture omitting understanding, decision, grill, and verificationIntent while asserting a well-formed prompt, retained checklist/ProofStory, expected advisories, and zero blockers. Build and focused corpus-budget smoke pass; 3 MiB nested corpus still yields 0-byte prompt delta. F-002 is fixed by separate CHK-004 usage_sweep evidence disclosing the captured 58,342,389 totalTokens as NON-AUTHORITATIVE, multiAttribution=true, overlapping/non-exclusive attribution; deterministic byte/4 prompt estimates remain separately labelled. No coverage blocker remains.",
+      "createdAt": "2026-07-12T01:44:46.055Z",
+      "reviewRound": "2026-07-12T01:43:12.253Z",
+      "reviewRunId": "B-f97c:RR-005",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f97c/background.md",
+          ".lattice/story/actives/B-f97c/plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "packages/main/src/tasks/story-review-corpus-budget-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/package.json",
+          "packages/main/src/handlers/story-review.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b3a4eafd3e36529333c68295700bcb81356db91f8283d7aa0747474777967e17"
     }
   ]
 }
