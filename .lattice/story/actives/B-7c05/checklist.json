@@ -578,6 +578,17 @@
           "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
           "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
           "timestamp": "2026-07-12T01:33:54.786Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:1",
+          "kind": "manual_transcript",
+          "command": "bash -c 'test \"$(LATTICE_BRIEF_OUTPUT=0 node bin/lattice.js help --brief 2>/dev/null | wc -c)\" -lt 16000'",
+          "result": "pass",
+          "note": "Flag beats env: with LATTICE_BRIEF_OUTPUT=0 set, --brief still renders the 11,619-byte brief catalog (probe exits 0); smoke asserts the same on finding_list.",
+          "headHash": "2f136fb6e2311cefb8444443f22a906a96a86e8d",
+          "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
+          "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
+          "timestamp": "2026-07-12T01:33:55.421Z"
         }
       ]
     },
