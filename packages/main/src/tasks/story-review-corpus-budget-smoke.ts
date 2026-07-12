@@ -8,7 +8,7 @@ import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, StoryInfo } from '../core/types.js';
 import { createGrillHandlers } from '../handlers/grill.js';
-import { createScopeCheckHandlers } from '../handlers/scope-check.js';
+import { createScopeCheckHandlers, signScopeCheck } from '../handlers/scope-check.js';
 import { createStoryReviewHandlers } from '../handlers/story-review.js';
 
 const STORY_SENTINEL = 'STRUCTURED_STORY_SENTINEL';
@@ -35,7 +35,7 @@ function estimatedTokens(bytes: number): number {
   return Math.ceil(bytes / 4);
 }
 
-function initFixture(): { root: string; store: StoryStore; storyId: string } {
+function initFixture(options: { sparse?: boolean } = {}): { root: string; store: StoryStore; storyId: string } {
   const root = mkdtempSync(join(tmpdir(), 'lattice-story-review-corpus-budget-'));
   write(root, 'lattice.config.json', JSON.stringify({
     scanRoot: 'packages/main',
@@ -56,7 +56,7 @@ function initFixture(): { root: string; store: StoryStore; storyId: string } {
     description: 'Verify structured PLAN prompt content without requirements corpus injection.',
     type: 'chore',
     phase: 'PLAN',
-    priority: 'high',
+    priority: options.sparse ? 'medium' : 'high',
     createdAt: now,
     startedAt: now,
     endedAt: null,
@@ -72,51 +72,69 @@ function initFixture(): { root: string; store: StoryStore; storyId: string } {
       status: 'pending',
       startTime: null,
       endTime: null,
-      verificationIntent: {
-        happy: [{ desc: INTENT_SENTINEL, type: 'logic', priority: 'must' }],
-        edge: [],
-        adversarial: [],
-      },
+      ...(options.sparse ? {} : {
+        verificationIntent: {
+          happy: [{ desc: INTENT_SENTINEL, type: 'logic', priority: 'must' }],
+          edge: [],
+          adversarial: [],
+        },
+      }),
     }],
   };
   store.writeStory(storyId, story);
   store.writeChecklist(storyId, checklist);
-  store.writeUnderstanding(storyId, {
-    task: UNDERSTANDING_SENTINEL,
-    outcome: 'Prompt size does not scale with unrelated requirements files.',
-    facts: ['Structured facts remain visible.'],
-    constraints: ['Do not weaken PLAN gates.'],
-    unknowns: [],
-    touchpoints: ['packages/main/src/handlers/story-review.ts'],
-    timestamp: now,
-  });
-  store.writeDecision(storyId, {
-    principles: ['Bound prompt inputs', 'Preserve structured artifacts', 'Keep evidence mechanical'],
-    drivers: ['Prevent corpus-sized prompt cost'],
-    options: [
-      { name: 'A: remove producer corpus read', pros: ['bounded'], cons: ['scope evidence remains separate'] },
-      { name: 'B: truncate corpus', pros: ['small patch'], cons: ['silently drops documents'] },
-    ],
-    chosen: DECISION_SENTINEL,
-    rationale: 'The producer should consume structured artifacts only.',
-    preMortem: [{
-      scenario: PREMORTEM_SENTINEL,
-      trigger: 'A corpus read is reintroduced',
-      consequence: 'Prompt bytes scale with docs',
-      mitigation: 'Run this smoke',
-    }],
-    timestamp: now,
-  } as any);
+  if (!options.sparse) {
+    store.writeUnderstanding(storyId, {
+      task: UNDERSTANDING_SENTINEL,
+      outcome: 'Prompt size does not scale with unrelated requirements files.',
+      facts: ['Structured facts remain visible.'],
+      constraints: ['Do not weaken PLAN gates.'],
+      unknowns: [],
+      touchpoints: ['packages/main/src/handlers/story-review.ts'],
+      timestamp: now,
+    });
+    store.writeDecision(storyId, {
+      principles: ['Bound prompt inputs', 'Preserve structured artifacts', 'Keep evidence mechanical'],
+      drivers: ['Prevent corpus-sized prompt cost'],
+      options: [
+        { name: 'A: remove producer corpus read', pros: ['bounded'], cons: ['scope evidence remains separate'] },
+        { name: 'B: truncate corpus', pros: ['small patch'], cons: ['silently drops documents'] },
+      ],
+      chosen: DECISION_SENTINEL,
+      rationale: 'The producer should consume structured artifacts only.',
+      preMortem: [{
+        scenario: PREMORTEM_SENTINEL,
+        trigger: 'A corpus read is reintroduced',
+        consequence: 'Prompt bytes scale with docs',
+        mitigation: 'Run this smoke',
+      }],
+      timestamp: now,
+    } as any);
+  }
 
   const ctx = { store, root, scanRoot: join(root, 'packages/main') };
-  createGrillHandlers(ctx).grill_start({ storyId, topic: 'Corpus budget verification' });
-  createScopeCheckHandlers(ctx).scope_check_save({
-    storyId,
-    features: [{ feature: 'Bounded prompt', covered_by: 'CHK-001', status: 'covered', source: 'synthetic' }],
-    summary: { total: 1, covered: 1, excluded: 0, gaps: 0 },
-    readManifest: { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null },
-    openQuestions: [],
-  });
+  if (!options.sparse) {
+    createGrillHandlers(ctx).grill_start({ storyId, topic: 'Corpus budget verification' });
+  }
+  if (options.sparse) {
+    const checkedAt = '2026-07-12T12:01:00.000Z';
+    store.writeScopeCheck(storyId, {
+      storyId,
+      checkedAt,
+      features: [{ feature: 'Bounded prompt', covered_by: 'CHK-001', status: 'covered', excluded_by: null, source: 'synthetic' }],
+      summary: { total: 1, covered: 1, excluded: 0, gaps: 0, orphanSuspect: 0, drift: 0 },
+      reviewRound: '',
+      _hash: signScopeCheck(storyId, checkedAt, 0, 1, ''),
+    });
+  } else {
+    createScopeCheckHandlers(ctx).scope_check_save({
+      storyId,
+      features: [{ feature: 'Bounded prompt', covered_by: 'CHK-001', status: 'covered', excluded_by: null, source: 'synthetic' }],
+      summary: { total: 1, covered: 1, excluded: 0, gaps: 0 },
+      readManifest: { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null },
+      openQuestions: [],
+    });
+  }
   return { root, store, storyId };
 }
 
@@ -156,6 +174,29 @@ try {
   }
   assert.ok(!postPrompt.includes('\nTruth Source ('), 'per-document Truth Source section must be absent');
 
+  const sparse = initFixture({ sparse: true });
+  try {
+    const sparseResult = createStoryReviewHandlers({
+      store: sparse.store,
+      root: sparse.root,
+      scanRoot: join(sparse.root, 'packages/main'),
+    }).story_review({ storyId: sparse.storyId }) as any;
+    assert.equal(typeof sparseResult._reviewPrompt, 'string', 'sparse accepted PLAN state still returns a well-formed prompt');
+    assert.ok(sparseResult._reviewPrompt.includes('Understanding Snapshot: (not provided)'));
+    assert.ok(sparseResult._reviewPrompt.includes('Decision: (not provided)'));
+    assert.ok(sparseResult._reviewPrompt.includes(CHECKLIST_SENTINEL), 'sparse prompt retains checklist');
+    assert.ok(sparseResult._reviewPrompt.includes('ProofStory Diagnostics (advisory only)'), 'sparse prompt retains diagnostics');
+    assert.ok(!sparseResult._reviewPrompt.includes('Grill Planning Context'), 'missing optional grill stays omitted');
+    assert.ok(!sparseResult._reviewPrompt.includes('verificationIntent:'), 'missing optional verification arrays stay omitted');
+    assert.ok(sparseResult.issues.some((issue: any) => issue.type === 'missing_understanding' && issue.severity === 'advisory'));
+    assert.ok(sparseResult.issues.some((issue: any) => issue.type === 'verification_intent_advisory' && issue.severity === 'advisory'));
+    const sparseBlockers = sparseResult.issues.filter((issue: any) => issue.severity === 'blocker');
+    assert.deepEqual(sparseBlockers, [], `accepted sparse state gained blockers: ${JSON.stringify(sparseBlockers)}`);
+  } finally {
+    rmSync(sparse.root, { recursive: true, force: true });
+    resetConfigCache();
+  }
+
   // Reconstruct the removed producer component to provide an auditable pre/post
   // estimate using the exact former framing. This is not exact host token usage.
   const historicalTruthSection = `\n---\nTruth Source (2 docs):\n${largeMarkdown}\n---\n${smallMarkdown}`;
@@ -169,7 +210,7 @@ try {
 
   console.log(JSON.stringify({
     measurementKind: 'byte-exact prompt components; token counts are byte/4 estimates',
-    exactHostTaskUsage: 'unavailable in this smoke; report separately if a host usage ledger is available',
+    storyScopedHostUsage: 'reported separately from this deterministic smoke via read-only lattice usage_sweep; it is a non-authoritative, overlapping attribution when multiAttribution=true',
     baselinePostFixPromptBytes: promptBytes(baselinePrompt),
     largeCorpusPostFixPromptBytes: postBytes,
     promptByteDeltaAfterAddingCorpus: postBytes - promptBytes(baselinePrompt),
