@@ -18,6 +18,25 @@
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-623a:F-002",
+      "desc": "packages/main/src/tasks/usage-burn-alert-smoke.ts CHK-003:edge:4 requires a session that trips ALL THREE reasons (file-size + input-tokens + session-age) and lists all three in its warning line; no such fixture exists anywhere in the smoke. The only multi-reason fixture (codex-burn-A/HOT, integration check L372-374) is explicitly asserted via assert.deepEqual([...hot.reasons].sort(), [\"input-tokens\",\"session-age\"], ...) to trip EXACTLY two reasons, never file-size (its transcript is a few hundred bytes, well under the 100MB default). The renderers check (L435-447) constructs a single-reason (input-tokens only) fixture. Evidence notes both for CHK-003:edge:4 (\"integration: HOT trips multiple reasons listed together; renderers list reasons joined\") and for CHK-001:happy:5 (\"evaluator per-reason isolation + edge: all-three-reasons session (doctor fixture)\") misdescribe this as a 3-reason test -- there is no 3-reason (doctor) fixture in the file. renderBurnFindingBlock's reasons.join(...) line (core/usage-burn-alert.ts ~L250) is therefore untested with 3 simultaneous reasons.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-12T20:54:15.833Z",
+      "reviewRound": "2026-07-12T20:46:22.327Z",
+      "reviewRunId": "B-623a:RR-003",
+      "_hash": "7b1bb80069beef4efd3625ea5ad8b862dca9ec5dcee5dc9a79b050051654e6b1",
+      "files": [
+        "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+        "packages/main/src/core/usage-burn-alert.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
