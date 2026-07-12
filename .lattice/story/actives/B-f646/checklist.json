@@ -45,7 +45,22 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+          "command": "test -s \"docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md\" && rg -qi 'Codex CLI|Claude Code CLI|Antigravity CLI|candidateSpecSet|readManifest|scanEscalationReason' \"docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md\"",
+          "result": "pass",
+          "note": "The canonical plan defines the complete producer flow, auditable artifacts, bounded reads, milestones, rollout, validation matrix, and explicitly states implementation has not started.",
+          "headHash": "53a83e833657afea6c5ea2b45c98072efc38d8b2",
+          "materialHash": "2f1198f6bd2cd76c2a05ec89a87e98418df4fbc361493260692464fe88499349",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-12T09:06:04.507Z"
+        }
+      ]
     }
   ]
 }
