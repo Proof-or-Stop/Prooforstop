@@ -159,6 +159,26 @@
         "scanEscalationReason": null
       },
       "_hash": "7a87b275ab9c867bbb08397066a76b49b2dfec15734e919b7a4eb2e2ca8636f7"
+    },
+    {
+      "id": "B-8038:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-8 narrow coverage PASS after fda87423. The gitroot-cwd contract self-tests and 720-file repository scan pass with zero bare/alias cwd violations, confirming candidate routing now resolves its git workspace through resolveGitCwd. Fresh build, candidate-spec-routing smoke, and process-fact contract also pass.",
+      "createdAt": "2026-07-12T11:56:27.219Z",
+      "reviewRound": "2026-07-12T11:54:59.771Z",
+      "reviewRunId": "B-8038:RR-017",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/candidate-spec-routing.ts",
+          "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9567121d43cf54309c8341f2fbf7886d5ad454b92553e5974e5f8f383b76646d"
     }
   ]
 }
