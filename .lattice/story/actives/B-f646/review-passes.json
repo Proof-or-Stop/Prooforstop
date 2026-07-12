@@ -87,6 +87,34 @@
       },
       "readDiagnostics": [],
       "_hash": "646269bc84e5e93d85e494954a9ced434c125cf0cf4130df73f7dfa0689c51ca"
+    },
+    {
+      "id": "B-f646:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Quality re-review passed after commit 4357b37fa7. F-001 is materially closed: one non-bypassable pre-egress sanitizer covers every host-bound field/artifact; names are separated from detected values; sensitive provenance/sourceRef is hashed or omitted with a local-only map; uncertain classification skips the host and retains deterministic local routing; unsafe host input/output is rejected rather than repaired or persisted; and the validation matrix covers Story/checklist/backtick, seed/sourceRef/path-title/config/error, uncertainty, and hostile-output leakage cases. The fix is consistent with exact-identifier preservation because raw identifiers may remain local for deterministic routing while only sanitized data crosses the host boundary, and it does not weaken candidate budgets, quality floors, escalation, signed evidence, or rollback.",
+      "createdAt": "2026-07-12T09:09:34.397Z",
+      "reviewRound": "2026-07-12T09:08:40.723Z",
+      "reviewRunId": "B-f646:RR-005",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "9338bd28c849d0cd439029b952966b1ddd854656d71e2d6df8f37e3569bf29d1"
+      },
+      "readDiagnostics": [],
+      "_hash": "9999de6e67855b5455496b01d9b254fb2721681ef77c457160a0ed340b005493"
     }
   ]
 }
