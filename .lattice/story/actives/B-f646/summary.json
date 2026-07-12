@@ -1,0 +1,56 @@
+{
+  "storyId": "B-f646",
+  "changes": "Added the canonical M6 execution plan for deterministic CLI seeds, Codex/Claude semantic proposals, optional agy fallback, bounded local search/ranking, signed candidate/read evidence, escalation, quality floors, rollout, and a universal pre-egress secret sanitizer.",
+  "usage": "Use this decision document to create the M6A through M6G implementation Stories; begin with M6A corpus index and deterministic seeds, and do not treat the plan as runtime implementation.",
+  "expectedOutcome": "A reviewer or implementer can open one canonical Markdown file and find concrete schemas, budgets, milestones, validation cases, security boundaries, and DONE criteria for bounded candidate-spec routing.",
+  "actualTranscript": "The 581-line canonical document exists; four reviewer lanes passed after one high security finding was fixed, delivery verified 4 of 4 promises and 3 of 3 intents, and all 45 configured validation commands passed.",
+  "outcomeDiff": "No material difference: the requested executable Markdown plan is delivered; runtime routing remains explicitly future work.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "This Story delivers the execution plan only; M6 runtime, host adapters, mechanical read logging, and enforcement are intentionally not implemented yet.",
+  "pitfalls": "The first TEST preflight failed because packages/main/dist was absent in the new worktree; building packages/main restored utils TypeScript resolution. Quality review also found and drove closure of a host pre-egress secret-leak boundary.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 57734
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 30617
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 196845
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 251331
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 501487
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 290737
+    }
+  },
+  "totalDurationMs": 1330037,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-12T09:19:59.869Z",
+  "updatedAt": "2026-07-12T09:19:59.869Z"
+}
