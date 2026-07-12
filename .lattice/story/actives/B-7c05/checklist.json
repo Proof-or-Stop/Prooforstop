@@ -96,6 +96,17 @@
           "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
           "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
           "timestamp": "2026-07-12T01:33:41.640Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node bin/lattice.js milestone_status --storyId=B-7c05",
+          "result": "pass",
+          "note": "Brief output preserves agent-actionable state: Phase, Progress counts (done/in-progress/not-started), current milestone status line, and an explicit 'Next action:' line naming the exact command; verified in the live transcript (Next action present) and asserted by brief-output-smoke.",
+          "headHash": "c94d73fe54732087605ce9d59825e64e93a65a24",
+          "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
+          "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
+          "timestamp": "2026-07-12T01:33:42.162Z"
         }
       ]
     },
