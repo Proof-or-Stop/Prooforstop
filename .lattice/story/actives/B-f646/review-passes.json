@@ -27,6 +27,38 @@
       },
       "readDiagnostics": [],
       "_hash": "3e7cfa25b9a4d863911a1311dbb1fca60421bcd81f6e5245cbeba2ce5c566dcc"
+    },
+    {
+      "id": "B-f646:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept review PASS. The document correctly separates shipped B-f97c corpus-removal and current prompt-layer scope controls from future M6 CLI routing/read-log enforcement; uses canonical Codex CLI, Claude Code CLI, and Antigravity CLI (agy) taxonomy with Codex/Claude primary and agy conditional; keeps host proposals advisory; defines deterministic CLI ownership, bounded search/candidate budgets, ambiguity/high-risk escalation, tool-driven broad scan, freshness and read-evidence failure behavior; and preserves signed lifecycle evidence and reviewer-lane ownership. No conceptual blocker found.",
+      "createdAt": "2026-07-12T09:07:33.701Z",
+      "reviewRound": "2026-07-12T09:06:23.727Z",
+      "reviewRunId": "B-f646:RR-003",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "75a093403552871694c481888fbbf9bd6a9cb94905d56a2224db12b80ada08b8"
+      },
+      "readDiagnostics": [],
+      "_hash": "869210626a76381f75c470862d15281a5012a731040ffb1b74cebb4ebf8ccb81"
     }
   ]
 }
