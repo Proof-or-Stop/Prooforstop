@@ -109,7 +109,22 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js",
+          "result": "pass",
+          "note": "Fake-host integration exercises independent Codex and Claude attempts, conditional agy fallback, quota classification, schema and term budgets, non-bypassable pre-egress sanitization, unsafe-call skipping, and secret-like output rejection.",
+          "headHash": "a24f134d820379840eb4e53143a8c1494b78e815",
+          "materialHash": "de9669c1dec53675a1e497051b81d830e30fe7c5d45126ec24b00078e950ec59",
+          "storyFilesHash": "286f6976454f3c2d486f8845c3970f3494e2c22d8d2a4ce60c920e409d5a9af4",
+          "timestamp": "2026-07-12T10:29:07.331Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
