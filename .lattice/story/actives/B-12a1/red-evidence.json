@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-12a1",
+  "records": [
+    {
+      "id": "RED-001",
+      "trigger": "B-623a (2026-07-12): ProofStory command-generated story metadata classified out_of_scope at the DEV->REVIEW scope gate; classifier-level repro shows all ten intent-hardening filenames fall through LATTICE_LIFECYCLE_ARTIFACT_FILENAMES.",
+      "acceptanceTargetRef": "AB-001",
+      "baselineHeadHash": "6f63d356ca5adad16417ca5c0d597e354741a84e",
+      "baselineMaterialHash": "802e55c49cae6924a1e04381a55814c464b5524c9185789090512e83a888eafe",
+      "observedFailure": "On pre-fix baseline (worktree dist built from unmodified source), the failing command exits 1 and prints: RED: not lifecycle_artifact -> original-intent-snapshot,milestone-ledger,milestone-closeout,slice-plan,parent-ledger-rollup,proofstory,intent-collision,scope-shrinkage-decision,red-evidence,spike — every one of the ten ProofStory artifact paths classifies rule=unknown (surfaced as scope.out_of_scope fail at the gate layer) instead of lifecycle_artifact.",
+      "failingCommand": "node -e \"const{classifyScopePath}=require('./packages/main/dist/core/scope-path-classifier.js');const c={storyId:'B-scope',allowedModify:[],allowedCreate:[],allowedTest:[],protectedFiles:[],explicitExcludes:[]};const f=['original-intent-snapshot','milestone-ledger','milestone-closeout','slice-plan','parent-ledger-rollup','proofstory','intent-collision','scope-shrinkage-decision','red-evidence','spike'];const bad=f.filter(n=>classifyScopePath(c,'.lattice/story/actives/B-scope/'+n+'.json').rule!=='lifecycle_artifact');if(bad.length){console.error('RED: not lifecycle_artifact -> '+bad.join(','));process.exit(1)}console.log('GREEN: all ten lifecycle_artifact')\"",
+      "expectedGreenCommand": "npm --prefix packages/main run build && node -e \"const{classifyScopePath}=require('./packages/main/dist/core/scope-path-classifier.js');const c={storyId:'B-scope',allowedModify:[],allowedCreate:[],allowedTest:[],protectedFiles:[],explicitExcludes:[]};const f=['original-intent-snapshot','milestone-ledger','milestone-closeout','slice-plan','parent-ledger-rollup','proofstory','intent-collision','scope-shrinkage-decision','red-evidence','spike'];const bad=f.filter(n=>classifyScopePath(c,'.lattice/story/actives/B-scope/'+n+'.json').rule!=='lifecycle_artifact');if(bad.length){console.error('RED: not lifecycle_artifact -> '+bad.join(','));process.exit(1)}console.log('GREEN: all ten lifecycle_artifact')\" && node packages/main/dist/tasks/scope-contract-smoke.js",
+      "greenRelation": {
+        "targetRef": "AB-001",
+        "relation": "same_acceptance",
+        "command": "npm --prefix packages/main run build && node -e \"const{classifyScopePath}=require('./packages/main/dist/core/scope-path-classifier.js');const c={storyId:'B-scope',allowedModify:[],allowedCreate:[],allowedTest:[],protectedFiles:[],explicitExcludes:[]};const f=['original-intent-snapshot','milestone-ledger','milestone-closeout','slice-plan','parent-ledger-rollup','proofstory','intent-collision','scope-shrinkage-decision','red-evidence','spike'];const bad=f.filter(n=>classifyScopePath(c,'.lattice/story/actives/B-scope/'+n+'.json').rule!=='lifecycle_artifact');if(bad.length){console.error('RED: not lifecycle_artifact -> '+bad.join(','));process.exit(1)}console.log('GREEN: all ten lifecycle_artifact')\" && node packages/main/dist/tasks/scope-contract-smoke.js"
+      },
+      "note": "Same literal classifier probe is the red and green command (plus rebuild and the extended scope-contract smoke on the green side); binds AB-001, red state observed at baseline HEAD before any code change.",
+      "createdAt": "2026-07-12T21:36:16.066Z"
+    }
+  ],
+  "createdAt": "2026-07-12T21:36:16.066Z",
+  "updatedAt": "2026-07-12T21:36:16.066Z"
+}

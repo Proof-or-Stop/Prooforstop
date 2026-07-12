@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-12a1",
+  "state": "confirmed",
+  "ledgerHash": "sha256:49ffd5fc77d2e5e00cd45df0c0438fece1bfa3fcf8e97b04c91d5c32603c3aca",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-001-register-ten-filenames",
+      "claim": "All ten ProofStory command-generated artifact filenames are registered in LATTICE_LIFECYCLE_ARTIFACT_FILENAMES",
+      "doneMeans": "classifyLifecycleArtifact returns kind=lifecycle for each of the ten story-dir paths; verified by the red->green node repro against the rebuilt worktree dist",
+      "requiredEvidence": [
+        "command"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:happy:1"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "REQ-002-smoke-lifecycle-pass",
+      "claim": "scope-contract-smoke pins the ten artifacts as scope.lifecycle_artifact pass rows under an enforce contract",
+      "doneMeans": "node packages/main/dist/tasks/scope-contract-smoke.js exits 0 with the ten new assertions present in source; assertions fail on pre-fix baseline",
+      "requiredEvidence": [
+        "command"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:happy:1",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-12T21:35:51.373Z",
+  "updatedAt": "2026-07-12T21:36:40.116Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-002",
+    "acceptedInterpretationHash": "sha256:005314d037feccee9b5291102fd0272c28697cf7301dd856bfca4cd560be9575",
+    "acceptedAt": "2026-07-12T21:36:40.116Z"
+  }
+}

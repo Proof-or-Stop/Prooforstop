@@ -256,6 +256,38 @@ try {
   );
   assert.match(String(runtimeRow.nextAction ?? runtimeRow.hint ?? ''), /runtime|not.*scope|registry/i, 'runtime row should name registry/runtime treatment');
 
+  // B-12a1: ProofStory intent-hardening artifacts (store.ts B-7287 block) are
+  // command-generated story metadata and must classify lifecycle_artifact pass
+  // under an enforce contract that does not list story-metadata paths.
+  const proofStoryArtifacts = [
+    'original-intent-snapshot.json',
+    'milestone-ledger.json',
+    'milestone-closeout.json',
+    'slice-plan.json',
+    'parent-ledger-rollup.json',
+    'proofstory.json',
+    'intent-collision.json',
+    'scope-shrinkage-decision.json',
+    'red-evidence.json',
+    'spike.json',
+  ];
+  const proofStoryPositive = checkScopeContract(
+    waveContract,
+    proofStoryArtifacts.map(name => `.lattice/story/actives/B-scope/${name}`),
+  );
+  // Per-row assertions run first so a regression names the exact artifact
+  // (B-12a1:F-001); the overall-status check still guards warn-masking.
+  for (const name of proofStoryArtifacts) {
+    assertScopeRow(proofStoryPositive, `B-12a1 ProofStory lifecycle row ${name}`, {
+      id: `scope.lifecycle_artifact:B-scope:${name}`,
+      source: `.lattice/story/actives/B-scope/${name}`,
+      status: 'pass',
+      blocking: false,
+      action: /provenance|artifact|not.*gate/i,
+    });
+  }
+  assert.equal(proofStoryPositive.status, 'pass', 'ProofStory intent artifacts should pass scope as lifecycle artifacts');
+
   const failClosedNegative = checkScopeContract(waveContract, [
     '.lattice/story/actives/B-scope/evidence/notes.md',
     '.lattice/story/actives/B-scope/unknown-metadata.json',

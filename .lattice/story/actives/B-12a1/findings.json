@@ -1,0 +1,25 @@
+{
+  "findings": [
+    {
+      "id": "B-12a1:F-001",
+      "desc": "Host-B (codex, round 3, red-green lens) verified: when one of the ten registered names is removed from the compiled registry, scope-contract-smoke fails at the aggregate assert.equal(proofStoryPositive.status, 'pass') BEFORE the per-row loop runs, so the failure diagnostic does not name which artifact row regressed. The smoke bites (fail is real) but the diagnostic is aggregate-only. Fix: run the per-row assertScopeRow loop (whose message names the file) before the overall-status assertion, keeping both checks (overall pass still guards warn-masking per CHK-002:adversarial:2).",
+      "severity": "low",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex-host-b",
+      "createdAt": "2026-07-12T21:58:16.181Z",
+      "reviewRound": "2026-07-12T21:45:24.921Z",
+      "_hash": "8d7458126deee13bdaf08e25e8c399a8c9f762e39a86df274bfe30db8a83278d",
+      "files": [
+        "packages/main/src/tasks/scope-contract-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|host-codex-round",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in ff86e56426: per-row assertScopeRow loop now runs before the aggregate status assertion in scope-contract-smoke.ts. Verified by bite test: removing 'proofstory.json' from the compiled registry makes the smoke fail with 'B-12a1 ProofStory lifecycle row proofstory.json: expected scope row not found' (names the exact artifact); restoring the dist returns the smoke to pass. Both checks retained — the overall-status assertion still guards warn-masking per CHK-002:adversarial:2.",
+      "resolvedAt": "2026-07-12T22:02:01.856Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}
