@@ -278,6 +278,11 @@ async function main(): Promise<void> {
     });
     assert.equal(t.fileBytes, 1024 * 1024, 'FILE_MB=1 → 1MiB');
     assert.equal(t.inputTokens, 50_000_000, 'INPUT_TOKENS=50000000');
+    assert.equal(
+      resolveBurnAlertThresholds({ [BURN_ALERT_ENV.inputTokens]: '500000' }).inputTokens,
+      500_000,
+      'INPUT_TOKENS=500000 applies alone (CHK-002:happy:2 literal)',
+    );
     assert.equal(t.ageDays, 3, 'AGE_DAYS=3');
     assert.equal(t.recentHours, 0, 'RECENT_HOURS=0 is accepted (disable switch)');
     const frac = resolveBurnAlertThresholds({ [BURN_ALERT_ENV.fileMb]: '0.001' });
@@ -337,6 +342,15 @@ async function main(): Promise<void> {
     // missing firstTimestamp likewise.
     const noTs = evaluateBurnAlerts([row({ host: 'codex', sessionId: 'u2', firstTimestamp: null })], { nowMs, thresholds: T, fileSizeOf: () => 0 });
     assert.equal(noTs.findings.length, 0, 'null firstTimestamp → session-age never flagged');
+    // F-003 (CHK-001:edge:3): zero-usage sessions are never flagged for input-tokens.
+    const zeros = evaluateBurnAlerts(
+      [
+        row({ host: 'codex', sessionId: 'z1', firstTimestamp: iso(nowMs - 1000), usage: codexUsage(0) }),
+        row({ host: 'claude', sessionId: 'z2', firstTimestamp: iso(nowMs - 1000), usage: { inputTokens: 0, cacheCreationInputTokens: 0, cacheReadInputTokens: 0, outputTokens: 0 } }),
+      ],
+      { nowMs, thresholds: T, fileSizeOf: () => 0 },
+    );
+    assert.equal(zeros.findings.length, 0, 'codex inputTokens=0 and claude all-zero usage never flag input-tokens');
   });
 
   await checkAsync('evaluator: codex vs claude burn-token formula + deterministic ordering', () => {
@@ -427,6 +441,36 @@ async function main(): Promise<void> {
         const json = (await handlers.doctor({ format: 'json' })) as Record<string, any>;
         assert.equal(json.hostBurnScan.disabled, true, 'JSON reports disabled');
         assert.equal(json.hostBurnScan.scanned, 0, 'nothing scanned');
+      },
+    );
+  });
+
+  // ── 6b. F-002 (CHK-003:edge:4 + CHK-001:happy:5): all three reasons at once ──
+  await checkAsync('doctor: a session tripping file-size + input-tokens + session-age lists all three reasons', async () => {
+    // Evaluator level: old + huge usage + big injected file size.
+    const ev = evaluateBurnAlerts(
+      [row({ host: 'codex', sessionId: 'triple', firstTimestamp: iso(NOW - 10 * DAY), usage: codexUsage(5000) })],
+      { nowMs: NOW, thresholds: T, fileSizeOf: () => 5000 },
+    );
+    assert.deepEqual([...(ev.findings[0]?.reasons ?? [])].sort(), ['file-size', 'input-tokens', 'session-age'], 'evaluator lists all three tripped reasons');
+    // Doctor level: FILE_MB tiny enough that the real HOT fixture file (~a few
+    // hundred bytes) trips file-size alongside input-tokens + session-age.
+    const ctx = makeCtx('doctor-triple');
+    const handlers = createDoctorHandlers(ctx);
+    await withEnv(
+      {
+        [BURN_ALERT_ENV.codexDir]: codexDir,
+        [BURN_ALERT_ENV.claudeDir]: emptyClaudeDir,
+        [BURN_ALERT_ENV.fileMb]: '0.0001',
+      },
+      async () => {
+        const text = String(await handlers.doctor({ format: 'text' }));
+        const hotLine = text.split('\n').find((line) => line.includes('tripped:') && text.includes('codex-burn-A'));
+        const json = (await handlers.doctor({ format: 'json' })) as Record<string, any>;
+        const hot = json.hostBurnScan.findings.find((f: any) => f.sessionId === 'codex-burn-A');
+        assert.ok(hot, 'HOT fixture flagged');
+        assert.deepEqual([...hot.reasons].sort(), ['file-size', 'input-tokens', 'session-age'], 'doctor JSON lists all three reasons');
+        assert.ok(hotLine && hotLine.includes('file-size') && hotLine.includes('input-tokens') && hotLine.includes('session-age'), 'doctor warning line lists all three reasons');
       },
     );
   });
