@@ -262,7 +262,48 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/review-pass-discard-smoke.js",
+          "result": "pass",
+          "note": "Candidate artifact digest, corpus digest and current material/story-files bindings validate together with the existing mechanically captured reviewer read-log and signed review-pass/finding paths.",
+          "headHash": "b83c1067ef44acd8d1c0b2b69059f1e4d18ab890",
+          "materialHash": "9d79a04888d1afff7c879789ed948c05cd3fccd79e4a4dc17f3bf9976a5b2c79",
+          "storyFilesHash": "514ba62dafaf48e8851f9f6c856daff1579f5d386a85140ebe505a547da6649d",
+          "timestamp": "2026-07-12T10:42:17.266Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "command": "node packages/main/dist/tasks/candidate-spec-routing-smoke.js",
+          "result": "pass",
+          "note": "Focused freshness fixtures reject changed candidate digest, missing artifact and stale materialHash while shadow remains explicitly non-authoritative.",
+          "headHash": "b83c1067ef44acd8d1c0b2b69059f1e4d18ab890",
+          "materialHash": "9d79a04888d1afff7c879789ed948c05cd3fccd79e4a4dc17f3bf9976a5b2c79",
+          "storyFilesHash": "514ba62dafaf48e8851f9f6c856daff1579f5d386a85140ebe505a547da6649d",
+          "timestamp": "2026-07-12T10:42:17.524Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "command": "node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/review-pass-discard-smoke.js",
+          "result": "pass",
+          "note": "Tampered candidate artifacts, mismatched digests and manifest/read-log discrepancies are rejected or surfaced as signed findings; scope signature verification no longer depends on ambient cwd.",
+          "headHash": "b83c1067ef44acd8d1c0b2b69059f1e4d18ab890",
+          "materialHash": "9d79a04888d1afff7c879789ed948c05cd3fccd79e4a4dc17f3bf9976a5b2c79",
+          "storyFilesHash": "514ba62dafaf48e8851f9f6c856daff1579f5d386a85140ebe505a547da6649d",
+          "timestamp": "2026-07-12T10:42:17.770Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
