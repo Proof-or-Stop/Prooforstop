@@ -11,7 +11,7 @@
     "ran": [],
     "skipped": []
   },
-  "limitations": "Codex-only enrichment by design (claude/agy failure surfaces out of scope per the user request); the failure lane is best-effort diagnostics — an over-cap (>1MiB) failure line, or a candidate poisoned by a LATER over-cap drop (failureRetentionTruncated), degrades to the generic no_turn_completed_usage_event fallback; usage-lane truncation (usage_line_retention_truncated) deliberately outranks turn_failed; in a single REAL stream the usage-lane flag masks most failure-lane truncation cases (the failure-lane flag is defense-in-depth for injected runners and future refactors).",
+  "limitations": "Codex-only enrichment by design (the user request names codex only; claude/agy failure surfaces are intentionally untouched); the failure lane is best-effort diagnostics — an over-cap (>1MiB) failure line, or a candidate poisoned by a LATER over-cap drop (failureRetentionTruncated), degrades to the generic no_turn_completed_usage_event fallback; usage-lane truncation (usage_line_retention_truncated) deliberately outranks turn_failed; in a single REAL stream the usage-lane flag masks most failure-lane truncation cases (the failure-lane flag is defense-in-depth for injected runners and future refactors).",
   "pitfalls": "(1) ProofStory DEV intent gate (enforce) blocked story_advance until original_intent_snapshot_set + intent_collision_set + proofstory_contract_set (verificationIntentRefs MUST use CHK-xxx:lane:index format) + red_evidence_create (target the AB-id, not a CHK-id) were recorded. (2) Scope gate fails closed on ProofStory metadata files not in the lifecycle registry — scope_contract_acknowledge, two rounds as artifacts appear incrementally. (3) scope_contract_init_from_plan yields an EMPTY enforce contract for legacy checklists without files fields — scope_contract_set explicitly right after. (4) Worktree build order: packages/main before packages/utils; symlink main-repo node_modules first. (5) Story-level concept-reviewer dispatch requires reviewer_batch; review_pass_set needs the fully-qualified reviewRunId. (6) A REAL codex exec review round (bounded perl-alarm watchdog, --skip-git-repo-check, stdin </dev/null) caught 2 genuine findings claude-side review missed (stale failure-lane retention after over-cap drop; paren delimiter injection) — recorded as an honest FAIL verdict B-3ddc-local-r1, which escalates the review assurance floor to 3 local rounds. (7) A reviewer running pre-fix load-bearing experiments in the SHARED worktree caused a transient dirty tree during a sibling review — restored before recording; prefer isolated clones for such experiments. (8) TEST re-entry after fix commits needs verification_evidence_refresh_stale (re-run the evidence command first).",
   "phaseStats": {
     "INIT": {
@@ -36,10 +36,10 @@
     },
     "TEST": {
       "count": 2,
-      "durationMs": 1550441
+      "durationMs": 2904038
     }
   },
-  "totalDurationMs": 8247323,
+  "totalDurationMs": 9600920,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -52,5 +52,5 @@
     "open": 0
   },
   "createdAt": "2026-07-12T00:10:41.940Z",
-  "updatedAt": "2026-07-12T01:17:43.566Z"
+  "updatedAt": "2026-07-12T01:40:17.162Z"
 }
