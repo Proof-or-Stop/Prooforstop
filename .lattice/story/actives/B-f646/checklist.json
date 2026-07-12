@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Write the multi-host candidate routing execution plan",
+      "context": "Define deterministic and host-proposed keyword inputs, local search/ranking, candidateSpecSet schema, full-read budget, escalation, evidence, quality gates, milestones, rollout, and validation matrix with an honest delivery-state boundary.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "excludes": [
+        "Changing runtime code",
+        "Changing reviewer prompt templates",
+        "Editing B-3928 artifacts"
+      ],
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md"
+        ],
+        "test": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
