@@ -1,0 +1,44 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Milestone ledger brief by default",
+      "context": "milestone_status and the appendMilestoneStatusAfterMutation() suffix (cli-engine.ts) that rides on story_advance and other mutating commands print a compact summary by default: per-milestone one-line status, counts, and next action. The full 7-column markdown table (renderMilestoneStatusReport in packages/main/src/core/milestone-status.ts) is available behind an explicit full-output flag.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "finding_list brief by default",
+      "context": "finding_list (packages/main/src/handlers/finding.ts finding_list) defaults to one-liners: id, severity/category, status, evidenceState, truncated title. Full descriptions available behind the full-output flag. Explicit --json/--format=json machine mode keeps the current full shape.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "help brief by default",
+      "context": "lattice help (packages/main/src/cli/help-renderer.ts printHelp) defaults to a compact catalog: grouped command names with short truncated descriptions, pointing at lattice <command> --help for details. Current verbose catalog available behind the full-output flag. Per-command --help output unchanged.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Audit remaining >5k-token default outputs",
+      "context": "Sweep other renderers/handlers whose default output exceeds ~5k tokens (~20KB) and apply the same brief-by-default pattern. Known from audit on 0.3.185: story_list default JSON dump 365KB, global bug_list 263KB, host_list 16KB borderline. Sweep method: rg for large markdown table builders and full-collection JSON returns in packages/main/src/handlers plus core renderers.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Escape hatch, JSON contract, and regression coverage",
+      "context": "LATTICE_BRIEF_OUTPUT=0 environment variable restores full output as the default globally (per-call flag still wins). Explicit --json/--format=json outputs keep their current shape for machine consumers. Add a smoke test asserting brief defaults stay under a size budget, the full flag restores complete output, the env escape hatch works, and JSON opt-in shape is unchanged.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

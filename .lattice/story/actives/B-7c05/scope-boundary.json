@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-7c05",
+  "mode": "feature",
+  "allowed": [
+    "A full-output flag per affected command, a LATTICE_BRIEF_OUTPUT environment escape hatch, and smoke-test regression coverage for brief/full/env/JSON contracts",
+    "Audit sweep of other >5k-token default outputs (known: story_list, global bug_list, host_list borderline) and applying the same brief-by-default pattern",
+    "Brief-by-default finding_list default output (one-liners: id/severity/status/evidenceState/short title)",
+    "Brief-by-default lattice help command catalog with pointer to per-command --help",
+    "Brief-by-default rendering for milestone_status and the milestone-status suffix appended after mutating commands such as story_advance",
+    "Documentation updates describing the new defaults, flag, and escape hatch"
+  ],
+  "excluded": [
+    "Any gate or state-machine behavior change; gateEvidence semantics stay untouched",
+    "Changing per-command --help output",
+    "Changing the shape of explicit --json / --format=json machine-consumer outputs",
+    "Changing validate --full semantics (run-real-machine-tests) or overloading it",
+    "Changing what data is stored on disk (rendering-only changes)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User request 2026-07-12: reduce the context-fattening CLI outputs that agent loops re-pay on every subsequent model call; brief-by-default with --full-style flag; keep JSON machine modes unchanged; honor LATTICE_BRIEF_OUTPUT=0 escape hatch; agent-loop context hygiene, not gate behavior — gateEvidence semantics untouched.",
+  "createdAt": "2026-07-11T23:11:37.006Z",
+  "updatedAt": "2026-07-11T23:11:37.006Z",
+  "_hash": "f209637a635fa87fb3a36296f8d6f8a941074ee4019b12d056f85992f2697395"
+}
