@@ -382,6 +382,22 @@ async function main(): Promise<void> {
       ['zzz', 'aaa', 'bbb', 'nul'],
       'sorted by burn tokens desc, ties by sessionId asc, unknown-usage last',
     );
+    // F-C (codex post-merge quorum r1): unknown usage must sort last even
+    // against NEGATIVE usage (null was previously coded as -1, so -5 sorted
+    // below it), and Infinity ties must still fall through to the sessionId
+    // tie-break (subtraction gave NaN and bypassed it).
+    const edgeRows = [
+      row({ host: 'codex', sessionId: 'neg', firstTimestamp: young, usage: codexUsage(-5) }),
+      row({ host: 'codex', sessionId: 'unknown', firstTimestamp: young, usage: null }),
+      row({ host: 'codex', sessionId: 'inf-b', firstTimestamp: young, usage: codexUsage(Number.POSITIVE_INFINITY) }),
+      row({ host: 'codex', sessionId: 'inf-a', firstTimestamp: young, usage: codexUsage(Number.POSITIVE_INFINITY) }),
+    ];
+    const edge = evaluateBurnAlerts(edgeRows, { nowMs, thresholds: T, fileSizeOf: () => 5000 });
+    assert.deepEqual(
+      edge.findings.map((f) => f.sessionId),
+      ['inf-a', 'inf-b', 'neg', 'unknown'],
+      'Infinity ties break by sessionId; negative usage sorts above unknown; unknown is unconditionally last',
+    );
   });
 
   // ── 5. scanners + evaluator integration over the fixture store ─────────────

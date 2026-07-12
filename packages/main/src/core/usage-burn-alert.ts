@@ -232,9 +232,19 @@ export function evaluateBurnAlerts(
   }
 
   findings.sort((a, b) => {
-    const at = a.burnInputTokens ?? -1;
-    const bt = b.burnInputTokens ?? -1;
-    if (bt !== at) return bt - at;
+    // Unknown usage sorts UNCONDITIONALLY last (a null is not comparable to any
+    // number — including negatives from malformed transcripts), and the numeric
+    // branch uses explicit comparisons instead of subtraction so non-finite
+    // values (Infinity) cannot produce a NaN comparator and bypass the
+    // deterministic sessionId tie-break.
+    const at = a.burnInputTokens;
+    const bt = b.burnInputTokens;
+    if (at === null && bt !== null) return 1;
+    if (at !== null && bt === null) return -1;
+    if (at !== null && bt !== null) {
+      if (at < bt) return 1;
+      if (at > bt) return -1;
+    }
     return a.sessionId < b.sessionId ? -1 : a.sessionId > b.sessionId ? 1 : 0;
   });
 
