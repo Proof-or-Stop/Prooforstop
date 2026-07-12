@@ -20,6 +20,27 @@
         "scanEscalationReason": null
       },
       "_hash": "71210c2f23e9e49502abee1e1ee58a765d6745c94542589cc2ed3569de845f2a"
+    },
+    {
+      "id": "B-12a1:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "reviewed CHK-002: scope-contract-smoke.ts extends lifecycleRuntimePositive block under the enforce waveContract (no story-metadata paths listed) with all ten ProofStory artifact paths under .lattice/story/actives/B-scope/; asserts scope.lifecycle_artifact:B-scope:<name> pass rows, blocking=false, overall status pass. Ran npm --prefix packages/main run build && node packages/main/dist/tasks/scope-contract-smoke.js — build succeeded and smoke passed. This is the correct red->green pair (fails pre-fix, passes post-fix). No blocker.",
+      "createdAt": "2026-07-12T21:49:31.674Z",
+      "reviewRound": "2026-07-12T21:45:24.921Z",
+      "reviewRunId": "B-12a1:RR-004",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-12a1/background.md",
+          ".lattice/story/actives/B-12a1/plan.md",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/tasks/scope-contract-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/store.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "528507515cebc7802708664ac4dbbae8d96183a0d903c4cb7dc9d37035ed3c9b"
     }
   ]
 }
