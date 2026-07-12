@@ -4,8 +4,8 @@
       "id": "CHK-001",
       "title": "Pure-core burn-alert evaluator over usage-sweep session rows",
       "context": "New packages/main/src/core/usage-burn-alert.ts: evaluate SweepSessionRow[] against injected thresholds (nowMs and thresholds passed in; no process.env or Date.now inside, matching the usage-sweep pure-core contract). Flags a session when transcript file size exceeds the byte threshold, cumulative input tokens exceed the token threshold (codex: last cumulative total_token_usage input; claude: summed input + cacheRead + cacheCreation), or the session is older than the age threshold while still recently active. Read-only: stat only, never writes.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-12T20:16:49.117Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [

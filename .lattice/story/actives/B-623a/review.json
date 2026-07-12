@@ -75,6 +75,24 @@
         }
       ],
       "_hash": "801b5fc9f6b1cc7ae3e91a82ecc59cdcd7e598ddf7e36a10625d91d98228a45f"
+    },
+    {
+      "timestamp": "2026-07-12T20:16:25.138Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Pure-core burn-alert evaluator over usage-sweep session rows + Env-tunable threshold resolver with conservative defaults are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals_dismissed",
+          "severity": "advisory",
+          "message": "1 risk signal(s) have been dismissed by main agent (reasons in story.riskSignalsDismissed): Security/Credentials"
+        }
+      ],
+      "_hash": "ea16f6e7f6f13b3a665e1143e77a0aa7693e356db125bdee39fcd5ad7743859d"
     }
   ]
 }
