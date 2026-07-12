@@ -87,6 +87,37 @@
         "scanEscalationReason": null
       },
       "_hash": "393a456063cd17b4b25ce31b10bb5394ae23197bc7b017a24f051284fc3f4970"
+    },
+    {
+      "id": "B-623a:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Fresh round after finding-fix commits d3f491966e (F-001/F-002/F-003) + 874698a094 (F-004), all filed by lattice-review-test-coverage. git diff 60d2dcd..2ee7307 (predecessor concept pass head -> now) touches ONLY packages/main/src/tasks/usage-burn-alert-smoke.ts, purely additive (52 insertions, 0 deletions): a literal-value resolver assertion (F-001), a zero-usage no-flag assertion (F-002/F-003 duplicate coverage), and the triple-reason doctor-block check now sliced by codex-burn-A header block instead of grabbing the first tripped: line in the whole output (F-004). Zero renames/deletions story-wide (git diff main...HEAD --diff-filter=R/D both empty). Re-read core/usage-burn-alert.ts in full: pure evaluator (no Date.now/process.env), strictly-greater comparisons, null-usage/timestamp never flag, injectable fileSizeOf, deterministic sort, advisory=true/gateEvidence=false on every surface -- matches CHK-001/CHK-002 contract. Re-diffed doctor.ts, usage-sweep.ts, cli-engine.ts, command-catalog.ts, process-fact-levels.ts against main in full: additive-only wiring (hostBurnScan advisory block in doctor json/text, opt-in --alert on usage_sweep via print-then-throw dispatchUsageSweepAlertWithExit mirroring the recover_evidence pattern, catalog/rationale text extended not replaced). Verified the two prior story-review scope-gap blockers are addressed in the diff: catalog/process-fact-levels descriptions now disclose the external host-store reads, and all 4 pre-existing doctor-invoking smokes (doctor-gitroot-probe-smoke.ts, story-metadata-protection-smoke.ts, storydir-inside-gitroot-suite.ts, validation-protocol-smoke.ts) set LATTICE_BURN_ALERT_RECENT_HOURS=0 for hermeticity. All handlers.doctor() call sites across the repo correctly await the new async signature. Rebuilt (tsc clean) and ran usage-burn-alert-smoke.js directly: 21/21 checks pass. No concept blocker.",
+      "createdAt": "2026-07-12T21:19:22.135Z",
+      "reviewRound": "2026-07-12T21:14:21.850Z",
+      "reviewRunId": "B-623a:RR-007",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/tasks/doctor-gitroot-probe-smoke.ts",
+          "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "packages/main/src/tasks/storydir-inside-gitroot-suite.ts",
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-623a/checklist.json",
+          ".lattice/story/actives/B-623a/findings.json",
+          "package.json",
+          "packages/main/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d24d743ff236b800877034c6640be7947285fb2187d9da4b608cea2cd2ff1006"
     }
   ]
 }
