@@ -15,7 +15,12 @@
  *     arrive, and only BOUNDED state is retained for usage parsing (the last
  *     usage-bearing line — codex turn.completed / the claude result envelope —
  *     capped per line, with an honest truncation flag so a truncated retention
- *     records `unavailable` and never a fabricated or stale value). The core
+ *     records `unavailable` and never a fabricated or stale value). B-3ddc adds
+ *     a SECOND bounded lane with the same cap discipline: the last codex
+ *     turn.failed / terminal `error` line is retained so a no-usage final can
+ *     record the honest turn_failed(<digest>) reason instead of the generic
+ *     no_turn_completed_usage_event (which stays the fallback); the usage lane
+ *     and its truncation semantics are untouched. The core
  *     delivers host output to the passthrough EXACTLY ONCE (live for the
  *     streaming runner; a single buffered flush for a non-streaming fake
  *     runner), so the HANDLER never re-prints it.
@@ -119,6 +124,12 @@ export interface HostRunSpawnPlan {
   host?: HostRunHost;
   /** Which complete lines to retain for usage parsing (bounded, last-wins). */
   retainUsageLine?: HostRunUsageLineRetainer;
+  /**
+   * B-3ddc: which complete lines to retain in the SECOND bounded failure lane
+   * (codex turn.failed / terminal `error`), same cap + last-wins discipline as
+   * the usage lane. Omitted for hosts with no such failure surface.
+   */
+  retainFailureLine?: HostRunUsageLineRetainer;
   /** Live passthrough for host output chunks (the streaming runner calls this). */
   onChunk?: (chunk: HostRunChunk) => void;
 }
@@ -150,6 +161,29 @@ export interface HostRunSpawnResult {
    * poisoned by an unrelated earlier over-cap line.
    */
   retentionTruncated?: boolean;
+  /**
+   * B-3ddc: the retained failure line from the second bounded lane ('' when
+   * none was retained). Fake runners may omit it — the core then falls back to
+   * scanning their buffered stdout for failure events. When the failure lane
+   * dropped an over-cap line AFTER (or without) this retained candidate the
+   * companion `failureRetentionTruncated` flag is set and this text is
+   * known-stale: recordFinalForHost then refuses to scan it (see below).
+   */
+  failureText?: string;
+  /**
+   * B-3ddc (codex round-1 F1): true when the SECOND (failure) bounded lane
+   * dropped an over-cap line AFTER (or without) its retained failure candidate,
+   * mirroring the usage lane's `retentionTruncated` (F-013/F-026) EXACTLY. When
+   * true the streaming `failureText` is UNTRUSTED — the dropped line may have
+   * superseded the retained failure line — so recordFinalForHost must NOT scan
+   * it and the codex no-usage reason honestly degrades to the generic
+   * no_turn_completed_usage_event fallback rather than a possibly stale
+   * turn_failed(<digest>). A drop FOLLOWED by a retained failure line clears it
+   * (last-wins supersedes, F-026). DISTINCT from `retentionTruncated` (the usage
+   * lane), which still has ABSOLUTE priority: it forces the whole final to
+   * unavailable before the failure lane is ever consulted.
+   */
+  failureRetentionTruncated?: boolean;
   /**
    * F-008: non-null when the live passthrough sink threw (e.g. EPIPE after the
    * consumer closed the pipe). Delivery stopped at the FIRST failure (no
@@ -703,6 +737,129 @@ export function scanCodexTurnCompletedUsage(stdout: string): unknown | null {
 }
 
 // ---------------------------------------------------------------------------
+// Codex turn.failed / terminal error scan (B-3ddc)
+// ---------------------------------------------------------------------------
+
+/** B-3ddc: a scanned codex failure event (last-wins across both event types). */
+export interface CodexTurnFailedEvent {
+  /** 'turn.failed' or 'error' — whichever matching event came LAST. */
+  eventType: string;
+  /** The extractable string message, or null when the event carried none. */
+  message: string | null;
+}
+
+/**
+ * B-3ddc: scan codex `exec --json` output for the LAST failure event — a
+ * `{"type":"turn.failed","error":{"message":...}}` or a terminal
+ * `{"type":"error","message":...}` line — mirroring the bounded
+ * scanCodexTurnCompletedUsage walk (only the current line and the last match
+ * are held; own-property guarded). A matching event with no extractable
+ * string message still counts as a failure (message: null); last-wins applies
+ * ACROSS both event types. Returns null when no failure event is present.
+ */
+export function scanCodexTurnFailed(text: string): CodexTurnFailedEvent | null {
+  if (typeof text !== 'string' || text.length === 0) return null;
+  let last: CodexTurnFailedEvent | null = null;
+  let index = 0;
+  const len = text.length;
+  while (index <= len) {
+    let newline = text.indexOf('\n', index);
+    if (newline === -1) newline = len;
+    const line = text.slice(index, newline).trim();
+    index = newline + 1;
+    if (line.length > 0) {
+      let parsed: unknown;
+      try {
+        parsed = JSON.parse(line);
+      } catch {
+        parsed = undefined;
+      }
+      if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
+        const event = parsed as Record<string, unknown>;
+        const type = Object.prototype.hasOwnProperty.call(event, 'type') ? event.type : undefined;
+        if (type === 'turn.failed') {
+          const error = Object.prototype.hasOwnProperty.call(event, 'error') ? event.error : undefined;
+          let message: string | null = null;
+          if (typeof error === 'object' && error !== null && !Array.isArray(error)) {
+            const errObj = error as Record<string, unknown>;
+            const m = Object.prototype.hasOwnProperty.call(errObj, 'message') ? errObj.message : undefined;
+            if (typeof m === 'string') message = m;
+          }
+          last = { eventType: 'turn.failed', message };
+        } else if (type === 'error') {
+          const m = Object.prototype.hasOwnProperty.call(event, 'message') ? event.message : undefined;
+          last = { eventType: 'error', message: typeof m === 'string' ? m : null };
+        }
+      }
+    }
+    if (newline === len) break;
+  }
+  return last;
+}
+
+/** B-3ddc: hard cap (chars) on the sanitized turn_failed(<digest>) excerpt. */
+export const CODEX_TURN_FAILED_DIGEST_MAX_CHARS = 160;
+
+/** B-3ddc: depth cap when drilling a JSON-encoded message for the innermost error.message. */
+const CODEX_TURN_FAILED_NESTED_DEPTH_CAP = 4;
+
+/**
+ * B-3ddc: render the honest unavailable reason `turn_failed(<digest>)` for a
+ * scanned failure event. The digest is a short sanitized excerpt of the
+ * error message — deliberately human-readable (not a hash) so the ledger row
+ * itself names the failure:
+ *   - null/empty (after trim) message -> 'no_error_message';
+ *   - a message that itself parses as a JSON object (the observed B-3928
+ *     payload string-encodes a nested 400 body) is drilled to the INNERMOST
+ *     `error.message` string (bounded depth; falls back to the original
+ *     message when nothing extractable is found);
+ *   - control characters (\n \r \t, NUL, DEL) and whitespace runs collapse to
+ *     a single space; the result is hard-capped at
+ *     CODEX_TURN_FAILED_DIGEST_MAX_CHARS total with a trailing '…' when cut.
+ */
+export function codexTurnFailedReason(failure: CodexTurnFailedEvent): string {
+  return `turn_failed(${codexTurnFailedDigest(failure.message)})`;
+}
+
+function codexTurnFailedDigest(message: string | null): string {
+  if (message === null || message.trim().length === 0) return 'no_error_message';
+  let text = message;
+  // Drill: when the message itself parses as a JSON object, descend through
+  // own `error` object properties (bounded depth) and prefer the DEEPEST own
+  // `message` string found; keep the original message when none is extractable.
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    parsed = undefined;
+  }
+  if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
+    let node = parsed as Record<string, unknown>;
+    let deepest: string | null = null;
+    for (let depth = 0; depth < CODEX_TURN_FAILED_NESTED_DEPTH_CAP; depth++) {
+      const m = Object.prototype.hasOwnProperty.call(node, 'message') ? node.message : undefined;
+      if (typeof m === 'string') deepest = m;
+      const err = Object.prototype.hasOwnProperty.call(node, 'error') ? node.error : undefined;
+      if (typeof err !== 'object' || err === null || Array.isArray(err)) break;
+      node = err as Record<string, unknown>;
+    }
+    if (deepest !== null && deepest.trim().length > 0) text = deepest;
+  }
+  // Sanitize: every control-character/whitespace run becomes a single space,
+  // then B-3ddc (codex round-1 F2) neutralize parentheses — '(' -> '[' and
+  // ')' -> ']' — so an error.message containing ')' or '(' can never close or
+  // reopen the enclosing turn_failed(...) reason delimiters (a delimiter-
+  // injection guard). The pinned B-3928 upgrade message contains no parens, so
+  // its expected reason string is unchanged.
+  const sanitized = text.replace(/[\u0000-\u001f\u007f\s]+/g, ' ').replace(/\(/g, '[').replace(/\)/g, ']').trim();
+  if (sanitized.length === 0) return 'no_error_message';
+  if (sanitized.length > CODEX_TURN_FAILED_DIGEST_MAX_CHARS) {
+    return `${sanitized.slice(0, CODEX_TURN_FAILED_DIGEST_MAX_CHARS - 1)}…`;
+  }
+  return sanitized;
+}
+
+// ---------------------------------------------------------------------------
 // Default runner (F-006): async streaming spawn with bounded usage retention
 // ---------------------------------------------------------------------------
 
@@ -852,6 +1009,23 @@ export function usageLineRetainerFor(host: HostRunHost): HostRunUsageLineRetaine
   return undefined;
 }
 
+/**
+ * B-3ddc: build the per-host FAILURE-line retainer for the second bounded
+ * lane. codex keeps the last `{"type":"turn.failed",...}` or terminal
+ * `{"type":"error",...}` event line (own-property guarded) so a no-usage
+ * final can name the real failure; claude and agy surface no such single-line
+ * failure event, so nothing is retained.
+ */
+export function failureLineRetainerFor(host: HostRunHost): HostRunUsageLineRetainer | undefined {
+  if (host !== 'codex') return undefined;
+  return (line: string): boolean => {
+    const event = parseJsonObjectLine(line);
+    if (event === null) return false;
+    const type = Object.prototype.hasOwnProperty.call(event, 'type') ? event.type : undefined;
+    return type === 'turn.failed' || type === 'error';
+  };
+}
+
 function parseJsonObjectLine(line: string): Record<string, unknown> | null {
   const trimmed = line.trim();
   if (trimmed.length === 0) return null;
@@ -875,6 +1049,15 @@ function parseJsonObjectLine(line: string): Record<string, unknown> | null {
 export function defaultHostRunRunner(plan: HostRunSpawnPlan): Promise<HostRunSpawnResult> {
   return new Promise<HostRunSpawnResult>((resolve) => {
     const scanner = new UsageLineScanner(plan.retainUsageLine);
+    // B-3ddc: the SECOND bounded lane — same scanner class, same cap, same
+    // last-wins discipline — retains the last failure event line. Its truncated
+    // flag now feeds `failureRetentionTruncated` (codex round-1 F1): an over-cap
+    // drop AFTER (or without) the retained candidate marks the retained failure
+    // text stale, so the codex no-usage reason degrades to the generic
+    // no_turn_completed_usage_event fallback instead of a possibly stale
+    // turn_failed(<digest>). The usage lane's own flag still feeds
+    // retentionTruncated with ABSOLUTE priority (F-013/F-026 unchanged).
+    const failureScanner = new UsageLineScanner(plan.retainFailureLine);
     let settled = false;
     let timedOut = false;
     let timer: NodeJS.Timeout | null = null;
@@ -902,12 +1085,16 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan): Promise<HostRunSpa
       settled = true;
       if (timer) clearTimeout(timer);
       scanner.flush();
+      failureScanner.flush();
       resolve({
         stdout: scanner.retainedText(),
         stderr: '',
         exitCode,
         timedOut,
         retentionTruncated: scanner.truncated,
+        failureText: failureScanner.retainedText(),
+        // B-3ddc (codex round-1 F1): honor the failure lane's own truncation.
+        failureRetentionTruncated: failureScanner.truncated,
         passthroughError,
       });
     };
@@ -946,6 +1133,9 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan): Promise<HostRunSpa
     child.stdout?.on('data', (text: string) => {
       deliver({ stream: 'stdout', text });
       scanner.push(text);
+      // B-3ddc: the failure lane sees the same live text; delivery above is
+      // untouched (the lane only keeps a bounded copy, never suppresses).
+      failureScanner.push(text);
     });
     child.stderr?.setEncoding('utf8');
     child.stderr?.on('data', (text: string) => {
@@ -1085,6 +1275,8 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
         promptFile: launch.promptFile,
         host: args.host,
         retainUsageLine: usageLineRetainerFor(args.host),
+        // B-3ddc: the second bounded failure lane (codex-only retainer).
+        retainFailureLine: failureLineRetainerFor(args.host),
         onChunk,
       });
     } finally {
@@ -1254,7 +1446,18 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
     releaseSlot(slot.file, slot.token);
   }
 
-  const summary = recordFinalForHost(args, ctx, handle, opts, spawn.stdout, spawn.retentionTruncated === true);
+  const summary = recordFinalForHost(
+    args,
+    ctx,
+    handle,
+    opts,
+    spawn.stdout,
+    spawn.retentionTruncated === true,
+    spawn.failureText ?? '',
+    // B-3ddc (codex round-1 F1): thread the failure lane's truncation flag so an
+    // untrusted (stale) failure line degrades the codex reason honestly.
+    spawn.failureRetentionTruncated === true,
+  );
 
   return {
     host: args.host,
@@ -1282,6 +1485,8 @@ function recordFinalForHost(
   opts: DispatchUsageOptions,
   stdout: string,
   retentionTruncated: boolean,
+  failureText: string,
+  failureRetentionTruncated: boolean,
 ): HostRunUsageSummary {
   const correlation = handle?.correlation ?? null;
   const estimateRecordId = handle?.estimateRecordId ?? null;
@@ -1351,13 +1556,32 @@ function recordFinalForHost(
     if (args.host === 'codex') {
       const usage = scanCodexTurnCompletedUsage(stdout);
       if (usage === null) {
+        // B-3ddc: no usage event — consult the SECOND bounded lane (streaming
+        // runners) falling back to the buffered stdout (fake runners omit
+        // failureText) for the last turn.failed / terminal error event, and
+        // refine the unavailable REASON to the honest turn_failed(<digest>).
+        // Only the reason string changes: usage numbers stay null (never
+        // fabricated from a failure event) and no failure event preserves the
+        // documented no_turn_completed_usage_event fallback exactly as today.
+        //
+        // B-3ddc (codex round-1 F1): when the failure lane dropped an over-cap
+        // line AFTER (or without) its retained candidate, that streaming failure
+        // text is UNTRUSTED (the dropped line may have superseded it) — force the
+        // source to '' so scanCodexTurnFailed finds nothing and the reason
+        // honestly degrades to no_turn_completed_usage_event. The fake-runner
+        // stdout fallback applies ONLY when failureText is absent AND the flag is
+        // clear. (The usage lane's retentionTruncated was already honored above
+        // with absolute priority, so a truncated USAGE lane never reaches here.)
+        const failureSource = failureRetentionTruncated ? '' : (failureText.length > 0 ? failureText : stdout);
+        const failure = scanCodexTurnFailed(failureSource);
+        const reason = failure !== null ? codexTurnFailedReason(failure) : 'no_turn_completed_usage_event';
         const res = recordDispatchUnavailableFinal(
           args.root,
           ctx,
           correlation,
           estimateRecordId,
           { name: 'openai', model: null },
-          'no_turn_completed_usage_event',
+          reason,
           opts,
         );
         // F-021: only claim the unavailable row when it actually appended.
@@ -1369,7 +1593,7 @@ function recordFinalForHost(
           cacheRead: null,
           output: null,
           recordId: res.recordId,
-          reason: 'no_turn_completed_usage_event',
+          reason,
         };
       }
       const codex = recordDispatchFinalCodex(args.root, ctx, correlation, estimateRecordId, usage, null, opts);
