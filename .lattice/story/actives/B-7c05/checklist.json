@@ -511,9 +511,9 @@
       "id": "CHK-005",
       "title": "Escape hatch, JSON contract, and regression coverage",
       "context": "LATTICE_BRIEF_OUTPUT=0 environment variable restores full output as the default globally (per-call flag still wins). Explicit --json/--format=json outputs keep their current shape for machine consumers. Add a smoke test asserting brief defaults stay under a size budget, the full flag restores complete output, the env escape hatch works, and JSON opt-in shape is unchanged.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-12T01:34:14.578Z",
       "verificationIntent": {
         "happy": [
           {
