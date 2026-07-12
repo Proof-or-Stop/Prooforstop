@@ -67,6 +67,21 @@ const READ_ONLY_STATUS_UNSUPPORTED_FLAGS = {
   refresh: z.never().optional().describe('Not a flag; status commands refresh nothing. Passing --refresh is rejected by CLI validation.'),
 } satisfies Record<string, z.ZodType>;
 
+// B-7c05: brief-by-default output flags. --full restores the current verbose
+// shape; --brief forces brief over the LATTICE_BRIEF_OUTPUT=0 env hatch.
+// Rendering-only — no gate/state-machine change (validate deliberately excluded).
+const BRIEF_OUTPUT_FLAGS = {
+  full: z.boolean().optional().describe('Show the full (verbose) output instead of the brief default.'),
+  brief: z.boolean().optional().describe('Force the brief output even when LATTICE_BRIEF_OUTPUT=0 is set.'),
+} satisfies Record<string, z.ZodType>;
+
+// B-7c05: explicit machine-JSON opt-in (frozen full shape) for commands whose
+// default output is a JSON object and which did not previously expose it.
+const JSON_OUTPUT_FLAGS = {
+  format: z.enum(['text', 'json']).optional().describe('Output format; json returns the frozen full machine shape (default = brief).'),
+  json: z.boolean().optional().describe('Shortcut for --format=json (frozen full machine shape).'),
+} satisfies Record<string, z.ZodType>;
+
 const inlineJsonObjectSchema = z.union([z.string(), z.object({}).passthrough()]);
 
 const milestoneNotApplicableDecisionSchema = z.object({
@@ -268,6 +283,8 @@ export const MAIN_TOOLS: ToolDef[] = [
   { name: 'story_list', description: 'List all Stories', schema: {
     phase: z.enum(['IDEA','INIT','INIT_CHECK','PLAN','DEV','REVIEW','TEST','DONE','DISCARDED']).optional().describe('Filter by phase (mutually exclusive with active).'),
     active: z.boolean().optional().describe('List only non-terminal stories (exclude DONE/DISCARDED/IDEA). Added by B-89c7 CHK-016.'),
+    ...BRIEF_OUTPUT_FLAGS,
+    ...JSON_OUTPUT_FLAGS,
   }},
   { name: 'story_resolve', description: 'Resolve a story phase and authoritative cwd for planned steps. Alias: lattice story resolve', schema: {
     storyId: z.string().describe('Story ID to resolve'),
@@ -346,6 +363,8 @@ Behavior:
   // Review
   { name: 'story_review', description: 'Adversarially review checklist completeness', longHelp: STORY_REVIEW_LONG, schema: {
     storyId: z.string().describe('Story ID'),
+    ...BRIEF_OUTPUT_FLAGS,
+    ...JSON_OUTPUT_FLAGS,
   }},
   { name: 'story_review_dismiss', description: 'Dismiss a falsely reported riskSignal category (B-5010)', schema: {
     storyId: z.string().describe('Story ID'),
@@ -755,7 +774,11 @@ Behavior:
       reproTest: z.string().optional().describe('Reproduction test path.'),
     }).optional().describe('Debugging evidence chain; recommended when marking fixed.'),
   }},
-  { name: 'bug_list', description: 'View bug list; without storyId, show a global summary across all stories', schema: { storyId: z.string().optional().describe('Story ID; when omitted, list bugs for all stories.') }},
+  { name: 'bug_list', description: 'View bug list; without storyId, show a global summary across all stories', schema: {
+    storyId: z.string().optional().describe('Story ID; when omitted, list bugs for all stories.'),
+    ...BRIEF_OUTPUT_FLAGS,
+    ...JSON_OUTPUT_FLAGS,
+  }},
   { name: 'bug_analyze', description: 'Cross-story bug quality dashboard (markdown/json)', schema: {
     format: z.enum(['json','markdown']).optional().describe('Output format (default: json).'),
   }},
@@ -838,6 +861,7 @@ Behavior:
     storyId: z.string().describe('Story ID'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text).'),
     json: z.boolean().optional().describe('Shortcut for --format=json.'),
+    ...BRIEF_OUTPUT_FLAGS,
     authorityClaim: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
     productionClaim: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
     productionReadyClaim: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
@@ -1870,6 +1894,7 @@ Behavior:
     format: z.enum(['text', 'json']).optional().describe('Output format (default: text).'),
     limit: z.number().optional().describe('Maximum number of entries to read (default: 1000).'),
     repair: z.boolean().optional().describe('Clean DONE/DISCARDED terminal worktree registrations, orphan directories, and prunable metadata.'),
+    ...BRIEF_OUTPUT_FLAGS,
   }},
   { name: 'done_recover', description: 'Recover a partial-DONE story (phase DONE but branch not yet merged into main)', schema: {
     storyId: z.string().describe('Story ID to recover.'),
@@ -1997,6 +2022,8 @@ Behavior:
   { name: 'finding_list', description: 'View story findings', schema: {
     storyId: z.string().describe('Story ID'),
     cluster: z.boolean().optional().describe('B-9d95 CHK-005: return cluster view { clusters, ungrouped } instead of flat findings.'),
+    ...BRIEF_OUTPUT_FLAGS,
+    ...JSON_OUTPUT_FLAGS,
   }},
   { name: 'finding_resolve', description: 'Mark finding as resolved', schema: {
     storyId: z.string().describe('Story ID'),

@@ -1224,6 +1224,61 @@ export function renderMilestoneStatusReport(report: MilestoneStatusReport): stri
   return lines.join('\n');
 }
 
+const MILESTONE_BRIEF_HINT_SUFFIX =
+  '→ Full 7-column table: add --full (or set LATTICE_BRIEF_OUTPUT=0).';
+
+/**
+ * B-7c05 CHK-001: compact milestone view rendered by default.
+ *
+ * The full `renderMilestoneStatusReport` 7-column markdown table is re-paid by
+ * an agent loop on every subsequent model call. This brief renderer keeps the
+ * decision-critical facts (phase, progress counts, one line per milestone with
+ * its status, and the next action) so the agent can still act, while dropping
+ * the wide sub-objective/evidence/risk cells. `--full` restores the table.
+ *
+ * The header line is kept byte-compatible with the full renderer's
+ * `Milestone Status - <storyId>` prefix so the post-mutation idempotency anchor
+ * in cli-engine still recognizes an already-appended status block.
+ */
+export function renderMilestoneStatusBrief(report: MilestoneStatusReport): string {
+  const done = report.groups.completed.length;
+  const inProgress = report.groups.current.length;
+  const notStarted = report.groups.remaining.length;
+  const total = report.milestones.length;
+  const lines = [
+    `Milestone Status - ${report.storyId} (brief)`,
+    'Mode: read-only',
+    MILESTONE_OBSERVABILITY_DISCLAIMER,
+    `Phase: ${report.phase}`,
+    `Ledger: ${report.ledger.present ? `state=${report.ledger.state ?? 'unknown'} hash=${report.ledger.hash ?? 'unknown'}` : 'missing'}`,
+    `Progress: ${done} done / ${inProgress} in progress / ${notStarted} not started (${total} total)`,
+  ];
+  if (total > 0) {
+    lines.push('Milestones:');
+    for (const row of report.milestones) {
+      // One line per milestone (no truncation of the milestone id) so scaling
+      // to many milestones never hides an identifier — only the wide claim text
+      // is trimmed.
+      lines.push(`  ${displayStatusText(milestoneDisplayStatus(row))} ${row.id} — ${oneLineCell(row.claim, 80)}`);
+    }
+  }
+  lines.push(
+    `Risks: ${oneLineCell(formatList(report.risks), 240)}`,
+    `Next action: ${oneLineCell(formatList(report.nextActions), 240)}`,
+    MILESTONE_BRIEF_HINT_SUFFIX,
+  );
+  return lines.join('\n');
+}
+
+// Exported as the single one-line-truncation implementation; the cli-layer
+// truncateOneLine (cli/output-verbosity.ts) delegates here so the two stay in
+// lockstep (B-7c05 F-010). core/ must not import cli/, so the helper lives here.
+export function oneLineCell(value: string, max: number): string {
+  const oneLine = value.replace(/\s+/g, ' ').trim();
+  if (oneLine.length <= max) return oneLine;
+  return `${oneLine.slice(0, Math.max(0, max - 1)).trimEnd()}…`;
+}
+
 export const CHECKLIST_DERIVED_HEADER = 'Checklist-derived ledger (no milestone ledger set)';
 
 /**
@@ -1239,6 +1294,7 @@ export function renderChecklistDerivedLedger(
   storyId: string,
   checklist: ChecklistData,
   phase: string,
+  opts: { brief?: boolean } = {},
 ): string {
   const items = checklist.items ?? [];
   const groups: Record<'done' | 'in_progress' | 'pending', ChecklistItem[]> = {
@@ -1263,6 +1319,21 @@ export function renderChecklistDerivedLedger(
     }
     lines.push('');
   };
+
+  // B-7c05 CHK-001: brief default shows only the actionable in-progress items
+  // (plus the counts line above, which covers the whole checklist so nothing is
+  // silently hidden) and the first not-started item as the next action. The full
+  // grouped list (Done / In progress / Not started) is restored behind --full /
+  // LATTICE_BRIEF_OUTPUT=0.
+  if (opts.brief) {
+    renderGroup('In progress', '⏳', groups.in_progress);
+    const next = groups.pending[0];
+    if (next) lines.push(`Next: ⬜ ${next.id} — ${next.title}`, '');
+    if (items.length === 0) lines.push('(no checklist items)', '');
+    lines.push(MILESTONE_BRIEF_HINT_SUFFIX);
+    return lines.join('\n').replace(/\n+$/, '');
+  }
+
   renderGroup('Done', '✅', groups.done);
   renderGroup('In progress', '⏳', groups.in_progress);
   renderGroup('Not started', '⬜', groups.pending);

@@ -294,6 +294,8 @@ function storyDirs(root) {
     const milestoneLedgerPath = join(storyDir, 'milestone-ledger.json');
     writeJson(milestoneLedgerPath, ledger(markerLedger.milestones, cliMarkerStoryId));
 
+    // B-7c05: bare milestone_status is BRIEF by default; this block asserts the
+    // full 7-column table markers, so request the full rendering explicitly.
     const cliText = execFileSync(process.execPath, [
       cliPath,
       'milestone_status',
@@ -301,6 +303,7 @@ function storyDirs(root) {
       root,
       '--storyId',
       cliMarkerStoryId,
+      '--full',
     ], { cwd: root, encoding: 'utf8' });
     assert.match(cliText, /\| M-marker-done \| Marker completed milestone \| ✅ Done \(ledger=done;/);
     assert.match(cliText, /\| M-marker-review \| Marker pending review milestone \| 🟡 Pending Review \(ledger=covered;/);
@@ -315,6 +318,9 @@ function storyDirs(root) {
     assert.match(cliText, /🔴 Blocked CHK-MARKER-MISSING \[missing\] CHK-MARKER-MISSING/);
     assert.match(cliText, /❌ Failed CHK-MARKER-FAILED:happy:0 \[fail\/logic_test\]/);
 
+    // B-7c05: the post-mutation milestone suffix is BRIEF by default; per-call
+    // flags do not flow through checklist_update's schema, so restore the full
+    // table via the LATTICE_BRIEF_OUTPUT=0 env hatch for these table assertions.
     const autoAppendText = execFileSync(process.execPath, [
       cliPath,
       'checklist_update',
@@ -326,7 +332,7 @@ function storyDirs(root) {
       'CHK-MARKER-CURRENT',
       '--status',
       'pending',
-    ], { cwd: root, encoding: 'utf8' });
+    ], { cwd: root, encoding: 'utf8', env: { ...process.env, LATTICE_BRIEF_OUTPUT: '0' } });
     assert.match(autoAppendText, /Milestone Status - B-cli-marker-icons/);
     assert.match(autoAppendText, /\| M-marker-done \| Marker completed milestone \| ✅ Done \(ledger=done;/);
     assert.match(autoAppendText, /\| M-marker-review \| Marker pending review milestone \| 🟡 Pending Review \(ledger=covered;/);
@@ -2666,6 +2672,8 @@ function assertEvidenceRefShape(evidenceRef) {
     assert.equal(gitMain(['status', '--porcelain']), '', 'CLI main fixture must be clean before DONE');
     assert.equal(currentMaterialHash(worktreeRoot, 'HEAD', worktreeRoot), preEvidenceMaterialHash);
 
+    // B-7c05: the post-mutation milestone suffix is BRIEF by default; this block
+    // asserts the full table row, so restore it via the env hatch.
     const result = spawnSync(process.execPath, [
       cliPath,
       'story_advance',
@@ -2675,7 +2683,7 @@ function assertEvidenceRefShape(evidenceRef) {
       storyId,
       '--phase',
       'DONE',
-    ], { cwd: worktreeRoot, encoding: 'utf8' });
+    ], { cwd: worktreeRoot, encoding: 'utf8', env: { ...process.env, LATTICE_BRIEF_OUTPUT: '0' } });
 
     assert.equal(result.status, 0, `story_advance DONE should succeed\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`);
     assert.ok(
@@ -2738,6 +2746,8 @@ function assertEvidenceRefShape(evidenceRef) {
     writeJson(join(storyDir, 'checklist.json'), cliChecklist);
     writeJson(join(storyDir, 'milestone-ledger.json'), cliLedger);
 
+    // B-7c05: bare milestone_status is brief by default; assert the full grouped
+    // table via --full.
     const stdout = execFileSync(process.execPath, [
       cliPath,
       'milestone_status',
@@ -2745,6 +2755,7 @@ function assertEvidenceRefShape(evidenceRef) {
       root,
       '--storyId',
       storyId,
+      '--full',
     ], { cwd: root, encoding: 'utf8' });
     assert.match(stdout, /Milestone Status - B-cli-ms/);
     assert.match(stdout, /Completed/);
@@ -3061,6 +3072,8 @@ function assertEvidenceRefShape(evidenceRef) {
     git(['add', '.']);
     git(['commit', '-m', 'milestone status snapshot fixtures']);
 
+    // B-7c05: these three text invocations assert full-table rows, so pass --full
+    // (bare milestone_status is brief by default).
     const doneText = execFileSync(process.execPath, [
       cliPath,
       'milestone_status',
@@ -3068,6 +3081,7 @@ function assertEvidenceRefShape(evidenceRef) {
       root,
       '--storyId',
       doneStoryId,
+      '--full',
     ], { cwd: root, encoding: 'utf8' });
     assert.match(doneText, new RegExp(`Milestone Status - ${doneStoryId}`));
     assert.match(doneText, /Completed\n\| Milestone \| Purpose \| Status:/);
@@ -3099,6 +3113,7 @@ function assertEvidenceRefShape(evidenceRef) {
       root,
       '--storyId',
       activeStoryId,
+      '--full',
     ], { cwd: root, encoding: 'utf8' });
     assert.match(activeText, /\| M-active-snapshot \| Active milestone_status ignores closeout snapshots \| 🔴 Blocked \(ledger=done; checklist=complete; evidence=stale; requiredEvidence=missing\) \|/);
     const activeJson = JSON.parse(execFileSync(process.execPath, [
@@ -3119,6 +3134,7 @@ function assertEvidenceRefShape(evidenceRef) {
       root,
       '--storyId',
       missingCloseoutStoryId,
+      '--full',
     ], { cwd: root, encoding: 'utf8' });
     assert.match(missingCloseoutText, /\| M-missing-closeout \| DONE milestone_status without closeout remains live and fail-closed \| 🔴 Blocked \(ledger=done; checklist=complete; evidence=stale; requiredEvidence=missing\) \|/);
     const missingCloseoutJson = JSON.parse(execFileSync(process.execPath, [

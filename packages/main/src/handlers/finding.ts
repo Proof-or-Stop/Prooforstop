@@ -42,6 +42,28 @@ import {
   normalizeReviewerReadLog,
   normalizeReviewerReadManifest,
 } from '../core/reviewer-read-evidence.js';
+import { wantsFullOutput, truncateOneLine } from '../cli/output-verbosity.js';
+
+// B-7c05 CHK-002: brief finding shape. Drops only heavy free-text (the full
+// `desc`, reviewer read evidence) and replaces `desc` with a truncated one-line
+// `title`. Every scalar decision field (id, severity, category, status,
+// evidenceState, resolvedBy, …) is preserved so internal stdout consumers that
+// JSON.parse a bare finding_list keep working and an agent can still triage.
+const FINDING_BRIEF_HINT =
+  'Brief view: full descriptions and reviewer read evidence omitted. Use --full (or --json/--format=json) for the complete records.';
+
+function toBriefFinding(finding: Finding): Record<string, unknown> {
+  const { desc, readManifest, readLog, readDiagnostics, ...rest } = finding as Finding & {
+    readManifest?: unknown;
+    readLog?: unknown;
+    readDiagnostics?: unknown;
+  };
+  return {
+    ...rest,
+    evidenceState: (rest as { evidenceState?: string }).evidenceState ?? 'verified',
+    title: truncateOneLine(desc, 100),
+  };
+}
 
 const CANONICAL_FINDING_CATEGORIES = ['happy', 'edge', 'adversarial', 'missing'] as const;
 const LEGACY_FINDING_CATEGORIES = ['cleanup', 'doc-promise-undelivered', 'doc-code-drift', 'spec-boundary'] as const;
@@ -611,12 +633,15 @@ export function createFindingHandlers(ctx: HandlerContext) {
       );
     },
 
-    finding_list(args: { storyId: string; cluster?: boolean }) {
+    finding_list(args: { storyId: string; cluster?: boolean; full?: boolean; brief?: boolean; json?: boolean; format?: 'text' | 'json' }) {
       assertCwdInWorktree(store, args.storyId);
       const synced = syncClusterResolves(args.storyId, store, ctx.root, ctx.log);
       if (synced.resolved > 0) {
         ctx.log?.(`cluster-sync: auto-resolved ${synced.resolved} finding(s) before finding_list`);
       }
+      // B-7c05 CHK-002: brief by default; --full and explicit --json/--format=json
+      // return the current full shape (frozen machine contract).
+      const full = wantsFullOutput(args);
       // B-9d95 CHK-005: cluster view — reads clusters.json + findings.json, groups by cluster + lists ungrouped items.
       if (args.cluster) {
         const findingsData = store.readFindings(args.storyId);
@@ -634,7 +659,13 @@ export function createFindingHandlers(ctx: HandlerContext) {
           for (const fid of c.findingIds) grouped.add(fid);
         }
         const ungrouped = findingsData.findings.filter(f => !grouped.has(f.id)).map(normalizeFindingForList);
-        return { clusters, ungrouped };
+        if (full) return { clusters, ungrouped };
+        return {
+          _brief: true,
+          _hint: FINDING_BRIEF_HINT,
+          clusters,
+          ungrouped: ungrouped.map(toBriefFinding),
+        };
       }
       const data = store.readFindings(args.storyId);
       const findings = data.findings.map(normalizeFindingForList);
@@ -649,13 +680,22 @@ export function createFindingHandlers(ctx: HandlerContext) {
           .filter(f => f.status === 'open' && f.evidenceState === 'disproven')
           .map(f => f.id),
       };
+      const fullFindings = findings.map(f => ({
+        ...f,
+        // Render explicit evidenceState (legacy missing field → verified, same convention as gate)
+        evidenceState: f.evidenceState ?? 'verified',
+      }));
+      if (full) {
+        return { ...data, findings: fullFindings, attention };
+      }
+      // Brief default: same JSON skeleton (findings[].id/severity/category/status/
+      // evidenceState + attention.suspected/disproven preserved for stdout consumers),
+      // heavy free-text dropped.
       return {
         ...data,
-        findings: findings.map(f => ({
-          ...f,
-          // Render explicit evidenceState (legacy missing field → verified, same convention as gate)
-          evidenceState: f.evidenceState ?? 'verified',
-        })),
+        _brief: true,
+        _hint: FINDING_BRIEF_HINT,
+        findings: fullFindings.map(toBriefFinding),
         attention,
       };
     },

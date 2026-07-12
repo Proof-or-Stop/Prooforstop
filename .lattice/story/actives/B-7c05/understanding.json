@@ -1,0 +1,42 @@
+{
+  "task": "Make large default lattice CLI outputs brief by default so agent loops stop re-paying them on every subsequent model call, while an explicit flag and a LATTICE_BRIEF_OUTPUT=0 env escape hatch restore the full output, and explicit --json/--format=json machine shapes stay frozen.",
+  "outcome": "Bare invocations of milestone_status (and the milestone suffix appended after mutating commands like story_advance), finding_list, help, story_list, and global bug_list emit compact actionable summaries (counts + next action + one-liners) instead of multi-KB dumps; a full-output flag per command and LATTICE_BRIEF_OUTPUT=0 restore verbose output; a smoke test enforces size budgets and contract stability; gate behavior and gateEvidence semantics unchanged.",
+  "facts": [
+    "Forensics 2026-07-12 rollout 019f46ea turn-40: 383-call agentic turn; story_advance printed the full milestone-ledger table 3x (~8.4k tokens each), finding_list ~10.2k tokens, help ~10.1k tokens; one 10k output amplified to ~3.8M ledger-visible tokens",
+    "Measured on 0.3.185: help = 50,354 bytes (~12.6k tokens); story_list default JSON dump = 364,823 bytes (~91k tokens, all 785 stories); global bug_list = 262,917 bytes (~66k tokens); host_list = 15,949 bytes (borderline); status/test_list/story_draft_list are small",
+    "Milestone table renderer: renderMilestoneStatusReport() + renderChecklistDerivedLedger() in packages/main/src/core/milestone-status.ts; handler packages/main/src/handlers/milestone-status.ts",
+    "cli-engine.ts appendMilestoneStatusAfterMutation() (~line 844/1214) is the single choke point that appends the milestone table to every mutating command output, including story_advance",
+    "finding_list handler: packages/main/src/handlers/finding.ts (~line 598-645); returns a JSON object with full finding descriptions by default",
+    "help renderer: packages/main/src/cli/help-renderer.ts printHelp() (~225-315); printToolHelp() renders per-command --help and stays unchanged",
+    "Existing convention: per-handler wantsJson() checks args.json === true || args.format === json; flags parsed centrally in packages/main/src/cli/flag-parser.ts; command schemas in packages/main/src/cli/command-catalog.ts",
+    "No existing LATTICE_* env var controls output verbosity; validate already uses --full to mean run-real-machine-tests so the full-output flag name must not collide on validate",
+    "Output printed at a single seam: cli-engine.ts writes handler result via process.stdout.write (string passthrough, object JSON.stringify)",
+    "INIT reviewer note (low, non-blocking): confirm internal smoke tests that parse rendered stdout text are not broken by brief defaults; spot-check showed milestone smoke tests use report objects directly"
+  ],
+  "constraints": [
+    "Rendering-only: no gate/state-machine behavior change; gateEvidence semantics untouched",
+    "Explicit --json / --format=json machine-consumer output shapes stay byte-shape compatible (same fields)",
+    "validate --full semantics (run real machine tests) must not be overloaded or changed",
+    "Per-command --help output unchanged",
+    "LATTICE_BRIEF_OUTPUT=0 restores full output globally; per-call flag wins over env",
+    "Story artifacts in English; all lattice commands run inside .worktrees/B-7c05"
+  ],
+  "unknowns": [
+    "Whether any internal smoke test or script greps brief-affected stdout text (sweep required during DEV)",
+    "Exact set of additional >5k-token default outputs beyond the five known offenders (CHK-004 sweep decides)",
+    "Whether story_list/bug_list default should stay JSON-shaped-but-truncated or switch to a text summary (decision_set will fix this)"
+  ],
+  "touchpoints": [
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/milestone-status.ts",
+    "packages/main/src/handlers/milestone-status.ts",
+    "packages/main/src/handlers/finding.ts",
+    "packages/main/src/cli/help-renderer.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/handlers/story.ts (story_list)",
+    "packages/main/src/handlers/bug.ts (bug_list)",
+    "packages/main/src/tasks/ (new brief-output smoke test)",
+    "docs/CLI.md + CLAUDE.md (document flag + env var)"
+  ],
+  "timestamp": "2026-07-11T23:14:04.466Z"
+}

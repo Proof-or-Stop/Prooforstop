@@ -32,6 +32,45 @@ import { createHash } from 'crypto';
 import { VERIFICATION_LANES, collectVerificationIntents, detectLegacyEvidenceWithoutIntent, VERIFICATION_INTENT_REPAIR_COMMAND } from '../core/verification.js';
 import { surfaceExperienceHints } from '../core/experience-hint-surface.js';
 import { evaluateProofStoryDiagnostics, renderProofStoryDiagnosticReport } from '../core/proofstory.js';
+import { truncateOneLine } from '../cli/output-verbosity.js';
+
+// B-7c05 CHK-004: RENDER-ONLY brief projection of the story_review result.
+//
+// Applied ONLY when the caller passes an explicit `brief: true` (the CLI seam
+// injects it for bare CLI invocations after resolving flag > env > brief
+// default). In-process callers — including the GOLDEN experience-layer smokes
+// that assert `_reviewPrompt` byte-identity — keep today's full return shape.
+// Nothing here touches the issues/blocker computation or the signed
+// review.json artifact (written before this projection runs).
+//
+// Non-silent filtering: every issue/info row is KEPT (stdout consumers such as
+// verify-parallel-execution-policy.mjs read `issues[].type` from bare output);
+// only free-text messages are truncated and the multi-megabyte `_reviewPrompt`
+// is replaced by an explicit stub naming --full.
+function projectStoryReviewBrief(result: {
+  issues: Array<{ severity: 'blocker' | 'advisory'; message: string; [key: string]: unknown }>;
+  info?: Array<{ type: string; message: string }>;
+  _hint: string;
+  _reviewPrompt: string | undefined;
+  [key: string]: unknown;
+}): object {
+  const { issues, info, _hint, _reviewPrompt, ...rest } = result;
+  return {
+    ...rest,
+    _brief: true,
+    // Blockers keep a longer budget: their messages embed the exact recovery
+    // commands an agent needs to act.
+    issues: issues.map((issue) => ({
+      ...issue,
+      message: truncateOneLine(issue.message, issue.severity === 'blocker' ? 300 : 160),
+    })),
+    ...(info ? { info: info.map((entry) => ({ ...entry, message: truncateOneLine(entry.message, 160) })) } : {}),
+    _hint: `${_hint} — brief view: issue messages truncated and the PLAN review prompt omitted; use --full (or LATTICE_BRIEF_OUTPUT=0) for the complete output (explicit --json keeps the full machine shape).`,
+    _reviewPrompt: typeof _reviewPrompt === 'string'
+      ? `Brief view: full PLAN review prompt (${_reviewPrompt.length} chars) omitted. Run story_review with --full for the complete prompt.`
+      : _reviewPrompt,
+  };
+}
 
 function normalizeTouchpointPath(value: string): string {
   const trimmed = value
@@ -69,7 +108,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
   const { store } = ctx;
 
   return {
-    story_review(args: { storyId: string }): object {
+    story_review(args: { storyId: string; full?: boolean; brief?: boolean; json?: boolean; format?: 'text' | 'json' }): object {
       const story = store.readStory(args.storyId);
       assertCwdInWorktree(store, args.storyId);
       const cl = store.readChecklist(args.storyId);
@@ -645,27 +684,12 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
         hintRoundKey,
       });
 
-      return {
-        storyId: args.storyId,
-        title: story.title,
-        planReviewRound,
-        // Legacy compatibility alias for story_review callers. This is the
-        // numeric PLAN review count, not the signed artifact ISO reviewRound.
-        reviewRound: planReviewRound,
-        summary: {
-          totalItems,
-          issueCount: issues.length,
-          blockerCount,
-        },
-        issues,
-        ...(info.length > 0 ? { info } : {}),
-        _hint: blockerCount > 0
-          ? `Round ${reviewData.reviews.length} review found ${blockerCount} blockers, please fix and run story_review again`
-          : `✅ Round ${reviewData.reviews.length} review passed (${blockerCount} blocker, ${issues.length} advisory), can proceed to development`,
-        _reviewPrompt: (() => {
+      // B-7c05: hoisted from the `_reviewPrompt` object-literal IIFE (body
+      // byte-identical) so the brief projection below can reference it.
+      const reviewPrompt = (() => {
           // Assemble the structured PLAN review prompt. Requirements documents are
-          // deliberately not read or embedded here: scope reviewers discover and
-          // record relevant sources through signed scope-check evidence.
+          // deliberately not read or embedded here (B-f97c): scope reviewers discover
+          // and record relevant sources through signed scope-check evidence.
           // So the reviewer can not only review requirement coverage, but also review "whether the main agent truly understands the task" and "why this design was chosen"
           const understandingSection = understanding
             ? `\n---\nUnderstanding Snapshot:\n` +
@@ -749,8 +773,32 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
             // full section on the ON arm, '' on the OFF arm. ADVISORY-ONLY: never fed
             // to resolveReviewPromptHash.
             understandingSection + decisionSection + grillSection + renderedHintsSection + proofStorySection + checklistSection;
-        })(),
+        })();
+
+      const fullResult = {
+        storyId: args.storyId,
+        title: story.title,
+        planReviewRound,
+        // Legacy compatibility alias for story_review callers. This is the
+        // numeric PLAN review count, not the signed artifact ISO reviewRound.
+        reviewRound: planReviewRound,
+        summary: {
+          totalItems,
+          issueCount: issues.length,
+          blockerCount,
+        },
+        issues,
+        ...(info.length > 0 ? { info } : {}),
+        _hint: blockerCount > 0
+          ? `Round ${reviewData.reviews.length} review found ${blockerCount} blockers, please fix and run story_review again`
+          : `✅ Round ${reviewData.reviews.length} review passed (${blockerCount} blocker, ${issues.length} advisory), can proceed to development`,
+        _reviewPrompt: reviewPrompt,
       };
+      // B-7c05 CHK-004: brief ONLY on explicit brief:true (injected by the CLI
+      // seam for bare invocations). Default / --full / --json / in-process
+      // callers all get today's full shape.
+      if (args.brief !== true) return fullResult;
+      return projectStoryReviewBrief(fullResult);
     },
 
     /**

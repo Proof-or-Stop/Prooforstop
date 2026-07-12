@@ -1,0 +1,78 @@
+{
+  "principles": [
+    "Default output is what agent loops pay for on every later model call: optimize the bare invocation, keep depth one explicit step away",
+    "Never change what is stored or decided, only what is printed: gate behavior and gateEvidence semantics frozen",
+    "Machine consumers must not notice: explicit --json/--format=json shapes stay field-compatible",
+    "Brief output must stay actionable: counts + current state + next action, never a bare truncation"
+  ],
+  "drivers": [
+    "Forensics 2026-07-12 rollout 019f46ea: one ~10k-token output early in a 383-call turn amplified to ~3.8M ledger-visible tokens; measured whales on 0.3.185: story_list 365KB, bug_list 263KB, help 50KB, milestone table ~8.4k tokens re-printed after every mutating command",
+    "Existing seams make this cheap: per-handler wantsJson() convention, central flag-parser, single appendMilestoneStatusAfterMutation choke point",
+    "Internal consumers JSON.parse bare finding_list/story_list output and read skeleton fields (attention.suspected, evidenceState, _bugSummary), so brief JSON must preserve skeletons"
+  ],
+  "options": [
+    {
+      "name": "A-shared-verbosity-helper",
+      "pros": [
+        "Shared verbosity helper (new cli/output-verbosity.ts resolving per-call flag > LATTICE_BRIEF_OUTPUT env > brief default) mirrors the existing wantsJson() convention, so every handler reads the same rule",
+        "Per-command brief renderers keep outputs actionable (counts + next action) and preserve JSON skeleton fields that internal smoke tests assert on",
+        "Per-command --full declared in command-catalog avoids any collision with validate --full (validate is not in the affected set)"
+      ],
+      "cons": [
+        "Touches several handlers/renderers rather than one place",
+        "Each affected command needs its own brief format decision and test"
+      ]
+    },
+    {
+      "name": "B-global-truncation-middleware",
+      "pros": [
+        "Single implementation point at the cli-engine process.stdout.write seam",
+        "Automatically covers future commands"
+      ],
+      "cons": [
+        "Blind byte-cap truncation breaks JSON validity mid-object and breaks internal JSON.parse consumers",
+        "Can amputate exactly the actionable tail (next-action guidance)",
+        "Cannot preserve skeleton fields tests assert on; violates the no-bare-truncation principle"
+      ]
+    },
+    {
+      "name": "C-opt-in-brief-flag",
+      "pros": [
+        "Zero risk to existing consumers; purely additive opt-in --brief flag"
+      ],
+      "cons": [
+        "Disproven by the forensic evidence itself: real agent loops call the bare command (story_advance printed the full table 3x in one turn), so opt-in trimming never fires",
+        "Leaves the multiplicative default cost in place, failing the story goal"
+      ]
+    }
+  ],
+  "chosen": "A-shared-verbosity-helper",
+  "rationale": "A is the only option that cuts default cost while keeping outputs actionable and contracts intact. It rides existing conventions: the helper mirrors wantsJson(), per-command --full is already parseable by flag-parser, and the milestone suffix is centralized in appendMilestoneStatusAfterMutation. Env precedence: per-call flag > LATTICE_BRIEF_OUTPUT=0 > brief default, so unattended full-output workflows can opt out globally while a single call can still force either mode. Explicit --json/--format=json always returns the current full shape regardless of brief settings.",
+  "preMortem": [
+    {
+      "scenario": "An internal test or script greps verbose text that brief mode removes",
+      "trigger": "Brief default lands and a stdout-parsing consumer (smoke test or .mjs verifier) runs against it",
+      "consequence": "Suite failure or, worse, a silently weakened assertion",
+      "mitigation": "Consumer sweep already identified the parsers (evidence-state-gate-smoke, field-regression-cli-smoke, verify-story-list-bug-summary, cli-surface-smoke); brief JSON keeps skeleton fields, cli-surface-smoke wording assertions move to help --full, and full lattice validate runs before REVIEW"
+    },
+    {
+      "scenario": "Brief milestone suffix hides the next-action guidance agents rely on to drive the lifecycle",
+      "trigger": "An agent loop reads the brief suffix after story_advance and cannot find its next command",
+      "consequence": "Agents stall or re-run expensive status commands, negating the token savings",
+      "mitigation": "Brief format explicitly includes phase, progress counts, current milestone, and a next-action line; every brief output ends with a one-line hint naming the --full flag"
+    },
+    {
+      "scenario": "A human operator or unattended workflow expects the old verbose default",
+      "trigger": "Post-merge, an operator reads brief output where they used to read the full table",
+      "consequence": "Confusion or a missed detail during manual operation",
+      "mitigation": "LATTICE_BRIEF_OUTPUT=0 restores full defaults globally, per-call --full restores per invocation, docs (CLI.md + CLAUDE.md) document both, and the trailing hint line makes the escape discoverable in-band"
+    },
+    {
+      "scenario": "The CHK-004 sweep misses a whale or a future command regresses into a new one",
+      "trigger": "A renderer outside the known offender set emits >5k tokens by default",
+      "consequence": "Agent loops keep paying multiplicative cost on an unpatched command",
+      "mitigation": "Smoke test enforces byte budgets on known offenders; the audit method (rg for markdown table builders and full-collection JSON returns) is recorded in plan.md for reuse in later audits"
+    }
+  ],
+  "timestamp": "2026-07-11T23:17:11.052Z"
+}

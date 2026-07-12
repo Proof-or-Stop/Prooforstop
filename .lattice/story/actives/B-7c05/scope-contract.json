@@ -1,0 +1,64 @@
+{
+  "storyId": "B-7c05",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/milestone-status.ts",
+    "packages/main/src/handlers/milestone-status.ts",
+    "packages/main/src/handlers/finding.ts",
+    "packages/main/src/cli/help-renderer.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/handlers/story-query.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/handlers/bug.ts",
+    "packages/main/src/handlers/lattice-cli.ts",
+    "packages/main/src/tasks/cli-surface-smoke.ts",
+    "packages/main/src/tasks/run-all-smokes.ts",
+    "package.json",
+    "docs/CLI.md",
+    "CLAUDE.md",
+    ".lattice/story/actives/B-7c05/**",
+    "packages/main/src/handlers/story-review.ts",
+    "packages/main/src/handlers/doctor.ts",
+    "packages/main/tests/milestone-status.test.mjs"
+  ],
+  "allowedCreate": [
+    "packages/main/src/cli/output-verbosity.ts",
+    "packages/main/src/tasks/brief-output-smoke.ts",
+    ".lattice/story/actives/B-7c05/**"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/brief-output-smoke.ts",
+    "packages/main/src/tasks/cli-surface-smoke.ts",
+    "packages/main/tests/milestone-status.test.mjs"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "packages/main/src/handlers/verifier.ts"
+  ],
+  "scopeChangeReason": "DEV sweep results (CHK-004): story_review default output measured 2.6MB and doctor 22.6KB, both above the ~20KB/5k-token fix threshold the plan commits to fixing in-story (render path only, gate logic untouched); milestone-status.test.mjs is a direct consumer of the CHK-001 rendering change and needs --full / LATTICE_BRIEF_OUTPUT=0 updates to keep asserting the full table. story_get (74KB) deliberately NOT added: sanctioned brief mode already exists via slim/fields opt-in and CLAUDE.md documents full reads before evidence/mutations.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Framework-introspection audit META artifacts (B-META-framework-audit container + dated audit report) generated in this worktree by the audit trigger, not by B-7c05 work: present before DEV implementation started, untracked (never merge at DONE), and deliberately preserved rather than deleted to avoid destroying audit findings. No story code depends on them.",
+      "timestamp": "2026-07-12T01:35:23.902Z",
+      "paths": [
+        ".lattice/story/actives/B-META-framework-audit/findings.json",
+        ".lattice/story/actives/B-META-framework-audit/index.json",
+        "docs/framework-audit/2026-07-12/report.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-META-framework-audit/findings.json",
+        ".lattice/story/actives/B-META-framework-audit/index.json",
+        "docs/framework-audit/2026-07-12/report.md"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "9cae60863f4326d16d7b3e1a3489dcaa700385a3",
+      "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394"
+    }
+  ],
+  "createdAt": "2026-07-11T23:31:25.831Z",
+  "updatedAt": "2026-07-12T01:35:23.902Z"
+}
