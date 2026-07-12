@@ -601,6 +601,18 @@
           "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
           "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
           "timestamp": "2026-07-12T01:33:56.045Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:3",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/brief-output-smoke.ts",
+          "command": "node packages/main/dist/tasks/brief-output-smoke.js",
+          "result": "pass",
+          "note": "The committed smoke exists (packages/main/src/tasks/brief-output-smoke.ts, registered as test:brief-output in package.json and auto-discovered by run-all-smokes) and passes: byte budgets, --full restoration markers, env hatch, flag-beats-env, JSON parity, skeleton contracts.",
+          "headHash": "db240b9582dcd5bfe6e6f85039b6965cce37fd54",
+          "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
+          "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
+          "timestamp": "2026-07-12T01:33:56.752Z"
         }
       ]
     },
