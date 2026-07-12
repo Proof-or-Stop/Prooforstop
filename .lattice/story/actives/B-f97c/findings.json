@@ -14,6 +14,21 @@
       "_hash": "3e516a2a1a4ca327e0fcb8b24abe03ad9f1b480c43fcd5439434c241a3bb1034",
       "signatureTag": "missing|unknown|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f97c:F-002",
+      "desc": "packages/main/src/tasks/story-review-corpus-budget-smoke.ts:172 CHK-004:edge:0 claims available host usage is separated, but the test only prints that host usage is unavailable in the smoke and no story-scoped usage_sweep result is recorded. A read-only usage_sweep currently returns a NON-AUTHORITATIVE ESTIMATE for B-f97c (10 sessions, totalTokens 55,309,706, multiAttribution=true), so the required available usage total was omitted and the user-requested total task cost is not yet answered. Severity: high.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-12T01:38:22.151Z",
+      "reviewRound": "2026-07-12T01:35:57.174Z",
+      "reviewRunId": "B-f97c:RR-003",
+      "_hash": "35d8df3972463a5fbc25fbe85e03c7a0e329c0f394ea4622be7c4e71eff0cb21",
+      "signatureTag": "missing|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
