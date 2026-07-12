@@ -709,7 +709,21 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "manual_transcript",
+          "file": "docs/CLI.md",
+          "command": "bash -c 'rg -c \"LATTICE_BRIEF_OUTPUT\" docs/CLI.md && rg -c -- \"--full\" docs/CLI.md'",
+          "result": "pass",
+          "note": "docs/CLI.md documents LATTICE_BRIEF_OUTPUT (5 matches) and the --full flag (14 matches) with the brief-by-default section stating the precedence rule flag > env > brief default and that only literal 0 disables.",
+          "headHash": "6b3b2fa3f308ed8cbd11dc395b58ed75839e729e",
+          "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
+          "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
+          "timestamp": "2026-07-12T01:33:59.714Z"
+        }
+      ]
     }
   ],
   "auditLog": [
