@@ -172,7 +172,7 @@
       "desc": "packages/main/src/core/candidate-spec-routing.ts:525-558 and packages/main/src/handlers/story-dispatch.ts:235-246 — 802d8088 correctly separates requiresEscalation from explicit fullScan and keeps truncated candidates bounded, but no consumer enforces or even renders the new escalation state. PLAN/REVIEW dispatch still shows only ambiguitySignals/scanEscalationReason, and candidate_spec_route text output likewise omits requiresEscalation/escalationReasons. Host disagreement, high-risk lifecycle/gate/process-fact routing, or unmatched high-confidence legacy terms can therefore set requiresEscalation=true without appearing in ambiguitySignals, while the reviewer proceeds as if routing were complete. Make required escalation visible and fail closed at the applicable reviewer/gate boundary until an explicit bounded expansion or justified fullScan decision is recorded; add dispatch/handler tests for a non-ambiguity escalation reason.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-12T11:01:57.802Z",
@@ -180,7 +180,11 @@
       "reviewRunId": "B-8038:RR-007",
       "_hash": "860d1d9a18c670e0598f3d61e2f790dd1776afcbb508d5745d9d5c3a16fab037",
       "signatureTag": "missing|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 0fa154b2: dispatch and CLI render pending escalation reasons with STOP and exact reroute action; focused prompt tests pass.",
+      "resolvedAt": "2026-07-12T11:06:41.042Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8038:F-009",
