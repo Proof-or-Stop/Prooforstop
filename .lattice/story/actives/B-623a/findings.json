@@ -28,7 +28,7 @@
       "desc": "packages/main/src/tasks/usage-burn-alert-smoke.ts CHK-003:edge:4 requires a session that trips ALL THREE reasons (file-size + input-tokens + session-age) and lists all three in its warning line; no such fixture exists anywhere in the smoke. The only multi-reason fixture (codex-burn-A/HOT, integration check L372-374) is explicitly asserted via assert.deepEqual([...hot.reasons].sort(), [\"input-tokens\",\"session-age\"], ...) to trip EXACTLY two reasons, never file-size (its transcript is a few hundred bytes, well under the 100MB default). The renderers check (L435-447) constructs a single-reason (input-tokens only) fixture. Evidence notes both for CHK-003:edge:4 (\"integration: HOT trips multiple reasons listed together; renderers list reasons joined\") and for CHK-001:happy:5 (\"evaluator per-reason isolation + edge: all-three-reasons session (doctor fixture)\") misdescribe this as a 3-reason test -- there is no 3-reason (doctor) fixture in the file. renderBurnFindingBlock's reasons.join(...) line (core/usage-burn-alert.ts ~L250) is therefore untested with 3 simultaneous reasons.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-12T20:54:15.833Z",
@@ -40,7 +40,11 @@
         "packages/main/src/core/usage-burn-alert.ts"
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Verified fix at commit d3f491966e (usage-burn-alert-smoke.ts L448-475): a new check now asserts a 3-reason (file-size+input-tokens+session-age) finding both at evaluator level and via the real doctor handler (FILE_MB=0.0001 makes the HOT fixture trip file-size too). JSON-level assertion binds to sessionId===codex-burn-A correctly. Ran usage-burn-alert-smoke.js directly (21 checks, all pass) to confirm. Filed a separate low-severity finding F-004 for a latent (currently-harmless) line-selection bug in the same check's text-mode assertion.",
+      "resolvedAt": "2026-07-12T21:03:41.565Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-623a:F-003",
