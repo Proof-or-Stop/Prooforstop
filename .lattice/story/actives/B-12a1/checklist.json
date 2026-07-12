@@ -283,6 +283,18 @@
           "materialHash": "ed4c1d93f811aed2d72830acbf40c2a701cfca845097ce5841469daa6ea7d995",
           "storyFilesHash": "e17aa5517d9272be012e26a3089f3f40ca6ac697da4db9d6fb77f2d4a340cd50",
           "timestamp": "2026-07-12T21:44:49.525Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/scope-contract-smoke.ts",
+          "command": "node packages/main/dist/tasks/scope-contract-smoke.js",
+          "result": "pass",
+          "note": "The new block asserts proofStoryPositive.status === \"pass\" (overall status, not just per-row), so a warn/fail interaction between lifecycle classification and enforce mode would fail the smoke.",
+          "headHash": "54912035b44ebf213c48f184dc3219f96b0f2839",
+          "materialHash": "ed4c1d93f811aed2d72830acbf40c2a701cfca845097ce5841469daa6ea7d995",
+          "storyFilesHash": "e17aa5517d9272be012e26a3089f3f40ca6ac697da4db9d6fb77f2d4a340cd50",
+          "timestamp": "2026-07-12T21:44:51.945Z"
         }
       ]
     }
