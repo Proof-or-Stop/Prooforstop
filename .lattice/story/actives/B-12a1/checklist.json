@@ -110,6 +110,17 @@
           "materialHash": "ed4c1d93f811aed2d72830acbf40c2a701cfca845097ce5841469daa6ea7d995",
           "storyFilesHash": "e17aa5517d9272be012e26a3089f3f40ca6ac697da4db9d6fb77f2d4a340cd50",
           "timestamp": "2026-07-12T21:44:19.054Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node -e \"const{classifyLifecycleArtifact}=require('./packages/main/dist/core/lifecycle-registry.js');if(classifyLifecycleArtifact('.lattice/story/actives/B-test/subdir/original-intent-snapshot.json')!==null){console.error('FAIL nested allowed');process.exit(1)}console.log('F ok: nested path null')\"",
+          "result": "pass",
+          "note": "Probe F: nested path .../B-test/subdir/original-intent-snapshot.json returns null — top-level-only policy (B-b9d0) preserved.",
+          "headHash": "9c054e564ea098b28670f35f41af80776253f0ff",
+          "materialHash": "ed4c1d93f811aed2d72830acbf40c2a701cfca845097ce5841469daa6ea7d995",
+          "storyFilesHash": "e17aa5517d9272be012e26a3089f3f40ca6ac697da4db9d6fb77f2d4a340cd50",
+          "timestamp": "2026-07-12T21:44:23.143Z"
         }
       ]
     },
