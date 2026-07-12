@@ -146,7 +146,16 @@ Normalization MUST preserve exact identifiers alongside lowercase lexical forms.
 
 ### 8.2 Fresh-context input
 
-Each host receives only:
+The CLI first applies one pre-egress sanitizer to every field and artifact that could enter a host prompt. There is no alternate adapter path around this boundary. The sanitizer:
+
+- transmits identifier, command, configuration, and environment-variable names, never detected values;
+- redacts secret-like values in Story/checklist prose, backticks, error payloads, paths, titles, symbols, seeds, and memory-derived text;
+- hashes or omits sensitive provenance and `sourceRef` values while retaining a local-only mapping for audit;
+- rejects and records unsafe host inputs or outputs instead of trying to repair them;
+- treats uncertain classification as sensitive and skips the host call, continuing with deterministic local routing;
+- persists only the sanitized request digest and sanitized proposal artifact.
+
+After sanitization, each host receives only:
 
 - Story ID, title, description, keywords, and risk signals;
 - checklist title, `userSees`, `excludes`, and related-doc paths;
@@ -155,7 +164,7 @@ Each host receives only:
 - complete decisions filename/title index, without document bodies;
 - proposal budget and output schema.
 
-The host does not receive the entire requirements corpus or the owner's full conversation.
+The host does not receive the entire requirements corpus, the owner's full conversation, raw secret-bearing metadata, or the local-only provenance map.
 
 ### 8.3 Output schema
 
@@ -388,7 +397,8 @@ Host availability, executable paths, and provider versions remain runtime facts.
 - Paths are repository-relative, normalized, traversal-safe, and constrained to the configured requirements directory.
 - Symlinks escaping the repository are rejected.
 - Search output is size-capped before entering host context.
-- Secret-like strings are redacted from snippets and never become keyword proposals.
+- The shared pre-egress sanitizer covers every host-bound Story field, seed, path/title, provenance record, search snippet, and proposal artifact; secret-like strings never become host input or persisted keyword proposals.
+- Host adapters cannot bypass sanitization. If classification is uncertain, the host is skipped and deterministic local routing continues.
 - Proposal and search artifacts record provider, prompt digest, and schema version.
 
 ## 17. Quality floor
@@ -457,10 +467,11 @@ Exit: identical inputs produce byte-identical seed and corpus-index artifacts.
 
 - define fresh-context prompts for Codex and Claude;
 - add conditional `agy` path;
+- implement one shared pre-egress sanitizer used by every host adapter, with local-only sensitive-provenance mapping;
 - validate output size/schema/provenance;
 - record timeout/unavailable results without blocking deterministic fallback.
 
-Exit: host failures cannot cause unbounded scanning or silent evidence claims.
+Exit: host failures cannot cause unbounded scanning or silent evidence claims, and secret-like values cannot reach a host request or persisted proposal.
 
 ### M6C - Local search and ranker
 
@@ -528,6 +539,10 @@ Exit: two consecutive evaluation windows meet all quality and cost thresholds.
 | Mechanical log contains undeclared full read | fail closed |
 | Prompt-injection text in document | ignored as instruction; content remains evidence only |
 | Proposal exceeds schema budget | proposal rejected and recorded |
+| Secret in Story/checklist prose or backticks | value is removed before every host request; deterministic local routing remains available |
+| Secret in seed provenance, `sourceRef`, path/title, config, or error metadata | value is hashed or omitted from host-bound and persisted artifacts; the raw mapping stays local only |
+| Sanitizer cannot classify a value confidently | host call is skipped and recorded; deterministic local routing continues |
+| Host returns secret-like material | proposal is rejected, not persisted, and cannot influence candidate ranking |
 
 ## 21. Rollout
 
