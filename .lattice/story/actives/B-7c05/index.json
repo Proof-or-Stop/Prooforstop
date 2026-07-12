@@ -4,7 +4,7 @@
   "title": "Brief-by-default CLI outputs for agent-loop context hygiene",
   "description": "Forensic evidence (2026-07-12, rollout 019f46ea turn-40): in a 383-call agentic turn, single large CLI outputs are cache-re-read by every later model call. Measured offenders: story_advance appends the full milestone-ledger markdown table (~8.4k tokens, printed 3x in one turn), finding_list with populated findings (~10.2k tokens), lattice help (~50KB / ~12.6k tokens). Fresh audit on 0.3.185 also found story_list default dump = 365KB (~91k tokens) and global bug_list = 263KB (~66k tokens). One 10k-token output early in a turn amplified to ~3.8M tokens of ledger-visible volume. Goal: make these commands print a compact, actionable summary by default, with an explicit flag for the full output, honoring a LATTICE_BRIEF_OUTPUT=0 environment escape hatch. Explicit machine-consumer JSON opt-ins (--json / --format=json) keep their current shape. This is agent-loop context hygiene only: no gate behavior change, gateEvidence semantics untouched. Note: validate already uses --full to mean run-real-machine-tests, so the new full-output flag must not collide with that semantics on validate.",
   "type": "feature",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "riskSignals": [
     {
@@ -55,6 +55,15 @@
       "user": "Harmonygo",
       "sessionId": "7ff2d294-3c30-4b67-8687-52922c72dd57",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-12T01:35:24.882Z",
+      "branch": "story/B-7c05",
+      "user": "Harmonygo",
+      "sessionId": "7ff2d294-3c30-4b67-8687-52922c72dd57",
+      "agent": "main"
     }
   ],
   "worktree": {
@@ -68,5 +77,6 @@
       "reason": "False positive keyword match: the story text uses token exclusively to mean LLM context tokens (output size measured in tokens, e.g. ~8.4k tokens of markdown table). No credentials, secrets, auth tokens, or security-sensitive material are read, written, or rendered by this story; it changes CLI output verbosity only.",
       "at": "2026-07-11T23:13:35.701Z"
     }
-  ]
+  ],
+  "currentReviewRound": "2026-07-12T01:35:24.882Z"
 }
