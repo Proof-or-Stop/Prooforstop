@@ -24,7 +24,28 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "(1) validation-protocol-smoke.ts: forced by the CHK-003 doctor async migration — tsc surfaced a 4th pre-existing doctor() call-site file missed by the PLAN grep; changes are mechanical awaits plus the same LATTICE_BURN_ALERT_RECENT_HOURS=0 hermeticity line the three declared smoke files got; smoke re-run passes. (2)(3) proofstory.json / red-evidence.json: story lifecycle metadata written by proofstory_contract_set and red_evidence_create during the PLAN high-assurance intent gate; not material code.",
+      "timestamp": "2026-07-12T20:33:11.613Z",
+      "paths": [
+        "packages/main/src/tasks/validation-protocol-smoke.ts",
+        ".lattice/story/actives/B-623a/proofstory.json",
+        ".lattice/story/actives/B-623a/red-evidence.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/validation-protocol-smoke.ts",
+        ".lattice/story/actives/B-623a/proofstory.json",
+        ".lattice/story/actives/B-623a/red-evidence.json"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "68de516675c39eca04cae72c71acbe549b343615",
+      "materialHash": "4e6b8ec53b5e42e0e25e32c84fc04d65bed50cdd96145d5c07ee9fea1345e937"
+    }
+  ],
   "createdAt": "2026-07-12T19:51:53.136Z",
-  "updatedAt": "2026-07-12T19:51:53.136Z"
+  "updatedAt": "2026-07-12T20:33:11.613Z"
 }
