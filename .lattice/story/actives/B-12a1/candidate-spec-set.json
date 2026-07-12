@@ -2902,10 +2902,10 @@
     "high_risk_lifecycle_gate_process_fact_or_global_rename"
   ],
   "fullScan": true,
-  "scanEscalationReason": "Story modifies the closed-set lifecycle-artifact classifier (LATTICE_LIFECYCLE_ARTIFACT_FILENAMES) that gates scope_check_save globally across all stories; routing flagged high_risk_lifecycle_gate_process_fact_or_global_rename plus a ranking-affecting truncation/cutoff tie, so a full requirements-corpus scan is needed to rule out an existing decision doc on the scope-contract trust-model policy (e.g. the B-b9d0 closed-set rationale) before concluding review.",
+  "scanEscalationReason": "lattice-review-test-coverage round-2 review of CHK-001/CHK-002: candidate set flagged high_risk_lifecycle_gate_process_fact_or_global_rename (lifecycle-registry.ts is a process-fact gate file) plus ranking_affecting_query_truncation and candidate_cutoff_tie; deterministic local-only broad scan to confirm no requirements-doc conflicts before judging test coverage of the artifact-classification fix.",
   "storyInputDigest": "9ee859ab9f257f73e6645aa865b6592e133ef94bbc64d0c6565fa9c2f9ca8426",
-  "headHash": "c8d514ef5300725e77c731ac02af3776f3c49a2a",
+  "headHash": "a96d4fc89eb41de02f13d494a36c3c4a50630a95",
   "materialHash": "1511ddb57f11c1763cd2fcbbe91134ffcca172d675fb0e230c2640f0d0833a51",
   "storyFilesHash": "2d25e16521c214a860624ddc8abb44091ff79c55407993254922e753ad2741ea",
-  "artifactDigest": "30e5eaa2e6bbcd6c2e73c5bb1c439f5b069d1ca6cc0cc62fcae4dd0e4ac3abbb"
+  "artifactDigest": "65e56a3aa419a24889638352286c4e107c651ceef241c059e81c9d896382da43"
 }
