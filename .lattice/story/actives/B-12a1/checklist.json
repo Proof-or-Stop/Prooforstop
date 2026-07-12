@@ -54,7 +54,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "node -e \"const{classifyLifecycleArtifact}=require('./packages/main/dist/core/lifecycle-registry.js');const f=['original-intent-snapshot','milestone-ledger','milestone-closeout','slice-plan','parent-ledger-rollup','proofstory','intent-collision','scope-shrinkage-decision','red-evidence','spike'];const bad=f.filter(n=>classifyLifecycleArtifact('.lattice/story/actives/B-test/'+n+'.json')?.kind!=='lifecycle');if(bad.length){console.error('FAIL '+bad);process.exit(1)}console.log('A ok: ten kind=lifecycle')\"",
+          "result": "pass",
+          "note": "Probe A run post-build in the story worktree: classifyLifecycleArtifact returns kind=lifecycle for each of the ten .lattice/story/actives/B-test/<name>.json paths.",
+          "headHash": "865b8ab5dcaa9d64bcc2542bfb98cce551966a34",
+          "materialHash": "ed4c1d93f811aed2d72830acbf40c2a701cfca845097ce5841469daa6ea7d995",
+          "storyFilesHash": "e17aa5517d9272be012e26a3089f3f40ca6ac697da4db9d6fb77f2d4a340cd50",
+          "timestamp": "2026-07-12T21:44:05.105Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
