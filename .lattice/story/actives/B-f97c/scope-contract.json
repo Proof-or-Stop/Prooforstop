@@ -24,7 +24,30 @@
     ".claude/**"
   ],
   "scopeChangeReason": "Emergency narrow producer-side deletion; broader M6 routing and all gate semantics are excluded.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "codex-main",
+      "reason": "These four CLI-generated ProofStory intent artifacts were mechanically required by the enforce-mode DEV gate after the scope contract was frozen; they bind the original request, independent collision decision, acceptance mapping, and measured red baseline, and contain no implementation scope expansion.",
+      "timestamp": "2026-07-12T01:35:56.015Z",
+      "paths": [
+        ".lattice/story/actives/B-f97c/intent-collision.json",
+        ".lattice/story/actives/B-f97c/original-intent-snapshot.json",
+        ".lattice/story/actives/B-f97c/proofstory.json",
+        ".lattice/story/actives/B-f97c/red-evidence.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-f97c/intent-collision.json",
+        ".lattice/story/actives/B-f97c/original-intent-snapshot.json",
+        ".lattice/story/actives/B-f97c/proofstory.json",
+        ".lattice/story/actives/B-f97c/red-evidence.json"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "d0747517844788548526a41696a38e44ffaa5b7b",
+      "materialHash": "1060e1478f06a0bc5ff019f87af7bb2bc8a3343b2cbc2e614a2a66f02047bdfc"
+    }
+  ],
   "createdAt": "2026-07-12T01:30:36.208Z",
-  "updatedAt": "2026-07-12T01:30:36.208Z"
+  "updatedAt": "2026-07-12T01:35:56.015Z"
 }
