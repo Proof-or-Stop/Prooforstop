@@ -1,0 +1,52 @@
+{
+  "storyId": "B-7c05",
+  "changes": "Brief-by-default CLI outputs for agent-loop context hygiene. New shared resolver cli/output-verbosity.ts (precedence: --full/--brief flag > LATTICE_BRIEF_OUTPUT env (literal 0 only disables) > brief default; explicit --json/--format=json always full shape). Bare defaults now compact: help 45,481->7,854 bytes (grouped command names only), story_list 119,866->~12,000 (non-terminal one-liners + full per-phase counts + bg marker), global bug_list 263KB-baseline->280 bytes (status counts + open one-liners), finding_list JSON skeleton keeps id/severity/category/status/evidenceState/truncated title + attention partitions, milestone_status + the post-mutation milestone suffix render a compact summary with next action (full 7-column table behind --full/env), story_review CLI stdout 2,600,206->2,156 bytes (signed review.json + gate computation untouched), doctor 22,632->7,722 bytes (all scan sections visible). New brief-output-smoke enforces byte budgets, --full restoration, env/flag precedence, --json key parity, skeleton contracts, 22-milestone + >100-command scaling, graceful-ignore. docs/CLI.md documents the whole surface incl. story_get and host_list dispositions.",
+  "usage": "Bare lattice help / story_list / bug_list / finding_list / milestone_status / story_review / doctor now print compact summaries safe to call inside agent loops. Full output: append --full (e.g. lattice story_list --full) or set LATTICE_BRIEF_OUTPUT=0 globally; force brief with --brief. Machine consumers keep using --json / --format=json unchanged.",
+  "expectedOutcome": "Bare invocations of the whale commands emit a small fraction of their previous default bytes while staying actionable (counts + next action + skeleton fields), --full/env restore the complete legacy output, explicit JSON shapes unchanged, gate behavior untouched.",
+  "actualTranscript": "Measured on this worktree at bde95c7473: help 7,854 B (was 45,481; red probe test<16000 now exits 0, was 46,700 red at baseline 0137b455), story_list ~12,000 B with 35/36 rows carrying bg:✓ (was 119,866), bug_list 280 B (--full 1,787), story_review 2,156 B on the 2.6MB fixture corpus, doctor 7,722 B (was 22,632), milestone brief 669 B vs 1,122 full on this story. lattice validate full suite green; brief-output-smoke, cli-surface-smoke, evidence-state-gate-smoke, milestone-status.test.mjs, verify-story-list-bug-summary.mjs all pass.",
+  "outcomeDiff": "No functional difference from expected. One wording deviation is declared in limitations (brief help ships names-only rather than the frozen intent phrase names+short descriptions, per reviewer finding F-001).",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "DECLARED DEVIATIONS (durable record; plan.md is PLAN-frozen per command-policy plan_set allowedPhases=[PLAN] so it cannot carry post-PLAN declarations and its CHK-003 wording is superseded here): (1) F-001: CHK-003:happy:0 frozen intent says brief help = names + short one-line descriptions; shipped behavior is grouped command names ONLY, because across ~320 commands any description fitting the byte budget degrades into a misleading ~10-char mid-word fragment — worse than none; discovery completeness is enforced by the brief-output-smoke full-vs-brief name-set assertion; per-command detail routes to lattice <command> --help. (2) F-002: bundled non-rendering content fix in story-query.ts restoring commit 288d359377 behavior (story_list _bugSummary excludes terminal DISCARDED bug stories, not just DONE) — required because the must-pass consumer verifier verify-story-list-bug-summary.mjs was already red on baseline HEAD from that regression; frozen --json field set unaffected. (3) CHK-003:edge:0 (should) reasoned-uncovered: the command registry is never empty in any reachable configuration (DEFAULT_PHASE_TOOLS wildcard is non-empty). (4) story_get (74KB) deliberately kept full-by-default (slim/fields is the sanctioned opt-in); host_list (~16KB) under threshold — both documented in docs/CLI.md.",
+  "pitfalls": "(1) plan_set silently rejected outside PLAN — a mid-DEV plan.md update attempt failed on phase policy and went unnoticed until the concept reviewer filed F-006 (evidence-integrity); lesson: check every lattice exit, and durable post-PLAN declarations belong in summary_set/finding resolutions, not plan.md. (2) 10-char description truncation (F-001) shipped through round 1 because the smoke only asserted byte budgets, not content usefulness. (3) Brief projections can silently drop fields — F-008 (bg marker) was caught by the quality reviewer live-diffing brief vs --full on the real repo; the smoke now asserts the field. (4) Three concurrent reviewer lanes + DEV commits repeatedly invalidated review_run_start bindings; sequence fix batches to land between reviewer rounds. (5) The scope gate fails closed on foreign untracked files (B-META-framework-audit) — acknowledge, do not delete.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 164967
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 52179
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 1614696
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 7534508
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 56946653
+    }
+  },
+  "totalDurationMs": 66314062,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-12T17:34:30.313Z",
+  "updatedAt": "2026-07-12T17:34:30.313Z"
+}
