@@ -311,6 +311,39 @@
         "scanEscalationReason": null
       },
       "_hash": "e35a33c45bcdc3c04288b5f9305e16256fbfa7b60650ffbef7a370f272a312e3"
+    },
+    {
+      "id": "B-623a:RP-012",
+      "agent": "lattice-review-concept",
+      "note": "F-C convergence: reviewed commit 67f0ccc2b1 comparator rewrite in core/usage-burn-alert.ts (findings.sort) against CHK-001 deterministic-ordering contract. Verified null-last, negative-vs-unknown, and Infinity-tie semantics by hand-tracing all branches and by node-repro of the old vs new comparator; ran usage-burn-alert-smoke.js directly (21/21 pass, includes the new [inf-a,inf-b,neg,unknown] assertion). No blocker: fix is correct, no deletions/renames of exported concepts, renderers are order-agnostic per-finding, dist matches source.",
+      "createdAt": "2026-07-12T23:33:41.216Z",
+      "reviewRound": "2026-07-12T23:27:39.065Z",
+      "reviewRunId": "B-623a:RR-015",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-623a/background.md",
+          ".lattice/story/actives/B-623a/plan.md",
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/tasks/doctor-gitroot-probe-smoke.ts",
+          "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "packages/main/src/tasks/storydir-inside-gitroot-suite.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1ecf459fef502afd9b277e37e262bd579a2eacc686273e28766f4c6f8a639f72"
     }
   ]
 }
