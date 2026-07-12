@@ -37,6 +37,24 @@
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-623a:F-003",
+      "desc": "packages/main/src/tasks/usage-burn-alert-smoke.ts CHK-001:edge:3 requires \"A codex session with inputTokens=0 and a claude session with all-zero usage fields are not flagged for input-tokens\", but no fixture in the smoke uses a zero-valued codex usage() or an all-zero claude usage object. The nearest row (L352, sessionId 'bbb') has cacheReadInputTokens:2000 (nonzero) and IS flagged, not an example of the intended not-flagged-at-zero case. Existing tests only cover near-threshold (1000) and clearly nonzero (2000/4300/5000/150000000) values. grep across the file confirms no codexUsage(0) call and no all-zero claude usage object anywhere. The evidence note title (\"evaluator: zero-usage rows below strictly-greater thresholds are not flagged\") does not correspond to any check in the file.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-12T20:54:23.654Z",
+      "reviewRound": "2026-07-12T20:46:22.327Z",
+      "reviewRunId": "B-623a:RR-003",
+      "_hash": "c56022f93d0702bf6253d267953ac0b9d08e565d2b684c6e5528f814342b6144",
+      "files": [
+        "packages/main/src/tasks/usage-burn-alert-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
