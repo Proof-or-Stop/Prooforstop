@@ -19,6 +19,7 @@ import {
 import { runHostRun } from '../core/host-run.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { captureReviewRunSnapshot } from '../core/review-run.js';
+import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 
 const MAX_PROPOSAL_OUTPUT_BYTES = 64 * 1024;
 
@@ -60,9 +61,15 @@ export function renderCandidateSpecRouteText(
   return lines.join('\n');
 }
 
-function changedPaths(root: string): string[] {
+function changedPaths(ctx: HandlerContext, storyId: string): string[] {
   try {
-    return execFileSync('git', ['diff', '--name-only', 'main...HEAD'], { cwd: root, encoding: 'utf8' })
+    const gitCwd = resolveGitCwd({
+      store: ctx.store,
+      storyId,
+      metadataRoot: ctx.root,
+      projectRoot: ctx.root,
+    });
+    return execFileSync('git', ['diff', '--name-only', 'main...HEAD'], { cwd: gitCwd, encoding: 'utf8' })
       .split(/\r?\n/).map(value => value.trim()).filter(Boolean).sort();
   } catch {
     return [];
@@ -156,7 +163,7 @@ export function currentStoryRoutingInput(ctx: HandlerContext, storyId: string): 
       relatedDocs: item.relatedDocs,
     })),
     understanding,
-    changedPaths: changedPaths(ctx.root),
+    changedPaths: changedPaths(ctx, storyId),
   };
 }
 
