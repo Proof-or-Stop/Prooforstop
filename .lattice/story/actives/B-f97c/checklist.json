@@ -97,7 +97,7 @@
       },
       "status": "done",
       "startTime": null,
-      "endTime": "2026-07-12T01:35:07.056Z",
+      "endTime": "2026-07-12T01:42:59.615Z",
       "verificationIntent": {
         "happy": [
           {
@@ -127,33 +127,33 @@
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:story-review-corpus-budget",
           "result": "pass",
-          "note": "Story, understanding, decision/preMortem, grill, ProofStory, checklist, and verificationIntent sentinels remained present.",
-          "headHash": "843a74ea17e71220f42e89b9f2c2efc9c3a5568f",
-          "materialHash": "1060e1478f06a0bc5ff019f87af7bb2bc8a3343b2cbc2e614a2a66f02047bdfc",
-          "storyFilesHash": "4bee5a84914ea337667b65982e22bea201d41a4304f91ec3a67aa70d0beb38b0",
-          "timestamp": "2026-07-12T01:35:07.263Z"
+          "note": "Fully populated fixture preserves story metadata, understanding, decision/preMortem, grill, ProofStory, checklist, and verificationIntent.",
+          "headHash": "8c70feff6549cb48b3995bf7e2cb31034b924ec1",
+          "materialHash": "2a43a65fa08f2ec3aad94da1b4bca1354379a8d213ba26ca909ca2b744b5eeee",
+          "storyFilesHash": "2a4dab4d78853aaa74fd77d2f5eed8d81bb56bf3829f4870c4802c95dd337158",
+          "timestamp": "2026-07-12T01:42:59.877Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "logic_test",
-          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:reviewer-scan-budget-guard",
+          "command": "npm --prefix packages/main run test:story-review-corpus-budget",
           "result": "pass",
-          "note": "Build and scan-budget regression passed; existing gate/advisory evaluation remained active.",
-          "headHash": "843a74ea17e71220f42e89b9f2c2efc9c3a5568f",
-          "materialHash": "1060e1478f06a0bc5ff019f87af7bb2bc8a3343b2cbc2e614a2a66f02047bdfc",
-          "storyFilesHash": "4bee5a84914ea337667b65982e22bea201d41a4304f91ec3a67aa70d0beb38b0",
-          "timestamp": "2026-07-12T01:35:07.438Z"
+          "note": "Sparse fixture omits understanding, decision, grill, and verificationIntent arrays; prompt stays well formed, expected advisories remain, and blockerCount stays zero.",
+          "headHash": "8c70feff6549cb48b3995bf7e2cb31034b924ec1",
+          "materialHash": "2a43a65fa08f2ec3aad94da1b4bca1354379a8d213ba26ca909ca2b744b5eeee",
+          "storyFilesHash": "2a4dab4d78853aaa74fd77d2f5eed8d81bb56bf3829f4870c4802c95dd337158",
+          "timestamp": "2026-07-12T01:43:00.082Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:story-review-corpus-budget",
           "result": "pass",
-          "note": "Structured sentinels remained while requirement-only sentinels stayed absent.",
-          "headHash": "843a74ea17e71220f42e89b9f2c2efc9c3a5568f",
-          "materialHash": "1060e1478f06a0bc5ff019f87af7bb2bc8a3343b2cbc2e614a2a66f02047bdfc",
-          "storyFilesHash": "4bee5a84914ea337667b65982e22bea201d41a4304f91ec3a67aa70d0beb38b0",
-          "timestamp": "2026-07-12T01:35:07.637Z"
+          "note": "Structured sentinels remain present while requirement-only sentinels remain absent; signed scope evidence and gate/advisory evaluation still run.",
+          "headHash": "8c70feff6549cb48b3995bf7e2cb31034b924ec1",
+          "materialHash": "2a43a65fa08f2ec3aad94da1b4bca1354379a8d213ba26ca909ca2b744b5eeee",
+          "storyFilesHash": "2a4dab4d78853aaa74fd77d2f5eed8d81bb56bf3829f4870c4802c95dd337158",
+          "timestamp": "2026-07-12T01:43:00.335Z"
         }
       ]
     },
