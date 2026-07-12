@@ -1,0 +1,308 @@
+{
+  "schemaVersion": "proofbound.candidate-spec-set.v1",
+  "storyId": "B-8038",
+  "corpusDigest": "99ac01dab85914c8e94815e3a0af21665f4fcaf190e8940eabb77601e7a4a1da",
+  "seedDigest": "4d38ae949acd4af5bc5eac27a1d563c21b9da4235bb81de75a5642b01b252563",
+  "promptDigests": [],
+  "candidates": [
+    {
+      "path": "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+      "contentHash": "5f3ff4eb948d82ba58a17d97d8c651b440c7eb5c0eb3af2f2be4303073801cbe",
+      "score": 108,
+      "reasons": [
+        {
+          "kind": "related-doc",
+          "term": "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+          "source": "relatedDoc",
+          "points": 100
+        },
+        {
+          "kind": "body",
+          "term": "core",
+          "source": "core",
+          "points": 8
+        }
+      ]
+    },
+    {
+      "path": "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+      "contentHash": "ab278b1cf05302ff12669ac19ef3e025a2b1ec3f724287094281eae14e087ab8",
+      "score": 100,
+      "reasons": [
+        {
+          "kind": "related-doc",
+          "term": "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "source": "relatedDoc",
+          "points": 100
+        }
+      ]
+    },
+    {
+      "path": "docs/requirements/decisions/story-lifecycle.md",
+      "contentHash": "25359e172485aec5b9cafabf56659a0736e346aef073b2a78d0a2a5da4a1cbc0",
+      "score": 100,
+      "reasons": [
+        {
+          "kind": "related-doc",
+          "term": "docs/requirements/decisions/story-lifecycle.md",
+          "source": "relatedDoc",
+          "points": 100
+        }
+      ]
+    },
+    {
+      "path": "docs/requirements/decisions/host-neutral-observability-console.md",
+      "contentHash": "092969a5f95b99da08e9adbfba4498256d1ec596a572e1b5cf0f11f3a606a1bd",
+      "score": 30,
+      "reasons": [
+        {
+          "kind": "heading",
+          "term": "cli",
+          "source": "cli",
+          "points": 15
+        },
+        {
+          "kind": "heading",
+          "term": "core",
+          "source": "core",
+          "points": 15
+        }
+      ]
+    },
+    {
+      "path": "docs/requirements/decisions/authority-client-role.md",
+      "contentHash": "0065026cbceca01bc39b5da19a6532192b88016190658e50417be537acd5aa33",
+      "score": 28,
+      "reasons": [
+        {
+          "kind": "path",
+          "term": "cli",
+          "source": "cli",
+          "points": 20
+        },
+        {
+          "kind": "body",
+          "term": "core",
+          "source": "core",
+          "points": 8
+        }
+      ]
+    },
+    {
+      "path": "docs/requirements/decisions/authority-done-material-overlap-audit-cli-fix.md",
+      "contentHash": "f5df195c4c3acdf55f91dda2c2a6aedbd27867bbc30d5a71133d80b9e42af828",
+      "score": 28,
+      "reasons": [
+        {
+          "kind": "path",
+          "term": "cli",
+          "source": "cli",
+          "points": 20
+        },
+        {
+          "kind": "body",
+          "term": "core",
+          "source": "core",
+          "points": 8
+        }
+      ]
+    },
+    {
+      "path": "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+      "contentHash": "450a02e03d90d73f3120f53f470e03a8e16293c7ef8eae24fbb5ea1197f42de6",
+      "score": 28,
+      "reasons": [
+        {
+          "kind": "path",
+          "term": "cli",
+          "source": "cli",
+          "points": 20
+        },
+        {
+          "kind": "body",
+          "term": "core",
+          "source": "core",
+          "points": 8
+        }
+      ]
+    },
+    {
+      "path": "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
+      "contentHash": "073f4cb9ba01cc7876ae88a1cbbe6acc7249201011f82267a6b6bec61db6f7b6",
+      "score": 28,
+      "reasons": [
+        {
+          "kind": "path",
+          "term": "cli",
+          "source": "cli",
+          "points": 20
+        },
+        {
+          "kind": "body",
+          "term": "core",
+          "source": "core",
+          "points": 8
+        }
+      ]
+    }
+  ],
+  "candidateSpecSet": [
+    "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+    "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+    "docs/requirements/decisions/story-lifecycle.md",
+    "docs/requirements/decisions/host-neutral-observability-console.md",
+    "docs/requirements/decisions/authority-client-role.md",
+    "docs/requirements/decisions/authority-done-material-overlap-audit-cli-fix.md",
+    "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+    "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md"
+  ],
+  "candidateBasis": {
+    "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md": [
+      {
+        "kind": "related-doc",
+        "term": "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+        "source": "relatedDoc",
+        "points": 100
+      },
+      {
+        "kind": "body",
+        "term": "core",
+        "source": "core",
+        "points": 8
+      }
+    ],
+    "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md": [
+      {
+        "kind": "related-doc",
+        "term": "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+        "source": "relatedDoc",
+        "points": 100
+      }
+    ],
+    "docs/requirements/decisions/story-lifecycle.md": [
+      {
+        "kind": "related-doc",
+        "term": "docs/requirements/decisions/story-lifecycle.md",
+        "source": "relatedDoc",
+        "points": 100
+      }
+    ],
+    "docs/requirements/decisions/host-neutral-observability-console.md": [
+      {
+        "kind": "heading",
+        "term": "cli",
+        "source": "cli",
+        "points": 15
+      },
+      {
+        "kind": "heading",
+        "term": "core",
+        "source": "core",
+        "points": 15
+      }
+    ],
+    "docs/requirements/decisions/authority-client-role.md": [
+      {
+        "kind": "path",
+        "term": "cli",
+        "source": "cli",
+        "points": 20
+      },
+      {
+        "kind": "body",
+        "term": "core",
+        "source": "core",
+        "points": 8
+      }
+    ],
+    "docs/requirements/decisions/authority-done-material-overlap-audit-cli-fix.md": [
+      {
+        "kind": "path",
+        "term": "cli",
+        "source": "cli",
+        "points": 20
+      },
+      {
+        "kind": "body",
+        "term": "core",
+        "source": "core",
+        "points": 8
+      }
+    ],
+    "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md": [
+      {
+        "kind": "path",
+        "term": "cli",
+        "source": "cli",
+        "points": 20
+      },
+      {
+        "kind": "body",
+        "term": "core",
+        "source": "core",
+        "points": 8
+      }
+    ],
+    "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md": [
+      {
+        "kind": "path",
+        "term": "cli",
+        "source": "cli",
+        "points": 20
+      },
+      {
+        "kind": "body",
+        "term": "core",
+        "source": "core",
+        "points": 8
+      }
+    ]
+  },
+  "queryGroups": [
+    [
+      "b 8038"
+    ],
+    [
+      "candidate spec routing smoke ts"
+    ],
+    [
+      "candidate spec routing ts"
+    ],
+    [
+      "checklist json"
+    ],
+    [
+      "cli"
+    ],
+    [
+      "command catalog ts"
+    ],
+    [
+      "command policy ts"
+    ],
+    [
+      "config ts"
+    ],
+    [
+      "core"
+    ],
+    [
+      "decision json"
+    ]
+  ],
+  "budgets": {
+    "candidates": 8,
+    "queryGroups": 10,
+    "rawHitsPerGroup": 50
+  },
+  "ambiguitySignals": [
+    "query_results_truncated"
+  ],
+  "fullScan": false,
+  "scanEscalationReason": null,
+  "storyInputDigest": "87c4a436bd7fb2dc5bc70da72f2cf6ac4fb3dddced656b1c662bd9ac2c73adad",
+  "headHash": "58a9e9b1996c567e509f72512cb9286a12afbe3b",
+  "materialHash": "f6ff13395bfd3120e9423b30029c3195f01d50e29c56d98f23d225efa00d5f19",
+  "storyFilesHash": "4055f516b3ee48370339a1a0f4c22b75e6a25437d21099154c1e3f0b9840e90a",
+  "artifactDigest": "026a4888aa08aec7eba0ef638f035e757563e583537c961154e4b9d8f00edbcf"
+}
