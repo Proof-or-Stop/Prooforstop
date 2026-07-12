@@ -192,9 +192,9 @@
       "id": "CHK-003",
       "title": "lattice doctor host-burn advisory section",
       "context": "doctor reuses sweepCodexSessions/sweepClaudeProjects (read-only) over the recent-activity window and prints a prominent advisory warning per flagged session naming the session file, cwd, and cumulative tokens, plus which thresholds tripped. Advisory-only: no gate, no gateEvidence, plain doctor exit code unchanged. JSON mode gets a hostBurnScan object. doctor() becomes async; existing smoke call sites updated.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-12T20:17:18.755Z",
-      "endTime": null,
+      "endTime": "2026-07-12T20:34:00.925Z",
       "verificationIntent": {
         "happy": [
           {
