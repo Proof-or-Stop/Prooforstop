@@ -264,6 +264,10 @@
           {
             "desc": "The async migration does not break any existing doctor test: running the full validate suite (including doctor-gitroot-probe-smoke, story-metadata-protection-smoke, storydir-inside-gitroot-suite) passes with zero regressions",
             "type": "cli"
+          },
+          {
+            "desc": "The three pre-existing doctor-invoking smokes (doctor-gitroot-probe-smoke.ts, story-metadata-protection-smoke.ts, storydir-inside-gitroot-suite.ts) explicitly set LATTICE_BURN_ALERT_RECENT_HOURS=0 around their doctor calls so they stay hermetic and fast (never scan the real multi-GB home stores) — grep-verified in each file and the suite still passes",
+            "type": "logic"
           }
         ]
       },
@@ -273,7 +277,9 @@
           "packages/main/src/handlers/doctor.ts",
           "packages/main/src/tasks/doctor-gitroot-probe-smoke.ts",
           "packages/main/src/tasks/story-metadata-protection-smoke.ts",
-          "packages/main/src/tasks/storydir-inside-gitroot-suite.ts"
+          "packages/main/src/tasks/storydir-inside-gitroot-suite.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/process-fact-levels.ts"
         ],
         "create": [],
         "test": [
