@@ -112,6 +112,36 @@
         "scanEscalationReason": null
       },
       "_hash": "758212ce091cc30fb2a5a7902e6b51dc62f5ad06ec14b0c192afd2b7ad786d6b"
+    },
+    {
+      "id": "B-7c05:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Re-bind round only (post round-3 PASS RP-003); code unchanged. Confirmed only lattice metadata commits landed after code commit bde95c7473 (9 commits: de785f6572..99dd7a0ee5). Re-ran main..HEAD commit-by-commit non-.lattice file scan: only ac83c67, 8a1c4f0, 3fabbf5, bde95c7 touch code, same set round-3 reviewed. git diff main...HEAD --stat -- :!.lattice reproduces the identical 16-file feature diff already assessed as brief-by-default CLI outputs with no concept deletion/replacement en masse. Spot-ran node packages/main/dist/tasks/cli-surface-smoke.js -> cli surface smoke passed. No concept deletion/replacement this round; concept residue check completed, no blocker.",
+      "createdAt": "2026-07-12T17:42:52.049Z",
+      "reviewRound": "2026-07-12T17:41:11.882Z",
+      "reviewRunId": "B-7c05:RR-011",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/help-renderer.ts",
+          "packages/main/src/cli/output-verbosity.ts",
+          "packages/main/src/core/milestone-status.ts",
+          "packages/main/src/handlers/bug.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/tasks/brief-output-smoke.ts",
+          "packages/main/src/tasks/cli-surface-smoke.ts",
+          "packages/main/tests/milestone-status.test.mjs"
+        ],
+        "scanEscalationReason": "Re-bind round: material verified identical to round-3-reviewed code (commits 3fabbf5f82 + bde95c7473); no full re-read performed, only diff/commit-set equivalence re-verification against round-3 findings."
+      },
+      "_hash": "f975e099f2711f016b41651551646e4219145f1ab92549789a5841f9fa8c7de6"
     }
   ]
 }
