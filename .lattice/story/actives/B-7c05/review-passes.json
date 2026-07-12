@@ -24,6 +24,41 @@
         "scanEscalationReason": null
       },
       "_hash": "08ae2bbaa91a99008442b8f8ac5369e086134550f0cd3e91d688f454d16d259c"
+    },
+    {
+      "id": "B-7c05:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-2 re-review: independently re-verified all 6 round-1 test-coverage evidence refreshes (CHK-001:edge:1, CHK-003:edge:1, CHK-003:happy:0, CHK-003:adversarial:0, CHK-004:edge:1, CHK-005:adversarial:1) against commit 8a1c4f033b by re-running brief-output-smoke.ts/cli-surface-smoke.ts/evidence-state-gate-smoke.ts/milestone-status.test.mjs/verify-story-list-bug-summary.mjs (all green) plus live spot-checks (help brief 7854B/0 ellipsis fragments/all >100 command names present; host_list docs+bytes match; checklist_get byte-identical bare vs --brief vs env). F-003/F-004/F-005 confirmed genuinely resolved with real, working coverage, not just evidence-note claims. CHK-003:edge:0 reasoned-uncovered disposition independently confirmed in code: DEFAULT_PHASE_TOOLS wildcard baseline commands make an empty help registry unreachable in any phase/config. Noted but not duplicated: CHK-003:happy:0 and CHK-004:edge:1 evidence notes claim a plan.md declaration that git diff HEAD -- plan.md shows was never written; already captured by open concept-lane finding B-7c05:F-006 (evidence-integrity framing), not a test-coverage gap since the underlying smoke assertions themselves are real and passing on current HEAD. No new test-coverage blocker found this round.",
+      "createdAt": "2026-07-12T17:31:39.934Z",
+      "reviewRound": "2026-07-12T17:08:48.514Z",
+      "reviewRunId": "B-7c05:RR-006",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7c05/background.md",
+          ".lattice/story/actives/B-7c05/plan.md",
+          "docs/CLI.md",
+          "packages/main/src/cli/help-renderer.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/brief-output-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/output-verbosity.ts",
+          "packages/main/src/core/milestone-status.ts",
+          "packages/main/src/handlers/bug.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/tasks/cli-surface-smoke.ts",
+          "packages/main/src/tasks/evidence-state-gate-smoke.ts",
+          "packages/main/tests/milestone-status.test.mjs",
+          "scripts/verify-story-list-bug-summary.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "655607a1c62a0d063d6a7ff65ea2b3d9c6a6350013a29835e09337efcbf09308"
     }
   ]
 }
