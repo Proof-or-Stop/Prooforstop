@@ -746,6 +746,18 @@
           "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
           "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
           "timestamp": "2026-07-12T01:34:01.039Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "logic_test",
+          "file": "docs/CLI.md",
+          "command": "bash -c 'rg -n \"gate/issue computation are unchanged\" docs/CLI.md'",
+          "result": "pass",
+          "note": "Docs make no gate-behavior/gateEvidence promises: the story_review row explicitly states 'CLI stdout only - the signed review.json artifact and the gate/issue computation are unchanged' and validate --full is not claimed to change (validate absent from the brief table).",
+          "headHash": "06967877b75f384957916eb71298bb7369c19642",
+          "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
+          "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
+          "timestamp": "2026-07-12T01:34:01.663Z"
         }
       ]
     }
