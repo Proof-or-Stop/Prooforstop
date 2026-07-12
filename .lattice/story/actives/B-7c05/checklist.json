@@ -353,6 +353,18 @@
           "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
           "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
           "timestamp": "2026-07-12T01:33:48.997Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/cli-engine.ts",
+          "command": "node packages/main/dist/tasks/cli-surface-smoke.js",
+          "result": "pass",
+          "note": "The help --full/--brief flags are parsed at the help dispatch seam in cli-engine where no prior --full semantics existed; validate keeps its own --full untouched (diff over verifier.ts empty), and per-command --help flag handling is unchanged (cli-surface-smoke green).",
+          "headHash": "3de485709b0d0148629c340c1130d401545d3632",
+          "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
+          "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
+          "timestamp": "2026-07-12T01:33:49.547Z"
         }
       ]
     },
