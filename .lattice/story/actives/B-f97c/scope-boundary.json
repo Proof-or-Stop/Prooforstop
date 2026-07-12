@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-f97c",
+  "mode": "correctness_fix",
+  "allowed": [
+    "focused regression tests for story_review prompt corpus exclusion",
+    "packages/main/src/handlers/story-review.ts",
+    "structured story_review output compatibility required by the fix"
+  ],
+  "excluded": [
+    "changes to scope-check gate strength",
+    "M6 candidateSpecSet router",
+    "reviewer role consolidation",
+    "unrelated prompt rewrites"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "User explicitly requested immediate deletion of recursive requirements reads and truthDocs concatenation on 2026-07-12.",
+  "createdAt": "2026-07-12T01:22:31.864Z",
+  "updatedAt": "2026-07-12T01:22:31.864Z",
+  "_hash": "d23481daf9d008995e7327495c1bcb1060fcbe3d0d4ab91456e3d337d3c47028"
+}

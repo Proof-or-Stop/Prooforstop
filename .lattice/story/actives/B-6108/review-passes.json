@@ -1,0 +1,107 @@
+{
+  "passes": [
+    {
+      "id": "B-6108:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round. git diff main...HEAD is purely additive to the claimsShrinkage alternation inside evaluateDoneIntentEquivalence: new local constants (windowConnector/windowToken/adverbWindow/shrinkageVerbs/nounQuote) widen the existing regex, and all pre-existing identifiers they build on (remainingModifierWord, remainingScopeNoun, remainingChainStep, remainingGlue, remainingTokenEnd) remain defined and referenced unchanged. The only removed lines are the two prior regex-line versions immediately superseded by their widened equivalents (same construction, expanded alternation, no renamed/dropped identifiers) and two smoke-test comment blocks whose own text explicitly deferred verb-recall to a follow-up story (this one) with assertions flipped false->true accordingly. Canonical gap code unconfirmed_single_outcome_shrinkage is unchanged and used consistently across all call sites in the smoke file plus proofstory.ts. Grepped for concept residue of the touched identifiers; none deleted or replaced en masse. No blocker.",
+      "createdAt": "2026-07-11T22:56:52.942Z",
+      "reviewRound": "2026-07-11T22:54:45.995Z",
+      "reviewRunId": "B-6108:RR-001",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "7c79adeb6b66e82cfc68ca61af490e5f9a6e751ec0295c8ff57cab10a695b1c4"
+    },
+    {
+      "id": "B-6108:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review passed: all 4 checklist items (CHK-001..004) carry complete happy/edge/adversarial verificationIntent columns matching the normal/high-risk channel. All 12 must/should intents have exactly one non-fail verificationEvidence row each (11 logic_test + 1 docs_check for the plan-rationale adversarial intent), each note names the concrete sentences/behavior exercised, not a generic pass. Verified the smoke file directly: vocabularyRecallClaims holds the 14 must-fire sentences across the five classes (3 adverb-insertion, 3 inflection, 6 shrinkage-verb, 1 quoted-noun, 1 comma-plus) and vocabularyPrecisionControls holds the 8 must-not-fire routine/clause-coordination/inflection-boundary controls, both asserted in a loop against done_intent_equivalence_check; the two CHK-004 interaction pins (strippedTokenVerbDone, adverbWindowBoundaryDone) are present and asserted. Confirmed via git show 6a06ea3c13 that the two B-2c03 pins now flipped to must-fire (backtickTriggerTokenDone, triggerStemFileDone) carry original comments that explicitly deferred verb-recall coverage to this follow-up story (the claim is carried by the verb which belongs to the follow-up vocabulary story), so the flip is a justified, deliberate closure of a documented deferred gap, not an unreviewed regression. Ran node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js directly: ProofStory intent hardening smoke passed. red-evidence.json binds a genuine repro-first RED (baseline 92474ac118, first recall claim failing with all eight controls quiet). evidence_plan initially reported missing=0 refresh-only=12 (whole-tree materialHash drift from REVIEW-phase .lattice metadata commits only, confirmed via git diff that no packages/main/src, packages/main/tests, or plan.md file changed since the frozen commit); ran verification_evidence_refresh_stale to rebind against current HEAD, now missing=0 fresh=12. No coverage gap found; no finding filed.",
+      "createdAt": "2026-07-11T23:09:16.371Z",
+      "reviewRound": "2026-07-11T22:54:45.995Z",
+      "reviewRunId": "B-6108:RR-002",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-6108/checklist.json",
+          ".lattice/story/actives/B-6108/plan.md",
+          ".lattice/story/actives/B-6108/red-evidence.json",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/proofstory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e501522ef5f18f42071ecfa85e938fd3c13fd217c94ca49a07aa036082faad57"
+    },
+    {
+      "id": "B-6108:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round. Delta since RP-001 (commit 3ff07615e0, F-001 fix) refactors the shrinkageVerbs regex fragment: extracts a new local deliveryQualifier sub-pattern shared by two branches (was/were skipped|omitted|punted passive branch, now qualifier-bound, and the pre-existing removed|dropped|cut from branch). Verified via git diff main...HEAD: no concept word renamed or deleted anywhere in the story diff; shrinkageVerbs, deliveryQualifier, adverbWindow, windowConnector, nounQuote are newly introduced local fragments, not replacements of prior concepts. Confirmed by repo-wide grep of deliveryQualifier (excl. node_modules/dist/.git): only the two intended usage sites in proofstory.ts plus a findings.json resolution note; no orphaned old inline qualifier text left behind. Remaining delta (four additive RED-first smoke controls in proofstory-intent-hardening-smoke.ts, plan.md paragraph) is additive, not concept deletion. concept residue check completed, no blocker.",
+      "createdAt": "2026-07-11T23:20:48.874Z",
+      "reviewRound": "2026-07-11T22:54:45.995Z",
+      "reviewRunId": "B-6108:RR-005",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-6108/plan.md",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-6108/checklist.json",
+          ".lattice/story/actives/B-6108/findings.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6489367032e938501f26da39e07aaac2f2621a4a1a4e7ca34b20cd1697bd9d19"
+    },
+    {
+      "id": "B-6108:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "F-001 verified resolved both directions on the live built CLI: full intent-hardening smoke (12 vocabularyPrecisionControls incl. 4 F-001 routine-passive must-not-fire cases, plus qualifier-carrying must-fire cases) passes; my own independently-authored 11-sentence probe against dist/cli.js done_intent_equivalence_check also passes both directions. tsc --noEmit clean, no dead code/as-any/empty-catch in the diff, all new regex fragments referenced. Reconciliation smoke, milestone-status, e2e all pass.",
+      "createdAt": "2026-07-11T23:28:48.936Z",
+      "reviewRound": "2026-07-11T22:54:45.995Z",
+      "reviewRunId": "B-6108:RR-004",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-6108/plan.md",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-6108/checklist.json",
+          ".lattice/story/actives/B-6108/findings.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ac513510f14e389fc7e512565901c7882a8ee61fde80d44beffc15ae52d9eebb"
+    },
+    {
+      "id": "B-6108:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review passed (round 2, post F-001 fix at 3ff07615e0). All 4 checklist items (CHK-001..004) carry complete happy/edge/adversarial verificationIntent columns for the normal/high-risk channel. All 12 must/should intents have exactly one non-fail verificationEvidence row (11 logic_test + 1 docs_check for the plan rationale), each note naming concrete sentences/behavior, not a generic pass. Delta since RP-002: commit 3ff07615e0 adds the qualifier-bound passive branch (deliveryQualifier shared fragment) touching shrinkage-verbs:adversarial coverage (CHK-002) and the CHK-004 full-suite regression. Grep-verified against tracked source at HEAD: vocabularyRecallClaims unchanged at 14 must-fire sentences (5 classes); vocabularyPrecisionControls now holds 11 must-not-fire controls (7 pre-existing + 4 new F-001 routine-passive cases: skipped-for-this-iteration-of-the-loop, skipped-due-to-flaky-CI, omitted-to-reduce-startup-time, punted-to-next-week). Note: the dispatch briefing and RP-004 both said 12; actual array count at HEAD is 11 (7+4) by direct line count of both b15792bbc4 pre-F-001 and 3ff07615e0 post-F-001 array literals — a narrative miscount in prior notes, not a coverage gap: every must intent still has valid passing evidence naming concrete behavior. Ran npm --prefix packages/main run build then node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js directly on the rebuilt dist: ProofStory intent hardening smoke passed (exit 0), covering all 14 recall claims, all 11 precision controls, the CHK-003 chain-punctuation cases, and the CHK-004 interaction pins (strippedTokenVerbDone, adverbWindowBoundaryDone). Also ran the full lattice validate --story=B-6108 --json (45 configured commands: build, milestone-status, reconciliation/guard/gate smokes, e2e) — allPass:true, all 45/45 commands code=0. 12/12 verificationEvidence rows were stale from intervening .lattice metadata commits (concurrent lattice-review-concept RP-003 and lattice-review-quality RP-004 rounds); refreshed via verification_evidence_refresh_stale, now bound to HEAD 0457a15c55/d23e323 lineage, refreshed=12/12. No coverage gap found; no finding filed.",
+      "createdAt": "2026-07-11T23:35:19.467Z",
+      "reviewRound": "2026-07-11T22:54:45.995Z",
+      "reviewRunId": "B-6108:RR-006",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-6108/checklist.json",
+          ".lattice/story/actives/B-6108/findings.json",
+          ".lattice/story/actives/B-6108/review-passes.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-6108/plan.md",
+          ".lattice/story/actives/B-6108/test-evidence.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b53072f8b88b1277f192d55d48ea3399a282d8df462559b6ed946ca0384f4055"
+    }
+  ]
+}

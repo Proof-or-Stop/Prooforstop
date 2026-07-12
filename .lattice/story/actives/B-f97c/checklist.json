@@ -1,0 +1,83 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Remove requirements corpus reads and prompt concatenation",
+      "context": "Delete the recursive readFileSync requirements traversal and truthDocs.join Truth Source assembly in packages/main/src/handlers/story-review.ts without weakening existing PLAN artifact and scope-check gates.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+      ],
+      "files": {
+        "modify": [
+          "handlers/story-review.ts"
+        ],
+        "create": [],
+        "test": [
+          "tasks/story-review-corpus-budget-smoke.ts"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Preserve structured PLAN review prompt content",
+      "context": "Keep story metadata, understanding, decision and preMortem, grill context, experience hints, ProofStory diagnostics, checklist, and verificationIntent output stable while replacing truthDocsCount with an honest non-corpus contract.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "files": {
+        "modify": [
+          "handlers/story-review.ts"
+        ],
+        "create": [],
+        "test": [
+          "tasks/story-review-corpus-budget-smoke.ts"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add corpus-size regression coverage",
+      "context": "Prove a large unrelated requirements Markdown file is absent from _reviewPrompt and cannot make prompt bytes scale with the requirements corpus; retain structured-output compatibility where intentional.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+      ],
+      "files": {
+        "modify": [
+          "package.json"
+        ],
+        "create": [
+          "tasks/story-review-corpus-budget-smoke.ts"
+        ],
+        "test": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Measure task token cost and identify the dominant source",
+      "context": "Record the pre-fix and post-fix _reviewPrompt byte/token estimates plus available host usage for this repair, and report which input surface dominates cost.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+      ],
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "tasks/story-review-corpus-budget-smoke.ts"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

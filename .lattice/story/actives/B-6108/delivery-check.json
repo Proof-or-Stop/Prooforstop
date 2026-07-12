@@ -1,0 +1,72 @@
+{
+  "storyId": "B-6108",
+  "checkedAt": "2026-07-12T00:01:34.790Z",
+  "headHash": "d9674e853c5865e85c8222f68c7cc87ac5d4a4ac",
+  "materialHash": "dd5cf220ce52f5eb779a5316fb55ac35ed7878dd41139a8290242d8293d38113",
+  "storyFilesHash": "97fe02565f226a5f198b3575092313aa66f26ad0a86405dbfe3c98b6c52fb31f",
+  "reviewRound": "2026-07-11T22:54:45.995Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-6108/plan.md#Design (per class)",
+      "promise": "Adverb windows: multi-word triggers (not...covered, out of...scope) accept a bounded window of up to two arbitrary tokens using sentence-safe connectors that do not bridge a sentence boundary.",
+      "verifiedBy": "diff/grep + manual regex reconstruction",
+      "evidence": "packages/main/src/core/proofstory.ts defines windowConnector and adverbWindow = (windowConnector windowToken){0,2}? applied to the out-of-scope and not-covered triggers; independently reconstructed the fragment in a standalone node -e script (not the project harness) and confirmed a dot-before-whitespace does not extend the window; the smoke's sentence-boundary control ('not documented. Yet covered') stays quiet."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-6108/plan.md#Design (per class)",
+      "promise": "Inflections extend existing stems: partial(ly), exclude family, defer family; bare defer stays out.",
+      "verifiedBy": "diff/grep",
+      "evidence": "proofstory.ts regex alternation changed partial to an optional-ly form, excluded to a fuller exclude-family form, deferred to a fuller defer-family form; smoke asserts 'only partially delivered', 'This delivery excludes the admin workflow', and 'The team defers the migration tooling' all fire."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-6108/plan.md#Design (per class)",
+      "promise": "Curated shrinkage-verb vocabulary carries the claim when the trigger word is inside a stripped-by-requirement token: passive scope-cut verbs qualifier-bound to a delivery context (F-001 hardening), bare descoped, follow-up handoffs, and delivery-qualifier-bound removed/dropped/cut; bare removed/dropped/cut/skipped must not fire.",
+      "verifiedBy": "diff/grep + independent manual regex re-derivation (node -e, not the project test harness)",
+      "evidence": "shrinkageVerbs fragment added in proofstory.ts; independently re-derived the exact fragment text from the diff and ran it standalone: a routine passive sentence about a flaky CI runner does not fire, a delivery-qualified passive does fire, a routine punted-to-next-week sentence does not fire, and bare descoped does fire -- matching the documented F-001 precision binding exactly."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-6108/plan.md#Design (per class)",
+      "promise": "Remaining-chain scope-noun position tolerates optional straight/curly quote characters; Oxford-list tail alternation gains plus alongside and/or.",
+      "verifiedBy": "diff/grep",
+      "evidence": "nounQuote character class inserted before remainingScopeNoun in both the main and Oxford-tail branches; the Oxford-tail conjunction alternation gained a plus option; smoke asserts a quoted-cases sentence and a comma-plus Oxford list sentence both fire, while a lone comma-plus without a prior comma item stays quiet."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-6108/plan.md#Convergence statement",
+      "promise": "No addition weakens a documented B-2c03 invariant (fail-safe residual directions, pinned must-not-fire controls) -- a finding is blocking only for a verified false-negative on the five in-scope classes, a verified false-positive from this story's additions, or a regression of a B-2c03 pinned case.",
+      "verifiedBy": "cli/test-run",
+      "evidence": "Rebuilt from source with a clean tsc build and independently re-ran the intent-hardening smoke twice: it printed the pass message both times, which includes all pre-existing B-2c03 pinned must-fire/must-not-fire cases alongside the new B-6108 cases in the same suite."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-6108/plan.md#Execution order",
+      "promise": "CHK-004 full suite: intent-hardening smoke, milestone-done-gate-reconciliation smoke, milestone-status tests, and packages/main e2e ALL PASS at final head.",
+      "verifiedBy": "cli/test-run",
+      "evidence": "Independently re-ran all four after a clean rebuild: intent-hardening smoke passed (exit 0); milestone-done-gate-reconciliation smoke OK (exit 0); milestone-status test passed (exit 0); e2e ALL PASS across story-lifecycle and gap-convergence suites (exit 0)."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Independently re-ran proofstory-intent-hardening-smoke.js after a clean tsc rebuild: prints the pass message (exit 0). Covers adverb-window must-fire cases (not yet covered, not fully covered, out of the current scope) and inflection must-fire cases (partially, excludes, defers), plus a sentence-boundary edge control (a not-covered window does not leak across a period) and an inflection-stem precision control (unrelated longer words do not match)."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Same smoke run covers shrinkage-verb must-fire cases (was skipped for this delivery, was left to a follow-up, was descoped, was omitted from this release, pushed to a follow-up task) and must-not-fire precision controls (removed dead code / dropped the cache layer, active-voice we skipped, was removed from the util module, was skipped due to a flaky CI runner, was punted to next week). Independently re-derived the shrinkage-verb regex fragment outside the test harness (standalone node script) and confirmed the same true/false split by hand."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Same smoke run covers quoted-scope-noun and comma-plus Oxford-list must-fire cases, plus a precision control for a lone comma-plus without a preceding comma-list item (clause coordination stays quiet)."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Independently re-ran all four suites after a clean rebuild (npm run build with no errors): intent-hardening smoke (exit 0, passed), milestone-done-gate-reconciliation smoke (exit 0, OK), milestone-status test (exit 0, ok), e2e (exit 0, ALL PASS). Also independently confirmed two interaction pins in the smoke diff: a shrinkage verb fires when its subject token is stripped as a URL, and the not-covered adverb window does not leak across a sentence boundary."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 6 docs promises from the story plan verified against the actual diff and independently re-executed real-machine tests (clean rebuild plus 4 suites, all exit 0); manual standalone regex reconstruction independently confirms the F-001 qualifier-binding precision claim outside the project harness. No TODO/FIXME/HACK in the material diff. Delivery is honest and complete for the five documented recall classes; the plan itself correctly scopes further vocabulary and typography growth to a future follow-up."
+  },
+  "_hash": "d5faea3653667fa47f69fee8935a09d82f1c67ec7caef2c1190d712c80426acf"
+}

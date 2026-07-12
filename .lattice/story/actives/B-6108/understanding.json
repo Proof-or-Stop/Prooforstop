@@ -1,0 +1,24 @@
+{
+  "task": "Expand claimsShrinkage trigger vocabulary recall for the five classes verified out-of-scope during B-2c03, without reopening the false-positive direction B-2c03 closed.",
+  "outcome": "The nine B-2c03-verified recall sentences fire the gap; routine change descriptions and all B-2c03 pinned controls stay unchanged; vocabulary and rationale documented in the plan.",
+  "facts": [
+    "The current trigger regex (packages/main/src/core/proofstory.ts ~1549, version 0.3.185) requires adjacency in multi-word triggers, exact inflection forms (excluded but not excludes), has no shrinkage-verb vocabulary, and its remaining-chain noun position does not tolerate quote characters",
+    "All nine must-fire sentences were live-verified as non-firing by the B-6108 INIT reviewer against the built pipeline, and the routine-verb control stays quiet today",
+    "Two-item X plus Y lists already fire because plus is a bare chain conjunction; only the comma-list-then-plus (Oxford) form is a gap",
+    "stripCodeLikeTokens strip classes (file names, backticked spans, URLs, :line/#L paths) are by-requirement from B-2c03 and make verbs the only signal in stripped-token sentences",
+    "B-2c03 lessons: raw character proximity revives false positives (F-012); comma+conjunction is clause coordination unless a comma list item precedes (F-013/Oxford); modifiers are arbitrary tokens (codex round 7)"
+  ],
+  "constraints": [
+    "Every addition needs RED-first smoke cases in both directions (must-fire recall + must-not-fire precision controls)",
+    "Bare removed/dropped/cut must not fire; passive voice or delivery-context qualifiers bind them",
+    "stripCodeLikeTokens and the clause taxonomy stay untouched beyond quote tolerance at the noun position and plus in the Oxford alternation",
+    "All B-2c03 pinned cases (15+ must-fire window claims, 7 cross-clause controls, strip controls) must pass unchanged",
+    "Deterministic lexical processing only; scope boundary excludes NLP and strict-milestone-path changes"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/proofstory.ts (claimsShrinkage construction inside evaluateDoneIntentEquivalence)",
+    "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts (lightweight-path cases)"
+  ],
+  "timestamp": "2026-07-11T22:35:23.625Z"
+}

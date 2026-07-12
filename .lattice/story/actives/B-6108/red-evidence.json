@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-6108",
+  "records": [
+    {
+      "id": "RED-20260711224100",
+      "trigger": "Feature/behavior-change (red_evidence_required): five verified recall-gap classes in the claimsShrinkage vocabulary; repro-first recall cases added to proofstory-intent-hardening-smoke before any regex change per CHK-001/002/003.",
+      "acceptanceTargetRef": "adverb-inflection:happy",
+      "baselineHeadHash": "92474ac118bc8e349a8b93a376961ab1b34feb14",
+      "baselineMaterialHash": "4e6b8ec53b5e42e0e25e32c84fc04d65bed50cdd96145d5c07ee9fea1345e937",
+      "observedFailure": "AssertionError [ERR_ASSERTION]: vocabulary recall claim fires (B-6108): The Windows install path is not yet covered by this delivery. - the first of fourteen must-fire recall sentences produces no unconfirmed_single_outcome_shrinkage gap against the unmodified 0.3.185 vocabulary; all eight precision controls verified quiet at the same baseline (clean both-directions baseline).",
+      "failingCommand": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+      "expectedGreenCommand": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+      "greenRelation": {
+        "targetRef": "adverb-inflection:happy",
+        "relation": "same_acceptance",
+        "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js"
+      },
+      "note": "RED run executed in worktree .worktrees/B-6108 after npm run build; fourteen recall claims and eight precision controls staged in the smoke before the vocabulary change.",
+      "createdAt": "2026-07-11T22:41:00.895Z"
+    }
+  ],
+  "createdAt": "2026-07-11T22:41:00.895Z",
+  "updatedAt": "2026-07-11T22:41:00.895Z"
+}
