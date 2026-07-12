@@ -181,6 +181,27 @@
       "_hash": "860d1d9a18c670e0598f3d61e2f790dd1776afcbb508d5745d9d5c3a16fab037",
       "signatureTag": "missing|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8038:F-009",
+      "desc": "packages/main/src/core/candidate-spec-routing.ts:525-557 now detects all reviewed F-007 triggers, but requiresEscalation and escalationReasons have no consumer outside the router and smoke test. candidateReadBindingErrors does not reject an artifact where requiresEscalation=true and fullScan=false, scope_check_save/review_pass_set therefore accept it, and dispatch does not tell the reviewer that an escalation decision is pending. The canonical contract says ambiguous routing must escalate/fail closed instead of guessing; merely persisting a dead advisory flag leaves that behavior unchanged. Add a structured resolution state or enforce a reroute/approved bounded or broad escalation before candidate evidence can satisfy scope/review gates, surface the reasons in dispatch, and test that an unresolved requiresEscalation artifact is rejected by the consuming handler.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-12T11:02:14.542Z",
+      "reviewRound": "2026-07-12T11:00:37.492Z",
+      "reviewRunId": "B-8038:RR-008",
+      "_hash": "f09f84e90ff70a1ee6d5503bfc1df341669c2ff3dc9ee581253a03d17f0686e9",
+      "files": [
+        "packages/main/src/core/candidate-spec-routing.ts",
+        "packages/main/src/handlers/scope-check.ts",
+        "packages/main/src/handlers/finding.ts",
+        "packages/main/src/handlers/story-dispatch.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
