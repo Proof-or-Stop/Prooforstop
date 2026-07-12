@@ -29,6 +29,25 @@
       "_hash": "1da218f78e1e232a7652cc01f3cbc2a6f19117f9853e19cbc964a5fdcfc724b2",
       "signatureTag": "missing|unknown|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7c05:F-003",
+      "desc": "CHK-004:edge:1 (should): host_list borderline case (15,899 bytes, confirmed live) has no verificationEvidence record bound to this intentRef and no explicit disposition in docs/CLI.md. The CHK-004:edge:0 sweep evidence note lists host_list in an inline audited-under-threshold list (\"host_list 15,899\"), but the intent explicitly requires the borderline case be EITHER brought under brief-by-default OR explicitly documented as acceptable — docs/CLI.md brief-outputs table omits host_list entirely (unlike story_get, which gets a dedicated audited-disposition paragraph). So the disposition exists only in an evidence-log free-text note, not in the doc surface the intent points to, and is not bound to CHK-004:edge:1.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-12T01:41:02.162Z",
+      "reviewRound": "2026-07-12T01:35:24.882Z",
+      "reviewRunId": "B-7c05:RR-002",
+      "_hash": "0fbf7565873455c9b924ac3a4185bfb7e4c39bd92667f818fdcf000e05fdee82",
+      "files": [
+        "docs/CLI.md",
+        "packages/main/src/tasks/brief-output-smoke.ts"
+      ],
+      "signatureTag": "missing|md|edge-host-list",
+      "signatureTagSource": "auto"
     }
   ]
 }
