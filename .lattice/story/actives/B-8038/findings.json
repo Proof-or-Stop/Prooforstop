@@ -61,7 +61,7 @@
       "desc": "packages/main/src/core/candidate-spec-routing.ts:397-425 and :432-438 — primary Codex/Claude executions run concurrently and append to attempts in completion order; accepted proposals preserve that race order, while buildQueryGroups consumes proposal terms in insertion order and truncates at the query-group budget. The same inputs and same host proposal bodies can therefore produce different queryGroups, candidate sets, and artifactDigest solely from host latency. This violates deterministic routing and makes signed evidence non-reproducible. Collect results by fixed host order before overlap and routing, and add a latency-order inversion regression test.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-12T10:49:19.461Z",
@@ -72,7 +72,11 @@
         "packages/main/src/core/candidate-spec-routing.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in ec8d248d: concurrent host results are collected in canonical Codex then Claude order; latency inversion regression passes.",
+      "resolvedAt": "2026-07-12T10:56:03.595Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8038:F-004",
