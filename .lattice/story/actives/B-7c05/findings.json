@@ -14,8 +14,8 @@
       "_hash": "b7c1b6798a3bb26bc587cac6bda693f8856bfa5cca56e3c038eb1c21ba112caa",
       "signatureTag": "missing|unknown|packages-main-help",
       "signatureTagSource": "auto",
-      "resolvedReason": "Commit 8a1c4f033b: brief help now renders grouped command names ONLY — briefCommandDescription/BRIEF_DESC_MAX removed entirely, so no mid-word fragments can render. Output 7,787 bytes (was 11,619 with fragments); footer routes details to lattice <command> --help and help --full. brief-output-smoke now asserts no ellipsis fragments and that every help --full catalog name appears in brief (>100 commands live); docs/CLI.md and plan.md CHK-003 updated; CHK-003:happy:0 evidence re-recorded with the declared deviation (intent frozen post-PLAN).",
-      "resolvedAt": "2026-07-12T17:09:19.431Z",
+      "resolvedReason": "CORRECTED RESOLUTION (supersedes the earlier text that wrongly claimed a plan.md update — plan_set is PLAN-frozen and the mid-DEV attempt was phase-rejected; see F-006): commit 8a1c4f033b makes brief help grouped command names ONLY (7,854 bytes live, zero ellipsis fragments); brief-output-smoke asserts no-fragments + full-vs-brief name-set completeness (>100 commands); docs/CLI.md and the help-renderer comments (bde95c7473) describe names-only; the deviation from the frozen CHK-003:happy:0 wording is durably declared in summary_set limitations item 1 and the CHK-003:happy:0 evidence note.",
+      "resolvedAt": "2026-07-12T17:34:52.773Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
     },
