@@ -1,0 +1,25 @@
+{
+  "passes": [
+    {
+      "id": "B-12a1:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "reviewed CHK-001: registry addition of all ten ProofStory intent-hardening filenames (original-intent-snapshot.json, milestone-ledger.json, milestone-closeout.json, slice-plan.json, parent-ledger-rollup.json, proofstory.json, intent-collision.json, scope-shrinkage-decision.json, red-evidence.json, spike.json) to LATTICE_LIFECYCLE_ARTIFACT_FILENAMES in lifecycle-registry.ts verified against exact writeJson call sites in store.ts (lines 672-797); no logic change to classifyLifecycleArtifact/classifyScopePath, no duplication with LIFECYCLE_ARTIFACTS, non-goals (grill.json/clusters.json/scope-extension-decisions.json) correctly excluded as different command families. No blocker.",
+      "createdAt": "2026-07-12T21:49:24.522Z",
+      "reviewRound": "2026-07-12T21:45:24.921Z",
+      "reviewRunId": "B-12a1:RR-004",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-12a1/background.md",
+          ".lattice/story/actives/B-12a1/plan.md",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/tasks/scope-contract-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/store.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "71210c2f23e9e49502abee1e1ee58a765d6745c94542589cc2ed3569de845f2a"
+    }
+  ]
+}
