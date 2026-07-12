@@ -149,7 +149,7 @@
       "desc": "packages/main/src/core/candidate-spec-routing.ts:509-523 only turns query truncation and cutoff ties into scan escalation. It merely records weak_source_class_coverage, discards the primary-host disagreement fact after optionally invoking agy, and has no mechanical trigger for lifecycle/gate/process-fact/global-rename/high-risk inputs or unmatched high-confidence legacy terms. This contradicts the canonical MUST-escalate contract at multi-host-keyword-candidate-spec-routing-execution-plan.md:306-320 and validation cases at :524-536, allowing precisely the sparse/high-risk/host-disagreement cases to remain bounded without a justified broader scan. Carry structured trigger facts into routeCandidateSpecs, derive scanEscalationReason for every required trigger, and add focused fixtures for weak source coverage, host disagreement, high-risk gate changes, and unmatched high-confidence legacy terms.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-12T10:57:44.868Z",
@@ -161,7 +161,11 @@
         "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md"
       ],
       "signatureTag": "missing|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 802d8088: truncation, tie, weak coverage, host disagreement, high-risk lifecycle/gate/process/global rename and unmatched high-confidence legacy terms produce structured escalation reasons with direct fixtures.",
+      "resolvedAt": "2026-07-12T11:00:50.465Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
