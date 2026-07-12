@@ -175,7 +175,7 @@
       "id": "CHK-002",
       "title": "Record turn_failed(<short digest of error.message>) as the codex unavailableReason with honest fallback",
       "context": "packages/main/src/core/host-run.ts recordFinalForHost codex path: when no turn.completed usage exists but a turn.failed/terminal-error event was retained (streaming lane) or present in a buffered fake-runner stdout, record unavailableReason turn_failed(<short sanitized digest of error.message, innermost message when nested JSON>); fall back to no_turn_completed_usage_event when neither event is present; a genuine turn.completed usage still records provider-reported exactly as today; usage numbers are never fabricated.",
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-07-11T23:24:17.714Z",
       "endTime": "2026-07-11T23:32:37.779Z",
       "verificationIntent": {
