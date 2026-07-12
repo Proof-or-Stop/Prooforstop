@@ -318,6 +318,17 @@
           "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
           "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
           "timestamp": "2026-07-12T01:33:47.427Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "command": "bash -c 'test \"$(LATTICE_BRIEF_OUTPUT=0 node bin/lattice.js help 2>/dev/null | wc -c)\" -eq \"$(node bin/lattice.js help --full 2>/dev/null | wc -c)\"'",
+          "result": "pass",
+          "note": "help --full emits the complete verbose catalog (45,481 bytes) byte-identical to the LATTICE_BRIEF_OUTPUT=0 output; probe compares the two byte counts for equality and passes.",
+          "headHash": "160d232da66ad77bfa34a9a28b11319d9c6c7449",
+          "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
+          "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
+          "timestamp": "2026-07-12T01:33:47.971Z"
         }
       ]
     },
