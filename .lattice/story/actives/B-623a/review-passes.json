@@ -118,6 +118,27 @@
         "scanEscalationReason": null
       },
       "_hash": "d24d743ff236b800877034c6640be7947285fb2187d9da4b608cea2cd2ff1006"
+    },
+    {
+      "id": "B-623a:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Fresh round after d3f491966e (F-001/F-002/F-003 fix) + 874698a094 (F-004 fix); only usage-burn-alert-smoke.ts + story metadata changed since predecessor RP-002 fully read/passed the rest. Reviewed the full delta diff for dead code / unnecessary as-any / empty-catch / I/O-shell-isolation / proof-metadata-review-coverage per the lattice-review-quality charter: no unused imports/vars introduced, the old hotLine selector was fully replaced (no dead leftover), no new as-any/empty-catch beyond pre-existing established patterns already reviewed, no bridge.ts pattern in this project, no proof/receipt/provider/run/job metadata touched. Rebuilt (tsc) and ran dist/tasks/usage-burn-alert-smoke.js directly: 21/21 pass. No CLAUDE.md/README changed in this delta (closing self-check: no promised-but-undelivered surface). No blocker found within this lane's charter.",
+      "createdAt": "2026-07-12T21:23:29.799Z",
+      "reviewRound": "2026-07-12T21:14:21.850Z",
+      "reviewRunId": "B-623a:RR-006",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-623a/plan.md",
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/handlers/usage-sweep.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7ea6a702fda7d4bc06a7a4a734ac8ace29fbab4e4f40b57b1498faa0f0bdddac"
     }
   ]
 }
