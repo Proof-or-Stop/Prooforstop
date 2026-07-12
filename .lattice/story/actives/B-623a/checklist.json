@@ -291,9 +291,9 @@
       "id": "CHK-004",
       "title": "usage_sweep --alert exit-nonzero mode",
       "context": "usage_sweep gains an --alert boolean: the report is computed and printed as today, alert evaluation runs over the swept rows, flagged sessions are listed, and the CLI exits non-zero when any alert fired (recover_evidence dispatch pattern: print result first, then throw) so a cron job can drive notifications. --alert performs zero writes and stays effectively readOnly for ownership/activity/hook classification.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-12T20:24:16.931Z",
-      "endTime": null,
+      "endTime": "2026-07-12T20:34:01.954Z",
       "verificationIntent": {
         "happy": [
           {
