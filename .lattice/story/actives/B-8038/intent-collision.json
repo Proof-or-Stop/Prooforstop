@@ -2,10 +2,13 @@
   "schemaVersion": "proofstory.intent_collision.v1",
   "storyId": "B-8038",
   "id": "IC-20260712101406",
-  "decision": "revise_intent",
-  "status": "open",
-  "notes": "Independent collision review found one acceptance-coverage mismatch. M6A-M6G are faithfully mapped 1:1 across checklist verification intents, the candidate ledger, and the three-slice plan; OQ-001 correctly resolves the 10 query-group versus 50 hits-per-group budget; exclusions preserve B-3928 and prohibit corpus reinjection/unrelated refactors. However, immutable original intent explicitly requires final reporting of total token consumption and the largest cost source (REQ-TOKEN-COST, with uncertainty labels), while the corrected understanding, scope-check feature map, checklist verification intents, milestone ledger, slice plan, and plan.md contain no owned step or verification evidence for producing that final token-cost breakdown. M6G cost thresholds/metrics are product rollout measurements and are not equivalent to reporting this Story total token usage and dominant cost source. Add explicit owned acceptance coverage for final usage_sweep/token attribution reporting with uncertainty/multi-attribution labels, then rerun intent collision; do not change the immutable snapshot.",
-  "ledgerHashBeforeDecision": "sha256:4f01827e5d6f02ac9cd19384de7964655e63c9bfa7753d6bd6d2119c2ad27449",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Implement the complete B-f646 bounded multi-host candidate-spec routing program in B-8038 across all seven immutable-intent requirements REQ-M6A through REQ-M6G: deterministic corpus indexing/seeds; sanitized advisory Codex CLI and Claude Code CLI proposals with policy-bound Antigravity CLI fallback; bounded local search/ranking; signed fresh candidate and mechanical read evidence; PLAN, REVIEW, and delivery integration with lane authority preserved; and quality-gated shadow/warn/enforce rollout plus rollback that never restores requirements corpus prompt injection. Execute via the ledger-bound foundation, evidence-integration, and rollout slices; preserve the canonical limits of 8 ordinary candidates, 10 rg query groups, and 50 retained hits per group with structured escalation. Exclude B-3928 artifacts, unrelated lifecycle refactors, and host-taxonomy changes. At DONE, report provider-reported total input, output, and cache-read token usage where available, identify the best-supported largest milestone/host/command cost source, and present usage_sweep only as a separate non-authoritative estimate with missing-provider, shared-cache, and multi-attribution uncertainty explicitly labeled.",
+  "acceptedInterpretationHash": "sha256:2ecc0c5801a841e7373968e588cef34fb465368fc5daa49ee0379733268b7d6f",
+  "notes": "Final independent recheck PASS. The only ledger change is sourceRequirementId alignment from B-f646:M6A-G to immutable snapshot REQ-M6A-G. All milestone claims, doneMeans, required evidence, checklist refs, verification refs including CHK-007 happy:1 and edge:1, story-token-cost-report, and three-slice ownership remain intact. Slice plan binds the same current ledger hash sha256:afd091a64217d871a87dae4cbbf85651d19b058b5bb294d930d5402d3eea7389.",
+  "ledgerHashBeforeDecision": "sha256:afd091a64217d871a87dae4cbbf85651d19b058b5bb294d930d5402d3eea7389",
+  "confirmedLedgerHash": "sha256:afd091a64217d871a87dae4cbbf85651d19b058b5bb294d930d5402d3eea7389",
   "createdAt": "2026-07-12T10:14:06.471Z",
-  "updatedAt": "2026-07-12T10:14:06.471Z"
+  "updatedAt": "2026-07-12T10:18:49.132Z"
 }

@@ -1,12 +1,12 @@
 {
   "schemaVersion": "proofstory.milestone_ledger.v1",
   "storyId": "B-8038",
-  "state": "candidate",
-  "ledgerHash": "sha256:4f01827e5d6f02ac9cd19384de7964655e63c9bfa7753d6bd6d2119c2ad27449",
+  "state": "confirmed",
+  "ledgerHash": "sha256:afd091a64217d871a87dae4cbbf85651d19b058b5bb294d930d5402d3eea7389",
   "milestones": [
     {
       "id": "M6A",
-      "sourceRequirementId": "B-f646:M6A",
+      "sourceRequirementId": "REQ-M6A",
       "claim": "Corpus index and deterministic seed artifacts are versioned and byte deterministic.",
       "doneMeans": "Identical Story and corpus inputs produce byte-identical seed and corpus-index artifacts and golden tests pass.",
       "requiredEvidence": [
@@ -26,7 +26,7 @@
     },
     {
       "id": "M6B",
-      "sourceRequirementId": "B-f646:M6B",
+      "sourceRequirementId": "REQ-M6B",
       "claim": "Sanitized bounded host proposal adapters enrich local seeds without becoming authoritative.",
       "doneMeans": "Codex and Claude primary paths plus conditional agy fallback pass outage schema budget provenance and secret-leak fixtures.",
       "requiredEvidence": [
@@ -46,7 +46,7 @@
     },
     {
       "id": "M6C",
-      "sourceRequirementId": "B-f646:M6C",
+      "sourceRequirementId": "REQ-M6C",
       "claim": "Local specification search and ranking are bounded deterministic and ambiguity aware.",
       "doneMeans": "Golden candidates rank correctly and sparse noisy zero-hit tie cutoff and negative-control fixtures pass.",
       "requiredEvidence": [
@@ -66,7 +66,7 @@
     },
     {
       "id": "M6D",
-      "sourceRequirementId": "B-f646:M6D",
+      "sourceRequirementId": "REQ-M6D",
       "claim": "Candidate and mechanical read evidence are signed hash-bound and freshness checked.",
       "doneMeans": "Missing stale forged or manifest-log mismatched evidence fails closed in focused contract tests.",
       "requiredEvidence": [
@@ -86,7 +86,7 @@
     },
     {
       "id": "M6E",
-      "sourceRequirementId": "B-f646:M6E",
+      "sourceRequirementId": "REQ-M6E",
       "claim": "PLAN scope review consumes bounded routed candidates while preserving escalation and open-question semantics.",
       "doneMeans": "PLAN quality baseline and full-scan escalation fixtures pass within default read budgets.",
       "requiredEvidence": [
@@ -106,7 +106,7 @@
     },
     {
       "id": "M6F",
-      "sourceRequirementId": "B-f646:M6F",
+      "sourceRequirementId": "REQ-M6F",
       "claim": "Eligible REVIEW and delivery lanes reuse current routing evidence without authority overlap or quality loss.",
       "doneMeans": "Behavior docs coverage and delivery fixtures show rerouting on drift no duplicate findings and no lost load-bearing finding.",
       "requiredEvidence": [
@@ -126,13 +126,14 @@
     },
     {
       "id": "M6G",
-      "sourceRequirementId": "B-f646:M6G",
-      "claim": "Shadow warn enforce rollout and safe non-injection rollback are mechanically governed.",
-      "doneMeans": "Two consecutive evaluation windows meet recall equivalence cost and latency thresholds and rollback never restores corpus embedding.",
+      "sourceRequirementId": "REQ-M6G",
+      "claim": "Shadow warn enforce rollout and safe non-injection rollback are mechanically governed, and Story token usage is transparently attributed at closeout.",
+      "doneMeans": "Two consecutive evaluation windows meet recall equivalence cost and latency thresholds, rollback never restores corpus embedding, and the DONE report provides provider usage totals, largest attributable cost source, and labeled estimation uncertainty.",
       "requiredEvidence": [
         "rollout-tests",
         "process-fact-contract",
-        "two-window-evaluation"
+        "two-window-evaluation",
+        "story-token-cost-report"
       ],
       "checklistRefs": [
         "CHK-007"
@@ -140,11 +141,18 @@
       "verificationIntentRefs": [
         "CHK-007:happy:0",
         "CHK-007:edge:0",
-        "CHK-007:adversarial:0"
+        "CHK-007:adversarial:0",
+        "CHK-007:happy:1",
+        "CHK-007:edge:1"
       ],
       "status": "planned"
     }
   ],
   "createdAt": "2026-07-12T10:07:46.889Z",
-  "updatedAt": "2026-07-12T10:12:27.412Z"
+  "updatedAt": "2026-07-12T10:18:49.133Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260712101406",
+    "acceptedInterpretationHash": "sha256:2ecc0c5801a841e7373968e588cef34fb465368fc5daa49ee0379733268b7d6f",
+    "acceptedAt": "2026-07-12T10:18:49.133Z"
+  }
 }

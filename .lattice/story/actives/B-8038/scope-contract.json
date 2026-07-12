@@ -1,0 +1,41 @@
+{
+  "storyId": "B-8038",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/**",
+    "packages/main/package.json",
+    "package.json",
+    "package-lock.json",
+    "lattice.config.json",
+    "scripts/verify-process-fact-contract.mjs",
+    "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+    "AGENTS.md",
+    "CLAUDE.md",
+    ".claude/**",
+    ".lattice-codex/**"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/candidate-spec-routing.ts",
+    "packages/main/src/handlers/candidate-spec-routing.ts",
+    "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+    "packages/main/tests/candidate-spec-routing.test.mjs"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/**",
+    "packages/main/tests/**",
+    "scripts/**"
+  ],
+  "protectedFiles": [
+    ".lattice/story/actives/B-3928/**"
+  ],
+  "explicitExcludes": [
+    ".omx/**",
+    "docs/story/**",
+    "tests/fixtures/**",
+    ".lattice/story/actives/B-3928/**"
+  ],
+  "scopeChangeReason": "Full M6A-M6G runtime implementation from the accepted B-f646 execution plan, while protecting B-3928 and direct-managed metadata paths.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-12T10:19:01.304Z",
+  "updatedAt": "2026-07-12T10:19:01.304Z"
+}
