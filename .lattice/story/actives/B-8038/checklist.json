@@ -33,7 +33,22 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke proves schema versions, byte determinism, exact and normalized identifiers, stable ordering, traversal rejection, bounded artifacts, no document-body serialization, secret handling and tamper rejection.",
+          "headHash": "8d318a6791795dd6cfe9e4f36832154ad7b20d4b",
+          "materialHash": "94be1c4ef42b1f356e18d8c0ebcb0e2a2098ffec3e19b978f29dd7e865fa3bc2",
+          "storyFilesHash": "690f057f51997bd738697a7a3c9f62710822b7d092b0f46461fb82628d7fc82f",
+          "timestamp": "2026-07-12T10:23:13.816Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
