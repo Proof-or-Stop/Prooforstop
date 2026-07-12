@@ -249,6 +249,18 @@
           "materialHash": "ed4c1d93f811aed2d72830acbf40c2a701cfca845097ce5841469daa6ea7d995",
           "storyFilesHash": "e17aa5517d9272be012e26a3089f3f40ca6ac697da4db9d6fb77f2d4a340cd50",
           "timestamp": "2026-07-12T21:44:41.236Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "docs_check",
+          "file": "packages/main/src/tasks/scope-contract-smoke.ts",
+          "command": "grep -n 'scope.lifecycle_artifact:B-scope:' packages/main/src/tasks/scope-contract-smoke.ts",
+          "result": "pass",
+          "note": "New assertion ids interpolate the fixture id via `scope.lifecycle_artifact:B-scope:${name}` (line ~281) — fixture storyId B-scope, no real story id.",
+          "headHash": "1ab25bf2d44f1b1f8e8d635deb5102f8553496d3",
+          "materialHash": "ed4c1d93f811aed2d72830acbf40c2a701cfca845097ce5841469daa6ea7d995",
+          "storyFilesHash": "e17aa5517d9272be012e26a3089f3f40ca6ac697da4db9d6fb77f2d4a340cd50",
+          "timestamp": "2026-07-12T21:44:43.537Z"
         }
       ]
     }
