@@ -415,6 +415,30 @@
         "scanEscalationReason": null
       },
       "_hash": "b53bdcdf75d38cfce3981195afc0e80d122534b3e0840cd1f1331162b8b4bf91"
+    },
+    {
+      "id": "B-623a:RP-016",
+      "agent": "lattice-review-quality",
+      "note": "F-005 re-verified fixed: NaN burn value now normalized to null at construction in evaluateBurnAlerts, comparator never sees NaN, valid total order restored. Independently re-ran predecessor6-permutation repro against built dist plus pre-fix comparator simulation to confirm the repro is sound; built smoke suite 21/21 pass; lattice validate all green. No blocking gap remains.",
+      "createdAt": "2026-07-12T23:47:35.078Z",
+      "reviewRound": "2026-07-12T23:40:24.996Z",
+      "reviewRunId": "B-623a:RR-017",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-623a/background.md",
+          ".lattice/story/actives/B-623a/findings.json",
+          ".lattice/story/actives/B-623a/plan.md",
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/handlers/usage-sweep.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "dd304c9be70cf39c413b17045f7dab3d7553e4ba68fc61dfa138576766c5f376"
     }
   ]
 }
