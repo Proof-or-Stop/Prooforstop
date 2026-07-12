@@ -22,6 +22,29 @@
         "scanEscalationReason": null
       },
       "_hash": "8b20660f06693603228280395e83b9132ae4a015220338611aef4a2d698d4da8"
+    },
+    {
+      "id": "B-8038:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-3 coverage PASS after 802d8088. New direct trigger fixtures cover query truncation, cutoff tie, weak source-class coverage, primary-host disagreement, high-risk lifecycle/gate/process-fact/global rename, and unmatched high-confidence legacy terms; each requires escalation without authorizing full corpus reads, while explicit fullScanReason remains separately tested. Fresh build, candidate routing smoke, 5 MB corpus budget regression, reviewer scan-budget guard, signed review authority smoke, and process-fact contract all pass, preserving round-2 coverage.",
+      "createdAt": "2026-07-12T11:02:43.356Z",
+      "reviewRound": "2026-07-12T11:00:37.492Z",
+      "reviewRunId": "B-8038:RR-009",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/candidate-spec-routing.ts",
+          "packages/main/src/handlers/candidate-spec-routing.ts",
+          "packages/main/src/tasks/candidate-spec-routing-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/review-pass-discard-smoke.ts",
+          "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+          "packages/main/src/tasks/story-review-corpus-budget-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "fe7c0711af13839dc9ca7b6c0c39d8d5dfb1600834c9c8d82295e8db27a72f0e"
     }
   ]
 }
