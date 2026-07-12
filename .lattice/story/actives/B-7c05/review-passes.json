@@ -86,6 +86,32 @@
         "scanEscalationReason": null
       },
       "_hash": "8ba88f866ac5f414898f181c9e6ffdc80854e6c2d697b3fcc9972f1eb4c0d431"
+    },
+    {
+      "id": "B-7c05:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Round-3 verified F-007..F-010 fixed against git show 3fabbf5f82/bde95c7473: dead exports gone, bg marker restored+live-verified (35/36), phantom severity branch removed, truncateOneLine delegates to exported core oneLineCell with no core->cli import. tsc clean, both smokes green.",
+      "createdAt": "2026-07-12T17:39:58.494Z",
+      "reviewRound": "2026-07-12T17:08:48.514Z",
+      "reviewRunId": "B-7c05:RR-008",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli/help-renderer.ts",
+          "packages/main/src/cli/output-verbosity.ts",
+          "packages/main/src/handlers/bug.ts",
+          "packages/main/src/handlers/story-query.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-7c05/findings.json",
+          ".lattice/story/actives/B-7c05/test-evidence.json",
+          "packages/main/src/core/milestone-status.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/tasks/brief-output-smoke.ts",
+          "packages/main/src/tasks/cli-surface-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "758212ce091cc30fb2a5a7902e6b51dc62f5ad06ec14b0c192afd2b7ad786d6b"
     }
   ]
 }
