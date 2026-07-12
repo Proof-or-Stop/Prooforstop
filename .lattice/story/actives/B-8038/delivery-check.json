@@ -1,53 +1,85 @@
 {
   "storyId": "B-8038",
-  "checkedAt": "2026-07-12T11:32:54.168Z",
-  "headHash": "7741b5dd46a589d825692a1312e2a1e4a0cbf078",
-  "materialHash": "5dbcdf8929639dd3d7923d990b68be9fc67ee9bc99c720859c792aced055eaf4",
-  "storyFilesHash": "3d75a7ce5d096197ad2c6e113a6be00670ff8de754b6c412e9c551b018fe7623",
-  "reviewRound": "2026-07-12T11:19:16.431Z",
+  "checkedAt": "2026-07-12T11:46:21.746Z",
+  "headHash": "1c7fdb1c82cb10174231e190ffc8b04554b192c6",
+  "materialHash": "216c6b48e9d61f07fa204bf0f8cc8e527bca8d65466b85f5f5d70d256838a76f",
+  "storyFilesHash": "e3d3ed42fd69470ba983ba8b1bab41ecc514274b5fabe40b2ceae8908d868785",
+  "reviewRound": "2026-07-12T11:38:48.142Z",
   "agentId": "lattice-review-delivery",
   "docsPromises": [
     {
       "docPath": "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
-      "promise": "Document status and shipped-versus-future boundary accurately describe whether M6A-M6G implementation exists.",
-      "status": "unverified",
-      "verifiedBy": "direct document-to-code and live-smoke comparison",
-      "evidence": "Document still says implementation not started and labels CLI routing components as future work, while main...HEAD contains candidate-spec-routing implementation and the live candidate_spec_route smoke exits 0."
+      "promise": "M6A-M6F implementation status and M6G partial mechanics are accurately separated from future runtime metric windows, promotion, and release.",
+      "status": "verified",
+      "verifiedBy": "commits 98867a06 and 2218cba0 compared with current code, config, and TEST evidence",
+      "evidence": "Status now says M6A-M6F implemented and M6G mechanics partial; it explicitly leaves runtime metric/window production, two qualifying observed windows, warn/enforce promotion, and production release unclaimed. Current config mode is shadow."
     },
     {
       "docPath": "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
-      "promise": "Default routing is bounded to 8 candidates, 10 query groups, and 50 raw hits per group with explicit escalation.",
+      "promise": "Deterministic corpus indexing and seed generation are stable for identical inputs.",
       "status": "verified",
-      "verifiedBy": "live candidate_spec_route plus focused candidate-spec-routing smoke",
-      "evidence": "Live output reported budgets candidates=8, queryGroups=10, rawHitsPerGroup=50, exactly 8 candidates, requiresEscalation=true for ranking-affecting truncation, and fullScan=false."
+      "verifiedBy": "candidate-spec-routing smoke and fresh live transcript",
+      "evidence": "Focused smoke passed and fresh live candidate_spec_route exited 0 with proofbound.candidate-spec-set.v1 and current corpus/seed digests."
     },
     {
       "docPath": "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
-      "promise": "Rollback and broad review never restore requirements-corpus prompt injection.",
+      "promise": "Host semantic proposals remain bounded, sanitized, advisory, and locally recoverable.",
       "status": "verified",
-      "verifiedBy": "story-review corpus budget smoke, source inspection, and process-fact contract",
-      "evidence": "Corpus budget smoke measured 2936 bytes both before and after adding a large corpus, 0-byte delta, and 99.91 percent reduction from reconstructed pre-fix prompt; story-review has no corpus concatenation."
+      "verifiedBy": "candidate-spec-routing host-adapter fixtures",
+      "evidence": "Focused smoke passed sanitizer, malformed/oversized response, primary-host failure, conditional agy fallback, and deterministic local fallback cases."
+    },
+    {
+      "docPath": "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+      "promise": "Local search emits a bounded auditable candidate set and escalates ambiguity explicitly.",
+      "status": "verified",
+      "verifiedBy": "fresh live candidate route and focused smoke",
+      "evidence": "Current config and live route enforce budgets 8 candidates, 10 query groups, 50 raw hits per group; truncation is surfaced as requiresEscalation rather than silent omission."
+    },
+    {
+      "docPath": "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+      "promise": "Candidate and reviewer-read evidence are digest-bound and fail closed when stale, forged, incomplete, or escalation remains unresolved.",
+      "status": "verified",
+      "verifiedBy": "candidate routing smoke, review-pass smoke evidence, and fresh TEST validation",
+      "evidence": "Current integration tests cover signature/digest/freshness/read-manifest mismatches and unresolved escalation rejection; TEST validation is fresh PASS."
+    },
+    {
+      "docPath": "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+      "promise": "PLAN, eligible REVIEW lanes, and delivery reuse routing context without merging reviewer authority.",
+      "status": "verified",
+      "verifiedBy": "dispatch/source contract review and process-fact verification",
+      "evidence": "Dispatch includes candidate and corpus digests while existing signed reviewer-run/lane writers remain authoritative; process fact contract verified."
+    },
+    {
+      "docPath": "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+      "promise": "Rollback and broader review never restore requirements-corpus prompt injection.",
+      "status": "verified",
+      "verifiedBy": "story-review corpus budget smoke and source inspection",
+      "evidence": "Prompt remains 2936 bytes after adding a large corpus, delta 0, with 99.91 percent reduction from reconstructed pre-fix prompt; no Truth Source corpus concatenation is present."
     }
   ],
   "realMachineTests": [
     {
+      "featureId": "CHK-001-CHK-006",
+      "transcript": "Fresh TEST validation PASS at 2026-07-12T11:44:59.445Z, materialHash 216c6b48e9d61f07fa204bf0f8cc8e527bca8d65466b85f5f5d70d256838a76f; verification intent coverage 23/23."
+    },
+    {
       "featureId": "CHK-003",
-      "transcript": "candidate_spec_route local-only live command exited 0; emitted proofbound.candidate-spec-set.v1, 8 candidates, budgets 8/10/50, explicit query_results_truncated escalation, fullScan=false."
+      "transcript": "Fresh live transcript at current material ran candidate_spec_route local-only, exited 0, and emitted proofbound.candidate-spec-set.v1 with current corpus/seed digests and bounded candidates."
     },
     {
       "featureId": "CHK-007",
-      "transcript": "story-review-corpus-budget-smoke passed; baseline and large-corpus prompt bytes were both 2936, delta 0, reduction 99.91 percent."
+      "transcript": "candidate-spec-routing-smoke PASS; story-review-corpus-budget-smoke PASS with 2936 byte prompt unchanged by large corpus and 99.91 percent reduction; process-fact contract verified."
     },
     {
-      "featureId": "CHK-001-CHK-007",
-      "transcript": "candidate-spec-routing-smoke passed and verify-process-fact-contract reported Process fact contract verified."
+      "featureId": "M6G-boundary",
+      "transcript": "lattice.config.json reports mode shadow with budgets 8/10/50; updated document explicitly states runtime window collection, qualifying windows, warn/enforce promotion, and production release remain future/unclaimed."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
-    "hasUnresolvedTodos": true,
-    "summary": "Delivery behavior and edge safeguards pass, but the accepted execution plan is stale: it still states implementation not started and classifies implemented M6A-M6G components as future work. Update that boundary and rerun delivery review."
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery promises are verified against current code, fresh TEST validation, fresh live route output, regression smokes, and the corrected execution document. The stale-plan blocker is resolved. Claims correctly stop at M6A-M6F plus partial M6G mechanics in shadow mode and do not claim rollout promotion or production release."
   },
-  "_hash": "bc4e83b4ee3774d874aaa7f3cc5d3f8ea6d4766b57eb08d60a0ccf0a188ddff8"
+  "_hash": "b4d2b2c35a1095350eae386bc3016f2c99633dcef49e473bb52e7a13c5b9b334"
 }
