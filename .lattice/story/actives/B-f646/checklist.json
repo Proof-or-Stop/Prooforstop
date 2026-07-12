@@ -22,7 +22,30 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Inspect the execution document and verify it defines the end-to-end producer flow from deterministic CLI keywords plus semantic proposals from Codex CLI, Claude Code CLI, and Antigravity CLI through local rg search, auditable ranking, bounded candidateSpecSet, top-N full reads, structured read evidence, milestones, rollout, validation matrix, and an explicit plan-only delivery-state boundary -> every required decision is concrete enough to implement and no runtime completion is claimed; WHY: proves the document is an executable canonical plan rather than a vague recommendation",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Review the plan against sparse matches, excessive/noisy matches, duplicate aliases, keyword disagreement across hosts, unavailable or quota-limited hosts, and zero-candidate results -> deterministic fallback, deduplication/ranking, configured bounds, host-substitution policy, and explicit escalation behavior remain defined without silently widening to the whole corpus; WHY: covers boundary conditions most likely to reintroduce omissions or unbounded token use",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Attempt to satisfy the proposed contract with host-supplied keywords alone, fabricated/self-reported read claims, or an unexplained full-corpus scan -> the plan requires CLI-owned deterministic seeds and bounds, local auditable search/ranking artifacts, evidence tied to actual candidate reads, explicit full-scan reasons, and quality/token/read-evidence acceptance gates that reject those bypasses; WHY: prevents prompt-only compliance and a disguised return of the 2 MB corpus injection failure",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
