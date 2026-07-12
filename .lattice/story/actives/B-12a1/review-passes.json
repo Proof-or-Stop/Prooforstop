@@ -41,6 +41,94 @@
         "scanEscalationReason": null
       },
       "_hash": "528507515cebc7802708664ac4dbbae8d96183a0d903c4cb7dc9d37035ed3c9b"
+    },
+    {
+      "id": "B-12a1:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "reviewed CHK-001: the ten ProofStory filenames added to LATTICE_LIFECYCLE_ARTIFACT_FILENAMES match exactly the writeJson/readJson call sites in store.ts lines 672-797 (verified by grep), no duplicates in the closed Set, no classifyLifecycleArtifact/classifyScopePath logic touched, tsc build is clean (type-safe), and the change is pure data (no new I/O). No blocker.",
+      "createdAt": "2026-07-12T21:50:06.279Z",
+      "reviewRound": "2026-07-12T21:45:24.921Z",
+      "reviewRunId": "B-12a1:RR-002",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-12a1/background.md",
+          ".lattice/story/actives/B-12a1/plan.md",
+          "packages/main/src/core/lifecycle-registry.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/scope-contract.ts",
+          "packages/main/src/core/store.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4b59dd223c430d874d4c94741217bfadf5639e708a3b063f48253281223c1fe7"
+    },
+    {
+      "id": "B-12a1:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "reviewed CHK-002: new proofStoryPositive block in scope-contract-smoke.ts asserts all ten ProofStory paths under waveContract (enforce, no story-metadata allow-list) resolve to scope.lifecycle_artifact:B-scope:<name> pass/non-blocking rows and overall status pass; block sits inside the existing try/finally-scoped tmp root, calls the pure checkScopeContract fn (no new I/O), and the sibling fail-closed negative assertions (unknown-metadata.json etc.) are unchanged, confirming the closed-set policy still fails closed for unregistered names. npm run build (tsc) is clean and node dist/tasks/scope-contract-smoke.js prints scope contract smoke passed. No blocker.",
+      "createdAt": "2026-07-12T21:50:09.705Z",
+      "reviewRound": "2026-07-12T21:45:24.921Z",
+      "reviewRunId": "B-12a1:RR-002",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-12a1/background.md",
+          ".lattice/story/actives/B-12a1/plan.md",
+          "packages/main/src/tasks/scope-contract-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/scope-contract.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1092d9060c79be5650dcf027d36714e14710cb20526e2e93cbfa989d0a2e9b3d"
+    },
+    {
+      "id": "B-12a1:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "reviewed CHK-001: verificationIntent/verificationEvidence coverage is 1:1 (8 intents, 8 evidence entries matching intentRef). Independently re-ran all 5 logic-test probes (A/E/H/F/G/D/I) against the built dist and they reproduce exactly as claimed: the ten ProofStory filenames classify kind=lifecycle, existing names unregressed, carved-out names (grill.json/clusters.json/scope-extension-decisions.json) and unknown names still null, nested/traversal paths still null, no duplicate literals (34 entries), 11th unregistered name fails closed. Cross-checked all ten filenames against store.ts writeJson call sites (lines 672-797) — exact match, no typos. No blocker.",
+      "createdAt": "2026-07-12T21:50:35.722Z",
+      "reviewRound": "2026-07-12T21:45:24.921Z",
+      "reviewRunId": "B-12a1:RR-003",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-12a1/background.md",
+          ".lattice/story/actives/B-12a1/checklist.json",
+          ".lattice/story/actives/B-12a1/plan.md",
+          ".lattice/story/actives/B-12a1/red-evidence.json",
+          "packages/main/src/core/lifecycle-registry.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/store.ts",
+          "packages/main/src/tasks/scope-contract-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "14ee2740106fb6233861c26cb7bcb809d23e13bc6c10e973628319b8e79de415"
+    },
+    {
+      "id": "B-12a1:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "reviewed CHK-002: verificationIntent/verificationEvidence coverage is 1:1 (8 intents, 8 evidence entries matching intentRef). Confirmed scope-contract-smoke.ts proofStoryPositive block (lines 259-287) asserts all ten ProofStory artifact paths under the enforce waveContract (whose allowedModify/allowedCreate/allowedTest do not list story-metadata paths) produce scope.lifecycle_artifact:B-scope:<name> pass rows with blocking=false and overall status pass; failClosedNegative block for unknown-metadata/unowned-source/direct-edit fixtures is untouched and still fails closed. Independently rebuilt (npm --prefix packages/main run build) and ran node packages/main/dist/tasks/scope-contract-smoke.js -> prints scope contract smoke passed, confirming the full suite including the new block is genuinely green (not vacuous). Read RED-001 in red-evidence.json binding AB-001 baseline pre-fix failure. No blocker.",
+      "createdAt": "2026-07-12T21:50:55.782Z",
+      "reviewRound": "2026-07-12T21:45:24.921Z",
+      "reviewRunId": "B-12a1:RR-003",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-12a1/background.md",
+          ".lattice/story/actives/B-12a1/checklist.json",
+          ".lattice/story/actives/B-12a1/plan.md",
+          ".lattice/story/actives/B-12a1/red-evidence.json",
+          "packages/main/src/tasks/scope-contract-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/store.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "10e33680708899b29a50bdf39eddef5b26c97f4419b06579270b85c7832a9b9b"
     }
   ]
 }
