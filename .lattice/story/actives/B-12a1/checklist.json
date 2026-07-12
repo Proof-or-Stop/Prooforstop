@@ -225,6 +225,18 @@
           "materialHash": "ed4c1d93f811aed2d72830acbf40c2a701cfca845097ce5841469daa6ea7d995",
           "storyFilesHash": "e17aa5517d9272be012e26a3089f3f40ca6ac697da4db9d6fb77f2d4a340cd50",
           "timestamp": "2026-07-12T21:44:35.659Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/scope-contract-smoke.ts",
+          "command": "git checkout HEAD~1 -- packages/main/src/core/lifecycle-registry.ts && npm --prefix packages/main run build && node packages/main/dist/tasks/scope-contract-smoke.js; git checkout HEAD -- packages/main/src/core/lifecycle-registry.ts && npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "The new block reuses waveContract (allowedModify only src/allowed.ts; story-metadata paths absent from all allow sets). Proven not-allow-listed by the red replay: with the registry entries reverted (HEAD~1) and dist rebuilt, the same smoke fails with an AssertionError [strictEqual] on the B-12a1 rows; restoring HEAD and rebuilding returns it to pass.",
+          "headHash": "def6db3a2b6e7cfb765e54743b6f46e7f8e12809",
+          "materialHash": "ed4c1d93f811aed2d72830acbf40c2a701cfca845097ce5841469daa6ea7d995",
+          "storyFilesHash": "e17aa5517d9272be012e26a3089f3f40ca6ac697da4db9d6fb77f2d4a340cd50",
+          "timestamp": "2026-07-12T21:44:38.350Z"
         }
       ]
     }
