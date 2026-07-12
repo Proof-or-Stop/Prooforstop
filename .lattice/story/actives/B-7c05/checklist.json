@@ -74,6 +74,17 @@
           "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
           "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
           "timestamp": "2026-07-12T01:33:40.567Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js milestone_status --storyId=B-7c05 --full",
+          "result": "pass",
+          "note": "Literal run on this story: emits the complete 7-column markdown table (three '| Milestone |' header rows incl. checklist-derived + closeout sections), 1,122 bytes vs 669 brief.",
+          "headHash": "0fd74804f43991d49010442706b4e5a19333c904",
+          "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
+          "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
+          "timestamp": "2026-07-12T01:33:41.125Z"
         }
       ]
     },
