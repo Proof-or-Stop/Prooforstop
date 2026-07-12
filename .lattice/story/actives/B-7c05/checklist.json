@@ -242,6 +242,18 @@
           "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
           "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
           "timestamp": "2026-07-12T01:33:46.341Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/brief-output-smoke.ts",
+          "command": "node packages/main/dist/tasks/brief-output-smoke.js",
+          "result": "pass",
+          "note": "Brief finding_list keeps id, severity, category, status and evidenceState on every finding (smoke skeleton assertion), so suspected-vs-verified triage remains possible without --full.",
+          "headHash": "b6f803a73edfc327c842bce7411660b12465e706",
+          "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
+          "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
+          "timestamp": "2026-07-12T01:33:46.858Z"
         }
       ]
     },
