@@ -1,0 +1,75 @@
+{
+  "storyId": "B-623a",
+  "checkedAt": "2026-07-12T22:24:59.207Z",
+  "headHash": "e988891a3e8260089f5d6eb9664ea7896e51c0e2",
+  "materialHash": "bbe2cd7ef046ebad7ce690d3dca9c070e45f8769ed60164c5f0eac84850289cd",
+  "storyFilesHash": "fc979a1e23d839318d52a37870d4c6e65e07d0ef7a7c07002356f920f078f23d",
+  "reviewRound": "2026-07-12T21:28:55.311Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "plan.md#CHK-001",
+      "promise": "usage-burn-alert-smoke prints \"✓ evaluator: at-threshold not flagged; just-over flagged for file-size / input-tokens / session-age\" and the final \"✓ usage-burn-alert smoke passed\" summary line",
+      "status": "verified",
+      "verifiedBy": "smoke transcript (independently re-run)",
+      "evidence": "Ran `node packages/main/dist/tasks/usage-burn-alert-smoke.js` myself (also via `npm run test:usage-burn-alert`): 21/21 checks pass, final line is literally \"✓ usage-burn-alert smoke passed (21 checks)\" matching the promised final-line pattern. The per-reason boundary behavior (file-size at/over, input-tokens at/over, session-age at/over, each isolated) IS fully tested at lines 317-340 of usage-burn-alert-smoke.ts. NOTE: the exact quoted line in checklist.json userSees (\"...just-over flagged for file-size / input-tokens / session-age\") does not appear byte-for-byte; the actual printed label is \"✓ evaluator: at-threshold not flagged; just-over flagged; per-reason isolation\" (checkAsync label at L317). This is a checklist-wording/paraphrase drift, not a substance gap — all three reasons are individually asserted at/over the boundary (file-size L321-323, input-tokens L325-327, session-age L329-332)."
+    },
+    {
+      "docPath": "plan.md#CHK-002",
+      "promise": "usage-burn-alert-smoke prints \"✓ resolver: defaults 100MB / 100M tokens / 7d / 48h; garbage, negative and empty env values fall back per-variable\"",
+      "status": "verified",
+      "verifiedBy": "smoke transcript (independently re-run)",
+      "evidence": "Ran the smoke myself: defaults are asserted at L270-276 (checkAsync 'resolver: empty env yields the documented defaults (100MB/100M/7d/48h)') and garbage/negative/empty/zero fallback is asserted at L301-315 (checkAsync 'resolver: garbage / negative / empty / zero-where-meaningless env falls back per-variable'), both passing. NOTE: checklist.json userSees promises ONE combined printed line; the actual smoke prints these as TWO separate check lines (neither matches the promised string verbatim) — checklist-wording drift, not a substance gap. Both halves of the claim (defaults correct; garbage/negative/empty all fall back per-variable) are genuinely tested and passing."
+    },
+    {
+      "docPath": "plan.md#CHK-003",
+      "promise": "lattice doctor prints a \"Host burn scan (advisory):\" section; a flagged session renders \"✗ BURN ALERT codex <session-id> ~<N> input tokens\" plus file/cwd/first-last-activity lines and the tripped thresholds; a clean scan renders \"✓ no host sessions over burn thresholds\"",
+      "status": "verified",
+      "verifiedBy": "real-machine CLI transcript against the real ~/.codex and ~/.claude stores (independently reproduced) + smoke",
+      "evidence": "Independently re-ran `node packages/main/dist/cli.js --root . doctor` from the story worktree against the REAL home stores. Output contains \"Host burn scan (advisory):\", and e.g. \"✗ BURN ALERT codex 019e40d0-cc01-7141-a2c8-a28ece2499d1 (codex-desktop) ~1_761_423_160 input tokens\" followed by file/cwd/first-last-activity lines and \"tripped: file-size, input-tokens, session-age\" — matches the promised literal pattern exactly. Cross-checked against owner-captured .lattice/story/actives/B-623a/evidence/live-smoke-transcript.json (headHash e988891a3e8260089f5d6eb9664ea7896e51c0e2, matches current HEAD). Clean-scan line \"✓ no host sessions over burn thresholds\" verified via the fixture-driven smoke (checkAsync at L406-419, hermetic empty stores)."
+    },
+    {
+      "docPath": "plan.md#CHK-004",
+      "promise": "lattice usage_sweep --since=2d --alert prints the normal report plus a \"BURN ALERT\" section listing flagged sessions and exits non-zero; the same sweep without --alert (or with no session over thresholds) exits 0",
+      "status": "verified",
+      "verifiedBy": "real-machine CLI transcript against the real host stores (independently reproduced) + smoke",
+      "evidence": "Independently re-ran `node packages/main/dist/cli.js --root . usage_sweep --since=2d --alert` from the story worktree against the REAL home stores: printed the full NON-AUTHORITATIVE report followed by \"BURN ALERT: 14 session(s) over burn thresholds (193 scanned) — exiting non-zero\" and the per-session warning blocks, then exited 1 (echo $? = 1). Session/scanned counts drifted slightly from the owner-captured /tmp/live-alert.log (191 vs 193 scanned, both 14 flagged) because host activity continued between captures — expected on a live machine, not a discrepancy. Smoke (CHK-005 section 9, real built CLI) additionally confirms: same flagged stores WITHOUT --alert exit 0 (opt-in only), and --alert on clean fixture stores exits 0."
+    },
+    {
+      "docPath": "plan.md#CHK-005",
+      "promise": "npm run test:usage-burn-alert prints per-check ✓ lines and a final \"✓ usage-burn-alert smoke passed (<N> checks)\" and exits 0; npm run test:all discovers the smoke automatically",
+      "status": "verified",
+      "verifiedBy": "npm script transcript + source read of run-all-smokes.ts discovery + smoke-manifest.json",
+      "evidence": "Ran `npm run test:usage-burn-alert` from the story worktree root: prints 21 per-check ✓ lines and the final \"✓ usage-burn-alert smoke passed (21 checks)\", exit 0 (confirmed both root package.json and packages/main/package.json wire the script to dist/tasks/usage-burn-alert-smoke.js). Confirmed root test:all -> packages/main/dist/tasks/run-all-smokes.js glob-scans dist/tasks/*-smoke.js (no per-smoke wiring needed) and packages/main/smoke-manifest.json has no entry for usage-burn-alert (so it runs with defaults, not skipped)."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node packages/main/dist/tasks/usage-burn-alert-smoke.js (also npm run test:usage-burn-alert), run independently by the delivery reviewer on this machine: 21/21 checks pass, including 'evaluator: at-threshold not flagged; just-over flagged; per-reason isolation' (exactly-at file-size/input-tokens/session-age NOT flagged, threshold+1 flagged with a single isolated reason each), 'evaluator: null usage / unparseable firstTimestamp / unreadable file never flag their reasons', 'evaluator: codex vs claude burn-token formula + deterministic ordering', 'evaluator: NaN / Infinity / negative token counts never throw or corrupt findings', and 'integration: swept fixtures flag HOT ... respect the mtime window' (real sweepCodexSessions() over OS-temp fixture files, not mocked). No process.env/Date.now in core confirmed by the 'source contracts' check."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Same smoke run (usage-burn-alert-smoke.js), independently executed: 'resolver: empty env yields the documented defaults (100MB/100M/7d/48h)', 'resolver: each env variable overrides its threshold; RECENT_HOURS=0 disables', 'resolver: garbage / negative / empty / zero-where-meaningless env falls back per-variable', and 'resolver: FILE_MB=50, very large values, prototype-pollution keys, unrelated-only env' all pass. Confirmed resolveBurnAlertThresholds is a pure function of an env record (no process.env read inside) by source read of core/usage-burn-alert.ts."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Independently re-ran `node packages/main/dist/cli.js --root . doctor` from the story worktree against the REAL ~/.codex/sessions and ~/.claude/projects stores on this machine (headHash e988891a3e8260089f5d6eb9664ea7896e51c0e2, current HEAD). Exit 0. Output included 'Host burn scan (advisory):' plus multiple '✗ BURN ALERT ...' blocks naming real session ids/files/cwds/token counts (e.g. codex 019e40d0-... ~1_761_423_160 input tokens, file 887.1 MB, cwd .../Prodenovo Antibody Filter, 54 days old, tripped: file-size, input-tokens, session-age) — cross-checked against the owner-captured .lattice/story/actives/B-623a/evidence/live-smoke-transcript.json (same headHash, same flagged session, same numbers). Fixture-driven smoke (checkAsync L406-491) additionally covers: clean-store ✓ line, RECENT_HOURS=0 disabled+zero-scan (verified nonexistent dirs never touched), and the triple-reason (file-size+input-tokens+session-age) block."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Independently re-ran `node packages/main/dist/cli.js --root . usage_sweep --since=2d --alert` from the story worktree against the REAL host stores. Full NON-AUTHORITATIVE report printed to stdout, followed by 'BURN ALERT: 14 session(s) over burn thresholds (193 scanned) — exiting non-zero' and the per-session warning blocks; process exited 1 (echo $? = 1). This independently reproduces the owner-captured /tmp/live-alert.log (191 scanned vs my 193 — expected host-activity drift between captures, same 14-flagged count). Fixture smoke additionally proves via the real built CLI (execFileSync, not in-process): flagged+--alert exits non-zero AND still prints the report; same flagged stores WITHOUT --alert exit 0 (opt-in only); --alert on clean stores exits 0; plain doctor exits 0 even with flagged sessions (advisory contract preserved); zero-writes snapshot across doctor scan + --alert sweep; --alert stays classified readOnly on both the ownership gate and the activity/hook layer."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "Ran `npm run test:usage-burn-alert` from the story worktree root (delegates to node packages/main/dist/tasks/usage-burn-alert-smoke.js): 21 per-check ✓ lines then '✓ usage-burn-alert smoke passed (21 checks)', exit 0. Confirmed via source read that packages/main/dist/tasks/run-all-smokes.js (npm run test:all) glob-scans dist/tasks/*-smoke.js with no per-smoke registration required, and packages/main/smoke-manifest.json has no override/skip entry for usage-burn-alert, so it is auto-discovered and runs with default timeout/no-retry settings."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Reverse-scanned git diff main...HEAD (30 files, new core/usage-burn-alert.ts + usage-burn-alert-smoke.ts, opt-in wiring in doctor.ts/usage-sweep.ts/cli-engine.ts/command-catalog.ts/process-fact-levels.ts, 3 pre-existing smokes updated for the doctor() sync->async migration). Independently re-ran the deterministic suite (node dist/tasks/usage-burn-alert-smoke.js and npm run test:usage-burn-alert): 21/21 pass on this machine, not taken on faith. Independently reproduced BOTH real-machine records against the live ~/.codex and ~/.claude stores rather than trusting the owner's capture: `doctor` (exit 0, Host burn scan section with real flagged sessions matching live-smoke-transcript.json's headHash/numbers) and `usage_sweep --since=2d --alert` (exit 1, BURN ALERT trailer, 14 sessions flagged, matching /tmp/live-alert.log modulo expected host-activity drift 191->193 scanned). No docs/ changes were promised (deliberate non-goal); verified the command-catalog.ts descriptions for doctor and usage_sweep are the CLI-surface disclosure and both literally mention the burn scan/--alert mode and all six LATTICE_BURN_ALERT_* env vars. Edge/adversarial coverage confirmed present and passing: exactly-at-threshold vs threshold+1 for all three reasons independently, null-usage/unparseable-timestamp/unreadable-file never flag, zero-usage rows never flag input-tokens, codex-vs-claude burn formula (claude includes cacheRead+cacheCreation), deterministic sort ordering (burn desc, sessionId asc, null-usage last), NaN/Infinity/negative env and token values never throw or corrupt findings, prototype-pollution env keys, a triple-simultaneous-reason fixture (bound to the correct session's own warning block per the F-004 fix, not a sort-order coincidence), zero-writes snapshot across both push surfaces, and read-only ownership-gate/activity-policy classification for --alert. Found ONE non-blocking discrepancy: checklist.json userSees for CHK-001 and CHK-002 quote exact print lines that do not appear byte-for-byte in the current smoke output (the underlying tested behavior for both is genuinely present and passing; only the checklist's literal wording is stale relative to the final check labels) -- recorded honestly in docsPromises evidence rather than silently treated as an exact match, but not treated as a delivery blocker since the promised capability is substantively delivered and independently verified. All 5 CHK-001..CHK-005 items are checklist-status done; findings.json shows 4 findings (F-001..F-004), all status=resolved with resolveEvidenceStrength=strong and independently-confirmable fix commits (d3f491966e, 874698a094) on this branch. No unresolved TODO/FIXME found in the touched source files, and decision.json shows no open pre-mortem items requiring a waiver."
+  },
+  "_hash": "66592c39072c5a9908263a75b203eb8166275f57a884ba2631795f77af9e9faf"
+}
