@@ -1,0 +1,29 @@
+{
+  "passes": [
+    {
+      "id": "B-7c05:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review: all 38 must-priority intents across 6 checklist items have valid, concretely-bound verificationEvidence (29 manual_transcript + 9 logic_test, all result=pass, spot-checked live against current HEAD). No must-priority gaps. Filed 3 low/advisory findings (F-003,F-004,F-005) for should-priority intent gaps (host_list disposition, milestone/help scaling boundaries, two graceful-ignore/empty-list cases) that do not block this coverage pass per reviewer rule 1/2 (must-only gate).",
+      "createdAt": "2026-07-12T01:41:43.887Z",
+      "reviewRound": "2026-07-12T01:35:24.882Z",
+      "reviewRunId": "B-7c05:RR-002",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/CLI.md",
+          "packages/main/src/cli/help-renderer.ts",
+          "packages/main/src/tasks/brief-output-smoke.ts",
+          "packages/main/tests/milestone-status.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "packages/main/src/core/milestone-status.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "scripts/verify-story-list-bug-summary.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "08ae2bbaa91a99008442b8f8ac5369e086134550f0cd3e91d688f454d16d259c"
+    }
+  ]
+}
