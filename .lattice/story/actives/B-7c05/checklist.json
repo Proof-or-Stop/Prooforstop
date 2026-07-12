@@ -218,6 +218,18 @@
           "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
           "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
           "timestamp": "2026-07-12T01:33:45.222Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/evidence-state-gate-smoke.ts",
+          "command": "node packages/main/dist/tasks/evidence-state-gate-smoke.js",
+          "result": "pass",
+          "note": "evidence-state-gate-smoke JSON.parses BARE finding_list stdout and asserts attention.suspected is an array and evidenceState renders on every finding; green against the brief default, proving the skeleton contract holds.",
+          "headHash": "828159ff182152940e439c648ef192a0ff642b64",
+          "materialHash": "c9bad8698b2c1e82cccb8bf20b780ac96984a3fb4a9d23efb28d10db62889394",
+          "storyFilesHash": "95839b79b3d6819f923e9788b113675e2c746cd8022fb4beb7326bfea0102700",
+          "timestamp": "2026-07-12T01:33:45.778Z"
         }
       ]
     },
