@@ -199,6 +199,19 @@
           "materialHash": "de9669c1dec53675a1e497051b81d830e30fe7c5d45126ec24b00078e950ec59",
           "storyFilesHash": "286f6976454f3c2d486f8845c3970f3494e2c22d8d2a4ce60c920e409d5a9af4",
           "timestamp": "2026-07-12T10:29:14.611Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/cli.js candidate_spec_route --storyId=B-8038 --hosts=false --persist=false --json --forceTakeover",
+          "result": "pass",
+          "note": "Focused route tests cover deterministic filename heading body ranking, explicit related-doc priority, <=8 candidates, <=10 groups, <=50 hits per group, zero-candidate ambiguity, negative controls, tamper detection, and no corpus-body serialization.",
+          "headHash": "0c7e64cc6309935a86f3a63360866ba37d9e7f34",
+          "materialHash": "de9669c1dec53675a1e497051b81d830e30fe7c5d45126ec24b00078e950ec59",
+          "storyFilesHash": "286f6976454f3c2d486f8845c3970f3494e2c22d8d2a4ce60c920e409d5a9af4",
+          "timestamp": "2026-07-12T10:29:15.981Z"
         }
       ]
     },
