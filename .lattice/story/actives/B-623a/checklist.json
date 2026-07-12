@@ -177,7 +177,7 @@
           }
         ]
       },
-      "userSees": "usage-burn-alert-smoke prints: \"✓ resolveBurnAlertThresholds: defaults; per-variable env overrides; garbage/negative values fall back\"",
+      "userSees": "usage-burn-alert-smoke prints \"✓ resolver: defaults 100MB / 100M tokens / 7d / 48h; garbage, negative and empty env values fall back per-variable\"",
       "files": {
         "modify": [
           "packages/main/src/core/usage-burn-alert.ts"
