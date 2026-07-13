@@ -576,6 +576,23 @@
         "scanEscalationReason": "Reviewed the complete 3115d67a5d diff and the full changed control, reachability, execution, instrumentation, and process-pin sections. The assignment was strictly contract-bounded, so unrelated decisions-document escalation was neither necessary nor permitted."
       },
       "_hash": "839ec64b40b10f7ed02629866837ac9f89b3a141c5ff49a359f01a2ce1105015"
+    },
+    {
+      "id": "B-f458:RP-028",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage PASS (strictly contract-bounded to e9c08fdc20/F116-F118): full-vector spread call/apply/computed-bind each have fail-closed positives and local-safe negatives; mixed invocation proves danger-wins; chained bind with unknown spread is covered in both safe-then-eval and eval-then-safe orders. The three safe full-vector controls are included in exact full-analysis reachability. Process pins cover every new label plus NormalizedInvocation, argumentVectorValueAt, dropArgumentVectorPrefix, projectInvocationArguments, and concatenateArgumentVectors. Clean build and guard passed with the requested metrics: builds=727, cacheHits=2, fullAnalysis=1164, astCandidates=466, reachability=34; process-fact contract passed. No open findings remain.",
+      "createdAt": "2026-07-13T22:20:10.502Z",
+      "reviewRound": "2026-07-13T22:08:13.099Z",
+      "reviewRunId": "B-f458:RR-130",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Reviewed the complete e9c08fdc20 diff and all changed full-vector projection, nested-bind, control, reachability, instrumentation, and process-pin sections. The assignment was strictly contract-bounded; no unrelated decisions-document escalation was needed."
+      },
+      "_hash": "aa7a717496f3936f758c4b58aad433272700fd6e51c1f35a386899055f91fb3e"
     }
   ]
 }
