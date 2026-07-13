@@ -13,6 +13,7 @@
     "packages/main/src/core/types.ts",
     "packages/main/src/core/proofstory.ts",
     "packages/main/src/core/store.ts",
+    "packages/main/src/core/machine.ts",
     "packages/main/src/handlers/proofstory.ts",
     "packages/main/src/handlers/delivery-context-pack.ts",
     "packages/main/src/handlers/phase-gates.ts",
@@ -43,8 +44,8 @@
     ".lattice-codex/agents",
     ".claude/agents"
   ],
-  "scopeChangeReason": "DEV seam discovered during implementer type integration: handlers/review-run.ts must pass validated ledger and slice plan into the signed ReviewScopeBinding composite digest. No product or prompt scope expansion.",
+  "scopeChangeReason": "DEV full-test correction: core/machine.ts is the actual ProofStory DEV/REVIEW/DONE gate consumer and must invoke runtime validators; Store readers remain backward-compatible diagnostics.",
   "acknowledgements": [],
   "createdAt": "2026-07-13T08:24:04.138Z",
-  "updatedAt": "2026-07-13T08:41:08.630Z"
+  "updatedAt": "2026-07-13T08:47:37.724Z"
 }
