@@ -2692,7 +2692,7 @@
       "desc": "The AST fallback prefilter still skips constructed dynamic targets. `hasDynamicExecutionAstCandidate` recognizes only literal/escaped target names and literal arguments. A shipped source such as `globalThis[\"e\" + \"val\"](\"1+1\")` contains no raw prefilter token, its element key is a BinaryExpression so targetName is undefined, and its payload has no decodedCandidate token; scanDynamicCodeGeneration returns early without type/provenance analysis. Even forced analysis would not classify the key because staticPropertyKeyExpression does not fold string concatenation. This violates the contract that all non-exempt dynamic code generation is rejected, independently of whether the payload names the legacy compatibility module.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-13T19:30:48.202Z",
@@ -2703,7 +2703,11 @@
         "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|fallback-prefilter-still",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 1e57828c76: Bounded constant-flow and semantic key folding catch constructed computed dynamic targets while preserving safe precision.",
+      "resolvedAt": "2026-07-13T19:56:04.719Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-103",
