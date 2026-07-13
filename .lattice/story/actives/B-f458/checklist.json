@@ -324,37 +324,37 @@
           "intentRef": "CHK-004:happy:0",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
-          "command": "npm --prefix packages/main run build && npm run test:closeout-trust && npm run test:process-fact-contract && npm run test:runtime-fact-contract",
+          "command": "npm test",
           "result": "pass",
-          "note": "Real handler integration proves canonical parent rollup emits local causal telemetry, pre-closeout review is rejected, and a fresh post-closeout review over unchanged material/composite scope succeeds; exact revised userSees line is emitted.",
-          "headHash": "4da4d559dcdf91b89de5a57804cd2b502ccc98b5",
-          "materialHash": "d189ecd2427dfff56d4fef54beda2206d5da20301a5fff3a254d6227ede2ca14",
-          "storyFilesHash": "4de5ef436f8d8e55aaad46748510eba7965cbcce87753c5eae4e3a58d8fb4356",
-          "timestamp": "2026-07-13T10:15:39.350Z"
+          "note": "True XState lifecycle regression proves post-REVIEW closeout blocks FINISH in TEST, then a fresh review snapshot permits TEST-to-DONE.",
+          "headHash": "dc4a49dd0ec856511729577feec1e57fcdc3f734",
+          "materialHash": "92eefbdb41b59a1d8296c3bf1aaf71d666f8f2f4895e3ec08e64ab5bd5d6b16e",
+          "storyFilesHash": "c5dc7934120519a46c14380cafb19bfe084d3e04f7117d02108160f105082015",
+          "timestamp": "2026-07-13T10:26:38.533Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
-          "command": "npm --prefix packages/main run build && npm run test:closeout-trust && npm run test:process-fact-contract && npm run test:runtime-fact-contract",
+          "command": "npm test",
           "result": "pass",
-          "note": "Source/material and semantic-scope drift remain distinct blockers; wrapper-root committed unknown metadata is detected via canonical git-root-relative paths; closeout-only changes still require fresh review.",
-          "headHash": "4da4d559dcdf91b89de5a57804cd2b502ccc98b5",
-          "materialHash": "d189ecd2427dfff56d4fef54beda2206d5da20301a5fff3a254d6227ede2ca14",
-          "storyFilesHash": "4de5ef436f8d8e55aaad46748510eba7965cbcce87753c5eae4e3a58d8fb4356",
-          "timestamp": "2026-07-13T10:15:39.499Z"
+          "note": "Real canFinishGuard/getGuardFailureReason consume closeout-aware reviewer freshness while legitimate protocol metadata is ignored.",
+          "headHash": "dc4a49dd0ec856511729577feec1e57fcdc3f734",
+          "materialHash": "92eefbdb41b59a1d8296c3bf1aaf71d666f8f2f4895e3ec08e64ab5bd5d6b16e",
+          "storyFilesHash": "c5dc7934120519a46c14380cafb19bfe084d3e04f7117d02108160f105082015",
+          "timestamp": "2026-07-13T10:26:38.683Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
-          "command": "npm --prefix packages/main run build && npm run test:closeout-trust && npm run test:process-fact-contract && npm run test:runtime-fact-contract",
+          "command": "npm test",
           "result": "pass",
-          "note": "A same-UID actor can mint causally coherent telemetry, but the authority lookup and real retention consumer reject it; wrong writer, malformed/hash-forged/unknown, replay, copied, reordered, and mixed changes also fail closed.",
-          "headHash": "4da4d559dcdf91b89de5a57804cd2b502ccc98b5",
-          "materialHash": "d189ecd2427dfff56d4fef54beda2206d5da20301a5fff3a254d6227ede2ca14",
-          "storyFilesHash": "4de5ef436f8d8e55aaad46748510eba7965cbcce87753c5eae4e3a58d8fb4356",
-          "timestamp": "2026-07-13T10:15:39.687Z"
+          "note": "Same-UID coherent receipt telemetry cannot bypass the actual lifecycle gate; wrong/malformed/replayed/mixed changes fail closed.",
+          "headHash": "dc4a49dd0ec856511729577feec1e57fcdc3f734",
+          "materialHash": "92eefbdb41b59a1d8296c3bf1aaf71d666f8f2f4895e3ec08e64ab5bd5d6b16e",
+          "storyFilesHash": "c5dc7934120519a46c14380cafb19bfe084d3e04f7117d02108160f105082015",
+          "timestamp": "2026-07-13T10:26:38.833Z"
         }
       ]
     },
