@@ -7,6 +7,7 @@
  */
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -150,6 +151,7 @@ const retiredServerBackedModuleFiles = new Set([
 ]);
 
 const LEGACY_DELIVERY_COMPAT_MODULE = 'packages/main/src/core/legacy-delivery-claims-compat.ts';
+const CANONICAL_AST_FINGERPRINT_ALGORITHM = 'typescript-printer-remove-comments-sha256-v1';
 type ApprovedCompatibilityCallShape =
   | 'persisted-delivery-validator'
   | 'persistable-delivery-claims'
@@ -159,21 +161,25 @@ const approvedLegacyDeliveryCompatUsages = new Map<string, {
   symbols: readonly string[];
   calls: Readonly<Record<string, readonly ApprovedCompatibilityCallShape[]>>;
   occurrences: Readonly<Record<string, number>>;
+  sourceFingerprint: string;
 }>([
   ['packages/main/src/core/closeout-trust.ts', {
     symbols: ['isExactLegacyLocalOnlyDeliveryClaims', 'LegacyLocalOnlyDeliveryClaims'],
     calls: { isExactLegacyLocalOnlyDeliveryClaims: ['persisted-delivery-validator'] },
     occurrences: { isExactLegacyLocalOnlyDeliveryClaims: 2, LegacyLocalOnlyDeliveryClaims: 2 },
+    sourceFingerprint: 'ccd079414da1e7aabbbc9afcd96a25ef37ae72d50d6817c340b37f152f711b06',
   }],
   ['packages/main/src/handlers/delivery-context-pack.ts', {
     symbols: ['createLegacyLocalOnlyDeliveryClaims', 'LegacyLocalOnlyDeliveryClaims'],
     calls: { createLegacyLocalOnlyDeliveryClaims: ['persistable-delivery-claims', 'delivery-context-report-claims'] },
     occurrences: { createLegacyLocalOnlyDeliveryClaims: 3, LegacyLocalOnlyDeliveryClaims: 3 },
+    sourceFingerprint: '2b3dfbe3073c3a8e2fa7e1c8bf93c84ec34ad63b56ed8cb59edce1aa563719d3',
   }],
   ['packages/main/src/tasks/closeout-trust-smoke.ts', {
     symbols: ['createLegacyLocalOnlyDeliveryClaims'],
     calls: { createLegacyLocalOnlyDeliveryClaims: ['closeout-smoke-delivery-claims'] },
     occurrences: { createLegacyLocalOnlyDeliveryClaims: 2 },
+    sourceFingerprint: 'd252c161562e00797371438a52f16c889e10a0551673e24b62162978b7447c3e',
   }],
 ]);
 
@@ -323,6 +329,14 @@ function parseSource(file: string, text: string): ts.SourceFile {
   return source;
 }
 
+function canonicalAstFingerprint(file: string, text: string): string {
+  const canonical = ts.createPrinter({
+    removeComments: true,
+    newLine: ts.NewLineKind.LineFeed,
+  }).printFile(parseSource(file, text));
+  return createHash('sha256').update(canonical).digest('hex');
+}
+
 function typeCheckerFor(file: string, text: string): ts.TypeChecker {
   const cached = typeCheckerCache.get(file);
   if (cached?.text === text) return cached.checker;
@@ -457,6 +471,24 @@ function collectLoaderBindings(source: ts.SourceFile, checker: ts.TypeChecker): 
       const symbol = checker.getSymbolAtLocation(node.name);
       if (symbol) variableDeclarations.push({ symbol, initializer: node.initializer });
     }
+    if (ts.isVariableDeclaration(node)
+      && ts.isObjectBindingPattern(node.name)
+      && node.initializer
+      && ts.isCallExpression(node.initializer)
+      && ts.isIdentifier(node.initializer.expression)
+      && isGlobalIdentifier(node.initializer.expression, checker, 'require')
+      && node.initializer.arguments.length === 1
+      && ts.isStringLiteral(node.initializer.arguments[0])
+      && (node.initializer.arguments[0].text === 'node:module' || node.initializer.arguments[0].text === 'module')) {
+      for (const element of node.name.elements) {
+        const imported = element.propertyName && ts.isIdentifier(element.propertyName)
+          ? element.propertyName.text
+          : ts.isIdentifier(element.name) ? element.name.text : undefined;
+        if (imported !== 'createRequire' || !ts.isIdentifier(element.name)) continue;
+        const symbol = checker.getSymbolAtLocation(element.name);
+        if (symbol) createRequireSymbols.add(symbol);
+      }
+    }
     ts.forEachChild(node, visit);
   };
   visit(source);
@@ -470,6 +502,12 @@ function collectLoaderBindings(source: ts.SourceFile, checker: ts.TypeChecker): 
     const namespace = checker.getSymbolAtLocation(node.expression);
     return Boolean(namespace && moduleNamespaceSymbols.has(namespace));
   };
+  const isRequireCallable = (node: ts.Expression): boolean => {
+    if (ts.isIdentifier(node)) {
+      return isGlobalIdentifier(node, checker, 'require') || resolvesTo(node, loaderSymbols);
+    }
+    return isModuleRequireExpression(node, checker);
+  };
   let changed = true;
   while (changed) {
     changed = false;
@@ -481,9 +519,12 @@ function collectLoaderBindings(source: ts.SourceFile, checker: ts.TypeChecker): 
         createRequireSymbols.add(declaration.symbol);
         changed = true;
       }
-      const isRequireValue = (ts.isIdentifier(initializer)
-          && (isGlobalIdentifier(initializer, checker, 'require') || resolvesTo(initializer, loaderSymbols)))
-        || isModuleRequireExpression(initializer, checker)
+      const isBoundRequire = ts.isCallExpression(initializer)
+        && ts.isPropertyAccessExpression(initializer.expression)
+        && initializer.expression.name.text === 'bind'
+        && isRequireCallable(initializer.expression.expression);
+      const isRequireValue = isRequireCallable(initializer)
+        || isBoundRequire
         || (ts.isCallExpression(initializer)
           && isCreateRequireFactory(initializer.expression));
       if (isRequireValue && !loaderSymbols.has(declaration.symbol)) {
@@ -726,11 +767,26 @@ function disallowedCompatibilityValueReferences(
   return disallowed;
 }
 
-const knownBenignNonLiteralLoaderCalls = new Map<string, readonly { anchor: string; argument: string }[]>([
-  ['packages/main/src/cli-engine.ts', [{ anchor: 'runCli', argument: '`file://${initPath}`' }]],
-  ['packages/main/src/verifier/serve.ts', [{ anchor: 'startCircuitServe', argument: '`file://${filePath}`' }]],
-  ['packages/main/src/tasks/parent-roadmap-totality-smoke.ts', [{ anchor: 'loadRuntime', argument: 'modulePath' }]],
-  ['packages/main/src/tasks/experience-layer-digest-extract-smoke.ts', [{ anchor: 'run', argument: "join(MAIN_DIR, 'dist', 'handlers', 'decision-doc-promotion.js')" }]],
+const knownBenignNonLiteralLoaderCalls = new Map<string, {
+  sourceFingerprint: string;
+  calls: readonly { anchor: string; argument: string }[];
+}>([
+  ['packages/main/src/cli-engine.ts', {
+    sourceFingerprint: '878828adf7881dc809bfca0e6e4daa506053fb6565aa1ec69c99626fef64f16a',
+    calls: [{ anchor: 'runCli', argument: '`file://${initPath}`' }],
+  }],
+  ['packages/main/src/verifier/serve.ts', {
+    sourceFingerprint: '20149fa438b1ec78fc9c9713eb3cc4a890bc58a1d82e7a5fa0d588e9c4e7ee91',
+    calls: [{ anchor: 'startCircuitServe', argument: '`file://${filePath}`' }],
+  }],
+  ['packages/main/src/tasks/parent-roadmap-totality-smoke.ts', {
+    sourceFingerprint: '518890b58fd8e369488721d66d954f9589a049a42066635f42c057227788ae45',
+    calls: [{ anchor: 'loadRuntime', argument: 'modulePath' }],
+  }],
+  ['packages/main/src/tasks/experience-layer-digest-extract-smoke.ts', {
+    sourceFingerprint: 'f215f9c4e894a84ba7e2e844324902fcd2dec1e208e4259d64e2c447f1c85a83',
+    calls: [{ anchor: 'run', argument: "join(MAIN_DIR, 'dist', 'handlers', 'decision-doc-promotion.js')" }],
+  }],
 ]);
 
 function enclosingFunctionName(node: ts.Node): string | undefined {
@@ -743,9 +799,11 @@ function enclosingFunctionName(node: ts.Node): string | undefined {
 }
 
 function isKnownBenignNonLiteralLoaderCall(file: string, call: ts.CallExpression, source: ts.SourceFile): boolean {
+  const approved = knownBenignNonLiteralLoaderCalls.get(file);
+  if (!approved || canonicalAstFingerprint(file, source.text) !== approved.sourceFingerprint) return false;
   const anchor = enclosingFunctionName(call);
   const argument = call.arguments[0]?.getText(source);
-  return Boolean(anchor && argument && knownBenignNonLiteralLoaderCalls.get(file)?.some(entry => (
+  return Boolean(anchor && argument && approved.calls.some(entry => (
     entry.anchor === anchor && entry.argument === argument
   )));
 }
@@ -767,7 +825,7 @@ function scanConcealedCompatibilityLoads(file: string, text: string): Violation[
           file,
           line: lineNumberAt(text, node.arguments[0].getStart(source)),
           label: 'unapproved non-literal dynamic module load',
-          text: `${kind} ${node.arguments[0].getText(source)}`,
+          text: `${kind} ${node.arguments[0].getText(source)}; ${CANONICAL_AST_FINGERPRINT_ALGORITHM}=${canonicalAstFingerprint(file, text)}`,
         });
       }
     }
@@ -800,8 +858,20 @@ function scanLegacyDeliveryCompatibilityUsage(file: string, text: string): Viola
   const concealedLoadViolations = scanConcealedCompatibilityLoads(file, text);
   const compatImports = extractImportSpecifiers(text, file)
     .filter(({ specifier }) => moduleSpecifierResolvesTo(file, specifier, LEGACY_DELIVERY_COMPAT_MODULE));
-  if (compatImports.length === 0) return concealedLoadViolations;
   const approved = approvedLegacyDeliveryCompatUsages.get(file);
+  const violations: Violation[] = [...concealedLoadViolations];
+  if (approved) {
+    const actualSourceFingerprint = canonicalAstFingerprint(file, text);
+    if (actualSourceFingerprint !== approved.sourceFingerprint) {
+      violations.push({
+        file,
+        line: 1,
+        label: 'legacy delivery compatibility structural fingerprint drift',
+        text: `${CANONICAL_AST_FINGERPRINT_ALGORITHM}: expected ${approved.sourceFingerprint}, got ${actualSourceFingerprint}; review executable structure before updating the pinned fingerprint`,
+      });
+    }
+  }
+  if (compatImports.length === 0) return violations;
   if (!approved) {
     return [...concealedLoadViolations, ...compatImports.map(({ specifier, index }) => ({
       file,
@@ -811,7 +881,6 @@ function scanLegacyDeliveryCompatibilityUsage(file: string, text: string): Viola
     }))];
   }
 
-  const violations: Violation[] = [...concealedLoadViolations];
   const compatBindings = compatibilityImportBindings(file, source);
   const actualSymbols = [...new Set(importedCompatSymbols(file, source))].sort();
   const expectedSymbols = [...approved.symbols].sort();
@@ -863,7 +932,8 @@ function directlyExportsCompatibilityBinding(file: string, text: string): boolea
   // reference outside the exact canonical parent chains makes the module a
   // potential exporter; graph scanning then rejects every downstream import.
   // This intentionally avoids pretending to solve arbitrary JavaScript taint.
-  return disallowedCompatibilityValueReferences(source, approved, file, checker).length > 0;
+  return canonicalAstFingerprint(file, text) !== approved.sourceFingerprint
+    || disallowedCompatibilityValueReferences(source, approved, file, checker).length > 0;
 }
 
 function scanLegacyDeliveryCompatibilityGraph(fileTexts: ReadonlyMap<string, string>): Violation[] {
@@ -1009,6 +1079,11 @@ function assertLegacyDeliveryCompatibilityPositiveControls(): void {
   assert.ok(directTokenViolations.some(violation => violation.label === 'authorityDone'), 'direct retired-field positive control must remain caught');
 
   const approvedProducer = 'packages/main/src/handlers/delivery-context-pack.ts';
+  assert.equal(
+    canonicalAstFingerprint(approvedProducer, readRel(approvedProducer)),
+    canonicalAstFingerprint(approvedProducer, `// irrelevant fingerprint trivia\n${readRel(approvedProducer)}`),
+    'canonical AST fingerprints must ignore comments and formatting trivia',
+  );
   const patchedProducer = `${readRel(approvedProducer)}\nexport { createLegacyLocalOnlyDeliveryClaims };\n`;
   const twoHopConsumer = 'packages/main/src/core/two-hop-consumer.ts';
   const twoHopTexts = new Map<string, string>([
@@ -1075,6 +1150,8 @@ function assertLegacyDeliveryCompatibilityPositiveControls(): void {
     ['createRequire alias import', "import { createRequire as makeRequire } from 'node:module';\nconst rq = makeRequire(import.meta.url);\nconst compat = rq('./legacy-delivery-claims-compat.js');\ncompat.createLegacyLocalOnlyDeliveryClaims();"],
     ['namespace createRequire import', "import * as mod from 'node:module';\nconst rq = mod.createRequire(import.meta.url);\nconst exactPath = './legacy-delivery-claims-compat.js';\nconst compat = rq(exactPath);\ncompat.createLegacyLocalOnlyDeliveryClaims();"],
     ['createRequire direct import', "import { createRequire } from 'node:module';\nconst compat = createRequire(import.meta.url)('./legacy-delivery-claims-compat.js');\ncompat.createLegacyLocalOnlyDeliveryClaims();"],
+    ['destructured createRequire import', "const { createRequire } = require('node:module');\nconst rq = createRequire(__filename);\nconst exactCompatPath = './legacy-delivery-claims-compat.js';\nconst compat = rq(exactCompatPath);\ncompat.createLegacyLocalOnlyDeliveryClaims();"],
+    ['bound require import', "const rq = require.bind(null);\nconst exactCompatPath = './legacy-delivery-claims-compat.js';\nconst compat = rq(exactCompatPath);\ncompat.createLegacyLocalOnlyDeliveryClaims();"],
     ['wrapper parameter dynamic import', "const paths = { retired: './legacy-delivery-claims-compat.js' };\nconst load = (p: string) => import(p);\nload(paths.retired);"],
     ['object property dynamic import', "const paths = { retired: './legacy-delivery-claims-compat.js' };\nvoid import(paths.retired);"],
     ['destructured path dynamic import', "const paths = { retired: './legacy-delivery-claims-compat.js' };\nconst { retired } = paths;\nvoid import(retired);"],
@@ -1100,16 +1177,26 @@ function assertLegacyDeliveryCompatibilityPositiveControls(): void {
     'non-literal loader rejection must be structural and independent of compat-looking identifier spelling',
   );
 
-  const knownBenignLoader = "declare function resolvePath(): string; export async function runCli() { const initPath = resolvePath(); await import(`file://${initPath}`); }";
+  const knownBenignLoader = readRel('packages/main/src/cli-engine.ts');
   assert.deepEqual(
     scanConcealedCompatibilityLoads('packages/main/src/cli-engine.ts', knownBenignLoader),
     [],
     'the exact registered cli-engine non-literal loader call site must remain allowed',
   );
   assert.ok(
-    scanConcealedCompatibilityLoads('packages/main/src/cli-engine.ts', knownBenignLoader.replace('runCli', 'otherLoader'))
+    scanConcealedCompatibilityLoads('packages/main/src/cli-engine.ts', knownBenignLoader.replace('export async function runCli', 'export async function otherLoader'))
       .some(violation => violation.label === 'unapproved non-literal dynamic module load'),
     'a known benign loader expression relocated to another function must fail closed',
+  );
+  assert.ok(
+    scanConcealedCompatibilityLoads('packages/main/src/cli-engine.ts', knownBenignLoader.replace("new URL('./cli-init.js'", "new URL('./legacy-delivery-claims-compat.js'"))
+      .some(violation => violation.label === 'unapproved non-literal dynamic module load'),
+    'changing the path producer behind an otherwise identical benign loader call must invalidate its source fingerprint',
+  );
+  assert.ok(
+    scanConcealedCompatibilityLoads('packages/main/src/cli-engine.ts', `${knownBenignLoader}\nasync function wrapper() { async function runCli() { const initPath = './legacy-delivery-claims-compat.js'; await import(\`file://\${initPath}\`); } }\n`)
+      .some(violation => violation.label === 'unapproved non-literal dynamic module load'),
+    'a nested same-name loader anchor cannot inherit the whole-source fingerprint exemption',
   );
 
   const relocatedProducer = `${readRel(approvedProducer).replace(
@@ -1141,16 +1228,22 @@ function assertLegacyDeliveryCompatibilityPositiveControls(): void {
   assert.ok(containerViolations.some(violation => violation.label === 'legacy delivery compatibility alias/export escape'), 'assignment/comma wrappers around the compatibility constructor must be rejected as noncanonical binding use');
   assert.equal(directlyExportsCompatibilityBinding(approvedProducer, exportedContainerMutation), true, 'an approved importer with any noncanonical compatibility binding reference must taint its downstream module edge');
 
+  const postConstructionContainerMutation = `export const leakBox: any = {};\n${readRel(approvedProducer).replace(
+    '    // --write: persist the SAME structured pack',
+    '    leakBox.payload = report.claims;\n\n    // --write: persist the SAME structured pack',
+  )}`;
+  const postConstructionViolations = scanLegacyDeliveryCompatibilityUsage(approvedProducer, postConstructionContainerMutation);
+  assert.ok(postConstructionViolations.some(violation => violation.label === 'legacy delivery compatibility structural fingerprint drift'), 'post-call assignment of canonical report.claims into an exported container must invalidate the complete importer fingerprint');
+  assert.equal(directlyExportsCompatibilityBinding(approvedProducer, postConstructionContainerMutation), true, 'post-call exported-container mutation must taint downstream module edges even when compatibility binding references remain canonical');
+
   const shadowedProducer = `${readRel(approvedProducer)}\nexport function harmlessShadow(createLegacyLocalOnlyDeliveryClaims: () => string) { return createLegacyLocalOnlyDeliveryClaims(); }\n`;
-  assert.deepEqual(
-    scanLegacyDeliveryCompatibilityUsage(approvedProducer, shadowedProducer),
-    [],
-    'shadowed same-name identifiers must not count as references to the compatibility import binding',
-  );
+  const shadowedViolations = scanLegacyDeliveryCompatibilityUsage(approvedProducer, shadowedProducer);
+  assert.ok(shadowedViolations.some(violation => violation.label === 'legacy delivery compatibility structural fingerprint drift'), 'even a shadowed same-name executable addition requires intentional importer fingerprint review');
+  assert.ok(!shadowedViolations.some(violation => violation.label === 'legacy delivery compatibility alias/export escape'), 'shadowed same-name identifiers still must not count as references to the compatibility import binding');
   assert.equal(
     directlyExportsCompatibilityBinding(approvedProducer, shadowedProducer),
-    false,
-    'an exported function using only a shadowed same-name parameter must not taint the module',
+    true,
+    'any executable structural addition to an approved importer must taint the module until its fingerprint is intentionally updated',
   );
 
   for (const escape of [
