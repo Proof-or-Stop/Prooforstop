@@ -92,6 +92,30 @@
         "scanEscalationReason": null
       },
       "_hash": "e01c855b45833477303a759dc4f8bb00ebd589223b639fd6057bce2dc8493314"
+    },
+    {
+      "id": "B-f458:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage re-review PASS at story material 65b1228: focused build plus closeout trust, process-fact contract, and runtime-fact contract all exited 0. Persisted REVIEW-to-TEST succeeds without user; mutations across user/sessionId/agent/timestamp/branch remain audit-only; malformed provenance types and stable-field tamper fail closed; real committed lifecycle and XState post-closeout paths verify stale review blocks and a fresh signed run/pass permits completion; DONE independently re-runs REVIEW-to-TEST preflight. All 15 verification intents retain passing evidence bound to current storyFilesHash.",
+      "createdAt": "2026-07-13T10:48:43.652Z",
+      "reviewRound": "2026-07-13T10:47:07.635Z",
+      "reviewRunId": "B-f458:RR-021",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f277c2cd5f9444021695079c54fb62e0d9b8c501ef2f7498d5a811a316fd2b07"
     }
   ]
 }
