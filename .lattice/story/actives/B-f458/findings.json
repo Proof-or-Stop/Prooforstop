@@ -2908,7 +2908,7 @@
       "desc": "Local parameter callsite propagation covers only direct CallExpression/NewExpression targets resolved by localCallableDeclarations; Function.prototype call/apply/bind invocation shapes are not mapped back to the local callable parameters. `function execute(run: (code: string) => unknown) { run(\"1+1\"); } execute.call(null, eval);` executes eval through `run`, but bindLocalCallArguments sees the builtin `.call` symbol rather than execute, the parameter receives no provenance, and both the outer trusted call method and inner unresolved parameter invocation escape classification. call/apply/bind argument semantics must be normalized or fail closed.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-13T20:23:43.833Z",
@@ -2919,7 +2919,11 @@
         "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|local-parameter-callsite",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 94db95a404: Local callsite propagation normalizes call, apply and bind including tuple apply, prebound and later arguments.",
+      "resolvedAt": "2026-07-13T21:34:50.056Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-112",
