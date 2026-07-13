@@ -199,8 +199,26 @@
       "anchors": [
         "renderHostBurnScan"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Story-own lifecycle metadata produced by the prior codex run: closeout-write-receipts.jsonl is emitted by the very closeout-trust-boundary feature this story implements, and evidence/delivery-context-pack.json by its delivery-check flow. Fail-closed unknown-path rule flags them because the scope contract predates these artifact classes; acknowledged during single-owner takeover recovery (2026-07-14) rather than deleted.",
+      "timestamp": "2026-07-13T22:57:07.426Z",
+      "paths": [
+        ".lattice/story/actives/B-f458/closeout-write-receipts.jsonl",
+        ".lattice/story/actives/B-f458/evidence/delivery-context-pack.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-f458/closeout-write-receipts.jsonl",
+        ".lattice/story/actives/B-f458/evidence/delivery-context-pack.json"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "94f5728b4bef093cc13fa59a1e463005055c66a2",
+      "materialHash": "a4c59713a334cdab21142bb79fe39f0e99c1a1c36020c32e44ebd0f9ae5a3613"
     }
   ],
   "createdAt": "2026-07-13T08:24:04.138Z",
-  "updatedAt": "2026-07-13T12:34:19.947Z"
+  "updatedAt": "2026-07-13T22:57:07.426Z"
 }
