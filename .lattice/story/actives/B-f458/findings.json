@@ -1944,7 +1944,7 @@
       "desc": "The F-070/F-072/F-073 executable matrix is still incomplete despite all current labels executing and being process-pinned. F-070 has only six mixed cells: `any` covers declaration while `unknown` covers assignment/parameter for each object/array shape; the latter expressions are `source as any`, so checker provenance at the binding source is also any. There are no any assignment/parameter controls or unknown declaration controls, so the claimed any/unknown × object/array × declaration/assignment/parameter boundary is not exercised. F-073 repeats the same gap for true nested ARRAY rest: only any declaration plus unknown-as-any assignment/parameter exist, not both source categories across all three walker entry forms. F-072 has finite typed spread direct/destructured dangerous positives but only a direct safe negative, while unique-symbol spread has direct dangerous/safe access only and no destructured dangerous or safe control. Add and process-pin the missing Cartesian known-key and nested-array-rest cells, plus finite and unique-symbol destructured safe/dangerous symmetry. The current runner does execute every listed positive/negative (guard PASS), so this is missing executable coverage rather than dead labels; retain the now-complete eval/Function/runInContext/constructor direct/rest/destructured safe-name matrix and spread order/enumerability controls.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-13T17:06:10.960Z",
@@ -1964,7 +1964,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "provenance-control-cartesian-gap",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 6df708853d: complete any/unknown by object/array by declaration/assignment/parameter controls, nested array-rest matrix, and finite/symbol direct/destructured dangerous-safe pairs are executed and process-pinned.",
+      "resolvedAt": "2026-07-13T17:21:34.368Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
