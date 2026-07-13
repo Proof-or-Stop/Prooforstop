@@ -383,6 +383,11 @@ const DYNAMIC_PROVENANCE_REACHABILITY_LABELS = new Set([
   'then async local callback safe negative',
   'then safe thenable callback negative',
   'promise allSettled value safe negative',
+  'local literal safe named member negative',
+  'parameter local safe callsite negative',
+]);
+const DYNAMIC_CODE_UNAPPROVED_ONLY_LABELS = new Set([
+  'namespace safe named reexport eval benign fail closed',
 ]);
 
 const structuralLegacyFieldQuarantineFiles = new Set([
@@ -2853,6 +2858,42 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
       });
     }
   };
+  type LocalCallableDeclaration = ts.FunctionDeclaration | ts.FunctionExpression | ts.ArrowFunction | ts.MethodDeclaration;
+  const localCallableDeclarations = (
+    expression: ts.Expression,
+    seen = new Set<ts.Symbol>(),
+  ): LocalCallableDeclaration[] => {
+    const current = unwrapExecutionExpression(expression);
+    if (ts.isFunctionExpression(current) || ts.isArrowFunction(current)) return [current];
+    let symbol = expressionSymbol(current, checker);
+    if (!symbol) return [];
+    if ((symbol.flags & ts.SymbolFlags.Alias) !== 0) symbol = checker.getAliasedSymbol(symbol);
+    if (seen.has(symbol)) return [];
+    const nextSeen = new Set(seen).add(symbol);
+    const declarations: LocalCallableDeclaration[] = [];
+    for (const declaration of symbol.getDeclarations() ?? []) {
+      if (ts.isFunctionDeclaration(declaration) && declaration.body) declarations.push(declaration);
+      else if (ts.isMethodDeclaration(declaration) && declaration.body) declarations.push(declaration);
+      else if ((ts.isVariableDeclaration(declaration)
+        || ts.isPropertyDeclaration(declaration)
+        || ts.isPropertyAssignment(declaration)) && declaration.initializer) {
+        declarations.push(...localCallableDeclarations(declaration.initializer, nextSeen));
+      }
+    }
+    return [...new Set(declarations)];
+  };
+  const bindLocalCallArguments = (call: ts.CallExpression | ts.NewExpression): void => {
+    const args = call.arguments ?? [];
+    for (const callable of localCallableDeclarations(call.expression)) {
+      callable.parameters.forEach((parameter, index) => {
+        const argument = args[index];
+        if (!argument || parameter.dotDotDotToken) return;
+        // Every local call site is an alternative input. Conditional merging is
+        // deliberate: one dangerous argument must dominate any safe calls.
+        walkPattern(parameter.name, provenanceForExpression(argument), true);
+      });
+    }
+  };
   const conditionallyExecuted = (node: ts.Node): boolean => {
     if (ts.isBinaryExpression(node)
       && (node.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandEqualsToken
@@ -2925,6 +2966,7 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
     if (ts.isParameter(node)) {
       walkPattern(node.name, node.initializer ? provenanceForExpression(node.initializer) : undefined);
     }
+    if (ts.isCallExpression(node) || ts.isNewExpression(node)) bindLocalCallArguments(node);
     if (ts.isVariableDeclaration(node) && node.initializer) {
       walkPattern(node.name, provenanceForExpression(node.initializer));
     }
@@ -3224,27 +3266,12 @@ function hasDynamicExecutionAstCandidate(source: ts.SourceFile): boolean {
     return Boolean(initializer && (ts.isArrowFunction(unwrapExecutionExpression(initializer))
       || ts.isFunctionExpression(unwrapExecutionExpression(initializer))));
   };
-  const dangerousDecodedText = /(?:eval|Function|constructor|runIn(?:Context|NewContext|ThisContext)|compileFunction|SourceTextModule|SyntheticModule|legacy-delivery-claims-compat|\b(?:import|require)\s*\()/;
-  const staticallySafeArgument = (argument: ts.Expression): boolean => {
-    const current = unwrapExecutionExpression(argument);
-    const strings = foldStrings(current);
-    if (strings) return strings.every(value => !dangerousDecodedText.test(value));
-    return ts.isArrowFunction(current) || ts.isFunctionExpression(current)
-      || ts.isNumericLiteral(current) || current.kind === ts.SyntaxKind.TrueKeyword
-      || current.kind === ts.SyntaxKind.FalseKeyword || current.kind === ts.SyntaxKind.NullKeyword;
-  };
   let candidate = false;
   const visit = (node: ts.Node): void => {
     if (candidate) return;
     if (ts.isCallExpression(node) || ts.isNewExpression(node)) {
       const target = unwrapExecutionExpression(node.expression);
       if (exactlyLocalCallable(target)) {
-        ts.forEachChild(node, visit);
-        return;
-      }
-      if (ts.isPropertyAccessExpression(target)
-        && !dangerousDecodedText.test(target.name.text)
-        && (node.arguments ?? []).every(staticallySafeArgument)) {
         ts.forEachChild(node, visit);
         return;
       }
@@ -3262,6 +3289,7 @@ function hasDynamicExecutionAstCandidate(source: ts.SourceFile): boolean {
 function isExactLocalSafeExecutionTarget(expression: ts.Expression, checker: ts.TypeChecker): boolean {
   const current = unwrapExecutionExpression(expression);
   if (ts.isArrowFunction(current) || ts.isFunctionExpression(current) || ts.isClassExpression(current)) return true;
+  const memberTarget = ts.isPropertyAccessExpression(current) || ts.isElementAccessExpression(current);
   const memberName = ts.isPropertyAccessExpression(current)
     ? current.name.text
     : ts.isElementAccessExpression(current) && current.argumentExpression && ts.isStringLiteralLike(current.argumentExpression)
@@ -3279,16 +3307,30 @@ function isExactLocalSafeExecutionTarget(expression: ts.Expression, checker: ts.
     || symbol.getName() === 'constructor' || DYNAMIC_VM_EXECUTION_MEMBERS.has(symbol.getName()))) return false;
   const declarations = symbol?.getDeclarations() ?? [];
   if (declarations.length === 0) return false;
+  const trustedRuntimeDeclaration = (declaration: ts.Declaration): boolean => {
+    const declarationFile = declaration.getSourceFile();
+    return declarationFile.isDeclarationFile
+      && (declarationFile.hasNoDefaultLib
+        || declarationFile.fileName.includes('/node_modules/typescript/lib/lib.')
+        || declarationFile.fileName.includes('/node_modules/@types/node/'));
+  };
   return declarations.every(declaration => {
-    if (ts.isParameter(declaration) && !declaration.initializer) return true;
-    if (ts.isMethodSignature(declaration) || ts.isCallSignatureDeclaration(declaration)) return true;
-    if (ts.isPropertySignature(declaration)) {
-      if (declaration.type && ts.isTypeQueryNode(declaration.type)
-        && ts.isIdentifier(declaration.type.exprName)
-        && (declaration.type.exprName.text === 'eval' || declaration.type.exprName.text === 'Function'
-          || DYNAMIC_VM_EXECUTION_MEMBERS.has(declaration.type.exprName.text))) return false;
-      const type = checker.getTypeOfSymbolAtLocation(symbol!, declaration);
-      return (type.flags & (ts.TypeFlags.Any | ts.TypeFlags.Unknown | ts.TypeFlags.TypeParameter)) === 0;
+    if (ts.isParameter(declaration) || ts.isCallSignatureDeclaration(declaration)) return false;
+    if (ts.isMethodSignature(declaration) || ts.isPropertySignature(declaration)) {
+      if (!trustedRuntimeDeclaration(declaration)) return false;
+      if (memberTarget) {
+        const receiver = ts.isPropertyAccessExpression(current) || ts.isElementAccessExpression(current)
+          ? checker.getTypeAtLocation(current.expression)
+          : undefined;
+        if (!receiver || (receiver.flags & (ts.TypeFlags.Any | ts.TypeFlags.Unknown | ts.TypeFlags.TypeParameter)) !== 0) return false;
+      }
+      if (ts.isPropertySignature(declaration)) {
+        const propertyType = checker.getTypeOfSymbolAtLocation(symbol!, declaration);
+        return (propertyType.flags & (ts.TypeFlags.Any | ts.TypeFlags.Unknown | ts.TypeFlags.TypeParameter)) === 0
+          && (checker.getSignaturesOfType(propertyType, ts.SignatureKind.Call).length > 0
+            || checker.getSignaturesOfType(propertyType, ts.SignatureKind.Construct).length > 0);
+      }
+      return true;
     }
     if ((ts.isFunctionDeclaration(declaration) || ts.isMethodDeclaration(declaration)) && declaration.body) return true;
     if (ts.isClassDeclaration(declaration)) return true;
@@ -3297,11 +3339,7 @@ function isExactLocalSafeExecutionTarget(expression: ts.Expression, checker: ts.
       const initializer = unwrapExecutionExpression(declaration.initializer);
       return ts.isArrowFunction(initializer) || ts.isFunctionExpression(initializer) || ts.isClassExpression(initializer);
     }
-    const declarationFile = declaration.getSourceFile();
-    return declarationFile.isDeclarationFile
-      && (declarationFile.hasNoDefaultLib
-        || declarationFile.fileName.includes('/node_modules/typescript/lib/lib.')
-        || declarationFile.fileName.includes('/node_modules/@types/node/'));
+    return trustedRuntimeDeclaration(declaration);
   });
 }
 
@@ -3336,10 +3374,10 @@ function scanDynamicCodeGeneration(
   };
   const violations: Violation[] = typeAnalysisViolations(file, analysis);
   const inspect = (node: ts.CallExpression | ts.NewExpression): void => {
+    if (ts.isCallExpression(node) && node.expression.kind === ts.SyntaxKind.ImportKeyword) return;
     const directKind = dynamicReferenceKind(node.expression, checker, directBindings);
-    const kind = directKind ?? (isExactLocalSafeExecutionTarget(node.expression, checker)
-      ? undefined
-      : dynamicExecutionKind(node.expression, checker, executionBindings()));
+    const exactSafe = isExactLocalSafeExecutionTarget(node.expression, checker);
+    const kind = directKind ?? (exactSafe ? undefined : dynamicExecutionKind(node.expression, checker, executionBindings()));
     if (!kind) return;
     if (ts.isCallExpression(node)
       && ts.isPropertyAccessExpression(node.expression)
@@ -3987,6 +4025,10 @@ function assertDynamicCodeGenerationPositiveControls(): void {
     ['const computed vm provenance', "const member = 'runInContext'; const { [member]: run } = require('node:vm'); run(\"require('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['const computed constructor provenance', "const member = 'constructor'; const { [member]: Build } = function source() {}; new Build(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['unresolved computed global fail closed', "declare const member: string; const { [member]: run } = globalThis; run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['safe named object property eval fail closed', "const holder = { run: eval }; holder.run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['namespace safe named reexport eval benign fail closed', "import * as bridge from './dynamic-code-esm-named-reexport.js'; bridge.run('safe');"],
+    ['parameter eval callsite fail closed', "function execute(run: (value: string) => unknown) { run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); } execute(eval);"],
+    ['parameter merged callsites danger wins', "function execute(run: (value: string) => unknown) { run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); } const localSafe = (value: string) => value; execute(localSafe); execute(eval);"],
     ['node vm default import', "import vm from 'node:vm'; vm.runInNewContext(\"require('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
   ] as const;
   const negativeCases = [
@@ -4157,6 +4199,8 @@ function assertDynamicCodeGenerationPositiveControls(): void {
     ['nested rest parameter local safe negative', "function execute({ nested: { ...rest } } = { nested: { eval: (value: string) => value } }) { rest.eval('safe'); }"],
     ['const computed local noncallable negative', "const key = 'run'; const { [key]: run } = { run: (value: string) => value }; run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['unresolved computed exact local negative', "let key: string = 'value'; const { [key]: value } = { value: { local: true } }; void value;"],
+    ['local literal safe named member negative', "const holder = { run(value: string) { return value; } }; holder.run('safe');"],
+    ['parameter local safe callsite negative', "function execute(run: (value: string) => unknown) { run('safe'); } const localSafe = (value: string) => value; execute(localSafe);"],
   ] as const;
   const controlSources = [...cases, ...negativeCases].map(([label, source], index) => ({
     label,
@@ -4251,7 +4295,9 @@ function assertDynamicCodeGenerationPositiveControls(): void {
     const violations = scanDynamicCodeGeneration(control.file, control.source, controlProgram);
     const { label } = control;
     assert.ok(violations.some(violation => violation.label === 'unapproved dynamic code generation'), `${label} must be banned`);
-    assert.ok(violations.some(violation => violation.label === 'dynamic code generation compatibility payload'), `${label} static payload must be inspected`);
+    if (!DYNAMIC_CODE_UNAPPROVED_ONLY_LABELS.has(label)) {
+      assert.ok(violations.some(violation => violation.label === 'dynamic code generation compatibility payload'), `${label} static payload must be inspected`);
+    }
   }
   for (const control of controlSources.slice(cases.length)) {
     const before = typeProgramInstrumentation.dynamicFullAnalysisByFile.get(control.file) ?? 0;
