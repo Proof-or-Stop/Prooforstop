@@ -771,13 +771,20 @@ function assertCloseoutTrustBoundary() {
     'transitive legacy delivery compatibility import',
     'legacy delivery compatibility symbol escape',
     'legacy delivery compatibility alias/export escape',
-    'constructor result may not be spread',
     'true two-hop consumer import through a patched approved exporter must be caught',
     'ts.createSourceFile',
     'ts.isNoSubstitutionTemplateLiteral',
     'template-literal dynamic import',
     'Unicode-escaped compatibility identifier in an exported wrapper must be decoded and caught',
     'downstream consumer of Unicode-escaped compatibility wrapper must be caught',
+    'matchesApprovedCallSite',
+    'disallowedCompatibilityValueReferences',
+    'scanConcealedCompatibilityLoads',
+    'metric-preserving exported wrapper with',
+    'concatenated dynamic import',
+    'interpolated dynamic import',
+    'two-argument dynamic import',
+    'unrelated unresolved dynamic imports must not be classified as legacy delivery compatibility access',
   ]) {
     assert(retiredVocabularyGuardText.includes(token), `retired vocabulary guard must enforce narrow compatibility usage: ${token}`);
   }
