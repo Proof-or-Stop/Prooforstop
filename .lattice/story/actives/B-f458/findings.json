@@ -870,7 +870,7 @@
       "desc": "The active-source scan has a parse/extension coverage hole: activeFiles enumerates only `.cjs`, `.js`, and `.ts` code suffixes (line 1372), and shouldScanImports likewise accepts only cjs/js/ts. The package tsconfig includes `src/**/*`, so a valid `packages/main/src/core/compat-bypass.mts` is compiled by TypeScript/Node16 but never enters scanText, scanImportSpecifiers, scanLegacyDeliveryCompatibilityUsage, or the module graph. It can statically import `./legacy-delivery-claims-compat.js` and call/export the constructor with zero guard evidence. `.cts` is similarly omitted; `.tsx` can also contain ordinary TypeScript imports even without JSX. Fingerprinting the known files does not close a new compiled-module edge. Enumerate every compiler-supported executable extension from the project config (`.ts/.tsx/.mts/.cts/.js/.jsx/.mjs/.cjs`) and select ScriptKind correctly; add an executable `.mts` direct-import/control plus `.cts`/`.tsx` coverage and symlink-cycle-safe traversal tests.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-13T12:59:33.973Z",
@@ -882,7 +882,11 @@
         "packages/main/tsconfig.json"
       ],
       "signatureTag": "adversarial|ts|active-source-scan",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 453503c119: shared executable extension set and ScriptKind mapping cover ts/tsx/mts/cts/js/jsx/mjs/cjs for discovery, parsing, import extraction, and graph scanning, with per-extension bypass controls and symlink-cycle-safe traversal.",
+      "resolvedAt": "2026-07-13T13:16:20.978Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-037",
