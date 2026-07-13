@@ -1080,7 +1080,7 @@
       "desc": "The replacement is recursive for VariableDeclaration and `=` assignments, but it is not an all-binding/all-scope alias model: default-initialized parameters are never added to aliases or destructures. A scanned executable can use `function execute(indirect = eval) { indirect(\"import(\\\"./legacy-delivery-claims-compat.js\\\")\"); }` (likewise `vm = require(\"node:vm\")` or an AsyncFunction default). TypeChecker gives `indirect` a local parameter symbol, but collectDynamicExecutionBindings only records imports, async function declarations, VariableDeclaration nodes, and binary assignment nodes; dynamicExecutionKind therefore sees an unmarked symbol at the call and emits no violation. Current nested positive controls cover local variables only, so they do not exercise this binding form. Collect initializer-bearing ParameterDeclaration symbols (including object destructuring/defaults) through the same fixpoint, and add parameter-default eval/vm/AsyncFunction positive controls plus benign shadow/default negatives.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-13T13:49:41.802Z",
@@ -1092,7 +1092,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "dynamic-code-default-parameter-alias-bypass",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by de132e50fb: initializer-bearing ParameterDeclaration bindings, including destructure/default/rest forms, enter the all-scope symbol fixpoint; eval/vm/AsyncFunction parameter controls reject and shadow defaults remain clean.",
+      "resolvedAt": "2026-07-13T14:06:10.034Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-046",
