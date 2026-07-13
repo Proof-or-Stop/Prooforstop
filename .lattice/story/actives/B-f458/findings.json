@@ -486,6 +486,26 @@
       "resolvedAt": "2026-07-13T11:01:40.451Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-f458:F-020",
+      "desc": "Shared DONE reviewer verdict is bypassable when currentReviewRound is missing: collectReviewerEvidenceState calls validateEvidenceRunBinding, which returns success immediately at review-run.ts:921 before checking evidence signature, reviewRunId, run signature/workspace binding, round, or freshness. A same-UID editor can set phase=TEST, remove currentReviewRound, and add one forged lattice-review-* pass per opt-in lane; evaluateReviewVerdict then sees valid lane/quorum evidence and can authorize DONE. The new wrapper-root DONE fixture unintentionally exercises the missing-round branch (its doneStory at review-escalation-freshness-root-smoke.ts:661-673 has no currentReviewRound) but only seeds valid signed passes, so it does not detect the bypass. Missing currentReviewRound must fail closed for reviewer-required REVIEW/TEST/DONE stories, and an adversarial smoke should use tampered/missing run bindings and prove both evaluateReviewVerdict and FINISH reject them.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-13T11:03:21.847Z",
+      "reviewRound": "2026-07-13T11:01:19.517Z",
+      "reviewRunId": "B-f458:RR-025",
+      "_hash": "467f7d4fddcf9edcb63def6717a9fbd129e4e17dfa4d38721a281b0837441074",
+      "files": [
+        "packages/main/src/core/review-run.ts",
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/tasks/review-escalation-freshness-root-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|shared-reviewer-verdict",
+      "signatureTagSource": "auto"
     }
   ]
 }
