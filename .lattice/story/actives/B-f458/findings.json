@@ -2099,7 +2099,7 @@
       "desc": "ESM export provenance is wired only for static ImportDeclaration bindings; dynamic import namespaces remain a complete bypass. The new visit branch handles `import x`, named imports, and namespace imports (lines 2272-2292), but provenanceForExpression has no ImportKeyword/dynamic-import case (its only await-specific branch is the fixed Promise.all tuple at lines 1851-1871). Consequently `const bridge = await import('./dynamic-code-esm-bridge.js'); bridge.evalRun(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\")` and `const { functionRun: Build, vmRun } = await import(path); new Build(...); vmRun(...)` never call namespaceImportProvenance/provenanceForExportSymbol: the await expression keeps only a module type/symbol, dynamicReferenceKind does not consult arbitrary typed properties, and selected members receive no dangerous kind. The existing legacy module-reference scanner already treats ImportKeyword as dynamic-import (line 948), while all new dynamic-code ESM controls are static imports only (lines 3083-3091). Resolve statically known dynamic-import module symbols through the same export graph, fail closed for unresolved dynamic namespaces when selected/called, and add direct/destructured/namespace positives plus safe negatives, including re-export/export-star chains and a cycle termination control.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-13T17:42:08.588Z",
@@ -2119,7 +2119,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "dynamic-import-export-provenance-gap",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by cdb718114f: dynamic import and awaited namespaces resolve static local/file-URL modules through the export graph and unknown targets remain conservative.",
+      "resolvedAt": "2026-07-13T18:03:29.498Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-083",
