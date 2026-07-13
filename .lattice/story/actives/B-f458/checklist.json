@@ -11,7 +11,30 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "User runs the M4.C1 contract verifier and sees `PASS closeout artifact classifications: closed set and canonical writer provenance verified`; adding an unknown trusted path or wrong writer makes the command exit non-zero with the exact path."
+      "userSees": "User runs the M4.C1 contract verifier and sees `PASS closeout artifact classifications: closed set and canonical writer provenance verified`; adding an unknown trusted path or wrong writer makes the command exit non-zero with the exact path.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-001:happy:0",
+            "desc": "The M4.C1 contract verifier enumerates a closed set of scope-defining and closeout-evidence artifact paths, preserves the existing scope-contract class, and reports canonical writer provenance for every trusted path.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-001:edge:0",
+            "desc": "The verifier rejects an unknown lifecycle artifact path and a known path written by a non-canonical command, exits non-zero, and names the offending path and writer.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-001:adversarial:0",
+            "desc": "A path cannot become trusted through prefix, basename, traversal, symlink, alias, or broad-whitelist matching; milestone-closeout-only ownership remains excluded unless B-9188 has merged and registered it canonically.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

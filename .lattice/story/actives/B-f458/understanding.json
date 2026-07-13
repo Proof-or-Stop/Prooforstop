@@ -1,0 +1,40 @@
+{
+  "task": "Implement M4.C1 as the lifecycle trust boundary that distinguishes semantic scope metadata from canonical closeout evidence without weakening review.",
+  "outcome": "The M4.C1 regression suite prints five explicit PASS lines; canonical TEST roll-up closeout remains in TEST, while forged hashes, changed semantic scope, unknown writers, or new-round pass reuse fail closed.",
+  "facts": [
+    "B-3928 completed M0 and established the prompt inventory and policy baseline.",
+    "lifecycle-registry already recognizes parent-ledger-rollup.json but does not expose the complete closed scope-defining and closeout-evidence trust classes with canonical writer provenance.",
+    "proofstory computes ledgerHash, planHash, and rollupHash on canonical writes, but current store/read/DONE consumers do not uniformly runtime-validate schema and recompute embedded hashes.",
+    "digestScopeContract intentionally excludes acknowledgements, so the current review scope hash cannot represent semantically relevant acknowledgement content and provenance.",
+    "review-run.ts is the narrow gate-consumed review freshness and scope-binding path; it must consume the composite scope-defining digest for retention decisions.",
+    "evidence/delivery-context-pack.json currently gets syntax-only JSON.parse validation; a shared core validator must be consumed by its canonical writer and any trust-boundary reader.",
+    "B-9188 owns only milestone-closeout.json registration and is excluded from this story."
+  ],
+  "constraints": [
+    "Every gate-consumed process fact requires both prompt/document guidance and mechanical CLI/runtime validation plus process-fact registry coverage.",
+    "scope_contract_acknowledge remains DEV/REVIEW-only and must not be broadened to TEST.",
+    "A new currentReviewRound never inherits prior passes without a separately designed explicit signed re-attestation contract.",
+    "No prompt body consolidation, M0.5/M1 work, B-9188 milestone-closeout scope, remote publishing, direct docs/story writes, direct tests/fixtures writes, or .omx use.",
+    "Path classification alone must never promote a payload to gate evidence; schema, recomputed hashes, freshness, provenance, lane, and semantic coverage remain independently validated."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/proofstory.ts",
+    "packages/main/src/core/guard-session.ts",
+    "packages/main/src/core/review-run.ts",
+    "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/core/done-prepare-validation-reuse.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/core/closeout-trust.ts",
+    "packages/main/src/handlers/proofstory.ts",
+    "packages/main/src/handlers/delivery-context-pack.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/tasks/scope-contract-smoke.ts",
+    "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+    "packages/main/src/tasks/delivery-context-pack-smoke.ts"
+  ],
+  "timestamp": "2026-07-13T08:22:00.424Z"
+}
