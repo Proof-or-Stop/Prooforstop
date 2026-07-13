@@ -3057,6 +3057,33 @@
       ],
       "signatureTag": "nested-bind-unknown-tail-drop",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-f458:F-118",
+      "desc": "The fb434498bb computed-invocation and literal/typed/unknown-spread controls, reachability, and pins execute successfully (clean guard builds=718, cacheHits=2, fullAnalysis=1155, astCandidates=463, reachability=31), but the coverage matrix does not compose spread normalization with the full Function.prototype invocation vector. Existing `execute.call(null, ...[eval])` and prebound-bind controls leave `thisArg` syntactically outside the spread; they do not cover `execute.call(...[null, eval])`, `execute.apply(...[null, [eval]])`, or `execute.bind(...[null, eval])`, which F-116 verifies still lose provenance. Add positive controls for all three full-vector spread forms (including a computed member form), local-safe negatives, and a mixed safe/danger case; add safe controls to exact reachability and pin all labels plus the full-vector projection helper/logic in the process-fact contract.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-13T21:58:58.920Z",
+      "reviewRound": "2026-07-13T21:55:47.989Z",
+      "reviewRunId": "B-f458:RR-128",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Reviewed the complete fb434498bb diff and all changed computed invocation, argument-vector/spread, control, reachability, instrumentation, and process-pin sections. Concurrent verified F-116 establishes a missing composition inside this strictly bounded family; no unrelated decisions-document escalation was needed."
+      },
+      "_hash": "1d611612c10ae47495668ecb4867d18b69e71060b5ad4c5e746a872f75f56ad0",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "missing|dynamic-code|full-vector-spread-invocation-controls",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
