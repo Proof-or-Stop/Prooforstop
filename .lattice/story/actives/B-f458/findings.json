@@ -1512,6 +1512,33 @@
       "resolvedAt": "2026-07-13T15:57:00.847Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-f458:F-063",
+      "desc": "The plain-any nested array-rest bypass from F-061 is still open. arrayRest now stores `index: unresolved-index-source`, but nested binding uses selectMember with the known key `\"0\"`; the known-key branch never consults base.index, and checker.getIndexTypeOfType(any, Number) is undefined, so it returns empty provenance. `declare const source: any; const [...[run]] = source; run(\"import(… )\")` therefore remains unclassified. The new positive control only covers dynamic `rest[index]`, which goes through bindings.indexKinds and does not exercise nested binding selection. Use base.index as the fallback for numeric known-key selection and add declaration/assignment/parameter controls for any/unknown nested rest plus noncallable indexed negatives.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-13T15:58:16.013Z",
+      "reviewRound": "2026-07-13T15:56:37.277Z",
+      "reviewRunId": "B-f458:RR-083",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Reviewed the complete change diff and focused indexed provenance/control sections; unrelated unchanged portions were name-triaged."
+      },
+      "_hash": "229da6e05156f490cde2dc8b1352cc1bc75d8623c7192483462cb279efc0c9bb",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "nested-rest-index-provenance",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
