@@ -27,16 +27,18 @@ and is subsumed by advance-count + pass-rate.
 **Owner**: lattice-implementer
 **DependsOn**: CHK-001
 **Files**:
-- Modify: packages/main/src/core/convergence-breaker.ts (state read/write + graduated logic)
+- Modify: packages/main/src/core/convergence-breaker.ts (state read/write + graduated logic + takeover-count read)
+- Modify: packages/main/src/core/story-owner-lease.ts (bump the per-story takeover counter inside the existing takeover audit write, right after appendActivityLog)
 - Modify: packages/main/src/core/runtime-artifact-registry.ts (register breaker-state artifact)
 - Modify: .gitignore (glob so breaker-state.json is never tracked)
 
 **Verify**:
 - `git check-ignore .lattice/story/actives/B-bbaf/breaker-state.json` returns the path (ignored)
-- The CHK-005 smoke drives first-trip -> auto-recover -> re-trip -> frozen
+- The CHK-005 smoke drives first-trip -> auto-recover -> re-trip -> frozen, and asserts the takeover counter increments on a takeover
 
 **DoneWhen**:
-- Per-story breaker-state.json persists `{ windowBaseline, autoRecoveriesSpent, frozen, trippedReasons, counterSnapshot }` under `.lattice/story/actives/<id>/`.
+- Per-story breaker-state.json persists `{ windowBaseline, autoRecoveriesSpent, frozen, trippedReasons, counterSnapshot, takeoverCount }` under `.lattice/story/actives/<id>/`.
+- The takeover-counter bump lives in story-owner-lease.ts inside the existing takeover audit write (right after appendActivityLog), serialized by the same lease write; the breaker reads takeoverCount cheaply. The single legitimate forceTakeover is counted, never blocked here.
 - First pathological trip re-baselines the window and increments autoRecoveriesSpent to 1 (budget=1), advance proceeds.
 - A re-trip while autoRecoveriesSpent>=1 sets frozen=true (no further auto-recovery).
 - Registered in runtime-artifact-registry.ts with a matching .gitignore glob (story-owner-lease.ts F-008 pattern); never dirties a DONE merge.
@@ -71,6 +73,7 @@ and is subsumed by advance-count + pass-rate.
 **DoneWhen**:
 - `resolveConvergenceThresholds(env)` mirrors resolveBurnAlertThresholds: typo-safe fallback, per-variable sanity ceilings, no NaN/Infinity.
 - Env vars: LATTICE_CONVERGENCE_MAX_ADVANCE (default 20), LATTICE_CONVERGENCE_MAX_TAKEOVER (default 5), LATTICE_CONVERGENCE_MIN_PASS_RATE (default 0.35) + LATTICE_CONVERGENCE_MIN_SAMPLE (default 10).
+- Windowing basis (OQ-2 resolved): all counters are cumulative story-lifetime totals derived from persisted per-story state (advance events, review-run/pass ledger lengths, takeover counter) — NOT a wall-clock window. This is deterministic, clock-free, and matches core/review-convergence.ts's event-based counting. LATTICE_CONVERGENCE_MAX_TAKEOVER is therefore a lifetime ceiling; the auto-recovery re-baseline (CHK-002) is what gives a healthy long story headroom, not a rolling clock window.
 - Defaults derived from B-f458 (healthy 6-10 advances / ~1 takeover; storm 89 / 65 / ~9.5-24% pass-rate).
 
 ## CHK-005: Smoke test replaying the B-f458 signature plus a healthy control
