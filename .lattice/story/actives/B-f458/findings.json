@@ -107,7 +107,7 @@
       "desc": "Trusted artifact runtime schemas accept missing required timestamps and semantically invalid delivery-context fields. Repro after the story build: calling validateTrustedMilestoneLedger with createdAt removed, validateTrustedSlicePlan with updatedAt removed, and validateTrustedParentLedgerRollup with createdAt removed all return successfully; validatePersistedDeliveryContextPack also accepts changedFiles:[42], testFiles:[42], evidenceCommands:[{}], and deliveryCheck.ref as a string. This contradicts CHK-003 edge/adversarial and means malformed persisted payloads can cross the new trust boundary. Require/validate createdAt+updatedAt (including ISO shape), validate optional typed fields/semantic relationships, require string arrays for delivery paths/commands, validate ref null/object and exact claims shape, and add negative regressions.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-13T09:20:12.985Z",
@@ -119,7 +119,11 @@
         "packages/main/src/tasks/closeout-trust-smoke.ts"
       ],
       "signatureTag": "missing|ts|trusted-artifact-runtime",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 812a711565. Ledger, plan, and rollup require ISO createdAt and updatedAt plus strict nested fields; delivery pack nested schema is exact. Missing timestamp and malformed payload regressions pass.",
+      "resolvedAt": "2026-07-13T09:38:07.475Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-006",
