@@ -1882,7 +1882,7 @@
       "desc": "typedOwnEnumerableMembers fails open for finite structural types whose property declarations originate in declaration files or mapped types. It only accepts declarations from non-.d.ts project source, silently skips the property, then still returns complete:true whenever the type has no index signature. For example `declare const source: Pick<typeof globalThis, \"eval\">; const holder = { ...source }; holder.eval(\"import(… )\")` has an eval property whose declaration is lib.es5.d.ts; the projection becomes a complete empty object, with no member/index danger, so the call evades. The same affects imported ambient finite interfaces. Property signatures describe own enumerable runtime data for this structural spread model regardless of declaration-file location; if ownership/enumerability cannot be proven, completeness must be false/fail-closed rather than silently complete. Add mapped/ambient finite dangerous and safe spread controls.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-13T17:02:11.214Z",
@@ -1902,7 +1902,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "ambient-finite-spread-completeness",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 6df708853d: mapped and ambient properties that cannot be proven enumerable no longer create a complete-empty projection; dangerous Pick/mapped spreads fail closed with safe controls.",
+      "resolvedAt": "2026-07-13T17:20:24.274Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-076",
