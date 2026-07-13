@@ -1682,6 +1682,33 @@
       ],
       "signatureTag": "exact-local-callable-member-name-false-positive",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-f458:F-069",
+      "desc": "F-066 was resolved without implementing its explicit nested-rest regression matrix. The current suite adds only one plain-any declaration control (`declare const source: any; const [, ...[run]] = source`) and no nested-rest assignment or parameter controls, no unknown-source nested-rest controls, and no matching noncallable declaration/assignment/parameter negatives. Existing `array rest declaration/assignment/parameter relative index provenance` cases use concrete array literals and therefore do not exercise the fail-closed `base.index` path fixed for F-063. A later regression can break assignment/parameter walking or unknown-to-any propagation while all currently pinned labels still pass. Add and process-contract-pin exact positive controls for any/unknown nested array rest in declaration, assignment, and parameter forms, plus safe indexed noncallable negatives for the same binding forms, as F-066 required. Preserve the direct/alias/rest empty-string controls, both competing-provenance orders, Record/index and -0/NaN/Infinity controls, and six executable exemptions.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-13T16:18:35.202Z",
+      "reviewRound": "2026-07-13T16:13:08.440Z",
+      "reviewRunId": "B-f458:RR-089",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Reviewed the complete implementation diff and the full changed provenance/control/process-pin sections; unchanged portions of the two large files were triaged by name, and no decisions-document escalation was needed for this focused coverage rerun."
+      },
+      "_hash": "d19149b2e78481829d9432f66c26ed43b7bb7d7e7b7c84ede5b225554e45712f",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "nested-rest-regression-matrix-incomplete",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
