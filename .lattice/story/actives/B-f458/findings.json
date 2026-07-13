@@ -2006,7 +2006,7 @@
       "desc": "The local CommonJS bridge regression matrix remains narrower than the supported loader boundary and does not cover the verified F-078 bypass family. All three dangerous bridge positives use only direct global `require(./dynamic-code-eval-bridge.cjs)`, while the two safe bridge negatives use the same direct literal form. There are no executable/process-pinned direct/member/destructured dangerous and safe controls for a `require` alias, `module.require`, a const/static specifier, or `createRequire(import.meta.url)`, even though those forms are recognized elsewhere by the compatibility loader matrix and currently evade dynamic provenance. Add positive bridge payload controls and typed safe negatives for each loader form, with direct/member/destructured projections as applicable, and pin every exact label. The any/unknown known-key and nested-array-rest Cartesian matrices, finite/symbol direct/destructured pairs, mapped/ambient controls, and typeof guarded dangerous/local-safe controls are now complete and execute successfully.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-13T17:27:04.345Z",
@@ -2026,7 +2026,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "cjs-loader-form-control-gap",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 439ba331bf: executable and process-pinned dangerous-safe matrix covers require alias, parameter, module.require, static/dynamic specifiers and createRequire forms.",
+      "resolvedAt": "2026-07-13T17:39:00.699Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-080",
