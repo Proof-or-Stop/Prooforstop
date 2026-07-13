@@ -1189,6 +1189,25 @@
       "resolvedAt": "2026-07-13T14:19:00.769Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-f458:F-050",
+      "desc": "The new generic callable-receiver model is only generic within the isolated one-file TypeChecker, so imported and ambient callables still bypass it. typeCheckerFor uses `noResolve:true`, supplies only the current source from getSourceFile, and returns an empty default-lib name; `typeHasCallableSignature` therefore sees zero call/construct signatures for imported functions and built-ins. Using the exact compiler-host settings on `import { readFile } from \"node:fs\"; const Build = readFile.constructor` produced call=0 and construct=0 for the readFile receiver, while a Node runtime probe confirmed `readFile.constructor === Function` and its compiled string body returned 42. Thus a scanned file can execute `readFile.constructor(\"return import(...)\")()` (or another imported/ambient callable constructor) without any dynamic-code violation; current positives cover only locally declared/inferred callables. Build the checker from the project tsconfig with module/default-lib resolution, or conservatively classify `.constructor` access on value imports/known ambient callables and propagate it through aliases; add node:fs or local imported-function positives and noncallable import/object negatives.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-13T14:20:14.432Z",
+      "reviewRound": "2026-07-13T14:18:34.640Z",
+      "reviewRunId": "B-f458:RR-068",
+      "_hash": "e4841023fef25a2490130998da9ada58250e5b4f0568eb70ce59beeafe6ff714",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "dynamic-function-constructor-imported-callable-typechecker-bypass",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
