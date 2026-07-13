@@ -27,7 +27,8 @@
     "packages/main/src/handlers/live-smoke-transcript.ts",
     "packages/main/src/handlers/test.ts",
     "packages/main/src/handlers/test-story.ts",
-    "packages/main/src/handlers/transition-effects.ts"
+    "packages/main/src/handlers/transition-effects.ts",
+    "package.json"
   ],
   "allowedCreate": [
     "packages/main/src/core/closeout-trust.ts",
@@ -54,8 +55,8 @@
     ".lattice-codex/agents",
     ".claude/agents"
   ],
-  "scopeChangeReason": "REVIEW findings F-004/F-006 proved declared canonical writer coverage and the normal transcript closeout path are incomplete. Expand only to legacy test evidence writers and the TEST user-value hint so every declared writer/path pair has a real choke point and end-to-end regression.",
+  "scopeChangeReason": "REVIEW F-004 requires the high-risk closeout trust smoke to run under routine npm test. Add only root package.json for the test script wiring; implementation scope is otherwise unchanged.",
   "acknowledgements": [],
   "createdAt": "2026-07-13T08:24:04.138Z",
-  "updatedAt": "2026-07-13T09:22:07.950Z"
+  "updatedAt": "2026-07-13T09:25:13.802Z"
 }
