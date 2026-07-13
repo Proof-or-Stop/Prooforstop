@@ -180,7 +180,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-07-13T12:56:08.815Z",
+      "endTime": "2026-07-13T13:15:14.330Z",
       "userSees": "User sees `PASS trusted closeout artifacts: schema and embedded hashes verified`; a malformed ledger/plan/rollup/delivery-context artifact or forged embedded hash is rejected with a named artifact error.",
       "verificationIntent": {
         "happy": [
@@ -225,33 +225,33 @@
           "kind": "logic_test",
           "command": "npm test",
           "result": "pass",
-          "note": "Full repository suite passed at 57a7d2cf68 with canonical AST fingerprints for compatibility importers and loader exemptions (CHK-003).",
-          "headHash": "fb51f50392e8a62f83b6fb39456593e0fc2161ea",
-          "materialHash": "2b93c5a19fee6fa545059d85c65224657cd5c19273c4eb268d9c0130c9c7b7bd",
-          "storyFilesHash": "f5e97da4108a267fc00fa722a6efce035971e64c391e7d790bd656e82a602cb1",
-          "timestamp": "2026-07-13T12:56:08.977Z"
+          "note": "Full repository suite passed for 453503c119 after F-035/F-036/F-037 finite executable-boundary hardening (CHK-003).",
+          "headHash": "14c37de5ab96ee8bd5b64b4daa7651e0399a72d0",
+          "materialHash": "703838279952c96228fe49acde5bbc2fb84b06325c6202cb485f6ba3c0df3e69",
+          "storyFilesHash": "5e7aeebda269ca27772b94f03c559f8eb69ffa7a2f22468290ce1286bb5795f0",
+          "timestamp": "2026-07-13T13:15:14.488Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
           "kind": "logic_test",
-          "command": "npm run test:closeout-trust && npm run test:runtime-fact-contract && npm run test:brief-output",
+          "command": "node packages/main/dist/tasks/closeout-trust-smoke.js && node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/brief-output-smoke.js",
           "result": "pass",
-          "note": "Closeout/runtime contracts and bounded doctor brief passed at 57a7d2cf68 (CHK-003).",
-          "headHash": "fb51f50392e8a62f83b6fb39456593e0fc2161ea",
-          "materialHash": "2b93c5a19fee6fa545059d85c65224657cd5c19273c4eb268d9c0130c9c7b7bd",
-          "storyFilesHash": "f5e97da4108a267fc00fa722a6efce035971e64c391e7d790bd656e82a602cb1",
-          "timestamp": "2026-07-13T12:56:09.132Z"
+          "note": "Closeout/runtime contracts and bounded brief output passed on 453503c119 (CHK-003).",
+          "headHash": "14c37de5ab96ee8bd5b64b4daa7651e0399a72d0",
+          "materialHash": "703838279952c96228fe49acde5bbc2fb84b06325c6202cb485f6ba3c0df3e69",
+          "storyFilesHash": "5e7aeebda269ca27772b94f03c559f8eb69ffa7a2f22468290ce1286bb5795f0",
+          "timestamp": "2026-07-13T13:15:14.629Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && npm run test:process-fact-contract && npm run test:usage-burn-alert",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node scripts/verify-process-fact-contract.mjs && node packages/main/dist/tasks/usage-burn-alert-smoke.js",
           "result": "pass",
-          "note": "F-033 post-call report.claims export, F-034 path-producer/duplicate-anchor, destructured createRequire, require.bind, pinned fingerprint, and burn renderer controls passed at 57a7d2cf68 (CHK-003).",
-          "headHash": "fb51f50392e8a62f83b6fb39456593e0fc2161ea",
-          "materialHash": "2b93c5a19fee6fa545059d85c65224657cd5c19273c4eb268d9c0130c9c7b7bd",
-          "storyFilesHash": "f5e97da4108a267fc00fa722a6efce035971e64c391e7d790bd656e82a602cb1",
-          "timestamp": "2026-07-13T12:56:09.280Z"
+          "note": "Eight unconditional AST fingerprints, all eight executable extensions, compat constructor/validator/export/type mutations, extension graph/import bypasses, loader-removal fallback, process contract, and burn controls passed on 453503c119 (CHK-003).",
+          "headHash": "14c37de5ab96ee8bd5b64b4daa7651e0399a72d0",
+          "materialHash": "703838279952c96228fe49acde5bbc2fb84b06325c6202cb485f6ba3c0df3e69",
+          "storyFilesHash": "5e7aeebda269ca27772b94f03c559f8eb69ffa7a2f22468290ce1286bb5795f0",
+          "timestamp": "2026-07-13T13:15:14.775Z"
         }
       ]
     },
