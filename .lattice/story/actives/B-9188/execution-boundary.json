@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-9188",
+  "allowedCommands": [
+    "git status/diff/log/add/commit/merge (local only)",
+    "lattice *",
+    "node scripts/verify-process-fact-contract.mjs",
+    "npm --prefix packages/main run build",
+    "npm install",
+    "npm run test:process-fact-contract",
+    "rg / grep / sed read-only inspection"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".lattice",
+    "docs/story",
+    "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "excludedCommands": [
+    "git push"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Two-file inventory registration chore; no remote writes, no handler/store behavior changes.",
+  "createdAt": "2026-07-13T08:19:22.160Z",
+  "updatedAt": "2026-07-13T08:19:22.160Z",
+  "_hash": "6ed6490a901b293494bf33397430dafc2854ec0fa4d9a35e7d620bff3e6a88b0"
+}

@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-9188",
+  "checkedAt": "2026-07-13T08:19:22.544Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "ccefaff524ce138578ff0eac6544a51156c01c53a3d1f2cb4ede27340be11978",
+  "executionBoundaryHash": "6ed6490a901b293494bf33397430dafc2854ec0fa4d9a35e7d620bff3e6a88b0",
+  "freshnessHash": "0fab75950d35bd40c0578381f1d362f249f333af5fbcb68a6deb3bc468099700",
+  "effectiveExcludedKeywords": [
+    "No behavior change to packages/main/src/handlers/milestone-status.ts or packages/main/src/core/store.ts",
+    "No changes to lifecycle-registry.ts, process-fact-levels.ts, or scope-contract-smoke.ts (milestone-closeout.json already listed there)",
+    "No changes to the scope-classifier registry (owned by B-12a1 and its already-running follow-up)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "No behavior change to packages/main/src/handlers/milestone-status.ts or packages/main/src/core/store.ts",
+      "source": "scopeBoundary.excluded",
+      "text": "No behavior change to packages/main/src/handlers/milestone-status.ts or packages/main/src/core/store.ts",
+      "excluded": true
+    },
+    {
+      "keyword": "No changes to lifecycle-registry.ts, process-fact-levels.ts, or scope-contract-smoke.ts (milestone-closeout.json already listed there)",
+      "source": "scopeBoundary.excluded",
+      "text": "No changes to lifecycle-registry.ts, process-fact-levels.ts, or scope-contract-smoke.ts (milestone-closeout.json already listed there)",
+      "excluded": true
+    },
+    {
+      "keyword": "No changes to the scope-classifier registry (owned by B-12a1 and its already-running follow-up)",
+      "source": "scopeBoundary.excluded",
+      "text": "No changes to the scope-classifier registry (owned by B-12a1 and its already-running follow-up)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "9c1b9a0a0920768dd3f334b7dba1c0d9e8f233f28bad42a52cd35f0b96fa1289"
+}
