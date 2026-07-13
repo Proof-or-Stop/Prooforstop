@@ -5,7 +5,7 @@
       "desc": "Closeout receipt replay does not prove the current write was canonical. latestValidCloseoutReceipt accepts any historical receipt whose artifactDigest matches current bytes and whose headHash is merely an ancestor; it does not bind the receipt to the commit/change under review or require the receipt to be newly minted with that artifact change. Reverting an artifact manually to previously receipted bytes therefore reuses the old canonical writer claim and passes retention. More generally receiptHash is recomputable from a public salt, so a manual writer can self-assert a canonical writerCommand. This violates CHK-004/CHK-005 manual, replayed, and stale-provenance fail-closed guarantees.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-13T09:19:14.567Z",
@@ -18,7 +18,11 @@
         "packages/main/src/tasks/closeout-trust-smoke.ts"
       ],
       "signatureTag": "closeout-receipt-replay",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 812a711565: v2 per-artifact integrity chain requires the latest receipt, intact sequence/previous hash, receipt introduction commit equal to latest artifact-changing commit, and receipt pre-write head equal to that commit parent. Exact A to B to manual A replay, copy, and reorder regressions pass. npm test and closeout smoke pass.",
+      "resolvedAt": "2026-07-13T09:37:35.705Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-002",
