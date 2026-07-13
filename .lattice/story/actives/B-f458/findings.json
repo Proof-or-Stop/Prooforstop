@@ -2089,6 +2089,33 @@
       ],
       "signatureTag": "split-loader-identity-equivalence",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-f458:F-082",
+      "desc": "ESM export provenance is wired only for static ImportDeclaration bindings; dynamic import namespaces remain a complete bypass. The new visit branch handles `import x`, named imports, and namespace imports (lines 2272-2292), but provenanceForExpression has no ImportKeyword/dynamic-import case (its only await-specific branch is the fixed Promise.all tuple at lines 1851-1871). Consequently `const bridge = await import('./dynamic-code-esm-bridge.js'); bridge.evalRun(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\")` and `const { functionRun: Build, vmRun } = await import(path); new Build(...); vmRun(...)` never call namespaceImportProvenance/provenanceForExportSymbol: the await expression keeps only a module type/symbol, dynamicReferenceKind does not consult arbitrary typed properties, and selected members receive no dangerous kind. The existing legacy module-reference scanner already treats ImportKeyword as dynamic-import (line 948), while all new dynamic-code ESM controls are static imports only (lines 3083-3091). Resolve statically known dynamic-import module symbols through the same export graph, fail closed for unresolved dynamic namespaces when selected/called, and add direct/destructured/namespace positives plus safe negatives, including re-export/export-star chains and a cycle termination control.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-13T17:42:08.588Z",
+      "reviewRound": "2026-07-13T17:37:55.183Z",
+      "reviewRunId": "B-f458:RR-099",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Reviewed the complete 439ba331bf diff and focused loader identity, static/dynamic import provenance, export resolution, controls, and process-contract sections; unrelated unchanged portions were name-triaged."
+      },
+      "_hash": "a6dd60ffbd95c60a4f0b76ba5d1f4745537294e75a20f37054377b762983eff8",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "dynamic-import-export-provenance-gap",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
