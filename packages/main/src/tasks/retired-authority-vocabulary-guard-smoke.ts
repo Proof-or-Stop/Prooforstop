@@ -1305,12 +1305,23 @@ interface DynamicExecutionBindings {
   dangerousSymbols: Map<ts.Symbol, string>;
   vmNamespaceSymbols: Set<ts.Symbol>;
   functionCallableSymbols: Map<ts.Symbol, string>;
+  memberKinds: Map<ts.Symbol, Map<string, string>>;
+}
+
+interface DynamicProvenance {
+  expression?: ts.Expression;
+  type?: ts.Type;
+  symbol?: ts.Symbol;
+  kind?: string;
+  members?: Map<string, DynamicProvenance>;
+  element?: DynamicProvenance;
+  unknown?: boolean;
+  unknownMemberAccess?: boolean;
 }
 
 interface DynamicAliasRecord {
   target: ts.Symbol;
-  source: ts.Expression;
-  path: readonly (string | number)[];
+  provenance: DynamicProvenance;
 }
 
 function identifierSymbol(identifier: ts.Identifier, checker: ts.TypeChecker): ts.Symbol | undefined {
@@ -1472,6 +1483,13 @@ function dynamicReferenceKind(
       : current.argumentExpression ? staticModuleText(current.argumentExpression) : undefined;
     if (!member) return undefined;
     if (['call', 'apply', 'bind'].includes(member)) return dynamicReferenceKind(target, checker, bindings);
+    if (ts.isIdentifier(target)) {
+      const targetSymbol = identifierSymbol(target, checker);
+      const memberKind = targetSymbol ? bindings.memberKinds.get(targetSymbol)?.get(member) : undefined;
+      if (memberKind) return memberKind;
+      const targetKind = targetSymbol ? bindings.dangerousSymbols.get(targetSymbol) : undefined;
+      if (targetKind?.startsWith('unresolved-')) return `${targetKind}.${member}`;
+    }
     if ((member === 'eval' || member === 'Function') && isGlobalObjectIdentifier(target, checker)) return member;
     if (member === 'constructor') {
       const directKind = functionPrototypeLookupKind(target, checker)
@@ -1517,71 +1535,9 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
     dangerousSymbols: new Map(),
     vmNamespaceSymbols: new Set(),
     functionCallableSymbols: new Map(),
+    memberKinds: new Map(),
   };
   const aliases: DynamicAliasRecord[] = [];
-  const addRecord = (name: ts.Node, sourceExpression: ts.Expression | undefined, path: readonly (string | number)[] = []): void => {
-    if (!sourceExpression || !ts.isIdentifier(name)) return;
-    const symbol = identifierSymbol(name, checker);
-    if (symbol) aliases.push({ target: symbol, source: sourceExpression, path });
-  };
-  const propertyName = (name: ts.PropertyName | undefined): string | undefined => {
-    if (!name) return undefined;
-    if (ts.isIdentifier(name) || ts.isStringLiteralLike(name) || ts.isNumericLiteral(name)) return name.text;
-    return undefined;
-  };
-  const walkPattern = (
-    pattern: ts.Node,
-    sourceExpression: ts.Expression | undefined,
-    path: readonly (string | number)[] = [],
-  ): void => {
-    if (ts.isIdentifier(pattern)) {
-      addRecord(pattern, sourceExpression, path);
-      return;
-    }
-    if (ts.isBinaryExpression(pattern) && pattern.operatorToken.kind === ts.SyntaxKind.EqualsToken) {
-      walkPattern(pattern.left, sourceExpression, path);
-      walkPattern(pattern.left, pattern.right, []);
-      return;
-    }
-    if (ts.isObjectBindingPattern(pattern)) {
-      for (const element of pattern.elements) {
-        const property = propertyName(element.propertyName)
-          ?? (ts.isIdentifier(element.name) ? element.name.text : undefined);
-        if (property !== undefined) walkPattern(element.name, sourceExpression, [...path, property]);
-        if (element.initializer) walkPattern(element.name, element.initializer, []);
-      }
-      return;
-    }
-    if (ts.isArrayBindingPattern(pattern)) {
-      pattern.elements.forEach((element, index) => {
-        if (!ts.isBindingElement(element)) return;
-        walkPattern(element.name, sourceExpression, [...path, index]);
-        if (element.initializer) walkPattern(element.name, element.initializer, []);
-      });
-      return;
-    }
-    if (ts.isObjectLiteralExpression(pattern)) {
-      for (const property of pattern.properties) {
-        if (ts.isPropertyAssignment(property)) {
-          const name = propertyName(property.name);
-          if (name !== undefined) walkPattern(property.initializer, sourceExpression, [...path, name]);
-        } else if (ts.isShorthandPropertyAssignment(property)) {
-          walkPattern(property.name, sourceExpression, [...path, property.name.text]);
-          if (property.objectAssignmentInitializer) walkPattern(property.name, property.objectAssignmentInitializer, []);
-        } else if (ts.isSpreadAssignment(property)) {
-          walkPattern(property.expression, sourceExpression, path);
-        }
-      }
-      return;
-    }
-    if (ts.isArrayLiteralExpression(pattern)) {
-      pattern.elements.forEach((element, index) => {
-        if (ts.isOmittedExpression(element)) return;
-        if (ts.isSpreadElement(element)) walkPattern(element.expression, sourceExpression, [...path, index]);
-        else walkPattern(element, sourceExpression, [...path, index]);
-      });
-    }
-  };
   const localInitializer = (expression: ts.Expression): ts.Expression | undefined => {
     const symbol = expressionSymbol(expression, checker);
     for (const declaration of symbol?.getDeclarations() ?? []) {
@@ -1590,63 +1546,11 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
     }
     return undefined;
   };
-  const expressionAtPath = (sourceExpression: ts.Expression, path: readonly (string | number)[]): ts.Expression | undefined => {
-    let current = unwrapExecutionExpression(sourceExpression);
-    const seen = new Set<ts.Node>();
-    let index = 0;
-    while (index < path.length) {
-      if (seen.has(current)) return undefined;
-      seen.add(current);
-      const initializer = localInitializer(current);
-      if (initializer && initializer !== current) {
-        current = unwrapExecutionExpression(initializer);
-        continue;
-      }
-      const segment = path[index];
-      if (typeof segment === 'number' && ts.isArrayLiteralExpression(current)) {
-        const element = current.elements[segment];
-        if (!element || ts.isOmittedExpression(element)) return undefined;
-        current = unwrapExecutionExpression(ts.isSpreadElement(element) ? element.expression : element);
-        index += 1;
-        continue;
-      }
-      if (typeof segment === 'string' && ts.isObjectLiteralExpression(current)) {
-        const property = current.properties.find(candidate => 'name' in candidate && propertyName(candidate.name) === segment);
-        if (property && ts.isPropertyAssignment(property)) current = unwrapExecutionExpression(property.initializer);
-        else if (property && ts.isShorthandPropertyAssignment(property)) current = property.name;
-        else return undefined;
-        index += 1;
-        continue;
-      }
-      return undefined;
-    }
-    return current;
-  };
-  const typeAtPath = (sourceExpression: ts.Expression, path: readonly (string | number)[]): { type: ts.Type; symbol?: ts.Symbol } | undefined => {
-    let type = checker.getTypeAtLocation(sourceExpression);
-    let symbol = expressionSymbol(sourceExpression, checker);
-    for (const segment of path) {
-      const property = checker.getPropertyOfType(type, String(segment));
-      if (property) {
-        symbol = property;
-        type = checker.getTypeOfSymbolAtLocation(property, sourceExpression);
-        continue;
-      }
-      if (typeof segment === 'number') {
-        const indexed = checker.getIndexTypeOfType(type, ts.IndexKind.Number);
-        if (indexed) {
-          type = indexed;
-          symbol = undefined;
-          continue;
-        }
-      }
-      return undefined;
-    }
-    return { type, symbol };
-  };
-  const constructorTypeKind = (receiver: { type: ts.Type; symbol?: ts.Symbol } | undefined): string | undefined => {
+  const constructorTypeKind = (receiver: DynamicProvenance | undefined): string | undefined => {
     if (!receiver) return 'unresolved-or-ambient';
+    if (!receiver.type) return 'unresolved-or-ambient';
     if (typeRequiresFailClosedCallableClassification(receiver.type, checker)) return 'unresolved-or-callable';
+    if (receiver.expression && hasExactLocalNonCallableEvidence(receiver.expression, checker)) return undefined;
     const declarations = receiver.symbol?.getDeclarations() ?? [];
     const exactLocal = declarations.length > 0 && declarations.every(declaration => (
       !declaration.getSourceFile().isDeclarationFile
@@ -1654,20 +1558,212 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
     ));
     return exactLocal ? undefined : 'unresolved-or-ambient';
   };
-  const recordKind = (record: DynamicAliasRecord): { expression?: ts.Expression; kind?: string } => {
-    const resolved = expressionAtPath(record.source, record.path);
-    if (resolved) return { expression: resolved };
-    const final = record.path.at(-1);
-    const receiverPath = record.path.slice(0, -1);
-    if ((final === 'eval' || final === 'Function') && receiverPath.length === 0
-      && isGlobalObjectIdentifier(record.source, checker)) return { kind: final };
-    if (typeof final === 'string' && DYNAMIC_VM_EXECUTION_MEMBERS.has(final) && receiverPath.length === 0
-      && vmNamespaceReference(record.source, checker, bindings)) return { kind: `node:vm.${final}` };
-    if (final === 'constructor') {
-      const kind = constructorTypeKind(typeAtPath(record.source, receiverPath));
-      return kind ? { kind: `${kind}.constructor` } : {};
+  const constantPropertyKey = (name: ts.PropertyName | undefined, seen = new Set<ts.Symbol>()): string | undefined => {
+    if (!name) return undefined;
+    if (ts.isIdentifier(name) || ts.isStringLiteralLike(name) || ts.isNumericLiteral(name)) return name.text;
+    if (!ts.isComputedPropertyName(name)) return undefined;
+    const valueOf = (expression: ts.Expression): string | undefined => {
+      const current = unwrapExecutionExpression(expression);
+      if (ts.isStringLiteralLike(current) || ts.isNumericLiteral(current) || ts.isNoSubstitutionTemplateLiteral(current)) return current.text;
+      if (ts.isPrefixUnaryExpression(current) && ts.isNumericLiteral(current.operand)
+        && (current.operator === ts.SyntaxKind.PlusToken || current.operator === ts.SyntaxKind.MinusToken)) {
+        return `${current.operator === ts.SyntaxKind.MinusToken ? '-' : ''}${current.operand.text}`;
+      }
+      if (ts.isPropertyAccessExpression(current) || ts.isElementAccessExpression(current)) {
+        const constant = checker.getConstantValue(current);
+        if (constant !== undefined) return String(constant);
+        const symbol = expressionSymbol(current, checker);
+        for (const declaration of symbol?.getDeclarations() ?? []) {
+          if (ts.isEnumMember(declaration) && declaration.initializer) return valueOf(declaration.initializer);
+        }
+      }
+      if (ts.isIdentifier(current)) {
+        const symbol = identifierSymbol(current, checker);
+        if (!symbol || seen.has(symbol)) return undefined;
+        seen.add(symbol);
+        for (const declaration of symbol.getDeclarations() ?? []) {
+          if (ts.isVariableDeclaration(declaration) && declaration.initializer
+            && ts.isVariableDeclarationList(declaration.parent)
+            && (declaration.parent.flags & ts.NodeFlags.Const) !== 0) return valueOf(declaration.initializer);
+          if (ts.isEnumMember(declaration) && declaration.initializer) return valueOf(declaration.initializer);
+        }
+      }
+      return undefined;
+    };
+    return valueOf(name.expression);
+  };
+  const provenanceForExpression = (expression: ts.Expression, seen = new Set<ts.Node>()): DynamicProvenance => {
+    const current = unwrapExecutionExpression(expression);
+    const base: DynamicProvenance = {
+      expression: current,
+      type: checker.getTypeAtLocation(current),
+      symbol: expressionSymbol(current, checker),
+    };
+    if (seen.has(current)) return base;
+    seen.add(current);
+    const initializer = localInitializer(current);
+    if (initializer && initializer !== current) {
+      const initialized = provenanceForExpression(initializer, seen);
+      return { ...initialized, expression: initialized.expression ?? current, type: initialized.type ?? base.type, symbol: base.symbol ?? initialized.symbol };
+    }
+    if (ts.isArrayLiteralExpression(current)) {
+      const members = new Map<string, DynamicProvenance>();
+      current.elements.forEach((element, index) => {
+        if (!ts.isOmittedExpression(element)) members.set(String(index), provenanceForExpression(ts.isSpreadElement(element) ? element.expression : element, new Set(seen)));
+      });
+      return { ...base, members };
+    }
+    if (ts.isObjectLiteralExpression(current)) {
+      const members = new Map<string, DynamicProvenance>();
+      let unknown = false;
+      for (const property of current.properties) {
+        if (ts.isPropertyAssignment(property)) {
+          const key = constantPropertyKey(property.name);
+          if (key === undefined) unknown = true;
+          else members.set(key, provenanceForExpression(property.initializer, new Set(seen)));
+        } else if (ts.isShorthandPropertyAssignment(property)) {
+          members.set(property.name.text, provenanceForExpression(property.name, new Set(seen)));
+        } else if (ts.isMethodDeclaration(property)) {
+          const key = constantPropertyKey(property.name);
+          if (key === undefined) unknown = true;
+          else members.set(key, { type: checker.getTypeAtLocation(property), symbol: checker.getSymbolAtLocation(property.name) });
+        } else {
+          unknown = true;
+        }
+      }
+      return { ...base, members, unknown };
+    }
+    if (isGlobalObjectIdentifier(current, checker)) {
+      return { ...base, members: new Map([
+        ['eval', { kind: 'eval' }],
+        ['Function', { kind: 'Function' }],
+      ]) };
+    }
+    if (isGlobalRequireCall(current, checker) || vmNamespaceReference(current, checker, bindings)) {
+      return { ...base, members: new Map([...DYNAMIC_VM_EXECUTION_MEMBERS].map(member => [member, { kind: `node:vm.${member}` }])) };
+    }
+    const callableKind = staticallyCallableKind(current, checker, bindings);
+    if (callableKind) return { ...base, members: new Map([['constructor', { kind: `${callableKind}.constructor` }]]) };
+    return base;
+  };
+  const provenancePotentiallyDangerous = (provenance: DynamicProvenance, seen = new Set<DynamicProvenance>()): boolean => {
+    if (seen.has(provenance)) return false;
+    seen.add(provenance);
+    if (provenance.kind || provenance.unknown) return true;
+    if (provenance.expression && dynamicReferenceKind(provenance.expression, checker, bindings)) return true;
+    if (provenance.type && (provenance.type.flags & (ts.TypeFlags.Any | ts.TypeFlags.Unknown | ts.TypeFlags.TypeParameter)) !== 0) return true;
+    return [...(provenance.members?.values() ?? [])].some(member => provenancePotentiallyDangerous(member, seen))
+      || Boolean(provenance.element && provenancePotentiallyDangerous(provenance.element, seen));
+  };
+  const selectMember = (base: DynamicProvenance, key: string | undefined): DynamicProvenance => {
+    if (key === undefined) return provenancePotentiallyDangerous(base) ? { kind: 'unresolved-computed-key', unknown: true } : {};
+    const exact = base.members?.get(key);
+    if (exact) return exact;
+    if ((key === 'eval' || key === 'Function') && base.expression && isGlobalObjectIdentifier(base.expression, checker)) return { kind: key };
+    if (DYNAMIC_VM_EXECUTION_MEMBERS.has(key) && base.expression && vmNamespaceReference(base.expression, checker, bindings)) return { kind: `node:vm.${key}` };
+    if (key === 'constructor') {
+      const kind = constructorTypeKind(base);
+      if (kind) return { kind: `${kind}.constructor` };
+    }
+    const property = base.type ? checker.getPropertyOfType(base.type, key) : undefined;
+    if (property) return {
+      type: checker.getTypeOfSymbolAtLocation(property, base.expression ?? source),
+      symbol: property,
+    };
+    if (/^\d+$/.test(key) && base.element) return base.element;
+    if (/^\d+$/.test(key) && base.type) {
+      const type = checker.getIndexTypeOfType(base.type, ts.IndexKind.Number);
+      if (type) return { type, kind: typeRequiresFailClosedCallableClassification(type, checker) ? 'unresolved-array-element' : undefined };
     }
     return {};
+  };
+  const arrayRest = (base: DynamicProvenance, start: number): DynamicProvenance => {
+    const members = new Map<string, DynamicProvenance>();
+    for (const [key, value] of base.members ?? []) {
+      const index = Number(key);
+      if (Number.isInteger(index) && index >= start) members.set(String(index - start), value);
+    }
+    let element = base.element;
+    if (!element && base.type) {
+      const elementType = checker.getIndexTypeOfType(base.type, ts.IndexKind.Number);
+      if (elementType) element = { type: elementType, kind: typeRequiresFailClosedCallableClassification(elementType, checker) ? 'unresolved-array-rest-element' : undefined };
+    }
+    return { members, element, unknown: base.unknown && members.size === 0 };
+  };
+  const objectRest = (base: DynamicProvenance, excluded: ReadonlySet<string>): DynamicProvenance => {
+    const members = new Map<string, DynamicProvenance>();
+    for (const [key, value] of base.members ?? []) if (!excluded.has(key)) members.set(key, value);
+    if (base.type) {
+      for (const property of checker.getPropertiesOfType(base.type)) {
+        if (!excluded.has(property.name) && !members.has(property.name)) members.set(property.name, selectMember(base, property.name));
+      }
+    }
+    const unknownMemberAccess = base.unknown
+      || ((base.type?.flags ?? 0) & (ts.TypeFlags.Any | ts.TypeFlags.Unknown | ts.TypeFlags.TypeParameter)) !== 0;
+    return { members, unknownMemberAccess };
+  };
+  const addRecord = (name: ts.Node, provenance: DynamicProvenance | undefined): void => {
+    if (!provenance || !ts.isIdentifier(name)) return;
+    const symbol = identifierSymbol(name, checker);
+    if (symbol) aliases.push({ target: symbol, provenance });
+  };
+  const walkPattern = (pattern: ts.Node, provenance: DynamicProvenance | undefined): void => {
+    if (ts.isIdentifier(pattern)) {
+      addRecord(pattern, provenance);
+      return;
+    }
+    if (ts.isBinaryExpression(pattern) && pattern.operatorToken.kind === ts.SyntaxKind.EqualsToken) {
+      walkPattern(pattern.left, provenance);
+      walkPattern(pattern.left, provenanceForExpression(pattern.right));
+      return;
+    }
+    if (ts.isObjectBindingPattern(pattern)) {
+      const excluded = new Set<string>();
+      for (const element of pattern.elements) {
+        if (element.dotDotDotToken) {
+          walkPattern(element.name, provenance ? objectRest(provenance, excluded) : undefined);
+          continue;
+        }
+        const key = element.propertyName
+          ? constantPropertyKey(element.propertyName)
+          : ts.isIdentifier(element.name) ? element.name.text : undefined;
+        if (key !== undefined) excluded.add(key);
+        walkPattern(element.name, provenance ? selectMember(provenance, key) : undefined);
+        if (element.initializer) walkPattern(element.name, provenanceForExpression(element.initializer));
+      }
+      return;
+    }
+    if (ts.isArrayBindingPattern(pattern)) {
+      pattern.elements.forEach((element, index) => {
+        if (!ts.isBindingElement(element)) return;
+        walkPattern(element.name, provenance ? (element.dotDotDotToken ? arrayRest(provenance, index) : selectMember(provenance, String(index))) : undefined);
+        if (element.initializer) walkPattern(element.name, provenanceForExpression(element.initializer));
+      });
+      return;
+    }
+    if (ts.isObjectLiteralExpression(pattern)) {
+      const excluded = new Set<string>();
+      for (const property of pattern.properties) {
+        if (ts.isPropertyAssignment(property)) {
+          const key = constantPropertyKey(property.name);
+          if (key !== undefined) excluded.add(key);
+          walkPattern(property.initializer, provenance ? selectMember(provenance, key) : undefined);
+        } else if (ts.isShorthandPropertyAssignment(property)) {
+          excluded.add(property.name.text);
+          walkPattern(property.name, provenance ? selectMember(provenance, property.name.text) : undefined);
+          if (property.objectAssignmentInitializer) walkPattern(property.name, provenanceForExpression(property.objectAssignmentInitializer));
+        } else if (ts.isSpreadAssignment(property)) {
+          walkPattern(property.expression, provenance ? objectRest(provenance, excluded) : undefined);
+        }
+      }
+      return;
+    }
+    if (ts.isArrayLiteralExpression(pattern)) {
+      pattern.elements.forEach((element, index) => {
+        if (ts.isOmittedExpression(element)) return;
+        walkPattern(ts.isSpreadElement(element) ? element.expression : element, provenance ? (ts.isSpreadElement(element) ? arrayRest(provenance, index) : selectMember(provenance, String(index))) : undefined);
+      });
+    }
   };
   const visit = (node: ts.Node): void => {
     if (ts.isImportDeclaration(node)
@@ -1695,23 +1791,58 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
       if (symbol) bindings.functionCallableSymbols.set(symbol, functionDeclarationConstructorKind(node));
     }
     if (ts.isParameter(node)) {
-      walkPattern(node.name, node.initializer);
+      walkPattern(node.name, node.initializer ? provenanceForExpression(node.initializer) : undefined);
     }
     if (ts.isVariableDeclaration(node) && node.initializer) {
-      walkPattern(node.name, node.initializer);
+      walkPattern(node.name, provenanceForExpression(node.initializer));
     }
     if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.EqualsToken) {
-      walkPattern(node.left, node.right);
+      walkPattern(node.left, provenanceForExpression(node.right));
     }
     ts.forEachChild(node, visit);
   };
   visit(source);
+  const symbolProvenance = new Map<ts.Symbol, DynamicProvenance>();
+  const resolveProvenance = (provenance: DynamicProvenance): DynamicProvenance => {
+    const inherited = provenance.symbol ? symbolProvenance.get(provenance.symbol) : undefined;
+    if (!inherited) return provenance;
+    return {
+      ...inherited,
+      ...provenance,
+      kind: provenance.kind ?? inherited.kind,
+      members: provenance.members?.size ? provenance.members : inherited.members,
+      element: provenance.element ?? inherited.element,
+      unknown: provenance.unknown || inherited.unknown,
+      unknownMemberAccess: provenance.unknownMemberAccess || inherited.unknownMemberAccess,
+    };
+  };
+  const provenanceKind = (provenance: DynamicProvenance): string | undefined => provenance.kind
+    ?? (provenance.expression ? dynamicReferenceKind(provenance.expression, checker, bindings) : undefined)
+    ?? (provenance.unknownMemberAccess ? 'unresolved-rest-provenance' : undefined);
+  const memberProvenanceKind = (member: string, provenance: DynamicProvenance): string | undefined => {
+    const direct = provenanceKind(provenance);
+    if (direct) return direct;
+    if (provenance.expression && hasExactLocalNonCallableEvidence(provenance.expression, checker)) return undefined;
+    const declarations = provenance.symbol?.getDeclarations() ?? [];
+    if (declarations.length > 0 && declarations.every(declaration => (
+      !declaration.getSourceFile().isDeclarationFile
+      && resolve(declaration.getSourceFile().fileName).startsWith(`${resolve(repoRoot)}/`)
+      && !ts.isPropertySignature(declaration)
+    ))) return undefined;
+    const potentiallyCallable = Boolean(provenance.type && typeRequiresFailClosedCallableClassification(provenance.type, checker));
+    if (!potentiallyCallable) return undefined;
+    if (member === 'eval' || member === 'Function') return member;
+    if (DYNAMIC_VM_EXECUTION_MEMBERS.has(member)) return `node:vm.${member}`;
+    if (member === 'constructor') return 'unresolved-or-callable.constructor';
+    return undefined;
+  };
   let changed = true;
   while (changed) {
     changed = false;
     for (const alias of aliases) {
-      const provenance = recordKind(alias);
+      const provenance = resolveProvenance(alias.provenance);
       const expression = provenance.expression;
+      if (symbolProvenance.get(alias.target) !== provenance) symbolProvenance.set(alias.target, provenance);
       if (expression && !bindings.vmNamespaceSymbols.has(alias.target) && vmNamespaceReference(expression, checker, bindings)) {
         bindings.vmNamespaceSymbols.add(alias.target);
         changed = true;
@@ -1721,8 +1852,19 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
         if (callableKind) bindings.functionCallableSymbols.set(alias.target, callableKind);
         if (callableKind) changed = true;
       }
+      if (provenance.members) {
+        const memberKinds = bindings.memberKinds.get(alias.target) ?? new Map<string, string>();
+        for (const [member, memberProvenance] of provenance.members) {
+          const kind = memberProvenanceKind(member, resolveProvenance(memberProvenance));
+          if (kind && !memberKinds.has(member)) {
+            memberKinds.set(member, kind);
+            changed = true;
+          }
+        }
+        if (memberKinds.size > 0) bindings.memberKinds.set(alias.target, memberKinds);
+      }
       if (!bindings.dangerousSymbols.has(alias.target)) {
-        const kind = provenance.kind ?? (expression ? dynamicReferenceKind(expression, checker, bindings) : undefined);
+        const kind = provenanceKind(provenance);
         if (kind) {
           bindings.dangerousSymbols.set(alias.target, kind);
           changed = true;
@@ -2225,6 +2367,26 @@ function assertDynamicCodeGenerationPositiveControls(): void {
     ['nested object declaration constructor provenance', "const source = { nested: function() {} }; const { nested: { constructor: Build } } = source; new Build(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['nested object assignment constructor provenance', "const source = { nested: function() {} }; let Build; ({ nested: { constructor: Build } } = source); new Build(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['nested object parameter constructor provenance', "const source = { nested: function() {} }; function execute({ nested: { constructor: Build } } = source) { new Build(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
+    ['array rest declaration relative index provenance', "const [, ...[run]] = [0, eval]; run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['array rest assignment relative index provenance', "let run; [, ...[run]] = [0, eval]; run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['array rest parameter relative index provenance', "function execute([, ...[run]] = [0, eval]) { run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
+    ['nested object array rest provenance', "const { items: [, ...[run]] } = { items: [0, eval] }; run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['nonliteral array rest element provenance', "declare const values: Array<typeof eval>; const [...[run]] = values; run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['globalThis object rest declaration provenance', "const { Math, ...rest } = globalThis; rest.eval(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['globalThis object rest assignment provenance', "let rest; ({ Math, ...rest } = globalThis); rest.eval(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['globalThis object rest parameter provenance', "function execute({ Math, ...rest } = globalThis) { rest.eval(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
+    ['callable constructor object rest provenance', "const { keep, ...rest } = { keep: 0, Build: (function() {}).constructor }; new rest.Build(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['nonliteral object rest eval type provenance', "declare const source: { safe: number; eval: typeof eval }; const { safe, ...rest } = source; rest.eval(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['nonliteral object rest vm type provenance', "declare const source: { safe: number; runInContext: typeof import('node:vm').runInContext }; const { safe, ...rest } = source; rest.runInContext(\"require('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['unknown object rest property access fail closed', "declare const source: unknown; const { ...rest } = source as any; rest.eval(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['static computed eval declaration provenance', "const { ['eval']: run } = globalThis; run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['static computed eval assignment provenance', "let run; ({ [`eval`]: run } = globalThis); run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['const computed eval parameter provenance', "const first = 'eval'; const key = first; function execute({ [key]: run } = globalThis) { run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
+    ['numeric computed eval provenance', "const { [0]: run } = { 0: eval }; run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['enum constant computed eval provenance', "enum DynamicKey { Eval = 'eval' } const { [DynamicKey.Eval]: run } = globalThis; run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['const computed vm provenance', "const member = 'runInContext'; const { [member]: run } = require('node:vm'); run(\"require('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['const computed constructor provenance', "const member = 'constructor'; const { [member]: Build } = function source() {}; new Build(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['unresolved computed global fail closed', "declare const member: string; const { [member]: run } = globalThis; run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['node vm default import', "import vm from 'node:vm'; vm.runInNewContext(\"require('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
   ] as const;
   const negativeCases = [
@@ -2259,6 +2421,15 @@ function assertDynamicCodeGenerationPositiveControls(): void {
     ['for-in local require shadow', "for (const require in { local: true }) { void require; }"],
     ['enum eval identity shadow', "enum eval { local } void eval.local;"],
     ['namespace Function identity shadow', "namespace Function { export function local(value) { return value; } } Function.local(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['array rest local noncallable negative', "const [, ...[run]] = [0, (value: string) => value]; run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['array rest omitted local noncallable negative', "const [, , ...[run]] = [0, 1, (value: string) => value]; run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['nonliteral array rest noncallable negative', "declare const values: number[]; const [...[value]] = values; void value;"],
+    ['object rest local noncallable negative', "const { skip, ...rest } = { skip: 0, run(value: string) { return value; } }; rest.run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['object rest excluded eval negative', "const { eval: localEval, ...rest } = globalThis; void localEval; void rest.eval;"],
+    ['object rest local constructor negative', "const { ...rest } = { constructor(value: string) { return value; } }; rest.constructor(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['nonliteral object rest noncallable negative', "declare const source: { skip: number; value: string }; const { skip, ...rest } = source; void rest.value;"],
+    ['const computed local noncallable negative', "const key = 'run'; const { [key]: run } = { run: (value: string) => value }; run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['unresolved computed exact local negative', "let key: string = 'value'; const { [key]: value } = { value: { local: true } }; void value;"],
   ] as const;
   const controlSources = [...cases, ...negativeCases].map(([label, source], index) => ({
     label,
