@@ -126,7 +126,38 @@
       "context": "LATTICE_CONVERGENCE_MAX_ADVANCE (~20), LATTICE_CONVERGENCE_MIN_PASS_RATE + min-sample, LATTICE_CONVERGENCE_MAX_TAKEOVER per window. Mirror resolveBurnAlertThresholds env-resolver (typo-safe fallback, per-variable sanity ceilings). Derive defaults from B-f458: normal is 6-10 advances and ~1 takeover; the storm was 89 advances / 65 takeovers / pass-rate collapsing to <10%.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "With LATTICE_CONVERGENCE_MAX_ADVANCE=5 the fixture trips at 6 advances; unset uses the default 20; a garbage value (abc / -1 / 1e9) falls back to the default with no crash.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/convergence-breaker.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Default thresholds resolve to advance ~20, takeover ~5/window, and a min pass-rate with a min-sample gate",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "An env override (e.g. LATTICE_CONVERGENCE_MAX_ADVANCE) changes the effective threshold",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A typo / negative / absurdly-large env value falls back to the default and never yields NaN or Infinity",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
