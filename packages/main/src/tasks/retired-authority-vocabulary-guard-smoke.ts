@@ -528,6 +528,12 @@ const TYPE_RESOLUTION_DIAGNOSTIC_CODES = new Set([2307, 2688, 2792, 7016]);
 let sharedProjectTypeAnalysis: { program: ts.Program; roots: readonly string[] } | undefined;
 const syntheticTypeFiles = new Map<string, { text: string; version: number }>();
 let syntheticTypeLanguageService: ts.LanguageService | undefined;
+const typeProgramInstrumentation = {
+  baselineProgramBuilds: 0,
+  overlayProgramBuilds: 0,
+  languageServiceBuilds: 0,
+  languageServiceProgramRequests: 0,
+};
 
 function parseSource(file: string, text: string): ts.SourceFile {
   const cached = parsedSourceCache.get(file);
@@ -602,6 +608,8 @@ function createProjectTypeProgram(
   includeProjectRoots = true,
   oldProgram?: ts.Program,
 ): ts.Program {
+  if (includeProjectRoots) typeProgramInstrumentation.baselineProgramBuilds += 1;
+  else typeProgramInstrumentation.overlayProgramBuilds += 1;
   const normalizedOverlays = new Map(
     [...overlays].map(([file, text]) => [resolve(repoRoot, file), text] as const),
   );
@@ -643,6 +651,7 @@ function sharedProjectProgram(): ts.Program {
 
 function syntheticTypeService(): ts.LanguageService {
   if (syntheticTypeLanguageService) return syntheticTypeLanguageService;
+  typeProgramInstrumentation.languageServiceBuilds += 1;
   const options = projectTypeProgramOptions();
   const host: ts.LanguageServiceHost = {
     getCompilationSettings: () => options,
@@ -675,6 +684,7 @@ function syntheticTypeAnalysisFor(file: string, text: string): SourceTypeAnalysi
   if (!current || current.text !== text) {
     syntheticTypeFiles.set(absoluteFile, { text, version: (current?.version ?? 0) + 1 });
   }
+  typeProgramInstrumentation.languageServiceProgramRequests += 1;
   const program = syntheticTypeService().getProgram();
   const source = program?.getSourceFile(absoluteFile);
   assert(program && source, `synthetic type program root missing: ${file}`);
@@ -723,6 +733,14 @@ function assertProjectTypeProgramContract(executableFiles: readonly string[]): v
   );
   assert.notEqual(program.getCompilerOptions().noResolve, true, 'project type program must enable module resolution');
   assert.equal(program.getCompilerOptions().moduleResolution, ts.ModuleResolutionKind.Node16, 'project type program must preserve packages/main Node16 module resolution');
+}
+
+function assertTypeProgramInstrumentation(): void {
+  assert.equal(typeProgramInstrumentation.baselineProgramBuilds, 1, 'baseline project Program must construct exactly once per guard scan');
+  assert.ok(typeProgramInstrumentation.overlayProgramBuilds <= 1, `overlay Program builds must remain bounded at one, got ${typeProgramInstrumentation.overlayProgramBuilds}`);
+  assert.equal(typeProgramInstrumentation.languageServiceBuilds, 1, 'synthetic LanguageService must construct exactly once per guard scan');
+  assert.ok(syntheticTypeFiles.size <= 32, `synthetic LanguageService roots must remain bounded at 32, got ${syntheticTypeFiles.size}`);
+  assert.ok(typeProgramInstrumentation.languageServiceProgramRequests <= 320, `synthetic LanguageService Program requests must remain bounded at 320, got ${typeProgramInstrumentation.languageServiceProgramRequests}`);
 }
 
 function staticModuleText(
@@ -793,48 +811,22 @@ function containingImportDeclaration(specifier: ts.ImportSpecifier): ts.ImportDe
     : undefined;
 }
 
-function bindingNameContains(name: ts.BindingName, expected: string): boolean {
-  if (ts.isIdentifier(name)) return name.text === expected;
-  return name.elements.some(element => ts.isBindingElement(element) && bindingNameContains(element.name, expected));
-}
-
-function lexicalScopeDeclaresName(scope: ts.Node, expected: string): boolean {
-  if (ts.isFunctionLike(scope)) {
-    if (scope.parameters.some(parameter => bindingNameContains(parameter.name, expected))) return true;
-    if ('name' in scope && scope.name && ts.isIdentifier(scope.name) && scope.name.text === expected) return true;
-  }
-  if (ts.isCatchClause(scope) && scope.variableDeclaration && bindingNameContains(scope.variableDeclaration.name, expected)) return true;
-  const statements = ts.isSourceFile(scope) || ts.isBlock(scope) || ts.isModuleBlock(scope) ? scope.statements : undefined;
-  if (!statements) return false;
-  return statements.some(statement => {
-    if (ts.isVariableStatement(statement)) {
-      return statement.declarationList.declarations.some(declaration => bindingNameContains(declaration.name, expected));
-    }
-    if ((ts.isFunctionDeclaration(statement) || ts.isClassDeclaration(statement)) && statement.name?.text === expected) return true;
-    if (ts.isImportDeclaration(statement)) {
-      const clause = statement.importClause;
-      if (clause?.name?.text === expected) return true;
-      const bindings = clause?.namedBindings;
-      if (bindings && ts.isNamespaceImport(bindings)) return bindings.name.text === expected;
-      if (bindings && ts.isNamedImports(bindings)) return bindings.elements.some(element => element.name.text === expected);
-    }
-    return false;
-  });
-}
-
-function hasLexicalShadow(node: ts.Identifier, expected: string): boolean {
-  let current: ts.Node | undefined = node.parent;
-  while (current) {
-    if (lexicalScopeDeclaresName(current, expected)) return true;
-    current = current.parent;
-  }
-  return false;
-}
-
 function isGlobalIdentifier(node: ts.Identifier, checker: ts.TypeChecker, name: string): boolean {
   if (node.text !== name) return false;
-  void checker;
-  return !hasLexicalShadow(node, name);
+  const symbol = checker.getSymbolAtLocation(node);
+  const declarations = symbol?.getDeclarations() ?? [];
+  if (declarations.length === 0) {
+    const type = checker.getTypeAtLocation(node);
+    return Boolean(symbol && (symbol.flags & ts.SymbolFlags.Transient) !== 0
+      && (type.flags & (ts.TypeFlags.Any | ts.TypeFlags.Unknown)) === 0);
+  }
+  return declarations.every(declaration => {
+    const source = declaration.getSourceFile();
+    return source.isDeclarationFile
+      && (source.hasNoDefaultLib
+        || source.fileName.includes('/node_modules/typescript/lib/lib.')
+        || source.fileName.includes('/node_modules/@types/'));
+  });
 }
 
 function isModuleRequireExpression(node: ts.Expression, checker: ts.TypeChecker): boolean {
@@ -1645,10 +1637,17 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
         && (destructure.property === 'eval' || destructure.property === 'Function');
       const fromVm = vmNamespaceReference(destructure.source, checker, bindings)
         && DYNAMIC_VM_EXECUTION_MEMBERS.has(destructure.property);
-      if (fromGlobal || fromVm) {
+      const constructorKind = destructure.property === 'constructor'
+        ? constructorReceiverKind(destructure.source, checker, bindings)
+        : undefined;
+      if (fromGlobal || fromVm || constructorKind) {
         bindings.dangerousSymbols.set(
           destructure.target,
-          fromVm ? `node:vm.${destructure.property}` : destructure.property,
+          fromVm
+            ? `node:vm.${destructure.property}`
+            : constructorKind
+              ? `${constructorKind}.constructor`
+              : destructure.property,
         );
         changed = true;
       }
@@ -2134,6 +2133,15 @@ function assertDynamicCodeGenerationPositiveControls(): void {
     ['imported callable alias constructor', "import { readFile as importedCallable } from 'node:fs'; const Build = importedCallable.constructor; new Build(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['standard Array map constructor', "[1].map.constructor(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\")();"],
     ['ambient global callable constructor', "setTimeout.constructor(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\")();"],
+    ['function constructor declaration destructure', "function source() {} const { constructor: Build } = source; new Build(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['function constructor assignment destructure', "function source() {} let Build; ({ constructor: Build } = source); new Build(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['function constructor parameter destructure', "function source() {} function execute({ constructor: Build } = source) { new Build(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
+    ['class constructor destructure alias', "class Source {} const Alias = Source; const { constructor: Build } = Alias; new Build(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['method constructor destructure', "const holder = { method() {} }; const { constructor: Build } = holder.method; new Build(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['bound callable constructor destructure', "const bound = (() => {}).bind(null); const { constructor: Build } = bound; new Build(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['local named callable import constructor destructure', "import { callableNamed } from './dynamic-code-local-callable.js'; const { constructor: Build } = callableNamed; new Build(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['local default callable import constructor', "import callableDefault from './dynamic-code-local-callable.js'; callableDefault.constructor(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\")();"],
+    ['local namespace callable import constructor', "import * as localApi from './dynamic-code-local-callable.js'; const alias = localApi.callableNamed; alias.constructor(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\")();"],
     ['node vm default import', "import vm from 'node:vm'; vm.runInNewContext(\"require('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
   ] as const;
   const negativeCases = [
@@ -2150,6 +2158,15 @@ function assertDynamicCodeGenerationPositiveControls(): void {
     ['shadowed nested rest parameter default', "function execute([head, ...[indirect = value => value]]) { indirect(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
     ['ordinary object constructor', "const object = { constructor(value) { return value; } }; object.constructor(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['resolvable imported local noncallable value', "import { LEGACY_LIFECYCLE_PHASE_ALIASES } from '../packages/main/src/core/lifecycle-registry.js'; LEGACY_LIFECYCLE_PHASE_ALIASES.constructor(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['local noncallable constructor declaration destructure', "const data = { value: 1 }; const { constructor: Build } = data; Build(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['local noncallable constructor parameter destructure', "const data = { value: 1 }; function execute({ constructor: Build } = data) { Build(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
+    ['local named noncallable import destructure', "import { noncallableNamed } from './dynamic-code-local-callable.js'; const { constructor: Build } = noncallableNamed; Build(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['local default noncallable import constructor', "import noncallableDefault from './dynamic-code-local-noncallable.js'; noncallableDefault.constructor(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['for-of eval shadow', "for (const eval of [(value) => value]) { eval(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
+    ['for-in Function shadow', "for (const Function in { local: true }) { void Function; }"],
+    ['switch case eval shadow', "switch (1) { case 1: { const eval = (value) => value; eval(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); break; } }"],
+    ['catch eval shadow', "try { throw (value) => value; } catch (eval) { eval(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
+    ['nested block Function shadow', "{ const Function = (value) => value; Function(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
   ] as const;
   const controlSources = [...cases, ...negativeCases].map(([label, source], index) => ({
     label,
@@ -2158,10 +2175,20 @@ function assertDynamicCodeGenerationPositiveControls(): void {
   }));
   const unresolvedControl = { file: 'bin/dynamic-code-control-unresolved.ts', source: "import missing from './missing-dynamic-control.js'; missing.constructor('return 1')();" };
   const malformedControl = { file: 'bin/dynamic-code-control-malformed.ts', source: 'function malformed( {' };
+  const localCallableModule = {
+    file: 'bin/dynamic-code-local-callable.ts',
+    source: 'export function callableNamed() {}\nexport default function callableDefault() {}\nexport const noncallableNamed = { value: 1 };\n',
+  };
+  const localNoncallableModule = {
+    file: 'bin/dynamic-code-local-noncallable.ts',
+    source: 'const noncallableDefault = { value: 1 };\nexport default noncallableDefault;\n',
+  };
   const controlProgram = createProjectTypeProgram(new Map([
     ...controlSources.map(control => [control.file, control.source] as const),
     [unresolvedControl.file, unresolvedControl.source],
     [malformedControl.file, malformedControl.source],
+    [localCallableModule.file, localCallableModule.source],
+    [localNoncallableModule.file, localNoncallableModule.source],
   ]), false);
   for (const control of controlSources.slice(0, cases.length)) {
     const violations = scanDynamicCodeGeneration(control.file, control.source, controlProgram);
@@ -2590,6 +2617,7 @@ for (const file of retiredFutureBacklogPlanFiles) {
 }
 
 violations.push(...assertGeneratedHelp());
+assertTypeProgramInstrumentation();
 
 if (violations.length > 0) {
   const rendered = violations
