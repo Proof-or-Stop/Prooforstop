@@ -2294,6 +2294,33 @@
       ],
       "signatureTag": "comma-operator-identity-precision",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-f458:F-089",
+      "desc": "The export graph records nested namespace provenance, but dynamicReferenceKind cannot consume a property chain beyond one identifier-rooted member. For a call like `import * as barrel from './dynamic-code-esm-namespace-reexport.js'; barrel.bridge.evalRun(\"import('./legacy-delivery-claims-compat.js')\")`, the outer `evalRun` target is the PropertyAccess `barrel.bridge`, so the bindings.memberKinds/knownMembers lookup guarded by `ts.isIdentifier(target)` is skipped; no recursive member selection occurs and the dangerous nested member is missed. The new namespace-reexport positive avoids this path by named-importing `{ bridge }`, flattening the namespace before the call. Dynamic-import namespaces and cyclic namespace re-exports have the same nested-chain gap. Resolve arbitrary PropertyAccess/ElementAccess chains against DynamicProvenance (cycle-safe), or conservatively propagate nested dangerous identity without turning exact safe siblings into false positives. Add static/dynamic namespace-chain positives and safe negatives, including named/default namespace re-exports and a cyclic nested namespace control.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-13T18:08:03.953Z",
+      "reviewRound": "2026-07-13T18:02:19.413Z",
+      "reviewRunId": "B-f458:RR-103",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Reviewed the full loader/export graph commit diff and focused implementations for shared loader collection, module-path resolution, dynamic-import projection, memoized export/namespace traversal, alternative merging, cycle handling, alias fixpoint termination, cache lifetime, controls, and measured guard performance; unrelated unchanged guard sections were triaged."
+      },
+      "_hash": "e80f771bd0dbd0eb1911659b6b4477b3990989f912a6009c396be9b4ae13207b",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "nested-namespace-member-provenance",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
