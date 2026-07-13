@@ -316,33 +316,33 @@
           "kind": "logic_test",
           "command": "npm test",
           "result": "pass",
-          "note": "Full repository suite passed for cf7337d78c after F-047/F-048/F-049 generic parameter-binding and callable-constructor hardening (CHK-004).",
-          "headHash": "86a732193694e7b292ac500bdd8cbaf3792fa07e",
-          "materialHash": "69e33955748cffa3b175c1af1bb3b901c5bd502cabfd9123cd982dfe138b91f9",
-          "storyFilesHash": "b7d857a2ebe5fd505a83fe0300020e847fcd8f84feccaa16cf0b9d775a64fe24",
-          "timestamp": "2026-07-13T14:17:52.060Z"
+          "note": "Full repository suite passed for 63479e0b41 after F-050/F-051/F-052 project-wide TypeScript Program and fail-closed callable receiver hardening (CHK-004).",
+          "headHash": "e57191f9afe429847df219c8c588639408d2dbbb",
+          "materialHash": "5367ef31ae568e21e22fb114407ca06e152cfa46884288c38a25b3977e9544f0",
+          "storyFilesHash": "563e7684a3949add7655761db427e3604004cf191216f5bf5e37762143336a41",
+          "timestamp": "2026-07-13T14:40:39.046Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/closeout-trust-smoke.js && node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/brief-output-smoke.js",
           "result": "pass",
-          "note": "Closeout/runtime contracts and bounded brief output passed for cf7337d78c (CHK-004).",
-          "headHash": "86a732193694e7b292ac500bdd8cbaf3792fa07e",
-          "materialHash": "69e33955748cffa3b175c1af1bb3b901c5bd502cabfd9123cd982dfe138b91f9",
-          "storyFilesHash": "b7d857a2ebe5fd505a83fe0300020e847fcd8f84feccaa16cf0b9d775a64fe24",
-          "timestamp": "2026-07-13T14:17:52.231Z"
+          "note": "Closeout/runtime contracts and bounded brief output passed for 63479e0b41 (CHK-004).",
+          "headHash": "e57191f9afe429847df219c8c588639408d2dbbb",
+          "materialHash": "5367ef31ae568e21e22fb114407ca06e152cfa46884288c38a25b3977e9544f0",
+          "storyFilesHash": "563e7684a3949add7655761db427e3604004cf191216f5bf5e37762143336a41",
+          "timestamp": "2026-07-13T14:40:39.193Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node scripts/verify-process-fact-contract.mjs && node packages/main/dist/tasks/usage-burn-alert-smoke.js",
           "result": "pass",
-          "note": "Recursive BindingElement defaults without outer initializers, nested object/array/rest controls, TypeChecker call/construct signature constructor detection for class/method/bind/aliases, shadow negatives, process contract, and burn controls passed for cf7337d78c (CHK-004).",
-          "headHash": "86a732193694e7b292ac500bdd8cbaf3792fa07e",
-          "materialHash": "69e33955748cffa3b175c1af1bb3b901c5bd502cabfd9123cd982dfe138b91f9",
-          "storyFilesHash": "b7d857a2ebe5fd505a83fe0300020e847fcd8f84feccaa16cf0b9d775a64fe24",
-          "timestamp": "2026-07-13T14:17:52.399Z"
+          "note": "Shared tsconfig Program roots, default libs/module resolution, imported Node/Array/global callable controls, local imported noncallable negative, unresolved/malformed fail-closed diagnostics, process contract, and burn controls passed for 63479e0b41; guard wall time 15.57s (CHK-004).",
+          "headHash": "e57191f9afe429847df219c8c588639408d2dbbb",
+          "materialHash": "5367ef31ae568e21e22fb114407ca06e152cfa46884288c38a25b3977e9544f0",
+          "storyFilesHash": "563e7684a3949add7655761db427e3604004cf191216f5bf5e37762143336a41",
+          "timestamp": "2026-07-13T14:40:39.332Z"
         }
       ]
     },
