@@ -3175,6 +3175,21 @@
       "_hash": "050eb97d7ffe297ed9f01424540f72633eec0a89e8cdbcf243e1540a6345d926",
       "signatureTag": "missing|unknown|functional-regression-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f458:F-124",
+      "desc": "half-applied refactor: packages/main/src/core/closeout-trust.ts validateTrustedMilestoneLedger (wired in via readTrustedProofStoryScopeArtifacts, consumed by proofStoryDiagnosticInput in packages/main/src/core/machine.ts:134, packages/main/src/handlers/proofstory.ts:95 and packages/main/src/handlers/phase-gates.ts:116) now hard-throws `ledgerHash mismatch` for any milestone-ledger.json whose ledgerHash was not produced by the canonical computeMilestoneLedgerHash. This crashes (uncaught exception, not a graceful diagnostic gap) the CHK-003-declared test packages/main/src/tasks/proofstory-intent-hardening-smoke.ts, whose confirmedLedger fixture at line 1433 seeds a placeholder `ledgerHash: sha256:confirmed-${storyId}` via store.writeMilestoneLedger (bypassing the canonical milestone_ledger_set writer) to test unrelated not_applicable_missing_decision/empty_confirmed_milestone_ledger coverage gaps. Reproduced: `node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js` throws `Error: milestone-ledger.json: ledgerHash mismatch` from the done_intent_equivalence_check call at line 1481, aborting before the CHK-004-related assertions at lines ~1488-1524 ever run. This smoke file is declared as a CHK-003 test file in this story checklist but is not part of the curated npm test chain, so the ledgerHash-mismatch verificationEvidence claim (npm test pass) never exercised it.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-13T23:28:11.825Z",
+      "reviewRound": "2026-07-13T22:57:08.346Z",
+      "reviewRunId": "B-f458:RR-134",
+      "_hash": "3f48d07874d49e3e5e183e81cd2781ce98f8de76f8a7df71ebb3354b63c07ec1",
+      "signatureTag": "missing|unknown|half-applied-refactor",
+      "signatureTagSource": "auto"
     }
   ]
 }
