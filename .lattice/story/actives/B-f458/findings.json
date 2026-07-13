@@ -567,7 +567,7 @@
       "desc": "F-022 remains bypassable through a local re-export from an approved importer. scanLegacyDeliveryCompatibilityUsage only detects module specifiers resolving directly to legacy-delivery-claims-compat.ts, verifies named imports/call counts/direct-use regexes, and forbids direct constructor spreading. In approved delivery-context-pack.ts, adding `export { createLegacyLocalOnlyDeliveryClaims };` changes none of those invariants (mechanical probe: compatImports=1, constructorCalls=2, directUses=2, spreadForbidden=false), so the guard passes. An unapproved module can then import the constructor from delivery-context-pack.ts and call/spread it; its specifier no longer resolves to the compatibility module, so it is not scanned. The positive control covers only a direct unapproved import and therefore misses this route. Approved importers must be forbidden from exporting/re-exporting/aliasing the compatibility symbols (including local export lists), and positive controls must cover local re-export followed by a transitive unapproved import, namespace/dynamic/direct re-export variants, and indirect constructor calls.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-13T11:35:26.608Z",
@@ -580,7 +580,11 @@
         "packages/main/src/core/legacy-delivery-claims-compat.ts"
       ],
       "signatureTag": "adversarial|ts|remains-bypassable-through",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by d9f301399f: guard blocks compat symbol export/default/property/spread/alias escapes, namespace/dynamic/require/direct reexports, and graph-scans true two-hop imports through approved importers. Positive-control matrix proves each bypass is caught.",
+      "resolvedAt": "2026-07-13T11:44:27.945Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-024",
