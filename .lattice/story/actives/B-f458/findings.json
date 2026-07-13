@@ -1287,7 +1287,7 @@
       "desc": "The project-wide checker is deliberately discarded exactly where global-vs-shadowed identity matters. `isGlobalIdentifier` now does `void checker` and relies only on `hasLexicalShadow`; that hand-written walker recognizes function parameters, catch variables, direct variable/function/class/import statements in SourceFile/Block/ModuleBlock, but not declarations in `for`/`for..of`/`for..in` initializers, case clauses, or enums/namespaces. A valid local loop such as `for (const eval of callbacks) { eval(\"import('./legacy-delivery-claims-compat.js')\"); }` is therefore classified as global eval and rejected as dynamic code even though TypeChecker resolves `eval` to the loop variable. The same issue affects a locally bound `require` in a loop, creating false loader violations. Existing shadow negatives cover functions, parameters, and ordinary variables only, so build, guard, and process-contract tests pass. Restore declaration-identity use: treat the resolved default-lib symbol as global, local source declarations as shadowing, and use lexical fallback only for unresolved synthetic sources; add for/for-of/case/enum shadow negatives plus global eval/Function positives. The shared Program guard also measured 19.55s wall time in this worktree (tests pass), so retain the one-program reuse while avoiding per-node/program reconstruction.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-13T14:44:02.490Z",
@@ -1299,7 +1299,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "global-identifier-lexical-shadow-false-positive",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 077a355a40: global identifiers use checker symbol/declaration provenance instead of manual lexical walking; any local declaration across loop/case/catch/block/parameter/import scopes wins and prevents false positives.",
+      "resolvedAt": "2026-07-13T14:58:30.301Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-055",
