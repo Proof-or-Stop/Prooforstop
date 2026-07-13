@@ -1,94 +1,67 @@
 {
   "storyId": "B-3928",
-  "checkedAt": "2026-07-11T21:36:55.912Z",
-  "headHash": "463aee62fc1184ee3f4498bd30a35dfa8c5227f3",
-  "materialHash": "f22d2aefc41abe1face47bf5c7a62a3afad422e8875a95bb4ae557bbe0a09798",
-  "storyFilesHash": "4802864701c1ca5bd297d2492785b649e9b1b2fb062be775374453326a1e67c9",
-  "reviewRound": "2026-07-11T21:10:21.282Z",
+  "checkedAt": "2026-07-13T03:32:31.410Z",
+  "headHash": "7e303e6c9c71338a9ddd2566e9fe4bd0bc77f113",
+  "materialHash": "8b3c984e89779387283e084929c5e8d101de85bd0dfa13e54438ac6e3fd9c252",
+  "storyFilesHash": "71d83d44d5f801cae42cc3802fb43a036bd9a351224162ad0e280152ab03679f",
+  "reviewRound": "2026-07-13T03:28:15.343Z",
   "agentId": "lattice-review-delivery",
   "docsPromises": [
     {
-      "docPath": "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md#M0.1",
-      "promise": "The baseline records exactly 16 prompt filenames, role IDs, current template hashes, and status classifications.",
-      "status": "verified",
-      "verifiedBy": "baseline JSON inspection plus npm regression",
-      "evidence": "proof-or-stop-prompt-baseline.json contains 16 approval roles, 16 registry roles, and 16 roleMatrix rows; npm run test:proof-or-stop-prompt-baseline passed exact-role and registry integrity checks."
+      "docPath": "checklist:CHK-001.userSees",
+      "promise": "User sees PASS proof-or-stop prompt baseline: roleCount=16 registry hashes verified",
+      "status": "unverified",
+      "verifiedBy": "node scripts/verify-proof-or-stop-prompt-baseline.mjs plus source rg",
+      "evidence": "Exit 0, but actual line is roleCount=16 registry snapshot integrity verified; promised exact text is absent."
     },
     {
-      "docPath": "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md#M0.2",
-      "promise": "The baseline captures agent_prompt output hashes, byte counts, and line counts for every current role.",
+      "docPath": "checklist:CHK-002.userSees",
+      "promise": "User sees PASS proof-or-stop prompt baseline: agent_prompt output hashes verified for 16 roles",
       "status": "verified",
-      "verifiedBy": "source inspection plus live subprocess regression",
-      "evidence": "collectCurrentPromptState executes packages/main/dist/cli.js agent_prompt for all 16 registry roles and compares each body; the root regression and 10-mutation baseline drift probe passed."
+      "verifiedBy": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+      "evidence": "Exit 0 and exact promised line observed."
     },
     {
-      "docPath": "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md#M0.4-approval-boundary",
-      "promise": "Legacy and story-reference collectors and baseline refresh are fail-closed behind an independent whole-prompt SHA-256 approval manifest.",
+      "docPath": "checklist:CHK-003.userSees",
+      "promise": "User sees role matrix snapshot integrity PASS and reviewer-audited INFO",
       "status": "verified",
-      "verifiedBy": "source inspection plus manifest adversarial probe",
-      "evidence": "approvedPromptPolicyManifestErrors binds role, complete content hash, entry hash, and approved hash; the probe rejected 8 structural, 4 audit, 2 synthetic, 12 direct-body, 8 legacy-body, and baseline-refresh self-authorization mutations."
+      "verifiedBy": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+      "evidence": "Exit 0 and both exact promised lines observed."
     },
     {
-      "docPath": "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md#Audit-Boundary",
-      "promise": "The 16-row role matrix has non-empty audited fields, exact JSON and Markdown parity, and mechanical rejection of field, role-count, and missing-row drift.",
-      "status": "verified",
-      "verifiedBy": "source inspection plus matrix mutation probe",
-      "evidence": "verifyMatrix checks all ten required fields across 16 rows and regenerates Markdown; --probe-role-matrix-snapshot-drift passed field, Markdown parity, role-count, and missing-row rejection."
+      "docPath": "checklist:CHK-004.userSees",
+      "promise": "User sees PASS proof-or-stop prompt baseline: legacy vocabulary findings classified",
+      "status": "unverified",
+      "verifiedBy": "node scripts/verify-proof-or-stop-prompt-baseline.mjs plus source rg",
+      "evidence": "Exit 0 and policy probes pass internally, but actual visible line is INFO legacy occurrence scanner diagnostics audited inside manifest-approved prompt bodies; promised exact PASS is absent."
     },
     {
-      "docPath": "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md#lattice-review-delivery-row",
-      "promise": "The delivery reviewer takes validation evidence and prior docs-review results as inputs and consumes docs review instead of independently redoing documentation drift review.",
-      "status": "unverified"
-    },
-    {
-      "docPath": "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md#M0.4-legacy-diagnostics",
-      "promise": "Legacy verification vocabulary is mechanically visible inside manifest-approved prompt bodies under a closed role-status and safe-context policy.",
-      "status": "verified",
-      "verifiedBy": "baseline inspection plus legacy policy probe",
-      "evidence": "The baseline records 54 legacy findings and the closed policy; --probe-legacy-vocabulary-policy passed 26 unsafe and 4 registered-safe cases while authorization remained manifest-bound."
-    },
-    {
-      "docPath": "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md#M0.6",
-      "promise": "Direct story-file references and writes are diagnostic inside approved prompts, with exact registered references, strict negative forms, and only one exact grandfathered INIT write.",
-      "status": "verified",
-      "verifiedBy": "baseline inspection plus direct-story adversarial probes",
-      "evidence": "The baseline records 24 story-reference findings and one exact write; direct probes passed 44 classifier and 14 scanner cases, and manifest probes rejected 12 changed-body direct-reference cases."
-    },
-    {
-      "docPath": "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md#M0-exit-no-prompt-edits",
-      "promise": "M0 does not edit any prompt body and changes only baseline documentation and regression machinery needed to record and lock the baseline.",
-      "status": "verified",
-      "verifiedBy": "git diff main...HEAD name-only inspection",
-      "evidence": "The product diff contains the baseline JSON, overlap matrix, execution-plan update, package test wiring, and verifier script; no packages/main/templates/agents prompt file is changed."
+      "docPath": "checklist:CHK-005.userSees",
+      "promise": "User sees PASS proof-or-stop prompt baseline: direct story-file findings classified",
+      "status": "unverified",
+      "verifiedBy": "node scripts/verify-proof-or-stop-prompt-baseline.mjs plus source rg",
+      "evidence": "Exit 0 and policy probes pass internally, but actual visible PASS is direct story-write diagnostics have 1 exact registered INIT write; promised exact line is absent."
     }
   ],
   "realMachineTests": [
     {
-      "featureId": "CHK-001",
-      "transcript": "npm run test:proof-or-stop-prompt-baseline PASS: exact 16 role IDs and complete prompt bodies bound; --probe-baseline-drift PASS: 10 registry/template/role-count/identity mutations and unknown role rejected."
+      "featureId": "CHK-001/CHK-002/CHK-004/CHK-005",
+      "transcript": "node scripts/verify-proof-or-stop-prompt-baseline.mjs exited 0; manifest binds 16 roles, registry/agent_prompt checks pass, 10 drift mutations and unknown role reject, legacy/story-reference diagnostics audit, direct-write allowlist count passes."
     },
     {
-      "featureId": "CHK-002",
-      "transcript": "npm run test:proof-or-stop-prompt-baseline PASS: agent_prompt output hashes verified for all 16 roles; the drift probe rejected stdout hash, byte, role ownership, duplicate ownership, and unknown-role cases."
+      "featureId": "CHK-001/CHK-002",
+      "transcript": "node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-baseline-drift exited 0; 10 registry/template/role-count/role-identity/agent_prompt mutations plus unknown-role rejected."
     },
     {
       "featureId": "CHK-003",
-      "transcript": "npm regression PASS for 16-row matrix integrity; --probe-role-matrix-snapshot-drift PASS for field mutation, Markdown parity, role-count, and missing-row rejection."
-    },
-    {
-      "featureId": "CHK-004",
-      "transcript": "--probe-legacy-vocabulary-policy PASS: 26 unsafe and 4 registered-safe cases; --probe-prompt-policy-manifest PASS includes 8 legacy body-mutation rejections and baseline-refresh self-authorization rejection."
-    },
-    {
-      "featureId": "CHK-005",
-      "transcript": "--probe-direct-story-classifier PASS: 44 classifier and 14 scanner cases; --probe-prompt-policy-manifest PASS includes 12 direct body-mutation collection rejections and baseline-refresh self-authorization rejection."
+      "transcript": "node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-role-matrix-snapshot-drift exited 0; field, Markdown parity, role-count and missing-row drift rejected."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
-    "hasUnresolvedTodos": false,
-    "summary": "Seven of eight documentation promises are source-verified and all five checklist features have live adversarial machine coverage. One role-matrix promise remains unverified because the delivery row conflicts with the delivery prompt fresh-context boundary."
+    "hasUnresolvedTodos": true,
+    "summary": "REFUSE delivery closure on current material: all three real-machine verifier commands pass and baseline/matrix mechanics are covered, but 3 of 5 exact checklist user-visible promises do not match actual stdout. Existing live-smoke artifact is reported present-stale after main merge; delivery context confirms transcript-diff exists. Update userSees or restore exact stdout, then recapture live smoke and rerun delivery review."
   },
-  "_hash": "7e48e88f1dea7624115b349f3800f834583d690f0d2f5f5bafc7e6dc6dc80cca"
+  "_hash": "5df4e24336d098927da1316be8ca4db2b39ebd3b34f1b1b78509655c7bef6b95"
 }
