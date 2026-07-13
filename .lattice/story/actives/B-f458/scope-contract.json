@@ -1,6 +1,6 @@
 {
   "storyId": "B-f458",
-  "mode": "enforce",
+  "mode": "shadow",
   "allowedModify": [
     "packages/main/src/core/lifecycle-registry.ts",
     "packages/main/src/core/process-fact-registry.ts",
@@ -42,8 +42,8 @@
     ".lattice-codex/agents",
     ".claude/agents"
   ],
-  "scopeChangeReason": "Refresh M4.C1 enforce contract after PLAN completeness review added ReviewScopeBinding and shared types touchpoints.",
+  "scopeChangeReason": "Use bounded candidate review honestly: current fullScan artifact semantics require every corpus file fully read, creating a known M6 circular dependency; retain closed file scope in shadow and verify diff mechanically.",
   "acknowledgements": [],
   "createdAt": "2026-07-13T08:24:04.138Z",
-  "updatedAt": "2026-07-13T08:29:32.855Z"
+  "updatedAt": "2026-07-13T08:31:45.322Z"
 }
