@@ -157,6 +157,27 @@
         "scanEscalationReason": null
       },
       "_hash": "6d3053a908d2113f6ad2892b53bf45d760dcceec00a4226e2055249d0ecda6c2"
+    },
+    {
+      "id": "B-f458:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "PASS: reviewer-required lifecycle verdict fails closed on missing currentReviewRound before legacy evidence compatibility in both REVIEW→TEST and TEST→DONE. Unsigned legacy-shaped, tampered, missing-reviewRunId, and unknown-run passes cannot satisfy DONE; valid signed current-round passes still work. Reviewer-optional policy compatibility remains intact. Build, closeout-trust, review-escalation freshness-root, review-incremental-context, and process-fact contract tests pass.",
+      "createdAt": "2026-07-13T11:13:09.776Z",
+      "reviewRound": "2026-07-13T11:11:32.543Z",
+      "reviewRunId": "B-f458:RR-026",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/src/tasks/review-escalation-freshness-root-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "24679570a664ea33805ec20553de61288fbaf9b5903bedf9e3d3e8070d313cc0"
     }
   ]
 }
