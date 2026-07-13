@@ -421,11 +421,11 @@
           "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
           "command": "npm test",
           "result": "pass",
-          "note": "Full suite passes normal no-user transition, persisted retention, real actor FINISH, and DONE preflight recheck contract.",
-          "headHash": "e1eb72043ee9651d9780b80fe088c479ef771266",
+          "note": "Final scope-bound full npm test and closeout regression suite pass.",
+          "headHash": "a39ffbf612c83219310c9cbae865c8c93d006f01",
           "materialHash": "8e6a95dbb62680ca990145a6b68956231d5215ddfa4a26f15b8f474e6595cc7c",
           "storyFilesHash": "65b1228d759bf589057b72cfc03d92a1c53cb92ba967d17ed7e05dc4e4a6483a",
-          "timestamp": "2026-07-13T10:45:31.919Z"
+          "timestamp": "2026-07-13T10:46:27.629Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -433,11 +433,11 @@
           "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
           "command": "npm test",
           "result": "pass",
-          "note": "Identity audit mutations are authorization-neutral; optional user avoids deadlock; stable/event shape remains strict.",
-          "headHash": "e1eb72043ee9651d9780b80fe088c479ef771266",
+          "note": "Final scope-bound optional user, audit neutrality, and strict semantic shape cases pass.",
+          "headHash": "a39ffbf612c83219310c9cbae865c8c93d006f01",
           "materialHash": "8e6a95dbb62680ca990145a6b68956231d5215ddfa4a26f15b8f474e6595cc7c",
           "storyFilesHash": "65b1228d759bf589057b72cfc03d92a1c53cb92ba967d17ed7e05dc4e4a6483a",
-          "timestamp": "2026-07-13T10:45:32.051Z"
+          "timestamp": "2026-07-13T10:46:27.768Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -445,11 +445,11 @@
           "file": "scripts/verify-process-fact-contract.mjs",
           "command": "npm test",
           "result": "pass",
-          "note": "Process contract mechanically requires honest same-UID classification and DONE recheck of REVIEW-to-TEST preflight.",
-          "headHash": "e1eb72043ee9651d9780b80fe088c479ef771266",
+          "note": "Final scope-bound contract enforces honest same-UID boundary and DONE gate recheck.",
+          "headHash": "a39ffbf612c83219310c9cbae865c8c93d006f01",
           "materialHash": "8e6a95dbb62680ca990145a6b68956231d5215ddfa4a26f15b8f474e6595cc7c",
           "storyFilesHash": "65b1228d759bf589057b72cfc03d92a1c53cb92ba967d17ed7e05dc4e4a6483a",
-          "timestamp": "2026-07-13T10:45:32.185Z"
+          "timestamp": "2026-07-13T10:46:27.900Z"
         }
       ]
     }
