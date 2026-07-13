@@ -1333,7 +1333,7 @@
       "desc": "Constructor destructure propagation is still limited to one direct object-binding level and leaves ordinary array/nested destructuring as executable alias escapes. collectBindingPattern only iterates an ObjectBindingPattern and addDestructure immediately drops any non-Identifier element name; collectAssignmentPattern likewise accepts only ObjectLiteralExpression assignment patterns. Therefore `const [Build] = [source.constructor]; new Build(\"return import('./legacy-delivery-claims-compat.js')\")`, `const [indirect] = [eval]; indirect(payload)`, `([Build] = [readFile.constructor])`, and `const { nested: { constructor: Build } } = { nested: source }` create local symbols that never enter aliases/destructures/dangerousSymbols. The new positives cover only direct `{ constructor: Build } = callable` declarations/assignments/parameters, so build, guard, and process-contract tests all pass. Replace the two ad-hoc collectors with a recursive binding-pattern-to-source-expression walker covering array elements, nested object properties, omitted/rest elements and assignment patterns; add direct/assignment/parameter nested and array positives plus benign noncallable counterparts. The performance counter passes but measures wrapper calls rather than actual LanguageService Program rebuilds, and guard wall time increased to 22.43s here, so the recursive fix should reuse the existing analysis rather than request more Programs.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-13T15:00:14.572Z",
@@ -1345,7 +1345,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "array-nested-destructure-alias-bypass",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by a600c677dc: one recursive provenance walker covers nested object/array declaration, assignment and parameter patterns with defaults/rest, literal path mapping and checker symbol/type fallback; aliases and shadows have exact controls.",
+      "resolvedAt": "2026-07-13T15:15:43.470Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-057",
