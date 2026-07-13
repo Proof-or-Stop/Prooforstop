@@ -985,7 +985,7 @@
       "desc": "Unconditional fingerprints protect only eight known files; unrecognized loaders in any other active executable remain invisible, and executable CLI roots outside activeTextDirs are not scanned at all. A new unpinned `packages/main/src/core/compat-loader.ts` containing `(0, eval)(\"import(\\\"./legacy-delivery-claims-compat.js\\\")\")` compiles and executes the retired module, but extractImportSpecifiers/loaderCallKind see no ImportKeyword call and the compatibility path inside a string matches no banned vocabulary rule. The new unrecognized-loader control mutates pinned cli-engine.ts, so it passes only because that entire known file is fingerprinted and does not cover this new-file form. Separately, tracked operator entrypoints `bin/lattice.js` and `bin/bootstrap-runner.js` are outside activeTextDirs; a direct import from `../packages/main/dist/core/legacy-delivery-claims-compat.js` there is never scanned despite producing the actual local CLI surface. Reject eval/Function/import-string loader construction across every executable source, and expand/derive active executable roots from shipped entrypoints/package scripts (or explicitly fingerprint them); add new-unpinned-source and bin-wrapper controls.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-13T13:18:58.570Z",
@@ -998,7 +998,11 @@
         "bin/bootstrap-runner.js"
       ],
       "signatureTag": "missing|ts|unconditional-fingerprints-protect",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 1095a076ab: executable roots include shipped bin plus main/lab/utils sources and derived entrypoints; dynamic eval/Function/vm code generation is prohibited except five whole-source fingerprinted existing sites. Direct bin and new-file indirect-eval controls reject.",
+      "resolvedAt": "2026-07-13T13:31:30.003Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
