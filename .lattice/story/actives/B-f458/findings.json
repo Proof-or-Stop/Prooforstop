@@ -2974,7 +2974,7 @@
       "desc": "Local callsite argument propagation does not expand SpreadElement arguments. For `function execute(run: (code: string) => unknown) { run(\"1+1\"); } execute(...[eval]);`, direct is built by mapping each syntactic argument, so parameter 0 receives provenance for the SpreadElement expression itself rather than the array slot containing eval. The same gap affects spread arguments to call/bind and rest/default combinations. Call arguments must be flattened conservatively (including unknown spreads) before suppliedAt/restAt mapping.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-13T21:44:24.163Z",
@@ -2985,7 +2985,11 @@
         "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|local-callsite-argument",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by fb434498bb: Literal, typed tuple and unknown-length spread arguments flatten to per-slot provenance across ordinary, default, rest and bind flows.",
+      "resolvedAt": "2026-07-13T21:56:19.998Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-115",
