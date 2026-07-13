@@ -591,7 +591,7 @@
       "desc": "The dedicated compatibility module preserves the exact all-false schema, but the new importer/usage guard does not enforce the claimed indirect boundary. scanLegacyDeliveryCompatibilityUsage only follows imports whose specifier resolves directly to legacy-delivery-claims-compat.ts. An approved importer can re-export its already-imported constructor without changing its expected import symbols, constructor call count, or direct-use count (for example export { createLegacyLocalOnlyDeliveryClaims }; in delivery-context-pack.ts). An unapproved module can then import that symbol from delivery-context-pack.ts and call or spread it; it contains neither a direct compat-module import nor retired field tokens, so both the compatibility scan and vocabulary scan accept it. The positive control labeled as unapproved/indirect is actually a direct import from ./legacy-delivery-claims-compat.js and therefore does not exercise this bypass. Add explicit rejection of exports/aliases of compatibility symbols from approved importers and a true two-hop positive control (approved importer re-export or alias → unapproved consumer). Build, current guard, closeout smoke, and process contract pass, but they do not cover this transitive leak. Exact validator/producer schema semantics themselves remain correct.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-13T11:35:34.556Z",
@@ -605,7 +605,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "adversarial|ts|dedicated-compatibility-module",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by d9f301399f: approved importers cannot re-export or alias compatibility constructors; scanner follows dependency graph for transitive leakage. True two-hop positive control patches approved importer then imports from it in unapproved consumer and is rejected.",
+      "resolvedAt": "2026-07-13T11:44:35.908Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
