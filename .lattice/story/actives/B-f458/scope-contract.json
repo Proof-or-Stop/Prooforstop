@@ -58,7 +58,24 @@
     ".claude/agents"
   ],
   "scopeChangeReason": "Runtime artifact registry changes require the paired mechanical runtime-fact contract verifier. Add only scripts/verify-runtime-fact-contract.mjs to pin the sensitive review-round signer path semantics; no product scope expansion.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "lattice-implementer",
+      "reason": "DONE must independently re-run the existing REVIEW-to-TEST preflight so manual index phase edits cannot bypass lifecycle authorization.",
+      "timestamp": "2026-07-13T10:45:52.993Z",
+      "paths": [
+        "packages/main/src/handlers/transition-orchestrator.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/transition-orchestrator.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "81ce808903f6c7e478bd74e89a462fec30641853",
+      "materialHash": "8e6a95dbb62680ca990145a6b68956231d5215ddfa4a26f15b8f474e6595cc7c"
+    }
+  ],
   "createdAt": "2026-07-13T08:24:04.138Z",
-  "updatedAt": "2026-07-13T09:45:33.543Z"
+  "updatedAt": "2026-07-13T10:45:52.993Z"
 }
