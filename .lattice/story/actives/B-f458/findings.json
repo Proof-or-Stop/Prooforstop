@@ -59,6 +59,32 @@
       ],
       "signatureTag": "adversarial|ts|receipt-replay-defeats",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f458:F-004",
+      "desc": "The 15-intent evidence overstates CLI/integration coverage. CHK-004 is type=cli and requires canonical parent_ledger_rollup_set output, but closeout-trust-smoke never invokes that handler/CLI; it calls store.writeProofStoryParentLedgerRollup plus autoCommitStoryMetadata directly. Likewise none of the newly wired validate, done_required_validate, delivery_check_set/waiver, evaluate_save, summary_set, delivery_context_pack, or live_smoke_transcript handler paths are executed. The smoke can stay green if a handler omits or passes the wrong closeoutArtifactPaths. Add at least one real CLI/handler regression for parent_ledger_rollup_set and table-driven integration coverage for every registered canonical writer path; wire this high-risk smoke into routine test discovery/evidence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-13T09:19:31.348Z",
+      "reviewRound": "2026-07-13T09:17:07.451Z",
+      "reviewRunId": "B-f458:RR-003",
+      "_hash": "ba570df9829d1587c5d452f0f5a6b0215c4f0cf0555b5bdb292f5dc5aebd612f",
+      "files": [
+        "packages/main/src/tasks/closeout-trust-smoke.ts",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/handlers/done-required-validation.ts",
+        "packages/main/src/handlers/delivery-check.ts",
+        "packages/main/src/handlers/evaluate.ts",
+        "packages/main/src/handlers/summary.ts",
+        "packages/main/src/handlers/delivery-context-pack.ts",
+        "packages/main/src/handlers/live-smoke-transcript.ts"
+      ],
+      "signatureTag": "missing|ts|intent-evidence-overstates",
+      "signatureTagSource": "auto"
     }
   ]
 }
