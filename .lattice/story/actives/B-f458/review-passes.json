@@ -138,6 +138,25 @@
         "scanEscalationReason": null
       },
       "_hash": "5015b83fd75bf6f3ff01c1e4116a3805fc44fceadaa39f8bd4e82b786b79900b"
+    },
+    {
+      "id": "B-f458:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "PASS: evaluateReviewVerdict is the shared phase-agnostic authority for REVIEW→TEST and TEST→DONE boolean/reason paths. Manual TEST phase bypasses with no reviewer evidence, missing required lanes/quorum, or an open verified high finding are blocked; fresh current signed reviewer passes allow DONE. Closeout freshness and same-UID audit-only semantics remain fail-closed. Build, closeout-trust smoke, review-escalation freshness-root smoke, and process-fact contract all pass.",
+      "createdAt": "2026-07-13T11:02:57.247Z",
+      "reviewRound": "2026-07-13T11:01:19.517Z",
+      "reviewRunId": "B-f458:RR-023",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6d3053a908d2113f6ad2892b53bf45d760dcceec00a4226e2055249d0ecda6c2"
     }
   ]
 }
