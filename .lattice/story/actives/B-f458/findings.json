@@ -2321,6 +2321,33 @@
       ],
       "signatureTag": "nested-namespace-member-provenance",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-f458:F-090",
+      "desc": "The F081–F084 regression suite is executable and process-pinned for the labels it adds, but it does not cover the complete repaired boundary. F-081 explicitly required dangerous/safe direct/member/destructured controls for every loader equivalence class. Only bound global require has all three dangerous projections; bound module.require has direct only, and arrow/function-expression/method/aliased-callable parameter loaders each have direct only. Their safe controls are single typed member/noncallable shapes, so member/destructured propagation and matched direct callable safety can regress without failing the suite. Separately, cdb718114f adds staticRuntimeModulePath/sourceFileForRuntimeModulePath support for file-URL-derived dynamic imports (pathToFileURL(...).href, import.meta.url/fileURLToPath/dirname/join forms), and F-082 is resolved as covering static local/file-URL modules, but the dynamic-code cases and process-fact label list contain no executable dangerous or safe file-URL control at all. Complete the Cartesian projections for bound/method/parameter loader classes as applicable, add matched safe controls, and add dangerous/safe static file-URL dynamic-import controls; pin every exact label in verify-process-fact-contract.mjs. Existing export-star, named/default/namespace re-export, conditional/logical, cyclic, unknown dynamic-import, and reserved-name identity controls do execute successfully.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-13T18:08:47.723Z",
+      "reviewRound": "2026-07-13T18:02:19.413Z",
+      "reviewRunId": "B-f458:RR-104",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Reviewed the complete cdb718114f implementation diff and full changed loader/export provenance, executable control, shared-program execution, and process-pin sections; unchanged portions of both large files were triaged by name, and no decisions-document escalation was needed for this focused coverage review."
+      },
+      "_hash": "3b1a92a6162b23e1a82c040ba3e21dccbc8f30d8d78c4117aa4000485f47e397",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "loader-file-url-control-matrix-gap",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
