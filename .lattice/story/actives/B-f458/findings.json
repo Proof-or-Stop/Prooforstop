@@ -3145,6 +3145,21 @@
       "_hash": "6468cbdd8af2e597484ca8585eafe7a13a79f55279ea579ef338afecc5f0e63b",
       "signatureTag": "missing|unknown|half-applied-refactor",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f458:F-122",
+      "desc": "half-applied refactor: packages/main/src/core/machine.ts evaluateReviewVerdict (lines 613-729, consolidating canPassReviewGuard/getGuardFailureReason TEST-phase logic) dropped message-format details that two pre-existing, untouched smoke tests still assert exactly. (1) line 675 review_lane_missing message is now `missing required reviewer lane(s): X` instead of the old `Expected N reviewers (opt-in: ...); currently M reviewer evidence covers K reviewer(s) (Missing: ...; agents seen: ...)` text; packages/main/src/tasks/flow-stability-smoke.ts:1115 (assertReviewGateUsesOptIn) asserts /Expected 3 reviewers \\(opt-in: concept,quality,test-coverage\\)/ and fails. (2) lines 627-634 collapse both the open-loop case and the unreadable-review-loop-records case to the same generic code=review_loop, losing the old distinct [open_review_loop] and [review_loop_record_error] tags; packages/main/src/tasks/review-loop-smoke.ts:368-377 and :402-408 assert /open_review_loop/ and /review_loop_record_error/ and both fail. Reproduced on the story branch: `node packages/main/dist/tasks/flow-stability-smoke.js` and `node packages/main/dist/tasks/review-loop-smoke.js` both throw AssertionError; both pass cleanly on main (verified in a fresh main worktree build). Neither smoke file is part of the curated npm test chain.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-13T23:27:48.062Z",
+      "reviewRound": "2026-07-13T22:57:08.346Z",
+      "reviewRunId": "B-f458:RR-134",
+      "_hash": "da3674f040ca98417c78945a60eb65e68df8b072558377861b429602195b1d9d",
+      "signatureTag": "missing|unknown|half-applied-refactor",
+      "signatureTagSource": "auto"
     }
   ]
 }
