@@ -1,0 +1,27 @@
+{
+  "storyId": "B-3ed9",
+  "checkedAt": "2026-07-13T08:45:33.267Z",
+  "headHash": "9615d81d8b92b0945ae840a97862d328e5b8c4af",
+  "materialHash": "2b8a5e5de19e88714a9186eed23c9ecd6f5ccf71f8ad2d41e1eabdd31c917f73",
+  "storyFilesHash": "af1acffd479f30715bf50d1c43d5be9137ecb92b742768df5ee4f5d69d52a665",
+  "reviewRound": "2026-07-13T08:36:34.554Z",
+  "agentId": "",
+  "docsPromises": [],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Independently verified: packages/main/src/core/lifecycle-registry.ts diff adds grill.json, clusters.json, scope-extension-decisions.json to LATTICE_LIFECYCLE_ARTIFACT_FILENAMES and removes the stale singular cluster.json entry. Confirmed via grep that store.ts actually calls writeJson(storyId, grill.json|clusters.json|scope-extension-decisions.json, ...) at the top-level story dir, and confirmed zero occurrences of the singular cluster.json string anywhere else in packages/main/src (dead entry, safe to remove). Ran node packages/main/dist/tasks/scope-contract-smoke.js myself (read-only) -> printed exactly scope contract smoke passed. Verified dist/core/lifecycle-registry.js and dist/tasks/scope-contract-smoke.js contain the same three-filename addition (dist in sync with src, not stale)."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Independently verified: scope-contract-smoke.ts diff adds a commandFamilyPositive block asserting per-row scope.lifecycle_artifact pass rows (status=pass, blocking=false, action matches provenance/artifact/not-a-gate) for the three new filenames under an enforce waveContract, placed before the aggregate status assert (matches B-12a1 F-001 per-row-before-aggregate pattern). Also adds a staleClusterNegative block asserting a hand-created singular cluster.json now fails closed as rule=out_of_scope with blocking=true. Ran the smoke myself and confirmed pass. Did not independently re-run the CHK-002:adversarial:0 bite test (removing grill.json from compiled dist, re-running to see a named failure, then restoring) because the dispatching agent instructed me not to mutate dist; relying on the recorded verificationEvidence transcript for that item (AssertionError naming the grill.json row when removed, byte-restore cmp-verified, smoke green again) as the adversarial/load-bearing-ness evidence rather than re-executing it myself."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Zero doc files changed in this diff (no CLAUDE.md/README/docs/ touched), so zero docsPromises is correct, not a gap. Both checklist items are backed by a real integration test I executed myself (scope contract smoke passed) covering happy (pass rows for the 3 new filenames), edge (registry no longer contains the stale singular cluster.json), and adversarial (fail-closed classification for a hand-created cluster.json, plus a recorded but not self-re-run bite test proving the new assertions are load-bearing)."
+  },
+  "_hash": "3ca5eab9d1d35a4629ffb87985a0444c1ba04fd4d2dc27b93908cb54cb85cf7b"
+}
