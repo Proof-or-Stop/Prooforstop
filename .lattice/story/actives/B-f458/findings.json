@@ -2453,6 +2453,33 @@
       ],
       "signatureTag": "url-href-static-resolution-gap",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-f458:F-094",
+      "desc": "The new dynamic-binding cache performance contract fails in the actual guard. A clean isolated run of `node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js` exits 1 after 73.71s with `AssertionError: dynamic binding graph builds must remain bounded at 800, got 1090`. The cache-hit assertion is satisfied by two repeated control scans, but the cache is keyed by Program and SourceFile identity; the synthetic LanguageService produces successive Program snapshots while controls change, so most binding builds cannot reuse entries and the fixed 800 ceiling is already violated by the committed matrix. This is a current executable blocker, not a theoretical regression. Reduce rebuilds through stable analysis batching/cache keys with explicit content/version invalidation, or revise the architecture and measured bound based on deterministic workload evidence; retain a cold/warm assertion that the shipped guard itself passes and avoids stale bindings.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-13T18:33:00.190Z",
+      "reviewRound": "2026-07-13T18:25:53.527Z",
+      "reviewRunId": "B-f458:RR-106",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Reviewed the full cache/provenance completion diff and focused cache construction/storage, Program/SourceFile identity semantics, instrumentation assertions, graph fixpoint, nested provenance, path resolution, controls, and measured the executable guard; unrelated unchanged sections were triaged."
+      },
+      "_hash": "4d8c135d63077b8bd8ef77bd1bc1338c22cf3c5012a30fcef18017023d87d3b8",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "dynamic-binding-cache-performance-contract-fail",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
