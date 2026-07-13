@@ -1456,7 +1456,7 @@
       "desc": "DynamicProvenance still has fail-open source/type projections in the newly claimed rest/computed-key surface. (1) arrayRest drops the base type and only derives element via checker.getIndexTypeOfType; TypeScript returns no numeric index type for plain any, and arrayRest does not propagate Any/Unknown/TypeParameter uncertainty like objectRest. Thus `declare const values: any; const [...[run]] = values; run(\"import(… )\")` yields an empty rest provenance and evades the guard. (2) unresolved computed-key fail-closed only calls provenancePotentiallyDangerous, which checks top-level Any/Unknown flags and prebuilt literal members but does not inspect object properties or string/number index types. A valid `declare const source: Record<string, typeof eval>; declare const key: string; const { [key]: run } = source; run(\"import(… )\")` is therefore treated safe. (3) constantPropertyKey does not normalize numeric keys with JavaScript ToPropertyKey semantics: `[-0]` becomes the string `-0`, while runtime selects property `0`; `const { [-0]: run } = { 0: eval }; run(\"import(… )\")` misses the exact member. Preserve uncertainty/type on rest projections, recursively classify index/property types for unresolved keys, normalize numeric constants with String(Number(value)) including -0, and add positive controls for these three cases plus noncallable negatives.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-13T15:42:51.606Z",
@@ -1476,7 +1476,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "dynamic-provenance-type-projection",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 67af589ec3: rest provenance retains base expression/type/symbol/unknown and index information; any/unknown/non-indexable sources fail closed, callable index types are classified, and JS ToPropertyKey normalizes -0/NaN/Infinity/enum/const keys.",
+      "resolvedAt": "2026-07-13T15:56:53.942Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-062",
