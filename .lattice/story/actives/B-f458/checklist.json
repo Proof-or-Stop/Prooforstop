@@ -356,7 +356,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-07-13T11:53:57.947Z",
+      "endTime": "2026-07-13T12:05:34.538Z",
       "userSees": "User runs the M4.C1 regression suite and sees `PASS metadata-only review retention is fail-closed`; unknown paths, changed material/scope, missing provenance, malformed hashes, same-UID forged receipts, TEST acknowledgement, and stale review reuse are all rejected, while a fresh post-closeout review succeeds.",
       "verificationIntent": {
         "happy": [
@@ -408,33 +408,33 @@
           "kind": "logic_test",
           "command": "npm test",
           "result": "pass",
-          "note": "Full suite passed at 932387b7a9 including fail-closed review-retention regressions.",
-          "headHash": "17f4fcaea983bd3304520aa5d2678c94331d352f",
-          "materialHash": "81a56fd7ef5fb7410e9e53b484d76c581ba6d919947a55ac5367806a3a43292d",
-          "storyFilesHash": "5f21567f7ebe6e0b7137ce5bcecb6ce6b03f379e956ece1ce56818a4bf0b7cbb",
-          "timestamp": "2026-07-13T11:53:58.087Z"
+          "note": "Full suite passed at eaad32b53c including fail-closed review retention.",
+          "headHash": "c93ebb216f6d6f7916199cad304db393a5fab181",
+          "materialHash": "4e1cd302c15f264c841eac0c26e1f5013b83153ce555b1a3abb254573089775c",
+          "storyFilesHash": "a22f46aac7120b7bb5959bf6e3c6847ad677463dad52cf542b086d4014eb28f4",
+          "timestamp": "2026-07-13T12:05:34.686Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
           "kind": "logic_test",
-          "command": "npm run test:closeout-trust",
+          "command": "npm run test:runtime-fact-contract",
           "result": "pass",
-          "note": "Metadata-only review retention remains fail-closed at 932387b7a9.",
-          "headHash": "17f4fcaea983bd3304520aa5d2678c94331d352f",
-          "materialHash": "81a56fd7ef5fb7410e9e53b484d76c581ba6d919947a55ac5367806a3a43292d",
-          "storyFilesHash": "5f21567f7ebe6e0b7137ce5bcecb6ce6b03f379e956ece1ce56818a4bf0b7cbb",
-          "timestamp": "2026-07-13T11:53:58.227Z"
+          "note": "Runtime fact contract passed at eaad32b53c.",
+          "headHash": "c93ebb216f6d6f7916199cad304db393a5fab181",
+          "materialHash": "4e1cd302c15f264c841eac0c26e1f5013b83153ce555b1a3abb254573089775c",
+          "storyFilesHash": "a22f46aac7120b7bb5959bf6e3c6847ad677463dad52cf542b086d4014eb28f4",
+          "timestamp": "2026-07-13T12:05:34.822Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
           "result": "pass",
-          "note": "F-025 exact template import and escaped-identifier wrapper/downstream controls pass at 932387b7a9.",
-          "headHash": "17f4fcaea983bd3304520aa5d2678c94331d352f",
-          "materialHash": "81a56fd7ef5fb7410e9e53b484d76c581ba6d919947a55ac5367806a3a43292d",
-          "storyFilesHash": "5f21567f7ebe6e0b7137ce5bcecb6ce6b03f379e956ece1ce56818a4bf0b7cbb",
-          "timestamp": "2026-07-13T11:53:58.360Z"
+          "note": "F-026/F-027 executable bypass controls and unrelated dynamic-import negative control pass at eaad32b53c.",
+          "headHash": "c93ebb216f6d6f7916199cad304db393a5fab181",
+          "materialHash": "4e1cd302c15f264c841eac0c26e1f5013b83153ce555b1a3abb254573089775c",
+          "storyFilesHash": "a22f46aac7120b7bb5959bf6e3c6847ad677463dad52cf542b086d4014eb28f4",
+          "timestamp": "2026-07-13T12:05:34.956Z"
         }
       ]
     }
