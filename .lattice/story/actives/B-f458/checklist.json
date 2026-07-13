@@ -140,33 +140,33 @@
           "kind": "logic_test",
           "command": "npm test",
           "result": "pass",
-          "note": "Full repository suite passed for de132e50fb after F-044/F-045/F-046 package-alias, parameter-default, and function-constructor hardening (CHK-002).",
-          "headHash": "7199396ba385a38b4f22258e53b9c6c320bd5fb5",
-          "materialHash": "5a90d311c02635d0537446d556eef965589a7fc6c48bbd66ab20885849b6d2b1",
-          "storyFilesHash": "e7e9885310b77e67137dd3cbfd9ab34f0b4921cc67211115aa0e89cefc031d24",
-          "timestamp": "2026-07-13T14:04:25.816Z"
+          "note": "Full repository suite passed for cf7337d78c after F-047/F-048/F-049 generic parameter-binding and callable-constructor hardening (CHK-002).",
+          "headHash": "d6fb150e52bdcc83a85405c9aaedb6541577668d",
+          "materialHash": "69e33955748cffa3b175c1af1bb3b901c5bd502cabfd9123cd982dfe138b91f9",
+          "storyFilesHash": "b7d857a2ebe5fd505a83fe0300020e847fcd8f84feccaa16cf0b9d775a64fe24",
+          "timestamp": "2026-07-13T14:17:48.657Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/closeout-trust-smoke.js && node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/brief-output-smoke.js",
           "result": "pass",
-          "note": "Closeout/runtime contracts and bounded brief output passed for de132e50fb (CHK-002).",
-          "headHash": "7199396ba385a38b4f22258e53b9c6c320bd5fb5",
-          "materialHash": "5a90d311c02635d0537446d556eef965589a7fc6c48bbd66ab20885849b6d2b1",
-          "storyFilesHash": "e7e9885310b77e67137dd3cbfd9ab34f0b4921cc67211115aa0e89cefc031d24",
-          "timestamp": "2026-07-13T14:04:25.975Z"
+          "note": "Closeout/runtime contracts and bounded brief output passed for cf7337d78c (CHK-002).",
+          "headHash": "d6fb150e52bdcc83a85405c9aaedb6541577668d",
+          "materialHash": "69e33955748cffa3b175c1af1bb3b901c5bd502cabfd9123cd982dfe138b91f9",
+          "storyFilesHash": "b7d857a2ebe5fd505a83fe0300020e847fcd8f84feccaa16cf0b9d775a64fe24",
+          "timestamp": "2026-07-13T14:17:48.819Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node scripts/verify-process-fact-contract.mjs && node packages/main/dist/tasks/usage-burn-alert-smoke.js",
           "result": "pass",
-          "note": "Pinned imports/self-exports inventory, conditional/wildcard package alias resolution, identifier/object/array/rest parameter defaults, all four function constructor kinds, vm default import, shadow negatives, process contract, and burn controls passed for de132e50fb (CHK-002).",
-          "headHash": "7199396ba385a38b4f22258e53b9c6c320bd5fb5",
-          "materialHash": "5a90d311c02635d0537446d556eef965589a7fc6c48bbd66ab20885849b6d2b1",
-          "storyFilesHash": "e7e9885310b77e67137dd3cbfd9ab34f0b4921cc67211115aa0e89cefc031d24",
-          "timestamp": "2026-07-13T14:04:26.162Z"
+          "note": "Recursive BindingElement defaults without outer initializers, nested object/array/rest controls, TypeChecker call/construct signature constructor detection for class/method/bind/aliases, shadow negatives, process contract, and burn controls passed for cf7337d78c (CHK-002).",
+          "headHash": "d6fb150e52bdcc83a85405c9aaedb6541577668d",
+          "materialHash": "69e33955748cffa3b175c1af1bb3b901c5bd502cabfd9123cd982dfe138b91f9",
+          "storyFilesHash": "b7d857a2ebe5fd505a83fe0300020e847fcd8f84feccaa16cf0b9d775a64fe24",
+          "timestamp": "2026-07-13T14:17:48.982Z"
         }
       ]
     },
