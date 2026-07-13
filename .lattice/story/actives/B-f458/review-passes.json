@@ -340,6 +340,27 @@
         "scanEscalationReason": null
       },
       "_hash": "932696c18dff313068e5c87f062db5b7becd87a430f789eea5065a74203da98e"
+    },
+    {
+      "id": "B-f458:RP-016",
+      "agent": "lattice-review-test-coverage",
+      "note": "Current-round coverage PASS for F-025 at story material 5f21567. The retired-vocabulary guard uses executable TypeScript AST/module-graph controls: Unicode-escaped compatibility identifiers in an exported wrapper are decoded and taint a real downstream consumer; no-substitution template-literal dynamic import is detected; namespace, alias, require, quoted import, direct re-export, and approved-callsite escape controls remain covered. The unchanged repository is the negative control and the configured guard exits 0. Build, closeout lifecycle, process-fact, and runtime-fact suites pass; the process contract pins AST creation, template parsing, Unicode wrapper and downstream-consumer facts. All 15 verification intents pass and bind current storyFilesHash.",
+      "createdAt": "2026-07-13T11:56:59.924Z",
+      "reviewRound": "2026-07-13T11:55:12.031Z",
+      "reviewRunId": "B-f458:RR-038",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/legacy-delivery-claims-compat.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8a1662d7e7d5daf538d2d77abd60186d553c2b8d563deb75d83d93fa1f4ff6a7"
     }
   ]
 }
