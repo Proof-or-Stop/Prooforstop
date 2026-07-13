@@ -2143,6 +2143,33 @@
       ],
       "signatureTag": "incomplete-esm-export-graph",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-f458:F-084",
+      "desc": "The new ESM export graph falsely treats exact local function/class declarations as dangerous solely from their spelling. provenanceForExportSymbol handles variable/property initializers and export assignments, but falls through for FunctionDeclaration/ClassDeclaration to dangerousCallableTypeKind; that helper considers the type symbol and signature declaration names, so a harmless local `export function eval(value: string) { return value }`, `export function runInContext(...)`, or `export class Function { ... }` receives eval/vm/Function kind. A consumer importing and calling these APIs with a string resembling the compatibility payload is therefore rejected even though no global eval/Function/vm identity is present. Existing safe ESM controls use only `safeRun`, so they do not exercise reserved-name shadowing across named/default/namespace or re-export paths. Treat local function/class declarations as exact local identities unless their initializer/export provenance resolves to a known dangerous primitive; add named/default/namespace/re-export negatives for locally declared eval, Function, runInContext, and constructor-like APIs while retaining bridge positives that export the actual globals.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-13T17:42:49.173Z",
+      "reviewRound": "2026-07-13T17:37:55.183Z",
+      "reviewRunId": "B-f458:RR-100",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Reviewed the full unified-loader/ESM-provenance diff and focused implementation for loader identity recursion, export-symbol traversal, namespace completeness, shadowing, cycles, alias fixpoint termination, dynamic-import adjacency, controls, and performance; unrelated unchanged guard sections were triaged."
+      },
+      "_hash": "d2eea41536f97fda90758bc646c0d66fb38a17b525fe3a316eaaf5633d330814",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "esm-local-reserved-name-false-positive",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
