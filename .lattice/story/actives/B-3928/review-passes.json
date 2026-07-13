@@ -579,6 +579,20 @@
         "scanEscalationReason": null
       },
       "_hash": "b3293feac1711a303139a14f8d22b2d3bdf712dd74efa69a5073bcc6f3b61d77"
+    },
+    {
+      "id": "B-3928:RP-028",
+      "agent": "lattice-review-docs",
+      "note": "Focused post-fix docs/product-acceptance review found no blocker. The only scope change adds exactly the three previously missing PASS stdout lines, matching frozen userSees text for CHK-001, CHK-004, and CHK-005 without changing verifier semantics. A fresh live run of node scripts/verify-proof-or-stop-prompt-baseline.mjs emitted all five checklist-visible PASS/INFO claims verbatim and completed successfully.",
+      "createdAt": "2026-07-13T03:37:44.621Z",
+      "reviewRound": "2026-07-13T03:36:11.674Z",
+      "reviewRunId": "B-3928:RR-049",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "71eeafa9e7fdaaf051f186dadd5bab0cbb9b09779637d8acd53e61bcf85c36ae"
     }
   ]
 }
