@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-1be5",
+  "allowedCommands": [
+    "git add",
+    "git commit",
+    "git diff",
+    "git status",
+    "grep",
+    "ls",
+    "node packages/main/dist/cli.js quorum_submit",
+    "node packages/main/dist/cli.js review_escalation_status",
+    "node packages/main/dist/cli.js validate",
+    "node packages/main/dist/tasks/quorum-ledger-provenance-smoke.js",
+    "node packages/main/dist/tasks/quorum-submit-smoke.js",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/quorum-ledger-provenance.ts",
+    "packages/main/src/core/review-escalation.ts",
+    "packages/main/src/core/verdicts.ts",
+    "packages/main/src/handlers/quorum-submit.ts",
+    "packages/main/src/tasks/quorum-ledger-provenance-smoke.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "createdAt": "2026-07-13T00:46:15.648Z",
+  "updatedAt": "2026-07-13T00:46:15.648Z",
+  "_hash": "25269ba2d2ceb1ba48e732e6e4f03669cb75e9d0dd5f455d7e47b60f5cab16e4"
+}
