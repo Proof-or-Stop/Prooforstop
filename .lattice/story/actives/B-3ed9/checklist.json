@@ -30,7 +30,45 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/scope-contract-smoke.ts",
+          "command": "node packages/main/dist/tasks/scope-contract-smoke.js",
+          "result": "pass",
+          "note": "The B-3ed9 commandFamilyArtifacts block asserts per-row scope.lifecycle_artifact:B-scope:{grill.json,clusters.json,scope-extension-decisions.json} pass rows under the enforce waveContract; smoke printed: scope contract smoke passed.",
+          "headHash": "60ea6c1f15f82ce832ad5d231bb4312b71661706",
+          "materialHash": "2b8a5e5de19e88714a9186eed23c9ecd6f5ccf71f8ad2d41e1eabdd31c917f73",
+          "storyFilesHash": "af1acffd479f30715bf50d1c43d5be9137ecb92b742768df5ee4f5d69d52a665",
+          "timestamp": "2026-07-13T08:32:58.676Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "packages/main/src/core/lifecycle-registry.ts",
+          "command": "rg -n \"grill.json|clusters.json|scope-extension-decisions.json|cluster.json\" packages/main/src/core/lifecycle-registry.ts",
+          "result": "pass",
+          "note": "rg shows the three new entries at lines 625-627 and no singular cluster.json entry remains in the closed set.",
+          "headHash": "60ea6c1f15f82ce832ad5d231bb4312b71661706",
+          "materialHash": "2b8a5e5de19e88714a9186eed23c9ecd6f5ccf71f8ad2d41e1eabdd31c917f73",
+          "storyFilesHash": "af1acffd479f30715bf50d1c43d5be9137ecb92b742768df5ee4f5d69d52a665",
+          "timestamp": "2026-07-13T08:32:58.676Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/scope-contract-smoke.ts",
+          "command": "node packages/main/dist/tasks/scope-contract-smoke.js",
+          "result": "pass",
+          "note": "The staleClusterNegative block asserts a hand-created .lattice/story/actives/B-scope/cluster.json classifies fail-closed rule=out_of_scope with blocking=true under the enforce waveContract.",
+          "headHash": "60ea6c1f15f82ce832ad5d231bb4312b71661706",
+          "materialHash": "2b8a5e5de19e88714a9186eed23c9ecd6f5ccf71f8ad2d41e1eabdd31c917f73",
+          "storyFilesHash": "af1acffd479f30715bf50d1c43d5be9137ecb92b742768df5ee4f5d69d52a665",
+          "timestamp": "2026-07-13T08:32:58.676Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -62,7 +100,45 @@
             "priority": "should"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/scope-contract-smoke.ts",
+          "command": "node packages/main/dist/tasks/scope-contract-smoke.js",
+          "result": "pass",
+          "note": "Full smoke run after the extension printed: scope contract smoke passed.",
+          "headHash": "60ea6c1f15f82ce832ad5d231bb4312b71661706",
+          "materialHash": "2b8a5e5de19e88714a9186eed23c9ecd6f5ccf71f8ad2d41e1eabdd31c917f73",
+          "storyFilesHash": "af1acffd479f30715bf50d1c43d5be9137ecb92b742768df5ee4f5d69d52a665",
+          "timestamp": "2026-07-13T08:32:58.676Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "packages/main/src/tasks/scope-contract-smoke.ts",
+          "command": "rg -n \"commandFamilyArtifacts|assert.equal(commandFamilyPositive\" packages/main/src/tasks/scope-contract-smoke.ts",
+          "result": "pass",
+          "note": "The per-row assertScopeRow loop for the three filenames precedes the aggregate commandFamilyPositive.status check in source order, matching the B-12a1 F-001 pattern so a regression names the exact artifact.",
+          "headHash": "60ea6c1f15f82ce832ad5d231bb4312b71661706",
+          "materialHash": "2b8a5e5de19e88714a9186eed23c9ecd6f5ccf71f8ad2d41e1eabdd31c917f73",
+          "storyFilesHash": "af1acffd479f30715bf50d1c43d5be9137ecb92b742768df5ee4f5d69d52a665",
+          "timestamp": "2026-07-13T08:32:58.676Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/dist/core/lifecycle-registry.js",
+          "command": "sed -i removal of grill.json from dist registry -> node packages/main/dist/tasks/scope-contract-smoke.js -> byte-restore -> re-run",
+          "result": "pass",
+          "note": "Bite test transcript: with grill.json removed from the compiled registry the smoke failed with AssertionError naming B-3ed9 command-family lifecycle row grill.json (row classified out_of_scope); after byte-restore (cmp-verified) the smoke printed: scope contract smoke passed. Proves the new assertions are load-bearing. Run solo in this worktree to avoid dist bite-test races.",
+          "headHash": "60ea6c1f15f82ce832ad5d231bb4312b71661706",
+          "materialHash": "2b8a5e5de19e88714a9186eed23c9ecd6f5ccf71f8ad2d41e1eabdd31c917f73",
+          "storyFilesHash": "af1acffd479f30715bf50d1c43d5be9137ecb92b742768df5ee4f5d69d52a665",
+          "timestamp": "2026-07-13T08:32:58.676Z"
+        }
+      ]
     }
   ]
 }
