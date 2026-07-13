@@ -3130,6 +3130,21 @@
       ],
       "signatureTag": "missing|ts|happy-edge-adversarial",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f458:F-121",
+      "desc": "half-applied refactor: packages/main/src/handlers/delivery-context-pack.ts:49 renamed TRANSCRIPT_DIFF_REL from evidence/transcript-diff.md to the canonical evidence/live-smoke-transcript.json, but the CHK-003-declared test packages/main/src/tasks/delivery-context-pack-smoke.ts (lines 158-161 write evidence/transcript-diff.md, line 327 asserts report.realMachineTests.transcriptDiff===true, line 401 asserts it is the only pack artifact) was not updated to match. Reproduced: node packages/main/dist/tasks/delivery-context-pack-smoke.js throws AssertionError: real-machine tests detect transcript-diff.md (false !== true). This test is not part of the curated npm test chain (only discovered via run-all-smokes.js), so the story evidence claiming npm test passed never exercised it.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-13T23:27:18.054Z",
+      "reviewRound": "2026-07-13T22:57:08.346Z",
+      "reviewRunId": "B-f458:RR-134",
+      "_hash": "6468cbdd8af2e597484ca8585eafe7a13a79f55279ea579ef338afecc5f0e63b",
+      "signatureTag": "missing|unknown|half-applied-refactor",
+      "signatureTagSource": "auto"
     }
   ]
 }
