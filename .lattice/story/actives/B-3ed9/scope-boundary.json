@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-3ed9",
+  "mode": "maintenance",
+  "allowed": [
+    "Add grill.json, clusters.json, scope-extension-decisions.json to LATTICE_LIFECYCLE_ARTIFACT_FILENAMES in packages/main/src/core/lifecycle-registry.ts",
+    "Extend packages/main/src/tasks/scope-contract-smoke.ts to cover the three new filenames and the removed stale entry",
+    "Post-merge CLI patch version bump on main per version discipline (runtime-behavior change)",
+    "Remove the stale singular cluster.json entry from the same registry set"
+  ],
+  "excluded": [
+    "No changes to gate/policy behavior or scope-contract handlers",
+    "No changes to other registries (e.g. process-fact registry — covered by parallel story B-9188)",
+    "No changes to scope classifier logic or path-normalization code in lifecycle-registry.ts beyond the filename set entries",
+    "No changes to store.ts or any writer code"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User request 2026-07-12: registry is missing three command-generated story-metadata filenames written by store.ts (grill.json ~331, clusters.json ~439, scope-extension-decisions.json ~578); registry lists singular cluster.json which store.ts never writes — verify each is written to story dir top level, add them to the registry, decide keep/remove of the stale cluster.json entry, and extend the smoke in scope-contract-smoke.ts accordingly.",
+  "createdAt": "2026-07-13T08:23:03.593Z",
+  "updatedAt": "2026-07-13T08:23:03.593Z",
+  "_hash": "d6a66b5ef8f98ece50e5aa31df7aa1fe4168044aaa941d96cb4755982d8f996d"
+}
