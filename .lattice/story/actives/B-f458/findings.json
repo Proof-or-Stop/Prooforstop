@@ -616,7 +616,7 @@
       "desc": "F-023/F-024 remain bypassable because the graph is built from regex-extracted quoted specifiers and raw identifier text rather than parsed module bindings. A static unapproved dynamic import whose exact module path is written as a JavaScript template literal is valid Node/TypeScript, but extractImportSpecifiers accepts only single/double-quoted import arguments. Both usage and graph scanners therefore see zero edges, and the caller can invoke or spread the constructor; the mechanical probe returned extracted=[]. Separately, an approved importer can export a wrapper calling the constructor through a Unicode-escaped final identifier character. JavaScript resolves it to the imported binding while the guard retains occurrence=3, call=2, direct-use=2 and no direct-export match, so no exporter edge is created. Positive controls cover only unescaped identifiers and single-quoted dynamic imports. Use an AST to resolve imports/exports and identifier bindings (including template-literal dynamic imports), or conservatively reject nonstandard dynamic loading; add positive controls for the template-literal import and escaped-identifier wrapper followed by an unapproved consumer.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-13T11:46:57.333Z",
@@ -629,7 +629,11 @@
         "packages/main/src/handlers/delivery-context-pack.ts"
       ],
       "signatureTag": "adversarial|ts|remain-bypassable-graph",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 932387b7a9: retired compatibility scanning now parses TypeScript AST bindings and module edges, recognizes exact no-substitution template-literal import(), decodes Unicode-escaped identifiers, and propagates taint across the module graph. Executable positive controls reject both reported attacks plus neighboring namespace, alias, require, quoted dynamic import, and direct re-export variants. Independent build, retired vocabulary guard, process-fact contract, closeout smoke, and implementer full npm test passed.",
+      "resolvedAt": "2026-07-13T11:55:26.994Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
