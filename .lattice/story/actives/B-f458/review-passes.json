@@ -446,6 +446,28 @@
         "scanEscalationReason": null
       },
       "_hash": "c9cad26f8ad39f7bfa4045913038c2659d470bc64033d61b57879d6dae2ea33b"
+    },
+    {
+      "id": "B-f458:RP-021",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: F-031 exact full AST-parent-chain controls reject assignment/comma wrappers and exported-container mutation while symbol-identity shadow negative remains clean; F-032 namespace createRequire plus wrapper/property/destructure loaders are caught by fail-closed nonliteral-load policy, and the four exact registered benign loader sites remain clean. Process-fact contract pins all new executable controls. Doctor brief is bounded to three one-line findings under the 20k budget and --full restores per-session remediation detail. Fresh build, guard smoke, 21-case burn smoke, brief-output smoke, process-fact contract, and complete npm test all passed. All 15 checklist evidence records are pass and bind current storyFilesHash 285aefea91fc96464bf10ca050bbc9ca47484143ab82b232b3702155175bcf96.",
+      "createdAt": "2026-07-13T12:46:41.998Z",
+      "reviewRound": "2026-07-13T12:40:44.967Z",
+      "reviewRunId": "B-f458:RR-051",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/tasks/brief-output-smoke.ts",
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "14536695a3ec416ea6e6e4f52fc800da136cc511e19254ec3a95012f0460bcbc"
     }
   ]
 }
