@@ -11,26 +11,26 @@
       "status": "done",
       "startTime": "2026-07-13T08:37:36.211Z",
       "endTime": "2026-07-13T09:16:53.455Z",
-      "userSees": "User runs the M4.C1 contract verifier and sees `PASS closeout artifact classifications: closed set and canonical writer provenance verified`; adding an unknown trusted path or wrong writer makes the command exit non-zero with the exact path.",
+      "userSees": "User runs the M4.C1 contract verifier and sees `PASS closeout artifact classifications: closed policy set verified`; adding an unknown trusted path or wrong writer makes the command exit non-zero with the exact path.",
       "verificationIntent": {
         "happy": [
           {
             "id": "CHK-001:happy:0",
-            "desc": "The M4.C1 contract verifier enumerates a closed set of scope-defining and closeout-evidence artifact paths, preserves the existing scope-contract class, and reports canonical writer provenance for every trusted path.",
+            "desc": "The M4.C1 contract verifier enumerates the closed set of scope-defining and closeout-evidence artifact paths, preserves the existing scope-contract class, and reports the canonical writer policy for every registered path without treating local same-UID telemetry as authority.",
             "type": "logic"
           }
         ],
         "edge": [
           {
             "id": "CHK-001:edge:0",
-            "desc": "The verifier rejects an unknown lifecycle artifact path and a known path written by a non-canonical command, exits non-zero, and names the offending path and writer.",
+            "desc": "The verifier rejects an unknown lifecycle artifact path and a known path paired with a non-canonical command, exits non-zero, and names the offending path and writer.",
             "type": "logic"
           }
         ],
         "adversarial": [
           {
             "id": "CHK-001:adversarial:0",
-            "desc": "A path cannot become trusted through prefix, basename, traversal, symlink, alias, or broad-whitelist matching; milestone-closeout-only ownership remains excluded unless B-9188 has merged and registered it canonically.",
+            "desc": "A path cannot become registered through prefix, basename, traversal, symlink, alias, or broad-whitelist matching; milestone-closeout-only ownership remains excluded unless B-9188 has merged and registered it canonically; locally mintable receipts never prove writer authority.",
             "type": "logic"
           }
         ]
