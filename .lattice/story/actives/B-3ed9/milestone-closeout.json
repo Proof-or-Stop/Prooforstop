@@ -1,0 +1,60 @@
+{
+  "schemaVersion": "proofbound.milestone_closeout.v1",
+  "storyId": "B-3ed9",
+  "phase": "TEST",
+  "generatedAt": "2026-07-13T09:05:11.987Z",
+  "sourceReport": {
+    "schemaVersion": "proofbound.milestone_status.v1",
+    "digest": "3dea43f6c0156ad4f166b0437921267dda87791933ce8356e4a44e366ea2f1ca",
+    "ledger": {
+      "present": true,
+      "state": "confirmed",
+      "hash": "sha256:4ec26b845cec9ee2253d172d783ffada523e836b386fd4dd697f4302e5ef41dc"
+    },
+    "groups": {
+      "completed": [
+        "M1",
+        "M2"
+      ],
+      "current": [],
+      "remaining": []
+    },
+    "risks": [],
+    "nextActions": [
+      "No milestone action; all ledger rows are completed or not applicable."
+    ]
+  },
+  "bindings": {
+    "headHash": "30d6d69c0dad4ad587ecc082f455712cbe581528",
+    "materialHash": "2b8a5e5de19e88714a9186eed23c9ecd6f5ccf71f8ad2d41e1eabdd31c917f73",
+    "storyFilesHash": "af1acffd479f30715bf50d1c43d5be9137ecb92b742768df5ee4f5d69d52a665"
+  },
+  "rows": [
+    {
+      "milestone": "M1",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "grill.json, clusters.json, and scope-extension-decisions.json are registered in LATTICE_LIFECYCLE_ARTIFACT_FILENAMES and the stale singular cluster.json entry is removed",
+      "acceptance": "rg over packages/main/src/core/lifecycle-registry.ts shows the three new entries present and no cluster.json entry; lattice validate lint passes",
+      "evidence": [
+        "CHK-001:happy:0 [pass/integration_test] node packages/main/dist/tasks/scope-contract-smoke.js file=packages/main/src/tasks/scope-contract-smoke.ts note=The B-3ed9 commandFamilyArtifacts block asserts per-row scope.lifecycle_artifact:B-scope:{grill.json,clusters.json,scope-extension-decisions.json} pass rows under the enforce waveContract; smoke printed: scope contract smoke passed.",
+        "CHK-001:edge:0 [pass/docs_check] rg -n \"grill.json|clusters.json|scope-extension-decisions.json|cluster.json\" packages/main/src/core/lifecycle-registry.ts file=packages/main/src/core/lifecycle-registry.ts note=rg shows the three new entries at lines 625-627 and no singular cluster.json entry remains in the closed set.",
+        "CHK-001:adversarial:0 [pass/integration_test] node packages/main/dist/tasks/scope-contract-smoke.js file=packages/main/src/tasks/scope-contract-smoke.ts note=The staleClusterNegative block asserts a hand-created .lattice/story/actives/B-scope/cluster.json classifies fail-closed rule=out_of_scope with blocking=true under the enforce waveContract."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M2",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "scope-contract-smoke covers the three new filenames as lifecycle_artifact pass rows and the unregistered singular cluster.json as fail-closed out_of_scope",
+      "acceptance": "Running the scope contract smoke prints: scope contract smoke passed — with the new per-row assertions in place",
+      "evidence": [
+        "CHK-002:happy:0 [pass/integration_test] node packages/main/dist/tasks/scope-contract-smoke.js file=packages/main/src/tasks/scope-contract-smoke.ts note=Full smoke run after the extension printed: scope contract smoke passed.",
+        "CHK-002:edge:0 [pass/docs_check] rg -n \"commandFamilyArtifacts|assert.equal(commandFamilyPositive\" packages/main/src/tasks/scope-contract-smoke.ts file=packages/main/src/tasks/scope-contract-smoke.ts note=The per-row assertScopeRow loop for the three filenames precedes the aggregate commandFamilyPositive.status check in source order, matching the B-12a1 F-001 pattern so a regression names the exact artifact.",
+        "CHK-002:adversarial:0 [pass/manual_transcript] sed -i removal of grill.json from dist registry -> node packages/main/dist/tasks/scope-contract-smoke.js -> byte-restore -> re-run file=packages/main/dist/core/lifecycle-registry.js note=Bite test transcript: with grill.json removed from the compiled registry the smoke failed with AssertionError naming B-3ed9 command-family lifecycle row grill.json (row classified out_of_scope); after byte-restore (cmp-verified) the smoke printed: scope contract smoke passed. Proves the new assertions are load-bearing. Run solo in this worktree to avoid dist bite-test races."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    }
+  ]
+}
