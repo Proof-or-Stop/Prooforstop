@@ -1872,6 +1872,33 @@
       ],
       "signatureTag": "typeof-function-dangerous-exemption",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-f458:F-075",
+      "desc": "typedOwnEnumerableMembers fails open for finite structural types whose property declarations originate in declaration files or mapped types. It only accepts declarations from non-.d.ts project source, silently skips the property, then still returns complete:true whenever the type has no index signature. For example `declare const source: Pick<typeof globalThis, \"eval\">; const holder = { ...source }; holder.eval(\"import(… )\")` has an eval property whose declaration is lib.es5.d.ts; the projection becomes a complete empty object, with no member/index danger, so the call evades. The same affects imported ambient finite interfaces. Property signatures describe own enumerable runtime data for this structural spread model regardless of declaration-file location; if ownership/enumerability cannot be proven, completeness must be false/fail-closed rather than silently complete. Add mapped/ambient finite dangerous and safe spread controls.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-13T17:02:11.214Z",
+      "reviewRound": "2026-07-13T16:57:55.492Z",
+      "reviewRunId": "B-f458:RR-093",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Reviewed the complete implementation diff and focused typed own-enumerable projection, mapped/declaration-file types, controls, and contract sections; unrelated unchanged portions were name-triaged."
+      },
+      "_hash": "d44a4ab8858d4f036ee013d3187bc42fa9e8172e4eb028517d146a16da10ddf4",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "ambient-finite-spread-completeness",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
