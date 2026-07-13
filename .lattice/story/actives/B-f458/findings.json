@@ -708,7 +708,7 @@
       "desc": "The new AST call-site allowlist validates only a local syntactic shape, not the intended call sites, so an approved importer can still export compatibility-derived values without a disallowed identifier reference. In delivery-context-pack.ts, replace one sanctioned `claims: createLegacyLocalOnlyDeliveryClaims()` initializer with `claims: leaked.claims`, then add `export const leaked = { claims: createLegacyLocalOnlyDeliveryClaims() };`. The in-memory AST probe preserves the exact expected constructor totals (identifier occurrences=3, direct calls=2) and reports disallowedReferences=[]: matchesApprovedCallSite accepts any zero-arg call used as any object property named `claims` (lines 406-412). Because the exported call is classified approved, directlyExportsCompatibilityBinding also sees no taint; a downstream module can import `leaked` and destructure/read `.claims` with no compatibility edge. Bind approved calls to their actual enclosing function/object construction context or explicit source call-site identities, and independently reject compatibility calls inside exported statements even when their immediate parent shape is otherwise allowed. Add relocation-to-exported-claims-object plus downstream destructuring/property controls.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-13T12:08:58.310Z",
@@ -720,7 +720,11 @@
         "packages/main/src/handlers/delivery-context-pack.ts"
       ],
       "signatureTag": "adversarial|ts|call-site-allowlist",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by aa86b4d950: exact import binding identity and full enclosing function/export ancestry replace immediate shape checks; constructor results flowing through exported local variables or functions taint the module and downstream property/destructuring consumers are rejected.",
+      "resolvedAt": "2026-07-13T12:19:20.467Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-030",
