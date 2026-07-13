@@ -640,7 +640,7 @@
       "desc": "F-025’s two reported spellings are fixed, but the approved-importer containment still has an executable AST/regex metric-preservation bypass. In an isolated checkout, replace one approved `claims: createLegacyLocalOnlyDeliveryClaims()` site in delivery-context-pack.ts with `claims: emitLegacyClaims()`, add `export function emitLegacyClaims() { return createLegacyLocalOnlyDeliveryClaims(); }`, and add a comment (or inert string) containing `claims: createLegacyLocalOnlyDeliveryClaims()`. TypeScript AST totals remain exactly identifier=3 and direct calls=2; the raw directUsePattern count remains 2 because it counts comments. Consequently usageDrift is false, directlyExportsCompatibilityBinding returns early without inspecting the exported wrapper, no exporter edge is propagated, and the complete retired-authority-vocabulary-guard-smoke exits PASS after a successful build. This exposes a reusable exported wrapper while satisfying the claimed closed importer/usage surface. Make approved usage checks entirely AST/binding based (including exact parent/call-site validation), and inspect exports regardless of metric drift; add this metric-preserving wrapper plus comment/string padding as a positive control.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-13T11:58:06.844Z",
@@ -653,7 +653,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "compat-metric-preserving-export-wrapper",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by eaad32b53c: approved compatibility use is now validated by exact TypeScript AST binding references and allowed call-site parents/arguments; comments and strings cannot satisfy counts; exports/aliases/wrappers are inspected unconditionally and taint propagates regardless of local metric state. Executable padded wrapper/downstream controls pass.",
+      "resolvedAt": "2026-07-13T12:06:25.946Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-027",
