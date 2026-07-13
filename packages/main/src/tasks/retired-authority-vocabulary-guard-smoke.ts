@@ -1307,6 +1307,7 @@ interface DynamicExecutionBindings {
   functionCallableSymbols: Map<ts.Symbol, string>;
   memberKinds: Map<ts.Symbol, Map<string, string>>;
   knownMembers: Map<ts.Symbol, Set<string>>;
+  knownMembersComplete: Set<ts.Symbol>;
   indexKinds: Map<ts.Symbol, string>;
 }
 
@@ -1320,6 +1321,7 @@ interface DynamicProvenance {
   index?: DynamicProvenance;
   unknown?: boolean;
   unknownMemberAccess?: boolean;
+  completeMembers?: boolean;
 }
 
 interface DynamicAliasRecord {
@@ -1529,7 +1531,7 @@ function dynamicReferenceKind(
     const member = ts.isPropertyAccessExpression(current)
       ? current.name.text
       : current.argumentExpression ? staticPropertyKeyExpression(current.argumentExpression, checker) : undefined;
-    if (!member) {
+    if (member === undefined) {
       if (ts.isIdentifier(target)) {
         const targetSymbol = identifierSymbol(target, checker);
         const indexKind = targetSymbol ? bindings.indexKinds.get(targetSymbol) : undefined;
@@ -1544,7 +1546,9 @@ function dynamicReferenceKind(
       const targetSymbol = identifierSymbol(target, checker);
       const memberKind = targetSymbol ? bindings.memberKinds.get(targetSymbol)?.get(member) : undefined;
       if (memberKind) return memberKind;
-      if (targetSymbol && bindings.knownMembers.get(targetSymbol)?.has(member)) return undefined;
+      if (targetSymbol
+        && bindings.knownMembersComplete.has(targetSymbol)
+        && bindings.knownMembers.get(targetSymbol)?.has(member)) return undefined;
       const targetKind = targetSymbol ? bindings.dangerousSymbols.get(targetSymbol) : undefined;
       if (targetKind?.startsWith('unresolved-')) return `${targetKind}.${member}`;
     }
@@ -1595,6 +1599,7 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
     functionCallableSymbols: new Map(),
     memberKinds: new Map(),
     knownMembers: new Map(),
+    knownMembersComplete: new Set(),
     indexKinds: new Map(),
   };
   const aliases: DynamicAliasRecord[] = [];
@@ -1644,7 +1649,7 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
       current.elements.forEach((element, index) => {
         if (!ts.isOmittedExpression(element)) members.set(String(index), provenanceForExpression(ts.isSpreadElement(element) ? element.expression : element, new Set(seen)));
       });
-      return { ...base, members };
+      return { ...base, members, completeMembers: true };
     }
     if (ts.isObjectLiteralExpression(current)) {
       const members = new Map<string, DynamicProvenance>();
@@ -1664,7 +1669,7 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
           unknown = true;
         }
       }
-      return { ...base, members, unknown };
+      return { ...base, members, unknown, completeMembers: !unknown };
     }
     if (isGlobalObjectIdentifier(current, checker)) {
       return { ...base, members: new Map([
@@ -1730,8 +1735,11 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
       symbol: property,
     };
     if (/^\d+$/.test(key) && base.element) return base.element;
-    if (/^\d+$/.test(key) && base.type) {
-      const type = checker.getIndexTypeOfType(base.type, ts.IndexKind.Number);
+    if (base.index) return base.index;
+    if (base.type) {
+      const numeric = /^\d+$/.test(key);
+      const type = (numeric ? checker.getIndexTypeOfType(base.type, ts.IndexKind.Number) : undefined)
+        ?? checker.getIndexTypeOfType(base.type, ts.IndexKind.String);
       if (type) return { type, kind: typeRequiresFailClosedCallableClassification(type, checker) ? 'unresolved-array-element' : undefined };
     }
     return {};
@@ -1758,6 +1766,7 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
       index,
       unknown: base.unknown,
       unknownMemberAccess: base.unknownMemberAccess || nonIndexable,
+      completeMembers: base.completeMembers === true && !nonIndexable,
     };
   };
   const objectRest = (base: DynamicProvenance, excluded: ReadonlySet<string>): DynamicProvenance => {
@@ -1779,6 +1788,8 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
       index,
       unknown: base.unknown,
       unknownMemberAccess: unknownMemberAccess || index.kind === 'unresolved-non-indexable-rest',
+      completeMembers: base.completeMembers === true
+        && !unknownMemberAccess,
     };
   };
   const addRecord = (name: ts.Node, provenance: DynamicProvenance | undefined): void => {
@@ -1894,11 +1905,44 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
       index: provenance.index ?? inherited.index,
       unknown: provenance.unknown || inherited.unknown,
       unknownMemberAccess: provenance.unknownMemberAccess || inherited.unknownMemberAccess,
+      completeMembers: provenance.completeMembers ?? inherited.completeMembers,
     };
   };
   const provenanceKind = (provenance: DynamicProvenance): string | undefined => provenance.kind
     ?? (provenance.expression ? dynamicReferenceKind(provenance.expression, checker, bindings) : undefined)
     ?? (provenance.unknownMemberAccess ? 'unresolved-rest-provenance' : undefined);
+  const mergeProvenanceAlternatives = (
+    current: DynamicProvenance | undefined,
+    alternative: DynamicProvenance,
+  ): DynamicProvenance => {
+    if (!current) return alternative;
+    const members = new Map(current.members ?? []);
+    for (const [member, candidate] of alternative.members ?? []) {
+      const existing = members.get(member);
+      if (!existing) members.set(member, candidate);
+      else {
+        const dangerous = provenanceKind(existing) ? existing : provenanceKind(candidate) ? candidate : undefined;
+        members.set(member, dangerous ?? mergeProvenanceAlternatives(existing, candidate));
+      }
+    }
+    const indexed = current.index ?? current.element;
+    const alternativeIndexed = alternative.index ?? alternative.element;
+    const index = provenanceKind(indexed ?? {}) ? indexed
+      : provenanceKind(alternativeIndexed ?? {}) ? alternativeIndexed
+        : indexed ?? alternativeIndexed;
+    return {
+      expression: alternative.expression ?? current.expression,
+      type: alternative.type ?? current.type,
+      symbol: alternative.symbol ?? current.symbol,
+      kind: provenanceKind(current) ?? provenanceKind(alternative),
+      members,
+      element: alternative.element ?? current.element,
+      index,
+      unknown: current.unknown || alternative.unknown,
+      unknownMemberAccess: current.unknownMemberAccess || alternative.unknownMemberAccess,
+      completeMembers: false,
+    };
+  };
   const memberProvenanceKind = (member: string, provenance: DynamicProvenance): string | undefined => {
     const direct = provenanceKind(provenance);
     if (direct) return direct;
@@ -1916,13 +1960,17 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
     if (member === 'constructor') return 'unresolved-or-callable.constructor';
     return undefined;
   };
+  const aliasSourceCounts = new Map<ts.Symbol, number>();
+  for (const alias of aliases) aliasSourceCounts.set(alias.target, (aliasSourceCounts.get(alias.target) ?? 0) + 1);
   let changed = true;
   while (changed) {
     changed = false;
     for (const alias of aliases) {
       const provenance = resolveProvenance(alias.provenance);
       const expression = provenance.expression;
-      if (symbolProvenance.get(alias.target) !== provenance) symbolProvenance.set(alias.target, provenance);
+      symbolProvenance.set(alias.target, aliasSourceCounts.get(alias.target) === 1
+        ? provenance
+        : mergeProvenanceAlternatives(symbolProvenance.get(alias.target), provenance));
       if (expression && !bindings.vmNamespaceSymbols.has(alias.target) && vmNamespaceReference(expression, checker, bindings)) {
         bindings.vmNamespaceSymbols.add(alias.target);
         changed = true;
@@ -1933,7 +1981,13 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
         if (callableKind) changed = true;
       }
       if (provenance.members) {
-        bindings.knownMembers.set(alias.target, new Set(provenance.members.keys()));
+        const knownMembers = bindings.knownMembers.get(alias.target) ?? new Set<string>();
+        for (const member of provenance.members.keys()) knownMembers.add(member);
+        bindings.knownMembers.set(alias.target, knownMembers);
+        if (aliasSourceCounts.get(alias.target) === 1
+          && provenance.completeMembers === true
+          && !provenance.unknown) bindings.knownMembersComplete.add(alias.target);
+        else bindings.knownMembersComplete.delete(alias.target);
         const memberKinds = bindings.memberKinds.get(alias.target) ?? new Map<string, string>();
         for (const [member, memberProvenance] of provenance.members) {
           const kind = memberProvenanceKind(member, resolveProvenance(memberProvenance));
@@ -2474,6 +2528,14 @@ function assertDynamicCodeGenerationPositiveControls(): void {
     ['record eval computed binding provenance', "declare const source: Record<string, typeof eval>; declare const key: string; const { [key]: run } = source; run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['any object rest dynamic key fail closed', "declare const source: any; declare const key: string; const { ...rest } = source; rest[key](\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['non-indexable object rest dynamic key fail closed', "declare const source: { value: number }; declare const key: string; const { ...rest } = source; rest[key](\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['plain any nested array rest known index fail closed', "declare const source: any; const [, ...[run]] = source; run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['empty string direct member provenance', "const { '': run } = { '': eval }; run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['empty string const alias provenance', "const empty = ''; const key = empty; const { [key]: run } = { '': eval }; run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['empty string object rest provenance', "const { keep, ...rest } = { keep: 0, '': eval }; rest[''](\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['record eval exact numeric member fallback', "declare const source: Record<string, typeof eval>; const { [0]: run } = source; run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['record eval exact string member fallback', "declare const source: Record<string, typeof eval>; const { ['missing']: run } = source; run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['safe then unknown rest assignment provenance', "declare const unknownSource: any; let rest; ({ ...rest } = { safe: (value: string) => value }); ({ ...rest } = unknownSource); rest.safe(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['unknown then safe rest assignment provenance', "declare const unknownSource: any; let rest; ({ ...rest } = unknownSource); ({ ...rest } = { safe: (value: string) => value }); rest.safe(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['static computed eval declaration provenance', "const { ['eval']: run } = globalThis; run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['static computed eval assignment provenance', "let run; ({ [`eval`]: run } = globalThis); run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['const computed eval parameter provenance', "const first = 'eval'; const key = first; function execute({ [key]: run } = globalThis) { run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
@@ -2530,6 +2592,10 @@ function assertDynamicCodeGenerationPositiveControls(): void {
     ['record number object rest dynamic key negative', "declare const source: Record<string, number>; declare const key: string; const { ...rest } = source; void rest[key];"],
     ['record number computed binding negative', "declare const source: Record<string, number>; declare const key: string; const { [key]: value } = source; void value;"],
     ['non-indexable object rest known member negative', "declare const source: { value: number }; const { ...rest } = source; void rest.value;"],
+    ['stable single complete rest safe member negative', "let rest; ({ ...rest } = { safe: (value: string) => value }); rest.safe(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['empty string local safe member negative', "const { ...rest } = { '': (value: string) => value }; rest[''](\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['record number exact numeric member negative', "declare const source: Record<string, number>; const { [0]: value } = source; void value;"],
+    ['record number exact string member negative', "declare const source: Record<string, number>; const { ['missing']: value } = source; void value;"],
     ['const computed local noncallable negative', "const key = 'run'; const { [key]: run } = { run: (value: string) => value }; run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['unresolved computed exact local negative', "let key: string = 'value'; const { [key]: value } = { value: { local: true } }; void value;"],
   ] as const;
