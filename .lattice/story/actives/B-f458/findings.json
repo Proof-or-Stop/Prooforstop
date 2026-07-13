@@ -1126,7 +1126,7 @@
       "desc": "F-046 remains bypassable through class constructors. JavaScript classes are Function objects: `(class {}).constructor === Function` and `node -e \"const B=(class {}).constructor; console.log(B===Function, B('return 7')())\"` prints `true 7`. But functionExpressionConstructorKind accepts only ArrowFunction/FunctionExpression, functionDeclarationConstructorKind is invoked only for FunctionDeclaration, and collectDynamicExecutionBindings never records ClassExpression/ClassDeclaration symbols. Therefore `(class {}).constructor(\"return import('./legacy-delivery-claims-compat.js')\")()` or `class Factory {}; const Build = Factory.constructor; new Build(payload)` reaches dynamicReferenceKind with no directKind/callableKind/inherited dangerous reference and emits no dynamic-code violation. The new positive controls cover ordinary, generator, async and async-generator function constructors but omit class expression/declaration, so guard/process-contract/full tests can pass while this standard Function-constructor route remains open. Treat class expressions/declarations as Function callable symbols (while keeping ordinary object.constructor negative), and add direct/aliased class-constructor positives plus process-contract pins.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-13T14:08:09.481Z",
@@ -1138,7 +1138,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "dynamic-code-class-constructor-bypass",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by cf7337d78c: callable/constructable receiver types drive constructor classification, covering class expressions/declarations and aliases while ordinary data objects remain negative.",
+      "resolvedAt": "2026-07-13T14:18:49.198Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-048",
