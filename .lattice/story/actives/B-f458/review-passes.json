@@ -319,6 +319,27 @@
         "scanEscalationReason": null
       },
       "_hash": "02d684f4a2698b6475f8ad79f31d1526d933e34c6fefd69de0e881b888667312"
+    },
+    {
+      "id": "B-f458:RP-015",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage re-review PASS at story material ece10af. The guard attack matrix covers namespace, aliased named, dynamic, require, direct re-export, approved-caller alias/property/default/export escapes, and occurrence/call-count drift. A true two-hop positive control patches an approved producer to re-export the compatibility constructor and verifies a second consumer is rejected by the graph scanner. Build, configured retired-vocabulary guard, closeout lifecycle, process-fact, and runtime-fact suites all exit 0. All 15 verification intents pass and bind the current storyFilesHash.",
+      "createdAt": "2026-07-13T11:46:09.167Z",
+      "reviewRound": "2026-07-13T11:43:56.938Z",
+      "reviewRunId": "B-f458:RR-036",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/legacy-delivery-claims-compat.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "932696c18dff313068e5c87f062db5b7becd87a430f789eea5065a74203da98e"
     }
   ]
 }
