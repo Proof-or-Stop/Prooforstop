@@ -717,6 +717,26 @@
       ],
       "signatureTag": "adversarial|ts|call-site-allowlist",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f458:F-030",
+      "desc": "The F-026 resolution overstates exact binding/call-site and unconditional export containment. `isApprovedValueUse` matches identifiers by text and only checks the immediate syntactic parent (`claims` PropertyAssignment or negated if); it does not resolve the identifier to the compatibility import binding, bind the call to its canonical source location/enclosing function, or reject an otherwise approved-shaped call nested inside an exported statement. `directlyExportsCompatibilityBinding` then derives exporters only from `disallowedCompatibilityValueReferences`, so a compatibility reference that satisfies the local parent shape is omitted even when its top-level ancestor is exported. The new padded-wrapper controls move a constructor call directly under `return`, which is disallowed, but do not cover relocation into an approved-shaped `claims` property under an exported wrapper, nor lexical shadowing of the imported name. This does not meet the recorded claim of exact TypeScript AST binding references / exact call sites / unconditional wrapper inspection. Use TypeScript symbol binding (or capture the imported local declaration and compare resolved references), bind approved calls to stable canonical AST ancestry/source anchors, and inspect every exported statement for compatibility-tainted bindings independently of whether the local use shape is approved.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-13T12:09:08.636Z",
+      "reviewRound": "2026-07-13T12:06:13.134Z",
+      "reviewRunId": "B-f458:RR-045",
+      "_hash": "4cf6d9e6620464f10e5c3a17ddde1bb3d50c600d3b8751a6f6a9bd9a3adb43d0",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "packages/main/src/handlers/delivery-context-pack.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "compat-ast-binding-callsite-containment",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
