@@ -265,7 +265,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-07-13T11:00:41.759Z",
+      "endTime": "2026-07-13T11:10:53.025Z",
       "userSees": "User runs the TEST roll-up regression and sees `PASS local closeout requires fresh review before TEST retention`; same-UID forged receipts and paired source/docs/scope mutations fail closed, while a fresh post-closeout review can continue TEST.",
       "verificationIntent": {
         "happy": [
@@ -316,33 +316,33 @@
           "kind": "logic_test",
           "command": "npm test",
           "result": "pass",
-          "note": "Full suite passed after shared REVIEW/DONE reviewer verdict enforcement at commit 1baeb54a9d.",
-          "headHash": "d16bbaf8f146b83c009ade659eda351d7cc883ec",
-          "materialHash": "ad073efd4fec3685844c9e84a54c397c7e7e61af70cd816e6dc1b3641f850116",
-          "storyFilesHash": "97b41175b50ecf541e1aa9b58bb531cfdcf96141ba381420e6792f93f469b126",
-          "timestamp": "2026-07-13T11:00:41.898Z"
+          "note": "Full suite passed after currentReviewRound fail-closed lifecycle enforcement at commit 709f4e5e00.",
+          "headHash": "f4ae776fbdeb3d043d6b9fede8802f94ca2374be",
+          "materialHash": "075bc5ed48d985faf25af6a6dd50b3440c40c67c0c8585d94785d5009d275fc6",
+          "storyFilesHash": "9f7af86507ff8c225518570e69493b758d5ea5be8341a73c9e896b37dd6a61ac",
+          "timestamp": "2026-07-13T11:10:53.165Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
           "kind": "logic_test",
           "command": "npm test",
           "result": "pass",
-          "note": "Full suite covers stale/missing lane and wrapper-root compatibility after shared verdict enforcement.",
-          "headHash": "d16bbaf8f146b83c009ade659eda351d7cc883ec",
-          "materialHash": "ad073efd4fec3685844c9e84a54c397c7e7e61af70cd816e6dc1b3641f850116",
-          "storyFilesHash": "97b41175b50ecf541e1aa9b58bb531cfdcf96141ba381420e6792f93f469b126",
-          "timestamp": "2026-07-13T11:00:42.038Z"
+          "note": "Full suite covers missing round, missing reviewRunId, unknown run, and wrapper-root signed validation.",
+          "headHash": "f4ae776fbdeb3d043d6b9fede8802f94ca2374be",
+          "materialHash": "075bc5ed48d985faf25af6a6dd50b3440c40c67c0c8585d94785d5009d275fc6",
+          "storyFilesHash": "9f7af86507ff8c225518570e69493b758d5ea5be8341a73c9e896b37dd6a61ac",
+          "timestamp": "2026-07-13T11:10:53.299Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
           "kind": "logic_test",
           "command": "npm test",
           "result": "pass",
-          "note": "Full suite covers manual TEST phase bypass attempts with no reviewer, missing lane, and open verified high finding.",
-          "headHash": "d16bbaf8f146b83c009ade659eda351d7cc883ec",
-          "materialHash": "ad073efd4fec3685844c9e84a54c397c7e7e61af70cd816e6dc1b3641f850116",
-          "storyFilesHash": "97b41175b50ecf541e1aa9b58bb531cfdcf96141ba381420e6792f93f469b126",
-          "timestamp": "2026-07-13T11:00:42.187Z"
+          "note": "Real FINISH attacks prove unsigned or tampered pass-shaped records cannot exploit missing-round legacy compatibility.",
+          "headHash": "f4ae776fbdeb3d043d6b9fede8802f94ca2374be",
+          "materialHash": "075bc5ed48d985faf25af6a6dd50b3440c40c67c0c8585d94785d5009d275fc6",
+          "storyFilesHash": "9f7af86507ff8c225518570e69493b758d5ea5be8341a73c9e896b37dd6a61ac",
+          "timestamp": "2026-07-13T11:10:53.432Z"
         }
       ]
     },
