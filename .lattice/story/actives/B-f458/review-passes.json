@@ -542,6 +542,23 @@
         "scanEscalationReason": "Reviewed the complete implementation diff and the full changed provenance/control/process-pin sections; unchanged portions of the two large files were triaged by name, and no decisions-document escalation was needed for this focused coverage rerun."
       },
       "_hash": "b1dde76f15c4d1c8ec160109f094092fc664716aca3bbbab3aa0088615ff8293"
+    },
+    {
+      "id": "B-f458:RP-026",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage PASS: 439ba331bf executes and process-pins dangerous and safe controls for require aliases, module.require, static and dynamic specifiers, createRequire, parameter-propagated loaders, and ESM named/default/namespace imports. Shared-program positive and negative loops genuinely assert each case. Build, retired-authority guard, process-fact contract, brief-output smoke, and the full serial npm test suite all pass; no in-boundary coverage blocker remains.",
+      "createdAt": "2026-07-13T17:45:35.419Z",
+      "reviewRound": "2026-07-13T17:37:55.183Z",
+      "reviewRunId": "B-f458:RR-101",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Reviewed the complete implementation diff and full changed provenance/control/process-pin sections; unchanged portions of the two large files were triaged by name, and no decisions-document escalation was needed for this focused coverage rerun."
+      },
+      "_hash": "6776c20744d409783892bf9a039ce76a6adf69057266875e1339ce56fff79a83"
     }
   ]
 }
