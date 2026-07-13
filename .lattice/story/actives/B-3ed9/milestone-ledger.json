@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-3ed9",
+  "state": "confirmed",
+  "ledgerHash": "sha256:4ec26b845cec9ee2253d172d783ffada523e836b386fd4dd697f4302e5ef41dc",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-001",
+      "claim": "grill.json, clusters.json, and scope-extension-decisions.json are registered in LATTICE_LIFECYCLE_ARTIFACT_FILENAMES and the stale singular cluster.json entry is removed",
+      "doneMeans": "rg over packages/main/src/core/lifecycle-registry.ts shows the three new entries present and no cluster.json entry; lattice validate lint passes",
+      "requiredEvidence": [
+        "integration_test",
+        "docs_check"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "REQ-001",
+      "claim": "scope-contract-smoke covers the three new filenames as lifecycle_artifact pass rows and the unregistered singular cluster.json as fail-closed out_of_scope",
+      "doneMeans": "Running the scope contract smoke prints: scope contract smoke passed — with the new per-row assertions in place",
+      "requiredEvidence": [
+        "integration_test"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-13T08:25:18.185Z",
+  "updatedAt": "2026-07-13T08:28:00.674Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-2",
+    "acceptedInterpretationHash": "sha256:59eac8725bbe45ab85145bf3597e31595e4ec214e631f99c25ec98e41328ce22",
+    "acceptedAt": "2026-07-13T08:28:00.674Z"
+  }
+}

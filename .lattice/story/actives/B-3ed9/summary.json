@@ -1,0 +1,56 @@
+{
+  "storyId": "B-3ed9",
+  "changes": "packages/main/src/core/lifecycle-registry.ts: LATTICE_LIFECYCLE_ARTIFACT_FILENAMES now includes grill.json, clusters.json, and scope-extension-decisions.json (command-family story metadata written by store.ts) and no longer lists the stale singular cluster.json, which no command ever wrote. packages/main/src/tasks/scope-contract-smoke.ts: new B-3ed9 block asserts per-row scope.lifecycle_artifact pass for the three filenames under an enforce contract and fail-closed rule=out_of_scope for the now-unregistered singular cluster.json.",
+  "usage": "No new command. Effect is automatic: under a mode=enforce scope contract, story dirs containing grill.json / clusters.json / scope-extension-decisions.json now classify as lifecycle artifacts instead of blocking phase advancement. Regression coverage: node packages/main/dist/tasks/scope-contract-smoke.js",
+  "expectedOutcome": "Running node packages/main/dist/tasks/scope-contract-smoke.js prints: scope contract smoke passed — including the new per-row assertions; removing any of the three names from the registry makes the smoke fail naming that exact artifact.",
+  "actualTranscript": "node packages/main/dist/tasks/scope-contract-smoke.js -> scope contract smoke passed. Bite test: sed-removed grill.json from dist registry -> AssertionError: B-3ed9 command-family lifecycle row grill.json: expected scope row not found (row classified out_of_scope) -> byte-restored (cmp-verified) -> re-run green.",
+  "outcomeDiff": "No difference — expected and actual match exactly.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none — fully covered",
+  "pitfalls": "The three filenames belong to different command families than the B-12a1 ProofStory block, so they were deliberately left out of that story — do not assume one registry sweep covered all store.ts writers; grep writeJson call sites when auditing. The singular cluster.json entry looked plausible but had zero writers; verify with rg before trusting registry entries. Bite tests on the shared dist must be run solo and byte-restored (cmp) to avoid racing parallel reviewers.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 19972256
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 76254
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 232998
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 473811
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 377910
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 676588
+    }
+  },
+  "totalDurationMs": 21812943,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-13T08:54:09.052Z",
+  "updatedAt": "2026-07-13T08:54:09.052Z"
+}

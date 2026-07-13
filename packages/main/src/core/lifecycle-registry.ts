@@ -601,7 +601,6 @@ export const LATTICE_LIFECYCLE_ARTIFACT_FILENAMES: ReadonlySet<string> = new Set
   'owner-lease.json',
   'gap-log.json',
   'review-runs.json',
-  'cluster.json',
   'context.json',
   'reviewer-list.json',
   'story-capsule.json',
@@ -621,6 +620,11 @@ export const LATTICE_LIFECYCLE_ARTIFACT_FILENAMES: ReadonlySet<string> = new Set
   'scope-shrinkage-decision.json',
   'red-evidence.json',
   'spike.json',
+  // Command-family story metadata written by store.ts (grill / finding
+  // clusters / scope-extension decisions); B-3ed9
+  'grill.json',
+  'clusters.json',
+  'scope-extension-decisions.json',
 ]);
 
 export const LATTICE_LIFECYCLE_ARTIFACT_RELATIVE_PATHS: ReadonlySet<string> = new Set([

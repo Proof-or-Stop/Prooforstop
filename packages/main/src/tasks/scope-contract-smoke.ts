@@ -288,6 +288,44 @@ try {
   }
   assert.equal(proofStoryPositive.status, 'pass', 'ProofStory intent artifacts should pass scope as lifecycle artifacts');
 
+  // B-3ed9: command-family story metadata written by store.ts (grill /
+  // finding clusters / scope-extension decisions) must classify
+  // lifecycle_artifact pass under an enforce contract that does not list
+  // story-metadata paths.
+  const commandFamilyArtifacts = [
+    'grill.json',
+    'clusters.json',
+    'scope-extension-decisions.json',
+  ];
+  const commandFamilyPositive = checkScopeContract(
+    waveContract,
+    commandFamilyArtifacts.map(name => `.lattice/story/actives/B-scope/${name}`),
+  );
+  for (const name of commandFamilyArtifacts) {
+    assertScopeRow(commandFamilyPositive, `B-3ed9 command-family lifecycle row ${name}`, {
+      id: `scope.lifecycle_artifact:B-scope:${name}`,
+      source: `.lattice/story/actives/B-scope/${name}`,
+      status: 'pass',
+      blocking: false,
+      action: /provenance|artifact|not.*gate/i,
+    });
+  }
+  assert.equal(commandFamilyPositive.status, 'pass', 'command-family story metadata should pass scope as lifecycle artifacts');
+
+  // B-3ed9: the singular cluster.json registry entry was stale — no command
+  // ever wrote that filename. Now unregistered, it fails closed.
+  const staleClusterNegative = checkScopeContract(waveContract, [
+    '.lattice/story/actives/B-scope/cluster.json',
+  ]);
+  assert.equal(staleClusterNegative.status, 'fail', 'unregistered singular cluster.json must fail closed as out_of_scope');
+  assertScopeRow(staleClusterNegative, 'B-3ed9 stale cluster.json fail-closed row', {
+    id: 'scope.out_of_scope:.lattice/story/actives/B-scope/cluster.json',
+    source: '.lattice/story/actives/B-scope/cluster.json',
+    status: 'fail',
+    blocking: true,
+    action: /scope_contract_acknowledge|Declare the path/i,
+  });
+
   const failClosedNegative = checkScopeContract(waveContract, [
     '.lattice/story/actives/B-scope/evidence/notes.md',
     '.lattice/story/actives/B-scope/unknown-metadata.json',
