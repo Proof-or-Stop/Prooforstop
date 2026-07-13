@@ -165,7 +165,42 @@
       "context": "Synthetic story.events with 89 advances / 131:31 pass / 65 takeovers -> assert the breaker trips on each reason, auto-recovers exactly once, freezes on re-trip, blocks mutating commands, and the human-ack path clears it; and a healthy 8-advance converging story never trips. Wire into the package.json test script like the other *-smoke suites.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "npm run test:convergence-breaker prints \"PASS convergence-breaker: B-f458 signature trips + freezes on re-trip + ack clears + healthy control never trips\" and exits 0.",
+      "files": {
+        "modify": [
+          "package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Replaying the B-f458 signature (89 advances / 131:31 pass / 65 takeovers) trips the breaker on each reason and freezes on re-trip",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A healthy 8-advance converging control story never trips the breaker",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The autopilot self-ack refusal and the gitignored-state assertion both hold in the smoke",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
