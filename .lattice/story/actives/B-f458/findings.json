@@ -1721,6 +1721,33 @@
       "resolvedAt": "2026-07-13T16:32:50.314Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-f458:F-070",
+      "desc": "Known-key destructuring from plain any/unknown still fails open outside the new rest wrapper. selectMember calls indexProvenance only when key is undefined; for a known key it checks base.index and direct TS index types, but TypeScript reports no string/number index type for plain any, then returns empty provenance. Thus valid code such as `declare const source: any; const { eval: run } = source; run(\"import(… )\")` and `declare const source: any; const [run] = source; run(\"import(… )\")` remains unclassified. The new any/unknown controls all introduce rest, which manufactures a base.index/unknownMemberAccess fallback and masks this direct selection gap. Use `base.index ?? indexProvenance(base)` as the final known-key fallback and add declaration/assignment/parameter controls for direct object/array known-key any sources plus safe typed negatives.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-13T16:34:16.673Z",
+      "reviewRound": "2026-07-13T16:32:19.000Z",
+      "reviewRunId": "B-f458:RR-090",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Reviewed the complete change diff and focused spread/index/rest/control sections; unrelated unchanged portions were name-triaged."
+      },
+      "_hash": "d8f6fa1cf89e52d31c295d5b9450dea83758fa5233d1f5a98847e69f5b50c4e6",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "known-key-any-provenance",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
