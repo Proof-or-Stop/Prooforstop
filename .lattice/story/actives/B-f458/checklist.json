@@ -180,7 +180,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-07-13T11:00:40.505Z",
+      "endTime": "2026-07-13T11:10:51.947Z",
       "userSees": "User sees `PASS trusted closeout artifacts: schema and embedded hashes verified`; a malformed ledger/plan/rollup/delivery-context artifact or forged embedded hash is rejected with a named artifact error.",
       "verificationIntent": {
         "happy": [
@@ -225,33 +225,33 @@
           "kind": "logic_test",
           "command": "npm test",
           "result": "pass",
-          "note": "Full suite passed after shared REVIEW/DONE reviewer verdict enforcement at commit 1baeb54a9d.",
-          "headHash": "e11a57b26f1b1fffdc8be5360f0da7771f7d40b1",
-          "materialHash": "ad073efd4fec3685844c9e84a54c397c7e7e61af70cd816e6dc1b3641f850116",
-          "storyFilesHash": "97b41175b50ecf541e1aa9b58bb531cfdcf96141ba381420e6792f93f469b126",
-          "timestamp": "2026-07-13T11:00:40.705Z"
+          "note": "Full suite passed after currentReviewRound fail-closed lifecycle enforcement at commit 709f4e5e00.",
+          "headHash": "501fc3747d3f45040e584d7d9a1647f08ed03a46",
+          "materialHash": "075bc5ed48d985faf25af6a6dd50b3440c40c67c0c8585d94785d5009d275fc6",
+          "storyFilesHash": "9f7af86507ff8c225518570e69493b758d5ea5be8341a73c9e896b37dd6a61ac",
+          "timestamp": "2026-07-13T11:10:52.102Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
           "kind": "logic_test",
           "command": "npm test",
           "result": "pass",
-          "note": "Full suite covers stale/missing lane and wrapper-root compatibility after shared verdict enforcement.",
-          "headHash": "e11a57b26f1b1fffdc8be5360f0da7771f7d40b1",
-          "materialHash": "ad073efd4fec3685844c9e84a54c397c7e7e61af70cd816e6dc1b3641f850116",
-          "storyFilesHash": "97b41175b50ecf541e1aa9b58bb531cfdcf96141ba381420e6792f93f469b126",
-          "timestamp": "2026-07-13T11:00:40.956Z"
+          "note": "Full suite covers missing round, missing reviewRunId, unknown run, and wrapper-root signed validation.",
+          "headHash": "501fc3747d3f45040e584d7d9a1647f08ed03a46",
+          "materialHash": "075bc5ed48d985faf25af6a6dd50b3440c40c67c0c8585d94785d5009d275fc6",
+          "storyFilesHash": "9f7af86507ff8c225518570e69493b758d5ea5be8341a73c9e896b37dd6a61ac",
+          "timestamp": "2026-07-13T11:10:52.246Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "logic_test",
           "command": "npm test",
           "result": "pass",
-          "note": "Full suite covers manual TEST phase bypass attempts with no reviewer, missing lane, and open verified high finding.",
-          "headHash": "e11a57b26f1b1fffdc8be5360f0da7771f7d40b1",
-          "materialHash": "ad073efd4fec3685844c9e84a54c397c7e7e61af70cd816e6dc1b3641f850116",
-          "storyFilesHash": "97b41175b50ecf541e1aa9b58bb531cfdcf96141ba381420e6792f93f469b126",
-          "timestamp": "2026-07-13T11:00:41.121Z"
+          "note": "Real FINISH attacks prove unsigned or tampered pass-shaped records cannot exploit missing-round legacy compatibility.",
+          "headHash": "501fc3747d3f45040e584d7d9a1647f08ed03a46",
+          "materialHash": "075bc5ed48d985faf25af6a6dd50b3440c40c67c0c8585d94785d5009d275fc6",
+          "storyFilesHash": "9f7af86507ff8c225518570e69493b758d5ea5be8341a73c9e896b37dd6a61ac",
+          "timestamp": "2026-07-13T11:10:52.383Z"
         }
       ]
     },
