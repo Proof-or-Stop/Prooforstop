@@ -1845,6 +1845,33 @@
       "resolvedAt": "2026-07-13T17:00:10.634Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-f458:F-074",
+      "desc": "isTypeofFunctionNarrowed creates a direct dynamic-code bypass. A `typeof x === \"function\"` guard proves only callability, not safety, yet dynamicReferenceKind now returns undefined before any symbol/provenance classification whenever the call is inside that branch. `if (typeof eval === \"function\") eval(\"import(… )\")`, the equivalent globalThis.eval form, and guarded vm/Function aliases therefore evade the guard. Text-based getText matching further provides no declaration-identity protection, but the semantic exemption is invalid even with exact symbols. Remove this early safe return; narrowing should refine unknown-callability diagnostics only and must never suppress known dangerous kinds. Add positive controls for guarded direct/aliased eval, Function, vm, and constructor plus local safe narrowed negatives.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-13T17:02:09.697Z",
+      "reviewRound": "2026-07-13T16:57:55.492Z",
+      "reviewRunId": "B-f458:RR-093",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Reviewed the complete implementation diff and focused provenance, spread, narrowing, controls, and process-contract sections; unrelated unchanged portions were name-triaged."
+      },
+      "_hash": "625c50b11abf3eaa00e65bd6eaef55c229047af40c5dacbf8100e4f413bec959",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "typeof-function-dangerous-exemption",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
