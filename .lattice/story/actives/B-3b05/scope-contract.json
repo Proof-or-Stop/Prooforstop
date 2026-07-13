@@ -1,0 +1,30 @@
+{
+  "storyId": "B-3b05",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/proofstory.ts",
+    "packages/main/src/handlers/finding.ts",
+    "packages/main/src/core/review-run.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/owner-session.ts",
+    "packages/main/src/core/story-owner-lease.ts",
+    "packages/main/src/core/flow-fact-policy.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/handlers/milestone-status.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/review-pass-provenance.ts",
+    "packages/main/tests/**"
+  ],
+  "allowedTest": [
+    "packages/main/tests/**",
+    "packages/main/src/tasks/**"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Two gate-behavior fixes: milestone coverage hint (proofstory.ts + surfacing paths) and review-pass writer-session provenance (finding.ts handler, types/signing in review-run.ts, session identity from owner-session/story-owner-lease, possible new provenance module + smoke tasks, contract script sync).",
+  "acknowledgements": [],
+  "createdAt": "2026-07-13T23:27:44.145Z",
+  "updatedAt": "2026-07-13T23:27:44.145Z"
+}

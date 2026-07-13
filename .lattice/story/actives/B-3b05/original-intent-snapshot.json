@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-3b05",
+  "sourceText": "User audit 2026-07-14, two gate defects to fix in one story. (3) Ledger-checklist desync has no hint: with checklist all done and milestones all planned, the gate only reports a coverage gap without saying to update milestone_ledger — the fix is for the gate error to print the milestone_ledger_set repair command directly (a one-line hint). Incident: 5/5 vs 0/5 mismatch persisted 14 hours (B-f458, forensics at tmp/bf458-forensics-2026-07-14/). (4) Gates do not verify evidence provenance (old ailment, B-8038 root cause, unfixed): the owner stamping a pass with a reviewer label is accepted — B-3928 shows self-signed rounds at 19-56 seconds per entry. Fix: review_pass_set validates writer session != owner session (readManifest was step one; provenance validation is step two).",
+  "normalizedOutcome": "Milestone coverage gap output includes the exact milestone_ledger_set remediation command (with explicit desync framing when checklist coverage exists but ledger rows lag), and review_pass_set persists writerSessionId/sessionSource in the signed pass record while validating the writer session against the story owner lease session — same-session writes visibly warn-flagged by default and rejected in opt-in enforce mode",
+  "acceptanceClaim": "A desync scenario prints the milestone_ledger_set hint in the gate output, and an owner-lease-session review_pass_set call visibly warn-flags (default) or rejects (enforce) instead of silently succeeding, with writer session identity durably signed into new pass records and legacy records still verifying",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:b72e2a0813f8c133664318e561d20a52a6fe40d051b3f9252bf953c4047c91c1",
+  "createdAt": "2026-07-13T23:27:20.841Z",
+  "updatedAt": "2026-07-13T23:27:20.841Z"
+}
