@@ -38,7 +38,36 @@
       "context": "review_pass_set (packages/main/src/handlers/finding.ts:343-420) accepts caller-supplied agent labels with zero writer-identity validation (B-8038 root cause per user audit; B-3928 ('M0 Proof-or-Stop prompt baseline inventory and lockfile', DONE) shows owner self-signing two rounds at 19-56s/entry; B-f458 snapshot shows inter-pass gaps of 1-12s amid 131 run_start vs ~31 pass_set churn and 65 lease takeovers). Layer on provenance: persist the writing session id (story-owner-lease session identity source) into each review pass record and its signature domain, and reject or warn-flag passes whose writer session equals the story owner lease session. PLAN decides mechanism + rollout mode (shadow/warn/enforce) within documented limits: lease sessionId is process-local coordination, not forgery-proof (story-owner-lease.ts header), and EXP-001 (B-e71f) proved main-vs-subagent mechanical indistinguishability in Bash. Consider finding_add and review_run_start for the same treatment or record-only audit fields; gate consumption changes must keep the two-layer flow-fact contract (npm run test:process-fact-contract).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "A review pass written from the story owner lease session prints and persists a visible flag, e.g.: ⚠ provenance: writer session sess-xxxx equals story owner lease session (same_session_write: subagent-or-self, not mechanically distinguishable; EXP-001). In opt-in enforce mode the same call is rejected with a provenance error naming both session ids. Every new pass record carries writerSessionId + sessionSource in its signed payload",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "review_pass_set from a non-owner session records writerSessionId/sessionSource, verifies signature, no flag; from the owner-lease session in warn mode it persists with same_session_write flag and stderr warning",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Real-machine transcript: owner-session self-sign attempt in this repo shows the visible warn flag in actual CLI output",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Legacy pass records without writerSessionId still verify (versioned signature domain); default mode resolves to warn when config absent/invalid",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Enforce mode rejects an owner-session pass with a provenance error; tampering writerSessionId on a persisted record breaks its signature; explicit-env spoof is recorded with sessionSource=explicit-env making it audit-distinguishable",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
