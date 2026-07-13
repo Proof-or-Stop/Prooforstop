@@ -1975,7 +1975,7 @@
       "desc": "The F-076 repair still fails open for ordinary require call forms other than a direct global `require(\"literal\")`. provenanceForExpression applies its unknown/callable result handling only when the callee is exactly the global identifier `require` and the sole argument is a StringLiteral (lines 1799-1813). Thus `const rq = require; const run = rq('./dynamic-code-eval-bridge.cjs'); run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\")`, `module.require(...)`, `require(specifier)` with a const string, and `createRequire(import.meta.url)(...)` all return checker `any` without unknownMemberAccess/kind; provenanceKind does not classify bare Any/Unknown by type, so the alias is never added to dangerousSymbols and its dynamic payload call is missed. The separate legacy compatibility import matrix already recognizes these loader forms (lines 3213-3221), confirming they are supported syntax, but the dynamic-code controls cover only direct literal require (lines 2921-2923). Normalize/track NodeRequire aliases and module.require/createRequire call results, resolve static specifiers where possible, and otherwise fail closed for any/unknown callable results; add direct/member/destructured positives plus exact safe negatives for each loader form.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-13T17:24:37.812Z",
@@ -1995,7 +1995,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "require-call-form-provenance-bypass",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 439ba331bf: shared ModuleLoadSource classification propagates require through aliases and parameters and covers module.require, variable specifiers and createRequire while retaining conservative local/unknown result provenance.",
+      "resolvedAt": "2026-07-13T17:38:27.302Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-079",
