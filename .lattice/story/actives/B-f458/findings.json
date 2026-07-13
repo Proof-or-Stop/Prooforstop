@@ -1851,7 +1851,7 @@
       "desc": "isTypeofFunctionNarrowed creates a direct dynamic-code bypass. A `typeof x === \"function\"` guard proves only callability, not safety, yet dynamicReferenceKind now returns undefined before any symbol/provenance classification whenever the call is inside that branch. `if (typeof eval === \"function\") eval(\"import(… )\")`, the equivalent globalThis.eval form, and guarded vm/Function aliases therefore evade the guard. Text-based getText matching further provides no declaration-identity protection, but the semantic exemption is invalid even with exact symbols. Remove this early safe return; narrowing should refine unknown-callability diagnostics only and must never suppress known dangerous kinds. Add positive controls for guarded direct/aliased eval, Function, vm, and constructor plus local safe narrowed negatives.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-13T17:02:09.697Z",
@@ -1871,7 +1871,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "typeof-function-dangerous-exemption",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 6df708853d: typeof-function narrowing no longer short-circuits provenance; guarded global eval, Function and vm aliases remain blocked while exact local callbacks stay safe.",
+      "resolvedAt": "2026-07-13T17:19:51.309Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-075",
