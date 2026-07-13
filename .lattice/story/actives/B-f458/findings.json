@@ -2964,6 +2964,24 @@
       ],
       "signatureTag": "adversarial|ts|call-apply-bind",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f458:F-114",
+      "desc": "Local callsite argument propagation does not expand SpreadElement arguments. For `function execute(run: (code: string) => unknown) { run(\"1+1\"); } execute(...[eval]);`, direct is built by mapping each syntactic argument, so parameter 0 receives provenance for the SpreadElement expression itself rather than the array slot containing eval. The same gap affects spread arguments to call/bind and rest/default combinations. Call arguments must be flattened conservatively (including unknown spreads) before suppliedAt/restAt mapping.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-13T21:44:24.163Z",
+      "reviewRound": "2026-07-13T21:34:17.039Z",
+      "reviewRunId": "B-f458:RR-121",
+      "_hash": "b30ec86dc9e1a2bc3449b2d020125daa55591b9436b655ad60029069d9bd6d3c",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|local-callsite-argument",
+      "signatureTagSource": "auto"
     }
   ]
 }
