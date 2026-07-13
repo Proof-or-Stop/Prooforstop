@@ -2607,6 +2607,24 @@
       ],
       "signatureTag": "raw-prefilter-escaped-token-bypass",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-f458:F-099",
+      "desc": "Conditional alias merging misses short-circuit control flow. `conditionallyExecuted` recognizes if/ternary/loops/switch/try but not logical `&&`, `||`, or `??` ancestors. Therefore `let barrel = dangerous; flag && (barrel = safe); barrel.bridge.evalRun(payload)` records the safe reassignment as deterministic and overwrites provenanceBySymbol, even though the dangerous initial namespace remains reachable when flag is false. For deep namespace chains the later boundExpressionProvenance follows the overwritten safe graph and can miss the retired-authority dynamic bridge. Logical short-circuit assignments must merge alternatives like the already-covered if branches.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-13T19:00:35.989Z",
+      "reviewRound": "2026-07-13T18:55:49.140Z",
+      "reviewRunId": "B-f458:RR-108",
+      "_hash": "72aa692fda47445aeaf61ac10ba0b27187f77342932b7cab9e7a77e77700f8e2",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|conditional-alias-merging",
+      "signatureTagSource": "auto"
     }
   ]
 }
