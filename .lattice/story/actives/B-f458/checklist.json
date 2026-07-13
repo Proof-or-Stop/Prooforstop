@@ -47,7 +47,30 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "User sees `PASS composite scope digest: semantic scope facts bound`; changing acknowledgement content/provenance, milestone ledger, or slice plan changes the digest and blocks metadata-only review retention until signed re-attestation."
+      "userSees": "User sees `PASS composite scope digest: semantic scope facts bound`; changing acknowledgement content/provenance, milestone ledger, or slice plan changes the digest and blocks metadata-only review retention until signed re-attestation.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-002:happy:0",
+            "desc": "The composite scope-defining digest deterministically binds the normalized scope acknowledgement content, its canonical writer provenance, the milestone ledger, and the slice plan, and identical semantic inputs reproduce the same digest.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-002:edge:0",
+            "desc": "Changing any one bound input—acknowledgement content, acknowledgement provenance, milestone ledger, or slice plan—changes the composite digest and blocks metadata-only review retention pending fresh signed re-attestation.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-002:adversarial:0",
+            "desc": "Reordering keys, rewriting only an embedded claimed digest, replaying an old acknowledgement with different provenance, or substituting an unbound ledger/plan cannot preserve or spoof the composite digest.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
