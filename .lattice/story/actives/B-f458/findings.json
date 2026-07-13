@@ -2930,7 +2930,7 @@
       "desc": "Local callsite propagation explicitly skips every rest parameter (`if (!argument || parameter.dotDotDotToken) return`), leaving a dynamic callable passed through rest unbound. Repro: `function execute(...runs: [(value: string) => unknown]) { runs[0](\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); } execute(eval);`. The outer call resolves to the exact local function, but bindLocalCallArguments refuses to map `eval` into `runs`; the parameter declaration has no initializer provenance, and the inner `runs[0]` therefore has no dangerous/index provenance for dynamicExecutionKind. The exact-safe shortcut suppresses the outer local call, so the eval execution is missed despite the raw prefilter reaching full analysis. This is distinct from F-111's call/apply/bind invocation-shape gap: direct invocation is used here, but rest argument packing is omitted. Model rest arguments as an array/tuple provenance (including all remaining arguments, with dangerous alternatives dominating), and add dangerous/safe rest controls plus multiple-rest-argument merging. Fresh build/guard pass: builds=678 cacheHits=2 fullAnalysis=1115 astCandidates=451 reachability=17, real 41.95s.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-13T20:24:53.478Z",
@@ -2941,7 +2941,11 @@
         "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
       ],
       "signatureTag": "rest-parameter-callsite-provenance-gap",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 94db95a404: Rest parameters are packed as tuple/array provenance and flow through index, destructure and rest with optional/default controls.",
+      "resolvedAt": "2026-07-13T21:34:50.531Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
