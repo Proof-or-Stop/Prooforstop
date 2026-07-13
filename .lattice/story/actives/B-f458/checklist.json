@@ -1,0 +1,64 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Define the closed scope-defining and closeout-evidence artifact classifications",
+      "context": "Register trusted lifecycle paths and canonical writer provenance while preserving existing scope-contract classification. Explicitly exclude the milestone-closeout-only registration owned by B-9188 unless it has merged.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md#M4---CLI-Mediated-Story-Artifact-Discipline",
+        "docs/requirements/decisions/lifecycle-artifact-scope.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add a composite scope-defining digest and re-attestation boundary",
+      "context": "Digest semantically relevant scope acknowledgements/provenance, milestone ledger, and slice plan so metadata-only closeout cannot reuse review evidence from storyFilesHash alone.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md#M4---CLI-Mediated-Story-Artifact-Discipline",
+        "docs/requirements/decisions/story-files-hash-material-drift.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Validate trusted persisted artifact schemas and embedded hashes",
+      "context": "Before using milestone ledger, plan, parent rollup, or delivery context as a trust boundary, schema-validate and recompute ledgerHash, planHash, rollupHash, and delivery-context structure.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md#M4---CLI-Mediated-Story-Artifact-Discipline",
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Keep canonical TEST closeout writes from creating synthetic scope expansion",
+      "context": "A canonical parent_ledger_rollup_set with unchanged product/material diff and composite scope digest must remain in TEST; source/test/docs or semantic scope changes must still force DEV/REVIEW.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md#M4---CLI-Mediated-Story-Artifact-Discipline",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Add fail-closed regression coverage for metadata-only review retention",
+      "context": "Cover unknown paths, changed product files, changed scope facts, missing provenance/hash/schema, and new review-round pass reuse; retain command-policy rejection of scope_contract_acknowledge in TEST.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md#Cross-Cutting-Validation-Matrix",
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
