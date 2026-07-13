@@ -8,7 +8,7 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, realpathSync, statSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
@@ -65,6 +65,13 @@ const activeTextDirs = [
   'packages/main/src',
   'packages/main/templates/agents',
 ] as const;
+
+const EXECUTABLE_SOURCE_EXTENSIONS = ['.ts', '.tsx', '.mts', '.cts', '.js', '.jsx', '.mjs', '.cjs'] as const;
+const ACTIVE_SCAN_EXTENSIONS = ['.md', '.json', ...EXECUTABLE_SOURCE_EXTENSIONS] as const;
+
+function isExecutableSourceFile(file: string): boolean {
+  return EXECUTABLE_SOURCE_EXTENSIONS.some(extension => file.endsWith(extension));
+}
 
 const retiredFutureBacklogPlanFiles = [
   'docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md',
@@ -161,26 +168,33 @@ const approvedLegacyDeliveryCompatUsages = new Map<string, {
   symbols: readonly string[];
   calls: Readonly<Record<string, readonly ApprovedCompatibilityCallShape[]>>;
   occurrences: Readonly<Record<string, number>>;
-  sourceFingerprint: string;
 }>([
   ['packages/main/src/core/closeout-trust.ts', {
     symbols: ['isExactLegacyLocalOnlyDeliveryClaims', 'LegacyLocalOnlyDeliveryClaims'],
     calls: { isExactLegacyLocalOnlyDeliveryClaims: ['persisted-delivery-validator'] },
     occurrences: { isExactLegacyLocalOnlyDeliveryClaims: 2, LegacyLocalOnlyDeliveryClaims: 2 },
-    sourceFingerprint: 'ccd079414da1e7aabbbc9afcd96a25ef37ae72d50d6817c340b37f152f711b06',
   }],
   ['packages/main/src/handlers/delivery-context-pack.ts', {
     symbols: ['createLegacyLocalOnlyDeliveryClaims', 'LegacyLocalOnlyDeliveryClaims'],
     calls: { createLegacyLocalOnlyDeliveryClaims: ['persistable-delivery-claims', 'delivery-context-report-claims'] },
     occurrences: { createLegacyLocalOnlyDeliveryClaims: 3, LegacyLocalOnlyDeliveryClaims: 3 },
-    sourceFingerprint: '2b3dfbe3073c3a8e2fa7e1c8bf93c84ec34ad63b56ed8cb59edce1aa563719d3',
   }],
   ['packages/main/src/tasks/closeout-trust-smoke.ts', {
     symbols: ['createLegacyLocalOnlyDeliveryClaims'],
     calls: { createLegacyLocalOnlyDeliveryClaims: ['closeout-smoke-delivery-claims'] },
     occurrences: { createLegacyLocalOnlyDeliveryClaims: 2 },
-    sourceFingerprint: 'd252c161562e00797371438a52f16c889e10a0551673e24b62162978b7447c3e',
   }],
+]);
+
+const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
+  [LEGACY_DELIVERY_COMPAT_MODULE, 'b2c006a5becbd456a5728bb7615cf999cb514137383bc935b128073240899d98'],
+  ['packages/main/src/core/closeout-trust.ts', 'ccd079414da1e7aabbbc9afcd96a25ef37ae72d50d6817c340b37f152f711b06'],
+  ['packages/main/src/handlers/delivery-context-pack.ts', '2b3dfbe3073c3a8e2fa7e1c8bf93c84ec34ad63b56ed8cb59edce1aa563719d3'],
+  ['packages/main/src/tasks/closeout-trust-smoke.ts', 'd252c161562e00797371438a52f16c889e10a0551673e24b62162978b7447c3e'],
+  ['packages/main/src/cli-engine.ts', '878828adf7881dc809bfca0e6e4daa506053fb6565aa1ec69c99626fef64f16a'],
+  ['packages/main/src/verifier/serve.ts', '20149fa438b1ec78fc9c9713eb3cc4a890bc58a1d82e7a5fa0d588e9c4e7ee91'],
+  ['packages/main/src/tasks/parent-roadmap-totality-smoke.ts', '518890b58fd8e369488721d66d954f9589a049a42066635f42c057227788ae45'],
+  ['packages/main/src/tasks/experience-layer-digest-extract-smoke.ts', 'f215f9c4e894a84ba7e2e844324902fcd2dec1e208e4259d64e2c447f1c85a83'],
 ]);
 
 const structuralLegacyFieldQuarantineFiles = new Set([
@@ -274,9 +288,12 @@ function readRel(path: string): string {
   return readFileSync(join(repoRoot, path), 'utf8');
 }
 
-function listFiles(dir: string, extensions: readonly string[]): string[] {
+function listFiles(dir: string, extensions: readonly string[], visitedDirectories = new Set<string>()): string[] {
   const abs = join(repoRoot, dir);
   if (!existsSync(abs)) return [];
+  const realDir = realpathSync(abs);
+  if (visitedDirectories.has(realDir)) return [];
+  visitedDirectories.add(realDir);
   const found: string[] = [];
   for (const entry of readdirSync(abs)) {
     const full = join(abs, entry);
@@ -284,7 +301,7 @@ function listFiles(dir: string, extensions: readonly string[]): string[] {
     if (rel.split('/').includes('.omx')) continue;
     const stat = statSync(full);
     if (stat.isDirectory()) {
-      found.push(...listFiles(rel, extensions));
+      found.push(...listFiles(rel, extensions, visitedDirectories));
     } else if (extensions.some(ext => entry.endsWith(ext))) {
       found.push(rel);
     }
@@ -323,7 +340,13 @@ const typeCheckerCache = new Map<string, { text: string; checker: ts.TypeChecker
 function parseSource(file: string, text: string): ts.SourceFile {
   const cached = parsedSourceCache.get(file);
   if (cached?.text === text) return cached.source;
-  const scriptKind = /\.[cm]?js$/.test(file) ? ts.ScriptKind.JS : ts.ScriptKind.TS;
+  const scriptKind = file.endsWith('.tsx')
+    ? ts.ScriptKind.TSX
+    : file.endsWith('.jsx')
+      ? ts.ScriptKind.JSX
+      : /\.(?:js|mjs|cjs)$/.test(file)
+        ? ts.ScriptKind.JS
+        : ts.ScriptKind.TS;
   const source = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true, scriptKind);
   parsedSourceCache.set(file, { text, source });
   return source;
@@ -335,6 +358,18 @@ function canonicalAstFingerprint(file: string, text: string): string {
     newLine: ts.NewLineKind.LineFeed,
   }).printFile(parseSource(file, text));
   return createHash('sha256').update(canonical).digest('hex');
+}
+
+function validatePinnedExecutableSourceFingerprint(file: string, text: string): Violation[] {
+  const expected = PINNED_EXECUTABLE_SOURCE_FINGERPRINTS.get(file);
+  if (!expected) return [];
+  const actual = canonicalAstFingerprint(file, text);
+  return actual === expected ? [] : [{
+    file,
+    line: 1,
+    label: 'pinned executable source structural fingerprint drift',
+    text: `${CANONICAL_AST_FINGERPRINT_ALGORITHM}: expected ${expected}, got ${actual}; review executable structure before updating the pinned fingerprint`,
+  }];
 }
 
 function typeCheckerFor(file: string, text: string): ts.TypeChecker {
@@ -589,7 +624,10 @@ function extractImportSpecifiers(text: string, file = '<module-scan>.ts'): Modul
 }
 
 function normalizeModulePath(path: string): string {
-  return path.replace(/\.(?:cjs|mjs|js|ts)$/, '');
+  for (const extension of EXECUTABLE_SOURCE_EXTENSIONS) {
+    if (path.endsWith(extension)) return path.slice(0, -extension.length);
+  }
+  return path;
 }
 
 function retiredModuleMatch(file: string, specifier: string): string | undefined {
@@ -768,23 +806,18 @@ function disallowedCompatibilityValueReferences(
 }
 
 const knownBenignNonLiteralLoaderCalls = new Map<string, {
-  sourceFingerprint: string;
   calls: readonly { anchor: string; argument: string }[];
 }>([
   ['packages/main/src/cli-engine.ts', {
-    sourceFingerprint: '878828adf7881dc809bfca0e6e4daa506053fb6565aa1ec69c99626fef64f16a',
     calls: [{ anchor: 'runCli', argument: '`file://${initPath}`' }],
   }],
   ['packages/main/src/verifier/serve.ts', {
-    sourceFingerprint: '20149fa438b1ec78fc9c9713eb3cc4a890bc58a1d82e7a5fa0d588e9c4e7ee91',
     calls: [{ anchor: 'startCircuitServe', argument: '`file://${filePath}`' }],
   }],
   ['packages/main/src/tasks/parent-roadmap-totality-smoke.ts', {
-    sourceFingerprint: '518890b58fd8e369488721d66d954f9589a049a42066635f42c057227788ae45',
     calls: [{ anchor: 'loadRuntime', argument: 'modulePath' }],
   }],
   ['packages/main/src/tasks/experience-layer-digest-extract-smoke.ts', {
-    sourceFingerprint: 'f215f9c4e894a84ba7e2e844324902fcd2dec1e208e4259d64e2c447f1c85a83',
     calls: [{ anchor: 'run', argument: "join(MAIN_DIR, 'dist', 'handlers', 'decision-doc-promotion.js')" }],
   }],
 ]);
@@ -800,7 +833,7 @@ function enclosingFunctionName(node: ts.Node): string | undefined {
 
 function isKnownBenignNonLiteralLoaderCall(file: string, call: ts.CallExpression, source: ts.SourceFile): boolean {
   const approved = knownBenignNonLiteralLoaderCalls.get(file);
-  if (!approved || canonicalAstFingerprint(file, source.text) !== approved.sourceFingerprint) return false;
+  if (!approved || canonicalAstFingerprint(file, source.text) !== PINNED_EXECUTABLE_SOURCE_FINGERPRINTS.get(file)) return false;
   const anchor = enclosingFunctionName(call);
   const argument = call.arguments[0]?.getText(source);
   return Boolean(anchor && argument && approved.calls.some(entry => (
@@ -852,28 +885,18 @@ function importedCompatSymbols(file: string, source: ts.SourceFile): string[] {
 }
 
 function scanLegacyDeliveryCompatibilityUsage(file: string, text: string): Violation[] {
-  if (file === LEGACY_DELIVERY_COMPAT_MODULE) return [];
+  const fingerprintViolations = validatePinnedExecutableSourceFingerprint(file, text);
+  if (file === LEGACY_DELIVERY_COMPAT_MODULE) return fingerprintViolations;
   const source = parseSource(file, text);
   const checker = typeCheckerFor(file, text);
   const concealedLoadViolations = scanConcealedCompatibilityLoads(file, text);
   const compatImports = extractImportSpecifiers(text, file)
     .filter(({ specifier }) => moduleSpecifierResolvesTo(file, specifier, LEGACY_DELIVERY_COMPAT_MODULE));
   const approved = approvedLegacyDeliveryCompatUsages.get(file);
-  const violations: Violation[] = [...concealedLoadViolations];
-  if (approved) {
-    const actualSourceFingerprint = canonicalAstFingerprint(file, text);
-    if (actualSourceFingerprint !== approved.sourceFingerprint) {
-      violations.push({
-        file,
-        line: 1,
-        label: 'legacy delivery compatibility structural fingerprint drift',
-        text: `${CANONICAL_AST_FINGERPRINT_ALGORITHM}: expected ${approved.sourceFingerprint}, got ${actualSourceFingerprint}; review executable structure before updating the pinned fingerprint`,
-      });
-    }
-  }
+  const violations: Violation[] = [...fingerprintViolations, ...concealedLoadViolations];
   if (compatImports.length === 0) return violations;
   if (!approved) {
-    return [...concealedLoadViolations, ...compatImports.map(({ specifier, index }) => ({
+    return [...violations, ...compatImports.map(({ specifier, index }) => ({
       file,
       line: lineNumberAt(text, index),
       label: 'unapproved legacy delivery compatibility import',
@@ -932,7 +955,7 @@ function directlyExportsCompatibilityBinding(file: string, text: string): boolea
   // reference outside the exact canonical parent chains makes the module a
   // potential exporter; graph scanning then rejects every downstream import.
   // This intentionally avoids pretending to solve arbitrary JavaScript taint.
-  return canonicalAstFingerprint(file, text) !== approved.sourceFingerprint
+  return canonicalAstFingerprint(file, text) !== PINNED_EXECUTABLE_SOURCE_FINGERPRINTS.get(file)
     || disallowedCompatibilityValueReferences(source, approved, file, checker).length > 0;
 }
 
@@ -977,7 +1000,8 @@ function scanLegacyDeliveryCompatibilityGraph(fileTexts: ReadonlyMap<string, str
 }
 
 function shouldScanImports(file: string): boolean {
-  return /^packages\/main\/src\/.*\.(?:cjs|js|ts)$/.test(file)
+  return file.startsWith('packages/main/src/')
+    && isExecutableSourceFile(file)
     && !file.includes('/dist/')
     && !fileIsExplicitLegacyQuarantine(file);
 }
@@ -1077,6 +1101,52 @@ function assertLegacyDeliveryCompatibilityPositiveControls(): void {
   );
   const directTokenViolations = scanText('<positive-control>', 'const leaked = { authorityDone: false };');
   assert.ok(directTokenViolations.some(violation => violation.label === 'authorityDone'), 'direct retired-field positive control must remain caught');
+
+  const compatibilitySource = readRel(LEGACY_DELIVERY_COMPAT_MODULE);
+  assert.deepEqual(
+    scanLegacyDeliveryCompatibilityUsage(LEGACY_DELIVERY_COMPAT_MODULE, compatibilitySource),
+    [],
+    'the exact compatibility module must retain its pinned executable fingerprint',
+  );
+  for (const [mutatedSource, assertionMessage] of [
+    [compatibilitySource.replace('    authorityDone: false,', '    authorityDone: false,\n    ...{},'), 'compatibility constructor body mutation must invalidate its pinned executable fingerprint'],
+    [compatibilitySource.replace("  if (typeof value !== 'object'", "  if (false && typeof value !== 'object'"), 'compatibility validator body mutation must invalidate its pinned executable fingerprint'],
+    [`${compatibilitySource}\nexport const compatibilityEscape = true;\n`, 'compatibility export surface mutation must invalidate its pinned executable fingerprint'],
+    [compatibilitySource.replace('  authorityDone: false;', '  authorityDone: boolean;'), 'compatibility type surface mutation must invalidate its pinned executable fingerprint'],
+  ] as const) {
+    assert.ok(
+      scanLegacyDeliveryCompatibilityUsage(LEGACY_DELIVERY_COMPAT_MODULE, mutatedSource)
+        .some(violation => violation.label === 'pinned executable source structural fingerprint drift'),
+      assertionMessage,
+    );
+  }
+
+  assert.deepEqual(
+    EXECUTABLE_SOURCE_EXTENSIONS,
+    ['.ts', '.tsx', '.mts', '.cts', '.js', '.jsx', '.mjs', '.cjs'],
+    'executable source discovery must stay aligned with the supported compiler extensions',
+  );
+  for (const extension of EXECUTABLE_SOURCE_EXTENSIONS) {
+    const extensionControlFile = `packages/main/src/core/compatibility-bypass${extension}`;
+    const extensionControlSource = "import { createLegacyLocalOnlyDeliveryClaims } from './legacy-delivery-claims-compat.js';\nexport const leaked = createLegacyLocalOnlyDeliveryClaims();\n";
+    assert.equal(shouldScanImports(extensionControlFile), true, `${extension} executable sources must be import-scanned`);
+    assert.ok(
+      scanLegacyDeliveryCompatibilityUsage(extensionControlFile, extensionControlSource)
+        .some(violation => violation.label === 'unapproved legacy delivery compatibility import'),
+      `direct compatibility bypass in ${extension} must be caught`,
+    );
+    assert.ok(
+      scanImportSpecifiers(extensionControlFile, "import '../handlers/story-authority-resolve.js';")
+        .some(violation => violation.label === 'retired story resolver module'),
+      `retired import in ${extension} must be caught`,
+    );
+    const extensionReExportSource = "export { createLegacyLocalOnlyDeliveryClaims } from './legacy-delivery-claims-compat.js';\n";
+    assert.ok(
+      scanLegacyDeliveryCompatibilityGraph(new Map([[extensionControlFile, extensionReExportSource]]))
+        .some(violation => violation.label === 'direct legacy delivery compatibility re-export'),
+      `compatibility graph escape in ${extension} must be caught`,
+    );
+  }
 
   const approvedProducer = 'packages/main/src/handlers/delivery-context-pack.ts';
   assert.equal(
@@ -1198,6 +1268,16 @@ function assertLegacyDeliveryCompatibilityPositiveControls(): void {
       .some(violation => violation.label === 'unapproved non-literal dynamic module load'),
     'a nested same-name loader anchor cannot inherit the whole-source fingerprint exemption',
   );
+  const unrecognizedLoaderReplacement = knownBenignLoader.replace(
+    'await import(`file://${initPath}`);',
+    "await (0, eval)('import(\"./legacy-delivery-claims-compat.js\")');",
+  );
+  assert.notEqual(unrecognizedLoaderReplacement, knownBenignLoader, 'loader-removal control must replace the registered benign loader call');
+  assert.ok(
+    scanLegacyDeliveryCompatibilityUsage('packages/main/src/cli-engine.ts', unrecognizedLoaderReplacement)
+      .some(violation => violation.label === 'pinned executable source structural fingerprint drift'),
+    'replacing a benign loader call with unrecognized executable text must still fail the unconditional fingerprint check',
+  );
 
   const relocatedProducer = `${readRel(approvedProducer).replace(
     'claims: createLegacyLocalOnlyDeliveryClaims()',
@@ -1233,12 +1313,12 @@ function assertLegacyDeliveryCompatibilityPositiveControls(): void {
     '    leakBox.payload = report.claims;\n\n    // --write: persist the SAME structured pack',
   )}`;
   const postConstructionViolations = scanLegacyDeliveryCompatibilityUsage(approvedProducer, postConstructionContainerMutation);
-  assert.ok(postConstructionViolations.some(violation => violation.label === 'legacy delivery compatibility structural fingerprint drift'), 'post-call assignment of canonical report.claims into an exported container must invalidate the complete importer fingerprint');
+  assert.ok(postConstructionViolations.some(violation => violation.label === 'pinned executable source structural fingerprint drift'), 'post-call assignment of canonical report.claims into an exported container must invalidate the complete importer fingerprint');
   assert.equal(directlyExportsCompatibilityBinding(approvedProducer, postConstructionContainerMutation), true, 'post-call exported-container mutation must taint downstream module edges even when compatibility binding references remain canonical');
 
   const shadowedProducer = `${readRel(approvedProducer)}\nexport function harmlessShadow(createLegacyLocalOnlyDeliveryClaims: () => string) { return createLegacyLocalOnlyDeliveryClaims(); }\n`;
   const shadowedViolations = scanLegacyDeliveryCompatibilityUsage(approvedProducer, shadowedProducer);
-  assert.ok(shadowedViolations.some(violation => violation.label === 'legacy delivery compatibility structural fingerprint drift'), 'even a shadowed same-name executable addition requires intentional importer fingerprint review');
+  assert.ok(shadowedViolations.some(violation => violation.label === 'pinned executable source structural fingerprint drift'), 'even a shadowed same-name executable addition requires intentional importer fingerprint review');
   assert.ok(!shadowedViolations.some(violation => violation.label === 'legacy delivery compatibility alias/export escape'), 'shadowed same-name identifiers still must not count as references to the compatibility import binding');
   assert.equal(
     directlyExportsCompatibilityBinding(approvedProducer, shadowedProducer),
@@ -1369,7 +1449,7 @@ violations.push(...assertCommandCatalog());
 
 const activeFiles = [
   ...activeTextFiles,
-  ...activeTextDirs.flatMap(dir => listFiles(dir, ['.md', '.json', '.cjs', '.js', '.ts'])),
+  ...activeTextDirs.flatMap(dir => listFiles(dir, ACTIVE_SCAN_EXTENSIONS)),
 ].filter((file, index, all) => all.indexOf(file) === index);
 const activeFileTexts = new Map<string, string>();
 
@@ -1377,9 +1457,11 @@ for (const file of activeFiles) {
   if (!existsSync(join(repoRoot, file))) continue;
   const text = readRel(file);
   activeFileTexts.set(file, text);
+  // Pinned fingerprints are validated before compatibility-module early return
+  // and before loader, vocabulary, import, or quarantine-specific scanning.
+  violations.push(...scanLegacyDeliveryCompatibilityUsage(file, text));
   violations.push(...scanText(file, text));
   violations.push(...scanImportSpecifiers(file, text));
-  violations.push(...scanLegacyDeliveryCompatibilityUsage(file, text));
 }
 violations.push(...scanLegacyDeliveryCompatibilityGraph(activeFileTexts));
 
