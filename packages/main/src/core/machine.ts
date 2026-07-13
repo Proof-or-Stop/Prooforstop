@@ -46,6 +46,7 @@ import {
   renderProofStoryDiagnosticReport,
   type ProofStoryDiagnosticInput,
 } from './proofstory.js';
+import { readTrustedProofStoryScopeArtifacts } from './closeout-trust.js';
 
 /**
  * Resolve effective blocking severities with round decay.
@@ -131,13 +132,14 @@ function proofStoryDiagnosticInput(store: StoryStore, storyId: string): ProofSto
   } catch {
     checklist = { items: [] };
   }
+  const trusted = readTrustedProofStoryScopeArtifacts(store, storyId);
   return {
     story: store.readStory(storyId),
     checklist,
     originalIntentSnapshot: store.readOriginalIntentSnapshot(storyId),
-    milestoneLedger: store.readMilestoneLedger(storyId),
-    slicePlan: store.readProofStorySlicePlan(storyId),
-    parentLedgerRollup: store.readProofStoryParentLedgerRollup(storyId),
+    milestoneLedger: trusted.ledger,
+    slicePlan: trusted.slicePlan,
+    parentLedgerRollup: trusted.parentRollup,
     proofStoryContract: store.readProofStoryContract(storyId),
     intentCollision: store.readIntentCollision(storyId),
     scopeContract: store.readScopeContract(storyId),

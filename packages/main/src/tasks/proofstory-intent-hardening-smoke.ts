@@ -201,7 +201,7 @@ try {
   let gate = jsonRun(root, 'proofstory_gate_check', { storyId, mode: 'observe' });
   assert.equal(gate.hardeningLevel, 'high_assurance', 'high-risk regression selects high assurance');
   assert.ok(gate.missingMvpArtifacts.some((gap: any) => gap.code === 'missing_original_intent_snapshot'), 'missing snapshot is reported');
-  const planReview = JSON.parse(run(root, 'story_review', { storyId }));
+  const planReview = JSON.parse(run(root, 'story_review', { storyId, full: true }));
   assert.ok(
     planReview.issues.some((issue: any) => issue.type === 'proofstory_advisory' && /missing_original_intent_snapshot/.test(issue.message)),
     'story_review surfaces ProofStory advisory diagnostics before DEV',

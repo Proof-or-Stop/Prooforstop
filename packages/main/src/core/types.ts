@@ -1789,6 +1789,8 @@ export interface GuardSessionData {
 export interface ReviewScopeBinding {
   /** digestScopeContract(contract) at review_run_start time. */
   scopeContractHash?: string;
+  /** Composite digest over semantic scope acknowledgements and validated ProofStory intent artifacts. */
+  compositeScopeDigest?: string;
   /** Stable digest over the MATERIAL diff (story metadata excluded). */
   diffPackHash?: string;
   /** Material changed files the reviewer inspected (metadata excluded, sorted). */

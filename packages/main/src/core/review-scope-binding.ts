@@ -40,11 +40,14 @@ import type {
   ReviewScopeBinding,
   ScopeContractData,
   ScopeDiffPack,
+  MilestoneLedgerData,
+  ProofStorySlicePlanData,
 } from './types.js';
 import { digestScopeContract, guardSessionStateLabel, type GuardSessionStateLabel } from './guard-session.js';
 import { checkScopeContract } from './scope-contract.js';
 import { checkSemanticScope, isSemanticContract } from './semantic-scope-gate.js';
 import { isMaterialExcludedPath } from './evidence-freshness.js';
+import { computeCompositeScopeDigest } from './closeout-trust.js';
 
 export const REVIEW_SCOPE_BINDING_SALT = 'lattice-review-scope-binding-v1';
 
@@ -92,14 +95,20 @@ export function materialDiffPackDigest(diffPack: ScopeDiffPack, projectRoot?: st
 /** Sign a scope binding over its scope/diff/intent fields (excludes bindingHash itself). */
 export function signReviewScopeBinding(binding: {
   scopeContractHash?: string;
+  compositeScopeDigest?: string;
   diffPackHash?: string;
   reviewedChangedFiles: readonly string[];
   reviewedIntentRefs: readonly string[];
   reviewedHunkDigests: readonly string[];
 }): string {
+  const compositeScopeDigest = binding.compositeScopeDigest?.trim();
   return createHash('sha256')
     .update(JSON.stringify({
       scopeContractHash: binding.scopeContractHash ?? '',
+      // Preserve the v1 signature payload for legacy bindings that predate the
+      // composite field. New bindings include the field and are independently
+      // compared against the live composite digest.
+      ...(compositeScopeDigest ? { compositeScopeDigest } : {}),
       diffPackHash: binding.diffPackHash ?? '',
       reviewedChangedFiles: uniqSorted(binding.reviewedChangedFiles),
       reviewedIntentRefs: uniqSorted(binding.reviewedIntentRefs),
@@ -121,13 +130,19 @@ export function computeReviewScopeBinding(args: {
   diffPack: ScopeDiffPack;
   reviewedIntentRefs?: readonly string[];
   projectRoot?: string;
+  ledger?: MilestoneLedgerData | null;
+  slicePlan?: ProofStorySlicePlanData | null;
 }): ReviewScopeBinding | null {
   if (!args.contract) return null;
   const scopeContractHash = digestScopeContract(args.contract);
   const { diffPackHash, reviewedChangedFiles, reviewedHunkDigests } = materialDiffPackDigest(args.diffPack, args.projectRoot);
   const reviewedIntentRefs = uniqSorted(args.reviewedIntentRefs ?? []);
+  const compositeScopeDigest = args.ledger
+    ? computeCompositeScopeDigest({ contract: args.contract, ledger: args.ledger, slicePlan: args.slicePlan })
+    : undefined;
   const bindingHash = signReviewScopeBinding({
     scopeContractHash,
+    compositeScopeDigest,
     diffPackHash,
     reviewedChangedFiles,
     reviewedIntentRefs,
@@ -135,6 +150,7 @@ export function computeReviewScopeBinding(args: {
   });
   return {
     scopeContractHash,
+    ...(compositeScopeDigest ? { compositeScopeDigest } : {}),
     diffPackHash,
     reviewedChangedFiles,
     reviewedIntentRefs,
@@ -152,6 +168,7 @@ export function verifyReviewScopeBinding(binding: ReviewScopeBinding | null | un
 /** The live scope context the REVIEW→TEST gate compares stored bindings against. */
 export interface CurrentScopeContext {
   scopeContractHash: string;
+  compositeScopeDigest?: string;
   diffPackHash: string;
   hunkDigests: string[];
 }
@@ -161,10 +178,13 @@ export function buildCurrentScopeContext(
   contract: ScopeContractData,
   diffPack: ScopeDiffPack,
   projectRoot?: string,
+  ledger?: MilestoneLedgerData | null,
+  slicePlan?: ProofStorySlicePlanData | null,
 ): CurrentScopeContext {
   const { diffPackHash, reviewedHunkDigests } = materialDiffPackDigest(diffPack, projectRoot);
   return {
     scopeContractHash: digestScopeContract(contract),
+    ...(ledger ? { compositeScopeDigest: computeCompositeScopeDigest({ contract, ledger, slicePlan }) } : {}),
     diffPackHash,
     hunkDigests: reviewedHunkDigests,
   };
@@ -174,6 +194,7 @@ export type ScopeBindingStaleCode =
   | 'missing_scope_binding'
   | 'scope_binding_tampered'
   | 'scope_contract_changed'
+  | 'composite_scope_changed'
   | 'diff_pack_changed'
   | 'hunk_digest_set_changed';
 
@@ -229,6 +250,19 @@ export function compareScopeBinding(
       expected: shortHash(current.scopeContractHash),
       actual: shortHash(stored.scopeContractHash ?? '(none)'),
       detail: 'scope contract changed after this reviewer run',
+    };
+  }
+  // Some read-only projections do not load ProofStory artifacts. They cannot
+  // attest the composite fact, so they must not invent a stale result. Actual
+  // gate consumers always provide the validated live composite and therefore
+  // still fail closed on a missing legacy value or any semantic drift.
+  if (current.compositeScopeDigest !== undefined && (stored.compositeScopeDigest ?? '') !== current.compositeScopeDigest) {
+    return {
+      ok: false,
+      code: 'composite_scope_changed',
+      expected: shortHash(current.compositeScopeDigest ?? '(none)'),
+      actual: shortHash(stored.compositeScopeDigest ?? '(none)'),
+      detail: 'semantic scope acknowledgement or ProofStory ledger/plan changed after this reviewer run',
     };
   }
   if ((stored.diffPackHash ?? '') !== current.diffPackHash) {

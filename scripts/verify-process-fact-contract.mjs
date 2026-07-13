@@ -9,6 +9,7 @@ const failures = [];
 const warnings = [];
 const hanCharacterPattern = /[\u3400-\u9fff]/;
 const codeLikeCommandNamePattern = /^[a-z][a-z0-9_.-]*(?::[a-z][a-z0-9_.-]*)*$/;
+const artifactFactNamePattern = /^artifact:[a-z0-9_.-]+(?:\/[a-z0-9_.-]+)*$/;
 
 const promptDirs = [
   'packages/main/templates/agents',
@@ -700,6 +701,54 @@ function assertProofStoryGateConsumedFacts() {
   }
 }
 
+function assertCloseoutTrustBoundary() {
+  const levels = new Map(parseProcessFactLevelRegistry().map(entry => [entry.name, entry]));
+  const registry = processFactRegistryMap();
+  const runtimeFacts = [
+    'runtime:closeout_artifact_trust_boundary',
+    'runtime:composite_scope_digest_review_gate',
+    'runtime:trusted_closeout_artifact_validation',
+  ];
+  for (const name of runtimeFacts) {
+    const level = levels.get(name);
+    const fact = registry.get(name);
+    assert(level?.level === 'L4' && Boolean(level.gateConsumer), `${processFactLevelRegistryPath}: ${name} must remain an L4 gate-consumed fact`);
+    assert(fact?.semantics.includes('schema-contract') && fact?.semantics.includes('gate-evidence'), `${processFactRegistryPath}: ${name} must carry schema-contract + gate-evidence semantics`);
+  }
+
+  const trustText = read('packages/main/src/core/closeout-trust.ts');
+  for (const token of [
+    'CLOSEOUT_ARTIFACT_POLICIES',
+    "path: 'scope-contract.json'",
+    "path: 'milestone-ledger.json'",
+    "path: 'slice-plan.json'",
+    "path: 'parent-ledger-rollup.json'",
+    "path: 'evidence/delivery-context-pack.json'",
+    'computeCompositeScopeDigest',
+    'validateTrustedMilestoneLedger',
+    'validateTrustedSlicePlan',
+    'validateTrustedParentLedgerRollup',
+    'validatePersistedDeliveryContextPack',
+    'evaluateMetadataOnlyReviewRetention',
+  ]) assert(trustText.includes(token), `packages/main/src/core/closeout-trust.ts: missing closeout trust contract token ${token}`);
+  assert(!/path:\s*['"]milestone-closeout\.json['"]/.test(trustText), 'packages/main/src/core/closeout-trust.ts: milestone-closeout.json remains owned by B-9188 and must not enter the M4.C1 trust set');
+
+  const bindingText = read('packages/main/src/core/review-scope-binding.ts');
+  assert(bindingText.includes('compositeScopeDigest') && bindingText.includes('computeCompositeScopeDigest'), 'review-scope-binding must sign and compare the composite semantic-scope digest');
+  const reuseText = read('packages/main/src/core/done-prepare-validation-reuse.ts');
+  assert(reuseText.includes('compositeScopeDigest') && reuseText.includes("'compositeScopeDigest'"), 'done_prepare validation reuse must compare the composite semantic-scope digest');
+  for (const token of ['validateTrustedMilestoneLedger', 'validateTrustedSlicePlan', 'validateTrustedParentLedgerRollup', 'readTrustedProofStoryScopeArtifacts']) {
+    assert(trustText.includes(token), `packages/main/src/core/closeout-trust.ts: trust-boundary helper missing ${token}`);
+  }
+  for (const consumerPath of ['packages/main/src/core/machine.ts', 'packages/main/src/handlers/phase-gates.ts', 'packages/main/src/core/review-run.ts']) {
+    assert(read(consumerPath).includes('readTrustedProofStoryScopeArtifacts'), `${consumerPath}: lifecycle trust consumer must validate ProofStory scope artifacts before use`);
+  }
+  const deliveryText = read('packages/main/src/handlers/delivery-context-pack.ts');
+  assert(deliveryText.includes('validatePersistedDeliveryContextPack(JSON.parse'), 'delivery-context-pack writer must validate the persisted shape before rename');
+  const scopeAckPolicy = parseCommandPolicyEntries().find(entry => entry.name === 'scope_contract_acknowledge');
+  assert(scopeAckPolicy && !scopeAckPolicy.allowedPhases.includes('TEST'), `${commandPolicyPath}: scope_contract_acknowledge must remain rejected in TEST`);
+}
+
 function isReviewerPrompt(relPath, text) {
   const name = basename(relPath);
   return name.startsWith('lattice-review-') || requiredReviewerRunIdPromptFiles.has(name) || text.includes('review_pass_set');
@@ -857,7 +906,7 @@ function scanCliMachineFactNames(text, label) {
   const issues = [];
   for (const match of text.matchAll(/\bname\s*:\s*['"]([^'"]+)['"]/g)) {
     const name = match[1];
-    if (hanCharacterPattern.test(name) || !codeLikeCommandNamePattern.test(name)) {
+    if (hanCharacterPattern.test(name) || (!codeLikeCommandNamePattern.test(name) && !artifactFactNamePattern.test(name))) {
       issues.push(`${label}:${lineNumberAt(text, match.index)} CLI command/fact name "${name}" must stay English/code-like`);
     }
   }
@@ -4675,6 +4724,7 @@ assertEvidenceBoundaryDocs();
 assertPromptEvidenceBoundaries(promptMap);
 assertProofStoryProgressiveBoundary();
 assertProofStoryGateConsumedFacts();
+assertCloseoutTrustBoundary();
 assertProcessFactCommandInventory();
 await assertLifecycleArtifactScopePolicy();
 assertStrengtheningRoadmapGovernanceLedger();

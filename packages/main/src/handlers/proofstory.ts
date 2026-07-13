@@ -31,6 +31,7 @@ import {
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
 import { currentMilestoneStatusEvidenceBinding } from '../core/milestone-status.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
+import { readTrustedProofStoryScopeArtifacts } from '../core/closeout-trust.js';
 
 type JsonFlag = { json?: boolean };
 type ModeFlag = { mode?: ProofStoryGateMode; dryRun?: boolean };
@@ -90,13 +91,14 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
   function diagnosticInput(storyId: string): ProofStoryDiagnosticInput {
     const story = store.readStory(storyId);
     const checklist = readChecklistSafe(storyId);
+    const trusted = readTrustedProofStoryScopeArtifacts(store, storyId);
     return {
       story,
       checklist,
       originalIntentSnapshot: store.readOriginalIntentSnapshot(storyId),
-      milestoneLedger: store.readMilestoneLedger(storyId),
-      slicePlan: store.readProofStorySlicePlan(storyId),
-      parentLedgerRollup: store.readProofStoryParentLedgerRollup(storyId),
+      milestoneLedger: trusted.ledger,
+      slicePlan: trusted.slicePlan,
+      parentLedgerRollup: trusted.parentRollup,
       proofStoryContract: store.readProofStoryContract(storyId),
       intentCollision: store.readIntentCollision(storyId),
       scopeContract: store.readScopeContract(storyId),
@@ -264,10 +266,11 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
     parent_ledger_rollup_set(args: { storyId: string; children: unknown[]; json?: boolean }): string {
       if (!args.storyId) throw new Error('storyId is required');
       store.readStory(args.storyId);
+      const trusted = readTrustedProofStoryScopeArtifacts(store, args.storyId);
       const rollup = buildParentLedgerRollup({
         storyId: args.storyId,
-        ledger: store.readMilestoneLedger(args.storyId),
-        slicePlan: store.readProofStorySlicePlan(args.storyId),
+        ledger: trusted.ledger,
+        slicePlan: trusted.slicePlan,
         children: args.children ?? [],
         existing: store.readProofStoryParentLedgerRollup(args.storyId),
       });

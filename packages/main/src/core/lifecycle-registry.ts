@@ -332,9 +332,13 @@ export const LIFECYCLE_ARTIFACTS = [
   'done-required-evidence.json',
   'declared-artifacts.json',
   'eval-evidence.json',
+  'milestone-ledger.json',
+  'slice-plan.json',
+  'parent-ledger-rollup.json',
   'process-events.jsonl',
   'evidence/transcript-diff.md',
   'evidence/live-smoke-transcript.json',
+  'evidence/delivery-context-pack.json',
 ] as const;
 
 export type LifecycleArtifact = typeof LIFECYCLE_ARTIFACTS[number];

@@ -10,6 +10,7 @@ import {
 import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import type { ChecklistData } from '../core/types.js';
+import { validatePersistedDeliveryContextPack } from '../core/closeout-trust.js';
 
 /**
  * P6 — `delivery_context_pack`: the delivery-review CONTEXT PRODUCER for the
@@ -352,7 +353,7 @@ function persistArtifact(artifactPath: string, artifact: PersistedDeliveryContex
   const tmpPath = `${artifactPath}.tmp-${process.pid}-${Date.now()}`;
   try {
     writeFileSync(tmpPath, serialized, 'utf8');
-    JSON.parse(readFileSync(tmpPath, 'utf8'));
+    validatePersistedDeliveryContextPack(JSON.parse(readFileSync(tmpPath, 'utf8')), artifact.storyId);
     renameSync(tmpPath, artifactPath);
   } finally {
     try {

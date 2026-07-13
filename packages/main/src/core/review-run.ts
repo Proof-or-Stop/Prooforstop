@@ -13,6 +13,7 @@ import {
   type CurrentScopeContext,
   type ScopeBindingComparison,
 } from './review-scope-binding.js';
+import { readTrustedProofStoryScopeArtifacts } from './closeout-trust.js';
 
 export const REVIEW_RUN_SALT = 'lattice-review-run-integrity-v1';
 
@@ -501,7 +502,14 @@ export function currentScopeContextForStory(
   const contract = store.readScopeContract(storyId);
   if (!contract) return null;
   const diffPack = buildScopeDiffPack(projectRoot);
-  return buildCurrentScopeContext(contract, diffPack, projectRoot);
+  const trusted = readTrustedProofStoryScopeArtifacts(store, storyId);
+  return buildCurrentScopeContext(
+    contract,
+    diffPack,
+    projectRoot,
+    trusted.ledger,
+    trusted.slicePlan,
+  );
 }
 
 function scopeComparisonToIssueCode(cmp: ScopeBindingComparison): ReviewRunIssueCode {

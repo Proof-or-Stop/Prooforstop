@@ -8,6 +8,7 @@ import { digestScopeContract } from './guard-session.js';
 import { LIFECYCLE_TRANSITIONS } from './lifecycle-registry.js';
 import type { StoryStore } from './store.js';
 import type { DoneRequiredEvidenceData, TestEvidenceData } from './types.js';
+import { computeCompositeScopeDigest } from './closeout-trust.js';
 
 export const DONE_PREPARE_VALIDATION_REUSE_SCHEMA = 'lattice.done-prepare-validation-reuse.v1' as const;
 export const DONE_PREPARE_VALIDATION_REUSE_CLASSIFIER_VERSION = 'done-prepare-generated-metadata-safe-set.v1' as const;
@@ -21,6 +22,7 @@ interface DonePrepareValidationReuseHashes {
   doneRequiredPolicyHash: string;
   configHash: string;
   scopeContractHash: string | null;
+  compositeScopeDigest: string | null;
   lifecycleRegistryHash: string;
   lifecycleClassifierVersion: typeof DONE_PREPARE_VALIDATION_REUSE_CLASSIFIER_VERSION;
 }
@@ -141,6 +143,21 @@ function scopeContractHash(store: StoryStore, storyId: string): string | null {
   }
 }
 
+function compositeScopeDigest(store: StoryStore, storyId: string): string | null {
+  try {
+    const contract = store.readScopeContract(storyId);
+    const ledger = store.readMilestoneLedger(storyId);
+    if (!contract || !ledger) return null;
+    return computeCompositeScopeDigest({
+      contract,
+      ledger,
+      slicePlan: store.readProofStorySlicePlan(storyId),
+    });
+  } catch {
+    return 'unreadable';
+  }
+}
+
 function lifecycleRegistryHash(): string {
   return sha256(stableStringify({
     transitions: LIFECYCLE_TRANSITIONS,
@@ -166,6 +183,7 @@ function currentHashes(args: {
     doneRequiredPolicyHash: doneRequiredPolicy.policyHash,
     configHash: configHash(args.root, config),
     scopeContractHash: scopeContractHash(args.store, args.storyId),
+    compositeScopeDigest: compositeScopeDigest(args.store, args.storyId),
     lifecycleRegistryHash: lifecycleRegistryHash(),
     lifecycleClassifierVersion: DONE_PREPARE_VALIDATION_REUSE_CLASSIFIER_VERSION,
   };
@@ -274,6 +292,7 @@ export function writeDonePrepareValidationReuseRecord(args: {
     'doneRequiredPolicyHash',
     'configHash',
     'scopeContractHash',
+    'compositeScopeDigest',
     'lifecycleRegistryHash',
     'lifecycleClassifierVersion',
   ] as const) {
