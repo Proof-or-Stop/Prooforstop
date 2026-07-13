@@ -10,7 +10,7 @@
       ],
       "status": "done",
       "startTime": "2026-07-13T08:37:36.211Z",
-      "endTime": "2026-07-13T11:10:49.363Z",
+      "endTime": "2026-07-13T11:22:26.496Z",
       "userSees": "User runs the M4.C1 contract verifier and sees `PASS closeout artifact classifications: closed policy set verified`; adding an unknown trusted path or wrong writer makes the command exit non-zero with the exact path.",
       "verificationIntent": {
         "happy": [
@@ -53,33 +53,33 @@
           "kind": "logic_test",
           "command": "npm test",
           "result": "pass",
-          "note": "Full suite passed after currentReviewRound fail-closed lifecycle enforcement at commit 709f4e5e00.",
-          "headHash": "709f4e5e007fb12a886e52f33cbc01693a5358cf",
-          "materialHash": "075bc5ed48d985faf25af6a6dd50b3440c40c67c0c8585d94785d5009d275fc6",
-          "storyFilesHash": "9f7af86507ff8c225518570e69493b758d5ea5be8341a73c9e896b37dd6a61ac",
-          "timestamp": "2026-07-13T11:10:49.619Z"
+          "note": "Full suite passed after canonical local-only delivery claims schema fix at commit f24029a313.",
+          "headHash": "f24029a3139fa211603c4a3700ae3992c0f382f8",
+          "materialHash": "506f5cb69448a0c4b08d3cf529d3816cb842380b1a1d699ff19f3774d05fabc4",
+          "storyFilesHash": "8c925217af7b0db4a3e0a978a92e65bcd3850e75a5d1dacd444bafc71a894456",
+          "timestamp": "2026-07-13T11:22:26.706Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "logic_test",
-          "command": "npm test",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
           "result": "pass",
-          "note": "Full suite covers missing round, missing reviewRunId, unknown run, and wrapper-root signed validation.",
-          "headHash": "709f4e5e007fb12a886e52f33cbc01693a5358cf",
-          "materialHash": "075bc5ed48d985faf25af6a6dd50b3440c40c67c0c8585d94785d5009d275fc6",
-          "storyFilesHash": "9f7af86507ff8c225518570e69493b758d5ea5be8341a73c9e896b37dd6a61ac",
-          "timestamp": "2026-07-13T11:10:49.787Z"
+          "note": "Retired vocabulary guard passes with no new allowlist and exact canonical claim keys retained.",
+          "headHash": "f24029a3139fa211603c4a3700ae3992c0f382f8",
+          "materialHash": "506f5cb69448a0c4b08d3cf529d3816cb842380b1a1d699ff19f3774d05fabc4",
+          "storyFilesHash": "8c925217af7b0db4a3e0a978a92e65bcd3850e75a5d1dacd444bafc71a894456",
+          "timestamp": "2026-07-13T11:22:26.846Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "logic_test",
-          "command": "npm test",
+          "command": "npm run test:closeout-trust",
           "result": "pass",
-          "note": "Real FINISH attacks prove unsigned or tampered pass-shaped records cannot exploit missing-round legacy compatibility.",
-          "headHash": "709f4e5e007fb12a886e52f33cbc01693a5358cf",
-          "materialHash": "075bc5ed48d985faf25af6a6dd50b3440c40c67c0c8585d94785d5009d275fc6",
-          "storyFilesHash": "9f7af86507ff8c225518570e69493b758d5ea5be8341a73c9e896b37dd6a61ac",
-          "timestamp": "2026-07-13T11:10:49.941Z"
+          "note": "Adversarial true-value and extra-key delivery claim mutations remain rejected by the shared exact schema.",
+          "headHash": "f24029a3139fa211603c4a3700ae3992c0f382f8",
+          "materialHash": "506f5cb69448a0c4b08d3cf529d3816cb842380b1a1d699ff19f3774d05fabc4",
+          "storyFilesHash": "8c925217af7b0db4a3e0a978a92e65bcd3850e75a5d1dacd444bafc71a894456",
+          "timestamp": "2026-07-13T11:22:26.984Z"
         }
       ]
     },
