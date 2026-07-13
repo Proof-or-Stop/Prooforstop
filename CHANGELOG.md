@@ -2,6 +2,52 @@
 
 ## Unreleased
 
+## Proofbound 0.3.196 - 2026-07-13
+
+This release cuts the accumulated `Unreleased` backlog into the first tagged Proofbound
+version and rolls up the work landed since the last CHANGELOG release. The theme is
+**ship-clean hardening ahead of the OSS launch**: deterministic parallel test execution,
+provider-truth token accounting, a hermetic adversarial-safety probe suite, and the first
+phase of the Lattice→Proofbound rebrand.
+
+**Highlights**
+
+- **Rebrand, phase 1 (B-2f1a).** User-visible brand only — docs, `--help`, and package
+  descriptions now say Proofbound; `lattice --version` reports `Proofbound CLI 0.3.196`.
+  Internal identifiers (the `lattice` binary, `@lattice/*` packages, `.lattice/` dir,
+  schema-ids, salts) are intentionally deferred to later phases.
+- **Host-side LLM usage capture (B-70e9).** New `lattice host_run` launcher choke point
+  writes provider-truth usage-ledger rows bound to storyId/agentType/phase/provider, with
+  fail-closed hard-budget and concurrency caps enforced *before* spawn; plus a strictly
+  read-only, NON-AUTHORITATIVE `lattice usage_sweep` retro-attribution estimate.
+- **Adversarial-safety probe suite (B-c023, B-d43f, B-a1b0, B-0c07, B-b739, B-8e9f,
+  B-5ae8).** A hermetic, interruptible multi-turn live-loop harness covering the full
+  9-scenario B1–B15 stateful injection suite (prompt-injection, context-loss,
+  host-interruption, destructive-migration gating, secret-leak, privilege-escalation…),
+  every outcome grounded in real on-disk artifacts rather than agent self-report. Full
+  `--self-check` passes with zero LLM calls / zero network / zero cost; powered runs stay
+  operator-triggered and honestly labeled exploratory.
+- **Deterministic parallel tests (B-6efb, B-d7c3, B-c6cf, B-2941, B-348d, B-77ed,
+  B-3d39, B-2d6c, B-24c3, B-be91).** Collapsed 139+ per-smoke npm scripts into a
+  `smoke-manifest.json`, added c8 coverage, and made `npm run test:all` a reliable CI
+  gate via a two-pass serial-retry runner. Root-caused and fixed the underlying flakes:
+  a main-write-lock async-reentrancy race (AsyncLocalStorage owner tokens) and a
+  metadata-lock acquire-budget violation across three hand-rolled locks.
+- **Ship-clean residue gate (B-292d).** Added `lattice-residue` as the 7th REVIEW→TEST
+  CLI preflight gate — a zero-tolerance scan of product runtime source for un-rebranded
+  brand residue.
+- **Multi-provider dispatch (B-ceed).** New `gemini` bounded provider mirroring the codex
+  contract, with real leaf-dispatch wiring and auto-fallback to claude-code when a
+  requested host CLI is absent.
+- **Authority runner unblock (B-3157).** Dropped the server-forbidden top-level
+  `runnerProvider` field that was hard-blocking every strong-proof flow at
+  `register_actor_key`.
+- **Verifiable autonomy (B-7b6e).** A hermetic gate-strength self-red-team harness that
+  measures a gate's discrimination (catch-rate *and* false-block) against a corpus of
+  passes-the-visible-test-but-wrong probes, published as an offline-verifiable receipt.
+
+Full per-story detail below.
+
 ### Changed
 
 - **B-2f1a** Phase 1 of the Lattice→Proofbound rebrand — user-visible brand only (docs / --help / package descriptions); internal identifiers (the lattice binary, @lattice packages, .lattice dir, schema-ids, salts) deferred to later phases.
