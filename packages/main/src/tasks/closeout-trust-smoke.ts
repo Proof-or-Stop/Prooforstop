@@ -38,7 +38,7 @@ import {
 import { StoryStore } from '../core/store.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
-import { currentScopeContextForStory, evaluateReviewRunMetadataRetention, signReviewRun, verifyReviewRun } from '../core/review-run.js';
+import { currentScopeContextForStory, evaluatePersistedReviewToTestIndexTransition, evaluateReviewRunMetadataRetention, signReviewRun, verifyReviewRun } from '../core/review-run.js';
 import { signReviewPass } from '../core/finding-verify.js';
 import { createStoryActor, getGuardFailureReason, getStateName } from '../core/machine.js';
 import type { ReviewRun } from '../core/types.js';
@@ -253,6 +253,84 @@ console.log('PASS local closeout requires fresh review before TEST retention');
 
 function git(root: string, args: string[]): string {
   return execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
+}
+
+// Persisted lifecycle regression: reproduce the exact state write performed by
+// transition-orchestrator after a successful REVIEW_PASS.  The REVIEW snapshot
+// is committed first, then index.json receives only phase=TEST plus the single
+// collectContext-shaped TEST/advance event.  That protocol delta is admissible;
+// any additional index mutation remains fail-closed.
+const indexRepo = mkdtempSync(join(tmpdir(), 'closeout-index-transition-'));
+try {
+  writeFileSync(join(indexRepo, 'lattice.config.json'), JSON.stringify({
+    scanRoot: '.', rootDir: 'src', storyDir: '.lattice/story/actives', testsDir: 'tests', fixturesDir: 'tests/fixtures', requirementsDir: 'docs/requirements', storyPrefix: 'B',
+  }), 'utf8');
+  mkdirSync(join(indexRepo, 'src'), { recursive: true });
+  writeFileSync(join(indexRepo, 'src/app.ts'), 'export const stable = true;\n', 'utf8');
+  git(indexRepo, ['init', '-b', 'main']);
+  git(indexRepo, ['config', 'user.email', 'smoke@example.test']);
+  git(indexRepo, ['config', 'user.name', 'closeout-smoke']);
+  git(indexRepo, ['add', '.']);
+  git(indexRepo, ['commit', '-m', 'repository baseline']);
+  const indexStoryId = 'B-index-transition';
+  git(indexRepo, ['checkout', '-b', `story/${indexStoryId}`]);
+  resetConfigCache();
+  const indexStore = new StoryStore(indexRepo);
+  const indexRound = '2026-07-13T11:00:00.000Z';
+  const indexContract = { ...contract, storyId: indexStoryId };
+  const indexLedger = { ...ledger, storyId: indexStoryId };
+  const indexPlan = { ...plan, storyId: indexStoryId };
+  indexStore.writeStory(indexStoryId, {
+    storyId: indexStoryId, name: 'index-transition', title: 'Index transition', description: 'Persist real REVIEW to TEST metadata delta.',
+    type: 'feature', phase: 'REVIEW', priority: 'high', createdAt: indexRound, startedAt: indexRound, endedAt: null,
+    currentReviewRound: indexRound,
+    events: [{ phase: 'REVIEW', action: 'advance', timestamp: indexRound, branch: `story/${indexStoryId}`, user: 'closeout-smoke', sessionId: 'review-session', agent: 'main' }],
+  });
+  indexStore.writeScopeContract(indexStoryId, indexContract);
+  indexStore.writeMilestoneLedger(indexStoryId, indexLedger);
+  indexStore.writeProofStorySlicePlan(indexStoryId, indexPlan);
+  git(indexRepo, ['add', '.']);
+  git(indexRepo, ['commit', '-m', 'persist REVIEW snapshot']);
+  const indexBinding = computeReviewScopeBinding({ contract: indexContract, diffPack: emptyDiff, ledger: indexLedger, slicePlan: indexPlan })!;
+  const indexRun = {
+    reviewRunId: `${indexStoryId}:RR-001`, storyId: indexStoryId, agent: 'lattice-review-quality', lane: 'lattice-review-quality',
+    reviewRound: indexRound, startedAt: indexRound, headHash: currentGitHead(indexRepo)!, materialHash: currentMaterialHash(indexRepo, 'HEAD', indexRepo)!,
+    storyFilesHash: currentStoryFilesHash(indexRepo, 'HEAD', indexRepo)!, promptHash: 'prompt', scopeBinding: indexBinding,
+  } as ReviewRun;
+  indexRun._hash = signReviewRun(
+    indexRun.storyId, indexRun.reviewRunId, indexRun.agent, indexRun.lane, indexRun.reviewRound, indexRun.startedAt,
+    indexRun.headHash, indexRun.materialHash, indexRun.promptHash, indexRun.scopeBinding?.bindingHash, undefined, indexRun.storyFilesHash,
+  );
+  const transitioned = indexStore.readStory(indexStoryId);
+  transitioned.phase = 'TEST';
+  transitioned.events = [...(transitioned.events ?? []), {
+    phase: 'TEST', action: 'advance', timestamp: '2026-07-13T11:01:00.000Z', branch: `story/${indexStoryId}`,
+    user: 'closeout-smoke', sessionId: 'test-session', agent: 'main',
+  }];
+  indexStore.writeStory(indexStoryId, transitioned);
+  git(indexRepo, ['add', '.']);
+  git(indexRepo, ['commit', '-m', 'persist canonical REVIEW to TEST transition']);
+  assert.equal(evaluatePersistedReviewToTestIndexTransition(
+    indexRepo, `.lattice/story/actives/${indexStoryId}/index.json`, indexRun, transitioned,
+  ).ok, true);
+  assert.equal(evaluateReviewRunMetadataRetention(
+    indexStore, transitioned, indexRun, indexRepo, currentScopeContextForStory(indexStore, indexStoryId, indexRepo),
+  ).ok, true, 'canonical persisted REVIEW to TEST index delta must retain the fresh review snapshot');
+
+  const tampered = indexStore.readStory(indexStoryId);
+  tampered.title = 'Tampered after review';
+  indexStore.writeStory(indexStoryId, tampered);
+  git(indexRepo, ['add', '.']);
+  git(indexRepo, ['commit', '-m', 'tamper index outside transition delta']);
+  assert.equal(evaluatePersistedReviewToTestIndexTransition(
+    indexRepo, `.lattice/story/actives/${indexStoryId}/index.json`, indexRun, tampered,
+  ).ok, false);
+  assert.equal(evaluateReviewRunMetadataRetention(
+    indexStore, tampered, indexRun, indexRepo, currentScopeContextForStory(indexStore, indexStoryId, indexRepo),
+  ).ok, false, 'extra persisted index mutation must fail closed');
+} finally {
+  resetConfigCache();
+  rmSync(indexRepo, { recursive: true, force: true });
 }
 
 const repo = mkdtempSync(join(tmpdir(), 'closeout-retention-'));

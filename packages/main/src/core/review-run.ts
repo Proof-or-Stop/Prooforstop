@@ -12,6 +12,7 @@ import {
 import { verifyFinding, verifyReviewPass } from './finding-verify.js';
 import { REVIEW_RETENTION_PROTOCOL_METADATA_PATHS } from './lifecycle-registry.js';
 import type { Finding, ReviewPass, ReviewRun, ReviewRunWorkspaceBinding, StoryInfo } from './types.js';
+import { canonicalJson } from './digest.js';
 import type { StoryStore } from './store.js';
 import { buildScopeDiffPack } from './scope-diff-pack.js';
 import { resolveStorySignedWorkspace } from './story-signed-workspace-resolution.js';
@@ -692,6 +693,70 @@ function uncommittedPathsUnder(gitCwd: string, prefix: string): string[] {
   return [...paths];
 }
 
+export function evaluatePersistedReviewToTestIndexTransition(
+  gitCwd: string,
+  indexGitPath: string,
+  run: ReviewRun,
+  currentStory: StoryInfo,
+): { ok: boolean; reason?: string } {
+  let reviewedStory: StoryInfo;
+  let currentBranch: string;
+  try {
+    reviewedStory = JSON.parse(execFileSync('git', ['show', `${run.headHash}:${indexGitPath}`], {
+      cwd: gitCwd,
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    })) as StoryInfo;
+    currentBranch = execFileSync('git', ['branch', '--show-current'], {
+      cwd: gitCwd,
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
+  } catch {
+    return { ok: false, reason: 'signed REVIEW index snapshot or current branch is unreadable' };
+  }
+  if (reviewedStory.storyId !== run.storyId || currentStory.storyId !== run.storyId) {
+    return { ok: false, reason: 'index storyId does not match the signed review run' };
+  }
+  if (reviewedStory.phase !== 'REVIEW' || currentStory.phase !== 'TEST') {
+    return { ok: false, reason: `phase delta is ${reviewedStory.phase}->${currentStory.phase}, not REVIEW->TEST` };
+  }
+  if (!run.reviewRound || reviewedStory.currentReviewRound !== run.reviewRound || currentStory.currentReviewRound !== run.reviewRound) {
+    return { ok: false, reason: 'currentReviewRound changed or does not match the signed review run' };
+  }
+  const reviewedEvents = reviewedStory.events ?? [];
+  const currentEvents = currentStory.events ?? [];
+  if (currentEvents.length !== reviewedEvents.length + 1 || canonicalJson(currentEvents.slice(0, -1)) !== canonicalJson(reviewedEvents)) {
+    return { ok: false, reason: 'events are not the reviewed prefix plus exactly one transition event' };
+  }
+  const event = currentEvents.at(-1)!;
+  const allowedEventKeys = new Set(['phase', 'action', 'timestamp', 'branch', 'user', 'sessionId', 'agent']);
+  if (Object.keys(event).some((key) => !allowedEventKeys.has(key))) {
+    return { ok: false, reason: 'transition event contains fields not emitted by collectContext' };
+  }
+  if (
+    event.phase !== 'TEST'
+    || event.action !== 'advance'
+    || !event.timestamp
+    || !Number.isFinite(Date.parse(event.timestamp))
+    || Date.parse(event.timestamp) < Date.parse(run.startedAt)
+    || !event.branch
+    || event.branch !== currentBranch
+    || event.branch !== `story/${run.storyId}`
+    || !event.user
+    || !event.sessionId
+    || !event.agent
+  ) {
+    return { ok: false, reason: 'transition event provenance is incomplete or inconsistent with the active story branch' };
+  }
+  const { phase: _reviewedPhase, events: _reviewedEvents, ...reviewedStable } = reviewedStory;
+  const { phase: _currentPhase, events: _currentEvents, ...currentStable } = currentStory;
+  if (canonicalJson(reviewedStable) !== canonicalJson(currentStable)) {
+    return { ok: false, reason: 'index fields outside the canonical phase/event delta changed' };
+  }
+  return { ok: true };
+}
+
 export function evaluateReviewRunMetadataRetention(
   store: StoryStore,
   story: StoryInfo,
@@ -726,11 +791,17 @@ export function evaluateReviewRunMetadataRetention(
   } catch {
     return { ok: false, reasons: ['unable to derive metadata changes since the signed review run'] };
   }
-  const metadataPaths = changedFiles
+  const metadataPaths = [...new Set(changedFiles
     .filter((path) => path.startsWith(storyPrefix))
     .map((path) => path.slice(storyPrefix.length))
-    .filter((path) => !REVIEW_RETENTION_PROTOCOL_METADATA_PATHS.has(path));
-  const changedArtifacts = metadataPaths.map((artifactPath) => {
+    .filter((path) => !REVIEW_RETENTION_PROTOCOL_METADATA_PATHS.has(path)))];
+  const indexTransition = metadataPaths.includes('index.json')
+    ? evaluatePersistedReviewToTestIndexTransition(projectRoot, `${storyPrefix}index.json`, run, story)
+    : null;
+  const effectiveMetadataPaths = metadataPaths.filter(
+    (path) => path !== 'index.json' || !indexTransition?.ok,
+  );
+  const changedArtifacts = effectiveMetadataPaths.map((artifactPath) => {
     const policy = closeoutArtifactPolicyFor(artifactPath);
     const metadataRoot = run.workspaceBinding?.metadataRoot ?? projectRoot;
     const validation = validateCurrentCloseoutArtifact(store, story.storyId, artifactPath, projectRoot, metadataRoot);
