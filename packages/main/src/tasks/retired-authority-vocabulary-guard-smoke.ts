@@ -517,7 +517,17 @@ interface ModuleReference {
 }
 
 const parsedSourceCache = new Map<string, { text: string; source: ts.SourceFile }>();
-const typeCheckerCache = new Map<string, { text: string; checker: ts.TypeChecker }>();
+
+interface SourceTypeAnalysis {
+  program: ts.Program;
+  source: ts.SourceFile;
+  checker: ts.TypeChecker;
+}
+
+const TYPE_RESOLUTION_DIAGNOSTIC_CODES = new Set([2307, 2688, 2792, 7016]);
+let sharedProjectTypeAnalysis: { program: ts.Program; roots: readonly string[] } | undefined;
+const syntheticTypeFiles = new Map<string, { text: string; version: number }>();
+let syntheticTypeLanguageService: ts.LanguageService | undefined;
 
 function parseSource(file: string, text: string): ts.SourceFile {
   const cached = parsedSourceCache.get(file);
@@ -559,32 +569,160 @@ function validatePinnedExecutableSourceFingerprint(
   }];
 }
 
-function typeCheckerFor(file: string, text: string): ts.TypeChecker {
-  const cached = typeCheckerCache.get(file);
-  if (cached?.text === text) return cached.checker;
-  const source = parseSource(file, text);
+function projectTypeProgramRoots(): string[] {
+  const configPath = join(repoRoot, 'packages/main/tsconfig.json');
+  const config = ts.readConfigFile(configPath, ts.sys.readFile);
+  assert.equal(config.error, undefined, `project type program must parse ${configPath}`);
+  const parsed = ts.parseJsonConfigFileContent(config.config, ts.sys, dirname(configPath), undefined, configPath);
+  assert.equal(parsed.errors.length, 0, `project type program config diagnostics: ${parsed.errors.map(error => error.code).join(',')}`);
+  return [...new Set([
+    ...parsed.fileNames,
+    ...SHIPPED_EXECUTABLE_SOURCE_DIRS.flatMap(dir => listFiles(dir, EXECUTABLE_SOURCE_EXTENSIONS).map(file => join(repoRoot, file))),
+    ...SHIPPED_EXECUTABLE_ENTRYPOINTS.map(file => join(repoRoot, file)),
+  ].map(file => resolve(file)).filter(existsSync))].sort();
+}
+
+function projectTypeProgramOptions(): ts.CompilerOptions {
+  const configPath = join(repoRoot, 'packages/main/tsconfig.json');
+  const config = ts.readConfigFile(configPath, ts.sys.readFile);
+  const parsed = ts.parseJsonConfigFileContent(config.config, ts.sys, dirname(configPath), undefined, configPath);
   const options: ts.CompilerOptions = {
-    noResolve: true,
+    ...parsed.options,
     allowJs: true,
     checkJs: true,
-    target: ts.ScriptTarget.Latest,
-    module: ts.ModuleKind.ESNext,
+    noEmit: true,
   };
-  const host: ts.CompilerHost = {
-    getSourceFile: candidate => candidate === file ? source : undefined,
-    getDefaultLibFileName: () => '',
-    writeFile: () => undefined,
-    getCurrentDirectory: () => '',
-    getDirectories: () => [],
-    fileExists: candidate => candidate === file,
-    readFile: candidate => candidate === file ? text : undefined,
-    useCaseSensitiveFileNames: () => true,
-    getCanonicalFileName: candidate => candidate,
-    getNewLine: () => '\n',
+  delete options.rootDir;
+  delete options.outDir;
+  return options;
+}
+
+function createProjectTypeProgram(
+  overlays: ReadonlyMap<string, string> = new Map(),
+  includeProjectRoots = true,
+  oldProgram?: ts.Program,
+): ts.Program {
+  const normalizedOverlays = new Map(
+    [...overlays].map(([file, text]) => [resolve(repoRoot, file), text] as const),
+  );
+  const options = projectTypeProgramOptions();
+  const host = ts.createCompilerHost(options, true);
+  const defaultGetSourceFile = host.getSourceFile.bind(host);
+  const defaultFileExists = host.fileExists.bind(host);
+  const defaultReadFile = host.readFile.bind(host);
+  host.getCurrentDirectory = () => repoRoot;
+  host.fileExists = file => normalizedOverlays.has(resolve(file)) || defaultFileExists(file);
+  host.readFile = file => normalizedOverlays.get(resolve(file)) ?? defaultReadFile(file);
+  host.getSourceFile = (file, languageVersion, onError, shouldCreateNewSourceFile) => {
+    const overlay = normalizedOverlays.get(resolve(file));
+    if (overlay === undefined) return defaultGetSourceFile(file, languageVersion, onError, shouldCreateNewSourceFile);
+    const scriptKind = file.endsWith('.tsx')
+      ? ts.ScriptKind.TSX
+      : file.endsWith('.jsx')
+        ? ts.ScriptKind.JSX
+        : /\.(?:js|mjs|cjs)$/.test(file)
+          ? ts.ScriptKind.JS
+          : ts.ScriptKind.TS;
+    return ts.createSourceFile(file, overlay, languageVersion, true, scriptKind);
   };
-  const checker = ts.createProgram([file], options, host).getTypeChecker();
-  typeCheckerCache.set(file, { text, checker });
-  return checker;
+  return ts.createProgram({
+    rootNames: [...new Set([...(includeProjectRoots ? projectTypeProgramRoots() : []), ...normalizedOverlays.keys()])],
+    options,
+    host,
+    oldProgram,
+  });
+}
+
+function sharedProjectProgram(): ts.Program {
+  if (!sharedProjectTypeAnalysis) {
+    const roots = projectTypeProgramRoots();
+    sharedProjectTypeAnalysis = { program: createProjectTypeProgram(), roots };
+  }
+  return sharedProjectTypeAnalysis.program;
+}
+
+function syntheticTypeService(): ts.LanguageService {
+  if (syntheticTypeLanguageService) return syntheticTypeLanguageService;
+  const options = projectTypeProgramOptions();
+  const host: ts.LanguageServiceHost = {
+    getCompilationSettings: () => options,
+    getScriptFileNames: () => [...syntheticTypeFiles.keys()],
+    getScriptVersion: file => String(syntheticTypeFiles.get(resolve(file))?.version ?? 0),
+    getScriptSnapshot: file => {
+      const overlay = syntheticTypeFiles.get(resolve(file));
+      if (overlay) return ts.ScriptSnapshot.fromString(overlay.text);
+      const text = ts.sys.readFile(file);
+      return text === undefined ? undefined : ts.ScriptSnapshot.fromString(text);
+    },
+    getCurrentDirectory: () => repoRoot,
+    getDefaultLibFileName: compilerOptions => ts.getDefaultLibFilePath(compilerOptions),
+    fileExists: ts.sys.fileExists,
+    readFile: ts.sys.readFile,
+    readDirectory: ts.sys.readDirectory,
+    directoryExists: ts.sys.directoryExists,
+    getDirectories: ts.sys.getDirectories,
+    realpath: ts.sys.realpath,
+    useCaseSensitiveFileNames: () => ts.sys.useCaseSensitiveFileNames,
+    getNewLine: () => ts.sys.newLine,
+  };
+  syntheticTypeLanguageService = ts.createLanguageService(host, ts.createDocumentRegistry());
+  return syntheticTypeLanguageService;
+}
+
+function syntheticTypeAnalysisFor(file: string, text: string): SourceTypeAnalysis {
+  const absoluteFile = resolve(repoRoot, file);
+  const current = syntheticTypeFiles.get(absoluteFile);
+  if (!current || current.text !== text) {
+    syntheticTypeFiles.set(absoluteFile, { text, version: (current?.version ?? 0) + 1 });
+  }
+  const program = syntheticTypeService().getProgram();
+  const source = program?.getSourceFile(absoluteFile);
+  assert(program && source, `synthetic type program root missing: ${file}`);
+  return { program, source, checker: program.getTypeChecker() };
+}
+
+function typeAnalysisFor(file: string, text: string, program?: ts.Program): SourceTypeAnalysis {
+  const absoluteFile = resolve(repoRoot, file);
+  const shared = program ?? sharedProjectProgram();
+  let source = shared.getSourceFile(absoluteFile);
+  let selectedProgram = shared;
+  if (!source || source.text !== text) {
+    if (!program) return syntheticTypeAnalysisFor(file, text);
+    selectedProgram = createProjectTypeProgram(new Map([[file, text]]), false, shared);
+    source = selectedProgram.getSourceFile(absoluteFile);
+  }
+  assert(source, `project type program root missing: ${file}`);
+  return { program: selectedProgram, source, checker: selectedProgram.getTypeChecker() };
+}
+
+function typeAnalysisViolations(file: string, analysis: SourceTypeAnalysis): Violation[] {
+  const diagnostics = [
+    ...analysis.program.getSyntacticDiagnostics(analysis.source),
+    ...analysis.program.getSemanticDiagnostics(analysis.source)
+      .filter(diagnostic => TYPE_RESOLUTION_DIAGNOSTIC_CODES.has(diagnostic.code)),
+  ];
+  return diagnostics.map(diagnostic => ({
+    file,
+    line: diagnostic.start === undefined ? 1 : analysis.source.getLineAndCharacterOfPosition(diagnostic.start).line + 1,
+    label: 'malformed or unresolved executable type analysis',
+    text: `TS${diagnostic.code}: ${ts.flattenDiagnosticMessageText(diagnostic.messageText, ' ')}`,
+  }));
+}
+
+function assertProjectTypeProgramContract(executableFiles: readonly string[]): void {
+  const program = sharedProjectProgram();
+  const roots = new Set(program.getRootFileNames().map(file => resolve(file)));
+  for (const file of executableFiles.filter(isExecutableSourceFile)) {
+    const absolute = resolve(repoRoot, file);
+    assert.ok(roots.has(absolute), `project type program root inventory must include ${file}`);
+    assert.ok(program.getSourceFile(absolute), `project type program must resolve source ${file}`);
+  }
+  assert.ok(
+    program.getSourceFiles().some(source => source.isDeclarationFile && /lib\.(?:es|d)/.test(source.fileName)),
+    'project type program must load TypeScript default libraries',
+  );
+  assert.notEqual(program.getCompilerOptions().noResolve, true, 'project type program must enable module resolution');
+  assert.equal(program.getCompilerOptions().moduleResolution, ts.ModuleResolutionKind.Node16, 'project type program must preserve packages/main Node16 module resolution');
 }
 
 function staticModuleText(
@@ -695,8 +833,8 @@ function hasLexicalShadow(node: ts.Identifier, expected: string): boolean {
 
 function isGlobalIdentifier(node: ts.Identifier, checker: ts.TypeChecker, name: string): boolean {
   if (node.text !== name) return false;
-  const symbol = checker.getSymbolAtLocation(node);
-  return (!symbol?.declarations || symbol.declarations.length === 0) && !hasLexicalShadow(node, name);
+  void checker;
+  return !hasLexicalShadow(node, name);
 }
 
 function isModuleRequireExpression(node: ts.Expression, checker: ts.TypeChecker): boolean {
@@ -831,8 +969,7 @@ function loaderCallKind(
 }
 
 function extractImportSpecifiers(text: string, file = '<module-scan>.ts'): ModuleReference[] {
-  const source = parseSource(file, text);
-  const checker = typeCheckerFor(file, text);
+  const { source, checker } = typeAnalysisFor(file, text);
   const constStrings = collectConstStringValues(source, checker);
   const loaderBindings = collectLoaderBindings(source, checker);
   const specifiers: ModuleReference[] = [];
@@ -1131,8 +1268,7 @@ function isKnownBenignNonLiteralLoaderCall(file: string, call: ts.CallExpression
 }
 
 function scanConcealedCompatibilityLoads(file: string, text: string): Violation[] {
-  const source = parseSource(file, text);
-  const checker = typeCheckerFor(file, text);
+  const { source, checker } = typeAnalysisFor(file, text);
   const constStrings = collectConstStringValues(source, checker);
   const loaderBindings = collectLoaderBindings(source, checker);
   const violations: Violation[] = [];
@@ -1244,6 +1380,56 @@ function typeHasCallableSignature(expression: ts.Expression, checker: ts.TypeChe
     || checker.getSignaturesOfType(type, ts.SignatureKind.Construct).length > 0;
 }
 
+function typeRequiresFailClosedCallableClassification(type: ts.Type, checker: ts.TypeChecker): boolean {
+  if ((type.flags & (ts.TypeFlags.Any | ts.TypeFlags.Unknown | ts.TypeFlags.TypeParameter)) !== 0) return true;
+  if (checker.getSignaturesOfType(type, ts.SignatureKind.Call).length > 0
+    || checker.getSignaturesOfType(type, ts.SignatureKind.Construct).length > 0) return true;
+  if (type.isUnionOrIntersection()) {
+    return type.types.some(member => typeRequiresFailClosedCallableClassification(member, checker));
+  }
+  return false;
+}
+
+function expressionSymbol(expression: ts.Expression, checker: ts.TypeChecker): ts.Symbol | undefined {
+  const current = unwrapExecutionExpression(expression);
+  const symbol = ts.isPropertyAccessExpression(current)
+    ? checker.getSymbolAtLocation(current.name)
+    : ts.isElementAccessExpression(current) && current.argumentExpression
+      ? checker.getSymbolAtLocation(current.argumentExpression)
+      : checker.getSymbolAtLocation(current);
+  if (!symbol || (symbol.flags & ts.SymbolFlags.Alias) === 0) return symbol;
+  return checker.getAliasedSymbol(symbol);
+}
+
+function hasExactLocalNonCallableEvidence(expression: ts.Expression, checker: ts.TypeChecker): boolean {
+  const current = unwrapExecutionExpression(expression);
+  if (ts.isObjectLiteralExpression(current)
+    || ts.isArrayLiteralExpression(current)
+    || ts.isStringLiteralLike(current)
+    || ts.isNumericLiteral(current)
+    || current.kind === ts.SyntaxKind.TrueKeyword
+    || current.kind === ts.SyntaxKind.FalseKeyword) return true;
+  const symbol = expressionSymbol(current, checker);
+  if (!symbol) return false;
+  const declarations = symbol.getDeclarations() ?? [];
+  return declarations.length > 0 && declarations.every(declaration => {
+    const source = declaration.getSourceFile();
+    return !source.isDeclarationFile && resolve(source.fileName).startsWith(`${resolve(repoRoot)}/`);
+  });
+}
+
+function constructorReceiverKind(
+  expression: ts.Expression,
+  checker: ts.TypeChecker,
+  bindings: DynamicExecutionBindings,
+): string | undefined {
+  const knownKind = staticallyCallableKind(expression, checker, bindings);
+  if (knownKind) return knownKind;
+  const type = checker.getTypeAtLocation(unwrapExecutionExpression(expression));
+  if (typeRequiresFailClosedCallableClassification(type, checker)) return 'unresolved-or-callable';
+  return hasExactLocalNonCallableEvidence(expression, checker) ? undefined : 'unresolved-or-ambient';
+}
+
 function staticallyCallableKind(
   expression: ts.Expression,
   checker: ts.TypeChecker,
@@ -1281,7 +1467,8 @@ function dynamicReferenceKind(
   }
   if (ts.isIdentifier(current)) {
     const symbol = identifierSymbol(current, checker);
-    if (symbol) return bindings.dangerousSymbols.get(symbol);
+    const boundKind = symbol ? bindings.dangerousSymbols.get(symbol) : undefined;
+    if (boundKind) return boundKind;
     if ((current.text === 'eval' || current.text === 'Function') && isGlobalIdentifier(current, checker, current.text)) return current.text;
     return undefined;
   }
@@ -1295,7 +1482,7 @@ function dynamicReferenceKind(
     if ((member === 'eval' || member === 'Function') && isGlobalObjectIdentifier(target, checker)) return member;
     if (member === 'constructor') {
       const directKind = functionPrototypeLookupKind(target, checker)
-        ?? staticallyCallableKind(target, checker, bindings);
+        ?? constructorReceiverKind(target, checker, bindings);
       if (directKind) return `${directKind}.constructor`;
       const inherited = dynamicReferenceKind(target, checker, bindings);
       if (inherited) return `${inherited}.constructor`;
@@ -1506,14 +1693,14 @@ function payloadReferencesLegacyCompatibility(payload: string): boolean {
   }
 }
 
-function scanDynamicCodeGeneration(file: string, text: string): Violation[] {
+function scanDynamicCodeGeneration(file: string, text: string, program?: ts.Program): Violation[] {
   const exemptFingerprint = DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS.get(file);
   if (exemptFingerprint && canonicalAstFingerprint(file, text) === exemptFingerprint) return [];
-  const source = parseSource(file, text);
-  const checker = typeCheckerFor(file, text);
+  const analysis = typeAnalysisFor(file, text, program);
+  const { source, checker } = analysis;
   const constStrings = collectConstStringValues(source, checker);
   const bindings = collectDynamicExecutionBindings(source, checker);
-  const violations: Violation[] = [];
+  const violations: Violation[] = typeAnalysisViolations(file, analysis);
   const inspect = (node: ts.CallExpression | ts.NewExpression): void => {
     const kind = dynamicExecutionKind(node.expression, checker, bindings);
     if (!kind) return;
@@ -1572,9 +1759,9 @@ function scanLegacyDeliveryCompatibilityUsage(
   aliasEdges: readonly PackageAliasEdge[] = PACKAGE_ALIAS_EDGE_INVENTORY,
 ): Violation[] {
   const fingerprintViolations = validatePinnedExecutableSourceFingerprint(file, text, checkedPinnedPaths);
+  if (!isExecutableSourceFile(file)) return fingerprintViolations;
   if (file === LEGACY_DELIVERY_COMPAT_MODULE) return fingerprintViolations;
-  const source = parseSource(file, text);
-  const checker = typeCheckerFor(file, text);
+  const { source, checker } = typeAnalysisFor(file, text);
   const concealedLoadViolations = scanConcealedCompatibilityLoads(file, text);
   const compatImports = extractImportSpecifiers(text, file)
     .filter(({ specifier }) => moduleSpecifierResolvesTo(file, specifier, LEGACY_DELIVERY_COMPAT_MODULE, aliasEdges));
@@ -1635,8 +1822,7 @@ function scanLegacyDeliveryCompatibilityUsage(
 function directlyExportsCompatibilityBinding(file: string, text: string): boolean {
   const approved = approvedLegacyDeliveryCompatUsages.get(file);
   if (!approved) return false;
-  const source = parseSource(file, text);
-  const checker = typeCheckerFor(file, text);
+  const { source, checker } = typeAnalysisFor(file, text);
   // Approved importers are a closed structural whitelist. Any real value-binding
   // reference outside the exact canonical parent chains makes the module a
   // potential exporter; graph scanning then rejects every downstream import.
@@ -1650,6 +1836,7 @@ function scanLegacyDeliveryCompatibilityGraph(fileTexts: ReadonlyMap<string, str
   const exporters = new Set<string>([normalizeModulePath(LEGACY_DELIVERY_COMPAT_MODULE)]);
 
   for (const [file, text] of fileTexts) {
+    if (!isExecutableSourceFile(file)) continue;
     if (directlyExportsCompatibilityBinding(file, text)) exporters.add(normalizeModulePath(file));
     for (const { specifier, index, kind } of extractImportSpecifiers(text, file)) {
       if (!moduleSpecifierResolvesTo(file, specifier, LEGACY_DELIVERY_COMPAT_MODULE)) continue;
@@ -1664,6 +1851,7 @@ function scanLegacyDeliveryCompatibilityGraph(fileTexts: ReadonlyMap<string, str
   while (changed) {
     changed = false;
     for (const [file, text] of fileTexts) {
+      if (!isExecutableSourceFile(file)) continue;
       const normalizedFile = normalizeModulePath(file);
       for (const { specifier, index, kind } of extractImportSpecifiers(text, file)) {
         for (const target of resolvedStaticModulePaths(file, specifier).targets) {
@@ -1864,10 +2052,10 @@ function assertShippedExecutableRootPositiveControls(): void {
   }
   for (const newFile of ['bin/new-cli-entrypoint.js', 'packages/lab/src/new-export.mts', 'packages/utils/src/new-register.cts']) {
     assert.equal(shouldScanImports(newFile), true, `new shipped executable file must enter import scanning: ${newFile}`);
+    const dynamicViolations = scanDynamicCodeGeneration(newFile, "eval(\"import('./legacy-delivery-claims-compat.js')\")");
     assert.ok(
-      scanDynamicCodeGeneration(newFile, "eval(\"import('./legacy-delivery-claims-compat.js')\")")
-        .some(violation => violation.label === 'dynamic code generation compatibility payload'),
-      `new shipped executable file must enter dynamic-code scanning: ${newFile}`,
+      dynamicViolations.some(violation => violation.label === 'dynamic code generation compatibility payload'),
+      `new shipped executable file must enter dynamic-code scanning: ${newFile}; got ${JSON.stringify(dynamicViolations)}`,
     );
   }
 }
@@ -1899,7 +2087,6 @@ function assertNormalizedSpecifierPositiveControls(): void {
 }
 
 function assertDynamicCodeGenerationPositiveControls(): void {
-  const controlFile = 'bin/dynamic-code-control.js';
   assert.equal(
     DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS.size + BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS.size,
     6,
@@ -1943,14 +2130,13 @@ function assertDynamicCodeGenerationPositiveControls(): void {
     ['object method constructor', "const holder = { method() {} }; holder.method.constructor(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\")();"],
     ['bound arrow constructor', "const Build = (() => {}).bind(null).constructor; new Build(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['bound function constructor alias', "function source() {} const bound = source.bind(null); const Build = bound.constructor; new Build(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['imported node fs callable constructor', "import { readFile } from 'node:fs'; readFile.constructor(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\")();"],
+    ['imported callable alias constructor', "import { readFile as importedCallable } from 'node:fs'; const Build = importedCallable.constructor; new Build(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['standard Array map constructor', "[1].map.constructor(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\")();"],
+    ['ambient global callable constructor', "setTimeout.constructor(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\")();"],
     ['node vm default import', "import vm from 'node:vm'; vm.runInNewContext(\"require('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
   ] as const;
-  for (const [label, source] of cases) {
-    const violations = scanDynamicCodeGeneration(controlFile, source);
-    assert.ok(violations.some(violation => violation.label === 'unapproved dynamic code generation'), `${label} must be banned`);
-    assert.ok(violations.some(violation => violation.label === 'dynamic code generation compatibility payload'), `${label} static payload must be inspected`);
-  }
-  for (const [label, source] of [
+  const negativeCases = [
     ['shadowed local eval', "function eval(value) { return value; } eval(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['shadowed local Function', "function Function(value) { return value; } new Function(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['shadowed globalThis property', "const globalThis = { eval(value) { return value; } }; globalThis.eval(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
@@ -1963,9 +2149,39 @@ function assertDynamicCodeGenerationPositiveControls(): void {
     ['shadowed nested object parameter default', "function execute({ nested: { indirect = value => value } }) { indirect(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
     ['shadowed nested rest parameter default', "function execute([head, ...[indirect = value => value]]) { indirect(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
     ['ordinary object constructor', "const object = { constructor(value) { return value; } }; object.constructor(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
-  ] as const) {
-    assert.deepEqual(scanDynamicCodeGeneration(controlFile, source), [], `${label} must remain a declaration-identity negative control`);
+    ['resolvable imported local noncallable value', "import { LEGACY_LIFECYCLE_PHASE_ALIASES } from '../packages/main/src/core/lifecycle-registry.js'; LEGACY_LIFECYCLE_PHASE_ALIASES.constructor(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+  ] as const;
+  const controlSources = [...cases, ...negativeCases].map(([label, source], index) => ({
+    label,
+    source,
+    file: `bin/dynamic-code-control-${index}.ts`,
+  }));
+  const unresolvedControl = { file: 'bin/dynamic-code-control-unresolved.ts', source: "import missing from './missing-dynamic-control.js'; missing.constructor('return 1')();" };
+  const malformedControl = { file: 'bin/dynamic-code-control-malformed.ts', source: 'function malformed( {' };
+  const controlProgram = createProjectTypeProgram(new Map([
+    ...controlSources.map(control => [control.file, control.source] as const),
+    [unresolvedControl.file, unresolvedControl.source],
+    [malformedControl.file, malformedControl.source],
+  ]), false);
+  for (const control of controlSources.slice(0, cases.length)) {
+    const violations = scanDynamicCodeGeneration(control.file, control.source, controlProgram);
+    const { label } = control;
+    assert.ok(violations.some(violation => violation.label === 'unapproved dynamic code generation'), `${label} must be banned`);
+    assert.ok(violations.some(violation => violation.label === 'dynamic code generation compatibility payload'), `${label} static payload must be inspected`);
   }
+  for (const control of controlSources.slice(cases.length)) {
+    assert.deepEqual(scanDynamicCodeGeneration(control.file, control.source, controlProgram), [], `${control.label} must remain a declaration-identity negative control`);
+  }
+  assert.ok(
+    scanDynamicCodeGeneration(unresolvedControl.file, unresolvedControl.source, controlProgram)
+      .some(violation => violation.label === 'malformed or unresolved executable type analysis'),
+    'unresolved relevant module source must fail closed',
+  );
+  assert.ok(
+    scanDynamicCodeGeneration(malformedControl.file, malformedControl.source, controlProgram)
+      .some(violation => violation.label === 'malformed or unresolved executable type analysis'),
+    'malformed relevant executable source must fail closed',
+  );
   for (const [file, fingerprint] of DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS) {
     assert.equal(canonicalAstFingerprint(file, readRel(file)), fingerprint, `dynamic-code exemption fingerprint must be exact: ${file}`);
     assert.deepEqual(scanDynamicCodeGeneration(file, readRel(file)), [], `exact dynamic-code exemption must remain accepted: ${file}`);
@@ -2346,6 +2562,7 @@ const activeFiles = [
   ...SHIPPED_EXECUTABLE_SOURCE_DIRS.flatMap(dir => listFiles(dir, EXECUTABLE_SOURCE_EXTENSIONS)),
   ...SHIPPED_EXECUTABLE_ENTRYPOINTS,
 ].filter((file, index, all) => all.indexOf(file) === index);
+assertProjectTypeProgramContract(activeFiles.filter(file => existsSync(join(repoRoot, file))));
 const activeFileTexts = new Map<string, string>();
 const checkedPinnedPaths = new Map<string, number>();
 
