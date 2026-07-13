@@ -1775,6 +1775,33 @@
       ],
       "signatureTag": "spread-order-enumerability-precision",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-f458:F-072",
+      "desc": "Object spread provenance still drops finite declared properties when the spread source is not an object literal and has no string/number index signature. conservativeIndexProvenance checks only index signatures and Any/Unknown/TypeParameter; unlike indexProvenance it never inspects checker.getPropertiesOfType, while provenanceForExpression does not populate members from a declared structural type. Therefore valid code such as `declare const source: { run: typeof eval }; const holder = { ...source }; holder.run(\"import('./legacy-delivery-claims-compat.js')\")` leaves holder with an empty incomplete member map, no indexKind, and no dangerousSymbol, so the executable alias is missed. The new typed spread positive uses Record<string, typeof eval> and exercises only the index-signature branch. The same omission loses unique-symbol-keyed callable properties because the current domains have no symbol fallback. Project finite enumerable properties into spread members (respecting later overwrite order), or reuse a conservative dangerous-property scan and represent symbol/unknown domains fail-closed. Add positive and safe-negative controls for typed finite callable properties in direct/destructured spread forms and for computed unique-symbol properties.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-13T16:35:09.430Z",
+      "reviewRound": "2026-07-13T16:32:19.000Z",
+      "reviewRunId": "B-f458:RR-091",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Reviewed the full spread-provenance commit diff and the focused spread construction, overwrite order, index-domain merge, any/unknown rest, exact-local safety, alias fixpoint, and executable control sections; unrelated unchanged guard sections were triaged."
+      },
+      "_hash": "c67e4762cce664df95fc544d5c44b963ec369541536e35181126f07ae46d8d66",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "typed-finite-property-spread-provenance",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
