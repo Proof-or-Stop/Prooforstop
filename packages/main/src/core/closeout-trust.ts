@@ -17,10 +17,9 @@ import type {
 import type { StoryStore } from './store.js';
 import { currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
 import {
-  LOCAL_ONLY_DELIVERY_CLAIM_KEYS,
-  LOCAL_ONLY_DELIVERY_CLAIMS,
-  isExactLocalOnlyDeliveryClaims,
-} from './baseline-contracts.js';
+  isExactLegacyLocalOnlyDeliveryClaims,
+  type LegacyLocalOnlyDeliveryClaims,
+} from './legacy-delivery-claims-compat.js';
 
 export type CloseoutArtifactClass = 'scope-defining' | 'closeout-evidence';
 
@@ -268,7 +267,7 @@ export interface PersistedDeliveryContextPack {
   deliveryCheck: { status: string; ref: Record<string, unknown> | null };
   waiver: { status: 'surfaced' | 'none' };
   isSigner: false;
-  claims: typeof LOCAL_ONLY_DELIVERY_CLAIMS;
+  claims: LegacyLocalOnlyDeliveryClaims;
 }
 
 export function validatePersistedDeliveryContextPack(raw: unknown, expectedStoryId?: string): PersistedDeliveryContextPack {
@@ -279,8 +278,7 @@ export function validatePersistedDeliveryContextPack(raw: unknown, expectedStory
   if (expectedStoryId && storyId !== expectedStoryId) throw new Error(`${artifact}: storyId mismatch`);
   if (value.generatedFor !== 'delivery-review' || value.isSigner !== false) throw new Error(`${artifact}: invalid producer authority shape`);
   const claims = object(value.claims, artifact);
-  exactKeys(claims, artifact, LOCAL_ONLY_DELIVERY_CLAIM_KEYS);
-  if (!isExactLocalOnlyDeliveryClaims(claims)) throw new Error(`${artifact}: local-only claims must all be false`);
+  if (!isExactLegacyLocalOnlyDeliveryClaims(claims)) throw new Error(`${artifact}: local-only claims must have the exact compatibility shape with false values`);
   const diff = object(value.diff, artifact);
   exactKeys(diff, artifact, ['changedFiles', 'summary']);
   stringArray(diff.changedFiles, artifact, 'diff.changedFiles');

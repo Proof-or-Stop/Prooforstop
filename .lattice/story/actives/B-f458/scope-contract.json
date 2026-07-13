@@ -136,8 +136,30 @@
         "LOCAL_ONLY_DELIVERY_CLAIMS",
         "isExactLocalOnlyDeliveryClaims"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "F-022 requires a narrow quarantined compatibility module plus scanner enforcement of its exact approved importers and usages.",
+      "timestamp": "2026-07-13T11:31:45.168Z",
+      "paths": [
+        "packages/main/src/core/legacy-delivery-claims-compat.ts",
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/legacy-delivery-claims-compat.ts",
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "3e89c601a856cdc6686a099d03ffea186e334e9d",
+      "materialHash": "506f5cb69448a0c4b08d3cf529d3816cb842380b1a1d699ff19f3774d05fabc4",
+      "anchors": [
+        "scanLegacyDeliveryCompatibilityUsage",
+        "createLegacyLocalOnlyDeliveryClaims"
+      ]
     }
   ],
   "createdAt": "2026-07-13T08:24:04.138Z",
-  "updatedAt": "2026-07-13T11:21:57.247Z"
+  "updatedAt": "2026-07-13T11:31:45.168Z"
 }

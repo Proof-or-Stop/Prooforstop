@@ -128,6 +128,7 @@ const legacyQuarantineFiles = new Set([
   'packages/main/src/core/authority-contracts.ts',
   'packages/main/src/core/baseline.ts',
   'packages/main/src/core/baseline-contracts.ts',
+  'packages/main/src/core/legacy-delivery-claims-compat.ts',
   'packages/main/src/core/baseline-suite-report.ts',
   'packages/main/src/core/lattice-baseline.ts',
   'packages/main/src/core/verdicts.ts',
@@ -145,6 +146,33 @@ const legacyQuarantineFiles = new Set([
 const retiredServerBackedModuleFiles = new Set([
   'packages/main/src/handlers/story-authority-resolve.ts',
   'packages/main/src/core/story-authority-resolver.ts',
+]);
+
+const LEGACY_DELIVERY_COMPAT_MODULE = 'packages/main/src/core/legacy-delivery-claims-compat.ts';
+const approvedLegacyDeliveryCompatUsages = new Map<string, {
+  symbols: readonly string[];
+  calls: Readonly<Record<string, number>>;
+  directUsePattern: RegExp;
+  directUseCount: number;
+}>([
+  ['packages/main/src/core/closeout-trust.ts', {
+    symbols: ['isExactLegacyLocalOnlyDeliveryClaims', 'LegacyLocalOnlyDeliveryClaims'],
+    calls: { isExactLegacyLocalOnlyDeliveryClaims: 1 },
+    directUsePattern: /if \(!isExactLegacyLocalOnlyDeliveryClaims\(claims\)\)/g,
+    directUseCount: 1,
+  }],
+  ['packages/main/src/handlers/delivery-context-pack.ts', {
+    symbols: ['createLegacyLocalOnlyDeliveryClaims', 'LegacyLocalOnlyDeliveryClaims'],
+    calls: { createLegacyLocalOnlyDeliveryClaims: 2 },
+    directUsePattern: /claims:\s*createLegacyLocalOnlyDeliveryClaims\(\)/g,
+    directUseCount: 2,
+  }],
+  ['packages/main/src/tasks/closeout-trust-smoke.ts', {
+    symbols: ['createLegacyLocalOnlyDeliveryClaims'],
+    calls: { createLegacyLocalOnlyDeliveryClaims: 1 },
+    directUsePattern: /claims:\s*createLegacyLocalOnlyDeliveryClaims\(\)/g,
+    directUseCount: 1,
+  }],
 ]);
 
 const structuralLegacyFieldQuarantineFiles = new Set([
@@ -303,6 +331,61 @@ function retiredModuleMatch(file: string, specifier: string): string | undefined
   return undefined;
 }
 
+function moduleSpecifierResolvesTo(file: string, specifier: string, targetFile: string): boolean {
+  if (!specifier.startsWith('.')) return false;
+  const target = normalizeModulePath(join(dirname(file), specifier).replace(/\\/g, '/'));
+  return target === normalizeModulePath(targetFile);
+}
+
+function scanLegacyDeliveryCompatibilityUsage(file: string, text: string): Violation[] {
+  if (file === LEGACY_DELIVERY_COMPAT_MODULE) return [];
+  const compatImports = extractImportSpecifiers(text)
+    .filter(({ specifier }) => moduleSpecifierResolvesTo(file, specifier, LEGACY_DELIVERY_COMPAT_MODULE));
+  if (compatImports.length === 0) return [];
+  const approved = approvedLegacyDeliveryCompatUsages.get(file);
+  if (!approved) {
+    return compatImports.map(({ specifier, index }) => ({
+      file,
+      line: lineNumberAt(text, index),
+      label: 'unapproved legacy delivery compatibility import',
+      text: specifier,
+    }));
+  }
+
+  const violations: Violation[] = [];
+  const importedSymbols: string[] = [];
+  const importPattern = /import\s+\{([\s\S]*?)\}\s+from\s*['"]([^'"]+)['"]/g;
+  let importMatch: RegExpExecArray | null;
+  while ((importMatch = importPattern.exec(text)) !== null) {
+    if (!moduleSpecifierResolvesTo(file, importMatch[2], LEGACY_DELIVERY_COMPAT_MODULE)) continue;
+    importedSymbols.push(...importMatch[1].split(',').map(symbol => symbol.trim().replace(/^type\s+/, '')).filter(Boolean));
+  }
+  const actualSymbols = [...new Set(importedSymbols)].sort();
+  const expectedSymbols = [...approved.symbols].sort();
+  if (compatImports.length !== 1 || JSON.stringify(actualSymbols) !== JSON.stringify(expectedSymbols)) {
+    violations.push({
+      file,
+      line: lineNumberAt(text, compatImports[0].index),
+      label: 'legacy delivery compatibility import surface drift',
+      text: `expected ${expectedSymbols.join(',')} got ${actualSymbols.join(',') || 'none'}`,
+    });
+  }
+  for (const [symbol, expectedCount] of Object.entries(approved.calls)) {
+    const actualCount = (text.match(new RegExp(`\\b${symbol}\\s*\\(`, 'g')) ?? []).length;
+    if (actualCount !== expectedCount) {
+      violations.push({ file, line: 1, label: 'legacy delivery compatibility call-count drift', text: `${symbol}: expected ${expectedCount}, got ${actualCount}` });
+    }
+  }
+  const directUseCount = (text.match(approved.directUsePattern) ?? []).length;
+  if (directUseCount !== approved.directUseCount) {
+    violations.push({ file, line: 1, label: 'legacy delivery compatibility usage drift', text: `expected ${approved.directUseCount} direct use(s), got ${directUseCount}` });
+  }
+  if (/\.\.\.\s*createLegacyLocalOnlyDeliveryClaims\s*\(/.test(text)) {
+    violations.push({ file, line: 1, label: 'legacy delivery compatibility spread forbidden', text: 'constructor result may not be spread' });
+  }
+  return violations;
+}
+
 function shouldScanImports(file: string): boolean {
   return /^packages\/main\/src\/.*\.(?:cjs|js|ts)$/.test(file)
     && !file.includes('/dist/')
@@ -389,6 +472,21 @@ function assertImportSpecifierPositiveControls(): void {
     violations.some(v => v.text === './story-authority-resolver.js'),
     'import guard must catch the retired story-authority-resolver core module',
   );
+}
+
+function assertLegacyDeliveryCompatibilityPositiveControls(): void {
+  const controlFile = 'packages/main/src/core/unapproved-delivery-emitter.ts';
+  const control = [
+    "import { createLegacyLocalOnlyDeliveryClaims } from './legacy-delivery-claims-compat.js';",
+    'export const leaked = { ...createLegacyLocalOnlyDeliveryClaims() };',
+  ].join('\n');
+  const violations = scanLegacyDeliveryCompatibilityUsage(controlFile, control);
+  assert.ok(
+    violations.some(violation => violation.label === 'unapproved legacy delivery compatibility import'),
+    'compatibility usage guard must catch an unapproved importer that spreads/calls the constructor',
+  );
+  const directTokenViolations = scanText('<positive-control>', 'const leaked = { authorityDone: false };');
+  assert.ok(directTokenViolations.some(violation => violation.label === 'authorityDone'), 'direct retired-field positive control must remain caught');
 }
 
 function assertContract(): void {
@@ -496,6 +594,7 @@ function assertGeneratedHelp(): Violation[] {
 const violations: Violation[] = [];
 assertPositiveControls();
 assertImportSpecifierPositiveControls();
+assertLegacyDeliveryCompatibilityPositiveControls();
 assertContract();
 violations.push(...assertCommandCatalog());
 
@@ -509,6 +608,7 @@ for (const file of activeFiles) {
   const text = readRel(file);
   violations.push(...scanText(file, text));
   violations.push(...scanImportSpecifiers(file, text));
+  violations.push(...scanLegacyDeliveryCompatibilityUsage(file, text));
 }
 
 for (const file of retiredFutureBacklogPlanFiles) {

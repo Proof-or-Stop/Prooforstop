@@ -756,12 +756,16 @@ function assertCloseoutTrustBoundary() {
   }
   const deliveryText = read('packages/main/src/handlers/delivery-context-pack.ts');
   assert(deliveryText.includes('validatePersistedDeliveryContextPack(JSON.parse'), 'delivery-context-pack writer must validate the persisted shape before rename');
-  const baselineContractsText = read('packages/main/src/core/baseline-contracts.ts');
-  for (const token of ['LOCAL_ONLY_DELIVERY_CLAIM_KEYS', 'LOCAL_ONLY_DELIVERY_CLAIMS', 'isExactLocalOnlyDeliveryClaims']) {
-    assert(baselineContractsText.includes(token), `baseline-contracts must retain canonical local-only delivery claim contract ${token}`);
-    assert(trustText.includes(token), `closeout trust validator must reuse canonical local-only delivery claim contract ${token}`);
+  const legacyDeliveryClaimsText = read('packages/main/src/core/legacy-delivery-claims-compat.ts');
+  for (const token of ['createLegacyLocalOnlyDeliveryClaims', 'isExactLegacyLocalOnlyDeliveryClaims']) {
+    assert(legacyDeliveryClaimsText.includes(token), `dedicated delivery compatibility module must retain ${token}`);
   }
-  assert(deliveryText.includes('LOCAL_ONLY_DELIVERY_CLAIMS'), 'delivery-context producer must emit the same canonical local-only claims consumed by the trust validator');
+  assert(trustText.includes('isExactLegacyLocalOnlyDeliveryClaims'), 'closeout trust validator must consume the narrow compatibility validator');
+  assert(deliveryText.includes('createLegacyLocalOnlyDeliveryClaims'), 'delivery-context producer must construct claims only through the narrow compatibility function');
+  const retiredVocabularyGuardText = read('packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts');
+  for (const token of ['approvedLegacyDeliveryCompatUsages', 'scanLegacyDeliveryCompatibilityUsage', 'unapproved legacy delivery compatibility import', 'constructor result may not be spread']) {
+    assert(retiredVocabularyGuardText.includes(token), `retired vocabulary guard must enforce narrow compatibility usage: ${token}`);
+  }
   const scopeAckPolicy = parseCommandPolicyEntries().find(entry => entry.name === 'scope_contract_acknowledge');
   assert(scopeAckPolicy && !scopeAckPolicy.allowedPhases.includes('TEST'), `${commandPolicyPath}: scope_contract_acknowledge must remain rejected in TEST`);
 
