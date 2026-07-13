@@ -2378,7 +2378,7 @@
       "desc": "The Promise/dynamic-import repair still handles only an inline ArrayLiteral passed directly to Promise.all. The special case at lines 2135-2154 does not analyze `const pending = [import('./dynamic-code-esm-bridge.js')]; const [bridge] = await Promise.all(pending)`, spread iterables, Promise.race, or `.then` pass-throughs. Those awaited expressions keep only checker types; no namespaceForModuleSymbol result or unknownMemberAccess reaches the selected binding, so calls through eval/Function/vm exports evade. The F-085 resolution claim says dynamic-import arrays propagate per-slot provenance, but only literal cells are pinned. Propagate dynamic module provenance through const arrays/spreads and standard Promise combinators/callback identity flows, or conservatively mark unresolved awaited module-shaped results; add dangerous/safe controls for variable/spread Promise.all, race, then, and assignment-before-await.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-13T18:31:21.260Z",
@@ -2398,7 +2398,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "promise-wrapper-module-provenance-gap",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 151eac3ea1: Promise collections now propagate awaited slot provenance across const, spread, mixed, sparse, unresolved, race, then and assignment flows.",
+      "resolvedAt": "2026-07-13T18:56:25.688Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-092",
