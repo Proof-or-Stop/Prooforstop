@@ -356,7 +356,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-07-13T12:31:21.452Z",
+      "endTime": "2026-07-13T12:39:48.232Z",
       "userSees": "User runs the M4.C1 regression suite and sees `PASS metadata-only review retention is fail-closed`; unknown paths, changed material/scope, missing provenance, malformed hashes, same-UID forged receipts, TEST acknowledgement, and stale review reuse are all rejected, while a fresh post-closeout review succeeds.",
       "verificationIntent": {
         "happy": [
@@ -406,35 +406,35 @@
         {
           "intentRef": "CHK-005:happy:0",
           "kind": "logic_test",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "command": "npm test",
           "result": "pass",
-          "note": "Build and closed structural compatibility-boundary guard passed at 238958b265 (CHK-005).",
-          "headHash": "9ae5578c820a906f18d1b67e7c0284a166a8dc3e",
-          "materialHash": "9ca061475c8a831ffcaf9d7e95d66d36432856ccdce91791c3c69f7ccb0f69b9",
-          "storyFilesHash": "f076b05da8f2ae1d8dff36dc22e11913ffa210decc44bbf9ba052ba6d8c0796e",
-          "timestamp": "2026-07-13T12:31:21.603Z"
+          "note": "Full repository suite passed at cc1c319cd0 after bounded doctor burn-summary repair (CHK-005).",
+          "headHash": "e5224046234ffb159fcb191946174546cc94a2fa",
+          "materialHash": "c24955ed04a8aa8c522901f6864bbbb860b4b761b362aecf4e649431fbffc98f",
+          "storyFilesHash": "285aefea91fc96464bf10ca050bbc9ca47484143ab82b232b3702155175bcf96",
+          "timestamp": "2026-07-13T12:39:48.376Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
           "kind": "logic_test",
-          "command": "npm run test:closeout-trust && npm run test:runtime-fact-contract",
+          "command": "npm run test:closeout-trust && npm run test:runtime-fact-contract && npm run test:brief-output",
           "result": "pass",
-          "note": "Closeout trust and runtime fact contracts passed at 238958b265 (CHK-005).",
-          "headHash": "9ae5578c820a906f18d1b67e7c0284a166a8dc3e",
-          "materialHash": "9ca061475c8a831ffcaf9d7e95d66d36432856ccdce91791c3c69f7ccb0f69b9",
-          "storyFilesHash": "f076b05da8f2ae1d8dff36dc22e11913ffa210decc44bbf9ba052ba6d8c0796e",
-          "timestamp": "2026-07-13T12:31:21.743Z"
+          "note": "Closeout/runtime contracts and deterministic <20k doctor brief regression passed at cc1c319cd0 (CHK-005).",
+          "headHash": "e5224046234ffb159fcb191946174546cc94a2fa",
+          "materialHash": "c24955ed04a8aa8c522901f6864bbbb860b4b761b362aecf4e649431fbffc98f",
+          "storyFilesHash": "285aefea91fc96464bf10ca050bbc9ca47484143ab82b232b3702155175bcf96",
+          "timestamp": "2026-07-13T12:39:48.513Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
           "kind": "logic_test",
-          "command": "npm run test:process-fact-contract",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && npm run test:process-fact-contract && npm run test:usage-burn-alert",
           "result": "pass",
-          "note": "Process contract passed at 238958b265 with F-031 exported-container assignment and F-032 wrapper/property/destructure/namespace-createRequire controls plus exact benign-loader allowlist (CHK-005).",
-          "headHash": "9ae5578c820a906f18d1b67e7c0284a166a8dc3e",
-          "materialHash": "9ca061475c8a831ffcaf9d7e95d66d36432856ccdce91791c3c69f7ccb0f69b9",
-          "storyFilesHash": "f076b05da8f2ae1d8dff36dc22e11913ffa210decc44bbf9ba052ba6d8c0796e",
-          "timestamp": "2026-07-13T12:31:21.882Z"
+          "note": "Compatibility boundary, process fact, and 21-case host burn renderer controls passed at cc1c319cd0; --full detail remains intact while brief is bounded (CHK-005).",
+          "headHash": "e5224046234ffb159fcb191946174546cc94a2fa",
+          "materialHash": "c24955ed04a8aa8c522901f6864bbbb860b4b761b362aecf4e649431fbffc98f",
+          "storyFilesHash": "285aefea91fc96464bf10ca050bbc9ca47484143ab82b232b3702155175bcf96",
+          "timestamp": "2026-07-13T12:39:48.653Z"
         }
       ]
     }
