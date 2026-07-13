@@ -425,6 +425,27 @@
         "scanEscalationReason": null
       },
       "_hash": "f54336e059b3f2381996508a36d7c8b9acebb038c7b6dc1585fe29b025711805"
+    },
+    {
+      "id": "B-3928:RP-021",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS after main merge: all 15 verificationIntent entries across CHK-001..005 still have one-to-one verificationEvidence, now uniformly rebound to storyFilesHash 71d83d44, matching the current signed review run. Inspected merged root package.json test-chain resolution: 33 npm-run references resolve to defined scripts with zero missing targets; test:proof-or-stop-prompt-baseline remains third in the root test chain and the newly merged test:brief-output target also resolves. Independently ran npm run test:proof-or-stop-prompt-baseline at version 0.3.192; all registry, agent_prompt, mutation, matrix, legacy-vocabulary, and direct-story-write checks passed.",
+      "createdAt": "2026-07-13T03:29:11.984Z",
+      "reviewRound": "2026-07-13T03:28:15.343Z",
+      "reviewRunId": "B-3928:RR-044",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "package-lock.json",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b722f7d58787f13cb9dc121f137c925ea1781beca46bd90d0113096420468577"
     }
   ]
 }
