@@ -248,6 +248,26 @@
       ],
       "signatureTag": "adversarial|ts|ed25519-repair-still",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f458:F-011",
+      "desc": "Wrapper-root metadata retention still uses the metadata-root-relative configured storyDir as though it were git-root-relative. In evaluateReviewRunMetadataRetention, projectRoot is the resolved git root and changedFilesBetween returns .lattice/story/actives/B-wrap/..., but storyPrefix is built from store.storyDirRel() as repo/.lattice/story/actives/B-wrap/. The filter therefore sees no changed story artifacts. A real split-root fixture with gitRoot=repo and storyDir=repo/.lattice/story/actives committed unknown-manual.json after the review snapshot; git diff reported .lattice/story/actives/B-wrap/unknown-manual.json while evaluateReviewRunMetadataRetention returned {ok:true,reasons:[]}. Rebase the canonical StoryStore story directory relative to projectRoot exactly as autoCommit now does, reject outside paths, and cover unknown/manual plus canonical receipt cases through the real retention consumer in wrapper-root mode.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-13T09:58:18.933Z",
+      "reviewRound": "2026-07-13T09:54:55.250Z",
+      "reviewRunId": "B-f458:RR-008",
+      "_hash": "1f9b7712a5bb562b93760b276c93d135b090b188649e53603e3cf84544a808cd",
+      "files": [
+        "packages/main/src/core/review-run.ts",
+        "packages/main/src/core/auto-commit-metadata.ts",
+        "packages/main/src/tasks/closeout-trust-smoke.ts"
+      ],
+      "signatureTag": "wrapper-root-retention-prefix",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
