@@ -275,26 +275,26 @@
       "status": "done",
       "startTime": null,
       "endTime": "2026-07-13T09:16:55.874Z",
-      "userSees": "User runs the TEST roll-up regression and sees `PASS canonical closeout write retained TEST`; the paired source/docs/scope mutations visibly route back to DEV/REVIEW.",
+      "userSees": "User runs the TEST roll-up regression and sees `PASS local closeout requires fresh review before TEST retention`; same-UID forged receipts and paired source/docs/scope mutations fail closed, while a fresh post-closeout review can continue TEST.",
       "verificationIntent": {
         "happy": [
           {
             "id": "CHK-004:happy:0",
-            "desc": "In TEST, canonical parent_ledger_rollup_set output with unchanged product/material diff and unchanged composite scope digest remains in TEST and reports PASS canonical closeout write retained TEST.",
+            "desc": "In TEST, a local canonical parent_ledger_rollup_set emits causal audit telemetry but cannot retain pre-closeout review authority; after a fresh post-closeout review over unchanged product/material diff and composite scope digest, the story can continue TEST.",
             "type": "cli"
           }
         ],
         "edge": [
           {
             "id": "CHK-004:edge:0",
-            "desc": "Paired mutations to a source, test, or documentation file, or to any semantic scope fact, are distinguished from canonical rollup-only metadata and route the story back to DEV/REVIEW as appropriate.",
+            "desc": "Paired mutations to a source, test, or documentation file, or to any semantic scope fact, remain distinguishable from closeout-only metadata and require the appropriate DEV/REVIEW path; closeout-only metadata still requires fresh review.",
             "type": "cli"
           }
         ],
         "adversarial": [
           {
             "id": "CHK-004:adversarial:0",
-            "desc": "A manually written, wrong-writer, malformed, hash-forged, unknown-path, or mixed rollup-plus-material change cannot masquerade as canonical TEST closeout or suppress synthetic scope-expansion detection.",
+            "desc": "A same-UID manual writer, wrong writer, malformed/hash-forged/unknown-path receipt, or mixed rollup-plus-material change cannot use locally mintable causal telemetry as canonical-writer authority or suppress re-review.",
             "type": "cli"
           }
         ]
