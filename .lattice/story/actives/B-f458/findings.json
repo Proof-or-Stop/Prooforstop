@@ -2837,6 +2837,33 @@
       ],
       "signatureTag": "lazy-property-call-reexport-bypass",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-f458:F-109",
+      "desc": "The focused guard newly added F102-F105 matrices and exact reachability assertion execute and pass (builds=553, cacheHits=2, fullAnalysis=1105, astCandidates=445, reachability=15), but the coverage matrix still omits two production-relevant carrier shapes exposed by current verified findings: (1) a safe-named property or namespace member whose value resolves to eval, such as `const holder = { run: eval }; holder.run(\"1+1\")` or a safe-named re-export, and (2) a parameter invoked with a dynamic target, such as `function execute(run){ run(\"1+1\") } execute(eval)`. Both can evade detection through the lazy candidate or local-safe shortcuts, so the passing matrix cannot establish the story contract. Add positive controls for both shapes (plus genuinely local-safe receiver and parameter negatives), pin their labels and relevant instrumentation in the process-fact contract, and require the same production `scanDynamicCodeGeneration` path.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-13T19:59:45.865Z",
+      "reviewRound": "2026-07-13T19:55:30.756Z",
+      "reviewRunId": "B-f458:RR-117",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Reviewed the complete 1e57828c76 diff and the changed F102-F105 control, reachability, execution-path, instrumentation, and process-pin sections; the concurrent verified findings establish omitted carrier shapes without requiring unrelated decisions-document escalation."
+      },
+      "_hash": "ee0e66a5ed7e95a02c2d6731e9273be8bc3d88f07fb35f71b758ce16a4983d1e",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "missing|dynamic-code|safe-named-carrier-control-matrix",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
