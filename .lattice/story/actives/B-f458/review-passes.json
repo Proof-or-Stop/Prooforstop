@@ -1,0 +1,29 @@
+{
+  "passes": [
+    {
+      "id": "B-f458:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-3 coverage PASS: npm run test:closeout-trust passes after build. The smoke executes every closeout writer/path through real handlers and asserts manual artifact+receipt co-commit rejection with a wrong Ed25519 key, mismatched private-key rejection, old-round key rejection, signer rotation with signer-scoped sequence reset, missing-key fail-closed guidance, replay/copy/reorder rejection, and wrapper-root autoCommit plus receipt validation. All 15 happy/edge/adversarial intents have passing evidence bound to 065b7dde13 and storyFilesHash 70f0205.",
+      "createdAt": "2026-07-13T09:58:41.024Z",
+      "reviewRound": "2026-07-13T09:54:55.250Z",
+      "reviewRunId": "B-f458:RR-009",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "87c2657491764a98ee8e2f14d86b28ba2f9f2572842b72e4164bbc5ce880f31e"
+    }
+  ]
+}
