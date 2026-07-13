@@ -421,11 +421,11 @@
           "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
           "command": "npm test",
           "result": "pass",
-          "note": "Fresh review after closeout reaches DONE through the real actor FINISH transition; full repository suite passes.",
-          "headHash": "4bcd14fb91a62d8c47b76a251ad88e56f1199c3b",
-          "materialHash": "92eefbdb41b59a1d8296c3bf1aaf71d666f8f2f4895e3ec08e64ab5bd5d6b16e",
-          "storyFilesHash": "c5dc7934120519a46c14380cafb19bfe084d3e04f7117d02108160f105082015",
-          "timestamp": "2026-07-13T10:26:39.690Z"
+          "note": "Full regression suite passes canonical persisted REVIEW-to-TEST retention and true actor TEST-to-DONE completion.",
+          "headHash": "bb6f9160aa0a9b05713fac7a75c433cb78c790f6",
+          "materialHash": "f0c2ac8f72d4e7e4ad1ea4a5ad93dee3b74b0719bbcc6a9873891e076082c76a",
+          "storyFilesHash": "ca890b72f160b1bd6dd014aa3defef7782852d7a6f289ee43fee5184997d2680",
+          "timestamp": "2026-07-13T10:36:16.676Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -433,23 +433,23 @@
           "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
           "command": "npm test",
           "result": "pass",
-          "note": "Unknown metadata, material/scope drift, invalid schema/hash, stale review, and TEST acknowledgement are independently rejected.",
-          "headHash": "4bcd14fb91a62d8c47b76a251ad88e56f1199c3b",
-          "materialHash": "92eefbdb41b59a1d8296c3bf1aaf71d666f8f2f4895e3ec08e64ab5bd5d6b16e",
-          "storyFilesHash": "c5dc7934120519a46c14380cafb19bfe084d3e04f7117d02108160f105082015",
-          "timestamp": "2026-07-13T10:26:39.843Z"
+          "note": "Independent unknown metadata, material/scope drift, stale review, invalid artifact, and tampered index cases fail closed.",
+          "headHash": "bb6f9160aa0a9b05713fac7a75c433cb78c790f6",
+          "materialHash": "f0c2ac8f72d4e7e4ad1ea4a5ad93dee3b74b0719bbcc6a9873891e076082c76a",
+          "storyFilesHash": "ca890b72f160b1bd6dd014aa3defef7782852d7a6f289ee43fee5184997d2680",
+          "timestamp": "2026-07-13T10:36:16.809Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
           "kind": "logic_test",
-          "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "file": "scripts/verify-process-fact-contract.mjs",
           "command": "npm test",
           "result": "pass",
-          "note": "Pre-closeout/earlier assurance and locally forged coherent receipts cannot satisfy the TEST-to-DONE machine guard; process contract pins this consumer.",
-          "headHash": "4bcd14fb91a62d8c47b76a251ad88e56f1199c3b",
-          "materialHash": "92eefbdb41b59a1d8296c3bf1aaf71d666f8f2f4895e3ec08e64ab5bd5d6b16e",
-          "storyFilesHash": "c5dc7934120519a46c14380cafb19bfe084d3e04f7117d02108160f105082015",
-          "timestamp": "2026-07-13T10:26:39.997Z"
+          "note": "Contract pins the narrow index exception to production collectContext shape and L4 TEST/DONE trust-boundary consumer.",
+          "headHash": "bb6f9160aa0a9b05713fac7a75c433cb78c790f6",
+          "materialHash": "f0c2ac8f72d4e7e4ad1ea4a5ad93dee3b74b0719bbcc6a9873891e076082c76a",
+          "storyFilesHash": "ca890b72f160b1bd6dd014aa3defef7782852d7a6f289ee43fee5184997d2680",
+          "timestamp": "2026-07-13T10:36:16.939Z"
         }
       ]
     }
