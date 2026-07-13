@@ -38,10 +38,10 @@
           "command": "npm run test:process-fact-contract",
           "result": "pass",
           "note": "Contract run on commit b7d953361d prints Process fact contract verified with the artifact:milestone-closeout.json registry entry present.",
-          "headHash": "b7d953361d055f0921a6c5c9a079f6f3dd0b81e8",
-          "materialHash": "85b33013ae9e1a98a618a050aaed48f7f86994de8880c11904a2826ef7c6d055",
-          "storyFilesHash": "e7f5ad407b65efed1c98ee00419b0aeb7c7e3fe9f5b6bc0d18892170171ccaa0",
-          "timestamp": "2026-07-13T08:40:48.554Z"
+          "headHash": "60555846c3377ca95f085448f5f8691bae3632a1",
+          "materialHash": "0ef3c1170f94f44b4c1bdc163fe6ddf9f93d9b877987144976a95285f0cee4e4",
+          "storyFilesHash": "9c45ff0f8cc7aca0c97f88884f8ff39b8e7f04a78ab5afe170e60e45e1d98570",
+          "timestamp": "2026-07-13T09:01:34.311Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -50,10 +50,10 @@
           "command": "npm run test:process-fact-contract",
           "result": "pass",
           "note": "The requiredArtifactFacts loop mechanically asserts kind=artifact for signed:false, artifact semantic, path match, and consumerGate presence for this entry; the verified run executed those assertions against the new entry. tsc build also passed, proving the semantics array type-checks as ProcessFactSemantic[].",
-          "headHash": "b7d953361d055f0921a6c5c9a079f6f3dd0b81e8",
-          "materialHash": "85b33013ae9e1a98a618a050aaed48f7f86994de8880c11904a2826ef7c6d055",
-          "storyFilesHash": "e7f5ad407b65efed1c98ee00419b0aeb7c7e3fe9f5b6bc0d18892170171ccaa0",
-          "timestamp": "2026-07-13T08:40:48.554Z"
+          "headHash": "60555846c3377ca95f085448f5f8691bae3632a1",
+          "materialHash": "0ef3c1170f94f44b4c1bdc163fe6ddf9f93d9b877987144976a95285f0cee4e4",
+          "storyFilesHash": "9c45ff0f8cc7aca0c97f88884f8ff39b8e7f04a78ab5afe170e60e45e1d98570",
+          "timestamp": "2026-07-13T09:01:34.311Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -62,10 +62,10 @@
           "command": "python3 remove-entry && npm run test:process-fact-contract && git restore && npm run test:process-fact-contract",
           "result": "pass",
           "note": "Bite test transcript: with the artifact:milestone-closeout.json fact entry removed from PROCESS_FACT_REGISTRY the script fails with artifact missing from PROCESS_FACT_REGISTRY: artifact=artifact:milestone-closeout.json; after git restore the run prints Process fact contract verified. Source byte-restored (git status clean for the two source files).",
-          "headHash": "b7d953361d055f0921a6c5c9a079f6f3dd0b81e8",
-          "materialHash": "85b33013ae9e1a98a618a050aaed48f7f86994de8880c11904a2826ef7c6d055",
-          "storyFilesHash": "e7f5ad407b65efed1c98ee00419b0aeb7c7e3fe9f5b6bc0d18892170171ccaa0",
-          "timestamp": "2026-07-13T08:40:48.554Z"
+          "headHash": "60555846c3377ca95f085448f5f8691bae3632a1",
+          "materialHash": "0ef3c1170f94f44b4c1bdc163fe6ddf9f93d9b877987144976a95285f0cee4e4",
+          "storyFilesHash": "9c45ff0f8cc7aca0c97f88884f8ff39b8e7f04a78ab5afe170e60e45e1d98570",
+          "timestamp": "2026-07-13T09:01:34.311Z"
         }
       ]
     },
@@ -107,10 +107,10 @@
           "command": "npm run test:process-fact-contract",
           "result": "pass",
           "note": "requiredArtifactFacts now contains { name: artifact:milestone-closeout.json, path: milestone-closeout.json, signed: false } next to the milestone-ledger line and the contract run stays green.",
-          "headHash": "b7d953361d055f0921a6c5c9a079f6f3dd0b81e8",
-          "materialHash": "85b33013ae9e1a98a618a050aaed48f7f86994de8880c11904a2826ef7c6d055",
-          "storyFilesHash": "e7f5ad407b65efed1c98ee00419b0aeb7c7e3fe9f5b6bc0d18892170171ccaa0",
-          "timestamp": "2026-07-13T08:40:48.554Z"
+          "headHash": "60555846c3377ca95f085448f5f8691bae3632a1",
+          "materialHash": "0ef3c1170f94f44b4c1bdc163fe6ddf9f93d9b877987144976a95285f0cee4e4",
+          "storyFilesHash": "9c45ff0f8cc7aca0c97f88884f8ff39b8e7f04a78ab5afe170e60e45e1d98570",
+          "timestamp": "2026-07-13T09:01:34.311Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -119,10 +119,10 @@
           "command": "npm run test:process-fact-contract",
           "result": "pass",
           "note": "Because the entry sits in requiredArtifactFacts, the loop enforces path match and kind drift (artifact vs signed-artifact) for this artifact on every contract run; assertions executed in the verified run.",
-          "headHash": "b7d953361d055f0921a6c5c9a079f6f3dd0b81e8",
-          "materialHash": "85b33013ae9e1a98a618a050aaed48f7f86994de8880c11904a2826ef7c6d055",
-          "storyFilesHash": "e7f5ad407b65efed1c98ee00419b0aeb7c7e3fe9f5b6bc0d18892170171ccaa0",
-          "timestamp": "2026-07-13T08:40:48.554Z"
+          "headHash": "60555846c3377ca95f085448f5f8691bae3632a1",
+          "materialHash": "0ef3c1170f94f44b4c1bdc163fe6ddf9f93d9b877987144976a95285f0cee4e4",
+          "storyFilesHash": "9c45ff0f8cc7aca0c97f88884f8ff39b8e7f04a78ab5afe170e60e45e1d98570",
+          "timestamp": "2026-07-13T09:01:34.311Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -131,10 +131,10 @@
           "command": "python3 remove-entry && npm run test:process-fact-contract && git restore && npm run test:process-fact-contract",
           "result": "pass",
           "note": "Shared bite test with CHK-001: required-list line present but registry entry absent makes the script fail with the artifact-missing assertion, proving the CHK-002 line is load-bearing; restored run green.",
-          "headHash": "b7d953361d055f0921a6c5c9a079f6f3dd0b81e8",
-          "materialHash": "85b33013ae9e1a98a618a050aaed48f7f86994de8880c11904a2826ef7c6d055",
-          "storyFilesHash": "e7f5ad407b65efed1c98ee00419b0aeb7c7e3fe9f5b6bc0d18892170171ccaa0",
-          "timestamp": "2026-07-13T08:40:48.554Z"
+          "headHash": "60555846c3377ca95f085448f5f8691bae3632a1",
+          "materialHash": "0ef3c1170f94f44b4c1bdc163fe6ddf9f93d9b877987144976a95285f0cee4e4",
+          "storyFilesHash": "9c45ff0f8cc7aca0c97f88884f8ff39b8e7f04a78ab5afe170e60e45e1d98570",
+          "timestamp": "2026-07-13T09:01:34.311Z"
         }
       ]
     }
