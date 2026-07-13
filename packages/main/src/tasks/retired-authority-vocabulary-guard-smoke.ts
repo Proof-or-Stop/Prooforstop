@@ -1358,6 +1358,14 @@ function isGlobalRequireCall(node: ts.Expression, checker: ts.TypeChecker): node
     && (current.arguments[0].text === 'node:vm' || current.arguments[0].text === 'vm');
 }
 
+const EXACT_SAFE_NODE_REQUIRE_SPECIFIERS = new Set([
+  'fs', 'node:fs',
+  'path', 'node:path',
+  'url', 'node:url',
+  'os', 'node:os',
+  'module', 'node:module',
+]);
+
 function functionExpressionConstructorKind(node: ts.Expression): string | undefined {
   const current = unwrapExecutionExpression(node);
   if (ts.isClassExpression(current)) return 'Function';
@@ -1395,32 +1403,6 @@ function typeHasCallableSignature(expression: ts.Expression, checker: ts.TypeChe
   const type = checker.getTypeAtLocation(unwrapExecutionExpression(expression));
   return checker.getSignaturesOfType(type, ts.SignatureKind.Call).length > 0
     || checker.getSignaturesOfType(type, ts.SignatureKind.Construct).length > 0;
-}
-
-function isTypeofFunctionNarrowed(expression: ts.Expression): boolean {
-  const target = unwrapExecutionExpression(expression).getText();
-  const matchesGuard = (condition: ts.Expression): boolean => {
-    if (!ts.isBinaryExpression(condition)) return false;
-    const equality = condition.operatorToken.kind === ts.SyntaxKind.EqualsEqualsEqualsToken
-      || condition.operatorToken.kind === ts.SyntaxKind.EqualsEqualsToken;
-    if (!equality) return false;
-    const pairs: ReadonlyArray<readonly [ts.Expression, ts.Expression]> = [
-      [condition.left, condition.right],
-      [condition.right, condition.left],
-    ];
-    return pairs.some(([candidate, expected]) => (
-      ts.isTypeOfExpression(candidate)
-      && unwrapExecutionExpression(candidate.expression).getText() === target
-      && ts.isStringLiteralLike(expected)
-      && expected.text === 'function'
-    ));
-  };
-  let child: ts.Node = expression;
-  for (let parent = expression.parent; parent; child = parent, parent = parent.parent) {
-    if (ts.isIfStatement(parent) && parent.thenStatement === child && matchesGuard(parent.expression)) return true;
-    if (ts.isFunctionLike(parent)) break;
-  }
-  return false;
 }
 
 function typeRequiresFailClosedCallableClassification(type: ts.Type, checker: ts.TypeChecker): boolean {
@@ -1545,7 +1527,6 @@ function dynamicReferenceKind(
   bindings: DynamicExecutionBindings,
 ): string | undefined {
   const current = unwrapExecutionExpression(expression);
-  if (isTypeofFunctionNarrowed(current)) return undefined;
   if (ts.isBinaryExpression(current) && current.operatorToken.kind === ts.SyntaxKind.CommaToken) {
     return dynamicReferenceKind(current.right, checker, bindings);
   }
@@ -1743,21 +1724,21 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
     let symbolIndex: DynamicProvenance | undefined;
     const type = provenance.type;
     if (!type) return { members, complete: false };
+    let complete = true;
     for (const property of checker.getPropertiesOfType(type)) {
       const declarations = property.getDeclarations() ?? [];
       const isDeclaredOwnProperty = declarations.some(declaration => (
-        !declaration.getSourceFile().isDeclarationFile
-        && (ts.isPropertySignature(declaration)
-          || ts.isPropertyDeclaration(declaration)
-          || ts.isMethodSignature(declaration)
-          || ts.isMethodDeclaration(declaration))
+        ts.isPropertySignature(declaration)
+        || ts.isPropertyDeclaration(declaration)
       ));
-      if (!isDeclaredOwnProperty) continue;
       const propertyType = checker.getTypeOfSymbolAtLocation(property, provenance.expression ?? source);
+      const dangerousKind = dangerousCallableTypeKind(propertyType);
+      if (!isDeclaredOwnProperty) complete = false;
+      if (!isDeclaredOwnProperty && !dangerousKind) continue;
       const member: DynamicProvenance = {
         type: propertyType,
         symbol: property,
-        kind: dangerousCallableTypeKind(propertyType),
+        kind: dangerousKind,
       };
       if (property.name.startsWith('__@')) {
         symbolIndex = mergeConservativeIndex(symbolIndex, { ...member, indexDomain: 'symbol' });
@@ -1770,7 +1751,7 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
       || checker.getIndexTypeOfType(type, ts.IndexKind.Number)
     );
     const openType = (type.flags & (ts.TypeFlags.Any | ts.TypeFlags.Unknown | ts.TypeFlags.TypeParameter)) !== 0;
-    return { members, symbolIndex, complete: !hasIndex && !openType };
+    return { members, symbolIndex, complete: complete && !hasIndex && !openType };
   };
   const isExactLocalSafeValue = (provenance: DynamicProvenance): boolean => {
     if (provenance.kind || provenance.unknown || provenance.unknownMemberAccess) return false;
@@ -1820,9 +1801,16 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
       && isGlobalIdentifier(current.expression, checker, 'require')
       && current.arguments.length === 1
       && ts.isStringLiteral(current.arguments[0])
-      && current.arguments[0].text !== 'vm'
-      && current.arguments[0].text !== 'node:vm') {
+      && EXACT_SAFE_NODE_REQUIRE_SPECIFIERS.has(current.arguments[0].text)) {
       return { expression: current, completeMembers: false };
+    }
+    if (ts.isCallExpression(current)
+      && ts.isIdentifier(current.expression)
+      && isGlobalIdentifier(current.expression, checker, 'require')
+      && current.arguments.length === 1
+      && ts.isStringLiteral(current.arguments[0])) {
+      const openType = ((base.type?.flags ?? 0) & (ts.TypeFlags.Any | ts.TypeFlags.Unknown | ts.TypeFlags.TypeParameter)) !== 0;
+      return openType ? { ...base, unknown: true, unknownMemberAccess: true } : base;
     }
     const initializer = localInitializer(current);
     if (initializer && initializer !== current) {
@@ -2878,11 +2866,17 @@ function assertDynamicCodeGenerationPositiveControls(): void {
     ['non-indexable object rest dynamic key fail closed', "declare const source: { value: number }; declare const key: string; const { ...rest } = source; rest[key](\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['plain any nested array rest known index fail closed', "declare const source: any; const [, ...[run]] = source; run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['known any object declaration fail closed', "declare const source: any; const { run } = source; run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
-    ['known unknown object assignment fail closed', "declare const source: unknown; let run; ({ run } = source as any); run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
-    ['known unknown object parameter fail closed', "declare const source: unknown; function execute({ run } = source as any) { run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
+    ['known any object assignment fail closed', "declare const source: any; let run; ({ run } = source); run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['known any object parameter fail closed', "declare const source: any; function execute({ run } = source) { run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
+    ['known unknown object declaration fail closed', "declare const source: unknown; const { run } = source; run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['known unknown object assignment fail closed', "declare const source: unknown; let run; ({ run } = source); run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['known unknown object parameter fail closed', "declare const source: unknown; function execute({ run } = source) { run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
     ['known any array declaration fail closed', "declare const source: any; const [run] = source; run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
-    ['known unknown array assignment fail closed', "declare const source: unknown; let run; [run] = source as any; run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
-    ['known unknown array parameter fail closed', "declare const source: unknown; function execute([run] = source as any) { run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
+    ['known any array assignment fail closed', "declare const source: any; let run; [run] = source; run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['known any array parameter fail closed', "declare const source: any; function execute([run] = source) { run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
+    ['known unknown array declaration fail closed', "declare const source: unknown; const [run] = source; run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['known unknown array assignment fail closed', "declare const source: unknown; let run; [run] = source; run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['known unknown array parameter fail closed', "declare const source: unknown; function execute([run] = source) { run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
     ['empty string direct member provenance', "const { '': run } = { '': eval }; run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['empty string const alias provenance', "const empty = ''; const key = empty; const { [key]: run } = { '': eval }; run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['empty string object rest provenance', "const { keep, ...rest } = { keep: 0, '': eval }; rest[''](\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
@@ -2900,11 +2894,17 @@ function assertDynamicCodeGenerationPositiveControls(): void {
     ['typed finite object spread direct provenance', "declare const source: { run: typeof eval }; const holder = { ...source }; holder.run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['typed finite object spread destructured provenance', "declare const source: { run: typeof eval }; const { run } = { ...source }; run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['typed symbol object spread provenance', "declare const key: unique symbol; declare const source: { [key]: typeof eval }; const holder = { ...source }; holder[key](\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['typed symbol object spread destructured provenance', "declare const key: unique symbol; declare const source: { [key]: typeof eval }; const { [key]: run } = { ...source }; run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['mapped global eval object spread provenance', "declare const source: Pick<typeof globalThis, 'eval'>; const holder = { ...source }; holder.eval(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['ambient mapped eval object spread provenance', "interface AmbientSource { run: typeof eval } declare const source: { [K in keyof AmbientSource]: AmbientSource[K] }; const { run } = { ...source }; run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['safe then dangerous literal spread override', "const holder = { eval: (value: string) => value, ...{ eval } }; holder.eval(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['safe then typed spread remains conservative', "declare const source: Record<string, typeof eval>; const holder = { eval: (value: string) => value, ...source }; holder.eval(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['nested any array rest declaration fail closed', "declare const source: any; const [...[run]] = source; run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
-    ['nested unknown array rest assignment fail closed', "declare const source: unknown; let run; [...[run]] = source as any; run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
-    ['nested unknown array rest parameter fail closed', "declare const source: unknown; function execute([...[run]] = source as any) { run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
+    ['nested any array rest assignment fail closed', "declare const source: any; let run; [...[run]] = source; run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['nested any array rest parameter fail closed', "declare const source: any; function execute([...[run]] = source) { run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
+    ['nested unknown array rest declaration fail closed', "declare const source: unknown; const [...[run]] = source; run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['nested unknown array rest assignment fail closed', "declare const source: unknown; let run; [...[run]] = source; run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['nested unknown array rest parameter fail closed', "declare const source: unknown; function execute([...[run]] = source) { run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
     ['nested any rest declaration fail closed', "declare const source: any; const { nested: { ...rest } } = source; rest.eval(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['nested unknown rest assignment fail closed', "declare const source: unknown; let rest; ({ nested: { ...rest } } = source as any); rest.eval(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['nested unknown rest parameter fail closed', "declare const source: unknown; function execute({ nested: { ...rest } } = source as any) { rest.eval(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
@@ -2912,6 +2912,15 @@ function assertDynamicCodeGenerationPositiveControls(): void {
     ['global dangerous Function named member', "new globalThis.Function(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['global dangerous vm API named member', "require('node:vm').runInContext(\"require('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['global dangerous constructor named member', "(function source() {}).constructor(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\")();"],
+    ['typeof narrowed direct eval remains dangerous', "if (typeof eval === 'function') eval(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['typeof narrowed global eval remains dangerous', "if (typeof globalThis.eval === 'function') globalThis.eval(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['typeof narrowed eval alias remains dangerous', "const run = eval; if (typeof run === 'function') run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['typeof narrowed Function alias remains dangerous', "const Build = Function; if (typeof Build === 'function') new Build(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['typeof narrowed vm alias remains dangerous', "const run = require('node:vm').runInContext; if (typeof run === 'function') run(\"require('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['typeof narrowed constructor alias remains dangerous', "const Build = (function source() {}).constructor; if (typeof Build === 'function') new Build(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['local require direct eval bridge fail closed', "const run = require('./dynamic-code-eval-bridge.cjs'); run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['local require member Function bridge fail closed', "const bridge = require('./dynamic-code-eval-bridge.cjs'); new bridge.Function(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['local require destructured vm bridge fail closed', "const { runInContext: run } = require('./dynamic-code-eval-bridge.cjs'); run(\"require('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['static computed eval declaration provenance', "const { ['eval']: run } = globalThis; run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['static computed eval assignment provenance', "let run; ({ [`eval`]: run } = globalThis); run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['const computed eval parameter provenance', "const first = 'eval'; const key = first; function execute({ [key]: run } = globalThis) { run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
@@ -2931,7 +2940,7 @@ function assertDynamicCodeGenerationPositiveControls(): void {
     ['shadowed globalThis property', "const globalThis = { eval(value) { return value; } }; globalThis.eval(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['shadowed window property', "const window = { eval(value) { return value; } }; window.eval(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['shadowed vm namespace', "const vm = { runInNewContext(value) { return value; } }; vm.runInNewContext(\"require('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
-    ['shadowed local require', "function execute(require) { const vm = require('node:vm'); vm.runInNewContext(\"require('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
+    ['shadowed local require', "function execute(require: (id: string) => { runInNewContext(value: string): string }) { const vm = require('node:vm'); vm.runInNewContext(\"require('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
     ['shadowed eval parameter default', "function execute(eval = value => value) { eval(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
     ['shadowed vm parameter default', "function execute(vm = { runInContext(value) { return value; } }) { vm.runInContext(\"require('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
     ['shadowed Function parameter default', "function execute(Function = class LocalBuilder {}) { new Function(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
@@ -2976,7 +2985,11 @@ function assertDynamicCodeGenerationPositiveControls(): void {
     ['typed spread then explicit safe override negative', "declare const source: Record<string, typeof eval>; const holder = { ...source, eval: (value: string) => value }; holder.eval(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['function spread inherited constructor negative', "const holder = { ...function source() {} }; holder.constructor(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['typed finite safe object spread negative', "declare const source: { run: number }; const holder = { ...source }; void holder.run;"],
+    ['typed finite safe object spread destructured negative', "declare const source: { run: number }; const { run } = { ...source }; void run;"],
     ['typed symbol safe object spread negative', "declare const key: unique symbol; declare const source: { [key]: number }; const holder = { ...source }; void holder[key];"],
+    ['typed symbol safe object spread destructured negative', "declare const key: unique symbol; declare const source: { [key]: number }; const { [key]: value } = { ...source }; void value;"],
+    ['mapped safe object spread negative', "declare const source: Pick<{ safe: number }, 'safe'>; const holder = { ...source }; void holder.safe;"],
+    ['ambient mapped safe object spread negative', "interface AmbientSafe { value: number } declare const source: { [K in keyof AmbientSafe]: AmbientSafe[K] }; const { value } = { ...source }; void value;"],
     ['literal array spread local safe negative', "const [run] = [...[(value: string) => value]]; run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['literal object spread local safe negative', "const holder = { ...{ run: (value: string) => value } }; holder.run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['complete local dangerous-name callables negative', "const holder = { eval: (value: string) => value, Function: (value: string) => value, runInContext: (value: string) => value, constructor: (value: string) => value }; holder.eval('safe'); holder.Function('safe'); holder.runInContext('safe'); holder.constructor('safe');"],
@@ -2984,6 +2997,7 @@ function assertDynamicCodeGenerationPositiveControls(): void {
     ['local Function direct safe negative', "const Function = (value: string) => value; Function('safe');"],
     ['local runInContext direct safe negative', "const runInContext = (value: string) => value; runInContext('safe');"],
     ['local constructor direct safe negative', "const constructor = (value: string) => value; constructor('safe');"],
+    ['typeof narrowed local callback safe negative', "const callback = (value: string) => value; if (typeof callback === 'function') callback('safe');"],
     ['local eval rest safe negative', "const { ...rest } = { eval: (value: string) => value }; rest.eval('safe');"],
     ['local Function rest safe negative', "const { ...rest } = { Function: (value: string) => value }; rest.Function('safe');"],
     ['local runInContext rest safe negative', "const { ...rest } = { runInContext: (value: string) => value }; rest.runInContext('safe');"],
@@ -3001,6 +3015,8 @@ function assertDynamicCodeGenerationPositiveControls(): void {
     ['nested array rest declaration local safe negative', "const [...[run]] = [(value: string) => value]; run('safe');"],
     ['nested array rest assignment local safe negative', "let run; [...[run]] = [(value: string) => value]; run('safe');"],
     ['nested array rest parameter local safe negative', "function execute([...[run]] = [(value: string) => value]) { run('safe'); }"],
+    ['typed local require member safe negative', "const bridge = require('./dynamic-code-safe-bridge.cjs') as { value: number }; void bridge.value;"],
+    ['typed local require destructured safe negative', "const { value } = require('./dynamic-code-safe-bridge.cjs') as { value: number }; void value;"],
     ['nested rest declaration local safe negative', "const { nested: { ...rest } } = { nested: { eval: (value: string) => value } }; rest.eval('safe');"],
     ['nested rest assignment local safe negative', "let rest; ({ nested: { ...rest } } = { nested: { eval: (value: string) => value } }); rest.eval('safe');"],
     ['nested rest parameter local safe negative', "function execute({ nested: { ...rest } } = { nested: { eval: (value: string) => value } }) { rest.eval('safe'); }"],
@@ -3022,12 +3038,22 @@ function assertDynamicCodeGenerationPositiveControls(): void {
     file: 'bin/dynamic-code-local-noncallable.ts',
     source: 'const noncallableDefault = { value: 1 };\nexport default noncallableDefault;\n',
   };
+  const localEvalBridgeModule = {
+    file: 'bin/dynamic-code-eval-bridge.cjs',
+    source: "module.exports = eval; module.exports.Function = Function; module.exports.runInContext = require('node:vm').runInContext;\n",
+  };
+  const localSafeBridgeModule = {
+    file: 'bin/dynamic-code-safe-bridge.cjs',
+    source: 'module.exports = { value: 1 };\n',
+  };
   const controlProgram = createProjectTypeProgram(new Map([
     ...controlSources.map(control => [control.file, control.source] as const),
     [unresolvedControl.file, unresolvedControl.source],
     [malformedControl.file, malformedControl.source],
     [localCallableModule.file, localCallableModule.source],
     [localNoncallableModule.file, localNoncallableModule.source],
+    [localEvalBridgeModule.file, localEvalBridgeModule.source],
+    [localSafeBridgeModule.file, localSafeBridgeModule.source],
   ]), false);
   for (const control of controlSources.slice(0, cases.length)) {
     const violations = scanDynamicCodeGeneration(control.file, control.source, controlProgram);
