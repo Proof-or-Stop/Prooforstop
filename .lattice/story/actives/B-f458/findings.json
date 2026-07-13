@@ -1477,6 +1477,33 @@
       ],
       "signatureTag": "dynamic-provenance-type-projection",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-f458:F-062",
+      "desc": "Element-access calls bypass the new member/type provenance whenever the access key is not a literal. dynamicReferenceKind derives `member` with staticModuleText(current.argumentExpression) and immediately returns undefined when that fails, before consulting bindings.memberKinds, the target DynamicProvenance.element/unknownMemberAccess, or checker type fallback. Consequently provenance already preserved by rest handling is lost at the invocation site: `declare const values: Array<typeof eval>; const [...rest] = values; const i = 0; rest[i](\"import('./legacy-delivery-claims-compat.js')\")` is not reported, and similarly `const { Math, ...rest } = globalThis; const key = 'eval'; rest[key](\"import('./legacy-delivery-claims-compat.js')\")` evades because the identifier key is not resolved in this path. Resolve constant identifier keys with checker/constStrings and, for genuinely dynamic indexes, classify element/index/unknown-member provenance (or fail closed when the target carries dangerous/unknown member provenance). Add positive controls for const-identifier and dynamic numeric/string indexes plus benign noncallable negatives.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-13T15:43:25.757Z",
+      "reviewRound": "2026-07-13T15:39:54.030Z",
+      "reviewRunId": "B-f458:RR-081",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Inspected the complete provenance refactor diff and the focused rest/computed-key/reference-resolution implementations and controls; unrelated unchanged portions of the large files were triaged."
+      },
+      "_hash": "f67ccbe160f99f6c45c8e93102021a52e17ebc0efde668058c4fed39542db3ff",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "nonliteral-member-provenance-bypass",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
