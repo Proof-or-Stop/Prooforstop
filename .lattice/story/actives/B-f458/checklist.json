@@ -274,7 +274,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-07-13T09:16:55.874Z",
+      "endTime": "2026-07-13T10:15:21.097Z",
       "userSees": "User runs the TEST roll-up regression and sees `PASS local closeout requires fresh review before TEST retention`; same-UID forged receipts and paired source/docs/scope mutations fail closed, while a fresh post-closeout review can continue TEST.",
       "verificationIntent": {
         "happy": [
@@ -322,39 +322,39 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-004:happy:0",
-          "kind": "logic_test",
+          "kind": "manual_transcript",
           "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/closeout-trust-smoke.js && node packages/main/dist/tasks/semantic-scope-guard-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && npm run test:closeout-trust && npm run test:process-fact-contract && npm run test:runtime-fact-contract",
           "result": "pass",
-          "note": "Canonical TEST rollup with unchanged material/composite digest retains TEST review evidence.",
-          "headHash": "065b7dde13c6f5aa1874245cf3d7b12ad516b164",
-          "materialHash": "f64678a73cd3f3477178dc1aa08b4ae60ef7cd0c77232b71fa255069f425f116",
-          "storyFilesHash": "70f020519d23cfc20d922515f44605831638d8cbc58535a48a6e4fc19cb41dee",
-          "timestamp": "2026-07-13T09:54:44.604Z"
+          "note": "Canonical parent rollup emits coherent local causal telemetry, the pre-closeout review is rejected, and a fresh post-closeout review over unchanged material/composite scope succeeds; exact revised userSees line is emitted.",
+          "headHash": "e0f95e5824cae541b48f6a9366b10722e27c9dc1",
+          "materialHash": "d189ecd2427dfff56d4fef54beda2206d5da20301a5fff3a254d6227ede2ca14",
+          "storyFilesHash": "4de5ef436f8d8e55aaad46748510eba7965cbcce87753c5eae4e3a58d8fb4356",
+          "timestamp": "2026-07-13T10:15:21.358Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
-          "kind": "logic_test",
+          "kind": "manual_transcript",
           "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/closeout-trust-smoke.js && node packages/main/dist/tasks/semantic-scope-guard-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && npm run test:closeout-trust && npm run test:process-fact-contract && npm run test:runtime-fact-contract",
           "result": "pass",
-          "note": "Source, test, docs, or semantic scope drift rejects retention.",
-          "headHash": "065b7dde13c6f5aa1874245cf3d7b12ad516b164",
-          "materialHash": "f64678a73cd3f3477178dc1aa08b4ae60ef7cd0c77232b71fa255069f425f116",
-          "storyFilesHash": "70f020519d23cfc20d922515f44605831638d8cbc58535a48a6e4fc19cb41dee",
-          "timestamp": "2026-07-13T09:54:44.604Z"
+          "note": "Source/material and semantic-scope drift remain distinct blockers; wrapper-root committed unknown metadata is detected via canonical git-root-relative paths; closeout-only changes still require fresh review.",
+          "headHash": "e0f95e5824cae541b48f6a9366b10722e27c9dc1",
+          "materialHash": "d189ecd2427dfff56d4fef54beda2206d5da20301a5fff3a254d6227ede2ca14",
+          "storyFilesHash": "4de5ef436f8d8e55aaad46748510eba7965cbcce87753c5eae4e3a58d8fb4356",
+          "timestamp": "2026-07-13T10:15:21.520Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
-          "kind": "logic_test",
+          "kind": "manual_transcript",
           "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/closeout-trust-smoke.js && node packages/main/dist/tasks/semantic-scope-guard-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && npm run test:closeout-trust && npm run test:process-fact-contract && npm run test:runtime-fact-contract",
           "result": "pass",
-          "note": "Manual, wrong-writer, malformed, unknown, mixed, and bundled unreceipted changes cannot masquerade as canonical closeout.",
-          "headHash": "065b7dde13c6f5aa1874245cf3d7b12ad516b164",
-          "materialHash": "f64678a73cd3f3477178dc1aa08b4ae60ef7cd0c77232b71fa255069f425f116",
-          "storyFilesHash": "70f020519d23cfc20d922515f44605831638d8cbc58535a48a6e4fc19cb41dee",
-          "timestamp": "2026-07-13T09:54:44.604Z"
+          "note": "A same-UID actor can mint causally coherent telemetry, but the authority lookup and real retention consumer reject it; wrong writer, malformed/hash-forged/unknown, replay, copied, reordered, and mixed changes also fail closed.",
+          "headHash": "e0f95e5824cae541b48f6a9366b10722e27c9dc1",
+          "materialHash": "d189ecd2427dfff56d4fef54beda2206d5da20301a5fff3a254d6227ede2ca14",
+          "storyFilesHash": "4de5ef436f8d8e55aaad46748510eba7965cbcce87753c5eae4e3a58d8fb4356",
+          "timestamp": "2026-07-13T10:15:21.671Z"
         }
       ]
     },
