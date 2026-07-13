@@ -1310,7 +1310,7 @@
       "desc": "F-052 is not fully covered by the claimed regression contract. Its resolution explicitly required named/default/namespace-imported function constructor controls, but assertDynamicCodeGenerationPositiveControls adds only named `node:fs` readFile and a named alias. The existing `node vm default import` control invokes `vm.runInNewContext` directly and does not exercise an imported callable value's inherited `.constructor`; there is no namespace-imported callable `.constructor` case and no default/local imported function `.constructor` case. The sole local-module import control is deliberately noncallable, so it proves only the negative path. scripts/verify-process-fact-contract.mjs pins exactly the same incomplete labels and therefore cannot detect a regression where project/local default or namespace callable signatures stop reaching constructorReceiverKind while named @types/node imports still pass. Add hermetic local helper overlays exporting named/default functions plus a namespace member, assert direct and aliased `.constructor` payloads are rejected, retain the imported noncallable negative, and pin all exact labels. Also mechanically assert shared project Program construction count/reuse (not merely the presence of `sharedProjectProgram`) so the stated performance-bounded contract cannot regress to one Program per scanned file.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-13T14:44:38.378Z",
@@ -1322,7 +1322,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "imported-callable-form-coverage-gap",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 077a355a40: hermetic named/default/namespace local callable imports and aliases are positive controls with noncallable negatives; mechanical counters assert baseline Program exactly once and bounded overlay/LanguageService/synthetic requests.",
+      "resolvedAt": "2026-07-13T14:58:38.998Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
