@@ -2952,7 +2952,7 @@
       "desc": "call/apply/bind normalization only recognizes PropertyAccessExpression targets. Equivalent computed invocation escapes parameter provenance: `function execute(run: (code: string) => unknown) { run(\"1+1\"); } execute[\"call\"](null, eval);`. invocationMember remains undefined, localCallableDeclarations resolves the builtin call member rather than execute, so the inner parameter is unbound; the outer trusted call member is exact-safe. Static element-access call/apply/bind forms must normalize identically to dot access.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-13T21:44:17.031Z",
@@ -2963,7 +2963,11 @@
         "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|call-apply-bind",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by fb434498bb: Invocation normalization handles dot and statically computed call, apply and bind keys with conservative unknown-key handling.",
+      "resolvedAt": "2026-07-13T21:56:19.396Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-114",
