@@ -533,6 +533,7 @@ const typeProgramInstrumentation = {
   overlayProgramBuilds: 0,
   languageServiceBuilds: 0,
   languageServiceProgramRequests: 0,
+  distinctLanguageServicePrograms: new Set<ts.Program>(),
 };
 
 function parseSource(file: string, text: string): ts.SourceFile {
@@ -688,6 +689,7 @@ function syntheticTypeAnalysisFor(file: string, text: string): SourceTypeAnalysi
   const program = syntheticTypeService().getProgram();
   const source = program?.getSourceFile(absoluteFile);
   assert(program && source, `synthetic type program root missing: ${file}`);
+  typeProgramInstrumentation.distinctLanguageServicePrograms.add(program);
   return { program, source, checker: program.getTypeChecker() };
 }
 
@@ -736,11 +738,15 @@ function assertProjectTypeProgramContract(executableFiles: readonly string[]): v
 }
 
 function assertTypeProgramInstrumentation(): void {
+  const unchangedProgramFirst = syntheticTypeService().getProgram();
+  const unchangedProgramSecond = syntheticTypeService().getProgram();
+  assert.strictEqual(unchangedProgramSecond, unchangedProgramFirst, 'LanguageService getProgram must preserve object identity without a version change');
   assert.equal(typeProgramInstrumentation.baselineProgramBuilds, 1, 'baseline project Program must construct exactly once per guard scan');
   assert.ok(typeProgramInstrumentation.overlayProgramBuilds <= 1, `overlay Program builds must remain bounded at one, got ${typeProgramInstrumentation.overlayProgramBuilds}`);
   assert.equal(typeProgramInstrumentation.languageServiceBuilds, 1, 'synthetic LanguageService must construct exactly once per guard scan');
   assert.ok(syntheticTypeFiles.size <= 32, `synthetic LanguageService roots must remain bounded at 32, got ${syntheticTypeFiles.size}`);
   assert.ok(typeProgramInstrumentation.languageServiceProgramRequests <= 320, `synthetic LanguageService Program requests must remain bounded at 320, got ${typeProgramInstrumentation.languageServiceProgramRequests}`);
+  assert.ok(typeProgramInstrumentation.distinctLanguageServicePrograms.size <= 128, `distinct LanguageService Program identities across controlled version changes must remain bounded at 128, got ${typeProgramInstrumentation.distinctLanguageServicePrograms.size}`);
 }
 
 function staticModuleText(
@@ -1303,13 +1309,8 @@ interface DynamicExecutionBindings {
 
 interface DynamicAliasRecord {
   target: ts.Symbol;
-  expression: ts.Expression;
-}
-
-interface DynamicDestructureRecord {
-  target: ts.Symbol;
-  property: string;
   source: ts.Expression;
+  path: readonly (string | number)[];
 }
 
 function identifierSymbol(identifier: ts.Identifier, checker: ts.TypeChecker): ts.Symbol | undefined {
@@ -1518,42 +1519,155 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
     functionCallableSymbols: new Map(),
   };
   const aliases: DynamicAliasRecord[] = [];
-  const destructures: DynamicDestructureRecord[] = [];
-  const addAlias = (name: ts.BindingName | ts.Expression, expression: ts.Expression): void => {
-    if (!ts.isIdentifier(name)) return;
+  const addRecord = (name: ts.Node, sourceExpression: ts.Expression | undefined, path: readonly (string | number)[] = []): void => {
+    if (!sourceExpression || !ts.isIdentifier(name)) return;
     const symbol = identifierSymbol(name, checker);
-    if (symbol) aliases.push({ target: symbol, expression });
+    if (symbol) aliases.push({ target: symbol, source: sourceExpression, path });
   };
-  const addDestructure = (name: ts.BindingName | ts.Expression, property: string, sourceExpression: ts.Expression): void => {
-    if (!ts.isIdentifier(name)) return;
-    const symbol = identifierSymbol(name, checker);
-    if (symbol) destructures.push({ target: symbol, property, source: sourceExpression });
+  const propertyName = (name: ts.PropertyName | undefined): string | undefined => {
+    if (!name) return undefined;
+    if (ts.isIdentifier(name) || ts.isStringLiteralLike(name) || ts.isNumericLiteral(name)) return name.text;
+    return undefined;
   };
-  const collectBindingPattern = (pattern: ts.ObjectBindingPattern, sourceExpression: ts.Expression): void => {
-    for (const element of pattern.elements) {
-      const property = element.propertyName && (ts.isIdentifier(element.propertyName) || ts.isStringLiteral(element.propertyName))
-        ? element.propertyName.text
-        : ts.isIdentifier(element.name) ? element.name.text : undefined;
-      if (property) addDestructure(element.name, property, sourceExpression);
+  const walkPattern = (
+    pattern: ts.Node,
+    sourceExpression: ts.Expression | undefined,
+    path: readonly (string | number)[] = [],
+  ): void => {
+    if (ts.isIdentifier(pattern)) {
+      addRecord(pattern, sourceExpression, path);
+      return;
     }
-  };
-  const collectBindingDefaults = (pattern: ts.BindingName): void => {
-    if (ts.isIdentifier(pattern)) return;
-    for (const element of pattern.elements) {
-      if (!ts.isBindingElement(element)) continue;
-      if (element.initializer) addAlias(element.name, element.initializer);
-      collectBindingDefaults(element.name);
+    if (ts.isBinaryExpression(pattern) && pattern.operatorToken.kind === ts.SyntaxKind.EqualsToken) {
+      walkPattern(pattern.left, sourceExpression, path);
+      walkPattern(pattern.left, pattern.right, []);
+      return;
     }
-  };
-  const collectAssignmentPattern = (pattern: ts.ObjectLiteralExpression, sourceExpression: ts.Expression): void => {
-    for (const property of pattern.properties) {
-      if (ts.isPropertyAssignment(property)) {
-        const name = (ts.isIdentifier(property.name) || ts.isStringLiteral(property.name)) ? property.name.text : undefined;
-        if (name) addDestructure(property.initializer, name, sourceExpression);
-      } else if (ts.isShorthandPropertyAssignment(property)) {
-        addDestructure(property.name, property.name.text, sourceExpression);
+    if (ts.isObjectBindingPattern(pattern)) {
+      for (const element of pattern.elements) {
+        const property = propertyName(element.propertyName)
+          ?? (ts.isIdentifier(element.name) ? element.name.text : undefined);
+        if (property !== undefined) walkPattern(element.name, sourceExpression, [...path, property]);
+        if (element.initializer) walkPattern(element.name, element.initializer, []);
       }
+      return;
     }
+    if (ts.isArrayBindingPattern(pattern)) {
+      pattern.elements.forEach((element, index) => {
+        if (!ts.isBindingElement(element)) return;
+        walkPattern(element.name, sourceExpression, [...path, index]);
+        if (element.initializer) walkPattern(element.name, element.initializer, []);
+      });
+      return;
+    }
+    if (ts.isObjectLiteralExpression(pattern)) {
+      for (const property of pattern.properties) {
+        if (ts.isPropertyAssignment(property)) {
+          const name = propertyName(property.name);
+          if (name !== undefined) walkPattern(property.initializer, sourceExpression, [...path, name]);
+        } else if (ts.isShorthandPropertyAssignment(property)) {
+          walkPattern(property.name, sourceExpression, [...path, property.name.text]);
+          if (property.objectAssignmentInitializer) walkPattern(property.name, property.objectAssignmentInitializer, []);
+        } else if (ts.isSpreadAssignment(property)) {
+          walkPattern(property.expression, sourceExpression, path);
+        }
+      }
+      return;
+    }
+    if (ts.isArrayLiteralExpression(pattern)) {
+      pattern.elements.forEach((element, index) => {
+        if (ts.isOmittedExpression(element)) return;
+        if (ts.isSpreadElement(element)) walkPattern(element.expression, sourceExpression, [...path, index]);
+        else walkPattern(element, sourceExpression, [...path, index]);
+      });
+    }
+  };
+  const localInitializer = (expression: ts.Expression): ts.Expression | undefined => {
+    const symbol = expressionSymbol(expression, checker);
+    for (const declaration of symbol?.getDeclarations() ?? []) {
+      if ((ts.isVariableDeclaration(declaration) || ts.isPropertyDeclaration(declaration) || ts.isPropertyAssignment(declaration))
+        && declaration.initializer) return declaration.initializer;
+    }
+    return undefined;
+  };
+  const expressionAtPath = (sourceExpression: ts.Expression, path: readonly (string | number)[]): ts.Expression | undefined => {
+    let current = unwrapExecutionExpression(sourceExpression);
+    const seen = new Set<ts.Node>();
+    let index = 0;
+    while (index < path.length) {
+      if (seen.has(current)) return undefined;
+      seen.add(current);
+      const initializer = localInitializer(current);
+      if (initializer && initializer !== current) {
+        current = unwrapExecutionExpression(initializer);
+        continue;
+      }
+      const segment = path[index];
+      if (typeof segment === 'number' && ts.isArrayLiteralExpression(current)) {
+        const element = current.elements[segment];
+        if (!element || ts.isOmittedExpression(element)) return undefined;
+        current = unwrapExecutionExpression(ts.isSpreadElement(element) ? element.expression : element);
+        index += 1;
+        continue;
+      }
+      if (typeof segment === 'string' && ts.isObjectLiteralExpression(current)) {
+        const property = current.properties.find(candidate => 'name' in candidate && propertyName(candidate.name) === segment);
+        if (property && ts.isPropertyAssignment(property)) current = unwrapExecutionExpression(property.initializer);
+        else if (property && ts.isShorthandPropertyAssignment(property)) current = property.name;
+        else return undefined;
+        index += 1;
+        continue;
+      }
+      return undefined;
+    }
+    return current;
+  };
+  const typeAtPath = (sourceExpression: ts.Expression, path: readonly (string | number)[]): { type: ts.Type; symbol?: ts.Symbol } | undefined => {
+    let type = checker.getTypeAtLocation(sourceExpression);
+    let symbol = expressionSymbol(sourceExpression, checker);
+    for (const segment of path) {
+      const property = checker.getPropertyOfType(type, String(segment));
+      if (property) {
+        symbol = property;
+        type = checker.getTypeOfSymbolAtLocation(property, sourceExpression);
+        continue;
+      }
+      if (typeof segment === 'number') {
+        const indexed = checker.getIndexTypeOfType(type, ts.IndexKind.Number);
+        if (indexed) {
+          type = indexed;
+          symbol = undefined;
+          continue;
+        }
+      }
+      return undefined;
+    }
+    return { type, symbol };
+  };
+  const constructorTypeKind = (receiver: { type: ts.Type; symbol?: ts.Symbol } | undefined): string | undefined => {
+    if (!receiver) return 'unresolved-or-ambient';
+    if (typeRequiresFailClosedCallableClassification(receiver.type, checker)) return 'unresolved-or-callable';
+    const declarations = receiver.symbol?.getDeclarations() ?? [];
+    const exactLocal = declarations.length > 0 && declarations.every(declaration => (
+      !declaration.getSourceFile().isDeclarationFile
+      && resolve(declaration.getSourceFile().fileName).startsWith(`${resolve(repoRoot)}/`)
+    ));
+    return exactLocal ? undefined : 'unresolved-or-ambient';
+  };
+  const recordKind = (record: DynamicAliasRecord): { expression?: ts.Expression; kind?: string } => {
+    const resolved = expressionAtPath(record.source, record.path);
+    if (resolved) return { expression: resolved };
+    const final = record.path.at(-1);
+    const receiverPath = record.path.slice(0, -1);
+    if ((final === 'eval' || final === 'Function') && receiverPath.length === 0
+      && isGlobalObjectIdentifier(record.source, checker)) return { kind: final };
+    if (typeof final === 'string' && DYNAMIC_VM_EXECUTION_MEMBERS.has(final) && receiverPath.length === 0
+      && vmNamespaceReference(record.source, checker, bindings)) return { kind: `node:vm.${final}` };
+    if (final === 'constructor') {
+      const kind = constructorTypeKind(typeAtPath(record.source, receiverPath));
+      return kind ? { kind: `${kind}.constructor` } : {};
+    }
+    return {};
   };
   const visit = (node: ts.Node): void => {
     if (ts.isImportDeclaration(node)
@@ -1581,31 +1695,13 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
       if (symbol) bindings.functionCallableSymbols.set(symbol, functionDeclarationConstructorKind(node));
     }
     if (ts.isParameter(node)) {
-      if (node.initializer && ts.isIdentifier(node.name)) addAlias(node.name, node.initializer);
-      if (node.initializer && ts.isObjectBindingPattern(node.name)) collectBindingPattern(node.name, node.initializer);
-      collectBindingDefaults(node.name);
+      walkPattern(node.name, node.initializer);
     }
     if (ts.isVariableDeclaration(node) && node.initializer) {
-      if (ts.isIdentifier(node.name)) {
-        const symbol = identifierSymbol(node.name, checker);
-        if (symbol) {
-          aliases.push({ target: symbol, expression: node.initializer });
-          if (isGlobalRequireCall(node.initializer, checker)) bindings.vmNamespaceSymbols.add(symbol);
-          const callableKind = staticallyCallableKind(node.initializer, checker, bindings);
-          if (callableKind) bindings.functionCallableSymbols.set(symbol, callableKind);
-        }
-      } else if (ts.isObjectBindingPattern(node.name)) {
-        collectBindingPattern(node.name, node.initializer);
-      }
-      collectBindingDefaults(node.name);
+      walkPattern(node.name, node.initializer);
     }
     if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.EqualsToken) {
-      if (ts.isIdentifier(node.left)) {
-        const symbol = identifierSymbol(node.left, checker);
-        if (symbol) aliases.push({ target: symbol, expression: node.right });
-      } else if (ts.isObjectLiteralExpression(node.left)) {
-        collectAssignmentPattern(node.left, node.right);
-      }
+      walkPattern(node.left, node.right);
     }
     ts.forEachChild(node, visit);
   };
@@ -1614,42 +1710,23 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
   while (changed) {
     changed = false;
     for (const alias of aliases) {
-      if (!bindings.vmNamespaceSymbols.has(alias.target) && vmNamespaceReference(alias.expression, checker, bindings)) {
+      const provenance = recordKind(alias);
+      const expression = provenance.expression;
+      if (expression && !bindings.vmNamespaceSymbols.has(alias.target) && vmNamespaceReference(expression, checker, bindings)) {
         bindings.vmNamespaceSymbols.add(alias.target);
         changed = true;
       }
-      if (!bindings.functionCallableSymbols.has(alias.target)) {
-        const callableKind = functionCallableReference(alias.expression, checker, bindings);
+      if (expression && !bindings.functionCallableSymbols.has(alias.target)) {
+        const callableKind = functionCallableReference(expression, checker, bindings);
         if (callableKind) bindings.functionCallableSymbols.set(alias.target, callableKind);
         if (callableKind) changed = true;
       }
       if (!bindings.dangerousSymbols.has(alias.target)) {
-        const kind = dynamicReferenceKind(alias.expression, checker, bindings);
+        const kind = provenance.kind ?? (expression ? dynamicReferenceKind(expression, checker, bindings) : undefined);
         if (kind) {
           bindings.dangerousSymbols.set(alias.target, kind);
           changed = true;
         }
-      }
-    }
-    for (const destructure of destructures) {
-      if (bindings.dangerousSymbols.has(destructure.target)) continue;
-      const fromGlobal = isGlobalObjectIdentifier(destructure.source, checker)
-        && (destructure.property === 'eval' || destructure.property === 'Function');
-      const fromVm = vmNamespaceReference(destructure.source, checker, bindings)
-        && DYNAMIC_VM_EXECUTION_MEMBERS.has(destructure.property);
-      const constructorKind = destructure.property === 'constructor'
-        ? constructorReceiverKind(destructure.source, checker, bindings)
-        : undefined;
-      if (fromGlobal || fromVm || constructorKind) {
-        bindings.dangerousSymbols.set(
-          destructure.target,
-          fromVm
-            ? `node:vm.${destructure.property}`
-            : constructorKind
-              ? `${constructorKind}.constructor`
-              : destructure.property,
-        );
-        changed = true;
       }
     }
   }
@@ -2142,6 +2219,12 @@ function assertDynamicCodeGenerationPositiveControls(): void {
     ['local named callable import constructor destructure', "import { callableNamed } from './dynamic-code-local-callable.js'; const { constructor: Build } = callableNamed; new Build(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['local default callable import constructor', "import callableDefault from './dynamic-code-local-callable.js'; callableDefault.constructor(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\")();"],
     ['local namespace callable import constructor', "import * as localApi from './dynamic-code-local-callable.js'; const alias = localApi.callableNamed; alias.constructor(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\")();"],
+    ['array declaration eval provenance', "const [run] = [eval]; run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['array assignment vm provenance', "import * as vm from 'node:vm'; let run; [run] = [vm.runInContext]; run(\"require('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['array parameter constructor provenance', "function execute([Build] = [(function() {}).constructor]) { new Build(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
+    ['nested object declaration constructor provenance', "const source = { nested: function() {} }; const { nested: { constructor: Build } } = source; new Build(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['nested object assignment constructor provenance', "const source = { nested: function() {} }; let Build; ({ nested: { constructor: Build } } = source); new Build(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['nested object parameter constructor provenance', "const source = { nested: function() {} }; function execute({ nested: { constructor: Build } } = source) { new Build(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
     ['node vm default import', "import vm from 'node:vm'; vm.runInNewContext(\"require('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
   ] as const;
   const negativeCases = [
@@ -2167,6 +2250,15 @@ function assertDynamicCodeGenerationPositiveControls(): void {
     ['switch case eval shadow', "switch (1) { case 1: { const eval = (value) => value; eval(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); break; } }"],
     ['catch eval shadow', "try { throw (value) => value; } catch (eval) { eval(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
     ['nested block Function shadow', "{ const Function = (value) => value; Function(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
+    ['array declaration noncallable provenance', "const [value] = [{ constructor(input) { return input; } }]; value.constructor(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['nested object assignment noncallable provenance', "const source = { nested: { value: 1 } }; let Build; ({ nested: { constructor: Build } } = source); Build(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['nested object parameter shadow default', "const source = { nested: { constructor(input) { return input; } } }; function execute({ nested: { constructor: Build } } = source) { Build(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
+    ['classic for initializer eval shadow', "for (let eval = (value) => value, index = 0; index < 1; index += 1) { eval(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
+    ['classic for local require shadow', "for (let require = () => ({ runInContext(value) { return value; } }), index = 0; index < 1; index += 1) { const vm = require('node:vm'); vm.runInContext(\"require('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
+    ['for-of local require shadow', "for (const require of [() => ({ runInContext(value) { return value; } })]) { const vm = require('node:vm'); vm.runInContext(\"require('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
+    ['for-in local require shadow', "for (const require in { local: true }) { void require; }"],
+    ['enum eval identity shadow', "enum eval { local } void eval.local;"],
+    ['namespace Function identity shadow', "namespace Function { export function local(value) { return value; } } Function.local(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
   ] as const;
   const controlSources = [...cases, ...negativeCases].map(([label, source], index) => ({
     label,
