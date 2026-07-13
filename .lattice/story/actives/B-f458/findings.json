@@ -3071,7 +3071,7 @@
       "desc": "The fb434498bb computed-invocation and literal/typed/unknown-spread controls, reachability, and pins execute successfully (clean guard builds=718, cacheHits=2, fullAnalysis=1155, astCandidates=463, reachability=31), but the coverage matrix does not compose spread normalization with the full Function.prototype invocation vector. Existing `execute.call(null, ...[eval])` and prebound-bind controls leave `thisArg` syntactically outside the spread; they do not cover `execute.call(...[null, eval])`, `execute.apply(...[null, [eval]])`, or `execute.bind(...[null, eval])`, which F-116 verifies still lose provenance. Add positive controls for all three full-vector spread forms (including a computed member form), local-safe negatives, and a mixed safe/danger case; add safe controls to exact reachability and pin all labels plus the full-vector projection helper/logic in the process-fact contract.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-13T21:58:58.920Z",
@@ -3091,7 +3091,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "missing|dynamic-code|full-vector-spread-invocation-controls",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by e9c08fdc20: Full-vector dot/computed call, apply and bind positive, local-safe, mixed and reachability controls are process-pinned.",
+      "resolvedAt": "2026-07-13T22:17:00.148Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
