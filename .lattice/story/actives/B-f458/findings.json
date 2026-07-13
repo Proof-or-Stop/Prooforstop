@@ -1611,7 +1611,7 @@
       "desc": "The F-061/F-062 regression matrix is not exact enough to detect the three verified current-round bypasses F-063/F-064/F-065. The new `any array rest dynamic index fail closed` control exercises `rest[index]`, but there is no plain-any nested rest binding (`const [...[run]] = source`) control, so selectMember known numeric key never falls back to base.index and the original F-061 nested form still escapes. There is no static empty-string ElementAccess positive/negative, so dynamicReferenceKind uses `if (!member)` and skips an exact `source[\"\"]` dangerous member. There is also no competing-provenance/reassignment control where a safe initializer populates knownMembers before an any/unknown rest assignment to the same symbol, allowing stale safe membership to suppress dangerousSymbols. Add declaration/assignment/parameter positives and precise negatives for plain-any/unknown nested rest, empty-string direct/alias/rest access, and both assignment orders for safe-known versus unknown rest provenance; pin every exact label in verify-process-fact-contract. Preserve the existing Record number/eval, nonliteral index, -0/NaN/Infinity and six-exemption controls. Independent build, guard, process contract, brief output and full npm test all pass today, confirming these bypasses are missing from the executable suite rather than already caught.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-13T16:03:31.378Z",
@@ -1623,7 +1623,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "indexed-provenance-regression-matrix-gap",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 15575c0dec: exact regression matrix covers any nested rest, empty-string direct/alias/rest, safe-to-unknown and unknown-to-safe reassignment, and the single complete safe literal negative; process contract pins order-independent merge semantics.",
+      "resolvedAt": "2026-07-13T16:13:46.911Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
