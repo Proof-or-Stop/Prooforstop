@@ -419,37 +419,37 @@
           "intentRef": "CHK-005:happy:0",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
-          "command": "npm --prefix packages/main run build && npm run test:closeout-trust && npm run test:process-fact-contract && npm run test:runtime-fact-contract",
+          "command": "npm test",
           "result": "pass",
-          "note": "A fresh review snapshot taken after closeout artifacts exist succeeds with unchanged material/composite scope and valid persisted schemas; local causal telemetry alone never retains the earlier review.",
-          "headHash": "39a75b3c6ac7e8223318d2eb4a9580dbe2aabb2e",
-          "materialHash": "d189ecd2427dfff56d4fef54beda2206d5da20301a5fff3a254d6227ede2ca14",
-          "storyFilesHash": "4de5ef436f8d8e55aaad46748510eba7965cbcce87753c5eae4e3a58d8fb4356",
-          "timestamp": "2026-07-13T10:15:30.353Z"
+          "note": "Fresh review after closeout reaches DONE through the real actor FINISH transition; full repository suite passes.",
+          "headHash": "4bcd14fb91a62d8c47b76a251ad88e56f1199c3b",
+          "materialHash": "92eefbdb41b59a1d8296c3bf1aaf71d666f8f2f4895e3ec08e64ab5bd5d6b16e",
+          "storyFilesHash": "c5dc7934120519a46c14380cafb19bfe084d3e04f7117d02108160f105082015",
+          "timestamp": "2026-07-13T10:26:39.690Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
-          "command": "npm --prefix packages/main run build && npm run test:closeout-trust && npm run test:process-fact-contract && npm run test:runtime-fact-contract",
+          "command": "npm test",
           "result": "pass",
-          "note": "Unknown wrapper-root metadata, changed material, changed semantic scope, malformed schema/hash, stale pre-closeout review, and TEST scope acknowledgement are independently rejected.",
-          "headHash": "39a75b3c6ac7e8223318d2eb4a9580dbe2aabb2e",
-          "materialHash": "d189ecd2427dfff56d4fef54beda2206d5da20301a5fff3a254d6227ede2ca14",
-          "storyFilesHash": "4de5ef436f8d8e55aaad46748510eba7965cbcce87753c5eae4e3a58d8fb4356",
-          "timestamp": "2026-07-13T10:15:30.494Z"
+          "note": "Unknown metadata, material/scope drift, invalid schema/hash, stale review, and TEST acknowledgement are independently rejected.",
+          "headHash": "4bcd14fb91a62d8c47b76a251ad88e56f1199c3b",
+          "materialHash": "92eefbdb41b59a1d8296c3bf1aaf71d666f8f2f4895e3ec08e64ab5bd5d6b16e",
+          "storyFilesHash": "c5dc7934120519a46c14380cafb19bfe084d3e04f7117d02108160f105082015",
+          "timestamp": "2026-07-13T10:26:39.843Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
-          "command": "npm --prefix packages/main run build && npm run test:closeout-trust && npm run test:process-fact-contract && npm run test:runtime-fact-contract",
+          "command": "npm test",
           "result": "pass",
-          "note": "Earlier-round/pre-closeout assurance is not inherited, and a same-UID actor with coherent bytes, HEAD, storyFilesHash, command name, and causal chain still cannot mint gate authority.",
-          "headHash": "39a75b3c6ac7e8223318d2eb4a9580dbe2aabb2e",
-          "materialHash": "d189ecd2427dfff56d4fef54beda2206d5da20301a5fff3a254d6227ede2ca14",
-          "storyFilesHash": "4de5ef436f8d8e55aaad46748510eba7965cbcce87753c5eae4e3a58d8fb4356",
-          "timestamp": "2026-07-13T10:15:30.634Z"
+          "note": "Pre-closeout/earlier assurance and locally forged coherent receipts cannot satisfy the TEST-to-DONE machine guard; process contract pins this consumer.",
+          "headHash": "4bcd14fb91a62d8c47b76a251ad88e56f1199c3b",
+          "materialHash": "92eefbdb41b59a1d8296c3bf1aaf71d666f8f2f4895e3ec08e64ab5bd5d6b16e",
+          "storyFilesHash": "c5dc7934120519a46c14380cafb19bfe084d3e04f7117d02108160f105082015",
+          "timestamp": "2026-07-13T10:26:39.997Z"
         }
       ]
     }
