@@ -459,6 +459,29 @@
       "resolvedAt": "2026-07-13T10:47:32.052Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-f458:F-019",
+      "desc": "Audit provenance is now honestly authorization-neutral, but the claimed independent DONE recheck still does not replay the authoritative REVIEW→TEST reviewer gate. runReviewToTestPreflightGate checks review loops, ProofStory completeness, and CLI channel/concept/lint/docs gates; it does not invoke canPassReviewGuard or an equivalent shared evaluator for required reviewer presence, active-reviewer coverage/quorum, and open blocking findings. canFinishGuard only rejects reviewerEvidence.invalid and does not require any valid reviewer evidence or reject valid open high/critical findings. Consequently a same-UID manual REVIEW→TEST index/phase edit with the accepted stable delta can still skip the XState REVIEW_PASS guard: with no reviewer records invalid is empty, and even a signature-valid open blocking finding is not rejected at DONE, provided the unrelated DONE/preflight gates pass. The process-contract regex only proves that runReviewToTestPreflightGate is called, not that the missing signed reviewer facts are consumed. Add a shared authoritative REVIEW verdict evaluator (or explicitly re-run canPassReviewGuard semantics) at DONE and regress manual phase edits with missing reviewer evidence, missing opt-in lane/quorum, and an open blocking finding. The revised audit-only provenance and post-closeout freshness semantics themselves are sound.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-13T10:48:22.529Z",
+      "reviewRound": "2026-07-13T10:47:07.635Z",
+      "reviewRunId": "B-f458:RR-019",
+      "_hash": "04cfedaa17d0314db965c59e9f12450176567204c5c6bf947e00640690eb41c4",
+      "files": [
+        "packages/main/src/handlers/transition-orchestrator.ts",
+        "packages/main/src/handlers/phase-gates.ts",
+        "packages/main/src/handlers/review-preflight.ts",
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/tasks/closeout-trust-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "missing|ts|audit-provenance-honestly",
+      "signatureTagSource": "auto"
     }
   ]
 }
