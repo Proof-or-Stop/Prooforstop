@@ -2223,7 +2223,7 @@
       "desc": "Loader identity still does not cross the ESM/CJS value forms that the new export graph otherwise supports. collectLoaderBindings seeds createRequireSymbols only from a direct named import from node:module, a direct namespace import, or direct object destructuring of global `require('node:module')`; its fixpoint propagates only identifier aliases (lines 851-978). A local barrel `export { createRequire as makeRequire } from 'node:module'` followed by `import { makeRequire } from './barrel.js'; const rq = makeRequire(import.meta.url)` is not recognized as a factory. Neither are `const mod = require('node:module'); const { createRequire } = mod` and `const makeRequire = require('node:module').createRequire`. The resulting NodeRequire call returns checker Any without module-load uncertainty, so a local eval/Function/vm bridge again evades. This is a concrete split between the loader graph and export/value provenance despite the unification claim. Resolve factory identity through aliased/re-exported symbols and member/destructuring provenance (while retaining global-symbol checks), and add dangerous/safe controls for named/export-star re-exports and two-step CJS extraction.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-13T18:07:07.047Z",
@@ -2243,7 +2243,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "loader-factory-export-graph-gap",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by a34d89024d: createRequire identity crosses ESM barrels and two-step CJS member/destructuring extraction with safe controls.",
+      "resolvedAt": "2026-07-13T18:26:59.418Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-087",
