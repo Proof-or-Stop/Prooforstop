@@ -63,6 +63,7 @@ import {
 import { normalizeNestedSpaceAlias } from './cli/alias-normalizer.js';
 import { commitInitCheckMetadataAndMergeMain } from './cli/init-check-metadata-sync.js';
 import { dispatchRecoverEvidenceWithStructuredFailure } from './cli/recover-evidence-dispatch.js';
+import { dispatchUsageSweepAlertWithExit } from './handlers/usage-sweep.js';
 import {
   runStoryAdvanceInitCheckLifecycleDispatch,
   runStoryCreateLifecycleDispatch,
@@ -1318,6 +1319,23 @@ export async function runCli(opts?: {
     if (!handler) { console.error(`handler not found: ${cmd}`); process.exit(1); }
     await run(async () => {
       return dispatchRecoverEvidenceWithStructuredFailure({
+        handler: handler as (args: Record<string, unknown>) => unknown | Promise<unknown>,
+        data: v.data as Record<string, unknown>,
+      });
+    });
+    return;
+  }
+
+  // B-623a: usage_sweep --alert — same print-then-throw shape as
+  // recover_evidence: the wrapper prints the full report FIRST, then throws
+  // when any session is over the burn thresholds so runCli's catch branch sets
+  // process.exitCode=1 (cron drives notifications off the exit code). Plain
+  // usage_sweep (no --alert) stays on the generic dispatch below, byte-identical.
+  if (cmd === 'usage_sweep' && (v.data as Record<string, unknown> | undefined)?.alert === true) {
+    const handler = handlers[cmd];
+    if (!handler) { console.error(`handler not found: ${cmd}`); process.exit(1); }
+    await run(async () => {
+      return dispatchUsageSweepAlertWithExit({
         handler: handler as (args: Record<string, unknown>) => unknown | Promise<unknown>,
         data: v.data as Record<string, unknown>,
       });

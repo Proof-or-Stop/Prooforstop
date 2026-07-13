@@ -1890,7 +1890,7 @@ Behavior:
   }},
 
   // Doctor (health issue inspection).
-  { name: 'doctor', description: 'View Proofbound health issues (silent-caught PERSIST fails); scan orphan worktrees', schema: {
+  { name: 'doctor', description: 'View Proofbound health issues (silent-caught PERSIST fails); scan orphan worktrees. Also runs the B-623a ADVISORY host burn scan: read-only stream over recently-active ~/.codex/sessions and ~/.claude/projects transcripts flagging long-thread token burn (env-tunable thresholds; LATTICE_BURN_ALERT_RECENT_HOURS=0 disables; never gates, no gate evidence, exit code unchanged)', schema: {
     format: z.enum(['text', 'json']).optional().describe('Output format (default: text).'),
     limit: z.number().optional().describe('Maximum number of entries to read (default: 1000).'),
     repair: z.boolean().optional().describe('Clean DONE/DISCARDED terminal worktree registrations, orphan directories, and prunable metadata.'),
@@ -2926,6 +2926,7 @@ Behavior:
     codexSessionsDir: z.string().optional().describe('Override the codex sessions dir (default ~/.codex/sessions)'),
     claudeProjectsDir: z.string().optional().describe('Override the claude projects dir (default ~/.claude/projects)'),
     out: z.string().optional().describe('Write the JSON report to this path (must resolve INSIDE the project root); the only write this command performs'),
+    alert: z.boolean().optional().describe('B-623a advisory burn alert: evaluate the swept sessions against the env-tunable burn thresholds (LATTICE_BURN_ALERT_FILE_MB/INPUT_TOKENS/AGE_DAYS) and exit non-zero when any session exceeds them, after printing the full report — cron-friendly; performs no writes and never gates anything'),
     json: z.boolean().optional().describe('Emit the full report object as JSON (carries the same NON-AUTHORITATIVE ESTIMATE label)'),
     format: z.enum(['text', 'json']).optional().describe('Output format'),
   }},

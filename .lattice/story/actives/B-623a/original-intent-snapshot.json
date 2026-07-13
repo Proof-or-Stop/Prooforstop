@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-623a",
+  "sourceText": "User instruction (2026-07-12): In proofbound (Lattice story workflow required): make host-side long-thread burn detection PUSH-based instead of pull-based. B-70e9 shipped read-only lattice usage_sweep which successfully attributed a 1.76B-cumulative-input month-old Codex Desktop thread (rollout 019e40d0) plus 9 concurrently-open proofbound desktop threads - but only when someone remembers to run it. Add a lattice doctor check (reusing core/usage-sweep.ts scanners, read-only) that flags host sessions exceeding thresholds - e.g. rollout file > 100MB, or last cumulative total_token_usage.input > 100M, or session age > 7 days with recent mtime - and prints a prominent warning naming the session file, cwd, and cumulative tokens, with env-tunable thresholds. Optionally also a usage_sweep --alert exit-nonzero mode so a cron can drive notifications. Keep it advisory-only (no gate, gateEvidence=false, consistent with B-70e9 non-goals: desktop sessions are report-only).",
+  "normalizedOutcome": "Running lattice doctor on a machine with a runaway host session (transcript over the size threshold, cumulative input tokens over the token threshold, or an old-but-recently-active session) prints a prominent advisory warning naming that session file, its cwd, and its cumulative tokens, with thresholds tunable via environment variables; and running usage_sweep --alert exits non-zero when any such session exists so a cron job can drive notifications. Both surfaces stay advisory-only with zero writes and no gate evidence.",
+  "acceptanceClaim": "lattice doctor output contains a host burn scan section that flags threshold-exceeding host sessions by file, cwd, and cumulative tokens (and usage_sweep --alert exits non-zero on flagged sessions), verified by the fixture-driven usage-burn-alert smoke plus a real-machine doctor run, while plain doctor/usage_sweep exit codes and the zero-write contract stay unchanged.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:cba8b8fc939d921291413e0457f137ceba2fa725aff545a49f060c2be44d54b4",
+  "createdAt": "2026-07-12T19:52:59.232Z",
+  "updatedAt": "2026-07-12T19:52:59.232Z"
+}

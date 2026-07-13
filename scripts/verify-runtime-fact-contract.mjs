@@ -231,6 +231,9 @@ async function main() {
     }
 
     if (doctorModule && storeModule) {
+      // B-623a: keep this contract check hermetic and fast — doctor's advisory
+      // burn scan would otherwise stream the real ~/.codex / ~/.claude stores.
+      process.env.LATTICE_BURN_ALERT_RECENT_HOURS = '0';
       const doctor = doctorModule.createDoctorHandlers({
         root: tmp,
         scanRoot: tmp,
@@ -238,12 +241,14 @@ async function main() {
         log: () => {},
         getAllToolNames: () => new Set(),
       }).doctor;
-      const json = doctor({ format: 'json' });
+      // B-623a: doctor() is async now (the advisory host burn scan awaits the
+      // read-only store sweeps).
+      const json = await doctor({ format: 'json' });
       check(Boolean(json.runtime), 'doctor JSON missing runtime section');
       for (const [id, outputKey] of requiredFacts) {
         check(json.runtime?.[outputKey]?.id === id, `doctor runtime missing output key: ${outputKey}`);
       }
-      const text = doctor();
+      const text = await doctor();
       check(typeof text === 'string' && text.includes('Runtime scan:'), 'doctor text missing Runtime scan section');
       for (const [id] of requiredFacts) {
         check(text.includes(id), `doctor text Runtime scan missing runtime fact: ${id}`);

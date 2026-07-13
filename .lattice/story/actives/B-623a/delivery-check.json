@@ -1,0 +1,54 @@
+{
+  "storyId": "B-623a",
+  "checkedAt": "2026-07-13T00:26:26.317Z",
+  "headHash": "384d679680e9534c90e5973ae8516d5af85b39a4",
+  "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+  "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+  "reviewRound": "2026-07-12T23:40:24.996Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "packages/main/src/cli/command-catalog.ts#doctor",
+      "promise": "lattice doctor description names the B-623a ADVISORY host burn scan: read-only stream over recently-active ~/.codex/sessions and ~/.claude/projects transcripts flagging long-thread token burn (env-tunable thresholds; LATTICE_BURN_ALERT_RECENT_HOURS=0 disables; never gates, no gate evidence, exit code unchanged)",
+      "status": "verified",
+      "verifiedBy": "diff/grep + independently re-run live CLI",
+      "evidence": "git diff main...HEAD on packages/main/src/cli/command-catalog.ts shows the doctor entry description literally contains this text (grep-confirmed at HEAD 384d679680). Independently re-ran `node packages/main/dist/cli.js --root . doctor` against the real ~/.codex and ~/.claude stores on this machine: printed a 'Host burn scan (advisory):' section naming the window/thresholds, flagged the same 019e40d0 codex rollout (~1_761_423_160 input tokens, file/cwd/first-last-activity/tripped lines) recorded in evidence/live-smoke-transcript.json, plus additional sessions that have since accrued burn (expected on a live machine between captures). Exit code 0 confirmed (doctor never gates)."
+    },
+    {
+      "docPath": "packages/main/src/cli/command-catalog.ts#usage_sweep.alert",
+      "promise": "usage_sweep --alert flag description names the B-623a advisory burn alert: evaluates swept sessions against env-tunable burn thresholds (LATTICE_BURN_ALERT_FILE_MB/INPUT_TOKENS/AGE_DAYS) and exits non-zero when any session exceeds them, after printing the full report; performs no writes and never gates anything",
+      "status": "verified",
+      "verifiedBy": "diff/grep + independently re-run live CLI",
+      "evidence": "git diff main...HEAD on command-catalog.ts shows the alert arg description literally contains this text at HEAD 384d679680. Independently re-ran `node packages/main/dist/cli.js --root . usage_sweep --since=2d --alert` against the real host stores: printed the full NON-AUTHORITATIVE report FIRST, then a 'BURN ALERT: 15 session(s) over burn thresholds (217 scanned) -- exiting non-zero' trailer with per-session blocks, then the process exited 1 (verified via $?). This matches the print-then-throw contract implemented in cli-engine.ts (dispatchUsageSweepAlertWithExit) and the predecessor's independently-reproduced /tmp capture; scanned/flagged counts differ slightly from the predecessor's round due to expected ongoing host activity on a live machine, not a behavioral regression."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Re-ran `node packages/main/dist/tasks/usage-burn-alert-smoke.js` myself at current HEAD 384d679680 (dist NOT rebuilt by me for this check -- pre-built): 21/21 checks pass, including the two post-quorum hardening checks added since the prior delivery-check round -- 'evaluator: NaN / Infinity / negative token counts never throw or corrupt findings' (F-005 fix: NaN burnInputTokens normalizes to null/unknown at construction, keeping the sort a valid total order) and the F-C finding-sort fix folded into the same evaluator ordering check (null-usage unconditionally last even vs. a negative malformed value; Infinity-vs-Infinity comparisons no longer produce a NaN comparator that bypasses the sessionId tie-break). Also re-confirmed via `node packages/main/dist/tasks/run-all-smokes.js --select usage-burn-alert`: auto-discovered, 1/1 PASS."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Same smoke re-run at current HEAD: 'resolver: empty env yields the documented defaults (100MB/100M/7d/48h)', 'resolver: each env variable overrides its threshold; RECENT_HOURS=0 disables', 'resolver: garbage / negative / empty / zero-where-meaningless env falls back per-variable', and 'resolver: FILE_MB=50, very large values, prototype-pollution keys, unrelated-only env' all pass. Source-read confirms resolveBurnAlertThresholds remains a pure function of an injected env record (no process.env read inside core/usage-burn-alert.ts)."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Independently re-ran `node packages/main/dist/cli.js --root . doctor` from the story worktree against the REAL ~/.codex/sessions and ~/.claude/projects stores at current HEAD 384d679680. Exit 0. Output included 'Host burn scan (advisory):' and multiple '✗ BURN ALERT ...' blocks naming real session ids/files/cwds/token counts, matching evidence/live-smoke-transcript.json's flagged 019e40d0 session (same headHash lineage, same numbers for that session). Fixture-driven smoke additionally covers: clean-store checkmark line, RECENT_HOURS=0 disabled+zero-scan, and the triple-reason (file-size+input-tokens+session-age) block bound to its own session's warning text (F-004 fix, re-verified passing)."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Independently re-ran `node packages/main/dist/cli.js --root . usage_sweep --since=2d --alert` from the story worktree against the REAL host stores at current HEAD: full NON-AUTHORITATIVE report printed to stdout, followed by 'BURN ALERT: 15 session(s) over burn thresholds (217 scanned) -- exiting non-zero' and per-session warning blocks; process exited 1 (verified via echo $?). Fixture smoke additionally proves via the real built CLI: flagged+--alert exits non-zero AND still prints the report; same flagged stores WITHOUT --alert exit 0 (opt-in only); --alert on clean stores exits 0; plain doctor exits 0 even with flagged sessions (advisory contract preserved); --alert stays classified readOnly on the ownership/activity-log surfaces."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "Ran `node packages/main/dist/tasks/usage-burn-alert-smoke.js` directly (also confirmed root and packages/main package.json both wire test:usage-burn-alert to this file): 21 per-check checkmark lines then the final 'usage-burn-alert smoke passed (21 checks)' summary, exit 0. Confirmed auto-discovery independent of any manual registration by running `node packages/main/dist/tasks/run-all-smokes.js --select usage-burn-alert`: '1/1 passed'. Also independently re-ran the three pre-existing smokes touched by the doctor sync->async migration (doctor-gitroot-probe-smoke.js, validation-protocol-smoke.js, story-metadata-protection-smoke.js, storydir-inside-gitroot-suite.js) plus `node scripts/verify-runtime-fact-contract.mjs` (the 5th call-site fix from commit 33376b1653): all pass, confirming the async doctor migration did not regress any dependent smoke."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "RE-SIGN round: independently reverse-scanned git diff main...HEAD at current HEAD 384d679680 (predecessor's delivery-check was stale at e988891a3e; three material commits landed since: 3734296235 main-merge, 33376b1653 await-fix for the 5th doctor() call site in scripts/verify-runtime-fact-contract.mjs, and the F-C/F-005 comparator hardening in 67f0ccc2b1 + 7869a82200). All three post-staleness commits verified genuine and non-regressive: re-ran verify-runtime-fact-contract.mjs (passes, hermetic via RECENT_HOURS=0), and re-ran the 21-check usage-burn-alert-smoke.js which now includes the NaN/Infinity/negative-usage ordering assertions added by the two comparator-fix commits. Independently reproduced BOTH real-machine claims against the live ~/.codex and ~/.claude stores rather than trusting any prior capture: `doctor` (exit 0, Host burn scan section, same 019e40d0 session flagged with matching numbers) and `usage_sweep --since=2d --alert` (exit 1, BURN ALERT trailer; scanned/flagged counts drifted from prior captures only due to expected ongoing host activity between captures on a live machine). No docs/ changes were made by design; verified this via git diff --stat (zero .md files touched outside .lattice story metadata) and confirmed the command-catalog.ts doctor + usage_sweep descriptions are the CLI-surface disclosure, naming the burn scan, --alert, and the LATTICE_BURN_ALERT_FILE_MB/INPUT_TOKENS/AGE_DAYS/RECENT_HOURS env vars. All 5 checklist items (CHK-001..CHK-005) remain status=done with verificationEvidence passing counts unchanged (19/19, 15/15, 17/17, 14/14, 18/18). findings.json shows 5 findings (F-001..F-005), ALL status=resolved with resolveEvidenceStrength=strong; F-005's resolvedReason text explicitly documents the F-C fix lineage (commit 67f0ccc2b1) it hardens, and I independently confirmed the fix is load-bearing by reading the sort comparator's null-vs-negative and Infinity-vs-Infinity branches in core/usage-burn-alert.ts (not just trusting the resolvedReason prose). One non-blocking discrepancy carried forward honestly from the prior round (still true, still non-blocking): checklist.json userSees text for CHK-001 and CHK-002 quotes print-line phrasing that is close-but-not-byte-identical to the smoke's actual current check labels (e.g. userSees says 'just-over flagged for file-size / input-tokens / session-age' vs. the actual label 'just-over flagged; per-reason isolation'); the underlying tested behavior for both is genuinely present and passing, only the checklist's literal wording is stale -- not treated as a delivery blocker. No unresolved TODO/FIXME/HACK found in the touched source (grep re-run at current HEAD). Story is currently sitting in REVIEW phase per index.json (process-events.jsonl shows dispatch TEST at 22:17, dropped back to REVIEW at 22:59 for the F-C/F-005 fix cycle, host_verdict quorum recorded at 00:15:57); this delivery_check_set re-signs against the current HEAD so it is fresh for whenever the main agent re-advances the story to TEST->DONE."
+  },
+  "_hash": "41db531cdf893a24f97875ac975220ea5a8e58abbf4cf570e6aad81d486ae91b"
+}

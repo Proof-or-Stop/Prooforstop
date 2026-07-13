@@ -4,8 +4,8 @@
   "title": "Push-based host long-thread burn detection: doctor burn scan plus usage_sweep --alert",
   "description": "B-70e9 (DONE, v0.3.184) shipped the read-only `lattice usage_sweep` retro-attribution report, which successfully attributed a 1.76B-cumulative-input month-old Codex Desktop thread (rollout 019e40d0, ~/.codex/sessions/2026/05/19/, 13,648 turns, per-turn prompt grown 47k->247k) plus 9 concurrently-open proofbound desktop threads. But the sweep is PULL-based: it only detects runaway host threads when someone remembers to run it. Interactive desktop threads re-send their entire accumulated context every turn (a doc read once gets re-paid every subsequent turn - the 019e40d0 thread re-paid one execution-plan doc 1251 times), so early LOUD detection is the only lever lattice has for sessions it did not launch. This story makes detection PUSH-based: (1) a `lattice doctor` advisory check that reuses the core/usage-sweep.ts scanners (read-only) and flags host sessions exceeding env-tunable thresholds (transcript file size, cumulative input tokens, session age with recent activity), printing a prominent warning naming the session file, cwd, and cumulative tokens; (2) a `usage_sweep --alert` mode that exits non-zero when any session exceeds thresholds, so a cron job can drive notifications. Both surfaces stay advisory-only: no gate, gateEvidence=false, consistent with B-70e9 non-goals (desktop sessions are report-only).",
   "type": "feature",
-  "phase": "INIT_CHECK",
-  "priority": "high",
+  "phase": "DONE",
+  "priority": "medium",
   "keywords": [
     "usage-sweep",
     "doctor",
@@ -20,10 +20,9 @@
       "matched": "token"
     }
   ],
-  "priorityElevatedFrom": "medium",
   "createdAt": "2026-07-11T22:19:34.981Z",
   "startedAt": "2026-07-11T22:19:34.981Z",
-  "endedAt": null,
+  "endedAt": "2026-07-13T00:36:49.724Z",
   "events": [
     {
       "phase": "INIT",
@@ -42,11 +41,158 @@
       "user": "Harmonygo",
       "sessionId": "904e207a-87af-4820-9237-36cfb7f8f4da",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-11T22:23:01.635Z",
+      "branch": "story/B-623a",
+      "user": "Harmonygo",
+      "sessionId": "904e207a-87af-4820-9237-36cfb7f8f4da",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-12T20:16:26.870Z",
+      "branch": "story/B-623a",
+      "user": "Harmonygo",
+      "sessionId": "904e207a-87af-4820-9237-36cfb7f8f4da",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-12T20:46:22.327Z",
+      "branch": "story/B-623a",
+      "user": "Harmonygo",
+      "sessionId": "904e207a-87af-4820-9237-36cfb7f8f4da",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-12T21:14:20.643Z",
+      "branch": "story/B-623a",
+      "user": "Harmonygo",
+      "sessionId": "904e207a-87af-4820-9237-36cfb7f8f4da",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-12T21:14:21.850Z",
+      "branch": "story/B-623a",
+      "user": "Harmonygo",
+      "sessionId": "904e207a-87af-4820-9237-36cfb7f8f4da",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-12T21:28:53.904Z",
+      "branch": "story/B-623a",
+      "user": "Harmonygo",
+      "sessionId": "904e207a-87af-4820-9237-36cfb7f8f4da",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-12T21:28:55.311Z",
+      "branch": "story/B-623a",
+      "user": "Harmonygo",
+      "sessionId": "904e207a-87af-4820-9237-36cfb7f8f4da",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-12T22:15:08.810Z",
+      "branch": "story/B-623a",
+      "user": "Harmonygo",
+      "sessionId": "904e207a-87af-4820-9237-36cfb7f8f4da",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-12T22:57:00.793Z",
+      "branch": "story/B-623a",
+      "user": "Harmonygo",
+      "sessionId": "904e207a-87af-4820-9237-36cfb7f8f4da",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-12T22:57:34.340Z",
+      "branch": "story/B-623a",
+      "user": "Harmonygo",
+      "sessionId": "904e207a-87af-4820-9237-36cfb7f8f4da",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-12T23:27:38.134Z",
+      "branch": "story/B-623a",
+      "user": "Harmonygo",
+      "sessionId": "904e207a-87af-4820-9237-36cfb7f8f4da",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-12T23:27:39.065Z",
+      "branch": "story/B-623a",
+      "user": "Harmonygo",
+      "sessionId": "904e207a-87af-4820-9237-36cfb7f8f4da",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-12T23:40:23.030Z",
+      "branch": "story/B-623a",
+      "user": "Harmonygo",
+      "sessionId": "904e207a-87af-4820-9237-36cfb7f8f4da",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-12T23:40:24.996Z",
+      "branch": "story/B-623a",
+      "user": "Harmonygo",
+      "sessionId": "904e207a-87af-4820-9237-36cfb7f8f4da",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-13T00:30:42.875Z",
+      "branch": "story/B-623a",
+      "user": "Harmonygo",
+      "sessionId": "904e207a-87af-4820-9237-36cfb7f8f4da",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-13T00:36:49.724Z",
+      "branch": "story/B-623a",
+      "user": "Harmonygo",
+      "sessionId": "904e207a-87af-4820-9237-36cfb7f8f4da",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-623a",
-    "branch": "story/B-623a",
-    "createdAt": "2026-07-11T22:22:02.550Z"
-  }
+  "riskSignalsDismissed": [
+    {
+      "category": "Security/Credentials",
+      "reason": "False positive by homonym: the story text is about HOST TRANSCRIPT SESSIONS (Codex rollout files / Claude project transcripts and their token counters), not authentication/credential sessions. The change is a read-only advisory diagnostic that reuses the B-70e9 usage-sweep scanners (stat + stream-read, zero writes, L0 read classification, no credential material handled, no security surface modified). The high-assurance intent artifacts (snapshot, red evidence, independent intent-collision pass, 5 preMortem scenarios) are all in place regardless of this dismissal.",
+      "at": "2026-07-12T20:09:53.007Z"
+    }
+  ],
+  "currentReviewRound": "2026-07-12T23:40:24.996Z"
 }

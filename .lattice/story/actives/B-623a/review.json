@@ -1,0 +1,98 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-07-12T20:08:07.155Z",
+      "issueCount": 6,
+      "blockerCount": 3,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Pure-core burn-alert evaluator over usage-sweep session rows + Env-tunable threshold resolver with conservative defaults are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Security/Credentials. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-623a\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "missing_understanding",
+          "severity": "advisory",
+          "message": "understanding snapshot not filled. Recommend calling understanding_set before breaking down checklist to record the 6 fields task/outcome/facts/constraints/unknowns/touchpoints, avoiding expensive late fixes for misunderstandings"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"doctor's own CLI-surface disclosure (command-catalog.ts description + process-fact-levels.ts rationale) that it now reads external host transcript stores (~/.codex/sessions, ~/.claude/projects), matching the transparency precedent already set by usage_sweep's own catalog description and process-fact-levels rationale\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"decision.json pre-mortem mitigation: existing doctor-invoking smokes (doctor-gitroot-probe-smoke.ts, story-metadata-protection-smoke.ts, storydir-inside-gitroot-suite.ts) must set LATTICE_BURN_ALERT_RECENT_HOURS=0 around their doctor() calls to stay hermetic/fast once doctor scans real host stores by default\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_open_question_unresolved",
+          "severity": "blocker",
+          "message": "scope_open_question_unresolved: OQ-B623A-001 unresolved — \"understanding.json is absent for B-623a. Should the Story owner run understan...\". Please run `lattice scope_question_resolve --storyId=B-623a --oqId=OQ-B623A-001 --resolution=...` to provide a written resolution (the main agent is responsible for the conclusion)"
+        }
+      ],
+      "_hash": "eb83ddb21671a9c6623bfb887c5c0a1c3acbd3667e0ef36855aac5a3f4d2d64a"
+    },
+    {
+      "timestamp": "2026-07-12T20:08:32.964Z",
+      "issueCount": 6,
+      "blockerCount": 3,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Pure-core burn-alert evaluator over usage-sweep session rows + Env-tunable threshold resolver with conservative defaults are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Security/Credentials. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-623a\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "missing_understanding",
+          "severity": "advisory",
+          "message": "understanding snapshot not filled. Recommend calling understanding_set before breaking down checklist to record the 6 fields task/outcome/facts/constraints/unknowns/touchpoints, avoiding expensive late fixes for misunderstandings"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"doctor's own CLI-surface disclosure (command-catalog.ts description + process-fact-levels.ts rationale) that it now reads external host transcript stores (~/.codex/sessions, ~/.claude/projects), matching the transparency precedent already set by usage_sweep's own catalog description and process-fact-levels rationale\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"decision.json pre-mortem mitigation: existing doctor-invoking smokes (doctor-gitroot-probe-smoke.ts, story-metadata-protection-smoke.ts, storydir-inside-gitroot-suite.ts) must set LATTICE_BURN_ALERT_RECENT_HOURS=0 around their doctor() calls to stay hermetic/fast once doctor scans real host stores by default\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_open_question_unresolved",
+          "severity": "blocker",
+          "message": "scope_open_question_unresolved: OQ-B623A-001 unresolved — \"understanding.json is absent for B-623a. Should the Story owner run understan...\". Please run `lattice scope_question_resolve --storyId=B-623a --oqId=OQ-B623A-001 --resolution=...` to provide a written resolution (the main agent is responsible for the conclusion)"
+        }
+      ],
+      "_hash": "801b5fc9f6b1cc7ae3e91a82ecc59cdcd7e598ddf7e36a10625d91d98228a45f"
+    },
+    {
+      "timestamp": "2026-07-12T20:16:25.138Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Pure-core burn-alert evaluator over usage-sweep session rows + Env-tunable threshold resolver with conservative defaults are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals_dismissed",
+          "severity": "advisory",
+          "message": "1 risk signal(s) have been dismissed by main agent (reasons in story.riskSignalsDismissed): Security/Credentials"
+        }
+      ],
+      "_hash": "ea16f6e7f6f13b3a665e1143e77a0aa7693e356db125bdee39fcd5ad7743859d"
+    }
+  ]
+}

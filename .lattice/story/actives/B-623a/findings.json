@@ -1,0 +1,124 @@
+{
+  "findings": [
+    {
+      "id": "B-623a:F-001",
+      "desc": "packages/main/src/tasks/usage-burn-alert-smoke.ts CHK-002:happy:2 evidence note cites the check 'handler: --alert fires with LATTICE_BURN_ALERT_INPUT_TOKENS=1000 override' (L450-468) as covering 'resolveBurnAlertThresholds with LATTICE_BURN_ALERT_INPUT_TOKENS=500000 returns inputTokens=500000 while other defaults are unchanged', but that check never calls resolveBurnAlertThresholds and never uses 500000 -- it only asserts alert-firing behavior with value 1000. The literal value 500000 does not occur anywhere in usage-burn-alert-smoke.ts or usage-burn-alert.ts (grep confirms zero matches). The only resolver test that overrides LATTICE_BURN_ALERT_INPUT_TOKENS to a specific value uses 50000000 (L272-285, 'resolver: each env variable overrides its threshold'), a different untested value. Sibling intents CHK-002:happy:1 (FILE_MB=50->52428800) and CHK-002:happy:3 (AGE_DAYS=14->14) ARE asserted with their exact literal values, so this is a real evidence-note misattribution / coverage gap rather than a stylistic choice.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-12T20:54:06.613Z",
+      "reviewRound": "2026-07-12T20:46:22.327Z",
+      "reviewRunId": "B-623a:RR-003",
+      "_hash": "c45e0b04f0ff2574ba1c7fcfa361eba29a74aabc0fb22ddf935dee3fa79bb58e",
+      "files": [
+        "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+        "packages/main/src/core/usage-burn-alert.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Verified fix at commit d3f491966e (usage-burn-alert-smoke.ts L281-285): resolveBurnAlertThresholds is now called with the exact literal LATTICE_BURN_ALERT_INPUT_TOKENS=500000 and asserts .inputTokens===500000, matching CHK-002:happy:2 literally. Ran usage-burn-alert-smoke.js directly (21 checks, all pass) to confirm.",
+      "resolvedAt": "2026-07-12T21:03:41.047Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-623a:F-002",
+      "desc": "packages/main/src/tasks/usage-burn-alert-smoke.ts CHK-003:edge:4 requires a session that trips ALL THREE reasons (file-size + input-tokens + session-age) and lists all three in its warning line; no such fixture exists anywhere in the smoke. The only multi-reason fixture (codex-burn-A/HOT, integration check L372-374) is explicitly asserted via assert.deepEqual([...hot.reasons].sort(), [\"input-tokens\",\"session-age\"], ...) to trip EXACTLY two reasons, never file-size (its transcript is a few hundred bytes, well under the 100MB default). The renderers check (L435-447) constructs a single-reason (input-tokens only) fixture. Evidence notes both for CHK-003:edge:4 (\"integration: HOT trips multiple reasons listed together; renderers list reasons joined\") and for CHK-001:happy:5 (\"evaluator per-reason isolation + edge: all-three-reasons session (doctor fixture)\") misdescribe this as a 3-reason test -- there is no 3-reason (doctor) fixture in the file. renderBurnFindingBlock's reasons.join(...) line (core/usage-burn-alert.ts ~L250) is therefore untested with 3 simultaneous reasons.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-12T20:54:15.833Z",
+      "reviewRound": "2026-07-12T20:46:22.327Z",
+      "reviewRunId": "B-623a:RR-003",
+      "_hash": "7b1bb80069beef4efd3625ea5ad8b862dca9ec5dcee5dc9a79b050051654e6b1",
+      "files": [
+        "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+        "packages/main/src/core/usage-burn-alert.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Verified fix at commit d3f491966e (usage-burn-alert-smoke.ts L448-475): a new check now asserts a 3-reason (file-size+input-tokens+session-age) finding both at evaluator level and via the real doctor handler (FILE_MB=0.0001 makes the HOT fixture trip file-size too). JSON-level assertion binds to sessionId===codex-burn-A correctly. Ran usage-burn-alert-smoke.js directly (21 checks, all pass) to confirm. Filed a separate low-severity finding F-004 for a latent (currently-harmless) line-selection bug in the same check's text-mode assertion.",
+      "resolvedAt": "2026-07-12T21:03:41.565Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-623a:F-003",
+      "desc": "packages/main/src/tasks/usage-burn-alert-smoke.ts CHK-001:edge:3 requires \"A codex session with inputTokens=0 and a claude session with all-zero usage fields are not flagged for input-tokens\", but no fixture in the smoke uses a zero-valued codex usage() or an all-zero claude usage object. The nearest row (L352, sessionId 'bbb') has cacheReadInputTokens:2000 (nonzero) and IS flagged, not an example of the intended not-flagged-at-zero case. Existing tests only cover near-threshold (1000) and clearly nonzero (2000/4300/5000/150000000) values. grep across the file confirms no codexUsage(0) call and no all-zero claude usage object anywhere. The evidence note title (\"evaluator: zero-usage rows below strictly-greater thresholds are not flagged\") does not correspond to any check in the file.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-12T20:54:23.654Z",
+      "reviewRound": "2026-07-12T20:46:22.327Z",
+      "reviewRunId": "B-623a:RR-003",
+      "_hash": "c56022f93d0702bf6253d267953ac0b9d08e565d2b684c6e5528f814342b6144",
+      "files": [
+        "packages/main/src/tasks/usage-burn-alert-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Verified fix at commit d3f491966e (usage-burn-alert-smoke.ts L345-353): explicit zero-usage fixtures added -- codex codexUsage(0) and claude all-zero four-field usage -- both asserted to produce zero findings, with fileSizeOf and firstTimestamp controlled so only the input-tokens invariant is exercised. Ran usage-burn-alert-smoke.js directly (21 checks, all pass) to confirm.",
+      "resolvedAt": "2026-07-12T21:03:42.072Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-623a:F-004",
+      "desc": "packages/main/src/tasks/usage-burn-alert-smoke.ts L468 (the new F-002-fix check 'doctor: a session tripping file-size + input-tokens + session-age lists all three reasons', covering CHK-003:edge:4): the hotLine selector `text.split(\"\\n\").find((line) => line.includes(\"tripped:\") && text.includes(\"codex-burn-A\"))` references the OUTER `text` variable in its second predicate instead of `line`. Since `text` (the whole doctor output) always contains the substring 'codex-burn-A' somewhere, this second condition is vacuously true and the selector actually just grabs the FIRST line anywhere in the doctor output containing 'tripped:', not specifically codex-burn-A's warning line. Empirically confirmed (ran the same fixture setup standalone): with FILE_MB=0.0001 the doctor output contains THREE 'tripped:' lines -- one for codex-burn-A (file-size, input-tokens, session-age) and two file-size-only lines for codex-at-C and codex-ok-B (also swept up by the tiny threshold). The assertion currently passes only because evaluateBurnAlerts sorts findings by burnInputTokens descending (core/usage-burn-alert.ts L216-221), so codex-burn-A (150M tokens) happens to render first among the three -- i.e. it works by coincidence of fixture/sort ordering, not because the code actually identifies codex-burn-A's line. CHK-003:edge:4 requires proving that the specific tripped session's warning line lists all three reasons; a selector that cannot actually bind to a named session does not reliably verify that claim and would silently start checking the wrong line if the fixture set or sort order ever changes (e.g. a future fixture with higher burnInputTokens added before HOT, or HOT's own burn value lowered). Fix: change `text.includes(\"codex-burn-A\")` to `line.includes(\"codex-burn-A\")`.",
+      "severity": "low",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-12T21:03:30.588Z",
+      "reviewRound": "2026-07-12T20:46:22.327Z",
+      "reviewRunId": "B-623a:RR-004",
+      "_hash": "a2ca6eb4e9e364c5ec70ae83460ec3f69422af90ad806e3abc7741e9a6817300",
+      "signatureTag": "edge|unknown|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Verified fix at commit 874698a094 (usage-burn-alert-smoke.ts L468-481): the doctor-level tripped-line selector no longer uses the vacuous `text.includes(\"codex-burn-A\")` predicate on the whole output. It now finds the `✗ BURN ALERT codex codex-burn-A` HEADER line index, slices lines from that header up to the next `✗ BURN ALERT` header (or EOF) to isolate codex-burn-A own warning block (confirmed against renderBurnFindingBlock in core/usage-burn-alert.ts L242-256, which emits exactly one header + 4 detail lines including its own tripped: line per finding, so the slice cannot cross into a neighboring session block), then takes that block own tripped: line and asserts it lists file-size/input-tokens/session-age. This binds the assertion to the correct session regardless of finding sort order, fixing the coincidental-pass bug. Rebuilt (tsc) and ran node packages/main/dist/tasks/usage-burn-alert-smoke.js directly: 21/21 checks pass including the target check line \"doctor: a session tripping file-size + input-tokens + session-age lists all three reasons\".",
+      "resolvedAt": "2026-07-12T21:07:10.979Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-623a:F-005",
+      "desc": "packages/main/src/core/usage-burn-alert.ts:234-249 findings.sort comparator: the F-C fix (67f0ccc2b1) correctly fixed the Infinity-subtraction NaN-comparator-result bug, but the comparator still is NOT a valid total order when a finding's burnInputTokens is NaN and other findings have finite numeric values: `at < bt` / `at > bt` are both false for NaN, so the branch silently falls through to the sessionId tie-break AS IF the NaN value were equal to every finite value. Per-pair this looks antisymmetric and never yields a NaN comparator result (matching the literal 'antisymmetric / no NaN paths' framing), but across 3+ findings it breaks TRANSITIVITY: verified live against the built dist (packages/main/dist/core/usage-burn-alert.js) with 3 rows (z=100, m=NaN, a=1, all tripping file-size so all land in findings[]) -- pairwise cmp(z,m)=1, cmp(m,a)=1, cmp(z,a)=-1 (transitivity would require cmp(z,a)<=0), and running evaluateBurnAlerts over the SAME 3 logical rows in 6 different input-array orders produced 3 DIFFERENT final sorted orders (a,m,z / z,a,m / m,z,a depending on presentation order). This directly violates CHK-001:happy:6 (\"Findings are returned in a deterministic order... regardless of input row order\") and is the same class of symptom (order depends on input order) the F-C commit was fixing, just via a different mechanism (NaN VALUE vs NaN comparator RESULT). Mitigating: unreachable through the real usage-sweep production pipeline today because core/usage-sweep.ts ownNumber() filters non-finite values to 0 before they ever reach burnInputTokensOf, so NaN can only reach the comparator via a hand-crafted SweepSessionRow (e.g. direct callers/tests of the exported evaluateBurnAlerts) -- but CHK-001:adversarial:4 explicitly promises evaluateBurnAlerts robustness against NaN rows as part of its own pure-function contract, independent of the sweep layer, and the new 67f0ccc2b1 smoke coverage (edgeRows: inf-a/inf-b/neg/unknown) does not exercise NaN mixed with finite values, so this residual non-determinism ships untested. Suggest either treating NaN burnInputTokens as null-equivalent (sorts last, alongside unknown) before the numeric branch, or normalizing it at construction time (burnInputTokensOf could Number.isFinite-guard, mirroring ownNumber upstream).",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-12T23:32:43.595Z",
+      "reviewRound": "2026-07-12T23:27:39.065Z",
+      "reviewRunId": "B-623a:RR-014",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/usage-sweep.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ed861bd4de0147acb07402542f1c355a748e36a65b225f51792b6af77c623049",
+      "files": [
+        "packages/main/src/core/usage-burn-alert.ts",
+        "packages/main/src/tasks/usage-burn-alert-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-07-12T23:45:49.767Z",
+      "resolutionType": "fixed",
+      "resolvedReason": "Verified fix at commit 7869a82200: burnInputTokens is normalized (NaN -> null) at finding construction in evaluateBurnAlerts (core/usage-burn-alert.ts), before the value ever reaches the sort comparator, renderers, or JSON. Audited genuineness of the new 6-permutation smoke assertion by reproducing both the old and new construction against a standalone extraction of the unchanged comparator: OLD construction (raw NaN reaching the comparator) yields exactly 3 distinct final sort orders across the 6 permutations of [z-big=100, m-nan=NaN, a-small=1] -- a-small,m-nan,z-big / z-big,a-small,m-nan / m-nan,z-big,a-small -- confirming the non-transitive 3-cycle described in the finding (a-small < m-nan < z-big < a-small under pairwise comparison). The pinned expected order (z-big,a-small,m-nan) only coincidentally matches 2 of the 6 old permutations, so the smoke assertion genuinely fails under old code on the other 4. NEW construction collapses all 6 permutations to the single expected order, and burnInputTokens===null for the NaN row only holds post-fix. Ran node packages/main/dist/tasks/usage-burn-alert-smoke.js directly (dist pre-built, not rebuilt): 21/21 pass including the new block. Resolved via fresh review_run_start/review_pass_set (B-623a:RR-018 / B-623a:RP-014).",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}
