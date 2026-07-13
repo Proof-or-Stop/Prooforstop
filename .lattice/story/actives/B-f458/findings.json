@@ -698,6 +698,25 @@
       ],
       "signatureTag": "adversarial|ts|remains-bypassable-unresolved",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f458:F-029",
+      "desc": "The new AST call-site allowlist validates only a local syntactic shape, not the intended call sites, so an approved importer can still export compatibility-derived values without a disallowed identifier reference. In delivery-context-pack.ts, replace one sanctioned `claims: createLegacyLocalOnlyDeliveryClaims()` initializer with `claims: leaked.claims`, then add `export const leaked = { claims: createLegacyLocalOnlyDeliveryClaims() };`. The in-memory AST probe preserves the exact expected constructor totals (identifier occurrences=3, direct calls=2) and reports disallowedReferences=[]: matchesApprovedCallSite accepts any zero-arg call used as any object property named `claims` (lines 406-412). Because the exported call is classified approved, directlyExportsCompatibilityBinding also sees no taint; a downstream module can import `leaked` and destructure/read `.claims` with no compatibility edge. Bind approved calls to their actual enclosing function/object construction context or explicit source call-site identities, and independently reject compatibility calls inside exported statements even when their immediate parent shape is otherwise allowed. Add relocation-to-exported-claims-object plus downstream destructuring/property controls.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-13T12:08:58.310Z",
+      "reviewRound": "2026-07-13T12:06:13.134Z",
+      "reviewRunId": "B-f458:RR-044",
+      "_hash": "b5a66676bba091266b657aa938cb316ffd11d253e917efa7d103b21370db8d53",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "packages/main/src/handlers/delivery-context-pack.ts"
+      ],
+      "signatureTag": "adversarial|ts|call-site-allowlist",
+      "signatureTagSource": "auto"
     }
   ]
 }
