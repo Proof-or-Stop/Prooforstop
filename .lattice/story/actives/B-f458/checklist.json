@@ -93,7 +93,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-07-13T10:15:09.807Z",
+      "endTime": "2026-07-13T11:00:39.440Z",
       "userSees": "User sees `PASS composite scope digest: semantic scope facts bound`; changing acknowledgement content/provenance, milestone ledger, or slice plan changes the digest and blocks metadata-only review retention until signed re-attestation.",
       "verificationIntent": {
         "happy": [
@@ -138,38 +138,35 @@
         {
           "intentRef": "CHK-002:happy:0",
           "kind": "logic_test",
-          "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
           "command": "npm test",
           "result": "pass",
-          "note": "Final scope-bound composite digest and signed review binding tests pass.",
-          "headHash": "2d07bf75c907831e484cf2650cf72e02b2d0bc55",
-          "materialHash": "8e6a95dbb62680ca990145a6b68956231d5215ddfa4a26f15b8f474e6595cc7c",
-          "storyFilesHash": "65b1228d759bf589057b72cfc03d92a1c53cb92ba967d17ed7e05dc4e4a6483a",
-          "timestamp": "2026-07-13T10:46:24.449Z"
+          "note": "Full suite passed after shared REVIEW/DONE reviewer verdict enforcement at commit 1baeb54a9d.",
+          "headHash": "64da516936d92e40c8d180c40c4a762e4d853228",
+          "materialHash": "ad073efd4fec3685844c9e84a54c397c7e7e61af70cd816e6dc1b3641f850116",
+          "storyFilesHash": "97b41175b50ecf541e1aa9b58bb531cfdcf96141ba381420e6792f93f469b126",
+          "timestamp": "2026-07-13T11:00:39.592Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "logic_test",
-          "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
           "command": "npm test",
           "result": "pass",
-          "note": "Final scope-bound round/scope/stable-field mutations fail while optional user passes.",
-          "headHash": "2d07bf75c907831e484cf2650cf72e02b2d0bc55",
-          "materialHash": "8e6a95dbb62680ca990145a6b68956231d5215ddfa4a26f15b8f474e6595cc7c",
-          "storyFilesHash": "65b1228d759bf589057b72cfc03d92a1c53cb92ba967d17ed7e05dc4e4a6483a",
-          "timestamp": "2026-07-13T10:46:24.607Z"
+          "note": "Full suite covers stale/missing lane and wrapper-root compatibility after shared verdict enforcement.",
+          "headHash": "64da516936d92e40c8d180c40c4a762e4d853228",
+          "materialHash": "ad073efd4fec3685844c9e84a54c397c7e7e61af70cd816e6dc1b3641f850116",
+          "storyFilesHash": "97b41175b50ecf541e1aa9b58bb531cfdcf96141ba381420e6792f93f469b126",
+          "timestamp": "2026-07-13T11:00:39.732Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
-          "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
           "command": "npm test",
           "result": "pass",
-          "note": "Final scope-bound audit identity mutations are authority-neutral.",
-          "headHash": "2d07bf75c907831e484cf2650cf72e02b2d0bc55",
-          "materialHash": "8e6a95dbb62680ca990145a6b68956231d5215ddfa4a26f15b8f474e6595cc7c",
-          "storyFilesHash": "65b1228d759bf589057b72cfc03d92a1c53cb92ba967d17ed7e05dc4e4a6483a",
-          "timestamp": "2026-07-13T10:46:24.743Z"
+          "note": "Full suite covers manual TEST phase bypass attempts with no reviewer, missing lane, and open verified high finding.",
+          "headHash": "64da516936d92e40c8d180c40c4a762e4d853228",
+          "materialHash": "ad073efd4fec3685844c9e84a54c397c7e7e61af70cd816e6dc1b3641f850116",
+          "storyFilesHash": "97b41175b50ecf541e1aa9b58bb531cfdcf96141ba381420e6792f93f469b126",
+          "timestamp": "2026-07-13T11:00:39.872Z"
         }
       ]
     },
