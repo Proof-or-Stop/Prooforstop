@@ -1373,6 +1373,33 @@
       "resolvedAt": "2026-07-13T15:15:51.518Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-f458:F-058",
+      "desc": "Recursive binding provenance still does not model rest semantics. walkPattern ignores BindingElement.dotDotDotToken: array rest appends the ordinary element index and then nested binding appends another index (for `const [head, ...[run]] = [0, eval]`, it records path [1,0] although run is sourced from original index 1), while object rest treats the local rest identifier as an ordinary property name (or assignment spread reuses the parent path). expressionAtPath therefore cannot recover the dangerous source, and recordKind has no rest fallback. Source-fed rest chains such as `const [head, ...[run]] = [0, eval]; run(\"import(… )\")` and `const { safe, ...rest } = globalThis; const { eval: run } = rest; run(\"import(… )\")` can evade the dynamic-code guard. Current rest controls only exercise dangerous/default initializers, which create a separate direct alias and do not validate provenance from the rest source. Model rest as an explicit slice/omit projection for declaration, assignment, and parameter patterns, and add positive source-fed array/object rest controls plus local noncallable negatives.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-13T15:17:22.342Z",
+      "reviewRound": "2026-07-13T15:15:25.349Z",
+      "reviewRunId": "B-f458:RR-077",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Reviewed the complete implementation diff and focused binding-provenance/control sections; unrelated unchanged portions of the large guard and contract files were name-triaged."
+      },
+      "_hash": "5b5661f47738b691a92da8ec8a2071d8c472cde114928db0bbd8a6ea0d453bb9",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "recursive-binding-rest-provenance",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
