@@ -1149,7 +1149,7 @@
       "desc": "The parameter-binding fix still skips BindingElement defaults whenever the ParameterDeclaration itself has no initializer. The `ts.isParameter(node) && node.initializer` guard means `collectBindingDefaults(node.name)` is never called for a valid form such as `function execute({ indirect = eval }) { indirect(\"import('./legacy-delivery-claims-compat.js')\"); }` or `function execute([run = eval]) { run(payload); }`; those local symbols remain unmarked and the recursive call walk emits no dynamic-code violation. The new controls all give the whole parameter a default (`{...} = globalThis`, `[...] = []`), so build, vocabulary guard, and process-contract tests pass without exercising this branch. Invoke binding-default traversal for every parameter binding pattern, while only processing the parameter-level initializer when present, and add object/array element-default controls without an outer default. Callable-constructor coverage is also still syntactic rather than complete: class values and statically known methods are functions, so `class Builder {}; Builder.constructor(payload)()` and `object.method.constructor(payload)()` reach Function, but neither class nor method symbols enter functionCallableSymbols. Add class/method constructor positives or conservatively reject `.constructor` on statically callable declarations while retaining the ordinary-data-object negative.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-13T14:08:11.972Z",
@@ -1161,7 +1161,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "parameter-binding-and-callable-constructor-bypass",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by cf7337d78c: nested BindingElement defaults are recursively collected without requiring a ParameterDeclaration initializer; generic callable receiver constructor analysis covers class and method cases with shadow/data-object negatives.",
+      "resolvedAt": "2026-07-13T14:18:53.724Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-049",
