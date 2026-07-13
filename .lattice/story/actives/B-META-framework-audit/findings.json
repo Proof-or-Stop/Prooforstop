@@ -1,0 +1,20 @@
+{
+  "findings": [
+    {
+      "id": "B-META-framework-audit:F-001",
+      "desc": "delivery_check_set accepted docsPromises entries explicitly marked status=unverified together with closingSelfCheck.hasUnresolvedTodos=true, but reported 0 unverified and delivery readiness PASS; this can create a false product-complete delivery gate.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-07-13T03:33:41.767Z",
+      "reviewRound": "",
+      "_hash": "263c7cac3e6e5638b00b7b5b4c04228e245efaf31e9c2fca8c341fbbb39f408a",
+      "gapFingerprint": "9a873afd761c3a13580ee56709dd960b0685275e68109fb927a768eea974f0ce",
+      "files": [
+        "packages/main/src/handlers/delivery-check.ts"
+      ]
+    }
+  ]
+}
