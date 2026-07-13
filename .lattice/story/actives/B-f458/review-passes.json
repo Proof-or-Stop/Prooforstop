@@ -559,6 +559,23 @@
         "scanEscalationReason": "Reviewed the complete implementation diff and full changed provenance/control/process-pin sections; unchanged portions of the two large files were triaged by name, and no decisions-document escalation was needed for this focused coverage rerun."
       },
       "_hash": "6776c20744d409783892bf9a039ce76a6adf69057266875e1339ce56fff79a83"
+    },
+    {
+      "id": "B-f458:RP-027",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage PASS (strictly contract-bounded to 3115d67a5d): F106-F109 are represented by four positive controls (safe-named object member eval, safe-named namespace re-export with benign payload, parameter eval callsite, and danger-dominates merged callsites) plus two exact local-safe negatives. Both negatives are included in DYNAMIC_PROVENANCE_REACHABILITY_LABELS and the guard proves the exact reachability count of 17. The process-fact contract pins all six labels plus DYNAMIC_CODE_UNAPPROVED_ONLY_LABELS, trustedRuntimeDeclaration, exactSafe, localCallableDeclarations, bindLocalCallArguments, and the candidate-filter removals. Clean build and focused production-path guard passed under the hard 800 build budget: builds=678 cacheHits=2 fullAnalysis=1115 astCandidates=451 reachability=17; process-fact contract also passed. No open findings remain.",
+      "createdAt": "2026-07-13T20:23:42.090Z",
+      "reviewRound": "2026-07-13T20:20:44.390Z",
+      "reviewRunId": "B-f458:RR-120",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Reviewed the complete 3115d67a5d diff and the full changed control, reachability, execution, instrumentation, and process-pin sections. The assignment was strictly contract-bounded, so unrelated decisions-document escalation was neither necessary nor permitted."
+      },
+      "_hash": "839ec64b40b10f7ed02629866837ac9f89b3a141c5ff49a359f01a2ce1105015"
     }
   ]
 }
