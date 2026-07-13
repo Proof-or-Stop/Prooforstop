@@ -3160,6 +3160,21 @@
       "_hash": "da3674f040ca98417c78945a60eb65e68df8b072558377861b429602195b1d9d",
       "signatureTag": "missing|unknown|half-applied-refactor",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f458:F-123",
+      "desc": "functional regression: packages/main/src/core/machine.ts:756 added `if (!evaluateReviewVerdict(context).ok) return false;` inside canFinishGuard (the DONE-gate guard). evaluateReviewVerdict unconditionally calls context.store.readReviewLoopRecords(...) first; any StoryStore implementation that omits that method (or others it reaches, e.g. readReviewPasses/readChecklist/readDecision) now makes canFinishGuard fail closed even when it previously returned true. This breaks the pre-existing, untouched test packages/main/src/tasks/review-assurance-floor-smoke.ts check `wrapper-root machine DONE guard uses resolved gitCwd` (line 804: assert.equal(canFinishGuard(context), true)) because its fakeDoneStore fixture (line 257) is a minimal partial store mock without readReviewLoopRecords. Reproduced: `node packages/main/dist/tasks/review-assurance-floor-smoke.js` throws AssertionError (false !== true) on the story branch; the same file passes cleanly (16/16 checks) on a fresh main worktree build. This is a functional false-negative in the DONE gate for any caller supplying a partial/legacy StoryStore-shaped object to canFinishGuard, not just a test-fixture cosmetic issue.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-13T23:27:59.312Z",
+      "reviewRound": "2026-07-13T22:57:08.346Z",
+      "reviewRunId": "B-f458:RR-134",
+      "_hash": "050eb97d7ffe297ed9f01424540f72633eec0a89e8cdbcf243e1540a6345d926",
+      "signatureTag": "missing|unknown|functional-regression-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
