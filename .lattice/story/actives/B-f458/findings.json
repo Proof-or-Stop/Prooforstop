@@ -324,6 +324,28 @@
       ],
       "signatureTag": "audit-telemetry-gate-evidence-drift",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-f458:F-014",
+      "desc": "Revised receipt semantics are honest at the helper boundary, but the promised fresh-review requirement is not mechanically enforced on the actual TEST→DONE path. evaluateReviewRunMetadataRetention/collectReviewerEvidenceState reject a pre-closeout review after closeout metadata changes, yet canFinishGuard never consumes either function; reviewer evidence is checked only on REVIEW→TEST. Therefore a TEST-phase closeout writer can change summary/test/delivery metadata and still reach DONE through the remaining DONE gates without a fresh reviewer pass. The smoke test only constructs a synthetic fresh RR-002 and calls the helper directly while the story is in TEST, so it does not prove lifecycle enforcement. Add TEST/DONE gate consumption plus an end-to-end transition regression, while accounting for legitimate REVIEW→TEST phase/index mutations so the new gate does not self-invalidate every pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-13T10:19:52.222Z",
+      "reviewRound": "2026-07-13T10:16:45.271Z",
+      "reviewRunId": "B-f458:RR-010",
+      "_hash": "c2e8e45ac39d997159214ea19da7c3ed91237858ea81f72fbb99dccaf62b9d00",
+      "files": [
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/core/review-run.ts",
+        "packages/main/src/tasks/closeout-trust-smoke.ts",
+        "packages/main/src/core/process-fact-registry.ts",
+        "packages/main/src/core/lifecycle-registry.ts"
+      ],
+      "signatureTag": "missing|ts|revised-receipt-semantics",
+      "signatureTagSource": "auto"
     }
   ]
 }
