@@ -265,7 +265,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-07-13T11:42:19.207Z",
+      "endTime": "2026-07-13T11:53:56.865Z",
       "userSees": "User runs the TEST roll-up regression and sees `PASS local closeout requires fresh review before TEST retention`; same-UID forged receipts and paired source/docs/scope mutations fail closed, while a fresh post-closeout review can continue TEST.",
       "verificationIntent": {
         "happy": [
@@ -316,33 +316,33 @@
           "kind": "logic_test",
           "command": "npm test",
           "result": "pass",
-          "note": "Full suite passed at d9f301399f, including canonical TEST closeout write behavior.",
-          "headHash": "dbbe27bbfea6e2ebfee35742dcbbefcfe2544d99",
-          "materialHash": "90f15839206772318007d79565d77df2790fb2399747a67c697139728b75140e",
-          "storyFilesHash": "ece10afc0df39a2ec04b025872be19ec512b30a00d91b9ad58cfed333007ccf8",
-          "timestamp": "2026-07-13T11:42:19.360Z"
+          "note": "Full suite passed at 932387b7a9 including canonical TEST closeout behavior.",
+          "headHash": "7aa7289b7bca47553a7c24a9d7f2cc08bf9792ca",
+          "materialHash": "81a56fd7ef5fb7410e9e53b484d76c581ba6d919947a55ac5367806a3a43292d",
+          "storyFilesHash": "5f21567f7ebe6e0b7137ce5bcecb6ce6b03f379e956ece1ce56818a4bf0b7cbb",
+          "timestamp": "2026-07-13T11:53:57.033Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
           "kind": "logic_test",
           "command": "npm run test:closeout-trust",
           "result": "pass",
-          "note": "Local-only closeout write and review freshness behavior passed at d9f301399f.",
-          "headHash": "dbbe27bbfea6e2ebfee35742dcbbefcfe2544d99",
-          "materialHash": "90f15839206772318007d79565d77df2790fb2399747a67c697139728b75140e",
-          "storyFilesHash": "ece10afc0df39a2ec04b025872be19ec512b30a00d91b9ad58cfed333007ccf8",
-          "timestamp": "2026-07-13T11:42:19.500Z"
+          "note": "Local-only closeout writer and freshness paths passed at 932387b7a9.",
+          "headHash": "7aa7289b7bca47553a7c24a9d7f2cc08bf9792ca",
+          "materialHash": "81a56fd7ef5fb7410e9e53b484d76c581ba6d919947a55ac5367806a3a43292d",
+          "storyFilesHash": "5f21567f7ebe6e0b7137ce5bcecb6ce6b03f379e956ece1ce56818a4bf0b7cbb",
+          "timestamp": "2026-07-13T11:53:57.181Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
           "result": "pass",
-          "note": "Namespace, dynamic, require, direct re-export, alias, indirect-call, and property escape controls passed at d9f301399f.",
-          "headHash": "dbbe27bbfea6e2ebfee35742dcbbefcfe2544d99",
-          "materialHash": "90f15839206772318007d79565d77df2790fb2399747a67c697139728b75140e",
-          "storyFilesHash": "ece10afc0df39a2ec04b025872be19ec512b30a00d91b9ad58cfed333007ccf8",
-          "timestamp": "2026-07-13T11:42:19.640Z"
+          "note": "Template-literal dynamic import, Unicode-escaped wrapper, alias, re-export, namespace, require, and downstream attacks are rejected at 932387b7a9.",
+          "headHash": "7aa7289b7bca47553a7c24a9d7f2cc08bf9792ca",
+          "materialHash": "81a56fd7ef5fb7410e9e53b484d76c581ba6d919947a55ac5367806a3a43292d",
+          "storyFilesHash": "5f21567f7ebe6e0b7137ce5bcecb6ce6b03f379e956ece1ce56818a4bf0b7cbb",
+          "timestamp": "2026-07-13T11:53:57.318Z"
         }
       ]
     },
