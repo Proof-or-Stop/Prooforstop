@@ -2722,6 +2722,24 @@
       ],
       "signatureTag": "adversarial|ts|async-callback-provenance",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f458:F-104",
+      "desc": "The F-098 prefilter fix remains unsound for indirect const dataflow. hasDynamicExecutionAstCandidate only inspects Call/New target text and direct argument text/literals. Verified parse-clean source: `const api = '\\\\u0065val'; const payload = \"\\\\x69mport('../packages/main/src/core/legacy-delivery-claims-compat.js')\"; const run = globalThis[api]; run(payload);`. The exact raw prefilter returns false and the new AST-candidate algorithm also returns false, while TypeScript decodes the literals to `eval` and `import('../packages/main/src/core/legacy-delivery-claims-compat.js')`. scanDynamicCodeGeneration therefore returns early at the prefilter skip, even though its existing staticPropertyKeyExpression can resolve const `api`, staticModuleText/constStrings can resolve const `payload`, and provenance analysis would classify global eval. This is a reachable false negative, not test-only behavior. Make the cheap candidate pass follow relevant const initializers/element accesses and call-argument bindings, or avoid early-return whenever calls plus computed/indirect dataflow can feed the semantic analysis; add a positive control where both escaped API and payload are const-bound before the safe-named call. Fresh build and guard otherwise pass: builds=686 cacheHits=2 fullAnalysis=688 astCandidates=16 reachability=9, real 27.68s.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-13T19:31:06.612Z",
+      "reviewRound": "2026-07-13T19:27:48.844Z",
+      "reviewRunId": "B-f458:RR-112",
+      "_hash": "8ffdfbdaccc29cc817702c9545ae40d1853055cdb45129a49cab92e67c0170a4",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "signatureTag": "prefilter-indirect-const-escape-bypass",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
