@@ -114,8 +114,30 @@
         "evaluateReviewVerdict",
         "review_round_missing"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The trust validator and delivery producer must share one canonical local-only claims schema without duplicating retired vocabulary in new files.",
+      "timestamp": "2026-07-13T11:21:57.247Z",
+      "paths": [
+        "packages/main/src/core/baseline-contracts.ts",
+        "packages/main/src/handlers/delivery-context-pack.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/baseline-contracts.ts",
+        "packages/main/src/handlers/delivery-context-pack.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "f54dcf772886a47dda71101a49e951850d464c81",
+      "materialHash": "075bc5ed48d985faf25af6a6dd50b3440c40c67c0c8585d94785d5009d275fc6",
+      "anchors": [
+        "LOCAL_ONLY_DELIVERY_CLAIMS",
+        "isExactLocalOnlyDeliveryClaims"
+      ]
     }
   ],
   "createdAt": "2026-07-13T08:24:04.138Z",
-  "updatedAt": "2026-07-13T11:10:19.385Z"
+  "updatedAt": "2026-07-13T11:21:57.247Z"
 }

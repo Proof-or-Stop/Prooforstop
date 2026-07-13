@@ -11,6 +11,26 @@ export const NON_AUTHORITY_FORBIDDEN_DONE_FIELDS = [
   'fullAuthorityDone',
 ] as const;
 
+/** Canonical legacy-shaped claims emitted by local-only delivery context producers. */
+export const LOCAL_ONLY_DELIVERY_CLAIM_KEYS = [
+  'authorityDone',
+  'fullAuthorityDone',
+  'productionDone',
+] as const;
+export const LOCAL_ONLY_DELIVERY_CLAIMS = {
+  authorityDone: false,
+  fullAuthorityDone: false,
+  productionDone: false,
+} as const;
+
+export function isExactLocalOnlyDeliveryClaims(value: unknown): value is typeof LOCAL_ONLY_DELIVERY_CLAIMS {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) return false;
+  const record = value as Record<string, unknown>;
+  const keys = Object.keys(record);
+  return keys.length === LOCAL_ONLY_DELIVERY_CLAIM_KEYS.length
+    && LOCAL_ONLY_DELIVERY_CLAIM_KEYS.every(key => Object.prototype.hasOwnProperty.call(record, key) && record[key] === false);
+}
+
 export type BaselineTrack = 'natural-language' | 'redevelopment' | 'redevelopment-safety';
 export type BaselineExpectedOutcome = 'PASS' | 'EXPECTED_BLOCK';
 export type BaselineOutcome = BaselineExpectedOutcome | 'FAIL' | 'INVALID';

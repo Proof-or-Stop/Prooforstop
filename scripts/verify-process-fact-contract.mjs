@@ -756,6 +756,12 @@ function assertCloseoutTrustBoundary() {
   }
   const deliveryText = read('packages/main/src/handlers/delivery-context-pack.ts');
   assert(deliveryText.includes('validatePersistedDeliveryContextPack(JSON.parse'), 'delivery-context-pack writer must validate the persisted shape before rename');
+  const baselineContractsText = read('packages/main/src/core/baseline-contracts.ts');
+  for (const token of ['LOCAL_ONLY_DELIVERY_CLAIM_KEYS', 'LOCAL_ONLY_DELIVERY_CLAIMS', 'isExactLocalOnlyDeliveryClaims']) {
+    assert(baselineContractsText.includes(token), `baseline-contracts must retain canonical local-only delivery claim contract ${token}`);
+    assert(trustText.includes(token), `closeout trust validator must reuse canonical local-only delivery claim contract ${token}`);
+  }
+  assert(deliveryText.includes('LOCAL_ONLY_DELIVERY_CLAIMS'), 'delivery-context producer must emit the same canonical local-only claims consumed by the trust validator');
   const scopeAckPolicy = parseCommandPolicyEntries().find(entry => entry.name === 'scope_contract_acknowledge');
   assert(scopeAckPolicy && !scopeAckPolicy.allowedPhases.includes('TEST'), `${commandPolicyPath}: scope_contract_acknowledge must remain rejected in TEST`);
 

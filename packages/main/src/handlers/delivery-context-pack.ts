@@ -12,6 +12,7 @@ import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import type { ChecklistData } from '../core/types.js';
 import { validatePersistedDeliveryContextPack } from '../core/closeout-trust.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
+import { LOCAL_ONLY_DELIVERY_CLAIMS } from '../core/baseline-contracts.js';
 
 /**
  * P6 — `delivery_context_pack`: the delivery-review CONTEXT PRODUCER for the
@@ -127,11 +128,7 @@ export interface DeliveryContextPackReport {
     persisted: boolean;
     artifactPath: string | null;
   };
-  claims: {
-    authorityDone: false;
-    fullAuthorityDone: false;
-    productionDone: false;
-  };
+  claims: typeof LOCAL_ONLY_DELIVERY_CLAIMS;
 }
 
 /** The persisted artifact shape (a subset of the report — no transient mode/write echo). */
@@ -147,7 +144,7 @@ interface PersistedDeliveryContextPackArtifact {
   deliveryCheck: { status: DeliveryCheckStatus['status']; ref: Record<string, unknown> | null };
   waiver: { status: 'surfaced' | 'none' };
   isSigner: false;
-  claims: { authorityDone: false; fullAuthorityDone: false; productionDone: false };
+  claims: typeof LOCAL_ONLY_DELIVERY_CLAIMS;
 }
 
 function wantsJson(args: DeliveryContextPackArgs): boolean {
@@ -378,7 +375,7 @@ function toPersistable(report: DeliveryContextPackReport): PersistedDeliveryCont
     deliveryCheck: { status: report.deliveryCheck.status, ref: report.deliveryCheck.ref },
     waiver: { status: report.waiver.status },
     isSigner: false,
-    claims: { authorityDone: false, fullAuthorityDone: false, productionDone: false },
+    claims: { ...LOCAL_ONLY_DELIVERY_CLAIMS },
   };
 }
 
@@ -507,7 +504,7 @@ export function createDeliveryContextPackHandlers(ctx: HandlerContext): Record<s
       deliveryReadinessRow: deliveryRow,
       isSigner: false,
       write: { requested: wantsWrite(args), persisted: false, artifactPath: null },
-      claims: { authorityDone: false, fullAuthorityDone: false, productionDone: false },
+      claims: { ...LOCAL_ONLY_DELIVERY_CLAIMS },
     };
 
     // --write: persist the SAME structured pack (ownership/scope gated by the CLI

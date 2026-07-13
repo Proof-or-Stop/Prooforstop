@@ -55,6 +55,7 @@ import { createDoneRequiredValidationHandlers } from '../handlers/done-required-
 import { createVerifierHandlers } from '../handlers/verifier.js';
 import type { HandlerContext } from '../handlers/context.js';
 import { computeActiveReviewers } from '../handlers/reviewer-list.js';
+import { LOCAL_ONLY_DELIVERY_CLAIMS, LOCAL_ONLY_DELIVERY_CLAIM_KEYS } from '../core/baseline-contracts.js';
 
 const storyId = 'B-closeout';
 const ledger = buildMilestoneLedger({
@@ -205,12 +206,13 @@ const deliveryPack = {
   deliveryCheck: { status: 'present', ref: null },
   waiver: { status: 'none' },
   isSigner: false,
-  claims: { authorityDone: false, fullAuthorityDone: false, productionDone: false },
+  claims: { ...LOCAL_ONLY_DELIVERY_CLAIMS },
 } as const;
 validatePersistedDeliveryContextPack(deliveryPack, storyId);
+const [firstLocalOnlyClaimKey] = LOCAL_ONLY_DELIVERY_CLAIM_KEYS;
 assert.throws(
-  () => validatePersistedDeliveryContextPack({ ...deliveryPack, claims: { ...deliveryPack.claims, authorityDone: true } }, storyId),
-  /authority claims must all be false/,
+  () => validatePersistedDeliveryContextPack({ ...deliveryPack, claims: { ...deliveryPack.claims, [firstLocalOnlyClaimKey]: true } }, storyId),
+  /local-only claims must all be false/,
 );
 for (const [label, mutation] of [
   ['non-string changedFiles', { ...deliveryPack, diff: { ...deliveryPack.diff, changedFiles: [42] } }],
