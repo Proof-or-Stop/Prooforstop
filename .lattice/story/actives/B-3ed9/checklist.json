@@ -39,7 +39,30 @@
       "userSees": "Running the scope contract smoke prints 'scope contract smoke passed'",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The scope-contract smoke prints scope contract smoke passed with the new per-row assertions in place",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Per-row assertions for the three new filenames run before the aggregate status check so a single-filename regression names the exact artifact (B-12a1 F-001 pattern)",
+            "type": "docs",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Bite test: temporarily removing grill.json from the registry set makes the extended smoke fail naming grill.json, then restore and re-run to green — proves the new assertions are load-bearing",
+            "type": "manual",
+            "priority": "should"
+          }
+        ]
+      }
     }
   ]
 }
