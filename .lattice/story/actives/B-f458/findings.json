@@ -3049,7 +3049,7 @@
       "desc": "Nested bind provenance drops a later unknown spread tail. In boundArgumentProvenance, when `prior.unknownTail` exists, the bind merge returns `mergeArgumentValue(prior.unknownTail, packedArgumentProvenance(added.prefix))` and never consumes `added.unknownTail`. Repro: `const localSafe=(value:string)=>value; declare const leading:Array<typeof localSafe>; declare const trailing:Array<typeof eval>; function execute(run:(value:string)=>unknown){ run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); } const first=execute.bind(null,...leading); const second=first.bind(null,...trailing); second();`. `leading` may be empty, so eval from `trailing` can become parameter 0 at runtime, but analysis retains only the safe prior tail and suppresses the inner call. This is distinct from F-116, which concerns a spread containing the invocation receiver slot; here both binds are syntactically normalized and the loss is specifically nested ArgumentVector tail composition. Merge added.unknownTail as an alternative whenever prior.unknownTail exists, preserving unknown positional uncertainty, and add danger/safe controls for chained bind with unknown-length spreads in both orders. Independent build, process-fact contract, and fresh guard passed: builds=718 cacheHits=2 fullAnalysis=1155 astCandidates=463 reachability=31, real 34.74s.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-13T21:58:58.093Z",
@@ -3060,7 +3060,11 @@
         "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
       ],
       "signatureTag": "nested-bind-unknown-tail-drop",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by e9c08fdc20: Nested bind merges prior and added prefix plus both unknown tails with danger-wins in either order.",
+      "resolvedAt": "2026-07-13T22:16:58.623Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-118",
