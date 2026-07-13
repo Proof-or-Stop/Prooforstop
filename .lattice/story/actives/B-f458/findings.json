@@ -2704,6 +2704,24 @@
       ],
       "signatureTag": "adversarial|ts|fallback-prefilter-still",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f458:F-103",
+      "desc": "Async callback provenance remains bypassable through ordinary transforms beyond a single identifier parameter/direct return. callbackParameterProvenance is populated only when the callback parameter name is an Identifier; `await import(\"./dynamic-code-esm-bridge.js\").then(({ evalRun }) => evalRun)` therefore leaves the destructured binding without module provenance, and invoking the returned `run(payload)` is not classified as the bridge generator. Likewise a callback returning `Promise.resolve(eval)` is not awaited/assimilated in callbackResult even though real Promise.then adopts that promise. The new direct `() => eval` controls do not cover these semantics; callback binding patterns and promise-flattened returns must propagate or fail closed.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-13T19:30:54.167Z",
+      "reviewRound": "2026-07-13T19:27:48.844Z",
+      "reviewRunId": "B-f458:RR-111",
+      "_hash": "594d8b9ae1b88e17a49a449514a241c1ef15aa25e27a5e1d2c9cea6b5720b28a",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|async-callback-provenance",
+      "signatureTagSource": "auto"
     }
   ]
 }
