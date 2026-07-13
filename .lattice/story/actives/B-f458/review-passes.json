@@ -24,6 +24,30 @@
         "scanEscalationReason": null
       },
       "_hash": "87c2657491764a98ee8e2f14d86b28ba2f9f2572842b72e4164bbc5ce880f31e"
+    },
+    {
+      "id": "B-f458:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Final coverage PASS: build plus test:closeout-trust, test:process-fact-contract, and test:runtime-fact-contract all exit 0. Exact revised userSees lines are emitted. The real wrapper-root regression proves coherent same-UID forged receipts remain audit telemetry but cannot authorize review retention; a fresh post-closeout snapshot succeeds; committed unknown wrapper metadata fails; replay/copy/reorder and material/scope/round negatives remain covered. No receiptSigner/writerSignature/private-key claims remain. All 15 revised intent evidence records pass and bind storyFilesHash 4de5ef4.",
+      "createdAt": "2026-07-13T10:19:05.432Z",
+      "reviewRound": "2026-07-13T10:16:45.271Z",
+      "reviewRunId": "B-f458:RR-012",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/review-run.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9e46f1e82141c88d7ac3820a099c79ad22e5c021d8de7f7183ed1fbf04c0faf7"
     }
   ]
 }
