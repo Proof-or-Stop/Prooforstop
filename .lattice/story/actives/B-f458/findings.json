@@ -840,6 +840,26 @@
       "resolvedAt": "2026-07-13T12:57:15.296Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-f458:F-035",
+      "desc": "The new whole-source fingerprints omit the compatibility authority module itself. `scanLegacyDeliveryCompatibilityUsage` returns immediately for LEGACY_DELIVERY_COMPAT_MODULE at line 855, and that file is also in legacyQuarantineFiles, so packages/main/src/core/legacy-delivery-claims-compat.ts has neither vocabulary scanning nor a pinned structural fingerprint. An executable change to its constructor/validator (for example adding a side effect while retaining the same false claims shape, widening accepted values, or adding another export) leaves all three importer fingerprints and all four loader fingerprints unchanged; the process verifier only checks that the two function-name tokens remain present. This defeats the stated closed compatibility boundary at its source. Pin the normalized AST fingerprint and exact export/type/function semantics of the compatibility module itself, and add controls that mutate constructor body, validator body, export surface, and interface field types while importer files remain untouched.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-13T12:59:26.073Z",
+      "reviewRound": "2026-07-13T12:56:50.330Z",
+      "reviewRunId": "B-f458:RR-053",
+      "_hash": "85ed5224bd145fc3f7e943b941b1466b679b503de5236070c54a05fcd14e0177",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "packages/main/src/core/legacy-delivery-claims-compat.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "missing|ts|whole-source-fingerprints",
+      "signatureTagSource": "auto"
     }
   ]
 }
