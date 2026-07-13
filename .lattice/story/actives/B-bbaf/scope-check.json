@@ -314,9 +314,12 @@
       "q": "What is the concrete windowing basis for the takeover-frequency and review-pass-rate signals — wall-clock minutes (e.g. 'takeover 65 in 60m') or a trailing count of events? understanding.json explicitly lists this as an unresolved unknown, but decision.json's rationale and plan.md's DoneWhen bullets only say 'over a window' without pinning down units, so the implementer has no concrete spec to build CHK-001/CHK-004 against.",
       "evidence": "understanding.json unknowns[]: \"Windowing basis for takeover-frequency and pass-rate: wall-clock minutes vs a trailing count of events — which is already available cheaply from story.events?\"; the worked example in understanding.json's outcome field uses wall-clock framing ('takeover-frequency 7 in 60m > 5') but decision.json/plan.md never confirm or resolve this as the chosen mechanism.",
       "sourcePointers": [
-        ".lattice/story/actives/B-bbaf/understanding.json:24",
-        ".lattice/story/actives/B-bbaf/plan.md"
-      ]
+        ".lattice/story/actives/B-bbaf/decision.json",
+        "CHK-002",
+        "CHK-004"
+      ],
+      "resolution": "Windowing basis resolved to CUMULATIVE story-lifetime totals derived from persisted per-story state (advance events from story.events, review-run/pass ledger lengths, and the per-story takeover counter), NOT a wall-clock window. Rationale: it is deterministic and clock-free (Date.now is avoided, matching core/review-convergence.ts and core/usage-burn-alert.ts pure-core discipline), and cheap to read on the story_advance hot path. The one-shot auto-recovery re-baseline (CHK-002) provides headroom for a legitimately long story instead of a rolling clock window, so a healthy story is never frozen for simply living a long time. plan.md CHK-004 DoneWhen now pins this.",
+      "resolvedAt": "2026-07-13T23:39:04.430Z"
     }
   ]
 }
