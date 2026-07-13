@@ -54,10 +54,10 @@
           "command": "npm test",
           "result": "pass",
           "note": "Full npm test suite passed at implementation commit 1e9684f531 after F-070/F-071/F-072/F-073 destructuring and spread provenance hardening.",
-          "headHash": "1e9684f5318f844ed0712710c49eb768bfac3eab",
-          "materialHash": "6ca9616ed4dc108ea2ab1f1fbf645a15dee51a758173b4841eb2ab974424b7b2",
-          "storyFilesHash": "4c019f2c53312fdf9f68407026120b39639aed97da44434a587be1c760098be8",
-          "timestamp": "2026-07-13T16:52:27.406Z"
+          "headHash": "6df708853d3546c8e7bb23925a293026842c035a",
+          "materialHash": "ed87cfb8a7a3d21190c3427c0756963a8d9f1f1e082eb000338ecf0bffd54d33",
+          "storyFilesHash": "dab7d5d135919b26687aed17049b2d36c3d3e58aaefa576a585136f5b48abf27",
+          "timestamp": "2026-07-13T17:18:46.606Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -65,10 +65,10 @@
           "command": "node packages/main/dist/tasks/closeout-trust-smoke.js && node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/brief-output-smoke.js",
           "result": "pass",
           "note": "Closeout trust, runtime fact, and brief-output regression checks passed at implementation commit 1e9684f531.",
-          "headHash": "1e9684f5318f844ed0712710c49eb768bfac3eab",
-          "materialHash": "6ca9616ed4dc108ea2ab1f1fbf645a15dee51a758173b4841eb2ab974424b7b2",
-          "storyFilesHash": "4c019f2c53312fdf9f68407026120b39639aed97da44434a587be1c760098be8",
-          "timestamp": "2026-07-13T16:52:27.549Z"
+          "headHash": "6df708853d3546c8e7bb23925a293026842c035a",
+          "materialHash": "ed87cfb8a7a3d21190c3427c0756963a8d9f1f1e082eb000338ecf0bffd54d33",
+          "storyFilesHash": "dab7d5d135919b26687aed17049b2d36c3d3e58aaefa576a585136f5b48abf27",
+          "timestamp": "2026-07-13T17:18:46.606Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -76,10 +76,10 @@
           "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node scripts/verify-process-fact-contract.mjs && node packages/main/dist/tasks/usage-burn-alert-smoke.js",
           "result": "pass",
           "note": "Adversarial checks passed at implementation commit 1e9684f531: known-key any/unknown fallback, own-enumerable ordered spread override, finite typed and symbol spread provenance, true nested array rest declaration/assignment/parameter controls, and four reserved-name negative matrix; process-fact pins match the controls.",
-          "headHash": "1e9684f5318f844ed0712710c49eb768bfac3eab",
-          "materialHash": "6ca9616ed4dc108ea2ab1f1fbf645a15dee51a758173b4841eb2ab974424b7b2",
-          "storyFilesHash": "4c019f2c53312fdf9f68407026120b39639aed97da44434a587be1c760098be8",
-          "timestamp": "2026-07-13T16:52:27.700Z"
+          "headHash": "6df708853d3546c8e7bb23925a293026842c035a",
+          "materialHash": "ed87cfb8a7a3d21190c3427c0756963a8d9f1f1e082eb000338ecf0bffd54d33",
+          "storyFilesHash": "dab7d5d135919b26687aed17049b2d36c3d3e58aaefa576a585136f5b48abf27",
+          "timestamp": "2026-07-13T17:18:46.606Z"
         }
       ]
     },
@@ -141,10 +141,10 @@
           "command": "npm test",
           "result": "pass",
           "note": "Full npm test suite passed at implementation commit 1e9684f531 after F-070/F-071/F-072/F-073 destructuring and spread provenance hardening.",
-          "headHash": "4fbd1eb4e7cf34ce0c6bf6244738fcb04a7a676d",
-          "materialHash": "6ca9616ed4dc108ea2ab1f1fbf645a15dee51a758173b4841eb2ab974424b7b2",
-          "storyFilesHash": "4c019f2c53312fdf9f68407026120b39639aed97da44434a587be1c760098be8",
-          "timestamp": "2026-07-13T16:53:40.531Z"
+          "headHash": "6df708853d3546c8e7bb23925a293026842c035a",
+          "materialHash": "ed87cfb8a7a3d21190c3427c0756963a8d9f1f1e082eb000338ecf0bffd54d33",
+          "storyFilesHash": "dab7d5d135919b26687aed17049b2d36c3d3e58aaefa576a585136f5b48abf27",
+          "timestamp": "2026-07-13T17:18:46.606Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -152,10 +152,10 @@
           "command": "node packages/main/dist/tasks/closeout-trust-smoke.js && node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/brief-output-smoke.js",
           "result": "pass",
           "note": "Closeout trust, runtime fact, and brief-output regressions passed at implementation commit 1e9684f531.",
-          "headHash": "4fbd1eb4e7cf34ce0c6bf6244738fcb04a7a676d",
-          "materialHash": "6ca9616ed4dc108ea2ab1f1fbf645a15dee51a758173b4841eb2ab974424b7b2",
-          "storyFilesHash": "4c019f2c53312fdf9f68407026120b39639aed97da44434a587be1c760098be8",
-          "timestamp": "2026-07-13T16:53:40.671Z"
+          "headHash": "6df708853d3546c8e7bb23925a293026842c035a",
+          "materialHash": "ed87cfb8a7a3d21190c3427c0756963a8d9f1f1e082eb000338ecf0bffd54d33",
+          "storyFilesHash": "dab7d5d135919b26687aed17049b2d36c3d3e58aaefa576a585136f5b48abf27",
+          "timestamp": "2026-07-13T17:18:46.606Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -163,10 +163,10 @@
           "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node scripts/verify-process-fact-contract.mjs && node packages/main/dist/tasks/usage-burn-alert-smoke.js",
           "result": "pass",
           "note": "Adversarial checks passed at implementation commit 1e9684f531: known-key any/unknown fallback, own-enumerable ordered spread override, finite typed and symbol spread provenance, true nested array rest declaration/assignment/parameter controls, and four reserved-name negative matrix; process-fact pins match the controls.",
-          "headHash": "4fbd1eb4e7cf34ce0c6bf6244738fcb04a7a676d",
-          "materialHash": "6ca9616ed4dc108ea2ab1f1fbf645a15dee51a758173b4841eb2ab974424b7b2",
-          "storyFilesHash": "4c019f2c53312fdf9f68407026120b39639aed97da44434a587be1c760098be8",
-          "timestamp": "2026-07-13T16:53:40.810Z"
+          "headHash": "6df708853d3546c8e7bb23925a293026842c035a",
+          "materialHash": "ed87cfb8a7a3d21190c3427c0756963a8d9f1f1e082eb000338ecf0bffd54d33",
+          "storyFilesHash": "dab7d5d135919b26687aed17049b2d36c3d3e58aaefa576a585136f5b48abf27",
+          "timestamp": "2026-07-13T17:18:46.606Z"
         }
       ]
     },
@@ -226,10 +226,10 @@
           "command": "npm test",
           "result": "pass",
           "note": "Full npm test suite passed at implementation commit 1e9684f531 after F-070/F-071/F-072/F-073 hardening.",
-          "headHash": "2e3a3c8e9bcc18ae193aac0fb8a076ede6717f42",
-          "materialHash": "6ca9616ed4dc108ea2ab1f1fbf645a15dee51a758173b4841eb2ab974424b7b2",
-          "storyFilesHash": "4c019f2c53312fdf9f68407026120b39639aed97da44434a587be1c760098be8",
-          "timestamp": "2026-07-13T16:54:16.171Z"
+          "headHash": "6df708853d3546c8e7bb23925a293026842c035a",
+          "materialHash": "ed87cfb8a7a3d21190c3427c0756963a8d9f1f1e082eb000338ecf0bffd54d33",
+          "storyFilesHash": "dab7d5d135919b26687aed17049b2d36c3d3e58aaefa576a585136f5b48abf27",
+          "timestamp": "2026-07-13T17:18:46.606Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -237,10 +237,10 @@
           "command": "node packages/main/dist/tasks/closeout-trust-smoke.js && node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/brief-output-smoke.js",
           "result": "pass",
           "note": "Closeout trust, runtime fact, and brief-output regressions passed at implementation commit 1e9684f531.",
-          "headHash": "2e3a3c8e9bcc18ae193aac0fb8a076ede6717f42",
-          "materialHash": "6ca9616ed4dc108ea2ab1f1fbf645a15dee51a758173b4841eb2ab974424b7b2",
-          "storyFilesHash": "4c019f2c53312fdf9f68407026120b39639aed97da44434a587be1c760098be8",
-          "timestamp": "2026-07-13T16:54:16.320Z"
+          "headHash": "6df708853d3546c8e7bb23925a293026842c035a",
+          "materialHash": "ed87cfb8a7a3d21190c3427c0756963a8d9f1f1e082eb000338ecf0bffd54d33",
+          "storyFilesHash": "dab7d5d135919b26687aed17049b2d36c3d3e58aaefa576a585136f5b48abf27",
+          "timestamp": "2026-07-13T17:18:46.606Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -248,10 +248,10 @@
           "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node scripts/verify-process-fact-contract.mjs && node packages/main/dist/tasks/usage-burn-alert-smoke.js",
           "result": "pass",
           "note": "Adversarial checks passed at implementation commit 1e9684f531: known-key any/unknown fallback, own-enumerable ordered spread override, finite typed and symbol spread provenance, true nested array rest controls, and four-name negative matrix; process pins match.",
-          "headHash": "2e3a3c8e9bcc18ae193aac0fb8a076ede6717f42",
-          "materialHash": "6ca9616ed4dc108ea2ab1f1fbf645a15dee51a758173b4841eb2ab974424b7b2",
-          "storyFilesHash": "4c019f2c53312fdf9f68407026120b39639aed97da44434a587be1c760098be8",
-          "timestamp": "2026-07-13T16:54:16.463Z"
+          "headHash": "6df708853d3546c8e7bb23925a293026842c035a",
+          "materialHash": "ed87cfb8a7a3d21190c3427c0756963a8d9f1f1e082eb000338ecf0bffd54d33",
+          "storyFilesHash": "dab7d5d135919b26687aed17049b2d36c3d3e58aaefa576a585136f5b48abf27",
+          "timestamp": "2026-07-13T17:18:46.606Z"
         }
       ]
     },
@@ -317,10 +317,10 @@
           "command": "npm test",
           "result": "pass",
           "note": "Full npm test suite passed at implementation commit 1e9684f531 after F-070/F-071/F-072/F-073 hardening.",
-          "headHash": "343e8e30ccb9dd551924bc3ff03515d765496ceb",
-          "materialHash": "6ca9616ed4dc108ea2ab1f1fbf645a15dee51a758173b4841eb2ab974424b7b2",
-          "storyFilesHash": "4c019f2c53312fdf9f68407026120b39639aed97da44434a587be1c760098be8",
-          "timestamp": "2026-07-13T16:54:51.576Z"
+          "headHash": "6df708853d3546c8e7bb23925a293026842c035a",
+          "materialHash": "ed87cfb8a7a3d21190c3427c0756963a8d9f1f1e082eb000338ecf0bffd54d33",
+          "storyFilesHash": "dab7d5d135919b26687aed17049b2d36c3d3e58aaefa576a585136f5b48abf27",
+          "timestamp": "2026-07-13T17:18:46.606Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -328,10 +328,10 @@
           "command": "node packages/main/dist/tasks/closeout-trust-smoke.js && node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/brief-output-smoke.js",
           "result": "pass",
           "note": "Closeout trust, runtime fact, and brief-output regressions passed at implementation commit 1e9684f531.",
-          "headHash": "343e8e30ccb9dd551924bc3ff03515d765496ceb",
-          "materialHash": "6ca9616ed4dc108ea2ab1f1fbf645a15dee51a758173b4841eb2ab974424b7b2",
-          "storyFilesHash": "4c019f2c53312fdf9f68407026120b39639aed97da44434a587be1c760098be8",
-          "timestamp": "2026-07-13T16:54:51.728Z"
+          "headHash": "6df708853d3546c8e7bb23925a293026842c035a",
+          "materialHash": "ed87cfb8a7a3d21190c3427c0756963a8d9f1f1e082eb000338ecf0bffd54d33",
+          "storyFilesHash": "dab7d5d135919b26687aed17049b2d36c3d3e58aaefa576a585136f5b48abf27",
+          "timestamp": "2026-07-13T17:18:46.606Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -339,10 +339,10 @@
           "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node scripts/verify-process-fact-contract.mjs && node packages/main/dist/tasks/usage-burn-alert-smoke.js",
           "result": "pass",
           "note": "Adversarial checks passed at implementation commit 1e9684f531: known-key any/unknown fallback, own-enumerable ordered spread override, finite typed and symbol spread provenance, true nested array rest controls, and four-name negative matrix; process pins match.",
-          "headHash": "343e8e30ccb9dd551924bc3ff03515d765496ceb",
-          "materialHash": "6ca9616ed4dc108ea2ab1f1fbf645a15dee51a758173b4841eb2ab974424b7b2",
-          "storyFilesHash": "4c019f2c53312fdf9f68407026120b39639aed97da44434a587be1c760098be8",
-          "timestamp": "2026-07-13T16:54:51.882Z"
+          "headHash": "6df708853d3546c8e7bb23925a293026842c035a",
+          "materialHash": "ed87cfb8a7a3d21190c3427c0756963a8d9f1f1e082eb000338ecf0bffd54d33",
+          "storyFilesHash": "dab7d5d135919b26687aed17049b2d36c3d3e58aaefa576a585136f5b48abf27",
+          "timestamp": "2026-07-13T17:18:46.606Z"
         }
       ]
     },
@@ -409,10 +409,10 @@
           "command": "npm test",
           "result": "pass",
           "note": "Full npm test suite passed at implementation commit 1e9684f531 after F-070/F-071/F-072/F-073 hardening.",
-          "headHash": "afdb3931fa8a3ed329138c4d3b27401fcbbb6496",
-          "materialHash": "6ca9616ed4dc108ea2ab1f1fbf645a15dee51a758173b4841eb2ab974424b7b2",
-          "storyFilesHash": "4c019f2c53312fdf9f68407026120b39639aed97da44434a587be1c760098be8",
-          "timestamp": "2026-07-13T16:55:29.581Z"
+          "headHash": "6df708853d3546c8e7bb23925a293026842c035a",
+          "materialHash": "ed87cfb8a7a3d21190c3427c0756963a8d9f1f1e082eb000338ecf0bffd54d33",
+          "storyFilesHash": "dab7d5d135919b26687aed17049b2d36c3d3e58aaefa576a585136f5b48abf27",
+          "timestamp": "2026-07-13T17:18:46.606Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -420,10 +420,10 @@
           "command": "node packages/main/dist/tasks/closeout-trust-smoke.js && node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/brief-output-smoke.js",
           "result": "pass",
           "note": "Closeout trust, runtime fact, and brief-output regressions passed at implementation commit 1e9684f531.",
-          "headHash": "afdb3931fa8a3ed329138c4d3b27401fcbbb6496",
-          "materialHash": "6ca9616ed4dc108ea2ab1f1fbf645a15dee51a758173b4841eb2ab974424b7b2",
-          "storyFilesHash": "4c019f2c53312fdf9f68407026120b39639aed97da44434a587be1c760098be8",
-          "timestamp": "2026-07-13T16:55:29.755Z"
+          "headHash": "6df708853d3546c8e7bb23925a293026842c035a",
+          "materialHash": "ed87cfb8a7a3d21190c3427c0756963a8d9f1f1e082eb000338ecf0bffd54d33",
+          "storyFilesHash": "dab7d5d135919b26687aed17049b2d36c3d3e58aaefa576a585136f5b48abf27",
+          "timestamp": "2026-07-13T17:18:46.606Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -431,10 +431,10 @@
           "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node scripts/verify-process-fact-contract.mjs && node packages/main/dist/tasks/usage-burn-alert-smoke.js",
           "result": "pass",
           "note": "Adversarial checks passed at implementation commit 1e9684f531: known-key any/unknown fallback, own-enumerable ordered spread override, finite typed and symbol spread provenance, true nested array rest controls, and four-name negative matrix; process pins match.",
-          "headHash": "afdb3931fa8a3ed329138c4d3b27401fcbbb6496",
-          "materialHash": "6ca9616ed4dc108ea2ab1f1fbf645a15dee51a758173b4841eb2ab974424b7b2",
-          "storyFilesHash": "4c019f2c53312fdf9f68407026120b39639aed97da44434a587be1c760098be8",
-          "timestamp": "2026-07-13T16:55:29.923Z"
+          "headHash": "6df708853d3546c8e7bb23925a293026842c035a",
+          "materialHash": "ed87cfb8a7a3d21190c3427c0756963a8d9f1f1e082eb000338ecf0bffd54d33",
+          "storyFilesHash": "dab7d5d135919b26687aed17049b2d36c3d3e58aaefa576a585136f5b48abf27",
+          "timestamp": "2026-07-13T17:18:46.606Z"
         }
       ]
     }
