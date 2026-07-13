@@ -2480,6 +2480,33 @@
       ],
       "signatureTag": "dynamic-binding-cache-performance-contract-fail",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-f458:F-095",
+      "desc": "The new provenanceBySymbol map reintroduces last-alias-wins semantics for nested member resolution even though the existing symbolProvenance path conservatively merges multiple sources. Inside the fixpoint every alias executes `bindings.provenanceBySymbol.set(alias.target, provenance)` before symbolProvenance is merged. For `let barrel = dangerousNamespace; if (flag) barrel = safeNamespace; barrel.bridge.evalRun(payload)`, the safe conditional assignment is the later alias and overwrites the map, so boundExpressionProvenance follows only the safe nested graph; the dangerous initial value remains feasible when flag is false but is missed. Root memberKinds do not rescue this because `bridge` itself has no direct kind. Store the merged provenance lattice in provenanceBySymbol (or use control-flow-sensitive reaching definitions), with danger preserved for competing conditional assignments in either source order. Add dangerous/safe nested namespace reassignment controls for conditional, loop, and assignment-pattern forms plus deterministic final-safe precision cases.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-13T18:33:17.362Z",
+      "reviewRound": "2026-07-13T18:25:53.527Z",
+      "reviewRunId": "B-f458:RR-106",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Reviewed the full cache/provenance completion diff and focused cache construction/storage, Program/SourceFile identity semantics, graph fixpoint and alternative merge behavior, nested member resolution, path resolution, controls, and performance instrumentation; unrelated unchanged sections were triaged."
+      },
+      "_hash": "8543938663c8c6c5d6798a15521ddc2f51555715f407d84d90f56e24e1e35eb4",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "nested-provenance-last-alias-wins",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
