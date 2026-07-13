@@ -302,10 +302,12 @@
       "q": "scope-boundary.json (human-confirmed allowed scope) still lists a FOURTH breaker signal 'repeated-identical-gate-failure' plus its own 'repeat-failure ~2' env threshold as in-scope, but decision.json's INIT-002 resolution explicitly decided NOT to implement it as a separate counter (subsumed by advance-count + pass-rate), and checklist.json/plan.md contain zero trace of a fourth signal or a repeat-failure threshold. Should scope-boundary.json be amended to match the finalized decision (move this item to excluded, matching decision.json's rationale), or does the checklist need a fourth-signal item to satisfy the human-confirmed boundary as written?",
       "evidence": "scope-boundary.json allowed[]: \"Pure core convergence-breaker deriving four read-only signals from story.events: total advance count, review pass-rate (pass_set/run_start), takeover frequency, and repeated-identical-gate-failure (same gate + same reason)\" and \"...min pass-rate + min-sample, repeat-failure ~2\" vs decision.json rationale: \"the proposed fourth signal 'repeated-identical-gate-failure' is NOT read-only derivable ... so it is deliberately NOT implemented as a separate counter\"",
       "sourcePointers": [
-        ".lattice/story/actives/B-bbaf/scope-boundary.json:7",
-        ".lattice/story/actives/B-bbaf/scope-boundary.json:9",
-        ".lattice/story/actives/B-bbaf/decision.json:50"
-      ]
+        ".lattice/story/actives/B-bbaf/decision.json",
+        "CHK-001",
+        "CHK-004"
+      ],
+      "resolution": "The fourth signal 'repeated-identical-gate-failure' is EXCLUDED (subsumed), reconciling the aspirational scope-boundary wording with the finalized decision.json INIT-002 resolution: gate rejections are not persisted as story events or anywhere else, so the signal is not read-only derivable and is deliberately NOT implemented as a separate counter; per decision.json it 'manifests as repeated advances with no new pass, which advance-count and review-pass-rate already capture.' The scope-boundary listed it as an aspirational fourth signal at INIT before the data-source investigation; no checklist/plan item implements it and none should. Treat the boundary entry as superseded by this resolution.",
+      "resolvedAt": "2026-07-13T23:39:04.038Z"
     },
     {
       "id": "OQ-2",
