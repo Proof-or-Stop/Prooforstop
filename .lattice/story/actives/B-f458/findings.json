@@ -39,6 +39,26 @@
       ],
       "signatureTag": "trusted-artifact-schema-gap",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-f458:F-003",
+      "desc": "Receipt replay defeats the claimed manual/stale-write rejection. latestValidCloseoutReceipt filters all historical receipts for the path and returns any matching valid record, so after canonical A then canonical B, a manual revert of the artifact to A is accepted under the old receipt even though the latest write was not canonical. Reproduced against dist: receipts [A@2026-01-01,B@2026-01-02] plus current summary.json=A returned acceptedTimestamp=2026-01-01. Bind receipts to the actual write/commit and reject superseded/replayed receipts (including copied/reordered receipt-ledger entries).",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-13T09:19:23.032Z",
+      "reviewRound": "2026-07-13T09:17:07.451Z",
+      "reviewRunId": "B-f458:RR-003",
+      "_hash": "454f68a3b49c7f0d46a7643b123fe804d1f627dd265bdddd91e6174b41e15df0",
+      "files": [
+        "packages/main/src/core/closeout-trust.ts",
+        "packages/main/src/core/auto-commit-metadata.ts",
+        "packages/main/src/tasks/closeout-trust-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|receipt-replay-defeats",
+      "signatureTagSource": "auto"
     }
   ]
 }
