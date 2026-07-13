@@ -405,6 +405,26 @@
         "scanEscalationReason": null
       },
       "_hash": "28c9b58179826678d89532bfc691e77d5879746b622d41180290aad147dff2fa"
+    },
+    {
+      "id": "B-f458:RP-019",
+      "agent": "lattice-review-concept",
+      "note": "Concept PASS at aa86b4d950: TypeChecker declaration identity replaces text matching; approved calls require canonical function/variable anchors plus exact parent/argument shape; relocated/shadowed/exported flows and downstream graph reachability have explicit controls; bounded const-string propagation and bound require/module.require/createRequire loaders cover F-028 while unrelated identifiers remain clean. Existing build, retired vocabulary guard, process-fact contract, and closeout smoke pass. Full npm test progressed through these checks but later failed the separate brief-output doctor-size budget (20331), which is not evidence against this concept contract and remains for the owner/test lane.",
+      "createdAt": "2026-07-13T12:22:59.196Z",
+      "reviewRound": "2026-07-13T12:19:02.442Z",
+      "reviewRunId": "B-f458:RR-046",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+          "packages/main/src/handlers/delivery-context-pack.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5feac02e86b4877bf076fda4e51378fa07da0ed6f6b4923608c9f834dd75e872"
     }
   ]
 }
