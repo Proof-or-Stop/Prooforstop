@@ -298,6 +298,27 @@
         "scanEscalationReason": null
       },
       "_hash": "44492a860af3ce38e36ed82b826e88339e53d88632b08f58765fdb644e013a07"
+    },
+    {
+      "id": "B-f458:RP-014",
+      "agent": "lattice-review-concept",
+      "note": "PASS: the retired-vocabulary guard now blocks true two-hop compatibility leaks through approved importers using exact symbol occurrence/call/direct-use constraints plus a transitive exporter graph. Positive controls cover named alias, namespace, dynamic import, require, direct and default re-export, local alias, property assignment, object escape, spread, and a real approved-exporter to unapproved-consumer chain. Production build, retired authority vocabulary guard, closeout-trust smoke, and process-fact contract all pass without false positives.",
+      "createdAt": "2026-07-13T11:45:57.619Z",
+      "reviewRound": "2026-07-13T11:43:56.938Z",
+      "reviewRunId": "B-f458:RR-035",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/core/legacy-delivery-claims-compat.ts",
+          "packages/main/src/handlers/delivery-context-pack.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "02d684f4a2698b6475f8ad79f31d1526d933e34c6fefd69de0e881b888667312"
     }
   ]
 }
