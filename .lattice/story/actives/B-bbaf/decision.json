@@ -1,0 +1,84 @@
+{
+  "principles": [
+    "Never block healthy autonomous work: a converging 6-10-advance story must be byte-identical to today, no breaker output at all.",
+    "Cheap read-only signals: derive from per-story state already persisted; no expensive scan of the growing project activity log on the story_advance hot path.",
+    "Graduated escalation: one automated recovery first (re-baseline the window), a human ack only at a genuine dead-end.",
+    "Fail-open on breaker error: a malformed breaker-state or unreadable ledger must never wedge a healthy story; on any internal error the breaker stays silent.",
+    "Reuse, do not reimplement: event-scan (review-convergence.ts), rejection-gate (story-owner-lease.ts), runtime-artifact registry + .gitignore (F-008 pattern), and the env-threshold resolver (usage-burn-alert.ts BURN_ALERT_ENV)."
+  ],
+  "drivers": [
+    "The user's hard constraint: unattended autonomous development must keep running; human-ack-on-every-stall is rejected.",
+    "The enforcement point is the story_advance hot path, so signal derivation must be O(cheap-per-story-read), not an activity-log scan.",
+    "The freeze ack must be impossible for a looping agent to self-service (the 14h burn happened because nothing required a human)."
+  ],
+  "options": [
+    {
+      "name": "advance-count-only",
+      "pros": [
+        "Cheapest: one filter over story.events (already in the story index).",
+        "Catches the headline B-f458 signature on its own (89 advances vs a healthy 6-10)."
+      ],
+      "cons": [
+        "Blunt: misses a slow-burn that churns review/takeover with relatively few advances.",
+        "No coverage of root cause 1 (takeover storm) as an independent signal."
+      ]
+    },
+    {
+      "name": "multi-signal-cheap-read",
+      "pros": [
+        "Covers all three B-f458 dimensions: advance-count (story.events), review pass-rate (per-story review-runs.json / review-passes.json), and takeover-frequency (a new tiny per-story counter bumped inside the EXISTING takeover audit write, so no hot-path activity-log scan).",
+        "Graduated freeze + one-shot auto-recovery keeps healthy and transient-stall stories unblocked; only a genuine dead-end reaches the human-ack freeze.",
+        "Does not weaken the single legitimate forceTakeover; it only counts takeovers."
+      ],
+      "cons": [
+        "Touches the takeover audit path with a small counter write.",
+        "More surface than a single-signal breaker (state file, resume command, non-interactive detection)."
+      ]
+    },
+    {
+      "name": "activity-log-scan",
+      "pros": [
+        "Single source of truth for all signals including takeover; no new per-story counter."
+      ],
+      "cons": [
+        "Scans the 6.5MB-and-growing project activity.jsonl on every story_advance: real latency and a scaling cliff.",
+        "Couples the hot path to a global append-only log shared by all stories."
+      ]
+    }
+  ],
+  "chosen": "multi-signal-cheap-read",
+  "rationale": "Chosen multi-signal-cheap-read: it covers root causes 1 (takeover storm) and 2 (no convergence fuse) with only cheap per-story reads, because investigation showed the three data sources differ: advance count is in story.events, review pass-rate is in the per-story review-runs.json/review-passes.json ledgers, but takeover events live ONLY in the shared project activity log. Rather than scan that log on the hot path (option activity-log-scan), a tiny per-story takeover counter is bumped inside the takeover audit write that already happens, giving the breaker a cheap read. INIT-002 resolution: the proposed fourth signal 'repeated-identical-gate-failure' is NOT read-only derivable (gate rejections are not persisted as story events or anywhere else), so it is deliberately NOT implemented as a separate counter; that failure mode manifests as repeated advances with no new pass, which advance-count and review-pass-rate already capture. advance-count-only was rejected as too blunt for root cause 1.",
+  "preMortem": [
+    {
+      "scenario": "The breaker false-positives on a legitimately long story and freezes healthy autonomous work.",
+      "trigger": "Thresholds set too tight (a large feature legitimately needs ~15 advances) or auto-recovery omitted.",
+      "consequence": "Autonomous development is blocked, the user is forced to babysit, and the breaker gets disabled wholesale.",
+      "mitigation": "Evidence-derived generous defaults (advance ~20, above healthy 6-10 and below 89); the FIRST trip never freezes (auto-recovers once); every threshold env-tunable; CHK-005 includes a healthy converging control that must never trip."
+    },
+    {
+      "scenario": "A looping agent self-acks the freeze and the 14-hour burn recurs.",
+      "trigger": "story_resume is callable in a non-interactive / autopilot session.",
+      "consequence": "The breaker is defeated by the very actor it exists to stop; no human ever enters the loop.",
+      "mitigation": "story_resume refuses under non-interactive/autopilot (stdin TTY check plus an explicit env signal), requires a human reason string, and CHK-005 asserts the refusal under a simulated autopilot env."
+    },
+    {
+      "scenario": "The breaker-state file dirties the DONE git merge and blocks closeout.",
+      "trigger": "breaker-state.json is git-tracked under .lattice/story/actives/<id>/.",
+      "consequence": "story_advance --phase=DONE fails on an uncommitted-change check (F-008 class), stranding finished work.",
+      "mitigation": "Register the artifact in core/runtime-artifact-registry.ts with a matching .gitignore glob (exact story-owner-lease.ts F-008 pattern); a test asserts the file is never tracked."
+    },
+    {
+      "scenario": "The per-story takeover counter races concurrent sessions and undercounts a storm.",
+      "trigger": "Two sessions bump the counter at nearly the same time during a takeover fight.",
+      "consequence": "The takeover signal misses a real storm, or the counter file is corrupted.",
+      "mitigation": "Increment inside the existing takeover audit write (already serialized by the lease / mkdir-lock), use an atomic read-modify-write, and fail-open: a missed count only DELAYS the trip because advance-count still catches the same loop."
+    },
+    {
+      "scenario": "The pass-rate signal misfires on a story that has barely started reviewing.",
+      "trigger": "0 passes out of 1 run reads as 0% pass-rate on the first review round.",
+      "consequence": "A brand-new story is frozen before it ever had a chance to converge.",
+      "mitigation": "A min-sample gate (pass-rate can only trip once there are >= N review runs, mirroring review-convergence.ts STALL_MIN_ROUNDS), so early low-sample rounds never trip."
+    }
+  ],
+  "timestamp": "2026-07-13T23:26:02.669Z"
+}

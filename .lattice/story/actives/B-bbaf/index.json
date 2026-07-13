@@ -4,7 +4,7 @@
   "title": "Freeze runaway stories with a convergence + takeover circuit breaker and graduated human ack",
   "description": "B-f458 burned ~14 hours in a non-converging death loop (89 advances, 131:31 review run/pass, 65 lease takeovers) because the framework has soft convergence advisories but no hard brake. Add a circuit breaker that derives advance-count / review-pass-rate / takeover-frequency counters read-only from story.events and, on a pathological signature, hard-stops the runaway loop; it auto-recovers once so healthy autonomous work is unaffected, and only escalates to a human-ack freeze on re-trip. Scope is death-loop root causes 1 (takeover storm) and 2 (no convergence fuse); the milestone_ledger_set blocker-hint and review_pass_set writer-identity gaps are owned by concurrent stories and excluded.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "keywords": [
     "circuit-breaker",
@@ -40,6 +40,15 @@
       "action": "advance",
       "timestamp": "2026-07-13T23:20:59.825Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-13T23:21:38.418Z",
+      "branch": "story/B-bbaf",
       "user": "Harmonygo",
       "sessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
       "agent": "main"

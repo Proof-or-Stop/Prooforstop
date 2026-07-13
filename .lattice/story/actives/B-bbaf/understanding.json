@@ -1,0 +1,37 @@
+{
+  "task": "The Lattice framework has no hard circuit breaker on story-lifecycle churn, so a non-converging story can advance, re-review, and take over its own owner-lease indefinitely and burn unattended compute for hours (B-f458 burned ~14 hours). Add a graduated breaker that stops the runaway without blocking healthy autonomous work.",
+  "outcome": "When a runaway story trips the breaker, the operator sees this in the terminal instead of a silent 15th re-review.\n\nFIRST TRIP (auto-recovery, no human needed) — the framework brakes the loop once and continues:\n  $ lattice story_advance {\"storyId\":\"B-9xyz\",\"phase\":\"REVIEW\"}\n  ⚠ CONVERGENCE BREAKER (auto-recovered 1/1): story B-9xyz shows a non-converging signature\n      tripped: advance-count 21 > 20\n      auto-recovery budget spent: the window baseline was reset once; if this recurs the story will FREEZE.\n      authoritative next action: lattice done_prepare --storyId=B-9xyz --dryRun   (shows the real blocking gate)\n  Story B-9xyz advanced to REVIEW\n\nRE-TRIP (freeze, human ack required) — one automated recovery already failed, so the framework stops:\n  $ lattice story_advance {\"storyId\":\"B-9xyz\",\"phase\":\"REVIEW\"}\n  ✗ CONVERGENCE BREAKER: story B-9xyz is FROZEN (auto-recovery already spent)\n      tripped: advance-count 26 > 20 ; review pass-rate 4/40 = 10% < 35% (min-sample 10) ; takeover-frequency 7 in 60m > 5\n      this story cycled without converging; the framework will not advance it again unattended.\n      authoritative next action: lattice done_prepare --storyId=B-9xyz --dryRun\n      a human must review and explicitly resume:\n        lattice story_resume --storyId=B-9xyz --ack --reason=\"<why it is safe to continue>\"\n  gate: BLOCKED (blockedBy=convergence_breaker_frozen)\n\nAUTOPILOT CANNOT SELF-ACK — the resume command refuses when no human is in the loop:\n  $ LATTICE_AUTOPILOT=1 lattice story_resume --storyId=B-9xyz --ack --reason=\"retry\"\n  ✗ story_resume refused: convergence-breaker ack requires an interactive human session (autopilot/non-interactive detected). A human must clear the freeze.\n\nHEALTHY STORIES ARE UNAFFECTED — a normal story (6-10 advances, converging) never prints any breaker line; story_advance behaves exactly as before.",
+  "facts": [
+    "B-f458 forensics (proofbound/tmp/bf458-forensics-2026-07-14/, activity.jsonl 926 events, 08:20Z-22:36Z): 89 story_advance (41x DEV->REVIEW + 39x REVIEW->DEV ping-pong); a healthy lifecycle needs 6-10 advances.",
+    "Review churn: 131 review_run_start vs 31 review_pass_set = 23.7% overall pass-rate; the post-14Z (16:00 local) 8-hour window was 42 run_start / 4 pass = ~9.5% (INIT-003 corrected numbers).",
+    "Lease contention: 65 story-owner-lease-takeover events + 238 takeover/forceTakeover-flagged commands; three concurrent threads at 09:17Z fought the owner lease, staling each other's material.",
+    "Existing signals are advisory-only: core/review-convergence.ts is documented to NEVER block a transition; core/anti-stall.ts only renders retry/fix/discard text; core/usage-burn-alert.ts watches host-session token burn (a different axis) and is advisory:true.",
+    "core/story-owner-lease.ts enforces single-owner at a point in time (30-min staleness, forceTakeover as human override) but never counts takeover FREQUENCY, so all 65 overrides passed individually.",
+    "story.events already records advance transitions and (via activity) review_run_start / review_pass_set / lease-takeover, so counters are derivable read-only (same approach core/review-convergence.ts already uses via resolveReviewRoundCount)."
+  ],
+  "constraints": [
+    "MUST NOT block healthy autonomous development: a converging 6-10-advance story must never trip; the user explicitly rejected human-ack-on-every-freeze.",
+    "Counters derived read-only from story.events/activity; no new event-emission coupling in the hot path.",
+    "Graduated: first pathological trip auto-recovers exactly once (re-baseline window, no human); only a re-trip freezes and requires a human ack.",
+    "The resume/ack command MUST refuse under autopilot / non-interactive mode so a looping agent cannot self-ack.",
+    "Thresholds env-tunable module constants mirroring the B-623a BURN_ALERT_ENV resolver (typo-safe fallback, per-variable sanity ceilings).",
+    "Freeze state is a gitignored runtime artifact (registry + .gitignore) so it never dirties the DONE merge (story-owner-lease.ts F-008 pattern).",
+    "Do NOT weaken the single legitimate forceTakeover human-override path; exclude the milestone_ledger_set hint and review_pass_set writer-identity gaps (owned by concurrent work)."
+  ],
+  "unknowns": [
+    "Exact enforcement insertion point: does the story_advance command handler in cli-engine.ts have a single pre-transition seam, and do takeover-carrying commands route through the same seam?",
+    "How is autopilot / non-interactive mode detected (LATTICE_AUTOPILOT env? a TTY check? an existing helper)? The ack refusal depends on it.",
+    "Windowing basis for takeover-frequency and pass-rate: wall-clock minutes vs a trailing count of events — which is already available cheaply from story.events?",
+    "Is the repeated-identical-gate-failure signal (INIT-002: same gate + same reason twice) derivable read-only from recorded events, or are gate rejections not persisted as events? If not derivable, that signal is scoped down and documented rather than faked.",
+    "Where breaker state should live so it is visible to both the advance handler and the resume command without a race with the owner lease."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/convergence-breaker.ts (new pure core: signal derivation + assessBreaker decision fn)",
+    "packages/main/src/cli-engine.ts (story_advance / takeover-command pre-transition breaker check + rejection render)",
+    "packages/main/src/core/runtime-artifact-registry.ts (register the gitignored breaker-state artifact)",
+    "packages/main/src/registry.ts (new story_resume ack command)",
+    "packages/main/src/core/review-convergence.ts + core/story-owner-lease.ts (event-scan + rejection-gate patterns to reuse, not reimplement)",
+    "packages/main/src/tasks/convergence-breaker-smoke.ts (new), .gitignore, package.json (test wiring)"
+  ],
+  "timestamp": "2026-07-13T23:23:07.463Z"
+}

@@ -6,7 +6,38 @@
       "context": "New core/convergence-breaker.ts. Read-only derive: (a) total story_advance count, (b) review pass-rate = review_pass_set/review_run_start over a windowed min-sample, (c) takeover frequency = lease-takeover events / takeover-flagged commands over a window. Pure decision fn assessBreaker(inputs) -> {tripped, reasons[], severity}. No I/O; mirror the purity discipline and event-scanning of core/review-convergence.ts (reuse resolveReviewRoundCount, do not reimplement round logic).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The new smoke prints: assessBreaker returns tripped=true reasons=[advance-count 89>20, pass-rate 31/131=24%<35%, takeover 65>5] for the B-f458 fixture, and tripped=false for the healthy 8-advance converging fixture.",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/convergence-breaker.ts"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A healthy converging story (8 advances, passing reviews, no takeover storm) yields assessBreaker tripped=false",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Pass-rate cannot trip below the min-sample review-run count (0 of 1 runs reads as insufficient sample, not 0%)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A malformed or missing review ledger makes assessBreaker fail open (tripped=false) and never throws",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
