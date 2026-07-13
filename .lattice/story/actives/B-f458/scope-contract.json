@@ -15,7 +15,8 @@
     "packages/main/src/core/store.ts",
     "packages/main/src/handlers/proofstory.ts",
     "packages/main/src/handlers/delivery-context-pack.ts",
-    "packages/main/src/handlers/phase-gates.ts"
+    "packages/main/src/handlers/phase-gates.ts",
+    "packages/main/src/handlers/review-run.ts"
   ],
   "allowedCreate": [
     "packages/main/src/core/closeout-trust.ts",
@@ -42,8 +43,8 @@
     ".lattice-codex/agents",
     ".claude/agents"
   ],
-  "scopeChangeReason": "Restore enforce scope after confirming candidate evidence escalation is independent of scope mode; pay the truthful full-corpus review cost.",
+  "scopeChangeReason": "DEV seam discovered during implementer type integration: handlers/review-run.ts must pass validated ledger and slice plan into the signed ReviewScopeBinding composite digest. No product or prompt scope expansion.",
   "acknowledgements": [],
   "createdAt": "2026-07-13T08:24:04.138Z",
-  "updatedAt": "2026-07-13T08:33:45.471Z"
+  "updatedAt": "2026-07-13T08:41:08.630Z"
 }
