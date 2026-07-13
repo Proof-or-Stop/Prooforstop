@@ -2740,6 +2740,33 @@
       ],
       "signatureTag": "prefilter-indirect-const-escape-bypass",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-f458:F-105",
+      "desc": "The new escaped, logical-reassignment, then/catch/finally, Promise.any/allSettled labels are process-pinned and the focused guard passes, but the async precision matrix is not fully executable. `catch returned local callback safe negative` is not in DYNAMIC_PROVENANCE_REACHABILITY_LABELS and its source (`Promise.reject(...).catch(() => localCallback)`) matches neither DYNAMIC_CODE_ANALYSIS_PREFILTER nor hasDynamicExecutionAstCandidate, so scanDynamicCodeGeneration returns [] before callbackParameterProvenance/type analysis; the label passes vacuously. The finally side has only `safe import .finally(() => eval)` as a negative, proving callback return is ignored when the source is safe, but no positive proves a dangerous source namespace remains dangerous through `.finally(() => safe)` or `.finally()` with no callback. Add the catch safe label to mechanically counted full-analysis reachability, add dangerous-through-finally positive variants plus matched safe/no-callback controls, and pin exact labels/reachability membership. This is distinct from open F-102/F-104 prefilter bypasses and F-103 callback-transform semantics.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-13T19:32:05.986Z",
+      "reviewRound": "2026-07-13T19:27:48.844Z",
+      "reviewRunId": "B-f458:RR-113",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Reviewed the complete 8569fbd4fa diff and full changed escaped-token AST candidate, critical-safe reachability, logical reassignment, then/catch/finally, Promise any/allSettled, shared execution, metrics, and process-pin sections; unchanged portions were triaged by name and no decisions-document escalation was needed."
+      },
+      "_hash": "1ee857652ecf57c0493a0496cce8aeb4af643a3c556c4f72abde6833e1ca91ce",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "async-safe-reachability-finally-matrix-gap",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
