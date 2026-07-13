@@ -386,7 +386,7 @@
       "desc": "F-014 fix wires closeout-aware reviewer freshness into the real TEST→DONE canFinishGuard and emits stale_closeout_review, but the recovery path deadlocks on the legitimate REVIEW→TEST lifecycle mutation. A review run/pass is necessarily captured in REVIEW; story_advance TEST then persists phase=TEST and events into index.json after that snapshot. index.json is not in REVIEW_RETENTION_PROTOCOL_METADATA_PATHS, so evaluateReviewRunMetadataRetention treats it as a changed unknown/untrusted artifact and invalidates the fresh REVIEW evidence at DONE. review_run_start/review_pass_set are allowed only in REVIEW, so TEST cannot create the post-transition snapshot needed to recover. The new smoke misses this because it initializes the persisted story directly in TEST and only exercises an in-memory FINISH actor; its synthetic fresh run is created after all metadata changes without executing the real REVIEW→TEST persistence step. Add a real lifecycle regression covering REVIEW run/pass → persisted story_advance TEST/index mutation → TEST→DONE, and classify/bind legitimate lifecycle index mutations so they do not authorize arbitrary closeout changes or deadlock DONE. Same-UID receipts remain correctly non-authoritative.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-13T10:29:19.492Z",
@@ -402,7 +402,11 @@
         "packages/main/src/core/command-policy.ts"
       ],
       "signatureTag": "missing|ts|wires-closeout-aware",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 0bc3da31f3: canonical persisted REVIEW-to-TEST index mutation is admitted only after exact signed-snapshot delta validation; normal flow no longer deadlocks, while extra title/stable/event/round/provenance mutation remains a closeout-review blocker. Production-source and contract assertions cover it.",
+      "resolvedAt": "2026-07-13T10:37:19.069Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
