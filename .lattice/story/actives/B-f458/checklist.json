@@ -54,11 +54,11 @@
           "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
           "command": "npm test",
           "result": "pass",
-          "note": "Full suite passes; closed path/writer contract now classifies local receipt ledger as unsigned L1 audit-only while the L4 runtime trust boundary remains gate-consumed.",
-          "headHash": "79f4a84f017b6a5b3097982e562f294266acca2e",
-          "materialHash": "92eefbdb41b59a1d8296c3bf1aaf71d666f8f2f4895e3ec08e64ab5bd5d6b16e",
-          "storyFilesHash": "c5dc7934120519a46c14380cafb19bfe084d3e04f7117d02108160f105082015",
-          "timestamp": "2026-07-13T10:26:34.591Z"
+          "note": "Full suite passes with closed artifact classification, audit-only receipts, and canonical REVIEW-to-TEST index transition validation.",
+          "headHash": "0bc3da31f3f5e26c2c76644bc56343c777c1e257",
+          "materialHash": "f0c2ac8f72d4e7e4ad1ea4a5ad93dee3b74b0719bbcc6a9873891e076082c76a",
+          "storyFilesHash": "ca890b72f160b1bd6dd014aa3defef7782852d7a6f289ee43fee5184997d2680",
+          "timestamp": "2026-07-13T10:36:12.721Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -66,11 +66,11 @@
           "file": "scripts/verify-process-fact-contract.mjs",
           "command": "npm test",
           "result": "pass",
-          "note": "Process contract rejects unknown paths/writers and mechanically requires the receipt artifact to have no consumerGate or gate-evidence semantic.",
-          "headHash": "79f4a84f017b6a5b3097982e562f294266acca2e",
-          "materialHash": "92eefbdb41b59a1d8296c3bf1aaf71d666f8f2f4895e3ec08e64ab5bd5d6b16e",
-          "storyFilesHash": "c5dc7934120519a46c14380cafb19bfe084d3e04f7117d02108160f105082015",
-          "timestamp": "2026-07-13T10:26:34.749Z"
+          "note": "Process contract pins exact transition validator and production collectContext event source; unknown paths/writers still fail.",
+          "headHash": "0bc3da31f3f5e26c2c76644bc56343c777c1e257",
+          "materialHash": "f0c2ac8f72d4e7e4ad1ea4a5ad93dee3b74b0719bbcc6a9873891e076082c76a",
+          "storyFilesHash": "ca890b72f160b1bd6dd014aa3defef7782852d7a6f289ee43fee5184997d2680",
+          "timestamp": "2026-07-13T10:36:12.852Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -78,11 +78,11 @@
           "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
           "command": "npm test",
           "result": "pass",
-          "note": "Traversal/alias/forged same-UID telemetry remains non-authoritative; full suite and closeout smoke pass.",
-          "headHash": "79f4a84f017b6a5b3097982e562f294266acca2e",
-          "materialHash": "92eefbdb41b59a1d8296c3bf1aaf71d666f8f2f4895e3ec08e64ab5bd5d6b16e",
-          "storyFilesHash": "c5dc7934120519a46c14380cafb19bfe084d3e04f7117d02108160f105082015",
-          "timestamp": "2026-07-13T10:26:34.917Z"
+          "note": "Broad index ignore is absent; traversal, wrong writer, same-UID receipt authority, and tampered index remain rejected.",
+          "headHash": "0bc3da31f3f5e26c2c76644bc56343c777c1e257",
+          "materialHash": "f0c2ac8f72d4e7e4ad1ea4a5ad93dee3b74b0719bbcc6a9873891e076082c76a",
+          "storyFilesHash": "ca890b72f160b1bd6dd014aa3defef7782852d7a6f289ee43fee5184997d2680",
+          "timestamp": "2026-07-13T10:36:12.981Z"
         }
       ]
     },
