@@ -265,7 +265,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-07-13T11:32:17.299Z",
+      "endTime": "2026-07-13T11:42:19.207Z",
       "userSees": "User runs the TEST roll-up regression and sees `PASS local closeout requires fresh review before TEST retention`; same-UID forged receipts and paired source/docs/scope mutations fail closed, while a fresh post-closeout review can continue TEST.",
       "verificationIntent": {
         "happy": [
@@ -316,33 +316,33 @@
           "kind": "logic_test",
           "command": "npm test",
           "result": "pass",
-          "note": "Full suite passed after narrow legacy delivery compatibility quarantine at commit 398ed6e6b5.",
-          "headHash": "3e9836675b3aac1141b4bb72b69e3da357886a1f",
-          "materialHash": "949f484ddebf989d9864095fd63b493a60406fdb9549301821ec4d09b6664f26",
-          "storyFilesHash": "30e73f2c05308009fc402ffe593470a57490f9a2ecdd44d5e0baaa7893eaf108",
-          "timestamp": "2026-07-13T11:32:17.445Z"
+          "note": "Full suite passed at d9f301399f, including canonical TEST closeout write behavior.",
+          "headHash": "dbbe27bbfea6e2ebfee35742dcbbefcfe2544d99",
+          "materialHash": "90f15839206772318007d79565d77df2790fb2399747a67c697139728b75140e",
+          "storyFilesHash": "ece10afc0df39a2ec04b025872be19ec512b30a00d91b9ad58cfed333007ccf8",
+          "timestamp": "2026-07-13T11:42:19.360Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
           "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "command": "npm run test:closeout-trust",
           "result": "pass",
-          "note": "Guard enforces exact approved compatibility importers, symbols, call counts, direct usages, and forbids constructor spreading.",
-          "headHash": "3e9836675b3aac1141b4bb72b69e3da357886a1f",
-          "materialHash": "949f484ddebf989d9864095fd63b493a60406fdb9549301821ec4d09b6664f26",
-          "storyFilesHash": "30e73f2c05308009fc402ffe593470a57490f9a2ecdd44d5e0baaa7893eaf108",
-          "timestamp": "2026-07-13T11:32:17.582Z"
+          "note": "Local-only closeout write and review freshness behavior passed at d9f301399f.",
+          "headHash": "dbbe27bbfea6e2ebfee35742dcbbefcfe2544d99",
+          "materialHash": "90f15839206772318007d79565d77df2790fb2399747a67c697139728b75140e",
+          "storyFilesHash": "ece10afc0df39a2ec04b025872be19ec512b30a00d91b9ad58cfed333007ccf8",
+          "timestamp": "2026-07-13T11:42:19.500Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
           "kind": "logic_test",
-          "command": "npm run test:closeout-trust",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
           "result": "pass",
-          "note": "Positive controls catch unapproved import+spread+call and direct retired tokens; exact false values and extra-key rejection remain covered.",
-          "headHash": "3e9836675b3aac1141b4bb72b69e3da357886a1f",
-          "materialHash": "949f484ddebf989d9864095fd63b493a60406fdb9549301821ec4d09b6664f26",
-          "storyFilesHash": "30e73f2c05308009fc402ffe593470a57490f9a2ecdd44d5e0baaa7893eaf108",
-          "timestamp": "2026-07-13T11:32:17.770Z"
+          "note": "Namespace, dynamic, require, direct re-export, alias, indirect-call, and property escape controls passed at d9f301399f.",
+          "headHash": "dbbe27bbfea6e2ebfee35742dcbbefcfe2544d99",
+          "materialHash": "90f15839206772318007d79565d77df2790fb2399747a67c697139728b75140e",
+          "storyFilesHash": "ece10afc0df39a2ec04b025872be19ec512b30a00d91b9ad58cfed333007ccf8",
+          "timestamp": "2026-07-13T11:42:19.640Z"
         }
       ]
     },
