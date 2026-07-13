@@ -144,11 +144,11 @@
           "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
           "command": "npm test",
           "result": "pass",
-          "note": "Composite scope binding remains deterministic across the persisted canonical REVIEW-to-TEST transition.",
-          "headHash": "c575107a3019a1db8cb151a8edec5c4c0f025ccd",
-          "materialHash": "f0c2ac8f72d4e7e4ad1ea4a5ad93dee3b74b0719bbcc6a9873891e076082c76a",
-          "storyFilesHash": "ca890b72f160b1bd6dd014aa3defef7782852d7a6f289ee43fee5184997d2680",
-          "timestamp": "2026-07-13T10:36:13.717Z"
+          "note": "Signed review run/pass/round and composite scope binding remain the authority across canonical transition metadata.",
+          "headHash": "04aad9511c90da424af96296235606fc98628dbe",
+          "materialHash": "8e6a95dbb62680ca990145a6b68956231d5215ddfa4a26f15b8f474e6595cc7c",
+          "storyFilesHash": "65b1228d759bf589057b72cfc03d92a1c53cb92ba967d17ed7e05dc4e4a6483a",
+          "timestamp": "2026-07-13T10:45:28.878Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -156,11 +156,11 @@
           "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
           "command": "npm test",
           "result": "pass",
-          "note": "Scope/round/stable index field changes invalidate retention; only exact phase plus one event delta is admitted.",
-          "headHash": "c575107a3019a1db8cb151a8edec5c4c0f025ccd",
-          "materialHash": "f0c2ac8f72d4e7e4ad1ea4a5ad93dee3b74b0719bbcc6a9873891e076082c76a",
-          "storyFilesHash": "ca890b72f160b1bd6dd014aa3defef7782852d7a6f289ee43fee5184997d2680",
-          "timestamp": "2026-07-13T10:36:13.848Z"
+          "note": "Round, scope, stable index, and event shape changes invalidate retention while optional user is accepted.",
+          "headHash": "04aad9511c90da424af96296235606fc98628dbe",
+          "materialHash": "8e6a95dbb62680ca990145a6b68956231d5215ddfa4a26f15b8f474e6595cc7c",
+          "storyFilesHash": "65b1228d759bf589057b72cfc03d92a1c53cb92ba967d17ed7e05dc4e4a6483a",
+          "timestamp": "2026-07-13T10:45:29.010Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -168,11 +168,11 @@
           "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
           "command": "npm test",
           "result": "pass",
-          "note": "Replay/substitution and index mutations cannot spoof composite binding or canonical transition provenance.",
-          "headHash": "c575107a3019a1db8cb151a8edec5c4c0f025ccd",
-          "materialHash": "f0c2ac8f72d4e7e4ad1ea4a5ad93dee3b74b0719bbcc6a9873891e076082c76a",
-          "storyFilesHash": "ca890b72f160b1bd6dd014aa3defef7782852d7a6f289ee43fee5184997d2680",
-          "timestamp": "2026-07-13T10:36:13.978Z"
+          "note": "Changing user/session/agent/timestamp/branch neither adds nor removes authority; malformed types remain rejected.",
+          "headHash": "04aad9511c90da424af96296235606fc98628dbe",
+          "materialHash": "8e6a95dbb62680ca990145a6b68956231d5215ddfa4a26f15b8f474e6595cc7c",
+          "storyFilesHash": "65b1228d759bf589057b72cfc03d92a1c53cb92ba967d17ed7e05dc4e4a6483a",
+          "timestamp": "2026-07-13T10:45:29.146Z"
         }
       ]
     },
