@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-3b05",
+  "allowedCommands": [
+    "git status/diff/log/add/commit/merge (local only)",
+    "lattice *",
+    "node packages/main/dist/tasks/* (smoke tests)",
+    "npm --prefix packages/main run build",
+    "npm install",
+    "npm run test:* (targeted suites)",
+    "npm run test:process-fact-contract",
+    "rg / grep / sed read-only inspection"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".lattice",
+    "docs/story",
+    "packages/main/src",
+    "packages/main/tests",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "git push"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Two gate-behavior fixes; provenance change touches review-pass types/signing/handler and possibly gate consumers — keep flow-fact two-layer contract green. No remote writes.",
+  "createdAt": "2026-07-13T23:15:52.501Z",
+  "updatedAt": "2026-07-13T23:15:52.501Z",
+  "_hash": "2fb8e60f6af6a05b9ab252d33e95e962697c60d84834410a627040d2719e6b28"
+}
