@@ -763,7 +763,17 @@ function assertCloseoutTrustBoundary() {
   assert(trustText.includes('isExactLegacyLocalOnlyDeliveryClaims'), 'closeout trust validator must consume the narrow compatibility validator');
   assert(deliveryText.includes('createLegacyLocalOnlyDeliveryClaims'), 'delivery-context producer must construct claims only through the narrow compatibility function');
   const retiredVocabularyGuardText = read('packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts');
-  for (const token of ['approvedLegacyDeliveryCompatUsages', 'scanLegacyDeliveryCompatibilityUsage', 'unapproved legacy delivery compatibility import', 'constructor result may not be spread']) {
+  for (const token of [
+    'approvedLegacyDeliveryCompatUsages',
+    'scanLegacyDeliveryCompatibilityUsage',
+    'scanLegacyDeliveryCompatibilityGraph',
+    'unapproved legacy delivery compatibility import',
+    'transitive legacy delivery compatibility import',
+    'legacy delivery compatibility symbol escape',
+    'legacy delivery compatibility alias/export escape',
+    'constructor result may not be spread',
+    'true two-hop consumer import through a patched approved exporter must be caught',
+  ]) {
     assert(retiredVocabularyGuardText.includes(token), `retired vocabulary guard must enforce narrow compatibility usage: ${token}`);
   }
   const scopeAckPolicy = parseCommandPolicyEntries().find(entry => entry.name === 'scope_contract_acknowledge');

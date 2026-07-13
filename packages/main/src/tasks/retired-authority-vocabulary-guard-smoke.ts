@@ -152,24 +152,28 @@ const LEGACY_DELIVERY_COMPAT_MODULE = 'packages/main/src/core/legacy-delivery-cl
 const approvedLegacyDeliveryCompatUsages = new Map<string, {
   symbols: readonly string[];
   calls: Readonly<Record<string, number>>;
+  occurrences: Readonly<Record<string, number>>;
   directUsePattern: RegExp;
   directUseCount: number;
 }>([
   ['packages/main/src/core/closeout-trust.ts', {
     symbols: ['isExactLegacyLocalOnlyDeliveryClaims', 'LegacyLocalOnlyDeliveryClaims'],
     calls: { isExactLegacyLocalOnlyDeliveryClaims: 1 },
+    occurrences: { isExactLegacyLocalOnlyDeliveryClaims: 2, LegacyLocalOnlyDeliveryClaims: 2 },
     directUsePattern: /if \(!isExactLegacyLocalOnlyDeliveryClaims\(claims\)\)/g,
     directUseCount: 1,
   }],
   ['packages/main/src/handlers/delivery-context-pack.ts', {
     symbols: ['createLegacyLocalOnlyDeliveryClaims', 'LegacyLocalOnlyDeliveryClaims'],
     calls: { createLegacyLocalOnlyDeliveryClaims: 2 },
+    occurrences: { createLegacyLocalOnlyDeliveryClaims: 3, LegacyLocalOnlyDeliveryClaims: 3 },
     directUsePattern: /claims:\s*createLegacyLocalOnlyDeliveryClaims\(\)/g,
     directUseCount: 2,
   }],
   ['packages/main/src/tasks/closeout-trust-smoke.ts', {
     symbols: ['createLegacyLocalOnlyDeliveryClaims'],
     calls: { createLegacyLocalOnlyDeliveryClaims: 1 },
+    occurrences: { createLegacyLocalOnlyDeliveryClaims: 2 },
     directUsePattern: /claims:\s*createLegacyLocalOnlyDeliveryClaims\(\)/g,
     directUseCount: 1,
   }],
@@ -376,12 +380,79 @@ function scanLegacyDeliveryCompatibilityUsage(file: string, text: string): Viola
       violations.push({ file, line: 1, label: 'legacy delivery compatibility call-count drift', text: `${symbol}: expected ${expectedCount}, got ${actualCount}` });
     }
   }
+  for (const [symbol, expectedCount] of Object.entries(approved.occurrences)) {
+    const actualCount = (text.match(new RegExp(`\\b${symbol}\\b`, 'g')) ?? []).length;
+    if (actualCount !== expectedCount) {
+      violations.push({ file, line: 1, label: 'legacy delivery compatibility symbol escape', text: `${symbol}: expected ${expectedCount} local occurrence(s), got ${actualCount}` });
+    }
+  }
   const directUseCount = (text.match(approved.directUsePattern) ?? []).length;
   if (directUseCount !== approved.directUseCount) {
     violations.push({ file, line: 1, label: 'legacy delivery compatibility usage drift', text: `expected ${approved.directUseCount} direct use(s), got ${directUseCount}` });
   }
   if (/\.\.\.\s*createLegacyLocalOnlyDeliveryClaims\s*\(/.test(text)) {
     violations.push({ file, line: 1, label: 'legacy delivery compatibility spread forbidden', text: 'constructor result may not be spread' });
+  }
+  const valueSymbols = Object.keys(approved.calls).join('|');
+  const escapePatterns = [
+    new RegExp(`\\bexport\\s+default\\s+(?:${valueSymbols})\\b`),
+    new RegExp(`\\bexport\\s*\\{[^}]*\\b(?:${valueSymbols})\\b[^}]*\\}`),
+    new RegExp(`\\bexport\\s+(?:const|let|var)\\s+\\w+\\s*=\\s*(?:${valueSymbols})\\b`),
+    new RegExp(`\\b(?:const|let|var)\\s+\\w+\\s*=\\s*(?:${valueSymbols})\\s*;`),
+    new RegExp(`\\b(?:module\\.exports|exports\\.\\w+|\\w+\\.\\w+)\\s*=\\s*(?:${valueSymbols})\\b`),
+    new RegExp(`\\{[^}]*\\b\\w+\\s*:\\s*(?:${valueSymbols})\\b[^}]*\\}`),
+  ];
+  if (escapePatterns.some(pattern => pattern.test(text))) {
+    violations.push({ file, line: 1, label: 'legacy delivery compatibility alias/export escape', text: 'compatibility value may only appear in its approved direct call site' });
+  }
+  return violations;
+}
+
+function directlyExportsCompatibilityBinding(file: string, text: string): boolean {
+  const approved = approvedLegacyDeliveryCompatUsages.get(file);
+  if (!approved) return false;
+  const values = Object.keys(approved.calls).join('|');
+  return new RegExp(`\\bexport\\s*\\{[^}]*\\b(?:${values})\\b[^}]*\\}`).test(text)
+    || new RegExp(`\\bexport\\s+default\\s+(?:${values})\\b`).test(text)
+    || new RegExp(`\\bexport\\s+(?:const|let|var)\\s+\\w+\\s*=\\s*(?:${values})\\b`).test(text);
+}
+
+function scanLegacyDeliveryCompatibilityGraph(fileTexts: ReadonlyMap<string, string>): Violation[] {
+  const violations: Violation[] = [];
+  const exporters = new Set<string>([normalizeModulePath(LEGACY_DELIVERY_COMPAT_MODULE)]);
+
+  for (const [file, text] of fileTexts) {
+    if (directlyExportsCompatibilityBinding(file, text)) exporters.add(normalizeModulePath(file));
+    for (const { specifier, index } of extractImportSpecifiers(text)) {
+      if (!moduleSpecifierResolvesTo(file, specifier, LEGACY_DELIVERY_COMPAT_MODULE)) continue;
+      if (/\bexport\s+(?:\*|\{[\s\S]*?\})\s+from\s*['"][^'"]+['"]/.test(text.slice(Math.max(0, index - 200), index + specifier.length + 100))) {
+        violations.push({ file, line: lineNumberAt(text, index), label: 'direct legacy delivery compatibility re-export', text: specifier });
+        exporters.add(normalizeModulePath(file));
+      }
+    }
+  }
+
+  let changed = true;
+  while (changed) {
+    changed = false;
+    for (const [file, text] of fileTexts) {
+      const normalizedFile = normalizeModulePath(file);
+      for (const { specifier, index } of extractImportSpecifiers(text)) {
+        if (!specifier.startsWith('.')) continue;
+        const target = normalizeModulePath(join(dirname(file), specifier).replace(/\\/g, '/'));
+        if (!exporters.has(target) || target === normalizeModulePath(LEGACY_DELIVERY_COMPAT_MODULE)) continue;
+        violations.push({
+          file,
+          line: lineNumberAt(text, index),
+          label: 'transitive legacy delivery compatibility import',
+          text: `${specifier} via ${target}`,
+        });
+        if (/\bexport\s+(?:\*|\{[\s\S]*?\})\s+from\s*['"]/.test(text.slice(Math.max(0, index - 200), index + specifier.length + 100)) && !exporters.has(normalizedFile)) {
+          exporters.add(normalizedFile);
+          changed = true;
+        }
+      }
+    }
   }
   return violations;
 }
@@ -487,6 +558,46 @@ function assertLegacyDeliveryCompatibilityPositiveControls(): void {
   );
   const directTokenViolations = scanText('<positive-control>', 'const leaked = { authorityDone: false };');
   assert.ok(directTokenViolations.some(violation => violation.label === 'authorityDone'), 'direct retired-field positive control must remain caught');
+
+  const approvedProducer = 'packages/main/src/handlers/delivery-context-pack.ts';
+  const patchedProducer = `${readRel(approvedProducer)}\nexport { createLegacyLocalOnlyDeliveryClaims };\n`;
+  const twoHopConsumer = 'packages/main/src/core/two-hop-consumer.ts';
+  const twoHopTexts = new Map<string, string>([
+    [approvedProducer, patchedProducer],
+    [twoHopConsumer, "import { createLegacyLocalOnlyDeliveryClaims } from '../handlers/delivery-context-pack.js';\nexport const leaked = createLegacyLocalOnlyDeliveryClaims();\n"],
+  ]);
+  const twoHopViolations = [
+    ...scanLegacyDeliveryCompatibilityUsage(approvedProducer, patchedProducer),
+    ...scanLegacyDeliveryCompatibilityGraph(twoHopTexts),
+  ];
+  assert.ok(twoHopViolations.some(violation => violation.label === 'legacy delivery compatibility alias/export escape'), 'patched approved importer export-list escape must be caught');
+  assert.ok(twoHopViolations.some(violation => violation.label === 'transitive legacy delivery compatibility import' && violation.file === twoHopConsumer), 'true two-hop consumer import through a patched approved exporter must be caught');
+
+  const matrix: Array<[string, string]> = [
+    ['namespace import', "import * as compat from './legacy-delivery-claims-compat.js';\ncompat.createLegacyLocalOnlyDeliveryClaims();"],
+    ['aliased named import', "import { createLegacyLocalOnlyDeliveryClaims as indirect } from './legacy-delivery-claims-compat.js';\nindirect();"],
+    ['dynamic import', "const compat = await import('./legacy-delivery-claims-compat.js');\ncompat.createLegacyLocalOnlyDeliveryClaims();"],
+    ['require import', "const compat = require('./legacy-delivery-claims-compat.js');\ncompat.createLegacyLocalOnlyDeliveryClaims();"],
+    ['direct re-export', "export { createLegacyLocalOnlyDeliveryClaims } from './legacy-delivery-claims-compat.js';"],
+  ];
+  for (const [label, source] of matrix) {
+    const matrixViolations = [
+      ...scanLegacyDeliveryCompatibilityUsage(controlFile, source),
+      ...scanLegacyDeliveryCompatibilityGraph(new Map([[controlFile, source]])),
+    ];
+    assert.ok(matrixViolations.length > 0, `${label} compatibility escape must be caught`);
+  }
+
+  for (const escape of [
+    'const indirect = createLegacyLocalOnlyDeliveryClaims; indirect();',
+    'exports.compat = createLegacyLocalOnlyDeliveryClaims;',
+    'export default createLegacyLocalOnlyDeliveryClaims;',
+    'const box = { emit: createLegacyLocalOnlyDeliveryClaims }; box.emit();',
+  ]) {
+    const patched = `${readRel(approvedProducer)}\n${escape}\n`;
+    const escapeViolations = scanLegacyDeliveryCompatibilityUsage(approvedProducer, patched);
+    assert.ok(escapeViolations.some(violation => violation.label.includes('escape')), `approved importer alias/property/default escape must be caught: ${escape}`);
+  }
 }
 
 function assertContract(): void {
@@ -602,14 +713,17 @@ const activeFiles = [
   ...activeTextFiles,
   ...activeTextDirs.flatMap(dir => listFiles(dir, ['.md', '.json', '.cjs', '.js', '.ts'])),
 ].filter((file, index, all) => all.indexOf(file) === index);
+const activeFileTexts = new Map<string, string>();
 
 for (const file of activeFiles) {
   if (!existsSync(join(repoRoot, file))) continue;
   const text = readRel(file);
+  activeFileTexts.set(file, text);
   violations.push(...scanText(file, text));
   violations.push(...scanImportSpecifiers(file, text));
   violations.push(...scanLegacyDeliveryCompatibilityUsage(file, text));
 }
+violations.push(...scanLegacyDeliveryCompatibilityGraph(activeFileTexts));
 
 for (const file of retiredFutureBacklogPlanFiles) {
   if (!existsSync(join(repoRoot, file))) continue;
