@@ -2440,7 +2440,7 @@
       "desc": "Standard URL precision is still incomplete for the `.href` form of an exact URL object. staticRuntimeModulePath recognizes import.meta.url and specially recognizes only `pathToFileURL(...).href`; a general PropertyAccess `new URL('./dynamic-code-esm-safe.js', import.meta.url).href` or `const target = new URL(...); import(target.href)` falls through without resolving the NewExpression/identifier base. The dynamic import is consequently marked unknown and a known safe export call is falsely rejected, even though importing the URL object itself is now a safe negative. Add generic symbol-checked URL `.href` projection (preserving query/hash normalization) and dangerous/safe direct plus aliased controls; keep shadowed URL objects conservative.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-13T18:31:49.307Z",
@@ -2460,7 +2460,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "url-href-static-resolution-gap",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 151eac3ea1: Static URL href and aliased URL object forms resolve exact safe modules while unknown targets remain conservative.",
+      "resolvedAt": "2026-07-13T18:56:27.525Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-094",
