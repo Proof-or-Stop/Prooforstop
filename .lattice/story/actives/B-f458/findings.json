@@ -731,7 +731,7 @@
       "desc": "The F-026 resolution overstates exact binding/call-site and unconditional export containment. `isApprovedValueUse` matches identifiers by text and only checks the immediate syntactic parent (`claims` PropertyAssignment or negated if); it does not resolve the identifier to the compatibility import binding, bind the call to its canonical source location/enclosing function, or reject an otherwise approved-shaped call nested inside an exported statement. `directlyExportsCompatibilityBinding` then derives exporters only from `disallowedCompatibilityValueReferences`, so a compatibility reference that satisfies the local parent shape is omitted even when its top-level ancestor is exported. The new padded-wrapper controls move a constructor call directly under `return`, which is disallowed, but do not cover relocation into an approved-shaped `claims` property under an exported wrapper, nor lexical shadowing of the imported name. This does not meet the recorded claim of exact TypeScript AST binding references / exact call sites / unconditional wrapper inspection. Use TypeScript symbol binding (or capture the imported local declaration and compare resolved references), bind approved calls to stable canonical AST ancestry/source anchors, and inspect every exported statement for compatibility-tainted bindings independently of whether the local use shape is approved.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-13T12:09:08.636Z",
@@ -744,7 +744,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "compat-ast-binding-callsite-containment",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by aa86b4d950 with TypeChecker symbol identity, canonical full call-site anchors, and unconditional export reachability. Same-name shadow controls remain clean and exported approved-shaped wrapper/object relocation controls reject.",
+      "resolvedAt": "2026-07-13T12:19:21.080Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
