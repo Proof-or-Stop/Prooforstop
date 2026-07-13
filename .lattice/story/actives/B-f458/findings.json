@@ -1277,6 +1277,25 @@
       ],
       "signatureTag": "dynamic-constructor-destructure-alias-bypass",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-f458:F-054",
+      "desc": "The project-wide checker is deliberately discarded exactly where global-vs-shadowed identity matters. `isGlobalIdentifier` now does `void checker` and relies only on `hasLexicalShadow`; that hand-written walker recognizes function parameters, catch variables, direct variable/function/class/import statements in SourceFile/Block/ModuleBlock, but not declarations in `for`/`for..of`/`for..in` initializers, case clauses, or enums/namespaces. A valid local loop such as `for (const eval of callbacks) { eval(\"import('./legacy-delivery-claims-compat.js')\"); }` is therefore classified as global eval and rejected as dynamic code even though TypeChecker resolves `eval` to the loop variable. The same issue affects a locally bound `require` in a loop, creating false loader violations. Existing shadow negatives cover functions, parameters, and ordinary variables only, so build, guard, and process-contract tests pass. Restore declaration-identity use: treat the resolved default-lib symbol as global, local source declarations as shadowing, and use lexical fallback only for unresolved synthetic sources; add for/for-of/case/enum shadow negatives plus global eval/Function positives. The shared Program guard also measured 19.55s wall time in this worktree (tests pass), so retain the one-program reuse while avoiding per-node/program reconstruction.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-13T14:44:02.490Z",
+      "reviewRound": "2026-07-13T14:41:39.202Z",
+      "reviewRunId": "B-f458:RR-072",
+      "_hash": "ea025c0016c8ec030431155464281a90485173b43c30db1f7fd61c2d5d571454",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "global-identifier-lexical-shadow-false-positive",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
