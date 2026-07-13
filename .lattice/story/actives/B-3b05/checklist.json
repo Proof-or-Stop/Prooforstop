@@ -1,0 +1,20 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Milestone coverage gap output includes an actionable milestone_ledger_set remediation hint",
+      "context": "uncovered_required_milestones and sibling milestone gaps (core/proofstory.ts ~1670-1690) currently only name missing milestone ids. Append a one-line remediation hint with the exact milestone_ledger_set command shape; when checklist/evidence coverage exists but ledger rows remain status=planned (B-f458 case: checklist 5/5 done vs 5x planned rows for 14h, tmp/bf458-forensics-2026-07-14/story-metadata/), say explicitly that the ledger is out of sync with delivered checklist coverage. Message-layer change only; no gate semantics change. Consumers: story_advance DONE output, done_prepare doneClosure step, milestone_status diagnostics where they surface these gaps.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "review_pass_set records writer session identity and validates it against the story owner lease session",
+      "context": "review_pass_set (packages/main/src/handlers/finding.ts:343-420) accepts caller-supplied agent labels with zero writer-identity validation (B-8038 root cause per user audit; B-3928 ('M0 Proof-or-Stop prompt baseline inventory and lockfile', DONE) shows owner self-signing two rounds at 19-56s/entry; B-f458 snapshot shows inter-pass gaps of 1-12s amid 131 run_start vs ~31 pass_set churn and 65 lease takeovers). Layer on provenance: persist the writing session id (story-owner-lease session identity source) into each review pass record and its signature domain, and reject or warn-flag passes whose writer session equals the story owner lease session. PLAN decides mechanism + rollout mode (shadow/warn/enforce) within documented limits: lease sessionId is process-local coordination, not forgery-proof (story-owner-lease.ts header), and EXP-001 (B-e71f) proved main-vs-subagent mechanical indistinguishability in Bash. Consider finding_add and review_run_start for the same treatment or record-only audit fields; gate consumption changes must keep the two-layer flow-fact contract (npm run test:process-fact-contract).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
