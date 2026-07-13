@@ -69,6 +69,29 @@
         "scanEscalationReason": null
       },
       "_hash": "60b5a6db74014f91e6dfc9bbf8e3c8882064d130d7f07d9d55982c3c2d06cdc9"
+    },
+    {
+      "id": "B-f458:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Persisted lifecycle coverage PASS: build plus closeout/process/runtime contracts exit 0. The smoke commits a real REVIEW snapshot and canonical REVIEW-to-TEST index delta, accepts that exact persisted lifecycle shape, then commits an extra title mutation and rejects it. Separately, a true XState TEST actor blocks FINISH after closeout under stale review and reaches DONE only after a fresh run/pass. Receipt remains L1 audit-only. All 15 evidence records pass and bind storyFilesHash ca890b7.",
+      "createdAt": "2026-07-13T10:38:25.505Z",
+      "reviewRound": "2026-07-13T10:36:52.850Z",
+      "reviewRunId": "B-f458:RR-018",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e01c855b45833477303a759dc4f8bb00ebd589223b639fd6057bce2dc8493314"
     }
   ]
 }
