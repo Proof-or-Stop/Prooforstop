@@ -2811,7 +2811,7 @@
       "desc": "The lazy full-analysis path incorrectly declares every uninitialized parameter an exact local safe execution target. isExactLocalSafeExecutionTarget returns true for `ts.isParameter(declaration) && !declaration.initializer`, regardless of its call-site value. Thus `function execute(run: (code: string) => unknown) { run(\"1+1\"); } execute(eval);` reaches full scanning but suppresses the inner `run(...)` before dynamic bindings/argument flow can classify it; the outer local execute call is also safe. A parameter is not proof of local implementation identity and must not bypass provenance analysis.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-13T19:58:27.058Z",
@@ -2822,7 +2822,11 @@
         "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|lazy-full-analysis",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 3115d67a5d: Uninitialized parameters are not safe and local callsite arguments merge recursively with all-callsites danger-wins.",
+      "resolvedAt": "2026-07-13T20:21:17.102Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-108",
