@@ -224,6 +224,32 @@
         "scanEscalationReason": null
       },
       "_hash": "45635adacc408510fbfdbe24206d7d0d682a6ef27a88d3cb4bdbcef59ee34c62"
+    },
+    {
+      "id": "B-f458:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage re-review PASS at story material 8c92521. The configured retired-authority-vocabulary guard command now exits 0 after build. Producer and validator share one canonical exact local-only claims contract; the precise all-false object validates, any true claim is rejected, and extra claims are rejected. Closeout lifecycle, wrapper-root escalation, incremental-context, process-fact, and runtime-fact suites all pass. All 15 verification intents retain passing evidence bound to the current storyFilesHash.",
+      "createdAt": "2026-07-13T11:25:25.427Z",
+      "reviewRound": "2026-07-13T11:23:40.844Z",
+      "reviewRunId": "B-f458:RR-030",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/baseline-contracts.ts",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/handlers/delivery-context-pack.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/review-escalation-freshness-root-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "92bc3f77b9089d4ecc533f6edb7eff6dfdd32f36286df397ec474663aaca089e"
     }
   ]
 }
