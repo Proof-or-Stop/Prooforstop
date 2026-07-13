@@ -178,6 +178,28 @@
         "scanEscalationReason": null
       },
       "_hash": "24679570a664ea33805ec20553de61288fbaf9b5903bedf9e3d3e8070d313cc0"
+    },
+    {
+      "id": "B-f458:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "No blocking quality issue: reviewer-required lifecycle verdict now rejects missing currentReviewRound before any legacy evidence validation; tampered signature, missing reviewRunId, and unknown run bindings remain invalid with matching FINISH/reason behavior. Wrapper-root uses a real round and passes, while incremental-context legitimate returning/first-time/rename cases remain intact and missing-round synthetic gate cases fail closed. Focused closeout, wrapper freshness, incremental context, and process-fact checks passed.",
+      "createdAt": "2026-07-13T11:13:12.982Z",
+      "reviewRound": "2026-07-13T11:11:32.543Z",
+      "reviewRunId": "B-f458:RR-028",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/src/tasks/review-escalation-freshness-root-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bbe24fa8882e44896be526772c0983c6cef34b23e82f8e379a216f7a0edbf0aa"
     }
   ]
 }
