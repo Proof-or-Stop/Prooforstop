@@ -1628,6 +1628,33 @@
       "resolvedAt": "2026-07-13T16:13:46.911Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-f458:F-067",
+      "desc": "knownMembers completeness and provenance remain fail-open for spread sources. provenanceForExpression treats an ArrayLiteral SpreadElement as one fixed positional member containing the whole spread expression, then unconditionally sets completeMembers:true. `declare const values: Array<typeof eval>; const source = [...values]; source[0](\"import(… )\")` therefore records member `0` as the non-callable array object, and dynamicReferenceKind returns safe at the knownMembersComplete short-circuit even though runtime element 0 is eval; dynamic `source[index]` likewise has no indexKinds. ObjectLiteral SpreadAssignment is only represented as `unknown:true`, but provenanceKind does not turn unknown into a dangerous target and no index/member provenance is copied, so `declare const values: Record<string, typeof eval>; const source = { ...values }; source.eval(\"import(… )\")` also evades. Model spread as an index/member projection (or propagate unknownMemberAccess/index fail-closed), never mark positional membership complete across unknown-length array spreads, and add positive array/object spread access/destructure controls plus local noncallable negatives.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-13T16:14:56.579Z",
+      "reviewRound": "2026-07-13T16:13:08.440Z",
+      "reviewRunId": "B-f458:RR-086",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Reviewed the complete change diff and focused provenance merge, completeness, member/index fallback, and controls; unrelated unchanged portions were name-triaged."
+      },
+      "_hash": "ea4cd207bc829fcdb39463e8f594d4511f55e4d011564113eb7a842953fea475",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "spread-source-provenance-completeness",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
