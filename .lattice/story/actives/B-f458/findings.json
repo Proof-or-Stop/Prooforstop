@@ -2898,6 +2898,24 @@
       ],
       "signatureTag": "adversarial|ts|exact-local-callable",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f458:F-111",
+      "desc": "Local parameter callsite propagation covers only direct CallExpression/NewExpression targets resolved by localCallableDeclarations; Function.prototype call/apply/bind invocation shapes are not mapped back to the local callable parameters. `function execute(run: (code: string) => unknown) { run(\"1+1\"); } execute.call(null, eval);` executes eval through `run`, but bindLocalCallArguments sees the builtin `.call` symbol rather than execute, the parameter receives no provenance, and both the outer trusted call method and inner unresolved parameter invocation escape classification. call/apply/bind argument semantics must be normalized or fail closed.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-13T20:23:43.833Z",
+      "reviewRound": "2026-07-13T20:20:44.390Z",
+      "reviewRunId": "B-f458:RR-118",
+      "_hash": "e58acebd478b6f468c56bbf99c31bb9188d257e5435a137679e7c16e8ea37aaa",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|local-parameter-callsite",
+      "signatureTagSource": "auto"
     }
   ]
 }
